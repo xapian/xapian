@@ -24,6 +24,7 @@
 
 #include <om/om.h>
 #include <fstream.h>
+#include <strstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>
@@ -125,7 +126,13 @@ void writeFileComments( OmWritableDatabase& db, string& fn, set< list<string> >&
     string word = *i;
     newdocument.add_posting(word, pos++); // term, position of term
   }
-  newdocument.set_data(fn); // return file name
+  ostrstream ost;
+  ost << file_comments.size() << " " << all_words.size() << " " << fn << ends;
+
+  newdocument.set_data(ost.str()); // return file name
+
+  ost.freeze(0);
+
   db.add_document(newdocument);
   
 }
