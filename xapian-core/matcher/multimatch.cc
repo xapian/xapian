@@ -331,8 +331,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	return;
     }
 
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
-
     Assert(!leaves.empty());
 
     // Start matchers
@@ -364,7 +362,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     // Get term info
-    termfreqandwts.clear();
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	vector<PostList * >::iterator pl_iter;
