@@ -45,11 +45,14 @@ using std::vector;
 
 string scvs_root;
 
+
 string scvs_log    = "cvs -l -f log -b ";
 string scvs_diff   = "cvs -l -f diff -N -b ";
 string scvs_update = "cvs -l -f update -p ";
 string slatest_version = "";
 string sversion    = "";
+
+unsigned int width = 40;
 
 bool use_html = false;
 bool short_html = false;
@@ -73,6 +76,7 @@ static unsigned int num_version = 0;
 static unsigned int max_version = 0;
 static unsigned int file_index = 1;
 static unsigned int file_offset = 1;
+
 
 
 static const int ssync_rate = 20;
@@ -103,9 +107,10 @@ main(unsigned int argc, const char **argv)
             soffset_db = argv[++i];
         } else if (!strcmp(argv[i], "-s")) {
             short_html = true;
-        } else if (!strcmp(argv[i], "-html") && i+2 < argc) {
+        } else if (!strcmp(argv[i], "-html") && i+3 < argc) {
             file_index = atoi(argv[++i]);
             sversion = argv[++i];
+            width = atoi(argv[++i]);
             use_html = true;
             read_mode = true;
         } else if (!strcmp(argv[i], "-r")) {

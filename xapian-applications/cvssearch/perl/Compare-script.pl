@@ -40,10 +40,19 @@ if (0) {
     compare_pkg_index(param("root"), param("pkg"));
 } elsif (param("version") eq "") {
     compare_file_index(param("root"), param("pkg"), param("fileid"));
-} elsif (param("short") eq "1") {
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), "1", param("latest"));
 } else {
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), "0", param("latest"));
+    my $short = param("short");
+    
+    if ($short ne "1") {
+        $short = "0";
+    }
+    
+    my $width = param("width");
+    if ($width eq "") {
+        $width = 40;
+    }
+    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), 
+                         $short, $width, param("latest"));
 }
 
 # ------------------------------------------------------------
@@ -357,25 +366,25 @@ sub compare_file_index {
         
         print "<hr noshade>\n";
         print "Default branch: MAIN\n";
-        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", $versions[0]);
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", 40, $versions[0]);
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
             print "<hr size=1 noshade>\n";
             print "<b>$filename</b>: inserted/modified lines in commit of version ";
             print "$versions[$i+1] => $versions[$i] matched with corresponding lines in latest version\n";
-            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]\">full</a>,\n";
-            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]\">short</a>\n";
+            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]&width=40\">full</a>,\n";
+            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]&width=40\">short</a>\n";
             print "<pre>$comments[$i]</pre>\n";
         }
         $i = $#versions;
         print "<hr size=1 noshade>\n";
         print "<b>$filename</b>: inserted lines in initial version ";
         print "$versions[$i] matched with corresponding lines in latest version\n";
-        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]\">full</a>,\n";
-        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]\">short</a>\n";
+        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]&width=40\">full</a>,\n";
+        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]&width=40\">short</a>\n";
         print "<pre>$comments[$i]</pre>\n";
         print "<hr noshade>\n";
-        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", $versions[0]);
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", 40, $versions[0]);
     } else {
         print "There are no commits for the file <b>$filename</b>, no diff result is available.\n";
     }
@@ -383,7 +392,7 @@ sub compare_file_index {
 }
 
 sub compare_file_version {
-    my ($root, $pkg, $fileid, $version, $short, $latest_version) = @_;
+    my ($root, $pkg, $fileid, $version, $short, $width, $latest_version) = @_;
     my $pkg1 = $pkg;
     $pkg1 =~tr/\//\_/;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
@@ -474,17 +483,17 @@ sub compare_file_version {
     print "</b><p>\n";
     
     print "<h1 align=center>aligned diff for $filename\n(";
-    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version\">full</a>,\n";
-    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version\">short</a>)\n";
+    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version&width=$width\">full</a>,\n";
+    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version&width=$width\">short</a>)\n";
     print "in commit of version $version</h1>\n";
     print "<pre class=popuplink>CVS comment:\n$comment</pre>\n";
-    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg1.db/$pkg1.db -html $fileid $version $short_flag -r $latest_version $filename |");
+    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg1.db/$pkg1.db -html $fileid $version $width $short_flag -r $latest_version $filename |");
     while (<OUTPUT>) {
         print $_;
     }
     close(OUTPUT);
     chdir ($pwd);
-    print_compare_form($root, $pkg, $fileid, $version, $short, $latest_version);
+    print_compare_form($root, $pkg, $fileid, $version, $short, $width, $latest_version);
     print "</body>\n";
     print "</html>\n";
 }
@@ -496,7 +505,7 @@ sub usage {
 }
 
 sub print_compare_form {
-    my ($root, $pkg, $fileid, $version, $short, $latest_version) = @_;
+    my ($root, $pkg, $fileid, $version, $short, $width, $latest_version) = @_;
     print "<form action=./Compare.cgi>\n";
     print "This form allows you to see the differences (aligned) occurred during commit $version ";
     print "and the propagation of the affected lines to a later version.<br>\n";
@@ -517,6 +526,7 @@ sub print_compare_form {
     }
     print "<option $selectedl value=0>long</option>\n";
     print "<option $selecteds value=1>short</option></select>\n";
+    print "column width should be <input type=text size=3 name=width value=\"$width\">\n";
     print "<input type=submit value=\"Get Aligned Diff\"><br>\n";
     
     print "</form>\n";

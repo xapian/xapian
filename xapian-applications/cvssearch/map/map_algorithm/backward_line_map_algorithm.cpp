@@ -33,6 +33,7 @@ extern bool read_mode;
 extern bool short_html;
 extern string sversion;
 extern string slatest_version;
+extern unsigned int width;
 
 void
 backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const cvs_log_entry & log_entry2, const diff & diff)
@@ -66,7 +67,7 @@ backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const 
                            _log.path_name(),
                            slatest_version,
                            entry1,
-                           entry2, diff, short_html);
+                           entry2, diff, short_html, width);
         cout << comp;
     }
 }

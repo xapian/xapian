@@ -55,7 +55,7 @@ private:
     const string & _pathname;
     diff _diff;
     bool _short;
-
+    unsigned int _width;
     unsigned int _diff_index;
     ostream & show  (ostream &) const;
     ostream & write (ostream &) const;
@@ -80,7 +80,8 @@ public:
                   const string & revision1, 
                   const string & revision2,
                   const diff & diff, 
-                  bool short_output);
+                  bool short_output,
+                  unsigned int col_width = 40);
     ~html_comparer();
 };
 

@@ -40,7 +40,8 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
                              const string & revision0, 
                              const string & revision1, 
                              const string & revision2, const diff & diff,
-                             bool  short_output)
+                             bool  short_output,
+                             unsigned int col_width)
     : _input1(input1),
       _input2(input2),
       _revision0(revision0),
@@ -49,7 +50,8 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
       _filename(filename),
       _pathname(pathname),
       _diff(diff),
-      _short(short_output)
+      _short(short_output),
+      _width(col_width)
 {
 
     p0 = p1 = p2 = 0;
@@ -249,10 +251,9 @@ html_comparer::write_line(ostream & os,
     {
         if ((pis0 && *pis0) || (pis1 && *pis1) || (pis2 && *pis2))
         {
-            unsigned int size = 40;
-            code_to_html converter0(line0, size);
-            code_to_html converter1(line1, size);
-            code_to_html converter2(line2, size);
+            code_to_html converter0(line0, _width);
+            code_to_html converter1(line1, _width);
+            code_to_html converter2(line2, _width);
             os << "<tr nowrap>";
             os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << index2;     os << " </td>";
             os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << converter2; os << " </td>";
