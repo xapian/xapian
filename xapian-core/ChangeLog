@@ -1,3 +1,8 @@
+Sun Dec 16 18:09:28 GMT 2001  Olly Betts <olly@survex.com>
+
+	* You can now register a match decider functor by name with an
+	  OmEnquire object.  It's not yet used for anything though.
+
 Sun Dec 16 17:31:08 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omtcpsrv: simplified arguments - just list database directories and

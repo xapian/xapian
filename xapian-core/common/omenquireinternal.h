@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,6 +169,8 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 */
 	OmErrorHandler * errorhandler;
 
+	std::map<std::string, const OmMatchDecider *> mdecider_map;
+
 	Data(const OmDatabase &databases,
 	     OmErrorHandler * errorhandler_);
 	~Data();
@@ -194,6 +197,10 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	OmTermIterator get_matching_terms(om_docid did) const;
 	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
+
+	void register_match_decider(const std::string &name,
+				    const OmMatchDecider *mdecider);
+    
 	std::string get_description() const;
 };
 

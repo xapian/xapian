@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1123,6 +1124,17 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
 						 matching_terms.end())));
 }
 
+void
+OmEnquire::Internal::Data::register_match_decider(const std::string &name,
+	const OmMatchDecider *mdecider)
+{
+    if (mdecider) {
+	mdecider_map[name] = mdecider;
+    } else {
+	mdecider_map.erase(name);
+    }
+}
+
 //////////////////////////
 // Methods of OmEnquire //
 //////////////////////////
@@ -1245,6 +1257,13 @@ OmTermIterator
 OmEnquire::get_matching_terms_end(om_docid did) const
 {
     return OmTermIterator(NULL);
+}
+
+void
+OmEnquire::register_match_decider(const std::string &name,
+				  const OmMatchDecider *mdecider)
+{
+    internal->data->register_match_decider(name, mdecider);
 }
 
 std::string
