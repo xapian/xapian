@@ -1,3 +1,10 @@
+Fri May 24 15:28:18 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Took out the string typemaps as swig now has them in stl.i
+	* Added om_percent to omtypes.i - I wonder if we might just
+	  read omtypes.h instead, as swig can
+	* Added OmMSetIterator and made changes to OmMSet
+
 Fri May 24 11:46:50 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Now support get_matching_terms via swig

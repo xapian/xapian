@@ -65,3 +65,5 @@ typedef string om_termname;
 
 /// A document name.  This is used when making a new document.
 typedef std::string om_docname;
+
+typedef int	om_percent;

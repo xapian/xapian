@@ -24,13 +24,13 @@
 %}
 %include typemaps.i
 
-%typemap(php4, out) string {
-  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
-}
-
-%typemap(php4, out) std::string {
-  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
-}
+//%typemap(php4, out) string {
+//  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
+//}
+//
+//%typemap(php4, out) std::string {
+//  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
+//}
 
 %typemap(php4, in) const OmSettings & {
   $1 = new OmSettings();

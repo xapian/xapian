@@ -25,6 +25,7 @@
  */
 #undef list
 #include "om/om.h"
+#include <om/omtypes.h>
 #include <om/omparsequery.h>
 #include <string>
 #include <vector>
@@ -41,7 +42,9 @@ enum om_queryop_values {
 };
 
 typedef OmQuery::op om_queryop;
+
 %}
+%include "stl.i"
 %include "om_util.i"
 %include "omstem.i"
 %include "omtypes.i"
@@ -86,34 +89,64 @@ class OmDocument {
     string get_description() const;
 };
 
+// This will want some hefty perl TIE magic to turn it into a hash of things
+// For now I'm just making sure it works for php
+class OmMSetIterator {
+  public:
+    OmDocument get_document() const;
+    om_percent get_percent() const;
+    om_weight get_weight() const;
+    om_doccount get_rank() const;
+    string get_description() const;
+  %extend {
+    om_docid get_docid() {
+      return *(*self);
+    }
+    void next() {
+      (*self)++;
+    }
+    bool equals(const OmMSetIterator &other) {
+      return (*self)==other;
+    }
+  }
+};
+
 class OmMSet {
-    public:
-	OmMSet();
-	~OmMSet();
+  public:
+    OmMSet();
+    ~OmMSet();
 
-	om_doccount size() const;
-	om_doccount get_matches_estimated() const;
-	om_doccount get_matches_lower_bound() const;
-	int convert_to_percent(om_weight wt) const;
-	om_weight get_termfreq(string tname) const;
-	om_doccount get_termweight(string tname) const;
-	om_doccount get_firstitem() const;
-	om_weight get_max_possible();
-	om_weight get_max_attained();
-//	int convert_to_percent(const OmMSetItem & item) const;
-	%extend {
-	  int get_document_percentage(om_doccount i) {
-	    return (*self).convert_to_percent( ((*self)[i]) );
-	  }
-	  const OmDocument get_document(om_doccount i) {
-	    return ((*self)[i]).get_document();
- 	  }
-	  const om_docid get_document_id(om_doccount i) {
-	    return *((*self)[i]);
- 	  }
-	}
-
-	string get_description() const;
+    om_doccount size() const;
+    om_doccount get_matches_estimated() const;
+    om_doccount get_matches_lower_bound() const;
+    om_weight get_termfreq(string tname) const;
+    om_doccount get_termweight(string tname) const;
+    om_doccount get_firstitem() const;
+    om_weight get_max_possible();
+    om_weight get_max_attained();
+    int convert_to_percent(const OmMSetIterator & item) const;
+    bool empty() const;
+    OmMSetIterator begin() const;
+    OmMSetIterator end() const;
+    OmMSetIterator back() const;
+    string get_description() const;
+  %extend {
+    OmMSetIterator get_hit(om_doccount i) {
+      return ((*self)[i]);
+    }
+    int convert_weight_to_percent(om_weight wt) const {
+      return (*self).convert_to_percent(wt);
+    }
+    int get_document_percentage(om_doccount i) {
+      return (*self).convert_to_percent( ((*self)[i]) );
+    }
+    const OmDocument get_document(om_doccount i) {
+      return ((*self)[i]).get_document();
+    }
+    const om_docid get_document_id(om_doccount i) {
+      return *((*self)[i]);
+    }
+  }
 
 //	%readonly
 	/* Each language-specific part should include something like:
@@ -288,11 +321,11 @@ class OmEnquire {
 			const OmMatchDecider *mdecider = 0) const;
 
 	%extend {
-		std::list<om_termname> get_matching_terms(om_docid did) const {
+		std::list<om_termname> get_matching_terms(const OmMSetIterator &hit) const {
 		  std::list<om_termname> terms;
-		  OmTermIterator term = self->get_matching_terms_begin(did);
+		  OmTermIterator term = self->get_matching_terms_begin(hit);
 
-		  while (term != self->get_matching_terms_end(did)) {
+		  while (term != self->get_matching_terms_end(hit)) {
 		    // check term was in the typed query so we ignore
 		    // boolean filter terms
 //		    if (termset.find(*term) != termset.end())
