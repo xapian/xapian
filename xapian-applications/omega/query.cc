@@ -918,10 +918,12 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_last:
 		value = int_to_string(last);
 		break;
-	    case CMD_lastpage:
-		value = int_to_string((mset.get_matches_lower_bound() - 1) /
-				      hits_per_page + 1);
+	    case CMD_lastpage: {
+		int l = mset.get_matches_lower_bound();
+		if (l > 0) l = (l - 1) / hits_per_page + 1;
+		value = int_to_string(l);
 		break;
+	    }
 	    case CMD_list: {
 		if (!args[0].empty()) {
 		    string pre, inter, interlast, post;
