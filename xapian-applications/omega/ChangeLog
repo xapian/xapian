@@ -1,3 +1,7 @@
+Wed Dec 12 15:43:19 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed TOPDOC clipping.
+
 Wed Dec 12 15:36:20 GMT 2001  Olly Betts <olly@survex.com>
 
 	* templates/query: Fixed typo which caused "..." to appear after
