@@ -1,4 +1,8 @@
-/* scanner for query strings */
+/* parsepage.ll: scanner for page templates
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 %option noyywrap
 

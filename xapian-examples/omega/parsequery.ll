@@ -1,4 +1,8 @@
-/* scanner for query strings */
+/* parsequery.ll: scanner for query strings
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 %option prefix="qlex"
 %option noyywrap
