@@ -41,6 +41,7 @@ OmQueryInternal query_from_string(string qs)
     
 //    cerr << "Reading from query " << qs << endl;
     OmQueryInternal retval = qfs_readquery();
+    DebugMsg("query_from_string(" << qs << ") = " << retval.serialise());
     Assert(retval.serialise() == qs);
 
     qfs_end();

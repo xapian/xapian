@@ -29,6 +29,7 @@
 #include "utils.h"
 #include <unistd.h>
 #include <memory>
+#include <strstream.h>
 
 /// The ProgServer constructor, taking two filedescriptors and a database.
 ProgServer::ProgServer(auto_ptr<MultiDatabase> db_,
@@ -52,13 +53,10 @@ ProgServer::~ProgServer()
 void
 ProgServer::send_local_stats(Stats stats)
 {
-    Assert(conversation_state == conv_sendlocal);
-    string mystatstr = stats_to_string(stats);
+    string mystatstr = string("MYSTATS ") + stats_to_string(stats);
 
     buf.writeline(mystatstr);
     DebugMsg("ProgServer::send_local_stats(): wrote " << mystatstr);
-
-    conversation_state = conv_getglobal;
 }
 
 Stats
@@ -74,83 +72,111 @@ ProgServer::run()
 {
     while (1) {
 	string message;
-	getline(cin, message);
-	vector<string> words;
 
-	split_words(message, words);
+	// Message 3 (see README_progprotocol.txt)
+	message = buf.readline();
 
-	if (words.empty()) {
-	    break;
-	};
-	if (words.size() == 2 && words[0] == "SETWEIGHT") {
-	    //cerr << "responding to SETWEIGHT" << endl;
+	if (message.substr(0, 8) != "SETQUERY") {
+	    cerr << "Expected SETQUERY, got " << message << endl;
+	    throw OmNetworkError("Invalid message");
+	}
+
+	message = message.substr(9, message.npos);
+
+	string wt_string;
+	// FIXME: use an iterator or something.
+	while (message.length() > 0 && isdigit(message[0])) {
+	    wt_string += message[0];
+	    message = message.substr(1);
+	}
+	message = message.substr(1);
+
+	{
+	    // extract the weighting type
 	    IRWeight::weight_type wt_type = 
 		    static_cast<IRWeight::weight_type>(
-		    atol(words[1].c_str()));
+				atol(wt_string.c_str()));
 	    match.set_weighting(wt_type);
-	    buf.writeline("OK");
-	} else if (words[0] == "SETQUERY") {
-	    OmQueryInternal temp =
-		    query_from_string(message.substr(9,
-						     message.npos));
-	    match.set_query(&temp);
-	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
-	    buf.writeline("OK");
-	} else if (words[0] == "ENDQUERY") {
-	    conversation_state = conv_sendlocal;
-	    send_local_stats(gatherer->get_local_stats());
-	} else if (words[0] == "GET_MSET") {
-	    //cerr << "GET_MSET: " << words.size() << " words" << endl;
-	    if (words.size() != 3) {
-		buf.writeline("ERROR");
-	    } else {
-		om_doccount first = atoi(words[1].c_str());
-		om_doccount maxitems = atoi(words[2].c_str());
-
-		read_global_stats();
-
-		vector<OmMSetItem> mset;
-		om_doccount mbound;
-		om_weight greatest_wt;
-
-		cerr << "About to get_mset(" << first
-			<< ", " << maxitems << "..." << endl;
-
-		match.match(first,
-			    maxitems,
-			    mset,
-			    msetcmp_forward,
-			    &mbound,
-			    &greatest_wt,
-			    0);
-
-		//cerr << "done get_mset..." << endl;
-
-		buf.writeline(inttostring(mset.size()));
-
-		//cerr << "sent size..." << endl;
-
-		for (vector<OmMSetItem>::iterator i=mset.begin();
-		     i != mset.end();
-		     ++i) {
-		    cout << i->wt << " " << i->did << endl;
-		    cout.flush();
-
-		    cerr << "MSETITEM: " << i->wt << " " << i->did << endl;
-		}
-		//cerr << "sent items..." << endl;
-
-		buf.writeline("OK");
-
-		//cerr << "sent OK..." << endl;
-	    }
-	} else if (words[0] == "GETMAXWEIGHT") {
-	    cout << match.get_max_weight() << endl;
-	    cout.flush();
-	} else {
-	    cout << "ERROR" << endl;
-	    cout.flush();
 	}
+
+	{
+	    // Extract the query
+	    if (message[0] != '\"' || message[message.length()-1] != '\"') {
+		throw OmNetworkError("Invalid query specification");
+	    } else {
+		message = message.substr(1, message.length() - 2);
+	    }
+	    OmQueryInternal temp = query_from_string(message);
+	    match.set_query(&temp);
+	}
+
+	// Message 4
+	send_local_stats(gatherer->get_local_stats());
+
+	// Message 5, part 1
+	message = buf.readline();
+
+	if (message.substr(0, 9) != "GLOBSTATS") {
+	    throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
+	}
+
+	global_stats = string_to_stats(message.substr(10));
+	have_global_stats = true;
+
+	// Message 5, part 2
+	message = buf.readline();
+
+	if (message.substr(0, 7) != "GETMSET") {
+	    throw OmNetworkError(string("Expected GETMSET, got ") + message);
+	}
+	message = message.substr(8);
+
+	om_doccount first;
+	om_doccount maxitems;
+	{
+	    // extract first,maxitems
+	    istrstream is(message.c_str());
+	    is >> first >> maxitems;
+	}
+
+	vector<OmMSetItem> mset;
+	om_doccount mbound;
+	om_weight greatest_wt;
+
+	cerr << "About to get_mset(" << first
+		<< ", " << maxitems << "..." << endl;
+
+	match.match(first,
+		    maxitems,
+		    mset,
+		    msetcmp_forward,
+		    &mbound,
+		    &greatest_wt,
+		    0);
+
+	cerr << "done get_mset..." << endl;
+
+	buf.writeline(string("MSETITEMS ") +
+		      inttostring(mset.size()) + " "
+		      + doubletostring(match.get_max_weight()));
+
+	cerr << "sent size, maxweight..." << endl;
+
+	for (vector<OmMSetItem>::iterator i=mset.begin();
+	     i != mset.end();
+	     ++i) {
+	    char charbuf[100];
+	    ostrstream os(charbuf, 100);
+	    os << "MSETITEM: " << i->wt << " " << i->did << ends;
+	    buf.writeline(charbuf);
+
+	    cerr << "MSETITEM: " << i->wt << " " << i->did << endl;
+	}
+	//cerr << "sent items..." << endl;
+
+	buf.writeline("OK");
+
+	//cerr << "sent OK..." << endl;
     }
 }
 

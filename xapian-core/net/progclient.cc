@@ -36,7 +36,9 @@
 ProgClient::ProgClient(string progname, string arg)
 	: socketfd(get_spawned_socket(progname, arg)),
 	  buf(socketfd),
-	  conv_state(state_getquery)
+	  conv_state(state_getquery),
+	  remote_stats_valid(false),
+	  global_stats_valid(false)
 {
 	do_write("HELLO!\n");
 
@@ -138,74 +140,44 @@ ProgClient::~ProgClient()
 void
 ProgClient::set_weighting(IRWeight::weight_type wt_type)
 {
-    do_simple_transaction(string("SETWEIGHT ") + inttostring(wt_type));
+    Assert(conv_state == state_getquery);
+    wt_string = inttostring(wt_type);
 }
 
 void
 ProgClient::set_query(const OmQueryInternal *query_)
 {
-    do_simple_transaction(string("SETQUERY ") + query_->serialise());
+    Assert(conv_state == state_getquery);
+    query_string = query_->serialise();
 } 
-
-Stats
-ProgClient::string_to_stats(const string &s)
-{
-    Stats stat;
-
-    istrstream is(s.c_str(), s.length());
-
-    is >> stat.collection_size;
-    is >> stat.average_length;
-
-    string word;
-    while (is >> word) {
-	if (word.length() == 0) continue;
-
-	if (word[0] == 'T') {
-            vector<string> parts;
-	    split_words(word.substr(1), parts, '=');
-
-	    if (parts.size() != 2) {
-		throw OmNetworkError(string("Invalid stats string word part: ")
-				     + word);
-	    }
-
-	    stat.termfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
-	} else if (word[0] == 'R') {
-            vector<string> parts;
-	    split_words(word.substr(1), parts, '=');
-
-	    if (parts.size() != 2) {
-		throw OmNetworkError(string("Invalid stats string word part: ")
-				     + word);
-	    }
-	    
-	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
-	} else {
-	    throw OmNetworkError(string("Invalid stats string word: ") + word);
-	}
-    }
-
-    return stat;
-}
 
 void
 ProgClient::finish_query()
 {
-    do_write(string("ENDQUERY"));
-    conv_state = state_getstats;
+    Assert(conv_state == state_getquery);
+    // Message 3 (see README_progprotocol.txt)
+    string message = "SETQUERY " +
+	             wt_string + " \"" +
+		     query_string + "\"";
+    do_write(message);
+
+    // Message 4
+    string response = do_read();
+    if (response.substr(0, 7) != "MYSTATS") {
+	throw OmNetworkError("Error getting statistics");
+    }
+    remote_stats = string_to_stats(response.substr(8, response.npos));
+    remote_stats_valid = true;
+
+    conv_state = state_getmset;
 }
 
 Stats
 ProgClient::get_remote_stats()
 {
-    Assert(conv_state == state_getstats);
+    Assert(remote_stats_valid);
 
-    string result = do_read();
-
-    conv_state = state_sendstats;
-
-    return string_to_stats(result);
+    return remote_stats;
 }
 
 void
@@ -249,9 +221,9 @@ string_to_msetitem(string s)
 void
 ProgClient::send_global_stats(const Stats &stats)
 {
-    Assert(conv_state == state_sendstats);
-    do_write(stats_to_string(stats));
-    conv_state = state_getmset;
+    Assert(conv_state == state_getmset);
+    global_stats = stats;
+    global_stats_valid = true;
 }
 
 void
@@ -261,16 +233,29 @@ ProgClient::get_mset(om_doccount first,
 		     om_doccount *mbound,
 		     om_weight *greatest_wt)
 {
-    do_write(string("GET_MSET ") +
-	     inttostring(first) + " " +
-	     inttostring(maxitems) + "\n");
-    
+    Assert(global_stats_valid);
+    Assert(conv_state == state_getmset);
 
+    // Message 5 (see README_progprotocol.txt)
+    string message = "GLOBSTATS " + stats_to_string(global_stats) + '\n';
+    message += "GETMSET " +
+	       inttostring(first) + " " +
+	       inttostring(maxitems);
+    do_write(message);
+
+    // Message 6
     string response = do_read();
-    if (response == "ERROR") {
-	throw OmNetworkError("Error getting mset");
+    if (response.substr(0, 9) != "MSETITEMS") {
+	throw OmNetworkError(string("Expected MSETITEMS, got ") + response);
     }
-    int numitems = atoi(response.c_str());
+    response = response.substr(10);
+
+    int numitems;
+    {
+	istrstream is(response.c_str());
+
+	is >> numitems >> remote_maxweight;
+    }
 
     for (int i=0; i<numitems; ++i) {
 	mset.push_back(string_to_msetitem(do_read()));
@@ -284,7 +269,5 @@ ProgClient::get_mset(om_doccount first,
 om_weight
 ProgClient::get_max_weight()
 {
-    string response = do_transaction_with_result("GETMAXWEIGHT");
-
-    return atof(response.c_str());
+    return remote_maxweight;
 }

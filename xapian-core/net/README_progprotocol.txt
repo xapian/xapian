@@ -6,19 +6,20 @@ Message 1:
 Direction: ProgClient->ProgServer
 Format: HELLO!
 Description: Greeting message (is abritrary ATM)
+When: At database opening time.
 
 Message 2:
 Direction: ProgServer->ProgClient
 Format: BOO!
 Description: Return of greeting (is abritrary ATM)
+When: At connection setting up time.
 
 Message 3:
 Direction: ProgClient->ProgServer
 Format: SETQUERY <weighting type> \
-		 <first item> \
-		 <maxitems> \
                  "<query string>"
 Description: The query, results to get, and weighting formula to use.
+When: At prepare_match() time
 
 Message 4:
 Direction: ProgServer->ProgClient
@@ -27,12 +28,15 @@ Description: The local database statistics
 
 Message 5:
 Direction: ProgClient->ProgServer
-Format: GLOBSTATS <serialised global stats>
-Description: The global statistics for all databases
+Format: GLOBSTATS <serialised global stats> \n\
+        GETMSET <firstitem> <maxitems>
+Description: The global statistics for all databases are sent,
+	     and the MSet requested.
+When: At get_mset() time.
 
 Message 6:
 Direction: ProgServer->ProgClient
-Format: MSETITEMS <items in MSET> \n\
+Format: MSETITEMS <items in MSET> <max weight>\n\
         MSETITEM: <weight> <docid> \n\
 	OK
 Description: The returned MSet.

@@ -383,6 +383,14 @@ LocalMatch::set_query(const OmQueryInternal *query_)
 
     // Remember query
     users_query = *query_;
+
+    // The query tree must be built here so that the statistics
+    // are calculated in time for network matches.
+    // Building it later only makes a difference if you set the
+    // query more than once anyway.
+    DebugMsg("LocalMatch::set_query() - Building query tree" << endl);
+    build_query_tree();
+    Assert(query != 0);
 }
 
 /// Build the query tree, if it isn't already built.
@@ -465,9 +473,6 @@ void
 LocalMatch::prepare_match()
 {
     if(!is_prepared) {
-	DebugMsg("LocalMatch::prepare_match() - Building query tree" << endl);
-	build_query_tree();
-	Assert(query != 0);
 
 	//DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
 	//statssource.contrib_my_stats();

@@ -22,9 +22,18 @@
 
 #include "utils.h"
 
-// Convert an integer to a string
+// Convert a number to a string
 #include <strstream.h>
 string inttostring(int a)
+{   
+    // Use ostrstream (because ostringstream often doesn't exist)
+    char buf[100];  // Very big (though we're also bounds checked)
+    ostrstream ost(buf, 100);
+    ost << a << ends;
+    return string(buf);
+}
+
+string doubletostring(double a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)

@@ -44,11 +44,30 @@ class ProgClient : public NetClient {
 
 	/// The conversation state
 	enum {
-	    state_getquery,  // Read the query and other info
-	    state_getstats,  // Read the local statistics from the remote end
-	    state_sendstats, // send the global statistics to the remote end
-	    state_getmset   // get the results of the query
+	    state_getquery,  // Accumulate the query and other info
+	    state_getmset    // Ready to call get_mset
 	} conv_state;
+
+	/// The weighting type to be used, as a string
+	string wt_string;
+
+	/// The current query, as a string
+	string query_string;
+
+	/// The remote statistics
+	Stats remote_stats;
+
+	/// If true, the remote_stats are valid
+	bool remote_stats_valid;
+
+	/// The global statistics ready to be sent to the remote end
+	Stats global_stats;
+
+	/// If true, the global_stats are valid
+	bool global_stats_valid;
+
+	/// The max weight from the remote match
+	om_weight remote_maxweight;
 
 	/// functions which actually do the work
 	string do_read();
@@ -63,11 +82,6 @@ class ProgClient : public NetClient {
 	 *  reply.  Throw an exception if the reply is "ERROR".
 	 */
 	string do_transaction_with_result(string msg);
-
-	/** Convert the string returned by GETSTATS into
-	 *  a Stats object.
-	 */
-	Stats string_to_stats(const string &s);
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.

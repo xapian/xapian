@@ -28,6 +28,9 @@
 // Convert an integer to a string
 string inttostring(int a);
 
+// Convert a double to a string
+string doubletostring(double a);
+
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //
 ///////////////////////////////////////////
