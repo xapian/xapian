@@ -3,7 +3,7 @@ AC_INIT(common/database.h)
 
 LIBOMUS_VERSION=0.1.0
 
-AM_INIT_AUTOMAKE(om, ${LIBOMUS_VERSION})
+AM_INIT_AUTOMAKE(om, ${LIBOMUS_VERSION}-cvs)
 AM_CONFIG_HEADER(config.h)
 
 dnl Add parameters for aclocal
