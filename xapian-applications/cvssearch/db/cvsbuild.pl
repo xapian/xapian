@@ -187,7 +187,7 @@ sub strip_last_slash() {
     my $path = $_[0];
     my $path_length = length($path);
     my $slash = rindex($path, "/");
-    if ($slash == $path_length) {
+    if ($slash == $path_length-1) {
         return substr($path, 0, $path_length-1);
     } else {
         return $path;
