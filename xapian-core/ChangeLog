@@ -1,3 +1,7 @@
+Tue Nov 30 21:53:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Updated for 0.8.4 release.
+
 Tue Nov 30 03:07:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,backends/database.cc,backends/quartz/bcursor.cc,

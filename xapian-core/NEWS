@@ -1,6 +1,4 @@
-Xapian-core 0.8.4 (2004-11-??):
-
-up to: Sat Nov 27 02:03:40 GMT 2004  Olly Betts <olly@survex.com>
+Xapian-core 0.8.4 (2004-11-30):
 
 API:
 
@@ -192,17 +190,23 @@ portability:
 * Compiles and passes testsuite with HP's aCC (we have to compile in
   ANSI mode, so we automatically add -AA to CXXFLAGS).
 
+* If the link test detects pread and pwrite are present, get configure to try
+  out prototypes for pread and pwrite.  This is much cleaner than trying to
+  find the right combination of preprocessor defines to get each platform's
+  system headers to provide prototypes.
+
 * configure: Disable probing for pread/pwrite on HP-UX as they're present but
-  don't work when LFS in enabled, and we definitely want LFS.
+  don't work when LFS (Large File Support) is enabled, and we definitely want
+  LFS.
 
 * Fixed some warnings from Sun's C++ compiler.
 
 * Provide our own C_isalpha(), etc replacements for isalpha(), etc
   which always work in the C locale and avoid signed char problems.
 
-* Improved what we do to turn on pread and pwrite declarations in unistd.h so
-  that it works on OSF and doesn't need the HAVE_GLIBC test, yet still works on
-  OpenBSD.
+* For mingw/cygwin, pass -no-undefined when linking libxapianqueryparser.la
+  so libtool builds a shared library.  Also pass the magic linker flag
+  -Wl,--enable-runtime-pseudo-reloc if configure has determined it is needed.
 
 * For cygwin, use the underlying MoveFile API call for locking, as link()
   doesn't work on FAT partitions.  And don't rely on HAVE_LINK to control
