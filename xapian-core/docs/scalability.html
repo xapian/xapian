@@ -24,7 +24,7 @@ database to eliminate most disk cache misses).
 compresses the information in the tables in ways which work well given the
 nature of the data but aren't too expensive to unpack (e.g. lists of sorted
 docids are stored as differences with smaller values encoded in fewer bytes).
-This could be improved a little using a bitstream instead of a bytestream.
+There is further potential for improving the encodings used.
 
 <P>Another way to reduce disk I/O is to run databases through quartzcompact.
 Quartz usually leaves some spare space in each block so that updates are more
@@ -116,12 +116,6 @@ The current limits are:
   a database so it can calculate the average document length.  This is
   currently stored as an unsigned 64-bit quantity so it's not likely to be a
   limit you'll hit.  I've listed it for completeness.
-
-<li>
-  Not a hard limit, but Quartz update isn't as fast as it could be, and this
-  currently can become a bottleneck as the database grows.  This is due to the
-  way new entries are merged in - we know how it could be improved, and it's
-  currently being addressed for Xapian 0.8.
 </ul>
 
 If you've further questions about scalability, ask on the mailing lists - people

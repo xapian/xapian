@@ -1,3 +1,9 @@
+Wed Apr 21 02:37:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/scalability.html: Removed the reference to the Quartz update
+	  bottleneck "currently being addressed for Xapian 0.8" as it's now
+	  been addressed!
+
 Wed Apr 21 00:24:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Corrected a comment.
