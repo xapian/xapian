@@ -2,24 +2,37 @@ dnl acinclude.m4
 dnl
 dnl @synopsis TYPE_SOCKLEN_T
 dnl
-dnl Check whether sys/socket.h defines type socklen_t. Please note
-dnl that some systems require sys/types.h to be included before
-dnl sys/socket.h can be compiled.
+dnl Check to see what type we should pass where some systems want socklen_t.
+dnl Note that some versions of HP-UX define socklen_t yet want int, so just
+dnl checking if socklen_t is defined isn't good enough.
 dnl
-dnl @version $Id$
-dnl @author Lars Brinkhoff <lars@nocrew.org>
+dnl Loosely based on:
+dnl http://mail.gnome.org/archives/xml/2001-August/msg00061.html
 dnl
+dnl Original author: Albert Chin
 AC_DEFUN([TYPE_SOCKLEN_T],
-[AC_CACHE_CHECK([for socklen_t], ac_cv_type_socklen_t,
 [
-  AC_TRY_COMPILE(
-  [#include <sys/types.h>
-   #include <sys/socket.h>],
-  [socklen_t len = 42; return 0;],
-  ac_cv_type_socklen_t=yes,
-  ac_cv_type_socklen_t=no)
-])
-  if test $ac_cv_type_socklen_t != yes; then
-    AC_DEFINE(socklen_t, int, [Define if neither sys/types.h nor sys/socket.h defines socklen_t])
-  fi
+  AC_MSG_CHECKING([for type to use for 5th parameter to getsockopt])
+  AC_CACHE_VAL([xo_cv_socklen_t_equiv],
+  [
+    for t in socklen_t int size_t unsigned long "unsigned long"; do
+      AC_TRY_COMPILE([
+	#include <sys/types.h>
+        #include <sys/socket.h>
+      ],[
+	$t len;
+	getsockopt(0, 0, 0, 0, &len);
+      ],[
+        xo_cv_socklen_t_equiv="$t"
+        break
+      ])
+    done
+    if test -z "$xo_cv_socklen_t_equiv"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR([Failed to find type for 5th parameter to getsockopt])
+    fi
+  ])
+  AC_MSG_RESULT([$xo_cv_socklen_t_equiv])
+  AC_DEFINE_UNQUOTED(SOCKLEN_T, [$xo_cv_socklen_t_equiv],
+		     [type to use for 5th parameter to getsockopt])
 ])

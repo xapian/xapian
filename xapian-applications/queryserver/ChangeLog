@@ -1,3 +1,7 @@
+Wed Nov 03 01:21:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* acinclude.m4: Updated TYPE_SOCKLEN_T macro.
+
 Tue Nov 02 05:52:15 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bumped version number to 0.8.3 so that the CVS
