@@ -1,3 +1,8 @@
+Wed Nov 17 04:29:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add simple code to index OpenOffice documents.
+	* docs/overview.txt: Update documentation to mention this.
+
 Tue Nov 09 03:04:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,Makefile.am: We now get -AA or -std strict_ansi from

@@ -384,6 +384,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    return;
 	}
 
+	// FIXME: run pdfinfo once and parse the output ourselves
 	try {
 	    title = stdout_to_string("pdfinfo " + safefile +
 				     "|sed 's/^Title: *//p;d'");
@@ -404,6 +405,69 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
+	}
+    } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml.") {
+	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
+	string safefile = shell_protect(file);
+#define OOO_XML_SED_DECODE_ENTITIES \
+	"'s/&lt;/</g;s/&gt;/>/g;s/&apos;/'\\''/g;s/&quot;/\"/g;s/&amp;/\\&/g'"
+	string cmd = "unzip -p " + safefile + " content.xml"
+		     "|sed 's/<[^>]*>/ /g;'"OOO_XML_SED_DECODE_ENTITIES;
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
+
+	// FIXME: unzip meta.xml once and parse the output ourselves
+	try {
+	    cmd = "unzip -p " + safefile + " meta.xml"
+		  "|sed 's/.*<dc:title>\\([^<]*\\).*/\\1/p;d'"
+		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
+	    title = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    title = "";
+	}
+
+	try {
+	    // e.g.:
+	    // <meta:keywords>
+	    // <meta:keyword>information retrieval</meta:keyword>
+	    // </meta:keywords>
+	    cmd = "unzip -p " + safefile + " meta.xml"
+		  "|sed 's/.*<meta:keywords>//;s!</meta:keywords>.*!!;"
+			"s/<[^>]*>/ /g;'"OOO_XML_SED_DECODE_ENTITIES;
+	    keywords = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    keywords = "";
+	}
+
+	try {
+	    // dc:subject is "Subject and Keywords":
+	    // "Typically, Subject will be expressed as keywords, key phrases
+	    // or classification codes that describe a topic of the resource."
+	    // OpenOffice uses meta:keywords for keywords - dc:subject
+	    // comes from a text field labelled "Subject.  Let's just treat
+	    // it as more keywords.
+	    cmd = "unzip -p " + safefile + " meta.xml"
+		  "|sed 's/.*<dc:subject>\\([^<]*\\).*/\\1/p;d'"
+		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
+	    string subject = stdout_to_string(cmd);
+	    if (!subject.empty()) {
+		keywords += ' ';
+		keywords += subject;
+	    }
+	} catch (ReadError) {
+	}
+
+	try {
+	    cmd = "unzip -p " + safefile + " meta.xml"
+		  "|sed 's/.*<dc:description>\\([^<]*\\).*/\\1/p;d'"
+		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
+	    sample = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    sample = "";
 	}
     } else {
 	// Don't know how to index this
@@ -575,6 +639,17 @@ main(int argc, char **argv)
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
+    // OpenOffice/StarOffice documents:
+    mime_map["sxc"] = "application/vnd.sun.xml.calc";
+    mime_map["stc"] = "application/vnd.sun.xml.calc.template";
+    mime_map["sxd"] = "application/vnd.sun.xml.draw";
+    mime_map["std"] = "application/vnd.sun.xml.draw.template";
+    mime_map["sxi"] = "application/vnd.sun.xml.impress";
+    mime_map["sti"] = "application/vnd.sun.xml.impress.template";
+    mime_map["sxm"] = "application/vnd.sun.xml.math";
+    mime_map["sxw"] = "application/vnd.sun.xml.writer";
+    mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
+    mime_map["stw"] = "application/vnd.sun.xml.writer.template";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {

@@ -165,12 +165,18 @@ products would no longer come up in a search of the product
 site. (Note that the --no-recurse option may come in handy if you have
 sites '/product' and '/product/large', or similar.)
 
-Currently omindex can index HTML (.html, .htm, .shtml) and text files
-(.txt, .text), and PostScript (.ps, .eps, .ai) if pstotext is
-available, and PDF (.pdf) if pdftotext is available. If you have
-additional extensions that represent one of these types, you need to
-add an additional MIME mapping using the --mime-type option. For
-instance:
+Currently omindex can index:
+
+* HTML (.html, .htm, .shtml)
+* PHP (.php) - our HTML parser knows to ignore PHP code
+* text files (.txt, .text)
+* PDF (.pdf) if pdftotext is available
+* PostScript (.ps, .eps, .ai) if pstotext is available
+* OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
+  .sxw, .sxg, .stw) if unzip is available
+
+If you have additional extensions that represent one of these types, you need
+to add an additional MIME mapping using the --mime-type option. For instance:
 
 $ omindex --db /www/omega --url '/press' /www/example/press
           --mime-type 'doc:application/postscript'
@@ -181,8 +187,18 @@ of:
 
     text/html
     text/plain
-    application/postscript
     application/pdf
+    application/postscript
+    application/vnd.sun.xml.calc
+    application/vnd.sun.xml.calc.template
+    application/vnd.sun.xml.draw
+    application/vnd.sun.xml.draw.template
+    application/vnd.sun.xml.impress
+    application/vnd.sun.xml.impress.template
+    application/vnd.sun.xml.math
+    application/vnd.sun.xml.writer
+    application/vnd.sun.xml.writer.global
+    application/vnd.sun.xml.writer.template
 
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
