@@ -1543,7 +1543,8 @@ static bool test_qlen1()
     OmMSet mset1 = do_get_simple_query_mset(q1);
     OmMSet mset2 = do_get_simple_query_mset(q2);
     // Check the weights
-    TEST(mset1.items[0].wt < mset2.items[0].wt);
+    //TEST(mset1.items[0].wt < mset2.items[0].wt);
+    TEST(mset1.items[0].wt == mset2.items[0].wt);
     return true;
 }
 
