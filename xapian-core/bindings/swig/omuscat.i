@@ -122,9 +122,58 @@ class OmESet {
 	%readwrite
 };
 
-// TODO: OmDocumentContents
-// TODO: OmBatchEnquire
-// TODO: OmSettings
+class OmBatchEnquire {
+    public:
+        OmBatchEnquire(const OmDatabaseGroup &databases);
+        ~OmBatchEnquire();
+
+#ifdef UNDEFINED
+	void set_queries(const query_batch &queries_);
+
+	class batch_result {
+	    public:
+		batch_result(const OmMSet &mset, bool isvalid_);
+		OmMSet value() const;
+		bool is_valid() const { return isvalid; }
+	};
+
+	typedef vector<batch_result> mset_batch;
+
+	mset_batch get_msets() const;
+
+	const OmDocument get_doc(om_docid did) const;
+
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
+
+	om_termname_list get_matching_terms(om_docid did) const;
+
+	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+#endif
+};
+
+class OmSettings {
+    public:
+	OmSettings();
+	~OmSettings();
+
+	void set_value(const string &key, const string &value);
+
+	string get_value(const string &key) const;
+	// TODO: make this look like a Dict/hash/whatever?
+};
+
+struct OmDocumentTerm {
+    OmDocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
+
+    om_termname tname;
+    om_termcount wdf;
+
+    //TODO: sort out access to term_positions
+    typedef vector<om_termpos> term_positions;
+    term_positions positions;
+    om_doccount termfreq;
+    void add_posting(om_termpos tpos = 0);
+};
 
 struct OmDocumentContents {
     /** The (user defined) data associated with this document. */
@@ -136,6 +185,7 @@ struct OmDocumentContents {
     /** The keys associated with this document. */
     document_keys keys;
 
+    // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
     typedef map<om_termname, OmDocumentTerm> document_terms;
 

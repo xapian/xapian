@@ -1,3 +1,10 @@
+Wed Jun 14 17:37:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* All classes except Om*Decider now added, although some are
+	  incomplete.  OmBatchEnquire, OmDocumentContents, and
+	  OmDocumentTerm need more work, but the rest should be
+	  usable, at least from Python.
+
 Wed Jun 14 17:02:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added docs/distributed.txt to the distribution tarfile. (Oops!)
