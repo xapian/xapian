@@ -1,7 +1,11 @@
+Mon Jun 10 14:46:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed typo in recent quartzdump change.
+
 Mon Jun 10 13:20:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* Quartz clean-ups - especially QuartzTermList.
-	
+
 Mon Jun 10 12:18:40 BST 2002  Olly Betts <olly@survex.com>
 
 	* Bcursor_create made a method of class Btree as suggested by a FIXME.

@@ -33,7 +33,7 @@
 
 #include "getopt.h"
 
-using namespace stdl
+using namespace std;
 
 static string hex_encode(const string & input) {
     const char * table = "0123456789abcdef";
