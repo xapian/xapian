@@ -243,14 +243,17 @@ InMemoryPostList::get_termfreq() const
 inline docid
 InMemoryPostList::get_docid() const
 {   
+    //DebugMsg(tname << ".get_docid()");
     Assert(started);
     Assert(!at_end());
+    //DebugMsg(" = " << (*pos).did << endl);
     return (*pos).did;
 }
 
 inline PostList *
 InMemoryPostList::next(weight w_min)
 {
+    //DebugMsg(tname << ".next()" << endl);
     if(started) {
 	Assert(!at_end());
 	pos++;
@@ -263,6 +266,7 @@ InMemoryPostList::next(weight w_min)
 inline PostList *
 InMemoryPostList::skip_to(docid did, weight w_min)
 {
+    //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
     // the remaining list may NOT be a good idea (search time is then
@@ -270,6 +274,7 @@ InMemoryPostList::skip_to(docid did, weight w_min)
     // Since we will frequently only be skipping a short distance, this
     // could well be worse.
     Assert(!at_end());
+    started = true;
     while (!at_end() && (*pos).did < did) {
 	(void) next(w_min);
     }
