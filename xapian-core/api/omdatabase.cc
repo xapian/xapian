@@ -41,22 +41,6 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "",			OM_DBTYPE_NULL		}  // End
 };
 
-void
-OmDatabaseGroup::Internal::add_database(const string & type,
-					const vector<string> & paths)
-{
-    // Convert type into an om_database_type
-    om_database_type dbtype = OM_DBTYPE_NULL;
-    dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
-    // Prepare parameters to build database with (opening it readonly)
-    DatabaseBuilderParams dbparam(dbtype, true);
-    dbparam.paths = paths;
-
-    // Add dbparam to the list of database parameters
-    params.push_back(dbparam);
-}
-
 OmWritableDatabase::Internal::Internal(const string & type,
 				       const vector<string> & paths)
 {
@@ -93,7 +77,8 @@ OmDatabaseGroup::OmDatabaseGroup(const OmDatabaseGroup &other)
     internal = new Internal(*other.internal);
 }
 
-void OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
+void
+OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 {
     // we get these locks in a defined order to avoid deadlock
     // should two threads try to assign two databases to each
@@ -108,10 +93,56 @@ void OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
     delete newinternal;
 }
 
-void OmDatabaseGroup::add_database(const string &type,
-				   const vector<string> &params)
+void
+OmDatabaseGroup::add_database(const string &type,
+			      const vector<string> &params)
 {
     OmLockSentry locksentry(internal->mutex);
 
     internal->add_database(type, params);
+}
+
+
+//////////////////////////////////////////
+// Methods of OmDatabaseGroup::Internal //
+//////////////////////////////////////////
+
+void
+OmDatabaseGroup::Internal::add_database(const string & type,
+					const vector<string> & paths)
+{
+    // Convert type into an om_database_type
+    om_database_type dbtype = OM_DBTYPE_NULL;
+    dbtype = stringToTypeMap<om_database_type>::get_type(type);
+
+    // Prepare parameters to build database with (opening it readonly)
+    DatabaseBuilderParams dbparam(dbtype, true);
+    dbparam.paths = paths;
+
+    // Add dbparam to the vector of database parameters
+    params.push_back(dbparam);
+}
+
+OmRefCntPtr<MultiDatabase>
+OmDatabaseGroup::Internal::get_multi_database()
+{
+#if 0
+    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
+    multiparams.subdbs = dbdesc.internal->params;
+    auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
+
+    // FIXME: we probably need a better way of getting a
+    // MultiDatabase to avoid the dynamic_cast.
+    database = dynamic_cast<MultiDatabase *>(tempdb.get());
+
+    if (database == 0) {
+	// it wasn't really a MultiDatabase...
+	Assert(false);
+    } else {
+	// it was good - don't let the auto_ptr delete it.
+	tempdb.release();
+    }
+
+    return multidb;
+#endif
 }

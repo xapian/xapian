@@ -41,7 +41,12 @@ Priority | Area            | Task
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
- Medium  | Purify          | Write autoconf macro to turn on purify support.
+ Medium  | Databases       | Make OmDatabaseGroup::Internal return same
+         |                 | multidatabase object if get_multi_database() is
+	 |                 | called repeatedly without calling add_database()
+	 |                 | in-between.
+---------+-----------------+--------------------------------------------------
+ Low     | Purify          | Write autoconf macro to turn on purify support.
          |                 | Submit to http://peti.cys.de/autoconf-archive/
 ---------+-----------------+--------------------------------------------------
  Medium  | Options         | Make an OmOptions object, storing a map of

@@ -25,6 +25,7 @@
 #include "database.h"
 #include "multi_database.h"
 #include "omlocks.h"
+#include "omrefcnt.h"
 #include <vector>
 #include <memory>
 #include <algorithm>
@@ -46,6 +47,9 @@ class OmEnquireInternal {
 	 *  These are specified in the constructor, and are opened lazily,
 	 *  by calling OmEnquireInternal::open_database();
 	 */
+
+	// Will be this, when we get ref counting stuff sorted out.
+	//mutable OmRefCntPtr<MultiDatabase> database;
 	mutable MultiDatabase * database;
 
 	/** A copy of the OmDatabaseGroup object used to specify the database

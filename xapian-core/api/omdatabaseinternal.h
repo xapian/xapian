@@ -27,23 +27,39 @@
 
 #include <om/omenquire.h>
 #include "omlocks.h"
+#include "omrefcnt.h"
 #include "database_builder.h"
+#include "multi_database.h"
 
 //////////////////////////////////
 // Internals of OmDatabaseGroup //
 //////////////////////////////////
+
+/** The implementation for OmDatabaseGroup.
+ */
 class OmDatabaseGroup::Internal {
     public:
 	Internal() {}
 	Internal(const Internal &other)
 		: params(other.params), mutex() {}
 
+	/** The parameters to be used to create the database.
+	 */
 	vector<DatabaseBuilderParams> params;
 
+	/** Mutex to protect access to these internals.
+	 */
 	OmLock mutex;
 
+	/** Add a database to the group, based on parameters.
+	 */
 	void add_database(const string & type,
 			  const vector<string> & paths);
+
+	/** Get a reference counted pointer to a MultiDatabase
+	 *  containing all the entries in the group.
+	 */
+	OmRefCntPtr<MultiDatabase> get_multi_database();
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H
