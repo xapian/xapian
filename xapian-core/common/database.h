@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "omassert.h"
+
 #include "omtypes.h"
 #include "error.h"
 
@@ -21,11 +23,21 @@ class PostList {
 	virtual weight get_weight() const = 0;    // Gets current weight
 
 	virtual void   next() = 0;          // Moves to next docid
-	virtual void   skip_to(docid) = 0;  // Moves to next docid >= specified docid
+	virtual void   skip_to(docid);  // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
 };
+
+// naive implementation for database that can't do any better
+inline void
+PostList::skip_to(docid id)
+{
+    Assert(!at_end());
+    while (!at_end() && get_docid() < id) {
+	next();
+    }
+}
 
 class TermList {
     private:
