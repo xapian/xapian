@@ -16,10 +16,16 @@ EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
 define build-perl-script
 $(PERL) -I $(srcdir) -c $(firstword $^)
 rm -rf $@
-echo "#! " $(PERL) > $@
+echo "#!" $(PERL) > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef
+
+cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
+	$(build-perl-script)
+
+code_comment_extractor: $(srcdir)/code_comment_extractor.pl
+	$(build-perl-script)
 
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)

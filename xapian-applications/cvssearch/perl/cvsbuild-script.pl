@@ -1,5 +1,3 @@
-# -* perl *-
-
 use strict;
 use cvssearch;
 
@@ -261,33 +259,21 @@ sub cvsbuild {
                     }
                     close(SIZE);
 
-                    open(LIST, "<$list_file") || die "cannot create temporary file list\n";
-                    my $line2 = 0;
-                    my $line1 = 0;
+                    my $cvs_words;
+                    my $code_words = 0;
 
+                    $cvs_words = `./cvs_comment_extractor $cvsdata/$root/src/$app_name|wc -c|`;
+
+                    open(LIST, "<$list_file") || die "cannot create temporary file list\n";
                     while (<LIST>) {
                           chomp;
-                          my $filename = $_;
-                          open (LINES, "cat $filename |./comment_extractor_c++|./comment_extractor_c|wc -l|");
-                          while (<LINES>) {
-                             chomp;
-                             $line2 += $_;
-                             last;
-                          }
-                          close(LINES);
-
-                          open (LINES, "cat $filename|wc -l|");
-                          while (<LINES>) {
-                             chomp;
-                             $line1 += $_;
-                             last;
-                          }
-                          close(LINES);
+                          $code_words += `./code_comment_extractor $_|wc -c|");
                     }
                     close(LIST);
 
                     open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
-                    print STAT "total   # line of code comment :\t". ($line1 - $line2) ." comments\n";
+                    print STAT "total   # words of code comment :\t$code_words words\n";
+                    print STAT "total   # words of cvs  comment :\t$cvs_words words\n";
                     print STAT "\n";
                     print STAT "total build time               :\t". (time - $checkout_start_date) . " seconds\n";
                     print STAT "   checkout time               :\t". ($checkout_end_date - $checkout_start_date) . " seconds\n";

@@ -79,7 +79,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
@@ -126,7 +126,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -198,10 +198,16 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 define build-perl-script
 $(PERL) -I $(srcdir) -c $(firstword $^)
 rm -rf $@
-echo "#! " $(PERL) > $@
+echo "#!" $(PERL) > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef
+
+cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
+	$(build-perl-script)
+
+code_comment_extractor: $(srcdir)/code_comment_extractor.pl
+	$(build-perl-script)
 
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)
