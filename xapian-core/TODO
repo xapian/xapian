@@ -27,8 +27,11 @@ H|2| |LocalMatch   | Pass around partially created postlist as an
 H|2| |Postlist     | Add ability to retrieve collection frequency
  | | |             | (ie, sum of wdfs).
 -+-+-+-------------+-----------------------------------------------------------
-H|2| |General / API| Put Om into its own namespace, to ensure lack of
+H|3| |General / API| Put Om into its own namespace, to ensure lack of
  | | |             | symbol conflicts.
+-+-+-+-------------+-----------------------------------------------------------
+H|3| |Database     | OmDatabase and related classes are in misleadingly named
+ | | |             | files in several cases - fix this.
 -+-+-+-------------+-----------------------------------------------------------
 H|5|C|API          | Write bindings for other languages (Java, C,
  | | |             | perl, python, etc.). [In progress, apart from C].
@@ -97,6 +100,20 @@ M|2| |MultiDatabase| Termcache currently clears itself when full: make
 -+-+-+-------------+-----------------------------------------------------------
 M|4| |Stemming     | Make a separate package to contain stemming
  | | |Algorithms   | algorithm stuff (docs, code, stemtest)
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Databases    | Change all internal references to net/network backend to
+ | | |             | remote backend (in step with external naming)
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Databases    | Make references to muscat36/m36 consistent (may require
+ | | |             | externally visible changes)
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |DA backend   | Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
+-+-+-+-------------+-----------------------------------------------------------
+M|1| |CVS          | CVS tag last snapshot that built OK (so people can cvs
+ | | |             | update to it and avoid some of the problems of riding
+ | | |             | the bleeding edge)
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Website      | Consider changing from cvsweb to viewcvs
 -+-+-+-------------+-----------------------------------------------------------
 L|3| |Purify       | Write autoconf macro to turn on purify support.
  | | |             | Submit to http://peti.cys.de/autoconf-archive/
