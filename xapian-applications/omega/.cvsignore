@@ -1,5 +1,6 @@
 .*.swp
 *.lo
+autom4te-*.cache
 omega
 omindex
 omindex-config
