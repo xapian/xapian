@@ -1,3 +1,8 @@
+Tue Sep 30 10:17:09 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated - Solaris 8 + Sun Workshop C++ builds and passes
+	  make check (but Omega fails to build).
+
 Mon Sep 29 00:41:19 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Fixed dependency libs for libxapian.
