@@ -1,3 +1,7 @@
+Tue Aug 31 01:07:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated in preparation for a release.
+
 Tue Aug 31 00:53:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Short-cutting Btree::cancel causes
