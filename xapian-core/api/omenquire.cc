@@ -388,6 +388,29 @@ OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
     return read_doc(mitem.did);
 }
 
+const std::vector<OmDocument>
+OmEnquireInternal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
+		    std::vector<OmMSetItem>::const_iterator end) const
+{
+    OmLockSentry locksentry(mutex);
+
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
+    unsigned int multiplier = internal->databases.size();
+
+    std::vector<OmDocument> docs;
+    
+    std::vector<OmMSetItem>::const_iterator i;
+    for (i = begin; i != end; i++) {
+	om_docid realdid = (i->did - 1) / multiplier + 1;
+	om_doccount dbnumber = (i->did - 1) % multiplier;
+	
+	LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
+	docs.push_back(OmDocument(OmDocumentParams(doc)));
+    }
+
+    return docs;
+}
+
 om_termname_list
 OmEnquireInternal::get_matching_terms(om_docid did) const
 {
@@ -570,6 +593,14 @@ OmEnquire::get_doc(const OmMSetItem &mitem) const
     DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", mitem);
     OmDocument doc(internal->get_doc(mitem));
     RETURN(doc);
+}
+
+const std::vector<OmDocument>
+OmEnquire::get_docs(std::vector<OmMSetItem>::const_iterator begin,
+		    std::vector<OmMSetItem>::const_iterator end) const
+{
+    // FIXME apicall tracing stuff
+    return internal->get_docs(begin, end);
 }
 
 om_termname_list

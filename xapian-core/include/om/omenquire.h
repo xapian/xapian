@@ -661,6 +661,28 @@ class OmEnquire {
 	 */
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 
+	/** Get the document info for multiple documents.
+	 *
+	 *  This method returns a vector of OmDocument objects.
+	 *
+	 *  This call may be more efficient that a series of calls
+	 *  to get_doc() - for example, a match across multiple remote
+	 *  databases may fetch documents in parallel.
+	 *
+	 *  @param begin   Iterator to first OmMSetItem to fetch.
+	 *  @param end     End iterator.
+	 *
+	 *  @return      A vector of OmDocument objects containing the
+	 *  document data.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception OmDocNotFoundError  The document specified could not
+	 *  be found in the database.
+	 */
+	const std::vector<OmDocument> get_docs(
+		std::vector<OmMSetItem>::const_iterator begin,
+		std::vector<OmMSetItem>::const_iterator end) const;
 
 	/** Get terms which match a given document, by document id.
 	 *

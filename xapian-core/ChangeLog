@@ -1,3 +1,10 @@
+Mon Oct 09 15:27:59 BST 2000 Olly Betts
+
+	* Implemented OmEnquire::get_docs() - currently just fetches them
+	  sequentially.
+
+	* Removed unused max_weight element from OmQueryInternal
+
 Mon Oct  9 14:39:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Part-implemented add_document and delete_document methods in

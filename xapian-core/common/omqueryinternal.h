@@ -75,13 +75,6 @@ class OmQueryInternal {
 	/// Within query frequency of this term
 	om_termcount wqf;
 
-	/** Maximum weight that this term could contribute.
-	 *  This is calculated by MultiMatch before the query is run for
-	 *  each term.
-	 */
-	om_weight max_weight;
-
-
 	/// Copy another OmQueryInternal into self.
 	void initialise_from_copy(const OmQueryInternal & copyme);
 

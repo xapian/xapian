@@ -403,7 +403,6 @@ OmQueryInternal::swap(OmQueryInternal &other)
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
-    std::swap(max_weight, other.max_weight);
     std::swap(window, other.window);
 }
 
@@ -419,8 +418,7 @@ OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
 	: mutex(), isdefined(copyme.isdefined),
 	isbool(copyme.isbool), op(copyme.op), subqs(subquery_list()),
         qlen(copyme.qlen), window(copyme.window), tname(copyme.tname),
-        term_pos(copyme.term_pos), wqf(copyme.wqf),
-        max_weight(copyme.max_weight)
+        term_pos(copyme.term_pos), wqf(copyme.wqf)
 {
     try {
 	for (subquery_list::const_iterator i = copyme.subqs.begin();
