@@ -4,12 +4,12 @@ have reported back to us about.  It will probably work on many more platforms
 we've not tested it ourselves and nobody has reported to us that it works.
 
 A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
-notably) may fail with OMEXCEPT - investigation reveals that the correct
+notably) would fail with OMEXCEPT - investigation reveals that the correct
 exception is being thrown, but is leaking through the catch block somehow.
 Adding tracing code often makes the test pass.  We believe this is a code
 generation problem or similar - it's never been reported with GCC 3.0 or
-newer.  The table below ignores failures which investigation shows are
-caused by this problem:
+newer.  The testsuite framework now uses RTTI (Run Time Type Information)
+to detect mishandled exceptions and doesn't count them as failures:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------

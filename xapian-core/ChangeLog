@@ -1,3 +1,8 @@
+Fri Oct 04 13:51:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS,testsuite/testutils.h: Use typeid() to spot when GCC 2.95
+	  mishandles an exception, and don't count this as a test failure.
+
 Fri Oct 04 03:59:29 BST 2002  Olly Betts <olly@survex.com>
 
 	* api/omdatabaseinternal.cc,backends/multi/multi_termlist.h,
