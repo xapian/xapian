@@ -653,19 +653,33 @@ OmEnquire::Internal::get_mset(om_doccount first,
 	omrset = &emptyrset;
     }
 
-    // FIXME: make match take a refcntptr
-    //
-    // Notes: when accessing query, we don't need to lock mutex, since it's
-    // our own copy and we're locked ourselves
-    MultiMatch match(db, query->internal, *omrset, *moptions);
+    // FIXME: stop hard-coding this count
+    int tries_left = 100;
 
-    OmMSet retval;
-    // Run query and get results into supplied OmMSet object
-    match.get_mset(first, maxitems, retval, mdecider, errorhandler);
+    while (true) {
+	try {
+	    // FIXME: make match take a refcntptr
+	    //
+	    // Notes: when accessing query, we don't need to lock mutex, since it's
+	    // our own copy and we're locked ourselves
+	    MultiMatch match(db, query->internal, *omrset, *moptions);
 
-    Assert(!(query->is_bool()) || retval.get_max_possible() == 0);
+	    OmMSet retval;
+	    // Run query and get results into supplied OmMSet object
+	    match.get_mset(first, maxitems, retval, mdecider, errorhandler);
 
-    return retval;
+	    Assert(!(query->is_bool()) || retval.get_max_possible() == 0);
+
+	    return retval;
+	} catch (const OmDatabaseModifiedError &e) {
+	    if (--tries_left > 0) {
+		OmDatabase::InternalInterface::get(db)->
+			recover_from_overwritten();
+	    } else {
+		throw;
+	    }
+	}
+    }
 }
 
 OmESet

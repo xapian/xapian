@@ -1,3 +1,7 @@
+Wed Dec 13 16:48:49 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Add handling of DatabaseModified to OmEnquire::get_mset()
+
 Wed Dec 13 16:28:47 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Escape zero bytes in the network protocol, since these were
