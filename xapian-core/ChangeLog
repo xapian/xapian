@@ -1,3 +1,7 @@
+Fri Nov 17 19:00:23 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed uneeded macro from quartz_types.h
+
 Fri Nov 17 18:24:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Bcursor is now closer to a proper class.  Bcursor_* functions

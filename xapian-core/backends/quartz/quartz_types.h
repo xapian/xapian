@@ -57,10 +57,6 @@ typedef unsigned long int quartz_doclen_t;
  */
 typedef unsigned long long int quartz_totlen_t;
 
-/** The maximum length that a key is allowed to have in a B-tree table.
- */
-#define MAX_KEY_LENGTH 252
-
 /** The default block size to use in a B-tree table.
  *  If this is changed, be sure to update the API documentation
  *  correspondingly.
