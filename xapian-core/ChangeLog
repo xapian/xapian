@@ -1,3 +1,13 @@
+Tue Feb 13 13:25:45 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Network timeouts now apply to write() operations as well
+	  as read().
+
+	* SocketLineBuf::do_writeline() now correctly deals with EAGAIN.
+
+	* SocketServer has new method writeline() which handles write
+	  access to the OmLineBuf.
+
 Mon Feb 12 12:35:41 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Make OmPositionListIterators and any other appropriate iterators

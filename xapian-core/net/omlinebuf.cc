@@ -37,9 +37,11 @@ OmLineBuf::readline(time_t end_time,
 }
 
 void
-OmLineBuf::writeline(std::string msg)
+OmLineBuf::writeline(std::string msg,
+		     time_t end_time,
+		     unsigned int end_time_usecs)
 {
-    do_writeline(msg);
+    do_writeline(msg, end_time, end_time_usecs);
 }
 
 void

@@ -475,13 +475,48 @@ OmSocketLineBuf::data_waiting()
 }
 
 void
-OmSocketLineBuf::do_writeline(std::string s)
+OmSocketLineBuf::do_writeline(std::string s,
+			      time_t end_time,
+			      unsigned int end_time_usecs)
 {
     DEBUGCALL(UNKNOWN, void, "OmSocketLineBuf::do_writeline", s);
     if (s.length() == 0 || s[s.length()-1] != '\n') {
 	s += '\n';
     }
     while (s.length() > 0) {
+	// the socket can become full - we need to use select() to wait
+	// until there is space.
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(writefd, &fdset);
+
+	time_t now = time(NULL);
+
+	// this should probably go in an outer loop rather than the inner.
+	// FIXME: use higher resolution time function.
+	struct timeval tv;
+	tv.tv_sec = end_time - now;
+	tv.tv_usec = 0;
+
+	int retval = select(writefd + 1, 0, &fdset, &fdset, &tv);
+
+	if (retval == 0) {
+	    // select() timed out.
+	    throw OmNetworkTimeoutError("Timeout reached waiting to write data to socket", errcontext);
+	} else if (retval < 0) {
+	    if (errno == EINTR) {
+		// select interrupted due to signal
+		// FIXME: adjust timeout for next time around to compensate
+		// for time used.  Need to use gettimeofday() or similar,
+		// since the contents of tv are now effectively undefined.
+		// (On Linux, it's the time not slept, but this isn't
+		// portable)
+		continue;
+	    }
+	    throw OmNetworkError("Network error waiting for remote", errcontext, errno);
+	}
+	// if we got this far, we can fit data down the pipe/socket.
+
 	ssize_t written = write(writefd, s.data(), s.length());
 
 	if (written < 0) {

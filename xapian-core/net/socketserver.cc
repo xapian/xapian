@@ -73,7 +73,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
     }
-    buf->writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
+    writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
 		   om_tostring(db.get_doccount()) + " " +
 		   om_tostring(db.get_avlength()));
 }
@@ -102,7 +102,7 @@ SocketServer::~SocketServer()
 void
 SocketServer::send_local_stats(Stats stats)
 {
-    buf->writeline("L" + stats_to_string(stats));
+    writeline("L" + stats_to_string(stats));
 }
 
 Stats
@@ -196,15 +196,16 @@ SocketServer::run()
 	// been caused by an error talking to the other end.
 	throw;
     } catch (const OmError &e) {
-	buf->writeline(std::string("E") + omerror_to_string(e));
+	writeline(std::string("E") + omerror_to_string(e));
 	throw;
     } catch (...) {
-	buf->writeline(std::string("EUNKNOWN"));
+	writeline(std::string("EUNKNOWN"));
 	throw;
     }
 }
 
 static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
+const int snooper_timeout = 300; // FIXME FIXME FIXME
 static bool snooper_do_collapse;
 
 void
@@ -213,7 +214,7 @@ match_snooper(const OmMSetItem &i)
     std::string msg = om_tostring(i.did);
     if (i.wt != 0) msg += " " + om_tostring(i.wt);
     if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
-    snooper_buf->writeline(msg);
+    snooper_buf->writeline(msg, time(NULL) + snooper_timeout, 0);
 }
 
 void
@@ -275,17 +276,17 @@ SocketServer::run_match(const std::string &firstmessage)
 	{
 	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
-	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +
+	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
 			   om_tostring(pl->get_termfreq_min()) + " " +
 			   om_tostring(pl->get_termfreq_est()) + " " +
 			   om_tostring(pl->recalc_maxweight()));
-	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
+	    writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	    snooper_buf = buf.get();
 	    OmMSet mset;
 	    match.get_mset_2(pl, terminfo, first, maxitems, mset, 0,
 			     match_snooper);
 	}
-	buf->writeline("Z");
+	writeline("Z");
 	return;
 #else
 	PostList *pl;
@@ -293,11 +294,11 @@ SocketServer::run_match(const std::string &firstmessage)
 	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
 	    // not sure we really need these numbers...
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
-	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +
+	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
 			   om_tostring(pl->get_termfreq_min()) + " " +
 			   om_tostring(pl->get_termfreq_est()) + " " +
 			   om_tostring(pl->recalc_maxweight()));
-	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
+	    writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	}
 	om_docid did = 0;
 	om_weight w_min = 0;
@@ -356,13 +357,13 @@ SocketServer::run_match(const std::string &firstmessage)
 		    AutoPtr<Document> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
 		    msg += ";" + omkey_to_string(doc->get_key(collapse_key));		    
 		}
-		buf->writeline(msg);
+		writeline(msg);
 	    } else {
 		DEBUGLINE(UNKNOWN, "Ignoring did " << did << " wt " << w << " (since wt < " << w_min << ")");
 	    }
 	}
 	delete pl;
-	buf->writeline("Z");
+	writeline("Z");
 	return;
 #endif
     }
@@ -390,7 +391,7 @@ SocketServer::run_match(const std::string &firstmessage)
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
-    buf->writeline("O" + ommset_to_string(mset));
+    writeline("O" + ommset_to_string(mset));
 
     DEBUGLINE(UNKNOWN, "sent mset...");
 }
@@ -410,6 +411,19 @@ SocketServer::readline(int msecs_timeout)
 }
 
 void
+SocketServer::writeline(const std::string &message,
+			int milliseconds_timeout)
+{
+    if (milliseconds_timeout == 0) {
+	// default to our normal timeout
+	milliseconds_timeout = msecs_timeout;
+    }
+    time_t secs = time(NULL) + (milliseconds_timeout / 1000);
+    unsigned int usecs = (milliseconds_timeout % 1000) * 1000;
+    buf->writeline(message, secs, usecs);
+}
+
+void
 SocketServer::run_gettermlist(const std::string &firstmessage)
 {
     std::string message = firstmessage;
@@ -422,11 +436,11 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
     while (tl != tlend) {
 	std::string item = om_tostring(tl.get_wdf())
 	    + " " + om_tostring(tl.get_termfreq()) + " " + encode_tname(*tl);
-	buf->writeline(item);
+	writeline(item);
 	tl++;
     }
 
-    buf->writeline("Z");
+    writeline("Z");
 }
 
 void
@@ -438,7 +452,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     AutoPtr<Document> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
-    buf->writeline("O" + encode_tname(doc->get_data().value));
+    writeline("O" + encode_tname(doc->get_data().value));
 
     std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 
@@ -446,11 +460,11 @@ SocketServer::run_getdocument(const std::string &firstmessage)
     while (i != keys.end()) {
 	std::string item = om_tostring(i->first) + " "
 	    + omkey_to_string(i->second);
-	buf->writeline(item);
+	writeline(item);
 	++i;
     }
 
-    buf->writeline("Z");
+    writeline("Z");
 }
 
 void

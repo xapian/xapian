@@ -72,7 +72,9 @@ class OmSocketLineBuf : public OmLineBuf {
 
 	/** Write one line to writefd
 	 */
-	void do_writeline(std::string s);
+	void do_writeline(std::string s,
+			  time_t end_time,
+			  unsigned int end_time_usecs);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.

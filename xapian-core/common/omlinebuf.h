@@ -51,7 +51,9 @@ class OmLineBuf {
 
 	/** Write one line to writefd
 	 */
-	virtual void do_writeline(std::string s) = 0;
+	virtual void do_writeline(std::string s,
+				  time_t end_time,
+				  unsigned int end_time_usecs) = 0;
 
 	std::string line_buffer;
     public:
@@ -81,7 +83,9 @@ class OmLineBuf {
 
 	/** Write one line to writefd
 	 */
-	void writeline(std::string s);
+	void writeline(std::string s,
+		       time_t end_time,
+		       unsigned int end_time_usecs);
 };
 
 #endif // OM_HGUARD_OMLINEBUF_H

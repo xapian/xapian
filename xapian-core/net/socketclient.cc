@@ -192,7 +192,13 @@ void
 SocketClient::do_write(std::string data)
 {
     DEBUGLINE(UNKNOWN, "do_write(): " << data.substr(0, data.find_last_of('\n')));
-    buf.writeline(data);
+    if (end_time_set) {
+	buf.writeline(data, end_time, end_time_usecs);
+    } else {
+	init_end_time();
+	buf.writeline(data, end_time, end_time_usecs);
+	close_end_time();
+    }
 }
 
 void

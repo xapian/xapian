@@ -98,6 +98,10 @@ class SocketServer : public NetServer {
 	/// any special messages (eg 'X')
 	std::string readline(int msecs_delay = 0);
 
+	/// Write a line of output to the buffer
+	void writeline(const std::string &message,
+			      int msecs_delay = 0);
+
     public:
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
