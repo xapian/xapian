@@ -1,3 +1,8 @@
+Wed Feb 16 03:46:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt,docs/overview.txt: Improved description of how
+	  B filters are handled when building the query.
+
 Wed Feb 16 03:44:24 GMT 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fixed so that we get lstat() prototype on Linux systems

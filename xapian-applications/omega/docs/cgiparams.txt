@@ -75,7 +75,8 @@ Filtering parameters
 --------------------
 
 B
-	general boolean filter terms.
+	general boolean filter terms.  See overview.txt for details of how
+	multiple B parameters are handled.
 
 COLLAPSE
 	value number to use for removing duplicate documents.

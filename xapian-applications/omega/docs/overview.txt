@@ -26,7 +26,7 @@ configured without editing the source code.)
 
 The two term types are used as follows when building the query:
 B(oolean) terms with the same prefix are ORed together, with all the
-different prefix legs being ANDed together. This is then FILTERed
+different prefix groups being ANDed together. This is then FILTERed
 against the P(robabilistic) terms. This will look something like:
 
 		      [ FILTER ]
@@ -47,6 +47,10 @@ boolean terms "Ttext/html", "Ttext/plain" and "P/press" you would be
 filtering the probabilistic search for only documents that are both in
 the "/press" site _and_ which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
+
+If there is no probabilistic query, the boolean filter is promoted to
+be the query, and the weighting scheme is set to boolean.  This has
+the effect of applying the boolean filter to the whole database.
 
 In order to add more boolean prefixes, you will need to alter the
 index_file() function in omindex.cc. omindex currently adds several
