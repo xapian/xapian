@@ -1,3 +1,7 @@
+Thu Nov 30 16:10:37 GMT 2000 Olly Betts
+
+	* OmDocument::add_posting() pretty much done.
+
 Thu Nov 30 15:51:46 GMT 2000 Olly Betts
 
 	* More work on OmDocument::add_posting().

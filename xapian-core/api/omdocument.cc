@@ -146,8 +146,15 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
 	OmTermListIterator t = termlist_begin();
 	OmTermListIterator tend = termlist_end();
 	for ( ; t != tend; t++) {
-	    // FIXME: need to iterate positionlist to get tposes
-	    internal->terms.insert(std::make_pair(*t, OmDocumentTerm(*t, tpos)));
+	    OmPositionListIterator p = t.positionlist_begin();
+	    OmPositionListIterator pend = t.positionlist_end();
+	    Assert(p != pend);
+	    OmDocumentTerm term(*t, *p);
+	    p++;
+	    for ( ; p != pend; p++) {
+		term.add_posting(*p);
+	    }
+	    internal->terms.insert(std::make_pair(*t, term));
 	}
 	internal->terms_here = true;
     }
