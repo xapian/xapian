@@ -2285,6 +2285,31 @@ static bool test_qterminfo1()
     return true;
 }
 
+/// Regression test for bug #37.
+static bool test_qterminfo2()
+{
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+
+    // make a query
+    Xapian::Stem stemmer("english");
+
+    string term1 = stemmer.stem_word("paragraph");
+    string term2 = stemmer.stem_word("another");
+
+    Xapian::Query query(Xapian::Query::OP_AND_NOT, term1,
+	    Xapian::Query(Xapian::Query::OP_AND, term1, term2));
+    enquire.set_query(query);
+
+    // retrieve the results
+    // Note: get_mset() used to throw "AssertionError" in debug builds
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+
+    TEST_NOT_EQUAL(mset.get_termweight("paragraph"), 0);
+
+    return true;
+}
+
 // tests that when specifiying that no items are to be returned, those
 // statistics which should be the same are.
 static bool test_msetzeroitems1()
@@ -3362,6 +3387,7 @@ test_desc db_tests[] = {
     {"eliteset4",          test_eliteset4},
     {"termlisttermfreq1",  test_termlisttermfreq1},
     {"qterminfo1",	   test_qterminfo1},
+    {"qterminfo2",	   test_qterminfo2},
     {"msetzeroitems1",     test_msetzeroitems1},
     {"matches1",	   test_matches1},
     {"wqf1",		   test_wqf1},

@@ -1,3 +1,7 @@
+Thu Aug 19 14:09:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Added regression test for bug #37.
+
 Thu Aug 19 13:31:37 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: Fixed problems handling termweights in
