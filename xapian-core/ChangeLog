@@ -1,3 +1,7 @@
+Tue Jan 23 11:24:13 GMT 2001 Olly Betts
+
+	* Tiny tweak to da_document.cc.
+
 Fri Jan 19 18:36:15 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed get/set vector methods from OmSettings

@@ -52,7 +52,7 @@ DADocument::do_get_key(om_keyno keyid) const
 {
     OmKey key = database->get_key(did, keyid);
 
-    if (key.value.size() == 0 && keyid != 0) {
+    if (key.value.empty() && keyid != 0) {
 	DebugMsg("Looking in record for keyno " << keyid <<
 		 " in document " << did);
 	if (rec == 0) rec = database->get_record(did);
