@@ -1,3 +1,7 @@
+Tue Sep 12 12:34:40 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The Java stuff now actually compiles.
+
 Tue Sep 12 09:21:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove dependency of quartz on Berkeley DB 3.1, in configure.in

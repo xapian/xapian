@@ -40,28 +40,33 @@ public class BackendManager {
 	for (int i=0; i<dbnames.length; i++) {
 	    dbdir += "=" + dbnames[i];
 	}
+	OmSettings param = new OmSettings();
+	param.set("backend", "sleepycat");
+	param.set("sleepycat_dir", dbdir);
+
 	if (files_exist(change_names_to_paths(dbnames))) {
 	    boolean created = create_dir_if_needed(dbdir);
 
 	    if (created) {
-	        OmWritableDatabase db =
-		    new OmWritableDatabase("sleepycat", make_strvec(dbdir));
+	        OmWritableDatabase db = new OmWritableDatabase(param);
 		System.err.println("Indexing to " + dbdir);
 	        index_files_to_database(db, change_names_to_paths(dbnames));
 		db = null;
 		System.runFinalization();
 		System.gc();
-		return new OmDatabase("sleepycat", make_strvec(dbdir));
+		return new OmDatabase(param);
 	    }
-	    return new OmDatabase("sleepycat", make_strvec(dbdir));
+	    return new OmDatabase(param);
 	} else {
-	    return new OmWritableDatabase("sleepycat", make_strvec(dbdir));
+	    return new OmWritableDatabase(param);
 	}
     }
 
     public OmDatabase do_getdb_inmemory(String[] dbnames) throws Throwable {
-        OmWritableDatabase db = new OmWritableDatabase("inmemory",
-	                                               make_strvec());
+	OmSettings  param = new OmSettings();
+
+	param.set("backend", "inmemory");
+        OmWritableDatabase db = new OmWritableDatabase(param);
 	index_files_to_database(db, change_names_to_paths(dbnames));
 
 	return db;

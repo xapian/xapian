@@ -26,8 +26,8 @@ public class OmDatabase extends OmObject {
     public OmDatabase (OmSettings params) throws OmError { 
 	nativePtr = createNativeObject (params);
     }
-    protected OmDatabase() {
-        super();
+    public OmDatabase() throws OmError {
+	nativePtr = createNativeObject (new OmSettings());
     }
     protected native long createNativeObject (OmSettings params);
 

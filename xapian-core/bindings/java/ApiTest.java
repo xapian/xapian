@@ -78,8 +78,8 @@ public class ApiTest {
 	    System.out.println("Cutoff percent: " + my_pct);
 	}
 
-	OmMatchOptions mymopt = new OmMatchOptions();
-	mymopt.set_percentage_cutoff(my_pct);
+	OmSettings mymopt = new OmSettings();
+	mymopt.set("match_percent_cutoff", my_pct);
 	OmMSet mymset2 = enquire.get_mset(0, 100, null, mymopt);
 	OmVector mymset2_items = mymset2.get_items();
 

@@ -65,8 +65,7 @@ class ApiTestFuncs {
         ApiTest.print_mset_percentages(mset);
     }
     public static OmEnquire get_simple_database() throws Throwable {
-	OmDatabaseGroup mydbgrp = new OmDatabaseGroup();
-	mydbgrp.add_database(get_database("apitest_simpledata"));
+	OmDatabase mydbgrp = get_database("apitest_simpledata");
 	return new OmEnquire(mydbgrp);
     }
     private static OmEnquire make_dbgrp(OmDatabase db1) throws Throwable {
