@@ -23,9 +23,9 @@
 #ifndef _omtypes_h_
 #define _omtypes_h_
 
-typedef unsigned int termid;   // Type for term id's
-typedef unsigned int docid;    // Type for document id's
-typedef unsigned int termpos;  // Type for term positions within documents
+typedef unsigned int termid;   // Type for term id's.
+typedef unsigned int docid;    // Type for document id's.  Start at 1.
+typedef unsigned int termpos;  // Type for term positions within documents.  Start at 1.
 
 typedef docid doccount;        // Type for counts of documents
 typedef termid termcount;      // Type for counts of terms (eg, wdf, termfreq)

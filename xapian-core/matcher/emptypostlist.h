@@ -35,8 +35,8 @@ class EmptyPostList : public virtual PostList {
 
         weight recalc_maxweight();
 
-	PostList *next(weight);
-	PostList *skip_to(docid, weight);
+	PostList *next(weight w_min);
+	PostList *skip_to(docid did, weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;

@@ -39,7 +39,7 @@ class DBPostList : public virtual PostList
 	~DBPostList() { return; }
 
 	// Sets term weighting formula, and needed information
-	virtual void set_termweight(const IRWeight *);
+	virtual void set_termweight(const IRWeight * wt);
 
         weight get_maxweight() const;    // Gets max weight
         weight recalc_maxweight();       // recalculate weights

@@ -48,7 +48,7 @@ class IndexerDestination {
 	/* Post an occurrence of a term in a document to a database */
 	virtual void make_posting(const termname & tname,
                                   docid did,
-				  termcount tpos) = 0;
+				  termpos tpos) = 0;
 };
 
 // A way to generate terms from sources

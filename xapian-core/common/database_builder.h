@@ -56,7 +56,7 @@ class DatabaseBuilderParams {
 
 class DatabaseBuilder {
     public:
-	static IRDatabase * create(const DatabaseBuilderParams &);
+	static IRDatabase * create(const DatabaseBuilderParams & params);
 };
 
 #endif /* _database_builder_h_ */

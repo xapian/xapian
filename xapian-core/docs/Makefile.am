@@ -15,10 +15,10 @@ endif
 
 if HAVE_DOCPP
 
-CREATED_DOCUMENTS2=html/index.html
+CREATED_DOCUMENTS2=source/index.html
 
-html/index.html:
-	doc++ -j -A -c --dir html `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+source/index.html:
+	doc++ -j -A -c --dir source `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 endif
 

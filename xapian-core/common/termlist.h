@@ -49,13 +49,13 @@ class DBTermList : public virtual TermList {
     public:
 	DBTermList() : wt(NULL) { return; }
 	~DBTermList() { return; }
-	virtual void set_weighting(const OMExpandWeight *); // Sets term weight
+	virtual void set_weighting(const OMExpandWeight * wt_); // Sets term weight
 };
 
 inline void
-DBTermList::set_weighting(const OMExpandWeight * wt_new)
+DBTermList::set_weighting(const OMExpandWeight * wt_)
 {
-    wt = wt_new;
+    wt = wt_;
 }
 
 #endif /* _termlist_h_ */
