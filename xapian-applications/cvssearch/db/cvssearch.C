@@ -9,6 +9,7 @@
 
 //
 // Usage:  cvssearch package (# results) query_word1 query_word2 ... 
+//               cvssearch -f package.list (# results) query_word1 query_word2 ...
 //
 // Example:  cvssearch kdeutils_kfind 10 ftp nfs
 //
@@ -31,13 +32,41 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+     set<string> packages;
+
+     int qpos;
+     int npos;
+
+     // get packages from cmd line or from file
+     if ( strcmp( argv[1], "-f" ) == 0 ) {
+       // get packages from file
+       ifstream in( argv[2] );
+       assert (in);
+       string p;
+       while (!in.eof()) {
+	 in >> p;
+	 packages.insert(p);
+       }
+       in.close();
+       npos = 3;
+       qpos = 4;
+     } else {
+       // get package from cmd line
+       packages.insert( argv[1] );
+       npos = 2;
+       qpos = 3;
+     }
+
      try {
        // code which accesses Omsee
        OmDatabase databases;
-       OmSettings db_parameters;
-       db_parameters.set("backend", "quartz");
-       db_parameters.set("quartz_dir", argv[1]);
-       databases.add_database(db_parameters); // can search multiple databases at once
+
+       for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
+	 OmSettings db_parameters;
+	 db_parameters.set("backend", "quartz");
+	 db_parameters.set("quartz_dir", *i);
+	 databases.add_database(db_parameters); // can search multiple databases at once
+       }
 
        // start an enquire session
        OmEnquire enquire(databases);
@@ -46,7 +75,7 @@ int main(int argc, char *argv[]) {
        
        OmStem stemmer("english");
 
-       for (int optpos = 3; optpos < argc; optpos++) {
+       for (int optpos = qpos; optpos < argc; optpos++) {
 	 om_termname term = argv[optpos];
 	 lowercase_term(term);
 	 term = stemmer.stem_word(term);
@@ -64,7 +93,7 @@ int main(int argc, char *argv[]) {
 
        enquire.set_query(query); // copies query object
 
-       int num_results = atoi( argv[2] );
+       int num_results = atoi( argv[npos] );
        assert( num_results > 0 );
 
        OmMSet matches = enquire.get_mset(0, num_results); // get top 10 matches
