@@ -13,6 +13,13 @@ class PLPCmp {
        }
 };
 
+class MSetItem {
+    public:
+        weight w;
+        docid id;
+        MSetItem(weight w_, docid id_) { w = w_; id = id_; }
+};
+
 class Match {
     private:
         IRDatabase *DB;
@@ -37,6 +44,10 @@ class Match {
         void match();
         void set_max_msize(doccount n);
         void recalc_maxweight();
+
+        vector<MSetItem> mset;
+        doccount msize;
+        doccount mtotal;
 };
 
 inline void

@@ -102,13 +102,6 @@ Match::add_bandnot()
 }
 
 
-class MSetItem {
-    public:
-        weight w;
-        docid id;
-        MSetItem(weight w_, docid id_) { w = w_; id = id_; }
-};
-
 class MSetCmp {
     public:
         bool operator()(const MSetItem &a, const MSetItem &b) {
@@ -161,9 +154,9 @@ Match::match()
     	return;
     }
 
-    doccount msize = 0, mtotal = 0;
+    msize = 0;
+    mtotal = 0;
     weight w_min = 0;
-    vector<MSetItem> mset;
     int sorted_to = 0;
 
     recalculate_maxweight = true;
@@ -245,14 +238,6 @@ Match::match()
 	cout << "max weight in mset = " << mset[0].w
 	     << ", min weight in mset = " << mset[msize - 1].w << endl;
     }
-#if 0
-    for (docid i = 0; i < msize; i++) {
-        cout << mset[i].id << "\t" << mset[i].w << endl;
-	IRDocument *doc = DB->open_document(mset[i].id);
-        //cout << doc << endl;
-	delete doc;
-    }
-#endif
     delete merger;
     merger = NULL;
 }

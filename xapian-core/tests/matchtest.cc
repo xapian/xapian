@@ -1,42 +1,69 @@
 #include <stdio.h>
 
-//#define MULTIDB
-
-#ifdef MULTIDB
 #include "multi_database.h"
-#endif
 
 #include "da_database.h"
 #include "match.h"
 #include "stem.h"
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
+    int msize = 0;
+    const char *progname = argv[0];
+    const char *dbname = "testdir";
+    bool multidb = false;
+
+    bool syntax_error = false;
+    argv++;
+    argc--;
+    while (argc && argv[0][0] == '-') {
+	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
+	    msize = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
+	    dbname = argv[1];
+	    argc -= 2;
+	    argv += 2;
+	} else if (strcmp(argv[0], "--multidb") == 0) {
+	    multidb = true;
+	    argc--;
+	    argv++;
+	} else {
+	    syntax_error = true;
+	    break;
+	}
+    }
+	
+    if (syntax_error || argc < 1) {
+	cout << "Syntax: " << progname << " TERM ..." << endl;
+	cout << "\t--msize MSIZE\n";
+	cout << "\t--db DBDIRECTORY\n";
+	cout << "\t--multidb\n";
+	exit(1);
+    }
+    
     try {
-#ifdef MULTIDB
-	MultiDatabase database;
-	database.open_subdatabase(new DADatabase, "testdir", 0);
-#else
-        DADatabase database;
-	database.open("testdir", 0);
-#endif
+	IRDatabase *database;
+
+	if (multidb) {
+	    MultiDatabase *multidb = new MultiDatabase;
+	    multidb->open_subdatabase(new DADatabase, dbname, 0);
+	    database = multidb;
+	} else {
+	    database = new DADatabase;
+	    database->open(dbname, 0);
+	}
        
-        Match match(&database);
+        Match match(database);
        
         StemEn stemmer;
 
-        if (argc >= 3 && strcmp(argv[1], "--msize") == 0) {
-	    match.set_max_msize(atoi(argv[2]));
-	    argc -= 2;
-	    memmove(argv + 1, argv + 3, argc * sizeof(char*));
-	}
-
-        if (argc < 2) {
-	    cout << "Syntax: " << argv[0] << " TERM ..." << endl;
-	    exit(1);
-	}
+	if (msize) match.set_max_msize(msize);
 
 	bool boolean = false;
-        for (char **p = argv + 1; *p; p++) {
+        for (char **p = argv; *p; p++) {
 	    string term = *p;
 	    if(term == "B") { boolean = true;}
 	    else if(term == "P") { boolean = false;}
@@ -91,7 +118,13 @@ int main(int argc, char *argv[]) {
         }
 
         match.match();
-	database.close();
+	
+	for (docid i = 0; i < match.msize; i++) {
+	    cout << match.mset[i].id << "\t";
+	}
+	cout << endl;
+	database->close();
+	delete database;
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;
