@@ -1,3 +1,8 @@
+Wed Jul 09 15:34:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/java/,bindings/java/com/muscat/om/,bindings/java/native/:
+	  Removed old Java bindings - we'll do them using SWIG instead.
+
 Wed Jul 09 14:51:51 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/php4/Makefile.am,bindings/php4/xapian/.cvsignore: More
