@@ -41,7 +41,12 @@ OmDebug::OmDebug()
 
     char * filename = getenv(OM_ENV_DEBUG_FILE);
     if (filename != 0) {
-	to = auto_ptr<std::ofstream>(new std::ofstream(filename));
+	{
+	    // FIXME: have to do this to get around compiler brokenness
+	    // in gcc version 2.95.2
+	    auto_ptr<std::ofstream> temp(new std::ofstream(filename));
+	    to = temp;
+	}
 	if (to.get() && *to) {
 	    out.rdbuf(to->rdbuf());
 	} else {

@@ -1,3 +1,7 @@
+Mon Jun 12 18:45:56 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix to omdebug.cc to get around a compiler borkenness.
+
 Mon Jun 12 18:35:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added initial OmEnquire and OmDatabaseGroup stuff to
