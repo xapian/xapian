@@ -673,8 +673,8 @@ class Enquire {
 	/** Set the weighting scheme to use for queries.
 	 *
 	 *  @param weight_  the new weighting scheme.  If no weighting scheme
-	 *  		    is specified, the default is BM25 with A=1, B=1,
-	 *  		    C=0, D=0.5, min_normlen=0.5
+	 *  		    is specified, the default is BM25 with the
+	 *  		    default parameters.
 	 */
 	void set_weighting_scheme(const Weight &weight_);
 
@@ -1056,22 +1056,21 @@ class BoolWeight : public Weight {
 /** BM25 weighting scheme
  *
  * BM25 weighting options : The BM25 formula is \f[
- *      \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
+ *      \frac{k_{2}.n_{q}}{1+L_{d}}+\sum_{t}\frac{(k_{3}+1)q_{t}}{k_{3}+q_{t}}.\frac{(k_{1}+1)f_{t,d}}{k_{1}((1-b)+bL_{d})+f_{t,d}}.w_{t}
  * \f] where
  *   - \f$w_{t}\f$ is the termweight of term t
  *   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
  *   - \f$q_{t}\f$ is the within query frequency of term t
  *   - \f$L_{d}\f$ is the normalised length of document d
- *   - \f$s_{q}\f$ is the size of the query
- *   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
+ *   - \f$n_{q}\f$ is the size of the query
+ *   - \f$k_{1}\f$, \f$k_{2}\f$, \f$k_{3}\f$ and \f$b\f$ are user specified parameters
  */
 class BM25Weight : public Weight {
     private:
 	mutable Xapian::weight termweight;
 	mutable Xapian::doclength lenpart;
-	mutable double BD;
 
-	double A, B, C, D;
+	double k1, k2, k3, b;
 	Xapian::doclength min_normlen;
 
 	mutable bool weight_calculated;
@@ -1081,14 +1080,14 @@ class BM25Weight : public Weight {
     public:
 	/** Construct a BM25 weight.
 	 *
-	 * @param A governs the importance of within query frequency.
-	 * 	          Must be >= 0.  0 means ignore wqf.  Default is 1.
-	 * @param B governs the importance of within document frequency.
+	 * @param k1 governs the importance of within document frequency.
 	 * 		  Must be >= 0.  0 means ignore wdf.  Default is 1.
-	 * @param C compensation factor for the high wdf values in
+	 * @param k2 compensation factor for the high wdf values in
 	 * 		  large documents.  Must be >= 0.  0 means no
 	 * 		  compensation.  Default is 0.
-	 * @param D Relative importance of within document frequency and
+	 * @param k3 governs the importance of within query frequency.
+	 * 	          Must be >= 0.  0 means ignore wqf.  Default is 1.
+	 * @param b Relative importance of within document frequency and
 	 * 		  document length.  Must be >= 0 and <= 1.  Default
 	 * 		  is 0.5.
 	 * @param min_normlen specifies a cutoff on the minimum value that
@@ -1097,17 +1096,17 @@ class BM25Weight : public Weight {
 	 *		  This prevents very small documents getting a huge
 	 *		  bonus weight.  Default is 0.5.
 	 */
-	BM25Weight(double A_, double B_, double C_, double D_,
+	BM25Weight(double k1_, double k2_, double k3_, double b_,
 		   double min_normlen_)
-		: A(A_), B(B_), C(C_), D(D_), min_normlen(min_normlen_),
+		: k1(k1_), k2(k2_), k3(k3_), b(b_), min_normlen(min_normlen_),
 		  weight_calculated(false)
 	{
-	    if (A < 0) A = 0;
-	    if (B < 0) B = 0;
-	    if (C < 0) C = 0;
-	    if (D < 0) D = 0; else if (D > 1) D = 1;
+	    if (k1 < 0) k1 = 0;
+	    if (k2 < 0) k2 = 0;
+	    if (k3 < 0) k3 = 0;
+	    if (b < 0) b = 0; else if (b > 1) b = 1;
 	}
-	BM25Weight() : A(1), B(1), C(0), D(0.5), min_normlen(0.5),
+	BM25Weight() : k1(1), k2(0), k3(1), b(0.5), min_normlen(0.5),
 		       weight_calculated(false) { }
 
 	BM25Weight * clone() const;
@@ -1134,7 +1133,8 @@ class BM25Weight : public Weight {
  *   - \f$L_{d}\f$ is the normalised length of document d
  *   - \f$k\f$ is a user specifiable parameter
  *
- * TradWeight(k) is equivalent to BM25Weight(1, 1, 0, k, 0)
+ * TradWeight(k) is equivalent to BM25Weight(k, 0, 0, 1, 0), except that
+ * the latter returns weights (k+1) times larger.
  */
 class TradWeight : public Weight {
     private:

@@ -171,12 +171,13 @@ static bool test_simplequery2()
     // Check the weights
     Xapian::MSetIterator i = mymset.begin();
     if (db.get_avlength() != 1.0) {
-	// These weights are for C=.5 in bm25weight
+	// These weights are for BM25Weight(1,0,1,0.5,0.5)
 	weights_are_equal_enough(i.get_weight(), 1.046482);
 	i++;
 	weights_are_equal_enough(i.get_weight(), 0.640988);
     } else {
-	// These weights are when all doclengths are reported as 1
+	// These weights are for BM25Weight(1,0,1,0.5,0.5) when all
+	// doclengths are reported as 1 (e.g. muscat36 backend)
 	weights_are_equal_enough(i.get_weight(), 0.641854);
 	i++;
 	weights_are_equal_enough(i.get_weight(), 0.641854);

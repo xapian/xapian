@@ -1,3 +1,14 @@
+Fri Nov 26 17:07:21 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_nodb.cc,docs/bm25.html,
+	  include/xapian/enquire.h,matcher/bm25weight.cc: Renamed BM25
+	  parameters to match standard naming in papers and elsewhere
+	  (A->k3, B->k1, C->k2, D->b), eliminated the extra factor of 2
+	  which our C had, and reordered the parameters to k1, k2, k3.
+	  This is an incompatible API change for BM25Weight(), so if
+	  you are using custom parameters for BM25 you'll need to
+	  update your code.
+
 Fri Nov 26 15:20:16 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Allow VALGRIND environmental variable to override

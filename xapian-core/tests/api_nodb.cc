@@ -286,14 +286,14 @@ static bool test_weight1()
     TEST_NOT_EQUAL(tradweight.serialise(), tradweight2.serialise());
 
     Xapian::BM25Weight bm25weight_dflt;
-    Xapian::BM25Weight bm25weight(1, 1, 0, 0.5, 0.5);
+    Xapian::BM25Weight bm25weight(1, 0, 1, 0.5, 0.5);
     TEST_EQUAL(bm25weight.name(), "BM25");
     TEST_EQUAL(bm25weight_dflt.serialise(), bm25weight.serialise());
     wt = Xapian::BM25Weight().unserialise(bm25weight.serialise());
     TEST_EQUAL(bm25weight.serialise(), wt->serialise());
     delete wt;
     
-    Xapian::BM25Weight bm25weight2(1, 1, 0.5, 0.5, 0.5);
+    Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
     return true;
