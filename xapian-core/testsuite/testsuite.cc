@@ -72,7 +72,7 @@ test_driver::set_quiet(bool quiet_)
  */
 
 // The maximum number of allocations which can be tracked
-static const int max_allocations = 100000;
+static const int max_allocations = 1000000;
 
 // The number of currently unfreed allocations
 static long num_new_allocations = 0;
