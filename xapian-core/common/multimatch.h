@@ -71,6 +71,20 @@ class MultiMatch
 				     om_doccount number_of_leaves,
 				     om_doccount leaf_number);
 
+	/** Return true if the specified key has not been seen before.
+	 *
+	 *  If the given key has a null value, this method returns true.
+	 *
+	 *  Otherwise, the given key is searched for in collapse_entries.
+	 *  If it is not found it is inserted into this set, and the
+	 *  method returns true, otherwise the method returns false.
+	 *
+	 *  @param collapse_entries  The set of keys which have been seen.
+	 *  @param new_key           The new key to look for.
+	 */
+	bool have_not_seen_key(set<OmKey> & collapse_entries,
+			       const OmKey & new_key);
+	
         /** Merge two msets together.
 	 *
 	 *  @param mset      The mset to put the results in.

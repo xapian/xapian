@@ -178,11 +178,24 @@ MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
     }
 }
 
+bool
+MultiMatch::have_not_seen_key(set<OmKey> & collapse_entries,
+			      const OmKey & new_key)
+{
+    if (new_key.value.size() == 0) return true;
+    pair<set<OmKey>::iterator, bool> p = collapse_entries.insert(new_key);
+    return p.second;
+}
+
 void
 MultiMatch::merge_msets(vector<OmMSetItem> &mset,
 			vector<OmMSetItem> &more_mset,
-			om_doccount lastitem) {
+			om_doccount lastitem)
+{
     // FIXME - this method is likely to be very inefficient
+    // both because of the fact that we're doing a binary merge, and
+    // because we collapse very inefficiently.  (Don't use fact that
+    // each key can only occur once in each mset, for a start)
     DebugMsg("Merging mset of size " << more_mset.size() <<
 	     " to existing set of size " << mset.size() <<
 	     endl);
@@ -190,23 +203,33 @@ MultiMatch::merge_msets(vector<OmMSetItem> &mset,
     vector<OmMSetItem> old_mset;
     old_mset.swap(mset);
 
+    set<OmKey> collapse_entries;
+
     vector<OmMSetItem>::const_iterator i = old_mset.begin();
     vector<OmMSetItem>::const_iterator j = more_mset.begin();
     while(mset.size() < lastitem &&
 	  i != old_mset.end() && j != more_mset.end()) {
 	if(mcmp(*i, *j)) {
-	    mset.push_back(*i++);
+	    if (have_not_seen_key(collapse_entries, i->collapse_key))
+		mset.push_back(*i);
+	    i++;
 	} else {
-	    mset.push_back(*j++);
+	    if (have_not_seen_key(collapse_entries, j->collapse_key))
+		mset.push_back(*j);
+	    j++;
 	}
     }
     while(mset.size() < lastitem &&
 	  i != old_mset.end()) {
-	mset.push_back(*i++);
+	if (have_not_seen_key(collapse_entries, i->collapse_key))
+	    mset.push_back(*i);
+	i++;
     }
     while(mset.size() < lastitem &&
 	  j != more_mset.end()) {
-	mset.push_back(*j++);
+	if (have_not_seen_key(collapse_entries, j->collapse_key))
+	    mset.push_back(*j);
+	j++;
     }
 }
 

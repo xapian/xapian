@@ -1,3 +1,8 @@
+Tue May  9 17:30:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added collapse code to MultiMatch.  Could be considerably more
+	  efficient, but appears to work correctly.
+
 Tue May  9 16:37:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Refactored mset merging code in MultiMatch::match() into separate
