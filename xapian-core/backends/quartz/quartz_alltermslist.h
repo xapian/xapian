@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +47,8 @@ class QuartzAllTermsList : public AllTermsList
 	/// Cached "at-end" value
 	bool is_at_end;
 
+	quartz_tablesize_t size;
+
 	bool started;
 
 	/// Cached statistics
@@ -57,7 +60,8 @@ class QuartzAllTermsList : public AllTermsList
     public:
 	/// Standard constructor for base class.
 	QuartzAllTermsList(RefCntPtr<const Database> database_,
-			   AutoPtr<QuartzCursor> pl_cursor_);
+			   AutoPtr<QuartzCursor> pl_cursor_,
+		       	   quartz_tablesize_t size_);
 
 	/// Standard destructor for base class.
 	~QuartzAllTermsList();

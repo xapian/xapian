@@ -354,9 +354,10 @@ TermList *
 QuartzDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
-    AutoPtr<QuartzCursor> pl_cursor(tables->get_postlist_table()->cursor_get());
-    return new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
-				  pl_cursor);
+    QuartzTable *t = tables->get_postlist_table();
+    AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
+    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
+				  pl_cursor, t->get_entry_count()));
 }
 
 
@@ -901,7 +902,8 @@ TermList *
 QuartzWritableDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
-    AutoPtr<QuartzCursor> pl_cursor(buffered_tables->get_postlist_table()->cursor_get());
+    QuartzTable *t = buffered_tables->get_postlist_table();
+    AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(RefCntPtrToThis(), this),
-				  pl_cursor));
+				  pl_cursor, t->get_entry_count()));
 }

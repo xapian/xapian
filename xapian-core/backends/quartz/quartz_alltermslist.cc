@@ -28,8 +28,10 @@
 #include "quartz_postlist.h"
 
 QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
-				       AutoPtr<QuartzCursor> pl_cursor_)
-	: database(database_), pl_cursor(pl_cursor_), started(false)
+				       AutoPtr<QuartzCursor> pl_cursor_,
+				       quartz_tablesize_t size_)
+	: database(database_), pl_cursor(pl_cursor_), size(size_), 
+	  started(false)
 {
     DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
     /* Seek to the first term */
@@ -52,7 +54,7 @@ om_termcount
 QuartzAllTermsList::get_approx_size() const
 {
     DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_approx_size", "");
-    RETURN(1000000000); // FIXME
+    RETURN(size);
 }
 
 om_termname

@@ -1,3 +1,9 @@
+Wed Oct 09 14:05:07 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/{quartz_alltermslist.cc,quartz_alltermslist.h,
+	  quartz_database.cc}: Implemented
+	  QuartzAllTermsList::get_approx_size().
+
 Wed Oct 09 10:46:42 BST 2002  Olly Betts <olly@survex.com>
 
 	* extra/omparsequery.h,include/om/omvalueiterator.h: Don't use
