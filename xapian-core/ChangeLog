@@ -1,3 +1,8 @@
+Sat Jan 10 00:45:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_termlist.cc: Removed unused
+	  OLD_TERMLIST_FORMAT code.
+
 Fri Jan 09 21:54:34 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Fix incorrect code which just

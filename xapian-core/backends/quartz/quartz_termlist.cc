@@ -47,12 +47,6 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
     string prev_term;
     unsigned int size = 0;
     for ( ; t != t_end; ++t) {
-#ifdef OLD_TERMLIST_FORMAT
-	v += pack_string(*t);
-	v += pack_uint(t.get_wdf());
-	if (store_termfreqs) v += pack_uint(t.get_termfreq());
-	++size;
-#else
 	// If there was a previous term, how much to reuse (one byte for now)
 	if (!prev_term.empty()) {
 	    string::size_type len = min(prev_term.length(), (*t).length());
@@ -72,7 +66,6 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 	v += pack_uint(t.get_wdf());
 	if (store_termfreqs) v += pack_uint(t.get_termfreq());
 	++size;
-#endif
     }
     *tag += pack_uint(size);
     *tag += pack_bool(store_termfreqs);
@@ -153,29 +146,6 @@ QuartzTermList::next()
 	have_finished = true;
 	RETURN(0);
     }
-#ifdef OLD_TERMLIST_FORMAT
-    // Read termname
-    if (!unpack_string(&pos, end, current_tname)) {
-	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw Xapian::RangeError("Size of termname out of range, in termlist.");
-    }
-
-    // Read wdf
-    if (!unpack_uint(&pos, end, &current_wdf)) {
-	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw Xapian::RangeError("Size of wdf out of range, in termlist.");
-    }
-    
-    // Read termfreq, if stored
-    if (has_termfreqs) {
-	if (!unpack_uint(&pos, end, &current_termfreq)) {
-	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	    throw Xapian::RangeError("Size of term frequency out of range, in termlist.");
-	}
-    } else {
-	current_termfreq = 0;
-    }
-#else
     // If there was a previous term, how much to reuse (one byte for now)
     if (!current_tname.empty()) {
 	current_tname.resize((unsigned char)(*pos++));
@@ -201,7 +171,6 @@ QuartzTermList::next()
     } else {
 	current_termfreq = 0;
     }
-#endif
  
     DEBUGLINE(DB, "QuartzTermList::next() - " <<
 		  "current_tname=" << current_tname <<
