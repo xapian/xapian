@@ -104,7 +104,7 @@ inline RefCntPtr<T>::RefCntPtr(const RefCntPtr &other) : dest(other.dest)
 
 template <class T>
 inline void RefCntPtr<T>::operator=(const RefCntPtr &other) {
-    return operator=(other.dest);
+    operator=(other.dest);
 }
 
 template <class T>

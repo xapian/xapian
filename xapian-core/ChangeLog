@@ -1,3 +1,8 @@
+Mon Mar 15 17:20:58 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/base.h: Returning a void result makes SGI's compiler
+	  complain - don't!
+
 Mon Mar 15 14:34:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc: Only use O_SYNC (on the debug log) if we have it.
