@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -233,6 +233,7 @@ class Btree {
 	/// Set to true when the database is opened to write.
 	bool writable;
 
+	/* B-tree navigation functions */
 	bool prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }
 	bool next(Cursor *C_, int j) { return (this->*next_ptr)(C_, j); }
 
@@ -245,7 +246,14 @@ class Btree {
 	bool prev_for_sequential(Cursor *C_, int dummy);
 	bool next_for_sequential(Cursor *C_, int dummy);
 
-	/* B-tree navigation functions */
+	static int find_in_block(const byte * p, const byte * key, int offset, int c);
+
+	static int compare_keys(const byte * key1, const byte * key2);
+
+	/** block_given_by(p, c) finds the item at block address p, directory
+	 *  offset c, and returns its tag value as an integer.
+	 */
+	static uint4 block_given_by(const byte * p, int c);
 
 	Cursor C[BTREE_CURSOR_LEVELS];
 

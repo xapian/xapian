@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,6 +69,9 @@ using std::min;
 using std::string;
  
 const string::size_type Btree::max_key_len;
+
+// FIXME: This named constant isn't used everywhere it should be below...
+#define BYTES_PER_BLOCK_NUMBER 4
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
@@ -503,29 +506,29 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
     AssertEq(j, GET_LEVEL(p));
 }
 
-/* set_block_given_by(p, c, n) finds the item at block address p,
-   directory offset c, and sets its tag value to n. For blocks not at
-   the data level, when GET_LEVEL(p) > 0, the tag of an item is just
-   the block number of another block in the B-tree structure.
-
-   (The built in '4' below is the number of bytes per block number.)
-*/
+/** set_block_given_by(p, c, n) finds the item at block address p,
+ *  directory offset c, and sets its tag value to n.  For blocks not at
+ *  the data level, when GET_LEVEL(p) > 0, the tag of an item is just
+ *  the block number of another block in the B-tree structure.
+ */
 
 static void set_block_given_by(byte * p, int c, uint4 n)
 {
     c = GETD(p, c);        /* c is an offset to an item */
-    c += GETI(p, c) - 4;   /* c is an offset to a block number */
+    c += GETI(p, c) - BYTES_PER_BLOCK_NUMBER;
+			   /* c is an offset to a block number */
     set_int4(p, c, n);
 }
 
-/* block_given_by(p, c) finds the item at block address p, directory offset c,
-   and returns its tag value as an integer.
-*/
-
-static uint4 block_given_by(const byte * p, int c)
+/** block_given_by(p, c) finds the item at block address p, directory offset c,
+ *  and returns its tag value as an integer.
+ */
+uint4
+Btree::block_given_by(const byte * p, int c)
 {
     c = GETD(p, c);        /* c is an offset to an item */
-    c += GETI(p, c) - 4;   /* c is an offset to a block number */
+    c += GETI(p, c) - BYTES_PER_BLOCK_NUMBER;
+			   /* c is an offset to a block number */
     return get_int4(p, c);
 }
 
@@ -591,30 +594,24 @@ Btree::alter()
    are equal do we compare the counts.
 */
 
-static int compare_keys(const byte * key1, const byte * key2)
+int Btree::compare_keys(const byte * key1, const byte * key2)
 {
     int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
+    if (key1_len == key2_len)
+	return memcmp(key1 + K1, key2 + K1, key1_len - K1);
+
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
-    int i;
 
     // Compare the first part of the keys
-    for (i = K1; i < k_smaller; i++) {
-	int diff = (int) key1[i] - key2[i];
-	if (diff != 0) return diff;
-    }
+    int diff = memcmp(key1 + K1, key2 + K1, k_smaller - K1);
+    if (diff != 0) return diff;
 
-    {
-	int diff = key1_len - key2_len;
-	if (diff != 0) return diff;
-    }
+    diff = key1_len - key2_len;
+    if (diff != 0) return diff;
 
     // Compare the count
-    for (; i < k_smaller + C2; i++) {
-	int diff = (int) key1[i] - key2[i];
-	if (diff != 0) return diff;
-    }
-    return 0;
+    return memcmp(key1 + k_smaller, key2 + k_smaller, C2);
 }
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
@@ -629,7 +626,7 @@ static int compare_keys(const byte * key1, const byte * key2)
    c if possible.
 */
 
-static int find_in_block(const byte * p, const byte * key, int offset, int c)
+int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 {
     int i = DIR_START - offset;
     int j = DIR_END(p);

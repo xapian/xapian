@@ -1,3 +1,12 @@
+Thu Jan 15 00:56:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  testsuite/btreecheck.cc: Made some static functions into static
+	  member functions of Btree so we can avoid duplicating code in
+	  btreecheck.cc.  Also tweaked compare_keys to use memcmp and
+	  special case when the keys are the same length (each of these
+	  changes gives a very small speed gain).
+
 Thu Jan 15 00:54:47 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h: Removed a FIXME which already had been fixed.

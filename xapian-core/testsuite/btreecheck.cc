@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,41 +29,6 @@
 using namespace std;
 
 #include "btreecheck.h"
-
-// FIXME: duplicated from btree.cc for now
-static int compare_keys(const byte * key1, const byte * key2)
-{
-    int key1_len = GETK(key1, 0);
-    int key2_len = GETK(key2, 0);
-    int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
-    int i;
-
-    // Compare the first part of the keys
-    for (i = K1; i < k_smaller; i++) {
-	int diff = (int) key1[i] - key2[i];
-	if (diff != 0) return diff;
-    }
-
-    {
-	int diff = key1_len - key2_len;
-	if (diff != 0) return diff;
-    }
-
-    // Compare the count
-    for (; i < k_smaller + C2; i++) {
-	int diff = (int) key1[i] - key2[i];
-	if (diff != 0) return diff;
-    }
-    return 0;
-}
-
-static int block_given_by(const byte * p, int c)
-{
-    c = GETD(p, c);        /* c is an offset to an item */
-    c += GETI(p, c) - 4;   /* c is an offset to a block number */
-    return get_int4(p, c);
-}
-//
 
 void BtreeCheck::print_spaces(int n) const
 {
