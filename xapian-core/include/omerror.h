@@ -28,23 +28,18 @@
 
 #include "omtypes.h"
 
+/// Base class for all errors re
 class OmError {
     private:
         string msg;
 
 	// assignment operator private and unimplemented
-	void operator=(const OmError &other);
+	void operator=(const OmError &copyme);
     protected:
     	// constructors are protected, since they can only
 	// be used by derived classes anyway.
-        OmError(const string &error_msg)
-        {
-            msg = error_msg;
-        }
-	OmError(const OmError &other)
-	{
-	    msg = other.msg;
-	}
+        OmError(const string &error_msg) : msg(error_msg) { }
+	OmError(const OmError &copyme) : msg(copyme.msg) {}
     public:
         string get_msg()
         {
@@ -96,4 +91,5 @@ class OmOpeningError : public OmRuntimeError {
     public:
         OmOpeningError(const string &msg) : OmRuntimeError(msg) {};
 };
+
 #endif /* OM_HGUARD_ERROR_H */
