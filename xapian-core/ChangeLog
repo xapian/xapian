@@ -1,3 +1,7 @@
+Thu May 06 23:30:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Improved a comment.
+
 Thu May 06 22:20:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Added a few more assertions.

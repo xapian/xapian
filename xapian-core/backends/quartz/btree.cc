@@ -385,8 +385,8 @@ Btree::write_block(uint4 n, const byte * p)
    which gives the number, n, of the block for the next level. This
    leads to an array of values p,c,n which are held inside the cursor.
 
-   Structure B has a built-in cursor, at B->C. But other cursors may
-   be created. If BC is a created cursor, BC->C is the cursor in the
+   Any Btree object B has a built-in cursor, at B->C. But other cursors may
+   be created.  If BC is a created cursor, BC->C is the cursor in the
    sense given above, and BC->B is the handle for the B-tree again.
 */
 
@@ -658,7 +658,7 @@ void
 Btree::split_root(Cursor * C_, int j)
 {
     /* gain a level */
-    level ++;
+    level++;
 
     /* check level overflow */
     AssertNe(level, BTREE_CURSOR_LEVELS);
