@@ -1,3 +1,7 @@
+Fri Aug 11 19:25:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add to internaltest a test that nested exceptions work correctly.
+
 Fri Aug 11 19:09:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API change:  Replaced OmWritableDatabase::end_transaction() by

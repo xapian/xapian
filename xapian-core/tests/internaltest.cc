@@ -176,6 +176,29 @@ bool test_testsuite3()
     return success;
 }
 
+class Test_Exception {
+    public:
+	int value;
+	Test_Exception(int value_) : value(value_) {}
+};
+
+bool test_exception1()
+{
+    try {
+	try {
+	    throw Test_Exception(1);
+	} catch (...) {
+	    try {
+		throw Test_Exception(2);
+	    } catch (...) {
+	    }
+	}
+    } catch (Test_Exception & e) {
+	TEST_EQUAL(e.value, 1);
+    }
+    return true;
+}
+
 #ifdef HAVE_NO_ACCESS_CONTROL
 // ###########################################
 // # Tests of the reference counted pointers #
@@ -505,6 +528,7 @@ test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"testsuite3",		test_testsuite3},
+    {"exception1",              test_exception1},
 #ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
 #endif // HAVE_NO_ACCESS_CONTROL
