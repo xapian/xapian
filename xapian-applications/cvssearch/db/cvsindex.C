@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
       cerr << "... reading " << file_db << endl;
 
       int files = 0;
-      Lines lines( "", file_db, file_offset, false ); // no stop words
+      Lines lines( "", package, file_db, file_offset, false ); // no stop words
       string prev_file = "";
       while ( lines.ReadNextLine() ) {
 	if ( lines.currentFile() != prev_file ) {

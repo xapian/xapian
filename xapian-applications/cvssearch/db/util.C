@@ -527,9 +527,11 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
     
 }
 
-Lines::Lines( const string& p, const string& file_db, const string& file_offset, bool use_stop_words ) {
+Lines::Lines( const string& p, const string& pkg, const string& file_db, const string& file_offset, bool use_stop_words ) {
   
   path = p;
+
+  package = pkg;
   
   load_offset_file( file_offset, files, offsets );
   
@@ -724,7 +726,7 @@ bool Lines::ReadNextLine() {
   // build data string
   static char str[4096];
   sprintf(str, "%d %d", file_no, (line_no-current_offset+1) );
-  data = string(str) + ":";
+  data = string(str) +" " + package + ":";
   
   for(int i = revisions.size()-1; i >=0; i-- ) {
     data += revisions[i];

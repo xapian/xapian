@@ -44,8 +44,9 @@ class Lines {
   void extractSymbols( const string& s );
   void load_offset_file(  const string& file_offset, vector<string>& files, vector<string>& offsets );
   void Lines::readVector( const string& line, const string& field, vector<string>& field_vector );
+  string package;
 public:
-  Lines( const string& p, const string& file_db, const string& file_offset, bool use_stop_words = true );
+  Lines( const string& p, const string& package, const string& file_db, const string& file_offset, bool use_stop_words = true );
   ~Lines();
   string currentFile();
   // returns false when there is no next line

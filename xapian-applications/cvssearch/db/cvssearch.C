@@ -26,6 +26,8 @@
 
 #include "util.h"
 
+#warning "should look at $CVSDATA"
+
 int main(int argc, char *argv[]) {
      if(argc < 3) {
         cout << "Usage: " << argv[0] <<

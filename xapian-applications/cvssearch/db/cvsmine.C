@@ -15,6 +15,19 @@
 //
 //  Generates package1.count package2.count ...
 
+#warning "requires ctags from http://ctags.sourceforge.net/"
+
+// ctags options
+//  want classes
+//  want public/protected member *functions*
+//  ignore inheritance for now...
+
+// -R (recursive)
+// --c-types=cfmpsuAC 
+
+// from this, ignore all entries with access:private
+
+
 
 
 //
@@ -146,7 +159,7 @@ int main(int argc, char *argv[]) {
 
       { // pass 1
 	cerr << "PASS 1" << endl;
-	Lines lines( codepath, file_db, file_offset );
+	Lines lines( codepath, package, file_db, file_offset );
 	int lines_read = 0;
 	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
 
@@ -185,7 +198,7 @@ int main(int argc, char *argv[]) {
       
       { // pass 2
 	cerr << "PASS 2" << endl;
-	Lines lines( codepath, file_db, file_offset );
+	Lines lines( codepath, package, file_db, file_offset );
 	
 	int lines_read = 0;
 
