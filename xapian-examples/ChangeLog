@@ -1,3 +1,8 @@
+Sun Jul 20 18:32:20 BST 2003  Olly Betts <olly@survex.com>
+
+	* indexergui/: Removed indexergui directory - it was moved to
+	  xapian-application/xapview some time ago.
+
 Thu Jul 17 01:41:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* acinclude.m4: Removed - we no longer need the GTK macros, and should
