@@ -26,11 +26,16 @@
 #include "irdocument.h"
 #include "daread.h"
 
+class DADatabase;
+
 class DADocument : public virtual IRDocument {
     friend class DADatabase;
     private:
-	struct record * rec;
-	DADocument(struct record *);
+	const DADatabase * database;
+	docid did;
+	mutable struct record * rec;
+
+	DADocument(const DADatabase *, docid);
 
 	// Stop copying
 	DADocument(const DADocument &);
@@ -41,5 +46,12 @@ class DADocument : public virtual IRDocument {
 	IRKey get_key(keyno) const;
 	IRData get_data() const;
 };
+
+inline
+DADocument::DADocument(const DADatabase * _database, docid _did)
+	: database(_database), did(_did), rec(NULL)
+{
+}
+
 
 #endif /* _da_record_h_ */

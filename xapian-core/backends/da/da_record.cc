@@ -21,30 +21,30 @@
  */
 
 #include "irdocument.h"
+#include "da_database.h"
 #include "da_record.h"
 #include "daread.h"
 #include "damuscat.h"
 
-DADocument::DADocument(struct record *rec_new) {
-    rec = rec_new;
-}
-
-DADocument::~DADocument() {
-    loserecord(rec);
+DADocument::~DADocument()
+{
+    if(rec != NULL) loserecord(rec);
 }
 
 IRKey
-DADocument::get_key(keyno id) const
+DADocument::get_key(keyno keyid) const
 {
-    printf("Record at %p, size %d\n", rec->p, rec->size);
+    cout << "Asked for keyno " << keyid;
     IRKey key;
-    key.value = 0;
+    key.value = did % (keyid + 1);
+    cout << ": saying " << key.value << endl;
     return key;
 }
 
 IRData
 DADocument::get_data() const
 {
+    if(rec == NULL) rec = database->get_record(did);
     IRData data;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LOF(pos, 0);

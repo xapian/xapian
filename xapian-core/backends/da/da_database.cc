@@ -167,7 +167,8 @@ DADatabase::open(const DatabaseBuilderParams & params)
 }
 
 // Returns a new posting list, for the postings in this database for given term
-DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
+DBPostList *
+DADatabase::open_post_list(const termname &tname, RSet *rset) const
 {
     Assert(opened);
 
@@ -183,7 +184,8 @@ DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
 }
 
 // Returns a new term list, for the terms in this database for given document
-DBTermList * DADatabase::open_term_list(docid did) const
+DBTermList *
+DADatabase::open_term_list(docid did) const
 {
     Assert(opened);
 
@@ -201,7 +203,8 @@ DBTermList * DADatabase::open_term_list(docid did) const
     return tl;
 }
 
-IRDocument * DADatabase::open_document(docid did) const
+struct record *
+DADatabase::get_record(docid did) const
 {
     Assert(opened);
 
@@ -213,8 +216,15 @@ IRDocument * DADatabase::open_document(docid did) const
 	throw RangeError("Docid not found");
     }
 
-    DADocument *rec = new DADocument(r);
-    return rec;
+    return r;
+}
+
+IRDocument *
+DADatabase::open_document(docid did) const
+{
+    Assert(opened);
+
+    return new DADocument(this, did);
 }
 
 const DATerm *

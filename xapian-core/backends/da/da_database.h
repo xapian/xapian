@@ -234,6 +234,7 @@ DATerm::get_ti() const
 
 class DADatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
+    friend class DADocument;
     private:
 	bool   opened;
 	struct DAfile * DA_r;
@@ -247,6 +248,9 @@ class DADatabase : public virtual IRDatabase {
 
 	// Look up term in database
 	const DATerm * term_lookup(const termname &) const;
+
+	// Get a record
+	struct record * get_record(docid did) const;
 
 	DADatabase();
 	void open(const DatabaseBuilderParams &);
