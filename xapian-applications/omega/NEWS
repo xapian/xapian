@@ -1,4 +1,4 @@
-Omega 0.8.0 (2004-04-??):
+Omega 0.8.0 (2004-04-12):
 
 * scriptindex: Change default to *not* overwriting the database (use
   --overwrite if you really want to do this); -u is now accepted but ignored.
@@ -29,6 +29,12 @@ Omega 0.8.0 (2004-04-??):
 * omindex/scriptindex: Raw terms with a multicharacter prefix are now indexed
   with a : inserted (e.g. as XFOO:Rterm).  This matches what the query parser
   does.
+
+* omindex/scriptindex: Don't create R terms for terms which start with a digit.
+
+* omindex: Use O_STREAMING and/or posix_fadvise() when reading files to be
+  indexed (if available).  This helps to keep the Xapian database in cache,
+  and should greatly improve indexing throughput.
 
 * docs/scriptindex.txt: Make more explicit that boolean produces a *single*
   boolean term.

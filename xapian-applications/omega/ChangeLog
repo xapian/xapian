@@ -1,3 +1,7 @@
+Mon Apr 12 01:06:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.0.
+
 Mon Apr 12 00:03:57 BST 2004  Olly Betts <olly@survex.com>
 
 	* indextext.cc,query.cc: Don't create R terms for terms which start
