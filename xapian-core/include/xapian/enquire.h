@@ -923,7 +923,7 @@ class Weight {
 	virtual std::string serialise() const = 0;
 
 	/// Create object given string serialisation returned by serialise().
-	virtual Weight * Weight::unserialise(const std::string &s) const = 0;
+	virtual Weight * unserialise(const std::string &s) const = 0;
 
 	/** Get a weight which is part of the sum over terms being performed.
 	 *  This returns a weight for a given term and document.  These

@@ -89,7 +89,7 @@ class Database {
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 */
-	virtual void operator=(const Database &other);
+	void operator=(const Database &other);
 
 	/** Re-open the database.
 	 *  This re-opens the database(s) to the latest available version(s).

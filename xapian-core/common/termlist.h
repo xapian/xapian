@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,9 @@
 
 using namespace std;
 
-class Xapian::PositionIterator;
+namespace Xapian {
+class PositionIterator;
+}
 
 /** Abstract base class for termlists. */
 class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase

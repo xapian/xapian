@@ -1,3 +1,9 @@
+Thu Mar 11 23:53:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/database.h,common/termlist.h,include/xapian/database.h,
+	  include/xapian/enquire.h: Attempted fixes for warnings given by
+	  SGI's MIPSpro C++ compiler.
+
 Thu Mar 11 23:51:10 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: GCC 2.95 supported -Wno-long-long and is our minimum
