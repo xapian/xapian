@@ -1,3 +1,7 @@
+Mon Nov 19 17:13:24 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added date-range filtering (not fully tested yet).
+
 Mon Nov 19 15:21:31 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed (c) message displayed by -v (BrightStation "PLC" not "Inc.",

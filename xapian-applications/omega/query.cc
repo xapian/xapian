@@ -113,6 +113,80 @@ void add_bterm(const string &term) {
     filter_map.insert(std::make_pair(term[0], term));
 }
 
+static int
+last_day(int y, int m)
+{
+    static const int l[13] = {
+	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+    if (m != 2) return l[m];
+    return 28 + (y % 4 == 0); // good until 2100
+}
+
+static OmQuery
+date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
+{
+    char buf[9];
+    sprintf(buf, "%04d%02d", y1, m1);
+    std::vector<OmQuery> v;
+
+    // Deal with any initial partial month
+    if (d1 > 1 || (y1 == y2 && m1 == m2 && d2 < last_day(y2, m2))) {
+    	for ( ; d1 <= 31 ; d1++) {
+	    sprintf(buf + 6, "%02d", d1);
+	    v.push_back(OmQuery('D' + std::string(buf)));
+	}
+    } else {
+	v.push_back(OmQuery('M' + std::string(buf)));
+    }
+    
+    if (y1 == y2 && m1 == m2) {
+	return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
+    }
+
+    int m_last = (y1 < y2) ? 12 : m2 - 1;
+    while (++m1 <= m_last) {
+	sprintf(buf + 4, "%02d", m1);
+	v.push_back(OmQuery('M' + std::string(buf)));
+    }
+	
+    if (y1 < y2) {
+	while (++y1 < y2) {
+	    sprintf(buf, "%04d", y1);
+	    v.push_back(OmQuery('Y' + std::string(buf)));
+	}
+	sprintf(buf, "%04d", y2);
+	for (m1 = 1; m1 < m2; m1++) {
+	    sprintf(buf + 4, "%02d", m1);
+	    v.push_back(OmQuery('M' + std::string(buf)));
+	}
+    }
+	
+    sprintf(buf + 4, "%02d", m2);
+
+    // Deal with any final partial month
+    if (d2 < last_day(y2, m2)) {
+    	for (d1 = 1 ; d1 <= d2; d1++) {
+	    sprintf(buf + 6, "%02d", d1);
+	    v.push_back(OmQuery('D' + std::string(buf)));
+	}
+    } else {
+	v.push_back(OmQuery('M' + std::string(buf)));
+    }
+
+    return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
+}
+
+static void
+parse_date(string date, int *y, int *m, int *d)
+{
+    // FIXME: for now only support YYYYMMDD (e.g. 20011119)
+    // and don't error check
+    *y = atoi(date.substr(0, 4).c_str());
+    *m = atoi(date.substr(4, 2).c_str());
+    *d = atoi(date.substr(6, 2).c_str());
+}
+
 static void
 run_query()
 {
@@ -149,6 +223,45 @@ run_query()
 			OmQuery(OmQuery::OP_AND,
 				filter_vec.begin(),
 				filter_vec.end()));
+    }
+
+    if (!date1.empty() || !date2.empty() || !daysminus.empty()) {
+	int y1 = 1970, m1 = 1, d1 = 1;
+	if (!date1.empty()) {
+	    parse_date(date1, &y1, &m1, &d1);	
+	}
+	int y2, m2, d2;
+	if (!daysminus.empty()) {
+	    time_t now = time(NULL);
+	    if (date1.empty()) {
+		struct tm *t = localtime(&now);
+		y2 = t->tm_year + 1900;
+		m2 = t->tm_mon + 1;
+		d2 = t->tm_mday;
+	    } else {
+		y2 = y1;
+		m2 = m1;
+		d2 = d1;
+	    }
+	    // FIXME: if DATE1 and DAYSMINUS set, use date1 not now...
+	    time_t then = now - atoi(daysminus.c_str()) * 86400;
+	    struct tm *t = localtime(&then);
+	    y1 = t->tm_year + 1900;
+	    m1 = t->tm_mon + 1;
+	    d1 = t->tm_mday;
+	} else if (date2.empty()) {
+	    time_t now = time(NULL);
+	    struct tm *t = localtime(&now);
+	    y2 = t->tm_year + 1900;
+	    m2 = t->tm_mon + 1;
+	    d2 = t->tm_mday;
+	} else {
+	    parse_date(date2, &y2, &m2, &d2);
+	}
+	
+	query = OmQuery(OmQuery::OP_FILTER,
+		       	query,
+			date_range_filter(y1, m1, d1, y2, m2, d2));
     }
 
     enquire->set_query(query);

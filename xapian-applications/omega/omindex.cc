@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +21,12 @@
  * USA
  * -----END-LICENCE-----
  */
+
+// Uncomment this if you rely on the M prefix on the mimetype or the S prefix on the
+// "subsite" - these are now a T prefix on the mimetype and a H prefix for host/P prefix
+// for path
+//#define OLD_PREFIXES
+
 #include <string>
 #include <map>
 #include <memory>
@@ -163,7 +170,7 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 }
 
 static void
-index_file(const string &url, const string &mimetype)
+index_file(const string &url, const string &mimetype, time_t last_mod)
 {
     string file = root + url;
     string title, sample, keywords, dump;
@@ -294,8 +301,36 @@ index_file(const string &url, const string &mimetype)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
+#ifdef OLD_PREFIXES
     newdocument.add_term_nopos("M" + mimetype); // Mimetype
     newdocument.add_term_nopos("S" + baseurl); // Subsite
+#else
+    newdocument.add_term_nopos("T" + mimetype); // mimeType
+    string::size_type j;
+    j = baseurl.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				  "abcdefghijklmnopqrstuvwxyz"
+			    	  "0123456789");
+    if (j > 0 && baseurl.substr(j, 3) == "://") {
+	j += 3;
+    	string::size_type k = baseurl.find_first_of(":/", j);
+	newdocument.add_term_nopos("H" + baseurl.substr(j, k - j)); // Host
+	k = baseurl.find('/', k);
+	newdocument.add_term_nopos("P" + baseurl.substr(k)); // Path
+    } else {
+	newdocument.add_term_nopos("P" + baseurl); // Path
+    }
+    struct tm *tm = localtime(&last_mod);
+    char buf[9];
+    sprintf(buf, "%04d%02d%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    newdocument.add_term_nopos("D" + string(buf)); // Date (YYYYMMDD)
+    buf[7] = '\0';
+    if (buf[6] == '3') buf[6] = '2';
+    newdocument.add_term_nopos("W" + string(buf)); // "Weak" - 10ish day interval
+    buf[6] = '\0';
+    newdocument.add_term_nopos("M" + string(buf)); // Month (YYYYMM)
+    buf[4] = '\0';
+    newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
+#endif
     newdocument.add_term_nopos("U" + baseurl + url); // Url
 
     if (dupes==DUPE_replace && db->term_exists("U" + baseurl + url)) {
@@ -360,7 +395,7 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	    map<string,string>::const_iterator mt;
 	    if ((mt = mime_map.find(ext))!=mime_map.end()) {
 	      // If it's in our MIME map, presumably we know how to index it
-	      index_file(url, mt->second);
+	      index_file(url, mt->second, statbuf.st_mtime);
 	    }
 	    continue;
 	}

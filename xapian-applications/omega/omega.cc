@@ -44,6 +44,8 @@ OmRSet * rset;
 
 map<string, string> option;
 
+string date1, date2, daysminus;
+
 const string default_dbname = "default";
 
 string dbname;
@@ -262,13 +264,19 @@ main2(int argc, char *argv[])
 	if (!v.empty() && isalnum(v[0])) add_bterm(v);
     }
 
+    // date range filters
+    val = cgi_params.find("DATE1");
+    if (val != cgi_params.end()) date1 = val->second;
+    val = cgi_params.find("DATE2");
+    if (val != cgi_params.end()) date2 = val->second;
+    val = cgi_params.find("DAYSMINUS");
+    if (val != cgi_params.end()) daysminus = val->second;
+    
     rset = new OmRSet();
     string v;
     // get list of terms from previous iteration of query
     val = cgi_params.find("OLDP");
-    if (val == cgi_params.end()) {
-	v = "";
-    } else {
+    if (val != cgi_params.end()) {
 	v = val->second;
     }
     if (set_probabilistic(big_buf, v) != NEW_QUERY) {

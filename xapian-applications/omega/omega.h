@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +54,8 @@ extern om_docid hits_per_page;
 extern int threshold;
 
 extern map<string, string> option;
+
+extern string date1, date2, daysminus;
 
 extern const string default_dbname;
 
