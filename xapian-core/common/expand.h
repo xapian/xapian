@@ -12,7 +12,7 @@ class ESetItem {
     public:
 	weight wt;
 	termid tid;
-	ESetItem(weight wt_new, docid tid_new)
+	ESetItem(weight wt_new, termid tid_new)
 		: wt(wt_new), tid(tid_new)
 		{ return ; }
 };
@@ -34,7 +34,7 @@ class Expand {
 	termcount etotal;
 };
 
-Expand::Expand(IRDatabase *database_new)
+inline Expand::Expand(IRDatabase *database_new)
 	: database(database_new),
 	  max_esize(1000)
 { return; }

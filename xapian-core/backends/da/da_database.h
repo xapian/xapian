@@ -102,6 +102,7 @@ class DATermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
+	weight get_weight() const; // Gets weight of current termid
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term

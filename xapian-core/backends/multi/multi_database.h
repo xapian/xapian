@@ -118,6 +118,7 @@ class MultiTermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
+	weight get_weight() const;
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -146,6 +147,11 @@ inline termcount
 MultiTermList::get_approx_size() const
 {
     return tl->get_approx_size();
+}
+
+inline weight
+MultiTermList::get_weight() const {
+    return tl->get_weight();
 }
 
 inline termid MultiTermList::get_termid() const

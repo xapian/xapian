@@ -80,6 +80,7 @@ class SleepyTermList : public virtual TermList {
 	~SleepyTermList();
 	termcount get_approx_size() const;
 
+	weight get_weight() const;  // Gets weight of current termid
 	termid get_termid() const;  // Current termid
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
@@ -91,6 +92,13 @@ inline termcount
 SleepyTermList::get_approx_size() const
 {
     return terms;
+}
+
+inline weight
+SleepyTermList::get_weight() const {
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1.0; // FIXME
 }
 
 inline termid

@@ -13,6 +13,7 @@ class OrTermList : public virtual BranchTermList {
     public:
 	termcount get_approx_size() const;
 
+	weight get_weight() const;
 	termid get_termid() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
@@ -27,6 +28,15 @@ class OrTermList : public virtual BranchTermList {
         OrTermList(TermList *, TermList *);
 //        OrTermList(TermList *, TermList *, Match *);
 };
+
+inline weight
+OrTermList::get_weight() const
+{
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead < rhead) return l->get_weight();
+    if (lhead > rhead) return r->get_weight();
+    return l->get_weight() + r->get_weight();
+}
 
 inline doccount
 OrTermList::get_termfreq() const

@@ -71,11 +71,11 @@ Expand::expand(const RSet *rset)
 
     TermList *merger = Expand::build_tree(rset);
 
-#if 0
-    recalculate_maxweight = false;
+    bool recalculate_maxweight = false;
 
     while (1) {
 	if (recalculate_maxweight) {
+#if 0
 	    recalculate_maxweight = false;
 	    w_max = merger->recalc_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
@@ -83,9 +83,11 @@ Expand::expand(const RSet *rset)
 		cout << "*** TERMINATING EARLY (1)" << endl;
 		break;
 	    }
+#endif
 	}    
 
-	PostList *ret = merger->next(w_min);
+	//TermList *ret = merger->next(w_min);
+	TermList *ret = merger->next();
         if (ret) {
 	    delete merger;
 	    merger = ret;
@@ -93,6 +95,7 @@ Expand::expand(const RSet *rset)
 	    cout << "*** REPLACING ROOT\n";
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
+#if 0
 	    w_max = merger->get_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
             AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
@@ -101,42 +104,45 @@ Expand::expand(const RSet *rset)
 		cout << "*** TERMINATING EARLY (2)" << endl;
 		break;
 	    }
+#endif
 	}
 
 	if (merger->at_end()) break;
 
         etotal++;
 	
-        weight w = merger->get_weight();
+        weight wt = merger->get_weight();
         
-        if (w > w_min) {
-	    docid id = merger->get_docid();
-	    mset.push_back(MSetItem(w, id));
+        if (wt > w_min) {
+	    termid id = merger->get_termid();
+	    eset.push_back(ESetItem(wt, id));
 
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better w_min optimisations
-	    if (mset.size() == max_msize * 2) {
+	    if (eset.size() == max_esize * 2) {
 		// find last element we care about
 		cout << "finding nth\n";		
-		nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
+		nth_element(eset.begin(),
+			    eset.begin() + max_esize,
+			    eset.end(),
+			    ESetCmp());
 		// erase elements which don't make the grade
-	        mset.erase(mset.begin() + max_msize, mset.end());
-	        w_min = mset.back().w;
-	        cout << "mset size = " << mset.size() << endl;
+	        eset.erase(eset.begin() + max_esize, eset.end());
+	        w_min = eset.back().wt;
+	        cout << "eset size = " << eset.size() << endl;
 	    }
 	}
     }
 
-    if (mset.size() > max_msize) {
+    if (eset.size() > max_esize) {
 	// find last element we care about
 	cout << "finding nth\n";		
-	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
+	nth_element(eset.begin(), eset.begin() + max_esize, eset.end(), ESetCmp());
 	// erase elements which don't make the grade
-	mset.erase(mset.begin() + max_msize, mset.end());
+	eset.erase(eset.begin() + max_esize, eset.end());
     }
     cout << "sorting\n";
-    stable_sort(mset.begin(), mset.end(), MSetCmp());
-#endif
+    stable_sort(eset.begin(), eset.end(), ESetCmp());
 
     cout << "esize = " << eset.size() << ", etotal = " << etotal << endl;
     if (eset.size()) {

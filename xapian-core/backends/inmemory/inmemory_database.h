@@ -142,6 +142,7 @@ class TextfileTermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
+	weight get_weight() const;
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -277,6 +278,13 @@ inline TextfileTermList::TextfileTermList(const TextfileDatabase *db,
 inline termcount TextfileTermList::get_approx_size() const
 {
     return terms;
+}
+
+inline weight TextfileTermList::get_weight() const
+{
+    Assert(started);
+    Assert(!at_end());
+    return 1.0;  // FIXME
 }
 
 inline termid TextfileTermList::get_termid() const

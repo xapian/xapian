@@ -91,6 +91,19 @@ DATermList::DATermList(const DADatabase *db, struct termvec *tv)
     pos = terms.begin();
 }
 
+weight DATermList::get_weight() const
+{
+    return 1.0; // FIXME
+#if 0
+    Assert(!at_end());
+    Assert(currdoc != 0);
+
+    // NB ranges from daread share the same wdf value
+    return ir_wt->get_weight(postlist->wdf, 1.0);
+#endif
+}
+
+
 
 
 DADatabase::DADatabase()
