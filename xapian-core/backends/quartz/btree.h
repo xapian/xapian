@@ -267,7 +267,7 @@ public:
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len) {
 	memmove(p + cd, start, len);
-	set_size(cd + len); // XXX to Item
+	set_size(cd + len);
     }
     void fake_root_item() {
 	set_key_len(K1 + C2);   // null key length
@@ -426,6 +426,10 @@ class Btree {
 	 */
 	bool find_tag(const string &key, string * tag) const;
 
+	/** Read the tag value for the key pointed to by cursor C_.
+	 */
+	void read_tag(Cursor * C_, string *tag) const;
+
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
 	 *
@@ -444,7 +448,7 @@ class Btree {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool add(const string &key, const string &tag);
+	bool add(const string &key, string tag);
 
 	/** Delete an entry from the table.
 	 *

@@ -72,6 +72,7 @@ extern ssize_t pwrite(int, const void *, size_t, off_t);
 #include "btree_util.h"
 #include "btree_base.h"
 #include "bcursor.h"
+#include "quartz_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
@@ -1082,7 +1083,7 @@ void Btree::form_key(const string & key) const
 */
 
 bool
-Btree::add(const string &key, const string &tag)
+Btree::add(const string &key, string tag)
 {
     DEBUGCALL(DB, bool, "Btree::add", key << ", " << tag);
     Assert(writable);
@@ -1205,7 +1206,14 @@ Btree::find_tag(const string &key, string * tag) const
     form_key(key);
     if (!find(C)) RETURN(false);
 
-    Item item(C[0].p, C[0].c);
+    read_tag(C, tag);
+    RETURN(true);
+}
+
+void
+Btree::read_tag(Cursor * C_, string *tag) const
+{
+    Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
     int n = item.components_of();
@@ -1215,13 +1223,12 @@ Btree::find_tag(const string &key, string * tag) const
 
     item.append_chunk(tag);
 
-    // FIXME: code to do very similar thing in bcursor.cc...
     for (int i = 2; i <= n; i++) {
-	next(C, 0);
-	(void)Item(C[0].p, C[0].c).append_chunk(tag);
+	next(C_, 0);
+	(void)Item(C_[0].p, C_[0].c).append_chunk(tag);
     }
-
-    RETURN(true);
+    // At this point the cursor is on the last item - calling next will move
+    // it to the next key (Bcursor::get_tag() relies on this).
 }
 
 void
@@ -1349,9 +1356,9 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 
     max_item_size = (block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
 
-    /* ready to open the main file */
-
     base_letter = ch;
+
+    /* ready to open the main file */
 
     return true;
 }

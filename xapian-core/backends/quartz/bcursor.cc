@@ -214,27 +214,13 @@ Bcursor::get_tag(string * tag)
 
     if (!is_positioned) return false;
 
-    Item item(C[0].p, C[0].c);
+    B->read_tag(C, tag);
 
-    /* n components to join */
-    int n = item.components_of();
-
-    tag->resize(0);
-    if (n > 1) tag->reserve(B->max_item_size * n);
-
-    item.append_chunk(tag);
+    // We need to call B->next(...) after B->read_tag(...) so that the
+    // cursor ends up on the next key.
     is_positioned = B->next(C, 0);
-
-    // FIXME: code to do very similar thing in btree.cc...
-    for (int i = 2; i <= n; i++) {
-	(void)Item(C[0].p, C[0].c).append_chunk(tag);
-	// We need to call B->next(...) on the last pass so that the
-	// cursor ends up on the next key.
-	is_positioned = B->next(C, 0);
-    }
     return is_positioned;
 }
-
 
 void
 Bcursor::read_tag()
