@@ -74,10 +74,6 @@ bool test_absentterm1();
 bool test_absentterm2();
 // test behaviour when creating a query from an empty vector
 bool test_emptyquerypart1();
-// test that a multidb with 2 dbs query returns correct docids
-bool test_multidb3();
-// test that a multidb with 3 dbs query returns correct docids
-bool test_multidb4();
 
 bool floats_are_equal_enough(double a, double b)
 {
@@ -1445,6 +1441,7 @@ bool test_emptyquerypart1()
     return true;
 }
 
+// test that a multidb with 2 dbs query returns correct docids
 bool test_multidb3()
 {
     bool success = true;
@@ -1496,6 +1493,7 @@ bool test_multidb3()
     return success;
 }
 
+// test that a multidb with 3 dbs query returns correct docids
 bool test_multidb4()
 {
     bool success = true;
@@ -1878,7 +1876,7 @@ test_desc db_tests[] = {
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
     {"termlisttermfreq",   test_termlisttermfreq},
-    //{"multiexpand1",       test_multiexpand1},
+    {"multiexpand1",       test_multiexpand1},
     {0, 0}
 };
 
