@@ -320,9 +320,11 @@ OmEnquireInternal::get_mset(om_doccount first,
     retval.firstitem = first;
 
     // Do checks that the statistics got shared correctly.
-    AssertParanoid(query->is_bool() || gatherer.get_stats()->collection_size ==
+    AssertParanoid(query->is_bool() || retval.items.size() == 0 ||
+		   gatherer.get_stats()->collection_size ==
 		   database->get_doccount());
-    AssertParanoid((rset == 0 && gatherer.get_stats()->rset_size == 0) ||
+    AssertParanoid(query->is_bool() || retval.items.size() == 0 ||
+		   (rset == 0 && gatherer.get_stats()->rset_size == 0) ||
 		   (rset != 0 && gatherer.get_stats()->rset_size == rset->get_rsize()));
 
     // Clear up
