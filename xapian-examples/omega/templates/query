@@ -93,13 +93,13 @@ ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH
 <br>
 
 }
-$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
-$if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
-$if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}
-$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
-$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">}
-$map{$relevants,<INPUT TYPE=hidden NAME=R VALUE=,>}
-</FORM>
+$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">
+}$if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>
+}$if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>
+}$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">
+}$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">
+}$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">
+}</FORM>
 <hr><div align=right><i><small>$html{$version}</small></i></div>
 </body>
 </html>

@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -34,24 +35,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "utils.h"
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
-
-static inline int
-string_to_int(const string &s)
-{
-    return atoi(s.c_str());
-}
-
-static inline string
-int_to_string(int i)
-{
-    char buf[20];
-    sprintf(buf, "%d", i);
-    return string(buf);
-}
-
 
 static bool done_query = false;
 static om_docid last = 0;
@@ -75,7 +62,7 @@ map<om_docid, bool> ticked;
 
 OmQuery query;
 
-string query_string;
+static string query_string;
 
 om_queryop op = OM_MOP_OR; // default matching mode
 
@@ -121,7 +108,7 @@ set_probabilistic(const string &newp, const string &oldp)
 }
 
 // FIXME: multimap for general use?
-map<char, string> filter_map;
+static map<char, string> filter_map;
 
 void add_bterm(const string &term) {
     filter_map[term[0]] = term;

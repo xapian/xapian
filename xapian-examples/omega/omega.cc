@@ -20,8 +20,6 @@
  * -----END-LICENCE-----
  */
 
-#include "omega.h"
-
 #include <fstream>
 
 #include <string.h>
@@ -36,6 +34,8 @@
 #include <unistd.h>
 #endif
 
+#include "omega.h"
+#include "utils.h"
 #include "cgiparam.h"
 #include "query.h"
 
@@ -49,7 +49,6 @@ const string default_dbname = "default";
 static string map_dbname_to_dir(const string &dbname);
 
 static void make_log_entry(const string &action, long matches);
-static void make_query_log_entry(const string &buf);
 
 string dbname;
 string log_dir = "/tmp";
@@ -91,6 +90,10 @@ static int main2(int argc, char *argv[])
     MCI val;
     pair<MCI, MCI> g;
 
+    // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
+    option["decimal"] = ".";
+    option["thousand"] = ",";
+    
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
     setvbuf(stdout, NULL, _IOLBF, 0);
 
@@ -100,16 +103,14 @@ static int main2(int argc, char *argv[])
 	// and allow a query to be entered for testing
 	cout << PROGRAM_NAME" - "PACKAGE" "VERSION" (compiled "__DATE__" "__TIME__")\n"
 	        "Enter NAME=VALUE lines, end with blank line\n";
-    }
-
-    cout << "Content-type: text/html\n\n";
-    
-    if (method == NULL)
         decode_test();
-    else if (*method == 'P')
-        decode_post();
-    else
-        decode_get();
+    } else {
+	cout << "Content-type: text/html\n\n";
+	if (*method == 'P')
+	    decode_post();
+	else
+	    decode_get();
+    }
 
     list_size = 0;
     val = cgi_params.find("MAXHITS");
@@ -123,7 +124,7 @@ static int main2(int argc, char *argv[])
     val = cgi_params.find("TOPDOC");
     if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
 
-    // Handle NEXT and PREVIOUS page
+    // Handle next, previous, and page links
     if (cgi_params.find(">") != cgi_params.end()) {
 	topdoc += list_size;
     } else if (cgi_params.find("<") != cgi_params.end()) {
@@ -132,42 +133,38 @@ static int main2(int argc, char *argv[])
 	topdoc = (atol(val->second.c_str()) - 1) * list_size;
     }
 
+    // snap topdoc to page boundary
     topdoc = (topdoc / list_size) * list_size;
     if (topdoc < 0) topdoc = 0;
     
-    // get database(s) to search
-    dbname = "";
-    g = cgi_params.equal_range("DB");
-    for (MCI i = g.first; i != g.second; i++) {
-	string v = i->second;
-	if (!v.empty()) {
-	    if (dbname.size()) dbname += '/';
-	    dbname += v;
-	}
-    }
-    if (dbname.size() == 0) dbname = default_dbname;
-
-    // Open enquire system
     OmDatabaseGroup omdb;
-
     try {
-	size_t p, q;
-	q = 0;
-	string tmp = dbname;
+	// get database(s) to search
 	dbname = "";
-	while (1) {
-	    p = tmp.find_first_of('/', q);
-	    // Translate DB parameter to path of database directory
-	    if (p != q && tmp[q] != '.') {
-		vector<string> params;		
-		string db = tmp.substr(q, p - q);
-		if (dbname.size()) dbname += '/';
-		dbname += db;
-		params.push_back(map_dbname_to_dir(db));
-		omdb.add_database("auto", params);
+	g = cgi_params.equal_range("DB");
+	for (MCI i = g.first; i != g.second; i++) {
+	    string v = i->second;
+	    if (!v.empty()) {
+		vector<string>dbs = split(v, '/');
+		dbname = "";
+		vector<string>::const_iterator i;
+		for (i = dbs.begin(); i != dbs.end(); i++) {
+		    if (i->size()) {
+			// Translate DB parameter to path of database directory
+			if (dbname.size()) dbname += '/';
+			dbname += *i;
+			vector<string> params;          
+			params.push_back(map_dbname_to_dir(*i));
+			omdb.add_database("auto", params);
+		    }
+		}
 	    }
-	    if (p == string::npos) break;
-	    q = p + 1;
+	}
+	if (dbname.size() == 0) {
+	    dbname = default_dbname;
+	    vector<string> params;          
+	    params.push_back(map_dbname_to_dir(dbname));
+	    omdb.add_database("auto", params);
 	}
     } catch (OmError &e) {
 	// FIXME: make this more helpful (and use a template?)
@@ -181,10 +178,6 @@ static int main2(int argc, char *argv[])
         cout << "<!-- " << e.get_msg() << " -->\n";
 	exit(0);
     }
-
-    // read thousands and decimal separators: e.g. 16<thousand>729<decimal>8037
-    option["decimal"] = ".";
-    option["thousand"] = ",";
 
     enquire = new OmEnquire(omdb);
    
@@ -285,10 +278,14 @@ static int main2(int argc, char *argv[])
 	for (MCI i = g.first; i != g.second; i++) {
 	    string v = i->second;
 	    if (!v.empty()) {
-		om_docid d = atoi(v.c_str());
-		if (d) {
-		    rset->add_document(d);
-		    ticked[d] = true;
+		vector<string> r = split(v, '.');
+		vector<string>::const_iterator i;
+		for (i = r.begin(); i != r.end(); i++) {
+		    om_docid d = string_to_int(*i);
+		    if (d) {
+			rset->add_document(d);
+			ticked[d] = true;
+		    }
 		}
 	    }
 	}

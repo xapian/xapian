@@ -28,9 +28,6 @@
 
 #include <map>
 #include <vector>
-#include <stdio.h>
-
-extern FILE *page_fopen(const string &page);
 
 extern string dbname;
 extern string fmtname;
@@ -59,5 +56,3 @@ class ExpandDeciderOmega : public OmExpandDecider {
 	    return true;
 	}
 };
-
-extern string db_dir;

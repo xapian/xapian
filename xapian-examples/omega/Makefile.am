@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
- htmlparse.h
+ htmlparse.h utils.h
 
 # include yacc/bison generated C++ source
 EXTRA_DIST = parsequery.cc
@@ -10,7 +10,7 @@ INCLUDES = $(LIBOMUS_CFLAGS)
 
 bin_PROGRAMS = omega omindex
 
-omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy
+omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy utils.cc
 omega_LDADD = @LIBOMUS_LIBS@
 
 omindex_SOURCES = omindex.cc htmlparse.cc
