@@ -117,8 +117,10 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	# FIXME - uncomment when we've done making the packages
-	#-$(MAKE) distclean
+	for v in $(PYTHONVERSIONS); do \
+	    set -e; \
+	    rm -rf build-python$$v; \
+	done
 	dh_clean
 	rm -f build-stamp configure-stamp
 
