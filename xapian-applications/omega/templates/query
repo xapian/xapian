@@ -33,7 +33,7 @@ $if{topterms,$include{toptermsjs}}
 <head>
 <title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
 </head>
-<body bgcolor='#eeeeee'>
+<body bgcolor="#eeeeee">
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>

@@ -1,3 +1,7 @@
+Thu Dec 20 12:55:29 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Use double quotes on parameters to <BODY>.
+
 Mon Dec 17 15:01:43 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Get rid of whitespace between hundreds and tens image in page
