@@ -8,6 +8,7 @@ Release: 1
 License: GPL
 Group: Development/Libraries
 URL: http://www.xapian.org/
+BuildPrereq: graphviz doxygen tetex-latex tetex-dvips
 
 Source0: http://www.xapian.org/download/distributions/xapian-core-%{version}.tar.gz
 

@@ -1,3 +1,8 @@
+Mon Jul 22 13:28:09 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Add buildprereq to package
+	  Add quartzcheck which runs btree::check to backends 
+
 Tue Jul 16 09:44:56 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Fix banding problem; bands are now based on the percentage

@@ -47,7 +47,7 @@ noinst_LTLIBRARIES = libquartz.la
 
 TESTS = btreetest quartztest
 
-check_PROGRAMS = btreetest quartztest quartzdump
+check_PROGRAMS = btreetest quartztest quartzdump quartzcheck
 
 clean-local:
 	rm -rf .quartztmp .btreetmp
@@ -63,3 +63,7 @@ quartztest_LDADD = ../../getopt/libgetopt.la \
 
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = ../../libxapian.la
+
+quartzcheck_SOURCES = quartzcheck.cc
+quartzcheck_LDADD = ../../libxapian.la
+
