@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,21 +24,12 @@
 #include <stdio.h>
 
 #include <om/om.h>
-#include <om/omstem.h>
 
 #ifdef MUS_DEBUG_VERBOSE
 // Verbose debugging output
 #define DebugMsg(a) std::cout << a ; std::cout.flush()
 #else
 #define DebugMsg(a)
-#endif
-
-#ifdef MUS_DEBUG
-// Assertions to put in debug builds
-// NB use an else clause to avoid dangling else damage
-#define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
-#else
-#define Assert(a)
 #endif
 
 #include <vector>

@@ -1,3 +1,7 @@
+Fri Apr 12 11:36:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed unused and superfluous stuff.
+
 Fri Apr 12 11:34:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed remaining files from gui subdirectory.
