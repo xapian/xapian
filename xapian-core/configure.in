@@ -160,6 +160,25 @@ else
 AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
 fi
 
+dnl Check for a POSIX regular expression library (so far only know rx)
+AC_CHECK_HEADER(rx/rxposix.h, [ HAVE_RX_RXPOSIX_H=yes ])
+AC_CHECK_HEADER(rxposix.h, [ HAVE_RXPOSIX_H=yes ])
+AC_CHECK_LIB(rx, regcomp, [ REGEX_LIB="-lrx" ])
+HAVE_REGEX_HEADER="$HAVE_RX_RXPOSIX_H$HAVE_RXPOSIX_H"
+AM_CONDITIONAL(HAVE_REGEX, [ test -n "$HAVE_REGEX_HEADER" -a -n "$REGEX_LIB" ])
+if test "x$HAVE_RXPOSIX_H" = "xyes"; then
+AC_DEFINE(HAVE_RXPOSIX_H,,
+	[ Define if <rxposix.h> is available ])
+fi
+if test "x$HAVE_RX_RXPOSIX_H" = "xyes"; then
+AC_DEFINE(HAVE_RX_RXPOSIX_H,,
+	[ Define if <rx/rxposix.h> is available ])
+fi
+AC_SUBST(REGEX_LIB)
+if test -z "$REGEX_HEADER" -o -z "$REGEX_LIB"; then
+	AC_MSG_WARN(No POSIX regular expression library: some indexer nodes unavailable)
+fi
+
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 

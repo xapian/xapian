@@ -79,6 +79,12 @@
 /* Define if libxml supports validation */
 #undef HAVE_LIBXML_VALID
 
+/* Define if <rxposix.h> is available */
+#undef HAVE_RXPOSIX_H
+
+/* Define if <rx/rxposix.h> is available */
+#undef HAVE_RX_RXPOSIX_H
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions

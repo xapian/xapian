@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = indexergraph.h omindexernode.h testnodes.h deleter_map.h \
-		register_core.h node_reg.h
+		register_core.h node_reg.h regexcommon.h
 
 noinst_LTLIBRARIES = libindexgraph.la
 
@@ -13,8 +13,16 @@ noinst_LTLIBRARIES = libindexgraph.la
 #
 #nodetest_LDADD = ../../libomus.la
 
+if HAVE_REGEX
+REGEX_NODES = omregexreplacenode.cc
+REGEX_LIBS = @REGEX_LIBS@
+else
+REGEX_NODES = 
+REGEX_LIBS = 
+endif
+
 INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
-		omprefixnode.cc omstopwordnode.cc
+		omprefixnode.cc omstopwordnode.cc $(REGEX_NODES)
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc \
 	do_registration.cc $(INDEXERNODES)
@@ -32,6 +40,9 @@ omprefixnode.lo: omprefixnode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 omstopwordnode.lo: omstopwordnode.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+omregexreplacenode.lo: omregexreplacenode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 indexergraph.lo: indexergraph.cc
@@ -52,4 +63,4 @@ do_registration.cc: $(INDEXERNODES) make_register.pl
 do_registration.lo: do_registration.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
-libindexgraph_la_LIBADD = @LIBXML_LIBS@
+libindexgraph_la_LIBADD = @LIBXML_LIBS@ $(REGEX_LIB)

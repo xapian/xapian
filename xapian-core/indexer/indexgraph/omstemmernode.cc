@@ -35,6 +35,7 @@ class OmStemmerNode : public OmIndexerNode {
     private:
 	std::string language;
 	bool language_from_config;
+	// FIXME: implement config_modified()
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
 
@@ -46,6 +47,7 @@ class OmStemmerNode : public OmIndexerNode {
 	    OmStem stemmer(lang);
 
 	    for (int i=0; i<input->get_vector_length(); ++i) {
+		// FIXME: modify in place
 		output->append_element(
 	            OmIndexerData("word",
 			   stemmer.stem_word(input->get_element(i).get_string())));
