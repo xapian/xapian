@@ -80,7 +80,7 @@ OMQuery::OMQuery(const termname & tname_)
 OMQuery::OMQuery(om_queryop op_, const OMQuery &left, const OMQuery &right)
 	: isnull(false), isbool(false), op(op_)
 {
-    if (op != OM_MOP_LEAF) {
+    if (op == OM_MOP_LEAF) {
     	throw OmInvalidArgument("Invalid query operation");
     }
     // Handle null sub-queries.
