@@ -26,7 +26,7 @@ class MultiTermList : public virtual DBTermList {
 	termcount get_approx_size() const;
 
 	ExpandBits get_weighting() const; // Gets weight info of current term
-	const termname & get_termname() const;
+	const termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -64,7 +64,7 @@ MultiTermList::get_weighting() const {
     return tl->get_weighting();
 }
 
-inline const termname &
+inline const termname
 MultiTermList::get_termname() const
 {
     return tl->get_termname();

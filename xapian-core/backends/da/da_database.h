@@ -98,7 +98,7 @@ class DATermList : public virtual DBTermList {
 	termcount get_approx_size() const;
 
 	ExpandBits get_weighting() const; // Gets weight info of current term
-	const termname & get_termname() const;
+	const termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -110,7 +110,7 @@ inline termcount DATermList::get_approx_size() const
     return terms.size();
 }
 
-inline const termname & DATermList::get_termname() const
+inline const termname DATermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
