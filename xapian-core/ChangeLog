@@ -1,3 +1,7 @@
+Wed Nov 03 19:27:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,common/utils.cc: Improved snprintf checking.
+
 Wed Nov 03 15:43:54 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc: Fixed to compile when not using glibc.

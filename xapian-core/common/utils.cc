@@ -24,13 +24,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_SNPRINTF
-/* This so we can use snprintf */
-# ifndef _ISOC99_SOURCE
-#  define _ISOC99_SOURCE
-# endif
-#endif
-
 #include "utils.h"
 
 #include <stdio.h>
@@ -46,12 +39,13 @@ using namespace std;
 #undef max
 #endif
 
+// This ought to be enough for any of the conversions below.
 #define BUFSIZE 100
 
-#ifdef HAVE_SNPRINTF
+#ifdef SNPRINTF
 #define CONVERT_TO_STRING(FMT) \
     char buf[BUFSIZE];\
-    int len = snprintf(buf, BUFSIZE, (FMT), val);\
+    int len = SNPRINTF(BUF, BUFSIZE, (FMT), val);\
     if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);\
     return string(buf, len);
 #else
