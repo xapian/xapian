@@ -1,0 +1,313 @@
+
+Functions for handling Muscat 3.6 records and term vectors are declared in
+3point6.h:
+
+    struct record * r = M_make_record();    /* creates a record structure */
+    M_lose_record(r);                       /* - and loses it */
+
+    struct termvec * tv = M_make_termvec(); /* makes a termvec structure */
+    M_lose_termvec(struct termvec * tv);    /* - and loses it */
+
+A Muscat 3.6 term is expected to be a 'k-string', with length L in k[0], and
+characters in k[1] ... k[L-1]. This is how they come in the packed term
+vectors. Obviously it's easy to cast a C string into this form:
+
+       {  int len = strlen(s);
+          memmove(k+1, s, len); k[0] = len+1;  // k-string in [k, 0]
+       }
+
+A termvec can be set up for term-by-term reading with
+
+    M_open_terms(tv);
+
+after which
+
+    M_read_terms(tv);
+
+reads successive terms.
+
+Each call of M_read_terms(tv) gives
+
+    tv->term  - the term (as k-string), or 0 when the list runs out
+    tv->rel   - true/false according as term is/is not marked for
+                relevance feedback
+    tv->freq  - the term frequency, or -1 if this info is absent
+    tv->wdf   - the wdf, or 0 id this info is absent
+    tv->termp - the term's positional information, or 0 if absent.
+                This can be unpicked by,
+
+
+    int x = tv->heavy_duty; /* x is 0 or 1 */
+    if (tv->termp)
+    {  byte * p = tv->termp;
+       int l = L2(p, 0);
+       int i;
+       for (i=2; i < l; i += LWIDTH(x) + 1)
+       printf(" offset=%d; width=%d", LENGTH_OF(p, i, x), p[i + LWIDTH(x)]);
+    }
+
+    byte, L2, LWIDTH and LENGTH_OF are as defined in 3point6.h.
+
+    The term occurs at the given offsets in the record, with the given
+    widths.
+
+DA files
+--------
+Functions for handling DA record and DA term files are declared in
+daread.h:
+
+struct DAfile *     DAopen(const char * s, int type, int heavy_duty)
+void                DAclose(struct DAfile * p)
+
+To open DA record and/or DA term files for example:
+
+        struct DAfile * DA_r;
+        struct DAfile * DA_t;
+        DA_r = DAopen("/home/richard/test/d/R", DARECS, FLIMSY);
+        DA_t = DAopen("/home/richard/test/d/T", DATERMS, FLIMSY);
+
+The 3rd argument is either FLIMSY or HEAVY_DUTY - values 0 and 1.
+
+And to close:
+
+        DAclose(DA_r); DAclose(DA_t);
+
+The total number of documents (or terms) in the DA file is given
+by
+
+        DA_r->itemcount       (DA_t->itemcount)
+
+DA term access:
+---------------
+The procedures defined as extern are:
+
+int                 DAterm(byte * k, struct DAterminfo * t, struct DAfile * p)
+struct DApostings * DAopenpostings(struct DAterminfo * t, struct DAfile * p)
+void                DAreadpostings(struct DApostings * q, int style, int Z0)
+void                DAclosepostings(struct DApostings * q)
+int                 DAgetrecord(struct DAfile * p, int n, struct record * r)
+int                 DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
+
+To look up a term k in DA_t using a DAterminfo structure:
+
+       struct DAterminfo * t;
+       found = DAterm(k, &t, DA_t);   /* k is a k-sting of course */
+
+'found' is 1 if found, 0 if not found.
+
+[If not found 'DAterminfo' is filled in with info about the 'nearest'
+term, but we won't be concerned with this case.]
+
+t->freq is the term frequency. Immediately following a DAterm call, t
+can be used to open a posting list:
+
+       string DApostings * q;
+       q = DAopenpostings(&t, DA_t);
+
+(thereafter t can be reused to look for other terms), and read from with
+
+       DAreadpostings(q, style, Z);
+
+If style == 0 each call delivers a doc number in q->Doc and a wdf number in
+q->wdf. Termination occurs when q->Doc == MAXINT, after which MAXINT is
+repeatedly delivered. Z == 0 usually, but skipping forward can be done by
+setting Z > 0. Then the next q->Doc to be delivered will be the first one >=
+Z.
+
+If style == 1, doc numbers are delivered back in ranges:
+
+      q->Doc to q->E  (with a common q->wdf)
+
+Z is correctly interpreted, so if the next range was 100 to 200 and the call
+was DAreadpostings(q, 1, 137), q->Doc would be 137 and q->E 200.
+
+styles 0 and 1 can't be mixed in successive calls.
+
+Finally close with
+
+    DAclosepostings(q)
+
+(you can close before hitting MAXINT.)
+
+    [This backeted section is coded but not compiled up. Once a term has
+     been found:
+
+           struct DAterminfo * t;
+           found = DAterm(k, d, &t, DA_t);
+
+     The next/previous term can be put into t with the calls
+
+           found = DAnextterm(&t, DA_t);
+           found = DAprevterm(&t, DA_t);
+
+     found is 0 when we hit the end/beginning of the term list. t->term
+     gives the term (as a k-string) and t->freq gives its frequency.]
+
+DA record access:
+-----------------
+
+The procedures defines as extern are
+
+int DAgetrecord(struct DAfile * p, int n, struct record * r)
+int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
+
+To get records 148, 241 in turn, do this:
+
+    record * r = makerecord();
+    found = DAgetrecord(DA_r, 148, r); // record is at r->p
+    ...
+    found = DAgetrecord(DA_r, 241, r); // record is at r->p
+    ...
+    loserecord(r);
+
+found is true/false according as found/not found. r keeps a single buffer for
+the record read, so the second DAgetrecord overwrites the first.
+
+To get the records together:
+
+    record * r1 = makerecord();
+    record * r2 = makerecord();
+    found = DAgetrecord(DA_r, 148, r1); // record is at r1->p
+    ...
+    found = DAgetrecord(DA_r, 241, r2); // record is at r2->p
+    ...
+    loserecord(r1); loserecord(r2);
+
+Exactly the same principle applies to termvecs:
+
+    termvec * tv = maketermvec();
+    found = DAgettermvec(DA_r, 148, tv);
+    ...
+    found = DAgettermvec(DA_r, 241, tv);
+    ...
+    losetermvec(tv);
+
+or
+
+    termvec * tv1 = maketermvec();
+    termvec * tv2 = maketermvec();
+    found = DAgettermvec(DA_r, 148, tv1);
+    ...
+    found = DAgettermvec(DA_r, 241, tv2);
+    ...
+    losetermvec(tv1); losetermvec(tv2);
+
+A termvec can be read sequentially with
+
+    openterms(tv);
+    readterms(tv); readterms(tv);
+
+DB files
+--------
+DB file access is the same as DA record and term file access with 'DB'
+replacing 'DA' in the spec above. The corresponding declarations are in
+dbread.h:
+
+struct DBfile *     DBopen(const char * s, int n, int heavy_duty)
+void                DBclose(struct DBfile * p)
+int                 DBterm(const byte * k, struct DBterminfo * t, struct DBfile * p)
+struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile * p)
+void                DBreadpostings(struct DBpostings * q, int style, int Z0)
+void                DBclosepostings(struct DBpostings * q)
+int                 DBgetrecord(struct DBfile * p, int n, struct record * r)
+int                 DBgettermvec(struct DBfile * p, int n, struct termvec * tv)
+
+int DBgetrecord(struct DBfile * p, int n, struct record * r)
+int DBgettermvec(struct DBfile * p, int n, struct termvec * tv)
+
+There is however the difference in setting the DB file up.
+
+        struct DBfile * DB;
+        DB = DBopen("/home/richard/test/d/DB", 30, FLIMSY);
+                   /* '30' is explained below */
+
+and to close:
+
+        DAclose(DB);
+
+DB is the handle for both term and record/termvec accesses.
+
+
+
+The total number of documents (or terms) in the DB file is given
+by
+
+        DB->doccount       (DB->termcount)
+
+A DB file is set up with a cache of blocks for reading. This is the second
+argument of DBopen, so in the example above 30 blocks are used. The cache
+will in any case be given at least 8 blocks. It would be a bad error to use
+DARECS or DARECS in the second argument, since these are large positive
+numbers.
+
+
+See the various files DAtest*.c and DBtest*.c gives examples of use.
+
+Record unpicking
+----------------
+
+This is best explained through an example. Suppose a record has been read into
+
+    struct record r;
+
+Then r->p points to the record, and r->heavy_duty is 0 or 1 according as r is
+in flimsy or heavy duty style.
+
+Calling dump(r->p, 0, r->heavy_duty, 0) prints the record out in an approximate
+u-dump style.
+
+Here is the definition of dump:
+
+
+    static void dump(byte * p, int c, int x, int margin)
+    {
+        /* c is a cursor that moves down the record,
+           x is 0 or 1 according as flimsy or heavy duty,
+           margin measures the width of the left-margin.
+        */
+        int limit = c + LENGTH_OF(p, c, x);
+
+        /* print the margin */
+        {   int i;
+            for (i = 0; i < margin; i++) printf(" ");
+        }
+
+        printf("*%d", CODE_OF(p, c, x));  /* print the code */
+
+
+        switch(TYPE_OF(p, c, x))  /* switch on the field type */
+        {   case GROUP_FIELD:
+                printf("\n");
+                {   c += HEAD_LENGTH(x);
+                    margin++;
+                    while (c < limit)
+                    {   dump(p, c, x, margin);
+                        c += LENGTH_OF(p, c, x);
+                    }
+                }
+                return;
+            case STRING_FIELD:
+                {   c += HEAD_LENGTH(x);
+                    printf(" ");
+                    while (c < limit) printf("%c",p[c++]);
+                }
+                break;
+            case INTEGER_FIELD:
+                printf(" %d", INTEGER_AT(p, c, x));
+                while(1)
+                {   c += 4; /* integers are always 4 bytes */
+                    if (c + HEAD_LENGTH(x) >= limit) break;
+                    printf(" %d", INTEGER_AT(p, c, x));
+                        /* extra integers are rare */
+                }
+                break;
+            case BINARY_FIELD:
+                printf(" binary");
+                break;
+        }
+        printf("\n");
+    }
+
+the various macros HEAD_LENGTH, INTEGER_AT etc are all defined in 3point6.h
+
+
