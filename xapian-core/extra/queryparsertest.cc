@@ -45,7 +45,7 @@ static test tests[] = {
     { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
     { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
     { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
-    { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR Rab:(pos=3) OR c:(pos=4))" },
+    { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR (Rab:(pos=3) PHRASE 2 c:(pos=4)))" },
     { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
     { "Call to undefined function: imagecreate()", "(Rcall:(pos=1) OR to:(pos=2) OR undefin:(pos=3) OR function:(pos=4) OR imagecr:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "((mysql:(pos=1) PHRASE 3 fetch:(pos=2) PHRASE 3 row:(pos=3)) OR suppli:(pos=4) OR argument:(pos=5) OR is:(pos=6) OR not:(pos=7) OR a:(pos=8) OR valid:(pos=9) OR Rmysql:(pos=10) OR result:(pos=11) OR resourc:(pos=12))" },
@@ -56,19 +56,21 @@ static test tests[] = {
     { "@home problemen", "(home:(pos=1) OR problemen:(pos=2))" },
     { "'ipacsum'", "ipacsum:(pos=1)" },
     { "canal + ", "canal:(pos=1)" },
-    // Perhaps "." should be a "phrase-maker" too when used like this...
-    { "/var/run/mysqld/mysqld.sock", "((var:(pos=1) PHRASE 4 run:(pos=2) PHRASE 4 mysqld:(pos=3) PHRASE 4 mysqld:(pos=4)) OR sock:(pos=5))" },
+    { "/var/run/mysqld/mysqld.sock", "(var:(pos=1) PHRASE 5 run:(pos=2) PHRASE 5 mysqld:(pos=3) PHRASE 5 mysqld:(pos=4) PHRASE 5 sock:(pos=5))" },
     { "\"QSI-161 drivers\"", "(Rqsi:(pos=1) PHRASE 3 R161:(pos=2) PHRASE 3 driver:(pos=3))" },
     { "\"e-cube\" barebone", "((e:(pos=1) PHRASE 2 cube:(pos=2)) OR barebon:(pos=3))" },
     { "\"./httpd: symbol not found: dlopen\"", "(httpd:(pos=1) PHRASE 5 symbol:(pos=2) PHRASE 5 not:(pos=3) PHRASE 5 found:(pos=4) PHRASE 5 dlopen:(pos=5))" },
     { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)",
       "(Rerror:(pos=1) OR R2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR R10061:(pos=11))" },
+    { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
+    { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
     // These are currently parse errors, but many shouldn't be:
     { "behuizing 19\" inch", NULL },
-    { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
     { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
     { "\"phrase one \"phrase two\"", NULL },
     { "19\" rack", NULL },
+    { "3,5\" mainboard", NULL },
+    { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
     { "data error (clic redundancy check)", NULL },
     { "? mediaplayer 9\"", NULL },
     { "IRQL_NOT_LESS_OR_EQUAL", NULL },
@@ -87,10 +89,7 @@ static test tests[] = {
     { "\"1) Ze testen 8x AF op de GFFX tegen \"", NULL },
     { "\") Ze houden geen rekening met de kwaliteit van AF. Als ze dat gedaan hadden dan waren ze tot de conclusie gekomen dat Performance AF (dus Bilinear AF) op de 9700Pro goed te vergelijken is met Balanced AF op de GFFX. En dan hadden ze ook gezien dat de GFFX niet kan tippen aan de Quality AF van de 9700Pro.\"", NULL },
     { "\"Ze houden geen rekening met de kwaliteit van AF. Als ze dat gedaan hadden dan waren ze tot de conclusie gekomen dat Performance AF (dus Bilinear AF) op de 9700Pro goed te vergelijken is met Balanced AF op de GFFX. En dan hadden ze ook gezien dat de GFFX niet kan tippen aan de Quality AF van de 9700Pro.\"", NULL },
-    { "3,5\" mainboard", NULL },
-    { "location.href = \"\"", NULL },
     { "$structure = imap_header($mbox, $tt);", NULL },
-    { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
     { "\"ifup: Could not get a valid interface name: -> skipped\"", NULL },
     { "Er kan geen combinatie van filters worden gevonden om de gegevensstroom te genereren. (Error=80040218)", NULL },
     { "ereg_replace(\"\\\\\",\"\\/\"", NULL },
@@ -143,7 +142,6 @@ static test tests[] = {
     { "laatsteIndex(int n)", NULL },
     { "\"line+in\" OR \"c8783\"", NULL },
     { "if ($_POST['Submit'])", NULL },
-    { "method=\"post\" action=\"\">", NULL },
     { "NEC DVD+-RW ND-1300A", NULL },
     { "*String not found* (*String not found*.)", NULL },
     { "MSI G4Ti4200-TD 128MB (GeForce4 Ti4200)", NULL },
@@ -306,7 +304,7 @@ static test tests[] = {
     { "[php] date( min", NULL },
     { "EPOX EP-8RDA+ (nForce2 SPP+MCP-T) Rev. 1.1", NULL },
     { "554 5.4.6 Too many hops 53 (25 max)", NULL },
-    { "ik had toch nog een vraagje: er zijn nu eigenlijk alleen maar schijfjes van 4.7GB alleen straks zullen er vast schijfjes van meer dan 4.7GB komen. Zal deze brander dit wel kunnen schijven??(na bijvoorbeeld een firmware update?) ben erg benieuwd", NULL },
+    { "ik had toch nog een vraagje: er zijn nu eigenlijk alleen maar schijfjes van 4.7GB alleen straks zullen er vast schijfjes van meer dan 4.7GB komen. Zal deze brander dit wel kunnen schijven?" "?(na bijvoorbeeld een firmware update?) ben erg benieuwd", NULL }, // Split ? and ? to avoid trigram problems
     { "ati linux drivers (4.3.0)", NULL },
     { "ENCAPSED_AND_WHITESPACE", NULL },
     { "lpadmin: add-printer (set device) failed: client-error-not-possible", NULL },
@@ -485,12 +483,12 @@ main(void)
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {
-	if (1 && !p->expect) {
-	    ++p;
-	    continue;
-	}	
 	string expect, parsed;
-	if (p->expect) expect = string("Xapian::Query(") + p->expect + ')';
+	if (p->expect) {
+	    expect = string("Xapian::Query(") + p->expect + ')';
+	} else {
+	    expect = "parse error";
+	}
 	try {
 	    parsed = qp.parse_query(p->query).get_description();
 	} catch (const Xapian::Error &e) {
@@ -502,7 +500,7 @@ main(void)
 	}
 	if (parsed == expect) {
 	    //cout << "OK\t`" << p->query << "'" << endl;
-	    succeed++;
+	    if (p->expect) succeed++;
 	} else {
 	    cout << "Query:\t`" << p->query << "'\n";
 	    cout << "Expected:\t`" << expect << "'\n";	    

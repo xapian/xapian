@@ -225,7 +225,7 @@ static void
 lowercase_term(string &term)
 {
     string::iterator i = term.begin();
-    while(i != term.end()) {
+    while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
     }
@@ -340,6 +340,8 @@ more_term:
 		if (qptr == q.end() || isspace(*qptr)) {
 		    if (original_term.empty()) original_term = term + '.';
 		    already_stemmed = true;
+		} else {
+		    pending_token = HYPHEN;
 		}
 	    }
 	    if (*qptr == '-') {
@@ -413,7 +415,7 @@ more_term:
      case '|':
 	return OR;
 #endif
-     // FIXME: Make this list configurable
+     // FIXME: Make this list configurable (also '=' ?)
      case '_': case '/': case '\\': case '@':
      case '\'': case '*':
 	/* these characters generate a phrase search */
@@ -455,8 +457,20 @@ more_term:
 	}
 	/* '-' is used in the grammar rules */
 	return c;
-     case ')': case '"':
-	/* these characters are used in the grammar rules */
+     case '"':
+	if (qptr != q.end() && *qptr == '"') {
+	    /* Ignore "" */
+	    ++qptr;
+	    return yylex();
+	}
+	/* '"' is used in the grammar rules */
+	return c;
+     case ')':
+	if (qptr - 1 == q.begin()) {
+	    /* Ignore ) at start of query */
+	    return yylex();
+	}
+	/* ')' is used in the grammar rules */
 	return c;
     }
     /* ignore any other characters */
