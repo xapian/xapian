@@ -590,6 +590,22 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	percent_scale *= 100.0;
     }
 
+    if (items.size() < max_msize) {
+	DEBUGLINE(MATCH, "items.size() = " << items.size() <<
+		  ", max_msize = " << max_msize << ", setting bounds equal");
+	Assert(percent_cutoff || docs_matched == items.size());
+	matches_lower_bound = matches_upper_bound = matches_estimated
+	    = items.size();
+    } else if (percent_cutoff) {
+	// FIXME: improve match estimates
+	matches_estimated -= matches_lower_bound;
+	matches_lower_bound = items.size();
+	// + <docs considered since last greatest_wt change>
+	matches_estimated += matches_lower_bound;
+	// base matches_estimated on percentage?
+	// matches_upper_bound can't be improved
+    }
+
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
 
     if (first > 0) {
@@ -625,17 +641,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     Assert(matches_estimated >= matches_lower_bound);
     Assert(matches_estimated <= matches_upper_bound);
 
-    Assert(docs_matched <= matches_upper_bound);
-    if (docs_matched > matches_lower_bound)
-	matches_lower_bound = docs_matched;
-    if (docs_matched > matches_estimated)
-	matches_estimated = docs_matched;
-
-    if (items.size() < maxitems) {
-	Assert(docs_matched == items.size() + first || items.size() == 0);
-	matches_lower_bound = docs_matched;
-	matches_upper_bound = docs_matched;
-	matches_estimated = docs_matched;
+    if (!percent_cutoff) {
+	Assert(docs_matched <= matches_upper_bound);
+	if (docs_matched > matches_lower_bound)
+	    matches_lower_bound = docs_matched;
+	if (docs_matched > matches_estimated)
+	    matches_estimated = docs_matched;
     }
 
     mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
