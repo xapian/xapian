@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 if HAVE_SWIG
-SWIG_SUBDIRS = python perl5 guile tcl8
+SWIG_SUBDIRS = python perl5 guile tcl8 php4
 else
 SWIG_SUBDIRS =
 endif
@@ -13,4 +13,4 @@ endif
 JAVA_SUBDIRS =
 
 SUBDIRS = $(SWIG_SUBDIRS) $(JAVA_SUBDIRS)
-DIST_SUBDIRS = python perl5 guile tcl8 java
+DIST_SUBDIRS = python perl5 guile tcl8 java php4
