@@ -135,13 +135,13 @@ clean-local:
 # How to uninstall local files #
 ################################
 uninstall-local: 
-	@echo "Uninstalling API documentation ($(DESTDIR)$(docdatadir)/apidoc)"
 	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
+	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc" ; \
 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
 	fi
-	@echo "Uninstalling API documentation ($(DESTDIR)$(docdatadir)/apidoc.*)"
-	@if [ -r $(DESTDIR)$(docdatadir)/apidoc.tex ]; then \
-	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.* ; \
+	@if [ -e $(DESTDIR)$(docdatadir)/apidoc.dvi ]; then \
+	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc.dvi" ; \
+	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.dvi ; \
 	fi
 
 ###############
