@@ -679,25 +679,6 @@ bool Btree::del(const string &amp;key);
 </blockquote>
 
 <pre>
-Btree_item::Btree_item();
-</pre>
-
-<blockquote>
-    Creates an object for holding B-tree items. After
-
-<pre>
-        t = new Btree_item();
-</pre>
-
-    We can make use of the following:
-
-<pre>
-        t-&gt;key        C++ string containing the key
-        t-&gt;tag        C++ string containing the tag
-</pre>
-</blockquote>
-
-<pre>
 bool Btree::find_key(const string &amp;key);
 </pre>
 
@@ -706,16 +687,16 @@ bool Btree::find_key(const string &amp;key);
 </blockquote>
 
 <pre>
-bool Btree::find_tag(const string &amp;key, Btree_item * t);
+bool Btree::find_tag(const string &amp;key, string * tag);
 </pre>
 
 <blockquote>
-    The same result, but when the key is found the tag is copied to t-&gt;tag
-    If the key is not found t-&gt;tag is left unchanged. e.g.
+    The same result, but when the key is found the tag is copied to tag.
+    If the key is not found tag is left unchanged. e.g.
 
 <pre>
-        Btree_item t = Btree_item_create();
-        B-&gt;find_tag("TODAY", t); /* get today's date */
+        string t;
+        B-&gt;find_tag("TODAY", &amp;t); /* get today's date */
 </pre>
 </blockquote>
 <!--
@@ -761,7 +742,6 @@ is considerably elaborated by the use of cursors.
 <!--bool-->void Btree_open_to_read(const string &amp; name);
 uint4 B-&gt;revision_number;
 <!--bool-->void Btree_open_to_read(const string &amp; name, uint4 revision);
-Btree_item::Btree_item();
 </pre>
 
 <blockquote>
@@ -831,20 +811,20 @@ bool Bcursor::prev();
 </blockquote>
 
 <pre> 
-bool Bcursor::get_key(Btree_item *item);
+bool Bcursor::get_key(string * key);
 </pre>
 
 <blockquote>
     If cursor BC is unpositioned, the result is simply false.
 <p>
-    If BC is positioned, the key of the item is copied into item-&gt;key
+    If BC is positioned, the key of the item is copied into key
     and the result is then true.
 <p>
     For example,
 
 <pre> 
         Bcursor * BC = Bcursor_create(B);
-        Btree_item * kt = Btree_item_create();
+        string key;
 
         /* Now we'll print all the keys in the B-tree (assuming they
            have a simple form */
@@ -852,23 +832,21 @@ bool Bcursor::get_key(Btree_item *item);
         BC-&gt;find_key("", 0); /* must give result true */
 
         while (BC-&gt;next()) {    /* bypassing the null item */
-	    BC-&gt;get_key(kt);
-	    for (int i = 0; i &lt; kt-&gt;key_len; i++)
-		putc(kt-&gt;key[i]);
-	    putc('\n');
+	    BC-&gt;get_key(&amp;key);
+	    cout &lt;&lt; key &lt;&lt; endl;
         }
 </pre>
 </blockquote>
 
 <pre> 
-bool Bcursor::get_tag(Btree_item * kt);
+bool Bcursor::get_tag(string * tag);
 </pre>
 
 <blockquote>
     If cursor BC is unpositioned, the result is simply bool.
 <p>
     If BC is positioned, the tag of the item at cursor BC is copied into
-    kt-&gt;tag. BC is then moved to the next item
+    tag. BC is then moved to the next item
     as if Bcursor::next() had been called - this may leave BC unpositioned.
     The result is true iff BC is left positioned.
 <p>
@@ -876,54 +854,23 @@ bool Bcursor::get_tag(Btree_item * kt);
 
 <pre> 
         Bcursor * BC = B-&gt;Bcursor_create();
-        Btree_item * kt = Btree_item_create();
+	string key;
+        string tag;
 
         /* Now do something to each key-tag pair in the Btree */
            have a simple form */
 
         BC-&gt;find_key("", 0); /* must give result 1 */
 
-        while (BC-&gt;get_key(kt)) {
-            BC-&gt;get_tag(kt);
-            do_something_to(kt-&gt;key, kt-&gt;tag);
+        while (BC-&gt;get_key(&amp;key)) {
+            BC-&gt;get_tag(&amp;tag);
+            do_something_to(key, tag);
         }
 
         /* when BC is unpositioned by Bcursor::get_tag, Bcursor::get_key
            gives result true the next time it called
         */
 </pre>
-<!--
-
-    Tags (and keys) may be removed cheaply from a Btree_item structure kt by
-    assigning kt-&gt;tag elsewhere, and the setting kt-&gt;tag to 0 and kt-&gt;tag_size
-    to -1. [Perhaps there should be procedures to do this.] For example,
-
-<pre> 
-        Bcursor * BC = Bcursor_create(B);
-        Btree_item * kt = Btree_item_create();
-
-        unsigned char * calendar[2000];
-        int year;
-
-        for (year = 1; year &lt;= 2000; year++) {
-            unsigned char s[20]; /* 20 is fine */
-            sprintf(s, "YEAR%d CALENDAR", year);
-            if (BC-&gt;find_key(s, strlen(s))) {
-                BC-&gt;get_tag(kt);
-
-                calendar[year] = kt-&gt;tag;  /* may be zero */
-                kt-&gt;tag = 0;
-                kt-&gt;tag_size = -1;
-            }
-            else calendar[year] = 0;
-        }
-        ....
-
-        /* later on: */
-
-        for (year = 1; year &lt;= 2000; year++) free(calendar[year]);
-</pre>
--->
 </blockquote>
 
 <pre> 
@@ -1039,7 +986,7 @@ compact B-tree with revision number 1.
 	Btree B;
 	B.open_to_read("B/");
         AutoPtr&lt;Bcursor&gt; BC = B.Bcursor_create();
-        Btree_item item;
+        string key, tag;
 
 	Btree::create("Bnew/", 8192);
 
@@ -1050,9 +997,9 @@ compact B-tree with revision number 1.
 	BC-&gt;find_key("", 0);
 
 	while (true) {
-	    if (!BC-&gt;get_key(&amp;item)) break;
-	    BC-&gt;get_tag(&amp;item);
-	    new_B.add(item.key, item.tag);
+	    if (!BC-&gt;get_key(&amp;key)) break;
+	    BC-&gt;get_tag(&amp;tag);
+	    new_B.add(key, tag);
 	}
 	new_B.commit(1);
     }
@@ -1123,7 +1070,7 @@ static Btree * reopen(Btree * B)
 
     B-&gt;open_to_read(s);            /* open the B-tree */
 
-    Btree_item t;
+    string t;
     do {
 	while (B-&gt;overwritten) {
 	    B = reopen(s);
@@ -1148,16 +1095,15 @@ In retrieval mode B-&gt;overwitten should be tested after the following procedur
     Btree::open_to_read(name, revision);
     Bcursor::next();
     Bcursor::prev();
-    Bcursor::find_key(key);
-    Bcursor::get_tag(kt);
+    Bcursor::find_key(const string &amp;key);
+    Bcursor::get_tag(string * tag);
 </pre>
 
 The test is not required after any of the following:
 
 <pre>
-   Btree_item::Btree_item();
    Btree::Bcursor_create();
-   Bcursor::get_key(kt);
+   Bcursor::get_key(string * key);
 </pre>
 
 Note particularly that opening the B-tree can set B-&gt;overwritten, and that
@@ -1214,9 +1160,6 @@ Some procedures cannot give an error.  Here is a summary:
 Here are some suitable error tests with the different calls,
 
 <pre>
-    kt = Btree_item_create(s);
-    if (kt == 0) ...
-
     B = Btree_open_to_write(s);
     if (B == 0 || B-&gt;error) ...
 

@@ -1,6 +1,10 @@
+Sun Nov 17 14:19:30 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Updated to reflect removal of Btree_item.
+
 Sun Nov 17 14:12:12 GMT 2002  Olly Betts <olly@survex.com>
 
-	* backends/quartz/: Eliminate Btree_item - whereever it's used we
+	* backends/quartz/: Eliminate Btree_item - wherever it's used we
 	  only actually want the tag or key, so it's cleaner and clearer
 	  to just pass a pointer to a string.
 	
