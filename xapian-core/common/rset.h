@@ -59,10 +59,9 @@ RSet::will_want_termfreq(termid tid) const
 inline doccount
 RSet::get_reltermfreq(termid tid) const
 {
-    return 1;
-    if(initialised_reltermfreqs) {
-	vector<RSetItem>::const_iterator doc = documents.begin();
-	while(doc != documents.end()) {
+    if(!initialised_reltermfreqs) {
+	vector<RSetItem>::const_iterator doc;
+	for(doc = documents.begin(); doc != documents.end(); doc++) {
 	    TermList * tl = root->open_term_list((*doc).did);
 	    tl->next();
 	    while(!(tl->at_end())) {
@@ -71,7 +70,7 @@ RSet::get_reltermfreq(termid tid) const
 		// a list?
 		termid newtid = tl->get_termid();
 		if(reltermfreqs.find(newtid) != reltermfreqs.end())
-		    reltermfreqs[tid] ++;
+		    reltermfreqs[newtid] ++;
 		tl->next();
 	    }
 	}
