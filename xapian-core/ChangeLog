@@ -1,3 +1,7 @@
+Wed Mar 09 22:04:08 GMT 2005  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Added C_isxdigit and C_isnotxdigit.
+
 Wed Mar 09 15:22:35 GMT 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/index_utils.cc: Fixed ^x to actually decode hex values

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -192,6 +192,11 @@ inline bool C_isdigit(char ch) {
     return is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT;
 }
 
+inline bool C_isxdigit(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_HEX;
+}
+
 inline bool C_isupper(char ch) {
     using namespace Xapian::Internal;
     return is_tab[static_cast<unsigned char>(ch)] & IS_UPPER;
@@ -228,6 +233,7 @@ inline bool C_isupdig(char ch) {
 }
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
+inline bool C_isnotxdigit(char ch) { return !C_isxdigit(ch); }
 inline bool C_isnotupper(char ch) { return !C_isupper(ch); }
 inline bool C_isnotlower(char ch) { return !C_islower(ch); }
 inline bool C_isnotalpha(char ch) { return !C_isalpha(ch); }
