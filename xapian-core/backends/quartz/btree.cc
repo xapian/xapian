@@ -454,7 +454,7 @@ static void set_block_given_by(byte * p, int c, int4 n)
    and returns its tag value as an integer.
 */
 
-static int block_given_by(const byte * p, int c)
+static int4 block_given_by(const byte * p, int c)
 {
     c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
@@ -587,10 +587,6 @@ static int find_in_block(const byte * p, const byte * key, int offset, int c)
    Result is true if found, false otherwise.  When false, the B_tree
    cursor is positioned at the last key in the B-tree <= the search
    key.  Goes to first (null) item in B-tree when key length == 0.
-
-   (In this case, example debugging lines are shown commented.
-   Debugging is easy with the help of the B-tree writing code included
-   further down.)
 */
 
 bool
@@ -979,7 +975,7 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 	/* j == B->level */
 	while (dir_end == DIR_START + D2 && j > 0) {
 	    /* single item in the root block, so lose a level */
-	    int new_root = block_given_by(p, DIR_START);
+	    int4 new_root = block_given_by(p, DIR_START);
 	    delete [] p;
 	    C_[j].p = 0;
 	    base.free_block(C_[j].n);
@@ -1392,13 +1388,11 @@ Btree::basic_open(const string & name_,
 	Btree_base *other_base = 0;
 
 	for (size_t i = 0; i < basenames.size(); ++i) {
-	    /*
-	    cerr << "Checking (ch == " << ch << ") against "
-		    "basenames[" << i << "] == " << basenames[i] << endl;
-	    cerr << "bases[i].get_revision() == " << bases[i].get_revision()
-		    << endl;
-	    cerr << "base_ok[i] == " << base_ok[i] << endl;
-	    */
+	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
+		      "basenames[" << i << "] == " << basenames[i]);
+	    DEBUGLINE(UNKNOWN, "bases[" << i << "].get_revision() == " <<
+		      bases[i].get_revision());
+	    DEBUGLINE(UNKNOWN, "base_ok[" << i << "] == " << base_ok[i]);
 	    if (ch == basenames[i]) {
 		basep = &bases[i];
 
@@ -1809,10 +1803,10 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
     byte * p = C_[0].p;
     int c = C_[0].c;
     if (c == DIR_START) {
-	int n = C_[0].n;
+	int4 n = C_[0].n;
 	while (true) {
+	    if (n == 0) return false;
 	    n--;
-	    if (n < 0) return false;
 	    read_block(n, p);
 	    if (overwritten) return false;
 	    if (REVISION(p) > 1) {
@@ -1836,7 +1830,7 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
     int c = C_[0].c;
     c += D2;
     if (c == DIR_END(p)) {
-	int n = C_[0].n;
+	int4 n = C_[0].n;
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) return false;
