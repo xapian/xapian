@@ -4,10 +4,18 @@
 #include "database_builder.h"
 
 // Include headers for all the database types
+#ifdef MUS_BUILD_BACKEND_DA
 #include "da/da_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_TEXTFILE
 #include "textfile/textfile_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_SLEEPY
 #include "sleepy/sleepy_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_MULTI
 #include "multi/multi_database.h"
+#endif
 #include "database.h"
 
 IRDatabase *
@@ -21,16 +29,24 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	    throw OmError("Unspecified database type");
 	    break;
 	case OM_DBTYPE_DA:
+#ifdef MUS_BUILD_BACKEND_DA
 	    database = new DADatabase;
+#endif
 	    break;
 	case OM_DBTYPE_TEXTFILE:
+#ifdef MUS_BUILD_BACKEND_TEXTFILE
 	    database = new TextfileDatabase;
+#endif
 	    break;
 	case OM_DBTYPE_SLEEPY:
+#ifdef MUS_BUILD_BACKEND_SLEEPY
 	    database = new SleepyDatabase;
+#endif
 	    break;
 	case OM_DBTYPE_MULTI:
+#ifdef MUS_BUILD_BACKEND_MULTI
 	    database = new MultiDatabase;
+#endif
 	    break;
 	default:
 	    throw OmError("Unknown database type");
