@@ -720,6 +720,20 @@ static bool test_allterms4()
     return true;
 }
 
+// test that skip_to with an exact match sets the current term (regression test
+// for quartz)
+static bool test_allterms5()
+{
+    Xapian::Database db;
+    db.add_database(get_database("apitest_allterms"));
+    Xapian::TermIterator ati = db.allterms_begin();
+    ati.skip_to("three");
+    TEST(ati != db.allterms_end());
+    TEST_EQUAL(*ati, "three");
+
+    return true;
+}
+
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
 {
@@ -1248,6 +1262,7 @@ test_desc allterms_tests[] = {
     {"allterms2",	   test_allterms2},
     {"allterms3",	   test_allterms3},
     {"allterms4",	   test_allterms4},
+    {"allterms5",	   test_allterms5},
     {0, 0}
 };
 

@@ -130,8 +130,8 @@ QuartzAllTermsList::skip_to(const string &tname)
 	    next();
 	}
     } else {
-	DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
-		  pl_cursor->current_key);
+	Assert(key == pl_cursor->current_key);
+	current_term = tname;
     }
     RETURN(NULL);
 }

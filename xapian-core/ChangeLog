@@ -1,3 +1,10 @@
+Fri Feb 25 17:06:23 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_alltermslist.cc: Fix skip_to on an allterms
+	  TermIterator to set the current term when the skip_to-ed term is
+	  in the database.
+	* tests/api_db.cc: Add regression test for this (allterms5).
+
 Wed Feb 23 19:07:30 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Suppress 2 Intel C++ warnings which we can't easily
