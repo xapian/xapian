@@ -1,3 +1,28 @@
+Tue Nov  7 17:51:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* General indexer cleanups and FIXME fixing.
+
+	* OmIndexerData has new methods set_vector(), set_empty(),
+	  eat_list(), and eat_element().  swap() has been made public.
+	  eat_* and swap() allow more efficient manipulation of
+	  indexer data when the original does not need to be preserved.
+	  set_{int,double,string} have actually been implemented.
+	
+	* OmIndexerNode has new methods get_config_int(), get_config_double(),
+	  get_config_vector() so the configuration parameters are more
+	  useful.  Also added a set_output() varient for const OmIndexerData&,
+	  for convenience.
+	
+	* OmConstantNode now supports int, double, and vector types as
+	  well as string.
+	
+	* Implemented config_modified() for several nodes.
+
+	* OmListConcatNode makes use of more efficient data shuffling.
+
+	* OmStemmerNode modifies the list of words in-place rather than
+	  building a new list.
+
 Tue Nov  7 15:26:32 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Documented the rest of the indexer nodes.

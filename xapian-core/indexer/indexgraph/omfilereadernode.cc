@@ -55,7 +55,6 @@ class OmFileReaderNode : public OmIndexerNode {
 	std::string filename;
 	bool filename_from_config;
 	bool have_read_file;
-	// FIXME: implement config_modified()
 	void calculate() {
 	    std::string fname;
 	    if (filename_from_config) {
@@ -77,6 +76,14 @@ class OmFileReaderNode : public OmIndexerNode {
 
 	    set_output("out", output);
 	    have_read_file = true;
+	}
+
+	void config_modified(const std::string &key)
+	{
+	    if (key == "filename") {
+		filename = get_config_string(key);
+		filename_from_config = (filename.length() > 0);
+	    }
 	}
 
 	static void read_file(std::string &s, const std::string &filename)

@@ -52,7 +52,6 @@ class OmMakeDocNode : public OmIndexerNode {
 	{
 	}
     private:
-	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage data = get_input_record("data");

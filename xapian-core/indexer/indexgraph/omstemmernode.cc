@@ -53,7 +53,13 @@ class OmStemmerNode : public OmIndexerNode {
     private:
 	std::string language;
 	bool language_from_config;
-	// FIXME: implement config_modified()
+	void config_modified(const std::string &key)
+	{
+	    if (key == "language") {
+		language = get_config_string(key);
+		language_from_config = language.length() > 0;
+	    }
+	}
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
@@ -62,19 +68,16 @@ class OmStemmerNode : public OmIndexerNode {
 		return;
 	    }
 
-	    OmIndexerMessage output(new OmIndexerData(std::vector<OmIndexerData>()));
-
 	    std::string lang = language_from_config?
 		    		   language : get_input_string("language");
 	    OmStem stemmer(lang);
 
 	    for (int i=0; i<input->get_vector_length(); ++i) {
-		// FIXME: modify in place
-		output->append_element(
-	            OmIndexerData(stemmer.stem_word(input->get_element(i).get_string())));
+		OmIndexerData &word = input->get_element(i);
+		word.set_string(stemmer.stem_word(word.get_string()));
 	    }
 
-	    set_output("out", output);
+	    set_output("out", input);
 	}
 };
 

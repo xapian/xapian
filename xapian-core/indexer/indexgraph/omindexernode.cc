@@ -98,11 +98,23 @@ class OmIndexerNode::Internal {
 	void set_output(const std::string &output_name,
 			const std::string &value);
 	void set_output(const std::string &output_name, OmIndexerMessage value);
+	void set_output(const std::string &output_name,
+			const OmIndexerData &value);
 
 	/* The implementation's interface to the configuration data. */
 
 	/** Return the current value of a given configuration parameter. */
 	std::string get_config_string(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	int get_config_int(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	double get_config_double(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	std::vector<std::string>
+		get_config_vector(const std::string &key) const;
     private:
 	/* ********** Private member functions ************/
 	/** Calculate outputs if needed
@@ -392,6 +404,23 @@ OmIndexerNode::Internal::set_output(const std::string &output_name,
     outputs_record[output_name] = new OmIndexerMessage(value);
 }
 
+void OmIndexerNode::set_output(const std::string &output_name,
+			       const OmIndexerData &value)
+{
+    return internal->set_output(output_name, value);
+}
+
+void
+OmIndexerNode::Internal::set_output(const std::string &output_name,
+				    const OmIndexerData &value)
+{
+    /*cout << "Setting output \"" << output_name
+	 << "\" to record:" << value << endl; */
+    // TODO: check that it isn't already set?
+    OmIndexerMessage temp(new OmIndexerData(value));
+    outputs_record[output_name] = new OmIndexerMessage(temp);
+}
+
 void
 OmIndexerNode::set_output(const std::string &output_name,
 				      const std::string &value)
@@ -452,10 +481,46 @@ OmIndexerNode::get_config_string(const std::string &key) const
     return internal->get_config_string(key);
 }
 
+int
+OmIndexerNode::get_config_int(const std::string &key) const
+{
+    return internal->get_config_int(key);
+}
+
+double
+OmIndexerNode::get_config_double(const std::string &key) const
+{
+    return internal->get_config_double(key);
+}
+
+std::vector<std::string>
+OmIndexerNode::get_config_vector(const std::string &key) const
+{
+    return internal->get_config_vector(key);
+}
+
 std::string
 OmIndexerNode::Internal::get_config_string(const std::string &key) const
 {
     return settings.get(key);
+}
+
+int
+OmIndexerNode::Internal::get_config_int(const std::string &key) const
+{
+    return settings.get_int(key);
+}
+
+double
+OmIndexerNode::Internal::get_config_double(const std::string &key) const
+{
+    return settings.get_real(key);
+}
+
+std::vector<std::string>
+OmIndexerNode::Internal::get_config_vector(const std::string &key) const
+{
+    return settings.get_vector(key);
 }
 
 void

@@ -114,6 +114,8 @@ class OmIndexerNode {
 	void set_output(const std::string &output_name,
 			const std::string &value);
 	void set_output(const std::string &output_name, OmIndexerMessage value);
+	void set_output(const std::string &output_name,
+			const OmIndexerData &value);
 
 	/** Set the given output to an empty message */
 	void set_empty_output(const std::string &output_name);
@@ -122,6 +124,16 @@ class OmIndexerNode {
 
 	/** Return the current value of a given configuration parameter. */
 	std::string get_config_string(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	int get_config_int(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	double get_config_double(const std::string &key) const;
+
+	/** Return the current value of a given configuration parameter. */
+	std::vector<std::string>
+		get_config_vector(const std::string &key) const;
 
 	/** This function may be overridden by a node implementation if it
 	 *  needs to be informed of configuration changes (rather than just

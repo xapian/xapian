@@ -148,7 +148,8 @@ OmIndexerData::swap(OmIndexerData &other) {
     std::swap(type, other.type);
 }
 
-OmIndexerData::~OmIndexerData()
+void
+OmIndexerData::destroy_val()
 {
     switch (type) {
 	case rt_empty:
@@ -163,6 +164,12 @@ OmIndexerData::~OmIndexerData()
 	    delete u.vector_val;
 	    break;
     }
+    type = rt_empty;
+}
+
+OmIndexerData::~OmIndexerData()
+{
+    destroy_val();
 }
 
 OmIndexerData::record_type
@@ -241,6 +248,77 @@ OmIndexerData::append_element(const OmIndexerData &element)
 	throw OmTypeError("OmIndexerData::append_element() called for non-vector value");
     }
     u.vector_val->push_back(element);
+}
+
+void
+OmIndexerData::eat_element(OmIndexerData &element)
+{
+    if (type != rt_vector) {
+	throw OmTypeError("OmIndexerData::append_element() called for non-vector value");
+    }
+    size_t offset = u.vector_val->size();
+    u.vector_val->resize(offset + 1);
+    (*u.vector_val)[offset].swap(element);
+}
+
+void
+OmIndexerData::eat_list(OmIndexerData &list)
+{
+    if (type != rt_vector) {
+	throw OmTypeError("OmIndexerData::eat_list() called for non-vector value");
+    }
+    if (list.type != rt_vector) {
+	throw OmTypeError("OmIndexerData::eat_list() called with non-vector argument");
+    }
+    size_t offset = u.vector_val->size();
+    size_t othersize = list.u.vector_val->size();
+    size_t newsize = offset + othersize;
+    u.vector_val->resize(newsize);
+    for (size_t i = 0; i<othersize; ++i) {
+	(*u.vector_val)[offset + i].swap((*list.u.vector_val)[i]);
+    }
+    // now clear out the other list.
+    list.u.vector_val->clear();
+}
+
+void OmIndexerData::set_empty()
+{
+    destroy_val();
+}
+
+void OmIndexerData::set_int(int value)
+{
+    destroy_val();
+    type = rt_int;
+    u.int_val = value;
+}
+
+void OmIndexerData::set_double(double value)
+{
+    destroy_val();
+    type = rt_double;
+    u.double_val = value;
+}
+
+void OmIndexerData::set_string(const std::string &value)
+{
+    destroy_val();
+
+    // set the string first, since it may throw an exception,
+    // which would be bad if we tried to delete the value later.
+    u.string_val = new std::string(value);
+    type = rt_string;
+}
+
+void OmIndexerData::set_vector(std::vector<OmIndexerData>::const_iterator begin,
+			       std::vector<OmIndexerData>::const_iterator end)
+{
+    destroy_val();
+
+    // set the string first, since it may throw an exception,
+    // which would be bad if we tried to delete the value later.
+    u.vector_val = new std::vector<OmIndexerData>(begin, end);
+    type = rt_vector;
 }
 
 template <class Stream>

@@ -113,6 +113,30 @@ class OmIndexerData {
 	 */
 	void append_element(const OmIndexerData &element);
 
+	/** Append a OmIndexerData to the vector value, destructively.
+	 *  So after mess->eat_element(mydata), mydata is empty.
+	 *  Will throw an exception if this message is not a vector
+	 *
+	 *  @param element	The element to append to this vector.
+	 *  			After this call element will be an empty.
+	 *  			message.
+	 */
+	void eat_element(OmIndexerData &element);
+
+	/** Concatenate another list destructively.
+	 *  So after mess->eat_list(mylist), mylist will be empty.
+	 *  Will throw an exception if either message is not a vector
+	 *
+	 *  @param list		The vector to append to this vector.
+	 *  			After this call list will be an empty
+	 *  			list.
+	 */
+	void eat_list(OmIndexerData &list);
+
+	/** Give this record the empty value
+	 */
+	void set_empty();
+
 	/** Give this record an integer value
 	 */
 	void set_int(int value);
@@ -125,10 +149,21 @@ class OmIndexerData {
 	 */
 	void set_string(const std::string &value);
 
-	// FIXME: include the vector type as well.
+	/** Give this record a vector value
+	 */
+	void set_vector(std::vector<OmIndexerData>::const_iterator begin,
+			std::vector<OmIndexerData>::const_iterator end);
 
 	/** Return a human-readable string describing the message */
 	std::string get_description() const;
+
+	/** atomic exception-safe and efficient swap routine.
+	 *  This is an efficient way of moving OmIndexerData around
+	 *  within nodes avoiding deep copies.
+	 *
+	 *  @param other  The data to swap contents with.
+	 */
+	void swap(OmIndexerData &other);
     private:
 
 	/** The type of this record */
@@ -142,8 +177,8 @@ class OmIndexerData {
 	    std::vector<OmIndexerData> *vector_val;
 	} u;
 
-	/* atomic exception-safe swap routine */
-	void swap(OmIndexerData &other);
+	/** Destroy the current value (used with assignments) */
+	void destroy_val();
 };
 
 typedef AutoPtr<OmIndexerData> OmIndexerMessage;

@@ -52,7 +52,6 @@ class OmKeylistAddNode : public OmIndexerNode {
 	    // FIXME: parameters to set positional defaults?
 	}
     private:
-	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage keys = get_input_record("keylist");

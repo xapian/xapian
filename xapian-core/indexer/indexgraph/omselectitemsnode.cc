@@ -50,8 +50,16 @@ class OmSelectItemsNode : public OmIndexerNode {
 	OmSelectItemsNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
-	    vector<std::string> sitems = config.get_vector("items");
+	    set_items();
+	}
+    private:
+	vector<int> items;
 
+	void set_items()
+	{
+	    vector<std::string> sitems = get_config_vector("items");
+
+	    items.clear();
 	    vector<std::string>::const_iterator i;
 	    for (i = sitems.begin();
 		 i != sitems.end();
@@ -61,9 +69,14 @@ class OmSelectItemsNode : public OmIndexerNode {
 		items.push_back(num);
 	    }
 	}
-    private:
-	vector<int> items;
-	// FIXME: implement config_modified()
+
+	void config_modified(const std::string &key)
+	{
+	    if (key == "items") {
+		set_items();
+	    }
+	}
+
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");

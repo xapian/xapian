@@ -66,7 +66,16 @@ class OmRegexSplitNode : public OmIndexerNode {
 	std::string config_regex;
 	bool regex_from_config;
 	Regex regex;
-	// FIXME: implement config_modified()
+	void config_modified(const std::string &key)
+	{
+	    if (key == "regex") {
+		config_regex = get_config_string(key);
+		regex_from_config = config_regex.length() > 0;
+		if (regex_from_config) {
+		    regex.set(config_regex);
+		}
+	    }
+	}
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage mess = get_input_record("in");

@@ -59,6 +59,32 @@ class OmTranslateNode : public OmIndexerNode {
 		  from(config.get("from")),
 		  to(config.get("to"))
 	{
+	    setup_map();
+	}
+    private:
+	std::string from;
+	std::string to;
+	// FIXME: this'll need changing when we deal with Unicode.
+	char map[256];
+	void config_modified(const std::string &key)
+	{
+	    bool changed = false;
+	    if (key == "from") {
+		from = get_config_string(key);
+		changed = true;
+	    } else if (key == "to") {
+		to = get_config_string(key);
+		changed = true;
+	    }
+	    if (changed) {
+		// FIXME: this will fail if from or to is set to
+		// a string of a different length.  Need to be able
+		// to set them both atomically, really.
+		setup_map();
+	    }
+	}
+	void setup_map()
+	{
 	    for (int i=0; i<sizeof(map); ++i) {
 		map[i] = i;
 	    }
@@ -75,12 +101,6 @@ class OmTranslateNode : public OmIndexerNode {
 		map[from[i]] = to[i];
 	    }
 	}
-    private:
-	std::string from;
-	std::string to;
-	// FIXME: this'll need changing when we deal with Unicode.
-	char map[256];
-	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");

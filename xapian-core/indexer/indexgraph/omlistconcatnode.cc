@@ -53,10 +53,7 @@ class OmListConcatNode : public OmIndexerNode {
 		set_output("out", right);
 	    } else {
 		if (!right->is_empty()) {
-		    for (int i=0; i<right->get_vector_length(); ++i) {
-			// FIXME use a multi-append function for efficiency?
-			left->append_element(right->get_element(i));
-		    }
+		    left->eat_list(*right);
 		}
 		set_output("out", left);
 	    }

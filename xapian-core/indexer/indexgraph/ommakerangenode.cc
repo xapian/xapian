@@ -53,7 +53,16 @@ class OmMakeRangeNode : public OmIndexerNode {
 	int first;
 	int step;
 	int count;
-	// FIXME: implement config_modified()
+	void config_modified(const std::string &key)
+	{
+	    if (key == "first") {
+		first = get_config_int("first");
+	    } else if (key == "step") {
+		step = get_config_int("step");
+	    } else if (key == "count") {
+		count = get_config_int("count");
+	    }
+	}
 	void calculate() {
 	    OmIndexerMessage ints(new OmIndexerData(std::vector<OmIndexerData>()));
 	    for (int i=0; i<count; ++i) {

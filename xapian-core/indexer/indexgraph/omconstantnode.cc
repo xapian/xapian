@@ -28,9 +28,8 @@
 /** Node used to provide a constant value.
  *
  *  The omconstant node is configured with a constant
- *  value (currently string only) which can be used
- *  to supply another node's input with a particular
- *  value.
+ *  value which can be used to supply another node's input
+ *  with a particular value.
  *
  *  Inputs: none
  *
@@ -38,19 +37,46 @@
  *  	out: the constant value
  *
  *  Parameters:
- *  	value: the string constant used for output.
+ *  	type: A string describing the type of the data.  Can be "string",
+ *  		"int", "double", or "list".  The default, if specified,
+ *  		is "string".
+ *  	value: the constant used for output.
  */
 class OmConstantNode : public OmIndexerNode {
     public:
 	OmConstantNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
-	    // FIXME: allow non-string values too
-	    value = config.get("value");
+	    std::string type = config.get("type", "string");
+	    set_config_string("type", type);
+	    set_value();
 	}
     private:
-	std::string value;
-	// FIXME: implement config_modified()
+	OmIndexerData value;
+	void set_value()
+	{
+	    std::string type = get_config_string("type");
+	    if (type == "string") {
+		value.set_string(get_config_string("value"));
+	    } else if (type == "int") {
+		value.set_int(get_config_int("value"));
+	    } else if (type == "double") {
+		value.set_double(get_config_double("value"));
+	    } else if (type == "list") {
+		std::vector<std::string> vec = get_config_vector("value");
+		std::vector<OmIndexerData> newvec;
+		std::copy(vec.begin(), vec.end(),
+			  back_inserter(newvec));
+		value.set_vector(newvec.begin(), newvec.end());
+	    }
+	}
+
+	void config_modified(const std::string &key)
+	{
+	    if (key == "value" || key == "type") {
+		set_value();
+	    }
+	}
 	void calculate() {
 	    set_output("out", value);
 	}
