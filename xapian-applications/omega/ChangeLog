@@ -1,3 +1,10 @@
+Mon May 13 12:52:29 BST 2002  Olly Betts <olly@survex.com>
+
+	* Autoconf 2.50.
+
+	* Commented out omindex-config (since it's unfinished) and XML support
+	  (since only omindex-config uses it).
+
 Thu May 02 16:06:02 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated to reflect removal of OmData.
