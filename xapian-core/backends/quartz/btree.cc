@@ -505,7 +505,6 @@ static void write_block(struct Btree * B, int4 n, byte * p)
     if (! B->Btree_modified) {
 	// Things to do when we start a modification session.
 
-        B->faked_root_block = false;
         B->Btree_modified = true;
 
         if (B->both_bases) {
@@ -1803,6 +1802,10 @@ extern int Btree_close(struct Btree * B_, uint4 revision)
             B->last_block = n;
         }
     }
+
+    B->faked_root_block &= ! B->Btree_modified; /* still faked? */
+    if (B->faked_root_block) B->bit_map[0] = 0; /* if so, dummy bit map */
+
     if (! write_bit_map(B.get())) {
 	return error;
     }
@@ -2412,11 +2415,12 @@ extern void Btree_check(const char * name, const char * opt_string)
         }
     }
     if (opts & 8)
-    printf("base%c  Revision *%ld  levels %d  root [%ld]  blocksize %d  items %ld  lastblock %ld\n",
+    printf("base%c  Revision *%ld  levels %d  root [%ld]%s  blocksize %d  items %ld  lastblock %ld\n",
             B->base_letter,
             B->revision_number,
             B->level,
             C[B->level].n,
+	    B->faked_root_block ? "(faked)" : "",
             B->block_size,
             B->item_count,
             B->last_block);
@@ -2441,7 +2445,7 @@ extern void Btree_check(const char * name, const char * opt_string)
         }
     }
 
-    if (B->revision_number == 0) printf("void "); else
+    if (B->faked_root_block) printf("void "); else
 
     {   block_check(B, C, B->level, opts);
 

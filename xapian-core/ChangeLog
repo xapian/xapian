@@ -1,3 +1,8 @@
+Fri Nov 17 12:29:54 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug with applying new empty revisions to empty DBs - blocks no
+	  longer get used up by this process.
+
 Fri Nov 17 11:09:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add test to quartz of applying new revision numbers multiple times
