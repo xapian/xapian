@@ -1,3 +1,8 @@
+Tue Sep 14 03:37:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* guile/Makefile.am,guile/extra.i: Added empty extra.i which
+	  will be required when these bindings get ressurected.
+
 Tue Sep 14 03:37:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/Makefile.am: Don't install xapian.la.

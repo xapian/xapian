@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i
+EXTRA_DIST = util.i extra.i
 
 noinst_LTLIBRARIES = xapianc.la
 
@@ -11,7 +11,7 @@ xapianc_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 
-xapian_wrap.cc: ../xapian.i util.i
+xapian_wrap.cc: ../xapian.i util.i extra.i
 	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -guile -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)
