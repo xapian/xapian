@@ -13,6 +13,6 @@ xapianc_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../xapian.i util.i
-	$(SWIG) -I. -c++ -guile -shadow -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -I. $(XAPIAN_CXXFLAGS) -c++ -guile -shadow -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)

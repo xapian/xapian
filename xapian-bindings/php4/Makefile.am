@@ -9,10 +9,10 @@ BUILT_SOURCES = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian/xapian.php \
 # We generate and build this for "make all", and install it for "make install".
 all-local: xapian/configure
 	cd xapian &&\
-	 ./configure --with-xapian="`echo $(XAPIAN_LIBS)|sed 's![^/]*$!!'`" &&\
+	 ./configure --with-xapian="`echo $(XAPIAN_CXXFLAGS)|sed 's!^-I!!;s!/include$$!!'`" &&\
 	 $(MAKE)
 
-install-local:
+install-hook:
 	cd xapian && $(MAKE) install
 
 xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php
@@ -20,6 +20,6 @@ xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xap
 
 xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../xapian.i util.i
 	test -d xapian || mkdir xapian
-	$(SWIG) -I. -c++ -php4 -phpfull -withlibs "xapian omqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
+	$(SWIG) -I. $(XAPIAN_CXXFLAGS) -c++ -php4 -phpfull -withlibs "xapian omqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)
