@@ -2,9 +2,11 @@ Changes
 Makefile.PL
 MANIFEST
 README
-test.pl
 Xapian.pm
 Xapian.xs
 perlobject.map
 typemap
-simplesearch.pl
+t/create.t
+t/index.t
+t/search.t
+examples/simplesearch.pl

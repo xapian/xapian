@@ -14,7 +14,7 @@ WriteMakefile(
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'Xapian.pm', # retrieve abstract from module
-       AUTHOR     => 'Alex Bowley <kilinrax"cpan.org>') : ()),
+       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     'LIBS'		=> "-L$lib -lxapian", # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'                => $CC,
@@ -24,7 +24,7 @@ WriteMakefile(
 	# Un-comment this if you add C files to link with later:
     # 'OBJECT'		=> '$(O_FILES)', # link all the C files too
     'XSOPT'             => '-C++',
-    'TYPEMAPS'          => ['perlobject.map' ],
+    'TYPEMAPS'          => ['perlobject.map','typemap'],
 );
 
 sub locate($) {

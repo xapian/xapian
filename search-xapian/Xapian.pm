@@ -25,7 +25,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 	
 );
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -102,18 +102,9 @@ None by default.
 
 =over 4
 
-=item Indexing
-
-Bindings for OmWriteableDatabase, OmStem, and other classes needed for
-indexing and database creation.
-
-=item Tests
-
-Separate out test scripts and examples.
-
 =item Error Handling
 
-Returning OmErrors to Perl in a sane manner.
+Error handling for all method liable to generate them.
 
 =item Documentation
 

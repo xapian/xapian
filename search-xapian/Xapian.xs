@@ -39,12 +39,46 @@ OmDatabase *
 OmDatabase::new(params)
     OmSettings * params
     CODE:
-        RETVAL = new OmDatabase(* params);
+        try {
+            RETVAL = new OmDatabase(* params);
+        }
+        catch (const OmError &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
 void
 OmDatabase::DESTROY()
+
+
+MODULE = Search::Xapian		PACKAGE = Search::Xapian::Database::Writable
+
+PROTOTYPES: ENABLE
+
+OmWritableDatabase *
+OmWritableDatabase::new(params)
+    OmSettings * params
+    CODE:
+        try {
+            RETVAL = new OmWritableDatabase(* params);
+        }
+        catch (const OmError &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+om_docid
+OmWritableDatabase::add_document(document)
+    OmDocument * document
+    CODE:
+        RETVAL = THIS->add_document(*document);
+    OUTPUT:
+        RETVAL
+
+void
+OmWritableDatabase::DESTROY()
 
 
 MODULE = Search::Xapian  		PACKAGE = Search::Xapian::Query		
@@ -62,7 +96,7 @@ void
 OmQuery::DESTROY()
 
 
-MODULE = Search::Xapian		PACKAGE = Search::Xapian::Document		
+MODULE = Search::Xapian 		PACKAGE = Search::Xapian::Document		
 
 PROTOTYPES: ENABLE
 
@@ -71,6 +105,21 @@ OmDocument::new()
 
 string
 OmDocument::get_data()
+    CODE:
+        RETVAL = THIS->get_data();
+    OUTPUT:
+        RETVAL
+
+void
+OmDocument::set_data(data)
+    string * data
+    CODE:
+        THIS->set_data(*data);
+
+void
+OmDocument::add_posting(tname, tpos)
+    om_termname  tname
+    om_termpos   tpos
 
 void
 OmDocument::DESTROY()
@@ -95,7 +144,9 @@ OmMSetIterator::inc()
 om_docid
 OmMSetIterator::get_docid()
     CODE:
-        *THIS;
+        RETVAL = THIS->operator*();
+    OUTPUT:
+        RETVAL
 
 om_percent
 OmMSetIterator::get_percent()
@@ -175,3 +226,27 @@ OmEnquire::get_mset(first, maxitems)
 
 void
 OmEnquire::DESTROY()
+
+
+MODULE = Search::Xapian		PACKAGE = Search::Xapian::Stem		
+
+PROTOTYPES: ENABLE
+
+OmStem *
+OmStem::new(language)
+    string *     language
+    CODE:
+        RETVAL = new OmStem(*language);
+    OUTPUT:
+        RETVAL
+
+string
+OmStem::stem_word(word)
+    string *     word
+    CODE:
+        RETVAL = THIS->stem_word(*word);
+    OUTPUT:
+        RETVAL
+
+void
+OmStem::DESTROY()

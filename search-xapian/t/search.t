@@ -7,9 +7,8 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 2 };
+BEGIN { plan tests => 13 };
 use Search::Xapian;
-ok(1); # If we made it this far, we're ok.
 
 #########################
 
@@ -17,12 +16,10 @@ ok(1); # If we made it this far, we're ok.
 # its man page ( perldoc Test ) for help writing this test script.
 
 my $settings;
-ok( $settings = Search::Xapian::Settings->new() );
+$settings = Search::Xapian::Settings->new();
 
 $settings->set( 'backend', 'auto' );
 $settings->set( 'auto_dir', 'testdb' );
-
-exit 0;
 
 # None of the following tests can be expected to succeed without first
 # creating a test database in the directory testdb.
@@ -30,30 +27,30 @@ exit 0;
 # using the xapian C++ examples and use the following tests on this module
 
 my $db;
-todo( $db = Search::Xapian::Database->new( $settings ) );
+ok( $db = Search::Xapian::Database->new( $settings ) );
 
 my $enq;
-todo( $enq = Search::Xapian::Enquire->new( $db ) );
+ok( $enq = Search::Xapian::Enquire->new( $db ) );
 
 my $query;
-todo( $query = Search::Xapian::Query->new( 'help' ) );
-todo( $query->get_description() );
+ok( $query = Search::Xapian::Query->new( 'test' ) );
+ok( $query->get_description() );
 
 $enq->set_query( $query );
 
 my $matches;
-todo( $matches = $enq->get_mset( 0, 10 ) );
-todo( $matches->get_matches_estimated() );
-todo( $matches->size() );
+ok( $matches = $enq->get_mset( 0, 10 ) );
+ok( $matches->get_matches_estimated() );
+ok( $matches->size() );
 
 my $match;
-todo( $match = $matches->begin() );
-todo( $match->inc() );
-todo( $match->get_docid() );
-todo( $match->get_percent() );
+ok( $match = $matches->begin() );
+ok( $match->inc() );
+ok( $match->get_docid() );
+ok( $match->get_percent() );
 
 my $doc;
-todo( $doc = $match->get_document() );
-todo( $doc->get_data() );
+ok( $doc = $match->get_document() );
+ok( $doc->get_data() );
 
 1;
