@@ -112,7 +112,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
-	terms.push_back(DATermListItem(std::string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -144,9 +144,9 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
     }
 
     // Work out file paths
-    std::string filename_r = params.get("m36_record_file");
-    std::string filename_t = params.get("m36_term_file");
-    std::string filename_k = params.get("m36_key_file", "");
+    string filename_r = params.get("m36_record_file");
+    string filename_t = params.get("m36_term_file");
+    string filename_k = params.get("m36_key_file", "");
 
     heavy_duty = params.get_bool("m36_heavyduty", true);
 
@@ -176,12 +176,12 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
 	errno = 0;
 	size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(std::string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_k +
 				 ": couldn't read magic", errno);
 	}
 	input[8] = '\0';
 	if (strcmp(input, "omrocks!")) {
-	    throw OmOpeningError(std::string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_k +
 				 ": found wrong magic - got `" + input + "'");
 	}
     }
@@ -298,8 +298,8 @@ DADatabase::open_term_list(om_docid did) const
 
     if (DA_get_termvec(DA_r, did, tv) == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
 
     M_open_terms(tv);
@@ -318,18 +318,18 @@ DADatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
 
     return r;
 }
 
 /// Get the specified value for given document from the fast lookup file.
-OmValue
+string
 DADatabase::get_value(om_docid did, om_valueno valueid) const
 {
-    OmValue value;
+    string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
 
     if (valuefile == 0) {
@@ -344,8 +344,8 @@ DADatabase::get_value(om_docid did, om_valueno valueid) const
 	    if (bytes_read < 8) {
 		DEBUGLINE(DB, ": read off end of valuefile - using record");
 	    } else {
-		value.value = std::string(input, 8);
-		DEBUGLINE(DB, ": found - value is `" << value.value << "'");
+		value = string(input, 8);
+		DEBUGLINE(DB, ": found - value is `" << value << "'");
 	    }
 	}
     }
@@ -369,15 +369,15 @@ DADatabase::term_lookup(const om_termname & tname) const
 {
     DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    std::map<om_termname, RefCntPtr<const DATerm> >::const_iterator p;
+    map<om_termname, RefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
 
     RefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
-	std::string::size_type len = tname.length();
+	string::size_type len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw std::bad_alloc();
+	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
@@ -395,7 +395,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    std::pair<om_termname, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
+	    pair<om_termname, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}
@@ -417,7 +417,7 @@ TermList *
 DADatabase::open_allterms() const
 {
     DA_term_info daterm;
-    std::string zero("\0", 1);
+    string zero("", 1);
     DA_term(reinterpret_cast<const byte *>(zero.data()),
 	    &daterm, DA_t);
     return new DAAllTermsList(RefCntPtr<const DADatabase>(RefCntPtrToThis(), this),

@@ -32,10 +32,10 @@ class OmValueIterator::Internal {
 	friend class OmValueIterator; // allow access to it
         friend bool operator==(const OmValueIterator &a, const OmValueIterator &b);
 
-	std::map<om_valueno, OmValue>::const_iterator it;
+	std::map<om_valueno, string>::const_iterator it;
     
     public:
-        Internal(std::map<om_valueno, OmValue>::const_iterator it_) : it(it_)
+        Internal(std::map<om_valueno, string>::const_iterator it_) : it(it_)
 	{ }
 
         Internal(const Internal &other) : it(other.it)

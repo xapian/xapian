@@ -52,25 +52,24 @@ string_to_document(string paragraph)
 	if (i >= paragraph.length()) {
 	    break;
 	} else {
-	    OmValue value;
-	    value.value = paragraph.substr(i, 1);
+	    string value = paragraph.substr(i, 1);
 	    document.add_value(i, value);
 	}
     }
     {
-	OmValue value;
+	string value;
 
 	/* We need a value which will be useful for collapsing with DA
 	 * databases, where only the first 8 bytes of value 0 count.
 	 */
-	value.value = paragraph[2];
+	value = paragraph[2];
 
-	value.value += string("\0\0\0 \1\t", 6);
+	value += string("\0\0\0 \1\t", 6);
 
 	for (int k = 0; k < 256; k++) {
-	    value.value += (char)(k);
+	    value += (char)(k);
 	}
-	value.value += paragraph;
+	value += paragraph;
 	document.add_value(0, value);
     }
 
@@ -83,7 +82,7 @@ string_to_document(string paragraph)
 	select_characters(word, "");
 	lowercase_term(word);
 	word = stemmer.stem_word(word);
-	if(word.size() != 0) {
+	if (word.size() != 0) {
 	    document.add_posting(word, position++);
 	}
 	paragraph = paragraph.erase(0, spacepos);
@@ -140,7 +139,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 	    out << "#TEND#\n";
 	    OmValueIterator value_i = doc.values_begin();
 	    string value = string("\0\0\0\0\0\0\0", 8);
-	    if (value_i != doc.values_end()) value = (*value_i).value + value;
+	    if (value_i != doc.values_end()) value = (*value_i) + value;
 	    value = value.substr(0, 8);
 	    values << value;
 	}

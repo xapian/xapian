@@ -1049,9 +1049,9 @@ static bool test_collapsekey1()
 	map<string, om_docid> values;
 	OmMSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
-	    OmValue value = i.get_document().get_value(value_no);
-	    TEST(values[value.value] == 0 || value.value == "");
-	    values[value.value] = *i;
+	    string value = i.get_document().get_value(value_no);
+	    TEST(values[value] == 0 || value == "");
+	    values[value] = *i;
 	}
     }
 
@@ -1079,9 +1079,9 @@ static bool test_collapsekey2()
     map<string, om_docid> values;
     OmMSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
-	OmValue value = i.get_document().get_value(value_no);
-	TEST(values[value.value] == 0 || value.value == "");
-	values[value.value] = *i;
+	string value = i.get_document().get_value(value_no);
+	TEST(values[value] == 0 || value == "");
+	values[value] = *i;
     }
 
     return true;
@@ -1356,7 +1356,7 @@ static bool test_spaceterms1()
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
-	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no).value, "");
+	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
     }
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
@@ -1366,11 +1366,11 @@ static bool test_spaceterms1()
     TEST_EQUAL(docs.size(), 1);
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
-	OmValue value = mymset.begin().get_document().get_value(value_no);
-	TEST_NOT_EQUAL(value.value, "");
+	string value = mymset.begin().get_document().get_value(value_no);
+	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
-	    TEST(value.value.size() > 262);
-	    TEST_EQUAL((unsigned char)(value.value[261]), 255);
+	    TEST(value.size() > 262);
+	    TEST_EQUAL((unsigned char)(value[261]), 255);
 	}
     }
     
@@ -1591,13 +1591,13 @@ static bool test_specialterms1()
     TEST_EQUAL(docs.size(), 1);
 
     for (om_valueno value_no = 0; value_no < 7; ++value_no) {
-	OmValue value = mymset.begin().get_document().get_value(value_no);
-	TEST_NOT_EQUAL(value.value, "");
+	string value = mymset.begin().get_document().get_value(value_no);
+	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
-	    TEST(value.value.size() > 263);
-	    TEST_EQUAL((unsigned char)(value.value[262]), 255);
+	    TEST(value.size() > 263);
+	    TEST_EQUAL((unsigned char)(value[262]), 255);
 	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL((unsigned char)(value.value[k+7]), k);
+		TEST_EQUAL((unsigned char)(value[k+7]), k);
 	    }
 	}
     }

@@ -122,7 +122,7 @@ class OmDocument::Internal {
 	string data;
 
 	/// Type to store values in.
-	typedef map<om_valueno, OmValue> document_values;
+	typedef map<om_valueno, string> document_values;
 
 	/// The values associated with this document.
 	document_values values;

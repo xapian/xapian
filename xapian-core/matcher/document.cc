@@ -26,14 +26,14 @@
 #include "document.h"
 #include "om/omdocument.h"
 
-OmValue
+string
 Document::get_value(om_valueno valueid) const
 {
-    DEBUGCALL(MATCH, OmValue, "Document::get_value", valueid);
+    DEBUGCALL(MATCH, string, "Document::get_value", valueid);
     RETURN(do_get_value(valueid));
 }
 
-map<om_valueno, OmValue>
+map<om_valueno, string>
 Document::get_all_values() const
 {
     return do_get_all_values();

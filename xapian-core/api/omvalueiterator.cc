@@ -62,18 +62,18 @@ OmValueIterator::operator=(const OmValueIterator &other)
     delete newinternal;
 }
 
-const OmValue &
+const string &
 OmValueIterator::operator *() const
 {
-    DEBUGAPICALL(const OmValue &, "OmValueIterator::operator*", "");
+    DEBUGAPICALL(const string &, "OmValueIterator::operator*", "");
     Assert(internal);
     RETURN(internal->it->second);
 }
 
-const OmValue *
+const string *
 OmValueIterator::operator ->() const
 {
-    DEBUGAPICALL(const OmValue *, "OmValueIterator::operator->", "");
+    DEBUGAPICALL(const string *, "OmValueIterator::operator->", "");
     Assert(internal);
     RETURN(&(internal->it->second));
 }

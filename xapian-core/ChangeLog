@@ -1,3 +1,8 @@
+Fri May 03 16:18:38 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed OmValue in favour of simply using a string (analogous to
+	  recent OmData change).
+
 Fri May 03 14:52:04 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed unused om_docname typedef.

@@ -28,30 +28,6 @@
 #include "om/omtermlistiterator.h"
 #include "om/omvalueiterator.h"
 
-/// A value associated with a document.
-class OmValue {
-    public:
-	/// The value itself.
-	std::string value;
-
-	/// Ordering for values, so they can be stored in STL containers.
-	bool operator < (const OmValue &k) const { return(value < k.value); }
-
-	/// Construct from a string.
-	OmValue(const std::string &data) : value(data) {}
-
-	/// Default constructor.
-	OmValue() {}
-
-	/// Default destructor.
-	~OmValue() {}
-
-	/** Returns a string representing the OmValue.
-	 *  Introspection method.
-	 */
-	std::string get_description() const { return "OmValue(" + value + ")"; }
-};
-
 /// A document in the database - holds values, terms, and postings
 class OmDocument {
     public:
@@ -83,9 +59,9 @@ class OmDocument {
 	~OmDocument();
 
 	/// Get value by number (>= 0)
-	OmValue get_value(om_valueno value) const;
+	string get_value(om_valueno value) const;
 
-	void add_value(om_valueno valueno, const OmValue &value);
+	void add_value(om_valueno valueno, const string &value);
 
 	void remove_value(om_valueno valueno);
 

@@ -185,12 +185,12 @@ MultiMatch::prepare_matchers()
     } while (!prepared);
 }
 
-inline OmValue
+inline string
 MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
 			     om_valueno keyno, RefCntPtr<Document> &doc)
 {		      
-    DEBUGCALL(MATCH, OmValue, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
-    const OmValue *key = pl->get_collapse_key();
+    DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
+    const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
 	RefCntPtr<Document> temp(db.internal->open_document(did));
@@ -365,7 +365,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // Table of keys which have been seen already, for collapsing.
-    std::map<OmValue, OmMSetItem> collapse_tab;
+    std::map<string, OmMSetItem> collapse_tab;
 
     // Whether to perform collapse operation
     bool do_collapse = false;
@@ -457,12 +457,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 						     collapse_key, doc);
 
 	    // Don't collapse on null key
-	    if (!new_item.collapse_key.value.empty()) {
-		std::map<OmValue, OmMSetItem>::iterator oldkey;
+	    if (!new_item.collapse_key.empty()) {
+		std::map<string, OmMSetItem>::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<
-			      new_item.collapse_key.value);
+			      new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(std::make_pair(new_item.collapse_key,
 						       new_item));
@@ -470,7 +470,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    const OmMSetItem old_item = oldkey->second;
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
-				  new_item.collapse_key.value);
+				  new_item.collapse_key);
 			// There's already a better match with this key
 			continue;
 		    }
@@ -482,7 +482,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			// FIXME: more efficient way than just scanning?
 			om_docid olddid = old_item.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
-				  ": " << new_item.collapse_key.value);
+				  ": " << new_item.collapse_key);
 			std::vector<OmMSetItem>::iterator i;
 			for (i = items.begin(); i->did != olddid; i++) {
 			    Assert(i != items.end());

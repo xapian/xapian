@@ -51,7 +51,7 @@ class QuartzValueManager {
 	 *  value number already exists, it is overwritten by this.
 	 */
 	static void add_value(QuartzBufferedTable & table,
-				  const OmValue & value,
+				  const string & value,
 				  om_docid did,
 				  om_valueno valueno);
 
@@ -60,7 +60,7 @@ class QuartzValueManager {
 	 *  @return The value if found, a null value otherwise.
 	 */
 	static void get_value(const QuartzTable & table,
-				  OmValue & value,
+				  string & value,
 				  om_docid did,
 				  om_valueno valueno);
 
@@ -71,7 +71,7 @@ class QuartzValueManager {
 	 *
 	 */
 	static void get_all_values(const QuartzTable & table,
-				       map<om_valueno, OmValue> & values,
+				       map<om_valueno, string> & values,
 				       om_docid did);
 
 	/** Remove all values.

@@ -32,7 +32,6 @@ using std::map;
 #include <string>
 using std::string;
 
-class OmValue;
 class Database;
 
 /// A document in the database - holds values, terms, postings, etc
@@ -47,9 +46,9 @@ class Document : public RefCntBase {
 	const Database *database;
 
 	/// The virtual implementation of get_value().
-	virtual OmValue do_get_value(om_valueno valueid) const = 0;
+	virtual string do_get_value(om_valueno valueid) const = 0;
 	/// The virtual implementation of get_all_values().
-	virtual map<om_valueno, OmValue> do_get_all_values() const = 0;
+	virtual map<om_valueno, string> do_get_all_values() const = 0;
 	/// The virtual implementation of get_data().
 	virtual string do_get_data() const = 0;
 
@@ -70,11 +69,11 @@ class Document : public RefCntBase {
 	 *
 	 *  @param valueid  The value number requested.
 	 *
-	 *  @return       An OmValue object containing the specified value.  If
+	 *  @return       A string containing the specified value.  If
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	OmValue get_value(om_valueno valueid) const;
+	string get_value(om_valueno valueid) const;
 
 	/** Get all values for this document
 	 *
@@ -83,9 +82,9 @@ class Document : public RefCntBase {
 	 *  having a different valueid.  Duplicate values with the same valueid
 	 *  are not supported in a single document.
 	 *
-	 *  @return   A map of OmValue objects containing all the values.
+	 *  @return   A map of strings containing all the values.
 	 */
-	map<om_valueno, OmValue> get_all_values() const;
+	map<om_valueno, string> get_all_values() const;
 
 	/** Get data stored in document.
 	 *

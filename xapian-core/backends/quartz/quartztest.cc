@@ -1118,8 +1118,8 @@ static bool test_create1()
     database = DatabaseBuilder::create(settings1, false);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_value(7, OmValue("Value7"));
-    document_in.add_value(13, OmValue("Value13"));
+    document_in.add_value(7, "Value7");
+    document_in.add_value(13, "Value13");
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1217,8 +1217,8 @@ static bool test_adddoc2()
     om_docid did;
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_value(7, OmValue("Value7"));
-    document_in.add_value(13, OmValue("Value13"));
+    document_in.add_value(7, "Value7");
+    document_in.add_value(13, "Value13");
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1291,7 +1291,7 @@ static bool test_adddoc2()
 	    OmValueIterator j(document_out.values_begin());
 	    for (; i != document_in.values_end(); i++, j++) {
 		TEST_NOT_EQUAL(j, document_out.values_end());
-		TEST_EQUAL(i->value, j->value);
+		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_valueno(), j.get_valueno());
 	    }
 	}
@@ -1872,8 +1872,8 @@ static bool test_overwrite2()
 
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_key(7, OmValue("Value7"));
-    document_in.add_key(13, OmValue("Value13"));
+    document_in.add_key(7, "Value7");
+    document_in.add_key(13, "Value13");
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1894,7 +1894,7 @@ static bool test_overwrite2()
     OmEnquire enquire(reader);
 
     string doc_out;
-    OmValue value_out;
+    string value_out;
 
     doc_out = writer.get_document(last_doc).get_data();
     TEST(doc_out == "Foobar rising");
@@ -1921,7 +1921,6 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    value_out = OmValue();
     value_out = writer.get_document(last_doc).get_value(7);
     TEST(value_out.value == "Value7");
 

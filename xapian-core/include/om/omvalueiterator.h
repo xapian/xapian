@@ -25,10 +25,11 @@
 #define OM_HGUARD_OMVALUEITERATOR_H
 
 #include <iterator>
+#include <string>
+using std::string;
 #include "om/omtypes.h"
 
 class OmDocument;
-class OmValue;
 
 /** An iterator pointing to values associated with a document.
  */
@@ -62,11 +63,11 @@ class OmValueIterator {
 
 	void operator++(int);
 
-	/// Get the OmValue for the current position
-	const OmValue & operator *() const;
+	/// Get the value for the current position
+	const string & operator *() const;
 
-	/// Get the OmValue for the current position
-	const OmValue * operator ->() const;
+	/// Get the value for the current position
+	const string * operator ->() const;
 
 	/// Get the number of the value at the current position
         om_valueno get_valueno() const;
@@ -79,10 +80,10 @@ class OmValueIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef OmValue value_type;
+	typedef string value_type;
 	typedef om_valueno_diff difference_type;
-	typedef OmValue * pointer;
-	typedef OmValue & reference;
+	typedef string * pointer;
+	typedef string & reference;
 	//@}
 };
 

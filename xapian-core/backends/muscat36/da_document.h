@@ -46,8 +46,8 @@ class DADocument : public Document {
     public:
 	~DADocument();
 
-	OmValue do_get_value(om_valueno valueid) const;
-	map<om_valueno, OmValue> do_get_all_values() const;
+	string do_get_value(om_valueno valueid) const;
+	map<om_valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 

@@ -28,6 +28,7 @@
 #include "socketcommon.h"
 #include "rset.h"
 #include <deque>
+using std::deque;
 #include "omtime.h"
 
 /** An implementation of the NetClient interface using a program.
@@ -65,7 +66,7 @@ class SocketClient : public NetClient {
 	om_doclength avlength;
 
 	/// The current query, as a string
-	std::string query_string;
+	string query_string;
 
 	/// The remote statistics
 	Stats remote_stats;
@@ -88,18 +89,18 @@ class SocketClient : public NetClient {
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_spawned_socket(std::string progname, std::string arg);
+	int get_spawned_socket(string progname, string arg);
 
 	/// minimum weight we're interested in
 	om_weight minw;
 
 	/// The context to return with any error messages
-	std::string context;
+	string context;
 
 	/// The queue of requested docids, in the right order
-	std::deque<om_docid> requested_docs;
-	/* This would be a std::queue<om_docid>, but that conflicts with
-	 * some networking headers on Solaris.  Maybe when the std::
+	deque<om_docid> requested_docs;
+	/* This would be a queue<om_docid>, but that conflicts with
+	 * some networking headers on Solaris.  Maybe when the 
 	 * namespace actually works properly it can go back. */
 
 	/** The number of times each requested document has been
@@ -108,16 +109,16 @@ class SocketClient : public NetClient {
 	 *  but removed from the cache on the first collect(), causing
 	 *  an error on the second.
 	 */
-	std::map<om_docid, unsigned int> request_count;
+	map<om_docid, unsigned int> request_count;
 
 	struct cached_doc {
-	    std::string data;
-	    std::map<om_valueno, OmValue> values;
+	    string data;
+	    map<om_valueno, string> values;
 	    int users;  // number of clients wanting to retrieve this document
 	};
 	/// A store of the undecoded documents we've collected from the
 	/// other end
-	std::map<om_docid, cached_doc> collected_docs;
+	map<om_docid, cached_doc> collected_docs;
 
 	void get_requested_docs();
 	
@@ -140,17 +141,17 @@ class SocketClient : public NetClient {
 	 */
 	SocketClient(int socketfd_,
 		     int msecs_timeout_,
-		     std::string context_,
+		     string context_,
 		     bool close_socket_ = true);
 
 	/// functions which actually do the work
-	std::string do_read();
-	void do_write(std::string data);
+	string do_read();
+	void do_write(string data);
 
 	/// Close the socket
 	void do_close();
 
-	bool get_posting(om_docid &did, om_weight &w, OmValue &value);
+	bool get_posting(om_docid &did, om_weight &w, string &value);
 
 	/// The timeout value used in network communications,
 	/// in milliseconds
@@ -203,24 +204,24 @@ class SocketClient : public NetClient {
 	/** Do the actual MSet fetching */
 	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
 
-	void next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value);
-	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmValue &value);
+	void next(om_weight w_min, om_docid &did, om_weight &w, string &value);
+	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, string &value);
 	
 	/** get the remote termlist */
 	void get_tlist(om_docid did,
-		       std::vector<NetClient::TermListItem> &items);
+		       vector<NetClient::TermListItem> &items);
 
 	/** Retrieve a remote document */
 	void get_doc(om_docid did,
-		     std::string &doc,
-		     std::map<om_valueno, OmValue> &values);
+		     string &doc,
+		     map<om_valueno, string> &values);
 
 	/** Request a remote document */
 	void request_doc(om_docid did);
 
 	/** Collect a remote document */
-	void collect_doc(om_docid did, std::string &doc,
-			 std::map<om_valueno, OmValue> &values);
+	void collect_doc(om_docid did, string &doc,
+			 map<om_valueno, string> &values);
 
 	/** Get the document count. */
 	om_doccount get_doccount();

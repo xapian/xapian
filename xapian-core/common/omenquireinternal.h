@@ -87,7 +87,7 @@ class OmMSetItem {
     public:
 	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
 
-	OmMSetItem(om_weight wt_, om_docid did_, const OmValue &key_)
+	OmMSetItem(om_weight wt_, om_docid did_, const string &key_)
 		: wt(wt_), did(did_), collapse_key(key_) {}
 
 	/** Weight calculated. */
@@ -110,7 +110,7 @@ class OmMSetItem {
 	 *  See the OmSettings match_collapse_key parameter for more
 	 *  information about setting a collapse key upon.
 	 */
-	OmValue collapse_key;
+	string collapse_key;
 
 	/** Returns a string representing the mset item.
 	 *  Introspection method.

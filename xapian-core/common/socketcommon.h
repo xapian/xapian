@@ -39,7 +39,6 @@
 class OmQuery::Internal;
 class Stats;
 class OmRSet;
-class OmValue;
 class OmMSet;
 
 /** The OmSocketLineBuf class implements a two-way line discipline
@@ -54,10 +53,10 @@ class OmSocketLineBuf : public OmLineBuf {
 	int writefd;
 
 	/// The buffer used for input
-	std::string buffer;
+	string buffer;
 
 	/// The context to report with errors
-	std::string errcontext;
+	string errcontext;
 
 	/// disallow copies
 	OmSocketLineBuf(const OmSocketLineBuf &other);
@@ -67,11 +66,11 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *  @param end_time	The time at which the read will
 	 *  			fail with a timeout error.
 	 */
-	std::string do_readline(const OmTime & end_time);
+	string do_readline(const OmTime & end_time);
 
 	/** Write one line to writefd
 	 */
-	void do_writeline(std::string s, const OmTime & end_time);
+	void do_writeline(string s, const OmTime & end_time);
 
 	/** Attempt to read some data
 	 */
@@ -81,12 +80,12 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *  input and output filedescriptors to use.
 	 */
 	OmSocketLineBuf(int readfd_, int writefd_,
-	       		const std::string & errcontext_);
+	       		const string & errcontext_);
 
 	/** A convenience constructor which takes only one
 	 *  fd, which can be both read from and written to.
 	 */
-	OmSocketLineBuf(int fd_, const std::string & errcontext_);
+	OmSocketLineBuf(int fd_, const string & errcontext_);
 
 	/** Return true if there is data available to be read.
 	 */
@@ -106,88 +105,76 @@ class OmSocketLineBuf : public OmLineBuf {
  *
  *  @param qs  The string from which to build the query.
  */
-OmQuery::Internal query_from_string(std::string qs);
+OmQuery::Internal query_from_string(string qs);
 
 /** Convert a Stats object into a string representation.
  *
  *  @param  stats	The stats object to serialise.
  */
-std::string stats_to_string(const Stats &stats);
+string stats_to_string(const Stats &stats);
 
 /** Convert a string representing a Stats object back into an
  *  object.
  *
  *  @param  s		The serialised Stats object.
  */
-Stats string_to_stats(const std::string &s);
+Stats string_to_stats(const string &s);
 
 /** Convert the match_ options from an OmSettings object into a string representation.
  *
  *  @param moptions	The object to serialise.
  */
-std::string moptions_to_string(const OmSettings &moptions);
+string moptions_to_string(const OmSettings &moptions);
 
 /** Convert a serialised OmSettings string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmSettings string_to_moptions(const std::string &s);
+OmSettings string_to_moptions(const string &s);
 
 /** Convert an OmRSet object into a string representation.
  *
  *  @param omrset		The object to serialise.
  */
-std::string omrset_to_string(const OmRSet &omrset);
+string omrset_to_string(const OmRSet &omrset);
 
 /** Convert a serialised OmRSet string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmRSet string_to_omrset(const std::string &s);
+OmRSet string_to_omrset(const string &s);
 
 /** Convert an OmMSet object into a string representation.
  *
  *  @param ommset		The object to serialise.
  */
-std::string ommset_to_string(const OmMSet &ommset);
+string ommset_to_string(const OmMSet &ommset);
 
 /** Convert a serialised OmMSet string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmMSet string_to_ommset(const std::string &s);
+OmMSet string_to_ommset(const string &s);
 
 /** Convert a terminfo map into a string representation.
  *
  *  @param terminfo		The terminfo map to serialise.
  */
-std::string ommset_termfreqwts_to_string(const std::map<om_termname,
+string ommset_termfreqwts_to_string(const map<om_termname,
 	OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *
  *  @param s		The seralised map as a string.
  */
-std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
-string_to_ommset_termfreqwts(const std::string &s);
-
-/** Convert an OmValue object into a string representation.
- *
- *  @param omrset		The object to serialise.
- */
-std::string omvalue_to_string(const OmValue &omvalue);
-
-/** Convert a serialised OmValue string back into an object.
- *
- *  @param s		The serialised object as a string.
- */
-OmValue string_to_omvalue(const std::string &s);
+map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
+string_to_ommset_termfreqwts(const string &s);
 
 OmQuery::Internal qfs_readquery();
 
 /** returns true if the string s starts with prefix.
  */
-bool startswith(const std::string &s, const std::string &prefix);
+bool startswith(const string &s, const string &prefix);
 
 /* socklen_t doesn't exist on eg Solaris 5.6 */
 #ifndef HAVE_SOCKLEN_T

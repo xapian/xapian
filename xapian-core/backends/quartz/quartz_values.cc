@@ -62,7 +62,7 @@ QuartzValueManager::unpack_entry(const char ** pos,
 
 void
 QuartzValueManager::add_value(QuartzBufferedTable & table,
-			       const OmValue & value,
+			       const string & value,
 			       om_docid did,
 			       om_valueno valueno)
 {
@@ -88,7 +88,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 		      valueno << ", " << value.value << ")");
 	    have_added = true;
 	    newvalue += pack_uint(valueno);
-	    newvalue += pack_string(value.value);
+	    newvalue += pack_string(value);
 	}
 
 	newvalue += pack_uint(this_attrib_no);
@@ -99,14 +99,14 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 		  valueno << ", " << value.value << ")");
 	have_added = true;
 	newvalue += pack_uint(valueno);
-	newvalue += pack_string(value.value);
+	newvalue += pack_string(value);
     }
     tag->value = newvalue;
 }
 
 void
 QuartzValueManager::get_value(const QuartzTable & table,
-				       OmValue & value,
+				       string & value,
 				       om_docid did,
 				       om_valueno valueno)
 {
@@ -127,17 +127,17 @@ QuartzValueManager::get_value(const QuartzTable & table,
 	    unpack_entry(&pos, end, &this_value_no, this_value);
 
 	    if (this_value_no == valueno) {
-		value.value = this_value;
+		value = this_value;
 		return;
 	    }
 	}
     }
-    value.value = "";
+    value = "";
 }
 
 void
 QuartzValueManager::get_all_values(const QuartzTable & table,
-				map<om_valueno, OmValue> & values,
+				map<om_valueno, string> & values,
 				om_docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_all_values", "[table], [values], " << did);
@@ -157,7 +157,7 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
 	string this_value;
 
 	unpack_entry(&pos, end, &this_value_no, this_value);
-	values.insert(make_pair(this_value_no, OmValue(this_value)));
+	values.insert(make_pair(this_value_no, this_value));
     }
 }
 

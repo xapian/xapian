@@ -49,7 +49,7 @@ DADocument::~DADocument()
  *  If a value file is available, this will be used to provide extremely fast
  *  value lookup.
  */
-OmValue
+string
 DADocument::do_get_value(om_valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
@@ -58,7 +58,7 @@ DADocument::do_get_value(om_valueno valueid) const
 	     " in document " << did);
     if (rec == 0) rec = database->get_record(did);
 
-    OmValue value;
+    string value;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
     unsigned int valuepos = valueid;
@@ -66,8 +66,8 @@ DADocument::do_get_value(om_valueno valueid) const
 	// Record not big enough.
 	DEBUGLINE(DB, ": not found in record");
     } else {
-	value.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + valuepos, 8);
-	DEBUGLINE(DB, ": found in record - value is `" << value.value << "'");
+	value = string((char *)pos + LWIDTH(heavy_duty) + 3 + valuepos, 8);
+	DEBUGLINE(DB, ": found in record - value is `" << value << "'");
     }
     return value;
 }
@@ -77,16 +77,14 @@ DADocument::do_get_value(om_valueno valueid) const
  *  Note: this only returns values from the valuefile.  If values are being
  *  read from the record, this will not return them.
  */
-map<om_valueno, OmValue>
+map<om_valueno, string>
 DADocument::do_get_all_values() const
 {
     om_valueno valueid = 0;
-    map<om_valueno, OmValue> values;
+    map<om_valueno, string> values;
 
-    OmValue value = database->get_value(did, valueid);
-    if (value.value.size() != 0) {
-	values[valueid] = value;
-    }
+    string value = database->get_value(did, valueid);
+    if (!value.empty()) values[valueid] = value;
 
     return values;
 }

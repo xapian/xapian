@@ -72,9 +72,9 @@ class MultiMatch
 	void prepare_matchers();
 
 	/// get the collapse key
-	OmValue get_collapse_key(PostList *pl, const OmDatabase &db,
-				 om_docid did, om_valueno keyno,
-				 RefCntPtr<Document> &doc);
+	string get_collapse_key(PostList *pl, const OmDatabase &db,
+				om_docid did, om_valueno keyno,
+				RefCntPtr<Document> &doc);
 
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.

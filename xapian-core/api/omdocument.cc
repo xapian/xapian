@@ -47,17 +47,14 @@ OmDocument::OmDocument() : internal(new OmDocument::Internal)
 {
 }
 
-OmValue
+string
 OmDocument::get_value(om_valueno value) const
 {
-    DEBUGAPICALL(OmValue, "OmDocument::get_value", value);
+    DEBUGAPICALL(string, "OmDocument::get_value", value);
     if (internal->values_here) {
-	map<om_valueno, OmValue>::const_iterator i;
+	map<om_valueno, string>::const_iterator i;
 	i = internal->values.find(value);
-	if (i == internal->values.end()) {
-	    OmValue nul;
-	    RETURN(nul);
-	}
+	if (i == internal->values.end()) RETURN("");
 	RETURN(i->second);
     }
     // create our own RefCntPtr in case another thread assigns a new ptr
@@ -129,7 +126,7 @@ OmDocument::get_description() const
 }
 
 void
-OmDocument::add_value(om_valueno valueno, const OmValue &value)
+OmDocument::add_value(om_valueno valueno, const string &value)
 {
     DEBUGAPICALL(void, "OmDocument::add_value", valueno << ", " << value);
     internal->need_values();

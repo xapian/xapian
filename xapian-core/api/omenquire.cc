@@ -184,7 +184,7 @@ OmMSetItem::get_description() const
     std::string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
-	    collapse_key.get_description();
+	    collapse_key;
 
     description = "OmMSetItem(" + description + ")";
 

@@ -43,7 +43,7 @@ class MSetPostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	const OmValue * get_collapse_key() const;
+	const string * get_collapse_key() const;
 
 	om_weight get_maxweight() const;
 
@@ -104,10 +104,10 @@ MSetPostList::get_weight() const
     return mset.internal->data->items[current].wt;
 }
 
-inline const OmValue *
+inline const string *
 MSetPostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, OmValue *, "MSetPostList::get_collapse_key", "");
+    DEBUGCALL(MATCH, string *, "MSetPostList::get_collapse_key", "");
     Assert(current != -1);
     return &(mset.internal->data->items[current].collapse_key);
 }

@@ -280,7 +280,7 @@ class DADatabase : public Database {
 	/** Get a value from valuefile (will return empty value if valuefile
 	 *  not open.
 	 */
-	OmValue get_value(om_docid did, om_valueno valueid) const;
+	string get_value(om_docid did, om_valueno valueid) const;
 
 	/// Internal method for getting the database size.
 	om_doccount  get_doccount_internal() const;

@@ -63,8 +63,8 @@ class OmBiasFunctor {
 
 	om_weight get_weight(om_docid id) {
 #ifndef DOCID_BASED
-	    OmValue value = db.get_document(id).get_value(0);
-	    time_t t = atoi(value.value);
+	    string value = db.get_document(id).get_value(0);
+	    time_t t = atoi(value);
 	    if (t >= now) return max_w;
 #else /* DOCID_BASED */
 	    if (id >= max_id) return max_w;

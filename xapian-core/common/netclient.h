@@ -94,9 +94,10 @@ class NetClient : public RefCntBase {
 
 	virtual void close_end_time() = 0;
 	
-	virtual void next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value) = 0;
+	virtual void next(om_weight w_min, om_docid &did, om_weight &w,
+			  string &value) = 0;
 	virtual void skip_to(om_docid new_did, om_weight w_min, om_docid &did,
-			     om_weight &w, OmValue &value) = 0;
+			     om_weight &w, string &value) = 0;
 
 	/** The structure used to hold a termlist item */
 	struct TermListItem {
@@ -104,25 +105,25 @@ class NetClient : public RefCntBase {
 	    om_doccount termfreq;
 	    om_termcount wdf;
 
-	    std::vector<om_termpos> positions;
+	    vector<om_termpos> positions;
 	};
 
 	/** Retrieve a remote termlist */
 	virtual void get_tlist(om_docid did,
-			       std::vector<TermListItem> &items) = 0;
+			       vector<TermListItem> &items) = 0;
 
 	/** Retrieve a remote document */
 	virtual void get_doc(om_docid did,
-			     std::string &doc,
-			     std::map<om_valueno, OmValue> &values) = 0;
+			     string &doc,
+			     map<om_valueno, string> &values) = 0;
 
 	/** Request a remote document */
 	virtual void request_doc(om_docid did) = 0;
 
 	/** Collect a remote document */
 	virtual void collect_doc(om_docid did,
-				 std::string &doc,
-				 std::map<om_valueno, OmValue> &values) = 0;
+				 string &doc,
+				 map<om_valueno, string> &values) = 0;
 
 	/** Find out the remote document count */
 	virtual om_doccount get_doccount() = 0;

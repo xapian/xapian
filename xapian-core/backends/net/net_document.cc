@@ -28,25 +28,21 @@
 NetworkDocument::NetworkDocument(const Database *database_,
 				 om_docid did_,
 				 const string & doc_,
-				 const map<om_valueno, OmValue> &values_)
+				 const map<om_valueno, string> &values_)
 	: Document(database_, did_), doc(doc_), values(values_)
 {
 }
 
-OmValue
+string
 NetworkDocument::do_get_value(om_valueno valueid) const
 {
-    DEBUGCALL(DB, OmValue, "NetworkDocument::do_get_value", valueid);
-    map<om_valueno, OmValue>::const_iterator k = values.find(valueid);
-    if (k != values.end()) {
-	RETURN(k->second);
-    } else {
-	OmValue empty;
-	RETURN(empty);
-    }
+    DEBUGCALL(DB, string, "NetworkDocument::do_get_value", valueid);
+    map<om_valueno, string>::const_iterator k = values.find(valueid);
+    if (k == values.end()) RETURN("");
+    RETURN(k->second);
 }
 
-map<om_valueno, OmValue>
+map<om_valueno, string>
 NetworkDocument::do_get_all_values() const
 {
     return values;

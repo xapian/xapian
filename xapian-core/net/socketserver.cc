@@ -372,13 +372,13 @@ SocketServer::run_getdocument(const string &firstmessage)
 
     writeline("O" + encode_tname(doc->get_data()));
 
-    map<om_valueno, OmValue> values = doc->get_all_values();
+    map<om_valueno, string> values = doc->get_all_values();
 
-    map<om_valueno, OmValue>::const_iterator i = values.begin();
+    map<om_valueno, string>::const_iterator i = values.begin();
     while (i != values.end()) {
 	string item = om_tostring(i->first);
 	item += ' ';
-	item += omvalue_to_string(i->second);
+	item += encode_tname(i->second);
 	writeline(item);
 	++i;
     }

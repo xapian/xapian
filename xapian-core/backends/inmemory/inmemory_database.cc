@@ -167,7 +167,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 
 void
 InMemoryDatabase::add_values(om_docid did,
-			     const map<om_valueno, OmValue> &values_)
+			     const map<om_valueno, string> &values_)
 {
     valuelists.push_back(values_);
 }
@@ -279,7 +279,7 @@ void
 InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 {
     {
-	map<om_valueno, OmValue> values;
+	map<om_valueno, string> values;
 	OmValueIterator k = document.values_begin();
 	OmValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {

@@ -43,7 +43,7 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
     if (!readonly) {
 	throw OmInvalidArgumentError("NetworkDatabase must be opened readonly.");
     }
-    std::string type = params.get("remote_type");
+    string type = params.get("remote_type");
     int timeout = params.get_int("remote_timeout", 10000);
     if (timeout < 0) {
 	throw OmInvalidArgumentError("Negative timeout (" +
@@ -56,19 +56,19 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
 				     ") not valid.");
     }
     if (type == "prog") {
-	std::string prog = params.get("remote_program");
-	std::string args = params.get("remote_args");
+	string prog = params.get("remote_program");
+	string args = params.get("remote_args");
 	link = RefCntPtr<NetClient>(new ProgClient(prog, args, timeout));
 	Assert(link.get() != 0);
 	//initialise_link();
     } else if (type == "tcp") {
-	std::string server = params.get("remote_server");
+	string server = params.get("remote_server");
 	// FIXME: default port?
 	int port = params.get_int("remote_port");
 	link = RefCntPtr<NetClient>(new TcpClient(server, port,
 						  timeout, connect_timeout));
     } else {
-	throw OmUnimplementedError(std::string("Network database type ") +
+	throw OmUnimplementedError(string("Network database type ") +
 				   type);
     }
 }
@@ -111,7 +111,7 @@ NetworkDatabase::do_open_post_list(const om_termname & tname) const
 LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    std::vector<NetClient::TermListItem> items;
+    vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items,
 			       RefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
@@ -122,8 +122,8 @@ NetworkDatabase::open_document(om_docid did, bool lazy) const
 {
     // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    std::string doc;
-    std::map<om_valueno, OmValue> values;
+    string doc;
+    map<om_valueno, string> values;
     link->get_doc(did, doc, values);
     return new NetworkDocument(this, did, doc, values);
 }
@@ -146,8 +146,8 @@ Document *
 NetworkDatabase::collect_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    std::string doc;
-    std::map<om_valueno, OmValue> values;
+    string doc;
+    map<om_valueno, string> values;
     link->collect_doc(did, doc, values);
     return new NetworkDocument(this, did, doc, values);
 }

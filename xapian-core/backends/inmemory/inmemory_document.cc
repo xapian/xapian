@@ -27,23 +27,20 @@
 InMemoryDocument::InMemoryDocument(const Database *database_,
 				   om_docid did_,
 				   const string & doc_,
-				   const map<om_valueno, OmValue> &values_)
+				   const map<om_valueno, string> &values_)
 	: Document(database_, did_), doc(doc_), values(values_)
 {
 }
 
-OmValue
+string
 InMemoryDocument::do_get_value(om_valueno valueid) const
 {
-    map<om_valueno, OmValue>::const_iterator k = values.find(valueid);
-    if (k != values.end()) {
-	return k->second;
-    } else {
-	return OmValue();
-    }
+    map<om_valueno, string>::const_iterator k = values.find(valueid);
+    if (k == values.end()) return "";
+    return k->second;
 }
 
-map<om_valueno, OmValue>
+map<om_valueno, string>
 InMemoryDocument::do_get_all_values() const
 {
     return values;

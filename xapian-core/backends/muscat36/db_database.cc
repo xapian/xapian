@@ -114,7 +114,7 @@ DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
-	terms.push_back(DBTermListItem(std::string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DBTermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -159,9 +159,9 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuef
 	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
     }
 
-    std::string filename = params.get("m36_db_file");
+    string filename = params.get("m36_db_file");
 
-    std::string filename_k = params.get("m36_key_file", "");
+    string filename_k = params.get("m36_key_file", "");
 
     // Get the cache_size
     int cache_size = params.get_int("m36_db_cache_size", 30);
@@ -169,7 +169,7 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuef
     // Actually open
     DB = DB_open(filename.c_str(), cache_size);
     if (DB == 0) {
-	throw OmOpeningError(std::string("When opening ") + filename + ": " + strerror(errno));
+	throw OmOpeningError(string("When opening ") + filename + ": " + strerror(errno));
     }
 
     if (filename_k.empty()) return;
@@ -177,7 +177,7 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuef
     // Open valuefile
     valuefile = fopen(filename_k.c_str(), "rb");
     if (valuefile == 0) {
-	throw OmOpeningError(std::string("When opening ") + filename_k +
+	throw OmOpeningError(string("When opening ") + filename_k +
 			     ": " + strerror(errno));
     }
 
@@ -186,12 +186,12 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuef
 	char input[9];
 	size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(std::string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_k +
 				 ": couldn't read magic - " + strerror(errno));
 	}
 	input[8] = '\0';
 	if (strcmp(input, "omrocks!")) {
-	    throw OmOpeningError(std::string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_k +
 				 ": couldn't read magic - got `" +
 				 input + "'");
 	}
@@ -313,8 +313,8 @@ DBDatabase::open_term_list(om_docid did) const
 
     if (DB_get_termvec(DB, did, tv) == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
 
     M_open_terms(tv);
@@ -333,34 +333,34 @@ DBDatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
 
     return r;
 }
 
 /// Get the specified value for given document from the fast lookup file.
-OmValue
+string
 DBDatabase::get_value(om_docid did, om_valueno valueid) const
 {
-    OmValue value;
+    string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
 
     if (valuefile == 0) {
 	DEBUGLINE(DB, ": don't have valuefile - using record");
     } else {
 	int seekok = fseek(valuefile, (long)did * 8, SEEK_SET);
-	if(seekok == -1) {
+	if (seekok == -1) {
 	    DEBUGLINE(DB, ": seek off end of valuefile - using record");
 	} else {
 	    char input[9];
 	    size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
-	    if(bytes_read < 8) {
+	    if (bytes_read < 8) {
 		DEBUGLINE(DB, ": read off end of valuefile - using record");
 	    } else {
-		value.value = std::string(input, 8);
-		DEBUGLINE(DB, ": found - value is `" << value.value << "'");
+		value = string(input, 8);
+		DEBUGLINE(DB, ": found - value is `" << value << "'");
 	    }
 	}
     }
@@ -385,15 +385,15 @@ DBDatabase::term_lookup(const om_termname & tname) const
 {
     //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    std::map<om_termname, RefCntPtr<const DBTerm> >::const_iterator p;
+    map<om_termname, RefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
 
     RefCntPtr<const DBTerm> the_term;
     if (p == termmap.end()) {
-	std::string::size_type len = tname.length();
+	string::size_type len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw std::bad_alloc();
+	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
@@ -411,7 +411,7 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    std::pair<om_termname, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
+	    pair<om_termname, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

@@ -205,7 +205,7 @@ SocketClient::get_requested_docs()
 	    om_valueno valueno;
 	    string omvalue;
 	    is >> valueno >> omvalue;
-	    cdoc.values[valueno] = string_to_omvalue(omvalue);
+	    cdoc.values[valueno] = decode_tname(omvalue);
 	}
 	cdoc.users = request_count[cdid];
 	request_count.erase(cdid);
@@ -217,7 +217,7 @@ SocketClient::get_requested_docs()
 
 void
 SocketClient::collect_doc(om_docid did, string &doc,
-			  map<om_valueno, OmValue> &values)
+			  map<om_valueno, string> &values)
 {
     /* First check that the data isn't in our temporary cache */
     map<om_docid, cached_doc>::iterator i;
@@ -272,7 +272,7 @@ SocketClient::collect_doc(om_docid did, string &doc,
 void
 SocketClient::get_doc(om_docid did,
 		      string &doc,
-		      map<om_valueno, OmValue> &values)
+		      map<om_valueno, string> &values)
 {
     request_doc(did);
     collect_doc(did, doc, values);
@@ -505,7 +505,7 @@ SocketClient::get_mset(om_doccount first,
 }
 
 bool
-SocketClient::get_posting(om_docid &did, om_weight &w, OmValue &value)
+SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::get_posting", "");
     Assert(global_stats_valid);
@@ -554,7 +554,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmValue &value)
 		    w = 0;
 		}
 		if (i != message.npos) {
-		    value = string_to_omvalue(message.substr(i + 1));
+		    value = decode_tname(message.substr(i + 1));
 		}
 	    }
 	}
@@ -564,7 +564,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmValue &value)
 }
 
 void
-SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value)
+SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, string &value)
 {
     if (w_min > minw) {
 	minw = w_min;
@@ -575,7 +575,7 @@ SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value)
 }
 
 void
-SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmValue &value)
+SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, string &value)
 {
     do_write("S" + om_tostring(new_did));
     if (w_min > minw) {

@@ -201,7 +201,7 @@ class InMemoryDatabase : public Database {
 	map<om_termname, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<std::string> doclists;
-	vector<std::map<om_valueno, OmValue> > valuelists;
+	vector<std::map<om_valueno, string> > valuelists;
 
 	vector<om_doclength> doclengths;
 
@@ -234,7 +234,7 @@ class InMemoryDatabase : public Database {
 
 	/* The common parts of add_doc and replace_doc */
 	void finish_add_doc(om_docid did, const OmDocument &document);
-	void add_values(om_docid did, const map<om_valueno, OmValue> &values_);
+	void add_values(om_docid did, const map<om_valueno, string> &values_);
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,

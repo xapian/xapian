@@ -626,7 +626,7 @@ ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
 	result += " ";
 	result += om_tostring(i->did);
 	result += " ";
-	result += omvalue_to_string(i->collapse_key);
+	result += encode_tname(i->collapse_key);
 
 	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
     }
@@ -714,7 +714,7 @@ string_to_ommsetitems(const string &s_)
 	}
 	result.push_back(OmMSetItem(atof(wt_s.c_str()),
 				    atol(did_s.c_str()),
-				    string_to_omvalue(value_s)));
+				    decode_tname(value_s)));
     }
     AssertEq((unsigned)atoi(s_.substr(0, colon)), result.size());
     return result;
@@ -757,7 +757,7 @@ string_to_ommset(const string &s)
 	if (!is) {
 	    throw OmNetworkError("Problem reading OmMSet from string");
 	}
-	items.push_back(OmMSetItem(wt, did, string_to_omvalue(s)));
+	items.push_back(OmMSetItem(wt, did, decode_tname(s)));
 	msize--;
     }
 
@@ -802,18 +802,6 @@ string_to_ommset_termfreqwts(const string &s)
     }
 
     return result;
-}
-
-string
-omvalue_to_string(const OmValue &omvalue)
-{
-    return encode_tname(omvalue.value);
-}
-
-OmValue
-string_to_omvalue(const string &s)
-{
-    return decode_tname(s);
 }
 
 OmRSet

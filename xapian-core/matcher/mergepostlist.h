@@ -56,7 +56,7 @@ class MergePostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	const OmValue * get_collapse_key() const;
+	const string * get_collapse_key() const;
 
 	om_weight get_maxweight() const;
 
@@ -139,10 +139,10 @@ MergePostList::get_weight() const
     return plists[current]->get_weight();
 }
 
-inline const OmValue *
+inline const string *
 MergePostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, OmValue *, "MergePostList::get_collapse_key", "");
+    DEBUGCALL(MATCH, string *, "MergePostList::get_collapse_key", "");
     Assert(current != -1);
     return plists[current]->get_collapse_key();
 }
