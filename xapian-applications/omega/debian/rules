@@ -29,7 +29,7 @@ commonconfflags := \
 	--sysconfdir=/etc
 
 
-configure: debian/control configure-stamp
+configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
@@ -89,7 +89,7 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control
+clean:
 	dh_testdir
 	dh_testroot
 	rm -rf build-nodebug
