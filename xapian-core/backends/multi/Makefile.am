@@ -8,4 +8,4 @@ noinst_HEADERS = multi_postlist.h multi_termlist.h multi_database.h
 
 noinst_LTLIBRARIES = libmulti.la
 
-libmulti_la_SOURCES = multi_database.cc
+libmulti_la_SOURCES = multi_postlist.cc multi_database.cc
