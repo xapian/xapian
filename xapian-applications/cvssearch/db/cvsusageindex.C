@@ -250,7 +250,6 @@ int main(int argc, char *argv[]) {
   readTags( "/home/amichail/temp/tags", lib_symbols );
 
 
-  system("rm -f /home/amichail/temp/tags");
 
 
 
@@ -294,6 +293,7 @@ int main(int argc, char *argv[]) {
 
 
       cerr << "package -" << package_name << "-" << endl;
+      system("rm -f /home/amichail/temp/tags");
 
       cerr << "Running ctags on " << package_path << endl;
       string fullpath = cvsdata +"/" + package_path;
