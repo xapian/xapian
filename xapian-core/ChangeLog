@@ -1,3 +1,7 @@
+Tue Jul 29 11:42:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with results from the tinderbox.
+
 Tue Jul 29 01:21:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc,testsuite/testsuite.h: Only use \r in test

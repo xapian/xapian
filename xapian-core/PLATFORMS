@@ -30,13 +30,14 @@ x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2|~0.6.5 |Passed|
-x86   | Linux 2.4 RedHat 7.2 GCC 2.96  | 0.6.5 |Passed| from Andy MacFarlane
-x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.7.2 |Passed| [5]
+x86   |*Linux 2.4 RedHat 7.2 GCC 2.96  |~0.7.3 |Passed| (2nd SF WebSphere box)
+x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  |~0.7.3 |Passed|
 x86   |!Linux 2.4 RedHat 7.1 GCC 3.2.2 | 0.6.5 |Passed| with CXXFLAGS=-Werror
 x86   |!FreeBSD 4.7 GCC 2.95.4         |~0.7.3 |Passed| [1]
 x86   |!OpenBSD 3.2 GCC 2.95.3         |~0.6.5 |Passed|
-alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.7.2 |Passed| [5]
-sparc |*Linux 2.4 Debian 3.0 GCC 2.95.4|~0.6.5 |Passed|
+x86_64|*Linux 2.4 SuSE 8 GCC 3.2.2     |~0.7.3 |Passed| [2]
+alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4|~0.7.3 |Passed|
+sparc |*Linux 2.4 Debian 3.0 GCC 2.95.4|~0.7.3 |Passed| [2]
 sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
 sparc |*Solaris 8 GCC 2.95.3           |~0.6.5 |Passed| [2]
 ppc   | MacOS X 10.2                   |~0.7.2 |Passed| [2] Kees van Reeuwijk
