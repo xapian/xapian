@@ -1,3 +1,8 @@
+Mon Jun 19 12:55:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added the Porter stemmer (without the recent improvements in the
+	  current English stemmer)
+
 Mon Jun 19 13:03:00 BST 2000 Olly Betts
 
 	* SleepyPositionList now asserts !at_end() in get_position()

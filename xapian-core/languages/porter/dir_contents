@@ -1,0 +1,6 @@
+<Directory>languages/porter</Directory>
+
+<Description>
+Code for the original porter stemming algorithm, without updates in the
+english stemmer.
+</Description>

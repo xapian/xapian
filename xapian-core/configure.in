@@ -431,6 +431,7 @@ AC_OUTPUT(
  languages/italian/Makefile
  languages/portuguese/Makefile
  languages/spanish/Makefile
+ languages/porter/Makefile
  matcher/Makefile
  api/Makefile
  indexer/Makefile

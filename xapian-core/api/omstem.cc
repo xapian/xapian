@@ -34,6 +34,7 @@
 #include "italian/stem_italian.h"
 #include "portuguese/stem_portuguese.h"
 #include "spanish/stem_spanish.h"
+#include "porter/stem_porter.h"
 
 ////////////////////////////////////////////////////////////
 
@@ -46,7 +47,8 @@ enum stemmer_language {
     STEMLANG_GERMAN,
     STEMLANG_ITALIAN,
     STEMLANG_PORTUGUESE,
-    STEMLANG_SPANISH
+    STEMLANG_SPANISH,
+    STEMLANG_PORTER
 };
 
 /** The mapping from language strings to language codes. */
@@ -63,6 +65,7 @@ stringToTypeMap<stemmer_language>::types[] = {
     {"it",		STEMLANG_ITALIAN},
     {"italian",		STEMLANG_ITALIAN},
     {"nl",		STEMLANG_DUTCH},
+    {"porter",		STEMLANG_PORTER},
     {"portuguese",	STEMLANG_PORTUGUESE},
     {"pt",		STEMLANG_PORTUGUESE},
     {"spanish",		STEMLANG_SPANISH},
@@ -176,6 +179,11 @@ OmStem::Internal::set_language(stemmer_language lang)
 	    stemmer_setup = setup_spanish_stemmer;
 	    stemmer_stem = spanish_stem;
 	    stemmer_closedown = closedown_spanish_stemmer;
+	    break;
+	case STEMLANG_PORTER:
+	    stemmer_setup = setup_porter_stemmer;
+	    stemmer_stem = porter_stem;
+	    stemmer_closedown = closedown_porter_stemmer;
 	    break;
 	default:
 	    break;
