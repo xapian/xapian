@@ -266,6 +266,10 @@ inline RemotePostList::RemotePostList(const NetworkDatabase *db_, om_doccount ma
 inline RemotePostList::~RemotePostList()
 {
     DEBUGCALL(MATCH, void, "RemotePostList::~RemotePostList", "");
+    DEBUGLINE(MATCH, "did = " << did);
+    while (did != 0) {
+	db->link->skip_to((om_docid)-1, 1e20, did, w, key);
+    }
 }
 
 inline PostList *
@@ -329,7 +333,8 @@ RemotePostList::recalc_maxweight()
 inline bool
 RemotePostList::at_end() const
 {
-    return (did == 0);
+    DEBUGCALL(MATCH, bool, "RemotePostList::at_end", "");
+    RETURN(did == 0);
 }
 
 inline std::string

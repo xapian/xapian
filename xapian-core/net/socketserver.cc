@@ -145,6 +145,19 @@ SocketServer::run()
     }
 }
 
+static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
+static snooper_do_collapse;
+
+void
+match_snooper(const OmMSetItem &i)
+{
+    std::string key = "";
+    if (snooper_do_collapse) {
+	key = ";" + omkey_to_string(i.collapse_key);
+    }
+    snooper_buf->writeline(om_tostring(i.did) + " " + om_tostring(i.wt) + key);
+}
+
 void
 SocketServer::run_match(const std::string &firstmessage)
 {
@@ -182,12 +195,9 @@ SocketServer::run_match(const std::string &firstmessage)
     }
     OmQueryInternal query = query_from_string(message);
 
-    MultiMatch match(db,
-		     &query,
-		     omrset,
-		     moptions,
-		     AutoPtr<StatsGatherer>(gatherer =
-					     new NetworkStatsGatherer(this)));
+    gatherer = new NetworkStatsGatherer(this);
+    MultiMatch match(db, &query, omrset, moptions,
+		     AutoPtr<StatsGatherer>(gatherer));
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");
@@ -213,7 +223,7 @@ SocketServer::run_match(const std::string &firstmessage)
     if (message.substr(0, 7) != "GETMSET") {
 	if (message.substr(0, 8) != "GETPLIST") {
 	    throw OmNetworkError(std::string("Expected GETMSET or GETPLIST, got ") + message);
-	}	
+	}
 	message = message.substr(9);
 	om_doccount first;
 	om_doccount maxitems;
@@ -222,6 +232,23 @@ SocketServer::run_match(const std::string &firstmessage)
 	    istrstream is(message.c_str());
 	    is >> first >> maxitems;
 	}
+#if 1
+	snooper_do_collapse = (moptions.get_int("match_collapse_key", -1) >= 0);
+	PostList *pl;
+	{
+	    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
+	    pl = match.get_postlist(first, maxitems, terminfo, 0);
+	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
+			   om_tostring(pl->recalc_maxweight()));
+	    buf->writeline(ommset_termfreqwts_to_string(terminfo));
+	    snooper_buf = buf.get();
+	    OmMSet mset;
+	    match.get_mset_2(pl, terminfo, first, maxitems, mset, 0,
+			     match_snooper);
+	}
+	buf->writeline("OK");
+	return;
+#else
 	PostList *pl;
 	{
 	    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
@@ -295,6 +322,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	delete pl;
 	buf->writeline("OK");
 	return;
+#endif
     }
     message = message.substr(8);
 

@@ -205,33 +205,21 @@ MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
-		     OmErrorHandler * errorhandler)
+		     OmErrorHandler * errorhandler,
+		     void (*snooper)(const OmMSetItem &))
 {
-    Assert(!leaves.empty());
+    std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
+    PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
+    get_mset_2(pl, termfreqandwts, first, maxitems, mset, mdecider, snooper);
+}
 
-    {
-	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
-	    (*leaf)->start_match(first + maxitems);
-	}
-    }
-    
-    PostList *pl;
-    if (leaves.size() == 1) {
-	// Only one mset to get - so get it
-	pl = leaves.front()->get_postlist(first + maxitems, this);
-    } else {
-	std::vector<PostList *> v;
-	std::vector<RefCntPtr<SubMatch> >::iterator i;
-	for (i = leaves.begin(); i != leaves.end(); i++) {
-	    v.push_back((*i)->get_postlist(first + maxitems, this));
-	}
-	pl = new MergePostList(v, this, errorhandler);
-    }
-
-    const std::map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts =
-	leaves.front()->get_term_info();
-
+void
+MultiMatch::get_mset_2(PostList *pl, 
+		       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+		       om_doccount first, om_doccount maxitems,
+		       OmMSet & mset, const OmMatchDecider *mdecider,
+		       void (*snooper)(const OmMSetItem &))
+{
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
@@ -360,10 +348,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
+
+	    if (snooper) snooper(new_item);
 	}
     }
-
-    // FIXME doesn't work with remote streamed postlists - we can't stop early like this
+    
     // We're done if this is a forward boolean match
     // (bodgetastic, FIXME better if we can)
     if (max_weight == 0) {
@@ -475,6 +464,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
+	    if (snooper) snooper(new_item);
+	    
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better minimum weight
 	    // optimisations

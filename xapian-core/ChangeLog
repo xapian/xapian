@@ -1,3 +1,9 @@
+Wed Oct 25 17:03:03 BST 2000 Olly Betts
+
+	* RemotePostList is now filtered through a forming mset at the
+	  remote end.  Min weight and skip_to messages from the client
+	  currently ignored.
+
 Wed Oct 25 13:00:39 BST 2000 Olly Betts
 
 	* Factored out MultiMatch::get_collapse_key().
