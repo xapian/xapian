@@ -114,10 +114,14 @@ if test no != "$with_swig" ; then
 	if `echo 'if {$tcl_version < 8.0 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
 	    TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
 	    AC_SUBST(TCL_LIB)
-	    dnl there's no obvious way to get "/usr/include/tcl8.2" directly...
+	    dnl There's no obvious way to get "/usr/include/tcl8.2" directly...
 	    TCL_INC="`echo \"$TCL_LIB\"|sed 's!/lib/!/include/!'`"
 	    AC_SUBST(TCL_INC)
-	    BINDINGS="$BINDINGS tcl8"
+	    dnl Check that the headers are there (the tcl8.2-dev package
+	    dnl may not be installed).
+	    if test -f "$TCL_INC/tcl.h" ; then
+		BINDINGS="$BINDINGS tcl8"
+	    fi
 	fi
     fi
   fi

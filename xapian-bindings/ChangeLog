@@ -1,3 +1,8 @@
+Wed Sep 08 04:53:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable tcl8 bindings if the tcl8.X-dev package
+	  isn't installed.
+
 Wed Sep 08 04:52:19 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/.cvsignore: Ignore xapian.la.
