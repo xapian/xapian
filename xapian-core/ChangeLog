@@ -1,3 +1,8 @@
+Thu May 09 10:57:59 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed references to match_max_or_terms (which was replaced
+	  by OmQuery::OP_ELITE_SET long, long ago.
+
 Wed May 08 17:38:50 BST 2002  Olly Betts <olly@survex.com>
 
 	* Improved api documentation comments.

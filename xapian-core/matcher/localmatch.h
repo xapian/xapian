@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,9 +107,6 @@ class LocalSubMatch : public SubMatch {
 		      opts_ << ", " << gatherer << ", ");
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
-
-	    if (opts.get_int("match_max_or_terms", 0) != 0)
-		throw OmInvalidArgumentError("The match_max_or_terms parameter is no longer supported: use the OP_ELITE_SET query type instead.");
 
 	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
 	}

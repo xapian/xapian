@@ -96,7 +96,6 @@ class OmQuery {
 
 	    /** Select an elite set of terms from the subqueries, and perform
 	     *  a query with all those terms combined as an OR query.
-	     *  This replaces the old "match_max_or_terms" option.
 	     */
 	    OP_ELITE_SET
 	} op;
