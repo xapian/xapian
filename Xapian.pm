@@ -57,11 +57,16 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.0.0';
+our $VERSION = '0.8.0.1';
 
 bootstrap Search::Xapian $VERSION;
 
 # Preloaded methods go here.
+
+our @OP_NAMES;
+foreach (@{ $EXPORT_TAGS{'ops'} }) {
+  $OP_NAMES[eval $_] = $_;
+}
 
 1;
 

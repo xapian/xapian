@@ -57,10 +57,10 @@ STRING
 	}
 
 O_MSET
-	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MSet\") )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
 	else{
-		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MSet\\\" object\" );
 		XSRETURN_UNDEF;
 	}
 

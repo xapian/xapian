@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.0.1  Wed May 12 18:58:46 2004
+        - Improved Query class which uses new C++ constructor methods
+          to allow the combination of an unlimited number of terms 
+	- More verbose tests, covering all query operations
+
 0.8.0.0  Tue May  4 16:06:41 2004
 	- New version numbering scheme chases xapian version
 	- Added overloaded function for TermIterator class	
