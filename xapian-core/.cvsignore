@@ -4,3 +4,7 @@
 dbtest
 matchtest
 testdir
+Makefile.in
+Makefile
+stamp-h.in
+configure
