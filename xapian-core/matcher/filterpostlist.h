@@ -47,7 +47,7 @@ class FilterPostList : public AndPostList {
 
 	std::string get_description() const;
 
-        FilterPostList(PostList *l, PostList *r, LocalMatch *matcher_) :
+        FilterPostList(PostList *l, PostList *r, MultiMatch *matcher_) :
             AndPostList(l, r, matcher_) {};
 };
 

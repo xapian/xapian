@@ -25,7 +25,7 @@
 #include "andmaybepostlist.h"
 #include "omdebug.h"
 
-OrPostList::OrPostList(PostList *left, PostList *right, LocalMatch *matcher_)
+OrPostList::OrPostList(PostList *left, PostList *right, MultiMatch *matcher_)
 {
     matcher = matcher_;
     l = left;

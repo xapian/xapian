@@ -76,7 +76,7 @@ class OmQueryInternal {
 	om_termcount wqf;
 
 	/** Maximum weight that this term could contribute.
-	 *  This is calculated by LocalMatch before the query is run for
+	 *  This is calculated by MultiMatch before the query is run for
 	 *  each term.
 	 */
 	om_weight max_weight;

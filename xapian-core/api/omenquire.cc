@@ -29,7 +29,6 @@
 #include <om/omoutput.h>
 
 #include "rset.h"
-#include "localmatch.h"
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"
@@ -311,10 +310,6 @@ OmEnquireInternal::get_mset(om_doccount first,
     // Notes: when accessing query, we don't need to lock mutex, since its our
     // own copy and we're locked ourselves
     MultiMatch match(db, query->internal, *omrset, *moptions);
-//    LocalMatch match(db);
-//    match->set_query(query->internal);
-//    match->set_rset(*omrset);
-//    match->set_options(*moptions);
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object

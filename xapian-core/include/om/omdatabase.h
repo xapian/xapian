@@ -33,7 +33,6 @@
 class OmEnquireInternal;
 class OmExpand;
 class MultiMatch;
-class LocalMatch;
 class SocketServer;
 
 class OmWritableDatabase;
@@ -95,7 +94,6 @@ class OmDatabase {
 	friend class OmEnquireInternal; // to allow access to my internals
 	friend class OmExpand; // ditto
 	friend class MultiMatch; // ditto
-	friend class LocalMatch;    
 	friend class SocketServer;
 
 	/** Open a database, possibly readonly.

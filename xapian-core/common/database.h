@@ -313,8 +313,8 @@ class Database : public RefCntBase {
 	// ======================
 
 	/** Determine whether the database is a network database.  This is
-	 *  used by MultiMatch to decide whether to use a LocalMatch or a
-	 *  NetworkMatch to perform a search over the database.
+	 *  used by MultiMatch to decide whether to use a LocalSubMatch or a
+	 *  RemoteSubMatch to perform a search over the database.
 	 *
 	 *  The default implementation returns "false".
 	 */

@@ -34,8 +34,6 @@
 
 class SubMatch;
 
-/** Class for performing a match over multiple SingleMatch objects.
- */
 class MultiMatch
 {
     private:
@@ -47,7 +45,22 @@ class MultiMatch
 
 	const OmDatabase db;
 
-	OmSettings moptions;
+	OmSettings mopts;
+
+	/// Comparison functor for sorting MSet
+	OmMSetCmp mcmp;
+
+	/** Internal flag to note that w_max needs to be recalculated
+	 *  while query is running.
+	 */
+        bool recalculate_w_max;
+
+	/// Internal method to perform the collapse operation
+	bool perform_collapse(std::vector<OmMSetItem> &mset,
+			      std::map<OmKey, OmMSetItem> &collapse_table,
+			      om_docid did,
+			      const OmMSetItem &new_item,
+			      const OmMSetItem &min_item);
 
 	/** Prepare all the sub matchers.
 	 *
@@ -76,7 +89,7 @@ class MultiMatch
 	MultiMatch(const OmDatabase &db_,
 		   const OmQueryInternal * query,
 		   const OmRSet & omrset,
-		   const OmSettings & moptions,
+		   const OmSettings & mopts_,
 		   AutoPtr<StatsGatherer> gatherer_
 		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
@@ -84,6 +97,11 @@ class MultiMatch
 	void get_mset(om_doccount first, om_doccount maxitems,
 		      OmMSet & mset,
 		      const OmMatchDecider *mdecider);
+
+	/** Called by postlists to indicate that they've rearranged themselves
+	 *  and the maxweight now possible is smaller.
+	 */
+        void recalc_maxweight();
 };
 
 #endif /* OM_HGUARD_MULTIMATCH_H */

@@ -62,7 +62,7 @@ class OrPostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-        OrPostList(PostList * left, PostList * right, LocalMatch * matcher_);
+        OrPostList(PostList * left, PostList * right, MultiMatch * matcher_);
 };
 
 inline om_doccount
