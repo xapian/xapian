@@ -152,7 +152,7 @@ PostList * DADatabase::open_post_list(termid id)
     return pl;
 }
 
-TermList * DADatabase::open_term_list(termid id)
+TermList * DADatabase::open_term_list(docid id)
 {
     if(!opened) throw OmError("DADatabase not opened.");
     return NULL;
