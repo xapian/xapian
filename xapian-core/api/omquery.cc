@@ -717,13 +717,18 @@ OmQueryInternal::initialise_from_vector(
 		throw OmUnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
 	    }
 	    subquery_list copy(qbegin, qend);
+	    subquery_list newsubqs;
 	    int offset = i - qbegin;	    
 	    subquery_list::const_iterator j;	    
 	    for (j = (*i)->subqs.begin(); j != (*i)->subqs.end(); j++) {
 		copy[offset] = *j;
-		subqs.push_back(new OmQueryInternal(op, copy.begin(), copy.end(), window));
+		newsubqs.push_back(new OmQueryInternal(op, copy.begin(), copy.end(), window));
 	    }	    
 	    op = newop;
+	    for (j = subqs.begin(); j != subqs.end(); j++) {
+		delete *j;
+	    }
+	    subqs = newsubqs;
 	}
     }
 
