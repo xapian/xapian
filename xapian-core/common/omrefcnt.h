@@ -34,7 +34,7 @@ class OmRefCntBase {
 	typedef unsigned int ref_count_t;
 
 	/// The actual reference count
-	ref_count_t ref_count;
+	mutable ref_count_t ref_count;
 
 	/// the lock used for synchronising increment and decrement
 	OmLock ref_count_mutex;
@@ -44,13 +44,13 @@ class OmRefCntBase {
 	OmRefCntBase() : ref_count(0) {};
 
 	/// Increase the reference count, used when attaching an OmRefCntPtr.
-	void ref_increment();
+	void ref_increment() const;
 
 	/** Decrease the reference count.  In addition, return true if the
 	 *  count has decreased to zero, meaning that this object should
 	 *  be deleted.
 	 */
-	bool ref_decrement();
+	bool ref_decrement() const;
 };
 
 /** The actual reference-counted pointer.  Can be used with any
@@ -72,13 +72,13 @@ class OmRefCntPtr {
 	~OmRefCntPtr();
 };
 
-inline void OmRefCntBase::ref_increment()
+inline void OmRefCntBase::ref_increment() const
 {
     OmLockSentry locksentry(ref_count_mutex);
     ref_count += 1;
 }
 
-inline bool OmRefCntBase::ref_decrement()
+inline bool OmRefCntBase::ref_decrement() const
 {
     OmLockSentry locksentry(ref_count_mutex);
     ref_count -= 1;
