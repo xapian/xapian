@@ -193,12 +193,13 @@ Use of C++ Features:
 * Exceptions:  In hindsight, throwing exceptions in the library seems to have
   been a poor design decision.  GCC on Solaris can't cope with exceptions in
   shared libraries, and we've also had test failures on other platforms which
-  only occur with shared libraries - possibly with a similar cause.  We intend
-  to investigate modifying the library to return error codes internally, and
-  then offering the user the choice of exception throwing or error code
-  returning API methods (with the exception being thrown by an inlined wrapper
-  in the externally visible header files).  With this in mind, please don't
-  complicate the internal handling of exceptions...
+  only occur with shared libraries - possibly with a similar cause.  Exceptions
+  can also be a pain to handle elegantly in the bindings.  We intend to
+  investigate modifying the library to return error codes internally, and then
+  offering the user the choice of exception throwing or error code returning
+  API methods (with the exception being thrown by an inlined wrapper in the
+  externally visible header files).  With this in mind, please don't complicate
+  the internal handling of exceptions...
 
 Miscellaneous Portability Issues:
 =================================
@@ -343,13 +344,13 @@ Configure Options
 =================
 
 Especially for a library, compile-time options aren't a good solution for
-how to integrate a new feature.  Increasingly few people compile stuff
-from source these days - rather they install from packages.  Unless
-the package is capable of being split into modules, the packager can really
-only choose what compile time options to use.  And they'll tend to choose
-either the standard ones, or perhaps a broader set to try to keep everyone
-happy.  For a library, similar issues occur when installing from source as
-well - the sysadmin must choose the options which will keep all users happy.
+how to integrate a new feature.  Increasingly few people compile from source
+these days - rather they install from packages.  Unless the package is capable
+of being split into modules, the packager can really only choose what compile
+time options to use.  And they'll tend to choose either the standard ones, or
+perhaps a broader set to try to keep everyone happy.  For a library, similar
+issues occur when installing from source as well - the sysadmin must choose the
+options which will keep all users happy.
 
 Another problem with compile-time options is that it's hard to ensure that
 a change doesn't break compilation under some combination of options without
