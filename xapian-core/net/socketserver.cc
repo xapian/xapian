@@ -51,15 +51,17 @@ struct SocketServerFinished { };
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
+			   int msecs_active_timeout_,
 #ifndef TIMING_PATCH
-			   int msecs_timeout_)
+			   int msecs_idle_timeout_)
 #else /* TIMING_PATCH */
-			   int msecs_timeout_, bool timing_)
+			   int msecs_idle_timeout_, bool timing_)
 #endif /* TIMING_PATCH */
 	: db(db_),
 	  readfd(readfd_),
 	  writefd((writefd_ == -1) ? readfd_ : writefd_),
-	  msecs_timeout(msecs_timeout_),
+	  msecs_active_timeout(msecs_active_timeout_),
+	  msecs_idle_timeout(msecs_idle_timeout_),
 #ifdef TIMING_PATCH
 	  timing(timing_),
 #endif /* TIMING_PATCH */
@@ -79,12 +81,15 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 }
 
 SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
+			   int msecs_active_timeout_,
 #ifndef TIMING_PATCH
-			   int msecs_timeout_)
+			   int msecs_idle_timeout_)
 #else /* TIMING_PATCH */
-			   int msecs_timeout_, bool timing_)
+			   int msecs_idle_timeout_, bool timing_)
 #endif /* TIMING_PATCH */
-	: db(db_), readfd(-1), writefd(-1), msecs_timeout(msecs_timeout_),
+	: db(db_), readfd(-1), writefd(-1),
+	  msecs_active_timeout(msecs_active_timeout_),
+	  msecs_idle_timeout(msecs_idle_timeout_),
 #ifdef TIMING_PATCH
 	  timing(timing_),
 #endif /* TIMING_PATCH */
@@ -131,7 +136,7 @@ SocketServer::run()
 #ifdef TIMING_PATCH
 	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
-	    message = readline(msecs_timeout);
+	    message = readline(msecs_idle_timeout);
 #ifndef TIMING_PATCH
 	    
 #else /* TIMING_PATCH */
@@ -227,11 +232,11 @@ SocketServer::run_match(const std::string &firstmessage)
     OmQuery::Internal query = query_from_string(message);
 
     // extract the match options
-    message = readline(msecs_timeout);
+    message = readline(msecs_active_timeout);
     OmSettings moptions = string_to_moptions(message);
 
     // extract the rset
-    message = readline(msecs_timeout);
+    message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, &query, omrset, moptions,
@@ -246,7 +251,7 @@ SocketServer::run_match(const std::string &firstmessage)
     send_local_stats(gatherer->get_local_stats());
 
     // Message 5, part 1
-    message = readline(msecs_timeout);
+    message = readline(msecs_active_timeout);
 
     if (!startswith(message, "G")) {
 	throw OmNetworkError(std::string("Expected 'G', got ") + message);
@@ -256,7 +261,7 @@ SocketServer::run_match(const std::string &firstmessage)
     have_global_stats = true;
 
     // Message 5, part 2
-    message = readline(msecs_timeout);
+    message = readline(msecs_active_timeout);
 
     if (message.substr(0, 1) != "M") {
 	if (message.substr(0, 1) != "P") {
@@ -416,7 +421,7 @@ SocketServer::writeline(const std::string &message,
 {
     if (milliseconds_timeout == 0) {
 	// default to our normal timeout
-	milliseconds_timeout = msecs_timeout;
+	milliseconds_timeout = msecs_active_timeout;
     }
     time_t secs = time(NULL) + (milliseconds_timeout / 1000);
     unsigned int usecs = (milliseconds_timeout % 1000) * 1000;
@@ -472,7 +477,7 @@ SocketServer::read_global_stats()
 {
     Assert(conversation_state == conv_getglobal);
 
-    global_stats = string_to_stats(readline(msecs_timeout));
+    global_stats = string_to_stats(readline(msecs_active_timeout));
 
     conversation_state = conv_sendresult;
 

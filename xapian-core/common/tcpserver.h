@@ -43,8 +43,11 @@ class TcpServer {
 	/// The listening socket
 	int listen_socket;
 
-	/// The timeout to use with network communications
-	int msecs_timeout;
+	/// The active timeout to use with network communications
+	int msecs_active_timeout;
+
+	/// The idle timeout to use with network communications
+	int msecs_idle_timeout;
 
 	/// Output informtive messages?
 	bool verbose;
@@ -66,8 +69,20 @@ class TcpServer {
 	 */
 	int get_connected_socket();
     public:
-	/** Default constructor. */
-	TcpServer(OmDatabase db_, int port_, int msecs_timeout_ = 10000,
+	/** Default constructor.
+	 *
+	 *  @param db_		The database used for matches etc.
+	 *  @param port_	The port on which to listen for connections.
+	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
+	 *  			used while waiting for data from the client
+	 *  			during the handling of a request.
+	 *  @param msecs_idle_timeout_		The timeout (in milliseconds)
+	 *  			used while waiting for a request from the
+	 *  			client while idle.
+	 */
+	TcpServer(OmDatabase db_, int port_,
+		  int msecs_normal_timeout_ = 10000,
+		  int msecs_idle_timeout_ = 60000,
 #ifndef TIMING_PATCH
 		  bool verbose_ = true);
 #else /* TIMING_PATCH */

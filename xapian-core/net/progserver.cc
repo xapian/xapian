@@ -33,8 +33,10 @@
 ProgServer::ProgServer(OmDatabase db_,
 		       int readfd_,
 		       int writefd_,
-		       int msecs_timeout_)
-	: SocketServer(db_, readfd_, writefd_, msecs_timeout_)
+		       int msecs_active_timeout_,
+		       int msecs_idle_timeout_)
+	: SocketServer(db_, readfd_, writefd_,
+		       msecs_active_timeout_, msecs_idle_timeout_)
 {
 }
 

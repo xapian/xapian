@@ -45,14 +45,18 @@
 #endif /* TIMING_PATCH */
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(OmDatabase db_, int port_, int msecs_timeout_,
+TcpServer::TcpServer(OmDatabase db_, int port_,
+		     int msecs_active_timeout_,
+		     int msecs_idle_timeout_,
 #ifndef TIMING_PATCH
 		     bool verbose_)
 #else /* TIMING_PATCH */
 		     bool verbose_, bool timing_)
 #endif /* TIMING_PATCH */
 	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
-	  msecs_timeout(msecs_timeout_), verbose(verbose_)
+	  msecs_active_timeout(msecs_active_timeout_),
+	  msecs_idle_timeout(msecs_idle_timeout_),
+	  verbose(verbose_)
 #ifdef TIMING_PATCH
           , timing(timing_)
 #endif /* TIMING_PATCH */
@@ -196,9 +200,13 @@ TcpServer::run_once()
 	close(listen_socket);
 	try {
 #ifndef TIMING_PATCH
-	    SocketServer sserv(db, connected_socket, -1, msecs_timeout);
+	    SocketServer sserv(db, connected_socket, -1,
+			       msecs_active_timeout,
+			       msecs_idle_timeout);
 #else /* TIMING_PATCH */
-	    SocketServer sserv(db, connected_socket, -1, msecs_timeout, timing);
+	    SocketServer sserv(db, connected_socket, -1,
+			       msecs_active_timeout,
+			       msecs_idle_timeout, timing);
 #endif /* TIMING_PATCH */
 	    sserv.run();
 	} catch (const OmError &err) {

@@ -41,7 +41,9 @@ class ProgServer : public SocketServer {
     public:
 	/** Default constructor. */
 	ProgServer(OmDatabase db, int readfd_,
-		   int writefd_, int msecs_timeout_ = 10000);
+		   int writefd_,
+		   int msecs_active_timeout_ = 10000,
+		   int msecs_idle_timeout_ = 60000);
 
 	/** This destructor is only here to avoid strange linking errors
 	 *  with g++ when including this header file but not linking with

@@ -50,8 +50,12 @@ class SocketServer : public NetServer {
 	int writefd;
 
 	/// The timeout before read/write operations give up and throw
-	/// and exception
-	int msecs_timeout;
+	/// and exception during a running transaction
+	int msecs_active_timeout;
+
+	/// The timeout before read/write operations give up and throw
+	/// and exception while waiting for a request from the client.
+	int msecs_idle_timeout;
 
 #ifdef TIMING_PATCH
 	/// Timing mode.
@@ -109,27 +113,41 @@ class SocketServer : public NetServer {
 	 *  @param writefd_	The file descriptor for writing.  If
 	 *                      missing or -1, then readfd_ will be used
 	 *                      instead.
+	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
+	 *  			used while waiting for data from the client
+	 *  			during the handling of a request.
+	 *  @param msecs_idle_timeout_		The timeout (in milliseconds)
+	 *  			used while waiting for a request from the
+	 *  			client while idle.
 	 */
 	SocketServer(OmDatabase db,
 		     int readfd_,
 		     int writefd_ = -1,
+		     int msecs_active_timeout_ = 10000,
 #ifndef TIMING_PATCH
-		     int msecs_timeout_ = 10000);
+		     int msecs_idle_timeout_ = 60000);
 #else /* TIMING_PATCH */
-		     int msecs_timeout_ = 10000,
+		     int msecs_idle_timeout_ = 60000,
 		     bool timing_ = false);
 #endif /* TIMING_PATCH */
 
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
 	 *  @param buffer	OmLineBuf already connected to remote end.
+	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
+	 *  			used while waiting for data from the client
+	 *  			during the handling of a request.
+	 *  @param msecs_idle_timeout_		The timeout (in milliseconds)
+	 *  			used while waiting for a request from the
+	 *  			client while idle.
 	 */
 	SocketServer(OmDatabase db,
 		     AutoPtr<OmLineBuf> buffer,
+		     int msecs_active_timeout_ = 10000,
 #ifndef TIMING_PATCH
-		     int msecs_timeout_ = 10000);
+		     int msecs_idle_timeout_ = 60000);
 #else /* TIMING_PATCH */
-		     int msecs_timeout_ = 10000,
+		     int msecs_idle_timeout_ = 60000,
 		     bool timing_ = false);
 #endif /* TIMING_PATCH */
 

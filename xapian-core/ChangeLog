@@ -1,3 +1,12 @@
+Thu Feb 15 19:05:24 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* The remote server now supports a seperate timeout used while
+	  idle, rather than actually servicing a request from the client.
+	  Options --idle-timeout and --active-timeout added to omtcpsrv,
+	  and --timeout sets both timeouts.
+	
+	* Added a documentation comment or two.
+
 Wed Feb 14 18:43:00 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* In Muscat3.6 backends, don't read the key from the keyfile unless

@@ -40,7 +40,8 @@ char *progname = 0;
 int main(int argc, char *argv[]) {
     std::vector<OmSettings *> dbs;
     int port = 0;
-    int msecs_timeout = 10000;
+    int msecs_active_timeout = 10000;
+    int msecs_idle_timeout = 60000;
 
     progname = argv[0];
 
@@ -112,8 +113,17 @@ int main(int argc, char *argv[]) {
 	    port = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--active-timeout") == 0) {
+	    msecs_active_timeout = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--idle-timeout") == 0) {
+	    msecs_idle_timeout = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--timeout") == 0) {
-	    msecs_timeout = atoi(argv[1]);
+	    msecs_idle_timeout = atoi(argv[1]);
+	    msecs_active_timeout = msecs_idle_timeout;
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--one-shot") == 0) {
@@ -141,6 +151,8 @@ int main(int argc, char *argv[]) {
 		"\t--[da-flimsy|da-heavy|db|sleepycat|quartz] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" <<
+		"\t--idle-timeout MSECS" <<
+		"\t--active-timeout MSECS" <<
 		"\t--timeout MSECS" <<
 		"\t--one-shot" <<
 		"\t--quiet" << endl;
@@ -164,9 +176,11 @@ int main(int argc, char *argv[]) {
 	}
 
 #ifndef TIMING_PATCH
-	TcpServer server(mydbs, port, msecs_timeout, verbose);
+	TcpServer server(mydbs, port, msecs_active_timeout,
+			 msecs_idle_timeout, verbose);
 #else /* TIMING_PATCH */
-	TcpServer server(mydbs, port, msecs_timeout, verbose, timing);
+	TcpServer server(mydbs, port, msecs_active_timeout,
+			 msecs_idle_timeout, verbose, timing);
 #endif /* TIMING_PATCH */
 
 	if (one_shot) {
