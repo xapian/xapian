@@ -1,3 +1,8 @@
+Sat Mar 06 01:31:29 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/omenquireinternal.h: Tweaked friend class declarations a
+	  bit so Sun's C++ compiler can cope.
+
 Thu Mar 04 23:58:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with results from the tinderbox.

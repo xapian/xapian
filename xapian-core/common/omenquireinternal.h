@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@ using namespace std;
 
 class OmExpand;
 class RSetI;
+class MultiMatch;
 
 namespace Xapian {
 
@@ -293,7 +294,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 class ESet::Internal : public Xapian::Internal::RefCntBase {
     friend class ESet;
     friend class ESetIterator;
-    friend class OmExpand;
+    friend class ::OmExpand;
     private:
 	/// A list of items comprising the (selected part of the) eset.
 	vector<Xapian::Internal::ESetItem> items;
@@ -315,9 +316,9 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
 
 class RSet::Internal {
     friend class Xapian::RSet;
-    friend class RSetI;
-    friend class OmExpand;
-    friend class MultiMatch;
+    friend class ::RSetI;
+    friend class ::OmExpand;
+    friend class ::MultiMatch;
 
     private:
 	/// Items in the relevance set.
