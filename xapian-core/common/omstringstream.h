@@ -48,6 +48,9 @@ class om_ostringstream {
 	/// Get the string
 	std::string str() const;
 
+	/// Set the string
+	void str(const std::string &s);
+
 	/// Add a string to the stringstream
 	om_ostringstream & operator << (const std::string &);
 	om_ostringstream & operator << (const char *);

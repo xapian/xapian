@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "omstringstream.h"
 
 /** Class which is thrown when a test case fails.
  *  This class contains a message, which is displayed to the user if
@@ -78,6 +79,11 @@ struct test_desc {
 
 // The global verbose flag.  Individual tests may need to get at it.
 extern bool verbose;
+
+/** The output stream.  Data written to this stream will only appear
+ *  when a test fails.
+ */
+extern om_ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {

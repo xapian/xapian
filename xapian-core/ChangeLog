@@ -1,3 +1,15 @@
+Thu Nov 16 14:48:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added method str(std::string) to om_ostringstream, to set
+	  the value of the internal string.
+	
+	* The testsuite now has a global om_ostringstream "tout", which
+	  should be used by test functions when printing anything out.
+	  Everything sent to the stream will be thrown out when the test
+	  succeeds, or printed out if it fails.
+	
+	* Tests in api_db.cc modified to use tout.
+
 Thu Nov 16 11:52:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added quartz_document.cc to CVS.

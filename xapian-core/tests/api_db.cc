@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
@@ -450,18 +449,20 @@ static bool test_expandfunctor1()
     }
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
+#if 0
     // Compare myeset with the hand-filtered version of myeset_orig.
     if (verbose) {
-	cout << "orig_eset: ";
+	tout << "orig_eset: ";
 	copy(myeset_orig.items.begin(), myeset_orig.items.end(),
-	     ostream_iterator<OmESetItem>(cout, " "));
-	cout << endl;
+	     ostream_iterator<OmESetItem>(tout, " "));
+	tout << endl;
 
-	cout << "new_eset: ";
+	tout << "new_eset: ";
 	copy(myeset.items.begin(), myeset.items.end(),
-	     ostream_iterator<OmESetItem>(cout, " "));
-	cout << endl;
+	     ostream_iterator<OmESetItem>(tout, " "));
+	tout << endl;
     }
+#endif
     vector<OmESetItem>::const_iterator orig, filt;
     for (orig = myeset_orig.items.begin(), filt = myeset.items.begin();
          orig != myeset_orig.items.end() && filt != myeset.items.end();
@@ -519,7 +520,7 @@ print_mset_percentages(const OmMSet &mset)
 {
     vector<OmMSetItem>::const_iterator i;
     for (i = mset.items.begin(); i != mset.items.end(); ++i) {
-        cout << " " << mset.convert_to_percent(*i);
+        tout << " " << mset.convert_to_percent(*i);
     }
 }
 
@@ -532,9 +533,9 @@ static bool test_pctcutoff1()
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
-	cout << "Original mset pcts:";
+	tout << "Original mset pcts:";
 	print_mset_percentages(mymset1);
-	cout << endl;
+	tout << endl;
     }
 
     unsigned int num_items = 0;
@@ -552,7 +553,7 @@ static bool test_pctcutoff1()
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-        cout << "Cutoff percent: " << my_pct << endl;
+        tout << "Cutoff percent: " << my_pct << endl;
     }
 
     OmSettings mymopt;
@@ -560,9 +561,9 @@ static bool test_pctcutoff1()
     OmMSet mymset2 = enquire.get_mset(0, 100, NULL, &mymopt);
 
     if (verbose) {
-        cout << "Percentages after cutoff:";
+        tout << "Percentages after cutoff:";
 	print_mset_percentages(mymset2);
-        cout << endl;
+        tout << endl;
     }
 
     TEST_AND_EXPLAIN(mymset2.items.size() >= num_items,
@@ -798,8 +799,8 @@ static bool test_poscollapse1()
     OmQuery myquery2("thi", 2, 1);
 
     if (verbose) {
-	cout << myquery1.get_description() << endl;
-	cout << myquery2.get_description() << endl;
+	tout << myquery1.get_description() << endl;
+	tout << myquery2.get_description() << endl;
     }
 
     OmMSet mymset1 = do_get_simple_query_mset(myquery1);

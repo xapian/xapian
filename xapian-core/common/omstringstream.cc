@@ -40,6 +40,12 @@ om_ostringstream::str() const
     return mystring;
 }
 
+void
+om_ostringstream::str(const std::string &s)
+{
+    mystring = s;
+}
+
 om_ostringstream & om_ostringstream::operator << (const std::string & msg)
 {
     mystring += msg;

@@ -74,6 +74,9 @@ static null_streambuf nullsb;
 /// The global verbose flag.
 bool verbose;
 
+/// The debug printing stream
+om_ostringstream tout;
+
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};
 std::string test_driver::argv0 = "";
@@ -268,12 +271,15 @@ test_driver::runtest(const test_desc *test)
 	runcount++;
 	repeat = false;
 	try {
+	    tout.str("");
 	    success = test->run();
 	    if (!success) {
+		out << tout.str();
 		out << " FAILED";
 	    }
 	} catch (TestFailure &fail) {
 	    success = false;
+	    out << tout.str();
 	    out << " FAILED";
 	    if (verbose) {
 		out << fail.message << std::endl;
@@ -287,12 +293,14 @@ test_driver::runtest(const test_desc *test)
 	    // (caught in do_run_tests())
 	    throw;
 	} catch (OmError &err) {
+	    out << tout.str();
 	    out << " OMEXCEPT";
 	    if (verbose) {
 		out << err.get_type() << " exception: " << err.get_msg() << std::endl;
 	    }
 	    success = false;
 	} catch (...) {
+	    out << tout.str();
 	    out << " EXCEPT";
 	    if (verbose) {
 		out << "Unknown exception!" << std::endl;
