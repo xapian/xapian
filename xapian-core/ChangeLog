@@ -1,3 +1,8 @@
+Thu Jun 29 03:06:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix typo causing nettests to fail: was trying to open network
+	  databases as writable.
+
 Thu Jun 29 02:44:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Protected output of debug messages with a mutex, so messages
