@@ -222,7 +222,7 @@ TextfilePostList::TextfilePostList(const IRDatabase *root,
 	  started(false),
 	  this_db(db)
 {
-    own_wt.set_stats(root, get_termfreq(), tname, rset);
+    own_wt.set_stats(root, termfreq, tname, rset);
 }
 
 inline doccount

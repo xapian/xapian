@@ -182,7 +182,7 @@ DBPostList *
 SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
-    termid tid = root->term_name_to_id(tname);
+    termid tid = term_name_to_id(tname);
     Assert(tid != 0);
 
     Dbt key(&tid, sizeof(tid));

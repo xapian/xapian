@@ -74,7 +74,7 @@ DBPostList *
 TextfileDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
-    termid tid = root->term_name_to_id(tname);
+    termid tid = term_name_to_id(tname);
     Assert(tid != 0);
 
     return new TextfilePostList(root, this, postlists[tid - 1], tname, rset);
