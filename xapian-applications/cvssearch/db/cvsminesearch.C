@@ -19,17 +19,6 @@
 // ($CVSDATA/package is the directory with the quartz database inside)
 //
 
-// For rules, you need to supply something like:  double buffering QPixmap=>
-//
-// This will look for rules starting with QPixmap.  
-// 
-
-#define ONLY_Q_AND_K_CLASSES 1
-
-// actually, divide seems to work better for both
-
-#warning "using diff for rules and div for single items"
-
 #include <db_cxx.h>
 #include <om/om.h>
 #include <stdio.h>
@@ -37,7 +26,140 @@
 
 #include "util.h"
 
-void considerRule( Db& db, string rule_antecedent,  map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
+// importance of statistical significance:
+//
+// right now, we compute surprise as c / c_0 
+// however, if a pattern occurs only one transaction, and the consequent
+// is very rare, then the surprise is very high
+//
+// two ways to get around this:
+//
+// (1) we require minimum support 
+// 
+// (2) we compute statistical significance of the rule
+//
+// The advantage of (2) is we require no arbitrary minimum support and
+// we can be sure of statistical significance.
+//
+
+// To compute, statistical significance, we need to compute binomial
+// coefficients.  
+//
+// See:  http://www.pads.uwaterloo.ca/Bruno.Preiss/books/opus5/html/page460.html
+// Or search google for computing binomial coefficients
+// 
+
+// It is possible to use dynamic programming to compute (n choose m) in O(n^2) time
+
+map< pair<int, int>, double > binom_cache;
+
+double compute_binom(int n, int m) {
+  pair<int, int> p(n, m);
+
+  if ( binom_cache.find( p ) != binom_cache.end() ) {
+    return binom_cache[p];
+  }
+
+  // not in cache, so compute it
+
+  double *b = new double [n+1];
+
+  b[0] = 1.0;
+
+  for( int i = 1; i <= n; i++ ) {
+    b[i] = 1.0;
+    for ( int j = i-1; j > 0; j-- ) {
+      b[j] += b[j-1];
+    }
+  }
+  double ans = b[m];
+  delete [] b;
+  binom_cache[p] = ans;
+  return ans;
+}
+
+
+// computing the cumulative normal distribution function
+//
+// http://www.math.nyu.edu/fellows_fin_math/laud/fall2000/ex0/ex0.html
+//
+// 
+
+
+bool statistically_significant (int n, int k, double px, double py ) {
+  //x  cerr << "compute significance called with n = " << n << " k = " << k << " px = " << px << " py = " << py << endl;
+
+  // Let's try using the normal approximation.  We don't need the table, just
+  // the cutoff value for the significance we want.
+
+  double p = px*py;
+
+  double mean = n*p; // Expected number of times for finding both items
+
+  cerr << "np = " << n*p << " and nq = " << n*(1-p) << endl;
+
+  if ( n*p <= 5 || (n*(1-p)) <= 5 ) {
+    cerr << "WARNING:  normal not good here" << endl;
+
+
+#if 0
+    // if n*p <= 5, then we assume that the items do not cooccur sufficiently
+    // often to be of interest, so we skip it...
+
+    assert( n*(1-p) > 5 );
+
+    return false;
+#endif
+
+  } else {
+    cerr << "SUCCESS:  normal is good here" << endl;
+  }
+
+  double standard_deviation = sqrt( (double)n*p*(1-p) );
+  
+  //  cerr << "... mean " << mean << endl;
+  //  cerr <<" ... standard deviation " << standard_deviation << endl;
+
+  // let's calculate the area under the curve from 
+
+  // P( X >= k-0.5 )
+
+  double kc = (double)k-0.5;
+
+  double skc = ( kc - mean ) / standard_deviation;
+  
+  //  cerr << "... skc = " << skc << endl;
+
+  // compute area under the curve from skc nowards...
+  // this probability is 0.5 - area from 0 .. skc
+
+  // since we want the final results to be <= 0.05
+  // this means that we want the area from 0..skc to be at least 0.45
+
+  // to get that area, z must be at least 1.65
+
+  if ( skc < 1.65 ) {
+    //    cerr << "not statistically significant, skc < 1.65" << endl;
+    return false;
+  }
+  
+  //  cerr << "statistically significant, k >= 1.65" << endl;
+  return true;
+}
+
+
+
+
+// For rules, you need to supply something like:  double buffering QPixmap=>
+//
+// This will look for rules starting with QPixmap.  
+// 
+
+#define ONLY_Q_AND_K_CLASSES 1
+
+
+
+void considerRule( int total_commit_transactions, Db& db, string rule_antecedent,  map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
   //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
   //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
 
@@ -66,13 +188,29 @@ void considerRule( Db& db, string rule_antecedent,  map< double, set< pair<strin
 
   cerr << "... importance " << importance << endl;
 
+
+  // computing statistical significance of rule
+  
+  // we need to estimate probability of finding consequent b in a transaction
+  // (this we can get from our database)
+  // 
+  // we also need to estimate the probability of finding Q^a in a transcation
+  // (this one actually requires us to know the total number of transactions, which
+  // we do not know!)
+  // 
+
+  
+
+
+
   Dbt key( (void*) con.c_str(), con.length()+1 );
   Dbt data;
   int rc = db.get( 0, &key, &data, 0 );
   if ( rc != DB_NOTFOUND ) {
-    double conf_a = atof( (char*) data.get_data() );
-#warning "surprise is diff"
-    surprise = conf / conf_a;
+    int count = atoi( (char*) data.get_data() );
+    double conf_a = 100.0* (double) count / (double) total_commit_transactions;
+    cerr << "read conf_a = " << conf_a << endl;
+    surprise = log(conf / conf_a);
     cerr << "... surprise " << surprise << endl;
     //      if ( surprise3 < MIN_SURPRISE ) {
     //	return; // skip rule
@@ -97,8 +235,6 @@ void considerRule( Db& db, string rule_antecedent,  map< double, set< pair<strin
 
 int main(int argc, char *argv[]) {
 
-  int min_supp = 1;
-    
   if(argc < 3) {
     cout << "Usage: " << argv[0] <<
       " <path to database> <search terms>" << endl;
@@ -194,7 +330,7 @@ int main(int argc, char *argv[]) {
          
     enquire.set_query(query); // copies query object
          
-    int num_results = atoi( argv[npos] );
+    int num_results = 10000000; // = atoi( argv[npos] );
     assert( num_results > 0 );
          
 
@@ -223,6 +359,16 @@ int main(int argc, char *argv[]) {
       }	    
       transactions.push_back( S );
     }
+
+    int total_commit_transactions = 0; // including those without Q
+    ifstream in( (cvsdata +"/root0/db/mining.count").c_str() );
+    in >> total_commit_transactions;
+    in.close();
+
+    assert( total_commit_transactions > 0 );
+
+    cerr << "TOTAL COMMIT TRANSACTIONS " << total_commit_transactions << endl;
+
 
 
     /// okay, let's count individual items first
@@ -255,26 +401,54 @@ int main(int argc, char *argv[]) {
       Dbt key( (void*) k.c_str(), k.length()+1 );
       Dbt data;
       int rc = db.get( 0, &key, &data, 0 );
+      bool significant = false;
+
       if ( rc != DB_NOTFOUND ) {
-	double conf_a = atof( (char*) data.get_data() );
+	int con_count = atoi( (char*) data.get_data() );
+	double conf_a = 100.0*(double) con_count / (double) total_commit_transactions;
 	cerr << "...conf of consequent " << conf_a << endl;
-	c = c / conf_a;
+#warning "division too strict, so let's try log"
+	c = log(c / conf_a);
 	cerr << "...conf imp " << c << endl;
+	
+	/////// compute statistical significance
+	//
+	// n is total_commit_transactions
+	// k is supp (i->second), that is # transactions containing Q & b
+	// 
+	// px = % of transactions containing Q
+	// py = % of transactions containing b
+	//
+#if 0
+	significant = statistically_significant( total_commit_transactions, i->second,
+						 (double) transactions.size() / (double) total_commit_transactions,
+						 conf_a / 100.0 );
+	
+
+	cerr << "... statistically significant = " << significant << endl;
+#endif
       } else {
 	cerr << "*** NOT FOUND " << k << endl;
 	assert(0);
       }
 
+
+
+      //      if ( significant ) {
       cerr << "... supp " << i->second << endl;
       c = c * (i->second); // multiply by support of (Q, con)
-
+	
       cerr << "... score " << c << endl;
-
+	
       if ( k.find("()") != -1 ) {
 	function_ranking[-c].insert(k);
       } else {
 	class_ranking[-c].insert(k);
       }
+      //      } else {
+      //      cerr << "SKIPPING " << k << "; not statistically significant" << endl;
+      //      }
+
     }
 
 
@@ -358,8 +532,8 @@ int main(int argc, char *argv[]) {
       cerr << "... generating rules" << endl;
       // okay, now generate rules
       for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
-	considerRule( db, rule_antecedent, rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
-	considerRule( db, rule_antecedent, rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
+	considerRule( total_commit_transactions, db, rule_antecedent, rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
+	considerRule( total_commit_transactions, db, rule_antecedent, rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
       }
 
       for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {

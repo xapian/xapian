@@ -7,8 +7,6 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define SUPP_FRAC 0.0
-
 //
 // Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
 //
@@ -37,7 +35,7 @@
 
 
 
-
+#define ONLY_Q_AND_K_CLASSES 1
 
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
@@ -92,60 +90,48 @@
 void usage(char * prog_name);
 const string database = "db";
 
-void considerRule( map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
-  //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
-  //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
-
-  double conf = 100.0*(double)pair_supp / (double)ant_count;
-  double con_conf = 100.0*(double)con_count / (double) total_transactions;
-
-  rules[ conf ].insert( make_pair( ant, con ) );
-  rules[ con_conf ].insert( make_pair( string(""), con ));
-
-}
-
 void writeOMDatabase( const string& database_dir,
-		        map< string, set<string> >& comment_symbols, 
-		        map< string, list<string> >& comment_words ) {
+		      map< string, set<string> >& comment_symbols, 
+		      map< string, list<string> >& comment_words ) {
   
-    system( ("rm -rf " + database_dir).c_str() );
-    system(("mkdir " + database_dir).c_str());
+  system( ("rm -rf " + database_dir).c_str() );
+  system(("mkdir " + database_dir).c_str());
 
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", database_dir);
-    db_parameters.set("database_create", true);
-    OmWritableDatabase database(db_parameters); // open database 
+  OmSettings db_parameters;
+  db_parameters.set("backend", "quartz");
+  db_parameters.set("quartz_dir", database_dir);
+  db_parameters.set("database_create", true);
+  OmWritableDatabase database(db_parameters); // open database 
     
-    for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
-      string cmt = i->first;
+  for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
+    string cmt = i->first;
 
-      set<string> symbols = i->second;
-      string symbol_string;
-      for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-	symbol_string = symbol_string + (*j) + " ";
-      }
-
-      //      cerr << "Looking at comment " << cmt << endl;
-      list<string> W = comment_words[cmt];
-      
-      OmDocument newdocument;
-      int pos = 1;
-
-      for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
-	//	cerr << "..." << (*w) << endl;
-	
-	newdocument.add_posting(*w, pos++); 
-      }
-
-      //      cerr << "Symbol string is:  " << symbol_string << endl;
-
-      // put transaction contents in data
-      newdocument.set_data(  symbol_string );
-
-      database.add_document(newdocument);
-
+    set<string> symbols = i->second;
+    string symbol_string;
+    for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
+      symbol_string = symbol_string + (*j) + " ";
     }
+
+    //      cerr << "Looking at comment " << cmt << endl;
+    list<string> W = comment_words[cmt];
+      
+    OmDocument newdocument;
+    int pos = 1;
+
+    for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
+      //	cerr << "..." << (*w) << endl;
+	
+      newdocument.add_posting(*w, pos++); 
+    }
+
+    //      cerr << "Symbol string is:  " << symbol_string << endl;
+
+    // put transaction contents in data
+    newdocument.set_data(  symbol_string );
+
+    database.add_document(newdocument);
+
+  }
     
     
 }
@@ -187,10 +173,10 @@ int main(int argc, char *argv[]) {
 
   for( int i = 1; i < argc; i++ ) {
     string dir = argv[i];
-        cerr << "...running ctags on library " << dir << endl;
-        string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-        cerr << "...invoking " << cmd << endl;
-        system(cmd.c_str());
+    cerr << "...running ctags on library " << dir << endl;
+    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
+    cerr << "...invoking " << cmd << endl;
+    system(cmd.c_str());
   }
   
   cerr << "...reading library tags" << endl;
@@ -307,8 +293,6 @@ int main(int argc, char *argv[]) {
 
       Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " mining" ); 
 
-      string current_function = "";
-
       while ( lines.ReadNextLine() ) {
 
 	string data = lines.getData();
@@ -329,9 +313,18 @@ int main(int argc, char *argv[]) {
 	  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 
 	    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-		    comment_symbols[ i->second].insert(*s);
-		    //	    cerr << "..." << (*s) << endl;
-            }
+
+	      if ( ONLY_Q_AND_K_CLASSES ) {
+		if ( s->find("()") == -1 && s->find("K") != 0 && s->find("Q") != 0 ) {
+		  continue;
+		}
+	      }
+	      
+	      comment_symbols[ i->second].insert(*s);
+	      //	    cerr << "..." << (*s) << endl;
+
+
+	    } 
 	  }
 
 	}
@@ -365,10 +358,8 @@ int main(int argc, char *argv[]) {
     /////// transactions are in comment_symbols
     
     int transaction_count = comment_symbols.size();
-    int min_supp = (int)(SUPP_FRAC * (double) transaction_count);
 
     cerr << "# transactions = " << transaction_count << endl;
-    cerr << "min supp = " << min_supp << endl;
 
     map< string, int > item_count;
 
@@ -382,94 +373,36 @@ int main(int argc, char *argv[]) {
     }
 
 
-#if 0
-    // count pairs
-   map< pair<string, string>, int> pair_count;
-
-   cerr << "... counting pairs" << endl;
-   for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
-     set<string> S = t->second;
-     
-     for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
-       if ( item_count[*i1] < min_supp ) {
-	 continue;
-       }
-       
-       for( set<string>::iterator i2 = i1; i2 != S.end(); i2++ ) {
-	 if ( i1 == i2 || item_count[*i2] < min_supp ) {
-	   continue;
-	 }
-	 
-	 assert( (*i1) < (*i2) );
-	 pair_count[ make_pair(*i1, *i2) ] ++;
-       }
-     }
-   } 
-
-#endif
-
-   
-
-#if 0    
-   map< double, set<pair<string, string> > > rules;
-
-   cerr << "... generating rules" << endl;
-    // okay, now generate rules
-    for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
-      considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transaction_count );
-      considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transaction_count );
-    }
-#endif
-
     cerr << "... writing out item counts" << endl;
+
+    system( ("rm -rf " + cvsdata +"/root0/db/mining.count" ).c_str() );
+    ofstream out( (cvsdata+"/root0/db/mining.count").c_str() );
+    out << transaction_count << endl;
+    out.close();
 
     system( ("rm -rf " + cvsdata +"/root0/db/mining.db" ).c_str() );
     
-    Db dbrules(0,0);
-    dbrules.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
+    Db db(0,0);
+    db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
 
 
     for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
-      double conf = 100.0*(double)(i->second)/(double)transaction_count;
+      int count = i->second;
       string item = i->first;
       
 
       ostrstream ost;
-      ost << conf << ends;
+      ost << count << ends;
       string s = ost.str();
       
       // write to database
       Dbt key( (void*) item.c_str(), item.length()+1);
       Dbt data( (void*) s.c_str(), s.length()+1);
-      dbrules.put( 0, &key, &data, DB_NOOVERWRITE );
+      db.put( 0, &key, &data, DB_NOOVERWRITE );
       ost.freeze(0);
     }
 
-#if 0
-    for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
-      double conf = (i->first);
-      set< pair< string, string> > S = i->second;
-      for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
-	pair<string, string> pair = *p;
-	string rule_string = pair.first + "=>" + pair.second;
-
-	//	cerr << rule_string << " with conf " << conf << endl;
-	
-	ostrstream ost;
-	ost << conf << ends;
-	string s = ost.str();
-
-	// write to database
-	Dbt key( (void*) rule_string.c_str(), rule_string.length()+1);
-	Dbt data( (void*) s.c_str(), s.length()+1);
-	dbrules.put( 0, &key, &data, DB_NOOVERWRITE );
-	ost.freeze(0);
-      }
-    }
-#endif
-
-    
-    dbrules.close(0);
+    db.close(0);
 
 
 
@@ -480,8 +413,8 @@ int main(int argc, char *argv[]) {
 
     /////// write out OM database
     writeOMDatabase( cvsdata + "/root0/db/mining.om", 
-		    comment_symbols,
-		    comment_words );
+		     comment_symbols,
+		     comment_words );
   
     
   } catch(OmError & error) {
