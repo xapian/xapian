@@ -1,3 +1,8 @@
+Mon Oct 16 12:21:41 BST 2000 Olly Betts
+
+	* indexer/indexgraph/indexerxml.cc: Quick bodge fix for XML_DTD_PATH
+	  not being defined - needs the correct fix from Chris.
+
 Fri Oct 13 16:03:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed some leaks in the indexer system

@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+#define XML_DTD_PATH "/tmp"
+
 #include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
