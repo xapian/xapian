@@ -28,36 +28,7 @@
 #include "omdebug.h"
 
 class PosListBuffer;
-
-/** Parent class for NearPostList and PhrasePostList
- */
-class NearOrPhrasePostList : public SelectPostList {
-    protected:
-        om_termpos window;
-	vector<PostList *> terms;
-
-    	bool test_doc();
-        virtual bool do_test(vector<PosListBuffer> &plists, om_termcount i,
-			     om_termcount min, om_termcount max) = 0;
-    public:
-	string intro_term_description() const;
-
-        NearOrPhrasePostList(PostList *source, om_termpos window_,
-			     vector<PostList *> terms_)
-	: SelectPostList(source)
-        {
-	    window = window_;
-	    terms = terms_;
-	}
-};
-
-inline string
-NearOrPhrasePostList::intro_term_description() const
-{
-    return "(NearOrPhrase " + om_inttostring(window) + " "
-	   + source->intro_term_description() + ")";
-}
-
+class PosListBufferPhrase;
 
 /** A postlist comprising several postlists NEARed together.
  *
@@ -66,16 +37,23 @@ NearOrPhrasePostList::intro_term_description() const
  *  each other somewhere in the document.  The weight for a posting is the
  *  sum of the weights of the sub-postings.
  */
-class NearPostList : public NearOrPhrasePostList {
+class NearPostList : public SelectPostList {
     private:
+        om_termpos window;
+	vector<PostList *> terms;
+
+    	bool test_doc();
         bool do_test(vector<PosListBuffer> &plists, om_termcount i,
 		     om_termcount min, om_termcount max);
     public:
 	string intro_term_description() const;
 
         NearPostList(PostList *source, om_termpos window_,
-		     vector<PostList *> terms_)
-	: NearOrPhrasePostList(source, window_, terms_) { }
+		     vector<PostList *> terms_) : SelectPostList(source)
+        {
+	    window = window_;
+	    terms = terms_;
+	}
 };
 
 inline string
@@ -93,16 +71,23 @@ NearPostList::intro_term_description() const
  *  specified distance of each other somewhere in the document.  The weight
  *  for a posting is the sum of the weights of the sub-postings.
  */
-class PhrasePostList : public NearOrPhrasePostList {
+class PhrasePostList : public SelectPostList {
     private:
-        bool do_test(vector<PosListBuffer> &plists, om_termcount i,
+        om_termpos window;
+	vector<PostList *> terms;
+
+    	bool test_doc();
+        bool do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
 		     om_termcount mine, om_termcount max);
     public:
 	string intro_term_description() const;
 
         PhrasePostList(PostList *source, om_termpos window_,
-		       vector<PostList *> terms_)
-	: NearOrPhrasePostList(source, window_, terms_) { }
+		       vector<PostList *> terms_) : SelectPostList(source)
+        {
+	    window = window_;
+	    terms = terms_;
+	}
 };
 
 inline string
@@ -113,3 +98,4 @@ PhrasePostList::intro_term_description() const
 }
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */
+

@@ -29,10 +29,8 @@ class PosListBuffer {
 	PositionList *pl;
 	om_termpos cache;
     public:
-	om_termpos index; // only needed to phrase
-	PosListBuffer(PositionList *poslist, om_termpos index_) : pl(poslist) {
+	PosListBuffer(PositionList *poslist) : pl(poslist) {
 	    cache = 0;
-	    index = index_;
 	}
 	om_termcount get_size() const { return pl->get_size(); }
 	om_termpos get_position() const {
@@ -63,6 +61,13 @@ class PosListBuffer {
 	}
 };
 
+class PosListBufferPhrase : public PosListBuffer {
+    public:
+	om_termpos index; // only needed to phrase
+	PosListBufferPhrase(PositionList *poslist, om_termpos index_)
+		: PosListBuffer(poslist) { }
+};
+
 /** Class providing an operator which returns true if a has a (strictly)
  *  smaller number of postings than b.
  */
@@ -75,18 +80,17 @@ class PosListBufferCmpLt {
         }
 };
 
+
+/** Check if terms occur sufficiently close together in the current doc
+ */
 bool
-NearOrPhrasePostList::test_doc()
+NearPostList::test_doc()
 {
-    // check if criterion is satisfied
     vector<PosListBuffer> plists;
 
     vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	plists.push_back(PosListBuffer((*i)->get_position_list(),
-				       i - terms.begin()));
-	DebugMsg((*i)->intro_term_description() << " " << i - terms.begin()
-		 << endl);
+	plists.push_back(PosListBuffer((*i)->get_position_list()));
     }
 
     sort(plists.begin(), plists.end(), PosListBufferCmpLt());
@@ -100,7 +104,6 @@ NearOrPhrasePostList::test_doc()
 
     return true;
 }
-
 
 bool
 NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
@@ -131,8 +134,34 @@ NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
 }
 
 
+
+/** Check if terms form a phrase in the current doc
+ */
 bool
-PhrasePostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
+PhrasePostList::test_doc()
+{
+    vector<PosListBufferPhrase> plists;
+
+    vector<PostList *>::iterator i;
+    for (i = terms.begin(); i != terms.end(); i++) {
+	plists.push_back(PosListBufferPhrase((*i)->get_position_list(),
+					     i - terms.begin()));
+    }
+
+    sort(plists.begin(), plists.end(), PosListBufferCmpLt());
+     
+    om_termpos pos;
+    do {
+	plists[0].next();
+	if (plists[0].at_end()) return false;
+	pos = plists[0].get_position();
+    } while (!do_test(plists, 1, pos, pos));
+
+    return true;
+}
+
+bool
+PhrasePostList::do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
 			om_termcount min, om_termcount max)
 {
     DebugMsg("PhrasePostList::do_test([...], " << i << ", " << min << ", "
