@@ -182,20 +182,16 @@ There's also the "auto" backend which takes a filename and works out the
 database type and settings required automatically.  This is a good choice
 if you don't care what database type you are using.
 </P>
-<P>
-<B>stub databases aren't currently working.</B>
+<P><!-- mention OmStub__open() -->
 An extra feature available using the auto backend is "stub databases".  If
-the fiilename points to a file rather than a directory, the
-file will be assumed to contain a set of settings (one per line, in the format
-"name=value"), which will be used to open the database.  For example, a file
-might contain:
+the filename points to a file rather than a directory, the
+file will be assumed to contain a list of strings representing databases
+to search, one per line.  For example, a file might contain:
+
 <BLOCKQUOTE><CODE>
-backend=remote<br>
-remote_type=tcp<br>
-remote_port=23876<br>
-remote_server=localhost<br>
+remote localhost:23876<br>
+quartz /var/spool/xapian/webindex<br>
 </CODE></BLOCKQUOTE>
-Note that these settings <EM>are</EM> case sensitive.
 
 <A NAME="database_types"><H3>Database types</H3></A>
 The current types understood by Xapian are:

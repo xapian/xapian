@@ -1,3 +1,7 @@
+Thu Dec 12 01:05:00 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Updated docs on stub databases.
+
 Wed Dec 11 20:49:11 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omdatabaseinternal.cc,include/om/omdatabase.h,tests/api_db.cc:
