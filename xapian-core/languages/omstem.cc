@@ -145,6 +145,11 @@ OmStem::OmStem(string language) : internal(0)
     internal = new OmStemInternal(language);
 }
 
+OmStem::~OmStem()
+{
+    delete internal;
+}
+
 string
 OmStem::stem_word(string word) const {
     return internal->stem_word(word);

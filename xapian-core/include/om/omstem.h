@@ -50,6 +50,8 @@ class OmStem {
 	 */
         explicit OmStem(string language);
 
+	~OmStem();
+
 	/** Stem a word.
 	 *
 	 *  @param word		the word to stem
