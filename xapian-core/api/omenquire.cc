@@ -299,9 +299,15 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     OmMSet retval;
 
+    mset_cmp cmp;
+    if(moptions->sort_forward) {
+	cmp = msetcmp_forward;
+    } else {
+	cmp = msetcmp_reverse;
+    }
 
     // Run query and get results into supplied OmMSet object
-    match.match(first, maxitems, retval.items, msetcmp_forward,
+    match.match(first, maxitems, retval.items, cmp,
 		&(retval.mbound), &(retval.max_attained),
 		mdecider);
 

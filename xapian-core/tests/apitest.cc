@@ -1005,11 +1005,11 @@ bool test_reversebool2()
     // mymset3 should be last msize items of mymset1, in reverse order
     if(msize != mymset3.items.size()) return false;
     {
-	vector<OmMSetItem>::const_iterator i;
-	vector<OmMSetItem>::reverse_iterator j;
-	for (i = mymset1.items.begin(),
-	     j = mymset3.items.rbegin();
-	     i != mymset1.items.end();
+	vector<OmMSetItem>::reverse_iterator i;
+	vector<OmMSetItem>::const_iterator j;
+	for (i = mymset1.items.rbegin(),
+	     j = mymset3.items.begin();
+	     j != mymset3.items.end();
 	     ++i, j++) {
 	    if(i->did != j->did) {
 		if (verbose) {

@@ -1,3 +1,8 @@
+Mon Mar 20 12:50:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made OmEnquire use reversebool when specified in moptions.
+	  All tests now pass!
+
 Mon Mar 20 12:23:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made OmEnquire use BoolWeight to get result for boolean queries.
