@@ -1,0 +1,10 @@
+## Common bits to be used in makefile.am's
+
+# Cunning piece of code to generate a dependency file (filename in shell
+# variable destfile), for target $@.
+GENDEPS = \
+echo "$@ : " $$depends > $$destfile ; \
+(for p in $$depends ; do echo $$p ; done ;) | \
+sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
+sed -e 's/$$/ :/' >> $$destfile ;
+

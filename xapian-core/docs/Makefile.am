@@ -130,6 +130,12 @@ clean-local:
 	@if [ -r sourcedoc.tex ]; then \
 	  echo "removing sourcedoc.*"; $(RM) sourcedoc.* ; \
 	fi
+	@if [ -r code_structure.html ]; then \
+	  echo "removing code_structure.html"; $(RM) code_structure.html ; \
+	fi
+	@if [ -r mkdoc.pl ]; then \
+	  echo "removing mkdoc.pl"; $(RM) mkdoc.pl ; \
+	fi
 
 ################################
 # How to uninstall local files #
@@ -192,14 +198,8 @@ distclean-local: clean-local
 	  echo "removing .deps-sourcedoc-tex"; $(RM) .deps-sourcedoc-tex ; \
 	fi
 
-# Cunning piece of code to generate a dependency file (filename in shell
-# variable destfile), for target $@, 
-GENDEPS = \
-echo "$@ : " $$depends > $$destfile ; \
-for p in $$depends ; do \
-  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
-  sed -e 's/$$/ :/' >> $$destfile ; \
-done ;
+# Get GENDEPS macro
+include $(top_srcdir)/Makefile_common.am
 
 #########################
 # Rules for doc++ stuff #

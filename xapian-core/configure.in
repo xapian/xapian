@@ -224,6 +224,6 @@ AC_OUTPUT(
  docs/mkdoc.pl
  tests/stemtest.pl
 ,
- chmod +x docs/mkdoc.pl
- chmod +x tests/stemtest.pl
+ if [ -e docs/mkdoc.pl ] ; then chmod +x docs/mkdoc.pl ; fi
+ if [ -e tests/stemtest.pl ] ; then chmod +x tests/stemtest.pl ; fi
 )
