@@ -282,15 +282,29 @@ QuartzWritableDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid,
 	      "QuartzWritableDatabase::add_document", document);
+    RETURN(add_document_(0, document));
+}
+
+Xapian::docid
+QuartzWritableDatabase::add_document_(Xapian::docid did,
+				      const Xapian::Document & document)
+{
     Assert(buffered_tables != 0);
 
-    Xapian::docid did;
     try {
-	// Set the record, and get the document ID to use.
-	did = QuartzRecordManager::add_record(
-		*(buffered_tables->get_record_table()),
-		document.get_data());
-	Assert(did != 0);
+	if (did == 0) {
+	    // Set the record, and get the document ID to use.
+	    did = QuartzRecordManager::add_record(
+		    *(buffered_tables->get_record_table()),
+		    document.get_data());
+	    Assert(did != 0);
+	} else {
+	    // Set the record using the provided document ID.
+	    QuartzRecordManager::replace_record(
+		    *(buffered_tables->get_record_table()),
+		    document.get_data(),
+		    did);
+	}
 
 	// Set the values.
 	{
@@ -379,7 +393,7 @@ QuartzWritableDatabase::add_document(const Xapian::Document & document)
 	flush();
     }
 
-    RETURN(did);
+    return did;
 }
 
 void
@@ -611,6 +625,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// Set the new document length
 	doclens.insert(make_pair(did, new_doclen));
 	totlen_added += new_doclen;
+    } catch (const Xapian::DocNotFoundError &) {
+	(void)add_document_(did, document);
     } catch (...) {
 	// If an error occurs while replacing a document, or doing any other
 	// transaction, the modifications so far must be cleared before

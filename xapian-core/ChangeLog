@@ -1,3 +1,11 @@
+Wed Aug 11 21:26:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/quartz/quartz_database.cc,backends/quartz/quartz_database.h,
+	  docs/todo.xml: WritableDatabase::replace_document can now be used
+	  to add a document with a specific docid (to allow keeping docids
+	  in sync with numeric UIDs from another system).
+
 Wed Aug 11 20:09:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,include/xapian/database.h: Added replace_document

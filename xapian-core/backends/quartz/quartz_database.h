@@ -136,6 +136,7 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	void do_flush_const() const;
 
 	virtual Xapian::docid add_document(const Xapian::Document & document);
+	Xapian::docid add_document_(Xapian::docid did, const Xapian::Document & document);
 	virtual void delete_document(Xapian::docid did);
 	virtual void replace_document(Xapian::docid did,
 				      const Xapian::Document & document);

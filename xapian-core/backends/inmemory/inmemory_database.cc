@@ -207,13 +207,37 @@ void
 InMemoryDatabase::replace_document(Xapian::docid did,
 				   const Xapian::Document & document)
 {
-    DEBUGLINE(DB, "InMemoryDatabase::replace_document(): replaceing doc "
+    DEBUGLINE(DB, "InMemoryDatabase::replace_document(): replacing doc "
 	          << did);
 
-    delete_document(did);
+    doclists[did - 1] = "";
+    valuelists[did - 1].clear();
+    totlen -= doclengths[did - 1];
+    totdocs--;
 
-    /* resurrect this document */
+    vector<InMemoryPosting>::const_iterator i;
+    for (i = termlists[did - 1].terms.begin();
+	 i != termlists[did - 1].terms.end();
+	 ++i) {
+	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
+	Assert(t != postlists.end());
+	t->second.collection_freq -= i->wdf;
+	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
+	/* FIXME: inefficient on vectors... */
+	while (posting != t->second.docs.end()) {
+	    if (posting->did == did) {
+		posting = t->second.docs.erase(posting);
+	    } else {
+		++posting;
+	    }
+	}
+	if (t->second.docs.empty()) {
+	    Assert(t->second.collection_freq == 0);
+	    postlists.erase(t);
+	}
+    }
     termlists[did - 1] = InMemoryDoc();
+
     doclengths[did - 1] = 0;
     doclists[did - 1] = document.get_data();
 

@@ -6,14 +6,6 @@ places - two possible such locations are i) doing collapsem (in
 matcher/multimatch.cc) and ii) in the inmemory database.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
-
-Should it be possible to specify an arbitrary docid for a document (perhaps to
-match numeric docids in another system?)  This is potentially useful, though
-bad for compression in the backend.  Currently replace_document() fails
-if the document id doesn't exist already (at least with quartz).
-
-</todoitem>
 <todoitem priority="L" difficulty="" owner="Olly" area="Quartz" release="1.0">
 
 Shouldn't stall just because a stale db_lock exists - instead of just an
