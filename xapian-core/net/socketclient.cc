@@ -397,8 +397,8 @@ SocketClient::set_query(const OmQuery::Internal *query_,
     Assert(conv_state == state_getquery);
     // FIXME: no point carefully serialising these all separately...
     query_string = query_->serialise();
-    optstring = om_tostring(collapse_key) + ' ' + om_tostring(sort_forward) +
-	' ' + om_tostring(percent_cutoff) + ' ' + om_tostring(weight_cutoff);
+    optstring = om_tostring(collapse_key) + (sort_forward ? " 1 " : " 0 ") +
+	om_tostring(percent_cutoff) + ' ' + om_tostring(weight_cutoff);
     wtstring = wtscheme->name() + '\n' + wtscheme->serialise();
     omrset = omrset_;
 }

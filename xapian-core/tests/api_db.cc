@@ -671,7 +671,7 @@ static bool test_matchfunctor1()
 
     myMatchDecider myfunctor;
 
-    OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
+    OmMSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
     OmMSetIterator i = mymset.begin();
     TEST(i != mymset.end());
@@ -873,9 +873,8 @@ static bool test_cutoff1()
         tout << "Cutoff weight: " << my_wt << "\n";
     }
 
-    OmSettings mymopt;
-    mymopt.set("match_cutoff", my_wt);
-    OmMSet mymset2 = enquire.get_mset(0, 100, NULL, &mymopt);
+    enquire.set_cutoff(0, my_wt);
+    OmMSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
         tout << "Weights after cutoff:";
@@ -994,9 +993,8 @@ static bool test_pctcutoff1()
         tout << "Cutoff percent: " << my_pct << "\n";
     }
 
-    OmSettings mymopt;
-    mymopt.set("match_percent_cutoff", my_pct);
-    OmMSet mymset2 = enquire.get_mset(0, 100, NULL, &mymopt);
+    enquire.set_cutoff(my_pct);
+    OmMSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
         tout << "Percentages after cutoff:";
@@ -1068,11 +1066,9 @@ static bool test_collapsekey1()
     OmMSet mymset1 = enquire.get_mset(0, 100);
     om_doccount mymsize1 = mymset1.size();
 
-    OmSettings mymopt;
-
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
-	mymopt.set("match_collapse_key", (int)value_no);
-	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
+	enquire.set_collapse_key(value_no);
+	OmMSet mymset = enquire.get_mset(0, 100);
 
 	TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
@@ -1095,14 +1091,12 @@ static bool test_collapsekey2()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmSettings mymopt;
-
-    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    OmMSet mymset1 = enquire.get_mset(0, 100);
     om_doccount mymsize1 = mymset1.size();
 
     const om_valueno value_no = 0;
-    mymopt.set("match_collapse_key", (int)value_no);
-    OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
+    enquire.set_collapse_key(value_no);
+    OmMSet mymset = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
@@ -1130,11 +1124,10 @@ static bool test_reversebool1()
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
-    OmSettings mymopt;
-    mymopt.set("match_sort_forward", true);
-    OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
-    mymopt.set("match_sort_forward", false);
-    OmMSet mymset3 = enquire.get_mset(0, 100, 0, &mymopt);
+    enquire.set_sort_forward(true);
+    OmMSet mymset2 = enquire.get_mset(0, 100);
+    enquire.set_sort_forward(false);
+    OmMSet mymset3 = enquire.get_mset(0, 100);
 
     // mymset1 and mymset2 should be identical
     TEST_EQUAL(mymset1.size(), mymset2.size());
@@ -1180,12 +1173,11 @@ static bool test_reversebool2()
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
-    OmSettings mymopt;
-    mymopt.set("match_sort_forward", true);
+    enquire.set_sort_forward(true);
     om_doccount msize = mymset1.size() / 2;
-    OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
-    mymopt.set("match_sort_forward", false);
-    OmMSet mymset3 = enquire.get_mset(0, msize, 0, &mymopt);
+    OmMSet mymset2 = enquire.get_mset(0, msize);
+    enquire.set_sort_forward(false);
+    OmMSet mymset3 = enquire.get_mset(0, msize);
 
     // mymset2 should be first msize items of mymset1
     TEST_EQUAL(msize, mymset2.size());
@@ -2970,9 +2962,8 @@ static bool test_sortbands1()
     const char * terms[] = {"better", "place", "reader", "without", "would"};
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
 	enquire.set_query(OmQuery(terms[j]));
-	OmSettings opts;
-	opts.set("match_sort_bands", 10);
-	OmMSet mset = enquire.get_mset(0, 20, 0, &opts);
+	enquire.set_sorting(-1, 10);
+	OmMSet mset = enquire.get_mset(0, 20);
 	om_docid prev = 0;
 	int band = 9;
 	for (OmMSetIterator i = mset.begin(); i != mset.end(); ++i) {

@@ -865,8 +865,8 @@ operator==(const OmMSetIterator &a, const OmMSetIterator &b)
 OmEnquire::Internal::Data::Data(const OmDatabase &db_,
 				OmErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
-    percent_cutoff(0), weight_cutoff(-1), sort_bands(0), bias_halflife(0),
-    errorhandler(errorhandler_), weight(0)
+    percent_cutoff(0), weight_cutoff(0), sort_key(-1), sort_bands(0),
+    bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
 {
 }
 
@@ -895,10 +895,8 @@ OmEnquire::Internal::Data::get_query()
 }
 
 OmMSet
-OmEnquire::Internal::Data::get_mset(om_doccount first,
-                    om_doccount maxitems,
-                    const OmRSet *omrset,
-		    const OmMatchDecider *mdecider) const
+OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
+                    const OmRSet *omrset, const OmMatchDecider *mdecider) const
 {
     DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset", first << ", "
 	      << maxitems << ", " << omrset << ", " << << mdecider);
@@ -1160,6 +1158,39 @@ OmEnquire::set_weighting_scheme(const OmWeight &weight_)
     DEBUGAPICALL(void, "OmEnquire::set_weighting_scheme", "[OmWeight]");
     delete internal->data->weight;
     internal->data->weight = weight_.clone();
+}
+
+void
+OmEnquire::set_collapse_key(om_valueno collapse_key)
+{
+    internal->data->collapse_key = collapse_key;
+}
+
+void
+OmEnquire::set_sort_forward(bool sort_forward)
+{
+    internal->data->sort_forward = sort_forward;
+}
+
+void
+OmEnquire::set_cutoff(int percent_cutoff, om_weight weight_cutoff)
+{
+    internal->data->percent_cutoff = percent_cutoff;
+    internal->data->weight_cutoff = weight_cutoff;
+}
+
+void
+OmEnquire::set_sorting(om_valueno sort_key, int sort_bands)
+{
+    internal->data->sort_key = sort_key;
+    internal->data->sort_bands = sort_bands;
+}
+
+void
+OmEnquire::set_bias(om_weight bias_weight, time_t bias_halflife)
+{
+    internal->data->bias_weight = bias_weight;
+    internal->data->bias_halflife = bias_halflife;
 }
 
 OmMSet

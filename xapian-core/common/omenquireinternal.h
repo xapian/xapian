@@ -151,6 +151,17 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 */
 	OmQuery * query;
 
+	/** Calculate the matching terms.
+	 *  This method does the work for get_matching_terms().
+	 */
+	OmTermIterator calc_matching_terms(om_docid did) const;
+
+	/// Copy not allowed
+	Data(const Data &);
+	/// Assignment not allowed
+	void operator=(const Data &);
+
+    public:
 	om_valueno collapse_key;
 
 	bool sort_forward;
@@ -165,16 +176,6 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	time_t bias_halflife;
 	om_weight bias_weight;
 
-	/** Calculate the matching terms.
-	 *  This method does the work for get_matching_terms().
-	 */
-	OmTermIterator calc_matching_terms(om_docid did) const;
-
-	/// Copy not allowed
-	Data(const Data &);
-	/// Assignment not allowed
-	void operator=(const Data &);
-    public:
 	/** The error handler, if set.  (0 if not set).
 	 */
 	OmErrorHandler * errorhandler;

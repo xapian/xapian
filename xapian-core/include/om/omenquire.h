@@ -578,40 +578,69 @@ class OmEnquire {
 	 */
 	void set_weighting_scheme(const OmWeight &weight_);
 
-	/* FIXME: rework these as doxygen comments for the methods
-	 * we're going to add...
-  - match options
-    - match_collapse_key : key number to collapse on - duplicates mset
-      entries will be removed based on a key (default -1 => no collapsing)
-    - match_sort_forward : If true, documents with the same weight will
-      be returned in ascending document order; if false, they will be
-      returned in descending order.flag to sort forward (default true)
-    - match_percent_cutoff : Minimum percentage score for returned
-      documents. If a document has a lower percentage score than this, it
-      will not appear in the mset.  If your intention is to return only
-      matches which contain all the terms in the query, then consider using
-      OmQuery::OP_AND instead of OmQuery::OP_OR in the query).
-      (default -1 => no cut-off)
-    - match_cutoff : Minimum weight for a document to be returned.  If a
-      document has a lower score that this, it will not appear in the mset.
-      It is usually only possible to choose an appropriate weight for cutoff
-      based on the results of a previous run of the same query; this is thus
-      mainly useful for alerting operations.
+        /** Set the collapse key to use for queries.
+         *
+         *  @param collapse_key  key number to collapse on - duplicates mset
+         *      entries will be removed based on this key (default is
+	 *	om_valueno(-1) which means no collapsing).
+         */
+	void set_collapse_key(om_valueno collapse_key);
 
-  - match_sort_key : value number to reorder on.  Sorting is with a string
-      compare.  Higher is better.  If match_sort_key is set, but 
-      match_sort_bands isn't, sort the whole mset my the key.  No default.
-  - match_sort_bands : sort results into this many bands of equal percentage
-      relevance.  Within each band, sort by the value number specified by
-      match_sort_key, otherwise by document id (taking note of the setting of
-      match_sort_forward.  The default (0) is off.
+        /** Set the collapse key to use for queries.
+         *
+	 * @param sort_forward If true, documents with the same weight will
+	 *	be returned in ascending document order; if false, they will be
+	 *	returned in descending order. (default true)
+         */
+	void set_sort_forward(bool sort_forward);
 
-  - match bias functor options - NB this is a temporary API for this feature.
-    - match_bias_weight : Maximum weight bias functor can add (and which is
-      given to document with a time now or in the future) - no default.
-    - match_bias_halflife - the match bias decays exponentially with time -
-      this sets the half-life of this decay in seconds (default 0 => no bias).
+        /** Set the percentage and/or weight cutoffs.
+         *
+	 * @param percent_cutoff Minimum percentage score for returned
+	 *	documents. If a document has a lower percentage score than this,
+	 *	it will not appear in the mset.  If your intention is to return
+	 *	only matches which contain all the terms in the query, then
+	 *	it's more efficient to use OmQuery::OP_AND instead of
+	 *	OmQuery::OP_OR in the query that to set this to 100%).
+	 *	(default 0 => no percentage cut-off).
+	 * @param weight_cutoff Minimum weight for a document to be returned.
+	 *	If a document has a lower score that this, it will not appear
+	 *	in the mset.  It is usually only possible to choose an
+	 *	appropriate weight for cutoff based on the results of a
+	 *	previous run of the same query; this is thus mainly useful for
+	 *	alerting operations.  The other potential use is with a user
+	 *	specified weighting scheme.
+         */
+	void set_cutoff(int percent_cutoff, om_weight weight_cutoff = 0);
+
+        /** Set the percentage and/or weight cutoffs.
+         *
+	 * @param sort_key value number to reorder on.  Sorting is with a
+	 *	string compare.  Higher is better.  If match_sort_key is set,
+	 *	but match_sort_bands isn't, sort the whole mset my the key.
+	 *	(default is om_valueno(-1) which means re-sort by doc id
+	 *	- ascending or descending as controlled by sort_forward).
+	 * 
+	 * @param sort_bands sort results into this many bands of equal
+	 *	 percentage relevance.  Within each band, sort by the value
+	 *	 number specified by sort_key.  (default is 0 which means
+	 *	 no re-sorting).
 	 */
+	void set_sorting(om_valueno sort_key, int sort_bands);
+
+        /** Set the bias functor parameters.
+         *
+	 * NB this is a temporary API for this feature.
+	 *
+	 * @param bias_weight Maximum weight bias functor can add (and which is
+	 *	given to document with a time now or in the future).
+	 *
+	 * @param bias_halflife the match bias decays exponentially as you go
+	 * 	back in time.  This sets the half-life of this decay in seconds
+	 * 	(default 0 => no bias).
+	 */
+	void set_bias(om_weight bias_weight, time_t bias_halflife);
+
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.

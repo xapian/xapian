@@ -1,3 +1,9 @@
+Fri Dec 13 19:13:36 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,include/om/omenquire.h,
+	  net/socketclient.cc,tests/api_db.cc: Finished removal of OmSettings
+	  - all tests now pass once more!
+
 Fri Dec 13 16:35:12 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/,backends/quartz/quartz_table_manager.h,common/,docs/,include/,
