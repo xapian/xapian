@@ -1,3 +1,7 @@
+Thu Jun  8 18:59:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Initial guile bits.  (Not yet functional)
+
 Thu Jun  8 16:28:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Perl5 and Python now both have more-or-less working OmQuery

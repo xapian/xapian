@@ -66,5 +66,12 @@
     }
 }
 
+#ifdef SWIGPYTHON
 %include "om_util_python.i"
+#endif
+#ifdef SWIGPERL5
 %include "om_util_perl5.i"
+#endif
+#ifdef SWIGGUILE
+#include "om_util_guile.i"
+#endif
