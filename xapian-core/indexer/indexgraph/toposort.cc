@@ -51,7 +51,7 @@ TopoSort::get_result()
     // first step: scan through for zeroes.
     int next_zero = -1;
 
-    for (int i=0; i<v.size(); ++i) {
+    for (std::vector<elem>::size_type i=0; i<v.size(); ++i) {
 	if (v[i].count == 0) {
 	    // link element in
 	    v[i].qlink = next_zero;

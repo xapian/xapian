@@ -51,7 +51,7 @@ static std::string encode_version(unsigned int version)
 {
     std::string data;
 
-    for (int i=0; i<sizeof(metafile_version); ++i) {
+    for (size_t i=0; i<sizeof(metafile_version); ++i) {
 	data += (char)(version & 0xff);
 	version >>= 8;
     }

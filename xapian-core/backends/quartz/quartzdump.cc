@@ -93,7 +93,7 @@ main(int argc, char *argv[])
     if (syntax_error || argc != 0) {
 	std::cout << "Syntax:\t" << progname << " <options> <table>...\n"
 		"\t-r <revno>            Specify revision number to open\n"
-		"\t-s <start>            Start at term start\n";
+		"\t-s <start>            Start at term start\n"
 		"\t-e <end>              End at term end\n";
 	exit(1);
     }

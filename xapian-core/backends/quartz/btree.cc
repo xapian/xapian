@@ -525,7 +525,7 @@ Btree::alter(Cursor * C)
    do we compare the counts.
 */
 
-static int compare_keys(byte * key1, byte * key2)
+static int compare_keys(const byte * key1, const byte * key2)
 {   int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
