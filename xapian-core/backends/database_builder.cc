@@ -1,4 +1,24 @@
-/* database_builder.cc: Builder for creating databases */
+/* database_builder.cc: Builder for creating databases
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
 
 #include "omassert.h"
 #include "database_builder.h"
@@ -16,6 +36,9 @@
 #endif
 #ifdef MUS_BUILD_BACKEND_MULTI
 #include "multi/multi_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_NET
+#include "net/net_database.h"
 #endif
 #include "database.h"
 
@@ -62,6 +85,11 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	case OM_DBTYPE_MULTI:
 #ifdef MUS_BUILD_BACKEND_MULTI
 	    database = new MultiDatabase;
+#endif
+	    break;
+	case OM_DBTYPE_NET:
+#ifdef MUS_BUILD_BACKEND_NET
+	    database = new NetworkDatabase;
 #endif
 	    break;
 	default:

@@ -36,6 +36,7 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "inmemory",		OM_DBTYPE_INMEMORY	},
     { "multidb",		OM_DBTYPE_MULTI		},
     { "sleepycat",		OM_DBTYPE_SLEEPY	},
+    { "net",			OM_DBTYPE_NET		},
     { "",			OM_DBTYPE_NULL		}  // End
 };
 

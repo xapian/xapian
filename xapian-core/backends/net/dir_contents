@@ -1,0 +1,10 @@
+<Directory>backends/net</Directory>
+
+<Description>
+This directory contains the NetworkDatabase backend, which enables
+searches to be performed across databases on remote machines.  Opening
+this database involves opening a communications channel with a remote
+database.
+
+NetworkDatabase objects are used with NetworkMatch objects.
+</Description>
