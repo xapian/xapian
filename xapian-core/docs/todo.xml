@@ -144,7 +144,10 @@ of the code, at present.
 <todoitem priority="M" difficulty="5" owner="" area="Documentation" release="1.0">
 
 Ensure that API documentation covers entirety of API (i.e. that all methods and
-classes in the API have documentation comments).  Then rewrite it for clarity.
+classes in the API have documentation comments) -- see doxygen generated file
+docs/doxygen_api_warnings for a list of undocumented methods.  Then read
+through generated API docs, and rewrite doc comments to improve clarity and
+mahe them more coherent.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
