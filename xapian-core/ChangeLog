@@ -1,3 +1,8 @@
+Wed Jul 09 01:23:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,docs/todo.xml: Added check for SWIG version (require
+	  at least 1.3.14).
+
 Tue Jul  8 20:59:08 2003  James Aylett  <james@tartarus.org>
 
 	* common/utils.h: missing #include <ctype.h>

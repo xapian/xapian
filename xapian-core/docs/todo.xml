@@ -350,11 +350,6 @@ bindings for Perl, so we may as well keep using those while they're
 supported for us.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Bindings" release="0.8">
-
-Check for swig version.
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
 
 Namespace for Java bindings should be org/xapian rather than com/muscat/om.
