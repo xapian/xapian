@@ -27,8 +27,6 @@ CLEANFILES = xapian-config
 EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec m4/xapian.m4 \
  autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4
 
-EXTRA_DIST = $(m4_files)
-
 # xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
 m4data_DATA = m4/xapian.m4
