@@ -37,9 +37,15 @@
 #include <errno.h>
 
 #include "omlocks.h"
+#include "omstringstream.h"
 #include <memory>
 auto_ptr<OmLock> outputmutex;
-#define OutputMessage(a) { OmLockSentry sentry(*outputmutex); cout << a; }
+#define OutputMessage(a) { \
+    OmLockSentry sentry(*outputmutex); \
+    om_ostringstream os; \
+    os << a; \
+    fprintf(stdout, "%s", os.str()); \
+}
 
 static string database_path;
 static string queryfile;
