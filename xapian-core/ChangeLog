@@ -1,3 +1,7 @@
+Fri Jun 14 16:35:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: added 4 new tasks.
+
 Fri Jun 14 16:33:08 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Cosmetic changes.
