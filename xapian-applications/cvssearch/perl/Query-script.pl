@@ -278,7 +278,7 @@ if($query && ($query ne "")){
 	# grep files
 	#----------------
 	
-	$files = join ' ', (values idMAPfile);
+	$files = join ' ', (values %idMAPfile);
 	#print "<p>grep -I -i -n -H '$grepquery' $files | head -$num_matches";
 	#@grepmatches = `grep -I -i -n -H '$grepquery' $files | head -$num_matches`;
 	
