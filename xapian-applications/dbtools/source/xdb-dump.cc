@@ -110,6 +110,7 @@ int main(int argc, char** argv)
 
 	try {
 	    OmSettings db_options = read_db_options(doc, options);
+	    options = xmlCopyNode(options, 1); // so we can use it later
 	    database = new OmDatabase(db_options);
 	    xmlFreeDoc(doc);
 	} catch (OmError& error) {
@@ -151,14 +152,11 @@ int main(int argc, char** argv)
     try {
 	// We need a db-options document. This needs to be based on
 	// our input document, so thank god we saved that information
-	/*	xmlNodePtr tmp_node = xmlCopyNode(options, 1);
-	if (!tmp_node) {
-	    throw string("couldn't copy options block into dump");
-	}
-	if (!xmlAddChild(output_root, tmp_node)) {
-	    xmlFreeNode(tmp_node);
-	    throw string("couldn't add options block to dump");
-	    }*/
+	if (options) {
+	    if (!xmlAddChild(output_root, options)) {
+		throw string("couldn't add options block to dump");
+	    }
+	} // else, well, we just can't dump it
 	
 	// Let's have an <add> element
 	xmlNodePtr add_node = xmlNewChild (output_root, NULL,(const xmlChar*) "add", NULL);
