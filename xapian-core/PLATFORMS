@@ -7,28 +7,29 @@ A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
 notably) may fail with OMEXCEPT - investigation reveals that the correct
 exception is being thrown, but is leaking through the catch block somehow.
 Adding tracing code often makes the test pass.  We believe this is a code
-generation problem or similar - it's never been seen with GCC 3.0 or newer.
-The table below ignores such test failures.
+generation problem or similar - it's never been reported with GCC 3.0 or
+newer.  The table below ignores failures which investigation shows are
+caused by this problem:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
 x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.0 |Passed|
 x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.0 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
-x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
-x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.0 |Passed| --disable-remote-backend
+x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
+x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.1 |Passed| --disable-remote-backend
 x86   | Linux 2.4 RedHat 7.3 GCC 3.1   | 0.5.0 |Passed| from Jan Algermissen
-x86   |*FreeBSD 4.5                    | 0.5.0 |Passed| [1]
+x86   |*FreeBSD 4.5                    | 0.5.1 |Passed| [1]
 x86   |!OpenBSD 3.0 GCC 2.95.3	       | 0.5.0 |Passed|
 x86   | Solaris 8 GCC 2.95.3	       | 0.5.0 |Passed| from Peter Marelas
-sparc |*Linux 2.2 - Debian 2.2         | 0.5.0 |Passed|
+sparc |*Linux 2.2 - Debian 2.2         | 0.5.1 |Passed|
 sparc |*Solaris 8 GCC 2.95.3           | 0.5.1 |Passed| [2]
 sparc |!Solaris 7 GCC 2.95.3           | 0.5.1 |Passed| [2] 
-ppc   |*Linux 2.4 - Debian 2.2         | 0.5.0 |Passed| [2]
+ppc   |*Linux 2.4 - Debian 2.2         | 0.5.1 |Passed| [2]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian 3.0 GCC2.95.4 | 0.5.0 |Failed| internal-&api-test fail 
 sparc |*Solaris 8 Sun Workshop C++     | 0.5.0 |Failed| Compilation fails
-alpha |*Linux 2.2 - Debian 2.2         | 0.5.0 |Failed| Quartz tests fail
+alpha |*Linux 2.2 - Debian 2.2         | 0.5.1 |Failed| Quartz tests fail
 ppc   |*Darwin 5.4 - OS X 10.1         | 0.5.0 |Failed| [2] All tests fail
 ------+--------------------------------+-------+------+------------------------
 
