@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,7 +89,9 @@ class PostingIterator {
 	    return DocIDWrapper(tmp);
 	}
 
-	// extra method, not required for an input_iterator
+	/** Skip the iterator to document did, or the first document after did
+	 *  if did isn't in the list of documents being iterated.
+	 */
 	void skip_to(Xapian::docid did);
 
 // Get the weight of the posting at the current position: will
@@ -115,8 +117,14 @@ class PostingIterator {
 	 */
         Xapian::termcount get_wdf() const;
 
-    	// allow iteration of positionlist for current term
+	/** Return PositionIterator pointing to start of positionlist for
+	 *  current document.
+	 */
 	PositionIterator positionlist_begin();
+
+	/** Return PositionIterator pointing to end of positionlist for
+	 *  current document.
+	 */
 	PositionIterator positionlist_end();
 
 	// Don't expose these methods here.  A container iterator doesn't

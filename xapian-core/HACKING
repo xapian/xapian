@@ -498,9 +498,18 @@ using Xapian::Internal::RefCntPtr, the implementation of which is exposed for
 efficiency, and because it's unlikely we'll need to change it frequently, if at
 all.
 
-There are a few exceptions, such as MSetIterator and ESetIterator which have an
-exposed implementation.  Tests show this makes a substantial difference to
-speed (it's ~20% faster) in typical cases of iterator use.
+For the reference counted classes, the API class (e.g. Xapian::Enquire) is
+really just a wrapper around a reference counted pointer.  This points to an
+internal class (e.g. Xapian::Enquire::Internal).  The reference counted
+pointer is a member variable of the API class called internal.  Conceptually
+this member is private, though it typically isn't declared as private (this
+is to avoid littering the external headers with friend declarations for
+non-API classes).
+
+There are a few exceptions to the reference counted structure, such as
+MSetIterator and ESetIterator which have an exposed implementation.  Tests show
+this makes a substantial difference to speed (it's ~20% faster) in typical
+cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list

@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,26 +51,18 @@ class TermNameWrapper {
 /** An iterator pointing to items in a list of terms.
  */
 class TermIterator {
-    private:
-	// friend classes which need to be able to construct us
-	friend class Database;
-	friend class Document;
-
     public:
 	class Internal;
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-        friend bool operator==(const TermIterator &a, const TermIterator &b);
-
-    public:
-	// FIXME: better if this was private...
+	/// @internal Reference counted internals.
 	explicit TermIterator(Internal *internal_);
 
-	/// Default constructor - for declaring an uninitialised iterator
+	/// Default constructor - for declaring an uninitialised iterator.
 	TermIterator();
 
-	/// Destructor
+	/// Destructor.
         ~TermIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
@@ -83,6 +75,7 @@ class TermIterator {
 	 */
 	void operator=(const TermIterator &other);
 
+	/// Return the current term.
 	std::string operator *() const;
 
 	TermIterator & operator++();
@@ -93,16 +86,29 @@ class TermIterator {
 	    return TermNameWrapper(tmp);
 	}
 
-	// extra method, not required for an input_iterator
+	/** Skip the iterator to term tname, or the first term after tname
+	 *  if tname isn't in the list of terms being iterated.
+	 */
 	void skip_to(const std::string & tname);
 
+	/** Return the wdf of the current term (if meaningful).
+	 */
 	Xapian::termcount get_wdf() const;
+
+	/** Return the term frequency of the current term (if meaningful).
+	 */
 	Xapian::doccount get_termfreq() const;
 
-    	// allow iteration of positionlist for current document
+	/** Return PositionIterator pointing to start of positionlist for
+	 *  current term.
+	 */
 	PositionIterator positionlist_begin();
+
+	/** Return PositionIterator pointing to end of positionlist for
+	 *  current term.
+	 */
 	PositionIterator positionlist_end();
-    
+
 	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */

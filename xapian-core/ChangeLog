@@ -1,3 +1,10 @@
+Fri Feb 18 04:27:16 GMT 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Added better description of how reference-counted API
+	  classes are structured.
+	* include/xapian/postingiterator.h,include/xapian/termiterator.h:
+	  More (and better) documentation comments.
+
 Fri Feb 18 03:05:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Made full compaction a tiny bit more
