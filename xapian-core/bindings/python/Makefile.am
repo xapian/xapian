@@ -2,7 +2,30 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
-wrap_omstem.c: ../swig/omstem.i
-	swig -c++ -python ../swig/omstem.i
+SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
+
+target: omuscatc.so omuscat.py
+
+omstem_wrap.cc: ../swig/omstem.i ../swig/om_util.i
+	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $<
+
+omuscat_wrap.cc: ../swig/omuscat.i ../swig/omstem.i ../swig/om_util.i
+	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $<
+
+omstem.py: omstem_wrap.cc
+
+omuscat.py: omuscat_wrap.cc
+
+omstem_wrap.o: omstem_wrap.cc
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< -I/usr/include/python1.5/ -o $@
+
+omuscat_wrap.o: omuscat_wrap.cc
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< -I/usr/include/python1.5/ -o $@
+
+omstemc.so: omstem_wrap.o
+	$(CXX) -shared $< -o $@
+
+omuscatc.so: omuscat_wrap.o
+	$(CXX) -shared $< -o $@

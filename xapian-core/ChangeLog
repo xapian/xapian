@@ -1,3 +1,8 @@
+Wed Jun  7 18:08:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More work on scripting languages.  OmQuery _nearly_ works with
+	  python.
+
 Wed Jun  7 18:06:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Hopefully fixed a nasty refcount pointer bug.
