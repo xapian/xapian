@@ -279,6 +279,18 @@ OmDocument::clear_terms()
     }
 }
 
+om_termcount
+OmDocument::termlist_count() {
+    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_count", "");
+// How equivalent is this line below to the rest?
+//    RETURN(internal->ptr->open_term_list()->get_approx_size());
+    if (! internal->terms_here) {
+	internal->read_termlist(termlist_begin(), termlist_end()); 
+    }
+    assert(internal->terms_here);
+    RETURN(internal->terms.size());
+}
+
 OmTermIterator
 OmDocument::termlist_begin() const
 {

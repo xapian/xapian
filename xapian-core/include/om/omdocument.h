@@ -194,6 +194,7 @@ class OmDocument {
 	/// Remove all terms and postings from the document.
 	void clear_terms();
 
+	om_termcount termlist_count();
 	OmTermIterator termlist_begin() const;
 	OmTermIterator termlist_end() const;
 
