@@ -1,3 +1,7 @@
+Sun Sep 19 17:56:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* guile/.cvsignore: Added xapian_wrap.cc and xapianc.la.
+
 Fri Sep 17 10:00:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/Makefile.am: Inlcude php4/docs/bindings.html in the
