@@ -1,3 +1,10 @@
+Thu Aug 19 19:02:40 BST 2004  Olly Betts <olly@survex.com>
+
+	* htdig2omega,htdig2omega.script: Added perl script and corresponding
+	  scriptindex index script which allow an ht://dig database to be
+	  imported into Xapian.  This provides an easy way to provide a search
+	  of remote websites using omega (by spidering them with ht://dig).
+
 Sun Aug 15 01:48:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* indextext.cc,indextext.h,omindex.cc,query.cc,scriptindex.cc,
