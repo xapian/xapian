@@ -324,10 +324,12 @@ run_query()
 	} else {
 	    parse_date(date2, &y2, &m2, &d2);
 	}
-	
+
 	query = OmQuery(OmQuery::OP_FILTER,
 		       	query,
-			date_range_filter(y1, m1, d1, y2, m2, d2));
+			OmQuery(OmQuery::OP_OR,
+			date_range_filter(y1, m1, d1, y2, m2, d2),
+			OmQuery("Dlatest")));
     }
 
     if (enquire) {
@@ -335,7 +337,9 @@ run_query()
 
 	OmSettings opt;
 	opt.set("match_percent_cutoff", threshold);
-	
+        // match_min_hits will be moved into matcher soon
+	opt.set("match_min_hits", int(min_hits));
+
 	// Temporary bodge to allow experimentation with OmBiasFunctor
 	MCI i;
 	i = cgi_params.find("bias_weight");
@@ -669,6 +673,7 @@ CMD_or,
 CMD_percentage,
 CMD_prettyterm,
 CMD_query,
+CMD_querydescription,
 CMD_queryterms,
 CMD_range,
 CMD_record,
@@ -756,6 +761,7 @@ static struct func_desc func_tab[] = {
 {T(percentage),	0, 0, N, 0, 0}}, // percentage score of current hit
 {T(prettyterm),	1, 1, N, 0, 0}}, // pretty print term name
 {T(query),	0, 0, N, 0, 0}}, // query
+{T(querydescription),	0, 0, N, 0, 0}}, // query.get_description()
 {T(queryterms),	0, 0, N, 0, 1}}, // list of query terms
 {T(range),	2, 2, N, 0, 0}}, // return list of values between start and end
 {T(record),	0, 1, N, 1, 0}}, // record contents of document
@@ -1293,6 +1299,9 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_query:
 		value = raw_prob;
+		break;
+	    case CMD_querydescription:
+		value = query.get_description();
 		break;
 	    case CMD_queryterms:
 		if (!qp.termlist.empty()) {
