@@ -101,7 +101,7 @@ if test "x$SLEEPYCAT_LIBS" = "x"; then
 fi
 
 dnl Check for C++ interface to sleepycat
-AC_MSG_CHECKING(for db_cxx.h...)
+AC_MSG_CHECKING(for db_cxx.h)
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 CXXFLAGS_sleepysave=$CXXFLAGS
@@ -344,15 +344,27 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl Add -Wno-long-long to $CXXFLAGS if it's supported
-echo -n "checking whether -Wno-long-long works... "
+AC_MSG_CHECKING("whether -Wno-long-long works with C++")
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 SAVED_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -Wno-long-long"
 AC_TRY_COMPILE(,[return 0],
-		[echo yes],
-		[echo no; CXXFLAGS="$SAVED_CXXFLAGS"])
+		AC_MSG_RESULT(yes),
+		AC_MSG_RESULT(no); [CXXFLAGS="$SAVED_CXXFLAGS"])
 unset SAVED_CXXFLAGS
+AC_LANG_RESTORE
+
+dnl Add -Wno-long-long to $CFLAGS if it's supported
+AC_MSG_CHECKING("whether -Wno-long-long works with C")
+AC_LANG_SAVE
+AC_LANG_C
+SAVED_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wno-long-long"
+AC_TRY_COMPILE(,[return 0],
+		AC_MSG_RESULT(yes),
+		AC_MSG_RESULT(no); [CXXFLAGS="$SAVED_CFLAGS"])
+unset SAVED_CFLAGS
 AC_LANG_RESTORE
 
 if test "$use_debug" = yes; then
@@ -370,7 +382,7 @@ if test "$GCC" = yes; then
     *) CFLAGS="$CFLAGS $OPT_LEVEL"
   esac
 
-  CXXFLAGS=`echo "$CXXFLAGS -ansi -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
+  CXXFLAGS=`echo "$CXXFLAGS -ansi -pedantic -Wall -Wunused -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CXXFLAGS" in
     *${OPT_LEVEL}*) ;;
     *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
