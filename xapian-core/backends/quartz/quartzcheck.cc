@@ -1,4 +1,4 @@
-/* quartzcheck.cc: use btree::check to try and find fault with db's
+/* quartzcheck.cc: use Btree::check to check consistency of a quartz btree
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -27,26 +27,29 @@
 
 using namespace std;
 
-#include <errno.h>
-#include <string.h>
-#include <sys/stat.h>
-
 #include "btree.h"
 
 int
 main(int argc, char **argv)
 {
-    if (argc < 2) {
+    if (argc < 2 || argc > 3) {
 	cout << "usage: " << argv[0]
-	     << " <path to btree and prefix> [<options>]" << endl
-	     << " e.g. " << argv[0] << " /var/spool/xapian/mydb/postlist_"
+	     << " <path to btree and prefix> [[t][f][b][v][+]]\n"
+	        " t = short tree printing\n"
+		" f = full tree printing\n"
+		" b = show bitmap\n"
+		" v = show stats about B-tree\n"
+		" + = same as tbv\n"
+	        " e.g. " << argv[0] << " /var/spool/xapian/mydb/postlist_ +"
 	     << endl;
 	exit(1);
     }
 
+    const char *opts = argv[2];
+    if (!opts) opts = "+";
+
     try {
-	if (argc>2) Btree::check(argv[1],argv[2]);
-	else Btree::check(argv[1],"+");
+	Btree::check(argv[1], opts);
     }
     catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;

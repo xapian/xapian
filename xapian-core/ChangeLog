@@ -1,4 +1,9 @@
-Tue Sep 10 02:07:29 BST 2002  Olly Betts <olly@tartarus.org>
+Tue Sep 10 13:02:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* quartztest.cc: removed unused #include-s; describe valid options
+	  in usage message.
+
+Tue Sep 10 02:07:29 BST 2002  Olly Betts <olly@survex.com>
 
         * remote backend: implemented term_exists() and get_termfreq();
 	  added test to check they work.
@@ -76,16 +81,16 @@ Tue Jul 23 21:59:50 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 	* Reworded quickstart document so it does not refer to the example
  	  code (it was never actually in sync).
 
-Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <saml@ananova.net>
+Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Forgot to actually add the quartzcheck.cc file last time
 
-Mon Jul 22 13:28:09 BST 2002  Sam Liddicott <saml@ananova.net>
+Mon Jul 22 13:28:09 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Add buildprereq to package
 	  Add quartzcheck which runs btree::check to backends 
 
-Tue Jul 16 09:44:56 BST 2002  Sam Liddicott <saml@ananova.net>
+Tue Jul 16 09:44:56 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Fix banding problem; bands are now based on the percentage
 	  not the weight, and using integer maths to avoid problems 
