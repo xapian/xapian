@@ -1,9 +1,0 @@
-QueryServer is the work of:
-Richard Boulton
-
-It was initially developed for Studio 24 (http://studio24.net/)
-
-It uses Base64 encoding and decoding algorithms copied from PuTTY
-(http://www.chiark.greenend.org.uk/~sgtatham/putty/), written by Simon Tatham.
-These have subsequently been modified by Richard Boulton, so any bugs are
-probably his fault.
