@@ -93,7 +93,6 @@ OmIndexerNode::get_output_double(const std::string &output_name)
 	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
 	}
 	result = (*i->second)->get_double();
-	delete i->second;
 	outputs_record.erase(i);
     }
     return result;
