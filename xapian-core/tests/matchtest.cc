@@ -179,7 +179,7 @@ main(int argc, char *argv[])
 
 	enquire.set_query(query);
 
-	OMQueryOptions opts;
+	OMMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
 	enquire.set_options(opts);

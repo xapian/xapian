@@ -257,22 +257,22 @@ OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
 }
 
 ////////////////////////////////
-// Methods for OMQueryOptions //
+// Methods for OMMatchOptions //
 ////////////////////////////////
 
-OMQueryOptions::OMQueryOptions()
+OMMatchOptions::OMMatchOptions()
 	: do_collapse(false)
 {}
 
 void
-OMQueryOptions::set_collapse_key(keyno _key)
+OMMatchOptions::set_collapse_key(keyno _key)
 {
     do_collapse = true;
     collapse_key = _key;
 }
 
 void
-OMQueryOptions::set_no_collapse()
+OMMatchOptions::set_no_collapse()
 {
     do_collapse = false;
 }
@@ -285,7 +285,7 @@ class OMEnquireInternal {
     public:
 	IRDatabase * database;
 	mutable OMQuery * query;
-	OMQueryOptions options;
+	OMMatchOptions options;
 	OMRSet omrset;
 
 	OMEnquireInternal();
@@ -294,7 +294,7 @@ class OMEnquireInternal {
 	void add_database(IRDatabase *);
 	void set_query(const OMQuery &);
 	void set_rset(const OMRSet &);
-	void set_options(const OMQueryOptions &);
+	void set_options(const OMMatchOptions &);
 	void get_mset(OMMSet &, doccount, doccount) const;
 };
 
@@ -343,7 +343,7 @@ OMEnquireInternal::set_rset(const OMRSet &_rset)
 }
 
 void
-OMEnquireInternal::set_options(const OMQueryOptions &_options)
+OMEnquireInternal::set_options(const OMMatchOptions &_options)
 {
     options = _options;
 }
@@ -425,7 +425,7 @@ OMEnquire::set_rset(const OMRSet &rset)
 }
 
 void
-OMEnquire::set_options(const OMQueryOptions &opts)
+OMEnquire::set_options(const OMMatchOptions &opts)
 {
     internal->set_options(opts);
 }

@@ -97,11 +97,11 @@ class OMQuery {
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMQueryOptions class
+// OMMatchOptions class
 // =============
 // Used to specify options for running a query
 
-class OMQueryOptions {
+class OMMatchOptions {
     friend OMEnquireInternal;
     private:
 	bool  do_collapse;
@@ -109,7 +109,7 @@ class OMQueryOptions {
     public:
 	void set_collapse_key(keyno);
 	void set_no_collapse();
-	OMQueryOptions();
+	OMMatchOptions();
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -192,11 +192,13 @@ class OMEnquire {
 	// Set the relevance set to use.
 	void set_rset(const OMRSet &);
 
-	// Set a key to collapse (remove duplicates) on
-	void set_options(const OMQueryOptions &);
+	// Set options for the match, such as a collapse key.
+	void set_options(const OMMatchOptions &);
 
 	// Get (a portion of) the match set for the current query
 	void get_mset(OMMSet &, doccount first, doccount maxitems) const;
+
+	void get_eset() const;
 };
 
 #endif /* _omenquire_h_ */
