@@ -213,7 +213,8 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
     if (sendercon.phys_type != receivercon.phys_type) {
 	if (sendercon.phys_type == mt_record ||
 	    receivercon.phys_type == mt_record) {
-	    throw OmUnimplementedError("Automatic type conversions not implemented, so rejecting.");
+	    // this is ok - things can be converted (up to a point)
+	    // between records and primitives.
 	} else {
 	    throw OmInvalidArgumentError(std::string("Types of ") + 
 					 sendertype + "[" + senderout + "]" +
@@ -221,10 +222,13 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
 					 receiverin + "] are not physically compatible.");
 	}
     } else if (sendercon.type != receivercon.type) {
+	if (receivercon.type != "ANY" && sendercon.type != "ANY") {
 	    throw OmInvalidArgumentError(std::string("Types of ") + 
 					 sendertype + "[" + senderout + "]" +
 					 " and " + receivertype + "[" +
 					 receiverin + "] are not compatible.");
+	}
+	// else at least one of them is "universal"
     }
 }
 

@@ -32,13 +32,13 @@ int main() {
 	    vector<OmIndexerBuilder::NodeConnection> in;
 	    vector<OmIndexerBuilder::NodeConnection> out;
 	    in.push_back(OmIndexerBuilder::NodeConnection("in",
-							  "mystr",
+							  "ANY",
 							  mt_record));
 	    out.push_back(OmIndexerBuilder::NodeConnection("out1",
-							   "mystr",
+							   "ANY",
 							   mt_record));
 	    out.push_back(OmIndexerBuilder::NodeConnection("out2",
-							   "mystr",
+							   "ANY",
 							   mt_record));
 	    builder.register_node_type("split",
 				       &SplitNode::create,
@@ -49,11 +49,11 @@ int main() {
 	    vector<OmIndexerBuilder::NodeConnection> in;
 	    vector<OmIndexerBuilder::NodeConnection> out;
 	    in.push_back(OmIndexerBuilder::NodeConnection("in",
-							  "mystr",
-							  mt_record));
+							  "string",
+							  mt_string));
 	    out.push_back(OmIndexerBuilder::NodeConnection("out",
-							   "mystr",
-							   mt_record));
+							   "string",
+							   mt_string));
 	    builder.register_node_type("reverse",
 				       &ReverseNode::create,
 				       in, out);
@@ -62,14 +62,14 @@ int main() {
 	    vector<OmIndexerBuilder::NodeConnection> in;
 	    vector<OmIndexerBuilder::NodeConnection> out;
 	    in.push_back(OmIndexerBuilder::NodeConnection("in1",
-							  "mystr",
-							  mt_record));
+							  "string",
+							  mt_string));
 	    in.push_back(OmIndexerBuilder::NodeConnection("in2",
-							  "mystr",
-							  mt_record));
+							  "string",
+							  mt_string));
 	    out.push_back(OmIndexerBuilder::NodeConnection("out",
-							   "mystr",
-							   mt_record));
+							   "string",
+							   mt_string));
 	    builder.register_node_type("concat",
 				       &ConcatNode::create,
 				       in, out);

@@ -36,13 +36,90 @@ OmIndexerNode::get_output_record(const std::string &output_name)
     // FIXME: check for validity of output_name in debugging code?
 
     if (i == outputs_record.end()) {
-	// FIXME: first check outputs_type then recalculate.
 	throw std::string("Request for output ") + 
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name();
     } else {
 	auto_ptr<Record> temp(new Record(i->second));
 	result = temp;
+	outputs_record.erase(i);
+    }
+    return result;
+}
+
+int
+OmIndexerNode::get_output_int(const std::string &output_name)
+{
+    calculate_if_needed(output_name);
+    std::map<std::string, Record>::iterator i;
+    i = outputs_record.find(output_name);
+
+    int result;
+
+    // FIXME: check for validity of output_name in debugging code?
+
+    if (i == outputs_record.end()) {
+	throw std::string("Request for output ") + 
+		output_name + ", which wasn't calculated, from " +
+		typeid(*this).name();
+    } else {
+	if (i->second.type != Record::rt_int) {
+	    // FIXME: better exception?
+	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
+	}
+	result = i->second.u.int_val;
+	outputs_record.erase(i);
+    }
+    return result;
+}
+
+double
+OmIndexerNode::get_output_double(const std::string &output_name)
+{
+    calculate_if_needed(output_name);
+    std::map<std::string, Record>::iterator i;
+    i = outputs_record.find(output_name);
+
+    double result;
+
+    // FIXME: check for validity of output_name in debugging code?
+
+    if (i == outputs_record.end()) {
+	throw std::string("Request for output ") + 
+		output_name + ", which wasn't calculated, from " +
+		typeid(*this).name();
+    } else {
+	if (i->second.type != Record::rt_double) {
+	    // FIXME: better exception?
+	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
+	}
+	result = i->second.u.double_val;
+	outputs_record.erase(i);
+    }
+    return result;
+}
+
+std::string
+OmIndexerNode::get_output_string(const std::string &output_name)
+{
+    calculate_if_needed(output_name);
+    std::map<std::string, Record>::iterator i;
+    i = outputs_record.find(output_name);
+
+    std::string result;
+
+    // FIXME: check for validity of output_name in debugging code?
+
+    if (i == outputs_record.end()) {
+	throw std::string("Request for output ") + 
+		output_name + ", which wasn't calculated, from " +
+		typeid(*this).name();
+    } else {
+	if (i->second.type != Record::rt_string) {
+	    // FIXME: better exception?
+	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
+	}
+	result = *i->second.u.string_val;
 	outputs_record.erase(i);
     }
     return result;
@@ -207,6 +284,45 @@ void OmIndexerNode::set_output_record(const std::string &output_name,
     outputs_record[output_name] = value;
 }
 
+void OmIndexerNode::set_output_string(const std::string &output_name,
+				      const std::string &value)
+{
+    /*cout << "Setting output \"" << output_name
+	 << "\" to record:" << value << endl; */
+    // TODO: check that it isn't already set?
+    Record rec;
+    rec.name = "string";
+    rec.type = Record::rt_string;
+    rec.u.string_val = new std::string(value);
+    outputs_record[output_name] = rec;
+}
+
+void OmIndexerNode::set_output_int(const std::string &output_name,
+				   int value)
+{
+    /*cout << "Setting output \"" << output_name
+	 << "\" to record:" << value << endl; */
+    // TODO: check that it isn't already set?
+    Record rec;
+    rec.name = "int";
+    rec.type = Record::rt_int;
+    rec.u.int_val = value;
+    outputs_record[output_name] = rec;
+}
+
+void OmIndexerNode::set_output_double(const std::string &output_name,
+				      double value)
+{
+    /*cout << "Setting output \"" << output_name
+	 << "\" to record:" << value << endl; */
+    // TODO: check that it isn't already set?
+    Record rec;
+    rec.name = "double";
+    rec.type = Record::rt_double;
+    rec.u.double_val = value;
+    outputs_record[output_name] = rec;
+}
+
 Message OmIndexerNode::get_input_record(const std::string &input_name)
 {
     std::map<std::string, input_desc>::const_iterator i;
@@ -217,6 +333,45 @@ Message OmIndexerNode::get_input_record(const std::string &input_name)
 				     input_name);
     } else {
 	return i->second.node->get_output_record(i->second.node_output);
+    }
+}
+
+std::string OmIndexerNode::get_input_string(const std::string &input_name)
+{
+    std::map<std::string, input_desc>::const_iterator i;
+    i = inputs.find(input_name);
+
+    if (i == inputs.end()) {
+	throw OmInvalidArgumentError(std::string("Unknown input ") +
+				     input_name);
+    } else {
+	return i->second.node->get_output_string(i->second.node_output);
+    }
+}
+
+int OmIndexerNode::get_input_int(const std::string &input_name)
+{
+    std::map<std::string, input_desc>::const_iterator i;
+    i = inputs.find(input_name);
+
+    if (i == inputs.end()) {
+	throw OmInvalidArgumentError(std::string("Unknown input ") +
+				     input_name);
+    } else {
+	return i->second.node->get_output_int(i->second.node_output);
+    }
+}
+
+double OmIndexerNode::get_input_double(const std::string &input_name)
+{
+    std::map<std::string, input_desc>::const_iterator i;
+    i = inputs.find(input_name);
+
+    if (i == inputs.end()) {
+	throw OmInvalidArgumentError(std::string("Unknown input ") +
+				     input_name);
+    } else {
+	return i->second.node->get_output_double(i->second.node_output);
     }
 }
 

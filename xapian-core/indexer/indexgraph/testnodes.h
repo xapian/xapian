@@ -44,16 +44,12 @@ class ReverseNode : public OmIndexerNode {
 	}
 
 	void calculate() {
-	    Message in = get_input_record("in");
+	    std::string in = get_input_string("in");
 
-	    Record out(*in);
-	    out.name = reverse_string(in->name);
-	    if (out.type == Record::rt_string) {
-		*out.u.string_val = reverse_string(*out.u.string_val);
-	    }
-	    //cout << "Turned " << in << " into " << out << endl;
+	    std::string out(in);
+	    out = reverse_string(in);
 
-	    set_output_record("out", out);
+	    set_output_string("out", out);
 	}
 };
 
@@ -90,20 +86,12 @@ class ConcatNode : public OmIndexerNode {
     private:
 	ConcatNode() {};
 	void calculate() {
-	    Message in1 = get_input_record("in1");
-	    Message in2 = get_input_record("in2");
+	    std::string in1 = get_input_string("in1");
+	    std::string in2 = get_input_string("in2");
 
-	    Record out;
-	    out.name = in1->name + in2->name;
-	    out.type = Record::rt_string;
-	    if (in1->type == Record::rt_string && in2->type == Record::rt_string) {
-		out.u.string_val = new std::string(*in1->u.string_val +
-						   *in2->u.string_val);
-	    } else {
-		out.u.string_val = new std::string("somestring");
-	    }
+	    std::string out = in1 + in2;
 
-	    set_output_record("out", out);
+	    set_output_string("out", out);
 	}
 };
 

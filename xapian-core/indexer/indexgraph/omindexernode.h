@@ -183,12 +183,25 @@ class OmIndexerNode {
 
 	/** Message outputs */
 	std::map<std::string, Record> outputs_record;
+#if 0
+	/*
+	We're currently not bothering with separate output buffers,
+        since:
+	    1) It's probably more expensive finding the right buffer
+	       than it is wrapping/unwrapping a Record
+	    2) It's definitely a lot more complex to sort out
+
+	This may become less true if we decide to support a special
+	type such as "termlist".
+	*/
+
 	/** string outputs */
 	std::map<std::string, std::string> outputs_string;
 	/** int outputs */
 	std::map<std::string, int> outputs_int;
 	/** double outputs */
 	std::map<std::string, double> outputs_double;
+#endif
 
 	/** Description of inputs */
 	struct input_desc {

@@ -1,3 +1,12 @@
+Thu Aug 31 18:07:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented the OmIndexerNode bits to handle primitive types
+	  as well as records.  Primitive types are converted to/from
+	  records as needed.
+
+	* Added support for "ANY" type which is compatible with any
+	  other.  (Used for "split" node, for example)
+
 Thu Aug 31 17:50:00 BST 2000 Olly Betts
 
 	* Headers to be used by include test are now found by parsing
