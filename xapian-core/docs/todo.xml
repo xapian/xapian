@@ -1,4 +1,14 @@
 <todo>
+<todoitem priority="H" difficulty="3" owner="Olly" area="API" release="0.7">
+
+Put Xapian into its own namespace, and
+remove Om from classnames; fix omparsequery and OmQueryParser to have
+more similar names; make xapian.h the header, make om/om.h a compat.
+header with a stack of #define-s so old code keeps working short term
+(e.g. #define OmEnquire Xapian::Enquire)?
+Sort out final names for database factory functions.
+
+</todoitem>
 <todoitem priority="V" difficulty="" owner="" area="Matcher" release="">
 
 Possible optimisation:  Consider using hash_map instead of map in various
@@ -62,15 +72,6 @@ get_threadid(void)
 
 Pass around partially created postlists and termlists as AutoPtrs?
 (for exception safety)
-
-</todoitem>
-<todoitem priority="H" difficulty="3" owner="Olly" area="API" release="0.7">
-
-Put Xapian into its own namespace, and
-remove Om from classnames; fix omparsequery and OmQueryParser to have
-more similar names; make xapian.h the header, make om/om.h a compat.
-header with a stack of #define-s so old code keeps working short term
-(e.g. #define OmEnquire Xapian::Enquire)?
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Performance" release="">
@@ -273,11 +274,6 @@ Probably leave until user database backends are possible, then do it
 by subclassing InMemory...
 
 </todoitem>
-<todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
-
-Sort out final names for database factory functions.
-
-</todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="General" release="1.0">
 
 Allow user written backends?  Be good to allow them to register themselves
@@ -364,7 +360,7 @@ share some techniques from implementing synonym postlists.
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
 "make install" on omega should install CGI binary somewhere more helpful
-(improved somewhat - now goes in /usr/lib/omega/lib/omega; RPMs install
+(improved somewhat - now goes in /usr/lib/omega/bin/omega; RPMs install
 it in cgi-bin directory).
 
 </todoitem>
@@ -670,42 +666,8 @@ omega: split date code into separate file.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-
+query parser - improve handling of slightly malformed queries.
+For example '"malformed phrase' or '"phrase one "phrase two"'...
 
 </todoitem>
 </todo>
