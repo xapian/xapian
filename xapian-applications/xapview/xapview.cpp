@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,17 +35,13 @@
 #include <om/om.h>
 
 #include <algorithm>
-using std::min;
 #include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
 #include <list>
 #include <memory>
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
+
+using namespace std;
 
 // C prototypes for callback functions which have to have C style naming.
 extern "C" {
@@ -57,10 +54,8 @@ extern "C" {
 static void
 lowercase_term(om_termname &term)
 {
-    om_termname::iterator i = term.begin();
-    while(i != term.end()) {
+    for (om_termname::iterator i = term.begin(); i != term.end(); ++i) {
 	*i = tolower(*i);
-	i++;
     }
 }
 
@@ -68,7 +63,7 @@ lowercase_term(om_termname &term)
 static void
 select_characters(om_termname &term)
 {
-    string chars(
+    const string chars(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     string::size_type pos;
     while ((pos = term.find_first_not_of(chars)) != string::npos) {
@@ -136,13 +131,11 @@ class TopTermItemGTK {
 
 class ResultItemGTK {
     public:
-	ResultItemGTK(om_docid did_new, 
-		      int percent,
-		      om_docname dname) : did(did_new)
+	ResultItemGTK(om_docid did_, int percent, string dname) : did(did_)
 	{
 	    data = new gchar *[3];
 	    data[0] = c_string(inttostring(percent));
-	    data[1] = c_string(inttostring(did_new));
+	    data[1] = c_string(inttostring(did));
 	    data[2] = c_string(dname);
 	}
 	~ResultItemGTK() {
@@ -186,7 +179,7 @@ static void do_resultdisplay(gint row) {
 	gtk_label_set_text(result_query, querystring.c_str());
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(*i).c_str());
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	cout << e.get_msg() << endl;
     }
 }
@@ -209,7 +202,8 @@ static void do_topterms() {
 	    // invent an rset
 	    gint msize = results_widget->rows;
 	    for (index = min(4, msize - 1); index >= 0; index--) {
-		gpointer rowdata = gtk_clist_get_row_data(results_widget, index);
+		gpointer rowdata;
+		rowdata = gtk_clist_get_row_data(results_widget, index);
 		ResultItemGTK * item = (ResultItemGTK *) rowdata;
 		rset.add_document(item->did);
 	    }
@@ -223,9 +217,7 @@ static void do_topterms() {
 	
 	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
 	    string tname = *i;
-//#ifdef DEBUG
 	    tname = tname + " (" + floattostring(i.get_weight()) + ")";
-//#endif
 
 	    TopTermItemGTK * item = new TopTermItemGTK(tname);
 	    gint index = gtk_clist_append(topterms_widget, item->data);
@@ -234,7 +226,7 @@ static void do_topterms() {
 	    gtk_clist_set_row_data_full(topterms_widget, index, item,
 					topterm_destroy_notify);
 	}
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	cout << e.get_msg() << endl;
     }
     gtk_clist_thaw(topterms_widget);
@@ -264,18 +256,21 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	OmQuery omquery;
 	OmStem stemmer("english");
 	om_termname word;
-	string::size_type spacepos;
 	om_termcount position = 1;
 	string unparsed_query = querystring;
-	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != string::npos) {
-	    if(spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
+	while (true) {
+	    string::size_type spacepos;
+	    spacepos = unparsed_query.find_first_not_of(" \t\n");
+	    if (spacepos == string::npos) break;
+	    if (spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
 	    spacepos = unparsed_query.find_first_of(" \t\n");
 	    word = unparsed_query.substr(0, spacepos);
 	    select_characters(word);
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
 	    if (!omquery.is_empty()) {
-		omquery = OmQuery(OmQuery::OP_OR, omquery, OmQuery(word, 1, position++));
+		omquery = OmQuery(OmQuery::OP_OR, omquery,
+				                  OmQuery(word, 1, position++));
 	    } else {
 		omquery = OmQuery(word, 1, position++);
 	    }
@@ -288,21 +283,22 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
+#if 0
 	cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
 		" matches_estimated: " << mset.get_matches_estimated() <<
 		" matches_upper_bound: " << mset.get_matches_upper_bound() <<
 	        " max_possible: " << mset.get_max_possible() <<
 	        " max_attained: " << mset.get_max_attained() << endl;
+#endif
 
-	for (OmMSetIterator j = mset.begin(); j != mset.end(); j++) {
+	for (OmMSetIterator j = mset.begin(); j != mset.end(); ++j) {
 	    vector<string> sorted_mterms(
 	    	enquire->get_matching_terms_begin(j),
 		enquire->get_matching_terms_end(j));
 	    string message;
-	    for (vector<string>::const_iterator i = sorted_mterms.begin();
-		 i != sorted_mterms.end(); ++i) {
-		if (message.size() > 0) message += " ";
-
+	    vector<string>::const_iterator i;
+	    for (i = sorted_mterms.begin(); i != sorted_mterms.end(); ++i) {
+		if (!message.empty()) message += ' ';
 		message += *i;
 	    }
 
@@ -316,7 +312,7 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	}
 	gtk_clist_thaw(results_widget);
 	do_topterms();
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	gtk_clist_thaw(results_widget);
 	cout << e.get_msg() << endl;
     }
@@ -331,10 +327,10 @@ on_mainwindow_destroy(GtkWidget *widget,
 }
 
 int main(int argc, char *argv[]) {
-    string gladefile = "querygui.glade";
+    string gladefile = "xapview.glade";
     enquire = NULL;
     max_msize = 10;
-    vector<OmSettings *> dbs;
+    vector<OmSettings> dbs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -344,15 +340,16 @@ int main(int argc, char *argv[]) {
     bool syntax_error = false;
     argv++;
     argc--;
+    // FIXME: use getopt?  or make these settable from the GUI...
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
 	    max_msize = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
-	    OmSettings *params = new OmSettings;
-	    params->set("backend", "auto");
-	    params->set("auto_dir", argv[1]);
+	    OmSettings params;
+	    params.set("backend", "auto");
+	    params.set("auto_dir", argv[1]);
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
@@ -378,10 +375,9 @@ int main(int argc, char *argv[]) {
     try {
 	OmDatabase mydbs;
 
-	vector<OmSettings *>::const_iterator p;
+	vector<OmSettings>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
-	    mydbs.add_database(**p);
-	    delete *p;
+	    mydbs.add_database(*p);
 	}
 
 	GladeXML *xml;
@@ -390,8 +386,8 @@ int main(int argc, char *argv[]) {
 	struct stat statbuf;
 	int err = stat(gladefile.c_str(), &statbuf);
 	if (err) {
-	    cerr << "Unable to open " << gladefile <<
-		    " (" << strerror(errno) << ")" << endl;
+	    cerr << "Unable to open " << gladefile
+		 << " (" << strerror(errno) << ")" << endl;
 	    return 1;
 	}
 
@@ -416,8 +412,7 @@ int main(int argc, char *argv[]) {
 
 	/* start the event loop */
 	gtk_main();
-
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	cout << "OmError: " << e.get_msg() << endl;
     }
     delete enquire;

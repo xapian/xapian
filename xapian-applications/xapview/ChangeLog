@@ -1,3 +1,7 @@
+Thu Jul 04 00:21:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: fixed to actually compile and run successfully.
+
 Fri May 17 14:08:10 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* .cvsignore: updated.
