@@ -8,6 +8,8 @@ noinst_HEADERS = deleter_map.h omindexerinternal.h omnodeconnection.h\
 
 data_DATA = omindexer.dtd
 
+EXTRA_DIST = omindexer.dtd
+
 noinst_LTLIBRARIES = libindexgraph.la
 
 #noinst_PROGRAMS = nodetest

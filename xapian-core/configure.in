@@ -83,6 +83,9 @@ fi
 AM_CONDITIONAL(HAVE_PERL_XML, test "$have_perl_xml" = yes)
 AC_SUBST(PERL_PATH)
 
+dnl Make DATADIR available to the library
+AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
+
 dnl Checks for dot.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT_PATH, dot)
 if test -n "$DOT_PATH" ; then

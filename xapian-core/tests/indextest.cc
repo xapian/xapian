@@ -44,7 +44,6 @@ bool test_basic2()
 
     builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
-      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
       "<omindexer>\n"
          "<output node='START' out_name='out'/>\n"
       "</omindexer>\n");
@@ -62,7 +61,6 @@ bool test_basic3()
 
     AutoPtr<OmIndexer> indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
-      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
       "<omindexer>\n"
          "<output node='START' out_name='out'/>\n"
       "</omindexer>\n");
@@ -145,7 +143,6 @@ bool test_flowcheck1()
 
 	AutoPtr<OmIndexer> indexer(builder.build_from_string(
 	     "<?xml version=\"1.0\"?>"
-	     "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>"
 	     "<omindexer>"
 	         "<node type='writetwice' id='wtwo'>"
 		      "<input name='in' node='START' out_name='out'/>"
@@ -182,7 +179,6 @@ bool test_omsplitter1()
 
     AutoPtr<OmIndexer> indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
-      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
       "<omindexer>\n"
          "<node type='omsplitter' id='only'>\n"
 	     "<input name='in' node='START' out_name='out'/>\n"
@@ -208,7 +204,6 @@ bool test_omstemmer1()
 
     AutoPtr<OmIndexer> indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
-      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
       "<omindexer>\n"
          "<node type='omstemmer' id='only'>\n"
 	     "<param type='string' name='language' value='english'/>\n"

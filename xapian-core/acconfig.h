@@ -85,6 +85,9 @@
 /* Define if <rx/rxposix.h> is available */
 #undef HAVE_RX_RXPOSIX_H
 
+/* Location of platform independent support files */
+#undef DATADIR
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions

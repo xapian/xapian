@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
+#include "omdebug.h"
 #include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
@@ -109,6 +111,19 @@ static void xml_warn_func(void *ctx, const char *fmt, ...) {
 
 } // extern "C"
 
+CHAR *get_dtd_path()
+{
+    const char *envpath = getenv("OM_DTD_PATH");
+    CHAR *result = 0;
+    if (envpath) {
+	result = (CHAR *)envpath;
+    } else {
+	result = (CHAR *)DATADIR "/omindexer.dtd";
+    }
+    DEBUGLINE(INDEXER, "Using DTD Path: " << (char *)result);
+    return result;
+}
+
 static bool
 doc_is_valid(xmlDocPtr doc)
 {
@@ -123,15 +138,29 @@ doc_is_valid(xmlDocPtr doc)
 
     xmlFreeProp(attr);
     attr = 0;
-    // add the Dtd if it's not there
-    // FIXME: find the DTD somewhere
-#if 0
-    if (doc->extSubset == 0) {
-	xmlNewDtd(doc, "omindexer", NULL, get_dtd_path());
+    // add the internal subset Dtd if it's not there
+    if (doc->intSubset == 0) {
+	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
     }
-#endif
 
-    return xmlValidateDocument(&ctxt, doc);
+    /*
+    // validate against a known DTD
+    xmlDtdPtr dtdptr = xmlNewDtd(0, "omindexer", NULL, get_dtd_path());
+    if (!dtdptr) {
+	throw OmInternalError(std::string("Couldn't load DTD ")
+			      + xmlChar2string(get_dtd_path()));
+    }
+    */
+
+    bool result = xmlValidateDocument(&ctxt, doc);
+
+    /*
+    if (dtdptr) {
+	xmlFreeDtd(dtdptr);
+    }
+    */
+
+    return result;
 #else  // HAVE_LIBXML_VALID
     return true;
 #endif

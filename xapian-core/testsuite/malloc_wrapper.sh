@@ -7,6 +7,8 @@ run_prog() {
         preload=""
     fi
     
+    OM_DTD_PATH="${srcdir}/../indexer/indexgraph/omindexer.dtd"
+    export OM_DTD_PATH
     if test -r "$preload"
     then
         LD_PRELOAD="$preload"
