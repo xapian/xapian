@@ -1,3 +1,8 @@
+Fri May  3 14:31:57 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Fixed up todo list and HTML generation script to cope with
+	  items without an assigned priority.
+
 Fri May 03 14:29:58 BST 2002  Olly Betts <olly@survex.com>
 
 	* It's HACKING (not INSTALL) that has details of developer tools.

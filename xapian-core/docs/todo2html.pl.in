@@ -38,6 +38,7 @@ D 777777
 );
 
 $priority{' '} = '';
+$priorityorder{' '} = 0;
 
 my %field;
 
