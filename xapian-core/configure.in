@@ -35,9 +35,6 @@ AC_PATH_PROG(DVIPS_PATH, dvips)
 AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS_PATH")
 AC_SUBST(DVIPS_PATH)
 
-dnl Turn off shared libraries for now as the make the build take longer
-AC_DISABLE_SHARED
-
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
