@@ -7,3 +7,4 @@ libxapianinclude_HEADERS = omstem.h \
  ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
  omvalueiterator.h omexpanddecider.h
 EXTRA_DIST = om.h.in
+CLEANFILES = om.h
