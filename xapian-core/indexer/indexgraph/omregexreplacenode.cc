@@ -26,6 +26,44 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node which performs a regular expression search and replace
+ *  operation.
+ *
+ *  The omregexreplace node takes a string (or a list of strings
+ *  in the case of omregexreplacelist) and performs a regular
+ *  expression search and replace.  For each string, any matches
+ *  of the regular expression are replaced by the replace expression.
+ *
+ *  The replace expression is a string which may optionally contain
+ *  references of the form \N, where N is a digit from 0-9.  Such a
+ *  reference is replaced by the substring matching the Nth
+ *  bracketed subexpression in the regular expression (or the whole
+ *  matching string if N is 0).
+ *
+ *  For example, with the regular expression '\([a-z]*\)-\([a-z]*\)'
+ *  and replace expression '\2-\1', the string "a-b foo-bar" becomes
+ *  "b-a bar-foo".
+ *
+ *  Inputs:
+ *  	in: The input string (for omregexreplace) or list of strings (for
+ *  		omregexreplacelist).
+ *  	regex: The regular expression to use, in POSIX syntax.  Will be
+ *  		ignored if the parameter is specified.
+ *  	replace_expr: The replace expression.  Will be ignored if the
+ *  		parameter is specified.
+ *
+ *  Outputs:
+ *  	output: The replaced string (for omregexreplace) or list of
+ *  		replaced strings (for omregexreplacelist).
+ *
+ *  Parameters:
+ *  	regex: The regular expression used for matching.  The syntax is
+ *  		the standard POSIX regular expression syntax.  This
+ *  		parameter, if specified, causes the regex input to be
+ *  		ignored.
+ *  	replace_expr: The replace expression.  If specified, the input
+ *  		of the same name is not used.
+ */
 class OmRegexReplaceNode : public OmIndexerNode {
     public:
 	OmRegexReplaceNode(const OmSettings &config)
@@ -54,6 +92,9 @@ class OmRegexReplaceNode : public OmIndexerNode {
 
 	    if (!regex_from_config) {
 		regex.set(get_input_string("regex"));
+	    }
+	    if (!replace_from_config) {
+		replace_expr = get_input_string("replace_expr");
 	    }
 
 	    switch (input->get_type()) {
@@ -137,10 +178,14 @@ class OmRegexReplaceNode : public OmIndexerNode {
  */
 NODE_BEGIN(OmRegexReplaceNode, omregexreplace)
 NODE_INPUT("in", "string", mt_string)
+NODE_INPUT("regex", "string", mt_string)
+NODE_INPUT("replace_expr", "string", mt_string)
 NODE_OUTPUT("out", "string", mt_string)
 NODE_END()
 
 NODE_BEGIN(OmRegexReplaceNode, omregexreplacelist)
 NODE_INPUT("in", "strings", mt_vector)
+NODE_INPUT("regex", "string", mt_string)
+NODE_INPUT("replace_expr", "string", mt_string)
 NODE_OUTPUT("out", "strings", mt_vector)
 NODE_END()

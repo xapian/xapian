@@ -26,6 +26,28 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node which removes strings not matching a regular expression from a
+ *  list.
+ *
+ *  The omregexfilter nodes takes a list of strings as input.  The
+ *  output is a (probably) smaller list containing only the elements
+ *  of the input list matching a given regular expression specified
+ *  as a parameter or input.
+ *
+ *  Inputs:
+ *  	in: The input list of strings
+ *  	regex: The regular expression to use, in POSIX syntax.  Will be
+ *  		ignored if the parameter is specified.
+ *
+ *  Outputs:
+ *  	output: The filtered list of strings.
+ *
+ *  Parameters:
+ *  	regex: The regular expression used for matching.  The syntax is
+ *  		the standard POSIX regular expression syntax.  This
+ *  		parameter, if specified, causes the regex input to be
+ *  		ignored.
+ */
 class OmRegexFilterNode : public OmIndexerNode {
     public:
 	OmRegexFilterNode(const OmSettings &config)

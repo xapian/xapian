@@ -27,6 +27,36 @@
 #include <cctype>
 #include "omdebug.h"
 
+/** Node which matches a regular expression against a string and
+ *  returns the list of submatches.
+ *
+ *  The omregexmatch node takes a string or a list of strings as
+ *  input.  For each string, a regular expression match is run to
+ *  produce a list of output strings.
+ *
+ *  If the regular expression does not match, then the output list
+ *  is empty.  If it does match, then element 0 will be the substring
+ *  of the input matching the entire regular expression.  Each
+ *  subsequent element will be the substring matching a particular
+ *  bracketed subexpression.  For example, using the regular expression
+ *  '\([A-Z]\+\)=\(.*\)' with the string "1 FOO=wibble" will give the
+ *  output list: ["FOO=wibble", "FOO", "wibble"]
+ *
+ *  Inputs:
+ *  	in: The input string or list of strings.
+ *  	regex: The regular expression to use, in POSIX syntax.  Will be
+ *  		ignored if the parameter is specified.
+ *
+ *  Outputs:
+ *  	output: The output list of submatches (if input is a string) or
+ *  		list of lists of submatches (if input is a list).
+ *
+ *  Parameters:
+ *  	regex: The regular expression used for matching.  The syntax is
+ *  		the standard POSIX regular expression syntax.  This
+ *  		parameter, if specified, causes the regex input to be
+ *  		ignored.
+ */
 class OmRegexMatchNode : public OmIndexerNode {
     public:
 	OmRegexMatchNode(const OmSettings &config)

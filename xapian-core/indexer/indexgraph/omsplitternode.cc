@@ -23,6 +23,22 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which copies an input message to two outputs.
+ *
+ *  The omsplitter node is a utility node, used when more than one
+ *  node needs to make use of the same message.  It simply copies
+ *  the input message and places one copy at "left" and the other
+ *  at "right".
+ *
+ *  Inputs:
+ *  	in: the input message
+ *
+ *  Outputs:
+ *  	left: The first copy of the message
+ *  	right: The second copy of the message.
+ *
+ *  Parameters: none
+ */
 class OmSplitterNode : public OmIndexerNode {
     public:
 	OmSplitterNode(const OmSettings &config)

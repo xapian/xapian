@@ -28,6 +28,23 @@
 
 using std::vector;
 
+/** Node which picks out a fixed selection of items from a list.
+ *
+ *  The omselectitems node takes a vector of any type and returns
+ *  a new vector containing a chosen set of the items.  The list
+ *  of indices to chose is specified as a parameter.  The node
+ *  can also be used to re-order lists.
+ *
+ *  Inputs:
+ *  	in: The input list.
+ *
+ *  Outputs:
+ *  	out: The new list
+ *
+ *  Parameters:
+ *  	items: A list of integers specifying which elements of the
+ *  		input vector are to be used in the output list.
+ */
 class OmSelectItemsNode : public OmIndexerNode {
     public:
 	OmSelectItemsNode(const OmSettings &config)

@@ -25,6 +25,32 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which splits a string into separate strings with a regular
+ *  expression separator.
+ *
+ *  The omregexsplit node takes a string and splits it into fields
+ *  with a separator specified as a regular expression.  A typical
+ *  use of this might be to split a string on words separated by
+ *  whitespace, or comma-separated fields.
+ *
+ *  Example: input string 'foo bar, wibble,  wobble' with regular
+ *  expression ', *' would return ["foo bar", "wibble", "wobble"].
+ *
+ *  Inputs:
+ *  	in: The input string 
+ *  	regex: The regular expression to use, in POSIX syntax.  Will be
+ *  		ignored if the parameter is specified.
+ *
+ *  Outputs:
+ *  	output: The list of strings between matches of the regular
+ *  		expression.
+ *
+ *  Parameters:
+ *  	regex: The regular expression used for matching.  The syntax is
+ *  		the standard POSIX regular expression syntax.  This
+ *  		parameter, if specified, causes the regex input to be
+ *  		ignored.
+ */
 class OmRegexSplitNode : public OmIndexerNode {
     public:
 	OmRegexSplitNode(const OmSettings &config)
