@@ -70,13 +70,11 @@ bool test_skip()
 
 bool test_except1()
 {
-    bool success = false;
     try {
 	throw 1;
     } catch (int) {
-	success = true;
     }
-    return success;
+    return true;
 }
 
 char *duff_allocation = 0;
@@ -103,8 +101,6 @@ bool test_duffmalloc()
 
 bool test_testsuite1()
 {
-    bool success = true;
-
     test_desc mytests[] = {
 	{"test0", test_skip},
 	{"test1", test_alwaysfail},
@@ -119,24 +115,16 @@ bool test_testsuite1()
     }
 
     test_driver::result res = driver.run_tests();
-    if (res.succeeded != 1 ||
-	res.failed != 1 ||
-	res.skipped != 1) {
-	if (verbose) {
-	    cout << res.succeeded << " succeeded, "
-		 << res.failed << " failed,"
-		 << res.skipped << " skipped." << endl;
-	}
-	success = false;
-    }
+    TEST_AND_EXPLAIN(res.succeeded == 1 && res.failed == 1 && res.skipped == 1,
+		     res.succeeded << " succeeded, "
+		     << res.failed << " failed,"
+		     << res.skipped << " skipped.");
 
-    return success;
+    return true;
 }
 
 bool test_testsuite2()
 {
-    bool success = true;
-
     test_desc mytests[] = {
 	{"test1", test_alwaysfail},
 	{"test2", test_trivial},
@@ -150,16 +138,11 @@ bool test_testsuite2()
     }
 
     test_driver::result res = driver.run_tests();
-    if (res.succeeded != 0 ||
-	res.failed != 1) {
-	if (verbose) {
-	    cout << res.succeeded << " succeeded, "
-		 << res.failed << " failed." << endl;
-	}
-	success = false;
-    }
+    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
+		     res.succeeded << " succeeded, "
+		     << res.failed << " failed.");
 
-    return success;
+    return true;
 }
 
 // test the memory leak tests
@@ -175,17 +158,9 @@ bool test_testsuite3()
 	driver.set_quiet(true);
     }
 
-    bool success = true;
-
     test_driver::result res = driver.run_tests();
-    if (res.succeeded != 0 ||
-	res.failed != 1) {
-	if (verbose) {
-	    cout << "Memory leak checking with new/delete doesn't work"
-		 << endl;
-	}
-	success = false;
-    }
+    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
+		     "Memory leak checking with new/delete doesn't work");
 
     // clean up after test_duffnew()
     delete duff_allocation;
@@ -193,7 +168,7 @@ bool test_testsuite3()
     delete duff_allocation_2;
     duff_allocation_2 = 0;
 
-    return success;
+    return true;
 }
 
 // test the malloc() memory leak tests
@@ -213,17 +188,9 @@ bool test_testsuite4()
 	driver.set_quiet(true);
     }
 
-    bool success = true;
-
     test_driver::result res = driver.run_tests();
-    if (res.succeeded != 0 ||
-	res.failed != 1) {
-	if (verbose) {
-	    cout << "Memory leak checking with malloc()/free() doesn't work"
-		 << endl;
-	}
-	success = false;
-    }
+    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
+		     "Memory leak checking with malloc()/free() doesn't work");
 
     // clean up after test_duffnew()
     if (duff_malloc_allocation) {
@@ -235,7 +202,7 @@ bool test_testsuite4()
 	duff_malloc_allocation_2 = 0;
     }
 
-    return success;
+    return true;
 }
 
 class Test_Exception {

@@ -926,8 +926,6 @@ static bool test_rset1()
 // test that rsets do more sensible things
 static bool test_rset2()
 {
-    bool success = true;
-
     OmDatabase mydb(get_database("apitest_rset"));
 
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -949,7 +947,7 @@ static bool test_rset2()
     mset_expect_order(mymset1, 1, 2);
     mset_expect_order(mymset2, 2, 1);
 
-    return success;
+    return true;
 }
 
 // test that rsets behave correctly with multiDBs
