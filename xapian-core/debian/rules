@@ -116,7 +116,7 @@ install: build \
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp
+	dh_install --sourcedir=debian/tmp --list-missing
 
 
 binary: binary-arch binary-indep
@@ -159,7 +159,7 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	-$(MAKE) distclean
+	#-$(MAKE) distclean
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp

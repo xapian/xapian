@@ -1,3 +1,13 @@
+xapian-core (0.8-5) unstable; urgency=low
+
+  * debian/rules: Add --list-missing back to dh_install.
+  * debian/control.in: Remove build depend on graphviz, and add TODO item
+    to sort this out properly.
+    Also, build depend on debhelper >= 4.1.22, since this is needed for
+    --list-missing.
+  
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 11:59:42 +0100
+
 xapian-core (0.8-4) unstable; urgency=low
 
   * xapian-doc: Correct Recommends field to point to libxapian-dev, not

@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Richard Boulton <richard@tartarus.org>
 Standards-Version: 3.6.1
-Build-Depends: debhelper (>= 2.0.40), bison (>= 1.35), autotools-dev, doxygen, perl5, latex, dvips, graphviz
+Build-Depends: debhelper (>= 4.1.22), bison (>= 1.35), autotools-dev, doxygen, perl5, latex, dvips
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
