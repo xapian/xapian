@@ -1,3 +1,13 @@
+Thu Oct 05 16:51:09 BST 2000 Olly Betts
+
+	* get_weight() moved into LeafPostList instead of subclasses and now
+	  only fetches document length if it needs it.
+
+	* irweight.cc: added missing licence.
+
+	* IRWeight: now possible to register user weight objects (not yet
+	  externally visible).
+ 
 Thu Oct  5 16:43:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added omindexer.cc

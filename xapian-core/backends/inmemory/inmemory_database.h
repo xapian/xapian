@@ -140,7 +140,6 @@ class InMemoryPostList : public LeafPostList {
 	om_doccount get_termfreq() const;
 
 	om_docid       get_docid() const;     // Gets current docid
-	om_weight      get_weight() const;    // Gets current weight
 	om_doclength   get_doclength() const; // Length of current document
         om_termcount   get_wdf() const;	      // Within Document Frequency
 	PositionList *get_position_list();

@@ -53,12 +53,6 @@ MultiPostList::~MultiPostList()
     postlists.clear();
 }
 
-om_weight
-MultiPostList::get_weight() const
-{
-    return postlists[(currdoc - 1) % multiplier]->get_weight();
-}
-
 om_doclength
 MultiPostList::get_doclength() const
 {

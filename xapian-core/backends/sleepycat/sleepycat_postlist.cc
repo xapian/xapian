@@ -68,20 +68,6 @@ SleepycatPostList::get_doclength() const
     return mylist.get_current_item().doclength;
 }
 
-om_weight
-SleepycatPostList::get_weight() const
-{
-    Assert(ir_wt != NULL);
-
-    om_termcount wdf = mylist.get_current_item().wdf;
-    if(wdf == 0) {
-	DEBUGLINE(DB, "WDF not present in postlist - using 1.");
-	wdf = 1;
-    }
-
-    return ir_wt->get_sumpart(wdf, get_doclength());
-}
-
 om_termcount
 SleepycatPostList::get_wdf() const
 {

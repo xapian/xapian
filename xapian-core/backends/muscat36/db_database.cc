@@ -53,16 +53,6 @@ DBPostList::~DBPostList()
     DB_close_postings(postlist);
 }
 
-om_weight DBPostList::get_weight() const
-{
-    Assert(!at_end());
-    Assert(currdoc != 0);
-    Assert(ir_wt != NULL);
-
-    // NB ranges from dbread share the same wdf value
-    return ir_wt->get_sumpart(postlist->wdf, 1.0);
-}
-
 PostList * DBPostList::next(om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());

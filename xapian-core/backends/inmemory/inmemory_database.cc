@@ -37,16 +37,6 @@
 // Postlist //
 //////////////
 
-om_weight
-InMemoryPostList::get_weight() const
-{
-    Assert(started);
-    Assert(!at_end());
-    Assert(ir_wt != NULL);
-
-    return ir_wt->get_sumpart(get_wdf(), get_doclength());
-}
-
 om_doclength
 InMemoryPostList::get_doclength() const
 {

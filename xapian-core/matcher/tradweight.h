@@ -51,6 +51,8 @@ class TradWeight : public IRWeight {
 
 	om_weight get_sumextra(om_doclength len) const;
 	om_weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
 
 #endif /* OM_HGUARD_TRADWEIGHT_H */

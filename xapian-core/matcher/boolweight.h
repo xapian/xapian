@@ -31,9 +31,7 @@ class BoolWeight : public IRWeight {
     private:
 	BoolWeight() {}
     public:
-	IRWeight * clone() const {
-	    return new BoolWeight;
-	}
+	IRWeight * clone() const { return new BoolWeight; }
 	BoolWeight(const OmSettings & opts) { }
 	~BoolWeight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const { return 0; }
@@ -41,6 +39,8 @@ class BoolWeight : public IRWeight {
 
 	om_weight get_sumextra(om_doclength len) const { return 0; }
 	om_weight get_maxextra() const { return 0; }
+
+	bool get_sumpart_needs_doclength() const { return false; }	
 };
 
 #endif /* OM_HGUARD_BOOLWEIGHT_H */

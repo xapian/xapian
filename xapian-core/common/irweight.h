@@ -36,6 +36,7 @@ class IRWeight {
     private:
 	IRWeight(const IRWeight &);
 	void operator=(IRWeight &);
+
     protected:
 	const StatsSource *stats;
 
@@ -46,15 +47,17 @@ class IRWeight {
 	bool initialised;
 	mutable bool weight_calculated;
 
-	static map<string, IRWeight *> user_weights;
+	static map<string, const IRWeight *> custom_weights;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; }
 
 	static IRWeight *create(const string &wt_type, const OmSettings & opts);
-    
-	/** Return a clone of this weight object.
-	 */
+
+	/// Register a custom weight object
+	static void register_custom(const string &wt_type, const IRWeight *wt);
+
+	/// Return a clone of this weight object.
 	virtual IRWeight * clone() const = 0;
 
 	/** Initialise the weight object with the neccessary stats, or
@@ -101,6 +104,9 @@ class IRWeight {
 	 *  is used in optimising searches.
 	 */
 	virtual om_weight get_maxextra() const = 0;
+
+	/// return false if the weight object doesn't need doclength
+	virtual bool get_sumpart_needs_doclength() const { return true; }
 };
 
 ///////////////////////////////

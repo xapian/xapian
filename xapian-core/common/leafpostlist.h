@@ -32,13 +32,16 @@
 class LeafPostList : public PostList {
     protected:
 	const IRWeight * ir_wt;
+	bool want_doclength;
     public:
-	LeafPostList() : ir_wt(NULL) { return; }
+	LeafPostList() : ir_wt(NULL), want_doclength(false) { }
 
-	~LeafPostList() { delete ir_wt; return; }
+	~LeafPostList() { delete ir_wt; }
 
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
+
+	virtual om_weight get_weight() const;
 
 	virtual om_weight get_maxweight() const;    // Gets max weight
         virtual om_weight recalc_maxweight();       // recalculate weights
@@ -48,6 +51,14 @@ inline void
 LeafPostList::set_termweight(const IRWeight * wt)
 {
     ir_wt = wt;
+    want_doclength = wt->get_sumpart_needs_doclength();
+}
+
+inline om_weight
+LeafPostList::get_weight() const
+{
+    Assert(ir_wt != NULL);
+    return ir_wt->get_sumpart(get_wdf(), want_doclength ? get_doclength() : 0);
 }
 
 // return an upper bound on the termweight

@@ -52,16 +52,6 @@ DAPostList::~DAPostList()
     DA_close_postings(postlist);
 }
 
-om_weight DAPostList::get_weight() const
-{
-    Assert(!at_end());
-    Assert(currdoc != 0);
-    Assert(ir_wt != NULL);
-
-    // NB ranges from daread share the same wdf value
-    return ir_wt->get_sumpart(postlist->wdf, 1.0);
-}
-
 PostList * DAPostList::next(om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());

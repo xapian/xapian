@@ -40,8 +40,8 @@ class PostList : public RefCntBase
 	/// disallow assignment
 	void operator=(const PostList &);
     public:
-	PostList() {}
-        virtual ~PostList() { return; }
+	PostList() { }
+        virtual ~PostList() { }
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the postlist
@@ -68,7 +68,7 @@ class PostList : public RefCntBase
 	 *  performed, and before at_end() returns true (or would do were it to
 	 *  be called).
 	 */
-	virtual om_docid     get_docid() const = 0;
+	virtual om_docid get_docid() const = 0;
 
 	/** Calculate the weight for the item at the current position.
 	 *
@@ -77,7 +77,7 @@ class PostList : public RefCntBase
 	 *  performed, and before at_end() returns true (or would do were it to
 	 *  be called).
 	 */
-	virtual om_weight    get_weight() const = 0;
+	virtual om_weight get_weight() const = 0;
 
 	/** Get the length of the document at the current position in the
 	 *  postlist.

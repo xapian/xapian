@@ -74,7 +74,6 @@ class SleepycatPostList : public LeafPostList {
 	om_doccount   get_termfreq() const;// Number of docs indexed by this term
 
 	om_docid     get_docid() const;     // Current docid
-	om_weight    get_weight() const;    // Current weight
 	om_doclength get_doclength() const; // Length of current document
         om_termcount get_wdf() const;	    // Within Document Frequency
 	PositionList *get_position_list(); // Get positions
