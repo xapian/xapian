@@ -56,6 +56,9 @@
 
 #include <unistd.h> // for chdir
 
+#include <setjmp.h>
+#include <signal.h>
+
 #include <exception>
 
 #include "om/omerror.h"
@@ -197,6 +200,21 @@ test_driver::test_driver(const test_desc *tests_)
 {
 }
 
+static jmp_buf jb;
+static int signum = 0;
+
+static void
+handle_sig(int signum_)
+{
+    signal(SIGSEGV, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+    signal(SIGSTKFLT, SIG_DFL);
+    signum = signum_;
+    longjmp(jb, 1);
+}
+
 //  A wrapper around the tests to trap exceptions,
 //  and avoid having to catch them in every test function.
 //  If this test driver is used for anything other than
@@ -214,45 +232,70 @@ test_driver::runtest(const test_desc *test)
 	runcount++;
 	tout.str("");
 	allocation_snapshot before = get_alloc_snapshot();
-	try {
-	    success = test->run();
-	    if (!success) {
+	if (!setjmp(jb)) {
+	    signal(SIGSEGV, handle_sig);
+	    signal(SIGFPE, handle_sig);
+	    signal(SIGILL, handle_sig);
+	    signal(SIGBUS, handle_sig);
+	    signal(SIGSTKFLT, handle_sig);
+	    try {
+		success = test->run();
+		if (!success) {
+		    out << tout.str();
+		    out << " " << COL_RED << "FAILED" << COL_RESET;
+		}
+	    } catch (TestFailure &fail) {
+		success = false;
 		out << tout.str();
 		out << " " << COL_RED << "FAILED" << COL_RESET;
+		if (verbose) {
+		    out << fail.message << std::endl;
+		}
+	    } catch (TestSkip &skip) {
+		out << " " << COL_YELLOW << "SKIPPED" << COL_RESET;
+		if (verbose) {
+		    out << skip.message << std::endl;
+		}
+		// Rethrow the exception to avoid success/fail
+		// (caught in do_run_tests())
+		throw;
+	    } catch (OmError &err) {
+		out << tout.str();
+		out << " " << COL_RED << "OMEXCEPT" << COL_RESET;
+		if (verbose) {
+		    out << err.get_type() << " exception: " << err.get_msg();
+		    if (!err.get_context().empty())
+			out << " (context:" << err.get_context() << ")";
+		    if (err.get_errno())
+			out << " (errno:" << strerror(err.get_errno()) << ")";
+		    out << std::endl;
+		}
+		success = false;
+	    } catch (...) {
+		out << tout.str();
+		out << " " << COL_RED << "EXCEPT" << COL_RESET;
+		if (verbose) {
+		    out << "Unknown exception!" << std::endl;
+		}
+		success = false;
 	    }
-	} catch (TestFailure &fail) {
-	    success = false;
+	    signal(SIGSEGV, SIG_DFL);
+	    signal(SIGFPE, SIG_DFL);
+	    signal(SIGILL, SIG_DFL);
+	    signal(SIGBUS, SIG_DFL);
+	    signal(SIGSTKFLT, SIG_DFL);
+	} else {
+	    // caught signal
 	    out << tout.str();
-	    out << " " << COL_RED << "FAILED" << COL_RESET;
-	    if (verbose) {
-		out << fail.message << std::endl;
+	    const char *sig = "SIGNAL";
+	    switch (signum) {
+		case SIGSEGV: sig = "SIGSEGV"; break;
+		case SIGFPE: sig = "SIGFPE"; break;
+		case SIGILL: sig = "SIGILL"; break;
+		case SIGBUS: sig = "SIGBUS"; break;
+		case SIGSTKFLT: sig = "SIGSTKFLT"; break;
 	    }
-	} catch (TestSkip &skip) {
-	    out << " " << COL_YELLOW << "SKIPPED" << COL_RESET;
-	    if (verbose) {
-		out << skip.message << std::endl;
-	    }
-	    // Rethrow the exception to avoid success/fail
-	    // (caught in do_run_tests())
-	    throw;
-	} catch (OmError &err) {
-	    out << tout.str();
-	    out << " " << COL_RED << "OMEXCEPT" << COL_RESET;
-	    if (verbose) {
-		out << err.get_type() << " exception: " << err.get_msg();
-		if (!err.get_context().empty())
-		    out << " (context:" << err.get_context() << ")";
-		if (err.get_errno())
-		    out << " (errno:" << strerror(err.get_errno()) << ")";
-		out << std::endl;
-	    }
-	    success = false;
-	} catch (...) {
-	    out << tout.str();
-	    out << " " << COL_RED << "EXCEPT" << COL_RESET;
-	    if (verbose) {
-		out << "Unknown exception!" << std::endl;
-	    }
+    	    out << " " << COL_RED << sig << COL_RESET;
 	    success = false;
 	}
 
