@@ -1,3 +1,13 @@
+Tue Mar 29 11:55:26 2005  James Aylett  <james@tartarus.org>
+
+	* when running PHP4 tests, use a blank config file so that if
+	  the xapian bindings are already installed as an extension and
+	  loaded automatically in the default config, they won't be
+	  during the test run.
+
+	  The tests use dl(), so will pick up the version we've just
+	  built.
+
 Tue Mar 29 10:32:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,php4/Makefile.am: SWIG > 1.3.22 *does* work for PHP -
