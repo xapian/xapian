@@ -31,6 +31,18 @@ consistent interface.
 Write indexer modules.
 
 </todoitem>
+<todoitem priority="H" difficulty="3" owner="" area="Quartz">
+
+Get a lock on database when writing, to prevent accidental multiple
+writers (which would result in a corrupt database).
+
+</todoitem>
+<todoitem priority="H" difficulty="3" owner="" area="Quartz">
+
+Detect and deal with btree overwritten condition.  Write tests to ensure
+this works.
+
+</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Quartz">
 
 Implement deletion and updating of documents.  Test.
