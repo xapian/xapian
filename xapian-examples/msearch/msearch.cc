@@ -23,7 +23,9 @@
 #include <stdio.h>
 
 #include <om/om.h>
-#include "stemmer.h"
+#include <om/omstem.h>
+// FIXME: shouldn't really include omassert.h
+#include "omassert.h"
 
 #include <vector>
 #include <stack>
@@ -115,7 +117,7 @@ main(int argc, char *argv[])
 	    enquire.add_database(*p, *q);
 	}
 
-	Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
+	OmStem stemmer("english");
 
 	OmQuery query;
 	stack<OmQuery> boolquery;
@@ -163,10 +165,10 @@ main(int argc, char *argv[])
 			boolquery.pop();
 			boolquery.push(newtop);
 		    } else {
-			boolquery.push(OmQuery(stemmer->stem_word(term)));
+			boolquery.push(OmQuery(stemmer.stem_word(term)));
 		    }
 		} else {
-		    term = stemmer->stem_word(term);
+		    term = stemmer.stem_word(term);
 		    DebugMsg("oldquery: " << query.get_description() << endl);
 		    query = OmQuery(default_op, query, term);
 		    DebugMsg("newquery: " << query.get_description() << endl);
