@@ -15,7 +15,7 @@ AC_PROG_YACC
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
-dnl Check for libomus
+dnl Check for libomsee
 OM_PATH_OMSEE(, AC_MSG_ERROR([Can't find Omsee library]))
 
 dnl Checks for gtk / glib / glade

@@ -70,9 +70,7 @@
     	<input name="in" node="splitfname3" out_name="left"/></node>
     <!-- Select the submatches, dropping the whole filename -->
     <node type="omselectitems" id="selectsubs">
-        <param name="items" type="list">
-	    <item value="1"/>
-	    <item value="2"/></param>
+        <param name="items" type="string" value="1 2"/>
 	<input name="in" node="splitdir" out_name="out"/></node>
 
     <!-- Generate the key numbers -->

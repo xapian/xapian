@@ -33,11 +33,18 @@ int main(int argc, char *argv[])
     
     // Catch any OmError exceptions thrown
     try {
-	// Make the database
+	// Create the database if needed
 	OmSettings db_parameters;
 	db_parameters.set("backend", "quartz");
 	db_parameters.set("database_create", true);
 	db_parameters.set("quartz_dir", argv[1]);
+	try {
+	    OmWritableDatabase database(db_parameters);
+	} catch(const OmDatabaseCreateError &) {
+	    // ok, database exists
+	}
+	// unset the "create" flag
+	db_parameters.set("database_create", false);
 	OmWritableDatabase database(db_parameters);
 
 	// Make the indexer
@@ -68,6 +75,6 @@ int main(int argc, char *argv[])
 	database.add_document(newdocument);
     }
     catch(OmError &error) {
-	std::cout << "Exception: "  << error.get_msg() << std::endl;
+	std::cout << error.get_type() << ": "  << error.get_msg() << std::endl;
     }
 }

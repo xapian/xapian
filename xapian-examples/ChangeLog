@@ -1,3 +1,11 @@
+Mon Jan 29 16:06:52 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Changed a mention of omus to omsee
+
+	* indexfile works if the database already exists
+
+	* Tweaked the XML file, since the vector parameters are gone.
+
 Fri Jan 26 11:54:25 GMT 2001 Olly Betts
 
 	* omega: Added $and{}, $include{}, $setmap{}; throw error if we
