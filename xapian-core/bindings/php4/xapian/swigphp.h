@@ -20,6 +20,9 @@
  * -----END-LICENCE-----
  */
 
+// SWIG_exception should be defined by swig
 #ifndef SWIG_exception
 #define SWIG_exception(code, msg) { zend_error(E_ERROR, msg); }
 #endif
+
+

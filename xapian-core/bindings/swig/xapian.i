@@ -1,4 +1,5 @@
 %module xapian
+
 %{
 /* xapian.i: the Xapian scripting interface.
  *
@@ -56,6 +57,7 @@ enum om_queryop {
 
 class OmQuery {
     public:
+        string get_description() const;
         %name(OmQueryTerm) OmQuery(const string &tname,
 				   om_termcount wqf = 1,
 				   om_termpos term_pos = 0);
@@ -79,12 +81,12 @@ class OmQuery {
 	~OmQuery();
 
 	string get_description();
-	bool is_defined() const;
-	bool is_bool() const;
-	bool set_bool(bool isbool_);
+	bool is_empty() const;
+//	bool is_bool() const;
+//	bool set_bool(bool isbool_);
 	om_termcount get_length() const;
 	om_termcount set_length(om_termcount qlen_);
-	om_termname_list get_terms() const;
+//	om_termname_list get_terms() const;
 };
 
 // TODO: OmMatchDecider
@@ -104,7 +106,9 @@ class OmESet {
     public:
 	~OmESet();
 	%readonly
-	om_termcount ebound;
+        string get_description() const;
+	om_termcount get_ebound() const;
+	om_termcount size() const;
 	/* Each language-specific part should include something like:
 	 * %addmethods OmESet {
 	 *     %readonly
@@ -115,6 +119,7 @@ class OmESet {
 	%readwrite
 };
 
+#if defined(NOTDEFINED)
 %typedef OmBatchEnquire::batch_result batch_result;
 %typedef OmBatchEnquire::mset_batch mset_batch;
 %typedef OmBatchEnquire::query_desc query_desc;
@@ -142,10 +147,11 @@ class OmBatchEnquire {
 
 	mset_batch get_msets() const;
 
-	const OmDocument get_doc(om_docid did) const;
+	const OmDocument get_document(om_docid did) const;
 
 	om_termname_list get_matching_terms(om_docid did) const;
 };
+#endif
 
 #if defined(NOTDEFINED)
 class OmSettings {
@@ -160,6 +166,7 @@ class OmSettings {
 };
 #endif
 
+#if defined(NOTDEFINED)
 struct OmDocumentTerm {
     OmDocumentTerm(const string & tname_, om_termpos tpos = 0);
 
@@ -172,28 +179,32 @@ struct OmDocumentTerm {
     om_doccount termfreq;
     void add_posting(om_termpos tpos = 0);
 };
+#endif
 
 class OmDocument {
   public:
+    ~OmDocument();
+
+    // OmKey and OmData are both strings as far as scripting languages
+    // see them.
+    OmKey get_key(om_keyno key) const;
+    OmData get_data() const;
+
     %addmethods {
         OmDocumentContents() {
 	    return new OmDocumentContents();
 	};
-    }
-    /** The (user defined) data associated with this document. */
-    OmData data;
 
-    %addmethods {
         void set_data(string data_) {
 	    self->set_data(data_);
 	}
     }
 
     /** Type to store keys in. */
-    typedef map<om_keyno, OmKey> document_keys;
+//    typedef map<om_keyno, OmKey> document_keys;
 
     /** The keys associated with this document. */
-    document_keys keys;
+//    document_keys keys;
 
     %addmethods {
 	void add_key(int keyno, string value) {
@@ -203,10 +214,10 @@ class OmDocument {
 
     // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
-    typedef map<string, OmDocumentTerm> document_terms;
+//    typedef map<string, OmDocumentTerm> document_terms;
 
     /** The terms (and their frequencies and positions) in this document. */
-    document_terms terms;
+//    document_terms terms;
 
     /** Add an occurrence of a term to the document.
      *
@@ -234,36 +245,20 @@ class OmWritableDatabase : public OmDatabase {
 	OmWritableDatabase(const OmSettings & params);
 	virtual ~OmWritableDatabase();
 
-	void begin_session(om_timeout timeout = 0);
-	void end_session();
 	void flush();
 
 	void begin_transaction();
 	void commit_transaction();
 	void cancel_transaction();
 
-	om_docid add_document(const OmDocumentContents & document,
-			      om_timeout timeout = 0);
-	void delete_document(om_docid did, om_timeout timeout = 0);
+	om_docid add_document(const OmDocument & document);
+	void delete_document(om_docid did);
 	void replace_document(om_docid did,
-			      const OmDocumentContents & document,
-			      om_timeout timeout = 0);
+			      const OmDocument & document);
 
-	OmDocumentContents get_document(om_docid did);
-
+	OmDocument get_document(om_docid did);
 	string get_description() const;
 };
-
-class OmDocument {
-    public:
-	~OmDocument();
-
-	// OmKey and OmData are both strings as far as scripting languages
-	// see them.
-	OmKey get_key(om_keyno key) const;
-	OmData get_data() const;
-};
-
 
 class OmEnquire {
     public:
@@ -283,9 +278,7 @@ class OmEnquire {
 			const OmSettings *eoptions = 0,
 			const OmExpandDecider *edecider = 0) const;
 
-	OmDocument get_doc(om_docid did);
-
-	om_termname_list get_matching_terms(om_docid did);
+//	om_termname_list get_matching_terms(om_docid did);
 };
 
 class OmMSet {
@@ -297,6 +290,12 @@ class OmMSet {
 //	int convert_to_percent(const OmMSetItem & item) const;
 	om_weight get_termfreq(string tname) const;
 	om_doccount get_termweight(string tname) const;
+//	om_doccount get_firstitem();
+	om_weight get_max_possible();
+	om_weight get_max_attained();
+
+	string get_description();
+
 	%readonly
 	/* Each language-specific part should include something like:
 	 * %addmethods OmMSet {
@@ -305,11 +304,7 @@ class OmMSet {
 	 * }
 	 * and define LangListType OmMSet_items_get(OmMSet *)
 	 */
-	om_doccount firstitem;
-	om_doccount docs_considered;
-	om_weight max_possible;
-	om_weight max_attained;
-	%readwrite
 
-	string get_description();
+
+	%readwrite
 };
