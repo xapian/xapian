@@ -2,6 +2,7 @@
 .*.swp
 *.lo
 aclocal.m4
+acinclude.m4
 Makefile.in
 Makefile
 libomus-config
