@@ -5,7 +5,12 @@ AUTOMAKE_OPTIONS = 1.5 foreign # don't fuss about GNU required files
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  htmlparse.h utils.h configfile.h
 
-EXTRA_DIST = templates/query templates/godmode
+EXTRA_DIST = NEWS README TODO \
+	templates/query templates/godmode omega.spec omega.conf \
+	docs/cgiparams.txt \
+	docs/omegascript.txt \
+	docs/overview.txt \
+	docs/quickstart.txt
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
