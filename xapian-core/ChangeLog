@@ -1,3 +1,14 @@
+Thu Sep 28 17:55:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* regexcommon.h now has a guard for includetest
+
+	* OmIndexerData no longer has a name element.
+
+	* Added regex split node, translate node, and flatten-to-string node
+
+	* Comments in the XML file don't confuse the graph builder as much
+	  (more wrapping needs to be done here.)
+
 Thu Sep 28 15:52:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed a silly memory leak in QuartzDbEntries.

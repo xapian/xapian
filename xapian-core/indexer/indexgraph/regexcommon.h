@@ -27,13 +27,16 @@
 extern "C" {
 #ifdef HAVE_RXPOSIX_H
 #include <rxposix.h>
+#define HAVE_REGEX
 #else // not HAVE_RXPOSIX_H
 #ifdef HAVE_RX_RXPOSIX_H
 #include <rx/rxposix.h>
+#define HAVE_REGEX
 #endif // HAVE_RX_RXPOSIX_H
 #endif // HAVE_RXPOSIX_H
 };
 
+#ifdef HAVE_REGEX
 #include "om/omerror.h"
 #include "omassert.h"
 
@@ -149,5 +152,6 @@ class Regex {
 	    return result;
 	}
 };
+#endif // HAVE_REGEX
 
 #endif // OM_HGUARD_REGEXCOMMON_H

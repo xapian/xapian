@@ -1,4 +1,5 @@
-/* omprefixnode.cc: Implementation of a prefixing node
+/* omflattenstringnode.cc: Node which flattens a structure containing
+ * 			   strings into a single node of type string.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -21,33 +22,43 @@
  */
 
 #include "omindexernode.h"
+#include "om/omstem.h"
+#include "om/omerror.h"
 #include "node_reg.h"
 
-class OmPrefixNode : public OmIndexerNode {
+class OmFlattenStringNode : public OmIndexerNode {
     public:
-	OmPrefixNode(const OmSettings &config)
+	OmFlattenStringNode(const OmSettings &config)
 		: OmIndexerNode(config)
-		{}
+	{ }
     private:
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
-
-	    std::string prefix = get_config_string("prefix");
-
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
+	    set_output("out", flatten(*input));
+	}
+	std::string flatten(const OmIndexerData &data) {
+	    switch (data.get_type()) {
+		case OmIndexerData::rt_string:
+		    return data.get_string();
+		case OmIndexerData::rt_empty:
+		    return std::string();
+		    break;
+		case OmIndexerData::rt_vector:
+		    {
+			std::string accum;
+			for (int i=0; i<data.get_vector_length(); i++) {
+			    accum += flatten(data.get_element(i));
+			}
+			return accum;
+		    }
+		default:
+		    throw OmTypeError("Can only flatten string leaves");
 	    }
-
-	    set_output("out", output);
 	}
 };
 
-NODE_BEGIN(OmPrefixNode, omprefix)
-NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
+NODE_BEGIN(OmFlattenStringNode, omflattenstring)
+NODE_INPUT("in", "ANY", mt_record)
+NODE_OUTPUT("out", "string", mt_string)
 NODE_END()

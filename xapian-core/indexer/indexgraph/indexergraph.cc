@@ -348,8 +348,10 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	    indexer->final = i->second;
 	    indexer->final_out = attrs["out_name"];
 	} else {
-	    throw OmInvalidDataError(std::string("Unexpected tag ") +
-				     type);
+	    if (node->type != XML_COMMENT_NODE) {
+		throw OmInvalidDataError(std::string("Unexpected tag ") +
+					 "`" + type + "'");
+	    }
 	}
     }
 }

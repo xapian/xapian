@@ -55,15 +55,15 @@ class OmIndexerData {
 	};
 
 	/** Constructor: create an empty record */
-	OmIndexerData(const std::string &name_ = std::string(""));
+	OmIndexerData();
 	/** Constructor: create an int record */
-	OmIndexerData(const std::string &name_, int value);
+	OmIndexerData(int value);
 	/** Constructor: create a double record */
-	OmIndexerData(const std::string &name_, double value);
+	OmIndexerData(double value);
 	/** Constructor: create a string record */
-	OmIndexerData(const std::string &name_, const std::string &value);
+	OmIndexerData(const std::string &value);
 	/** Constructor: create a vector record */
-	OmIndexerData(const std::string &name, const std::vector<OmIndexerData> &value);
+	OmIndexerData(const std::vector<OmIndexerData> &value);
 
 	/** Copy constructor */
 	OmIndexerData(const OmIndexerData &other);
@@ -73,11 +73,13 @@ class OmIndexerData {
 	/** Takes care of cleaning up any memory etc. */
 	~OmIndexerData();
 
+#if 0
 	/** Set the name for this message */
 	void set_name(const std::string &name_);
 
 	/** Get the name for this message */
 	std::string get_name() const;
+#endif /* 0 */
 
 	/** Enquire about the stored type */
 	record_type get_type() const;
@@ -140,9 +142,11 @@ class OmIndexerData {
 	// FIXME: include the vector type as well.
 
     private:
+#if 0
 	/** A tag attached to this message describing its high-level type
 	 *  (eg "language", "document data", etc.) */
 	std::string name;
+#endif
 
 	/** The type of this record */
 	record_type type;

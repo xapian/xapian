@@ -153,31 +153,30 @@ OmIndexerNode::config_modified(const std::string &key)
 {
 }
 
-OmIndexerData::OmIndexerData(const std::string &name_) : name(name_), type(rt_empty)
+OmIndexerData::OmIndexerData() : type(rt_empty)
 {
 }
 
-OmIndexerData::OmIndexerData(const std::string &name_, int value_)
-	: name(name_), type(rt_int)
+OmIndexerData::OmIndexerData(int value_)
+	: type(rt_int)
 {
     u.int_val = value_;
 }
 
-OmIndexerData::OmIndexerData(const std::string &name_, double value_)
-	: name(name_), type(rt_double)
+OmIndexerData::OmIndexerData(double value_)
+	: type(rt_double)
 {
     u.double_val = value_;
 }
 
-OmIndexerData::OmIndexerData(const std::string &name_, const std::string &value_)
-	: name(name_), type(rt_string)
+OmIndexerData::OmIndexerData(const std::string &value_)
+	: type(rt_string)
 {
     u.string_val = new std::string(value_);
 }
 
-OmIndexerData::OmIndexerData(const std::string &name_,
-	       const std::vector<OmIndexerData> &value)
-	: name(name_), type(rt_vector)
+OmIndexerData::OmIndexerData(const std::vector<OmIndexerData> &value)
+	: type(rt_vector)
 {
     u.vector_val = new std::vector<OmIndexerData>(value.size());
     try {
@@ -189,7 +188,7 @@ OmIndexerData::OmIndexerData(const std::string &name_,
 }
 
 OmIndexerData::OmIndexerData(const OmIndexerData &other)
-	: name(other.name), type(other.type)
+	: type(other.type)
 {
     switch (type) {
 	case rt_empty:
@@ -274,7 +273,6 @@ OmIndexerData::swap(OmIndexerData &other) {
 	    break;
     }
     /* finally swap type */
-    std::swap(name, other.name);
     std::swap(type, other.type);
 }
 
@@ -293,17 +291,6 @@ OmIndexerData::~OmIndexerData()
 	    delete u.vector_val;
 	    break;
     }
-}
-
-void OmIndexerData::set_name(const std::string &name_)
-{
-    name = name_;
-}
-
-std::string
-OmIndexerData::get_name() const
-{
-    return name;
 }
 
 OmIndexerData::record_type
@@ -334,7 +321,10 @@ std::string
 OmIndexerData::get_string() const
 {
     if (type != rt_string) {
-	throw OmTypeError("OmIndexerData::get_string() called for non-string value");
+	std::string message = "OmIndexerData::get_string() called for non-string value";
+	/*cerr << *this << endl;
+	abort(); */
+	throw OmTypeError(message);
     }
     return *u.string_val;
 }
@@ -402,7 +392,7 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData("string", value));
+    OmIndexerMessage mess(new OmIndexerData(value));
     outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
@@ -412,7 +402,7 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData("int", value));
+    OmIndexerMessage mess(new OmIndexerData(value));
     outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
@@ -422,7 +412,7 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData("double", value));
+    OmIndexerMessage mess(new OmIndexerData(value));
     outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
@@ -493,12 +483,8 @@ double OmIndexerNode::get_input_double(const std::string &input_name)
 }
 
 static void write_record(std::ostream &os,
-			 const OmIndexerData &record,
-			 bool skip_name = false)
+			 const OmIndexerData &record)
 {
-    if (!skip_name) {
-	os << record.get_name() << ":";
-    }
     switch (record.get_type()) {
 	case OmIndexerData::rt_empty:
 	    os << "{empty}";
@@ -515,14 +501,11 @@ static void write_record(std::ostream &os,
 	case OmIndexerData::rt_vector:
 	    os << "[ ";
 	    {
-		std::string last_name;
 		for (int i=0; i<record.get_vector_length(); ++i) {
 		    if (i > 0) {
 			os << ", ";
 		    }
-		    bool skip_name = record[i].get_name() == last_name;
-		    write_record(os, record[i], skip_name);
-		    last_name = record[i].get_name();
+		    write_record(os, record[i]);
 		}
 	    }
 	    os << " ]";

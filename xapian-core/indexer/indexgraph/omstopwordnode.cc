@@ -69,13 +69,13 @@ class OmStopWordNode : public OmIndexerNode {
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
 
-	    OmIndexerMessage output(new OmIndexerData("words",
+	    OmIndexerMessage output(new OmIndexerData(
 				      std::vector<OmIndexerData>()));
 
 	    for (int i=0; i<input->get_vector_length(); ++i) {
 	        std::string word = input->get_element(i).get_string();
 	        if (stopwords.find(word) == stopwords.end()) {
-		    output->append_element(OmIndexerData("word", word));
+		    output->append_element(OmIndexerData(word));
 		}
 	    }
 

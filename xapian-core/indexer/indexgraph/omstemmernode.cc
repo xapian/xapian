@@ -39,8 +39,7 @@ class OmStemmerNode : public OmIndexerNode {
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
 
-	    OmIndexerMessage output(new OmIndexerData("words",
-				      std::vector<OmIndexerData>()));
+	    OmIndexerMessage output(new OmIndexerData(std::vector<OmIndexerData>()));
 
 	    std::string lang = language_from_config?
 		    		   language : get_input_string("language");
@@ -49,8 +48,7 @@ class OmStemmerNode : public OmIndexerNode {
 	    for (int i=0; i<input->get_vector_length(); ++i) {
 		// FIXME: modify in place
 		output->append_element(
-	            OmIndexerData("word",
-			   stemmer.stem_word(input->get_element(i).get_string())));
+	            OmIndexerData(stemmer.stem_word(input->get_element(i).get_string())));
 	    }
 
 	    set_output("out", output);
@@ -58,6 +56,6 @@ class OmStemmerNode : public OmIndexerNode {
 };
 
 NODE_BEGIN(OmStemmerNode, omstemmer)
-NODE_INPUT("in", "words", mt_vector)
-NODE_OUTPUT("out", "words", mt_vector)
+NODE_INPUT("in", "strings", mt_vector)
+NODE_OUTPUT("out", "strings", mt_vector)
 NODE_END()

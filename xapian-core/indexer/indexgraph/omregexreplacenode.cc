@@ -58,12 +58,12 @@ class OmRegexReplaceNode : public OmIndexerNode {
 	    switch (input->get_type()) {
 		case OmIndexerData::rt_vector:
 		    {
-			OmIndexerMessage output(new OmIndexerData("words",
+			OmIndexerMessage output(new OmIndexerData(
 				      std::vector<OmIndexerData>()));
 
 			for (int i=0; i<input->get_vector_length(); ++i) {
 			    std::string orig = input->get_element(i).get_string();
-			    output->append_element(OmIndexerData("word",
+			    output->append_element(OmIndexerData(
 								 do_replace(orig)));
 			}
 			set_output("out", output);
