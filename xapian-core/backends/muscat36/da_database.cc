@@ -79,7 +79,7 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
     if (currdoc && did <= om_docid(postlist->E)) {
 	// skip_to later in the current range
 	currdoc = did;
-	//DebugMsg("Skip within range " << did << endl);
+	DEBUGMSG(DB, "Skip within range " << did << endl);
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
@@ -281,22 +281,22 @@ OmKey
 DADatabase::get_key(om_docid did, om_keyno keyid) const
 {
     OmKey key;
-    DebugMsg("Looking in keyfile for keyno " << keyid << " in document " << did);
+    DEBUGMSG(DB, "Looking in keyfile for keyno " << keyid << " in document " << did);
 
     if (keyfile == 0) {
-	DebugMsg(": don't have keyfile - using record" << endl);
+	DEBUGMSG(DB, ": don't have keyfile - using record" << endl);
     } else {
 	int seekok = fseek(keyfile, (long)did * 8, SEEK_SET);
 	if(seekok == -1) {
-	    DebugMsg(": seek off end of keyfile - using record" << endl);
+	    DEBUGMSG(DB, ": seek off end of keyfile - using record" << endl);
 	} else {
 	    char input[9];
 	    size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
 	    if(bytes_read < 8) {
-		DebugMsg(": read off end of keyfile - using record" << endl);
+		DEBUGMSG(DB, ": read off end of keyfile - using record" << endl);
 	    } else {
 		key.value = string(input, 8);
-		DebugMsg(": found - value is `" << key.value << "'" << endl);
+		DEBUGMSG(DB, ": found - value is `" << key.value << "'" << endl);
 	    }
 	}
     }
@@ -312,7 +312,7 @@ DADatabase::open_document(om_docid did) const
 OmRefCntPtr<const DATerm>
 DADatabase::term_lookup(const om_termname & tname) const
 {
-    //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
+    DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     map<om_termname, OmRefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
@@ -331,20 +331,20 @@ DADatabase::term_lookup(const om_termname & tname) const
 	free(k);
 
 	if(found == 0) {
-	    DebugMsg("Not in collection" << endl);
+	    DEBUGMSG(DB, "Not in collection" << endl);
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
-	    DebugMsg("cache full, wiping");
+	    DEBUGMSG(DB, "cache full, wiping");
 	    if(termmap.size() > 500) termmap.clear();
 
-	    DebugMsg("found, adding to cache" << endl);
+	    DEBUGMSG(DB, "found, adding to cache" << endl);
 	    pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}
     } else {
 	the_term = (*p).second;
-	DebugMsg("found in cache" << endl);
+	DEBUGMSG(DB, "found in cache" << endl);
     }
     return the_term;
 }
