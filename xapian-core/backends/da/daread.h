@@ -11,13 +11,14 @@ extern "C" {
 #include "muscat.h"
 
 struct DAfile
-{ FILE * locator;     /* DA file locator */
+{   filehandle locator;
+                      /* DA file locator */
     int o;            /* is used internally in the "record" case */
                       /* vector giving D -> b map for recent Ds I've removed */
     byte * * buffers; /* address of vector of buffers */
     int * buffuse;    /* address of vector giving actual buffer use */
     int pblockno;     /* the number of the block of postings pointed
-		       * to by p->next, when p->next ne 0 */
+                         to by p->next, when p->next ne 0 */
 
     int codeword;
     int blocksize;
@@ -58,7 +59,7 @@ struct postings
     int o;        /* offset down the current block */
     int blocknum; /* the number of the first block */
     int blockinc; /* the current block is the first block plus blockinc
-		     (blockinc is -1 when posting pre-read) */
+                     (blockinc is -1 when posting pre-read) */
     struct DAfile * p;
     /* p, the DAfile struct */
     byte * b;     /* a buffer for the input */
