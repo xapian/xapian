@@ -1,3 +1,7 @@
+Thu Mar  9 11:20:55 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed inline from omenquireinternal methods.
+
 Wed Mar  8 18:24:27 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmBatchEnquire for batch queries.

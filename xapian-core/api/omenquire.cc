@@ -174,13 +174,11 @@ class OmEnquireInternal {
 // Inline methods for OmEnquireInternal //
 //////////////////////////////////////////
 
-inline
 OmEnquireInternal::OmEnquireInternal(const OmDatabase &db)
 	: database(0), dbdesc(db), query(0)
 {
 }
 
-inline
 OmEnquireInternal::~OmEnquireInternal()
 {
     if(database != 0) {
@@ -194,7 +192,7 @@ OmEnquireInternal::~OmEnquireInternal()
 }
 
 // Open the database(s), if not already open.
-inline void
+void
 OmEnquireInternal::open_database() const
 {
     if(database == 0) {
@@ -210,7 +208,7 @@ OmEnquireInternal::open_database() const
     }
 }
 
-inline void
+void
 OmEnquireInternal::set_query(const OmQuery &query_)
 {
     if(query) {
