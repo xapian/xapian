@@ -19,7 +19,7 @@ extern string gif_dir;
 
 extern string raw_prob;
 extern long int msize;
-extern map<docid, bool> r_displayed;
+extern map<docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;
 extern char *fmtstr;

@@ -74,8 +74,6 @@ pretty_printf(const char *p, int *a)
     string tmp = option["gif_dir"];
     if (tmp != "") gif_dir = tmp;
     if ((yyin = page_fopen(page)) == NULL) return;
-
-    r_displayed.clear();
 %}
 
 \\GIF_DIR {
@@ -123,17 +121,12 @@ pretty_printf(const char *p, int *a)
 	cout << "\">\n";
     }
 
-#if 0 // FIXME
-    /*** save R-set (not in r_displayed) ***/
-    docid r;
-    Give_Muscat ("show docs r0-1000");
-    while (!Getfrom_Muscat (&z)) {
-	if (sscanf(z.p, "I)%ld", &r)) {
-	    if (!r_displayed[r])
-		cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
-	}
+    // save ticked documents which don't have checkboxes displayed
+    map <docid, bool>::const_iterator i;
+    for (i = ticked.begin(); i != ticked.end(); i++) {
+        if (i->second)
+	    cout << "<INPUT TYPE=hidden NAME=R VALUE=" << i->first << ">\n";
     }
-#endif
 }
 \\PREVOFF.*/[\\\n\r] {
     if (first == 0)

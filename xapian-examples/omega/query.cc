@@ -44,7 +44,7 @@ char *fmtstr =
 
 string raw_prob;
 long int msize = -1;
-map<docid, bool> r_displayed;
+map<docid, bool> ticked;
 
 string gif_dir = "/fx-gif";
 
@@ -74,57 +74,10 @@ static int percentage(double num, double denom) {
 }
 
 /**************************************************************/
-/* Check new query against the previous one */
-/* Heuristic: If any words have been removed, it's a "fresh query"
- * so we should clear the R-set */
-static int is_old_query(const string &oldp) {
-   string oldterm;
-   const char *pend;
-   const char *term;
-   unsigned int n_old_terms = 0; // ?
-
-   if (oldp.empty()) return 0;
-
-   term = oldp.c_str();
-   // We used to use "word1#word2#" (with trailing #) but some broken old
-   // browsers (versions of MSIE) don't quote # in form GET submissions
-   // and everything after the # gets taken as an anchor.
-   // So now we use "word1.word2." instead.
-
-   pend = term;
-   while ((pend = strchr(pend, '.')) != NULL) {
-      pend++;
-      n_old_terms++;
-   }
-   /* short-cut: if the new query has fewer terms, it must be a new one */
-   if (new_terms.size() < n_old_terms) return 0;
-
-   vector<termname>::const_iterator i = new_terms.begin();
-   int is_old = 1;
-   while ((pend = strchr(term, '.')) != NULL) {
-       oldterm = string(term, pend - term);
-       while (oldterm != *i) {
-	   if (++i == new_terms.end()) {
-	       is_old = 0;
-	       break;
-	   }
-       }
-       if (!is_old) break;
-       term = pend + 1;
-   }
-   // return:
-   // 0 entirely new query
-   // 1 unchanged query
-   // -1 new query, but based on the old one
-   if (is_old && new_terms.size() > n_old_terms) return -1;
-   return is_old;
-}
-
-/**************************************************************/
-int set_probabilistic(const string &newp, const string &oldp) {
+int
+set_probabilistic(const string &newp, const string &oldp)
+{
     const char *p = newp.c_str();
-    int is_old;
-
     /* strip leading whitespace */
     while (isspace(*p)) p++;
     /* and strip trailing whitespace */
@@ -134,29 +87,48 @@ int set_probabilistic(const string &newp, const string &oldp) {
     raw_prob = string(p, len);
     parse_prob(raw_prob);
 
-    is_old = is_old_query(oldp);
+    // Check new query against the previous one
+    // Heuristic: If any words have been removed, it's a "fresh query"
+    // which means we discard any relevance judgements
+    string oldterm;
+    const char *pend;
+    const char *term;
+    unsigned int n_old_terms = 0; // ?
 
-#if 0
-    if (!new_terms.empty()) {
-	// now we constuct the query:
-	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
-	//  (term_1 OR ... OR term_m)) ANDNOT
-	// (minusterm_1 OR ... OR minusterm_p)
-	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
-	if (!normals.empty()) {
-	    matcher->add_oplist(op, normals);
-	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
-	}       
-	if (!minuses.empty()) {
-	    matcher->add_oplist(OR, minuses);
-	    if (!matcher->add_op(AND_NOT)) {
-		cout << "Don't be so negative\n" << endl; // FIXME
-		exit(0);
+    if (oldp.empty()) return 0;
+
+    term = oldp.c_str();
+    // We used to use "word1#word2#" (with trailing #) but some broken old
+    // browsers (versions of MSIE) don't quote # in form GET submissions
+    // and everything after the # gets taken as an anchor.
+    // So now we use "word1.word2." instead.
+    
+    pend = term;
+    while ((pend = strchr(pend, '.')) != NULL) {
+	pend++;
+	n_old_terms++;
+    }
+    // short-cut: if the new query has fewer terms, it must be a new one
+    if (new_terms.size() < n_old_terms) return 0;
+    
+    vector<termname>::const_iterator i = new_terms.begin();
+    int is_old = 1;
+    while ((pend = strchr(term, '.')) != NULL) {
+	oldterm = string(term, pend - term);
+	while (oldterm != *i) {
+	    if (++i == new_terms.end()) {
+		is_old = 0;
+		break;
 	    }
 	}
+	if (!is_old) break;
+	term = pend + 1;
     }
-#endif
-    
+    // return:
+    // 0 entirely new query
+    // 1 unchanged query
+    // -1 new query, but based on the old one
+    if (is_old && new_terms.size() > n_old_terms) return -1;
     return is_old;
 }
 
@@ -214,7 +186,6 @@ run_query(void)
 long
 do_match(long int first_hit, long int list_size)
 {
-#if 1
     if (!new_terms.empty()) {
 	// now we constuct the query:
 	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
@@ -233,7 +204,6 @@ do_match(long int first_hit, long int list_size)
 	    }
 	}
     }
-#endif
     print_query_page("query", first_hit, list_size);
     return msize;
 }
@@ -457,7 +427,7 @@ static void display_date(time_t date) {
 extern void
 print_caption(long int m)
 {
-    long int q0 = 0, r = 0;
+    long int q0 = 0;
     int percent;
     long int w = 0; 
     time_t lastmod = -1;
@@ -670,8 +640,8 @@ print_caption(long int m)
 	     cout << "/fx-gif/score-" << percent / 10 << ".gif";
 	     break;
 	  case 'X': /* relevance checkboX */
-	     if (r) {
-		 r_displayed[q0] = true;
+	     if (ticked[q0]) {
+		 ticked[q0] = false;
 		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
 	     } else {
 		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";

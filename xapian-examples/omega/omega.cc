@@ -445,30 +445,30 @@ static int main2(int argc, char *argv[])
     /* if query has changed, force first page of hits */
     if (is_old < 1) topdoc = 0;
 
-#if 1
+    ticked.clear();
     if (is_old != 0) {
 	// set up the R-set
 	val = FirstEntry("R", &n);
 	while (val != NULL) {
 	    docid d = atoi(val);
-	    if (d) rset->add_document(d);
+	    if (d) {
+		rset->add_document(d);
+		ticked[d] = true;
+	    }
 	    val = NextEntry("R", &n);
 	}
     }
-#endif
 
     /*** process commands ***/
-    if (1) {
-        long matches = do_match(topdoc, list_size);
-	if (GetEntry("X")) {
-	    make_log_entry("add", matches);
+    long matches = do_match(topdoc, list_size);
+    if (GetEntry("X")) {
+	make_log_entry("add", matches);
 #if 0 // def FERRET
-	} else if (GetEntry("MORELIKE")) {
-	    make_log_entry("morelike", matches);
+    } else if (GetEntry("MORELIKE")) {
+	make_log_entry("morelike", matches);
 #endif
-	} else if (big_buf[0]) {
-	    make_log_entry("query", matches);
-	}
+    } else if (big_buf[0]) {
+	make_log_entry("query", matches);
     }
     // Stick a newline on so we can add the line to the logfile with
     // one call to write (which should be atomic)
