@@ -110,7 +110,7 @@ OmPostListIterator::get_description() const
     /// \todo display contents of the object
     om_ostringstream desc;
     desc << "OmPostListIterator([pos=";
-    if (internal->postlist->at_end()) {
+    if ((internal == 0) || internal->postlist->at_end()) {
 	desc << "END";
     } else {
 	desc << internal->postlist->get_docid();

@@ -1,3 +1,8 @@
+Wed Sep 13 15:13:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmPostListIterator::get_description() doesn't dump core when
+	  internal is 0.
+
 Wed Sep 13 14:42:03 BST 2000 Olly Betts
 
 	* Updated TODO.
