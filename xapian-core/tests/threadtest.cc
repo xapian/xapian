@@ -42,7 +42,7 @@ using std::cerr;
 using std::endl;
 
 #include "omlocks.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 AutoPtr<OmLock> outputmutex;
 
 void

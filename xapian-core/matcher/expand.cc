@@ -26,7 +26,7 @@
 #include "omdebug.h"
 
 #include <algorithm>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 #include "omdatabaseinterface.h"
 #include "../api/omdatabaseinternal.h"

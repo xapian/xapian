@@ -23,7 +23,7 @@
 #include "config.h"
 #include <fstream>
 #include <string>
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include <map>
 #include <sys/stat.h>
 #include <unistd.h>

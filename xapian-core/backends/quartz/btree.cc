@@ -36,7 +36,7 @@
 #include <fcntl.h>    /* O_RDONLY etc */
 #include <unistd.h>
 #include <errno.h>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 #include "btree.h"
 #include "btree_util.h"

@@ -32,7 +32,7 @@
 #include "termlist.h"
 #include "document.h"
 #include "omdebug.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include "../api/omdatabaseinternal.h"
 #include "omdatabaseinterface.h"
 #include <strstream.h>

@@ -24,7 +24,7 @@
 #include "stats.h"
 #include "omdebug.h"
 
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include "termlist.h"
 
 void

@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 using std::cout;
 using std::endl;

@@ -27,7 +27,7 @@
 #include "quartz_database.h"
 #include "utils.h"
 #include "omdebug.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include "om/omerror.h"
 #include "refcnt.h"
 

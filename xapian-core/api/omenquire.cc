@@ -41,7 +41,7 @@
 #include "utils.h"
 
 #include <vector>
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include <algorithm>
 #include <math.h>
 

@@ -58,7 +58,7 @@
 #include "irweight.h"
 
 #include <algorithm>
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include <queue>
 
 class OmErrorHandler;

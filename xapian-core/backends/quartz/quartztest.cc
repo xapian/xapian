@@ -33,7 +33,7 @@
 
 #include "database_builder.h"
 
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 #include "unistd.h"
 #include <vector>

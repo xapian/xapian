@@ -28,7 +28,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 TextfileIndexerSource::TextfileIndexerSource(const std::string & fname)
 	: filename(fname)
