@@ -1,3 +1,7 @@
+Fri Apr 12 11:26:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed delve - it's going to be an example program.
+
 Thu Apr 11 18:09:35 BST 2002  Olly Betts <olly@survex.com>
 
 	* Command line argument improvements - added FIXMEs where getopt

@@ -32,8 +32,7 @@ TESTS = $(THREADTESTS) \
 check_PROGRAMS = $(THREADTESTS) \
                  apitest \
 		 internaltest \
-		 stemtest \
-		 delve
+		 stemtest
 
 if HAVE_PERL
 check-local: includetest.o
@@ -57,9 +56,6 @@ internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
-
-delve_SOURCES = delve.cc
-delve_LDADD = ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
