@@ -35,17 +35,10 @@ try:
 
     enquire = xapian.Enquire(database)
     stemmer = xapian.Stem("english")
-#    subqs = []
-    topquery = None
+    terms = []
     for term in sys.argv[2:]:
-        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
-        if topquery==None:
-            topquery = nextquery
-        else:
-            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
-#        subqs.append(xapian.Query(term))
-#    query = xapian.Query(xapian.Query.OP_OR, subqs)
-    query = topquery
+        terms.append(stemmer.stem_word(term.lower()))
+    query = xapian.Query(xapian.Query.OP_OR, terms)
     print "Performing query `%s'" % query.get_description()
 
     enquire.set_query(query)

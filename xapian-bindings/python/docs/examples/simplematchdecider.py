@@ -27,40 +27,26 @@ import sys
 import xapian
 
 if len(sys.argv) < 4:
-    print >> sys.stderr, "usage: %s <path to database> <avoid-term> <search terms>" % sys.argv[0]
+    print >> sys.stderr, "usage: %s <path to database> <avoid value> <search terms>" % sys.argv[0]
     sys.exit(1)
 
 class mymatcher(xapian.MatchDecider):
-    def __init__(self, avoidterm):
+    def __init__(self, avoidvalue):
         xapian.MatchDecider.__init__(self)
-        self.avoidterm = avoidterm
+        self.avoidvalue = avoidvalue
         
     def __call__(self, doc):
-#        print "Called on document '%s'" % doc.get_description()
-        ti = doc.termlist_begin()
-        while ti!=doc.termlist_end():
-#            print "Term '%s' (we are '%s')" % (ti.get_term(), self.avoidterm)
-            if ti.get_term()==self.avoidterm:
-                return 0
-            ti.next()
-        return 1
+        return doc.get_value(0) != self.avoidvalue
 
 try:
     database = xapian.open(sys.argv[1])
 
     enquire = xapian.Enquire(database)
     stemmer = xapian.Stem("english")
-#    subqs = []
-    topquery = None
+    terms = []
     for term in sys.argv[3:]:
-        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
-        if topquery==None:
-            topquery = nextquery
-        else:
-            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
-#        subqs.append(xapian.Query(term))
-#    query = xapian.Query(xapian.Query.OP_OR, subqs)
-    query = topquery
+        terms.append(stemmer.stem_word(term.lower()))
+    query = xapian.Query(xapian.Query.OP_OR, terms)
     print "Performing query `%s'" % query.get_description()
 
     enquire.set_query(query)

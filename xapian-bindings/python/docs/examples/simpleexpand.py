@@ -37,35 +37,27 @@ try:
 
     enquire = xapian.Enquire(database)
     stemmer = xapian.Stem("english")
-#    subqs = []
-    topquery = None
+    terms = []
     index = 2
     while index < len(sys.argv):
         term = sys.argv[index]
-        if term=='--':
-            # passed marker, move to relevant docids
-            index += 1
-            break
-        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
-        if topquery==None:
-            topquery = nextquery
-        else:
-            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
-#        subqs.append(xapian.Query(term))
         index += 1
-#    query = xapian.Query(xapian.Query.OP_OR, subqs)
-    query = topquery
+        if term == '--':
+            # passed marker, move to relevant docids
+            break
+        terms.append(stemmer.stem_word(term.lower()))
+    query = xapian.Query(xapian.Query.OP_OR, terms)
 
     # Prepare relevant document set (RSet)
     reldocs = xapian.RSet()
-    if index<len(sys.argv):
+    if index < len(sys.argv):
         for index in xrange(index,len(sys.argv)):
             rdid = int(sys.argv[index])
             if rdid!=0:
                 reldocs.add_document(rdid)
 
     matches = xapian.MSet()
-    if query!=None:
+    if not query.empty():
         print "Performing query `%s' against rset `%s'" % (query.get_description(),reldocs.get_description())
 
         enquire.set_query(query)

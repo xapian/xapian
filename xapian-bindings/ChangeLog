@@ -1,3 +1,14 @@
+Fri Oct 22 02:21:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py,
+	  python/docs/examples/simplematchdecider.py,
+	  python/docs/examples/simplesearch.py: Changed to use James' newly
+	  wrapped Query from list of terms ctor.
+	* python/docs/examples/simplematchdecider.py: Make the example
+	  MatchDecider exclude documents matching a value, rather than a term.
+	  The latter is a very inefficient way to do what AND_NOT does, and
+	  we don't want examples to mislead like that.
+
 Thu Oct 21 18:00:14 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: Note that you can construct a query
