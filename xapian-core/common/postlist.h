@@ -122,10 +122,18 @@ class PostList : public OmRefCntBase
 	// calculation is expensive, since many documents will be thrown
 	// away anyway without calculating the weight.
 
-	// Move to next docid
+	// Move to the next docid
+	// FIXME: do this more neatly
+	PostList *next() { return next(-9e20); }
+	
+	// Move to next docid with weight greater than w_min
 	virtual PostList *next(om_weight w_min) = 0;
 
 	// Moves to next docid >= specified docid
+	PostList *skip_to(om_docid did) { return skip_to(did, -9e20); }
+
+	// Moves to next docid >= specified docid, and weight greater than
+	// w_min
 	virtual PostList *skip_to(om_docid, om_weight w_min) = 0;
 
 	// Returns true if we're off the end of the list

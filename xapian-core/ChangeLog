@@ -1,3 +1,9 @@
+Thu Sep  7 23:30:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add to PostList next() and skip_to() methods which don't take a
+	  minimum weight, for use outside the matcher, or when moving
+	  postlists to beginning for a MultiPostList.
+
 Thu Sep  7 23:05:54 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Extra debugging stuff added to OmPostListIterators.

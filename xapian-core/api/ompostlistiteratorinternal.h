@@ -39,7 +39,7 @@ class OmPostListIterator::Internal {
         Internal(PostList *postlist_) : postlist(postlist_)
 	{
 	    // A PostList starts before the start, iterators start at the start
-	    PostList *p = postlist->next(0);
+	    PostList *p = postlist->next();
 	    if (p) postlist = p; // handle prune
 	}
 };

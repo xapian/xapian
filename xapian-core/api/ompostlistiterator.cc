@@ -42,7 +42,7 @@ OmPostListIterator::operator *() {
 OmPostListIterator &
 OmPostListIterator::operator++() { 
     DEBUGAPICALL("OmPostListIterator::operator++", "");
-    PostList *p = internal->postlist->next(0);
+    PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
     DEBUGAPIRETURN(*this);
     return *this;
@@ -51,7 +51,7 @@ OmPostListIterator::operator++() {
 OmPostListIterator
 OmPostListIterator::operator++(int) {
     DEBUGAPICALL("OmPostListIterator::operator++", "int");
-    PostList *p = internal->postlist->next(0);
+    PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
     DEBUGAPIRETURN(*this);
     return *this;

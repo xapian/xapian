@@ -114,11 +114,21 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
     Assert(term_exists(tname));
     
     std::vector<LeafPostList *> pls;
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
-    for (i = databases.begin(); i != databases.end(); i++) {
-	pls.push_back((*i)->open_post_list(tname));
+    try {
+	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+	for (i = databases.begin(); i != databases.end(); i++) {
+	    pls.push_back((*i)->open_post_list(tname));
+	    pls.back()->next();
+	}
+	Assert(pls.begin() != pls.end());
+    } catch (...) {
+	std::vector<LeafPostList *>::iterator i;
+	for (i = pls.begin(); i != pls.end(); i++) {
+	    delete *i;
+	    *i = 0;
+	}
+	throw;
     }
-    Assert(pls.begin() != pls.end());
 
     return new MultiPostList(pls, this);
 }
