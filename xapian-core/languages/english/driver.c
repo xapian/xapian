@@ -24,7 +24,7 @@
 #include <ctype.h>  /* for isupper, islower, toupper, tolower */
 
 #include "pool.h"
-#include "stem.h"
+#include "stem_english.h"
 
 #define true 1
 #define false 0
@@ -51,7 +51,7 @@ void increase_s()
    as stem structure
 */
 
-void stemfile( struct stemmer * z, char * s, FILE * f)
+void stemfile( struct english_stemmer * z, char * s, FILE * f)
 {   while(true)
     {   int ch = getc(f);
         if (ch == EOF) return;
@@ -74,7 +74,7 @@ void stemfile( struct stemmer * z, char * s, FILE * f)
                z.
             */
 
-                   stem(z, s, 0, i-1)
+                   english_stem(z, s, 0, i-1)
 
                   );
         }
@@ -96,7 +96,7 @@ int main(int argc, char * argv[])
 
     /* initialise the stemming process: */
 
-    struct stemmer * z = setup_stemmer();
+    struct english_stemmer * z = setup_english_stemmer();
 
 
     printf("version 1: ");
@@ -110,7 +110,7 @@ int main(int argc, char * argv[])
 
     /* closedown the stemming process */
 
-    closedown_stemmer(z);
+    closedown_english_stemmer(z);
 
     return 0;
 }

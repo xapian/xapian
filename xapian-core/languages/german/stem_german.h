@@ -28,15 +28,7 @@
 extern "C" {
 #endif
 
-struct german_stemmer
-{
-    char * p;
-    int p_size;
-    int k;
-    int k0;
-    int j;
-    struct pool * irregulars;
-};
+struct german_stemmer;
 
 extern struct german_stemmer * setup_german_stemmer();
 

@@ -28,18 +28,7 @@
 extern "C" {
 #endif
 
-struct portuguese_stemmer
-{
-    char * p;
-    int p_size;
-    int k;
-
-    int j;
-    int posV;
-    int pos2;
-    struct pool * irregulars;
-
-};
+struct portuguese_stemmer;
 
 extern struct portuguese_stemmer * setup_portuguese_stemmer();
 
