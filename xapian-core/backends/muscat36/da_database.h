@@ -253,7 +253,7 @@ class DADatabase : public virtual IRDatabase {
 	// Get a record
 	struct record * get_record(om_docid did) const;
 
-	DADatabase();
+	DADatabase(int heavy_duty_);
 	void open(const DatabaseBuilderParams & params);
     public:
 	~DADatabase();

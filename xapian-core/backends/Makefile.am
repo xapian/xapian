@@ -18,11 +18,6 @@ libbackend_la_SOURCES = database_builder.cc
 #      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
 # iv)  Write the library
 
-if BUILD_BACKEND_DA
-BUILDSUBDIR_DA = da
-LIBADD_DA = da/libda.la
-endif
-
 if BUILD_BACKEND_MUSCAT36
 BUILDSUBDIR_MUSCAT36 = muscat36
 LIBADD_MUSCAT36 = muscat36/libmuscat36.la
@@ -43,9 +38,9 @@ BUILDSUBDIR_MULTI += multi
 LIBADD_MULTI += multi/libmulti.la
 endif
 
-SUBDIRS = $(BUILDSUBDIR_DA) \
+SUBDIRS = \
           $(BUILDSUBDIR_MUSCAT36) $(BUILDSUBDIR_SLEEPY) \
           $(BUILDSUBDIR_INMEMORY) $(BUILDSUBDIR_MULTI) .
-libbackend_la_LIBADD = $(LIBADD_DA) \
+libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) $(LIBADD_SLEEPY) \
           $(LIBADD_INMEMORY) $(LIBADD_MULTI)

@@ -118,12 +118,12 @@ DATermList::get_weighting() const
 
 
 
-DADatabase::DADatabase()
+DADatabase::DADatabase(int heavy_duty_)
+	: heavy_duty(heavy_duty_)
 {
     DA_r = NULL;
     DA_t = NULL;
     opened = false;
-    heavy_duty = 0;
 }
 
 DADatabase::~DADatabase()
@@ -146,19 +146,11 @@ DADatabase::open(const DatabaseBuilderParams & params)
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() == 2);
-    Assert(params.paths[0] == "heavy" || params.paths[0] == "flimsy");
+    Assert(params.paths.size() == 1);
 
-    /* Check whether heavy_duty or not. */
-    if(params.paths[0] == "heavy") {
-	heavy_duty = 1;
-    } else {
-	heavy_duty = 0;
-    }
-    
     // Open database with specified path
-    string filename_r = params.paths[1] + "/R";
-    string filename_t = params.paths[1] + "/T";
+    string filename_r = params.paths[0] + "/R";
+    string filename_t = params.paths[0] + "/T";
 
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if(DA_r == NULL) {

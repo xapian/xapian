@@ -1,3 +1,9 @@
+Wed Feb 23 14:46:16 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Muscat36 backend now replaces DA backend.
+	  Should be able to cope with both flimsy and heavy duty DA files.
+	  DB stuff will be added shortly.
+
 Wed Feb 23 14:44:58 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added (mostly private unimplemented) copy-constructors and

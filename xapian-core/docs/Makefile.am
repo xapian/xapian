@@ -226,5 +226,5 @@ sourcedoc/index.html:
 sourcedoc.tex:
 	@echo "Generating LaTeX documentation for full source"
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
-	@doc++ -t $(DOCPPFLAGS) --all --private --output $@ $(SOURCEDOC_SRC)
+	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
 

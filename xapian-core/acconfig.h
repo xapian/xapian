@@ -30,9 +30,6 @@
 /* version */
 #undef VERSION
 
-/* Define if you want to build DA backend */
-#undef MUS_BUILD_BACKEND_DA
-
 /* Define if you want to build the (old) Muscat 3.6 backend */
 #undef MUS_BUILD_BACKEND_MUSCAT36
 

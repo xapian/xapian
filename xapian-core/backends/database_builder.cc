@@ -4,8 +4,9 @@
 #include "database_builder.h"
 
 // Include headers for all the database types
-#ifdef MUS_BUILD_BACKEND_DA
-#include "da/da_database.h"
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#include "muscat36/da_database.h"
+//#include "muscat36/db_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 #include "inmemory/inmemory_database.h"
@@ -28,9 +29,24 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	case OM_DBTYPE_NULL:
 	    throw OmInvalidArgumentError("Unspecified database type");
 	    break;
-	case OM_DBTYPE_DA:
-#ifdef MUS_BUILD_BACKEND_DA
-	    database = new DADatabase;
+	case OM_DBTYPE_MUSCAT36_DA_F:
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+	    database = new DADatabase(0);
+#endif
+	    break;
+	case OM_DBTYPE_MUSCAT36_DA_H:
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+	    database = new DADatabase(1);
+#endif
+	    break;
+	case OM_DBTYPE_MUSCAT36_DB_F:
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+	    //database = new DBDatabase(0);
+#endif
+	    break;
+	case OM_DBTYPE_MUSCAT36_DB_H:
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+	    //database = new DBDatabase(1);
 #endif
 	    break;
 	case OM_DBTYPE_INMEMORY:

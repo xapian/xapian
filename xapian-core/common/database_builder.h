@@ -32,7 +32,10 @@ class IRDatabase;
 /* Type of a database */
 enum om_database_type {
     OM_DBTYPE_NULL,
-    OM_DBTYPE_DA,
+    OM_DBTYPE_MUSCAT36_DA_F,
+    OM_DBTYPE_MUSCAT36_DA_H,
+    OM_DBTYPE_MUSCAT36_DB_F,
+    OM_DBTYPE_MUSCAT36_DB_H,
     OM_DBTYPE_INMEMORY,
     OM_DBTYPE_SLEEPY,
     OM_DBTYPE_MULTI

@@ -41,7 +41,10 @@
 
 // Table of names of database types
 stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
-    { "da_flimsy",		OM_DBTYPE_DA		},
+    { "da_flimsy",		OM_DBTYPE_MUSCAT36_DA_F	},
+    { "da_heavy",		OM_DBTYPE_MUSCAT36_DA_H	},
+    { "db_flimsy",		OM_DBTYPE_MUSCAT36_DB_F	},
+    { "db_heavy",		OM_DBTYPE_MUSCAT36_DB_H	},
     { "inmemory",		OM_DBTYPE_INMEMORY	},
     { "multidb",		OM_DBTYPE_MULTI		},
     { "sleepycat",		OM_DBTYPE_SLEEPY	},
