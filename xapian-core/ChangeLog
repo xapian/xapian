@@ -1,3 +1,8 @@
+Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* Fix success message in bootstrap when building in non-src dir
+	  as configure is written to the src dir
+
 Mon Feb 24 10:33:52 GMT 2003  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Disabled (for now) sort_bands

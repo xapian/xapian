@@ -54,4 +54,4 @@ autoconf
 automake --add-missing
 
 trap EXIT
-echo "Bootstrapped successfully - now run ./configure and make as usual"
+echo "Bootstrapped successfully - now run ${srcdir}configure and make as usual"
