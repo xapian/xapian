@@ -38,3 +38,7 @@ ProgServer::ProgServer(OmRefCntPtr<MultiDatabase> db_,
 	: SocketServer(db_, readfd_, writefd_)
 {
 }
+
+ProgServer::~ProgServer()
+{
+}

@@ -44,6 +44,13 @@ class ProgServer : public SocketServer {
     public:
 	/** Default constructor. */
 	ProgServer(OmRefCntPtr<MultiDatabase> db, int readfd_, int writefd_);
+
+	/** This destructor is only here to avoid strange linking errors
+	 *  with g++ when including this header file but not linking with
+	 *  the base class' object file/library.  The problem comes when a
+	 *  class has no non-inline virtual functions and the base has.
+	 */
+	~ProgServer();
 };
 
 #endif  /* OM_HGUARD_PROGSERVER_H */
