@@ -1,3 +1,12 @@
+Thu May 11 16:38:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Made the internals of OmRefCntBase private, and moved
+	  increment() and decrement() from OmRefCntPtr to OmRefCntBase,
+	  where they belong.
+	
+	* Made OmRefCntPtr::operator *() return a reference as it should,
+	  rather than a pointer as it did previously.
+
 Wed May 10 17:34:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added (untested) TcpClient class.
