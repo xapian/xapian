@@ -118,28 +118,28 @@ FIXME: to be written.
 <H3><A NAME="da_databases">DA databases</A></H3>
 
 <P>
-The DA database format is one of the formats which our old software used to
-store data.  It is a non-modifyable format; all the data must be known at
-the time at which it is created.  It is however a fairly efficient database
-format for searching, and is certainly better than the sleepycat database
-structure, which is in the early stages of development and is currently
-rather inefficient.
-</P><P>
-On the other hand, it does have various drawbacks, foremost of which is
-that of not storing positional information in the posting lists, and thus
-some operations (such as phrase searching) will never be possible with
-this database format.
+The DA database format is one of the formats which our original software
+uses to store data.  It is a non-modifiable format; all the data must be
+known at the time at which it is created.  As a result, it is a fairly
+efficient database format for searching.
 </P>
 <P>
-Another major disadvantage is that document length information is not
-stored in this database, so retrieval will not be as good as it could be
-with this information.
+On the other hand, it does lack a couple of features available in the
+sleepycat database, one of which is that is does not store positional
+information in the posting lists.  Because of this, some operations
+(such as phrase searching) will never be possible with this database format.
 </P>
 <P>
-Because the DA format is an old format, we do not provide software to directly
-create DA files.  However, you may use the makeDA utility to create these
-files, either from text data which you have hand prepared, or from data
-unloaded from a sleepycat (or other format) database.
+Another disadvantage is that document length information is not stored in
+this database, so the full benefit of some weighting formulae will not be
+realised.  Despite this, pretty good results can be obtained with DA
+databases.
+</P>
+<P>
+Because the DA format is an old format, we do not provide software to
+create DA files directly.  However, you may use the makeDA utility to
+create these files, either from text data which you have hand prepared,
+or from data unloaded from a sleepycat (or other format) database.
 </P>
 <P>
 You can search a DA database in exactly the same way as you would search a
@@ -387,8 +387,7 @@ command line syntax:
 <UL><LI>
 <B>Parameter 1</B> - the (possibly relative) path to the database.
 </LI><LI>
-<B>Parameters 2 onward</B> - the terms to be stored in the database.  The
-terms will be assumed to occur at successive positions in the document.
+<B>Parameters 2 onward</B> - the terms to be searched for in the database.
 </LI></UL>
 </P><P>
 The validity of a command line can therefore be checked very simply by
@@ -418,9 +417,26 @@ Again, this is performed just as it was for the simple indexer.
 
 <H3>Specifying the databases</H3>
 <P>
+Muscat has the ability to search over many databases simultaneously,
+possibly even with the databases distributed across a network of machines.
+Each database can be in its own format, so, for example, we might have a
+system searching across two DA databases and a sleepycat database.
+</P>
+<P>
+This means that, when we are preparing to search, we create an
+OmDatabaseGroup object, and give it a set of parameters to specify
+databases by successively calling the
+<CODE>OmDatabaseGroup::add_database()</CODE> method.
+The parameters given to this method are the same as those which would be
+used in the constructor of an <CODE>OmWritableDatabase</CODE> to write
+to the database.
+</P>
+<P>
+Note that we still use an <CODE>OmDatabaseGroup</CODE> even when we are
+going to use only a single database - there is no special case for a single
+database.  This keeps everything nice and consistent.
 </P>
 <PRE>
-    // Make the database group
     OmDatabaseGroup databases;
     vector&lt;string&gt; parameters;
     parameters.push_back(argv[1]);
@@ -429,23 +445,57 @@ Again, this is performed just as it was for the simple indexer.
 
 <H3>Starting an enquire session</H3>
 <P>
-</P>
+All searches across databases by Muscat are performed within the context of
+an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by an
+<CODE>OmEnquire</CODE> object, and is across a specified collection of
+databases.  To change the database collection, it is neccessary to open a
+new enquire session, by creating a new <CODE>OmEnquire</CODE> object.
 <PRE>
     OmEnquire enquire(databases);
 </PRE>
+</P>
+<P>
+An enquire session is also the context within which all other database
+reading operations, such as query expansion and reading the data associated
+with a document, are performed.
+</P>
 
-<H3>Preparing a query</H3>
+<H3>Preparing to search</H3>
+
+<P>
+We are going to use all command line parameters from the second onward
+as terms to search for in the database.  For convenience, we shall store
+them in an STL vector.  This is probably the point at which we would want
+to apply a stemming algorithm, or any other desired normalisation and
+conversion operation, to the terms.
 <PRE>
-    // Prepare the query terms
     vector&lt;om_termname&gt; queryterms;
     for (int optpos = 2; optpos &lt; argc; optpos++) {
         queryterms.push_back(argv[optpos]);
     }
 </PRE>
+</P>
+
+<P>
+Queries are represented within muscat by <CODE>OmQuery</CODE> objects, so
+the next step is to construct one from our query terms.
+By an amazing coincidence, there is a constructor ready to take our vector
+of terms and create an <CODE>OmQuery</CODE> object from it.
 <PRE>
-    // Build the query object
     OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
 </PRE>
+</P>
+
+<P>
+You will notice that we had to specify an operation to be performed on
+the terms (the <CODE>OM_MOP_OR</CODE> parameter).  If you're interested,
+MOP stands for &quot;Match OPeration&quot;.  Queries in Muscat are actually
+fairly complex things: a full range of boolean operations can be applied to
+queries to restrict the result set, and probabalistic weightings are then
+applied to order the results by relevance.  By specifying the OR operation,
+we are not performing any boolean restriction, and are performing a
+traditional pure probabalistic search.
+</P>
 
 <P>
 We now print a message out to confirm to the user what the query being
@@ -458,23 +508,46 @@ a string representation of the query.
          query.get_description() &lt;&lt; "'" &lt;&lt; endl;
 </PRE>
 
-<H3>Performing the query</H3>
+<H3>Performing the search</H3>
 <P>
+Now, we are ready to perform the search.  The first step of this is to
+give the query object to the enquire session.  Note that the query is
+copied at this operation, and that changing the OmQuery object after
+setting the query with it has no effect.
 </P>
 <PRE>
-    // Give the query object to the enquire session
     enquire.set_query(query);
 </PRE>
+
+<P>
+Next, we ask for the results of the search.  There is no need to tell
+Muscat to perform the search: it will do this automatically.  We use
+the <CODE>get_mset()</CODE> method to get the results, which are returned
+in an <CODE>OmMSet</CODE> object.  (MSet for Match Set)
+</P>
+<P>
+<CODE>get_mset()</CODE> can take many parameters, such as a set of
+relevant documents to use, and various options to modify the search,
+but we give it the minimum; which is the first document to return (starting
+at 0 for the top ranked document), and the maximum number of documents
+to return (we specify 10 here):
 <PRE>
-    // Get the top 10 results of the query
     OmMSet matches = enquire.get_mset(0, 10);
 </PRE>
+</P>
 
-<H3>Displaying the results of the query</H3>
+<H3>Displaying the results of the search</H3>
+<P>
+Finally, we display the results of the search.  The results are stored in
+a container called <CODE>items</CODE> in the <CODE>OmMSet</CODE> object,
+so first we display how many items are in that:
 <PRE>
-    // Display the results
     cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
 </PRE>
+</P>
+
+<P>
+Finally, we display each of the items in the container:
 <PRE>
     vector&lt;OmMSetItem&gt;::const_iterator i;
     for (i = matches.items.begin();
@@ -486,6 +559,7 @@ a string representation of the query.
 	cout &lt;&lt; "[" &lt;&lt; doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>
+</P>
 
 <HR>
 <H2>Compiling</H2>
