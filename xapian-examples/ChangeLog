@@ -1,3 +1,7 @@
+Mon Sep 13 03:20:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.2.
+
 Tue Aug 24 14:02:45 BST 2004  Olly Betts <olly@survex.com>
 
 	* indexer/: Removed unused indexer example.

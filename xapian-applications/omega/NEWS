@@ -1,12 +1,15 @@
-Omega 0.8.2 (2004-09-??):
+Omega 0.8.2 (2004-09-13):
 
-Up to: Thu Sep 09 15:11:45 BST 2004  Olly Betts <olly@survex.com>
+* omega: $highlight now handles accented characters (bug#9).
+
+* omega: Use new checkatleast parameter to Enquire::get_mset to implement
+  MINHITS.
 
 * omindex: When running with "replace duplicates" mode (the default), detect
   documents removed since the last indexing run and delete them from the
   database (bug #34).
 
-* omega: $highlight now handles accented characters (bug#9).
+* omindex: Use the new WritableDatabase::replace_document(term, doc) method.
 
 * scriptindex: Report index script file name and line number when
   reporting errors in it.  Added warning for redundant actions,
@@ -25,11 +28,6 @@ Up to: Thu Sep 09 15:11:45 BST 2004  Olly Betts <olly@survex.com>
   Xapian and Omega.
 
 * Link with -lxapianqueryparser, not -lomqueryparser.
-
-* omindex: Use the new replace_document(term, doc) method.
-
-* omega: Use new checkatleast parameter to Enquire::get_mset to implement
-  MINHITS.
 
 Omega 0.8.1 (2004-06-30):
 

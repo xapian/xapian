@@ -1,3 +1,7 @@
+xapian-examples 0.8.2 (2004-09-13):
+
+* delve: Report name of database in the "failed to open" message.
+
 xapian-examples 0.8.1 (2004-06-30):
 
 * copydatabase: Make use of new get_lastdocid() method.
