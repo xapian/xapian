@@ -750,7 +750,8 @@ static bool test_reversebool1()
     {
 	OmMSetIterator i = mymset1.begin();
 	std::vector<om_docid> rev(mymset3.begin(), mymset3.end());
-	std::vector<om_docid>::const_reverse_iterator j = rev.rbegin();
+	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
+	std::vector<om_docid>::reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
@@ -798,7 +799,8 @@ static bool test_reversebool2()
     TEST_EQUAL(msize, mymset3.size());
     {
 	std::vector<om_docid> rev(mymset1.begin(), mymset1.end());
-	std::vector<om_docid>::const_reverse_iterator i = rev.rbegin();
+	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
+	std::vector<om_docid>::reverse_iterator i = rev.rbegin();
 	OmMSetIterator j = mymset3.begin();
 	for ( ; j != mymset3.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't

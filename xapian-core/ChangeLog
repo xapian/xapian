@@ -1,3 +1,8 @@
+Mon Dec 18 10:47:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove const from reverse_iterators in api_db.cc, so get around
+	  brokenness of egcs 1.1.2
+
 Mon Dec 18 09:41:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added apitest_space.txt to the Makefile.am
