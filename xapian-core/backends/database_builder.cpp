@@ -17,6 +17,9 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 
     // Create database of correct type, and 
     switch(params.type) {
+	case OM_DBTYPE_NULL:
+	    throw OmError("Unspecified database type");
+	    break;
 	case OM_DBTYPE_DA:
 	    database = new DADatabase;
 	    break;

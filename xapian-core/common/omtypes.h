@@ -19,6 +19,7 @@ typedef double weight;
 
 /* Type of a database */
 enum _om_database_type {
+    OM_DBTYPE_NULL,
     OM_DBTYPE_DA,
     OM_DBTYPE_TEXTFILE,
     OM_DBTYPE_SLEEPY,

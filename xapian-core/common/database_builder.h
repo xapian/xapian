@@ -12,7 +12,7 @@ class IRDatabase;
 
 class DatabaseBuilderParams {
     public:
-	DatabaseBuilderParams(om_database_type type_new,
+	DatabaseBuilderParams(om_database_type type_new = OM_DBTYPE_NULL,
 			      bool readonly_new = true,
 			      IRDatabase * root_new = NULL)
 		: type(type_new),
