@@ -1,3 +1,7 @@
+Sun May 25 22:59:44 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated.
+
 Sun May 25 22:58:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.am: Suppress "unused" warnings in Snowball
