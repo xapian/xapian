@@ -6,7 +6,7 @@ noinst_HEADERS = main.h query.h cgiparam.h symboltab.h
 
 INCLUDES = -I$(top_srcdir)/include
 
-bin_PROGRAMS = dbtest matchtest idxtest stemtest
+bin_PROGRAMS = ompf
 
 ompf_SOURCES = main.cc query.cc cgiparam.cc
 ompf_LDADD = ../libom.la
