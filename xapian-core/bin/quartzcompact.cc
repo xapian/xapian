@@ -35,6 +35,7 @@ using namespace std;
 
 #include "btree.h"
 #include "bcursor.h"
+#include <xapian/version.h>
 
 int
 main(int argc, char **argv)
@@ -42,13 +43,24 @@ main(int argc, char **argv)
     // We take two arguments - the path to source databases
     // and the path to the database to create
     if (argc != 3) {
-	cout << "usage: " << argv[0]
+	if (argc == 2 && strcmp(argv[1], "--version") == 0) {
+	    cout << "quartzcompact (xapian) "XAPIAN_VERSION << endl; 
+	    exit(0);
+	}
+	cout << "Usage: " << argv[0]
 	     << " <path to source database> <path to destination database>"
 	     << endl;
+	if (argc == 2 && strcmp(argv[1], "--help") == 0) exit(0);
 	exit(1);
     }
 
+    const char *srcdir = argv[1];
     const char *destdir = argv[2];
+    if (strcmp(srcdir, destdir) == 0) {
+	cout << argv[0] << ": source and destination may not be the same directory" << endl;
+	exit(1);
+    }
+
     try {
 	// Create the directory for the database, if it doesn't exist already
 	if (mkdir(destdir, 0755) == -1) {
@@ -74,12 +86,19 @@ main(int argc, char **argv)
 	};
 	for (const char **t = tables;
 	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	    string src(argv[1]);
+	    cout << *t << " ..." << flush;
+
+	    struct stat sb;
+
+	    string src(srcdir);
 	    src += '/';
 	    src += *t;
 	    src += '_';
 	    Btree in(src, true);
 	    in.open();
+
+	    off_t in_size = 0;
+	    if (stat(src + "DB", &sb) == 0) in_size = sb.st_size;
 
 	    string dest = destdir;
 	    dest += '/';
@@ -100,10 +119,18 @@ main(int argc, char **argv)
 		}
 	    }
 	    out.commit(1);
-	    cout << '\r' << *t << ": Done                  " << endl;
+
+	    if (in_size != 0 && stat(dest + "DB", &sb) == 0) {
+		off_t out_size = sb.st_size;
+		cout << '\r' << *t << ": Done - reduction "
+		     << 100 * double(in_size - out_size) / in_size
+		     << "% (" << in_size << " -> " << out_size << ")" << endl;
+	    } else {
+		cout << '\r' << *t << ": Done" << endl;
+	    }
 	}
 	// Copy meta file
-	string src(argv[1]);
+	string src(srcdir);
 	src += "/meta";
 	string dest = destdir;
 	dest += "/meta.tmp";
