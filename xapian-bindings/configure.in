@@ -59,13 +59,13 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_python" ; then
     AC_PATH_PROG(PYTHON, python, [])
-    if test -n "$PYTHON" ; then
+    if test -x "$PYTHON" ; then
       dnl SWIG needs Python 1.5 or newer.
-      case "`python -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
+      case "`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
       [1.[56789]*|[2-9].*])
-	PYTHON_INC="`python -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
-	PYTHON_LIB="`python -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
+	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_LIB)
 	BINDINGS="$BINDINGS python" ;;
       esac
@@ -74,7 +74,7 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_php" ; then
     AC_PATH_PROG(PHP_CONFIG, php-config, [])
-    if test -n "$PHP_CONFIG" ; then
+    if test -x "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
 	    PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
@@ -90,7 +90,7 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_tcl" ; then
     AC_PATH_PROG(TCLSH, tclsh, [])
-    if test -n "$TCLSH" ;  then
+    if test -x "$TCLSH" ;  then
 	if `echo 'if {$tcl_version < 8.0 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
 	    TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
 	    AC_SUBST(TCL_LIB)
