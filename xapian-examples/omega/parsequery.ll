@@ -26,7 +26,7 @@
 %{
 #include "main.h"
 #include "query.h"
-#include "omassert.h"
+//#include "omassert.h"
 
 #define YY_DECL void parse_prob(const string &prob_query)
 
@@ -35,7 +35,7 @@
 #define YY_NEVER_INTERACTIVE 1
 
 // ECHO should never get called
-#define ECHO Assert(0)
+#define ECHO abort()
 
 static string query;
 static size_t query_index = 0;
