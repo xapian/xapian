@@ -671,6 +671,86 @@ static bool test_bufftable3()
     return true;
 }
 
+/// Test making and playing with a QuartzBufferedTable
+static bool test_cursor3()
+{
+    unlink_table(tmpdir + "test_tableskipto1_");
+    quartz_revision_number_t new_revision;
+    {
+	// Open table and add a couple of documents
+	QuartzDiskTable disktable(tmpdir + "test_tableskipto1_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 0);
+	QuartzDbKey key;
+
+	key.value = "A";
+	bufftable.get_or_make_tag(key)->value = "A";
+
+	key.value = "B";
+	bufftable.get_or_make_tag(key)->value = "B";
+
+	{
+	    QuartzDbKey key;
+	    key.value = "AA";
+	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	    TEST(!cursor->find_entry(key));
+	    TEST_EQUAL(cursor->current_key.value, "A");
+	    TEST_EQUAL(cursor->current_tag.value, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key.value, "B");
+	    TEST_EQUAL(cursor->current_tag.value, "B");
+	}
+
+	new_revision = disktable.get_latest_revision_number() + 1;
+	bufftable.apply(new_revision);
+
+	{
+	    QuartzDbKey key;
+	    key.value = "AA";
+	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	    TEST(!cursor->find_entry(key));
+	    TEST_EQUAL(cursor->current_key.value, "A");
+	    TEST_EQUAL(cursor->current_tag.value, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key.value, "B");
+	    TEST_EQUAL(cursor->current_tag.value, "B");
+	}
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	QuartzDiskTable disktable(tmpdir + "test_tableskipto1_", false, 8192);
+	disktable.open();
+	TEST_EQUAL(disktable.get_entry_count(), 2);
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+
+	{
+	    QuartzDbKey key;
+	    key.value = "AA";
+	    AutoPtr<QuartzCursor> cursor(disktable.cursor_get());
+	    TEST(!cursor->find_entry(key));
+	    TEST_EQUAL(cursor->current_key.value, "A");
+	    TEST_EQUAL(cursor->current_tag.value, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key.value, "B");
+	    TEST_EQUAL(cursor->current_tag.value, "B");
+	}
+    }
+    return true;
+}
+
 /// Test QuartzCursors
 static bool test_cursor1()
 {
@@ -1845,30 +1925,31 @@ static bool test_packstring1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"quartzdisktable1",	test_disktable1},
-    {"quartzdisktable2",	test_disktable2},
-    {"quartztableentries1",	test_tableentries1},
-    {"quartzbufftable1",	test_bufftable1},
-    {"quartzbufftable2",	test_bufftable2},
-    {"quartzbufftable3",	test_bufftable3},
-    {"quartzcursor1",		test_cursor1},
-    {"quartzcursor2",		test_cursor2},
-    {"quartzopen1",		test_open1},
-    {"quartzadddoc1",		test_adddoc1},
-    {"quartzadddoc2",		test_adddoc2},
-    {"quartzpackint1",		test_packint1},
-    {"quartzpackint2",		test_packint2},
-    {"quartzpackint3",		test_packint3},
-    {"quartzunpackint1",	test_unpackint1},
-    {"quartzbtree1",		test_btree1},
-    {"quartzpostlist1",		test_postlist1},
-    {"quartzpostlist2",		test_postlist2},
-    {"quartzpositionlist1",	test_positionlist1},
-    {"quartzoverwrite1", 	test_overwrite1},
-//    {"quartzoverwrite2", 	test_overwrite2},
-    {"quartzbitmap1", 		test_bitmap1},
-    {"quartzwritelock1", 	test_writelock1},
-    {"quartzpackstring1", 	test_packstring1},
+    {"disktable1",	test_disktable1},
+    {"disktable2",	test_disktable2},
+    {"tableentries1",	test_tableentries1},
+    {"bufftable1",	test_bufftable1},
+    {"bufftable2",	test_bufftable2},
+    {"bufftable3",	test_bufftable3},
+    {"cursor1",		test_cursor1},
+    {"cursor2",		test_cursor2},
+    {"open1",		test_open1},
+    {"adddoc1",		test_adddoc1},
+    {"adddoc2",		test_adddoc2},
+    {"packint1",	test_packint1},
+    {"packint2",	test_packint2},
+    {"packint3",	test_packint3},
+    {"unpackint1",	test_unpackint1},
+    {"btree1",		test_btree1},
+    {"postlist1",	test_postlist1},
+    {"postlist2",	test_postlist2},
+    {"positionlist1",	test_positionlist1},
+    {"overwrite1", 	test_overwrite1},
+//    {"overwrite2", 	test_overwrite2},
+    {"bitmap1", 	test_bitmap1},
+    {"writelock1", 	test_writelock1},
+    {"packstring1", 	test_packstring1},
+    {"cursor3", 	test_cursor3},
     {0, 0}
 };
 

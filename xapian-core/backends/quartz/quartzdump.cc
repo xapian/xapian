@@ -58,8 +58,9 @@ main(int argc, char *argv[])
     std::vector<std::string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
-    om_termname startterm;
+    om_termname startterm = std::string("\0", 1);
     om_termname endterm;
+    bool use_endterm = false;
 
     bool syntax_error = false;
     while (argc && argv[0][0] == '-') {
@@ -70,12 +71,11 @@ main(int argc, char *argv[])
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "-s") == 0) {
 	    startterm = argv[1];
-	    use_revno = true;
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "-e") == 0) {
 	    endterm = argv[1];
-	    use_revno = true;
+	    use_endterm = true;
 	    argc -= 2;
 	    argv += 2;
 	} else {
@@ -124,24 +124,32 @@ main(int argc, char *argv[])
 	    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 
 	    QuartzDbKey key;
-	    key.value = std::string("\0", 1);
-	    //key.value = std::string("\1", 1);
+	    key.value = startterm;
 	    cursor->find_entry(key);
-	    if (cursor->current_key.value == key.value) {
-		std::cerr << "Calling prev" << std::endl;
-		cursor->prev();
-	    }
 
-	    if (cursor->current_key.value.size() != 0) {
-		std::cerr << "Couldn't move to beginning of table "
-			"(at key,tag=" <<
-			hex_encode(cursor->current_key.value) << "," <<
-			hex_encode(cursor->current_tag.value) << ")" <<
-			std::endl;
-		exit(1);
+	    if (startterm == std::string("\0", 1)) {
+		if (cursor->current_key.value == key.value) {
+		    std::cerr << "Calling prev" << std::endl;
+		    cursor->prev();
+		}
+
+		if (cursor->current_key.value.size() != 0) {
+		    std::cerr << "Couldn't move to start "
+			    "(at key,tag=" <<
+			    hex_encode(cursor->current_key.value) << "," <<
+			    hex_encode(cursor->current_tag.value) << ")" <<
+			    std::endl;
+		    exit(1);
+		}
+	    } else {
+		if (cursor->current_key.value < key.value) {
+		    std::cerr << "Calling next" << std::endl;
+		    cursor->next();
+		}
 	    }
 	    
-	    while (!cursor->after_end()) {
+	    while (!cursor->after_end() &&
+		   (!use_endterm || cursor->current_key.value <= endterm)) {
 		std::cout << hex_encode(cursor->current_key.value) << " -> "
 			  << hex_encode(cursor->current_tag.value) << "\n";
 		cursor->next();

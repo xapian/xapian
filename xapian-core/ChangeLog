@@ -1,3 +1,9 @@
+Tue Jan  9 13:32:08 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updates to make the quartzdump utility more useful.
+
+	* Added new test to test cursor behaviour in quartz.
+
 Tue Jan  9 11:31:26 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove an item from TODO
