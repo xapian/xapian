@@ -1,3 +1,7 @@
+Sat Jul 15 11:05:00 BST 2000 Olly Betts
+
+	* Updated AUTHORS file
+
 Fri Jul 14 18:44:22 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Even closer to BackendManager working in Java.
@@ -5,21 +9,21 @@ Fri Jul 14 18:44:22 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Fri Jul 14 18:27:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Protect dubious tests in internaltest from compilers without
-          -fno-access-control
+	  -fno-access-control
 
 	* More portability fixes for the Solaris compiler.
 
 Fri Jul 14 15:35:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Use -D_REENTRANT if pthreads are being used (fixes bugs on Linux, at the
-	  least).
+	* Use -D_REENTRANT if pthreads are being used (fixes bugs on Linux,
+	  at the least).
 
 	* Remove further reference to C++ style IO in threadtest.
 
 Fri Jul 14 14:16:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Rework debugging system so that it uses C style IO, and has various other
-	  improvements.
+	* Rework debugging system so that it uses C style IO, and has
+	  various other improvements.
 
 Fri Jul 14 14:07:00 BST 2000 Olly Betts
 
@@ -374,7 +378,7 @@ Thu Jun 29 03:39:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Thu Jun 29 03:13:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Display an initial debugging message before starting a test run,
+	* Display an initial debugging message before starting a test run,
 	  thus avoiding a mistaken complaint of a memory leak.
 
 Thu Jun 29 03:06:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -422,7 +426,7 @@ Wed Jun 28 09:13:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	* Add an OmLock, and sentries to the public methods in DADatabase.
 
 	* Add "threadtest", a testsuite for checking thread safety.
-          Currently has no (completed) tests.
+	  Currently has no (completed) tests.
 
 	* Compile various things only if network databases are compiled in.
 	  (currently doesn't work correctly).
@@ -438,7 +442,7 @@ Tue Jun 27 17:37:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Tue Jun 27 11:19:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test for requiring -nsl (eg, on solaris).
-          Only add network libraries if compiling in network code.
+	  Only add network libraries if compiling in network code.
 	  Change configure options for specifying debugging levels.
 
 Tue Jun 27 10:09:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -504,7 +508,7 @@ Wed Jun 21 15:23:00 BST 2000 Olly Betts
 
 Wed Jun 21 13:40:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Add a --enable-quiet option to configure to turn off libtool
+	* Add a --enable-quiet option to configure to turn off libtool
 	  messages if they're not wanted.
 
 	* Add a Dbt object to the test for db_cxx.h, to check that the
@@ -2228,7 +2232,7 @@ Fri Feb 18 17:49:13 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Fri Feb 18 13:53:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Added second test for reversed boolean queries.
+	* Added second test for reversed boolean queries.
 	  (When the full mset is not returned.)
 
 Fri Feb 18 13:54:37 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -2360,16 +2364,16 @@ Tue Feb  8 20:04:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Tue Feb  8 19:17:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Changed OMMSet::max_weight to OMMSet::max_possible.
-          Added OMMSet::max_attained, which is weight of top match, (not
-          necessarily top item in MSet)
+	* Changed OMMSet::max_weight to OMMSet::max_possible.
+	  Added OMMSet::max_attained, which is weight of top match, (not
+	  necessarily top item in MSet)
 
-        * Allow user to specify decision function for expand.
+	* Allow user to specify decision function for expand.
 
-        * Also allow user to specify that query terms should not be returned
-          by expand, by calling OMExpandOptions::use_query_terms().                       This does not yet work, however.
+	* Also allow user to specify that query terms should not be returned
+	  by expand, by calling OMExpandOptions::use_query_terms().                       This does not yet work, however.
 
-        * Add many code comments, and make doc++ stuff work better.
+	* Add many code comments, and make doc++ stuff work better.
 
 Tue Feb  8 19:13:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -2410,7 +2414,7 @@ Mon Feb  7 15:56:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Mon Feb  7 12:57:12 GMT 2000 Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make get_eset()'s max_items parameter work.
-          (Changed max_esize in OMExpand from a member to a parameter of
+	  (Changed max_esize in OMExpand from a member to a parameter of
 	  expand() )
 
 	* Implemented add_database() correctly in OMEnquire: can now do
