@@ -1,3 +1,12 @@
+Sun Aug 22 01:33:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,backends/quartz/quartz_record.cc,
+	  backends/quartz/quartz_record.h: WritableDatabase::get_avlength()
+	  no longer forces pending changes to be flushed.  This means you can
+	  now search a modified WritableDatabase without causing a flush
+	  unless the search includes a term whose postlist has pending
+	  modifications.
+
 Fri Aug 20 20:03:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree_util.h,common/,docs/overview.html,

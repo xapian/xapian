@@ -62,9 +62,9 @@ class QuartzRecordTable : public Btree {
 	 */
 	Xapian::doccount get_doccount() const;
 
-	/** Return the average length of records in the table.
+	/** Return the total length of all the records in the table.
 	 */
-	Xapian::doclength get_avlength() const;
+	quartz_totlen_t get_total_length() const;
 
 	/** Get the next document ID to use.
 	 */

@@ -173,16 +173,13 @@ QuartzRecordTable::modify_total_length(quartz_doclen_t old_doclen,
     add(METAINFO_KEY, tag);
 }
 
-// FIXME: probably want to cache the average length (but not miss updates)
-Xapian::doclength
-QuartzRecordTable::get_avlength() const
+quartz_totlen_t
+QuartzRecordTable::get_total_length() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "QuartzRecordTable::get_avlength", "");
-    Xapian::doccount docs = get_doccount();
-    if (docs == 0) RETURN(0);
+    DEBUGCALL(DB, quartz_totlen_t, "QuartzRecordTable::get_total_length", "");
 
     string tag;
-    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
+    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
@@ -194,7 +191,7 @@ QuartzRecordTable::get_avlength() const
     if (!unpack_uint_last(&data, end, &totlen)) {
 	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
-    RETURN((double)totlen / docs);
+    RETURN(totlen);
 }
 
 void
