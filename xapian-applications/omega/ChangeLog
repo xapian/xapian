@@ -1,3 +1,8 @@
+Sat Dec 21 01:51:32 GMT 2002  Olly Betts <olly@survex.com>
+
+	* templates/query: Stop topterms sticking out of green box with
+	  gecko based browsers.
+
 Sat Dec 21 01:44:53 GMT 2002  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Distribute docs/scriptindex.txt.

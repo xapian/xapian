@@ -44,7 +44,7 @@ $if{,$include{anyalldropbox},$include{anyallradio}}
 $if{$opt{topterms},
  <hr>
  <table><tr><td bgcolor="#ccffcc">
- $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">&nbsp;$prettyterm{$_} }
+ $map{$topterms,<span style="white-space:nowrap"><INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">$prettyterm{$_}</span> }
  <BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
  </td></tr></table>
  <hr>
