@@ -60,11 +60,32 @@ main(int argc, char *argv[])
 	    collapse_key = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
+	} else if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
 	    vector<string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("da_flimsy");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
+	    dbtypes.push_back("da_heavy");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
+	    dbtypes.push_back("db_flimsy");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
+	    dbtypes.push_back("db_heavy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
@@ -97,7 +118,7 @@ main(int argc, char *argv[])
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
-		"\t--da DBDIRECTORY\n" <<
+		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--multidb\n" <<
