@@ -45,7 +45,8 @@ class RSet {
 	RSet(const RSet &);
 	void operator=(const RSet &);
 
-	const OmDatabase &root;
+	// FIXME: should use one or the other (probably OmDatabase)
+	const OmDatabase root;
 	const Database *dbroot;
 
 	std::map<om_termname, om_doccount> reltermfreqs;
