@@ -26,11 +26,13 @@ dnl warning.  Either would do - with autoconf 2.50 or later, the only difference
 dnl is that LEX is set to use "missing" if neither flex nor lex is found, but we
 dnl need flex anyway since our scanner uses flex extensions.
 AM_PROG_LEX
-if test flex != "$LEX"; then
+case "$LEX" in
+  *flex) ;;
+  *)
   LEX="$MISSING flex"
   AC_SUBST(LEX_OUTPUT_ROOT, lex.yy)
-  AC_SUBST(LEXLIB, '')
-fi
+  AC_SUBST(LEXLIB, '') ;;
+esac
 AC_PROG_YACC
 
 dnl Check for time functions.
