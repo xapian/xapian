@@ -43,7 +43,7 @@ class InMemoryPosting {
     public:
 	om_docid did;
 	om_termname tname;
-	std::vector<om_termpos> positions; // Sorted list of positions
+	std::vector<om_termpos> positions; // Sorted vector of positions
 	om_termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)

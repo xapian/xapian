@@ -191,18 +191,17 @@ InMemoryDatabase::do_add_document(const struct OmDocumentContents & document)
 
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
-	make_term(i->second.tname);
+	const OmDocumentTerm & t = i->second;
+	make_term(t.tname);
 
 	OmDocumentTerm::term_positions::const_iterator j;
-
-	for(j = i->second.positions.begin();
-	    j != i->second.positions.end(); j++) {
-	    make_posting(i->second.tname, did, *j, i->second.wdf);
+	for (j = t.positions.begin(); j != t.positions.end(); j++) {
+	    make_posting(t.tname, did, *j, t.wdf);
 	}
 
 	Assert(did > 0 && did <= doclengths.size());
-	doclengths[did - 1] += i->second.wdf;
-	totlen += i->second.wdf;
+	doclengths[did - 1] += t.wdf;
+	totlen += t.wdf;
     }
 
     return did;

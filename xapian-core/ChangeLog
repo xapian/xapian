@@ -1,3 +1,9 @@
+Mon Aug 21 11:57:00 BST 2000 Olly Betts
+
+	* OmDocumentTerm::add_posting now first checks for the case where it
+	  can simply the new positional info (since positions are usually
+	  added in increasing order)
+
 Mon Aug 21 11:30:00 BST 2000 Olly Betts
 
 	* LocalMatch::get_max_weight() isn't externally visible, so removed it

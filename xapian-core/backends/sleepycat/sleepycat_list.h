@@ -72,7 +72,7 @@ class SleepycatListItem {
 	 *  term might occur multiple times at a single position, but will
 	 *  only have one entry in the position list for each position.
 	 */
-	std::vector<om_termpos> positions;
+	OmDocumentTerm::term_positions positions;
 
 	/** Term frequency of this item.
 	 *
@@ -102,7 +102,7 @@ class SleepycatListItem {
 	 *                    sum of the wdfs of the terms in the document).
 	 */
 	SleepycatListItem(id_type id_, om_termcount wdf_,
-			  const std::vector<om_termpos> & positions_,
+			  const OmDocumentTerm::term_positions & positions_,
 			  om_doccount termfreq_, om_doclength doclength_);
 
 	/** Create a new SleepycatListItem, based on a packed version.

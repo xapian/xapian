@@ -39,13 +39,20 @@ void
 OmDocumentTerm::add_posting(om_termpos tpos)
 {
     wdf++;
+    if (tpos == 0) return;
+    
+    // We generally expect term positions to be added in approximately
+    // increasing order, so check the end first
+    om_termpos last = positions.empty() ? 0 : positions.back();
+    if (tpos > last) {
+	positions.push_back(tpos);
+	return;
+    }
 
-    if(tpos != 0) {
-	std::vector<om_termpos>::iterator i;
-	i = std::lower_bound(positions.begin(), positions.end(), tpos);
-	if(i == positions.end() || *i != tpos) {
-	    positions.insert(i, tpos);
-	}
+    std::vector<om_termpos>::iterator i;
+    i = std::lower_bound(positions.begin(), positions.end(), tpos);
+    if (i == positions.end() || *i != tpos) {
+	positions.insert(i, tpos);
     }
 }
 

@@ -73,7 +73,7 @@ static const X readentry(const std::string &packed,
 
 SleepycatListItem::SleepycatListItem(id_type id_,
 			       om_termcount wdf_,
-			       const std::vector<om_termpos> & positions_,
+			       const OmDocumentTerm::term_positions & positions_,
 			       om_doccount termfreq_,
 			       om_doclength doclength_)
 	: id(id_),
@@ -134,7 +134,7 @@ SleepycatListItem::pack(bool store_termfreq) const
     entrytemp = positions.size();
     packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
 
-    std::vector<om_termpos>::const_iterator i;
+    OmDocumentTerm::term_positions::const_iterator i;
     for(i = positions.begin(); i != positions.end(); i++) {
 	entrytemp = *i;
 	packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));

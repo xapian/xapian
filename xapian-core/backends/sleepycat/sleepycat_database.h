@@ -74,7 +74,7 @@ class SleepycatDatabase : public IRDatabase {
 	om_doccount add_entry_to_postlist(om_termid tid,
 					  om_docid did,
 					  om_termcount wdf,
-					  const std::vector<om_termpos> & positions,
+					  const OmDocumentTerm::term_positions & positions,
 					  om_doclength doclength);
 
 	/** Make a new document, and return the new document ID.

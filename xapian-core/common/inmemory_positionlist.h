@@ -55,7 +55,7 @@ class InMemoryPositionList : public PositionList
 	~InMemoryPositionList() { return; }
 
 	/// Fill list with data, and move the position to the start.
-	void set_data(const std::vector<om_termpos> & positions_);
+	void set_data(const OmDocumentTerm::term_positions & positions_);
 
 	/// Gets size of position list.
 	om_termcount get_size() const;

@@ -263,7 +263,7 @@ om_doccount
 SleepycatDatabase::add_entry_to_postlist(om_termid tid,
 				      om_docid did,
 				      om_termcount wdf,
-				      const std::vector<om_termpos> & positions,
+				      const OmDocumentTerm::term_positions & positions,
 				      om_doclength doclength)
 {
 // FIXME: suggest refactoring most of this method into a constructor of

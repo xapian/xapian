@@ -45,12 +45,6 @@ Priority | Area            | Task
  Medium  | Documentation   | Patch doxygen, so that todo items in the body of
          |                 | methods get displayed.
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | OmDocumentTerm should use a set rather than a
-         |                 | map.
-         |                 | FIXME: OmDocumentTerm doesn't use either -
-         |                 | OmDocumentContents uses a map, but a set isn't
-         |                 | a suitable replacement...
----------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
 ---------+-----------------+--------------------------------------------------
