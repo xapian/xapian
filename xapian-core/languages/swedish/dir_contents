@@ -1,0 +1,6 @@
+<Directory>languages/swedish</Directory>
+
+<Description>
+Code for processing swedish, such as a stemming algorithm for normalising
+swedish words.
+</Description>

@@ -1,0 +1,7 @@
+.*.swp
+*.lo
+Makefile.in
+Makefile
+.deps
+.libs
+libswedish.la
