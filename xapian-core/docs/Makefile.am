@@ -206,7 +206,7 @@ include $(top_srcdir)/Makefile_common.am
 #########################
 
 APIDOC_SRC    = `find $(top_srcdir)/include \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c \) -print`
-SOURCEDOC_SRC = `find $(top_srcdir) \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c -and -not -name acconfig.h \) -print`
+SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c -and -not -name acconfig.h \) -and -not -path \*/tests/\* \) -print`
 
 apidoc/index.html:
 	@echo "Generating HTML documentation for API"
