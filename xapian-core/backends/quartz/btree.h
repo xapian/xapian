@@ -36,8 +36,6 @@ using std::string;
 // FIXME: but we want it to be completely impossible...
 #define BTREE_CURSOR_LEVELS 10
 
-class BtreeCheck;
-
 class Btree {
     friend class Bcursor; /* Should probably fix this. */
     private:
