@@ -25,7 +25,7 @@ quartzcompact_LDADD = @ldflags@ ../libxapian.la
 
 quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la -lz
+quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 omprogsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
 omprogsrv_SOURCES = omprogsrv.cc
