@@ -2,14 +2,27 @@
 
 set -e
 
-if test -z "$1" ; then
-    echo "Syntax: $0 VERSION"
-    echo "e.g. $0 0.8.1"
-    exit 1
-fi
-
 # directories to cvs tag
 released_dirs="xapian-core xapian-examples xapian-bindings xapian-applications/omega"
+
+version="$1"
+
+# check parameter was passed and that it looks like a version
+case "$version" in
+[0-9].[0-9].[0-9]) ;;
+*)
+    echo "Syntax: $0 VERSION"
+    echo "e.g. $0 0.8.4"
+    exit 1
+    ;;
+esac
+
+# check that we've not already done this version
+if [ -d "/usr/data/www/oligarchy.co.uk/xapian/$version" ] ; then
+    echo "Version $version already has a download directory:"
+    echo "  /usr/data/www/oligarchy.co.uk/xapian/$version"
+    exit 1
+fi
 
 # get path to top of CVS repo
 srcdir="`echo $0|sed 's![^/]*$!!;s!^xapian-maintainer-tools/$!!;s!^./$!../!;s!/xapian-maintainer-tools/$!/!'`"
@@ -24,10 +37,24 @@ for dir in $released_dirs ; do
     fi
 done
 
-cvstag="v`echo "$1"|sed 's/\./-/g'`"
+cvstag="v`echo "$version"|sed 's/\./-/g'`"
 
 # cvs tag
 for dir in $released_dirs ; do
     (cd "$srcdir$dir" && cvs tag "$cvstag")||exit $?
 done
 (cd "$srcdir" && cvs tag "$cvstag" bootstrap)||exit $?
+
+# now make the new download directory
+cd /usr/data/www/oligarchy.co.uk/xapian
+mkdir "$version"
+
+# copy the tarballs over
+for f in $released_dirs ; do
+    f="`echo "$f"|sed 's!.*/!!'`"
+    cp "HEAD/$f-$version.tar.gz" "$version"
+    # remove old versions of the tarball
+    for t in HEAD/"$f"-*.tar.gz ; do
+	test "HEAD/$f-$version.tar.gz" = "$t" || rm -f "$t"
+    done
+done
