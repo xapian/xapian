@@ -14,7 +14,7 @@ class TradWeight : public virtual IRWeight {
 	mutable weight termweight;
 	mutable doclength lenpart;
 
-	virtual void calc_termweight() const;
+	void calc_termweight() const;
     public:
 	~TradWeight() { }
 	weight get_weight(doccount wdf, doclength len) const;
