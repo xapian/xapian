@@ -1,3 +1,7 @@
+Thu Dec 20 16:10:32 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Add "using std::" statements to compile with g++ 3.0
+
 Tue Dec 18 14:29:31 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* schema references are now to xapian.org

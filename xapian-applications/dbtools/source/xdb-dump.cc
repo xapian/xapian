@@ -32,8 +32,10 @@
 
 #include "config.h"
 
+using std::cerr;
 using std::cout;
 using std::endl;
+using std::string;
 
 OmSettings read_db_options(xmlDocPtr, xmlNodePtr); // xdb-options.cc
 

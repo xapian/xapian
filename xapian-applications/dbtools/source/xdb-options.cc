@@ -27,6 +27,8 @@
 
 #include "config.h"
 
+using std::string;
+
 OmSettings read_db_options(xmlDocPtr doc, xmlNodePtr current)
 {
     if (xmlStrcmp(current->name, (const xmlChar*)"db-options")) {

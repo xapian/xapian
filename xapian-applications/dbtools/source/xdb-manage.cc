@@ -35,7 +35,9 @@
 #include "config.h"
 
 using std::cout;
+using std::cerr;
 using std::endl;
+using std::string;
 
 static string default_generator="";
 static string default_generator_string="";
