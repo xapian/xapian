@@ -1,3 +1,9 @@
+Wed May 07 23:06:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btreetest.cc,backends/quartz/quartztest.cc,
+	  configure.in,netprogs/nettest.cc,tests/,testsuite/: Minor overhaul
+	  of testsuite.
+
 Wed May 07 17:54:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/,common/document.h,matcher/Makefile.am,matcher/document.cc:

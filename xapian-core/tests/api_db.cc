@@ -589,7 +589,7 @@ class myExpandFunctor : public Xapian::ExpandDecider {
 		sum += *i;
 	    }
 //	    if (verbose) {
-//		cout << tname << "==> " << sum << "\n";
+//		tout << tname << "==> " << sum << "\n";
 //	    }
 	    return (sum % 2) == 0;
 	}

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,15 +93,20 @@ get_writable_database(const string &dbname)
 #define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\
     backendmanager.set_dbtype((B));\
     cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
-    result = max(result, test_driver::main(argc, argv, T##_tests));\
+    result = max(result, test_driver::run(T##_tests));\
     } else (void)0
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    string srcdir = test_driver::get_srcdir(argv[0]);
     string backend;
+    // allow setting from environmental variable for backward compatibility
     const char *p = getenv("OM_TEST_BACKEND");
     if (p) backend = p;
+    test_driver::add_command_line_option("backend", 'b', &backend);
+
+    test_driver::parse_command_line(argc, argv);
+    
+    string srcdir = test_driver::get_srcdir();
 
     int result = 0;
 
@@ -108,7 +114,7 @@ int main(int argc, char *argv[])
 
     RUNTESTS("void", nodb);
 
-#if 1 && defined(MUS_BUILD_BACKEND_INMEMORY)
+#ifdef MUS_BUILD_BACKEND_INMEMORY
     RUNTESTS("inmemory", db);
     RUNTESTS("inmemory", specchar);
     RUNTESTS("inmemory", writabledb);
@@ -121,7 +127,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", multivalue);
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
+#ifdef MUS_BUILD_BACKEND_QUARTZ
     RUNTESTS("quartz", db);
     RUNTESTS("quartz", specchar);
     RUNTESTS("quartz", writabledb);
@@ -134,7 +140,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", multivalue);
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
+#ifdef MUS_BUILD_BACKEND_REMOTE
     RUNTESTS("remote", db);
     RUNTESTS("remote", specchar);
     RUNTESTS("remote", remotedb);
@@ -143,7 +149,7 @@ int main(int argc, char *argv[])
     RUNTESTS("remote", multivalue);
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
     // need makeDA, etc tools to build da and db databases
     if (file_exists("../../makeda/makeDA")) {
 	RUNTESTS("da", db);

@@ -2024,10 +2024,11 @@ test_desc tests[] = {
     {0, 0}
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     tmpdir = ".quartztmp/";
     deletedir(tmpdir);
     makedir(tmpdir);
-    return test_driver::main(argc, argv, tests);
+    test_driver::parse_command_line(argc, argv);
+    return test_driver::run(tests);
 }

@@ -30,42 +30,7 @@ using namespace std;
 
 #include "om/om.h"
 #include "testsuite.h"
-#include "refcnt.h"
 #include "omstringstream.h"
-
-#ifdef HAVE_MEMCHECK_H
-# include <memcheck.h>
-# if defined(VALGRIND_DO_LEAK_CHECK) && defined(VALGRIND_COUNT_ERRORS) && defined(VALGRIND_COUNT_LEAKS)
-// All is well!
-# else
-#  undef HAVE_MEMCHECK_H
-# endif
-#endif
-
-// always succeeds
-static bool test_trivial();
-// always fails (for testing the framework)
-static bool test_alwaysfail();
-// test the test framework
-static bool test_testsuite1();
-static bool test_testsuite2();
-static bool test_testsuite3();
-static bool test_testsuite4();
-
-static bool test_trivial()
-{
-    return true;
-}
-
-static bool test_alwaysfail()
-{
-    return false;
-}
-
-static bool test_skip()
-{
-    SKIP_TEST("skip test");
-}
 
 static bool test_except1()
 {
@@ -74,151 +39,6 @@ static bool test_except1()
     } catch (int) {
     }
     return true;
-}
-
-class duffnew_test {
-  public:
-    duffnew_test() { *foo = 0; }
-  private:
-    char foo[7];
-};
-
-duffnew_test *duff_allocation = 0;
-duffnew_test *duff_allocation_2 = 0;
-
-static bool test_duffnew()
-{
-    // make an unfreed allocation
-    duff_allocation_2 = duff_allocation;
-    duff_allocation = new duffnew_test; // char[7];
-    return true;
-}
-
-char *duff_malloc_allocation = 0;
-char *duff_malloc_allocation_2 = 0;
-
-static bool test_duffmalloc()
-{
-    // make an unfreed allocation
-    duff_malloc_allocation_2 = duff_malloc_allocation;
-    duff_malloc_allocation = (char *)malloc(7);
-    return true;
-}
-
-static bool test_testsuite1()
-{
-    test_desc mytests[] = {
-	{"test0", test_skip},
-	{"test1", test_alwaysfail},
-	{"test2", test_trivial},
-	{0, 0}
-    };
-
-    test_driver driver(mytests);
-    driver.set_abort_on_error(false);
-    if (!verbose) {
-	driver.set_quiet(true);
-    }
-
-    test_driver::result res = driver.run_tests();
-    TEST_AND_EXPLAIN(res.succeeded == 1 && res.failed == 1 && res.skipped == 1,
-		     res.succeeded << " succeeded, "
-		     << res.failed << " failed,"
-		     << res.skipped << " skipped.");
-
-    return true;
-}
-
-static bool test_testsuite2()
-{
-    test_desc mytests[] = {
-	{"test1", test_alwaysfail},
-	{"test2", test_trivial},
-	{0, 0}
-    };
-
-    test_driver driver(mytests);
-    driver.set_abort_on_error(true);
-    if (!verbose) {
-	driver.set_quiet(true);
-    }
-
-    test_driver::result res = driver.run_tests();
-    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
-		     res.succeeded << " succeeded, "
-		     << res.failed << " failed.");
-
-    return true;
-}
-
-// test the memory leak tests
-static bool test_testsuite3()
-{
-#ifdef HAVE_MEMCHECK_H
-    if (!RUNNING_ON_VALGRIND) SKIP_TEST("Not running under valgrind");
-
-    // Note that duffnew leaks (deliberately), so it'll get run twice.
-    // Bear this in mind if you're trying to debug stuff round here...
-    test_desc mytests[] = {
-	{"duff_new", test_duffnew},
-	{0, 0}
-    };
-
-    test_driver driver(mytests);
-    if (!verbose) {
-	driver.set_quiet(true);
-    }
-
-    test_driver::result res = driver.run_tests();
-    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
-		     "Memory leak checking with new/delete doesn't work");
-
-    // clean up after test_duffnew()
-    delete duff_allocation;
-    duff_allocation = 0;
-    delete duff_allocation_2;
-    duff_allocation_2 = 0;
-
-    return true;
-#else
-    SKIP_TEST("Not built to run under valgrind");
-#endif
-}
-
-// test the malloc() memory leak tests
-static bool test_testsuite4()
-{
-#ifdef HAVE_MEMCHECK_H
-    if (!RUNNING_ON_VALGRIND) SKIP_TEST("Not running under valgrind");
-
-    test_desc mytests[] = {
-	{"duff_malloc", test_duffmalloc},
-	{0, 0}
-    };
-
-    test_driver driver(mytests);
-    if (!verbose) {
-	driver.set_quiet(true);
-    }
-
-    test_driver::result res = driver.run_tests();
-    TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
-		     "Memory leak checking with malloc()/free() doesn't work");
-
-    // clean up after test_duffmalloc()
-    if (duff_malloc_allocation) {
-	free(duff_malloc_allocation);
-	duff_malloc_allocation = 0;
-    }
-    if (duff_malloc_allocation_2) {
-	free(duff_malloc_allocation_2);
-	duff_malloc_allocation_2 = 0;
-    }
-
-    return true;
-#else
-    SKIP_TEST("Not built to run under valgrind");
-#endif
 }
 
 class Test_Exception {
@@ -248,31 +68,24 @@ static bool test_exception1()
 // # Tests of the reference counted pointers #
 // ###########################################
 
-#ifdef HAVE_NO_ACCESS_CONTROL
-class test_refcnt : public RefCntBase {
+class test_refcnt : public Xapian::Internal::RefCntBase {
     private:
 	bool &deleted;
     public:
 	test_refcnt(bool &deleted_) : deleted(deleted_) {
-	    if (verbose) {
-	        cout << " constructor ";
-	    }
+	    tout << "constructor\n";
 	}
-	RefCntPtr<const test_refcnt> test() {
-	    return RefCntPtr<const test_refcnt>(this);
+	Xapian::Internal::RefCntPtr<const test_refcnt> test() {
+	    return Xapian::Internal::RefCntPtr<const test_refcnt>(this);
 	}
 	~test_refcnt() {
 	    deleted = true;
-	    if (verbose) {
-		cout << " destructor ";
-	    }
+	    tout << "destructor\n";
 	}
 };
-#endif
 
 static bool test_refcnt1()
 {
-#ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
@@ -280,12 +93,12 @@ static bool test_refcnt1()
     TEST_EQUAL(p->ref_count, 0);
 
     {
-	RefCntPtr<test_refcnt> rcp(p);
+	Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
 
 	TEST_EQUAL(rcp->ref_count, 1);
 	
 	{
-	    RefCntPtr<test_refcnt> rcp2;
+	    Xapian::Internal::RefCntPtr<test_refcnt> rcp2;
 	    rcp2 = rcp;
 	    TEST_EQUAL(rcp->ref_count, 2);
 	    // rcp2 goes out of scope here
@@ -299,30 +112,23 @@ static bool test_refcnt1()
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
 
     return true;
-#else
-    SKIP_TEST("Unable to disable class member access checking in C++ compiler");
-#endif
 }
 
 // This is a regression test - a RefCntPtr used to delete the object pointed
-// to if it was the reference count was 1 and you assigned it to itself.
+// to if you assignment it to itself and the reference count was 1.
 static bool test_refcnt2()
 {
-#ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    RefCntPtr<test_refcnt> rcp(p);
+    Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
     
     rcp = rcp;
     
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
     return true;
-#else
-    SKIP_TEST("Unable to disable class member access checking in C++ compiler");
-#endif
 }
 
 // test string comparisions
@@ -390,10 +196,6 @@ static bool test_omstringstream1()
 /// The lists of tests to perform
 test_desc tests[] = {
     {"except1",			test_except1},
-    {"testsuite1",		test_testsuite1},
-    {"testsuite2",		test_testsuite2},
-    {"testsuite3",		test_testsuite3},
-    {"testsuite4",		test_testsuite4},
     {"exception1",              test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
@@ -402,7 +204,8 @@ test_desc tests[] = {
     {0, 0}
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    return test_driver::main(argc, argv, tests);
+    test_driver::parse_command_line(argc, argv);
+    return test_driver::run(tests);
 }

@@ -277,6 +277,7 @@ int main(int argc, char **argv)
     }
     delete_dir(tmpdir);
     make_dir(tmpdir);
-    datadir = test_driver::get_srcdir(argv[0]) + "/z_data/";
-    return test_driver::main(argc, argv, tests);
+    test_driver::parse_command_line(argc, argv);
+    datadir = test_driver::get_srcdir() + "/z_data/";
+    return test_driver::run(tests);
 }

@@ -26,36 +26,25 @@
 
 #include "omstringstream.h"
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
 /** Class which is thrown when a test case fails.
- *  This class contains a message, which is displayed to the user if
- *  the verbose flag is set, which should give helpful information as
- *  to the cause of the failure.
  */
-class TestFailure {
-    public:
-	TestFailure(std::string message_ = "") : message(message_) {}
-	~TestFailure() {}
-	std::string message;
-};
+class TestFail { };
 
 /** Class which is thrown when a test case is to be skipped.
+ *
  *  This happens when something can't be tested for some reason, but
- *  shouldn't cause a test fail.
+ *  that reason isn't grounds for causing the test to fail.
  */
-class TestSkip {
-    public:
-	TestSkip(std::string message_ = "") : message(message_) {}
-	~TestSkip() {}
-	std::string message;
-};
+class TestSkip { };
 
-/** Macro used to build a TestFailure object and throw it.
+/** Macro used to build a TestFail object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { TestFailure testfail; \
+#define FAIL_TEST(a) do { TestFail testfail; \
                           if (verbose) { tout << a << '\n'; } \
 		          throw testfail; } while (0)
 
@@ -78,7 +67,11 @@ struct test_desc {
     test_func run;
 };
 
-/// The global verbose flag.  Individual tests may need to get at it.
+/// The global verbose flag.
+//
+//  If verbose is set, then the test harness will display diagnostic output
+//  for tests which fail or skip.  Individual tests may use this flag to avoid
+//  needless generation of diagnostic output in cases when it's expensive.
 extern bool verbose;
 
 /// The exception type we were expecting in TEST_EXCEPTION.
@@ -110,18 +103,27 @@ class test_driver {
 	    unsigned int skipped;
 	};
 
-	/** main() replacement.  Standard OM test suite programs
-	 *  can have a one-liner main() which calls test_driver::main()
-	 *  with argc, argv, and the test array.  This function handles
-	 *  all the standard argument parsing and running of the tests.
-	 *  main() should return the result of test_driver::main() to
-	 *  the system.
+	/** Add a test-specific command line option.
+	 *
+	 *  The recognised option will be described as:
+	 *
+	 *   -<s>=<l>
+	 *
+	 *  And any value set will be put into arg.
+	 */
+	static void add_command_line_option(const std::string &l, char s,
+					    std::string * arg);
+
+	/** Parse the command line arguments.
 	 *
 	 *  @param  argc	The argument count passed into ::main()
 	 *  @param  argv	The argument list passed into ::main()
-	 *  @param  tests	The array of tests to run.
 	 */
-	static int main(int argc, char *argv[], const test_desc *tests);
+	static void parse_command_line(int argc, char **argv);
+
+	static void usage();
+
+	static int run(const test_desc *tests);
 
 	/** The constructor, which sets up the test driver.
 	 *
@@ -138,19 +140,10 @@ class test_driver {
 	result run_tests(std::vector<std::string>::const_iterator b,
 			 std::vector<std::string>::const_iterator e);
 
-	/** If set, this will cause the testsuite to stop executing further
-	 *  tests if any fail.
-	 */
-	void set_abort_on_error(bool aoe_);
-
-	/** If set to true, the testsuite will produce no output whatsoever.
-	 */
-	void set_quiet(bool quiet_);
-
 	/** Read srcdir from environment and if not present, make a valiant
 	 *  attempt to guess a value
 	 */
-	static std::string get_srcdir(const std::string &argv0);
+	static std::string get_srcdir();
 
 	// running total for a test run
 	static result total;
@@ -161,6 +154,12 @@ class test_driver {
 	test_driver & operator = (const test_driver &);
 
 	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+
+	static std::map<int, std::string *> short_opts;
+
+	static std::string opt_help;
+
+	static std::vector<std::string> test_names;
 
 	/** Runs the test function and returns its result.  It will
 	 *  also trap exceptions and some memory leaks and force a
@@ -184,7 +183,7 @@ class test_driver {
 	static void report(const test_driver::result &r, const std::string &desc);
 
 	// abort tests at the first failure
-	bool abort_on_error;
+	static bool abort_on_error;
 
 	// the default stream to output to
 	std::ostream out;
@@ -201,11 +200,6 @@ class test_driver {
 	// strings to use for colouring - empty if output isn't a tty
 	static std::string col_red, col_green, col_yellow, col_reset;
 };
-
-inline void test_driver::set_abort_on_error(bool aoe_)
-{
-    abort_on_error = aoe_;
-}
 
 #ifndef STRINGIZE
 /** STRINGIZE converts a piece of code to a string, so it can be displayed.

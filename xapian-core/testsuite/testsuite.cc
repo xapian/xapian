@@ -61,12 +61,6 @@
 
 using namespace std;
 
-class null_streambuf : public streambuf {
-};
-
-/// A null stream buffer which we can redirect output to.
-static null_streambuf nullsb;
-
 /// The global verbose flag.
 bool verbose;
 
@@ -82,21 +76,15 @@ om_ostringstream tout;
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};
 string test_driver::argv0 = "";
+string test_driver::opt_help = "";
+map<int, string *> test_driver::short_opts;
+vector<string> test_driver::test_names;
+bool test_driver::abort_on_error = false;
 string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
 
-void
-test_driver::set_quiet(bool quiet_)
-{
-    if (quiet_) {
-	out.rdbuf(&nullsb);
-    } else {
-	out.rdbuf(cout.rdbuf());
-    }
-}
-
 string
-test_driver::get_srcdir(const string & argv0)
+test_driver::get_srcdir()
 {
     char *p = getenv("srcdir");
     if (p != NULL) return string(p);
@@ -144,9 +132,7 @@ test_driver::get_srcdir(const string & argv0)
 }
 
 test_driver::test_driver(const test_desc *tests_)
-	: abort_on_error(false),
-	  out(cout.rdbuf()),
-	  tests(tests_)
+	: out(cout.rdbuf()), tests(tests_)
 {
 }
 
@@ -294,7 +280,7 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 #endif
-	    } catch (const TestFailure &fail) {
+	    } catch (const TestFail &) {
 		string s = tout.str();
 		if (!s.empty()) {
 		    out << '\n' << tout.str();
@@ -302,15 +288,15 @@ test_driver::runtest(const test_desc *test)
 		    tout.str("");
 		}
 		out << " " << col_red << "FAILED" << col_reset;
-		if (verbose) {
-		    out << fail.message << endl;
-		}
 		return FAIL;
-	    } catch (const TestSkip &skip) {
-		out << " " << col_yellow << "SKIPPED" << col_reset;
-		if (verbose) {
-		    out << skip.message << endl;
+	    } catch (const TestSkip &) {
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] |= '\n') out << endl;
+		    tout.str("");
 		}
+		out << " " << col_yellow << "SKIPPED" << col_reset;
 		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
@@ -418,8 +404,11 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    switch (runtest(test)) {
 		case PASS:
 		    ++result.succeeded;
-//		    out << " ok." << endl;
-		    out << "\r                                                                               \r";
+		    if (verbose) {
+			out << col_green << " ok" << col_reset << endl;
+		    } else {
+			out << "\r                                                                               \r";
+		    }
 		    break;
 		case FAIL:
 		    ++result.failed;
@@ -440,9 +429,11 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
     return result;
 }
 
-static void usage(char *progname)
+void
+test_driver::usage()
 {
-    cerr << "Usage: " << progname << " [-v] [-o] [TESTNAME]..." << endl;
+    cout << "Usage: " << argv0 << " [-v] [-o] " << opt_help
+         << "[TESTNAME]..." << endl;
     exit(1);
 }
 
@@ -476,9 +467,22 @@ report_totals()
     test_driver::report(test_driver::total, "total");
 }
 
-int
-test_driver::main(int argc, char *argv[], const test_desc *tests)
+void
+test_driver::add_command_line_option(const string &l, char s, string * arg)
 {
+    short_opts.insert(make_pair<int, string *>(int(s), arg));
+    opt_help += "[-";
+    opt_help += s;
+    opt_help += '=';
+    opt_help += l;
+    opt_help += "] ";
+}
+
+void
+test_driver::parse_command_line(int argc, char **argv)
+{
+    argv0 = argv[0];
+
 #ifdef HAVE_MEMCHECK_H
     if (verbose && RUNNING_ON_VALGRIND) {
 	// Open the fd for valgrind to log to
@@ -493,10 +497,6 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     }
 #endif
 
-    if (runs == 0) argv0 = argv[0];
-    if (runs == 1) atexit(report_totals);
-    runs++;
-
     if (isatty(1)) {
 	col_red = "\x1b[1m\x1b[31m";
 	col_green = "\x1b[1m\x1b[32m";
@@ -504,22 +504,33 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
 	col_reset = "\x1b[0m";
     }
 
-    test_driver driver(tests);
-
-    vector<string> test_names;
+    string opts = "voh";
+    map<int, string *>::const_iterator i;
+    for (i = short_opts.begin(); i != short_opts.end(); ++i) {
+	opts += char(i->first);
+	opts += ':';
+    }
 
     int c;
-    while ((c = getopt(argc, argv, "vo")) != EOF) {
+    while ((c = getopt(argc, argv, opts.c_str())) != EOF) {
 	switch (c) {
 	    case 'v':
 		verbose = true;
 		break;
 	    case 'o':
-		driver.set_abort_on_error(true);
+		abort_on_error = true;
 		break;
-	    default:
-	    	usage(argv[0]);
-		return 1;
+	    default: {
+		map<int, string *>::const_iterator i;
+		i = short_opts.find(c);
+		if (i != short_opts.end()) {
+		    *(i->second) = string(optarg);
+		    break;
+		}
+		// -h or unrecognised option
+	    	usage();
+		return; // usage() doesn't return ...
+	    }
 	}
     }
 
@@ -535,6 +546,17 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
 #ifdef MUS_DEBUG_VERBOSE
     om_debug.initialise();
 #endif /* MUS_DEBUG_VERBOSE */
+}
+
+int
+test_driver::run(const test_desc *tests)
+{
+    // If we're running more than one batch of tests, report the totals
+    // at the end.
+    if (runs == 1) atexit(report_totals);
+    ++runs;
+
+    test_driver driver(tests);
 
     test_driver::result myresult;
     myresult = driver.run_tests(test_names.begin(), test_names.end());

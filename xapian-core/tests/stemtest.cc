@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -169,28 +169,36 @@ test_desc tests[] = {
     {0, 0}
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    srcdir = test_driver::get_srcdir(argv[0]);
-    int result = 0;
-    char *val;
-
-    val = getenv("OM_STEMTEST_SEED");
-    if (val && *val) {
-	seed = atoi(val);
-    } else {
-	seed = 42; // FIXME hash hostname like stemtest.pl did???
-	//$seed = unpack("%32L*", `hostname`);
-    }
-    cout << "The random seed is " << seed << endl;
-    cout << "Please report the seed when reporting a test failure." << endl;
-
-    string langs;
+    string langs, seed_str;
+    // Backward compatibility
+    char * val;
     val = getenv("OM_STEMTEST_LANGUAGES");
     if (val && *val)
 	langs = val;
     else
 	langs = Xapian::Stem::get_available_languages();
+    test_driver::add_command_line_option("languages", 'l', &langs);
+
+    seed = 42;
+    // Backward compatibility
+    val = getenv("OM_STEMTEST_SEED");
+    if (val && *val) {
+	seed_str = val;
+    } else {
+	// FIXME hash hostname like stemtest.pl did???
+	//$seed = unpack("%32L*", `hostname`);
+    }
+    test_driver::add_command_line_option("seed", 's', &seed_str);
+
+    test_driver::parse_command_line(argc, argv);
+    srcdir = test_driver::get_srcdir();
+    int result = 0;
+
+    if (!seed_str.empty()) seed = atoi(seed_str.c_str());
+    cout << "The random seed is " << seed << endl;
+    cout << "Please report the seed when reporting a test failure." << endl;
 
     string::size_type b = 0;
     while (b != langs.size()) {
@@ -200,7 +208,7 @@ int main(int argc, char *argv[])
 	while (b < langs.size() && langs[b] == ' ') ++b;
 	cout << "Running tests with " << language << " stemmer..." << endl;
 	stemmer = Xapian::Stem(language);
-	result = max(result, test_driver::main(argc, argv, tests));
+	result = max(result, test_driver::run(tests));
     }
     return result;
 }

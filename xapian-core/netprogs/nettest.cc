@@ -260,11 +260,12 @@ test_desc tests[] = {
     {0,			0},
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    string srcdir = test_driver::get_srcdir(argv[0]);
+    test_driver::parse_command_line(argc, argv);
+    string srcdir = test_driver::get_srcdir();
 
     datadir = srcdir + "/../tests/testdata/";
 
-    return test_driver::main(argc, argv, tests);
+    return test_driver::run(tests);
 }
