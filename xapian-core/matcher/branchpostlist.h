@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,18 +37,13 @@
  */
 class BranchPostList : public PostList {
     private:
-        // Prevent copying
-        BranchPostList(const BranchPostList &);
-        BranchPostList & operator=(const BranchPostList &);
+	// Prevent copying
+	BranchPostList(const BranchPostList &);
+	BranchPostList & operator=(const BranchPostList &);
 
     protected:
-	/** Utility method, to call recalc_maxweight() and do the pruning
-	 *  if a next() or skip_to() returns non-NULL result.
-	 */
-	void handle_prune(PostList *&kid, PostList *ret);
-
 	/// Left sub-postlist
-        PostList *l;
+	PostList *l;
 
 	/// Right sub-postlist
 	PostList *r;
@@ -58,59 +53,46 @@ class BranchPostList : public PostList {
 	 *  tree changes such that the maximum weights need to be
 	 *  recalculated.
 	 */
-        MultiMatch *matcher;
+	MultiMatch *matcher;
+
+	/** Utility method, to call recalc_maxweight() and do the pruning
+	 *  if a next() or skip_to() returns non-NULL result.
+	 */
+	void handle_prune(PostList *&kid, PostList *ret) {
+	    if (ret) {
+		delete kid;
+		kid = ret;
+
+		// now tell matcher that maximum weights need recalculation.
+		matcher->recalc_maxweight();
+	    }
+	}
 
     public:
 	BranchPostList(PostList *l_, PostList *r_, MultiMatch *matcher_)
 		: l(l_), r(r_), matcher(matcher_) {}
 
-        virtual ~BranchPostList();
+	virtual ~BranchPostList() {
+	    if (l) delete l;
+	    if (r) delete r;
+	}
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If read_position_list() is called on such a branch postlist,
 	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
-	virtual PositionList *read_position_list();
+	virtual PositionList * read_position_list() {
+	    throw Xapian::UnimplementedError("BranchPostList::read_position_list() unimplemented");
+	}
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If open_position_list() is called on such a branch postlist,
 	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
-	virtual PositionList * open_position_list() const;
+	virtual PositionList * open_position_list() const {
+	    throw Xapian::UnimplementedError("BranchPostList::open_position_list() unimplemented");
+	}
 };
-
-inline
-BranchPostList::~BranchPostList()
-{
-    if (l) delete l;
-    if (r) delete r;
-}
-
-inline void
-BranchPostList::handle_prune(PostList *&kid, PostList *ret)
-{
-    DEBUGCALL(MATCH, void, "BranchPostList::handle_prune", kid << ", " << ret);
-    if (ret) {
-	delete kid;
-	kid = ret;
-
-	// now tell matcher that maximum weights need recalculation.
-	matcher->recalc_maxweight();
-    }
-}
-
-inline PositionList *
-BranchPostList::read_position_list()
-{
-    DEBUGCALL(MATCH, PositionList *, "BranchPostList::read_position_list", "");
-    throw Xapian::UnimplementedError("BranchPostList::read_position_list() unimplemented");
-}
-
-inline PositionList *
-BranchPostList::open_position_list() const
-{
-    throw Xapian::UnimplementedError("BranchPostList::open_position_list() unimplemented");
-}
 
 // Helper functions - call next/skip_to on a postlist and handle any
 // resulting prune

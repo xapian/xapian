@@ -1,3 +1,8 @@
+Wed Sep 22 16:49:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/: Pruned unneeded #include-s and other tidying, some
+	  enabled by the previous change.
+
 Wed Sep 22 14:04:27 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/positionlist.h,matcher/: Moved all of the implementations

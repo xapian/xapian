@@ -33,11 +33,11 @@ class Xapian::ErrorHandler;
  */
 class MergePostList : public PostList {
     private:
-        // Prevent copying
-        MergePostList(const MergePostList &);
-        MergePostList & operator=(const MergePostList &);
+	// Prevent copying
+	MergePostList(const MergePostList &);
+	MergePostList & operator=(const MergePostList &);
 
-        Xapian::weight w_max;
+	Xapian::weight w_max;
 
 	vector<PostList *> plists;
 
@@ -48,7 +48,7 @@ class MergePostList : public PostList {
 	 *  tree changes such that the maximum weights need to be
 	 *  recalculated.
 	 */
-        MultiMatch *matcher;
+	MultiMatch *matcher;
 
 	Xapian::ErrorHandler * errorhandler;
     public:
@@ -62,7 +62,7 @@ class MergePostList : public PostList {
 
 	Xapian::weight get_maxweight() const;
 
-        Xapian::weight recalc_maxweight();
+	Xapian::weight recalc_maxweight();
 
 	PostList *next(Xapian::weight w_min);
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
@@ -78,10 +78,10 @@ class MergePostList : public PostList {
 	virtual PositionList * read_position_list();
 	virtual PositionList * open_position_list() const;
 
-        MergePostList(vector<PostList *> plists_,
+	MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
 		      Xapian::ErrorHandler * errorhandler_);
-        ~MergePostList();
+	~MergePostList();
 };
 
 #endif /* OM_HGUARD_MERGEPOSTLIST_H */

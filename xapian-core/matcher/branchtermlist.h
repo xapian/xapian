@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,27 +29,20 @@
 
 class BranchTermList : public TermList {
     protected:
-        void handle_prune(TermList *&kid, TermList *ret);
-        TermList *l, *r;
+	TermList *l, *r;
+
+	void handle_prune(TermList *&kid, TermList *ret) {
+	    if (ret) {
+		delete kid;
+		kid = ret;
+	    }
+	}
+
     public:
-        virtual ~BranchTermList();
+	virtual ~BranchTermList() {
+	    if (l) delete l;
+	    if (r) delete r;
+	}
 };
-
-inline
-BranchTermList::~BranchTermList()
-{
-    if (l) delete l;
-    if (r) delete r;
-}
-
-inline void
-BranchTermList::handle_prune(TermList *&kid, TermList *ret)
-{
-    DEBUGCALL(MATCH, void, "BranchTermList::handle_prune", kid << ", " << ret);
-    if (ret) {
-	delete kid;
-	kid = ret;
-    }
-}
 
 #endif /* OM_HGUARD_BRANCHTERMLIST_H */

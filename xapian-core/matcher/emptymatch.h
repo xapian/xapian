@@ -1,8 +1,8 @@
-/* match.h: base class for matchers
+/* emptymatch.h: class representing an "empty" matcher
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 #include "match.h"
 #include "emptypostlist.h"
 #include <xapian/enquire.h>
-#include <xapian/error.h>
 
 class EmptySubMatch : public SubMatch {
     public:

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,9 +47,9 @@ using std::map;
 
 class LocalSubMatch : public SubMatch {
     private:
-        // Prevent copying
-        LocalSubMatch(const LocalSubMatch &);
-        LocalSubMatch & operator=(const LocalSubMatch &);
+	// Prevent copying
+	LocalSubMatch(const LocalSubMatch &);
+	LocalSubMatch & operator=(const LocalSubMatch &);
 
 	AutoPtr<Xapian::Weight::Internal> statssource;
 
@@ -62,10 +62,10 @@ class LocalSubMatch : public SubMatch {
 
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSetI> rset;
-    
+
 	/// The size of the query (passed to Xapian::Weight objects)
 	Xapian::doclength querysize;
-    
+
 	/// Weighting scheme object
 	const Xapian::Weight * wtscheme;
 
@@ -107,7 +107,7 @@ class LocalSubMatch : public SubMatch {
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),
 		  querysize(query->qlen), wtscheme(wtscheme_)
-	{	    
+	{
 	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 		      db << ", " << query << ", " << omrset << ", " <<
 		      gatherer << ", [wtscheme]");
@@ -121,7 +121,7 @@ class LocalSubMatch : public SubMatch {
 	{
 	    DEBUGCALL(MATCH, void, "LocalSubMatch::~LocalSubMatch", "");
 	}
-	
+
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
@@ -130,6 +130,6 @@ class LocalSubMatch : public SubMatch {
 	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}
-};   
+};
 
 #endif /* OM_HGUARD_LOCALMATCH_H */

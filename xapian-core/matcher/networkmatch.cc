@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,8 @@
 #include "utils.h"
 
 #include "msetpostlist.h"
+#include "networkstats.h"
+#include "net_database.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -123,4 +125,12 @@ RemoteSubMatch::start_match(Xapian::doccount maxitems)
     // FIXME: improve this
     // link should always return false for first call to get_mset
     Assert(res == false);
+}
+
+const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight>
+RemoteSubMatch::get_term_info() const
+{
+    Assert(postlist);
+    postlist->make_pl();
+    return postlist->pl->mset.internal->termfreqandwts;
 }

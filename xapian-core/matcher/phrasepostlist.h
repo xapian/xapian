@@ -25,6 +25,7 @@
 #define OM_HGUARD_PHRASEPOSTLIST_H
 
 #include "selectpostlist.h"
+#include <vector>
 
 class Xapian::PositionIterator::Internal;
 typedef Xapian::PositionIterator::Internal PositionList;

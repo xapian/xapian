@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,9 +26,9 @@
 
 #include "match.h"
 #include "stats.h"
-#include "net_database.h"
 
-#include "msetpostlist.h"
+class PendingMSetPostList;
+class NetworkStatsSource;
 
 /// Class for performing match calculations remotely
 class RemoteSubMatch : public SubMatch {
@@ -41,12 +41,12 @@ class RemoteSubMatch : public SubMatch {
 
 	/// RSetI to be used (affects weightings)
 	AutoPtr<RSetI> rset;
-    
+
 	/// A pointer to the gatherer, to access the statistics.
 	StatsGatherer *gatherer;
 
 	NetworkStatsSource * statssource;
-	
+
 	/// the statistics object
 	Stats remote_stats;
 
@@ -76,14 +76,10 @@ class RemoteSubMatch : public SubMatch {
 
 	/// Start the remote match going
 	void start_match(Xapian::doccount maxitems);
-	
+
 	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
-	    Assert(postlist);
-	    postlist->make_pl();
-	    return postlist->pl->mset.internal->termfreqandwts;
-	}
-};   
+	const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const;
+};
 
 #endif /* OM_HGUARD_NETWORKMATCH_H */

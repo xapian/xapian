@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,9 +34,15 @@ class ExtraWeightPostList : public PostList {
 	Xapian::weight max_weight;
 
     public:
-	Xapian::doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
-	Xapian::doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
-	Xapian::doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
+	Xapian::doccount get_termfreq_max() const {
+	    return pl->get_termfreq_max();
+	}
+	Xapian::doccount get_termfreq_min() const {
+	    return pl->get_termfreq_min();
+	}
+	Xapian::doccount get_termfreq_est() const {
+	    return pl->get_termfreq_est();
+	}
 
 	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
@@ -48,7 +54,7 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_maxweight() + max_weight;
 	}
 
-        Xapian::weight recalc_maxweight() {
+	Xapian::weight recalc_maxweight() {
 	    return pl->recalc_maxweight() + max_weight;
 	}
 
@@ -61,7 +67,7 @@ class ExtraWeightPostList : public PostList {
 	    }
 	    return NULL;
 	}
-	    
+
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min) {
 	    PostList *p = pl->skip_to(did, w_min - max_weight);
 	    if (p) {
@@ -93,8 +99,10 @@ class ExtraWeightPostList : public PostList {
 	    return pl->open_position_list();
 	}
 
-        ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_, MultiMatch *matcher_)
-	    : pl(pl_), wt(wt_), matcher(matcher_), max_weight(wt->get_maxextra())
+	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,
+			    MultiMatch *matcher_)
+	    : pl(pl_), wt(wt_), matcher(matcher_),
+	      max_weight(wt->get_maxextra())
 	{ }
 
 	~ExtraWeightPostList() {
