@@ -1,5 +1,22 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.0.3  Thu Jun  3 13:14:39 2004
+	- Makefile.PL now uses xapian-config to determine
+	  library/include path 
+	[Changes contributed by Olly Betts]
+	- Wrapped Database::postlist_begin() and postlist_end()
+	- Database::get_doccount(), get_avlength(), and get_termfreq()
+	  now return values correctly
+	- WritableDatabase::delete_document() and replace_document()
+	  now handle exceptions
+	- Wrapped all methods which WritableDatabase inherits from
+	  Database
+	- Fixed 2 warnings when building with GCC 3.3
+	- Added more test cases to index.t
+	- Corrected typemap - weight is a floating point value; other
+	  types are unsigned
+	- Wrapped Stem::get_description()
+
 0.8.0.2  Thu May 13 17:36:45 2004
 	- More error handling for Query and Document classes
 	- Fully wrapped PositionIterator and PostingIterator
