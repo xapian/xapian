@@ -78,7 +78,7 @@ class QueryParser {
     /// Deprecated method for backward compatibility.
     void set_stemming_options(const std::string &lang, bool stem_all = false,
 			      Stopper *stop = NULL) {
-	set_stemmer(new Xapian::Stem(lang));
+	set_stemmer(Xapian::Stem(lang));
 	if (lang.empty() || lang == "none") {
 	    set_stemming_options(STEM_NONE);
 	} else {

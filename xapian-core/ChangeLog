@@ -1,3 +1,7 @@
+Mon Feb 14 18:36:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/xapian/queryparser.h: Fixed compilation error.
+
 Mon Feb 14 18:00:12 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/xapian/queryparser.h: Added backward compatibility wrapper for
