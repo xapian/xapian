@@ -33,7 +33,6 @@ RSet::calculate_stats()
 {
     DEBUGCALL(MATCH, void, "RSet::calculate_stats", "");
     Assert(!calculated_reltermfreqs);
-    DEBUGLINE(WTCALC, "RSet::calculate_stats(): ");
     std::vector<RSetItem>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
 	DEBUGLINE(WTCALC, "document " << doc->did << " [ ");
