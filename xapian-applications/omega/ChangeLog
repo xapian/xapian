@@ -1,3 +1,9 @@
+Tue Nov 23 20:29:14 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: XAPIAN_FLAGS already links with xapianqueryparser
+	  so remove -lxapianqueryparser from omega_LDADD as it was causing
+	  problems on cygwin.
+
 Wed Nov 17 18:51:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index RTF documents with unrtf, if available.
