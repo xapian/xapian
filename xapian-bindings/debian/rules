@@ -35,7 +35,7 @@ commonconfflags := \
 	--prefix=/usr \
 	--mandir=\$${prefix}/share/man \
 	--infodir=\$${prefix}/share/info \
-	--sysconfdir=/etc \
+	--sysconfdir=/etc
 
 
 maint: \
@@ -98,7 +98,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Install the files into debian/*
+	# Install the files into debian/tmp
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
 	    cd build-python$$v; \
