@@ -1,3 +1,8 @@
+Sat Nov 06 01:03:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.h: Removed incorrect comment about how STRINGIZE
+	  is used.
+
 Fri Nov 05 14:41:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Removed a default parameter value from one

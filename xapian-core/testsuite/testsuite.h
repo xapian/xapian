@@ -207,10 +207,6 @@ class test_driver {
 
 #ifndef STRINGIZE
 /** STRINGIZE converts a piece of code to a string, so it can be displayed.
- *
- *  The 2nd level of the stringize definition here is not needed for the use we
- *  put this to in this file (since we always use it within a macro here) but
- *  is required in general  (#N doesn't work outside a macro definition)
  */
 #define STRINGIZE(N) _STRINGIZE(N)
 #define _STRINGIZE(N) #N
