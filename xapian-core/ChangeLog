@@ -1,3 +1,7 @@
+Tue Jun  6 19:10:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix nettest to use backend managers rather than inmemory's indexing.
+
 Tue Jun  6 18:54:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Updated socketclient / socketserver to pass the collapse key

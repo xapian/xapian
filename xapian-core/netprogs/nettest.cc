@@ -24,6 +24,7 @@
 #include "tcpclient.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "backendmanager.h"
 #include <om/omenquire.h>
 #include <unistd.h>
 
@@ -116,10 +117,17 @@ bool test_netexpand1()
 // test a tcp connection
 bool test_tcpclient1()
 {
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_datadir(datadir);
+    vector<string> paths;
+    paths.push_back("apitest_simpledata");
+    OmDatabase db = backendmanager.get_database(paths);
+
     string command =
-	    string("./omtcpsrv --one-shot --im ") +
-	    datadir +
-	    "apitest_simpledata.txt --port 1235 &";
+	    string("./omtcpsrv --one-shot --sleepycat ") +
+	    ".sleepy/db=apitest_simpledata" +
+	    " --port 1235 &";
 
     system(command.c_str());
 
@@ -132,10 +140,17 @@ bool test_tcpclient1()
 // test a tcp match
 bool test_tcpmatch1()
 {
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_datadir(datadir);
+    vector<string> paths;
+    paths.push_back("apitest_simpledata");
+    OmDatabase db = backendmanager.get_database(paths);
+
     string command =
-	    string("./omtcpsrv --one-shot --im ") +
-	    datadir +
-	    "apitest_simpledata.txt --port 1236 &";
+	    string("./omtcpsrv --one-shot --sleepycat ") +
+	    ".sleepy/db=apitest_simpledata" +
+	    " --port 1236 &";
     system(command.c_str());
     sleep(1);
 
