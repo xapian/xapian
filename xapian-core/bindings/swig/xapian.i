@@ -284,7 +284,7 @@ class OmEnquire {
 	OmDocument get_doc(om_docid did);
 
 	om_termname_list get_matching_terms(om_docid did);
-}
+};
 
 class OmMSet {
     public:
