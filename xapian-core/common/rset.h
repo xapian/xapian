@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,9 +29,6 @@
 #include "omdebug.h"
 #include <xapian/enquire.h>
 #include "omenquireinternal.h"
-
-class Xapian::Database::Internal;
-class Xapian::Weight::Internal;
 
 /** A relevance set.
  *

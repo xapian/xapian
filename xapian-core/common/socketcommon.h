@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,8 +37,6 @@ using std::map;
 #define XAPIAN_SOCKET_PROTOCOL_VERSION 17
 
 class Stats;
-class Xapian::RSet;
-class Xapian::MSet;
 class OmTime;
 
 /** The OmSocketLineBuf class implements a two-way line discipline

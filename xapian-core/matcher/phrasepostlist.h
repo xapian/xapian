@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 #include "selectpostlist.h"
 #include <vector>
 
-class Xapian::PositionIterator::Internal;
 typedef Xapian::PositionIterator::Internal PositionList;
 
 /** A postlist comprising several postlists NEARed together.

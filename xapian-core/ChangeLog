@@ -1,3 +1,10 @@
+Sat Jan 08 16:09:10 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,backends/inmemory/inmemory_database.h,
+	  backends/quartz/quartz_postlist.h,common/,matcher/localmatch.h,
+	  matcher/mergepostlist.h,matcher/phrasepostlist.h,net/progclient.cc:
+	  Fixes for SGI C++ warnings.
+
 Fri Jan  7 13:02:49 GMT 2005  Richard Boulton <richard@tartarus.org>
 
 	* common/positionlist.h: Correct out-of-date documentation comment.

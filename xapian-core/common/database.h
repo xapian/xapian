@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include <xapian/types.h>
 #include <xapian/database.h>
 #include <xapian/document.h>
+#include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
 #include "omdebug.h"
 #include "emptypostlist.h"
@@ -40,10 +41,6 @@ using namespace std;
 class LeafPostList;
 class LeafTermList;
 class NetworkDatabase;
-
-namespace Xapian {
-class PositionIterator::Internal;
-}
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;

@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,8 +61,6 @@ class Stats {
 	 */
 	Stats & operator +=(const Stats & inc);
 };
-
-class Xapian::Weight::Internal;
 
 /** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
