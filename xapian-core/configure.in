@@ -81,22 +81,12 @@ dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
 CME_FIND_SOCKETPAIR
 
 dnl Check for sleepycat library.
-dnl FIXME - check for C++ version
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
-CXXFLAGS_sleepysave=$CXXFLAGS
-CXXFLAGS="$CXXFLAGS -I/usr/local/BerkeleyDB/include/"
-echo -n "Checking for db_cxx.h..."
-AC_TRY_COMPILE([#include "db_cxx.h"],
-	       [return 0;],
-	       [have_sleepy_cxx=yes],
-	       [CXXFLAGS=$CXXFLAGS_sleepysave
-	       have_sleepy_cxx=no])
-echo $have_sleepy_cxx
-AC_LANG_RESTORE
-
+SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB/include -I/usr/include/db2"
 SLEEPYCAT_LIBS=
 SLEEPYCAT_LINKFLAGS=
+AC_SUBST(SLEEPYCAT_INCLUDES)
+AC_SUBST(SLEEPYCAT_LIBS)
+AC_SUBST(SLEEPYCAT_LINKFLAGS)
 
 dnl This should work for the debian package
 AC_CHECK_LIB(db2, db_open, SLEEPYCAT_LIBS=-ldb2++)
@@ -110,11 +100,24 @@ if test "x$SLEEPYCAT_LIBS" = "x"; then
   LDFLAGS=$LDFLAGS_sleepysave
 fi
 
+dnl Check for C++ interface to sleepycat
+AC_MSG_CHECKING(for db_cxx.h...)
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+CXXFLAGS_sleepysave=$CXXFLAGS
+CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LIBS $SLEEPYCAT_LINKFLAGS"
+AC_TRY_COMPILE([#include <db_cxx.h>],
+	       [return 0;],
+	       [have_sleepy_cxx=yes],
+	       [have_sleepy_cxx=no])
+CXXFLAGS=$CXXFLAGS_sleepysave
+AC_LANG_RESTORE
+AC_MSG_RESULT($have_sleepy_cxx)
+
+dnl Decide whether we've got the neccessary bits to compile with sleepycat.
 have_sleepycat=no
-if test ! "x$SLEEPYCAT_LIBS" = "x" -a "$have_sleepy_cxx" = "yes"; then
+if test ! "x$SLEEPYCAT_LIBS" = "x" -a "x$have_sleepy_cxx" = "xyes"; then
   have_sleepycat=yes
-  AC_SUBST(SLEEPYCAT_LIBS)
-  AC_SUBST(SLEEPYCAT_LINKFLAGS)
 fi
 
 dnl ***************************

@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I/usr/local/BerkeleyDB/include -I/usr/include/db2
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include @SLEEPYCAT_INCLUDES@
 
 noinst_HEADERS = sleepy_list.h \
                  sleepy_postlist.h \
