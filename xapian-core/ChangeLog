@@ -91,7 +91,7 @@ Mon Jul 28 10:37:17 BST 2003  Olly Betts <olly@survex.com>
 Sun Jul 27 16:01:25 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Explicitly remove include/xapian/version.h from
-	  APIDOC_SRC to avoid us running trying to run doxygen unnecessarily.
+	  APIDOC_SRC to avoid us trying to run doxygen unnecessarily.
 
 Sun Jul 27 14:31:36 BST 2003  Olly Betts <olly@survex.com>
 
@@ -242,7 +242,7 @@ Sat Jul 12 09:15:26 BST 2003  Olly Betts <olly@survex.com>
 
 Sat Jul 12 01:11:54 BST 2003  Olly Betts <olly@survex.com>
 
-	* HACKING: Noted another reason my libtool 1.5 is needed.
+	* HACKING: Noted another reason why libtool 1.5 is needed.
 
 Sat Jul 12 01:11:08 BST 2003  Olly Betts <olly@survex.com>
 
