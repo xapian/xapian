@@ -111,7 +111,8 @@ char *pagefmtstr =
 "<table>\n"
 "$hitlist\n"
 "</table>\n"
-//\PAGES.G
+"$pages{T}<br>\n"
+"$pages{G}<br>\n"
 // FIXME: what if multiple DB parameters?
 "$if{$cgi{DB},<INPUT TYPE=hidden NAME=DB VALUE=\"$html{$cgi{DB}}\">}\n"
 "$ifeq{$topdoc,0,<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}\n"
@@ -135,6 +136,7 @@ map<om_docid, bool> ticked;
 
 string query_string;
 
+// FIXME: wire up to query page
 om_queryop op = OM_MOP_OR; // default matching mode
 
 querytype
@@ -311,52 +313,51 @@ do_picker(char prefix, const char **opts)
     cout << "</SELECT>\n";
 }
 
-extern void
-print_page_links(char type, long int hits_per_page)
+static string
+print_page_links(char type)
 {
-   int page;
-   om_docid new_first;
+    int page;
+    string res;
+    /* suppress page links if there's only one page */
+    if (mset.mbound <= list_size) return res;
 
-   /* suppress page links if there's only one page */
-   if (mset.mbound <= hits_per_page) return;
+    string g = option["gif_dir"];
+    option["gif_dir"] = "http://www.muscat.com/fx_gif/oval/";
+    int lastpage = (mset.mbound - 1) / list_size;
+    if (lastpage > 10) lastpage = 10;
+    if (type == 'T') {
+	for (page = 1; page <= lastpage; page++) {
+	    char pagebuf[10];
+	    sprintf(pagebuf, "%d", page);
+	    res = res + "<INPUT TYPE=submit NAME=\"[\" VALUE=" + pagebuf + ">\n";
+	}
+    } else {
+	long int plh, plw, have_selected_page_gifs;
+	// If not specified, don't default plh and plw since the page
+	// gifs may not all be the same size
+	plh = atoi(option["pagelink_height"].c_str());
+        plw = atoi(option["pagelink_width"].c_str());
+        have_selected_page_gifs = atoi(option["selected_pages"].c_str());
 
-   if (type == 'T') {
-      for (page = 0; page < 10; page++) {
-	  new_first = page * hits_per_page;
-
-	  if (new_first > mset.mbound - 1) break;
-	  cout << "<INPUT TYPE=submit NAME=\"F " << new_first << "\" VALUE="
-	       << page + 1 << ">\n";
-      }
-   } else {
-      long int plh, plw, have_selected_page_gifs;
-      // If not specified, don't default plh and plw since the page
-      // gifs may not all be the same size
-      plh = atoi(option["pagelink_height"].c_str());
-      plw = atoi(option["pagelink_width"].c_str());
-      have_selected_page_gifs = atoi(option["selected_pages"].c_str());
-
-      for ( page = 0; page < 10; page++ ) {
-	 new_first = page * hits_per_page;
-
-	 if (new_first > mset.mbound - 1) break;
-
-	 if (new_first == topdoc) {
-	     cout << "<IMG SRC=\"" << option["gif_dir"] << "/page-"
-		  << page + 1;
-	     if (have_selected_page_gifs) cout << 's';
-	     cout << ".gif\"";
-	 } else {
-	     cout << "<INPUT TYPE=image NAME=\"F " << new_first << "\" VALUE="
-		  << page + 1 << " SRC=\"" << option["gif_dir"] << "/page-"
-		  << page + 1 << ".gif\" BORDER=0";
-	 }
-	 if (plh) cout << " HEIGHT=" << plh;
-	 if (plw) cout << " WIDTH=" << plw;
-	 cout << '>';
-      }
-      cout << endl;
-   }
+        for (page = 1; page <= lastpage; page++) {
+	    char pagebuf[10];
+	    sprintf(pagebuf, "%d", page);
+	    if (page - 1 == topdoc / list_size) {
+		res += "<IMG SRC=\"" + option["gif_dir"] + "/page-" + pagebuf;
+		if (have_selected_page_gifs) res += 's';
+		res += ".gif\"";
+	    } else {
+		res = res + "<INPUT TYPE=image NAME=\"[ " + pagebuf
+		    + " ]\" VALUE=" + pagebuf + " SRC=\"" + option["gif_dir"]
+		    + "/page-" + pagebuf + ".gif\" BORDER=0";
+	    }
+	    if (plh) res = res + " HEIGHT=" + option["pagelink_height"];
+	    if (plw) res = res + " WIDTH=" + option["pagelink_height"];
+	    res = res + " ALT=" + pagebuf + ">\n";
+	}
+    }
+    option["gif_dir"] = g;
+    return res;
 }
 
 static string
@@ -827,6 +828,11 @@ eval(const string &fmt)
 		ok = true;
 		break;
 	    }
+	    if (var == "pages") {
+		ok = true;
+		value = print_page_links(args[0][0]);
+		break;
+	    }
 	    break;
 	 case 'q':
 	    if (var == "query") {
@@ -1012,41 +1018,6 @@ print_caption(om_docid m)
 
     return eval(fmtstr);
 }
-
-#if 0
-\\PAGES.[A-Z] { // T for text, G for graphical
-    print_page_links(yytext[7], size);
-}
-\\STATLINE {
-    if (mset.mbound == 0 && new_terms_list.empty()) {
-	// eat to next newline (or EOF)
-	int c;
-	do c = yyinput(); while (c != '\n' && c != EOF);
-    }
-}
-\\MAXHITS[0-9]+ {
-    // item in max hits selector box */
-    // expect 3 digits in FX, but allow more or less
-    string num = string(yytext + 8, yyleng - 8);
-    if (size == atoi(num.c_str())) cout << "SELECTED";
-}
-\\OSELECT[AO] {
-    if ((op == OM_MOP_AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
-}
-	  case 'Q': /* query url */
-	     print_query_string(q + 2);
-	     break;
-	 case 'l': /* language (with link unless "unknown") */
-	    if (language_code == "x") {
-		cout << language;
-	    } else {
-		cout << "<A HREF=\"/";
-		print_query_string("&B=L");
-		cout << "&B=L" << language_code << "\">" << language
-		    << "</A>";
-	    }
-	    break;
-#endif
 
 static void
 print_query_page(const string &page)

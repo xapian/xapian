@@ -128,8 +128,8 @@ static int main2(int argc, char *argv[])
 	topdoc += list_size;
     } else if (cgi_params.find("<") != cgi_params.end()) {
 	topdoc -= list_size;
-    } else if ((val = cgi_params.find("F")) != cgi_params.end()) {
-	topdoc = atol(val->second.c_str());
+    } else if ((val = cgi_params.find("[")) != cgi_params.end()) {
+	topdoc = (atol(val->second.c_str()) - 1) * list_size;
     }
 
     topdoc = (topdoc / list_size) * list_size;
@@ -169,7 +169,7 @@ static int main2(int argc, char *argv[])
     // read thousands and decimal separators: e.g. 16<thousand>729<decimal>8037
     option["decimal"] = ".";
     option["thousand"] = ",";
-    option["gif_dir"] = "/fx-gif";
+    option["gif_dir"] = "http://www.euroferret.com/fx-gif";
 
     enquire = new OmEnquire(omdb);
    
