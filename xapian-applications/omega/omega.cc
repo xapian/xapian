@@ -181,7 +181,7 @@ try {
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
-	    Xapian::PostListIterator p = db.postlist_begin(val->second);
+	    Xapian::PostingIterator p = db.postlist_begin(val->second);
 	    if (p != db.postlist_end(val->second)) docid = *p;
 	}
 	

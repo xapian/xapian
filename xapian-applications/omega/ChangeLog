@@ -1,3 +1,8 @@
+Mon Jun 23 16:52:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc,omindex.cc,scriptindex.cc: Xapian::PostListIterator ->
+	  Xapian::PostingIterator.
+
 Thu Jun 19 20:02:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* symboltab.h: Convert hardspace to space.

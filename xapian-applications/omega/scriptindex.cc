@@ -407,7 +407,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 			t += value;
 again:
 			try {
-			    Xapian::PostListIterator p = database.postlist_begin(t);
+			    Xapian::PostingIterator p = database.postlist_begin(t);
 			    if (p != database.postlist_end(t)) {
 				docid = *p;
 			    }

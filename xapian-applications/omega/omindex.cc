@@ -434,7 +434,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     if (dupes == DUPE_replace) {
 	// This document has already been indexed - update!
 	try {
-	    Xapian::PostListIterator p = db.postlist_begin(urlterm);
+	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	    if (p != db.postlist_end(urlterm)) {
 		db.replace_document(*p, newdocument);
 	    } else {
