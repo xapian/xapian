@@ -1,0 +1,7 @@
+.libs
+.deps
+*.lo
+Makefile.in
+Makefile
+xdb-dump
+xdb-manage

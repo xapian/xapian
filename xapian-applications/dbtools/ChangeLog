@@ -1,0 +1,6 @@
+Mon Nov 19 22:04:42 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* source/xdb-dump.cc (main): copies db-options element into output
+ 	(by managing to copy it _before_ we free the document it came
+ 	from, sigh)
+
