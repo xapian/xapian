@@ -40,7 +40,8 @@ class OmPositionListIterator {
 
     public:
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
         friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 

@@ -37,7 +37,7 @@
 class OmSettings {
     public:
 	class Internal;
-	/// Internal implementation
+	/// @internal Reference counted internals.
 	Internal *internal;
 
 	/** Create a settings object.

@@ -46,7 +46,8 @@ class OmMSetIterator {
 	friend class OmMSet;
 
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
         friend bool operator==(const OmMSetIterator &a,
 			       const OmMSetIterator &b);
@@ -140,7 +141,7 @@ inline bool operator!=(const OmMSetIterator &a,
 class OmMSet {
     public:
 	class Internal;
-	/// reference counted internals - do not modify externally
+	/// @internal Reference counted internals.
 	Internal *internal;
 
     public:
@@ -318,7 +319,8 @@ class OmESetIterator {
     public:
 	friend class OmESet;
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
         friend bool operator==(const OmESetIterator &a,
 			       const OmESetIterator &b);
@@ -380,7 +382,8 @@ operator!=(const OmESetIterator &a, const OmESetIterator &b)
 class OmESet {
     public:
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
 	OmESet();
 
@@ -424,7 +427,7 @@ class OmRSet {
     public:
 	/// Class holding details of OmRSet
 	class Internal;
-	/// reference counted internals - do not modify externally
+	/// @internal Reference counted internals.
 	Internal *internal;
 
 	/// Copy constructor
@@ -511,7 +514,7 @@ class OmEnquire {
     public:
 	/// Class holding details of OmEnquire
 	class Internal;
-	/// reference counted internals - do not modify externally
+	/// @internal Reference counted internals.
 	Internal *internal;
 
 	/** Create an OmEnquire object.

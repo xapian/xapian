@@ -35,7 +35,8 @@ class OmKey;
 class OmKeyListIterator {
     public:
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
     private:
 	friend class OmDocument; // So OmDocument can construct us

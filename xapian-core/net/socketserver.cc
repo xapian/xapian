@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,6 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include "../api/omdatabaseinternal.h"
-#include "omdatabaseinterface.h"
 #include <strstream.h>
 #include <signal.h>
 #include <cerrno>
@@ -360,7 +359,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str());
 
-    AutoPtr<Document> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
+    AutoPtr<Document> doc(db.internal->open_document(did));
 
     writeline("O" + encode_tname(doc->get_data().value));
 

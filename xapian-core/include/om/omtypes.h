@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +24,7 @@
 #ifndef OM_HGUARD_OMTYPES_H
 #define OM_HGUARD_OMTYPES_H
 
-/// A term id.  Internal use only.
+/// @internal A term id.
 typedef unsigned int om_termid;
 
 /** A unique id for a document.

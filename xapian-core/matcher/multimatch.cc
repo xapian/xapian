@@ -29,7 +29,6 @@
 #include "rset.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
-#include "omdatabaseinterface.h"
 #include "omdocumentinternal.h"
 
 #include "andpostlist.h"
@@ -97,8 +96,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " << omrset << ", " << opts_ << ", " << errorhandler_ << ", [gatherer_]");
     query->validate_query();
 
-    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
-    om_doccount number_of_leaves = internal->databases.size();
+    om_doccount number_of_leaves = db.internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
 
     std::set<om_docid>::const_iterator reldoc; 
@@ -112,7 +110,8 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     std::vector<OmRSet>::const_iterator subrset = subrsets.begin();
 
     std::vector<RefCntPtr<Database> >::iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); ++i) {
+    for (i = db.internal->databases.begin();
+	 i != db.internal->databases.end(); ++i) {
 	Assert(subrset != subrsets.end());
 	Database *db = (*i).get();
 	Assert(db);

@@ -33,7 +33,8 @@ class OmPositionListIterator;
 class OmPostListIterator {
     public:
 	class Internal;
-	Internal *internal; // reference counted internals
+	/// @internal Reference counted internals.
+	Internal *internal;
 
     private:
 	friend class OmDatabase; // So OmDatabase can construct us

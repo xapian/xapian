@@ -62,6 +62,7 @@
 class OmBatchEnquire {
     public:
 	class Internal;
+	/// @internal
 	Internal *internal;
 
     private:

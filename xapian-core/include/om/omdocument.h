@@ -83,6 +83,7 @@ class OmKey {
 class OmDocument {
     public:
 	class Internal;
+	/// @internal
 	Internal *internal;
 
     public:

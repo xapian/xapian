@@ -76,16 +76,8 @@ class OmDatabase {
     
     public:
 	class Internal;
-
-	/** Reference counted internals. */
+	/// @internal Reference counted internals.
 	Internal *internal;
-
-	/** InternalInterface is a class used internally to interact
-	 *  with OmDatabase objects.
-	 */
-	class InternalInterface;
-
-	friend class InternalInterface;
 
     protected:
 	/** Open a database, possibly readonly.

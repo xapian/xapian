@@ -1,3 +1,8 @@
+Mon Apr 15 16:08:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* Mark internal classes as @internal for doxygen; removed all uses
+	  of OmDatabase::InternalInterface as it's no longer needed.
+
 Mon Apr 15 15:42:47 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated TODO list.

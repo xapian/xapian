@@ -43,7 +43,7 @@ class OmQuery {
     public:
 	/// Class holding details of OmQuery
 	class Internal;
-	/// reference counted internals - do not modify externally
+	/// @internal Reference counted internals.
 	Internal *internal;
 
 	/// Enum of possible query operations

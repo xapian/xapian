@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 #include "omdebug.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
-#include "omdatabaseinterface.h"
 #include "omdocumentinternal.h"
 
 #include "om/omerror.h"
@@ -1031,14 +1030,12 @@ OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
 {
     OmLockSentry locksentry(mutex);
     try {
-	OmDatabase::Internal * dbinternal =
-		OmDatabase::InternalInterface::get(db);
-	unsigned int multiplier = dbinternal->databases.size();
+	unsigned int multiplier = db.internal->databases.size();
 
 	om_docid realdid = (item.did - 1) / multiplier + 1;
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	dbinternal->databases[dbnumber]->request_document(realdid);
+	db.internal->databases[dbnumber]->request_document(realdid);
     } catch (OmError & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;
@@ -1050,14 +1047,12 @@ OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 {
     OmLockSentry locksentry(mutex);
     try {
-	OmDatabase::Internal * dbinternal =
-		OmDatabase::InternalInterface::get(db);
-	unsigned int multiplier = dbinternal->databases.size();
+	unsigned int multiplier = db.internal->databases.size();
 
 	om_docid realdid = (item.did - 1) / multiplier + 1;
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	Document *doc = dbinternal->databases[dbnumber]->collect_document(realdid);
+	Document *doc = db.internal->databases[dbnumber]->collect_document(realdid);
 	return OmDocument(new OmDocument::Internal(doc, db, item.did));
     } catch (OmError & e) {
 	if (errorhandler) (*errorhandler)(e);

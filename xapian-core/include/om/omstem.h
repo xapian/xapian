@@ -34,6 +34,7 @@
 class OmStem {
     public:
 	class Internal;
+	/// @internal Reference counted internals.
         Internal *internal;
 
 	/** Create a new stemmer object.
