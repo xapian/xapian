@@ -82,7 +82,7 @@ distclean-local: clean-local
 # Get GENDEPS macro
 include $(top_srcdir)/Makefile_common.am
 
-ALL_INCLUDES = `find $(top_srcdir) \( -name \*.h -and -not -name acconfig.h \) -print`
+ALL_INCLUDES = `find $(top_srcdir) \( -name \*.h -and -not -name acconfig.h \) -print | grep -v 'bindings/java'`
 
 ## Extra rules:
 includetest.cc: 
