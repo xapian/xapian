@@ -251,16 +251,14 @@ OmEnquireInternal::get_mset(om_doccount first,
     StatsGatherer gatherer;
 
     // Set Database
-#if 1
     MultiMatch match;
 
     LeafMatch * temp = new LeafMatch(database, &gatherer);
     match.add_leafmatch(temp);
+
+    // Delete leaf at end of method
+    // FIXME: incorporate this into the MultiMatch object, somehow.
     auto_ptr<LeafMatch> submatch(temp);
-#else
-    //auto_ptr<Match> match(new LeafMatch(database, &gatherer));
-    LeafMatch match(database, &gatherer);
-#endif
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {
