@@ -1,3 +1,7 @@
+Tue Jul 11 12:56:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Restored automake dependency checking for C files.
+
 Tue Jul 11 12:54:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test to apitest to check the get_term{freq,weight} methods
