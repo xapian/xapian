@@ -13,6 +13,8 @@ noinst_LTLIBRARIES = libmatcher.la
 if BUILD_BACKEND_REMOTE
 SOURCEFORREMOTE = networkmatch.cc
 endif
+# ship remote specific sources even if this tree isn't configured for them
+EXTRA_DIST = networkmatch.cc
 
 libmatcher_la_SOURCES = orpostlist.cc andpostlist.cc andnotpostlist.cc \
  andmaybepostlist.cc xorpostlist.cc phrasepostlist.cc selectpostlist.cc \
