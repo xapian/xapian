@@ -1,3 +1,9 @@
+Wed Nov 03 21:38:29 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Probe for C++ compiler switches for ANSI mode as early
+	  as possible.  With Compaq's C++, we need -D__USE_STD_IOSTREAM to
+	  successfully #include <streambuf>.
+
 Wed Nov 03 21:07:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fixed snprintf configure test.
