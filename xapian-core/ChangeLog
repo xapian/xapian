@@ -1,3 +1,7 @@
+Mon Jun 02 20:09:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated in preparation for 0.7.0 release.
+
 Mon Jun 02 16:25:18 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Fix m4 quoting so that MINOR_VERSION is set correctly.

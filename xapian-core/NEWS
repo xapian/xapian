@@ -1,3 +1,61 @@
+Xapian 0.7.0 (2003-06-??):
+
+* Renamed everything into a Xapian namespace, which the main header now being
+  xapian.h.  Older code can be compiled by continuing to use om/om.h which
+  uses #define and other tricks to map the old names onto the new ones.
+
+* Define XAPIAN_VERSION, XAPIAN_MAJOR_VERSION, and XAPIAN_MINOR_VERSION.
+
+	Bindings - python close to working again?  ./configure --enable-bindings
+
+* Fixed parsing of port number in remote stub databases.
+
+* QueryParser: Fixed to handle the most common examples found in the wild which
+  used to give "parse error".
+
+* Reduced needless inclusion of headers when a simply "class Foo;" will do;
+  use iosfwd rather than iostream where possible.
+
+* Moved all the core library tests to tests subdirectory.
+
+* quartzcheck, quartzdump, and quartzcompact are now built by "make" rather than  only by "make check".
+
+* Assorted minor documentation improvements.
+
+* Quartz: Improved error message when asked to open a pre-0.6 Quartz database.
+
+* Build system fixed to never leave partial files in place of the expected
+  output if a build is interrupted; improved check for flex.
+
+* PLATFORMS: Updated.
+
+* languages/Makefile.am: Suppress "unused" warnings in Snowball generated C
+  code.
+
+* Removed one wrapper layer from most API classes.
+
+* apitest now allows backend to be specified with "-b" rather than having to
+  mess with environmental variables.
+
+* Testsuite programs can now hook into valgrind for leak checking, undefined
+  variable checking, etc.
+
+* Fixed sending debug output to a file with XAPIAN_DEBUG_LOG with a value which
+  didn't contain "%%".
+
+* Improved RPM packaging.
+
+* Fixed get_collapse_count() to work as intended.
+
+* OmStem now uses reference counted internals.
+
+* Use std::string instead of a typdef (was om_termname).  The typedef doesn't
+  really buy us anything.
+
+* xapian-config: Removed --prefix and --exec-prefix - you can't reliably
+  install Xapian with a different prefix to the one it was configured with,
+  yet these options give the impression you can.
+
 Xapian 0.6.5 (2003-04-10):
 
 * OmEnquire: optimised the handling when sort_bands == 1 and fixed incorrect
