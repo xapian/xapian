@@ -1,3 +1,10 @@
+Thu Aug 15 11:21:20 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* scriptindex.cc: Allow updating of databases by a command line
+	  switch, and also turn off verbose output (can be turned back
+	  on with a switch).
+	* docs/scriptindex.txt: Document the "unique" tag.
+
 Thu Aug 15 11:18:21 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* buildall: Copy buildall from xapian-core - the old one breaks

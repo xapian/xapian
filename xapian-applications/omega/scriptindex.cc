@@ -39,6 +39,10 @@
 using namespace std;
 
 static const char *argv0;
+static bool verbose;
+static int addcount;
+static int repcount;
+static int delcount;
 
 class MyHtmlParser : public HtmlParser {
     public:
@@ -461,7 +465,9 @@ again:
 			try {
 			    // FIXME: seems to tickle a quartz problem
 			    OmPostListIterator p = database.postlist_begin(t);
-			    if (p != database.postlist_end(t)) docid = *p;
+			    if (!(p == database.postlist_end(t))) {
+				docid = *p;
+			    }
 			} catch (const OmError &e) {
 			    // Hmm, what happened?
 			    cout << "Caught exception in UNIQUE!" << endl;
@@ -490,7 +496,8 @@ again:
 	if (!seen_content) {
 	    if (docid) {
 		database.delete_document(docid);
-		cout << "Del: " << docid << endl;
+		if (verbose) cout << "Del: " << docid << endl;
+		delcount ++;
 	    }
 	} else {
 	    string data;
@@ -509,11 +516,8 @@ again:
 	    if (docid) {
 		try {
 		    database.replace_document(docid, doc);
-		    cout << "Replace: " << docid << endl;
-		    //cout << "Replace: removing: " << docid << endl;
-		    //database.delete_document(docid);
-		    //docid = database.add_document(doc);
-		    //cout << "Replace: adding: " << docid << endl;
+		    if (verbose) cout << "Replace: " << docid << endl;
+		    repcount ++;
 		} catch (const OmError &e) {
 		    cout << "E: " << e.get_msg() << endl;
 		    // Possibly the document was deleted by another
@@ -523,7 +527,8 @@ again:
 		}
 	    } else {
 		docid = database.add_document(doc);
-		cout << "Add: " << docid << endl;
+		if (verbose) cout << "Add: " << docid << endl;
+		addcount ++;
 	    }
 	}
 	if (stream.eof() || !getline(stream, line)) break;
@@ -538,12 +543,51 @@ again:
 int
 main(int argc, char **argv)
 {
+    // If update_db is true, the database will be updated rather than created.
+    bool update_db = 0;
+    bool quiet = 0;
+    verbose = 0;
+
     argv0 = argv[0];
 
-    // Simplest possible options parsing: we require two or more parameters.
+    // Simplest possible options parsing: we require two or more parameters,
+    // preceded by options.
+
+    while (argc >= 3) {
+	if (argv[1][0] != '-') break;
+
+	switch (argv[1][1]) {
+	    case 'u':
+		update_db = 1;
+		break;
+	    case 'q':
+		quiet = 1;
+		break;
+	    case 'v':
+		verbose = 1;
+		break;
+	    default:
+		argc = 1;
+		break;
+	}
+	argv++;
+	argc--;
+    }
+
     if (argc < 3) {
-	cout << "Usage: " << argv[0]
+	cout << "Usage: " << argv0
+	     << " [-u] [-q] [-v] "
 	     << " <path to xapian database> <indexer script> [<filename>]..."
+	     << endl
+	     << "Creates a new database containing the data given by the list "
+	     << "of files."
+	     << endl
+	     << "The -q (quiet) option suppresses log messages."
+	     << endl
+	     << "The -v (verbose) option generates messages about all actions."
+	     << endl
+	     << "The -u option causes the database to be updated rather than "
+	     << "created anew."
 	     << endl;
 	exit(1);
     }
@@ -558,9 +602,13 @@ main(int argc, char **argv)
 	logfile += "/log";
 	settings.set("backend", "quartz");
 	settings.set("quartz_dir", argv[1]);
-	settings.set("quartz_logfile", logfile);
-	settings.set("database_create", true);
-	settings.set("database_allow_overwrite", true);
+	if (!quiet) {
+	    settings.set("quartz_logfile", logfile);
+	}
+	if (!update_db) {
+	    settings.set("database_create", true);
+	    settings.set("database_allow_overwrite", true);
+	}
 	// Sleep and retry if we get an OmDatabaseLockError - this just means
 	// that another process is updating the database
 	OmWritableDatabase *try_db = NULL;
@@ -577,6 +625,10 @@ main(int argc, char **argv)
 	delete try_db;
 	OmStem stemmer("english"); 
 
+	addcount = 0;
+	repcount = 0;
+	delcount = 0;
+
 	// Read file/s
 	if (argc == 3) {
 	    // Read from stdin
@@ -587,8 +639,11 @@ main(int argc, char **argv)
 	    }
 	}
 
-	cout << "Flushing: " << endl;
+	if (verbose) cout << "Flushing: " << endl;
 	database.flush();
+
+	cout << "records (added, replaced, deleted) = (" << addcount <<
+		", " << repcount << ", " << delcount << ")" << endl;
     }
     catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
