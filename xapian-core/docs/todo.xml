@@ -15,12 +15,6 @@ autoconf 2.50.
 Strip down buildall and rename to bootstrap.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.5">
-
-Disable building of bindings until they have stabilised (top level SUBDIRS and
-DISTSUBDIRS).
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
 Check for swig version.
