@@ -27,50 +27,117 @@
 
 // Sleepycat database stuff
 #include <db_cxx.h>
+#include <stdlib.h>
 
-SleepyList::SleepyList(Db *db_new)
-	: db(db_new), opened(false), modified(false),
-	  ids(NULL), wdfs(NULL), freqs(NULL), positions(NULL)
-{}
+/* For the moment, the packed format is:
+ *    Number of items.
+ *    foreach item {
+ *      Length of item.
+ *      Item in packed format.
+ *    }
+ *
+ * This requires that the entire list be read in and unpacked for it to be
+ * accessed: FIXME - remedy this.
+ */
 
-SleepyList::~SleepyList()
+/// A type which can hold any entry.  FIXME: specialise this.
+typedef SleepyListItem::id_type entry_type;
+
+/** Read an id_type from the specified position in the string,
+ *  and update the position.
+ *
+ *  @exception OmDatabaseError thrown if string is not long enough.
+ *
+ *  @param packed  The string to read the id_type from.
+ *  @param pos     The offset to start reading the id_type at.
+ */
+template<class X>
+static const X readentry(const string &packed, string::size_type & pos)
 {
-    close();
-}
+    string::size_type endpos = pos + sizeof(X) / sizeof(char);
 
-// Packed format:
-//    Number of ids
-//    Byte offset of start of data (first id)
-// (offsets are from this position)
-//    Byte offset of first wdf      - 0 if not present
-//    Byte offset of first freq     - 0 if not present
-//    Byte offset of first position - 0 if not present
-//    <ids>
-//    <wdfs>
-//    <freqs>
-//    <positions>
+    if(endpos > packed.length()) {
+	throw(OmDatabaseError("Database corrupt - unexpected end of item."));
+    }
 
-entry_type
-SleepyList::readentry(char **pos, char *end)
-{
-    entry_type *epos = (entry_type *) *pos;
-    entry_type entry = *epos ++;
-    *pos = (char *)epos;
-    if(*pos > end) throw(OmDatabaseError("Database corrupt - unexpected end of list"));
+    X entry = * reinterpret_cast<const X *>(packed.data() + pos * sizeof(char));
+    pos = endpos;
+
     return entry;
 }
 
-void
-SleepyList::open(void *keydata_new, size_t keylen_new)
-{
-    close();
 
+SleepyListItem::SleepyListItem(id_type id_,
+			       om_doccount termfreq_,
+			       om_termcount wdf_,
+			       const vector<om_termpos> & positions_)
+	: id(id_),
+	  termfreq(termfreq_),
+	  wdf(wdf_),
+	  positions(positions_)
+{
+}
+
+SleepyListItem::SleepyListItem(string packed)
+{
+    string::size_type pos = 0;
+
+    id = readentry<id_type>(packed, pos);
+    termfreq = readentry<entry_type>(packed, pos);
+    wdf = readentry<entry_type>(packed, pos);
+
+    vector<om_termpos>::size_type positions_size;
+    positions_size = readentry<entry_type>(packed, pos);
+
+    while(positions.size() < positions_size) {
+	positions.push_back(readentry<entry_type>(packed, pos));
+    }
+}
+
+
+string
+SleepyListItem::pack()
+{
+    string packed;
+    id_type idtemp;
+    entry_type entrytemp;
+
+    idtemp = id;
+    packed.append(reinterpret_cast<char *>(&idtemp), sizeof(id_type));
+
+    entrytemp = termfreq;
+    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+
+    entrytemp = wdf;
+    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+
+    entrytemp = positions.size();
+    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+
+    vector<om_termpos>::const_iterator i;
+    for(i = positions.begin(); i != positions.end(); i++) {
+	entrytemp = *i;
+	packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+    }
+
+    return packed;
+}
+
+
+
+SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
+		       bool store_termfreq,
+		       bool store_wdf,
+		       bool store_positional)
+	: db(db_),
+	  modified_and_locked(false)
+{
     // Copy and store key data
-    void *keydata = malloc(keylen_new);
+    void *keydata = malloc(keylen_);
     if(keydata == NULL) throw std::bad_alloc();
-    memcpy(keydata, keydata_new, keylen_new);
+    memcpy(keydata, keydata_, keylen_);
     key.set_data(keydata);
-    key.set_size(keylen_new);
+    key.set_size(keylen_);
 
     // Read database
     Dbt data;
@@ -78,82 +145,73 @@ SleepyList::open(void *keydata_new, size_t keylen_new)
     int found;
 
     try {
-	// For now, just read it all at once
+	// For now, just read entire list
+	// FIXME - read list only as desired, for efficiency
 	found = db->get(NULL, &key, &data, 0);
+
+	// Unpack list
+	if(found != DB_NOTFOUND) {
+	    Assert(found == 0); // Any other errors should cause an exception.
+
+	    string packed(reinterpret_cast<char *>(data.get_data()),
+			  data.get_size());
+
+	    string::size_type pos = 0;
+	    entry_type number_of_items = readentry<entry_type>(packed, pos);
+
+	    while(items.size() < number_of_items) {
+		entry_type itemsize = readentry<entry_type>(packed, pos);
+
+		items.push_back(SleepyListItem(packed.substr(pos, itemsize)));
+		pos += itemsize;
+	    }
+	}
     } catch (DbException e) {
 	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
     }
-    
-    // Unpack entry
-    if(found != DB_NOTFOUND) {
-	Assert(found == 0); // Any other errors should cause an exception.
-	char * pos = (char *) data.get_data();
-	char * end = pos + data.get_size();
-	entry_type offset;
+}
 
-	// Read number of ids
-	length = readentry(&pos, end);
-	
-	// Read offset of start of ids
-	offset = readentry(&pos, end);
+SleepyList::~SleepyList()
+{
+    do_flush();
 
-	// Current position is where offsets are measured from
-	char * data_start = pos;
-
-	// Set position of start of ids
-	char * ids_start = data_start + offset;
-
-	// Read position of start of wdfs
-	offset = readentry(&pos, end);
-	char * wdfs_start = data_start + offset;
-
-	// Copy data
-	ids = (entry_type *) malloc(sizeof(entry_type) * length);
-	if(ids == NULL) throw std::bad_alloc();
-	memcpy(ids, ids_start, sizeof(entry_type) * length);
-	wdfs = (entry_type *) malloc(sizeof(entry_type) * length);
-	if(wdfs == NULL) throw std::bad_alloc();
-	memcpy(wdfs, wdfs_start, sizeof(entry_type) * length);
-
-	free(data.get_data());
-    }
-    opened = true;
+    // Close the list
+    free(key.get_data());
+    key.set_data(NULL);
 }
 
 void
-SleepyList::close()
+SleepyList::flush()
 {
-    if(opened) {
-	if(modified) {
-	    // Pack entry
-	    ;
+    do_flush();
+}
 
-	    try {
-		// Write list
-		//found = db->put(NULL, &key, &data, 0);
-	    } catch (DbException e) {
-		throw OmDatabaseError("PostlistDb error:" + string(e.what()));
-	    }
+void
+SleepyList::add(const SleepyListItem & newitem)
+{
+    modified_and_locked = true;
+    throw OmUnimplementedError("SleepyList::add() not yet implemented");
+}
+
+// /////////////////////
+// // Private methods //
+// /////////////////////
+
+
+void
+SleepyList::do_flush()
+{
+    if(modified_and_locked) {
+	throw OmUnimplementedError("SleepyList::do_flush() writing to database not yet implemented");
+	// Pack entry
+	;
+
+	try {
+	    // Write list
+	    //found = db->put(NULL, &key, &data, 0);
+	} catch (DbException e) {
+	    throw OmDatabaseError("Database error:" + string(e.what()));
 	}
-	modified = false;
-
-	free(ids);
-	ids = NULL;
-	free(wdfs);
-	wdfs = NULL;
-	free(freqs);
-	freqs = NULL;
-
-	free(key.get_data());
-	key.set_data(NULL);
+	modified_and_locked = false;
     }
-    opened = false;
-}
-
-void
-SleepyList::add(entry_type id, entry_type wdf)
-{
-    Assert(opened);
-
-    modified = true;
 }

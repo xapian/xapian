@@ -1,3 +1,9 @@
+Tue Apr  4 18:49:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Generic list implementation for sleepycat is now almost complete
+	  (doesn't yet write lists, but all the other code is there).  Fully
+	  untested, obviously.
+
 Tue Apr  4 14:49:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* A really hacked network multimatch gets the same results as
