@@ -415,6 +415,9 @@ class QuartzBufferedTable : public QuartzTable {
 	QuartzBufferedTable(QuartzDiskTable * disktable_);
 
 	/** Close the table.
+	 *
+	 *  Any outstanding changes (ie, changes made without apply() having
+	 *  subsequently been called) will be lost.
 	 */
 	~QuartzBufferedTable();
 

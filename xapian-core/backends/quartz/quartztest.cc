@@ -492,6 +492,12 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
+	// Add another new tag, but don't apply this one.
+	key.value = "foo37";
+	bufftable.get_or_make_tag(key)->value = "bar37";
+	TEST_EQUAL(disktable.get_entry_count(), 4);
+	TEST_EQUAL(bufftable.get_entry_count(), 5);
+
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
     }
@@ -527,13 +533,13 @@ static bool test_bufftable2()
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key.value, "foo26");
+	TEST_EQUAL(cursor->current_tag.value, "bar26");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo36");
-	TEST_EQUAL(cursor->current_tag.value, "bar36");
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
