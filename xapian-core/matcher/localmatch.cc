@@ -242,31 +242,30 @@ LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
 {
     DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ", " << wqf << ")");
 
-    // MULTI
-    LeafPostList * pl = submatch.db->open_post_list(tname);
-
+    OmMSet::TermFreqAndWeight info;
+	
     // FIXME: pass the weight type and the info needed to create it to the
     // postlist instead
     IRWeight * wt = mk_weight(tname, wqf);
-    om_weight term_weight = wt->get_maxpart();
+    info.termweight = wt->get_maxpart();
 
-    pl->set_termweight(wt);
+    // MULTI - this statssource should be the combined one...
+    info.termfreq = submatch.statssource.get_total_termfreq(tname);
 
-    om_doccount term_freq = submatch.statssource.get_total_termfreq(tname);
+    DEBUGLINE(MATCH, " weight = " << info.termweight <<
+	      ", frequency = " << info.termfreq);
 
-    term_weights.insert(std::make_pair(tname, term_weight));
-    term_frequencies.insert(std::make_pair(tname, term_freq));
+    term_info.insert(std::make_pair(tname, info));
 
-    DEBUGLINE(MATCH, " weight = " << term_weight <<
-	      ", frequency = " << term_freq);
-
-    return pl;
+    // MULTI
+    return submatch.open_post_list(tname, wt);
 }
 
 IRWeight *
 LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting, mopts);
+    // MULTI - this statssource should be the combined one...
     wt->set_stats(&submatch.statssource, querysize, wqf_, tname_);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname_.empty()) {
@@ -460,8 +459,7 @@ LocalMatch::set_query(const OmQueryInternal *query)
     Assert(!is_prepared);
 
     // Clear existing query
-    term_weights.clear();
-    term_frequencies.clear();
+    term_info.clear();
 
     // If query is boolean, set weighting to boolean
     if (query->is_bool()) {
@@ -590,14 +588,6 @@ LocalMatch::get_mset(om_doccount first,
     om_doccount mbound = 0;
     om_weight greatest_wt = 0;
     std::vector<OmMSetItem> items;
-    std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
-
-    for (std::map<om_termname, om_weight>::const_iterator i = term_weights.begin(); i != term_weights.end(); i++) {
-	termfreqandwts[i->first].termweight = i->second;
-    }
-    for (std::map<om_termname, om_doccount>::const_iterator i = term_frequencies.begin(); i != term_frequencies.end(); i++) {
-	termfreqandwts[i->first].termfreq = i->second;
-    }
 
     // Extra weight object - used to calculate part of doc weight which
     // doesn't come from the sum.
@@ -617,7 +607,7 @@ LocalMatch::get_mset(om_doccount first,
 	delete query;
 	delete extra_weight;
 
-	mset = OmMSet(first, mbound, max_weight, greatest_wt, items, termfreqandwts);
+	mset = OmMSet(first, mbound, max_weight, greatest_wt, items, term_info);
 
 	return true;
     }
@@ -764,7 +754,7 @@ LocalMatch::get_mset(om_doccount first,
     }
 
     // Get initial max weight and the maximum extra weight contribution
-    mset = OmMSet(first, mbound, max_weight, greatest_wt, items, termfreqandwts);
+    mset = OmMSet(first, mbound, max_weight, greatest_wt, items, term_info);
 
     return true;
 }

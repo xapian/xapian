@@ -56,6 +56,14 @@ class SubMatch {
 	void link_to_multi(StatsGatherer *gatherer) {
 	    statssource.connect_to_gatherer(gatherer);
 	}
+
+
+	PostList * open_post_list(const om_termname & tname, IRWeight *wt) {
+	    LeafPostList * pl = db->open_post_list(tname);
+	    pl->set_termweight(wt);
+	    return pl;
+	}
+
 };   
 
 ////////////////////////////////////////////////////////////////////////////
@@ -111,13 +119,9 @@ class LocalMatch : public SingleMatch
 	 */
 	om_termcount max_or_terms;
 
-	/** The weights of terms in the query: used to select the top ones.
+	/** The weights and termfreqs of terms in the query.
 	 */
-	std::map<om_termname, om_weight> term_weights;
-
-	/** The termfreqs of terms in the query.
-	 */
-	std::map<om_termname, om_doccount> term_frequencies;
+	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
