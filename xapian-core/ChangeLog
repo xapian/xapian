@@ -1,3 +1,9 @@
+Sun Feb 13 23:09:15 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enhanced valgrind test to (a) see if --tool=memcheck
+	  is needed and (b) see if valgrind actually works (we don't want to
+	  try to use an x86 valgrind on an x86_64 box).
+
 Mon Jan 17 03:21:29 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.h,extra/,extra/xapian/queryparser.h: Rewritten

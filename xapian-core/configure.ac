@@ -255,6 +255,20 @@ if test -n "$VALGRIND" ; then
      #endif
     ], [],
     [VALGRIND=])
+
+  dnl Check that the installed valgrind version works, and see if it needs
+  dnl --tool=memcheck to work.
+  if $VALGRIND -q true 2> /dev/null ; then
+     dnl All is OK.
+     :
+  elif $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
+     dnl The valgrind version installed requires --tool=memcheck
+     VALGRIND="$VALGRIND --tool=memcheck"
+  else
+     dnl The valgrind detected doesn't work!  Perhaps this is an x86_64 box
+     dnl with a 32 bit valgrind.
+     VALGRIND=
+  fi
 fi
 
 if test -n "$VALGRIND" ; then
