@@ -1,3 +1,8 @@
+Fri Jul 04 15:30:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Disabled guile, tcl8, and php4 here as well as in
+	  bindings/Makefile.am.
+
 Fri Jul  4 11:27:53 2003  James Aylett  <james@tartarus.org>
 
 	* bindings/Makefile.am: change commenting so mkdoc.pl doesn't
