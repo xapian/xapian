@@ -53,5 +53,6 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
+ mgrep/Makefile
  gui/Makefile
  gui/glade/Makefile)
