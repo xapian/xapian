@@ -1,3 +1,8 @@
+Thu Feb 24 17:42:35 GMT 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Actually ship docs/termprefixes.txt (and make it harder
+	  to fail to ship new docs in future).
+
 Thu Feb 24 02:10:09 GMT 2005  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/termprefixes.txt: Added a single document covering

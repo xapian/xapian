@@ -8,6 +8,14 @@ noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h
 
+# None generated documentation.
+omega_docs = docs/cgiparams.txt \
+	docs/omegascript.txt \
+	docs/overview.txt \
+	docs/quickstart.txt \
+	docs/scriptindex.txt \
+	docs/termprefixes.txt
+
 EXTRA_DIST = templates/query \
 	templates/godmode \
 	templates/xml \
@@ -52,11 +60,7 @@ EXTRA_DIST = templates/query \
 	images/score-8.png \
 	images/score-9.png \
 	omega.spec omega.conf \
-	docs/cgiparams.txt \
-	docs/omegascript.txt \
-	docs/overview.txt \
-	docs/quickstart.txt \
-	docs/scriptindex.txt \
+	$(omega_docs) \
 	dbi2omega htdig2omega htdig2omega.script
 
 pkglibbindir = $(pkglibdir)/bin
@@ -64,14 +68,9 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 bin_SCRIPTS = dbi2omega htdig2omega
 
-# Data to install, in the usual automake way
+# Install documentation.
 docdatadir   = $(datadir)/doc/omega
-docdata_DATA = docs/cgiparams.txt \
-	docs/omegascript.txt \
-	docs/overview.txt \
-	docs/quickstart.txt \
-	docs/scriptindex.txt \
-	docs/termprefixes.txt
+docdata_DATA = $(omega_docs)
 
 omegadatadir = $(datadir)/omega
 omegadata_DATA = htdig2omega.script
