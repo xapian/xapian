@@ -25,34 +25,45 @@
 #include "indexergraph.h"
 
 int main() {
-    {
-	Message origmsg(new BasicMessage());
-	origmsg->name = "foo";
-	origmsg->value = "bar";
-	OmOrigNode orig(origmsg);
-
-	SplitNode split;
-	split.connect_input("in", &orig, "out");
-
-	ReverseNode reverse;
-	reverse.connect_input("in", &split, "out1");
-
-	ConcatNode concat;
-	concat.connect_input("in1", &reverse, "out");
-	concat.connect_input("in2", &split, "out2");
-
-	Message result = concat.get_output("out");
-
-	cout << "Name: " << result->name << endl;
-	cout << "Value: " << result->value << endl;
-    }
-
     try {
-	OmIndexer indexer("test.xml");
-	Message result = indexer.get_output();
+	OmIndexerBuilder builder;
+	builder.register_node_type("split",
+				   &SplitNode::create,
+				   vector<OmIndexerBuilder::NodeConnection>(),
+				   vector<OmIndexerBuilder::NodeConnection>());
+	builder.register_node_type("reverse",
+				   &ReverseNode::create,
+				   vector<OmIndexerBuilder::NodeConnection>(),
+				   vector<OmIndexerBuilder::NodeConnection>());
+	builder.register_node_type("concat",
+				   &ConcatNode::create,
+				   vector<OmIndexerBuilder::NodeConnection>(),
+				   vector<OmIndexerBuilder::NodeConnection>());
+	auto_ptr<OmIndexer> indexer = builder.build_from_file("test.xml");
+	Message msg(new Record());
+	msg->name = "foo";
+	msg->type = mt_string;
+	msg->u.string_val = new std::string("bar");
+	indexer->set_input(msg);
+	Message result = indexer->get_output();
 
 	cout << "Name: " << result->name << endl;
-	cout << "Value: " << result->value << endl;
+	cout << "Value: " << *result->u.string_val << endl; // BAD!
+	switch (result->type) {
+	    case mt_int:
+		cout << result->u.int_val;
+		break;
+	    case mt_double:
+		cout << result->u.double_val;
+		break;
+	    case mt_string:
+		cout << result->u.string_val;
+		break;
+	    case mt_vector:
+		cout << "Vector";
+		break;
+	};
+	cout << endl;
     } catch (const std::string &s) {
 	cout << "Got exception: " << s << endl;
     } catch (const char * s) {

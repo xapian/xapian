@@ -23,13 +23,15 @@
 #ifndef OM_HGUARD_TESTNODES_H
 #define OM_HGUARD_TESTNODES_H
 #include "omindexernode.h"
+#include "om/omsettings.h"
 
 class ReverseNode : public OmIndexerNode {
     public:
-	ReverseNode() {
-	    add_output("out", &ReverseNode::get_reversed);
+	static OmIndexerNode *create(const OmSettings &) {
+	    return new ReverseNode();
 	}
     private:
+	ReverseNode() {};
 	static std::string reverse_string(std::string s) {
 	    std::string result(s);
 	    std::string::size_type len = result.length();
@@ -41,68 +43,66 @@ class ReverseNode : public OmIndexerNode {
 	    return result;
 	}
 
-	Message get_reversed(void) {
-	    Message in = get_input("in");
+	void calculate() {
+	    Message in = get_input_record("in");
 
-	    Message out(new BasicMessage());
-	    out->name = reverse_string(in->name);
-	    out->value = reverse_string(in->value);
+	    Record out;
+	    out.name = reverse_string(in->name);
+	    if (out.type == mt_string) {
+		*out.u.string_val = reverse_string(*out.u.string_val);
+	    }
 
-	    return out;
+	    set_output_record("out", out);
 	}
 };
 
 class SplitNode : public OmIndexerNode {
     public:
-	SplitNode() {
-	    add_output("out1", &SplitNode::get_out1);
-	    add_output("out2", &SplitNode::get_out2);
+	static OmIndexerNode *create(const OmSettings &config) {
+	    return new SplitNode();
 	}
     private:
-	Message saved_in;
+	SplitNode() {};
 
-	Message get_out1(void) {
-	    if (!saved_in.get()) {
-		Message temp(get_input("in"));
-		saved_in = temp;
+	void calculate() {
+	    Message msg = get_input_record("in");
+	    Record temp1(*msg);
+	    temp1.name += "1";
+	    if (temp1.type == mt_string) {
+		*temp1.u.string_val += "1";
 	    }
-
-	    Message out(new BasicMessage());
-	    out->name = saved_in->name + "1";
-	    out->value = saved_in->value + "1";
-
-	    return out;
-	}
-
-	Message get_out2(void) {
-	    if (!saved_in.get()) {
-		Message temp(get_input("in"));
-		saved_in = temp;
+	    Record temp2(*msg);
+	    temp2.name += "2";
+	    if (temp2.type == mt_string) {
+		*temp2.u.string_val += "2";
 	    }
-
-	    Message out(new BasicMessage());
-	    out->name = saved_in->name + "2";
-	    out->value = saved_in->value + "2";
-
-	    return out;
+	    set_output_record("out1", temp1);
+	    set_output_record("out2", temp2);
 	}
 };
 
 class ConcatNode : public OmIndexerNode {
     public:
-	ConcatNode() {
-	    add_output("out", &ConcatNode::get_out);
+	static OmIndexerNode *create(const OmSettings &config) {
+	    return new ConcatNode();
 	}
     private:
-	Message get_out(void) {
-	    Message in1 = get_input("in1");
-	    Message in2 = get_input("in2");
+	ConcatNode() {};
+	void calculate() {
+	    Message in1 = get_input_record("in1");
+	    Message in2 = get_input_record("in2");
 
-	    Message out(new BasicMessage());
-	    out->name = in1->name + in2->name;
-	    out->value = in1->value + in2->value;
+	    Record out;
+	    out.name = in1->name + in2->name;
+	    out.type = mt_string;
+	    if (in1->type == mt_string && in2->type == mt_string) {
+		out.u.string_val = new std::string(*in1->u.string_val +
+						   *in2->u.string_val);
+	    } else {
+		out.u.string_val = new std::string("somestring");
+	    }
 
-	    return out;
+	    set_output_record("out", out);
 	}
 };
 

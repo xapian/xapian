@@ -27,6 +27,7 @@
 #include <map>
 #include <parser.h>
 #include "omindexernode.h"
+#include "om/omsettings.h"
 
 template <class T, class U>
 class deleter_map : private std::map<T, U> {
@@ -46,23 +47,26 @@ class deleter_map : private std::map<T, U> {
 	}
 };
 
+class OmIndexerStartNode;
+
 class OmIndexer {
     public:
-	// FIXME: different constructors for filename/block of data?
-	/** Construct the indexer from the XML file <filename>.
-	 *
-	 *  @param filename  The name of the file containing the definition
-	 *                   of the index graph.
+	friend class OmIndexerBuilder;
+
+	/** Set the input
 	 */
-	OmIndexer(std::string filename);
+	void set_input(Message msg);
+	/** Get the output
+	 */
+	Message get_output();
 
 	/** Destructor
 	 */
 	~OmIndexer();
-
-	/** Get the output
+    private:
+	/** Construct a blank indexer
 	 */
-	Message get_output();
+	OmIndexer();
     private:
 	typedef deleter_map<std::string, OmIndexerNode *> NodeMap;
 
@@ -73,13 +77,73 @@ class OmIndexer {
 	/** The final node (which produces the final results) */
 	OmIndexerNode *final;
 
-	/** Get the XML parse tree */
-	xmlDocPtr get_xmltree(const std::string &filename);
+	/** The start node */
+	OmIndexerStartNode *start;
+};
+
+class OmIndexerBuilder {
+    public:
+	/** Constructor */
+	OmIndexerBuilder();
+
+	/** Build an indexer from an XML file
+	 *  
+	 *  @param filename	The name of the file describing the indexer
+	 *                      network.
+	 */
+	auto_ptr<OmIndexer> build_from_file(std::string filename);
+
+	/** Build an indexer from an XML string
+	 *  
+	 *  @param xmldesc	The string describing the indexer network.
+	 */
+	auto_ptr<OmIndexer> build_from_string(std::string xmldesc);
+
+	/** A function pointer to a node object creator. */
+	typedef OmIndexerNode *(*NodeCreator)(const OmSettings &config);
+
+	/** The description of an input or output connection. */
+	struct NodeConnection {
+	    /** The name of this input or output */
+	    std::string name;
+
+	    /** The high-level type of this connection. */
+	    std::string type;
+
+	    /** The low-level type of this connection. */
+	    OmIndexerMessageType phys_type;
+	};
+
+	/** Register a new node type */
+	void register_node_type(const std::string &nodename,
+				NodeCreator create,
+				const std::vector<NodeConnection> &inputs,
+				const std::vector<NodeConnection> &outputs);
+
+    private:
+	/** Get the XML parse tree from a file */
+	xmlDocPtr get_xmltree_from_file(const std::string &filename);
+
+	/** Get the XML parse tree from a string*/
+	xmlDocPtr get_xmltree_from_string(const std::string &xmldesc);
 
 	/** Build the node graph (with checking) and set up the final
 	 *  node pointer.
 	 */
-	void build_graph(xmlDocPtr doc);
+	void build_graph(OmIndexer *indexer, xmlDocPtr doc);
+
+	/** Create a node given a name */
+	OmIndexerNode *make_node(const std::string &type);
+
+	/** Node descriptor */
+	struct node_desc {
+	    NodeCreator create;
+	    std::vector<NodeConnection> inputs;
+	    std::vector<NodeConnection> outputs;
+	};
+
+	/** Node database */
+	std::map<std::string, node_desc> nodetypes;
 };
 
 #endif /* OM_HGUARD_OMINDEXERGRAPH_H */

@@ -28,6 +28,14 @@
 #include <map>
 #include <vector>
 
+/** The possible physical types a message can have. */
+enum OmIndexerMessageType {
+    mt_int,
+    mt_double,
+    mt_string,
+    mt_vector
+};
+
 /** BasicMessage is a basic message element.  More complex message may
  *  be built up from more of these these.
  */
@@ -37,16 +45,8 @@ class Record {
 	 *  (eg "language", "document data", etc.) */
 	std::string name;
 
-	/** The possible physical types a message can have. */
-	enum message_type {
-	    mt_int,
-	    mt_double,
-	    mt_string,
-	    mt_vector
-	};
-
 	/** The type of this record */
-	message_type type;
+	OmIndexerMessageType type;
 
 	/** The union of possible values stored in this record */
 	union {
@@ -56,29 +56,34 @@ class Record {
 	    std::vector<Record> *vector_val;
 	} u;
 
+	/** Constructor */
+	Record();
+	/** Copy constructor */
+	Record(const Record &other);
+	/** Assignment operator */
+	void operator=(const Record &other);
+
 	/** Takes care of cleaning up any memory etc. */
 	~Record();
+
+    private:
+	/* atomic exception-safe swap routine */
+	void swap(Record &other);
 };
 
 typedef auto_ptr<Record> Message;
 
 class OmIndexerNode {
     public:
-	/** Used to extract outputs by other nodes or the main engine.
-	 *
-	 *  @param output_name	The name of the output to use.
-	 */
-	Message get_output(std::string output_name);
-
 	/** Used by the graph builder to connect nodes together. */
-	void connect_input(std::string input_name,
+	void connect_input(const std::string &input_name,
 			   OmIndexerNode *other_node,
-			   std::string other_outputname);
+			   const std::string &other_outputname);
 
 	/** Set a configuration value.  Used by the system to set
 	 *  configuration values on behalf of the "user".
 	 */
-	void set_config_string(std::string key, std::string value);
+	void set_config_string(const std::string &key, const std::string &value);
 
 	/** These output functions are used to pass the information between
 	 *  the nodes.  Four possible message types are allowed:
@@ -88,16 +93,16 @@ class OmIndexerNode {
 	 *     Message, a structured record.
 	 */
 	/** Get a string output */
-	std::string get_output_string(std::string output_name);
+	std::string get_output_string(const std::string &output_name);
 
 	/** Get an int output */
-	int get_output_int(std::string output_name);
+	int get_output_int(const std::string &output_name);
 
 	/** Get a double output */
-	double get_output_double(std::string output_name);
+	double get_output_double(const std::string &output_name);
 
 	/** Get a Record output */
-	Message get_output_record(std::string output_name);
+	Message get_output_record(const std::string &output_name);
 
 	/** Invalidate the outputs.  When an error occurs, or the network
 	 *  needs to be reset, this function may be called.  It will cause
@@ -105,7 +110,7 @@ class OmIndexerNode {
 	 */
 	void invalidate_outputs();
 
-	virtual ~OmIndexerNode() {}
+	virtual ~OmIndexerNode();
     protected:
 	/* *** Protected interface for node implementations *** */
 	/** Constructor */
@@ -126,10 +131,10 @@ class OmIndexerNode {
 	 *
 	 *  @param input_name	The name of the input connection to use.
 	 */
-	Message get_input_record(std::string input_name);
-	std::string get_input_string(std::string input_name);
-	int get_input_int(std::string input_name);
-	double get_input_double(std::string input_name);
+	Message get_input_record(const std::string &input_name);
+	std::string get_input_string(const std::string &input_name);
+	int get_input_int(const std::string &input_name);
+	double get_input_double(const std::string &input_name);
 
 	/** The functions which can be called from calculate() to set
 	 *  the output data.  One of these should be called for each
@@ -140,40 +145,55 @@ class OmIndexerNode {
 	 *
 	 *  @param value	The value to provide to the input.
 	 */
-	void set_output_int(std::string output_name, int value);
-	void set_output_double(std::string output_name, double value);
-	void set_output_string(std::string output_name, std::string value);
-	void set_output_record(std::string output_name, Message value);
+	void set_output_int(const std::string &output_name, int value);
+	void set_output_double(const std::string &output_name, double value);
+	void set_output_string(const std::string &output_name,
+			       const std::string &value);
+	void set_output_record(const std::string &output_name, const Record &value);
 
 	/* The implementation's interface to the configuration data. */
 
 	/** Return the current value of a given configuration parameter. */
-	std::string get_config_string(std::string key);
+	std::string get_config_string(const std::string &key);
 
 	/** This function may be overridden by a node implementation if it
 	 *  needs to be informed of configuration changes (rather than just
 	 *  checking the values from calculate().)
 	 */
-	virtual void config_modified(std::string key);
+	virtual void config_modified(const std::string &key);
     private:
-	/* some stuff */
-};
+	struct output_info_type {
+	    OmIndexerMessageType type;
+	};
+	/** Information about the outputs */
+	std::map<std::string, output_info_type> output_info;
 
-/** The OmIndexerNode used as the source for the whole network.
- *  This node doesn't get input from other nodes, but gets it
- *  passed in to the constructor.
- */
-class OmOrigNode : public OmIndexerNode {
-    public:
-	/** Create the node.
-	 *
-	 *  @param message The message to output.
+	/** Message outputs */
+	std::map<std::string, Record> outputs_record;
+	/** string outputs */
+	std::map<std::string, std::string> outputs_string;
+	/** int outputs */
+	std::map<std::string, int> outputs_int;
+	/** double outputs */
+	std::map<std::string, double> outputs_double;
+
+	/** Description of inputs */
+	struct input_desc {
+	    /** The other node */
+	    OmIndexerNode *node;
+	    /** The other node's output name */
+	    std::string node_output;
+	};
+
+	/** The table of inputs */
+	std::map<std::string, input_desc> inputs;
+
+	/** Calculate outputs if needed
+	 *  @param output_name  The output currently needed.  If this
+	 *                      output is not available, then
+	 *                      calculate() will be called.
 	 */
-	OmOrigNode(Message message_);
-    private:
-	Message message;
-
-	Message get_out();
+	void calculate_if_needed(const std::string &output_name);
 };
 
 #endif /* OM_HGUARD_OMINDEXERNODE_H */
