@@ -1,0 +1,252 @@
+#! /bin/sh
+# buildall - run everything needed to configure and build the system from
+# a CVS checkout.
+#
+# ----START-LICENCE----
+# Copyright 1999 Dialog Corporation
+# 
+# This program is free software; you can redistribute it and/or 
+# modify it under the terms of the GNU General Public License as 
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+# -----END-LICENCE-----
+
+# Set this to be the name of your package
+PACKAGE="Muscat Examples"
+
+# Set this if you want verbose messages by default (probably a good idea)
+VERBOSE=1
+
+# Set this if you want make to get run after configure by default
+# (also probably a good idea)
+RUNMAKE=1
+
+# Details of this script
+PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
+VERSION="0.9"
+
+# Little bit of paranoia
+test -z "${PROGNAME}" && PROGNAME="[build script]"
+
+#######################
+# Get directory names #
+#######################
+
+# Get the source directory, ie the directory 
+# Don't use dirname incase we havn't got GNU tools
+SRCDIR="`echo $0 | sed -e 's#/[^/]*$##'`"
+# Be paranoid about not getting SRCDIR
+test -z "$SRCDIR" && SRCDIR='.'
+
+BUILDDIR="`pwd`"
+# Be paranoid about not getting BUILDDIR
+test -z "$BUILDDIR" && BUILDDIR='-'
+
+########################
+# Function definitions #
+########################
+
+printlines() {
+  # Display arguments, interpreting \n
+  # FIXME: Don't assume we have an echo which interprets \n correctly
+  echo -e "$@"
+}
+
+display() {
+  # Display a string, unless not being verbose
+  if [ $VERBOSE -eq 1 ] ; then
+    printlines "$@"
+  fi
+}
+
+error() {
+  # Display an error message and stop
+  printlines "${PROGNAME}: error: $*" >&2
+  exit 1
+}
+
+run() {
+  # Run a program, stopping if it returns an error condition
+  cmd=$1;
+  shift;
+  display "${PROGNAME}: running $cmd $*"
+  $cmd "$@" || error "in $cmd $*"
+}
+
+#####################################################################
+# Check options which are exclusive (ie, only valid if only option) #
+#####################################################################
+
+# Check if user asked for help
+if [ "x$*" = "x--help" ] ; then
+  display "Usage: ${PROGNAME} [--quiet|--no-make] [--] [arguments for configure]"
+  display "Usage: ${PROGNAME} --help | --version"
+  display
+  display "  This script runs all the neccessary utilities to configure and"
+  display "  compile ${PACKAGE}."
+  display
+  display "Options:"
+  display "  --help            Display this message"
+  display "  --version         Display ${PROGNAME} version number (${VERSION})"
+  display "  --quiet           Don't report on progress of ${PROGNAME}"
+  display "  --no-make          Don't run make after configuring"
+  display "  --                Mark end of options: all further arguments will be passed"
+  display "                    to configure"
+  display
+  if [ -x "${SRCDIR}/configure" ] ; then
+    display "Run \"${SRCDIR}/configure --help\" for arguments to pass to configure"
+  else
+    display "Run \"$0 -- --help\" for arguments to pass to configure"
+  fi
+  exit 0
+fi
+
+# Check if user asked for version
+if [ "x$*" = "x--version" ] ; then
+  display "${PROGNAME} version ${VERSION}"
+  exit 0
+fi
+
+#######################
+# Parse other options #
+#######################
+
+# Check if asked to be quiet
+if [ "x$1" = "x--quiet" ] ; then
+  VERBOSE=0
+  shift
+fi
+
+# Check if asked to be quiet
+if [ "x$1" = "x--no-make" ] ; then
+  RUNMAKE=0
+  shift
+fi
+
+# Check if asked to be quiet (again)
+if [ "x$1" = "x--quiet" ] ; then
+  if [ $VERBOSE eq 1 ] ; then
+    # If verbose is already 0
+    VERBOSE=0
+    shift
+  fi
+fi
+
+# Check if asked not to parse further arguments (by passing --)
+# (We just throw this away, since it has already worked)
+if [ "x$1" = "x--" ] ; then
+  shift
+fi 
+
+# Check for existence of neccessary tools
+
+display "${PROGNAME}: checking for tools"
+
+ERRMSG=""
+(autoconf --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool autoconf not found\\n"
+}
+(automake --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool automake not found\\n"
+}
+(libtool --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool libtool not found\\n"
+}
+test -z "${ERRMSG}" ||
+error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+
+ERRMSG=""
+(aclocal --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool aclocal (part of automake) not found\\n"
+}
+(autoheader --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool autoheader (part of autoconf) not found\\n"
+}
+test -z "${ERRMSG}" ||
+error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+
+# FIXME - Check for tested versions of tools
+
+# Build configure script and Makefile.in's
+cd ${SRCDIR}
+if [ "x${SRCDIR}" != "x." ] ; then
+  display "${PROGNAME}: changed to source directory, `pwd`"
+fi
+run aclocal $ACLOCAL_FLAGS
+run autoheader
+run autoconf
+run automake --add-missing
+
+# Return to build directory
+cd ${BUILDDIR}
+if [ "x${SRCDIR}" != "x." ] ; then
+  display "${PROGNAME}: returned to build directory, ${BUILDDIR}"
+fi
+
+# Configure package
+
+# First move top level makefile away, so that we can tell if one gets
+# created
+if [ -r Makefile ] ; then
+  display "${PROGNAME}: moving existing Makefile out of the way"
+  rm -f "Makefile.old$$"
+  mv Makefile "Makefile.old$$"
+fi
+
+use_config_status=no
+if [ -x ./config.status ] ; then
+  # If no parameters, assume that we just wish to re-run the configure,
+  # using same parameters as last time.
+  # (Note: make should automatically perform these steps if and when
+  # neccessary, but this is useful for situations where make has got
+  # confused - for example, when a broken makefile has been created.)
+  if [ "x$*" = "x" ] ; then
+    use_config_status=yes
+  fi
+fi
+
+if [ $use_config_status = yes ] ; then
+  run ./config.status --recheck
+  run ./config.status
+else
+  run ${SRCDIR}/configure "$@"
+fi
+
+if [ -r Makefile ] ; then
+  CREATED_MAKEFILE=1
+  if [ -r "Makefile.old$$" ] ; then
+    rm -f "Makefile.old$$"
+  fi
+else
+  CREATED_MAKEFILE=0
+  RUNMAKE=0
+  if [ -r "Makefile.old$$" ] ; then
+    display "${PROGNAME}: replacing existing Makefile"
+    mv "Makefile.old$$" Makefile
+  fi
+fi
+
+# Now run the make if desired
+if [ -r Makefile ] ; then
+  if [ ${RUNMAKE} -eq 1 ] ; then
+    run make
+    display
+    display "${PROGNAME}: successfully built ${PACKAGE}"
+  else
+    if [ ${CREATED_MAKEFILE} -eq 1 ] ; then
+      display
+      display "${PROGNAME}: successfully configured ${PACKAGE}"
+      display "Run \"make\" to compile"
+    fi
+  fi
+fi
