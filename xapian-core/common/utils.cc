@@ -24,7 +24,7 @@
 
 // Convert a number to a string
 #include <strstream.h>
-string inttostring(int a)
+string om_inttostring(int a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)

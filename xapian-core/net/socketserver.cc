@@ -58,8 +58,8 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     }
     buf.readline();
     buf.writeline("HELLO " +
-		  inttostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
-		  inttostring(db->get_doccount()) + " " +
+		  om_inttostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
+		  om_inttostring(db->get_doccount()) + " " +
 		  doubletostring(db->get_avlength()));
 }
 
@@ -232,7 +232,7 @@ SocketServer::run_match(const string &firstmessage)
     DebugMsg("done get_mset..." << endl);
 
     buf.writeline(string("MSETITEMS ") +
-		  inttostring(mset.items.size()) + " "
+		  om_inttostring(mset.items.size()) + " "
 		  + doubletostring(mset.max_possible)
 		  + doubletostring(mset.max_attained));
 
@@ -274,8 +274,8 @@ SocketServer::run_gettermlist(const string &firstmessage)
     while (!tl->at_end()) {
 	string item = "TLISTITEM ";
 	item = item + encode_tname(tl->get_termname()) + " ";
-	item = item + inttostring(tl->get_wdf()) + " ";
-	item = item + inttostring(tl->get_termfreq());
+	item = item + om_inttostring(tl->get_wdf()) + " ";
+	item = item + om_inttostring(tl->get_termfreq());
 	buf.writeline(item);
 
 	tl->next();
@@ -304,7 +304,7 @@ SocketServer::run_getdocument(const string &firstmessage)
     map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
 	string item = string("KEY ") +
-		inttostring(i->first) + " " +
+		om_inttostring(i->first) + " " +
 		omkey_to_string(i->second);
 	buf.writeline(item);
 	++i;

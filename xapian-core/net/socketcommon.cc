@@ -86,9 +86,9 @@ string stats_to_string(const Stats &stats)
 #endif
     string result;
 
-    result += inttostring(stats.collection_size);
+    result += om_inttostring(stats.collection_size);
     result += " ";
-    result += inttostring(stats.rset_size);
+    result += om_inttostring(stats.rset_size);
     result += " ";
     result += doubletostring(stats.average_length);
     result += " ";
@@ -478,11 +478,11 @@ moptions_to_string(const OmMatchOptions &moptions)
 {
     string result;
 
-    result += inttostring(moptions.do_collapse) + " ";
-    result += inttostring(moptions.collapse_key) + " ";
-    result += inttostring(moptions.sort_forward) + " ";
-    result += inttostring(moptions.percent_cutoff) + " ";
-    result += inttostring(moptions.max_or_terms);
+    result += om_inttostring(moptions.do_collapse) + " ";
+    result += om_inttostring(moptions.collapse_key) + " ";
+    result += om_inttostring(moptions.sort_forward) + " ";
+    result += om_inttostring(moptions.percent_cutoff) + " ";
+    result += om_inttostring(moptions.max_or_terms);
 
     return result;
 }
@@ -508,13 +508,13 @@ string_to_moptions(const string &s)
 string
 omrset_to_string(const OmRSet &omrset)
 {
-    string result = inttostring(omrset.items.size());
+    string result = om_inttostring(omrset.items.size());
 
     for (set<om_docid>::const_iterator i = omrset.items.begin();
 	 i != omrset.items.end();
 	 ++i) {
 	result += " ";
-	result += inttostring(*i);
+	result += om_inttostring(*i);
     }
     return result;
 }

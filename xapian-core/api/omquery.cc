@@ -201,8 +201,8 @@ OmQueryInternal::serialise() const
     }
     if (op == OM_MOP_LEAF) {
 	result += "%T" + encode_tname(tname) +
-		"," + inttostring(wqf) +
-		"," + inttostring(term_pos);
+		"," + om_inttostring(wqf) +
+		"," + om_inttostring(term_pos);
     } else {
 	result += "%(";
 	for (subquery_list::const_iterator i=subqs.begin();

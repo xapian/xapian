@@ -137,7 +137,7 @@ LeafPostList *
 SleepyDatabase::open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
-    if(tid == 0) throw OmRangeError("Termid " + inttostring(tid) +
+    if(tid == 0) throw OmRangeError("Termid " + om_inttostring(tid) +
 				    " not found; can't open postlist");
 
     return new SleepyPostList(tid, internals.get(), tname);

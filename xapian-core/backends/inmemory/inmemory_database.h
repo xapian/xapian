@@ -315,7 +315,7 @@ InMemoryPostList::at_end() const
 inline string
 InMemoryPostList::intro_term_description() const
 {
-    return tname + ":" + inttostring(termfreq);
+    return tname + ":" + om_inttostring(termfreq);
 }
 
 

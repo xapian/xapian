@@ -101,7 +101,7 @@ DAPostList::at_end() const
 inline string
 DAPostList::intro_term_description() const
 {
-    return tname + ":" + inttostring(termfreq);
+    return tname + ":" + om_inttostring(termfreq);
 }
 
 

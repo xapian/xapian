@@ -1,3 +1,7 @@
+Wed Jun  7 15:10:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Rename inttostring() to om_inttostring() to avoid conflicts.
+
 Wed Jun  7 12:26:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update licences.  Copyright is now held by BrightStation, which

@@ -110,5 +110,5 @@ SleepyPostList::at_end() const
 string
 SleepyPostList::intro_term_description() const
 {
-    return tname + ":" + inttostring(get_termfreq());
+    return tname + ":" + om_inttostring(get_termfreq());
 }

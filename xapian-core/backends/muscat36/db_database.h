@@ -101,7 +101,7 @@ DBPostList::at_end() const
 inline string
 DBPostList::intro_term_description() const
 {
-    return tname + ":" + inttostring(termfreq);
+    return tname + ":" + om_inttostring(termfreq);
 }
 
 
