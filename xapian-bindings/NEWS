@@ -1,3 +1,41 @@
+Xapian-bindings 0.8.3 (2004-09-20):
+
+General:
+
+* Fixed mismatching versions of libtool used to produce configure and
+  ltmain.sh.  The obvious symptom was ".so" missing from the shared object
+  names.
+
+* RPM spec file contributed by Fabrice Colin.  Currently this packages Python,
+  PHP4, and Tcl bindings.
+
+Java:
+
+* Pass -classpath to javac to fix build problems.
+
+* Make sure errors subdirectory is built before we try to build the jar file.
+
+* Fixed "make install" to not give libtool error.
+
+PHP4:
+
+* Include PHP4 documentation and exmples in the tarball.
+
+* Reverted "Use special SWIG PHP ldflags when linking the PHP glue library."
+  change from 0.8.2 - it turns out we only need to pass these flags if we use
+  swig's -noruntime option (which we don't do).
+
+Python:
+
+* Use swig's -modern switch for Python 2.2 and up - it gives cleaner, leaner,
+  faster Python wrapper code.
+
+Tcl:
+
+* Don't install xapian.la.
+
+* Improved configure check for tcl.h to work with Fedora Core 2.
+
 Xapian-bindings 0.8.2 (2004-09-13):
 
 General:

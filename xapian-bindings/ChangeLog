@@ -1,3 +1,7 @@
+Mon Sep 20 15:28:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.3.
+
 Mon Sep 20 15:10:57 BST 2004  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/.cvsignore,java/org/xapian/errors/.cvsignore:
@@ -14,7 +18,7 @@ Sun Sep 19 17:56:32 BST 2004  Olly Betts <olly@survex.com>
 
 Fri Sep 17 10:00:59 BST 2004  Olly Betts <olly@survex.com>
 
-	* php4/docs/Makefile.am: Inlcude php4/docs/bindings.html in the
+	* php4/docs/Makefile.am: Include php4/docs/bindings.html in the
 	  tarball.
 
 Fri Sep 17 00:54:12 BST 2004  Olly Betts <olly@survex.com>
