@@ -21,4 +21,10 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc
+if BUILD_BACKEND_QUARTZ
+remote_sources = netutils.cc
+else
+remote_sources =
+endif
+
+libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc $(remote_sources)
