@@ -23,7 +23,7 @@
 
 #include "register_core.h"
 #include "indexergraph.h"
-#include "omindexernode.h"
+#include "om/omindexernode.h"
 
 /** Register all the available core nodes with an IndexerBuilder object.
  */

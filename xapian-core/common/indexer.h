@@ -24,7 +24,7 @@
 #define OM_HGUARD_INDEXER_H
 
 #include <iostream>
-#include "autoptr.h"
+#include "om/autoptr.h"
 
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"

@@ -40,7 +40,7 @@
 #include "utils.h"
 
 #include <vector>
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include <algorithm>
 #include <math.h>
 

@@ -1,4 +1,4 @@
-/* omprefixnode.cc: Implementation of a prefixing node
+/* indextest.cc: test of the OpenMuscat indexing system
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,34 +20,34 @@
  * -----END-LICENCE-----
  */
 
-#include "om/omindexernode.h"
-#include "node_reg.h"
+#include "config.h"
+#include <iostream>
+#include <string>
+using std::cout;
+using std::endl;
 
-class OmPrefixNode : public OmIndexerNode {
-    public:
-	OmPrefixNode(const OmSettings &config)
-		: OmIndexerNode(config)
-		{}
-    private:
-	void calculate() {
-	    OmIndexerMessage input = get_input_record("in");
+#include "om/om.h"
+#include "testsuite.h"
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+bool test_basic1()
+{
+    OmIndexerBuilder builder;
 
-	    std::string prefix = get_config_string("prefix");
+    builder.build_from_string("<?xml version="1.0"?><omindexer/>");
 
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
-	    }
+    return true;
+}
 
-	    set_output("out", output);
-	}
+// ##################################################################
+// # End of actual tests                                            #
+// ##################################################################
+
+/// The lists of tests to perform
+test_desc tests[] = {
+    {0, 0}
 };
 
-NODE_BEGIN(OmPrefixNode, omprefix)
-NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
-NODE_END()
+int main(int argc, char *argv[])
+{
+    return test_driver::main(argc, argv, tests);
+}

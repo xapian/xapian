@@ -48,7 +48,7 @@
 #include "irweight.h"
 
 #include <algorithm>
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include <queue>
 
 /////////////////////////////////////////////

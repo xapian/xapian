@@ -22,7 +22,7 @@
 
 #include "config.h"
 #include "regexcommon.h"
-#include "omindexernode.h"
+#include "om/omindexernode.h"
 #include "node_reg.h"
 #include <cctype>
 

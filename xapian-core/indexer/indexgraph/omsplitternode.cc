@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omindexernode.h"
+#include "om/omindexernode.h"
 #include "node_reg.h"
 
 class OmSplitterNode : public OmIndexerNode {

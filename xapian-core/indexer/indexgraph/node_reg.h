@@ -23,7 +23,8 @@
 #ifndef OM_HGUARD_NODE_REG_H
 #define OM_HGUARD_NODE_REG_H
 
-#include "indexergraph.h"
+#include "om/omnodedescriptor.h"
+#include "om/omindexerbuilder.h"
 
 /** These macros are used to help with autoregistration of the OM
  *  core nodes.  They should be used after the class body so that

@@ -30,7 +30,7 @@
 #include "omqueryinternal.h"
 
 #include <vector>
-#include "autoptr.h"  // auto_ptr
+#include "om/autoptr.h"  // auto_ptr
 
 class SubMatch;
 

@@ -50,7 +50,7 @@ print <<EOF;
  * USA
  * -----END-LICENCE-----
  */
-#include "indexergraph.h"
+#include "om/omindexerbuilder.h"
 
 EOF
 

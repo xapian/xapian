@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omindexernode.h"
+#include "om/omindexernode.h"
 #include "om/omstem.h"
 #include "om/omerror.h"
 #include "node_reg.h"

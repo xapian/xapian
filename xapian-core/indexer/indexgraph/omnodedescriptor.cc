@@ -1,4 +1,4 @@
-/* omprefixnode.cc: Implementation of a prefixing node
+/* omnodedescriptor.cc: An object describing a node type.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,34 +20,34 @@
  * -----END-LICENCE-----
  */
 
-#include "om/omindexernode.h"
-#include "node_reg.h"
+#include "om/omnodedescriptor.h"
+#include "omnodedescriptorinternal.h"
 
-class OmPrefixNode : public OmIndexerNode {
-    public:
-	OmPrefixNode(const OmSettings &config)
-		: OmIndexerNode(config)
-		{}
-    private:
-	void calculate() {
-	    OmIndexerMessage input = get_input_record("in");
+OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
+				   OmNodeCreator creator_)
+	: internal(new Internal())
+{
+    internal->nodename = nodename_;
+    internal->creator = creator_;
+}
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+void
+OmNodeDescriptor::add_input(const std::string &name,
+			    const std::string &type,
+			    OmIndexerMessageType phys_type)
+{
+    internal->inputs.push_back(OmNodeConnection(name, type, phys_type));
+}
 
-	    std::string prefix = get_config_string("prefix");
+void
+OmNodeDescriptor::add_output(const std::string &name,
+			    const std::string &type,
+			    OmIndexerMessageType phys_type)
+{
+    internal->outputs.push_back(OmNodeConnection(name, type, phys_type));
+}
 
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
-	    }
-
-	    set_output("out", output);
-	}
-};
-
-NODE_BEGIN(OmPrefixNode, omprefix)
-NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
-NODE_END()
+OmNodeDescriptor::~OmNodeDescriptor()
+{
+    delete internal;
+}

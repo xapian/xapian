@@ -21,7 +21,6 @@
  */
 
 #include "indexerxml.h"
-#include "indexergraph.h"
 #include "om/omerror.h"
 #include "register_core.h"
 #include <parser.h>  // libxml
@@ -29,6 +28,7 @@
 #include <valid.h>
 #endif
 #include <algorithm>
+#include <map>
 
 /** Return true if this xml Document is valid */
 static bool doc_is_valid(xmlDocPtr doc);

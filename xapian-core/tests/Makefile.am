@@ -27,10 +27,10 @@ THREADTESTS =
 endif
 
 ## Test programs to be run
-TESTS = $(THREADTESTS) run-apitest run-internaltest $(PERLTESTS)
+TESTS = $(THREADTESTS) run-apitest run-internaltest run-indextest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = $(THREADTESTS) apitest internaltest stemtest delve
+check_PROGRAMS  = $(THREADTESTS) apitest internaltest indextest stemtest delve
 
 if HAVE_PERL
 check-local: includetest.o
@@ -54,6 +54,9 @@ internaltest_LDADD = ../testsuite/libtest.la ../libomus.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
+
+indextest_SOURCES = indextest.cc
+indextest_LDADD = ../testsuite/libtest.la ../libomus.la
 
 delve_SOURCES = delve.cc
 delve_LDADD = ../libomus.la
@@ -133,3 +136,7 @@ run-apitest:
 run-internaltest:
 	@rm -f run-internaltest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest
+
+run-indextest:
+	@rm -f run-indextest
+	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-indextest

@@ -24,7 +24,7 @@
 #define OM_HGUARD_TEXTFILE_INDEXER_H
 
 #include "indexer.h"
-#include "autoptr.h"
+#include "om/autoptr.h"
 
 class TextfileIndexerSource : public IndexerSource {
     private:

@@ -1,4 +1,4 @@
-/* indexergraph.cc: An indexing structure built from an XML definition
+/* omindexerbuilder.cc: Code to build an indexer from a list of nodes.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,68 +20,147 @@
  * -----END-LICENCE-----
  */
 
-#include "omindexernode.h"
-#include "indexergraph.h"
+#include "om/omindexernode.h"
+#include "om/omindexerbuilder.h"
+#include "omindexerinternal.h"
 #include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
 #include "toposort.h"
+#include "omnodeconnection.h"
+#include "om/omnodedescriptor.h"
+#include "omnodedescriptorinternal.h"
 #include <algorithm>
 
-class OmIndexerStartNode : public OmIndexerNode
-{
+class OmIndexerBuilder::Internal {
     public:
-	static OmIndexerNode *create(const OmSettings &settings) {
-	    return new OmIndexerStartNode(settings);
-	}
+	/** Constructor. */
+	Internal();
 
-	void set_message(OmIndexerMessage msg) {
-	    //cout << "Setting message:" << msg << endl;
-	    message = msg;
-	};
+	/** Build an indexer from an XML file
+	 *  
+	 *  @param filename	The name of the file describing the indexer
+	 *                      network.
+	 */
+	void build_from_file(const std::string &filename,
+			     OmIndexer::Internal *indexer);
+
+	/** Build an indexer from an XML string
+	 *  
+	 *  @param xmldesc	The string describing the indexer network.
+	 */
+	void build_from_string(const std::string &xmldesc,
+			       OmIndexer::Internal *indexer);
+
+	/** Build an indexer from an in-memory structure.
+	 * 
+	 *  @param desc		The description of the graph.
+	 */
+	void build_from_desc(const OmIndexerDesc &desc);
+
+	/** Register a new node type */
+	void register_node_type(const OmNodeDescriptor::Internal &nodedesc);
+
     private:
-	OmIndexerStartNode(const OmSettings &settings)
-		: OmIndexerNode(settings) {}
-	void calculate() {
-	    set_output("out", message);
-	}
+	/** Build the node graph (with checking) and set up the final
+	 *  node pointer.
+	 */
+	void build_graph(OmIndexer::Internal *indexer,
+			 const OmIndexerDesc &desc);
 
-	OmIndexerMessage message;
+	/** Return a sorted order suitable for instantiating nodes.  Uses
+	 *  a topological sort.
+	 *
+	 *  @param desc	The description of the nodes.
+	 */
+	std::vector<int> sort_nodes(const OmIndexerDesc &desc);
+	
+	/** Data kept with each node as the graph is being built */
+	struct type_data {
+	    std::string node_name;
+	    std::vector<OmNodeConnection> inputs;
+	    std::vector<OmNodeConnection> outputs;
+	};
+
+	/** The structure with information about each node's connections. */
+	typedef std::map<std::string, type_data> typemap;
+
+
+	/** Make sure that the types at each end of a connection are
+	 *  compatible.  Throw an exception if not.
+	 */
+	void typecheck(type_data &feeder_node,
+		       const std::string &feeder_output,
+		       type_data &receiver_node,
+		       const std::string &receiver_input);
+
+	/** Get the descriptor for an output connection for a particular
+	 *  node type.
+	 */
+	OmNodeConnection get_outputcon(const std::string &nodetype,
+				     const std::string &output_name);
+
+	/** Get the descriptor for an input connection for a particular
+	 *  node type.
+	 */
+	OmNodeConnection get_inputcon(const std::string &nodetype,
+				    const std::string &input_name);
+
+	/** Create a node given a name
+	 *
+	 *  @param type  The node type.
+	 */
+	OmIndexerNode *make_node(const std::string &type,
+				 const OmSettings &config);
+
+	/** Node descriptor */
+	struct node_desc {
+	    OmNodeCreator create;
+	    std::vector<OmNodeConnection> inputs;
+	    std::vector<OmNodeConnection> outputs;
+	};
+
+	/** Node database */
+	std::map<std::string, node_desc> nodetypes;
 };
 
-OmIndexer::OmIndexer()
-{
-}
-
-OmIndexer::~OmIndexer()
-{
-}
-
 AutoPtr<OmIndexer>
-OmIndexerBuilder::build_from_file(std::string filename)
+OmIndexerBuilder::build_from_file(const std::string &filename)
+{
+    AutoPtr<OmIndexer> indexer(new OmIndexer());
+    internal->build_from_file(filename, indexer->internal);
+    return indexer;
+}
+
+void
+OmIndexerBuilder::Internal::build_from_file(const std::string &filename,
+					    OmIndexer::Internal *indexer)
 {
     AutoPtr<OmIndexerDesc> doc = desc_from_xml_file(filename);
 
-    AutoPtr<OmIndexer> indexer(new OmIndexer());
-    build_graph(indexer.get(), *doc);
-
-    return indexer;
+    build_graph(indexer, *doc);
 }
 
 AutoPtr<OmIndexer>
-OmIndexerBuilder::build_from_string(std::string filename)
+OmIndexerBuilder::build_from_string(const std::string &xmldesc)
 {
-    AutoPtr<OmIndexerDesc> doc = desc_from_xml_string(filename);
-
     AutoPtr<OmIndexer> indexer(new OmIndexer());
-    build_graph(indexer.get(), *doc);
-
+    internal->build_from_string(xmldesc, indexer->internal);
     return indexer;
 }
 
+void
+OmIndexerBuilder::Internal::build_from_string(const std::string &xmldesc,
+					      OmIndexer::Internal *indexer)
+{
+    AutoPtr<OmIndexerDesc> doc = desc_from_xml_string(xmldesc);
+
+    build_graph(indexer, *doc);
+}
+
 OmIndexerNode *
-OmIndexerBuilder::make_node(const std::string &type,
-			    const OmSettings &config)
+OmIndexerBuilder::Internal::make_node(const std::string &type,
+				      const OmSettings &config)
 {
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(type);
@@ -93,7 +172,7 @@ OmIndexerBuilder::make_node(const std::string &type,
 }
 
 std::vector<int>
-OmIndexerBuilder::sort_nodes(const OmIndexerDesc &desc)
+OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
 {
     /* First build up a mapping from node ids to positions in the desc.
      */
@@ -129,7 +208,7 @@ OmIndexerBuilder::sort_nodes(const OmIndexerDesc &desc)
 }
 
 void
-OmIndexerBuilder::build_graph(OmIndexer *indexer,
+OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 			      const OmIndexerDesc &desc)
 {
     typemap types;
@@ -144,7 +223,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
     types["START"].outputs = nodetypes["START"].outputs;
     types["START"].node_name = "START";
 
-    for (int nodeind = 0;
+    for (unsigned int nodeind = 0;
 	 nodeind < sorted.size();
 	 ++nodeind) {
 	const OmIndexerDesc::NodeInstance *node =
@@ -166,7 +245,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
 	for (input = node->input.begin();
 	     input != node->input.end();
 	     ++input) {
-	    OmIndexer::NodeMap::const_iterator i =
+	    OmIndexer::Internal::NodeMap::const_iterator i =
 		    indexer->nodemap.find(input->feeder_node);
 	    if (i == indexer->nodemap.end()) {
 		throw OmInvalidDataError(std::string("Input node ") +
@@ -185,7 +264,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
     }
 
     /* connect the output of the whole graph */
-    OmIndexer::NodeMap::const_iterator i =
+    OmIndexer::Internal::NodeMap::const_iterator i =
 	    indexer->nodemap.find(desc.output_node);
     if (i == indexer->nodemap.end()) {
 	throw OmInvalidDataError(std::string("Unknown output node ") +
@@ -225,7 +304,7 @@ static void replace_type(std::vector<OmNodeConnection> &v,
 
 
 void
-OmIndexerBuilder::typecheck(type_data &feeder_node,
+OmIndexerBuilder::Internal::typecheck(type_data &feeder_node,
 			    const std::string &feeder_output,
 			    type_data &receiver_node,
 			    const std::string &receiver_input)
@@ -279,7 +358,7 @@ OmIndexerBuilder::typecheck(type_data &feeder_node,
 }
 
 OmNodeConnection
-OmIndexerBuilder::get_outputcon(const std::string &nodetype,
+OmIndexerBuilder::Internal::get_outputcon(const std::string &nodetype,
 				const std::string &output_name)
 {
     std::map<std::string, node_desc>::const_iterator type;
@@ -300,7 +379,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
 }
 
 OmNodeConnection
-OmIndexerBuilder::get_inputcon(const std::string &nodetype,
+OmIndexerBuilder::Internal::get_inputcon(const std::string &nodetype,
 			       const std::string &input_name)
 {
     std::map<std::string, node_desc>::const_iterator type;
@@ -320,32 +399,8 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 				 nodetype + "[" + input_name + "]");
 }
 
-OmIndexerMessage
-OmIndexer::get_output()
-{
-    return final->get_output_record(final_out);
-}
-
-void
-OmIndexer::set_input(OmIndexerMessage msg)
-{
-    start->set_message(msg);
-}
-
-void
-OmIndexer::set_node_config(const std::string &node_id,
-			   const std::string &key,
-			   const std::string &value)
-{
-    NodeMap::iterator i = nodemap.find(node_id);
-    if (i == nodemap.end()) {
-	throw OmInvalidDataError(std::string("Node id ") + node_id +
-				 " doesn't exist");
-    }
-    i->second->set_config_string(key, value);
-}
-
 OmIndexerBuilder::OmIndexerBuilder()
+	: internal(new Internal)
 {
     OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
     ndesc.add_output("out", "mystr", mt_record);
@@ -354,8 +409,23 @@ OmIndexerBuilder::OmIndexerBuilder()
     register_core_nodes(*this);
 }
 
+OmIndexerBuilder::~OmIndexerBuilder()
+{
+    delete internal;
+}
+
+OmIndexerBuilder::Internal::Internal()
+{
+}
+
 void
 OmIndexerBuilder::register_node_type(const OmNodeDescriptor &ndesc_)
+{
+    internal->register_node_type(*ndesc_.internal);
+}
+
+void
+OmIndexerBuilder::Internal::register_node_type(const OmNodeDescriptor::Internal &ndesc_)
 {
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(ndesc_.nodename);
@@ -372,26 +442,4 @@ OmIndexerBuilder::register_node_type(const OmNodeDescriptor &ndesc_)
 	      std::back_inserter(ndesc.outputs));
 
     nodetypes[ndesc_.nodename] = ndesc;
-}
-
-OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
-				   OmNodeCreator creator_)
-	: nodename(nodename_), creator(creator_)
-{
-}
-
-void
-OmNodeDescriptor::add_input(const std::string &name,
-			    const std::string &type,
-			    OmIndexerMessageType phys_type)
-{
-    inputs.push_back(OmNodeConnection(name, type, phys_type));
-}
-
-void
-OmNodeDescriptor::add_output(const std::string &name,
-			    const std::string &type,
-			    OmIndexerMessageType phys_type)
-{
-    outputs.push_back(OmNodeConnection(name, type, phys_type));
 }

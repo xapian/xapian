@@ -33,7 +33,7 @@ fg
 #include "omstringstream.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include <vector>
 #include <stdio.h>
 

@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <string>
 #include <typeinfo>
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include <algorithm>
 #include <strstream.h>
 #include <iomanip.h>

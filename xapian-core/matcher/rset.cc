@@ -24,8 +24,8 @@
 #include "stats.h"
 #include "omdebug.h"
 
+#include "om/autoptr.h"
 #include "termlist.h"
-#include "autoptr.h"
 
 void
 RSet::calculate_stats()

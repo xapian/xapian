@@ -1,4 +1,5 @@
-/* omprefixnode.cc: Implementation of a prefixing node
+/* omindexercommon.h: Declarations used in several parts of the indexing
+ * system.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,34 +21,16 @@
  * -----END-LICENCE-----
  */
 
-#include "om/omindexernode.h"
-#include "node_reg.h"
+#ifndef OM_HGUARD_OMINDEXERCOMMON_H
+#define OM_HGUARD_OMINDEXERCOMMON_H
 
-class OmPrefixNode : public OmIndexerNode {
-    public:
-	OmPrefixNode(const OmSettings &config)
-		: OmIndexerNode(config)
-		{}
-    private:
-	void calculate() {
-	    OmIndexerMessage input = get_input_record("in");
-
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
-
-	    std::string prefix = get_config_string("prefix");
-
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
-	    }
-
-	    set_output("out", output);
-	}
+/** The possible physical types a message can have. */
+enum OmIndexerMessageType {
+    mt_int,
+    mt_double,
+    mt_string,
+    mt_vector, // a list type
+    mt_record // a generic type
 };
 
-NODE_BEGIN(OmPrefixNode, omprefix)
-NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
-NODE_END()
+#endif /* OM_HGUARD_OMINDEXERCOMMON_H */

@@ -1,4 +1,4 @@
-/* omprefixnode.cc: Implementation of a prefixing node
+/* omnodedescriptorinternal.h: internals of omnodedescriptor
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,34 +20,22 @@
  * -----END-LICENCE-----
  */
 
-#include "om/omindexernode.h"
-#include "node_reg.h"
+#ifndef OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H
+#define OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H
 
-class OmPrefixNode : public OmIndexerNode {
+#include "config.h"
+#include <string>
+#include <vector>
+#include "om/omnodedescriptor.h"
+#include "omnodeconnection.h"
+
+/** A description of a new node type */
+class OmNodeDescriptor::Internal {
     public:
-	OmPrefixNode(const OmSettings &config)
-		: OmIndexerNode(config)
-		{}
-    private:
-	void calculate() {
-	    OmIndexerMessage input = get_input_record("in");
-
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
-
-	    std::string prefix = get_config_string("prefix");
-
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
-	    }
-
-	    set_output("out", output);
-	}
+	std::string nodename;
+	OmNodeCreator creator;
+	std::vector<OmNodeConnection> inputs;
+	std::vector<OmNodeConnection> outputs;
 };
 
-NODE_BEGIN(OmPrefixNode, omprefix)
-NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
-NODE_END()
+#endif /* OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H */

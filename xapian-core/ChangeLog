@@ -1,3 +1,12 @@
+Thu Oct  5 14:32:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Split indexer interface into several header files in include/om.
+
+	* Hid the internal details in Internal objects.
+
+	* Moved autoptr.h into include/om as AutoPtr is in the indexing
+	  interface.
+
 Thu Oct 05 13:30:49 BST 2000 Olly Betts
 
 	* OmPostListIterator: added get_doclength() and get_wdf() methods;

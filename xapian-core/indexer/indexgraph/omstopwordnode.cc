@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omindexernode.h"
+#include "om/omindexernode.h"
 #include "node_reg.h"
 #include "om/omerror.h"
 #include <set>

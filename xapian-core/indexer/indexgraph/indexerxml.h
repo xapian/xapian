@@ -25,8 +25,9 @@
 
 #include "config.h"
 
-#include "indexergraph.h"
-#include "autoptr.h"
+#include <string>
+#include "om/omindexerdesc.h"
+#include "om/autoptr.h"
 
 /** Return an OmIndexerDesc built from an XML file. */
 AutoPtr<OmIndexerDesc> desc_from_xml_file(const std::string &filename);
