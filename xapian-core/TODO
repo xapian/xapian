@@ -36,6 +36,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Distribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
+ Medium  | OmDatabase      | Test assignment operators for OmDatabase and
+         |                 | OmWritableDatabase
+---------+-----------------+--------------------------------------------------
  Medium  | LocalMatch      | Make query a local variable of get_mset(), rather
          |                 | than a member of the class.
 ---------+-----------------+--------------------------------------------------
