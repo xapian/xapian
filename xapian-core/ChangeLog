@@ -1,3 +1,7 @@
+Thu Apr 29 22:40:36 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Improved wording in a couple of places.
+
 Thu Apr 29 16:50:45 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc: Removed references to Btree::error

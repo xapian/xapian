@@ -111,9 +111,9 @@ consisting of a single zero byte (this isn't a valid encoded docid).  The first
 value is the next
 document ID to use when adding a document (document IDs are allocated in
 increasing order, starting at 1, and are currently never reused).  The other
-values is the total length of the documents in the database, which
-is used for calculation of the average document length, and
-hence for calculation of normalised document lengths.
+value is the total length of the documents in the database, which
+is used to calculate the average document length, which we need to
+calculate normalised document lengths.
 <p>
 </li><li>
 <B>Value</B>.
@@ -233,8 +233,8 @@ To deal with this, we store posting lists in small chunks, each the right
 size to be stored in a single B-tree block, and hence to be accessed with a
 minimal amount of disk latency.  
 <p>
-The key for the first chunk in a posting list is the term ID of the term
-whose posting list it is.  The key in subsequent chunks is the term ID
+The key for the first chunk in a posting list is the term name of the term
+whose posting list it is.  The key in subsequent chunks is the term name
 followed by the document ID of the first document in the chunk.  This
 allows the cursor methods to be used to scan through the chunks in order,
 and also to jump to the chunk containing a particular document ID.
