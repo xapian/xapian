@@ -263,7 +263,7 @@ test_driver::runtest(const test_desc *test)
 		out << skip.message << std::endl;
 	    }
 	    // Rethrow the exception to avoid success/fail
-	    // (caught in do_runtests())
+	    // (caught in do_run_tests())
 	    throw;
 	} catch (OmError &err) {
 	    out << " OMEXCEPT";
@@ -353,6 +353,7 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 		    }
 		}
 	    } catch (const TestSkip &e) {
+		out << std::endl;
 		// ignore the result of this test.
 		++result.skipped;
 	    }

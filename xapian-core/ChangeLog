@@ -1,3 +1,7 @@
+Tue Sep 19 15:50:26 BST 2000 Olly Betts
+
+	* testsuite.cc: output newline after skipped test.
+
 Tue Sep 19 15:33:24 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now run apitest and internaltest with malloccheck if possible
