@@ -370,9 +370,9 @@ run_query()
     }
 
     if (enquire) {
-	enquire.set_percent_cutoff(threshold);
+	enquire->set_cutoff(threshold);
         // match_min_hits will be moved into matcher soon
-	// enquire.set_min_hits(min_hits); or similar...
+	// enquire->set_min_hits(min_hits); or similar...
 
 	// Temporary bodge to allow experimentation with OmBiasFunctor
 	MCI i;
@@ -384,10 +384,10 @@ run_query()
 	    if (i != cgi_params.end()) {
 		half_life = atoi(i->second.c_str());
 	    }
-	    enquire.set_bias(bias_weight, half_life);
+	    enquire->set_bias(bias_weight, half_life);
 	}
 	if (sort_bands) {
-	    enquire.set_sorting(sort_key, sort_bands);
+	    enquire->set_sorting(sort_key, sort_bands);
 	    // FIXME: ignore sort_numeric for now
 	}
 				
@@ -541,7 +541,7 @@ percent_encode(const string &str)
 	if (ch <= 32 || ch >= 127 || strchr("#%&,/:;<=>?@[\\]^_{|}", ch)) {
 	    char buf[4];
 	    sprintf(buf, "%%%02x", ch);
-	    res += buf;
+	    res.append(buf, 3);
 	} else {
 	    res += ch;
 	}
@@ -600,23 +600,12 @@ html_strip(const string &str)
 // FIXME split list into hash or map and use that rather than linear lookup?
 static bool word_in_list(const string& test_word, const string& list)
 {
-    //    cerr << "word_in_list(" << test_word << ", '" << list << "'): ";
     string::size_type split = 0, split2;
     while ((split2 = list.find('\t', split)) != string::npos) {
-	if (test_word == list.substr(split, split2 - split)) {
-	    //	    cerr << "HIT." << endl;
-	    return 1;
-	} else {
-	    split = split2 + 1;
-	}
+	if (test_word == list.substr(split, split2 - split)) return true;
+	split = split2 + 1;
     }
-    if (test_word == list.substr(split, split2 - split)) {
-	//	cerr << "HIT." << endl;
-	return 1;
-    } else {
-	//	cerr << "." << endl;
-	return 0;
-    }
+    return (test_word == list.substr(split, split2 - split));
 }
 
 // FIXME: this copied from om/indexer/index_utils.cc

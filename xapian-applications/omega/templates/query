@@ -45,7 +45,7 @@ $if{$opt{topterms},
  <hr>
  <table><tr><td bgcolor="#ccffcc">
  $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">&nbsp;$prettyterm{$_} }
- $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
+ <BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
  </td></tr></table>
  <hr>
 }

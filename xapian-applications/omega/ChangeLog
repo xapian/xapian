@@ -1,3 +1,10 @@
+Sat Dec 14 13:54:10 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.6.3; removed -Wno-long-long as we don't use
+	  long long here.
+	* query.cc: Compilation fixes.
+	* templates/query: Don't call $topterms twice!
+
 Sat Dec 14 01:10:48 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc: Updated in line with removal of OmSettings.
