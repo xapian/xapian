@@ -8,8 +8,7 @@ License: GPL
 Vendor: www.xapian.org
 Group: System Environment/Libraries
 URL: http://www.xapian.org/
-#Source0: http://www.xapian.org/download/distributions/%{name}-%{version}.tar.gz
-Source0: http://www.tartarus.org/~olly/xapian-%{version}/%{name}-%{version}.tar.gz
+Source0: http://www.oligarchytartarus.org/~olly/xapian-%{version}/%{name}-%{version}.tar.gz
 
 # Where are we going to build the install set to?
 BuildRoot: %{_tmppath}/%{name}-root
