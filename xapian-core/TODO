@@ -18,8 +18,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Tea             | Drink tea
 ---------+-----------------+--------------------------------------------------
- High    | API             | Write get_matching_terms method for OmEnquire.
----------+-----------------+--------------------------------------------------
  High    | API             | Implement percentage cutoffs in API.
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
@@ -27,6 +25,12 @@ Priority | Area            | Task
  High    | Documentation   | Add auto documentation to distributions,
          |                 | generate TeX documentation, and put it on the
          |                 | website.
+---------+-----------------+--------------------------------------------------
+ Medium  | API             | Change OMQueries to hold subqs in a deque, so
+         |                 | that we can add a subquery to the beginning in
+         |                 | the OR or AND case (see FIXME)
+---------+-----------------+--------------------------------------------------
+ Medium  | API             | Write get_matching_terms method for OmEnquire.
 ---------+-----------------+--------------------------------------------------
  Medium  | Tests           | Test match decision functor
 ---------+-----------------+--------------------------------------------------
