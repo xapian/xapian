@@ -182,7 +182,7 @@ HtmlParser::parse_html(const string &body)
 	      
 	    p = start;
 	    start = find_if(start, body.end(), p_nottag);
-	    string tag = body.substr(p - body.end(), start - p);
+	    string tag = body.substr(p - body.begin(), start - p);
 	    // convert tagname to lowercase
 	    for (string::iterator i = tag.begin(); i != tag.end(); i++)
 		*i = tolower(*i);

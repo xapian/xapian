@@ -1,3 +1,7 @@
+Mon Apr 01 15:07:31 BST 2002 Olly Betts
+
+	* Applied patch from "orion orion" to fix problem in HTML parsing.
+
 Mon Mar 25 13:11:14 GMT 2002  Olly Betts <olly@survex.com>
 
 	* More tolerant treatment of random punctuation in query.
