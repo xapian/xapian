@@ -39,7 +39,7 @@ sub get_cvsdata {
         # relative path
         my $pwd = `pwd`;
         chomp $pwd;
-        $cvsdata = $pwd.$cvsdata;
+        $cvsdata = $pwd."/".$cvsdata;
     }
     return $cvsdata;
 }
