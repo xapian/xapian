@@ -22,36 +22,46 @@
 
 #include "omindexernode.h"
 #include "node_reg.h"
+#include "om/omerror.h"
 #include <set>
+
+static const char *const default_swords[] = {
+    "he", "her", "herself", "hi", "him", "himself", "it",
+    "itself", "me", "my", "myself", "our", "ourselv", "she",
+    "they", "their", "them", "themselv", "we", "you", "your",
+    "yourself", "yourselv", "am", "are", "be", "been", "can",
+    "could", "did", "do", "doe", "ha", "had", "have", "is",
+    "mai", "must", "shall", "should", "wa", "were", "will",
+    "would", "becaus", "here", "that", "there", "these", "thi",
+    "those", "what", "when", "where", "which", "who", "whom",
+    "why", "about", "after", "again", "against", "all", "an",
+    "and", "ani", "as", "at", "a", "befor", "below", "between",
+    "both", "but", "by", "down", "dure", "each", "few", "first",
+    "for", "from", "further", "how", "if", "in", "into", "more",
+    "most", "no", "nor", "not", "of", "off", "on", "onc", "one",
+    "onli", "or", "other", "out", "over", "own", "per", "same",
+    "so", "some", "such", "than", "the", "then", "through",
+    "to", "too", "under", "until", "up", "veri", "while",
+    "with", "everi", "least", "less", "mani", "now", "ever",
+    "never", "sai", "said", "also", "get", "go", "just", "made",
+    "make", "put", "see", "seen", "whether" 
+};
 
 class OmStopWordNode : public OmIndexerNode {
     public:
 	OmStopWordNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
-	    static const char *const swords[] = {
-		"he", "her", "herself", "hi", "him", "himself", "it",
-		"itself", "me", "my", "myself", "our", "ourselv", "she",
-		"they", "their", "them", "themselv", "we", "you", "your",
-		"yourself", "yourselv", "am", "are", "be", "been", "can",
-		"could", "did", "do", "doe", "ha", "had", "have", "is",
-		"mai", "must", "shall", "should", "wa", "were", "will",
-		"would", "becaus", "here", "that", "there", "these", "thi",
-		"those", "what", "when", "where", "which", "who", "whom",
-		"why", "about", "after", "again", "against", "all", "an",
-		"and", "ani", "as", "at", "a", "befor", "below", "between",
-		"both", "but", "by", "down", "dure", "each", "few", "first",
-		"for", "from", "further", "how", "if", "in", "into", "more",
-		"most", "no", "nor", "not", "of", "off", "on", "onc", "one",
-		"onli", "or", "other", "out", "over", "own", "per", "same",
-		"so", "some", "such", "than", "the", "then", "through",
-		"to", "too", "under", "until", "up", "veri", "while",
-		"with", "everi", "least", "less", "mani", "now", "ever",
-		"never", "sai", "said", "also", "get", "go", "just", "made",
-		"make", "put", "see", "seen", "whether" 
-	    };
-	    for (unsigned int i=0; i< (sizeof(swords) / sizeof(swords[0])); ++i) {
-	        stopwords.insert(swords[i]);
+	    try {
+		std::vector<std::string> words(config.get_vector("stopwords"));
+		stopwords.insert(words.begin(), words.end());
+	    } catch (OmRangeError &) {
+		// use the default list of words if not specified
+		for (unsigned int i=0;
+		     i< (sizeof(default_swords) / sizeof(default_swords[0]));
+		     ++i) {
+		    stopwords.insert(default_swords[i]);
+		}
 	    }
 	}
     private:

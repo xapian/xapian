@@ -160,6 +160,24 @@ OmIndexerBuilder::make_node(const std::string &type,
 typedef std::map<std::string, std::string> attrmap;
 typedef std::map<std::string, std::string> typemap;
 
+static std::string
+get_prop(xmlNodePtr node, const std::string &prop)
+{
+    xmlChar *temp = 0;
+    std::string retval;
+    try {
+	temp = xmlGetProp(node, prop.c_str());
+	retval = (char *)temp;
+	free(temp);
+	temp = 0;
+    } catch (...) {
+	if (temp) free(temp);
+	temp = 0;
+	throw;
+    }
+    return retval;
+}
+
 // FIXME: handle the unicode stuff rather than char *
 static attrmap attr_to_map(xmlNodePtr node)
 {
@@ -170,11 +188,33 @@ static attrmap attr_to_map(xmlNodePtr node)
 	xmlChar *temp = 0;
 	std::string value;
 	try {
+	    //cerr << "Attr " << node->name << "." << name << "=" << endl;
 	    temp = xmlGetProp(node, name.c_str());
 	    if (temp) {
 		value = (char *)temp;
+		//cerr << "\tvalue = " << value << endl;
 		free(temp);
 		temp = 0;
+	    }
+	    {
+		xmlDocPtr doc = node->doc;
+		xmlAttributePtr attrDecl;
+		if (doc->intSubset) {
+		    attrDecl = xmlGetDtdAttrDesc(doc->intSubset, node->name,
+						 name.c_str());
+		    if (attrDecl) {
+			//cerr << "\tintSubset default = "
+			//	<< attrDecl->defaultValue << endl;
+		    }
+		}
+		if (doc->extSubset) {
+		    attrDecl = xmlGetDtdAttrDesc(doc->extSubset, node->name,
+						 name.c_str());
+		    if (attrDecl) {
+			//cerr << "\tintSubset default = "
+			//	<< attrDecl->defaultValue << endl;
+		    }
+		}
 	    }
 	} catch (...) {
 	    if (temp) free(temp);
@@ -185,7 +225,6 @@ static attrmap attr_to_map(xmlNodePtr node)
 	 * xmlNodePtr val = attr->val;
 	 * std::string value = (char *)val->content;
 	 */
-	cout << "\tAttr " << node->name << "." << name << "=" << value << endl;
 
 	result[name] = value;
 
@@ -207,10 +246,11 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 {
     while (node != 0 &&
 	   std::string((char *)node->name) == "param") {
-	attrmap param_attrs(attr_to_map(node));
-	if (param_attrs["type"] == "string") {
-	    config.set(param_attrs["name"], param_attrs["value"]);
-	} else if (param_attrs["type"] == "list") {
+	std::string type = get_prop(node, "type");
+	if (type == "string") {
+	    config.set(get_prop(node, "name"),
+		       get_prop(node, "value"));
+	} else if (type == "list") {
 	    xmlNodePtr items = node->childs;
 	    std::vector<std::string> values;
 	    while (items) {
@@ -219,16 +259,15 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 		    throw OmInvalidDataError(std::string("Unexpected tag `")
 					     + name + "'");
 		}
-		attrmap item_attrs(attr_to_map(items));
-		values.push_back(item_attrs["value"]);
+		values.push_back(get_prop(items, "value"));
 		items = items->next;
 	    }
-	    config.set(param_attrs["name"],
+	    config.set(get_prop(node, "name"),
 		       values.begin(),
 		       values.end());
 	} else {
 	    throw OmInvalidDataError(std::string("Invalid <param> type `")
-				     + param_attrs["type"] + "'");
+				     + type + "'");
 	}
 	node = node->next;
     }
@@ -239,8 +278,8 @@ void
 OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 {
     xmlNodePtr root = doc->root;
-    cerr << "intSubset = " << doc->intSubset << endl;
-    cerr << "extSubset = " << doc->extSubset << endl;
+    //cerr << "intSubset = " << doc->intSubset << endl;
+    //cerr << "extSubset = " << doc->extSubset << endl;
     if (!root) {
 	throw OmInvalidDataError("Error parsing graph description");
     }

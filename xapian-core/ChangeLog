@@ -1,3 +1,9 @@
+Tue Sep 26 12:40:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* omstopword node now properly configurable.
+
+	* Improved handling of default properties
+
 Tue Sep 26 10:12:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added omstopword node
