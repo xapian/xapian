@@ -9,7 +9,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 # Standard programs (these will eventually be moved / converted
 # into test cases.)
 
-noinst_PROGRAMS = matchtest stemtest
+noinst_PROGRAMS = stemtest
 
 ## Test suite
 
@@ -27,9 +27,6 @@ TESTS = apitest $(PERLTESTS)
 
 apitest_SOURCES = apitest.cc
 apitest_LDADD = ../libomus.la
-
-matchtest_SOURCES = matchtest.cc
-matchtest_LDADD = ../libomus.la
 
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la
