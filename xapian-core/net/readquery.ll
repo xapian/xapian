@@ -25,6 +25,7 @@ OP_NEAR		%near{DIGIT}{DIGIT}*
 OP_PHRASE	%phrase{DIGIT}{DIGIT}*
 OP_WEIGHT_CUTOFF	%wtcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*
 OP_PERCENT_CUTOFF	%pctcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*
+OP_ELITE_SET	%eliteset{DIGIT}{DIGIT}*
 
 TCHAR		[^ \n]
 DIGIT		[0-9]
@@ -123,6 +124,12 @@ OP_KET		%\)
 {OP_PERCENT_CUTOFF}	{
 		    qt.type = querytok::OP_PERCENT_CUTOFF;
 		    qt.cutoff = atof(yytext + 10); // skip %pctcutoff
+		    return qt;
+		}
+
+{OP_ELITE_SET}	{
+		    qt.type = querytok::OP_ELITE_SET;
+		    qt.elite_set_size = atoi(yytext + 9); // skip %eliteset
 		    return qt;
 		}
 

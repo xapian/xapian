@@ -262,12 +262,14 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 PostList *
 LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 				const OmQuery::Internal::subquery_list &queries,
-				om_termcount window,
+				om_termpos window,
+				om_termcount elite_set_size,
 				MultiMatch *matcher)
 {
     Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
 	   op == OmQuery::OP_XOR ||
-	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
+	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE ||
+	   op == OmQuery::OP_ELITE_SET);
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
@@ -292,6 +294,9 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 	case OmQuery::OP_AND:
 	    return build_and_tree(postlists, matcher);
 
+	case OmQuery::OP_OR:
+	    return build_or_tree(postlists, matcher);
+
 	case OmQuery::OP_NEAR:
 	{
 	    PostList *res = build_and_tree(postlists, matcher);
@@ -310,35 +315,44 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 	    return new PhrasePostList(res, window, postlists_orig);
 	}
 
-	case OmQuery::OP_OR:
-	    if (max_or_terms != 0) {
-		// Select top terms
-		DEBUGLINE(API, "Selecting top " << max_or_terms <<
-			  " terms, out of " << postlists.size() << ".");
-		if (postlists.size() > max_or_terms) {
-		    // Call recalc_maxweight() as otherwise get_maxweight()
-		    // may not be valid before next() or skip_to()
-		    std::vector<PostList *>::iterator j;
-		    for (j = postlists.begin(); j != postlists.end(); j++)
-			(*j)->recalc_maxweight();
-		    std::nth_element(postlists.begin(),
-				postlists.begin() + max_or_terms - 1,
-				postlists.end(), CmpMaxOrTerms());
-		    DEBUGLINE(MATCH, "Discarding " <<
-			      (postlists.size() - max_or_terms) <<
-			      " terms.");
+	case OmQuery::OP_ELITE_SET:
+	{
+	    // Select top terms
+	    DEBUGLINE(API, "Selecting top " << elite_set_size <<
+		      " terms, out of " << postlists.size() << ".");
 
-		    std::vector<PostList *>::const_iterator i;
-	 	    for (i = postlists.begin() + max_or_terms;
-			 i != postlists.end(); i++) {
-			delete *i;
-		    }
-		    postlists.erase(postlists.begin() + max_or_terms,
-				    postlists.end());
-	 	}
-	     }
+	    if (elite_set_size <= 0) {
+		std::vector<PostList *>::iterator i;
+		for (i = postlists.begin(); i != postlists.end(); i++)
+		    delete *i;
+		postlists.clear();
+		return new EmptyPostList();
+	    }
 
-	     return build_or_tree(postlists, matcher);
+	    if (postlists.size() > elite_set_size) {
+		// Call recalc_maxweight() as otherwise get_maxweight()
+		// may not be valid before next() or skip_to()
+		std::vector<PostList *>::iterator j;
+		for (j = postlists.begin(); j != postlists.end(); j++)
+		    (*j)->recalc_maxweight();
+		std::nth_element(postlists.begin(),
+				 postlists.begin() + elite_set_size - 1,
+				 postlists.end(), CmpMaxOrTerms());
+		DEBUGLINE(MATCH, "Discarding " <<
+			  (postlists.size() - elite_set_size) <<
+			  " terms.");
+
+		std::vector<PostList *>::const_iterator i;
+		for (i = postlists.begin() + elite_set_size;
+		     i != postlists.end(); i++) {
+		    delete *i;
+		}
+		postlists.erase(postlists.begin() + elite_set_size,
+				postlists.end());
+	    }
+
+	    return build_or_tree(postlists, matcher);
+	}
 
 	default:
 	    Assert(0);
@@ -386,9 +400,12 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	case OmQuery::OP_XOR:
 	case OmQuery::OP_PHRASE:
 	case OmQuery::OP_NEAR:
-	    // Build a tree of postlists for AND, OR, XOR, PHRASE, or NEAR
+	case OmQuery::OP_ELITE_SET:
+	    // Build a tree of postlists for AND, OR, XOR, PHRASE, NEAR, or
+	    // ELITE_SET
 	    return postlist_from_queries(query->op, query->subqs,
-					 query->window, matcher);
+					 query->window, query->elite_set_size,
+					 matcher);
 	case OmQuery::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
 	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher),

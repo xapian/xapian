@@ -95,7 +95,13 @@ class OmQuery {
 	     *  The cutoff parameter should be specified for this operation,
 	     *  and will default to 0 (ie, no cutoff).
 	     */
-	    OP_PERCENT_CUTOFF
+	    OP_PERCENT_CUTOFF,
+
+	    /** Select an elite set of terms from the subqueries, and perform
+	     *  a query with all those terms combined as an OR query.
+	     *  This replaces the old "match_max_or_terms" option.
+	     */
+	    OP_ELITE_SET
 	} op;
 
 	/** Copy constructor. */
@@ -177,6 +183,9 @@ class OmQuery {
 	 *  query.
 	 */
 	void set_cutoff(om_weight cutoff);
+
+	/** Set the elite set size, for ELITE_SET queries.  */
+	void set_elite_set_size(om_termcount size);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden

@@ -43,6 +43,7 @@ struct querytok {
 	OP_PHRASE,
 	OP_WEIGHT_CUTOFF,
 	OP_PERCENT_CUTOFF,
+	OP_ELITE_SET,
 	TERM,
 	OP_BRA,
 	OP_KET,
@@ -53,6 +54,7 @@ struct querytok {
     om_termcount wqf;
     om_termpos term_pos;
     om_termpos window; // for NEAR and PHRASE
+    om_termcount elite_set_size;
     double cutoff; // for *_CUTOFF
 
     querytok(etype type_ = ERROR)

@@ -67,15 +67,6 @@
       It is usually only possible to choose an appropriate weight for cutoff
       based on the results of a previous run of the same query; this is thus
       mainly useful for alerting operations.
-    - match_max_or_terms : Maximum number of terms which will be used if
-      the query contains a large number of terms which are ORed together.
-      Only the terms with the match_max_or_terms highest termweights will be
-      used.  Parts of the query which do not involve terms ORed together will
-      be unaffected by this option.  An example use of this setting is to
-      set a query which represents a document - only the elite set of terms
-      which best distinguish that document to be used to find similar
-      documents, resulting in a performance improvement.
-      (default 0 => no limit)
     - match_weighting_scheme : Weighting scheme to use; this is either
       'bm25' or 'trad'.  The default is bm25.
 

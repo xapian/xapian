@@ -52,6 +52,7 @@ get_min_subqs(OmQuery::Internal::op_t op)
 	case OmQuery::OP_XOR:
 	case OmQuery::OP_NEAR:
 	case OmQuery::OP_PHRASE:
+	case OmQuery::OP_ELITE_SET:
 	    return 0;
 	case OmQuery::OP_WEIGHT_CUTOFF:
 	case OmQuery::OP_PERCENT_CUTOFF:
@@ -84,6 +85,7 @@ get_max_subqs(OmQuery::Internal::op_t op)
 	case OmQuery::OP_XOR:
 	case OmQuery::OP_NEAR:
 	case OmQuery::OP_PHRASE:
+	case OmQuery::OP_ELITE_SET:
 	    return UINT_MAX;
 	default:
 	    Assert(false);
@@ -116,6 +118,7 @@ can_replace_by_single_subq(OmQuery::Internal::op_t op)
 	    op == OmQuery::OP_XOR ||
 	    op == OmQuery::OP_NEAR ||
 	    op == OmQuery::OP_PHRASE ||
+	    op == OmQuery::OP_ELITE_SET ||
 	    op == OmQuery::OP_FILTER ||
 	    op == OmQuery::OP_AND_MAYBE ||
 	    op == OmQuery::OP_AND_NOT);
@@ -143,6 +146,7 @@ can_remove_nulls(OmQuery::Internal::op_t op)
 	    op == OmQuery::OP_XOR ||
 	    op == OmQuery::OP_NEAR ||
 	    op == OmQuery::OP_PHRASE ||
+	    op == OmQuery::OP_ELITE_SET ||
 	    op == OmQuery::OP_FILTER ||
 	    op == OmQuery::OP_AND_MAYBE ||
 	    op == OmQuery::OP_AND_NOT);
@@ -229,6 +233,9 @@ OmQuery::Internal::serialise() const
 	    case OmQuery::OP_PERCENT_CUTOFF:
 		result += "%pctcutoff" + om_tostring(cutoff);
 		break;
+	    case OmQuery::OP_ELITE_SET:
+		result += "%eliteset" + om_tostring(elite_set_size);
+		break;
 	} // switch(op)
 	result += "%)";
     }
@@ -252,6 +259,7 @@ OmQuery::Internal::get_op_name(OmQuery::Internal::op_t op)
 	case OmQuery::OP_PHRASE:          name = "PHRASE"; break;
 	case OmQuery::OP_WEIGHT_CUTOFF:   name = "WEIGHT_CUTOFF"; break;
 	case OmQuery::OP_PERCENT_CUTOFF:  name = "PERCENT_CUTOFF"; break;
+	case OmQuery::OP_ELITE_SET:       name = "ELITE_SET"; break;
     }
     return name;
 }
@@ -279,6 +287,8 @@ OmQuery::Internal::get_description() const
 	    opstr += om_tostring(window) + " ";
 	if (op == OmQuery::OP_WEIGHT_CUTOFF || op == OmQuery::OP_PERCENT_CUTOFF)
 	    opstr += om_tostring(cutoff) + " ";
+	if (op == OmQuery::OP_ELITE_SET)
+	    opstr += om_tostring(elite_set_size) + " ";
     }
     std::string description;
     subquery_list::const_iterator i;
@@ -306,7 +316,18 @@ OmQuery::Internal::set_window(om_termpos window_)
 void
 OmQuery::Internal::set_cutoff(double cutoff_)
 {
+    if (op != OmQuery::OP_WEIGHT_CUTOFF &&
+	op != OmQuery::OP_PERCENT_CUTOFF)
+	throw OmInvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
     cutoff = cutoff_;
+}
+
+void
+OmQuery::Internal::set_elite_set_size(om_termcount size_)
+{
+    if (op != OmQuery::OP_ELITE_SET)
+	throw OmInvalidOperationError("Can only set elite set size for elite set operator.");
+    elite_set_size = size_;
 }
 
 om_termcount
@@ -404,6 +425,7 @@ OmQuery::Internal::swap(OmQuery::Internal &other)
     std::swap(qlen, other.qlen);
     std::swap(window, other.window);
     std::swap(cutoff, other.cutoff);
+    std::swap(elite_set_size, other.elite_set_size);
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
@@ -431,6 +453,7 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
 	  qlen(copyme.qlen),
 	  window(copyme.window),
 	  cutoff(copyme.cutoff),
+	  elite_set_size(copyme.elite_set_size),
 	  tname(copyme.tname),
 	  term_pos(copyme.term_pos),
 	  wqf(copyme.wqf)
@@ -455,6 +478,7 @@ OmQuery::Internal::Internal(const om_termname & tname_,
 	  qlen(wqf_),
 	  window(0),
 	  cutoff(0),
+	  elite_set_size(0),
 	  tname(tname_),
 	  term_pos(term_pos_),
 	  wqf(wqf_)
@@ -472,6 +496,7 @@ OmQuery::Internal::Internal(op_t op_)
 	  qlen(0),
 	  window(0),
 	  cutoff(0),
+	  elite_set_size(0),
 	  tname(),
 	  term_pos(0),
 	  wqf(0)

@@ -76,6 +76,10 @@ class OmQuery::Internal {
 	 */
 	double cutoff;
 
+	/** How many terms to select for the elite set, for ELITE_SET queries.
+	 */
+	om_termcount elite_set_size;
+
 	/// Term that this node represents - leaf node only
 	om_termname tname;
 
@@ -199,6 +203,9 @@ class OmQuery::Internal {
 
 	/** Set cutoff for *_CUTOFF queries */
 	void set_cutoff(double cutoff);
+
+	/** Set elite set size */
+	void set_elite_set_size(om_termcount size);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden

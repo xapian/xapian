@@ -54,11 +54,6 @@ class LocalSubMatch : public SubMatch {
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
     
-	/** Optional limit on number of terms to OR together.
-	 *  If zero, there is no limit.
-	 */
-	om_termcount max_or_terms;
-
 	/// The size of the query (passed to IRWeight objects)
 	om_doclength querysize;
     
@@ -87,7 +82,9 @@ class LocalSubMatch : public SubMatch {
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(OmQuery::Internal::op_t op,
 				const OmQuery::Internal::subquery_list &queries,
-				om_termcount window, MultiMatch *matcher);
+				om_termpos window,
+				om_termcount elite_set_size,
+				MultiMatch *matcher);
 
 	/// Make a postlist from a query object
 	PostList *postlist_from_query(const OmQuery::Internal * query,
@@ -114,7 +111,8 @@ class LocalSubMatch : public SubMatch {
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 
-	    max_or_terms = opts.get_int("match_max_or_terms", 0);
+	    if (opts.get_int("match_max_or_terms", 0) != 0)
+		throw OmInvalidArgumentError("The match_max_or_terms parameter is deprecated: use the OP_ELITE_SET query type instead.");
 
 	    // If query is boolean, set weighting to boolean
 	    if (query->is_bool()) {

@@ -201,6 +201,13 @@ void OmQuery::set_cutoff(om_weight cutoff)
     internal->set_cutoff(cutoff);
 }
 
+void OmQuery::set_elite_set_size(om_termcount size_)
+{
+    DEBUGAPICALL(void, "OmQuery::set_elite_set_size", size_);
+    OmLockSentry locksentry(internal->mutex);
+    internal->set_elite_set_size(size_);
+}
+
 om_termcount OmQuery::get_length() const
 {
     DEBUGAPICALL(om_termcount, "OmQuery::get_length", "");

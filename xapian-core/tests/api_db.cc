@@ -1737,8 +1737,8 @@ static bool test_rsetmultidb3()
     return true;
 }
 
-/// Simple test of the match_max_or_terms option.
-static bool test_maxorterms1()
+/// Simple test of the elite set operator.
+static bool test_eliteset1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1746,41 +1746,38 @@ static bool test_maxorterms1()
     OmQuery myquery1 = query(OmQuery::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
 
-    OmQuery myquery2 = query(OmQuery::OP_OR, "simple", "word");
+    OmQuery myquery2 = query(OmQuery::OP_ELITE_SET, "simple", "word");
+    myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
 
     enquire.set_query(myquery2);
-    OmSettings moptions;
-    moptions.set("match_max_or_terms", 1);
-    OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
-
+    OmMSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
     return true;
 }
 
-/// Test the match_max_or_terms option works if the OR contains
+/// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
-static bool test_maxorterms2()
+static bool test_eliteset2()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
     OmQuery myquery1 = query(OmQuery::OP_AND, "word", "search");
 
-    OmQuery myquery2(OmQuery::OP_OR,
+    OmQuery myquery2(OmQuery::OP_ELITE_SET,
 		     query("this"),
 		     query(OmQuery::OP_AND, "word", "search"));
+    myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
 
     enquire.set_query(myquery2);
-    OmSettings moptions;
-    moptions.set("match_max_or_terms", 1);
-    OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
+    OmMSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
     // query lengths differ so mset weights not the same (with some weighting
@@ -1790,9 +1787,9 @@ static bool test_maxorterms2()
     return true;
 }
 
-/// Test that max_or_terms doesn't affect query results if we have fewer
+/// Test that elite set doesn't affect query results if we have fewer
 /// terms than the threshold
-static bool test_maxorterms3()
+static bool test_eliteset3()
 {
     OmDatabase mydb1(get_database("apitest_simpledata"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -1807,20 +1804,21 @@ static bool test_maxorterms3()
     std::string term2 = stemmer.stem_word("rubbish");
     std::string term3 = stemmer.stem_word("banana");
 
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery(term1),
-		    OmQuery(OmQuery::OP_OR,
-			    OmQuery(term2),
-			    OmQuery(term3)));
-    enquire1.set_query(myquery);
-    enquire2.set_query(myquery);
+    std::vector<om_termname> terms;
+    terms.push_back(term1);
+    terms.push_back(term2);
+    terms.push_back(term3);
 
-    OmSettings mopts;
-    mopts.set("match_max_or_terms", 3);
-    
+    OmQuery myquery1(OmQuery::OP_OR, terms.begin(), terms.end());
+    enquire1.set_query(myquery1);
+
+    OmQuery myquery2(OmQuery::OP_ELITE_SET, terms.begin(), terms.end());
+    myquery2.set_elite_set_size(3);
+    enquire2.set_query(myquery2);
+
     // retrieve the results
     OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10, NULL, &mopts);
+    OmMSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_EQUAL(mymset1.get_termfreq(term1),
 	       mymset2.get_termfreq(term1));
@@ -1839,8 +1837,8 @@ static bool test_maxorterms3()
     return true;
 }
 
-/// Test that max_or_terms doesn't pick terms with 0 frequency
-static bool test_maxorterms4()
+/// Test that elite set doesn't pick terms with 0 frequency
+static bool test_eliteset4()
 {
     OmDatabase mydb1(get_database("apitest_simpledata"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -1849,16 +1847,14 @@ static bool test_maxorterms4()
     OmEnquire enquire2(make_dbgrp(&mydb2));
 
     OmQuery myquery1 = query("rubbish");
-    OmQuery myquery2 = query(OmQuery::OP_OR, "word", "rubbish", "fibble");
+    OmQuery myquery2 = query(OmQuery::OP_ELITE_SET, "word", "rubbish", "fibble");
+    myquery2.set_elite_set_size(1);
     enquire1.set_query(myquery1);
     enquire2.set_query(myquery2);
 
-    OmSettings mopts;
-    mopts.set("match_max_or_terms", 1);
-    
     // retrieve the results
     OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10, NULL, &mopts);
+    OmMSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_NOT_EQUAL(mymset2.size(), 0);
     TEST_EQUAL(mymset1, mymset2);
@@ -2636,10 +2632,10 @@ test_desc db_tests[] = {
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb3",       test_rsetmultidb3},
-    {"maxorterms1",        test_maxorterms1},
-    {"maxorterms2",        test_maxorterms2},
-    {"maxorterms3",        test_maxorterms3},
-    {"maxorterms4",        test_maxorterms4},
+    {"eliteset1",          test_eliteset1},
+    {"eliteset2",          test_eliteset2},
+    {"eliteset3",          test_eliteset3},
+    {"eliteset4",          test_eliteset4},
     {"termlisttermfreq1",  test_termlisttermfreq1},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
