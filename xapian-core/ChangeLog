@@ -1,3 +1,8 @@
+Wed Jan 31 15:45:16 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Remote servers should close down more gracefully when the
+	  client closes down in the middle of a request.
+
 Tue Jan 30 16:52:05 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Removed unneeded #includes of STL headers from API headers.

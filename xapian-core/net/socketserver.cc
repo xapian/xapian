@@ -46,6 +46,9 @@
 #define uint64_t unsigned long long
 #endif /* TIMING_PATCH */
 
+/// An object used for "close down" exceptions
+struct SocketServerFinished { };
+
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 #ifndef TIMING_PATCH
@@ -128,7 +131,7 @@ SocketServer::run()
 #ifdef TIMING_PATCH
 	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
-	    message = buf->readline(msecs_timeout);
+	    message = readline(msecs_timeout);
 #ifndef TIMING_PATCH
 	    
 #else /* TIMING_PATCH */
@@ -136,53 +139,56 @@ SocketServer::run()
 	    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
 	    totalidle += time;
 #endif /* TIMING_PATCH */
-	    switch (message.empty() ? '\0' : message[0]) {
+	    try {
+		switch (message.empty() ? '\0' : message[0]) {
 #ifndef TIMING_PATCH
-		case 'X': return;
-		case 'Q': run_match(message.substr(1)); break;
-		case 'T': run_gettermlist(message.substr(1)); break;
-		case 'D': run_getdocument(message.substr(1)); break;
+		    case 'Q': run_match(message.substr(1)); break;
+		    case 'T': run_gettermlist(message.substr(1)); break;
+		    case 'D': run_getdocument(message.substr(1)); break;
 #else /* TIMING_PATCH */
-	        case 'X': {
-		    if (timing) {
-			cout << "Total working time = " << total << " usecs. (socketserver.cc)\n";
-			cout << "Total waiting time = " << totalidle << " usecs. (socketserver.cc)\n";
-		    }
-		    return;
-		}
-		case 'Q': {
-		    returnval = gettimeofday(&stp, NULL);
-		    run_match(message.substr(1));
-		    returnval = gettimeofday(&etp, NULL);
-		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-		    total += time;
-		    if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
-		}
-		break;
-		case 'T': {
-		    returnval = gettimeofday(&stp, NULL);
-		    run_gettermlist(message.substr(1));
-		    returnval = gettimeofday(&etp, NULL);
-		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-		    total += time;
-		    if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
-		}
-		break;
-		case 'D': {
-		    returnval = gettimeofday(&stp, NULL);
-		    run_getdocument(message.substr(1));
-		    gettimeofday(&etp, NULL);
-		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-		    total += time;
-		    if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
-		}
-		break;
+		    case 'Q': {
+				  returnval = gettimeofday(&stp, NULL);
+				  run_match(message.substr(1));
+				  returnval = gettimeofday(&etp, NULL);
+				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+				  total += time;
+				  if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
+			      }
+			      break;
+		    case 'T': {
+				  returnval = gettimeofday(&stp, NULL);
+				  run_gettermlist(message.substr(1));
+				  returnval = gettimeofday(&etp, NULL);
+				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+				  total += time;
+				  if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
+			      }
+			      break;
+		    case 'D': {
+				  returnval = gettimeofday(&stp, NULL);
+				  run_getdocument(message.substr(1));
+				  gettimeofday(&etp, NULL);
+				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+				  total += time;
+				  if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
+			      }
+			      break;
 #endif /* TIMING_PATCH */
-		case 'm': break; // ignore min weight message left over from postlist
-		case 'S': break; // ignore skip_to message left over from postlist
-		default:
-		    throw OmInvalidArgumentError(std::string("Unexpected message:") +
-						 message);
+		    case 'm': break; // ignore min weight message left over from postlist
+		    case 'S': break; // ignore skip_to message left over from postlist
+		    default:
+			      throw OmInvalidArgumentError(std::string("Unexpected message:") +
+							   message);
+		}
+	    } catch (const SocketServerFinished &) {
+		// received close message, just return.
+#ifdef TIMING_PATCH
+		if (timing) {
+		    cout << "Total working time = " << total << " usecs. (socketserver.cc)\n";
+		    cout << "Total waiting time = " << totalidle << " usecs. (socketserver.cc)\n";
+		}
+#endif
+		return;
 	    }
 	}
     } catch (const OmNetworkError &e) {
@@ -220,11 +226,11 @@ SocketServer::run_match(const std::string &firstmessage)
     OmQuery::Internal query = query_from_string(message);
 
     // extract the match options
-    message = buf->readline(msecs_timeout);
+    message = readline(msecs_timeout);
     OmSettings moptions = string_to_moptions(message);
 
     // extract the rset
-    message = buf->readline(msecs_timeout);
+    message = readline(msecs_timeout);
     OmRSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, &query, omrset, moptions,
@@ -239,7 +245,7 @@ SocketServer::run_match(const std::string &firstmessage)
     send_local_stats(gatherer->get_local_stats());
 
     // Message 5, part 1
-    message = buf->readline(msecs_timeout);
+    message = readline(msecs_timeout);
 
     if (!startswith(message, "G")) {
 	throw OmNetworkError(std::string("Expected 'G', got ") + message);
@@ -249,7 +255,7 @@ SocketServer::run_match(const std::string &firstmessage)
     have_global_stats = true;
 
     // Message 5, part 2
-    message = buf->readline(msecs_timeout);
+    message = readline(msecs_timeout);
 
     if (message.substr(0, 1) != "M") {
 	if (message.substr(0, 1) != "P") {
@@ -307,7 +313,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	while (1) {
 	    om_docid new_did = 0;
 	    while (buf->data_waiting()) {
-		std::string m = buf->readline(0);
+		std::string m = readline(0);
 		switch (m.empty() ? 0 : m[0]) {
 		    case 'm': {
 			// min weight has dropped
@@ -389,6 +395,17 @@ SocketServer::run_match(const std::string &firstmessage)
     DEBUGLINE(UNKNOWN, "sent mset...");
 }
 
+std::string
+SocketServer::readline(int msecs_timeout)
+{
+    std::string result = buf->readline(msecs_timeout);
+    // intercept 'X' messages.
+    if (result.length() > 0 && result[0] == 'X') {
+	throw SocketServerFinished();
+    }
+    return result;
+}
+
 void
 SocketServer::run_gettermlist(const std::string &firstmessage)
 {
@@ -438,7 +455,7 @@ SocketServer::read_global_stats()
 {
     Assert(conversation_state == conv_getglobal);
 
-    global_stats = string_to_stats(buf->readline(msecs_timeout));
+    global_stats = string_to_stats(readline(msecs_timeout));
 
     conversation_state = conv_sendresult;
 

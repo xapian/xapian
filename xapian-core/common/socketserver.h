@@ -94,6 +94,10 @@ class SocketServer : public NetServer {
 	/// run the get document conversation
 	void run_getdocument(const std::string &firstmessage);
 
+	/// Read a line of input from the buffer, and process
+	/// any special messages (eg 'X')
+	std::string readline(int msecs_timeout = 0);
+
     public:
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
