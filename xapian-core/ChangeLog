@@ -1,3 +1,7 @@
+Thu Dec 23 16:55:03 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Updated for 0.8.5 release.
+
 Tue Dec 21 13:26:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.html: Improved wording.

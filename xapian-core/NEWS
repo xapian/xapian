@@ -1,3 +1,49 @@
+Xapian-core 0.8.5 (2004-12-23):
+
+quartz backend:
+
+* quartzcompact: When full_compaction is enabled, don't fill the last few bytes
+  of a block if that would mean we needed an extra item and the overhead for
+  that item would use up more of the next block than we save.  This reduces the
+  table size after full compaction by up to 0.2% in my tests!
+
+* quartzcompact: Tables sizes will always be a whole number of Kbytes, since
+  the blocksize is, so report the size in K.  Also report the change in size as
+  well as the before and after sizes.
+
+* quartzcompact: Added missing '#include <config.h>' so that largefile support
+  is enabled when we call stat() and we report compression statistics for
+  tables > 2G.
+
+* quartzcompact: Added --no-full / -n option to disable full compaction.  This
+  may be useful if you want to update the database after compacting it (need to
+  test to see if this option is actually useful).
+
+* Renamed Btree::compress() to Btree::compact() for consistency with
+  "full_compaction" and "quartzcompact".  Also, "compress" is confusing since
+  we use that term in the zlib patch.
+
+build system:
+
+* xapian-config: Fixed --libs output to not include libxapian.la.
+
+* Added missing '#include <config.h>' to various .cc files (the omissions were
+  probably harmless, but config.h should be included as the first thing any
+  source file does).
+
+documentation:
+
+* Minor updates.
+
+packaging:
+
+* RPM spec file: %makeinstall puts the wrong paths in the .la files so use
+  "make DESTDIR=... install" instead.
+
+debug code:
+
+* Fixed to build with AssertParanoid enabled.
+
 Xapian-core 0.8.4 (2004-12-08):
 
 API:

@@ -23,10 +23,10 @@ Two notes about GCC 2.95:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.4 |Passed|
-x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.4 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.5 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.5 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC pre4.0| 0.8.3~|Passed| gcc-4.0-20041121
-x86   |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.4 |Passed| (spe140)
+x86   |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe140)
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.8.3 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.0.4 | 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.8.0 |Passed| from Olly Betts
@@ -34,19 +34,19 @@ x86   | Linux 2.4 Debian sid GCC 3.3.5 | 0.8.3~|Passed| from Olly Betts
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2| 0.8.4 |Passed| (x86-linux1)
 x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.8.0 |Passed| from Chris Good
 x86   |#Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.3~|Passed|
-x86   |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.4 |Passed| (spe185)
+x86   |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe185)
 x86   |*Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.4 |Passed| (cf-shell)
-x86   |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.4 |Passed| (spe185)
-x86   |=Linux 2.4 RHEL ES3 GCC 2.96    | 0.8.4 |Passed| (spe141)
-x86   |=Linux 2.4 RHEL ES3 GCC 3.4.1   | 0.8.4 |Passed| (spe141)
+x86   |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed| (spe185)
+x86   |=Linux 2.4 RHEL ES3 GCC 2.96    | 0.8.5 |Passed| (spe141)
+x86   |=Linux 2.4 RHEL ES3 GCC 3.4.1   | 0.8.5 |Passed| (spe141)
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
 x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.8.4 |Passed| (x86-linux2)
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.4 |Passed|
 x86   |=FreeBSD 4.9 GCC 2.95.4         | 0.8.3~|Passed|
 x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.8.4 |Passed| (x86-freebsd1)
-x86   |=FreeBSD 5.2.1 GCC 3.3.3        | 0.8.4 |Passed| (spe152)
-x86   |=NetBSD 1.6 GCC 2.95.3          | 0.8.4 |Passed| (spe143)
+x86   |=FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (spe152)
+x86   |=NetBSD 1.6 GCC 2.95.3          | 0.8.5 |Passed| (spe143)
 x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.4 |Passed| (x86-netbsd1)
 x86   |*OpenBSD 3.4 GCC 2.95.3         | 0.8.3~|Passed|
 x86   |*Solaris 9 GCC 3.3.2            | 0.8.4 |Passed| (x86-solaris1)
@@ -54,16 +54,16 @@ x86   |*Solaris 9 Sun Workshop C++     | 0.8.4 |Passed| (x86-solaris1) [2]
 x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [10] from Mike Boone
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
-x86_64|=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.4 |Passed| (spe189)
-x86_64|=Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.4 |Passed| (spe189)
+x86_64|=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe189)
+x86_64|=Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5 |Passed| (spe189)
 x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.4 |Passed| (amd64-linux1)
-x86_64|=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.8.4 |Passed| (spe190)
+x86_64|=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.8.5 |Passed| (spe190)
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.4 |Passed| (alpha-linux1)
 alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.4 |Passed| (alpha-linux1) [8]
-alpha |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.4 |Passed| (spe142,161)
-alpha |=Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.8.4 |Passed| (spe144)
-alpha |=FreeBSD 5.2.1 GCC 3.3.3        | 0.8.4 |Passed| (spe149)
+alpha |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe142,161)
+alpha |=Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.8.5 |Passed| (spe144)
+alpha |=FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (spe149)
 alpha |=DEC OSF 5.1 GCC 3.3            | 0.8.4 |Passwd| (spe207) [11]
 sparc |*Solaris 9 GCC 3.3.2            | 0.8.4 |Passed| (sparc-solaris1) [2]
 sparc |*Solaris 9 Sun Workshop C++     | 0.8.4 |Passed| (sparc-solaris1) [2]
@@ -74,17 +74,17 @@ mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
 mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [6] from Jim Lynch
 arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
 arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
-hppa64|=Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.8.4 |Passed| (spe170)
-hppa  |=HP-UX 11.11 GCC 3.4.1          | 0.8.4 |Passed| (spe192)
-hppa  |=HP-UX 11.11 aCC B3910B A.03.57 | 0.8.4 |Passed| (spe192) [9]
-hppa  |=HP-UX 11.23 aCC B3910B A.03.55 | 0.8.4 |Passed| (spe191) [9]
-ia64  |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.4 |Passed| (spe156)
-ia64  |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.4 |Passed| (spe177)
-ia64  |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.4 |Passed| (spe177)
-ia64  |=HP-UX 11.23 GCC 3.4.1          | 0.8.4 |Passed| (spe176)
-ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.8.4 |Passed| (spe176)
+hppa64|=Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.8.5 |Passed| (spe170)
+hppa  |=HP-UX 11.11 GCC 3.4.1          | 0.8.5 |Passed| (spe192)
+hppa  |=HP-UX 11.11 aCC B3910B A.03.57 | 0.8.5 |Passed| (spe192) [9]
+hppa  |=HP-UX 11.23 aCC B3910B A.03.55 | 0.8.5 |Passed| (spe191) [9]
+ia64  |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe156)
+ia64  |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe177)
+ia64  |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed| (spe177)
+ia64  |=HP-UX 11.23 GCC 3.4.1          | 0.8.5 |Passed| (spe176)
+ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.8.5 |Passed| (spe176)
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux cross to mingw GCC 2.95.3| 0.8.4 |Built | [3]
+x86   |&Linux cross to mingw GCC 2.95.3| 0.8.5 |Built | [3]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
