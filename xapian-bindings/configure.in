@@ -12,16 +12,12 @@ AM_CONFIG_HEADER(config.h)
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
 
-dnl Add parameters for aclocal
-dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
-ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for libxapian
-OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Check for swig - this does most of the work for the bindings.
 AC_PATH_PROG(SWIG, swig, [])

@@ -1,3 +1,7 @@
+Sat Jul 26 18:33:42 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Converted to use XO_LIB_XAPIAN.
+
 Fri Jul 25 11:02:43 2003  James Aylett  <james@tartarus.org>
 
 	* {tcl8,guile}/util.i: convert typemaps to SWIG 1.3 style
