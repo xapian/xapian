@@ -58,7 +58,10 @@ MultiPostList::~MultiPostList()
 om_doclength
 MultiPostList::get_doclength() const
 {
-    return this_db.get_doclength(get_docid());
+    DEBUGCALL(DB, om_doclength, "MultiPostList::get_doclength", "");
+    om_doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
+    AssertParanoid(result == this_db.get_doclength(get_docid()));
+    RETURN(result);
 }
 
 om_termcount

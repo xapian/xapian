@@ -1,3 +1,16 @@
+Tue May 21 15:28:40 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* multi_postlist.cc (get_doclength):  Get the document length from
+	  the appropriate sub-postlist, rather than from the database.
+	  This causes a huge speedup in some cases, since it avoids having
+	  to go to the termlist database for every document considered for
+	  an mset to get the document length.
+	  Added an AssertParanoid to check that the value from the postlist
+	  is the same as that from the database.
+	  This problem was noticed because "delve -v" was running several
+	  orders of magnitude slower than without -v - it is now of
+	  comparable speed.
+
 Tue May 21 15:27:37 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* quartz_values.cc: Small fixes to enable it to compile with debug
