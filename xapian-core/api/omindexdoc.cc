@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "utils.h"
 #include "om/omerror.h"
 #include "om/omindexdoc.h"
 #include <algorithm>
@@ -48,6 +49,19 @@ OmDocumentTerm::add_posting(om_termpos tpos)
     }
 }
 
+string
+OmDocumentTerm::get_description() const
+{
+    string description;
+
+    description = "OmDocumentTerm(" + tname +
+	    ", wdf = " + om_inttostring(wdf) +
+	    ", termfreq = " + om_inttostring(termfreq) +
+	    ", positions[" + om_inttostring(positions.size()) + "]" +
+	    ")";
+    return description;
+}
+
 
 void
 OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
@@ -60,4 +74,17 @@ OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
     } else {
 	documentterm->second.add_posting(tpos);
     }
+}
+
+string
+OmDocumentContents::get_description() const
+{
+    string description;
+
+    description = "OmDocumentContents(" +
+	    data.get_description() +
+	    ", keys[" + om_inttostring(keys.size()) + "]" +
+	    ", terms[" + om_inttostring(terms.size()) + "]" +
+	    ")";
+    return description;
 }
