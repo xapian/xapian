@@ -1,3 +1,14 @@
+Wed Sep 08 01:27:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/.cvsignore,php4/Makefile.am,
+	  php4/docs/bindings.html,php4/docs/examples/simpleindex.php,
+	  php4/docs/examples/simplesearch.php: Actually ship docs and
+	  examples; fixed bug in includes introduced in last checkin; output
+	  swig wrapper as xapian_wrap.cc not xapian_wrap.cpp for consitency
+	  with other bindings; fixed documentation of wrapping of
+	  Xapian::Query::OP_*; example scripts now load the xapian PHP
+	  extension; simplesearch now works with multi-term queries.
+
 Tue Sep 07 22:20:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,php4/.cvsignore,php4/Makefile.am: Don't use -phpfull

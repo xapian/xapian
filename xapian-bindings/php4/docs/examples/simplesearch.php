@@ -1,10 +1,10 @@
 <?php
-/*
- * $Id$
+/* $Id$
  * Simple command-line search program
  *
  * ----START-LICENCE----
  * Copyright 2004 James Aylett
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,8 @@
  * -----END-LICENCE-----
  */
 
+dl('xapian.so');
+
 define('MAX_PROB_TERM_LENGTH', 64);
 
 if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
@@ -38,27 +40,27 @@ if (!$database) {
 
 $enquire = new_Enquire($database);
 $stemmer = new_Stem("english");
-$topquery = NULL;
+$query = NULL;
 foreach (array_slice($_SERVER['argv'], 2) as $term) {
     $nextquery = new_Query(Stem_stem_word($stemmer, strtolower($term)));
-    if ($topquery === NULL) {
-	$topquery = $nextquery;
+    if ($query === NULL) {
+	$query = $nextquery;
     } else {
-	$topquery = Query_from_query_pair($topquery, OP_OR_get(), $topquery, $nextquery);
+	$query = new_Query_from_query_pair(Query_OP_OR, $query, $nextquery);
     }
-    $query = $topquery;
-    print "Performing query `" . Query_get_description($query) . "'\n";
+}
 
-    Enquire_set_query($enquire, $query);
-    $matches = Enquire_get_mset($enquire, 0, 10);
+print "Performing query `" . Query_get_description($query) . "'\n";
 
-    print MSet_get_matches_estimated($matches) . " results found\n";
-    $mseti = MSet_begin($matches);
-    while (! MSetIterator_equals($mseti, MSet_end($matches))) {
-        print "ID " . MSetIterator_get_docid($mseti) . " " .
-	    MSetIterator_get_percent($mseti) . "% [" .
-	    Document_get_data(MSetIterator_get_document($mseti)) . "]\n";
-	MSetIterator_next($mseti);
-    }
+Enquire_set_query($enquire, $query);
+$matches = Enquire_get_mset($enquire, 0, 10);
+
+print MSet_get_matches_estimated($matches) . " results found\n";
+$mseti = MSet_begin($matches);
+while (! MSetIterator_equals($mseti, MSet_end($matches))) {
+    print "ID " . MSetIterator_get_docid($mseti) . " " .
+	MSetIterator_get_percent($mseti) . "% [" .
+	Document_get_data(MSetIterator_get_document($mseti)) . "]\n";
+    MSetIterator_next($mseti);
 }
 ?>

@@ -3,35 +3,42 @@
 <h1>PHP4 bindings for Xapian</h1>
 
 <p>
-The PHP4 bindings for Xapian are packaged in the <code>xapian.so</code> extension, and
-largely follow the C++ API, with the following differences and
-additions. PHP4 strings and arrays, etc., are converted automatically
+The PHP4 bindings for Xapian are packaged in the <code>xapian.so</code>
+extension, and largely follow the C++ API.  This document lists the differences
+and additions. PHP4 strings and arrays, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
 
 <h2>Exceptions</h2>
 
 <p>
-In general, a PHP4 fatal error is triggered on a C++ exception being thrown in the library. This is awful, and should be fixed in some useful way.
+In general, a PHP4 fatal error is triggered on a C++ exception being thrown in
+the library. This is awful, and should be fixed in some useful way - the
+intention is to rework the core library to not throw exceptions but this
+is not at trivial job.
 </p>
 
 <h2>Object orientation</h2>
 
 <p>
-The PHP4 bindings do not currently use a PHP4 object orientated style. In order to construct an object, use <code>new_ClassName(...)</code>; the destruct, use <code>delete_ClassName()</code>. Access methods on an object using <code>ClassName_method_name($object, ...)</code>.
+The PHP4 bindings do not currently use a PHP4 object orientated style. In order
+to construct an object, use <code>$object = new_ClassName(...)</code>.  Destroy
+it using <code>delete_ClassName($object)</code>. Invoke methods on an object
+using <code>ClassName_method_name($object, ...)</code>.
 </p>
 
 <h2><code>empty()</code> methods</h2>
 
 <p>
-   <code>empty()</code> methods are renamed to <code>is_empty()</code> in the bindings.
+   <code>empty()</code> methods are renamed to <code>is_empty()</code> in the
+   bindings.
 </p>
 
 <h2>Iterators</h2>
 
 <p>
-   All iterators support <code>next()</code> and <code>equals()</code> methods to move through
-   and test iterators (as for all language bindings).
+   All iterators support <code>next()</code> and <code>equals()</code> methods
+   to move through and test iterators (as for all language bindings).
 </p>
 
 <h2>Iterator dereferencing</h2>
@@ -42,18 +49,19 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
    follows:
 </p>
 
-<table title='Iterator deferencing methods'>
+<table title="Iterator deferencing methods">
 <thead><td>Iterator</td><td>Dereferencing method</td></thead>
 <tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
 <tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>TermIterator</td>		<td><code>get_term()</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
 <tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
-<tr><td>MSetIterator</td>		<td><code>get_docid()</code></td></tr>
-<tr><td>ESetIterator</td>		<td><code>get_termname()</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_termname()</code></td></tr>
 </table>
 
 <p>
-   Other methods, such as <code>MSetIterator.get_document()</code>, are available unchanged.
+   Other methods, such as <code>MSetIterator.get_document()</code>, are
+   available unchanged.
 </p>
    
 <h2>MSet</h2>
@@ -63,7 +71,7 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
    work using the C++ array dereferencing):
 </p>
 
-<table title='MSet additional methods'>
+<table title="MSet additional methods">
 <thead><td>Method name</td><td>Explanation</td></thead>
 <tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
 <tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
@@ -74,26 +82,26 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
 <h2>Xapian::Auto</h2>
 
 <p>
-   Functions in <code>Xapian::Auto</code> are mapped directly (so <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for instance).  The 2 argument
-form of Auto::open() which opens a writable database is wrapped as
-<code>open_writable</code>.
+   Functions in <code>Xapian::Auto</code> are mapped directly (so
+   <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for
+   instance).  The 2 argument form of Auto::open() which opens a writable
+   database is wrapped as <code>open_writable</code>.
 </p>
 
 <h2>Constants</h2>
 
 <p>
-   The <code>Xapian::DB_*</code> constants are available as <code>DB_*</code>.
-</p>
-
-<p>
-   With the exception of the <code>Xapian::DB_*</code> constants, all constants from Xapian are available using a helper function; so for instance <code>Xapian::Query::OP_OR</code> becomes <code>OP_OR_get()</code>.
+   Constants are wrapped with the Xapian namespace removed, so
+   <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
+   available as <code>Query_OP_OR</code>, and so on.
 </p>
 
 <h2>Enquire</h2>
 
 <p>
-   There is an additional method <code>get_matching_terms()</code> which takes an
-   MSetIterator and returns a list of terms in the current query which
+   There is an additional method <code>get_matching_terms()</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator. This may be slightly
    more convenient than using the TermIterator directly.
 </p>
@@ -102,13 +110,14 @@ form of Auto::open() which opens a writable database is wrapped as
 
 <p>
    The query parser and C++ wrapped stemmers are wrapped for PHP4 as
-   <code>QueryParser</code> and <code>Stem</code>. The interfaces are identical to
-   the C++ versions.
+   <code>QueryParser</code> and <code>Stem</code>. The interfaces are identical
+   to the C++ versions.
 </p>
 
 <p>
-There are examples of the PHP4 bindings, based on simplesearch and
-simpleindex from <code>xapian-examples</code>, in the <code>examples</code> subdirectory.
+There are examples of code using the PHP4 bindings, based on simplesearch and
+simpleindex from <code>xapian-examples</code>, in the <code>examples</code>
+subdirectory.
 </p>
 
 <address>

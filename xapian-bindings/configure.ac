@@ -154,7 +154,7 @@ AC_SUBST(BINDINGS)
 
 AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile
- php4/Makefile php4/util.i
+ php4/Makefile php4/docs/Makefile php4/docs/examples/Makefile php4/util.i
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
