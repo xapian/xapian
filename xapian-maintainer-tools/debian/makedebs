@@ -89,7 +89,7 @@ else
   # Note: this will probably copy some out-of-date files too, but
   # they should be pretty small (just diff files), and therefore shouldn't
   # cause any problems.
-  rsync --partial --progress -e ssh "www.xapian.org:${PUBDIR}/$POOLDIR/source/" src
+  rsync --partial --progress -e ssh -r "www.xapian.org:${PUBDIR}/$POOLDIR/source/" src
   CONTROL_CORE="`pwd`/src/${FILEBASE_CORE}.dsc"
   CONTROL_BINDINGS="`pwd`/src/${FILEBASE_BINDINGS}.dsc"
   CONTROL_OMEGA="`pwd`/src/${FILEBASE_OMEGA}.dsc"
@@ -166,11 +166,11 @@ cd upload-packages
   chmod ug+w -R *
 cd ..
 
-if [ $ONIXION == yes ] ; thens
+if [ $ONIXION == yes ] ; then
   mkdir -p ${PUBDIR}
   cp -af upload-packages/* ${PUBDIR}
 else
-  rsync --partial -p --progress -e ssh -r upload-packages/* ixion.tartarus.org:${PUBDIR}
+  rsync --partial --perms --progress -e ssh -r upload-packages/* ixion.tartarus.org:${PUBDIR}
 fi
 
 trap EXIT
