@@ -5,4 +5,3 @@ Makefile
 .deps
 .libs
 libquartz.la
-libbtreecheck.la

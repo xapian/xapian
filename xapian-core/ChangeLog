@@ -1,3 +1,9 @@
+Wed Oct 08 14:04:44 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/.cvsignore,tests/Makefile.am,testsuite/.cvsignore:
+	  Updated to reflect move of libbtreecheck.la from backends/quartz
+	  to testsuite.
+
 Wed Oct 08 13:22:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Don't pass mode argument to open when we

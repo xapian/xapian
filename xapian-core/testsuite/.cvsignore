@@ -5,4 +5,5 @@ Makefile
 .deps
 .libs
 depcomp
+libbtreecheck.la
 libtest.la

@@ -35,9 +35,8 @@ stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
-btreetest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 btreetest_SOURCES = btreetest.cc
-btreetest_LDADD = ../testsuite/libtest.la ../backends/quartz/libbtreecheck.la \
+btreetest_LDADD = ../testsuite/libtest.la ../testsuite/libbtreecheck.la \
 	../libxapian.la
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
