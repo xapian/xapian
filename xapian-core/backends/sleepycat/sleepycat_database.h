@@ -40,9 +40,9 @@ class SleepyDatabaseInternals;
 class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
-	SleepyDatabaseInternals * internals;
+	auto_ptr<SleepyDatabaseInternals> internals;
 
-	SleepyDatabaseTermCache * termcache;
+	auto_ptr<SleepyDatabaseTermCache> termcache;
 
 	/** Create and open a sleepycat database.
 	 *

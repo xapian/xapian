@@ -1,3 +1,8 @@
+Mon May 22 13:28:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a memory leak in SleepyDatabase (when database doesn't
+	  exist).
+
 Mon May 22 13:08:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* apitest can now run all the tests against sleepycat as well as

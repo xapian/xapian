@@ -56,10 +56,10 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 	throw OmInvalidArgumentError("SleepyDatabase cannot have sub databases.");
     }
 
-    // FIXME - these should be autopointers, so that if an exception is
-    // thrown, memory isn't leaked.
-    internals = new SleepyDatabaseInternals();
-    termcache = new SleepyDatabaseTermCache(internals);
+    internals = auto_ptr<SleepyDatabaseInternals>(
+				new SleepyDatabaseInternals());
+    termcache = auto_ptr<SleepyDatabaseTermCache>(
+				new SleepyDatabaseTermCache(internals.get()));
 
     // Check that path is to a valid extant directory
     struct stat buf;
@@ -81,9 +81,7 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 SleepyDatabase::~SleepyDatabase() {
     // Close databases
     try {
-	delete termcache;
 	internals->close();
-	delete internals;
     }
     catch (DbException e) {
 	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
@@ -133,13 +131,13 @@ SleepyDatabase::open_post_list(const om_termname & tname) const
     om_termid tid = termcache->term_name_to_id(tname);
     if(tid == 0) throw OmRangeError("Termid not found");
 
-    return new SleepyPostList(tid, internals, tname);
+    return new SleepyPostList(tid, internals.get(), tname);
 }
 
 LeafTermList *
 SleepyDatabase::open_term_list(om_docid did) const
 {
-    return new SleepyTermList(did, this, internals, termcache);
+    return new SleepyTermList(did, this, internals.get(), termcache.get());
 }
 
 LeafDocument *
