@@ -71,7 +71,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvsfileindex cvsfilesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesearch cvsmine2search cvsfileindex cvsfilesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
 
 cvsquery_SOURCES = cvsquery.C
@@ -88,6 +88,10 @@ cvssearch_LDADD = libcvs_lines.a -lomsee libcvs_lines.a
 cvsminesearch_SOURCES = cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
+
+cvsmine2search_SOURCES = cvsmine2search.C
+cvsmine2search_LDFLAGS = -static
+cvsmine2search_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
 cvsfilesearch_SOURCES = cvsfilesearch.C
 cvsfilesearch_LDFLAGS = -static
@@ -110,6 +114,10 @@ cvsfilesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 cvsmineindex_SOURCES = cvsmineindex.C
 cvsmineindex_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
 cvsmineindex_LDFLAGS = -static
+
+cvsmine2index_SOURCES = cvsmine2index.C
+cvsmine2index_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
+cvsmine2index_LDFLAGS = -static
 
 cvsfileindex_SOURCES = cvsfileindex.C
 cvsfileindex_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
@@ -142,8 +150,13 @@ cvsquery_LDFLAGS =
 cvsmineindex_OBJECTS =  cvsmineindex.o
 cvsmineindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a libcvs_lines.a \
 libcvs_db.a
+cvsmine2index_OBJECTS =  cvsmine2index.o
+cvsmine2index_DEPENDENCIES =  libcvs_db.a libcvs_lines.a libcvs_lines.a \
+libcvs_db.a
 cvsminesearch_OBJECTS =  cvsminesearch.o
 cvsminesearch_DEPENDENCIES =  libcvs_lines.a libcvs_lines.a
+cvsmine2search_OBJECTS =  cvsmine2search.o
+cvsmine2search_DEPENDENCIES =  libcvs_lines.a libcvs_lines.a
 cvsfileindex_OBJECTS =  cvsfileindex.o
 cvsfileindex_DEPENDENCIES =  libcvs_lines.a libcvs_lines.a
 cvsfilesearch_OBJECTS =  cvsfilesearch.o
@@ -160,17 +173,18 @@ DIST_COMMON =  README Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id2_db.P \
 .deps/cvs_comment_id_db.P .deps/cvs_db.P .deps/cvs_db_file.P \
 .deps/cvs_diff_db.P .deps/cvs_file_id_db.P .deps/cvs_file_revision_db.P \
 .deps/cvs_filename_db.P .deps/cvs_line_db.P .deps/cvs_revision_db.P \
 .deps/cvsfileindex.P .deps/cvsfilesearch.P .deps/cvsindex.P \
-.deps/cvsmineindex.P .deps/cvsminesearch.P .deps/cvsquery.P \
-.deps/cvssearch.P .deps/lines.P .deps/lines_cmt.P .deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES) $(cvsfileindex_SOURCES) $(cvsfilesearch_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS) $(cvsfileindex_OBJECTS) $(cvsfilesearch_OBJECTS)
+.deps/cvsmine2index.P .deps/cvsmine2search.P .deps/cvsmineindex.P \
+.deps/cvsminesearch.P .deps/cvsquery.P .deps/cvssearch.P .deps/lines.P \
+.deps/lines_cmt.P .deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsmine2index_SOURCES) $(cvsminesearch_SOURCES) $(cvsmine2search_SOURCES) $(cvsfileindex_SOURCES) $(cvsfilesearch_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsmine2index_OBJECTS) $(cvsminesearch_OBJECTS) $(cvsmine2search_OBJECTS) $(cvsfileindex_OBJECTS) $(cvsfilesearch_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -259,9 +273,17 @@ cvsmineindex: $(cvsmineindex_OBJECTS) $(cvsmineindex_DEPENDENCIES)
 	@rm -f cvsmineindex
 	$(CXXLINK) $(cvsmineindex_LDFLAGS) $(cvsmineindex_OBJECTS) $(cvsmineindex_LDADD) $(LIBS)
 
+cvsmine2index: $(cvsmine2index_OBJECTS) $(cvsmine2index_DEPENDENCIES)
+	@rm -f cvsmine2index
+	$(CXXLINK) $(cvsmine2index_LDFLAGS) $(cvsmine2index_OBJECTS) $(cvsmine2index_LDADD) $(LIBS)
+
 cvsminesearch: $(cvsminesearch_OBJECTS) $(cvsminesearch_DEPENDENCIES)
 	@rm -f cvsminesearch
 	$(CXXLINK) $(cvsminesearch_LDFLAGS) $(cvsminesearch_OBJECTS) $(cvsminesearch_LDADD) $(LIBS)
+
+cvsmine2search: $(cvsmine2search_OBJECTS) $(cvsmine2search_DEPENDENCIES)
+	@rm -f cvsmine2search
+	$(CXXLINK) $(cvsmine2search_LDFLAGS) $(cvsmine2search_OBJECTS) $(cvsmine2search_LDADD) $(LIBS)
 
 cvsfileindex: $(cvsfileindex_OBJECTS) $(cvsfileindex_DEPENDENCIES)
 	@rm -f cvsfileindex
@@ -315,7 +337,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

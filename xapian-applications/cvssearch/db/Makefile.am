@@ -10,7 +10,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvsfileindex cvsfilesearch \
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesearch cvsmine2search cvsfileindex cvsfilesearch \
 	# cvssearch cvsusagesearch cvscomments \
 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
@@ -28,6 +28,10 @@ cvssearch_LDADD = libcvs_lines.a -lomsee libcvs_lines.a
 cvsminesearch_SOURCES =  cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
+
+cvsmine2search_SOURCES =  cvsmine2search.C
+cvsmine2search_LDFLAGS = -static
+cvsmine2search_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
 cvsfilesearch_SOURCES =   cvsfilesearch.C
 cvsfilesearch_LDFLAGS = -static
@@ -50,6 +54,10 @@ cvsfilesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 cvsmineindex_SOURCES =   cvsmineindex.C
 cvsmineindex_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
 cvsmineindex_LDFLAGS = -static
+
+cvsmine2index_SOURCES =   cvsmine2index.C
+cvsmine2index_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
+cvsmine2index_LDFLAGS = -static
 
 cvsfileindex_SOURCES =   cvsfileindex.C
 cvsfileindex_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
