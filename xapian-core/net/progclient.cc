@@ -34,9 +34,10 @@
 #include <cerrno>
 #include <strstream.h>
 
-ProgClient::ProgClient(std::string progname, const std::vector<std::string> &args)
+ProgClient::ProgClient(std::string progname, const std::vector<std::string> &args, int msecs_timeout_)
 	: SocketClient(get_spawned_socket(progname, args),
-		       false /* closing socket our responsibility */)
+		       false /* closing socket our responsibility */,
+		       msecs_timeout_)
 {
 }
 

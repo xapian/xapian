@@ -43,10 +43,12 @@
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 			   int readfd_,
-			   int writefd_)
+			   int writefd_,
+			   int msecs_timeout_)
 	: db(db_),
 	  readfd(readfd_),
 	  writefd((writefd_ == -1) ? readfd_ : writefd_),
+	  msecs_timeout(msecs_timeout_),
 	  buf(new OmSocketLineBuf(readfd, writefd)),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -57,7 +59,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
-    buf->readline();
+    buf->readline(msecs_timeout);
     buf->writeline("HELLO " +
 		  om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
 		  om_tostring(db->get_doccount()) + " " +
@@ -65,10 +67,12 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 }
 
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
-			   std::auto_ptr<OmLineBuf> buf_)
+			   std::auto_ptr<OmLineBuf> buf_,
+			   int msecs_timeout_)
 	: db(db_),
 	  readfd(-1),
 	  writefd(-1),
+	  msecs_timeout(msecs_timeout_),
 	  buf(buf_),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -107,7 +111,7 @@ SocketServer::run()
 	    std::string message;
 
 	    // Message 3 (see README_progprotocol.txt)
-	    message = buf->readline();
+	    message = buf->readline(msecs_timeout);
 
 	    if (message == "QUIT") {
 		return;
@@ -148,7 +152,7 @@ SocketServer::run_match(const std::string &firstmessage)
     OmSettings moptions = string_to_moptions(message.substr(9));
 
     // extract the rset
-    message = buf->readline();
+    message = buf->readline(msecs_timeout);
     if (!startswith(message, "RSET ")) {
 	DEBUGLINE(UNKNOWN, "Expected RSET, got " << message);
 	throw OmNetworkError(std::string("Invalid message: ") + message);
@@ -156,7 +160,7 @@ SocketServer::run_match(const std::string &firstmessage)
     OmRSet omrset = string_to_omrset(message.substr(5));
 
     // extract the query
-    message = buf->readline();
+    message = buf->readline(msecs_timeout);
 
     if (!startswith(message, "SETQUERY ")) {
 	DEBUGLINE(UNKNOWN, "Expected SETQUERY, got " << message);
@@ -189,7 +193,7 @@ SocketServer::run_match(const std::string &firstmessage)
     send_local_stats(gatherer->get_local_stats());
 
     // Message 5, part 1
-    message = buf->readline();
+    message = buf->readline(msecs_timeout);
 
     if (message.substr(0, 9) != "GLOBSTATS") {
 	throw OmNetworkError(std::string("Expected GLOBSTATS, got ") + message);
@@ -199,7 +203,7 @@ SocketServer::run_match(const std::string &firstmessage)
     have_global_stats = true;
 
     // Message 5, part 2
-    message = buf->readline();
+    message = buf->readline(msecs_timeout);
 
     if (message.substr(0, 7) != "GETMSET") {
 	throw OmNetworkError(std::string("Expected GETMSET, got ") + message);
@@ -299,7 +303,7 @@ SocketServer::read_global_stats()
 {
     Assert(conversation_state == conv_getglobal);
 
-    global_stats = string_to_stats(buf->readline());
+    global_stats = string_to_stats(buf->readline(msecs_timeout));
 
     conversation_state = conv_sendresult;
 

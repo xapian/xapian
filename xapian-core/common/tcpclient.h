@@ -45,8 +45,10 @@ class TcpClient : public SocketClient {
 	 *
 	 *  @param hostname The name of the remote host
 	 *  @param port	    The TCP port to connect to.
+	 *  @param msecs_timeout The timeout in milliseconds before assuming
+	 *  			the remote end has failed.
 	 */
-	TcpClient(std::string hostname, int port);
+	TcpClient(std::string hostname, int port, int msecs_timeout = 10000);
 
 	/** Destructor. */
 	~TcpClient();

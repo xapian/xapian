@@ -58,10 +58,19 @@
  *  remote backend:
  *
  *  - remote_type : "prog" or "tcp"
- *  - remote_program
- *  - remote_args
- *  - remote_server
- *  - remote_port
+ *  - remote_program : the name of the program to run to act as a server
+ *   			(when remote_type="prog")
+ *  - remote_args : the arguments to the program named in remote_program
+ *   			(when remote_type="prog")
+ *  - remote_server : the name of the host running a tcp server
+ *   			(when remote_type="tcp")
+ *  - remote_port : the port on which the tcp server is running
+ *   			(when remote_type="tcp")
+ *  - remote_timeout : The timeout in milliseconds used before assuming that
+ *                     the remote server has failed.  If this timeout is
+ *                     reached for any operation, then an OmNetworkTimeout
+ *                     exception will be thrown.  The default if not
+ *                     specified is 10000ms (ie 10 seconds)
  *
  *  quartz backend:
  *

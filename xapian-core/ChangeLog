@@ -1,3 +1,12 @@
+Tue Sep  5 18:36:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a new setting "remote_timeout", used to configure the
+	  timeout (in milliseconds) used before giving up on network
+	  connections.  (The default is 10,000 milliseconds or 10 seconds)
+
+	* Added new option --timeout to set the timeout on the tcp server
+	  side.
+
 Tue Sep 05 15:51:07 BST 2000 Olly Betts
 
 	* Added some items to TODO.

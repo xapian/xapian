@@ -43,7 +43,8 @@ class ProgServer : public SocketServer {
 
     public:
 	/** Default constructor. */
-	ProgServer(OmRefCntPtr<MultiDatabase> db, int readfd_, int writefd_);
+	ProgServer(OmRefCntPtr<MultiDatabase> db, int readfd_,
+		   int writefd_, int msecs_timeout_ = 10000);
 
 	/** This destructor is only here to avoid strange linking errors
 	 *  with g++ when including this header file but not linking with

@@ -51,8 +51,16 @@ class ProgClient : public SocketClient {
 	/** Constructor.
 	 *
 	 *  @param progname The name of the program to run.
+	 *
+	 *  @param arg	    The arguments to the program to be run.
+	 *
+	 *  @param msecs_timeout_ The timeout value used before throwing
+	 *                        and exception if the remote end is not
+	 *                        responding.
 	 */
-	ProgClient(std::string progname, const std::vector<std::string> &arg);
+	ProgClient(std::string progname,
+		   const std::vector<std::string> &arg,
+		   int msecs_timeout_);
 
 	/** Destructor. */
 	~ProgClient();

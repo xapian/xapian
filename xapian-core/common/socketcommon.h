@@ -54,8 +54,10 @@ class OmSocketLineBuf : public OmLineBuf {
 	void operator=(const OmSocketLineBuf &other);
 
 	/** Read one line from readfd
+	 *  @param msecs_timeout	The timeout in milliseconds before
+	 *  				throwing an exception.
 	 */
-	std::string do_readline();
+	std::string do_readline(int msecs_timeout);
 
 	/** Write one line to writefd
 	 */

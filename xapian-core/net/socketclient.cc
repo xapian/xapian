@@ -37,9 +37,11 @@
 #include <strstream.h>
 
 SocketClient::SocketClient(int socketfd_,
-			   bool close_socket_)
+			   bool close_socket_,
+			   int msecs_timeout_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
+	  msecs_timeout(msecs_timeout_),
 	  buf(socketfd),
 	  conv_state(state_getquery),
 	  remote_stats_valid(false),
@@ -152,7 +154,7 @@ SocketClient::get_avlength()
 std::string
 SocketClient::do_read()
 {
-    std::string retval = buf.readline();
+    std::string retval = buf.readline(msecs_timeout);
 
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
@@ -270,7 +272,7 @@ SocketClient::finish_query()
 void
 SocketClient::wait_for_input()
 {
-    buf.wait_for_data(10000);
+    buf.wait_for_data(msecs_timeout);
 }
 
 bool

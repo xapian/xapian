@@ -46,6 +46,9 @@ class TcpServer {
 	/// The listening socket
 	int listen_socket;
 
+	/// The timeout to use with network communications
+	int msecs_timeout;
+
 	/** Open the listening socket and return a filedescriptor to
 	 *  it.
 	 *
@@ -59,7 +62,8 @@ class TcpServer {
 	int get_connected_socket();
     public:
 	/** Default constructor. */
-	TcpServer(OmRefCntPtr<MultiDatabase> db_, int port_);
+	TcpServer(OmRefCntPtr<MultiDatabase> db_, int port_,
+		  int msecs_timeout_ = 10000);
 
 	/** Destructor. */
 	~TcpServer();

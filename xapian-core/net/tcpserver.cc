@@ -46,8 +46,9 @@
 
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(OmRefCntPtr<MultiDatabase> db_,
-		       int port_)
-	: port(port_), db(db_), listen_socket(get_listening_socket(port_))
+		       int port_, int msecs_timeout_)
+	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
+	  msecs_timeout(msecs_timeout_)
 {
 
 }
@@ -154,7 +155,7 @@ TcpServer::run_once()
 	// child code
 	close(listen_socket);
 	try {
-	    SocketServer sserv(db, connected_socket);
+	    SocketServer sserv(db, connected_socket, -1, msecs_timeout);
 	    sserv.run();
 	} catch (OmError &err) {
 	    cerr << "Got exception " << err.get_type()

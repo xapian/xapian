@@ -23,14 +23,14 @@
 #include "omlinebuf.h"
 
 std::string
-OmLineBuf::readline()
+OmLineBuf::readline(int msecs_timeout)
 {
     std::string retval;
     if (line_buffer.length() > 0) {
 	retval = line_buffer;
 	line_buffer = "";
     } else {
-	retval = do_readline();
+	retval = do_readline(msecs_timeout);
     }
     return retval;
 }
@@ -46,7 +46,7 @@ OmLineBuf::wait_for_data(int msecs) {
     if (line_buffer.length() > 0) {
 	return;
     } else {
-	line_buffer = do_readline();
+	line_buffer = do_readline(msecs);
 	return;
     }
 }

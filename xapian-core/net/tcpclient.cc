@@ -32,8 +32,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-TcpClient::TcpClient(std::string hostname, int port)
-	: SocketClient(get_remote_socket(hostname, port))
+TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout)
+	: SocketClient(get_remote_socket(hostname, port), true, msecs_timeout)
 {
 
 }

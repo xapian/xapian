@@ -43,6 +43,10 @@ class SocketClient : public NetClient {
 	/// Whether or not to close the socket on destruction
 	bool close_socket;
 
+	/// The timeout value used in network communications,
+	/// in milliseconds
+	int msecs_timeout;
+
 	/// The line buffer which does the I/O
 	OmSocketLineBuf buf;
 
@@ -115,8 +119,15 @@ class SocketClient : public NetClient {
 	 *                      the socket.  If false, the derived class is
 	 *                      responsible for the socket, which is assumed
 	 *                      to be closed in ~SocketClient.
+	 *
+	 *  @param msecs_timeout_ The timeout used with the network operations.
+	 *                       Generally an OmNetworkTimeout exception will
+	 *                       be thrown if the remote end doesn't respond
+	 *                       for this length of time (in milliseconds).
 	 */
-	SocketClient(int socketfd_, bool close_socket_ = true);
+	SocketClient(int socketfd_,
+		     bool close_socket_ = true,
+		     int msecs_timeout_ = 10000);
 
 	/// functions which actually do the work
 	std::string do_read();

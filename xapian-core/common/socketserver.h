@@ -49,6 +49,10 @@ class SocketServer : public NetServer {
 	int readfd;
 	int writefd;
 
+	/// The timeout before read/write operations give up and throw
+	/// and exception
+	int msecs_timeout;
+
 	/// The line buffer for doing the actual I/O
 	std::auto_ptr<OmLineBuf> buf;
 
@@ -95,14 +99,16 @@ class SocketServer : public NetServer {
 	 */
 	SocketServer(OmRefCntPtr<MultiDatabase> db,
 		     int readfd_,
-		     int writefd_ = -1);
+		     int writefd_ = -1,
+		     int msecs_timeout_ = 10000);
 
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
 	 *  @param buffer	OmLineBuf already connected to remote end.
 	 */
 	SocketServer(OmRefCntPtr<MultiDatabase> db,
-		     std::auto_ptr<OmLineBuf> buffer);
+		     std::auto_ptr<OmLineBuf> buffer,
+		     int msecs_timeout_ = 10000);
 
 	/** Destructor. */
 	~SocketServer();

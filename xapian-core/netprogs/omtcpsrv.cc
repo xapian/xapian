@@ -42,6 +42,7 @@ char *progname = 0;
 int main(int argc, char *argv[]) {
     std::vector<OmSettings *> dbs;
     int port = 0;
+    int msecs_timeout = 10000;
 
     progname = argv[0];
 
@@ -99,6 +100,10 @@ int main(int argc, char *argv[]) {
 	    port = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--timeout") == 0) {
+	    msecs_timeout = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
 	} else if (strcmp(argv[0], "--one-shot") == 0) {
 	    one_shot = true;
 	    argc -= 1;
@@ -113,7 +118,8 @@ int main(int argc, char *argv[]) {
 	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
 		"\t--[da-flimsy|da-heavy|db|sleepycat] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
-		"\t--port NUM" << endl;
+		"\t--port NUM" <<
+		"\t--timeout MSECS" << endl;
 	exit(1);
     }
 
@@ -136,7 +142,7 @@ int main(int argc, char *argv[]) {
 	OmRefCntPtr<MultiDatabase> mdb(
 	    OmDatabase::InternalInterface::get_multi_database(mydbs));
 
-	TcpServer server(mdb, port);
+	TcpServer server(mdb, port, msecs_timeout);
 
 	if (one_shot) {
 	    server.run_once();

@@ -34,8 +34,9 @@
 /// The ProgServer constructor, taking two filedescriptors and a database.
 ProgServer::ProgServer(OmRefCntPtr<MultiDatabase> db_,
 		       int readfd_,
-		       int writefd_)
-	: SocketServer(db_, readfd_, writefd_)
+		       int writefd_,
+		       int msecs_timeout_)
+	: SocketServer(db_, readfd_, writefd_, msecs_timeout_)
 {
 }
 
