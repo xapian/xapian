@@ -124,7 +124,8 @@ inline om_doclength
 AndPostList::get_doclength() const
 {
     om_doclength doclength = l->get_doclength();
-    DEBUGLINE(MATCH, "AndPostList::get_doclength() = " << doclength);
+    DEBUGLINE(MATCH, "AndPostList::get_doclength() [docid=" << head <<
+	      "] = " << doclength);
     AssertEqDouble(l->get_doclength(), r->get_doclength());
     return doclength;
 }

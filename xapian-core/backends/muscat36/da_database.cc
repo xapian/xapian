@@ -63,12 +63,16 @@ om_weight DAPostList::get_weight() const
 PostList * DAPostList::next(om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
+    DEBUGLINE(DB, "DAPostList::next(" << w_min <<
+	      "): current docid = " << currdoc);
     if (currdoc && currdoc < om_docid(postlist->E)) {
 	currdoc++;
-	return NULL;
+    } else {
+	DA_read_postings(postlist, 1, 0);
+	currdoc = om_docid(postlist->Doc);
     }
-    DA_read_postings(postlist, 1, 0);
-    currdoc = om_docid(postlist->Doc);
+    DEBUGLINE(DB, "DAPostList::next(" << w_min <<
+	      "): new docid = " << currdoc);
     return NULL;
 }
 
@@ -76,16 +80,16 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
+    DEBUGLINE(DB, "DAPostList::skip_to(" << did << ", " << w_min <<
+	      "): current docid = " << currdoc);
     if (currdoc && did <= om_docid(postlist->E)) {
-	// skip_to later in the current range
 	currdoc = did;
-	DEBUGLINE(DB, "Skip within range " << did);
-	return NULL;
+    } else {
+	DA_read_postings(postlist, 1, did);
+	currdoc = om_docid(postlist->Doc);
     }
-    //printf("%p:From %d skip_to ", this, currdoc);
-    DA_read_postings(postlist, 1, did);
-    currdoc = om_docid(postlist->Doc);
-    //printf("%d - get_id %d\n", did, currdoc);
+    DEBUGLINE(DB, "DAPostList::skip_to(" << did << ", " << w_min <<
+	      "): new docid = " << currdoc);
     return NULL;
 }
 

@@ -32,7 +32,8 @@
 const double A = 1;
 const double B = 1;
 const double D = .5;
-const double C = .5;
+//const double C = .5;
+const double C = 0; // see how this affects performance in very big databases
 
 // The following parameters cause BM25Weight to behave identically to
 // TradWeight.

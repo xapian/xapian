@@ -86,7 +86,7 @@ open_db_group(std::string database_type, std::string dlist_path)
 	if(database_path.size() != 0) {
 	    OutputMessage("Adding `" + database_path + "' to dlist");
 	    OmSettings params;
-	    params.set("backend", database_type);
+	    params.set("backend", "auto");
 	    params.set("auto_dir", database_path); // FIXME:
 	    OmDatabase db(params);
 	    dbgrp.add_database(db);
@@ -202,7 +202,7 @@ bool check_query_threads(void * (* search_thread)(void *))
 
     struct some_searches mainsearch;
 
-    mainsearch.database_type = "da_flimsy"; // FIXME: "da" and set "m36_heavyduty" to false
+    mainsearch.database_type = "da"; // FIXME: set "m36_heavyduty" to false
     mainsearch.database_path = database_path;
 
     mainsearch.dbgrp = open_db_group(mainsearch.database_type,

@@ -1,3 +1,13 @@
+Thu Sep  7 01:40:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added extra debugging to matcher to help track down reported
+	  bug.
+
+	* Changed value of C in bm25weight to 0 to see if this helps Webtop
+	  performance in pathological cases.
+
+	* Fixed threadtest.cc so that it runs again.
+
 Wed Sep  6 17:44:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* <param> added to the test.dtd

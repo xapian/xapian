@@ -124,9 +124,20 @@ OrPostList::intro_term_description() const
 inline om_doclength
 OrPostList::get_doclength() const
 {
+    om_doclength doclength;
+
     Assert(lhead != 0 && rhead != 0); // check we've started
-    if (lhead > rhead) return r->get_doclength();
-    return l->get_doclength();
+    if (lhead > rhead) {
+	doclength = r->get_doclength();
+	DEBUGLINE(MATCH, "OrPostList::get_doclength() [right docid=" 
+		  << rhead << "] = " << doclength);
+    } else {
+	doclength = l->get_doclength();
+	DEBUGLINE(MATCH, "OrPostList::get_doclength() [left docid="
+		  << lhead << "] = " << doclength);
+    }
+
+    return doclength;
 }
 
 #endif /* _orpostlist_h_ */
