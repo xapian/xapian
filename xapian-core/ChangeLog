@@ -1,3 +1,7 @@
+Sat Aug 10 14:57:17 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Fixed typo in quartzcheck.cc
+
 Tue Jul 23 22:12:34 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Added a note to the effect that the indexgraph stuff isn't

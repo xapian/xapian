@@ -37,7 +37,7 @@ main(int argc, char **argv)
     if (argc < 2) {
 	cout << "usage: " << argv[0]
 	     << " <path to btree and prefix> [<options>]" << endl
-	     << " e.g. "" << argv[0] << " /var/spool/xapian/mydb/postlist_"
+	     << " e.g. " << argv[0] << " /var/spool/xapian/mydb/postlist_"
 	     << endl;
 	exit(1);
     }
