@@ -212,15 +212,27 @@ om_doccount
 DBDatabase::get_doccount() const
 {
     OmLockSentry sentry(mutex);
+    return get_doccount_internal();
+}
 
+om_doccount
+DBDatabase::get_doccount_internal() const
+{
     return DB->doc_count;
 }
 
 om_doclength
 DBDatabase::get_avlength() const
 {
-    // FIXME - actually want to return real avlength.
+    // FIXME - want this mutex back if implement get_avlength_internal()
     //OmLockSentry sentry(mutex);
+    return get_avlength_internal();
+}
+
+om_doclength
+DBDatabase::get_avlength_internal() const
+{
+    // FIXME - actually want to return real avlength.
     return 1;
 }
 
@@ -228,9 +240,8 @@ om_doclength
 DBDatabase::get_doclength(om_docid did) const
 {
     // FIXME: should return actual length.
-    // FIXME: shouldn't call a public method
     //OmLockSentry sentry(mutex);
-    return get_avlength();
+    return get_avlength_internal();
 }
 
 om_doccount
@@ -301,7 +312,7 @@ DBDatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    DBTermList *tl = new DBTermList(tv, DBDatabase::get_doccount());
+    DBTermList *tl = new DBTermList(tv, DBDatabase::get_doccount_internal());
     return tl;
 }
 

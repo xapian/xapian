@@ -231,23 +231,36 @@ om_doccount
 DADatabase::get_doccount() const
 {
     OmLockSentry sentry(mutex);
+    return get_doccount_internal();
+}
+
+om_doccount
+DADatabase::get_doccount_internal() const
+{
     return DA_r->itemcount;
 }
 
 om_doclength
 DADatabase::get_avlength() const
 {
-    // FIXME - actually want to return real avlength.
+    // FIXME - want this mutex back if implement get_avlength_internal()
     //OmLockSentry sentry(mutex);
-    return 1;
+    return get_avlength_internal();
+}
+
+om_doclength
+DADatabase::get_avlength_internal() const
+{
+    // FIXME - actually want to return real avlength.
+    return 1; 
 }
 
 om_doclength
 DADatabase::get_doclength(om_docid did) const
 {
     // FIXME: should return actual length.
-    // FIXME: shouldn't call a public method
-    return get_avlength();
+    //OmLockSentry sentry(mutex);
+    return get_avlength_internal();
 }
 
 om_doccount
@@ -304,7 +317,7 @@ DADatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    DATermList *tl = new DATermList(tv, DADatabase::get_doccount());
+    DATermList *tl = new DATermList(tv, DADatabase::get_doccount_internal());
     return tl;
 }
 

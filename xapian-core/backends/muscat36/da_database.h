@@ -280,6 +280,14 @@ class DADatabase : public IRDatabase {
 	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
 
+	/// Internal method for getting the database size.
+	om_doccount  get_doccount_internal() const;
+
+	/** Internal method for getting the average length of a document in
+	 *  the database.
+	 */
+	om_doclength get_avlength_internal() const;
+
 	/** Internal method for opening postlists.
 	 */
 	LeafPostList * open_post_list_internal(const om_termname & tname) const;
