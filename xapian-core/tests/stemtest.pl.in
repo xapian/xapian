@@ -180,6 +180,8 @@ sub randtest {
 
     my $outputfname = "stemtest.pl$$";
 
+    $did_something = 1;
+
     print "Testing $language with file $filename...";
     $system_retval = system("./stemtest --$language $filename > $outputfname 2>&1");
     if ($system_retval) {
