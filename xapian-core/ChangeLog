@@ -1,3 +1,7 @@
+Tue May  9 13:12:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New exception: OmNetworkTimeoutError.
+
 Tue May  9 12:21:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* MultiMatch::match() now returns all its results in its OmMSet

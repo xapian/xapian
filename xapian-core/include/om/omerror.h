@@ -1,4 +1,4 @@
-/* error.h
+/* omerror.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -122,6 +122,13 @@ class OmDatabaseError : public OmRuntimeError {
 class OmNetworkError : public OmRuntimeError {
     public:
 	OmNetworkError(const string &msg) : OmRuntimeError(msg) {};
+};
+
+/** Thrown when a network timeout is exceeded 
+ */
+class OmNetworkTimeoutError : public OmNetworkError {
+    public:
+	OmNetworkTimeoutError(const string &msg) : OmNetworkError(msg) {};
 };
 
 /** Thrown when opening a database fails. */
