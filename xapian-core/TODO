@@ -27,6 +27,9 @@ Priority | Area            | Task
  High    | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
 ---------+-----------------+--------------------------------------------------
+ High    | Sleepy Backend  | Stop SleepyDatabase aborting when an attempt to
+         |                 | open in a non existent directory is performed.
+---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make omprogsrv use a MultiMatch instead of Local
 ---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make Stats gathering etc. work asynchronously
@@ -90,6 +93,9 @@ Priority | Area            | Task
          |                 | returns correct value in case where some of the
 	 |                 | query terms are not present in some of the sub
 	 |                 | databases.
+---------+-----------------+--------------------------------------------------
+ Low     | Backends        | Make SleepyTermCache lose entries eventually
+         |                 | (will currently eat up entire memory).
 ---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
