@@ -545,8 +545,12 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
     DEBUGCALL_STATIC(DB, int, "Btree::compare_keys", (void*)key1 << ", " << (void*)key2);
     int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
-    if (key1_len == key2_len)
+    if (key1_len == key2_len) {
+	// The keys are the same length, so we can compare the counts
+	// in the same operation since they're stored as 2 byte
+	// bigendian numbers.
 	RETURN(memcmp(key1 + K1, key2 + K1, key1_len - K1));
+    }
 
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
 
@@ -554,11 +558,9 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
     int diff = memcmp(key1 + K1, key2 + K1, k_smaller - K1);
     if (diff != 0) RETURN(diff);
 
-    diff = key1_len - key2_len;
-    if (diff != 0) RETURN(diff);
-
-    // Compare the count
-    RETURN(memcmp(key1 + k_smaller, key2 + k_smaller, C2));
+    // We dealt with the "same length" case above so we never need to check
+    // the count here.
+    RETURN(key1_len - key2_len);
 }
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.

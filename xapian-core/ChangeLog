@@ -1,3 +1,9 @@
+Fri Oct 29 04:12:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Simplified Btree::compare_keys() by
+	  removing the last case which was dead code as it was covered by
+	  an earlier case.
+
 Wed Oct 27 21:17:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING,tests/runtest.in:
