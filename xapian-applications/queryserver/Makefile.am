@@ -7,7 +7,7 @@ AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 bin_PROGRAMS = xapian-queryserver
 
 php4dir = $(pkglibdir)/php4
-dist_php4_SCRIPTS = clients/xapian-queryclient.php
+dist_php4_SCRIPTS = clients/index.php clients/xapian-queryclient.php
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/doc/xapian-queryserver
