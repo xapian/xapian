@@ -67,6 +67,7 @@ void DAPostList::skip_to(docid id)
 {
     Assert(!at_end());
     DAreadpostings(postlist, 0, id);
+    printf("%p:Skip_to %d - get_id %d\n", this, id, postlist->Doc);
 }
 
 
