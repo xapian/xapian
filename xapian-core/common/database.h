@@ -37,6 +37,9 @@ class IRDatabase {
 
 	void set_root(IRDatabase *db) {root = db;}
 
+	// Database statistics:
+	// ====================
+
 	// Number of docs in the database
 	virtual doccount  get_doccount() const = 0;
 	// Average length of a document
@@ -45,20 +48,24 @@ class IRDatabase {
 	// Number of docs indexed by a given term
 	virtual doccount get_termfreq(const termname &) const = 0;
 
-	// Whether a given term is in the database
+	// Whether a given term is in the database: functionally equivalent
+	// to (get_termfreq() != 0), but can be considerably more efficient.
 	virtual bool term_exists(const termname &) const = 0;
 
-	// Throws RangeError if term not in database
+	// Data item access methods:
+	// =========================
+
 	virtual DBPostList * open_post_list(const termname&, RSet *) const = 0;
-
-	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;
-
-	// Throws RangeError if docid invalid
 	virtual IRDocument * open_document(docid id) const = 0;
 
-	// Introspection methods
-	virtual const string get_database_path() const = 0;
+#if 0
+	// Introspection methods:
+	// ======================
+
+	virtual const DatabaseBuilderParams & get_database_params() const = 0;
+	virtual const IRDatabase * get_database_of_doc(docid) const = 0;
+#endif
 };
 
 #endif /* _database_h_ */
