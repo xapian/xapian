@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "allocdata.h"
+#include "alloccommon.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,13 +30,13 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-static struct allocation_data allocdata = ALLOC_DATA_INIT;
+struct allocation_data malloc_allocdata = ALLOC_DATA_INIT;
 
 static void *(*real_malloc)(size_t) = 0;
 static void *(*real_calloc)(size_t, size_t) = 0;
 static void (*real_free)(void *) = 0;
 static void *(*real_realloc)(void *, size_t) = 0;
-static const char *(*real_dlerror)() = 0;
+
 static int have_symbols = 0;
 
 static int in_get_symbols = 0;
@@ -70,6 +70,7 @@ get_symbols()
 	fprintf(stderr, "get_symbols(): can't get symbols for malloc and friends\n");
 	abort();
     }
+    //register_allocator("malloc", &allocdata);
     in_get_symbols = 0;
 }
 
@@ -97,12 +98,12 @@ malloc(size_t size)
 {
     void *result;
     if (in_get_symbols) {
-	return naive_allocator(size);;
+	return naive_allocator(size);
     }
     CHECK_SYMBOLS;
 
     result = real_malloc(size);
-    handle_allocation(&allocdata, result, size);
+    handle_allocation(&malloc_allocdata, result, size);
     return result;
 }
 
@@ -116,7 +117,7 @@ calloc(size_t nmemb, size_t size)
     CHECK_SYMBOLS;
 
     result = real_calloc(nmemb, size);
-    handle_allocation(&allocdata, result, size * nmemb);
+    handle_allocation(&malloc_allocdata, result, size * nmemb);
     return result;
 }
 
@@ -124,11 +125,11 @@ void
 free(void *ptr)
 {
     CHECK_SYMBOLS;
-    if (handle_deallocation(&allocdata, ptr) != alloc_ok) {
+    if (handle_deallocation(&malloc_allocdata, ptr) != alloc_ok) {
 	fprintf(stderr,
 		"free()ing memory at %p which wasn't malloc()ed!\n",
 		ptr);
-	abort();
+	//abort();
     }
     real_free(ptr);
 }
@@ -140,14 +141,12 @@ realloc(void *ptr, size_t size)
     CHECK_SYMBOLS;
 
     result = real_realloc(ptr, size);
-    if (ptr != 0 && handle_deallocation(&allocdata, ptr) != alloc_ok) {
+    if (ptr != 0 && handle_reallocation(&malloc_allocdata,
+					ptr, result, size) != alloc_ok) {
 	fprintf(stderr,
 		"realloc()ing memory at %p to %d which wasn't malloc()ed!\n",
 		ptr, size);
-	abort();
-    }
-    if (result != 0) {
-	handle_allocation(&allocdata, result, size);
+	//abort();
     }
     return result;
 }

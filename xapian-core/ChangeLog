@@ -1,3 +1,11 @@
+Mon Sep 18 18:23:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Can now add checking for memory leaks in testsuite via
+	  LD_PRELOAD of malloccheck.so.  Seems to have a few problems
+	  at the moment, though.
+
+	* Added a test for the malloc tracking to internaltest.
+
 Mon Sep 18 17:38:38 BST 2000 Olly Betts
 
 	* All api tests now have a number suffix.

@@ -32,6 +32,7 @@
 #include <string>
 #include <new>
 #include <cstdio>
+#include <dlfcn.h>
 #include "allocdata.h"
 
 #ifdef HAVE_GETOPT_H
@@ -124,6 +125,10 @@ test_driver::get_srcdir(const string & argv0)
 /* Global data used by the overridden new and delete
  * operators.
  */
+/// true if we've registered this allocation data table
+static bool have_registered_allocator = false;
+
+/// The data about current allocations.
 static struct allocation_data allocdata = ALLOC_DATA_INIT;
 
 /* To help in tracking memory leaks, we can set a trap on a particular
@@ -146,6 +151,16 @@ void *operator new(size_t size) throw(std::bad_alloc) {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_lock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
+    if (!have_registered_allocator) {
+	register_allocator("new", &allocdata);
+	allocation_data *malloc_allocdata =
+		reinterpret_cast<allocation_data *>
+			(dlsym(RTLD_DEFAULT, "malloc_allocdata"));
+	if (malloc_allocdata) {
+	    register_allocator("malloc", malloc_allocdata);
+	}
+	have_registered_allocator = true;
+    }
     size_t real_size = (size > 0)? size : 1;
 
     void *result = malloc(real_size);
@@ -224,8 +239,7 @@ test_driver::runtest(const test_desc *test)
 {
     bool success = true;
 
-    struct allocation_snapshot before;
-    get_alloc_snapshot(&allocdata, &before);
+    allocation_snapshot before = get_alloc_snapshot();
 
     // This is used to make a note of how many times we've run the test
     int runcount = 0;
@@ -267,33 +281,16 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-	struct allocation_snapshot after;
-	get_alloc_snapshot(&allocdata, &after);
-	if (after.num_allocations != before.num_allocations) {
+	allocation_snapshot after = get_alloc_snapshot();
+	if (after != before) {
 	    if (verbose) {
-		if (after.num_allocations > before.num_allocations) {
-		    out << after.num_allocations - before.num_allocations
-			    << " extra allocations not freed: ";
-		    for (int i=before.allocations_bound;
-			 i<after.allocations_bound;
-			 ++i) {
-			if (allocdata.allocations[i].p != 0) {
-			    out << hex;
-			    out << allocdata.allocations[i].p << "("
-				    << allocdata.allocations[i].size << ") ";
-			    out << dec;
-			}
-		    }
-		    out << std::endl;
-		} else {
-		    out << before.num_allocations - after.num_allocations
-			    << " extra frees not allocated!" << std::endl;
-		}
+		print_alloc_differences(before, after,
+					out);
 	    }
 	    if(runcount < 2 && success) {
 		out << " repeating...";
 		repeat = true;
-		get_alloc_snapshot(&allocdata, &before);
+		before = get_alloc_snapshot();
 	    } else {
 		out << " LEAK";
 		success = false;

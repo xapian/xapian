@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <dlfcn.h>
 using std::cout;
 using std::endl;
 
@@ -50,7 +51,7 @@ bool test_alwaysfail();
 bool test_testsuite1();
 bool test_testsuite2();
 bool test_testsuite3();
-
+bool test_testsuite4();
 
 bool test_trivial()
 {
@@ -86,6 +87,17 @@ bool test_duffnew()
     // make an unfreed allocation
     duff_allocation_2 = duff_allocation;
     duff_allocation = new char[7];
+    return true;
+}
+
+char *duff_malloc_allocation = 0;
+char *duff_malloc_allocation_2 = 0;
+
+bool test_duffmalloc()
+{
+    // make an unfreed allocation
+    duff_malloc_allocation_2 = duff_malloc_allocation;
+    duff_malloc_allocation = (char *)malloc(7);
     return true;
 }
 
@@ -180,6 +192,48 @@ bool test_testsuite3()
     duff_allocation = 0;
     delete duff_allocation_2;
     duff_allocation_2 = 0;
+
+    return success;
+}
+
+// test the malloc() memory leak tests
+bool test_testsuite4()
+{
+    test_desc mytests[] = {
+	{"duff_malloc", test_duffmalloc},
+	{0, 0}
+    };
+
+    if (!dlsym(RTLD_DEFAULT, "malloc_allocdata")) {
+	SKIP_TEST("malloc tracking library not installed");
+    }
+
+    test_driver driver(mytests);
+    if (!verbose) {
+	driver.set_quiet(true);
+    }
+
+    bool success = true;
+
+    test_driver::result res = driver.run_tests();
+    if (res.succeeded != 0 ||
+	res.failed != 1) {
+	if (verbose) {
+	    cout << "Memory leak checking with malloc()/free() doesn't work"
+		 << endl;
+	}
+	success = false;
+    }
+
+    // clean up after test_duffnew()
+    if (duff_malloc_allocation) {
+	free(duff_malloc_allocation);
+	duff_malloc_allocation = 0;
+    }
+    if (duff_malloc_allocation_2) {
+	free(duff_malloc_allocation_2);
+	duff_malloc_allocation_2 = 0;
+    }
 
     return success;
 }
@@ -537,6 +591,7 @@ test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"testsuite3",		test_testsuite3},
+    {"testsuite4",		test_testsuite4},
     {"exception1",              test_exception1},
 #ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
