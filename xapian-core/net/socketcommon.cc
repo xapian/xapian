@@ -188,6 +188,13 @@ OmQueryInternal qfs_readquery()
 		return temp;
 	    }
 	    break;
+	case querytok::QUERY_LEN:
+	    {
+		OmQueryInternal temp(qfs_readquery());
+		temp.set_length(qt.qlen);
+		return temp;
+	    }
+	    break;
 	default:
 	    Assert(false);
     }
@@ -216,6 +223,13 @@ OmQueryInternal qfs_readcompound()
 		{
 		    OmQueryInternal temp(qfs_readquery());
 		    temp.set_bool(true);
+		    subqs.push_back(temp);
+		}
+		break;
+	    case querytok::QUERY_LEN:
+		{
+		    OmQueryInternal temp(qfs_readquery());
+		    temp.set_length(qt.qlen);
 		    subqs.push_back(temp);
 		}
 		break;
@@ -399,7 +413,7 @@ OmSocketLineBuf::do_readline()
 	    } else {
 		throw OmNetworkError(std::string("read:") + strerror(errno));
 	    }
-	} else if (retval == 0) {
+	} else if (received == 0) {
 	    continue;
 	}
 

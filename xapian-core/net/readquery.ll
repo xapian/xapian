@@ -34,6 +34,8 @@ NULL_QUERY	%N
 
 BOOL_FLAG	%B
 
+QUERY_LEN	%L{DIGIT}{DIGIT}*
+
 OP_BRA		%\(
 OP_KET		%\)
 %%
@@ -157,6 +159,12 @@ OP_KET		%\)
 
 {BOOL_FLAG}	{
 		    qt.type = querytok::BOOL_FLAG;
+		    return qt;
+		}
+
+{QUERY_LEN}	{
+		    qt.type = querytok::QUERY_LEN;
+		    qt.qlen = atoi(yytext+2);
 		    return qt;
 		}
 

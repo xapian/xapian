@@ -7,6 +7,7 @@ struct querytok {
 	END,
 	NULL_QUERY,
 	BOOL_FLAG,
+	QUERY_LEN,
 	OP_AND,
 	OP_OR,
 	OP_FILTER,
@@ -20,6 +21,7 @@ struct querytok {
 	OP_KET,
 	ERROR
     } type;
+    om_termcount qlen;
     om_termname tname;
     om_termcount wqf;
     om_termpos term_pos;

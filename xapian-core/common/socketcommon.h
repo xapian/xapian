@@ -27,7 +27,7 @@
 #include "omlinebuf.h"
 #include "om/omsettings.h"
 
-#define OM_SOCKET_PROTOCOL_VERSION 2
+#define OM_SOCKET_PROTOCOL_VERSION 3
 
 class OmQueryInternal;
 class Stats;

@@ -237,9 +237,11 @@ OmQueryInternal::serialise() const
 
     std::string result;
 
+    std::string qlens = std::string("%L") + om_tostring(qlen);
     if (isbool) {
 	result = "%B";
     }
+    result += qlens;
     if (op == OmQuery::OP_LEAF) {
 	result += "%T" + encode_tname(tname) +
 		"," + om_tostring(wqf) +
