@@ -633,12 +633,14 @@ OmEnquire::get_eset(om_termcount maxitems,
 OmData
 OmEnquire::get_doc_data(om_docid did) const
 {
-   IRDocument *doc = internal->database->open_document(did);
-   return doc->get_data();
+    internal->open_database();
+    IRDocument *doc = internal->database->open_document(did);
+    return doc->get_data();
 }
 
 OmData
 OmEnquire::get_doc_data(const OmMSetItem &mitem) const
 {
-   return get_doc_data(mitem.did);
+    internal->open_database();
+    return get_doc_data(mitem.did);
 }
