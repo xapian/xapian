@@ -139,7 +139,7 @@ static bool test_tcpclient1()
     system(command.c_str());
 
     sleep(1);
-    TcpClient tc("localhost", 1235);
+    TcpClient tc("localhost", 1235, 10000);
 
     return true;
 }
