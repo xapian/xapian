@@ -23,6 +23,10 @@ AC_PROG_CXX
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
+if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
+    AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
+fi
+
 AC_ARG_WITH(swig,
   [  --without-swig          disable all bindings which depend on SWIG
                          (currently: Python PHP Tcl Guile CSharp)])

@@ -1,3 +1,9 @@
+Sat Nov 06 13:04:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Reinstated the check that the bindings version matches
+	  the version of the xapian library.  It was added in 0.8.2, but
+	  accidentally removed in 0.8.3.
+
 Sat Nov 06 12:44:40 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Protect tcl header version test by prepending x to
