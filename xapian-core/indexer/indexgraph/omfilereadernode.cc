@@ -40,8 +40,13 @@ class OmFileReaderNode : public OmIndexerNode {
 	bool have_read_file;
 	// FIXME: implement config_modified()
 	void calculate() {
-	    std::string fname = filename_from_config?
-		    		   filename : get_input_string("filename");
+	    std::string fname;
+	    if (filename_from_config) {
+		fname = filename;
+	    } else {
+		request_inputs();
+		fname = get_input_string("filename");
+	    }
 
 	    if (filename_from_config) { 
 		if (have_read_file) {

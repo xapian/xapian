@@ -1,3 +1,12 @@
+Thu Oct 12 16:49:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Changed the interface for creating indexer nodes.  
+	  Inputs are all fetched at once by request_inputs(), which must
+	  be called before any call to get_input_*.  It can be called
+	  more than once.
+
+	* The nodes now all use request_inputs()
+
 Thu Oct 12 16:37:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* DatabaseBuilder::create() now returns a RefCntPtr, rather than a

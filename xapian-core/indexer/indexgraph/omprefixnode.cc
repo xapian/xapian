@@ -30,6 +30,7 @@ class OmPrefixNode : public OmIndexerNode {
 		{}
     private:
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 	    if (input->is_empty()) {
 		set_empty_output("out");

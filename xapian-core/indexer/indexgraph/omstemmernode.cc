@@ -37,6 +37,7 @@ class OmStemmerNode : public OmIndexerNode {
 	bool language_from_config;
 	// FIXME: implement config_modified()
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 	    if (input->is_empty()) {
 		set_empty_output("out");

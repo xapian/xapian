@@ -55,6 +55,7 @@ class OmTranslateNode : public OmIndexerNode {
 	char map[256];
 	// FIXME: implement config_modified()
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 
 	    switch (input->get_type()) {

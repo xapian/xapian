@@ -43,6 +43,7 @@ class OmRegexFilterNode : public OmIndexerNode {
 	Regex regex;
 	// FIXME: implement config_modified()
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 
 	    if (!regex_from_config) {

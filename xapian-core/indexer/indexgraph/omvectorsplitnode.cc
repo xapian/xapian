@@ -34,6 +34,7 @@ class OmVectorSplitNode : public OmIndexerNode {
 	int offset;
 	void calculate() {
 	    if (!stored.get()) {
+		request_inputs();
 		stored = get_input_record("in");
 		if (stored->get_type() == OmIndexerData::rt_empty) {
 		    set_empty_output("out");

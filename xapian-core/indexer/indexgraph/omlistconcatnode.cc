@@ -30,6 +30,7 @@ class OmListConcatNode : public OmIndexerNode {
 		{}
     private:
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage left = get_input_record("left");
 	    OmIndexerMessage right = get_input_record("right");
 

@@ -60,6 +60,11 @@ class OmIndexerNode::Internal {
 	/** Get a Record output */
 	OmIndexerMessage get_output_record(const std::string &output_name);
 
+	/** Used by node implementations to actually fetch data from the
+	 *  input connections.  They can then be accessed by get_input_*.
+	 */
+	void request_inputs();
+
 	/** Invalidate the outputs.  When an error occurs, or the network
 	 *  needs to be reset, this function may be called.  It will cause
 	 *  all outputs to be recalculated when next needed.
@@ -99,12 +104,20 @@ class OmIndexerNode::Internal {
 	/** Return the current value of a given configuration parameter. */
 	std::string get_config_string(const std::string &key) const;
     private:
-	/** The owning node (used for calling virtual methods) */
-	OmIndexerNode *owner;
+	/* ********** Private member functions ************/
+	/** Calculate outputs if needed
+	 *  @param output_name  The output currently needed.  If this
+	 *                      output is not available, then
+	 *                      calculate() will be called.
+	 */
+	void calculate_if_needed(const std::string &output_name);
+	
+	/** Find the given input in the cached inputs and handle any
+	 *  errors.
+	 */
+	OmIndexerMessage find_input_record(const std::string &input_name);
 
-	/** Message outputs */
-	deleter_map<std::string, OmIndexerMessage *> outputs_record;
-
+	/* ********** Private types ************/
 	/** Description of inputs */
 	struct input_desc {
 	    /** The other node */
@@ -113,18 +126,22 @@ class OmIndexerNode::Internal {
 	    std::string node_output;
 	};
 
-	/** The table of inputs */
+	/* ********** Private data ************/
+	// FIXME: store the node's ID here for errors
+	/** The owning node (used for calling virtual methods) */
+	OmIndexerNode *owner;
+
+	/** Message outputs */
+	deleter_map<std::string, OmIndexerMessage *> outputs_record;
+
+	/** The table of input connections */
 	std::map<std::string, input_desc> inputs;
+
+	/** The collected inputs */
+	deleter_map<std::string, OmIndexerMessage *> stored_inputs;
 
 	/** The configuration strings */
 	OmSettings settings;
-
-	/** Calculate outputs if needed
-	 *  @param output_name  The output currently needed.  If this
-	 *                      output is not available, then
-	 *                      calculate() will be called.
-	 */
-	void calculate_if_needed(const std::string &output_name);
 };
 
 OmIndexerMessage
@@ -259,6 +276,8 @@ OmIndexerNode::Internal::calculate_if_needed(const std::string &output_name)
 
     if (i == outputs_record.end()) {
 	outputs_record.clear();
+	// start with no inputs.
+	stored_inputs.clear();
 	DEBUGLINE(UNKNOWN, "Calculating " << typeid(*owner).name() <<
 		           " (output " << output_name << " requested)");
 	/*
@@ -424,6 +443,20 @@ OmIndexerNode::get_input_record(const std::string &input_name)
 }
 
 OmIndexerMessage
+OmIndexerNode::Internal::find_input_record(const std::string &input_name)
+{
+    deleter_map<std::string, OmIndexerMessage *>::iterator val;
+    val = stored_inputs.find(input_name);
+    if (val == stored_inputs.end()) {
+	throw OmInvalidArgumentError(std::string("Input ") +
+				     input_name + " was asked for more than once or before request_inputs()");
+    }
+    OmIndexerMessage retval = *(val->second);
+    stored_inputs.erase(val);
+    return retval;
+}
+
+OmIndexerMessage
 OmIndexerNode::Internal::get_input_record(const std::string &input_name)
 {
     std::map<std::string, input_desc>::const_iterator i;
@@ -433,7 +466,7 @@ OmIndexerNode::Internal::get_input_record(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     input_name);
     } else {
-	return i->second.node->get_output_record(i->second.node_output);
+	return find_input_record(input_name);
     }
 }
 
@@ -453,7 +486,7 @@ OmIndexerNode::Internal::get_input_string(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     input_name);
     } else {
-	return i->second.node->get_output_string(i->second.node_output);
+	return find_input_record(input_name)->get_string();
     }
 }
 
@@ -473,7 +506,7 @@ OmIndexerNode::Internal::get_input_int(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     input_name);
     } else {
-	return i->second.node->get_output_int(i->second.node_output);
+	return find_input_record(input_name)->get_int();
     }
 }
 
@@ -493,7 +526,7 @@ OmIndexerNode::Internal::get_input_double(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     input_name);
     } else {
-	return i->second.node->get_output_double(i->second.node_output);
+	return find_input_record(input_name)->get_double();
     }
 }
 
@@ -507,4 +540,22 @@ void
 OmIndexerNode::Internal::invalidate_outputs()
 {
     outputs_record.clear();
+}
+
+void
+OmIndexerNode::request_inputs()
+{
+    internal->request_inputs();
+}
+
+void OmIndexerNode::Internal::request_inputs()
+{
+    // dump the old inputs, if any
+    stored_inputs.clear();
+
+    std::map<std::string, input_desc>::const_iterator i;
+    for (i=inputs.begin(); i!=inputs.end(); ++i) {
+	stored_inputs[i->first] = new OmIndexerMessage(
+		i->second.node->get_output_record(i->second.node_output));
+    }
 }

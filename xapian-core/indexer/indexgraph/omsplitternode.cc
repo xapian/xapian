@@ -30,6 +30,7 @@ class OmSplitterNode : public OmIndexerNode {
 		{}
     private:
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage msg = get_input_record("in");
 
 	    set_output("left", OmIndexerMessage(new OmIndexerData(*msg)));

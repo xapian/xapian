@@ -77,11 +77,21 @@ class OmIndexerNode {
 	 */
 	virtual void calculate() = 0;
 
-	/** Used by concrete node implementations to fetch the input as
+	/** Used by node implementations to actually fetch data from the
+	 *  input connections.  They can then be accessed by get_input_*.
+	 */
+	void request_inputs();
+
+	/** Used by concrete node implementations to read the input as
 	 *  a record or basic type.  The nodes connected to each input
 	 *  may provide data directly in any of these formats.  The system
 	 *  can automatically convert to or from the Record type if needed,
 	 *  but not between basic types.
+	 *
+	 *  The following functions must be preceded by request_inputs(), 
+	 *  which makes the data available.  Getting a particular input
+	 *  more than once without calling request_inputs() again is an
+	 *  error.
 	 *
 	 *  @param input_name	The name of the input connection to use.
 	 */

@@ -42,6 +42,7 @@ class OmRegexSplitNode : public OmIndexerNode {
 	Regex regex;
 	// FIXME: implement config_modified()
 	void calculate() {
+	    request_inputs();
 	    OmIndexerMessage mess = get_input_record("in");
 	    if (mess->get_type() == OmIndexerData::rt_empty) {
 		set_empty_output("out");
