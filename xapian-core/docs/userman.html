@@ -15,7 +15,7 @@ Richard Boulton - 11 Feb 2000</B>
 <P>
 This document provides an introduction to the native C++ Muscat API.
 This API allows programmers quickly to add the ability to search through
-(potentially very large) bodies of data using probabalistic methods.
+(potentially very large) bodies of data using probabilistic methods.
 </P>
 
 <P>
@@ -110,7 +110,14 @@ of the database types currently provided).
 </P>
 
 <H3>Queries</H3>
-
+<P>
+The information to be searched for is specified by a <EM>Query</EM>.  In
+Muscat, queries are comprised of a structured boolean tree, upon which
+probabilistic weightings are imposed: when the search is performed, the
+documents returned are filtered according to the boolean structure, and
+weighted (and sorted) according to the probabilistic model of information
+retrieval.
+</P>
 
 <H2>The OmEnquire class</H2>
 
@@ -130,6 +137,8 @@ the user.
 Given the supplied information, suggesting a ranked set of terms to add to the
 query.
 </LI><LI>
+Returning information about the documents which matched, such as their
+associated data, and 
 </LI></UL>
 </P>
 <P>
@@ -144,19 +153,61 @@ query.
 Many operations performed by the OmEnquire class are performed lazily (ie,
 just before their results are needed).  This need not concern the user
 except to note that, as a result, errors may not be reported as soon as
-would otherwise be expected.  In particular, 
+would otherwise be expected.  In particular, errors regarding opening of
+the database may be reported when a query is performed (although they
+may not: you should catch exceptions in both situations).
 </P>
 
-<H2>Opening a database</H2>
+<H2>Specifying a database</H2>
 
-Before any other enquire operations may be performed, a database must be
-opened.
-(An
+<P>
+Before any other enquire operations may be performed, a database to search
+must be specified.  (An
 <A HREF="apidoc/OmInvalidArgumentError.html"><CODE>OmInvalidArgumentError</CODE></A>
-will be thrown if the database is not
-)
+will be thrown if the database is not specified when it is needed.)
+</P>
+<P>
+Databases are specified by calling
+<A HREF="apidoc/OmEnquire.html#add_database"><CODE>OmEnquire::add_database()</CODE></A>
+.  This takes two parameters;
+"<CODE><B>type</B></CODE>" which is a string
+representing the type of the database to open, and
+"<CODE><B>params</B></CODE>" which is a set of strings, the meaning of which
+depend on the database type.
+</P>
+<P>
+Note that these parameters <EM>are</EM> case sensitive.
 
-<H3>Opening more databases</H3>
+<A NAME="database_types"><H3>Database types</H3></A>
+The current types understood by muscat are:
+</P>
+<TABLE>
+<TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
+This is a proprietory, legacy format, holding a database in a
+non-updatable form (ie, the database can't be altered, it is built
+from an existing database).  We support read-only access to this,
+and it is thus unlikely to be useful outside our company.
+<BR>
+It takes one parameter, which is the path to the directory containing
+the Term and Record files. 
+</TD></TR>
+<TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
+This type is an index held entirely in memory.
+It is really designed to be used as a cache while building indexes
+(ie, build up your records into one of these, and periodically
+flush into the main database).
+<BR>
+However, for the moment a simple indexing routine is grafted
+onto it, which indexes a file of text into records (roughly on a
+paragraph by paragraph basis).
+<BR>
+It will eventually take no parameters at all, but for now takes an
+arbitrary number of filenames: each one will be opened and indexed into the
+database when the database is first used.
+</TD></TR>
+</TABLE>
+
+<H3>Multiple databases</H3>
 
 <P>
 Muscat can search across several databases as easily as searching across a
@@ -165,25 +216,26 @@ single one.  Simply call
 for each database that you wish to search through.
 </P>
 <P>
-Other operations may be performed
+Other operations, such as setting the query, may be performed before or after
+this call.  It is even possible to perform a query, add a further database,
+and then perform the query again to get the results with the extra database
+(although this isn't very likely to be useful in practice).
 </P>
-
-<A NAME="database_types"><H3>Database types</H3></A>
 
 <H2>Specifying a query</H2>
 
 <P>
-Muscat implements both boolean and probabalistic searching.  Traditionally,
+Muscat implements both boolean and probabilistic searching.  Traditionally,
 these have been combined either by:
-<OL><LI>
-Performing a boolean search and then a probabalistic search over the
+<UL><LI>
+Performing a boolean search and then a probabilistic search over the
 resulting documents, or
 </LI><LI>
-by performing a probabalistic search and filtering the resulting documents
+By performing a probabilistic search and filtering the resulting documents
 with a boolean query.
-</LI></OL>
+</LI></UL>
 The difference between these two is that the collection statistics for the
-former will represent the space of documents being searched by probabalistic
+former will represent the space of documents being searched by probabilistic
 methods, rather than some abstract larger set. If the boolean query is
 being used to restrict to, say, documents in English (where the database
 contains English and French documents), the latter would result in a word such
@@ -195,8 +247,33 @@ In summary, the former is likely to produce a better result, but the
 latter can be more efficiently implemented.
 </P>
 <P>
-Muscat uses a third approach, which is to perform both queries
-simultaneously.  This allows us to
+Muscat uses a third approach, which is to perform both searches
+simultaneously.  This allows us to perform various optimisations, such
+as giving up on calculating a boolean AND operations when the probabilistic
+weights that could result from further documents can have no effect on the
+result set.  Early indications are that these optimisations give us a two- or
+three-fold performance increase in certain cases.  The performance is
+particularly good for queries containing many terms.
+</P>
+
+<H3>A query for a single term</H3>
+<P>
+All queries are represented by
+<A HREF="apidoc/OmQuery.html"><CODE>OmQuery()</CODE></A>
+objects.  The simplest possible (non-trivial) query is one which searches
+for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for).
+<PRE>
+OmQuery query(tname);
+</PRE>
+</P>
+<P>
+This constructor actually takes a couple of extra parameters, which may be
+used to specify positional and frequency information for terms in the query:<BR>
+<PRE>
+OmQuery(const om_termname &amp; tname_,
+        om_termcount wqf_ = 1,
+        om_termpos term_pos_ = 0) 
+</PRE>
 </P>
 
 <H3>Undefined queries</H3>
