@@ -87,26 +87,8 @@ struct Cursor {
 */
 
 struct Btree_item {
-    /* Constructor which zeroes all the fields */
-    Btree_item()
-	    : key_size(-1), key_len(0), key(0),
-    	      tag_size(-1), tag_len(0), tag(0)
-    {
-    }
-
-    ~Btree_item()
-    {
-	delete [] key;
-	delete [] tag;
-    }
-
-    int key_size;       /* capacity of item->key */
-    int key_len;        /* length of retrieved key */
-    byte * key;         /* pointer to the key */
-
-    int tag_size;       /* capacity of item->tag */
-    int tag_len;        /* length of retrieved tag */
-    byte * tag;         /* pointer to the tag */
+    string key;
+    string tag;
 };
 
 extern string Btree_strerror(Btree_errors err);

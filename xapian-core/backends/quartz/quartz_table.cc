@@ -78,10 +78,8 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value =
-	    string(reinterpret_cast<const char *>(item.key), item.key_len);
-    current_tag.value =
-	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
+    current_key.value = item.key;
+    current_tag.value = item.tag;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -107,10 +105,8 @@ QuartzDiskCursor::next()
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value =
-	    string(reinterpret_cast<const char *>(item.key), item.key_len);
-    current_tag.value =
-	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
+    current_key.value = item.key;
+    current_tag.value = item.tag;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -139,7 +135,7 @@ QuartzDiskCursor::prev()
     cursor->get_key(&item);
     // FIXME: check for errors
 
-    if (item.key_len != 0) {
+    if (!item.key.empty()) {
 	cursor->prev();
 	// FIXME: check for errors
 	cursor->get_key(&item);
@@ -150,10 +146,8 @@ QuartzDiskCursor::prev()
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value =
-	    string(reinterpret_cast<const char *>(item.key), item.key_len);
-    current_tag.value =
-	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
+    current_key.value = item.key;
+    current_tag.value = item.tag;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -387,7 +381,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     // FIXME: check for errors
 
     // FIXME: unwanted copy
-    tag.value = string(reinterpret_cast<char *>(item.tag), item.tag_len);
+    tag.value = item.tag;
 
     RETURN(true);
 }

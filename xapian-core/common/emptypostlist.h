@@ -79,13 +79,13 @@ EmptyPostList::open_position_list() const
 }
 
 inline PostList *
-EmptyPostList::next(om_weight w_min)
+EmptyPostList::next(om_weight /*w_min*/)
 {
     return 0;
 }
 
 inline PostList *
-EmptyPostList::skip_to(om_docid did, om_weight w_min)
+EmptyPostList::skip_to(om_docid /*did*/, om_weight /*w_min*/)
 {
     return 0;
 }

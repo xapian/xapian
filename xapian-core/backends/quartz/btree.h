@@ -225,7 +225,6 @@ class Btree {
 	struct Cursor C[BTREE_CURSOR_LEVELS];
 
 	/* Debugging methods */
-    private:
 	void report_block_full(int m, int n, byte * p);
 };
 

@@ -122,7 +122,7 @@ Bcursor::find_key(const string &key)
 }
 
 bool
-Bcursor::get_key(struct Btree_item * item)
+Bcursor::get_key(Btree_item * item)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
@@ -131,22 +131,12 @@ Bcursor::get_key(struct Btree_item * item)
 
     byte * p = key_of(C[0].p, C[0].c);
     int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
-    if (item->key_size < l) {
-	delete [] item->key;
-	item->key = zeroed_new(l + 1); /* 1 extra in case l == 0 */
-	if (item->key == 0) {
-	    B->error = BTREE_ERROR_SPACE;
-	    throw std::bad_alloc();
-	}
-	item->key_size = l + 1;
-    }
-    memmove(item->key, p + K1, l);
-    item->key_len = l;
+    item->key.assign(reinterpret_cast<char *>(p + K1), l);
     return true;
 }
 
 bool
-Bcursor::get_tag(struct Btree_item * item)
+Bcursor::get_tag(Btree_item * item)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
@@ -160,33 +150,23 @@ Bcursor::get_tag(struct Btree_item * item)
 
     int cd = ct + C2;                   /* offset to the tag data */
 
-    int o = 0;                          /* cursor into item->tag */
-    int i;                              /* see below */
-    int l = GETI(p, 0) - cd;            /* number of bytes to extract from
-					   current component */
-
-    int4 space_for_tag = (int4) B->max_item_size * n;
-    if (item->tag_size < space_for_tag) {
-	delete [] item->tag;
-	item->tag = zeroed_new(space_for_tag + 5);
-	if (item->tag == 0) {
-	    B->error = BTREE_ERROR_SPACE;
-	    throw std::bad_alloc();
-	}
-	item->tag_size = space_for_tag + 5;
+    item->tag.resize(0);
+    if (n > 1) {
+	int4 space_for_tag = (int4) B->max_item_size * n;
+	item->tag.reserve(space_for_tag);
     }
 
-    for (i = 1; i <= n; i++) {
-	Assert(o + l <= item->tag_size);
-
-	memmove(item->tag + o, p + cd, l); o += l;
+     // FIXME: code to do very similar thing in btree.cc...
+     for (int i = 1; i <= n; i++) {
+	/* number of bytes to extract from current component */
+	int l = GETI(p, 0) - cd;
+	item->tag.append(reinterpret_cast<char *>(p + cd), l);
+	// FIXME Do we need to call B->next(...) on the last pass?
 	positioned = B->next(B, C, 0);
 
 	if (B->overwritten) return false;
 
 	p = item_of(C[0].p, C[0].c);
-	l = GETI(p, 0) - cd;
     }
-    item->tag_len = o;
     return positioned;
 }

@@ -342,7 +342,7 @@ class Database : public RefCntBase {
 	 *  no-op and collect_document() the same as open_document().
 	 */
 	//@{
-	virtual void request_document(om_docid did) const { }
+	virtual void request_document(om_docid /*did*/) const { }
 
 	virtual Document * collect_document(om_docid did) const {
 	    return open_document(did);

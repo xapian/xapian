@@ -1,3 +1,9 @@
+Wed Jun 12 12:26:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* Btree_item: use C++ strings rather than trying to reimplement them.
+
+	* Fix a few warnings about unused parameters.
+
 Wed Jun 12 02:53:16 BST 2002  Olly Betts <olly@survex.com>
 
 	* Btree_full_compaction, Btree_close: removed - they just wrap methods

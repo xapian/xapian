@@ -181,7 +181,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
 	if (bytes_read > 0) {
 	    // add byte to string, continue unless we reached max
-	    retval.append(buf, buf+bytes_read);
+	    retval.append(buf, bytes_read);
 	    bytes_to_read -= bytes_read;
 	    if (bytes_to_read == 0) {
 		break;
@@ -1257,7 +1257,7 @@ Btree::find_key(const string &key)
 }
 
 bool
-Btree::find_tag(const string &key, struct Btree_item * item)
+Btree::find_tag(const string &key, Btree_item * item)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
@@ -1269,30 +1269,20 @@ Btree::find_tag(const string &key, struct Btree_item * item)
 				    /* n components to join */
     int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
     int cd = ck + 2 * C2;           /* offset to the tag data */
-    int o = 0;                      /* cursor into item->tag */
     int i = 1;                      /* see below */
-    byte * p;                       /* pointer to current component */
-    int l;                          /* number of bytes to extract from current component */
 
-    p = item_of(C[0].p, C[0].c);
-    l = GETI(p, 0) - cd;
+    byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
     
-    int4 space_for_tag = (int4) max_item_size * n;
-    if (item->tag_size < space_for_tag) {
-	delete [] item->tag;
-	item->tag = zeroed_new(space_for_tag + 5);
-	if (item->tag == 0) {
-	    error = BTREE_ERROR_SPACE;
-	    throw std::bad_alloc();
-	}
-	item->tag_size = space_for_tag + 5;
-    }
+    item->tag.resize(0);
+    if (n > 1) {
+	int4 space_for_tag = (int4) max_item_size * n;
+	item->tag.reserve(space_for_tag);
+    }	
 
-    while (true) {
-	Assert(o + l <= item->tag_size);
-
-	memmove(item->tag + o, p + cd, l);
-	o += l;
+    while (true) { // FIXME: code to do very similar thing in bcursor.cc...
+	/* number of bytes to extract from current component */
+	int l = GETI(p, 0) - cd;
+	item->tag.append(reinterpret_cast<char *>(p + cd), l);
 
 	if (i == n) break;
 	i++;
@@ -1302,9 +1292,7 @@ Btree::find_tag(const string &key, struct Btree_item * item)
 	if (overwritten) return false;
 
 	p = item_of(C[0].p, C[0].c);
-	l = GETI(p, 0) - cd;
     }
-    item->tag_len = o;
  
     return true;
 }
