@@ -5,7 +5,7 @@ use strict;
 use cvssearch;
 
 my $cvsdata = &cvssearch::get_cvsdata();
-my $cvsquery = "./cvsquery-script";
+my $cvsquery = "./cvsquerydb";
 my $cvsmap = "./cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);

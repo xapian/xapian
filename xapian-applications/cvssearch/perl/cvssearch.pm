@@ -5,25 +5,35 @@ use strict;
 my @EXPORT = qw(read_cvsroot_dir, read_root_dir, strip_last_slash, get_cvsdata);            # symbols to export by default
 
 sub get_cvsdata {
-    my $cvsdata = strip_last_slash($ENV{"CVSDATA"});
-    if ($cvsdata ne "") {
-	$ENV{"CVSDATA"} = $cvsdata;
-        return $cvsdata;
-    }
-
+    # ----------------------------------------
+    # see if $CVSDATA is set
+    # ----------------------------------------
+    my $found = 0;
+    my $cvsdata;
     open (CVSSEARCHCONF, "<cvssearch.conf");
     while (<CVSSEARCHCONF>) {
         chomp;
         my @fields = split(/\ /);
         if ($fields[0] eq "CVSDATA") {
+            $found = 1;
             $cvsdata = $fields[1];
         }
     }
+    close (CVSSEARCHCONF);
+        
     if ($cvsdata ne "") {
-	$ENV{"CVSDATA"} = $cvsdata;
+        $ENV{"CVSDATA"} = $cvsdata;
         return $cvsdata;
     }
-    die "cannot get \$CVSDATA variable";
+
+    if (not $found ) {
+        print STDERR "Warning: cvssearch.conf is not found or cannot be read from the current directory, \n";
+        print STDERR "please create a publically readable file cvssearch.conf containing a line\n";
+        print STDERR "CVSDATA <Your Directory where cvssearch can store databases>\n";
+        print STDERR "e.g:\n";
+        print STDERR "CVSDATA ./cvsdata\n";
+        exit(1);
+    }
 }
 
 sub mk_root_dir {
