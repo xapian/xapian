@@ -1,3 +1,9 @@
+Sat Aug 09 23:31:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  backends/quartz/quartz_table.cc,docs/quartzdesign.html:
+	  Improved class Btree's encapsulation.
+
 Sat Aug 09 22:30:13 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Fixed a few typos.

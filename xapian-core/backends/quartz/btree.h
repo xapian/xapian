@@ -89,6 +89,12 @@ class Btree {
 
 	void set_full_compaction(bool parity);
 
+	uint4 get_latest_revision_number() const {
+	    if (both_bases && other_revision_number > revision_number)
+		return other_revision_number;
+	    return revision_number;
+	}
+
 	/** error number setting */
 	Btree_errors error;
 
@@ -97,13 +103,6 @@ class Btree {
 
 	/** revision number of the opened B-tree. */
 	uint4 revision_number;
-
-	/** revision number of the other base. */
-	uint4 other_revision_number;
-
-	/** set to true if baseA and baseB both exist. The old base
-	 *  is deleted as soon as a write to the Btree takes place. */
-	bool both_bases;
 
 	/** keeps a count of the number of items in the B-tree. */
 	uint4 item_count;
@@ -115,9 +114,6 @@ class Btree {
 
 	/** block size of the B tree in bytes */
 	int block_size;
-
-	/** the value 'A' or 'B' of the current base */
-	int base_letter;
 
 	/** the last used block of B->bit_map0 */
 	/*uint4 last_block; */
@@ -164,6 +160,16 @@ class Btree {
 			     const byte * prevkey, const byte * newkey,
 			     const uint4 blocknumber, bool truncate) const;
 	void form_key(const string & key);
+
+	/** revision number of the other base. */
+	uint4 other_revision_number;
+
+	/** set to true if baseA and baseB both exist. The old base
+	 *  is deleted as soon as a write to the Btree takes place. */
+	bool both_bases;
+
+	/** the value 'A' or 'B' of the current base */
+	int base_letter;
 
 	/** true if the root block is faked (not written to disk).
 	 * false otherwise.  This is true when the btree hasn't been

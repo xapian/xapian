@@ -343,12 +343,7 @@ QuartzDiskTable::get_latest_revision_number() const
 {
     DEBUGCALL(DB, quartz_revision_number_t,
 	      "QuartzDiskTable::get_latest_revision_number", "");
-    // FIXME: implement with a call to martin's code
-    if (btree_for_reading->both_bases &&
-	btree_for_reading->other_revision_number > btree_for_reading->revision_number) {
-	RETURN(btree_for_reading->other_revision_number);
-    }
-    RETURN(btree_for_reading->revision_number);
+    RETURN(btree_for_reading->get_latest_revision_number());
 }
 
 quartz_tablesize_t

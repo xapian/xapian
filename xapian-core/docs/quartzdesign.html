@@ -606,6 +606,15 @@ uint4 Btree::revision_number;
 </blockquote>
 
 <pre>
+uint4 get_latest_revision_number() const;
+</pre>
+
+<blockquote>
+    This gives the higher of the revision numbers held in the base files of the
+    B-tree, or just the revision number if there's only one base file.
+</blockquote>
+<!-- now private:
+<pre>
 uint4 Btree::other_revision_number;
 </pre>
 
@@ -621,7 +630,7 @@ bool Btree::both_bases;
 <blockquote>
     is true iff both files baseA and baseB exist as valid bases.
 </blockquote>
-
+-->
 <pre>
 bool Btree::open_to_write(const string &amp; name, unsigned long revision);
 </pre>
