@@ -102,7 +102,17 @@ sub cvsstat {
     my $list_file="$cvsdata/.list";
 
     my $root =&cvssearch::read_root_dir($cvsroot, $cvsdata);
-    
+unlink "$cvsdata/$root/db/cvs_comment";
+unlink "$cvsdata/$root/db/code_comment";
+unlink "$cvsdata/$root/db/revisions";
+unlink "$cvsdata/$root/db/authors";
+unlink "$cvsdata/$root/db/cvs_code";
+
+	open(CVS_COMMENT, ">>$cvsdata/$root/db/cvs_comment");
+	open(CODE_COMMENT,">>$cvsdata/$root/db/code_comment");
+	open(REVISIONS,   ">>$cvsdata/$root/db/revisions");
+	open(AUTHORS,     ">>$cvsdata/$root/db/authors");
+	open(CVS_CODE,    ">>$cvsdata/$root/db/cvs_code");
     # ----------------------------------------
     # clear temp files
     # ----------------------------------------
@@ -165,22 +175,33 @@ sub cvsstat {
                 open(LIST, "<$list_file") || die "cannot read temporary file $list_file: $!\n";
                 while (<LIST>) {
                     chomp;
-                    my $output = `./code_comment_extractor $_|wc -c`;
+                    my $output = `./code_comment_extractor $_|wc -w`;
                     chomp($output);
                     $code_words += (0 + $output);
                 }
                 close(LIST);
                 
-                open(STAT, ">>$prefix_path.st2") || die "cannot append to statistics file\n";
+                open(STAT, ">$prefix_path.st2") || die "cannot append to statistics file\n";
                 print STAT "total   # words of code comment :\t$code_words words\n";
                 print STAT "total   # words of cvs  comment :\t$cvs_words words\n";
                 print STAT "total   # of revision commits   :\t$entries\n";
                 print STAT "total   # of authors            :\t$authors\n";
                 print STAT "\n";
                 close(STAT);
+
+print CVS_COMMENT "$cvs_words\n";
+print CODE_COMMENT "$code_words\n";
+print REVISIONS "$entries\n";
+print AUTHORS "$authors\n";
+print CVS_CODE $cvs_words/$code_words,"\n";
             }
         }
     }
+close (CVS_COMMENT);
+close (CODE_COMMENT);
+close (REVISIONS);
+close (AUTHORS);
+close (CVS_CODE);
 }
 
 sub usage() {
