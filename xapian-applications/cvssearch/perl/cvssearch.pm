@@ -10,30 +10,77 @@ sub get_cvsdata {
     # ----------------------------------------
     my $found = 0;
     my $cvsdata;
-    open (CVSSEARCHCONF, "<cvssearch.conf");
-    while (<CVSSEARCHCONF>) {
-        chomp;
-        my @fields = split(/\ /);
-        if ($fields[0] eq "CVSDATA") {
-            $found = 1;
-            $cvsdata = $fields[1];
-        }
-    }
-    close (CVSSEARCHCONF);
-        
-    if ($cvsdata ne "") {
-        $ENV{"CVSDATA"} = $cvsdata;
-        return $cvsdata;
-    }
 
-    if (not $found ) {
-        print STDERR "Warning: cvssearch.conf is not found or cannot be read from the current directory, \n";
-        print STDERR "please create a publically readable file cvssearch.conf containing a line\n";
-        print STDERR "CVSDATA <Your Directory where cvssearch can store databases>\n";
-        print STDERR "e.g:\n";
-        print STDERR "CVSDATA ./cvsdata\n";
-        exit(1);
-    }
+    $cvsdata = $ENV{"CVSDATA"};
+
+    # ----------------------------------------
+    # environment is set
+    # try to make sure cvssearch.conf says the
+    # same thing.
+    # ----------------------------------------
+    if ($cvsdata ne "") {
+        if (-e "cvssearch.conf") {
+            # ----------------------------------------
+            # check if there is a conflict 
+            # ----------------------------------------
+            open (CVSSEARCHCONF, "<cvssearch.conf") || die "cannot read from cvssearch.conf: $!";
+
+            my @fields;
+            my $diff = 0;
+            while (<CVSSEARCHCONF>) {
+                chomp;
+                @fields = split(/\ /);
+                if ($fields[0] eq "CVSDATA") {
+                    $found = 1;
+                    if ($cvsdata ne $fields[1]) {
+                        $diff = 1;
+                        last;
+                    }
+                }
+            }
+            close (CVSSEARCHCONF);
+            # ----------------------------------------
+            # difference found. recreate cvssearch.conf
+            # ----------------------------------------
+            if ($diff) {
+                print STDERR "Warning: cvssearch.conf's CVSDATA : $fields[1]\n";
+                print STDERR "            Environment \$CVSDATA : $cvsdata\n";
+                print STDERR "         updating cvssearch.conf\n";
+
+                open (CVSSEARCHCONF, ">cvssearch.conf") || die "cannot write to cvssearch.conf: $!";
+                print CVSSEARCHCONF "CVSDATA $cvsdata\n";
+                close (CVSSEARCHCONF);
+                system ("chmod +r cvssearch.conf");
+            }
+        } else {
+            open (CVSSEARCHCONF, ">cvssearch.conf") || die "cannot write to cvssearch.conf: $!";
+            print CVSSEARCHCONF "CVSDATA $cvsdata\n";
+            close (CVSSEARCHCONF);
+            system ("chmod +r cvssearch.conf");
+        }
+    } else {
+        if (-e "cvssearch.conf") {
+            open (CVSSEARCHCONF, "<cvssearch.conf") || die "cannot read from cvssearch.conf: $!";
+            while (<CVSSEARCHCONF>) {
+                chomp;
+                my @fields = split(/\ /);
+                if ($fields[0] eq "CVSDATA") {
+                    $cvsdata = $fields[1];
+                    $ENV{"CVSDATA"} = $cvsdata;
+                }
+            }
+            close (CVSSEARCHCONF);
+        } else {
+            print STDERR "Warning: cvssearch.conf is not found or cannot be read from the current directory\n";
+            print STDERR "         or \$CVSDATA is not set.\n";
+            print STDERR "please export an envirnment variable CVSDATA specifying a directory where CVSSearch\n";
+            print STDERR "result may be stored\n";
+            print STDERR "e.g:";
+            print STDERR "export CVSDATA=\"./cvsdata\"";
+            exit(1);
+        }
+    }        
+	return $cvsdata;
 }
 
 sub mk_root_dir {

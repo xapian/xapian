@@ -8,7 +8,7 @@ bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb \
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
 	cvscompare-script.pl cvsstat-script.pl\
 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl \
-        comment_extractor_c.pl comment_extractor_c++.pl cvs2cl.pl\
+        cvs_comment_extractor.pl code_comment_extractor.pl cvs2cl.pl \
 	popup.js utility.js \
         cvssearch.pm Entities.pm
 
