@@ -67,7 +67,7 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(const DADatabase *db, struct termvec *tv)
+DATermList::DATermList(struct termvec *tv)
 	: have_started(false)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -155,13 +155,14 @@ DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
 {
     Assert(opened);
 
-    termid tid = term_name_to_id(tname);
-    Assert(tid != 0);
+    // Make sure the term has been looked up
+    const DATerm * the_term = term_lookup(tname);
+    Assert(the_term != NULL);
 
     struct postings * postlist;
-    postlist = DAopenpostings(termvec[tid - 1].get_ti(), DA_t);
+    postlist = DAopenpostings(the_term->get_ti(), DA_t);
 
-    DBPostList * pl = new DAPostList(postlist, termvec[tid - 1].get_ti()->freq);
+    DBPostList * pl = new DAPostList(postlist, the_term->get_ti()->freq);
     return pl;
 }
 
@@ -180,7 +181,7 @@ TermList * DADatabase::open_term_list(docid did) const
 
     openterms(tv);
 
-    DATermList *tl = new DATermList(this, tv);
+    DATermList *tl = new DATermList(tv);
     return tl;
 }
 
@@ -200,38 +201,53 @@ IRDocument * DADatabase::open_document(docid did) const
     return rec;
 }
 
-termid
-DADatabase::term_name_to_id(const termname &name) const
+const DATerm *
+DADatabase::term_lookup(const termname &tname) const
 {
     Assert(opened);
-    //printf("Looking up term `%s': ", name.c_str());
+#ifdef MUS_DEBUG_VERBOSE
+    cout << "Looking up term `" << tname.c_str() << "': ";
+#endif
 
-    map<termname,termid>::const_iterator p = termidmap.find(name);
+    map<termname, DATerm>::const_iterator p = termmap.find(tname);
 
-    termid id = 0;
-    if (p == termidmap.end()) {
-	int len = name.length();
+    const DATerm * the_term = NULL;
+    if (p == termmap.end()) {
+	int len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw OmError(strerror(ENOMEM));
 	k[0] = len + 1;
-	name.copy((char*)(k + 1), len);
+	tname.copy((char*)(k + 1), len);
 
 	struct terminfo ti;
 	int found = DAterm(k, &ti, DA_t);
 	free(k);
 
 	if(found == 0) {
-	    //printf("Not in collection\n");
+#ifdef MUS_DEBUG_VERBOSE
+	    cout << "Not in collection" << endl;
+#endif
 	} else {
-	    id = termvec.size() + 1;
-	    //printf("Adding as ID %d\n", id);
-	    termvec.push_back(DATerm(&ti, name));
-	    termidmap[name] = id;
+#ifdef MUS_DEBUG_VERBOSE
+	    cout << "found, adding to cache" << endl;
+#endif
+	    pair<termname, DATerm> termpair(tname, DATerm(&ti, tname));
+	    termmap.insert(termpair);
+	    the_term = &(termmap.find(tname)->second);
 	}
     } else {
-	id = (*p).second;
-	//printf("found, ID %d\n", id);
+	the_term = &((*p).second);
+#ifdef MUS_DEBUG_VERBOSE
+	cout << "found in cache" << endl;
+#endif
     }
-    return id;
+    return the_term;
+}
+
+bool
+DADatabase::term_exists(const termname &tname) const
+{
+    if(term_lookup(tname) != NULL) return true;
+    return false;
 }

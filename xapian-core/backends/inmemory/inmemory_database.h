@@ -148,9 +148,6 @@ class TextfileDatabase : public virtual IRDatabase,
 			 public virtual IndexerDestination {
     friend class DatabaseBuilder;
     private:
-	map<termname, termid> termidmap;
-	vector<termname> termvec;
-
 	map<termname, TextfileTerm> postlists;
 	vector<TextfileDoc> termlists;
 	vector<string> doclists;
@@ -172,9 +169,6 @@ class TextfileDatabase : public virtual IRDatabase,
 	~TextfileDatabase();
 
 	void set_root(IRDatabase *);
-
-	termid term_name_to_id(const termname &) const;
-	termname term_id_to_name(termid) const;
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
@@ -360,15 +354,8 @@ TextfileDatabase::get_termfreq(const termname & tname) const
     Assert(term_exists(tname));
 
     map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
-    Assert(i != postlists.end());
+    if(i == postlists.end()) return 0;
     return i->second.docs.size();
-}
-
-inline bool
-TextfileDatabase::term_exists(const termname &tname) const
-{
-    if(term_name_to_id(tname)) return true;
-    return false;
 }
 
 inline doclength
@@ -378,15 +365,6 @@ TextfileDatabase::get_doclength(docid did) const
     Assert(did > 0 && did <= termlists.size());
 
     return (doclength) doclengths[did - 1];
-}
-
-inline termname
-TextfileDatabase::term_id_to_name(termid tid) const
-{
-    Assert(opened);
-    Assert(tid > 0 && tid <= termvec.size());
-    //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
-    return termvec[tid - 1];
 }
 
 #endif /* _textfile_database_h_ */

@@ -210,9 +210,6 @@ class MultiDatabase : public virtual IRDatabase {
 
 	void set_root(IRDatabase *);
 
-	termid term_name_to_id(const termname &) const;
-	termname term_id_to_name(termid) const;
-
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
@@ -277,11 +274,6 @@ MultiDatabase::get_termfreq(const termname &tname) const
     if(pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
-}
-
-inline termname
-MultiDatabase::term_id_to_name(termid tid) const {
-    Assert(false);
 }
 
 #endif /* _multi_database_h_ */

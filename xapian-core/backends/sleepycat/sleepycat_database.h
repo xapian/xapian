@@ -43,9 +43,7 @@ class SleepyTermList : public virtual TermList {
 
 	const SleepyDatabase *db;
 
-	SleepyTermList(const IRDatabase *,
-		       const SleepyDatabase *,
-		       termid *, termcount);
+	SleepyTermList(const SleepyDatabase *, termid *, termcount);
     public:
 	~SleepyTermList();
 	termcount get_approx_size() const;
@@ -67,14 +65,14 @@ class SleepyDatabase : public virtual IRDatabase {
     private:
 	SleepyDatabaseInternals * internals;
 	bool opened;
+
+	termname term_id_to_name(termid) const;
+	termid term_name_to_id(const termname &) const;
 	
 	void open(const DatabaseBuilderParams &);
 	SleepyDatabase();
     public:
 	~SleepyDatabase();
-
-	termid term_name_to_id(const termname &) const;
-	termname term_id_to_name(termid) const;
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;

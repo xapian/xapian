@@ -56,7 +56,6 @@ DAPostList::get_docid() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
-    //printf("%p:DocID %d\n", this, currdoc);
     return currdoc;
 }
 
@@ -93,8 +92,7 @@ class DATermList : public virtual TermList {
 	vector<DATermListItem> terms;
 	bool have_started;
 
-	// Gets passed current database, for termid lookups, _NOT_ root
-	DATermList(const DADatabase *database, struct termvec *tv);
+	DATermList(struct termvec *tv);
     public:
 	termcount get_approx_size() const;
 
@@ -147,7 +145,7 @@ inline bool DATermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) {
-#ifdef DEBUG
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "TERMLIST " << this << " ENDED " << endl;
 #endif
 	return true;
@@ -162,11 +160,11 @@ class DATerm {
     friend class DADatabase;
     private:
 	DATerm(struct terminfo *, termname, struct DAfile * = NULL);
-        struct terminfo * get_ti();
+        struct terminfo * get_ti() const;
 
-	bool terminfo_initialised;
-        struct terminfo ti;
-        struct DAfile * DA_t;
+	mutable bool terminfo_initialised;
+        mutable struct terminfo ti;
+        mutable struct DAfile * DA_t;
     public:
 	termname name;
 };
@@ -186,10 +184,12 @@ DATerm::DATerm(struct terminfo *ti_new,
 }
 
 inline struct terminfo *
-DATerm::get_ti()
+DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "Getting terminfo" << endl;
+#endif
 	int len = name.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);
@@ -213,20 +213,19 @@ class DADatabase : public virtual IRDatabase {
 	struct DAfile * DA_r;
 	struct DAfile * DA_t;
 
-	mutable map<termname, termid> termidmap;
-	mutable vector<DATerm> termvec;
+	mutable map<termname, DATerm> termmap;
 
 	// Stop copy / assignment being allowed
 	DADatabase& operator=(const DADatabase&);
 	DADatabase(const DADatabase&);
 
+	// Look up term in database
+	const DATerm * term_lookup(const termname &) const;
+
 	DADatabase();
 	void open(const DatabaseBuilderParams &);
     public:
 	~DADatabase();
-
-	termid term_name_to_id(const termname &) const;
-	termname term_id_to_name(termid) const;
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
@@ -261,22 +260,6 @@ DADatabase::get_termfreq(const termname &tname) const
     if(pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
-}
-
-inline bool
-DADatabase::term_exists(const termname &tname) const
-{
-    if(term_name_to_id(tname)) return true;
-    return false;
-}
-
-inline termname
-DADatabase::term_id_to_name(termid id) const
-{
-    Assert(opened);
-    Assert(id > 0 && id <= termvec.size());
-    //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
-    return termvec[id - 1].name;
 }
 
 #endif /* _da_database_h_ */

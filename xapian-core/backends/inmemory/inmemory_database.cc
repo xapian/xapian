@@ -108,15 +108,7 @@ TextfileDatabase::make_term(const termname &tname)
     Assert(indexing == true);
     Assert(opened == false);
 
-    map<termname,termid>::const_iterator p = termidmap.find(tname);
-
-    termid tid = 0;
-    if (p == termidmap.end()) {
-	tid = termvec.size() + 1;
-	termvec.push_back(tname);
-	termidmap[tname] = tid;
-	postlists[tname];  // Initialise
-    }
+    postlists[tname];  // Initialise, if not already there.
 }
 
 docid
@@ -157,19 +149,18 @@ void TextfileDatabase::make_posting(const termname & tname,
     totlen += posting.positions.size();
 }
 
-termid
-TextfileDatabase::term_name_to_id(const termname &tname) const
+bool
+TextfileDatabase::term_exists(const termname &tname) const
 {
     Assert(opened);
 
-    printf("Looking up term `%s': ", tname.c_str());
-    map<termname,termid>::const_iterator p = termidmap.find(tname);
+#ifdef MUS_DEBUG_VERBOSE
+    cout << "Looking up term `" << tname.c_str() << "'" << endl;
+#endif
+    map<termname, TextfileTerm>::const_iterator p = postlists.find(tname);
 
-    termid tid = 0;
-    if (p == termidmap.end()) {
-	tid = 0;
-    } else {
-	tid = (*p).second;
+    if (p == postlists.end()) {
+	return false;
     }
-    return tid;
+    return true;
 }
