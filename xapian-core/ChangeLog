@@ -1,3 +1,7 @@
+Sun Jul 06 21:34:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Compile fixes for mingw.
+
 Sun Jul 06 17:59:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Fixed typo.

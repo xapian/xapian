@@ -37,6 +37,15 @@ using std::vector;
 
 #include <fcntl.h>
 
+#ifdef __WIN32__
+#include <windows.h>
+#ifndef FOF_NOERRORUI
+#define FOF_NOERRORUI 1024
+#endif
+#undef min
+#undef max
+#endif
+
 // Sun's fcntl.h pollutes the namespace by #define-ing open to open64 when
 // largefile support is enabled (also creat to creat64 but that's not a problem
 // for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
@@ -158,12 +167,12 @@ inline void rmdir(const string &filename) {
     string safefile = filename;
 # ifdef __WIN32__
     if (getenv("USE_SHFILEOPSTRUCT") == 0) {
-	string::const_iterator i;
+	string::iterator i;
 	// Check for illegal characters in filename
 	for (i = safefile.begin(); i != safefile.end(); ++i) {
 	    if (*i == '/') {
 		*i = '\\';
-	    } else if (*i < 32 || strchr(*i, "<>\"|*?")) {
+	    } else if (*i < 32 || strchr("<>\"|*?", *i)) {
 		return;
 	    }
 	}
