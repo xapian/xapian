@@ -1,3 +1,7 @@
+Wed Nov 03 12:56:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Prune unused #includes.
+
 Wed Nov 03 03:47:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc: Defining _NO_PROTO is a really bad idea for C++
