@@ -1,3 +1,7 @@
+Fri May 03 16:25:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated wrt key->value changes in xapian-core.
+
 Tue Apr 23 15:12:55 BST 2002  Olly Betts <olly@survex.com>
 
         * Make buildall smart enough to generate aclocal.m4 properly and

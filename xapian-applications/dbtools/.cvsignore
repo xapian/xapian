@@ -1,2 +1,2 @@
 Makefile.in config.h config.log config.status config.cache config.h.in
-libtool stamp-h.in configure aclocal.m4 Makefile stamp-h
+libtool stamp-h1 stamp-h.in configure aclocal.m4 Makefile stamp-h

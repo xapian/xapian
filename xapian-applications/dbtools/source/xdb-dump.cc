@@ -3,6 +3,7 @@
  *
  * Dump a Xapian database to an XML representation that xdb-manage can use
  * Copyright 2001 tangozebra ltd
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -233,22 +234,22 @@ int main(int argc, char** argv)
 			}
 		    }
 		    
-		    for (OmKeyListIterator key = document.keylist_begin();
-			 key!=document.keylist_end();
-			 key++) {
-			xmlNodePtr key_node = xmlNewChild (document_node, NULL,(const xmlChar*) "key", NULL);
-			if (!key_node) {
-			    throw string("couldn't create node to dump key");
+		    for (OmValueIterator value = document.values_begin();
+			 value != document.values_end();
+			 ++value) {
+			xmlNodePtr value_node = xmlNewChild (document_node, NULL,(const xmlChar*) "value", NULL);
+			if (!value_node) {
+			    throw string("couldn't create node to dump value");
 			}
-			sprintf(number, "%i", key.get_keyno());
-			if (!xmlSetProp(key_node, (const xmlChar*)"number", (const xmlChar*)number) ||
-			    !xmlSetProp(key_node, (const xmlChar*)"value", (const xmlChar*)key->value.c_str())) {
-			    throw string("couldn't set number and/or value for key");
+			sprintf(number, "%i", value.get_valueno());
+			if (!xmlSetProp(value_node, (const xmlChar*)"number", (const xmlChar*)number) ||
+			    !xmlSetProp(value_node, (const xmlChar*)"value", (const xmlChar*)value->c_str())) {
+			    throw string("couldn't set number and/or value for value");
 			}
 		    }
 		    
 		    // Data -- FIX me: xmlEncodeEntitiesReentrant needs its result freeing
-		    xmlChar* xmlstr = xmlEncodeEntitiesReentrant(output, (const xmlChar*)document.get_data ().value.c_str ());
+		    xmlChar* xmlstr = xmlEncodeEntitiesReentrant(output, (const xmlChar*)document.get_data().c_str ());
 		    if (!xmlstr) {
 			throw string("couldn't encode data of document to dump");
 		    }
