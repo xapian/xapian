@@ -67,11 +67,13 @@ VERSION = @VERSION@
 
 bin_PROGRAMS = cvsmap
 
-SUBDIRS = process range diff  aligned_diff alignment cvs_parser map_algorithm html_writer
+LIBDIRS = process range diff  aligned_diff alignment cvs_parser map_algorithm html_writer
+SUBDIRS = process range diff  aligned_diff cvs_parser map_algorithm html_writer include alignment
 
-INCLUDES = $(foreach dir, $(SUBDIRS), -I$(dir)) -I../db 
-cvsmap_SOURCES = map.cpp  collection.h  virtual_iostream.h  virtual_istream.h  virtual_ostream.h
-cvsmap_LDADD = $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) ../db/libcvs_db.a  -lm -ldb_cxx $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) ../db/libcvs_db.a
+INCLUDES = $(foreach dir, $(LIBDIRS), -I$(srcdir)/$(dir)) -I$(srcdir)/../db -I$(srcdir)/include
+
+cvsmap_SOURCES = map.cpp
+cvsmap_LDADD = $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)  ../db/libcvs_db.a   -lm -ldb_cxx $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) ../db/libcvs_db.a
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -83,17 +85,13 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 cvsmap_OBJECTS =  map.o
-cvsmap_DEPENDENCIES =  $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) \
-../db/libcvs_db.a $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) \
+cvsmap_DEPENDENCIES =  $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) \
+../db/libcvs_db.a $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) \
 ../db/libcvs_db.a
 cvsmap_LDFLAGS = 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  Makefile.am Makefile.in
 
 

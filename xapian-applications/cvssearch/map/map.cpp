@@ -82,6 +82,17 @@ main(unsigned int argc, const char **argv)
     unsigned int i = 1;
     string input_file = "";
 
+uid_t uid = getuid();
+uid_t euid = geteuid();
+
+setuid(euid);
+
+uid = getuid();
+euid = geteuid();
+
+cout << "uid : " << uid << endl;
+cout << "euid: " << euid << endl;
+
     while (i < argc)
     {
         if (0) {
@@ -127,10 +138,6 @@ main(unsigned int argc, const char **argv)
         exit(1);
     }
 
-    scvs_log    = "cvs -f -d " + scvs_root + " log -b ";
-    scvs_diff   = "cvs -f -d " + scvs_root + " diff -b ";
-    scvs_update = "cvs -f -d " + scvs_root + " update -p ";
-    
     ofstream cmt_fout   (scmt_db.c_str());
     ofstream offset_fout (soffset_db.c_str());
     ofstream stats_fout  (sstats_file.c_str());
@@ -203,6 +210,10 @@ main(unsigned int argc, const char **argv)
     {
         delete pdb_file;
     }
+
+ofstream fout("/mnt/work/archive/thesis/temp");
+fout << "HELLO\n";
+
     exit (EXIT_SUCCESS);
 }
 

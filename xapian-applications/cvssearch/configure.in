@@ -14,5 +14,6 @@ AC_OUTPUT(Makefile              \
      map/process/Makefile       \
      map/range/Makefile         \
      map/html_writer/Makefile   \
+     map/include/Makefile       \
      db/Makefile                \
      perl/Makefile)

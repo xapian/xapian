@@ -16,7 +16,7 @@
 
 use CGI ':all';
 use cvssearch;
-use Entities ();
+use Entities;
 
 #---------------------------------------------
 # global mappigns defind in the script

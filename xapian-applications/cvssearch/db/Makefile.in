@@ -69,18 +69,22 @@ lib_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C  cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h  cvs_revision_line_db.C cvs_revision_line_db.h  cvs_revision_less.h  cvs_diff_db.C cvs_diff_db.h
 
 
-bin_PROGRAMS = cvsindex cvsusageindex cvssearch cvsusagesearch cvscomments cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvsusageindex 	cvssearch cvsusagesearch cvscomments 	cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+
 
 cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-cvsindex_LDADD = -lomsee -ldb_cxx
+cvsindex_LDFLAGS = -static
+cvsindex_LDADD = -lomsee
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
+cvssearch_LDFLAGS = -static
 cvssearch_LDADD = -lomsee
 
 cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
+cvsusagesearch_LDFLAGS = -static
 cvsusagesearch_LDADD = -lomsee
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
@@ -91,6 +95,7 @@ cvsusagesearch_LDADD = -lomsee
 
 cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
 cvsusageindex_LDADD = -ldb_cxx -lomsee
+cvsusageindex_LDFLAGS = -static
 
 #cvsmineglobal_SOURCES = util.h util.C cvsmineglobal.C
 #cvsmineglobal_LDADD = -lomsee -ldb_cxx
@@ -99,15 +104,19 @@ cvsusageindex_LDADD = -ldb_cxx -lomsee
 
 cvscomments_SOURCES = cvscomments.C
 cvscomments_LDADD = -ldb_cxx -lomsee
+cvscomments_LDFLAGS = -static
 
 cvssymbolcount_SOURCES = cvssymbolcount.C
 cvssymbolcount_LDADD = -ldb_cxx -lomsee
+cvssymbolcount_LDFLAGS = -static
 
 cvscountsymbols_SOURCES = util.h util.C cvscountsymbols.C
 cvscountsymbols_LDADD = -ldb_cxx -lomsee
+cvscountsymbols_LDFLAGS = -static
 
 cvsminelocal_SOURCES = util.h util.C cvsminelocal.C
 cvsminelocal_LDADD = -lomsee -ldb_cxx
+cvsminelocal_LDFLAGS = -static
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(lib_LIBRARIES)
@@ -126,28 +135,20 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 cvsindex_OBJECTS =  util.o cvsindex.o
 cvsindex_DEPENDENCIES = 
-cvsindex_LDFLAGS = 
 cvsusageindex_OBJECTS =  util.o cvsusageindex.o
 cvsusageindex_DEPENDENCIES = 
-cvsusageindex_LDFLAGS = 
 cvssearch_OBJECTS =  util.o cvssearch.o
 cvssearch_DEPENDENCIES = 
-cvssearch_LDFLAGS = 
 cvsusagesearch_OBJECTS =  util.o cvsusagesearch.o
 cvsusagesearch_DEPENDENCIES = 
-cvsusagesearch_LDFLAGS = 
 cvscomments_OBJECTS =  cvscomments.o
 cvscomments_DEPENDENCIES = 
-cvscomments_LDFLAGS = 
 cvssymbolcount_OBJECTS =  cvssymbolcount.o
 cvssymbolcount_DEPENDENCIES = 
-cvssymbolcount_LDFLAGS = 
 cvscountsymbols_OBJECTS =  util.o cvscountsymbols.o
 cvscountsymbols_DEPENDENCIES = 
-cvscountsymbols_LDFLAGS = 
 cvsminelocal_OBJECTS =  util.o cvsminelocal.o
 cvsminelocal_DEPENDENCIES = 
-cvsminelocal_LDFLAGS = 
 cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_db.a
 cvsquery_LDFLAGS = 

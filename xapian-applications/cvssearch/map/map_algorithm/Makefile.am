@@ -1,6 +1,7 @@
 bin_PROGRAMS = 
-lib_LIBRARIES = libmap_algorithm.a
-INCLUDES = -I../ -I../range -I../diff -I../cvs_parser -I../aligned_diff -I../alignment -I../process -I../html_writer -I../../db
+noinst_LIBRARIES = libmap_algorithm.a
+INCDIRS = include range diff cvs_parser aligned_diff alignment process html_writer ../db
+INCLUDES = $(foreach dir, $(INCDIRS), -I$(srcdir)/../$(dir))
 libmap_algorithm_a_SOURCES = \
 	backward_line_map_algorithm.cpp  \
 	forward_map_algorithm.cpp        \

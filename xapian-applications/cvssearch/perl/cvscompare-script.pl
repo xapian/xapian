@@ -321,7 +321,7 @@ sub compare_file_index {
         print "fileid=$fileid&";
         print "pkg=$pkg&";
         print "root=$root&";
-        print "version=$versions[$i]\">initial version for <b>$filename</b><br>\n";
+        print "version=$versions[$i]\">initial version for <b>$filename</b></a><br>\n";
         print "<pre>$comments[$i]</pre>\n";
 
         print "<HR NOSHADE>\n";
