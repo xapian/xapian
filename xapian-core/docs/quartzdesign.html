@@ -2,7 +2,7 @@
 <HEAD>
 <TITLE>The Quartz Database Backend</TITLE>
 </HEAD>
-<BODY BGCOLOR="white">
+<BODY BGCOLOR="white" TEXT="black">
 
 <h1><center>The Quartz database backend</center></h1>
 
@@ -17,9 +17,8 @@ date if the code was written after this document.  If you find such
 inconsistencies, especially this document being out of date, please
 alert us to the problem using the discussion mailing list, at
 &lt;xapian-discuss@lists.sourceforge.net&gt;.
-<p>
-Once the Quartz backend is stable and this document has caught up,
-this warning should go away.
+
+<P>(Document at least partially updated 2002-10-13).
 
 <h2>Why Quartz?</h2>
 
@@ -38,8 +37,9 @@ to a Database object and several other related objects (PostList, TermList,
 etc...).
 
 <p>
-Quartz is simply the name of a backend which is currently being developed,
-which draws from all our past experience to satisfy the following criteria:
+Quartz is simply the name of only currently supported disk-based backend
+which allows databases to be dynamically updated.  The design of Quartz
+draws on all our past experience to satisfy the following criteria:
 <ul>
 <li>
   Fast and scalable searches.
@@ -118,21 +118,21 @@ latter quantity is used for calculation of the average document length, and
 hence for calculation of normalised document lengths.
 <p>
 </li><li>
-<B>Attribute</B>.
-This stores a set of attributes for each document 
+<B>Value</B>.
+This stores a set of values for each document 
 <p>
 Currently, there is one item for each document in the database, which
-consists of a list of keyno's and attribute values for that document.  The
-alternative implementation is to store an item for each attribute, whose
+consists of a list of value_no-s and values for that document.  The
+alternative implementation is to store an item for each value, whose
 key is a combination of the document ID and the keyno, and whose tag is the
-attribute value.
+value.
 <p>
 Which implementation is better depends on the access pattern: if a document
-is being passed across a network link, all the attributes for a document
+is being passed across a network link, all the values for a document
 are read - if a document is being dealt with locally, usually only some of
-the attributes will be read.
+the values will be read.
 <p>
-Documents will usually have very few attribute values, so the current
+Documents will usually have very few values, so the current
 implementation may actually be the most suitable.
 <p>
 </li><li>
@@ -141,24 +141,16 @@ This stores some information about each term in the database in a fast
 access form.
 <p>
 For each term in the database, this has an entry whose key is the term, and
-whose contents are the term ID for that term, and the term frequency for
-that term.  This is intended to be a fast access table, so that processes
-can determine the term ID or weight of a term quickly, whether for the
-purpose of doing an expand or for the purpose of selecting important terms.
-<p>
-The term IDs stored in the lexicon are used (only) in the keys used to
-access items in the PostList and PositionList table.  The termIDs allow the
-size of the keys for these tables to be bounded, and may also allow better
-compression.  It is debatable whether the termIDs are a good idea, however,
-or whether it would be better simply to use the termnames instead.
-<p>
-This table also has a special entry, which stores the next term ID to
-allocate.  Like document IDs, term IDs are allocated in increasing order,
-starting at 1, and are currently never reused.
+whose contents are the term frequency for that term.  This is intended to be a
+fast access table, so that processes can determine the term frequency (and
+hence weight) of a term quickly, whether for the purpose of doing an
+expand or for the purpose of selecting important terms.
 <p>
 Speed of access to this table is likely to be critical - attempting to
 ensure that the most frequently used part of the lexicon is always cached
-in memory to a large extent is likely to give high rewards.
+in memory to a large extent is likely to give high rewards.  Alternatively
+it might be possible to optimise the PostList table in such a way that the
+Lexicon can be removed and the PostList table used instead...
 <p>
 </li><li>
 <b>TermList</b>.
@@ -180,7 +172,7 @@ proportion of the database.
 <p>
 </li><li>
 <b>PositionList</b>.
-For each term / document pair, this stores the list of positions in the
+For each (term,&nbsp;document) pair, this stores the list of positions in the
 document at which the term occurs.
 <p>
 </li><li>
@@ -190,39 +182,21 @@ This stores the list of documents in which each term appears.
 </li>
 </ul>
 
-(Note that the PositionList and PostList are not yet implemented.)
-
 <h2>Representation of integers, strings, etc.</h2>
 
 It is well known that in modern computers there are many, many CPU cycles
 for each disk read, or even memory read.  It is therefore important to
 minimise disk reads, and can be advantageous to do so even at the expense of
 a large amount of computation.  In other words, <em>Compression is
-good</em>. ;-)
+good</em>.
 <p>
-(The current implementation doesn't make use of any real compression.
-However, it has been designed to scan through lists of data in such a way
-as to facilitate introducing proper compression.)
-<p>
-It is planned to use various compression techniques, for example:
+The current implementation uses simple compression - we're investigating
+more effective schemes - these are:
 <ul>
 <li>
-In posting lists, successive document IDs will be compressed by a difference
-encoding, and then by some further scheme, such as a huffman encoding, or
-similar.
-<p>
-</li><li>
-In position lists, successive positions will be encoded similarly.
-<p>
-</li><li>
-In termlists, terms are stored as string values in sorted order - a
-string difference can be used to reduce storage size.
-<p>
-</li>
-</ul>
-<p>
-The only compression currently performed is, wherever an unsigned integer
-is stored in a table, to represent it in a simply encoded form as:
+In posting lists, successive document IDs are stored as a difference
+which is compressed using a byte-wise huffman encoding (so it's stored
+in 7, 14, 21, 28, ... bits):
 <ol>
 <li>
 First byte: if integer is &lt; 128, store integer, otherwise store
@@ -238,6 +212,17 @@ Shift integer right 7 places.
 etc...
 </li>
 </ol>
+<p>
+</li><li>
+In position lists, successive positions are encoded similarly.
+<p>
+</li><li>
+In termlists, terms are stored as string values in sorted order.  Although
+not currently done, we intend to store the differences between successive
+terms to reduce storage size.
+<p>
+</li>
+</ul>
 
 <h2>PostLists and chunks.</h2>
 
@@ -246,8 +231,8 @@ proportion of the documents, and their posting lists can represent a
 significant fraction of the size of the whole database.  Therefore, we do
 not wish to read an entire posting list into memory at once.  (Indeed, we'd
 rather only read a small portion of it at all, but that's a different
-story - see the documentation on optimisation of the matcher [which doesn't
-exist yet, ed.]).
+story - see the documentation on <A HREF="matcherdesign.html">optimisations
+performed by the matcher</A>.
 <p>
 To deal with this, we store posting lists in small chunks, each the right
 size to be stored in a single B-tree block, and hence to be accessed with a
@@ -265,18 +250,13 @@ position lists) would benefit from being split into chunks in this way.
 
 <h2>Btree implementation</h2>
 
-The tables are currently all planned to be implemented as B-trees.
+The tables are currently all implemented as B-trees (actually a form of
+B-tree which I think is often know as a B+ tree).
 <p>
-(The code currently uses a temporary hack to implement tables by reading the
-contents of an unstructured file into memory, modifying it, and writing it all
-back again.  Martin is working on a B-tree manager, which is complete apart
-from some API issues and will be added into the CVS repository within the next
-couple of weeks.)
-<p>
-In some situations, the use of a different structure would be appropriate - in
+In some situations, the use of a different structure could be appropriate - in
 particular for the lexicon where key ordering is irrelevant, and a hashing
-scheme would likely provide more memory and time efficient access.  This
-will be investigated once the initial version is fully functional.
+scheme might provide more memory and time efficient access.  This
+is an area for future investigation.
 <p>
 A B-tree is a fairly standard structure for storing this kind of data, so I
 will not describe it in detail - see a reference book on database design and

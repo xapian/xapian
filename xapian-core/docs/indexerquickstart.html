@@ -49,7 +49,7 @@ A document in a database has the following information in Xapian:
 <ul>
 <li>A list of terms, with positional information and frequencies.</li>
 <li>Some application-specific data describing the document</li>
-<li>A set of attributes used at match time</li>
+<li>A set of values (pieces of information stored to allow fast access) which may be used at match time</li>
 </ul>
 
 The role of an indexer is to convert a source document (which can be
@@ -137,7 +137,7 @@ The validity of a command line can therefore be checked very simply by
 ensuring that there are exactly least 3 parameters (including the program
 name):
 <PRE>
-    if(argc != 3) {
+    if (argc != 3) {
         cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
 	        " &lt;path to database&gt; &lt;file to index&gt;" &lt;&lt; endl;
         exit(1);
