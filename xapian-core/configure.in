@@ -107,6 +107,14 @@ AC_ARG_ENABLE(pthread-support,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-pthread) ;;
 esac], [use_pthread=true])
 
+AC_ARG_ENABLE(profiling,
+[  --enable-profiling  Enable profiling support (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_profiling=true ;;
+  no)  use_profiling=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
+esac], [use_profiling=false])
+
 dnl Turn off compilation of anything that we don't have the requirements for
 
 if test x$have_berkleydb = xno; then
@@ -202,6 +210,12 @@ fi
 if test "$use_mutex_errcheck" = yes; then
 AC_DEFINE(MUS_MUTEX_ERRCHECK,,
   [Define if you want error-checking mutexes])
+fi
+
+if test "$use_profiling" = true; then
+CFLAGS="$CFLAGS -pg";
+CXXFLAGS="$CXXFLAGS -pg";
+LDFLAGS="$LDFLAGS -pg";
 fi
 
 dnl ******************************

@@ -1,3 +1,7 @@
+Wed Mar 22 18:39:03 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added configure option to turn on profiling.
+
 Tue Mar 21 15:41:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Tidy up structure of LeafMatch a great deal.
