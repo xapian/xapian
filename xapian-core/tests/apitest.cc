@@ -31,15 +31,9 @@
 #include <cerrno>
 #include <vector>
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
-using std::map;
-using std::max;
-using std::ostream;
+using namespace std;
 
-#include "om/om.h"
+#include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"

@@ -22,10 +22,10 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_PARSEQUERY_H
-#define OM_HGUARD_PARSEQUERY_H
+#ifndef XAPIAN_INCLUDED_PARSEQUERY_H
+#define XAPIAN_INCLUDED_PARSEQUERY_H
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <list>
 #include <map>
@@ -86,4 +86,4 @@ class OmQueryParser {
 	Xapian::Database db;
 };
 
-#endif /* OM_HGUARD_PARSEQUERY_H */
+#endif /* XAPIAN_INCLUDED_PARSEQUERY_H */

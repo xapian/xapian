@@ -2,9 +2,7 @@
 // to be compiled unmodified.
 //
 // ----START-LICENCE----
-// Copyright 1999,2000,2001 BrightStation PLC
-// Copyright 2002 Ananova Ltd
-// Copyright 2002,2003 Olly Betts
+// Copyright 2003 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,8 +23,7 @@
 #ifndef XAPIAN_INCLUDED_OM_H
 #define XAPIAN_INCLUDED_OM_H
 
-// Set defines for library version and check C++ ABI versions match
-#include <xapian/version.h>
+#include <xapian.h>
 
 // Backward compatibility
 #include <string>
@@ -99,30 +96,6 @@ typedef std::string om_termname;
 // instead.  So we include iostream here in case anyone relied on iostream
 // being implicitly included.
 #include <iostream>
-
-// Types and exceptions
-#include <xapian/types.h>
-#include <xapian/error.h>
-#include <xapian/errorhandler.h>
-
-// Data access
-#include <xapian/document.h>
-#include <xapian/database.h>
-#include <xapian/postlistiterator.h>
-#include <xapian/positionlistiterator.h>
-#include <xapian/termiterator.h>
-#include <xapian/valueiterator.h>
-
-// Searching
-#include <xapian/enquire.h>
-#include <xapian/query.h>
-#include <xapian/expanddecider.h>
-
-// Stemming
-#include <xapian/stem.h>
-
-// Output
-#include <xapian/output.h>
 
 // More backward compatibility
 using Xapian::BoolWeight;

@@ -3,6 +3,8 @@
 xapianincludedir = $(includedir)/xapian
 omcompatincludedir = $(includedir)/om
 
+include_HEADERS = xapian.h
+
 xapianinclude_HEADERS = xapian/base.h xapian/database.h xapian/document.h \
  xapian/enquire.h xapian/error.h xapian/errorhandler.h xapian/errortypes.h \
  xapian/expanddecider.h xapian/output.h xapian/positionlistiterator.h \

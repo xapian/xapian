@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_BACKENDMANAGER_H
 #define OM_HGUARD_BACKENDMANAGER_H
 
-#include "om/om.h"
+#include <xapian.h>
 #include <vector>
 
 #ifdef __SUNPRO_CC

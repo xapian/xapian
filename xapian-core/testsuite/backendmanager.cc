@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <cerrno>
 
-#include "om/om.h"
+#include <xapian.h>
 #include "textfile_indexer.h"
 #include "index_utils.h"
 #include "backendmanager.h"
@@ -395,7 +395,7 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, OM_DB_CREATE));
+	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
@@ -427,11 +427,11 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 	if (create_dir_if_needed(dbdir)) {
 	    system(string("touch ") + dbdir + "/log");
 	    // directory was created, so do the indexing.
-	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, OM_DB_CREATE));
+	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return Xapian::Quartz::open(dbdir, OM_DB_OPEN);
+    return Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
 }
 
 Xapian::Database

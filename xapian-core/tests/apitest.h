@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_APITEST_H
 #define OM_HGUARD_APITEST_H
 
-#include "om/om.h"
+#include <xapian.h>
 
 Xapian::Database get_database(const std::string &dbname,
 			      const std::string &dbname2 = "");

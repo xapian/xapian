@@ -28,7 +28,7 @@
 #include <vector>
 #include "autoptr.h"
 
-#include "om/om.h"
+#include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 

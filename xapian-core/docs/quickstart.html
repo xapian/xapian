@@ -155,11 +155,11 @@ The first requirement in any program using the Xapian library is to
 include the Xapian header file, &quot;<CODE>om.h</CODE>&quot;.
 This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
 a directory on the include path, so:
-<PRE>    #include &lt;om/om.h&gt;</PRE>
+<PRE>    #include &lt;xapian.h&gt;</PRE>
 </P>
 <P>
 Our example only has a single function, main(), so next we start that:
-<PRE>    int main(int argc, char *argv[])</PRE>
+<PRE>    int main(int argc, char **argv)</PRE>
 </P>
 <H3>Options parsing</H3>
 <P>
@@ -353,7 +353,7 @@ Just like &quot;quickstartindex&quot;, we have a single-function example.
 So we include the Xapian header file, and begin:
 </P>
 <PRE>
-    #include &lt;om/om.h&gt;
+    #include &lt;xapian.h&gt;
 
     int main(int argc, char **argv)
     {

@@ -29,7 +29,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include <om/om.h>
+#include <xapian.h>
 #include <stdio.h>
 #include <ctype.h>
 
@@ -193,7 +193,7 @@ OmQueryParser::set_stemming_options(const string &lang, bool stem_all_,
 	stem = false;
     } else {
 	if (stemmer) delete stemmer;
-	stemmer = new OmStem(lang);
+	stemmer = new Xapian::Stem(lang);
 	stem = true;
 	stem_all = stem_all_;
     }

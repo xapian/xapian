@@ -27,7 +27,7 @@
 
 using namespace std;
 
-#include "om/om.h"
+#include <xapian.h>
 #include "testsuite.h"
 #include "omstringstream.h"
 

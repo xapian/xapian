@@ -32,7 +32,7 @@
 #include <vector>
 #include <unistd.h>
 
-#include "om/om.h"
+#include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
@@ -265,7 +265,7 @@ static bool test_multidb3()
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
@@ -285,7 +285,7 @@ static bool test_multidb4()
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
@@ -304,7 +304,7 @@ static bool test_multidb5()
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
@@ -454,7 +454,7 @@ static bool test_multierrhandler1()
 
 	// make a query
 	Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-	enquire.set_weighting_scheme(BoolWeight());
+	enquire.set_weighting_scheme(Xapian::BoolWeight());
 	enquire.set_query(myquery);
 
 	tout << "query=" << myquery << "\n";
@@ -566,7 +566,7 @@ static bool test_boolquery1()
     // we prepared earlier)
     Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire, myboolquery);
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     // retrieve the top results
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -1149,7 +1149,7 @@ static bool test_reversebool1()
     Xapian::Enquire enquire(get_simple_database());
     Xapian::Query query("this");
     init_simple_enquire(enquire, query);
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     TEST_AND_EXPLAIN(mymset1.size() > 1,
@@ -1203,7 +1203,7 @@ static bool test_reversebool2()
     Xapian::Enquire enquire(get_simple_database());
     Xapian::Query query("this");
     init_simple_enquire(enquire, query);
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
@@ -1488,7 +1488,7 @@ static bool test_xor1()
     terms.push_back(stemmer.stem_word("of"));
 
     Xapian::Query query(Xapian::Query::OP_XOR, terms.begin(), terms.end());
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(query);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -1710,7 +1710,7 @@ static bool test_specialterms1()
 static bool test_absentterm1()
 {
     Xapian::Enquire enquire(get_simple_database());
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
     Xapian::Query query("frink");
     init_simple_enquire(enquire, query);
 

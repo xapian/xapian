@@ -28,7 +28,7 @@
 
 using namespace std;
 
-#include "om/om.h"
+#include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -40,7 +40,7 @@ static bool test_near1()
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     // make a query
     vector<Xapian::Query> subqs;
@@ -193,7 +193,7 @@ static bool test_near2()
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     // make a query
     vector<Xapian::Query> subqs;
@@ -245,7 +245,7 @@ static bool test_phrase1()
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     // make a query
     vector<Xapian::Query> subqs;
@@ -450,7 +450,7 @@ static bool test_phrase2()
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
-    enquire.set_weighting_scheme(BoolWeight());
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
 
     // make a query
     vector<Xapian::Query> subqs;

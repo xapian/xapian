@@ -25,7 +25,7 @@
 #define OM_HGUARD_TESTUTILS_H
 
 #include "testsuite.h"
-#include "om/om.h"
+#include <xapian.h>
 
 // ######################################################################
 // Useful display operators

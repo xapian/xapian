@@ -1,3 +1,10 @@
+Sun May 25 12:27:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/,extra/omparsequery.h,extra/parsequery.yy,include/Makefile.am,
+	  include/xapian.h,include/om/om.h,tests/,testsuite/backendmanager.cc,
+	  testsuite/backendmanager.h,testsuite/testutils.h: Created xapian.h
+	  header and changed everything to use it.
+
 Sat May 24 23:35:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/inmemory/inmemory_database.cc,
