@@ -13,8 +13,8 @@ This document is intended to get you going with Xapian, taking you from the
 point of downloading the code, to getting an example application compiled
 and running.
 <p>
-Note that Xapian is currently only available in versions targeted for UNIX
-systems.
+Xapian can be built on UNIX systems (including MacOS X), and also Microsoft
+Windows systems using GCC with mingw or cygwin.
 
 <H3>Download</H3>
 The first step is to obtain a copy of the software from <a href="http://www.xapian.org/download.php">the Xapian website</a>.
@@ -25,14 +25,17 @@ Use the usual tools to unpack the archives.  For example, on a Linux system:
 tar zxvf xapian-core-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 <br>
 tar zxvf xapian-examples-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
+<br>
+tar zxvf omegas-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 </code> </blockquote>
 These commands should unpack the archives into separate subdirectories
-("xapian-core-N.NN" and "xapian-examples-N.NN").
+("xapian-core-N.NN", "xapian-examples-N.NN", and "omega-N.NN").
 
 <H3>Configuring and building Xapian</H3>
-Xapian uses the GNU automake and autoconf tools.  If you only wish to build
-releases <!-- FIXME: or nightly snapshots --> or make minor alterations, this
-need not concern you greatly.
+Xapian uses the GNU autoconf, automake, and libtool tools.
+If you only wish to build
+releases or <a href="http://www.oligarchy.co.uk/xapian/HEAD/">CVS snapshots</a>
+or make minor alterations, this need not concern you greatly.
 <p>
 These tools generate a shell script called "configure" for each of the
 archives, which you should run to set up the code for compilation.
@@ -63,9 +66,6 @@ Simply run:
     ./configure
     make
 </pre>
-<!--
-Note that we do not currently recommend attempting to install the
-examples.-->
 <p>
 <CODE>configure</CODE> should automatically find the installed Xapian
 library: if it doesn't you may need to specify the path to the

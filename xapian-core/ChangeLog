@@ -1,3 +1,9 @@
+Mon Aug 16 12:32:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/install.html: We haven't "only [...] UNIX" for ages, so don't
+	  claim we are.  We use libtool as well as autoconf and automake.
+	  Link to the CVS snapshots.  And also mention downloading omega.
+
 Mon Aug 16 12:20:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/index.html: exaplains -> explains.
