@@ -1,3 +1,7 @@
+Thu Apr 20 12:53:12 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added some memory leak checking in the test suite driver.
+
 Thu Apr 20 12:06:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Stopped SleepyDatabase aborting nastily when an attempt to

@@ -39,6 +39,7 @@ bool test_alwaysfail();
 // test the test framework
 bool test_testsuite1();
 bool test_testsuite2();
+bool test_testsuite3();
 // test the reference counted pointers
 bool test_refcnt1();
 // test string comparisions
@@ -49,6 +50,7 @@ bool test_sleepypack1();
 test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
+    {"testsuite3",		test_testsuite3},
     {"refcnt1",			test_refcnt1},
     {"stringcomp1",		test_stringcomp1},
 
@@ -122,6 +124,15 @@ bool test_alwaysfail()
     return false;
 }
 
+char *duff_allocation = 0;
+
+bool test_duffnew()
+{
+    // make an unfreed allocation
+    duff_allocation = new char[7];
+    return true;
+}
+
 bool test_testsuite1()
 {
     bool success = true;
@@ -176,6 +187,38 @@ bool test_testsuite2()
 	}
 	success = false;
     }
+
+    return success;
+}
+
+// test the memory leak tests
+bool test_testsuite3()
+{
+    test_desc mytests[] = {
+	{"duff_new", test_duffnew},
+	{0, 0}
+    };
+
+    test_driver driver;
+    if (!verbose) {
+	driver.set_quiet(true);
+    }
+
+    bool success = true;
+
+    test_driver::result res = driver.run_tests(mytests);
+    if (res.succeeded != 0 ||
+	res.failed != 1) {
+	if (verbose) {
+	    cout << "Memory leak checking with new/delete doesn't work"
+		 << endl;
+	}
+	success = false;
+    }
+
+    // clean up after test_duffnew()
+    delete duff_allocation;
+    duff_allocation = 0;
 
     return success;
 }
