@@ -1,3 +1,7 @@
+Tue Apr 05 23:41:44 BST 2005  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Tidy up STL header includes.
+
 Tue Apr 05 23:34:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Clarify $field description slightly.
