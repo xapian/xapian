@@ -10,7 +10,7 @@ The simplest way to compile this package is:
      `configure' itself.
 
      You need to make sure that xapian-config from xapian-core is on your path,
-     or else pass its full path to xapian-example's configure script:
+     or else pass its full path to omega's configure script:
 
        ./configure XAPIAN_CONFIG=/path/to/xapian-config
 
