@@ -1,3 +1,8 @@
+Tue Sep 12 16:32:30 BST 2000 Olly Betts
+
+	* Added reference counting to an instantiation of SleepycatTermList
+	  which I'd missed.
+ 
 Tue Sep 12 15:23:09 BST 2000 Olly Betts
 
 	* Oops, AndMaybePostList didn't compile...

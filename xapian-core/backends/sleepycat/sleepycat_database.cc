@@ -99,7 +99,8 @@ om_doclength
 SleepycatDatabase::get_doclength(om_docid did) const
 {
     std::auto_ptr<SleepycatTermList> tl(
-	new SleepycatTermList(did, this, internals.get(), termcache.get()));
+	new SleepycatTermList(did, OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
+			      internals.get(), termcache.get()));
     return tl->get_doclength();
 }
 
