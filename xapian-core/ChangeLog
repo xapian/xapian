@@ -1,3 +1,8 @@
+Wed Feb 14 18:43:00 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* In Muscat3.6 backends, don't read the key from the keyfile unless
+	  keyno is 0.
+
 Tue Feb 13 13:57:34 GMT 2001 Andy MacFarlane <andym@omsee.com>
 
 	* Added parameter expand_k in omsettings in order to change

@@ -41,7 +41,10 @@ DBDocument::~DBDocument()
 OmKey
 DBDocument::do_get_key(om_keyno keyid) const
 {
-    OmKey key = database->get_key(did, keyid);
+    OmKey key;
+    if (keyid == 0) {
+	key = database->get_key(did, keyid);
+    }
 
     if (key.value.size() == 0 && keyid != 0) {
 	DebugMsg("Looking in record for keyno " << keyid <<
