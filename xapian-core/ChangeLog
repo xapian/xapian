@@ -1,3 +1,15 @@
+Thu Nov 30 13:23:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Bcursor::find_key now more const-correct.
+
+	* Bcursor_create now returns an AutoPtr.  The resultant changes
+	  fixed a memory leak.
+	
+	* New exception: OmDatabaseModifiedError.  Thrown when an open
+	  revision of a table is no longer valid due to multiple updates.
+
+	* quartzoverwrite1 test re-enabled, and passes.
+
 Thu Nov 30 13:23:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* nettest now uses quartz backend: should always run all tests now

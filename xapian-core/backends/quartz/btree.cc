@@ -43,6 +43,8 @@
 #include "btree_base.h"
 
 #include "omassert.h"
+#include "omdebug.h"
+#include "om/omerror.h"
 #include <string>
 #include <algorithm>  // for std::min()
 
@@ -401,8 +403,9 @@ Btree::write_block(int4 n, const byte * p)
 void
 Btree::set_overwritten()
 {
-    printf("overwritten set to true\n");  /* initial debbugging line */
+    DEBUGLINE(DB, "overwritten set to true\n");  /* initial debbugging line */
     overwritten = true;
+    throw OmDatabaseModifiedError("Db block overwritten");
 }
 
 /* block_to_cursor(B, C, j, n) puts block n into position C[j] of cursor C,
@@ -1027,7 +1030,7 @@ The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
 */
 
-void form_key(struct Btree * B, byte * p, byte * key, int key_len)
+void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
 {
     Assert(key_len <= B->max_key_len);
 
@@ -1788,15 +1791,17 @@ Btree * Btree_open_to_read_revision(const char * name,
     }
 }
 
-extern struct Bcursor * Bcursor_create(struct Btree * B)
+extern AutoPtr<Bcursor> Bcursor_create(struct Btree * B)
 {
-    return new Bcursor(B);
+    return AutoPtr<Bcursor>(new Bcursor(B));
 }
 
+#if 0
 extern void Bcursor_lose(struct Bcursor * BC)
 {
     delete BC;
 }
+#endif
 
 void
 Btree::force_block_to_cursor(struct Cursor * C_, int j)

@@ -38,7 +38,6 @@ static std::string hex_encode(const std::string & input) {
 	 i != input.end();
 	 i++) {
 	unsigned char val = *i;
-	Assert(val >= 0);
 	Assert(val < 256);
 	result += "\\x";
 	result += table[val/16];
@@ -63,20 +62,24 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     if (key_len > max_key_len) {
 	// Can't find key - too long to possibly be present.
-	(void) Bcursor_find_key(cursor, key.value.data(), max_key_len);
+	(void) cursor->find_key(reinterpret_cast<const byte *>(
+							key.value.data()),
+				max_key_len);
 	// FIXME: check for errors
     } else {
-	found = Bcursor_find_key(cursor, key.value.data(), key_len);
+	found = cursor->find_key(reinterpret_cast<const byte *>(
+							key.value.data()),
+				 key_len);
 	// FIXME: check for errors
     }
 
     Btree_item * item = Btree_item_create();
     if (item == 0) throw std::bad_alloc();
 
-    int err = Bcursor_get_key(cursor, item);
+    int err = cursor->get_key(item);
     // FIXME: check for errors
 
-    is_positioned = Bcursor_get_tag(cursor, item);
+    is_positioned = cursor->get_tag(item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
@@ -106,9 +109,9 @@ QuartzDiskCursor::next()
     Btree_item * item = Btree_item_create();
     if (item == 0) throw std::bad_alloc();
 
-    Bcursor_get_key(cursor, item);
+    cursor->get_key(item);
     // FIXME: check for errors
-    is_positioned = Bcursor_get_tag(cursor, item);
+    is_positioned = cursor->get_tag(item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
@@ -133,30 +136,30 @@ QuartzDiskCursor::prev()
     if (!is_positioned) {
 	// FIXME: want to go to last item in table - this method
 	// should work, but isn't going to be of great efficiency.
-	int found = Bcursor_find_key(cursor,
-				     current_key.value.data(),
+	int found = cursor->find_key(reinterpret_cast<const byte *>(
+				     current_key.value.data()),
 				     current_key.value.size());
 	// FIXME: check for errors
 	Assert(found);
     } else {
-	Bcursor_prev(cursor);
+	cursor->prev();
 	// FIXME: check for errors
     }
 
     Btree_item * item = Btree_item_create();
     if (item == 0) throw std::bad_alloc();
 
-    Bcursor_get_key(cursor, item);
+    cursor->get_key(item);
     // FIXME: check for errors
 
     if (item->key_len != 0) {
-	Bcursor_prev(cursor);
+	cursor->prev();
 	// FIXME: check for errors
-	Bcursor_get_key(cursor, item);
+	cursor->get_key(item);
 	// FIXME: check for errors
     }
 
-    is_positioned = Bcursor_get_tag(cursor, item);
+    is_positioned = cursor->get_tag(item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
@@ -369,21 +372,21 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     if (key.value.size() > btree_for_reading->max_key_len) return false;
 
     // FIXME: avoid having to create a cursor here.
-    struct Bcursor * cursor = Bcursor_create(btree_for_reading);
+    AutoPtr<Bcursor> cursor = Bcursor_create(btree_for_reading);
     // FIXME: check for errors
 
-    int found = Bcursor_find_key(cursor, key.value.data(), key.value.size());
+    int found = cursor->find_key(reinterpret_cast<const byte *>(key.value.data()),
+				 key.value.size());
     // FIXME: check for errors
 
     if (!found) {
-	Bcursor_lose(cursor);
 	RETURN(false);
     }
     
     Btree_item * item = Btree_item_create();
     if (item == 0) throw std::bad_alloc();
 
-    Bcursor_get_tag(cursor, item);
+    cursor->get_tag(item);
     // FIXME: check for errors
 
     // FIXME: unwanted copy
@@ -391,7 +394,6 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
 
     // FIXME: ensure that these loses get called whatever exit route happens.
     Btree_item_lose(item);
-    Bcursor_lose(cursor);
     
     RETURN(true);
 }

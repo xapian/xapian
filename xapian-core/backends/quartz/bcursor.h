@@ -24,6 +24,7 @@
 #define OM_HGUARD_BCURSOR_H
 
 #include "btree_types.h"
+#include "om/autoptr.h"
 
 class Btree;
 
@@ -31,14 +32,14 @@ class Btree;
 
 class Bcursor {
     // FIXME: in future probably a Btree member function.
-    friend Bcursor *Bcursor_create(Btree *);
+    friend AutoPtr<Bcursor> Bcursor_create(Btree *);
     public:
 	/** Destroy a Bcursor */
 	~Bcursor();
 
 	int prev();
 	int next();
-	int find_key(byte *key, int key_len);
+	int find_key(const byte *key, unsigned int key_len);
 	int get_key(Btree_item *item);
 	int get_tag(Btree_item *item);
 

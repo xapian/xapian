@@ -220,13 +220,13 @@ extern int Btree_create(const char * name, int block_size);
 extern void Btree_check(const char * name, const char * opt_string); //
 extern struct Btree * Btree_open_to_read(const char * name);
 extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
-extern struct Bcursor * Bcursor_create(struct Btree * B);
+extern AutoPtr<Bcursor> Bcursor_create(struct Btree * B);
 extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len);
 extern int Bcursor_next(struct Bcursor * BC);
 extern int Bcursor_prev(struct Bcursor * BC);
 extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
 extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
-extern void Bcursor_lose(struct Bcursor * BC);
+//extern void Bcursor_lose(struct Bcursor * BC);
 extern void Btree_full_compaction(struct Btree * B, int parity);
 
 #endif /* OM_HGUARD_BTREE_H */

@@ -96,6 +96,9 @@ DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
 /** Thrown when gaining a lock on a database fails. */
 DEFINE_ERROR_CLASS(OmDatabaseLockError, OmDatabaseError);
 
+/** Thrown when gaining a lock on a database fails. */
+DEFINE_ERROR_CLASS(OmDatabaseModifiedError, OmDatabaseError);
+
 /** Thrown when trying to access invalid data. */
 DEFINE_ERROR_CLASS(OmInvalidResultError, OmRuntimeError);
 

@@ -98,7 +98,7 @@ Bcursor::next()
 }
 
 int
-Bcursor::find_key(byte * key, int key_len)
+Bcursor::find_key(const byte * key, unsigned int key_len)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);

@@ -1298,16 +1298,16 @@ static bool test_btree1()
 
     std::string key = "foo";
     {
-	struct Bcursor * cursor = Bcursor_create(btree);
-	int found = Bcursor_find_key(cursor, key.data(), key.size());
+	AutoPtr<Bcursor> cursor = Bcursor_create(btree);
+	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
+				     key.size());
 	TEST(!found);
-	Bcursor_lose(cursor);
     }
     {
-	struct Bcursor * cursor = Bcursor_create(btree);
-	int found = Bcursor_find_key(cursor, key.data(), key.size());
+	AutoPtr<Bcursor> cursor = Bcursor_create(btree);
+	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
+				     key.size());
 	TEST(!found);
-	Bcursor_lose(cursor);
     }
     
     Btree_quit(btree);
@@ -1588,7 +1588,7 @@ static bool test_positionlist1()
 static bool test_overwrite1()
 {
     unlink_table(tmpdir + "testdb_overwrite1_");
-    QuartzDiskTable disktable(tmpdir + "testdb_overwrite1_", false, 8192);
+    QuartzDiskTable disktable(tmpdir + "testdb_overwrite1_", false, 2048);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
@@ -1596,13 +1596,20 @@ static bool test_overwrite1()
     quartz_revision_number_t new_revision;
     QuartzDbKey key;
     QuartzDbTag tag;
-    key.value = "foo1";
 
-    bufftable.get_or_make_tag(key)->value = "bar1";
+    for (int i=1; i<=1000; ++i) {
+	key.value = "foo" + om_tostring(i);
+
+	bufftable.get_or_make_tag(key)->value = "bar" + om_tostring(i);
+    }
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
 
-    QuartzDiskTable disktable_ro(tmpdir + "testdb_overwrite1_", true, 8192);
+    key.value = "foo1";
+    QuartzDbKey key2;
+    key2.value = "foo999";
+
+    QuartzDiskTable disktable_ro(tmpdir + "testdb_overwrite1_", true, 2048);
     disktable_ro.open();
     TEST(disktable_ro.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "bar1");
@@ -1610,14 +1617,16 @@ static bool test_overwrite1()
     bufftable.get_or_make_tag(key)->value = "bar2";
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
+    TEST(disktable_ro.get_exact_entry(key2, tag));
     TEST(disktable_ro.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "bar1");
 
     bufftable.get_or_make_tag(key)->value = "bar3";
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
-    TEST_EXCEPTION(OmRuntimeError, disktable_ro.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "bar1");
+    TEST(disktable_ro.get_exact_entry(key2, tag));
+    TEST_EXCEPTION(OmDatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
+    //TEST_EQUAL(tag.value, "bar1");
 
     return true;
 }
@@ -1653,7 +1662,7 @@ test_desc tests[] = {
     {"quartzpostlist1",		test_postlist1},
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
-    //{"quartzoverwrite1", 	test_overwrite1},
+    {"quartzoverwrite1", 	test_overwrite1},
     {0, 0}
 };
 

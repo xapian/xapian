@@ -119,7 +119,7 @@ class QuartzDiskCursor : public QuartzCursor {
 	/** The btree cursor.  This points to the next item, not the current
 	 *  item.
 	 */
-	struct Bcursor * cursor;
+	AutoPtr<Bcursor> cursor;
 
 	/** The maximum length of a key.
 	 */
@@ -133,7 +133,7 @@ class QuartzDiskCursor : public QuartzCursor {
 		  max_key_len(btree->max_key_len) {}
 	
 	/// Destroy the cursor
-	~QuartzDiskCursor() { Bcursor_lose(cursor); }
+	~QuartzDiskCursor() { }
 
 	/** Virtual methods of QuartzCursor.
 	 */
