@@ -94,7 +94,7 @@ OmExpand::expand(om_termcount max_esize,
 		 const OmExpandDecider * decider)
 {
     eset.items.clear();
-    eset.etotal = 0;
+    eset.ebound = 0;
 
     DebugMsg("OmExpand::expand()" << endl);
     if (rset->get_rsize() == 0) return; // No query
@@ -121,7 +121,7 @@ OmExpand::expand(om_termcount max_esize,
 
 	om_termname tname = merger->get_termname();
 	if(decider->want_term(tname)) {
-	    eset.etotal++;
+	    eset.ebound++;
 
 	    OmExpandBits ebits = merger->get_weighting();
 	    om_weight wt = ewt.get_weight(ebits, tname);
@@ -162,7 +162,7 @@ OmExpand::expand(om_termcount max_esize,
     // Need a stable sort, but this is provided by comparison operator
     sort(eset.items.begin(), eset.items.end(), OmESetCmp());
 
-    DebugMsg("esize = " << eset.items.size() << ", etotal = " << eset.etotal << endl);
+    DebugMsg("esize = " << eset.items.size() << ", ebound = " << eset.ebound << endl);
     if (eset.items.size()) {
 	DebugMsg("max weight in eset = " << eset.items.front().wt
 		 << ", min weight in eset = " << eset.items.back().wt << endl);
