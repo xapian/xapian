@@ -25,9 +25,12 @@ class IndexerDestination {
 
 // A way to generate terms from sources
 class Indexer {
+    protected:
+	IndexerDestination * dest;
     public:
+	Indexer() : dest(NULL) { return; }
 	// Set the destination
-	virtual void set_destination(IndexerDestination *) = 0;
+	void set_destination(IndexerDestination *newdest) {dest = newdest;}
 
 	// Generate terms from the source, and put them in the destination
 	virtual void add_source(const IndexerSource &) = 0;

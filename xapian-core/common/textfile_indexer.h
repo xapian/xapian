@@ -15,11 +15,7 @@ class TextfileIndexerSource : public virtual IndexerSource {
 };
 
 class TextfileIndexer : public virtual Indexer {
-    private:
-	IndexerDestination * dest;
     public:
-	TextfileIndexer() : dest(NULL) { return; }
-	void set_destination(IndexerDestination *newdest) {dest = newdest;}
 	void add_source(const IndexerSource &);
 };
 
