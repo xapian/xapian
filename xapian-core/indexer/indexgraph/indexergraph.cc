@@ -163,7 +163,10 @@ typedef std::map<std::string, std::string> typemap;
 static std::string
 get_prop(xmlNodePtr node, const std::string &prop)
 {
-    xmlChar *temp = 0;
+    /* CHAR is used because it works with older libxmls, before
+     * the xmlChar typedef.
+     */
+    CHAR *temp = 0;
     std::string retval;
     try {
 	temp = xmlGetProp(node, prop.c_str());
@@ -185,7 +188,7 @@ static attrmap attr_to_map(xmlNodePtr node)
     std::map<std::string, std::string> result;
     while (attr) {
 	std::string name = (char *)attr->name;
-	xmlChar *temp = 0;
+	CHAR *temp = 0;
 	std::string value;
 	try {
 	    //cerr << "Attr " << node->name << "." << name << "=" << endl;
