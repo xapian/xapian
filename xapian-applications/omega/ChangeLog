@@ -1,3 +1,8 @@
+Tue Oct 21 21:20:31 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Allow the QueryParser prefix map to be set up using
+	  $setmap{prefix,...} (e.g. $setmap{prefix,subject,XT,abstract,XA}).
+
 Tue Oct 21 21:13:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Only parse probabilistic query once!

@@ -166,6 +166,10 @@ set_probabilistic(const string &oldp)
 			    new MyStopper()); 
     qp.set_default_op(default_op);
     qp.set_database(db);
+    map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
+    for (; pfx != option.end() && pfx->first.substr(0, 7) == "prefix,"; ++pfx) {
+	qp.prefixes.insert(make_pair(pfx->first.substr(7), pfx->second));
+    }
     try {
 	query = qp.parse_query(query_string);
     } catch (const char *s) {
