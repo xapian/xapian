@@ -23,13 +23,17 @@ LIBOMUS_UNINST_EXEC="$withval")
 
 
 if test "x$LIBOMUS_UNINST" = "xyes"; then
-  AC_MSG_ERROR(--with-libomus-uninst needs path of top dir of libomus build)
+  AC_MSG_ERROR(--with-libomus-uninst needs path of top dir of libomus)
+fi
+
+if test "x$LIBOMUS_UNINST_EXEC" = "xyes"; then
+  AC_MSG_ERROR(--with-libomus-uninst-exec needs path of top dir of libomus build)
 fi
 
 AC_MSG_CHECKING(for libomus)
 
 if test "x$LIBOMUS_UNINST" = "x"; then
-  if test "x$LIBOMUS_UNINST_EXEC" != "xno"; then
+  if test "x$LIBOMUS_UNINST_EXEC" != "x"; then
     AC_MSG_ERROR(must specify --with-libomus-uninst if using --with-libomus-uninst-exec)
   fi
   if test "x$LIBOMUS_CONFIG" = "x"; then
@@ -52,10 +56,10 @@ if test "x$LIBOMUS_UNINST" = "x"; then
 else
   AC_MSG_RESULT(using uninstalled version)
   if test "x$LIBOMUS_UNINST_EXEC" = "x"; then
-    LIBOMUS_UNIST_EXEC=no
+    LIBOMUS_UNINST_EXEC=no
   fi
   if test "x$LIBOMUS_UNINST_EXEC" = "xno"; then
-    LIBOMUS_UNIST_EXEC=$LIBOMUS_UNINST
+    LIBOMUS_UNINST_EXEC=$LIBOMUS_UNINST
   fi
   LIBOMUS_CFLAGS="-I$LIBOMUS_UNINST/include -I$LIBOMUS_UNINST/common"
   LIBOMUS_LIBS="$LIBOMUS_UNINST_EXEC/libomus.la"
