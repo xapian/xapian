@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright James Aylett
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -501,6 +502,8 @@ eval(const string &fmt, const string &loopvar)
 	}
 	if (fmt[q] == '_') {
 	    res += loopvar;
+            p = q + 1;
+            continue;
 	}
 	if (fmt[q] != '{' && !isalpha(fmt[q])) {
 	    string msg = "Unknown $ code in: $" + fmt.substr(q);
