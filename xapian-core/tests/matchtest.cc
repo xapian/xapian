@@ -1,13 +1,24 @@
 #include <stdio.h>
 
+//#define MULTIDB
+
+#ifdef MULTIDB
+#include "multi_database.h"
+#endif
+
 #include "da_database.h"
 #include "match.h"
 #include "stem.h"
 
 int main(int argc, char *argv[]) {
     try {
+#ifdef MULTIDB
+	MultiDatabase database;
+	database.open_subdatabase(new DADatabase, "testdir", 0);
+#else
         DADatabase database;
 	database.open("testdir", 0);
+#endif
        
         Match match(&database);
        
