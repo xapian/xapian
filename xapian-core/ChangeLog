@@ -1,3 +1,7 @@
+Wed Nov 07 15:34:29 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed 2 GCC 3.0 warnings in muscat36 backend.
+
 Wed Nov 07 14:21:47 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Made doc counts returned from percentage cutoff matches more
@@ -5,7 +9,7 @@ Wed Nov 07 14:21:47 GMT 2001  Olly Betts <olly@survex.com>
 
 Wed Nov 07 12:30:32 GMT 2001  Olly Betts <olly@survex.com>
 
-	* GCC 3 fixes.
+	* GCC 3.0 fixes.
 
 Tue Nov 06 11:16:42 GMT 2001  Olly Betts <olly@survex.com>
 

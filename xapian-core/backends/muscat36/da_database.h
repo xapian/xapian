@@ -203,7 +203,7 @@ inline bool DATermList::at_end() const
 
 
 class DATerm : public RefCntBase {
-    friend DADatabase;
+    friend class DADatabase;
     private:
 	DATerm(struct DA_term_info * ti_,
 	       om_termname tname_,

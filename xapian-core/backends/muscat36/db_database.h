@@ -194,7 +194,7 @@ inline bool DBTermList::at_end() const
 
 
 class DBTerm : public RefCntBase {
-    friend DBDatabase;
+    friend class DBDatabase;
     private:
 	DBTerm(struct DB_term_info * ti_,
 	       om_termname tname_,
