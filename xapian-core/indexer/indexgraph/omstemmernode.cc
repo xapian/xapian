@@ -73,7 +73,7 @@ class OmStemmerNode : public OmIndexerNode {
 	    OmStem stemmer(lang);
 
 	    for (size_t i=0; i<input.get_vector_length(); ++i) {
-		OmIndexerMessage word = input.get_element(i);
+		OmIndexerMessage &word = input.get_element(i);
 		word.set_string(stemmer.stem_word(word.get_string()));
 	    }
 

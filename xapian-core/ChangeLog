@@ -1,3 +1,8 @@
+Fri Dec  8 16:22:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed omstemmer node bug and made debug slightly more verbose
+	  in indextest.cc.
+
 Fri Dec  8 16:13:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test for OmIndexerMessage to indextest

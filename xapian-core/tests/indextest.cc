@@ -290,6 +290,7 @@ bool test_omstemmer1()
 		    "Got " << result.get_element(i).get_string() <<
 		    ", expected " << stemmer.stem_word(v[i].get_string()) <<
 		    '\n';
+	    tout << "Result = " << result << endl;
 	    return false;
 	}
     }
