@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include <xapian.h>
 #include <xapian/queryparser.h>
 

@@ -1,3 +1,8 @@
+Tue Nov 02 05:46:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* source/queryserver.cpp: #include <config.h> is preferable to
+	  #include "config.h" (according to the autoconf manual)
+
 Mon Sep 13 16:33:39 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bumped version number to 0.8.2 so that the CVS
