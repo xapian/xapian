@@ -94,11 +94,15 @@ AC_PATH_PROG(DOXYGEN, doxygen, [$MISSING doxygen])
 dnl Check for dvips. (Needed to make some more of the documentation)
 AC_PATH_PROG(DVIPS, dvips, [$MISSING dvips])
 
-dnl dnl Check for swig. (For generating scripting language bindings)
-dnl dnl set SWIG to swig if not found so we give a better error if someone
-dnl dnl tries to use it
-dnl AC_PATH_PROG(SWIG, swig, swig)
-dnl AM_CONDITIONAL(HAVE_SWIG, test swig != "$SWIG")
+dnl Check for swig. (For generating bindings for languages other than C++)
+AC_ARG_ENABLE(bindings,
+[  --enable-bindings Enable bindings for languages other than C++ (default=no)],
+[case "${enableval}" in
+  yes) AC_PATH_PROG(SWIG, swig, []) ;;
+  no)  SWIG= ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-bindings) ;;
+esac],[SWIG=])
+AM_CONDITIONAL(BUILD_BINDINGS, test -n "$SWIG")
 
 dnl Check whether we need -ldl for dlsym() etc.
 AC_TRY_LINK_FUNC(dlsym, ,

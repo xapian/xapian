@@ -1,3 +1,9 @@
+Mon Jun 02 14:15:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in,bindings/Makefile.am,docs/todo.xml:
+	  Added --enable-bindings to configure - if this is specified and
+	  swig is detected, try to build the language bindings.
+
 Mon Jun 02 12:46:18 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Fixed parsing of port number in remote stub

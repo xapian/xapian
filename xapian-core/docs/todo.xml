@@ -348,10 +348,12 @@ it in cgi-bin directory).
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
 
-Language bindings: Python, PHP and Java (Perl and C would be good too).
+Language bindings: Python, PHP and Java (C would be good too).
 All can be done using SWIG, and it's probably easier to do so
-even though some languages (eg Python) have better tools
-available just because it's less overall work.
+even though some languages may have better tools
+available just because it's less overall work.  We have contributed XS
+bindings for Perl, so we may as well keep using those while they're
+supported for us.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
@@ -361,8 +363,7 @@ Check for swig version.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
 
-Java bindings in com/muscat/om should move to org/xapian before the
-bindings are actually released.
+Namespace for Java bindings should be org/xapian rather than com/muscat/om.
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Bindings" release="">
