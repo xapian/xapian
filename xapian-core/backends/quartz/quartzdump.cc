@@ -1,7 +1,8 @@
-/* delve.cc
+/* quartzdump.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,17 +32,15 @@
 static std::string hex_encode(const std::string & input) {
     const char * table = "0123456789abcdef";
     std::string result;
-    std::string::const_iterator i = input.begin();
-    for (i = input.begin();
-	 i != input.end();
-	 i++) {
+    std::string::const_iterator i;
+    for (i = input.begin(); i != input.end(); i++) {
 	unsigned char val = *i;
 	if (isprint(val) && !isspace(val) && val != '\\') {
 	    result += val;
 	} else {
 	    result += "\\x";
-	    result += table[val/16];
-	    result += table[val%16];
+	    result += table[val >> 4];
+	    result += table[val & 0x0f];
 	}
     }
 
@@ -90,7 +89,7 @@ main(int argc, char *argv[])
 	argv++;
     }
 
-    if (syntax_error || argc != 0) {
+    if (syntax_error || argc != 0 || tables.empty()) {
 	std::cout << "Syntax:\t" << progname << " <options> <table>...\n"
 		"\t-r <revno>            Specify revision number to open\n"
 		"\t-s <start>            Start at term start\n"
@@ -159,4 +158,5 @@ main(int argc, char *argv[])
 	    std::cout << "Error: " << e.get_msg() << std::endl;
 	}
     }
+    return 0;
 }
