@@ -24,6 +24,7 @@ $cvsquery = "./cvsquerydb";
 #%lineMAPinfo - map line number with its info (weight grep rev1 rev2..)
 #%revMAPcolor - maps revision with color coding
 #%revMAPmatch - only stores value for matched revisions
+#%revMAPcomment - maps revision number to cvs comment for that version
 
 # control character separator
 $ctrlA = chr(01);
@@ -113,6 +114,8 @@ if(param()){
 	$first = shift @revs;
 	if($first ne "grep"){
 		push @revs, $first;
+	}else{
+		$yesgrep = "yes";
 	}
 	foreach(@revs){
 		$querystr .= " -c $fileid $_";
@@ -120,7 +123,6 @@ if(param()){
     
 	$result = `$querystr`;
 	@comments = split /$ctrlA/, $result;
-    @curcomments;
     
 	$i=0;
 	foreach (@revs){
@@ -129,13 +131,13 @@ if(param()){
 		chomp $curcomment;
 		$curcomment = Entities::encode_entities($curcomment);
 		if($curcomment =~/$grepquery/i){
-            @curcomments = (@curcomments, $curcomment);
 			$revMAPmatch{$currev} = $currev;
 		}
+		$revMAPcomment{$currev} = $curcomment;
+		#$curcomment = highlightquery($curcomment);
 		$i++;
 	}
-    
-	@revs = keys %revMAPmatch;
+    @revs = keys %revMAPmatch;
     @revs = sort {cmp_cvs_version($a, $b)} @revs;
     if (@revs){
     	@colors = Cvssearch::getSpectrum($#revs+1);
@@ -175,7 +177,7 @@ if(param()){
 	$i=0;
 	foreach (@revs){
 		$currev = $_;
-		$curcomment = $curcomments[$i];
+		$curcomment = $revMAPcomment{$currev};
         $curcomment = highlightquery($curcomment);
 		$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
 		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'><pre><b>Rev:$currev</b>\n$curcomment</pre></DIV>\n";
@@ -205,14 +207,16 @@ if(param()){
 		}else{
 			print "$revs[$i]";
 		}
-		print "</a></span>";
+		print "</a></span> ";
 	}
 	print "</pre>\n";
 	
 	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>\n";
 	@file = `cat $path`;
 	$i=1;                       #line index
-	push @revs, "grep";
+	if($yesgrep){
+		push @revs, "grep";
+	}
 	foreach(@file){
 		s/\n//g;
 		$line = $_;

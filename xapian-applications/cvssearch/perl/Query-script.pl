@@ -25,7 +25,6 @@ $CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stor
 $cvssearch = "./cvssearch";
 $num_matches = 1500;
 $cvsquery = "./cvsquerydb";
-$cvsupdate = "./cvsupdatedb";
 $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
 $queryfile = "Queryfile.cgi";
@@ -102,7 +101,7 @@ print <<_HTML_;
 <tr valign=bottom><td>
 <a href="http://cvssearch.sourceforge.net">
 <img border=0 src="Logo.cgi"></a>
-<a href="./Compare.cgi">Browse Database Contents</a>   
+<br><a href="./Compare.cgi">Browse Database Contents</a>   
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
@@ -179,7 +178,8 @@ if($query && ($query ne "")){
 				#print "raw projct";#debug;
 				foreach(@rawproj){
 					s/\//_/g;
-					@curproj = `$cvsupdate $curroot -f $_`;
+					$tmp = Cvssearch::cvsupdatedb($curroot, "-f", "$_");
+					@curproj = split /\n/, $tmp;
 					
 					foreach (@curproj){
 						chomp;
@@ -196,7 +196,8 @@ if($query && ($query ne "")){
 
 		$curroot = $root;
 		if($#rawproj<0){# search through all project under the root
-			@curproj = `$cvsupdate $curroot -f .`;
+			$tmp = Cvssearch::cvsupdatedb($curroot, "-f", ".");
+			@curproj = split /\n/, $tmp;
 			
 			foreach (@curproj){
 				chomp;
@@ -208,7 +209,8 @@ if($query && ($query ne "")){
 		}else{
 			foreach(@rawproj){
 				s/\//_/g;
-				@curproj = `$cvsupdate $curroot -f $_`;
+				$tmp = Cvssearch::cvsupdatedb($curroot, "-f", "$_");
+				@curproj = split /\n/, $tmp;
 				
 				foreach (@curproj){
 					chomp;
@@ -474,6 +476,9 @@ if($query && ($query ne "")){
 		print STORE $filename."\n"; #filename
 		%tmprev = &hashVal(\%fileMAPrev, $curid);
 		@revs = keys %tmprev;
+		if($fileMAPgrep{$curid}){
+			print STORE "grep ";
+		}
 		print STORE "@revs"."\n"; #revs
 		
 		#store line information
