@@ -1,3 +1,8 @@
+Fri Oct  6 18:43:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added QuartzWritableDatabase, which inherits from QuartzDatabase.
+	  We now open one of these instead of passing readonly=true.
+
 Fri Oct  6 17:40:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added indexer headers to <om/om.h>

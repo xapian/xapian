@@ -119,6 +119,19 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
                 break;
             }
 #endif
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+	    // FIXME: Quartz has lots of files, and the names will change
+	    // during developement.  Make sure this stays up to date.
+
+	    if (file_exists(path + "/record_data_1")) {
+		myparams.set("quartz_dir", path);
+		if (readonly) {
+		    database = new QuartzDatabase(myparams);
+		} else {
+		    database = new QuartzWritableDatabase(myparams);
+		}
+	    }
+#endif
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
             // SleepycatDatabase has lots of files so just default to it for now
 //#define FILENAME_POSTLIST "postlist.db"
@@ -155,7 +168,11 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	    break;
 	case DBTYPE_QUARTZ:
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-	    database = new QuartzDatabase(params, readonly);
+	    if (readonly) {
+		database = new QuartzDatabase(params);
+	    } else {
+		database = new QuartzWritableDatabase(params);
+	    }
 #endif
 	    break;
 	case DBTYPE_REMOTE:

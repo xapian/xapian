@@ -85,10 +85,6 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 */
 	string db_dir;
 
-	/** Directory to store temporary files in.
-	 */
-	string tmp_dir;
-
 	/** Whether the database is readonly.
 	 */
 	bool readonly;
@@ -180,7 +176,6 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *             consistent revision available.
 	 */
 	QuartzDiskTableManager(string db_dir_,
-			       string tmp_dir_,
 			       string log_filename_,
 			       bool readonly_,
 			       bool perform_recovery);
@@ -265,7 +260,6 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 *  QuartzDiskTableManager's constructor.
 	 */
 	QuartzBufferedTableManager(string db_dir_,
-				   string tmp_dir_,
 				   string log_filename_,
 				   bool perform_recovery);
 	

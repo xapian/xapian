@@ -29,7 +29,6 @@
 class QuartzTableManager;
 class QuartzBufferedTableManager;
 class QuartzModifications;
-#include "quartz_log.h"
 
 #include "om/autoptr.h"
 #include "omlocks.h"
@@ -38,6 +37,7 @@ class QuartzModifications;
  *  compressed posting lists and a btree storage scheme.
  */
 class QuartzDatabase : public Database {
+    friend class QuartzWritableDatabase;
     private:
 	/** Mutex to protect this object against concurrent access.
 	 */
@@ -47,37 +47,22 @@ class QuartzDatabase : public Database {
 	 */
 	AutoPtr<QuartzTableManager> tables;
 
-	/** Pointer to buffered table manager.
-	 *
-	 *  This will be null if the database is opened readonly, and will
-	 *  point to the same object as tables otherwise.
-	 */
-	QuartzBufferedTableManager * buffered_tables;
-
-	/** Flag saying whether we're using transactions or not.
-	 */
-	bool use_transactions;
-
-	/** Flag saying whether we're readonly or not.
-	 */
-	bool readonly;
-
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	void do_begin_session(om_timeout timeout);
-	void do_end_session();
-	void do_flush();
+	virtual void do_begin_session(om_timeout timeout);
+	virtual void do_end_session();
+	virtual void do_flush();
 
-	void do_begin_transaction();
-	void do_commit_transaction();
-	void do_cancel_transaction();
+	virtual void do_begin_transaction();
+	virtual void do_commit_transaction();
+	virtual void do_cancel_transaction();
 
-	om_docid do_add_document(const OmDocumentContents & document);
-	void do_delete_document(om_docid did);
-	void do_replace_document(om_docid did,
-				 const OmDocumentContents & document);
-	OmDocumentContents do_get_document(om_docid did);
+	virtual om_docid do_add_document(const OmDocumentContents & document);
+	virtual void do_delete_document(om_docid did);
+	virtual void do_replace_document(om_docid did,
+					 const OmDocumentContents & document);
+	virtual OmDocumentContents do_get_document(om_docid did);
 	//@}
 
     public:
@@ -88,11 +73,28 @@ class QuartzDatabase : public Database {
 	 *  @param params Parameters supplied by the user to specify the
 	 *                location of the database to open.
 	 */
-	QuartzDatabase(const OmSettings & params, bool readonly);
+	QuartzDatabase(const OmSettings & params);
+
+	/** Constructor used by QuartzWritableDatabase.
+	 *
+	 *  @param tables_ A pointer to the tables to use.
+	 */
+	QuartzDatabase(AutoPtr<QuartzTableManager> tables_);
 
 	~QuartzDatabase();
 
-	// Virtual methods of Database
+	/// Get the directory that the database is stored in.
+	static std::string get_db_dir(const OmSettings & settings);
+
+	/// Get the file to use as a logfile.
+	static std::string get_log_filename(const OmSettings & settings);
+
+	/// Get whether recovery should be performed.
+	static bool get_perform_recovery(const OmSettings & settings);
+
+	/** Virtual methods of Database.
+	 */
+	//@{
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
@@ -102,6 +104,68 @@ class QuartzDatabase : public Database {
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
+	//@}
+};
+
+/** A writable quartz database.
+ */
+class QuartzWritableDatabase : public Database {
+    private:
+	/** Pointer to buffered table manager.
+	 *
+	 *  This points to the same object as tables, but is used for
+	 *  modification access.
+	 */
+	QuartzBufferedTableManager * buffered_tables;
+
+	/** The readonly database encapsulated in the writable database.
+	 */
+	QuartzDatabase database_ro;
+
+	//@{
+	/** Implementation of virtual methods: see Database for details.
+	 */
+	virtual void do_begin_session(om_timeout timeout);
+	virtual void do_end_session();
+	virtual void do_flush();
+
+	virtual void do_begin_transaction();
+	virtual void do_commit_transaction();
+	virtual void do_cancel_transaction();
+
+	virtual om_docid do_add_document(const OmDocumentContents & document);
+	virtual void do_delete_document(om_docid did);
+	virtual void do_replace_document(om_docid did,
+					 const OmDocumentContents & document);
+	virtual OmDocumentContents do_get_document(om_docid did);
+	//@}
+
+    public:
+
+	/** Create and open a writable quartz database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.
+	 */
+	QuartzWritableDatabase(const OmSettings & params);
+
+	~QuartzWritableDatabase();
+
+	/** Virtual methods of Database.
+	 */
+	//@{
+	om_doccount  get_doccount() const;
+	om_doclength get_avlength() const;
+	om_doclength get_doclength(om_docid did) const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	bool term_exists(const om_termname & tname) const;
+
+	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafTermList * open_term_list(om_docid did) const;
+	LeafDocument * open_document(om_docid did) const;
+	//@}
 };
 
 #endif /* OM_HGUARD_QUARTZ_DATABASE_H */

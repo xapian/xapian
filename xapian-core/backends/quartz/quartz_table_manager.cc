@@ -29,12 +29,10 @@
 #include <string>
 
 QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
-					       string tmp_dir_,
 					       string log_filename,
 					       bool readonly_,
 					       bool perform_recovery)
 	: db_dir(db_dir_),
-	  tmp_dir(tmp_dir_),
 	  readonly(readonly_),
 	  postlist_table(postlist_path(), readonly),
 	  positionlist_table(positionlist_path(), readonly),
@@ -337,11 +335,9 @@ QuartzDiskTableManager::get_record_table()
 
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
-						       string tmp_dir_,
 						       string log_filename,
 						       bool perform_recovery)
 	: disktables(db_dir_,
-		     tmp_dir_,
 		     log_filename,
 		     false,
 		     perform_recovery),

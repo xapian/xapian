@@ -26,9 +26,11 @@
 #include "quartz_modifications.h"
 
 #include "quartz_database.h"
-#include "om/autoptr.h"
 #include "utils.h"
-#include <om/omerror.h>
+#include "omdebug.h"
+#include "om/autoptr.h"
+#include "om/omerror.h"
+
 #include <string>
 
 //
@@ -37,20 +39,6 @@
 //                 path.
 //
 // Optional settings.
-// quartz_tmpdir - Directory in which to store temporary files.  If not
-//                 specified, the database directory will be used.  If this
-//                 is a relative path, it is taken to be relative to the
-//                 quartz_dir directory.
-//
-// quartz_use_transactions - Boolean, true if transactions should be used.
-//		   Defaults to false.  If false, begin_transaction,
-//		   cancel_transaction, and commit_transaction will all
-//		   throw an exception if called.  Also, all updates will
-//		   require a modified copy of the entire database to be
-//		   created, which will then replace the old database.
-//		   This does have the advantage that databases may be
-//		   stored on NFS partitions.
-//
 // quartz_logfile - File in which to store log information regarding
 //                 modifications and accesses made to the database.  If not
 //                 specified, such log information will not be stored.
@@ -71,32 +59,23 @@
 //                 not need to be performed before readonly access to the
 //                 database is allowed.
 //
-QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
-	: buffered_tables(0),
-	  use_transactions(false),
-	  readonly(readonly)
+QuartzDatabase::QuartzDatabase(const OmSettings & settings)
 {
     // Read parameters
-    string db_dir  = settings.get("quartz_dir");
-    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
-    string log_filename = settings.get("quartz_logfile", "");
-    use_transactions = settings.get_bool("quartz_use_transactions", false);
-    bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
+    string db_dir  = get_db_dir(settings);
+    string log_filename = get_log_filename(settings);
+    bool perform_recovery = get_perform_recovery(settings);
 
     // Open database manager
-    if (readonly) {
-	tables.reset(new QuartzDiskTableManager(db_dir,
-						tmp_dir,
-						log_filename,
-						readonly,
-						perform_recovery));
-    } else {
-	buffered_tables = new QuartzBufferedTableManager(db_dir,
-							 tmp_dir,
-							 log_filename,
-							 perform_recovery);
-	tables.reset(buffered_tables);
-    }
+    tables.reset(new QuartzDiskTableManager(db_dir,
+					    log_filename,
+					    true,
+					    perform_recovery));
+}
+
+QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
+	: tables(tables_)
+{
 }
 
 QuartzDatabase::~QuartzDatabase()
@@ -107,119 +86,83 @@ QuartzDatabase::~QuartzDatabase()
 	// Ignore any exceptions, since we may be being called due to an
 	// exception anyway.  internal_end_session() should have already
 	// been called, in the normal course of events.
+	DEBUGLINE(DB, "Ignoring exception in QuartzDatabase destructor.");
     }
 }
 
+std::string
+QuartzDatabase::get_db_dir(const OmSettings & settings)
+{
+    return settings.get("quartz_dir");
+}
+
+std::string
+QuartzDatabase::get_log_filename(const OmSettings & settings)
+{
+    return settings.get("quartz_logfile", "");
+}
+
+bool
+QuartzDatabase::get_perform_recovery(const OmSettings & settings)
+{
+    return settings.get_bool("quartz_perform_recovery", false);
+}
 
 void
 QuartzDatabase::do_begin_session(om_timeout timeout)
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    if(readonly) {
-	throw OmInvalidOperationError("Cannot begin a modification session: "
-				      "database opened readonly.");
-    }
-    Assert(buffered_tables != 0);
-
-    // FIXME - get a write lock on the database
+    throw OmInvalidOperationError(
+	"Cannot begin a modification session: database opened readonly.");
 }
 
 void
 QuartzDatabase::do_end_session()
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    Assert(!readonly);
-    Assert(buffered_tables != 0);
-    bool success = buffered_tables->apply();
-
-    // FIXME - release write lock on the database
-
-    if (!success) {
-	throw OmDatabaseError("Unable to modify database - modifications lost.");
-    }
+    Assert(false);
 }
 
 void
 QuartzDatabase::do_flush()
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    Assert(!readonly);
-    Assert(buffered_tables != 0);
-    buffered_tables->apply();
-
-    bool success = buffered_tables->apply();
-
-    if (!success) {
-	throw OmDatabaseError("Unable to modify database - modifications lost.");   
-    }
+    Assert(false);
 }
-
 
 void
 QuartzDatabase::do_begin_transaction()
 {
-    OmLockSentry sentry(quartz_mutex);
-    if (!use_transactions) {
-	throw OmInvalidOperationError("Database is not opened with transaction support.");
-    }
-
-    // Start a new modifications object, which must be able to
-    // work while there's a quiescent other modifications object.
-    // Flush should flush the quiescent one.
-    throw OmUnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
+    Assert(false);
 }
 
 void
 QuartzDatabase::do_commit_transaction()
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    throw OmUnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
+    Assert(false);
 }
 
 void
 QuartzDatabase::do_cancel_transaction()
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    throw OmUnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
+    Assert(false);
 }
-
 
 om_docid
 QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    Assert(buffered_tables != 0);
-    //return modifications->add_document(document);
-    throw OmUnimplementedError("QuartzDatabase::do_add_document() not yet implemented");
+    Assert(false);
 }
 
 void
 QuartzDatabase::do_delete_document(om_docid did)
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    Assert(buffered_tables != 0);
-    //return modifications->delete_document(did);
-    throw OmUnimplementedError("QuartzDatabase::do_delete_document() not yet implemented");
+    Assert(false);
 }
 
 void
 QuartzDatabase::do_replace_document(om_docid did,
 				    const OmDocumentContents & document)
 {
-    OmLockSentry sentry(quartz_mutex);
-
-    Assert(buffered_tables != 0);
-    //return modifications->replace_document(did, document);
-    throw OmUnimplementedError("QuartzDatabase::do_replace_document() not yet implemented");
+    Assert(false);
 }
-
 
 OmDocumentContents
 QuartzDatabase::do_get_document(om_docid did)
@@ -228,6 +171,7 @@ QuartzDatabase::do_get_document(om_docid did)
 
     throw OmUnimplementedError("QuartzDatabase::do_get_document() not yet implemented");
 }
+
 
 
 om_doccount 
@@ -289,5 +233,177 @@ QuartzDatabase::open_document(om_docid did) const
 {
     OmLockSentry sentry(quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::open_document() not yet implemented");
+}
+
+
+
+
+
+QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
+	: buffered_tables(new QuartzBufferedTableManager(
+				QuartzDatabase::get_db_dir(settings),
+				QuartzDatabase::get_log_filename(settings),
+				QuartzDatabase::get_perform_recovery(settings))),
+	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
+{
+}
+
+QuartzWritableDatabase::~QuartzWritableDatabase()
+{
+    // FIXME - release write lock if held
+    try {
+	internal_end_session();
+    } catch (...) {
+	// Ignore any exceptions, since we may be being called due to an
+	// exception anyway.  internal_end_session() should have already
+	// been called, in the normal course of events.
+	DEBUGLINE(DB, "Ignoring exception in QuartzWritableDatabase destructor.");
+    }
+}
+
+void
+QuartzWritableDatabase::do_begin_session(om_timeout timeout)
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    Assert(buffered_tables != 0);
+
+    // FIXME - get a write lock on the database
+}
+
+void
+QuartzWritableDatabase::do_end_session()
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    Assert(buffered_tables != 0);
+
+    bool success = buffered_tables->apply();
+
+    // FIXME - release write lock on the database
+
+    if (!success) {
+	throw OmDatabaseError("Unable to modify database - modifications lost.");
+    }
+}
+
+void
+QuartzWritableDatabase::do_flush()
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    Assert(buffered_tables != 0);
+
+    buffered_tables->apply();
+
+    bool success = buffered_tables->apply();
+
+    if (!success) {
+	throw OmDatabaseError("Unable to modify database - modifications lost.");   
+    }
+}
+
+void
+QuartzWritableDatabase::do_begin_transaction()
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    throw OmUnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
+}
+
+void
+QuartzWritableDatabase::do_commit_transaction()
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    throw OmUnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
+}
+
+void
+QuartzWritableDatabase::do_cancel_transaction()
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    throw OmUnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
+}
+
+om_docid
+QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    Assert(buffered_tables != 0);
+    //return modifications->add_document(document);
+    throw OmUnimplementedError("QuartzWritableDatabase::do_add_document() not yet implemented");
+}
+
+void
+QuartzWritableDatabase::do_delete_document(om_docid did)
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    Assert(buffered_tables != 0);
+    //return modifications->delete_document(did);
+    throw OmUnimplementedError("QuartzWritableDatabase::do_delete_document() not yet implemented");
+}
+
+void
+QuartzWritableDatabase::do_replace_document(om_docid did,
+				    const OmDocumentContents & document)
+{
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    Assert(buffered_tables != 0);
+    //return modifications->replace_document(did, document);
+    throw OmUnimplementedError("QuartzWritableDatabase::do_replace_document() not yet implemented");
+}
+
+OmDocumentContents
+QuartzWritableDatabase::do_get_document(om_docid did)
+{
+    return database_ro.do_get_document(did);
+}
+
+om_doccount 
+QuartzWritableDatabase::get_doccount() const
+{
+    return database_ro.get_doccount();
+}
+
+om_doclength
+QuartzWritableDatabase::get_avlength() const
+{
+    return database_ro.get_avlength();
+}
+
+om_doclength
+QuartzWritableDatabase::get_doclength(om_docid did) const
+{
+    return database_ro.get_doclength(did);
+}
+
+om_doccount
+QuartzWritableDatabase::get_termfreq(const om_termname & tname) const
+{
+    return database_ro.get_termfreq(tname);
+}
+
+bool
+QuartzWritableDatabase::term_exists(const om_termname & tname) const
+{
+    return database_ro.term_exists(tname);
+}
+
+
+LeafPostList *
+QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
+{
+    return database_ro.do_open_post_list(tname);
+}
+
+LeafTermList *
+QuartzWritableDatabase::open_term_list(om_docid did) const
+{
+    return database_ro.open_term_list(did);
+}
+
+LeafDocument *
+QuartzWritableDatabase::open_document(om_docid did) const
+{
+    return database_ro.open_document(did);
 }
 

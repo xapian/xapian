@@ -1,4 +1,4 @@
-/* quartztest.cc: test of the Quartz Database
+/* quartztest.cc: test of the Quartz backend
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -417,10 +417,10 @@ static bool test_open1()
     system("rm -fr .testdb_open1");
     settings.set("quartz_dir", ".testdb_open1");
 
-    TEST_EXCEPTION(OmOpeningError, QuartzDatabase database_0(settings, true));
+    TEST_EXCEPTION(OmOpeningError, QuartzDatabase database_0(settings));
     system("mkdir .testdb_open1");
-    QuartzDatabase database_w(settings, false);
-    QuartzDatabase database_r(settings, true);
+    QuartzWritableDatabase database_w(settings);
+    QuartzDatabase database_r(settings);
     return true;
 }
 
@@ -434,7 +434,7 @@ static bool test_adddoc1()
     system("mkdir .testdb_adddoc1");
     settings.set("quartz_dir", ".testdb_adddoc1");
     settings.set("quartz_logfile", "log");
-    QuartzDatabase database(settings, false);
+    QuartzWritableDatabase database(settings);
 
     database.begin_session(0);
     TEST_EQUAL(database.get_doccount(), 0);
@@ -445,24 +445,24 @@ static bool test_adddoc1()
     TEST_EQUAL(database.get_doccount(), 1);
     settings.set("quartz_logfile", "log_ro");
     {
-	QuartzDatabase db_readonly(settings, true);
+	QuartzDatabase db_readonly(settings);
 	TEST_EQUAL(db_readonly.get_doccount(), 0);
     }
     database.flush();
     {
-	QuartzDatabase db_readonly(settings, true);
+	QuartzDatabase db_readonly(settings);
 	TEST_EQUAL(db_readonly.get_doccount(), 1);
     }
 
     database.delete_document(did);
     TEST_EQUAL(database.get_doccount(), 0);
     {
-	QuartzDatabase db_readonly(settings, true);
+	QuartzDatabase db_readonly(settings);
 	TEST_EQUAL(db_readonly.get_doccount(), 1);
     }
     database.flush();
     {
-	QuartzDatabase db_readonly(settings, true);
+	QuartzDatabase db_readonly(settings);
 	TEST_EQUAL(db_readonly.get_doccount(), 0);
     }
     database.flush();
@@ -484,7 +484,7 @@ static bool test_adddoc2()
     om_docid did;
     OmDocumentContents document_in;
     {
-	QuartzDatabase database(settings, false);
+	QuartzWritableDatabase database(settings);
 	TEST_EQUAL(database.get_doccount(), 0);
 	did = database.add_document(document_in);
 	TEST_EQUAL(database.get_doccount(), 1);
@@ -492,7 +492,7 @@ static bool test_adddoc2()
 
     {
 	settings.set("quartz_logfile", "log_ro");
-	QuartzDatabase database(settings, true);
+	QuartzDatabase database(settings);
 	OmDocumentContents document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.data.value, document_out.data.value);
