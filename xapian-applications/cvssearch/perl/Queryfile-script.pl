@@ -50,12 +50,10 @@ print <<_HTML_;
 <head>
 <title>$tempdisplay</title>
 </head>
-<frameset rows=\"45,*\">
+<frameset rows=\"45, 47%, *\">
 	<frame name=top src=$top$passparam2>
-	<frameset rows=\"50%,50%\">
-		<frame name=m src=$match$passparam1>
-		<frame name=s src=$source$passparam1>
-	</frameset>
+	<frame name=\"m\" src=$match$passparam1>
+    <frame name=\"s\" src=$source$passparam1>
 </frameset>
 <noframes>
 	<body bgcolor=\"#FFFFF0\">

@@ -76,7 +76,7 @@ if(param()){
 		s/\n//g;
 		$line = $_;
 		$line = Entities::encode_entities($line);
-		print "<tr>";
+		print "<tr nowrap>";
 		print "<td><pre><a name=$i>$i</a></td>";
         my $space ="";
         if (length($line) == 0) {

@@ -68,18 +68,19 @@ function h() {
 }
 
 function c(line, rev){
-    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&short=1&version="+ rev + "#" + line;
-    if (parent.frames[2].location.href != link) {
+    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&short=1&version="+ rev + "#"+line;
+//    if (parent.frames[2].location.href != link) {
        parent.frames[2].location.href=link;
-    }
+//    }
+
     return false;
 }
 
 function o(line) {
-    var link = "$source$passparam#"+line;
-    if (parent.frames[2].location.href != link) {
-        parent.frames[2].location.href = link;
-    }
+    var link = "$source$passparam"+"#"+line;
+//    if (parent.frames[2].location.href != link) {
+        parent.s.location.href = link;
+//    }
     return false;
 }   
 </script>
@@ -167,7 +168,7 @@ if(param()){
     # ----------------------------------------
     Cvssearch::print_style_sheet();
 
-    print "<style type=text/css>\n";
+    print "<style type=\"text/css\">\n";
     print "A:link, A:active, A:visited { text-decoration:none;color:black;}\n";
 	foreach ($i=0;$i<$#revs+1;$i++){
 		$revMAPcolor{$revs[$i]} = $colors[$i];
@@ -214,15 +215,12 @@ if(param()){
 		$ch = &toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
         $ch1 = $ch;
         $ch1 =~ tr/\./-/;
-		print "<span class=$ch1><a href=# ";
+		print "<a href=# ";
         print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
-
 		if($revMAPmatch{$revs[$i]}){
-			print "<b>$revs[$i]</b>";
-		}else{
-			print "$revs[$i]";
+			print "<span class=$ch1>$revs[$i]</span>";
 		}
-		print "</a></span> ";
+		print "</a>&nbsp;";
 	}
 	print "</pre>\n";
 	
@@ -238,7 +236,7 @@ if(param()){
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-			print "<td><pre>$i</td>";
+			print "<td><pre><a name=$i>$i</a></td>";
             
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
@@ -256,23 +254,24 @@ if(param()){
 						$currev = $_;
 						$color = $revMAPcolor{$currev};
                         $ch = toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
-                        if ($color) {
-                            $ch1 = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
-                            $ch1 =~ tr/\./-/;
-                            print "<span class=$ch1>";
-                        } 
-                        print "<a href=# ";
+                        print "<a href=#$i ";
 						if($revMAPmatch{$currev}){
-                          print "onclick=\"return c($i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
-							print "C";
+                            print "onclick=\"return c($i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
+                            if ($color) {
+                                # need to convert digits to alphabets since netscape doesn't understand digit id
+                                $ch1 = &toChar($currev); 
+                                $ch1 =~ tr/\./-/;
+                                print "<span class=$ch1>";
+                            } 
+                            print "C";
+                            if ($color) {
+                                print "</span>";
+                            }
 						}elsif($currev eq "grep"){
-                          print "onclick=\"return l('$ch', event);\" onmouseover=s('$ch',event); onmouseout=h();>";
+                            print "onclick=\"return l('$ch', event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 							print "G";
 						}
 						print "</a>";
-                        if ($color) {
-                            print "</span>";
-                        }
 						$found = 1;
 					}
                     # this is removed for fixxing a bug.. don't uncomment this.

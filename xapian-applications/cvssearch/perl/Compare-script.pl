@@ -399,11 +399,15 @@ sub compare_file_version {
         print end_html;
     }
     my $file ="";
-    open (FILE, "$cvsquery $root $pkg -f $fileid -v $fileid|");
+    open (FILE, "$cvsquery $root $pkg -f $fileid -v $fileid -c $fileid $version|");
     while (<FILE>) {
         chomp;
-        $file = $_;
-        last;
+        if (0) {
+        } elsif (/$ctrlA/) {
+            last;
+        } else {
+            $file = $_;
+        }
     }
     
     if ($latest_version eq "") {
@@ -411,9 +415,29 @@ sub compare_file_version {
             chomp;
             if (0) {
             } elsif (/$ctrlA/) {
+                last;
             } else {
                 $latest_version = $_;
             }
+        }
+    } else {
+        while (<FILE>) {
+            chomp;
+            if (0) {
+            } elsif (/$ctrlA/) {
+                last;
+            }
+        }
+    }
+
+    my $comment = "";
+    while (<FILE>) {
+        chomp;
+        if (0) {
+        } elsif (/$ctrlA/) {
+            last;
+        } else {
+            $comment .= "$_\n";
         }
     }
     close(FILE);
@@ -457,7 +481,7 @@ sub compare_file_version {
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version\">full</a>,\n";
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version\">short</a>)\n";
     print "in commit of version $version</h1>\n";
-    
+    print "<pre class=popuplink>CVS comment:\n$comment</pre>\n";
     open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $short_flag -r $latest_version $file |");
     while (<OUTPUT>) {
         print $_;
@@ -515,8 +539,8 @@ sub print_javascript {
     # ----------------------------------------
     print <<_SCRIPT_;
 <script language="JavaScript">
-function c(rev, short){
-    var link = "$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short="+short +"&version="+ rev + "#" + line;
+function c(rev, short_version){
+    var link = "$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short="+short_version +"&version="+ rev + "#" + line;
     this.location.href = link;
     return false;
 }

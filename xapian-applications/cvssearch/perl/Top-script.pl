@@ -40,7 +40,7 @@ if(param()){
   print "<body>\n";
   print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
   print "<tr>\n";
-  print "<td align=left><a href=\"./Compare.cgi?root=$root&pkg=$db&fileid=$fileid\" target=s><b>$displayname</b></a></td>\n";
+  print "<td align=left><a href=\"./Compare.cgi?root=$root&pkg=$db&fileid=$fileid\" target=\"s\"><b>$displayname</b></a></td>\n";
   print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
   print "</tr></table>\n";
 }
