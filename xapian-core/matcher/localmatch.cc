@@ -83,12 +83,15 @@ class PLPCmpLt {
 class PlCmpGtTermWt {
     public:
 	/** Return true if and only if a has a strictly greater termweight
-	 *  than b.
+	 *  than b; with the proviso that if the estimated termfrequency
+	 *  of the a or b is 0, the termweight is considered to be 0.
 	 */
 	bool operator()(const PostList *a, const PostList *b) {
 	    om_weight amax = a->get_maxweight();
 	    om_weight bmax = b->get_maxweight();
 	    DEBUGLINE(MATCH, "termweights are: " << amax << " and " << bmax);
+	    if (a->get_termfreq() == 0) amax = 0;
+	    if (b->get_termfreq() == 0) bmax = 0;
 	    return amax > bmax;
 	}
 };

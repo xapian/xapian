@@ -1,3 +1,8 @@
+Thu Sep 14 15:06:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix the problem with max_or_terms and termfreqs of 0.  Test
+	  maxorterms4 now passes.
+
 Thu Sep 14 15:03:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a test for doing max_or_terms when one of the query terms is
