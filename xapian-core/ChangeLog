@@ -1,3 +1,14 @@
+Wed Nov  8 19:29:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* TEST_EXCEPTION() now reports the location of the testcase, just
+	  like all the other TEST* macros.
+
+Wed Nov  8 19:25:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Position lists can now be written to - all quartz tests now pass.
+	  (Quartz tests do not yet check postlist behaviour however -
+	  postlists are to be implemented tomorrow.)
+
 Wed Nov  8 18:13:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a couple more index tests.
