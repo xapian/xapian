@@ -1,3 +1,7 @@
+Tue Jul 08 17:45:16 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Improved mingw implementation of rmdir().
+
 Tue Jul 08 17:43:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.in: Version 0.7.1.

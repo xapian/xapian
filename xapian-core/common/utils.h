@@ -164,6 +164,10 @@ inline int stat(const string &filename, struct stat *buf) {
 
 /// Remove a directory and contents.
 inline void rmdir(const string &filename) {
+    // Check filename exists and is actually a directory
+    struct stat sb;
+    if (stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode)) return;
+
     string safefile = filename;
 # ifdef __WIN32__
     if (getenv("USE_SHFILEOPSTRUCT") == 0) {
@@ -176,10 +180,24 @@ inline void rmdir(const string &filename) {
 		return;
 	    }
 	}
-	// for NT like systems:
-	system("rd /s /q \"" + safefile + "\"");
-	// for 95 like systems:
-	system("deltree /y \"" + safefile + "\"");
+
+	static int win95 = -1;
+	if (win95 == -1) {
+	    OSVERSIONINFO info;
+	    memset(&info, 0, sizeof(OSVERSIONINFO));
+	    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	    if (GetVersionEx(&info)) {
+		win95 = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	    }
+	}
+
+	if (win95) {
+	    // for 95 like systems:
+	    system("deltree /y \"" + safefile + "\"");
+	} else {
+	    // for NT like systems:
+	    system("rd /s /q \"" + safefile + "\"");
+	}
     } else {
 	safefile.append("\0", 2);
 	SHFILEOPSTRUCT shfo;
