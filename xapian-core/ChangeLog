@@ -1,3 +1,8 @@
+Wed Jun 26 13:46:02 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* btree.cc: Fix splitting of blocks in sequential mode to ensure
+	  that split happens no earlier than the midpoint.
+
 Wed Jun 26 12:32:47 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* btree.cc: Asserts to check that add_item in sequential mode

@@ -885,17 +885,30 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
     if (new_total < 0) {
 	int m;
 	byte * q = C[j].split_p;
-	if (seq_count < 0 /*|| j > 0*/ )
+	if (seq_count < 0) {
+	    /* If we're not in sequential mode, we split at the mid point
+	     * of the node. */
 	    m = mid_point(p);
-	else {
+	} else {
+	    /* If we're in sequential mode, we split as far along the
+	     * directory as possible, to make the new node as empty as
+	     * possible. */
 	    if (c < DIR_END(p)) {
-		m = c - D2;
-		/* splits at dirend-2 */
+		/* We have some subsequent entries in the block, so can only
+		 * split at c - 2.  If this is earlier than the mid-point,
+		 * we split at the midpoint instead - otherwise there may
+		 * be insufficient room in the new node. */
+		int m2 = c - D2;
+		m = mid_point(p);
+		if (m2 > m) m = m2;
 	    } else {
+		/* We have no subsequent entries in the block, so we can split
+		 * at dirend. */
+		Assert(c == DIR_END(p));
 		m = c;
-		/* splits at dirend. (This has all been cautiously tested) */
 	    }
 	}
+	AssertParanoid(m >= mid_point(p));
 	split_off(C, j, m, p, q);
 	if (c >= m) {
 	    c -= (m - DIR_START);
@@ -905,7 +918,6 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
 	    add_item_to_block(p, kt, c);
 	    n = C[j].n;
 	} else {
-	    Assert(seq_count < 0);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(q));
 	    add_item_to_block(q, kt, c);
