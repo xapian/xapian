@@ -145,7 +145,7 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
         om_termname term = s.substr(i - s.begin(), j - i);
         lowercase_term(term);
         if (isupper(*i) || isdigit(*i)) {
-	    doc.add_posting(term, pos);
+	    doc.add_posting('R' + term, pos);
         }
  
         term = stemmer.stem_word(term);

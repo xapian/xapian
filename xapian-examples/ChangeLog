@@ -1,3 +1,7 @@
+Fri Dec 07 14:21:29 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Give raw (unstemmed) terms prefix 'R'.
+
 Wed Dec 05 14:46:05 GMT 2001  Olly Betts <olly@survex.com>
 
 	* indexnasty: parsing terms from text is now twice as fast.
