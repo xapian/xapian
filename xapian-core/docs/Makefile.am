@@ -1,4 +1,4 @@
-### Process this file with automake to produce Makefile.in
+## Process this file with automake to produce Makefile.in
 
 DOCPP = @DOCPP_PATH@
 DVIPS = @DVIPS_PATH@
