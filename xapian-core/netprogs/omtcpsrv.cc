@@ -36,11 +36,15 @@
 #include "tcpserver.h"
 
 using std::vector;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::exception;
 
 char *progname = 0;
 
 int main(int argc, char *argv[]) {
-    std::vector<OmSettings *> dbs;
+    vector<OmSettings *> dbs;
     int port = 0;
     int msecs_active_timeout = 15000;
     int msecs_idle_timeout   = 60000;
@@ -121,7 +125,7 @@ int main(int argc, char *argv[]) {
     try {
         OmDatabase mydbs;
 
-	std::vector<OmSettings *>::const_iterator p;
+	vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
 	    mydbs.add_database(**p);
 	    delete *p;
@@ -140,11 +144,11 @@ int main(int argc, char *argv[]) {
 	} else {
 	    server.run();
 	}
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
 	exit(1);
-    } catch (std::exception &e) {
+    } catch (const exception &e) {
 	cerr << "Caught standard exception: " << typeid(e).name();
 	exit(1);
     } catch (...) {
