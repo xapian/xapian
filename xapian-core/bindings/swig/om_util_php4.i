@@ -22,15 +22,15 @@
  * -----END-LICENCE-----
  */
 %}
-%include typemaps.i
 
-//%typemap(php4, out) string {
-//  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
-//}
-//
-//%typemap(php4, out) std::string {
-//  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
-//}
+%pragma(php4) phpinfo="
+  php_info_print_table_start();
+  php_info_print_table_header(2,\"Directive \",\"Value\");
+  php_info_print_table_row(2,\"libxapian support\",\"Enabled\");
+  php_info_print_table_end();
+"
+
+%include typemaps.i
 
 %typemap(php4, in) const OmSettings & {
   $1 = new OmSettings();
@@ -50,12 +50,6 @@
       if (type == HASH_KEY_IS_STRING) $1->set(key,Z_STRVAL_PP(value));
     }
   // when this scope closes only $1 will be left
-}
-
-%typemap(php4, in) const string & {
-    convert_to_string_ex($input);
-    // Don't like this new string lark, what a waste of init-ing the old string
-    $1 = new string(Z_STRVAL_PP($input));
 }
 
 %typemap(php4, out) std::list<om_termname > {
