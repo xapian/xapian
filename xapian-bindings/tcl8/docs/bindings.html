@@ -1,0 +1,124 @@
+<html><head><title>Tcl8 bindings for Xapian</title></head>
+<body>
+<h1>Tcl8 bindings for Xapian</h1>
+
+<p>
+The Tcl8 bindings for Xapian are packaged in the <code>xapian</code> namespace,
+and largely follow the C++ API, with the following differences and
+additions. Tcl8 strings and lists, etc., are converted automatically
+in the bindings, so generally it should just work as expected.
+</p>
+
+<h2>Destructors</h2>
+
+<p>
+   Destructors don't get called unless you take special care.
+   FIXME: document this once we suss out what that special care is!
+</p>
+
+<h2>Exceptions</h2>
+
+<p>
+   Exceptions are thrown as SWIG exceptions instead of Xapian
+   exceptions. This isn't done well at the moment; in future we will
+   throw wrapped Xapian exceptions. For now, it's probably easier to
+   catch all exceptions and try to take appropriate action based on
+   their associated string.
+</p>
+
+<h2>Iterators</h2>
+
+<p>
+   All iterators support <code>next</code> and <code>equals</code> methods
+   to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev</code>.
+</p>
+
+<h2>Iterator dereferencing</h2>
+
+<p>
+   C++ iterators are often dereferenced to get information, eg
+   <code>(*it)</code>. With Tcl8 these are all mapped to named methods, as
+   follows:
+</p>
+
+<table title='Iterator deferencing methods'>
+<thead><td>Iterator</td><td>Dereferencing method</td></thead>
+<tr><td>PositionIterator</td>	<td><code>get_termpos</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>get_docid</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>get_value</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_termname</code></td></tr>
+</table>
+
+<p>
+   Other methods, such as <code>MSetIterator::get_document()</code>, are
+   available under the same names.
+</p>
+   
+<h2>MSet</h2>
+
+<p>
+   MSet objects have some additional methods to simplify access (these
+   work using the C++ array dereferencing):
+</p>
+
+<table title='MSet additional methods'>
+<thead><td>Method name</td><td>Explanation</td></thead>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
+<tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+</table>
+
+<h2>Xapian::Auto</h2>
+
+<p>
+   Functions in <code>Xapian::Auto</code> are mapped directly into the
+   <code>xapian</code> module (so <code>Xapian::Auto::open()</code> becomes
+   <code>xapian::open</code>, for
+   instance).
+</p>
+
+<h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
+
+<ul>
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open()</code> (only
+the TCP version is currently wrapped, the "program" version isn't).
+</ul>
+
+<h2>Query</h2>
+
+<p>
+   Please note that although the source code for the bindings
+   indicates that there's another constructor to <code>xapian.Query</code> that
+   should be able to take a query operator, a list of queries,
+   and an optional window, this doesn't actually work in Tcl8 at the
+   moment due to the way SWIG overloading works.
+</p>
+
+<h2>Enquire</h2>
+
+<p>
+   There is an additional method <code>get_matching_terms</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
+   match the document given by that iterator. This may be slightly
+   more convenient than using the TermIterator directly.
+</p>
+
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
+<!-- <a href="examples/simpleindex.tcl">simpleindex.tcl</a>, -->
+<a href="examples/simplesearch.tcl">simplesearch.tcl</a>.
+<!-- <a href="examples/simpleexpand.py">simpleexpand.py</a>. -->
+</p>
+
+<address>
+Last updated $Date$
+</address>
+</body>
+</html>
