@@ -1,3 +1,14 @@
+xapian-omega (0.8.4-3) unstable; urgency=low
+
+  * Move dbi2omega to /usr/share/doc/xapian-omega/examples/, and remove
+    "Suggests: libdbi-perl" from xapian-omega package.  Rationale: dbi2omega
+    isn't very useful out of the box - it usually needs to be customised
+    for a particular database.
+  * Add htdig2omega and htdig2omega.script to
+    /usr/share/doc/xapian-omega/examples/
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Dec 2004 15:45:56 +0000
+
 xapian-omega (0.8.4-2) unstable; urgency=low
 
   * Suggest libwpd7, which is actually present in testing and unstable,
