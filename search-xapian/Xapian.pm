@@ -14,7 +14,9 @@ use Search::Xapian::MSetIterator;
 use Search::Xapian::PositionIterator;
 use Search::Xapian::PostingIterator;
 use Search::Xapian::Query;
+use Search::Xapian::QueryParser;
 use Search::Xapian::RSet;
+use Search::Xapian::Stopper;
 use Search::Xapian::TermIterator;
 use Search::Xapian::WritableDatabase;
 
@@ -59,7 +61,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.0.2';
+our $VERSION = '0.8.0.4';
 
 bootstrap Search::Xapian $VERSION;
 

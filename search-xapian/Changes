@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.0.4  Wed Jun  9 12:08:54 2004
+	[Changes contributed by Tim Brody]
+	- Wrappers for ::QueryParser and ::Stopper
+
 0.8.0.3  Thu Jun  3 13:14:39 2004
 	- Makefile.PL now uses xapian-config to determine
 	  library/include path 

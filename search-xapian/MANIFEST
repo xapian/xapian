@@ -8,6 +8,8 @@ Xapian/MSetIterator.pm
 Xapian/Document.pm
 Xapian/Database.pm
 Xapian/Query.pm
+Xapian/QueryParser.pm
+Xapian/Stopper.pm
 Xapian/MSet.pm
 Xapian/MSet/Tied.pm
 Xapian/WritableDatabase.pm
@@ -23,6 +25,8 @@ Xapian.xs
 XS/MSetIterator.xs
 XS/Database.xs
 XS/Query.xs
+XS/QueryParser.xs
+XS/Stopper.xs
 XS/MSet.xs
 XS/WritableDatabase.xs
 XS/Document.xs
@@ -40,7 +44,9 @@ typemap
 
 t/create.t
 t/index.t
+t/parser.t
 t/search.t
 t/tied.t
 
 examples/simplesearch.pl
+META.yml
