@@ -57,7 +57,8 @@ make
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cd %{name}-%{version}
-%makeinstall
+# %makeinstall doesn't work properly with libtool built libraries
+make DESTDIR=%{buildroot} install
 # Move the docs to the right place
 mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 # Copy HACKING now, as "%doc HACKING" would overwrite everything
@@ -66,7 +67,7 @@ cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}
 cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}/usr/share/doc/%{name}-%{version}
 cd ../xapian-examples-%{version}
-%makeinstall
+make DESTDIR=%{buildroot} install
 
 %post -p /sbin/ldconfig
 

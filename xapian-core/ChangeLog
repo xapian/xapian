@@ -1,3 +1,8 @@
+Sun Dec 12 21:24:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: %makeinstall puts the wrong paths in the .la files
+	  so use "make DESTDIR=... install" instead.
+
 Wed Dec 08 15:59:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Bumped the 0.8.4 release date.
