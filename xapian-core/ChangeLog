@@ -1,3 +1,10 @@
+Wed Sep 01 14:21:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Turn on previously commented-out code to
+	  make the first key null for blocks more than 1 away from the leaves.  
+	  It saves disk space for a tiny CPU and RAM cost so is bound to be
+	  a win overall.
+
 Tue Aug 31 13:55:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,

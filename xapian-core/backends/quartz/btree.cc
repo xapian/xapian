@@ -758,20 +758,17 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
     // Set tag contents to block number
     set_int4(b, I2 + i + C2, blocknumber);
 
-    /* when j > 1 we can make the first key of block p null, but is it worth it?
-       Other redundant keys still creep in. The code to do it is commented out
-       here:
-    */
-    /*
-       if (j > 1) {
-	   byte * p = C[j - 1].p;
-	   int newkey_len = GETK(newkey, 0);
-	   uint4 n = get_int4(newkey, newkey_len);
-	   int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
-	   form_null_key(newkey - I2, n);
-	   SET_TOTAL_FREE(p, new_total_free);
-       }
-    */
+    // When j > 1 we can make the first key of block p null.  This is probably
+    // worthwhile as it trades a small amount of CPU and RAM use for a small
+    // saving in disk use.  Other redundant keys will still creep in though.
+    if (j > 1) {
+	byte * p = C[j - 1].p;
+	int newkey_len = GETK(newkey, 0);
+	uint4 n = get_int4(newkey, newkey_len);
+	int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
+	form_null_key(newkey - I2, n);
+	SET_TOTAL_FREE(p, new_total_free);
+    }
 
     C[j].c = find_in_block(C[j].p, b + I2, 0, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
