@@ -6,6 +6,12 @@ tcllibdir = @TCL_LIB@
 
 tcllib_LTLIBRARIES = xapian.la
 
+# Remove the .la file - xapian.la is never linked against (it's a module)
+# and TCL doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(tcllibdir)/xapian.la
+
 AM_CPPFLAGS = -I@TCL_INC@
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapian_la_LDFLAGS = -avoid-version -module
