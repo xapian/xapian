@@ -1,3 +1,14 @@
+Tue Jan 23 15:13:58 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Killed OmIndexerBuilder::NodeType.  Now use OmNodeDescriptor
+	  in its place, getting rid of another vector usage in the API.
+	
+	* OmNodeDescriptor adjusted for its new role: internals are
+	  refcounted, and some query as well as setting functions.
+
+	* Cast the fourth argument to getsockopt() to void *.  On Solaris
+	  that argument is char *.
+
 Tue Jan 23 11:24:13 GMT 2001 Olly Betts
 
 	* Tiny tweak to da_document.cc.

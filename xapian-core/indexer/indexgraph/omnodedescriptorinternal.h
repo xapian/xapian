@@ -28,14 +28,28 @@
 #include <vector>
 #include "om/omnodedescriptor.h"
 #include "om/omnodeconnection.h"
+#include "refcnt.h"
 
 /** A description of a new node type */
 class OmNodeDescriptor::Internal {
     public:
-	std::string nodename;
-	OmNodeCreator creator;
-	std::vector<OmNodeConnection> inputs;
-	std::vector<OmNodeConnection> outputs;
+	struct Data : public RefCntBase {
+	    std::string nodename;
+	    std::string type;
+	    OmNodeCreator creator;
+	    std::vector<OmNodeConnection> inputs;
+	    std::vector<OmNodeConnection> outputs;
+	};
+
+	RefCntPtr<Data> data;
+
+	/* constructors */
+	Internal() : data(new Data()) {}
+	Internal(const Internal &other) : data(other.data) {}
+
+    private:
+	/* assignment not allowed */
+	void operator=(const Internal &other);
 };
 
 #endif /* OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H */

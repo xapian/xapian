@@ -70,7 +70,7 @@ class OmIndexerBuilder::Internal {
 	static std::vector<int> sort_nodes(const OmIndexerDesc &desc);
 
 	/** Return information about a node type by name. */
-	OmIndexerBuilder::NodeType get_node_info(const std::string &type);
+	AutoPtr<OmNodeDescriptor::Internal> get_node_info(const std::string &type);
     private:
 	/** Build the node graph (with checking) and set up the final
 	 *  node pointer.
@@ -201,17 +201,17 @@ OmIndexerBuilder::Internal::build_from_string(const std::string &xmldesc,
     build_graph(indexer, *doc);
 }
 
-OmIndexerBuilder::NodeType
+OmNodeDescriptor
 OmIndexerBuilder::get_node_info(const std::string &type)
 {
-    return internal->get_node_info(type);
+    return OmNodeDescriptor((internal->get_node_info(type)).release());
 }
 
-OmIndexerBuilder::NodeType
+AutoPtr<OmNodeDescriptor::Internal>
 OmIndexerBuilder::Internal::get_node_info(const std::string &type)
 {
-    OmIndexerBuilder::NodeType result;
-    result.type = type;
+    AutoPtr<OmNodeDescriptor::Internal> result(new OmNodeDescriptor::Internal);
+    result->data->type = type;
 
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(type);
@@ -219,8 +219,8 @@ OmIndexerBuilder::Internal::get_node_info(const std::string &type)
     if (i == nodetypes.end()) {
 	throw OmRangeError(std::string("Unknown node type ") + type);
     }
-    result.inputs = i->second.inputs;
-    result.outputs = i->second.outputs;
+    result->data->inputs = i->second.inputs;
+    result->data->outputs = i->second.outputs;
 
     return result;
 }
@@ -572,18 +572,18 @@ void
 OmIndexerBuilder::Internal::register_node_type(const OmNodeDescriptor::Internal &ndesc_)
 {
     std::map<std::string, node_desc>::const_iterator i;
-    i = nodetypes.find(ndesc_.nodename);
+    i = nodetypes.find(ndesc_.data->nodename);
     if (i != nodetypes.end()) {
 	throw OmInvalidArgumentError(std::string("Attempt to register node type ")
-				     + ndesc_.nodename + ", which already exists.");
+				     + ndesc_.data->nodename + ", which already exists.");
     }
 
     node_desc ndesc;
-    ndesc.create = ndesc_.creator;
-    std::copy(ndesc_.inputs.begin(), ndesc_.inputs.end(),
+    ndesc.create = ndesc_.data->creator;
+    std::copy(ndesc_.data->inputs.begin(), ndesc_.data->inputs.end(),
 	      std::back_inserter(ndesc.inputs));
-    std::copy(ndesc_.outputs.begin(), ndesc_.outputs.end(),
+    std::copy(ndesc_.data->outputs.begin(), ndesc_.data->outputs.end(),
 	      std::back_inserter(ndesc.outputs));
 
-    nodetypes[ndesc_.nodename] = ndesc;
+    nodetypes[ndesc_.data->nodename] = ndesc;
 }

@@ -26,7 +26,6 @@
 #include <string>
 #include <om/omindexer.h>
 #include <om/omnodeconnection.h>
-#include <vector>
 
 // available from <om/omindexerdesc.h>
 class OmIndexerDesc;
@@ -87,19 +86,8 @@ class OmIndexerBuilder {
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor &nodedesc);
 
-	/** Structure used to describe an indexer node type. */
-	struct NodeType {
-	    /** The name of the node type */
-	    std::string type;
-
-	    /** The list of inputs */
-	    std::vector<OmNodeConnection> inputs;
-	    /** The list of outputs */
-	    std::vector<OmNodeConnection> outputs;
-	};
-
 	/** Return information about a node type by name. */
-	NodeType get_node_info(const std::string &type);
+	OmNodeDescriptor get_node_info(const std::string &type);
     private:
 	class Internal;
 

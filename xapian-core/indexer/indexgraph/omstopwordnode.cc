@@ -24,6 +24,7 @@
 #include "node_reg.h"
 #include "om/omerror.h"
 #include <set>
+#include <vector>
 
 static const char *const default_swords[] = {
     "he", "her", "herself", "hi", "him", "himself", "it",

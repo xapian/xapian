@@ -54,6 +54,11 @@ class OmNodeDescriptor {
 	/** Destructor. */
 	~OmNodeDescriptor();
 
+	/** Ask what the node's type name is. */
+	std::string get_type() const;
+
+	/* FIXME: add iterators to inspect inputs and outputs */
+
 	/** Add an input description to this node.
 	 *
 	 * @param name		The name of this input.
@@ -73,10 +78,14 @@ class OmNodeDescriptor {
 	void add_output(const std::string &name,
 			const std::string &type,
 			OmIndexerMessageType phys_type);
+
+	class Internal;
     private:
 	friend class OmIndexerBuilder;
-	class Internal;
 	Internal *internal;
+
+	/* Used by OmIndexerBuilder */
+	OmNodeDescriptor(Internal *internal_);
 };
 
 #endif /* OM_HGUARD_OMNODEDESCRIPTOR_H */

@@ -27,12 +27,17 @@ OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
 				   OmNodeCreator creator_)
 	: internal(new Internal())
 {
-    internal->nodename = nodename_;
-    internal->creator = creator_;
+    internal->data->nodename = nodename_;
+    internal->data->creator = creator_;
 }
 
 OmNodeDescriptor::OmNodeDescriptor(const OmNodeDescriptor &other)
 	: internal(new Internal(*other.internal))
+{
+}
+
+OmNodeDescriptor::OmNodeDescriptor(OmNodeDescriptor::Internal *internal_)
+	: internal(internal_)
 {
 }
 
@@ -41,7 +46,7 @@ OmNodeDescriptor::add_input(const std::string &name,
 			    const std::string &type,
 			    OmIndexerMessageType phys_type)
 {
-    internal->inputs.push_back(OmNodeConnection(name, type, phys_type));
+    internal->data->inputs.push_back(OmNodeConnection(name, type, phys_type));
 }
 
 void
@@ -49,7 +54,7 @@ OmNodeDescriptor::add_output(const std::string &name,
 			    const std::string &type,
 			    OmIndexerMessageType phys_type)
 {
-    internal->outputs.push_back(OmNodeConnection(name, type, phys_type));
+    internal->data->outputs.push_back(OmNodeConnection(name, type, phys_type));
 }
 
 OmNodeDescriptor::~OmNodeDescriptor()
