@@ -186,7 +186,7 @@ class TextfileDatabase : public virtual IRSingleDatabase,
 
 	doclength get_doclength(docid) const;
 
-	termid make_term(const termname &);
+	void make_term(const termname &);
 	docid make_doc(const docname &);
 	void make_posting(const termname &, docid, termcount);
 

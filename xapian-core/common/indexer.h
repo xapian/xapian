@@ -18,7 +18,7 @@ class IndexerSource {
 // Something which wants the indexed terms (eg, a database, or a query)
 class IndexerDestination {
     public:
-	virtual termid make_term(const termname &) = 0;
+	virtual void make_term(const termname &) = 0;
 	virtual docid make_doc(const docname &) = 0;
 	virtual void make_posting(const termname &, docid, termcount) = 0;
 };

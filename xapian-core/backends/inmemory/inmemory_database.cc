@@ -101,7 +101,7 @@ TextfileDatabase::open_document(docid did) const
     return new TextfileDocument(doclists[did - 1]);
 }
 
-termid
+void
 TextfileDatabase::make_term(const termname &tname)
 {
     Assert(indexing == true);
@@ -115,10 +115,7 @@ TextfileDatabase::make_term(const termname &tname)
 	termvec.push_back(tname);
 	termidmap[tname] = tid;
 	postlists[tname];  // Initialise
-    } else {
-	tid = (*p).second;
     }
-    return tid;
 }
 
 docid
