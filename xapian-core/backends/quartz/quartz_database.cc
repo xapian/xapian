@@ -183,13 +183,6 @@ om_doccount
 QuartzDatabase::get_doccount() const
 {
     DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount", "");
-    RETURN(get_doccount_internal());
-}
-
-om_doccount
-QuartzDatabase::get_doccount_internal() const
-{
-    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount_internal", "");
     RETURN(QuartzRecordManager::get_doccount(*(tables->get_record_table())));
 }
 
@@ -197,15 +190,8 @@ om_doclength
 QuartzDatabase::get_avlength() const
 {
     DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength", "");
-    RETURN(get_avlength_internal());
-}
-
-om_doclength
-QuartzDatabase::get_avlength_internal() const
-{
-    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength_internal", "");
     // FIXME: probably want to cache this value (but not miss updates)
-    om_doccount docs = get_doccount_internal();
+    om_doccount docs = get_doccount();
     if (docs == 0) RETURN(0);
     om_totlength totlen =
 	QuartzRecordManager::get_total_length(*(tables->get_record_table()));
@@ -316,7 +302,7 @@ QuartzDatabase::open_term_list_internal(om_docid did,
 			      tables->get_postlist_table(),
 #endif
 			      did,
-			      get_doccount_internal()));
+			      get_doccount()));
 }
 
 LeafTermList *
@@ -568,7 +554,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 				database_ro.tables->get_postlist_table(),
 #endif
 				did,
-				database_ro.get_doccount_internal());
+				database_ro.get_doccount());
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -685,7 +671,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 				    database_ro.tables->get_postlist_table(),
 #endif
 				    did,
-				    database_ro.get_doccount_internal());
+				    database_ro.get_doccount());
 	    old_doclen = termlist.get_doclength();
             OmTermIterator tNewIter = document.termlist_begin();
             termlist.next();
@@ -831,7 +817,7 @@ om_doccount
 QuartzWritableDatabase::get_doccount() const
 {
     DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_doccount", "");
-    RETURN(database_ro.get_doccount_internal());
+    RETURN(database_ro.get_doccount());
 }
 
 om_doclength

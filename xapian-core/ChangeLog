@@ -1,3 +1,10 @@
+Wed Nov 06 22:38:40 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,backends/quartz/quartz_database.h:
+	  Eliminated QuartzDatabase::get_doccount_internal() and
+	  QuartzDatabase::get_avlength_internal() - now the thread
+	  locking code has gone, the indirection serves no purpose.
+
 Wed Nov 06 17:50:12 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Removed QuartzBufferedTable::write() (unused and

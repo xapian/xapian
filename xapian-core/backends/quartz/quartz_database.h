@@ -63,9 +63,6 @@ class QuartzDatabase : public Database {
 	virtual void do_reopen();
 	//@}
 
-	/// Implementation of get_avlength()
-	om_doclength get_avlength_internal() const;
-
 	/// Implementation of open_post_list()
 	LeafPostList * open_post_list_internal(const om_termname & tname,
 				RefCntPtr<const Database> ptrtothis) const;
@@ -74,8 +71,6 @@ class QuartzDatabase : public Database {
 	LeafTermList * open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const;
 
-	/// Implementation of get_doccount()
-	om_doccount  get_doccount_internal() const;
     public:
 	/** Create and open a quartz database.
 	 *
