@@ -70,8 +70,7 @@ AC_LANG_RESTORE
 AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test yes = "$FNO_ACCESS_FLAG")
 
 dnl Checks for perl.  (Needed to make some of the documentation)
-AC_PATH_PROG(PERL, perl, "$MISSING perl")
-AM_CONDITIONAL(HAVE_PERL, test x"$PERL" != x"$MISSING perl")
+AC_PATH_PROG(PERL, perl, [$MISSING perl])
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
@@ -111,13 +110,13 @@ AC_SUBST(DOXYGEN_HAVE_DOT)
 AC_SUBST(DOXYGEN_DOT_PATH)
 
 dnl Check for latex. (Needed to make some more of the documentation)
-AC_PATH_PROG(LATEX, latex, "$MISSING latex")
+AC_PATH_PROG(LATEX, latex, [$MISSING latex])
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN, doxygen, "$MISSING doxygen")
+AC_PATH_PROG(DOXYGEN, doxygen, [$MISSING doxygen])
 
 dnl Check for dvips. (Needed to make some more of the documentation)
-AC_PATH_PROG(DVIPS, dvips, "$MISSING dvips")
+AC_PATH_PROG(DVIPS, dvips, [$MISSING dvips])
 
 dnl dnl Check for swig. (For generating scripting language bindings)
 dnl dnl set SWIG to swig if not found so we give a better error if someone

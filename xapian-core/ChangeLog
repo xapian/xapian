@@ -1,3 +1,8 @@
+Wed Sep 11 11:13:43 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Don't double quote `$MISSING foo' as autoconf adds them
+	* docs/Makefile.am: Use `test a = b' rather than `test a == b'
+
 Tue Sep 10 14:50:16 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: tweaked test for perl modules - stderr is now
