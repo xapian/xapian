@@ -33,6 +33,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -73,6 +74,8 @@ static string root;
 static string indexroot;
 static string baseurl;
 static Xapian::WritableDatabase db;
+
+vector<bool> updated;
 
 static const unsigned int MAX_URL_LENGTH = 240;
 
@@ -467,16 +470,21 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	// If this document has already been indexed, update the existing
 	// entry.
 	try {
-	    db.replace_document(urlterm, newdocument);
-	    cout << "done." << endl;
+	    Xapian::docid did = db.replace_document(urlterm, newdocument);
+	    if (did < updated.size()) {
+		updated[did] = true;
+		cout << "updated." << endl;
+	    } else {
+		cout << "added." << endl;
+	    }
 	} catch (...) {
-	    // FIXME: is this actually needed?
+	    // FIXME: is this ever actually needed?
 	    db.add_document(newdocument);
-	    cout << "done (failed re-seek for duplicate)." << endl;
+	    cout << "added (failed re-seek for duplicate)." << endl;
 	}
     } else {
 	db.add_document(newdocument);
-	cout << "done." << endl;
+	cout << "added." << endl;
     }
 }
 
@@ -677,12 +685,22 @@ main(int argc, char **argv)
     try {
 	if (!overwrite) {
 	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OPEN);
+	    updated.resize(db.get_lastdocid() + 1);
 	} else {
 	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 	index_directory("/", mime_map);
-	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	for (Xapian::docid did = 1; did < updated.size(); ++did) {
+	    if (!updated[did]) {
+		try {
+		    db.delete_document(did);
+		    cout << "Deleted document #" << did << endl;
+		} catch (const Xapian::DocNotFoundError &) {
+		}
+	    }
+	}
 	db.flush();
+	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;
 	return 1;

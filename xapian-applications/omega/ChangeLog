@@ -1,3 +1,9 @@
+Wed Aug 25 23:19:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: When running with "replace duplicates" mode (the
+	  default), detect documents removed since the last indexing
+	  run and delete them from the database (bug #34).
+
 Tue Aug 24 19:23:55 BST 2004  Olly Betts <olly@survex.com>
 
 	* omega.cc: Added FIXME comment noting that SORT and SORTBANDS should
