@@ -1,4 +1,4 @@
-Xapian-bindings 0.8.0 (2004-04-19):
+Xapian-bindings 0.8.0 (2004-04-20):
 
 * README: Started collecting information on supporting Xapian from even
   more languages.
@@ -11,7 +11,9 @@ Xapian-bindings 0.8.0 (2004-04-19):
 
 * A couple of Xapian::Query constructors weren't being wrapped - fixed.
 
-* Added Eric B. Ridge's JNI bindings for Java.
+* Added Eric B. Ridge's JNI bindings for Java.  The JNI bindings themselves
+  have been well tested, but integration with the xapian-bindings configure
+  system hasn't been tested at all - please alert us to any problems.
 
 * Xapian can now be used from TCL.
 
