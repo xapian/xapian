@@ -1,3 +1,9 @@
+Wed Nov 26 22:44:49 GMT 2003  Olly Betts <olly@survex.com>
+
+	* indextext.cc: Raw terms with a multicharacter prefix are now indexed
+	  with a : inserted (e.g. as XFOO:Rterm).  This matches what the query
+	  parser does.
+
 Sun Nov 23 03:28:21 GMT 2003  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt: Added note that $setmap{prefix,...}

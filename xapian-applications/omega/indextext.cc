@@ -103,6 +103,14 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	   Xapian::termcount wdfinc, const string &prefix,
 	   Xapian::termpos pos)
 {
+    string rprefix = prefix;
+    // If we're using a multi-character prefix, make sure to add a colon when
+    // generating raw (R) terms as otherwise XFOO + Rterm will collide with
+    // XFOOR + term
+    if (rprefix.size() > 1 && rprefix[rprefix.size() - 1] != ':')
+	rprefix += ':';
+    rprefix += 'R';
+
     AccentNormalisingItor j(s.begin());
     const AccentNormalisingItor s_end(s.end());
     while (true) {
@@ -154,9 +162,9 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 		   ) {
-		    doc.add_posting(prefix + 'R' + term, pos, wdfinc);
+		    doc.add_posting(rprefix + term, pos, wdfinc);
 		} else {
-		    doc.add_term_nopos(prefix + 'R' + term, wdfinc);
+		    doc.add_term_nopos(rprefix + term, wdfinc);
 		}
 	    }
 
