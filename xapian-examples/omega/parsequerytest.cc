@@ -7,13 +7,13 @@ typedef struct {
 } test;
 
 static test tests[] = {
-    { "om-example", "(om PHRASE 2 exampl)" },
-    { "size_t", "(size PHRASE 2 t)" },
-    { "muscat -wine", "(muscat AND_NOT wine)" },
-    { "a- grade", "(a- OR grade)" },
-    { "gtk+ -gimp", "(gtk+ AND_NOT gimp)" },
-    { "c++ -c--", "(c++ AND_NOT c--)" },
-    { "\"c++ standard\"", "(c++ PHRASE 2 standard)" },
+    { "om-example", "(om:(pos=1) PHRASE 2 exampl:(pos=2))" },
+    { "size_t", "(size:(pos=1) PHRASE 2 t:(pos=2))" },
+    { "muscat -wine", "(muscat:(pos=1) AND_NOT wine:(pos=2))" },
+    { "a- grade", "(a-:(pos=1) OR grade:(pos=2))" },
+    { "gtk+ -gimp", "(gtk+:(pos=1) AND_NOT gimp:(pos=2))" },
+    { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
+    { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
     { NULL, NULL }
 };
 

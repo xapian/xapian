@@ -1,3 +1,11 @@
+Thu Mar 29 17:54:11 BST 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix parsequerytest to work with changed format for
+	  OmQuery::get_description().
+
+	* Add "using std::string" to parsequery.h, so queryparser compiles
+	  on its own.
+
 Mon Mar 19 17:46:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Fix omindex-config.cc to compile with STL port.  Now only complains

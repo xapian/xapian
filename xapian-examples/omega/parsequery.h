@@ -23,11 +23,12 @@
 #ifndef OM_HGUARD_PARSEQUERY_H
 #define OM_HGUARD_PARSEQUERY_H
 
-#include <string>
 #include <om/om.h>
 
+#include <string>
 #include <list>
 #include <set>
+using std::string;
 using std::list;
 using std::set;
 
