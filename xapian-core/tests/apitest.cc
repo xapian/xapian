@@ -1823,14 +1823,16 @@ bool test_multiexpand1()
     vector<OmESetItem>::const_iterator i;
     vector<OmESetItem>::const_iterator j;
     vector<OmESetItem>::const_iterator k;
+    bool all_iwts_equal_jwts = true;
     for(i = eset1.items.begin(), j = eset2.items.begin(),
 	k = eset3.items.begin();
 	i != eset1.items.end(), j != eset2.items.end(), k != eset3.items.end();
 	i++, j++, k++) {
-	//TEST_NOT_EQUAL(i->wt, j->wt);
+	if (i->wt != j->wt) all_iwts_equal_jwts = false;
 	TEST_EQUAL(i->wt, k->wt);
 	TEST_EQUAL(i->tname, k->tname);
     }
+    TEST(!all_iwts_equal_jwts);
     return true;
 }
 

@@ -1,3 +1,7 @@
+Tue Jun 13 13:07:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made multiexpand1 slightly more rigourous.
+
 Tue Jun 13 12:44:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API change: renamed OmExpandOptions::use_query_terms() to
