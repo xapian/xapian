@@ -56,14 +56,14 @@ class TestSkip {
  */
 // Don't bracket a, because it may have <<'s in it
 #define FAIL_TEST(a) do { TestFailure testfail; \
-                          if (verbose) { std::cout << a; } \
+                          if (verbose) { tout << a << '\n'; } \
 		          throw testfail; } while (0)
 
 /** Macro used to build a TestSkip object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
 #define SKIP_TEST(a) do { TestSkip testskip; \
-                          if (verbose) { std::cout << a; } \
+                          if (verbose) { tout << a << '\n'; } \
 		          throw testskip; } while (0)
 
 /// Type for a test function.

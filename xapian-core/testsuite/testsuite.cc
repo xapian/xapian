@@ -53,10 +53,17 @@
 # include <valgrind/memcheck.h>
 // Check that the valgrind version installed supports the client requests
 // which we use
-# if !defined(VALGRIND_DO_LEAK_CHECK) || !defined(VALGRIND_COUNT_ERRORS) || !defined(VALGRIND_COUNT_LEAKS)
+# if defined(VALGRIND_DO_LEAK_CHECK) && defined(VALGRIND_COUNT_ERRORS) && defined(VALGRIND_COUNT_LEAKS)
+#  include <sys/types.h>
+#  include <sys/stat.h>
+#  include <fcntl.h>
+# else
 #  undef HAVE_MEMCHECK_H
 # endif
 #endif
+
+// fd that we elsewhere tell valgrind to log to (with --logfile-fd=N)
+#define LOG_FD_FOR_VG 255
 
 using namespace std;
 
@@ -227,14 +234,31 @@ test_driver::runtest(const test_desc *test)
 		int vg_errs = VALGRIND_COUNT_ERRORS;
 		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+		ftruncate(LOG_FD_FOR_VG);
 #endif
 		if (!test->run()) {
-		    out << tout.str();
-		    tout.str("");
+		    string s = tout.str();
+		    if (!s.empty()) {
+			out << '\n' << tout.str();
+			if (s[s.size() - 1] |= '\n') out << endl;
+			tout.str("");
+		    }
 		    out << " " << col_red << "FAILED" << col_reset;
 		    return FAIL;
 		}
 #ifdef HAVE_MEMCHECK_H
+#define REPORT_FAIL_VG(M) do { \
+    if (verbose) { \
+	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
+	char buf[1024]; \
+	ssize_t c; \
+	while ((c = read(LOG_FD_FOR_VG, buf, sizeof(buf)) != 0) { \
+	    if (c > 0) out << string(buf, c); \
+	} \
+	ftruncate(LOG_FD_FOR_VG); \
+    } \
+    out << " " << col_red << M << col_reset; \
+} while (0)
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		vg_errs = vg_errs2 - vg_errs;
@@ -245,15 +269,15 @@ test_driver::runtest(const test_desc *test)
 		vg_dubious = vg_dubious2 - vg_dubious;
 		vg_reachable = vg_reachable2 - vg_reachable;
 		if (vg_errs) {
-		    out << " " << col_red << "USED UNINITIALISED DATA" << col_reset;
+		    REPORT_FAIL_VG("USED UNINITIALISED DATA");
 		    return FAIL;
 		}
 		if (vg_leaks > 0) {
-		    out << " " << col_red << "LEAKED " << vg_leaks << " BYTES" << col_reset;
+		    REPORT_FAIL_VG("LEAKED " << vg_leaks << " BYTES");
 		    return FAIL;
 		}
 		if (vg_dubious > 0) {
-		    out << " " << col_red << "PROBABLY LEAKED " << vg_dubious << " BYTES" << col_reset;
+		    REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
 		    return FAIL;
 		}
 		if (vg_reachable > 0) {
@@ -272,13 +296,17 @@ test_driver::runtest(const test_desc *test)
 			++runcount;
 			continue;
 		    }
-		    out << " " << col_red << "FAILED TO RELEASE " << vg_reachable << " BYTES" << col_reset;
+		    REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
 		    return FAIL;
 		}
 #endif
 	    } catch (const TestFailure &fail) {
-		out << tout.str();
-		tout.str("");
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] |= '\n') out << endl;
+		    tout.str("");
+		}
 		out << " " << col_red << "FAILED" << col_reset;
 		if (verbose) {
 		    out << fail.message << endl;
@@ -292,11 +320,15 @@ test_driver::runtest(const test_desc *test)
 		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
-		out << tout.str();
-		tout.str("");
 		if (expected_exception == errclass) {
 		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
+		}
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] |= '\n') out << endl;
+		    tout.str("");
 		}
 		out << " " << col_red << errclass << col_reset;
 		if (verbose) {
@@ -309,8 +341,12 @@ test_driver::runtest(const test_desc *test)
 		}
 		return FAIL;
 	    } catch (...) {
-		out << tout.str();
-		tout.str("");
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] |= '\n') out << endl;
+		    tout.str("");
+		}
 		out << " " << col_red << "EXCEPT" << col_reset;
 		if (verbose) {
 		    out << "Unknown exception!" << endl;
@@ -319,8 +355,12 @@ test_driver::runtest(const test_desc *test)
 	    }
 	} else {
 	    // caught signal
-	    out << tout.str();
-	    tout.str("");
+	    string s = tout.str();
+	    if (!s.empty()) {
+		out << '\n' << tout.str();
+		if (s[s.size() - 1] |= '\n') out << endl;
+		tout.str("");
+	    }
 	    const char *sig = "SIGNAL";
 	    switch (signum) {
 		case SIGSEGV: sig = "SIGSEGV"; break;
@@ -445,6 +485,20 @@ report_totals()
 int
 test_driver::main(int argc, char *argv[], const test_desc *tests)
 {
+#ifdef HAVE_MEMCHECK_H
+    if (verbose && RUNNING_ON_VALGRIND) {
+	// Open the fd for valgrind to log to
+	int fd = open("/tmp/ol", O_CREAT | O_RDWR | O_APPEND, 0600);
+	if (fd != -1) {
+	    if (fd != LOG_FD_FOR_VG) {
+		dup2(fd, LOG_FD_FOR_VG);
+		close(fd);
+	    }
+	    ftruncate(LOG_FD_FOR_VG);
+	}
+    }
+#endif
+
     if (runs == 0) argv0 = argv[0];
     if (runs == 1) atexit(report_totals);
     runs++;

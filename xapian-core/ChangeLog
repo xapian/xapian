@@ -1,3 +1,10 @@
+Fri May 02 02:14:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc,testsuite/testsuite.h: If a testsuite program
+	  is run using "valgrind --logfile-fd=255 ./footest" then the harness
+	  will show valgrind's output for tests which fail because valgrind
+	  spotted errors or leaks (untested under valgrind).
+
 Thu May 01 21:25:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/omquery.cc,api/omqueryinternal.cc,common/,
