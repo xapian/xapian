@@ -1,3 +1,15 @@
+Wed Jan 17 18:18:50 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added all used toplevel directories to DIST_SUBDIRS
+
+Wed Jan 17 18:13:50 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Martin committed changes to btree.cc which should fix some random
+	  problems experienced with quartz.
+
+	* Added in a test framework for the btree code, which exhibited the
+	  bug fixed by martin until updating to his fixed version.
+
 Wed Jan 17 16:10:02 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Moved the socklen_t definition so that tcpclient.cc could see
