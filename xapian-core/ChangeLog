@@ -1,3 +1,7 @@
+Fri Sep 08 11:02:53 BST 2000 Olly Betts
+
+	* Reenabled termlist1 for DA backend so Martin can investigate bug.
+ 
 Fri Sep 08 10:44:53 BST 2000 Olly Betts
 
 	* Removed a number of superfluous semicolons.

@@ -1608,6 +1608,8 @@ test_desc db_tests[] = {
     {"mbound1",            test_mbound1},
     {"wqf1",		   test_wqf1},
     {"qlen1",		   test_qlen1},
+// currently fails for DA - Doc P. investigating
+    {"termlist1",	   test_termlist1},
     {0, 0}
 };
 
@@ -1617,8 +1619,6 @@ test_desc doclendb_tests[] = {
     {"simplequery2",       test_simplequery2},
 // Mset comes out in wrong order - no document length?
     {"rsetmultidb2",       test_rsetmultidb2},
-// FIXME: not really doclen - just fails for DA - needs fixing
-    {"termlist1",	   test_termlist1},
     {0, 0}
 };
 
