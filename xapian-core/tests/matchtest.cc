@@ -133,6 +133,20 @@ main(int argc, char *argv[])
 			    printf("Failed to add boolean XOR\n");
 			}
 			continue;
+		    } else if (term == "ANDMAYBE") {
+			if (match.add_op(AND_MAYBE)) {
+			    printf("Added boolean ANDMAYBE\n");
+			} else {
+			    printf("Failed to add boolean ANDMAYBE\n");
+			}
+			continue;
+		    } else if (term == "ANDNOT") {
+			if (match.add_op(AND_NOT)) {
+			    printf("Added boolean ANDNOT\n");
+			} else {
+			    printf("Failed to add boolean ANDNOT\n");
+			}
+			continue;
 		    }
 		}
 
