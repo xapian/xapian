@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,8 +78,13 @@ struct test_desc {
     test_func run;
 };
 
-// The global verbose flag.  Individual tests may need to get at it.
+/// The global verbose flag.  Individual tests may need to get at it.
 extern bool verbose;
+
+/// The exception type we were expecting in TEST_EXCEPTION.
+//  Used to detect if such an exception was mishandled by a the
+//  compiler/runtime.
+extern const char * expected_exception;
 
 /** The output stream.  Data written to this stream will only appear
  *  when a test fails.
@@ -150,6 +156,10 @@ class test_driver {
 	static result total;
 
     private:
+	/** Prevent copying */
+	test_driver(const test_driver &);
+	test_driver & operator = (const test_driver &);
+
 	/** Runs the test function and returns its result.  It will
 	 *  also trap exceptions and some memory leaks and force a
 	 *  failure in those cases.
@@ -185,6 +195,9 @@ class test_driver {
 
 	// program name
 	static std::string argv0;
+
+	// strings to use for colouring - empty if output isn't a tty
+	static std::string col_red, col_green, col_yellow, col_reset;
 };
 
 inline void test_driver::set_abort_on_error(bool aoe_)
@@ -203,10 +216,8 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 #define _STRINGIZE(N) #N
 #endif
 
-#ifndef TESTCASE_LOCN
 /// Display the location at which a testcase occured, with an explanation
 #define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)
-#endif
 
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.

@@ -1,3 +1,13 @@
+Tue Oct 08 19:57:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* testsuite/: Disable colour test output if stdout isn't a terminal; 
+	  reworked check for broken exception handling as the previous
+	  version never seemed to fire; added "using" for all the things
+	  we want from std::; improved how signal handlers are set and
+	  unset; report exception class for exceptions derived from OmError
+	  rather than a blanket "OMEXCEPT"; added private copy ctor and
+	  assignment to test_driver to prevent copying.
+
 Tue Oct 08 19:53:02 BST 2002  Olly Betts <olly@survex.com>
 
 	* include/om/Makefile.am: remove include/om/om.h on "make distclean",

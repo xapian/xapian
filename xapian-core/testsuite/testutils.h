@@ -27,8 +27,6 @@
 #include "testsuite.h"
 #include "om/om.h"
 
-#include <typeinfo>
-
 // ######################################################################
 // Useful display operators
 
@@ -88,23 +86,13 @@ void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
 
 /// Check that a piece of code throws an expected exception
 #define TEST_EXCEPTION(a,b) do {\
-	try{\
+    	expected_exception = STRINGIZE(a);\
 	if (verbose) tout << "Expecting exception "STRINGIZE(a) << endl;\
 	try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));}\
 	catch(const a &e){\
 	if (verbose) tout << "Caught expected "STRINGIZE(a)" exception: " << e.get_msg() << endl;\
-	}}\
-	catch(OmError &e){\
-	const char *name = typeid(e).name();\
-	if (strcmp(name, STRINGIZE(a)) == 0){\
-	tout << "COMPILER EXCEPTION HANDLING IS BROKEN!!!" << endl;\
-	}else{\
-	if (verbose) tout << "Expected exception "STRINGIZE(a)", but got " << name << ": " << e.get_msg() << endl;\
-	throw;\
-	}}\
-	catch(...){\
-	if (verbose) tout << "Expected exception "STRINGIZE(a)", got unknown exception" << endl;\
-	throw;\
-	}} while (0)
+	}\
+	expected_exception = NULL;\
+	} while (0)
 
 #endif  // OM_HGUARD_TESTUTILS_H

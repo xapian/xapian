@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +24,10 @@
 
 #include <config.h>
 
-#define COL_RED "\x1b[1m\x1b[31m"
-#define COL_GREEN "\x1b[1m\x1b[32m"
-#define COL_YELLOW "\x1b[1m\x1b[33m"
-#define COL_RESET "\x1b[0m"
-
 #include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
 
 #ifdef HAVE_STREAMBUF
 #include <streambuf>
@@ -38,9 +37,10 @@ using std::streambuf;
 #endif // HAVE_STREAMBUF
 
 #include <set>
+using std::set;
 
-#include <string>
-#include <cstdio>
+using std::string;
+using std::vector;
 
 #include <stdlib.h>
 
@@ -51,6 +51,7 @@ using std::streambuf;
 #include <unistd.h> // for chdir
 
 #include <exception>
+#include <typeinfo>
 
 #include "om/omerror.h"
 #include "testsuite.h"
@@ -66,12 +67,19 @@ static null_streambuf nullsb;
 /// The global verbose flag.
 bool verbose;
 
+/// The exception type we were expecting in TEST_EXCEPTION
+//  - used to attempt to diagnose when the compiler fails to catch it when it
+//  should
+const char * expected_exception = NULL;
+
 /// The debug printing stream
 om_ostringstream tout;
 
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};
-std::string test_driver::argv0 = "";
+string test_driver::argv0 = "";
+std::string test_driver::col_red, test_driver::col_green;
+std::string test_driver::col_yellow, test_driver::col_reset;
 
 void
 test_driver::set_quiet(bool quiet_)
@@ -79,21 +87,21 @@ test_driver::set_quiet(bool quiet_)
     if (quiet_) {
 	out.rdbuf(&nullsb);
     } else {
-	out.rdbuf(std::cout.rdbuf());
+	out.rdbuf(cout.rdbuf());
     }
 }
 
-std::string
-test_driver::get_srcdir(const std::string & argv0)
+string
+test_driver::get_srcdir(const string & argv0)
 {
     char *p = getenv("srcdir");
-    if (p != NULL) return std::string(p);
+    if (p != NULL) return string(p);
 
-    std::string srcdir = argv0;
+    string srcdir = argv0;
     // default srcdir to everything leading up to the last "/" on argv0
-    std::string::size_type i = srcdir.find_last_of('/');
-    std::string srcfile;
-    if (i != std::string::npos) {
+    string::size_type i = srcdir.find_last_of('/');
+    string srcfile;
+    if (i != string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
     } else {
@@ -117,9 +125,9 @@ test_driver::get_srcdir(const std::string & argv0)
 	} else if (file_exists("netprogs/" + srcfile)) {
 	    chdir("netprogs");
 	} else {
-	    std::cout << argv0
+	    cout << argv0
 		<< ": srcdir not in the environment and I can't guess it!"
-		<< std::endl;
+		<< endl;
 	    exit(1);
 	}
     }
@@ -128,7 +136,7 @@ test_driver::get_srcdir(const std::string & argv0)
 
 test_driver::test_driver(const test_desc *tests_)
 	: abort_on_error(false),
-	  out(std::cout.rdbuf()),
+	  out(cout.rdbuf()),
 	  tests(tests_)
 {
 }
@@ -150,6 +158,34 @@ handle_sig(int signum_)
     longjmp(jb, 1);
 }
 
+class SignalRedirector {
+  private:
+    bool active;
+  public:
+    SignalRedirector() : active(false) { }
+    void activate() {
+	active = true;
+	signal(SIGSEGV, handle_sig);
+	signal(SIGFPE, handle_sig);
+	signal(SIGILL, handle_sig);
+	signal(SIGBUS, handle_sig);
+#ifdef SIGSTKFLT
+	signal(SIGSTKFLT, handle_sig);
+#endif
+    }
+    ~SignalRedirector() {
+	if (active) {
+	    signal(SIGSEGV, SIG_DFL);
+	    signal(SIGFPE, SIG_DFL);
+	    signal(SIGILL, SIG_DFL);
+	    signal(SIGBUS, SIG_DFL);
+#ifdef SIGSTKFLT
+	    signal(SIGSTKFLT, SIG_DFL);
+#endif
+	}
+    }
+};
+
 //  A wrapper around the tests to trap exceptions,
 //  and avoid having to catch them in every test function.
 //  If this test driver is used for anything other than
@@ -167,62 +203,58 @@ test_driver::runtest(const test_desc *test)
 	runcount++;
 	tout.str("");
 	// FIXME get snapshot with valgrind
+	SignalRedirector sig; // use object so signal handler are reset
 	if (!setjmp(jb)) {
-	    signal(SIGSEGV, handle_sig);
-	    signal(SIGFPE, handle_sig);
-	    signal(SIGILL, handle_sig);
-	    signal(SIGBUS, handle_sig);
-#ifdef SIGSTKFLT
-	    signal(SIGSTKFLT, handle_sig);
-#endif
+	    sig.activate();
 	    try {
+		expected_exception = NULL;
 		success = test->run();
 		if (!success) {
 		    out << tout.str();
-		    out << " " << COL_RED << "FAILED" << COL_RESET;
+		    out << " " << col_red << "FAILED" << col_reset;
 		}
 	    } catch (TestFailure &fail) {
 		success = false;
 		out << tout.str();
-		out << " " << COL_RED << "FAILED" << COL_RESET;
+		out << " " << col_red << "FAILED" << col_reset;
 		if (verbose) {
-		    out << fail.message << std::endl;
+		    out << fail.message << endl;
 		}
 	    } catch (TestSkip &skip) {
-		out << " " << COL_YELLOW << "SKIPPED" << COL_RESET;
+		out << " " << col_yellow << "SKIPPED" << col_reset;
 		if (verbose) {
-		    out << skip.message << std::endl;
+		    out << skip.message << endl;
 		}
 		// Rethrow the exception to avoid success/fail
 		// (caught in do_run_tests())
 		throw;
-	    } catch (OmError &err) {
+	    } catch (const OmError &err) {
+		const char * errclass = typeid(err).name();
+		if (!errclass) errclass = "<unknown>";
+		while (isdigit(*errclass)) errclass++;
 		out << tout.str();
-		out << " " << COL_RED << "OMEXCEPT" << COL_RESET;
+		if (expected_exception == errclass) {
+		    out << " " << col_yellow << "FAILED TO CATCH " << errclass << col_reset;
+		    throw TestSkip();
+		}
+		out << " " << col_red << errclass << col_reset;
 		if (verbose) {
 		    out << err.get_type() << " exception: " << err.get_msg();
 		    if (!err.get_context().empty())
 			out << " (context:" << err.get_context() << ")";
 		    if (err.get_errno())
 			out << " (errno:" << strerror(err.get_errno()) << ")";
-		    out << std::endl;
+		    out << endl;
 		}
 		success = false;
 	    } catch (...) {
 		out << tout.str();
-		out << " " << COL_RED << "EXCEPT" << COL_RESET;
+		out << " " << col_red << "EXCEPT" << col_reset;
 		if (verbose) {
-		    out << "Unknown exception!" << std::endl;
+		    out << "Unknown exception!" << endl;
 		}
 		success = false;
 	    }
-	    signal(SIGSEGV, SIG_DFL);
-	    signal(SIGFPE, SIG_DFL);
-	    signal(SIGILL, SIG_DFL);
-	    signal(SIGBUS, SIG_DFL);
-#ifdef SIGSTKFLT
-	    signal(SIGSTKFLT, SIG_DFL);
-#endif
 	} else {
 	    // caught signal
 	    out << tout.str();
@@ -236,7 +268,7 @@ test_driver::runtest(const test_desc *test)
 		case SIGSTKFLT: sig = "SIGSTKFLT"; break;
 #endif
 	    }
-    	    out << " " << COL_RED << sig << COL_RESET;
+    	    out << " " << col_red << sig << col_reset;
 	    success = false;
 	}
 
@@ -247,7 +279,7 @@ test_driver::runtest(const test_desc *test)
 	    if (verbose) {
 		print_alloc_differences(before, after, out);
 	    }
-	    out << " " << COL_RED << "LEAK" << COL_RESET;
+	    out << " " << col_red << "LEAK" << col_reset;
 	    return false;
 	}
 #endif
@@ -255,8 +287,8 @@ test_driver::runtest(const test_desc *test)
 }
 
 test_driver::result
-test_driver::run_tests(std::vector<std::string>::const_iterator b,
-		       std::vector<std::string>::const_iterator e)
+test_driver::run_tests(vector<string>::const_iterator b,
+		       vector<string>::const_iterator e)
 {
     return do_run_tests(b, e);
 }
@@ -264,15 +296,15 @@ test_driver::run_tests(std::vector<std::string>::const_iterator b,
 test_driver::result
 test_driver::run_tests()
 {
-    const std::vector<std::string> blank;
+    const vector<string> blank;
     return do_run_tests(blank.begin(), blank.end());
 }
 
 test_driver::result
-test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
-			  std::vector<std::string>::const_iterator e)
+test_driver::do_run_tests(vector<string>::const_iterator b,
+			  vector<string>::const_iterator e)
 {
-    std::set<std::string> m(b, e);
+    set<string> m(b, e);
     bool check_name = !m.empty();
 
     test_driver::result result = {0, 0, 0};
@@ -284,8 +316,8 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 	if (!do_this_test) {
 	    // if this test is "foo123" see if "foo" was listed
 	    // this way "./testprog foo" can run foo1, foo2, etc.
-	    std::string t = test->name;
-	    std::string::size_type i;
+	    string t = test->name;
+	    string::size_type i;
 	    i = t.find_last_not_of("0123456789") + 1;
 	    if (i < t.length()) {
 		t = t.substr(0, i);
@@ -299,18 +331,18 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 		bool succeeded = runtest(test);
 		if (succeeded) {
 		    ++result.succeeded;
-//		    out << " ok." << std::endl;
+//		    out << " ok." << endl;
 		    out << "\r                                                                               \r";
 		} else {
 		    ++result.failed;
-		    out << std::endl;
+		    out << endl;
 		    if (abort_on_error) {
-			out << "Test failed - aborting further tests." << std::endl;
+			out << "Test failed - aborting further tests." << endl;
 			break;
 		    }
 		}
 	    } catch (const TestSkip &e) {
-		out << std::endl;
+		out << endl;
 		// ignore the result of this test.
 		++result.skipped;
 	    }
@@ -321,30 +353,30 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 
 static void usage(char *progname)
 {
-    std::cerr << "Usage: " << progname
-              << " [-v] [-o] [TESTNAME]..." << std::endl;
+    cerr << "Usage: " << progname
+              << " [-v] [-o] [TESTNAME]..." << endl;
     exit(1);
 }
 
 void
-test_driver::report(const test_driver::result &r, const std::string &desc)
+test_driver::report(const test_driver::result &r, const string &desc)
 {
     if (r.succeeded != 0 || r.failed != 0) {
-	std::cout << argv0 << " " << desc << ": ";
+	cout << argv0 << " " << desc << ": ";
 
 	if (r.failed == 0)
-	    std::cout << "All ";
+	    cout << "All ";
 
-	std::cout << COL_GREEN << r.succeeded << COL_RESET << " tests passed";
+	cout << col_green << r.succeeded << col_reset << " tests passed";
 
 	if (r.failed != 0)
-	    std::cout << ", " << COL_RED << r.failed << COL_RESET << " failed";
+	    cout << ", " << col_red << r.failed << col_reset << " failed";
 
 	if (r.skipped) {
-	    std::cout << ", " << COL_YELLOW << r.skipped << COL_RESET
-		<< " skipped." << std::endl;
+	    cout << ", " << col_yellow << r.skipped << col_reset
+		<< " skipped." << endl;
 	} else {
-	    std::cout << "." << std::endl;
+	    cout << "." << endl;
 	}
     }
 }
@@ -363,9 +395,16 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     if (runs == 1) atexit(report_totals);
     runs++;
 
+    if (isatty(1)) {
+	col_red = "\x1b[1m\x1b[31m";
+	col_green = "\x1b[1m\x1b[32m";
+	col_yellow = "\x1b[1m\x1b[33m";
+	col_reset = "\x1b[0m";
+    }
+
     test_driver driver(tests);
 
-    std::vector<std::string> test_names;
+    vector<string> test_names;
 
     int c;
     while ((c = getopt(argc, argv, "vo")) != EOF) {
@@ -383,7 +422,7 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     }
 
     while (argv[optind]) {
-	test_names.push_back(std::string(argv[optind]));
+	test_names.push_back(string(argv[optind]));
 	optind++;
     }
 
