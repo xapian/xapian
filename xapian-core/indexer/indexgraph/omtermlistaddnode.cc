@@ -52,7 +52,6 @@ class OmTermlistAddNode : public OmIndexerNode {
 	    // FIXME: parameters to set positional defaults?
 	}
     private:
-	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage terms = get_input_record("termlist");

@@ -44,7 +44,6 @@ class OmNewKeylistNode : public OmIndexerNode {
 	{
 	}
     private:
-	// FIXME: implement config_modified()
 	void calculate() {
 	    OmIndexerMessage terms(new OmIndexerData(std::vector<OmIndexerData>()));
 	    terms->append_element(OmIndexerData("keylist"));
