@@ -81,7 +81,7 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-    echo $libdir/libomus.la
+    echo -L$libdir -lomus
 fi
 
 exit 0
