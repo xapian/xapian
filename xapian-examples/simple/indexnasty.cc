@@ -138,7 +138,7 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
     return pos;
 }                           
 
-static void
+static bool
 IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
 {
   if (Filepath.empty()) Filepath = "/dev/fd/0";
