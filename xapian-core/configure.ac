@@ -50,7 +50,7 @@ dnl	       Error subclasses removed; assorted Iterator changes)
 dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
 dnl 4:1:1 0.8.3 No API changes
 dnl and for the next release:
-dnl 5:0:0 0.8.4 Some BM25Weight inline methods made non-inline.
+dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
 LIBRARY_VERSION_INFO=4:1:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -581,6 +581,8 @@ test -d include/xapian || mkdir include/xapian
 dnl Use @ around $VERSION so we get " in the final output
 $CXXCPP -DVERSION="\"@$VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $tmpfile|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
 rm -f $tmpfile
+dnl Only update the file if it has changed, so we don't touch the timestamp
+dnl and cause lost of rebuilding needlessly.
 if cmp include/xapian/version.h.tmp include/xapian/version.h >/dev/null 2>&1
 then
   rm include/xapian/version.h.tmp
