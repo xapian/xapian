@@ -301,8 +301,8 @@ Match::match()
     if (msize) {
 #ifdef MUS_DEBUG_VERBOSE
 	cout << "max weight in mset = " << mset[0].wt
-#endif /* MUS_DEBUG_VERBOSE */
 	     << ", min weight in mset = " << mset[msize - 1].wt << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     }
     delete merger;
     merger = NULL;
