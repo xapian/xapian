@@ -76,15 +76,15 @@ cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-#cvsindex_LDFLAGS = -static
+cvsindex_LDFLAGS = -static
 cvsindex_LDADD = -lomsee
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
-#cvssearch_LDFLAGS = -static
+cvssearch_LDFLAGS = -static
 cvssearch_LDADD = -lomsee
 
 cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
-#cvsminesearch_LDFLAGS = -static
+cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = -ldb_cxx -lomsee
 
 #cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
@@ -103,6 +103,7 @@ cvsminesearch_LDADD = -ldb_cxx -lomsee
 
 cvsmineindex_SOURCES = util.h util.C cvsmineindex.C
 cvsmineindex_LDADD = -ldb_cxx -lomsee
+cvsmineindex_LDFLAGS = -static
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -121,19 +122,15 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 cvsindex_OBJECTS =  util.o cvsindex.o
 cvsindex_DEPENDENCIES = 
-cvsindex_LDFLAGS = 
 cvssearch_OBJECTS =  util.o cvssearch.o
 cvssearch_DEPENDENCIES = 
-cvssearch_LDFLAGS = 
 cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_db.a
 cvsquery_LDFLAGS = 
 cvsmineindex_OBJECTS =  util.o cvsmineindex.o
 cvsmineindex_DEPENDENCIES = 
-cvsmineindex_LDFLAGS = 
 cvsminesearch_OBJECTS =  util.o cvsminesearch.o
 cvsminesearch_DEPENDENCIES = 
-cvsminesearch_LDFLAGS = 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -421,7 +418,6 @@ all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
-#cvsmineindex_LDFLAGS = -static
 
 #cvscomments_SOURCES = cvscomments.C
 #cvscomments_LDADD = -ldb_cxx -lomsee

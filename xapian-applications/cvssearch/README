@@ -17,9 +17,20 @@ INSTALLATION
 * install the latest version of omsee from 
   ftp://ftp.omsee.com/pub/unstable/nightly/latest/
 
+  From the main directory, type
+
   ./configure [see Note 1 below]
   make 
   make install 
+
+* install the latest version of libxml from
+  ftp://xmlsoft.org/
+
+  From the main directory, type
+
+  ./configure [see Note 1 below]
+  make
+  make install
 
 * now configure CVSSearch, compile, and install:
 
@@ -28,7 +39,7 @@ INSTALLATION
   make install
 
 Note 1:
-* If you do not have root access, then sleepycat and omsee cannot be 
+* If you do not have root access, then sleepycat, omsee, libxml cannot be 
   installed under their default output directory: /usr/local. 
 
 * One solution is to install these two packages in the user home directory 

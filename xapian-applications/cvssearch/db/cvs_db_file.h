@@ -34,7 +34,6 @@
 #include "cvs_line_db.h"
 #include "cvs_revision_db.h"
 #include "cvs_file_revision_db.h"
-#include "cvs_revision_line_db.h"
 #include "cvs_diff_db.h"
 
 #include <set>
