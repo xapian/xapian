@@ -12,6 +12,7 @@ backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const 
     _changes.clear();
     _adds.clear();
 
+    vector<unsigned int> current = _contents;
 //    cout << diff << endl;
 //     for (unsigned int index = 0; index < _contents.size(); ++index)
 //     {
@@ -51,7 +52,7 @@ backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const 
 
     if (output_html && &log_entry1 != &log_entry2)
     {
-        html_comparer h(_contents, _adds, _changes, _deletes, _filename, _pathname, _pcurrent_log_entry->revision(), 
+        html_comparer h(current, _contents, _adds, _changes, _deletes, _filename, _pathname, _pcurrent_log_entry->revision(), 
                         log_entry1.revision(), log_entry2.revision(), diff);
         ostrstream ost;
         ost << _filename << "-" << log_entry2.revision() << ".html" << ends;

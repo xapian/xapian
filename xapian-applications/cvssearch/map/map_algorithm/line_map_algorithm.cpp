@@ -5,7 +5,7 @@ line_map_algorithm::show(ostream & os) const
 {
     for (unsigned int i = 1; i < _line_maps.size(); ++i)
     {
-        os << _index << _line_maps[i] << "\002" << endl;
+        os << _index << _line_maps[i] << "\003" << "\002" << endl;
     }
     return os;
 }

@@ -49,7 +49,7 @@ range_map_algorithm::clear_and_print(ostream & os, list<range_map *> & temp, uns
             ++temp_itr;
         }
     }
-    os << "\002" << endl;
+    os << "\003" << "\002" << endl;
 }
 
 range_map *
