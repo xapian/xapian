@@ -149,13 +149,19 @@ the command line, and stores that document as a new entry in the database.
 <H3>Include header files</H3>
 <P>
 The first requirement in any program using the Xapian library is to
-include the Xapian header file, &quot;<CODE>om.h</CODE>&quot;.
-This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
-a directory on the include path, so:
+include the Xapian header file, &quot;<CODE>xapian.h</CODE>&quot;:
 <PRE>    #include &lt;xapian.h&gt;</PRE>
 </P>
 <P>
-Our example only has a single function, main(), so next we start that:
+We're going to use C++ iostreams for output, so we need to include
+the <CODE>iostream</CODE> header, and we'll also import everything
+from namespace <CODE>std</CODE> for convenience:
+<PRE>    #include &lt;iostream&gt;
+    using namespace std;</PRE>
+</P>
+<P>
+Our example only has a single function, <CODE>main()</CODE>, so next we
+define that:
 <PRE>    int main(int argc, char **argv)</PRE>
 </P>
 <H3>Options parsing</H3>
@@ -222,9 +228,9 @@ In Xapian, a database is opened for writing by creating a Xapian::WritableDataba
 object using a factory function such as Xapian::Quartz::open().
 </P>
 <P>
-If you pass Xapian::DB_CREATE_OR_OPEN and an attempt is made to open a database
-which doesn't exist, Xapian will try to create a new empty database in the
-specified location.
+If you pass Xapian::DB_CREATE_OR_OPEN and there isn't an existing database
+in the specified directory, Xapian will try to create a new empty database
+there.
 </P>
 <P>
 If an error occurs when trying to open a database, or to create a new database,

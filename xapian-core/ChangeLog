@@ -1,3 +1,11 @@
+Sat May 15 01:29:40 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.html: Corrected lingering reference to "om.h" and
+	  note that we need <iostream>.
+	* docs/quickstartindex.cc.html,docs/quickstartexpand.cc.html,
+	  docs/quickstartsearch.cc.html: Add <iostream>.
+	* AUTHORS: Add John Ward for pointing out the above problems.
+
 Fri May 14 00:59:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Added the start of a list of subtasks when doing a release.
