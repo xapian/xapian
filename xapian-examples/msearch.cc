@@ -245,13 +245,11 @@ main(int argc, char *argv[])
 
 	OmSettings opts;
 	if (collapse_key != -1)
-	    opts.set("match_collapse_key", collapse_key);
+	    enquire.set_collapse_key(collapse_key);
 	if (sort_bands != -1)
-	    opts.set("match_sort_bands", sort_bands);
-	if (sort_bands != -1)
-	    opts.set("match_sort_key", sort_bands);
+	    enquire.set_sort(sort_value, sort_bands);
 
-	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
+	OmMSet mset = enquire.get_mset(mfirst, msize, &rset);
 	
 	if (showmset) {
 	    for (OmMSetIterator i = mset.begin(); i != mset.end(); i++) {
@@ -263,5 +261,6 @@ main(int argc, char *argv[])
 	}
     } catch (const OmError &e) {
 	cout << e.get_msg() << endl;
+	exit(1);
     }
 }

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,18 +38,7 @@ int main(int argc, char *argv[])
     // Catch any OmError exceptions thrown
     try {
 	// Create the database if needed
-	OmSettings db_parameters;
-	db_parameters.set("backend", "quartz");
-	db_parameters.set("database_create", true);
-	db_parameters.set("quartz_dir", argv[1]);
-	try {
-	    OmWritableDatabase database(db_parameters);
-	} catch(const OmDatabaseCreateError &) {
-	    // ok, database exists
-	}
-	// unset the "create" flag
-	db_parameters.set("database_create", false);
-	OmWritableDatabase database(db_parameters);
+	OmWritableDatabase database(OmQuartz__open(argv[1], OM_DB_CREATE_OR_OPEN));
 
 	// Make the indexer
 	OmIndexerBuilder builder;
@@ -76,8 +66,8 @@ int main(int argc, char *argv[])
 
 	// Add the document to the database
 	database.add_document(newdocument);
-    }
-    catch(OmError &error) {
+    } catch (const OmError &error) {
 	cout << error.get_type() << ": "  << error.get_msg() << endl;
+	exit(1);
     }
 }

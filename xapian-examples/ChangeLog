@@ -1,3 +1,8 @@
+Sat Dec 14 00:18:01 GMT 2002  Olly Betts <olly@survex.com>
+
+	* indexer/indexfile.cc,msearch.cc: Updated in line with removal
+	  of OmSettings; set exit code if exception caught.
+
 Sat Dec 07 21:25:59 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.6.2.
