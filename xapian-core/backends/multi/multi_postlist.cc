@@ -95,15 +95,19 @@ MultiPostList::next(om_weight w_min)
 		(*i)->next(w_min);
 		if (!(*i)->at_end()) {
 		    id = ((*i)->get_docid() - 1) * multiplier + offset;
-		    if (newdoc == 0 || id < newdoc) newdoc = id;
 		}
 	    }
+	    if (newdoc == 0 || id < newdoc) newdoc = id;
 	}
 	offset++;
     }
     if (newdoc) {
+	DEBUGLINE(DB, "MultiPostList::next() newdoc=" << newdoc <<
+		  " (olddoc=" << currdoc << ")");
 	currdoc = newdoc;
     } else {
+	DEBUGLINE(DB, "MultiPostList::next() finished" <<
+		  " (olddoc=" << currdoc << ")");
 	finished = true;
     }
     DEBUGRETURN("NULL");

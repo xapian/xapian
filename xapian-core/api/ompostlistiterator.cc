@@ -27,6 +27,12 @@
 #include "postlist.h"
 #include "omdebug.h"
 
+OmPostListIterator::OmPostListIterator(Internal *internal_)
+	: internal(internal_)
+{
+    DEBUGAPICALL("OmPostListIterator::OmPostListIterator", "Internal");
+}
+
 OmPostListIterator::~OmPostListIterator() {
     DEBUGAPICALL("OmPostListIterator::~OmPostListIterator", "");
 }
@@ -88,18 +94,25 @@ OmPostListIterator::get_description() const
 {
     DEBUGAPICALL("OmPostListIterator::get_description", "");
     /// \todo display contents of the object
-    std::string description = "OmPostListIterator()";
-    DEBUGAPIRETURN(description);
-    return description;
+    om_ostringstream desc;
+    desc << "OmPostListIterator([pos=";
+    if (internal->postlist->at_end()) {
+	desc << "END";
+    } else {
+	desc << internal->postlist->get_docid();
+    }
+    desc << "])";
+    DEBUGAPIRETURN(desc.str());
+    return desc.str();
 }
 
 bool
 operator==(const OmPostListIterator &a, const OmPostListIterator &b)
 {
     DEBUGAPICALL_STATIC("OmPostListIterator::operator==", a << ", " << b);
-    bool result = (a.internal == b.internal ||
-		   a.internal->postlist->at_end() &&
-		   b.internal->postlist->at_end());
+    bool result = ((a.internal == b.internal) ||
+		   (a.internal->postlist->at_end() &&
+		    b.internal->postlist->at_end()));
     DEBUGAPIRETURN(result);
     return result;
 }

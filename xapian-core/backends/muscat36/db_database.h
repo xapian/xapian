@@ -73,7 +73,7 @@ class DBPostList : public LeafPostList {
 inline om_doccount
 DBPostList::get_termfreq() const
 {
-    DEBUGLINE(DB, "DAPostList::get_termfreq() = " << termfreq);
+    DEBUGLINE(DB, "DBPostList::get_termfreq() = " << termfreq);
     return termfreq;
 }
 
@@ -82,7 +82,7 @@ DBPostList::get_docid() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
-    DEBUGLINE(DB, "DAPostList::get_doclength() = " << 1.0);
+    DEBUGLINE(DB, "DBPostList::get_docid() = " << currdoc);
     return currdoc;
 }
 
@@ -96,7 +96,7 @@ DBPostList::get_doclength() const
 inline om_termcount
 DBPostList::get_wdf() const
 {
-    DEBUGLINE(DB, "DAPostList::get_wdf() = " << postlist->wdf);
+    DEBUGLINE(DB, "DBPostList::get_wdf() = " << postlist->wdf);
     return postlist->wdf;
 }
 
@@ -104,10 +104,10 @@ inline bool
 DBPostList::at_end() const
 {
     if (currdoc == MAXINT) {
-	DEBUGLINE(DB, "DAPostList::at_end() = true");
+	DEBUGLINE(DB, "DBPostList::at_end() = true");
 	return true;
     }
-    DEBUGLINE(DB, "DAPostList::at_end() = false");
+    DEBUGLINE(DB, "DBPostList::at_end() = false");
     return false;
 }
 

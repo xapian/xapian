@@ -40,9 +40,7 @@ class OmPostListIterator {
 
         friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
 
-	OmPostListIterator(Internal *internal_) {
-	    internal = internal_;
-	}
+	OmPostListIterator(Internal *internal_);
 
     public:
         ~OmPostListIterator();

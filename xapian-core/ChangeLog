@@ -1,3 +1,13 @@
+Fri Sep  8 09:26:00 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add debugging to all methods of OmPostListIterator, and make
+	  get_description tell the current position.
+
+	* Fix MultiPostList - it was never getting off the initial position.
+
+	* Correct some messages in db_database.cc which reported being from
+	  a DA database.
+
 Thu Sep  7 23:30:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add to PostList next() and skip_to() methods which don't take a
