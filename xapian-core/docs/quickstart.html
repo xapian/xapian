@@ -547,15 +547,36 @@ so first we display how many items are in that:
 </P>
 
 <P>
-Finally, we display each of the items in the container:
+Now we display some information about each of the items in the
+<CODE>OmMSet</CODE>.  Each of these items is an object of type
+<CODE>OmMSetItem</CODE>, representing a document found by the search:
+<UL><LI>
+First, we display the document ID, stored in the <CODE>did</CODE> field.
+This is not usually very useful information to give to users, but it is
+at least a unique handle on each document.
+</LI><LI>
+Next, we display a &quot;percentage&quot; score for the document.  Readers
+familiar with Information Retrieval will not be surprised to hear that this
+is not really a percentage: it is just a value from 0 to 100, such that a
+more relevant document has a higher value.
+OmEnquire provides a utility method, <CODE>convert_to_percent</CODE> to
+return such a value from an <CODE>OmMSetItem</CODE>, which we use here.
+</LI><LI>
+Last, we display the data associated with each returned document, which
+was specified by the user at database generation time.  To do this, we
+first use the <CODE>OmEnquire::get_doc()</CODE> method, to get an
+<CODE>OmDocument</CODE> object representing the returned document, and
+then we use the <CODE>get_data()</CODE> method of this object to get
+access to the data stored in this document.
+</LI></UL>
 <PRE>
     vector&lt;OmMSetItem&gt;::const_iterator i;
     for (i = matches.items.begin();
          i != matches.items.end();
          i++) {
-        OmDocument doc = enquire.get_doc(*i);
         cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
 	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
+        OmDocument doc = enquire.get_doc(*i);
 	cout &lt;&lt; "[" &lt;&lt; doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>
