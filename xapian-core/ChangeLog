@@ -1,3 +1,7 @@
+Mon Nov 27 12:15:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a couple of new items to the todo list.
+
 Fri Nov 24 19:23:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartztests now deletes all old tables, so that database formats

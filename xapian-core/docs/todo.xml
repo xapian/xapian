@@ -43,6 +43,17 @@ Detect and deal with btree overwritten condition.  Write tests to ensure
 this works.
 
 </todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="Porting">
+
+Produce NT version of OM.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API">
+
+Implement methods to enable iteration through all the terms in the database,
+and possibly to iterate through all the documents in the database.
+
+</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Quartz">
 
 Implement deletion and updating of documents.  Test.
