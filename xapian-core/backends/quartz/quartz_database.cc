@@ -716,8 +716,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		  QuartzPositionList::set_positionlist(
 		      buffered_tables->get_positionlist_table(), did,
 		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
-                  ++vIter;
 		}
+                ++vIter;
 	    }
             // Finally, update the positionlist of terms that are not new or removed.
             vIter = posTerms.begin();
