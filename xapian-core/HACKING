@@ -201,7 +201,7 @@ told to install dvips than to upload a tarball with no postscript manual).
 
 These tools are:
 
-doxygen
+doxygen (v1.3.8 is used for snapshots, releases, and the source documentation)
 dot (part of the graphviz package)
 perl 5
 latex
@@ -275,9 +275,16 @@ If using GCC 3.0 or newer, you should consider configure-ing with:
 ./configure CXXFLAGS=-Werror CFLAGS=-Werror
 
 when doing development work on Xapian.  This promotes warnings to errors,
-and should ensure you don't introduce warnings.  If you find out how to
-do the same with other compilers, please add a note here, or tell us so
-that we can add a note.
+and should ensure you don't introduce warnings.
+
+If you configure with --enable-maintainer-mode, and are using GCC 3.0 or newer,
+this is done for you automatically.  This is intended to be an aid rather than
+a form of automated punishment - it's all to easy to miss a new warning as once
+a file is compiled, you don't see it unless you modify that file or one of
+its dependencies.
+
+If you know the equivalent of -Werror for other compilers, please add a note
+here, or tell us so that we can add a note.
 
 Makefile Portability:
 =====================
