@@ -89,7 +89,6 @@ shouldn't be exposed.
 
 Particular offenders are:
 
-OmStem::get_available_languages()
 OmIndexerDesc::nodes
 
 </todoitem>
