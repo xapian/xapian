@@ -104,6 +104,8 @@ cvs_comment_id_db::put(unsigned int fileId, const string & revision, unsigned in
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "Put Comment Id " << endl;
+        abort();
     }
     return val;
 }

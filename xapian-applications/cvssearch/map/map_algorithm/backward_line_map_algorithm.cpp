@@ -38,14 +38,14 @@ backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const 
         parse_diff_entry(log_entry1, diff[index]);
     }
 
-/*    if (_db_file)
-    {
-        for (unsigned int i = 1; i < _contents.size(); ++i)
-        {
-            _db_file->put_line_mapping(_index, log_entry2.revision(), i, _contents[i]);
-        }
-    }
-*/    
+//     if (_db_file)
+//     {
+//         for (unsigned int i = 1; i < _contents.size(); ++i)
+//         {
+//             _db_file->put_line_mapping(_index, log_entry2.revision(), i, _contents[i]);
+//         }
+//     }
+    
 }
 
 void
@@ -97,13 +97,13 @@ backward_line_map_algorithm::backward_line_map_algorithm(const cvs_log & log, un
             {
             }
         }
-//         for (unsigned int i = 0; i < _line_maps.size(); ++i)
-//         {
-//             for (unsigned int j = 0; j < _line_maps[i].size(); ++j)
-//             {
-//                 _db_file->put_mapping(file_id, _line_maps[i][j].revision(), i);
-//             }
-//         }
+        for (unsigned int i = 0; i < _line_maps.size(); ++i)
+        {
+            for (unsigned int j = 0; j < _line_maps[i].size(); ++j)
+            {
+                _db_file->put_mapping(file_id, _line_maps[i][j].revision(), i);
+            }
+        }
     }
 }
 

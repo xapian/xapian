@@ -66,7 +66,6 @@ int
 cvs_revision_line_db::get(unsigned int fileId, const string & revision, unsigned int line_new, unsigned int & line_old)
 {
     ostrstream ost;
-    ost << fileId << ':' << revision << ':' << line_new << ends;
     string skey = ost.str();
 
     int val = 0;

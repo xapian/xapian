@@ -99,6 +99,8 @@ cvs_comment_db::put(unsigned int & comment_id, const string & comment)
         return val;
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "PUT Comment " << endl;
+        abort();
     }
     return val;
 }

@@ -97,6 +97,8 @@ cvs_filename_db::put(unsigned int & fileId, const string & filename)
         }
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "PUT FILENAME " << endl;
+        abort();
     }
     return val;
 }

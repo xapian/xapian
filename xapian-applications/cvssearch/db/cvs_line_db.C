@@ -130,6 +130,8 @@ cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "PUT LINE " << endl;
+        abort();
     }
     return val;
 }

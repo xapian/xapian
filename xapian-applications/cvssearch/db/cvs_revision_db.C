@@ -47,7 +47,7 @@ cvs_revision_db::do_open(const string & filename)
     int val = 0;
     try {
         val = _db.set_flags(DB_DUP);
-        val = _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, DB_CREATE, 0);
+        val = _db.open(filename.c_str(), _db_name.c_str(), DB_BTREE, DB_CREATE, 0);
     } catch (DbException & e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
@@ -127,6 +127,8 @@ cvs_revision_db::put(unsigned int fileId, unsigned int line, const string & revi
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "PUT REVISION result: " << val << " " << skey << "->" << revision << endl;
+        abort();
     }
     return val;
 }

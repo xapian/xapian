@@ -126,6 +126,8 @@ cvs_file_revision_db::put(unsigned int fileId, const string & revision)
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        cerr << "PUT FILE REVISION " << endl;
+        abort();
     }
     return val;
 }

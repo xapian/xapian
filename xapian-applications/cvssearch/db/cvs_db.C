@@ -61,7 +61,6 @@ cvs_db::remove(const string & filename, int flags = 0)
 int
 cvs_db::sync()
 {
-   cout << "BEGIN SYNCRONISING" << endl;
    int val = 0;
    try {
       if (_opened)
@@ -70,8 +69,8 @@ cvs_db::sync()
       }
    } catch (DbException &e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
+        abort();
    }
-   cout << "DONE  SYNCRONISING" << endl;
 
    return val;
 }

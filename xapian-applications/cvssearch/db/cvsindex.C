@@ -28,122 +28,122 @@
 
 int main(int argc, char *argv[]) {
 
-  if(argc < 2) {
-    cout << "Usage:  " << argv[0] <<
-      " <path to database>" << endl;
-    exit(1);
-  }
-
-  string cvsdata;
-  char *s = getenv("CVSDATA");
-  if ( s==0 ) {
-    cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
-    cvsdata = ".";
-  } else {
-    cvsdata = s;
-    // strip trailing / if any
-    if ( cvsdata[cvsdata.length()-1] == '/' ) {
-      cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
-    }
-    cerr << "$CVSDATA = " << cvsdata << endl;
-  }
-
-  for (int i = 1; i < argc; i++ ) {
-
-    string package = argv[i];
-
-    int p = package.find(".cmt");
-    if ( p == -1 ) {
-      cerr << "Must include .cmt extension in package(s)." << endl;
-      exit(1);
+    if(argc < 2) {
+        cout << "Usage:  " << argv[0] <<
+            " <path to database>" << endl;
+        exit(1);
     }
 
-    package = string(package, 0, p);
+    string cvsdata;
+    char *s = getenv("CVSDATA");
+    if ( s==0 ) {
+        cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
+        cvsdata = ".";
+    } else {
+        cvsdata = s;
+        // strip trailing / if any
+        if ( cvsdata[cvsdata.length()-1] == '/' ) {
+            cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
+        }
+        cerr << "$CVSDATA = " << cvsdata << endl;
+    }
 
-    cerr << "package -" << package << "-" << endl;
+    for (int i = 1; i < argc; i++ ) {
 
-    // remove directory first if it already exists
+        string package = argv[i];
 
-    assert( package != "." ); // safety checks
-    assert( package != ".." );
+        int p = package.find(".cmt");
+        if ( p == -1 ) {
+            cerr << "Must include .cmt extension in package(s)." << endl;
+            exit(1);
+        }
 
-    cerr << "... removing directory " << (cvsdata+"/"+package) << " (if it already exists)" << endl;
-    system( ("rm -rf " + cvsdata +"/" + package).c_str() );
+        package = string(package, 0, p);
 
-    string file_cmt = cvsdata+"/"+package + ".cmt";
-    string file_offset = cvsdata+"/"+package +".offset";
+        cerr << "package -" << package << "-" << endl;
+
+        // remove directory first if it already exists
+
+        assert( package != "." ); // safety checks
+        assert( package != ".." );
+
+        cerr << "... removing directory " << (cvsdata+"/"+package) << " (if it already exists)" << endl;
+        system( ("rm -rf " + cvsdata +"/" + package).c_str() );
+
+        string file_cmt = cvsdata+"/"+package + ".cmt";
+        string file_offset = cvsdata+"/"+package +".offset";
 
 
-    try {
+        try {
 
 
  
-      // create database directory
-      system(("mkdir " + cvsdata +"/"+ package).c_str());
+            // create database directory
+            system(("mkdir " + cvsdata +"/"+ package).c_str());
 
-      // code which accesses Omsee
+            // code which accesses Omsee
 
-      OmSettings db_parameters;
-      db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", cvsdata+"/"+package);
-      OmWritableDatabase database(db_parameters); // open database 
+            OmSettings db_parameters;
+            db_parameters.set("backend", "quartz");
+            db_parameters.set("quartz_dir", cvsdata+"/"+package);
+            OmWritableDatabase database(db_parameters); // open database 
 
-      database.begin_session();
+            database.begin_session();
 
-      cerr << "... reading " << file_cmt << endl;
+            cerr << "... reading " << file_cmt << endl;
 
-      int files = 0;
-      Lines lines( "", package, file_cmt, file_offset, "line", false ); // no stop words, line granularity
-      string prev_file = "";
-      while ( lines.ReadNextLine() ) {
-	if ( lines.currentFile() != prev_file ) {
-	  prev_file = lines.currentFile();
-	  files++;
-	  if ( files % FLUSH_RATE == 0 ) {
-	    cerr << "** FLUSHING" << endl;
-	    database.flush();
-	  }
-	}
+            int files = 0;
+            Lines lines( "", package, file_cmt, file_offset, "line", false ); // no stop words, line granularity
+            string prev_file = "";
+            while ( lines.ReadNextLine() ) {
+                if ( lines.currentFile() != prev_file ) {
+                    prev_file = lines.currentFile();
+                    files++;
+                    if ( files % FLUSH_RATE == 0 ) {
+                        cerr << "** FLUSHING" << endl;
+                        database.flush();
+                    }
+                }
 	
 
-	list<string> words = lines.getTermList();
-	string data = lines.getData();
-	// we want to output something like:
-	// 0.453 80 15 kdebase/konqueror:1.8 1.3 1.1
-	// 0.453 is the score
-	// 80 is the file number
-	// 15 is the line number
+                list<string> words = lines.getTermList();
+                string data = lines.getData();
+                // we want to output something like:
+                // 0.453 80 15 kdebase/konqueror:1.8 1.3 1.1
+                // 0.453 is the score
+                // 80 is the file number
+                // 15 is the line number
 
-	// so, along with each entry, we store the following associated string:
-	// 80 15:1.8 1.3 1.1
+                // so, along with each entry, we store the following associated string:
+                // 80 15:1.8 1.3 1.1
 	
 
-	OmDocumentContents newdocument;
-	int pos = 1;
-	for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
+                OmDocumentContents newdocument;
+                int pos = 1;
+                for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
 	  
-	  string word = *i;
-	  newdocument.add_posting(word, pos++); // term, position of term
-	}
-	newdocument.data = data;
-	database.add_document(newdocument);
+                    string word = *i;
+                    newdocument.add_posting(word, pos++); // term, position of term
+                }
+                newdocument.data = data;
+                database.add_document(newdocument);
 
-      }
+            }
       
 
 
-      database.end_session();
+            database.end_session();
 
-      // finally, put result in project listing
-      string cmd = "cvsupdatedb " + package;
-      system( cmd.c_str() );
+            // finally, put result in project listing
+            string cmd = "cvsupdatedb " + package;
+            system( cmd.c_str() );
 
-      cerr << "Done!" << endl;
+            cerr << "Done!" << endl;
 
+        }
+        catch(OmError & error) {
+            cerr << "OMSEE Exception: " << error.get_msg() << endl;
+        } 
     }
-    catch(OmError & error) {
-      cerr << "OMSEE Exception: " << error.get_msg() << endl;
-    } 
-  }
   
 }

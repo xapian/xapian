@@ -32,7 +32,10 @@ while ($i<=$#ARGV) {
     } elsif ($ARGV[$i] eq "-f") {
         $i++;
         if ($i<=$#ARGV) {
-            $apps_file = $ARGV[$i];
+            my $apps_file = $ARGV[$i];
+            open(APPS, "<$apps_file");
+            chomp(@modules = <APPS>);
+            close(APPS);
             $i++;
         }
     } elsif ($ARGV[$i] eq "-h") {
@@ -50,23 +53,20 @@ $delta_time = 0;
 unlink $time_file;
 unlink $list_file;
 
-print "APPFILE $apps_file\n";
-
-open(APPS, "<$apps_file");
 open(TIME, ">$time_file");
     
-while ($app_path = <APPS>) {
-    chomp($app_path);
+foreach (@modules) {
+    $app_path = $_;
     $app_name = $app_path;
     $app_name =~ tr/\//\_/;
     $app_name = "$CVSDATA/$app_name";
 
     if ($app_path ne "" ) {
-        system ("cvs checkout $app_path");
+        system ("cvs checkout -d $CVSDATA -N $app_path 2>/dev/null");
         $found_files = 0;
         open(LIST, ">$list_file") || die "cannot create temporary file list\n";
         for ($i = 0; $i <= $#file_types; ++$i) {
-            open(FIND_RESULT, "find $app_path -name \"*.$file_types[$i]\"|");
+            open(FIND_RESULT, "find $CVSDATA/$app_path -name \"*.$file_types[$i]\"|");
             while (<FIND_RESULT>) {
                 $found_files = 1;
                 print LIST $_;
@@ -79,12 +79,13 @@ while ($app_path = <APPS>) {
             print TIME "$app_path", "\n";
             print TIME "Started  @ ", `date`;
             $start_date = time;
+            system ("rm -rf $app_name.db");
             system ("cvsmap -i $list_file -db $app_name.db -f1 $app_name.cmt -f2 $app_name.offset");
             print TIME "Finished @ ", `date`;
             $delta_time += time - $start_date;
             print TIME "\n";
         }
-        system ("rm -rf $app_path");
+        system ("rm -rf $CVSDATA/$app_path");
     }
 }
 print TIME "Operation Time: $delta_time Seconds \n";

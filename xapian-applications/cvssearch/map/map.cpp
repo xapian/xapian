@@ -64,6 +64,7 @@ static unsigned int max_version = 0;
 static unsigned int file_index = 0;
 static unsigned int file_offset = 1;
 
+static const int ssync_rate = 20;
 static bool use_db = false;
 static bool use_line = true;
 
@@ -139,14 +140,13 @@ main(unsigned int argc, const char **argv)
         {
             string command = scvs_log + argv[i++];
             process p = process(command);
-            cout << "RUNNING " << command << endl;
             istream * pis = p.process_output();
             if (pis)
             {
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
-                if (pdb_file)
+                if (pdb_file && i % ssync_rate == 0)
                 {
-                   pdb_file->sync();
+                    //pdb_file->sync();
                 }
             }
         }
@@ -159,14 +159,13 @@ main(unsigned int argc, const char **argv)
         {
             string command = scvs_log + line;
             process p = process(command);
-            cout << "RUNNING " << command << endl;
             istream * pis = p.process_output();
             if (pis)
             {
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
-                if (pdb_file)
+                if (pdb_file && i % ssync_rate == 0)
                 {
-                   pdb_file->sync();
+                    //pdb_file->sync();
                 }
             }
 
@@ -225,9 +224,7 @@ cvsmap(istream & log_in, ostream & line_out, ostream & offset_out, cvs_db_file *
     {
         map_algorithm * pcollection;
         if (use_line) {
-	    cout << "BEGIN NEW COLLECTION" << endl;
             pcollection = new backward_line_map_algorithm(log, ++file_index, pdb_file);
-	    cout << "END   NEW COLLECTION" << endl;
         } else {
             pcollection = new forward_range_map_algorithm(log, ++file_index, pdb_file);
         }
