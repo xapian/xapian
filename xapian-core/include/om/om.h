@@ -2,7 +2,7 @@
 // to be compiled unmodified.
 //
 // ----START-LICENCE----
-// Copyright 2003 Olly Betts
+// Copyright 2003,2004 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -48,10 +48,6 @@ typedef std::string om_termname;
 #define OmOpeningError Xapian::DatabaseOpeningError
 #define OmDatabaseLockError Xapian::DatabaseLockError
 #define OmDatabaseModifiedError Xapian::DatabaseModifiedError
-#define OmInvalidResultError Xapian::InvalidResultError
-#define OmTypeError Xapian::TypeError
-#define OmInvalidDataError Xapian::InvalidDataError
-#define OmDataFlowError Xapian::DataFlowError
 #define OmExpandDecider Xapian::ExpandDecider
 #define OmExpandDeciderAnd Xapian::ExpandDeciderAnd
 #define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms

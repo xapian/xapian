@@ -100,15 +100,3 @@ XAPIAN_DEFINE_ERROR_CLASS(DatabaseLockError, DatabaseError);
 
 /** Thrown when a database has been modified whilst being read. */
 XAPIAN_DEFINE_ERROR_CLASS(DatabaseModifiedError, DatabaseError);
-
-/** Thrown when trying to access invalid data. */
-XAPIAN_DEFINE_ERROR_CLASS(InvalidResultError, RuntimeError);
-
-/** Thrown in the indexing system when a type mismatch occurs. */
-XAPIAN_DEFINE_ERROR_CLASS(TypeError, RuntimeError);
-
-/** Thrown when data being worked on is invalid */
-XAPIAN_DEFINE_ERROR_CLASS(InvalidDataError, RuntimeError);
-
-/** Thrown when the indexer detects a data flow error */
-XAPIAN_DEFINE_ERROR_CLASS(DataFlowError, RuntimeError);
