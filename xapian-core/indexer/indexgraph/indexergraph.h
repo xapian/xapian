@@ -220,14 +220,25 @@ class OmIndexerBuilder {
 	 */
 	void build_graph(OmIndexer *indexer,
 			 const OmIndexerDesc &desc);
+	
+	/** Data kept with each node as the graph is being built */
+	struct type_data {
+	    std::string node_name;
+	    std::vector<OmNodeConnection> inputs;
+	    std::vector<OmNodeConnection> outputs;
+	};
+
+	/** The structure with information about each node's connections. */
+	typedef std::map<std::string, type_data> typemap;
+
 
 	/** Make sure that the types at each end of a connection are
 	 *  compatible.  Throw an exception if not.
 	 */
-	void typecheck(const std::string &sendertype,
-		       const std::string &senderout,
-		       const std::string &receivertype,
-		       const std::string &receiverin);
+	void typecheck(type_data &feeder_node,
+		       const std::string &feeder_output,
+		       type_data &receiver_node,
+		       const std::string &receiver_input);
 
 	/** Get the descriptor for an output connection for a particular
 	 *  node type.

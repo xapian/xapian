@@ -258,12 +258,6 @@ class OmIndexerNode {
 	 */
 	virtual void config_modified(const std::string &key);
     private:
-	struct output_info_type {
-	    OmIndexerMessageType type;
-	};
-	/** Information about the outputs */
-	std::map<std::string, output_info_type> output_info;
-
 	/** Message outputs */
 	deleter_map<std::string, OmIndexerMessage *> outputs_record;
 #if 0

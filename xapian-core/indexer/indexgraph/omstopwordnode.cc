@@ -84,6 +84,6 @@ class OmStopWordNode : public OmIndexerNode {
 };
 
 NODE_BEGIN(OmStopWordNode, omstopword)
-NODE_INPUT("in", "words", mt_vector)
-NODE_OUTPUT("out", "words", mt_vector)
+NODE_INPUT("in", "strings", mt_vector)
+NODE_OUTPUT("out", "strings", mt_vector)
 NODE_END()

@@ -38,7 +38,7 @@ class OmSplitterNode : public OmIndexerNode {
 };
 
 NODE_BEGIN(OmSplitterNode, omsplitter)
-NODE_INPUT("in", "ANY", mt_record)
-NODE_OUTPUT("left", "ANY", mt_record)
-NODE_OUTPUT("right", "ANY", mt_record)
+NODE_INPUT("in", "*1", mt_record)
+NODE_OUTPUT("left", "*1", mt_record)
+NODE_OUTPUT("right", "*1", mt_record)
 NODE_END()

@@ -59,6 +59,6 @@ class OmFlattenStringNode : public OmIndexerNode {
 };
 
 NODE_BEGIN(OmFlattenStringNode, omflattenstring)
-NODE_INPUT("in", "ANY", mt_record)
+NODE_INPUT("in", "*1", mt_record)
 NODE_OUTPUT("out", "string", mt_string)
 NODE_END()

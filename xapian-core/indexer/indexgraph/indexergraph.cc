@@ -91,8 +91,6 @@ OmIndexerBuilder::make_node(const std::string &type,
     }
 }
 
-typedef std::map<std::string, std::string> typemap;
-
 void
 OmIndexerBuilder::build_graph(OmIndexer *indexer,
 			      const OmIndexerDesc &desc)
@@ -101,7 +99,8 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
     
     indexer->nodemap["START"] = make_node("START", OmSettings());
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
-    types["START"] = "START";
+    types["START"].outputs = nodetypes["START"].outputs;
+    types["START"].node_name = "START";
 
     std::vector<OmIndexerDesc::NodeInstance>::const_iterator node;
     for (node = desc.nodes.begin();
@@ -114,7 +113,9 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
 	}
 
 	OmIndexerNode *newnode = make_node(node->type, node->param);
-	types[node->id] = node->type;
+	types[node->id].node_name = node->id;
+	types[node->id].inputs = nodetypes[node->type].inputs;
+	types[node->id].outputs = nodetypes[node->type].outputs;
 	indexer->nodemap[node->id] = newnode;
 
 	// connect the inputs
@@ -130,10 +131,10 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
 	    }
 
 	    // typecheck throws on an error
-	    typecheck(node->type, // this node's type
-		      input->input_name,// this node's input name
-		      types[input->feeder_node], // the input node's type
-		      input->feeder_out);  // the input node's output
+	    typecheck(types[input->feeder_node],// the input node's type
+		      input->feeder_out, 	// the input node's output
+		      types[node->id],		// this node's type
+		      input->input_name);	// this node's input name
 	    newnode->connect_input(input->input_name,
 				   i->second,
 				   input->feeder_out);
@@ -151,14 +152,47 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer,
     indexer->final_out = desc.output_conn;
 }
 
-void
-OmIndexerBuilder::typecheck(const std::string &receivertype,
-			    const std::string &receiverin,
-			    const std::string &sendertype,
-			    const std::string &senderout)
+static const OmNodeConnection &find_conn(const std::vector<OmNodeConnection> &v,
+					 const std::string &name,
+					 const std::string &node_name)
 {
-    OmNodeConnection sendercon = get_outputcon(sendertype, senderout);
-    OmNodeConnection receivercon = get_inputcon(receivertype, receiverin);
+    std::vector<OmNodeConnection>::const_iterator i;
+    for (i=v.begin(); i!=v.end(); ++i) {
+	if (i->name == name) {
+	    return *i;
+	}
+    }
+    throw OmInvalidDataError(std::string("Failed to find connection ") +
+			     node_name + "[" + name + "]");
+}
+
+static void replace_type(std::vector<OmNodeConnection> &v,
+			 const std::string &wildcard,
+			 const std::string &real_type,
+			 OmIndexerMessageType phys_type)
+{
+    std::vector<OmNodeConnection>::iterator i;
+    for (i = v.begin(); i!= v.end(); ++i) {
+	if (i->type == wildcard) {
+	    i->type = real_type;
+	    i->phys_type = phys_type;
+	}
+    }
+}
+
+
+void
+OmIndexerBuilder::typecheck(type_data &feeder_node,
+			    const std::string &feeder_output,
+			    type_data &receiver_node,
+			    const std::string &receiver_input)
+{
+    const OmNodeConnection &sendercon = find_conn(feeder_node.outputs,
+						  feeder_output,
+						  feeder_node.node_name);
+    const OmNodeConnection &receivercon = find_conn(receiver_node.inputs,
+						  receiver_input,
+						  receiver_node.node_name);
 
     // First check that the physical type is compatible
     if (sendercon.phys_type != receivercon.phys_type) {
@@ -168,18 +202,36 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
 	    // between records and primitives.
 	} else {
 	    throw OmInvalidDataError(std::string("Types of ") + 
-					 sendertype + "[" + senderout + "]" +
-					 " and " + receivertype + "[" +
-					 receiverin + "] are not physically compatible.");
+					 feeder_node.node_name +
+					 "[" + feeder_output + "]" +
+					 " and " + receiver_node.node_name +
+					 "[" + receiver_input +
+					 "] are not physically compatible.");
 	}
-    } else if (sendercon.type != receivercon.type) {
-	if (receivercon.type != "ANY" && sendercon.type != "ANY") {
+    };
+
+    if (sendercon.type != receivercon.type) {
+	if (receivercon.type.length() > 0 && receivercon.type[0] == '*') {
+	    // handle a wildcard type
+	    std::string wildcard = receivercon.type;
+	    replace_type(receiver_node.inputs,
+			 wildcard,
+			 sendercon.type,
+			 sendercon.phys_type);
+	    replace_type(receiver_node.outputs,
+			 wildcard,
+			 sendercon.type,
+			 sendercon.phys_type);
+	} else {
 	    throw OmInvalidDataError(std::string("Types of ") + 
-					 sendertype + "[" + senderout + "]" +
-					 " and " + receivertype + "[" +
-					 receiverin + "] are not compatible.");
+					 feeder_node.node_name +
+					 "[" + feeder_output + "]" +
+					 " and " + receiver_node.node_name +
+					 "[" + receiver_input +
+					 "] are not compatible: " + 
+					 sendercon.type + " vs " +
+					 receivercon.type);
 	}
-	// else at least one of them is "universal"
     }
 }
 

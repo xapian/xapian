@@ -42,7 +42,7 @@ class OmListConcatNode : public OmIndexerNode {
 };
 
 NODE_BEGIN(OmListConcatNode, omlistconcat)
-NODE_INPUT("left", "ANY", mt_vector)
-NODE_INPUT("right", "ANY", mt_vector)
-NODE_OUTPUT("out", "ANY", mt_vector)
+NODE_INPUT("left", "*1", mt_vector)
+NODE_INPUT("right", "*1", mt_vector)
+NODE_OUTPUT("out", "*1", mt_vector)
 NODE_END()
