@@ -1,3 +1,8 @@
+Thu May 16 10:42:47 BST 2002  Sam Liddicott <sam@ananova.com>
+	* A few quick tips from Olly, now the tarfile name and version no.
+	* stuff comes from autoconf so the spec file won't need tweaking
+	* each time the version number changes
+
 Wed May 15 15:48:42 BST 2002  Sam Liddicott <sam@ananova.com>
 	* This can build RPM packages.
 	  Get the make-dist tarball and do:

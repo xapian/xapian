@@ -384,7 +384,7 @@ share some techniques from implementing synonym postlists.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="1.0">
 
-.deb and RPMs built, control files via autoconf
+.deb built, control files via autoconf
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="" release="">

@@ -1,28 +1,17 @@
 # RedHat-style .spec file for Xapian
 # RPM Informational headers
-#
 Summary: Xapian a library that enables developers to use advanced information retrieval techniques in their own projects
 Name: xapian-core
-Version: 0.4.1
-Release: 1
+Version: @VERSION@
+Release: 2
 License: GPL
 Group: Development/Libraries
 URL: http://www.xapian.org/
 
-
-# The one true source and manuals
-#
-Source0: http://www.xapian.org/download/distributions/xapian-core-%{version}-cvs.tar.gz
-# Patchs 
+Source0: http://www.xapian.org/download/distributions/xapian-core-%{version}.tar.gz
 
 # Where are we going to build the install set to?
 BuildRoot: %{_tmppath}/%{name}-root
-
-# Kill off some old history that we no longer wish to see
-#Obsoletes: mod_php, php3, phpfi
-
-# Ok, you wanna build it, you gotta have these packages around
-#BuildPrereq: apache-devel >=0.9
 
 %description
 Xapian is not an application, but a library that enables developers to use
@@ -48,7 +37,7 @@ The xapian-devel package contains the files needed for building against xapian.
 You will need this if you develop any packages that require xapian.
 
 %prep
-%setup -q -n xapian-core-%{version}-cvs
+%setup -q -n xapian-core-%{version}
 
 # Weld the patchs into the main source
 #%patch0 -p1
@@ -77,7 +66,8 @@ mv $RPM_BUILD_ROOT%{_prefix}/share/xapian $RPM_BUILD_ROOT%{_prefix}/share/doc/
 %files
 %defattr(-,root,root)
 /usr/lib/*
-/usr/bin/*
+# not /usr/bin/xapian-config
+#/usr/bin/*
 
 #	%doc CODING_STANDARDS CREDITS EXTENSIONS INSTALL LICENSE NEWS README*
 #	%doc Zend/ZEND_*
@@ -97,6 +87,7 @@ mv $RPM_BUILD_ROOT%{_prefix}/share/xapian $RPM_BUILD_ROOT%{_prefix}/share/doc/
 /usr/share/doc/xapian
 %{_includedir}/om/
 /usr/share/aclocal/*
+/usr/bin/xapian-config
 
 %changelog
 * Wed May 14 2002  Sam Liddicott <sam@ananova.com>
