@@ -318,15 +318,14 @@ test_driver::runtest(const test_desc *test)
 
 	allocation_snapshot after = get_alloc_snapshot();
 	if (after != before) {
-	    if (verbose) {
-		print_alloc_differences(before, after,
-					out);
-	    }
 	    if(runcount < 2 && success) {
-		out << " repeating...";
 		repeat = true;
 		before = get_alloc_snapshot();
 	    } else {
+		if (verbose) {
+		    print_alloc_differences(before, after,
+					    out);
+		}
 		out << " " << COL_RED << "LEAK" << COL_RESET;
 		success = false;
 	    }

@@ -1,3 +1,9 @@
+Tue Jan 16 19:24:49 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Don't display messages about allocation failures in the first
+	  iteration: if the failures go away when repeating, we're not
+	  interested.
+
 Tue Jan 16 18:28:03 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add two new OmSettings, for use when opening databases:
