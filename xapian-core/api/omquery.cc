@@ -384,7 +384,8 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
-		    isdefined = false;
+		    if (right.isdefined) initialise_from_copy(right);
+		    else isdefined = false;
 		}
 		break;
 	    case OM_MOP_AND_NOT:
