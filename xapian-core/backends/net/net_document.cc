@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,10 +53,8 @@ NetworkDocument::do_get_all_keys() const
     return keys;
 }
 
-OmData
+string
 NetworkDocument::do_get_data() const
 {
-    OmData data;
-    data.value = doc;
-    return data;
+    return doc;
 }

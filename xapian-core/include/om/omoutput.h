@@ -37,7 +37,6 @@ OUTPUT_FUNCTION(OmDatabase)
 OUTPUT_FUNCTION(OmWritableDatabase)
 
 #include "om/omdocument.h"
-OUTPUT_FUNCTION(OmData)
 OUTPUT_FUNCTION(OmKey)
 OUTPUT_FUNCTION(OmDocument)
 

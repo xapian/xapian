@@ -73,10 +73,10 @@ QuartzDocument::do_get_key(om_keyno keyid) const
 
 /** Retrieve all key values from the database
  */
-std::map<om_keyno, OmKey>
+map<om_keyno, OmKey>
 QuartzDocument::do_get_all_keys() const
 {
-    std::map<om_keyno, OmKey> keys;
+    map<om_keyno, OmKey> keys;
     QuartzAttributesManager::get_all_attributes(
 		*attribute_table,
 		keys,
@@ -87,9 +87,9 @@ QuartzDocument::do_get_all_keys() const
 
 /** Retrieve the document data from the database
  */
-OmData
+string
 QuartzDocument::do_get_data() const
 {
-    DEBUGCALL(DB, OmData, "QuartzDocument::do_get_data", "");
+    DEBUGCALL(DB, string, "QuartzDocument::do_get_data", "");
     RETURN(QuartzRecordManager::get_record(*record_table, did));
 }

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,8 +46,8 @@ class DADocument : public Document {
 	~DADocument();
 
 	OmKey do_get_key(om_keyno keyid) const;
-	std::map<om_keyno, OmKey> do_get_all_keys() const;
-	OmData do_get_data() const;
+	map<om_keyno, OmKey> do_get_all_keys() const;
+	string do_get_data() const;
 };
 
 #endif /* OM_HGUARD_DA_DOCUMENT_H */

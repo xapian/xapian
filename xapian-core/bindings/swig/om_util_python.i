@@ -355,12 +355,6 @@ PyObject *OmESet_items_get(OmESet *eset)
     $source = 0;
 }
 
-%typemap(python, out) OmData {
-    $target = PyString_FromString(($source)->value.c_str());
-    delete $source;
-    $source = 0;
-}
-
 %addmethods OmESet {
     %readonly
     PyObject *items;

@@ -28,9 +28,11 @@
 #include "refcnt.h"
 #include "termlist.h"
 #include <map>
+using std::map;
+#include <string>
+using std::string;
 
 class OmKey;
-class OmData;
 class Database;
 
 /// A document in the database - holds keys and records
@@ -47,9 +49,9 @@ class Document : public RefCntBase {
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;
 	/// The virtual implementation of get_all_keys().
-	virtual std::map<om_keyno, OmKey> do_get_all_keys() const = 0;
+	virtual map<om_keyno, OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
-	virtual OmData do_get_data() const = 0;
+	virtual string do_get_data() const = 0;
 
     protected:
 	/// The document ID of the document.
@@ -83,7 +85,7 @@ class Document : public RefCntBase {
 	 *
 	 *  @return   A map of OmKey objects containing all the keys.
 	 */
-	std::map<om_keyno, OmKey> get_all_keys() const;
+	map<om_keyno, OmKey> get_all_keys() const;
 
 	/** Get data stored in document.
 	 *
@@ -96,10 +98,9 @@ class Document : public RefCntBase {
 	 *  during the match operation (such as in a match decider functor):
 	 *  use a key instead, if at all possible.
 	 *
-	 *  @return       An OmData object containing the data for this
-	 *  document.
+	 *  @return       An string containing the data for this document.
 	 */
-	OmData get_data() const;	
+	string get_data() const;	
 
 	/** Open a term list.
 	 *

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,7 +119,7 @@ class OmDocument::Internal {
 	bool data_here, keys_here, terms_here;
 
 	/// The (user defined) data associated with this document.
-	OmData data;
+	string data;
 
 	/// Type to store keys in.
 	typedef std::map<om_keyno, OmKey> document_keys;

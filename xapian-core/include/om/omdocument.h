@@ -28,33 +28,6 @@
 #include "om/omtermlistiterator.h"
 #include "om/omkeylistiterator.h"
 
-///////////////////////////////////////////////////////////////////
-// OmData class
-// ============
-// Representing the document data
-
-/** The data in a document.
- *  This contains the arbitrary chunk of data which is associated
- *  with each document in the database: it is up to the user to define
- *  the format of this data, and to set it at indexing time.
- */
-class OmData {
-    public:
-	/// The data.
-	std::string value;
-
-	/// Construct from a string.
-	OmData(const std::string &data) : value(data) {}
-
-	/// Default constructor.
-	OmData() {}
-
-	/** Returns a string representing the OmData.
-	 *  Introspection method.
-	 */
-	std::string get_description() const { return "OmData(" + value + ")"; }
-};
-
 /// A key in a document.
 class OmKey {
     public:
@@ -119,15 +92,13 @@ class OmDocument {
 	void clear_keys();
 
 	/** Get data stored in document.
-	 *  This can be expensive, and shouldn't normally be used
-	 *  in a match decider functor.
+	 *  This is a potentially expensive operation, and shouldn't normally
+	 *  be used in a match decider functor.  Put data for use by match
+	 *  deciders in a key instead.
 	 */
-	OmData get_data() const;
+	std::string get_data() const;
 
 	/// Set data stored in a document.
-	void set_data(const OmData &data);
-
-	/// Set data stored in a document, from a string.
 	void set_data(const std::string &data);
 
 	/** Add an occurrence of a term at a particular position.

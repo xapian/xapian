@@ -24,8 +24,10 @@
 #include "config.h"
 #include <fstream>
 #include <string>
+using std::string;
+#include <vector>
+using std::vector;
 #include "autoptr.h"
-#include <map>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cerrno>
@@ -38,12 +40,12 @@
 #include "utils.h"
 
 OmDocument
-string_to_document(std::string paragraph)
+string_to_document(string paragraph)
 {
     OmStem stemmer("english");
 
     OmDocument document;
-    document.set_data(OmData(paragraph));
+    document.set_data(paragraph);
     om_termcount position = 1;
 
     for (om_keyno i=1; i<=10; ++i) {
@@ -63,7 +65,7 @@ string_to_document(std::string paragraph)
 	 */
 	key.value = paragraph[2];
 
-	key.value += std::string("\0\0\0 \1\t", 6);
+	key.value += string("\0\0\0 \1\t", 6);
 
 	for (int k = 0; k < 256; k++) {
 	    key.value += (char)(k);
@@ -72,9 +74,9 @@ string_to_document(std::string paragraph)
 	document.add_key(0, key);
     }
 
-    std::string::size_type spacepos;
+    string::size_type spacepos;
     om_termname word;
-    while((spacepos = paragraph.find_first_not_of(" \t\n")) != std::string::npos) {
+    while((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
 	if(spacepos) paragraph = paragraph.erase(0, spacepos);
 	spacepos = paragraph.find_first_of(" \t\n");
 	word = paragraph.substr(0, spacepos);
@@ -92,16 +94,16 @@ string_to_document(std::string paragraph)
 
 void
 index_files_to_database(OmWritableDatabase & database,
-                        std::vector<std::string> paths)
+                        vector<string> paths)
 {
-    for (std::vector<std::string>::const_iterator p = paths.begin();
+    for (vector<string>::const_iterator p = paths.begin();
 	 p != paths.end();
 	 p++) {
 	TextfileIndexerSource source(*p);
 	AutoPtr<std::istream> from(source.get_stream());
 
 	while(*from) {
-	    std::string para;
+	    string para;
 	    get_paragraph(*from, para);
 	    database.add_document(string_to_document(para));
 	}
@@ -109,22 +111,22 @@ index_files_to_database(OmWritableDatabase & database,
 }
 
 void
-index_files_to_m36(const std::string &prog, const std::string &dbdir,
-		   std::vector<std::string> paths)
+index_files_to_m36(const string &prog, const string &dbdir,
+		   vector<string> paths)
 {
-    std::string dump = dbdir + "/DATA";
+    string dump = dbdir + "/DATA";
     std::ofstream out(dump.c_str());
-    std::string keyfile = dbdir + "/keyfile";
+    string keyfile = dbdir + "/keyfile";
     std::ofstream keys(keyfile.c_str());
     keys << "omrocks!"; // magic word
-    for (std::vector<std::string>::const_iterator p = paths.begin();
+    for (vector<string>::const_iterator p = paths.begin();
 	 p != paths.end();
 	 p++) {
 	TextfileIndexerSource source(*p);
 	AutoPtr<std::istream> from(source.get_stream());
 
 	while (*from) {
-	    std::string para;
+	    string para;
 	    get_paragraph(*from, para);
 	    OmDocument doc = string_to_document(para);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
@@ -137,26 +139,26 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
 	    }
 	    out << "#TEND#\n";
 	    OmKeyListIterator key_i = doc.keylist_begin();
-	    std::string key = std::string("\0\0\0\0\0\0\0", 8);
+	    string key = string("\0\0\0\0\0\0\0", 8);
 	    if (key_i != doc.keylist_end()) key = (*key_i).value + key;
 	    key = key.substr(0, 8);
 	    keys << key;
 	}
     }
     out.close();
-    std::string cmd = "../../makeda/" + prog + " -source " + dump +
+    string cmd = "../../makeda/" + prog + " -source " + dump +
 	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
     system(cmd);
     unlink(dump);
 }
 
-std::vector<std::string>
-make_strvec(std::string s1 = "",
-	    std::string s2 = "",
-	    std::string s3 = "",
-	    std::string s4 = "")
+vector<string>
+make_strvec(string s1 = "",
+	    string s2 = "",
+	    string s3 = "",
+	    string s4 = "")
 {
-    std::vector<std::string> result;
+    vector<string> result;
 
     if (!s1.empty()) result.push_back(s1);
     if (!s2.empty()) result.push_back(s2);
@@ -167,13 +169,13 @@ make_strvec(std::string s1 = "",
 }
 
 void
-index_file_to_database(OmWritableDatabase & database, std::string path)
+index_file_to_database(OmWritableDatabase & database, string path)
 {
     index_files_to_database(database, make_strvec(path));
 }
 
 void
-BackendManager::set_dbtype(const std::string &type)
+BackendManager::set_dbtype(const string &type)
 {
     if (type == current_type) {
 	// leave it as it is.
@@ -224,28 +226,28 @@ BackendManager::set_dbtype(const std::string &type)
 }
 
 void
-BackendManager::set_datadir(const std::string &datadir_)
+BackendManager::set_datadir(const string &datadir_)
 {
     datadir = datadir_;
 }
 
 OmDatabase
-BackendManager::getdb_void(const std::vector<std::string> &)
+BackendManager::getdb_void(const vector<string> &)
 {
     throw OmInvalidArgumentError("Attempted to open a disabled database");
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_void(const std::vector<std::string> &)
+BackendManager::getwritedb_void(const vector<string> &)
 {
     throw OmInvalidArgumentError("Attempted to open a disabled database");
 }
 
-std::vector<std::string>
-BackendManager::change_names_to_paths(const std::vector<std::string> &dbnames)
+vector<string>
+BackendManager::change_names_to_paths(const vector<string> &dbnames)
 {
-    std::vector<std::string> paths;
-    for(std::vector<std::string>::const_iterator i = dbnames.begin();
+    vector<string> paths;
+    for(vector<string>::const_iterator i = dbnames.begin();
 	i != dbnames.end();
 	i++) {
 	if (i->length() > 0) {
@@ -260,13 +262,13 @@ BackendManager::change_names_to_paths(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_inmemory(const std::vector<std::string> &dbnames)
+BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
     return getwritedb_inmemory(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
@@ -277,13 +279,13 @@ BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_inmemoryerr(const std::vector<std::string> &dbnames)
+BackendManager::getdb_inmemoryerr(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_inmemoryerr(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_inmemoryerr(const vector<string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
@@ -295,13 +297,13 @@ BackendManager::getwritedb_inmemoryerr(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_inmemoryerr2(const std::vector<std::string> &dbnames)
+BackendManager::getdb_inmemoryerr2(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr2(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_inmemoryerr2(const vector<string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
@@ -313,13 +315,13 @@ BackendManager::getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_inmemoryerr3(const std::vector<std::string> &dbnames)
+BackendManager::getdb_inmemoryerr3(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr3(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
@@ -334,7 +336,7 @@ BackendManager::getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames)
  *  directory was created and false if it was already there.  Throws
  *  an exception if there was an error (eg not a directory).
  */
-bool create_dir_if_needed(const std::string &dirname)
+bool create_dir_if_needed(const string &dirname)
 {
     // create a directory if not present
     struct stat sbuf;
@@ -351,16 +353,16 @@ bool create_dir_if_needed(const std::string &dirname)
 }
 
 OmDatabase
-BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames, bool writable)
+BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
 {
-    std::string parent_dir = ".quartz";
+    string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
+    string dbdir = parent_dir + "/db";
     // add 'w' to distinguish readonly dbs (which can be reused) from
     // writable ones (which need to be recreated on each use)
     if (writable) dbdir += 'w';
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -368,7 +370,7 @@ BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames, bool wr
     if (writable) {
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
-	std::string cmd = "rm -fr " + dbdir;
+	string cmd = "rm -fr " + dbdir;
 	system(cmd);
     }
     OmSettings params;
@@ -387,17 +389,17 @@ BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames, bool wr
 }
 
 OmWritableDatabase
-BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
+BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 				bool writable)
 {
-    std::string parent_dir = ".quartz";
+    string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
+    string dbdir = parent_dir + "/db";
     // add 'w' to distinguish readonly dbs (which can be reused) from
     // writable ones (which need to be recreated on each use)
     if (writable) dbdir += 'w';
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -405,7 +407,7 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
     if (writable) {
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
-	std::string cmd = "rm -fr " + dbdir;
+	string cmd = "rm -fr " + dbdir;
 	system(cmd);
     }
     OmSettings params;
@@ -425,23 +427,23 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 }
 
 OmDatabase
-BackendManager::getdb_quartz(const std::vector<std::string> &dbnames)
+BackendManager::getdb_quartz(const vector<string> &dbnames)
 {
     return do_getdb_quartz(dbnames, false);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_quartz(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 {
     return do_getwritedb_quartz(dbnames, true);
 }
 
 OmDatabase
-BackendManager::getdb_network(const std::vector<std::string> &dbnames)
+BackendManager::getdb_network(const vector<string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
-    std::string args = datadir;
-    std::vector<std::string>::const_iterator i;
+    string args = datadir;
+    vector<string>::const_iterator i;
     for (i=dbnames.begin(); i!=dbnames.end(); ++i) {
 	if (*i == "#TIMEOUT#") {
 	    ++i;
@@ -466,19 +468,19 @@ BackendManager::getdb_network(const std::vector<std::string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_network(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_network(const vector<string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable network database");
 }
 
 OmDatabase
-BackendManager::getdb_da(const std::vector<std::string> &dbnames)
+BackendManager::getdb_da(const vector<string> &dbnames)
 {
-    std::string parent_dir = ".da";
+    string parent_dir = ".da";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -499,13 +501,13 @@ BackendManager::getdb_da(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_daflimsy(const std::vector<std::string> &dbnames)
+BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 {
-    std::string parent_dir = ".daflimsy";
+    string parent_dir = ".daflimsy";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -527,25 +529,25 @@ BackendManager::getdb_daflimsy(const std::vector<std::string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_da(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_da(const vector<string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable da database");
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_daflimsy(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_daflimsy(const vector<string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable daflimsy database");
 }
 
 OmDatabase
-BackendManager::getdb_db(const std::vector<std::string> &dbnames)
+BackendManager::getdb_db(const vector<string> &dbnames)
 {
-    std::string parent_dir = ".db";
+    string parent_dir = ".db";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -565,13 +567,13 @@ BackendManager::getdb_db(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_dbflimsy(const std::vector<std::string> &dbnames)
+BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 {
-    std::string parent_dir = ".dbflimsy";
+    string parent_dir = ".dbflimsy";
     create_dir_if_needed(parent_dir);
 
-    std::string dbdir = parent_dir + "/db";
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
 	 i++) {
 	dbdir += "=" + *i;
@@ -592,37 +594,37 @@ BackendManager::getdb_dbflimsy(const std::vector<std::string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_db(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_db(const vector<string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable db database");
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_dbflimsy(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_dbflimsy(const vector<string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 
 OmDatabase
-BackendManager::get_database(const std::vector<std::string> &dbnames)
+BackendManager::get_database(const vector<string> &dbnames)
 {
     return (this->*do_getdb)(dbnames);
 }
 
 OmDatabase
-BackendManager::get_database(const std::string &dbname1,
-			     const std::string &dbname2)
+BackendManager::get_database(const string &dbname1,
+			     const string &dbname2)
 {
-    std::vector<std::string> dbnames;
+    vector<string> dbnames;
     dbnames.push_back(dbname1);
     dbnames.push_back(dbname2);
     return (this->*do_getdb)(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::get_writable_database(const std::string &dbname)
+BackendManager::get_writable_database(const string &dbname)
 {
-    std::vector<std::string> dbnames;
+    vector<string> dbnames;
     dbnames.push_back(dbname);
     return (this->*do_getwritedb)(dbnames);
 }

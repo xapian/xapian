@@ -1,3 +1,7 @@
+Thu May 02 15:57:48 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed OmData - just return and take a string instead.
+
 Thu May 02 14:40:21 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/.cvsignore: updated.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +32,6 @@ public class OmDocument extends OmReturnObject {
     OmDocument (long ptr) { super (ptr); }
 
     public native OmKey get_key (int keyno);
-    public native OmData get_data ();
+    public native String get_data ();
 }
 

@@ -1216,7 +1216,7 @@ static bool test_adddoc2()
 
     om_docid did;
     OmDocument document_in;
-    document_in.set_data(OmData("Foobar rising"));
+    document_in.set_data("Foobar rising");
     document_in.add_key(7, OmKey("Key7"));
     document_in.add_key(13, OmKey("Key13"));
     document_in.add_posting("foobar", 1);
@@ -1224,7 +1224,7 @@ static bool test_adddoc2()
     document_in.add_posting("foobar", 3);
 
     OmDocument document_in2;
-    document_in2.set_data(OmData("Foobar falling"));
+    document_in2.set_data("Foobar falling");
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
@@ -1284,7 +1284,7 @@ static bool test_adddoc2()
 	OmDatabase database(settings);
 	OmDocument document_out = database.get_document(did);
 
-	TEST_EQUAL(document_in.get_data().value, document_out.get_data().value);
+	TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
 	{
 	    OmKeyListIterator i(document_in.keylist_begin());
@@ -1893,12 +1893,11 @@ static bool test_overwrite2()
 
     OmEnquire enquire(reader);
 
-    OmData doc_out;
+    string doc_out;
     OmKey key_out;
 
-    doc_out = OmData();
     doc_out = writer.get_document(last_doc).get_data();
-    TEST(doc_out.value == "Foobar rising");
+    TEST(doc_out == "Foobar rising");
     key_out = writer.get_document(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
@@ -1910,9 +1909,9 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    doc_out = OmData();
+    doc_out = "";
     doc_out = writer.get_document(last_doc).get_data();
-    TEST(doc_out.value == "Foobar rising");
+    TEST(doc_out == "Foobar rising");
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);

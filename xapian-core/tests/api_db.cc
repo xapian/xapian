@@ -624,7 +624,7 @@ class myMatchDecider : public OmMatchDecider {
     public:
         int operator()(const OmDocument &doc) const {
 	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().value.find("This is") != string::npos;
+	    return doc.get_data().find("This is") != string::npos;
 	}
 };
 
@@ -1327,10 +1327,10 @@ static bool test_fetchdocs1()
     OmMSetIterator it2 = mymset2.begin();
 
     while(it1 != mymset1.end() && it2 != mymset2.end()) {
-	TEST_EQUAL(it1.get_document().get_data().value,
-		   it2.get_document().get_data().value);
-	TEST_NOT_EQUAL(it1.get_document().get_data().value, "");
-	TEST_NOT_EQUAL(it2.get_document().get_data().value, "");
+	TEST_EQUAL(it1.get_document().get_data(),
+		   it2.get_document().get_data());
+	TEST_NOT_EQUAL(it1.get_document().get_data(), "");
+	TEST_NOT_EQUAL(it2.get_document().get_data(), "");
 	it1++;
 	it2++;
     }
@@ -1355,7 +1355,7 @@ static bool test_spaceterms1()
     TEST_EQUAL(docs.size(), 1);
 
     for (int key_no = 1; key_no < 7; ++key_no) {
-	TEST_NOT_EQUAL(mymset.begin().get_document().get_data().value, "");
+	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_key(key_no).value, "");
     }
 

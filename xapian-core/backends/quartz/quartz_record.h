@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +28,7 @@
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "om/omdocument.h"
+using std::string;
 
 /** A record in a quartz database.
  */
@@ -37,7 +39,7 @@ class QuartzRecordManager {
     public:
 	/** Retrieve a document from the table.
 	 */
-	static OmData get_record(QuartzTable & table,
+	static string get_record(QuartzTable & table,
 				 om_docid did);
 
 	/** Get the number of records in the table.
@@ -56,7 +58,7 @@ class QuartzRecordManager {
 	 *
 	 */
 	static om_docid add_record(QuartzBufferedTable & table,
-				   const OmData & data);
+				   const string & data);
 	/* Replace an existing record in the table
 	 *
 	 * @param did	The document ID to use.  If not specified, then
@@ -64,7 +66,7 @@ class QuartzRecordManager {
 	 * 		will be created (or replace) document did.
 	 */
 	static void replace_record(QuartzBufferedTable &table,
-				   const OmData & data,
+				   const string & data,
 				   om_docid did);
 
 	/** Delete a record from the table.

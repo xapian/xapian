@@ -27,14 +27,15 @@
 #include "om/omerror.h"
 #include "omassert.h"
 #include "omdebug.h"
+using std::string;
 
 #define NEXTDOCID_TAG std::string("\000\000", 2)
 #define TOTLEN_TAG std::string("\000\001", 2)
 
-OmData
+string
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 {
-    DEBUGCALL_STATIC(DB, OmData, "QuartzRecordManager::get_record", "[table], " << did);
+    DEBUGCALL_STATIC(DB, string, "QuartzRecordManager::get_record", "[table], " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag tag;
 
@@ -42,7 +43,7 @@ QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 	throw OmDocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
-    RETURN(OmData(tag.value));
+    RETURN(tag.value);
 }
 
 
@@ -100,27 +101,27 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 
 om_docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
-				const OmData & data)
+				const string & data)
 {
     DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::add_record", "[table], " << data);
     om_docid did = get_newdocid(table);
 
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag * tag = table.get_or_make_tag(key);
-    tag->value = data.value;
+    tag->value = data;
 
     RETURN(did);
 }
 
 void
 QuartzRecordManager::replace_record(QuartzBufferedTable & table,
-				    const OmData & data,
+				    const string & data,
 				    om_docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag * tag = table.get_or_make_tag(key);
-    tag->value = data.value;
+    tag->value = data;
 }
 
 void

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -254,7 +255,7 @@ InMemoryDatabase::do_replace_document(om_docid did,
     /* resurrect this document */
     termlists[did-1] = InMemoryDoc();
     doclengths[did-1] = 0;
-    doclists[did-1] = document.get_data().value;
+    doclists[did-1] = document.get_data();
 
     finish_add_doc(did, document);
 }
@@ -322,11 +323,11 @@ InMemoryDatabase::make_term(const om_termname & tname)
 }
 
 om_docid
-InMemoryDatabase::make_doc(const OmData & docdata)
+InMemoryDatabase::make_doc(const string & docdata)
 {
     termlists.push_back(InMemoryDoc());
     doclengths.push_back(0);
-    doclists.push_back(docdata.value);
+    doclists.push_back(docdata);
 
     AssertParanoid(termlists.size() == doclengths.size());
 

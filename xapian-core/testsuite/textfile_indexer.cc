@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +59,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	get_paragraph(*from, para);
 
 	OmDocument document;
-	document.set_data(OmData(para));
+	document.set_data(para);
 	om_termcount position = 1;
 
 	std::string::size_type spacepos;

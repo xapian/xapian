@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +57,7 @@ DBDocument::do_get_key(om_keyno keyid) const
 	// Record not big enough.
 	DEBUGLINE(DB, ": not found in record");
     } else {
-	key.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
+	key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
 	DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
     }
     return key;
@@ -67,11 +68,11 @@ DBDocument::do_get_key(om_keyno keyid) const
  *  Note: this only returns keys from the keyfile.  If keys are being
  *  read from the record, this will not return them.
  */
-std::map<om_keyno, OmKey>
+map<om_keyno, OmKey>
 DBDocument::do_get_all_keys() const
 {
     om_keyno keyid = 0;
-    std::map<om_keyno, OmKey> keys;
+    map<om_keyno, OmKey> keys;
 
     OmKey key = database->get_key(did, keyid);
     if (key.value.size() != 0) {
@@ -82,14 +83,12 @@ DBDocument::do_get_all_keys() const
 }
 
 
-OmData
+string
 DBDocument::do_get_data() const
 {
-    if(rec == NULL) rec = database->get_record(did);
-    OmData data;
+    if (rec == NULL) rec = database->get_record(did);
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-    data.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3,
-			     len - LWIDTH(heavy_duty) - 3);
-    return data;
+    return string((char *)pos + LWIDTH(heavy_duty) + 3,
+		  len - LWIDTH(heavy_duty) - 3);
 }

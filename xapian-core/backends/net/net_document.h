@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,26 +25,25 @@
 #define OM_HGUARD_NET_DOCUMENT_H
 
 #include "document.h"
-#include <string>
 
 class NetworkDocument : public Document {
     friend class NetworkDatabase;
     private:
-	std::string doc;
+	string doc;
 
-	std::map<om_keyno, OmKey> keys;
+	map<om_keyno, OmKey> keys;
 
 	NetworkDocument(const Database *database_, om_docid did_,
-			const std::string & doc_,
-			const std::map<om_keyno, OmKey> &keys_);
+			const string & doc_,
+			const map<om_keyno, OmKey> &keys_);
 
 	// Stop copying
 	NetworkDocument(const NetworkDocument &);
 	NetworkDocument & operator = (const NetworkDocument &);
     public:
 	OmKey do_get_key(om_keyno keyid) const;
-	std::map<om_keyno, OmKey> do_get_all_keys() const;
-	OmData do_get_data() const;
+	map<om_keyno, OmKey> do_get_all_keys() const;
+	string do_get_data() const;
 };
 
 #endif /* OM_HGUARD_NET_DOCUMENT_H */

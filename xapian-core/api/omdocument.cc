@@ -63,30 +63,24 @@ OmDocument::get_key(om_keyno key) const
     RETURN(myptr->get_key(key));
 }
 
-OmData
+string
 OmDocument::get_data() const
 {
-    DEBUGAPICALL(OmData, "OmDocument::get_data", "");
+    DEBUGAPICALL(string, "OmDocument::get_data", "");
     if (internal->data_here) RETURN(internal->data);
     // create our own RefCntPtr in case another thread assigns a new ptr
+    // FIXME: threads not an issue now?
     RefCntPtr<Document> myptr = internal->ptr;
 
     RETURN(myptr->get_data());
 }
 
 void
-OmDocument::set_data(const OmData &data)
-{
-    DEBUGAPICALL(void, "OmDocument::set_data", data);
-    // FIXME: locking???
-    internal->data = data;
-    internal->data_here = true;
-}
-
-void
 OmDocument::set_data(const std::string &data)
 {
-    set_data(OmData(data));
+    DEBUGAPICALL(void, "OmDocument::set_data", data);
+    internal->data = data;
+    internal->data_here = true;
 }
 
 void
@@ -112,7 +106,7 @@ OmDocument::get_description() const
 {
     std::string description = "OmDocument(data=";
     if (internal->data_here)
-      	description += "`" + internal->data.value + "'";
+      	description += "`" + internal->data + "'";
     else
 	description += "[not fetched]";
 

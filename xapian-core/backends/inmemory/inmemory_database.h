@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -229,7 +230,7 @@ class InMemoryDatabase : public Database {
 	void make_term(const om_termname & tname);
 
 	bool doc_exists(om_docid did) const;
-	om_docid make_doc(const OmData & docdata);
+	om_docid make_doc(const string & docdata);
 
 	/* The common parts of add_doc and replace_doc */
 	void finish_add_doc(om_docid did, const OmDocument &document);

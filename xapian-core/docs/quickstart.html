@@ -575,7 +575,7 @@ access to the data stored in this document.
         cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
 	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
         OmDocument doc = enquire.get_doc(*i);
-	cout &lt;&lt; "[" &lt;&lt; doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
+	cout &lt;&lt; "[" &lt;&lt; doc.get_data() &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>
 </P>

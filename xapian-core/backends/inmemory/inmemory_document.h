@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,25 +25,24 @@
 #define OM_HGUARD_INMEMORY_DOCUMENT_H
 
 #include "document.h"
-#include <string>
 
 class InMemoryDocument : public Document {
     friend class InMemoryDatabase;
     private:
-	std::string doc;
+	string doc;
 	std::map<om_keyno, OmKey> keys;
 
 	InMemoryDocument(const Database *database_, om_docid did_,
-			 const std::string & doc_,
-			 const std::map<om_keyno, OmKey> &keys_);
+			 const string & doc_,
+			 const map<om_keyno, OmKey> &keys_);
 
 	// Stop copying
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
 	OmKey do_get_key(om_keyno keyid) const;
-	std::map<om_keyno, OmKey> do_get_all_keys() const;
-	OmData do_get_data() const;
+	map<om_keyno, OmKey> do_get_all_keys() const;
+	string do_get_data() const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DOCUMENT_H */

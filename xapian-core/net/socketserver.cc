@@ -370,7 +370,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     AutoPtr<Document> doc(db.internal->open_document(did));
 
-    writeline("O" + encode_tname(doc->get_data().value));
+    writeline("O" + encode_tname(doc->get_data()));
 
     std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 

@@ -53,32 +53,11 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmDocument_get_1key
 /*
  * Class:     com_muscat_om_OmDocument
  * Method:    get_data
- * Signature: ()Lcom/muscat/om/OmData;
+ * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jobject JNICALL Java_com_muscat_om_OmDocument_get_1data
   (JNIEnv *env, jobject obj)
 {
     OmDocument* doc = (OmDocument*) tryGetLongField (env, obj, "nativePtr");
-    OmData data = doc->get_data ();
-
-    // convert to Java object
-
-    jclass clazz = env->FindClass ("com/muscat/om/OmData");
-    if (clazz == NULL)
-	throwNewException (env, "java/lang/RuntimeException",
-			   "NATIVE: error getting class ID for com/muscat/om/OmData");
-
-    jmethodID cid = env->GetMethodID (clazz, "<init>", "([B)V");
-    if (cid == NULL)
-	throwNewException (env, "java/lang/RuntimeException",
-			   "NATIVE: error getting constructor ID for com/muscat/om/OmKey");
-
-    jbyteArray datArray= env->NewByteArray (data.value.size());
-    env->SetByteArrayRegion (datArray, (jsize) 0, (jsize) data.value.size(),
-			     (jbyte*) data.value.data());
-
-    jobject ret = env->NewObject (clazz, cid, datArray);
-    env->DeleteLocalRef (clazz);
-    env->DeleteLocalRef (datArray);
-    return ret;
+    return env->NewStringUTF(doc->get_data().c_str());
 }

@@ -5,7 +5,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,12 +60,11 @@ class OmDocument {
   public:
     ~OmDocument();
 
-    // OmKey and OmData are both strings as far as scripting languages
-    // see them.
+    // OmKey is a string as far as scripting languages see them.
     OmKey get_key(om_keyno key) const;
     %addmethods {
       std::string get_data() {
-        return (self->get_data().value);
+        return (self->get_data());
       }
     }
 
