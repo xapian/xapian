@@ -9,7 +9,7 @@
         <input name="filename" node="splitfname" out_name="left"/></node>
     <!-- Split the file into "words" -->
     <node type="omregexsplit" id="wordsplit">
-        <param name="regex" type="string" value="[^a-zA-Z]+"/>
+        <param name="regex" type="string" value="[^a-zA-Z]\+"/>
         <input name="in" node="readfile" out_name="out"/></node>
     <!-- Duplicate the list of words -->
     <node type="omsplitter" id="dupwords">
@@ -19,7 +19,7 @@
         <param name="regex" type="string" value="^[A-Z]"/>
 	<input name="in" node="dupwords" out_name="left"/></node>
     <!-- Right branch, lower case everything... -->
-    <node type="omtranslate" id="tolower">
+    <node type="omtranslatelist" id="tolower">
         <param name="from" type="string" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
         <param name="to" type="string" value="abcdefghijklmnopqrstuvwxyz"/>
 	<input name="in" node="dupwords" out_name="right"/></node>
@@ -32,6 +32,12 @@
         <input name="left" node="capsonly" out_name="out"/>
 	<input name="right" node="stem" out_name="out"/></node>
 
+    <!-- convert the terms into a termlist -->
+    <node type="omnewtermlist" id="maketermlist"></node>
+    <node type="omtermlistadd" id="addtermlist">
+        <input name="termlist" node="maketermlist" out_name="out"/>
+	<input name="words" node="terms" out_name="out"/></node>
+
     <!-- Right branch from splitfname -->
     <!-- Split the filename again -->
     <node type="omsplitter" id="splitfname2">
@@ -40,5 +46,17 @@
     <node type="omregexreplace" id="filenameonly">
         <param name="regex" type="string" value="^(.*/)?([^/]+)$"/>
         <param name="replace_expr" type="string" value="\2"/>
-	<input name="in" node="splitfname2" out_name="out"/></node>
+	<input name="in" node="splitfname2" out_name="left"/></node>
+
+    <!-- handle the keys -->
+    <node type="omnewkeylist" id="newkey"></node>
+
+    <!-- join everything into the final document -->
+    <node type="ommakedoc" id="doc">
+        <input name="terms" node="addtermlist" out_name="out"/>
+	<input name="data" node="splitfname2" out_name="right"/>
+	<input name="keys" node="newkey" out_name="out"/></node>
+
+    <!-- specify the output -->
+    <output node="doc" out_name="out"/>
 </omindexer>
