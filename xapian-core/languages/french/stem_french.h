@@ -19,7 +19,7 @@
  * USA
  * -----END-LICENCE-----
  */
-/* Version 1: see http://open.muscat.com/ for further information */
+/* Version 2: see http://open.muscat.com/ for further information */
 
 #ifndef _stem_french_h_
 #define _stem_french_h_
