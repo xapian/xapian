@@ -10,14 +10,12 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h lines_db.C lines_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesearch cvsmine2search cvsfileindex cvsfilesearch \
-	# cvssearch cvsusagesearch cvscomments \
-	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch
 
 LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 
 if DYNAMIC
-FLAGS = 
+FLAGS =
 else
 FLAGS = -static
 endif
@@ -34,6 +32,10 @@ cvssearch_SOURCES = cvssearch.C
 cvssearch_LDFLAGS = $(FLAGS)
 cvssearch_LDADD = $(LIBS)
 
+cvscommitsearch_SOURCES =  cvscommitsearch.C
+cvscommitsearch_LDFLAGS = $(FLAGS)
+cvscommitsearch_LDADD = $(LIBS)
+
 cvsminesearch_SOURCES =  cvsminesearch.C
 cvsminesearch_LDFLAGS = $(FLAGS)
 cvsminesearch_LDADD = $(LIBS)
@@ -44,25 +46,17 @@ cvsmine2search_LDADD = $(LIBS)
 
 cvsfilesearch_SOURCES =   cvsfilesearch.C
 cvsfilesearch_LDFLAGS = $(FLAGS)
-cvsfilesearch_LDADD = $(LIBS) 
+cvsfilesearch_LDADD = $(LIBS)
 
-#cvsusagesearch_SOURCES =   cvsusagesearch.C
-#cvsusagesearch_LDFLAGS = $(FLAGS) 
-#cvsusagesearch_LDADD = $(LIBS) 
-
-#cvsclasses_SOURCES =   cvspatterns.C
-#cvsclasses_LDADD = $(LIBS) 
-
-#cvsfunctions_SOURCES =   cvspatterns.C
-#cvsfunctions_LDADD = $(LIBS) 
-
-#cvsusageindex_SOURCES =   cvsusageindex.C
-#cvsusageindex_LDADD = $(LIBS) 
-#cvsusageindex_LDFLAGS = $(FLAGS)
 
 cvsmineindex_SOURCES =   cvsmineindex.C
-cvsmineindex_LDADD = $(LIBS) 
+cvsmineindex_LDADD = $(LIBS)
 cvsmineindex_LDFLAGS = $(FLAGS)
+
+cvscommitindex_SOURCES =   cvscommitindex.C
+cvscommitindex_LDADD = $(LIBS)
+cvscommitindex_LDFLAGS = $(FLAGS)
+
 
 cvsmine2index_SOURCES =   cvsmine2index.C
 cvsmine2index_LDADD = $(LIBS)
@@ -72,42 +66,3 @@ cvsfileindex_SOURCES =   cvsfileindex.C
 cvsfileindex_LDADD = $(LIBS)
 cvsfileindex_LDFLAGS = $(FLAGS)
 
-#cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = $(LIBS)
-#cvscomments_LDFLAGS = $(FLAGS)
-
-#cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = $(LIBS)
-#cvssymbolcount_LDFLAGS = $(FLAGS)
-
-#cvscountsymbols_SOURCES =   cvscountsymbols.C
-#cvscountsymbols_LDADD = $(LIBS)
-#cvscountsymbols_LDFLAGS = $(FLAGS)
-
-#cvsminelocal_SOURCES =   cvsminelocal.C
-#cvsminelocal_LDADD = $(LIBS)
-#cvsminelocal_LDFLAGS = $(FLAGS)
-
-#cvsmineglobal_SOURCES =   cvsmineglobal.C
-#cvsmineglobal_LDADD = $(LIBS)
-
-#cvseval_SOURCES =   cvseval.C
-
-#cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = $(LIBS)
-
-#cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = $(LIBS)
-
-#cvscountsymbols_SOURCES =   cvscountsymbols.C
-#cvscountsymbols_LDADD = $(LIBS)
-
-#cvsminelocal_SOURCES =   cvsminelocal.C
-#cvsminelocal_LDADD = $(LIBS) 
-
-#cvsmineglobal_SOURCES =   cvsmineglobal.C
-#cvsmineglobal_LDADD = $(LIBS)
-
-
-#cvseval_SOURCES =   cvseval.C
-#cvseval_LDADD = $(LIBS)
