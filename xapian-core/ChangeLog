@@ -1,3 +1,7 @@
+Fri Dec 15 13:09:51 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make TODO.release file, containing TODO items for next release.
+
 Fri Dec 15 12:06:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzDatabases now autoflush after 1000 changes.

@@ -25,7 +25,7 @@ bin_SCRIPTS=libomus-config
 CLEANFILES=TODO libomus-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
-             ar-wrapper-solaris TODO
+             ar-wrapper-solaris TODO TODO.release
 
 lib_LTLIBRARIES = libomus.la
 
@@ -36,10 +36,19 @@ EXTRA_libomus_la_SOURCES =
 
 TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML
-	@echo "Generating TODO"
-	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO
+	@echo "Generating $@"
+	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > $@
 else
-	@echo "Can't generate TODO: need Perl XML module."
+	@echo "Can't generate $@: need Perl XML module."
+	@exit 0
+endif
+
+TODO.release: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
+if HAVE_PERL_XML
+	@echo "Generating $@"
+	@./docs/todo2html.pl --release \* --text $(top_srcdir)/docs/todo.xml > $@
+else
+	@echo "Can't generate $@: need Perl XML module."
 	@exit 0
 endif
 
