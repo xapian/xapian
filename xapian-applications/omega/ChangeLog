@@ -1,3 +1,7 @@
+Wed Jul 30 19:05:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* getopt.h: Copied over latest getopt.h from xapian-core.
+
 Sun Jul 27 16:34:19 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,getopt.c,getopt.h,getopt1.c: Copied our version of GNU

@@ -146,16 +146,19 @@ struct option
 extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
 # else /* not __GNU_LIBRARY__ */
 #  ifdef __cplusplus
-// In C++ "getopt ()" means it takes no argument, which is no good.  This
-// makes use of the fact that internally getopt () and getopt_long () call
-// the same function to actually do the work!
+// In C++ "getopt ()" means it takes no argument, which is no good.  So
+// we define getopt as a call to the internal function which actually
+// does the work!
 
 // Include stdlib.h first so we don't mess with any getopt prototype that
 // might be there if stdlib.h is included after this header...
+// Also stdio.h and unistd.h - Solaris also prototypes getopt there...
 #include <stdlib.h>
-#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\
-	(const struct option *) 0, (int *) 0)
-#else
+#include <stdio.h>
+#include <unistd.h>
+#define getopt(ARGC, ARGV, OPTSTRING) _getopt_internal(ARGC, ARGV, OPTSTRING,\
+	(const struct option *) 0, (int *) 0, 0)
+#  else
 extern int getopt ();
 #  endif
 # endif /* __GNU_LIBRARY__ */
