@@ -18,6 +18,9 @@ xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xap
 	done
 	cd xapian && phpize
 
-xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
+xapian/xapian_wrap.cpp xapian/makefile.in xapian/config.m4 xapian/php_xapian.h xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
 	test -d xapian || mkdir xapian
-	swig $(SWIG_INCLUDES) -c++ -php4 -nosync -shadow -o $@ ../swig/xapian.i
+	swig $(SWIG_INCLUDES) -c++ -php4 -phpfull -withlibs libxapian.so -withincs om/om.h -shadow -o xapian/xapian_wrap.cpp ../swig/xapian.i
+	mv config.m4 xapian/config.m4
+	mv Makefile.in xapian/Makefile.in
+	rm CREDITS
