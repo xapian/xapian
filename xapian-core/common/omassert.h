@@ -72,7 +72,7 @@
 // Send to cout, not cerr, so that output appears on page in CGI scripts
 // (otherwise it clogs up error logs)
 // FIXME - should send it to a file.
-#define DebugMsg(a) cout << a ; cout.flush()
+#define DebugMsg(a) cerr << a ; cerr.flush()
 
 #else
 #define DebugMsg(a)
