@@ -465,7 +465,7 @@ OMEnquire::get_mset(OMMSet &mset,
 
     // Set Rset
     RSet *rset = 0;
-    if((omrset == 0) || (omrset->items.size() != 0)) {
+    if((omrset != 0) && (omrset->items.size() != 0)) {
 	rset = new RSet(internal->database, *omrset);
 	match.set_rset(rset);
     }
