@@ -1,3 +1,8 @@
+Mon Feb 21 18:42:03 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/errors/Makefile.am: Remove lingering reference to
+	  InvalidDataError.java and InvalidDataError.class.
+
 Mon Feb 21 05:16:28 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/.cvsignore,java/SmokeTest.java,java/native/,java/org/xapian/,
