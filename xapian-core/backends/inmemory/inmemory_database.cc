@@ -1,4 +1,4 @@
-/* inmemory_database.cc: interface to text file access
+/* inmemory_database.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation

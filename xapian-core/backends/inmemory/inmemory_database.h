@@ -316,9 +316,10 @@ InMemoryPostList::intro_term_description() const
 // Inline function definitions for termlist //
 //////////////////////////////////////////////
 
-inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
-					  const InMemoryDoc & doc,
-					  om_doclength len)
+inline
+InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
+				   const InMemoryDoc & doc,
+				   om_doclength len)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
 	  terms(doc.terms.size()),
@@ -329,12 +330,14 @@ inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
     return;
 }
 
-inline om_termcount InMemoryTermList::get_approx_size() const
+inline om_termcount
+InMemoryTermList::get_approx_size() const
 {
     return terms;
 }
 
-inline OmExpandBits InMemoryTermList::get_weighting() const
+inline OmExpandBits
+InMemoryTermList::get_weighting() const
 {
     Assert(started);
     Assert(!at_end());
@@ -346,21 +349,24 @@ inline OmExpandBits InMemoryTermList::get_weighting() const
 			this_db->get_doccount());
 }
 
-inline const om_termname InMemoryTermList::get_termname() const
+inline const om_termname
+InMemoryTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).tname;
 }
 
-inline om_termcount InMemoryTermList::get_wdf() const
+inline om_termcount
+InMemoryTermList::get_wdf() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).positions.size();
 }
 
-inline om_doccount InMemoryTermList::get_termfreq() const
+inline om_doccount
+InMemoryTermList::get_termfreq() const
 {
     Assert(started);
     Assert(!at_end());
@@ -368,7 +374,8 @@ inline om_doccount InMemoryTermList::get_termfreq() const
     return this_db->get_termfreq((*pos).tname);
 }
 
-inline TermList * InMemoryTermList::next()
+inline TermList *
+InMemoryTermList::next()
 {
     if(started) {
 	Assert(!at_end());
@@ -379,7 +386,8 @@ inline TermList * InMemoryTermList::next()
     return NULL;
 }
 
-inline bool InMemoryTermList::at_end() const
+inline bool
+InMemoryTermList::at_end() const
 {
     Assert(started);
     if(pos != end) return false;
