@@ -1,3 +1,7 @@
+Tue Jan 30 12:45:22 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Removed #include <vector> from omstem.h
+
 Tue Jan 30 11:09:29 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* OmStem::get_available_languages() now returns a string
