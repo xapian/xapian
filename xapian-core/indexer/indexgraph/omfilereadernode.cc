@@ -67,7 +67,7 @@ class OmFileReaderNode : public OmIndexerNode {
 	    if (filename_from_config) { 
 		if (have_read_file) {
 		    // set output to blank
-		    set_output("out", OmIndexerMessage(new OmIndexerData()));
+		    set_empty_output("out");
 		    return;
 		}
 	    }

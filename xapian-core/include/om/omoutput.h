@@ -69,7 +69,7 @@ OUTPUT_FUNCTION(OmTermListIterator)
 OUTPUT_FUNCTION(OmKeyListIterator)
 
 #include "omindexermessage.h"
-OUTPUT_FUNCTION(OmIndexerData)
+OUTPUT_FUNCTION(OmIndexerMessage)
 
 inline std::ostream &
 operator<<(std::ostream & os, const om_termname_list & obj) {

@@ -81,14 +81,14 @@ class OmSelectItemsNode : public OmIndexerNode {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 
-	    OmIndexerMessage output(new OmIndexerData(
-				    std::vector<OmIndexerData>()));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage output(empty);
 
 	    vector<int>::const_iterator i;
 	    for (i = items.begin();
 		 i != items.end();
 		 ++i) {
-		output->append_element(input->get_element(*i));
+		output.append_element(input.get_element(*i));
 	    }
 	    set_output("out", output);
 	}

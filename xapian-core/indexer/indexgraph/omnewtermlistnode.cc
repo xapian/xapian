@@ -45,8 +45,9 @@ class OmNewTermlistNode : public OmIndexerNode {
 	}
     private:
 	void calculate() {
-	    OmIndexerMessage terms(new OmIndexerData(std::vector<OmIndexerData>()));
-	    terms->append_element(OmIndexerData("termlist"));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage terms(empty);
+	    terms.append_element(std::string("termlist"));
 	    set_output("out", terms);
 	}
 };

@@ -52,7 +52,7 @@ class OmConstantNode : public OmIndexerNode {
 	    set_value();
 	}
     private:
-	OmIndexerData value;
+	OmIndexerMessage value;
 	void set_value()
 	{
 	    std::string type = get_config_string("type");
@@ -64,7 +64,7 @@ class OmConstantNode : public OmIndexerNode {
 		value.set_double(get_config_double("value"));
 	    } else if (type == "list") {
 		std::vector<std::string> vec = get_config_vector("value");
-		std::vector<OmIndexerData> newvec;
+		std::vector<OmIndexerMessage> newvec;
 		std::copy(vec.begin(), vec.end(),
 			  back_inserter(newvec));
 		value.set_vector(newvec.begin(), newvec.end());

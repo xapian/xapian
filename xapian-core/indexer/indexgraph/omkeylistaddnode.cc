@@ -57,14 +57,14 @@ class OmKeylistAddNode : public OmIndexerNode {
 	    OmIndexerMessage keys = get_input_record("keylist");
 	    OmIndexerMessage words = get_input_record("keys");
 
-	    switch (words->get_type()) {
-		case OmIndexerData::rt_vector:
-		    for (size_t i = 0; i<words->get_vector_length(); ++i) {
-			keys->append_element(make_key(words->get_element(i)));
+	    switch (words.get_type()) {
+		case OmIndexerMessage::rt_vector:
+		    for (size_t i = 0; i<words.get_vector_length(); ++i) {
+			keys.append_element(make_key(words.get_element(i)));
 		    }
 		    break;
-		case OmIndexerData::rt_string:
-		    keys->append_element(make_key(*words));
+		case OmIndexerMessage::rt_string:
+		    keys.append_element(make_key(words));
 		    break;
 		default:
 		    throw OmTypeError(std::string("Bad data given to keylistadd node"));
@@ -72,7 +72,7 @@ class OmKeylistAddNode : public OmIndexerNode {
 	    set_output("out", keys);
 	}
 
-	OmIndexerData make_key(const OmIndexerData &word) {
+	OmIndexerMessage make_key(const OmIndexerMessage &word) {
 	    return word;
 	}
 };

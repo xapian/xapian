@@ -49,7 +49,7 @@ class OmSplitterNode : public OmIndexerNode {
 	    request_inputs();
 	    OmIndexerMessage msg = get_input_record("in");
 
-	    set_output("left", OmIndexerMessage(new OmIndexerData(*msg)));
+	    set_output("left", msg);
 	    set_output("right", msg);
 	}
 };

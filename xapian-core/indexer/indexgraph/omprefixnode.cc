@@ -47,30 +47,29 @@ class OmPrefixNode : public OmIndexerNode {
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
-	    if (input->is_empty()) {
+	    if (input.is_empty()) {
 		set_empty_output("out");
 		return;
 	    }
 
 	    std::string prefix = get_config_string("prefix");
 
-	    switch (input->get_type()) {
-		case OmIndexerData::rt_vector:
+	    switch (input.get_type()) {
+		case OmIndexerMessage::rt_vector:
 		    {
-			OmIndexerMessage output(new OmIndexerData(
-					  std::vector<OmIndexerData>()));
+			std::vector<OmIndexerMessage> empty;
+			OmIndexerMessage output(empty);
 
-			for (size_t i=0; i<input->get_vector_length(); ++i) {
-			    output->append_element(
-				       OmIndexerData(prefix +
-					     input->get_element(i).get_string()));
+			for (size_t i=0; i<input.get_vector_length(); ++i) {
+			    output.append_element(prefix +
+					 input.get_element(i).get_string());
 			}
 			set_output("out", output);
 		    }
 		    break;
-		case OmIndexerData::rt_string:
+		case OmIndexerMessage::rt_string:
 		    {
-			set_output("out", prefix + input->get_string());
+			set_output("out", prefix + input.get_string());
 		    }
 		    break;
 		default:

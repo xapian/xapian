@@ -68,9 +68,6 @@ class OmIndexerStartNode : public OmIndexerNode
 	    if (!message_valid) {
 		throw OmInvalidArgumentError("Message read more than once from START!");
 	    }
-	    if (!message.get()) {
-		throw OmInvalidArgumentError("Message is null!");
-	    }
 	    set_output("out", message);
 	    message_valid = false;
 	}

@@ -57,14 +57,14 @@ class OmTermlistAddNode : public OmIndexerNode {
 	    OmIndexerMessage terms = get_input_record("termlist");
 	    OmIndexerMessage words = get_input_record("words");
 
-	    switch (words->get_type()) {
-		case OmIndexerData::rt_vector:
-		    for (size_t i = 0; i<words->get_vector_length(); ++i) {
-			terms->append_element(make_term(words->get_element(i), i+1));
+	    switch (words.get_type()) {
+		case OmIndexerMessage::rt_vector:
+		    for (size_t i = 0; i<words.get_vector_length(); ++i) {
+			terms.append_element(make_term(words.get_element(i), i+1));
 		    }
 		    break;
-		case OmIndexerData::rt_string:
-		    terms->append_element(make_term(*words, 1));
+		case OmIndexerMessage::rt_string:
+		    terms.append_element(make_term(words, 1));
 		    break;
 		default:
 		    throw OmTypeError(std::string("Bad data given to termlistadd node"));
@@ -72,13 +72,13 @@ class OmTermlistAddNode : public OmIndexerNode {
 	    set_output("out", terms);
 	}
 
-	OmIndexerData make_term(const OmIndexerData &word, int pos) {
-	    std::vector<OmIndexerData> empty;
-	    OmIndexerData retval(empty);
+	OmIndexerMessage make_term(const OmIndexerMessage &word, int pos) {
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage retval(empty);
 	    retval.append_element(word);
 	    retval.append_element(1);  // wdf
 	    retval.append_element(1);  // termfreq
-	    OmIndexerData positions(empty);
+	    OmIndexerMessage positions(empty);
 	    positions.append_element(pos);
 	    retval.append_element(positions);
 

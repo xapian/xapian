@@ -47,23 +47,26 @@ class OmVectorSplitNode : public OmIndexerNode {
 		{}
     private:
 	OmIndexerMessage stored;
-	int offset;
+	bool stored_valid;
+	size_t offset;
 	void calculate() {
-	    if (!stored.get()) {
+	    if (!stored_valid) {
 		request_inputs();
 		stored = get_input_record("in");
-		if (stored->get_type() == OmIndexerData::rt_empty) {
+		if (stored.get_type() == OmIndexerMessage::rt_empty) {
+		    stored_valid = false;
 		    set_empty_output("out");
 		    return;
 		}
+		stored_valid = true;
 		offset = 0;
 	    }
-	    if (offset >= stored->get_vector_length()) {
+	    if (offset >= stored.get_vector_length()) {
 		set_empty_output("out");
-		stored = OmIndexerMessage(0);
+		stored_valid = false;
 		return;
 	    }
-	    set_output("out", OmIndexerMessage(new OmIndexerData(stored->get_element(offset))));
+	    set_output("out", stored.get_element(offset));
 	    ++offset;
 
 	}

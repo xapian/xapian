@@ -49,11 +49,11 @@ class OmListConcatNode : public OmIndexerNode {
 	    OmIndexerMessage left = get_input_record("left");
 	    OmIndexerMessage right = get_input_record("right");
 
-	    if (left->is_empty()) {
+	    if (left.is_empty()) {
 		set_output("out", right);
 	    } else {
-		if (!right->is_empty()) {
-		    left->eat_list(*right);
+		if (!right.is_empty()) {
+		    left.eat_list(right);
 		}
 		set_output("out", left);
 	    }

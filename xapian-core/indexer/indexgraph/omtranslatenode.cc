@@ -105,28 +105,28 @@ class OmTranslateNode : public OmIndexerNode {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 
-	    switch (input->get_type()) {
-		case OmIndexerData::rt_empty:
+	    switch (input.get_type()) {
+		case OmIndexerMessage::rt_empty:
 		    {
 			set_empty_output("out");
 		    }
 		    break;
-		case OmIndexerData::rt_vector:
+		case OmIndexerMessage::rt_vector:
 		    {
-			OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+			std::vector<OmIndexerMessage> empty;
+			OmIndexerMessage output(empty);
 
-			for (size_t i=0; i<input->get_vector_length(); ++i) {
-			    std::string orig = input->get_element(i).get_string();
+			for (size_t i=0; i<input.get_vector_length(); ++i) {
+			    std::string orig = input.get_element(i).get_string();
 			    do_translate(orig);
-			    output->append_element(OmIndexerData(orig));
+			    output.append_element(orig);
 			}
 			set_output("out", output);
 		    }
 		    break;
-		case OmIndexerData::rt_string:
+		case OmIndexerMessage::rt_string:
 		    {
-			std::string result(input->get_string());
+			std::string result(input.get_string());
 			do_translate(result);
 			set_output("out", result);
 		    }

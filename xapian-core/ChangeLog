@@ -1,3 +1,11 @@
+Fri Dec  8 14:42:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmIndexerMessage is now a class by itself, replacing OmIndexerData
+	  and the typedef to AutoPtr<OmindexerData>.  It's now a copy-on-write
+	  object.
+
+	* The indexer stuff all changed.
+
 Fri Dec 08 14:24:02 GMT 2000 Olly Betts
 
 	* omindexdoc.{cc,h}: no longer used so removed.

@@ -82,13 +82,13 @@ class OmRegexFilterNode : public OmIndexerNode {
 		regex.set(get_input_string("regex"));
 	    }
 
-	    OmIndexerMessage output(new OmIndexerData(
-				    std::vector<OmIndexerData>()));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage output(empty);
 
-	    for (size_t i=0; i<input->get_vector_length(); ++i) {
-		std::string orig = input->get_element(i).get_string();
+	    for (size_t i=0; i<input.get_vector_length(); ++i) {
+		std::string orig = input.get_element(i).get_string();
 		if (regex.matches(orig)) {
-		    output->append_element(OmIndexerData(orig));
+		    output.append_element(orig);
 		}
 	    }
 	    set_output("out", output);

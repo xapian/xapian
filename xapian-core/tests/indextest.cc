@@ -70,9 +70,9 @@ bool test_basic3()
       // FIXME: on PPC, it seems to miss the last character, so complains
       // that there's no final >.  Stop the bodge, and investigate.
 
-    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    indexer->set_input(OmIndexerMessage("garbage"));
     OmIndexerMessage result = indexer->get_raw_output();
-    if (result->get_string() == "garbage") {
+    if (result.get_string() == "garbage") {
         // garbage in, garbage out
 	success = true;
     }
@@ -116,7 +116,7 @@ class writetwice : public OmIndexerNode {
 	    } else {
 		request_inputs();
 		OmIndexerMessage in = get_input_record("in");
-		saved_msg = OmIndexerMessage(new OmIndexerData(*in));
+		saved_msg = in;
 		have_msg = true;
 		set_output("out", in);
 	    }
@@ -162,8 +162,9 @@ bool test_flowcheck1()
 		 "</node>"
 	         "<output node='concat' out_name='out'/>"
              "</omindexer>\n"));
-
-	indexer->set_input(OmIndexerMessage(new OmIndexerData(std::vector<OmIndexerData>())));
+	
+	std::vector<OmIndexerMessage> empty;
+	indexer->set_input(empty);
 	OmIndexerMessage result = indexer->get_raw_output();
 	if (verbose) {
 	    std::cerr << "got output: " << result << endl;
@@ -207,9 +208,9 @@ bool test_omsplitter1()
     AutoPtr<OmIndexer> indexer = make_indexer_one_node("omsplitter",
 						       "in", "right");
 
-    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    indexer->set_input(std::string("garbage"));
     OmIndexerMessage result = indexer->get_raw_output();
-    if (result->get_string() == "garbage") {
+    if (result.get_string() == "garbage") {
         // garbage in, garbage out
 	success = true;
     }
@@ -232,31 +233,31 @@ bool test_omstemmer1()
     // FIXME: should OmStemmerNode work with scalars as well as vectors?
     indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
     OmIndexerMessage result = indexer->get_raw_output();
-    if (result->get_string() == stemmer.stem_word("garbage")) {
+    if (result.get_string() == stemmer.stem_word("garbage")) {
         // garbage in, garbage out
 	return false;
     }
 #endif
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("word"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("sponge"));
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("word"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("sponge"));
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         cout << "Non-vector result: " << result << endl;
     }
-    if (result->get_vector_length() != v.size()) {
+    if (result.get_vector_length() != v.size()) {
         return false;
     }
 
     for (unsigned i=0; i<v.size(); ++i) {
-        if (result->get_element(i).get_string() !=
+        if (result.get_element(i).get_string() !=
 			stemmer.stem_word(v[i].get_string())) {
 	    return false;
 	}
@@ -275,25 +276,25 @@ bool test_omprefix1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("word"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("sponge"));
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("word"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("sponge"));
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         cout << "Non-vector result: " << result << endl;
     }
-    if (result->get_vector_length() != v.size()) {
+    if (result.get_vector_length() != v.size()) {
         return false;
     }
 
     for (unsigned i=0; i<v.size(); ++i) {
-        if (result->get_element(i).get_string() !=
+        if (result.get_element(i).get_string() !=
 			std::string("WIB") + v[i].get_string()) {
 	    return false;
 	}
@@ -315,25 +316,25 @@ bool test_omstopword1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("2stop"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("stop1"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("2stop"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("stop1"));
+    v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         cout << "Non-vector result: " << result << endl;
     }
-    if (result->get_vector_length() != v.size() - 2) {
+    if (result.get_vector_length() != v.size() - 2) {
         return false;
     }
 
     for (unsigned i=0; i<v.size()-2; ++i) {
-        if (result->get_element(i).get_string() !=
+        if (result.get_element(i).get_string() !=
 			v[i*2].get_string()) {
 	    if (verbose) {
 		cout << "Result: " << result << endl;
@@ -353,24 +354,24 @@ bool test_omflattenstring1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("elephants"));
 
-    std::vector<OmIndexerData> v2;
-    v2.push_back(OmIndexerData("nested1"));
-    v2.push_back(OmIndexerData("nested2"));
+    std::vector<OmIndexerMessage> v2;
+    v2.push_back(OmIndexerMessage("nested1"));
+    v2.push_back(OmIndexerMessage("nested2"));
 
-    v.push_back(OmIndexerData(v2));
+    v.push_back(OmIndexerMessage(v2));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         cout << "Non-string result: " << result << endl;
     }
-    if (result->get_string() != "penguinsflyingelephantsnested1nested2") {
+    if (result.get_string() != "penguinsflyingelephantsnested1nested2") {
 	if (verbose) {
 	    cout << "Bad result: `" << result << "'" << endl;
 	}
@@ -391,33 +392,33 @@ bool test_omtranslate1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("word"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("sponge"));
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("word"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("sponge"));
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("elephants"));
 
-    std::vector<OmIndexerData> answer;
+    std::vector<OmIndexerMessage> answer;
     // rot13 versions
-    answer.push_back(OmIndexerData("jbeq"));
-    answer.push_back(OmIndexerData("sylvat"));
-    answer.push_back(OmIndexerData("fcbatr"));
-    answer.push_back(OmIndexerData("crathvaf"));
-    answer.push_back(OmIndexerData("ryrcunagf"));
+    answer.push_back(OmIndexerMessage("jbeq"));
+    answer.push_back(OmIndexerMessage("sylvat"));
+    answer.push_back(OmIndexerMessage("fcbatr"));
+    answer.push_back(OmIndexerMessage("crathvaf"));
+    answer.push_back(OmIndexerMessage("ryrcunagf"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         cout << "Non-vector result: " << result << endl;
     }
-    if (result->get_vector_length() != v.size()) {
+    if (result.get_vector_length() != v.size()) {
         return false;
     }
 
     for (unsigned i=0; i<v.size(); ++i) {
-        if (result->get_element(i).get_string() != answer[i].get_string()) {
+        if (result.get_element(i).get_string() != answer[i].get_string()) {
 	    return false;
 	}
     }
@@ -439,14 +440,14 @@ test_omfilereader1()
 
     OmIndexerMessage result = indexer->get_raw_output();
 
-    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         cout << "Non-string result: " << result << endl;
 	return false;
     }
 
-    if (result->get_string() != "correct answer\n") {
+    if (result.get_string() != "correct answer\n") {
 	if (verbose) {
-	    cout << "Got string: `" << result->get_string() << "'" << endl;
+	    cout << "Got string: `" << result.get_string() << "'" << endl;
 	}
 	return false;
     }
@@ -463,19 +464,19 @@ bool test_omfilereader2()
     AutoPtr<OmIndexer> indexer = 
 	    make_indexer_one_node("omfilereader", "filename");
 
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(datadir
-				+ "indextest_filereader.txt")));
+    indexer->set_input(OmIndexerMessage(datadir
+				+ "indextest_filereader.txt"));
 
     OmIndexerMessage result = indexer->get_raw_output();
 
-    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         cout << "Non-string result: " << result << endl;
 	return false;
     }
 
-    if (result->get_string() != "correct answer\n") {
+    if (result.get_string() != "correct answer\n") {
 	if (verbose) {
-	    cout << "Got string: `" << result->get_string() << "'" << endl;
+	    cout << "Got string: `" << result.get_string() << "'" << endl;
 	}
 	return false;
     }
@@ -492,22 +493,22 @@ bool test_omvectorsplit1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("word"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("sponge"));
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("word"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("sponge"));
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
 
     for (size_t i=0; i<v.size(); ++i) {
 	result = indexer->get_raw_output();
-	if (verbose && result->get_type() != OmIndexerData::rt_string) {
+	if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
 	    cout << "Non-string result: " << result << endl;
 	}
-	if (result->get_string() != v[i].get_string()) {
+	if (result.get_string() != v[i].get_string()) {
 	    if (verbose) {
 		cout << "Got " << result << ", expected " << v[i] << endl;
 	    }
@@ -515,7 +516,7 @@ bool test_omvectorsplit1()
 	}
     }
     result = indexer->get_raw_output();
-    if (result->get_type() != OmIndexerData::rt_empty) {
+    if (result.get_type() != OmIndexerMessage::rt_empty) {
 	if (verbose) {
 	    cout << "Expected empty at end, got: " << result << endl;
 	}
@@ -546,28 +547,28 @@ bool test_omlistconcat1()
 
     OmIndexerMessage result;
 
-    std::vector<OmIndexerData> v;
-    v.push_back(OmIndexerData("word"));
-    v.push_back(OmIndexerData("flying"));
-    v.push_back(OmIndexerData("sponge"));
-    v.push_back(OmIndexerData("penguins"));
-    v.push_back(OmIndexerData("elephants"));
+    std::vector<OmIndexerMessage> v;
+    v.push_back(OmIndexerMessage("word"));
+    v.push_back(OmIndexerMessage("flying"));
+    v.push_back(OmIndexerMessage("sponge"));
+    v.push_back(OmIndexerMessage("penguins"));
+    v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
-    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+    if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         cout << "Non-vector result: " << result << endl;
     }
-    if (result->get_vector_length() != 2*v.size()) {
+    if (result.get_vector_length() != 2*v.size()) {
         return false;
     }
 
     for (unsigned i=0; i<v.size(); ++i) {
-        if (result->get_element(i).get_string() != v[i].get_string()) {
+        if (result.get_element(i).get_string() != v[i].get_string()) {
 	    return false;
 	}
-        if (result->get_element(i + v.size()).get_string() != v[i].get_string()) {
+        if (result.get_element(i + v.size()).get_string() != v[i].get_string()) {
 	    return false;
 	}
     }
@@ -610,25 +611,25 @@ test_ommakepair1()
          "<output node='only' out_name='out'/>\n"
       "</omindexer>\n");
 
-    indexer->set_input(OmIndexerMessage(new OmIndexerData("cab")));
+    indexer->set_input(OmIndexerMessage("cab"));
 
     OmIndexerMessage result = indexer->get_raw_output();
-    if (result->get_type() != OmIndexerData::rt_vector) {
+    if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << *result << endl;
+	    cout << "Expected pair, got: " << result << endl;
 	}
 	return false;
     }
-    if (result->get_vector_length() != 2) {
+    if (result.get_vector_length() != 2) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << *result << endl;
+	    cout << "Expected pair, got: " << result << endl;
 	}
 	return false;
     }
-    if (result->get_element(0).get_string() != "CAB" ||
-	result->get_element(1).get_string() != "cab") {
+    if (result.get_element(0).get_string() != "CAB" ||
+	result.get_element(1).get_string() != "cab") {
 	if (verbose) {
-	    cout << "Expected [ 'CAB', 'cab' ], got: " << *result << endl;
+	    cout << "Expected [ 'CAB', 'cab' ], got: " << result << endl;
 	}
 	return false;
     }
@@ -658,35 +659,35 @@ test_ommakepairs1()
          "<output node='only' out_name='out'/>\n"
       "</omindexer>\n");
 
-    std::vector<OmIndexerData> vec;
-    vec.push_back(OmIndexerData("cab"));
-    vec.push_back(OmIndexerData("abc"));
-    indexer->set_input(OmIndexerMessage(new OmIndexerData(vec)));
+    std::vector<OmIndexerMessage> vec;
+    vec.push_back(OmIndexerMessage("cab"));
+    vec.push_back(OmIndexerMessage("abc"));
+    indexer->set_input(OmIndexerMessage(vec));
 
     OmIndexerMessage result = indexer->get_raw_output();
-    if (result->get_type() != OmIndexerData::rt_vector) {
+    if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << *result << endl;
+	    cout << "Expected pair, got: " << result << endl;
 	}
 	return false;
     }
-    if (result->get_vector_length() != vec.size()) {
+    if (result.get_vector_length() != vec.size()) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << *result << endl;
+	    cout << "Expected pair, got: " << result << endl;
 	}
 	return false;
     }
-    if (result->get_element(0).get_element(0).get_string() != "CAB" ||
-	result->get_element(0).get_element(1).get_string() != "cab") {
+    if (result.get_element(0).get_element(0).get_string() != "CAB" ||
+	result.get_element(0).get_element(1).get_string() != "cab") {
 	if (verbose) {
-	    cout << "Got: " << *result << endl;
+	    cout << "Got: " << result << endl;
 	    }
 	return false;
     }
-    if (result->get_element(1).get_element(0).get_string() != "ABC" ||
-	result->get_element(1).get_element(1).get_string() != "abc") {
+    if (result.get_element(1).get_element(0).get_string() != "ABC" ||
+	result.get_element(1).get_element(1).get_string() != "abc") {
 	if (verbose) {
-	    cout << "Got: " << *result << endl;
+	    cout << "Got: " << result << endl;
 	    }
 	return false;
     }

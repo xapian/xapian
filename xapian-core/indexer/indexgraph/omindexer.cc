@@ -56,17 +56,17 @@ OmIndexer::get_output()
 	    internal->final->get_output_record(internal->final_out);
 
     DEBUGLINE(INDEXER, "OmIndexer::get_output(): raw output = "
-	      << mess->get_description());
+	      << mess.get_description());
 
-    for (int i = 0; i < mess->get_vector_length(); ++i) {
-	const OmIndexerData &dat = mess->get_element(i);
-	if (dat.get_type() == OmIndexerData::rt_string) {
+    for (size_t i = 0; i < mess.get_vector_length(); ++i) {
+	OmIndexerMessage dat = mess.get_element(i);
+	if (dat.get_type() == OmIndexerMessage::rt_string) {
 	    if (have_data) {
 		throw OmInvalidDataError("Output message invalid: more than one string data field found");
 	    }
 	    contents.set_data(dat.get_string());
 	    have_data = true;
-	} else if (dat.get_type() == OmIndexerData::rt_vector) {
+	} else if (dat.get_type() == OmIndexerMessage::rt_vector) {
 	    // FIXME: check that there are enough elements
 
 	    // it's either a termlist or a keylist
@@ -80,8 +80,8 @@ OmIndexer::get_output()
 		    throw OmInvalidDataError("Output message invalid: more than one keylist found");
 		}
 		// dat[0] has the string "keylist"
-		for (int i = 1; i < dat.get_vector_length(); ++i) {
-		    const OmIndexerData &key = dat[i];
+		for (size_t i = 1; i < dat.get_vector_length(); ++i) {
+		    OmIndexerMessage key = dat[i];
 		    contents.add_key(key.get_element(0).get_int(),
 				     key.get_element(1).get_string());
 		}
@@ -91,8 +91,8 @@ OmIndexer::get_output()
 		    throw OmInvalidDataError("Output message invalid: more than one termlist found");
 		}
 		// dat[0] has the string "termlist"
-		for (int i = 1; i < dat.get_vector_length(); ++i) {
-		    const OmIndexerData &term = dat[i];
+		for (size_t i = 1; i < dat.get_vector_length(); ++i) {
+		    OmIndexerMessage term = dat[i];
 		    om_termname tname = term[0].get_string();
 
 		    // FIXME: these are ignored - stop passing them?
@@ -102,7 +102,7 @@ OmIndexer::get_output()
 		    //docterm.termfreq = term[2].get_int();
 
 		    // positions
-		    for (int j=0; j < term[3].get_vector_length(); ++j) {
+		    for (size_t j=0; j < term[3].get_vector_length(); ++j) {
 			contents.add_posting(tname, term[3][j].get_int());
 		    }
 		}

@@ -49,25 +49,25 @@ class OmFlattenStringNode : public OmIndexerNode {
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
-	    if (input->is_empty()) {
+	    if (input.is_empty()) {
 		// propagate empty messages
 		set_empty_output("out");
 		return;
 	    }
 
-	    set_output("out", flatten(*input));
+	    set_output("out", flatten(input));
 	}
-	std::string flatten(const OmIndexerData &data) {
+	std::string flatten(const OmIndexerMessage &data) {
 	    switch (data.get_type()) {
-		case OmIndexerData::rt_string:
+		case OmIndexerMessage::rt_string:
 		    return data.get_string();
-		case OmIndexerData::rt_empty:
+		case OmIndexerMessage::rt_empty:
 		    return std::string();
 		    break;
-		case OmIndexerData::rt_vector:
+		case OmIndexerMessage::rt_vector:
 		    {
 			std::string accum;
-			for (int i=0; i<data.get_vector_length(); i++) {
+			for (size_t i=0; i<data.get_vector_length(); i++) {
 			    accum += flatten(data.get_element(i));
 			}
 			return accum;

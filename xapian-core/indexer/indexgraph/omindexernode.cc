@@ -24,7 +24,6 @@
 #include "om/omerror.h"
 #include "omdebug.h"
 #include <typeinfo>
-#include "deleter_map.h"
 
 class OmIndexerNode::Internal {
     public:
@@ -97,9 +96,8 @@ class OmIndexerNode::Internal {
 	void set_output(const std::string &output_name, double value);
 	void set_output(const std::string &output_name,
 			const std::string &value);
-	void set_output(const std::string &output_name, OmIndexerMessage value);
 	void set_output(const std::string &output_name,
-			const OmIndexerData &value);
+			const OmIndexerMessage &value);
 
 	/* The implementation's interface to the configuration data. */
 
@@ -165,14 +163,16 @@ class OmIndexerNode::Internal {
 	/** The owning node (used for calling virtual methods) */
 	OmIndexerNode *owner;
 
+	typedef std::map<std::string, OmIndexerMessage> messagemap;
+
 	/** Message outputs */
-	deleter_map<std::string, OmIndexerMessage *> outputs_record;
+	messagemap outputs_record;
 
 	/** The table of input connections */
 	std::map<std::string, input_desc> inputs;
 
 	/** The collected inputs */
-	deleter_map<std::string, OmIndexerMessage *> stored_inputs;
+	messagemap stored_inputs;
 };
 
 OmIndexerMessage
@@ -185,7 +185,7 @@ OmIndexerMessage
 OmIndexerNode::Internal::get_output_record(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, OmIndexerMessage *>::iterator i;
+    messagemap::iterator i;
     i = outputs_record.find(output_name);
 
     OmIndexerMessage result;
@@ -200,7 +200,7 @@ OmIndexerNode::Internal::get_output_record(const std::string &output_name)
 				     ", which wasn't calculated, from " +
 				     typeid(*this).name());
     } else {
-	result = *i->second;
+	result = i->second;
 	outputs_record.erase(i);
     }
     return result;
@@ -216,7 +216,7 @@ int
 OmIndexerNode::Internal::get_output_int(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, OmIndexerMessage *>::iterator i;
+    messagemap::iterator i;
     i = outputs_record.find(output_name);
 
     int result;
@@ -228,10 +228,10 @@ OmIndexerNode::Internal::get_output_int(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != OmIndexerData::rt_int) {
+	if (i->second.get_type() != OmIndexerMessage::rt_int) {
 	    throw OmTypeError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
 	}
-	result = (*i->second)->get_int();
+	result = i->second.get_int();
 	outputs_record.erase(i);
     }
     return result;
@@ -247,7 +247,7 @@ double
 OmIndexerNode::Internal::get_output_double(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, OmIndexerMessage *>::iterator i;
+    messagemap::iterator i;
     i = outputs_record.find(output_name);
 
     double result;
@@ -259,10 +259,10 @@ OmIndexerNode::Internal::get_output_double(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != OmIndexerData::rt_double) {
+	if (i->second.get_type() != OmIndexerMessage::rt_double) {
 	    throw OmTypeError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
 	}
-	result = (*i->second)->get_double();
+	result = i->second.get_double();
 	outputs_record.erase(i);
     }
     return result;
@@ -278,7 +278,7 @@ std::string
 OmIndexerNode::Internal::get_output_string(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, OmIndexerMessage *>::iterator i;
+    messagemap::iterator i;
     i = outputs_record.find(output_name);
 
     std::string result;
@@ -290,10 +290,10 @@ OmIndexerNode::Internal::get_output_string(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != OmIndexerData::rt_string) {
+	if (i->second.get_type() != OmIndexerMessage::rt_string) {
 	    throw OmTypeError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
 	}
-	result = (*i->second)->get_string();
+	result = i->second.get_string();
 	outputs_record.erase(i);
     }
     return result;
@@ -302,7 +302,7 @@ OmIndexerNode::Internal::get_output_string(const std::string &output_name)
 void
 OmIndexerNode::Internal::calculate_if_needed(const std::string &output_name)
 {
-    deleter_map<std::string, OmIndexerMessage *>::iterator i;
+    messagemap::iterator i;
     i = outputs_record.find(output_name);
 
     if (i == outputs_record.end()) {
@@ -385,40 +385,23 @@ OmIndexerNode::Internal::connect_input(const std::string &input_name,
 
 void OmIndexerNode::set_empty_output(const std::string &output_name)
 {
-    internal->set_output(output_name, OmIndexerMessage(new OmIndexerData()));
+    internal->set_output(output_name, OmIndexerMessage());
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,
-				      OmIndexerMessage value)
+			       const OmIndexerMessage &value)
 {
     return internal->set_output(output_name, value);
 }
 
 void
 OmIndexerNode::Internal::set_output(const std::string &output_name,
-				      OmIndexerMessage value)
+				    const OmIndexerMessage &value)
 {
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    outputs_record[output_name] = new OmIndexerMessage(value);
-}
-
-void OmIndexerNode::set_output(const std::string &output_name,
-			       const OmIndexerData &value)
-{
-    return internal->set_output(output_name, value);
-}
-
-void
-OmIndexerNode::Internal::set_output(const std::string &output_name,
-				    const OmIndexerData &value)
-{
-    /*cout << "Setting output \"" << output_name
-	 << "\" to record:" << value << endl; */
-    // TODO: check that it isn't already set?
-    OmIndexerMessage temp(new OmIndexerData(value));
-    outputs_record[output_name] = new OmIndexerMessage(temp);
+    outputs_record[output_name] = value;
 }
 
 void
@@ -435,8 +418,7 @@ OmIndexerNode::Internal::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData(value));
-    outputs_record[output_name] = new OmIndexerMessage(mess);
+    outputs_record[output_name] = value;
 }
 
 void
@@ -453,8 +435,7 @@ OmIndexerNode::Internal::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData(value));
-    outputs_record[output_name] = new OmIndexerMessage(mess);
+    outputs_record[output_name] = value;
 }
 
 void
@@ -471,8 +452,7 @@ OmIndexerNode::Internal::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    OmIndexerMessage mess(new OmIndexerData(value));
-    outputs_record[output_name] = new OmIndexerMessage(mess);
+    outputs_record[output_name] = value;
 }
 
 std::string
@@ -547,13 +527,13 @@ OmIndexerNode::get_input_record(const std::string &input_name)
 OmIndexerMessage
 OmIndexerNode::Internal::find_input_record(const std::string &input_name)
 {
-    deleter_map<std::string, OmIndexerMessage *>::iterator val;
+    messagemap::iterator val;
     val = stored_inputs.find(input_name);
     if (val == stored_inputs.end()) {
 	throw OmInvalidArgumentError(std::string("Input ") +
 				     input_name + " was asked for more than once or before request_inputs()");
     }
-    OmIndexerMessage retval = *(val->second);
+    OmIndexerMessage retval = val->second;
     stored_inputs.erase(val);
     return retval;
 }
@@ -588,7 +568,7 @@ OmIndexerNode::Internal::get_input_string(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     id + "[" + input_name + "]");
     } else {
-	return find_input_record(input_name)->get_string();
+	return find_input_record(input_name).get_string();
     }
 }
 
@@ -608,7 +588,7 @@ OmIndexerNode::Internal::get_input_int(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     id + "[" + input_name + "]");
     } else {
-	return find_input_record(input_name)->get_int();
+	return find_input_record(input_name).get_int();
     }
 }
 
@@ -628,7 +608,7 @@ OmIndexerNode::Internal::get_input_double(const std::string &input_name)
 	throw OmInvalidArgumentError(std::string("Unknown input ") +
 				     id + "[" + input_name + "]");
     } else {
-	return find_input_record(input_name)->get_double();
+	return find_input_record(input_name).get_double();
     }
 }
 
@@ -663,8 +643,8 @@ void OmIndexerNode::Internal::request_inputs()
     std::map<std::string, input_desc>::const_iterator i;
     for (i=inputs.begin(); i!=inputs.end(); ++i) {
 	// Physically fetch the input
-	stored_inputs[i->first] = new OmIndexerMessage(
-		i->second.node->get_output_record(i->second.node_output));
+	stored_inputs[i->first] = 
+		i->second.node->get_output_record(i->second.node_output);
 	
 	/* Check that we're not merging results which come from two different
 	 * calculations of the same node

@@ -23,34 +23,107 @@
 #include "om/omindexermessage.h"
 #include "om/omerror.h"
 #include "omstringstream.h"
+#include "refcnt.h"
 #include <algorithm>
 
-OmIndexerData::OmIndexerData() : type(rt_empty)
+/*  FIXME: perhaps make a custom (efficient) allocator for these
+ *  objects to avoid overhead of dynamic allocations?  Probably
+ *  only after profiling.
+ */
+class OmIndexerMessage::Internal : public RefCntBase {
+    public:
+	/** The type of this record */
+	record_type type;
+
+	/** The union of possible values stored in this record */
+	union {
+	    int int_val;
+	    double double_val;
+	    std::string *string_val;
+	    std::vector<OmIndexerMessage> *vector_val;
+	} u;
+
+	/** Destroy the current value (used with assignments) */
+	void destroy_val();
+
+	/** Constructor: create an empty record */
+	Internal();
+	/** Constructor: create an int record */
+	Internal(int value);
+	/** Constructor: create a double record */
+	Internal(double value);
+	/** Constructor: create a string record */
+	Internal(const std::string &value);
+	/** Constructor: create a vector record */
+	Internal(const std::vector<OmIndexerMessage> &value);
+
+	/** Copy constructor */
+	Internal(const Internal &other);
+	/** Assignment operator */
+	void operator=(const Internal &other);
+
+	/** Atomic swap operator */
+	void swap(Internal &other);
+
+	/** Takes care of cleaning up any memory etc. */
+	~Internal();
+};
+
+OmIndexerMessage::Internal::Internal() : type(rt_empty)
 {
 }
 
-OmIndexerData::OmIndexerData(int value_)
+OmIndexerMessage::OmIndexerMessage() : internal(new Internal())
+{
+    internal->ref_start();
+}
+
+OmIndexerMessage::OmIndexerMessage(int value_)
+	: internal(new Internal(value_))
+{
+    internal->ref_start();
+}
+
+OmIndexerMessage::Internal::Internal(int value_)
 	: type(rt_int)
 {
     u.int_val = value_;
 }
 
-OmIndexerData::OmIndexerData(double value_)
+OmIndexerMessage::OmIndexerMessage(double value_)
+	: internal(new Internal(value_))
+{
+    internal->ref_start();
+}
+
+OmIndexerMessage::Internal::Internal(double value_)
 	: type(rt_double)
 {
     u.double_val = value_;
 }
 
-OmIndexerData::OmIndexerData(const std::string &value_)
+OmIndexerMessage::OmIndexerMessage(const std::string &value_)
+	: internal(new Internal(value_))
+{
+    internal->ref_start();
+}
+
+OmIndexerMessage::Internal::Internal(const std::string &value_)
 	: type(rt_string)
 {
     u.string_val = new std::string(value_);
 }
 
-OmIndexerData::OmIndexerData(const std::vector<OmIndexerData> &value)
+OmIndexerMessage::OmIndexerMessage(const std::vector<OmIndexerMessage> &value)
+	: internal(new Internal(value))
+{
+    internal->ref_start();
+}
+
+OmIndexerMessage::Internal::Internal(const std::vector<OmIndexerMessage> &value)
 	: type(rt_vector)
 {
-    u.vector_val = new std::vector<OmIndexerData>(value.size());
+    u.vector_val = new std::vector<OmIndexerMessage>(value.size());
     try {
 	std::copy(value.begin(), value.end(), u.vector_val->begin());
     } catch (...) {
@@ -59,7 +132,13 @@ OmIndexerData::OmIndexerData(const std::vector<OmIndexerData> &value)
     }
 }
 
-OmIndexerData::OmIndexerData(const OmIndexerData &other)
+OmIndexerMessage::OmIndexerMessage(const OmIndexerMessage &other)
+	: internal(other.internal)
+{
+    internal->ref_increment();
+}
+
+OmIndexerMessage::Internal::Internal(const Internal &other)
 	: type(other.type)
 {
     switch (type) {
@@ -75,25 +154,38 @@ OmIndexerData::OmIndexerData(const OmIndexerData &other)
 	    u.string_val = new std::string(*other.u.string_val);
 	    break;
 	case rt_vector:
-	    u.vector_val = new std::vector<OmIndexerData>(*other.u.vector_val);
+	    u.vector_val = new std::vector<OmIndexerMessage>(*other.u.vector_val);
 	    break;
     }
 }
 
 void
-OmIndexerData::operator=(const OmIndexerData &other)
+OmIndexerMessage::operator=(const OmIndexerMessage &other)
 {
-    OmIndexerData temp(other);
+    OmIndexerMessage temp(other);
     swap(temp);
 }
 
 void
-OmIndexerData::swap(OmIndexerData &other) {
+OmIndexerMessage::Internal::operator=(const Internal &other)
+{
+    Internal temp(other);
+    swap(temp);
+}
+
+void
+OmIndexerMessage::swap(OmIndexerMessage &other)
+{
+    std::swap(internal, other.internal);
+}
+
+void
+OmIndexerMessage::Internal::swap(Internal &other) {
     union {
 	int int_val;
 	double double_val;
 	std::string *string_val;
-	std::vector<OmIndexerData> *vector_val;
+	std::vector<OmIndexerMessage> *vector_val;
     } tempu;
     switch (other.type) {
 	case rt_empty:
@@ -150,7 +242,7 @@ OmIndexerData::swap(OmIndexerData &other) {
 }
 
 void
-OmIndexerData::destroy_val()
+OmIndexerMessage::Internal::destroy_val()
 {
     switch (type) {
 	case rt_empty:
@@ -168,181 +260,204 @@ OmIndexerData::destroy_val()
     type = rt_empty;
 }
 
-OmIndexerData::~OmIndexerData()
+OmIndexerMessage::~OmIndexerMessage()
+{
+    if (internal->ref_decrement()) {
+	delete internal;
+    }
+}
+
+OmIndexerMessage::Internal::~Internal()
 {
     destroy_val();
 }
 
-OmIndexerData::record_type
-OmIndexerData::get_type() const
+OmIndexerMessage::record_type
+OmIndexerMessage::get_type() const
 {
-    return type;
+    return internal->type;
 }
 
 bool
-OmIndexerData::is_empty() const
+OmIndexerMessage::is_empty() const
 {
-    return (type == rt_empty);
+    return (internal->type == rt_empty);
 }
 
 int
-OmIndexerData::get_int() const
+OmIndexerMessage::get_int() const
 {
-    if (type != rt_int) {
-	throw OmTypeError("OmIndexerData::get_int() called for non-int value");
+    if (internal->type != rt_int) {
+	throw OmTypeError("OmIndexerMessage::get_int() called for non-int value");
     }
-    return u.int_val;
+    return internal->u.int_val;
 }
 
 double
-OmIndexerData::get_double() const
+OmIndexerMessage::get_double() const
 {
-    if (type != rt_double) {
-	throw OmTypeError("OmIndexerData::get_double() called for non-double value");
+    if (internal->type != rt_double) {
+	throw OmTypeError("OmIndexerMessage::get_double() called for non-double value");
     }
-    return u.double_val;
+    return internal->u.double_val;
 }
 
 std::string
-OmIndexerData::get_string() const
+OmIndexerMessage::get_string() const
 {
-    if (type != rt_string) {
-	std::string message = "OmIndexerData::get_string() called for non-string value";
+    if (internal->type != rt_string) {
+	std::string message = "OmIndexerMessage::get_string() called for non-string value";
 	/*cerr << *this << endl;
 	abort(); */
 	throw OmTypeError(message);
     }
-    return *u.string_val;
+    return *internal->u.string_val;
 }
 
-OmIndexerData::size_type
-OmIndexerData::get_vector_length() const
+OmIndexerMessage::size_type
+OmIndexerMessage::get_vector_length() const
 {
-    if (type != rt_vector) {
-	throw OmTypeError("OmIndexerData::get_vector_length() called for non-vector value");
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::get_vector_length() called for non-vector value");
     }
-    return u.vector_val->size();
+    return internal->u.vector_val->size();
 }
 
-const OmIndexerData &
-OmIndexerData::operator[](unsigned int offset) const
+const OmIndexerMessage &
+OmIndexerMessage::operator[](unsigned int offset) const
 {
     return get_element(offset);
 }
 
-const OmIndexerData &
-OmIndexerData::get_element(size_type offset) const
+const OmIndexerMessage &
+OmIndexerMessage::get_element(size_type offset) const
 {
-    if (type != rt_vector) {
-	throw OmTypeError("OmIndexerData::get_vector_length() called for non-vector value");
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::get_vector_length() called for non-vector value");
     }
-    if (offset > u.vector_val->size()) {
+    if (offset > internal->u.vector_val->size()) {
 	throw OmRangeError("Access to non-existant element of vector record");
     }
-    return (*u.vector_val)[offset];
+    return (*internal->u.vector_val)[offset];
 }
 
 void
-OmIndexerData::append_element(const OmIndexerData &element)
+OmIndexerMessage::append_element(const OmIndexerMessage &element)
 {
-    if (type != rt_vector) {
-	throw OmTypeError("OmIndexerData::append_element() called for non-vector value");
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::append_element() called for non-vector value");
     }
-    u.vector_val->push_back(element);
+    copy_on_write();
+    internal->u.vector_val->push_back(element);
 }
 
 void
-OmIndexerData::eat_element(OmIndexerData &element)
+OmIndexerMessage::eat_element(OmIndexerMessage &element)
 {
-    if (type != rt_vector) {
-	throw OmTypeError("OmIndexerData::append_element() called for non-vector value");
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::append_element() called for non-vector value");
     }
-    size_t offset = u.vector_val->size();
-    u.vector_val->resize(offset + 1);
-    (*u.vector_val)[offset].swap(element);
+    copy_on_write();
+    size_t offset = internal->u.vector_val->size();
+    internal->u.vector_val->resize(offset + 1);
+    (*internal->u.vector_val)[offset].swap(element);
 }
 
 void
-OmIndexerData::eat_list(OmIndexerData &list)
+OmIndexerMessage::eat_list(OmIndexerMessage &list)
 {
-    if (type != rt_vector) {
-	throw OmTypeError("OmIndexerData::eat_list() called for non-vector value");
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::eat_list() called for non-vector value");
     }
-    if (list.type != rt_vector) {
-	throw OmTypeError("OmIndexerData::eat_list() called with non-vector argument");
+    if (list.internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::eat_list() called with non-vector argument");
     }
-    size_t offset = u.vector_val->size();
-    size_t othersize = list.u.vector_val->size();
+    copy_on_write();
+    size_t offset = internal->u.vector_val->size();
+    size_t othersize = list.internal->u.vector_val->size();
     size_t newsize = offset + othersize;
-    u.vector_val->resize(newsize);
+    internal->u.vector_val->resize(newsize);
     for (size_t i = 0; i<othersize; ++i) {
-	(*u.vector_val)[offset + i].swap((*list.u.vector_val)[i]);
+	(*internal->u.vector_val)[offset + i].swap(
+			(*list.internal->u.vector_val)[i]);
     }
     // now clear out the other list.
-    list.u.vector_val->clear();
+    list.internal->u.vector_val->clear();
 }
 
-void OmIndexerData::set_empty()
+void OmIndexerMessage::set_empty()
 {
-    destroy_val();
+    copy_on_write();
+    internal->destroy_val();
 }
 
-void OmIndexerData::set_int(int value)
+void OmIndexerMessage::set_int(int value)
 {
-    destroy_val();
-    type = rt_int;
-    u.int_val = value;
+    copy_on_write();
+    internal->destroy_val();
+    internal->type = rt_int;
+    internal->u.int_val = value;
 }
 
-void OmIndexerData::set_double(double value)
+void OmIndexerMessage::set_double(double value)
 {
-    destroy_val();
-    type = rt_double;
-    u.double_val = value;
+    copy_on_write();
+    internal->destroy_val();
+    internal->type = rt_double;
+    internal->u.double_val = value;
 }
 
-void OmIndexerData::set_string(const std::string &value)
+void OmIndexerMessage::set_string(const std::string &value)
 {
-    destroy_val();
+    copy_on_write();
+    internal->destroy_val();
 
     // set the string first, since it may throw an exception,
     // which would be bad if we tried to delete the value later.
-    u.string_val = new std::string(value);
-    type = rt_string;
+    internal->u.string_val = new std::string(value);
+    internal->type = rt_string;
 }
 
-void OmIndexerData::set_vector(std::vector<OmIndexerData>::const_iterator begin,
-			       std::vector<OmIndexerData>::const_iterator end)
+void OmIndexerMessage::set_vector(std::vector<OmIndexerMessage>::const_iterator begin,
+			       std::vector<OmIndexerMessage>::const_iterator end)
 {
-    destroy_val();
+    copy_on_write();
+    internal->destroy_val();
 
     // set the string first, since it may throw an exception,
     // which would be bad if we tried to delete the value later.
-    u.vector_val = new std::vector<OmIndexerData>(begin, end);
-    type = rt_vector;
+    size_t numelems = end - begin;
+    internal->u.vector_val = new std::vector<OmIndexerMessage>(numelems);
+    try {
+	std::copy(begin, end, internal->u.vector_val->begin());
+    } catch (...) {
+	delete internal->u.vector_val;
+	throw;
+    }
+    internal->type = rt_vector;
 }
 
 template <class Stream>
 static void write_record(Stream &os,
-			 const OmIndexerData &record)
+			 const OmIndexerMessage &record)
 {
     switch (record.get_type()) {
-	case OmIndexerData::rt_empty:
+	case OmIndexerMessage::rt_empty:
 	    os << "{empty}";
 	    break;
-	case OmIndexerData::rt_int:
+	case OmIndexerMessage::rt_int:
 	    os << record.get_int();
 	    break;
-	case OmIndexerData::rt_double:
+	case OmIndexerMessage::rt_double:
 	    os << record.get_double();
 	    break;
-	case OmIndexerData::rt_string:
+	case OmIndexerMessage::rt_string:
 	    os << "`" << record.get_string() << "\'";
 	    break;
-	case OmIndexerData::rt_vector:
+	case OmIndexerMessage::rt_vector:
 	    os << "[ ";
 	    {
-		for (int i=0; i<record.get_vector_length(); ++i) {
+		for (size_t i=0; i<record.get_vector_length(); ++i) {
 		    if (i > 0) {
 			os << ", ";
 		    }
@@ -355,25 +470,38 @@ static void write_record(Stream &os,
 }
 
 std::string
-OmIndexerData::get_description() const
+OmIndexerMessage::get_description() const
 {
     om_ostringstream os;
     write_record(os, *this);
     return os.str();
 }
 
-#if 0
-std::ostream &operator<<(std::ostream &os, const OmIndexerData &record)
+void
+OmIndexerMessage::copy_on_write()
 {
-    os << "OmIndexerData(";
+    if (internal->ref_count_get() > 1) {
+	/* Perform an actual copy before modification */
+	AutoPtr<Internal> temp(new Internal(*internal));
+
+	internal->ref_decrement();
+	internal = temp.release();
+	internal->ref_increment();
+    }
+}
+
+#if 0
+std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &record)
+{
+    os << "OmIndexerMessage(";
     write_record(os, record);
     os << ")";
     return os;
 }
-#endif
 
 std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message)
 {
     os << *message;
     return os;
 }
+#endif

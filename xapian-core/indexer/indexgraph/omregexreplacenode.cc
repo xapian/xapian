@@ -107,28 +107,27 @@ class OmRegexReplaceNode : public OmIndexerNode {
 		replace_expr = get_input_string("replace_expr");
 	    }
 
-	    switch (input->get_type()) {
-		case OmIndexerData::rt_empty:
+	    switch (input.get_type()) {
+		case OmIndexerMessage::rt_empty:
 		    {
 			// propagate empty result
-			set_output("out", OmIndexerMessage(new OmIndexerData()));
+			set_empty_output("out");
 			return;
 		    }
-		case OmIndexerData::rt_vector:
+		case OmIndexerMessage::rt_vector:
 		    {
-			OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+			std::vector<OmIndexerMessage> empty;
+			OmIndexerMessage output(empty);
 
-			for (int i=0; i<input->get_vector_length(); ++i) {
-			    std::string orig = input->get_element(i).get_string();
-			    output->append_element(OmIndexerData(
-								 do_replace(orig)));
+			for (size_t i=0; i<input.get_vector_length(); ++i) {
+			    std::string orig = input.get_element(i).get_string();
+			    output.append_element(do_replace(orig));
 			}
 			set_output("out", output);
 		    }
 		    break;
-		case OmIndexerData::rt_string:
-		    set_output("out", do_replace(input->get_string()));
+		case OmIndexerMessage::rt_string:
+		    set_output("out", do_replace(input.get_string()));
 		    break;
 		default:
 		    throw OmInvalidDataError("OmRegexReplaceNode: expected string or vector!");
@@ -138,8 +137,8 @@ class OmRegexReplaceNode : public OmIndexerNode {
 	std::string do_replace(std::string orig) {
 	    std::string replaced;
 	    while (orig.length() > 0 && regex.matches(orig)) {
-		int start = regex.match_start(0);
-		int end = regex.match_end(0);
+		size_t start = regex.match_start(0);
+		size_t end = regex.match_end(0);
 		replaced += orig.substr(0, start);
 		if (end < orig.length()) {
 		    orig = orig.substr(end);

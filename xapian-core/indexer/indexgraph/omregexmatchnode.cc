@@ -90,36 +90,36 @@ class OmRegexMatchNode : public OmIndexerNode {
 		regex.set(get_input_string("regex"));
 	    }
 
-	    switch (input->get_type()) {
-		case OmIndexerData::rt_empty:
+	    switch (input.get_type()) {
+		case OmIndexerMessage::rt_empty:
 		    {
 			// propagate empty result
 			set_output("out", input);
 			return;
 		    }
 		    break;
-		case OmIndexerData::rt_vector:
+		case OmIndexerMessage::rt_vector:
 		    {
-			OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+			std::vector<OmIndexerMessage> empty;
+			OmIndexerMessage output(empty);
 
-			for (size_t i=0; i<input->get_vector_length(); ++i) {
-			    std::string orig = input->get_element(i).get_string();
-			    output->append_element(*do_getmatches(orig));
+			for (size_t i=0; i<input.get_vector_length(); ++i) {
+			    std::string orig = input.get_element(i).get_string();
+			    output.append_element(do_getmatches(orig));
 			}
 			set_output("out", output);
 		    }
 		    break;
-		case OmIndexerData::rt_string:
-		    set_output("out", do_getmatches(input->get_string()));
+		case OmIndexerMessage::rt_string:
+		    set_output("out", do_getmatches(input.get_string()));
 		    break;
 		default:
 		    throw OmInvalidDataError("OmRegexMatchNode: expected string or vector!");
 	    }
 	}
 	OmIndexerMessage do_getmatches(const std::string &s) {
-	    OmIndexerMessage results(new OmIndexerData(
-					std::vector<OmIndexerData>()));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage results(empty);
 
 	    if (regex.matches(s)) {
 		DEBUGLINE(INDEXER, "Regex `" << regex.get_pattern()
@@ -128,10 +128,10 @@ class OmRegexMatchNode : public OmIndexerNode {
 		    if (regex.submatch_defined(i)) {
 			std::string ms(regex.match_string(i));
 			DEBUGLINE(INDEXER, "Regex submatch: `" << ms << "'");
-			results->append_element(ms);
+			results.append_element(ms);
 		    } else {
 			DEBUGLINE(INDEXER, "Regex submatch undefined");
-			results->append_element(OmIndexerData(""));
+			results.append_element(OmIndexerMessage(""));
 		    }
 		}
 	    } else {

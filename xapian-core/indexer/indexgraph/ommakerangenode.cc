@@ -52,7 +52,7 @@ class OmMakeRangeNode : public OmIndexerNode {
     private:
 	int first;
 	int step;
-	int count;
+	unsigned count;
 	void config_modified(const std::string &key)
 	{
 	    if (key == "first") {
@@ -64,9 +64,10 @@ class OmMakeRangeNode : public OmIndexerNode {
 	    }
 	}
 	void calculate() {
-	    OmIndexerMessage ints(new OmIndexerData(std::vector<OmIndexerData>()));
-	    for (int i=0; i<count; ++i) {
-		ints->append_element(OmIndexerData(first + i*step));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage ints(empty);
+	    for (size_t i=0; i<count; ++i) {
+		ints.append_element(static_cast<int>(first + i*step));
 	    }
 	    set_output("out", ints);
 	}

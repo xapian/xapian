@@ -28,10 +28,10 @@
 #include <om/autoptr.h>
 #include <om/omindexercommon.h>
 
-/** BasicMessage is a basic message element.  More complex message may
+/** OmIndexerMessage is a basic message element.  More complex message may
  *  be built up from more of these these.
  */
-class OmIndexerData {
+class OmIndexerMessage {
     public:
 	/** The possible types of information stored in the record.
 	 */
@@ -43,26 +43,26 @@ class OmIndexerData {
 	    rt_vector
 	};
 
-	typedef std::vector<OmIndexerData>::size_type size_type;
+	typedef std::vector<OmIndexerMessage>::size_type size_type;
 
 	/** Constructor: create an empty record */
-	OmIndexerData();
+	OmIndexerMessage();
 	/** Constructor: create an int record */
-	OmIndexerData(int value);
+	OmIndexerMessage(int value);
 	/** Constructor: create a double record */
-	OmIndexerData(double value);
+	OmIndexerMessage(double value);
 	/** Constructor: create a string record */
-	OmIndexerData(const std::string &value);
+	OmIndexerMessage(const std::string &value);
 	/** Constructor: create a vector record */
-	OmIndexerData(const std::vector<OmIndexerData> &value);
+	OmIndexerMessage(const std::vector<OmIndexerMessage> &value);
 
 	/** Copy constructor */
-	OmIndexerData(const OmIndexerData &other);
+	OmIndexerMessage(const OmIndexerMessage &other);
 	/** Assignment operator */
-	void operator=(const OmIndexerData &other);
+	void operator=(const OmIndexerMessage &other);
 
 	/** Takes care of cleaning up any memory etc. */
-	~OmIndexerData();
+	~OmIndexerMessage();
 
 	/** Enquire about the stored type */
 	record_type get_type() const;
@@ -96,7 +96,7 @@ class OmIndexerData {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const OmIndexerData &operator[](size_type offset) const;
+	const OmIndexerMessage &operator[](size_type offset) const;
 
 	/** Return a reference to a given element in a vector.
 	 *  Will throw an exception if this message is not a vector,
@@ -104,16 +104,16 @@ class OmIndexerData {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const OmIndexerData &get_element(size_type offset) const;
+	const OmIndexerMessage &get_element(size_type offset) const;
 
-	/** Append a OmIndexerData to the vector value.
+	/** Append a OmIndexerMessage to the vector value.
 	 *  Will throw an exception if this message is not a vector
 	 *
 	 *  @param element	The element to append to this vector.
 	 */
-	void append_element(const OmIndexerData &element);
+	void append_element(const OmIndexerMessage &element);
 
-	/** Append a OmIndexerData to the vector value, destructively.
+	/** Append a OmIndexerMessage to the vector value, destructively.
 	 *  So after mess->eat_element(mydata), mydata is empty.
 	 *  Will throw an exception if this message is not a vector
 	 *
@@ -121,7 +121,7 @@ class OmIndexerData {
 	 *  			After this call element will be an empty.
 	 *  			message.
 	 */
-	void eat_element(OmIndexerData &element);
+	void eat_element(OmIndexerMessage &element);
 
 	/** Concatenate another list destructively.
 	 *  So after mess->eat_list(mylist), mylist will be empty.
@@ -131,7 +131,7 @@ class OmIndexerData {
 	 *  			After this call list will be an empty
 	 *  			list.
 	 */
-	void eat_list(OmIndexerData &list);
+	void eat_list(OmIndexerMessage &list);
 
 	/** Give this record the empty value
 	 */
@@ -151,39 +151,29 @@ class OmIndexerData {
 
 	/** Give this record a vector value
 	 */
-	void set_vector(std::vector<OmIndexerData>::const_iterator begin,
-			std::vector<OmIndexerData>::const_iterator end);
+	void set_vector(std::vector<OmIndexerMessage>::const_iterator begin,
+			std::vector<OmIndexerMessage>::const_iterator end);
 
 	/** Return a human-readable string describing the message */
 	std::string get_description() const;
 
 	/** atomic exception-safe and efficient swap routine.
-	 *  This is an efficient way of moving OmIndexerData around
+	 *  This is an efficient way of moving OmIndexerMessage around
 	 *  within nodes avoiding deep copies.
 	 *
 	 *  @param other  The data to swap contents with.
 	 */
-	void swap(OmIndexerData &other);
+	void swap(OmIndexerMessage &other);
+	
+	class Internal;
     private:
+	friend class Internal;
+	Internal *internal;
 
-	/** The type of this record */
-	record_type type;
-
-	/** The union of possible values stored in this record */
-	union {
-	    int int_val;
-	    double double_val;
-	    std::string *string_val;
-	    std::vector<OmIndexerData> *vector_val;
-	} u;
-
-	/** Destroy the current value (used with assignments) */
-	void destroy_val();
+	/** Internal function used to do a copy when needed. */
+	void copy_on_write();
 };
 
-typedef AutoPtr<OmIndexerData> OmIndexerMessage;
-
 std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message);
-std::ostream &operator<<(std::ostream &os, const OmIndexerData &record);
 
 #endif /* OM_HGUARD_OMINDEXERMESSAGE_H */

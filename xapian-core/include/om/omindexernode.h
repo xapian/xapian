@@ -113,9 +113,8 @@ class OmIndexerNode {
 	void set_output(const std::string &output_name, double value);
 	void set_output(const std::string &output_name,
 			const std::string &value);
-	void set_output(const std::string &output_name, OmIndexerMessage value);
 	void set_output(const std::string &output_name,
-			const OmIndexerData &value);
+			const OmIndexerMessage &value);
 
 	/** Set the given output to an empty message */
 	void set_empty_output(const std::string &output_name);

@@ -63,7 +63,7 @@ class OmStemmerNode : public OmIndexerNode {
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
-	    if (input->is_empty()) {
+	    if (input.is_empty()) {
 		set_empty_output("out");
 		return;
 	    }
@@ -72,8 +72,8 @@ class OmStemmerNode : public OmIndexerNode {
 		    		   language : get_input_string("language");
 	    OmStem stemmer(lang);
 
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		OmIndexerData &word = input->get_element(i);
+	    for (size_t i=0; i<input.get_vector_length(); ++i) {
+		OmIndexerMessage word = input.get_element(i);
 		word.set_string(stemmer.stem_word(word.get_string()));
 	    }
 

@@ -122,18 +122,18 @@ class OmSplitOnCharsNode : public OmIndexerNode {
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage mess = get_input_record("in");
-	    if (mess->get_type() == OmIndexerData::rt_empty) {
+	    if (mess.get_type() == OmIndexerMessage::rt_empty) {
 		set_empty_output("out");
 		return;
 	    }
-	    std::string input = mess->get_string();
+	    std::string input = mess.get_string();
 
 	    if (!chars_from_config) {
 		init_isword(get_input_string("wordchars"));
 	    }
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage output(empty);
 
 	    // current position in input string
 	    std::string::size_type pos = 0;
@@ -152,7 +152,7 @@ class OmSplitOnCharsNode : public OmIndexerNode {
 		    len++;
 		}
 		if (len > 0) {
-		    output->append_element(input.substr(word_start, len));
+		    output.append_element(input.substr(word_start, len));
 		}
 	    }
 	    set_output("out", output);

@@ -79,18 +79,18 @@ class OmRegexSplitNode : public OmIndexerNode {
 	void calculate() {
 	    request_inputs();
 	    OmIndexerMessage mess = get_input_record("in");
-	    if (mess->get_type() == OmIndexerData::rt_empty) {
+	    if (mess.get_type() == OmIndexerMessage::rt_empty) {
 		set_empty_output("out");
 		return;
 	    }
-	    std::string input = mess->get_string();
+	    std::string input = mess.get_string();
 
 	    if (!regex_from_config) {
 		regex.set(get_input_string("regex"));
 	    }
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
+	    std::vector<OmIndexerMessage> empty;
+	    OmIndexerMessage output(empty);
 
 	    /* There's a problem if we have an expression which can
 	     * match a null string (eg " *") - we never get anywhere
@@ -110,12 +110,12 @@ class OmRegexSplitNode : public OmIndexerNode {
 
 		if (start > pos) {
 		    if (extra_char == -1) {
-			output->append_element(input.substr(pos, start - pos));
+			output.append_element(input.substr(pos, start - pos));
 		    } else {
 			std::string temp;
 			temp += (unsigned char)extra_char;
 			temp += input.substr(pos, start - pos);
-			output->append_element(temp);
+			output.append_element(temp);
 			extra_char = -1;
 		    }
 		}
@@ -123,7 +123,7 @@ class OmRegexSplitNode : public OmIndexerNode {
 		    if (extra_char != -1) {
 			std::string temp;
 			temp += (unsigned char)extra_char;
-			output->append_element(temp);
+			output.append_element(temp);
 			extra_char = -1;
 		    } else {
 			extra_char = (unsigned char)input[pos];
@@ -141,7 +141,7 @@ class OmRegexSplitNode : public OmIndexerNode {
 		    last_one += extra_char;
 		}
 		last_one += input.substr(pos);
-		output->append_element(last_one);
+		output.append_element(last_one);
 	    }
 	    set_output("out", output);
 	}
