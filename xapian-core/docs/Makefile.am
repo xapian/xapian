@@ -15,10 +15,15 @@ endif
 
 if HAVE_DOCPP
 
-CREATED_DOCUMENTS2=source/index.html
+DOCPPFLAGS = -j -A -c -q -u --no-define
+
+CREATED_DOCUMENTS2=apidoc/index.html source/index.html
+
+apidoc/index.html:
+	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 source/index.html:
-	doc++ -j -A -c --dir source `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	doc++ ${DOCPPFLAGS} -p --dir source `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 endif
 
