@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
         if ( cvsdata[cvsdata.length()-1] == '/' ) {
             cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
         }
-	cvsdata = cvsdata + "/database/";
+        cvsdata = cvsdata + "/database/";
         cerr << "$CVSDATA = " << cvsdata << endl;
     }
 
@@ -74,7 +74,6 @@ int main(int argc, char *argv[]) {
         string file_cmt = cvsdata+ package + ".cmt";
         string file_offset = cvsdata + package +".offset";
 
-        system (("mv " + cvsdata + package + ".db* " + cvsdata + package).c_str());
         
         try {
 
