@@ -1,3 +1,17 @@
+Mon Sep 16 04:19:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,docs/todo.xml,include/om/Makefile.am,include/om/om.h,
+	  include/om/om.h.in: When building the library with GCC, generate
+	  include/om/om.h with preprocessor code to check that any version
+	  of GCC used to build applications has a matching C++ ABI.
+	  
+	  This means that users get a nice explanatory error message rather
+	  than a confusing link failure (or worse a program which builds
+	  but crashes).  Another benefit is that the check happens near the
+	  start of compilation of the first source file which uses Xapian
+	  in the user's application, rather than during the first attempt
+	  to link with Xapian.
+	  
 Sun Sep 15 01:42:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Solved std mystery - "using namespace std;" was

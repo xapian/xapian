@@ -563,12 +563,4 @@ Move "min_hits" into matcher?
 Look at reworking StatsGatherer mechanism to be simpler and clearer.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Richard" area="" release="">
-
-Look at checking ABI compatibility in configure macro using __GXX_ABI_VERSION.
-Would require adding a generated header containing the value of this that
-the library was built with, and then comparing this version at application
-build time with the version supplied by the compiler.
-
-</todoitem>
 </todo>

@@ -376,6 +376,17 @@ TOP_BUILDDIR='$(top_builddir)'
 AC_SUBST(TOP_SRCDIR)
 AC_SUBST(TOP_BUILDDIR)
 
+dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
+rm -f _xaptmp.cc
+ln -s $srcdir/include/om/om.h.in _xaptmp.cc
+$CXXCPP _xaptmp.cc|sed '/^\(# .*\)\?$/d;s/^%$//;s/  */ /g;s!%%!//!;s/^%/#/;s/%/__/g' > include/om/om.h.tmp
+rm -f _xaptmp.cc
+if cmp include/om/om.h.tmp include/om/om.h >/dev/null 2>&1 ; then
+  rm include/om/om.h.tmp
+else
+  mv include/om/om.h.tmp include/om/om.h
+fi
+ 
 dnl **************************
 dnl * Build the output files *
 dnl **************************
