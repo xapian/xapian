@@ -7,6 +7,8 @@ use Cvssearch;
 # ------------------------------------------------------------
 my $cvsindex = "./cvsindex";
 my $cvsmap = "./cvsmap";
+my $pwd = `pwd`;
+chomp $pwd;
 
 if (not (-x $cvsindex)) {
     print STDERR "WARNING: a program used in this script called cvsindex is not found.\n";
@@ -172,14 +174,10 @@ sub cvsbuild {
             # ----------------------------------------
             my $checkout_start_date = time;
             if ($app_path eq ".") {
-                my $pwd = `pwd`;
-                chomp $pwd;
                 chdir ("$cvsdata/$root/src");
                 system ("cvs -l -d $cvsroot checkout . 2>/dev/null");
                 chdir ($pwd);
             } else {
-                my $pwd = `pwd`;
-                chomp $pwd;
                 chdir ("$cvsdata/$root/src");
                 system ("cvs -l -d $cvsroot checkout -N $app_path 2>/dev/null"); 
                 chdir ($pwd);
@@ -192,14 +190,17 @@ sub cvsbuild {
             my $find_start_date = time;
             my $found_files = 0;
             open(LIST, ">$list_file") || die "cannot create temporary file list\n";
+
+            chdir ("$cvsdata/$root/src");
             for ($i = 0; $i <= $#file_types; ++$i) {
-                open(FIND_RESULT, "find $cvsdata/$root/src/$app_path -name \"*.$file_types[$i]\"|");
+                open(FIND_RESULT, "find $app_path -name \"*.$file_types[$i]\"|");
                 while (<FIND_RESULT>) {
                     $found_files = 1;
                     print LIST $_;
                 }
                 close(FIND_RESULT);
             }
+            chdir ($pwd);
             close(LIST);
             my $find_end_date = time;
 
@@ -214,18 +215,22 @@ sub cvsbuild {
             if ($found_files) {
                 my $prefix_path = "$cvsdata/$root/db/$app_name";
                 if ($comp_mode) {
+                    chdir ("$cvsdata/$root/src");
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -comp");
+                    chdir ($pwd);
                 } else {
                     $map_start_date = time;
                     Cvssearch::cvsupdatedb ($root, "-r", $app_name);
+                    chdir ("$cvsdata/$root/src");
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -db $prefix_path.db".
                             " -st $prefix_path.st".
                             " -f1 $prefix_path.cmt".
                             " -f2 $prefix_path.offset");
+                    chdir ($pwd);
                     $map_end_date = time;
                     $index_start_date =time;
                     system ("$cvsindex $root:$app_name");
