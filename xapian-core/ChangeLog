@@ -1,3 +1,9 @@
+Wed Oct 01 13:51:15 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated - Solaris 8 + Sun Workshop C++ doesn't actually
+	  pass "make check" (I forgot the tinderbox builds omega before "make
+	  check").
+
 Tue Sep 30 21:39:20 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Another stab at fixing the test for -lsocket.
@@ -13,7 +19,7 @@ Tue Sep 30 11:20:09 BST 2003  Olly Betts <olly@survex.com>
 Tue Sep 30 10:17:09 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated - Solaris 8 + Sun Workshop C++ builds and passes
-	  make check (but Omega fails to build).
+	  "make check" (but Omega fails to build).
 
 Mon Sep 29 00:41:19 BST 2003  Olly Betts <olly@survex.com>
 

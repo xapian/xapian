@@ -44,13 +44,13 @@ sparc |*Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.3 |Passed| [2]
 sparc |*Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed| [2]
 sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
 sparc |*Solaris 8 GCC 2.95.3           | 0.7.3 |Passed| [2]
-sparc |*Solaris 8 Sun Workshop C++     | 0.7.3~|Passed| Omega fails to build
 ppc   | MacOS X 10.2                   |~0.7.2 |Passed| [2] Kees van Reeuwijk
 ------+--------------------------------+-------+------+------------------------
 x86   | Linux cross to mingw GCC 2.95.3| 0.7.3 |Built | [3]
 x86   | Linux cross to djgpp GCC 2.95.2| 0.7.3~|Built | [4]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.2 |Failed| [5] [6]
+sparc |*Solaris 8 Sun Workshop C++     | 0.7.3~|Failed| [7]
 ------+--------------------------------+-------+------+------------------------
 
 Older success reports lacking an update for a more recent Xapian version
@@ -100,3 +100,7 @@ stub for fork(), but it will always fail).
 
 [6] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
 (SEGV).  Other tests pass.
+
+[7] btreetest fails to build (getline() not found, though it seems to be in the
+headers); quartztest segfaults; apitest fails to build (multimap::insert()
+problem); other tests not tried.
