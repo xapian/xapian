@@ -1,3 +1,7 @@
+Fri Jul 11 15:09:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.2.
+
 Fri Jul 11 12:08:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc: If the same database is listed more than once, only search

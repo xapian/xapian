@@ -1,3 +1,7 @@
+Fri Jul 11 15:10:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.2.
+
 Fri Jul 11 14:53:35 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in: Include code for partly done guile and

@@ -1,3 +1,7 @@
+Fri Jul 11 15:10:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.2.
+
 Fri Jul 11 02:34:48 BST 2003  Olly Betts <olly@survex.com>
 
 	* copydatabase.cc,createdatabase.cc: Xapian now creates the database
