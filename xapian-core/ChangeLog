@@ -1,3 +1,7 @@
+Thu Jan 25 13:50:06 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Changed a mention of libomus in netprogs/Makefile.am to libomsee
+
 Thu Jan 25 12:33:46 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Build only the API docs when making dist / install.  Full source

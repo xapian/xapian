@@ -10,13 +10,13 @@ check_PROGRAMS = nettest
 noinst_PROGRAMS = omprogsrv omtcpsrv
 
 nettest_SOURCES = nettest.cc
-nettest_LDADD = ../testsuite/libtest.la ../libomus.la
+nettest_LDADD = ../testsuite/libtest.la ../libomsee.la
 
 omprogsrv_SOURCES = omprogsrv.cc
-omprogsrv_LDADD = ../testsuite/libtest.la ../libomus.la
+omprogsrv_LDADD = ../testsuite/libtest.la ../libomsee.la
 
 omtcpsrv_SOURCES = omtcpsrv.cc
-omtcpsrv_LDADD = ../libomus.la
+omtcpsrv_LDADD = ../libomsee.la
 
 distclean-local: clean-local
 
