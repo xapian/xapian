@@ -1405,8 +1405,8 @@ static struct Btree * basic_open(const char * name_,
         B->last_block =      get_int4(base, B_LAST_BLOCK);
         B->faked_root_block = (GETINT1(base, B_HAVE_FAKEROOT) != 0);
 
-        if (other_base != 0)
-        {   B->other_revision_number = get_int4(other_base, B_REVISION);
+        if (other_base != 0) {
+	    B->other_revision_number = get_int4(other_base, B_REVISION);
             free(other_base);
         }
     }
@@ -1457,13 +1457,15 @@ static void read_root(struct Btree * B, struct Cursor * C)
         o -= (DIR_START + D2);
         SET_MAX_FREE(p, o);
         SET_TOTAL_FREE(p, o);
+
         if (B->bit_map0 == 0) {
-	    /* reading */
+	    /* reading - revision number doesn't matter as long as it's 
+	     * not greater than the current one.*/
             SET_REVISION(p, 0);
             C[0].n = 0;
         } else {
-	    /* writing */
-            SET_REVISION(p, 1);
+	    /* writing - */
+            SET_REVISION(p, B->next_revision);
             C[0].n = next_free_block(B);
         }
     } else {
