@@ -15,11 +15,13 @@ endif
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include testsuite autoconf common \
           api backends matcher languages $(BUILDSUBDIR_REMOTE1) \
-	  . m4 docs $(BUILDSUBDIR_REMOTE2) tests bindings extra
+	  . m4 docs $(BUILDSUBDIR_REMOTE2) tests extra
+# Disabled for now: bindings
 
 DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
-	       . m4 docs netprogs tests bindings extra
+	       . m4 docs netprogs tests extra
+# Disabled for now: bindings
 
 bin_SCRIPTS = xapian-config
 

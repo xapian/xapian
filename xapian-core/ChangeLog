@@ -1,3 +1,10 @@
+Fri May 03 18:14:14 BST 2002  Olly Betts <olly@survex.com>
+
+	* Changed autoconf/automake project name to xapian-core, and updated
+	  the documentation to reflect this.
+
+	* Disabled the bindings from being included in distribution tarballs.
+
 Fri May 03 18:13:43 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated todo list.

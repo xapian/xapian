@@ -19,6 +19,6 @@ stamp-h.in
 xapian-config
 xapian-config.nodep
 libxapian.la
-om-*.tar.gz
+xapian-core-*.tar.gz
 TODO
 TODO.release

@@ -7,7 +7,7 @@ AC_CONFIG_AUX_DIR(autoconf)
 
 LIBXAPIAN_VERSION=0.4.1
 
-AM_INIT_AUTOMAKE(om, ${LIBXAPIAN_VERSION}-cvs)
+AM_INIT_AUTOMAKE(xapian-core, ${LIBXAPIAN_VERSION}-cvs)
 AM_CONFIG_HEADER(config.h)
 
 dnl Add parameters for aclocal
@@ -126,9 +126,9 @@ dnl Check for dvips. (Needed to make some more of the documentation)
 AC_PATH_PROG(DVIPS, dvips)
 AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS")
 
-dnl Check for swig. (For generating scripting language bindings)
-AC_PATH_PROG(SWIG, swig)
-AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG")
+dnl dnl Check for swig. (For generating scripting language bindings)
+dnl AC_PATH_PROG(SWIG, swig)
+dnl AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG")
 
 dnl Check whether we need -ldl for dlsym() etc.
 AC_TRY_LINK_FUNC(dlsym, ,
@@ -410,21 +410,23 @@ AC_OUTPUT(
  docs/doxygen_full_conf
  tests/stemtest.pl
  tests/findheaders.pl
- bindings/Makefile
- bindings/python/Makefile
- bindings/perl5/Makefile
- bindings/guile/Makefile
- bindings/tcl8/Makefile
- bindings/php4/Makefile
- bindings/java/Makefile
- bindings/java/native/Makefile
- bindings/java/apitest_to_java.pl
- bindings/python/apitest_to_python.pl
- bindings/python/apitest_helpers.py
  extra/Makefile
 ,
  for a in docs/mkdoc.pl docs/todo2html.pl tests/stemtest.pl \
-          tests/findheaders.pl bindings/java/apitest_to_java.pl ; do
+          tests/findheaders.pl ; do
      test -f $a && chmod +x $a
  done
 )
+dnl need to chmod: bindings/java/apitest_to_java.pl 
+dnl need to AC_OUTPUT:
+dnl bindings/Makefile
+dnl bindings/python/Makefile
+dnl bindings/perl5/Makefile
+dnl bindings/guile/Makefile
+dnl bindings/tcl8/Makefile
+dnl bindings/php4/Makefile
+dnl bindings/java/Makefile
+dnl bindings/java/native/Makefile
+dnl bindings/java/apitest_to_java.pl
+dnl bindings/python/apitest_to_python.pl
+dnl bindings/python/apitest_helpers.py
