@@ -124,7 +124,8 @@ lines::getCodeSymbolTerms() {
             if ( ((*c) >= 'A' && (*c) <= 'Z') || (*c) == '_' ) {
                 if ( w != "" ) {
                     lowercase_string(w);
-                    w = stemmer->stem_word(w);
+#warning "not stemming code words"
+		    //                    w = stemmer->stem_word(w);
                     //		  cerr << "........inserting " << w << endl;
                     code_terms.insert(w);
                     w = "";
@@ -137,9 +138,10 @@ lines::getCodeSymbolTerms() {
         }
         if ( w != "" ) {
             lowercase_string(w);
-            w = stemmer->stem_word(w);
+#warning "not stemming code words"
+            //w = stemmer->stem_word(w);
             //	      cerr << "........inserting " << w << endl;
-            code_terms.insert(w);
+	    code_terms.insert(w);
         }
     }
     return code_terms;
