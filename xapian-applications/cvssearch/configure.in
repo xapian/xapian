@@ -1,15 +1,15 @@
-AC_INIT(src/cvssearch.cpp)
+AC_INIT(map/cvssearch.cpp)
 AM_INIT_AUTOMAKE(cvssearch, 1.0)
 AC_SUBST(CXXFLAGS)
 AC_PROG_CXX 
 AC_PROG_RANLIB
 AC_PATH_PROGS(PERL, perl)
 AC_OUTPUT(Makefile              \
-     src/Makefile               \
-     src/aligned_diff/Makefile  \
-     src/alignment/Makefile     \
-     src/cvs_parser/Makefile    \
-     src/diff/Makefile          \
-     src/map_algorithm/Makefile \
-     src/process/Makefile       \
-     src/range/Makefile)
+     map/Makefile               \
+     map/aligned_diff/Makefile  \
+     map/alignment/Makefile     \
+     map/cvs_parser/Makefile    \
+     map/diff/Makefile          \
+     map/map_algorithm/Makefile \
+     map/process/Makefile       \
+     map/range/Makefile)
