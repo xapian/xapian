@@ -1,0 +1,158 @@
+
+***Using the stemming algorithms
+
+
+<Richard -- you'll have to knock this into shape for me...>
+
+
+**Using the English stemming algorithm
+
+The function templates are:
+
+    extern struct english_stemmer * setup_english_stemmer();
+
+    extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1);
+
+    extern void closedown_english_stemmer(struct english_stemmer * z);
+
+
+The stemming process is set up with a call of the type
+
+    struct english_stemmer * z = setup_english_stemmer();
+
+and thereafter used with repeated calls of the type
+
+    char * p = english_stem(z, q, i0, i1);
+
+The word to be stemmed is in byte address q offsets i0 to i1 inclusive (i.e.
+from q[i0] to q[i1]). i1 < i0 is treated as i1 == i0. The stemmed result is
+the C string at address p.
+
+Finally the stemming process is closed down with
+
+    closedown_english_stemmer(z);
+
+
+
+For example,
+
+    {   struct english_stemmer * z = setup_english_stemmer();
+        {   char * s = "advisability";
+            printf("'%s' stems to '%s'\n",
+                  s,
+                  english_stem(z, s, 0, strlen(s));
+        }
+        {   char * s = "supercalifragilisticexpialidocious";
+            printf("'%s' stems to '%s'\n",
+                   s,
+                   english_stem(z, s, 0, strlen(s));
+        }
+        closedown_english_stemmer(z);
+    }
+
+<haven't run this...>
+
+
+Similarly, the other stemming algorithms can be invoked by subsituting in
+place of 'english' above one of the words
+
+    dutch   french   german   italian   spanish   portuguese
+
+
+
+
+
+
+For a general account of stemmers see <my new document>.
+
+For background on the English stemmer, see Porter's paper of 1980, An
+algorithm for suffix stripping <html link>.
+
+
+
+
+**Text representation: letters and accents
+
+We will probably move over to a Unicode reresentation of accented letters
+in the future, so the scheme outlined below may be regarded as provisional.
+
+The word to be be stemmed must be entirely in lower case.
+
+
+Accents are represented as L^A where L is the letter and A the accent. This
+is unusual, but very convenient.
+
+    The full Muscat scheme for accents (just for the record) is as follows:
+
+       coding    common name                placing      occurs in:
+       --------+--------------------------+------------+-------------
+        ^a       Acute                       over        French etc
+        ^b       Breve                       over        Rumanian
+        ^c       Cedilla                     under       French
+        ^d       Dot                         over        Hungarian
+        ^g       Grave                       over        French etc
+        ^h       circumflex (Hat)            over        French etc
+        ^l       Left hook                   under       Polish
+        ^m       Macron (line over a letter) over        Latvian
+        ^n       No dot (over i or j)        over        ?
+        ^o       circle (O-shape)            over        Danish etc
+        ^q       double acute (Quote shape)  over        Hungarian
+        ^r       Right hook                  under       Polish
+        ^s       underline (underScore)      under       -
+        ^t       Tilde                       over        Spanish etc
+        ^u       diaeresis (Umlaut)          over        French etc
+        ^v       hacek (V-shape)             over        Czech
+        ^z       stroke through letter       through     Danish
+
+    Each language on the far right of this table supplies just one example.
+    Thus hacek is used in Latvian, Lithuanian, Serbo-Croatian (using the
+    Roman alphabet), Slovak and Slovene - as well as Czech.
+
+    This list, to the best of our knowledge, covers all European languages
+    that use the Roman alphabet.
+
+In the code of the algorithm, significant accent combinations are translated
+into certain upper case letters.
+
+For example, French makes use of the accents ^a ^g ^u ^h and ^c, and there is
+this mapping of letter-accent combinations to upper case letters:
+
+        A      a^h   (a circumflex)
+        F      e^a   (e acute)
+        G      e^g   (e grave)
+        E      e^h   (e circumflex)
+        I      i^h   (i circumflex)
+        U      u^h   (u cicumflex)
+        J      i^u   (i trema, or diaeresis)
+
+This table is declared in stem_french.c, with similar tables for the other
+languages.
+
+In German and Dutch accents are completely removed before the stemming
+process begins.
+
+In English there are no accents, and the issue is not addressed.
+
+The mappings of a^h to A etc and back again are done at POINT A and POINT B,
+as marked in stem_french.c. To escape from our unusual representation of
+accents you may wish to recode this (and that is extremely easy when the
+accented letters are represented by single byte characters.)
+
+Similar adjustments may be made to the other algorithms.
+
+Note that in the irregular_forms[] table words are given with the upper case
+letters standing for accented letters, e.g.
+
+    "etr" ,
+    "Etre/FtF/FtFe/FtFes/FtFs/Ftant/Ftante/Ftants/Ftantes/suis/es/"
+    ....
+
+Here E stands for e-circumflex, and F for e-acute.
+
+
+**Vocabularies
+
+Each stemmer is issued with a vocabulary in data/voc.txt, and its stemmed
+form in data/voc.st0. You can use these for testing and evaluation purposes.
+
+

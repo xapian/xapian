@@ -88,7 +88,7 @@ exclude anything slightly old. The algorithm itself may well get applied to
 older texts once it has been written. For English, the works of Shakespeare
 in the customary modern spelling make a good test vocabulary.
 
->From the source text derive a control vocabulary of words in sorted order.
+From the source text derive a control vocabulary of words in sorted order.
 Sample vocabularies in this style are part of our Open Source release. If you
 make a small change to the stemming algorithm you should have a procedure
 that presents the change as a three column table: column one is the control
