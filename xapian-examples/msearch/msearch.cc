@@ -90,7 +90,7 @@ main(int argc, char *argv[])
     }
 	
     if (syntax_error || argc < 1 || !dbtypes.size()) {
-	cout << "Syntax: " << progname << " TERM ..." << endl <<
+	cout << "Syntax: " << progname << " [OPTIONS] TERM ..." << endl <<
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
