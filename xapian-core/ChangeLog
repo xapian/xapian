@@ -1,3 +1,8 @@
+Fri Apr 04 03:12:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omstem.cc,common/omdebug.cc: Fixed to compile
+	  when configure-d with --enable-debug-verbose --enable-debug=full.
+
 Fri Apr 04 03:10:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/omstringstream.h: Removed unused code for writing

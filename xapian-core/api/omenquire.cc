@@ -903,7 +903,7 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
                     const OmRSet *omrset, const OmMatchDecider *mdecider) const
 {
     DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset", first << ", "
-	      << maxitems << ", " << omrset << ", " << << mdecider);
+	      << maxitems << ", " << omrset << ", " << mdecider);
     if (query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
@@ -928,7 +928,7 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
     OmMSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
-    Assert(weight.name() != "bool" || retval.get_max_possible() == 0);
+    Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
     // The OmMSet needs to have a pointer to ourselves, so that it can
     // retrieve the documents.  This is set here explicitly to avoid having

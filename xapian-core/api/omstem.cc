@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -248,7 +248,7 @@ OmStem::Internal::~Internal()
 void
 OmStem::Internal::set_language(stemmer_language langcode_)
 {
-    Assert(langcode_ != STEMLANG_NULL); 
+    Assert(langcode_ != STEMLANG_INVALID); 
     if (stemmer_data != 0) {
 	stemmers[langcode].closedown(stemmer_data);
     }
@@ -286,7 +286,7 @@ OmStem::OmStem(const string &language)
 
 OmStem::OmStem() : internal(new OmStem::Internal(STEMLANG_NONE))
 {
-    DEBUGAPICALL(void, "OmStem::OmStem", language);
+    DEBUGAPICALL(void, "OmStem::OmStem", "");
 }
 
 OmStem::~OmStem()
