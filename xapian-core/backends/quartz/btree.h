@@ -74,7 +74,7 @@ class Btree {
 	Btree_errors commit(uint4 revision);
 
 	bool find_key(const string &key);
-	bool find_tag(const string &key, Btree_item * t);
+	bool find_tag(const string &key, string * tag);
 
 	bool add(const string &key, const string &tag);
 	bool del(const string &key);

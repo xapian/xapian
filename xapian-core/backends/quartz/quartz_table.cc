@@ -74,17 +74,11 @@ QuartzDiskCursor::find_entry(const string &key)
 	// FIXME: check for errors
     }
 
-    Btree_item item;
-
-    int err = cursor->get_key(&item);
+    int err = cursor->get_key(&current_key);
     (void)err; // FIXME: check for errors
 
-    is_positioned = cursor->get_tag(&item);
+    is_positioned = cursor->get_tag(&current_tag);
     // FIXME: check for errors
-
-    // FIXME: unwanted copies
-    current_key = item.key;
-    current_tag = item.tag;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) <<
 	      "', tag=`" << hex_encode(current_tag) << "'");
@@ -102,16 +96,10 @@ QuartzDiskCursor::next()
 	return;
     }
 
-    Btree_item item;
-
-    cursor->get_key(&item);
+    cursor->get_key(&current_key);
     // FIXME: check for errors
-    is_positioned = cursor->get_tag(&item);
+    is_positioned = cursor->get_tag(&current_tag);
     // FIXME: check for errors
-
-    // FIXME: unwanted copies
-    current_key = item.key;
-    current_tag = item.tag;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
 	      "', tag=`" << hex_encode(current_tag) << "'");
@@ -135,24 +123,18 @@ QuartzDiskCursor::prev()
 	// FIXME: check for errors
     }
 
-    Btree_item item;
-
-    cursor->get_key(&item);
+    cursor->get_key(&current_key);
     // FIXME: check for errors
 
-    if (!item.key.empty()) {
+    if (!current_key.empty()) {
 	cursor->prev();
 	// FIXME: check for errors
-	cursor->get_key(&item);
+	cursor->get_key(&current_key);
 	// FIXME: check for errors
     }
 
-    is_positioned = cursor->get_tag(&item);
+    is_positioned = cursor->get_tag(&current_tag);
     // FIXME: check for errors
-
-    // FIXME: unwanted copies
-    current_key = item.key;
-    current_tag = item.tag;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
 	      "', tag=`" << hex_encode(current_tag) << "'");
@@ -396,13 +378,8 @@ QuartzDiskTable::get_exact_entry(const string &key, string & tag) const
 
     if (!cursor.find_key(key)) RETURN(false);
     
-    Btree_item item;
-
-    cursor.get_tag(&item);
+    cursor.get_tag(&tag);
     // FIXME: check for errors
-
-    // FIXME: unwanted copy
-    tag = item.tag;
 
     RETURN(true);
 }

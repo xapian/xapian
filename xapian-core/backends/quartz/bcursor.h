@@ -43,8 +43,8 @@ class Bcursor {
 	bool prev();
 	bool next();
 	bool find_key(const string &key);
-	bool get_key(Btree_item *item);
-	bool get_tag(Btree_item *item);
+	bool get_key(string * key);
+	bool get_tag(string * tag);
 
 	/** Create a bcursor attached to a Btree. */
 	Bcursor(Btree *B_);

@@ -1268,7 +1268,7 @@ Btree::find_key(const string &key)
 }
 
 bool
-Btree::find_tag(const string &key, Btree_item * item)
+Btree::find_tag(const string &key, string * tag)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
@@ -1284,16 +1284,16 @@ Btree::find_tag(const string &key, Btree_item * item)
 
     byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
     
-    item->tag.resize(0);
+    tag->resize(0);
     if (n > 1) {
 	int4 space_for_tag = (int4) max_item_size * n;
-	item->tag.reserve(space_for_tag);
+	tag->reserve(space_for_tag);
     }	
 
     while (true) { // FIXME: code to do very similar thing in bcursor.cc...
 	/* number of bytes to extract from current component */
 	int l = GETI(p, 0) - cd;
-	item->tag.append(reinterpret_cast<char *>(p + cd), l);
+	tag->append(reinterpret_cast<char *>(p + cd), l);
 
 	if (i == n) break;
 	i++;

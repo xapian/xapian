@@ -122,7 +122,7 @@ Bcursor::find_key(const string &key)
 }
 
 bool
-Bcursor::get_key(Btree_item * item)
+Bcursor::get_key(string * key)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
@@ -131,12 +131,12 @@ Bcursor::get_key(Btree_item * item)
 
     const byte * p = key_of(C[0].p, C[0].c);
     int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
-    item->key.assign(reinterpret_cast<const char *>(p + K1), l);
+    key->assign(reinterpret_cast<const char *>(p + K1), l);
     return true;
 }
 
 bool
-Bcursor::get_tag(Btree_item * item)
+Bcursor::get_tag(string * tag)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
@@ -150,17 +150,17 @@ Bcursor::get_tag(Btree_item * item)
 
     int cd = ct + C2;                   /* offset to the tag data */
 
-    item->tag.resize(0);
+    tag->resize(0);
     if (n > 1) {
 	int4 space_for_tag = (int4) B->max_item_size * n;
-	item->tag.reserve(space_for_tag);
+	tag->reserve(space_for_tag);
     }
 
      // FIXME: code to do very similar thing in btree.cc...
      for (int i = 1; i <= n; i++) {
 	/* number of bytes to extract from current component */
 	int l = GETI(p, 0) - cd;
-	item->tag.append(reinterpret_cast<char *>(p + cd), l);
+	tag->append(reinterpret_cast<char *>(p + cd), l);
 	// FIXME Do we need to call B->next(...) on the last pass?
 	positioned = B->next(C, 0);
 

@@ -97,11 +97,6 @@ class Cursor {
    might sometimes be omitted, but they help keep the intention clear.
 */
 
-struct Btree_item {
-    string key;
-    string tag;
-};
-
 extern string Btree_strerror(Btree_errors err);
 
 #endif /* OM_HGUARD_BTREE_TYPES_H */
