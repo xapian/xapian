@@ -28,56 +28,60 @@
 #include "omdebug.h"
 
 inline std::string
-tohex(char c)
+encode_tname(const std::string &tname)
 {
-    static char hexdigits[] = "0123456789ABCDEF";
-    int high = (c & 0xf0) >> 4;
-    int low = (c & 0x0f);
-    return std::string() + hexdigits[high] + hexdigits[low];
-}
-
-inline char hextochar(char high, char low)
-{
-    int h;
-    if (high >= '0' && high <= '9') {
-	h = high - '0';
-    } else {
-	high = toupper(high);
-	h = high - 'A' + 10;
+    std::string result;
+    
+    std::string::const_iterator i;
+    for (i = tname.begin(); i != tname.end(); ++i) {
+	switch (*i) {
+	    case ' ':
+		result += "\\_";
+		break;
+	    case '\n':
+		result += "\\n";
+		break;
+	    case '\\':
+		result += "\\\\";
+		break;
+	    default:
+	        result += *i;
+	}
     }
-    int l;
-    if (low >= '0' && low <= '9') {
-	l = low - '0';
-    } else {
-	low = toupper(low);
-	l = low - 'A' + 10;
-    }
-    return l + (h << 4);
+    return result;
 }
 
 inline std::string
-encode_tname(const std::string &tname)
+decode_tname(const std::string &tcode)
 {
     std::string result;
 
     std::string::const_iterator i;
-    for (i = tname.begin();
-	 i != tname.end();
-	 ++i) {
-	result += tohex(*i);
-    }
-    return result + ".";
-}
-
-inline std::string
-decode_tname(const std::string &thex)
-{
-    Assert((thex.length() % 2) == 1);
-    Assert((thex[thex.size() - 1] == '.'));
-    std::string result;
-
-    for (std::string::size_type i = 0; i < thex.length() - 1; i+=2) {
-	result += hextochar(thex[i], thex[i+1]);
+    for (i = tcode.begin(); i != tcode.end(); ++i) {
+	switch (*i) {
+	    case '\\':
+	        i++;
+	        Assert(i != tcode.end());
+	        switch (*i) {
+		    case '\\':
+		       result += "\\";
+		       break;
+		    case 'n':
+		       result += "\n";
+		       break;
+		    case '_':
+		       result += " ";
+		       break;
+		    default:
+		       Assert(false);
+		}
+	        break;
+	    case ' ':
+	    case '\n':
+	        Assert(false);
+	    default:
+	        result += *i;
+	}
     }
 
     return result;

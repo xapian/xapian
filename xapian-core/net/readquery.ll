@@ -24,11 +24,10 @@ OP_XOR		%xor
 OP_NEAR		%near{DIGIT}{DIGIT}*
 OP_PHRASE	%phrase{DIGIT}{DIGIT}*
 
-HEXDIGIT	[0-9a-fA-F]
-TCHAR		{HEXDIGIT}{HEXDIGIT}
+TCHAR		[^ \n]
 DIGIT		[0-9]
 
-TERM		%T{TCHAR}*\.,{DIGIT}*,{DIGIT}*
+TERM		%T{TCHAR}*\ {DIGIT}{DIGIT}*(,{DIGIT}{DIGIT}*)?
 
 NULL_QUERY	%N
 
@@ -42,51 +41,18 @@ OP_KET		%\)
 
 {TERM}		{
 		    qt.type = querytok::TERM;
-		    qt.wqf = 0;
-		    qt.term_pos = 0;
 		    qt.tname.erase();
-		    char *p = yytext + 2; // skip %T
-		    while (*p && *p != '.') {
-		        char high = *p++;
-			if (!isxdigit(high)) {
-			    qt.type = querytok::ERROR;
-			    return qt;
-			}
-			char low = *p++;
-			if (!isxdigit(low)) {
-			    qt.type = querytok::ERROR;
-			    return qt;
-			}
-			qt.tname += hextochar(high, low);
-		    }
-		    if (*p != '.') {
-		    	qt.type = querytok::ERROR;
-			return qt;
-		    }
-		    p++;
-		    if (*p != ',') {
-		    	qt.type = querytok::ERROR;
-			return qt;
-		    }
-		    p++;
-		    while (isdigit(*p)) {
-		        qt.wqf *= 10;
-			qt.wqf += *p - '0';
-			++p;
-		    }
-		    if (*p != ',') {
-		    	qt.type = querytok::ERROR;
-			return qt;
-		    }
-		    p++;
-		    while (isdigit(*p)) {
-		        qt.term_pos *= 10;
-			qt.term_pos += *p - '0';
-			++p;
-		    }
-		    if (*p != 0) {
-		        qt.type = querytok::ERROR;
-			return qt;
+		    const char *p = yytext + 2; // skip %T
+		    const char *q = strchr(p, ' ');
+		    Assert(q != NULL);
+		    qt.tname = decode_tname(std::string(p, q - p));
+
+		    qt.term_pos = strtol(q + 1, &p, 10);
+		    if (*p == ',') {
+		        qt.wqf = atoi(p + 1);
+		    } else {
+		        Assert(*p == '\0');
+			qt.wqf = 1;
 		    }
 		    return qt;
 		}
@@ -106,7 +72,7 @@ OP_KET		%\)
 		    return qt;
 		}
 
-{OP_OR}	{
+{OP_OR}		{
 		    qt.type = querytok::OP_OR;
 		    return qt;
 		}
@@ -133,27 +99,13 @@ OP_KET		%\)
 
 {OP_NEAR}	{
 		    qt.type = querytok::OP_NEAR;
-		    char *p = yytext + 5; // skip %near
-
-		    qt.window = 0;
-		    while (isdigit(*p)) {
-		        qt.window *= 10;
-			qt.window += *p - '0';
-			++p;
-		    }
+		    qt.window = atoi(yytext + 5); // skip %near
 		    return qt;
 		}
 
 {OP_PHRASE}	{
 		    qt.type = querytok::OP_PHRASE;
-		    char *p = yytext + 7; // skip %phrase
-
-		    qt.window = 0;
-		    while (isdigit(*p)) {
-		        qt.window *= 10;
-			qt.window += *p - '0';
-			++p;
-		    }
+		    qt.window = atoi(yytext + 7); // skip %phrase
 		    return qt;
 		}
 
@@ -169,7 +121,7 @@ OP_KET		%\)
 
 {QUERY_LEN}	{
 		    qt.type = querytok::QUERY_LEN;
-		    qt.qlen = atoi(yytext+2);
+		    qt.qlen = atoi(yytext + 2);
 		    return qt;
 		}
 

@@ -201,15 +201,12 @@ om_termname_list OmQuery::get_terms() const
  *
  *  A null query is represented as `%N'.
  *
- *  A single-term query becomes `%T<tname>,<wqf>,<termpos>',
+ *  A single-term query becomes `%T<tname> <termpos>,<wqf>'
+ *                           or `%T<tname> <termpos>'
  *  where:
  *  	<tname> is the encoded term name
- *  	<wqf> is the decimal within query frequency,
+ *  	<wqf> is the decimal within query frequency (default 1),
  *  	<termpos> is the decimal term position.
- *
- *  A term name is encoded as a string of hex digits, two per
- *  byte in the term.  The first digit is the high nibble, and
- *  the second is the low nibble.
  *
  *  A compound query becomes `%(<subqueries> <op>%)', where:
  *  	<subqueries> is the space-separated list of subqueries
@@ -228,9 +225,8 @@ OmQuery::Internal::serialise() const
     }
     result += qlens;
     if (op == OmQuery::OP_LEAF) {
-	result += "%T" + encode_tname(tname) +
-		"," + om_tostring(wqf) +
-		"," + om_tostring(term_pos);
+	result += "%T" + encode_tname(tname) + ' ' + om_tostring(term_pos);
+	if (wqf != 1) result += ',' + om_tostring(wqf);
     } else {
 	result += "%(";
 	for (subquery_list::const_iterator i=subqs.begin();
