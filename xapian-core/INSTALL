@@ -1,7 +1,7 @@
 Welcome to Muscat
 =================
 
-Muscat uses a standard automake / autoconf / libtool / etc setup.
+Muscat uses a standard GNU automake / autoconf / libtool / etc setup.
 This means that all you need to do to compile a standard distribution
 should be:
 
