@@ -1,3 +1,10 @@
+Tue Jun 13 16:49:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The scripting wrappers can now make queries with operations
+	  other than OR and AND.
+
+	* OM_MOP_NEAR added to the list of operations available.
+
 Tue Jun 13 16:47:47 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stopped includetest from importing the header files in bindings/java

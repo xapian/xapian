@@ -36,7 +36,8 @@ enum om_queryop {
     OM_MOP_AND_NOT,
     OM_MOP_XOR,
     OM_MOP_AND_MAYBE,
-    OM_MOP_FILTER
+    OM_MOP_FILTER,
+    OM_MOP_NEAR
 };
 
 class OmQuery {
@@ -48,7 +49,11 @@ class OmQuery {
 	%addmethods {
 	    %name (OmQueryList) OmQuery(om_queryop op,
 	    	    const vector<OmQuery *> *subqs) {
-		return new OmQuery(op, subqs->begin(),subqs->end());
+		if (subqs->size() == 2) {
+		    return new OmQuery(op, *(*subqs)[0], *(*subqs)[1]);
+		} else {
+		    return new OmQuery(op, subqs->begin(),subqs->end());
+		}
 	    }
 	}
 		
