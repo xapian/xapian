@@ -54,6 +54,10 @@ Priority | Area            | Task
  Medium  | Positional      | Pass within query frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
+ Low     | API             | Make OmEnquire::get_matching_terms and
+         |                 | OmQuery::get_terms return terms in sorted order
+	 |                 | of termpos.
+---------+-----------------+--------------------------------------------------
  Low     | Website         | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
  Low     | API             | Add query batch (as wrapper for now)
