@@ -1,3 +1,8 @@
+Wed Mar 27 10:24:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* Don't add "-lrt" to the link line unless it's actually needed for
+	  fdatasync().
+
 Wed Mar 27 10:11:09 GMT 2002  Olly Betts <olly@survex.com>
 
 	* Fixed two problems in the matcher which were respectively causing

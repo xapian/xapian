@@ -404,7 +404,7 @@ if test x$build_remote = xtrue; then
 fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-AC_CHECK_LIB(rt, fdatasync)
+AC_CHECK_FUNC(fdatasync, , AC_CHECK_LIB(rt, fdatasync))
 AC_CHECK_FUNCS(fdatasync fsync)
 
 dnl See if we want to use STLport
