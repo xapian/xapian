@@ -1,3 +1,7 @@
+Thu Dec 02 03:00:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed PYTHONPATH for running smoketest.py.
+
 Wed Dec 01 21:32:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Prototype Weight::clone() method so that SWIG directors
