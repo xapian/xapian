@@ -28,7 +28,7 @@ INSTALLATION
   make install
 
 Note 1:
-* If you do not have root access, then sleepcycat and omsee cannot be 
+* If you do not have root access, then sleepycat and omsee cannot be 
   installed under their default output directory: /usr/local. 
 
 * One solution is to install these two packages in the user home directory 
@@ -59,7 +59,7 @@ Note 2:
 ===========================================================================
 Building a CVSSearch Database
 =============================
-You can index modules(may also be called packages) from a repository by
+You can index modules (may also be called packages) from a repository by
 
 1. cd <cgi-bin directory> 
 
