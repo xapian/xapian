@@ -25,15 +25,18 @@ P
 
 OLDP
 	terms from previous probabilistic query - used to decide if
-	this is a fresh query, in which case relevance judgements are
-	discarded.
-X
-	topterms to add to query.
+	this is a fresh query (in which case relevance judgements are
+	discarded and the first page of matches is shown), an extended query
+	(in which case the first page of matches is shown), or an unchanged
+	query.
 
 ADD
 	if present, any X parameters are added to the probabilistic
 	query (used for topterms support when javascript isn't
 	supported or is disabled).
+
+X
+	topterms to add to query.
 
 R
 	relevant document (multiple values separated by ".")
@@ -57,6 +60,10 @@ DATE1
 
 DATE2
 	end of date range if DAYSMINUS not set (defaults to now)
+
+THRESHOLD
+	apply a percentage cut-off at the value given by this parameter
+	(clipped to the range 0-100).
 
 Display parameters and navigation
 ---------------------------------

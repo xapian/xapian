@@ -1,3 +1,7 @@
+Wed Nov 28 13:04:46 GMT 2001  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt: Minor corrections and updates.
+
 Wed Nov 28 13:03:40 GMT 2001  Olly Betts <olly@survex.com>
 
 	* If we're asked for a page of hits beyond the end of the matches, clip to the
