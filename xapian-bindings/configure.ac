@@ -224,7 +224,7 @@ AC_CONFIG_FILES([Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
- tcl8/Makefile
+ tcl8/Makefile tcl8/docs/Makefile tcl8/docs/examples/Makefile
  csharp/Makefile
  csharp/AssemblyInfo.cs
  xapian-bindings.spec])

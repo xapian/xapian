@@ -1,3 +1,8 @@
+Thu Dec 02 03:27:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added tcl8/docs/Makefile tcl8/docs/examples/Makefile
+	  to AC_CONFIG_FILES.
+
 Thu Dec 02 03:05:11 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,xapian.i: Removed the director for Xapian::Weight for now,
