@@ -796,8 +796,8 @@ class OmBatchEnquire {
 	    /** A pointer to the match options for this query,
 	     *  if any.
 	     */
-
 	    const OmMatchOptions * moptions;
+
 	    /** A pointer to the match decider function, or
 	     *  0 for no decision functor.
 	     */
