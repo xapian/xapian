@@ -1,5 +1,4 @@
 kdeadmin/kcron
-kdeadmin/kdat
 kdeadmin/kpackage
 kdeadmin/ksysctrl
 kdeadmin/ksysv
