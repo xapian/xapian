@@ -101,11 +101,12 @@ set_probabilistic(const string &newp, const string &oldp)
     return SAME_QUERY;
 }
 
-// FIXME: multimap for general use?
-static map<char, string> filter_map;
+static std::multimap<char, string> filter_map;
 
+typedef std::multimap<char,string>::const_iterator FMCI;
+    
 void add_bterm(const string &term) {
-    filter_map[term[0]] = term;
+    filter_map.insert(std::make_pair(term[0], term));
 }
 
 /**************************************************************/
@@ -113,12 +114,32 @@ static void
 run_query()
 {
     if (!filter_map.empty()) {
-	// a vector is more convenient than a map for constructing queries.
-	vector<om_termname> filter_vec;
-	map<char,string>::const_iterator i;
-	for (i = filter_map.begin(); i != filter_map.end(); i++)
-	    filter_vec.push_back(i->second);
-
+	// OR together filters with the same prefix, then AND together
+	std::vector<OmQuery> filter_vec;
+	std::vector<om_termname> and_vec;
+	int current = -256;
+	for (FMCI i = filter_map.begin(); ; i++) {
+	    bool over = (i == filter_map.end());
+	    if (over || i->first != current) {
+		switch (and_vec.size()) {
+		    case 0:
+		        break;
+		    case 1:
+			filter_vec.push_back(OmQuery(and_vec[0]));
+		        break;
+		    default:
+			filter_vec.push_back(OmQuery(OmQuery::OP_OR,
+						     and_vec.begin(),
+						     and_vec.end()));
+		        break;
+		}
+		if (over) break;
+		and_vec.clear();
+		and_vec.push_back(i->second);
+		current = i->first;
+	    }
+	}
+	
 	query = OmQuery(OmQuery::OP_FILTER,
 			query,
 			OmQuery(OmQuery::OP_AND,
@@ -141,7 +162,16 @@ run_query()
 }
 
 #if 0
-// generate a sorted picker
+// generate a sorted picker  FIXME: should be generatable by script language
+//
+// output looks like this:
+//
+// <SELECT NAME=B>
+// <OPTION VALUE="" SELECTED>
+// <OPTION VALUE="Mtext/html">HTML
+// <OPTION VALUE="Mapplication/postscript">PostScript
+// <OPTION VALUE="Mtext/plain">Text
+// </SELECT>
 static void
 do_picker(char prefix, const char **opts)
 {
@@ -149,8 +179,9 @@ do_picker(char prefix, const char **opts)
     bool do_current = false;
     string current;
     vector<string> picker;
-    
-    map <char, string>::const_iterator i = filter_map.find(prefix);
+
+    // FIXME: what if multiple values present for a prefix???
+    FMCI i = filter_map.find(prefix);
     if (i != filter_map.end() && i->second.length() > 1) {
 	current = i->second.substr(1);
 	do_current = true;
@@ -164,15 +195,16 @@ do_picker(char prefix, const char **opts)
 
     cout << '>';
 
-    string tmp = option[buf];
+    string tmp = option[std::string("BOOL-") + prefix];
     if (!tmp.empty())
 	cout << tmp;
     else
 	cout << "-Any-";
     
     for (p = opts; *p; p++) {
-	string trans = option["BOOL-" + prefix + *p];
+	string trans = option[std::string("BOOL-") + prefix + *p];
 	if (trans.empty()) {
+	    // FIXME: nasty special casing on prefix...
 	    if (prefix == 'N')
 		trans = string(".") + *p;
 	    else 
@@ -637,9 +669,8 @@ eval(const string &fmt)
 			query_string += ch;
 		    }
 		}
-		/* add any boolean terms */
-		map <char, string>::const_iterator i;			 
-		for (i = filter_map.begin(); i != filter_map.end(); i++) {
+	        // add any boolean terms
+		for (FMCI i = filter_map.begin(); i != filter_map.end(); i++) {
 		    query_string += "&B=";
 		    query_string += i->second;
 		}

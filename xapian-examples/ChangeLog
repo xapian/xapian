@@ -1,3 +1,8 @@
+Thu Jan 11 12:48:23 GMT 2001 Olly Betts
+
+	* filter_map is now a multimap to allow multiple values for the same
+	  boolean filter.
+
 Wed Jan 10 16:49:10 GMT 2001 Olly Betts
 
 	* MAXHITS/maxhits/list_size renamed to
