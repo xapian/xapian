@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
       database.end_session();
 
       // finally, put result in project listing
-      string cmd = "cvsupdatedb.pl " + package;
+      string cmd = "cvsupdatedb " + package;
       system( cmd.c_str() );
 
       cerr << "Done!" << endl;

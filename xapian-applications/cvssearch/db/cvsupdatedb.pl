@@ -1,5 +1,3 @@
-#!/usr/local/bin/perl
-
 #-----------------------------------------------------------------------
 # A script to update a database content file which contains all 
 # the database that has been built.
