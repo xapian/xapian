@@ -145,7 +145,13 @@ struct option
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
 # else /* not __GNU_LIBRARY__ */
-#  ifndef __SUNPRO_CC /* This declaration clashes with Sun Pro C++ */
+#  ifdef __cplusplus
+// In C++ "getopt ()" means it takes no argument, which is no good.  This
+// makes use of the fact that internally getopt () and getopt_long () call
+// the same function to actually do the work!
+#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\ 
+	(const struct option *) 0, (int *) 0)
+#else
 extern int getopt ();
 #  endif
 # endif /* __GNU_LIBRARY__ */

@@ -1,3 +1,8 @@
+Thu Jul 10 20:05:58 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/getopt.h: Fixed to work better with C++ compilers on
+	  non-glibc platforms.
+
 Thu Jul 10 19:21:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Modified setting of _XOPEN_SOURCE to
