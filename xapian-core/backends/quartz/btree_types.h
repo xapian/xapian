@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,7 @@
 #define OM_HGUARD_BTREE_TYPES_H
 
 #include <string>
+using std::string;
 
 typedef unsigned char byte;
 typedef long int4;
@@ -64,15 +66,19 @@ struct Cursor {
     byte * p;         /* pointer to a block */
     int c;            /* offset in the block's directory */
     int4 n;           /* block number */
-    int rewrite;      /* true if the block is not the same as on disk, and so needs rewriting */
+    int rewrite;      /* true if the block is not the same as on disk,
+			 and so needs rewriting */
     byte * split_p;   /* pointer to a block split off from main block */
     int4 split_n;     /* - and its block number */
-
 };
 
-/* n is kept in tandem with p. The unassigned state is when member p == 0 and n == -1.
-   Similarly split.p == 0 corresponds to split.n == -1. Settings to -1 are not strictly
-   neccessary in the code below, so the lines
+/* n is kept in tandem with p.
+   
+   The unassigned state is when member p == 0 and n == -1.
+
+   Similarly split.p == 0 corresponds to split.n == -1.
+
+   Settings to -1 are not strictly neccessary in the code below, so the lines
 
         C[j].n = -1;
         C[j].split_n = -1;
@@ -81,7 +87,6 @@ struct Cursor {
 */
 
 struct Btree_item {
-
     /* Constructor which zeroes all the fields */
     Btree_item()
 	    : key_size(0), key_len(0), key(0),
@@ -96,10 +101,8 @@ struct Btree_item {
     int tag_size;       /* capacity of item->tag */
     int tag_len;        /* length of retrieved tag */
     byte * tag;         /* pointer to the tag */
-
 };
 
-extern std::string Btree_strerror(Btree_errors err);
+extern string Btree_strerror(Btree_errors err);
 
 #endif /* OM_HGUARD_BTREE_TYPES_H */
-

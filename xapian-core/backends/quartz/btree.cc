@@ -458,17 +458,19 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
 */
 
 static void set_block_given_by(byte * p, int c, int4 n)
-{   c = GETD(p, c);        /* c is an offset to an item */
+{
+    c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
     set_int4(p, c, n);
 }
 
 /* block_given_by(p, c) finds the item at block address p, directory offset c,
-   and returns its tag value to as an integer.
+   and returns its tag value as an integer.
 */
 
 static int block_given_by(byte * p, int c)
-{   c = GETD(p, c);        /* c is an offset to an item */
+{
+    c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
     return get_int4(p, c);
 }
@@ -601,7 +603,8 @@ bool
 Btree::find(struct Cursor * C_)
 {
     /* FIXME: is the parameter necessary? */
-    byte * p; int c;
+    byte * p;
+    int c;
     byte * k = kt + I2;
     int j;
     for (j = level; j > 0; j--) {

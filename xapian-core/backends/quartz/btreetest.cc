@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +23,7 @@
  */
 
 #include <config.h>
-#include <stdio.h>   /* main etc */
+#include <stdio.h>   /* fprintf etc */
 #include "btree.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -58,11 +59,11 @@ static void process_lines(Btree & btree, FILE * f)
     int line_count = 0;
     unsigned char * s = (unsigned char *) malloc(10000);
 
-    while(true) {
+    while (true) {
 	int i = 0;
         int j = 0;
         int mode = 0;
-        while(true) {
+        while (true) {
 	    int ch = getc(f);
             if (ch == EOF) { free(s); return; }
             if (ch == ' ') {
@@ -73,10 +74,10 @@ static void process_lines(Btree & btree, FILE * f)
             if (ch == '-' && i == 0) { mode = 2; continue; }
             if (ch == '\n') {
                 line_count++;
-                if (mode == 0)
-                {   if (i == 0) break;
-                    fprintf(stderr, "No '+' or '-' on line %d\n", line_count);
-                    exit(1);
+                if (mode == 0) {
+		    if (i == 0) break;
+		    fprintf(stderr, "No '+' or '-' on line %d\n", line_count);
+		    exit(1);
                 } else if (mode == 1) {
 		    /*if (i > 0)*/
                         if (j > 0) {
@@ -121,8 +122,7 @@ static void do_update(const string & btree_dir,
     btree.commit(btree.revision_number + 1);
 }
 
-static void do_check(const string & btree_dir,
-		     const string & args)
+static void do_check(const string & btree_dir, const string & args)
 {
     Btree::check(btree_dir.c_str(), args.c_str());
 }
@@ -143,8 +143,8 @@ static bool test_insertdelete1()
     do_create(btree_dir);
     do_check(btree_dir, "v");
 
-    if (!file_exists(datadir + "ord+") ||
-	!file_exists(datadir + "ord-")) SKIP_TEST("Data files not present");
+    if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
+	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
     do_check(btree_dir, "v");
@@ -170,8 +170,8 @@ static bool test_LFSinsertdelete1()
     do_create(btree_dir);
     do_check(btree_dir, "v");
 
-    if (!file_exists(datadir + "ord+") ||
-	!file_exists(datadir + "ord-")) SKIP_TEST("Data files not present");
+    if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
+	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
     do_check(btree_dir, "v");
@@ -200,7 +200,7 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
-    char * e_tmpdir=getenv("BTREETMP");
+    char * e_tmpdir = getenv("BTREETMP");
     if (e_tmpdir) {
 	tmpdir = e_tmpdir;
     } else {
@@ -211,4 +211,3 @@ int main(int argc, char *argv[])
     datadir = test_driver::get_srcdir(argv[0]) + "/z_data/";
     return test_driver::main(argc, argv, tests);
 }
-

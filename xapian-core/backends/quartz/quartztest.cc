@@ -77,8 +77,7 @@ static void unlink_table(const string & path)
 }
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
-static void check_table_values_hello(QuartzDiskTable & table,
-				     string world)
+static void check_table_values_hello(QuartzDiskTable & table, string world)
 {
     QuartzDbKey key;
     QuartzDbTag tag;
@@ -753,13 +752,15 @@ static bool test_cursor3()
 	QuartzBufferedTable bufftable(&disktable);
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
-	QuartzDbKey key;
+	{
+	    QuartzDbKey key;
 
-	key.value = "A";
-	bufftable.get_or_make_tag(key)->value = "A";
+	    key.value = "A";
+	    bufftable.get_or_make_tag(key)->value = "A";
 
-	key.value = "B";
-	bufftable.get_or_make_tag(key)->value = "B";
+	    key.value = "B";
+	    bufftable.get_or_make_tag(key)->value = "B";
+	}
 
 	{
 	    QuartzDbKey key;
@@ -847,7 +848,7 @@ static bool test_cursor1()
     QuartzTable * table = &disktable1;
     int count = 2;
 
-    while(count != 0) {
+    while (count != 0) {
 	key.value = "foo25";
 	AutoPtr<QuartzCursor> cursor(table->cursor_get());
 	TEST(!cursor->find_entry(key));
@@ -1406,9 +1407,7 @@ static bool test_packint3()
 
     vector<unsigned int>::const_iterator i;
     vector<string>::const_iterator j;
-    for (i = ints.begin();
-	 i != ints.end();
-	 i++) {
+    for (i = ints.begin(); i != ints.end(); i++) {
 	foo += pack_uint_preserving_sort(*i);
 	strings.push_back(pack_uint_preserving_sort(*i));
     }
