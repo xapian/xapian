@@ -1,3 +1,7 @@
+Fri Sep 01 18:18:08 BST 2000 Olly Betts
+
+	* apitest: Split off api_posdb.cc - tests requiring positional info.
+ 
 Fri Sep 01 16:51:52 BST 2000 Olly Betts
 
 	* apitest: pctcutoff1 now works with DA backend; tests which need

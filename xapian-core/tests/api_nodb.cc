@@ -35,7 +35,6 @@ using std::string;
 #include "testutils.h"
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
-#include "backendmanager.h"
 #include "utils.h"
 
 // always succeeds
