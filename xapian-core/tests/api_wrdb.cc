@@ -569,7 +569,7 @@ static bool test_deldoc4()
     return true;
 }
 
-static bool test_replacedoc()
+static bool test_replacedoc1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -614,6 +614,60 @@ static bool test_replacedoc()
     return true;
 }
 
+// Test of new feature: WritableDatabase::replace_document accepts a docid
+// which doesn't yet exist as of Xapian 0.8.2.
+static bool test_replacedoc2()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("gone",3);
+    doc1.add_posting("bar", 4);
+    doc1.add_posting("foo", 5);
+    Xapian::docid did = 31770;
+
+    db.replace_document(did, doc1);
+
+    Xapian::Document doc2;
+
+    doc2.add_posting("foo", 1);
+    doc2.add_posting("pipco", 2);
+    doc2.add_posting("bar", 4);
+    doc2.add_posting("foo", 5);
+
+    db.replace_document(did, doc2);
+    TEST_EQUAL(db.get_doccount(), 1);
+
+    Xapian::Document doc3 = db.get_document(did);
+    Xapian::TermIterator tIter = doc3.termlist_begin();
+    TEST_EQUAL(*tIter, "bar");
+    Xapian::PositionIterator pIter = tIter.positionlist_begin();
+    TEST_EQUAL(*pIter, 4);
+    ++tIter;
+    TEST_EQUAL(*tIter, "foo");
+    Xapian::PositionIterator qIter = tIter.positionlist_begin();
+    TEST_EQUAL(*qIter, 1);
+    ++qIter;
+    TEST_EQUAL(*qIter, 5);
+    ++tIter;
+    TEST_EQUAL(*tIter, "pipco");
+    Xapian::PositionIterator rIter = tIter.positionlist_begin();
+    TEST_EQUAL(*rIter, 2);
+    ++tIter;
+    TEST_EQUAL(tIter, doc3.termlist_end());
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 31771);
+    TEST_EQUAL(db.get_doccount(), 2);
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(0, doc2));
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -628,6 +682,7 @@ test_desc writabledb_tests[] = {
     {"deldoc2",		   test_deldoc2},
     {"deldoc3",		   test_deldoc3},
     {"deldoc4",		   test_deldoc4},
-    {"replacedoc",	   test_replacedoc},
+    {"replacedoc1",	   test_replacedoc1},
+    {"replacedoc2",	   test_replacedoc2},
     {0, 0}
 };
