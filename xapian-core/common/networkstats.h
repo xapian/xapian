@@ -60,6 +60,10 @@ class NetworkStatsGatherer : public StatsGatherer {
 	/// Gather and return the local statistics (ready to send
 	/// to the remote end)
 	Stats get_local_stats() const;
+
+	/// Ignore the rset size - we need to get it from the
+	/// remote end.
+	virtual void set_global_stats(om_doccount rset_size) {};
 };
 
 class NetClient;

@@ -88,7 +88,7 @@ class StatsGatherer {
 	/** Set the global collection statistics.
 	 *  Should be called before the match is performed.
 	 */
-	void set_global_stats(om_doccount rset_size);
+	virtual void set_global_stats(om_doccount rset_size);
 
 	/** Add a StatsSource object to this gatherer.
 	 *  The gatherer will include the source's statistics

@@ -43,9 +43,8 @@ SocketClient::SocketClient(int socketfd_)
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
-    DebugMsg("Ignoring SIGPIPE..." << endl);
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(string("sigaction: ") + strerror(errno));
+	throw OmNetworkError(string("signal: ") + strerror(errno));
     }
 
     do_write("HELLO!\n");
@@ -307,8 +306,18 @@ SocketClient::get_mset(om_doccount first,
 		}
 	    }
     } // switch (conv_state)
+
     // reset the state
     conv_state = state_getquery;
+    wt_string = "";
+    query_string = "";
+    remote_stats = Stats();
+    remote_stats_valid = false;
+    global_stats = Stats();
+    global_stats_valid = false;
+    moptions = OmMatchOptions();
+    omrset = OmRSet();
+
     return true;
 }
 

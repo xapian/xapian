@@ -48,9 +48,8 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
-    DebugMsg("Ignoring SIGPIPE..." << endl);
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(string("sigaction: ") + strerror(errno));
+	throw OmNetworkError(string("signal: ") + strerror(errno));
     }
     buf.readline();
     buf.writeline("Hello!");

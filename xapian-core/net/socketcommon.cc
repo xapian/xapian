@@ -87,6 +87,8 @@ string stats_to_string(const Stats &stats)
 
     result += inttostring(stats.collection_size);
     result += " ";
+    result += inttostring(stats.rset_size);
+    result += " ";
     result += doubletostring(stats.average_length);
     result += " ";
 
@@ -117,6 +119,7 @@ string_to_stats(const string &s)
     istrstream is(s.c_str(), s.length());
 
     is >> stat.collection_size;
+    is >> stat.rset_size;
     is >> stat.average_length;
 
     string word;
