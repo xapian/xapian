@@ -38,34 +38,6 @@
 #include "sleepy_list.h"
 
 
-#define FILENAME_POSTLIST "postlist.db"
-#define FILENAME_TERMLIST "termlist.db"
-#define FILENAME_TERMTOID "termid.db"
-#define FILENAME_IDTOTERM "termname.db"
-
-///////////////
-// Termlists //
-///////////////
-
-SleepyTermList::SleepyTermList(const SleepyDatabaseTermCache *tc_new,
-			       om_termid *data_new,
-			       om_termcount terms_new,
-			       om_doccount dbsize_new)
-	: pos(0),
-	  data(data_new),
-	  terms(terms_new),
-	  dbsize(dbsize_new),
-	  termcache(tc_new)
-{ return; }
-
-SleepyTermList::~SleepyTermList() {
-    free(data);
-}
-
-///////////////////////////
-// Actual database class //
-///////////////////////////
-
 SleepyDatabase::SleepyDatabase() {
     internals = new SleepyDatabaseInternals();
     termcache = new SleepyDatabaseTermCache(internals);

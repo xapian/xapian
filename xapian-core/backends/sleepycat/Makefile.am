@@ -15,6 +15,7 @@ noinst_LTLIBRARIES = libsleepy.la
 
 libsleepy_la_SOURCES = sleepy_list.cc \
                        sleepy_postlist.cc \
+                       sleepy_termlist.cc \
                        sleepy_termcache.cc \
                        sleepy_database.cc \
                        sleepy_database_internals.cc
