@@ -225,12 +225,12 @@ LocalMatch::~LocalMatch()
 PostList *
 LocalMatch::mk_postlist(const om_termname& tname)
 {
+    DebugMsg("LocalMatch::mk_postlist(" << tname << ")");
+
     // Make a postlist
-    om_weight term_weight = 0;
-    om_doccount term_freq = 0;
     PostList * pl;
 
-    DebugMsg("LocalMatch::mk_postlist(" << tname << ")");
+    om_weight term_weight = 0;
 
     if (!database->term_exists(tname)) {
 	DebugMsg("(not in database)" << endl);
@@ -251,13 +251,16 @@ LocalMatch::mk_postlist(const om_termname& tname)
 	pl = leaf_pl;
 
 	term_weight = wt->get_maxpart();
-	term_freq = statssource.get_total_termfreq(tname);
-	DebugMsg(" weight = " << term_weight <<
-		 ", frequency = " << term_freq << endl);
     }
+
+    om_doccount term_freq = statssource.get_total_termfreq(tname);
 
     term_weights.insert(std::make_pair(tname, term_weight));
     term_frequencies.insert(std::make_pair(tname, term_freq));
+
+    DebugMsg(" weight = " << term_weight <<
+	     ", frequency = " << term_freq << endl);
+
     return pl;
 }
 
@@ -655,7 +658,7 @@ LocalMatch::get_mset(om_doccount first,
 	termfreqandwts[i->first].termweight = i->second;
     }
     for (std::map<om_termname, om_doccount>::const_iterator i = term_frequencies.begin(); i != term_frequencies.end(); i++) {
-	termfreqandwts[i->first].termweight = i->second;
+	termfreqandwts[i->first].termfreq = i->second;
     }
 
     // Check that we have a valid query to run

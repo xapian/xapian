@@ -1,3 +1,9 @@
+Wed Jul 12 14:38:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More work on returning term frequency and weight information.
+	  Should now return correct term frequency, but all weights appear
+	  to be 0. :(
+
 Tue Jul 11 18:35:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More work on returning term frequency and weight information.
