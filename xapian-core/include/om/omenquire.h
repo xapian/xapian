@@ -98,19 +98,19 @@ class OmQuery {
 	OmQuery(om_queryop op_,
 		const vector<OmQuery>::const_iterator qbegin,
 		const vector<OmQuery>::const_iterator qend,
-		om_termcount window = 0);
+		om_termpos window = 0);
 
 	/** As before, but uses a vector of OmQuery pointers. */
 	OmQuery(om_queryop op_,
 		const vector<OmQuery *>::const_iterator qbegin,
 		const vector<OmQuery *>::const_iterator qend,
-		om_termcount window = 0);
+		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
 	OmQuery(om_queryop op_,
 		const vector<om_termname>::const_iterator tbegin,
 		const vector<om_termname>::const_iterator tend,
-		om_termcount window = 0);
+		om_termpos window = 0);
 
 	/** Copy constructor. */
 	OmQuery(const OmQuery & copyme);

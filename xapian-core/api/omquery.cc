@@ -57,7 +57,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery *>::const_iterator qbegin,
 		 const vector<OmQuery *>::const_iterator qend,
-		 om_termcount window)
+		 om_termpos window)
 	: internal(0)
 {
     vector<OmQueryInternal *> temp;
@@ -72,7 +72,7 @@ OmQuery::OmQuery(om_queryop op_,
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery>::const_iterator qbegin,
 		 const vector<OmQuery>::const_iterator qend,
-		 om_termcount window)
+		 om_termpos window)
 	: internal(0)
 {   
     vector<OmQueryInternal *> temp;
@@ -88,7 +88,7 @@ OmQuery::OmQuery(om_queryop op_,
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
 		 const vector<om_termname>::const_iterator tend,
-		 om_termcount window)
+		 om_termpos window)
 	: internal(0)
 {
     internal = new OmQueryInternal(op_, tbegin, tend, window);
@@ -550,7 +550,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 		 const vector<OmQueryInternal *>::const_iterator qbegin,
 		 const vector<OmQueryInternal *>::const_iterator qend,
-		 om_termcount window)
+		 om_termpos window)
 	: isdefined(true), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend, window);
@@ -560,7 +560,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
 		 const vector<om_termname>::const_iterator tend,
-		 om_termcount window)
+		 om_termpos window)
 	: isdefined(true), isbool(false), op(op_)
 {
     vector<OmQueryInternal *> subqueries;
@@ -627,7 +627,7 @@ void
 OmQueryInternal::initialise_from_vector(
 			const vector<OmQueryInternal *>::const_iterator qbegin,
 			const vector<OmQueryInternal *>::const_iterator qend,
-                        om_termcount window_)
+                        om_termpos window_)
 {
     bool merge_ok = false; // set if merging with subqueries is valid
     switch (op) {

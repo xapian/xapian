@@ -1,3 +1,10 @@
+Tue Jul  4 16:58:08 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added comments to ensure that things are changed in sync in omstem.
+
+	* Changed type of window parameter in OmQuery constructors to
+	  (consistently) be om_termpos.
+
 Tue Jul  4 15:56:35 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Nasty automakefile hackery to get java stuff to compile properly.

@@ -39,7 +39,9 @@
 
 ////////////////////////////////////////////////////////////
 
-/** The available languages for the stemming algorithms to use. */
+/** The available languages for the stemming algorithms to use.
+ *  If you change this, change language_names[] and language_strings[] also.
+ */
 enum stemmer_language {
     STEMLANG_NULL,
     STEMLANG_DUTCH,
@@ -55,6 +57,8 @@ enum stemmer_language {
 
 /** The names of the languages.
  *  This list must be in the same order as enum stemmer_language.
+ *  If you change this, change language_strings[] and enum stemmer_language
+ *  also.
  */
 static const char * language_names[] = {
     "",
@@ -70,7 +74,10 @@ static const char * language_names[] = {
 };
 
 /** The mapping from language strings to language codes.
- *  This list must be in alphabetic order. */
+ *  This list must be in alphabetic order.
+ *  If you change this, change language_names[] and enum stemmer_language
+ *  also.
+ */
 static const StringAndValue language_strings[] = {
     {"de",		STEMLANG_GERMAN},
     {"dutch",		STEMLANG_DUTCH},
