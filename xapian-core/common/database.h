@@ -37,10 +37,7 @@ class OpeningError : public OmError {
 
 class PostListIterator {
     private:
-	
     public:
-	PostListIterator();
-	void   open(termid);    // Throws RangeError if termid invalid
 	docid  get_docid();     // Gets current docid
 	void   next();          // Moves to next docid
 	void   skip_to(docid);  // Moves to next docid >= specified docid
@@ -51,8 +48,6 @@ class PostListIterator {
 class TermListIterator {
     private:
     public:
-	TermListIterator();
-	void   open(docid);     // Throws InvalidIDException if docid invalid
 	termid get_termid();    // Gets current termid
 	void   next();          // Moves to next termid
 	void   skip_to(termid); // Moves to next termid >= specified termid
@@ -68,6 +63,12 @@ class IRDatabase {
     
 	void open(string);
 	void close();
+
+	// Throws RangeError if termid invalid
+	PostListIterator open_post_list(termid);
+
+	// Throws RangeError if docid invalid
+	TermListIterator open_term_list(docid);
 };
 
 class DADatabase : public IRDatabase {

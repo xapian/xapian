@@ -6,6 +6,7 @@ int main(int argc, char *argv[]) {
 
     try {
 	database.open("testdir");
+	database.open_post_list(1);
 	database.close();
     }
     catch (OmError e) {
