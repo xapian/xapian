@@ -1,3 +1,14 @@
+Fri Jul 05 18:23:08 BST 2002  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: better (perhaps even completely correct) fix
+	  for sorting into bands.
+
+	* matcer/localmatch.cc: removed entirely bogus comment from over-eager
+	  cut-and-paste.
+
+	* tests/api_db.cc: added otherwise pointless statement to deldoc3
+	  which seems to fix occasional miscompilation by GCC 2.95.
+
 Fri Jul 05 16:37:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: "make dist" now fails if dot (part of graphviz)

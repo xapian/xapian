@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,14 +109,12 @@ class MSetSortCmp {
     public:
 	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
 		    bool have_key_, om_valueno sort_key_, bool forward_)
-	    : db(db_), factor(percent_scale * bands / 100.1),
-	    // FIXME: 100.1 above is a bodge fix for the problem of 100% being
-	    // in its own band
+	    : db(db_), factor(percent_scale * bands / 100.0),
 	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    int band_a = int(a.wt * factor); // FIXME: 100%?
-	    int band_b = int(b.wt * factor); // FIXME: 100%?
+	    int band_a = int(ceil(a.wt * factor));
+	    int band_b = int(ceil(b.wt * factor));
 	    if (band_a != band_b) return band_a > band_b;
 	    if (have_key) {
 		if (a.sort_key.empty()) {

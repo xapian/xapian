@@ -2563,6 +2563,7 @@ static bool test_deldoc3()
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
     TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(1));
+    (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
     TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(2));
     
     // test positionlist_{begin,end}?

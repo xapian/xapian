@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,10 +115,6 @@ class CmpMaxOrTerms {
 	}
 };
 
-// FIXME: postlists passed by reference and needs to be kept "nice"
-// for NearPostList - so if there's a zero freq term it needs to be
-// empty, else it needs to have all the postlists in (though the order
-// can be different) - this is ultra-icky
 PostList *
 LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
