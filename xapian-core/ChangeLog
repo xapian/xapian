@@ -1,3 +1,8 @@
+Fri Apr 26 14:41:09 BST 2002  Sam Liddicott <sam@ananova.com>
+
+	* Swig is now modified so it can build config.m4 and Makefile.in
+	  for php modules so I removed these from bindings/php4
+
 Tue Apr 23 18:21:03 BST 2002  Olly Betts <olly@survex.com>
 
 	* Tried compiling with GCC 3.1 prerelease snapshot and fixed various
