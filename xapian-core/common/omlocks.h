@@ -135,7 +135,7 @@ class OmLockSentry {
 		// catch any assertion exceptions from unlock,
 		// since throwing exceptions from destructors
 		// is bad
-		std::cerr << err.get_msg() << std::endl;
+		fprintf(stderr, "%s\n", err.get_msg().c_str());
 	    }
 	}
 };
