@@ -1,3 +1,36 @@
+Wed Dec 04 22:12:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.5.5.
+	* backends/quartz/quartz_postlist.cc,matcher/localmatch.cc,
+	  matcher/tradweight.cc: Fixed to build with --enable-debug.
+
+Wed Dec 04 22:05:53 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,NEWS: Version 0.5.5.
+	* docs/index.html: Link to annotated class lists in doxygen generated
+	  documentation rather than rather empty index page.
+	* AUTHORS,HACKING: Removed or replaced sourceforge.net URLs.
+	* docs/index.html: Fixed broken link.
+	* docs/overview.html: Corrected link to API docs on website.
+	* HACKING: Added note about use of various C++ features.  Also
+	  tidied up various odds and ends.
+
+Wed Oct 16 03:50:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.5.4.
+
+Wed Oct 16 03:49:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated.
+
+Wed Oct 16 02:44:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Compilation fix for GCC 3.2.
+
+Sat Oct 12 17:17:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,NEWS: Version 0.5.3.
+
 Sat Oct 12 16:49:50 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS,api/omvalueiteratorinternal.h,extra/parsequery.yy,

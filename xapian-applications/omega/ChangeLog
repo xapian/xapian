@@ -1,7 +1,32 @@
+Wed Dec 04 20:36:40 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.5.5.
+	* query.cc: Fixed $dbname to return "default" for the default
+	  database, rather than "" - this fixes paging in searches of the
+	  default database.
+	* templates/query: Removed xDEFAULTOP hidden field which is no longer
+	  used.
+	* templates/query: Removed bogus unmatched '}'.
+	* dbi2omega: Return fields in table order; more efficient;
+	  report any error reading a row; if we get a NULL field,
+	  don't output it, and suppress perl warning about use of
+	  an undefined program.
+	* configure.in,htmlparse.h,omindex.cc,scriptindex.cc:
+	  Use "-Wall -W" rather than "-Wall -Wunused", and fixed the
+	  warnings this reveals.
+	* Makefile.am,dbi2omega: Added perl script to dump any database
+	  which perl DBI can access into the dump format expected by
+	  scriptindex.
+	* omega.spec.in: Use bootstrap instead of buildall; don't use "-j4"
+	  with make - most people don't all have quad processor boxes!
+	* buildall: Removed in favour of bootstrap script.
+	* omindex.cc,scriptindex.cc: Added MAX_PROB_TERM_LENGTH (set to
+	  64) to limit size of probabilistic terms.
+
 Sat Oct 12 17:09:55 BST 2002  Olly Betts <olly@survex.com>
 
-	* bootstrap: Copied bootstrap script from xapian-core.
-
+        * bootstrap: Copied bootstrap script from xapian-core.
+ 
 Sat Oct 12 17:05:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.3.

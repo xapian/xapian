@@ -200,7 +200,7 @@ read_start_of_first_chunk(const char ** posptr,
     // Read the docid of the first entry in the posting list.
     if (!unpack_uint(posptr, end, &did))
 	report_read_error(*posptr);
-    DEBUGLINE(DB, "doc_id = " << id);
+    DEBUGLINE(DB, "doc_id = " << did);
     RETURN(did);
 }
 
@@ -926,8 +926,8 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 #ifdef MUS_DEBUG
 	om_termcount old_number_of_entries = number_of_entries;
 	om_termcount old_collection_freq = collection_freq;
-	read_start_of_first_chunk(&pos, end,
-				  &number_of_entries, &collection_freq, &did);
+	did = read_start_of_first_chunk(&pos, end,
+				  &number_of_entries, &collection_freq);
 #else
 	did = read_start_of_first_chunk(&pos, end, 0, 0);
 #endif

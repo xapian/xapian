@@ -469,7 +469,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 bool
 LocalSubMatch::prepare_match(bool /*nowait*/)
 {
-    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait);
+    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
     if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
 	OmTermIterator terms = users_query.get_terms();

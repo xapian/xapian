@@ -25,22 +25,14 @@
 #include <config.h>
 
 #include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
 
 #ifdef HAVE_STREAMBUF
 #include <streambuf>
-using std::streambuf;
 #else // HAVE_STREAMBUF
 #include <streambuf.h>
 #endif // HAVE_STREAMBUF
 
 #include <set>
-using std::set;
-
-using std::string;
-using std::vector;
 
 #include <stdlib.h>
 
@@ -57,6 +49,8 @@ using std::vector;
 #include "testsuite.h"
 #include "omdebug.h"
 #include "utils.h"
+
+using namespace std;
 
 class null_streambuf : public streambuf {
 };
