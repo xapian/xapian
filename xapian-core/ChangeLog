@@ -1,3 +1,11 @@
+Thu Dec  6 15:02:05 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* (omqueryinternal.cc, omtermlistiteratorinternal.h)
+	  Fix some compiler warnings (when compiling with no debug) due
+	  to methods which should return a value but simply contain
+	  "Assert(false);".  Throw an exception in such methods instead
+	  (after the Assert).
+
 Mon Dec 03 11:20:42 GMT 2001  Olly Betts <olly@survex.com>
 
 	* New BiasPostList - not yet enabled as it needs more work.

@@ -63,6 +63,7 @@ get_min_subqs(OmQuery::Internal::op_t op)
 	    return 2;
 	default:
 	    Assert(false);
+	    throw OmInvalidOperationError("get_min_subqs called with invalid operator type");
     };
 }
 
@@ -89,6 +90,7 @@ get_max_subqs(OmQuery::Internal::op_t op)
 	    return UINT_MAX;
 	default:
 	    Assert(false);
+	    throw OmInvalidOperationError("get_max_subqs called with invalid operator type");
     };
 }
 

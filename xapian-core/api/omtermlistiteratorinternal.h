@@ -111,6 +111,7 @@ class VectorTermList : public TermList {
 	// Gets weighting info for current term
 	OmExpandBits get_weighting() const {
 	    Assert(false); // should never get called
+            throw OmInvalidOperationError("VectorTermList::get_weighting() not supported");
 	}
 	    
 	// Gets current termname
@@ -127,7 +128,7 @@ class VectorTermList : public TermList {
 
 	// Get num of docs indexed by term
 	om_doccount get_termfreq() const {
-            throw OmInvalidOperationError("get_termfreq not supported");
+            throw OmInvalidOperationError("VectorTermList::get_termfreq() not supported");
 	}
 
 	/** next() causes the TermList to move to the next term in the list.
@@ -150,6 +151,7 @@ class VectorTermList : public TermList {
 	    Assert(!at_end());
 	    // termlist not ordered
 	    Assert(false);
+            throw OmInvalidOperationError("VectorTermList::skip_to() not supported");
 	}
 	
 	// True if we're off the end of the list
