@@ -1,3 +1,8 @@
+Mon Jul 14 22:45:53 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Changed test exception1 to actually test
+	  something (hopefully what was originally intended!)
+
 Mon Jul 14 17:15:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/getopt.h: #include <stdlib.h> before defining getopt as a

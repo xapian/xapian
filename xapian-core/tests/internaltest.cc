@@ -46,6 +46,7 @@ class Test_Exception {
 	Test_Exception(int value_) : value(value_) {}
 };
 
+// test that nested exceptions work correctly.
 static bool test_exception1()
 {
     try {
@@ -56,11 +57,13 @@ static bool test_exception1()
 		throw Test_Exception(2);
 	    } catch (...) {
 	    }
+	    throw;
 	}
     } catch (Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
+	return true;
     }
-    return true;
+    return false;
 }
 
 // ###########################################
