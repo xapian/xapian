@@ -1,3 +1,7 @@
+Thu Jul 03 01:02:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Wed Jul 02 22:18:07 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc,backends/quartz/bcursor.h:
