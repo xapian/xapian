@@ -129,7 +129,7 @@ bool
 QuartzTableEntries::empty() const
 {
     DEBUGCALL(DB, bool, "QuartzTableEntries::empty", "");
-    return (entries.empty());
+    return (entries.size() == 1);
 }
 
 void
@@ -167,4 +167,3 @@ QuartzTableEntries::get_all_entries()
 {
     return entries;
 }
-
