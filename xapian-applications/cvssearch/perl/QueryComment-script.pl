@@ -198,8 +198,8 @@ sub print_javascript {
 
 function c(id) {
     var link = "$querycomment?root=$root&pkg=$pkg&id=" + id;
-    if (parent.location.href != link) {
-        parent.location.href = link;
+    if (this.location.href != link) {
+        this.location.href = link;
     }
     return false;
 }
