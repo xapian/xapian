@@ -19,7 +19,7 @@ Keys and tags
 Thinking of 'byte' having type 'unsigned char', a key and a tag are both
 sequences of bytes. The B-tree is a repository for key-tag pairs. A key can be
 looked up to find its corresponding tag. If a key is deleted, the corresponding
-tag ia deleted. And in the B-tree keys are unique, so if a key-tag pair is
+tag is deleted. And in the B-tree keys are unique, so if a key-tag pair is
 added in and the key is already in the Btree, the tag to be added in replaces
 the tag in the B-tree.
 
@@ -54,7 +54,7 @@ items, ordered by their keys:
 Item Ij has a 'previous' item, I(j-1), and a 'next' item, I(j+1).
 
 When the B-tree is created, a single item is added in with null key and null
-tag. This is the 'null item'. The null item may be searched for, and it
+tag. This is the 'null item'. The null item may be searched for, and it's
 possible, although perhaps not useful, to replace the tag part of the null
 item. But the null item cannot be deleted, and an attempt to do so is merely
 ignored.
@@ -125,7 +125,7 @@ The API
 
 Most of the procedures described below can return with an error condition. Error
 conditions are described later. Meanwhile, the code examples given here ignore
-the possibility of errors. Bad practise, but it makes them more readable.
+the possibility of errors. Bad practice, but it makes them more readable.
 
 
 int Btree::create(const string & name, int block_size);
