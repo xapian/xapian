@@ -1,3 +1,9 @@
+Thu May 06 00:28:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/omdebug.cc,common/omdebug.h: Renamed OmTimer class used
+	  internally by the --enable-debug=profile code to
+	  Xapian::Internal::Timer.
+
 Wed May 05 13:59:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Reworded to remove use of first person.

@@ -122,12 +122,12 @@ OmDebug::display_message(enum om_debug_types type, string msg)
 
 #include <sys/time.h>
 
-struct timeval OmTimer::paused;
+struct timeval Xapian::Internal::Timer::paused;
 
-struct timeval * OmTimer::pstart = NULL;
+struct timeval * Xapian::Internal::Timer::pstart = NULL;
 
-list<OmTimer *> OmTimer::stack;
+list<Xapian::Internal::Timer *> Xapian::Internal::Timer::stack;
 
-int OmTimer::depth = 0;
+int Xapian::Internal::Timer::depth = 0;
 
 #endif

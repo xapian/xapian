@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -242,7 +242,7 @@ using std::endl;
 #include <sys/time.h>
 #include <stdio.h>
 
-class OmTimer {
+class Xapian::Internal::Timer {
     private:
 	std::string call;
 
@@ -264,12 +264,12 @@ class OmTimer {
 	// pointer to start time so resume can start the clock
 	static struct timeval * pstart;
 
-	static list<OmTimer *> stack;
+	static list<Timer *> stack;
 
 	static int depth;
 
     public:
-	OmTimer(const std::string &call_) : call(call_) {
+	Timer(const std::string &call_) : call(call_) {
 	    stack.push_back(this);
 	    depth++;
 	    entry = paused;
@@ -278,7 +278,7 @@ class OmTimer {
 	    timerclear(&kids);
 	}
 	
-	~OmTimer() {
+	~Timer() {
 	    gettimeofday(&paused, NULL);
 	    {
 		if (stack.empty()) abort();
@@ -361,14 +361,14 @@ class OmTimer {
  *  message when the method ends.
  */
 #define DEBUGCALL(t,r,a,b) \
-    OmTimer::pause(); \
-    OmTimer om_time_call(a); \
-    OmTimer::resume();
+    Xapian::Internal::Timer::pause(); \
+    Xapian::Internal::Timer om_time_call(a); \
+    Xapian::Internal::Timer::resume();
 
 #define DEBUGCALL_STATIC(t,r,a,b) \
-    OmTimer::pause(); \
-    OmTimer om_time_call(a); \
-    OmTimer::resume();
+    Xapian::Internal::Timer::pause(); \
+    Xapian::Internal::Timer om_time_call(a); \
+    Xapian::Internal::Timer::resume();
 
 #else
 
