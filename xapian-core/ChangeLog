@@ -1,3 +1,7 @@
+Tue Jun 20 14:09:00 BST 2000 Olly Betts
+
+	* apitest: TEST_EXPECTED_DOCS() changed to make use less verbose
+
 Tue Jun 20 11:20:00 BST 2000 Olly Betts
 
 	* apitest now tries to guess srcdir from argv[0] if it isn't in env
