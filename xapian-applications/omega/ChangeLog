@@ -1,3 +1,7 @@
+Wed Oct 09 15:35:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Added scriptindex and omega-*.tar.gz; removed libtool.
+
 Sun Oct 06 18:56:40 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.2.

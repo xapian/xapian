@@ -10,6 +10,7 @@ Makefile
 .libs
 parsequery.cc
 parsequerytest
+scriptindex
 aclocal.m4
 config.cache
 config.h
@@ -17,8 +18,8 @@ config.h.in
 config.log
 config.status
 configure
-libtool
 stamp-h
 stamp-h.in
 stamp-h1
 omega.spec
+omega-*.tar.gz
