@@ -1,3 +1,7 @@
+Wed Nov  1 13:00:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add header guards to btree.h - should fix includetest.
+
 Tue Oct 31 18:23:57 GMT 2000 Olly Betts
 
 	* Encoding of terms changed to a scheme which takes approximately
