@@ -371,18 +371,21 @@ static void write_block(struct Btree * B, int4 n, byte * p)
     /* write revision is okay */
     AssertParanoid(REVISION(p) == B->next_revision);
 
-    if (! sys_write_block(B->handle, B->block_size, n, p))
-        B->error = BTREE_ERROR_DB_WRITE;
-    if (! B->Btree_modified)
-    {   /* following first block write */
-        if (B->both_bases)
-        {
+    if (! B->Btree_modified) {
+	// Things to do when we start a modification session.
+
+        B->faked_root_block = false;
+        B->Btree_modified = true;
+
+        if (B->both_bases) {
 	    /* delete the old base */
             if (unlink((B->name + "base" + B->other_base_letter).c_str()) < 0)
 		B->error = BTREE_ERROR_BASE_DELETE;
         }
-        B->Btree_modified = true;
     }
+
+    if (! sys_write_block(B->handle, B->block_size, n, p))
+        B->error = BTREE_ERROR_DB_WRITE;
 }
 
 
@@ -1103,7 +1106,7 @@ static void form_key(struct Btree * B, byte * p, byte * key, int key_len)
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
                                        byte * tag, int tag_len)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = B->C;
@@ -1167,7 +1170,7 @@ extern int Btree_add(struct Btree * B, byte * key, int key_len,
 
 extern int Btree_delete(struct Btree * B, byte * key, int key_len)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = B->C;
@@ -1195,7 +1198,7 @@ extern int Btree_delete(struct Btree * B, byte * key, int key_len)
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = B->C;
@@ -1214,7 +1217,7 @@ extern struct Btree_item * Btree_item_create(void)
 
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * item)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = B->C;
@@ -1268,7 +1271,7 @@ extern void Btree_item_lose(struct Btree_item * item)
 
 extern void Btree_full_compaction(struct Btree * B, int parity)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (parity) B->seq_count = 0;
@@ -1287,6 +1290,7 @@ extern void Btree_full_compaction(struct Btree * B, int parity)
 #define B_BIT_MAP_SIZE  19  /* 4 bytes */
 #define B_ITEM_COUNT    23  /* 4 bytes */
 #define B_LAST_BLOCK    27  /* 4 bytes */
+#define B_HAVE_FAKEROOT 31  /* 1 byte - boolean */
 
         /* 31 to 75 are spare */
 
@@ -1374,12 +1378,11 @@ static struct Btree * basic_open(const char * name_,
 	    return B;
 	}
 
-        if (revision_supplied)
-        {   if (baseA != 0 && get_int4(baseA, B_REVISION) == revision) ch = 'A';
+        if (revision_supplied) {
+	    if (baseA != 0 && get_int4(baseA, B_REVISION) == revision) ch = 'A';
             if (baseB != 0 && get_int4(baseB, B_REVISION) == revision) ch = 'B';
-        }
-        else
-        {   if (baseA == 0) ch = 'B'; else
+        } else {
+	    if (baseA == 0) ch = 'B'; else
             if (baseB == 0) ch = 'A'; else
             ch = get_int4(baseA, B_REVISION) > get_int4(baseB, B_REVISION) ? 'A' : 'B';
                                   /* unsigned comparison */
@@ -1400,6 +1403,7 @@ static struct Btree * basic_open(const char * name_,
         B->bit_map_size =    get_int4(base, B_BIT_MAP_SIZE);
         B->item_count =      get_int4(base, B_ITEM_COUNT);
         B->last_block =      get_int4(base, B_LAST_BLOCK);
+        B->faked_root_block = (GETINT1(base, B_HAVE_FAKEROOT) != 0);
 
         if (other_base != 0)
         {   B->other_revision_number = get_int4(other_base, B_REVISION);
@@ -1438,8 +1442,8 @@ no_space:
 
 static void read_root(struct Btree * B, struct Cursor * C)
 {
-    if (B->revision_number == 0) {
-	/* creating first root */
+    if (B->faked_root_block) {
+	/* root block for an unmodified database. */
 
         int o = B->block_size - C2;
         byte * p = C[0].p;
@@ -1453,17 +1457,17 @@ static void read_root(struct Btree * B, struct Cursor * C)
         o -= (DIR_START + D2);
         SET_MAX_FREE(p, o);
         SET_TOTAL_FREE(p, o);
-        if (B->bit_map0 == 0)
-        {   /* reading */
+        if (B->bit_map0 == 0) {
+	    /* reading */
             SET_REVISION(p, 0);
             C[0].n = 0;
-        } else
-        {   /* writing */
+        } else {
+	    /* writing */
             SET_REVISION(p, 1);
             C[0].n = next_free_block(B);
         }
     } else {
-	/* root already exists */
+	/* using a root block stored on disk */
 	block_to_cursor(B, C, B->level, B->root);
 	if (B->overwritten) return;
 
@@ -1544,7 +1548,7 @@ extern void Btree_quit(struct Btree * B)
 
 extern int Btree_close(struct Btree * B, uint4 revision)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = B->C;
@@ -1586,6 +1590,7 @@ extern int Btree_close(struct Btree * B, uint4 revision)
     set_int4(B->base, B_BIT_MAP_SIZE, B->bit_map_size);
     set_int4(B->base, B_ITEM_COUNT, B->item_count);
     set_int4(B->base, B_LAST_BLOCK, B->last_block);
+    SETINT1(B->base, B_HAVE_FAKEROOT, B->faked_root_block ? 1 : 0);
 
     if (! write_base(B)) goto end;
 
@@ -1652,7 +1657,7 @@ extern struct Btree * Btree_open_to_read_revision(const char * name, uint4 n)
 
 extern struct Bcursor * Bcursor_create(struct Btree * B)
 {
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Bcursor * BC = (struct Bcursor *) calloc(1, sizeof(struct Bcursor));
@@ -1790,7 +1795,7 @@ extern int Bcursor_prev(struct Bcursor * BC)
 {
     struct Btree * B = BC->B;
 
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (! BC->positioned) return false;
@@ -1807,7 +1812,7 @@ extern int Bcursor_next(struct Bcursor * BC)
 {
     struct Btree * B = BC->B;
 
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (! BC->positioned) return false;
@@ -1824,7 +1829,7 @@ extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 {
     struct Btree * B = BC->B;
 
-    Assert(B->error == 0);
+    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     struct Cursor * C = BC->C;
@@ -1847,7 +1852,7 @@ extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 
 extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * item)
 {
-    Assert(BC->B->error == 0);
+    AssertEq(BC->B->error, 0);
     Assert(!BC->B->overwritten);
 
     if (! BC->positioned) return false;
@@ -1869,7 +1874,7 @@ extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * item)
 
 extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
 {
-    Assert(BC->B->error == 0);
+    AssertEq(BC->B->error, 0);
     Assert(!BC->B->overwritten);
 
     struct Btree * B = BC->B;
@@ -1951,6 +1956,7 @@ extern int Btree_create(const char * name_, int block_size)
         SETINT2(b, 0, B_SIZE);
         set_int4(b, B_BLOCK_SIZE, block_size);
         set_int4(b, B_BIT_MAP_SIZE, 1);
+	SETINT1(b, B_HAVE_FAKEROOT, 1);
         {
 	    int h = sys_open_to_write(name + "baseA");
             if ( ! (valid_handle(h) &&

@@ -61,6 +61,7 @@ struct Btree {
      */
     Btree() : error(0),
 	      overwritten(false),
+	      faked_root_block(true),
 	      handle(-1),
 	      level(0),
 	      kt(0),
@@ -109,6 +110,11 @@ struct Btree {
     int4 last_block;
 
 /* 'private' information */
+
+    /** true if the root block is faked (not written to disk).
+     *  false otherwise.  This is true when the btree hasn't been modified yet.
+     */
+    bool faked_root_block;
 
     int handle;           /* corresponding file handle */
     int level;            /* number of levels, counting from 0 */
