@@ -606,7 +606,7 @@ BackendManager::get_database(const string &dbname1, const string &dbname2)
 {
     vector<string> dbnames;
     dbnames.push_back(dbname1);
-    dbnames.push_back(dbname2);
+    if (!dbname2.empty()) dbnames.push_back(dbname2);
     return (this->*do_getdb)(dbnames);
 }
 

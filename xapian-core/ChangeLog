@@ -1,3 +1,8 @@
+Wed Jul 30 02:38:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Fixed breakage caused by remotetest
+	  cleanup.
+
 Tue Jul 29 13:22:20 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/remotetest.cc: Cleaned up uses of
