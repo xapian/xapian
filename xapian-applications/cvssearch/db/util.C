@@ -463,6 +463,8 @@ void readTags( const string& fn, set<string>& S,
 #warning "should we look for member not method?"
 
     string symbol = s.substr( 0, s.find("\t") );
+    string osymbol = symbol;
+
     if ( symbol.find("::") != string::npos ) {
       symbol = symbol.substr( symbol.find("::")+2 );
     }
@@ -499,7 +501,7 @@ void readTags( const string& fn, set<string>& S,
       //      int l = atoi( s.substr(i,j-i+1).c_str() );
 
       //      cerr << "-" << l << "-" << endl;
-      tag[ s.substr(i,j-i+1)] = symbol;
+      tag[ s.substr(i,j-i+1)] = osymbol + "()";
       
 
     }

@@ -346,6 +346,8 @@ int main(int argc, char *argv[]) {
 
       Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " accumulating" ); 
 
+      string current_function = "";
+
       while ( lines.ReadNextLine() ) {
 
 	string data = lines.getData();
@@ -359,34 +361,50 @@ int main(int argc, char *argv[]) {
 	ost << file << "\t" << line_no << ends;
 	if ( app_symbol_tag.find( ost.str() ) != app_symbol_tag.end() ) {
 	  string f = app_symbol_tag[ost.str()];
-	  cerr << "FOUND FUNCTION " << f << " at line " << line_no << endl;
+#warning "need to be careful with one line functions since they only have one tag"
+	  cerr << "FOUND FUNCTION " << current_function << " at line " << line_no << endl;
+
+	  if ( f == current_function ) {
+	    current_function = ""; // end tag
+	  }
 	}
 	ost.freeze(0);
 
+	//	  if ( app_symbols.find(*i) != app_symbols.end() ) {
+	//	    app_symbol_count[*i]++; // count number of lines that contain symbol
+
+	//	    cerr << "*** APP SYMBOL " << (*i) << endl;
+
+	// for each revision comment associated with this line, we insert it
+
+	if ( current_function != "" ) {
+
+	  app_symbol_count[current_function] = 1;
+
+	  for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
+	    list<string> word_list = r->second;
+
+	      app_symbol_terms[ current_function ].insert(word_list); // avoid repetition
+
+	  }
+
+	}
+	//	  }
+
+	//////////////////// see if this is a one line function, if so it won't have another tag!
+	//////////////////// hack...
+#warning "CHECK FOR ONE LINE FUNCTIONS"
+	
+
+	  
+	// look at symbols in line
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
               
 	  if ( SKIP_FUNCTIONS && i->find("()") != -1 ) {
 	    continue;
 	  }
 
-	  if ( app_symbols.find(*i) != app_symbols.end() ) {
-	    app_symbol_count[*i]++; // count number of lines that contain symbol
-
-	    //	    cerr << "*** APP SYMBOL " << (*i) << endl;
-
-	    // for each revision comment associated with this line, we insert it
-	    for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
-	      list<string> word_list = r->second;
-
-	      if ( word_list.size() <= MAX_COMMENT_WORDS ) {
-		app_symbol_terms[*i].insert(word_list); // avoid repetition
-	      }
-	    }
-
-
-
-	  }
-              
+	  //	  if ( app_symbols.find(*i) != app_symbols.end() ) {              
 	  if ( lib_symbols.find(*i) != lib_symbols.end() ) {
 
 	    if ( lib_symbol_app_count[*i] < MAX_FROM_APP ) {
