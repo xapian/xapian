@@ -250,6 +250,19 @@ bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
                         const OmMSet &mset2, unsigned int first2,
 			unsigned int count)
 {
+    if (mset1.items.size() < first1 + count - 1) {
+	if(verbose)
+	    cout << "mset1 is too small: expected at least " <<
+		    (first1 + count - 1) << " items." << endl;
+	return false;
+    }
+    if (mset2.items.size() < first2 + count - 1) {
+	if(verbose)
+	    cout << "mset2 is too small: expected at least " <<
+		    (first2 + count - 1) << " items." << endl;
+	return false;
+    }
+
     for (unsigned int i=0; i<count; ++i) {
         if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
 	    (mset1.items[first1+i].did != mset2.items[first2+i].did)) {
@@ -499,9 +512,12 @@ bool test_expandmaxitems1()
 
     OmMSet mymset = enquire.get_mset(0, 10);
 
+    if (mymset.items.size() < 2) return false;
+
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
+
     OmESet myeset = enquire.get_eset(1, myrset);
 
     return (myeset.items.size() == 1);
@@ -609,6 +625,8 @@ bool test_expandfunctor1()
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
+    if (mymset.items.size() < 2) return false;
+    
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
@@ -795,6 +813,8 @@ bool test_allowqterms1()
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
+    if (mymset.items.size() < 2) return false;
+
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
