@@ -102,7 +102,7 @@ inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 
    R = REVISION(b)  is the revision number the B-tree had when the block was
                     written into the DB file.
-   L = LEVEL(b)     is the level of the block, which is the number of levels
+   L = GET_LEVEL(b) is the level of the block, which is the number of levels
                     towards the root of the B-tree structure. So leaf blocks
                     have level 0 and the one root block has the highest level
                     equal to the number of levels in the B-tree.
@@ -133,7 +133,7 @@ inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 */
 
 #define REVISION(b)      get_uint4(b, 0)
-#define LEVEL(b)         GETINT1(b, 4)
+#define GET_LEVEL(b)     GETINT1(b, 4)
 #define MAX_FREE(b)      GETINT2(b, 5)
 #define TOTAL_FREE(b)    GETINT2(b, 7)
 #define DIR_END(b)       GETINT2(b, 9)

@@ -1,3 +1,8 @@
+Mon Nov 27 18:29:00 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change #define LEVEL ... to #define GET_LEVEL ... in btree_util.h:
+	  fixes problem reported by includetest
+
 Mon Nov 27 18:20:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a set of modifications to the todo.xml.  Also, add a

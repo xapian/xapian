@@ -510,13 +510,13 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
             return;
         }
     }
-    AssertEq(j, LEVEL(p));
+    AssertEq(j, GET_LEVEL(p));
 }
 
 /* set_block_given_by(p, c, n) finds the item at block address p, directory
    offset c, and sets its tag value to n. For blocks not at the data level,
-   when LEVEL(p) > 0, the tag of an item is just the block number of another
-   block in the B-tree structure.
+   when GET_LEVEL(p) > 0, the tag of an item is just the block number of
+   another block in the B-tree structure.
 
    (The built in '4' below is the number of bytes per block number.)
 */
@@ -1974,7 +1974,7 @@ Btree::prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
             B->read_block(n, p);
             if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
-            if (LEVEL(p) == 0) break;
+            if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_END(p);
         C[0].n = n;
@@ -1998,7 +1998,7 @@ Btree::next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
             B->read_block(n, p);
             if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
-            if (LEVEL(p) == 0) break;
+            if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_START;
         C[0].n = n;
@@ -2149,7 +2149,7 @@ static int block_usage(struct Btree * B, byte * p)
 }
 
 static void report_block(struct Btree * B, int m, int n, byte * p)
-{   int j = LEVEL(p);
+{   int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
@@ -2167,7 +2167,7 @@ static void report_block(struct Btree * B, int m, int n, byte * p)
 }
 
 static void report_block_full(struct Btree * B, int m, int n, byte * p)
-{   int j = LEVEL(p);
+{   int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     printf("\n");
@@ -2209,7 +2209,7 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
     if (block_free_now(n)) failure(1);
     free_block(n);
 
-    if (j != LEVEL(p)) failure(10);
+    if (j != GET_LEVEL(p)) failure(10);
     if (dir_end <= DIR_START || dir_end > block_size) failure(20);
 
     if (opts & 1) report_block(this, 3*(level - j), n, p);
