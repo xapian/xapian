@@ -7,37 +7,37 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_webtop_om_OmMatchOptions.h"
+#include "com_muscat_om_OmMatchOptions.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    createNativeObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmMatchOptions_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmMatchOptions_createNativeObject
   (JNIEnv *env, jobject obj)
 {
     return (jlong) new OmMatchOptions ();    
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");    
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    set_collapse_key
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1collapse_1key
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_set_1collapse_1key
   (JNIEnv *env, jobject obj, jint key)
 {
     OmMatchOptions* mopt = (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");
@@ -45,11 +45,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1collapse_1key
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    set_no_collapse
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1no_1collapse
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_set_1no_1collapse
   (JNIEnv *env, jobject obj)
 {
     OmMatchOptions* mopt = (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");
@@ -57,11 +57,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1no_1collapse
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    set_sort_forward
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1sort_1forward
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_set_1sort_1forward
   (JNIEnv *env, jobject obj, jboolean forward)
 {
     OmMatchOptions* mopt = (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");
@@ -69,11 +69,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1sort_1forward
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    set_percentage_cutoff
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1percentage_1cutoff
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_set_1percentage_1cutoff
   (JNIEnv *env, jobject obj, jint cutoff)
 {
     OmMatchOptions* mopt = (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");
@@ -81,11 +81,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1percentage_1cutoff
 }
 
 /*
- * Class:     com_webtop_om_OmMatchOptions
+ * Class:     com_muscat_om_OmMatchOptions
  * Method:    set_max_or_terms
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMatchOptions_set_1max_1or_1terms
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_set_1max_1or_1terms
   (JNIEnv *env, jobject obj, jint terms)
 {
     OmMatchOptions* mopt = (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");

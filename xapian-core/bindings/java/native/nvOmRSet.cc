@@ -8,37 +8,37 @@
 #include "om/omenquire.h"
 
 // JNI includes
-#include "com_webtop_om_OmRSet.h"
+#include "com_muscat_om_OmRSet.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmRSet
+ * Class:     com_muscat_om_OmRSet
  * Method:    createNativeObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmRSet_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmRSet_createNativeObject
   (JNIEnv *env, jobject obj)
 {
     return (jlong) new OmRSet ();
 }
 
 /*
- * Class:     com_webtop_om_OmRSet
+ * Class:     com_muscat_om_OmRSet
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmRSet_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmRSet_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmRSet*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
- * Class:     com_webtop_om_OmRSet
+ * Class:     com_muscat_om_OmRSet
  * Method:    get_items
  * Signature: ()[I
  */
-JNIEXPORT jintArray JNICALL Java_com_webtop_om_OmRSet_get_1items
+JNIEXPORT jintArray JNICALL Java_com_muscat_om_OmRSet_get_1items
   (JNIEnv *env, jobject obj)
 {
     OmRSet* rset = (OmRSet*) tryGetLongField (env, obj, "nativePtr");
@@ -58,11 +58,11 @@ JNIEXPORT jintArray JNICALL Java_com_webtop_om_OmRSet_get_1items
 }
 
 /*
- * Class:     com_webtop_om_OmRSet
+ * Class:     com_muscat_om_OmRSet
  * Method:    add_document
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmRSet_add_1document
+JNIEXPORT void JNICALL Java_com_muscat_om_OmRSet_add_1document
   (JNIEnv *env, jobject obj, jint did)
 {
     OmRSet* rset = (OmRSet*) tryGetLongField (env, obj, "nativePtr");
@@ -75,11 +75,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmRSet_add_1document
 }
 
 /*
- * Class:     com_webtop_om_OmRSet
+ * Class:     com_muscat_om_OmRSet
  * Method:    remove_document
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmRSet_remove_1document
+JNIEXPORT void JNICALL Java_com_muscat_om_OmRSet_remove_1document
   (JNIEnv *env, jobject obj, jint did)
 {
     OmRSet* rset = (OmRSet*) tryGetLongField (env, obj, "nativePtr");

@@ -6,7 +6,7 @@
 #include "om/omenquire.h"
 
 // JNI includes
-#include "com_webtop_om_OmPrefixExpandDecider.h"
+#include "com_muscat_om_OmPrefixExpandDecider.h"
 #include "utils.h"
 
 class OmPrefixExpandDecider : public OmExpandDecider {
@@ -27,22 +27,22 @@ class OmPrefixExpandDecider : public OmExpandDecider {
 
 
 /*
- * Class:     com_webtop_om_OmPrefixExpandDecider
+ * Class:     com_muscat_om_OmPrefixExpandDecider
  * Method:    createNativeObject
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmPrefixExpandDecider_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmPrefixExpandDecider_createNativeObject
   (JNIEnv *env, jobject obj, jstring prefix)
 {
     return (jlong) new OmPrefixExpandDecider (getStringValue (env, prefix));
 }
 
 /*
- * Class:     com_webtop_om_OmPrefixExpandDecider
+ * Class:     com_muscat_om_OmPrefixExpandDecider
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmPrefixExpandDecider_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmPrefixExpandDecider_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmPrefixExpandDecider*) tryGetLongField (env, obj, "nativePtr");

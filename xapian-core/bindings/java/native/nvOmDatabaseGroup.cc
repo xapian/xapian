@@ -8,37 +8,37 @@
 #include "om/omenquire.h"
 
 // JNI includes
-#include "com_webtop_om_OmDatabaseGroup.h"
+#include "com_muscat_om_OmDatabaseGroup.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmDatabaseGroup
+ * Class:     com_muscat_om_OmDatabaseGroup
  * Method:    createNativeObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmDatabaseGroup_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabaseGroup_createNativeObject
   (JNIEnv *env, jobject obj)
 {
     return (jlong) new OmDatabaseGroup ();    
 }
 
 /*
- * Class:     com_webtop_om_OmDatabaseGroup
+ * Class:     com_muscat_om_OmDatabaseGroup
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmDatabaseGroup_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmDatabaseGroup*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
- * Class:     com_webtop_om_OmDatabaseGroup
+ * Class:     com_muscat_om_OmDatabaseGroup
  * Method:    add_database
  * Signature: (Ljava/lang/String;[Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmDatabaseGroup_add_1database
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database
   (JNIEnv *env, jobject obj, jstring type, jobjectArray params)
 {
     OmDatabaseGroup* db = (OmDatabaseGroup*) tryGetLongField (env, obj, "nativePtr");

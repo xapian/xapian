@@ -7,15 +7,15 @@
 #include "om/omstem.h"
 
 // JNI includes
-#include "com_webtop_om_OmStem.h"
+#include "com_muscat_om_OmStem.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmStem
+ * Class:     com_muscat_om_OmStem
  * Method:    createNativeObject
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmStem_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmStem_createNativeObject
   (JNIEnv *env, jobject obj, jstring lang)
 {
     try {
@@ -28,22 +28,22 @@ JNIEXPORT jlong JNICALL Java_com_webtop_om_OmStem_createNativeObject
 }
 
 /*
- * Class:     com_webtop_om_OmStem
+ * Class:     com_muscat_om_OmStem
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmStem_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmStem_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmStem*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
- * Class:     com_webtop_om_OmStem
+ * Class:     com_muscat_om_OmStem
  * Method:    stem_word
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_webtop_om_OmStem_stem_1word
+JNIEXPORT jstring JNICALL Java_com_muscat_om_OmStem_stem_1word
   (JNIEnv *env, jobject obj, jstring word)
 {
     OmStem* stem = (OmStem*) tryGetLongField (env, obj, "nativePtr");
@@ -57,11 +57,11 @@ JNIEXPORT jstring JNICALL Java_com_webtop_om_OmStem_stem_1word
 }
 
 ///*
-// * Class:     com_webtop_om_OmStem
+// * Class:     com_muscat_om_OmStem
 // * Method:    get_available_languages
 // * Signature: ()[Ljava/lang/String;
 // */
-//JNIEXPORT jobjectArray JNICALL Java_com_webtop_om_OmStem_get_1available_1languages
+//JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmStem_get_1available_1languages
 //  (JNIEnv *env, jclass clazz)
 //{
 //    vector<string> langs = OmStem::get_available_languages ();

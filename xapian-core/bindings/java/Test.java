@@ -1,5 +1,5 @@
-import com.webtop.om.*;
-import com.webtop.format.*;
+import com.muscat.om.*;
+import com.muscat.format.*;
 import java.util.*;
 import java.io.*;
 
@@ -10,7 +10,7 @@ public class Test {
 	//byte[] keybuf = new byte [(int) keysf.length()];
 	//new FileInputStream (keysf).read (keybuf);
 	
-	String dapath       = "/netapp/data/webtop.small.2";
+	String dapath       = "/netapp/data/muscat.small.2";
 	String type         = "da_flimsy";
 	String pquery       = "lemur";
 	OmMatchOptions mopt = null;

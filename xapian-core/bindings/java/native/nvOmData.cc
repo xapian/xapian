@@ -5,15 +5,15 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_webtop_om_OmData.h"
+#include "com_muscat_om_OmData.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmData
+ * Class:     com_muscat_om_OmData
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmData_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmData_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmData*) tryGetLongField (env, obj, "nativePtr");
@@ -21,11 +21,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmData_deleteNativeObject
 
 
 /*
- * Class:     com_webtop_om_OmData
+ * Class:     com_muscat_om_OmData
  * Method:    get_data
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_webtop_om_OmData_get_1value
+JNIEXPORT jstring JNICALL Java_com_muscat_om_OmData_get_1value
   (JNIEnv *env, jobject obj)
 {
     OmData* dat = (OmData*) tryGetLongField (env, obj, "nativePtr");

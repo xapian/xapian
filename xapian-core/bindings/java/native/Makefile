@@ -4,22 +4,22 @@ OMINC   = -I../../om/common -I../../om/include -I../../om/include/om
 OMLIB   = -lomus
 CPP     = g++
 
-JCLAS =	com.webtop.om.OmEnquire				\
-	com.webtop.om.OmDatabaseGroup			\
-	com.webtop.om.OmQuery				\
-	com.webtop.om.OmMSet				\
-	com.webtop.om.OmMSetItem			\
-	com.webtop.om.OmMSetItemVector			\
-	com.webtop.om.OmStem				\
-	com.webtop.om.OmDocument			\
-	com.webtop.om.OmMatchOptions    		\
-	com.webtop.om.OmRSet				\
-	com.webtop.om.OmESet				\
-	com.webtop.om.OmESetItem			\
-	com.webtop.om.OmESetItemVector			\
-	com.webtop.om.OmExpandOptions			\
-	com.webtop.om.OmExpandDecider			\
-	com.webtop.om.OmPrefixExpandDecider
+JCLAS =	com.muscat.om.OmEnquire				\
+	com.muscat.om.OmDatabaseGroup			\
+	com.muscat.om.OmQuery				\
+	com.muscat.om.OmMSet				\
+	com.muscat.om.OmMSetItem			\
+	com.muscat.om.OmMSetItemVector			\
+	com.muscat.om.OmStem				\
+	com.muscat.om.OmDocument			\
+	com.muscat.om.OmMatchOptions    		\
+	com.muscat.om.OmRSet				\
+	com.muscat.om.OmESet				\
+	com.muscat.om.OmESetItem			\
+	com.muscat.om.OmESetItemVector			\
+	com.muscat.om.OmExpandOptions			\
+	com.muscat.om.OmExpandDecider			\
+	com.muscat.om.OmPrefixExpandDecider
 
 
 MODS  = nvOmEnquire.o			\

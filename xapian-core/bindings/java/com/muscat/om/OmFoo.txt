@@ -1,0 +1,12 @@
+package com.muscat.om;
+
+public class Om* extends OmObject {
+
+    public Om* () throws OmError { super (); }
+    public Om* (long ptr) { super (ptr); }
+    protected void finalize () throws Throwable { super.finalize (); }
+    protected native long createNativeObject ();
+    protected native void deleteNativeObject (long ptr);
+
+}
+

@@ -1,38 +1,38 @@
 # a list of source files
 
-SRC   = com/webtop/om/OmObject.java			\
-	com/webtop/om/OmReturnObject.java		\
-	com/webtop/om/OmDatabaseGroup.java		\
-	com/webtop/om/OmEnquire.java			\
-	com/webtop/om/OmDocument.java			\
-	com/webtop/om/OmKey.java			\
-	com/webtop/om/OmData.java			\
-	com/webtop/om/OmMSet.java			\
-	com/webtop/om/OmVector.java			\
-	com/webtop/om/OmMSetItem.java			\
-	com/webtop/om/OmQuery.java			\
-	com/webtop/om/OmRSet.java			\
-	com/webtop/om/OmMatchOptions.java		\
-	com/webtop/om/OmVector.java			\
-	com/webtop/om/OmStem.java			\
-	com/webtop/om/OmMSetItemVector.java		\
-	com/webtop/om/Mus36Field.java			\
-	com/webtop/om/OmESet.java			\
-	com/webtop/om/OmESetItem.java			\
-	com/webtop/om/OmESetItemVector.java		\
-	com/webtop/om/OmExpandOptions.java		\
-	com/webtop/om/OmExpandDecider.java		\
-	com/webtop/om/OmPrefixExpandDecider.java	\
-	com/webtop/format/FerretUnpacker.java		\
-	com/webtop/format/RecordFormatter.java		\
-	com/webtop/format/FerretFormatter.java		\
-	com/webtop/om/OmError.java			\
-	com/webtop/om/OmRuntimeError.java		\
-	com/webtop/om/OmOpeningError.java		\
-	com/webtop/om/OmLogicError.java			\
-	com/webtop/om/OmInvalidArgumentError.java	\
-	com/webtop/om/OmDocNotFoundError.java		\
-	com/webtop/om/OmNetworkError.java		\
+SRC   = com/muscat/om/OmObject.java			\
+	com/muscat/om/OmReturnObject.java		\
+	com/muscat/om/OmDatabaseGroup.java		\
+	com/muscat/om/OmEnquire.java			\
+	com/muscat/om/OmDocument.java			\
+	com/muscat/om/OmKey.java			\
+	com/muscat/om/OmData.java			\
+	com/muscat/om/OmMSet.java			\
+	com/muscat/om/OmVector.java			\
+	com/muscat/om/OmMSetItem.java			\
+	com/muscat/om/OmQuery.java			\
+	com/muscat/om/OmRSet.java			\
+	com/muscat/om/OmMatchOptions.java		\
+	com/muscat/om/OmVector.java			\
+	com/muscat/om/OmStem.java			\
+	com/muscat/om/OmMSetItemVector.java		\
+	com/muscat/om/Mus36Field.java			\
+	com/muscat/om/OmESet.java			\
+	com/muscat/om/OmESetItem.java			\
+	com/muscat/om/OmESetItemVector.java		\
+	com/muscat/om/OmExpandOptions.java		\
+	com/muscat/om/OmExpandDecider.java		\
+	com/muscat/om/OmPrefixExpandDecider.java	\
+	com/muscat/format/FerretUnpacker.java		\
+	com/muscat/format/RecordFormatter.java		\
+	com/muscat/format/FerretFormatter.java		\
+	com/muscat/om/OmError.java			\
+	com/muscat/om/OmRuntimeError.java		\
+	com/muscat/om/OmOpeningError.java		\
+	com/muscat/om/OmLogicError.java			\
+	com/muscat/om/OmInvalidArgumentError.java	\
+	com/muscat/om/OmDocNotFoundError.java		\
+	com/muscat/om/OmNetworkError.java		\
 	Test.java					
 
 # classpath needed for compilation

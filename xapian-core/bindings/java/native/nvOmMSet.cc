@@ -6,26 +6,26 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_webtop_om_OmMSet.h"
+#include "com_muscat_om_OmMSet.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmMSet_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmMSet_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmMSet*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    get_firstitem
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1firstitem
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_get_1firstitem
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
@@ -33,24 +33,24 @@ JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1firstitem
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    get_items
- * Signature: ()[Lcom/webtop/om/OmMSetItem;
+ * Signature: ()[Lcom/muscat/om/OmMSetItem;
  */
-JNIEXPORT jobject JNICALL Java_com_webtop_om_OmMSet_get_1items
+JNIEXPORT jobject JNICALL Java_com_muscat_om_OmMSet_get_1items
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
     jlong native = (jlong) new vector<OmMSetItem> (mset->items);
-    return makeReturnObject (env, "com/webtop/om/OmMSetItemVector", native);
+    return makeReturnObject (env, "com/muscat/om/OmMSetItemVector", native);
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    get_max_attained
  * Signature: ()D
  */
-JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1attained
+JNIEXPORT jdouble JNICALL Java_com_muscat_om_OmMSet_get_1max_1attained
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
@@ -58,11 +58,11 @@ JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1attained
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    get_max_possible
  * Signature: ()D
  */
-JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1possible
+JNIEXPORT jdouble JNICALL Java_com_muscat_om_OmMSet_get_1max_1possible
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
@@ -70,11 +70,11 @@ JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1possible
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    get_mbound
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1mbound
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_get_1mbound
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
@@ -82,11 +82,11 @@ JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1mbound
 }
 
 /*
- * Class:     com_webtop_om_OmMSet
+ * Class:     com_muscat_om_OmMSet
  * Method:    convert_to_percent
  * Signature: (D)I
  */
-JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_convert_1to_1percent
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_convert_1to_1percent
   (JNIEnv *env, jobject obj, jdouble weight)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");

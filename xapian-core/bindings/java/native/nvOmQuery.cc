@@ -7,15 +7,15 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_webtop_om_OmQuery.h"
+#include "com_muscat_om_OmQuery.h"
 #include "utils.h"
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    createNativeObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__
   (JNIEnv *env, jobject obj)
 {
 
@@ -23,11 +23,11 @@ JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__
 }
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_webtop_om_OmQuery_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmQuery_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
     delete (OmQuery*) tryGetLongField (env, obj, "nativePtr");
@@ -35,11 +35,11 @@ JNIEXPORT void JNICALL Java_com_webtop_om_OmQuery_deleteNativeObject
 
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    createNativeObject
  * Signature: (Ljava/lang/String;II)J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__Ljava_lang_String_2II
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2II
   (JNIEnv *env, jobject obj, jstring term, jint count, jint pos)
 {
     string thing = getStringValue (env, term);
@@ -75,11 +75,11 @@ om_queryop transOp (JNIEnv* env, jstring op) {
     
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    createNativeObject
- * Signature: (Ljava/lang/String;Lcom/webtop/om/OmQuery;Lcom/webtop/om/OmQuery;)J
+ * Signature: (Ljava/lang/String;Lcom/muscat/om/OmQuery;Lcom/muscat/om/OmQuery;)J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__Ljava_lang_String_2Lcom_webtop_om_OmQuery_2Lcom_webtop_om_OmQuery_2
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2Lcom_muscat_om_OmQuery_2Lcom_muscat_om_OmQuery_2
   (JNIEnv *env, jobject obj, jstring op, jobject left, jobject right)
 {
 
@@ -91,11 +91,11 @@ JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__Ljava_lan
 }
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    createNativeObject
  * Signature: (Ljava/lang/String;[Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__Ljava_lang_String_2_3Ljava_lang_String_2
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2_3Ljava_lang_String_2
   (JNIEnv *env, jobject obj, jstring op, jobjectArray terms)
 {
 
@@ -113,11 +113,11 @@ JNIEXPORT jlong JNICALL Java_com_webtop_om_OmQuery_createNativeObject__Ljava_lan
 }
 
 /*
- * Class:     com_webtop_om_OmQuery
+ * Class:     com_muscat_om_OmQuery
  * Method:    get_terms
  * Signature: ()[Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_com_webtop_om_OmQuery_get_1terms
+JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmQuery_get_1terms
   (JNIEnv *env, jobject obj)
 {
     om_termname_list terms;

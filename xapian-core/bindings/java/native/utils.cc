@@ -20,34 +20,34 @@ void handleNativeError (JNIEnv *env, OmError& err_ref) {
 
     if (OmError* err1 = dynamic_cast<OmRuntimeError*>(err)) {
 	if (OmError* err2 = dynamic_cast<OmOpeningError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmOpeningError", msg);
+	    throwNewException (env, "com/muscat/om/OmOpeningError", msg);
 	}
 	else if (OmError* err2 = dynamic_cast<OmDocNotFoundError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmDocNotFoundError", msg);
+	    throwNewException (env, "com/muscat/om/OmDocNotFoundError", msg);
 	}
 	else if (OmError* err2 = dynamic_cast<OmNetworkError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmNetworkError", msg);
+	    throwNewException (env, "com/muscat/om/OmNetworkError", msg);
 	}
 	else {
-	    throwNewException (env, "com/webtop/om/OmRuntimeError", msg);
+	    throwNewException (env, "com/muscat/om/OmRuntimeError", msg);
 	}
     }
     else if (OmError* err1 = dynamic_cast<OmLogicError*>(err)) {
 	if (OmError* err2 = dynamic_cast<OmUnimplementedError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmUnimplementedError", msg);
+	    throwNewException (env, "com/muscat/om/OmUnimplementedError", msg);
 	}
 	else if (OmError* err2 = dynamic_cast<OmInvalidArgumentError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmInvalidArgumentError", msg);
+	    throwNewException (env, "com/muscat/om/OmInvalidArgumentError", msg);
 	}
 	else if (OmError* err2 = dynamic_cast<OmAssertionError*>(err1)) {
-	    throwNewException (env, "com/webtop/om/OmInvalidArgumentError", msg);
+	    throwNewException (env, "com/muscat/om/OmInvalidArgumentError", msg);
 	}
 	else {
-	    throwNewException (env, "com/webtop/om/OmRuntimeError", msg);
+	    throwNewException (env, "com/muscat/om/OmRuntimeError", msg);
 	}
     }
     else {
-	throwNewException (env, "com/webtop/om/OmError", msg);
+	throwNewException (env, "com/muscat/om/OmError", msg);
     }
 }
 
