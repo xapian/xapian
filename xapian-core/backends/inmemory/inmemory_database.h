@@ -1,7 +1,7 @@
-/* multi_database.h: C++ class definition for multiple database access */
+/* textfile_database.h: C++ class definition for multiple database access */
 
-#ifndef _multi_database_h_
-#define _multi_database_h_
+#ifndef _textfile_database_h_
+#define _textfile_database_h_
 
 #include "omassert.h"
 #include "database.h"
@@ -11,26 +11,12 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <algorithm>
 
-class MultiPostListInternal {
-    public:
-	DBPostList * pl;
-	docid currdoc;
-
-	doccount offset;
-	doccount multiplier;
-
-	MultiPostListInternal(DBPostList * pl_new,
-			      doccount off,
-			      doccount mult)
-		: pl(pl_new), currdoc(0), offset(off), multiplier(mult) {}
-};
-
-class MultiPostList : public virtual DBPostList {
-    friend class MultiDatabase;
+/*
+class TextfilePostList : public virtual DBPostList {
+    friend class TextfileDatabase;
     private:
-	list<MultiPostListInternal> postlists;
-
 	bool   finished;
 	docid  currdoc;
 
@@ -39,11 +25,9 @@ class MultiPostList : public virtual DBPostList {
 
 	weight termweight;
 
-	MultiPostList(const IRDatabase *, list<MultiPostListInternal> &);
+	TextfilePostList(const IRDatabase *, list<MultiPostListInternal> &);
     public:
-	~MultiPostList();
-
-	void  set_termweight(const IRWeight *); // Sets term weight
+	~TextfilePostList();
 
 	doccount get_termfreq() const;
 
@@ -57,18 +41,8 @@ class MultiPostList : public virtual DBPostList {
 	bool   at_end() const;        // True if we're off the end of the list
 };
 
-inline void
-MultiPostList::set_termweight(const IRWeight * wt)
-{
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    while(i != postlists.end()) {
-	(*i).pl->set_termweight(wt);
-	i++;
-    }
-}
-
 inline doccount
-MultiPostList::get_termfreq() const
+TextfilePostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
     printf("Calculating multiple term frequencies\n");
@@ -173,37 +147,103 @@ inline bool MultiTermList::at_end() const
 {
     return tl->at_end();
 }
+*/
 
 
-
-
-
-class MultiTerm {
-    friend class MultiDatabase;
-    private:
-	MultiTerm(termname name_new) {
-	    name = name_new;
-	}
+// Class representing a posting (a term/doc pair, and
+// all the relevant positional information, is a single posting)
+class TextfilePosting {
     public:
-	termname name;
+	docid did;
+	termid tid;
+	vector<termcount> positions; // Sorted list of positions
+
+	// Merge two postings (same term/doc pair, new positional info)
+	void merge(const TextfilePosting & post) {
+	    Assert(did == post.did);
+	    Assert(tid == post.tid);
+
+	    positions.insert(positions.end(),
+			     post.positions.begin(),
+			     post.positions.end());
+	    // FIXME - inefficient
+	    sort(positions.begin(), positions.end());
+	}
 };
 
+// Compare by document ID
+class TextfilePostingLessByDocId {
+    public:
+	int operator() (const TextfilePosting &p1, const TextfilePosting &p2)
+	{
+	    return p1.did < p2.did;
+	}
+};
 
-class MultiDatabase : public virtual IRDatabase {
+// Compare by term ID
+class TextfilePostingLessByTermId {
+    public:
+	int operator() (const TextfilePosting &p1, const TextfilePosting &p2)
+	{
+	    return p1.tid < p2.tid;
+	}
+};
+
+// Class representing a term and the documents indexing it
+class TextfileTerm {
+    public:
+	vector<TextfilePosting> docs;// Sorted list of documents indexing term
+	void add_posting(const TextfilePosting & post) {
+	    // Add document to right place in list
+	    vector<TextfilePosting>::iterator p;
+	    p = lower_bound(docs.begin(), docs.end(),
+			    post,
+			    TextfilePostingLessByDocId());
+	    if(p == docs.end() || TextfilePostingLessByDocId()(post, *p)) {
+		printf("Not found - adding\n");
+		docs.insert(p, post);
+	    } else {
+		printf("Found - merging\n");
+		(*p).merge(post);
+	    }
+	}
+};
+
+// Class representing a document and the terms indexing it
+class TextfileDoc {
+    public:
+	vector<TextfilePosting> terms;// Sorted list of terms indexing document
+	void add_posting(const TextfilePosting & post) {
+	    // Add document to right place in list
+	    vector<TextfilePosting>::iterator p;
+	    p = lower_bound(terms.begin(), terms.end(),
+			    post,
+			    TextfilePostingLessByTermId());
+	    if(p == terms.end() || TextfilePostingLessByTermId()(post, *p)) {
+		printf("Not found - adding\n");
+		terms.insert(p, post);
+	    } else {
+		printf("Found - merging\n");
+		(*p).merge(post);
+	    }
+	}
+};
+
+class TextfileDatabase : public virtual IRDatabase {
     private:
 	mutable map<termname, termid> termidmap;
-	mutable vector<MultiTerm> termvec;
+	mutable vector<termname> termvec;
 
-	vector<IRDatabase *> databases;
+	vector<TextfileTerm> termlists;
+	vector<TextfileDoc> postlists;
 
-	mutable bool length_initialised;
-	mutable doclength avlength;
+	doccount docs;
+	doclength avlength;
 
-	bool opened; // Whether we have opened the database (ie, added a subDB)
-	mutable bool used;// Have we used the database (if so, can't add more DBs)
+	bool opened; // Whether we have opened the database
     public:
-	MultiDatabase();
-	~MultiDatabase();
+	TextfileDatabase();
+	~TextfileDatabase();
 
 	void set_root(IRDatabase *);
 
@@ -214,15 +254,7 @@ class MultiDatabase : public virtual IRDatabase {
 	docid add_doc(IRDocument &);
 	void add(termid, docid, termpos);
 
-	void open(const string &pathname, bool readonly) {
-	    throw OmError("open() not valid for MultiDatabase\n");
-	}
-
-	// MultiDatabase will take care of closing and deleting the
-	// database.  FIXME find appropriate structure to make this
-	// implicit in the interface.
-	void open_subdatabase(IRDatabase *,
-			      const string &pathname, bool readonly);
+	void open(const string &pathname, bool readonly);
 	void close();
 
 	doccount  get_doccount() const;
@@ -234,47 +266,26 @@ class MultiDatabase : public virtual IRDatabase {
 };
 
 inline doccount
-MultiDatabase::get_doccount() const
+TextfileDatabase::get_doccount() const
 {
-    // FIXME - lazy evaluation?
     Assert(opened);
-    Assert((used = true) == true);
-
-    doccount docs = 0;
-
-    vector<IRDatabase *>::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	docs += (*i)->get_doccount();
-	i++;
-    }
-
     return docs;
 }
 
 inline doclength
-MultiDatabase::get_avlength() const
+TextfileDatabase::get_avlength() const
 {
-    // FIXME - lazy evaluation?
     Assert(opened);
-    Assert((used = true) == true);
-
-    if(!length_initialised) {
-	doccount docs = 0;
-	doclength totlen = 0;
-
-	vector<IRDatabase *>::const_iterator i = databases.begin(); 
-	while(i != databases.end()) {
-	    doccount db_doccount = (*i)->get_doccount();
-	    docs += db_doccount;
-	    totlen += (*i)->get_avlength() * db_doccount;
-	    i++;
-	}
-
-	avlength = totlen / docs;
-	length_initialised = true;
-    }
-
     return avlength;
 }
 
-#endif /* _multi_database_h_ */
+termname
+TextfileDatabase::term_id_to_name(termid id) const
+{
+    Assert(opened);
+    Assert(id > 0 && id <= termvec.size());
+    //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
+    return termvec[id - 1];
+}
+
+#endif /* _textfile_database_h_ */

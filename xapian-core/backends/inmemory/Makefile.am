@@ -2,4 +2,8 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = da sleepy multi textfile .
+INCLUDES = -I$(top_srcdir)/include
+
+noinst_LTLIBRARIES = libtextfile.la
+
+libtextfile_la_SOURCES = textfile_database.cc

@@ -44,7 +44,15 @@ if test "$GCC" = yes; then
   changequote([, ])
 fi
 
-AC_OUTPUT(Makefile stemmer/Makefile matcher/Makefile tests/Makefile
+AC_OUTPUT(
+ Makefile
+ stemmer/Makefile
+ matcher/Makefile
+ tests/Makefile
  backends/Makefile
- backends/da/Makefile backends/sleepy/Makefile backends/multi/Makefile
- backends/Makefile include/Makefile ferretfx/Makefile)
+ backends/da/Makefile
+ backends/sleepy/Makefile
+ backends/multi/Makefile
+ backends/textfile/Makefile
+ include/Makefile
+ ferretfx/Makefile)
