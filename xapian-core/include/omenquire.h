@@ -110,9 +110,12 @@ class OMMatchOptions {
     private:
 	bool  do_collapse;
 	keyno collapse_key;
+
+	bool  sort_forward;
     public:
 	void set_collapse_key(keyno);
 	void set_no_collapse();
+	void set_sort_forward(bool = true);
 	OMMatchOptions();
 };
 

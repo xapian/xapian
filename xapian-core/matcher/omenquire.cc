@@ -331,7 +331,8 @@ OMQuery::get_description() const
 ////////////////////////////////
 
 OMMatchOptions::OMMatchOptions()
-	: do_collapse(false)
+	: do_collapse(false),
+	  sort_forward(true)
 {}
 
 void
