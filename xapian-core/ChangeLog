@@ -1,3 +1,8 @@
+Wed Jul 12 17:05:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added much debugging information to weight calculation, and 
+	  term frequency and weight stuff now appears to work.
+
 Wed Jul 12 14:38:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More work on returning term frequency and weight information.

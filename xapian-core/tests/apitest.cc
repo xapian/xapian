@@ -2177,7 +2177,6 @@ bool test_qterminfo1()
 		    OmQuery(OM_MOP_OR,
 			    OmQuery(term2),
 			    OmQuery(term3)));
-    myquery.set_bool(true);
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
@@ -2201,13 +2200,6 @@ bool test_qterminfo1()
     TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
     TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
     TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
-
-    cout << "mymset1a.get_termweight(" << term1 << ")" <<
-	    mymset1a.get_termweight(term1) << endl;
-    cout << "mymset1a.get_termweight(" << term2 << ")" <<
-	    mymset1a.get_termweight(term2) << endl;
-    cout << "mymset1a.get_termweight(" << term3 << ")" <<
-	    mymset1a.get_termweight(term3) << endl;
 
     TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
     TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);

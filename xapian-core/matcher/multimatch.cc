@@ -250,12 +250,16 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 	} else {
 	    std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator i;
 	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
+
 	    for (i = msettermfreqandwts->begin(),
 		 j = sub_msettermfreqandwts->begin();
 		 i != msettermfreqandwts->end() &&
 		 j != sub_msettermfreqandwts->end();
 		 i++, j++) {
-		if(i->second.termweight == 0) {
+		if(i->second.termweight == 0 && i->second.termfreq != 0) {
+		    DEBUGLINE(WTCALC, "termweight of `" << i->first <<
+			      "' in first mset is 0, setting to " <<
+			      j->second.termweight);
 		    i->second.termweight = j->second.termweight;
 		}
 	    }
@@ -278,7 +282,8 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 
 		AssertParanoid(i->first == j->first);
 		AssertParanoid(i->second.termfreq == j->second.termfreq);
-		AssertParanoid(i->second.termweight == j->second.termweight);
+		AssertParanoid(i->second.termweight == j->second.termweight ||
+			       j->second.termweight == 0);
 	    }
 #endif /* MUS_DEBUG_PARANOID */
 	}

@@ -15,15 +15,19 @@ IRWeight::create(IRWeight::weight_type wt_type)
     // Create weight of correct type
     switch(wt_type) {
 	case WTTYPE_BOOL:
+	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_BOOL)");
 	    weight = new BoolWeight();
 	    break;
 	case WTTYPE_TRAD:
+	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_TRAD)");
 	    weight = new TradWeight();
 	    break;
 	case WTTYPE_BM25:
+	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_BM25)");
 	    weight = new BM25Weight();
 	    break;
 	default:
+	    DEBUGLINE(UNKNOWN, "IRWeight::create(Unknown)");
 	    throw OmInvalidArgumentError("Unknown weighting scheme");
     }
 

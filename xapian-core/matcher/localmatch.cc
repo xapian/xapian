@@ -247,10 +247,11 @@ LocalMatch::mk_postlist(const om_termname& tname)
 	// FIXME - query size is currently fixed as 1
 	// FIXME - want to use within query frequency here.
 	IRWeight * wt = mk_weight(1, tname);
+	term_weight = wt->get_maxpart();
+	DEBUGLINE(UNKNOWN, "get_maxpart = " << term_weight);
+
 	leaf_pl->set_termweight(wt);
 	pl = leaf_pl;
-
-	term_weight = wt->get_maxpart();
     }
 
     om_doccount term_freq = statssource.get_total_termfreq(tname);
