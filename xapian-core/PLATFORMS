@@ -83,7 +83,7 @@ hppa  |=HP-UX 11.11 aCC B3910B A.03.57 | 0.8.5 |Passed| (spe192) [9]
 hppa  |=HP-UX 11.23 aCC B3910B A.03.55 | 0.8.5 |Passed| (spe191) [9]
 ia64  |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe156)
 ia64  |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe177)
-ia64  |+Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5~|Passed| Only tried xapian-core
+ia64  |+Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5~|Passed|
 ia64  |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed| (spe177)
 ia64  |+Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| [11]
 ia64  |=HP-UX 11.23 GCC 3.4.1          | 0.8.5 |Passed| (spe176)

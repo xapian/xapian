@@ -1,3 +1,7 @@
+Mon Feb 21 21:54:29 GMT 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated.
+
 Mon Feb 21 16:06:32 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success report for Intel C++ 8.1 on ia64 Linux
