@@ -1,3 +1,8 @@
+Wed Nov  8 17:01:05 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added implementation of position lists to quartz - only lets
+	  position lists be read as yet, no facilities for writing them.
+
 Wed Nov  8 13:52:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Much work on quartz - it now passes all its tests except the one

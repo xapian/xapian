@@ -1,0 +1,95 @@
+/* quartz_positionlist.h: Position lists in quartz databases
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 BrightStation PLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_QUARTZ_POSITIONLIST_H
+#define OM_HGUARD_QUARTZ_POSITIONLIST_H
+
+#include "config.h"
+#include "om/omtypes.h"
+#include "positionlist.h"
+#include <string>
+
+/** A termlist in a quartz database.
+ */
+class QuartzPositionList : public PositionList {
+    private:
+        /// The data.
+        std::string data;
+
+        /** Position of iteration through data.
+	 */
+	const char * pos;
+
+	/** Byte after end of data.
+	 */
+	const char * end;
+
+	/// Whether we've run off the end of the list yet.
+	bool is_at_end;
+
+	/// The current position.
+	om_termpos current_pos;
+	
+	/// The number of entries in the position list.
+	om_termcount number_of_entries;
+
+        /// Copying is not allowed.
+        QuartzPositionList(const QuartzPositionList &);
+
+        /// Assignment is not allowed.
+        void operator=(const QuartzPositionList &);
+
+	/// Advance position by one.
+	void next_internal();
+    public:
+        /// Default constructor.
+        QuartzPositionList() {}
+
+        /// Destructor.
+        ~QuartzPositionList() { return; }
+
+        /// Fill list with data, and move the position to the start.
+        void set_data(const std::string & data_);
+
+        /// Gets size of position list.
+        om_termcount get_size() const { return number_of_entries; }
+
+        /// Gets current position.
+        om_termpos get_position() const { return current_pos; }
+
+        /** Move to the next item in the list.
+         *  Either next() or skip_to() must be called before any other
+         *  methods.
+         */
+        void next();
+
+        /** Move to the next item in the list.
+         *  Either next() or skip_to() must be called before any other
+         *  methods.
+         */
+        void skip_to(om_termpos termpos);
+
+        /// True if we're off the end of the list
+        bool at_end() const { return is_at_end; }
+};
+
+#endif /* OM_HGUARD_QUARTZ_POSITIONLIST_H */

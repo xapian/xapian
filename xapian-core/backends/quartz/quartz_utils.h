@@ -99,9 +99,36 @@ unpack_uint(const char ** src,
 
 	if ((part & 0x80) == 0) {
 	    if (resultptr) *resultptr = result;
-	    return true;;
+	    return true;
 	}
     }
+}
+
+/** Skip over an unsigned integer.
+ *
+ *  @param src       A pointer to a pointer to the data to read.  The
+ *                   character pointer will be updated to point to the
+ *                   next character to read, or 0 if no more data is to be
+ *                   read.
+ *  @param src_end   A pointer to the byte after the end of the data to
+ *                   read the integer from.
+ *
+ *  @return True if successfully skipped, false if ran out of data.
+ */
+inline bool
+skip_uint(const char ** src,
+	  const char * src_end)
+{
+    while((*src) != src_end) {
+	om_byte part = static_cast<om_byte> (**src);
+	(*src)++;
+
+	if ((part & 0x80) == 0) {
+	    return true;
+	}
+    }
+    *src = 0;
+    return false;
 }
 
 

@@ -8,6 +8,7 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_table_entries.h \
 		       quartz_table.h \
 		       quartz_termlist.h \
+		       quartz_positionlist.h \
 		       quartz_lexicon.h \
 		       quartz_record.h \
 		       quartz_attributes.h \
@@ -15,13 +16,13 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_log.h \
 		       btree.h
 #		       quartz_postlist.h \
-#		       quartz_positionlist.h \
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
 		       quartz_table_entries.cc \
 		       quartz_table.cc \
 		       quartz_termlist.cc \
+		       quartz_positionlist.cc \
 		       quartz_lexicon.cc \
 		       quartz_record.cc \
 		       quartz_attributes.cc \
@@ -29,7 +30,6 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_log.cc \
 		       btree.cc
 #		       quartz_postlist.cc \
-#		       quartz_positionlist.cc \
 
 
 noinst_LTLIBRARIES = libquartz.la
