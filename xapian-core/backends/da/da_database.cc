@@ -35,6 +35,7 @@ weight DAPostList::get_weight() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
+    Assert(ir_wt != NULL);
 
     // NB ranges from daread share the same wdf value
     return ir_wt->get_weight(postlist->wdf, 1.0);
@@ -95,6 +96,7 @@ weight DATermList::get_weight() const
 #if 0
     Assert(!at_end());
     Assert(currdoc != 0);
+    Assert(ir_wt != NULL);
 
     // NB ranges from daread share the same wdf value
     return ir_wt->get_weight(postlist->wdf, 1.0);

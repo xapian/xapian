@@ -118,6 +118,7 @@ SleepyPostList::~SleepyPostList() {
 
 weight SleepyPostList::get_weight() const {
     Assert(!at_end());
+    Assert(ir_wt != NULL);
     
     doccount wdf = 1;
 
