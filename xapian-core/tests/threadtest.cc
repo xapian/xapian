@@ -163,7 +163,7 @@ read_queries(std::string filename, std::vector<OmQuery> & queries)
 {
     FILE * fp = fopen (filename.c_str(), "r");
     TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << filename << "' - " <<
-		     strerror(errno))
+		     strerror(errno));
     while(!feof(fp)) {
 	std::vector<std::string> terms;
 	std::string thisterm;

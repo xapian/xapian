@@ -45,11 +45,11 @@ mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 {
     TEST_AND_EXPLAIN(mset1.items.size() >= first1 + count - 1,
 		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items." << endl);
+		     (first1 + count - 1) << " items.");
 
     TEST_AND_EXPLAIN(mset2.items.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items." << endl);
+		     (first2 + count - 1) << " items.");
 
     for (unsigned int i=0; i<count; ++i) {
 	if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
@@ -143,13 +143,13 @@ mset_expect_order_(const OmMSet &A, bool beginning,
 			 "Mset is of wrong size (" << A.items.size()
 			 << " < " << expect.size() << "):\n"
 			 << "Full mset was: " << A << endl
-			 << "Expected order to start: {" << expect << "}\n");
+			 << "Expected order to start: {" << expect << "}");
     } else {
 	TEST_AND_EXPLAIN(A.items.size() == expect.size(),
 			 "Mset is of wrong size (" << A.items.size()
 			 << " != " << expect.size() << "):\n"
 			 << "Full mset was: " << A << endl
-			 << "Expected order: {" << expect << "}\n");
+			 << "Expected order: {" << expect << "}");
     }
 
     for (size_t i = 0; i < expect.size(); i++) {
@@ -158,7 +158,7 @@ mset_expect_order_(const OmMSet &A, bool beginning,
 			 << "Item " << i << " was " << A.items[i].did
 			 << ", expected " << expect[i] << endl
 			 << "Full mset was: " << A << endl
-			 << "Expected: {" << expect << "}\n");
+			 << "Expected: {" << expect << "}");
     }
 }
 
@@ -178,4 +178,32 @@ mset_expect_order(const OmMSet &A,
 		  om_docid d9, om_docid d10, om_docid d11, om_docid d12)
 {
     mset_expect_order_(A, false, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
+}
+
+bool
+doubles_are_equal_enough(double a, double b)
+{
+    if (fabs(a - b) > 1E-5) return false;
+    return true;
+}
+
+void
+weights_are_equal_enough(double a, double b)
+{
+    TEST_AND_EXPLAIN(doubles_are_equal_enough(a, b),
+		     "Got weight of " << a
+		     << ", expected weight of " << b << endl);
+}
+
+void
+test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2)
+{
+    TEST_AND_EXPLAIN(mset1.items.size() == mset2.items.size(),
+		     "Msets not the same size - "
+		     << mset1.items.size() << " != " << mset2.items.size());
+    for (unsigned int i = 0; i < mset1.items.size(); i++) {
+	TEST_AND_EXPLAIN(mset1.items[i].did == mset2.items[i].did,
+			 "Msets have different contents -\n" <<
+			 mset1 << "\n !=\n" << mset2);
+    }
 }

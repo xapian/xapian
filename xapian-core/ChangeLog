@@ -1,3 +1,7 @@
+Fri Sep 01 13:22:33 BST 2000 Olly Betts
+
+	* apitest now uses test helpers in many more tests.
+ 
 Fri Sep  1 13:12:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change find invocations to be portable, in docs/Makefile.am and

@@ -44,10 +44,10 @@ class TestFailure {
 /** Macro used to build a TestFailure object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-//#define FAIL_TEST(a) { TestFailure testfail; testfail << a; throw testfail; }
-#define FAIL_TEST(a) { TestFailure testfail; \
-                       if (verbose) { std::cout << a;} \
-		       throw testfail; }
+//#define FAIL_TEST(a) do { TestFailure testfail; testfail << a; throw testfail; } while (0)
+#define FAIL_TEST(a) do { TestFailure testfail; \
+                          if (verbose) { std::cout << a; } \
+		          throw testfail; } while (0)
 
 /// Type for a test function.
 typedef bool (*test_func)();

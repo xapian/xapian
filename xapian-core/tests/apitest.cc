@@ -48,41 +48,6 @@ using std::ostream;
 #include "backendmanager.h"
 #include "utils.h"
 
-static bool floats_are_equal_enough(double a, double b)
-{
-    if (fabs(a - b) > 1E-5) return false;
-    return true;
-}
-
-static bool weights_are_equal_enough(double a, double b)
-{
-    if (floats_are_equal_enough(a, b)) return true;
-
-    if(verbose) {
-	cout << "Got weight of " << a << ", expected weight of " << b << endl;
-    }
-    return false;
-}
-
-#define TEST_MSET_ORDER_EQUAL(A, B) \
-	test_mset_order_equal((A), (B), STRINGIZE(A), STRINGIZE(B))
-static void
-test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2,
-		      const char *mset_name1, const char *mset_name2)
-{
-    TEST_AND_EXPLAIN(mset1.items.size() == mset2.items.size(),
-		     "Msets " << mset_name1 << " and " << mset_name2 <<
-		     "not the same size - " << mset1.items.size() <<
-		     " != " << mset2.items.size() << endl);
-    for (unsigned int i = 0; i < mset1.items.size(); i++) {
-	TEST_AND_EXPLAIN(mset1.items[i].did == mset2.items[i].did,
-			 "Msets " << mset_name1 << " and " << mset_name2 <<
-			 " haave different contents -\n" <<
-			 mset1 << "\n !=\n" << mset2 << endl);
-    }
-}
-
-
 OmDatabase
 make_dbgrp(OmDatabase * db1 = 0,
 	   OmDatabase * db2 = 0,
@@ -125,7 +90,6 @@ static bool test_alwaysfail()
 // tests that the backend doesn't return zero docids
 static bool test_zerodocid()
 {
-    bool success = true;
     // open the database (in this case a simple text file
     // we prepared earlier)
 
@@ -142,18 +106,13 @@ static bool test_zerodocid()
 
     // We've done the query, now check that the result is what
     // we expect (1 document, with non-zero docid)
-    if ((mymset.items.size() != 1) ||
-	(mymset.items[0].did == 0)) {
-	if (verbose) {
-	    if (mymset.items.size() != 1) {
-		cout << "Expected 1 item, got " << mymset.items.size() << endl;
-	    } else {
-		cout << "A query on a database returned a zero docid" << endl;
-	    }
-	}
-	success = false;
-    }
-    return success;
+    if (mymset.items.size() != 1)
+	FAIL_TEST("Expected 1 item, got " << mymset.items.size());
+
+    if (mymset.items[0].did == 0)
+	FAIL_TEST("A query on a database returned a zero docid");
+
+    return true;
 }
 
 OmDatabase get_simple_database()
@@ -188,7 +147,6 @@ static bool test_simplequery1()
 // tests for the right documents and weights returned with simple query
 static bool test_simplequery2()
 {
-    bool success = true;
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
 
     // We've done the query, now check that the result is what
@@ -196,39 +154,23 @@ static bool test_simplequery2()
     mset_expect_order(mymset, 2, 4);
 
     // Check the weights
-    if (!weights_are_equal_enough(mymset.items[0].wt, 0.661095) ||
-	!weights_are_equal_enough(mymset.items[1].wt, 0.56982)) {
-	success = false;
-    }
+    weights_are_equal_enough(mymset.items[0].wt, 0.661095);
+    weights_are_equal_enough(mymset.items[1].wt, 0.56982);
 
-    return success;
+    return true;
 }
 
 // tests for the right document count for another simple query
 static bool test_simplequery3()
 {
-    bool success = true;
     // The search is for "thi" rather than "this" because
     // the index will have stemmed versions of the terms.
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"));
 
-    // We've done the query, now check that the result is what
-    // we expect (documents 2 and 4)
-    if (mymset.items.size() != 6) {
-	if (verbose) {
-	    cout << "Got "
-		    << mymset.items.size()
-		    << " documents, expected 6" << endl
-		    << "Docids matched:";
-	    for (size_t i=0; i<mymset.items.size(); ++i) {
-		cout << " " << mymset.items[i].did;
-	    }
-	    cout << "." << endl;
-	}
-	success = false;
-    }
+    // Check that 6 documents were returned.
+    TEST_EQUAL(mymset.items.size(), 6);
 
-    return success;
+    return true;
 }
 
 // tests a query accross multiple databases
@@ -322,7 +264,6 @@ static bool test_multidb2()
 // doesn't make any difference to get_mset().
 static bool test_changequery1()
 {
-    bool success = true;
     // The search is for "thi" rather than "this" because
     // the index will have stemmed versions of the terms.
     // open the database (in this case a simple text file
@@ -340,22 +281,16 @@ static bool test_changequery1()
     OmMSet mset2 = enquire.get_mset(0, 10);
 
     // verify that both msets are identical
-    if (!(mset1 == mset2)) {
-	success = false;
-    }
-    return success;
+    TEST_EQUAL(mset1, mset2);
+    return true;
 }
 
 // tests that a null query throws an exception
 static bool test_nullquery1()
 {
-    bool success = false;
-    try {
-	OmMSet mymset = do_get_simple_query_mset(OmQuery());
-    } catch (const OmInvalidArgumentError &) {
-	success = true;
-    }
-    return success;
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmMSet mymset = do_get_simple_query_mset(OmQuery()));
+    return true;
 }
 
 // tests that when specifiying maxitems to get_mset, no more than
@@ -363,7 +298,8 @@ static bool test_nullquery1()
 static bool test_msetmaxitems1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
-    return (mymset.items.size() == 1);
+    TEST_EQUAL(mymset.items.size(), 1);
+    return true;
 }
 
 // tests that when specifiying maxitems to get_eset, no more than
@@ -374,69 +310,43 @@ static bool test_expandmaxitems1()
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
-
-    if (mymset.items.size() < 2) return false;
+    TEST(mymset.items.size() >= 2);
 
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
 
     OmESet myeset = enquire.get_eset(1, myrset);
+    TEST_EQUAL(myeset.items.size(), 1);
 
-    return (myeset.items.size() == 1);
+    return true;
 }
 
 // tests that a pure boolean query has all weights set to 1
 static bool test_boolquery1()
 {
-    bool success = true;
     OmQuery myboolquery(OmQuery(OmQuery::OP_FILTER,
 				OmQuery(),
 				OmQuery("thi")));
     OmMSet mymset = do_get_simple_query_mset(myboolquery);
 
-    if (mymset.items.size() == 0) {
-	success = false;
-	if (verbose) {
-	    cout << "bool query returned no items" << endl;
-	}
-    }
-    if (mymset.max_possible != 0) {
-        success = false;
-	if (verbose) {
-	    cout << "Max weight in mset is " << mymset.max_possible <<
-		    ", should be 0." << endl;
-	}
-    } else {
-        for (unsigned int i = 0; i<mymset.items.size(); ++i) {
-	   if (mymset.items[i].wt != 0) {
-	       success = false;
-	       if (verbose) {
-	           cout << "Item " << i
-		        << " in mset has weight "
-			<< mymset.items[i].wt
-			<< ", should be 0." << endl;
-	       }
-	       break;
-	   }
-	}
+    TEST_NOT_EQUAL(mymset.items.size(), 0);
+    TEST_EQUAL(mymset.max_possible, 0);
+    for (unsigned int i = 0; i<mymset.items.size(); ++i) {
+	TEST_EQUAL(mymset.items[i].wt, 0);
     }
 
-    return success;
+    return true;
 }
 
 // tests that get_mset() specifying "first" works as expected
 static bool test_msetfirst1()
 {
-    bool success = true;
-
     OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 6, 0);
     OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 3, 3);
 
-    if (!mset_range_is_same(mymset1, 3, mymset2, 0, 3)) {
-        success = false;
-    }
-    return success;
+    TEST(mset_range_is_same(mymset1, 3, mymset2, 0, 3));
+    return true;
 }
 
 // tests the converting-to-percent functions
@@ -1040,40 +950,26 @@ static bool test_getmterms1()
 // tests that building a query with boolean sub-queries throws an exception.
 static bool test_boolsubq1()
 {
-    bool success = false;
-
     OmQuery mybool("foo");
     mybool.set_bool(true);
 
-    try {
-	OmQuery query(OmQuery::OP_OR,
-		      OmQuery("bar"),
-		      mybool);
-    } catch (OmInvalidArgumentError &) {
-	success = true;
-    }
-
-    return success;
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery query(OmQuery::OP_OR, OmQuery("bar"), mybool));
+    return true;
 }
 
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
-    bool success = false;
-
-    try {
-	OmDatabase mydb(get_database("/this_does_not_exist"));
-	OmEnquire enquire(make_dbgrp(&mydb));
-
-	OmQuery myquery("cheese");
-	enquire.set_query(myquery);
-
-	OmMSet mymset = enquire.get_mset(0, 10);
-    } catch (OmOpeningError &) {
-	success = true;
-    }
-
-    return success;
+    TEST_EXCEPTION(OmOpeningError,
+		   OmDatabase mydb(get_database("/this_does_not_exist"));
+		   OmEnquire enquire(make_dbgrp(&mydb));
+		   
+		   OmQuery myquery("cheese");
+		   enquire.set_query(myquery);
+		   
+		   OmMSet mymset = enquire.get_mset(0, 10);)
+    return true;
 }
 
 // tests that query lengths are calculated correctly
@@ -1281,13 +1177,10 @@ static bool test_subqcollapse1()
 // test that the batch query functionality works
 static bool test_batchquery1()
 {
-    bool success = true;
-
     OmBatchEnquire::query_desc mydescs[3] = {
 	{ OmQuery("thi"), 0, 10, 0, 0, 0},
 	{ OmQuery(), 0, 10, 0, 0, 0},
 	{ OmQuery("word"), 0, 10, 0, 0, 0}};
-
 
     OmBatchEnquire benq(get_simple_database());
 
@@ -1297,55 +1190,18 @@ static bool test_batchquery1()
 
     OmBatchEnquire::mset_batch myresults = benq.get_msets();
 
-    if (myresults.size() != 3) {
-	success = false;
-	if (verbose) {
-	    cout << "Results size is "
-		 << myresults.size()
-		 << ", expected 3."
-		 << endl;
-	}
-    } else {
-	if (myresults[0].value() !=
-	    do_get_simple_query_mset(OmQuery("thi"))) {
-	    success = false;
-	    if (verbose) {
-		cout << "Query 1 returned different result!" << endl;
-	    }
-	}
- 	if (myresults[1].is_valid()) {
-	    success = false;
-	    if (verbose) {
-		cout << "Query 2 should not be valid" << endl;
-	    }
-	}
-	try {
-	    OmMSet unused = myresults[1].value();
-	    // should have thrown an exception by now.
-	    success = false;
-	    if (verbose) {
-		cout << "Query 2 mset didn't throw an exception" << endl;
-	    }
-	} catch (OmInvalidResultError &) {
-	}
+    TEST_EQUAL(myresults.size(), 3);
+    TEST_EQUAL(myresults[0].value(), do_get_simple_query_mset(OmQuery("thi")));
+    TEST(!myresults[1].is_valid());
+    TEST_EXCEPTION(OmInvalidResultError, OmMSet unused = myresults[1].value());
+    TEST_EQUAL(myresults[2].value(), do_get_simple_query_mset(OmQuery("word")));
 
-	if (myresults[2].value() !=
-	    do_get_simple_query_mset(OmQuery("word"))) {
-	    success = false;
-	    if (verbose) {
-		cout << "Query 3 returned different result!" << endl;
-	    }
-	}
-    }
-
-    return success;
+    return true;
 }
 
 // test that running a query twice returns the same results
 static bool test_repeatquery1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
@@ -1356,46 +1212,28 @@ static bool test_repeatquery1()
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset1, mymset2);
 
-    if (mymset1 != mymset2) {
-	success = false;
-
-	if (verbose) {
-	    cout << "MSets are different." << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 // test that searching for a term not in the database fails nicely
 static bool test_absentterm1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     OmQuery query("frink");
     query.set_bool(true);
     init_simple_enquire(enquire, query);
 
     OmMSet mymset = enquire.get_mset(0, 10);
-    if (mymset.items.size() != 0) {
-	success = false;
+    mset_expect_order(mymset);
 
-	if(verbose) {
-	    cout << "Expected no items in mset: found " <<
-		    mymset.items.size() << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 // as absentterm1, but setting query from a vector of terms
 static bool test_absentterm2()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     vector<om_termname> terms;
     terms.push_back("frink");
@@ -1404,16 +1242,9 @@ static bool test_absentterm2()
     enquire.set_query(query);
 
     OmMSet mymset = enquire.get_mset(0, 10);
-    if (mymset.items.size() != 0) {
-	success = false;
+    mset_expect_order(mymset);
 
-	if(verbose) {
-	    cout << "Expected no items in mset: found " <<
-		    mymset.items.size() << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 // test behaviour when creating a query from an empty vector
@@ -1696,7 +1527,7 @@ static bool test_maxorterms2()
 
     // query lengths differ so mset weights not the same (at present)
     // TEST_EQUAL(mymset1, mymset2);
-    TEST_MSET_ORDER_EQUAL(mymset1, mymset2);
+    test_mset_order_equal(mymset1, mymset2);
 
     return true;
 }
