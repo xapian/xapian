@@ -197,8 +197,9 @@ main(int argc, char *argv[])
 	enquire.set_query(query);
 	DebugMsg("Query is: " << query.get_description() << endl);
 
-	OmMatchOptions opts;
-	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
+	OmSettings opts;
+	if (collapse_key != -1)
+	    opts.set_value("match_collapse_key", collapse_key);
 
 	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
 	

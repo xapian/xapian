@@ -204,8 +204,8 @@ main2(int argc, char *argv[])
 
 	tmprset.add_document(doc);
 
-	OmExpandOptions eoptions;
-	eoptions.set_use_query_terms(false);
+	OmSettings eoptions;
+	eoptions.set_value("expand_use_query_terms", false);
 	ExpandDeciderOmega decider;
 	OmESet topterms = enquire->get_eset(6, tmprset, &eoptions, &decider);
 
