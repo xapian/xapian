@@ -23,11 +23,8 @@
 #include <algorithm>
 #include <vector>
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-
 #include <time.h>
 
 #include <unistd.h>
@@ -51,9 +48,9 @@ set<om_termname> new_terms;
 
 static OmMSet mset;
 
-// STATLINE -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
+// Note: fx \STATLINE -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
 
-// lookup in table (e.g. en -> English)
+// Note: FIXME: add ability to lookup in table (e.g. en -> English)
 
 static void ensure_match();
 
