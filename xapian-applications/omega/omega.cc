@@ -61,6 +61,8 @@ int threshold = 0;
 
 // Whether or not we want the rset
 bool want_rset = false;
+// Whether or not we process [ ] > < # stuff
+bool want_paging = false;
 // raw_search means ignore paging, use topdoc and rset
 bool raw_search = false; 
 
@@ -283,6 +285,11 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) {
 	v = val->second;
     }
+    if (raw_search) {
+	want_rset = true;
+	want_paging = true;
+    }
+
     int result = set_probabilistic(big_buf, v);
     switch (result) {
 	case BAD_QUERY:
@@ -312,39 +319,33 @@ main2(int argc, char *argv[])
 			    break;
 		    }
 		}
-		if (!*pv) {
-		    // No filters changed since last query
-
-		    // Work out which mset element is the first hit we want
-		    // to display
-		    val = cgi_params.find("TOPDOC");
-		    if (val != cgi_params.end())
-		       	topdoc = atol(val->second.c_str());
-
-		    // Handle next, previous, and page links
-		    if (cgi_params.find(">") != cgi_params.end()) {
-			topdoc += hits_per_page;
-		    } else if (cgi_params.find("<") != cgi_params.end()) {
-			if (topdoc >= hits_per_page) topdoc -= hits_per_page;
-		    } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-			    (val = cgi_params.find("#")) != cgi_params.end()) {
-			topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
-		    }
-
-		    // snap topdoc to page boundry
-		    topdoc = (topdoc / hits_per_page) * hits_per_page;
-		}
+		// No filters changed since last query
+		if (!*pv) want_paging = true;
 	    }
 	    want_rset = true;
 	    break;
     }
 
-    // if it's RAW_SEARCH
-    if (raw_search) {
+    if (want_paging) {
+
+	// Work out which mset element is the first hit we want
+	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end())
 	    topdoc = atol(val->second.c_str());
-	want_rset = true;
+
+	// Handle next, previous, and page links
+	if (cgi_params.find(">") != cgi_params.end()) {
+	    topdoc += hits_per_page;
+	} else if (cgi_params.find("<") != cgi_params.end()) {
+	    if (topdoc >= hits_per_page) topdoc -= hits_per_page;
+	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+		(val = cgi_params.find("#")) != cgi_params.end()) {
+	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	}
+
+	// snap topdoc to page boundry
+	topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
     if (want_rset) {
