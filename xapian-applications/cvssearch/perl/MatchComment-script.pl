@@ -93,7 +93,8 @@ if(param()){
     print "<body>\n";
 
     print "Code shown below is what appears in the most recent version of the file(s).<br>";
-    print "To see the original commit, click 'F'.<br>";
+    print "To see the original commit and how we propagated the code to the most recent version, click 'F'.<br>";
+    print "Click on a line of code to see it in context below.<br>";
     print "To view another file in this package, click the package link at the top.<br>";
      
 
