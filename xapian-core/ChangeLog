@@ -1,3 +1,7 @@
+Fri Jul 11 00:32:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added MacOS X 10.2 success report.
+
 Thu Jul 10 20:05:58 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/getopt.h: Fixed to work better with C++ compilers on
