@@ -116,6 +116,8 @@ class MultiTermList : public virtual TermList {
 		      const IRDatabase *termdb,
 		      const IRDatabase *rootdb);
     public:
+	termcount get_approx_size() const;
+
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -138,6 +140,12 @@ printf("Approximation factor for termfrequency: %f\n", termfreq_factor);
 inline MultiTermList::~MultiTermList()
 {
     delete tl;
+}
+
+inline termcount
+MultiTermList::get_approx_size() const
+{
+    return tl->get_approx_size();
 }
 
 inline termid MultiTermList::get_termid() const

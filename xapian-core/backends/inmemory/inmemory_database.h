@@ -133,12 +133,15 @@ class TextfileTermList : public virtual TermList {
     private:
 	vector<TextfilePosting>::const_iterator pos;
 	vector<TextfilePosting>::const_iterator end;
+	termcount terms;
 	bool started;
 
 	const TextfileDatabase * this_db;
 
 	TextfileTermList(const TextfileDatabase *, const TextfileDoc &);
     public:
+	termcount get_approx_size() const;
+
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -266,9 +269,15 @@ inline TextfileTermList::TextfileTermList(const TextfileDatabase *db,
 					  const TextfileDoc &doc)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
+	  terms(doc.terms.size()),
 	  started(false),
 	  this_db(db)
 {}
+
+inline termcount TextfileTermList::get_approx_size() const
+{
+    return terms;
+}
 
 inline termid TextfileTermList::get_termid() const
 {

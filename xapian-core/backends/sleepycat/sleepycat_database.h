@@ -78,12 +78,20 @@ class SleepyTermList : public virtual TermList {
 	SleepyTermList(IRDatabase *, termid *, termcount);
     public:
 	~SleepyTermList();
+	termcount get_approx_size() const;
+
 	termid get_termid() const;  // Current termid
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
 	TermList * next();
 	bool   at_end() const;
 };
+
+inline termcount
+SleepyTermList::get_approx_size() const
+{
+    return terms;
+}
 
 inline termid
 SleepyTermList::get_termid() const
