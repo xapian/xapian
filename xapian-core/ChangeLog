@@ -1,3 +1,10 @@
+Mon Jun 11 13:24:43 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* pthread support detected using an automake macro. Should
+	  be more portable as a result.
+
+	* We need GNU make: buildall now tries to find it.
+
 Mon Jun 11 12:07:00 2001  Hein Ragas <hragas@users.sourceforge.net>
 
         * Modified QuartzWritableDatabase::do_add_document and

@@ -5,6 +5,7 @@ omseek-discuss mailing list (see
 Omseek has been developed by many individuals who voluntarily contributed
 their code to the Omseek project. These people are:
 	Hein Ragas <hragas@users.sourceforge.net>
+	James Aylett <tartarus@users.sourceforge.net>
 
 The Omseek project makes use of the Sourceforge infrastructure. Visit the
 Omseek project webpage at http://sourceforge.net/projects/omseek/
@@ -22,6 +23,5 @@ Brightstation developers:
 Helpful comments, bug reports, small patches:
 	Hiranmay Ghosh (stemming algorithms)
 	Barry Wilkins (stemming algorithms)
-	James Aylett
 	Jonathan Fielder
 	Tom Mortimer

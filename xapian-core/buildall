@@ -4,6 +4,7 @@
 #
 # ----START-LICENCE----
 # Copyright 1999,2000,2001 BrightStation PLC
+# Copyright 2001 James Aylett
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -43,7 +44,7 @@ test -z "${PROGNAME}" && PROGNAME="[build script]"
 #######################
 
 # Get the source directory, ie the directory
-# Don't use dirname incase we havn't got GNU tools
+# Don't use dirname in case we haven't got GNU tools
 SRCDIR="`echo $0 | sed -e 's#/[^/]*$##'`"
 # Be paranoid about not getting SRCDIR
 test -z "$SRCDIR" && SRCDIR='.'
@@ -189,7 +190,8 @@ m4_files="cme_find_hstrerror.m4 \
 	  cme_find_socketpair.m4 \
 	  rjb_find_gethostent.m4 \
 	  rjb_find_stlport.m4 \
-	  definedir.m4"
+	  definedir.m4 \
+	  acx_pthread.m4"
 
 display "${PROGNAME}: generating acinclude.m4"
 cd autoconf
@@ -254,15 +256,36 @@ fi
 
 # Now run the make if desired
 if [ -r Makefile ] ; then
+
+  if [ "x${MAKE}" = "x" ]; then
+    if
+      # For GNU/* systems
+      /usr/bin/make --version 2>&1 | grep 'GNU Make' > /dev/null ; then
+        MAKE=/usr/bin/make
+    elif
+      # Solaris and similar
+      /opt/sfw/bin/gmake --version 2>&1 | grep 'GNU Make' > /dev/null ; then
+        MAKE=/opt/sfw/bin/gmake
+    elif
+      # FreeBSD and similar
+      /usr/local/bin/gmake --version 2>&1 | grep 'GNU Make' > /dev/null ; then
+        MAKE=/usr/local/bin/gmake
+    else
+      display "MAKE not in environment, and couldn't find GNU make."
+      display "Giving up."
+      exit 0;
+    fi
+  fi
+
   if [ ${RUNMAKE} -eq 1 ] ; then
-    run make
+    run ${MAKE}
     display
     display "${PROGNAME}: successfully built ${PACKAGE}"
   else
     if [ ${CREATED_MAKEFILE} -eq 1 ] ; then
-      display
+      display ""
       display "${PROGNAME}: successfully configured ${PACKAGE}"
-      display "Run \"make\" to compile"
+      display "Run '${MAKE}' to compile"
     fi
   fi
 fi

@@ -317,7 +317,12 @@ esac], [use_quiet=false])
 
 dnl Check whether we have pthreads, but only if we want it
 if test x$use_pthread = xtrue; then
-  AC_CHECK_LIB(pthread, pthread_create)
+  ACX_PTHREAD(HAVE_PTHREAD="yes")
+  if test x$HAVE_PTHREAD != x; then
+    LIBS="$PTHREAD_LIBS $LIBS"
+    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+    CC="$PTHREAD_CC"
+  fi
 fi
 
 dnl Shut things up if we want to be quiet
@@ -328,7 +333,7 @@ fi
 dnl Turn off compilation of anything that we don't have the requirements for
 
 
-if test x$HAVE_LIBPTHREAD = xno; then
+if test x$HAVE_PTHREAD = x; then
   if test "x$use_pthread" = "xtrue"; then
     AC_MSG_WARN(pthread not available: not building support);
   fi
