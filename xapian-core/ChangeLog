@@ -1,3 +1,7 @@
+Sat Dec 07 16:39:01 GMT 2002  Olly Betts <olly@survex.com>
+
+	* HACKING: OM_DEBUG_XXX -> XAPIAN_DEBUG_YYY.
+
 Sat Dec 07 04:48:37 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: max_item_size wasn't being set due to

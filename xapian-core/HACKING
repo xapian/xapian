@@ -39,13 +39,11 @@ to such a stage that we need to be able to turn it on and off easily: and
 so I've set up a system for controlling the debugging output by means of
 environment variables.  You can:
 
- o) set OM_DEBUG_FILE to be the path to a file that you would like debugging
-    output to be stored in (to override the default of stderr).
+ * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
+   output to be stored in (to override the default of stderr).
 
- o) set OM_DEBUG_TYPES to a bitmap to select the types of debugging message
-    you would like to display.  Currently, all messages are selected by
-    setting bit 0 (ie, OM_DEBUG_TYPES=1), but they will be differentiated
-    into separate classes in future.
+ * set XAPIAN_DEBUG_TYPES to a bitmap to select the types of debugging message
+   you would like to display.
 
 Of course, if you didn't compile with --enable-debug=full, these environment
 variables will have no effect.
