@@ -77,6 +77,16 @@ Priority | Area            | Task
  Medium  | LocalMatch      | Test performance when nth_element is run more
          |                 | or less frequently, to see what is best.
 ---------+-----------------+--------------------------------------------------
+ Medium  | General         | Check that it is safe for an exception to be
+         |                 | thrown and caught within a destructor, when that
+	 |                 | destructor is being called due to an exception
+	 |                 | unwinding the stack.  eg, a database is
+	 |                 | destroyed due to an exception, database's
+	 |                 | destructor calls internal_end_session() which
+	 |                 | throws an exception (which is caught and handled
+	 |                 | by the destructor): is this safe - two exceptions
+	 |                 | exist simultaneously.
+---------+-----------------+--------------------------------------------------
  Medium  | Exceptions      | Throw an OmFeatureUnavailableError() exception
          |                 | whenever a task can't be performed because
 	 |                 | something isn't compiled in.
