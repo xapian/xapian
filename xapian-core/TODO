@@ -160,7 +160,7 @@ Priority | Area            | Task
  Low     |RPositional      | Use within query frequency and query length
 	 |                 | information in matcher.
 ---------+-----------------+--------------------------------------------------
- Low     |cExamples        | Fix the ferretfx example
+ Low     |OExamples        | Rework the ferretfx example to be more useful.
 ---------+-----------------+--------------------------------------------------
  Low     |cGeneral         | Audit for exception safety.
 ---------+-----------------+--------------------------------------------------
