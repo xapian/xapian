@@ -163,11 +163,7 @@ QuartzDiskTable::open()
 
     if (readonly) {
 	btree_for_reading = Btree_open_to_read(path.c_str());
-	if (btree_for_reading == 0) {
-	    // FIXME: explain why
-	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
-	}
-	if (btree_for_reading->error) {
+	if (btree_for_reading == 0 || btree_for_reading->error) {
 	    // FIXME: explain why
 	    close();
 	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
@@ -192,17 +188,18 @@ QuartzDiskTable::open()
     btree_for_writing = Btree_open_to_write(path.c_str());
     // FIXME: check for errors
 
-    if (btree_for_writing == 0) {
+    if (btree_for_writing == 0 || btree_for_writing->error) {
 	// FIXME: explain why
-	throw OmOpeningError("Cannot open table `"+path+"' for writing.");
+	close();
+	throw OmOpeningError("Cannot open table `"+path+"' for reading.");
     }
 
     btree_for_reading = Btree_open_to_read_revision(path.c_str(),
 				btree_for_writing->revision_number);
     // FIXME: check for errors
-    if (btree_for_reading == 0) {
-	close();
+    if (btree_for_reading == 0 || btree_for_reading->error) {
 	// FIXME: explain why
+	close();
 	throw OmOpeningError("Cannot open table `" + path +
 			     "' for reading and writing.");
     }
