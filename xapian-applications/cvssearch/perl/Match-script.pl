@@ -261,7 +261,7 @@ if(param()){
                         $ch = toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
                         print "<a href=#$i ";
 						if($revMAPmatch{$currev}){
-                            print "onclick=\"return c('$ch', event, $i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
+                            print "onclick=\"return c('$ch', event, $i, \'$currev\');\" onmouseover=s('$ch',event); onmouseout=h();>";
                             if ($color) {
                                 # need to convert digits to alphabets since netscape doesn't understand digit id
                                 $ch1 = &toChar($currev); 
