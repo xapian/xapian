@@ -96,6 +96,8 @@ Priority | Area            | Task
          |                 | Check behaviour when halfway through list and an
 	 |                 | item is added.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Sleepycat       | Implement termlists, keys, and collection stats.
+---------+-----------------+--------------------------------------------------
  Medium  | MultiMatch      | Check that MultiMatch::get_max_weight()
          |                 | returns correct value in case where some of the
 	 |                 | query terms are not present in some of the sub
@@ -127,8 +129,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     |RPositional      | Use within query frequency and query length
 	 |                 | information in matcher.
----------+-----------------+--------------------------------------------------
- Low     | Backends        | Make the sleepycat database function (at all).
 ---------+-----------------+--------------------------------------------------
  Low     |cExamples        | Fix the ferretfx example
 ---------+-----------------+--------------------------------------------------
