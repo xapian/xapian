@@ -203,15 +203,14 @@ sys_write_string(int h, const string &s)
 
 int sys_flush(int h) {
 #if defined HAVE_FDATASYNC
-    fdatasync(h);
+    return (fdatasync(h) != -1);
 #elif defined HAVE_FSYNC
-    fsync(h);
+    return (fsync(h) != -1);
 #elif defined __WIN32__
-    _commit(h);
+    return (_commit(h) != -1);
 #else
 #error "Have neither fsync() nor fdatasync() nor _commit() - cannot sync."
 #endif
-    return true;
 }
 
 static void sys_unlink(const string &filename)
