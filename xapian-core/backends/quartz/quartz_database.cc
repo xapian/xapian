@@ -409,7 +409,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, wdf)));
+		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
 		} else {
 		    ++i->second.first;
 		    i->second.second += wdf;
@@ -524,7 +524,7 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 	    i = freq_deltas.find(tname);
 	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -wdf)));
+		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
 	    } else {
 		--i->second.first;
 		i->second.second -= wdf;
@@ -546,7 +546,7 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 		    k->second.first = 'D';
 		}
 	    } else {
-		j->second.insert(make_pair(did, make_pair('D', 0)));
+		j->second.insert(make_pair(did, make_pair('D', 0u)));
 	    }
 
 	    termlist.next();
@@ -598,7 +598,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 	    i = freq_deltas.find(tname);
 	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -wdf)));
+		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
 	    } else {
 		--i->second.first;
 		i->second.second -= wdf;
@@ -620,7 +620,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 		    k->second.first = 'D';
 		}
 	    } else {
-		j->second.insert(make_pair(did, make_pair('D', 0)));
+		j->second.insert(make_pair(did, make_pair('D', 0u)));
 	    }
 
 	    termlist.next();
@@ -683,7 +683,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {
-		    freq_deltas.insert(make_pair(tname, make_pair(1, wdf)));
+		    freq_deltas.insert(make_pair(tname, make_pair(1, termcount_diff(wdf))));
 		} else {
 		    ++i->second.first;
 		    i->second.second += wdf;
