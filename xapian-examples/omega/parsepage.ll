@@ -285,48 +285,36 @@ pretty_printf(const char *p, int *a)
     if ((op == AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
 }
 \\TOPTERMS {
+    // Olly's expand on query page idea
     if (msize) {
-	/* Olly's expand on query page idea */
-	// int c = 0;
-	// int rel_hack = 0;
-#if 1 // FIXME
-	cout << "Sorry, we've not implemented relevance feedback query expansion yet\n";
-#else
-	/* see if we have any docs marked as relevant */
-	Give_Muscat( "show docs style w r0" );
-	if (!Getfrom_Muscat(&z) && z.p[0] != 'I') {
-	    Ignore_Muscat();
-	    Give_Muscat( "rels m0-4" );
-	    rel_hack = 1;
+	Expand topterms(&database);
+
+	if (rset->get_rsize()) {
+	    topterms.expand(rset);
+	} else {
+	    // invent an rset
+	    RSet tmp(&database);
+	    
+	    for (int m = min(4, int(msize) - 1); m >= 0; m--)
+		tmp.add_document(matcher->mset[m].id);
+		
+	    topterms.expand(&tmp);
 	}
-	Ignore_Muscat();
-	Give_Muscat("expand 20");
-	/* Give_Muscatf("expand %ld", expand_size); */
-	while (!Getfrom_Muscat (&z)) {
-	    check_error(&z);
-	    if (z.p[0] == 'I') {
-		int width = z.length - 2;
-		/* only suggest 4 or more letter words for now to
-		 * avoid italian problems !HACK! */
-		if (width > 3) {
-		    cout << "<INPUT TYPE=checkbox NAME=X "
-			"VALUE=\"" << z.p+2
-			<< ".\" onClick=\"C(this)\">&nbsp;"
-			<< z.p + 2 << ". ";
-		    c++;
-		}
-	    }
+
+	int c = 0;
+	vector<ESetItem>::const_iterator i;
+	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	    string term = database.term_id_to_name(i->tid);
+	    // only suggest 4 or more letter words for now to
+	    // avoid italian problems FIXME: fix this at index time
+	    if (term.length() <= 3) continue;
+	    cout << "<INPUT TYPE=checkbox NAME=X VALUE=\"" << term
+		 << ".\" onClick=\"C(this)\">&nbsp;" << term << ". ";
+	    if (++c >= 20) break;
 	}
 	if (c)
 	    cout << "<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1>"
 	            "</NOSCRIPT>\n";
-	
-	/* If we faked a relevance set, clear it again */
-	if (rel_hack) {
-	    Give_Muscat("delrels r0-*");
-	    Ignore_Muscat();
-	}
-#endif
     }
 }
 \\DOMATCH {

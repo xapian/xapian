@@ -8,9 +8,10 @@
 #include "stem.h"
 #include "da_database.h"
 #include "rset.h"
+#include "expand.h"
 
 #include "config.h"
-#define FX_VERSION_STRING "1.4 24/02/1998 (" PACKAGE "-" VERSION ")"
+#define FX_VERSION_STRING "1.4+ (" PACKAGE "-" VERSION ")"
 
 extern FILE *page_fopen(const string &page);
 
