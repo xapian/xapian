@@ -18,18 +18,24 @@ OrPostList::next(weight w_min)
 	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "OR -> AND\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		ret = new AndPostList(l, r, root, true);
 		ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
 	    } else {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "OR -> AND MAYBE (1)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		ret = new AndMaybePostList(r, l, root, rhead, lhead);
 		ret2 = ret->next(w_min);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "OR -> AND MAYBE (2)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
 	    ret2 = ret->next(w_min);
 	}
@@ -81,18 +87,24 @@ OrPostList::skip_to(docid id, weight w_min)
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "OR -> AND (in skip_to)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		ret = new AndPostList(l, r, root, true);
 		id = max(id, max(lhead, rhead));
 	    } else {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "OR -> AND MAYBE (in skip_to) (1)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		ret = new AndMaybePostList(r, l, root, rhead, lhead);
 		id = max(id, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "OR -> AND MAYBE (in skip_to) (2)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
 	    id = max(id, lhead);
 	}

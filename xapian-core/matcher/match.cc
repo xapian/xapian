@@ -214,9 +214,13 @@ Match::match()
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
 	    w_max = merger->recalc_maxweight();
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "max possible doc weight = " << w_max << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	    if (w_max < w_min) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "*** TERMINATING EARLY (1)" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 		break;
 	    }
 	}    
@@ -226,15 +230,21 @@ Match::match()
 	    delete merger;
 	    merger = ret;
 
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "*** REPLACING ROOT\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
 	    w_max = merger->get_maxweight();
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "max possible doc weight = " << w_max << endl;
+#endif /* MUS_DEBUG_VERBOSE */
             AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < w_min) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "*** TERMINATING EARLY (2)" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 		break;
 	    }
 	}
@@ -253,33 +263,45 @@ Match::match()
 	    // nth_element and smaller size for better w_min optimisations
 	    if (mset.size() == max_msize * 2) {
 		// find last element we care about
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "finding nth\n";		
+#endif /* MUS_DEBUG_VERBOSE */
 		nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
 		// erase elements which don't make the grade
 	        mset.erase(mset.begin() + max_msize, mset.end());
 	        w_min = mset.back().wt;
+#ifdef MUS_DEBUG_VERBOSE
 	        cout << "mset size = " << mset.size() << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	    }
 	}
     }
 
     if (mset.size() > max_msize) {
 	// find last element we care about
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "finding nth\n";		
+#endif /* MUS_DEBUG_VERBOSE */
 	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
 	// erase elements which don't make the grade
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
+#ifdef MUS_DEBUG_VERBOSE
     cout << "sorting\n";
+#endif /* MUS_DEBUG_VERBOSE */
 
     // Need a stable sort, but this is provided by comparison operator
     sort(mset.begin(), mset.end(), MSetCmp());
 
     msize = mset.size();
 
+#ifdef MUS_DEBUG_VERBOSE
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     if (msize) {
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "max weight in mset = " << mset[0].wt
+#endif /* MUS_DEBUG_VERBOSE */
 	     << ", min weight in mset = " << mset[msize - 1].wt << endl;
     }
     delete merger;

@@ -45,18 +45,24 @@ XorPostList::next(weight w_min)
 	// we can replace the XOR with another operator (or run dry)
 	PostList *ret;
 	if (w_min > lmax) {
-	    if (w_min > rmax) {		
+	    if (w_min > rmax) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "XOR drops below w_min\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		// neither side is weighty enough, so run dry
 		lhead = 0;
 		return NULL;
 	    }
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "XOR -> AND NOT (1)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    ret = new AndNotPostList(r, l, root);
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "XOR -> AND NOT (2)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    ret = new AndNotPostList(l, r, root);
 	}
 		
@@ -109,12 +115,16 @@ XorPostList::skip_to(docid id, weight w_min)
 	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "XOR drops below w_min\n";
+#endif /* MUS_DEBUG_VERBOSE */
 		// neither side is weighty enough, so run dry
 		lhead = 0;
 		return NULL;
 	    }
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "XOR -> AND NOT (in skip_to) (1)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    AndNotPostList *ret3 = new AndNotPostList(r, l, root);
 	    id = max(id, rhead);
 	    ret2 = ret3->sync_and_skip_to(id, w_min, rhead, lhead);
@@ -122,7 +132,9 @@ XorPostList::skip_to(docid id, weight w_min)
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "XOR -> AND NOT (in skip_to) (2)\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    AndNotPostList *ret3 = new AndNotPostList(l, r, root);
 	    id = max(id, lhead);
 	    ret2 = ret3->sync_and_skip_to(id, w_min, lhead, rhead);

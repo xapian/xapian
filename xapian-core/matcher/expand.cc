@@ -5,6 +5,7 @@
 #include "rset.h"
 #include "database.h"
 #include "ortermlist.h"
+#include "omassert.h"
 
 #include <algorithm>
 
@@ -48,7 +49,9 @@ Expand::build_tree(const RSet *rset)
     }
 
     while (true) {
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "Expand: found termlist" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	TermList *p = pq.top();
 	pq.pop();
 	if (pq.empty()) {
@@ -81,9 +84,13 @@ Expand::expand(const RSet *rset)
 #if 0
 	    recalculate_maxweight = false;
 	    w_max = merger->recalc_maxweight();
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "max possible doc weight = " << w_max << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	    if (w_max < w_min) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "*** TERMINATING EARLY (1)" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 		break;
 	    }
 #endif
@@ -95,16 +102,22 @@ Expand::expand(const RSet *rset)
 	    delete merger;
 	    merger = ret;
 
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "*** REPLACING ROOT\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
 #if 0
 	    w_max = merger->get_maxweight();
+#ifdef MUS_DEBUG_VERBOSE
 	    cout << "max possible doc weight = " << w_max << endl;
+#endif /* MUS_DEBUG_VERBOSE */
             AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < w_min) {
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "*** TERMINATING EARLY (2)" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 		break;
 	    }
 #endif
@@ -124,7 +137,9 @@ Expand::expand(const RSet *rset)
 	    // nth_element and smaller size for better w_min optimisations
 	    if (eset.size() == max_esize * 2) {
 		// find last element we care about
+#ifdef MUS_DEBUG_VERBOSE
 		cout << "finding nth\n";		
+#endif /* MUS_DEBUG_VERBOSE */
 		nth_element(eset.begin(),
 			    eset.begin() + max_esize,
 			    eset.end(),
@@ -132,26 +147,36 @@ Expand::expand(const RSet *rset)
 		// erase elements which don't make the grade
 	        eset.erase(eset.begin() + max_esize, eset.end());
 	        w_min = eset.back().wt;
+#ifdef MUS_DEBUG_VERBOSE
 	        cout << "eset size = " << eset.size() << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	    }
 	}
     }
 
     if (eset.size() > max_esize) {
 	// find last element we care about
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "finding nth\n";		
+#endif /* MUS_DEBUG_VERBOSE */
 	nth_element(eset.begin(), eset.begin() + max_esize, eset.end(), ESetCmp());
 	// erase elements which don't make the grade
 	eset.erase(eset.begin() + max_esize, eset.end());
     }
+#ifdef MUS_DEBUG_VERBOSE
     cout << "sorting\n";
+#endif /* MUS_DEBUG_VERBOSE */
 
     // Need a stable sort, but this is provided by comparison operator
     sort(eset.begin(), eset.end(), ESetCmp());
 
+#ifdef MUS_DEBUG_VERBOSE
     cout << "esize = " << eset.size() << ", etotal = " << etotal << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     if (eset.size()) {
+#ifdef MUS_DEBUG_VERBOSE
 	cout << "max weight in eset = " << eset.front().wt
+#endif /* MUS_DEBUG_VERBOSE */
 	     << ", min weight in eset = " << eset.back().wt << endl;
     }
     delete merger;
