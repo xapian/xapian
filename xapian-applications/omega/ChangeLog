@@ -1,3 +1,8 @@
+Sat Feb 14 00:32:06 GMT 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: If the probabilistic query was bad, don't try to run the
+	  match.
+
 Sat Feb 14 00:11:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.txt: Note that START and END should be in the format

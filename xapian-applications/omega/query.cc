@@ -297,7 +297,7 @@ run_query()
 	}
     }
 
-    if (enquire) {
+    if (enquire && error_msg.empty()) {
 	enquire->set_cutoff(threshold);
         // match_min_hits will be moved into matcher soon
 	// enquire->set_min_hits(min_hits); or similar...
@@ -1907,7 +1907,6 @@ ensure_query_parsed()
     querytype result = set_probabilistic(v);
     switch (result) {
 	case BAD_QUERY:
-	    // Hmm, how to handle this...
 	    break;
 	case NEW_QUERY:
 	    break;
