@@ -1,3 +1,8 @@
+Tue Dec 21 13:03:06 GMT 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Updated to reflect extra jobs which cvs-tag-release now
+	  does.
+
 Mon Dec 20 16:25:21 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: quartzcompact now uses getopt, so need to link

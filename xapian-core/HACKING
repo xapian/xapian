@@ -555,15 +555,14 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
 
-* Copy the tarballs over - take them from the autobuilder to ensure consistent
-  bootstrapping: http://www.oligarchy.co.uk/xapian/HEAD/
-
-* Delete snapshot tarballs with the old version number.
-
 * cvs tag the source trees for the new revision - use the cvs-tag-release
   script, running it with the new version number, for example:
 
-  xapian-maintainer-tools/cvs-tag-release 0.8.1
+  xapian-maintainer-tools/cvs-tag-release 0.8.4
+
+  This script also creates a directory for the new version, copies the tarballs
+  into it from the autobuilder (http://www.oligarchy.co.uk/xapian/HEAD/) and
+  deletes any snapshot tarballs for old version numbers.
 
 * Update the website - download.php and the version near the top of the website
   building script .scripts/update_website.sh.  Both of these are in CVS module
