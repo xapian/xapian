@@ -449,6 +449,18 @@ if test yes = "$GCC" ; then
   fi
 fi
 
+case "$CXX" in
+  dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
+  dnl   for (int i = 1; i < n; ++i) { ... }
+  dnl (note the latest is controlled by: -ansi_for_scope,on if we need
+  dnl drop -AA)
+  dnl Note this means that user code must be built with -AA (which is
+  dnl the default on Itanium, but not on PARISC:
+  dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
+  dnl )
+  aCC|*/aCC) AM_CXXFLAGS="$AM_CXXFLAGS -AA" ;;
+esac
+
 dnl modify flags for building with stlport
 STLPORT_CXXFLAGS=
 if test yes = "$use_stlport"; then

@@ -1,3 +1,7 @@
+Sun Oct 31 15:34:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Turn on -AA when compiling with HP's aCC.
+
 Sun Oct 31 15:10:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/testutils.cc: Fixed mset_range_is_same() and
