@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/include
 SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
 
-EXTRA_DIST = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php \
+EXTRA_DIST = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian/xapian.php \
  xapian/Makefile.in xapian/config.m4 
 
 # This target is not needed for make dist
@@ -12,16 +12,12 @@ xapian: xapian/configure
 	./configure &&\
 	make
 
-xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php
+xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xapian/php_xapian.h xapian/xapian.php
 	for file in $? ; do \
 	  case "$$file" in xapian/*) ;; *) cp $$file xapian ;; esac ; \
 	done
 	cd xapian && phpize
 
-xapian/xapian_wrap.cpp xapian/makefile.in xapian/config.m4 xapian/php_xapian.h xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
+xapian/xapian_wrap.cpp xapian/makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
 	test -d xapian || mkdir xapian
-	swig $(SWIG_INCLUDES) -c++ -php4 -phpfull -withlibs libxapian.so -withincs om/om.h -shadow -o xapian/xapian_wrap.cpp ../swig/xapian.i
-	mv config.m4 xapian/config.m4
-	: # FIXME: next line is broken if srcdir == builddir...
-	mv Makefile.in xapian/Makefile.in
-	rm CREDITS
+	swig $(SWIG_INCLUDES) -c++ -php4 -phpfull -withlibs "xapian omqueryparser" -withincs om/om.h -shadow -o xapian/xapian_wrap.cpp ../swig/xapian.i
