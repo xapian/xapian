@@ -1,3 +1,11 @@
+Fri Jun 06 00:14:13 BST 2003  Richard Boulton <richard@tartarus.org>
+
+	* omindex.cc: Clean up processing of HTML documents:
+	  - Ignore the contents of <script> and <style> tags in HTML.
+	  - Strip initial whitespace in each tag in an HTML document.
+	  - Try not to split words in half when truncating title and
+	    summary.
+
 Tue Jun 03 11:15:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* templates/query: Create log entry in query.log.

@@ -80,19 +80,31 @@ lowercase_term(om_termname &term)
 
 class MyHtmlParser : public HtmlParser {
     public:
+	bool in_script_tag;
+	bool in_style_tag;
     	string title, sample, keywords, dump;
 	bool indexing_allowed;
 	void process_text(const string &text);
 	void opening_tag(const string &tag, const map<string,string> &p);
 	void closing_tag(const string &tag);
-	MyHtmlParser() : indexing_allowed(true) { }
+	MyHtmlParser() :
+		in_script_tag(false),
+		in_style_tag(false),
+		indexing_allowed(true) { }
 };
 
 void
 MyHtmlParser::process_text(const string &text)
 {
     // some tags are meaningful mid-word so this is simplistic at best...
-    dump += text + " ";
+
+    if (!in_script_tag && !in_style_tag) {
+	string::size_type firstchar = text.find_first_not_of(" \t\n\r");
+	if (firstchar != string::npos) {
+	    dump += text.substr(firstchar);
+	    dump += " ";
+	}
+    }
 }
 
 void
@@ -134,6 +146,10 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 		}
 	    }
 	}
+    } else if (tag == "script") {
+	in_script_tag = true;
+    } else if (tag == "style") {
+	in_style_tag = true;
     }
 }
 
@@ -147,6 +163,10 @@ MyHtmlParser::closing_tag(const string &text)
 	size_t i = 0;    
 	while ((i = title.find("\n", i)) != string::npos) title[i] = ' ';
 	dump = "";
+    } else if (x == "script") {
+	in_script_tag = false;
+    } else if (x == "style") {
+	in_style_tag = false;
     }
 }
 
@@ -218,7 +238,39 @@ moreterm:
 	}
     }
     return pos;
-}                           
+}
+
+/* Truncate a string to a given maxlength, avoiding cutting off midword
+ * if reasonably possible. */
+string
+truncate_to_word(string & input, string::size_type maxlen)
+{
+    string output;
+    if (input.length() <= maxlen) {
+	output = input;
+    } else {
+	output = input.substr(0, maxlen);
+
+	string::size_type space = output.find_last_of(" \t\n\r");
+	space = 0;
+	if (space != string::npos && space > maxlen / 2) {
+	    string::size_type nonspace;
+	    nonspace = output.find_last_not_of(" \t\n\r", space);
+	    if (nonspace != string::npos) output.erase(nonspace);
+	}
+
+	if (output.length() == maxlen && !isspace(input[maxlen])) {
+	    output += "...";
+	} else {
+	    output += " ...";
+	}
+    }
+
+    // replace newlines with spaces
+    size_t i = 0;    
+    while ((i = output.find('\n', i)) != string::npos) output[i] = ' ';
+    return output;
+}
 
 static void
 index_file(const string &url, const string &mimetype, time_t last_mod)
@@ -329,20 +381,17 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 
     // Produce a sample
     if (sample.empty()) {
-	sample = dump.substr(0, 300);
+	sample = truncate_to_word(dump, 300);
     } else {
-	sample = sample.substr(0, 300);
+	sample = truncate_to_word(sample, 300);
     }
-    size_t space = sample.find_last_of(" \t\n");
-    if (space != string::npos) sample.erase(space);
-    // replace newlines with spaces
-    size_t i = 0;    
-    while ((i = sample.find('\n', i)) != string::npos) sample[i] = ' ';
 
     // Put the data in the document
     OmDocument newdocument;
     string record = "url=" + baseurl + url + "\nsample=" + sample;
-    if (!title.empty()) record = record + "\ncaption=" + title;
+    if (!title.empty()) {
+	record = record + "\ncaption=" + truncate_to_word(title, 100);
+    }
     record = record + "\ntype=" + mimetype;
     newdocument.set_data(record);
 
