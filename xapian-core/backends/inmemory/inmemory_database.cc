@@ -124,9 +124,14 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     // Index document
     termname word = "thou";
     docid did = make_doc();
-    termcount position = 5;
+    termcount position = 1;
 
-    make_posting(make_term(word), did, position);
+    make_posting(make_term(word), did, position++);
+    make_posting(make_term("things"), did, position++);
+    make_posting(make_term(word), did, position++);
+    did = make_doc();
+    position = 1;
+    make_posting(make_term(word), did, position++);
 
     opened = true;
 }
@@ -136,8 +141,8 @@ void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
     posting.tid = tid;
     posting.did = did;
     posting.positions.push_back(position);
-    termlists[tid - 1].add_posting(posting);
-    postlists[did - 1].add_posting(posting);
+    termlists[did - 1].add_posting(posting);
+    postlists[tid - 1].add_posting(posting);
 }
 
 void TextfileDatabase::close() {
@@ -147,17 +152,18 @@ void TextfileDatabase::close() {
 DBPostList *
 TextfileDatabase::open_post_list(termid tid) const {
     Assert(opened);
+    Assert(tid > 0 && tid <= postlists.size());
 
-    throw OmError("TextfileDatabase.open_term_list() not yet implemented");
-    return NULL;
+    throw OmError("TextfileDatabase.open_post_list() not yet implemented");
+    //return new TextfilePostList(postlists[tid - 1]);
 }
 
 TermList *
 TextfileDatabase::open_term_list(docid did) const {
     Assert(opened);
+    Assert(did > 0 && did <= termlists.size());
 
-    throw OmError("TextfileDatabase.open_term_list() not yet implemented");
-    return NULL;
+    return new TextfileTermList(termlists[did - 1]);
 }
 
 IRDocument *
@@ -194,7 +200,7 @@ TextfileDatabase::make_term(const termname &tname)
 	tid = termvec.size() + 1;
 	termvec.push_back(tname);
 	termidmap[tname] = tid;
-	termlists.push_back(TextfileTerm());
+	postlists.push_back(TextfileTerm());
     } else {
 	tid = (*p).second;
     }
@@ -204,8 +210,8 @@ TextfileDatabase::make_term(const termname &tname)
 docid
 TextfileDatabase::make_doc()
 {
-    postlists.push_back(TextfileDoc());
-    return postlists.size();
+    termlists.push_back(TextfileDoc());
+    return termlists.size();
 }
 
 termid
