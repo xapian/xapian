@@ -108,6 +108,16 @@ QuartzRecordManager::add_record(QuartzBufferedTable & table,
 }
 
 void
+QuartzRecordManager::replace_record(QuartzBufferedTable & table,
+				    const OmData & data,
+				    om_docid did)
+{
+    QuartzDbKey key(quartz_docid_to_key(did));
+    QuartzDbTag * tag = table.get_or_make_tag(key);
+    tag->value = data.value;
+}
+
+void
 QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t old_doclen,
 					 quartz_doclen_t new_doclen)

@@ -75,6 +75,14 @@ class QuartzAttributesManager {
 	static void get_all_attributes(const QuartzTable & table,
 				       std::map<om_keyno, OmKey> & attributes,
 				       om_docid did);
+
+	/** Remove all attributes.
+	 *
+	 *  @param did	The document id for which to remove the attributes.
+	 *
+	 */
+	static void delete_all_attributes(QuartzBufferedTable &table,
+					  om_docid did);
 };
 
 #endif /* OM_HGUARD_QUARTZ_ATTRIBUTES_H */

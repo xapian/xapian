@@ -53,9 +53,19 @@ class QuartzRecordManager {
 	static om_docid get_newdocid(QuartzBufferedTable & table);
 
 	/** Add a new record to the table.
+	 *
 	 */
 	static om_docid add_record(QuartzBufferedTable & table,
 				   const OmData & data);
+	/* Replace an existing record in the table
+	 *
+	 * @param did	The document ID to use.  If not specified, then
+	 * 		a new docid is generated.  Otherwise, this record
+	 * 		will be created (or replace) document did.
+	 */
+	static void replace_record(QuartzBufferedTable &table,
+				   const OmData & data,
+				   om_docid did);
 
 	/** Delete a record from the table.
 	 */

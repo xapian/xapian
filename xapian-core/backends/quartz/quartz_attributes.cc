@@ -117,9 +117,10 @@ QuartzAttributesManager::get_attribute(const QuartzTable & table,
 	    om_keyno this_attrib_no;
 	    std::string this_attribute;
 
-	    unpack_entry(&pos, end, &this_attrib_no, attribute.value);
+	    unpack_entry(&pos, end, &this_attrib_no, this_attribute);
 
 	    if (this_attrib_no == keyno) {
+		attribute.value = this_attribute;
 		return;
 	    }
 	}
@@ -152,3 +153,16 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
     }
 }
 
+void
+QuartzAttributesManager::delete_all_attributes(QuartzBufferedTable & table,
+					       om_docid did)
+{
+    QuartzDbKey key;
+    make_key(key, did, 0);
+    QuartzDbTag tag;
+    bool found = table.get_exact_entry(key, tag);
+
+    if (found) {
+	table.delete_tag(key);
+    }
+}
