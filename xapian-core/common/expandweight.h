@@ -41,7 +41,7 @@ class ExpandWeight {
     public:
 	ExpandWeight(const IRDatabase *root, doccount rsetsize_new);
 
-	ExpandBits get_bits(doccount wdf, doclength len,
+	ExpandBits get_bits(termcount wdf, doclength len,
 			    doccount termfreq, doccount dbsize) const;
 	weight get_weight(const ExpandBits &, const termname &) const;
 	weight get_maxweight() const;
@@ -61,14 +61,29 @@ ExpandWeight::ExpandWeight(const IRDatabase *root_new,
     return;
 }
 
+const double k = 1;
+
 inline ExpandBits
-ExpandWeight::get_bits(doccount wdf,
+ExpandWeight::get_bits(termcount wdf,
 		       doclength len,
 		       doccount termfreq,
 		       doccount dbsize) const
 {
-    // FIXME -- use wdf and len to calculate multiplier
-    return ExpandBits(1.0, termfreq, dbsize);
+    weight multiplier = 1.0;
+
+    if(wdf > 0) {
+	// FIXME -- use alpha, document importance
+	// FIXME -- lots of repeated calculation here - have a weight for each
+	// termlist, so can cache results?
+	multiplier = (k + 1) * wdf / (k * len + wdf);
+#ifdef MUS_DEBUG_VERBOSE
+	cout << "Using (wdf, len) = (" << wdf << ", " << len <<
+		") => multiplier = " << multiplier << endl;
+    } else {
+	cout << "No wdf information => multiplier = " << multiplier << endl;
+#endif /* MUS_DEBUG_VERBOSE */
+    }
+    return ExpandBits(multiplier, termfreq, dbsize);
 }
 
 #endif /* _expandweight_h_ */
