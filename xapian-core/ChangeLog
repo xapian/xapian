@@ -1,3 +1,9 @@
+Tue May 11 20:55:56 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Added comment saying why we filter out
+	  -I/usr/include; Removed no longer used "optarg" stuff; Added licence
+	  boilerplate text (with (C) dates mined from CVS).
+
 Tue May 11 13:42:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc,backends/quartz/btree.cc: Added lots
