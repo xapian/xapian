@@ -13,6 +13,8 @@ in the usual way.
 
 Write proper weighting formula for termlists, so expand works correctly.
 
+Add decision function to expand to decide whether to include term in eset.
+
 Add tags to all files so can add licences easily.
 
 Make InMemoryDatabase allow (size of position vector) != (wdf), ie, if posting
