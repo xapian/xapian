@@ -40,6 +40,7 @@ class SleepyDatabaseInternals {
 	Db *termlist_db;
 	Db *termid_db;
 	Db *termname_db;
+	Db *document_db;
 
 	SleepyDatabaseInternals();
 	~SleepyDatabaseInternals();

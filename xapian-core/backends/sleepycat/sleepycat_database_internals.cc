@@ -39,12 +39,14 @@
 #define FILENAME_TERMLIST "termlist.db"
 #define FILENAME_TERMTOID "termid.db"
 #define FILENAME_IDTOTERM "termname.db"
+#define FILENAME_DOCUMENT "document.db"
 
 SleepyDatabaseInternals::SleepyDatabaseInternals() {
     postlist_db = 0;
     termlist_db = 0;
     termid_db = 0;
     termname_db = 0;
+    document_db = 0;
     opened = false;
 }
 
@@ -83,6 +85,9 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 
 	Db::open(FILENAME_IDTOTERM, DB_RECNO, dbflags, mode,
 		 &dbenv, 0, &termname_db);
+
+	Db::open(FILENAME_DOCUMENT, DB_RECNO, dbflags, mode,
+		 &dbenv, 0, &document_db);
     }
     catch (DbException e) {
 	throw (OmOpeningError(string("Database error on open: ") + e.what()));
@@ -101,6 +106,8 @@ SleepyDatabaseInternals::close()
 	termid_db = 0;
 	if(termname_db) termname_db->close(0);
 	termname_db = 0;
+	if(document_db) document_db->close(0);
+	document_db = 0;
 
 	if(opened) dbenv.appexit();
 	opened = false;

@@ -67,11 +67,31 @@ class SleepyDatabase : public IRDatabase {
 	 *  @param positions  A list of positions at which the term occurs.
 	 *                    This list must be strictly increasing (ie, no
 	 *                    duplicates).
+	 *
+	 *  @return The new size of the postlist - ie, the new termfrequency.
 	 */
-	void make_entry_in_postlist(om_termid tid,
-				    om_docid did,
-				    om_termcount wdf,
-				    const vector<om_termpos> & positions);
+	om_doccount add_entry_to_postlist(om_termid tid,
+					  om_docid did,
+					  om_termcount wdf,
+					  const vector<om_termpos> & positions);
+
+	/** Make a new document, and return the new document ID.
+	 *
+	 *  @param data The data to store in the document.
+	 *
+	 *  @return The newly allocated document ID.
+	 */
+	om_docid make_new_document(const string & data);
+
+	/** Make a new termlist.
+	 *
+	 *  A termlist for this document ID must not already exist.
+	 *
+	 *  @param did    The document ID 
+	 *  @param terms  The terms to make the termlist out of.
+	 */
+	void make_new_termlist(om_docid did,
+			       const map<om_termid, OmDocumentTerm> & terms);
     public:
 	~SleepyDatabase();
 

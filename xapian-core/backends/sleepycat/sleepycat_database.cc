@@ -155,20 +155,43 @@ SleepyDatabase::open_document(om_docid did) const
 om_docid
 SleepyDatabase::add_document(const struct OmDocumentContents & document)
 {
-    // FIXME - this method is incomplete
-    om_docid did = get_doccount() + 1;
+    // FIXME - this method needs to be atomic
+    
+    // Make a new document to store the data, and use the document id returned
+    om_docid did = make_new_document(document.data);
 
+    // Build list of terms, sorted by termID
+    map<om_termid, OmDocumentTerm> terms;
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
 	om_termid tid = termcache->assign_new_termid(i->second.tname);
-	make_entry_in_postlist(tid, did, i->second.wdf, i->second.positions);
+	terms.insert(make_pair(tid, i->second));
     }
+
+    // Add this document to the postlist for each of its terms
+    map<om_termid, OmDocumentTerm>::iterator term;
+    for(term = terms.begin(); term != terms.end(); term++) {
+	om_doccount newtermfreq;
+	newtermfreq = add_entry_to_postlist(term->first,
+					    did,
+					    term->second.wdf,
+					    term->second.positions);
+	term->second.termfreq = newtermfreq;
+    }
+
+    // Make a new termlist for this document
+    make_new_termlist(did, terms);
+
+    // FIXME - need to go through each term in the termlist, open the
+    // appropriate postlist, and for each document in each of these postlists
+    // update the documents termlist to have the correct wdf for this document.
+    // EEEK!
 
     return did;
 }
 
-void
-SleepyDatabase::make_entry_in_postlist(om_termid tid,
+om_doccount
+SleepyDatabase::add_entry_to_postlist(om_termid tid,
 				       om_docid did,
 				       om_termcount wdf,
 				       const vector<om_termpos> & positions)
@@ -176,6 +199,36 @@ SleepyDatabase::make_entry_in_postlist(om_termid tid,
     SleepyList mylist(internals->postlist_db,
 		      reinterpret_cast<void *>(&tid),
 		      sizeof(tid));
+
+    // Term frequency isn't used for postlists: give 0
     SleepyListItem myitem(did, 0, wdf, positions);
     mylist.add_item(myitem);
+
+    return mylist.get_item_count();
+}
+
+om_docid
+SleepyDatabase::make_new_document(const string & data) 
+{
+    return get_doccount() + 1;
+}
+
+void
+SleepyDatabase::make_new_termlist(om_docid did,
+				  const map<om_termid, OmDocumentTerm> & terms)
+{
+    SleepyList mylist(internals->termlist_db,
+		      reinterpret_cast<void *>(&did),
+		      sizeof(did));
+
+    Assert(mylist.get_item_count() == 0);
+
+    map<om_termid, OmDocumentTerm>::const_iterator term;
+    for(term = terms.begin(); term != terms.end(); term++) {
+	SleepyListItem myitem(term->first,
+			      term->second.termfreq,
+			      term->second.wdf,
+			      term->second.positions);
+	mylist.add_item(myitem);
+    }
 }

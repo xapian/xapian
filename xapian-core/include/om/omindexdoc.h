@@ -71,6 +71,14 @@ struct OmDocumentTerm {
      */
     term_positions positions;
 
+    /** Term frequency information.
+     *
+     *  This is the number of documents indexed by the term.
+     *
+     *  If the information is not available, the value will be 0.
+     */
+    om_doccount termfreq;
+
     /** Add an entry to the posting list.
      *
      *  This method increments the wdf.  If positional information is
