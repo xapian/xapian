@@ -12,7 +12,9 @@
 // in delta format, line numbers refer to original
 // line numbers in file1 and file2 
 
-#define GNU_DIFF_MARKER_COL 64
+// was 64
+#define GNU_DIFF_MARKER_COL 0
+
 #define DIFF_OUTPUT "/tmp/diff_output"
 #define DEBUG_MODE 0
 
@@ -464,7 +466,7 @@ int main( int argc, char *argv[] ) {
   // the first thing to do is to call GNU diff to get an approximate
   // alignment
 
-  string diff_cmd = "diff --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
+  string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
   int rc = system(diff_cmd.c_str());
 
   if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
