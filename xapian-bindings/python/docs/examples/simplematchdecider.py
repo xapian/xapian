@@ -69,10 +69,8 @@ try:
     matches = enquire.get_mset(0, 10, None, matcher)
 
     print "%i results found" % matches.get_matches_estimated()
-    i = matches.begin()
-    while i!=matches.end():
-        print "ID %i %i%% [%s]" % (i.get_docid(), i.get_percent(), i.get_document().get_data())
-        i.next()
+    for match in matches:
+        print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
 
 except:
     # FIXME: exception message

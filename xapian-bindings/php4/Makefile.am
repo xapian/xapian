@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i
+EXTRA_DIST = util.i extra.i
 
 BUILT_SOURCES = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian/xapian.php \
  xapian/Makefile.in xapian/config.m4 
@@ -22,7 +22,7 @@ xapian/php_xapian.la: xapian/configure
 xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php
 	cd xapian && $(PHPIZE)
 
-xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../xapian.i util.i
+xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../xapian.i util.i extra.i
 	test -d xapian || mkdir xapian
 	$(SWIG) -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -php4 -phpfull -withlibs "xapian xapianqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
 

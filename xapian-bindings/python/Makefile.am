@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i
+EXTRA_DIST = util.i extra.i
 DIST_SUBDIRS = docs
 SUBDIRS = docs
 
@@ -27,7 +27,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc xapian.py
 
-xapian_wrap.cc xapian.py: ../xapian.i util.i
+xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
 	$(SWIG) -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)

@@ -1,3 +1,9 @@
+Thu Jan  1 22:46:51 2004  James Aylett  <james@tartarus.org>
+
+	* Python bindings: MSet provides a Python iterator
+	  (new target language-specific interface file extra.i
+	  included at end of xapian.i to accomodate this)
+
 Thu Jan  1 22:45:26 2004  James Aylett  <james@tartarus.org>
 
 	* python/util.i: OMMSET_* and OMESET_* -> MSET_* and ESET_*

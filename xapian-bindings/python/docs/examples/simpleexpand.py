@@ -71,10 +71,8 @@ try:
         matches = enquire.get_mset(0, 10, reldocs)
 
         print "%i results found" % matches.get_matches_estimated()
-        i = matches.begin()
-        while i!=matches.end():
-            print "ID %i %i%% [%s]" % (i.get_docid(), i.get_percent(), i.get_document().get_data())
-            i.next()
+        for match in matches:
+            print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
 
     # Put the top 5 (at most) docs into the rset if rset is empty
     if reldocs.is_empty():
