@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include "quartz_types.h"
-#include "refcnt.h"
 #include <string>
 #include <map>
 
@@ -138,7 +137,7 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
  *  documentation for QuartzDbKey and QuartzDbTag for details of what
  *  comprises a valid key or tag.
  */
-class QuartzDbTable : public RefCntBase {
+class QuartzDbTable {
     private:
 	/// Copying not allowed
 	QuartzDbTable(const QuartzDbTable &);

@@ -43,12 +43,12 @@ QuartzModifications::~QuartzModifications()
 void
 QuartzModifications::open_diffs()
 {
-    postlist_diffs.reset(new QuartzPostListDiffs(table_manager->postlist_table.get()));
-    positionlist_diffs.reset(new QuartzPositionListDiffs(table_manager->positionlist_table.get()));
-    termlist_diffs.reset(new QuartzTermListDiffs(table_manager->termlist_table.get()));
-    lexicon_diffs.reset(new QuartzLexiconDiffs(table_manager->lexicon_table.get()));
-    attribute_diffs.reset(new QuartzAttributeDiffs(table_manager->attribute_table.get()));
-    record_diffs.reset(new QuartzRecordDiffs(table_manager->record_table.get()));
+    postlist_diffs.reset(new QuartzPostListDiffs(&(table_manager->postlist_table)));
+    positionlist_diffs.reset(new QuartzPositionListDiffs(&(table_manager->positionlist_table)));
+    termlist_diffs.reset(new QuartzTermListDiffs(&(table_manager->termlist_table)));
+    lexicon_diffs.reset(new QuartzLexiconDiffs(&(table_manager->lexicon_table)));
+    attribute_diffs.reset(new QuartzAttributeDiffs(&(table_manager->attribute_table)));
+    record_diffs.reset(new QuartzRecordDiffs(&(table_manager->record_table)));
 }
 
 void
@@ -103,12 +103,12 @@ QuartzModifications::apply()
 	table_manager->log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
 
 	std::map<QuartzDbKey, QuartzDbTag *> null_entries;
-	table_manager->postlist_table->set_entries(null_entries, new_revision);
-	table_manager->positionlist_table->set_entries(null_entries, new_revision);
-	table_manager->termlist_table->set_entries(null_entries, new_revision);
-	table_manager->lexicon_table->set_entries(null_entries, new_revision);
-	table_manager->attribute_table->set_entries(null_entries, new_revision);
-	table_manager->record_table->set_entries(null_entries, new_revision);
+	table_manager->postlist_table.set_entries(null_entries, new_revision);
+	table_manager->positionlist_table.set_entries(null_entries, new_revision);
+	table_manager->termlist_table.set_entries(null_entries, new_revision);
+	table_manager->lexicon_table.set_entries(null_entries, new_revision);
+	table_manager->attribute_table.set_entries(null_entries, new_revision);
+	table_manager->record_table.set_entries(null_entries, new_revision);
 
 	// Prepare for further modifications.
 	open_diffs();

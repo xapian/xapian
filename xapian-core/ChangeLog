@@ -1,3 +1,10 @@
+Tue Oct  3 12:20:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Quartz tables and table managers are no longer reference counted -
+	  one instance is held in the database class, and references will be
+	  kept to that class.  Tables are now members of table manager class,
+	  not just pointers held in that class.
+
 Tue Oct  3 11:49:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Reorganise classes in Quartz, in preparation for changing Diffs

@@ -24,6 +24,7 @@
 
 #include "quartz_diffs.h"
 #include "autoptr.h"
+#include "omassert.h"
 
 QuartzDbTag *
 QuartzDiffs::get_tag(const QuartzDbKey &key)

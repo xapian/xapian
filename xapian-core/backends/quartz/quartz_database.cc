@@ -84,11 +84,11 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
     bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
 
     // Open database manager
-    table_manager = new QuartzTableManager(db_dir,
-					   tmp_dir,
-					   log_filename,
-					   readonly,
-					   perform_recovery);
+    table_manager.reset(new QuartzTableManager(db_dir,
+					       tmp_dir,
+					       log_filename,
+					       readonly,
+					       perform_recovery));
 }
 
 QuartzDatabase::~QuartzDatabase()
@@ -216,7 +216,7 @@ QuartzDatabase::get_doccount() const
 
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
-    return table_manager->record_table->get_entry_count() - 1;
+    return table_manager->record_table.get_entry_count() - 1;
 }
 
 om_doclength

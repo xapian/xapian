@@ -35,7 +35,13 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 				       bool perform_recovery)
 	: db_dir(db_dir_),
 	  tmp_dir(tmp_dir_),
-	  readonly(readonly_)
+	  readonly(readonly_),
+	  postlist_table(postlist_path(), readonly),
+	  positionlist_table(positionlist_path(), readonly),
+	  termlist_table(termlist_path(), readonly),
+	  lexicon_table(lexicon_path(), readonly),
+	  attribute_table(attribute_path(), readonly),
+	  record_table(record_path(), readonly)
 {
     // Open modification log
     log.reset(new QuartzLog(log_filename));
@@ -50,14 +56,6 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 
     // open environment here
 
-    // create tables
-    record_table       = new QuartzDbTable(record_path(), readonly);
-    attribute_table    = new QuartzDbTable(attribute_path(), readonly);
-    lexicon_table      = new QuartzDbTable(lexicon_path(), readonly);
-    termlist_table     = new QuartzDbTable(termlist_path(), readonly);
-    positionlist_table = new QuartzDbTable(positionlist_path(), readonly);
-    postlist_table     = new QuartzDbTable(postlist_path(), readonly);
-    
     // open tables
     if (readonly) {
 	// Can still allow searches even if recovery is needed
@@ -69,8 +67,8 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 	// Check that there are no more recent versions of tables.  If there
 	// are, perform recovery by writing a new revision number to all
 	// tables.
-	if (record_table->get_open_revision_number() != 
-	    postlist_table->get_latest_revision_number()) {
+	if (record_table.get_open_revision_number() != 
+	    postlist_table.get_latest_revision_number()) {
 	    QuartzRevisionNumber new_revision = get_next_revision_number();
 
 	    log->make_entry("Detected partially applied changes.  Updating "
@@ -78,12 +76,12 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 			    new_revision.get_description() + ") to proceed.  "
 			    "This will remove partial changes.");
 	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
-	    postlist_table    ->set_entries(empty_entries, new_revision);
-	    positionlist_table->set_entries(empty_entries, new_revision);
-	    termlist_table    ->set_entries(empty_entries, new_revision);
-	    lexicon_table     ->set_entries(empty_entries, new_revision);
-	    attribute_table   ->set_entries(empty_entries, new_revision);
-	    record_table      ->set_entries(empty_entries, new_revision);
+	    postlist_table    .set_entries(empty_entries, new_revision);
+	    positionlist_table.set_entries(empty_entries, new_revision);
+	    termlist_table    .set_entries(empty_entries, new_revision);
+	    lexicon_table     .set_entries(empty_entries, new_revision);
+	    attribute_table   .set_entries(empty_entries, new_revision);
+	    record_table      .set_entries(empty_entries, new_revision);
 	}
     } else {
 	// Get the most recent versions, failing with an OmNeedRecoveryError
@@ -91,7 +89,7 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 	open_tables_newest();
     }
 
-    if (record_table->get_entry_count() == 0) {
+    if (record_table.get_entry_count() == 0) {
 	// database never previously opened
 	if (readonly) {
 	    throw OmOpeningError("Database is empty and uninitialised");
@@ -108,12 +106,12 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
 	    tag.value = "";
 	    record_entries[key] = &tag;
 
-	    postlist_table    ->set_entries(empty_entries,  new_revision);
-	    positionlist_table->set_entries(empty_entries,  new_revision);
-	    termlist_table    ->set_entries(empty_entries,  new_revision);
-	    lexicon_table     ->set_entries(empty_entries,  new_revision);
-	    attribute_table   ->set_entries(empty_entries,  new_revision);
-	    record_table      ->set_entries(record_entries, new_revision);
+	    postlist_table    .set_entries(empty_entries,  new_revision);
+	    positionlist_table.set_entries(empty_entries,  new_revision);
+	    termlist_table    .set_entries(empty_entries,  new_revision);
+	    lexicon_table     .set_entries(empty_entries,  new_revision);
+	    attribute_table   .set_entries(empty_entries,  new_revision);
+	    record_table      .set_entries(record_entries, new_revision);
 	}
     }
 }
@@ -127,27 +125,27 @@ void
 QuartzTableManager::open_tables_newest()
 {
     log->make_entry("Opening tables at newest available revision");
-    record_table->open();
-    attribute_table->open();
-    lexicon_table->open();
-    termlist_table->open();
-    positionlist_table->open();
-    postlist_table->open();
+    record_table.open();
+    attribute_table.open();
+    lexicon_table.open();
+    termlist_table.open();
+    positionlist_table.open();
+    postlist_table.open();
 
     // Check consistency
-    QuartzRevisionNumber revision(record_table->get_open_revision_number());
-    if (revision != attribute_table->get_open_revision_number() ||
-	revision != lexicon_table->get_open_revision_number() ||
-	revision != termlist_table->get_open_revision_number() ||
-	revision != positionlist_table->get_open_revision_number() ||
-	revision != postlist_table->get_open_revision_number()) {
+    QuartzRevisionNumber revision(record_table.get_open_revision_number());
+    if (revision != attribute_table.get_open_revision_number() ||
+	revision != lexicon_table.get_open_revision_number() ||
+	revision != termlist_table.get_open_revision_number() ||
+	revision != positionlist_table.get_open_revision_number() ||
+	revision != postlist_table.get_open_revision_number()) {
 	log->make_entry("Revisions are not consistent: have " + 
 			revision.get_description() + ", " +
-			attribute_table->get_open_revision_number().get_description() + ", " +
-			lexicon_table->get_open_revision_number().get_description() + ", " +
-			termlist_table->get_open_revision_number().get_description() + ", " +
-			positionlist_table->get_open_revision_number().get_description() + " and " +
-			postlist_table->get_open_revision_number().get_description() + ".");
+			attribute_table.get_open_revision_number().get_description() + ", " +
+			lexicon_table.get_open_revision_number().get_description() + ", " +
+			termlist_table.get_open_revision_number().get_description() + ", " +
+			positionlist_table.get_open_revision_number().get_description() + " and " +
+			postlist_table.get_open_revision_number().get_description() + ".");
 	throw OmNeedRecoveryError("Quartz - tables are not in consistent state.");
     }
     log->make_entry("Opened tables at revision " + revision.get_description() + ".");
@@ -165,8 +163,8 @@ QuartzTableManager::open_tables_consistent()
     // the same revision as the last time we opened it.
 
     log->make_entry("Opening tables at latest consistent revision");
-    record_table->open();
-    QuartzRevisionNumber revision(record_table->get_open_revision_number());
+    record_table.open();
+    QuartzRevisionNumber revision(record_table.get_open_revision_number());
 
     bool fully_opened = false;
     int tries = 100;
@@ -175,11 +173,11 @@ QuartzTableManager::open_tables_consistent()
 	log->make_entry("Trying revision " + revision.get_description() + ".");
 	
 	bool opened;
-	opened = attribute_table->open(revision);
-	if (opened) opened = lexicon_table->open(revision);
-	if (opened) opened = termlist_table->open(revision);
-	if (opened) opened = positionlist_table->open(revision);
-	if (opened) opened = postlist_table->open(revision);
+	opened = attribute_table.open(revision);
+	if (opened) opened = lexicon_table.open(revision);
+	if (opened) opened = termlist_table.open(revision);
+	if (opened) opened = positionlist_table.open(revision);
+	if (opened) opened = postlist_table.open(revision);
 	if (opened) {
 	    fully_opened = true;
 	} else {
@@ -193,9 +191,9 @@ QuartzTableManager::open_tables_consistent()
 	    // So, we reopen the record table, and check its revision number,
 	    // if it's changed we try the opening again, otherwise we give up.
 	    //
-	    record_table->open();
+	    record_table.open();
 	    QuartzRevisionNumber newrevision(
-		record_table->get_open_revision_number());
+		record_table.get_open_revision_number());
 	    if (revision == newrevision) {
 		// Revision number hasn't changed - therefore a second index
 		// sweep hasn't begun and the system must have failed.  Database
@@ -254,12 +252,12 @@ void
 QuartzTableManager::open_tables(QuartzRevisionNumber revision)
 {
     log->make_entry("Opening tables at revision " + revision.get_description() + ".");
-    record_table->open(revision);
-    attribute_table->open(revision);
-    lexicon_table->open(revision);
-    termlist_table->open(revision);
-    positionlist_table->open(revision);
-    postlist_table->open(revision);
+    record_table.open(revision);
+    attribute_table.open(revision);
+    lexicon_table.open(revision);
+    termlist_table.open(revision);
+    positionlist_table.open(revision);
+    postlist_table.open(revision);
     log->make_entry("Opened tables at revision " + revision.get_description() + ".");
 }
 
@@ -267,8 +265,7 @@ QuartzRevisionNumber
 QuartzTableManager::get_revision_number() const
 {
     // We could use any table here, theoretically.
-    Assert(postlist_table.get() != 0);
-    return postlist_table->get_open_revision_number();
+    return postlist_table.get_open_revision_number();
 }
 
 QuartzRevisionNumber
@@ -278,9 +275,8 @@ QuartzTableManager::get_next_revision_number() const
      * to be written, and hence will have the greatest available revision
      * number.
      */
-    Assert(postlist_table.get() != 0);
     QuartzRevisionNumber new_revision(
-	postlist_table->get_latest_revision_number());
+	postlist_table.get_latest_revision_number());
     new_revision.increment();
     return new_revision;
 }

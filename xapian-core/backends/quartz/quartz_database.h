@@ -44,7 +44,7 @@ class QuartzDatabase : public Database {
 
 	/** Pointer to database manager.
 	 */
-	RefCntPtr<QuartzTableManager> table_manager;
+	AutoPtr<QuartzTableManager> table_manager;
 
 	/** Pointer to database modifications.
 	 */

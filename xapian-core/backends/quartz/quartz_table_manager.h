@@ -27,7 +27,6 @@
 #include <om/omsettings.h>
 #include "quartz_table.h"
 #include "quartz_log.h"
-#include "refcnt.h"
 #include "autoptr.h"
 
 /** Class managing the tables used by Quartz.
@@ -36,7 +35,7 @@
  *  determining the current and next revision numbers, and stores handles
  *  to the tables.
  */
-class QuartzTableManager : public RefCntBase {
+class QuartzTableManager {
     private:
 	/** Directory to store databases in.
 	 */
@@ -95,23 +94,23 @@ class QuartzTableManager : public RefCntBase {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	RefCntPtr<QuartzDbTable> postlist_table;
+	QuartzDbTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	RefCntPtr<QuartzDbTable> positionlist_table;
+	QuartzDbTable positionlist_table;
 
 	/** Table storing term lists.
 	 */
-	RefCntPtr<QuartzDbTable> termlist_table;
+	QuartzDbTable termlist_table;
 
 	/** Table storing lexicon.
 	 */
-	RefCntPtr<QuartzDbTable> lexicon_table;
+	QuartzDbTable lexicon_table;
 
 	/** Table storing keys.
 	 */
-	RefCntPtr<QuartzDbTable> attribute_table;
+	QuartzDbTable attribute_table;
 
 	/** Table storing records.
 	 *
@@ -121,7 +120,7 @@ class QuartzTableManager : public RefCntBase {
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
-	RefCntPtr<QuartzDbTable> record_table;
+	QuartzDbTable record_table;
 
 
 	/** Pointer to object to log modifications.

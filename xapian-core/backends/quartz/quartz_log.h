@@ -24,9 +24,9 @@
 #define OM_HGUARD_QUARTZ_LOG_H
 
 #include "config.h"
-#include "refcnt.h"
 #include <string>
 #include <stdio.h>
+#include "om/omerror.h"
 
 /** Class managing a logfile for quartz.
  */
