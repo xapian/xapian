@@ -36,6 +36,20 @@ Xapian 0.6.4 (2002-12-24):
   to search.  The next update will result in a lot of block splitting though
   (since all blocks are as full as possible).
 
+* omega: Added $unstem to map a stemmed term to the form(s) used in the query;
+  $queryterms now only includes the first occurence of each stemmed form;
+  $prettyterm makes use of the unstem map; prefer MINHITS to MIN_HITS and
+  RAWSEARCH to RAW_SEARCH since none of the other CGI parameter names have
+  _ separating words (continue to support old names for now); fixed default
+  template to not generate topterms twice, and fixed topterms to not stick
+  outside the green box; corrected omegascript docs - it's $setrelevant
+  not $set_relevant.
+
+* scriptindex: index=nopos with new indexnopos action; index and indexnopos now
+  take an optional prefix argument; index=nopos is handled specially for
+  backwards compatibility; added new data action to generate terms for date
+  range searching.
+
 Xapian 0.6.3 (2002-12-14):
 
 * Updated PLATFORMS and todo list.  Noted in HACKING that Bison 1.50 seems to
