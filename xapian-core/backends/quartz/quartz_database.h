@@ -123,17 +123,19 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	 */
 	QuartzBufferedTableManager * buffered_tables;
 
-	/** A count of the number of changes since the last flush:
-	 *  FIXME: this should be replaced by keeping track of the memory used
-	 *  up, and flushing when it reaches a threshold value.
-	 */
-	mutable int changecount;
-
+	/** Total length of added documents which haven't been flushed yet. */
 	mutable quartz_totlen_t totlen_added;
+
+	/** Total length of removed documents which haven't been flushed yet. */
 	mutable quartz_totlen_t totlen_removed;
+
+	/** Unflushed changes to term frequencies and collection frequencies. */
 	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
 		freq_deltas;
+
+	/** Document lengths of new and modified documents which haven't been flushed yet. */
 	mutable map<Xapian::docid, Xapian::termcount> doclens;
+
 	/// Modifications to posting lists.
 	mutable map<string, map<Xapian::docid,
 				pair<char, Xapian::termcount> > > mod_plists;

@@ -1,3 +1,8 @@
+Sat Dec 20 01:21:47 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.h: Added doxygen comments for the
+	  QuartzWritableDatabase members we use to buffer changes.
+
 Sat Dec 20 01:19:10 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Trigger autoflush on
