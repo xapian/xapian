@@ -347,7 +347,7 @@ sub cvsupdatedb {
             my $bestmatches;
             my $output;
             if (-e $path) {
-                $bestmatches = `grep $filepath\$ $path`; # match filepath from the end
+                $bestmatches = `grep '\^$filepath\$\\\|/$filepath\$' $path`; # match filepath from the end
             }
             
             if($bestmatches){
