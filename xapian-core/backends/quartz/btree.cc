@@ -431,7 +431,6 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
     read_block(n, p);
 
     C_[j].n = n;
-    C[j].n = n; /* not necessarily the same (in B-tree read mode) */
     if (j < level) {
 	/* unsigned comparison */
 	if (REVISION(p) > REVISION(C_[j + 1].p)) {
