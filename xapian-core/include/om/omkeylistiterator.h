@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,12 +33,12 @@ class OmKey;
 /** An iterator pointing to items in a list of keys.
  */
 class OmKeyListIterator {
+    public:
+	class Internal;
+	Internal *internal; // reference counted internals
+
     private:
 	friend class OmDocument; // So OmDocument can construct us
-
-	class Internal;
-
-	Internal *internal; // reference counted internals
 
         friend bool operator==(const OmKeyListIterator &a, const OmKeyListIterator &b);
 

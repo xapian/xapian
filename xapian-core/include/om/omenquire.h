@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,8 +42,8 @@ class OmErrorHandler;
  *  This is used for access to individual results of a match.
  */
 class OmMSetIterator {
-    private:
-	friend class OmMSet; // So OmMSet can construct us
+    public:
+	friend class OmMSet;
 
 	class Internal;
 	Internal *internal; // reference counted internals
@@ -51,6 +51,7 @@ class OmMSetIterator {
         friend bool operator==(const OmMSetIterator &a,
 			       const OmMSetIterator &b);
 
+    private:
 	OmMSetIterator(Internal *internal_);
 
     public:
@@ -137,18 +138,15 @@ inline bool operator!=(const OmMSetIterator &a,
  *  This class represents (a portion of) the results of a query.
  */
 class OmMSet {
-    friend class OmEnquire;
-    public: // FIXME: private:
+    public:
 	class Internal;
+	/// reference counted internals - do not modify externally
+	Internal *internal;
 
     public:
 	// FIXME: public for now, private would be better
 	/// Constructor for internal use
 	OmMSet(OmMSet::Internal * internal_);
-
-	// FIXME: public for now, private would be better
-	/// reference counted internals - do not modify externally
-	Internal *internal;
 
 	/// Create an empty OmMSet
 	OmMSet();
@@ -317,14 +315,15 @@ class OmMSet {
 };
 
 class OmESetIterator {
-    private:
-	friend class OmESet; // So OmESet can construct us
-
+    public:
+	friend class OmESet;
 	class Internal;
-
 	Internal *internal; // reference counted internals
 
-        friend bool operator==(const OmESetIterator &a, const OmESetIterator &b);
+        friend bool operator==(const OmESetIterator &a,
+			       const OmESetIterator &b);
+
+    private:
 
 	OmESetIterator(Internal *internal_);
 
@@ -379,13 +378,10 @@ operator!=(const OmESetIterator &a, const OmESetIterator &b)
  *  performed by OmEnquire::get_eset().
  */
 class OmESet {
-    friend class OmExpand;
-    private:
+    public:
 	class Internal;
-	
 	Internal *internal; // reference counted internals
 
-    public:
 	OmESet();
 
 	~OmESet();
@@ -428,12 +424,9 @@ class OmRSet {
     public:
 	/// Class holding details of OmRSet
 	class Internal;
-
-	// FIXME: public for now, private would be better
 	/// reference counted internals - do not modify externally
 	Internal *internal;
 
-    public:
 	/// Copy constructor
 	OmRSet(const OmRSet &rset);
 
@@ -515,10 +508,9 @@ class OmEnquire {
 	/// Assignment is not allowed.
 	void operator=(const OmEnquire &);
     public:
+    public:
 	/// Class holding details of OmEnquire
 	class Internal;
-
-	// FIXME: public for now, private would be better
 	/// reference counted internals - do not modify externally
 	Internal *internal;
 

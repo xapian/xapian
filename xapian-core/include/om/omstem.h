@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,10 +32,10 @@
 
 /// This class provides an interface to the stemming algorithms.
 class OmStem {
-    private:
+    public:
 	class Internal;
         Internal *internal;
-    public:
+
 	/** Create a new stemmer object.
 	 *
 	 *  @param language	a string specifying the language being used.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,15 +29,13 @@
 #include "om/omindexercommon.h"
 
 class OmNodeInstanceIterator {
-    public: // FIXME:
+    public:
 	class Internal;
 	Internal *internal; // reference counted internals
 
-    private:
         friend bool operator==(const OmNodeInstanceIterator &a,
 			       const OmNodeInstanceIterator &b);
 
-    public:
 	// FIXME: ought to be private
 	OmNodeInstanceIterator(Internal *internal_);
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +34,9 @@ class OmNodeDescriptor;
 
 class OmIndexerBuilder {
     public:
+	class Internal;
+	Internal *internal;
+
 	/** Constructor */
 	OmIndexerBuilder();
 
@@ -87,10 +91,6 @@ class OmIndexerBuilder {
 
 	/** Return information about a node type by name. */
 	OmNodeDescriptor get_node_info(const std::string &type);
-    private:
-	class Internal;
-
-	Internal *internal;
 };
 
 #endif /* OM_HGUARD_OMINDEXERBUILDER_H */

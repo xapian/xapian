@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,15 +37,13 @@ class OmTermIterator {
 	// friend classes which need to be able to construct us
 	friend class OmDatabase;
 	friend class OmDocument;
-	//friend class OmEnquire::Internal;
 
-    public: // FIXME
+    public:
 	class Internal;
-
 	Internal *internal; // reference counted internals
 
-    private:
-        friend bool operator==(const OmTermIterator &a, const OmTermIterator &b);
+        friend bool operator==(const OmTermIterator &a,
+			       const OmTermIterator &b);
 
     public:
 	// FIXME: better if this was private...

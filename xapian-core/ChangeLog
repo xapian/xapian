@@ -1,3 +1,10 @@
+Thu Mar 28 17:21:16 GMT 2002  Olly Betts <olly@survex.com>
+
+	* Give up trying to make internals private or protected in the
+	  header files in include - the consequences are just too ugly, and
+	  it's clear enough that they shouldn't be messed with except by the
+	  library itself.
+
 Wed Mar 27 10:24:26 GMT 2002  Olly Betts <olly@survex.com>
 
 	* Don't add "-lrt" to the link line unless it's actually needed for

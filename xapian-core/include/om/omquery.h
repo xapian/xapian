@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,12 +43,9 @@ class OmQuery {
     public:
 	/// Class holding details of OmQuery
 	class Internal;
-
-	// FIXME: public for now, private would be better
 	/// reference counted internals - do not modify externally
 	Internal *internal;
 
-    public:
 	/// Enum of possible query operations
         typedef enum {
 	    /// Return iff both subqueries are satisfied

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +40,9 @@ typedef OmIndexerNode *(*OmNodeCreator)(const OmSettings &config);
 /** A description of a new node type */
 class OmNodeDescriptor {
     public:
+	class Internal;
+	Internal *internal;
+	    
 	/** Constructor for node descriptor.
 	 *
 	 *  @param nodename	The name of this node type
@@ -86,10 +90,8 @@ class OmNodeDescriptor {
 			const std::string &type,
 			OmIndexerMessageType phys_type);
 
-	class Internal;
     private:
 	friend class OmIndexerBuilder;
-	Internal *internal;
 
 	/* Used by OmIndexerBuilder */
 	OmNodeDescriptor(Internal *internal_);

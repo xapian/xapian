@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,9 @@
 
 class OmIndexerNode {
     public:
+	class Internal;
+	Internal *internal;
+
 	/** Used by the graph builder to connect nodes together. */
 	void connect_input(const std::string &input_name,
 			   OmIndexerNode *other_node,
@@ -135,11 +139,6 @@ class OmIndexerNode {
 	 *  checking the values from calculate().)
 	 */
 	virtual void config_modified(const std::string &key);
-    private:
-	class Internal;
-	friend class Internal;
-
-	Internal *internal;
 };
 
 #endif /* OM_HGUARD_OMINDEXERNODE_H */

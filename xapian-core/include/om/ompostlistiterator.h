@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,18 +31,19 @@ class OmDatabase;
 class OmPositionListIterator;
 
 class OmPostListIterator {
-    private:
-	friend class OmDatabase; // So OmDatabase can construct us
-
+    public:
 	class Internal;
-
 	Internal *internal; // reference counted internals
 
-        friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
+    private:
+	friend class OmDatabase; // So OmDatabase can construct us
 
 	OmPostListIterator(Internal *internal_);
 
     public:
+        friend bool operator==(const OmPostListIterator &a,
+			       const OmPostListIterator &b);
+
 	/// Default constructor - for declaring an uninitialised iterator
 	OmPostListIterator();
 

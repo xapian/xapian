@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +35,9 @@ class OmNodeInstanceIterator;
  */
 class OmIndexerDesc {
     public:
+	class Internal;
+	Internal *internal;
+
 	/** The default constructor. */
 	OmIndexerDesc();
 
@@ -84,11 +88,6 @@ class OmIndexerDesc {
     private:
 	friend class OmIndexerBuilder;
 
-    public: // FIXME:
-	class Internal;
-	Internal *internal;
-
-    private:
 	OmIndexerDesc(Internal *internal_);
 };
 
