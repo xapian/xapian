@@ -97,12 +97,12 @@ MAN_EXTENSION         = .3
 # Configuration options related to the preprocessor   
 #---------------------------------------------------------------------------
 ENABLE_PREPROCESSING  = YES
-MACRO_EXPANSION       = NO
-EXPAND_ONLY_PREDEF    = NO
+MACRO_EXPANSION       = YES
+EXPAND_ONLY_PREDEF    = YES
 SEARCH_INCLUDES       = YES
 INCLUDE_PATH          = 
 PREDEFINED            = 
-EXPAND_AS_DEFINED     =
+EXPAND_AS_DEFINED     = DEFINE_ERROR_BASECLASS DEFINE_ERROR_CLASS
 #---------------------------------------------------------------------------
 # Configuration::addtions related to external references
 #---------------------------------------------------------------------------

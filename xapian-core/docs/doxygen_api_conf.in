@@ -443,7 +443,7 @@ ENABLE_PREPROCESSING = YES
 # names in the source code. If set to NO (the default) only conditional 
 # compilation will be performed.
 
-MACRO_EXPANSION      = NO
+MACRO_EXPANSION      = YES
 
 # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files
 # in the INCLUDE_PATH (see below) will be search if a #include is found.
@@ -468,7 +468,8 @@ PREDEFINED           =
 # then the macro expansion is limited to the macros specified with the
 # PREDEFINED tag.
 
-EXPAND_ONLY_PREDEF   = NO
+EXPAND_ONLY_PREDEF    = YES
+EXPAND_AS_DEFINED     = DEFINE_ERROR_BASECLASS DEFINE_ERROR_CLASS
 
 #---------------------------------------------------------------------------
 # Configuration options related to external references 
