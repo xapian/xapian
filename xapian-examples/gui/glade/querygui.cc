@@ -36,7 +36,6 @@
 #include <om/om.h>
 
 #include "../indexer/index_utils.h"
-#include "query_parser.h"
 
 #include <list>
 #include <memory>
@@ -225,7 +224,6 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
     try {
 	// split into terms
-	vector<QueryTerm> qterms;
 	OmQuery omquery;
 	OmStem stemmer("english");
 	om_termname word;
