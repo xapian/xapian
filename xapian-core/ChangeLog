@@ -1,3 +1,7 @@
+Sun Jul 27 00:59:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore,backends/quartz/.cvsignore,extra/.cvsignore: Updated.
+
 Sun Jul 27 00:19:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Oops, failed to remove btreecheck.cc reference

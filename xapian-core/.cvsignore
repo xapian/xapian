@@ -26,4 +26,5 @@ autom4te*.cache
 depcomp
 missing
 mkinstalldirs
+ylwrap
 xapian.spec
