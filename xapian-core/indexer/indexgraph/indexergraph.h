@@ -23,6 +23,10 @@
 #ifndef OM_HGUARD_OMINDEXERGRAPH_H
 #define OM_HGUARD_OMINDEXERGRAPH_H
 
+#include "config.h"
+
+#ifdef HAVE_LIBXML
+
 #include <string>
 #include <map>
 #include <parser.h>
@@ -145,5 +149,7 @@ class OmIndexerBuilder {
 	/** Node database */
 	std::map<std::string, node_desc> nodetypes;
 };
+
+#endif // HAVE_LIBXML
 
 #endif /* OM_HGUARD_OMINDEXERGRAPH_H */

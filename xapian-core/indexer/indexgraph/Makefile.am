@@ -10,15 +10,20 @@ noinst_PROGRAMS = nodetest
 
 nodetest_SOURCES = nodetest.cc
 
-nodetest_LDADD = libindexgraph.la
+nodetest_LDADD = libindexgraph.la ../../libomus.la
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc
 
 indexergraph.lo: indexergraph.cc
-	echo "Compiling indexergraph.lo..."
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 omindexernode.lo: omindexernode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+nodetest.lo: nodetest.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+nodetest.o: nodetest.cc
+	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 libindexgraph_la_LIBADD = @LIBXML_LIBS@

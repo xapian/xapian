@@ -111,11 +111,12 @@ dnl Check for libxml.  We do this by looking for xml-config.
 dnl FIXME: is something else needed for non-gnome libxml?
 AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
 AM_CONDITIONAL(HAVE_LIBXML, test -n "$XML_CONFIG_PATH")
+AC_SUBST(HAVE_LIBXML)
 AC_SUBST(XML_CONFIG_PATH)
 
 if test -n "$XML_CONFIG_PATH"
 then
-    echo "Checking libxml flags..."
+    echo "checking libxml flags..."
     LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
     LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
 fi

@@ -73,6 +73,9 @@
 /* Define if socklen_t is available */
 #undef HAVE_SOCKLEN_T
 
+/* Define if libxml is available */
+#undef HAVE_LIBXML
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions
