@@ -226,7 +226,7 @@ dnl Find out what we've been asked to build
 
 dnl muscat36 defaults to off
 AC_ARG_ENABLE(backend_muscat36,
-[  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=yes)],
+[  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=no)],
 [case "${enableval}" in
   yes) build_muscat36=true ;;
   no)  build_muscat36=false ;;
