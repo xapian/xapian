@@ -1,3 +1,8 @@
+Tue Oct 10 12:14:20 BST 2000 Olly Betts
+
+	* Documents should now fetch in parallel pipelines with the remote
+	  backend.
+ 
 Mon Oct  9 18:13:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartz now stores general database information in record database.

@@ -112,10 +112,42 @@ SocketClient::get_tlist(om_docid did,
 }
 
 void
+SocketClient::request_doc(om_docid did)
+{
+    buf.writeline(std::string("GETDOC ") + om_tostring(did));
+}
+
+void
+SocketClient::collect_doc(om_docid did, std::string &doc,
+			  std::map<om_keyno, OmKey> &keys)
+{
+    // FIXME check did is correct...
+    std::string message = do_read();
+    if (!startswith(message, "DOC ")) {
+	throw OmNetworkError(std::string("Expected DOC, got ") + message);
+    }
+
+    doc = decode_tname(message.substr(4));
+
+    while (startswith(message = do_read(), "KEY ")) {
+	istrstream is(message.substr(4).c_str());
+	om_keyno keyno;
+	std::string omkey;
+	is >> keyno >> omkey;
+	keys[keyno] = string_to_omkey(omkey);
+    }
+
+    if (message != "END") {
+	throw OmNetworkError(std::string("Expected END, got ") + message);
+    }
+}
+
+void
 SocketClient::get_doc(om_docid did,
 		      std::string &doc,
 		      std::map<om_keyno, OmKey> &keys)
 {
+    // FIXME: just call request then collect if that interface survives
     std::string message;
     buf.writeline(std::string("GETDOC ") + om_tostring(did));
 

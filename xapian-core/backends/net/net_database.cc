@@ -109,6 +109,23 @@ NetworkDatabase::open_document(om_docid did) const
     return new NetworkDocument(doc, keys);
 }
 
+void
+NetworkDatabase::request_document(om_docid did) const
+{
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    link->request_doc(did);
+}
+
+LeafDocument *
+NetworkDatabase::collect_document(om_docid did) const
+{
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    std::string doc;
+    std::map<om_keyno, OmKey> keys;
+    link->collect_doc(did, doc, keys);
+    return new NetworkDocument(doc, keys);
+}
+
 om_doclength
 NetworkDatabase::get_doclength(om_docid did) const
 {

@@ -122,6 +122,9 @@ class NetworkDatabase : public Database {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
+	void request_document(om_docid did) const;
+	LeafDocument * collect_document(om_docid did) const;
+	
 	// Introspection methods...
 	bool is_network() const;
 };

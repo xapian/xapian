@@ -397,14 +397,20 @@ OmEnquireInternal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     unsigned int multiplier = internal->databases.size();
 
-    std::vector<OmDocument> docs;
-    
     std::vector<OmMSetItem>::const_iterator i;
     for (i = begin; i != end; i++) {
 	om_docid realdid = (i->did - 1) / multiplier + 1;
 	om_doccount dbnumber = (i->did - 1) % multiplier;
 	
-	LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
+	internal->databases[dbnumber]->request_document(realdid);
+    }
+
+    std::vector<OmDocument> docs;
+    for (i = begin; i != end; i++) {
+	om_docid realdid = (i->did - 1) / multiplier + 1;
+	om_doccount dbnumber = (i->did - 1) % multiplier;
+	
+	LeafDocument *doc = internal->databases[dbnumber]->collect_document(realdid);
 	docs.push_back(OmDocument(OmDocumentParams(doc)));
     }
 

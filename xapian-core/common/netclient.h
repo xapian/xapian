@@ -116,6 +116,14 @@ class NetClient : public RefCntBase {
 			     std::string &doc,
 			     std::map<om_keyno, OmKey> &keys) = 0;
 
+	/** Request a remote document */
+	virtual void request_doc(om_docid did) = 0;
+
+	/** Collect a remote document */
+	virtual void collect_doc(om_docid did,
+				 std::string &doc,
+				 std::map<om_keyno, OmKey> &keys) = 0;
+
 	/** Find out the remote document count */
 	virtual om_doccount get_doccount() = 0;
 

@@ -183,6 +183,13 @@ class SocketClient : public NetClient {
 		     std::string &doc,
 		     std::map<om_keyno, OmKey> &keys);
 
+	/** Request a remote document */
+	void request_doc(om_docid did);
+
+	/** Collect a remote document */
+	void collect_doc(om_docid did, std::string &doc,
+			 std::map<om_keyno, OmKey> &keys);
+
 	/** Get the document count. */
 	om_doccount get_doccount();
 
