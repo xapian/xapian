@@ -1,3 +1,20 @@
+Wed Sep 13 10:08:25 BST 2000 Olly Betts
+
+	* Updated TODO.
+
+	* OmDatabase::postlist_begin/end now throw OmInvalidArgumentError
+	  if passed a zero length termname.
+
+	* Fixed up OmPostListIterator so copy and assignment work;  end now
+	  uses NULL internal rather than an EmptyPostList.
+
+	* Om*Iterator::skip_to now returns void.
+
+	* Added postlist[123] tests for OmPostListIterator.
+
+	* Now run localdb tests on da and db backends (multiexpand1 currently
+	  fails for db).
+ 
 Wed Sep 13 00:47:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartz:  database tables now have a class to store revision numbers

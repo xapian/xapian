@@ -1561,7 +1561,7 @@ static bool test_termlist1()
     return true;
 }
 
-// tests that a TermListIterator works as an STL iterator
+// tests that an OmTermListIterator works as an STL iterator
 static bool test_termlist2()
 {
     OmDatabase db(get_database("apitest_onedoc"));
@@ -1597,7 +1597,7 @@ test_termlist3_helper()
     return db.termlist_begin(1);
 }
 
-// tests that a TermListIterator still works when the DB is deleted
+// tests that an OmTermListIterator still works when the DB is deleted
 static bool test_termlist3()
 {
     OmTermListIterator u = test_termlist3_helper();
@@ -1608,6 +1608,77 @@ static bool test_termlist3()
     while (t != tend) {
 	TEST_EQUAL(*t, *u);
 	t++;
+	u++;
+    }
+    return true;
+}
+
+// tests that opening a non-existant postlist return an empty list
+static bool test_postlist1()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+    TEST_EXCEPTION(OmInvalidArgumentError, db.postlist_begin(""));
+    TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
+    string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
+    s += s;
+    s += s;
+    s += s;
+    s += s;
+    s += s;
+    s += s;
+    s += s;
+    s += s;
+    TEST_EQUAL(db.postlist_begin(s), db.postlist_end(s));
+    return true;
+}
+
+// tests that an OmPostListIterator works as an STL iterator
+static bool test_postlist2()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+    OmPostListIterator p = db.postlist_begin("thi");
+    OmPostListIterator pend = db.postlist_end("thi");
+
+    // test operator= creates a copy which compares equal
+    OmPostListIterator p_copy = p;
+    TEST_EQUAL(p, p_copy);
+
+    // test copy constructor creates a copy which compares equal
+    OmPostListIterator p_clone(p);
+    TEST_EQUAL(p, p_clone);
+
+    std::vector<om_docid> v(p, pend);
+
+    p = db.postlist_begin("thi");
+    pend = db.postlist_end("thi");
+    std::vector<om_docid>::const_iterator i;
+    for (i = v.begin(); i != v.end(); i++) {
+	TEST_NOT_EQUAL(p, pend);
+	TEST_EQUAL(*i, *p);
+	p++;
+    }
+    TEST_EQUAL(p, pend);
+    return true;
+}
+
+static OmPostListIterator
+test_postlist3_helper()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+    return db.postlist_begin("thi");
+}
+
+// tests that an OmPostListIterator still works when the DB is deleted
+static bool test_postlist3()
+{
+    OmPostListIterator u = test_postlist3_helper();
+    OmDatabase db(get_database("apitest_simpledata"));
+    OmPostListIterator p = db.postlist_begin("thi");
+    OmPostListIterator pend = db.postlist_end("thi");
+
+    while (p != pend) {
+	TEST_EQUAL(*p, *u);
+	p++;
 	u++;
     }
     return true;
@@ -1686,5 +1757,8 @@ test_desc writabledb_tests[] = {
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"multiexpand1",       test_multiexpand1},
+    {"postlist1",	   test_postlist1},
+    {"postlist2",	   test_postlist2},
+    {"postlist3",	   test_postlist3},
     {0, 0}
 };

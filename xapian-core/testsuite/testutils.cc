@@ -89,7 +89,7 @@ bool operator==(const OmMSet &first, const OmMSet &second)
 	(first.items.size() != second.items.size())) {
 	return false;
     }
-    if(first.items.size() == 0) return true;
+    if (first.items.empty()) return true;
     return mset_range_is_same(first, 0, second, 0, first.items.size());
 }
 

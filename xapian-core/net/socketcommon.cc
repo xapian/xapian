@@ -210,7 +210,7 @@ OmQueryInternal qfs_readcompound()
 	qt = qfs_gettok();
 	switch (qt.type) {
 	    case querytok::OP_KET:
-		if (subqs.size() == 0) {
+		if (subqs.empty()) {
 		    return OmQueryInternal();
 		} else {
 		    throw OmInvalidArgumentError("Invalid query string");

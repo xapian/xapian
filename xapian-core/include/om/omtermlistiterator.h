@@ -52,7 +52,7 @@ class OmTermListIterator {
 	 *  so assignment is also cheap.
 	 */
 	void operator=(const OmTermListIterator &other);
-    
+
 	const om_termname operator *();
 
 	OmTermListIterator & operator++();
@@ -60,7 +60,7 @@ class OmTermListIterator {
 	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	OmTermListIterator skip_to(const om_termname & tname);
+	void skip_to(const om_termname & tname);
 
 	/** Returns a string describing this object.
 	 *  Introspection method.

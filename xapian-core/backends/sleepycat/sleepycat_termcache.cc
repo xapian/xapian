@@ -34,7 +34,7 @@ om_termid
 SleepycatDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 {
     DebugMsg("Looking up term ID for `" << tname <<  "' ...");
-    Assert(tname.size() != 0);
+    Assert(!tname.empty());
 
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;

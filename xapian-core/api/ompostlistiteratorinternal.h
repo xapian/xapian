@@ -41,7 +41,8 @@ class OmPostListIterator::Internal {
 	    if (p) postlist = p; // handle prune
 	}
 
-	~Internal() { }
+        Internal(const Internal &other) : postlist(other.postlist)
+	{ }
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

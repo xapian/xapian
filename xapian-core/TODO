@@ -16,8 +16,6 @@ This file contains items which need to be worked on.
  | | |             |
 P|D|W|Area         | Task
 -+-+-+-------------+-----------------------------------------------------------
-H|2| |Tests	   | Make apitest's tests use db backend as well
--+-+-+-------------+-----------------------------------------------------------
 H|2| |LocalMatch   | Pass around partially created postlist as an
  | | |             | auto_ptr, for exception safety.
 -+-+-+-------------+-----------------------------------------------------------
@@ -39,9 +37,6 @@ M|5| |Exceptions   | Make exceptions threadsafe: see
  | | |             | GCC (and EGCS) need existence of exceptions to
  | | |             | be protected by a mutex - will need to cope with
  | | |             | exception being copied.
--+-+-+-------------+-----------------------------------------------------------
-M|1| |Iterators    | Test that an Om*Iterator still works after the OmDatabase
- | | |             | it is derived from is deleted.
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |OmDocument   | Remove termfreq element from OmDocumentContents - not
  | | |             | meaningful in some places where this is used (for example
@@ -100,11 +95,6 @@ M|4| |Matcher      | max_or_terms should probably work in a more local way.
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |Backends     | multi backend is unused, except that MultiDatabase class
  | | |             | is abused as a smart IRDatabase container.
--+-+-+-------------+-----------------------------------------------------------
-M|3| |API          | Om*Iterator ought to be STL iterators so they can be used
- | | |             | whereever the STL allows an input_iterator.
--+-+-+-------------+-----------------------------------------------------------
-M|2| |API          | Add tests for Om*Iterator.
 -+-+-+-------------+-----------------------------------------------------------
 L|4| |Matcher      | max_or_terms should probably reduce the querysize by the
  | | |             | number of terms removed - hard to do because max_or_terms

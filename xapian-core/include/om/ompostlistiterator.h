@@ -39,23 +39,29 @@ class OmPostListIterator {
 
         friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
 
-	OmPostListIterator(Internal *internal_);
+	OmPostListIterator(Internal *internal_) : internal(internal_) { }
 
     public:
         ~OmPostListIterator();
 
-	void operator=(const OmPostListIterator &o);
-
-	OmPostListIterator(const OmPostListIterator &o);
+        /** Copying is allowed.  The internals are reference counted, so
+	 *  copying is also cheap.
+	 */
+	OmPostListIterator(const OmPostListIterator &other);
     
+        /** Assignment is allowed.  The internals are reference counted,
+	 *  so assignment is also cheap.
+	 */
+	void operator=(const OmPostListIterator &other);
+
 	const om_docid operator *();
 
 	OmPostListIterator & operator++();
 
-	OmPostListIterator operator++(int);
+	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	OmPostListIterator skip_to(om_docid did);
+	void skip_to(om_docid did);
 
     	// allow iteration of positionlist for current term
 	OmPositionListIterator positionlist_begin();

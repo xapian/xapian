@@ -67,12 +67,11 @@ OmTermListIterator::operator++(int) {
 }
 
 // extra method, not required to be an input_iterator
-OmTermListIterator
+void
 OmTermListIterator::skip_to(const om_termname & tname) {
     while (!internal->termlist->at_end() &&
 	   internal->termlist->get_termname() < tname)
 	internal->termlist->next();
-    return *this;
 }
 
 std::string

@@ -117,7 +117,8 @@ OmPostListIterator
 OmDatabase::postlist_begin(const om_termname &tname) const
 {
     DEBUGAPICALL("OmDatabase::postlist_begin", tname);
-    DEBUGAPIRETURN("OmPostListIterator");
+    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    DEBUGAPIRETURN("OmPostListIterator");    
     return OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname)));
 }
 
@@ -125,8 +126,9 @@ OmPostListIterator
 OmDatabase::postlist_end(const om_termname &tname) const
 {
     DEBUGAPICALL("OmDatabase::postlist_end", tname);
+    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
     DEBUGAPIRETURN("OmPostListIterator");
-    return OmPostListIterator(new OmPostListIterator::Internal(new EmptyPostList()));
+    return OmPostListIterator(NULL);
 }
 
 OmTermListIterator
