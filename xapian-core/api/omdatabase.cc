@@ -341,33 +341,31 @@ OmWritableDatabase::cancel_transaction()
 om_docid
 OmWritableDatabase::add_document(const OmDocument & document)
 {
-    DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document",
-		 document << ", " << timeout);
+    DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document", document);
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Database> database = internal->databases[0];
-    RETURN(database->add_document(document, timeout));
+    RETURN(database->add_document(document));
 }
 
 void
 OmWritableDatabase::delete_document(om_docid did)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
-		 did << ", " << timeout);
+    DEBUGAPICALL(void, "OmWritableDatabase::delete_document", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Database> database = internal->databases[0];
-    database->delete_document(did, timeout);
+    database->delete_document(did);
 }
 
 void
 OmWritableDatabase::replace_document(om_docid did, const OmDocument & document)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
-		 did << ", " << document << ", " << timeout);
+		 did << ", " << document);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Database> database = internal->databases[0];
-    database->replace_document(did, document, timeout);
+    database->replace_document(did, document);
 }
 
 std::string
