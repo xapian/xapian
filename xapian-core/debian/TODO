@@ -1,3 +1,19 @@
 Man pages.  All binaries installed should have section 1 man pages.  In
 addition, a section 3 man page should be written to describe libxapian. (See
 the xml-config and libxml manpages for examples.)
+
+xapian-doc: in index.html, there is one broken link (which occurs in two
+places, pointing to the full source documentation, since we don't generate the
+full for xapian source documentation).  We could move this to point to the
+xapian website.  There should almost certainly be a link back to the front page
+of the Xapian website, too.  The documentation should also probably be in the
+style of the Xapian website, and should use the Xapian logo on the front page.
+
+Build-Depend on graphviz means that this wouldn't be able to go into the "main"
+archive in Debian, because graphviz is non-free.  Possible approaches:
+ 1) remove build depend, and ensure that "dot" isn't used when generating
+    documentation (so that result of packaging is consistent whether dot is
+    available or not)
+ 2) find a free replacement for dot.  (there's one for neato (springgraph),
+    so maybe there's one for dot).
+ 3) write a free replacement for dot.
