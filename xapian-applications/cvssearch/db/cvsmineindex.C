@@ -103,6 +103,10 @@ static void write_OM_database( const string & database_dir,
 
 static void write_DB_database( const string & database_file,
                                const map<unsigned int, set<string> > & commit_symbols);
+static map<string, unsigned int>  write_commit_offset (ostream & os, 
+                                                       const string & cvsdata, 
+                                                       const string & root, 
+                                                       const set<string> & packages);
 
 
 int main(unsigned int argc, char *argv[]) {
@@ -159,7 +163,12 @@ int main(unsigned int argc, char *argv[]) {
     // commit_words  [commit_id] -> stemmed words.
     map<unsigned int, set <string> > commit_symbols;
     map<unsigned int, list<string> > commit_words;
-    
+
+    string commit_path = cvsdata + "/" + root + "/commit.offset";
+    ofstream fout(commit_path.c_str());
+    map<string, unsigned int> commit_offsets = write_commit_offset(fout, cvsdata, root, packages);
+    fout.close();
+
     try {
         // ----------------------------------------
         // go through each package
@@ -200,26 +209,49 @@ int main(unsigned int argc, char *argv[]) {
             // map< unsigned int, const set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
             // map< unsigned int, int> app_symbol_count;
             // set<string> found_symbol_before;
+
+            string file_cmt    = package_db_path + ".cmt";
+            string file_offset = package_db_path + ".offset";
+            
+            // file may not exist (if it was deleted in repostory at some point)
+            {
+                ifstream in( file_cmt.c_str() );
+                if ( !in ) {
+                    cerr << "Could not find " << file_cmt << endl;
+                    continue;
+                }
+            }
+            
+            cerr << "... reading " << file_cmt << endl;
+            
+            map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
+            map<string, int> app_symbol_count;
+            set<string> found_symbol_before;
+            
+            lines_cmt lines( cvsdata + "/root0/src/", "", package_name, file_cmt, file_offset, " mining" ); 
+            cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);            
             
             // ----------------------------------------
             // this line NEEDS to be changed..
             // ----------------------------------------
-            lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" ); 
+            // lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" ); 
             
             // ------------------------------------------------------------
             // need first input to be 
             // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
             // ------------------------------------------------------------
-            cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
+
             unsigned int commitid = 0;
             unsigned int fileid = 0;
             string filename = "";
             while ( lines.readNextLine() ) {
+
                 string data = lines.getData();
                 set<string> symbols = lines.getCodeSymbols();
                 
                 if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
                     filename = lines.getCurrentFile();
+                    filename = filename.substr(package_name.length() + 1, filename.length() - package_name.length() - 1);
                     // ----------------------------------------
                     // need to obtain file id
                     // only when the file has changed.
@@ -231,7 +263,6 @@ int main(unsigned int argc, char *argv[]) {
                 if (fileid == 0) {
                     continue;
                 }
-                
                 // ----------------------------------------
                 // here we have a mapping between revision
                 // for this line and the associated CVS comment.
@@ -281,7 +312,6 @@ int main(unsigned int argc, char *argv[]) {
                 }
             }
         } // for packages
-
         // ----------------------------------------
         // write results
         // ----------------------------------------
@@ -405,7 +435,7 @@ void write_OM_database( const string & database_dir,
     db_parameters.set("database_create", true);
     OmWritableDatabase database(db_parameters); // open database 
     
-    assert(commit_words.size() == commit_symbols.size());
+    // assert(commit_words.size() == commit_symbols.size());
 
     map<unsigned int, set <string> >::const_iterator i;
     for (i = commit_symbols.begin(); i != commit_symbols.end(); ++i)
@@ -416,7 +446,7 @@ void write_OM_database( const string & database_dir,
         for (j = symbols.begin(); j != symbols.end(); ++j) {
             symbol_string += (*j) + " ";
         }
-        
+        cerr << "symbol_string " << symbol_string << endl;
         map<unsigned int, list<string> >::const_iterator f = commit_words.find(i->first);
         if (f == commit_words.end()) {
             continue;
@@ -455,4 +485,26 @@ void write_OM_database( const string & database_dir,
         
         database.add_document(newdocument);
     }
+}
+
+map<string, unsigned int> 
+write_commit_offset (ostream & os, const string & cvsdata, const string & root, const set<string> & packages) 
+{
+    map<string, unsigned int> result;
+    set<string>::const_iterator itr;
+    unsigned int offset = 0;
+    for (itr = packages.begin(); itr != packages.end(); ++itr) {
+        string package_name = convert(*itr, '/', '_');
+        string database_path = cvsdata + "/" + root + "/db/" + package_name + ".db/" + package_name + ".db";
+        cerr << "opening " << database_path << endl;
+        cvs_db_file db_file(database_path, true);
+        unsigned int count;
+        if (db_file.get_commit_count(count) == 0) 
+        {
+            os << *itr << " " << offset << endl;
+            result[*itr] = offset;
+            offset += count;
+        }
+    }
+    return result;
 }
