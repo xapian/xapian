@@ -1,7 +1,7 @@
 CVSSearch
 =========
 
-
+===========================================================================
 INSTALLATION
 ============
 
@@ -10,30 +10,30 @@ INSTALLATION
  
   From the dist/ directory, type
 
-  ./configure --enable-cxx [see Note below]
+  ./configure --enable-cxx [see Note 1 below]
   make 
   make install 
 
 * install the latest version of omsee from 
   ftp://ftp.omsee.com/pub/unstable/nightly/latest/
 
-  ./configure [see Note below]
+  ./configure [see Note 1 below]
   make 
   make install 
 
 * now configure CVSSearch, compile, and install:
 
-  ./configure --bindir=<your cgi-bin directory>
+  ./configure --bindir=<your cgi-bin directory> [see Note 2 below]
   make
   make install
 
-Note:
-* If you do not have root access, then sleepcycat and omsee cannot be installed
-  under their default output directory: /usr/local. 
+Note 1:
+* If you do not have root access, then sleepcycat and omsee cannot be 
+  installed under their default output directory: /usr/local. 
 
-* One solution is to install these two packages in the user home directory by append
-  "--prefix=$HOME" to the configure command (not for CVSSearch) and set the following
-  environment variable before compiling CVSSearch
+* One solution is to install these two packages in the user home directory 
+  by append "--prefix=$HOME" to the configure command (not for CVSSearch) 
+  and set the following environment variable before compiling CVSSearch
 
 * for csh:
   setenv LD_LIBRARY_PATH "$HOME/lib"
@@ -51,26 +51,115 @@ Note:
   export CFLAGS         ="-I$HOME/include -O3 -Wall"
   export CPPFLAGS       ="-I$HOME/include -O3 -Wall"
 
+Note 2:
+* there is no need to specify --prefix because we want to output 
+  all the executables, scripts to a directory with cgi access.
+
+
+===========================================================================
 Building a CVSSearch Database
 =============================
+You can index modules(may also be called packages) from a repository by
 
-  for csh:
-  setenv CVSROOT <ROOT> [ROOT = location of CVS repository]
-  setenv CVSDATA <DATA> [DATA = location of CVSSearch database to be built]
+1. cd <cgi-bin directory> 
 
-  cd <cgi-bin directory>            [ this is necessary because the command cvsbuilddb
-                                      uses other programs/scripts that assumes to be
-                                      in the same directory as cvsbuilddb ]
+   [ this cgi-bin directory contains all the scripts/executables. this is
+     necessary because the command building the database uses other 
+     programs/scripts that assumes to be in the same directory as 
+     cvsbuilddb ]
 
-  ./cvsbuilddb -f dir.list          [ dir.list is file containing a list of directories 
-                                      in CVS repository to index 
-                                      ./ is necessary because the cgi-bin directory is usually 
-                                      not in the path ]
+2. Export CVSDATA environment variable to the path to CVSSearch databases.
+
+   [ this path may be an absolute path or a path relative to the 
+     cgi-bin directory in step 1. ]
+
+   e.g. say CVSSearch database output is to be stored under a directory 
+        called cvsdata relative to the cgi-bin directory containing the 
+        executables. ie CVSSearch databases are stored under 
+        <cgi-bin directory>/cvsdata, do
+
+   for csh:
+   setenv CVSDATA cvsdata
+
+   for bash:
+   export CVSDATA="cvsdata"
+
+3. Export CVSROOT environment variable to the path to CVS repository.
+   [ this step is usually already done. type "echo $CVSROOT" to find out]
+
+   for csh:
+   setenv CVSROOT ROOT [ROOT = path of CVS repository]
+
+   for bash:
+   export CVSROOT=ROOT [ROOT = path of CVS repository]
+
+
+4. Build the database type
+
+   ./cvsbuilddb -f module.list      
+
+   [ module.list is file containing a list of modules [See Note 3 below]
+     in CVS repository to index. ./ before cvsbuilddb is necessary because 
+     the cgi-bin directory is usually not in the path ]
+
          or 
                              
-  ./cvsbuilddb dir1 dir2            [ dir1 dir2 are directories in CVS repository to index]
+   ./cvsbuilddb module1 module2 ... 
+
+   [ module1 module2 are modules [See Note 3 below] in CVS repository to
+     index]
+
+Note 3:
+a module is something that you can "cvs checkout".. this can be
+
+* a single dot "." to index the entire repository  
+
+  [ this is NOT recommended as a single database will be created for that
+    and files produced are likely to be very large ] 
 
 
+* a single directory e.g. "kdebase" to index all modules 
+  below kdebase directory
+
+  [ this is ok, but not desirable if it is a large repository because 
+    again a single database will be created for that.]
+
+
+* a multi-level directory e.g. "kdebase/konqueror" to index the module 
+  kdebase/konqueror
+
+  [ this is recommended. konqueror is a stand-alone package ]
+
+you can always add additional modules at a later time.
+
+
+
+===========================================================================
+Building Multiple Databases for Multiple CVS Repositories
+=========================================================
+
+CVSSearch supports multiple CVS repositories so a single query can search 
+from multiple repositories. 
+
+[See Directory Structure section on how this is done]
+
+If you have already indexed modules from one repository and want to index
+other repositories then
+
+1. Perform step 1 and 2 from the previous section. 
+
+   [multiple repositories can use the same database path, so no need to 
+    use different CVSDATA setting for different repositories]
+
+2. ./cvsbuilddb -d ANOTHER_CVSROOT -f module.list
+       or 
+   ./cvsbuilddb -d ANOTHER_CVSROOT module1 module2 ...   
+
+   [-d ANOTHER_CVSROOT is used to overide the current $CVSROOT 
+    environment variable or if $CVSROOT is not set]
+
+
+===========================================================================
 Searching a CVSSearch Database
 ==============================
 
@@ -80,65 +169,116 @@ To search the database, use the URL
 To see how code alignment works, use the URL
    http://<Your Domain Name>/<your cgi-bin dir>/Compare.cgi
 
-
-Advanced Usage:  Multiple CVS Repositories
-==========================================
-to specify an alternate CVS repository, do:
-where NEWCVSROOT
-
-    ./cvsbuilddb -d NEWCVSROOT [-f dir.list] [dir1 dir2]
+[FIX ME] what if kdebase and kdebase/konqueror are both built.. 
+         will it search for both?
 
 
 
 Security & File Permissions
 ===========================
 
-* To build the database, you must have read and write access to the repository.
-* to use Compare.cgi, the userid the server uses to run the cgi-script must also have read/write access to the repository.y
-* to use Query.cgi, There will be a cache directory created under your cgi-bin directory that has public read/write access.
+* the user to build the database must have read and write access to the 
+  repository.
 
+* the user the server uses to run the cgi-script 
+  must have read/execute access to the scripts/executables,
+  and read access to the configuration file found under cgi-bin directory:
+  cvssearch.conf
+
+* to use Compare.cgi, the user the server uses to run the cgi-script 
+  must have read/write access to the repository.
+
+* to use Query.cgi, There will be a cache directory created under your 
+  cgi-bin directory that has public read/write access.
+
+[FIX ME] to create the cache directory also require cgi-bin to have public
+         read/write access.. => need to move the cache directory to 
+         somewhere else like /tmp/cvscache. (cache may be used else where)
 
 
 Directory structure
 ===================
 
+This section describes the directory format for $CVSDATA, the directory 
+where all the databases/statistic information goes under.
+
+The directory structure:
+----------------------------------------------------------------------
+
                    $CVSDATA
-   +-------------------+----------------------------------+----------...
-CVSROOTS              root1                             root2        ...         
-            +-----------+------------+                +---+---+
-           db          src       dbcontent            db  src dbcontent
-        +-----...       +----...                      +   +   +
+   +-------------------+------------------------------+----------...
+CVSROOTS              root1                         root2        ...
+            +-----------+------------+            +---+---+
+           db          src       dbcontent        db  src dbcontent
+        +-----...       +----...                  +   +   +
 
-The CVSROOTS file maps multiple CVSROOT to a directory where the database for that CVSROOT is stored. 
-So it looks something like this: 
+----------------------------------------------------------------------
 
-/home/.../cvsroot        root0
-/home/.../another_root   root1
-...
+CVSROOTS is a file, that maps each CVSROOT to a directory where the 
+database for that CVSROOT is stored, so it looks something like this: 
 
-db directory: contains omsee and database database files for each projects. e.g. (suppose dir/prject1 is indexed, we have)
-db/
-    dir_project1.db       contains berkeley databases
-    dir_project1.cmt      contains line-comment mappings
-    dir_project1.om       contains an omsee database
-    dir_project1.om2      contains another omsee database
-    dir_project1.offset   contains in the format (relative_file_path index <into the cmt file>^B)
-    dir_project1.st       contains statistics for dir/project1
+  /home/.../cvsroot        root0
+  /home/.../another_root   root1
+  ...
 
-src directory: where source files for this CVSROOT is checked out. e.g.
-src/
-    dir/
-        project1/
-            file1.cc
-            file2.cc
 
-dbcontent file: contains all the packages built under this root. e.g.
-    dir_project1
-    dir_project2
+this means information for /home/.../cvsroot repository is 
+stored under root0, etc...
 
+Under each rootx directory, we have
+db directory: 
+
+   contains omsee and database database files for each projects. 
+   so it looks something like this: 
+   (suppose dir1/prject1 dir2/project2 are indexed):
+   db/
+       dir1_project1.db       contains berkeley databases
+       dir1_project1.cmt      contains line-comment mappings
+       dir1_project1.om       contains an omsee database
+       dir1_project1.om2      contains another omsee database
+       dir1_project1.offset   contains in the format 
+                             [ file_path index <into the cmt file>^B]
+       dir1_project1.st       contains statistics for dir/project1
+
+       dir2_project2.db 
+       dir2_project2.cmt
+       ...
+
+src directory: 
+
+   contains the checked out source files for this CVSROOT.
+   so it looks something like this:
+   src/
+       dir/
+           project1/
+               file1.cc
+               file2.cc
+           project2/
+               file3.cc
+               ...
+
+dbcontent file: 
+
+   contains all the module names built under this root, with 
+   every slash '/' changed to a '-', so it looks something like this:
+
+   dir_project1
+   dir_project2
+   ...
+
+===========================================================================
 FAQ
 ===
 
-Q) What do I do if I need to move my CVS repository
+Q) What do I do if I need to move my CVS repository?
 A) Modify the file $CVSDATA/CVSROOTS and change the old CVSROOT value to the new CVSROOT value
 
+Q) What do I do if the cgi shows an error?
+A) Permission is usually the culprit.
+   
+   Check the following:
+   1. the user id that runs the cgi-script from your local web adminstrator.
+   2. check Security & File Permissions.
+
+   (a package called cgi-wrap may be used to execute the script with the
+    user id of the scripts/executables)
