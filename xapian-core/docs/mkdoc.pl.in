@@ -70,7 +70,7 @@ sub get_descriptions() {
 }
 
 sub get_codestruct() {
-    my @files = split(/\n/, `find $srcdir -name \*.cc -or -name \*.c -or -name \*.cpp -or -name \*.h`);
+    my @files = split(/\n/, `find $srcdir -name \*.cc -o -name \*.c -o -name \*.cpp -o -name \*.h`);
 
     my $file;
     foreach $file (@files) {

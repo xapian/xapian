@@ -1,3 +1,8 @@
+Fri Sep  1 13:12:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change find invocations to be portable, in docs/Makefile.am and
+	  docs/mkdocs.pl.in
+
 Fri Sep  1 12:57:59 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Correct sense of test for presence of doxygen.  How we never
