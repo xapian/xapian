@@ -27,6 +27,8 @@ to work in a multi-threaded process...
 
 <!-- map<pair<dev_t, inode_t>, bool> locks; lock.find(make_pair(dev, ino)); -->
 
+Leave thread-level locking to the user?
+
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
 
@@ -51,6 +53,16 @@ get_threadid(void)
     if (!pt_s) return (pthread_t)0;
     return pt_s();
 }
+
+Could do this inline in a header and on some platforms use:
+
+#ifdef WE_ARE_USING_THREADS
+class foo {
+   foo() { Xapian::pthread_self = pthread_self; }
+};
+
+static foo bar;
+#endif
 -->
 
 </todoitem>
@@ -577,7 +589,7 @@ just like matcher was changed a while ago.
 
 Build test harness to check consistency by composing random queries
 and checking the results.  Already sanity check mset size and sorting.
-Add cheks for %age cutoffs from 0 - 100%, bool filters.
+Add checks for %age cutoffs from 0 - 100%, bool filters.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -604,6 +616,11 @@ min and max.
 Try to reduce unnecessary inclusion of headers - sometimes just saying
 "class Xapian::Foo;" is enough.  Look at using iosfwd instead of iostream
 where applicable (TC++PL 3ed 8.2.7).
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="" release="">
+
+Sort out tests of test harness again.
 
 </todoitem>
 </todo>
