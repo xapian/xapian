@@ -345,6 +345,71 @@ static bool test_tableentries1()
     return true;
 }
 
+/// Test making and playing with a QuartzBufferedTable
+static bool test_bufftable1()
+{
+    unlink("./test_bufftable1_data_1");
+    unlink("./test_bufftable1_data_2");
+    QuartzDiskTable disktable1("./test_bufftable1_", false);
+    QuartzBufferedTable bufftable1(&disktable1);
+    disktable1.open();
+
+    TEST_EQUAL(disktable1.get_entry_count(), 0);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+
+    QuartzDbKey key;
+    key.value = "foo1";
+
+    bufftable1.delete_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 0);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+
+    TEST_EQUAL((void *)bufftable1.get_tag(key), 0);
+    TEST_EQUAL(disktable1.get_entry_count(), 0);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+
+    QuartzDbTag * tag = bufftable1.get_or_make_tag(key);
+    TEST_NOT_EQUAL(tag, 0);
+    TEST_EQUAL(disktable1.get_entry_count(), 0);
+    TEST_EQUAL(bufftable1.get_entry_count(), 1);
+
+    QuartzRevisionNumber new_revision = disktable1.get_latest_revision_number();
+    new_revision.increment();
+    TEST(bufftable1.apply(new_revision));
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 1);
+
+    tag = bufftable1.get_or_make_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 1);
+
+    bufftable1.delete_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+
+    bufftable1.delete_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+
+    key.value = "bar";
+    tag = bufftable1.get_or_make_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 1);
+
+    key.value = "bar2";
+    tag = bufftable1.get_or_make_tag(key);
+    TEST_EQUAL(disktable1.get_entry_count(), 1);
+    TEST_EQUAL(bufftable1.get_entry_count(), 2);
+
+    new_revision.increment();
+    TEST(bufftable1.apply(new_revision));
+
+    TEST_EQUAL(disktable1.get_entry_count(), 2);
+    TEST_EQUAL(bufftable1.get_entry_count(), 2);
+
+    return true;
+}
+
 /// Test opening of a quartz database
 static bool test_open1()
 {
@@ -568,6 +633,7 @@ static bool test_unpackint1()
 test_desc tests[] = {
     {"quartzdisktable1",	test_disktable1},
     {"quartztableentries1",	test_tableentries1},
+    {"quartzbufftable1",	test_bufftable1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
     {"quartzadddoc2",		test_adddoc2},

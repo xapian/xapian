@@ -94,7 +94,6 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 	buffered_tables = new QuartzBufferedTableManager(db_dir,
 							 tmp_dir,
 							 log_filename,
-							 readonly,
 							 perform_recovery);
 	tables.reset(buffered_tables);
     }

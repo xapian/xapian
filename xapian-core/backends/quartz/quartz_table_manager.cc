@@ -339,12 +339,11 @@ QuartzDiskTableManager::get_record_table()
 QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
 						       string tmp_dir_,
 						       string log_filename,
-						       bool readonly_,
 						       bool perform_recovery)
 	: disktables(db_dir_,
 		     tmp_dir_,
 		     log_filename,
-		     readonly_,
+		     false,
 		     perform_recovery),
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),

@@ -1,3 +1,7 @@
+Thu Oct  5 18:24:02 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test of QuartzBufferedTable (fails).
+
 Thu Oct  5 18:01:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Corrected includes of autoptr.h in quartz files.

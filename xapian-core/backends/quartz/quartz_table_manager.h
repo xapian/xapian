@@ -267,7 +267,6 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTableManager(string db_dir_,
 				   string tmp_dir_,
 				   string log_filename_,
-				   bool readonly_,
 				   bool perform_recovery);
 	
 	/** Destroy the manager.  Any anapplied modifications will
