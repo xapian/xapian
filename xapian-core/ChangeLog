@@ -1,3 +1,11 @@
+Thu Mar 18 00:33:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,xapian-config.in: mingw and cygwin both need
+	  -Wl,--enable-runtime-pseudo-reloc passing when linking.
+	  Arrange for xapian-config to include this, and check that
+	  the ld installed is a new enough version (or at least that
+	  it was at configure time).
+
 Tue Mar 16 01:40:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/matcherdesign.html: Merged in more details from a message I
