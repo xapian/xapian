@@ -98,7 +98,6 @@ termid DATermList::get_termid() {
 }
 
 void   DATermList::next() {
-    printf("Next\n");
     readterms(tvec);
 }
 
