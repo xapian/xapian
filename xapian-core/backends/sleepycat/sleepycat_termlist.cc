@@ -79,7 +79,7 @@ SleepyTermList::get_wdf() const
 {
     om_termcount wdf = mylist.get_current_item().wdf;
     if(wdf == 0) {
-	DebugMsg("WDF not present in termlist - using 1.");
+	DebugMsg("WDF not present in termlist - using 1." << endl);
 	wdf = 1;
     }
     return wdf;
@@ -90,7 +90,7 @@ SleepyTermList::get_termfreq() const
 {
     om_doccount tf = mylist.get_current_item().termfreq;
     if(tf == 0) {
-	DebugMsg("Term frequency not present in termlist - getting from database");
+	DebugMsg("Term frequency not present in termlist - getting from database" << endl);
 	tf = database->get_termfreq(SleepyTermList::get_termname());
     }
     return tf;
