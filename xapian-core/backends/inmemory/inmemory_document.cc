@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +35,7 @@ InMemoryDocument::InMemoryDocument(const Database *database_,
 }
 
 string
-InMemoryDocument::do_get_value(om_valueno valueid) const
+InMemoryDocument::get_value(om_valueno valueid) const
 {
     map<om_valueno, string>::const_iterator k = values.find(valueid);
     if (k == values.end()) return "";
@@ -42,13 +43,13 @@ InMemoryDocument::do_get_value(om_valueno valueid) const
 }
 
 map<om_valueno, string>
-InMemoryDocument::do_get_all_values() const
+InMemoryDocument::get_all_values() const
 {
     return values;
 }
 
 string
-InMemoryDocument::do_get_data() const
+InMemoryDocument::get_data() const
 {
     return doc;
 }

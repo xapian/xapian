@@ -1,3 +1,10 @@
+Wed May 07 17:54:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/,common/document.h,matcher/Makefile.am,matcher/document.cc:
+	  Removed do_ wrappers for Document methods get_value(),
+	  get_all_values() and get_data().  The wrappers used to perform
+	  thread locking, but now they're just pointless overhead.
+
 Wed May 07 17:24:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Started section of API structure.

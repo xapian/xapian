@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,9 +47,9 @@ class DBDocument : public Document {
     public:
 	~DBDocument();
 
-	string do_get_value(om_valueno valueid) const;
-	map<om_valueno, string> do_get_all_values() const;
-	string do_get_data() const;
+	string get_value(om_valueno valueid) const;
+	map<om_valueno, string> get_all_values() const;
+	string get_data() const;
 };
 
 #endif /* OM_HGUARD_DB_DOCUMENT_H */

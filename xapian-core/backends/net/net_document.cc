@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,22 +36,22 @@ NetworkDocument::NetworkDocument(const Database *database_,
 }
 
 string
-NetworkDocument::do_get_value(om_valueno valueid) const
+NetworkDocument::get_value(om_valueno valueid) const
 {
-    DEBUGCALL(DB, string, "NetworkDocument::do_get_value", valueid);
+    DEBUGCALL(DB, string, "NetworkDocument::get_value", valueid);
     map<om_valueno, string>::const_iterator k = values.find(valueid);
     if (k == values.end()) RETURN("");
     RETURN(k->second);
 }
 
 map<om_valueno, string>
-NetworkDocument::do_get_all_values() const
+NetworkDocument::get_all_values() const
 {
     return values;
 }
 
 string
-NetworkDocument::do_get_data() const
+NetworkDocument::get_data() const
 {
     return doc;
 }

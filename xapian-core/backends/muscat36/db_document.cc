@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +43,7 @@ DBDocument::~DBDocument()
 }
 
 string
-DBDocument::do_get_value(om_valueno valueid) const
+DBDocument::get_value(om_valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
 
@@ -70,7 +71,7 @@ DBDocument::do_get_value(om_valueno valueid) const
  *  read from the record, this will not return them.
  */
 map<om_valueno, string>
-DBDocument::do_get_all_values() const
+DBDocument::get_all_values() const
 {
     om_valueno valueid = 0;
     map<om_valueno, string> values;
@@ -83,7 +84,7 @@ DBDocument::do_get_all_values() const
 
 
 string
-DBDocument::do_get_data() const
+DBDocument::get_data() const
 {
     if (rec == NULL) rec = database->get_record(did);
     unsigned char *pos = (unsigned char *)rec->p;

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,9 +60,9 @@ QuartzDocument::~QuartzDocument()
  *  @param valueid	The value number to retrieve.
  */
 string
-QuartzDocument::do_get_value(om_valueno valueid) const
+QuartzDocument::get_value(om_valueno valueid) const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::do_get_value", valueid);
+    DEBUGCALL(DB, string, "QuartzDocument::get_value", valueid);
     string retval;
     QuartzValueManager::get_value(*value_table, retval, did, valueid);
     RETURN(retval);
@@ -70,9 +71,9 @@ QuartzDocument::do_get_value(om_valueno valueid) const
 /** Retrieve all value values from the database
  */
 map<om_valueno, string>
-QuartzDocument::do_get_all_values() const
+QuartzDocument::get_all_values() const
 {
-    DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
+    DEBUGCALL(DB, void, "QuartzDocument::get_all_values", "");
     map<om_valueno, string> values;
     QuartzValueManager::get_all_values(*value_table, values, did);
     return values;
@@ -81,8 +82,8 @@ QuartzDocument::do_get_all_values() const
 /** Retrieve the document data from the database
  */
 string
-QuartzDocument::do_get_data() const
+QuartzDocument::get_data() const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::do_get_data", "");
+    DEBUGCALL(DB, string, "QuartzDocument::get_data", "");
     RETURN(QuartzRecordManager::get_record(*record_table, did));
 }

@@ -44,13 +44,6 @@ class Document : public RefCntBase {
 
 	const Database *database;
 
-	/// The virtual implementation of get_value().
-	virtual string do_get_value(om_valueno valueid) const = 0;
-	/// The virtual implementation of get_all_values().
-	virtual map<om_valueno, string> do_get_all_values() const = 0;
-	/// The virtual implementation of get_data().
-	virtual string do_get_data() const = 0;
-
     protected:
 	/// The document ID of the document.
 	om_docid did;
@@ -72,7 +65,7 @@ class Document : public RefCntBase {
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	string get_value(om_valueno valueid) const;
+	virtual string get_value(om_valueno valueid) const = 0;
 
 	/** Get all values for this document
 	 *
@@ -83,7 +76,7 @@ class Document : public RefCntBase {
 	 *
 	 *  @return   A map of strings containing all the values.
 	 */
-	map<om_valueno, string> get_all_values() const;
+	virtual map<om_valueno, string> get_all_values() const = 0;
 
 	/** Get data stored in document.
 	 *
@@ -98,7 +91,7 @@ class Document : public RefCntBase {
 	 *
 	 *  @return       An string containing the data for this document.
 	 */
-	string get_data() const;	
+	virtual string get_data() const = 0;	
 
 	/** Open a term list.
 	 *
@@ -108,19 +101,24 @@ class Document : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	LeafTermList * open_term_list() const;
+	LeafTermList * open_term_list() const {
+	    DEBUGCALL(MATCH, LeafTermList *, "Document::open_term_list", "");
+	    RETURN(database->open_term_list(did));
+	}
 	
-	/** Constructor.  In derived classes, this will typically be a
-	 *  private method, and only be called by database objects of the
-	 *  corresponding type.
+	/** Constructor.
+	 *
+	 *  In derived classes, this will typically be a private method, and
+	 *  only be called by database objects of the corresponding type.
 	 */
-	Document(const Database *database_, om_docid did_)
-	    : database(database_), did(did_) {}
+	Document(const Database *database_, om_docid did_) :
+	    database(database_), did(did_) { }
 
-	/** Destructor.  Note that the database object which created this
-	 *  document must still exist at the time this is called.
+	/** Destructor.
+	 *
+	 *  Note that the database object which created this document must
+	 *  still exist at the time this is called.
 	 */
-	virtual ~Document() {}
-};
+	virtual ~Document() { } };
 
 #endif  // OM_HGUARD_DOCUMENT_H
