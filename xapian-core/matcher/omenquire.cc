@@ -836,10 +836,14 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     auto_ptr<OmExpandDecider> decider_andnoquery;
     
     if (query != 0 && !eoptions->allow_query_terms) {
-        decider_noquery = auto_ptr<OmExpandDecider>(
+	auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
-	decider_andnoquery = auto_ptr<OmExpandDecider>(
-	    new OmExpandDeciderAnd(decider_noquery.get(), edecider));
+        decider_noquery = temp1;
+	
+	auto_ptr<OmExpandDecider> temp2(
+	    new OmExpandDeciderAnd(decider_noquery.get(),
+				   edecider));
+	decider_andnoquery = temp2;
 
         edecider = decider_andnoquery.get();
     }

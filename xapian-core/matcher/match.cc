@@ -459,7 +459,8 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    // Use the decision functor if any.
 	    if (mdecider != 0) {
 		if (irdoc.get() == 0) {
-		    irdoc = auto_ptr<OmDocument>(database->open_document(did));
+		    auto_ptr<OmDocument> temp(database->open_document(did));
+		    irdoc = temp;
 		}
 		add_item = mdecider->operator()(irdoc.get());
 	    }
@@ -467,7 +468,8 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(add_item && do_collapse) {
 		if (irdoc.get() == 0) {
-		    irdoc = auto_ptr<OmDocument>(database->open_document(did));
+		    auto_ptr<OmDocument> temp(database->open_document(did));
+		    irdoc = temp;
 		}
 		add_item = perform_collapse(mset, collapse_table, did,
 					    new_item, mcmp, min_item,

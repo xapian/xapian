@@ -544,9 +544,19 @@ class myExpandFunctor : public OmExpandDecider {
 	    for (om_termname::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
 		sum += *i;
 	    }
+//	    if (verbose) {
+//		cout << tname << "==> " << sum << endl;
+//	    }
 	    return (sum % 2) == 0;
 	}
 };
+
+// so that we can print out esets conveniently
+ostream &operator<<(ostream &os, const OmESetItem &item)
+{
+    cout << item.tname;
+    return os;
+}
 
 bool test_expandfunctor1()
 {
@@ -570,6 +580,17 @@ bool test_expandfunctor1()
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
     // Compare myeset with the hand-filtered version of myeset_orig.
+    if (verbose) {
+	cout << "orig_eset: ";
+	copy(myeset_orig.items.begin(), myeset_orig.items.end(),
+	     ostream_iterator<OmESetItem>(cout, " "));
+	cout << endl;
+	
+	cout << "new_eset: ";
+	copy(myeset.items.begin(), myeset.items.end(),
+	     ostream_iterator<OmESetItem>(cout, " "));
+	cout << endl;
+    }
     vector<OmESetItem>::const_iterator orig,filt;
     for (orig=myeset_orig.items.begin(), filt=myeset.items.begin();
          orig!=myeset_orig.items.end() && filt!=myeset.items.end();
@@ -583,7 +604,11 @@ bool test_expandfunctor1()
 	    (orig->wt != filt->wt)) {
 	    success = false;
 	    if (verbose) {
-	        cout << "Mismatch in the items after filtering" << endl;
+	        cout << "Mismatch in items "
+	             << orig->tname
+		     << " vs. "
+		     << filt->tname
+		     << " after filtering" << endl;
 	    }
 	    break;
 	}
@@ -596,7 +621,11 @@ bool test_expandfunctor1()
     if (orig != myeset_orig.items.end()) {
 	success = false;
 	if (verbose) {
-	    cout << "Extra items in the non-filtered eset." << endl;
+	    cout << "Extra items in the non-filtered eset:";
+            copy(orig,
+		 const_cast<const OmESet &>(myeset_orig).items.end(),
+		 ostream_iterator<OmESetItem>(cout, " "));
+	    cout << endl;
 	}
     } else if (filt != myeset.items.end()) {
         success = false;
