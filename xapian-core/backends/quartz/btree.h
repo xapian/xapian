@@ -147,7 +147,7 @@ class Btree {
 			bool revision_supplied,
 			uint4 revision);
 
-	bool find(Cursor *C_);
+	bool find(Cursor *);
 	int delete_kt();
 	void read_block(int4 n, byte *p);
 	void write_block(int4 n, const byte *p);
@@ -161,7 +161,7 @@ class Btree {
 	void add_item_to_block(byte *p, byte *kt, int c);
 	void add_item(Cursor *C, byte *kt, int j);
 	void delete_item(Cursor *C, int j, int repeatedly);
-	int add_kt(int found, Cursor *C);
+	int add_kt(int found);
 	int write_base();
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);

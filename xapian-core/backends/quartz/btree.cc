@@ -390,7 +390,8 @@ Btree::write_block(int4 n, const byte * p)
 void
 Btree::set_overwritten()
 {
-    DEBUGLINE(DB, "overwritten set to true\n");  /* initial debbugging line */
+    // initial debugging line
+    DEBUGLINE(DB, "overwritten set to true");
     overwritten = true;
     throw OmDatabaseModifiedError("Db block overwritten");
 }
@@ -594,7 +595,7 @@ static int find_in_block(const byte * p, const byte * key, int offset, int c)
 bool
 Btree::find(Cursor * C_)
 {
-    /* FIXME: is the parameter necessary? */
+    // Note: the parameter is needed when we're called by BCursor
     const byte * p;
     int c;
     byte * k = kt + I2;
@@ -1010,11 +1011,12 @@ Btree::delete_item(Cursor * C, int j, int repeatedly)
 static addcount = 0;
 */
 
-/* add_kt(found, C) adds the item (key-tag pair) at B->kt into the
-   B-tree, using cursor C. found == find(C) is handed over as a
-   parameter from Btree::add. Btree::alter(C) prepares for the
-   alteration to the B-tree. Then there are a number of cases to
-   consider:
+/** add_kt(found) adds the item (key-tag pair) at B->kt into the
+   B-tree, using cursor C.
+   
+   found == find() is handed over as a parameter from Btree::add.
+   Btree::alter(C) prepares for the alteration to the B-tree. Then
+   there are a number of cases to consider:
 
      If an item with the same key is in the B-tree (found is true),
      the new kt replaces it.
@@ -1035,7 +1037,7 @@ static addcount = 0;
 */
 
 int
-Btree::add_kt(int found, Cursor * C)
+Btree::add_kt(int found)
 {
     int components = 0;
 
@@ -1094,7 +1096,7 @@ Btree::add_kt(int found, Cursor * C)
     return components;
 }
 
-/* delete_kt() corresponds to add_kt(found, C), but there are only
+/* delete_kt() corresponds to add_kt(found), but there are only
    two cases: if the key is not found nothing is done, and if it is
    found the corresponding item is deleted with delete_item.
 */
@@ -1216,7 +1218,7 @@ Btree::add(const string &key, const string &tag)
 	SETC(kt, ct, m);
 	SETI(kt, 0, cd + l);
 	if (i > 1) found = find(C);
-	n = add_kt(found, C);
+	n = add_kt(found);
 	if (n > 0) replacement = true;
     }
     /* o == tag.length() here, and n may be zero */
@@ -1520,14 +1522,14 @@ Btree::do_open_to_write(const string & name_,
 	if (!revision_supplied) {
 	    string message = "Failed to open for writing";
 	    if (error != BTREE_ERROR_NONE) {
-		message += string(": ");
+		message += ": ";
 		message += Btree_strerror(error);
 	    }
 	    throw OmOpeningError(message);
 	} else {
 	    /* When the revision is supplied, it's not an exceptional
-	     * case when open failed.  We should just return 0 here
-	     * instead.
+	     * case when open failed.  We should just return false
+	     * here instead.
 	     */
 	    return false;
 	}
