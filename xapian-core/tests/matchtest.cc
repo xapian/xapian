@@ -30,6 +30,7 @@ int
 main(int argc, char *argv[])
 {
     int msize = 10;
+    int mfirst = 0;
     const char *progname = argv[0];
     list<docid> reldocs;
     list<string> dbnames;
@@ -44,6 +45,10 @@ main(int argc, char *argv[])
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
 	    msize = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--mfirst") == 0) {
+	    mfirst = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
@@ -80,7 +85,8 @@ main(int argc, char *argv[])
 	
     if (syntax_error || argc < 1) {
 	cout << "Syntax: " << progname << " TERM ..." << endl;
-	cout << "\t--msize MSIZE\n";
+	cout << "\t--msize <msize>\n";
+	cout << "\t--mfirst <first mitem to return>\n";
 	cout << "\t--db DBDIRECTORY\n";
 	cout << "\t--im INMEMORY\n";
 	cout << "\t--rel DOCID\n";
@@ -127,8 +133,6 @@ main(int argc, char *argv[])
 	match.set_rset(&rset);
        
         StemEn stemmer;
-
-	if (msize) match.set_max_msize(msize);
 
 	bool boolean = false;
 	vector<termname> prob_terms;
@@ -206,15 +210,19 @@ main(int argc, char *argv[])
 	    prob_terms.clear();
 	}
 
-        match.match();
+	vector<MSetItem> mset;
+        match.match(mfirst, msize, mset);
 	
 	if (showmset) {
-	    for (docid i = 0; i < match.msize; i++) {
-		docid q0 = match.mset[i].did;
-		IRDocument *doc = database->open_document(q0);
+	    vector<MSetItem>::const_iterator i;
+	    for(i = mset.begin();
+		i != mset.end();
+		i++) {
+		docid did = i->did;
+		IRDocument *doc = database->open_document(did);
 		IRData data = doc->get_data();
 		string p = data.value;
-		cout << q0 << ":[" << p << "] " << match.mset[i].wt << "\n\n";
+		cout << did << ":[" << p << "] " << i->wt << endl << endl;
 	    }
 	    cout << endl;
 	}
