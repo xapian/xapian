@@ -440,21 +440,22 @@ WritableDatabase::replace_document(Xapian::docid did, const Document & document)
     internal[0]->replace_document(did, document);
 }
 
-void
+Xapian::docid
 WritableDatabase::replace_document(const std::string & unique_term, const Document & document)
 {
     DEBUGAPICALL(void, "WritableDatabase::replace_document",
 		 unique_term << ", " << document);
     if (unique_term.empty()) throw InvalidArgumentError("Empty termnames are invalid");
     Xapian::PostingIterator p = postlist_begin(unique_term);
-    if (p != postlist_end(unique_term)) {
-	internal[0]->replace_document(*p, document);
-	while (++p != postlist_end(unique_term)) {
-	    internal[0]->delete_document(*p);
-	}
-    } else {
-	internal[0]->add_document(document);
+    if (p == postlist_end(unique_term)) {
+	return internal[0]->add_document(document);
     }
+    Xapian::docid did = *p;
+    internal[0]->replace_document(did, document);
+    while (++p != postlist_end(unique_term)) {
+	internal[0]->delete_document(*p);
+    }
+    return did;
 }
 
 string

@@ -1,3 +1,9 @@
+Wed Aug 25 22:45:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h: Changed new
+	  WritableDatabase::replace_document(term, doc) method to return
+	  the docid which the document was given.
+
 Tue Aug 24 13:45:52 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,include/xapian/enquire.h: Added new ESet methods

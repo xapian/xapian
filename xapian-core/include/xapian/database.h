@@ -452,14 +452,16 @@ class WritableDatabase : public Database {
 	 *  @param unique_term    The "unique" term.
 	 *  @param document The new document.
 	 *
+	 *  @return         The document ID that document was given.
+	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 */
-	void replace_document(const std::string & unique_term,
-			      const Xapian::Document & document);
+	Xapian::docid replace_document(const std::string & unique_term,
+				       const Xapian::Document & document);
 
 	/** Introspection method.
 	 *
