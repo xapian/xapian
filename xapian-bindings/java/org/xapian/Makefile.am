@@ -1,6 +1,6 @@
 jardir = `pwd`/../../built # directory to install xapian_jni.jar in
 
-SUBDIRS = errors examples
+SUBDIRS = errors . examples
 
 SUFFIXES = .java .class
 
@@ -21,7 +21,7 @@ xapian.jar: $(XAPIAN_CLASS_FILES)
 	$(JAR) -cf xapian_jni.jar $(XAPIAN_CLASS_FILES) errors/*.class
 
 .java.class:
-	$(JAVAC) -d . $<
+	$(JAVAC) -classpath $(srcdir):. -d . $<
 
 CLEANFILES = $(XAPIAN_CLASS_FILES)
 

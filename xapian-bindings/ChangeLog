@@ -1,3 +1,9 @@
+Fri Sep 17 00:52:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Pass -classpath to javac; make sure errors subdirectory is built
+	  before we try to build the jar file.
+
 Fri Sep 17 00:00:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,tcl8/Makefile.am: Improved check for tcl.h to work with

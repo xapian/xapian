@@ -18,6 +18,6 @@ XAPIAN_CLASS_FILES = AssertionError.class DatabaseCorruptError.class\
 all: $(XAPIAN_CLASS_FILES)
 
 .java.class:
-	$(JAVAC) -d . $<
+	$(JAVAC) -classpath $(srcdir):. -d . $<
 
 CLEANFILES = $(XAPIAN_CLASS_FILES)
