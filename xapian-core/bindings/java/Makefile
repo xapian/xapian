@@ -23,9 +23,6 @@ SRC   = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmExpandOptions.java		\
 	com/muscat/om/OmExpandDecider.java		\
 	com/muscat/om/OmPrefixExpandDecider.java	\
-	com/muscat/format/FerretUnpacker.java		\
-	com/muscat/format/RecordFormatter.java		\
-	com/muscat/format/FerretFormatter.java		\
 	com/muscat/om/OmError.java			\
 	com/muscat/om/OmRuntimeError.java		\
 	com/muscat/om/OmOpeningError.java		\
@@ -37,7 +34,7 @@ SRC   = com/muscat/om/OmObject.java			\
 
 # classpath needed for compilation
 
-CP    =  .:./classes:/usr/local/jdk/jre/lib/rt.jar
+CP    =  .:./classes:/usr/lib/jdk1.1/lib/classes.zip
 
 # where to put the class files
 
