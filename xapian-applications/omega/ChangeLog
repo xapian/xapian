@@ -1,3 +1,9 @@
+Fri Nov 05 17:20:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
+	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
+	  GCC when chosing warning flags.
+
 Wed Nov 03 20:15:34 GMT 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: Updated to use Query::empty() instead of
