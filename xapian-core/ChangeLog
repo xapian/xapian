@@ -1,3 +1,9 @@
+Thu Sep 21 11:37:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make dist will now fail if Perl XML parser is not available - this
+	  means that TODO's in the distribution should always be present and
+	  up-to-date.
+
 Thu Sep 21 11:16:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various work making distclean remove all the files it should.  Still

@@ -12,17 +12,12 @@ SUBDIRS = include testsuite autoconf common \
           backends api matcher languages $(BUILDSUBDIR_REMOTE1) indexer . m4 \
 	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
 
-if HAVE_PERL_XML
-todo_dist=TODO
-else
-todo_dist=
-endif
 bin_SCRIPTS=libomus-config
 
 CLEANFILES=TODO libomus-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
-             ar-wrapper-solaris $(todo_dist)
+             ar-wrapper-solaris TODO
 
 lib_LTLIBRARIES = libomus.la
 
@@ -31,9 +26,14 @@ lib_LTLIBRARIES = libomus.la
 libomus_la_SOURCES = dummy.c
 EXTRA_libomus_la_SOURCES =
 
-TODO: docs/todo2html.pl
+TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml
+if HAVE_PERL_XML
 	@echo "Generating TODO"
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO
+else
+	@echo "Can't generate TODO: need Perl XML module."
+	@exit 1
+endif
 
 acinclude.m4: autoconf/acinclude.m4
 	cp autoconf/acinclude.m4 acinclude.m4
