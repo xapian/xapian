@@ -1,3 +1,7 @@
+Thu Apr 18 14:32:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall; tiny tweak to configure.in.
+
 Fri Apr 12 16:18:28 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.
@@ -40,6 +44,6 @@ Mon Nov 26 14:40:30 2001  James Aylett  <tartarus@users.sourceforge.net>
 Mon Nov 19 22:04:42 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* source/xdb-dump.cc (main): copies db-options element into output
- 	(by managing to copy it _before_ we free the document it came
- 	from, sigh)
+ 	  (by managing to copy it _before_ we free the document it came
+ 	  from, sigh)
 
