@@ -27,7 +27,7 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../xapian.i util.i extra.i
-	$(SWIG) -namespace -pkgversion @VERSION@ -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION@ -o $@ $(srcdir)/../xapian.i
 
 pkgIndex.tcl: Makefile.am
 	echo 'package ifneeded xapian @VERSION@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl

@@ -1,3 +1,13 @@
+Tue Nov 16 02:59:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,php4/Makefile.am,
+	  python/Makefile.am,tcl8/Makefile.am: Use newly added option
+	  `xapian-config --swigflags` which (a) avoids always passing
+	  -I/usr/include which could cause problems if we're using a Xapian
+	  install not in /usr and there's another one in /usr and (b) avoids
+	  problems if `xapian-config --cxxflags` contains flags other than
+	  -I<something>.
+
 Sun Nov 14 06:30:47 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrapped Xapian::Weight and subclasses (compiles, but

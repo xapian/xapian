@@ -29,6 +29,9 @@ if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
     AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
 fi
 
+SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags`"
+AC_SUBST(SWIG_FLAGS)
+
 AC_ARG_WITH(swig,
   [  --without-swig          disable all bindings which depend on SWIG
                          (currently: Python PHP Tcl Guile CSharp)])

@@ -54,7 +54,7 @@ BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 # so we just touch it to avoid complicated contortions in the build system.
 # Once we require SWIG 1.3.22 or newer, the touch can be removed.
 $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
-	$(SWIG) -namespace Xapian -module Xapian -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -csharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 	touch op.cs
 
 lib_LTLIBRARIES = XapianSharp.la
