@@ -198,8 +198,6 @@ Lines::Lines( const string& p,           // path (e.g., "cvsdata/root0/src/")
   current_fn = "";
   current_offset = 1;
   
-  file_count = 0;
-
   in_code = 0;
   
 }
@@ -389,8 +387,6 @@ bool Lines::ReadNextLine() {
   if ( fn != current_fn ) {
     changedFiles = true;
 
-
-    file_count++;
 
     current_fn = fn;
     cerr << "..." << message << " " << current_fn << endl;
