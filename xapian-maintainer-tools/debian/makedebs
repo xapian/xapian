@@ -20,17 +20,24 @@
 
 set -e
 
-# Version of Xapian to build
-VERSION=0.8.0
+# CVS tag to use to check out Xapian sources
+# If this is of the form "vMAJOR-MINOR-PATCH", where MAJOR, MINOR and PATCH
+# are integers, we are building a release, and will build from a tarball
+# (which we will generate from CVS code if the tarball isn't already
+# cached in our target package pool.)
+# Otherwise, we are building a snapshot package, and will build directly
+# from CVS code.
+CVSTAG='v0-8-0'
+CVSTAG=HEAD
 
-# Patch numbers of packages to build
-PATCHNUM_CORE=9
-PATCHNUM_BINDINGS=5
-PATCHNUM_OMEGA=2
+# CVS tags to use to check out Debian control files
+DEBTAG_CORE='debian0-8-0_9'
+DEBTAG_BINDINGS='debian0-8-0_5'
+DEBTAG_OMEGA='debian0-8-0_3'
 
-# CVS tag to use to check out xapian.
-CVSTAG="v`echo ${VERSION} | sed 's/\./-/g'`"
-DEBTAG="debian`echo ${VERSION} | sed 's/\./-/g'`_"
+DEBTAG_CORE=HEAD
+DEBTAG_BINDINGS=HEAD
+DEBTAG_OMEGA=HEAD
 
 # Debian component to build for (libc version being the most important factor)
 COMPONENT=stable
@@ -38,11 +45,14 @@ COMPONENT=stable
 # Options to pass to dpkg-buildpackage
 BUILDPACKAGE_OPTS="-us -uc -d"
 
+# Location to place the generated apt repository
+PUBDIR="/usr/data/www/xapian.org/debian/"
+
+
+## Items after this point should not normally need to be modified
+
 # Location to download tarballs from.
 CVSROOT=":pserver:cvsuser@cvs.xapian.org:/usr/data/cvs"
-
-# Location to place the generated apt repository
-PUBDIR="/home/richard/pub/http/xapian-apt/"
 
 # Temporary directory to install core in
 TMPDIR="/tmp/xapian-core$$"
@@ -51,20 +61,74 @@ TMPDIR="/tmp/xapian-core$$"
 ## BEGIN PROCESSING ##
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
 
+# Detect if we're on the machine that Xapian CVS is held on, and don't use
+# pserver to check out sources if so.
+if [ "x`hostname`" == "xixion" ] ; then
+  if [ -r '/usr/data/cvs/xapian' ] ; then
+    CVSROOT="/usr/data/cvs"
+  fi
+fi
+
+# Calculate the version which we're building.
+# $VERSION holds the version number as defined in configure.in.
+# $EXTRA_VERSION_UPSTREAM holds a suffix to be added to the upstream
+# version number (empty when building a release)
+# $EXTRA_VERSION_DEBIAN holds a suffix to be added to the debian
+# version number (empty when building for the current distribution)
+# Finally, $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
+# (and will therefore be identical to $VERSION when building a release).
+
+VERSION="`echo ${CVSTAG} | sed 's/^v\([0-9][0-9]*\)-\([0-9][0-9]*\)-\([0-9][0-9]*\)$/\1.\2.\3/g'`"
+EXTRA_VERSION_UPSTREAM=""
+EXTRA_VERSION_DEBIAN=""
+
+# If we are building a version other than that specified in the
+# debian control file, we need to make an entry in the debian changelog.
+# $CHANGE_MSG holds the message to put in the entry.
+CHANGE_MSG=""
+
+# If we failed to parse the tag into a version number, we are not building
+# a tagged release.  We will therefore have to get the version number from
+# the source code.
+if [ "x$VERSION" == "x$CVSTAG" ] ; then
+  VERSION="`cvs -Q -d ${CVSROOT} co -r $CVSTAG -p xapian/xapian-core/configure.in | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  # For now, append the current date to snapshot builds.
+  # FIXME - should use the date of last modification to the snapshot.
+  EXTRA_VERSION_UPSTREAM=".`date '+%Y%m%d'`"
+  CHANGE_MSG="  * Snapshot build.
+"
+fi
+
+# If we're building for the stable distribution, we need to add a bit
+# to the debian version number, to avoid conflicts with the package in unstable.
+if [ "x$COMPONENT" == "xstable" ] ; then
+  EXTRA_VERSION_DEBIAN=".stable"
+  CHANGE_MSG="$CHANGE_MSG  * Built for stable distribution.
+"
+fi
+
+SNAP_VERSION="$VERSION$EXTRA_VERSION_UPSTREAM"
+
+# Finish the contents of the changelog entry, if one is to be made.
+CHANGE_MSG="
+$CHANGE_MSG
+ -- Richard Boulton <richard@tartarus.org>  `822-date`
+"
+
 # Checkout debian control files from CVS
 mkdir -p control
 cd control
-  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_CORE} -d xapian-core xapian/xapian-core/debian
-  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_BINDINGS} -d xapian-bindings xapian/xapian-bindings/debian
-  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_OMEGA} -d xapian-omega xapian/xapian-applications/omega/debian
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG_CORE} -d xapian-core xapian/xapian-core/debian
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG_BINDINGS} -d xapian-bindings xapian/xapian-bindings/debian
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG_OMEGA} -d xapian-omega xapian/xapian-applications/omega/debian
 cd ..
 
 # Calculate location that tarballs should be found at
-TARBALL_CORE="${PUBDIR}pool/main/xapian-core_${VERSION}.orig.tar.gz"
-TARBALL_BINDINGS="${PUBDIR}pool/main/xapian-bindings_${VERSION}.orig.tar.gz"
-TARBALL_OMEGA="${PUBDIR}pool/main/xapian-omega_${VERSION}.orig.tar.gz"
+TARBALL_CORE="${PUBDIR}pool/main/xapian-core_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_BINDINGS="${PUBDIR}pool/main/xapian-bindings_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_OMEGA="${PUBDIR}pool/main/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
 
-# Make distribution tarballs, if we don't already have some
+# Make tarballs, if we don't already have some
 if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
 then
   # Distribution tarballs all exist
@@ -81,13 +145,32 @@ else
       if [ -e ${TARBALL_CORE} ]; then true; else
         cd xapian-core
 	  make dist
-	  cp xapian-core-${VERSION}.tar.gz ${TARBALL_CORE}
+	  if [ $VERSION != $SNAP_VERSION ] ; then
+	    rm -rf distdir
+	    mkdir -p distdir
+	    tar zxf xapian-core-${VERSION}.tar.gz
+	    mv xapian-core-${VERSION} xapian-core-${SNAP_VERSION}
+	    tar zcf xapian-core-${SNAP_VERSION}.tar.gz xapian-core-${SNAP_VERSION}
+	  fi
+	  cp xapian-core-${SNAP_VERSION}.tar.gz ${TARBALL_CORE}
 	cd ..
       fi
       if [ -e ${TARBALL_BINDINGS} ]; then true; else
         cd xapian-bindings
+	  # We have to invoke automake here because otherwise what looks like
+	  # a bug in autoreconf causes the generated Makefile.in to miss
+	  # depcomp from the list of files to include in distributions.
+	  # Running automake explicitly works around the problem.
+	  automake
 	  make dist
-	  cp xapian-bindings-${VERSION}.tar.gz ${TARBALL_BINDINGS}
+	  if [ $VERSION != $SNAP_VERSION ] ; then
+	    rm -rf distdir
+	    mkdir -p distdir
+	    tar zxf xapian-bindings-${VERSION}.tar.gz
+	    mv xapian-bindings-${VERSION} xapian-bindings-${SNAP_VERSION}
+	    tar zcf xapian-bindings-${SNAP_VERSION}.tar.gz xapian-bindings-${SNAP_VERSION}
+	  fi
+	  cp xapian-bindings-${SNAP_VERSION}.tar.gz ${TARBALL_BINDINGS}
 	cd ..
       fi
       if [ -e ${TARBALL_OMEGA} ]; then true; else
@@ -95,10 +178,10 @@ else
 	  make dist
 	  rm -rf distdir
 	  mkdir -p distdir
-	  tar zxvf omega-${VERSION}.tar.gz
-	  mv omega-${VERSION} xapian-omega-${VERSION}
-	  tar zcvf xapian-omega-${VERSION}.tar.gz xapian-omega-${VERSION}
-	  cp xapian-omega-${VERSION}.tar.gz ${TARBALL_OMEGA}
+	  tar zxf omega-${VERSION}.tar.gz
+	  mv omega-${VERSION} xapian-omega-${SNAP_VERSION}
+	  tar zcf xapian-omega-${SNAP_VERSION}.tar.gz xapian-omega-${SNAP_VERSION}
+	  cp xapian-omega-${SNAP_VERSION}.tar.gz ${TARBALL_OMEGA}
 	cd ../..
       fi
     cd ..
@@ -112,9 +195,15 @@ mkdir -p build
 cd build
   # Build packages from xapian-core
   tar zxf ${TARBALL_CORE}
-  cd xapian-core-${VERSION}
+  cd xapian-core-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-core/* debian/
+    if [ "x${SNAP_VERSION}" != "x${VERSION}" ] ; then
+      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
+      echo "$CHANGE_MSG" >> debian/changelog.new
+      cat debian/changelog >> debian/changelog.new
+      mv debian/changelog.new debian/changelog
+    fi
 
     debian/rules # Generates generate control from control.in
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
@@ -133,7 +222,7 @@ cd build
 
   # Build packages from xapian-bindings
   tar zxf ${TARBALL_BINDINGS}
-  cd xapian-bindings-${VERSION}
+  cd xapian-bindings-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-bindings/* debian/
     if [ -r debian/patch ]; then
@@ -145,7 +234,7 @@ cd build
 
   # Build packages from xapian-omega
   tar zxf ${TARBALL_OMEGA}
-  cd xapian-omega-${VERSION}
+  cd xapian-omega-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../control/xapian-omega/* debian/
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
