@@ -1,4 +1,4 @@
-Xapian-core 0.8.0 (2004-04-12):
+Xapian-core 0.8.0 (2004-04-19):
 
 * Omega, xapian-examples and xapian-bindings now have their own NEWS files.
 
@@ -87,13 +87,6 @@ documentation:
 * docs/intro_ir.html: Added a link to "Information Retrieval" by Keith van
   Rijsbergen which can be downloaded from his website!
 
-* PLATFORMS: Updated with results from tinderbox and from users.
-
-* HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
-
-* HACKING: Updated to mention that building from CVS requires 
-  `./configure --enable-maintainer-mode' (or use bootstrap).
-
 * docs/quartzdesign.html: Some minor improvements.
 
 * docs/matcherdesign.html: Merged in more details from a message sent to the
@@ -104,6 +97,18 @@ documentation:
 * Doxygen wasn't picking up the documentation for PostingIterator and
   PositionListIterator - fixed.  Added doxygen comments for Xapian::Stopper
   and Xapian::QueryParser.
+
+* PLATFORMS: Updated with many results from tinderbox and from users.
+
+* AUTHORS: Updated the list of contributors.
+
+* HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
+
+* HACKING: Updated to mention that building from CVS requires 
+  `./configure --enable-maintainer-mode' (or use bootstrap).
+
+* HACKING: Added notes about using "using", and pointers to a couple of useful
+  C++ web resources.
 
 portability:
 

@@ -1,4 +1,4 @@
-Xapian-examples 0.8.0 (2004-04-12):
+Xapian-examples 0.8.0 (2004-04-19):
 
 * delve: `delve -v DATABASE' now reports the number of terms.
 

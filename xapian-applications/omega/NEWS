@@ -1,4 +1,4 @@
-Omega 0.8.0 (2004-04-12):
+Omega 0.8.0 (2004-04-19):
 
 * scriptindex: Change default to *not* overwriting the database (use
   --overwrite if you really want to do this); -u is now accepted but ignored.
