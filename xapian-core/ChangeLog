@@ -1,3 +1,7 @@
+Tue Nov 02 15:56:02 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: # comments -> dnl comments.
+
 Tue Nov 02 15:54:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: $GCC -> $GXX; $CC -> $CXX.

@@ -9,46 +9,46 @@ AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 0.8.3)dnl FIXME: bugreport addr as third argument
-# Extract from the libtool info manual:
-#
-# Here are a set of rules to help you update your library version information:
-#
-# 1. Start with version information of `0:0:0' for each libtool library.
-#
-# 2. Update the version information only immediately before a public
-#    release of your software.  More frequent updates are unnecessary,
-#    and only guarantee that the current interface number gets larger
-#    faster.
-#
-# 3. If the library source code has changed at all since the last
-#    update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
-#
-# 4. If any interfaces have been added, removed, or changed since the
-#    last update, increment CURRENT, and set REVISION to 0.
-#
-# 5. If any interfaces have been added since the last public release,
-#    then increment AGE.
-#
-# 6. If any interfaces have been removed since the last public release
-#    then set AGE to 0.
-#
-# Older libxapian versions:
-# 0:0:0 0.7.2 (and 0.7.1 and 0.7.0 - 0.7.0 was the first libxapian version)
-# 0:1:0 0.7.3
-# 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
-# 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
-# 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
-# Older libxapianqueryparser versions:
-# 0:0:0 0.7.2 (and 0.7.1 and 0.7.0)
-# 0:1:0 0.7.3 (and 0.7.4)
-# 0:2:0 0.7.5
-# 1:0:0 0.8.0
-# LIBRARY_VERSION_INFO:
-# 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
-#	       reparsing after stripping punctuation; several unused
-#	       Error subclasses removed; assorted Iterator changes)
-# 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
-# 4:1:1 0.8.3 No API changes
+dnl Extract from the libtool info manual:
+dnl
+dnl Here are a set of rules to help you update your library version information:
+dnl
+dnl 1. Start with version information of `0:0:0' for each libtool library.
+dnl
+dnl 2. Update the version information only immediately before a public
+dnl    release of your software.  More frequent updates are unnecessary,
+dnl    and only guarantee that the current interface number gets larger
+dnl    faster.
+dnl
+dnl 3. If the library source code has changed at all since the last
+dnl    update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
+dnl
+dnl 4. If any interfaces have been added, removed, or changed since the
+dnl    last update, increment CURRENT, and set REVISION to 0.
+dnl
+dnl 5. If any interfaces have been added since the last public release,
+dnl    then increment AGE.
+dnl
+dnl 6. If any interfaces have been removed since the last public release
+dnl    then set AGE to 0.
+dnl
+dnl Older libxapian versions:
+dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0 - 0.7.0 was the first libxapian version)
+dnl 0:1:0 0.7.3
+dnl 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
+dnl 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
+dnl 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
+dnl Older libxapianqueryparser versions:
+dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0)
+dnl 0:1:0 0.7.3 (and 0.7.4)
+dnl 0:2:0 0.7.5
+dnl 1:0:0 0.8.0
+dnl LIBRARY_VERSION_INFO:
+dnl 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
+dnl	       reparsing after stripping punctuation; several unused
+dnl	       Error subclasses removed; assorted Iterator changes)
+dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
+dnl 4:1:1 0.8.3 No API changes
 LIBRARY_VERSION_INFO=4:1:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -353,9 +353,9 @@ LIBS="$SAVE_LIBS"
 
 AC_CHECK_FUNCS(fsync)
 
-# HP-UX has pread and pwrite, but they don't work!  Apparently this problem
-# manifests when largefile support is enabled, and we definitely want that
-# so don't use pread or pwrite on HP-UX.
+dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
+dnl manifests when largefile support is enabled, and we definitely want that
+dnl so don't use pread or pwrite on HP-UX.
 case "$host_os" in
   hpux*)
     AC_MSG_CHECKING([for pread])
