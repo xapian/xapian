@@ -1,0 +1,4 @@
+<SELECT NAME=DEFAULTOP>
+<OPTION VALUE=or $if{$eq{$defaultop,or},SELECTED}>Matching any words
+<OPTION VALUE=and $if{$eq{$defaultop,and},SELECTED}>Matching all words
+</SELECT>

@@ -1,0 +1,35 @@
+Basic instructions:
+===================
+
+1.      Use omindex to build an index of your website:
+
+$ ./omindex DBPATH WEBPATH /
+
+Where DBPATH is where you want the database, such as
+/home/myuser/omega/dbs/default and WEBPATH is the directory containing
+all your web documents.
+
+2.      Edit omega.cc so db_dir points to the directory containing
+your database, such as /home/myuser/omega/dbs. 
+
+3.      Edit query.cc so the format directory points to wherever you've
+dropped the templates/ directory from omega, such as
+/home/myuser/omega/templates.
+
+4.      Rebuild omega.
+
+5.      Test omega, from the command line:
+
+$ ./omega
+omega - om-examples 0.4.1-cvs (compiled Jun 25 2001 14:55:21)
+Enter NAME=VALUE lines, end with blank line
+HITSPERPAGE=10
+P=my search terms
+
+
+You then get a large-ish HTML file. For best results, set this all up
+as a CGI in some way.
+
+For more information, see overview.txt. Descriptions of the omega CGI
+program are in cgiparams.txt, and of the OmegaScript language it uses
+to format its results pages in omegascript.txt.
