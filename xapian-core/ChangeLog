@@ -1,3 +1,9 @@
+Mon Feb 21 15:33:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added test for OmEnquire::get_matching_terms()
+
+	* Fixed OmEnquire::get_matching_terms
+
 Mon Feb 21 14:38:30 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Made OmQuery::get_terms() public, tightened the specification,

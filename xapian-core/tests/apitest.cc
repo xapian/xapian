@@ -82,6 +82,8 @@ bool test_reversebool1();
 bool test_reversebool2();
 // tests that get_query_terms() returns the terms in the right order
 bool test_getqterms1();
+// tests that get_matching_terms() returns the terms in the right order
+bool test_getmterms1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -107,6 +109,7 @@ om_test tests[] = {
     {"reversebool1",	   test_reversebool1},
     {"reversebool2",	   test_reversebool2},
     {"getqterms1",	   test_getqterms1},
+    {"getmterms1",	   test_getmterms1},
     {0, 0}
 };
 
@@ -939,6 +942,61 @@ bool test_getqterms1()
 	     terms.end(),
 	     ostream_iterator<om_termname>(cout, " "));
 	cout << endl << "Expected: one two three four" << endl;
+    }
+
+    return success;
+}
+
+bool test_getmterms1()
+{
+    bool success = true;
+    
+    static string answers[4] = {
+	"on",  // FIXME: "one" shouldn't stem to "on"
+	"two",
+	"three",
+	"four"
+    };
+
+    OmEnquire enquire;
+    vector<string> dbargs;
+    dbargs.push_back(datadir + "/apitest_termorder.txt");
+
+    enquire.add_database("inmemory", dbargs);
+
+    OmQuery myquery(OM_MOP_OR,
+	    OmQuery(OM_MOP_AND,
+		    OmQuery("on", 1, 1), // FIXME: "on" is the stemmed
+		    			 // form of "one".  Probably
+					 // shouldn't be.
+		    OmQuery("three", 1, 3)),
+	    OmQuery(OM_MOP_OR,
+		    OmQuery("four", 1, 4),
+		    OmQuery("two", 1, 2)));
+
+    enquire.set_query(myquery);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+
+    if (mymset.items.size() != 1) {
+	success = false;
+	if (verbose) {
+	    cout << "Expected one match, but got " << mymset.items.size()
+		 << "!" << endl;
+	}
+    } else {
+	om_termname_list mterms = enquire.get_matching_terms(mymset.items[0]);
+	if (mterms != om_termname_list(answers, answers+4)) {
+	    success = false;
+	    if (verbose) {
+		cout << "Terms returned in incorrect order: ";
+		copy(mterms.begin(),
+		     mterms.end(),
+		     ostream_iterator<om_termname>(cout, " "));
+		cout << endl << "Expected: one two three four" << endl;
+	    }
+	}
+
     }
 
     return success;

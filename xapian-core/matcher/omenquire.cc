@@ -756,20 +756,17 @@ OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 }
 
 struct ByQueryIndexCmp {
-    typedef const map<om_termname, unsigned int> tmap_t;
-    tmap_t &tmap;
+    typedef map<om_termname, unsigned int> tmap_t;
+    const tmap_t &tmap;
     ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
     bool operator()(const om_termname &left,
 		    const om_termname &right) const {
 	tmap_t::const_iterator l, r;
 	l = tmap.find(left);
 	r = tmap.find(right);
-	if (l != tmap.end() && r != tmap.end()) {
-	    return l->second < r->second;
-	} else {
-	    // arbitrary, but might as well do alphabetical.
-	    return left < right;
-	}
+	Assert((l != tmap.end()) && (r != tmap.end()));
+
+	return l->second < r->second;
     }
 };
 
@@ -811,11 +808,6 @@ OmEnquire::get_matching_terms(om_docid did) const
 		tmap.find(docterms->get_termname());
         if (t != tmap.end()) {
 	    matching_terms.push_back(docterms->get_termname());
-	    /* remove this term from the tmap
-	     * Shouldn't affect the result, but will in theory
-	     * make things slightly faster.
-	     */
-	    tmap.erase(t);
 	}
 	docterms->next();
     }
