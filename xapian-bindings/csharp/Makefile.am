@@ -37,6 +37,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	$(srcdir)/SWIGTYPE_p_std__listTstd__string_t.cs \
 	$(srcdir)/SWIGTYPE_p_time_t.cs \
 	$(srcdir)/SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
+	$(srcdir)/op.cs \
 	$(srcdir)/$(ASSEMBLY)PINVOKE.cs \
 	$(srcdir)/$(ASSEMBLY).cs
 

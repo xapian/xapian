@@ -1,3 +1,7 @@
+Tue Sep 28 19:32:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Add op.cs to XAPIAN_SWIG_CS_SRCS.
+
 Tue Sep 28 19:06:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AC_PATH_PROG calls AC_SUBST, so we don't need to.
