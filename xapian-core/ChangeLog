@@ -1,3 +1,7 @@
+Fri Apr 23 11:26:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Successfully built and tested on arm linux.
+
 Fri Apr 23 11:24:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/remotetest.cc: Use 127.0.0.1 instead of localhost so that

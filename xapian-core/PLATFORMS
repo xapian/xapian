@@ -49,6 +49,8 @@ ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.8.0 |Passed|
 ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.8.0 |Passed|
 mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
 mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [6] from Jim Lynch
+arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
+arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
 ------+--------------------------------+-------+------+------------------------
 x86   | Linux cross to mingw GCC 2.95.3| 0.8.0 |Built | [3]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
@@ -96,6 +98,7 @@ x86   | Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| from Peter Marelas
 @ = handhelds.org (telnet/ssh ipaq[1-7].handhelds.org / user guest / no passwd)
 ! = thanks to Gavin Kelman for access to these platforms
 & = ixion (James Aylett's colo box)
+^ = thanks to Wookey for access to this platform
 
 ~ = Tested version from CVS shortly before this release (or after for ~ suffix)
 
@@ -120,5 +123,5 @@ socketpair.  Not tried to run the binaries yet.
 /usr/lib/libSystem.dylib(getopt.o) unused definition of _optarg
 
 [8] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
-(SEGV), apparently due to a buggy implementation of exception handling.  This
-isn't helped by static linking.  The other test programs pass all tests.
+(SEGV).  This appears to be due to buggy handling of nested exceptions on arm
+- you should use GCC 3.3 or newer.
