@@ -46,7 +46,7 @@ static size_t query_index = 0;
 	    result = YY_NULL; \
 	} else { \
             query.copy(buf, max_size, query_index); \
-	    result = strlen(buf); \
+	    result = query.size() - query_index; \
 	    query_index += result; \
 	} \
     } while (0)
