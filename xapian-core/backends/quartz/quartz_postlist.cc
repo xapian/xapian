@@ -251,12 +251,10 @@ static void read_start_of_chunk(const char ** posptr,
  *  first document, then has the header of a standard chunk.
  */
 QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
-			       om_doclength avlength_,
 			       const QuartzTable * table_,
 			       const QuartzTable * positiontable_,
 			       const om_termname & tname_)
 	: this_db(this_db_),
-	  avlength(avlength_),
 	  table(table_),
 	  positiontable(positiontable_),
 	  tname(tname_),
@@ -265,8 +263,8 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 	  have_started(false)
 {
     DEBUGCALL(DB, void, "QuartzPostList::QuartzPostList",
-	      this_db_.get() << ", " << avlength_ << ", " <<
-	      table_ << ", " << positiontable_ << ", " << tname_);
+	      this_db_.get() << ", " << table_ << ", " <<
+	      positiontable_ << ", " << tname_);
     QuartzDbKey key;
     key.value = pack_string(tname);
     int found = cursor->find_entry(key);

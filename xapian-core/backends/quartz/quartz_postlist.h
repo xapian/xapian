@@ -46,9 +46,6 @@ class QuartzPostList : public LeafPostList {
 	 */
 	RefCntPtr<const Database> this_db;
 
-	/// The average length of documents in this database.
-	om_doclength avlength;
-
 	/// The table containing the postlist.
 	const QuartzTable * table;
 
@@ -159,7 +156,6 @@ class QuartzPostList : public LeafPostList {
     public:
         /// Default constructor.
         QuartzPostList(RefCntPtr<const Database> this_db_,
-		       om_doclength avlength_,
 		       const QuartzTable * table_,
 		       const QuartzTable * positiontable_,
 		       const om_termname & tname);
@@ -176,10 +172,10 @@ class QuartzPostList : public LeafPostList {
 	/// Returns the current docid.
 	om_docid     get_docid() const { Assert(have_started); return did; }
 
-	/// Returns the normalised length of current document.
+	/// Returns the length of current document.
 	om_doclength get_doclength() const {
 	    Assert(have_started);
-	    return (om_doclength)doclength / avlength;
+	    return static_cast<om_doclength>(doclength);
 	}
 
 	/** Returns the Within Document Frequency of the term in the current
