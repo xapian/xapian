@@ -234,7 +234,7 @@ inline bool C_issign(char ch) {
 inline bool C_isupdig(char ch) {
     extern const unsigned char Xapian::Internal::is_tab[];
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_UPPER|IS_DIGIT;
+    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_DIGIT);
 }
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }

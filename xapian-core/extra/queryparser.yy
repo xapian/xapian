@@ -423,8 +423,7 @@ more_term:
 	    if (prefix.length() > 1) {
 		unsigned char back = prefix[prefix.length() - 1];
 		if (back != ':') {
-		    if (!C_isupper(back) ||
-			C_isupdig(static_cast<unsigned char>(term[0]))) {
+		    if (!C_isupper(back) || C_isupdig(term[0])) {
 			prefix += ':';
 		    }
 		}

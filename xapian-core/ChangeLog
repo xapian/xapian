@@ -1,3 +1,9 @@
+Thu Sep 30 18:24:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.h,extra/queryparser.yy: Fixed bug which caused
+	  misparsing of certain prefixed queries, introduced by C_isXXXXX
+	  change.
+
 Thu Sep 30 11:09:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Modified version of changequery1 fails - the
