@@ -8,9 +8,9 @@
 // (at your option) any later version.
 
 //
-// Usage:  cvsminelocal < PACKAGE_LIST
-//
-//     Generates Berkeley database files with results.
+// Usage:  cvsminelocal < PACKAGE_LIST 
+//         
+//     Generates Berkeley database files with results in package.classes and package.functions.
 //           
 
 //
@@ -188,6 +188,15 @@ int main(int argc, char *argv[]) {
     string file_cmt = cvsdata+"/database/"+package + ".cmt";
     string file_offset = cvsdata +"/database/"+package +".offset";
 
+    // file may not exist (if it was deleted in repostory at some point)
+    {
+      ifstream in( file_cmt.c_str() );
+      if ( !in ) {
+	continue;
+      }
+    }
+
+
     map<string, int> symbol_count;
     map<string, int> term_count;
     //    set<string> apps;
@@ -294,7 +303,7 @@ int main(int argc, char *argv[]) {
 	if ( ant != prev_term ) { 
 
 	  // all rules with prev_term in antecedent
-	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+	  //	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
 
 	  if ( entryclasses != "" ) {
 	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
@@ -350,7 +359,7 @@ int main(int argc, char *argv[]) {
 	}
       }
 
-      cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+      //      cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
       if ( entryclasses != "" ) {
 	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
 	Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
