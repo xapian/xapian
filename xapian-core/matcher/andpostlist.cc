@@ -7,9 +7,9 @@ AndPostList::advance_to_next_match()
     // if we're already at the end, lhead and rhead will already be zero
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    l->next();
+	    l->skip_to(rhead);
 	} else {
-	    r->next();
+	    r->skip_to(lhead);
 	}
     }    
 }
