@@ -146,10 +146,18 @@ MyHtmlParser::closing_tag(const string &text)
     }
 }
 
+#if 0
 inline static bool
 p_alpha(unsigned int c)
 {
     return ((c | 32) - 'a') <= ('z' - 'a');
+}
+#endif
+
+inline static bool
+p_alnum(unsigned int c)
+{
+    return isalnum(c);
 }
 
 inline static bool
@@ -168,19 +176,18 @@ static om_termpos
 index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {
     std::string::const_iterator i, j = s.begin(), k;
-    while ((i = find_if(j, s.end(), p_alpha)) != s.end()) {
+    while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
         j = find_if(i, s.end(), p_notalnum);
         k = find_if(j, s.end(), p_notplusminus);
         if (k == s.end() || !isalnum(*k)) j = k;
         om_termname term = s.substr(i - s.begin(), j - i);
         lowercase_term(term);
         if (isupper(*i) || isdigit(*i)) {
-	    doc.add_posting(term, pos);
+	    doc.add_posting('R' + term, pos);
         }
  
         term = stemmer.stem_word(term);
         doc.add_posting(term, pos++);
-        i = j + 1;
     }
     return pos;
 }                           

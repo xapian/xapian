@@ -42,7 +42,7 @@ $if{,$include{anyalldropbox},$include{anyallradio}}
 $if{$opt{topterms},
  <hr>
  <table><tr><td bgcolor="#ccffcc">
- $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE="$_." onClick="C(this)">&nbsp;$_. }
+ $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE="$prettyterm{$_}" onClick="C(this)">&nbsp;$prettyterm{$_} }
  $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
  </td></tr></table>
  <hr>
@@ -57,7 +57,7 @@ $if{$ne{$last,$msize},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
+$list{$map{$queryterms,$prettyterm{$_}:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
 SRC="/images/score-$score.png"
@@ -75,7 +75,7 @@ Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>
 </b><br>
 }
 $percentage% relevant, matching:
-<i>$list{$html{$terms},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
+<i>$list{$map{$html{$terms},$prettyterm{$_}},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
 </table>
 
 <br><center>

@@ -59,6 +59,8 @@ static QueryParser qp;
 
 static string eval_file(const string &fmtfile);
 
+static set<om_termname> termset;
+
 querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
@@ -74,7 +76,15 @@ set_probabilistic(const string &newp, const string &oldp)
     // call YACC generated parser
     qp.set_stemming_options(option["no_stem"] == "true" ? "" : "english",
 			    option["all_stem"] == "true"); 
+    qp.set_default_op(default_op);
     query = qp.parse_query(raw_prob);
+
+    om_termcount n_new_terms = 0;
+    for (list<om_termname>::const_iterator i = qp.termlist.begin();
+	 i != qp.termlist.end(); ++i) {
+	termset.insert(*i);
+	n_new_terms++;
+    }
 
     // Check new query against the previous one
     const char *pend;
@@ -94,14 +104,14 @@ set_probabilistic(const string &newp, const string &oldp)
 	n_old_terms++;
     }
     // short-cut: if the new query has fewer terms, it must be a new one
-    if (qp.termlist.size() < n_old_terms) return NEW_QUERY;
+    if (n_new_terms < n_old_terms) return NEW_QUERY;
     
     while ((pend = strchr(term, '.')) != NULL) {
-	if (qp.termset.find(string(term, pend - term)) == qp.termset.end())
+	if (termset.find(string(term, pend - term)) == termset.end())
 	    return NEW_QUERY;
 	term = pend + 1;
     }
-    if (qp.termlist.size() > n_old_terms) return EXTENDED_QUERY;
+    if (n_new_terms > n_old_terms) return EXTENDED_QUERY;
     return SAME_QUERY;
 }
 
@@ -1202,7 +1212,7 @@ eval(const string &fmt, const vector<string> &param)
 		for ( ; term != enquire->get_matching_terms_end(q0); term++) {
 		    // check term was in the typed query so we ignore
 		    // boolean filter terms
-		    if (qp.termset.find(*term) != qp.termset.end()) 
+		    if (termset.find(*term) != termset.end()) 
 			value = value + *term + '\t';
 		}
 

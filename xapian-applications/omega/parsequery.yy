@@ -53,7 +53,6 @@ static OmQuery query;
 
 static QueryParser *qp;
 static string q;
-    
 %}
 
 /* BISON Declarations */
@@ -72,11 +71,14 @@ input:	  /* nothing */	{ query = OmQuery(); }
 exp:	  prob		{
 			    OmQuery q = $1.q;
 			    if ($1.love.size()) {
-				q = OmQuery(OmQuery::OP_AND_MAYBE,
-					    OmQuery(OmQuery::OP_AND,
-						    $1.love.begin(),
-						    $1.love.end()),
-					    q);
+				OmQuery love(OmQuery::OP_AND,
+					     $1.love.begin(),
+					     $1.love.end());
+				if (q.is_empty()) {
+				    q = love;
+				} else {
+				    q = OmQuery(OmQuery::OP_AND_MAYBE, love, q);
+				}				
 			    }
 			    if ($1.hate.size()) {
 				q = OmQuery(OmQuery::OP_AND_NOT,
@@ -94,15 +96,33 @@ exp:	  prob		{
 	| '(' exp ')'	{ $$ = $2; }
 ;
 
-prob:	  term		{ $$ = $1; }
-	| prob term	{ $$ = U(OmQuery(default_op, $1.q, $2.q));
+prob:	  stopterm
+	| prob stopterm	{ $$ = U(OmQuery(qp->default_op, $1.q, $2.q));
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
+	| '+' term	{ $$.love.push_back($2.q); }
 	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }
+	| '-' term	{ $$.hate.push_back($2.q); }
 	| prob '-' term	{ $$ = $1; $$.hate.push_back($3.q); }
 ;
 
-term:	  TERM		{ $$ = $1; }
+stopterm: TERM		{ // Yummy code...
+			  if (qp->termlist.back() == "the") {
+			      $$ = U();
+			      qp->stoplist.push_back(qp->termlist.back());
+			      qp->termlist.pop_back();
+			  } else {
+			      $$ = $1;
+			  } }
+	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
+			  $$.q.set_window($2.v.size()); }
+	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size()); }
+	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size() + 9); }
+;
+
+term:	  TERM
 	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
 	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
@@ -204,7 +224,7 @@ yylex()
     /* process terms */
     if (isalnum(*qptr)) {
 	string term;
-	bool stem_term = stem;
+	bool already_stemmed = !stem;
 	string::iterator term_end;
 	term_end = find_if(qptr, q.end(), p_notalnum);
 	if (term_end != q.end()) {
@@ -218,7 +238,7 @@ yylex()
 		// "example.com" should give "exampl" and "com" - need EOF or
 		// space after '.' to mean "don't stem"
 		qptr++;
-		if (qptr == q.end() || isspace(*qptr)) stem_term = false;
+		if (qptr == q.end() || isspace(*qptr)) already_stemmed = true;
 	    }
 	    if (*qptr == '-') {
 		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
@@ -238,12 +258,14 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
-	if (stem_term && !stem_all && !islower(term[0])) stem_term = false;
+	bool raw_term = (!already_stemmed && !stem_all && !islower(term[0]));
 	lowercase_term(term);
-	if (stem_term) term = stemmer->stem_word(term);
+	if (raw_term)
+	    term = 'R' + term;
+	else if (!already_stemmed)
+	    term = stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
 	qp->termlist.push_back(term);
-	qp->termset.insert(term);
 	return TERM;
     }
     c = *qptr++;

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,17 +33,24 @@ using std::string;
 using std::list;
 using std::set;
 
-#include "query.h"
-
 class QueryParser {
     public:
-	QueryParser() {
+	QueryParser() : default_op(OmQuery::OP_OR) {
 	    set_stemming_options("english");
 	}
+	
 	void set_stemming_options(const string &lang, bool stem_all_ = false);
+	
+	void set_default_op(OmQuery::op default_op_) {
+	    default_op = default_op_;
+	}
+
 	OmQuery parse_query(const string &q);
+	
 	list<om_termname> termlist;
-	set<om_termname> termset;
+	list<om_termname> stoplist;
+	
+	OmQuery::op default_op;
 };
 
 #endif /* OM_HGUARD_PARSEQUERY_H */

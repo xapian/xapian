@@ -66,7 +66,8 @@ class ExpandDeciderOmega : public OmExpandDecider {
 	    // avoid italian problems FIXME: fix this at index time
 	    if (tname.length() <= 3) return false;
 
-	    // also avoid terms with a prefix and with a space in
+	    // Raw terms are OK, otherwise avoid terms with a prefix or with a space in
+	    if (tname[0] == 'R') return true;
 	    if (isupper(tname[0]) || tname.find(' ') != string::npos)
 		return false;
 
