@@ -21,6 +21,7 @@
  */
 
 #include "inmemory_document.h"
+#include <om/omdocument.h>
 
 InMemoryDocument::InMemoryDocument(const string & doc_)
 	: doc(doc_)

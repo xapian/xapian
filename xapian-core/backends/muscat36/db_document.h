@@ -23,12 +23,12 @@
 #ifndef OM_HGUARD_DB_DOCUMENT_H
 #define OM_HGUARD_DB_DOCUMENT_H
 
-#include "om/omdocument.h"
+#include "document.h"
 #include "dbread.h"
 
 class DBDatabase;
 
-class DBDocument : public OmDocument {
+class DBDocument : public LeafDocument {
     friend class DBDatabase;
     private:
 	const DBDatabase * database;

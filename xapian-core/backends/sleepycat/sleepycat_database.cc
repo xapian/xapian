@@ -270,7 +270,7 @@ SleepyDatabase::open_term_list(om_docid did) const {
 			      get_doccount());
 }
 
-OmDocument *
+LeafDocument *
 SleepyDatabase::open_document(om_docid did) const {
     Assert(opened);
     throw OmUnimplementedError(

@@ -113,7 +113,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
     return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
 }
 
-OmDocument *
+LeafDocument *
 InMemoryDatabase::open_document(om_docid did) const
 {
     Assert(opened);

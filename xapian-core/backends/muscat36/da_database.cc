@@ -224,7 +224,7 @@ DADatabase::get_record(om_docid did) const
     return r;
 }
 
-OmDocument *
+LeafDocument *
 DADatabase::open_document(om_docid did) const
 {
     Assert(opened);

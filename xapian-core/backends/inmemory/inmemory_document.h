@@ -23,10 +23,10 @@
 #ifndef OM_HGUARD_INMEMORY_DOCUMENT_H
 #define OM_HGUARD_INMEMORY_DOCUMENT_H
 
-#include <om/omdocument.h>
+#include "document.h"
 #include <string>
 
-class InMemoryDocument : public OmDocument {
+class InMemoryDocument : public LeafDocument {
     friend class InMemoryDatabase;
     private:
 	string doc;

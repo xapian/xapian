@@ -205,7 +205,7 @@ class InMemoryDatabase : public IRDatabase {
 
 	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	OmDocument * open_document(om_docid did) const;
+	LeafDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname & tname);
 	om_docid make_doc(const om_docname & dname);

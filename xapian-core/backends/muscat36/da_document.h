@@ -23,12 +23,12 @@
 #ifndef OM_HGUARD_DA_DOCUMENT_H
 #define OM_HGUARD_DA_DOCUMENT_H
 
-#include "om/omdocument.h"
+#include "document.h"
 #include "daread.h"
 
 class DADatabase;
 
-class DADocument : public OmDocument {
+class DADocument : public LeafDocument {
     friend class DADatabase;
     private:
 	const DADatabase * database;

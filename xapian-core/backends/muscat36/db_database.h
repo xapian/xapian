@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 #include <errno.h>
-#include <om/omdocument.h>
+#include "document.h"
 
 #include "utils.h"
 #include "omassert.h"
@@ -266,7 +266,7 @@ class DBDatabase : public IRDatabase {
 
 	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	OmDocument * open_document(om_docid did) const;
+	LeafDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname & tname) {
 	    throw OmUnimplementedError("DBDatabase::make_term() not implemented");
