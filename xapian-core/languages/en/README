@@ -1,6 +1,0 @@
-<Directory>languages/en</Directory>
-
-<Description>
-Code for processing english, such as the porter stemming algorithm for
-normalising english words.
-</Description>
