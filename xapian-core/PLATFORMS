@@ -56,7 +56,7 @@ x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
 x86_64|=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.4 |Passed| (spe189)
 x86_64|=Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.4 |Passed| (spe189)
-x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.4 |Passed| (amd64-linux1) [2]
+x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.4 |Passed| (amd64-linux1)
 x86_64|=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.8.4 |Passed| (spe190)
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.4 |Passed| (alpha-linux1)
@@ -167,4 +167,3 @@ scenario.
 you must configure without debug: "./configure CXXFLAGS=-O2".  Also the
 generated file queryparser.cc fails to compile, but all the other tests
 pass when run by hand.
-

@@ -1,3 +1,7 @@
+Wed Dec 01 07:15:46 GMT 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: SF CF x86_64 machine no longer needs --disable-shared.
+
 Tue Nov 30 21:53:33 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Updated for 0.8.4 release.
