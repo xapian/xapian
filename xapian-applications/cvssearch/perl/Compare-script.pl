@@ -238,7 +238,12 @@ sub compare_pkg_index {
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
     print "</b><p>\n";
-    print "Click on a file to display its revision history and to get a chance to display aligned diffs between consecutive revisions.\n";
+
+    print "Click on a file to display its revision history and see how lines from "; 
+    print "early versions have been matched/aligned with lines in the latest version ";
+    print "(so that commit comments are associated with the correct lines in the ";
+    print "latest version).";
+
     print "<hr noshade>\n";
     print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td class=\"s\">File</td><td class=\"s\">Last Rev</td><td class=\"s\">Last CVS Comment</td></tr>\n";
@@ -359,8 +364,8 @@ sub compare_file_index {
             print "fileid=$fileid&";
             print "pkg=$pkg&";
             print "root=$root&";
-            print "version=$versions[$i]\">aligned diff for <b>$filename</b> between ";
-            print "version $versions[$i+1] & $versions[$i]</a><br>\n";
+            print "version=$versions[$i]\"><b>$filename</b>: inserted/modified lines in commit ";
+            print "$versions[$i+1] => $versions[$i] matched with corresponding lines in latest version</a><br>\n";
             print "<pre>$comments[$i]</pre>\n";
         }
         $i = $#versions;
