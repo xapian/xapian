@@ -59,21 +59,25 @@ int main(int argc, char *argv[]) {
 	backendmanager.set_dbtype("inmemory");
 
 	std::vector<std::string> paths;
-	if (argc > 3 && std::string(argv[2]) == "-e") {
-	    backendmanager.set_dbtype("inmemoryerr");
-	    argc--;
-	    argv++;
-	}
+
+	unsigned int timeout = 10000;
 
 	for (int i=2; i<argc; ++i) {
-	    paths.push_back(argv[i]);
+	    std::string arg = argv[i];
+	    if (arg == "-e") {
+		backendmanager.set_dbtype("inmemoryerr");
+	    } else if (arg.substr(0, 2) == "-t") {
+		timeout = atoi(arg.c_str() + 2);
+	    } else {
+		paths.push_back(argv[i]);
+	    }
 	}
 
 	OmDatabase db = backendmanager.get_database(paths);
 	OmDatabase dbgrp;
 	dbgrp.add_database(db);
 
-	ProgServer server(dbgrp, 0, 1);
+	ProgServer server(dbgrp, 0, 1, timeout, timeout);
 
 	server.run();
     } catch (OmError &e) {

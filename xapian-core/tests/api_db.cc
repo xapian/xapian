@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 using std::vector;
 using std::string;
@@ -1219,10 +1220,23 @@ static bool test_spaceterms1()
 // test for keepalives
 static bool test_keepalive1()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    OmDatabase db(get_network_database("apitest_simpledata", 5000));
 
-    /* FIXME: come up with a way of passing a low timeout to progsrv */
-    db.keep_alive();
+    /* Test that keep-alives work */
+    for (int i=0; i<10; ++i) {
+	sleep(2);
+	db.keep_alive();
+    }
+    OmEnquire enquire(db);
+    OmQuery myquery("word");
+    enquire.set_query(myquery);
+    enquire.get_mset(0, 10);
+
+    /* Test that things break without keepalives */
+    sleep(10);
+    enquire.set_query(myquery);
+    TEST_EXCEPTION(OmNetworkError,
+		   enquire.get_mset(0, 10));
 
     return true;
 }
@@ -2450,7 +2464,6 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
-    {"keepalive1",	   test_keepalive1},
     {0, 0}
 };
 
@@ -2510,5 +2523,6 @@ test_desc localdb_tests[] = {
 
 test_desc remotedb_tests[] = {
     {"multierrhandler1",           test_multierrhandler1},
+    {"keepalive1",	   test_keepalive1},
     {0, 0}
 };

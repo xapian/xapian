@@ -451,8 +451,17 @@ BackendManager::getdb_network(const std::vector<std::string> &dbnames)
     std::string args = datadir;
     std::vector<std::string>::const_iterator i;
     for (i=dbnames.begin(); i!=dbnames.end(); ++i) {
-	args += " ";
-	args += *i;
+	if (*i == "#TIMEOUT#") {
+	    ++i;
+	    if (i == dbnames.end()) {
+		throw OmInvalidArgumentError("Missing timeout parameter");
+	    }
+	    unsigned int timeout = atoi((*i).c_str());
+	    args += " -t" + *i;
+	} else {
+	    args += " ";
+	    args += *i;
+	}
     }
 
     OmSettings params;

@@ -1,3 +1,11 @@
+Fri Feb 16 17:26:59 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Implemented a test for keep-alives
+
+	* Added "-tNNNN" option to omprogsrv to pass a timeout value in.
+
+	* Added get_network_database() in apitest to set the timeout.
+
 Fri Feb 16 16:13:47 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Incremented the remote protocol version, since a new message

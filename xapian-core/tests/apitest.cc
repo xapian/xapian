@@ -72,6 +72,17 @@ get_database(const std::string &dbname, const std::string &dbname2)
     return backendmanager.get_database(dbname, dbname2);
 }
 
+OmDatabase
+get_network_database(const std::string &dbname,
+		     unsigned int timeout)
+{
+    std::vector<std::string> params;
+    params.push_back("#TIMEOUT#");
+    params.push_back(om_tostring(timeout));
+    params.push_back(dbname);
+    return backendmanager.get_database(params);
+}
+
 OmWritableDatabase
 get_writable_database(const std::string &dbname)
 {

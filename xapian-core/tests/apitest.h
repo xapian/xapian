@@ -32,6 +32,10 @@ OmDatabase make_dbgrp(OmDatabase * db1 = 0,
 
 OmDatabase get_database(const std::string &dbname, const std::string &dbname2 = "");
 
+OmDatabase get_network_database(const std::string &dbname,
+				unsigned int timeout);
+
+OmWritableDatabase get_writable_database(const std::string &dbname);
 OmWritableDatabase get_writable_database(const std::string &dbname);
 
 #endif /* OM_HGUARD_APITEST_H */
