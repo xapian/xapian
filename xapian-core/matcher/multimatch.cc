@@ -333,6 +333,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
     om_doccount max_msize = first + maxitems;
+    items.reserve(max_msize * 2);
 
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.

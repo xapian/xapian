@@ -1,3 +1,7 @@
+Fri Oct 26 13:43:08 BST 2001  Olly Betts <olly@survex.com>
+
+	* Reserve size needed for mset vector.
+
 Thu Oct 25 18:00:54 BST 2001  Olly Betts <olly@survex.com>
 
 	* Fixed a couple of stray references to the old sleepycat backend.
