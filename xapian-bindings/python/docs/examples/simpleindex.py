@@ -72,7 +72,7 @@ try:
                         k = find_p(para, j, p_notplusminus)
                         if k==len(para) or not p_alnum(para[k]):
                             j = k
-                        if (j-i) <= MAX_PROB_TERM_LENGTH:
+                        if (j-i) <= MAX_PROB_TERM_LENGTH and j>i:
                             term = stemmer.stem_word(string.lower(para[i:j]))
                             doc.add_posting(term, pos)
                             pos += 1

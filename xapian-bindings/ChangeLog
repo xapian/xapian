@@ -1,3 +1,13 @@
+Fri May 28 14:35:29 BST 2004  James Aylett  <james@tartarus.org>
+
+	* Add basic documentation and examples to PHP4 bindings.
+	
+	* For PHP4, rename overloaded methods and constructors.
+
+	* Add simple access to the prefixes map in QueryParser.
+
+	* Correct simpleindex ports to never generate empty termnames.
+
 Wed May 26 16:18:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Require SWIG 1.3.20 or higher.

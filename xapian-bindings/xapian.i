@@ -239,9 +239,17 @@ class MSet {
     MSet(const MSet& other);
     ~MSet();
 
+    void fetch() const;
+    percent convert_to_percent(weight wt) const; 
+#ifdef SWIGPHP4
+    %name(fetch_single) void fetch(MSetIterator& item) const;
+    %name(fetch_range) void fetch(MSetIterator& begin, MSetIterator& end) const;
+    %name(convert_msetiterator_to_percent) percent convert_to_percent(const MSetIterator & item) const;
+#else
     void fetch(MSetIterator& begin, MSetIterator& end) const;
     void fetch(MSetIterator& item) const;
-    void fetch() const;
+    percent convert_to_percent(const MSetIterator & item) const;
+#endif
 
     doccount size() const;
     doccount max_size() const;
@@ -253,8 +261,6 @@ class MSet {
     doccount get_firstitem() const;
     weight get_max_possible();
     weight get_max_attained();
-    percent convert_to_percent(const MSetIterator & item) const;
-    percent convert_to_percent(weight wt) const; 
     %name(is_empty) bool empty() const;
     MSetIterator begin() const;
     MSetIterator end() const;
@@ -282,11 +288,17 @@ class RSet {
 	RSet();
 	RSet(const RSet& other);
 	void add_document(docid did);
-	void add_document(MSetIterator& i);
 	void remove_document(docid did);
-	void remove_document(MSetIterator& i);
 	bool contains(docid did);
+#ifdef SWIGPHP4
+	%name(add_document_from_mset_iterator) void add_document(MSetIterator& i);
+	%name(remove_document_from_mset_iterator) void remove_document(MSetIterator& i);
+	%name(contains_from_mset_iterator) bool contains(MSetIterator& i);
+#else
+	void add_document(MSetIterator& i);
+	void remove_document(MSetIterator& i);
 	bool contains(MSetIterator& i);
+#endif
 	%name(is_empty) bool empty() const;
 	doccount size() const;
 
@@ -373,21 +385,37 @@ class WritableDatabase : public Database {
 // New-style database constructors
 namespace Auto {
     Database open(const string & path);
+#ifdef SWIGPHP4
+    %name(open_writable) WritableDatabase open(const string & path, int action);
+#else
     WritableDatabase open(const string & path, int action);
     Database open_stub(const string & path);
+#endif
 }
 
+/*
 const int DB_CREATE_OR_OPEN = 1;
 const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 const int DB_OPEN = 4;
+*/
+
+%constant int DB_CREATE_OR_OPEN = 1;
+%constant int DB_CREATE = 2;
+%constant int DB_CREATE_OR_OVERWRITE = 3;
+%constant int DB_OPEN = 4;
 
 class Query {
     public:
-        Query(const Query& copyme);
         Query(const string &tname,
 		termcount wqf = 1,
 		termpos term_pos = 0);
+#ifdef SWIGPHP4
+	%name(Query_from_query_pair) Query(Query::op op_, const Query & left, const Query & right);
+	%name(Query_from_term_pair) Query(Query::op op_, const std::string & left, const std::string & right);
+	%name(Query_empty) Query();
+#else
+        Query(const Query& copyme);
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const std::string & left, const std::string & right);
         %extend {
@@ -407,6 +435,7 @@ class Query {
 
         /** Constructs a new empty query object */
         Query();
+#endif
 
 	~Query();
 
@@ -462,8 +491,13 @@ class Enquire {
 
 	TermIterator get_matching_terms_begin(docid did) const;
 	TermIterator get_matching_terms_end(docid did) const;
+#ifdef SWIGPHP4
+	%name(get_matching_terms_from_mset_iterator_begin) TermIterator get_matching_terms_begin(const MSetIterator& i) const;
+	%name(get_matching_terms_from_mset_iterator_end) TermIterator get_matching_terms_end(const MSetIterator& i) const;
+#else
 	TermIterator get_matching_terms_begin(const MSetIterator& i) const;
 	TermIterator get_matching_terms_end(const MSetIterator& i) const;
+#endif
 
 	void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
@@ -494,7 +528,25 @@ class QueryParser {
                                   Stopper *stop_ = NULL);
 
   void set_default_op(Query::op default_op_);
+  void set_database(const Database &db_);
   Query parse_query(const string &q);
+
+  %extend {
+      void set_prefix(const std::string &name, std::string value) {
+	  self->prefixes[name] = value;
+      }
+
+      std::string get_prefix(const std::string &name) {
+	  return self->prefixes[name];
+      }
+  };
+
+  /* FIXME: the following need full accessors:
+   *  std::list<std::string> termlist;
+   * std::list<std::string> stoplist;
+   * std::multimap<std::string, std::string> unstem;
+   * std::map<std::string, std::string> prefixes;
+   */
 };
 
 class Stem {
