@@ -23,7 +23,12 @@ class PostList {
 	virtual weight get_weight() const = 0;    // Gets current weight
         virtual weight get_maxweight() const = 0;    // Gets max weight
 
-	virtual PostList *next(weight w_min) = 0;          // Moves to next docid
+	// w_min in the next two functions is simply a hint -
+	// terms with a weight less than w_min will be ignored.
+	// However, it may be best to return them anyway, if the weight
+	// calculation is expensive, since many terms will be thrown
+	// away anyway without calculating the weight.
+	virtual PostList *next(weight w_min) = 0; // Moves to next docid
 	virtual PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
