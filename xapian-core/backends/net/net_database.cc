@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include "omassert.h"
 #include "net_database.h"
+#include "net_termlist.h"
 #include "database_builder.h"
 #include "progclient.h"
 #include "tcpclient.h"
@@ -94,7 +95,7 @@ void NetworkDatabase::initialise_link() {
 om_doccount
 NetworkDatabase::get_doccount() const
 {
-    Assert(false);
+    throw OmUnimplementedError("NetworkDatabase::get_doccount() not implemented");
 //    return remote_doccount;
 }
 
@@ -128,17 +129,7 @@ NetworkDatabase::open_post_list(const om_termname & tname) const
 
 LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
-    throw OmUnimplementedError("NetworkDatabase::open_term_list() not implemented");
-#if 0
-    om_doccount multiplier = databases.size();
-
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
-
-    TermList *newtl;
-    newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
-    return new MultiTermList(newtl, *(databases.begin() + dbnumber), this);
-#endif
+    return new NetworkTermList(get_avlength(), get_doccount());
 }
 
 LeafDocument *

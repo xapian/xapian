@@ -1,3 +1,12 @@
+Tue May 23 12:00:38 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a NetworkTermList object.  Currently a fair way from working
+	  correctly, but it does compile:  uses lots of unimplemented
+	  methods.
+
+	* General work on termlists (documentation comments, code tidying),
+	  and expand.
+
 Mon May 22 18:36:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* ProgClient and omprogsrv can both now take more than one database

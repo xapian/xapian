@@ -33,18 +33,33 @@
 class TermList
 {
     private:
-	// disallow copy
+	/// Copying is not allowed.
 	TermList(const TermList &);
+
+	/// Assignment is not allowed.
 	void operator=(const TermList &);
     public:
+	/// Standard constructor for base class.
 	TermList() {}
-	
-	virtual om_termcount get_approx_size() const = 0; // Gets size of termlist
-	virtual OmExpandBits get_weighting() const = 0; // Gets weighting info for current term
-	virtual const om_termname get_termname() const = 0; // Gets current termname
-	virtual om_termcount get_wdf() const = 0; // Get wdf of current term
 
-	virtual om_doccount get_termfreq() const = 0; // Get num of docs indexed by term
+	/// Standard destructor for base class.
+	virtual ~TermList() { return; }
+	
+	// Gets size of termlist
+	virtual om_termcount get_approx_size() const = 0;
+
+	// Gets weighting info for current term
+	virtual OmExpandBits get_weighting() const = 0;
+
+	// Gets current termname
+	virtual const om_termname get_termname() const = 0;
+
+	// Get wdf of current term
+	virtual om_termcount get_wdf() const = 0;
+
+	// Get num of docs indexed by term
+	virtual om_doccount get_termfreq() const = 0;
+
 	/** next() causes the TermList to move to the next term in the list.
 	 *  It must be called before any other methods.
 	 *  If next() returns a non-zero pointer P, then the original
@@ -52,14 +67,16 @@ class TermList
 	 *  with P.
 	 *  In LeafTermList, next() will always return 0.
 	 */
-	virtual TermList * next() = 0; // Moves to next term
-	virtual bool   at_end() const = 0; // True if we're off the end of the list
-	virtual ~TermList() { return; }
+	virtual TermList * next() = 0;
+
+	// True if we're off the end of the list
+	virtual bool   at_end() const = 0;
 };
 
 /** Base class for termlists which are at the leaves of the termlist tree,
  *  and thus generate weighting information, rather than merging weighting
- *  information from sub termlists. */
+ *  information from sub termlists.
+ */
 class LeafTermList : public TermList
 {
     protected:

@@ -40,11 +40,11 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 		 bits1.termfreq << "/" << bits1.dbsize << endl);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
-    }
-    else if(bits2.dbsize < sum.dbsize){
+    } else {
 	DebugMsg("OmExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl);
+	// sum already contains the parts of the first operand
     }
     return sum;
 }

@@ -62,10 +62,14 @@ class OmExpandWeight {
     public:
 	OmExpandWeight(const IRDatabase *root_, om_doccount rsetsize_);
 
-	OmExpandBits get_bits(om_termcount wdf, om_doclength len,
-			      om_doccount termfreq, om_doccount dbsize) const;
+	OmExpandBits get_bits(om_termcount wdf,
+			      om_doclength len,
+			      om_doccount termfreq,
+			      om_doccount dbsize) const;
+
 	om_weight get_weight(const OmExpandBits & bits,
 			     const om_termname & tname) const;
+
 	om_weight get_maxweight() const;
 };
 
