@@ -322,7 +322,7 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
 	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
-	qlen(1), tname(tname_), term_pos(term_pos_), wqf(wqf_)
+	qlen(wqf), tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {}
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
@@ -572,6 +572,18 @@ void OmQueryInternal::collapse_subqs()
 	    } else {
 		++sq;
 	    }
+	}
+
+	// a lone subquery should never disappear...
+	Assert(subqs.size() > 0);
+
+	// ...however, we might end up with just one, which
+	// we gobble up.
+	if (subqs.size() == 1) {
+	    OmQueryInternal *only_child = *subqs.begin();
+	    subqs.clear();
+	    initialise_from_copy(*only_child);
+	    delete only_child;
 	}
     }
 }

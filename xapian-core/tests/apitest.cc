@@ -94,6 +94,8 @@ bool test_querylen1();
 bool test_querylen2();
 // tests that query lengths are calculated correctly
 bool test_querylen3();
+// tests that the collapsing on termpos optimisation works
+bool test_poscollapse1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -125,6 +127,7 @@ om_test tests[] = {
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"querylen3",	   test_querylen3},
+    {"poscollapse1",	   test_poscollapse1},
     {0, 0}
 };
 
@@ -1046,7 +1049,8 @@ bool test_getmterms1()
     return success;
 }
 
-bool test_boolsubq1() {
+bool test_boolsubq1()
+{
     bool success = false;
 
     OmQuery mybool("foo");
@@ -1063,7 +1067,8 @@ bool test_boolsubq1() {
     return success;
 }
 
-bool test_absentfile1() {
+bool test_absentfile1()
+{
     bool success = false;
 
     try {
@@ -1083,14 +1088,16 @@ bool test_absentfile1() {
     return success;
 }
 
-bool test_querylen1() {
+bool test_querylen1()
+{
     // test that a null query has length 0
     bool success = (OmQuery().get_length()) == 0;
 
     return success;
 }
 
-bool test_querylen2() {
+bool test_querylen2()
+{
     // test that a simple query has the right length
     bool success = true;
 
@@ -1117,7 +1124,8 @@ bool test_querylen2() {
     return success;
 }
 
-bool test_querylen3() {
+bool test_querylen3()
+{
     bool success = true;
 
     // test with an even bigger and strange query
@@ -1200,6 +1208,34 @@ bool test_querylen3() {
 	    cout << "Query is: "
 		 << myquery.get_description()
 		 << endl;
+	}
+    }
+
+    return success;
+}
+
+bool test_poscollapse1()
+{
+    bool success = true;
+
+    OmQuery myquery1 = OmQuery(OM_MOP_OR,
+			       OmQuery("thi", 1),
+			       OmQuery("thi", 1));
+    OmQuery myquery2 = OmQuery("thi", 2, 1);
+
+    if (verbose) {
+	cout << myquery1.get_description() << endl;
+	cout << myquery2.get_description() << endl;
+    }
+
+    OmMSet mymset1 = do_get_simple_query_mset(myquery1);
+    OmMSet mymset2 = do_get_simple_query_mset(myquery2);
+
+    if (mymset1 != mymset2) {
+	success = false;
+
+	if (verbose) {
+	    cout << "MSets different" << endl;
 	}
     }
 
