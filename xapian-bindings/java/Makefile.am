@@ -10,6 +10,8 @@ TESTS = SmokeTest
 
 EXTRA_DIST = run-java-test
 
+CLEANFILES = SmokeTest.class
+
 SmokeTest: SmokeTest.class
 
 .java.class:
