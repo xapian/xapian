@@ -94,7 +94,7 @@
                 OmDocument doc = enquire.get_doc(*i);
                 cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; i-&gt;did &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
                         matches.convert_to_percent(*i) &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
-                        doc.get_data().value &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
+                        doc.get_data() &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
             }
         }
 

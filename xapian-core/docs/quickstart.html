@@ -257,8 +257,8 @@ The code to open a database for writing is, then:
 <H3>Preparing the new document</H3>
 
 <P>
-Now that we have the database open, we need to prepare a document to put
-in it.  This is done by creating an OmDocumentContents struct, filling
+Now that we have the database open, we need to prepare a document to
+put in it.  This is done by creating an OmDocument object, filling
 this with data, and then giving it to the database.
 </P>
 
@@ -266,7 +266,7 @@ this with data, and then giving it to the database.
 The first step, then, is to create the document:
 </P>
 <PRE>
-    OmDocumentContents newdocument;
+    OmDocument newdocument;
 </PRE>
 
 <P>
@@ -281,15 +281,15 @@ For our example, we shall simply store the second parameter given on the
 command line in the data field:
 </P>
 <PRE>
-    newdocument.data = string(argv[2]);
+    newdocument.set_data(string(argv[2]));
 </PRE>
 
 <P>
-The next step is to put the terms which are to be used when searching for
-the document into the OmDocumentContents struct.
-The members of the OmDocumentContents struct are all public, so can be
-accessed directly, but there are also some convenience methods to help
-with the process of filling the struct.
+The next step is to put the terms which are to be used when searching
+for the document into the OmDocument struct.  The members of the
+OmDocument are all public, so can be accessed directly, but there are
+also some convenience methods to help with the process of filling the
+struct.
 </P>
 <P>
 We shall use the <CODE>add_posting()</CODE> method, which adds an
@@ -323,7 +323,7 @@ command line parameters:
 <P>
 Finally, we can add the document to the database.  This simply involves
 calling <CODE>OmWritableDatabase::add_document()</CODE>, and passing it
-the <CODE>OmDocumentContents</CODE> object:
+the <CODE>OmDocument</CODE> object:
 </P>
 <PRE>
     database.add_document(newdocument);

@@ -8,10 +8,10 @@
 <H1>Quickstart</H1>
 
 <P>
-This document is a short introduction to the graph-based indexing facilities
-of Xapian.  For an introduction to the basic facilities of OM, see
-<a href="quickstart.html">quickstart.html</a>.  This document assumes that
-you've read that first.
+This document is a short introduction to the graph-based indexing
+facilities of Xapian.  For an introduction to the basic facilities of
+OM, see <a href="quickstart.html">quickstart.html</a>.  This document
+assumes that you've read that first.
 </P>
 
 <P>
@@ -190,14 +190,14 @@ indexer.  Here's the code fragment which does that:
 <PRE>
 	OmIndexerMessage filename(new OmIndexerData(argv[2]));
 	indexer-&gt;set_input(filename);
-	OmDocumentContents newdocument = indexer-&gt;get_output();
+	OmDocument newdocument = indexer-&gt;get_output();
 </PRE>
 
 <H3>Displaying the document data</H3>
 
 <P>
 So that we can see what the indexer actually produced, we print out
-the data stored in the <CODE>OmDocumentContents</CODE> object.
+the data stored in the <CODE>OmDocument</CODE> object.
 First we print out the data field:
 </P>
 <PRE>
@@ -209,7 +209,7 @@ so we enumerate the values using an iterator:
 </P>
 <PRE>
 	cout &lt;&lt; &quot;Document keys: &quot; &lt;&lt; endl;
-	for (OmDocumentContents::document_keys::const_iterator i =
+	for (OmDocument::document_keys::const_iterator i =
 	     newdocument.keys.begin();
 	     i != newdocument.keys.end();
 	     ++i) {
@@ -224,7 +224,7 @@ out the keys.
 
 <PRE>
 	cout &lt;&lt; &quot;Document terms: &quot; &lt;&lt; endl;
-	for (OmDocumentContents::document_terms::const_iterator i =
+	for (OmDocument::document_terms::const_iterator i =
 	     newdocument.terms.begin();
 	     i != newdocument.terms.end();
 	     ++i) {
@@ -420,7 +420,7 @@ the list at "right" to the list at "left".
 <H3>Making a termlist from the words</H3>
 
 <P>
-Before it can be used with an <CODE>OmDocumentContents</CODE> object, the
+Before it can be used with an <CODE>OmDocument</CODE> object, the
 termlist must be in the right form.  Two nodes help with this:
 <CODE>omnewtermlist</CODE> and <CODE>omtermlistadd</CODE>.  The
 <CODE>omnewtermlist</CODE> node creates a new termlist structure from

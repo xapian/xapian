@@ -1,3 +1,9 @@
+Sat Sep  7 12:52:12 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* docs: fixed references to OmDocumentContents (now OmDocument)
+	  which had clearly been broken for a while. Also fixed get_data()
+	  and set_data() example usage so it reflects reality (I hope).
+
 Wed Sep 04 22:46:17 BST 2002  Olly Betts <olly@survex.com>
 
 	* Corrected min_item.wt to min_wt in two assertions.
