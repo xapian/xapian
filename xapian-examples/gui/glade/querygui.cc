@@ -13,6 +13,8 @@
 #include "match.h"
 #include "stem.h"
 #include "textfile_database.h"
+#include "textfile_indexer.h"
+#include "query_parser.h"
 
 #include "config.h"
 
@@ -27,8 +29,18 @@ void on_query_changed(GtkWidget *widget, gpointer user_data) {
     try {
 	Match matcher(database); 
 
-	// FIXME - split into terms
-	matcher.add_term(query);
+	// split into terms
+	QueryParser parser;
+	TextfileIndexer idx;
+	parser.set_indexer(&idx);
+	vector<QueryTerm> qterms;
+	qterms = parser.parse_query(query);
+
+	vector<QueryTerm>::const_iterator i = qterms.begin();
+	while(i != qterms.end()) {
+	    matcher.add_term((*i).tname);
+	    i++;
+	}
 
 	matcher.set_max_msize(10);
 
