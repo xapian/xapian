@@ -50,6 +50,7 @@ struct dutch_stemmer
    We will write p, k etc in place of z->p, z->k in the comments.
 */
 
+/*
 static int not_aeio(struct dutch_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o':
@@ -58,6 +59,7 @@ static int not_aeio(struct dutch_stemmer * z, int i)
             return true;
     }
 }
+*/
 
 
 

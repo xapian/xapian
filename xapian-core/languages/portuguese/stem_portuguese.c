@@ -177,11 +177,13 @@ static int ends(struct portuguese_stemmer * z, const char * s)
    k.
 */
 
+/*
 static void setto(struct portuguese_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p+z->j+1, s, length);
     z->k = z->j+length+1;
 }
+*/
 
 /* attachV(z, s) attaches s to the so long as j is not before posV,
    after_posV(z) tests that j is not before posV,
@@ -224,11 +226,13 @@ static int chopV_not_e(struct portuguese_stemmer * z, const char * s)
     return after_posV(z);
 }
 
+/*
 static int attach2(struct portuguese_stemmer * z, const char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
 }
+*/
 
 static int after_pos2(struct portuguese_stemmer * z)
 {   if (z->j < z->pos2) return false;

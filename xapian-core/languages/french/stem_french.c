@@ -240,13 +240,20 @@ static int attach1(struct french_stemmer * z, const char * s)
     return true;
 }
 
+/*
 static int after_pos1(struct french_stemmer * z)
 {   if (z->j < z->pos1) return false;
     z->k = z->j + 1;
     return true;
 }
+*/
 
-static int chop1(struct french_stemmer * z, const char * s) { return ends(z, s) && after_pos1(z); }
+/*
+static int chop1(struct french_stemmer * z, const char * s)
+{
+return ends(z, s) && after_pos1(z);
+}
+*/
 
 static int attach2(struct french_stemmer * z, const char * s)
 {   if (z->j < z->pos2) return false;
@@ -425,7 +432,9 @@ static int verb_ending(struct french_stemmer * z)
     return false;
 }
 
+/*
 static int stem_OUS(struct french_stemmer * z) { return chop2(z, "os"); }
+*/
 static int stem_ABLE(struct french_stemmer * z) { return chop2(z, "abl"); }
 static int stem_ATIV(struct french_stemmer * z) { return chop2(z, "ativ"); }
 static int stem_IQU(struct french_stemmer * z) { return chop2(z, "iqu"); }

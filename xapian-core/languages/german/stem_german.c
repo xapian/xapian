@@ -143,11 +143,13 @@ static int starts(struct german_stemmer * z, const char * s)
    readjusting k.
 */
 
+/*
 static void setto(struct german_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
 }
+*/
 
 
 
@@ -288,13 +290,16 @@ static int ends_st(struct german_stemmer * z) { return ends_s(z) && z->p[z->j] !
 static int ends_i(struct german_stemmer * z) { return z->p[z->j] != 'e'; }
 static int ends_e(struct german_stemmer * z) { return true; }
 
+/*
 static int ends_t(struct german_stemmer * z) { return ends_s(z); }
-static int dummy(struct german_stemmer * z) { return true; }
+*/
 
 static int drop_e(struct german_stemmer * z, const char * s) { return drop(z, s, ends_e); }
 static int drop_s(struct german_stemmer * z, const char * s) { return drop(z, s, ends_s); }
 static int drop_st(struct german_stemmer * z, const char * s) { return drop(z, s, ends_st); }
+/*
 static int drop_t(struct german_stemmer * z, const char * s) { return drop(z, s, ends_t); }
+*/
 
 static void step_1x(struct german_stemmer * z)
 {   switch(z->p[z->k])
