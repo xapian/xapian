@@ -1753,11 +1753,10 @@ eval(const string &fmt, const vector<string> &param)
 	        value = percent_encode(args[0]);
 		break;
 	    case CMD_value: {
-		int id = q0;
-		int key = 0;
-		if (!args.empty()) key = string_to_int(args[0]);
-		if (args.size()>1) id = string_to_int(args[1]);
-		value = omdb.get_document(id).get_value(key);
+		om_docid id = q0;
+		om_valueno value_no = string_to_int(args[0]);
+		if (args.size() > 1) id = string_to_int(args[1]);
+		value = omdb.get_document(id).get_value(value_no);
 		break;
 	    }
 	    case CMD_version:

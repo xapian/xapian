@@ -1,6 +1,10 @@
+Wed Apr 30 01:14:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Use correct types for docid and value_no in $value.
+
 Wed Apr 23 16:15:07 BST 2003  Sam Liddicott <sam@liddicott.com>
 
-	* add collapse info to xml template
+	* templates/xml: add collapse info to xml template.
 
 Wed Apr 23 14:00:37 BST 2003  Olly Betts <olly@survex.com>
 
