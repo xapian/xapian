@@ -99,7 +99,7 @@ while test 0 != "$#"; do
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    # don't check if libxapian.la exists yet - it won't unless
 	    # the xapian-core tree has been built!
-	    echo "${builddir}libxapianqueryparser.la ${builddir}extra/libxapian.la"
+	    echo "${builddir}extra/libxapianqueryparser.la ${builddir}libxapian.la"
 	    exit 0
 	fi
 
