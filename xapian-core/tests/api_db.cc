@@ -2066,6 +2066,21 @@ static bool test_postlist4()
     return true;
 }
 
+// tests long postlists
+static bool test_postlist5()
+{
+    OmDatabase db(get_database("apitest_manydocs"));
+    OmPostListIterator i = db.postlist_begin("thi");
+    int j = 1;
+    while(i != db.postlist_end("thi")) {
+	TEST_EQUAL(*i, j);
+	i++;
+	j++;
+    }
+    TEST_EQUAL(j, 513);
+    return true;
+}
+
 // tests collection frequency
 static bool test_collfreq1()
 {
@@ -2199,6 +2214,7 @@ test_desc localdb_tests[] = {
     {"postlist2",	   test_postlist2},
     {"postlist3",	   test_postlist3},
     {"postlist4",	   test_postlist4},
+    {"postlist5",	   test_postlist5},
     {0, 0}
 };
 

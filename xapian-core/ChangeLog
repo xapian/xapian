@@ -1,3 +1,8 @@
+Thu Jan  4 17:21:24 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add new test for a postlist with many documents, designed to fail
+	  and exhibit the bug andy has found.  So far doesn't fail.
+
 Wed Jan  3 19:30:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add get_percent method to OmMSetIterator.  Untested.

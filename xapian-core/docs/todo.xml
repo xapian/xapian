@@ -20,6 +20,11 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
+
+Make OmRegexFilterNode class send unmatched items to a different output.
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
 
 Write tests for copying term and postlist iterators.
