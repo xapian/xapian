@@ -9,8 +9,9 @@ remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
 
-# Order is relevant: when building, tests must be at end
-# When installing, should install script and m4 stuff last, in case of failure
+# Order is relevant: when building, tests must be last.
+# FIXME: when installing, should we install script and m4 stuff last, in case of
+# failure (disk full for example)?
 SUBDIRS = include getopt autoconf common \
           api backends matcher languages $(remote_subdirs) \
 	  . bin m4 docs testsuite tests extra
@@ -27,8 +28,9 @@ EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec
 
 lib_LTLIBRARIES = libxapian.la
 
-# This line is present because libtool requires at least one source file in
-# a library (due to limitations on some operating systems).
+# libtool requires at least one source file in a library (due to limitations on
+# some operating systems).  Make it a C++ file so that automake knows to link
+# the library as C++.
 libxapian_la_SOURCES = dummy.cc
 EXTRA_libxapian_la_SOURCES =
 
@@ -55,7 +57,7 @@ EXTRA_libxapian_la_SOURCES =
 # 6. If any interfaces have been removed since the last public release
 #    then set AGE to 0.
 #
-# 0:0:0 0.7.2 (and anything before) 
+# 0:0:0 0.7.2 (and anything before)
 # 0:1:0 0.7.3
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
 libxapian_la_LDFLAGS = -no-undefined -version-info 1:0:0

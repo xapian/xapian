@@ -1,3 +1,7 @@
+Thu Sep 25 13:12:31 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Improved several comments.
+
 Thu Sep 25 11:57:03 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Removed `#include <iostream>' left over from
