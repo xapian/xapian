@@ -1,5 +1,7 @@
 #include "match.h"
 
+#include <algorithm>
+
 Match::Match(IRDatabase *database)
 {
     DB = database;
@@ -21,10 +23,19 @@ Match::add_pterm(const string& termname)
     return true;
 }
 
-typedef struct {
-    weight w;
-    docid id;
-} msetitem;
+class MSetItem {
+    public:
+        weight w;
+        docid id;
+        MSetItem(weight w_, docid id_) { w = w_; id = id_; }
+};
+
+class MSetCmp {
+   public:
+       bool operator()(const MSetItem &a, const MSetItem &b) {
+           return a.w > b.w;
+       }
+};
 
 void
 Match::match(void)
@@ -49,40 +60,54 @@ Match::match(void)
     }
 
     doccount msize = 0, mtotal = 0;
-    weight min = 0;
-    msetitem *mset = new msetitem[max_msize];
+    weight w_min = 0;
+    vector<MSetItem> mset;
+    int sorted_to = 0;
 
-    // FIXME: this method of building the M-set isn't very efficient
-    // - want to avoid all those memmove-s
+    // FIXME: clean all this up
+    // FIXME: partial_sort?
+    // FIXME: quicker to just resort whole lot than sort and merge?
     while (!merger->at_end()) {
         weight w = merger->get_weight();
         
-        if (w > min) {
+        if (w > w_min) {
 	    docid id = merger->get_docid();
-	    docid i;
-	    for (i = 0; i < msize; i++) {
-	        if (mset[i].w < w) break;
-	    }
+	    mset.push_back(MSetItem(w,id));
 
-	    if (i == msize) {
-	        if (msize < max_msize) {
-		    mset[msize].id = id;
-		    mset[msize].w = w;
-	            msize++;
+	    if (mset.size() == max_msize * 2) {
+	        // sort new elements
+	        cout << "sorting\n";		
+	        stable_sort(mset.begin() + sorted_to, mset.end(), MSetCmp());
+		// merge with existing elements
+	        cout << "merging\n";
+                if (sorted_to) {
+		    inplace_merge(mset.begin(), mset.begin() + sorted_to, mset.end(), MSetCmp());
 		}
-	    } else {
-	        int len;
-	        if (msize < max_msize) msize++;
-	        len = msize - i - 1;
-	        memmove(mset + i + 1, mset + i, len * sizeof(msetitem));
-	        mset[i].id = id;
-	        mset[i].w = w;	        
+	        msize = max_msize;
+	        sorted_to = msize;
+		// erase elements which don't make the grade
+	        mset.erase(mset.begin() + sorted_to, mset.end());
+	        w_min = mset.back().w;
+	        cout << "mset size = " << mset.size() << endl;
 	    }
-	    if (msize == max_msize) min = mset[max_msize - 1].w;
 	}
         mtotal++;
         merger->next();
     }
+
+    cout << "sorting\n";
+    stable_sort(mset.begin() + sorted_to, mset.end(), MSetCmp());
+    cout << "merging\n";
+    if (sorted_to) {
+	inplace_merge(mset.begin(), mset.begin() + sorted_to, mset.end(), MSetCmp());
+    }
+    msize = mset.size();
+    if (max_msize < msize) {
+	sorted_to = msize = max_msize;
+	mset.erase(mset.begin() + sorted_to, mset.end());
+	w_min = mset.back().w;
+    }
+    cout << "mset size = " << mset.size() << endl;
 
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
 #if 0
