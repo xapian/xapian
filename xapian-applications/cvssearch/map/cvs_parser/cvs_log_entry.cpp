@@ -36,6 +36,41 @@ cvs_log_entry::read(istream & is)
     // get the line starting date:
     // ----------------------------------------
     getline(is,line);
+    unsigned int old_pos = 0;
+    unsigned int new_pos = 0;
+    if ((new_pos = line.find(cvs_output::cvs_log_date_tag, old_pos)) != -1) 
+    {
+        new_pos = cvs_output::cvs_log_date_tag.length();
+        old_pos = new_pos;
+    }
+
+    if ((new_pos = line.find(cvs_output::cvs_log_author_tag, old_pos)) != -1) 
+    {
+        _date = line.substr(old_pos, new_pos-old_pos);
+        cout << "DATE|" << _date << "|" << endl;
+        new_pos += cvs_output::cvs_log_author_tag.length();
+        old_pos = new_pos;
+    }
+
+    if ((new_pos = line.find(cvs_output::cvs_log_state_tag, old_pos)) != -1) 
+    {
+        _author = line.substr(old_pos, new_pos-old_pos);
+        cout << "AUTH|" << _author << "|" << endl;
+        new_pos += cvs_output::cvs_log_state_tag.length();
+        old_pos = new_pos;
+    }
+
+    if ((new_pos = line.find(cvs_output::cvs_log_lines_tag, old_pos)) != -1) 
+    {
+        _state = line.substr(old_pos, new_pos-old_pos);
+        cout << "STAT|" << _state << "|" << endl;
+        new_pos += cvs_output::cvs_log_lines_tag.length();
+        old_pos = new_pos;
+    }
+    
+    _lines = line.substr(old_pos);
+    cout << "LINE|" << _lines << "|" << endl;
+    old_pos = new_pos;
     
     while (getline(is, line))
     {
@@ -67,7 +102,7 @@ cvs_log_entry::read(istream & is)
             // ----------------------------------------
             continue;
         }
-        _comments += " " + line;
+        _comments += line + "\n";
     }
     return is;
 }
@@ -75,9 +110,16 @@ cvs_log_entry::read(istream & is)
 ostream & 
 cvs_log_entry::show(ostream & os) const
 {
+    static char separator = '\003';
     if (read_status())
     {
-        return os << _comments;
+        return os << separator << "revision " << _revision
+           << separator << "date " << _date
+           << separator << "author " << _author
+           << separator << "state " << _state
+           << separator << "lines " << _lines
+           << separator << "comments " << _comments
+           << separator;
     }
     return os;
 }

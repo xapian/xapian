@@ -25,7 +25,10 @@ public:
     static string cvs_log_revision_tag;
     static string cvs_log_branches_tag;
     static string cvs_log_empty_comment;
-
+    static string cvs_log_date_tag;
+    static string cvs_log_author_tag;
+    static string cvs_log_state_tag;
+    static string cvs_log_lines_tag;
     static string cvs_diff_separator;
 };
 
