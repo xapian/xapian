@@ -17,15 +17,40 @@ Match::Match(IRDatabase *database)
 }
 
 bool
-Match::add_term(const string& termname)
+Match::add_term(termid id)
 {
-    termid id = DB->term_name_to_id(termname);
-
     // FIXME: we might want to push a null PostList in some situations...
     // for similar reasons to using the muscat3.6 zerofreqs option
     if (!id) return false;
 
     q.push(DB->open_post_list(id));
+    return true;
+}
+
+// FIXME: sort out error handling in next 2 methods
+bool
+Match::add_oplist(matchop op, const list<string> &terms)
+{
+    list<string>::const_iterator i;
+    bool first = true;
+    for (i = terms.begin(); i != terms.end(); i++) {
+	add_term(*i);
+	if (!first) add_op(op);
+	first = false;
+    }
+    return true;
+}
+
+bool
+Match::add_oplist(matchop op, const list<termid> &ids)
+{
+    list<termid>::const_iterator i;
+    bool first = true;
+    for (i = ids.begin(); i != ids.end(); i++) {
+	add_term(*i);
+	if (!first) add_op(op);
+	first = false;
+    }
     return true;
 }
 

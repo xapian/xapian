@@ -6,6 +6,7 @@
 
 #include <queue>
 #include <stack>
+#include <list>
 
 class PLPCmp {
    public:
@@ -39,7 +40,10 @@ class Match {
     public:
         Match(IRDatabase *);
         bool add_term(const string &);
+        bool add_term(termid);
 	bool add_op(matchop op);
+	bool add_oplist(matchop op, const list<string>&);
+	bool add_oplist(matchop op, const list<termid>&);
 
         void match();
         void set_max_msize(doccount n);
@@ -51,6 +55,12 @@ class Match {
         doccount msize;
         doccount mtotal;
 };
+
+inline bool
+Match::add_term(const string& termname)
+{
+    return Match::add_term(DB->term_name_to_id(termname));
+}
 
 inline void
 Match::set_max_msize(doccount n)
