@@ -125,7 +125,7 @@ calculate normalised document lengths.
 <p>
 </li><li>
 <B>Value</B>.
-This stores a set of values for each document 
+This stores a set of values for each document
 <p>
 Key: lsb ... msb of the docid, until all remaining bytes are zero
 <p>
@@ -239,7 +239,7 @@ performed by the matcher</A>).
 <p>
 To deal with this, we store posting lists in small chunks, each the right
 size to be stored in a single B-tree block, and hence to be accessed with a
-minimal amount of disk latency.  
+minimal amount of disk latency.
 <p>
 The key for the first chunk in a posting list is the term name of the term
 whose posting list it is.  The key in subsequent chunks is the term name
@@ -248,7 +248,7 @@ allows the cursor methods to be used to scan through the chunks in order,
 and also to jump to the chunk containing a particular document ID.
 
 <p>
-It is quite possible that the termlists and 
+It is quite possible that the termlists and
 position lists would benefit from being split into chunks in this way.
 
 <h2>Btree implementation</h2>
@@ -502,9 +502,9 @@ class and related classes.
 
 The following static method is provided in btreecheck.h:
 
-<pre> 
+<pre>
 void BtreeCheck::check(const string &amp; name, int opts);
-</pre> 
+</pre>
 <!-- FIXME there's an optional ostream & argument (default output is to cout) -->
 
 <blockquote>
@@ -512,7 +512,7 @@ void BtreeCheck::check(const string &amp; name, int opts);
 
 <pre>
         Btree B(s, false);
-	B.open();
+        B.open();
         {
             // do a complete integrity check of the B-tree,
             // reporting according to the bitmask opts
@@ -564,19 +564,19 @@ much higher compaction than 75% is achieved - about 90%. This is called
 the procedure
 
 
-<pre> 
+<pre>
 void Btree::full_compaction(bool parity);
 </pre>
 
 So
 
-<pre> 
+<pre>
     B.full_compaction(true);
 </pre>
 
 switches full compaction on, and
 
-<pre> 
+<pre>
     B.full_compaction(false);
 </pre>
 
@@ -656,7 +656,7 @@ This should be handled, and suitable action taken - either the operation
 aborted, or the Btree reopened at the latest revision and the operation
 retried.  Here is a model scheme:
 
-<pre> 
+<pre>
 static Btree * reopen(Btree * B)
 {
     // Get the revision number. This will return the correct value, even when

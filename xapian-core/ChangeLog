@@ -1,3 +1,7 @@
+Sat Nov 27 01:42:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/: Trimmed trailing whitespace.
+
 Sat Nov 27 01:41:33 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/stemming.html: Reworded text from BrightStation times which
