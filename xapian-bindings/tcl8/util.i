@@ -26,12 +26,12 @@
 
 %typemap(tcl8, in) const string & (string temp) {
     int len;
-    char *cval = Tcl_GetStringFromObj($source, &len);
+    char *cval = Tcl_GetStringFromObj($input, &len);
 
     temp = string(cval, len);
-    $target = &temp;
+    $1 = &temp;
 }
 
 %typemap(tcl8, out) string {
-    Tcl_SetStringObj($target,$source->c_str(), $source->length());
+    Tcl_SetStringObj($result,$1->c_str(), $1->length());
 }

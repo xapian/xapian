@@ -24,19 +24,24 @@
 %}
 
 %typemap(guile, in) const string &(string temp) {
-    if (!gh_string_p($source)) {
+    if (!gh_string_p($input)) {
 //        OMSWIG_exception(SWIG_TypeError,
 //	                 "Expected string argument");
     } else {
 	int len;
 	char *ctemp;
-	ctemp = gh_scm2newstr($source, &len);
+	ctemp = gh_scm2newstr($input, &len);
 //	cout << "ctemp = " << ctemp << endl;
 	temp = string(ctemp, len);
-	$target = &temp;
+	$1 = &temp;
+        if (temp) scm_must_free(temp);
     }
 }
 
 %typemap(guile, out) string {
-    $target = gh_str2scm((char *)$source->c_str(), $source->length());
+    $result = gh_str2scm((char *)$1->c_str(), $1->length());
+}
+
+%typemap(guilde, out) const string & {
+    $result = gh_str2scm((char *)$1->c_str(), $1->length());
 }
