@@ -6,7 +6,9 @@
 <BODY BGCOLOR="white">
 
 <B>Note: This document is still in the early stages of being written.<BR>
-Richard Boulton - 7 Feb 2000</B>
+The content, and formatting, will improve.  Helpful comments are always welcome.
+<BR>
+Richard Boulton - 11 Feb 2000</B>
 
 <H1>Overview</H1>
 
@@ -18,7 +20,7 @@ This API allows programmers quickly to add the ability to search through
 
 <P>
 <EM>Note:</EM>
-The API currently implemented covers only the part of muscat concerned with
+The API currently implemented covers only the part of Muscat concerned with
 searching through existing indices.  The process of creating indexes is thus
 not covered by this document.
 </P>
@@ -59,7 +61,7 @@ through them, and distributed enquiry systems.
 
 <P>
 Errors in Muscat are all reported by means of exceptions.  All exceptions
-thrown by muscat will be subclasses of
+thrown by Muscat will be subclasses of
 <A HREF="apidoc/OmError.html"><CODE>OmError</CODE></A>.  Note that
 <CODE>OmError</CODE> is an abstract class; thus you should catch exceptions
 by reference rather than by value.
@@ -69,11 +71,22 @@ by reference rather than by value.
 There are two flavours of error, derived from <CODE>OmError</CODE>:
 <UL><LI>
 <A HREF="apidoc/OmLogicError.html"><CODE>OmLogicError</CODE></A>
-- for error conditions due to programming errors.
+- for error conditions due to programming errors, such as a misuse of the
+API.  A finished application should not receive these errors (though it
+would still be sensible to catch them).
 </LI><LI>
 <A HREF="apidoc/OmRuntimeError.html"><CODE>OmRuntimeError</CODE></A>
-- for error conditions due to programming errors.
+- for error conditions due to run time problems, such as failure to open
+a database.  You must always be ready to cope with such errors.
 </LI></UL>
+</P>
+
+<P>
+Each of these flavours is further subdivided, such that any particular
+error condition can be trapped by catching the appropriate exception.
+If desired, a human readable explanation of the error can be retrieved
+by calling
+<A HREF="apidoc/OmError.html#get_msg"><CODE>OmError::get_msg()</CODE></A>.
 </P>
 
 <P>
@@ -82,13 +95,80 @@ throwing appropriate exceptions.  Most notably, if the system runs out
 of memory, a <CODE>std::bad_alloc()</CODE> exception will be thrown.
 </P>
 
-<H2>The enquire class</H2>
+<H2>Terminology</H2>
+<H3>Databases</H3>
+<P>
+These may also occasionally be called <EM>Indexes</EM>.  In Muscat (as
+opposed to a database package) a database consists of little more than
+indexed documents: this reflects the purpose of Muscat as an information
+retrieval system, rather than an information storage system.
+</P>
+<P>
+The exact contents of a database depend on the type (see
+&quot;<A HREF="#database_types">Database Types</A>&quot; for more details
+of the database types currently provided).
+</P>
+
+<H3>Queries</H3>
+
+
+<H2>The OmEnquire class</H2>
+
+<P>
+The <A HREF="apidoc/OmEnquire.html"><CODE>OmEnquire()</CODE></A> class
+is central to all searching operations.  It provides an interface for
+<UL><LI>
+Specifying the database, or databases, to search across.
+</LI><LI>
+Specifying a query to perform.
+</LI><LI>
+Specifying a set of documents which a user considers relevant.
+</LI><LI>
+Given the supplied information, returning a ranked set of documents for
+the user.
+</LI><LI>
+Given the supplied information, suggesting a ranked set of terms to add to the
+query.
+</LI><LI>
+</LI></UL>
+</P>
+<P>
+A typical enquiry session will consist of most of these operations, in
+various orders.  The OmEnquire class presents as few restrictions as
+possible on the order in which operations should be performed.  For
+example, although you must set the query before asking for the results,
+the database can be specified, or changed, before or after running the
+query.
+</P>
+<P>
+Many operations performed by the OmEnquire class are performed lazily (ie,
+just before their results are needed).  This need not concern the user
+except to note that, as a result, errors may not be reported as soon as
+would otherwise be expected.  In particular, 
+</P>
 
 <H2>Opening a database</H2>
 
-The first step in any 
+Before any other enquire operations may be performed, a database must be
+opened.
+(An
+<A HREF="apidoc/OmInvalidArgumentError.html"><CODE>OmInvalidArgumentError</CODE></A>
+will be thrown if the database is not
+)
 
 <H3>Opening more databases</H3>
+
+<P>
+Muscat can search across several databases as easily as searching across a
+single one.  Simply call
+<A HREF="apidoc/OmEnquire.html#add_database"><CODE>OmEnquire::add_database()</CODE></A>
+for each database that you wish to search through.
+</P>
+<P>
+Other operations may be performed
+</P>
+
+<A NAME="database_types"><H3>Database types</H3></A>
 
 <H2>Specifying a query</H2>
 
@@ -155,6 +235,10 @@ The boolquery will return a set of documents matching the criteria supplied:
 each document in the result set will have a weight of 1.
 <P>
 Why does this work?  Well, 
+
+<H2>Setting options for a query</H2>
+
+There are various additional options 
 
 <H2>Retrieving the results of a query</H2>
 
