@@ -13,4 +13,6 @@ noinst_LTLIBRARIES = libmuscat36.la
 
 libmuscat36_la_SOURCES = io_system.c 3point6.c \
 			 da_database.cc da_document.cc daread.c \
-			 db_database.cc db_document.cc dbread.c 
+			 db_database.cc db_document.cc dbread.c
+
+EXTRA_DIST = spec
