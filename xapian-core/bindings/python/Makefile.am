@@ -25,7 +25,7 @@ _xapian_la_LIBADD = ../../libxapian.la ../../extra/libomqueryparser.la
 
 BUILT_SOURCES = xapian_wrap.cc xapian.py
 
-xapian_wrap.cc xapian.py: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_python.i
+xapian_wrap.cc xapian.py: ../swig/xapian.i ../swig/om_util.i ../swig/om_util_python.i
 	$(SWIG) $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $(srcdir)/../swig/xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)

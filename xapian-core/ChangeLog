@@ -1,3 +1,11 @@
+Wed Jul 09 15:35:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/guile/Makefile.am,bindings/php4/Makefile.am,
+	  bindings/python/Makefile.am,bindings/swig/,
+	  bindings/tcl8/Makefile.am: Removed omtypes.i and merged omstem.i
+	  into xapian.i; added forward declaration for upwrapped classes
+	  to xapian.i.
+
 Wed Jul 09 15:34:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/java/,bindings/java/com/muscat/om/,bindings/java/native/:

@@ -32,6 +32,7 @@
 
 #undef list
 #include <xapian.h>
+// FIXME: #include <xapian/queryparser.h>
 #include <queryparser.h>
 #include <string>
 #include <vector>
@@ -42,10 +43,15 @@
 using namespace std;
 %include "om_util.i"
 
+%include <xapian/types.h>
+
 namespace Xapian {
 
-%include "omtypes.i"
-     
+class ExpandDecider;
+class MatchDecider;
+class Weight;
+class Stopper;
+
 class PositionIterator {
   private:
   public:
@@ -452,6 +458,12 @@ class QueryParser {
   Query parse_query(const string &q);
 };
 
+class Stem {
+public:
+    Stem(const string &language);
+    ~Stem();
+
+    string stem_word(const string &word);
 };
 
-%include "omstem.i"
+};

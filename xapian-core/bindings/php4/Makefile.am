@@ -19,7 +19,7 @@ install-php4: all-php4
 xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php
 	cd xapian && $(PHPIZE)
 
-xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_php4.i
+xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../swig/xapian.i ../swig/om_util.i ../swig/om_util_php4.i
 	test -d xapian || mkdir xapian
 	$(SWIG) $(SWIG_INCLUDES) -c++ -php4 -phpfull -withlibs "xapian omqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../swig/xapian.i
 

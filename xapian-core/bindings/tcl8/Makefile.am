@@ -13,7 +13,7 @@ xapianc_la_LIBADD = ../../libxapian.la ../../extra/libomqueryparser.la
 
 BUILT_SOURCES = xapian_wrap.cc
 
-xapian_wrap.cc: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_tcl8.i
+xapian_wrap.cc: ../swig/xapian.i ../swig/om_util.i ../swig/om_util_tcl8.i
 	$(SWIG) $(SWIG_INCLUDES) -c++ -tcl8 -shadow -o $@ $(srcdir)/../swig/xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)

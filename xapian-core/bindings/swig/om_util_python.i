@@ -64,6 +64,7 @@
 	    return retval;
 	}
 
+#if 0 // FIXME
 	MatchDecider *get_py_matchdecider(PyObject *obj) {
 	    MatchDecider *retval = 0;
 	    if (PyInstance_Check(obj)) {
@@ -81,6 +82,7 @@
 	    }
 	    return retval;
 	}
+#endif
 
 	int get_py_int(PyObject *obj) {
 	    if (!PyNumber_Check(obj)) {
