@@ -26,7 +26,7 @@ else
 THREADTESTS =
 endif
 
-if HAVE_LIBXML
+if BUILD_INDEXER
 INDEXERTESTS = indextest
 INDEXERTESTS_RUN = run-indextest
 else

@@ -31,7 +31,7 @@
 
 #include "om/om.h"
 #include "textfile_indexer.h"
-#include "../indexer/index_utils.h"
+#include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
 

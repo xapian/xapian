@@ -1,3 +1,11 @@
+Wed Nov 22 14:59:11 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add configure option to enable or disable compilation of the
+	  indexer library - defaults to enable: --enable-indexer
+
+	* Move textfile_indexer and index_utils into testsuite - not part
+	  of the proper indexer.
+
 Wed Nov 22 13:13:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Store positionlists in quartz using difference between successive

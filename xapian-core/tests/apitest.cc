@@ -41,8 +41,6 @@ using std::ostream;
 #include "om/om.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "textfile_indexer.h"
-#include "../indexer/index_utils.h"
 #include "backendmanager.h"
 #include "utils.h"
 
