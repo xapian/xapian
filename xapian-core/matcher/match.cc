@@ -4,6 +4,7 @@ Match::Match(IRDatabase *database)
 {
     DB = database;
     merger = NULL;
+    max_msize = 1000;
 }
 
 bool
@@ -84,7 +85,9 @@ Match::match(void)
     }
 
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
+#if 0
     for (docid i = 0; i < msize; i++) {
         cout << mset[i].id << "\t" << mset[i].w << endl;
     }
+#endif
 }
