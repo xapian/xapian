@@ -1,3 +1,7 @@
+Mon Dec 13 02:52:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Updated (C) date.
+
 Mon Dec 13 02:50:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* languages/: Added missing '#include <config.h>' to .cc files
