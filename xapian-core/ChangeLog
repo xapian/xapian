@@ -1,3 +1,10 @@
+Sun Aug 22 14:07:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* indexer/: Removed the old XML-based indexer framework.  It's not
+	  worked for ages, and nobody seems interested in ressurecting it.
+	  If anyone ever is, they can fetch it back from CVS, but otherwise
+	  it's just bulking up CVS checkouts.
+
 Sun Aug 22 13:02:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,extra/Makefile.am: Moved the older library
