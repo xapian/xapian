@@ -1,3 +1,8 @@
+Tue Jul 09 17:47:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS, tests/Makefile.am: improved internaltest.cc automake rules
+	  - they should now work in VPATH builds with Solaris make.
+
 Tue Jul 09 03:30:41 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in, docs/Makefile.am: Fixed up apidoc and sourcedoc

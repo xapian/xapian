@@ -8,9 +8,7 @@ VPATH build (ie you must build in the same directory as the source
 code), unless you have all the tools required to rebuild the
 documentation, because the dependency system will try to rebuild the
 documentation on VPATH without any regard to whether it's up to date
-or even possible.
-
-TODO: fix internaltest.cc finding (Solaris, VPATH only)
+or even possible. [Should now be fixed in CVS HEAD - not tested yet]
 
 Arch  | Platform                 | Version | Status | Notes / requirements
 ------+--------------------------+---------+--------+------------------------
@@ -48,4 +46,4 @@ ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | Won't link unless
 [3] internaltest.cc not found automatically - had to hack tests/Makefile
     This is because it uses our own custom make rule due to deficiencies
     in automake. The failure in this case is a portability problem to
-    Solaris make.
+    Solaris make.  [Should now be fixed in CVS HEAD - not tested yet]

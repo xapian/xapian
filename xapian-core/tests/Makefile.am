@@ -8,12 +8,6 @@ else
 PERLTESTS =
 endif
 
-if HAVE_CPP_ACCESS_BYPASS
-INTERNALTEST_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
-else
-INTERNALTEST_CXXFLAGS =
-endif
-
 ## Test programs to be run
 TESTS = apitest internaltest $(PERLTESTS)
 
@@ -32,9 +26,11 @@ stemtest_LDADD = ../getopt/libgetopt.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
-## Note: the next variable is not understood by automake:
-## we supply our own rule in this file.
-internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
+if HAVE_CPP_ACCESS_BYPASS
+internaltest_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+else
+internaltest_CXXFLAGS =
+endif
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
@@ -57,14 +53,3 @@ CLEANFILES = stemtest.pl
 clean-local:
 	rm -f randjunk_seed_* randtext_seed_*
 	rm -rf .quartz
-
-## Compile internaltest with the extra CXXFLAGS
-## We have to provide our own rules, because automake doesn't
-## actually understand _CXXFLAGS, and we know of no other way
-## to pass special flags to the compilation of one target.
-
-internaltest.o: internaltest.cc
-	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c $(srcdir)/internaltest.cc
-
-internaltest.lo: internaltest.cc
-	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c $(srcdir)/internaltest.cc
