@@ -13,14 +13,28 @@ typedef unsigned int termid;
 typedef unsigned int docid;
 typedef char *termname;
 
-class RangeError {
+class Error {
     private:
 	string msg;
     public:
-        RangeError(string error_msg)
+        Error(string error_msg)
         {
 	    msg = error_msg;
         }
+	string get_msg()
+	{
+	    return msg;
+	}
+};
+
+class RangeError : public Error {
+    public:
+	RangeError(string msg) : Error(msg) {};
+};
+
+class OpeningError : public Error {
+    public:
+        OpeningError(string msg) : Error(msg) {};
 };
 
 class PostListIterator {
