@@ -306,7 +306,7 @@ sub make_comment($) {
 sub func_start($) {
     my $self = shift;
     my $orig = shift;
-    if ($orig =~ /^bool ([a-z0-9_]+)\(\)/) {
+    if ($orig =~ /^(?:static\s)?\s*bool ([a-z0-9_]+)\(\)/) {
         my $name = $1;
 	$self->{func} = "    public static boolean $name() throws Throwable \n    {\n";
 	if (defined($self->{indent_level}) and $self->{indent_level} != 4) {

@@ -128,6 +128,9 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
     // SORT list into ascending freq order
     // AND last two elements, then AND with each subsequent element
 
+// FIXME: if we throw away zero frequency postlists at this point,
+// max_weight will come out lower...
+#if 0
     std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	if ((*i)->get_termfreq() == 0) {
@@ -138,6 +141,7 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
 	    break;
 	}
     }
+#endif
 
     if (postlists.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
@@ -170,12 +174,18 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
     std::priority_queue<PostList *, std::vector<PostList *>, PLPCmpGt> pq;
     std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
+// FIXME: if we throw away zero frequency postlists at this point,
+// max_weight will come out lower...
+#if 0
 	// for an OR, we can just ignore zero freq terms
 	if ((*i)->get_termfreq() == 0) {
 	    delete *i;
 	} else {
 	    pq.push(*i);
 	}
+#else
+	pq.push(*i);
+#endif
     }
     postlists.clear();
 
@@ -599,7 +609,7 @@ LocalMatch::get_mset(om_doccount first,
     // Max "extra weight" that an item can get (ie, not from the postlist tree).
     om_weight max_extra_weight = extra_weight->get_maxextra();
     // Calculate max_weight a document could possibly have
-    om_weight max_weight = query->recalc_maxweight() + max_extra_weight;
+    const om_weight max_weight = query->recalc_maxweight() + max_extra_weight;
 
     om_weight w_max = max_weight; // w_max may decrease as tree is pruned
     recalculate_w_max = false;

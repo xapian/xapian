@@ -1,3 +1,11 @@
+Wed Sep 20 11:53:16 BST 2000 Olly Betts
+
+	* Disabled special casing of postlists with termfreq == 0 when
+	  building AND and OR trees.
+
+	* Removed "get_maxweight()" and "recalc_maxweight()" implementations
+	  from in EmptyPostList.
+
 Wed Sep 20 10:36:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added malloc-wrapper.sh to the distribution.
