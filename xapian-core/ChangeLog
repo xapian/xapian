@@ -1,3 +1,7 @@
+Tue May 07 17:52:36 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added autoconf/type_socklen_t macro.
+
 Tue May 07 16:50:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* Now require autoconf 2.50, which allows us to clean up some of the
