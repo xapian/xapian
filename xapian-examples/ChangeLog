@@ -1,3 +1,9 @@
+Fri Apr 12 11:43:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* delve moved here (was in tests subdirectory of xapian-core
+	  for now irrelevant historical reasons); moved msearch out
+	  of its own directory.
+
 Fri Apr 12 11:36:34 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed unused and superfluous stuff.
