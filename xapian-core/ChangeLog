@@ -1,3 +1,9 @@
+Mon Feb 21 04:11:23 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Don't delare methods in
+	  headers if they're virtual or large.
+
 Sun Feb 20 21:13:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* common/multimatch.h: Removed unused "class SocketServer;".

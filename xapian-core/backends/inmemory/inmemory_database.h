@@ -25,8 +25,6 @@
 #ifndef OM_HGUARD_INMEMORY_DATABASE_H
 #define OM_HGUARD_INMEMORY_DATABASE_H
 
-#include "omdebug.h"
-#include "utils.h"
 #include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
@@ -60,7 +58,7 @@ class InMemoryPosting {
 	}
 };
 
-class InMemoryTermEntry{
+class InMemoryTermEntry {
     public:
 	string tname;
 	vector<Xapian::termpos> positions; // Sorted vector of positions
@@ -99,47 +97,28 @@ class InMemoryTermEntryLessThan {
 // Class representing a term and the documents indexing it
 class InMemoryTerm {
     public:
-	vector<InMemoryPosting> docs;// Sorted list of documents indexing term
+	// Sorted list of documents indexing this term.
+	vector<InMemoryPosting> docs;
 
 	Xapian::termcount term_freq;
 	Xapian::termcount collection_freq;
 
 	InMemoryTerm() : term_freq(0), collection_freq(0) {}
 
-	void add_posting(const InMemoryPosting & post) {
-	    // Add document to right place in list
-	    vector<InMemoryPosting>::iterator p;
-	    p = lower_bound(docs.begin(), docs.end(),
-			    post, InMemoryPostingLessThan());
-	    if (p == docs.end() || InMemoryPostingLessThan()(post, *p)) {
-		docs.insert(p, post);
-	    } else if (!p->valid) {
-		*p = post;
-	    } else {
-		(*p).merge(post);
-	    }
-	}
+	void add_posting(const InMemoryPosting & post);
 };
 
-/// Class representing a document and the terms indexing it
+/// Class representing a document and the terms indexing it.
 class InMemoryDoc {
     public:
 	bool is_valid;
-	vector<InMemoryTermEntry> terms;// Sorted list of terms indexing document
+	// Sorted list of terms indexing this document.
+	vector<InMemoryTermEntry> terms;
 
 	/* Initialise valid */
 	InMemoryDoc() : is_valid(true) {}
-	void add_posting(const InMemoryTermEntry & post) {
-	    // Add document to right place in list
-	    vector<InMemoryTermEntry>::iterator p;
-	    p = lower_bound(terms.begin(), terms.end(),
-			    post, InMemoryTermEntryLessThan());
-	    if (p == terms.end() || InMemoryTermEntryLessThan()(post, *p)) {
-		terms.insert(p, post);
-	    } else {
-		(*p).merge(post);
-	    }
-	}
+
+	void add_posting(const InMemoryTermEntry & post);
 };
 
 /** A PostList in an inmemory database.
@@ -162,7 +141,7 @@ class InMemoryPostList : public LeafPostList {
 	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
     public:
-	Xapian::doccount get_termfreq() const { return termfreq; }
+	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid       get_docid() const;     // Gets current docid
 	Xapian::doclength   get_doclength() const; // Length of current document
@@ -175,7 +154,7 @@ class InMemoryPostList : public LeafPostList {
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
 
 	// True if we're off the end of the list.
-	bool at_end() const { return (pos == end); }
+	bool at_end() const;
 
 	string get_description() const;
 };
@@ -197,14 +176,14 @@ class InMemoryTermList : public LeafTermList {
 			 const InMemoryDoc & doc,
 			 Xapian::doclength len);
     public:
-	Xapian::termcount get_approx_size() const { return terms; }
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
 	string get_termname() const;
 	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
-	bool at_end() const { Assert(started); return (pos == end); }
+	bool at_end() const;
 	Xapian::PositionIterator positionlist_begin() const;
 };
 
@@ -257,14 +236,6 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	//@}
 
     public:
-#if 0
-	/** Hack put in to cause an error when calling next, for testing
-	 *  purposes.
-	 */
-	int error_in_next;
-	int abort_in_next;
-#endif
-
 	/** Create and open an in-memory database.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
@@ -273,9 +244,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	~InMemoryDatabase();
 
-	Xapian::doccount get_doccount() const { return totdocs; }
+	Xapian::doccount get_doccount() const;
 
-	Xapian::docid get_lastdocid() const { return termlists.size(); }
+	Xapian::docid get_lastdocid() const;
 
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
@@ -292,194 +263,5 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 					  const string & tname) const;
 	TermList * open_allterms() const;
 };
-
-//////////////////////////////////////////////
-// Inline function definitions for database //
-//////////////////////////////////////////////
-
-inline Xapian::doclength
-InMemoryDatabase::get_avlength() const
-{
-    if (totdocs == 0) return 0;
-    return Xapian::doclength(totlen) / totdocs;
-}
-
-inline Xapian::doccount
-InMemoryDatabase::get_termfreq(const string & tname) const
-{
-    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if (i == postlists.end()) return 0;
-    return i->second.term_freq;
-}
-
-inline Xapian::termcount
-InMemoryDatabase::get_collection_freq(const string &tname) const
-{
-    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if (i == postlists.end()) return 0;
-    return i->second.collection_freq;
-}
-
-inline Xapian::doclength
-InMemoryDatabase::get_doclength(Xapian::docid did) const
-{
-    if (!doc_exists(did)) {
-	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
-				 string(" not found"));
-    }
-    return doclengths[did - 1];
-}
-
-//////////////////////////////////////////////
-// Inline function definitions for postlist //
-//////////////////////////////////////////////
-
-inline
-InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   const InMemoryTerm & term)
-	: pos(term.docs.begin()),
-	  end(term.docs.end()),
-	  termfreq(term.term_freq),
-	  started(false),
-	  db(db_)
-{
-    // InMemoryPostLists cannot be empty
-    Assert(pos != end);
-    while (pos != end && !pos->valid) ++pos;
-}
-
-inline Xapian::docid
-InMemoryPostList::get_docid() const
-{
-    //DebugMsg(tname << ".get_docid()");
-    Assert(started);
-    Assert(!at_end());
-    //DebugMsg(" = " << (*pos).did << endl);
-    return (*pos).did;
-}
-
-inline PostList *
-InMemoryPostList::next(Xapian::weight /*w_min*/)
-{
-#if 0
-    if (db->error_in_next) {
-	// Nasty cast, but this is only in testcase code anyway.
-	(const_cast<InMemoryDatabase *>(db.get()))->error_in_next--;
-	if (db->error_in_next == 0)
-	    throw Xapian::DatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
-    }
-
-    if (db->abort_in_next) {
-	(const_cast<InMemoryDatabase *>(db.get()))->abort_in_next--;
-	if (db->abort_in_next == 0)
-	    abort();
-    }
-#endif
-
-    if (started) {
-	Assert(!at_end());
-	++pos;
-	while (pos != end && !pos->valid) ++pos;
-    } else {
-	started = true;
-    }
-    return NULL;
-}
-
-inline PostList *
-InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
-{
-    //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
-    // FIXME - see if we can make more efficient, perhaps using better
-    // data structure.  Note, though, that a binary search of
-    // the remaining list may NOT be a good idea (search time is then
-    // O(log {length of list}), as opposed to O(distance we want to skip)
-    // Since we will frequently only be skipping a short distance, this
-    // could well be worse.
-    started = true;
-    Assert(!at_end());
-    while (!at_end() && (*pos).did < did) {
-	(void) next(w_min);
-    }
-    return NULL;
-}
-
-inline string
-InMemoryPostList::get_description() const
-{
-    return "InMemoryPostList" + om_tostring(termfreq);
-}
-
-//////////////////////////////////////////////
-// Inline function definitions for termlist //
-//////////////////////////////////////////////
-
-inline
-InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   Xapian::docid did_,
-				   const InMemoryDoc & doc,
-				   Xapian::doclength len)
-	: pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
-	  started(false), db(db_), did(did_)
-{
-    DEBUGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
-	          terms << " terms starting from " << pos->tname);
-    document_length = len;
-}
-
-inline Xapian::termcount
-InMemoryTermList::get_wdf() const
-{
-    Assert(started);
-    Assert(!at_end());
-    return (*pos).wdf;
-}
-
-inline Xapian::doccount
-InMemoryTermList::get_termfreq() const
-{
-    Assert(started);
-    Assert(!at_end());
-
-    return db->get_termfreq((*pos).tname);
-}
-
-inline OmExpandBits
-InMemoryTermList::get_weighting() const
-{
-    Assert(started);
-    Assert(!at_end());
-    Assert(wt != NULL);
-
-    return wt->get_bits(InMemoryTermList::get_wdf(), document_length,
-			InMemoryTermList::get_termfreq(),
-			db->get_doccount());
-}
-
-inline string
-InMemoryTermList::get_termname() const
-{
-    Assert(started);
-    Assert(!at_end());
-    return (*pos).tname;
-}
-
-inline TermList *
-InMemoryTermList::next()
-{
-    if (started) {
-	Assert(!at_end());
-	pos++;
-    } else {
-	started = true;
-    }
-    return NULL;
-}
-
-inline Xapian::PositionIterator
-InMemoryTermList::positionlist_begin() const
-{
-    return Xapian::PositionIterator(db->open_position_list(did, (*pos).tname));
-}
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */
