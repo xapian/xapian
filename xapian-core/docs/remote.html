@@ -34,14 +34,14 @@ the server.
 
 <P>The prog method spawns a program when the database is opened, and
 communicates with it over a Unix domain socket.  This isn't intended for
-production use, but is useful for debugging and testing.  The omprogsrv
+production use, but is useful for debugging and testing.  The xapian-progsrv
 program, which is designed to be the program spawned, currently only uses
 text files indexed into inmemory databases.
 
 <P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
 
 <pre>
-Xapian::Database database(Xapian::Remote::open("omprogsrv", "file1.txt file2.txt"));
+Xapian::Database database(Xapian::Remote::open("xapian-progsrv", "file1.txt file2.txt"));
 </pre>
 
 If the program has no path, the PATH environment variable is used.  The
@@ -62,11 +62,12 @@ Xapian::Database database(Xapian::Remote::open("searchserver", 33333));
 The host is the server's hostname, the port is the tcp port on the server to
 use.
 
-<P>The server is omtcpsrv, which is installed by xapian-core's "make install".
+<P>The server is xapian-tcpsrv, which is installed by xapian-core's
+"<code>make&nbsp;install</code>".
 This should be started and left running in the background before searches
 are performed.
 
-<P>The arguments omtcpsrv currently knows are:
+<P>The arguments xapian-tcpsrv currently knows are:
 <dl>
 <dt> --port PORTNUM
 <dd>        (required) the port to listen on.

@@ -428,7 +428,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 Xapian::Database
 BackendManager::getdb_remote(const vector<string> &dbnames)
 {
-    // run an omprogsrv for now.  Later we should also use omtcpsrv
+    // run an xapian-progsrv for now.  Later we should also use xapian-tcpsrv
     string args = datadir;
     bool timeout = false;
     vector<string>::const_iterator i;
@@ -448,7 +448,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
     // Nice long timeout (5 minutes) so we don't timeout just because
     // the host is slow.
     if (!timeout) args += " -t300000";
-    return Xapian::Remote::open("../bin/omprogsrv", args);
+    return Xapian::Remote::open("../bin/xapian-progsrv", args);
 }
 
 Xapian::WritableDatabase

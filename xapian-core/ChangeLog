@@ -1,3 +1,10 @@
+Tue Sep 14 18:09:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in,bin/.cvsignore,bin/Makefile.am,debian/control.in,
+	  debian/xapian-tools.install,docs/remote.html,tests/remotetest.cc,
+	  testsuite/backendmanager.cc: Rename omtcpsrv to xapian-tcpsrv and
+	  omprogsrv to xapian-progsrv.
+
 Tue Sep 14 16:25:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Fixed mangled URL in last checkin.

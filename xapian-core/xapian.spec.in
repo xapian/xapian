@@ -53,7 +53,7 @@ cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 
 %files
 %defattr(-, root, root)
-%{_bindir}/omtcpsrv
+%{_bindir}/xapian-tcpsrv
 %{_bindir}/quartzcheck
 %{_bindir}/quartzcompact
 %{_bindir}/quartzdump

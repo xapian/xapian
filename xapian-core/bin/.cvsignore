@@ -7,5 +7,5 @@ Makefile
 quartzcheck
 quartzcompact
 quartzdump
-omprogsrv
-omtcpsrv
+xapian-progsrv
+xapian-tcpsrv

@@ -7,11 +7,12 @@ quartz_bin_programs = quartzcheck quartzcompact quartzdump
 endif
 
 if BUILD_BACKEND_REMOTE
-remote_bin_programs = omtcpsrv
-remote_check_programs = omprogsrv
+remote_bin_programs = xapian-tcpsrv
+remote_check_programs = xapian-progsrv
 endif
 
-EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump omtcpsrv omprogsrv
+EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump\
+    xapian-tcpsrv xapian-progsrv
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs)
 check_PROGRAMS = $(remote_check_programs)
 
@@ -27,9 +28,9 @@ quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
-omprogsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
-omprogsrv_SOURCES = omprogsrv.cc
-omprogsrv_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+xapian_progsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
+xapian_progsrv_SOURCES = omprogsrv.cc
+xapian_progsrv_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
-omtcpsrv_SOURCES = omtcpsrv.cc
-omtcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+xapian_tcpsrv_SOURCES = omtcpsrv.cc
+xapian_tcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la

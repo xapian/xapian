@@ -129,7 +129,7 @@ static bool test_tcpmatch1()
     backendmanager.set_datadir(datadir);
     Xapian::Database dbremote = backendmanager.get_database("apitest_simpledata");
 
-    string command = "../bin/omtcpsrv --one-shot --quiet --port 1235 "
+    string command = "../bin/xapian-tcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
     system(command);
     sleep(3);
@@ -162,7 +162,7 @@ static bool test_tcpdead1()
     if (pid == 0) {
 	// child code
 	char *args[] = {
-	    "../bin/omtcpsrv",
+	    "../bin/xapian-tcpsrv",
 	    "--one-shot",
 	    "--quiet",
 	    "--port",
@@ -170,11 +170,11 @@ static bool test_tcpdead1()
 	    ".quartz/db=apitest_simpledata",
 	    NULL
 	};
-	// FIXME: we run this directly so we know the pid of the omtcpsrv
+	// FIXME: we run this directly so we know the pid of the xapian-tcpsrv
 	// parent - below we assume the child is the next pid (which isn't
 	// necessarily true)
-	execv("../bin/.libs/lt-omtcpsrv", args);
-	// execv only returns if it couldn't start omtcpsrv
+	execv("../bin/.libs/lt-xapian-tcpsrv", args);
+	// execv only returns if it couldn't start xapian-tcpsrv
 	exit(1);
     } else if (pid < 0) {
 	// fork() failed
@@ -188,8 +188,10 @@ static bool test_tcpdead1()
 
     Xapian::Enquire enq(db);
 
-    // FIXME: this assumes fork-ed child omtcpsrv process is the pid after
-    // the parent
+    // FIXME: this assumes fork-ed child xapian-tcpsrv process is the pid after
+    // the parent - it could be another process has that pid and we would end
+    // up killing that process if it was owned by this user.  Also this would
+    // cause a spurious test failure.
     if (kill(pid + 1, SIGTERM) == -1) {
 	FAIL_TEST("Couldn't send signal to child");
     }
