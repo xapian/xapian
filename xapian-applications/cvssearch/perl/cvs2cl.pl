@@ -98,6 +98,10 @@ my $Distributed = 0;
 # What file should we generate (defaults to "ChangeLog")?
 my $Log_File_Name = "ChangeLog";
 
+# Grab most recent entry date from existing ChangeLog file, just add
+# to that ChangeLog.
+my $Cumulative = 0;
+
 # Expand usernames to email addresses based on a map file?
 my $User_Map_File = "";
 
@@ -130,9 +134,6 @@ my $Show_Day_Of_Week = 0;
 
 # Show revision numbers in output?
 my $Show_Revisions = 0;
-
-# Show changes from previous version?
-my $Show_Changes = 0;
 
 # Show tags (symbolic names) in output?
 my $Show_Tags = 0;
@@ -199,6 +200,33 @@ my $logmsg_separator = "----------------------------";
 
 ### Everything below is subroutine definitions. ###
 
+# If accumulating, grab the boundary date from pre-existing ChangeLog.
+sub maybe_grab_accumulation_date ()
+{
+  if (! $Cumulative) {
+    return "";
+  }
+
+  # else
+
+  open (LOG, "$Log_File_Name")
+      or die ("trouble opening $Log_File_Name for reading ($!)");
+
+  my $boundary_date;
+  while (<LOG>)
+  {
+    if (/^(\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d)/)
+    {
+      $boundary_date = "$1";
+      last;
+    }
+  }
+
+  close (LOG);
+  return $boundary_date;
+}
+
+
 # Fills up a ChangeLog structure in the current directory.
 sub derive_change_log ()
 {
@@ -209,10 +237,15 @@ sub derive_change_log ()
   my $file_full_path;
   my $time;
   my $revision;
-  my $changes;
   my $author;
   my $msg_txt;
   my $detected_file_separator;
+
+  # Might be adding to an existing ChangeLog
+  my $accumulation_date = &maybe_grab_accumulation_date ();
+  if ($accumulation_date) {
+    $Log_Source_Command .= " -d\'>${accumulation_date}\'";
+  }
 
   # We might be expanding usernames
   my %usermap;
@@ -415,7 +448,7 @@ sub derive_change_log ()
     {
       if (/^date: .*/)
       {
-        ($time, $author,$changes) = &parse_date_and_author_and_changes ($_);
+        ($time, $author) = &parse_date_and_author ($_);
         if (defined ($usermap{$author}) and $usermap{$author}) {
           $author = $usermap{$author};
         }
@@ -561,9 +594,6 @@ sub derive_change_log ()
 
       $qunk{'revision'} = $revision;
 
-      $changes =~ s/lines: //;
-      $qunk{'changes'} = $changes;
-
       # Grab the branch, even though we may or may not need it:
       $qunk{'revision'} =~ /((?:\d+\.)+)\d+/;
       my $branch_prefix = $1;
@@ -605,7 +635,6 @@ sub derive_change_log ()
     undef $time;
     undef $revision;
     undef $author;
-    undef $changes;
     undef @branch_roots;
 
     # Maybe even make way for the next file:
@@ -813,6 +842,41 @@ sub derive_change_log ()
 
     if (! $Output_To_Stdout) 
     {
+      # If accumulating, append old data to new before renaming.  But
+      # don't append the most recent entry, since it's already in the
+      # new log due to CVS's idiosyncratic interpretation of "log -d".
+      if ($Cumulative && -f $logfile_here)
+      {
+        open (NEW_LOG, ">>$tmpfile")
+            or die "trouble appending to $tmpfile ($!)";
+
+        open (OLD_LOG, "<$logfile_here")
+            or die "trouble reading from $logfile_here ($!)";
+
+        my $started_first_entry = 0;
+        my $passed_first_entry = 0;
+        while (<OLD_LOG>) 
+        {
+          if (! $passed_first_entry)
+          {
+            if ((! $started_first_entry)
+                && /^(\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d)/) {
+              $started_first_entry = 1;
+            }
+            elsif (/^(\d\d\d\d-\d\d-\d\d\s+\d\d:\d\d)/) {
+              $passed_first_entry = 1;
+              print NEW_LOG $_;
+            }
+          }
+          else {
+            print NEW_LOG $_;
+          }
+        }
+
+        close (NEW_LOG);
+        close (OLD_LOG);
+      }
+
       if (-f $logfile_here) {
         rename ($logfile_here, $logfile_bak);
       } 
@@ -822,7 +886,7 @@ sub derive_change_log ()
 }
 
 
-sub parse_date_and_author_and_changes ()
+sub parse_date_and_author ()
 {
   # Parses the date/time and author out of a line like: 
   #
@@ -830,14 +894,14 @@ sub parse_date_and_author_and_changes ()
 
   my $line = shift;
 
-  my ($year, $mon, $mday, $hours, $min, $secs, $author,$changes) = $line =~
-      m#(\d+)/(\d+)/(\d+)\s+(\d+):(\d+):(\d+);\s+author:\s+([^;]+);.*state:[^;]+;\s+(.*)#
+  my ($year, $mon, $mday, $hours, $min, $secs, $author) = $line =~
+      m#(\d+)/(\d+)/(\d+)\s+(\d+):(\d+):(\d+);\s+author:\s+([^;]+);#
           or  die "Couldn't parse date ``$line''";
   die "Bad date or Y2K issues" unless ($year > 1969 and $year < 2258);
   # Kinda arbitrary, but useful as a sanity check
   my $time = timegm($secs,$min,$hours,$mday,$mon-1,$year-1900);
 
-  return ($time, $author,$changes);
+  return ($time, $author);
 }
 
 
@@ -936,19 +1000,16 @@ sub pretty_file_list ()
     {
       my $filename    = $$qunkref{'filename'};
       my $revision    = $$qunkref{'revision'};
-      my $changes   = $$qunkref{'changes'};
       my $tags        = $$qunkref{'tags'};
       my $branch      = $$qunkref{'branch'};
       my $branchroots = $$qunkref{'branchroots'};
 
       $filename = &xml_escape ($filename);   # probably paranoia
       $revision = &xml_escape ($revision);   # definitely paranoia
-      $changes = &xml_escape ($changes);   # definitely paranoia
 
       $beauty .= "<file>\n";
       $beauty .= "<name>${filename}</name>\n";
       $beauty .= "<revision>${revision}</revision>\n";
-      $beauty .= "<changes>\n${changes}\n</changes>\n";
       if ($branch) {
         $branch   = &xml_escape ($branch);     # more paranoia
         $beauty .= "<branch>${branch}</branch>\n";
@@ -1037,11 +1098,6 @@ sub pretty_file_list ()
             # nifty to just call them revision "0" on a the branch.
             # Yeah, that's the ticket.
           }
-
-          if ($Show_Changes) {
-	die "not implemented\n";
-          }
-
         }
       }
       $beauty .= " ($branch";
@@ -1078,7 +1134,7 @@ sub pretty_file_list ()
     #              (($common_dir eq "./") ? "" : length ($common_dir)));
     $$qunkref{'printed'} = 1;  # Set a mark bit.
     
-    if ($Show_Revisions || $Show_Tags || $Show_Changes)
+    if ($Show_Revisions || $Show_Tags)
     {
       my $started_addendum = 0;
 
@@ -1086,11 +1142,6 @@ sub pretty_file_list ()
         $started_addendum = 1;
         $beauty .= " (";
         $beauty .= "$$qunkref{'revision'}";
-      }
-      if ($Show_Changes) {
-        $started_addendum = 1;
-        $beauty .= " (";
-        $beauty .= "$$qunkref{'changes'}";        
       }
       if ($Show_Tags && (defined $$qunkref{'tags'})) {
         my @tags = grep ($non_unanimous_tags{$_}, @{$$qunkref{'tags'}});
@@ -1474,6 +1525,9 @@ sub parse_options ()
       my $narg = shift (@ARGV) || die "$arg needs argument.\n";
       $output_file = $narg;
     }
+    elsif ($arg =~ /^--accum$/) {
+      $Cumulative = 1;
+    }
     elsif ($arg =~ /^--fsf$/) {
       $FSF_Style = 1;
     }
@@ -1523,9 +1577,6 @@ sub parse_options ()
     elsif ($arg =~ /^-r$|^--revisions$/) {
       $Show_Revisions = 1;
     }
-    elsif ($arg =~ /^-c$|^--changes$/) {
-      $Show_Changes = 1;
-    }
     elsif ($arg =~ /^-t$|^--tags$/) {
       $Show_Tags = 1;
     }
@@ -1571,6 +1622,11 @@ sub parse_options ()
     $exit_with_admonishment = 1;
   }
 
+  if ($XML_Output && $Cumulative) {
+    print STDERR "cannot pass both --xml and --accum\n";
+    $exit_with_admonishment = 1;
+  }
+
   # Or if any other error message has already been printed out, we
   # just leave now:
   if ($exit_with_admonishment) {
@@ -1588,10 +1644,7 @@ sub parse_options ()
 
   ## Else no problems, so proceed.
 
-  if ($Output_To_Stdout) {
-    undef $Log_File_Name;       # not actually necessary
-  }
-  elsif ($output_file) {
+  if ($output_file) {
     $Log_File_Name = $output_file;
   }
 }
@@ -1691,6 +1744,7 @@ Options/Arguments:
   -S, --separate-header        Blank line between each header and log message
   --no-wrap                    Don't auto-wrap log message (recommend -S also)
   --gmt, --utc                 Show times in GMT/UTC instead of local time
+  --accum                      Add to an existing ChangeLog (incompat w/ --xml)
   -w, --day-of-week            Show day of week
   --header FILE                Get ChangeLog header from FILE ("-" means stdin)
   --xml                        Output XML instead of ChangeLog format
