@@ -1,3 +1,7 @@
+Mon Jun 19 14:30:00 BST 2000 Olly Betts
+
+	* Fixed various typos in ChangeLog and TODO
+
 Mon Jun 19 14:09:00 BST 2000 Olly Betts
 
 	* Improved near1 and phrase1 tests; fixed problems thrown up by more
@@ -83,8 +87,8 @@ Wed Jun 14 18:14:00 BST 2000 Olly Betts
 
 Wed Jun 14 18:08:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Remove compliated class heirarchy for Stemming algorithms: replace
-	  by OmStem::Internal, which has function pointers.  Neccessitated
+	* Remove complicated class hierarchy for Stemming algorithms: replace
+	  by OmStem::Internal, which has function pointers.  Necessitated
 	  changing parameters taken by each stemming algorithm to a void *
 	  instead of a specific struct pointer.
 
@@ -195,7 +199,7 @@ Tue Jun 13 12:04:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Mon Jun 12 18:45:56 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Fix to omdebug.cc to get around a compiler borkenness.
+	* Fix to omdebug.cc to get around a compiler brokenness.
 
 Mon Jun 12 18:35:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -621,7 +625,7 @@ Tue May 23 17:51:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a LocalMatch::gather_query_statistics() method, to be called
 	  before building the query tree, so that the tree can be pruned
-	  based on the termweights of some of the probabalistic terms.
+	  based on the termweights of some of the probabilistic terms.
 
 Tue May 23 17:34:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -911,7 +915,7 @@ Wed May 10 17:34:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Wed May 10 15:26:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Split all the generic socket stuff rom ProgClient into a
+	* Split all the generic socket stuff from ProgClient into a
 	  SocketClient base class.
 
 Tue May  9 17:30:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -989,7 +993,7 @@ Fri May  5 18:55:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri May  5 16:55:57 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add option to MatchOptions to set a maximum number of terms to
-	  OR together in large probabalistic queries.
+	  OR together in large probabilistic queries.
 
 Thu May  4 16:58:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -1046,7 +1050,7 @@ Fri Apr 28 10:27:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Thu Apr 20 18:00:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* StatsSource now has two varients - LocalStatsSource and
+	* StatsSource now has two variants - LocalStatsSource and
 	  NetworkStatsSource
 	
 	* Some changes to the prototype protocol
@@ -1170,7 +1174,7 @@ Wed Apr 12 15:49:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Wed Apr 12 14:03:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* IRDatabase now inherits from OmRefCntBase: we have multiple
-	  inheritance!  This means that we can now have refernce counted
+	  inheritance!  This means that we can now have reference counted
 	  access to databases from the API.
 
 	* OmWritableDatabase is now implemented in the API, opens the
@@ -1204,7 +1208,7 @@ Tue Apr 11 19:18:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	* Backwards incompatible API CHANGE:
 	  OmDatabase renamed to OmDatabaseGroup, since this is what it is,
 	  and better to change it sooner than later.
-	  No work other than renaming the class should be neccessary to fix
+	  No work other than renaming the class should be necessary to fix
 	  old code.
 
 Tue Apr 11 18:05:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -1362,7 +1366,7 @@ Tue Mar 21 11:42:39 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Mon Mar 20 13:02:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Removed old Match::boolmatch() methods - superceded.
+	* Removed old Match::boolmatch() methods - superseded.
 
 Mon Mar 20 12:50:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
@@ -1479,7 +1483,7 @@ Tue Mar  7 18:09:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Tue Mar  7 12:20:08 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Sleepycat backend now compiles, although undoubtably isn't
+	* Sleepycat backend now compiles, although undoubtedly isn't
 	  going to work properly.
 
 Tue Mar  7 12:17:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -1516,7 +1520,7 @@ Thu Mar  2 10:58:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	* Begun to abstract statistics requesting and collecting operations
 	  (common/stats.h)
 
-	* Made heirarchy of Match objects: Match, LeafMatch, MultiMatch.
+	* Made hierarchy of Match objects: Match, LeafMatch, MultiMatch.
 
 Thu Mar  2 10:39:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -1777,7 +1781,7 @@ Tue Feb  8 19:17:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
         * Changed OMMSet::max_weight to OMMSet::max_possible.
           Added OMMSet::max_attained, which is weight of top match, (not
-          neccessarily top item in MSet)
+          necessarily top item in MSet)
 
         * Allow user to specify decision function for expand.
 
@@ -1857,7 +1861,7 @@ Fri Jan 28 15:53:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Fri Jan 28 13:41:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Started Changelog
+	* Started ChangeLog
 
 	* Previous state of code:
 

@@ -81,7 +81,7 @@ Priority | Area            | Task
  Medium  | Databases       | Ensure that opening a termlist / postlist which
          |                 | is not present throws the correct exception.
 ---------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Ensure that API documentation covers entirity of
+ Medium  | Documentation   | Ensure that API documentation covers entirety of
          |                 | API.  Then rewrite it for clarity.
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
@@ -151,7 +151,7 @@ Priority | Area            | Task
          |                 | Submit to http://peti.cys.de/autoconf-archive/
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Add notes about catching exceptions throughout
-         |                 | userman, particuarly in examples (eg, search
+         |                 | userman, particularly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Make SleepyTermCache lose entries eventually
