@@ -9,7 +9,7 @@ noinst_HEADERS = \
  expandweight.h stats.h networkstats.h \
  match.h multimatch.h expand.h rset.h \
  utils.h omqueryinternal.h \
- document.h \
+ document.h documentterm.h \
  netclient.h progclient.h net_database.h \
  netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
