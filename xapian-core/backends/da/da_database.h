@@ -6,7 +6,12 @@
 #include "omassert.h"
 
 #include "database.h"
-#include "daread.h"
+
+// Anonymous declarations (definitions in daread.h)
+struct postings;
+struct DAfile;
+struct terminfo;
+struct termvec;
 
 class DAPostList : public virtual DBPostList {
     friend class DADatabase;
@@ -151,8 +156,6 @@ class DATerm {
 	termname name;
 };
 
-
-class DARecord;
 
 class DADatabase : public virtual IRDatabase {
     private:
