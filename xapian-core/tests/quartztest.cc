@@ -1252,6 +1252,7 @@ static bool test_adddoc2()
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_valueno(), j.get_valueno());
 	    }
+	    TEST_EQUAL(j, document_out.values_end());
 	}
 	{
 	    Xapian::TermIterator i(document_in.termlist_begin());
