@@ -1774,6 +1774,64 @@ static bool test_writelock1()
     return true;
 }
 
+/// Test pack_string_preserving_sort() etc
+static bool test_packstring1()
+{
+    std::string before;
+    std::string after;
+    std::string packed;
+    const char *src;
+    const char *src_end;
+
+    before = "foo";
+    packed = pack_string_preserving_sort(before);
+    if (verbose) { tout << "packed = `" << packed << "'\n"; }
+    src = packed.data();
+    src_end = src + packed.length();
+    TEST(unpack_string_preserving_sort(&src, src_end, after));
+    TEST(src == src_end);
+    TEST(before == after);
+
+    before = "";
+    packed = pack_string_preserving_sort(before);
+    if (verbose) { tout << "packed = `" << packed << "'\n"; }
+    src = packed.data();
+    src_end = src + packed.length();
+    TEST(unpack_string_preserving_sort(&src, src_end, after));
+    TEST(src == src_end);
+    TEST(before == after);
+
+    before = "length_8";
+    packed = pack_string_preserving_sort(before);
+    if (verbose) { tout << "packed = `" << packed << "'\n"; }
+    src = packed.data();
+    src_end = src + packed.length();
+    TEST(unpack_string_preserving_sort(&src, src_end, after));
+    TEST(src == src_end);
+    TEST(before == after);
+
+    before = "Quite a long string, really";
+    packed = pack_string_preserving_sort(before);
+    if (verbose) { tout << "packed = `" << packed << "'\n"; }
+    src = packed.data();
+    src_end = src + packed.length();
+    TEST(unpack_string_preserving_sort(&src, src_end, after));
+    TEST(src == src_end);
+    TEST(before == after);
+
+    //        1234567812345678123456781234567812345678
+    before = "Quite a long string - multiple of eight.";
+    packed = pack_string_preserving_sort(before);
+    if (verbose) { tout << "packed = `" << packed << "'\n"; }
+    src = packed.data();
+    src_end = src + packed.length();
+    TEST(unpack_string_preserving_sort(&src, src_end, after));
+    TEST(src == src_end);
+    TEST(before == after);
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -1808,6 +1866,7 @@ test_desc tests[] = {
 //    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
     {"quartzwritelock1", 	test_writelock1},
+    {"quartzpackstring1", 	test_packstring1},
     {0, 0}
 };
 

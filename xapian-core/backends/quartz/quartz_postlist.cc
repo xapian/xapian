@@ -31,13 +31,19 @@
 /// Make a key for accessing the postlist.
 static void make_key(const om_termname & tname, om_docid did, QuartzDbKey & key)
 {
-    key.value = pack_string(tname);
+    key.value = pack_string_preserving_sort(tname);
     key.value += pack_uint_preserving_sort(did);
 }
 
 static void make_key(const om_termname & tname, QuartzDbKey & key)
 {
-    key.value = pack_string(tname);
+    key.value = pack_string_preserving_sort(tname);
+}
+
+static bool get_tname_from_key(const char **src, const char *end,
+			       om_termname &tname)
+{
+    return unpack_string_preserving_sort(src, end, tname);
 }
 
 /** Make the data to go at the start of the very first chunk.
@@ -181,7 +187,7 @@ static void adjust_counts(QuartzBufferedTable * bufftable,
  *  This must only be called when *posptr is pointing to the start of
  *  the first chunk of the posting list.
  */
-static void read_number_of_entries(const char ** posptr,
+void QuartzPostList::read_number_of_entries(const char ** posptr,
 				   const char * end,
 				   om_termcount * number_of_entries_ptr,
 				   om_termcount * collection_freq_ptr)
@@ -208,7 +214,7 @@ static void read_start_of_first_chunk(const char ** posptr,
 				      om_termcount * collection_freq_ptr,
 				      om_docid * did_ptr)
 {
-    read_number_of_entries(posptr, end,
+    QuartzPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
     read_first_docid(posptr, end, did_ptr);
 }
@@ -352,7 +358,7 @@ QuartzPostList::next_chunk()
     std::string tname_in_key;
 
     // Check we're still in same postlist
-    if (!unpack_string(&keypos, keyend, tname_in_key)) {
+    if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
 	report_read_error(keypos);
     }
     if (tname_in_key != tname) {
@@ -451,7 +457,7 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
     std::string tname_in_key;
 
     // Check we're still in same postlist
-    if (!unpack_string(&keypos, keyend, tname_in_key)) {
+    if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
 	report_read_error(keypos);
     }
     if (tname_in_key != tname) {
@@ -596,7 +602,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
     // Read the termname.
     if (keypos != keyend)
-	if (!unpack_string(&keypos, keyend, tname_in_key))
+	if (!get_tname_from_key(&keypos, keyend, tname_in_key))
 	    report_read_error(keypos);
 
     if (tname_in_key != tname) {
@@ -690,7 +696,7 @@ QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
 
     // Read the termname.
     if (keypos != keyend)
-	if (!unpack_string(&keypos, keyend, tname_in_key))
+	if (!get_tname_from_key(&keypos, keyend, tname_in_key))
 	    report_read_error(keypos);
 
     if (tname_in_key != tname) {

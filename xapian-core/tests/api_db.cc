@@ -1088,6 +1088,13 @@ static bool test_allterms1()
 
     ati++;
     TEST(ati != db.allterms_end());
+    if (verbose) {
+	tout << "*ati = `" << *ati << "'\n";
+	tout << "*ati.length = `" << (*ati).length() << "'\n";
+	tout << "*ati == \"one\" = " << (*ati == "one") << "\n";
+	tout << "*ati[3] = " << ((*ati)[3]) << "\n";
+	tout << "*ati = `" << *ati << "'\n";
+    }
     TEST(*ati == "three");
     TEST(ati.get_termfreq() == 3);
 
@@ -1991,7 +1998,12 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
-//    {"allterms1",	   test_allterms1},
+    {0, 0}
+};
+
+/// The tests which need a backend which supports terms with newlines / zeros
+test_desc allterms_tests[] = {
+    {"allterms1",	   test_allterms1},
     {0, 0}
 };
 

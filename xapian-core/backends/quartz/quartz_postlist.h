@@ -224,6 +224,10 @@ class QuartzPostList : public LeafPostList {
 				 const om_termname & tname,
 				 om_docid did);
 
+	static void read_number_of_entries(const char ** posptr,
+					   const char * end,
+					   om_termcount * number_of_entries_ptr,
+					   om_termcount * collection_freq_ptr);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSTLIST_H */

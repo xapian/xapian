@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", localdb);
     RUNTESTS("inmemory", positionaldb);
     RUNTESTS("inmemory", doclendb);
+    RUNTESTS("inmemory", allterms);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
@@ -114,6 +115,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", positionaldb);
     RUNTESTS("quartz", doclendb);
     RUNTESTS("quartz", collfreq);
+    RUNTESTS("quartz", allterms);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)

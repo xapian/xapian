@@ -244,6 +244,62 @@ pack_string(std::string value)
     return pack_uint(value.size()) + value;
 }
 
+const int bytes_per_string_chunk = 8;
+/** Pack a string into a representation which preserves sort order.
+ *  The string is split into chunks of N bytes, the last one padded
+ *  with null bytes if needed.  Each chunk is followed by a byte
+ *  containing a count of the number of bytes within that chunk which
+ *  "count", ie aren't part of the padding.  The count has 64 added
+ *  if this _isn't_ the last chunk.
+ */
+inline std::string
+pack_string_preserving_sort(std::string value)
+{
+    std::string result;
+    std::string::size_type pos = 0;
+    while ((value.length() - pos) > static_cast<unsigned>(bytes_per_string_chunk)) {
+	result += value.substr(pos, 8) + (char)(bytes_per_string_chunk+64);
+	pos += 8;
+    }
+    // last chunk (can be empty or full)
+    result += value.substr(pos);
+
+    int frag_length = value.length() - pos;
+
+    for (int i=0; i < (bytes_per_string_chunk - frag_length); ++i) {
+	result += '\0';
+    }
+    result += static_cast<char>(frag_length);
+
+    return result;
+}
+
+inline bool
+unpack_string_preserving_sort(const char ** src,
+			      const char * src_end,
+			      std::string & result)
+{
+    result = std::string("");
+    bool done = false;
+    while (!done) {
+	if (src_end - *src < (bytes_per_string_chunk + 1)) {
+	    return false;
+	}
+	int count = (*src)[bytes_per_string_chunk];
+	if (count >= 64) {
+	    count -= 64;
+	} else {
+	    done = true;
+	}
+	if (count > bytes_per_string_chunk) {
+	    return false;
+	}
+	result += std::string(*src, count);
+	*src += bytes_per_string_chunk + 1;
+    }
+    return true;
+}
+
 inline bool
 unpack_bool(const char ** src,
 	    const char * src_end,

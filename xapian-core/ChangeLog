@@ -1,3 +1,20 @@
+Mon Dec 18 15:48:16 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented AllTermsIterator for quartz.  Interaction with
+	  QuartzPostList needs to be cleaned up.
+
+	* Added new functions [un]pack_string_preserving_sort(), which
+	  pack a string in a way which preserves sort order.  Added a
+	  testcase to quartztest.
+
+	* Now use [un]pack_string_preserving_order() on postlist keys, so
+	  that we can get at terms in sorted order.  (And get_tname_from_key()
+	  added to separate out the term-unpacking as well as the packing)
+	
+	* Enabled test_allterms1 in apitest, but put it in a group of
+	  tests only run for inmemory and quartz.  This should be extended
+	  to other backends.
+
 Mon Dec 18 14:33:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented tests of msetiterator and esetiterator copying and

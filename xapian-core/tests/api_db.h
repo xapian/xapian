@@ -33,4 +33,7 @@ extern test_desc writabledb_tests[];
 extern test_desc localdb_tests[];
 extern test_desc remotedb_tests[];
 
+// FIXME: should implement for other databases
+extern test_desc allterms_tests[];
+
 #endif /* OM_HGUARD_API_DB_H */

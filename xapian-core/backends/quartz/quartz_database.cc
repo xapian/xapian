@@ -38,6 +38,7 @@
 #include "quartz_record.h"
 #include "quartz_attributes.h"
 #include "quartz_document.h"
+#include "quartz_alltermslist.h"
 
 #include <string>
 
@@ -325,7 +326,9 @@ QuartzDatabase::do_reopen()
 RefCntPtr<AllTermsList>
 QuartzDatabase::open_allterms() const
 {
-    throw OmUnimplementedError("open_allterms() not implemented yet");
+    AutoPtr<QuartzCursor> pl_cursor(tables->get_postlist_table()->cursor_get());
+    return new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
+				  pl_cursor);
 }
 
 
@@ -684,5 +687,7 @@ QuartzWritableDatabase::do_reopen()
 RefCntPtr<AllTermsList>
 QuartzWritableDatabase::open_allterms() const
 {
-    throw OmUnimplementedError("open_allterms() not implemented yet");
+    AutoPtr<QuartzCursor> pl_cursor(buffered_tables->get_postlist_table()->cursor_get());
+    return new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(RefCntPtrToThis(), this),
+				  pl_cursor);
 }
