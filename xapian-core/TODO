@@ -29,8 +29,22 @@ Priority | Area            | Task
          |                 | (might currently end up with a divorced D[AB]term
 	 |                 | object.
 ---------+-----------------+--------------------------------------------------
+ High    | MultiDatabase   | Make MultiDatabase take a set of opened
+         |                 | databases, rather than their parameters.
+---------+-----------------+--------------------------------------------------
+ High    | API             | Make OmDatabaseGroup store opened databases,
+         |                 | rather than their parameters.
+---------+-----------------+--------------------------------------------------
+ High    | API             | Make OmDatabase object, which OmWritableDatabase
+         |                 | (and OmDatabaseGroup ?) inherit from.
+---------+-----------------+--------------------------------------------------
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
+---------+-----------------+--------------------------------------------------
+ Medium  | Options         | Make an OmOptions object, storing a map of
+         |                 | option strings to their values.  Use for things
+	 |                 | such as, what debugging to output, what size
+	 |                 | caches to use, etc.
 ---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
@@ -58,16 +72,16 @@ Priority | Area            | Task
  Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
 	 |                 | through positionlist for sequential positions.
 ---------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Add notes about catching exceptions throughout
-         |                 | userman, particuarly in examples (eg, search
-	 |                 | engine example)
----------+-----------------+--------------------------------------------------
  Medium  | MultiMatch      | Check that weights returned by a multimatch over
          |                 | a set of multidatabases are same as those over
 	 |                 | the complete set as a single multidatabase.
 	 |                 | May need to turn approximation for termfrequency
 	 |                 | off.  Also, make sure that each subdatabase
 	 |                 | has the appropriate value in its "root" field.
+---------+-----------------+--------------------------------------------------
+ Medium  | MultiDatabase   | Check that query expansion over a MultiDatabase
+         |                 | gives the same result as over an equivalent
+	 |                 | single InMemory database.
 ---------+-----------------+--------------------------------------------------
  Medium  | General         | If two OmEnquire objects are initialised with
          |                 | the same OmDatabase, they should share the
@@ -98,6 +112,10 @@ Priority | Area            | Task
          |                 | returns correct value in case where some of the
 	 |                 | query terms are not present in some of the sub
 	 |                 | databases.
+---------+-----------------+--------------------------------------------------
+ Low     | Documentation   | Add notes about catching exceptions throughout
+         |                 | userman, particuarly in examples (eg, search
+	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Make SleepyTermCache lose entries eventually
          |                 | (will currently eat up entire memory).
