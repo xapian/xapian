@@ -56,7 +56,7 @@ DISABLE_INDEX        = NO
 # If the EXTRACT_ALL tag is set to YES all classes and functions will be
 # included in the documentation, even if no documentation was available.
 
-EXTRACT_ALL          = NO
+EXTRACT_ALL          = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -122,7 +122,7 @@ CLASS_DIAGRAMS       = YES
 # If the SOURCE_BROWSER tag is set to YES then a list of source files will
 # be generated. Documented entities will be cross-referenced with these sources.
 
-SOURCE_BROWSER       = NO
+SOURCE_BROWSER       = YES
 
 # Setting the INLINE_SOURCES tag to YES will include the body
 # of functions and classes directly in the documentation.
@@ -199,7 +199,7 @@ ENABLED_SECTIONS     =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                = @TOP_SRCDIR@
+INPUT                = @TOP_SRCDIR@ ../config.h
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -224,7 +224,7 @@ EXCLUDE              = @TOP_SRCDIR@/docs @TOP_SRCDIR@/tests
 # EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude
 # certain files from those directories.
 
-EXCLUDE_PATTERNS     = 
+EXCLUDE_PATTERNS     = acconfig.h
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or 
 # directories that contain example code fragments that are included (see 
