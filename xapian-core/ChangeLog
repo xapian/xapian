@@ -1,3 +1,8 @@
+Tue Nov 09 07:58:02 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  backends/quartz/btree_util.h: More refactoring.
+
 Tue Nov 09 03:24:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Added --swigflags option for use with SWIG.

@@ -162,13 +162,13 @@ set_int4(byte *p, int c, int x)
 
    An item has this form:
 
-           I K key c C tag
+           I K key x C tag
              <--K-->
            <------I------>
 
    A long tag presented through the API is split up into C tags small enough to
    be accommodated in the blocks of the B-tree. The key is extended to include
-   a counter, c, which runs from 1 to C. The key is preceded by a length, K,
+   a counter, x, which runs from 1 to C. The key is preceded by a length, K,
    and the whole item with a length, I, as depicted above.
 
    Here are the corresponding definitions:
@@ -240,25 +240,22 @@ public:
     }
 };
 
-class Item {
-    const byte *p;
+// Item_wr wants to be "Item with non-const p and more methods" - we can't
+// achieve that nicely with inheritance, so we use a template base class.
+template <class T> class Item_base {
+protected:
+    T p;
 public:
     /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c) : p(p_ + GETINT2(p_, c)) { }
-    Item(const byte * p_) : p(p_) { }
-    const byte * get_address() const { return p; }
+    Item_base(T p_, int c) : p(p_ + GETINT2(p_, c)) { }
+    Item_base(T p_) : p(p_) { }
+    T get_address() const { return p; }
     int size() const { return GETINT2(p, 0); } /* I in diagram above */
     int component_of() const {
 	return GETINT2(p, GETK(p, I2) + I2 - C2);
     }
-    void set_component_of(int i) {
-	SETINT2(const_cast<byte*>(p), GETK(p, I2) + I2 - C2, i);
-    }
     int components_of() const {
 	return GETINT2(p, GETK(p, I2) + I2);
-    }
-    void set_components_of(int m) {
-	SETINT2(const_cast<byte*>(p), GETK(p, I2) + I2, m);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(string * tag) const {
@@ -273,12 +270,58 @@ public:
     uint4 block_given_by() const {
 	return get_int4(p, size() - BYTES_PER_BLOCK_NUMBER);
     }
+};
+
+class Item : public Item_base<const byte *> {
+public:
+    /* Item from block address and offset to item pointer */
+    Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
+    Item(const byte * p_) : Item_base<const byte *>(p_) { }
+};
+
+class Item_wr : public Item_base<byte *> {
+public:
+    /* Item_wr from block address and offset to item pointer */
+    Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
+    Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    void set_component_of(int i) {
+	SETINT2(p, GETK(p, I2) + I2 - C2, i);
+    }
+    void set_components_of(int m) {
+	SETINT2(p, GETK(p, I2) + I2, m);
+    }
+    // Takes size as we may be truncating newkey.
+    void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
+	int i = truncate_size;
+	// Read the length now because we may be copying the key over itself.
+	// FIXME that's stupid!  sort this out
+	int newkey_len = newkey.length();
+	int size = I2 + K1 + i + C2;
+	// Item size (4 since tag contains block number)
+	SETINT2(p, 0, size + 4);
+	// Key size
+	SETINT1(p, I2, size - I2);
+	// Copy the main part of the key, possibly truncating.
+	memmove(p + I2 + K1, newkey.get_address() + K1, i);
+	// Copy the count part.
+	memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
+	// Set tag contents to block number
+//	set_block_given_by(n);
+	set_int4(p, size, n);
+    }
+
     /** Set this item's tag to point to block n (this block should not be at
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
-	// FIXME: sort out constness of p
-	set_int4(const_cast<byte*>(p), size() - BYTES_PER_BLOCK_NUMBER, n);
+	set_int4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
+    }
+    /** Form an item with a null key and with block number n in the tag.
+     */
+    void form_null_key(uint4 n) {
+	set_int4(p, I3, n);
+	SETK(p, I2, K1);     /* null key */
+	SETI(p, 0, I3 + 4);  /* total length */
     }
 };
 

@@ -322,8 +322,8 @@ class Btree {
 	void compress(byte *p);
 	void enter_key(int j, Key prevkey, Key newkey);
 	int mid_point(byte *p);
-	void add_item_to_block(byte *p, Item kt, int c);
-	void add_item(Item kt, int j);
+	void add_item_to_block(byte *p, Item_wr kt, int c);
+	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
 	void read_root();
@@ -374,7 +374,7 @@ class Btree {
 	uint4 root;
 
 	/// buffer of size block_size for making up key-tag items
-	mutable Item kt;
+	mutable Item_wr kt;
 
 	/// buffer of size block_size for reforming blocks
 	byte * buffer;

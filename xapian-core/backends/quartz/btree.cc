@@ -496,7 +496,7 @@ Btree::alter()
 	if (j == level) return;
 	j++;
 	p = C[j].p;
-	Item(p, C[j].c).set_block_given_by(n);
+	Item_wr(p, C[j].c).set_block_given_by(n);
     }
 }
 
@@ -596,17 +596,6 @@ Btree::compress(byte * p)
     SET_MAX_FREE(p, e);
 }
 
-/* form_null_key(b, n) forms in b a null key with block number n in the tag.
- */
-
-static void form_null_key(byte * b, uint4 n)
-{
-    set_int4(b, I3, n);
-    SETK(b, I2, K1);     /* null key */
-    SETI(b, 0, I3 + 4);  /* total length */
-}
-
-
 /** Btree needs to gain a new level to insert more items: so split root block
  *  and construct a new one.
  */
@@ -638,8 +627,9 @@ Btree::split_root(uint4 split_n)
 
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
-    form_null_key(b, split_n);
-    add_item(Item(b), level);
+    Item_wr item(b);
+    item.form_null_key(split_n);
+    add_item(item, level);
 }
 
 /** enter_key(j, prevkey, newkey) is called after a block split.
@@ -687,15 +677,10 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
     }
 
     byte b[UCHAR_MAX + 6];
+    Item_wr item(b);
+    Assert(I2 + i + C2 <= 256);
     Assert(I2 + i + C2 + 4 <= (int)sizeof(b));
-
-    SETI(b, 0, I2 + K1 + i + C2 + 4); // Set item length
-    SETK(b, I2, K1 + i + C2);    // Set key length
-    memmove(b + I2 + K1, newkey.get_address() + K1, i); // Copy the main part of the key
-    memmove(b + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2); // copy count part
-
-    // Set tag contents to block number
-    set_int4(b, I2 + K1 + i + C2, blocknumber);
+    item.set_key_and_block(newkey, i, blocknumber);
 
     // When j > 1 we can make the first key of block p null.  This is probably
     // worthwhile as it trades a small amount of CPU and RAM use for a small
@@ -705,13 +690,14 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 	int newkey_len = newkey.length();
 	uint4 n = get_int4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
-	form_null_key((byte *)newkey.get_address() - I2, n);
+	// FIXME: incredibly icky going from key to item like this...
+	Item_wr((byte *)newkey.get_address() - I2).form_null_key(n);
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, Key(b + I2), 0, 0) + D2;
+    C[j].c = find_in_block(C[j].p, item.key(), 0, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
-    add_item(Item(b), j);
+    add_item(item, j);
 }
 
 /** mid_point(p) finds the directory entry in c that determines the
@@ -747,7 +733,7 @@ Btree::mid_point(byte * p)
 */
 
 void
-Btree::add_item_to_block(byte * p, Item kt_, int c)
+Btree::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
     Assert(writable);
     int dir_end = DIR_END(p);
@@ -784,7 +770,7 @@ Btree::add_item_to_block(byte * p, Item kt_, int c)
  *  added to the appropriate half.
  */
 void
-Btree::add_item(Item kt_, int j)
+Btree::add_item(Item_wr kt_, int j)
 {
     Assert(writable);
     byte * p = C[j].p;
@@ -1051,6 +1037,7 @@ void Btree::form_key(const string & key) const
     // This just so it doesn't fall over horribly in non-debug builds.
     string::size_type key_len = min(key.length(), max_key_len);
 
+    /// XXX to Key or Item
     int c = I2;
     byte * p = const_cast<byte*>(kt.get_address());
     SETK(p, c, key_len + K1 + C2);
@@ -1135,7 +1122,7 @@ Btree::add(const string &key, const string &tag)
 	residue -= l;
 
 	kt.set_component_of(i);
-	SETI(p, 0, cd + l);
+	SETI(p, 0, cd + l); // XXX to Item
 	if (i > 1) found = find(C);
 	n = add_kt(found);
 	if (n > 0) replacement = true;
@@ -1345,7 +1332,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
     }
 
     /* kt holds constructed items as well as keys */
-    kt = Item(zeroed_new(block_size));
+    kt = Item_wr(zeroed_new(block_size));
     if (kt.get_address() == 0) {
 	throw std::bad_alloc();
     }
@@ -1373,6 +1360,7 @@ Btree::read_root()
 	 * the same database. */
 	memset(p, 0, block_size);
 
+	// XXX to item
 	SETC(p, o, 1); o -= C2;        // number of components in tag
 	SETC(p, o, 1); o -= K1;        // component one in key
 	SETK(p, o, K1 + C2); o -= I2;  // null key length
