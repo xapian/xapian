@@ -1,3 +1,8 @@
+Fri Oct 11 01:43:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/{z_note,z_sequence,z_Cversion/,z_make/,z_test/}:
+	  Removed all the unused old C btree stuff.
+
 Thu Oct 10 17:32:10 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/{btree.cc,btree.h}: More Btree tidying.
