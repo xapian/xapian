@@ -119,11 +119,10 @@ LocalMatch::mk_postlist(const om_termname& tname)
 {
     // FIXME - this should be centralised into a postlist factory
     LeafPostList * pl = database->open_post_list(tname);
-    if(rset.get() != 0) rset->will_want_reltermfreq(tname);
 
+    // FIXME - query size is currently fixed as 1
     IRWeight * wt = mk_weight(1, tname);
-    statssource.my_termfreq_is(tname, pl->get_termfreq());
-    // Query size of 1 for now.  FIXME
+
     pl->set_termweight(wt);
     return pl;
 }
@@ -139,7 +138,7 @@ LocalMatch::mk_extra_weight()
 
 IRWeight *
 LocalMatch::mk_weight(om_doclength querysize_,
-		     om_termname tname_)
+		      om_termname tname_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
     weights.push_back(wt); // Remember it for deleting
@@ -388,22 +387,31 @@ LocalMatch::set_query(const OmQueryInternal *query_)
 
     // Remember query
     users_query = *query_;
+}
 
-    gather_query_statistics();
+void
+LocalMatch::gather_query_statistics()
+{
+    om_termname_list terms = users_query.get_terms();
 
-    // The query tree must be built here so that the statistics
-    // are calculated in time for network matches.
-    // Building it later only makes a difference if you set the
-    // query more than once anyway.
-    build_query_tree();
+    om_termname_list::const_iterator tname;
+    for (tname = terms.begin(); tname != terms.end(); tname++) {
+	statssource.my_termfreq_is(*tname, database->get_termfreq(*tname));
+	if(rset.get() != 0) rset->will_want_reltermfreq(*tname);
+    }
 
-    Assert(query != 0);
+    if (rset.get() != 0) {
+	rset->calculate_stats();
+	rset->give_stats_to_statssource(statssource);
+    }
 }
 
 void
 LocalMatch::build_query_tree()
 {
     if (query == 0) {
+	select_query_terms();
+
 	DebugMsg("LocalMatch::build_query_tree()" << endl);
 	query = postlist_from_query(&users_query);
 	DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
@@ -412,15 +420,15 @@ LocalMatch::build_query_tree()
 }
 
 void
-LocalMatch::gather_query_statistics()
+LocalMatch::select_query_terms()
 {
-// FIXME: don't want to build the tree until _after_ this method
-build_query_tree();
     om_termname_list terms = users_query.get_terms();
 
-    if (rset.get() != 0) {
-	rset->calculate_stats();
-	rset->give_stats_to_statssource(statssource);
+    om_termname_list::const_iterator tname;
+    for (tname = terms.begin(); tname != terms.end(); tname++) {
+	IRWeight * wt = mk_weight(1, *tname);
+	cout << "TERM `" <<  *tname << "' get_maxpart = " <<
+		wt->get_maxpart() << endl;
     }
 }
 
@@ -488,10 +496,8 @@ bool
 LocalMatch::prepare_match(bool nowait)
 {
     if(!is_prepared) {
-
-	//DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
-	//statssource.contrib_my_stats();
-
+	DebugMsg("LocalMatch::prepare_match() - Gathering my statistics" << endl);
+	gather_query_statistics();
 	is_prepared = true;
     }
     return true;
@@ -528,6 +534,8 @@ LocalMatch::get_mset(om_doccount first,
 {
     // Check that we have prepared to run the query
     Assert(is_prepared);
+
+    build_query_tree();
     Assert(query != 0);
 
     // Empty result set

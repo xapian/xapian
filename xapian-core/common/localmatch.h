@@ -113,6 +113,9 @@ class LocalMatch : public SingleMatch
 	/// Build the query tree, if it isn't already built.
 	void build_query_tree();
 
+	/// Select the terms in the requested query to use in the actual query
+	void select_query_terms();
+
 	/// Calculate the statistics for the query
 	void gather_query_statistics();
 

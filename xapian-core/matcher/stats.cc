@@ -27,6 +27,7 @@
 
 void
 StatsGatherer::add_child(StatsSource *source) {
+    Assert(have_gathered == false);
     sources.push_back(source);
 }
 

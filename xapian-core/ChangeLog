@@ -1,3 +1,9 @@
+Wed May 24 17:55:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Separated collection of statistics and building of the query
+	  tree in LocalMatch.  Added method which will be used to select
+	  terms for use in the query when max_or_terms is in effect.
+
 Wed May 24 16:37:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented get_doccount and get_avlength in NetworkDatabase.
