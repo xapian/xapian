@@ -280,7 +280,8 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
-	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
+	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables)),
+	  changes_made(0)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
@@ -347,6 +348,7 @@ QuartzWritableDatabase::do_flush_const() const
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
+    changes_made = 0;
 }
 
 void
@@ -458,6 +460,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
+	changes_made = 0;
 	throw;
     }
 
@@ -473,7 +476,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
     //     ", doclens.size() " << doclens.size() <<
     //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
     //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (totlen_added + totlen_removed >= 150000) {
+    if (++changes_made >= 1000) {
 	do_flush();
     }
 
@@ -565,11 +568,12 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
+	changes_made = 0;
 	throw;
     }
 
     // FIXME: this should be configurable and/or different - see above.
-    if (totlen_added + totlen_removed >= 150000) {
+    if (++changes_made >= 1000) {
 	do_flush();
     }
 }
@@ -736,11 +740,12 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
+	changes_made = 0;
 	throw;
     }
 
     // FIXME: this should be configurable and/or different - see above.
-    if (totlen_added + totlen_removed >= 150000) {
+    if (++changes_made >= 1000) {
 	do_flush();
     }
 }

@@ -1,3 +1,10 @@
+Mon Apr 05 17:19:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_database.h: Make the flush criterion 1000
+	  documents changed (added, removed, or replaced) as that seems to
+	  perform much better over a wide variety of document sizes.
+
 Thu Apr 01 01:04:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Fixed temporary directory used (a slash was
