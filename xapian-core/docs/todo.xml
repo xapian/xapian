@@ -284,6 +284,19 @@ max_or_terms should probably work in a more local way.
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
 
+Allow custom weighting functions.
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="API" release="">
+
+Provide fake term which indexes all documents.  This would be used for a
+real "NOT" operator, and also for allowing searches to be scored based on
+location (would give weight from location for this term, with a custom
+weighting scheme).
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="API" release="">
+
 Provide explicit support for range searches.
 
 </todoitem>
