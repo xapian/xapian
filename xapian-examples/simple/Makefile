@@ -31,6 +31,6 @@ html: simplecreate.cc.html simpleindex.cc.html \
 		+"q" $<
 
 clean:
-	rm -f simplecreate simpleindex simplesearch simpleexpand \
+	rm -f simplecreate simpleindex simplesearch simpleexpand indexnasty \
 	      simplecreate.cc.html simpleindex.cc.html \
 	      simplesearch.cc.html simpleexpand.cc.html

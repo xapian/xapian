@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
 
 	OmMSet matches;
-	if(query.is_defined()) {
+	if (!query.is_empty()) {
 	    std::cout << "Performing query `" << query.get_description() <<
 		    "'" << std::endl;
 

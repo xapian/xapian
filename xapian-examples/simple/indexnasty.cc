@@ -30,16 +30,17 @@ A segment consists of multiple single line fields with a header,
 
 <header>=<data>
 
-A head may optionally be prefixed with ~ or *, followed by an optional ':' 
+A head may optionally be prefixed with !,~ or *, followed by an optional ':' 
 terminated prefix, followed by am optional field name; 
 
 i.e.
-  [[~|*][prefix:]][fieldname]=
+  [[!|~|*][prefix:]][fieldname]=
 
 Prefix and fieldname may be null.
 If ~ is specified then the data is stemmed for terms.
 If a * is specified then the prefixed data must be unique and if a record
 already exists with this it is overwritten
+If a ! is specified
 If a prefix is specified then terms are prefixed.
 If neither * or ~ or a prefix or a : are specified the field is not used for terms
 
@@ -65,6 +66,8 @@ X=No terms, but still store
 #include <memory>
 #include <fstream>
 #include <om/om.h>
+#include <string>
+using std::string;
 
 static bool IndexNastyFile(string Filepath, OmWritableDatabase &database,
 			   OmStem &stemmer);
@@ -72,7 +75,7 @@ static bool IndexNastyFile(string Filepath, OmWritableDatabase &database,
 int main(int argc, char *argv[])
 {
     // Simplest possible options parsing: we require one or more parameters.
-    if(argc < 2) {
+    if (argc < 2) {
 	std::cout << "Usage: " << argv[0] <<
 		" <path to database> [<filename>]..." <<
 		std::endl;
@@ -106,7 +109,7 @@ static void
 lowercase_term(om_termname &term)
 {
     om_termname::iterator i = term.begin();
-    while(i != term.end()) {
+    while (i != term.end()) {
         *i = tolower(*i);
         i++;
     }
@@ -145,7 +148,7 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
 
   std::ifstream stream(Filepath.c_str());
 
-  if (! stream) {
+  if (!stream) {
     std::cout << "Can't open file " << Filepath << std::endl;
     return false;
   }
@@ -155,7 +158,7 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
   int pending=0;
 #define MAX_PENDING 10
 
-  while(! stream.eof()) {
+  while (!stream.eof()) {
     OmDocument newdocument;
     docid=0;
     string data="";
@@ -163,40 +166,48 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
     string line;
     string uniqueterm="";
 
-    while (getline(stream,line)) {
-      if (! line.length()) break;
-
+    while (getline(stream,line) && !line.empty()) {
       bool stem, term, unique;
       string prefix="";
       string field="";
       string header;
+      string key="";
       int index=0;
-      int cursor=0;
+      int cursor = line.find('=', index);
 
-      if ( (cursor=line.find_first_of("=",index))!=string::npos) {
+      if (cursor != string::npos) {
         int hindex=0;
-        int hcursor;
         header=line.substr(index,cursor-index);
-        if (! header.length()) docid=atoi(line.substr(cursor+1).c_str());
+        if (header.empty()) docid=atoi(line.substr(cursor+1).c_str());
         // if header has no : but has ~ then stem no prefix no store
         // if header has no : but has not ~ then just store 
+
+        // scan up to ! if present to get key
+	int hcursor = header.find('!', hindex);
+	if (hcursor != string::npos) {
+          key=header.substr(hindex,hcursor-hindex);
+          header=header.substr(hcursor + 1);
+        }
 
         if (stem=(header[hindex]=='~')) hindex++;
         if (unique=(header[hindex]=='*')) hindex++;
 
         // now scan up to colon to get terms prefix
-        if (term=( (hcursor=header.find_first_of(":",hindex)) !=string::npos)) {
-          prefix=header.substr(hindex,hcursor-hindex);
-          field=header.substr(hcursor+1,header.length()-hcursor-1);
+	hcursor = header.find(':', hindex);
+	term = hcursor != string::npos;
+        if (term) {
+          prefix = header.substr(hindex, hcursor-hindex);
+          field = header.substr(hcursor + 1);
         } else { // No ':' 
           if (term=(stem || unique)) prefix=header.substr(hindex,header.length()-hindex);
           else field=header;
         }
 
         cursor++; // skip past '='
-        string text=line.substr(cursor,line.length()-cursor);
+        string text=line.substr(cursor);
 
-        if (field.length() && text.length()) data+=field+"="+text+"\n";
+        if (!field.empty() && !text.empty()) data+=field+'='+text+'\n';
+        if (!key.empty() && !text.empty()) newdocument.add_key(atoi(key.c_str()),text);
 
         // now index field if required
         if (term) {
@@ -205,33 +216,35 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
             if (unique) { // note unique field - only one per document tho!
 	      uniqueterm=prefix+text;
 	    }
-	    if (text.length()) newdocument.add_posting(prefix+text,wordcount++);
+	    if (!text.empty()) newdocument.add_posting(prefix+text,wordcount++);
 	  }
         }
       } else std::cout << "Bad line: " << cursor << " " << line << std::endl;
     }
 
-    // Put the data in the document
-    newdocument.set_data(data);
+    if (!data.empty()) {
+      // Put the data in the document
+      newdocument.set_data(data);
 
-    // Add the document to the database
-    if (uniqueterm.length() && (database.term_exists(uniqueterm))) {
-      try { // nicked from omindex.cc
-	auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(database));
-	enq->set_query(OmQuery(uniqueterm));
-	OmMSet mset = enq->get_mset(0, 1);
-	try {
-	  database.replace_document(*mset[0], newdocument);
-	  docid=*mset[0];
-	} catch (...) {
+      // Add the document to the database
+      if (!uniqueterm.empty() && (database.term_exists(uniqueterm))) {
+        try { // nicked from omindex.cc
+          OmEnquire enq(database);
+	  enq.set_query(OmQuery(uniqueterm));
+	  OmMSet mset = enq.get_mset(0, 1);
+	  try {
+	    database.replace_document(*mset[0], newdocument);
+	    docid=*mset[0];
+	  } catch (...) {
+            docid=database.add_document(newdocument);
+	  }
+        } catch (...) {
           docid=database.add_document(newdocument);
-	}
-      } catch (...) {
+        }
+      } else {
         docid=database.add_document(newdocument);
       }
-    } else {
-      docid=database.add_document(newdocument);
-    }
+    } // end of if !data.empty()
 
 //    if (docid) {
 //      try {

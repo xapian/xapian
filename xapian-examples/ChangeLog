@@ -1,3 +1,10 @@
+Thu Nov 22 17:33:46 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added key support to indexnasty and tried to make it a bit less nasty
+	  (it now compiles cleanly on GCC3.0).
+
+	* Updated simpleexpand for recent OmQuery changes.
+
 Wed Nov 14 11:30:45 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed to work with revised OmQuery interface.
