@@ -1,4 +1,4 @@
-/* quartz_db_entries.h: Storage of a set of table entries from a quartz db
+/* quartz_table_entries.h: Storage of a set of table entries from a quartz db
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,11 +20,11 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DB_ENTRIES_H
-#define OM_HGUARD_QUARTZ_DB_ENTRIES_H
+#ifndef OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
+#define OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 
 #include "config.h"
-#include "quartz_db_table.h"
+#include "quartz_table.h"
 #include <map>
 #include "autoptr.h"
 #include <string>
@@ -34,13 +34,13 @@
  *  It may be used to store a set of proposed modificiations to the table,
  *  or to cache entries read from the table.
  */
-class QuartzDbEntries {
+class QuartzTableEntries {
     private:
 	/// Copying not allowed
-	QuartzDbEntries(const QuartzDbEntries &);
+	QuartzTableEntries(const QuartzTableEntries &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDbEntries &);
+	void operator=(const QuartzTableEntries &);
 
 	/// The entries stored in this object
 	std::map<QuartzDbKey, QuartzDbTag *> entries;
@@ -48,11 +48,11 @@ class QuartzDbEntries {
 
 	/** Initialise the cache of entries.
 	 */
-	QuartzDbEntries();
+	QuartzTableEntries();
 
 	/** Delete the entries.
 	 */
-	~QuartzDbEntries();
+	~QuartzTableEntries();
 
 	/** Get a pointer to the tag for a given key.
 	 *
@@ -63,7 +63,7 @@ class QuartzDbEntries {
 	 *  @param key  The key that the tag is stored under.
 	 *
 	 *  @return A pointer to the tag.  The tag pointed to is still
-	 *          owned by the QuartzDbEntries object - it may be modifed
+	 *          owned by the QuartzTableEntries object - it may be modifed
 	 *          if desired, but the user should not try to free the
 	 *          pointer.  A null pointer will be returned if the tag
 	 *          is marked for deletion.
@@ -99,7 +99,7 @@ class QuartzDbEntries {
 	 */
 	void set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag);
 
-	/** Removes the specified entry from the QuartzDbEntries object.
+	/** Removes the specified entry from the QuartzTableEntries object.
 	 *
 	 *  This simply removes the entry from the object - it does not
 	 *  correspond to deleting it from the underlying table.
@@ -110,7 +110,7 @@ class QuartzDbEntries {
 	 */
 	void forget_entry(const QuartzDbKey &key);
 
-	/** Removes all the entries from the QuartzDbEntries object.
+	/** Removes all the entries from the QuartzTableEntries object.
 	 *
 	 *  This simply removes the entries from the object - it does
 	 *  not correspond to deleting them from the underlying table.
@@ -125,4 +125,4 @@ class QuartzDbEntries {
 	std::map<QuartzDbKey, QuartzDbTag *> & get_all_entries();
 };
 
-#endif /* OM_HGUARD_QUARTZ_DB_ENTRIES_H */
+#endif /* OM_HGUARD_QUARTZ_TABLE_ENTRIES_H */

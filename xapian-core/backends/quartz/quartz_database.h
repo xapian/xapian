@@ -26,7 +26,7 @@
 #include "config.h"
 #include "database.h"
 
-class QuartzDbManager;
+class QuartzTableManager;
 class QuartzModifications;
 #include "quartz_log.h"
 
@@ -44,7 +44,7 @@ class QuartzDatabase : public Database {
 
 	/** Pointer to database manager.
 	 */
-	RefCntPtr<QuartzDbManager> db_manager;
+	RefCntPtr<QuartzTableManager> table_manager;
 
 	/** Pointer to database modifications.
 	 */

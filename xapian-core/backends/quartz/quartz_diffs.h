@@ -24,9 +24,9 @@
 #define OM_HGUARD_QUARTZ_DIFFS_H
 
 #include "config.h"
-#include "quartz_db_manager.h"
-#include "quartz_db_entries.h"
-#include "quartz_db_table.h"
+#include "quartz_table_manager.h"
+#include "quartz_table_entries.h"
+#include "quartz_table.h"
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
 
@@ -43,7 +43,7 @@ class QuartzDiffs {
     protected:
 	/** Blocks which have been changed.
 	 */
-	QuartzDbEntries changed_entries;
+	QuartzTableEntries changed_entries;
 
 	/** Table which blocks come from / get written to.
 	 */

@@ -1,4 +1,4 @@
-/* quartz_db_table.h: A table in a quartz database
+/* quartz_table.h: A table in a quartz database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DB_TABLE_H
-#define OM_HGUARD_QUARTZ_DB_TABLE_H
+#ifndef OM_HGUARD_QUARTZ_TABLE_H
+#define OM_HGUARD_QUARTZ_TABLE_H
 
 #include "config.h"
 #include "quartz_types.h"
@@ -300,4 +300,4 @@ class QuartzDbTable : public RefCntBase {
 			 QuartzRevisionNumber new_revision);
 };
 
-#endif /* OM_HGUARD_QUARTZ_DB_TABLE_H */
+#endif /* OM_HGUARD_QUARTZ_TABLE_H */

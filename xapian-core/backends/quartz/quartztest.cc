@@ -26,8 +26,8 @@
 #include "om/omerror.h"
 
 #include "quartz_database.h"
-#include "quartz_db_table.h"
-#include "quartz_db_entries.h"
+#include "quartz_table.h"
+#include "quartz_table_entries.h"
 #include "quartz_utils.h"
 
 #include "autoptr.h"
@@ -306,10 +306,10 @@ static bool test_dbtable1()
     return true;
 }
 
-/// Test making and playing with a QuartzDbEntries
-static bool test_dbentries1()
+/// Test making and playing with a QuartzTableEntries
+static bool test_tableentries1()
 {
-    QuartzDbEntries entries;
+    QuartzTableEntries entries;
 
     QuartzDbKey key1;
 
@@ -568,7 +568,7 @@ static bool test_unpackint1()
 /// The lists of tests to perform
 test_desc tests[] = {
     {"quartzdbtable1",		test_dbtable1},
-    {"quartzdbentries1",	test_dbentries1},
+    {"quartztableentries1",	test_tableentries1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
     {"quartzadddoc2",		test_adddoc2},

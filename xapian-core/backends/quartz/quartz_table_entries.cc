@@ -1,4 +1,4 @@
-/* quartz_db_entries.cc: Storage of a set of entries from a quartz db table
+/* quartz_table_entries.cc: Storage of a set of entries from a quartz table
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,19 +23,19 @@
 #include "config.h"
 #include "omdebug.h"
 
-#include "quartz_db_entries.h"
+#include "quartz_table_entries.h"
 
-QuartzDbEntries::QuartzDbEntries()
+QuartzTableEntries::QuartzTableEntries()
 {
 }
 
-QuartzDbEntries::~QuartzDbEntries()
+QuartzTableEntries::~QuartzTableEntries()
 {
     clear();
 }
 
 QuartzDbTag *
-QuartzDbEntries::get_tag(const QuartzDbKey &key)
+QuartzTableEntries::get_tag(const QuartzDbKey &key)
 {
     Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
@@ -44,20 +44,20 @@ QuartzDbEntries::get_tag(const QuartzDbKey &key)
 }
 
 bool
-QuartzDbEntries::have_entry(const QuartzDbKey &key)
+QuartzTableEntries::have_entry(const QuartzDbKey &key)
 {
     Assert(key.value != "");
     return (entries.find(key) != entries.end());
 }
 
 bool
-QuartzDbEntries::empty()
+QuartzTableEntries::empty()
 {
     return (entries.empty());
 }
 
 void
-QuartzDbEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
+QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {
     Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
@@ -72,7 +72,7 @@ QuartzDbEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 }
 
 void
-QuartzDbEntries::forget_entry(const QuartzDbKey &key)
+QuartzTableEntries::forget_entry(const QuartzDbKey &key)
 {
     Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
@@ -84,7 +84,7 @@ QuartzDbEntries::forget_entry(const QuartzDbKey &key)
 }
 
 void
-QuartzDbEntries::clear()
+QuartzTableEntries::clear()
 {
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i;
     for (i = entries.begin(); i != entries.end(); i++) {
@@ -95,7 +95,7 @@ QuartzDbEntries::clear()
 }
 
 std::map<QuartzDbKey, QuartzDbTag *> &
-QuartzDbEntries::get_all_entries()
+QuartzTableEntries::get_all_entries()
 {
     return entries;
 }

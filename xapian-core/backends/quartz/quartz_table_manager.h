@@ -1,4 +1,4 @@
-/* quartz_db_manager.h: Management of databases for quartz
+/* quartz_table_manager.h: Management of tables for quartz
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,21 +20,23 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DB_MANAGER_H
-#define OM_HGUARD_QUARTZ_DB_MANAGER_H
+#ifndef OM_HGUARD_QUARTZ_TABLE_MANAGER_H
+#define OM_HGUARD_QUARTZ_TABLE_MANAGER_H
 
 #include "config.h"
 #include <om/omsettings.h>
-#include "quartz_db_table.h"
+#include "quartz_table.h"
 #include "quartz_log.h"
 #include "refcnt.h"
 #include "autoptr.h"
 
-/** Class managing the databases used by Quartz.
+/** Class managing the tables used by Quartz.
  *
- *  This holds the handles used to access the Berkeley DB library.
+ *  This finds the tables, opens them at consistent revisions, manages
+ *  determining the current and next revision numbers, and stores handles
+ *  to the tables.
  */
-class QuartzDbManager : public RefCntBase {
+class QuartzTableManager : public RefCntBase {
     private:
 	/** Directory to store databases in.
 	 */
@@ -50,10 +52,10 @@ class QuartzDbManager : public RefCntBase {
 
 
 	/// Copying not allowed
-	QuartzDbManager(const QuartzDbManager &);
+	QuartzTableManager(const QuartzTableManager &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDbManager &);
+	void operator=(const QuartzTableManager &);
 
 	/** Open all tables at most recent revision.
 	 *
@@ -134,15 +136,15 @@ class QuartzDbManager : public RefCntBase {
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
-	QuartzDbManager(string db_dir_,
-			string tmp_dir_,
-			string log_filename_,
-			bool readonly_,
-			bool perform_recovery);
+	QuartzTableManager(string db_dir_,
+			   string tmp_dir_,
+			   string log_filename_,
+			   bool readonly_,
+			   bool perform_recovery);
 
 	/** Delete the manager.
 	 */
-	~QuartzDbManager();
+	~QuartzTableManager();
 
 
 	/** Open tables at specified revision number.
@@ -167,4 +169,4 @@ class QuartzDbManager : public RefCntBase {
 	QuartzRevisionNumber get_next_revision_number() const;
 };
 
-#endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */
+#endif /* OM_HGUARD_QUARTZ_TABLE_MANAGER_H */

@@ -23,15 +23,15 @@
 #include "config.h"
 
 #include "quartz_modifications.h"
-#include "quartz_db_table.h"
+#include "quartz_table.h"
 
 #include "om/omindexdoc.h"
 #include "om/omsettings.h"
 
 #include <map>
 
-QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_)
-	: db_manager(db_manager_)
+QuartzModifications::QuartzModifications(QuartzTableManager * table_manager_)
+	: table_manager(table_manager_)
 {
     open_diffs();
 }
@@ -43,12 +43,12 @@ QuartzModifications::~QuartzModifications()
 void
 QuartzModifications::open_diffs()
 {
-    postlist_diffs.reset(new QuartzPostListDiffs(db_manager->postlist_table.get()));
-    positionlist_diffs.reset(new QuartzPositionListDiffs(db_manager->positionlist_table.get()));
-    termlist_diffs.reset(new QuartzTermListDiffs(db_manager->termlist_table.get()));
-    lexicon_diffs.reset(new QuartzLexiconDiffs(db_manager->lexicon_table.get()));
-    attribute_diffs.reset(new QuartzAttributeDiffs(db_manager->attribute_table.get()));
-    record_diffs.reset(new QuartzRecordDiffs(db_manager->record_table.get()));
+    postlist_diffs.reset(new QuartzPostListDiffs(table_manager->postlist_table.get()));
+    positionlist_diffs.reset(new QuartzPositionListDiffs(table_manager->positionlist_table.get()));
+    termlist_diffs.reset(new QuartzTermListDiffs(table_manager->termlist_table.get()));
+    lexicon_diffs.reset(new QuartzLexiconDiffs(table_manager->lexicon_table.get()));
+    attribute_diffs.reset(new QuartzAttributeDiffs(table_manager->attribute_table.get()));
+    record_diffs.reset(new QuartzRecordDiffs(table_manager->record_table.get()));
 }
 
 void
@@ -71,15 +71,15 @@ QuartzModifications::apply()
        !lexicon_diffs->is_modified() &&
        !attribute_diffs->is_modified() &&
        !record_diffs->is_modified()) {
-	db_manager->log->make_entry("No modifications to apply.");
+	table_manager->log->make_entry("No modifications to apply.");
 	return;
     }
 
     bool success;
-    QuartzRevisionNumber old_revision(db_manager->get_revision_number());
-    QuartzRevisionNumber new_revision(db_manager->get_next_revision_number());
+    QuartzRevisionNumber old_revision(table_manager->get_revision_number());
+    QuartzRevisionNumber new_revision(table_manager->get_next_revision_number());
 
-    db_manager->log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
+    table_manager->log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
 
     success = postlist_diffs->apply(new_revision);
     if (success) { success = positionlist_diffs->apply(new_revision); }
@@ -90,30 +90,30 @@ QuartzModifications::apply()
 
     if (!success) {
 	// Modifications failed.  Wipe all the modifications from memory.
-	db_manager->log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
+	table_manager->log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
 	close_diffs();
 	
 	// Reopen tables with old revision number, 
-	db_manager->log->make_entry("Reopening tables without modifications: old revision is " + old_revision.get_description() + ".");
-	db_manager->open_tables(old_revision);
+	table_manager->log->make_entry("Reopening tables without modifications: old revision is " + old_revision.get_description() + ".");
+	table_manager->open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	new_revision.increment();
-	db_manager->log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
+	table_manager->log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
 
 	std::map<QuartzDbKey, QuartzDbTag *> null_entries;
-	db_manager->postlist_table->set_entries(null_entries, new_revision);
-	db_manager->positionlist_table->set_entries(null_entries, new_revision);
-	db_manager->termlist_table->set_entries(null_entries, new_revision);
-	db_manager->lexicon_table->set_entries(null_entries, new_revision);
-	db_manager->attribute_table->set_entries(null_entries, new_revision);
-	db_manager->record_table->set_entries(null_entries, new_revision);
+	table_manager->postlist_table->set_entries(null_entries, new_revision);
+	table_manager->positionlist_table->set_entries(null_entries, new_revision);
+	table_manager->termlist_table->set_entries(null_entries, new_revision);
+	table_manager->lexicon_table->set_entries(null_entries, new_revision);
+	table_manager->attribute_table->set_entries(null_entries, new_revision);
+	table_manager->record_table->set_entries(null_entries, new_revision);
 
 	// Prepare for further modifications.
 	open_diffs();
     }
-    db_manager->log->make_entry("Modifications succeeded.");
+    table_manager->log->make_entry("Modifications succeeded.");
 }
 
 om_docid

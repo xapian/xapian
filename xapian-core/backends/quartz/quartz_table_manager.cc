@@ -1,4 +1,4 @@
-/* quartz_db_manager.cc: Database management for quartz
+/* quartz_table_manager.cc: Management of tables for quartz
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -22,17 +22,17 @@
 
 #include "config.h"
 
-#include "quartz_db_manager.h"
+#include "quartz_table_manager.h"
 
 #include "utils.h"
 #include <om/omerror.h>
 #include <string>
 
-QuartzDbManager::QuartzDbManager(string db_dir_,
-				 string tmp_dir_,
-				 string log_filename,
-				 bool readonly_,
-				 bool perform_recovery)
+QuartzTableManager::QuartzTableManager(string db_dir_,
+				       string tmp_dir_,
+				       string log_filename,
+				       bool readonly_,
+				       bool perform_recovery)
 	: db_dir(db_dir_),
 	  tmp_dir(tmp_dir_),
 	  readonly(readonly_)
@@ -118,13 +118,13 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
     }
 }
 
-QuartzDbManager::~QuartzDbManager()
+QuartzTableManager::~QuartzTableManager()
 {
     log->make_entry("Closing database at `" + db_dir + "'.");
 }
 
 void
-QuartzDbManager::open_tables_newest()
+QuartzTableManager::open_tables_newest()
 {
     log->make_entry("Opening tables at newest available revision");
     record_table->open();
@@ -154,7 +154,7 @@ QuartzDbManager::open_tables_newest()
 }
 
 void
-QuartzDbManager::open_tables_consistent()
+QuartzTableManager::open_tables_consistent()
 {
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
@@ -215,43 +215,43 @@ QuartzDbManager::open_tables_consistent()
 }
 
 string
-QuartzDbManager::record_path() const
+QuartzTableManager::record_path() const
 {
     return db_dir + "/record_";
 }
 
 string
-QuartzDbManager::attribute_path() const
+QuartzTableManager::attribute_path() const
 {
     return db_dir + "/attribute_";
 }
 
 string
-QuartzDbManager::lexicon_path() const
+QuartzTableManager::lexicon_path() const
 {
     return db_dir + "/lexicon_";
 }
 
 string
-QuartzDbManager::termlist_path() const
+QuartzTableManager::termlist_path() const
 {
     return db_dir + "/termlist_";
 }
 
 string
-QuartzDbManager::positionlist_path() const
+QuartzTableManager::positionlist_path() const
 {
     return db_dir + "/position_";
 }
 
 string
-QuartzDbManager::postlist_path() const
+QuartzTableManager::postlist_path() const
 {
     return db_dir + "/postlist_";
 }
 
 void
-QuartzDbManager::open_tables(QuartzRevisionNumber revision)
+QuartzTableManager::open_tables(QuartzRevisionNumber revision)
 {
     log->make_entry("Opening tables at revision " + revision.get_description() + ".");
     record_table->open(revision);
@@ -264,7 +264,7 @@ QuartzDbManager::open_tables(QuartzRevisionNumber revision)
 }
 
 QuartzRevisionNumber
-QuartzDbManager::get_revision_number() const
+QuartzTableManager::get_revision_number() const
 {
     // We could use any table here, theoretically.
     Assert(postlist_table.get() != 0);
@@ -272,7 +272,7 @@ QuartzDbManager::get_revision_number() const
 }
 
 QuartzRevisionNumber
-QuartzDbManager::get_next_revision_number() const
+QuartzTableManager::get_next_revision_number() const
 {
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision

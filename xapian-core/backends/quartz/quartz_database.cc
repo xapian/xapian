@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "quartz_db_manager.h"
+#include "quartz_table_manager.h"
 #include "quartz_modifications.h"
 
 #include "quartz_database.h"
@@ -84,11 +84,11 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
     bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
 
     // Open database manager
-    db_manager = new QuartzDbManager(db_dir,
-				     tmp_dir,
-				     log_filename,
-				     readonly,
-				     perform_recovery);
+    table_manager = new QuartzTableManager(db_dir,
+					   tmp_dir,
+					   log_filename,
+					   readonly,
+					   perform_recovery);
 }
 
 QuartzDatabase::~QuartzDatabase()
@@ -112,7 +112,7 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 	throw OmInvalidOperationError("Cannot begin a modification session: "
 				      "database opened readonly.");
     }
-    modifications.reset(new QuartzModifications(db_manager.get()));
+    modifications.reset(new QuartzModifications(table_manager.get()));
     Assert(modifications.get() != 0);
 }
 
@@ -216,7 +216,7 @@ QuartzDatabase::get_doccount() const
 
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
-    return db_manager->record_table->get_entry_count() - 1;
+    return table_manager->record_table->get_entry_count() - 1;
 }
 
 om_doclength

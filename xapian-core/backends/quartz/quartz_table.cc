@@ -1,4 +1,4 @@
-/* quartz_db_manager.cc: Database management for quartz
+/* quartz_table.cc: A table in a quartz database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,7 +23,7 @@
 #include "config.h"
 #include "omdebug.h"
 
-#include "quartz_db_table.h"
+#include "quartz_table.h"
 #include "om/omerror.h"
 #include "utils.h"
 #include <string.h>

@@ -1,3 +1,8 @@
+Tue Oct  3 11:49:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Reorganise classes in Quartz, in preparation for changing Diffs
+	  objects into modified table objects.
+
 Mon Oct  2 19:36:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Rename settings parameter quartz_modification_log to quartz_logfile.

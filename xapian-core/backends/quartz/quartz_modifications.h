@@ -24,10 +24,10 @@
 #define OM_HGUARD_QUARTZ_MODIFICATIONS_H
 
 #include "config.h"
-#include "quartz_db_manager.h"
+#include "quartz_table_manager.h"
 #include "quartz_diffs.h"
 #include "quartz_log.h"
-#include "quartz_db_table.h"
+#include "quartz_table.h"
 #include "om/omindexdoc.h"
 #include "autoptr.h"
 
@@ -45,7 +45,7 @@ class QuartzModifications {
 
 	/** Pointer to the database manager.
 	 */
-	QuartzDbManager * db_manager;
+	QuartzTableManager * table_manager;
 
 
 	/** Diffs made to the PostList database.
@@ -87,11 +87,11 @@ class QuartzModifications {
 
 	/** Construct the modifications object.
 	 *
-	 *  @param db_manager_  The object holding the tables constituting
-	 *                      the database
+	 *  @param table_manager_  The object holding the tables
+	 *                         constituting the database.
 	 *                      
 	 */
-	QuartzModifications(QuartzDbManager * db_manager_);
+	QuartzModifications(QuartzTableManager * table_manager_);
 
 	/** Destroy the modifications.  Any unapplied modifications will
 	 *  be lost.
