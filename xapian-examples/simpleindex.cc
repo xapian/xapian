@@ -119,6 +119,7 @@ int main(int argc, char **argv)
 		para = "";
 	    }
 	}
+	if (!para.empty()) para += ' ';
 	para += line;
     }
 }
