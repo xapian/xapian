@@ -34,7 +34,15 @@
  */
 struct QuartzDbTag {
     public:
-	/// The contents of the tag.
+	/** The contents of the tag.
+	 *
+	 *  Tags may be of arbitrary length.  Note though that they will be
+	 *  loaded into memory in their entirety, so should not be permitted
+	 *  to grow without bound in normal usage.
+	 *
+	 *  Tags which are null strings _are_ valid, and are different from a
+	 *  tag simply not being in the database.
+	 */
 	string value;
 };
 
@@ -43,7 +51,14 @@ struct QuartzDbTag {
  */
 struct QuartzDbKey {
     public:
-	/// The contents of the key.
+	/** The contents of the key.
+	 *
+	 *  Keys may be of arbitrary length.  Note though that they will be
+	 *  loaded into memory in their entirety, so should not be permitted
+	 *  to grow without bound in normal usage.
+	 *
+	 *  Keys may not have null contents.
+	 */
 	string value;
 
 	/** Comparison operator, so that keys may be used in standard
@@ -105,8 +120,9 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
 
 /** Class managing a table in a Quartz database.
  *
- *  A table is a store holding a set of key/tag pairs.  Each key or tag may
- *  be of arbitrary length
+ *  A table is a store holding a set of key/tag pairs.  See the
+ *  documentation for QuartzDbKey and QuartzDbTag for details of what
+ *  comprises a valid key or tag.
  */
 class QuartzDbTable {
     private:
@@ -159,7 +175,10 @@ class QuartzDbTable {
 	 *  with the data associated with that key.
 	 *
 	 *  If there is no key preceding that asked for, the key and tag
-	 *  will be set to a null value.
+	 *  will be set to a null value.  Note that, if you are testing
+	 *  for this condition, you should test whether the key has a null
+	 *  value, since null tag values are allowed to be stored in
+	 *  tables.
 	 *
 	 *  @param key  The key to look for in the table.
 	 *  @param tag  A tag object to fill with the value found.

@@ -26,26 +26,208 @@
 
 #include "quartz_database.h"
 #include "quartz_db_table.h"
+
+/// Check the values returned by a table containing key/tag "hello"/"world"
+static void check_table_values_hello(const QuartzDbTable & table, string world)
+{
+    QuartzDbKey key;
+    QuartzDbTag tag;
+
+    // Check exact reads
+    key.value = "hello";
+    tag.value = "foo";
+    TEST(table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, world);
+
+    key.value = "jello";
+    tag.value = "foo";
+    TEST(!table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+
+    key.value = "bello";
+    tag.value = "foo";
+    TEST(!table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+    
+    key.value = "";
+    tag.value = "foo";
+    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+    
+    // Check normal reads
+    key.value = "hello";
+    tag.value = "foo";
+    TEST(table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "hello");
+    TEST_EQUAL(tag.value, world);
+
+    key.value = "jello";
+    tag.value = "foo";
+    TEST(!table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "hello");
+    TEST_EQUAL(tag.value, world);
+
+    key.value = "bello";
+    tag.value = "foo";
+    TEST(!table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "");
+    
+    key.value = "";
+    tag.value = "foo";
+    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "foo");
+}
+
+/// Check the values returned by a table containing no key/tag pairs
+static void check_table_values_empty(const QuartzDbTable & table)
+{
+    QuartzDbKey key;
+    QuartzDbTag tag;
+
+    // Check exact reads
+    key.value = "hello";
+    tag.value = "foo";
+    TEST(!table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+
+    key.value = "jello";
+    tag.value = "foo";
+    TEST(!table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+
+    key.value = "bello";
+    tag.value = "foo";
+    TEST(!table.read_entry_exact(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+    
+    key.value = "";
+    tag.value = "foo";
+    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EQUAL(tag.value, "foo");
+    
+    // Check normal reads
+    key.value = "hello";
+    tag.value = "foo";
+    TEST(table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "");
+
+    key.value = "jello";
+    tag.value = "foo";
+    TEST(!table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "");
+
+    key.value = "bello";
+    tag.value = "foo";
+    TEST(!table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "");
+    
+    key.value = "";
+    tag.value = "foo";
+    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EQUAL(key.value, "");
+    TEST_EQUAL(tag.value, "foo");
+}
+
 /// Test making and playing with a quartz_db_table
 static bool test_dbtable1()
 {
     QuartzDbTable table1(true);
     QuartzDbTable table2(false);
 
-    QuartzRevisionNumber initialrev1 = table1.get_revision_number();
-    QuartzRevisionNumber initialrev2 = table2.get_revision_number();
+    QuartzRevisionNumber rev1 = table1.get_revision_number();
+    QuartzRevisionNumber rev2 = table2.get_revision_number();
 
-    TEST_EQUAL(initialrev1, table1.get_revision_number());
-    TEST_EQUAL(initialrev2, table2.get_revision_number());
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_EQUAL(rev2, table2.get_revision_number());
 
     std::map<QuartzDbKey, QuartzDbTag *> newentries;
 
+    // Check adding no entries
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(initialrev1, table1.get_revision_number());
-    TEST_NOT_EQUAL(initialrev2, table2.get_revision_number());
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
 
+    // Check adding some entries
+    QuartzDbKey key;
+    QuartzDbTag tag;
+    key.value = "hello";
+    tag.value = "world";
+    newentries[key] = &tag;
+    
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
+
+    // Check getting the entries out again
+    check_table_values_empty(table1);
+    check_table_values_hello(table2, "world");
+
+    // Check adding the same entries
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
+
+    // Check getting the entries out again
+    check_table_values_empty(table1);
+    check_table_values_hello(table2, "world");
+
+
+    // Check adding an entry with a null key
+    key.value = "";
+    newentries[key] = &tag;
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    TEST_EXCEPTION(OmInvalidArgumentError, table2.set_entries(newentries));
+
+    // Check changing an entry, to a null tag
+    newentries.clear();
+    key.value = "hello";
+    tag.value = "";
+    newentries[key] = &tag;
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
+    
+    // Check getting the entries out again
+    check_table_values_empty(table1);
+    check_table_values_hello(table2, "");
+
+    // Check deleting an entry
+    newentries.clear();
+    key.value = "hello";
+    newentries[key] = 0;
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
+
+    // Check the entries in the table
+    check_table_values_empty(table1);
+    check_table_values_empty(table2);
+    
     return true;
 }
 

@@ -1,3 +1,9 @@
+Wed Sep 13 13:14:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add lots of tests of the QuartzDbTables.  Currently these fail due
+	  to a missing implementation.  In the short term they'll be pointing
+	  at a map, but will prove useful when Martin's stuff replaces that.
+
 Wed Sep 13 12:31:25 BST 2000 Olly Betts
 
 	* OmRefCnt* -> RefCnt*; omrefcnt.h -> refcnt.h; OmSettingsData ->
