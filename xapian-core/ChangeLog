@@ -1,3 +1,8 @@
+Fri Jun 06 01:33:33 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Commented out the section on the Lexicon,
+	  which we no longer use.
+
 Thu Jun 05 22:40:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/python/.cvsignore,bindings/python/Makefile.am,
