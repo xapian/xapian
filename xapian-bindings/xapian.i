@@ -46,10 +46,8 @@ using namespace std;
 %include "stl.i"
 #endif
 
-#ifndef SWIGGUILE
 %include typemaps.i
 %include exception.i
-#endif
 
 %{
 #define OMSWIG_exception(type, e) \

@@ -1,6 +1,16 @@
+Wed Sep 29 19:04:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Reenabled inclusion of typemaps.i and exception.i for
+	  Guile.  This was disabled in June 2000.  4 years later SWIG seems
+	  to process them successfully.
+
 Wed Sep 29 19:01:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am: Get configure to find sn.
+
+Wed Sep 29 17:23:23 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* csharp/: Generate strong name file automatically.
 
 Wed Sep 29 14:17:50 BST 2004  Olly Betts <olly@survex.com>
 
