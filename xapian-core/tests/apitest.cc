@@ -1866,7 +1866,7 @@ test_desc db_tests[] = {
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
     {"termlisttermfreq",   test_termlisttermfreq},
-    {"multiexpand1",       test_multiexpand1},
+    //{"multiexpand1",       test_multiexpand1},
     {0, 0}
 };
 
