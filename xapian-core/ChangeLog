@@ -1,3 +1,8 @@
+Mon May 10 17:17:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/quartzdsign.html: Corrected various pieces of out of date
+	  information.
+
 Mon May 10 01:30:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.h: Removed unused forward declaration of

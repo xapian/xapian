@@ -515,9 +515,12 @@ type of contingency.
 
 <H2>The files</H2>
 
-The B-tree has five associated files. DB contains the data proper of the
-B-tree. The revision numbers, and other administrative information, are held in
-two files, baseA and baseB. When the B-tree is opened without any particular
+The B-tree has three associated files. DB contains the data proper of the
+B-tree. The revision numbers, other administrative information, and a bitmap
+are held in two files, baseA and baseB.
+
+<P>
+When the B-tree is opened without any particular
 revision number being specified, the later of baseA and baseB is chosen as the
 opening base, and as soon as a write to the file DB occurs, the earlier of
 baseA or baseB is deleted. On closure, the new revision number is written to
@@ -525,9 +528,8 @@ baseB if baseA was the opening base, and to baseA if baseB was the opening
 base. If the B-tree update fails for some reason, only one base will usually
 survive.
 
-<P>Corresponding to baseA and baseB are two files bitmapA and bitmapB. Bit n is
-set in the bitmap if block n is in use in the corresponding revision of the
-B-tree.
+<P>The bitmap stored in each base file will have bit n set if block n is in use
+in the corresponding revision of the B-tree.
 
 <H2>The API</H2>
 
@@ -546,12 +548,12 @@ the possibility of errors. Bad practice, but it makes them more readable.
 <pre>
         <!--error_condition = -->Btree::create("/home/martin/develop/btree/", 8192);
 
-        Btree::create("X-", 6000); /* files will be X-bitmapA, X-DB etc */
+        Btree::create("X-", 6000); /* files will be X-baseA, X-DB etc */
 </pre>
 
     The block size must be less than 64K, where K = 1024. It is unwise to
-    use a small block size (less than 1024 perhaps), but it is not at present
-    forbidden.
+    use a small block size (less than 1024 perhaps) - quartz enforces a
+    minimum block size of 2K.
 </blockquote>
 
 <P>
@@ -832,7 +834,7 @@ bool Bcursor::get_tag(string * tag);
 </pre>
 
 <blockquote>
-    If cursor BC is unpositioned, the result is simply bool.
+    If cursor BC is unpositioned, the result is false.
 <p>
     If BC is positioned, the tag of the item at cursor BC is copied into
     tag. BC is then moved to the next item
@@ -857,7 +859,7 @@ bool Bcursor::get_tag(string * tag);
         }
 
         /* when BC is unpositioned by Bcursor::get_tag, Bcursor::get_key
-           gives result true the next time it called
+           gives result false the next time it called
         */
 </pre>
 </blockquote>
