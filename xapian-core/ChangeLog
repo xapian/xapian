@@ -1,3 +1,7 @@
+Sun Feb 20 19:47:01 GMT 2005  Olly Betts <olly@survex.com>
+
+	* net/socketserver.cc: Fixed typo in debug code.
+
 Sat Feb 19 18:44:17 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added minimal testcase which fails to compile with
