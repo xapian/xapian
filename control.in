@@ -54,7 +54,7 @@ Section: utils
 Depends: ${shlibs:Depends}
 Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
-  - omtcpsrv: A simple TCP based server, used for searching across remote
+  - xapian-tcpsrv: A simple TCP based server, used for searching across remote
     databases.
   - quartzcheck: Check the validity of a Xapian database.
   - quartzcompact: Remove unused space in a Xapian database.
