@@ -44,7 +44,7 @@
  *  		the indexer's output, rather than to any node.
  *
  *  Parameters: none
- *  	
+ */
 class OmMakeDocNode : public OmIndexerNode {
     public:
 	OmMakeDocNode(const OmSettings &config)
