@@ -36,7 +36,7 @@ main(int argc, char *argv[])
     list<om_database_type> dbtypes;
     bool multidb = false;
     bool showmset = false;
-    matchop default_op = OR;
+    matchop default_op = MOP_OR;
 
     bool syntax_error = false;
     argv++;
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--matchall") == 0) {
-	    default_op = AND;
+	    default_op = MOP_AND;
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--rel") == 0) {
@@ -147,42 +147,42 @@ main(int argc, char *argv[])
 	    } else {
 		if (boolean) {
 		    if (term == "OR") {
-			if (match.add_op(OR)) {
+			if (match.add_op(MOP_OR)) {
 			    printf("Added boolean OR\n");
 			} else {
 			    printf("Failed to add boolean OR\n");
 			}
 			continue;
 		    } else if (term == "NOT") {
-			if (match.add_op(AND_NOT)) {
+			if (match.add_op(MOP_AND_NOT)) {
 			    printf("Added boolean ANDNOT\n");
 			} else {
 			    printf("Failed to add boolean ANDNOT\n");
 			}
 			continue;
 		    } else if (term == "AND") {
-			if (match.add_op(AND)) {
+			if (match.add_op(MOP_AND)) {
 			    printf("Added boolean AND\n");
 			} else {
 			    printf("Failed to add boolean AND\n");
 			}
 			continue;
 		    } else if (term == "XOR") {
-			if (match.add_op(XOR)) {
+			if (match.add_op(MOP_XOR)) {
 			    printf("Added boolean XOR\n");
 			} else {
 			    printf("Failed to add boolean XOR\n");
 			}
 			continue;
 		    } else if (term == "ANDMAYBE") {
-			if (match.add_op(AND_MAYBE)) {
+			if (match.add_op(MOP_AND_MAYBE)) {
 			    printf("Added boolean ANDMAYBE\n");
 			} else {
 			    printf("Failed to add boolean ANDMAYBE\n");
 			}
 			continue;
 		    } else if (term == "ANDNOT") {
-			if (match.add_op(AND_NOT)) {
+			if (match.add_op(MOP_AND_NOT)) {
 			    printf("Added boolean ANDNOT\n");
 			} else {
 			    printf("Failed to add boolean ANDNOT\n");

@@ -61,7 +61,7 @@ string ad_keywords;
 
 string query_string;
 
-matchop op = OR; // default matching mode
+matchop op = MOP_OR; // default matching mode
 
 map<termname, int> matching_map;
 
@@ -160,14 +160,14 @@ run_query(void)
 	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
 	//  (term_1 OR ... OR term_m)) ANDNOT
 	// (minusterm_1 OR ... OR minusterm_p)
-	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
+	if (!pluses.empty()) matcher->add_oplist(MOP_AND, pluses);
 	if (!normals.empty()) {
 	    matcher->add_oplist(op, normals);
-	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
+	    if (!pluses.empty()) matcher->add_op(MOP_AND_MAYBE);
 	}       
 	if (!minuses.empty()) {
-	    matcher->add_oplist(OR, minuses);
-	    if (!matcher->add_op(AND_NOT)) {
+	    matcher->add_oplist(MOP_OR, minuses);
+	    if (!matcher->add_op(MOP_AND_NOT)) {
 		cout << "Don't be so negative\n" << endl; // FIXME
 		exit(0);
 	    }
@@ -180,9 +180,9 @@ run_query(void)
     for (i = filter_map.begin(); i != filter_map.end(); i++) {
         matcher->add_term(i->second);
 	bool_terms++;
-	if (bool_terms) matcher->add_op(AND);
+	if (bool_terms) matcher->add_op(MOP_AND);
     }
-    if (bool_terms) matcher->add_op(FILTER);
+    if (bool_terms) matcher->add_op(MOP_FILTER);
 
     matcher->match();
 

@@ -286,7 +286,7 @@ pretty_printf(const char *p, int *a)
     if (size == atoi(num.c_str())) cout << "SELECTED";
 }
 \\OSELECT[AO] {
-    if ((op == AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
+    if ((op == MOP_AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
 }
 \\TOPTERMS {
     // Olly's expand on query page idea

@@ -237,9 +237,9 @@ static int main2(int argc, char *argv[])
 
     val = cgi_params.find("MATCHOP");
     if (val != notfound) {
-	if (val->second == "AND" || val->second == "and") op = AND;
+	if (val->second == "AND" || val->second == "and") op = MOP_AND;
     } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
-	if (atoi(val->second.c_str()) == 100) op = AND;
+	if (atoi(val->second.c_str()) == 100) op = MOP_AND;
     }
 
     big_buf = "";
