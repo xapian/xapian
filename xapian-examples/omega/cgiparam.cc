@@ -43,12 +43,9 @@ add_param(string name, string val)
 	if (name[i - 1] == 'x')
 	    name = name.substr(0, i - 2);
     }
-    // convert 'XXX 10'=<whatever> into XXX=10
+    // Truncate at first space - convert `[ page two ]=2' into `[=2'
     i = name.find(' ');
-    if (i != string::npos) {
-	val = name.substr(i + 1);
-	name = name.substr(0, i);
-    }
+    if (i != string::npos) name = name.substr(0, i);
     cgi_params.insert(make_pair(name, val));
 }
 

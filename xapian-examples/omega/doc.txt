@@ -10,12 +10,12 @@ For handling of <input type=image ...>:
 <param>.x=<value> is converted to <param>=<value>
 <param>.y=<value> is ignored
 
-A parameter name with a space in it is split and the original value
-discarded (this allows nice "tool tips" for the page image buttons -
-Netscape uses the name parameter of an <input type=image ...> as the tooltip
-so the page buttons have name="[ 3 ]" which converts to "[=3 ]"):
+A parameter name with a space in is truncated at the space (this allows nice
+"tool tips" for the page image buttons - Netscape uses the name parameter of
+an "<input type=image ...>" as the tooltip so the select page image buttons
+have name "[ 3 ]" and value "3" which converts to name "[" and value "3"):
 
-<prespace> <postspace>=<value> is converted to <prespace>=<postspace>
+<prespace> <postspace>=<value> is converted to <prespace>=<value>
 
 If applicable, the second conversion is applied to the result of the first.
 

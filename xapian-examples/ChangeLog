@@ -1,3 +1,7 @@
+Fri Jan 12 13:20:31 GMT 2001 Olly Betts
+
+	* Truncate CGI parameter names at first space.
+
 Fri Jan 12 11:22:24 GMT 2001 Olly Betts
 
 	* Suppressed warnings in query.cc.
