@@ -35,7 +35,7 @@
 #include "daread.h"
 
 DAPostList::DAPostList(const om_termname & tname_,
-		       struct DApostings * postlist_,
+		       struct DA_postings * postlist_,
 		       om_doccount termfreq_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
 {
@@ -43,7 +43,7 @@ DAPostList::DAPostList(const om_termname & tname_,
 
 DAPostList::~DAPostList()
 {
-    DAclosepostings(postlist);
+    DA_close_postings(postlist);
 }
 
 om_weight DAPostList::get_weight() const
@@ -63,7 +63,7 @@ PostList * DAPostList::next(om_weight w_min)
 	currdoc++;
 	return NULL;
     }
-    DAreadpostings(postlist, 1, 0);
+    DA_read_postings(postlist, 1, 0);
     currdoc = om_docid(postlist->Doc);
     return NULL;
 }
@@ -79,7 +79,7 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
-    DAreadpostings(postlist, 1, did);
+    DA_read_postings(postlist, 1, did);
     currdoc = om_docid(postlist->Doc);
     //printf("%d - get_id %d\n", did, currdoc);
     return NULL;
@@ -123,16 +123,17 @@ DADatabase::DADatabase()
     DA_r = NULL;
     DA_t = NULL;
     opened = false;
+    heavy_duty = 0;
 }
 
 DADatabase::~DADatabase()
 {
     if(DA_r != NULL) {
-	DAclose(DA_r);
+	DA_close(DA_r);
 	DA_r = NULL;
     }
     if(DA_t != NULL) {
-	DAclose(DA_t);
+	DA_close(DA_t);
 	DA_t = NULL;
     }
 }
@@ -144,20 +145,29 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
     // Check validity of parameters
     Assert(params.readonly == true);
-    Assert(params.paths.size() == 1);
     Assert(params.subdbs.size() == 0);
+    Assert(params.paths.size() == 2);
+    Assert(params.paths[0] == "heavy" || params.paths[0] == "flimsy");
 
+    /* Check whether heavy_duty or not. */
+    if(params.paths[0] == "heavy") {
+	heavy_duty = 1;
+    } else {
+	heavy_duty = 0;
+    }
+    
     // Open database with specified path
-    string filename_r = params.paths[0] + "/R";
-    string filename_t = params.paths[0] + "/T";
+    string filename_r = params.paths[1] + "/R";
+    string filename_t = params.paths[1] + "/T";
 
-    DA_r = DAopen(filename_r.c_str(), DARECS);
-    if(DA_r == NULL)
+    DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
+    if(DA_r == NULL) {
 	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
+    }
 
-    DA_t = DAopen(filename_t.c_str(), DATERMS);
+    DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
     if(DA_t == NULL) {
-	DAclose(DA_r);
+	DA_close(DA_r);
 	DA_r = NULL;
 	throw OmOpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
@@ -177,8 +187,8 @@ DADatabase::open_post_list(const om_termname & tname, RSet * rset) const
     const DATerm * the_term = term_lookup(tname);
     Assert(the_term != NULL);
 
-    struct DApostings * postlist;
-    postlist = DAopenpostings(the_term->get_ti(), DA_t);
+    struct DA_postings * postlist;
+    postlist = DA_open_postings(the_term->get_ti(), DA_t);
 
     DBPostList * pl = new DAPostList(tname, postlist, the_term->get_ti()->freq);
     return pl;
@@ -190,16 +200,16 @@ DADatabase::open_term_list(om_docid did) const
 {
     Assert(opened);
 
-    struct termvec *tv = maketermvec();
-    int found = DAgettermvec(DA_r, did, tv);
+    struct termvec *tv = M_make_termvec();
+    int found = DA_get_termvec(DA_r, did, tv);
 
     if(found == 0) {
-	losetermvec(tv);
+	M_lose_termvec(tv);
 	throw OmDocNotFoundError(string("Docid ") + inttostring(did) +
 				 string(" not found"));
     }
 
-    openterms(tv);
+    M_open_terms(tv);
 
     DATermList *tl = new DATermList(tv, DADatabase::get_doccount());
     return tl;
@@ -210,11 +220,11 @@ DADatabase::get_record(om_docid did) const
 {
     Assert(opened);
 
-    struct record *r = makerecord();
-    int found = DAgetrecord(DA_r, did, r);
+    struct record *r = M_make_record();
+    int found = DA_get_record(DA_r, did, r);
 
     if(found == 0) {
-	loserecord(r);
+	M_lose_record(r);
 	throw OmDocNotFoundError(string("Docid ") + inttostring(did) +
 				 string(" not found"));
     }
@@ -227,7 +237,7 @@ DADatabase::open_document(om_docid did) const
 {
     Assert(opened);
 
-    return new DADocument(this, did);
+    return new DADocument(this, did, heavy_duty);
 }
 
 const DATerm *
@@ -247,8 +257,8 @@ DADatabase::term_lookup(const om_termname & tname) const
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
-	struct DAterminfo ti;
-	int found = DAterm(k, &ti, DA_t);
+	struct DA_term_info ti;
+	int found = DA_term(k, &ti, DA_t);
 	free(k);
 
 	if(found == 0) {

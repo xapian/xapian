@@ -34,8 +34,9 @@ class DADocument : public virtual OmDocument {
 	const DADatabase * database;
 	om_docid did;
 	mutable struct record * rec;
+	int heavy_duty;
 
-	DADocument(const DADatabase * database_, om_docid did_);
+	DADocument(const DADatabase * database_, om_docid did_, heavy_duty_);
 
 	// Stop copying
 	DADocument(const DADocument &);
@@ -49,7 +50,7 @@ class DADocument : public virtual OmDocument {
 
 inline
 DADocument::DADocument(const DADatabase * database_, om_docid did_)
-	: database(database_), did(did_), rec(NULL)
+	: database(database_), did(did_), rec(NULL), heavy_duty(heavy_duty_)
 {
 }
 

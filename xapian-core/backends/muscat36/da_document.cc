@@ -27,7 +27,7 @@
 
 DADocument::~DADocument()
 {
-    if(rec != NULL) loserecord(rec);
+    if(rec != NULL) M_lose_record(rec);
 }
 
 OmKey
@@ -46,7 +46,8 @@ DADocument::get_data() const
     if(rec == NULL) rec = database->get_record(did);
     OmData data;
     unsigned char *pos = (unsigned char *)rec->p;
-    unsigned int len = LOF(pos, 0);
-    data.value = string((char *)pos + LWIDTH + 3, len - LWIDTH - 3);
+    unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
+    data.value = string((char *)pos + LWIDTH(heavy_duty) + 3,
+			len - LWIDTH(heavy_duty) - 3);
     return data;
 }

@@ -43,14 +43,14 @@
 class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:
-	struct DApostings * postlist;
+	struct DA_postings * postlist;
 	om_docid  currdoc;
 
 	om_termname tname;
 	om_doccount termfreq;
 
 	DAPostList(const om_termname & tname_,
-		   struct DApostings * postlist_,
+		   struct DA_postings * postlist_,
 		   om_doccount termfreq_);
     public:
 	~DAPostList();
@@ -184,22 +184,22 @@ inline bool DATermList::at_end() const
 class DATerm {
     friend DADatabase;
     private:
-	DATerm(struct DAterminfo * ti_,
+	DATerm(struct DA_term_info * ti_,
 	       om_termname tname_,
-	       struct DAfile * DA_t_ = NULL);
-        struct DAterminfo * get_ti() const;
+	       struct DA_file * DA_t_ = NULL);
+        struct DA_term_info * get_ti() const;
 
 	mutable bool terminfo_initialised;
-        mutable struct DAterminfo ti;
-        mutable struct DAfile * DA_t;
+        mutable struct DA_term_info ti;
+        mutable struct DA_file * DA_t;
     public:
 	om_termname tname;
 };
 
 inline
-DATerm::DATerm(struct DAterminfo * ti_,
+DATerm::DATerm(struct DA_term_info * ti_,
 	       om_termname tname_,
-	       struct DAfile * DA_t_)
+	       struct DA_file * DA_t_)
 	: terminfo_initialised(false)
 {
     if (ti_) {
@@ -210,7 +210,7 @@ DATerm::DATerm(struct DAterminfo * ti_,
     DA_t = DA_t_;
 }
 
-inline struct DAterminfo *
+inline struct DA_term_info *
 DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
@@ -222,7 +222,7 @@ DATerm::get_ti() const
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
-	int found = DAterm(k, &ti, DA_t);
+	int found = DA_term(k, &ti, DA_t);
 	free(k);
 
 	if(found == 0) abort();
@@ -236,10 +236,12 @@ class DADatabase : public virtual IRDatabase {
     friend class DADocument;
     private:
 	bool   opened;
-	struct DAfile * DA_r;
-	struct DAfile * DA_t;
+	struct DA_file * DA_r;
+	struct DA_file * DA_t;
 
 	mutable map<om_termname, DATerm> termmap;
+
+	int heavy_duty;
 
 	// Stop copy / assignment being allowed
 	DADatabase& operator=(const DADatabase&);
