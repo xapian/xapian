@@ -6,7 +6,9 @@
 #include "da_database.h"
 #include "textfile_database.h"
 #include "match.h"
+#include "expand.h"
 #include "stem.h"
+#include "rset.h"
 
 IRDatabase *makenewdb(const string &type)
 {
@@ -28,6 +30,7 @@ main(int argc, char *argv[])
 {
     int msize = 10;
     const char *progname = argv[0];
+    list<docid> reldocs;
     list<string> dbnames;
     list<string> dbtypes;
     bool multidb = false;
@@ -64,6 +67,10 @@ main(int argc, char *argv[])
 	    default_op = AND;
 	    argc--;
 	    argv++;
+	} else if (strcmp(argv[0], "--rel") == 0) {
+	    reldocs.push_back(atoi(argv[1]));
+	    argc -= 2;
+	    argv += 2;
 	} else {
 	    syntax_error = true;
 	    break;
@@ -75,6 +82,7 @@ main(int argc, char *argv[])
 	cout << "\t--msize MSIZE\n";
 	cout << "\t--db DBDIRECTORY\n";
 	cout << "\t--tf TEXTFILE\n";
+	cout << "\t--rel DOCID\n";
 	cout << "\t--multidb\n";
 	cout << "\t--showmset\n";
 	cout << "\t--matchall\n";
@@ -104,7 +112,14 @@ main(int argc, char *argv[])
 	    database->open(*(dbnames.begin()), true);
 	}
        
+	RSet rset(database);
+	list<docid>::const_iterator i;
+	for(i = reldocs.begin(); i != reldocs.end(); i++) {
+	    rset.add_document(*i);
+	}
+
         Match match(database);
+	match.set_rset(&rset);
        
         StemEn stemmer;
 
