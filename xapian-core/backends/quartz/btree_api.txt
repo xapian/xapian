@@ -703,7 +703,7 @@ Here is a summary:
     (A)(B)(C)          error condition given by:
     ------------------------------------------------------
            *  n = Btree_find_key(B, key, key_len)
-     *        kt= Btree_item_create(void)
+     *        kt= Btree_item_create()
            *  n = Btree_find_tag(B, key, key_len, kt)
                   Btree_item_lose(kt)
            *  n = Btree_add(B, key, key_len, tag, tag_len)

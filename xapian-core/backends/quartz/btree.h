@@ -148,7 +148,7 @@ enum Btree_errors {
 };
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
-extern struct Btree_item * Btree_item_create(void);
+extern struct Btree_item * Btree_item_create();
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * t);
 extern void Btree_item_lose(struct Btree_item * kt);
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
