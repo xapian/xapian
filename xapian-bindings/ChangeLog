@@ -1,3 +1,9 @@
+Thu Jan  1 22:42:57 2004  James Aylett  <james@tartarus.org>
+
+	* xapian.i: a couple of Xapian::Query constructors weren't being
+	  wrapped, including one explicitly used in some of my Python
+	  binding examples :-(
+
 Sun Dec 28 16:06:50 2003  James Aylett  <james@tartarus.org>
 
 	* Python bindings: enable directors for MatchDecider, to allow

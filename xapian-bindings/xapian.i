@@ -400,6 +400,8 @@ class Query {
         Query(const string &tname,
 		termcount wqf = 1,
 		termpos term_pos = 0);
+	Query(Query::op op_, const Query & left, const Query & right);
+	Query(Query::op op_, const std::string & left, const std::string & right);
         %extend {
             /** Constructs a query from a set of queries merged with the specified operator */
 	    Query(Query::op op,
