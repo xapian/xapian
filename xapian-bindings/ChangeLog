@@ -1,7 +1,12 @@
+Sun Jun 27 00:57:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/errors/.cvsignore,
+	  java/org/xapian/examples/.cvsignore: Created.
+
 Fri May 28 14:35:29 BST 2004  James Aylett  <james@tartarus.org>
 
 	* Add basic documentation and examples to PHP4 bindings.
-	
+
 	* For PHP4, rename overloaded methods and constructors.
 
 	* Add simple access to the prefixes map in QueryParser.
