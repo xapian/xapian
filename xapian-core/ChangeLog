@@ -1,3 +1,12 @@
+Fri Nov 17 16:12:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove tests to check for Berkeley DB 3.1 - we don't use Berkeley
+	  DB 3.1.
+
+	* Made quartz compile by default - it now passes the testsuite (well,
+	  apart from a small memory leak, but what's a small memory leak
+	  between friends?).
+
 Fri Nov 17 15:49:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change an OmUnimplementedError into an OmInvalidOperationError
