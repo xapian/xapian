@@ -125,6 +125,7 @@ static int sys_open_for_readwrite(const string & name)
 
 static void sys_lseek(int h, off_t offset)
 {
+    Assert((offset & 1023) == 0);
     if (lseek(h, offset, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
 	message += strerror(errno);
@@ -175,7 +176,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 	    // end of file, we're finished
 	    break;
 	} else if (bytes_read == -1) {
-	    string message = "Error reading block: ";
+	    string message = "Error reading all bytes: ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
 	}
@@ -293,11 +294,11 @@ Btree::read_block(int4 n, byte * p)
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
-	    string message = "Error reading block: ";
+	    string message = "Error reading block " + om_tostring(n) + ": ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
 	} else if (bytes_read == 0) {
-	    string message = "Error reading block: got end of file";
+	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
 	    throw OmDatabaseError(message);
 	} else if (bytes_read < m) {
 	    /* Read part of the block, which is not an error.  We should
@@ -1746,7 +1747,10 @@ Btree::do_open_to_read(const string & name_,
 
     {
 	int common_levels = revision_number <= 1 ? 1 : 2;
-	shared_level = level > common_levels ? common_levels : level;
+ 	// Having more than one level not-shared seems to cause problems
+	// Get Martin to investigate...
+	// shared_level = level > common_levels ? common_levels : level;
+	shared_level = level;
     }
 
     if (sequential) {

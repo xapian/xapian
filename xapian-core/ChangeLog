@@ -1,3 +1,8 @@
+Thu Dec 12 16:43:22 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Added workaround for shared_level problem;
+	  Improved error reporting.
+
 Thu Dec 12 01:05:00 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Updated docs on stub databases.
