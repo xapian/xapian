@@ -1,3 +1,7 @@
+Thu Jan 10 15:39:43 GMT 2002  Sam Liddicott  <sam@ananova.com>
+
+	* Added $htmlstrip{} to strip out html tags
+
 Thu Jan 10 14:34:35 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* toptermsjs snippet now included inside the HEAD, so it's
@@ -12,7 +16,7 @@ Thu Jan 10 14:30:19 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
 	  map. This was previously documented in a misleading fashion.
 	  The new system is backwards compatible with the old.
 
-Wed Jan 9 Sam Liddicott <sam@ananova.com>
+Wed Jan 9  Sam Liddicott  <sam@ananova.com>
 
 	* Added RAW_SEARCH as cgi param which when set stops change-search
 	  detection being performed and processes rset, topdoc and page-change

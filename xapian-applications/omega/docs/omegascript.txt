@@ -124,6 +124,9 @@ $hostname{URL}
 $html{TEXT}
 	html escape string (<>&, etc)
 
+$htmlstrip{TEXT}
+	html strip tags from string (<...>, etc)
+
 $id
 	document id of current doc
 

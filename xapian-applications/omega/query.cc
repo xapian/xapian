@@ -482,6 +482,28 @@ html_escape(const string &str)
     return res;
 }
 
+static string
+html_strip(const string &str)
+{
+    string res;
+    std::string::size_type p = 0;
+    bool skip = false;
+    while (p < str.size()) {
+	char ch = str[p++];
+	switch (ch) {
+ 	    case '<':
+	        skip = true;
+	        continue;
+	    case '>':
+	        skip = false;
+	        continue;
+	    default:
+	        if (! skip) res += ch;
+	}
+    }
+    return res;
+}
+
 // FIXME split list into hash or map and use that rather than linear lookup?
 static bool word_in_list(const string& test_word, const string& list)
 {
@@ -624,6 +646,7 @@ CMD_hitlist,
 CMD_hitsperpage,
 CMD_hostname,
 CMD_html,
+CMD_htmlstrip,
 CMD_id,
 CMD_if,
 CMD_include,
@@ -710,6 +733,7 @@ static struct func_desc func_tab[] = {
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
+{T(htmlstrip),	1, 1, N, 0, 0}}, // html strip tags string (s/<..?>//)
 {T(id),		0, 0, N, 0, 0}}, // docid of current doc
 {T(if),		2, 3, 1, 0, 0}}, // conditional
 {T(include),	1, 1, 1, 0, 0}}, // include another file
@@ -1094,6 +1118,9 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_html:
 	        value = html_escape(args[0]);
+		break;
+	    case CMD_htmlstrip:
+	        value = html_strip(args[0]);
 		break;
 	    case CMD_id:
 		// document id
