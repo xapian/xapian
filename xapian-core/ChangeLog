@@ -1,3 +1,8 @@
+Wed Sep 13 19:07:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Small typo in DbTermList::get_termfreq() corrected.  Now works
+	  correctly - multiexpand1 passes. :)
+
 Wed Sep 13 18:49:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix apitest so that the OmBatchEnquire::query_desc structure gets

@@ -134,9 +134,9 @@ DBTermList::get_termfreq() const
     // FIXME: really icky cast
     if (pos->termfreq == (om_termcount) -1) {
 	// Not available - read from database
-	DEBUGLINE(DB, "DBTermList;get_termfreq - termfreq for `" << pos->tname
+	DEBUGLINE(DB, "DBTermList::get_termfreq - termfreq for `" << pos->tname
 		  << "' not available, reading from database");
-	this_db->get_termfreq(pos->tname);
+	pos->termfreq = this_db->get_termfreq(pos->tname);
     }
     return pos->termfreq;
 }
