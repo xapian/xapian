@@ -1133,9 +1133,6 @@ static bool test_postlist1()
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
 
-    QuartzPostList pl(database_w, 7, table, "foo");
-
-    TEST_EQUAL(pl.get_termfreq(), 0);
     {
 	QuartzPostList pl2(database_w, 7, table, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
@@ -1143,15 +1140,31 @@ static bool test_postlist1()
 	TEST(pl2.at_end());
     }
 
-    pl.set_entry(&bufftable, 5, 7, 3, 8);
-    TEST_EQUAL(pl.get_termfreq(), 1);
-
+    QuartzPostList::add_entry(&bufftable, "foo", 5, 7, 3);
     {
 	QuartzPostList pl2(database_w, 8.0, table, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
+	TEST_EQUAL(pl2.get_doclength(), 3.0 / 8.0);
+	TEST_EQUAL(pl2.get_wdf(), 7);
+	pl2.next(0);
+	TEST(pl2.at_end());
+    }
+
+    QuartzPostList::add_entry(&bufftable, "foo", 6, 1, 2);
+    {
+	QuartzPostList pl2(database_w, 8.0, table, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), 2);
+	pl2.next(0);
+	TEST(!pl2.at_end());
+	TEST_EQUAL(pl2.get_docid(), 5);
+	TEST_EQUAL(pl2.get_doclength(), 3.0 / 8.0);
+	TEST_EQUAL(pl2.get_wdf(), 7);
+	pl2.next(0);
+	TEST(!pl2.at_end());
+	TEST_EQUAL(pl2.get_docid(), 6);
 	TEST_EQUAL(pl2.get_doclength(), 3.0 / 8.0);
 	TEST_EQUAL(pl2.get_wdf(), 7);
 	pl2.next(0);

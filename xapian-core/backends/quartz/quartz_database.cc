@@ -31,6 +31,7 @@
 #include "om/omerror.h"
 #include "refcnt.h"
 
+#include "quartz_postlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
 #include "quartz_lexicon.h"
@@ -467,12 +468,11 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 	QuartzLexicon::increment_termfreq(buffered_tables->get_lexicon_table(),
 					  term->second.tname,
 					  &tid);
-#if 0
-	QuartzPostList::add_posting(*(buffered_tables.get_postlist_table()),
-				    term->second.tname,
-				    did,
-				    term->second.wdf);
-#endif
+	QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
+				  term->second.tname,
+				  did,
+				  term->second.wdf,
+				  new_doclen);
 	QuartzPositionList::set_positionlist(
 				buffered_tables->get_positionlist_table(),
 				did,

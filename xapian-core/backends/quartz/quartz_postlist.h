@@ -29,6 +29,7 @@
 #include <string>
 #include "quartz_table_entries.h"
 #include "omassert.h"
+#include "quartz_types.h"
 
 class QuartzTable;
 class QuartzCursor;
@@ -77,7 +78,7 @@ class QuartzPostList : public LeafPostList {
 	om_docid did;
 
 	/// The (absolute) length of the current document, 
-	om_termcount doclength;
+	quartz_doclen_t doclength;
 
 	/// The wdf of the current document.
 	om_termcount wdf;
@@ -98,10 +99,6 @@ class QuartzPostList : public LeafPostList {
         /// Assignment is not allowed.
         void operator=(const QuartzPostList &);
 
-	/// Make a key for accessing the postlist.
-	void make_key(om_docid did,
-		      QuartzDbKey & key);
-
 	/** Move to the next item in the chunk, if possible.
 	 *  If already at the end of the chunk, returns false.
 	 */
@@ -113,40 +110,6 @@ class QuartzPostList : public LeafPostList {
 	 *  is_at_end to true.
 	 */
 	void next_chunk();
-
-	/** Read the number of entries in the posting list. 
-	 *  This must only be called when pos is pointing to the start of
-	 *  the first chunk of the posting list.
-	 */
-	void read_number_of_entries();
-
-	/// Write the number of entries in the posting list.
-	void write_number_of_entries(std::string & chunk,
-				     om_termcount new_number_of_entries);
-
-	/// Read the docid of the first entry in the posting list.
-	void read_first_docid();
-
-	/// Write the docid of the first entry in the posting list.
-	void write_first_docid(std::string & chunk,
-			       om_docid new_did);
-
-	/// Read the start of a chunk, including the first docid in it.
-	void read_start_of_chunk();
-
-	/// Write the start of a chunk, including the first docid in it.
-	void write_start_of_chunk(std::string & chunk,
-				  bool new_is_last_chunk,
-				  om_docid new_first_did,
-				  om_docid new_final_did);
-
-	/// Read the wdf and the length of an item.
-	void read_wdf_and_length();
-
-	/// Write the wdf and length of an item into a chunk.
-	void write_wdf_and_length(std::string & chunk,
-				  om_termcount new_wdf,
-				  om_termcount new_doclength);
 
 	/** Return true if the given document ID lies in the range covered
 	 *  by the current chunk.  This does not say whether the document ID
@@ -186,12 +149,6 @@ class QuartzPostList : public LeafPostList {
 	 */
 	void move_to(om_docid desired_did);
 
-	/// Report an error when reading the posting list.
-	void report_read_error(const char * position);
-
-	/// Set the number of entries
-	void set_number_of_entries(QuartzBufferedTable * bufftable,
-				   om_termcount new_number_of_entries);
     public:
         /// Default constructor.
         QuartzPostList(RefCntPtr<const Database> this_db_,
@@ -239,11 +196,11 @@ class QuartzPostList : public LeafPostList {
 	std::string get_description() const;
 
 	/// Insert an entry
-	void set_entry(QuartzBufferedTable * bufftable,
-		       om_docid new_did,
-		       om_termcount new_wdf,
-		       om_doclength new_doclen,
-		       om_doclength new_avlength);
+	static void add_entry(QuartzBufferedTable * bufftable,
+			      const om_termname & tname,
+			      om_docid new_did,
+			      om_termcount new_wdf,
+			      quartz_doclen_t new_doclen);
 
 #if 0
 	/// Delete an entry
