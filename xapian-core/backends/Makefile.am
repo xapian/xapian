@@ -36,30 +36,23 @@ BUILDSUBDIR_INMEMORY = inmemory
 LIBADD_INMEMORY = inmemory/libinmemory.la
 endif
 
-if BUILD_BACKEND_MULTI
-BUILDSUBDIR_MULTI = multi
-LIBADD_MULTI = multi/libmulti.la
-endif
-
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE = net
 LIBADD_REMOTE = net/libnetdb.la
 endif
 
-SUBDIRS = \
-          $(BUILDSUBDIR_MUSCAT36) \
+SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
 	  $(BUILDSUBDIR_SLEEPYCAT) \
           $(BUILDSUBDIR_QUARTZ) \
           $(BUILDSUBDIR_INMEMORY) \
-	  $(BUILDSUBDIR_MULTI) \
-	  $(BUILDSUBDIR_REMOTE) .
+	  $(BUILDSUBDIR_REMOTE) multi .
 
-DIST_SUBDIRS = muscat36 sleepycat quartz inmemory multi net .
+DIST_SUBDIRS = muscat36 sleepycat quartz inmemory net multi .
 
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
 	  $(LIBADD_SLEEPYCAT) \
 	  $(LIBADD_QUARTZ) \
           $(LIBADD_INMEMORY) \
-	  $(LIBADD_MULTI) \
-	  $(LIBADD_REMOTE)
+	  $(LIBADD_REMOTE) \
+	  multi/libmulti.la

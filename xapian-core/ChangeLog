@@ -1,3 +1,7 @@
+Wed Oct 04 15:36:09 BST 2000 Olly Betts
+
+	* Removed references to multi backend since it no longer exists.
+
 Wed Oct 04 14:53:28 BST 2000 Olly Betts
 
 	* Removed PostList::set_matcher().
