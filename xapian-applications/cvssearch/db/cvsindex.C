@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
         string package_name;
         string package_path;
 
-        cout << "FILE " << package << endl;
         unsigned int p = package.find(".cmt");
         unsigned int q = package.find_last_of('/');
 

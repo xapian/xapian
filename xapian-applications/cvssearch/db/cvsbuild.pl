@@ -86,7 +86,6 @@ sub read_root_dir {
             }
             open(CVSROOTS, ">>$cvsdata/CVSROOTS") || die "cannot write to $cvsdata/CVSROOTS";
             $cvsroot_dir = "root$j";
-            print CVSROOTS "$cvsroot $cvsroot_dir\n";
             mkdir "$cvsdata/$cvsroot_dir"    || die " cannot create directory $cvsdata/$cvsroot_dir";
             mkdir "$cvsdata/$cvsroot_dir/db" || die " cannot create directory $cvsdata/$cvsroot_dir/db";
             mkdir "$cvsdata/$cvsroot_dir/src"|| die " cannot create directory $cvsdata/$cvsroot_dir/src";
@@ -113,7 +112,6 @@ sub cvsbuild {
         
         $app_name =~tr/\//\_/;
         
-        print "app_name $app_name app_path $app_path\n";
         if ($app_path ne "" ) {
             # ----------------------------------------
             # checkout files
