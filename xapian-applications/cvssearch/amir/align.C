@@ -1,4 +1,4 @@
-// align.C
+// align.C (for executables align and search)
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -8,21 +8,242 @@
 // (at your option) any later version.
 
 // align file1 file2
+//  output in delta format
+//
+// search block file => returns lines in file that correspond to lines in block
+//  first line is score
+//  output in delta format
+
+// uses all of block and part of file
+// if HYBRID_MODE is 0, does a pure
+// local similarity that looks at part
+// of block and part of file
+#define HYBRID_MODE 0
+
+// was +2
+#define MATCH_SCORE +2
+
+// in search mode, I believe we can speed this program
+// up by specifying a threshold below which it will just
+// give up
+//
+// for example, if there is no way of getting a score > 0,
+// then we just give up and return no delta at all.
+//
+
+
+
 
 // in delta format, line numbers refer to original
 // line numbers in file1 and file2 
 
-// was 64
-#define GNU_DIFF_MARKER_COL 0
+#define DIFF_OUTPUT "/tmp/diff_output" 
+#define DEBUG_MODE 0 
 
-#define DIFF_OUTPUT "/tmp/diff_output"
-#define DEBUG_MODE 0
+static bool search_mode = false;
 
 #include <string>
 #include <vector>
 #include <list>
 #include <iostream.h>
 #include <fstream.h>
+
+
+template<class type>
+class LocalAlignment {
+  type &S;
+  type &T;
+  vector< vector< int > > V;
+  int max_row;
+  int max_col;
+  int max_val;
+public:
+  LocalAlignment( type &s, type &t ) : S(s), T(t) {
+
+    max_row = 0;
+    max_col = 0;
+    max_val = 0;
+
+    // initialize V to zero's 
+    //    if ( DEBUG_MODE ) cerr << "Initializing." << endl;
+
+    for(int i = 0; i <= S.size(); i++ ) {
+
+      vector<int> empty;
+      V.push_back(empty);
+
+      for( int j = 0; j <= T.size(); j++ ) {
+	//	if ( DEBUG_MODE ) cerr << "i = " << i << " and j = " << j << endl;
+	V[i].push_back(0);
+      }
+      assert( V[i].size() == T.size()+1 );
+    }
+    assert( V.size() == S.size()+1 );
+
+    //    if ( DEBUG_MODE ) cerr << "Done." << endl;
+
+  }
+
+
+
+  // V[i][j] is the maximum value of an optimal (global) alignment
+  // of S[1]...S[i] and all suffixes t' of T[1]..T[j].
+
+  int findOptimalAlignment( int debug = 0 ) {
+
+    // we do not have the option of suffixes for S
+    // so we have to do this
+#if HYBRID_MODE
+      for( int i = 1; i <= S.size(); i++ ) {
+	V[ i ][0] = V[i-1][0] + S.score( S[i], S.space() );
+      }
+#endif
+
+    // with T, we can have suffixes
+    // so V[0][j] == 0 for all j
+    
+    // recurrence
+
+    for ( int i = 1; i <= S.size(); i++ ) {
+      if ( debug ) if ( DEBUG_MODE ) cerr << "..." << i << " / " << S.size() << endl;
+      for ( int j = 1; j <= T.size(); j++ ) {
+
+	//	int v = 0; // we can't always start over here, we can only start over with T
+
+	// instead, we start over with T only
+#if HYBRID_MODE
+	int v = V[i][0]; // optimal alignment of S[1]..S[i] and empty suffix of T[1]..T[j]
+#else
+	int v = 0;
+#endif	
+
+                v = max( v, V[i-1][j-1] + S.score( S[i], T[j] ) );
+	v = max( v, V[i-1][j] + S.score(S[i], T.space()) );
+	v = max( v, V[i][j-1] + S.score(S.space(), T[j] ) );
+	V[i][j] = v;
+
+#if HYBRID_MODE
+	if ( V[i][j] > max_val || i > max_row ) { // we require a maximum in bottom row
+#else
+	  if ( V[i][j] > max_val ) {
+#endif
+	  if (DEBUG_MODE ) cerr << "max of " << max_val  << " now in row " << i << endl;
+	  if (DEBUG_MODE) cerr << "...col = " << j << endl;
+	  max_row = i;
+	  max_col = j;
+	  max_val = V[i][j];
+	} 
+      }
+    }
+    return max_val;
+  }
+
+  void dump() {
+    if ( DEBUG_MODE ) cerr << "..dump.." << endl;
+    for (int i = 0; i <= S.size(); i++ ) {
+      for (int j = 0; j <= T.size(); j++ ) {
+	if ( DEBUG_MODE ) cerr << V[i][j] << " ";
+      }
+      if ( DEBUG_MODE ) cerr << endl;
+    }
+  }
+
+  int optimalAlignmentValue() {
+    return V[ max_row ][ max_col ];
+  }
+
+  string reconstruct( int& start1, int& start2 ) { // returns markerSequence;
+
+    // comes up with one alignment, not necessarily
+    // all alignments
+
+    int i = max_row;
+    int j = max_col;
+
+    if (DEBUG_MODE) {
+      cerr << "reconstruct called with max row " << i << " and max col " << j << endl;
+    }
+
+    list<string> s;
+    list<string> t;
+
+    string markerSequence;
+
+#if HYBRID_MODE
+    while ( i >0 ) { 
+#else 
+      for(;;) {
+#endif
+
+      int v = V[i][j];
+      //      if ( DEBUG_MODE ) cerr << "v = " << v << endl;
+
+#if (!HYBRID_MODE) 
+      if ( v == 0 ) {
+	break; // all done
+      }
+#endif
+
+
+      if ( i>0 && j >0 && v == V[i-1][j-1] + S.score( S[i], T[j] ) ) {
+	s.push_front( S[i] );
+	t.push_front( T[j] );
+	i--;
+	j--;
+
+	markerSequence = '|' + markerSequence;
+
+      } else if ( i>0 && v == V[i-1][j] + S.score(S[i], T.space()) ) {
+	s.push_front( S[i] );
+	t.push_front( "$" );
+	i--;
+
+	markerSequence = '<' + markerSequence;
+
+      } else if ( j > 0 && v == V[i][j-1] + S.score(S.space(), T[j])) {
+	assert( v == V[i][j-1] + S.score(S.space(), T[j] )) ;
+	s.push_front( "$" );
+	t.push_front( T[j] );
+	j--;
+
+	markerSequence = '>' + markerSequence;
+      }  else {
+	assert(0);
+      }
+
+
+    }
+
+#if (!HYBRID_MODE)
+      start1 = i+1;
+#else
+      start1 = 1;
+#endif
+
+    start2 = j+1;
+
+    assert( s.size() == t.size() );
+
+    if ( DEBUG_MODE ) {
+      list<string>::iterator is = s.begin();
+      list<string>::iterator it = t.begin();
+      for ( int i = 0; i < s.size(); i++ ) {
+	type l1;
+	l1.addLine(*is);
+	type l2;
+	l2.addLine(*it);
+	int score = l1.score( l1[1], l2[1] );
+	cerr << (*is) << "  |  " << (*it) << " with ****** score " << score <<  endl;
+	is++;
+	it++;
+      }
+    }
+   
+    return markerSequence;
+  }
+
+};
+
 
 
 template<class type>
@@ -136,14 +357,16 @@ public:
     }
     assert( s.size() == t.size() );
 
-    list<string>::iterator is = s.begin();
-    list<string>::iterator it = t.begin();
-    for ( int i = 0; i < s.size(); i++ ) {
-      if ( DEBUG_MODE ) cerr << (*is) << "  |  " << (*it) << endl;
-      is++;
-      it++;
-    }
-   
+    if ( DEBUG_MODE ) {
+      list<string>::iterator is = s.begin();
+      list<string>::iterator it = t.begin();
+      for ( int i = 0; i < s.size(); i++ ) {
+	cerr << (*is) << "  |  " << (*it) << endl;
+	is++;
+	it++;
+      }
+    }   
+
     return markerSequence;
   }
 
@@ -168,7 +391,7 @@ public:
   int score( const char c1, const char c2 ) {
     assert( c1 != space() || c2 != space() );
     if ( c1 == c2 ) {
-      return +2;
+      return MATCH_SCORE;
     }
     return -1;
   }
@@ -213,7 +436,11 @@ public:
     
     while ( ! in.eof() ) {
       string line;
-      getline( in, line, '\n' );
+      if (getline( in, line, '\n' ).eof()) {
+	if ( line == "" ) {
+	  break;
+	}
+      }
 
       // strip whitespace at beginning & end of line
       // (otherwise, matching whitespace is rewarded!)
@@ -348,7 +575,11 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
   
   while ( ! in.eof() ) {
     string line;
-    getline( in, line, '\n' );
+    if(getline( in, line, '\n' ).eof()) {
+      if ( line == "" ) {
+	break;
+      }
+    }
 
     // strange diff bug
     // sometimes we get things like ^M| or ^M<
@@ -361,22 +592,10 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
       assert( line.length() == 1 );
     }
 
-    /**
-    cerr << endl;
-    cerr << "line length is " << line.size() << endl;
-    cerr << "last char of line is " << (int) line[line.size()-1] << endl;
-    
-    for (int i = 0; i < line.size(); i++ ) {
-      cerr << "char " << i << " has ascii = " << (int)line[i] << endl;
-    }
-    **/
-
-    //    if ( DEBUG_MODE ) cerr << line << endl;
     char marker = 0;
-    if ( line.length() > GNU_DIFF_MARKER_COL ) {
-      marker = line[GNU_DIFF_MARKER_COL];
+    if ( line.length() > 0 ) {
+      marker = line[0];
     } 
-    //    if ( DEBUG_MODE ) cerr << marker << endl;
         
     if ( marker == '|' ) {
       foundChangeMarker = true;
@@ -482,19 +701,48 @@ int main( int argc, char *argv[] ) {
   string f1 = argv[1];
   string f2 = argv[2];
 
+  assert( string(argv[0]).find("search") == -1 ||
+	  string(argv[0]).find("align") == -1 ); // don't want both in path
+  
+  search_mode = (string(argv[0]).find("search")  != -1 );
+
+  //  cerr << "Search mode = " << search_mode << endl;
+
   if ( DEBUG_MODE ) cerr << "Comparing " << f1 << " with " << f2 << "." << endl;
 
   // the first thing to do is to call GNU diff to get an approximate
   // alignment
 
-  string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
-  int rc = system(diff_cmd.c_str());
+  if ( ! search_mode ) {
 
-  if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
+    string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
+    int rc = system(diff_cmd.c_str());
+    
+    if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
+    
+    LineSequence l1(f1);
+    LineSequence l2(f2);
+    
+    processDiffOutput( DIFF_OUTPUT, l1, l2 );
 
-  LineSequence l1(f1);
-  LineSequence l2(f2);
+  } else {
+    
+    // find block in file
+    // uses local alignment
 
-  processDiffOutput( DIFF_OUTPUT, l1, l2 );
-  
+    LineSequence l1(f1);
+    LineSequence l2(f2);
+
+    if (DEBUG_MODE) cerr << "l1 size = " << l1.size() << endl;
+
+    LocalAlignment<LineSequence> local_alignment( l1, l2 );
+    int score = local_alignment.findOptimalAlignment();
+    int start1, start2;
+    string marker_seq = local_alignment.reconstruct( start1, start2 );
+    cout << score << endl;
+    outputDelta( marker_seq, start1, start2 );
+  }
+
+  return 0;
+
 }
