@@ -45,6 +45,8 @@ sparc |#Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.3 |Passed| [2]
 sparc |#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed| [2]
 sparc |*Solaris 8 GCC 2.95.3           | 0.7.3 |Passed| [2]
 ppc   | MacOS X 10.2                   |~0.7.2 |Passed| [2] Kees van Reeuwijk
+mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
+mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [8] from Jim Lynch
 ------+--------------------------------+-------+------+------------------------
 x86   | Linux cross to mingw GCC 2.95.3| 0.7.5 |Built | [3]
 x86   | Linux cross to djgpp GCC 2.95.2| 0.7.3~|Built | [4]
@@ -108,3 +110,5 @@ stub for fork(), but it will always fail).
 [7] btreetest fails to build (getline() not found, though it seems to be in the
 headers); quartztest segfaults; apitest fails to build (multimap::insert()
 problem); other tests not tried.
+
+[8] Compiler emits a number of warnings.
