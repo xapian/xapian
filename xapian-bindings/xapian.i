@@ -37,7 +37,15 @@ using namespace std;
 
 using namespace std;
 
+#ifdef SWIGCSHARP
+/* In SWIG 1.3.22 C# doesn't have all the files which stl.i tries to include,
+ * so just include the one which does exist for now.  FIXME monitor this
+ * situation... */
+%include "std_string.i"
+#else
 %include "stl.i"
+#endif
+
 #ifndef SWIGGUILE
 %include typemaps.i
 %include exception.i
