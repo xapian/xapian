@@ -38,6 +38,13 @@ class TermList {
 	virtual om_termcount get_wdf() const = 0; // Get wdf of current term
 
 	virtual om_doccount get_termfreq() const = 0; // Get num of docs indexed by term
+	/** next() causes the TermList to move to the next term in the list.
+	 *  It must be called before any other methods.
+	 *  If next() returns a non-zero pointer P, then the original
+	 *  termlist should be deleted, and the original pointer replaced
+	 *  with P.
+	 *  In DBTermList, next() will always return 0.
+	 */
 	virtual TermList * next() = 0; // Moves to next term
 	virtual bool   at_end() const = 0; // True if we're off the end of the list
 	virtual ~TermList() { return; }
