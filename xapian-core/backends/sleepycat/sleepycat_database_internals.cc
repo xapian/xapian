@@ -100,7 +100,7 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 	Db::open(FILENAME_DOCUMENT, DB_RECNO, dbflags, mode,
 		 &dbenv, 0, &document_db);
 
-	Db::open(FILENAME_DOCKEYDB, DB_HASH, dbflags, mode,
+	Db::open(FILENAME_DOCKEYDB, DB_BTREE, dbflags, mode,
 		 &dbenv, 0, &key_db);
 
 	Db::open(FILENAME_STATS_DB, DB_RECNO, dbflags, mode,

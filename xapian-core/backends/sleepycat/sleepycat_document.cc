@@ -23,6 +23,8 @@
 #include "sleepy_document.h"
 #include <om/omdocument.h>
 #include "utils.h"
+#include <string.h>
+#include <memory>
 
 SleepyDocument::SleepyDocument(Db * document_db_,
 			       Db * key_db_,
@@ -123,7 +125,69 @@ SleepyDocument::do_get_key(om_keyno keyid) const
 map<om_keyno, OmKey>
 SleepyDocument::do_get_all_keys() const
 {
-    throw OmUnimplementedError("SleepyDocument::do_get_all_keys() unimplemented");
+    DebugMsg("Looking up all keys for document " << did << "...");
+    Dbc * dbcurs = 0;
+    try {
+	int err_num;
+
+	// Set initial key
+	string keystr = inttostring(did) + "_";
+	char keyno[100];
+	Assert(keystr.size() < 100);
+	strncpy(keyno, keystr.data(), keystr.size());
+
+	// Make cursor
+	key_db->cursor(0, &dbcurs, 0);
+
+	Dbt dbkey(keyno, keystr.size());
+	Dbt dbdata;
+	dbdata.set_flags(DB_DBT_MALLOC);
+
+	err_num = dbcurs->get(&dbkey, &dbdata, DB_SET_RANGE);
+	string this_value = string(reinterpret_cast<char *>(dbdata.get_data()),
+				   dbdata.get_size());
+	string this_keystr(reinterpret_cast<char *>(dbkey.get_data()),
+			   dbkey.get_size());
+	free(dbdata.get_data());
+	while(err_num == 0 &&
+	      dbkey.get_size() > keystr.size() &&
+	      strncmp(reinterpret_cast<char *>(dbkey.get_data()),
+		      keystr.data(),
+		      keystr.size()) == 0) {
+
+	    DebugMsg(" found keys[" <<
+		     this_keystr.substr(keystr.size() + 1) <<
+		     "], value " << this_value << endl);
+	    keys[atoi(this_keystr.substr(keystr.size() + 1).data())] =
+		    OmKey(this_value);
+
+	    err_num = dbcurs->get(&dbkey, &dbdata, DB_NEXT);
+	    this_value = string(reinterpret_cast<char *>(dbdata.get_data()),
+				dbdata.get_size());
+	    this_keystr = string(reinterpret_cast<char *>(dbkey.get_data()),
+				 dbkey.get_size());
+	    free(dbdata.get_data());
+	}
+
+	if(dbcurs != 0) {
+	    Dbc * temp = dbcurs;
+	    dbcurs = 0;
+	    temp->close();
+	}
+    } catch (DbException e) {
+	if(dbcurs != 0) {
+	    try {
+		dbcurs->close();
+	    } catch (DbException e) {
+		// Ignore secondary error.
+	    }
+	    dbcurs = 0;
+	}
+	throw OmDatabaseError("Sleepycat database error, when reading keys "
+			      "from document " + inttostring(did) + ": " +
+			      string(e.what()));
+    }
+    return keys;
 }
 
 OmData

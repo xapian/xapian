@@ -1,3 +1,8 @@
+Tue Jun  6 15:38:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented a version of SleepyDatabase::do_get_all_keys().
+	  Untested as yet.
+
 Tue Jun  6 15:01:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added exception handling to scripting language bindings.
