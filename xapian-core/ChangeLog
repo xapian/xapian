@@ -1,3 +1,8 @@
+Sun Sep 15 01:42:19 BST 2002  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Solved std mystery - "using namespace std;" was
+	  inside a #ifdef which wasn't enabled!
+
 Sun Sep 15 01:21:34 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* tests/tcpserver.cc: Hacky fix to compile with gcc-3.2 snapshot in
