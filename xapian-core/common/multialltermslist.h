@@ -35,7 +35,7 @@ class MultiAllTermsList : public AllTermsList
 	/// Assignment is not allowed.
 	void operator=(const MultiAllTermsList &);
 
-	std::vector<RefCntPtr<AllTermsList> > lists;
+	std::vector<TermList *> lists;
 
 	/// The current term being pointed at.
 	om_termname current;
@@ -46,10 +46,13 @@ class MultiAllTermsList : public AllTermsList
 	void update_current();
     public:
 	/// Standard constructor for base class.
-	MultiAllTermsList(const std::vector<RefCntPtr<AllTermsList> > &lists_);
+	MultiAllTermsList(const std::vector<TermList *> &lists_);
 
 	/// Standard destructor for base class.
 	~MultiAllTermsList();
+
+        // Gets size of termlist
+	om_termcount get_approx_size() const;
 
 	// Gets current termname
 	om_termname get_termname() const;
@@ -60,11 +63,11 @@ class MultiAllTermsList : public AllTermsList
 	// Get num of docs indexed by term
 	om_termcount get_collection_freq() const;
 
-	bool skip_to(const om_termname &tname);
+	TermList *skip_to(const om_termname &tname);
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */
-	bool next();
+	TermList *next();
 
 	// True if we're off the end of the list
 	bool at_end() const;

@@ -48,6 +48,7 @@ class DAAllTermsList : public AllTermsList
 
 	void update_cache();
 
+	bool started;
 	bool is_at_end;
     public:
 	/// Standard constructor for base class.
@@ -58,6 +59,9 @@ class DAAllTermsList : public AllTermsList
 	/// Standard destructor for base class.
 	~DAAllTermsList();
 
+        // Gets size of termlist
+	om_termcount get_approx_size() const;
+
 	// Gets current termname
 	om_termname get_termname() const;
 
@@ -67,11 +71,11 @@ class DAAllTermsList : public AllTermsList
 	// Get num of docs indexed by term
 	om_termcount get_collection_freq() const;
 
-	bool skip_to(const om_termname &tname);
+	TermList * skip_to(const om_termname &tname);
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */
-	bool next();
+	TermList * next();
 
 	// True if we're off the end of the list
 	bool at_end() const;

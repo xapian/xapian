@@ -323,7 +323,7 @@ QuartzDatabase::do_reopen()
     tables->reopen();
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 QuartzDatabase::open_allterms() const
 {
     AutoPtr<QuartzCursor> pl_cursor(tables->get_postlist_table()->cursor_get());
@@ -684,7 +684,7 @@ QuartzWritableDatabase::do_reopen()
     /* Do nothing - we're the only writer, and so must be up to date. */
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 QuartzWritableDatabase::open_allterms() const
 {
     AutoPtr<QuartzCursor> pl_cursor(buffered_tables->get_postlist_table()->cursor_get());

@@ -30,10 +30,10 @@
 #include "refcnt.h"
 #include "omlocks.h"
 #include "emptypostlist.h"
-#include "alltermslist.h"
 
 class Document;
 class LeafPostList;
+class TermList;
 class LeafTermList;
 class PositionList;
 
@@ -244,7 +244,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual RefCntPtr<AllTermsList> open_allterms() const = 0;
+	virtual TermList * open_allterms() const = 0;
 
 	/** Open a position list for the given term in the given document.
 	 *

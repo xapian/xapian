@@ -78,10 +78,7 @@ class OmTermIterator::Internal {
 	}
 
 	void skip_to(const om_termname & tname) {
-	    // FIXME: termlists should have a skip_to method and use it here
-	    // FIXME: what if termlist not ordered (e.g. VectorTermList)?
-	    while (!termlist->at_end() && termlist->get_termname() < tname)
-		termlist->next();
+	    termlist->skip_to(tname);
 	}
 
 	bool at_end() const {
@@ -145,6 +142,12 @@ class VectorTermList : public TermList {
 	    return NULL;
 	}
 
+	TermList *skip_to(const om_termname &tname) {
+	    Assert(!at_end());
+	    // termlist not ordered
+	    Assert(false);
+	}
+	
 	// True if we're off the end of the list
 	bool at_end() const {
 	    return offset == terms.size();

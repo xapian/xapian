@@ -428,7 +428,7 @@ DADatabase::term_exists(const om_termname & tname) const
     return false;
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 DADatabase::open_allterms() const
 {
     DA_term_info daterm;

@@ -25,10 +25,10 @@
 
 #include "om/omtypes.h"
 #include "om/omerror.h"
-#include "refcnt.h"
+#include "termlist.h"
 
-/** Abstract base class for alltermslists. */
-class AllTermsList : public RefCntBase
+// Abstract base class for alltermslists.
+class AllTermsList : public TermList
 {
     private:
 	/// Copying is not allowed.
@@ -41,10 +41,23 @@ class AllTermsList : public RefCntBase
 	AllTermsList() {}
 
 	/// Standard destructor for base class.
-	virtual ~AllTermsList() { return; }
+	virtual ~AllTermsList() {}
+
+        // Gets size of termlist
+	virtual om_termcount get_approx_size() const = 0;
+	
+        // Gets weighting info for current term
+	virtual OmExpandBits get_weighting() const {
+	    Assert(false); // should never get called
+	}
 
 	// Gets current termname
 	virtual om_termname get_termname() const = 0;
+
+	// Get wdf of current term
+	virtual om_termcount get_wdf() const {
+	    Assert(false);
+	}
 
 	// Get num of docs indexed by term
 	virtual om_doccount get_termfreq() const = 0;
@@ -52,15 +65,16 @@ class AllTermsList : public RefCntBase
 	// Get num of docs indexed by term
 	virtual om_termcount get_collection_freq() const = 0;
 
-	/** Skip to the given term.  Returns false if the term wasn't
-	 *  found.  In this case will be positioned on the term just
+	/** next() causes the AllTermsList to move to the next term in the
+	 *  list.
+	 */
+	virtual TermList *next() = 0;
+
+	/** Skip to the given term.  If the term wasn't
+	 *  found it will be positioned on the term just
 	 *  after tname in the database.  This could be after the end!
 	 */
-	virtual bool skip_to(const om_termname &tname) = 0;
-
-	/** next() causes the AllTermsList to move to the next term in the list.
-	 */
-	virtual bool next() = 0;
+	virtual TermList *skip_to(const om_termname &tname) = 0;
 
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;

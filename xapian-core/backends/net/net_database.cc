@@ -158,7 +158,7 @@ NetworkDatabase::term_exists(const om_termname & tname) const
     throw OmUnimplementedError("NetworkDatabase::term_exists() not implemented");
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 NetworkDatabase::open_allterms() const
 {
     throw OmUnimplementedError("open_allterms() not implemented yet");

@@ -26,8 +26,7 @@
 
 QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
 				       AutoPtr<QuartzCursor> pl_cursor_)
-	: database(database_),
-	  pl_cursor(pl_cursor_)
+	: database(database_), pl_cursor(pl_cursor_), started(false)
 {
     /* Seek to the first term */
     QuartzDbKey key;
@@ -47,9 +46,16 @@ QuartzAllTermsList::~QuartzAllTermsList()
 {
 }
 
+om_termcount
+QuartzAllTermsList::get_approx_size() const
+{
+    return 1000000000; // FIXME
+}
+
 om_termname
 QuartzAllTermsList::get_termname() const
 {
+    Assert(started);
     if (!is_at_end) {
 	const char *start = pl_cursor->current_key.value.data();
 	const char *end = start + pl_cursor->current_key.value.length();
@@ -80,6 +86,7 @@ void QuartzAllTermsList::get_stats() const
 om_doccount
 QuartzAllTermsList::get_termfreq() const
 {
+    Assert(started);
     if (have_stats) {
 	return termfreq;
     } else if (!is_at_end) {
@@ -93,6 +100,7 @@ QuartzAllTermsList::get_termfreq() const
 om_termcount
 QuartzAllTermsList::get_collection_freq() const
 {
+    Assert(started);
     if (have_stats) {
 	return collection_freq;
     } else if (!is_at_end) {
@@ -103,10 +111,11 @@ QuartzAllTermsList::get_collection_freq() const
     }
 }
 
-bool
+TermList *
 QuartzAllTermsList::skip_to(const om_termname &tname)
 {
     DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");
+    started = true;
     QuartzDbKey key;
     key.value = pack_string_preserving_sort(tname);
 
@@ -119,19 +128,22 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
 
     is_at_end = pl_cursor->after_end();
 
-    return result;
+    return NULL;
 }
 
-bool
+TermList *
 QuartzAllTermsList::next()
 {
-    pl_cursor->next();
+    if (!started) {
+	started = true;
+    } else {
+	pl_cursor->next();
 
-    is_at_end = pl_cursor->after_end();
+	is_at_end = pl_cursor->after_end();
 
-    have_stats = false;
-
-    return !is_at_end;
+	have_stats = false;
+    }
+    return NULL;
 }
 
 bool

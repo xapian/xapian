@@ -38,6 +38,12 @@ class EmptyAllTermsList : public AllTermsList
 	/// Standard constructor for base class.
 	EmptyAllTermsList() {}
 
+        // Gets size of termlist
+	om_termcount get_approx_size() const
+	{
+	    return 0;
+	}
+	
 	// Gets current termname
 	om_termname get_termname() const
 	{
@@ -59,17 +65,18 @@ class EmptyAllTermsList : public AllTermsList
 	    return 0;
 	}
 
-	bool skip_to(const om_termname &tname)
+	TermList * skip_to(const om_termname &tname)
 	{
-	    return false;
+	    Assert(false);
+	    return NULL;
 	}
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */
-	bool next()
+	TermList * next()
 	{
 	    Assert(false);
-	    return false;
+	    return NULL;
 	}
 
 	// True if we're off the end of the list

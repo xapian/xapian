@@ -126,7 +126,7 @@ class QuartzDatabase : public Database {
 	Document * open_document(om_docid did) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
-	RefCntPtr<AllTermsList> open_allterms() const;
+	TermList * open_allterms() const;
 	//@}
 };
 
@@ -198,7 +198,7 @@ class QuartzWritableDatabase : public Database {
 	Document * open_document(om_docid did) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
-	RefCntPtr<AllTermsList> open_allterms() const;
+	TermList * open_allterms() const;
 	//@}
 };
 

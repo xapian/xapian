@@ -22,11 +22,9 @@
 
 #include "inmemory_alltermslist.h"
 
-InMemoryAllTermsList::InMemoryAllTermsList(std::map<om_termname, InMemoryTerm>::const_iterator begin,
-					   std::map<om_termname, InMemoryTerm>::const_iterator end_,
-					   const std::map<om_termname, InMemoryTerm> *tmap_,
+InMemoryAllTermsList::InMemoryAllTermsList(const std::map<om_termname, InMemoryTerm> *tmap_,
 					   RefCntPtr<const InMemoryDatabase> database_)
-	: it(begin), end(end_), tmap(tmap_), database(database_)
+	: tmap(tmap_), it(tmap->begin()), database(database_), started(false)
 {
 }
 
@@ -34,15 +32,25 @@ InMemoryAllTermsList::~InMemoryAllTermsList()
 {
 }
 
+om_termcount
+InMemoryAllTermsList::get_approx_size() const
+{
+    return tmap->size();
+}
+
 om_termname
 InMemoryAllTermsList::get_termname() const
 {
+    Assert(started);
+    Assert(!at_end());
     return it->first;
 }
 
 om_doccount
 InMemoryAllTermsList::get_termfreq() const
 {
+    Assert(started);
+    Assert(!at_end());
     /* FIXME: this isn't quite right. */
     return it->second.docs.size();
 }
@@ -50,25 +58,35 @@ InMemoryAllTermsList::get_termfreq() const
 om_termcount
 InMemoryAllTermsList::get_collection_freq() const
 {
+    Assert(started);
+    Assert(!at_end());
     throw OmUnimplementedError("Collection frequency not implemented in InMemory backend");
 }
 
-bool
+TermList *
 InMemoryAllTermsList::skip_to(const om_termname &tname)
 {
+    started = true;
+    // FIXME: might skip backwards - is this a problem?
     it = tmap->lower_bound(tname);
-    return (it->first == tname);
+    return NULL;
 }
 
-bool
+TermList *
 InMemoryAllTermsList::next()
 {
-    it++;
-    return (it != end);
+    if (!started) {
+	started = true;
+    } else {
+	Assert(!at_end());
+	it++;
+    }
+    return NULL;
 }
 
 bool
 InMemoryAllTermsList::at_end() const
 {
-    return (it == end);
+    Assert(started);
+    return (it == tmap->end());
 }

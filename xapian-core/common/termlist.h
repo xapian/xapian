@@ -61,14 +61,37 @@ class TermList : public RefCntBase
 	// Get num of docs indexed by term
 	virtual om_doccount get_termfreq() const = 0;
 
+	// Get num of docs indexed by term
+	virtual om_termcount get_collection_freq() const {
+	    Assert(0);
+	}
+
 	/** next() causes the TermList to move to the next term in the list.
 	 *  It must be called before any other methods.
 	 *  If next() returns a non-zero pointer P, then the original
 	 *  termlist should be deleted, and the original pointer replaced
 	 *  with P.
-	 *  In LeafTermList, next() will always return 0.
+	 *  In LeafTermList, next() will always return NULL.
 	 */
 	virtual TermList * next() = 0;
+
+        /** Skip to the given term.  If the term wasn't
+	 *  found it will be positioned on the term just
+	 *  after tname in the database.  This could be after the end!
+	 */
+	virtual TermList * skip_to(const om_termname &tname) {
+	    // naive implementation
+	    TermList *p = this;
+	    while (!p->at_end() && p->get_termname() < tname) {
+		TermList *tmp = p->next();
+		if (tmp) {
+		    if (p != this) delete p;
+		    p = tmp;
+		}
+	    }
+	    if (p != this) return p;
+	    return NULL;
+	}
 
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;

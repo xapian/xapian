@@ -301,12 +301,10 @@ InMemoryDatabase::term_exists(const om_termname & tname) const
     return true;
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 InMemoryDatabase::open_allterms() const
 {
-    return new InMemoryAllTermsList(postlists.begin(),
-				    postlists.end(),
-				    &postlists,
+    return new InMemoryAllTermsList(&postlists,
 				    RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(),
 								      this));
 }

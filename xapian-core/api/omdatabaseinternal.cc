@@ -146,22 +146,19 @@ OmDatabase::Internal::open_position_list(om_docid did,
     return AutoPtr<PositionList>(databases[dbnumber]->open_position_list(realdid, tname));
 }
 
-RefCntPtr<AllTermsList>
+TermList *
 OmDatabase::Internal::open_allterms(const OmDatabase &db) const
 {
-    if (databases.size() == 0) {
-	return new EmptyAllTermsList();
-    } else {
-	std::vector<RefCntPtr<AllTermsList> > lists;
+    if (databases.empty()) return new EmptyAllTermsList();
+    
+    std::vector<TermList *> lists;
 
-	std::vector<RefCntPtr<Database> >::const_iterator i;
-	for (i=databases.begin(); i!=databases.end(); ++i) {
-	    lists.push_back((*i)->open_allterms());
-	}
-	if (lists.size() == 1) {
-	    return lists[0];
-	} else {
-	    return RefCntPtr<AllTermsList>(new MultiAllTermsList(lists));
-	}
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = databases.begin(); i != databases.end(); ++i) {
+	lists.push_back((*i)->open_allterms());
     }
+
+    if (lists.size() == 1) return lists[0];
+
+    return new MultiAllTermsList(lists);
 }

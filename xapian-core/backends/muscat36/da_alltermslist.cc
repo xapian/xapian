@@ -28,6 +28,7 @@ DAAllTermsList::DAAllTermsList(RefCntPtr<const Database> database_,
 	: database(database_),
 	  term(term_),
 	  DA_t(DA_t_),
+	  started(false),
 	  is_at_end(false)
 {
     update_cache();
@@ -35,6 +36,12 @@ DAAllTermsList::DAAllTermsList(RefCntPtr<const Database> database_,
 
 DAAllTermsList::~DAAllTermsList()
 {
+}
+
+om_termcount
+DAAllTermsList::get_approx_size() const
+{
+    return DA_t->itemcount;
 }
 
 void
@@ -48,43 +55,56 @@ DAAllTermsList::update_cache()
 om_termname
 DAAllTermsList::get_termname() const
 {
+    Assert(started);
+    Assert(!is_at_end);
     return current_term;
 }
 
 om_doccount
 DAAllTermsList::get_termfreq() const
 {
+    Assert(started);
+    Assert(!is_at_end);
     return termfreq;
 }
 
 om_termcount
 DAAllTermsList::get_collection_freq() const
 {
+    Assert(started);
+    Assert(!is_at_end);
     throw OmUnimplementedError("Collection frequency is not available in DA databases");
 }
 
-bool
+TermList *
 DAAllTermsList::skip_to(const om_termname &tname)
 {
+    started = true;
     std::string kstring;
     kstring += static_cast<char>(tname.length() + 1);
     kstring += tname;
 
-    bool result = DA_term(reinterpret_cast<const byte *>(kstring.data()),
-			  &term, DA_t);
-    update_cache();
-    return result;
+    if (DA_term(reinterpret_cast<const byte *>(kstring.data()), &term, DA_t)) {
+	update_cache();
+    } else {
+	is_at_end = true;
+    }
+    return NULL;
 }
 
-bool
+TermList *
 DAAllTermsList::next()
 {
-    if (!DA_next_term(&term, DA_t)) {
-	is_at_end = true;
-	return false;
+    if (!started) {
+	started = true;
+    } else {
+	if (DA_next_term(&term, DA_t)) {
+	    update_cache();
+	} else {
+	    is_at_end = true;
+	}
     }
-    update_cache();
-    return true;
+    return NULL;
 }
 
 bool

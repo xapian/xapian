@@ -159,20 +159,18 @@ OmDatabase::termlist_end(om_docid did) const
     RETURN(OmTermIterator(NULL));
 }
 
-OmAllTermsIterator
+OmTermIterator
 OmDatabase::allterms_begin() const
 {
-    DEBUGAPICALL(OmAllTermsIterator, "OmDatabase::allterms_begin", "");
-
-    RETURN(OmAllTermsIterator(new OmAllTermsIterator::Internal(internal->open_allterms(*this),
-							       *this)));
+    DEBUGAPICALL(OmTermIterator, "OmDatabase::allterms_begin", "");
+    RETURN(OmTermIterator(new OmTermIterator::Internal(internal->open_allterms(*this))));
 }
 
-OmAllTermsIterator
+OmTermIterator
 OmDatabase::allterms_end() const
 {
-    DEBUGAPICALL(OmAllTermsIterator, "OmDatabase::allterms_end", "");
-    RETURN(OmAllTermsIterator(NULL));
+    DEBUGAPICALL(OmTermIterator, "OmDatabase::allterms_end", "");
+    RETURN(OmTermIterator(NULL));
 }
 
 OmPositionListIterator

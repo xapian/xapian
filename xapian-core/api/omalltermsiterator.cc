@@ -115,7 +115,6 @@ OmAllTermsIterator::operator++(int)
 	internal = 0;
     }
 }
-#if 0
 
 // extra method, not required to be an input_iterator
 void
@@ -130,7 +129,6 @@ OmAllTermsIterator::skip_to(const om_termname & tname)
 	internal = 0;
     }
 }
-#endif
 
 std::string
 OmAllTermsIterator::get_description() const

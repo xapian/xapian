@@ -83,14 +83,15 @@ class OmDatabase::Internal {
 	/// get average document length
 	om_doclength get_avlength() const;
 
-	LeafPostList *open_post_list(const om_termname & tname,
+	LeafPostList * open_post_list(const om_termname & tname,
 				     const OmDatabase &db) const;
 
-	LeafTermList *open_term_list(om_docid did, const OmDatabase &db) const;
+	LeafTermList * open_term_list(om_docid did,
+				      const OmDatabase &db) const;
 
-	RefCntPtr<AllTermsList> open_allterms(const OmDatabase &db) const;
+	TermList * open_allterms(const OmDatabase &db) const;
 
-	Document *open_document(om_docid did) const;
+	Document * open_document(om_docid did) const;
 
 	AutoPtr<PositionList> open_position_list(om_docid did,
 					 const om_termname &tname) const;

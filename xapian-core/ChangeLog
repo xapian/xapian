@@ -1,3 +1,11 @@
+Tue Jan 09 18:41:21 GMT 2001 Olly Betts
+
+	* OmAllTermsIterator merged into OmTermIterator.
+
+	* When iterating over all terms, skip_to() doesn't set at_end()
+	  when it skips off the end.  Fixed except for quartz and added
+	  regression test (allterms3).
+ 
 Tue Jan  9 18:14:04 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add some extra debugging code into btree code in quartz.

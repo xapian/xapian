@@ -22,7 +22,7 @@
 
 #include "multialltermslist.h"
 
-MultiAllTermsList::MultiAllTermsList(const std::vector<RefCntPtr<AllTermsList> > &lists_)
+MultiAllTermsList::MultiAllTermsList(const std::vector<TermList *> &lists_)
 	: lists(lists_), is_at_end(false)
 {
     update_current();
@@ -30,6 +30,11 @@ MultiAllTermsList::MultiAllTermsList(const std::vector<RefCntPtr<AllTermsList> >
 
 MultiAllTermsList::~MultiAllTermsList()
 {
+    std::vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
+	delete *i;
+    }
+    lists.clear();
 }
 
 void
@@ -37,7 +42,7 @@ MultiAllTermsList::update_current()
 {
     bool found_term = false;
 
-    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
 	if ((*i)->at_end()) {
 	    continue;
@@ -56,6 +61,18 @@ MultiAllTermsList::update_current()
     }
 }
 
+om_termcount
+MultiAllTermsList::get_approx_size() const
+{
+    om_termcount size = 0;
+
+    std::vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i!=lists.end(); ++i) {
+	size += (*i)->get_approx_size();
+    }
+    return size;
+}
+
 om_termname
 MultiAllTermsList::get_termname() const
 {
@@ -67,7 +84,7 @@ MultiAllTermsList::get_termfreq() const
 {
     om_doccount termfreq = 0;
 
-    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i!=lists.end(); ++i) {
 	if (!(*i)->at_end() &&
 	    (*i)->get_termname() == current) {
@@ -82,7 +99,7 @@ MultiAllTermsList::get_collection_freq() const
 {
     om_termcount collection_freq = 0;
 
-    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i!=lists.end(); ++i) {
 	if (!(*i)->at_end() &&
 	    (*i)->get_termname() == current) {
@@ -92,35 +109,29 @@ MultiAllTermsList::get_collection_freq() const
     return collection_freq;
 }
 
-bool
+TermList *
 MultiAllTermsList::skip_to(const om_termname &tname)
 {
-    bool result = false;
-
-    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
-    for (i = lists.begin(); i!=lists.end(); ++i) {
-	result = result || (*i)->skip_to(tname);
+    std::vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
+	(*i)->skip_to(tname);
     }
     update_current();
 
-    return result;
+    return NULL;
 }
 
-bool
+TermList *
 MultiAllTermsList::next()
 {
-    bool result = false;
-
-    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
-    for (i = lists.begin(); i!=lists.end(); ++i) {
-	if (!(*i)->at_end() &&
-	    (*i)->get_termname() == current) {
-	    result = result || (*i)->next();
+    std::vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
+	if (!(*i)->at_end() && (*i)->get_termname() == current) {
+	    (*i)->next();
 	}
     }
     update_current();
-
-    return result;
+    return NULL;
 }
 
 bool
