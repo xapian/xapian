@@ -7,11 +7,12 @@ SUBDIRS = include backends matcher stemmer indexer . \
 
 lib_LTLIBRARIES = libom.la
 
+# This line is present because of a bug in some versions of libtool
+# (exhibited when there are no source files)
 libom_la_SOURCES = dummy.c
-libom_la_LIBADD = backends/da/libda.la \
- backends/sleepy/libsleepy.la \
- backends/multi/libmulti.la \
- backends/textfile/libtextfile.la \
+
+libom_la_LIBADD = \
+ backends/libbackend.la \
  matcher/libmatcher.la \
  stemmer/libstem.la \
  indexer/libindexer.la
