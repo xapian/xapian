@@ -289,17 +289,20 @@ fi
 if test "x$use_purify" = xtrue; then
 CXXLD='purify $(CXX)'
 CCLD='purify $(CC)'
+enable_static=no
+else
+CXXLD='$(CXX)'
+CCLD='$(CC)'
+fi
 AC_SUBST(CXXLD)
 AC_SUBST(CCLD)
-enable_static=no
-fi
 
 if test "x$use_insure" = xtrue; then
 CXX='insure'
 CC='insure'
+fi
 AC_SUBST(CXX)
 AC_SUBST(CC)
-fi
 
 dnl ******************************
 dnl * Set special compiler flags *
