@@ -76,7 +76,7 @@ close CVSSEARCHCONF;
 # ----------------------------------------
 # parse command line arguments
 # ----------------------------------------
-my $i;
+my $i = 0;
 while ($i<=$#ARGV) {
     if (0) {
     } elsif ($ARGV[$i] eq "-d") {
@@ -172,9 +172,17 @@ sub cvsbuild {
             # ----------------------------------------
             my $checkout_start_date = time;
             if ($app_path eq ".") {
-                system ("cvs -l -d $cvsroot checkout -d $cvsdata/$root/src . 2>/dev/null");
+                my $pwd = `pwd`;
+                chomp $pwd;
+                chdir ("$cvsdata/$root/src");
+                system ("cvs -l -d $cvsroot checkout . 2>/dev/null");
+                chdir ($pwd);
             } else {
-                system ("cvs -l -d $cvsroot checkout -d $cvsdata/$root/src -N $app_path 2>/dev/null"); 
+                my $pwd = `pwd`;
+                chomp $pwd;
+                chdir ("$cvsdata/$root/src");
+                system ("cvs -l -d $cvsroot checkout -N $app_path 2>/dev/null"); 
+                chdir ($pwd);
             }
             my $checkout_end_date = time;
             
@@ -262,7 +270,6 @@ sub cvsbuild {
 
                     unlink "$prefix_path.cmt";
 
-                    my $cvs_words;
                     my $code_words = 0;
 
                     my $pwd = `pwd`;
