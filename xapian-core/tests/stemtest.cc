@@ -139,7 +139,7 @@ test_stemdict()
  
     int wordcount = 0;
 
-    tout << "Testing " << language << "with fixed dictionary..." << endl;
+    tout << "Testing " << language << " with fixed dictionary..." << endl;
 
     string word, stem, expect;
     while (!txt.eof() && !st.eof()) {
