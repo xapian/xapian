@@ -77,7 +77,6 @@ QuartzPositionList::next_internal()
 	}
     }
     Assert(pos != 0);
-    if (pos == data.end()) is_at_end = true;
 }
 
 void
