@@ -28,18 +28,24 @@
 
 #include <string>
 #include <list>
-#include <set>
 using std::string;
 using std::list;
-using std::set;
+
+class OmStopper {
+    public:
+	virtual bool operator()(const om_termname &term) {
+	    return false;
+	}
+};
 
 class QueryParser {
     public:
-	QueryParser() : default_op(OmQuery::OP_OR) {
+	QueryParser() : default_op(OmQuery::OP_OR), stop(NULL) {
 	    set_stemming_options("english");
 	}
 	
-	void set_stemming_options(const string &lang, bool stem_all_ = false);
+	void set_stemming_options(const string &lang, bool stem_all_ = false,
+				  OmStopper *stop_ = NULL);
 	
 	void set_default_op(OmQuery::op default_op_) {
 	    default_op = default_op_;
@@ -49,8 +55,11 @@ class QueryParser {
 	
 	list<om_termname> termlist;
 	list<om_termname> stoplist;
-	
+
+	// don't touch these - FIXME: make private and use friend...
 	OmQuery::op default_op;
+
+	OmStopper *stop;
 };
 
 #endif /* OM_HGUARD_PARSEQUERY_H */

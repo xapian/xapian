@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <set>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -59,7 +60,37 @@ static QueryParser qp;
 
 static string eval_file(const string &fmtfile);
 
-static set<om_termname> termset;
+static std::set<om_termname> termset;
+
+class MyStopper : public OmStopper {
+    bool operator()(const om_termname &t) {
+	switch (t[0]) {
+	    case 'a':
+		return (t == "a" || t == "about" || t == "an" || t == "and" ||
+			t == "are" || t == "as" || t == "at");
+	    case 'b':
+		return (t == "be" || t == "by");
+	    case 'e':
+		return (t == "en");
+	    case 'f':
+		return (t == "for" || t == "from");
+	    case 'h':
+		return (t == "how");
+	    case 'i':
+		return (t == "i" || t == "in" || t == "is" || t == "it");
+	    case 'o':
+		return (t == "of" || t == "on" || t == "or");
+	    case 't':
+		return (t == "that" || t == "the" || t == "this" || t == "to");
+	    case 'w':
+		return (t == "was" || t == "what" || t == "when" ||
+		       	t == "where" || t == "which" || t == "who" ||
+		       	t == "why" || t == "will" || t == "with");
+	    default:
+		return false;
+	}
+    }
+};
 
 querytype
 set_probabilistic(const string &newp, const string &oldp)
@@ -75,7 +106,8 @@ set_probabilistic(const string &newp, const string &oldp)
 
     // call YACC generated parser
     qp.set_stemming_options(option["no_stem"] == "true" ? "" : "english",
-			    option["all_stem"] == "true"); 
+			    option["all_stem"] == "true",
+			    new MyStopper()); 
     qp.set_default_op(default_op);
     query = qp.parse_query(raw_prob);
 

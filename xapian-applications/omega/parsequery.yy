@@ -97,7 +97,13 @@ exp:	  prob		{
 ;
 
 prob:	  stopterm
-	| prob stopterm	{ $$ = U(OmQuery(qp->default_op, $1.q, $2.q));
+	| prob stopterm	{ if ($1.q.is_empty()) {
+	    		      $$ = $2; // even if $2.q.is_empty()
+			  } else if ($2.q.is_empty()) {
+			      $$ = $1;
+			  } else {
+			      $$ = U(OmQuery(qp->default_op, $1.q, $2.q));
+			  }
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
 	| '+' term	{ $$.love.push_back($2.q); }
@@ -106,11 +112,19 @@ prob:	  stopterm
 	| prob '-' term	{ $$ = $1; $$.hate.push_back($3.q); }
 ;
 
-stopterm: TERM		{ // Yummy code...
-			  if (qp->termlist.back() == "the") {
+stopterm: TERM		{ om_termname term = *($1.q.get_terms_begin()); 
+			  if (qp->stop && (*qp->stop)(term)) {
 			      $$ = U();
-			      qp->stoplist.push_back(qp->termlist.back());
-			      qp->termlist.pop_back();
+			      qp->stoplist.push_back(term);
+			      // This is ugly - FIXME?
+			      list<om_termname>::iterator i, j;
+			      i = qp->termlist.begin();
+			      do {
+				  j = i;
+				  ++i;
+				  i = find(i, qp->termlist.end(), term);
+			      } while (i != qp->termlist.end());
+			      qp->termlist.erase(j);
 			  } else {
 			      $$ = $1;
 			  } }
@@ -152,8 +166,11 @@ static bool stem, stem_all;
 OmStem *stemmer;
 
 void
-QueryParser::set_stemming_options(const string &lang, bool stem_all_)
+QueryParser::set_stemming_options(const string &lang, bool stem_all_,
+				  OmStopper * stop_)
 {
+    if (stop) delete stop;
+    stop = stop_;
     if (lang.empty()) {
 	stem = false;
     } else {

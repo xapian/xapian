@@ -1,3 +1,7 @@
+Wed Dec 12 15:11:23 GMT 2001  Olly Betts <olly@survex.com>
+
+	* omega: Added stopword list (still hardcoded at present though).
+
 Wed Dec 12 12:46:57 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omindex: index unstemmed terms with prefix 'R' (mnemonic: Raw).
