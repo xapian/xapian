@@ -1,3 +1,7 @@
+Mon Sep 25 15:36:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added omprefixnode
+
 Mon Sep 25 15:11:41 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added omsplitternode and omlistconcatnode
