@@ -84,9 +84,27 @@ class OmRefCntBase {
  */
 template <class T>
 class OmRefCntPtr {
+    friend T;
     private:
 	T *dest;
 
+	/** Dummy class, used simply to make the private constructor
+	 *  different.
+	 */
+	class BypassRefStart {};
+
+	/** Make an OmRefCntPtr for an object which may already
+	 *  have reference counted pointers.  This should only
+	 *  be called by the object itself, to pass references
+	 *  to objects which it creates and which depend on it.
+	 *  Everything else should already have a refcntptr.
+	 *
+	 *  (eg, a database might pass a newly created postlist
+	 *  a reference counted pointer to itself.)
+	 *
+	 *  Only class T, ie the class being ref count pointed,  
+	 */
+	OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_ = 0);
     public:
 	T *operator->() const;
 	T &operator*() const;
@@ -115,6 +133,16 @@ inline bool OmRefCntBase::ref_decrement() const
     OmLockSentry locksentry(ref_count_mutex);
     ref_count -= 1;
     return (ref_count == 0);
+}
+
+template <class T>
+inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_)
+	: dest(dest_)
+{
+    Assert(dest != 0);
+    if (dest) {
+	dest->ref_increment();
+    }
 }
 
 template <class T>

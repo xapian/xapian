@@ -1,3 +1,9 @@
+Thu Aug 24 13:31:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add new, private, constructor of OmRefCntPtr, and make the pointed
+	  to class a friend, so that a class can give out refcntpointers
+	  to itself, even after someone else already has such a pointer.
+
 Thu Aug 24 12:58:00 BST 2000 Olly Betts
 
 	* Fixed two missed uses of get_irdatabase().
