@@ -29,6 +29,7 @@
 #include "quartz_log.h"
 #include "quartz_db_table.h"
 #include "om/omindexdoc.h"
+#include "autoptr.h"
 
 #include <stdio.h>
 
@@ -49,23 +50,23 @@ class QuartzModifications {
 
 	/** Diffs made to the PostList database.
 	 */
-	auto_ptr<QuartzPostListDiffs> postlist_diffs;
+	AutoPtr<QuartzPostListDiffs> postlist_diffs;
 
 	/** Diffs made to the PositionList database.
 	 */
-	auto_ptr<QuartzPositionListDiffs> positionlist_diffs;
+	AutoPtr<QuartzPositionListDiffs> positionlist_diffs;
 
 	/** Diffs made to the TermList database.
 	 */
-	auto_ptr<QuartzTermListDiffs> termlist_diffs;
+	AutoPtr<QuartzTermListDiffs> termlist_diffs;
 
 	/** Diffs made to the Lexicon database.
 	 */
-	auto_ptr<QuartzLexiconDiffs> lexicon_diffs;
+	AutoPtr<QuartzLexiconDiffs> lexicon_diffs;
 
 	/** Diffs made to the Record database.
 	 */
-	auto_ptr<QuartzRecordDiffs> record_diffs;
+	AutoPtr<QuartzRecordDiffs> record_diffs;
 
 	/** Open the diffs objects.
 	 */

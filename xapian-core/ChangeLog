@@ -1,3 +1,7 @@
+Wed Sep 20 18:26:33 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updated Quartz to use AutoPtr
+
 Wed Sep 20 17:52:06 BST 2000 Olly Betts
 
 	* More work on LocalMatch.

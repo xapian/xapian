@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "quartz_diffs.h"
+#include "autoptr.h"
 
 QuartzDbTag *
 QuartzDiffs::get_tag(const QuartzDbKey &key)
@@ -30,7 +31,7 @@ QuartzDiffs::get_tag(const QuartzDbKey &key)
     if (changed_entries.have_entry(key)) {
 	return changed_entries.get_tag(key);
     } else {
-	auto_ptr<QuartzDbTag> tag(new QuartzDbTag);
+	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
 	QuartzDbTag * tagptr = tag.get();
 
 	bool found = table->get_exact_entry(key, *tagptr);

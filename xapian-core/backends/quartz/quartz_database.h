@@ -30,7 +30,7 @@ class QuartzDbManager;
 class QuartzModifications;
 #include "quartz_log.h"
 
-#include <memory>
+#include "autoptr.h"
 #include "omlocks.h"
 
 /** A backend designed for efficient indexing and retrieval, using
@@ -48,7 +48,7 @@ class QuartzDatabase : public Database {
 
 	/** Pointer to database modifications.
 	 */
-	auto_ptr<QuartzModifications> modifications;
+	AutoPtr<QuartzModifications> modifications;
 
 	/** Flag saying whether we're using transactions or not.
 	 */

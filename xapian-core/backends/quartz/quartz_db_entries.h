@@ -26,7 +26,7 @@
 #include "config.h"
 #include "quartz_db_table.h"
 #include <map>
-#include <memory>
+#include "autoptr.h"
 #include <string>
 
 /** This class stores a set of entries from a quartz database table.
@@ -91,7 +91,7 @@ class QuartzDbEntries {
 	 *
 	 *  @param block The block to store.
 	 */
-	void set_tag(const QuartzDbKey &key, auto_ptr<QuartzDbTag> tag);
+	void set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag);
 
 	/** Removes the specified entry from the QuartzDbEntries object.
 	 *

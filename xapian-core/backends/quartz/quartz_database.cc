@@ -26,10 +26,10 @@
 #include "quartz_modifications.h"
 
 #include "quartz_database.h"
+#include "autoptr.h"
 #include "utils.h"
 #include <om/omerror.h>
 #include <string>
-#include <memory>
 
 //
 // Compulsory settings.
@@ -112,11 +112,7 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 	throw OmInvalidOperationError("Cannot begin a modification session: "
 				      "database opened readonly.");
     }
-    {
-	auto_ptr<QuartzModifications> temp(
-		new QuartzModifications(db_manager.get()));
-	modifications = temp;
-    }
+    modifications.reset(new QuartzModifications(db_manager.get()));
 }
 
 void
@@ -127,9 +123,7 @@ QuartzDatabase::do_end_session()
     Assert(!readonly);
     Assert(modifications.get() != 0);
     modifications->apply();
-    QuartzModifications * ptr = modifications.get();
-    modifications.release();
-    delete ptr;
+    modifications.reset();
 }
 
 void

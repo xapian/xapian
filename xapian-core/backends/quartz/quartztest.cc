@@ -29,6 +29,8 @@
 #include "quartz_db_table.h"
 #include "quartz_db_entries.h"
 
+#include "autoptr.h"
+
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(const QuartzDbTable & table, string world)
 {
@@ -288,7 +290,7 @@ static bool test_dbentries1()
     key1.value="";
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     {
-	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
+	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);
 	tagptr->value = "bar";
 	TEST_EXCEPTION(OmAssertionError, entries.set_tag(key1, tagptr));
     }
@@ -300,7 +302,7 @@ static bool test_dbentries1()
     key1.value="foo";
     TEST(!entries.have_entry(key1));
     {
-	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
+	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);
 	tagptr->value = "bar";
 	entries.set_tag(key1, tagptr);
     }
@@ -308,7 +310,7 @@ static bool test_dbentries1()
     TEST(entries.get_tag(key1) != 0);
     TEST(entries.get_tag(key1)->value == "bar");
     {
-	auto_ptr<QuartzDbTag> tagptr(0);
+	AutoPtr<QuartzDbTag> tagptr(0);
 	entries.set_tag(key1, tagptr);
     }
     TEST(entries.have_entry(key1));

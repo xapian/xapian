@@ -55,8 +55,7 @@ QuartzDbEntries::have_entry(const QuartzDbKey &key)
 }
 
 void
-QuartzDbEntries::set_tag(const QuartzDbKey &key,
-			 auto_ptr<QuartzDbTag> tag)
+QuartzDbEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {
     Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);

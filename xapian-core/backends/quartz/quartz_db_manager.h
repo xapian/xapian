@@ -28,6 +28,7 @@
 #include "quartz_db_table.h"
 #include "quartz_log.h"
 #include "refcnt.h"
+#include "autoptr.h"
 
 /** Class managing the databases used by Quartz.
  *
@@ -120,7 +121,7 @@ class QuartzDbManager : public RefCntBase {
 
 	/** Pointer to object to log modifications.
 	 */
-	auto_ptr<QuartzLog> log;
+	AutoPtr<QuartzLog> log;
 
 
 	/** Construct the manager.
