@@ -47,7 +47,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 	: db(db_),
 	  readfd(readfd_),
 	  writefd((writefd_ == -1) ? readfd_ : writefd_),
-	  buf(readfd, writefd),
+	  buf(new OmSocketLineBuf(readfd, writefd)),
 	  conversation_state(conv_ready),
 	  gatherer(0),
 	  have_global_stats(0)
@@ -57,11 +57,24 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError(string("signal: ") + strerror(errno));
     }
-    buf.readline();
-    buf.writeline("HELLO " +
+    buf->readline();
+    buf->writeline("HELLO " +
 		  om_inttostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
 		  om_inttostring(db->get_doccount()) + " " +
 		  doubletostring(db->get_avlength()));
+}
+
+SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
+			   auto_ptr<OmLineBuf> buf_)
+	: db(db_),
+	  readfd(-1),
+	  writefd(-1),
+	  buf(buf_),
+	  conversation_state(conv_ready),
+	  gatherer(0),
+	  have_global_stats(0)
+{
+    Assert(buf.get() != 0);
 }
 
 /// The SocketServer destructor
@@ -74,7 +87,7 @@ SocketServer::send_local_stats(Stats stats)
 {
     string mystatstr = string("MYSTATS ") + stats_to_string(stats);
 
-    buf.writeline(mystatstr);
+    buf->writeline(mystatstr);
     DebugMsg("SocketServer::send_local_stats(): wrote " << mystatstr);
 }
 
@@ -94,7 +107,7 @@ SocketServer::run()
 	    string message;
 
 	    // Message 3 (see README_progprotocol.txt)
-	    message = buf.readline();
+	    message = buf->readline();
 
 	    if (message == "QUIT") {
 		return;
@@ -115,10 +128,10 @@ SocketServer::run()
 	// been caused by an error talking to the other end.
 	throw;
     } catch (OmError &e) {
-	buf.writeline(string("ERROR ") + omerror_to_string(e));
+	buf->writeline(string("ERROR ") + omerror_to_string(e));
 	throw;
     } catch (...) {
-	buf.writeline(string("ERROR UNKNOWN"));
+	buf->writeline(string("ERROR UNKNOWN"));
 	throw;
     }
 }
@@ -135,7 +148,7 @@ SocketServer::run_match(const string &firstmessage)
     OmMatchOptions moptions = string_to_moptions(message.substr(9));
 
     // extract the rset
-    message = buf.readline();
+    message = buf->readline();
     if (!startswith(message, "RSET ")) {
 	DebugMsg("Expected RSET, got " << message << endl);
 	throw OmNetworkError(string("Invalid message: ") + message);
@@ -143,7 +156,7 @@ SocketServer::run_match(const string &firstmessage)
     OmRSet omrset = string_to_omrset(message.substr(5));
 
     // extract the query
-    message = buf.readline();
+    message = buf->readline();
 
     if (!startswith(message, "SETQUERY ")) {
 	DebugMsg("Expected SETQUERY, got " << message << endl);
@@ -190,7 +203,7 @@ SocketServer::run_match(const string &firstmessage)
     send_local_stats(gatherer->get_local_stats());
 
     // Message 5, part 1
-    message = buf.readline();
+    message = buf->readline();
 
     if (message.substr(0, 9) != "GLOBSTATS") {
 	throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
@@ -200,7 +213,7 @@ SocketServer::run_match(const string &firstmessage)
     have_global_stats = true;
 
     // Message 5, part 2
-    message = buf.readline();
+    message = buf->readline();
 
     if (message.substr(0, 7) != "GETMSET") {
 	throw OmNetworkError(string("Expected GETMSET, got ") + message);
@@ -232,7 +245,7 @@ SocketServer::run_match(const string &firstmessage)
 
     DebugMsg("done get_mset..." << endl);
 
-    buf.writeline(string("MSETITEMS ") +
+    buf->writeline(string("MSETITEMS ") +
 		  om_inttostring(mset.items.size()) + " "
 		  + doubletostring(mset.max_possible)
 		  + doubletostring(mset.max_attained));
@@ -246,13 +259,13 @@ SocketServer::run_match(const string &firstmessage)
 	ostrstream os(charbuf, 100);
 	os << "MSETITEM: " << i->wt << " " << i->did << 
 		" " << omkey_to_string(i->collapse_key) << ends;
-	buf.writeline(charbuf);
+	buf->writeline(charbuf);
 
 	DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
     }
     //DebugMsg("sent items..." << endl);
 
-    buf.writeline("OK");
+    buf->writeline("OK");
 
     //DebugMsg("sent OK..." << endl);
 }
@@ -277,12 +290,12 @@ SocketServer::run_gettermlist(const string &firstmessage)
 	item = item + encode_tname(tl->get_termname()) + " ";
 	item = item + om_inttostring(tl->get_wdf()) + " ";
 	item = item + om_inttostring(tl->get_termfreq());
-	buf.writeline(item);
+	buf->writeline(item);
 
 	tl->next();
     }
 
-    buf.writeline("END");
+    buf->writeline("END");
 }
 
 void
@@ -298,7 +311,7 @@ SocketServer::run_getdocument(const string &firstmessage)
 
     auto_ptr<LeafDocument> doc(db->open_document(did));
 
-    buf.writeline(string("DOC ") + encode_tname(doc->get_data().value));
+    buf->writeline(string("DOC ") + encode_tname(doc->get_data().value));
 
     map<om_keyno, OmKey> keys = doc->get_all_keys();
 
@@ -307,11 +320,11 @@ SocketServer::run_getdocument(const string &firstmessage)
 	string item = string("KEY ") +
 		om_inttostring(i->first) + " " +
 		omkey_to_string(i->second);
-	buf.writeline(item);
+	buf->writeline(item);
 	++i;
     }
 
-    buf.writeline("END");
+    buf->writeline("END");
 }
 
 void
@@ -319,7 +332,7 @@ SocketServer::read_global_stats()
 {
     Assert(conversation_state == conv_getglobal);
 
-    global_stats = string_to_stats(buf.readline());
+    global_stats = string_to_stats(buf->readline());
 
     conversation_state = conv_sendresult;
 

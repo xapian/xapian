@@ -1,4 +1,4 @@
-/* progcommon.h: Various useful Prog{Server,Client}-related utilities
+/* socketcommon.h: Various useful Socket{Server,Client}-related utilities
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -24,6 +24,7 @@
 #define OM_HGUARD_SOCKETCOMMON_H
 
 #include <string>
+#include "omlinebuf.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 1
 
@@ -33,11 +34,11 @@ class Stats;
 class OmRSet;
 class OmKey;
 
-/** The OmLineBuf class implements a two-way line discipline
+/** The OmSocketLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
  *  and write a line at a time conveniently.
  */
-class OmLineBuf {
+class OmSocketLineBuf : public OmLineBuf {
     private:
 	/// The filedescriptor used for reading
 	int readfd;
@@ -48,18 +49,18 @@ class OmLineBuf {
 	string buffer;
 
 	/// disallow copies
-	OmLineBuf(const OmLineBuf &other);
-	void operator=(const OmLineBuf &other);
+	OmSocketLineBuf(const OmSocketLineBuf &other);
+	void operator=(const OmSocketLineBuf &other);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
 	 */
-	OmLineBuf(int readfd_, int writefd_);
+	OmSocketLineBuf(int readfd_, int writefd_);
 
 	/** A convenience constructor which takes only one
 	 *  fd, which can be both read from and written to.
 	 */
-	OmLineBuf(int fd_);
+	OmSocketLineBuf(int fd_);
 
 	/** Read one line from readfd
 	 */

@@ -29,6 +29,7 @@
 #include "multimatch.h"
 #include "socketcommon.h"
 #include "networkstats.h"
+#include "omlinebuf.h"
 #include <memory>
 
 /** The base class of the network server object.
@@ -49,7 +50,7 @@ class SocketServer : public NetServer {
 	int writefd;
 
 	/// The line buffer for doing the actual I/O
-	OmLineBuf buf;
+	auto_ptr<OmLineBuf> buf;
 
 	/// The various states of the conversation we can be in
 	enum conv_states {
@@ -95,6 +96,16 @@ class SocketServer : public NetServer {
 	SocketServer(OmRefCntPtr<MultiDatabase> db,
 		     int readfd_,
 		     int writefd_ = -1);
+
+	/** Default constructor. 
+	 *  @param db		The database on which searches are done.
+	 *  @param readfd_	The file descriptor for reading.
+	 *  @param writefd_	The file descriptor for writing.  If
+	 *                      missing or -1, then readfd_ will be used
+	 *                      instead.
+	 */
+	SocketServer(OmRefCntPtr<MultiDatabase> db,
+		     auto_ptr<OmLineBuf> buffer);
 
 	/** Destructor. */
 	~SocketServer();

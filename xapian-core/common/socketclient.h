@@ -44,7 +44,7 @@ class SocketClient : public NetClient {
 	bool close_socket;
 
 	/// The line buffer which does the I/O
-	OmLineBuf buf;
+	OmSocketLineBuf buf;
 
 	/// The conversation state
 	enum {

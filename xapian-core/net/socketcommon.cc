@@ -1,4 +1,4 @@
-/* progcommon.cc: Various useful Prog{Server,Client}-related utilities
+/* socketcommon.cc: Various useful Prog{Server,Client}-related utilities
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -36,6 +36,7 @@
 #include "utils.h"
 #include "om/omenquire.h"
 #include "om/omdocument.h"
+#include "omlinebuf.h"
 
 OmQueryInternal qfs_readcompound();
 
@@ -311,7 +312,7 @@ OmQueryInternal qfs_readcompound()
     } // while(1)
 }
 
-OmLineBuf::OmLineBuf(int readfd_, int writefd_)
+OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_)
 	: readfd(readfd_), writefd(writefd_)
 {
     // set non-blocking flag on reading fd
@@ -320,7 +321,7 @@ OmLineBuf::OmLineBuf(int readfd_, int writefd_)
     };
 }
 
-OmLineBuf::OmLineBuf(int fd_)
+OmSocketLineBuf::OmSocketLineBuf(int fd_)
 	: readfd(fd_), writefd(fd_)
 {
     // set non-blocking flag on reading fd
@@ -330,7 +331,7 @@ OmLineBuf::OmLineBuf(int fd_)
 }
 
 string
-OmLineBuf::readline()
+OmSocketLineBuf::readline()
 {
     string::size_type pos;
 
@@ -381,7 +382,7 @@ OmLineBuf::readline()
 }
 
 void
-OmLineBuf::wait_for_data(int msecs)
+OmSocketLineBuf::wait_for_data(int msecs)
 {
     // FIXME: share with readline()
     while (buffer.find_first_of('\n') == buffer.npos) {
@@ -433,7 +434,7 @@ OmLineBuf::wait_for_data(int msecs)
 }
 
 bool
-OmLineBuf::data_waiting()
+OmSocketLineBuf::data_waiting()
 {
     if (buffer.find_first_of('\n') != buffer.npos) {
 	return true;
@@ -457,7 +458,7 @@ OmLineBuf::data_waiting()
 }
 
 void
-OmLineBuf::writeline(string s)
+OmSocketLineBuf::writeline(string s)
 {
     if (s.length() == 0 || s[s.length()-1] != '\n') {
 	s += '\n';
