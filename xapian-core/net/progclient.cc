@@ -116,7 +116,7 @@ ProgClient::do_write(string data)
 void
 ProgClient::write_data(string msg)
 {
-    do_write(msg);
+    do_write(msg + '\n');
 }
 
 string

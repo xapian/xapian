@@ -24,12 +24,13 @@
 #define OM_HGUARD_NETCLIENT_H
 
 #include <string>
+#include "omrefcnt.h"
 
 /** The base class of the network interface.
  *  A NetClient object is used by NetworkMatch to communicate
  *  with remote matching processes.
  */
-class NetClient {
+class NetClient : public OmRefCntBase {
     private:
 	// disallow copies
 	NetClient(const NetClient &);
