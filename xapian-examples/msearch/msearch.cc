@@ -127,8 +127,9 @@ main(int argc, char *argv[])
 		boolean = true;
 		continue;
 	    } else if (term == "P") {
-		Assert(boolquery.size() == 1);
-		query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
+		if (boolquery.size() >= 1) {
+		    query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
+		}
 		boolean = false;
 		continue;
 	    } else {
@@ -190,15 +191,8 @@ main(int argc, char *argv[])
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {
-		om_docid did = i->did;
-#if 0
-		IRDocument *doc = database->open_document(did);
-		IRData data = doc->get_data();
-		string p = data.value;
-#else
-		string p = "<unimplemented>";
-#endif
-		cout << did << ":[" << p << "] " << i->wt << endl << endl;
+		string p = enquire.get_doc_data(*i).value;
+		cout << i->did << ":[" << p << "] " << i->wt << endl << endl;
 	    }
 	    cout << endl;
 	}
