@@ -5,7 +5,7 @@ TESTS_ENVIRONMENT = $(TCLSH)
 ## Test programs to be run
 TESTS = smoketest.tcl
 
-EXTRA_DIST = util.i extra.i $(TESTS)
+EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@
 
@@ -26,10 +26,13 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 
+if MAINTAINER_MODE
 xapian_wrap.cc: ../xapian.i util.i extra.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION@ -o $@ $(srcdir)/../xapian.i
+endif
 
 pkgIndex.tcl: Makefile.am
 	echo 'package ifneeded xapian @VERSION@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
-CLEANFILES = $(BUILT_SOURCES) pkgIndex.tcl
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = pkgIndex.tcl

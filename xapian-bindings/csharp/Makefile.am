@@ -5,16 +5,13 @@ TESTS_ENVIRONMENT =
 ## Test programs to be run
 TESTS = SmokeTest.exe
 
-EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs
+EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
 ASSEMBLY=XapianSharp
 
-XAPIAN_SWIG_SRCS=\
-	$(srcdir)/../xapian.i \
-	$(srcdir)/util.i \
-	$(srcdir)/extra.i
-
 XAPIAN_SWIG_CS_SRCS=\
+	BoolWeight.cs \
+	BM25Weight.cs \
 	Database.cs \
 	Document.cs \
 	ESet.cs \
@@ -30,18 +27,17 @@ XAPIAN_SWIG_CS_SRCS=\
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
 	SWIGTYPE_p_Xapian__MatchDecider.cs \
 	SWIGTYPE_p_Xapian__Stopper.cs \
-	SWIGTYPE_p_Xapian__Weight.cs \
 	SWIGTYPE_p_std__listTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_time_t.cs \
 	Stem.cs \
 	TermIterator.cs \
+	TradWeight.cs \
 	ValueIterator.cs \
 	Weight.cs \
 	WritableDatabase.cs \
 	Xapian.cs \
-	XapianPINVOKE.cs \
-	op.cs
+	XapianPINVOKE.cs
 
 XapianSharp.snk:
 	$(SN) -k $@
@@ -51,12 +47,10 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 
 BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 
-# SWIG 1.3.21 and earlier don't generate op.cs.  An empty .cs file is allowed
-# so we just touch it to avoid complicated contortions in the build system.
-# Once we require SWIG 1.3.22 or newer, the touch can be removed.
-XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
+if MAINTAINER_MODE
+XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i extra.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
-	touch op.cs
+endif
 
 lib_LTLIBRARIES = XapianSharp.la
 
@@ -76,9 +70,6 @@ SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 
-CLEANFILES = $(BUILT_SOURCES) \
-  XapianSharp.snk \
-  XapianSharp.loT \
-  AssemblyInfo.cs \
-  $(ASSEMBLY).dll \
-  SmokeTest.exe
+CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
+
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)

@@ -55,7 +55,11 @@ AC_ARG_WITH(csharp,
 
 BINDINGS=
 
-if test no != "$with_swig" ; then
+dnl Only probe for SWIG and enable SWIG rules in makefiles if
+dnl configure --enable-maintainer-mode is used.
+AM_MAINTAINER_MODE
+
+if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for swig - this does most of the work for the bindings.
   AC_PATH_PROG(SWIG, swig, [])
   if test -z "$SWIG" ; then
@@ -66,6 +70,7 @@ if test no != "$with_swig" ; then
   dnl 1.3.19 was missing std_common.i - it was empty at the time so you
   dnl can just touch it into existence, but it's cleaner to just require
   dnl 1.3.20.
+  dnl 1.3.20 is required for -python -modern.
   dnl 1.3.21 fixes a few minor issues which don't look to be relevant to
   dnl us currently.
   dnl 1.3.22 fixes a problem with wrapping classes in namespaces with guile.
@@ -77,7 +82,9 @@ if test no != "$with_swig" ; then
    *)
      AC_MSG_ERROR([SWIG >= 1.3.22 required (you have $v)]) ;;
   esac
+fi
 
+if test no != "$with_swig" ; then
   if test no != "$with_python" ; then
     AC_PATH_PROG(PYTHON, python, [])
     if test -n "$PYTHON" ; then
@@ -89,19 +96,19 @@ if test no != "$with_swig" ; then
       dnl  I remember.
       case "`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
       2.1)
-	SWIG_PYTHON_FLAGS=
+	PYTHON_MODERN_OR_OLDE=olde
 	;;
       [2.[1-9]*|[3-9].*])
-	dnl Call swig -modern for Python 2.2 and up for cleaner, leaner, faster
-	dnl wrapper code in xapian.py.
-	SWIG_PYTHON_FLAGS=-modern
+	dnl Used output from swig -modern for Python 2.2 and up for
+	dnl cleaner, leaner, faster wrapper code in xapian.py.
+	PYTHON_MODERN_OR_OLDE=modern
 	;;
       *)
 	PYTHON=
 	;;
       esac
       if test -n "$PYTHON" ; then
-	AC_SUBST(SWIG_PYTHON_FLAGS)
+	AC_SUBST(PYTHON_MODERN_OR_OLDE)
 	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
 	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
