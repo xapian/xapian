@@ -1,3 +1,7 @@
+Tue Oct 28 15:03:01 GMT 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Added FIXME comment.
+
 Tue Oct 28 15:01:14 GMT 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Removed Java from list of language bindings we'd

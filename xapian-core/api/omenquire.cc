@@ -663,6 +663,8 @@ void
 Enquire::Internal::set_query(const Query &query_)
 {
     delete query;
+    // FIXME - I believe this is meant to copy the query, but it actually just
+    // copies the handle...
     query = new Query(query_);
 }
 
