@@ -2,6 +2,7 @@
 # Index each paragraph of a textfile as a document
 #
 # Copyright (C) 2004 Olly Betts
+# Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,8 +19,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-# We need at least Tcl version 8
-package require Tcl 8
+# We need at least Tcl version 8.1
+package require Tcl 8.1
 
 # FIXME: sort out pkgIndex.tcl and then use something like:
 # lappend auto_path /path/to/xapian/lib/with/the/package
@@ -33,73 +34,46 @@ if {[llength $argv] != 1} {
     exit 1
 }
 
-proc p_alnum {c} {
-    return [string match {[A-Za-z0-9]} $c]
-}
-
-proc p_notalnum {c} {
-    return [expr ! [p_alnum $c]]
-}
-
-proc p_notplusminus {c} {
-    return [expr ! [string match {[-+]} $c]]
-}
-
-proc find_p {str i predicate} {
-    set l [string length $str]
-    while {$i < $l && ! [$predicate [string index $str $i]]} {
-	set i [expr $i + 1]
-    }
-    return $i
-}
-
 if {[catch {
     xapian::WritableDatabase database \
-	[xapian::open [lindex $argv 0] $DB_CREATE_OR_OPEN]
+        [xapian::open [lindex $argv 0] $DB_CREATE_OR_OPEN]
     xapian::Stem stemmer "english"
 
     set para ""
     while {![eof stdin]} {
-	gets stdin line
-	set line [string trim $line]
-	if {$line eq ""} {
-	    if {$para ne ""} {
-		xapian::Document doc
-		doc set_data para
-		set pos 0
-		# At each point, find the next alnum character (i), then
-		# find the first non-alnum character after that (j). Find
-		# the first non-plusminus character after that (k), and if
-		# k is non-alnum (or is off the end of the para), set j=k.
-		# The term generation string is [i,j), so len = j-i
-		set i 0
-		set l [string length $para]
-		while {$i < $l} {
-		    set i [find_p $para $i p_alnum]
-		    set j [find_p $para $i p_notalnum]
-		    set k [find_p $para $j p_notplusminus]
-		    if {[p_notalnum [string index $para $k]]} {
-			set j $k
-		    }
-		    if {[expr $j - $i] <= $MAX_PROB_TERM_LENGTH && $j > $i} {
-			set term [string range $para $i [expr $j - 1]]
-			set term [string tolower $term]
-			set term [stemmer stem_word $term]
-			doc add_posting $term $pos
-			set pos [expr $pos + 1]
-		    }
-		    set i $j
-		}
-		database add_document doc
-		set para ""
-	    }
-	} else {
-	    if {$para ne ""} {
-		set para "$para $line"
-	    } else {
-		set para $line
-	    }
-	}
+        gets stdin line
+        set line [string trim $line]
+        if {[string equal $line ""]} {
+            if {[string compare $para ""]} {
+                xapian::Document doc
+                doc set_data para
+                set pos 0
+                # A term is one or more alphanumerics, with optional trailing
+                # + and/or - (e.g. C++)
+                set re {([[:alnum:]]+[-+]*)}
+                set i 0
+                while {[regexp -indices -start $i $re $para -> word]} {
+                    set j [lindex $word 1]
+                    if {($j-$i) <= $MAX_PROB_TERM_LENGTH} {
+                        set term [string range $para $i [expr {$j-1}]]
+			puts $term
+                        set term [string tolower $term]
+                        set term [stemmer stem_word $term]
+                        doc add_posting $term $pos
+                        incr pos
+                    }
+                    set i $j
+                }
+                database add_document doc
+                set para ""
+            }
+        } else {
+            if {$para ne ""} {
+                set para "$para $line"
+            } else {
+                set para $line
+            }
+        }
     }
     # Partial workaround for Tcl bindings not calling destructors
     # FIXME remove this once we work out what's going on there...

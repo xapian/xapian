@@ -1,3 +1,8 @@
+Wed Dec 01 05:18:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Simpler, more idiomatic code
+	  which doesn't rely on features added since Tcl 8.1.
+
 Tue Nov 30 22:42:14 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.8.4 release.
