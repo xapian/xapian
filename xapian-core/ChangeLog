@@ -1,3 +1,7 @@
+Mon Nov 04 01:31:47 GMT 2002  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Catch by const reference.
+
 Mon Nov 04 01:18:53 GMT 2002  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note about use of various C++ features.  Also

@@ -207,14 +207,14 @@ test_driver::runtest(const test_desc *test)
 		    out << tout.str();
 		    out << " " << col_red << "FAILED" << col_reset;
 		}
-	    } catch (TestFailure &fail) {
+	    } catch (const TestFailure &fail) {
 		success = false;
 		out << tout.str();
 		out << " " << col_red << "FAILED" << col_reset;
 		if (verbose) {
 		    out << fail.message << endl;
 		}
-	    } catch (TestSkip &skip) {
+	    } catch (const TestSkip &skip) {
 		out << " " << col_yellow << "SKIPPED" << col_reset;
 		if (verbose) {
 		    out << skip.message << endl;
@@ -347,8 +347,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 
 static void usage(char *progname)
 {
-    cerr << "Usage: " << progname
-              << " [-v] [-o] [TESTNAME]..." << endl;
+    cerr << "Usage: " << progname << " [-v] [-o] [TESTNAME]..." << endl;
     exit(1);
 }
 
