@@ -240,12 +240,6 @@ pretty_printf(const char *p, int *a)
 }
 \\HITS {
     long int m;
-#ifdef META
-    cout << "# fields are tab separated, extra fields may be appended in future\n"
-	    "first\tlast\ttotal\n" << first + 1 << '\t'
-	 <<  last + 1 << '\t' msize << '\n'
-	 << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
-#endif
     const char *q;
     int ch;
 			
@@ -275,7 +269,6 @@ pretty_printf(const char *p, int *a)
 	query_string += i->second;
     }
 
-#ifndef META
     struct stat st;
     int fd = open(fmtfile.c_str(), O_RDONLY);
     if (fd >= 0) {
@@ -291,7 +284,6 @@ pretty_printf(const char *p, int *a)
 	}
 	close(fd);
     }
-#endif
 
     for (m = first; m <= last; m++) print_caption(m);
 }

@@ -46,9 +46,6 @@ static vector<om_termname> pluses;
 static vector<om_termname> minuses;
 static vector<om_termname> normals;
 
-#ifdef META
-char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
-#else
 char *fmtstr =
 "<TR><TD VALIGN=top><IMG SRC=\"ÿG\" ALT=\"ÿP\" HEIGHT=35 WIDTH=35></TD>\n"
 "<TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR=\"#ccffcc\">ÿX</TD></TR></TABLE></TD>\n"
@@ -61,7 +58,6 @@ char *fmtstr =
 "Last modified: <b>ÿM</b>\n"
 "<br>ÿP relevant, matching: <i>ÿT</i></small>\n"
 "</TD></TR>\n";
-#endif
 
 string raw_prob;
 long int msize = -1;
@@ -509,16 +505,6 @@ print_caption(long int m)
     const char *pp;
     unsigned const char *u;
     int size = -1;
-    int dadate = -1;
-
-#if 0 // FIXME
-    // get datestamp of DA file this record is in so we can handle
-    // different versions of our record format
-    if (q0 >= 0) {
-	int n = q0 / 10000000;
-	if (n < n_dlist) dadate = dlist[n];
-    }
-#endif
 
     OmDocument doc = enquire->get_doc(q0);
     OmData data = doc.get_data();
@@ -628,9 +614,11 @@ print_caption(long int m)
 	 case 'M': /* last modified */
 	    display_date(lastmod);
 	    break;
+#if 0 // FIXME:
 	 case 'V': /* date last visited */
 	    display_date(dadate);
 	    break;
+#endif
 	 case 'P':
 	    cout << percent << '%';
 	    break;
@@ -642,11 +630,7 @@ print_caption(long int m)
 	     list<om_termname>::const_iterator term = matching_terms.begin();
 	     bool comma = false;
 	     while (term != matching_terms.end()) {
-#ifdef META
-		 if (comma) cout << ','; else comma = true;
-#else
 		 if (comma) cout << ' '; else comma = true;
-#endif
 		 /* quote terms with spaces in */
 		 if (term->find(' ') != string::npos)
 		     cout << '"' << *term << '"';

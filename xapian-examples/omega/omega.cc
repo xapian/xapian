@@ -22,9 +22,6 @@
 
 #include "main.h"
 
-vector<int> dlist;
-int n_dlist = 0;
-
 #include <stdio.h>
 
 #include <fstream>
@@ -106,11 +103,7 @@ static int main2(int argc, char *argv[])
 	        "Enter NAME=VALUE lines, end with blank line\n";
     }
 
-#ifdef META
-    cout << "Content-type: text/plain\n\n";
-#else
     cout << "Content-type: text/html\n\n";
-#endif
     
     if (method == NULL)
         decode_test();
@@ -144,30 +137,35 @@ static int main2(int argc, char *argv[])
     if (topdoc < 0) topdoc = 0;
     
     // get database name
+    // FIXME: allow multiple DB parameters?  Or A,B,C???
     val = cgi_params.find("DB");
     if (val != notfound) {
 	db_name = val->second;
     } else {
 	db_name = default_db_name;
     }
-#ifdef META
-    ssi = false;
-#else
     /* if we're called from a SSI page, set flag to use query-ssi, etc */
     if (getenv("REDIRECT_QUERY_STRING")) ssi = true;
-#endif
 
     /* Translate DB parameter to path to database directory */
     db_dir = map_dbname_to_dir(db_name);
 
-    if (chdir(db_dir.c_str()) == -1) {
-	// if we can't cd there, odds are it's not a database
+    // Open enquire system
+    OmDatabaseGroup omdb;
+
+    try {
+	vector<string> params;
+	params.push_back(db_dir);
+        omdb.add_database("auto", params);
+    } catch (OmError &e) {
+	// odds are it's not a database
 	cout << "<HTML><HEAD>"
 	        "<TITLE>Database '" << db_name << "' not found</TITLE></HEAD>"
 	        "<BODY BGCOLOR=white>"
 	        "<H3>Database '" << db_name << "' not found "
 	        "(or not readable)</H3>\n"
 	        "</BODY></HTML>";
+	// cout << e.get_msg() << endl;
 	exit(0);
     }
 
@@ -191,52 +189,6 @@ static int main2(int argc, char *argv[])
 	    option[key] = line.substr(i, j - i);
 	}
 	vars_in.close();
-    }
-
-    // Open enquire system
-    OmDatabaseGroup omdb;
-
-    // read dlist
-    try {
-	string dlist_file = db_dir + "/t/dlist";
-	std::ifstream dlist_in(dlist_file.c_str());
-	if (dlist_in) {
-#ifdef DEBUG
-	    cout << "Dlist file opened" << endl;
-#endif
-	    string line;
-	    while (!dlist_in.eof()) {
-		getline(dlist_in, line);
-		/* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
-		if (line.substr(0, 8) == "da recs ") {
-		    string::size_type p = line.find("/data-");
-		    if (p != string::npos) {
-			int db_id = atoi(line.substr(p + 6).c_str());
-			dlist.push_back(db_id);
-			string::size_type p2 = line.find_first_not_of(" ", 7);
-			string::size_type p3 = line.find(" ", p);
-			string dbpath = line.substr(p2, p3 - 1 - p2);
-#ifdef DEBUG
-			cout << "Dlist found: path `" << dbpath <<
-			"', number " << db_id << endl;
-#endif
-			vector<string> args;
-			args.push_back(dbpath);
-			omdb.add_database("da_flimsy", args);
-		    }
-		}
-	    }
-	    dlist_in.close();
-	} else {
-#ifdef DEBUG
-	    cout << "Opening DA database " << db_dir << endl;
-#endif
-	    vector<string> args;
-	    args.push_back(db_dir);
-	    omdb.add_database("da_flimsy", args);
-	}
-    } catch (OmError &e) {
-	cout << e.get_msg() << endl;
     }
 
     enquire = new OmEnquire(omdb);

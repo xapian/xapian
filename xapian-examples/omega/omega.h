@@ -44,10 +44,6 @@ extern map<string, string> option;
 
 extern const string default_db_name;
 
-#ifdef FERRET
-extern vector<int> dlist;
-#endif
-
 class ExpandDeciderFerret : public OmExpandDecider {
     public:
 	int operator()(const om_termname& tname) const {
