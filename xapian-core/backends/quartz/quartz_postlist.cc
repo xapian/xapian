@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,14 +36,13 @@ class PostlistChunkReader {
     public:
 	/** Initialise the postlist chunk reader.
 	 *
-	 *  @param keypos A pointer to the key string just after the
-	 *  		  termname.
+	 *  @param keypos A pointer to the key string just after the termname.
 	 *  @param keyend A pointer to one-past-the-end of the key value.
 	 *  @param chunk  The string value of this chunk.
 	 */
 	PostlistChunkReader(const char *keypos,
 			    const char *keyend,
-			    const std::string &chunk);
+			    const string &chunk);
 
 	om_docid get_docid() const {
 	    return did;
@@ -76,7 +76,7 @@ class PostlistChunkReader {
 	void next();
 
     private:
-	std::string chunk;
+	string chunk;
 	const char *pos;
 	const char *end;
 
@@ -102,7 +102,7 @@ class PostlistChunkWriter {
     public:
 	PostlistChunkWriter(const QuartzDbKey &key,
 			    bool is_first_chunk_,
-			    const std::string &tname_,
+			    const string &tname_,
 			    om_termcount collectionfreq_,
 			    bool is_last_chunk_,
 			    om_termcount number_of_entries_);
@@ -123,7 +123,7 @@ class PostlistChunkWriter {
 
     private:
 	QuartzDbKey orig_key;
-	std::string tname;
+	string tname;
 	bool is_first_chunk;
 	om_termcount collectionfreq;
 	bool is_last_chunk;
@@ -133,7 +133,7 @@ class PostlistChunkWriter {
 	om_docid first_did;
 	om_docid current_did;
 
-	std::string chunk;
+	string chunk;
 };
 
 // Static functions
@@ -158,9 +158,9 @@ static bool get_tname_from_key(const char **src, const char *end,
 
 static bool
 skip_and_check_tname_in_key(const char **keypos, const char *keyend,
-			    const std::string &tname)
+			    const string &tname)
 {
-    std::string tname_in_key;
+    string tname_in_key;
 
     // Read the termname.
     if (*keypos != keyend) {
@@ -260,20 +260,20 @@ static void read_start_of_chunk(const char ** posptr,
     }
 }
 
-static std::string make_did_increase(om_docid new_did,
+static string make_did_increase(om_docid new_did,
 				     om_docid last_did_in_chunk)
 {
     Assert(new_did > last_did_in_chunk);
     return pack_uint(new_did - last_did_in_chunk);
 }
 
-static std::string make_wdf_and_length(om_termcount wdf,
+static string make_wdf_and_length(om_termcount wdf,
 				       quartz_doclen_t doclength)
 {
     return pack_uint(wdf) + pack_uint(doclength);
 }
 
-static void append_to_chunk(std::string & chunk,
+static void append_to_chunk(string & chunk,
 			    om_docid new_did,
 			    om_docid last_did_in_chunk,
 			    om_termcount new_wdf,
@@ -283,7 +283,7 @@ static void append_to_chunk(std::string & chunk,
     chunk += make_wdf_and_length(new_wdf, new_doclength);
 }
 
-static void write_start_of_chunk(std::string & chunk,
+static void write_start_of_chunk(string & chunk,
 				 unsigned int start_of_chunk_header,
 				 unsigned int end_of_chunk_header,
 				 bool is_last_chunk,
@@ -300,7 +300,7 @@ static void write_start_of_chunk(std::string & chunk,
 
 PostlistChunkReader::PostlistChunkReader(const char *keypos,
 					 const char *keyend,
-					 const std::string &chunk_)
+					 const string &chunk_)
 	: chunk(chunk_),
 	  pos(chunk.data()), end(pos + chunk.size()),
 	  at_end(false)
@@ -334,7 +334,7 @@ PostlistChunkReader::next()
 
 PostlistChunkWriter::PostlistChunkWriter(const QuartzDbKey &key,
 					 bool is_first_chunk_,
-					 const std::string &tname_,
+					 const string &tname_,
 					 om_termcount collectionfreq_,
 					 bool is_last_chunk_,
 					 om_termcount number_of_entries_)
@@ -368,7 +368,7 @@ PostlistChunkWriter::append(om_docid did,
 
 /** Make the data to go at the start of the very first chunk.
  */
-static inline std::string make_start_of_first_chunk(om_termcount entries,
+static inline string make_start_of_first_chunk(om_termcount entries,
 						    om_termcount collectionfreq,
 						    om_docid new_did)
 {
@@ -377,7 +377,7 @@ static inline std::string make_start_of_first_chunk(om_termcount entries,
 
 /** Make the data to go at the start of a standard chunk.
  */
-static inline std::string make_start_of_chunk(bool new_is_last_chunk,
+static inline string make_start_of_chunk(bool new_is_last_chunk,
 					      om_docid new_first_did,
 					      om_docid new_final_did)
 {
@@ -467,7 +467,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 				    &new_is_last_chunk,
 				    &new_last_did_in_chunk);
 
-		std::string chunk_data(tagpos, tagend);
+		string chunk_data(tagpos, tagend);
 
 		/* First remove the renamed tag */
 		table->delete_tag(cursor->current_key);
@@ -505,7 +505,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		/* Make sure this is a chunk with the right term attached. */
 		const char * keypos = cursor->current_key.value.data();
 		const char * keyend = keypos + cursor->current_key.value.size();
-		std::string tname_in_key;
+		string tname_in_key;
 
 		// Read the termname.
 		if (keypos != keyend) {
@@ -518,7 +518,9 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		    throw OmDatabaseCorruptError("Couldn't find chunk before delete chunk.");
 		}
 
-		bool is_first_chunk = (keypos == keyend);
+		// FIXME: this was declared locally here - trying to see if we
+		// should be updating the member of the same name
+		is_first_chunk = (keypos == keyend);
 
 		/* Now update the last_chunk */
 		QuartzDbTag *tag = table->get_or_make_tag(cursor->current_key);
@@ -540,12 +542,12 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		}
 		bool wrong_is_last_chunk;
 		om_docid last_did_in_chunk;
-		std::string::size_type start_of_chunk_header = tagpos - tag->value.data();
+		string::size_type start_of_chunk_header = tagpos - tag->value.data();
 		read_start_of_chunk(&tagpos, tagend,
 				    first_did_in_chunk,
 				    &wrong_is_last_chunk,
 				    &last_did_in_chunk);
-		std::string::size_type end_of_chunk_header = tagpos - tag->value.data();
+		string::size_type end_of_chunk_header = tagpos - tag->value.data();
 
 		/* write new is_last flag */
 		write_start_of_chunk(tag->value,
@@ -690,7 +692,6 @@ static void new_postlist(QuartzBufferedTable * bufftable,
 
 static void new_chunk(QuartzBufferedTable * bufftable,
 		      const om_termname & tname,
-		      bool is_last_chunk,
 		      om_docid new_did,
 		      om_termcount new_wdf,
 		      quartz_doclen_t new_doclen)
@@ -819,7 +820,7 @@ QuartzPostList::next_chunk()
     }
     const char * keypos = cursor->current_key.value.data();
     const char * keyend = keypos + cursor->current_key.value.size();
-    std::string tname_in_key;
+    string tname_in_key;
 
     // Check we're still in same postlist
     if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
@@ -879,6 +880,7 @@ PostList *
 QuartzPostList::next(om_weight w_min)
 {
     DEBUGCALL(DB, PostList *, "QuartzPostList::next", w_min);
+    (void)w_min; // no warning
 
     if (!have_started) {
 	have_started = true;
@@ -886,8 +888,8 @@ QuartzPostList::next(om_weight w_min)
 	if (!next_in_chunk()) next_chunk();
     }
 
-    DEBUGLINE(DB, std::string("Moved to ") <<
-	      (is_at_end ? std::string("end.") : std::string("docid, wdf, doclength = ") +
+    DEBUGLINE(DB, string("Moved to ") <<
+	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength) + "."));
     
@@ -918,7 +920,7 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 
     const char * keypos = cursor->current_key.value.data();
     const char * keyend = keypos + cursor->current_key.value.size();
-    std::string tname_in_key;
+    string tname_in_key;
 
     // Check we're still in same postlist
     if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
@@ -983,6 +985,7 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 {
     DEBUGCALL(DB, PostList *,
 	      "QuartzPostList::skip_to", desired_did << ", " << w_min);
+    (void)w_min; // no warning
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
     have_started = true;
@@ -992,8 +995,8 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 
     move_to(desired_did);
 
-    DEBUGLINE(DB, std::string("Skipped to ") <<
-	      (is_at_end ? std::string("end.") : std::string("docid, wdf, doclength = ") +
+    DEBUGLINE(DB, string("Skipped to ") <<
+	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength) + "."));
     
@@ -1028,7 +1031,7 @@ QuartzPostList::move_to(om_docid desired_did)
     }
 }
 
-std::string
+string
 QuartzPostList::get_description() const
 {
     return tname + ":" + om_tostring(number_of_entries);
@@ -1037,14 +1040,14 @@ QuartzPostList::get_description() const
 
 void
 QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
-			  const om_termname & tname,
+			  const om_termname & tname_,
 			  om_docid new_did,
 			  om_termcount new_wdf,
 			  quartz_doclen_t new_doclen)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPostList::add_entry",
 		     bufftable << ", " <<
-		     tname << ", " <<
+		     tname_ << ", " <<
 		     new_did << ", " <<
 		     new_wdf << ", " <<
 		     new_doclen);
@@ -1054,7 +1057,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
     unsigned int chunksize = 2048;
 
     QuartzDbKey key;
-    make_key(tname, new_did, key);
+    make_key(tname_, new_did, key);
     AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
 
     cursor->find_entry(key);
@@ -1064,16 +1067,16 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	      "', length=" << cursor->current_key.value.size());
     const char * keypos = cursor->current_key.value.data();
     const char * keyend = keypos + cursor->current_key.value.size();
-    std::string tname_in_key;
+    string tname_in_key;
 
     // Read the termname.
     if (keypos != keyend)
 	if (!get_tname_from_key(&keypos, keyend, tname_in_key))
 	    report_read_error(keypos);
 
-    if (tname_in_key != tname) {
+    if (tname_in_key != tname_) {
 	// This should only happen if the postlist doesn't exist at all.
-	new_postlist(bufftable, tname, new_did, new_wdf, new_doclen);
+	new_postlist(bufftable, tname_, new_did, new_wdf, new_doclen);
     } else {
 	bool is_first_chunk = (keypos == keyend);
 
@@ -1106,30 +1109,28 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	unsigned int end_of_chunk_header = tagpos - tag->value.data();
 
 	// Have read in data needed - now add item
-	if (!is_last_chunk ||
-	    !(last_did_in_chunk < new_did)) {
+	if (!is_last_chunk || !(last_did_in_chunk < new_did)) {
 	    // Add in middle of postlist.
 	    keypos = cursor->current_key.value.data();
 	    keyend = keypos + cursor->current_key.value.size();
-            if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+            if (!skip_and_check_tname_in_key(&keypos, keyend, tname_)) {
                /* Postlist for this termname doesn't exist. */
 	       return;
             }
             PostlistChunkReader from(keypos, keyend, tag->value);
-            PostlistChunkWriter to(cursor->current_key, (keypos == keyend), tname,
+            PostlistChunkWriter to(cursor->current_key, (keypos == keyend),
+	    		   tname_,
 			   from.get_collectionfreq(),
 			   from.get_is_last_chunk(),
 			   from.get_number_of_entries());
-            while ((!from.is_at_end()) && (from.get_docid() < new_did))
-            {
+            while ((!from.is_at_end()) && (from.get_docid() < new_did)) {
                 to.append(from.get_docid(),
 	  	      from.get_wdf(),
 		      from.get_doclength());
 	        from.next();
             }
             to.append(new_did, new_wdf, new_doclen);
-            while (!from.is_at_end())
-            {
+            while (!from.is_at_end()) {
                 to.append(from.get_docid(),
 	  	      from.get_wdf(),
 		      from.get_doclength());
@@ -1140,8 +1141,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	} else {
 	    // Append
 	    if (tag->value.size() > chunksize) {
-		new_chunk(bufftable, tname, is_last_chunk,
-			  new_did, new_wdf, new_doclen);
+		new_chunk(bufftable, tname_, new_did, new_wdf, new_doclen);
 
 		// Sort out previous chunk
 		write_start_of_chunk(tag->value,
@@ -1163,7 +1163,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	    }
 	}
 
-	adjust_counts(bufftable, tname, 1, 0, new_wdf, 0);
+	adjust_counts(bufftable, tname_, 1, 0, new_wdf, 0);
     }
 }
 
