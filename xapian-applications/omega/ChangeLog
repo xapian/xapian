@@ -1,3 +1,14 @@
+Fri Dec 07 15:59:21 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added macros to OmegaScript.
+
+	* template/query: updated to use macros.
+
+	* Removed specialcase to allow no-argument commands to accept an empty argument list
+	  (e.g. "$thispage{}" rather than "$thispage").  The only reason this was useful was
+	  to allow "$thispage{}s" which can just as well be written using a comment to force
+	  the parser do what you want, e.g. "$thispage${}s".
+
 Thu Dec 06 18:59:34 GMT 2001  Olly Betts <olly@survex.com>
 
 	* If a stemmer is set, and all_stem isn't, only stemmer terms starting with a

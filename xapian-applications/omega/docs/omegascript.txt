@@ -18,17 +18,18 @@ You searched for '$html{$query}'.
 </html>
 ----------------------------------------------------------------------
 
-Where appropriate, arguments themselves can contain OmegaScript
-commands. Where an argument is treated as a string, the string is
-precisely the contents of that argument - there is no string delimiter
-(such as the double-quoted character '"' in C and similar
-languages). This can make complex OmegaScript slightly difficult to
-read at times.
+Where appropriate, arguments themselves can contain OmegaScript commands.
+Where an argument is treated as a string, the string is precisely the contents
+of that argument - there is no string delimiter (such as the double-quoted
+character '"' in C and similar languages).  This can make complex OmegaScript
+slightly difficult to read at times.
 
-The $simplecommand form is an abbreviation for when a command takes no
-arguments. In this case, $simplecommand{} is still legal (for when you
-need to have characters straight after the command which would
-normally be part of the command name).
+When a command takes no arguments, the braces must be omitted (i.e.
+$simplecommand rather than $simplecommand{} - the latter is a command with a
+single empty argument).  If you want to have the value of $simplecommand
+immediately followed by a letter, digit, or "_", you can use a comment to
+prevent the parser treating the following character as part of a command name.
+E.g. $simplecommand${}k rather than $simplecommandk
 
 
 OmegaScript literals
@@ -72,6 +73,14 @@ $date{TIME_T[,FMT]}
 $dbname
 	database name (multiple names are returned separated by "/").
 
+$def{MACRONAME,VALUE}
+	define a macro which can take 0 to 9 arguments.  You can call it with $MACRONAME
+	(if it take 0 arguments) or $MACRONAME{ARG1,ARG2,ARG3} is it takes arguments.
+	In value, arguments are available as $1, $2, ... $9.  In the current implementation,
+	macros can override omegascript commands, but this shouldn't be relied on.  It's
+	recommended to use a capitalised name for macros to avoid collision with future
+	OmegaScript commands.
+	
 $defaultop
 	"and" or "or".
 

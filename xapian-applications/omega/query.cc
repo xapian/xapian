@@ -523,7 +523,7 @@ static map<string, string> field;
 static om_docid q0;
 static int percent;
 
-static string print_caption(om_docid m, const string &fmt, const string &loopvar);
+static string print_caption(om_docid m, const string &fmt, const vector<string> &param);
 
 enum tagval {
 CMD_,
@@ -534,6 +534,7 @@ CMD_cgi,
 CMD_cgilist,
 CMD_date,
 CMD_dbname,
+CMD_def,
 CMD_defaultop,
 CMD_eq,
 CMD_env,
@@ -578,7 +579,8 @@ CMD_thispage,
 CMD_topdoc,
 CMD_topterms,
 CMD_url,
-CMD_version
+CMD_version,
+CMD_MACRO // special tag for macro evaluation
 };
 
 struct func_attrib {
@@ -608,6 +610,7 @@ static struct func_desc func_tab[] = {
 {T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
 {T(date),	1, 2, N, 1, 0}}, // convert time_t to strftime format (default: YYYY-MM-DD)
 {T(dbname),	0, 0, N, 0, 0}}, // database name
+{T(def),	2, 2, 1, 0, 0}}, // define a macro
 {T(defaultop),	0, 0, N, 0, 0}}, // default operator: "and" or "or"
 {T(env),	1, 1, N, 0, 0}}, // environment variable
 {T(eq),		2, 2, N, 0, 0}}, // test equality
@@ -657,8 +660,10 @@ static struct func_desc func_tab[] = {
 { NULL,{0,      0, 0, 0, 0, 0}}
 };
 
+static vector<string> macros;
+
 static string
-eval(const string &fmt, const string &loopvar)
+eval(const string &fmt, const vector<string> &param)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
@@ -674,28 +679,48 @@ eval(const string &fmt, const string &loopvar)
 	std::string::size_type code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
-	// Magic sequences:
-	// `$$' -> `$', `$(' -> `{', `$)' -> `}', `$.' -> `,'
-	char lit = '\0';
-	switch (fmt[q]) {
-	 case '$': lit = '$'; break;
-	 case '(': lit = '{'; break;
-	 case ')': lit = '}'; break;
-	 case '.': lit = ','; break;
-	}
-	if (lit) {
-	    res += lit;
-	    p = q + 1;
-	    continue;
-	}
-	if (fmt[q] == '_') {
-	    res += loopvar;
-            p = q + 1;
-            continue;
-	}
-	if (fmt[q] != '{' && !isalpha(fmt[q])) {
-	    string msg = "Unknown $ code in: $" + fmt.substr(q);
-	    throw msg;
+	unsigned char ch = fmt[q];
+	switch (ch) {
+	    // Magic sequences:
+	    // `$$' -> `$', `$(' -> `{', `$)' -> `}', `$.' -> `,'
+	    case '$':
+		res += '$';
+		p = q + 1;
+		continue;
+	    case '(':
+		res += '{';
+		p = q + 1;
+		continue;
+	    case ')':
+		res += '}';
+		p = q + 1;
+		continue;
+	    case '.':
+		res += ',';
+		p = q + 1;
+		continue;
+	    case '_':
+		ch = '0';
+		// FALL THRU
+	    case '1': case '2': case '3': case '4': case '5':
+	    case '6': case '7': case '8': case '9':
+		ch -= '0';
+		if (ch < param.size()) res += param[ch];
+		p = q + 1;
+		continue;
+	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h':
+	    case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p':
+	    case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+	    case 'y': case 'z': 
+	    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H':
+	    case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P':
+	    case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
+	    case 'Y': case 'Z':
+	    case '{':
+		break;
+	    default:
+		string msg = "Unknown $ code in: $" + fmt.substr(q);
+		throw msg;
 	}
 	p = fmt.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				  "abcdefghijklmnopqrstuvwxyz"
@@ -732,10 +757,6 @@ eval(const string &fmt, const string &loopvar)
 	    p++;
 	}
 
-	// allow "$thispage{}s.gif" to work...
-	if (i->second->maxargs == 0 && args.size() == 1 && args[0].empty())
-	    args.clear();
-
 	if (i->second->minargs != N) {
 	    if ((int)args.size() < i->second->minargs)
 		throw "too few arguments to $" + var;
@@ -750,7 +771,7 @@ eval(const string &fmt, const string &loopvar)
 		n = args.size();
 	    
 	    for (std::vector<string>::size_type j = 0; j < n; j++)
-		args[j] = eval(args[j], loopvar);
+		args[j] = eval(args[j], param);
 	}
 	if (i->second->ensure_match) ensure_match();
 	string value;
@@ -776,15 +797,16 @@ eval(const string &fmt, const string &loopvar)
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
-	    case CMD_and:
+	    case CMD_and: {
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
-		    if (eval(*i, loopvar).empty()) {
+		    if (eval(*i, param).empty()) {
 			value = "true";
 			break;
 		    }
 	        }
 		break;
+	    }
 	    case CMD_cgi: {
 		MCI i = cgi_params.find(args[0]);
 		if (i != cgi_params.end()) value = i->second;
@@ -807,7 +829,7 @@ eval(const string &fmt, const string &loopvar)
 			struct tm *then;
 			then = gmtime(&date);
 			string fmt = "%Y-%m-%d";
-			if (args.size() > 1) fmt = eval(args[1], loopvar);
+			if (args.size() > 1) fmt = eval(args[1], param);
 			strftime(buf, sizeof buf, fmt.c_str(), then);
 		    }
 		    value = buf;
@@ -816,6 +838,18 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_dbname:
 		if (dbname != default_dbname) value = dbname;
 		break;
+	    case CMD_def: {
+		func_attrib *fa = new func_attrib;
+		fa->tag = CMD_MACRO + macros.size();
+		fa->minargs = 0;
+		fa->maxargs = 9;
+		fa->evalargs = N; // FIXME: or 0?
+		fa->ensure_match = fa->cache = false;
+		
+		macros.push_back(args[1]);
+		func_map[args[0]] = fa;
+		break;
+	    }
 	    case CMD_defaultop:
 		if (default_op == OmQuery::OP_AND) {
 		    value = "and";
@@ -864,7 +898,7 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_freqs:
 		// for backward compatibility
 		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
-			     loopvar);
+			     param);
 		break;
 	    case CMD_highlight: {
 		string bra, ket;
@@ -918,7 +952,7 @@ eval(const string &fmt, const string &loopvar)
 		}
 #endif
 		for (om_docid m = topdoc; m < last; m++)
-		    value += print_caption(m, args[0], loopvar);
+		    value += print_caption(m, args[0], param);
 		break;
 	    case CMD_hitsperpage:
 		value = int_to_string(hits_per_page);
@@ -946,9 +980,9 @@ eval(const string &fmt, const string &loopvar)
 		break;
 	    case CMD_if:
 		if (!args[0].empty())
-		    value = eval(args[1], loopvar);
+		    value = eval(args[1], param);
 		else if (args.size() > 2)
-		    value = eval(args[2], loopvar);
+		    value = eval(args[2], param);
 		break;
 	    case CMD_include:
 	        value = eval_file(args[0]);
@@ -1002,10 +1036,13 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_map:
 		if (!args[0].empty()) {
 		    string l = args[0], pat = args[1];
+		    vector<string> p(param);
 		    std::string::size_type i = 0, j;
 		    while (1) {
 			j = l.find('\t', i);
-			value += eval(pat, eval(l.substr(i, j - i), loopvar));
+			string save_loopvar;
+			p[0] = eval(l.substr(i, j - i), param);
+			value += eval(pat, p);
 			if (j == string::npos) break;
 			value += '\t';
 			i = j + 1;
@@ -1054,13 +1091,14 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_opt:
 		value = option[args[0]];
 		break;
-	    case CMD_or:
+	    case CMD_or: {
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
-		    value = eval(*i, loopvar);
+		    value = eval(*i, param);
 		    if (!value.empty()) break;
 	        }
 		break;
+	    }
 	    case CMD_percentage:
 		// percentage score
 		value = int_to_string(percent);
@@ -1105,13 +1143,14 @@ eval(const string &fmt, const string &loopvar)
 		}
 		break;
 	    }
-	    case CMD_relevants:		
+	    case CMD_relevants:	{
 		for (map <om_docid, bool>::const_iterator i = ticked.begin();
 		     i != ticked.end(); i++) {
 		    if (i->second) value += int_to_string(i->first) + '\t';
 		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
+	    }
 	    case CMD_score:
 	        // Score (0 to 10)
 		value = int_to_string(percent / 10);
@@ -1197,9 +1236,14 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_version:
 		value = "Xapian - "PACKAGE" "VERSION;
 		break;
-	    default:
-		// FIXME: should never get here, so assert this?
-		throw "Unknown function `" + var + "'";
+	    default: {
+		args.insert(args.begin(), param[0]);
+		int n = i->second->tag - CMD_MACRO;
+		assert(n >= 0 && (unsigned int)n < macros.size());
+	       	// throw "Unknown function `" + var + "'";
+		value = eval(macros[n], args);
+		break;
+	    }
 	}
         res += value;
     }
@@ -1237,8 +1281,9 @@ eval_file(const string &fmtfile)
 			string fmt = string(blk, st.st_size);
 			free(blk);			
 			close(fd);
-			string empty;
-			return eval(fmt, empty);
+			vector<string> noargs;
+			noargs.resize(1);
+			return eval(fmt, noargs);
 		    }
 		    free(blk);
 		}
@@ -1265,7 +1310,7 @@ percentage(double ratio)
 }
 
 static string
-print_caption(om_docid m, const string &fmt, const string &loopvar)
+print_caption(om_docid m, const string &fmt, const vector<string> &param)
 {
     q0 = *(mset[m]);
 
@@ -1294,7 +1339,7 @@ print_caption(om_docid m, const string &fmt, const string &loopvar)
 	i++;
     }
 
-    return eval(fmt, loopvar);
+    return eval(fmt, param);
 }
 
 om_doccount

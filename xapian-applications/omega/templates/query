@@ -1,5 +1,31 @@
-$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
 <html>
+$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+${
+$def{PREV,
+$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
+SRC="/images/prev.png" BORDER=0 HEIGHT=30 WIDTH=30>,
+<IMG ALT="" SRC="/images/prevoff.png" HEIGHT=30 WIDTH=30>}
+}
+
+$def{NEXT,
+$if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;" ALT="&gt;"
+SRC="/images/next.png" BORDER=0 HEIGHT=30 WIDTH=30>,
+<IMG ALT="" SRC="/images/nextoff.png" HEIGHT=30 WIDTH=30>}
+}
+
+$def{PAGE,<INPUT TYPE=image NAME="$1" VALUE="$1" SRC="/images/page-$1.png" BORDER=0$opt{a} ALT="$1">}
+
+$def{SPAGE,<IMG SRC="/images/page-$1s.png"$opt{a} ALT=$1>}
+}
+
+$def{PREV,$if{$ne{$topdoc,0},<INPUT TYPE=submit NAME="&lt;" VALUE="Previous">}}
+
+$def{PAGE,<INPUT TYPE=submit NAME="[" VALUE="$1">}
+
+$def{SPAGE,<INPUT TYPE=submit NAME="[" VALUE="$1" DISABLED=disabled>}
+
+$def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
+
 $set{topterms,$or{$ne{$msize,0},$query}}
 $if{topterms,$include{toptermsjs}}
 <head>
@@ -34,52 +60,44 @@ $if{$ne{$last,$msize},
 $list{$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
-SRC="images/score-$score.png"
+SRC="/images/score-$score.png"
 ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 <TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR="#ccffcc">
 <INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>
 </TD></TR></TABLE></TD>
-<TD><B><A
-HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
+<A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
 $highlight{$field{sample},$terms}$if{$field{sample},...}<br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
 ${
 <small>Language: <b>$html{$or{$field{language},unknown}}</b>
 Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>
-Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>
+</b><br>
 }
 $percentage% relevant, matching:
 <i>$list{$html{$terms},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
 </table>
-${$map{$range{1,$lastpage},<INPUT TYPE=submit NAME="[" VALUE="$_">}}
 
 <br><center>
-$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
-SRC="images/previous.png" BORDER=0 HEIGHT=30
-WIDTH=30>,
-<IMG ALT="" SRC="images/prevoff.png" HEIGHT=30 WIDTH=30>}
 
-${suppress page links if there's only one page}
+${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
 $set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
 
-$map{$range{1,$add{$thispage,-1}},
-<INPUT TYPE=image NAME="$_" VALUE="$_"
-SRC="images/page-$_.png" BORDER=0$opt{a} ALT="$_">}
-
-<IMG SRC="images/page-$thispage{}s.png"$opt{a}
-ALT=$thispage>
-
-$map{$range{$add{$thispage,1},$min{$lastpage,$add{$thispage,9}}},
-<INPUT TYPE=image NAME="[ $_ ]" VALUE="$_"
-SRC="images/page-$_.png" BORDER=0$opt{a} ALT="$_">}
+${1-W ... X-(this)-Y ...}
+$set{w,$min{3,$add{$thispage,-1}}}
+$set{x,$max{$add{$opt{w},1},$add{$thispage,-3}}}
+$set{y,$min{$lastpage,$add{$thispage,8}}}
+$PREV
+$map{$range{1,$opt{w}},$PAGE{$_}}
+$if{$ne{$add{$opt{w},1},$opt{x}},...}
+$map{$range{$opt{x},$add{$thispage,-1}},$PAGE{$_}}
+$SPAGE{$thispage}
+$map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
+$if{$ne{$opt{y},$last},...}
+$NEXT
 }
-
-$if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;" ALT="&gt;"
-SRC="images/next.png" BORDER=0 HEIGHT=30 WIDTH=30>,
-<IMG ALT="" SRC="images/nextoff.png" HEIGHT=30 WIDTH=30>}
 </center><br>
-
 }
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
