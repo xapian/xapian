@@ -35,7 +35,7 @@ mkdir -p $RPM_BUILD_ROOT
 
 make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
 mkdir -p $RPM_BUILD_ROOT/var/www/cgi-bin
-mv $RPM_BUILD_ROOT/usr/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
+cp $RPM_BUILD_ROOT/usr/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}
 
 # docs
@@ -58,6 +58,7 @@ cp images/* $RPM_BUILD_ROOT/var/www/icons/omega/
 %files
 %defattr(-,root,root)
 /usr/bin/*
+/var/www/cgi-bin/*
 /var/lib/omega/
 %docdir /usr/share/doc/%{name}
 /usr/share/doc/%{name}
