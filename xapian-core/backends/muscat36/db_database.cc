@@ -286,7 +286,7 @@ DBDatabase::open_post_list_internal(const om_termname & tname) const
 }
 
 LeafPostList *
-DBDatabase::open_post_list(const om_termname & tname) const
+DBDatabase::do_open_post_list(const om_termname & tname) const
 {
     OmLockSentry sentry(mutex);
 

@@ -29,6 +29,7 @@
 #include "om/omindexdoc.h"
 #include "omrefcnt.h"
 #include "omlocks.h"
+#include "emptypostlist.h"
 
 class LeafDocument;
 class LeafPostList;
@@ -106,6 +107,18 @@ class IRDatabase : public OmRefCntBase {
 	 *  end_session() first, unless an error is already happening.
 	 */
 	void internal_end_session();
+
+	/** Method definied by subclass to actually open a posting list.
+	 *
+	 *  This is a list of all the documents which contain a given term.
+	 *
+	 *  @param tname  The term whose posting list is being requested.
+	 *
+	 *  @return       A pointer to the newly created posting list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
+	virtual LeafPostList * do_open_post_list(const om_termname & tname) const = 0;
 
     public:
 	/** Destroy the database.
@@ -193,7 +206,17 @@ class IRDatabase : public OmRefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual LeafPostList * open_post_list(const om_termname & tname) const = 0;
+	LeafPostList * open_post_list(const om_termname & tname) const {
+	    if (!term_exists(tname)) {
+		DEBUGLINE(MATCH, tname + " is not in database.");
+		// Term doesn't exist in this database.  However, we create
+		// a (empty) postlist for it to help make distributed searching
+		// cleaner (term might exist in other databases).
+		// This is similar to using the muscat3.6 zerofreqs option.
+		return new EmptyPostList();
+	    }
+	    return do_open_post_list(tname);
+	}
 
 	/** Open a term list.
 	 *

@@ -23,19 +23,16 @@
 #ifndef OM_HGUARD_EMPTYPOSTLIST_H
 #define OM_HGUARD_EMPTYPOSTLIST_H
 
-#include "postlist.h"
+#include "leafpostlist.h"
 
-class EmptyPostList : public PostList {
+class EmptyPostList : public LeafPostList {
     public:
 	om_doccount get_termfreq() const;
-	om_weight get_maxweight() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
 	om_doclength get_doclength() const;
 	PositionList *get_position_list();
-
-        om_weight recalc_maxweight();
 
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
@@ -67,7 +64,7 @@ EmptyPostList::get_weight() const
 inline om_doclength
 EmptyPostList::get_doclength() const
 {
-    Assert(0);
+    Assert(0); // no documents
     return 0;
 }
 
@@ -75,19 +72,7 @@ inline PositionList *
 EmptyPostList::get_position_list()
 {
     Assert(0); // no positions
-    throw OmUnimplementedError("EmptyPostList::get_position_list() unimplemented");
-}
-
-inline om_weight
-EmptyPostList::get_maxweight() const
-{
-    return 0;
-}
-
-inline om_weight
-EmptyPostList::recalc_maxweight()
-{
-    return 0;
+    return NULL;
 }
 
 inline PostList *

@@ -100,7 +100,7 @@ class QuartzDatabase : public IRDatabase {
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
-	LeafPostList * open_post_list(const om_termname& tname) const;
+	LeafPostList * do_open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 };

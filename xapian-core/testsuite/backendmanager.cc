@@ -243,7 +243,7 @@ BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
 	    // directory was created, so do the indexing.
 	    OmWritableDatabase db(params);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
-	    return db;
+	    // sleepycat needs to be closed and reopened after a write...
 	}
     }
     return OmWritableDatabase(params);

@@ -129,7 +129,11 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
 	}
     }
 
-    if (postlists.empty()) return new EmptyPostList();
+    if (postlists.empty()) {
+	EmptyPostList *pl = new EmptyPostList();
+	pl->set_termweight(mk_weight(1, ""));
+	return pl;
+    }
 
     std::stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
 
@@ -167,7 +171,11 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
     postlists.clear();
 
     // If none of the postlists had any entries, return an EmptyPostList.
-    if (pq.empty()) return new EmptyPostList();
+    if (pq.empty()) {
+	EmptyPostList *pl = new EmptyPostList();
+	pl->set_termweight(mk_weight(1, ""));
+	return pl;
+    }
 
     // Build a tree balanced by the term frequencies
     // (similar to building a huffman encoding tree).
@@ -221,36 +229,20 @@ LocalMatch::~LocalMatch()
 }
 
 PostList *
-LocalMatch::mk_postlist(const om_termname& tname)
+LocalMatch::mk_postlist(const om_termname & tname)
 {
     DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ")");
 
-    // Make a postlist
-    PostList * pl;
+    LeafPostList * pl = database->open_post_list(tname);
 
-    om_weight term_weight = 0;
+    // FIXME - query size is currently fixed as 1
+    // FIXME - want to use within query frequency here.
+    // FIXME: pass the weight type and the info needed to create it to the
+    // postlist instead
+    IRWeight * wt = mk_weight(1, tname);
+    om_weight term_weight = wt->get_maxpart();
 
-    if (!database->term_exists(tname)) {
-	DEBUGLINE(MATCH, tname + " is not in database.");
-	// Term doesn't exist in this database.  However, we create
-	// a (empty) postlist for it to help make distributed searching
-	// cleaner (term might exist in other databases).
-	// This is similar to using the muscat3.6 zerofreqs option.
-	pl = new EmptyPostList();
-    } else {
-	LeafPostList * leaf_pl = database->open_post_list(tname);
-
-	// FIXME - query size is currently fixed as 1
-	// FIXME - want to use within query frequency here.
-	// FIXME: pass the weight type and the info needed to create it to the
-	// postlist instead?
-	IRWeight * wt = mk_weight(1, tname);
-	term_weight = wt->get_maxpart();
-	DEBUGLINE(MATCH, "get_maxpart = " << term_weight);
-
-	leaf_pl->set_termweight(wt);
-	pl = leaf_pl;
-    }
+    pl->set_termweight(wt);
 
     om_doccount term_freq = statssource.get_total_termfreq(tname);
 
@@ -262,7 +254,6 @@ LocalMatch::mk_postlist(const om_termname& tname)
 
     return pl;
 }
-
 
 void
 LocalMatch::mk_extra_weight()
@@ -510,19 +501,6 @@ void
 LocalMatch::build_query_tree()
 {
     if (query == 0) {
-	if (max_or_terms != 0) {
-	    om_termname_list terms = users_query.get_terms();
-	    
-	    om_termname_list::const_iterator tname;
-	    for (tname = terms.begin(); tname != terms.end(); tname++) {
-		IRWeight * wt = mk_weight(1, *tname);
-		term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
-		DEBUGLINE(MATCH, "TERM `" <<  *tname << "' get_maxpart = " <<
-			  wt->get_maxpart());
-		delete wt;
-	    }
-	}
-
 	DEBUGLINE(MATCH, "LocalMatch::build_query_tree()");
 	query = postlist_from_query(&users_query);
 	DEBUGLINE(MATCH, "LocalMatch::query = (" <<

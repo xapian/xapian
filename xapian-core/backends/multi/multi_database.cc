@@ -117,7 +117,7 @@ MultiDatabase::get_termfreq(const om_termname & tname) const
 
 
 LeafPostList *
-MultiDatabase::open_post_list(const om_termname & tname) const
+MultiDatabase::do_open_post_list(const om_termname & tname) const
 {
     Assert(term_exists(tname));
 

@@ -107,7 +107,7 @@ om_doccount
 SleepyDatabase::get_termfreq(const om_termname &tname) const
 {
     if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname);
+    PostList *pl = do_open_post_list(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
@@ -124,7 +124,7 @@ SleepyDatabase::term_exists(const om_termname &tname) const
 }
 
 LeafPostList *
-SleepyDatabase::open_post_list(const om_termname & tname) const
+SleepyDatabase::do_open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
     if(tid == 0) throw OmRangeError("Termid " + om_tostring(tid) +

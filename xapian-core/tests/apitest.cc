@@ -1799,6 +1799,55 @@ bool test_maxorterms2()
     return true;
 }
 
+/// Test that max_or_terms doesn't affect query results if we have fewer
+/// terms than the threshold
+bool test_maxorterms3()
+{
+    OmDatabase mydb1(get_database("apitest_simpledata"));
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmEnquire enquire2(make_dbgrp(&mydb2));
+
+    // make a query
+    OmStem stemmer("english");
+
+    string term1 = stemmer.stem_word("word");
+    string term2 = stemmer.stem_word("inmemory");
+    string term3 = stemmer.stem_word("flibble");
+
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery(term1),
+		    OmQuery(OM_MOP_OR,
+			    OmQuery(term2),
+			    OmQuery(term3)));
+    enquire1.set_query(myquery);
+    enquire2.set_query(myquery);
+
+    OmSettings mopts;
+    mopts.set_value("match_max_or_terms", 3);
+    
+    // retrieve the results
+    OmMSet mymset1 = enquire1.get_mset(0, 10);
+    OmMSet mymset2 = enquire2.get_mset(0, 10, NULL, &mopts);
+
+    TEST_EQUAL(mymset1.get_termfreq(term1),
+	       mymset2.get_termfreq(term1));
+    TEST_EQUAL(mymset1.get_termweight(term1),
+	       mymset2.get_termweight(term1));
+    TEST_EQUAL(mymset1.get_termfreq(term2),
+	       mymset2.get_termfreq(term2));
+    TEST_EQUAL(mymset1.get_termweight(term2),
+	       mymset2.get_termweight(term2));
+    TEST_EQUAL(mymset1.get_termfreq(term3),
+	       mymset2.get_termfreq(term3));
+    TEST_EQUAL(mymset1.get_termweight(term3),
+	       mymset2.get_termweight(term3));
+//    TEST_EQUAL(mymset1, mymset2);
+
+    return true;
+}
+
 /// Test that the termfreq returned by termlists is correct.
 bool test_termlisttermfreq()
 {
@@ -2294,7 +2343,8 @@ bool test_qterminfo1()
 
     TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
     TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-    TEST_EQUAL(mymset1a.get_termweight(term3), 0);
+    // non-existant terms still have weight
+    TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   mymset1a.get_termfreq("sponge"));
@@ -2380,6 +2430,7 @@ test_desc db_tests[] = {
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
+    {"maxorterms3",        test_maxorterms3},
     {"termlisttermfreq",   test_termlisttermfreq},
     {"near1",		   test_near1},
     {"phrase1",		   test_phrase1},

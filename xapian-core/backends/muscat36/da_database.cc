@@ -272,7 +272,7 @@ DADatabase::get_termfreq(const om_termname & tname) const
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DADatabase::open_post_list(const om_termname & tname) const
+DADatabase::do_open_post_list(const om_termname & tname) const
 {
     OmLockSentry sentry(mutex);
     return open_post_list_internal(tname);

@@ -16,7 +16,7 @@ noinst_HEADERS = \
  netutils.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h testsuite.h testutils.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
- inmemory_positionlist.h omenquireinternal.h
+ inmemory_positionlist.h omenquireinternal.h emptypostlist.h
 
 noinst_LTLIBRARIES = libcommon.la
 

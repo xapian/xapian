@@ -87,9 +87,9 @@ NetworkDatabase::get_avlength() const
 }
 
 LeafPostList *
-NetworkDatabase::open_post_list(const om_termname & tname) const
+NetworkDatabase::do_open_post_list(const om_termname & tname) const
 {
-    throw OmUnimplementedError("NetworkDatabase::open_post_list() not implemented");
+    throw OmUnimplementedError("NetworkDatabase::do_open_post_list() not implemented");
 #if 0
     Assert(term_exists(tname));
 

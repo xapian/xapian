@@ -337,6 +337,7 @@ static void usage(char *progname)
 {
     std::cerr << "Usage: " << progname
               << " [-v] [-o] [-f] [testname]" << std::endl;
+    exit(1);
 }
 
 int test_driver::main(int argc,

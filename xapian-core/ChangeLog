@@ -1,3 +1,20 @@
+Fri Aug 18 12:34:00 BST 2000 Olly Betts
+
+	* Dervied classes of IRDatabase now implement do_open_post_list,
+	  with open_post_list now a wrapper in the base class which checks
+	  whether the term exists and returns EmptyPostList if it doesn't.
+
+	* LocalMatch: EmptyPostList-s now always have a weight.
+
+	* apitest: Added maxorterms3 to check that maxorterms doesn't affect
+	  results if no term are discarded; fixed qterminfo1 as non-existant
+	  terms now *do* have a weight.
+
+	* backendmanager.cc: Now close and reopen a freshly built sleepycat
+	  database as a workaround for problems with the sleepycat backend.
+
+	* testsuite.cc: Now exit after display syntax message.
+
 Thu Aug 17 20:47:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix some documentation comments in common/database.h and

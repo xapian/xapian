@@ -224,10 +224,10 @@ QuartzDatabase::term_exists(const om_termname & tname) const
 
 
 LeafPostList *
-QuartzDatabase::open_post_list(const om_termname& tname) const
+QuartzDatabase::do_open_post_list(const om_termname& tname) const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::open_post_list() not yet implemented");
+    throw OmUnimplementedError("QuartzDatabase::do_open_post_list() not yet implemented");
 }
 
 LeafTermList *

@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  andmaybepostlist.h xorpostlist.h branchpostlist.h filterpostlist.h \
- emptypostlist.h phrasepostlist.h branchtermlist.h ortermlist.h \
+ phrasepostlist.h branchtermlist.h ortermlist.h \
  selectpostlist.h
 
 noinst_LTLIBRARIES = libmatcher.la
