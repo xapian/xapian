@@ -31,6 +31,8 @@
 #include <db_cxx.h>
 
 #include "omassert.h"
+#include "sleepy_postlist.h"
+#include "sleepy_termlist.h"
 #include "sleepy_database.h"
 #include "sleepy_list.h"
 
