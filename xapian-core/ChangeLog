@@ -1,3 +1,9 @@
+Tue Oct 21 22:26:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/Makefile.am: Backed out previous change - the original rule
+	  does work, but the build machine had a generated file which stopped
+	  the symlink being generated.
+
 Tue Oct 21 22:14:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Tweaked rule to symlink queryparser.cc.
