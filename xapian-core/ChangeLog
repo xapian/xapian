@@ -1,3 +1,7 @@
+Wed Jul  5 18:44:11 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More work towards compiling on Solaris with non-gcc.
+
 Wed Jul  5 17:38:20 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug when OmDatabaseGroups are assigned (mutex was deleted
