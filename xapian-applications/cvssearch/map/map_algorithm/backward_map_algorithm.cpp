@@ -39,6 +39,7 @@ static unsigned int get_length(const cvs_log & log, unsigned int j)
     ostrstream ost;
     ost << scvs_update << "-r" << log[j].revision() 
         << " " << log.file_name() << " 2>/dev/null |wc -l" << ends;
+    cerr << ost.str() << endl;
     process p(ost.str());
     istream *pis = p.process_output();
     unsigned int length = 0;

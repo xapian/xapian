@@ -147,6 +147,7 @@ main(unsigned int argc, const char **argv)
         while (i < argc)
         {
             string command = scvs_log + argv[i++];
+            cerr << command << endl;
             process p = process(command);
             istream * pis = p.process_output();
             if (pis)
@@ -166,6 +167,7 @@ main(unsigned int argc, const char **argv)
         while (getline(input, line))
         {
             string command = scvs_log + line;
+            cerr << command << endl;
             process p = process(command);
             istream * pis = p.process_output();
             if (pis)
