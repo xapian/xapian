@@ -347,7 +347,7 @@ Here's an incomplete list of things to avoid:
   provides a configure-time include, which may provide a replacement for some
   uses of "include".
 
-* It appears that BSD make only support VPATH for implicit rules (e.g. ".c.o:")
+* It appears that BSD make only supports VPATH for implicit rules (e.g. ".c.o:")
   - there's certainly a restriction there which is not present in GNU make.
   We used to try to work around this, but now we use AM_MAINTAINER_MODE to
   disable rules which are only needed by those developing Xapian (these were
@@ -375,8 +375,8 @@ Here's an incomplete list of things to avoid:
 
 And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
-are being executed.  And if they don't want to, they can use "make -s" (in
-many versions of make).
+are being executed.  And if they don't want to, many versions of make support
+the use "make -s" to suppress the echoing of commands.
 
 Using @echo on a message sent to stdout or stderr is acceptable.  Otherwise
 don't use "@" - it makes it harder to track down problems in the makefiles.
