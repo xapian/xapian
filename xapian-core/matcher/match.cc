@@ -245,37 +245,28 @@ Match::match()
 	    // FIXME: find balance between larger size for more efficient
 	    // resorting and smaller size for better w_min optimisations
 	    if (mset.size() == max_msize * 2) {
-	        // sort new elements
-	        cout << "sorting\n";		
-	        stable_sort(mset.begin() + sorted_to, mset.end(), MSetCmp());
-		// merge with existing elements
-	        cout << "merging\n";
-                if (sorted_to) {
-		    inplace_merge(mset.begin(), mset.begin() + sorted_to, mset.end(), MSetCmp());
-		}
-	        msize = max_msize;
-	        sorted_to = msize;
+		// find last element we care about
+		cout << "finding nth\n";		
+		nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
 		// erase elements which don't make the grade
-	        mset.erase(mset.begin() + sorted_to, mset.end());
+	        mset.erase(mset.begin() + max_msize, mset.end());
 	        w_min = mset.back().w;
 	        cout << "mset size = " << mset.size() << endl;
 	    }
 	}
     }
 
+    if (mset.size() > max_msize) {
+	// find last element we care about
+	cout << "finding nth\n";		
+	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
+	// erase elements which don't make the grade
+	mset.erase(mset.begin() + max_msize, mset.end());
+    }
     cout << "sorting\n";
-    stable_sort(mset.begin() + sorted_to, mset.end(), MSetCmp());
-    cout << "merging\n";
-    if (sorted_to) {
-	inplace_merge(mset.begin(), mset.begin() + sorted_to, mset.end(), MSetCmp());
-    }
+    stable_sort(mset.begin(), mset.end(), MSetCmp());
+
     msize = mset.size();
-    if (max_msize < msize) {
-	sorted_to = msize = max_msize;
-	mset.erase(mset.begin() + sorted_to, mset.end());
-	w_min = mset.back().w;
-    }
-    cout << "mset size = " << mset.size() << endl;
 
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
     if (msize) {
