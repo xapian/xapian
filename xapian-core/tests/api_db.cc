@@ -1452,14 +1452,9 @@ static bool test_getmterms2()
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
+    // FIXME: don't assume quartz here.
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Database mydb(get_database("/this_does_not_exist"));
-		   Xapian::Enquire enquire(mydb);
-		   
-		   Xapian::Query myquery("cheese");
-		   enquire.set_query(myquery);
-		   
-		   Xapian::MSet mymset = enquire.get_mset(0, 10););
+		   Xapian::Quartz::open(".quartz/nosuchdirectory"));
     return true;
 }
 

@@ -1,3 +1,10 @@
+Sun Sep 05 01:50:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc,tests/apitest.cc,tests/apitest.h,
+	  testsuite/backendmanager.cc,testsuite/backendmanager.h:
+	  Cleaned up BackendManager by removing complications only required
+	  by absentfile1 test, which can be implemented more directly anyway.
+
 Sun Sep 05 01:33:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Cleaned up rather odd code which is a hangover

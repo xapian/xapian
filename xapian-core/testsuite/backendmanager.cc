@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -174,10 +174,16 @@ BackendManager::set_dbtype(const string &type)
 {
     if (type == current_type) {
 	// leave it as it is.
-#ifdef MUS_BUILD_BACKEND_INMEMORY
     } else if (type == "inmemory") {
+#ifdef MUS_BUILD_BACKEND_INMEMORY
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
+#else
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
+#if 0
+#ifdef MUS_BUILD_BACKEND_INMEMORY
     } else if (type == "inmemoryerr") {
 	do_getdb = &BackendManager::getdb_inmemoryerr;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr;
@@ -188,10 +194,11 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_inmemoryerr3;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr3;
 #else
-    } else if (type == "inmemory" || type == "inmemoryerr" ||
-	       type == "inmemoryerr2" || type == "inmemoryerr3") {
+    } else if (type == "inmemoryerr" || type == "inmemoryerr2" ||
+	       type == "inmemoryerr3") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
 #endif
     } else if (type == "quartz") {
 #ifdef MUS_BUILD_BACKEND_QUARTZ
@@ -250,8 +257,8 @@ BackendManager::set_datadir(const string &datadir_)
     datadir = datadir_;
 }
 
-const string
-BackendManager::get_datadir(void)
+string
+BackendManager::get_datadir()
 {
     return datadir;
 }
@@ -300,6 +307,7 @@ BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
     return db;
 }
 
+#if 0
 Xapian::Database
 BackendManager::getdb_inmemoryerr(const vector<string> &dbnames)
 {
@@ -348,6 +356,7 @@ BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
     return db;
 }
 #endif
+#endif
 
 /** Create the directory dirname if needed.  Returns true if the
  *  directory was created and false if it was already there.  Throws
@@ -359,10 +368,10 @@ bool create_dir_if_needed(const string &dirname)
     struct stat sbuf;
     int result = stat(dirname, &sbuf);
     if (result < 0) {
-	if (errno != ENOENT) throw Xapian::DatabaseOpeningError("Can't stat directory");
-        if (mkdir(dirname, 0700) < 0) {
+	if (errno != ENOENT)
+	    throw Xapian::DatabaseOpeningError("Can't stat directory");
+        if (mkdir(dirname, 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
-	}
 	return true; // Successfully created a directory.
     }
     if (!S_ISDIR(sbuf.st_mode))
@@ -372,76 +381,46 @@ bool create_dir_if_needed(const string &dirname)
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 Xapian::Database
-BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
+BackendManager::getdb_quartz(const vector<string> &dbnames)
 {
     string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
 
     string dbdir = parent_dir + "/db";
-    // add 'w' to distinguish writable dbs (which need to be recreated on each
-    // use) from readonly ones (which can be reused)
-    if (writable) dbdir += 'w';
     for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
+	 i != dbnames.end(); i++) {
 	dbdir += "=" + *i;
     }
-    if (writable) {
-	// if the database is opened readonly, we can reuse it, but if it's
-	// writable we need to start afresh each time
-	rmdir(dbdir);
-    }
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
-	    index_files_to_database(db, change_names_to_paths(dbnames));
-	}
+    // If the database is readonly, we can reuse it if it exists.
+    if (create_dir_if_needed(dbdir)) {
+	// Directory was created, so do the indexing.
+	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	index_files_to_database(db, change_names_to_paths(dbnames));
     }
     return Xapian::Quartz::open(dbdir);
 }
 
 Xapian::WritableDatabase
-BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
-				bool writable)
+BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 {
     string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
 
-    string dbdir = parent_dir + "/db";
-    // add 'w' to distinguish readonly dbs (which can be reused) from
-    // writable ones (which need to be recreated on each use)
-    if (writable) dbdir += 'w';
+    // Add 'w' to distinguish writable dbs (which need to be recreated on each
+    // use) from readonly ones (which can be reused).
+    string dbdir = parent_dir + "/dbw";
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end(); ++i) {
 	dbdir += "=" + *i;
     }
-    if (writable) {
-	// if the database is opened readonly, we can reuse it, but if it's
-	// writable we need to start afresh each time
-	rmdir(dbdir);
-    }
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    touch(dbdir + "/log");
-	    // directory was created, so do the indexing.
-	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
-	    index_files_to_database(db, change_names_to_paths(dbnames));
-	}
-    }
-    return Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
-}
-
-Xapian::Database
-BackendManager::getdb_quartz(const vector<string> &dbnames)
-{
-    return do_getdb_quartz(dbnames, false);
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_quartz(const vector<string> &dbnames)
-{
-    return do_getwritedb_quartz(dbnames, true);
+    // For a writable database we need to start afresh each time.
+    rmdir(dbdir);
+    (void)create_dir_if_needed(dbdir);
+    touch(dbdir + "/log");
+    // directory was created, so do the indexing.
+    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+    index_files_to_database(db, change_names_to_paths(dbnames));
+    return db;
 }
 #endif
 
@@ -492,14 +471,13 @@ BackendManager::getdb_da(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    // need to build temporary file and run it through makeda (yum)
-	    index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
-	}
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makeda (yum)
+	index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
     }
-    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile");
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
+				     dbdir + "/keyfile");
 }
 
 Xapian::Database
@@ -514,15 +492,13 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    // need to build temporary file and run it through makeda (yum)
-	    index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
-	}
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makeda (yum)
+	index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
     }
-    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile",
-			      false);
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
+				     dbdir + "/keyfile", false);
 }
 
 Xapian::WritableDatabase
@@ -549,12 +525,10 @@ BackendManager::getdb_db(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    // need to build temporary file and run it through makedb (yum)
-	    index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
-	}
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makedb (yum)
+	index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
     }
     return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
 }
@@ -572,12 +546,10 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 	dbdir += "=" + *i;
     }
     // should autodetect flimsy - don't specify to test this
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    // need to build temporary file and run it through makedb (yum)
-	    index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
-	}
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makedb (yum)
+	index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
     }
     return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
 }
@@ -602,11 +574,10 @@ BackendManager::get_database(const vector<string> &dbnames)
 }
 
 Xapian::Database
-BackendManager::get_database(const string &dbname1, const string &dbname2)
+BackendManager::get_database(const string &dbname)
 {
     vector<string> dbnames;
-    dbnames.push_back(dbname1);
-    if (!dbname2.empty()) dbnames.push_back(dbname2);
+    dbnames.push_back(dbname);
     return (this->*do_getdb)(dbnames);
 }
 

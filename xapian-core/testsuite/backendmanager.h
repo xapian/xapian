@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,14 +99,6 @@ class BackendManager {
 
 	/// Get a writable quartz database instance.
 	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
-
-	/// Do the actual work of creating a quartz database instance.
-	Xapian::Database do_getdb_quartz(const std::vector<std::string> &dbnames,
-					   bool writable);
-
-	/// Do the actual work of creating a quartz database instance.
-	Xapian::WritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
-					   bool writable);
 #endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
@@ -155,16 +147,15 @@ class BackendManager {
 
 	/** Get the directory to store data in.
 	 */
-	const std::string get_datadir(void);
+	std::string get_datadir();
 
-	/// Get a database instance of the current type
+	/// Get a database instance of the current type.
 	Xapian::Database get_database(const std::vector<std::string> &dbnames);
 
-	/// Get a database instance from individually named databases
-	Xapian::Database get_database(const std::string &dbname1,
-				const std::string &dbname2 = "");
+	/// Get a database instance of the current type, single file case.
+	Xapian::Database BackendManager::get_database(const string &dbname);
 
-	/// Get a writable database instance
+	/// Get a writable database instance.
 	Xapian::WritableDatabase get_writable_database(const std::string & dbname);
 };
 
