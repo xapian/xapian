@@ -1,3 +1,7 @@
+Mon Oct 30 17:37:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a FIXME in irweight.cc
+
 Mon Oct 30 17:35:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test to quartz to check behaviour of cursor operations.

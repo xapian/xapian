@@ -27,6 +27,7 @@
 #include "bm25weight.h"
 #include "boolweight.h"
 
+// FIXME: this is also declared as a class static member.
 static map<string, const IRWeight *> IRWeight::custom_weights;
 
 IRWeight *
