@@ -81,13 +81,11 @@ class TermList {
         virtual ~TermList() { return; }
 };
 
-// A document in the database
-class IRDocument {
-    private:
-    public:
-	// FIXME - holds keys and records
-	virtual ~IRDocument() { return; }
-};
+
+
+
+
+class IRDocument;
 
 class IRDatabase {
     protected:
