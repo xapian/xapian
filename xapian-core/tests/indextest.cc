@@ -587,6 +587,112 @@ test_badnode1()
     return success;
 }
 
+bool
+test_ommakepair1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omsplitter' id='split'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+	 "<node type='omtranslate' id='trans'>\n"
+	     "<param name='from' value='abc'/>\n"
+	     "<param name='to' value='ABC'/>\n"
+	     "<input name='in' node='split' out_name='left'/>\n"
+	 "</node>\n"
+         "<node type='ommakepair' id='only'>\n"
+	     "<input name='left' node='trans' out_name='out'/>\n"
+	     "<input name='right' node='split' out_name='right'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+
+    indexer->set_input(OmIndexerMessage(new OmIndexerData("cab")));
+
+    OmIndexerMessage result = indexer->get_raw_output();
+    if (result->get_type() != OmIndexerData::rt_vector) {
+	if (verbose) {
+	    cout << "Expected pair, got: " << *result << endl;
+	}
+	return false;
+    }
+    if (result->get_vector_length() != 2) {
+	if (verbose) {
+	    cout << "Expected pair, got: " << *result << endl;
+	}
+	return false;
+    }
+    if (result->get_element(0).get_string() != "CAB" ||
+	result->get_element(1).get_string() != "cab") {
+	if (verbose) {
+	    cout << "Expected [ 'CAB', 'cab' ], got: " << *result << endl;
+	}
+	return false;
+    }
+    return true;
+}
+
+bool
+test_ommakepairs1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omsplitter' id='split'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+	 "<node type='omtranslatelist' id='trans'>\n"
+	     "<param name='from' value='abc'/>\n"
+	     "<param name='to' value='ABC'/>\n"
+	     "<input name='in' node='split' out_name='left'/>\n"
+	 "</node>\n"
+         "<node type='ommakepairs' id='only'>\n"
+	     "<input name='left' node='trans' out_name='out'/>\n"
+	     "<input name='right' node='split' out_name='right'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+
+    vector<OmIndexerData> vec;
+    vec.push_back(OmIndexerData("cab"));
+    vec.push_back(OmIndexerData("abc"));
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(vec)));
+
+    OmIndexerMessage result = indexer->get_raw_output();
+    if (result->get_type() != OmIndexerData::rt_vector) {
+	if (verbose) {
+	    cout << "Expected pair, got: " << *result << endl;
+	}
+	return false;
+    }
+    if (result->get_vector_length() != vec.size()) {
+	if (verbose) {
+	    cout << "Expected pair, got: " << *result << endl;
+	}
+	return false;
+    }
+    if (result->get_element(0).get_element(0).get_string() != "CAB" ||
+	result->get_element(0).get_element(1).get_string() != "cab") {
+	if (verbose) {
+	    cout << "Got: " << *result << endl;
+	    }
+	return false;
+    }
+    if (result->get_element(1).get_element(0).get_string() != "ABC" ||
+	result->get_element(1).get_element(1).get_string() != "abc") {
+	if (verbose) {
+	    cout << "Got: " << *result << endl;
+	    }
+	return false;
+    }
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -608,6 +714,8 @@ test_desc tests[] = {
     {"omvectorsplit1",		&test_omvectorsplit1},
     {"omlistconcat1",		&test_omlistconcat1},
     {"badnode1",		&test_badnode1},
+    {"ommakepair1",		&test_ommakepair1},
+    {"ommakepairs1",		&test_ommakepairs1},
     // FIXME: add tests for regex nodes
     {0, 0}
 };
