@@ -274,7 +274,7 @@ html_comparer::write(ostream & os) const
        << " Here we show where the differences occurred between "
        << " version " << _revision2
        << " and"
-       << " revision" << _revision1
+       << " " << _revision1
        << ", and the propagation of the affected lines to version " << _revision0
        << endl;
 
@@ -560,7 +560,7 @@ html_comparer::style(ostream & os) const
     os << "<STYLE TYPE-\"type/css\">" << endl;
     os << "BODY  {background-color:#EEEEEE;}" << endl;
     os << "TABLE {background-color:#FFFFFF;}" << endl;
-    os << "TD    {font-family:fixed;white-space:pre; overflow:hidden}" << endl;
+    os << "TD    {font-family:fixed;white-space:pre; nowrap:1; overflow:hidden}" << endl;
     os << ".s {background-color:yellow;}" << endl;
     os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;

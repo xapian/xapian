@@ -37,10 +37,22 @@ sub cvs_compare_index {
     # ----------------------------------------
     # dump all the links here
     # ----------------------------------------
-    print start_html("Index");
-    open (FILE, "$cvsquery $root $pkg -a $fileid |");
+    open (FILE, "$cvsquery $root $pkg -f $fileid -a $fileid |");
     my $version;
-    my $comments;
+    my $comment;
+    my @versions;
+    my @comments;
+    my $filename;
+
+    while (<FILE>) {
+        chomp;
+        if (0) {
+        } elsif (/$ctrlA/) {
+            last;
+        } else {
+            $filename = $_;
+        }
+    }
 
     while (<FILE>) {
         chomp;
@@ -55,15 +67,13 @@ sub cvs_compare_index {
 
                 if (0) {
                 } elsif ($#fieldss == 1) {
-                    $comments= $fieldss[1];
+                    $comment= $fieldss[1];
+                } elsif ($#fieldss == 0) {
+                    $comment="*** empty log message ***";
                 }
             }
-            print "<P><A HREF=\"./cvscompare.cgi?";
-            print "fileid=$fileid&";
-            print "pkg=$pkg&";
-            print "root=$root&";
-            print "version=$version\">$version</A></P>\n";
-            print "$comments\n";
+            @versions = ($version, @versions);
+            @comments = ($comment, @comments);
         } elsif (/$ctrlA/) {
             last;
         } else {
@@ -71,14 +81,29 @@ sub cvs_compare_index {
             if (0) {
             } elsif ($#fields == 1) {
                 $version = $fields[0];
-                $comments = $fields[1];
+                $comment = $fields[1];
             } elsif ($#fields == 0) {
-                $comments = $comments."\n".$fields[1];
+                $comment = $comment."\n".$fields[0];
             }
         }
     }
-    print end_html;
     close(FILE);
+
+    print start_html("Index");
+    print "<HR NOSHADE>\n";
+    print "Default branch: MAIN\n";
+    for (my $i = 0; $i < $#versions; $i++) {
+        print "<HR size=1 NOSHADE>\n";
+        print "<A HREF=\"./cvscompare.cgi?";
+        print "fileid=$fileid&";
+        print "pkg=$pkg&";
+        print "root=$root&";
+        print "version=$versions[$i]\">aligned diff for <B>$filename</B> between ";
+        print "version $versions[$i+1] & $versions[$i]</A><BR>\n";
+        print "<PRE>$comments[$i]</PRE>\n";
+    }
+    print "<HR NOSHADE>\n";
+    print end_html;
 }
 
 sub dummy_page {
