@@ -51,6 +51,9 @@ class OmSocketLineBuf : public OmLineBuf {
 	/// The buffer used for input
 	std::string buffer;
 
+	/// The context to report with errors
+	std::string errcontext;
+
 	/// disallow copies
 	OmSocketLineBuf(const OmSocketLineBuf &other);
 	void operator=(const OmSocketLineBuf &other);
@@ -68,12 +71,12 @@ class OmSocketLineBuf : public OmLineBuf {
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
 	 */
-	OmSocketLineBuf(int readfd_, int writefd_);
+	OmSocketLineBuf(int readfd_, int writefd_, const std::string & errcontext_);
 
 	/** A convenience constructor which takes only one
 	 *  fd, which can be both read from and written to.
 	 */
-	OmSocketLineBuf(int fd_);
+	OmSocketLineBuf(int fd_, const std::string & errcontext_);
 
 	/** Return true if there is data available to be read.
 	 */

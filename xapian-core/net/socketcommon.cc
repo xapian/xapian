@@ -351,21 +351,21 @@ OmQuery::Internal qfs_readcompound()
     } // while(1)
 }
 
-OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_)
-	: readfd(readfd_), writefd(writefd_)
+OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const std::string & errcontext_)
+	: readfd(readfd_), writefd(writefd_), errcontext(errcontext_)
 {
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
-	throw OmNetworkError("Can't set non-blocking flag on fd");
+	throw OmNetworkError("Can't set non-blocking flag on fd", errcontext, errno);
     }
 }
 
-OmSocketLineBuf::OmSocketLineBuf(int fd_)
-	: readfd(fd_), writefd(fd_)
+OmSocketLineBuf::OmSocketLineBuf(int fd_, const std::string & errcontext_)
+	: readfd(fd_), writefd(fd_), errcontext(errcontext_)
 {
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
-	throw OmNetworkError("Can't set non-blocking flag on fd");
+	throw OmNetworkError("Can't set non-blocking flag on fd", errcontext, errno);
     }
 }
 
@@ -381,7 +381,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
     while (1) {
 	time_t curr_time = time(NULL);
 	if (curr_time > end_time) {
-	    throw OmNetworkTimeoutError("No response from remote end");
+	    throw OmNetworkTimeoutError("No response from remote end", errcontext);
 	}
 	pos = buffer.find_first_of('\n');
 	if (pos != buffer.npos) break;
@@ -401,7 +401,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError("select failed", errno);
+		throw OmNetworkError("select failed", errcontext, errno);
 	    }
 	} else if (retval == 0) {
 	    continue;
@@ -414,7 +414,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError("read failed", errno);
+		throw OmNetworkError("read failed", errcontext, errno);
 	    }
 	} else if (received == 0) {
 	    continue;
@@ -448,7 +448,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 			    (msecs == 0) ? NULL : &tv);
 	if (retval == 0) {
 	    // select's timeout arrived before any data
-	    throw OmNetworkTimeoutError("Timeout exceeded waiting for remote.");
+	    throw OmNetworkTimeoutError("Timeout exceeded waiting for remote.", errcontext);
 	} else if (retval < 0) {
 	    // an error happened
 	    if (errno == EINTR) {
@@ -460,7 +460,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 		// portable)
 		continue;
 	    }
-	    throw OmNetworkError("Network error waiting for remote", errno);
+	    throw OmNetworkError("Network error waiting for remote", errcontext, errno);
 	}
 	// if we got this far, then there is data to be received.
 
@@ -474,7 +474,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 		buffer += std::string(buf, buf + received);
 	    } else if (received < 0) {
 		if (errno != EAGAIN) {
-		    throw OmNetworkError("Network error", errno);
+		    throw OmNetworkError("Network error", errcontext, errno);
 		}
 	    }
 	} while (received > 0);
@@ -516,7 +516,7 @@ OmSocketLineBuf::do_writeline(std::string s)
 	ssize_t written = write(writefd, s.data(), s.length());
 
 	if (written < 0) {
-	    throw OmNetworkError("write error", errno);
+	    throw OmNetworkError("write error", errcontext, errno);
 	}
 
 	s.erase(0, written);

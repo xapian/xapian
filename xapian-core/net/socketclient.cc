@@ -42,7 +42,7 @@ SocketClient::SocketClient(int socketfd_,
 			   bool close_socket_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
-	  buf(socketfd),
+	  buf(socketfd, context_),
 	  conv_state(state_getquery),
 	  remote_stats_valid(false),
 	  global_stats_valid(false),

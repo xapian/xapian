@@ -60,7 +60,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 #ifdef TIMING_PATCH
 	  timing(timing_),
 #endif /* TIMING_PATCH */
-	  buf(new OmSocketLineBuf(readfd, writefd)),
+	  buf(new OmSocketLineBuf(readfd, writefd, "socketserver(" + db.get_description() + ")")),
 	  conversation_state(conv_ready),
 	  gatherer(0),
 	  have_global_stats(0)

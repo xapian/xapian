@@ -1,3 +1,7 @@
+Thu Nov 30 16:40:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add context to network errors thrown from OmSocketLineBuf.
+
 Thu Nov 30 16:21:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a quartz test for largish bitmaps.
