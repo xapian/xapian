@@ -1,6 +1,9 @@
 /* database.h
  */
 
+#ifndef _database_h_
+#define _database_h_
+
 #include <map>
 #include <list>
 #include <string>
@@ -53,6 +56,9 @@ class IRDatabase {
 
 	list<PostListIterator*> postlist;
 	list<TermListIterator*> termlist;
+    
+	void open(string);
+	void close();
 };
 
 class DADatabase : public IRDatabase {
@@ -67,8 +73,4 @@ class DADatabase : public IRDatabase {
         DADatabase();
 };
 
-class ProtoDatabase : public IRDatabase {
-    private:
-    public:
-	ProtoDatabase();
-}
+#endif /* _database_h_ */
