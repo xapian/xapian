@@ -1,3 +1,7 @@
+Mon Oct 16 13:30:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add quartz_termlist.cc to CVS and uncommented it in the makefile.
+
 Mon Oct 16 12:21:41 BST 2000 Olly Betts
 
 	* indexer/indexgraph/indexerxml.cc: Quick bodge fix for XML_DTD_PATH
