@@ -110,6 +110,10 @@ SleepyPostList::~SleepyPostList() {
     free(data);
 }
 
+weight SleepyPostList::get_maxweight() const {
+    return 1;
+}
+
 weight SleepyPostList::get_weight() const {
     return 1;
 }
@@ -142,7 +146,6 @@ SleepyDatabase::~SleepyDatabase() {
 
 void SleepyDatabase::open(const string &pathname, bool readonly) {
     // Open databases
-    // FIXME - catch exceptions
     try {
 	internals->open(pathname, readonly);
     }
@@ -153,7 +156,6 @@ void SleepyDatabase::open(const string &pathname, bool readonly) {
 
 void SleepyDatabase::close() {
     // Close databases
-    // FIXME - catch exceptions
     try {
 	internals->close();
     }
@@ -197,7 +199,7 @@ SleepyDatabase::open_term_list(docid tid) const {
     // Get, no transactions, no flags
     try {
 	int found = internals->postlist_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+	if(found == DB_NOTFOUND) throw RangeError("Docid not found");
 
 	// Any other errors should cause an exception.
 	Assert(found == 0);
@@ -323,23 +325,28 @@ SleepyDatabase::term_name_to_id(const termname &tname) const {
     // Get, no transactions, no flags
     try {
 	int found = internals->termid_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) return 0;
+	if(found == DB_NOTFOUND) {
+	    tid = 0;
+	} else {
+	    // Any other errors should cause an exception.
+	    Assert(found == 0);
 
-	// Any other errors should cause an exception.
-	Assert(found == 0);
+	    if(data.get_size() != sizeof(termid)) {
+		throw OmError("TermidDb: found termname, but data is not a termid.");
+	    }
+	}
     }
     catch (DbException e) {
-	throw OmError("TermidDb error:" + string(e.what()));
+	throw OmError("TermidDb error: " + string(e.what()));
     }
 
-    if(data.get_size() != sizeof(termid)) {
-	throw OmError("TermidDb: found termname, but data is not a termid.");
-    }
     return tid;
 }
 
 termname
 SleepyDatabase::term_id_to_name(termid tid) const {
+    if(tid == 0) throw RangeError("Termid 0 not valid");
+
     Dbt key(&tid, sizeof(tid));
     Dbt data;
 
@@ -352,7 +359,7 @@ SleepyDatabase::term_id_to_name(termid tid) const {
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmError("TermidDb error:" + string(e.what()));
+	throw OmError("TermnameDb error:" + string(e.what()));
     }
 
     termname tname((char *)data.get_data(), data.get_size());

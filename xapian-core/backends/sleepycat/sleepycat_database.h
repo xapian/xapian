@@ -19,12 +19,13 @@ class SleepyPostList : public virtual PostList {
     public:
 	~SleepyPostList();
 
-	doccount get_termfreq() const; // Number of docs indexed by this term
+	doccount get_termfreq() const;  // Number of docs indexed by this term
+	weight   get_maxweight() const; // An upper bound on the term weight
 
-	docid    get_docid() const;    // Current docid
-	weight   get_weight() const;   // Current weight
-	PostList * next();             // Move next docid
-	bool     at_end() const;       // True if we're off the end of the list
+	docid    get_docid() const;     // Current docid
+	weight   get_weight() const;    // Current weight
+	PostList * next();              // Move next docid
+	bool     at_end() const;        // True if we're off the end of the list
 };
 
 inline doccount
