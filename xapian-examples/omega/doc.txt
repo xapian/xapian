@@ -68,6 +68,7 @@ want to say "X$fmt{}X" since "X$fmtX" would be parsed as a $fmtX command.
 
 ${...} - commented out code
 $add{1,2,3} - add arguments together
+$and{...} - logical shortcutting and of its arguments - evaluates arguments until it finds an empty one (and returns "true") or has evaluated them all (returns "")
 $cgi{CGI} - lookup the value of a CGI variable
 $cgilist{CGI} - return a list of all values of a CGI variable
 $date{TIME_T[,FMT]} - convert a time_t to strftime FMT (default: YYYY-MM-DD)
@@ -84,6 +85,7 @@ $hitsperpage - hits per page (as set by HITSPERPAGE, or the default)
 $html{TEXT} - html escape string (<>&, etc)
 $id - document id of current doc
 $if{COND,THEN[,ELSE]} - if COND is non-empty, evaluate THEN, otherwise evaluate else (if present)
+$include{FILE} - include another omegascript file
 $last - m-set number of last hit on this page
 $lastpage - number of last page of hits (may be an underestimate unless $thispage == $lastpage
 $list{LIST,...} - pretty print list
@@ -113,6 +115,7 @@ $relevant[{ID}] - document id if document is relevant, "" otherwise (side-effect
 $relevants - return list of relevant documents
 $score - score (0-10) of current hit
 $set{OPT,VALUE} - set option value
+$setmap{PREFIX,NAME1,VALUE1,...} - set a map of option values (<PREFIX><NAME1>=<VALUE1>, etc)
 $terms - list of matching terms for current hit
 $thispage - page number of current page
 $topdoc - first document on current page of hit list (counting from 0)

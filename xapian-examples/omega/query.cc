@@ -55,6 +55,8 @@ OmQuery::op default_op = OmQuery::OP_OR; // default matching mode
 
 static QueryParser qp;
 
+static void print_query_page(const string &page);
+
 querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
@@ -195,14 +197,14 @@ do_picker(char prefix, const char **opts)
 
     cout << '>';
 
-    string tmp = option[std::string("BOOL-") + prefix];
+    string tmp = option[std::string('B') + prefix];
     if (!tmp.empty())
 	cout << tmp;
     else
 	cout << "-Any-";
     
     for (p = opts; *p; p++) {
-	string trans = option[std::string("BOOL-") + prefix + *p];
+	string trans = option[std::string('B') + prefix + *p];
 	if (trans.empty()) {
 	    // FIXME: nasty special casing on prefix...
 	    if (prefix == 'N')
@@ -349,6 +351,7 @@ static string print_caption(om_docid m, const string &fmt);
 enum tagval {
 CMD_,
 CMD_add,
+CMD_and,
 CMD_cgi,
 CMD_cgilist,
 CMD_date,
@@ -365,6 +368,7 @@ CMD_hitsperpage,
 CMD_html,
 CMD_id,
 CMD_if,
+CMD_include,
 CMD_last,
 CMD_lastpage,
 CMD_list,
@@ -385,6 +389,7 @@ CMD_relevant,
 CMD_relevants,
 CMD_score,
 CMD_set,
+CMD_setmap,
 CMD_terms,
 CMD_thispage,
 CMD_topdoc,
@@ -414,6 +419,7 @@ static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure_match cache
 {"",{CMD_,	N, N, 0, 0, 0}}, // commented out code
 {T(add),	0, N, N, 0, 0}}, // add a list of numbers
+{T(and),	1, N, 0, 0, 0}}, // logical shortcutting and of a list of values
 {T(cgi),	1, 1, N, 0, 0}}, // return cgi parameter value
 {T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
 {T(date),	1, 2, N, 1, 0}}, // convert time_t to strftime format (default: YYYY-MM-DD)
@@ -430,6 +436,7 @@ static struct func_desc func_tab[] = {
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
 {T(id),		0, 0, N, 0, 0}}, // docid of current doc
 {T(if),		2, 3, 1, 0, 0}}, // conditional
+{T(include),	1, 1, 1, 0, 0}}, // include another file
 {T(last),	0, 0, N, 1, 0}}, // m-set number of last hit on page
 {T(lastpage),	0, 0, N, 1, 0}}, // number of last hit page
 {T(list),	2, 5, N, 0, 0}}, // pretty print list
@@ -450,6 +457,7 @@ static struct func_desc func_tab[] = {
 {T(relevants),	0, 0, N, 1, 0}}, // return list of relevant documents
 {T(score),	0, 0, N, 0, 0}}, // score (0-10) of current hit
 {T(set),	2, 2, N, 0, 0}}, // set option value
+{T(setmap),	1, N, N, 0, 0}}, // set map of option values
 {T(terms),	0, 0, N, 1, 0}}, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
@@ -563,6 +571,15 @@ eval(const string &fmt)
 		value = int_to_string(total);
 		break;
 	    }
+	    case CMD_and:
+		for (vector<string>::const_iterator i = args.begin();
+		     i != args.end(); i++) {
+		    if (eval(*i).empty()) {
+			value = "true";
+			break;
+		    }
+	        }
+		break;
 	    case CMD_cgi: {
 		MCI i = cgi_params.find(args[0]);
 		if (i != cgi_params.end()) value = i->second;
@@ -692,6 +709,9 @@ eval(const string &fmt)
 		    value = eval(args[1]);
 		else if (args.size() > 2)
 		    value = eval(args[2]);
+		break;
+	    case CMD_include:
+		print_query_page(args[0]);
 		break;
 	    case CMD_last:
 		value = int_to_string(last);
@@ -853,6 +873,13 @@ eval(const string &fmt)
 	    case CMD_set:
 		option[args[0]] = args[1];
 		break;
+	    case CMD_setmap: {
+		string base = args[0] + ',';
+		for (int i = 1; i + 1 < args.size(); i++) {
+		    option[base + args[i]] = args[i + 1];
+		}
+		break;
+	    }
 	    case CMD_terms: {
 		// list of matching terms
 		OmTermIterator term = enquire->get_matching_terms_begin(q0);
@@ -925,18 +952,21 @@ eval_file(const string &fmtfile)
     string fmt;
     struct stat st;
     int fd = open(fmtfile.c_str(), O_RDONLY);
-    if (fd >= 0) {
-	if (fstat(fd, &st) == 0 && st.st_size) {
-	    char *p;
-	    p = (char*)malloc(st.st_size);
-	    if (p) {
-		if (read(fd, p, st.st_size) == st.st_size)
-		    fmt = string(p, st.st_size);
-		free(p);
-	    }
-	}
-	close(fd);
+    if (fd < 0) {
+	string err = string("Couldn't open format template `") + fmtfile
+	    + '\'';
+	throw err;
     }
+    if (fstat(fd, &st) == 0 && st.st_size) {
+	char *p;
+	p = (char*)malloc(st.st_size);
+	if (p) {
+	    if (read(fd, p, st.st_size) == st.st_size)
+		fmt = string(p, st.st_size);
+	    free(p);
+	}
+    }
+    close(fd);
     return eval(fmt);
 }
 

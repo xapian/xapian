@@ -1,19 +1,9 @@
-$set{thousand,$.}$set{decimal,.}<html>
-<script language=javascript><!--
-function C(c) {var i, o;
-o = document.P.P.value;
-if (c.checked){
-document.P.P.value = o+" "+c.value;
-} else {
-o = " "+o+" ";i = o.lastIndexOf(" "+c.value+" ");
-if (i!=-1) {
-document.P.P.value =
-o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
-}}}
-// -->
-</script>
+$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+<html>
+$set{topterms,$or{$ne{$msize,0},$query}}
+$if{$opt{topterms},$include{toptermsjs}}
 <head>
-<title>Omega: $if{$query,search for `$html{$query}',New Search}</title>
+<title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
 </head>
 <body bgcolor=white>
 <FORM NAME=P METHOD=GET 
@@ -22,19 +12,12 @@ ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <INPUT NAME=P VALUE="$html{$query}" SIZE=65>
 <INPUT TYPE=IMAGE VALUE="Search" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle 
 SRC="http://www.euroferret.com/fx-gif/find.gif">
-${
-<SELECT NAME=DEFAULTOP>
-<OPTION VALUE=or$if{$eq{$defaultop,or}, SELECTED}>Matching any words
-<OPTION VALUE=and$if{$eq{$defaultop,and}, SELECTED}>Matching all words
-</SELECT>
-}
 <hr>
-<INPUT TYPE=radio NAME=DEFAULTOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
-<INPUT TYPE=radio NAME=DEFAULTOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
-$if{$or{$query,$ne{$msize,0}},
+$if{,$include{anyalldropbox},$include{anyallradio}}
+$if{$opt{topterms},
  <hr>
  <table><tr><td bgcolor="#ccffcc">
- $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
+ $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE="$_." onClick="C(this)">&nbsp;$_. }
  $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
  </td></tr></table>
  <hr>
@@ -95,13 +78,13 @@ ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH
 <br>
 
 }
-$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">
-}$if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>
-}$if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>
-}$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">
-}$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">
-}$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">
-}</FORM>
+$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
+$if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
+$if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}
+$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
+$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">}
+$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
+</FORM>
 <hr><div align=right><i><small><a href="http://open.muscat.com/">$html{$version}</a></small></i></div>
 </body>
 </html>

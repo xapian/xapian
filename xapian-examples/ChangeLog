@@ -1,3 +1,9 @@
+Fri Jan 26 11:54:25 GMT 2001 Olly Betts
+
+	* Added $and{}, $include{}, $setmap{}.
+
+	* Throw error if we can't open a format template.
+
 Fri Jan 26 11:40:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Fix README references to omus
