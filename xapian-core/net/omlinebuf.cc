@@ -42,7 +42,7 @@ OmLineBuf::writeline(string msg)
 }
 
 void
-OmLineBuf::wait_for_data() {
+OmLineBuf::wait_for_data(int msecs = 0) {
     if (line_buffer.length() > 0) {
 	return;
     } else {

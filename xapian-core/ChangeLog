@@ -1,3 +1,10 @@
+Thu Jul  6 10:55:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a problem stopping OmLineBuf from compiling.
+
+	* Removed Test.java, which shouldn't have been there in the first
+	  place.
+
 Wed Jul  5 18:44:11 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* More work towards compiling on Solaris with non-gcc.
