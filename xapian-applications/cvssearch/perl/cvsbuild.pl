@@ -13,6 +13,10 @@ my @file_types= qw(cc h cpp c C java);
 my $file_types_string;
 my @modules;
 
+my $cvsindex = "./cvsindex";
+my $cvsupdatedb = "./cvsupdate";
+my $cvsmap = "./cvsmap";
+
 # ------------------------------------------------------------
 # path where all our files are stored.
 # ------------------------------------------------------------
@@ -154,14 +158,15 @@ sub cvsbuild {
                 print TIME "Started  @ ", `date`;
                 my $start_date = time;
                 my $prefix_path = "$cvsdata/$root/db/$app_name";
-                system ("./cvsmap -d $cvsroot".
+                system ("$cvsmap -d $cvsroot".
                         " -i $list_file".
                         " -db $prefix_path.db".
+                        " -st $prefix_path.st".
                         " -f1 $prefix_path.cmt".
                         " -f2 $prefix_path.offset");
                 
-                system ("./cvsindex $root:$app_name");
-                system ("./cvsupdatedb $root $app_name");
+                system ("$cvsindex $root:$app_name");
+                system ("$cvsupdatedb $root $app_name");
 
                 # ----------------------------------------
                 # clear db directory
