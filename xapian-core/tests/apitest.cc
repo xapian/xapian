@@ -483,7 +483,12 @@ void print_mset_percentages(const OmMSet &mset)
 static bool test_pctcutoff1()
 {
     OmEnquire enquire(get_simple_database());
-    init_simple_enquire(enquire);
+    vector<om_termname> t;
+    t.push_back("thi");
+    t.push_back("line");
+    t.push_back("paragraph");
+    t.push_back("rubbish");
+    init_simple_enquire(enquire, OmQuery(OmQuery::OP_OR, t.begin(), t.end()));
 
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
@@ -496,7 +501,7 @@ static bool test_pctcutoff1()
     unsigned int num_items = 0;
     int my_pct = 100;
     int changes = 0;
-    for (unsigned int i=0; i<mymset1.items.size(); ++i) {
+    for (unsigned int i = 0; i < mymset1.items.size(); ++i) {
         int new_pct = mymset1.convert_to_percent(mymset1.items[i]);
         if (new_pct != my_pct) {
 	    changes++;
@@ -597,7 +602,7 @@ static bool test_collapsekey1()
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
     om_doccount mymsize1 = mymset1.items.size();
 
-    for (int key_no = 1; key_no<7; ++key_no) {
+    for (int key_no = 1; key_no < 7; ++key_no) {
 	mymopt.set("match_collapse_key", key_no);
 	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
@@ -791,44 +796,6 @@ static bool test_reversebool2()
     }
 
     return true;
-}
-
-// tests that get_query_terms() returns the terms in the right order
-static bool test_getqterms1()
-{
-    bool success;
-
-    static const char *answers[4] = {
-	"one",
-	"two",
-	"three",
-	"four"
-    };
-
-    OmQuery myquery(OmQuery::OP_OR,
-	    OmQuery(OmQuery::OP_AND,
-		    OmQuery("one", 1, 1),
-		    OmQuery("three", 1, 3)),
-	    OmQuery(OmQuery::OP_OR,
-		    OmQuery("four", 1, 4),
-		    OmQuery("two", 1, 2)));
-
-    om_termname_list terms = myquery.get_terms();
-
-    om_termname_list answers_list;
-    for (unsigned int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
-        answers_list.push_back(answers[i]);
-    }
-    success = (terms == answers_list);
-    if (verbose && !success) {
-	cout << "Terms returned in incorrect order: ";
-	copy(terms.begin(),
-	     terms.end(),
-	     ostream_iterator<om_termname>(cout, " "));
-	cout << endl << "Expected: one two three four" << endl;
-    }
-
-    return success;
 }
 
 // tests that get_matching_terms() returns the terms in the right order
@@ -2059,7 +2026,6 @@ test_desc db_tests[] = {
     {"zerodocid", 	   test_zerodocid},
     {"nullquery1",	   test_nullquery1},
     {"simplequery1",       test_simplequery1},
-    {"simplequery2",       test_simplequery2},
     {"simplequery3",       test_simplequery3},
     {"multidb1",           test_multidb1},
     {"multidb2",           test_multidb2},
@@ -2070,6 +2036,7 @@ test_desc db_tests[] = {
     {"msetfirst1",         test_msetfirst1},
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
+// lack of document lengths means several hits come out with same weight
     {"pctcutoff1",	   test_pctcutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
@@ -2089,8 +2056,6 @@ test_desc db_tests[] = {
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
-    {"rsetmultidb2",       test_rsetmultidb2},
-    {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},
     {"termlisttermfreq",   test_termlisttermfreq},
@@ -2102,12 +2067,23 @@ test_desc db_tests[] = {
     {0, 0}
 };
 
+/// The tests which need a backend which supports document length information
+test_desc doclendb_tests[] = {
+// get wrong weight back - probably because no document length in calcs
+    {"simplequery2",       test_simplequery2},
+// Mset comes out in wrong order - no document length?
+    {"rsetmultidb2",       test_rsetmultidb2},
+    {"maxorterms1",        test_maxorterms1},
+    {0, 0}
+};
+
 /// The tests which need a backend which supports positional information
 test_desc positionaldb_tests[] = {
     {"near1",		   test_near1},
     {"near2",		   test_near2},
     {"phrase1",		   test_phrase1},
     {"phrase2",		   test_phrase2},
+    {0, 0}
 };
 
 /// The tests which use a writable backend
@@ -2121,56 +2097,6 @@ test_desc writabledb_tests[] = {
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"multiexpand1",       test_multiexpand1},
-    {0, 0}
-};
-
-test_desc muscat36da_tests[] = {
-    {"zerodocid", 	   test_zerodocid},
-    {"nullquery1",	   test_nullquery1},
-    {"simplequery1",       test_simplequery1},
-// get wrong weight back - probably because no document length in calcs
-//    {"simplequery2",       test_simplequery2},
-    {"simplequery3",       test_simplequery3},
-    {"multidb1",           test_multidb1},
-    {"multidb2",           test_multidb2},
-    {"changequery1",	   test_changequery1},
-    {"msetmaxitems1",      test_msetmaxitems1},
-    {"expandmaxitems1",    test_expandmaxitems1},
-    {"boolquery1",         test_boolquery1},
-    {"msetfirst1",         test_msetfirst1},
-    {"topercent1",	   test_topercent1},
-    {"expandfunctor1",	   test_expandfunctor1},
-// lack of document lengths means several hits come out with same weight
-//    {"pctcutoff1",	   test_pctcutoff1},
-    {"allowqterms1",       test_allowqterms1},
-    {"maxattain1",         test_maxattain1},
-    {"collapsekey1",	   test_collapsekey1},
-    {"reversebool1",	   test_reversebool1},
-    {"reversebool2",	   test_reversebool2},
-    {"getmterms1",	   test_getmterms1},
-    {"absentfile1",	   test_absentfile1},
-    {"poscollapse1",	   test_poscollapse1},
-    {"poscollapse2",	   test_poscollapse2},
-    {"batchquery1",	   test_batchquery1},
-    {"repeatquery1",	   test_repeatquery1},
-    {"absentterm1",	   test_absentterm1},
-    {"absentterm2",	   test_absentterm2},
-    {"multidb3",           test_multidb3},
-    {"multidb4",           test_multidb4},
-    {"rset1",              test_rset1},
-    {"rset2",              test_rset2},
-    {"rsetmultidb1",       test_rsetmultidb1},
-// Mset comes out in wrong order - no document length?
-//    {"rsetmultidb2",       test_rsetmultidb2},
-//    {"maxorterms1",        test_maxorterms1},
-    {"maxorterms2",        test_maxorterms2},
-    {"maxorterms3",        test_maxorterms3},
-    {"termlisttermfreq",   test_termlisttermfreq},
-    {"qterminfo1",	   test_qterminfo1},
-    {"msetzeroitems1",     test_msetzeroitems1},
-    {"mbound1",            test_mbound1},
-    {"wqf1",		   test_wqf1},
-    {"qlen1",		   test_qlen1},
     {0, 0}
 };
 
@@ -2201,6 +2127,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", writabledb);
     RUNTESTS("inmemory", localdb);
     RUNTESTS("inmemory", positionaldb);
+    RUNTESTS("inmemory", doclendb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
@@ -2208,6 +2135,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", writabledb);
     RUNTESTS("quartz", localdb);
     RUNTESTS("quartz", positionaldb);
+    RUNTESTS("quartz", doclendb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
@@ -2215,17 +2143,19 @@ int main(int argc, char *argv[])
     RUNTESTS("sleepycat", writabledb);
     RUNTESTS("sleepycat", localdb);
     RUNTESTS("sleepycat", positionaldb);
+    RUNTESTS("sleepycat", doclendb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
     RUNTESTS("remote", db);
-//    RUNTESTS("remote", positionaldb);
+    RUNTESTS("remote", positionaldb);
+    RUNTESTS("remote", doclendb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)
     // need makeDA tool to build da databases
     if (file_exists("../../makeda/makeDA")) {
-	RUNTESTS("da", muscat36da);
+	RUNTESTS("da", db);
     }
 #endif
 
