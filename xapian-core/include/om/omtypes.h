@@ -82,9 +82,6 @@ typedef unsigned int om_timeout;
  *  the actual text of the term.
  */
 typedef std::string om_termname;
-
-/** A document name.  This is used when making a new document. */
-typedef std::string om_docname;
 #endif
 
 #endif /* OM_HGUARD_OMTYPES_H */
