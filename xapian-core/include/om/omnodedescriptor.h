@@ -25,6 +25,7 @@
 
 #include <string>
 #include <om/omindexercommon.h>
+#include <om/ompaditerator.h>
 
 // available in <om/omindexernode.h>
 class OmIndexerNode;
@@ -57,7 +58,13 @@ class OmNodeDescriptor {
 	/** Ask what the node's type name is. */
 	std::string get_type() const;
 
-	/* FIXME: add iterators to inspect inputs and outputs */
+	/** Get iterators to the input pads */
+	OmPadIterator inputs_begin() const;
+	OmPadIterator inputs_end() const;
+
+	/** Get iterators to the output pads */
+	OmPadIterator outputs_begin() const;
+	OmPadIterator outputs_end() const;
 
 	/** Add an input description to this node.
 	 *

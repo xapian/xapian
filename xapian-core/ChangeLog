@@ -1,3 +1,15 @@
+Wed Jan 24 15:11:11 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Renamed OmNodeConnection to OmNodePad.  The old name was
+	  confusing.
+	
+	* Added OmPadIterator, and OmNodeDescriptor::{in,out}puts_{begin,end}.
+	  Also implemented OmNodeDescriptor::get_type()
+
+	* Added output function for OmPadIterator
+
+	* Added test for OmPadIterators
+
 Tue Jan 23 19:01:29 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove OmBatchEnquire from system: it may return at a later date,

@@ -22,6 +22,8 @@
 
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
+#include "ompaditeratorinternal.h"
+#include "autoptr.h"
 
 OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
 				   OmNodeCreator creator_)
@@ -41,12 +43,56 @@ OmNodeDescriptor::OmNodeDescriptor(OmNodeDescriptor::Internal *internal_)
 {
 }
 
+std::string
+OmNodeDescriptor::get_type() const
+{
+    return internal->data->nodename;
+}
+
+OmPadIterator
+OmNodeDescriptor::inputs_begin() const
+{
+    AutoPtr<OmPadIterator::Internal> padit(new OmPadIterator::Internal(
+						internal->data,
+						internal->data->inputs.begin(),
+						internal->data->inputs.end()));
+    OmPadIterator result(padit.get());
+    padit.release();
+
+    return result;
+}
+
+OmPadIterator
+OmNodeDescriptor::inputs_end() const
+{
+    return OmPadIterator(0);
+}
+
+OmPadIterator
+OmNodeDescriptor::outputs_begin() const
+{
+    AutoPtr<OmPadIterator::Internal> padit(new OmPadIterator::Internal(
+						internal->data,
+						internal->data->outputs.begin(),
+						internal->data->outputs.end()));
+    OmPadIterator result(padit.get());
+    padit.release();
+
+    return result;
+}
+
+OmPadIterator
+OmNodeDescriptor::outputs_end() const
+{
+    return OmPadIterator(0);
+}
+
 void
 OmNodeDescriptor::add_input(const std::string &name,
 			    const std::string &type,
 			    OmIndexerMessageType phys_type)
 {
-    internal->data->inputs.push_back(OmNodeConnection(name, type, phys_type));
+    internal->data->inputs.push_back(OmNodePad(name, type, phys_type));
 }
 
 void
@@ -54,7 +100,7 @@ OmNodeDescriptor::add_output(const std::string &name,
 			    const std::string &type,
 			    OmIndexerMessageType phys_type)
 {
-    internal->data->outputs.push_back(OmNodeConnection(name, type, phys_type));
+    internal->data->outputs.push_back(OmNodePad(name, type, phys_type));
 }
 
 OmNodeDescriptor::~OmNodeDescriptor()

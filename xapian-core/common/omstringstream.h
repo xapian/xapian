@@ -110,6 +110,7 @@ OSTRINGSTREAMFUNC(OmPositionListIterator)
 OSTRINGSTREAMFUNC(OmTermIterator)
 OSTRINGSTREAMFUNC(OmKeyListIterator)
 OSTRINGSTREAMFUNC(OmIndexerMessage)
+OSTRINGSTREAMFUNC(OmPadIterator)
 
 inline om_ostringstream &
 operator<<(om_ostringstream & os, const om_termname_list & obj) {

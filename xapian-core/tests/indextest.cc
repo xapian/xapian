@@ -738,6 +738,41 @@ test_ommakepairs1()
     return true;
 }
 
+bool
+test_ompaditerator1()
+{
+    OmIndexerBuilder builder;
+
+    OmNodeDescriptor nd = builder.get_node_info("omsplitter");
+
+    OmPadIterator pi = nd.inputs_begin();
+
+    TEST(pi != nd.inputs_end());
+    TEST(*pi == "in");
+    TEST(pi.get_type() == "*1");
+    TEST(pi.get_phys_type() == mt_record);
+
+    pi++;
+    TEST(pi == nd.inputs_end());
+
+    OmPadIterator po = nd.outputs_begin();
+
+    TEST(po != nd.outputs_end());
+    TEST(*po == "left");
+    TEST(po.get_type() == "*1");
+    TEST(po.get_phys_type() == mt_record);
+
+    po++;
+    TEST(*po == "right");
+    TEST(po.get_type() == "*1");
+    TEST(po.get_phys_type() == mt_record);
+
+    po++;
+    TEST(po == nd.outputs_end());
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -762,6 +797,7 @@ test_desc tests[] = {
     {"badnode1",		&test_badnode1},
     {"ommakepair1",		&test_ommakepair1},
     {"ommakepairs1",		&test_ommakepairs1},
+    {"ompaditerator1",		&test_ompaditerator1},
     // FIXME: add tests for regex nodes
     {0, 0}
 };

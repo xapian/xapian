@@ -27,7 +27,7 @@
 #include "om/omerror.h"
 #include "register_core.h"
 #include "toposort.h"
-#include "om/omnodeconnection.h"
+#include "om/omnodepad.h"
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
 #include "omdebug.h"
@@ -91,8 +91,8 @@ class OmIndexerBuilder::Internal {
 	/** Data kept with each node as the graph is being built */
 	struct type_data {
 	    std::string node_name;
-	    std::vector<OmNodeConnection> inputs;
-	    std::vector<OmNodeConnection> outputs;
+	    std::vector<OmNodePad> inputs;
+	    std::vector<OmNodePad> outputs;
 	};
 
 	/** The structure with information about each node's connections. */
@@ -110,13 +110,13 @@ class OmIndexerBuilder::Internal {
 	/** Get the descriptor for an output connection for a particular
 	 *  node type.
 	 */
-	OmNodeConnection get_outputcon(const std::string &nodetype,
+	OmNodePad get_outputcon(const std::string &nodetype,
 				     const std::string &output_name);
 
 	/** Get the descriptor for an input connection for a particular
 	 *  node type.
 	 */
-	OmNodeConnection get_inputcon(const std::string &nodetype,
+	OmNodePad get_inputcon(const std::string &nodetype,
 				    const std::string &input_name);
 
 	/** Create a node given a name
@@ -129,8 +129,8 @@ class OmIndexerBuilder::Internal {
 	/** Node descriptor */
 	struct node_desc {
 	    OmNodeCreator create;
-	    std::vector<OmNodeConnection> inputs;
-	    std::vector<OmNodeConnection> outputs;
+	    std::vector<OmNodePad> inputs;
+	    std::vector<OmNodePad> outputs;
 	};
 
 	/** Node database */
@@ -402,11 +402,11 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
     indexer->final_out = desc.output_conn;
 }
 
-static const OmNodeConnection &find_conn(const std::vector<OmNodeConnection> &v,
+static const OmNodePad &find_conn(const std::vector<OmNodePad> &v,
 					 const std::string &name,
 					 const std::string &node_name)
 {
-    std::vector<OmNodeConnection>::const_iterator i;
+    std::vector<OmNodePad>::const_iterator i;
     for (i=v.begin(); i!=v.end(); ++i) {
 	if (i->name == name) {
 	    return *i;
@@ -416,12 +416,12 @@ static const OmNodeConnection &find_conn(const std::vector<OmNodeConnection> &v,
 			     node_name + "[" + name + "]");
 }
 
-static void replace_type(std::vector<OmNodeConnection> &v,
+static void replace_type(std::vector<OmNodePad> &v,
 			 const std::string &wildcard,
 			 const std::string &real_type,
 			 OmIndexerMessageType phys_type)
 {
-    std::vector<OmNodeConnection>::iterator i;
+    std::vector<OmNodePad>::iterator i;
     for (i = v.begin(); i!= v.end(); ++i) {
 	if (i->type == wildcard) {
 	    i->type = real_type;
@@ -437,10 +437,10 @@ OmIndexerBuilder::Internal::typecheck(type_data &feeder_node,
 			    type_data &receiver_node,
 			    const std::string &receiver_input)
 {
-    const OmNodeConnection &sendercon = find_conn(feeder_node.outputs,
+    const OmNodePad &sendercon = find_conn(feeder_node.outputs,
 						  feeder_output,
 						  feeder_node.node_name);
-    const OmNodeConnection &receivercon = find_conn(receiver_node.inputs,
+    const OmNodePad &receivercon = find_conn(receiver_node.inputs,
 						  receiver_input,
 						  receiver_node.node_name);
 
@@ -496,7 +496,7 @@ OmIndexerBuilder::Internal::typecheck(type_data &feeder_node,
     }
 }
 
-OmNodeConnection
+OmNodePad
 OmIndexerBuilder::Internal::get_outputcon(const std::string &nodetype,
 				const std::string &output_name)
 {
@@ -506,7 +506,7 @@ OmIndexerBuilder::Internal::get_outputcon(const std::string &nodetype,
 	throw OmInvalidDataError(std::string("Unknown node type ") +
 				     nodetype);
     }
-    std::vector<OmNodeConnection>::const_iterator i;
+    std::vector<OmNodePad>::const_iterator i;
     for (i=type->second.outputs.begin(); i!= type->second.outputs.end(); ++i) {
 	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == output_name) {
@@ -517,7 +517,7 @@ OmIndexerBuilder::Internal::get_outputcon(const std::string &nodetype,
 				 nodetype + "[" + output_name + "]");
 }
 
-OmNodeConnection
+OmNodePad
 OmIndexerBuilder::Internal::get_inputcon(const std::string &nodetype,
 			       const std::string &input_name)
 {
@@ -527,7 +527,7 @@ OmIndexerBuilder::Internal::get_inputcon(const std::string &nodetype,
 	throw OmInvalidDataError(std::string("Unknown node type ") +
 				     nodetype);
     }
-    std::vector<OmNodeConnection>::const_iterator i;
+    std::vector<OmNodePad>::const_iterator i;
     for (i=type->second.inputs.begin(); i!= type->second.inputs.end(); ++i) {
 	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == input_name) {

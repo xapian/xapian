@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "om/omnodedescriptor.h"
-#include "om/omnodeconnection.h"
+#include "om/omnodepad.h"
 #include "refcnt.h"
 
 /** A description of a new node type */
@@ -37,8 +37,8 @@ class OmNodeDescriptor::Internal {
 	    std::string nodename;
 	    std::string type;
 	    OmNodeCreator creator;
-	    std::vector<OmNodeConnection> inputs;
-	    std::vector<OmNodeConnection> outputs;
+	    std::vector<OmNodePad> inputs;
+	    std::vector<OmNodePad> outputs;
 	};
 
 	RefCntPtr<Data> data;

@@ -1,4 +1,4 @@
-/* omnodeconnection.h: Object describing a connection between two nodes.
+/* omnodepad.h: Object describing a node's input or output pad
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,32 +20,32 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMNODECONNECTION_H
-#define OM_HGUARD_OMNODECONNECTION_H
+#ifndef OM_HGUARD_OMNODEPAD_H
+#define OM_HGUARD_OMNODEPAD_H
 
 #include <string>
 #include "om/omindexercommon.h"
 
-/** The description of an input or output connection. */
-struct OmNodeConnection {
-    OmNodeConnection(std::string name_,
-		   std::string type_,
-		   OmIndexerMessageType phys_type_)
+/** The description of an input or output pad. */
+struct OmNodePad {
+    OmNodePad(std::string name_,
+	      std::string type_,
+	      OmIndexerMessageType phys_type_)
 	    : name(name_), type(type_), phys_type(phys_type_) {}
-    OmNodeConnection(const OmNodeConnection &other)
+    OmNodePad(const OmNodePad &other)
 	    : name(other.name), type(other.type),
     	      phys_type(other.phys_type) {}
-    OmNodeConnection()
+    OmNodePad()
 	    : name(""), type("") {}
 
     /** The name of this input or output */
     std::string name;
 
-    /** The high-level type of this connection. */
+    /** The high-level type of this pad. */
     std::string type;
 
-    /** The low-level type of this connection. */
+    /** The low-level type of this pad. */
     OmIndexerMessageType phys_type;
 };
 
-#endif /* OM_HGUARD_OMNODECONNECTION_H */
+#endif /* OM_HGUARD_OMNODEPAD_H */

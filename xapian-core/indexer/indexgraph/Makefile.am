@@ -4,7 +4,8 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = deleter_map.h omindexerinternal.h \
 		register_core.h node_reg.h regexcommon.h indexerxml.h \
-		toposort.h omnodedescriptorinternal.h
+		toposort.h omnodedescriptorinternal.h \
+		ompaditeratorinternal.h
 
 data_DATA = omindexer.dtd
 
@@ -40,7 +41,7 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \
 	toposort.cc omindexerbuilder.cc omnodedescriptor.cc \
-	omindexernode.cc
+	omindexernode.cc ompaditerator.cc
 
 indexerxml.lo: indexerxml.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<

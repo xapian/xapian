@@ -25,7 +25,6 @@
 
 #include <string>
 #include <om/omindexer.h>
-#include <om/omnodeconnection.h>
 
 // available from <om/omindexerdesc.h>
 class OmIndexerDesc;
