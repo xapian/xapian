@@ -170,6 +170,12 @@ OmIndexerData::get_type() const
     return type;
 }
 
+bool
+OmIndexerData::is_empty() const
+{
+    return (type == rt_empty);
+}
+
 int
 OmIndexerData::get_int() const
 {

@@ -64,6 +64,9 @@ class OmIndexerData {
 
 	/** Enquire about the stored type */
 	record_type get_type() const;
+	
+	/** Return true if the message is empty */
+	bool is_empty() const;
 
 	/** Get the integer value from this message.
 	 *  Will throw an exception if this message is of another type.

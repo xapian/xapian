@@ -1,3 +1,8 @@
+Wed Oct 11 17:35:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New method is_empty() for OmIndexerData to easily check for
+	  empty messages.
+
 Wed Oct 11 17:27:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Parameter strings can be kept inside <param></param> instead of
