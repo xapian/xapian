@@ -64,7 +64,7 @@ bin_PROGRAMS = omindex scriptindex
 bin_SCRIPTS = dbi2omega
 
 # Data to install, in the usual automake way
-docdatadir   = $(datadir)/omega
+docdatadir   = $(datadir)/doc/omega
 docdata_DATA = docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \

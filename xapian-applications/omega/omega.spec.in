@@ -38,20 +38,18 @@ mkdir -p %{buildroot}/usr/lib/omega/
 mkdir -p %{buildroot}/var/www/cgi-bin/
 mv %{buildroot}/usr/lib/omega/bin/omega %{buildroot}/var/www/cgi-bin
 # Create the data directory
-mkdir -p %{buildroot}/var/lib/omega/data
+mkdir -p %{buildroot}%{contentdir}/omega/data
 # Default templates
-mkdir -p %{buildroot}/var/lib/omega/templates
-cp templates/* %{buildroot}/var/lib/omega/templates/
+mkdir -p %{buildroot}%{contentdir}/omega/templates
+cp templates/* %{buildroot}%{contentdir}/omega/templates/
 # Images
 mkdir -p %{buildroot}/var/www/icons/omega
-cp -r images/* $RPM_BUILD_ROOT/var/www/icons/omega/
+cp -r images/* %{buildroot}/var/www/icons/omega/
 # Configuration file
 mkdir -p %{buildroot}/etc
 install -D -m644 omega.conf %{buildroot}/etc/omega.conf
 # move the docs to the right place
-mkdir -p %{buildroot}/usr/share/doc
-mv %{buildroot}/usr/share/omega %{buildroot}/usr/share/doc/omega-%{version}
-%docdir /usr/share/doc/%{name}-%{version}
+mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -71,6 +69,9 @@ mv %{buildroot}/usr/share/omega %{buildroot}/usr/share/doc/omega-%{version}
 %doc AUTHORS ChangeLog COPYING NEWS README TODO
 
 %changelog
+* Wed Apr 09 2003  Olly Betts <olly@survex.com>
+  Further tweaking, partly based on comments from Sam Liddicott 
+
 * Mon Mar 31 2003  Olly Betts <olly@survex.com>
   Merged in changes from Fabrice Colin
 

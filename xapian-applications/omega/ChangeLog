@@ -1,3 +1,10 @@
+Wed Apr 09 13:44:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Install docs in /usr/share/doc/omega to be FHS
+	  compliant.
+	* omega.spec.in: Consistently use %{contentdir} instead of /var/lib;
+	  removed redundant second setting of %docdir.
+
 Wed Apr 09 01:21:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Removed bogus extra "\".
