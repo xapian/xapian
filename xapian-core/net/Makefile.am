@@ -1,3 +1,4 @@
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_PROGRAMS = nettest
 
