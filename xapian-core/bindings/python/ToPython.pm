@@ -36,11 +36,51 @@ sub get_value {
 }
 
 sub preamble {
-    return "from omuscat import *\n\n";
+    return <<PREAMBLE
+import sys
+from omuscat import *
+from apitest_helpers import *
+
+TestFail = 'TestFail'
+PREAMBLE
 }
 
-sub prologue {
-    return "";
+sub prologue{
+    my $self = shift;
+    my $result = <<MAINSTART;
+verbose = 0
+tests = []
+for arg in sys.argv[1:]:
+    if arg == "-v":
+	verbose = 1
+    else:
+	tests.append(arg)
+
+succeeded = 0;
+failed = 0;
+MAINSTART
+    my $name;
+    foreach $name (split(/ +/, $self->{tests})) {
+        if ($name eq "" or $name eq "test_alwaysfail") { next};
+        $result .= <<TESTEND;
+if (len(tests) == 0) or ("$name" in tests):
+    print "${name}... ",
+    try:
+        result = ${name}()
+	if result:
+	    print "ok."
+	    succeeded = succeeded+1
+	else:
+	    print "FAIL"
+	    failed = failed+1
+    except (TestFail):
+        print "FAIL"
+	failed = failed+1
+TESTEND
+    }
+    $result .= <<MAINEND
+print succeeded, "tests passed, ", failed, "tests failed."
+MAINEND
 }
 
 sub make_comment($) {
@@ -71,6 +111,18 @@ sub func_start($) {
 sub addtext($) {
     my ($self, $text) = @_;
 
+    # do a few simple transformations to make it closer to java...
+    #
+    # remove address-of operator
+    $text =~ s/\&([a-z]+)/$1/g;
+    # change ||,&&,! to or,and,not
+    $text =~ s/\|\|/or/g;
+    $text =~ s/\&\&/and/g;
+    $text =~ s/\!([^=])/not $1/g;
+    # change true,false to 1,0
+    $text =~ s/\btrue\b/1/g;
+    $text =~ s/\bfalse\b/0/g;
+
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
 
@@ -90,7 +142,7 @@ sub var_decl($$$) {
     if (defined $initialiser) {
         $text = "$name = $initialiser\n";
     } else {
-        $text = "$name = new $type()\n";
+        $text = "$name = $type()\n";
     }
 
     $self->addtext($text);
@@ -166,22 +218,24 @@ sub do_cout(@$) {
     return $text;
 }
 
-return 1;
-
-__DATA__
-sub do_elsif($) {
-    my ($self, $cond) = @_;
-
-    my $text = "} else if ($cond) {\n";
-    $self->undent();
+sub do_invalid($) {
+    my ($self, $line) = @_;
+    my $text = "#INVALID:$line";
     $self->addtext($text);
-    $self->indent();
+    die "Can't handle invalid line";
+    return $text;
+}
+
+sub do_assignment($$) {
+    my ($self, $assignee, $value) = @_;
+    my $text = "$assignee = $value\n";
+    $self->addtext($text);
     return $text;
 }
 
 sub do_try() {
     my $self = shift;
-    my $text = "try {\n";
+    my $text = "try:\n";
     $self->addtext($text);
     $self->indent();
     return $text;
@@ -190,11 +244,24 @@ sub do_try() {
 sub do_catch($) {
     my ($self, $expt) = @_;
 
-    # give a parameter name if not present
-    if ($expt =~ s/(?:const )?($apitest_parser::type )(?:\&)?$/$1/) {
-        $expt .= "unused_exception_type";
+    # Extract the type
+    if ($expt =~ /(?:const )?($apitest_parser::type )(?:\&)?(?$apitest_parser::identifier)?$/) {
+        $expt = $1;
     }
-    my $text = "} catch ($expt) {\n";
+    my $text = "except ($expt):\n";
+    $self->undent();
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+return 1;
+
+__DATA__
+sub do_elsif($) {
+    my ($self, $cond) = @_;
+
+    my $text = "} else if ($cond) {\n";
     $self->undent();
     $self->addtext($text);
     $self->indent();
@@ -215,14 +282,6 @@ sub do_for($$$) {
     return $text;
 }
 
-sub do_invalid($) {
-    my ($self, $line) = @_;
-    my $text = "#INVALID:$line";
-    $self->addtext($text);
-    die "Can't handle invalid line";
-    return $text;
-}
-
 sub do_break() {
     my $self = shift;
     my $text = "break;\n";
@@ -240,12 +299,5 @@ sub do_postinc($$) {
 sub do_preinc($$) {
     my ($self, $arg1, $arg2) = @_;
     return $self->do_postinc($arg1, $arg2);
-}
-
-sub do_assignment($$) {
-    my ($self, $assignee, $value) = @_;
-    my $text = "$assignee = $value;\n";
-    $self->addtext($text);
-    return $text;
 }
 

@@ -1,0 +1,35 @@
+#!/usr/bin/python
+from omuscat import *
+
+def create_dir_if_needed(dirname):
+    import os
+    import stat
+    try:
+        sbuf = os.stat(dirname)
+	if (not stat.S_ISDIR(sbuf[stat.ST_MODE])):
+	    raise IOError, "Not a directory"
+	return 0
+    except OSError:
+        # create the directory
+	os.mkdir(dirname)
+	return 1
+
+class BackendManager:
+    def get_database(self, dbnames):
+        return self.do_getdb(dbnames)
+
+    def do_getdb(self, dbnames):
+        return self.do_getdb_sleepy(dbnames)
+
+    def do_getdb_sleepy(self, dbnames):
+        parent_dir = ".sleepy"
+	create_dir_if_needed(parent_dir)
+
+	dbdir = parent_dir + "/db"
+	for dbname in dbnames:
+	    dbdir = dbdir + "=" + dbname
+
+backendmanager = BackendManager()
+
+def get_database(dbname):
+    return backendmanager.get_database([dbname])

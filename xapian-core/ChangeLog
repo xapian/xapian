@@ -1,3 +1,7 @@
+Mon Aug  7 18:41:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Progress on apitest Python translation.  test_trivial runs.
+
 Mon Aug  7 18:03:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API addition: added OmInvalidOperationError to report invalid
