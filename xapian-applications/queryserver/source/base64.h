@@ -82,17 +82,21 @@ class Base64
     public:
         static std::string encode(const char * in, int inlen)
         {
-            char out[base64_encode_size(inlen)];
+            char * out = new char[base64_encode_size(inlen)];
             int outlen = base64_encode(in, inlen, out);
-            return std::string(out, outlen);
+            std::string result(out, outlen);
+            delete out;
+            return result;
         }
 
         static std::string decode(const char * in, int inlen)
         {
-            char out[base64_decode_size(inlen)];
+            char * out = new char[base64_decode_size(inlen)];
             int outlen = base64_decode(in, inlen, out);
             if (outlen == -1) throw std::string("Invalid base64 input");
-            return std::string((char *)out, outlen);
+            std::string result((char *)out, outlen);
+            delete out;
+            return result;
         }
 };
 

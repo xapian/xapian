@@ -1,3 +1,10 @@
+Wed Apr 28 11:43:19 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * source/base64.h: Remove definition of array as variable sized -
+          sunpro compiler didn't like it.
+        * source/queryserver.cpp: Include config.h at beginning - needed so
+          that MacOSX picks up the definition of socklen_t.
+
 Tue Apr 27 22:53:41 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * docs/xapian-queryserver.but: Finish documenting the PHP client.
