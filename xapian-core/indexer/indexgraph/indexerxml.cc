@@ -103,10 +103,56 @@ static void xml_error_func(void *ctx, const char *fmt, ...) {
 
 static void xml_warn_func(void *ctx, const char *fmt, ...) {
     va_list ap;
+    std::string message("XML WARNING: ");
+
+#if HAVE_VSNPRINTF  // FIXME: actually check for vsnprintf
     va_start(ap, fmt);
-    fprintf(stderr, "WARNING: ");
-    vfprintf(stderr, fmt, ap);
+    char *buf = 0;
+    try {
+	const size_t max_size = 1024;
+	size_t size = 64;
+	buf = new char[size];
+
+	bool done = false;
+	while (!done) {
+	    int result = vsnprintf(buf, size, fmt, ap);
+	    if (result < 0 || result > size) {
+		// didn't have enough space
+		size *= 2;
+		if (size > max_size) {
+		    // write what we have and give up on the rest
+		    done = true;
+		    message += buf;
+		    message += "<TRUNCATED>";
+		    delete [] buf;
+		    buf = 0;
+		} else {
+		    // enlarge the buffer and try again
+		    delete [] buf;
+		    buf = 0;
+		    buf = new char[size];
+		}
+	    } else {
+		// success!
+		done = true;
+		message += buf;
+		delete [] buf;
+		buf = 0;
+	    }
+
+	}
+    } catch (...) {
+	if (buf) {
+	    delete [] buf;
+	}
+	throw;
+    }
     va_end(ap);
+#else
+    message += fmt;
+#endif // HAVE_VSNPRINTF
+
+    DEBUGLINE(INDEXER, message);
 }
 
 } // extern "C"

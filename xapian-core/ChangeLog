@@ -1,3 +1,9 @@
+Fri Oct 20 16:21:41 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The xml warn function now prints to debug rather than stderr
+
+	* Added more indexer tests
+
 Fri Oct 20 15:14:47 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added autoconf/definedir.m4

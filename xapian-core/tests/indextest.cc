@@ -254,6 +254,102 @@ bool test_omstemmer1()
     return true;
 }
 
+bool test_omprefix1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omprefix' id='only'>\n"
+	     "<param type='string' name='prefix' value='WIB'/>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("word"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("sponge"));
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("elephants"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+        cout << "Non-vector result: " << result << endl;
+    }
+    if (result->get_vector_length() != v.size()) {
+        return false;
+    }
+
+    for (int i=0; i<v.size(); ++i) {
+        if (result->get_element(i).get_string() !=
+			std::string("WIB") + v[i].get_string()) {
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+bool test_omstopword1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omstopword' id='only'>\n"
+	     "<param type='list' name='stopwords'>\n"
+	         "<item value='stop1'/>\n"
+		 "<item value='2stop'/>\n"
+	     "</param>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("2stop"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("stop1"));
+    v.push_back(OmIndexerData("elephants"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+        cout << "Non-vector result: " << result << endl;
+    }
+    if (result->get_vector_length() != v.size() - 2) {
+        return false;
+    }
+
+    for (int i=0; i<v.size()-2; ++i) {
+        if (result->get_element(i).get_string() !=
+			v[i*2].get_string()) {
+	    if (verbose) {
+		cout << "Result: " << result << endl;
+	    }
+	    return false;
+	}
+    }
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -266,6 +362,8 @@ test_desc tests[] = {
     {"flowcheck1",	&test_flowcheck1},
     {"omsplitter1",	&test_omsplitter1},
     {"omstemmer1",	&test_omstemmer1},
+    {"omprefix1",	&test_omprefix1},
+    {"omstopword1",	&test_omstopword1},
     {0, 0}
 };
 
