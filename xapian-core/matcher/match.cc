@@ -103,10 +103,8 @@ class MSetCmp {
 void
 Match::match(void)
 {    
-    PostList *merger;
+    PostList *merger = NULL;
     PostList *boolmerger = NULL;
-
-    if (pq.empty()) return; // No terms in query
 
     if (bq.size() > 1) return; // Partially constructed boolean query
 
@@ -115,22 +113,30 @@ Match::match(void)
 	// bq.top() is a boolean query merged postlist
     }
 
-    // build a tree balanced by the term frequencies
-    // (similar to building a huffman encoding tree)
-    while (true) {
-	merger = pq.top();
-	pq.pop();
-	if (pq.empty()) break;
-	// NB right is always <= left - we can use this to optimise
-	merger = new MergedPostList(pq.top(), merger);
-	pq.pop();
-	pq.push(merger);
+    if (!pq.empty()) {
+	// build a tree balanced by the term frequencies
+	// (similar to building a huffman encoding tree)
+	while (true) {
+	    merger = pq.top();
+	    pq.pop();
+	    if (pq.empty()) break;
+	    // NB right is always <= left - we can use this to optimise
+	    merger = new MergedPostList(pq.top(), merger);
+	    pq.pop();
+	    pq.push(merger);
+	}
     }
 
-    if(boolmerger) {
-	merger = new FilterPostList(merger, boolmerger);
+    if (boolmerger) {
+	if (merger) {
+	    merger = new FilterPostList(merger, boolmerger);
+	} else {
+	    merger = boolmerger;
+	}
+    } else if (!merger)	{
+    	return;
     }
-    
+
     doccount msize = 0, mtotal = 0;
     weight w_min = 0;
     vector<MSetItem> mset;
