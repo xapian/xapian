@@ -28,6 +28,7 @@
 // Sleepycat database stuff
 #include <db_cxx.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* For the moment, the packed format is:
  *    Number of items.
@@ -96,7 +97,7 @@ SleepyListItem::SleepyListItem(string packed)
 
 
 string
-SleepyListItem::pack()
+SleepyListItem::pack() const
 {
     string packed;
     id_type idtemp;
@@ -149,22 +150,13 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 	// FIXME - read list only as desired, for efficiency
 	found = db->get(NULL, &key, &data, 0);
 
-	// Unpack list
 	if(found != DB_NOTFOUND) {
+	    // Unpack list
 	    Assert(found == 0); // Any other errors should cause an exception.
 
 	    string packed(reinterpret_cast<char *>(data.get_data()),
 			  data.get_size());
-
-	    string::size_type pos = 0;
-	    entry_type number_of_items = readentry<entry_type>(packed, pos);
-
-	    while(items.size() < number_of_items) {
-		entry_type itemsize = readentry<entry_type>(packed, pos);
-
-		items.push_back(SleepyListItem(packed.substr(pos, itemsize)));
-		pos += itemsize;
-	    }
+	    unpack(packed);
 	}
     } catch (DbException e) {
 	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
@@ -190,25 +182,84 @@ void
 SleepyList::add(const SleepyListItem & newitem)
 {
     modified_and_locked = true;
-    throw OmUnimplementedError("SleepyList::add() not yet implemented");
+    // FIXME - actually get a lock
+
+    make_entry(newitem);
 }
 
 // /////////////////////
 // // Private methods //
 // /////////////////////
 
+/// Compare two SleepyListItems by their ID field
+class SleepyListItemLess {
+    public:
+	int operator() (const SleepyListItem &p1, const SleepyListItem &p2) {
+	    return p1.id < p2.id;
+	}
+};
+
+void
+SleepyList::make_entry(const SleepyListItem & newitem) {
+    vector<SleepyListItem>::iterator p;
+    p = lower_bound(items.begin(), items.end(),
+		    newitem,
+		    SleepyListItemLess());
+    if(p == items.end() || SleepyListItemLess()(newitem, *p)) {
+        // An item with the specified ID is not in list yet - insert new one
+	items.insert(p, newitem);
+    } else {
+        // An item with the specified ID is already in list - overwrite it
+	*p = newitem;
+    }
+}
+
+void
+SleepyList::unpack(string packed)
+{
+    string::size_type pos = 0;
+    entry_type number_of_items = readentry<entry_type>(packed, pos);
+
+    while(items.size() < number_of_items) {
+	entry_type itemsize = readentry<entry_type>(packed, pos);
+
+	items.push_back(SleepyListItem(packed.substr(pos, itemsize)));
+	pos += itemsize;
+    }
+}
+
+string
+SleepyList::pack() const
+{
+    string packed;
+    entry_type temp;
+
+    temp = items.size();
+    packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
+
+    vector<SleepyListItem>::const_iterator i;
+    for(i = items.begin(); i != items.end(); i++) {
+	packed.append(i->pack());
+    }
+
+    return packed;
+}
 
 void
 SleepyList::do_flush()
 {
     if(modified_and_locked) {
-	throw OmUnimplementedError("SleepyList::do_flush() writing to database not yet implemented");
-	// Pack entry
-	;
+	// Pack list
+
+	string packed = pack();
+	Dbt data;
 
 	try {
 	    // Write list
-	    //found = db->put(NULL, &key, &data, 0);
+	    int err_num = db->put(NULL, &key, &data, 0);
+	    if(err_num)
+		throw OmDatabaseError(string("Database error:") +
+				      strerror(err_num));
 	} catch (DbException e) {
 	    throw OmDatabaseError("Database error:" + string(e.what()));
 	}

@@ -106,7 +106,7 @@ class SleepyListItem {
 	/** Return a packed representation of the item, for storing in
 	 *  the file.
 	 */
-	string pack();
+	string pack() const;
 };
 
 /** A list of items which might comprise a termlist or a postlist,
@@ -142,6 +142,27 @@ class SleepyList {
 	 *  writing to the database.
 	 */
 	void do_flush();
+
+	/** Insert an entry into the list of items.
+	 *
+	 *  This searches the list for an item with the same ID as the new
+	 *  item.  If such an item is found, it is replaced with the new
+	 *  item.  If none is found, a new entry is added into the list of
+	 *  items in the correct place (to keep the list in sorted order of
+	 *  ID).
+	 *
+	 *  @param newitem The item to be added.
+	 */
+	void make_entry(const SleepyListItem & newitem);
+
+	/** Unpack a string representation of this item into the item.
+	 */
+	void unpack(string packed);
+
+	/** Pack the contents of this item into a string.
+	 */
+	string pack() const;
+
     public:
 	/** Make the list referring to that stored in the specified database
 	 *  referenced by the given key.
@@ -182,7 +203,7 @@ class SleepyList {
 	 *
 	 *  @param item  The item to add to the list.
 	 */
-	void add(const SleepyListItem & item);
+	void add(const SleepyListItem & newitem);
 
 	/** Flush the list.  This writes any changes to the list to disk,
 	 *  and unlocks the list.
