@@ -248,19 +248,10 @@ OmEnquireInternal::get_mset(om_doccount first,
         moptions = &defmoptions;
     }
 
-    // Collection point for statistics
-    // FIXME: put this in MultiMatch
-    StatsGatherer gatherer;
-
     // Set Database
     MultiMatch match;
 
-    LeafMatch * temp = new LeafMatch(database, &gatherer);
-    match.add_leafmatch(temp);
-
-    // Delete leaf at end of method
-    // FIXME: incorporate this into the MultiMatch object, somehow.
-    auto_ptr<LeafMatch> submatch(temp);
+    match.add_singlematch(auto_ptr<SingleMatch>(new LeafMatch(database)));
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {
@@ -268,18 +259,8 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set Rset
-    // FIXME: should use an auto_ptr here
-    RSet *rset = 0;
     if((omrset != 0) && (omrset->items.size() != 0)) {
-	rset = new RSet(database, *omrset);
-	match.set_rset(rset);
-    }
-
-    // FIXME: should be done by top match object.
-    if(rset == 0) {
-	gatherer.set_global_stats(0);
-    } else {
-	gatherer.set_global_stats(rset->get_rsize());
+	match.set_rset(auto_ptr<RSet>(new RSet(database, *omrset)));
     }
 
     // Set options
@@ -318,17 +299,6 @@ OmEnquireInternal::get_mset(om_doccount first,
     // Store what the first item requested was, so that this information is
     // kept with the mset.
     retval.firstitem = first;
-
-    // Do checks that the statistics got shared correctly.
-    AssertParanoid(query->is_bool() || retval.items.size() == 0 ||
-		   gatherer.get_stats()->collection_size ==
-		   database->get_doccount());
-    AssertParanoid(query->is_bool() || retval.items.size() == 0 ||
-		   (rset == 0 && gatherer.get_stats()->rset_size == 0) ||
-		   (rset != 0 && gatherer.get_stats()->rset_size == rset->get_rsize()));
-
-    // Clear up
-    delete rset;
 
     return retval;
 }

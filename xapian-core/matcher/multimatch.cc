@@ -22,7 +22,8 @@
 
 #include "config.h"
 #include "multimatch.h"
-#include "leafmatch.h"
+#include "match.h"
+#include "rset.h"
 
 #include <algorithm>
 
@@ -39,14 +40,24 @@ MultiMatch::MultiMatch()
 
 MultiMatch::~MultiMatch()
 {
+    // delete the singlematches in the container.
+    for (vector<SingleMatch *>::iterator i = leaves.begin();
+	 i != leaves.end();
+	 ++i) {
+	delete *i;
+    }
 }
 
 void
-MultiMatch::add_leafmatch(SingleMatch * leaf)
+MultiMatch::add_singlematch(auto_ptr<SingleMatch> smatch)
 {
     Assert(allow_add_leafmatch);
 
-    leaves.push_back(leaf);
+    SingleMatch *temp = smatch.get();
+    leaves.push_back(temp);
+    smatch.release(); // the leaves container now owns the pointer.
+
+    temp->link_to_multi(&gatherer);
 }
 
 void
@@ -60,13 +71,17 @@ MultiMatch::set_query(const OmQueryInternal * query)
 }
 
 void
-MultiMatch::set_rset(RSet * rset)
+MultiMatch::set_rset(auto_ptr<RSet> rset_)
 {
     Assert((allow_add_leafmatch = false) == false);
+
+    rset = rset_;
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
-	(*i)->set_rset(rset);
+	(*i)->set_rset(rset.get());
     }
+
+    gatherer.set_global_stats(rset->get_rsize());
 }
 
 void

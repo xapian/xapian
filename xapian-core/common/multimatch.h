@@ -24,8 +24,10 @@
 #define OM_HGUARD_MULTIMATCH_H
 
 #include "match.h"
+#include "stats.h"
 
 #include <vector>
+#include <memory>  // auto_ptr
 
 class SingleMatch;
 
@@ -36,6 +38,12 @@ class MultiMatch
     private:
 	/// Vector of the items 
 	vector<SingleMatch *> leaves;
+
+	/// stats gatherer
+	StatsGatherer gatherer;
+
+	/// Saved RSet (so that it can delete it properly)
+	auto_ptr<RSet> rset;
 #ifdef MUS_DEBUG
 	bool allow_add_leafmatch;
 #endif /* MUS_DEBUG */
@@ -55,10 +63,10 @@ class MultiMatch
 	 *
 	 *  @param leaf A pointer to the new object to add.
 	 */
-	void add_leafmatch(SingleMatch * leaf);
+	void add_singlematch(auto_ptr<SingleMatch> smatch);
 
 	void set_query(const OmQueryInternal * query);
-	void set_rset(RSet * rset);
+	void set_rset(auto_ptr<RSet> rset_);
 	void set_weighting(IRWeight::weight_type wt_type);
 	void set_min_weight_percent(int pcent);
 	void set_collapse_key(om_keyno key);

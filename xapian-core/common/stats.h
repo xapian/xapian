@@ -116,7 +116,10 @@ class StatsLeaf {
 	void perform_request() const;
     public:
 	/// Constructor: takes the gatherer to talk to.
-	StatsLeaf(StatsGatherer * gatherer_);
+	StatsLeaf();
+
+	/// set up the parent gatherer
+	void connect_to_gatherer(StatsGatherer *gatherer_);
 
 	/* ################################################################
 	 * # Give statistics about yourself.  These are used to generate, #
@@ -127,10 +130,6 @@ class StatsLeaf {
 	/** Set the number of documents in this sub-database.
 	 */
 	void my_collection_size_is(om_doccount csize);
-
-	/** Set the number of relevant documents in this sub-database.
-	 */
-	void my_rset_size_is(om_doccount rsize);
 
 	/** Set the average length of a document in this sub-database.
 	 */
@@ -199,9 +198,9 @@ Stats::operator +=(const Stats & inc)
     }
     collection_size = new_collection_size;
 
-    // Pass up rset_size.  This is used for checking
-    // FIXME: rset_size currently preset, whoops
-    //rset_size += inc.rset_size;
+    // rset_size is set at the top level, we don't want
+    // to pass it back up again.
+    Assert(inc.rset_size == 0);
 
     // Add termfreqs and reltermfreqs
     map<om_termname, om_doccount>::const_iterator i;
@@ -234,9 +233,15 @@ StatsGatherer::set_global_stats(om_doccount rset_size)
 
 
 inline
-StatsLeaf::StatsLeaf(StatsGatherer * gatherer_)
-	: gatherer(gatherer_), total_stats(0)
+StatsLeaf::StatsLeaf()
+	: gatherer(0), total_stats(0)
 {
+}
+
+inline void
+StatsLeaf::connect_to_gatherer(StatsGatherer *gatherer_)
+{
+    gatherer = gatherer_;
 }
 
 inline void
@@ -244,13 +249,6 @@ StatsLeaf::my_collection_size_is(om_doccount csize)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
-}
-
-inline void
-StatsLeaf::my_rset_size_is(om_doccount rsize)
-{
-    Assert(total_stats == 0);
-    my_stats.rset_size = rsize;
 }
 
 inline void

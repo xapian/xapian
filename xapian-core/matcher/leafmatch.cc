@@ -85,9 +85,9 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
+LeafMatch::LeafMatch(IRDatabase *database_)
 	: database(database_),
-	  statsleaf(gatherer_),
+	  statsleaf(),
 	  min_weight_percent(-1),
 	  max_weight_needs_calc(true),
 	  query(0),
@@ -97,6 +97,12 @@ LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
 	  wt_type(IRWeight::WTTYPE_BM25),
 	  do_collapse(false)
 {
+}
+
+void
+LeafMatch::link_to_multi(StatsGatherer *gatherer)
+{
+    statsleaf.connect_to_gatherer(gatherer);
     statsleaf.my_collection_size_is(database->get_doccount());
     statsleaf.my_average_length_is(database->get_avlength());
 }

@@ -54,13 +54,21 @@ class MSetCmp {
 	}
 };
 
+class StatsGatherer;
+
 /// Base class for single matchers
 class SingleMatch
 {
+    friend class MultiMatch;
     private:
 	// disallow copies
 	SingleMatch(const SingleMatch &);
 	void operator=(const SingleMatch &);
+
+	///////////////////////////////////////////////////////////////////
+	// Link to a multimatch object (used by
+	// MultiMatch::add_singlematch)
+	virtual void link_to_multi(StatsGatherer *gatherer) = 0;
     public:
 	SingleMatch() {};
 	virtual ~SingleMatch() = 0;

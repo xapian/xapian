@@ -136,12 +136,12 @@ class LeafMatch : public SingleMatch
 	LeafMatch(const LeafMatch &);
 	void operator=(const LeafMatch &);
     public:
-        LeafMatch(IRDatabase * database_,
-		  StatsGatherer * gatherer_);
+        LeafMatch(IRDatabase * database_);
         ~LeafMatch();
 
 	///////////////////////////////////////////////////////////////////
 	// Implement these virtual methods 
+	void link_to_multi(StatsGatherer *gatherer);
 
 	void set_query(const OmQueryInternal * query_);
 

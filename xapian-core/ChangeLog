@@ -1,3 +1,10 @@
+Thu Mar 23 15:00:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* MultiMatch now takes care of its own StatsGatherer
+
+	* MultiMatch now owns the RSet and SingleMatch objects given
+	  to it, and will delete them.
+
 Thu Mar 23 12:49:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed OmKey to use a string rather than an integer for the
