@@ -9,10 +9,11 @@
 </center></h1>
 
 Our hope is that by open sourcing stemming algorithms for English, French,
-Spanish, Italian, Portuguese, German and Dutch, we can encourage the
-development of similar algorithms for other languages. A stemming algorithm
-for Russian we hope to release shortly, but we lack algorithms for Finnish,
-the Scandanavian languages, Czech, Polish, etc.<p>
+Spanish, Italian, Portuguese, German, Dutch and (most recently) Swedish,  we can
+encourage the development of similar algorithms for other languages. A stemming
+algorithm for Russian we hope to release shortly, but we lack algorithms for Finnish,
+the Scandanavian languages other than Swedish, Czech, Polish,
+etc.<p>
 
 <h2>What is a stemming algorithm?</h2>
 
@@ -60,7 +61,7 @@ can be thought of as `confirm' with a chain of endings,
     plus    -e    (feminine ending - grammatical)
     plus    -s    (plural ending - grammatical)
 </pre>
--atif can also be thought of as -ate plus -if. note that the addition of
+-atif can also be thought of as -ate plus -if. Note that the addition of
 endings can cause respellings, so -e changes preceding `f' to `v'.<p>
 
 Endings fall into two classes, grammatical and morphological. The addition of
@@ -73,13 +74,13 @@ so on. Usually there are separate dictionary endings for these creations.<p>
 
 <h2>Language knowledge</h2>
 
-It is much easier to write a stemming algorithm for a language when you are
-familiar with it. If you are not, you will need to work with someone who is,
-and who can also explain details of grammar to you. Best is a professional
-teacher or translator. You certainly don't need to have a world authority on
-the grammar of the language. In fact too much expertise can get in the way
-when it comes to the very practical matter of writing the stemming
-algorithm.<p>
+It is much easier to write a stemming algorithm for a language when you
+are familiar with it. If you are not, you will probably need to work with
+someone who is, and who can also explain details of grammar to you. Best
+is a professional teacher or translator. You certainly don't need to have
+a world authority on the grammar of the language. In fact too much
+expertise can get in the way when it comes to the very practical matter of
+writing the stemming algorithm.<p>
 
 <h2>Raw materials</h2>
 
@@ -149,7 +150,7 @@ of a verb. In English, -MENT becomes `-ly', and then one can recognise,
    -OUS-MENT   famously
 </pre>
 Trios, -IC-AT-IV etc., also occur, but sequences of length four,
--IC-AT-IV-ITY and -IC-AT-IV-MENT, are absent, (or occur very rarely).<p>
+-IC-AT-IV-ITY and -IC-AT-IV-MENT, are absent (or occur very rarely).<p>
 
 Sometimes the validity of an ending depends on the immediately preceding
 group of letters. In Italian, for example, certain pronouns and pronoun
@@ -244,11 +245,50 @@ algorithms have not been used enough for a significant list of irregular
 forms to emerge, but as they do, they can be placed in the <code>irregular_forms</code>
 table.<p>
 
+<h2>Using stemming in IR</h2>
+
+In earlier versions of Muscat, the words of a text were usually stemmed as
+part of the indexing process, and the stemmed forms only held in the main
+IR index. The words of each incoming query would then be stemmed similarly.
+When the index terms were seen by the user, for example during query
+expansion, they would be seen in their stemmed form. It was important
+therefore that the stemmed form of a word should not be too unfamiliar in
+appearance. A user will be comfortable with seeing `apprehend', which
+stands for 'apprehending', `apprehended' as well as `apprehend'. More
+problematical is `apprehens', standing for `apprehension', `apprehensive'
+etc., but even so, a trained user would not have a problem with this. In
+fact all the Muscat stemming algorithms are built on the assumption that it
+leave stemmed forms which it would not be embarrassing to show to real
+users, and we suggest that new stemming algorithms are designed with this
+criterion in mind.<p>
+
+A superior approach is to keep each word, <i>W</i>, and its stemmed form,
+<i>s(W)</i>, as a two-way relation in the IR system. <i>W</i> is held in
+the index with its own posting list. <i>s(W)</i> could have its separate
+posting list, but this would be derivable from the class of words that
+stem to <i>s(W)</i>. The important thing is to have the <i>W</i> <->
+<i>s(W)</i> relation. From <i>W</i> we can derive <i>s(W)</i>, the stemmed
+form. From a stemmed form <i>s(W)</i> we can derive <i>W</i> plus the
+other words in the IR system which stem to <i>s(W)</i>. Any word can then
+be searched on either stemmed or unstemmed. If the stemmed form of a word
+needs to be shown to the user, it can be represented by the commonest
+among the words which stem to that form.<p>
+
 <h2>Stopwords</h2>
 
 It has been traditional in setting up IR systems to discard the very
-commonest words of a language - the stopwords. This practise is not
-necessarily being encouraged here, but if it is done, it connects in various
+commonest words of a language - the stopwords - during indexing.
+A more modern approach is to index everything, which greatly assists
+searching for phrases for example. Stopwords can then still be eliminated from the
+query as an optional style of retrieval. In either case, a list of
+stopwords for a language is useful.<p>
+
+Getting a
+list of stopwords can be done by sorting a vocabulary of a text corpus for
+a language by frequency, and going down the list picking off words to be
+discarded.<p>
+
+The stopword list connects in various
 ways with the stemming algorithm:<p>
 
 The stemming algorithm can itself be used to detect and remove stopwords. One
@@ -276,6 +316,173 @@ example, the four forms
 <pre>
     quest
 </pre>
+
+Here is a practical list of stopwords for the languages of the Muscat
+stemming algorithms, <i>in their stemmed form</i>. They can be used in conjunction
+with the algorithms:
+
+<pre>
+
+
+(it is assumed that single letter forms are discarded)
+
+Dutch
+
+  'aan'    'al'     'alles'  'als'    'altijd' 'ander'  'ben'    'bij'
+  'dan'    'dar'    'dat'    'de'     'der'    'dez'    'die'    'dit'
+  'doch'   'doen'   'dor'    'dus'    'een'    'en'     'er'     'ge'
+  'gen'    'geweest''had'    'har'    'heb'    'hebb'   'heeft'  'hem'
+  'het'    'hier'   'hij'    'hoe'    'hun'    'iemand' 'iet'    'ik'
+  'in'     'is'     'ja'     'je'     'kan'    'kon'    'kunn'   'mar'
+  'me'     'men'    'mer'    'met'    'mij'    'mijn'   'moet'   'na'
+  'nar'    'niet'   'nog'    'nu'     'of'     'om'     'omdat'  'onder'
+  'ons'    'ook'    'op'     'over'   'red'    'te'     'teg'    'toch'
+  'toen'   'tot'    'uit'    'uw'     'van'    'vel'    'vor'    'want'
+  'war'    'was'    'wat'    'werd'   'wez'    'wie'    'wil'    'word'
+  'wordt'  'zal'    'ze'     'zelf'   'zich'   'zij'    'zijn'   'zo'
+  'zonder' 'zou'
+
+English
+
+  'he' 'her' 'herself' 'hi' 'him' 'himself' 'it' 'itself'
+  'me' 'my' 'myself' 'our' 'ourselv''she' 'thei' 'their'
+  'them' 'themselv' 'we' 'you' 'your' 'yourself' 'yourselv'
+
+  'am' 'ar' 'be' 'been' 'can' 'could' 'did' 'do' 'doe' 'ha' 'had'
+  'have' 'is' 'mai' 'must' 'shall' 'should' 'wa' 'were' 'will'
+  'would'
+
+  'becaus' 'here' 'that' 'there' 'these' 'thi' 'those' 'what'
+  'when' 'where' 'which' 'who' 'whom' 'why'
+
+  'about' 'after' 'again' 'against' 'all' 'an' 'and' 'ani' 'as'
+  'at' 'befor' 'below' 'between' 'both' 'but' 'by' 'down'
+  'dure' 'each' 'few' 'first' 'for' 'from' 'further' 'how'
+  'if' 'in' 'into' 'more' 'most' 'no' 'nor' 'not' 'of' 'off' 'on'
+  'onc' 'onli' 'or' 'other' 'out' 'over' 'own' 'per' 'same'
+  'so' 'some' 'such' 'than' 'the' 'then' 'through' 'to'
+  'too' 'under' 'until' 'up' 'veri' 'while' 'with'
+
+  --and perhaps
+
+  'everi' 'least' 'less' 'mani' 'now'
+
+  'ever' 'never'
+
+  'sai' 'said'
+  'also' 'get' 'go' 'just' 'made' 'make' 'put' 'see' 'seen' 'whether'
+
+French
+
+  'au'   'aux'  'avec' 'avoi' 'ce'   'dan'  'de'   'devoi''du'
+  'elle' 'en'   'et'   'etr'  'eux'  'il'   'je'   'la'   'le'
+  'leur' 'lui'  'ma'   'mais' 'me'   'mem'  'moi'  'mon'  'ne'
+  'nos'  'notr' 'nous' 'on'   'ou'   'par'  'pas'  'pour'
+  'pouvoi''qu'  'que'  'qui'  'sa'   'se'   'son'  'sur'  'ta'
+  'te'   'toi'  'ton'  'tu'   'un'   'une'  'vos'  'votr' 'vous'
+
+
+German
+
+  'aber'   'all'    'als'    'also'   'am'     'an'     'and'    'auch'
+  'auf'    'aus'    'bei'    'bin'    'bis'    'da'     'damit'  'dann'
+  'das'    'dass'   'dazu'   'dem'    'den'    'denn'   'der'    'derselb'
+  'des'    'dess'   'dich'   'die'    'dies'   'dir'    'doch'   'dort'
+  'du'     'durch'  'ein'    'einig'  'einmal' 'er'     'es'     'etwas'
+  'euch'   'fur'    'geg'    'gewes'  'hab'    'hat'    'hatt'   'hier'
+  'hin'    'hint'   'ich'    'ihm'    'ihn'    'ihr'    'im'     'in'
+  'ind'    'ins'    'ist'    'jed'    'jetzt'  'kann'   'kein'   'konn'
+  'konnt'  'mach'   'man'    'mein'   'mich'   'mir'    'mit'    'muss'
+  'musst'  'nach'   'nicht'  'noch'   'nun'    'nur'    'ob'     'oder'
+  'ohn'    'sehr'   'sei'    'sein'   'selb'   'sich'   'sie'    'sind'
+  'so'     'solch'  'soll'   'sollt'  'sond'   'sonst'  'uber'   'um'
+  'und'    'uns'    'unt'    'viel'   'vom'    'von'    'vor'    'wahrend'
+  'war'    'was'    'weg'    'weil'   'weit'   'welch'  'wenn'   'werd'
+  'wie'    'wied'   'will'   'wir'    'wird'   'wo'     'woll'   'wollt'
+  'wurd'   'zu'     'zum'    'zur'    'zwar'   'zwisch'
+
+Italian
+
+  'ad' 'al' 'allo' 'ai' 'agli' 'all' 'agl' 'alla' 'alle'
+  'con' 'col' 'coi'
+  'da' 'dal' 'dallo' 'dai' 'dagli' 'dall'
+  'di' 'del' 'dello' 'dei' 'degli' 'dell' 'degl' 'della' 'delle'
+  'in' 'nel' 'nello' 'nei' 'negli' 'nell'
+  'su' 'sul' 'sullo' 'sui' 'sugli' 'sull'
+  'per' 'tra' 'contro'
+  'io' 'tu' 'lui' 'lei' 'noi' 'voi' 'lor'
+  'mio' 'mia' 'mie'
+  'tuo' 'tua' 'tue'
+  'suo' 'sua' 'sue'
+  'nostr'
+  'vostr'
+  'mi' 'ti' 'ci' 'vi' 'lo' 'la' 'li' 'le' 'gli' 'ne'
+  'il' 'un' 'uno' 'una'
+  'ma' 'ed' 'se' 'perc' 'anche' 'come'
+  'dov'
+  'aver' 'dover' 'esser' 'poter' 'star' 'voler'
+  'che' 'chi' 'cui'
+  'non'
+  'piu'
+  'qual' 'quant' 'quell' 'quest'
+  'si'
+  'tutt'
+
+
+Portuguese
+
+  'ante'   'ao'     'aos'    'apos'   'aquel'  'aquil'  'as'     'ate'
+  'com'    'comig'  'conosc' 'consig' 'contra' 'da'     'daquel' 'daquil'
+  'dar'    'das'    'de'     'dela'   'delas'  'dele'   'deles'  'desde'
+  'dessa'  'dessas' 'desses' 'desta'  'destas' 'deste'  'destes' 'disso'
+  'do'     'dos'    'dum'    'duns'   'ela'    'elas'   'ele'    'eles'
+  'em'     'entre'  'essa'   'essas'  'esse'   'esses'  'esta'   'estas'
+  'este'   'estes'  'eu'     'isso'   'isto'   'la'     'las'    'lha'
+  'lhas'   'lhe'    'lhes'   'lho'    'lhos'   'lo'     'los'    'ma'
+  'mais'   'mas'    'me'     'meu'    'meus'   'mim'    'minh'   'mo'
+  'mos'    'na'     'nan^t'  'naquel' 'naquil' 'nas'    'ness'   'nest'
+  'niss'   'nist'   'no'     'nos'    'noss'   'num'    'nuns'   'os'
+  'par'    'pel'    'por'    'qual'   'que'    'quem'   'se'     'sem'
+  'seu'    'seus'   'sob'    'sobr'   'sua'    'suas'   'um'     'uma'
+  'umas'   'uns'    'voc'    'voces'
+
+  'diz'    'est'    'faz'    'hav'    'ir'     'pod'    'sab'    'ser'
+  'ter'    'ver'    'vir'
+
+  'como'   'ou'     'quand'  'muit'   'ja'     'so'
+
+Spanish
+
+  'al'      'con'     'de'      'del'     'dond'    'el'
+  'ella'    'ellas'   'ellos'   'en'      'esa'     'esas'
+  'ese'     'esos'    'esta'    'estar'   'estas'   'este'
+  'estos'   'haber'   'la'      'las'     'le'      'les'
+  'lo'      'los'     'mas'     'me'      'mi'      'mia'
+  'mias'    'mio'     'mios'    'mis'     'no'      'nos'
+  'nosostr' 'nuestr'  'os'      'par'     'per'     'poder'
+  'por'     'que'     'querer'  'qui'     'quien'   'se'
+  'ser'     'si'      'sobr'    'su'      'sus'     'suy'
+  'te'      'tener'   'tu'      'tus'     'tuy'     'un'
+  'una'     'unas'    'unos'    'vosostr' 'vuestr'  'yo'
+
+Swedish
+
+  'all'     'andr'    'ar'      'att'     'av'      'bar'     'bli'
+  'blir'    'brott'   'cent'    'da'      'dag'     'de'      'den'
+  'det'     'dett'    'dock'    'där'     'eft'     'ell'     'en'
+  'ett'     'fa'      'far'     'finn'    'fran'    'för'     'först'
+  'gar'     'genom'   'ha'      'han'     'har'     'hur'     'här'
+  'in'      'inom'    'int'     'kan'     'komm'    'man'     'mast'
+  'med'     'mellan'  'men'     'mer'     'mot'     'mycket'  'nagon'
+  'nu'      'nya'     'när'     'och'     'ocks'    'om'      'pa'
+  'polis'   'procent' 'sa'      'sedan'   'sig'     'sin'     'ska'
+  'skall'   'som'     'stor'    'svensk'  'till'    'und'     'upp'
+  'ut'      'vad'     'var'     'vi'      'vill'    'än'      'är'
+  'även'    'över'
+
+
+</pre>
+
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>
