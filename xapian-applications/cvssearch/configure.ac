@@ -1,5 +1,9 @@
-AC_INIT([map/map.cpp])
-AM_INIT_AUTOMAKE(cvssearch, 2.0)
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(cvssearch, 2.0)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([map/map.cpp])
+
 AC_PROG_LIBTOOL
 
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))

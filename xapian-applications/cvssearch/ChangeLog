@@ -1,3 +1,9 @@
+Tue Apr 05 14:50:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,configure.in: Rename configure.in to configure.ac.
+	* configure.ac,Makefile.am: Require automake 1.8.5, and use new
+	  style AC_INIT and AM_INIT_AUTOMAKE.
+
 Tue Apr 05 00:46:34 BST 2005  Olly Betts <olly@survex.com>
 
 	* perl/.cvsignore,db/.cvsignore,map/xmlxx/.cvsignore,
