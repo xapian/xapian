@@ -1,3 +1,7 @@
+Mon Jun 23 21:39:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated in preparation for 0.7.0 release.
+
 Mon Jun 23 21:18:23 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/omparsequery.h: Corrected include protection token comment on
@@ -125,7 +129,7 @@ Thu Jun 05 17:52:17 BST 2003  Olly Betts <olly@survex.com>
 	* api/omqueryinternal.cc,common/socketcommon.h,docs/todo.xml,
 	  include/xapian/query.h,net/: Reworked query serialisation so that
 	  the code is now all in api/omqueryinternal.cc.  Serialisation is
-	  now rather more compact and no longer relies of flex for parsing.
+	  now rather more compact and no longer relies on flex for parsing.
 
 Thu Jun 05 17:45:00 BST 2003  Olly Betts <olly@survex.com>
 
@@ -1017,8 +1021,8 @@ Thu Feb 27 15:28:08 GMT 2003  Olly Betts <olly@survex.com>
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-	* Fix success message in bootstrap when building in non-src dir
-	  as configure is written to the src dir
+	* bootstrap: Fix success message when building in non-src dir
+	  as configure is written to the src dir.
 
 Mon Feb 24 10:33:52 GMT 2003  Olly Betts <olly@survex.com>
 

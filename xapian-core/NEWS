@@ -1,38 +1,59 @@
 Xapian 0.7.0 (2003-06-??):
 
 * Renamed everything into a Xapian namespace, which the main header now being
-  xapian.h.  Older code can be compiled by continuing to use om/om.h which
-  uses #define and other tricks to map the old names onto the new ones.
+  xapian.h.  Three classes have been renamed for better naming
+  consistency: OmOpeningError is now Xapian::DatabaseOpeningError,
+  OmPostListIterator is now Xapian::PostingIterator, and OmPositionListIterator
+  is now Xapian::PositionIterator.  And xapian.h includes <iosfwd> rather than
+  <iostream> - if you were relying on the implicit inclusion, you'll need to
+  add an explicit "#include <iostream>".  Older code can be compiled by
+  continuing to use om/om.h which uses #define and other tricks to map the old
+  names onto the new ones.
+* Use std::string directly instead of a typedef (was om_termname).  The typedef
+  doesn't really buy us anything.
 
-* Define XAPIAN_VERSION, XAPIAN_MAJOR_VERSION, and XAPIAN_MINOR_VERSION.
+* Define XAPIAN_VERSION (e.g. 0.7.0), XAPIAN_MAJOR_VERSION (e.g. 0), and
+  XAPIAN_MINOR_VERSION (e.g. 7).
 
-	Bindings - python close to working again?  ./configure --enable-bindings
+* Removed one wrapper layer from most API classes.
+* Xapian::Stem now uses reference counted internals.
+
+* Internally a lot of cases of unnecessary header inclusion have been removed
+  or replaced with forward declarations of classes.  This should speed up
+  compilation and recompilation of the Xapian library.
+
+* Xapian::QueryParser: Accent normalisation added; Improved error reporting;
+  Fixed to handle the most common examples found in the wild which used to give
+  "parse error".
+
+* Python bindings brought up to date - use ./configure --enable-bindings to
+  build them.  Requires Python >= 2.0.  May require Python >= 2.1.
+
+* Suppress warnings in Snowball generated C code.
+
+	* api/omqueryinternal.cc,common/socketcommon.h,docs/todo.xml,
+	  include/xapian/query.h,net/: Reworked query serialisation so that
+	  the code is now all in api/omqueryinternal.cc.  Serialisation is
+	  now rather more compact and no longer relies on flex for parsing.
+	  
+* build system will build bindings as part of normal build process.  No longer
+  build Perl or Java bindings; for Perl, use Search::Xapian; Java will be
+  replaced with SWIG-based bindings.
+
+* Assorted minor documentation improvements.
 
 * Fixed parsing of port number in remote stub databases.
 
-* QueryParser: Fixed to handle the most common examples found in the wild which
-  used to give "parse error".
-
-* Reduced needless inclusion of headers when a simply "class Foo;" will do;
-  use iosfwd rather than iostream where possible.
-
-* Moved all the core library tests to tests subdirectory.
+* testsuite: Moved all the core library tests to tests subdirectory.
 
 * quartzcheck, quartzdump, and quartzcompact are now built by "make" rather than  only by "make check".
-
-* Assorted minor documentation improvements.
 
 * Quartz: Improved error message when asked to open a pre-0.6 Quartz database.
 
 * Build system fixed to never leave partial files in place of the expected
-  output if a build is interrupted; improved check for flex.
+  output if a build is interrupted.
 
 * PLATFORMS: Updated.
-
-* languages/Makefile.am: Suppress "unused" warnings in Snowball generated C
-  code.
-
-* Removed one wrapper layer from most API classes.
 
 * apitest now allows backend to be specified with "-b" rather than having to
   mess with environmental variables.
@@ -43,18 +64,51 @@ Xapian 0.7.0 (2003-06-??):
 * Fixed sending debug output to a file with XAPIAN_DEBUG_LOG with a value which
   didn't contain "%%".
 
-* Improved RPM packaging.
+* Improved RPM packaging for xapian-core and omega.
 
 * Fixed get_collapse_count() to work as intended.
-
-* OmStem now uses reference counted internals.
-
-* Use std::string instead of a typdef (was om_termname).  The typedef doesn't
-  really buy us anything.
 
 * xapian-config: Removed --prefix and --exec-prefix - you can't reliably
   install Xapian with a different prefix to the one it was configured with,
   yet these options give the impression you can.
+
+omega:
+
+* Updated to use Xapian namespace.
+
+* omindex,scriptindex: Normalise accents in probabilistic terms.
+
+* omindex: Read output from pstotext and pdftotext via pipes rather
+  than temporary files to side-step the whole problem of secure temporary file
+  creation; Use pdfinfo to get the title and keywords from when indexing a PDF;
+  Safe filename escaping tweaked to not escape common safe punctuation.
+
+* omindex: Implement an upper limit on the length of URL terms.  Currently,
+  this is set at 240 characters - it can probably be increased slightly, but
+  I'm not sure exactly how long a term can safely be.  If the URL term would be
+  longer than this, its last few bytes are replaced by a hash of the tail of
+  the URL.  This means that (apart from hopefully very rare collisions)
+  urlterms should still be unique ids for documents.
+
+* omindex: Clean up processing of HTML documents:
+  - Ignore the contents of <script> and <style> tags in HTML.
+  - Strip initial whitespace in each tag in an HTML document.
+  - Try not to split words in half when truncating title and summary.
+
+* query.cc: Set STEM_LANGUAGE near the start of the file so it's easy
+  for users to change until we get better configurability.
+
+* omega: Replaced half-hearted logging support with flexible OmegaScript-based
+  approach with new $log command.  Also added $now to allow the current
+  date/time to be logged.
+
+* Minor documentation improvements.
+
+* templates/xml: added collapse info to xml template.
+
+examples:
+
+* Updated to use Xapian namespace.
 
 Xapian 0.6.5 (2003-04-10):
 
