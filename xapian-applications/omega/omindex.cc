@@ -318,7 +318,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	cout << "unknown MIME type - skipping\n";
 	return;
     }
-
     OmStem stemmer("english");    
 
     // Produce a sample
@@ -345,18 +344,25 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
+
     newdocument.add_term_nopos("T" + mimetype); // mimeType
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
     	string::size_type k = baseurl.find('/', j);
-	newdocument.add_term_nopos("P" + baseurl.substr(k)); // Path
-    	string::const_iterator l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
-	newdocument.add_term_nopos("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
+	if (k==string::npos) {
+	  newdocument.add_term_nopos("P/"); // Path
+	  newdocument.add_term_nopos("H" + baseurl.substr(j));
+	} else {
+	  newdocument.add_term_nopos("P" + baseurl.substr(k)); // Path
+	  string::const_iterator l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
+	  newdocument.add_term_nopos("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
+	}
     } else {
 	newdocument.add_term_nopos("P" + baseurl); // Path
     }
+
     struct tm *tm = localtime(&last_mod);
     char buf[9];
     sprintf(buf, "%04d%02d%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
@@ -397,6 +403,8 @@ index_directory(const string &dir, const map<string, string>& mime_map)
     DIR *d;
     struct dirent *ent;
     string path = root + indexroot + dir;
+
+    cout << "[Entering directory " << dir << "]" << endl;
 
     d = opendir(path.c_str());
     if (d == NULL) {
