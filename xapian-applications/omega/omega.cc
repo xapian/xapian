@@ -92,7 +92,8 @@ try {
     char *method;
     MCI val;
 #ifdef __SUNPRO_CC
-    pair<multimap<string, string>::iterator, multimap<string, string>::iterator> g;
+    pair<multimap<string, string>::iterator,
+	 multimap<string, string>::iterator> g;
 #else
     pair<MCI, MCI> g;
 #endif

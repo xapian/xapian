@@ -233,8 +233,7 @@ void add_bterm(const string &term) {
     }
 
 #ifdef __SUNPRO_CC
-    string term_as_string(term);
-    filter_map.insert(make_pair(prefix, term_as_string));
+    filter_map.insert(make_pair<string, string>(prefix, term));
 #else
     filter_map.insert(make_pair(prefix, term));
 #endif
@@ -1033,7 +1032,12 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_cgilist: {
+#ifdef __SUNPRO_CC
+		pair<multimap<string, string>::iterator,
+		     multimap<string, string>::iterator> g;
+#else
 		pair<MCI, MCI> g;
+#endif
 		g = cgi_params.equal_range(args[0]);
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';

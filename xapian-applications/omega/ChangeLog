@@ -1,3 +1,8 @@
+Mon Sep 29 11:49:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc,omega.cc: More fixes for Sun's really rather rubbish
+	  C++ compiler.
+
 Mon Sep 29 01:39:56 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Fixes for compiling with Sun's C++ compiler.
