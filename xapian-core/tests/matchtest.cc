@@ -30,12 +30,25 @@ int main(int argc, char *argv[]) {
 	    if(term == "B") { boolean = true;}
 	    else if(term == "P") { boolean = false;}
 	    else if(boolean) {
-		if (term == "|") {
-		    match.add_bor();
-		} else if (term == "&") {
-		    match.add_band();
+		if (term == "OR") {
+		    if (match.add_bor()) {
+			printf("Added boolean OR\n");
+		    } else {
+			printf("Failed to add boolean OR\n");
+		    }
+		} else if (term == "AND") {
+		    if (match.add_band()) {
+			printf("Added boolean AND\n");
+		    } else {
+			printf("Failed to add boolean AND\n");
+		    }
 		} else {
-		    match.add_bterm(term);
+		    if(match.add_bterm(term)) { 
+			printf("Added boolean term \"%s\" ok\n", term.c_str());
+		    } else {
+			printf("Failed to add boolean term \"%s\"\n",
+			       term.c_str());
+		    }
 		}
 	    } else {
 		term = stemmer.stem_word(term);
