@@ -207,19 +207,20 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
-dnl mingw has _snprintf
 AC_MSG_CHECKING(for working snprintf)
+dnl mingw has _snprintf
 for func in snprintf _snprintf ; do
   dnl Check that snprintf actually works as it's meant to.
   dnl
   dnl Linux 'man snprintf' warns:
-  dnl  Linux libc4.[45] does not have a snprintf, but provides a  libbsd  that
-  dnl  contains  an snprintf equivalent to sprintf, i.e., one that ignores the
-  dnl  size argument.  Thus, the use of snprintf with  early  libc4  leads  to
+  dnl  Linux libc4.[45] does not have a snprintf, but provides a libbsd that
+  dnl  contains an snprintf equivalent to sprintf, i.e., one that ignores the
+  dnl  size argument.  Thus, the use of snprintf with early libc4 leads to
   dnl  serious security problems.
   dnl
-  dnl Also check the we get the ISO C90 semantics for the length when truncating
-  dnl as some earlier implementations return -1 (e.g. glibc < 2.0.6).
+  dnl It also warns that glibc < 2.0.6 (and presumably other pre-C90
+  dnl implementations) return -1 when truncating so check that we get the
+  dnl ISO C90 semantics for the returned length when truncating.
   AC_RUN_IFELSE([
     AC_LANG_PROGRAM(
       [[#include <stdio.h>]],
@@ -228,20 +229,19 @@ for func in snprintf _snprintf ; do
 	if ($func(buffer, 2, "%s", "XYZ") != 3) return 1;
 	if (memcmp(buffer, "XYc", 4) != 0) return 1;
 	if ($func(buffer, 2, "%x", 0x12) != 2) return 1;
-	if (memcmp(buffer, "12c", 4) != 0) return 1;
-        return 0;
+	if (memcmp(buffer, "12c", 4) != 0) return 1
       ]]
-    ),
+    )],
     [ac_cv_func_snprintf="$func";break],
     [ac_cv_func_snprintf=no],
     [ac_cv_func_snprintf=unknown;break]
-  ])
+  )
 done
 AC_MSG_RESULT([$ac_cv_func_snprintf])
 case "$ac_cv_func_snprintf" in
   no|unknown) ;; dnl be conservative when crosscompiling
   *)
-    AC_DEFINE(SNPRINTF, [$ac_cv_func_snprintf],
+    AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
        [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
     ;;
 esac
