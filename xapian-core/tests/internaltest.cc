@@ -213,6 +213,9 @@ class test_refcnt : public OmRefCntBase {
 	        cout << " constructor ";
 	    }
 	}
+	OmRefCntPtr<const test_refcnt> test() {
+	    return OmRefCntPtr<const test_refcnt>(OmRefCntPtr::BypassRefStart, this);
+	}
 	~test_refcnt() {
 	    deleted = true;
 	    if (verbose) {
