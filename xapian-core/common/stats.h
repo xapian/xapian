@@ -121,6 +121,10 @@ class StatsLeaf {
 	/// set up the parent gatherer
 	void connect_to_gatherer(StatsGatherer *gatherer_);
 
+	/// Contribute all the statistics that don't depend on global
+	/// stats.
+	void contrib_my_stats();
+
 	/* ################################################################
 	 * # Give statistics about yourself.  These are used to generate, #
 	 * # or check, the global information.                            #
@@ -242,6 +246,12 @@ inline void
 StatsLeaf::connect_to_gatherer(StatsGatherer *gatherer_)
 {
     gatherer = gatherer_;
+}
+
+inline void
+StatsLeaf::contrib_my_stats()
+{
+    gatherer->contrib_stats(my_stats);
 }
 
 inline void
