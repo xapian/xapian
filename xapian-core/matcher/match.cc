@@ -34,9 +34,8 @@ Match::Match(IRDatabase *database)
 void
 Match::add_term(termid id)
 {
-    // FIXME: we want to push a null PostList in most (all?) situations
-    // for similar reasons to using the muscat3.6 zerofreqs option -
-    // but what should the return value be?
+    // We want to push a null PostList in most (all?) situations
+    // for similar reasons to using the muscat3.6 zerofreqs option
     if (id) {
 	q.push(DB->open_post_list(id));
     } else {
@@ -102,14 +101,22 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
     vector<PostList *> sorted;
     vector<termid>::const_iterator i;
     for (i = ids.begin(); i != ids.end(); i++) {
-	// for an AND, a zero frequency term means we can ignore the others
 	termid id = *i;
-	if (!id) {
-	    q.push(new EmptyPostList());
-	    return;
+	if (id == 0) {
+	    // a zero freq term => the AND has zero freq
+	    vector<PostList *>::const_iterator j;
+	    for (j = sorted.begin(); j != sorted.end(); j++) delete *j;
+	    sorted.clear();
+	    break;
 	}
 	sorted.push_back(DB->open_post_list(id));
     }
+    
+    if (sorted.empty()) {
+	q.push(new EmptyPostList());
+	return;
+    }
+
     stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
     
     PostList *p = sorted.back();
@@ -172,25 +179,6 @@ Match::recalc_maxweight()
     recalculate_maxweight = true;
 }
 
-#if 0
-    if (boolmerger) {
-	if (merger) {
-	    if (anti_filter) {
-		merger = new AndNotPostList(merger, boolmerger, this);
-	    } else {
-		merger = new FilterPostList(merger, boolmerger, this);
-	    }
-	} else {
-	    // FIXME: What to do if anti_filter is set here?
-	    // at present, we just return no hits
-	    if (anti_filter) return;
-	    merger = boolmerger;
-	}
-    } else if (!merger)	{
-    	return;
-    }
-#endif
-
 void
 Match::match()
 {    
@@ -215,8 +203,6 @@ Match::match()
 
     if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight;
 
-    // FIXME: partial_sort?
-    // FIXME: quicker to just resort whole lot than sort and merge?
     while (1) {
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
@@ -257,7 +243,7 @@ Match::match()
 	    mset.push_back(MSetItem(w, id));
 
 	    // FIXME: find balance between larger size for more efficient
-	    // resorting and smaller size for better w_min optimisations
+	    // nth_element and smaller size for better w_min optimisations
 	    if (mset.size() == max_msize * 2) {
 		// find last element we care about
 		cout << "finding nth\n";		
