@@ -43,7 +43,12 @@ class OmRefCntBase {
 	/// The constructor, which initialises the ref_count to 0.
 	OmRefCntBase() : ref_count(0) {};
 
-	/// Increase the reference count, used when attaching an OmRefCntPtr.
+	/** Increase reference count from 0 to 1, used when first making an
+	 *  OmRefCntPtr out of a pointer.
+	 */
+	void ref_start() const;
+	
+	/// Increase the reference count, used when copying an OmRefCntPtr.
 	void ref_increment() const;
 
 	/** Decrease the reference count.  In addition, return true if the
@@ -72,6 +77,13 @@ class OmRefCntPtr {
 	~OmRefCntPtr();
 };
 
+inline void OmRefCntBase::ref_start() const
+{
+    OmLockSentry locksentry(ref_count_mutex);
+    Assert(ref_count == 0);
+    ref_count += 1;
+}
+
 inline void OmRefCntBase::ref_increment() const
 {
     OmLockSentry locksentry(ref_count_mutex);
@@ -89,7 +101,7 @@ template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
 {
     if (dest) {
-	dest->ref_increment();
+	dest->ref_start();
     }
 }
 
