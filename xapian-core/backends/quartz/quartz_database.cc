@@ -42,11 +42,6 @@
 //                 is a relative path, it is taken to be relative to the
 //                 quartz_dir directory.
 //
-// quartz_envdir - Directory to use to keep the database environment in.
-// 		   If not specified, the database directory will be used.
-// 		   If this is a relative path, it is taken to be relative
-// 		   to the quartz_dir directory.
-//
 // quartz_use_transactions - Boolean, true if transactions should be used.
 //		   Defaults to false.  If false, begin_transaction,
 //		   cancel_transaction, and commit_transaction will all
@@ -220,6 +215,7 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
 bool
 QuartzDatabase::term_exists(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::term_exists() not yet implemented");
 }

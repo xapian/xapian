@@ -24,11 +24,21 @@
 #include "om/omsettings.h"
 #include "testsuite.h"
 
+#include "quartz_db_table.h"
+/// Test making and playing with a quartz_db_table
+static bool test_dbtable1()
+{
+    QuartzDbTable table(false);
+
+    TEST_EQUAL(table.get_revision_number(), 0);
+    return true;
+}
+
 /// Test opening of a quartz database
-static bool test_quartzopen1()
+static bool test_open1()
 {
     OmSettings settings;
-    settings.set("", "");
+    settings.set("quartz_db_dir", "foo");
 
     QuartzDatabase database(settings, true);
     return true;
@@ -40,7 +50,8 @@ static bool test_quartzopen1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"quartzopen1",		test_quartzopen1},
+    {"quartzdbtable1",		test_dbtable1},
+    {"quartzopen1",		test_open1},
     {0, 0}
 };
 

@@ -32,10 +32,7 @@ class QuartzModifications;
 #include "omlocks.h"
 
 /** A backend designed for efficient indexing and retrieval, using
- *  compressed posting lists and the Berkeley database library (version
- *  3.1).
- *
- *  BerkeleyDB is available from http://www.sleepycat.com/
+ *  compressed posting lists and a btree storage scheme.
  */
 class QuartzDatabase : public IRDatabase {
     private:

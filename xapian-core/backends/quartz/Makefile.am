@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
-           @BERKELEY_3_1_INCLUDES@
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite
 
 noinst_HEADERS =       quartz_types.h \
                        quartz_database.h \
@@ -31,6 +30,7 @@ check_PROGRAMS = quartztest
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = ../../testsuite/libtest.la \
                    ../../common/libcommon.la \
+                   ../../api/libapi.la \
 		   ../libbackend.la \
 		   libquartz.la
 
