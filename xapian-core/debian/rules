@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
-# The soversion number needs to be updated whenever the version numbers
-# in Makefile.am and extra/Makefile.am are updated.
+# The soversion number needs to be updated whenever LIBRARY_VERSION_INFO
+# in configure.ac is.
 libxapian_soversion=3
 
 # For now, we're only supporting installation of the latest development
