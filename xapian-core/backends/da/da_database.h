@@ -223,7 +223,7 @@ DATerm::get_ti() const
 	int len = tname.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw OmError(strerror(ENOMEM));
+	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len);
 
@@ -272,13 +272,13 @@ class DADatabase : public virtual IRDatabase {
 	IRDocument * open_document(docid did) const;
 
 	void make_term(const termname & tname) {
-	    throw OmError("DADatabase::make_term() not implemented");
+	    throw OmUnimplemented("DADatabase::make_term() not implemented");
 	}
 	docid make_doc(const docname & ) {
-	    throw OmError("DADatabase::make_doc() not implemented");
+	    throw OmUnimplemented("DADatabase::make_doc() not implemented");
 	}
 	void make_posting(const termname &, unsigned int, unsigned int) {
-	    throw OmError("DADatabase::make_posting() not implemented");
+	    throw OmUnimplemented("DADatabase::make_posting() not implemented");
 	}
 };
 

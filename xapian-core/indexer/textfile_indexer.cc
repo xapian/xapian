@@ -37,7 +37,7 @@ istream *
 TextfileIndexerSource::get_stream() const
 {
     std::ifstream * from = new std::ifstream(filename.c_str());
-    if(!*from) throw OmError("Cannot open file " + filename + " for indexing");
+    if(!*from) throw OmOpeningError("Cannot open file " + filename + " for indexing");
     return from;
 };
 

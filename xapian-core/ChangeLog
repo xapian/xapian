@@ -1,3 +1,14 @@
+Mon Feb  7 15:56:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Improved exception hierarchy:
+
+	  o Exceptions are all split between `OmLogicError' and
+	    `OmRuntimeError'.
+	    
+	  o Plain `OmError' exceptions are no longer allowed.
+
+	  o All exception classes are prefixed with `Om'.
+
 Mon Feb  7 12:57:12 GMT 2000 Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make get_eset()'s max_items parameter work.

@@ -154,13 +154,13 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
     DA_r = DAopen(filename_r.c_str(), DARECS);
     if(DA_r == NULL)
-	throw OpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
+	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
 
     DA_t = DAopen(filename_t.c_str(), DATERMS);
     if(DA_t == NULL) {
 	DAclose(DA_r);
 	DA_r = NULL;
-	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
+	throw OmOpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
     opened = true;
@@ -196,7 +196,7 @@ DADatabase::open_term_list(docid did) const
 
     if(found == 0) {
 	losetermvec(tv);
-	throw RangeError("Docid not found");
+	throw OmRangeError("Docid not found");
     }
 
     openterms(tv);
@@ -215,7 +215,7 @@ DADatabase::get_record(docid did) const
 
     if(found == 0) {
 	loserecord(r);
-	throw RangeError("Docid not found");
+	throw OmRangeError("Docid not found");
     }
 
     return r;
@@ -242,7 +242,7 @@ DADatabase::term_lookup(const termname & tname) const
 	int len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw OmError(strerror(ENOMEM));
+	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len);
 

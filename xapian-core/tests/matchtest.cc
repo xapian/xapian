@@ -204,7 +204,7 @@ main(int argc, char *argv[])
 	    cout << endl;
 	}
     }
-    catch (OmError e) {
+    catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
 }

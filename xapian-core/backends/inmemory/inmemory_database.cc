@@ -87,7 +87,7 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
 
     // Make sure that there's at least one document
     if(postlists.size() <= 0)
-	throw OmError("Document was empty or nearly empty - nothing to search");
+	throw OmOpeningError("Document was empty or nearly empty - nothing to search");
 
     Assert((opened = true) == true);
 }

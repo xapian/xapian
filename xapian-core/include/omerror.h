@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _error_h_
-#define _error_h_
+#ifndef OM_HGUARD_ERROR_H
+#define OM_HGUARD_ERROR_H
 
 #include <string>
 #include <stdexcept>
@@ -31,30 +31,69 @@
 class OmError {
     private:
         string msg;
-    public:
+
+	// assignment operator private and unimplemented
+	void operator=(const OmError &other);
+    protected:
+    	// constructors are protected, since they can only
+	// be used by derived classes anyway.
         OmError(const string &error_msg)
         {
             msg = error_msg;
         }
+	OmError(const OmError &other)
+	{
+	    msg = other.msg;
+	}
+    public:
         string get_msg()
         {
             return msg;
         }
+
+        // forbid instantiations of OmError (as opposed to subclasses)
+	inline virtual ~OmError() = 0;
 };
 
-class RangeError : public OmError {
+inline OmError::~OmError() {}
+
+// An exception derived from OmLogicError is thrown when a misuse
+// of the API is detected.
+class OmLogicError : public OmError {
+    protected:
+        OmLogicError(const string &msg) : OmError(msg) {};
+};
+
+// An exception derived from OmRuntimeError is thrown when an
+// error is caused by problems with the data or environment rather
+// than a programming mistake.
+class OmRuntimeError : public OmError {
+    protected:
+        OmRuntimeError(const string &msg) : OmError(msg) {};
+};
+
+class OmRangeError : public OmLogicError {
     public:
-	RangeError(const string &msg) : OmError(msg) {};
+	OmRangeError(const string &msg) : OmLogicError(msg) {};
 };
 
-class OpeningError : public OmError {
+class OmAssertionFailed : public OmLogicError {
     public:
-        OpeningError(const string &msg) : OmError(msg) {};
+        OmAssertionFailed(const string &msg) : OmLogicError(msg + " - assertion failed") {};
 };
 
-class AssertionFailed : public OmError {
+class OmUnimplemented : public OmLogicError {
     public:
-        AssertionFailed(const string &msg) : OmError(msg + " - assertion failed") {};
+        OmUnimplemented(const string &msg) : OmLogicError(msg) {};
 };
 
-#endif /* _error_h_ */
+class OmInvalidArgument : public OmLogicError {
+    public:
+        OmInvalidArgument(const string &msg) : OmLogicError(msg) {};
+};
+
+class OmOpeningError : public OmRuntimeError {
+    public:
+        OmOpeningError(const string &msg) : OmRuntimeError(msg) {};
+};
+#endif /* OM_HGUARD_ERROR_H */
