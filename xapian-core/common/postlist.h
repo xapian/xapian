@@ -55,12 +55,30 @@ class DBPostList : public virtual PostList {
     public:
 	DBPostList() : ir_wt(&own_wt) { return; }
 	void set_termweight(const IRWeight *); // Sets term weight
+        weight get_maxweight() const;    // Gets max weight
+        weight recalc_maxweight();       // recalculate weights
 };
 
 inline void
 DBPostList::set_termweight(const IRWeight * wt)
 {
     ir_wt = wt;
+}
+
+// return an upper bound on the termweight
+inline weight
+DBPostList::get_maxweight() const
+{
+    // FIXME - too much indirection?
+    return ir_wt->get_maxweight();
+}
+
+inline weight
+DBPostList::recalc_maxweight()
+{
+    // FIXME - always this?
+    // FIXME - const?
+    return DBPostList::get_maxweight();
 }
 
 #endif /* _postlist_h_ */

@@ -24,11 +24,8 @@ class SleepyPostList : public virtual DBPostList {
 
 	doccount   get_termfreq() const;// Number of docs indexed by this term
 
-	weight     recalc_maxweight();
-
 	docid      get_docid() const;   // Current docid
 	weight     get_weight() const;  // Current weight
-	weight     get_maxweight() const; // An upper bound on the term weight
         PostList * next(weight w_min);  // Move next docid
 	bool       at_end() const;      // True if we're off the end of the list
 };
@@ -60,12 +57,6 @@ SleepyPostList::at_end() const
 {
     if(pos > termfreq) return true;
     return false;
-}
-
-inline weight
-SleepyPostList::recalc_maxweight()
-{
-    return SleepyPostList::get_maxweight();
 }
 
 

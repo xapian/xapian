@@ -93,71 +93,55 @@ class TextfileDoc {
 
 
 
-/*
 class TextfilePostList : public virtual DBPostList {
     friend class TextfileDatabase;
     private:
-	mutable bool freq_initialised;
-	mutable doccount termfreq;
-
 	weight termweight;
 
-	TextfilePostList(const IRDatabase *, list<MultiPostListInternal> &);
+	vector<TextfilePosting>::const_iterator pos;
+	vector<TextfilePosting>::const_iterator end;
+	bool started;
+
+	TextfilePostList(const IRDatabase *, const TextfileTerm &);
     public:
-	~TextfilePostList();
-
 	doccount get_termfreq() const;
-
-	weight recalc_maxweight();
 
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
-	weight get_maxweight() const;    // Gets max weight
 	PostList *next(weight);          // Moves to next docid
+
 	//PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
+	// FIXME - implement a skip_to.  Note, though, that a binary search of
+	// the remaining list may NOT be a good idea (search time is then
+	// O(log {length of list}), as opposed to O(distance we want to skip)
+	// Since we will frequently only be skipping a short distance, this
+	// could be worse.
+
 	bool   at_end() const;        // True if we're off the end of the list
 };
 
 inline doccount
 TextfilePostList::get_termfreq() const
 {
-    if(freq_initialised) return termfreq;
-    printf("Calculating multiple term frequencies\n");
-
-    // Calculate and remember the termfreq
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    termfreq = 0;
-    while(i != postlists.end()) {
-	termfreq += (*i).pl->get_termfreq();
-	i++;
-    }
-
-    freq_initialised = true;
     return termfreq;
 }
 
 inline docid
-MultiPostList::get_docid() const
+TextfilePostList::get_docid() const
 {   
+    Assert(started);
     Assert(!at_end());
-    Assert(currdoc != 0);
-    //printf("%p:DocID %d\n", this, currdoc);
-    return currdoc;
+    return (*pos).did;
 }
 
 inline bool
-MultiPostList::at_end() const
+TextfilePostList::at_end() const
 {
-    return finished;
+    Assert(started);
+    if(pos != end) return false;
+    return true;
 }
 
-inline weight
-MultiPostList::recalc_maxweight()
-{
-    return MultiPostList::get_maxweight();
-}
-
-*/
 
 
 
@@ -166,7 +150,7 @@ class TextfileTermList : public virtual TermList {
     private:
 	vector<TextfilePosting>::const_iterator pos;
 	vector<TextfilePosting>::const_iterator end;
-	termid tid;
+	bool started;
 
 	TextfileTermList(const TextfileDoc &);
     public:
@@ -180,35 +164,44 @@ class TextfileTermList : public virtual TermList {
 inline TextfileTermList::TextfileTermList(const TextfileDoc &doc)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
-	  tid((*pos).tid)
+	  started(false)
 {}
 
 inline termid TextfileTermList::get_termid() const
 {
-    return tid;
+    Assert(started);
+    Assert(!at_end());
+    return (*pos).tid;
 }
 
 inline termcount TextfileTermList::get_wdf() const
 {
+    Assert(started);
     Assert(!at_end());
     return (*pos).positions.size();
 }
 
 inline doccount TextfileTermList::get_termfreq() const
 {
+    Assert(started);
     Assert(!at_end());
     throw OmError("TextfileTermList::get_termfreq() not yet implemented");
 }
 
 inline TermList * TextfileTermList::next()
 {
-    Assert(!at_end());
-    pos++;
+    if(started) {
+	Assert(!at_end());
+	pos++;
+    } else {
+	started = true;
+    }
     return NULL;
 }
 
 inline bool TextfileTermList::at_end() const
 {
+    Assert(started);
     if(pos != end) return false;
     return true;
 }

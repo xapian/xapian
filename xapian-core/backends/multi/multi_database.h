@@ -47,8 +47,6 @@ class MultiPostList : public virtual DBPostList {
 
 	doccount get_termfreq() const;
 
-	weight recalc_maxweight();
-
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
 	weight get_maxweight() const;    // Gets max weight
@@ -98,12 +96,6 @@ inline bool
 MultiPostList::at_end() const
 {
     return finished;
-}
-
-inline weight
-MultiPostList::recalc_maxweight()
-{
-    return MultiPostList::get_maxweight();
 }
 
 

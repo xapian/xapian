@@ -121,11 +121,6 @@ weight SleepyPostList::get_weight() const {
     return ir_wt->get_weight(wdf, 1.0);
 }
 
-weight SleepyPostList::get_maxweight() const {
-    // FIXME - too much indirection?
-    return ir_wt->get_maxweight();
-}
-
 ///////////////
 // Termlists //
 ///////////////

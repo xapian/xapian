@@ -36,13 +36,6 @@ weight DAPostList::get_weight() const
     return ir_wt->get_weight(postlist->wdf, 1.0);
 }
 
-// return an upper bound on the termweight
-weight DAPostList::get_maxweight() const
-{
-    // FIXME - too much indirection?
-    return ir_wt->get_maxweight();
-}
-
 PostList * DAPostList::next(weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
