@@ -103,16 +103,19 @@ if test "x$SLEEPYCAT_LIBS" = "x"; then
 fi
 
 dnl Check for C++ interface to sleepycat
-AC_MSG_CHECKING(for db_cxx.h)
+AC_MSG_CHECKING([for C++ interface to Berkeley DB])
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 CXXFLAGS_sleepysave=$CXXFLAGS
-CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LIBS $SLEEPYCAT_LINKFLAGS"
-AC_TRY_COMPILE([#include <db_cxx.h>],
+LIBS_sleepysave=$LIBS
+CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LINKFLAGS"
+LIBS="$LIBS $SLEEPYCAT_LIBS"
+AC_TRY_LINK([#include <db_cxx.h>],
 	       [Dbt t;return 0;],
 	       [have_sleepy_cxx=yes],
 	       [have_sleepy_cxx=no])
 CXXFLAGS=$CXXFLAGS_sleepysave
+LIBS=$LIBS_sleepysave
 AC_LANG_RESTORE
 AC_MSG_RESULT($have_sleepy_cxx)
 

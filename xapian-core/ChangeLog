@@ -1,3 +1,8 @@
+Wed Jun 21 15:35:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In configure, actually try to link the test with the Dbt object
+	  and db_cxx.h, to check that the library is properly installed.
+
 Wed Jun 21 15:23:00 BST 2000 Olly Betts
 
 	* Fixed bug in PhrasePostList; added regression test to apitest
