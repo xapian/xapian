@@ -463,7 +463,7 @@ sub print_compare_form {
     print "and the propagation of the affected lines to version ";
     print "<input type=text size=5 name=latest  value=\"$latest_version\">\n";
     print "<input type=submit value=\"Compare\"><br>\n";
-    print "<font size=-1>(latest version will be used if this field is empty).</font><br>\n";
+    print "<font size=-1>(the latest version prior to build database will be used if this field is empty).</font><br>\n";
     print "</form>\n";
 }
 
