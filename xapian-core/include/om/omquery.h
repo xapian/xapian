@@ -22,7 +22,6 @@
 
 #ifndef OM_HGUARD_OMQUERY_H
 #define OM_HGUARD_OMQUERY_H
-#include <vector>
 
 ///////////////////////////////////////////////////////////////////
 // OmQuery class
@@ -77,36 +76,6 @@ class OmQuery {
 	    OP_PHRASE
 	} op;
 
-	/** A query consisting of a single term. */
-	OmQuery(const om_termname & tname_,
-		om_termcount wqf_ = 1,
-		om_termpos term_pos_ = 0);
-
-	/** A query consisting of two subqueries, opp-ed together. */
-	OmQuery(OmQuery::op op_, const OmQuery & left, const OmQuery & right);
-
-	/** A set of OmQuery's, merged together with specified operator.
-	 * (Takes begin and end iterators).
-	 * If the operator is anything other than AND, OR, NEAR, and PHRASE,
-	 * then there must be exactly two subqueries.
-	 */
-	OmQuery(OmQuery::op op_,
-		const std::vector<OmQuery>::const_iterator qbegin,
-		const std::vector<OmQuery>::const_iterator qend,
-		om_termpos window = 0);
-
-	/** As before, but uses a vector of OmQuery pointers. */
-	OmQuery(OmQuery::op op_,
-		const std::vector<OmQuery *>::const_iterator qbegin,
-		const std::vector<OmQuery *>::const_iterator qend,
-		om_termpos window = 0);
-
-	/** As before, except subqueries are all individual terms. */
-	OmQuery(OmQuery::op op_,
-		const std::vector<om_termname>::const_iterator tbegin,
-		const std::vector<om_termname>::const_iterator tend,
-		om_termpos window = 0);
-
 	/** Copy constructor. */
 	OmQuery(const OmQuery & copyme);
 
@@ -119,12 +88,44 @@ class OmQuery {
 	 *  operations more natural.
 	 *
 	 *  An exception will be thrown if an attempt is made to run an
-	 *  undefined query
+	 *  undefined query.
 	 */
 	OmQuery();
 
 	/** Destructor. */
 	~OmQuery();
+
+	/** A query consisting of a single term. */
+	OmQuery(const om_termname & tname_,
+		om_termcount wqf_ = 1,
+		om_termpos term_pos_ = 0);
+
+	/** A query consisting of two subqueries, opp-ed together. */
+	OmQuery(OmQuery::op op_, const OmQuery & left, const OmQuery & right);
+
+	/* A query consisting of two subquery pointers, opp-ed together. */
+	// Don't have this because vector iterators are often implemented as
+	// simple pointers, so this would override the template class and
+	// produce unexpected results.  Only plausible solution we can think
+	// of so far is to change to using construction methods (eg,
+	// static OmQuery::create_vector(op, begin, end) and
+	// static OmQuery::create_pair(op, begin, end)
+	//OmQuery(OmQuery::op op_, const OmQuery * left, const OmQuery * right);
+
+	/** A query consisting of two termnames opp-ed together. */
+	OmQuery(OmQuery::op op_, const om_termname & left, const om_termname & right);
+
+	/** A set of OmQuery's, merged together with specified operator.
+	 *  (Takes begin and end iterators).
+	 *  AND, OR, NEAR and PHRASE can take any number of subqueries
+	 *  If the operator is anything other than AND, OR, NEAR, and PHRASE,
+	 *  then there must be exactly two subqueries.
+	 *
+	 *  The iterators may be to any of OmQuery objects, OmQuery pointers,
+	 *  or om_termname objects (ie, strings).
+	 */
+	template <class Iterator>
+	OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend);
 
 	/** Check whether the query is defined. */
 	bool is_defined() const;
@@ -136,6 +137,10 @@ class OmQuery {
 	 *  Returns true iff the query was previously a boolean query.
 	 */
 	bool set_bool(bool isbool_);
+
+	/** Set the window size, for a NEAR or PHRASE query.
+	 */
+	void set_window(om_termpos window);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden
@@ -156,13 +161,60 @@ class OmQuery {
 	 *  termpos) will be removed.
 	 */
 	OmTermIterator get_terms_begin() const;
+
+	/** Return an OmTermIterator to the end of the list of terms in the
+	 *  query.
+	 */
 	OmTermIterator get_terms_end() const;
 
 	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+    private:
+	void add_subquery(const OmQuery & subq);
+	void add_subquery(const OmQuery * subq);
+	void add_subquery(const om_termname & tname);
+	void start_construction(OmQuery::op op_);
+	void end_construction();
+	void abort_construction();
 };
+
+template <class Iterator>
+OmQuery::OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend)
+{
+    try {
+	start_construction(op_);
+
+	/* Add all the elements */
+	while (qbegin != qend) {
+	    add_subquery(*qbegin);
+	    ++qbegin;
+	}
+
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
+}
+
+inline
+OmQuery::OmQuery(OmQuery::op op_,
+		 const om_termname & left,
+		 const om_termname & right)
+{
+    try {
+	start_construction(op_);
+	add_subquery(left);
+	add_subquery(right);
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
+}
 
 #endif /* OM_HGUARD_OMQUERY_H */
 

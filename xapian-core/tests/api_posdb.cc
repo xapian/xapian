@@ -49,7 +49,8 @@ static bool test_near1()
     OmQuery q;
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -60,7 +61,8 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -71,7 +73,8 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 3);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(3);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -82,7 +85,8 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 5);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(5);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -93,7 +97,8 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 6);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(6);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -105,7 +110,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 3);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(3);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -117,7 +123,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 4);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(4);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -129,7 +136,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 5);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(5);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -141,7 +149,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 6);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(6);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -153,7 +162,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 7);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(7);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -165,7 +175,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 8);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(8);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -178,7 +189,8 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     // test really large window size
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 999999999);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(999999999);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -203,7 +215,8 @@ static bool test_near2()
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
     subqs.push_back(OmQuery(stemmer.stem_word("and")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -216,7 +229,8 @@ static bool test_near2()
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -229,7 +243,8 @@ static bool test_near2()
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
-    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -252,7 +267,8 @@ static bool test_phrase1()
     OmQuery q;
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -263,7 +279,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -274,7 +291,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 3);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(3);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -285,7 +303,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 5);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(5);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -296,7 +315,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 6);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(6);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -308,7 +328,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 3);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(3);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -320,7 +341,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 4);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(4);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -332,7 +354,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 5);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(5);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -344,7 +367,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 6);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(6);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -356,7 +380,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 7);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(7);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -368,7 +393,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 8);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(8);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -381,7 +407,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 999999999);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(999999999);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -394,7 +421,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("first")));
     subqs.push_back(OmQuery(stemmer.stem_word("second")));
     subqs.push_back(OmQuery(stemmer.stem_word("third")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 9);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(9);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -407,7 +435,8 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("first")));
     subqs.push_back(OmQuery(stemmer.stem_word("second")));
     subqs.push_back(OmQuery(stemmer.stem_word("third")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 10);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(10);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -420,7 +449,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("milk")));
     subqs.push_back(OmQuery(stemmer.stem_word("rare")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -433,7 +463,8 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("rare")));
     subqs.push_back(OmQuery(stemmer.stem_word("milk")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -458,7 +489,8 @@ static bool test_phrase2()
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
     subqs.push_back(OmQuery(stemmer.stem_word("and")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -471,7 +503,8 @@ static bool test_phrase2()
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 
@@ -484,7 +517,8 @@ static bool test_phrase2()
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
 			    OmQuery(stemmer.stem_word("near"))));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
+    q.set_window(2);
     q.set_bool(true);
     enquire.set_query(q);
 

@@ -1,3 +1,40 @@
+Mon Feb 26 23:51:23 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Split query generation into stages: make new query, add subqueries,
+	  then finalise.  Add private methods to OmQuery reflecting this, and
+	  convert constructors into template methods, allowing any iterator
+	  to be used for constructing queries.  Removed reference to
+	  <vector> from omquery.h
+
+	* Add omqueryinternal.cc, containing implementation of query
+	  internals. (surprise!)
+
+	* OmQuery::Internal now has some helper functions to determine the
+	  properties of each particular query.  These should be converted
+	  into a lookup table, and the remaining hard-coded properties (for
+	  AND_MAYBE, AND_NOT and FILTER) factored out.
+
+	* window property removed from constructor.  This can now be set by a
+	  separate call, to "OmQuery::set_window()"
+
+	* Added a deleter_vector class, to store subquery pointers in a more
+	  exception-safe way.
+
+	* Represent undefined queries by the new OP_UNDEF operation, rather
+	  than a dedicated flag - cleaned up some logic.
+
+	* Some modifications to XOR handling: should now behave like OR and
+	  AND - doesn't need to be binary.  (*untested*)
+
+	* Fixes to serialisation code in socketcommon.cc to work with new
+	  OmQuery::Internals - this should really be done in
+	  OmQuery::Internal.
+
+	* One tiny fix in tcpclient.cc - an &fdset was missed for exception
+	  conditions in a select() call.
+
+	* Testsuite modified and expanded to check changes to OmQuery.
+
 Mon Feb 26 18:20:16 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fixed some compiler warnings reported by James Aylett.

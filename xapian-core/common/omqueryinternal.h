@@ -30,6 +30,8 @@
 #include <vector>
 #include "omlocks.h"
 
+#include "deleter_vector.h"
+
 class MultiMatch;
 class LocalSubMatch;
 
@@ -41,35 +43,34 @@ class LocalSubMatch;
 class OmQuery::Internal {
     friend class MultiMatch;
     friend class LocalSubMatch;
+    friend class SortPosName;
     public:
         static const int OP_LEAF = -1;
+        static const int OP_UNDEF = -2;
     	OmLock mutex;
-    private:
-	bool isdefined;
-	bool isbool;
 
+	/// The container type for storing pointers to subqueries
+	typedef deleter_vector<OmQuery::Internal *> subquery_list;
+    private:
 	/// Type storing the operation
 	typedef int op_t;
 
 	/// Operation to be performed at this node
 	op_t op;
 
-	/// The container type for storing pointers to subqueries
-	typedef std::vector<OmQuery::Internal *> subquery_list;
+	/// Whether the query is pure boolean
+	bool isbool;
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
-
+	
 	/// Length of query
 	om_termcount qlen;
 
-
-	// Properties of queries
-	
 	/** How close terms must be for NEAR or PHRASE.
 	 *  To match, all terms must occur in a window of this size.
 	 */
-	om_termcount window;
+	om_termpos window;
 
 	/// Term that this node represents - leaf node only
 	om_termname tname;
@@ -80,16 +81,6 @@ class OmQuery::Internal {
 	/// Within query frequency of this term - leaf node only
 	om_termcount wqf;
 
-	/// Copy another OmQuery::Internal into self.
-	void initialise_from_copy(const OmQuery::Internal & copyme);
-
-	/** Set my vector of queries to be a memberwise copy of the
-	 *  supplied vector of OmQuery::Internal pointers. */
-	void initialise_from_vector(
-		const std::vector<OmQuery::Internal *>::const_iterator qbegin,
-		const std::vector<OmQuery::Internal *>::const_iterator qend,
-		om_termpos window = 0);
-
 	/** swap the contents of this with another OmQuery::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -99,44 +90,63 @@ class OmQuery::Internal {
 	 */
 	void swap(OmQuery::Internal &other);
 
-	/** Collapse lists of identical terms when possible
-	 */
-	void collapse_subqs();
+	/// Copy another OmQuery::Internal into self.
+	void initialise_from_copy(const OmQuery::Internal & copyme);
 
-	/** Private function used to implement get_terms() */
         void accumulate_terms(
 	    std::vector<std::pair<om_termname, om_termpos> > &terms) const;
 
+	/** Simplify the query.
+	 *  For example, an AND query with only one subquery would become the
+	 *  subquery itself.
+	 */
+	void simplify_query();
+
+	/** Preliminary checks that query is valid. (eg, has correct number of
+	 *  sub queries.) Throw an exception if not.  This is initially called
+	 *  on the query before any simplifications have been made.
+	 */
+	void prevalidate_query() const;
+
+	/** Check query is well formed.
+	 *  Throw an exception if not.
+	 *  This is called at construction time, so doesn't check parameters
+	 *  which must be set separately.
+	 *  This performs all checks in prevalidate_query(), and some others
+	 *  as well.
+	 */
+	void validate_query() const;
+
+	/** Get a string describing the given query type.
+	 */
+	static std::string get_op_name(OmQuery::Internal::op_t op);
+
+	/** Collapse the subqueryies together if appropriate.
+	 */
+	void collapse_subqs();
+
+	/** Flatten a query structure, by changing, for example,
+	 *  "A NEAR (B AND C)" to "(A NEAR B) AND (A NEAR C)"
+	 */
+	void flatten_subqs();
+
+	/** Remove undefined subqueries.
+	 */
+	void remove_undef_subqs();
 
     public:
-	/** A query consisting of a single term. */
-	Internal(const om_termname & tname_, om_termcount wqf_ = 1,
-		 om_termpos term_pos_ = 0);
-
-	/** A query consisting of two subqueries, opp-ed together. */
-	Internal(op_t op_,
-		 OmQuery::Internal & left,
-		 OmQuery::Internal & right);
-
-	/** A vector of pointers to OmQuery::Internal-s, merged together with
-	 *  specified operator.  (Takes begin and end iterators).
-	 *  The only operators allowed are AND, OR, NEAR, and PHRASE. */
-	Internal(op_t op_,
-		 const std::vector<OmQuery::Internal*>::const_iterator qbegin,
-		 const std::vector<OmQuery::Internal*>::const_iterator qend,
-		 om_termpos window = 0);
-
-	/** As before, except subqueries are all individual terms. */
-	Internal(op_t op_,
-		 const std::vector<om_termname>::const_iterator tbegin,
-		 const std::vector<om_termname>::const_iterator tend,
-		 om_termpos window = 0);
-
 	/** Copy constructor. */
 	Internal(const OmQuery::Internal & copyme);
 
 	/** Assignment. */
 	void operator=(const OmQuery::Internal & copyme);
+
+	/** A query consisting of a single term. */
+	Internal(const om_termname & tname_, om_termcount wqf_ = 1,
+		 om_termpos term_pos_ = 0);
+
+	/** Create internals given only the operator. */
+	Internal(op_t op_);
 
 	/** Default constructor: makes an undefined query which can't be used
 	 *  directly.  Such queries should be thought of as placeholders:
@@ -151,6 +161,14 @@ class OmQuery::Internal {
 	/** Destructor. */
 	~Internal();
 
+	/** Add a subquery.
+	 */
+	void add_subquery(const OmQuery::Internal & subq);
+
+	/** Finish off the construction.
+	 */
+	void end_construction();
+
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
@@ -162,7 +180,7 @@ class OmQuery::Internal {
 	std::string get_description() const;
 
 	/** Check whether the query is defined. */
-	bool is_defined() const { return isdefined; }
+	bool is_defined() const { return op != OP_UNDEF; }
 
 	/** Check whether the query is (pure) boolean. */
 	bool is_bool() const { return isbool; }
@@ -171,6 +189,9 @@ class OmQuery::Internal {
 	 *  Returns true iff the query was previously a boolean query.
 	 */
 	bool set_bool(bool isbool_);
+
+	/** Set window for NEAR or PHRASE queries */
+	void set_window(om_termpos window);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden

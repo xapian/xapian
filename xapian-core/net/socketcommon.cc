@@ -182,6 +182,18 @@ OmQuery::Internal qfs_readquery()
 				 om_tostring(qt.type) + "'");
 }
 
+static OmQuery::Internal
+qint_from_vector(OmQuery::op op, std::vector<OmQuery::Internal *> & vec,
+		 om_termpos window = 0) {
+    OmQuery::Internal qint(op);
+    std::vector<OmQuery::Internal *>::const_iterator i;
+    for (i = vec.begin(); i != vec.end(); i++)
+	qint.add_subquery(**i);
+    qint.end_construction();
+    if (window != 0) qint.set_window(window);
+    return qint;
+}
+
 OmQuery::Internal qfs_readcompound()
 {
     std::vector<OmQuery::Internal> subqs;
@@ -227,8 +239,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_AND, temp.begin(),
-					     temp.end());
+		    return qint_from_vector(OmQuery::OP_AND, temp);
 		}
 		break;
 	    case querytok::OP_OR:
@@ -239,8 +250,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_OR, temp.begin(),
-					     temp.end());
+		    return qint_from_vector(OmQuery::OP_OR, temp);
 		}
 		break;
 	    case querytok::OP_FILTER:
@@ -251,8 +261,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_FILTER, temp.begin(),
-					     temp.end());
+		    return qint_from_vector(OmQuery::OP_FILTER, temp);
 		}
 		break;
 	    case querytok::OP_XOR:
@@ -263,8 +272,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_XOR, temp.begin(),
-					     temp.end());
+		    return qint_from_vector(OmQuery::OP_XOR, temp);
 		}
 		break;
 	    case querytok::OP_ANDMAYBE:
@@ -275,8 +283,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_AND_MAYBE,
-					     temp.begin(), temp.end());
+		    return qint_from_vector(OmQuery::OP_AND_MAYBE, temp);
 		}
 		break;
 	    case querytok::OP_ANDNOT:
@@ -287,8 +294,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_AND_NOT, temp.begin(),
-					     temp.end());
+		    return qint_from_vector(OmQuery::OP_AND_NOT, temp);
 		}
 		break;
 	    case querytok::OP_NEAR:
@@ -299,8 +305,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_NEAR, temp.begin(),
-					     temp.end(), qt.window);
+		    return qint_from_vector(OmQuery::OP_NEAR, temp, qt.window);
 		}
 		break;
 	    case querytok::OP_PHRASE:
@@ -311,8 +316,7 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_PHRASE, temp.begin(),
-					     temp.end(), qt.window);
+		    return qint_from_vector(OmQuery::OP_PHRASE, temp, qt.window);
 		}
 		break;
 	    default:

@@ -403,4 +403,9 @@ from database: if two nodes fail, the total timeout should still be that
 specified, not twice it.
 
 </todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="1.0">
+
+Test with a vector of several (more than 2) XOR queries.
+
+</todoitem>
 </todo>

@@ -92,9 +92,10 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 {
     // FIXME: has this check been done already?
     // Check that we have a valid query to run
-    if (!query->isdefined) {
+    if (query->op == OmQuery::Internal::OP_UNDEF) {
 	throw OmInvalidArgumentError("Query is not defined.");
     }
+    query->validate_query();
 
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     om_doccount number_of_leaves = internal->databases.size();

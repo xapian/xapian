@@ -36,6 +36,7 @@ typedef std::ostringstream om_ostringstream;
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 class om_ostringstream {
     public:

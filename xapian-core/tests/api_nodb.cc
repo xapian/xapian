@@ -75,6 +75,8 @@ static bool test_boolsubq1()
 
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery query(OmQuery::OP_OR, OmQuery("bar"), mybool));
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery query(OmQuery::OP_AND, OmQuery("bar"), mybool));
     return true;
 }
 
@@ -133,20 +135,49 @@ static bool test_querylen3()
     v3.push_back(dynquery2.get());
 
     OmQuery myq1 = OmQuery(OmQuery::OP_AND, v1.begin(), v1.end());
+    tout << "myq1=" << myq1 << "\n";
     TEST_EQUAL(myq1.get_length(), 3);
 
     OmQuery myq2_1 = OmQuery(OmQuery::OP_OR, v2.begin(), v2.end());
+    tout << "myq2_1=" << myq2_1 << "\n";
     TEST_EQUAL(myq2_1.get_length(), 4);
 
     OmQuery myq2_2 = OmQuery(OmQuery::OP_AND, v3.begin(), v3.end());
+    tout << "myq2_2=" << myq2_2 << "\n";
     TEST_EQUAL(myq2_2.get_length(), 3);
 
     OmQuery myq2 = OmQuery(OmQuery::OP_OR, myq2_1, myq2_2);
+    tout << "myq2=" << myq2 << "\n";
     TEST_EQUAL(myq2.get_length(), 7);
 
     myquery = OmQuery(OmQuery::OP_OR, myq1, myq2);
+    tout << "myquery=" << myquery << "\n";
     TEST_EQUAL(myquery.get_length(), 10);
 
+    return true;
+}
+
+// tests that querys validate correctly
+static bool test_queryvalid1()
+{
+    vector<OmQuery> v1;
+    // Need two arguments, but the second may be null.
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    v1.push_back(OmQuery("bad"));
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    v1.push_back(OmQuery());
+    OmQuery q1(OmQuery::OP_AND_NOT, v1.begin(), v1.end());
+    v1.clear();
+    v1.push_back(OmQuery());
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    v1.push_back(OmQuery("bad"));
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+
+    OmQuery q2(OmQuery::OP_XOR, OmQuery("foo"), OmQuery("bar"));
     return true;
 }
 
@@ -276,6 +307,7 @@ test_desc nodb_tests[] = {
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"querylen3",	   test_querylen3},
+    {"queryvalid1",	   test_queryvalid1},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
     {"stemlangs1",	   test_stemlangs1},

@@ -99,7 +99,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	tv.tv_sec = msecs_timeout_connect_ / 1000;
 	tv.tv_usec = msecs_timeout_connect_ % 1000 * 1000;
 
-	retval = select(socketfd + 1, 0, &fdset, 0, &tv);
+	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 	
 	if (retval == 0) {
 	    close(socketfd);
