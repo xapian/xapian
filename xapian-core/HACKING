@@ -104,8 +104,8 @@ time of writing, the versions known to work are:
 	automake (GNU automake) 1.5
 		This is required as automake 1.4 has problems with "make dist"
 		in a VPATH build, and doesn't support AM_CFLAGS/AM_CXXFLAGS.
-		The were a few problems with automake 1.6; automake 1.6.1
-		should be more solid, but we haven't yet tested xapian with it.
+		Note that automake 1.6 has a bug which causes it to emit
+		spurious warnings: this is fixed in automake 1.6.1.
 		
 	Autoconf version 2.13
 		autoconf >= 2.50 is likely to become a requirement in the
