@@ -149,7 +149,7 @@ StatsSource::perform_request() const
     DebugMsg("  rset_size = "       << total_stats->rset_size << endl);
     DebugMsg("  average_length = "  << total_stats->average_length << endl);
 
-    map<om_termname, om_doccount>::const_iterator i;
+    std::map<om_termname, om_doccount>::const_iterator i;
     for(i = total_stats->termfreq.begin();
 	i != total_stats->termfreq.end(); i++)
     {

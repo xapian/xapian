@@ -48,6 +48,11 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 
 bool operator==(const OmMSet &first, const OmMSet &second);
 
+inline bool operator!=(const OmMSet &first, const OmMSet &second)
+{
+    return !(first == second);
+}
+
 
 // ######################################################################
 // Useful test macros

@@ -1,3 +1,10 @@
+Fri Jul 14 18:27:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Protect dubious tests in internaltest from compilers without
+          -fno-access-control
+
+	* More portability fixes for the Solaris compiler.
+
 Fri Jul 14 15:35:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Use -D_REENTRANT if pthreads are being used (fixes bugs on Linux, at the

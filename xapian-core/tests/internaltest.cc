@@ -172,6 +172,7 @@ bool test_testsuite3()
     return success;
 }
 
+#ifdef HAVE_NO_ACCESS_CONTROL
 // ###########################################
 // # Tests of the reference counted pointers #
 // ###########################################
@@ -257,7 +258,7 @@ bool test_refcnt1()
     return success;
 }
 
-
+#endif /* HAVE_NO_ACCESS_CONTROL */
 
 // test string comparisions
 bool test_stringcomp1()
@@ -506,7 +507,9 @@ test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"testsuite3",		test_testsuite3},
+#ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
+#endif HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
 #ifdef MUS_BUILD_BACKEND_SLEEPY
     {"sleepypack1",		test_sleepypack1},
