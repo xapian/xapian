@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include "util.h"
 
+#define INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST true
+
+#warning "use stemming on symbols"
+
 // http://www.dcs.gla.ac.uk/idom/ir_resources/linguistic_utils/stop_words
 const static char *term_stoplist[] = {
   "a",
@@ -339,6 +343,8 @@ const static char *term_stoplist[] = {
 // www.cs.pdx.edu/~annieg/cs145/handouts/reservedwords.html 
 // probably not necessary
 const static char *symbol_stoplist[] = {
+  "include", 
+  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
   "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
   "asm",
@@ -541,6 +547,10 @@ Lines::Lines( const string& p, const string& file_db, const string& file_offset,
       word = stemmer->stem_word(word);
       cerr << "adding " << word << endl;
       termStopWords.insert( word );
+
+#if  INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST
+      symbolStopWords.insert( word );
+#endif
     }
     
     for ( unsigned int i = 0; i < sizeof(symbol_stoplist)/sizeof(char*); i++ ) {

@@ -20,7 +20,7 @@
 // 15 is reasonable but takes a while
 
 // for app, use 5
-#define MIN_SUPP 10
+#define MIN_SUPP 5 
 
 // should be 2.0
 #define MIN_SURPRISE 0.0
@@ -30,6 +30,9 @@
 
 // any change in subdirectory counts as app change
 #define COUNT_APPS true
+
+#define COUNT_FUNCTION_SYMBOLS_ONLY 1
+
 
 #include <om/om.h>
 #include <db_cxx.h>
@@ -42,119 +45,6 @@
 
 #include "util.h"
 
-
-void load_offset_file(  string& file_offset, vector<string>& files, vector<string>& offsets ) {
-
-  cerr << "... reading " << file_offset << endl;
-  
-  ifstream in(file_offset.c_str());
-  assert(in);
-
-  while (!in.eof()) {
-    string file;
-    string offset;
-    in >> file;
-    if ( file == "" ) {
-      break;
-    }
-    in >> offset;
-    files.push_back( file ); 
-    offsets.push_back( offset ); 
-  }
-  in.close();
-  
-}
-
-bool blankChar(char c) {
-  return ( c == ' ' || c == '\t' );
-}
-
-bool okFirstChar(char c) {
-  return ((c >= 'a' && c <='z') || (c >='A' && c <= 'Z' ) || c == '_');
-}
-
-bool okSubChar(char c) {
-  return (okFirstChar(c) || (c >= '0' && c <= '9' ));
-}
-
-set<string> countWords( const string& s, map<string, int>& symbol_count ) {
-  set<string> symbols;
-
-  string current = "";
-  bool foundBlank = false;
-  for ( string::const_iterator i = s.begin(); i != s.end(); i++ ) {
-    char c = *i;
-    
-    if ( blankChar(c) ) {
-      if ( current != "" ) {
-	foundBlank = true;
-      }
-      continue;
-    }
-
-    if ( current == "" ) {
-      if ( okFirstChar(c) ) {
-	current = c;
-      }
-    } else {
-      // already started something
-      if (! okSubChar(c) ) {
-	if ( c == '(' ) {
-	  assert( current != "" );
-	  current += "()";
-	  //cerr << "... found " << current << endl;
-	  symbols.insert(current);
-	  current = "";
-	  foundBlank = false;
-	} else {
-	  // identifier ended
-	  //cerr << "... found " << current << endl;
-	  assert( current != "" );
-	  symbols.insert(current);
-	  current = "";
-	  foundBlank = false;
-	}
-      } else { // okay subsequent character
-	if ( foundBlank ) {
-	  assert( current != "" );
-	  symbols.insert(current);
-	  current = "";	  
-	  foundBlank = false;
-	}
-	current += c;
-      }
-    }
-  } 
-  if ( current != "" ) {
-    //    cerr << "...found " << current << endl;
-    symbols.insert(current);
-  }
-  return symbols;
-}
-
-void processFile( string& path, string& fn, map<string, int>& symbol_count, map<string, set<string> >& line_symbols, const set<string>& lines ) {
-  //  cerr << "Processing file " << (path+"/"+fn) << endl;
-  string f = path +"/" + fn;
-  ifstream in(f.c_str());
-  assert(in);
-  string s;
-  int line_no = 0;
-  while( getline( in, s ) ) {
-    //    cerr << "Found line -" << s << "-" << endl;
-    set<string> symbols = countWords( s, symbol_count );
-    line_no++;
-    for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-      symbol_count[*i] ++;
-
-      static char str[4096];
-      sprintf(str,"%d", line_no);
-      string file_and_line = fn + ":" + str;
-      assert( lines.find( file_and_line ) != lines.end() );
-      line_symbols[ file_and_line ].insert(*i);
-    }
-  }
-  in.close();
-}
 
 bool isSame( const string& s, const string& t ) {
   //  cerr << "isSame " << s << " and " << t << endl;
@@ -244,6 +134,7 @@ int main(int argc, char *argv[]) {
     try {
 
       { // pass 1
+	cerr << "PASS 1" << endl;
 	Lines lines( codepath, file_db, file_offset );
 	string prev_file = "";
 	map< string, bool > counted_term;
@@ -269,6 +160,11 @@ int main(int argc, char *argv[]) {
 	  }
 
 	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+#if COUNT_FUNCTION_SYMBOLS_ONLY
+	    if ( i->find("()") == -1 ) {
+	      continue;
+	    }
+#endif
 	    if ( !COUNT_APPS || counted_symbol.find(*i) == counted_symbol.end() ) {
 	      symbol_count[*i]++;
 	      counted_symbol[*i] = true;
@@ -283,6 +179,7 @@ int main(int argc, char *argv[]) {
       int total_apps = 0;
       
       { // pass 2
+	cerr << "PASS 2" << endl;
 	Lines lines( codepath, file_db, file_offset );
 
 	string prev_file = "";
@@ -307,6 +204,13 @@ int main(int argc, char *argv[]) {
 	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
 	    if ( term_count[*t] >= MIN_SUPP ) {
 	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+
+#if COUNT_FUNCTION_SYMBOLS_ONLY
+		if ( s->find("()") == -1 ) {
+		  continue;
+		}
+#endif
+
 		if ( symbol_count[*s] >= MIN_SUPP ) {
 
 		  if ( ! COUNT_APPS || counted_pair.find( make_pair(*t,*s) ) == counted_pair.end() ) {
