@@ -50,9 +50,7 @@
 
 #include <stdlib.h>
 
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#endif
+#include "getopt.h"
 
 #include <unistd.h> // for chdir
 
@@ -437,6 +435,7 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     std::vector<std::string> test_names;
 
     int c;
+    // FIXME: use getopt_long?
     while ((c = getopt(argc, argv, "vo")) != EOF) {
 	switch (c) {
 	    case 'v':

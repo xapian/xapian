@@ -23,9 +23,6 @@ AC_PROG_YACC
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
-dnl Check for getopt.h.  On some systems, it's in stdlib.h
-AC_CHECK_HEADERS(getopt.h)
-
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
 AC_LANG_SAVE

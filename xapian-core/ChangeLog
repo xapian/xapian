@@ -1,3 +1,7 @@
+Thu Apr 11 17:25:37 BST 2002  Olly Betts <olly@survex.com>
+
+	* Use GNU getopt.
+
 Thu Apr 11 15:06:15 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated to recommend automake 1.5, noting problem with automake 1.4

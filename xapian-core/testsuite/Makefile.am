@@ -5,12 +5,13 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 noinst_LTLIBRARIES = libtest.la
 
 noinst_HEADERS = backendmanager.h testsuite.h testutils.h \
-	allocdata.h alloccommon.h textfile_indexer.h index_utils.h
+	allocdata.h alloccommon.h textfile_indexer.h index_utils.h getopt.h
 
 EXTRA_DIST = malloccheck.c malloc_wrapper.sh
 
 libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
-	allocdata.cc alloccommon.c textfile_indexer.cc index_utils.cc
+	allocdata.cc alloccommon.c textfile_indexer.cc index_utils.cc \
+	getopt.c getopt1.c
 
 libtest_la_LIBADD = @DL_LIBS@
 
