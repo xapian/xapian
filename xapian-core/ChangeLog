@@ -1,3 +1,8 @@
+Thu Nov 04 00:54:11 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added icky workaround to Compaq C++ oddness - cc can
+	  find inttypes.h but cxx can't.
+
 Wed Nov 03 23:58:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,

@@ -114,9 +114,15 @@ case "$CXX" in
   dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
   dnl )
   aCC|*/aCC) CXXFLAGS="$CXXFLAGS -AA" ;;
-  dnl Select ANSI iostream implementation (default is a pre-standard
-  dnl AT&T-compatible version).
-  cxx|*/cxx) CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM" ;;
+  cxx|*/cxx)
+    dnl Select ANSI iostream implementation (default is a pre-standard
+    dnl AT&T-compatible version).
+    CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM"
+    dnl cc finds inttypes.h, but cxx doesn't (presumably because it's C99)
+    dnl which makes any configure test with cxx fail because they all try
+    dnl to include inttypes.h.
+    ac_cv_header_inttypes_h=no
+    ;;
 esac
 
 dnl Check for time functions.
