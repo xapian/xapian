@@ -165,36 +165,42 @@ SleepycatList::SleepycatList(Db * db_, void * keydata_, size_t keylen_,
     key.set_data(keydata);
     key.set_size(keylen_);
 
-    // Read database
-    Dbt data;
-
-    // FIXME - this flag results in extra copying - more inefficiency.
-    // We should use DB_DBT_USERMEM and DB_DBT_PARTIAL
-    data.set_flags(DB_DBT_MALLOC);
-    int found;
-
     try {
-	// For now, just read entire list
-	// FIXME - read list only as desired, for efficiency
-	found = db->get(NULL, &key, &data, 0);
+	// Read database
+	Dbt data;
 
-	if(found == DB_NOTFOUND) {
-	    // Item not found: we have an empty list.
-	    if (throw_if_not_found)
-		// FIXME: wrong error if this is a posting list...
-		throw OmDocNotFoundError("Can't open termlist");
-	} else {
-	    Assert(found == 0); // Any other errors should cause an exception.
+	// FIXME - this flag results in extra copying - more inefficiency.
+	// We should use DB_DBT_USERMEM and DB_DBT_PARTIAL
+	data.set_flags(DB_DBT_MALLOC);
+	int found;
 
-	    // Unpack list
-	    std::string packed(reinterpret_cast<char *>(data.get_data()),
-			  data.get_size());
-	    unpack(packed);
+	try {
+	    // For now, just read entire list
+	    // FIXME - read list only as desired, for efficiency
+	    found = db->get(NULL, &key, &data, 0);
 
-	    free(data.get_data());
+	    if(found == DB_NOTFOUND) {
+		// Item not found: we have an empty list.
+		if (throw_if_not_found)
+		    // FIXME: wrong error if this is a posting list...
+		    throw OmDocNotFoundError("Can't open termlist");
+	    } else {
+		Assert(found == 0); // Any other errors should cause an exception.
+
+		// Unpack list
+		std::string packed(reinterpret_cast<char *>(data.get_data()),
+				   data.get_size());
+		unpack(packed);
+
+		free(data.get_data());
+	    }
+	} catch (DbException e) {
+	    throw OmDatabaseError("PostlistDb error:" + std::string(e.what()));
 	}
-    } catch (DbException e) {
-	throw OmDatabaseError("PostlistDb error:" + std::string(e.what()));
+    } catch (...) {
+	free(key.get_data());
+	key.set_data(NULL);
+	throw;
     }
 }
 
