@@ -361,6 +361,11 @@ run_query()
 		opt.set("match_bias_halflife", atof(i->second.c_str()));
 	    }
 	}
+	if (sort_bands) {
+	    opt.set("match_sort_bands", sort_bands);
+	    opt.set("match_sort_key", (int)sort_key);
+	    // FIXME: ignore sort_numeric for now
+	}
 				
 	// FIXME - set msetcmp to reverse?
 	//

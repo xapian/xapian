@@ -90,6 +90,18 @@ THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
 	(clipped to the range 0-100).
 
+Reordering parameters
+---------------------
+
+SORT
+	reorder results by this value number (greater values are better).
+	By default the comparison is a string compare.
+
+SORTBANDS
+	reorder results by the specified sort key within this many equal
+	width bands of percentage relevance.  So if this is 5, the bands
+	are 100-80, 80-60, 60-40, 40-20, and 20-0.
+
 Display parameters and navigation
 ---------------------------------
 

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,9 +22,9 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <config.h>
 
-#include "config.h"
+#include <om/om.h>
 
 #define PROGRAM_NAME "omega"
 
@@ -53,6 +53,10 @@ extern om_docid hits_per_page;
 extern om_docid min_hits;
 
 extern int threshold;
+
+extern bool sort_numeric;
+extern om_valueno sort_key;
+extern int sort_bands;
 
 extern map<string, string> option;
 

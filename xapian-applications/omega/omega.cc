@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,6 +65,10 @@ bool want_rset = false;
 bool want_paging = false;
 // raw_search means ignore paging, use topdoc and rset
 bool raw_search = false; 
+
+bool sort_numeric = true;
+om_valueno sort_key = 0;
+int sort_bands = 0; // Don't sort
 
 static void
 make_log_entry(const string &action, long matches)
@@ -263,7 +267,24 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) date2 = val->second;
     val = cgi_params.find("DAYSMINUS");
     if (val != cgi_params.end()) daysminus = val->second;
-    
+
+    // sorting
+    val = cgi_params.find("SORT");
+    if (val != cgi_params.end()  && !val->second.empty()) {
+	if (val->second[0] == '#') {
+	    sort_numeric = true;
+	    sort_key = atoi(val->second.c_str() + 1);
+	} else {
+	    sort_key = atoi(val->second.c_str());
+	}
+	sort_bands = 1; // sorting is off unless this is set
+	val = cgi_params.find("SORTBANDS");
+	if (val != cgi_params.end()) {
+	    sort_bands = atoi(val->second.c_str());
+	    if (sort_bands <= 0) sort_bands = 1;
+	}
+    }
+
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MIN_HITS");
