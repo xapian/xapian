@@ -92,10 +92,10 @@ ALL_INCLUDES = `./findheaders.pl $(top_srcdir)`
 ## Extra rules:
 includetest.cc: findheaders.pl
 	@echo "Generating includetest.cc - including all header files."
-	@depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
-	@for header in $(ALL_INCLUDES) ; do echo '#include "'$$header'"' ; done > $@
-	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
-	@echo 'int main() { return 0; }' >> $@
+	depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
+	for header in $(ALL_INCLUDES) ; do echo '#include "'$$header'"' ; done > $@
+	echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
+	echo 'int main() { return 0; }' >> $@
 
 # FIXME: ought to check each header file is OK by itself ideally...
 includetest.o: includetest.cc
@@ -107,10 +107,10 @@ includetest.o: includetest.cc
 ## to pass special flags to the compilation of one target.
 
 internaltest.o: internaltest.cc
-	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c ${srcdir}/internaltest.cc
+	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c $(srcdir)/internaltest.cc
 
 internaltest.lo: internaltest.cc
-	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c ${srcdir}/internaltest.cc
+	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c $(srcdir)/internaltest.cc
 
 ## Make links to a wrapper script which adds the LD_PRELOAD for malloc
 ## checking

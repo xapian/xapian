@@ -46,10 +46,10 @@ libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	omnodeinstanceiterator.cc
 
 indexerxml.lo: indexerxml.cc
-	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $(srcdir)/indexerxml.cc 
 
 indexerxml.o: indexerxml.cc
-	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $(srcdir)/indexerxml.cc
 
 do_registration.cc: $(INDEXERNODES) make_register.pl
 	srcdir=$(srcdir) ./make_register.pl $(INDEXERNODES) > $@

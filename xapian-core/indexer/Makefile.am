@@ -36,5 +36,5 @@ indextest_LDADD = ../testsuite/libtest.la ../libxapian.la
 EXTRA_DIST = testdata/indextest_filereader.txt
 
 run-indextest: indextest
-	@rm -f run-indextest
+	rm -f run-indextest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-indextest

@@ -68,10 +68,10 @@ quartzdump_LDADD = libquartz.la \
 		   ../../libxapian.la
 
 run-quartztest:
-	@rm -f run-quartztest
+	rm -f run-quartztest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-quartztest
 
 run-btreetest:
-	@rm -f run-btreetest
+	rm -f run-btreetest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-btreetest
 

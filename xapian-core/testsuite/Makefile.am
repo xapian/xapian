@@ -21,5 +21,5 @@ all-local: malloccheck.so
 CLEANFILES=malloccheck.so
 
 malloccheck.so: malloccheck.c
-	$(LIBTOOL) $(CC) -shared $< -o $@ @DL_LIBS@
+	$(LIBTOOL) $(CC) -shared $(srcdir)/malloccheck.c -o $@ @DL_LIBS@
 endif

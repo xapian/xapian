@@ -12,4 +12,4 @@ libnet_la_SOURCES = socketclient.cc progclient.cc progserver.cc \
 		    omlinebuf.cc
 
 readquery.cc: readquery.ll
-	$(LEX) -o$@ $(AM_LFLAGS) $< $(LFLAGS)
+	$(LEX) -o$@ $(AM_LFLAGS) $(srcdir)/readquery.ll $(LFLAGS)

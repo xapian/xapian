@@ -38,19 +38,19 @@ EXTRA_libxapian_la_SOURCES =
 TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML_AND_TEXT
 	@echo "Generating $@"
-	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > $@
+	./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > $@
 else
 	@echo "Can't generate $@: need Perl XML and Text::Format module."
-	@exit 0
+	false
 endif
 
 TODO.release: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML_AND_TEXT
 	@echo "Generating $@"
-	@./docs/todo2html.pl --release \* --text $(top_srcdir)/docs/todo.xml > $@
+	./docs/todo2html.pl --release \* --text $(top_srcdir)/docs/todo.xml > $@
 else
 	@echo "Can't generate $@: need Perl XML and Text::Format module."
-	@exit 0
+	false
 endif
 
 # http://ctags.sourceforge.net/
@@ -73,6 +73,6 @@ libxapian_la_LIBADD = \
 
 xapian-config: xapian-config.nodep libxapian.la
 	@echo "Creating $@"
-	@export dependency_libs; \
+	export dependency_libs; \
 	. $(top_builddir)/libxapian.la ; \
-	cat $< | sed "s%@dependency_libs@%$${dependency_libs}%" > $@
+	sed "s%@dependency_libs@%$${dependency_libs}%" < $(srcdir)/xapian-config.nodep > $@

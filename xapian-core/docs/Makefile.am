@@ -63,7 +63,7 @@ docdata_DATA = $(CREATED_DOCUMENTS1) $(CREATED_DOCUMENTS2) $(HTMLFILES)
 doxygen_dist: doxygen_html_dist
 
 doxygen_html_dist:
-	@if test -f apidoc/html/index.html ; then \
+	if test -f apidoc/html/index.html ; then \
 	  echo "Adding API documentation to distribution" ; \
 	  $(mkinstalldirs) $(distdir)/apidoc ; \
 	  cp -a apidoc/* $(distdir)/apidoc/ ; \
@@ -77,7 +77,7 @@ doxygen_html_dist:
 doxygen_install: doxygen_html_install
 
 doxygen_html_install:
-	@if test -f apidoc/html/index.html ; then \
+	if test -f apidoc/html/index.html ; then \
 	  echo "Installing API HTML documentation" ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
@@ -92,7 +92,7 @@ doxygen_html_install:
 	fi
 
 doxygen_dvi_install:
-	@if test -f apidoc.dvi ; then \
+	if test -f apidoc.dvi ; then \
 	  echo "Installing API DVI documentation" ; \
 	  $(INSTALL_DATA) apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
 	elif test -f $(srcdir)/apidoc.dvi ; then \
@@ -131,30 +131,30 @@ uninstall-local:
 
 code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
-	@./mkdoc.pl $(top_srcdir) $@
+	./mkdoc.pl $(top_srcdir) $@
 
 todo.html: todo2html.pl todo.xml
 	@echo "Generating todo list"
-	@if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
+	if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
 	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
 	$${d2}/todo2html.pl $${d1}/todo.xml >$@
 
 todo-release.html: todo2html.pl todo.xml
 	@echo "Generating release todo list"
-	@if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
+	if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
 	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
 	$${d2}/todo2html.pl --release \* $${d1}/todo.xml >$@
 
 .tex.dvi: docxx.sty
-	@#Make it as if docxx is there, for VPATH builds.
-	@if test ! -f docxx.sty ; then \
+	: #Make it as if docxx is there, for VPATH builds.
+	if test ! -f docxx.sty ; then \
 	  echo "Sym-linking docxx.sty" ; \
 	  rm -f docxx.sty ; \
 	  ln -s $(srcdir)/docxx.sty . ; \
 	fi
 	@echo "Generating $@"
-	@$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || :
-	@$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || \
+	$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || :
+	$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || \
 	  ( rm -f $@ ; false )
 
 .dvi.ps:
@@ -198,15 +198,15 @@ apidoc/html/index.html: doxygen_api_conf \
                         $(srcdir)/doxygen_api_header.html_tmpl \
 			$(srcdir)/doxygen_api_footer.html_tmpl
 	@echo "Generating API documentation with doxygen"
-	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
-	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
+	depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
+	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 
 sourcedoc/html/index.html: doxygen_full_conf \
                         $(srcdir)/doxygen_full_header.html_tmpl \
 			$(srcdir)/doxygen_full_footer.html_tmpl
 	@echo "Generating full source documentation with doxygen"
-	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
-	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
+	depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
+	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
 
 ##################################
 # Generate images from dia files #
