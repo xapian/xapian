@@ -99,22 +99,31 @@ msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
     return (a.did > b.did);
 }
 
+// cheap muldiv with builtin ceil.  div represents max range of x,
+// so for example x could be a percentage, 0-100 so div would be 100
+// and mul could possibly be the number of bands.
+inline int
+ceilint(int x, int mul, int div) {
+    return (x * mul) / div + (x % div == 0)?0:1;
+}
+
 class MSetSortCmp {
     private:
 	OmDatabase db;
-	double factor;
 	bool have_key;
 	om_valueno sort_key;
 	bool forward;
+	int bands;
+	double percent_scale;
     public:
 	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
 		    bool have_key_, om_valueno sort_key_, bool forward_)
-	    : db(db_), factor(percent_scale * bands / 100.0),
-	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
+	    : db(db_), have_key(have_key_), sort_key(sort_key_), 
+	      forward(forward_), bands(bands), percent_scale(percent_scale) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    int band_a = int(ceil(a.wt * factor));
-	    int band_b = int(ceil(b.wt * factor));
+	    int band_a = ceilint(int(a.wt*percent_scale),bands,100);
+	    int band_b = ceilint(int(b.wt*percent_scale),bands,100);
 	    if (band_a != band_b) return band_a > band_b;
 	    if (have_key) {
 		if (a.sort_key.empty()) {

@@ -1,3 +1,10 @@
+Tue Jul 16 09:44:56 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Fix banding problem; bands are now based on the percentage
+	  not the weight, and using integer maths to avoid problems 
+	  with ceil() rounding up supposed integers which are really
+	  slightly larger due to precision errors
+
 Thu Jul 11 00:16:22 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in, docs/Makefile.am: configure fixes for Solaris - clear
