@@ -462,6 +462,8 @@ case "$CXX" in
   dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
   dnl )
   aCC|*/aCC) AM_CXXFLAGS="$AM_CXXFLAGS -AA" ;;
+  dnl Select ANSI iostream implmentation
+  cxx|*/cxx) AM_CXXFLAGS="$AM_CXXFLAGS -D__USE_STD_IOSTREAM" ;;
 esac
 
 dnl modify flags for building with stlport

@@ -1,3 +1,7 @@
+Mon Nov 01 02:56:31 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Select ANSI iostream implmentation for Compaq C++.
+
 Mon Nov 01 02:41:58 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Compaq's C++ compiler doesn't know snprintf, yet their
