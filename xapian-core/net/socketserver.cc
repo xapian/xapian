@@ -25,13 +25,12 @@
 #include <config.h>
 #include "socketserver.h"
 #include "database.h"
-#include "stats.h"
+#include "networkstats.h"
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "omerr_string.h"
-#include "termlist.h"
 #include "document.h"
 #include "omdebug.h"
 #include "autoptr.h"
@@ -57,7 +56,7 @@ using std::istringstream;
 struct SocketServerFinished { };
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
-SocketServer::SocketServer(Xapian::Database db_, int readfd_, int writefd_,
+SocketServer::SocketServer(const Xapian::Database &db_, int readfd_, int writefd_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_
@@ -93,7 +92,7 @@ SocketServer::SocketServer(Xapian::Database db_, int readfd_, int writefd_,
     wtschemes[wt->name()] = wt;
 }
 
-SocketServer::SocketServer(Xapian::Database db_, AutoPtr<OmLineBuf> buf_,
+SocketServer::SocketServer(const Xapian::Database &db_, AutoPtr<OmLineBuf> buf_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_
@@ -130,7 +129,7 @@ SocketServer::~SocketServer()
 }
 
 void
-SocketServer::send_local_stats(Stats stats)
+SocketServer::send_local_stats(const Stats &stats)
 {
     writeline("L" + stats_to_string(stats));
 }

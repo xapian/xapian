@@ -39,13 +39,9 @@
 #include "extraweightpostlist.h"
 #include "weightcutoffpostlist.h"
 
-#include "document.h"
-#include "rset.h"
 #include "omqueryinternal.h"
 
 #include "match.h"
-#include "stats.h"
-#include <xapian/enquire.h>
 
 #include <algorithm>
 #include "autoptr.h"

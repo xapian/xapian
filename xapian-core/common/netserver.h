@@ -47,7 +47,7 @@ class NetServer {
 	 *  The remote gatherer works out the global statistics from
 	 *  this.
 	 */
-	virtual void send_local_stats(Stats stats) = 0;
+	virtual void send_local_stats(const Stats &stats) = 0;
 
 	/** Ask for the remote global statistics.
 	 *  These are calculated from the contributed local statistics.

@@ -26,10 +26,13 @@
 
 //#define TIMING_PATCH // for webtop
 
+#include <xapian/database.h>
 #include "netserver.h"
-#include "networkstats.h"
-#include "omlinebuf.h"
+#include "stats.h"
 #include "autoptr.h"
+
+class NetworkStatsGatherer;
+class OmLineBuf;
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
@@ -122,7 +125,7 @@ class SocketServer : public NetServer {
 	 *  			used while waiting for a request from the
 	 *  			client while idle.
 	 */
-	SocketServer(Xapian::Database db,
+	SocketServer(const Xapian::Database &db,
 		     int readfd_,
 		     int writefd_ = -1,
 		     int msecs_active_timeout_ = 10000,
@@ -143,7 +146,7 @@ class SocketServer : public NetServer {
 	 *  			used while waiting for a request from the
 	 *  			client while idle.
 	 */
-	SocketServer(Xapian::Database db,
+	SocketServer(const Xapian::Database &db,
 		     AutoPtr<OmLineBuf> buffer,
 		     int msecs_active_timeout_ = 10000,
 #ifndef TIMING_PATCH
@@ -160,7 +163,7 @@ class SocketServer : public NetServer {
 	 *  The remote gatherer works out the global statistics from
 	 *  this.
 	 */
-	void send_local_stats(Stats stats);
+	void send_local_stats(const Stats &stats);
 
 	/** Ask for the remote global statistics.
 	 *  These are calculated from the contributed local statistics.

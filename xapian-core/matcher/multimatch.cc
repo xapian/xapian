@@ -29,21 +29,12 @@
 #include "match.h"
 #include "localmatch.h"
 #include "emptymatch.h"
-#include "rset.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
-#include "andpostlist.h"
-#include "orpostlist.h"
-#include "xorpostlist.h"
-#include "andnotpostlist.h"
-#include "andmaybepostlist.h"
-#include "filterpostlist.h"
-#include "phrasepostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
-#include "msetpostlist.h"
 #include "biaspostlist.h"
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
@@ -51,7 +42,6 @@
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 
 #include "document.h"
-#include "rset.h"
 #include "omqueryinternal.h"
 
 #include "match.h"
