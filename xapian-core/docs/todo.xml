@@ -74,11 +74,6 @@ byte issues though.  xapian-applications/dbtools also uses c_str() where it
 should probably use data() and length().
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
-
-Write tests for copying term and postlist iterators.
-
-</todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
 Allow setting of the document length in OmDocument?  (Currently defined to
@@ -93,12 +88,6 @@ Make all errors return a context if appropriate.
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
 Produce Microsoft Windows version, probably cross-compiling to mingw.
-
-</todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Matcher" release="">
-
-Write tests to check that setting the parameters used in the BM25 and
-traditional weighting schemes works.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
@@ -608,6 +597,13 @@ Round the estimated number of matches according to the min and max values.
 E.g. if min is 170123, est is 177789 and max is 182342 round est to 180000.
 I.e. round it to a multiple of the largest power of 10 which keeps it between
 min and max.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="" release="">
+
+Try to reduce unnecessary inclusion of headers - sometimes just saying
+"class OmFoo;" is enough.  Look at using iosfwd instead of iostream
+where applicable (TC++PL 3ed 8.2.7).
 
 </todoitem>
 </todo>
