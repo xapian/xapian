@@ -1,3 +1,8 @@
+Wed Dec 06 17:24:19 GMT 2000 Olly Betts
+
+	* Minor fix.  Now builds with --disable-indexer
+	  --disable-quartz-backend (but doesn't pass any tests).
+
 Wed Dec 06 16:35:34 GMT 2000 Olly Betts
 
 	* Fixed up lots of build errors.

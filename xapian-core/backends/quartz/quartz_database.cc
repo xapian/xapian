@@ -188,8 +188,8 @@ QuartzDatabase::do_get_document_internal(om_docid did,
 
     OmDocument document;
 
-    document.data = QuartzRecordManager::get_record(
-		*(tables->get_record_table()), did);
+    document.set_data(
+	QuartzRecordManager::get_record(*(tables->get_record_table()), did));
 
     QuartzAttributesManager::get_all_attributes(
 		*(tables->get_attribute_table()),
