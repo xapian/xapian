@@ -154,7 +154,7 @@ class Btree {
 	int mid_point(byte *p);
 	void add_item_to_block(byte *p, byte *kt, int c);
 	void add_item(Cursor *C_, byte *kt, int j);
-	void delete_item(Cursor *C_, int j, int repeatedly);
+	void delete_item(Cursor *C_, int j, bool repeatedly);
 	int add_kt(int found);
 	int write_base();
 	void read_root();

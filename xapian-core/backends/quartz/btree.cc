@@ -873,12 +873,11 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
-/* add_item(C_, kt, j) adds item kt to the block at cursor level C_[j].
- 
-   If there is not enough room the block splits and the item is then
-   added to the appropriate half.
-*/
-
+/** Btree::add_item(C_, kt, j) adds item kt to the block at cursor level C_[j].
+ *
+ *  If there is not enough room the block splits and the item is then
+ *  added to the appropriate half.
+ */
 void
 Btree::add_item(Cursor * C_, byte * kt, int j)
 {
@@ -888,36 +887,30 @@ Btree::add_item(Cursor * C_, byte * kt, int j)
 
     int kt_len = GETI(kt, 0);
     int needed = kt_len + D2;
-    int new_total = TOTAL_FREE(p) - needed;
-    if (new_total < 0) {
+    if (TOTAL_FREE(p) < needed) {
 	int m;
 	byte * q = C_[j].split_p;
-	if (seq_count < 0) {
-	    /* If we're not in sequential mode, we split at the mid point
-	     * of the node. */
-	    m = mid_point(p);
-	} else {
-	    /* If we're in sequential mode, we split as far along the
-	     * directory as possible, to make the new node as empty as
-	     * possible. */
-	    if (c < DIR_END(p)) {
-		/* We have some subsequent entries in the block, so can only
-		 * split at c - 2.  If this is earlier than the mid-point,
-		 * we split at the midpoint instead - otherwise there may
-		 * be insufficient room in the new node. */
-		int m2 = c - D2;
-		m = mid_point(p);
-		if (m2 > m) m = m2;
-	    } else {
-		/* We have no subsequent entries in the block, so we can split
-		 * at dirend. */
-		Assert(c == DIR_END(p));
-		m = c;
-	    }
+	int add_to_upper_half;
+
+        // Prepare to split p. After splitting, the block is in two halves, the
+        // lower half is q, the upper half p again. add_to_upper_half becomes
+        // true when the item gets added to p, false when it gets added to q.
+
+        if (seq_count < 0) {
+	    // If we're not in sequential mode, we split at the mid point
+	    // of the node.
+            m = mid_point(p);
+            split_off(C_, j, m, p, q);
+            add_to_upper_half = c >= m;
+        } else {
+	    // During sequential addition, split at the insert point
+            m = c;
+            split_off(C_, j, m, p, q);
+	    // And add item to lower half if q has room, otherwise upper half
+            add_to_upper_half = TOTAL_FREE(q) < needed;
 	}
-	AssertParanoid(m >= mid_point(p));
-	split_off(C_, j, m, p, q);
-	if (c >= m) {
+
+	if (add_to_upper_half) {
 	    c -= (m - DIR_START);
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
@@ -945,16 +938,15 @@ Btree::add_item(Cursor * C_, byte * kt, int j)
     }
 }
 
-/* delete_item(C_, j, repeatedly) is (almost) the converse of add_item.
-
-   If repeatedly is true, the process repeats at the next level when a
-   block has been completely emptied, freeing the block and taking out
-   the pointer to it.  Emptied root blocks are also removed, which
-   reduces the number of levels in the B-tree.
-*/
-
+/** Btree::delete_item(C_, j, repeatedly) is (almost) the converse of add_item.
+ *
+ * If repeatedly is true, the process repeats at the next level when a
+ * block has been completely emptied, freeing the block and taking out
+ * the pointer to it.  Emptied root blocks are also removed, which
+ * reduces the number of levels in the B-tree.
+ */
 void
-Btree::delete_item(Cursor * C_, int j, int repeatedly)
+Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
