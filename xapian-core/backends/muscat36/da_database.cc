@@ -92,13 +92,14 @@ PostList * DAPostList::skip_to(om_docid did, om_weight /*w_min*/)
 PositionList *
 DAPostList::read_position_list()
 {
-    throw OmUnimplementedError("DAPostList::read_position_list() unimplemented");
+    return NULL;
 }
 
 AutoPtr<PositionList>
 DAPostList::open_position_list() const
 {
-    throw OmUnimplementedError("DAPostList::open_position_list() unimplemented");
+    // This tells the level above to return begin() = end()
+    return AutoPtr<PositionList>(NULL);
 }
 
 
@@ -340,7 +341,8 @@ DADatabase::open_document(om_docid did, bool lazy) const
 AutoPtr<PositionList> 
 DADatabase::open_position_list(om_docid /*did*/, const om_termname & /*tname*/) const
 {
-    throw OmUnimplementedError("DA databases do not support opening positionlist");
+    // This tells the level above to return begin() = end()
+    return AutoPtr<PositionList>(NULL);
 }
 
 RefCntPtr<const DATerm>

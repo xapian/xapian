@@ -97,13 +97,14 @@ PostList * DBPostList::skip_to(om_docid did, om_weight /*w_min*/)
 PositionList *
 DBPostList::read_position_list()
 {
-    throw OmUnimplementedError("DBPostList::read_position_list() unimplemented");
+    return NULL;
 }
 
 AutoPtr<PositionList>
 DBPostList::open_position_list() const
 {
-    throw OmUnimplementedError("DBPostList::open_position_list() unimplemented");
+    // This tells the level above to return begin() = end()
+    return AutoPtr<PositionList>(NULL);
 }
 
 
@@ -350,7 +351,8 @@ AutoPtr<PositionList>
 DBDatabase::open_position_list(om_docid /*did*/,
 			       const om_termname & /*tname*/) const
 {
-    throw OmUnimplementedError("DB databases do not support opening positionlist");
+    // This tells the level above to return begin() = end()
+    return AutoPtr<PositionList>(NULL);
 }
 
 RefCntPtr<const DBTerm>

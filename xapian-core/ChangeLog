@@ -1,3 +1,12 @@
+Sun Dec 15 18:23:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/muscat36/da_database.cc,
+	  backends/muscat36/db_database.cc,matcher/phrasepostlist.cc:
+	  Muscat 3.6 DA and DB databases don't have word position information.
+	  Instead of throwing an exception when this information is requested,
+	  return an empty position list (i.e. behave as a quartz database with
+	  no position information would).
+
 Sun Dec 15 03:08:28 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/: DADatabase and DBDatabase ctors need to public

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +51,10 @@ NearPostList::test_doc()
 
     std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	plists.push_back((*i)->read_position_list());
+	PositionList * p = (*i)->read_position_list();
+	// If p is NULL, the backend doesn't support positionlists
+	if (!p) return false;
+	plists.push_back(p);
     }
 
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
@@ -101,7 +105,9 @@ PhrasePostList::test_doc()
 
     std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	PositionList *p = (*i)->read_position_list();
+	PositionList * p = (*i)->read_position_list();
+	// If p is NULL, the backend doesn't support positionlists
+	if (!p) return false;
 	p->index = i - terms.begin();
 	plists.push_back(p);
     }
