@@ -84,7 +84,7 @@ InMemoryDatabase::InMemoryDatabase()
 
 InMemoryDatabase::~InMemoryDatabase()
 {
-    internal_end_session();
+    dtor_called();
 }
 
 LeafPostList *
@@ -161,30 +161,12 @@ InMemoryDatabase::add_values(Xapian::docid /*did*/,
 }
 
 void
-InMemoryDatabase::do_flush()
+InMemoryDatabase::flush()
 {
 }
 
 void
-InMemoryDatabase::do_begin_transaction()
-{
-    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
-}
-
-void
-InMemoryDatabase::do_commit_transaction()
-{
-    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
-}
-
-void
-InMemoryDatabase::do_cancel_transaction()
-{
-    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
-}
-
-void
-InMemoryDatabase::do_delete_document(Xapian::docid did)
+InMemoryDatabase::delete_document(Xapian::docid did)
 {
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -222,13 +204,13 @@ InMemoryDatabase::do_delete_document(Xapian::docid did)
 }
 
 void
-InMemoryDatabase::do_replace_document(Xapian::docid did,
-				      const Xapian::Document & document)
+InMemoryDatabase::replace_document(Xapian::docid did,
+				   const Xapian::Document & document)
 {
-    DEBUGLINE(DB, "InMemoryDatabase::do_replace_document(): replaceing doc "
+    DEBUGLINE(DB, "InMemoryDatabase::replace_document(): replaceing doc "
 	          << did);
 
-    do_delete_document(did);
+    delete_document(did);
 
     /* resurrect this document */
     termlists[did - 1] = InMemoryDoc();
@@ -239,11 +221,11 @@ InMemoryDatabase::do_replace_document(Xapian::docid did,
 }
 
 Xapian::docid
-InMemoryDatabase::do_add_document(const Xapian::Document & document)
+InMemoryDatabase::add_document(const Xapian::Document & document)
 {
     Xapian::docid did = make_doc(document.get_data());
 
-    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc " << did);
+    DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding doc " << did);
 
     finish_add_doc(did, document);
 
@@ -259,7 +241,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
-	    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding value "
+	    DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding value "
 		      << k.get_valueno() << " -> " << *k);
 	}
 	add_values(did, values);
@@ -270,7 +252,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 
-	DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding term "
+	DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding term "
 		  << *i);
 	Xapian::PositionIterator j = i.positionlist_begin();
 	Xapian::PositionIterator j_end = i.positionlist_end();

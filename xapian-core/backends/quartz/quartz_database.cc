@@ -64,40 +64,8 @@ QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
 QuartzDatabase::~QuartzDatabase()
 {
     DEBUGCALL(DB, void, "~QuartzDatabase", "");
+    // Only needed for a writable database: dtor_called();
 }
-
-void
-QuartzDatabase::do_flush()
-{ Assert(false); }
-
-void
-QuartzDatabase::do_begin_transaction()
-{ Assert(false); }
-
-void
-QuartzDatabase::do_commit_transaction()
-{ Assert(false); }
-
-void
-QuartzDatabase::do_cancel_transaction()
-{ Assert(false); }
-
-Xapian::docid
-QuartzDatabase::do_add_document(const Xapian::Document & /*document*/)
-{
-    DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::do_add_document", "");
-    Assert(false);
-    RETURN(0);
-}
-
-void
-QuartzDatabase::do_delete_document(Xapian::docid /*did*/)
-{ Assert(false); }
-
-void
-QuartzDatabase::do_replace_document(Xapian::docid /*did*/,
-				    const Xapian::Document & /*document*/)
-{ Assert(false); }
 
 Xapian::doccount
 QuartzDatabase::get_doccount() const
@@ -234,9 +202,9 @@ QuartzDatabase::open_position_list(Xapian::docid did,
 }
 
 void
-QuartzDatabase::do_reopen()
+QuartzDatabase::reopen()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::do_reopen", "");
+    DEBUGCALL(DB, void, "QuartzDatabase::reopen", "");
     tables->reopen();
 }
 
@@ -269,11 +237,12 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
 {
-    internal_end_session();
+    DEBUGCALL(DB, void, "~QuartzWritableDatabase", "");
+    dtor_called();
 }
 
 void
-QuartzWritableDatabase::do_flush()
+QuartzWritableDatabase::flush()
 {
     if (changes_made) do_flush_const();
 }
@@ -302,32 +271,11 @@ QuartzWritableDatabase::do_flush_const() const
     changes_made = 0;
 }
 
-void
-QuartzWritableDatabase::do_begin_transaction()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_transaction", "");
-    throw Xapian::UnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
-}
-
-void
-QuartzWritableDatabase::do_commit_transaction()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_commit_transaction", "");
-    throw Xapian::UnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
-}
-
-void
-QuartzWritableDatabase::do_cancel_transaction()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_cancel_transaction", "");
-    throw Xapian::UnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
-}
-
 Xapian::docid
-QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
+QuartzWritableDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid,
-	      "QuartzWritableDatabase::do_add_document", document);
+	      "QuartzWritableDatabase::add_document", document);
     Assert(buffered_tables != 0);
 
     Xapian::docid did;
@@ -428,16 +376,16 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
     //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
     //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
     if (++changes_made >= 1000) {
-	do_flush();
+	flush();
     }
 
     RETURN(did);
 }
 
 void
-QuartzWritableDatabase::do_delete_document(Xapian::docid did)
+QuartzWritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_delete_document", did);
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::delete_document", did);
     Assert(did != 0);
     Assert(buffered_tables != 0);
 
@@ -525,15 +473,15 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 
     // FIXME: this should be configurable and/or different - see above.
     if (++changes_made >= 1000) {
-	do_flush();
+	flush();
     }
 }
 
 void
-QuartzWritableDatabase::do_replace_document(Xapian::docid did,
-				    const Xapian::Document & document)
+QuartzWritableDatabase::replace_document(Xapian::docid did,
+					 const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_replace_document", did << ", " << document);
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::replace_document", did << ", " << document);
     Assert(did != 0);
     Assert(buffered_tables != 0);
 
@@ -697,7 +645,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 
     // FIXME: this should be configurable and/or different - see above.
     if (++changes_made >= 1000) {
-	do_flush();
+	flush();
     }
 }
 
@@ -824,13 +772,6 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
     }
 
     return poslist.release();
-}
-
-void
-QuartzWritableDatabase::do_reopen()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_reopen", "");
-    // Nothing to do - we're the only writer, and so must be up to date.
 }
 
 TermList *

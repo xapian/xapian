@@ -229,15 +229,11 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	void do_flush();
+	void flush();
 
-	void do_begin_transaction();
-	void do_commit_transaction();
-	void do_cancel_transaction();
-
-	Xapian::docid do_add_document(const Xapian::Document & document);
-	void do_delete_document(Xapian::docid did);
-	void do_replace_document(Xapian::docid did, const Xapian::Document & document);
+	Xapian::docid add_document(const Xapian::Document & document);
+	void delete_document(Xapian::docid did);
+	void replace_document(Xapian::docid did, const Xapian::Document & document);
 	//@}
 
     public:

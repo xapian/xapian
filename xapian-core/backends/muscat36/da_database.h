@@ -321,41 +321,6 @@ class DADatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
-
-	//@{
-	/** DADatabase is a readonly database type, and thus this method is
-	 *  not supported.
-	 */
-	void do_flush() {
-	    Assert(false);
-	}
-
-	void do_begin_transaction() {
-	    Assert(false);
-	}
-
-	void do_commit_transaction() {
-	    Assert(false);
-	}
-
-	void do_cancel_transaction() {
-	    Assert(false);
-	}
-
-	Xapian::docid do_add_document(const Xapian::Document & /*document*/) {
-	    Assert(false);
-	}
-
-	void do_delete_document(Xapian::docid /*did*/) {
-	    Assert(false);
-	}
-
-	void do_replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
-	    Assert(false);
-	}
-
-	//@}
-
 };
 
 #endif /* OM_HGUARD_DA_DATABASE_H */

@@ -58,55 +58,25 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Assignment is not allowed.
 	void operator=(const Internal &);
 
-	/// Flag recording whether a session is in progress
-	bool session_in_progress;
-	
 	/// Flag recording whether a transaction is in progress
 	bool transaction_in_progress;
-	
-	/// Virtual method providing implementation of flush();
-	virtual void do_flush() = 0;
-
-	/// Virtual method providing implementation of begin_transaction();
-	virtual void do_begin_transaction() = 0;
-
-	/// Virtual method providing implementation of commit_transaction();
-	virtual void do_commit_transaction() = 0;
-
-	/// Virtual method providing implementation of cancel_transaction();
-	virtual void do_cancel_transaction() = 0;
-
-	/// Virtual method providing implementation of add_document();
-	virtual Xapian::docid do_add_document(const Xapian::Document & document) = 0;
-
-	/// Virtual method providing implementation of delete_document();
-	virtual void do_delete_document(Xapian::docid did) = 0;
-
-	/// Virtual method providing implementation of replace_document();
-	virtual void do_replace_document(Xapian::docid did,
-					 const Xapian::Document & document) = 0;
-
-	/// Start a modification session if there isn't one already.
-	void ensure_session_in_progress();
 
     protected:
     	/** Create a database - called only by derived classes.
 	 */
 	Internal();
 
-	/** Internal method providing implementation of end_session().
+	/** Internal method to perform cleanup when a writable database is
+	 *  destroyed with unflushed changes.
 	 *
-	 *  Derived class' destructors should call this method before
+	 *  A derived class' destructor should call this method before
 	 *  destroying the database to ensure that no sessions or
 	 *  transactions are in progress at destruction time.
 	 *
 	 *  Note that it is not safe to throw exceptions from destructors,
-	 *  so when called from destructors this must be enclosed in a
-	 *  try - catch clause; exceptions caught by this can be ignored,
-	 *  since the destructor shouldn't be called without having called
-	 *  end_session() first, unless an error is already happening.
+	 *  so this method will catch and discard any exceptions.
 	 */
-	void internal_end_session();
+	void dtor_called();
 
 	/** Method definied by subclass to actually open a posting list.
 	 *
@@ -126,12 +96,11 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  This method should not be called until all objects using the
 	 *  database have been cleaned up.
 	 *
-	 *  If any sessions or transactions are in progress, they should
-	 *  be finished by calling end_session(), cancel_transaction() or
+	 *  If any transactions are in progress, they should
+	 *  be finished by cancel_transaction() or
 	 *  commit_transaction() - if this is not done, the destructor
-	 *  will attempt to clean things up by cancelling the transaction
-	 *  and ending the session, but errors produced by these operations
-	 *  will not be reported.
+	 *  will attempt to clean things up by cancelling the transaction,
+	 *  but any errors produced by these operations will not be reported.
 	 */
         virtual ~Internal();
 
@@ -282,11 +251,11 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::Document::Internal *
 	open_document(Xapian::docid did, bool lazy = false) const = 0;
 
-	/** do_reopen the database to the latest available revision.
+	/** Reopen the database to the latest available revision.
 	 *
 	 *  Some database implementations may do nothing.
 	 */
-	virtual void do_reopen() {
+	virtual void reopen() {
 	    /* Default is to do nothing. */
 	}
 
@@ -298,43 +267,56 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::flush() for more information.
 	 */
-	void flush();
+	virtual void flush() {
+	    // Writable databases should override this method. 
+	    Assert(false);
+	}
 
-	/** Begin a transaction.
-	 *
-	 *  See WritableDatabase::begin_transaction() for more information.
-	 */
-	void begin_transaction();
-
-	/** Commit a transaction.
-	 *
-	 *  See WritableDatabase::commit_transaction() for more information.
-	 */
-	void commit_transaction();
-
-	/** Cancel a transaction.
-	 *
-	 *  See WritableDatabase::cancel_transaction() for more information.
-	 */
-	void cancel_transaction();
+ 	/** Begin a transaction.
+ 	 *
+ 	 *  See WritableDatabase::begin_transaction() for more information.
+ 	 */
+ 	void begin_transaction();
+ 
+ 	/** Commit a transaction.
+ 	 *
+ 	 *  See WritableDatabase::commit_transaction() for more information.
+ 	 */
+ 	void commit_transaction();
+ 
+ 	/** Cancel a transaction.
+ 	 *
+ 	 *  See WritableDatabase::cancel_transaction() for more information.
+ 	 */
+ 	void cancel_transaction();
 
 	/** Add a new document to the database.
 	 *
 	 *  See WritableDatabase::add_document() for more information.
 	 */
-	Xapian::docid add_document(const Xapian::Document & document);
+	virtual Xapian::docid add_document(const Xapian::Document & /*document*/) {
+	    // Writable databases should override this method. 
+	    Assert(false);
+	    return 0;
+	}
 
 	/** Delete a document in the database.
 	 *
 	 *  See WritableDatabase::delete_document() for more information.
 	 */
-	void delete_document(Xapian::docid did);
+	virtual void delete_document(Xapian::docid /*did*/) {
+	    // Writable databases should override this method. 
+	    Assert(false);
+	}
 
 	/** Replace a given document in the database.
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	void replace_document(Xapian::docid did, const Xapian::Document & document);
+	virtual void replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
+	    // Writable databases should override this method. 
+	    Assert(false);
+	}
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,57 +46,6 @@ class NetworkDatabase : public Xapian::Database::Internal {
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
 
-	//@{
-	/** NetworkDatabase is a readonly database type, and thus this method
-	 *  is not supported: if called an exception will be thrown.
-	 */
-	void do_begin_session() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::begin_session() not implemented: readonly database type");
-	}
-
-	void do_end_session() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::do_end_session() not implemented: readonly database type");
-	}
-
-	void do_flush() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::flush() not implemented: readonly database type");
-	}
-
-	void do_begin_transaction() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::begin_transaction() not implemented: readonly database type");
-	}
-
-	void do_commit_transaction() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::commit_transaction() not implemented: readonly database type");
-	}
-
-	void do_cancel_transaction() {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
-	}
-
-	Xapian::docid do_add_document(const Xapian::Document & /*document*/) {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::add_document() not implemented: readonly database type");
-	}
-
-	void do_delete_document(Xapian::docid /*did*/) {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::delete_document() not implemented: readonly database type");
-	}
-
-	void do_replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
-	    throw Xapian::UnimplementedError(
-		"NetworkDatabase::replace_document() not implemented: readonly database type");
-	}
-
-	//@}
-
     public:
 	NetworkDatabase(Xapian::Internal::RefCntPtr<NetClient> link_);
 
@@ -130,7 +79,7 @@ class NetworkDatabase : public Xapian::Database::Internal {
 inline Xapian::termcount
 NetworkDatabase::get_collection_freq(const string & /*tname*/) const
 {
-    throw Xapian::UnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
+    throw Xapian::UnimplementedError("NetworkDatabase::get_collection_freq() not implemented.");
 }
 
 #endif /* OM_HGUARD_NET_DATABASE_H */

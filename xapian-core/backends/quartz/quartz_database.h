@@ -49,22 +49,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 */
 	AutoPtr<QuartzTableManager> tables;
 
-	//@{
-	/** Implementation of virtual methods: see Database for details.
-	 */
-	virtual void do_flush();
-
-	virtual void do_begin_transaction();
-	virtual void do_commit_transaction();
-	virtual void do_cancel_transaction();
-
-	virtual Xapian::docid do_add_document(const Xapian::Document & document);
-	virtual void do_delete_document(Xapian::docid did);
-	virtual void do_replace_document(Xapian::docid did,
-					 const Xapian::Document & document);
-
-	virtual void do_reopen();
-	//@}
+	virtual void reopen();
 
 	/// Implementation of open_post_list()
 	LeafPostList * open_post_list_internal(const string & tname,
@@ -147,20 +132,14 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void do_flush();
+	virtual void flush();
 
 	void do_flush_const() const;
 
-	virtual void do_begin_transaction();
-	virtual void do_commit_transaction();
-	virtual void do_cancel_transaction();
-
-	virtual Xapian::docid do_add_document(const Xapian::Document & document);
-	virtual void do_delete_document(Xapian::docid did);
-	virtual void do_replace_document(Xapian::docid did,
-					 const Xapian::Document & document);
-
-	virtual void do_reopen();
+	virtual Xapian::docid add_document(const Xapian::Document & document);
+	virtual void delete_document(Xapian::docid did);
+	virtual void replace_document(Xapian::docid did,
+				      const Xapian::Document & document);
 	//@}
 
     public:

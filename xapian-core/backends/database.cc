@@ -270,26 +270,21 @@ Database::Internal::keep_alive() const
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void
-Database::Internal::internal_end_session()
+Database::Internal::dtor_called()
 {
     if (transaction_in_progress) {
 	try {
 	    transaction_in_progress = false;
-	    do_cancel_transaction();
+	    // cancel the current transaction
+	    throw Xapian::UnimplementedError("transactions aren't implemented");
 	} catch (...) {
 	}
     }
 
     try {
-	do_flush();
+	flush();
     } catch (...) {
     }
-}
-
-void
-Database::Internal::flush()
-{
-    do_flush();
 }
 
 void
@@ -297,7 +292,8 @@ Database::Internal::begin_transaction()
 {
     if (transaction_in_progress)
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
-    do_begin_transaction();
+    // begin transaction
+    throw Xapian::UnimplementedError("transactions aren't implemented");
     transaction_in_progress = true;
 }
 
@@ -306,8 +302,8 @@ Database::Internal::commit_transaction()
 {
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
-    transaction_in_progress = false;
-    do_commit_transaction();
+    // commit transaction
+    throw Xapian::UnimplementedError("transactions aren't implemented");
 }
 
 void
@@ -316,25 +312,8 @@ Database::Internal::cancel_transaction()
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
-    do_cancel_transaction();
-}
-
-Xapian::docid
-Database::Internal::add_document(const Xapian::Document & document)
-{
-    return do_add_document(document);
-}
-
-void
-Database::Internal::delete_document(Xapian::docid did)
-{
-    do_delete_document(did);
-}
-
-void
-Database::Internal::replace_document(Xapian::docid did, const Xapian::Document & document)
-{
-    do_replace_document(did, document);
+    // cancel transaction
+    throw Xapian::UnimplementedError("transactions aren't implemented");
 }
 
 }

@@ -42,7 +42,7 @@ NetworkDatabase::NetworkDatabase(Xapian::Internal::RefCntPtr<NetClient> link_) :
 }
 
 NetworkDatabase::~NetworkDatabase() {
-    internal_end_session();
+    dtor_called();
 }
 
 void
