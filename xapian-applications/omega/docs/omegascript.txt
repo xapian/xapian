@@ -52,6 +52,9 @@ ${...}
 $add{1,2,3}
 	add arguments together
 
+$allterms{docid}
+	list of all terms matching document
+
 $and{...}
 	logical shortcutting and of its arguments - evaluates
 	arguments until it finds an empty one (and returns "true") or
@@ -86,6 +89,9 @@ $filesize{SIZE}
 
 $fmt
 	name of current format (as set by FMT, or the default)
+
+$freq{term}
+	frequency of a term
 
 $freqs
 	returns an HTML string listing query terms and frequencies
@@ -134,9 +140,13 @@ $list{LIST,...}
 
 $map{LIST,STUFF)
 	map a list into the evaluated argument. If "LIST" is
-	1, 2, 3, 4 then:
+	1, 2 then:
 
-	"$map{LIST,x$_ = $_; }" = "x1 = 1; x2 = 2; x3 = 3; x4 = 4; "
+	"$map{LIST,x$_ = $_; }" = "x1 = 1;	x2 = 2; "
+
+	Note that $map{} returns a list (this is a change from older
+	versions). If the tabs are a problem, use $list{$map{...},}
+	to get rid of them.
 
 $max{...}
 	maximum of the arguments
@@ -149,6 +159,9 @@ $msize
 
 $ne{A,B}
 	returns "true" if A and B are not the same, "" if they are.
+
+$nice{number}
+	pretty print integer (with thousands separator)
 
 $not{A}
 	returns "true" for the empty string, "" otherwise.
@@ -190,6 +203,9 @@ $score
 
 $set{OPT,VALUE}
 	set option value
+
+$set_relevant{docids}
+	add documents into the rset
 
 $setmap{PREFIX,NAME1,VALUE1,...}
 	set a map of option values (<PREFIX><NAME1>=<VALUE1>, etc)

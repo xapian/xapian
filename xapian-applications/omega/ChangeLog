@@ -1,3 +1,7 @@
+Mon Nov 26 13:57:10 2001  James Aylett <tartarus@users.sourceforge.net>
+
+	* Documentation updated for recent changes
+
 Thu Nov 22 13:24:45 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Use $nice{} in query template, but don't use $freqs.  Use numbers as

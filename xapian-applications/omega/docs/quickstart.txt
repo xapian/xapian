@@ -9,16 +9,14 @@ Where DBPATH is where you want the database, such as
 /home/myuser/omega/dbs/default and WEBPATH is the directory containing
 all your web documents.
 
-2.      Edit omega.cc so db_dir points to the directory containing
-your database, such as /home/myuser/omega/dbs. 
+2.      Edit omega.conf:
 
-3.      Edit query.cc so the format directory points to wherever you've
-dropped the templates/ directory from omega, such as
+database_dir should point to the directory containing your database,
+such as /home/myuser/omega/dbs, and template_dir to wherever you've
+dropped the tempaltes/ directory from omega, such as
 /home/myuser/omega/templates.
 
-4.      Rebuild omega.
-
-5.      Test omega, from the command line:
+3.      Test omega, from the command line:
 
 $ ./omega
 omega - om-examples 0.4.1-cvs (compiled Jun 25 2001 14:55:21)
