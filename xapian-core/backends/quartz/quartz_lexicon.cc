@@ -28,13 +28,34 @@ void
 QuartzLexicon::make_key(QuartzDbKey & key,
 			const om_termname & tname)
 {
+    if (tname.size() == 0)
+	throw OmInvalidArgumentError("QuartzLexicon: Term names must not be null.");
     key.value = pack_string(tname);
 }
 
 om_termid
 QuartzLexicon::allocate_termid(QuartzBufferedTable * table)
 {
-    return 1;
+    QuartzDbKey key;
+    key.value = pack_string("");
+    QuartzDbTag * tag = table->get_or_make_tag(key);
+
+    om_termid tid;
+    if (tag->value.size() == 0) {
+	tid = 1;
+    } else {
+	std::string::const_iterator pos = tag->value.begin();
+	std::string::const_iterator end = pos + tag->value.size();
+
+	if (!unpack_uint(&pos, end, &tid)) {
+	    if(pos == 0)
+		throw OmDatabaseCorruptError("Unexpected end of data when reading next termid from lexicon.");
+	    else throw OmRangeError("Size of next termid out of range, in lexicon.");
+	}
+    }
+    tag->value = pack_uint(tid + 1);
+
+    return tid;
 }
 
 void

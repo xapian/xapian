@@ -1,3 +1,7 @@
+Thu Oct 19 16:03:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* quartz_lexicons allocate new term IDs (untested).
+
 Thu Oct 19 13:00:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented quartz_lexicon, except for allocation of new term IDs.
