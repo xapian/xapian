@@ -1,3 +1,25 @@
+Thu Nov 16 19:27:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Working through btree.{h,cc}:
+
+	  Fixed compilation warnings.
+
+	  Fixed some logic around read()/write() functions.
+
+	  Changed ints to Btree_errors in a few places and added
+	  BTREE_ERROR_NONE value.
+
+	  Added Btree_strerror for use with Btree_errors.
+
+	  Fixed a few FIXMEs, and added some more.
+
+	  Did lots of tweaking to error handling.
+	  
+	  There are a few more occurences to change.  In some cases things
+	  can be made much cleaner when the code is objectified with
+	  constructors and destructors.  Most of Btree_quit() moved
+	  into Btree::~Btree().
+
 Thu Nov 16 14:48:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added method str(std::string) to om_ostringstream, to set

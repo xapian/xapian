@@ -29,6 +29,33 @@ typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
 
+enum Btree_errors {
+    BTREE_ERROR_NONE = 0,
+
+    BTREE_ERROR_BLOCKSIZE = 3,
+    BTREE_ERROR_SPACE,
+
+    BTREE_ERROR_BASE_CREATE,
+    BTREE_ERROR_BASE_DELETE,
+    BTREE_ERROR_BASE_READ,
+    BTREE_ERROR_BASE_WRITE,
+
+    BTREE_ERROR_BITMAP_CREATE,
+    BTREE_ERROR_BITMAP_READ,
+    BTREE_ERROR_BITMAP_WRITE,
+
+    BTREE_ERROR_DB_CREATE,
+    BTREE_ERROR_DB_OPEN,
+    BTREE_ERROR_DB_CLOSE,
+    BTREE_ERROR_DB_READ,
+    BTREE_ERROR_DB_WRITE,
+
+    BTREE_ERROR_KEYSIZE,
+    BTREE_ERROR_TAGSIZE,
+
+    BTREE_ERROR_REVISION
+};
+
 struct Cursor {
     /** Constructor, to set important elements to 0.
      */
@@ -59,7 +86,7 @@ struct Cursor {
 struct Btree {
     /** Constructor, to set important elements to 0.
      */
-    Btree() : error(0),
+    Btree() : error(BTREE_ERROR_NONE),
 	      overwritten(false),
 	      revision_number(0),
 	      other_revision_number(0),
@@ -90,10 +117,12 @@ struct Btree {
 	      Btree_modified(false),
 	      full_compaction(false) {}
 
+    ~Btree();
+
 /* 'public' information */
 
     /** error number setting */
-    int error;
+    Btree_errors error;
 
     /** set to true if a parallel overwrite is detected. */
     bool overwritten;
@@ -186,32 +215,7 @@ struct Btree_item {
 
 };
 
-enum Btree_errors {
-
-    BTREE_ERROR_BLOCKSIZE = 3,
-    BTREE_ERROR_SPACE,
-
-    BTREE_ERROR_BASE_CREATE,
-    BTREE_ERROR_BASE_DELETE,
-    BTREE_ERROR_BASE_READ,
-    BTREE_ERROR_BASE_WRITE,
-
-    BTREE_ERROR_BITMAP_CREATE,
-    BTREE_ERROR_BITMAP_READ,
-    BTREE_ERROR_BITMAP_WRITE,
-
-    BTREE_ERROR_DB_CREATE,
-    BTREE_ERROR_DB_OPEN,
-    BTREE_ERROR_DB_CLOSE,
-    BTREE_ERROR_DB_READ,
-    BTREE_ERROR_DB_WRITE,
-
-    BTREE_ERROR_KEYSIZE,
-    BTREE_ERROR_TAGSIZE,
-
-    BTREE_ERROR_REVISION
-
-};
+extern std::string Btree_strerror(Btree_errors err);
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
 extern struct Btree_item * Btree_item_create();
