@@ -128,16 +128,16 @@ MultiPostList::at_end() const
 inline string
 MultiPostList::intro_term_description() const
 {
-    string desc = "(";
+    string desc = "[";
 
     // Calculate and remember the termfreq
     list<MultiPostListInternal>::const_iterator i;
     for(i = postlists.begin(); i != postlists.end(); i++) {
-	if(desc != "(") desc += ",";
+	if(desc != "[") desc += ",";
 	desc += (*i).pl->intro_term_description();
     }
 
-    return desc + "):" + inttostring(get_termfreq());
+    return desc + "]:" + inttostring(get_termfreq());
 }
 
 #endif /* _multi_postlist_h_ */
