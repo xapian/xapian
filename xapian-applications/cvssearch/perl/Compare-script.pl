@@ -272,7 +272,8 @@ sub compare_pkg_index {
     foreach (@filenames) {
         print "<tr>\n";
         print "<td ".$class[$i%2]."><a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
-        print "<td ".$class[$i%2].">$versions[$i]</td>\n";
+        #print "<td ".$class[$i%2].">$versions[$i]</td>\n";
+        print "<td ".$class[$i%2]."><a href=\"./SourceComment.cgi?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$versions[$i]</a></td>\n";
         print "<td ".$class[$i%2].">$comments[$i]</td>\n";
         print "</tr>\n";
         $i++;
