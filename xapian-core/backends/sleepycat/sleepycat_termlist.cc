@@ -43,6 +43,7 @@ SleepyTermList::SleepyTermList(om_docid did_,
 	  termcache(termcache_),
 	  db_size(database->get_doccount())
 {
+    norm_len = get_doclength() / database->get_avlength();
     mylist.move_to_start();
 }
 
@@ -60,8 +61,6 @@ OmExpandBits
 SleepyTermList::get_weighting() const
 {
     Assert(wt != NULL);
-
-    om_doclength norm_len = 1.0; // FIXME - not yet stored in data structure
 
     return wt->get_bits(SleepyTermList::get_wdf(),
 			norm_len,
