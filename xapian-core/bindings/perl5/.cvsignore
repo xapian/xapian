@@ -5,3 +5,7 @@ Makefile.in
 Makefile
 .deps
 .libs
+omstem.pm
+omstem.i
+omstem_wrap.c
+omstem_wrap.doc
