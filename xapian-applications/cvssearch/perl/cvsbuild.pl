@@ -228,7 +228,7 @@ sub cvsbuild {
                     print STAT "total build time :        \t". (time - $checkout_start_date) . " seconds\n";
                     print STAT "   checkout time :        \t". ($checkout_end_date - $checkout_start_date) . " seconds\n";
                     print STAT "   map      time :        \t". ($map_end_date      - $map_start_date). " seconds\n";
-                    print STAT "   index    time :        \t". ($index_end_date    - $index_start_date). "\n";
+                    print STAT "   index    time :        \t". ($index_end_date    - $index_start_date). " seconds\n";
                     print STAT "berkeley database size:   \t". $berkeley_size. " KB at $prefix_path.db\n";
                     print STAT "omsee    database size:   \t". $omsee_size  . " KB at $prefix_path.om\n";
                     print STAT "cmt      file     size:   \t". $cmt_size . " KB at $prefix_path.cmt\n";
