@@ -1,27 +1,14 @@
 Welcome to Xapian!
+==================
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-USA
-
-You should find a copy of the GNU General Public License in the file "COPYING"
+Xapian is free software, licensed under the GNU General Public License.  You
+should find a copy of the GNU General Public License in the file "COPYING"
 in the top level of this distribution of Xapian.
 
 See the file "INSTALL" for information on building and installing Xapian.
 
-Xapian is based on software originally developed by BrightStation plc under the
-GPL as a replacement for their closed source Muscat 3.6 Information Retrieval
+Xapian is derived from software originally developed by BrightStation plc under
+the GPL as a replacement for their proprietary Muscat 3.6 Information Retrieval
 library (which was written almost entirely in BCPL, and becoming hard to extend
 in the ways they wanted).  The project was originally known as OpenMuscat and
 later Omsee.  They sadly decided to take development closed-source.
@@ -36,5 +23,7 @@ The last numbered BrightStation release was Open Muscat 0.4.1, although there
 was extensive development in CVS after that.  The first official Xapian release
 was 0.5.0.
 
-The Xapian website is <http://www.xapian.org/>; you can find downloads, mailing
-lists, CVS access, and other useful resources there.
+You can find downloads, mailing list, CVS access, and other useful resources
+on the Xapian website:
+
+http://www.xapian.org/

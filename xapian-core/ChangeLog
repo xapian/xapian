@@ -1,3 +1,9 @@
+Thu Dec 23 17:22:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: Updated.
+	* README: Don't quote chunks of the GPL - just refer people to the
+	  full text in COPYING.
+
 Thu Dec 23 16:55:03 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Updated for 0.8.5 release.

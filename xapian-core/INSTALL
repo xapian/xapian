@@ -1,7 +1,7 @@
 Welcome to Xapian
 =================
 
-Xapian uses a standard GNU automake / autoconf / libtool setup.
+Xapian uses a standard GNU autoconf / automake / libtool setup.
 This means that all you need to do to compile a standard distribution
 should be:
 
@@ -16,11 +16,11 @@ Compilers:
 We aim to support compilation with any C++ compiler which supports ISO C++,
 or a reasonable approximation to it.
 
-If you're using GCC, we recommend GCC 3.0 or better still GCC 3.1 or later.
+If you're using GCC, we currently recommend GCC 3.3 or newer.
 
 The C++ support has improved a lot since GCC 2.95, and you may experience
 spurious warning messages or even Internal Compiler Errors if you try to use
-2.95.  The "GCC 2.96" supplied by Redhat is also best avoided.  It's actually
+2.95.  The "GCC 2.96" supplied by RedHat is also best avoided.  It's actually
 based on a snapshot of GCC somewhere between 2.95 and 3.0.
 
 Even older GCC compilers (including EGCS) are most unlikely to work at all
@@ -39,24 +39,28 @@ ie: mkdir BUILD; cd BUILD; ../configure
 	You should use this to build a version of Xapian with debugging
 	symbols and assertions to help with debugging.  Recommended for
 	initial development with Xapian - this helps to ensure that you
-	are using the API correctly.
+	are using the API correctly.  It also enables many internal
+	consistency checks, so is useful if you suspect a bug in Xapian.
 
 --enable-backend-*
 	These options enable the compiling of each of the backends.  (Database
 	access methods.)  Use "./configure --help" to get a full list of
 	the backends.  By default, all backends for which the appropriate
-	libraries are available will be enabled, except for the muscat36
-	backend which offers legacy support for databases built with Muscat
-	3.6.
+	libraries and OS support are available will be enabled, except for the
+	muscat36 backend which offers legacy support for databases built with
+	the proprietary Muscat 3.6.
 
 
 Compiling with STLport
 ======================
 
-If your native C++ standard library and STL is not suitable for your needs,
-you should use an alternative library.
+C++ implementations have improved significantly since we started writing
+Xapian, so your native C++ standard library and STL will probably work
+well.
 
-One freely available option is STLport, downloadable from
+But if you wish, you can use STLport instead.  STLport is a freely available
+replacement C++ STL implementation, downloadable from:
+
 http://www.stlport.org/
 
 To compile with STLport:
@@ -86,8 +90,6 @@ to the directory containing the library.
 Developers:
 ===========
 
-There are additional scripts and configure options to help developers and
-people who are building from CVS.  Read HACKING to find out about them.
-
--- 
-James Aylett
+There are additional scripts and configure options to help people doing
+development work on Xapian itself, and people who are building from CVS.
+Read HACKING to find out about them.
