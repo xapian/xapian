@@ -494,25 +494,38 @@ class OmEnquire {
 			const OmExpandOptions * eoptions = 0,
 			const OmExpandDecider * edecider = 0) const;
 
-	/** Get the document data by document id.
+
+	/** @memo Get the document data by document id.
+	 *
+	 *  @doc This method returns the data associated with the given
+	 *  document.
 	 *
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
 	 *  an OmMSetItem instead of a om_docid, since this will enable
-	 *  database backend with suitable support to prevent this
+	 *  database backends with suitable support to prevent this
 	 *  occurring.
+	 *
+	 *  Note that a query does not need to have been run in order to
+	 *  make this call.
 	 *
 	 *  @param did   The document id for which to retrieve the data.
 	 *
+	 *  @return      An OmData object containing the document data.
+	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError  The document specified could not
-	 *  be found in the database.
+	 *  @exception OmDocNotFoundError      The document specified could not
+	 *                                     be found in the database.
+	 *  @exception
 	 */
 	OmData get_doc_data(om_docid did) const;
 
-	/** Get the document data by match set item.
+	/** @memo Get the document data by match set item.
+	 *
+	 *  @doc This method returns the data associated with the given
+	 *  document.
 	 *
 	 *  If the underlying database has suitable support, using this call
 	 *  (rather than passing an om_docid) will enable the system to
@@ -521,6 +534,8 @@ class OmEnquire {
 	 *
 	 *  @param mitem   The item for which to retrieve the data.
 	 *
+	 *  @return      An OmData object containing the document data.
+	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError  The document specified could not
@@ -528,14 +543,62 @@ class OmEnquire {
 	 */
 	OmData get_doc_data(const OmMSetItem &mitem) const;
 
-	/** Get the terms matching a given document in the current query
+
+	/** @memo Get terms which match a given document, by document id.
+	 * 
+	 *  @doc
+	 *  This method returns the terms in the current query which match
+	 *  the given document.
 	 *
-	 *  @param mitem   The item for which to retrieve the matching terms.
+	 *  It is possible for the document to have been removed from the
+	 *  database between the time it is returned in an mset, and the
+	 *  time that this call is made.  If possible, you should specify
+	 *  an OmMSetItem instead of a om_docid, since this will enable
+	 *  database backends with suitable support to prevent this
+	 *  occurring.
+	 *
+	 *  Note that a query does not need to have been run in order to
+	 *  make this call.
+	 *
+	 *  @param did     The document id for which to retrieve the matching
+	 *                 terms.
+	 *
+	 *  @return        A vector containing the terms which match the
+	 *                 document.  This vector will be, as far as this
+	 *                 makes any sense, in the same order as the terms
+	 *                 in the query.  Terms will not occur more than once,
+	 *                 even if they do in the query.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError  The document specified could not
-	 *  be found in the database.
+	 *  @exception OmDocNotFoundError      The document specified could not
+	 *                                     be found in the database.
+	 */
+	vector<om_termname> get_matching_terms(om_docid did) const;
+
+	/** @memo Get terms which match a given document by match set item.
+	 *
+	 *  @doc
+	 *  This method returns the terms in the current query which match
+	 *  the given document.
+	 *
+	 *  If the underlying database has suitable support, using this call
+	 *  (rather than passing an om_docid) will enable the system to
+	 *  ensure that the correct data is returned, and that the document
+	 *  has not been deleted or changed since the query was performed.
+	 *
+	 *  @param mitem   The item for which to retrieve the matching terms.
+	 *
+	 *  @return        A vector containing the terms which match the
+	 *                 document.  This vector will be, as far as this
+	 *                 makes any sense, in the same order as the terms
+	 *                 in the query.  Terms will not occur more than once,
+	 *                 even if they do in the query.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception OmDocNotFoundError      The document specified could not
+	 *                                     be found in the database.
 	 */
 	vector<om_termname> get_matching_terms(const OmMSetItem &mitem) const;
 };
