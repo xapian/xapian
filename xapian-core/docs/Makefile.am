@@ -10,7 +10,8 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl.in doxygen.conf.in $(HTMLFILES) \
+EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
+        $(HTMLFILES) \
         MatcherDesign Notes stemming.txt \
 	docxx.sty
 
