@@ -59,7 +59,7 @@ class BranchPostList : public PostList {
 	 *  If get_position_list() is called on such a branch postlist,
 	 *  an OmUnimplementedError exception will be thrown.
 	 */
-	virtual PositionList & get_position_list() const;
+	virtual PositionList & get_position_list();
 };
 
 inline
@@ -82,7 +82,7 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 }
 
 inline PositionList &
-BranchPostList::get_position_list() const
+BranchPostList::get_position_list()
 {
     throw OmUnimplementedError("BranchPostList::get_position_list() unimplemented");
 }

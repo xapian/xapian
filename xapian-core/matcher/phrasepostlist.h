@@ -58,7 +58,7 @@ class PhrasePostList : public LeafPostList {
 
 	string intro_term_description() const;
 
-        PhrasePostList(PostList *left,
+	PhrasePostList(PostList *left,
 		       PostList *right,
 		       LocalMatch *matcher_,
 		       bool replacement = false);

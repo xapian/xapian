@@ -32,7 +32,7 @@ class EmptyPostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	PositionList & get_position_list() const;
+	PositionList & get_position_list();
 
         om_weight recalc_maxweight();
 
@@ -64,7 +64,7 @@ EmptyPostList::get_weight() const
 }
 
 inline PositionList &
-EmptyPostList::get_position_list() const
+EmptyPostList::get_position_list()
 {
     Assert(0); // no positions
     throw OmUnimplementedError("EmptyPostList::get_position_list() unimplemented");

@@ -134,7 +134,7 @@ class InMemoryPostList : public LeafPostList {
 
 	om_docid  get_docid() const;     // Gets current docid
 	om_weight get_weight() const;    // Gets current weight
-	PositionList & get_position_list() const;
+	PositionList & get_position_list();
 	PostList *next(om_weight w_min); // Moves to next docid
 
 	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid

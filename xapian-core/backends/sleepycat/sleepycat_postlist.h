@@ -1,4 +1,4 @@
-/* sleepy_database.h: C++ class definition for sleepycat access routines
+/* sleepy_postlist.h: C++ class definition for sleepycat access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -29,8 +29,9 @@
 class SleepyDatabase;
 class SleepyDatabaseInternals;
 #include "sleepy_list.h"
+#include "sleepy_positionlist.h"
 
-/** A poslist in a sleepycat database.
+/** A postlist in a sleepycat database.
  */
 class SleepyPostList : public LeafPostList {
     friend class SleepyDatabase;
@@ -44,6 +45,11 @@ class SleepyPostList : public LeafPostList {
 	 *  and unpacking.
 	 */
 	SleepyList mylist;
+
+	/** List of positions of the current term.
+	 *  This list is populated when get_position_list() is called.
+	 */
+	SleepyPositionList mypositions;
 
 	/** Create a SleepyPostList from the specified internals, and
 	 *  using the specified termid.
@@ -63,7 +69,7 @@ class SleepyPostList : public LeafPostList {
 
 	om_docid      get_docid() const;   // Current docid
 	om_weight     get_weight() const;  // Current weight
-	PositionList & get_position_list() const; // Get positions
+	SleepyPositionList & get_position_list(); // Get positions
         PostList * next(om_weight w_min);  // Move to next docid
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list

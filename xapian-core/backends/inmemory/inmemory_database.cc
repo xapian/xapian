@@ -48,7 +48,7 @@ InMemoryPostList::get_weight() const
 }
 
 PositionList &
-InMemoryPostList::get_position_list() const
+InMemoryPostList::get_position_list()
 {
     throw OmUnimplementedError("InMemoryPostList::get_position_list() unimplemented");
 }

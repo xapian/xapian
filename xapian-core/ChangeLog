@@ -1,3 +1,10 @@
+Wed Apr 19 18:10:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed PostList::get_position_list() to be non-const, since it
+	  modifies the PostList in many implementations.
+
+	* Implemented SleepyPositionList.
+
 Wed Apr 19 16:47:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a PositionList base class, and methods to return position

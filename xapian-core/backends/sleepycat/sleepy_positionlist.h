@@ -1,4 +1,4 @@
-/* positionlist.h
+/* sleepy_positionlist.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,44 +20,58 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_POSITIONLIST_H
-#define OM_HGUARD_POSITIONLIST_H
+#ifndef OM_HGUARD_SLEEPY_POSITIONLIST_H
+#define OM_HGUARD_SLEEPY_POSITIONLIST_H
 
 #include "omassert.h"
 
 #include "om/omtypes.h"
 #include "om/omerror.h"
 
-/** Abstract base class for position lists. */
-class PositionList
+#include <vector>
+#include "positionlist.h"
+
+/** A position list in a sleepycat database. */
+class SleepyPositionList : public PositionList
 {
     private:
+	/// The list of positions.
+	vector<om_termpos> positions;
+
+	/// Position of iteration through positions
+	vector<om_termpos>::const_iterator mypos;
+
+	/// True if we have started iterating
+	bool iterating_in_progress;
+
 	/// Copying is not allowed.
-	PositionList(const PositionList &);
+	SleepyPositionList(const SleepyPositionList &);
 
 	/// Assignment is not allowed.
-	void operator=(const PositionList &);
+	void operator=(const SleepyPositionList &);
     public:
 	/// Default constructor.
-	PositionList() {}
+	SleepyPositionList() : iterating_in_progress(false) {}
 
 	/// Destructor.
-	virtual ~PositionList() { return; }
+	~SleepyPositionList() { return; }
+
+	/// Fill list with data, and move the position to the start.
+	void set_data(const vector<om_termpos> & positions_);
 	
 	/// Gets size of position list.
-	virtual om_termcount get_size() const = 0;
+	om_termcount get_size() const;
 
 	/// Gets current position.
-	virtual om_termpos get_position() const = 0;
+	om_termpos get_position() const;
 
 	/** Move to the next item in the list.
-	 *  This must be called before get_position() - the list initially
-	 *  points to before the beginning of the list.
+	 *  This must be called before any other methods.
 	 */
-	virtual void next() = 0;
+	void next();
 
 	/// True if we're off the end of the list
-	virtual bool at_end() const = 0;
+	bool at_end() const;
 };
 
-#endif /* OM_HGUARD_POSITIONLIST_H */
+#endif /* OM_HGUARD_SLEEPY_POSITIONLIST_H */

@@ -66,7 +66,7 @@ om_weight MultiPostList::get_weight() const
 }
 
 PositionList &
-MultiPostList::get_position_list() const
+MultiPostList::get_position_list()
 {
     throw OmUnimplementedError("MultiPostList::get_position_list() unimplemented");
 }

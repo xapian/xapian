@@ -71,10 +71,11 @@ SleepyPostList::get_weight() const
     return ir_wt->get_sumpart(wdf, 1.0);
 }
 
-PositionList &
-SleepyPostList::get_position_list() const
+SleepyPositionList &
+SleepyPostList::get_position_list()
 {
-    throw OmUnimplementedError("SleepyPostList::get_position_list() unimplemented");
+    mypositions.set_data(mylist.get_current_item().positions);
+    return mypositions;
 }
 
 PostList *
