@@ -78,7 +78,7 @@ class Xapian::PositionIterator::Internal : public Xapian::Internal::RefCntBase
 	/** For use by PhrasePostList - ignored by PostingList itself.
 	 *  This isn't the most elegant place to put this, but it greatly
 	 *  eases the implementation of PhrasePostList which can't subclass
-	 *  PositionList (since it gets it from PostList::get_position_list())
+	 *  PositionList (since it gets it from PostList::read_position_list())
 	 */
 	Xapian::termcount index;
 };
