@@ -62,7 +62,7 @@ EXTRA_libxapian_la_SOURCES =
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
 # 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
 # 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
-libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 1:1:1
+libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 2:0:0
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols
