@@ -1,3 +1,8 @@
+Fri Jan 09 21:54:34 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fix incorrect code which just
+	  happens to build and work with GCC 2.95.
+
 Fri Jan 09 14:40:00 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Tidied the initial call to

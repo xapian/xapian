@@ -988,7 +988,7 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
     // the data part of the chunk wholesale.
     bool is_first_chunk = (keypos == keyend);
 
-    const char * pos = tag->begin();
+    const char * pos = tag->data();
     const char * end = pos + tag->size();
     Xapian::docid first_did_in_chunk;
     if (is_first_chunk) {
