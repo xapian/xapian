@@ -1,3 +1,16 @@
+Thu Nov  1 20:43:25 GMT 2001 Richard Boulton <richard@tartarus.org>
+
+	* omega: Put template dir into a variable, defined at same place as
+	  db_dir.  Make db_dir non-const, ready for making its value read
+	  from a configuration file.  Change db_dir to database_dir.
+
+	* Add very simple configuration file reading code: reads
+	  ./omega.conf and if that isn't readable /etc/omega.conf, to get
+	  database_dir and template_dir.
+
+	* Fix problem with automake 1.5: didn't like AM_CXXFLAGS being
+	  assigned with += without it being assigned with = first.
+
 Thu Nov  1 20:32:47 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Use xml2 if available.  If it is available, compile

@@ -52,8 +52,6 @@ string fmtname = "query";
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
 
-static const string db_dir = "/home/omega/data/";
-
 static void
 make_log_entry(const string &action, long matches)
 {
@@ -92,7 +90,7 @@ make_log_entry(const string &action, long matches)
 static string
 map_dbname_to_dir(const string &dbname)
 {
-    return db_dir + dbname;
+    return database_dir + dbname;
 }
 
 // Predicate used with find_if() so if there isn't a CGI parameter
@@ -105,6 +103,8 @@ bool pred_page_jump(multimap<string, string>::value_type& t)
 static int
 main2(int argc, char *argv[])
 {
+    read_config_file();
+
     string big_buf;
     bool more = false;
     char *method;

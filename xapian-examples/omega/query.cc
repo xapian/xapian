@@ -1036,7 +1036,7 @@ eval_file(const string &fmtfile)
     // FIXME: log when this check fails
     string::size_type i = fmtfile.find("..");
     if (i == string::npos) {
-	string file = "/home/omega/templates/" + fmtfile;
+	string file = template_dir + "/" + fmtfile;
 	struct stat st;
 	int fd = open(file.c_str(), O_RDONLY);
 	if (fd >= 0) {

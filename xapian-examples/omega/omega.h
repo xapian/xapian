@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,8 @@
 #include "config.h"
 
 #define PROGRAM_NAME "omega"
+
+#include "configfile.h"
 
 #include <map>
 #include <vector>
@@ -65,3 +68,4 @@ class ExpandDeciderOmega : public OmExpandDecider {
 	    return true;
 	}
 };
+
