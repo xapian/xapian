@@ -130,9 +130,14 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     sprintf(buf, "%04d%02d", y1, m1);
     std::vector<OmQuery> v;
 
+    int d_last = last_day(y1, m1);
+    int d_end = d_last;
+    if (y1 == y2 && m1 == m2 && d2 < d_last) {
+	d_end = d2;
+    }
     // Deal with any initial partial month
-    if (d1 > 1 || (y1 == y2 && m1 == m2 && d2 < last_day(y2, m2))) {
-    	for ( ; d1 <= 31 ; d1++) {
+    if (d1 > 1 || d_end < d_last) {
+    	for ( ; d1 <= d_end ; d1++) {
 	    sprintf(buf + 6, "%02d", d1);
 	    v.push_back(OmQuery('D' + std::string(buf)));
 	}
@@ -144,7 +149,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
     }
 
-    int m_last = (y1 < y2) ? 12 : m2 - 1;
+    int m_last = (y2 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
 	sprintf(buf + 4, "%02d", m1);
 	v.push_back(OmQuery('M' + std::string(buf)));
@@ -232,9 +237,10 @@ run_query()
 	}
 	int y2, m2, d2;
 	if (!daysminus.empty()) {
-	    time_t now = time(NULL);
+	    time_t end;
 	    if (date1.empty()) {
-		struct tm *t = localtime(&now);
+		end = time(NULL);
+		struct tm *t = localtime(&end);
 		y2 = t->tm_year + 1900;
 		m2 = t->tm_mon + 1;
 		d2 = t->tm_mday;
@@ -242,9 +248,18 @@ run_query()
 		y2 = y1;
 		m2 = m1;
 		d2 = d1;
+		
+		struct tm t;
+		t.tm_year = y2 - 1900;
+		t.tm_mon = m2 - 1;
+		t.tm_mday = d2;
+		t.tm_hour = 12;
+		t.tm_min = t.tm_sec = 0;
+		t.tm_isdst = -1;
+
+		end = mktime(&t);
 	    }
-	    // FIXME: if DATE1 and DAYSMINUS set, use date1 not now...
-	    time_t then = now - atoi(daysminus.c_str()) * 86400;
+	    time_t then = end - atoi(daysminus.c_str()) * 86400;
 	    struct tm *t = localtime(&then);
 	    y1 = t->tm_year + 1900;
 	    m1 = t->tm_mon + 1;

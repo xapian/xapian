@@ -1,3 +1,11 @@
+Tue Nov 20 12:07:54 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed bug in date range filtering (got it wrong when start and end
+	  date were in the same month).
+
+	* DAYSMINUS now counts back from DATE1 (if specified) rather than
+	  always counting back from the present.
+
 Mon Nov 19 17:13:24 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added date-range filtering (not fully tested yet).
