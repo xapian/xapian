@@ -231,9 +231,15 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     DO_UNPACK_INT_ERRCHECK(&start, end, bit_map_size);
     /* Now that we know the size of the bit map, (possibly)
      * read in more data from the base file in case
-     * REASONABLE_BASE_SIZE is too small.
+     * REASONABLE_BASE_SIZE is too small.  We need to update
+     * start and end.
      */
-    buf += sys_read_all_bytes(h, bit_map_size);
+    {
+	unsigned long start_offset = start - buf.data();
+	buf += sys_read_all_bytes(h, bit_map_size);
+	start = buf.data() + start_offset;
+	end = buf.data() + buf.length();
+    }
     DO_UNPACK_INT_ERRCHECK(&start, end, item_count);
     DO_UNPACK_INT_ERRCHECK(&start, end, last_block);
     uint4 have_fakeroot_;

@@ -1,3 +1,9 @@
+Thu Nov 30 16:21:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a quartz test for largish bitmaps.
+
+	* Fixed the code so that the above test would pass.
+
 Thu Nov 30 16:10:37 GMT 2000 Olly Betts
 
 	* OmDocument::add_posting() pretty much done.

@@ -1631,6 +1631,32 @@ static bool test_overwrite1()
     return true;
 }
 
+/// Test large bitmap files.
+static bool test_bitmap1()
+{
+    const std::string dbname = tmpdir + "testdb_bitmap1_";
+    unlink_table(dbname);
+    /* Use a small block size to make it easier to get a large bitmap */
+    QuartzDiskTable disktable(dbname, false, 256);
+    disktable.open();
+    QuartzBufferedTable bufftable(&disktable);
+
+
+    quartz_revision_number_t new_revision;
+    QuartzDbKey key;
+    QuartzDbTag tag;
+
+    for (int j=0; j<100; ++j) {
+	for (int i=1; i<=1000; ++i) {
+	    key.value = "foo" + om_tostring(j) + "_" + om_tostring(i);
+	    bufftable.get_or_make_tag(key)->value = "bar" + om_tostring(i);
+	}
+	new_revision = disktable.get_latest_revision_number() + 1;
+	bufftable.apply(new_revision);
+    }
+    return true;
+}
+
 
 // ================================
 // ========= END OF TESTS =========
@@ -1663,6 +1689,7 @@ test_desc tests[] = {
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {"quartzoverwrite1", 	test_overwrite1},
+    {"quartzbitmap1", 		test_bitmap1},
     {0, 0}
 };
 
