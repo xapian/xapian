@@ -1,5 +1,5 @@
-This document attempts to describe how to make use of the facilities in
-Open Muscat for distributed searches.
+This document describes how to make use of the facilities in Open Muscat
+for distributed searches.
 
 OVERVIEW
 ========
@@ -15,7 +15,7 @@ but with different database arguments.  Instead of type, eg, "da_flimsy",
 use "net".  The extra parameters describe how to connect to the server.
 Once the database is opened, the query process is identical to any other.
 
-There are currently network client/server methods: prog and tcp.  They
+There are currently two network client/server methods: prog and tcp.  They
 both use the same protocol, although different means to contact the
 server.
 
