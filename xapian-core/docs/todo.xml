@@ -50,6 +50,14 @@ Implement deletion and updating of documents.  Test.
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="API">
 
+Test that optimisations are not causing wrong results to be returned.  Have a
+large dataset, and a query which returns at least 20 hits.  Perform queries
+with all possible combinations of first item and mset size, and check that the
+returned results are consistent.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="API">
+
 Rename AutoPtr to OmAutoPtr, and autoptr.h to omautoptr.h (or think
 of a suitable alternative scheme for avioding exposing the autoptrs).
 
