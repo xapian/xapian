@@ -322,6 +322,11 @@ run_query()
 	    sec = tv.tv_sec;
 	    usec = tv.tv_usec;
 	}
+#elif defined(FTIME_RETURNS_VOID)
+	struct timeb tp;
+	ftime(&tp);
+	sec = tp.time;
+	usec = tp.millitm * 1000;
 #elif defined(HAVE_FTIME)
 	struct timeb tp;
 	if (ftime(&tp) == 0) {
@@ -356,6 +361,15 @@ run_query()
 		}
 	    } else {
 		usec = -1;
+	    }
+#elif defined(FTIME_RETURNS_VOID)
+	    struct timeb tp;
+	    ftime(&tp);
+	    sec = tp.time - sec;
+	    usec = tp.millitm * 1000 - usec;
+	    if (usec < 0) {
+		--sec;
+		usec += 1000000;
 	    }
 #elif defined(HAVE_FTIME)
 	    struct timeb tp;

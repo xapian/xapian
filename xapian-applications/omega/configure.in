@@ -16,6 +16,14 @@ AC_PROG_CXX
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl See if ftime returns void (as it does on mingw)
+if test $ac_cv_func_ftime = yes ; then
+  AC_TRY_COMPILE([#include <sys/timeb.h>],
+    [struct timeb tp; int i = ftime(&tp);],
+    ,
+    AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
+fi
+
 dnl mingw has _snprintf
 AC_CHECK_FUNCS(snprintf _snprintf)
 if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
