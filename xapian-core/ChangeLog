@@ -1,3 +1,8 @@
+Thu Jan 11 16:42:07 GMT 2001 Olly Betts
+
+	* Removed unnecessary `#include "alltermslist.h"' from
+	  d[ab]_database.h.
+
 Wed Jan 10 14:28:10 GMT 2001 Olly Betts
 
 	* Updated various .cvsignore files.

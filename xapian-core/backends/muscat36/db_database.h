@@ -35,7 +35,6 @@
 #include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
-#include "alltermslist.h"
 
 // FIXME - try and sort it out so that we don't need to include this.
 #include "dbread.h"
