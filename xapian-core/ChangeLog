@@ -1,3 +1,7 @@
+Wed Jun 21 13:35:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* _Really_ stopped referring to OmSettings.
+
 Tue Jun 20 18:27:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stop compiling OmSettings in, at least for now.

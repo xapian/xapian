@@ -381,7 +381,7 @@ bool test_sleepypack1()
 // ####################################
 // # test the behaviour of OmSettings #
 // ####################################
-
+#if 0
 bool
 test_omsettings1()
 {
@@ -473,7 +473,7 @@ test_omsettings3()
 
     return success;
 }
-
+#endif
 
 // ##################################################################
 // # End of actual tests                                            #
