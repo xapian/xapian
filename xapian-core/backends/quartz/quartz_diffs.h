@@ -1,4 +1,4 @@
-/* quartz_db_diffs.h: Diffs made to a given quartz database
+/* quartz_diffs.h: Diffs made to a given quartz database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DB_DIFFS_H
-#define OM_HGUARD_QUARTZ_DB_DIFFS_H
+#ifndef OM_HGUARD_QUARTZ_DIFFS_H
+#define OM_HGUARD_QUARTZ_DIFFS_H
 
 #include "config.h"
 #include "quartz_db_manager.h"
@@ -30,15 +30,15 @@
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
 
-/** Base class managing a set of diffs to a Quartz database.
+/** Base class managing a set of diffs to a table in a Quartz database.
  */
-class QuartzDbDiffs {
+class QuartzDiffs {
     private:
 	/// Copying not allowed
-	QuartzDbDiffs(const QuartzDbDiffs &);
+	QuartzDiffs(const QuartzDiffs &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDbDiffs &);
+	void operator=(const QuartzDiffs &);
 
     protected:
 	/** Blocks which have been changed.
@@ -62,14 +62,14 @@ class QuartzDbDiffs {
     public:
 	/** Construct the diffs object.
 	 */
-	QuartzDbDiffs(RefCntPtr<QuartzDbTable> table_) : table(table_) {}
+	QuartzDiffs(RefCntPtr<QuartzDbTable> table_) : table(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 *
 	 *  Virtual to allow full destruction when a subclass is deleted.
 	 *  Pure virtual to make the class abstract.
 	 */
-	virtual ~QuartzDbDiffs() = 0;
+	virtual ~QuartzDiffs() = 0;
 
 	/** Apply the diffs to the database.
 	 *
@@ -80,35 +80,34 @@ class QuartzDbDiffs {
 	 *  After this operation, even if it is unsuccessful, the diffs
 	 *  will be left empty.
 	 *
+	 *  @param new_revision  The new revision number to store the
+	 *                       modifications under.
+	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply();
+	bool apply(QuartzRevisionNumber new_revision);
 };
 
-inline QuartzDbDiffs::~QuartzDbDiffs() {}
+inline QuartzDiffs::~QuartzDiffs() {}
 
 
 
 /** Class managing a set of diffs to a Quartz PostList table.
  */
-class QuartzPostListDbDiffs : public QuartzDbDiffs {
+class QuartzPostListDiffs : public QuartzDiffs {
     private:
-	/** Pointer to the database manager.
-	 */
-	QuartzDbManager * db_manager;
-
     public:
 	/** Construct the diffs object.
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPostListDbDiffs(RefCntPtr<QuartzDbTable> table_)
-		: QuartzDbDiffs(table_) {}
+	QuartzPostListDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 */
-	~QuartzPostListDbDiffs() {}
+	~QuartzPostListDiffs() {}
 
 	/** Add a posting to the diffs.
 	 *
@@ -123,23 +122,19 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
 
 /** Class managing a set of diffs to a Quartz PositionList table.
  */
-class QuartzPositionListDbDiffs : public QuartzDbDiffs {
+class QuartzPositionListDiffs : public QuartzDiffs {
     private:
-	/** Pointer to the database manager.
-	 */
-	QuartzDbManager * db_manager;
-
     public:
 	/** Construct the diffs object.
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPositionListDbDiffs(RefCntPtr<QuartzDbTable> table_)
-		: QuartzDbDiffs(table_) {}
+	QuartzPositionListDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 */
-	~QuartzPositionListDbDiffs() {}
+	~QuartzPositionListDiffs() {}
 
 	/** Add a posting to the diffs.
 	 */
@@ -148,4 +143,55 @@ class QuartzPositionListDbDiffs : public QuartzDbDiffs {
 			      OmDocumentTerm::term_positions positions);
 };
 
-#endif /* OM_HGUARD_QUARTZ_DB_DIFFS_H */
+/** Class managing a set of diffs to a Quartz TermList table.
+ */
+class QuartzTermListDiffs : public QuartzDiffs {
+    private:
+    public:
+	/** Construct the diffs object.
+	 *
+	 *  @param table_  The object managing access to the table on disk.
+	 */
+	QuartzTermListDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDiffs(table_) {}
+
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
+	~QuartzTermListDiffs() {}
+};
+
+/** Class managing a set of diffs to a Quartz TermList table.
+ */
+class QuartzRecordDiffs : public QuartzDiffs {
+    private:
+    public:
+	/** Construct the diffs object.
+	 *
+	 *  @param table_  The object managing access to the table on disk.
+	 */
+	QuartzRecordDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDiffs(table_) {}
+
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
+	~QuartzRecordDiffs() {}
+};
+
+/** Class managing a set of diffs to a Quartz Lexicon table.
+ */
+class QuartzLexiconDiffs : public QuartzDiffs {
+    private:
+    public:
+	/** Construct the diffs object.
+	 *
+	 *  @param table_  The object managing access to the table on disk.
+	 */
+	QuartzLexiconDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDiffs(table_) {}
+
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
+	~QuartzLexiconDiffs() {}
+};
+
+#endif /* OM_HGUARD_QUARTZ_DIFFS_H */

@@ -23,20 +23,17 @@
 #include "config.h"
 
 #include "quartz_modifications.h"
+#include "quartz_db_table.h"
 
 #include "om/omindexdoc.h"
 #include "om/omsettings.h"
 
 #include <map>
 
-QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_,
-					 RefCntPtr<QuartzLog> log_)
-	: db_manager(db_manager_),
-	  log(log_),
-	  postlist_diffs(db_manager_->postlist_table),
-	  positionlist_diffs(db_manager_->positionlist_table)
+QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_)
+	: db_manager(db_manager_)
 {
-    Assert(log.get() != 0);
+    open_diffs();
 }
 
 QuartzModifications::~QuartzModifications()
@@ -44,8 +41,60 @@ QuartzModifications::~QuartzModifications()
 }
 
 void
+QuartzModifications::open_diffs()
+{
+    postlist_diffs = new QuartzPostListDiffs(db_manager->postlist_table);
+    positionlist_diffs = new QuartzPositionListDiffs(db_manager->positionlist_table);
+    termlist_diffs = new QuartzTermListDiffs(db_manager->termlist_table);
+    lexicon_diffs = new QuartzLexiconDiffs(db_manager->lexicon_table);
+    record_diffs = new QuartzRecordDiffs(db_manager->record_table);
+}
+
+void
+QuartzModifications::close_diffs()
+{
+    postlist_diffs = 0;
+    positionlist_diffs = 0;
+    termlist_diffs = 0;
+    lexicon_diffs = 0;
+    record_diffs = 0;
+}
+
+void
 QuartzModifications::apply()
 {
+    bool success;
+
+    db_manager->log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
+
+    success = postlist_diffs.apply(new_revision);
+    if (success) { success = positionlist_diffs.apply(new_revision); }
+    if (success) { success = termlist_diffs.apply(new_revision); }
+    if (success) { success = lexicon_diffs.apply(new_revision); }
+    if (success) { success = record_diffs.apply(new_revision); }
+
+    if (!success) {
+	// Modifications failed.  Wipe all the modifications from memory.
+	log->make_entry("Attempted modifications failed.  Wiping partial modifications");
+	close_diffs();
+	
+	// Reopen tables with old revision number, 
+	db_manager->reopen();
+
+	// Increase revision numbers to new revision number plus one,
+	// writing increased numbers to all tables.
+	new_revision.increment();
+	log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
+
+	std::map<QuartzDbKey, QuartzDbTag *> null_entries;
+	db_manager->postlist_table.set_entries(null_entries, new_revision);
+	db_manager->positionlist_table.set_entries(null_entries, new_revision);
+	db_manager->termlist_table.set_entries(null_entries, new_revision);
+	db_manager->lexicon_table.set_entries(null_entries, new_revision);
+	db_manager->record_table.set_entries(null_entries, new_revision);
+
+	open_diffs();
+    }
 }
 
 om_docid

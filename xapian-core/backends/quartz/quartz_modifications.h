@@ -25,8 +25,9 @@
 
 #include "config.h"
 #include "quartz_db_manager.h"
-#include "quartz_db_diffs.h"
+#include "quartz_diffs.h"
 #include "quartz_log.h"
+#include "quartz_db_table.h"
 #include "om/omindexdoc.h"
 
 #include <stdio.h>
@@ -45,23 +46,39 @@ class QuartzModifications {
 	 */
 	QuartzDbManager * db_manager;
 
-	/** Log to write messages about the modifications performed to.
+	/** Revision number to store modifications under.
 	 */
-	RefCntPtr<QuartzLog> log;
+	QuartzRevisionNumber new_revision;
+
 
 	/** Diffs made to the PostList database.
 	 */
-	QuartzPostListDbDiffs postlist_diffs;
+	auto_ptr<QuartzPostListDiffs> postlist_diffs;
 
 	/** Diffs made to the PositionList database.
 	 */
-	QuartzPositionListDbDiffs positionlist_diffs;
+	auto_ptr<QuartzPositionListDiffs> positionlist_diffs;
+
+	/** Diffs made to the TermList database.
+	 */
+	auto_ptr<QuartzTermListDiffs> termlist_diffs;
+
+	/** Diffs made to the Lexicon database.
+	 */
+	auto_ptr<QuartzLexiconDiffs> lexicon_diffs;
+
+	/** Diffs made to the Record database.
+	 */
+	auto_ptr<QuartzRecordDiffs> record_diffs;
     public:
 
 	/** Construct the modifications object.
+	 *
+	 *  @param db_manager_  The object holding the tables constituting
+	 *                      the database
+	 *                      
 	 */
-	QuartzModifications(QuartzDbManager * db_manager_,
-			    RefCntPtr<QuartzLog> log_);
+	QuartzModifications(QuartzDbManager * db_manager_);
 
 	/** Destroy the modifications.  Any unapplied modifications will
 	 *  be lost.
@@ -69,8 +86,13 @@ class QuartzModifications {
 	~QuartzModifications();
 
 	/** Atomically apply the modifications.  Throws an exception if an
-	 *  error occurs. If an error occurs (eg, any of the modifications
-	 *  fail), the database will be left unaltered.
+	 *  error occurs.  If an error occurs (eg, any of the modifications
+	 *  fail), the database will be left unaltered, and the
+	 *  modifications will be discarded.  If a catastrophic error occurs
+	 *  (such as a power failure, or disk error), the database may be
+	 *  left in a state from which a recovery step needs to be performed
+	 *  in order to use it again; after such a step the partly applied
+	 *  modifications will be discarded.
 	 */
 	void apply();
 

@@ -31,13 +31,25 @@
 #include <om/omerror.h>
 #include <string>
 
-QuartzDbManager::QuartzDbManager(const OmSettings & settings,
-				 bool use_transactions,
-				 bool readonly)
+QuartzDbManager::QuartzDbManager(string db_dir_,
+				 string tmp_dir_,
+				 string log_filename_,
+				 bool readonly_,
+				 bool perform_recovery_)
+	: tables_open(false),
+	  db_dir(db_dir_),
+	  tmp_dir(tmp_dir_),
+	  readonly(readonly_),
+	  perform_recovery(perform_recovery_)
 {
-    string db_dir  = settings.get("quartz_dir");
-    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
-
+    // Open modification log
+    if (!readonly) {
+	{
+	    auto_ptr<QuartzLog> temp(new QuartzLog(log_filename_));
+	    log = temp;
+	}
+	log->make_entry("Database opened for modifications.");
+    }
 
     // set cache size parameters, etc, here.
 
@@ -45,11 +57,43 @@ QuartzDbManager::QuartzDbManager(const OmSettings & settings,
     calc_mode();
 
     // open tables
-    postlist_table = new QuartzDbTable(readonly);
-    positionlist_table = new QuartzDbTable(readonly);
+    if (readonly) {
+	// Can still allow searches despite recovery being needed
+	open_tables_consistent();
+    } else if (perform_recovery) {
+	open_tables_consistent();
+    } else {
+	open_tables_newest();
+    }
 }
 
 QuartzDbManager::~QuartzDbManager()
+{
+    if (log.get() != 0) {
+	log->make_entry("Closing database.");
+    }
+}
+
+void
+QuartzDbManager::open_tables_newest()
+{
+    // FIXME implement
+}
+
+void
+QuartzDbManager::open_tables_consistent()
+{
+    // FIXME implement
+}
+
+void
+QuartzDbManager::open_tables(QuartzRevisionNumber revision)
+{
+    // FIXME implement
+}
+
+QuartzRevisionNumber
+QuartzDbManager::get_revision_number() const
 {
 }
 

@@ -57,25 +57,38 @@
 //                 If this is a relative path, it is taken to be relative
 //                 to the quartz_dir directory.
 //
+// quartz_perform_recovery - Boolean.  If true, and the database needs a
+//                 recovery step to be performed, and the database is not
+//                 being opened readonly, a recovery step will be performed
+//                 before opening the database.  If false, and the database
+//                 is not being opened readonly, and a recovery step needs to
+//                 be performed, an OmNeedRecoveryError exception will be
+//                 thrown.  If this is true, partially applied modifications
+//                 will be thrown away silently - a typical usage would be
+//                 to open the database with this false, catch any
+//                 OmNeedRecoveryError exceptions, and give a warning message
+//                 before reopening with this true.  A recovery step does
+//                 not need to be performed before readonly access to the
+//                 database is allowed.
+//
 QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 	: modifications(0),
-	  log(0),
 	  use_transactions(false),
 	  readonly(true)
 {
-    use_transactions = settings.get_bool("quartz_use_transactions",
-					       false);
-
+    // Read parameters
+    string db_dir  = settings.get("quartz_dir");
+    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
     string log_filename = settings.get("quartz_modification_log", "");
-    if (!readonly) {
-	log = new QuartzLog(log_filename);
-    }
+    use_transactions = settings.get_bool("quartz_use_transactions", false);
+    bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
 
-    {
-	auto_ptr<QuartzDbManager> temp(
-	    new QuartzDbManager(settings, use_transactions, readonly));
-	db_manager = temp;
-    }
+    // Open database manager
+    db_manager = new QuartzDbManager(db_dir,
+				     tmp_dir,
+				     log_filename,
+				     readonly,
+				     perform_recovery);
 }
 
 QuartzDatabase::~QuartzDatabase()
@@ -99,9 +112,11 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 	throw OmInvalidOperationError("Cannot begin a modification session: "
 				      "database opened readonly.");
     }
-    auto_ptr<QuartzModifications> temp(
-	new QuartzModifications(db_manager.get(), log));
-    modifications = temp;
+    {
+	auto_ptr<QuartzModifications> temp(
+		new QuartzModifications(db_manager.get()));
+	modifications = temp;
+    }
 }
 
 void
@@ -132,6 +147,9 @@ void
 QuartzDatabase::do_begin_transaction()
 {
     OmLockSentry sentry(quartz_mutex);
+    if (!use_transactions) {
+	throw OmInvalidOperationError("Database is not opened with transaction support.");
+    }
 
     // Start a new modifications object, which must be able to
     // work while there's a quiescent other modificaitons object.

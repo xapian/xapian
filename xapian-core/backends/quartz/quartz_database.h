@@ -44,15 +44,11 @@ class QuartzDatabase : public IRDatabase {
 
 	/** Pointer to database manager.
 	 */
-	auto_ptr<QuartzDbManager> db_manager;
+	RefCntPtr<QuartzDbManager> db_manager;
 
 	/** Pointer to database modifications.
 	 */
 	auto_ptr<QuartzModifications> modifications;
-
-	/** Pointer to object to log modifications.
-	 */
-	RefCntPtr<QuartzLog> log;
 
 	/** Flag saying whether we're using transactions or not.
 	 */

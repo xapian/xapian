@@ -47,7 +47,7 @@ QuartzDbTable::~QuartzDbTable()
 QuartzRevisionNumber
 QuartzDbTable::get_revision_number() const
 {
-    return QuartzRevisionNumber(revision);
+    return revision;
 }
 
 quartz_tablesize_t
@@ -101,37 +101,45 @@ QuartzDbTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 }
 
 bool
-QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
+QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+			   QuartzRevisionNumber new_revision)
 {
     if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
 
-    /// FIXME: replace with calls to martin's code
-    bool modified = false;
-    std::map<QuartzDbKey, QuartzDbTag *>::const_iterator i;
-    for (i = entries.begin(); i != entries.end(); i++) {
-	Assert(!((i->first).value.empty()));
-	std::map<QuartzDbKey, QuartzDbTag>::iterator j = data.find(i->first);
-	if (i->second == 0) {
-	    // delete j
-	    if (j != data.end()) {
-		data.erase(j);
-		modified = true;
-	    }
-	} else {
-	    if (j == data.end()) {
-		data.insert(make_pair(i->first, *(i->second)));
-		modified = true;
+    // FIXME: replace with calls to martin's code
+    {
+	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator i;
+	for (i = entries.begin(); i != entries.end(); i++) {
+	    Assert(!((i->first).value.empty()));
+	    std::map<QuartzDbKey, QuartzDbTag>::iterator j;
+	    j = data.find(i->first);
+	    if (i->second == 0) {
+		// delete j
+		if (j != data.end()) {
+		    data.erase(j);
+		}
 	    } else {
-		if ((j->second).value != (*(i->second)).value) {
-		    j->second = *(i->second);
-		    modified = true;
+		if (j == data.end()) {
+		    data.insert(make_pair(i->first, *(i->second)));
+		} else {
+		    if ((j->second).value != (*(i->second)).value) {
+			j->second = *(i->second);
+		    }
 		}
 	    }
 	}
+
+	revision = new_revision;
     }
 
-    if (modified) revision++;
-
     return true;
+}
+
+bool
+QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
+{
+    QuartzRevisionNumber new_revision(revision);
+    new_revision.increment();
+    set_entries(entries, new_revision);
 }
 

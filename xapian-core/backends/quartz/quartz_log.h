@@ -30,7 +30,7 @@
 
 /** Class managing a logfile for quartz.
  */
-class QuartzLog : public RefCntBase {
+class QuartzLog {
     private:
 	/// Copying not allowed
 	QuartzLog(const QuartzLog &);

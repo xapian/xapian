@@ -42,13 +42,13 @@ struct QuartzDbTag {
 	 *  to grow without bound in normal usage.
 	 *
 	 *  Tags which are null strings _are_ valid, and are different from a
-	 *  tag simply not being in the database.
+	 *  tag simply not being in the table.
 	 */
 	string value;
 };
 
 
-/** The key used to access a block of data in a quartz database.
+/** The key used to access a block of data in a quartz table.
  */
 struct QuartzDbKey {
     public:
@@ -99,10 +99,23 @@ class QuartzRevisionNumber {
 	QuartzRevisionNumber(quartz_revision_number_t value_)
 		: value(value_) {}
     public:
+	// use standard destructor
+	// ~QuartzRevisionNumber();
+
+	// use standard copy constructor
+	// QuartzRevisionNumber(const QuartzRevisionNumber &);
+
+	// use standard assignment operator
+	// void operator = (const QuartzRevisionNumber &);
 
 	/// Compare two revision numbers
 	bool operator == (QuartzRevisionNumber other) const {
 	    return (value == other.value);
+	}
+
+	/// Increment a revision number
+	void increment() {
+	    ++value;
 	}
 
 	/** Introspection method.
@@ -140,23 +153,41 @@ class QuartzDbTable : public RefCntBase {
 
 	/** The current revision number.
 	 */
-	quartz_revision_number_t revision;
+	QuartzRevisionNumber(revision);
 
-	/** Whether the database is readonly.
+	/** Whether the table is readonly.
 	 */
 	bool readonly;
     public:
 	/** Open the table.
 	 *
-	 *  @param - whether to open the table for read only access.
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param revision_      - revision number to open.
 	 */
-	QuartzDbTable(bool readonly_);
+	QuartzDbTable(string path_,
+		      bool readonly_,
+		      QuartzRevisionNumber revision_);
+
+	/** Open the latest revision of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 */
+	QuartzDbTable(string path_,
+		      bool readonly_);
 
 	/** Close the table.
 	 */
 	~QuartzDbTable();
 
 	/** Get an object holding the revision number of this table.
+	 *
+	 *  This returns the revision number that this table is currently
+	 *  opened with (it is possible that there are other, more recent or
+	 *  older revisions available).
 	 *
 	 *  See the documentation for the QuartzRevisionNumber class for
 	 *  an explanation of why the actual revision number may not be
@@ -210,27 +241,36 @@ class QuartzDbTable : public RefCntBase {
 	 */
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
 
+	//@{
 	/** Modify the entries in the table.
 	 *
-	 *  Each key / tag pair is added to the database.
+	 *  Each key / tag pair is added to the table.
 	 *
-	 *  If the key already exists in the database, the existing tag
+	 *  If the key already exists in the table, the existing tag
 	 *  is replaced by the supplied one.
 	 *
 	 *  If an entry is specified with a null pointer for the tag, then
-	 *  the entry will be removed from the database if it exists.  If
+	 *  the entry will be removed from the table, if it exists.  If
 	 *  it does not exist, no action will be taken.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
 	 *  by a return value of false.  The table will be left in an
 	 *  unmodified state.
 	 *
-	 *  @param entries   The key / tag pairs to store in the table.
+	 *  @param entries       The key / tag pairs to store in the table.
+	 *  @param new_revision  If specified, the new revision number to
+	 *          store.  This must be greater than the current revision
+	 *          number, or undefined behaviour will result.  If not
+	 *          specified, the new revision number will be the current
+	 *          one plus 1.
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
 	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries);
+	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+			 QuartzRevisionNumber new_revision);
+	//@}
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_TABLE_H */

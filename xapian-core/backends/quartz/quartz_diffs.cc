@@ -1,4 +1,4 @@
-/* quartz_db_diffs.cc: Diffs made to a given quartz database
+/* quartz_diffs.cc: Diffs made to a given quartz database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -22,10 +22,10 @@
 
 #include "config.h"
 
-#include "quartz_db_diffs.h"
+#include "quartz_diffs.h"
 
 QuartzDbTag *
-QuartzDbDiffs::get_tag(const QuartzDbKey &key)
+QuartzDiffs::get_tag(const QuartzDbKey &key)
 {
     if (changed_entries.have_entry(key)) {
 	return changed_entries.get_tag(key);
@@ -47,11 +47,12 @@ QuartzDbDiffs::get_tag(const QuartzDbKey &key)
 }
 
 bool
-QuartzDbDiffs::apply()
+QuartzDiffs::apply(QuartzRevisionNumber new_revision)
 {
     bool result;
     try {
-	result = table->set_entries(changed_entries.get_all_entries());
+	result = table->set_entries(changed_entries.get_all_entries(),
+				    new_revision);
     } catch (...) {
 	changed_entries.clear();
 	throw;
@@ -61,15 +62,15 @@ QuartzDbDiffs::apply()
 }
 
 void
-QuartzPostListDbDiffs::add_posting(om_termname tname,
-				   om_docid did,
-				   om_termcount wdf)
+QuartzPostListDiffs::add_posting(om_termname tname,
+				 om_docid did,
+				 om_termcount wdf)
 {
 }
 
 
 void
-QuartzPositionListDbDiffs::add_positionlist(om_docid did,
+QuartzPositionListDiffs::add_positionlist(om_docid did,
 	om_termname tname,
 	OmDocumentTerm::term_positions positions)
 {

@@ -1,3 +1,9 @@
+Tue Sep 19 20:47:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Various modifications to Quartz.  Work towards making sure that
+	  consistent revisions get opened, and that recovery is performed
+	  when needed.
+
 Tue Sep 19 19:13:02 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OmNeedRecoveryError, to signal that a database needs a
