@@ -161,6 +161,10 @@ HtmlParser::parse_html(const string &body)
 			}
 		       
 			if (name.size()) {
+			    // convert parameter name to lowercase
+			    string::iterator i;
+			    for (i = name.begin(); i != name.end(); i++)
+				*i = tolower(*i);
 			    // in case of multiple entries, use the first
 			    // (as Netscape does)
 			    if (Param.find(name) == Param.end())
