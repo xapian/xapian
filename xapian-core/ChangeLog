@@ -1,3 +1,8 @@
+Fri Nov 24 14:14:58 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add parameter check to network databases to ensure that supplied
+	  timeouts are positive.
+
 Fri Nov 24 13:54:00 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix problem with tcp connections: the timeout parameter wasn't

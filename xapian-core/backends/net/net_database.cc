@@ -28,6 +28,7 @@
 #include "progclient.h"
 #include "tcpclient.h"
 #include "omdebug.h"
+#include "utils.h"
 
 #include <om/omerror.h>
 
@@ -44,6 +45,9 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
     }
     std::string type = params.get("remote_type");
     int timeout = params.get_int("remote_timeout", 10000);
+    if (timeout < 0) {
+	throw OmInvalidArgumentError("Negative timeout (" + om_tostring(timeout) + ")not valid.");
+    }
     if (type == "prog") {
 	std::string prog = params.get("remote_program");
 	std::vector<std::string> args = params.get_vector("remote_args");
