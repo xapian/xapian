@@ -1,3 +1,7 @@
+Tue Dec 21 13:26:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.html: Improved wording.
+
 Tue Dec 21 13:03:06 GMT 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Updated to reflect extra jobs which cvs-tag-release now
