@@ -17,9 +17,9 @@ PERLTESTS =
 endif
 
 if HAVE_CPP_ACCESS_BYPASS
-INTERNAL_TEST_CFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+INTERNALTEST_CFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
 else
-INTERNAL_TEST_CFLAGS =
+INTERNALTEST_CFLAGS =
 endif
 
 ## Test programs to be run
@@ -35,15 +35,16 @@ includetest_SOURCES = includetest.cc
 apitest_SOURCES = apitest.cc
 apitest_LDADD = ../libomus.la ../testsuite/libtest.la
 
-internaltest_SOURCES = internaltest.cc
-internaltest_LDADD = ../libomus.la ../testsuite/libtest.la
-internaltest_CFLAGS = $(INTERNALTEST_CFLAGS)
-
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la
 
-## Test data:
+internaltest_SOURCES = internaltest.cc
+internaltest_LDADD = ../libomus.la ../testsuite/libtest.la
+## Note: the next variable is not understood by automake:
+## we supply our own rule in this file.
+internaltest_CFLAGS = $(INTERNALTEST_CFLAGS)
 
+## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
              testdata/apitest_simpledata.txt \
              testdata/apitest_simpledata2.txt \
@@ -86,3 +87,27 @@ includetest.cc:
 	@for header in $(ALL_INCLUDES) ; do echo $$header ; done | \
 	grep -v sleepy | sed 's/\(.*\)/#include "\1"/' > $@
 	@echo 'int main() { return 0; }' >> $@
+
+## Compile internaltest with the extra CFLAGS
+## We have to provide our own rule, because automake doesn't
+## actually understand CFLAGS, and we know of no other way
+## to pass special flags to the compilation of one target.
+internaltest.o: internaltest.cc
+	@echo 'Compiling $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp $(internaltest_CFLAGS) -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+
+internaltest.lo: internaltest.cc
+	@echo 'Compiling $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp $(internaltest_CFLAGS) -c $<
+	@-sed -e 's/^\([^:]*\)\.o[      ]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp

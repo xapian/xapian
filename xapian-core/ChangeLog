@@ -1,3 +1,8 @@
+Thu May 11 17:05:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add rule so that internaltest will compile with special CFLAGS,
+	  to ignore access control.
+
 Thu May 11 16:40:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make OmRefCntBase::ref_count mutable, and ref_increment() and
