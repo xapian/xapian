@@ -1,3 +1,8 @@
+Mon Apr 15 11:18:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated HACKING to say that automake 1.5 is required, and note that
+	  automake 1.6.1 is better than 1.6.
+
 Sat Apr 13 20:35:51 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Fixed stemtest getopt usage so it works again.
@@ -9,7 +14,7 @@ Sat Apr 13 20:20:52 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 Fri Apr 12 16:24:06 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.
-	
+
 Fri Apr 12 12:11:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* omtcpsrv: Namespace fixes.
@@ -18,7 +23,7 @@ Fri Apr 12 12:25:42 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fixed everything to use getopt rather than icky handparsing of
 	  options.
-	  
+
 Fri Apr 12 11:26:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed delve - it's going to be an example program.
@@ -70,7 +75,7 @@ Tue Apr  9 19:02:09 BST 2002  Richard Boulton <richard@tartarus.org>
 
 Tue Apr 09 17:50:44 BST 2002  Olly Betts <olly@survex.com>
 
-	* Removed stray bit of debug code. 
+	* Removed stray bit of debug code.
 
 Tue Apr 09 17:05:09 BST 2002  Olly Betts <olly@survex.com>
 
@@ -164,14 +169,14 @@ Fri Jan 11 15:40:50 GMT 2002  Sam Liddicott <sam@ananova.com>
 	  trouble redefining it for those versions...  But we'll see about
 	  that when/if it happens.
 
-	  It seems to work fine here on some DB's which I had to stop growing 
+	  It seems to work fine here on some DB's which I had to stop growing
 	  cos they got too big; I'm now past the 2G boundry with no problems
 
 	  I guess we should still add overflow detection for 2^31 blocks.
 	  Ideas?
 
 	  I need some help on the btreetest.cc as I haven't yet worked out
-          what it does; so while I've added a test, it doesn't yet test
+	  what it does; so while I've added a test, it doesn't yet test
 	  what it says it does.  I have changed btreetest.cc so you can
 	  tell it where to dump the test DB
 
@@ -220,7 +225,7 @@ Thu Dec 20 10:36:18 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Don't delete internal in ~OmWritableDatabase - ~OmDatabase
 	  does that for us (internal was zeroed after delete, so this
-	  was probably harmless) 
+	  was probably harmless)
 
 	* Tweaked OmEnquire::get_description() and
 	  OmPostListIterator::get_description() to do less - there's a
@@ -262,7 +267,7 @@ Sun Dec 16 17:31:08 GMT 2001  Olly Betts <olly@survex.com>
 
 Sat Dec 15 14:10:32 GMT 2001  Olly Betts <olly@survex.com>
 
-	* Minor update to todo.xml. 
+	* Minor update to todo.xml.
 
 Sat Dec 15 13:43:47 GMT 2001  Olly Betts <olly@survex.com>
 
@@ -442,8 +447,8 @@ Mon Oct 22 10:38:20 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 Fri Jun 22 13:24:59 2001  Sam Liddicott <sam@ananova.com>
 
-        * Added some explicit type casts in xmlindexer and quartz backend
-          to help gcc2.96 compile. 
+	* Added some explicit type casts in xmlindexer and quartz backend
+	  to help gcc2.96 compile.
 
 Thu Jun 21 11:05:31 2001  James Aylett  <tartarus@users.sourceforge.net>
 
@@ -460,19 +465,19 @@ Mon Jun 11 13:24:43 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 Mon Jun 11 12:07:00 2001  Hein Ragas <hragas@users.sourceforge.net>
 
-        * Modified QuartzWritableDatabase::do_add_document and
-          QuartzWritableDatabase::do_replace_document to leave the PositionList
-          empty for a term with no positions associated with it.
+	* Modified QuartzWritableDatabase::do_add_document and
+	  QuartzWritableDatabase::do_replace_document to leave the PositionList
+	  empty for a term with no positions associated with it.
 
 Mon May 29 12:17:00 2001  Hein Ragas <hragas@users.sourceforge.net>
 
-        * Modified QuartzPostList::add_entry to allow for adding of entries
-          in the middle of the postlist, not only at the end.
+	* Modified QuartzPostList::add_entry to allow for adding of entries
+	  in the middle of the postlist, not only at the end.
 
 Mon May 28 12:00:00 2001  Hein Ragas <hragas@users.sourceforge.net>
 
-        * Fixed a bug in replace_document for Quartz, added a test to
-          ensure proper working of the fix.
+	* Fixed a bug in replace_document for Quartz, added a test to
+	  ensure proper working of the fix.
 
 Fri Apr 27 15:16:10 2001  James Aylett  <tartarus@users.sourceforge.net>
 
@@ -482,7 +487,7 @@ Wed Apr 11 09:06:37 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Implemented deleting of items from postlists, and added some
 	  tests to check that it works properly.
-	
+
 	* Fixed a potential memory leak in QuartzPostList if an exception
 	  was thrown from the constructor.
 
@@ -528,7 +533,7 @@ Wed Mar 28 17:15:22 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 	  The same effect as was obtained by setting isbool can be
 	  obtained by setting the match_weighting_scheme parameter to
 	  bool.
-	  
+
 	* Also, undefined queries may no longer be used when
 	  building up composite queries; the correct behaviour for this
 	  is hard to define and implement and harder to document, and
@@ -558,11 +563,11 @@ Wed Mar 28 15:05:46 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fixes to InMemoryDatabase:
 	  do_open_post_list returns an EmptyPostList rather than an
-	  	assertion error if the term doesn't exist
+		assertion error if the term doesn't exist
 	  Fixed doccount(), which wasn't decrementing on delete_doc()
 	  Remove terms from the database when they have no more postings.
 	  Implement collection frequencies, and run collfreq tests for
-	  	inmemory.
+		inmemory.
 
 Wed Mar 28 14:24:38 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 
@@ -571,7 +576,7 @@ Wed Mar 28 14:24:38 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 
 Wed Mar 28 10:25:35 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
-	* QuartzDatabase now implements replace_document(), and 
+	* QuartzDatabase now implements replace_document(), and
 	  delete_document() now removes keys/attributes as well.
 	  However, postlist entries are not yet correctly removed,
 	  so this will cause problems.
@@ -748,7 +753,7 @@ Wed Feb 28 18:42:47 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 Wed Feb 28 14:23:11 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
-	* Merge common code from OmSocketLineBuf::wait_for_data() and 
+	* Merge common code from OmSocketLineBuf::wait_for_data() and
 	  OmSocketLineBuf::do_readline() into
 	  OmSocketLineBuf::attempt_to_read(), and thus fix bug in
 	  wait_for_data() when 0 bytes returned from read().
@@ -869,7 +874,7 @@ Wed Feb 21 14:33:50 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Use a deque<> directly instead of a queue, due to conflict
 	  with Solaris headers.
-	
+
 	* Split the collect_doc loop into a seperate function
 
 	* SocketClient should be more robust against request_doc() being
@@ -890,7 +895,7 @@ Mon Feb 19 13:52:23 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 	* Added new test collapsekey2 designed to work with muscat36
 	  databases, which have different key handling.  Added two new
 	  categories of tests to cope with this.
-	
+
 	* Adjusted BackendManager's key generation, and updated
 	  test_specialchars1() accordingly.
 
@@ -919,7 +924,7 @@ Thu Feb 15 19:05:24 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 	  idle, rather than actually servicing a request from the client.
 	  Options --idle-timeout and --active-timeout added to omtcpsrv,
 	  and --timeout sets both timeouts.
-	
+
 	* Added a documentation comment or two.
 
 Wed Feb 14 18:43:00 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
@@ -966,10 +971,10 @@ Thu Feb  8 17:00:02 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Quartz now has a metafile which for now has a magic string
 	  and a version number.
-	
+
 	* sys_open_to_read() and delete_file() exported from btree.cc.
 	  The latter was renamed to sys_unlink_if_exists().
-	
+
 	* Include btree_types.h from btree_util.h
 
 Wed Feb  7 17:33:00 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
@@ -1149,7 +1154,7 @@ Thu Jan 25 14:51:55 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Hide the internals of OmIndexerDesc, and adding member functions
 	  to do all the necessary operations (not all yet implemented).
-	
+
 	* Indexer internals mostly deal with OmIndexerDesc::Internal
 
 	* Removed '#include <vector>' from omindexerdesc.h
@@ -1199,7 +1204,7 @@ Wed Jan 24 15:11:11 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed OmNodeConnection to OmNodePad.  The old name was
 	  confusing.
-	
+
 	* Added OmPadIterator, and OmNodeDescriptor::{in,out}puts_{begin,end}.
 	  Also implemented OmNodeDescriptor::get_type()
 
@@ -1220,14 +1225,14 @@ Tue Jan 23 19:01:29 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove get_docs() and get_doc() methods from OmEnquire.
 	  get_doc(docid) is catered for by OmDatabase::get_document(docid).
-	  Added OmMSetIterator::get_document() to replace get_doc on a 
+	  Added OmMSetIterator::get_document() to replace get_doc on a
 	  MSetIterator.  Added OmMSet::fetch_items() to replace get_docs():
 	  it prefetches the documents (or just those specified by some
 	  MSetIterators into a cache in the Mset).
 
 	* OmMSet internals now have a reference to the creating OmEnquire
 	  object: this is set up after the mset returns from the matcher.
-	  If the reference is null, the Mset was created standalone, and 
+	  If the reference is null, the Mset was created standalone, and
 	  get_doc methods will fail.
 
 	* OmMSetIterators now have a reference to the MSet, instead of a
@@ -1263,7 +1268,7 @@ Tue Jan 23 15:13:58 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Killed OmIndexerBuilder::NodeType.  Now use OmNodeDescriptor
 	  in its place, getting rid of another vector usage in the API.
-	
+
 	* OmNodeDescriptor adjusted for its new role: internals are
 	  refcounted, and some query as well as setting functions.
 
@@ -1280,7 +1285,7 @@ Fri Jan 19 18:36:15 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Remote/prog arguments now passed in a string separated be spaces,
 	  not a vector.
-	
+
 	* split_words() moved from netutils.h to utils.{h,cc}
 
 	* Some unnecessary #include <vector> lines removed from API headers
@@ -1452,7 +1457,7 @@ Fri Jan 12 14:04:37 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed buglet in configure.in which produced a bogus warning
 	  about regex libraries.
-	
+
 	* Added an AC_MSG_RESULT corresponding to an AC_MSG_CHECKING
 	  for the libxml flags
 
@@ -1483,7 +1488,7 @@ Wed Jan 10 14:28:10 GMT 2001 Olly Betts
 Tue Jan 09 19:03:12 GMT 2001 Olly Betts
 
 	* Tidied up dead code from OmAllTermIterator.
- 
+
 Tue Jan 09 18:41:21 GMT 2001 Olly Betts
 
 	* OmAllTermsIterator merged into OmTermIterator.
@@ -1491,7 +1496,7 @@ Tue Jan 09 18:41:21 GMT 2001 Olly Betts
 	* When iterating over all terms, skip_to() doesn't set at_end()
 	  when it skips off the end.  Fixed except for quartz and added
 	  regression test (allterms3).
- 
+
 Tue Jan  9 18:14:04 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add some extra debugging code into btree code in quartz.
@@ -1614,7 +1619,7 @@ Mon Dec 18 15:48:16 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	* Now use [un]pack_string_preserving_order() on postlist keys, so
 	  that we can get at terms in sorted order.  (And get_tname_from_key()
 	  added to separate out the term-unpacking as well as the packing)
-	
+
 	* Enabled test_allterms1 in apitest, but put it in a group of
 	  tests only run for inmemory and quartz.  This should be extended
 	  to other backends.
@@ -1671,7 +1676,7 @@ Fri Dec 15 14:59:41 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	  valid indefinitely (were only valid until OmPostListIterator was
 	  moved).  This makes them consistent with OmPositionListIterators
 	  retrieved from OmDatabases.
-	  
+
 	* Renamed PostList::get_position_list() to read_position_list.
 	  Added PostList::open_position_list() which opens a new positionlist
 	  and returns it as an AutoPtr.
@@ -1717,7 +1722,7 @@ Thu Dec 14 16:21:27 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	* Removed handling of OmDatabaseModifiedError in the API - it's
 	  up to the users to know what to do.  Disabled quartzoverwrite2
 	  as it's now inappropriate.
-	
+
 	* Added OmDatabase::reopen() to help them do so.
 
 	* Adjusted todo.xml
@@ -1796,11 +1801,11 @@ Wed Dec 13 17:27:17 GMT 2000 Olly Betts
 	* OmMSet is now an STL compatible container.
 
 	* Om*Iterator::difference_type was unsigned - now signed.
-	
+
 	* net/readquery.ll: fixed compiler warning.
-	
+
 	* Remote backend was defaulting to collapse on key 0.
-	
+
 Wed Dec 13 16:48:49 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Add handling of DatabaseModified to OmEnquire::get_mset()
@@ -1838,7 +1843,7 @@ Wed Dec 13 11:49:53 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	  so caused the test to fail spuriously on local databases, since the
 	  terms are stemmed at index time).  The test still fails with da and
 	  db databases.
-	
+
 	* Fixed a problem when stats were unpacked from the network stream,
 	  where term names were not correctly unquoted.  This led to double
 	  quoting of global statistics.
@@ -2003,9 +2008,9 @@ Sun Dec 10 13:29:15 GMT 2000 Olly Betts
 
 	* Started to encapsulate OmESet/OmESetItem interface.  Interface is
 	  close, but currently implementation is exposed in omenquire.h.
-	  
+
 	* apitest wasn't running puncterms1 or spaceterms1 - fixed.
- 
+
 Sun Dec 10 11:34:39 GMT 2000 Olly Betts
 
 	* om/autoptr.h -> autoptr.h in lots of places.
@@ -2027,7 +2032,7 @@ Fri Dec  8 16:44:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	* IndexerBuilder now returns OmIndexer objects instead of
 	  AutoPtr<OmIndexer>.  OmIndexer's internals are reference
 	  counted.
-	
+
 	* Moved autoptr.h from include/om to common/, since it's no
 	  longer used in the API.
 
@@ -2188,12 +2193,12 @@ Tue Dec  5 17:13:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* QuartzDatabase::do_get_document_internal() copes with Btree
 	  overwritten conditions.
-	
+
 	* QuartzDocument methods cope with Btree overwritten conditions
 
 	* New method QuartzTableManager::reopen_tables_because_overwritten()
 	  for helping with the above.
-	
+
 	* New test in quartztest for testing overwritten problems from the
 	  API rather than just internally to Quartz.
 
@@ -2208,7 +2213,7 @@ Tue Dec  5 16:53:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Tue Dec  5 15:41:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Replace OmMSet::docs_considered with
+	* Replace OmMSet::docs_considered with
 	  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more
 	  useful information.
 
@@ -2313,7 +2318,7 @@ Thu Nov 30 18:05:39 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Thu Nov 30 16:41:11 GMT 2000 Olly Betts
 
 	* OmDocument::Internal now knows its OmDatabase.
- 	    
+
 Thu Nov 30 16:40:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add context to network errors thrown from OmSocketLineBuf.
@@ -2345,7 +2350,7 @@ Thu Nov 30 13:23:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Bcursor_create now returns an AutoPtr.  The resultant changes
 	  fixed a memory leak.
-	
+
 	* New exception: OmDatabaseModifiedError.  Thrown when an open
 	  revision of a table is no longer valid due to multiple updates.
 
@@ -2374,7 +2379,7 @@ Wed Nov 29 17:50:03 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Reworked Btree_base::read() a bit so that it's hopefully more
 	  readable.
-	
+
 	* Hopefully fixed a bug when the bitmap approaches 1k.
 
 	* Fix to catch problems re-opening databases after an apply in
