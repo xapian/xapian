@@ -38,26 +38,6 @@ class PostList;
 #include <map>
 #include "autoptr.h"
 
-class SubMatch {
-    public:
-	Database *db;
-	LocalStatsSource statssource;
-	PostList *postlist;
-
-	SubMatch(Database *db_) : db(db_) {
-	    statssource.my_collection_size_is(db->get_doccount());
-	    statssource.my_average_length_is(db->get_avlength());
-	}
-
-	void register_term(const om_termname &tname) {
-	    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
-	}
-
-	void link_to_multi(StatsGatherer *gatherer) {
-	    statssource.connect_to_gatherer(gatherer);
-	}
-};   
-
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
@@ -75,7 +55,8 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 class LocalMatch : public SingleMatch
 {
     private:
-	SubMatch submatch;    
+        Database *database;
+	LocalStatsSource statssource;
 
         int min_weight_percent;
 

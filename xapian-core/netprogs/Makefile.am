@@ -17,3 +17,12 @@ omprogsrv_LDADD = ../testsuite/libtest.la ../libomus.la
 
 omtcpsrv_SOURCES = omtcpsrv.cc
 omtcpsrv_LDADD = ../libomus.la
+
+distclean-local: clean-local
+
+clean-local:
+	@if [ -d .sleepycat ]; then \
+	  echo "removing .sleepycat/"; \
+	  $(RM) -r .sleepycat/* ; rmdir .sleepycat ; \
+	fi
+

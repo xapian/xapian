@@ -12,14 +12,12 @@ SUBDIRS = include testsuite autoconf common \
           backends api matcher languages $(BUILDSUBDIR_REMOTE1) indexer . m4 \
 	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
 
-EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
-             ar-wrapper-solaris
+bin_SCRIPTS=libomus-config
 
-if HAVE_PERL_XML
-dist-hook: todo_dist 
-else
-dist-hook:
-endif
+CLEANFILES=TODO libomus-config
+
+EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
+             ar-wrapper-solaris TODO
 
 lib_LTLIBRARIES = libomus.la
 
@@ -28,13 +26,14 @@ lib_LTLIBRARIES = libomus.la
 libomus_la_SOURCES = dummy.c
 EXTRA_libomus_la_SOURCES =
 
-todo_dist: TODO
-	@echo "Adding TODO to distribution"
-	cp TODO $(distdir)/
-
-TODO: docs/todo2html.pl
+TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml
+if HAVE_PERL_XML
 	@echo "Generating TODO"
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO
+else
+	@echo "Can't generate TODO: need Perl XML module."
+	@exit 1
+endif
 
 acinclude.m4: autoconf/acinclude.m4
 	cp autoconf/acinclude.m4 acinclude.m4
@@ -50,8 +49,6 @@ libomus_la_LIBADD = \
  indexer/libindexer.la \
  api/libapi.la \
  $(LIB_REMOTE1)
-
-bin_SCRIPTS = libomus-config
 
 libomus-config: libomus-config.nodep libomus.la
 	@echo "Creating $@"

@@ -2,6 +2,11 @@
 
 run_prog() {
     preload="../testsuite/malloccheck.so"
+    if test "x$OM_NO_MALLOCCHECK" != "x"
+    then
+        preload=""
+    fi
+    
     if test -r "$preload"
     then
         LD_PRELOAD="$preload"
