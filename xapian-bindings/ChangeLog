@@ -1,3 +1,10 @@
+Fri Dec 10 17:13:52 GMT 2004  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Fixed bytecode compilation of xapian.py.
+	  xapian.pyc was being generated in the same directory
+	  as xapian.py, but Makefile.am was looking in current directory
+	  when installing it.  Additionally, VPATH builds were broken.
+
 Wed Dec 08 16:18:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Fixed typo, bumped date.
