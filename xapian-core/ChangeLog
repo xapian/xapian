@@ -1,3 +1,8 @@
+Mon Dec 17 18:47:08 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Cured problems with string('x') caused by overzealous search
+	  and replace on my part.
+
 Mon Dec 17 16:44:31 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Improved matches_estimated when a percent_cutoff is in effect.

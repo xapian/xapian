@@ -108,7 +108,7 @@ SocketServer::~SocketServer()
 void
 SocketServer::send_local_stats(Stats stats)
 {
-    writeline('L' + stats_to_string(stats));
+    writeline("L" + stats_to_string(stats));
 }
 
 Stats
@@ -224,7 +224,7 @@ SocketServer::run()
 	    throw;
 	} catch (const OmError &e) {
 	    /* Pass the error across the link, and continue. */
-	    writeline(std::string('E') + omerror_to_string(e));
+	    writeline(std::string("E") + omerror_to_string(e));
 	} catch (...) {
 	    /* Do what we can reporting the error, and then propagate
 	     * the exception.
@@ -304,7 +304,7 @@ SocketServer::run_match(const std::string &firstmessage)
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
-    writeline('O' + ommset_to_string(mset));
+    writeline("O" + ommset_to_string(mset));
 
     DEBUGLINE(UNKNOWN, "sent mset...");
 }
@@ -351,7 +351,7 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 	tl++;
     }
 
-    writeline('Z');
+    writeline("Z");
 }
 
 void
@@ -363,7 +363,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     AutoPtr<Document> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
-    writeline('O' + encode_tname(doc->get_data().value));
+    writeline("O" + encode_tname(doc->get_data().value));
 
     std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 
@@ -376,7 +376,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 	++i;
     }
 
-    writeline('Z');
+    writeline("Z");
 }
 
 void
