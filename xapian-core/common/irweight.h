@@ -21,10 +21,10 @@ class IRWeight {
 	bool initialised;
 	mutable bool weight_calculated;
 
-	virtual void calc_termweight() const;
+	virtual void calc_termweight() const = 0;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	virtual ~IRWeight() = 0;
+	virtual ~IRWeight() { return; };
 	virtual void set_stats(const IRDatabase *,
 			       doccount,
 			       termname,
