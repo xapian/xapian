@@ -23,11 +23,14 @@
 #include "config.h"
 #include "multimatch.h"
 #include "match.h"
-#include "networkmatch.h"
 #include "localmatch.h"
 #include "rset.h"
 #include "multi_database.h"
 #include "omdebug.h"
+
+#ifdef MUS_BUILD_BACKEND_NET
+#include "networkmatch.h"
+#endif /* MUS_BUILD_BACKEND_NET */
 
 #include <algorithm>
 
@@ -69,7 +72,11 @@ MultiMatch::make_match_from_database(IRDatabase *db)
      * databases.
      */
     if (db->is_network()) {
+#ifdef MUS_BUILD_BACKEND_NET
 	return OmRefCntPtr<SingleMatch>(new NetworkMatch(db));
+#else /* MUS_BUILD_BACKEND_NET */
+	throw OmUnimplementedError("Network operation is not available");
+#endif /* MUS_BUILD_BACKEND_NET */
     } else {
 	return OmRefCntPtr<SingleMatch>(new LocalMatch(db));
     }

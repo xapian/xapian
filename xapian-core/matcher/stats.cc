@@ -22,8 +22,6 @@
 
 #include "stats.h"
 #include "omdebug.h"
-#include "netserver.h"
-#include "netclient.h"
 
 void
 StatsGatherer::add_child(StatsSource *source) {
@@ -52,6 +50,12 @@ LocalStatsGatherer::get_stats() const
 
     return (&total_stats);
 }
+
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_NET
+
+#include "netserver.h"
+#include "netclient.h"
 
 NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
 	: have_global_stats(false), nserv(nserv_)
@@ -98,14 +102,6 @@ NetworkStatsGatherer::fetch_global_stats() const
     have_global_stats = true;
 }
 
-LocalStatsSource::LocalStatsSource()
-{
-}
-
-LocalStatsSource::~LocalStatsSource()
-{
-}
-
 NetworkStatsSource::NetworkStatsSource(OmRefCntPtr<NetClient> nclient_)
 	: nclient(nclient_),
           have_remote_stats(false)
@@ -128,6 +124,16 @@ NetworkStatsSource::take_remote_stats(Stats stats)
 {
     my_stats = stats;
     have_remote_stats = true;
+}
+
+#endif /* MUS_BUILD_BACKEND_NET */
+
+LocalStatsSource::LocalStatsSource()
+{
+}
+
+LocalStatsSource::~LocalStatsSource()
+{
 }
 
 void

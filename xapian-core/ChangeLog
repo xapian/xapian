@@ -1,3 +1,7 @@
+Wed Jun 28 03:58:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Don't compile network stuff if it's configured off.
+
 Tue Jun 27 17:37:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added ability to get writable databases from database manager.
