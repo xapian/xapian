@@ -356,7 +356,7 @@ run_query()
 	// Fetch one extra result so we know if we've reached the end of the
 	// matches or not - then we can avoid offering a "next" button which
 	// leads to an empty page
-	mset = enquire->get_mset(0, topdoc + hits_per_page + 1, rset, &opt);
+	mset = enquire->get_mset(0, topdoc + std::max(hits_per_page + 1,min_hits), rset, &opt);
     }
 }
 

@@ -50,6 +50,7 @@ extern OmRSet * rset;
 
 extern om_docid topdoc;
 extern om_docid hits_per_page;
+extern om_docid min_hits;
 
 extern int threshold;
 

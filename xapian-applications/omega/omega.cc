@@ -54,6 +54,7 @@ string fmtname = "query";
 
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
+om_docid min_hits = 0;
 
 // percentage cut-off
 int threshold = 0;
@@ -256,6 +257,14 @@ main2(int argc, char *argv[])
     val = cgi_params.find("DAYSMINUS");
     if (val != cgi_params.end()) daysminus = val->second;
     
+    // min_hits (fill mset past topdoc+(hits_per_page+1) to
+    // topdoc+max(hits_per_page+1,min_hits)
+    val = cgi_params.find("MIN_HITS");
+    if (val != cgi_params.end()) {
+	min_hits = atol(val->second.c_str());
+    } else {
+        min_hits=0;
+    }
     rset = new OmRSet();
     string v;
     // get list of terms from previous iteration of query
