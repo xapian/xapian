@@ -1,7 +1,8 @@
 ### Process this file with automake to produce Makefile.in
 
 # Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
-AUTOMAKE_OPTIONS = 1.6.3
+# 1.8.5 contains a lot of fixes over 1.6.3
+AUTOMAKE_OPTIONS = 1.8.5
 
 bin_PROGRAMS = quest delve copydatabase\
 	simpleindex simplesearch simpleexpand
