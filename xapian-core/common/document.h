@@ -32,19 +32,34 @@ class OmData;
 /// A document in the database - holds keys and records
 class LeafDocument : public OmRefCntBase {
     private:
-	// copies are not allowed
+	/// Copies are not allowed.
 	LeafDocument(const LeafDocument &);
+
+	/// Assignment is not allowed.
 	void operator=(const LeafDocument &);
     public:
-	/// Get key by number (>= 0)
+	/** Get key by number (>= 0).
+	 *  Keys are designed to be quickly accessible, for use during the
+	 *  match operation.
+	 */
 	virtual OmKey get_key(om_keyno) const = 0;
 	
-	/// Get data stored in document.
-	/// This can be expensive, and shouldn't normally be used
-	/// in a match decider functor.
+	/** Get data stored in document.
+	 *  This can be expensive, and shouldn't normally be used
+	 *  during the match operation (such as in a match decider functor):
+	 *  use a key instead, if at all possible.
+	 */
 	virtual OmData get_data() const = 0;     
 
+	/** Constructor.  In derived classes, this will typically be a
+	 *  private method, and only be called by database objects of the
+	 *  corresponding type.
+	 */
 	LeafDocument() {};
+
+	/** Destructor.  Note that the database object which created this
+	 *  document must still exist at the time this is called.
+	 */
 	virtual ~LeafDocument() {}
 };
 
