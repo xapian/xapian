@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "ctype.h"
+#include <ctype.h>
+
+#include "getopt.h"
 
 static std::string hex_encode(const std::string & input) {
     const char * table = "0123456789abcdef";
@@ -51,8 +53,6 @@ int
 main(int argc, char *argv[])
 {
     const char *progname = argv[0];
-    argv++;
-    argc--;
  
     std::vector<std::string> tables;
     quartz_revision_number_t revnum = 0;
@@ -62,36 +62,32 @@ main(int argc, char *argv[])
     bool use_endterm = false;
 
     bool syntax_error = false;
-    // FIXME: use getopt()
-    while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "-r") == 0) {
-	    revnum = atoi(argv[1]);
-	    use_revno = true;
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "-s") == 0) {
-	    startterm = argv[1];
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "-e") == 0) {
-	    endterm = argv[1];
-	    use_endterm = true;
-	    argc -= 2;
-	    argv += 2;
-	} else {
-	    syntax_error = true;
-	    break;
-	}
+    int c;
+    while ((c = getopt(argc, argv, "r:s:e:")) != EOF) {
+        switch (c) {
+            case 'r':
+		revnum = atoi(optarg);
+		use_revno = true;
+                break;
+            case 's':
+		startterm = optarg;
+                break;
+	    case 'e':
+		endterm = optarg;
+		use_endterm = true;
+		break;
+            default:
+                syntax_error = true;
+		break;
+        }
     }
 
-    while (argc && *argv[0] != '-') {
-	tables.push_back(*argv);
-	argc--;
-	argv++;
+    while (argv[optind]) {
+	tables.push_back(argv[optind++]);
     }
 
-    if (syntax_error || argc != 0 || tables.empty()) {
-	std::cout << "Syntax:\t" << progname << " <options> <table>...\n"
+    if (syntax_error || tables.empty()) {
+	std::cout << "Syntax: " << progname << " [<options>] <table>...\n"
 		"\t-r <revno>            Specify revision number to open\n"
 		"\t-s <start>            Start at term start\n"
 		"\t-e <end>              End at term end\n";

@@ -1,3 +1,8 @@
+Fri Apr 12 12:25:42 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed everything to use getopt rather than icky handparsing of
+	  options.
+	  
 Fri Apr 12 11:26:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed delve - it's going to be an example program.

@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,8 @@
 #include <typeinfo>
 #include <algorithm>
 #include <strstream.h>
-#include <iomanip.h>
+#include "getopt.h"
+
 #include "database.h"
 #include "database_builder.h"
 #include "om/omerror.h"
@@ -55,57 +56,50 @@ int main(int argc, char *argv[]) {
     
 #endif /* TIMING_PATCH */
     bool syntax_error = false;
-    argv++;
-    argc--;
 
-    // FIXME: use getopt
-    while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
-	    port = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--active-timeout") == 0) {
-	    msecs_active_timeout = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--idle-timeout") == 0) {
-	    msecs_idle_timeout = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--timeout") == 0) {
-	    msecs_idle_timeout = atoi(argv[1]);
-	    msecs_active_timeout = msecs_idle_timeout;
-	    argc -= 2;
-	    argv += 2;
-	} else if (strcmp(argv[0], "--one-shot") == 0) {
-	    one_shot = true;
-	    argc -= 1;
-	    argv += 1;
-	} else if (strcmp(argv[0], "--quiet") == 0) {
-	    verbose = false;
-	    argc -= 1;
-	    argv += 1;
+    struct option opts[] = {
+	{"port",		required_argument, &port, 0},
+	{"active-timeout",	required_argument, &msecs_active_timeout, 0},
+	{"idle-timeout",	required_argument, &msecs_idle_timeout, 0},
+	{"timeout",		required_argument, 0, 't'},
+	{"one-shot",		no_argument, 0, 'o'},
+	{"quiet",		no_argument, 0, 'q'},
 #ifdef TIMING_PATCH
-	} else if (strcmp(argv[0], "--timing") == 0) {
-	    timing = true;
-	    argc -= 1;
-	    argv += 1;
+	{"timing",		no_argument, 0, 'T'},
 #endif /* TIMING_PATCH */
-	} else {
-	    syntax_error = true;
-	    break;
+	{NULL,			0, 0, 0}
+    };
+
+    int c;
+    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+	switch (c) {
+	    case 't':
+		msecs_active_timeout = msecs_idle_timeout = atoi(optarg);
+		break;
+	    case 'o':
+		one_shot = true;
+		break;
+	    case 'q':
+		verbose = false;
+		break;
+#ifdef TIMING_PATCH
+	    case 'T':
+		timing = true;
+		break;
+#endif /* TIMING_PATCH */
+	    default:
+		syntax_error = true;
 	}
     }
 
-    if (syntax_error || argc == 0) {
-	cerr << "Syntax: " << progname << " [OPTIONS]\n"
+    if (syntax_error || argv[optind] == NULL) {
+	cerr << "Syntax: " << progname << " [OPTIONS] DATABASE_DIRECTORY...\n"
 		"\t--port NUM\n"
 		"\t--idle-timeout MSECS\n"
 		"\t--active-timeout MSECS\n"
 		"\t--timeout MSECS\n"
 		"\t--one-shot\n"
-		"\t--quiet\n"
-	        "DATABASE_DIRECTORY..." << endl;
+		"\t--quiet" << endl;
 	exit(1);
     }
     
@@ -115,12 +109,11 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
     
-    while (*argv) {
+    while (argv[optind]) {
 	OmSettings *params = new OmSettings();
 	params->set("backend", "auto");
-	params->set("auto_dir", *argv);
+	params->set("auto_dir", argv[optind++]);
 	dbs.push_back(params);
-	++argv;
     }
 
     if (verbose) cout << "Opening server on port " << port << "..." << endl;

@@ -43,7 +43,7 @@
 #include "allocdata.h"
 #include "alloccommon.h"
 
-/* In some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
+/* On some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
 #ifndef RTLD_DEFAULT
 #define RTLD_DEFAULT (void *)0
 #endif
@@ -435,7 +435,6 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     std::vector<std::string> test_names;
 
     int c;
-    // FIXME: use getopt_long?
     while ((c = getopt(argc, argv, "vo")) != EOF) {
 	switch (c) {
 	    case 'v':

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,71 +21,77 @@
  * -----END-LICENCE-----
  */
 
-// Quick test for the stemming algorithms: bit of a hacked rush job this...
-
-#include <stdio.h>
-#include <ctype.h>  /* for isupper, islower, toupper, tolower */
+#include <ctype.h>
 
 #include <string>
 #include <iostream>
 
 using std::string;
 using std::cout;
+using std::cerr;
 using std::endl;
 
 #include "om/omstem.h"
 
-#define IS_LETTER(ch)  (!isspace(ch))
-
-void stemfile(const OmStem &stemmer, FILE * f)
+static void
+stemfile(const OmStem &stemmer, FILE * f)
 {
-    while(true) {
+    while (true) {
 	int ch = getc(f);
 	if (ch == EOF) return;
-	if (IS_LETTER(ch)) {
-	    std::string word;
-	    while(true) {
-		/* force lower case: */
-		if (isupper(ch)) {
-		    ch = tolower(ch);
-		}
+	if (isspace(ch)) {
+	    putchar(ch);
+	    continue;
+	}
 
-		word += ch;
+	std::string word;
+	while (true) {
+	    word += tolower(ch);
 
-		ch = getc(f);
-		if (ch == EOF) { break; }
-		if (!IS_LETTER(ch)) { ungetc(ch, f); break; }
+	    ch = getc(f);
+	    if (ch == EOF) break;
+	    if (isspace(ch)) {
+		ungetc(ch, f);
+		break;
 	    }
+	}
 
-	    cout << stemmer.stem_word(word);
-	} else putchar(ch);
+	cout << stemmer.stem_word(word);
     }
 }
 
 int main(int argc, char **argv)
 {
     std::string lang = "english";
-    // FIXME: use getopt
-    if(argc > 2) {
-	if(!strcmp(argv[1], "--language")) {
-	    lang = argv[2];
-	    argc -= 2;
-	    argv += 2;
+
+    struct option opts[] = {
+	{"language",	required_argument, 0, 'l'},
+	{NULL,		0, 0, 0}
+    };
+
+    bool syntax_error = false;
+
+    int c;
+    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+	if (c == 'l') {
+	    lang = argv[optind];
+	} else {
+	    syntax_error = true;
 	}
     }
+
     try {
 	OmStem stemmer(lang);
-
-	for (int i = 1; i < argc; i++)
-	{
-	    FILE * f = fopen(argv[i], "r");
-	    if (f == 0) {
-		fprintf(stderr, "File %s not found\n", argv[i]);
+	while (arg[optind]) {
+	    FILE * f = fopen(argv[optind], "r");
+	    if (f == NULL) {
+		cerr << "File " << argv[optind] << " not found\n";
 		exit(1);
 	    }
 	    stemfile(stemmer, f);
+	    ++optind;
 	}
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	cout << e.get_msg() << endl;
 	return 1;
     }
