@@ -1,3 +1,7 @@
+Mon Sep 25 15:11:41 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added omsplitternode and omlistconcatnode
+
 Mon Sep 25 12:05:59 BST 2000 Olly Betts
 
 	* Updated a couple of .cvsignore files.

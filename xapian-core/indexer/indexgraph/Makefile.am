@@ -11,14 +11,20 @@ noinst_LTLIBRARIES = libindexgraph.la
 #
 #nodetest_SOURCES = nodetest.cc
 #
-#nodetest_LDADD = libindexgraph.la ../../libomus.la
-
-INDEXERNODES = omstemmernode.cc
+#nodetest_LDADD = ../../libomus.la
+#
+INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc \
 	do_registration.cc $(INDEXERNODES)
 
 omstemmernode.lo: omstemmernode.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+omsplitternode.lo: omsplitternode.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+omlistconcatnode.lo: omlistconcatnode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 indexergraph.lo: indexergraph.cc
