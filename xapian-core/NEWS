@@ -1,6 +1,14 @@
-Xapian 0.6.5 (2003-0x-xx):
+Xapian 0.6.5 (2003-04-xx):
 
-up to Fri Mar 28 17:47:45 GMT 2003  Olly Betts <olly@survex.com>
+* Improved portability.  Xapian is now much closer to building with Sun's
+  CFront-based Sun Pro C++ compiler, and with a Linux to mingw cross-compiler.
+  Fixed btreetest to build with older compilers lacking <sstream>.
+
+* Fixed to build with debug enabled.
+ 
+* PLATFORMS: Updated with the results of many test builds.
+
+* testsuite: fixed to still work when some backends are disabled.
 
 * Removed bugs/todo.xml, TODO, TODO.release, docs/todo.html, and
   docs/todo-release.html from the distribution.  Bugs and todo items will be
@@ -26,6 +34,8 @@ up to Fri Mar 28 17:47:45 GMT 2003  Olly Betts <olly@survex.com>
 * extra/parsequerytest.cc: Fixed to build with GCC 2.95.
 
 * HACKING: updated.
+
+* Install docs in /usr/share/doc/xapian-core instead of /usr/share/xapian-core.
 
 * omega: If xP and P are both empty, there may be a boolean query, so don't
   force first page of hits.
@@ -66,8 +76,17 @@ up to Fri Mar 28 17:47:45 GMT 2003  Olly Betts <olly@survex.com>
 
 * omega: Added $value{key[,docid]} support to omegascript
 
+* omega: Renamed DATE1, DATE2, and DAYSMINUS to the more meaningful START, END,
+  and SPAN (NB SPAN is days before END, or after START, or before today -
+  whereas SPAN was before *DATE1* or before today).  The old parameters names
+  are supported (with the original semantics) for now.
+
+* omega: Actually install documentation!
+
 * scriptindex.cc: added missing "#include <stdio.h>" which caused builds
   to fail for some platforms.
+
+* Improved RPM packaging of xapian-core and omega.
 
 Xapian 0.6.4 (2002-12-24):
 
