@@ -65,13 +65,14 @@ NetworkDatabase::open(const DatabaseBuilderParams & params) {
     Assert(!opened);
     Assert(params.subdbs.size() == 0);
 
-    if (params.paths.size() != 2) {
+    if (params.paths.size() != 3) {
 	throw OmInvalidArgumentError("Bad arguments for net database");
     }
 
     if (params.paths[0] == "prog") {
-	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1]));
-	assert(link.get() != 0);
+	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1],
+						     params.paths[2]));
+	Assert(link.get() != 0);
 	//initialise_link();
     } else {
 	throw OmUnimplementedError(string("Network database type ") +

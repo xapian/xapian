@@ -39,7 +39,7 @@ class FilterPostList : public AndPostList {
 
 	string intro_term_description() const;
 
-        FilterPostList(PostList *l, PostList *r, LeafMatch *matcher_) :
+        FilterPostList(PostList *l, PostList *r, LocalMatch *matcher_) :
             AndPostList(l, r, matcher_) {};
 };
 

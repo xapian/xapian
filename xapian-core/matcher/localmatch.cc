@@ -1,4 +1,4 @@
-/* leafmatch.cc
+/* localmatch.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -21,7 +21,7 @@
  */
 
 #include "config.h"
-#include "leafmatch.h"
+#include "localmatch.h"
 
 #include "andpostlist.h"
 #include "orpostlist.h"
@@ -85,7 +85,7 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-LeafMatch::LeafMatch(IRDatabase *database_)
+LocalMatch::LocalMatch(IRDatabase *database_)
 	: database(database_),
 	  statsleaf(),
 	  min_weight_percent(-1),
@@ -100,7 +100,7 @@ LeafMatch::LeafMatch(IRDatabase *database_)
 }
 
 void
-LeafMatch::link_to_multi(StatsGatherer *gatherer)
+LocalMatch::link_to_multi(StatsGatherer *gatherer)
 {
     Assert(!is_prepared);
     statsleaf.connect_to_gatherer(gatherer);
@@ -108,13 +108,13 @@ LeafMatch::link_to_multi(StatsGatherer *gatherer)
     statsleaf.my_average_length_is(database->get_avlength());
 }
 
-LeafMatch::~LeafMatch()
+LocalMatch::~LocalMatch()
 {
     del_query_tree();
 }
 
 LeafPostList *
-LeafMatch::mk_postlist(const om_termname& tname, RSet * rset)
+LocalMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     LeafPostList * pl = database->open_post_list(tname);
@@ -129,7 +129,7 @@ LeafMatch::mk_postlist(const om_termname& tname, RSet * rset)
 
 
 void
-LeafMatch::mk_extra_weight()
+LocalMatch::mk_extra_weight()
 {
     if(extra_weight == 0) {
 	extra_weight = mk_weight(1, "", rset);
@@ -137,7 +137,7 @@ LeafMatch::mk_extra_weight()
 }
 
 IRWeight *
-LeafMatch::mk_weight(om_doclength querysize_,
+LocalMatch::mk_weight(om_doclength querysize_,
 		     om_termname tname_,
 		     const RSet * rset_)
 {
@@ -149,7 +149,7 @@ LeafMatch::mk_weight(om_doclength querysize_,
 }
 
 void
-LeafMatch::del_query_tree()
+LocalMatch::del_query_tree()
 {
     delete query;
     query = 0;
@@ -165,7 +165,7 @@ LeafMatch::del_query_tree()
 // Setting query options
 //
 void
-LeafMatch::set_collapse_key(om_keyno key)
+LocalMatch::set_collapse_key(om_keyno key)
 {
     Assert(!is_prepared);
     do_collapse = true;
@@ -173,21 +173,21 @@ LeafMatch::set_collapse_key(om_keyno key)
 }
 
 void
-LeafMatch::set_no_collapse()
+LocalMatch::set_no_collapse()
 {
     Assert(!is_prepared);
     do_collapse = false;
 }
 
 void
-LeafMatch::set_min_weight_percent(int pcent)
+LocalMatch::set_min_weight_percent(int pcent)
 {
     Assert(!is_prepared);
     min_weight_percent = pcent;
 }
 
 void
-LeafMatch::set_rset(RSet *rset_)
+LocalMatch::set_rset(RSet *rset_)
 {
     Assert(!is_prepared);
     Assert(query == NULL);
@@ -196,7 +196,7 @@ LeafMatch::set_rset(RSet *rset_)
 }
 
 void
-LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
+LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
     Assert(!is_prepared);
     Assert(query == NULL);
@@ -209,7 +209,7 @@ LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-LeafMatch::postlist_from_queries(om_queryop op,
+LocalMatch::postlist_from_queries(om_queryop op,
 			       const vector<OmQueryInternal *> &queries)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
@@ -308,7 +308,7 @@ LeafMatch::postlist_from_queries(om_queryop op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-LeafMatch::postlist_from_query(const OmQueryInternal *query_)
+LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 {
     PostList *pl = NULL;
 
@@ -371,7 +371,7 @@ LeafMatch::postlist_from_query(const OmQueryInternal *query_)
 ////////////////////////
 
 void
-LeafMatch::set_query(const OmQueryInternal *query_)
+LocalMatch::set_query(const OmQueryInternal *query_)
 {
     Assert(!is_prepared);
     // Clear existing query
@@ -387,13 +387,13 @@ LeafMatch::set_query(const OmQueryInternal *query_)
 
 /// Build the query tree, if it isn't already built.
 void
-LeafMatch::build_query_tree()
+LocalMatch::build_query_tree()
 {
     if (query == 0) {
 	query = postlist_from_query(&users_query);
     }
 
-    DebugMsg("LeafMatch::query = (" << query->intro_term_description() <<
+    DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
 	     ")" << endl);
 }
 
@@ -404,14 +404,14 @@ LeafMatch::build_query_tree()
 // This method is called by branch postlists when they rebalance
 // in order to recalculate the weights in the tree
 void
-LeafMatch::recalc_maxweight()
+LocalMatch::recalc_maxweight()
 {
     recalculate_maxweight = true;
 }
 
 // Internal method to perform the collapse operation
 inline bool
-LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
+LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
          		  map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
@@ -462,14 +462,14 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
 }
 
 void
-LeafMatch::prepare_match()
+LocalMatch::prepare_match()
 {
     if(!is_prepared) {
-	DebugMsg("LeafMatch::prepare_match() - Building query tree" << endl);
+	DebugMsg("LocalMatch::prepare_match() - Building query tree" << endl);
 	build_query_tree();
 	Assert(query != 0);
 
-	DebugMsg("LeafMatch::prepare_match() - Giving my stats to gatherer" << endl);
+	DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
 	statsleaf.contrib_my_stats();
 
 	is_prepared = true;
@@ -478,7 +478,7 @@ LeafMatch::prepare_match()
 
 // Return the maximum possible weight, calculating it if necessary.
 om_weight
-LeafMatch::get_max_weight()
+LocalMatch::get_max_weight()
 {
     // Check that we have prepared to run the query
     Assert(is_prepared);
@@ -497,7 +497,7 @@ LeafMatch::get_max_weight()
 
 // This is the method which runs the query, generating the M set
 void
-LeafMatch::get_mset(om_doccount first,
+LocalMatch::get_mset(om_doccount first,
 		    om_doccount maxitems,
 		    vector<OmMSetItem> & mset,
 		    mset_cmp cmp,

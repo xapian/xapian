@@ -9,6 +9,11 @@ int main()
 	vector<string> params;
 	params.push_back("prog");
 	params.push_back("./omnetclient");
+	params.push_back("text1.txt");
+	db.add_database("net", params);
+
+	params.pop_back();
+	params.push_back("text2.txt");
 	db.add_database("net", params);
 
 	OmEnquire enq(db);

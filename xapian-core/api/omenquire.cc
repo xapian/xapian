@@ -28,7 +28,7 @@
 #include <om/omenquire.h>
 
 #include "rset.h"
-#include "leafmatch.h"
+#include "localmatch.h"
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"

@@ -60,7 +60,7 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
     return;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right, LeafMatch *matcher_,
+AndPostList::AndPostList(PostList *left, PostList *right, LocalMatch *matcher_,
 			 bool replacement)
 {
     matcher = matcher_;

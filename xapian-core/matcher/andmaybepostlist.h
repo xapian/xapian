@@ -60,7 +60,7 @@ class AndMaybePostList : public BranchPostList { private: om_docid lhead,
 
 	string intro_term_description() const;
 
-        AndMaybePostList(PostList *left, PostList *right, LeafMatch *matcher_,
+        AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_,
 			 om_docid lh = 0, om_docid rh = 0);
 };
 

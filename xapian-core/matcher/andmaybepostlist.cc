@@ -48,7 +48,7 @@ AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 }
 
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   LeafMatch *matcher_,
+				   LocalMatch *matcher_,
 				   om_docid lh, om_docid rh)
 {
     matcher = matcher_;

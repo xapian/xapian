@@ -30,7 +30,7 @@
 #include <set>
 #include "omlocks.h"
 
-class LeafMatch;
+class LocalMatch;
 
 ///////////////////////////////////////////////////////////////////
 // OmQueryInternal class
@@ -38,7 +38,7 @@ class LeafMatch;
 
 /// Internal class, implementing most of OmQuery
 class OmQueryInternal {
-    friend class LeafMatch;
+    friend class LocalMatch;
     public:
     	OmLock mutex;
     private:

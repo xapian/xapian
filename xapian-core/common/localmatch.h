@@ -50,7 +50,7 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
  *  This is the Match class which performs the main calculation: other
  *  Match objects merge or transmit the results of LeafMatch objects.
  */
-class LeafMatch : public SingleMatch
+class LocalMatch : public SingleMatch
 {
     private:
         IRDatabase *database;
@@ -134,11 +134,11 @@ class LeafMatch : public SingleMatch
 			      const LeafDocument *irdoc);
 
 	// disallow copies
-	LeafMatch(const LeafMatch &);
-	void operator=(const LeafMatch &);
+	LocalMatch(const LocalMatch &);
+	void operator=(const LocalMatch &);
     public:
-        LeafMatch(IRDatabase * database_);
-        ~LeafMatch();
+        LocalMatch(IRDatabase * database_);
+        ~LocalMatch();
 
 	///////////////////////////////////////////////////////////////////
 	// Implement these virtual methods 

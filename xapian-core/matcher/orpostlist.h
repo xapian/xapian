@@ -46,7 +46,7 @@ class OrPostList : public BranchPostList {
 
 	string intro_term_description() const;
 
-        OrPostList(PostList * left, PostList * right, LeafMatch * matcher_);
+        OrPostList(PostList * left, PostList * right, LocalMatch * matcher_);
 };
 
 inline om_doccount

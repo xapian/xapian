@@ -65,7 +65,7 @@ class ProgClient : public NetClient {
 	 *
 	 *  @param progname The name of the program to run.
 	 */
-	ProgClient(string progname);
+	ProgClient(string progname, string arg);
 
 	/** Destructor. */
 	~ProgClient();

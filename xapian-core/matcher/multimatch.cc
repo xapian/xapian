@@ -24,7 +24,7 @@
 #include "multimatch.h"
 #include "match.h"
 #include "networkmatch.h"
-#include "leafmatch.h"
+#include "localmatch.h"
 #include "rset.h"
 #include "multi_database.h"
 
@@ -75,7 +75,7 @@ MultiMatch::make_match_from_database(IRDatabase *db)
 	// this is a NetworkDatabase.  Make a NetworkMatch.
 	return auto_ptr<SingleMatch>(new NetworkMatch(db));
     } else {
-	return auto_ptr<SingleMatch>(new LeafMatch(db));
+	return auto_ptr<SingleMatch>(new LocalMatch(db));
     }
 }
 

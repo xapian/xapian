@@ -33,7 +33,7 @@
 #include <cerrno>
 #include <strstream.h>
 
-ProgClient::ProgClient(string progname)
+ProgClient::ProgClient(string progname, string arg)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -68,7 +68,7 @@ ProgClient::ProgClient(string progname)
 	    close(i);
 	}
 
-	execlp(progname.c_str(), progname.c_str(), 0);
+	execlp(progname.c_str(), progname.c_str(), arg.c_str(), 0);
 
 	// if we get here, then execlp failed.
 	/* throwing an exception is a bad idea, since we're

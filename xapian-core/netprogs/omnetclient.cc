@@ -32,22 +32,28 @@
 #include "database_builder.h"
 #include <om/omerror.h>
 #include <om/omenquire.h>
-#include "leafmatch.h"
+#include "localmatch.h"
 #include "omqueryinternal.h"
 #include "readquery.h"
 #include "netutils.h"
 
-void run_matcher();
+void run_matcher(const char *filename);
 
-int main() {
+int main(int argc, char *argv[]) {
     string message;
     getline(cin, message);
     cerr << "omnetclient: read " << message << endl;
     cout << "BOO!" << endl;
     cout.flush();
 
+    if (argc != 2) {
+	cerr << "Wrong number of arguments" << endl;
+	cout << "ERROR" << endl;
+	exit(-1);
+    }
+
     try {
-	run_matcher();
+	run_matcher(argv[1]);
     } catch (OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
@@ -251,15 +257,15 @@ stats_to_string(const Stats &stats)
     return result;
 }
 
-void run_matcher() {
+void run_matcher(const char *filename) {
     // open the database to return results
     DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
-    param.paths.push_back("text.txt");
+    param.paths.push_back(filename);
     auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 
     StatsGatherer statgath;
 
-    LeafMatch leafmatch(db.get());
+    LocalMatch leafmatch(db.get());
     leafmatch.link_to_multi(&statgath);
 
     while (1) {

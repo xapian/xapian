@@ -53,7 +53,7 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 }
 
 AndNotPostList::AndNotPostList(PostList *left, PostList *right,
-			       LeafMatch *matcher_)
+			       LocalMatch *matcher_)
 {    
     matcher = matcher_;
     l = left;
