@@ -1,3 +1,8 @@
+Thu Jun 05 22:17:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.am: Reenable standard warnings apart from the
+	  -Wunused.
+
 Thu Jun 05 20:21:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fixed a couple of problems with the new
