@@ -178,7 +178,8 @@ QuartzDiskTable::open()
 	if (err_num != 0) {
 	    // FIXME: check for errors
 
-	    throw OmOpeningError("Cannot create table `" + path + "'.");
+	    throw OmOpeningError("Cannot create table `" + path + "': " +
+				 om_tostring(err_num) + ", " + strerror(errno));
 	    // FIXME: explain why
 	}
     }

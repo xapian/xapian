@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_BTREE_H
 #define OM_HGUARD_BTREE_H
 
+#include <string>
+
 typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
@@ -86,9 +88,10 @@ struct Btree {
                              use, 0 means free */
     byte * bit_map;       /* the current state of the bit map of blocks */
     byte * base;          /* for writing back as file baseA or baseB */
-    int other_base_letter;/* - and the value 'B' or 'A' of the next base */
-    char * name;          /* buffer that begins with the name of the directory holding the B tree */
-    int name_len;         /* - and the length of the name within the buffer */
+    char other_base_letter;/* - and the value 'B' or 'A' of the next base */
+
+    std::string name;     /* The path name of the B tree */
+
     int seq_count;        /* count of the number of successive instances of purely sequential
                              addition, starting at SEQ_START_POINT (neg) and going up to zero */
     int4 changed_n;       /* the last block to be changed by an addition */

@@ -38,6 +38,7 @@
 #include "btree.h"
 
 #include "omassert.h"
+#include <string>
 
 #define true 1
 #define false 0
@@ -201,25 +202,30 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 static int valid_handle(int h) { return h >= 0; }
 
 static int sys_open_to_read(const char * s)
-{   return open(s, O_RDONLY, 0666);
+{
+    return open(s, O_RDONLY, 0666);
 }
 
 static int sys_open_to_write(const char * s)
-{   return open(s, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+{
+    return open(s, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 }
 
-static int sys_open_for_da(const char * s)
-{   return open(s, O_RDWR, 0666);
+static int sys_open_for_da(const std::string & name)
+{
+    return open(name.c_str(), O_RDWR, 0666);
 }
 
 static int sys_read_block(int h, int m, int4 n, byte * p)
-{   if (lseek(h, (off_t)m * n, SEEK_SET) == -1) return false; /* can't point */
+{
+    if (lseek(h, (off_t)m * n, SEEK_SET) == -1) return false; /* can't point */
     if (read(h, (char *)p, m) != m)             return false; /* can't read */
     return true;
 }
 
 static int sys_write_block(int h, int m, int4 n, byte * p)
-{   if (lseek(h, (off_t)m * n, SEEK_SET) == -1) return false; /* can't point */
+{
+    if (lseek(h, (off_t)m * n, SEEK_SET) == -1) return false; /* can't point */
     if (write(h, (char *)p, m) != m)            return false; /* can't write */
     return true;
 }
@@ -371,9 +377,10 @@ static void write_block(struct Btree * B, int4 n, byte * p)
     if (! B->Btree_modified)
     {   /* following first block write */
         if (B->both_bases)
-        {   sprintf(B->name + B->name_len, "%s%c", "base", B->other_base_letter);
-            if (unlink(B->name) < 0) B->error = BTREE_ERROR_BASE_DELETE;
-                              /* delete the old base */
+        {
+	    /* delete the old base */
+            if (unlink((B->name + "base" + B->other_base_letter).c_str()) < 0)
+		B->error = BTREE_ERROR_BASE_DELETE;
         }
         B->Btree_modified = true;
     }
@@ -1267,83 +1274,69 @@ extern void Btree_full_compaction(struct Btree * B, int parity)
 
 #define B_REVISION2     (B_SIZE - 4)
 
-static byte * read_base(char * s, int name_len, char ch)
+static byte * read_base(const std::string & name, char ch)
 {
-    sprintf(s + name_len, "%s%c", "base", ch);
-    {   int h = sys_open_to_read(s);
-        byte w[2];
-        byte * p;
-        int size;
-        if ( ! valid_handle(h)) return 0;
-        if (! sys_read_bytes(h, 2, w)) { sys_close(h); return 0; }
-        size = GETINT2(w, 0);
-        p = malloc(size);
-        if (p != 0)
-        {   SETINT2(p, 0, size);
-            if (sys_read_bytes(h, size - 2, p + 2) &&
-                get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) return p;
-        }
-        free(p); sys_close(h); return 0;
+    int h = sys_open_to_read((name + "base" + ch).c_str());
+    byte w[2];
+    byte * p;
+    int size;
+    if ( ! valid_handle(h)) return 0;
+    if (! sys_read_bytes(h, 2, w)) { sys_close(h); return 0; }
+    size = GETINT2(w, 0);
+    p = malloc(size);
+    if (p != 0)
+    {   SETINT2(p, 0, size);
+	if (sys_read_bytes(h, size - 2, p + 2) &&
+	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) return p;
     }
+    free(p); sys_close(h); return 0;
 }
 
-static byte * read_bit_map(char * s, int name_len, int ch, int size)
+static byte * read_bit_map(const std::string & name, char ch, int size)
 {
-    sprintf(s + name_len, "%s%c", "bitmap", ch);
-    {
-        byte * p = malloc(size);
-        if (p != 0)
-        {   int h = sys_open_to_read(s);
-            if (valid_handle(h) &&
-                sys_read_bytes(h, size, p) &&
-                sys_close(h)) return p;
-        }
-        free(p); return 0;
+    byte * p = malloc(size);
+    if (p != 0)
+    {   int h = sys_open_to_read((name + "bitmap" + ch).c_str());
+	if (valid_handle(h) &&
+	    sys_read_bytes(h, size, p) &&
+	    sys_close(h)) return p;
     }
+    free(p); return 0;
 }
 
 static int write_bit_map(struct Btree * B)
 {
-    sprintf(B->name + B->name_len, "%s%c", "bitmap", B->other_base_letter);
-    {   int h = sys_open_to_write(B->name);
-        return valid_handle(h) &&
-               sys_write_bytes(h, B->bit_map_size, B->bit_map) &&
-               sys_flush(h) &&
-               sys_close(h);
-    }
+    int h = sys_open_to_write((B->name + "bitmap" + B->other_base_letter).c_str());
+    return valid_handle(h) &&
+	    sys_write_bytes(h, B->bit_map_size, B->bit_map) &&
+	    sys_flush(h) &&
+	    sys_close(h);
 }
 
 static int write_base(struct Btree * B)
 {
-    sprintf(B->name + B->name_len, "%s%c", "base", B->other_base_letter);
-    {   int h = sys_open_to_write(B->name);
-        return valid_handle(h) &&
-               sys_write_bytes(h, GETINT2(B->base, 0), B->base) &&
-               sys_flush(h) &&
-               sys_close(h);
-    }
+    int h = sys_open_to_write((B->name + "base" + B->other_base_letter).c_str());
+    return valid_handle(h) &&
+	    sys_write_bytes(h, GETINT2(B->base, 0), B->base) &&
+	    sys_flush(h) &&
+	    sys_close(h);
 }
 
-static struct Btree * basic_open(const char * name, int revision_supplied, uint4 revision)
+static struct Btree * basic_open(const char * name_,
+				 int revision_supplied,
+				 uint4 revision)
 {
     struct Btree * B = (struct Btree *) calloc(1, sizeof(struct Btree));
 
     int ch = 'X'; /* will be 'A' or 'B' */
 
-    int name_len = strlen(name);
-    char * s;                          /* to keep the name string */
-
     if (B == 0) return 0;              /* couldn't get space for B */
 
-    s = malloc(name_len + 20);         /* sufficient size */
-    if (s == 0) goto no_space;         /* couldn't get space for s */
-    memmove(s, name, name_len);
+    B->name = name_;
 
-    B->name_len = name_len;
-    B->name = s;
-
-    {   byte * baseA = read_base(s, name_len, 'A');
-        byte * baseB = read_base(s, name_len, 'B');
+    {
+	byte * baseA = read_base(B->name, 'A');
+        byte * baseB = read_base(B->name, 'B');
         byte * base;
         byte * other_base;
 
@@ -1403,7 +1396,7 @@ static struct Btree * basic_open(const char * name, int revision_supplied, uint4
 
     B->base_letter = ch;
     B->next_revision = B->revision_number + 1;
-    sprintf(s + name_len, "%s", "DB");
+
     return B;
 no_space:
     Btree_quit(B); return 0;
@@ -1448,10 +1441,10 @@ static struct Btree * open_to_write(const char * name, int revision_supplied, ui
     struct Btree * B = basic_open(name, revision_supplied, revision);
     if (B == 0 || B->error) return B;
 
-    B->handle = sys_open_for_da(B->name);
+    B->handle = sys_open_for_da(B->name + "DB");
     if ( ! valid_handle(B->handle)) { B->error = BTREE_ERROR_DB_OPEN; return B; }
 
-    B->bit_map0 = read_bit_map(B->name, B->name_len, B->base_letter, B->bit_map_size);
+    B->bit_map0 = read_bit_map(B->name, B->base_letter, B->bit_map_size);
     if (B->bit_map0 == 0) { B->error = BTREE_ERROR_BITMAP_READ; return B; }
 
     B->bit_map = (byte *) malloc(B->bit_map_size);
@@ -1499,7 +1492,7 @@ extern void Btree_quit(struct Btree * B)
         free(C[j].split_p);
     }
 
-    free(B->kt); free(B->buffer); free(B->name);
+    free(B->kt); free(B->buffer);
     free(B->bit_map); free(B->bit_map0); free(B->base);
     free(B);
 }
@@ -1576,7 +1569,7 @@ static struct Btree * open_to_read(const char * name, int revision_supplied, uin
     struct Btree * B = basic_open(name, revision_supplied, revision);
     if (B == 0 || B->error) return B;
 
-    B->handle = sys_open_to_read(B->name);
+    B->handle = sys_open_to_read((B->name).c_str());
     if ( ! valid_handle(B->handle)) { B->error = BTREE_ERROR_DB_OPEN; return B; }
     {
         int common_levels = B->revision_number <= 1 ? 1 : 2;
@@ -1849,15 +1842,11 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
 
 /*********** B-tree creating ************/
 
-extern int Btree_create(const char * name, int block_size)
+extern int Btree_create(const char * name_, int block_size)
 {
-    int name_len = strlen(name);
-    char * s = malloc(name_len + 20);  /* sufficient size */
+    std::string name(name_);
     byte * b = 0;
     int error;
-
-    error = BTREE_ERROR_SPACE;
-    if (s == 0) goto end;
 
     error = BTREE_ERROR_BLOCKSIZE;
     if (block_size > BYTE_PAIR_RANGE) goto end; /* block size too large (64K maximum) */
@@ -1867,45 +1856,46 @@ extern int Btree_create(const char * name, int block_size)
 
     /* indeed it will need to be a good bit bigger */
 
-    memmove(s, name, name_len);
-
-    /* write initial values of: */
-
-    {   error = BTREE_ERROR_BITMAP_CREATE;
+    /* write initial values of to files */
+    {
+	/* create the bitmap file */
+	error = BTREE_ERROR_BITMAP_CREATE;
         b = calloc(1, 1);
         if (b == 0) goto end;
         b[0] = 0;  /* set the root block as 'in use' */
-        sprintf(s + name_len, "%s", "bitmapA");   /* the bitmap file */
-        {   int h = sys_open_to_write(s);
+        {
+	    int h = sys_open_to_write((name + "bitmapA").c_str());
             if ( ! (valid_handle(h) &&
                     sys_write_bytes(h, 1, b) &&
                     sys_close(h))) goto end;
         }
         free(b);
 
+	/* create the base file */
         error = BTREE_ERROR_BASE_CREATE;
         b = calloc(B_SIZE, 1);
         if (b == 0) goto end;
-        sprintf(s + name_len, "%s", "baseA");     /* the base file */
         SETINT2(b, 0, B_SIZE);
         set_int4(b, B_BLOCK_SIZE, block_size);
         set_int4(b, B_BIT_MAP_SIZE, 1);
-        {   int h = sys_open_to_write(s);
+        {
+	    int h = sys_open_to_write((name + "baseA").c_str());
             if ( ! (valid_handle(h) &&
                     sys_write_bytes(h, B_SIZE, b) &&
                     sys_close(h))) goto end;
         }
 
+	/* create the main file */
         error = BTREE_ERROR_DB_CREATE;
-        sprintf(s + name_len, "%s", "DB");     /* the main file */
-        {   int h = sys_open_to_write(s);      /* - null */
+        {
+	    int h = sys_open_to_write((name + "DB").c_str());      /* - null */
             if ( ! (valid_handle(h) &&
                     sys_close(h))) goto end;
         }
     }
     error = 0;
 end:
-    free(s); free(b); return error;
+    free(b); return error;
 }
 
 /*********** B-tree checking ************/
