@@ -68,7 +68,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 	}
     }
 
-#if 0
+#if 1
     DebugMsg("OmExpandWeight::get_weight("
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
@@ -95,7 +95,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     }
     tw = log(tw);
 
-#if 0
+#if 1
     DebugMsg(" => Term weight = " << tw <<
 	     " Expand weight = " << bits.multiplier * tw << endl);
 #endif
