@@ -65,6 +65,12 @@ class QuartzPositionList : public PositionList {
 
 	/// Advance position by one.
 	void next_internal();
+
+	/// Make a key for accessing the positionlist.
+	static void make_key(om_docid did,
+			     const om_termname & tname,
+			     QuartzDbKey & key);
+
     public:
         /// Default constructor.
         QuartzPositionList() {}
@@ -97,11 +103,6 @@ class QuartzPositionList : public PositionList {
 
         /// True if we're off the end of the list
         bool at_end() const { return is_at_end; }
-
-	/// Make a key for accessing the positionlist.
-	static void make_key(om_docid did,
-			     const om_termname & tname,
-			     QuartzDbKey & key);
 
 	/// Set the position list for the given docid and termname
 	static void set_positionlist(QuartzBufferedTable * table,
