@@ -348,9 +348,9 @@ BackendManager::getwritedb_sleepycat(const std::vector<std::string> &dbnames)
     return do_getwritedb_sleepycat(dbnames, true);
 }
 
-OmWritableDatabase
-BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
-				     bool writable)
+OmDatabase
+BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames,
+				bool writable)
 {
     std::string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
@@ -378,7 +378,41 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 	    // directory was created, so do the indexing.
 	    OmWritableDatabase db(params);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
-	    return db;
+	}
+    }
+    return OmDatabase(params);
+}
+
+OmWritableDatabase
+BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
+				bool writable)
+{
+    std::string parent_dir = ".quartz";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    // add 'w' to distinguish readonly dbs (which can be reused) from
+    // writable ones (which need to be recreated on each use)
+    if (writable) dbdir += 'w';
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if (writable) {
+	// if the database is opened readonly, we can reuse it, but if it's
+	// writable we need to start afresh each time
+	std::string cmd = "rm -fr " + dbdir;
+	system(cmd.c_str());
+    }
+    OmSettings params;
+    params.set("backend", "quartz");
+    params.set("quartz_dir", dbdir);
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    OmWritableDatabase db(params);
+	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
     return OmWritableDatabase(params);
@@ -387,7 +421,7 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 OmDatabase
 BackendManager::getdb_quartz(const std::vector<std::string> &dbnames)
 {
-    return do_getwritedb_quartz(dbnames, false);
+    return do_getdb_quartz(dbnames, false);
 }
 
 OmWritableDatabase

@@ -97,8 +97,12 @@ class BackendManager {
 	OmWritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 
 	/// Do the actual work of creating a quartz database instance.
+	OmDatabase do_getdb_quartz(const std::vector<std::string> &dbnames,
+					   bool writable);
+
+	/// Do the actual work of creating a quartz database instance.
 	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
-						bool writable);
+					   bool writable);
 
 	/// Get a da database instance.
 	OmDatabase getdb_da(const std::vector<std::string> &dbnames);

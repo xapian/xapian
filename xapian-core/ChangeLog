@@ -1,3 +1,8 @@
+Thu Dec  7 18:28:55 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fix to backendmanager which doesn't return writable databases
+	  unnecessarily (which breaks things when there are write locks)
+
 Thu Dec  7 18:25:50 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added test for Quartz write locks
