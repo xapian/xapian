@@ -65,25 +65,8 @@ maintainer-clean-local:
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdatadir)/apidoc
 
-###############
-# Extra rules #
-###############
-
 MAINTAINERCLEANFILES= doxygen_api_conf doxygen_full_conf \
 	code_structure.html todo.html todo-release.html apidoc.ps sourcedoc.ps
-
-code_structure.html: mkdoc.pl
-	$(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@
-
-todo.html: todo2html.pl todo.xml
-	$(PERL) $(srcdir)/todo2html.pl $(srcdir)/todo.xml >$@
-
-todo-release.html: todo2html.pl todo.xml
-	$(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@
-
-#####################
-# Rules for doxygen #
-#####################
 
 .FORCE: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -94,30 +77,86 @@ doxygen_docs: doxygen_source_docs doxygen_api_docs
 doxygen_api_conf: $(top_srcdir)/configure.in
 doxygen_full_conf: $(top_srcdir)/configure.in
 
+# BSD make won't VPATH except for implicit rules it seems, so we check for
+# the situation where this matters and then use find -newer to check the
+# dependencies ourselves!
+
+code_structure.html: mkdoc.pl
+	if test -f "$(srcdir)/code_structure.html" && \
+	   test ! -f code_structure.html && \
+	   test -z "`find $(srcdir)/mkdoc.pl -newer $(srcdir)/code_structure.html -print`" ; then \
+	    echo Not rebuilding code_structure.html despite make with crude VPATH ;\
+	else \
+	    $(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@ ;\
+	fi
+
+todo.html: todo2html.pl todo.xml
+	if test -f "$(srcdir)/todo.html" && test ! -f todo.html && \
+	   test -z "`find $(srcdir)/todo2html.pl $(srcdir)/todo.xml -newer $(srcdir)/todo.html -print`" ; then \
+	    echo Not rebuilding todo.html despite make with crude VPATH ;\
+	else \
+	    $(PERL) $(srcdir)/todo2html.pl $(srcdir)/todo.xml >$@ ;\
+	fi
+
+todo-release.html: todo2html.pl todo.xml
+	if test -f "$(srcdir)/todo-release.html" && \
+	   test ! -f todo-release.html && \
+	   test -z "`find $(srcdir)/todo2html.pl $(srcdir)/todo.xml -newer $(srcdir)/todo-release.html -print`" ; then \
+	    echo Not rebuilding todo-release.html despite make with crude VPATH ;\
+	else \
+	    $(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@ ;\
+	fi
+
 apidoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl \
 		$(srcdir)/doxygen_api_conf.in \
 		$(APIDOC_SRC)
-	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
+	if test -f "$(srcdir)/apidoc/html/index.html" && \
+	   test ! -f "apidoc/html/index.html" && \
+	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_api_header.html_tmpl $(srcdir)/doxygen_api_footer.html_tmpl $(srcdir)/doxygen_api_conf.in $(APIDOC_SRC) -newer $(srcdir)/apidoc/html/index.html -print`" ; then \
+	    echo Not rebuilding apidoc/html/index.html despite make with crude VPATH ;\
+	else \
+	    top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf ;\
+	fi
 
 apidoc.ps: apidoc/html/index.html
-	cd apidoc/latex && make refman.ps
-	mv apidoc/latex/refman.ps apidoc.ps
-
-# We used to do: $(LATEX) "\scrollmode\input" refman.tex
-# doxygen does: latex refman.tex
+	if test -f "$(srcdir)/apidoc/html/index.html" && \
+	   test ! -f "apidoc/html/index.html" && \
+	   test -f "$(srcdir)/apidoc.ps" && test ! -f apidoc.ps && \
+	   test -z "`find $(srcdir)/apidoc/html/index.html -newer $(srcdir)/apidoc.ps -print`" ; then \
+	    echo Not rebuilding apidoc.ps despite make with crude VPATH ;\
+	else \
+	    cd apidoc/latex && make refman.ps ;\
+	    mv apidoc/latex/refman.ps apidoc.ps ;\
+	fi
 
 sourcedoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
 		$(srcdir)/doxygen_full_conf.in \
 		$(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_H_SRC)
-	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf
+	if test -f "$(srcdir)/sourcedoc/html/index.html" && \
+	   test ! -f "sourcedoc/html/index.html" && \
+	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_full_header.html_tmpl $(srcdir)/doxygen_full_footer.html_tmpl $(srcdir)/doxygen_full_conf.in $(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_H_SRC) -newer $(srcdir)/sourcedoc/html/index.html -print`" ; then \
+	    echo Not rebuilding sourcedoc/html/index.html despite make with crude VPATH ;\
+	else \
+	    top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf ;\
+	fi
 
 sourcedoc.ps: sourcedoc/html/index.html
-	cd sourcedoc/latex && make refman.ps
-	mv sourcedoc/latex/refman.ps sourcedoc.ps
+	if test -f "$(srcdir)/sourcedoc/html/index.html" && \
+	   test ! -f "sourcedoc/html/index.html" && \
+	   test -f "$(srcdir)/sourcedoc.ps" && test ! -f sourcedoc.ps && \
+	   test -z "`find $(srcdir)/sourcedoc/html/index.html -newer $(srcdir)/sourcedoc.ps -print`" ; then \
+	    echo Not rebuilding sourcedoc.ps despite make with crude VPATH ;\
+	else \
+	    cd sourcedoc/latex && make refman.ps ;\
+	    mv sourcedoc/latex/refman.ps sourcedoc.ps ;\
+	fi
+
+# We used to do: $(LATEX) "\scrollmode\input" refman.tex
+# doxygen does: latex refman.tex
 
 ##################################
 # Generate images from dia files #

@@ -205,6 +205,12 @@ Here's an incomplete list of things to avoid:
   provides a configure-time include, which may provide a replacement for some
   uses of "include".
 
+* It appears that BSD make only support VPATH for implicit rules (e.g. ".c.o:")
+  - there's certainly a restriction there which is not present in GNU make.
+  In docs/Makefile.am we work around this by checking the dependencies
+  ourselves using find with -newer.  A similar hack can probably be used in
+  other cases where VPATH doesn't work portably.
+
 And lastly a style point - using "@" to suppress outputing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, they can use "make -s" (in
