@@ -5,4 +5,4 @@ AUTOMAKE_OPTIONS = 1.8.5
 EXTRA_DIST = xapian.i xapian-bindings.spec
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php4 java guile tcl8
+DIST_SUBDIRS = python php4 java guile tcl8 csharp

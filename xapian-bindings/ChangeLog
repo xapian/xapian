@@ -1,3 +1,14 @@
+Sat Sep 25 02:51:22 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * configure.ac,Makefile.am,csharp/: Add C sharp bindings, created
+          with SWIG.  Build disabled by default for now, because these are
+          completely untested, and probably need quite a bit of work.  In
+          addition, all the SWIG packages I've found seem to require a
+          patch to work correctly with csharp (various stl_*.i packages are
+          reported missing, creating them with "touch" seems to work, but
+          may break things subtly).  I need to learn C# before I can test
+          these bindings...
+
 Mon Sep 20 15:28:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Version 0.8.3.

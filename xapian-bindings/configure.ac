@@ -42,6 +42,11 @@ AC_ARG_WITH(java,
 AC_ARG_WITH(guile,
   [  --without-guile         disable Guile bindings])
 
+AC_ARG_WITH(csharp,
+  [  --with-csharp           enable CSharp bindings],
+  [with_csharp=$withval],
+  with_csharp=no)
+
 BINDINGS=
 
 if test no != "$with_swig" ; then
@@ -154,6 +159,20 @@ if test no != "$with_swig" ; then
 	dnl BINDINGS="$BINDINGS guile"
     dnl fi
   fi
+
+  if test no != "$with_csharp" ; then
+    AC_PATH_PROG(CSC, mcs, [])
+    if test -n "$CSC" ;  then
+      AC_PATH_PROG(GACUTIL, gacutil, no)
+      if test "x$GACUTIL" = "xno" ; then
+        AC_MSG_ERROR([No gacutil tool found])
+      fi
+      BINDINGS="$BINDINGS csharp"
+    fi
+
+    AC_SUBST(GACUTIL)
+    AC_SUBST(CSC)
+  fi
 fi
 
 if test no != "$with_java" ; then
@@ -197,5 +216,6 @@ AC_CONFIG_FILES([Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
  tcl8/Makefile
+ csharp/Makefile
  xapian-bindings.spec])
 AC_OUTPUT
