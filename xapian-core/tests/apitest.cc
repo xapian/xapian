@@ -468,7 +468,7 @@ bool test_nullquery1()
     bool success = false;
     try {
 	OmMSet mymset = do_get_simple_query_mset(OmQuery());
-    } catch (const OmError &) {
+    } catch (const OmInvalidArgumentError &) {
 	success = true;
     }
     return success;
@@ -2183,6 +2183,7 @@ bool test_phrase1()
 /// The tests which use a backend
 test_desc db_tests[] = {
     {"zerodocid", 	   test_zerodocid},
+    {"nullquery1",	   test_nullquery1},
     {"simplequery1",       test_simplequery1},
     {"simplequery2",       test_simplequery2},
     {"simplequery3",       test_simplequery3},
@@ -2228,7 +2229,6 @@ test_desc db_tests[] = {
 test_desc nodb_tests[] = {
     {"trivial",            test_trivial},
     // {"alwaysfail",       test_alwaysfail},
-    {"nullquery1",	   test_nullquery1},
     {"getqterms1",	   test_getqterms1},
     {"boolsubq1",	   test_boolsubq1},
     {"querylen1",	   test_querylen1},

@@ -1,3 +1,9 @@
+Mon Jul  3 17:32:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a bug in apitest - the nullquery1() test was in the wrong
+	  list of tests (it _does_ depend on a backend) and wasn't really
+	  strict enough (so still passed with a void database).
+
 Mon Jul  3 16:04:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* testsuite.cc wasn't compiling with debug disabled.
