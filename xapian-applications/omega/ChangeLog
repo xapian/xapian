@@ -1,3 +1,7 @@
+Wed Mar 02 03:09:52 GMT 2005  Olly Betts <olly@survex.com>
+
+	* COPYING: Put in CVS.
+
 Tue Mar 01 02:09:35 GMT 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc,docs/overview.txt: Extend -M/--mime-type to allow an
