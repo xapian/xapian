@@ -1,3 +1,8 @@
+Mon Sep 20 14:40:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Fixed to actually use AM_CFLAGS and
+	  AM_CXXFLAGS set by configure.
+
 Mon Sep 20 14:25:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* .cvsignore,Makefile.am,createdatabase.cc: Removed createdatabase

@@ -36,6 +36,9 @@ if test yes = "$use_stlport"; then
   LIBS="$STLPORT_LIBS $LIBS"
 fi
 
+AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_CXXFLAGS)
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************

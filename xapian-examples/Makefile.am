@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = 1.6.3
 bin_PROGRAMS = quest delve copydatabase\
 	simpleindex simplesearch simpleexpand
 
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS = @AM_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS = getopt.h
 
