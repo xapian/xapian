@@ -9,7 +9,7 @@
 
 SUFFIXES = .eps .dia .png
 
-HTMLDOCS = index.html intro.html intro_ir.html userman.html \
+HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html porterstem.html quickstart.html quartzdesign.html \
  code_structure.html todo.html todo-release.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html

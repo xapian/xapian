@@ -1,3 +1,8 @@
+Tue Oct 01 12:48:41 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/: renamed intro.html to install.html, and userman.html to
+	  overview.html; changed navbar on index.html. 
+
 Tue Oct 01 12:37:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* bootstrap: fixed adding of directory with xapian.m4 in to
