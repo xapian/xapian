@@ -1,3 +1,8 @@
+Wed Mar 09 15:22:35 GMT 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/index_utils.cc: Fixed ^x to actually decode hex values
+	  correctly.
+
 Tue Mar 08 16:57:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Minor code tidy.
