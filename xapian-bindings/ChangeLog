@@ -1,3 +1,9 @@
+Sun Feb 22 02:41:20 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Added --disable-LANGUAGE options to allow bindings to
+	  be forcibly disabled.  Added (disabled) checks for Guile, as it
+	  looks like support will be resurrected soon.
+
 Tue Jan 13 01:50:27 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Check PHP version is at least 4.0.
