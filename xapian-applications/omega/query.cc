@@ -1517,7 +1517,7 @@ eval(const string &fmt, const vector<string> &param)
 		    ExpandDeciderOmega decider(*omdb);
 
 		    if (!rset->empty()) {
-			eset = enquire->get_eset(howmany, *rset, 0, &decider);
+			eset = enquire->get_eset(howmany, *rset, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
 			OmRSet tmp;
@@ -1530,7 +1530,7 @@ eval(const string &fmt, const vector<string> &param)
 			    if (--c == 0) break;
 			}
 
-			eset = enquire->get_eset(howmany, tmp, 0, &decider);
+			eset = enquire->get_eset(howmany, tmp, &decider);
 		    }
 
 		    OmESetIterator i;

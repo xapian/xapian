@@ -231,10 +231,8 @@ main2(int argc, char *argv[])
 	    OmRSet tmprset;
 	    tmprset.add_document(docid);
 
-	    OmSettings eoptions;
-	    eoptions.set("expand_use_query_terms", false);
 	    ExpandDeciderOmega decider(*omdb);
-	    OmESet eset(enquire->get_eset(6, tmprset, &eoptions, &decider));
+	    OmESet eset(enquire->get_eset(6, tmprset, &decider));
 	    for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;
 		if (more) big_buf += ' ';

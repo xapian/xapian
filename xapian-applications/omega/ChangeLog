@@ -1,3 +1,8 @@
+Thu Nov 28 20:24:08 GMT 2002  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Updated in line with OmEnquire::get_eset() no
+	  longer taking an OmSettings object.
+
 Wed Nov 27 19:02:12 GMT 2002  Olly Betts <olly@survex.com>
 
 	* dbi2omega: Return fields in table order; more efficient;
