@@ -172,8 +172,10 @@ class OmWritableDatabase : public OmDatabase {
 			   const std::vector<std::string> & params);
 
 	/** Destroy this handle on the database.
+	 *
 	 *  If there are no copies of this object remaining, the database
-	 *  will be closed, and if it is locked the lock will be released.
+	 *  will be closed, and if there are any sessions or transactions
+	 *  in progress these will be ended.
 	 */
 	virtual ~OmWritableDatabase();
 
