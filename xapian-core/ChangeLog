@@ -1,3 +1,7 @@
+Fri Mar 30 17:37:24 BST 2001 Olly Betts
+
+	* Added extra/.cvsignore
+
 Fri Mar 30 17:22:13 BST 2001 Olly Betts
 
 	* Disabled allocation checking of new[] and delete[] since some STL
