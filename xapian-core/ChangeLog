@@ -1,3 +1,9 @@
+Wed Nov 03 02:48:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc,net/tcpserver.cc: Use SOCKLEN_T for the type we
+	  need to pass to various socket calls, since HPUX defines socklen_t
+	  yet wants int in those calls.
+
 Wed Nov 03 02:43:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* autoconf/type_socklen_t.m4,matcher/networkmatch.cc,net/: If

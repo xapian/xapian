@@ -129,7 +129,7 @@ int
 TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
-    socklen_t remote_address_size = sizeof(remote_address);
+    SOCKLEN_T remote_address_size = sizeof(remote_address);
     // accept connections
     int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),

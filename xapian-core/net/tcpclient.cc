@@ -112,7 +112,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	}
 
 	int err = 0;
-	socklen_t len = sizeof(err);
+	SOCKLEN_T len = sizeof(err);
 
 	/* On Solaris 5.6, the fourth argument is char *. */
 	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR,
