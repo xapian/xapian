@@ -136,6 +136,53 @@ void writeOMDatabase( const string& database_dir,
     
 }
 
+void writeOMDatabase2( const string& database_dir,
+		      map< string, set<string> >& comment_symbols, 
+		      map< string, set<string> >& comment_words ) {
+  
+  system( ("rm -rf " + database_dir).c_str() );
+  system(("mkdir " + database_dir).c_str());
+
+  OmSettings db_parameters;
+  db_parameters.set("backend", "quartz");
+  db_parameters.set("quartz_dir", database_dir);
+  db_parameters.set("database_create", true);
+  OmWritableDatabase database(db_parameters); // open database 
+    
+  for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
+    string cmt = i->first;
+
+    set<string> symbols = i->second;
+    string symbol_string;
+    for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
+      symbol_string = symbol_string + (*j) + " ";
+    }
+
+    //      cerr << "Looking at comment " << cmt << endl;
+    set<string> W = comment_words[cmt];
+      
+    OmDocument newdocument;
+    int pos = 1;
+
+    for( set<string>::iterator w = W.begin(); w != W.end(); w++ ) {
+      //	cerr << "..." << (*w) << endl;
+	
+      newdocument.add_posting(*w, pos++); 
+    }
+
+    //      cerr << "Symbol string is:  " << symbol_string << endl;
+
+    // put transaction contents in data
+    newdocument.set_data(  symbol_string );
+
+    database.add_document(newdocument);
+
+  }
+    
+    
+}
+
+
 int main(int argc, char *argv[]) {
 
 
@@ -274,7 +321,6 @@ int main(int argc, char *argv[]) {
 
       string file_cmt    = package_path + ".cmt";
       string file_offset = package_path + ".offset";
-      string database_dir= package_path + ".om";
 
       // file may not exist (if it was deleted in repostory at some point)
       {
@@ -415,6 +461,11 @@ int main(int argc, char *argv[]) {
     writeOMDatabase( cvsdata + "/root0/db/mining.om", 
 		     comment_symbols,
 		     comment_words );
+
+
+    writeOMDatabase2( cvsdata + "/root0/db/mining.om2", 
+		     comment_symbols,
+		     comment_symbols );
   
     
   } catch(OmError & error) {

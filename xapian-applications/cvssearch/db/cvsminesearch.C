@@ -19,6 +19,21 @@
 // ($CVSDATA/package is the directory with the quartz database inside)
 //
 
+
+//
+// If no query words are given, then we simply return the functions and classes
+// with their % of occurrence in transactions.  The sleepycat database contains
+// this information already.
+//
+// If something like QFont=> is given with no query words, then we need to find
+// all transactions with a QFont in it.  We can create another omsee database for this purpose
+// that is simply indexed with the symbols instead of comment terms.  Since we only consider
+// rules with one item in the antecedent, we could also easiliy use sleepycat for this purpose
+// also.
+//
+
+
+
 #include <db_cxx.h>
 #include <om/om.h>
 #include <stdio.h>
@@ -169,10 +184,6 @@ void considerRule( int total_commit_transactions, Db& db, string rule_antecedent
     return;
   }
 
-  if ( ant.find("()") != -1 ) {
-    return;
-  }
-
   if ( ant+"()" == con || con+"()" == ant ) {
     return; // not too surprising
   }
@@ -233,6 +244,52 @@ void considerRule( int total_commit_transactions, Db& db, string rule_antecedent
 
 }
 
+void dump_components( Db& db ) {
+  map< int, set<string> > classes;
+  map< int, set<string> > functions;
+  
+  // just iterate through all (K,I) pairs
+
+  Dbc *cursor;
+  db.cursor( NULL, &cursor, 0 );
+  
+  Dbt key;
+  Dbt data;
+  
+  
+  while(  cursor->get( &key, &data, DB_NEXT ) != DB_NOTFOUND ) {
+    string k = (char*)key.get_data();
+    int c = atoi((char*)data.get_data());
+    //    cerr << k << " has count " << c << endl;
+
+    if ( k.find("()") == -1 ) {
+      classes[-c].insert(k);
+    } else {
+      functions[-c].insert(k);
+    }
+  }
+  
+  cursor->close();
+
+  for( map<int, set<string> >::iterator i = classes.begin(); i != classes.end(); i++ ) {
+    int score = -(i->first);
+    set<string> S = i->second;
+    for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+      cerr << *s << " has count " << score << endl;
+    }
+  }
+
+  for( map<int, set<string> >::iterator i = functions.begin(); i != functions.end(); i++ ) {
+    int score = -(i->first);
+    set<string> S = i->second;
+    for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+      cerr << *s << " has count " << score << endl;
+    }
+  }
+
+
+}
+
 int main(int argc, char *argv[]) {
 
   if(argc < 3) {
@@ -277,6 +334,7 @@ int main(int argc, char *argv[]) {
 
   try {
 
+    int total_commit_transactions = 0;
 
     Db db(0,0);
     db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
@@ -286,17 +344,26 @@ int main(int argc, char *argv[]) {
     // ----------------------------------------
     // code which accesses Omsee
     // ----------------------------------------
-    OmDatabase databases;
+    OmDatabase database;
+    OmDatabase database2;
          
     for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
       OmSettings db_parameters;
       db_parameters.set("backend", "quartz");
       db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
-      databases.add_database(db_parameters); // can search multiple databases at once
+      database.add_database(db_parameters); // can search multiple databases at once
+    }
+
+    for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
+      OmSettings db_parameters;
+      db_parameters.set("backend", "quartz");
+      db_parameters.set("quartz_dir", cvsdata+"/"+(*i)+"2");
+      database2.add_database(db_parameters); // can search multiple databases at once
     }
          
     // start an enquire session
-    OmEnquire enquire(databases);
+    OmEnquire enquire(database);
+    OmEnquire enquire2(database2);
          
     vector<om_termname> queryterms;
          
@@ -323,20 +390,46 @@ int main(int argc, char *argv[]) {
       }
     }
     cout << endl;
-         
-    OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
-         
-    //       cerr << "Performing query `" << query.get_description() << "'" << endl;
-         
-    enquire.set_query(query); // copies query object
-         
-    int num_results = 10000000; // = atoi( argv[npos] );
-    assert( num_results > 0 );
-         
+     
+    OmMSet matches;
 
-    OmMSet matches = enquire.get_mset(0, num_results); // get top 10 matches
+    if ( ! queryterms.empty() ) {
+      OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
+      
+      //       cerr << "Performing query `" << query.get_description() << "'" << endl;
+      
+      enquire.set_query(query); // copies query object
+      
+      int num_results = 10000000; // = atoi( argv[npos] );
+
+      matches = enquire.get_mset(0, num_results); // get top 10 matches
          
-    cerr <<  matches.size() << " results found" << endl;
+      cerr <<  matches.size() << " results found" << endl;
+
+    } else {
+      // no query terms, so just use antecedent
+      if ( rule_antecedent == "" ) {
+	dump_components(db);
+	db.close(0);
+	return 0;
+      }
+      
+      vector<om_termname> q;
+      q.push_back(rule_antecedent);
+
+      OmQuery query(OmQuery::OP_AND, q.begin(), q.end());
+      
+      //       cerr << "Performing query `" << query.get_description() << "'" << endl;
+      
+      enquire2.set_query(query); // copies query object
+      
+      int num_results = 10000000; // = atoi( argv[npos] );
+      
+      matches = enquire2.get_mset(0, num_results); // get top 10 matches
+      
+      cerr <<  matches.size() << " results found" << endl;
+      
+    }
 
     list< set<string> > transactions;
 
@@ -360,10 +453,11 @@ int main(int argc, char *argv[]) {
       transactions.push_back( S );
     }
 
-    int total_commit_transactions = 0; // including those without Q
-    ifstream in( (cvsdata +"/root0/db/mining.count").c_str() );
-    in >> total_commit_transactions;
-    in.close();
+    {
+      ifstream in( (cvsdata +"/root0/db/mining.count").c_str() );
+      in >> total_commit_transactions;
+      in.close();
+    }
 
     assert( total_commit_transactions > 0 );
 
