@@ -1,4 +1,4 @@
-/* sleepy_termcache.cc: Term cache for sleepycat database
+/* sleepycat_termcache.cc: Term cache for sleepycat database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -24,14 +24,14 @@
 #include "omdebug.h"
 #include "om/omerror.h"
 #include "om/omtypes.h"
-#include "sleepy_database_internals.h"
-#include "sleepy_termcache.h"
+#include "sleepycat_database_internals.h"
+#include "sleepycat_termcache.h"
 
 // Sleepycat database stuff
 #include <db_cxx.h>
 
 om_termid
-SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
+SleepycatDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 {
     DebugMsg("Looking up term ID for `" << tname <<  "' ...");
     Assert(tname.size() != 0);
@@ -67,7 +67,7 @@ SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 }
 
 om_termname
-SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
+SleepycatDatabaseTermCache::term_id_to_name(om_termid tid) const
 {
     if(tid == 0) throw OmRangeError("Termid 0 not valid");
     DebugMsg("Looking up termname for term ID " << tid << " ...");
@@ -98,7 +98,7 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 }
 
 om_termid
-SleepyDatabaseTermCache::assign_new_termid(const om_termname & tname) const
+SleepycatDatabaseTermCache::assign_new_termid(const om_termname & tname) const
 {
     om_termid tid = term_name_to_id(tname);
     if(tid) return tid;

@@ -1,4 +1,4 @@
-/* sleepy_postlist.cc: Access to postlists stored in sleepycat databases
+/* sleepycat_postlist.cc: Access to postlists stored in sleepycat databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -25,15 +25,15 @@
 #include "om/omtypes.h"
 #include "omdebug.h"
 #include "utils.h"
-#include "sleepy_postlist.h"
-#include "sleepy_database_internals.h"
+#include "sleepycat_postlist.h"
+#include "sleepycat_database_internals.h"
 
 ///////////////
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(om_termid tid_,
-			       SleepyDatabaseInternals * internals_,
+SleepycatPostList::SleepycatPostList(om_termid tid_,
+			       SleepycatDatabaseInternals * internals_,
 			       const om_termname & tname_)
 	: tname(tname_),
 	  mylist(internals_->postlist_db,
@@ -43,31 +43,31 @@ SleepyPostList::SleepyPostList(om_termid tid_,
     mylist.move_to_start();
 }
 
-SleepyPostList::~SleepyPostList()
+SleepycatPostList::~SleepycatPostList()
 {
 }
 
 
 om_doccount
-SleepyPostList::get_termfreq() const
+SleepycatPostList::get_termfreq() const
 {
     return mylist.get_item_count();
 }
 
 om_docid
-SleepyPostList::get_docid() const
+SleepycatPostList::get_docid() const
 {
     return mylist.get_current_item().id;
 }
 
 om_doclength
-SleepyPostList::get_doclength() const
+SleepycatPostList::get_doclength() const
 {
     return mylist.get_current_item().doclength;
 }
 
 om_weight
-SleepyPostList::get_weight() const
+SleepycatPostList::get_weight() const
 {
     Assert(ir_wt != NULL);
 
@@ -81,7 +81,7 @@ SleepyPostList::get_weight() const
 }
 
 om_termcount
-SleepyPostList::get_wdf() const
+SleepycatPostList::get_wdf() const
 {
     om_termcount wdf = mylist.get_current_item().wdf;
     if (wdf == 0) {
@@ -92,34 +92,34 @@ SleepyPostList::get_wdf() const
 }
 
 PositionList *
-SleepyPostList::get_position_list()
+SleepycatPostList::get_position_list()
 {
     mypositions.set_data(mylist.get_current_item().positions);
     return &mypositions;
 }
 
 PostList *
-SleepyPostList::next(om_weight w_min)
+SleepycatPostList::next(om_weight w_min)
 {
     mylist.move_to_next_item();
     return NULL;
 }
 
 PostList *
-SleepyPostList::skip_to(om_docid did, om_weight w_min)
+SleepycatPostList::skip_to(om_docid did, om_weight w_min)
 {
     mylist.skip_to_item(did);
     return NULL;
 }
 
 bool
-SleepyPostList::at_end() const
+SleepycatPostList::at_end() const
 {
     return mylist.at_end();
 }
 
 std::string
-SleepyPostList::intro_term_description() const
+SleepycatPostList::intro_term_description() const
 {
     return tname + ":" + om_tostring(get_termfreq());
 }

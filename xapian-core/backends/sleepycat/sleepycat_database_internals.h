@@ -1,4 +1,4 @@
-/* sleepy_database_internals.h: interface to sleepycat database routines
+/* sleepycat_database_internals.h: interface to sleepycat database routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H
-#define OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H
+#ifndef OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H
+#define OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H
 
 // Sleepycat database stuff
 #include <db_cxx.h>
@@ -31,7 +31,7 @@
  *  This class allows the internals of the sleepycat database (ie,
  *  the sleepycat library includes) to be hidden from view externally.
  */
-class SleepyDatabaseInternals {
+class SleepycatDatabaseInternals {
     private:
 	DbEnv dbenv;
 
@@ -39,10 +39,10 @@ class SleepyDatabaseInternals {
 	bool opened;
 
 	/// Copying not allowed.
-	SleepyDatabaseInternals(const SleepyDatabaseInternals &);
+	SleepycatDatabaseInternals(const SleepycatDatabaseInternals &);
 
 	/// Assignment not allowed.
-	void operator=(const SleepyDatabaseInternals &);
+	void operator=(const SleepycatDatabaseInternals &);
     public:
 	Db *postlist_db;
 	Db *termlist_db;
@@ -52,8 +52,8 @@ class SleepyDatabaseInternals {
 	Db *key_db;
 	Db *stats_db;
 
-	SleepyDatabaseInternals();
-	~SleepyDatabaseInternals();
+	SleepycatDatabaseInternals();
+	~SleepycatDatabaseInternals();
 
 	// open - FIXME - make this into the constructor.
 	void open(const std::string & pathname, bool readonly);
@@ -65,4 +65,4 @@ class SleepyDatabaseInternals {
 	void set_totlength(om_totlength doclength);
 };
 
-#endif /* OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H */
+#endif /* OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H */

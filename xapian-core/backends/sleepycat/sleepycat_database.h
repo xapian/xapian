@@ -1,4 +1,4 @@
-/* sleepy_database.h: C++ class definition for sleepycat access routines
+/* sleepycat_database.h: C++ class definition for sleepycat access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_DATABASE_H
-#define OM_HGUARD_SLEEPY_DATABASE_H
+#ifndef OM_HGUARD_SLEEPYCAT_DATABASE_H
+#define OM_HGUARD_SLEEPYCAT_DATABASE_H
 
 #include <stdlib.h>
 #include <memory>
@@ -29,8 +29,8 @@
 #include "om/omerror.h"
 #include "om/omdocument.h"
 
-class SleepyDatabaseTermCache;
-class SleepyDatabaseInternals;
+class SleepycatDatabaseTermCache;
+class SleepycatDatabaseInternals;
 
 /** A database using the sleepycat database library.
  *  This currently uses the C++ interface, version 2.2.6, but may work
@@ -38,12 +38,12 @@ class SleepyDatabaseInternals;
  *
  *  Sleepycat is available from http://www.sleepycat.com/
  */
-class SleepyDatabase : public IRDatabase {
+class SleepycatDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
-	std::auto_ptr<SleepyDatabaseInternals> internals;
+	std::auto_ptr<SleepycatDatabaseInternals> internals;
 
-	std::auto_ptr<SleepyDatabaseTermCache> termcache;
+	std::auto_ptr<SleepycatDatabaseTermCache> termcache;
 
 	/** Create and open a sleepycat database.
 	 *
@@ -52,7 +52,7 @@ class SleepyDatabase : public IRDatabase {
 	 *  @param params Parameters supplied by the user to specify the
 	 *                location of the database to open.
 	 */
-	SleepyDatabase(const OmSettings &params, bool readonly);
+	SleepycatDatabase(const OmSettings &params, bool readonly);
 
 	/** Make a new entry in a postlist.
 	 *
@@ -114,7 +114,7 @@ class SleepyDatabase : public IRDatabase {
 	//@}
 
     public:
-	~SleepyDatabase();
+	~SleepycatDatabase();
 
 	// Virtual methods of IRDatabase
 	om_doccount  get_doccount() const;
@@ -128,4 +128,4 @@ class SleepyDatabase : public IRDatabase {
 	LeafDocument * open_document(om_docid did) const;
 };
 
-#endif /* OM_HGUARD_SLEEPY_DATABASE_H */
+#endif /* OM_HGUARD_SLEEPYCAT_DATABASE_H */

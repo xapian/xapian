@@ -1,4 +1,4 @@
-/* sleepy_postlist.h: C++ class definition for sleepycat access routines
+/* sleepycat_postlist.h: C++ class definition for sleepycat access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,21 +20,21 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_POSTLIST_H
-#define OM_HGUARD_SLEEPY_POSTLIST_H
+#ifndef OM_HGUARD_SLEEPYCAT_POSTLIST_H
+#define OM_HGUARD_SLEEPYCAT_POSTLIST_H
 
 #include "leafpostlist.h"
 #include <stdlib.h>
 
-class SleepyDatabase;
-class SleepyDatabaseInternals;
-#include "sleepy_list.h"
+class SleepycatDatabase;
+class SleepycatDatabaseInternals;
+#include "sleepycat_list.h"
 #include "inmemory_positionlist.h"
 
 /** A postlist in a sleepycat database.
  */
-class SleepyPostList : public LeafPostList {
-    friend class SleepyDatabase;
+class SleepycatPostList : public LeafPostList {
+    friend class SleepycatDatabase;
     private:
         /** The termname for this postlist: this is used for
 	 *  introspection methods.
@@ -44,14 +44,14 @@ class SleepyPostList : public LeafPostList {
 	/** List object which deals with the low-level list accessing
 	 *  and unpacking.
 	 */
-	SleepyList mylist;
+	SleepycatList mylist;
 
 	/** List of positions of the current term.
 	 *  This list is populated when get_position_list() is called.
 	 */
 	InMemoryPositionList mypositions;
 
-	/** Create a SleepyPostList from the specified internals, and
+	/** Create a SleepycatPostList from the specified internals, and
 	 *  using the specified termid.
 	 *
 	 *  @param tid_        The termid to use to open the postlist.
@@ -59,11 +59,11 @@ class SleepyPostList : public LeafPostList {
 	 *  @param tname_      The termname for this postlist: this is
 	 *                     used for introspection methods.
 	 */
-	SleepyPostList(om_termid tid_,
-		       SleepyDatabaseInternals * internals_,
-		       const om_termname & tname_);
+	SleepycatPostList(om_termid tid_,
+			  SleepycatDatabaseInternals * internals_,
+			  const om_termname & tname_);
     public:
-	~SleepyPostList();
+	~SleepycatPostList();
 
 	om_doccount   get_termfreq() const;// Number of docs indexed by this term
 
@@ -79,4 +79,4 @@ class SleepyPostList : public LeafPostList {
 	std::string intro_term_description() const;
 };
 
-#endif /* OM_HGUARD_SLEEPY_POSTLIST_H */
+#endif /* OM_HGUARD_SLEEPYCAT_POSTLIST_H */

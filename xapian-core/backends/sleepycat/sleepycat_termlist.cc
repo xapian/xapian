@@ -1,4 +1,4 @@
-/* sleepy_termlist.cc: Termlists in sleepycat databases
+/* sleepycat_termlist.cc: Termlists in sleepycat databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -25,16 +25,16 @@
 
 #include "utils.h"
 #include "omdebug.h"
-#include "sleepy_termlist.h"
-#include "sleepy_termcache.h"
-#include "sleepy_database_internals.h"
-#include "sleepy_database.h"
+#include "sleepycat_termlist.h"
+#include "sleepycat_termcache.h"
+#include "sleepycat_database_internals.h"
+#include "sleepycat_database.h"
 #include <stdlib.h>
 
-SleepyTermList::SleepyTermList(om_docid did_,
-			       const SleepyDatabase * database_,
-			       const SleepyDatabaseInternals * internals_,
-			       const SleepyDatabaseTermCache *termcache_)
+SleepycatTermList::SleepycatTermList(om_docid did_,
+			       const SleepycatDatabase * database_,
+			       const SleepycatDatabaseInternals * internals_,
+			       const SleepycatDatabaseTermCache *termcache_)
 	: mylist(internals_->termlist_db,
 		 reinterpret_cast<void *>(&did_),
 		 sizeof(did_),
@@ -47,35 +47,35 @@ SleepyTermList::SleepyTermList(om_docid did_,
     mylist.move_to_start();
 }
 
-SleepyTermList::~SleepyTermList()
+SleepycatTermList::~SleepycatTermList()
 {
 }
 
 om_termcount
-SleepyTermList::get_approx_size() const
+SleepycatTermList::get_approx_size() const
 {
     return mylist.get_item_count();
 }
 
 OmExpandBits
-SleepyTermList::get_weighting() const
+SleepycatTermList::get_weighting() const
 {
     Assert(wt != NULL);
 
-    return wt->get_bits(SleepyTermList::get_wdf(),
+    return wt->get_bits(SleepycatTermList::get_wdf(),
 			doc_len,
-			SleepyTermList::get_termfreq(),
+			SleepycatTermList::get_termfreq(),
 			db_size);
 }
 
 const om_termname
-SleepyTermList::get_termname() const
+SleepycatTermList::get_termname() const
 {
     return termcache->term_id_to_name(mylist.get_current_item().id);
 }
 
 om_termcount
-SleepyTermList::get_wdf() const
+SleepycatTermList::get_wdf() const
 {
     om_termcount wdf = mylist.get_current_item().wdf;
     if(wdf == 0) {
@@ -86,31 +86,31 @@ SleepyTermList::get_wdf() const
 }
 
 om_doccount
-SleepyTermList::get_termfreq() const
+SleepycatTermList::get_termfreq() const
 {
     om_doccount tf = mylist.get_current_item().termfreq;
     if(tf == 0) {
 	DEBUGLINE(DB, "Term frequency not present in termlist - getting from database");
-	tf = database->get_termfreq(SleepyTermList::get_termname());
+	tf = database->get_termfreq(SleepycatTermList::get_termname());
     }
     return tf;
 }
 
 TermList *
-SleepyTermList::next()
+SleepycatTermList::next()
 {
     mylist.move_to_next_item();
     return NULL;
 }
 
 bool
-SleepyTermList::at_end() const
+SleepycatTermList::at_end() const
 {
     return mylist.at_end();
 }
 
 om_doclength
-SleepyTermList::get_doclength() const
+SleepycatTermList::get_doclength() const
 {
     om_doclength doclength = mylist.get_wdfsum();
     return doclength;

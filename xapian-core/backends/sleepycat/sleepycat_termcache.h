@@ -1,4 +1,4 @@
-/* sleepy_termcache.h: C++ class definition for sleepycat access routines
+/* sleepycat_termcache.h: C++ class definition for sleepycat access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,10 +20,10 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_TERMCACHE_H
-#define OM_HGUARD_SLEEPY_TERMCACHE_H
+#ifndef OM_HGUARD_SLEEPYCAT_TERMCACHE_H
+#define OM_HGUARD_SLEEPYCAT_TERMCACHE_H
 
-class SleepyDatabaseInternals;
+class SleepycatDatabaseInternals;
 
 /** Termname to termID mappings.
  *
@@ -32,28 +32,28 @@ class SleepyDatabaseInternals;
  *
  *  Entries are not deleted from the cache until the object is destroyed.
  */
-class SleepyDatabaseTermCache {
+class SleepycatDatabaseTermCache {
     private:
         /** Pointer to the database internals.  These are owned by
-	 *  someone else (typically a SleepyDatabase), so we don't have to
+	 *  someone else (typically a SleepycatDatabase), so we don't have to
 	 *  worry about deleting them.
 	 */
-	SleepyDatabaseInternals * internals;
+	SleepycatDatabaseInternals * internals;
 
 	/// Copying is not allowed.
-	SleepyDatabaseTermCache(const SleepyDatabaseTermCache &);
+	SleepycatDatabaseTermCache(const SleepycatDatabaseTermCache &);
 
 	/// Assignment is not allowed.
-	void operator=(const SleepyDatabaseTermCache &);
+	void operator=(const SleepycatDatabaseTermCache &);
     public:
 	/** Create a term cache, for the database refered to by the
 	 *  supplied internals.
 	 *
 	 *  @param internals_  A pointer to the internals to use.  This is
-	 *                     owned by the caller (so SleepyDatabaseTermCache
+	 *                     owned by the caller (so SleepycatDatabaseTermCache
 	 *                     won't delete it).
 	 */
-	SleepyDatabaseTermCache(SleepyDatabaseInternals *internals_)
+	SleepycatDatabaseTermCache(SleepycatDatabaseInternals *internals_)
 		: internals(internals_) {}
 
 	/** Convert a term ID into a termname.
@@ -100,4 +100,4 @@ class SleepyDatabaseTermCache {
 	om_termid assign_new_termid(const om_termname & tname) const;
 };
 
-#endif /* OM_HGUARD_SLEEPY_TERMCACHE_H */
+#endif /* OM_HGUARD_SLEEPYCAT_TERMCACHE_H */

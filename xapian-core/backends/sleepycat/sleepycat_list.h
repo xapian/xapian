@@ -1,4 +1,4 @@
-/* sleepy_list.h: class definition for sleepycat list access routines
+/* sleepycat_list.h: class definition for sleepycat list access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,18 +20,18 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_LIST_H
-#define OM_HGUARD_SLEEPY_LIST_H
+#ifndef OM_HGUARD_SLEEPYCAT_LIST_H
+#define OM_HGUARD_SLEEPYCAT_LIST_H
 
 #include <om/omtypes.h>
 #include <vector>
 #include <db_cxx.h>
 
-/** An item in a SleepyList.  This might represent either a term in a
+/** An item in a SleepycatList.  This might represent either a term in a
  *  termlist or a document in a postlist.  In either situation, it
  *  represents a term / document combination.
  */
-class SleepyListItem {
+class SleepycatListItem {
     public:
 	/** Able to represent either a document or a term ID.
 	 */
@@ -88,7 +88,7 @@ class SleepyListItem {
 	 */
 	om_doclength doclength;
 
-	/** Create a new SleepyListItem, based on given values.
+	/** Create a new SleepycatListItem, based on given values.
 	 *
 	 *  @param id_        The ID for the entry.
 	 *  @param wdf_       The WDF for the entry (number of occurrences
@@ -101,20 +101,17 @@ class SleepyListItem {
 	 *  @param doclength_ The length of this document (which is the
 	 *                    sum of the wdfs of the terms in the document).
 	 */
-	SleepyListItem(id_type id_,
-		       om_termcount wdf_,
-		       const std::vector<om_termpos> & positions_,
-		       om_doccount termfreq_,
-		       om_doclength doclength_);
+	SleepycatListItem(id_type id_, om_termcount wdf_,
+			  const std::vector<om_termpos> & positions_,
+			  om_doccount termfreq_, om_doclength doclength_);
 
-	/** Create a new SleepyListItem, based on a packed version.
+	/** Create a new SleepycatListItem, based on a packed version.
 	 *
 	 *  @param packed     The packed representation of the item.
 	 *  @param store_termfreq  If true, term frequencies are assumed to
 	 *                         be stored in the packed list.
 	 */
-	SleepyListItem(std::string packed,
-		       bool store_termfreq = true);
+	SleepycatListItem(std::string packed, bool store_termfreq = true);
 
 	/** Return a packed representation of the item, for storing in
 	 *  the file.
@@ -128,7 +125,7 @@ class SleepyListItem {
 /** A list of items which might comprise a termlist or a postlist,
  *  which are stored in a sleepycat database.
  */
-class SleepyList {
+class SleepycatList {
     private:
 	/** The database which the list is held in.
 	 */
@@ -154,11 +151,11 @@ class SleepyList {
 
 	/** Current position of iteration through the list.
 	 */
-	std::vector<SleepyListItem>::const_iterator iteration_position;
+	std::vector<SleepycatListItem>::const_iterator iteration_position;
 
 	/** The items stored in the list.
 	 */
-	std::vector<SleepyListItem> items;
+	std::vector<SleepycatListItem> items;
 
 	/** The sum of the wdfs of the items in the list.
 	 *
@@ -197,7 +194,7 @@ class SleepyList {
 	 *
 	 *  @param newitem The item to be added.
 	 */
-	void make_entry(const SleepyListItem & newitem);
+	void make_entry(const SleepycatListItem & newitem);
 
 	/** Unpack a string representation of this item into the item.
 	 */
@@ -208,10 +205,10 @@ class SleepyList {
 	std::string pack() const;
 
 	/// Copying is not allowed.
-	SleepyList(const SleepyList &);
+	SleepycatList(const SleepycatList &);
 
 	/// Assignment is not allowed.
-	void operator=(const SleepyList &);
+	void operator=(const SleepycatList &);
 
     public:
 	/** A type big enough to represent the number of items which a
@@ -242,11 +239,11 @@ class SleepyList {
 	 *                           the document length for termlists, and
 	 *                           the collection frequency for postlists.
 	 */
-	SleepyList(Db * db_, void * keydata_, size_t keylen_,
-		   bool store_termfreq_ = true,
-		   bool store_wdf_ = true,
-		   bool store_positional_ = true,
-		   bool store_wdfsum_ = true);
+	SleepycatList(Db * db_, void * keydata_, size_t keylen_,
+		      bool store_termfreq_ = true,
+		      bool store_wdf_ = true,
+		      bool store_positional_ = true,
+		      bool store_wdfsum_ = true);
 
 	/** Close the list.
 	 *
@@ -254,7 +251,7 @@ class SleepyList {
 	 *
 	 *  @exception OmDatabaseError may be thrown if flush is called.
 	 */
-	~SleepyList();
+	~SleepycatList();
 
 	/** Get the number of items in the list.
 	 */
@@ -296,7 +293,7 @@ class SleepyList {
 	 *  Like move_to_next_item(), this method must not be called if
 	 *  there are no more items in the list.
 	 */
-	void skip_to_item(SleepyListItem::id_type id);
+	void skip_to_item(SleepycatListItem::id_type id);
 
 	/** Determine whether the iteration has reached the end of the list.
 	 *
@@ -320,7 +317,7 @@ class SleepyList {
 	 *  through the list, and move_to_next_item() has then been called
 	 *  to move to the first item in the list.
 	 */
-	const SleepyListItem & get_current_item() const;
+	const SleepycatListItem & get_current_item() const;
 
 	/** Add an entry to the list.
 	 *
@@ -334,7 +331,7 @@ class SleepyList {
 	 *
 	 *  @param item  The item to add to the list.
 	 */
-	void add_item(const SleepyListItem & newitem);
+	void add_item(const SleepycatListItem & newitem);
 
 	/** Flush the list.  This writes any changes to the list to disk,
 	 *  and unlocks the list.
@@ -345,4 +342,4 @@ class SleepyList {
 	void flush();
 };
 
-#endif /* OM_HGUARD_SLEEPY_LIST_H */
+#endif /* OM_HGUARD_SLEEPYCAT_LIST_H */

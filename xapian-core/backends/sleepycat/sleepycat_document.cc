@@ -1,4 +1,4 @@
-/* sleepy_document.cc: A document in a sleepycat database
+/* sleepycat_document.cc: A document in a sleepycat database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,14 +20,14 @@
  * -----END-LICENCE-----
  */
 
-#include "sleepy_document.h"
+#include "sleepycat_document.h"
 #include <om/omdocument.h>
 #include "utils.h"
 #include "omdebug.h"
 #include <string.h>
 #include <memory>
 
-SleepyDocument::SleepyDocument(Db * document_db_,
+SleepycatDocument::SleepycatDocument(Db * document_db_,
 			       Db * key_db_,
 			       om_docid did_)
 	: document_db(document_db_),
@@ -37,7 +37,7 @@ SleepyDocument::SleepyDocument(Db * document_db_,
 {
 }
 
-SleepyDocument::SleepyDocument(Db * document_db_,
+SleepycatDocument::SleepycatDocument(Db * document_db_,
 			       Db * key_db_,
 			       const OmDocumentContents & document_)
 	: document_db(document_db_),
@@ -77,13 +77,13 @@ SleepyDocument::SleepyDocument(Db * document_db_,
 }
 
 om_docid
-SleepyDocument::get_docid() const
+SleepycatDocument::get_docid() const
 {
     return did;
 }
 
 OmKey
-SleepyDocument::do_get_key(om_keyno keyid) const
+SleepycatDocument::do_get_key(om_keyno keyid) const
 {
     DebugMsg("Looking up key " << keyid << "...");
     if(keys.find(keyid) != keys.end()) {
@@ -124,7 +124,7 @@ SleepyDocument::do_get_key(om_keyno keyid) const
 }
 
 std::map<om_keyno, OmKey>
-SleepyDocument::do_get_all_keys() const
+SleepycatDocument::do_get_all_keys() const
 {
     DebugMsg("Looking up all keys for document " << did << "...");
     Dbc * dbcurs = 0;
@@ -193,7 +193,7 @@ SleepyDocument::do_get_all_keys() const
 }
 
 OmData
-SleepyDocument::do_get_data() const
+SleepycatDocument::do_get_data() const
 {
     if(!have_data) {
 	try {

@@ -1,4 +1,4 @@
-/* sleepy_list.cc: lists of data from a sleepycat database
+/* sleepycat_list.cc: lists of data from a sleepycat database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,7 +23,7 @@
 #include <algorithm>
 
 #include "omdebug.h"
-#include "sleepy_list.h"
+#include "sleepycat_list.h"
 
 // Sleepycat database stuff
 #include <db_cxx.h>
@@ -42,7 +42,7 @@
  */
 
 /// A type which can hold any entry.  FIXME: specialise this.
-typedef SleepyListItem::id_type entry_type;
+typedef SleepycatListItem::id_type entry_type;
 /// A type which can hold a document length.  FIXME: make this portable.
 typedef om_doclength len_type;
 
@@ -71,7 +71,7 @@ static const X readentry(const std::string &packed,
 }
 
 
-SleepyListItem::SleepyListItem(id_type id_,
+SleepycatListItem::SleepycatListItem(id_type id_,
 			       om_termcount wdf_,
 			       const std::vector<om_termpos> & positions_,
 			       om_doccount termfreq_,
@@ -84,7 +84,7 @@ SleepyListItem::SleepyListItem(id_type id_,
 {
 }
 
-SleepyListItem::SleepyListItem(std::string packed,
+SleepycatListItem::SleepycatListItem(std::string packed,
 			       bool store_termfreq)
 	: id(0),
 	  wdf(0),
@@ -110,7 +110,7 @@ SleepyListItem::SleepyListItem(std::string packed,
 
 
 std::string
-SleepyListItem::pack(bool store_termfreq) const
+SleepycatListItem::pack(bool store_termfreq) const
 {
     std::string packed;
     id_type idtemp;
@@ -145,7 +145,7 @@ SleepyListItem::pack(bool store_termfreq) const
 
 
 
-SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
+SleepycatList::SleepycatList(Db * db_, void * keydata_, size_t keylen_,
 		       bool store_termfreq_,
 		       bool store_wdf_,
 		       bool store_positional_,
@@ -194,7 +194,7 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
     }
 }
 
-SleepyList::~SleepyList()
+SleepycatList::~SleepycatList()
 {
     do_flush();
 
@@ -203,20 +203,20 @@ SleepyList::~SleepyList()
     key.set_data(NULL);
 }
 
-SleepyList::itemcount_type
-SleepyList::get_item_count() const
+SleepycatList::itemcount_type
+SleepycatList::get_item_count() const
 {
     return items.size();
 }
 
 om_termcount
-SleepyList::get_wdfsum() const
+SleepycatList::get_wdfsum() const
 {
     return wdfsum;
 }
 
 void
-SleepyList::move_to_start()
+SleepycatList::move_to_start()
 {
     iteration_position = items.begin();
     iteration_in_progress = true;
@@ -224,17 +224,17 @@ SleepyList::move_to_start()
 }
 
 void
-SleepyList::move_to_next_item()
+SleepycatList::move_to_next_item()
 {
     Assert(iteration_in_progress);
     if(iteration_at_start) {
-	DEBUGLINE(DB, "SleepyList[" << this << "]::move_to_next_item() - " <<
+	DEBUGLINE(DB, "SleepycatList[" << this << "]::move_to_next_item() - " <<
 		  "moved to first item, ID=" << iteration_position->id);
 	iteration_at_start = false;
     } else {
 	Assert(!at_end());
 	iteration_position++;
-	DEBUGLINE(DB, "SleepyList[" << this << "]::move_to_next_item() - " <<
+	DEBUGLINE(DB, "SleepycatList[" << this << "]::move_to_next_item() - " <<
 		  "moved to " <<
 		  (at_end() ? "end" :
 		   "item ID=" + om_tostring(iteration_position->id)));
@@ -242,29 +242,29 @@ SleepyList::move_to_next_item()
 }
 
 void
-SleepyList::skip_to_item(SleepyListItem::id_type id)
+SleepycatList::skip_to_item(SleepycatListItem::id_type id)
 {
     Assert(iteration_in_progress);
     iteration_at_start = false;
     while(!at_end() && iteration_position->id < id) {
 	iteration_position++;
-	DEBUGLINE(DB, "SleepyList[" << this << "]::skip_to_item() - advanced");
+	DEBUGLINE(DB, "SleepycatList[" << this << "]::skip_to_item() - advanced");
     }
-    DEBUGLINE(DB, "SleepyList[" << this << "]::skip_to_item() - " <<
+    DEBUGLINE(DB, "SleepycatList[" << this << "]::skip_to_item() - " <<
 	      "skipped to " <<
 		  (at_end() ? "end" :
 		   "item ID=" + om_tostring(iteration_position->id)));
 }
 
 bool
-SleepyList::at_end() const
+SleepycatList::at_end() const
 {
     Assert(iteration_in_progress);
     return(iteration_position == items.end());
 }
 
-const SleepyListItem &
-SleepyList::get_current_item() const
+const SleepycatListItem &
+SleepycatList::get_current_item() const
 {
     Assert(iteration_in_progress);
     Assert(!iteration_at_start);
@@ -273,7 +273,7 @@ SleepyList::get_current_item() const
 }
 
 void
-SleepyList::add_item(const SleepyListItem & newitem)
+SleepycatList::add_item(const SleepycatListItem & newitem)
 {
     iteration_in_progress = false;
     modified_and_locked = true;
@@ -285,7 +285,7 @@ SleepyList::add_item(const SleepyListItem & newitem)
 }
 
 void
-SleepyList::flush()
+SleepycatList::flush()
 {
     do_flush();
 }
@@ -294,22 +294,22 @@ SleepyList::flush()
 // // Private methods //
 // /////////////////////
 
-/// Compare two SleepyListItems by their ID field
-class SleepyListItemLess {
+/// Compare two SleepycatListItems by their ID field
+class SleepycatListItemLess {
     public:
-	int operator() (const SleepyListItem &p1, const SleepyListItem &p2) {
+	int operator() (const SleepycatListItem &p1, const SleepycatListItem &p2) {
 	    return p1.id < p2.id;
 	}
 };
 
 void
-SleepyList::make_entry(const SleepyListItem & newitem)
+SleepycatList::make_entry(const SleepycatListItem & newitem)
 {
-    std::vector<SleepyListItem>::iterator p;
+    std::vector<SleepycatListItem>::iterator p;
     p = std::lower_bound(items.begin(), items.end(),
 			 newitem,
-			 SleepyListItemLess());
-    if(p == items.end() || SleepyListItemLess()(newitem, *p)) {
+			 SleepycatListItemLess());
+    if(p == items.end() || SleepycatListItemLess()(newitem, *p)) {
         // An item with the specified ID is not in list yet - insert new one
 	items.insert(p, newitem);
     } else {
@@ -319,7 +319,7 @@ SleepyList::make_entry(const SleepyListItem & newitem)
 }
 
 void
-SleepyList::unpack(std::string packed)
+SleepycatList::unpack(std::string packed)
 {
     std::string::size_type pos = 0;
     if(store_wdfsum) {
@@ -330,14 +330,14 @@ SleepyList::unpack(std::string packed)
     while(items.size() < number_of_items) {
 	entry_type itemsize = readentry<entry_type>(packed, pos);
 
-	items.push_back(SleepyListItem(packed.substr(pos, itemsize),
+	items.push_back(SleepycatListItem(packed.substr(pos, itemsize),
 				       store_termfreq));
 	pos += itemsize;
     }
 }
 
 std::string
-SleepyList::pack() const
+SleepycatList::pack() const
 {
     std::string packed;
     entry_type temp;
@@ -350,7 +350,7 @@ SleepyList::pack() const
     temp = items.size();
     packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
 
-    std::vector<SleepyListItem>::const_iterator i;
+    std::vector<SleepycatListItem>::const_iterator i;
     for(i = items.begin(); i != items.end(); i++) {
 	std::string packeditem = i->pack(store_termfreq);
 	temp = packeditem.size();
@@ -362,7 +362,7 @@ SleepyList::pack() const
 }
 
 void
-SleepyList::do_flush()
+SleepycatList::do_flush()
 {
     if(modified_and_locked) {
 	// Pack list

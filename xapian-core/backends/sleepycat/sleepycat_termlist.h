@@ -1,4 +1,4 @@
-/* sleepy_termlist.h: C++ class definition for sleepycat access routines
+/* sleepycat_termlist.h: C++ class definition for sleepycat access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,34 +20,34 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_TERMLIST_H
-#define OM_HGUARD_SLEEPY_TERMLIST_H
+#ifndef OM_HGUARD_SLEEPYCAT_TERMLIST_H
+#define OM_HGUARD_SLEEPYCAT_TERMLIST_H
 
 #include "termlist.h"
 #include "om/omtypes.h"
 
-class SleepyDatabase;
-class SleepyDatabaseInternals;
-class SleepyDatabaseTermCache;
-#include "sleepy_list.h"
+class SleepycatDatabase;
+class SleepycatDatabaseInternals;
+class SleepycatDatabaseTermCache;
+#include "sleepycat_list.h"
 
 /** A termlist in a sleepycat database.
  */
-class SleepyTermList : public LeafTermList {
-    friend class SleepyDatabase;
+class SleepycatTermList : public LeafTermList {
+    friend class SleepycatDatabase;
     private:
 	/** List object which deals with the low-level list accessing
 	 *  and unpacking.
 	 */
-	SleepyList mylist;
+	SleepycatList mylist;
 
 	/** Database internals object.
 	 */
-	const SleepyDatabase * database;
+	const SleepycatDatabase * database;
 
 	/** Object to do name to ID mapping.
 	 */
-	const SleepyDatabaseTermCache *termcache;
+	const SleepycatDatabaseTermCache *termcache;
 
 	/** Number of documents in the database.
 	 */
@@ -57,7 +57,7 @@ class SleepyTermList : public LeafTermList {
 	 */
 	om_doclength doc_len;
 
-	/** Create a SleepyPostList from the specified internals and
+	/** Create a SleepycatPostList from the specified internals and
 	 *  term cache, using the specified document ID.
 	 *
 	 *  @param did_        The document ID whose posting list we open.
@@ -65,12 +65,12 @@ class SleepyTermList : public LeafTermList {
 	 *  @param internals_  The database internals to use.
 	 *  @param termcache_  The term name to ID translator.
 	 */
-	SleepyTermList(om_docid did_,
-		       const SleepyDatabase * database_,
-		       const SleepyDatabaseInternals * internals_,
-		       const SleepyDatabaseTermCache *termcache_);
+	SleepycatTermList(om_docid did_,
+			  const SleepycatDatabase * database_,
+			  const SleepycatDatabaseInternals * internals_,
+			  const SleepycatDatabaseTermCache *termcache_);
     public:
-	~SleepyTermList();
+	~SleepycatTermList();
 
 	om_termcount get_approx_size() const;
 
@@ -84,4 +84,4 @@ class SleepyTermList : public LeafTermList {
 	om_doclength      get_doclength() const; // Get length of document.
 };
 
-#endif /* OM_HGUARD_SLEEPY_TERMLIST_H */
+#endif /* OM_HGUARD_SLEEPYCAT_TERMLIST_H */

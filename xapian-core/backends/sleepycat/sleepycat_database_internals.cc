@@ -1,4 +1,4 @@
-/* sleepy_database.cc: interface to sleepycat database routines
+/* sleepycat_database.cc: interface to sleepycat database routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -32,7 +32,7 @@
 
 #include "omdebug.h"
 #include "om/omerror.h"
-#include "sleepy_database_internals.h"
+#include "sleepycat_database_internals.h"
 
 // Standard names of files within database directory
 #define FILENAME_POSTLIST "postlist.db"
@@ -48,7 +48,7 @@ enum {
     RECNUM_TOTALLEN = 2
 };
 
-SleepyDatabaseInternals::SleepyDatabaseInternals()
+SleepycatDatabaseInternals::SleepycatDatabaseInternals()
 	: opened(false),
 	  postlist_db(0),
 	  termlist_db(0),
@@ -60,23 +60,23 @@ SleepyDatabaseInternals::SleepyDatabaseInternals()
 {
 }
 
-SleepyDatabaseInternals::~SleepyDatabaseInternals()
+SleepycatDatabaseInternals::~SleepycatDatabaseInternals()
 {
     close();
 }
 
 void
-SleepyDatabaseInternals::open(const std::string &pathname, bool readonly)
+SleepycatDatabaseInternals::open(const std::string &pathname, bool readonly)
 {
     // Check that pathname is to a valid extant directory
     struct stat buf;
     int err_num = stat(pathname.c_str(), &buf);
     if (err_num != 0) {
-	throw OmOpeningError(std::string("SleepyDatabase: can't stat `") +
+	throw OmOpeningError(std::string("SleepycatDatabase: can't stat `") +
 			     pathname + "'");
     }
     if (!S_ISDIR(buf.st_mode)) {
-	throw OmOpeningError(std::string("SleepyDatabase: `") +
+	throw OmOpeningError(std::string("SleepycatDatabase: `") +
 			     pathname + "' is not a directory.");
     }
 
@@ -125,7 +125,7 @@ SleepyDatabaseInternals::open(const std::string &pathname, bool readonly)
 }
 
 void
-SleepyDatabaseInternals::close()
+SleepycatDatabaseInternals::close()
 {
     try {
 	if(postlist_db) postlist_db->close(0);
@@ -152,7 +152,7 @@ SleepyDatabaseInternals::close()
 }
 
 om_doccount
-SleepyDatabaseInternals::get_doccount() const
+SleepycatDatabaseInternals::get_doccount() const
 {
     const db_recno_t doccount_recnum = RECNUM_DOCCOUNT;
 
@@ -187,7 +187,7 @@ SleepyDatabaseInternals::get_doccount() const
 }
 
 om_totlength
-SleepyDatabaseInternals::get_totlength() const
+SleepycatDatabaseInternals::get_totlength() const
 {
     const db_recno_t doccount_totallen = RECNUM_TOTALLEN;
 
@@ -223,7 +223,7 @@ SleepyDatabaseInternals::get_totlength() const
 
 
 void
-SleepyDatabaseInternals::set_doccount(om_doccount doccount)
+SleepycatDatabaseInternals::set_doccount(om_doccount doccount)
 {
     const db_recno_t doccount_recnum = RECNUM_DOCCOUNT;
 
@@ -248,7 +248,7 @@ SleepyDatabaseInternals::set_doccount(om_doccount doccount)
 }
 
 void
-SleepyDatabaseInternals::set_totlength(om_totlength totlength)
+SleepycatDatabaseInternals::set_totlength(om_totlength totlength)
 {
     const db_recno_t doccount_totallen = RECNUM_TOTALLEN;
 

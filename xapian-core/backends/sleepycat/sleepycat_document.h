@@ -1,4 +1,4 @@
-/* sleepy_document.h: A document in a sleepycat database
+/* sleepycat_document.h: A document in a sleepycat database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_SLEEPY_DOCUMENT_H
-#define OM_HGUARD_SLEEPY_DOCUMENT_H
+#ifndef OM_HGUARD_SLEEPYCAT_DOCUMENT_H
+#define OM_HGUARD_SLEEPYCAT_DOCUMENT_H
 
 #include "document.h"
 #include <db_cxx.h>
@@ -31,8 +31,8 @@
 
 /** A document in a sleepycat Database.
  */
-class SleepyDocument : public LeafDocument {
-    friend class SleepyDatabase;
+class SleepycatDocument : public LeafDocument {
+    friend class SleepycatDatabase;
     private:
 	/** The database in which the document data is held.
 	 */
@@ -64,7 +64,7 @@ class SleepyDocument : public LeafDocument {
 	 */
 	mutable std::map<om_keyno, OmKey> keys;
 
-	/** Constructor: called by SleepyDatabase to read a document
+	/** Constructor: called by SleepycatDatabase to read a document
 	 *
 	 *  @param document_db_  The database to find the document data in.
 	 *  @param key_db_       The database to find the document keys in.
@@ -73,11 +73,11 @@ class SleepyDocument : public LeafDocument {
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepyDocument(Db * document_db_,
+	SleepycatDocument(Db * document_db_,
 		       Db * key_db_,
 		       om_docid did_);
 
-	/** Constructor: called by SleepyDatabase to create a new document
+	/** Constructor: called by SleepycatDatabase to create a new document
 	 *
 	 *  @param document_db_  The database to store the document data in.
 	 *  @param key_db_       The database to store the document keys in.
@@ -86,15 +86,15 @@ class SleepyDocument : public LeafDocument {
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepyDocument(Db * document_db_,
+	SleepycatDocument(Db * document_db_,
 		       Db * key_db_,
 		       const OmDocumentContents & document_);
 
 	/// Copying is not permitted
-	SleepyDocument(const SleepyDocument &);
+	SleepycatDocument(const SleepycatDocument &);
 
 	/// Assignment is not permitted
-	SleepyDocument & operator = (const SleepyDocument &);
+	SleepycatDocument & operator = (const SleepycatDocument &);
     public:
 	/** Return the document ID of this document.
 	 */
@@ -106,4 +106,4 @@ class SleepyDocument : public LeafDocument {
 	OmData do_get_data() const;
 };
 
-#endif /* OM_HGUARD_SLEEPY_DOCUMENT_H */
+#endif /* OM_HGUARD_SLEEPYCAT_DOCUMENT_H */

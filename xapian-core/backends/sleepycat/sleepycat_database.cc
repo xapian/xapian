@@ -1,4 +1,4 @@
-/* sleepy_database.cc: interface to sleepycat database routines
+/* sleepycat_database.cc: interface to sleepycat database routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -35,25 +35,25 @@
 // Sleepycat database stuff
 #include <db_cxx.h>
 
-#include "sleepy_postlist.h"
-#include "sleepy_termlist.h"
-#include "sleepy_database.h"
-#include "sleepy_database_internals.h"
-#include "sleepy_list.h"
-#include "sleepy_document.h"
-#include "sleepy_termcache.h"
+#include "sleepycat_postlist.h"
+#include "sleepycat_termlist.h"
+#include "sleepycat_database.h"
+#include "sleepycat_database_internals.h"
+#include "sleepycat_list.h"
+#include "sleepycat_document.h"
+#include "sleepycat_termcache.h"
 
 #include "om/omerror.h"
 
-SleepyDatabase::SleepyDatabase(const OmSettings &params, bool readonly)
+SleepycatDatabase::SleepycatDatabase(const OmSettings &params, bool readonly)
 {
-    string path = params.get("sleepy_dir");
+    string path = params.get("sleepycat_dir");
 
     // FIXME: misuse of auto_ptr - should be refcnt
-    std::auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
+    std::auto_ptr<SleepycatDatabaseInternals> tempptr1(new SleepycatDatabaseInternals());
     internals = tempptr1;
-    std::auto_ptr<SleepyDatabaseTermCache>
-	tempptr2(new SleepyDatabaseTermCache(internals.get()));
+    std::auto_ptr<SleepycatDatabaseTermCache>
+	tempptr2(new SleepycatDatabaseTermCache(internals.get()));
     termcache = tempptr2;
 
     // Open database with specified path
@@ -61,7 +61,7 @@ SleepyDatabase::SleepyDatabase(const OmSettings &params, bool readonly)
     internals->open(path, readonly);
 }
 
-SleepyDatabase::~SleepyDatabase()
+SleepycatDatabase::~SleepycatDatabase()
 {
     try {
 	internal_end_session();
@@ -82,13 +82,13 @@ SleepyDatabase::~SleepyDatabase()
 }
 
 om_doccount
-SleepyDatabase::get_doccount() const
+SleepycatDatabase::get_doccount() const
 {
     return internals->get_doccount();
 }
 
 om_doclength
-SleepyDatabase::get_avlength() const
+SleepycatDatabase::get_avlength() const
 {
     om_doccount doccount = internals->get_doccount();
     if(doccount == 0) return 0;
@@ -96,15 +96,15 @@ SleepyDatabase::get_avlength() const
 }
 
 om_doclength
-SleepyDatabase::get_doclength(om_docid did) const
+SleepycatDatabase::get_doclength(om_docid did) const
 {
-    std::auto_ptr<SleepyTermList> tl(
-	new SleepyTermList(did, this, internals.get(), termcache.get()));
+    std::auto_ptr<SleepycatTermList> tl(
+	new SleepycatTermList(did, this, internals.get(), termcache.get()));
     return tl->get_doclength();
 }
 
 om_doccount
-SleepyDatabase::get_termfreq(const om_termname &tname) const
+SleepycatDatabase::get_termfreq(const om_termname &tname) const
 {
     if(!term_exists(tname)) return 0;
     PostList *pl = do_open_post_list(tname);
@@ -115,7 +115,7 @@ SleepyDatabase::get_termfreq(const om_termname &tname) const
 }
 
 bool
-SleepyDatabase::term_exists(const om_termname &tname) const
+SleepycatDatabase::term_exists(const om_termname &tname) const
 {
     DEBUGLINE(DB, "termcache->term_name_to_id(tname) = " <<
 	      termcache->term_name_to_id(tname));
@@ -124,84 +124,84 @@ SleepyDatabase::term_exists(const om_termname &tname) const
 }
 
 LeafPostList *
-SleepyDatabase::do_open_post_list(const om_termname & tname) const
+SleepycatDatabase::do_open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
     if(tid == 0) throw OmRangeError("Termid " + om_tostring(tid) +
 				    " not found; can't open postlist");
 
-    return new SleepyPostList(tid, internals.get(), tname);
+    return new SleepycatPostList(tid, internals.get(), tname);
 }
 
 LeafTermList *
-SleepyDatabase::open_term_list(om_docid did) const
+SleepycatDatabase::open_term_list(om_docid did) const
 {
-    return new SleepyTermList(did, this, internals.get(), termcache.get());
+    return new SleepycatTermList(did, this, internals.get(), termcache.get());
 }
 
 LeafDocument *
-SleepyDatabase::open_document(om_docid did) const
+SleepycatDatabase::open_document(om_docid did) const
 {
-    return new SleepyDocument(internals->document_db,
+    return new SleepycatDocument(internals->document_db,
 			      internals->key_db,
 			      did);
 }
 
 void
-SleepyDatabase::do_begin_session(om_timeout timeout)
+SleepycatDatabase::do_begin_session(om_timeout timeout)
 {
 }
 
 void
-SleepyDatabase::do_end_session()
+SleepycatDatabase::do_end_session()
 {
 }
 
 void
-SleepyDatabase::do_flush()
+SleepycatDatabase::do_flush()
 {
 }
 
 void
-SleepyDatabase::do_begin_transaction()
+SleepycatDatabase::do_begin_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for SleepyDatabase");
+    throw OmUnimplementedError("Transactions not implemented for SleepycatDatabase");
 }
 
 void
-SleepyDatabase::do_commit_transaction()
+SleepycatDatabase::do_commit_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for SleepyDatabase");
+    throw OmUnimplementedError("Transactions not implemented for SleepycatDatabase");
 }
 
 void
-SleepyDatabase::do_cancel_transaction()
+SleepycatDatabase::do_cancel_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for SleepyDatabase");
+    throw OmUnimplementedError("Transactions not implemented for SleepycatDatabase");
 }
 
 
 void
-SleepyDatabase::do_delete_document(om_docid did)
+SleepycatDatabase::do_delete_document(om_docid did)
 {
-    throw OmUnimplementedError("SleepyDatabase::do_delete_document() not implemented");  
+    throw OmUnimplementedError("SleepycatDatabase::do_delete_document() not implemented");  
 }
 
 void
-SleepyDatabase::do_replace_document(om_docid did,
+SleepycatDatabase::do_replace_document(om_docid did,
 			 const OmDocumentContents & document)
 {
-    throw OmUnimplementedError("SleepyDatabase::do_replace_document() not implemented");  
+    throw OmUnimplementedError("SleepycatDatabase::do_replace_document() not implemented");  
 }
 
 OmDocumentContents
-SleepyDatabase::do_get_document(om_docid did)
+SleepycatDatabase::do_get_document(om_docid did)
 {
-    throw OmUnimplementedError("SleepyDatabase::do_get_document() not implemented");  
+    throw OmUnimplementedError("SleepycatDatabase::do_get_document() not implemented");  
 }
 
 om_docid
-SleepyDatabase::do_add_document(const struct OmDocumentContents & document)
+SleepycatDatabase::do_add_document(const struct OmDocumentContents & document)
 {
     // Remember whether database was already locked, so we can leave it
     // in the lock state we found it in.
@@ -260,40 +260,40 @@ SleepyDatabase::do_add_document(const struct OmDocumentContents & document)
 }
 
 om_doccount
-SleepyDatabase::add_entry_to_postlist(om_termid tid,
+SleepycatDatabase::add_entry_to_postlist(om_termid tid,
 				      om_docid did,
 				      om_termcount wdf,
 				      const std::vector<om_termpos> & positions,
 				      om_doclength doclength)
 {
 // FIXME: suggest refactoring most of this method into a constructor of
-// SleepyPostList, followed by adding an item to the postlist
-    SleepyList mylist(internals->postlist_db,
+// SleepycatPostList, followed by adding an item to the postlist
+    SleepycatList mylist(internals->postlist_db,
 		      reinterpret_cast<void *>(&tid),
 		      sizeof(tid));
 
     // Term frequency isn't used for postlists: give 0.
-    SleepyListItem myitem(did, wdf, positions, 0, doclength);
+    SleepycatListItem myitem(did, wdf, positions, 0, doclength);
     mylist.add_item(myitem);
 
     return mylist.get_item_count();
 }
 
 om_docid
-SleepyDatabase::make_new_document(const OmDocumentContents & doccontents)
+SleepycatDatabase::make_new_document(const OmDocumentContents & doccontents)
 {
-    SleepyDocument document(internals->document_db,
+    SleepycatDocument document(internals->document_db,
 			    internals->key_db,
 			    doccontents);
     return document.get_docid();
 }
 
 void
-SleepyDatabase::make_new_termlist(om_docid did,
+SleepycatDatabase::make_new_termlist(om_docid did,
 				  const std::map<om_termid, OmDocumentTerm> & terms)
 {
-// FIXME: suggest refactoring this method into a constructor of SleepyTermList
-    SleepyList mylist(internals->termlist_db,
+// FIXME: suggest refactoring this method into a constructor of SleepycatTermList
+    SleepycatList mylist(internals->termlist_db,
 		      reinterpret_cast<void *>(&did),
 		      sizeof(did),
 		      false);
@@ -303,7 +303,7 @@ SleepyDatabase::make_new_termlist(om_docid did,
     std::map<om_termid, OmDocumentTerm>::const_iterator term;
     for(term = terms.begin(); term != terms.end(); term++) {
 	// Document length is not used in termlists: use 0.
-	SleepyListItem myitem(term->first,
+	SleepycatListItem myitem(term->first,
 			      term->second.wdf,
 			      term->second.positions,
 			      term->second.termfreq,
