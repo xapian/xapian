@@ -107,38 +107,26 @@ class OmMSetIterator {
 	/// Get the weight of the document at the current position
         om_weight get_weight() const;
 
-	/** Get the number of documents that have been collapsed into this one
+	/** Get an estimate of the number of documents that have been collapsed
+	 *  into this one.
 	 *
-	 * If no documents have been collapsed, the result will be 0
-	 * NOTE: that this is a record on processing that occurred and not a
-	 * predictive indicator on the type of results available.
+	 *  The estimate will always be less than or equal to the actual
+	 *  number of other documents satisfying the match criteria with the
+	 *  same collapse key as this document.
 	 *
-	 * It is entirely possible to get a collapse_count of zero when
-	 * there exist other documents that might collapse, but were not found
-	 * because the search terminated early with a full m-set.  
-	 *
-	 * It is entirely possible to get a non-zero collapse_count but
-	 * find when repeating the search that none of the collapsed values
-	 * proved relevant enough.
-	 *
-	 * The collapse_count IS useful in at least this circumstance:
-	 *   It can be used to collapse multiple results of a similar type 
-	 * (share a common key) to avoid this type of result masking other
-	 * types of results on account of the quanity of this document type.
-	 *   In such cases it is appropriate to offer an "expanded" search
-	 * of the same search options but additionally filtering the results
-	 * only to that type of document.
-	 *   So perhaps the top "Helpdesk" ticket would be shown along with
-	 * other types of hit, but with this helpdesk hit will be a link to
-	 * repeat the search over all helpdesk tickets only.
-	 *
-	 * It must be stressed that this is just a technique to present one
-	 * common document type from obscuring other rarer results without
-	 * hiding the common results althogether.
+	 *  This method may return 0 even though there are other documents with
+	 *  the same collapse key which satisfying the match criteria.  However
+	 *  if this method returns non-zero, there definitely are other such
+	 *  documents.  So this method may be used to inform the user that
+	 *  there are "at least N other matches in this group", or to control
+	 *  whether to offer a "show other documents in this group" feature
+	 *  (but note that it may not offer it in every case where it would
+	 *  show other documents).
 	 */
 	om_doccount get_collapse_count() const;
 
-	/** This returns the weight of the document as a percentage score
+	/** This returns the weight of the document as a percentage score.
+	 *
 	 *  The return value will be in the range 0 to 100:  0 meaning
 	 *  that the item did not match the query at all.
 	 */
@@ -617,9 +605,29 @@ class OmEnquire {
 
         /** Set the collapse key to use for queries.
          *
-         *  @param collapse_key  key number to collapse on - duplicates mset
-         *      entries will be removed based on this key (default is
-	 *	om_valueno(-1) which means no collapsing).
+         *  @param collapse_key  value number to collapse on - at most one mset
+	 *      entry with each particular value will be returned.
+	 *
+	 *      The entry returned will be the best entry with that particular
+	 *      value (highest weight or highest sorting key).
+	 *
+	 *      An example use might be to create a value for each document
+	 *      containing an MD5 hash of the document contents.  Then
+	 *      duplicate documents from different sources can be eliminated at
+	 *      search time (it's better to eliminate duplicates at index time,
+	 *      but this may not be always be possible - for example the search
+	 *      may be over more than one Xapian database).
+	 *
+	 *      Another use is to group matches in a particular category (e.g.
+	 *      you might collapse a mailing list search on the Subject: so
+	 *      that there's only one result per discussion thread).  In this
+	 *      case you can use get_collapse_count() to give the user some
+	 *      idea how many other results there are.  And if you index the
+	 *      Subject: as a boolean term as well as putting it in a value,
+	 *      you can offer a link to a non-collapsed search restricted to
+	 *      that thread using a boolean filter.
+	 *      
+	 *      (default is om_valueno(-1) which means no collapsing).
          */
 	void set_collapse_key(om_valueno collapse_key);
 
@@ -638,7 +646,7 @@ class OmEnquire {
 	 *	it will not appear in the mset.  If your intention is to return
 	 *	only matches which contain all the terms in the query, then
 	 *	it's more efficient to use OmQuery::OP_AND instead of
-	 *	OmQuery::OP_OR in the query that to set this to 100%).
+	 *	OmQuery::OP_OR in the query than to set percent_cutoff to 100).
 	 *	(default 0 => no percentage cut-off).
 	 * @param weight_cutoff Minimum weight for a document to be returned.
 	 *	If a document has a lower score that this, it will not appear

@@ -1,3 +1,10 @@
+Wed Apr 30 02:13:31 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/matcherdesign.html,include/om/omenquire.h: Merged docs
+	  discussing OmMSetIterator::get_collapse_count() into the doxygen
+	  documentation comments - they're docs aimed at the API user so
+	  really don't belong in the internal matcher design docs.
+
 Wed Apr 30 01:08:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Added config.guess.

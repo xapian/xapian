@@ -96,66 +96,6 @@ autoprune, by returning the replacement operator from next or skip_to.
 <p>A related optimisation is that the Match object may terminate early if
 maxweight for the whole tree is less than the smallest weight in the mset.
 
-<h2>Collapsing similar results</h2>
-
-<p>One of the properties of a query is the collapse_key, which can be used to
-refer to document values (quick-access document properties, useful for 
-query-time operations such as sorting, collapsing etc).  If the collapse_key 
-is set, then as documents are added to the m-set a check is made to see if 
-another document in the m-set has the same value for this key.  If this is the
-case, then the highest weighted hit is kept, and the other is discarded.</p>
-
-<p>One use for this is to remove from results duplicate documents which may be
-available under different URLs.  A document id can be indexed as one of the 
-document values, and then when the search is made, the collapse_key set to 
-this key number.  Duplicate results will then be removed.  The omega cgi 
-parameter COLLAPSE can be used to pass collapse_key during matching</p>
-
-<p>Another use for this is to group under one hit results of a similar type.
-In some scenarios one type of document appears very often in the results,
-but all documents of that type are not of interest to the user.  In such a case
-the results of that type could be said to obscure other results.  An example
-might be a case where documents from different information providers are indexed
-together, but where the range of information from one provider is very large.
-Thus, whatever is searched for, this provider may have many hits near the
-top relevance.  It is reasonable for the user to think "But I don't want 
-information from that provider, I want some OTHER results."  Another case might
-be where there are many different documents in different sections with the same
-terms; for eaxmple there may be many PC Java games, also many PDA Java games as
-well as documentation on writing Java games.  If all results were returned
-together it may be hard to see results from one as they are masked by results
-from another section with slightly more relevance due to accidents of wording.
-</p>
-
-<p>To overcome this problems in the presentation of results, it makes sense to
-perform result collapsing on a common key value, perhaps information provider,
-or site section.  Only instead of merely throwing away documents sharing the
-same value we want to be aware, and count, these documents.  In the results
-we want to know if there were other documents of that type, and be able to
-provide a full search limited to documents of that type.</p>
-
-<p>To provide an expanded search is simple enough, the common key-value used 
-to collapse on would also need to be indexed as a prefixed term.  Then to 
-provide the expanded search over all documents of this type a boolean filter 
-of the prefixed term is added to the terms of the previous search.</p>
-
-<p>The OmMSetIterator, used for iterating over results provides 
-get_collapse_count() which returns 0 for no relevant collapses and 
-&gt;0 for at least one relevant collapse, where the
-actual number is the number of actual collapses that took place without respect
-to relevance and knowing that perhaps further collapses would have taken place
-if the search had been exhaustive.  If collapse_count is 0 it does not mean
-there would be no collapses, it just means the search terminated (optimised) 
-before they were found.  If a larger m-set is produced (as it will be for 
-subsequent result pages) further results <b>may</b> be obtained and also 
-collapsed thus producing a &gt;0 collapse count.  This will be of little benefit or consolation if the new m-set is used to show subsequent result pages which do not contain the top collapsed document for then the user will never know there were any collapsed documents of that type and will also have further results hidden as they will still be collapsed when found.</p>
-
-<p>To sum up the dangers of group-collapsing for later expanded searchines:
-<ul>
-<li>A collapse_count of zero indicates that no collapsable documents have been found.  Unless the search was exhaustive, collapsable documents may perhaps be found under more exhaustive searches and collapsed.</li>
-<li>A collapse_count greater than one indicates that there is at least one document that has been collapsed that meets the cutoff threshold.  The actual value indicates the number of documents collapsed regardless of threshold and is a lower limit unless the search was exhaustive.</li>
-</ul>
-
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>
