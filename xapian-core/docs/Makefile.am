@@ -45,6 +45,8 @@ endif
 # Things to do if have doxygen installed
 if HAVE_DOXYGEN
 all-local: doxygen_api_docs
+else
+all-local:
 endif
 dist-hook: doxygen_dist
 install-data-local: doxygen_install
