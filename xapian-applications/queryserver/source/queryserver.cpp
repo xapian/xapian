@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 2004 Studio 24 Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +35,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
+#ifdef __WIN32__
+# include <winsock2.h>
+#else
+# include <sys/socket.h>
+#endif
 #include <sys/un.h>
 #include <stdio.h>
 #include <signal.h>
@@ -444,7 +449,7 @@ start_server()
             continue;
 
         struct sockaddr_un remote_addr;
-        socklen_t remote_addr_size = sizeof(remote_addr);
+        SOCKLEN_T remote_addr_size = sizeof(remote_addr);
         int con_socket = accept(serversock,
                                 (struct sockaddr *)(&remote_addr),
                                 &remote_addr_size);

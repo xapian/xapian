@@ -1,3 +1,9 @@
+Wed Nov 03 10:33:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* source/queryserver.cpp: Use SOCKLEN_T as the latest TYPE_SOCKLEN_T
+	  autoconf test requires; include winsock2.h instead of sys/socket.h
+	  on windows.
+
 Wed Nov 03 01:21:47 GMT 2004  Olly Betts <olly@survex.com>
 
 	* acinclude.m4: Updated TYPE_SOCKLEN_T macro.
