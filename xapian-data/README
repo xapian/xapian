@@ -1,11 +1,5 @@
-This module contains data useful when developing
-OMSeek, but unnecessary for developing /with/ it (eg:
-test data).
-
-Due to a stupid mistake on my part, the whole OMSeek
-source tree was dumped in here by mistake; there's
-one inconveniently named file which I can't get rid of.
-Ignore the om/ and om-examples/ modules if they appear.
+This module contains data useful when developing Xapian, but
+unnecessary for developing /with/ it (eg: test data).
 
 James
 tartarus@users.sourceforge.net
