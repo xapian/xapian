@@ -1,0 +1,144 @@
+#! @PERL@
+# mkdoc.pl is automatically generated from mkdoc.pl.in
+# *** Do not edit the generated file ***
+
+# mkdoc.pl.in: generate documentation from source code and associated files.
+# takes two parameters
+
+if($#ARGV < 1 || $#ARGV>2) {
+  print "usage: mkdoc.pl <source directory> <destination> [webroot]\n";
+  exit 1;
+}
+
+$srcdir  = $ARGV[0];
+$dest    = $ARGV[1];
+$webroot = "";
+$webroot = $ARGV[2] if($#ARGV == 2);
+
+%descriptions = ();
+
+# Assume we have find.  Get all the possible directories.
+$dirs   = `find $srcdir -type d`;
+@dirs   = split(/\n/, $dirs);
+
+# Read the contents of any README's we find.
+foreach $dir (@dirs) {
+  next if $dir =~ m/CVS$/;
+  $readmefile = "$dir/README";
+  next if ! -r $readmefile;
+  open(READMEFILE, $readmefile);
+
+  $contents = "";
+  while(<READMEFILE>) { $contents .= $_; }
+
+  # Get directory tag
+  if($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
+      print stderr "Skipping $readmefile: didn't contain a directory tag\n";
+      next;
+  }
+  $directory = "$1";
+  $tagdir = "$srcdir/$directory/";
+  if($directory eq "ROOT") {
+    # Special case for top level dir
+    $tagdir = "$srcdir/";
+  }
+  if("$tagdir" ne $dir . "/") {
+    print stderr "Skipping $readmefile: incorrect directory tag\n";
+    next;
+  }
+
+  # Get description tag
+  if($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
+      print stderr "Skipping $readmefile: didn't contain a description tag\n";
+      next;
+  }
+  $description = "$1";
+
+  $descriptions{$directory} = $description;
+}
+close(READMEFILE);
+
+sub tohtml() {
+  $html = $_[0];
+  $html =~ s#>#&gt;#g;
+  $html =~ s#<#&lt;#g;
+  $html =~ s#\n\n#\n<P>\n#g;
+  return $html;
+}
+
+# Open output
+open(DESTFILE, ">$dest");
+
+# Print header
+print DESTFILE <<EOF;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Muscat: Code structure</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+This documentation was automatically generated, and corresponds to version
+@VERSION@ of Muscat.
+<HR>
+EOF
+
+# Print directory index
+print DESTFILE "<H1>Directory structure index</H1>\n";
+$level=0;
+foreach $dir (sort keys(%descriptions)) {
+  $newlev = ($dir =~ tr#/##) + 1; # Count the number of /'s in $dir
+  while($level < $newlev) {
+    print DESTFILE "<UL>";
+    $level++;
+  }
+  while($level > $newlev) {
+    print DESTFILE "</UL>";
+    $level--;
+  }
+  print DESTFILE "<LI><A HREF=\"#$dir\">$dir</A></LI>\n";
+}
+$newlev=0;
+while($level > $newlev) {
+  print DESTFILE "</UL>";
+  $level--;
+}
+print DESTFILE "<HR>\n";
+
+# Print directory details
+print DESTFILE "<H1>Directory structure</H1>\n";
+foreach $dir (sort keys(%descriptions)) {
+  print DESTFILE "<A NAME=\"$dir\"></A>";
+  if($webroot) {
+    if($dir eq "ROOT") {
+      print DESTFILE "<A HREF=\"$webroot\">";
+    } else {
+      print DESTFILE "<A HREF=\"$webroot/$dir\">";
+    }
+    print DESTFILE "<H2>$dir</H2></A>\n\n";
+  } else {
+    print DESTFILE "<H2>$dir</H2>\n\n";
+  }
+  print DESTFILE &tohtml($descriptions{$dir});
+  print DESTFILE "\n\n\n";
+}
+
+# Print footer
+$date = `date`;
+$date =~ s/\n$//;
+$genby = `whoami`;
+$genby =~ s/\n$//;
+$genby .= '@' . `hostname`;
+$genby =~ s/\n$//;
+
+print DESTFILE <<EOF;
+<HR>
+Generated on $date, by $genby
+<P>
+Command line used to generate this documentation:<BR>
+<CODE>$0 @ARGV</CODE>
+</BODY>
+</HTML>
+EOF
+
+# Done
+close DESTFILE;
