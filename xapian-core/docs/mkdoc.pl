@@ -1,27 +1,21 @@
 #! /usr/bin/perl -w
-# Generated automatically from mkdoc.pl.in by configure.
-# mkdoc.pl is automatically generated from mkdoc.pl.in
-# *** Do not edit the generated file ***
 
-# mkdoc.pl.in: generate documentation from source code and associated files.
+# mkdoc.pl: generate documentation from source code and associated files.
 use strict;
 
 # Declarations
 sub get_descriptions();
 sub tohtml($);
-sub get_codestruct();
 sub output_html();
 
 # Parse command line parameters
-if($#ARGV < 1 || $#ARGV>2) {
-  print "usage: mkdoc.pl <source directory> <destination> [webroot]\n";
+if ($#ARGV < 2 || $#ARGV > 3) {
+  print "usage: mkdoc.pl <version> <source directory> <destination> [webroot]\n";
   exit 1;
 }
 
-my $srcdir  = $ARGV[0];
-my $dest    = $ARGV[1];
-my $webroot = "";
-$webroot = $ARGV[2] if($#ARGV == 2);
+my ($version, $srcdir, $dest, $webroot) = @ARGV;
+$webroot = "" unless defined $webroot;
 
 my %descriptions = ();
 my %classes = ();
@@ -32,7 +26,20 @@ output_html();
 
 sub get_descriptions() {
     # Assume we have find.  Get all the possible directories.
-    my @dirs   = split(/\n/, `find $srcdir -type d`);
+    my $subdirs;
+    open M, "$srcdir/Makefile" or die $!;
+    while (<M>) {
+	while (s/\\\n$//) { $_ .= <M>; }
+	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
+	    s/\s*$//;
+	    $subdirs = join " ", map {"$srcdir/$_"} split /\s+/;
+	    last;
+        }
+    }
+    close M;
+    die "DIST_SUBDIRS not found in Makefile" unless defined $subdirs;
+
+    my @dirs = split(/\n/, `find $subdirs -type d`);
 
     # Read the contents of any dir_contents's we find.
     my $dir;
@@ -50,14 +57,18 @@ sub get_descriptions() {
 	    print STDERR "Skipping $contentsfile: didn't contain a directory tag\n";
 	    next;
 	}
-	my $directory = "$1";
+	my $directory = $1;
 	my $tagdir = "$srcdir/$directory/";
 	if($directory eq "ROOT") {
             # Special case for top level dir
 	    $tagdir = "$srcdir/";
 	}
-	if("$tagdir" ne $dir . "/") {
+	$dir = "$dir/";
+	$dir =~ s!/(?:\./)+!/!g;
+	$tagdir =~ s!/(?:\./)+!/!g;
+	if("$tagdir" ne $dir) {
 	    print STDERR "Skipping $contentsfile: incorrect directory tag\n";
+	    print STDERR "`$tagdir' != `$dir'\n";
 	    next;
 	}
 
@@ -105,6 +116,7 @@ sub get_codestruct() {
 
 sub tohtml($) {
   my $html = $_[0];
+  $html =~ s#&#&amp;#g;
   $html =~ s#>#&gt;#g;
   $html =~ s#<#&lt;#g;
   $html =~ s#"#&quot;#g;
@@ -125,7 +137,7 @@ sub output_html() {
 </HEAD>
 <BODY BGCOLOR="white">
 This documentation was automatically generated, and corresponds to version
-0.4.1-cvs of Xapian.
+$version of Xapian.
 <HR>
 EOF
 
@@ -176,11 +188,7 @@ EOF
 
     # Print footer
     my $date = `date "+%d %B %Y"`;
-    $date =~ s/\n$//;
-    my $genby = `whoami`;
-    $genby =~ s/\n$//;
-    $genby .= '@' . `hostname`;
-    $genby =~ s/\n$//;
+    chomp $date;
 
     print DESTFILE <<EOF;
 <HR>

@@ -1,3 +1,10 @@
+Wed Jul 03 12:39:15 BST 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: incorporated recent changes into provisional version.
+
+	* docs/: sorted out make rules for running doxygen; don't tell doxygen
+	  to build man pages which we aren't using.
+
 Tue Jul 02 16:36:54 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: run through ispell; fixed OM_MOP to OmQuery::OP; other

@@ -2,15 +2,11 @@ New in 0.5:
 
 VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
 
-* The project is now called "Xapian".
+* The project is now called "Xapian".  Renamed "om" to "xapian-core" and
+  "om-examples" to "xapian-examples".  Added "xapian-applications" which
+  contains larger sample applications.
 
-* Improved documentation.
-
-* Renamed "om" to "xapian-core" and "om-examples" to "xapian-examples".
-  Added "xapian-applications" which contains sample applications.
-
-* OmData and OmKey removed - methods which used them now just take and return
-  STL strings.
+* Improved documentation; install Postscript manual rather than DVI.
 
 * Terminology change - "keys" are now known as "values", except when actually
   being used as a "key" - e.g. "match_collapse_key".
@@ -26,7 +22,7 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   
 * Cleaner build system.  Support for largefiles (>2G).  Builds as cleanly
   as we can achieve with GCC 2.95.* (some bogus warnings); Builds cleanly with
-  GCC 3.0 and 3.1.
+  CC 3.0 and 3.1.
 
 * xapian-config no longer support "--uninst".  It's hard to make this
   work reliably, and the effort is better expended elsewhere.  Configure with
@@ -39,6 +35,26 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   instead soon.
 
 * Use GNU getopt for option parsing.
+
+* Backend "auto" now works when creating an OmWritableDatabase which
+  doesn't already exist - it'll pick a backend which supports writing
+  and is compiled in (currently this means quartz).
+
+* quartz: fixed so sequential addition optimisation actually gets used.
+
+* tests: removed includetest - it was useful early in development, but isn't
+  really now.
+
+* RPM package.
+
+* Lots of internal code cleanup in the quartz backend.
+
+* multi_postlist.cc (get_doclength):  Get the document length from
+  the appropriate sub-postlist, rather than from the database.  This causes a
+  huge speedup in some cases, since it avoids having to go to the termlist
+  database for every document considered for an mset to get the document
+  length.  Added an AssertParanoid to check that the value from the postlist is
+  the same as that from the database.
 
 * Fixed a few matcher bugs: failing to correctly discard items from the
   proto-mset when it was full (which could result in incorrect search results);
@@ -70,7 +86,16 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   but for now it is simply out of date and a maintainance liability,
   and gives no significant advantage.
 
-* OmDocumentContents and OmIndexDoc merged into OmDocument.
+* The API has been cleaned up in various places: OmDocumentContents and
+  OmIndexDoc merged into OmDocument; OmQuery interface cleaned up; OmData and
+  OmKey removed - methods which used them now just take and return STL strings.
+  OmESetItem replaced by OmESetIterator; OmMSetItem replaced by OmMSetIterator;
+  OmDocumentTerm and OmDocumentParams removed; Replaced om_termname_list with
+  OmTermIterator; Replace OmMSet::mbound with
+  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more useful
+  information; Our iterators now have default constructors; Most API classes
+  have reference counted internals, so assignment and copying are cheap; And
+  more.
 
 * Lots more test cases in the test suite.
 
@@ -86,26 +111,7 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
 
 * New operator OP_ELITE_SET replaces match_max_or_terms option.
 
-* FIXME: lots more prior to:
-
-* OmQuery interface cleaned up.
-
 * In Muscat3.6 backends, don't read the key from the keyfile unless
   keyno is 0.
-
-* Our iterators now have default constructors, making use easier.
-
-* Assorted changes to many API classes.  Almost all have reference counted
-  internals, so assignment and copying are cheap.
-
-* Replaced om_termname_list with OmTermIterator.
-
-* OmESetItem replaced by OmESetIterator; OmMSetItem replaced by OmMSetIterator.
-
-* OmDocumentTerm and OmDocumentParams removed.
-
-* Replace OmMSet::mbound with
-  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more
-  useful information.
 
 * Fix bug in expander due to nth_element being called on the wrong element.

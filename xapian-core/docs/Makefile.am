@@ -5,7 +5,7 @@
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-# FIXME: add "xapian hacker docs" option and build sourcedoc.ps and HTML
+# FIXME: add "xapian hacker docs" option to build sourcedoc.ps and HTML
 
 SUFFIXES = .eps .dia .png
 
@@ -40,10 +40,13 @@ docdata_DATA = $(HTMLDOCS) $(TEXTDOCS) apidoc.ps
 
 dist-hook:
 	$(mkinstalldirs) $(distdir)/apidoc
-	cp -a apidoc/* $(distdir)/apidoc/
+	if test -f apidoc/html/index.html ; then \
+	  cp -a apidoc/* $(distdir)/apidoc/ ; \
+	else \
+	  cp -a $(srcdir)/apidoc/* $(distdir)/apidoc/ ; \
+	fi
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html
 	if test -f apidoc/html/index.html ; then \
 	  $(INSTALL_DATA) apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
@@ -68,15 +71,11 @@ uninstall-local:
 # Extra rules #
 ###############
 
-MAINTAINERCLEANFILES=\
-	doxygen_api_conf \
-	doxygen_full_conf \
-	code_structure.html \
-	todo.html \
-	todo-release.html
+MAINTAINERCLEANFILES= doxygen_api_conf doxygen_full_conf \
+	code_structure.html todo.html todo-release.html apidoc.ps sourcedoc.ps
 
 code_structure.html: mkdoc.pl
-	$(PERL) $(srcdir)/mkdoc.pl $(top_srcdir) $@
+	$(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@
 
 todo.html: todo2html.pl todo.xml
 	$(PERL) $(srcdir)/todo2html.pl $(srcdir)/todo.xml >$@
@@ -84,17 +83,9 @@ todo.html: todo2html.pl todo.xml
 todo-release.html: todo2html.pl todo.xml
 	$(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@
 
-apidoc.ps: apidoc/latex/refman.tex
-	cd apidoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(DVIPS) -o ../../apidoc.ps refman.dvi
-
-sourcedoc.ps: sourcedoc/latex/refman.tex
-	cd sourcedoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(DVIPS) -o ../../sourcedoc.ps refman.dvi
-
-#########################
-# Rules for doxygen stuff #
-#########################
+#####################
+# Rules for doxygen #
+#####################
 
 .FORCE: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -105,19 +96,25 @@ doxygen_docs: doxygen_source_docs doxygen_api_docs
 doxygen_api_conf: $(top_srcdir)/configure.in
 doxygen_full_conf: $(top_srcdir)/configure.in
 
-apidoc/html/index.html: doxygen_api_conf \
+apidoc/html/index.html apidoc.ps: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl \
+		$(srcdir)/doxygen_api_conf.in \
 		$(APIDOC_SRC)
 	@echo "Generating API documentation with doxygen"
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
+	cd apidoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
+		&& $(DVIPS) -o ../../apidoc.ps refman.dvi
 
-sourcedoc/html/index.html: doxygen_full_conf \
+sourcedoc/html/index.html sourcedoc.ps: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
+		$(srcdir)/doxygen_full_conf.in \
 		$(SOURCEDOC_SRC)
 	@echo "Generating full source documentation with doxygen"
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf
+	cd sourcedoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
+		&& $(DVIPS) -o ../../sourcedoc.ps refman.dvi
 
 ##################################
 # Generate images from dia files #
