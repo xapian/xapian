@@ -53,8 +53,10 @@ OmDebug::~OmDebug()
     display_message(OM_DEBUG_UNKNOWN,
 		    std::string("Om debugging version, closing down\n"));
     if(initialised) {
+#ifdef MUS_USE_PTHREAD
 	delete mutex;
 	mutex = 0;
+#endif /* MUS_USE_PTHREAD */
 	initialised = false;
     }
 }

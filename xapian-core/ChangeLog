@@ -1,3 +1,8 @@
+Thu Sep  7 11:03:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix to make omdebug.cc compile when --disable-pthread-support
+	  is specified to configure.
+
 Thu Sep  7 01:40:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added extra debugging to matcher to help track down reported
