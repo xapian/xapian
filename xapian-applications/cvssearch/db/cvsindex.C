@@ -22,6 +22,8 @@
 
 #include "util.h"
 
+// flush every 25 files
+#define FLUSH_RATE 25 
 
 // for profiling
 #define SKIP_SC_DATABASE_WRITE 0 
@@ -125,6 +127,8 @@ int main(int argc, char *argv[]) {
     string current_fn = "";
     int current_offset = 1;
 
+    int file_count = 0;
+
     OmStem stemmer("english");
 
     while (!in.eof()) {
@@ -152,12 +156,16 @@ int main(int argc, char *argv[]) {
 
       string fn = files[file_no-1];
       if ( fn != current_fn ) {
+        file_count++;
 	int offset = atoi(offsets[file_no-1].c_str());
 	assert( line_no == offset );
 	current_offset = offset;
 	current_fn = fn;
+        if ( file_count % FLUSH_RATE == 0 ) {
+	        cerr << "*** FLUSHING" << endl;
+		database.flush();
+        }
 	cerr << "... processing " << current_fn << endl;
-	database.flush();
       }
       static char str[4096];
       sprintf(str,"%d", (line_no-current_offset+1));
