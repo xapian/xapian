@@ -249,7 +249,11 @@ string_to_msetitem(string s)
     om_weight wt;
     om_docid did;
 
-    is >> wt >> did;
+    string header;
+
+    is >> header >> wt >> did;
+
+    Assert (header == "MSETITEM:");
 
     return OmMSetItem(wt, did);
 }
@@ -316,7 +320,11 @@ ProgClient::get_mset(om_doccount first,
 		}
 
 		for (int i=0; i<numitems; ++i) {
-		    mset.push_back(string_to_msetitem(do_read()));
+		    string msetline = do_read();
+		    //DebugMsg("MSet string: " << msetline);
+		    OmMSetItem mitem = string_to_msetitem(msetline);
+		    //DebugMsg("MSet item: " << mitem.wt << " " << mitem.did << endl);
+		    mset.push_back(mitem);
 		}
 		response = do_read();
 		if (response != "OK") {

@@ -1,3 +1,8 @@
+Thu May  4 16:58:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* ProgClient::get_mset() now returns actual results rather than
+	  accidentally made up numbers.
+
 Thu May  4 16:26:34 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The testsuite driver now supports running a single test by name.
