@@ -240,8 +240,10 @@ get_prop(xmlNodePtr node, const std::string &prop)
     std::string retval;
     try {
 	temp = xmlGetProp(node, prop.c_str());
-	retval = xmlChar2string(temp);
-	free(temp);
+	if (temp) {
+	    retval = xmlChar2string(temp);
+	    free(temp);
+	}
 	temp = 0;
     } catch (...) {
 	if (temp) free(temp);
