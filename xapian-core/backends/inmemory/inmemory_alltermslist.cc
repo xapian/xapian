@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@ InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> 
 					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_)
 	: tmap(tmap_), it(tmap->begin()), database(database_), started(false)
 {
+    while (it != tmap->end() && it->second.term_freq == 0) ++it;
 }
 
 InMemoryAllTermsList::~InMemoryAllTermsList()
@@ -71,6 +72,7 @@ InMemoryAllTermsList::skip_to(const string &tname)
     started = true;
     // FIXME: might skip backwards - is this a problem?
     it = tmap->lower_bound(tname);
+    while (it != tmap->end() && it->second.term_freq == 0) ++it;
     return NULL;
 }
 
@@ -81,7 +83,8 @@ InMemoryAllTermsList::next()
 	started = true;
     } else {
 	Assert(!at_end());
-	it++;
+	++it;
+	while (it != tmap->end() && it->second.term_freq == 0) ++it;
     }
     return NULL;
 }

@@ -90,15 +90,16 @@ InMemoryDatabase::~InMemoryDatabase()
 LeafPostList *
 InMemoryDatabase::do_open_post_list(const string & tname) const
 {
-    if (!term_exists(tname)) {
-	return new EmptyPostList();
-    }
-
+    Assert(tname.size() != 0);
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    Assert(i != postlists.end());
+    if (i == postlists.end() || i->second.term_freq == 0)
+	return new EmptyPostList();
 
-    return new InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
-				i->second);
+    LeafPostList * pl;
+    pl = new InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
+			      i->second);
+    Assert(!pl->at_end());
+    return pl;
 }
 
 bool
@@ -144,7 +145,7 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
     }
     const InMemoryDoc &doc = termlists[did-1];
 
-    vector<InMemoryPosting>::const_iterator i;
+    vector<InMemoryTermEntry>::const_iterator i;
     for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
 	if (i->tname == tname) {
 	    return new InMemoryPositionList(i->positions);
@@ -179,25 +180,21 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     doclengths[did-1] = 0;
     totdocs--;
 
-    vector<InMemoryPosting>::const_iterator i;
+    vector<InMemoryTermEntry>::const_iterator i;
     for (i = termlists[did - 1].terms.begin();
 	 i != termlists[did - 1].terms.end();
 	 ++i) {
 	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
+	--t->second.term_freq;
 	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
-	/* FIXME: inefficient on vectors... */
 	while (posting != t->second.docs.end()) {
-	    if (posting->did == did) {
-		posting = t->second.docs.erase(posting);
-	    } else {
-		++posting;
-	    }
-	}
-	if (t->second.docs.empty()) {
-	    Assert(t->second.collection_freq == 0);
-	    postlists.erase(t);
+	    // Just zero out erased doc ids - otherwise we need to erase
+	    // in a vector (inefficient) and we break any posting lists
+	    // iterating over this posting list.
+	    if (posting->did == did) posting->valid = false;
+	    ++posting;
 	}
     }
     termlists[did-1].terms.clear();
@@ -222,25 +219,21 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	valuelists.resize(did);
     }
 
-    vector<InMemoryPosting>::const_iterator i;
+    vector<InMemoryTermEntry>::const_iterator i;
     for (i = termlists[did - 1].terms.begin();
 	 i != termlists[did - 1].terms.end();
 	 ++i) {
 	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
+	--t->second.term_freq;
 	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
-	/* FIXME: inefficient on vectors... */
 	while (posting != t->second.docs.end()) {
-	    if (posting->did == did) {
-		posting = t->second.docs.erase(posting);
-	    } else {
-		++posting;
-	    }
-	}
-	if (t->second.docs.empty()) {
-	    Assert(t->second.collection_freq == 0);
-	    postlists.erase(t);
+	    // Just invalidate erased doc ids - otherwise we need to erase
+	    // in a vector (inefficient) and we break any posting lists
+	    // iterating over this posting list.
+	    if (posting->did == did) posting->valid = false;
+	    ++posting;
 	}
     }
     termlists[did - 1] = InMemoryDoc();
@@ -301,6 +294,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	doclengths[did - 1] += i.get_wdf();
 	totlen += i.get_wdf();
 	postlists[*i].collection_freq += i.get_wdf();
+	++postlists[*i].term_freq;
     }
 
     totdocs++;
@@ -337,23 +331,35 @@ void InMemoryDatabase::make_posting(const string & tname,
 
     // Make the posting
     InMemoryPosting posting;
-    posting.tname = tname;
     posting.did = did;
     if (use_position) {
 	posting.positions.push_back(position);
     }
     posting.wdf = wdf;
+    posting.valid = true;
 
     // Now record the posting
     postlists[tname].add_posting(posting);
-    termlists[did - 1].add_posting(posting);
+
+    // Make the termentry
+    InMemoryTermEntry termentry;
+    termentry.tname = tname;
+    if (use_position) {
+	termentry.positions.push_back(position);
+    }
+    termentry.wdf = wdf;
+
+    // Now record the termentry
+    termlists[did - 1].add_posting(termentry);
 }
 
 bool
 InMemoryDatabase::term_exists(const string & tname) const
 {
     Assert(tname.size() != 0);
-    return postlists.find(tname) != postlists.end();
+    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    if (i == postlists.end()) return false;
+    return (i->second.term_freq != 0);
 }
 
 TermList *

@@ -44,13 +44,30 @@ using namespace std;
 class InMemoryPosting {
     public:
 	Xapian::docid did;
-	string tname;
+	bool valid;
 	vector<Xapian::termpos> positions; // Sorted vector of positions
 	Xapian::termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
 	    Assert(did == post.did);
+
+	    positions.insert(positions.end(),
+			     post.positions.begin(),
+			     post.positions.end());
+	    // FIXME - inefficient - use merge (and list<>)?
+	    sort(positions.begin(), positions.end());
+	}
+};
+
+class InMemoryTermEntry{
+    public:
+	string tname;
+	vector<Xapian::termpos> positions; // Sorted vector of positions
+	Xapian::termcount wdf;
+
+	// Merge two postings (same term/doc pair, new positional info)
+	void merge(const InMemoryTermEntry & post) {
 	    Assert(tname == post.tname);
 
 	    positions.insert(positions.end(),
@@ -62,7 +79,7 @@ class InMemoryPosting {
 };
 
 // Compare by document ID
-class InMemoryPostingLessByDocId {
+class InMemoryPostingLessThan {
     public:
 	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
 	{
@@ -71,9 +88,9 @@ class InMemoryPostingLessByDocId {
 };
 
 // Compare by termname
-class InMemoryPostingLessByTermName {
+class InMemoryTermEntryLessThan {
     public:
-	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
+	int operator() (const InMemoryTermEntry&p1, const InMemoryTermEntry&p2)
 	{
 	    return p1.tname < p2.tname;
 	}
@@ -84,17 +101,20 @@ class InMemoryTerm {
     public:
 	vector<InMemoryPosting> docs;// Sorted list of documents indexing term
 
+	Xapian::termcount term_freq;
 	Xapian::termcount collection_freq;
 
-	InMemoryTerm() : collection_freq(0) {}
+	InMemoryTerm() : term_freq(0), collection_freq(0) {}
 
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
 	    vector<InMemoryPosting>::iterator p;
 	    p = lower_bound(docs.begin(), docs.end(),
-			    post, InMemoryPostingLessByDocId());
-	    if (p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
+			    post, InMemoryPostingLessThan());
+	    if (p == docs.end() || InMemoryPostingLessThan()(post, *p)) {
 		docs.insert(p, post);
+	    } else if (!p->valid) {
+		*p = post;
 	    } else {
 		(*p).merge(post);
 	    }
@@ -105,16 +125,16 @@ class InMemoryTerm {
 class InMemoryDoc {
     public:
 	bool is_valid;
-	vector<InMemoryPosting> terms;// Sorted list of terms indexing document
+	vector<InMemoryTermEntry> terms;// Sorted list of terms indexing document
 
 	/* Initialise valid */
 	InMemoryDoc() : is_valid(true) {}
-	void add_posting(const InMemoryPosting & post) {
+	void add_posting(const InMemoryTermEntry & post) {
 	    // Add document to right place in list
-	    vector<InMemoryPosting>::iterator p;
+	    vector<InMemoryTermEntry>::iterator p;
 	    p = lower_bound(terms.begin(), terms.end(),
-			    post, InMemoryPostingLessByTermName());
-	    if (p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
+			    post, InMemoryTermEntryLessThan());
+	    if (p == terms.end() || InMemoryTermEntryLessThan()(post, *p)) {
 		terms.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -129,7 +149,6 @@ class InMemoryPostList : public LeafPostList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
-	string tname;
 	Xapian::doccount termfreq;
 	bool started;
 
@@ -164,8 +183,8 @@ class InMemoryPostList : public LeafPostList {
 class InMemoryTermList : public LeafTermList {
     friend class InMemoryDatabase;
     private:
-	vector<InMemoryPosting>::const_iterator pos;
-	vector<InMemoryPosting>::const_iterator end;
+	vector<InMemoryTermEntry>::const_iterator pos;
+	vector<InMemoryTermEntry>::const_iterator end;
 	Xapian::termcount terms;
 	bool started;
 
@@ -277,13 +296,13 @@ InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDat
 				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
-	  tname(pos->tname),
-	  termfreq(term.docs.size()),
+	  termfreq(term.term_freq),
 	  started(false),
 	  db(db_)
 {
     // InMemoryPostLists cannot be empty
     Assert(pos != end);
+    while (pos != end && !pos->valid) ++pos;
 }
 
 inline Xapian::doccount
@@ -322,7 +341,8 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 
     if (started) {
 	Assert(!at_end());
-	pos++;
+	++pos;
+	while (pos != end && !pos->valid) ++pos;
     } else {
 	started = true;
     }
@@ -356,7 +376,7 @@ InMemoryPostList::at_end() const
 inline string
 InMemoryPostList::get_description() const
 {
-    return tname + ":" + om_tostring(termfreq);
+    return "InMemoryPostList" + om_tostring(termfreq);
 }
 
 //////////////////////////////////////////////
@@ -474,7 +494,7 @@ InMemoryDatabase::get_termfreq(const string & tname) const
 {
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
-    return i->second.docs.size();
+    return i->second.term_freq;
 }
 
 inline Xapian::termcount

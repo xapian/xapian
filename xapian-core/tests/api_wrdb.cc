@@ -668,6 +668,57 @@ static bool test_replacedoc2()
     return true;
 }
 
+// Test of new feature: WritableDatabase::replace_document and delete_document
+// can take a unique termname instead of a document id as of Xapian 0.8.2.
+static bool test_uniqueterm1()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    for (int n = 1; n <= 20; ++n) {
+	Xapian::Document doc;
+	string uterm = "U" + om_tostring(n % 16);
+	doc.add_term(uterm);
+	doc.add_term(om_tostring(n));
+	doc.add_term(om_tostring(n ^ 9));
+	doc.add_term("all");
+	doc.set_data("pass1");
+	db.add_document(doc);
+    }
+
+    TEST_EQUAL(db.get_doccount(), 20);
+
+    for (int n = 1; n <= 20; ++n) {
+	string uterm = "U" + om_tostring(n % 16);
+	if (uterm == "U2") {
+	    db.delete_document(uterm);
+	} else {
+	    Xapian::Document doc;
+	    doc.add_term(uterm);
+	    doc.add_term(om_tostring(n));
+	    doc.add_term(om_tostring(n ^ 9));
+	    doc.add_term("all");
+	    doc.set_data("pass2");
+	    db.replace_document(uterm, doc);
+	}
+    }
+
+    TEST_EQUAL(db.get_doccount(), 15);
+
+    string uterm = "U571";
+    Xapian::Document doc;
+    doc.add_term(uterm);
+    doc.set_data("pass3");
+    db.replace_document(uterm, doc);
+
+    TEST_EQUAL(db.get_doccount(), 16);
+
+    db.delete_document("U2");
+ 
+    TEST_EQUAL(db.get_doccount(), 16);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -684,5 +735,6 @@ test_desc writabledb_tests[] = {
     {"deldoc4",		   test_deldoc4},
     {"replacedoc1",	   test_replacedoc1},
     {"replacedoc2",	   test_replacedoc2},
+    {"uniqueterm1",	   test_uniqueterm1},
     {0, 0}
 };
