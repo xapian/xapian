@@ -1,3 +1,7 @@
+Thu Nov 16 11:52:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added quartz_document.cc to CVS.
+
 Wed Nov 15 18:14:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added QuartzDocument class, and implemented QuartzDatabase::
