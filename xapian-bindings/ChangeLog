@@ -1,3 +1,8 @@
+Wed Sep 29 14:17:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Added "touch op.cs" so the build system works
+	  on SWIG <= 1.3.21 as well as SWIG 1.3.22.
+
 Wed Sep 29 14:11:48 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: CSharp bindings now build, so enable them if the
