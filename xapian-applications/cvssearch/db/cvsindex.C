@@ -104,6 +104,32 @@ void writeFileDB( const string& prev_file, const string& package_path, const map
    
 }
 
+void writeFileComments( OmWritableDatabase& db, string& fn, set< list<string> >& file_comments ) {
+  //  cerr << "COMMENTS FOR FILE " << fn << endl;
+
+  list<string> all_words;
+
+  for( set<list<string> >::iterator i = file_comments.begin(); i != file_comments.end(); i++ ) {
+    list<string> words = *i;
+    for ( list<string>::iterator w = words.begin(); w != words.end(); w++ ) {
+      //      cerr << *w << " ";
+      all_words.push_back(*w);
+    }
+    //    cerr << endl;
+  }
+
+  OmDocument newdocument;
+  int pos = 1;
+  for( list<string>::iterator i = all_words.begin(); i != all_words.end(); i++ ) {
+    
+    string word = *i;
+    newdocument.add_posting(word, pos++); // term, position of term
+  }
+  newdocument.set_data(fn); // return file name
+  db.add_document(newdocument);
+  
+}
+
 int main(int argc, char *argv[]) 
 {
   if(argc < 2) {
@@ -127,11 +153,13 @@ int main(int argc, char *argv[])
     string file_cmt    = package_path + ".cmt";
     string file_offset = package_path + ".offset";
     string database_dir= package_path + ".om";
+    string database_dir2= package_path + ".om2";
     string source_file = package_path+".src";
     
     cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
-    system( ("rm -rf " + package_path +".om2").c_str() );
+    //    system( ("rm -rf " + package_path +".om2").c_str() );
     system( ("rm -rf " + database_dir).c_str() );
+    system( ("rm -rf " + database_dir2).c_str() );
 
     ofstream src( source_file.c_str() );
         
@@ -139,8 +167,9 @@ int main(int argc, char *argv[])
       // ----------------------------------------
       // create database directory
       // ----------------------------------------
-      system(("mkdir " + package_path +".om2" ).c_str()); // for file db's
+      //      system(("mkdir " + package_path +".om2" ).c_str()); // for file db's
       system(("mkdir " + database_dir ).c_str());
+      system(("mkdir " + database_dir2 ).c_str());
 
       // ----------------------------------------
       // code which accesses Omsee
@@ -151,10 +180,18 @@ int main(int argc, char *argv[])
       db_parameters.set("database_create", true);
       OmWritableDatabase database(db_parameters); // open database 
 
+      OmSettings db_parameters2;
+      db_parameters2.set("backend", "quartz");
+      db_parameters2.set("quartz_dir", database_dir2);
+      db_parameters2.set("database_create", true);
+      OmWritableDatabase database2(db_parameters2); // open database 
+
       cerr << "... reading " << file_cmt << endl;
 
       int files = 0;
       map< string, list<string>  > revision_comment_words;
+
+      set< list<string> > file_comments;
 
       Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, " indexing"); 
       string prev_file = "";
@@ -162,8 +199,12 @@ int main(int argc, char *argv[])
 	if ( lines.currentFile() != prev_file ) {
 	  if ( prev_file != "" ) {	  
 	    // writeFileDB( prev_file, package_path, revision_comment_words );
+
+	    // write out entry for file comments
+	    writeFileComments( database2, prev_file, file_comments );
 	  }
 	  revision_comment_words.clear();
+	  file_comments.clear();
 
 	  prev_file = lines.currentFile();
 
@@ -177,6 +218,15 @@ int main(int argc, char *argv[])
 	string data = lines.getData();
 	string code = lines.getCodeLine();
 	string codelinedata = lines.getCodeLineData();
+
+	map<string, list<string> > terms = lines.getRevisionCommentWords();
+	for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
+	  list<string> word_list = r->second;
+	  
+	  file_comments.insert(word_list); // avoid repetition
+	  
+	}	
+
 
 	// took out writes to src file
 	//src << codelinedata << " " << code << endl;
@@ -204,6 +254,9 @@ int main(int argc, char *argv[])
       }
       if ( prev_file != "" ) {
 	// writeFileDB( prev_file, package_path, revision_comment_words );
+
+	// write out entry for file comments
+	writeFileComments( database2, prev_file, file_comments );
       }
       cerr << "... done!" << endl;
     }
