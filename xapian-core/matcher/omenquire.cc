@@ -684,12 +684,73 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 }
 
 /////////////////////////////////
+// Internals of OmDatabase     //
+/////////////////////////////////
+class OmDatabase::Internal {
+    public:
+	vector<DatabaseBuilderParams> params;
+
+	//void add_database(const DatabaseBuilderParams & newdb);
+	void add_database(const string & type,
+			  const vector<string> & param);
+};
+
+void
+OmDatabase::Internal::add_database(const string & type,
+			const vector<string> & param)
+{
+    // Convert type into an om_database_type
+    om_database_type dbtype = OM_DBTYPE_NULL;
+    dbtype = stringToTypeMap<om_database_type>::get_type(type);
+
+    // Prepare dbparams to build database with (open it readonly)
+    DatabaseBuilderParams dbparam(dbtype, true);
+    dbparam.paths = param;
+
+    // Use dbparams to create database, and add it to the list of databases
+    params.push_back(dbparam);
+    //add_database(params);
+}
+
+///////////////////////////
+// Methods of OmDatabase //
+///////////////////////////
+
+OmDatabase::OmDatabase() {
+    internal = new OmDatabase::Internal();
+}
+
+OmDatabase::~OmDatabase() {
+    delete internal;
+}
+
+OmDatabase::OmDatabase(const OmDatabase &other)
+	: internal(new Internal(*other.internal))
+{
+}
+
+void OmDatabase::operator=(const OmDatabase &other)
+{
+    Internal *newinternal = new Internal(*other.internal);
+
+    swap(internal, newinternal);
+
+    delete newinternal;
+}
+
+void OmDatabase::add_database(const string &type,
+			      const vector<string> &params)
+{
+    internal->add_database(type, params);
+}
+
+/////////////////////////////////
 // Internals of enquire system //
 /////////////////////////////////
 
 class OmEnquireInternal {
 	mutable IRDatabase * database;
-	vector<DatabaseBuilderParams> dbparams;
+	OmDatabase dbdesc;
 	
 	/* This may need to be mutable in future so that it can be
 	 * replaced by an optimised version.
@@ -700,13 +761,10 @@ class OmEnquireInternal {
 	// pthread mutexes, if available.
 	OmLock mutex;
 
-	OmEnquireInternal();
+	OmEnquireInternal(const OmDatabase &db);
 	~OmEnquireInternal();
 
 	void open_database() const;
-	void add_database(const DatabaseBuilderParams & newdb);
-	void add_database(const string & type,
-			  const vector<string> & params);
 	void set_query(const OmQuery & query_);
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
@@ -728,8 +786,8 @@ class OmEnquireInternal {
 //////////////////////////////////////////
 
 inline
-OmEnquireInternal::OmEnquireInternal()
-	: database(0), query(0)
+OmEnquireInternal::OmEnquireInternal(const OmDatabase &db)
+	: database(0), dbdesc(db), query(0)
 {
 }
 
@@ -751,18 +809,19 @@ inline void
 OmEnquireInternal::open_database() const
 {
     if(database == 0) {
-	if(dbparams.size() == 0) {
+	if(dbdesc.internal->params.size() == 0) {
 	    throw OmInvalidArgumentError("Must specify at least one database");
-	} else if(dbparams.size() == 1) {
-	    database = DatabaseBuilder::create(dbparams.front());
+	} else if(dbdesc.internal->params.size() == 1) {
+	    database = DatabaseBuilder::create(dbdesc.internal->params.front());
 	} else {
 	    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
-	    multiparams.subdbs = dbparams;
+	    multiparams.subdbs = dbdesc.internal->params;
 	    database = DatabaseBuilder::create(multiparams);
 	}
     }
 }
 
+#if 0
 // Add a new database to list.  If database already opened, close it.
 inline void
 OmEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
@@ -773,22 +832,7 @@ OmEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
     }
     dbparams.push_back(newdb);
 }
-
-void
-OmEnquireInternal::add_database(const string & type,
-			const vector<string> & params)
-{
-    // Convert type into an om_database_type
-    om_database_type dbtype = OM_DBTYPE_NULL;
-    dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
-    // Prepare dbparams to build database with (open it readonly)
-    DatabaseBuilderParams dbparams(dbtype, true);
-    dbparams.paths = params;
-
-    // Use dbparams to create database, and add it to the list of databases
-    add_database(dbparams);
-}
+#endif
 
 inline void
 OmEnquireInternal::set_query(const OmQuery &query_)
@@ -1017,9 +1061,9 @@ OmEnquireInternal::get_matching_terms(om_docid did) const
 // Initialise and delete OmEnquire object //
 ////////////////////////////////////////////
 
-OmEnquire::OmEnquire()
+OmEnquire::OmEnquire(const OmDatabase &db)
 {
-    internal = new OmEnquireInternal();
+    internal = new OmEnquireInternal(db);
 }
 
 OmEnquire::~OmEnquire()
@@ -1032,6 +1076,7 @@ OmEnquire::~OmEnquire()
 // Set database //
 //////////////////
 
+#if 0
 void
 OmEnquire::add_database(const string & type,
 			const vector<string> & params)
@@ -1039,6 +1084,7 @@ OmEnquire::add_database(const string & type,
     OmLockSentry locksentry(internal->mutex);
     internal->add_database(type, params);
 }
+#endif
 
 void
 OmEnquire::set_query(const OmQuery & query_)

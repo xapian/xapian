@@ -1,3 +1,7 @@
+Wed Mar  1 19:14:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Separated OmDatabase out from OmEnquire, and fixed the tests.
+
 Tue Feb 29 17:41:32 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change OmMatch to LeafMatch.  Make LeafMatch inherit from Match,

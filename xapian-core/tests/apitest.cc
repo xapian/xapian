@@ -265,11 +265,12 @@ bool test_zerodocid_inmemory()
     bool success = true;
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_onedoc.txt");
 
-    enquire.add_database("inmemory", dbargs);
+    OmDatabase mydb;
+    mydb.add_database("inmemory", dbargs);
+    OmEnquire enquire(mydb);
 
     // make a simple query, with one word in it - "word".
     OmQuery myquery("word");
@@ -290,12 +291,18 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
-void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
+OmDatabase get_simple_database()
 {
+    OmDatabase mydb;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_simpledata.txt");
-    enq.add_database("inmemory", dbargs);
+    mydb.add_database("inmemory", dbargs);
 
+    return mydb;
+}
+
+void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
+{
     enq.set_query(query);
 }
 
@@ -303,7 +310,7 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire, query);
 
     // retrieve the top results
@@ -379,18 +386,20 @@ bool test_simplequery3()
 bool test_multidb1()
 {
     bool success = true;
-    OmEnquire enquire1;
+    OmDatabase mydb1;
     vector<string> dbargs1;
     dbargs1.push_back(datadir + "/apitest_simpledata.txt");
     dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
-    enquire1.add_database("inmemory", dbargs1);
+    mydb1.add_database("inmemory", dbargs1);
+    OmEnquire enquire1(mydb1);
 
-    OmEnquire enquire2;
+    OmDatabase mydb2;
     vector<string> dbargs2;
     dbargs2.push_back(datadir + "/apitest_simpledata.txt");
-    enquire2.add_database("inmemory", dbargs2);
+    mydb2.add_database("inmemory", dbargs2);
     dbargs2[0] = datadir + "/apitest_simpledata2.txt";
-    enquire2.add_database("inmemory", dbargs2);
+    mydb2.add_database("inmemory", dbargs2);
+    OmEnquire enquire2(mydb2);
 
     // make a simple query, with one word in it - "word".
     OmQuery myquery("word");
@@ -421,11 +430,7 @@ bool test_changequery1()
     // the index will have stemmed versions of the terms.
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-
-    enquire.add_database("inmemory", dbargs);
+    OmEnquire enquire(get_simple_database());
 
     OmQuery myquery("thi");
     // make a simple query
@@ -463,7 +468,7 @@ bool test_msetmaxitems1()
 
 bool test_expandmaxitems1()
 {
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
@@ -574,7 +579,7 @@ bool test_expandfunctor1()
 {
     bool success = true;
 
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
@@ -661,7 +666,7 @@ bool test_matchfunctor1()
     // FIXME: check that the functor works both ways.
     bool success = true;
 
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     myMatchDecider myfunctor;
@@ -691,7 +696,7 @@ bool test_pctcutoff1()
 {
     bool success = true;
 
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset1 = enquire.get_mset(0, 100);
@@ -760,7 +765,7 @@ bool test_allowqterms1()
 {
     bool success = true;
 
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
@@ -815,7 +820,7 @@ bool test_collapsekey1()
 {
     bool success = true;
 
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMatchOptions mymopt;
@@ -850,7 +855,7 @@ bool test_collapsekey1()
 
 bool test_reversebool1()
 {
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMatchOptions mymopt;
@@ -906,7 +911,7 @@ bool test_reversebool1()
 
 bool test_reversebool2()
 {
-    OmEnquire enquire;
+    OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMatchOptions mymopt;
@@ -1005,11 +1010,12 @@ bool test_getmterms1()
 	"four"
     };
 
-    OmEnquire enquire;
+    OmDatabase mydb;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_termorder.txt");
+    mydb.add_database("inmemory", dbargs);
 
-    enquire.add_database("inmemory", dbargs);
+    OmEnquire enquire(mydb);
 
     OmQuery myquery(OM_MOP_OR,
 	    OmQuery(OM_MOP_AND,
@@ -1070,10 +1076,11 @@ bool test_absentfile1()
     bool success = false;
 
     try {
-	OmEnquire enquire;
+	OmDatabase mydb;
 	vector<string> dbargs;
 	dbargs.push_back("/this_does_not_exist");
-	enquire.add_database("inmemory", dbargs);
+	mydb.add_database("inmemory", dbargs);
+	OmEnquire enquire(mydb);
 
 	OmQuery myquery("cheese");
 	enquire.set_query(myquery);
