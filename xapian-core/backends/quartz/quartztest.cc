@@ -148,14 +148,14 @@ static void check_table_values_empty(const QuartzDbTable & table)
 /// Test making and playing with a QuartzDbTable
 static bool test_dbtable1()
 {
-    QuartzDbTable table1(true);
-    QuartzDbTable table2(false);
+    QuartzDbTable table1("./test_dbtable1_", true);
+    QuartzDbTable table2("./test_dbtable1_", false);
 
-    QuartzRevisionNumber rev1 = table1.get_revision_number();
-    QuartzRevisionNumber rev2 = table2.get_revision_number();
+    QuartzRevisionNumber rev1 = table1.get_open_revision_number();
+    QuartzRevisionNumber rev2 = table2.get_open_revision_number();
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_EQUAL(rev2, table2.get_revision_number());
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_EQUAL(rev2, table2.get_open_revision_number());
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 0);
 
@@ -165,10 +165,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 0);
 
@@ -182,10 +182,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 1);
 
@@ -197,10 +197,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 1);
 
@@ -225,10 +225,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 1);
     
@@ -243,10 +243,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 0);
 
@@ -265,10 +265,10 @@ static bool test_dbtable1()
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
     table2.set_entries(newentries);
 
-    TEST_EQUAL(rev1, table1.get_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
-    rev1 = table1.get_revision_number();
-    rev2 = table2.get_revision_number();
+    TEST_EQUAL(rev1, table1.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
+    rev1 = table1.get_open_revision_number();
+    rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
     TEST_EQUAL(table2.get_entry_count(), 2);
 

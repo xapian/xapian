@@ -46,7 +46,7 @@ endif
 # Things to do if have doxygen installed
 if HAVE_DOXYGEN
 all-local: # doxygen_docs
-dist-hook: doxygen_docs doxygen_dist
+dist-hook: apidoc/html/index.html doxygen_dist
 install-data-local: doxygen_docs doxygen_install
 else
 all-local:

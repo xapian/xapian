@@ -1,3 +1,8 @@
+Wed Sep 20 18:56:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* docs/Makefile.am, only build apidocs when making a dist, leave full
+	  documentation for a local install.
+
 Wed Sep 20 18:26:33 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updated Quartz to use AutoPtr
