@@ -1,3 +1,7 @@
+Fri Jul 04 22:13:44 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Ignore autom4te.cache.
+
 Fri Jul 04 22:12:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: add missing ';;' as case pattern delimiter
