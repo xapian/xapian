@@ -1622,6 +1622,7 @@ struct Bcursor {
     struct Btree * B;
     struct Cursor * C;
 
+    int shared_level; /* The value of shared_level in the Btree structure. */
 };
 
 static int prev(struct Btree * B, struct Cursor * C, int j);
@@ -1677,7 +1678,10 @@ extern struct Bcursor * Bcursor_create(struct Btree * B)
     BC->B = B;
     BC->C = (struct Cursor *) calloc(B->level + 1, sizeof(struct Cursor));
     if (BC->C == 0) goto no_space;
-    {   struct Cursor * C = BC->C;
+    {
+	BC->shared_level = B->shared_level;
+
+	struct Cursor * C = BC->C;
         struct Cursor * C_of_B = B->C;
         int j; for (j = 0; j < B->shared_level; j++)
         {   C[j].n = -1;
@@ -1696,9 +1700,10 @@ no_space:
 
 extern void Bcursor_lose(struct Bcursor * BC)
 {
-    struct Btree * B = BC->B;
     struct Cursor * C = BC->C;
-    int j; for (j = 0; j < B->shared_level; j++) free(C[j].p);
+    // Use the value of shared_level stored in the cursor rather than the
+    // Btree, since the Btree might have been deleted already.
+    int j; for (j = 0; j < BC->shared_level; j++) free(C[j].p);
     free(C);
     free(BC);
 }
