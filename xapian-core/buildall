@@ -6,6 +6,7 @@
 # Copyright 1999,2000,2001 BrightStation PLC
 # Copyright 2001 James Aylett
 # Copyright 2002 Ananova Ltd
+# Copyright 2002 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -93,15 +94,13 @@ esac
 case "`automake --version|sed 's/.* //;q' 2>/dev/null`" in
 "")
   ERRMSG="${ERRMSG}Maintainer tool automake not found\\n" ;;
-0.*|1.[0-4]|1.[0-4][^0-9]*)
-  ERRMSG="${ERRMSG}Maintainer tool automake needs to be at least version 1.5\\n" ;;
-1.6)
-  ERRMSG="${ERRMSG}Maintainer tool automake can't be version 1.6 - use 1.5 or at least 1.6.1\\n" ;;
+0.*|1.[0-5]*|1.6|1.6.[012])
+  ERRMSG="${ERRMSG}Maintainer tool automake needs to be at least version 1.6.3\\n" ;;
 esac
 case "`libtool --version|sed 's/.* //;q' 2>/dev/null`" in
 "")
   ERRMSG="${ERRMSG}Maintainer tool libtool not found\\n" ;;
-[0].*|1.[0123]|1.[0123][^0-9]*|1.1[012]|1.3|1.3[^0-9]*|1.3.[012]|1.3.[012][^0-9]*)
+0.*|1.[0123]|1.[0123][^0-9]*|1.1[012]|1.3|1.3[^0-9]*|1.3.[012]|1.3.[012][^0-9]*)
   ERRMSG="${ERRMSG}Maintainer tool libtool needs to be at least version 1.3.3\\n" ;;
 esac
 case "`bison --version|sed 's/.* //;q'`" in

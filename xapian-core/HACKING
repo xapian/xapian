@@ -117,16 +117,16 @@ at the time of writing, the versions known to work are:
 	
 Please tell us if you find that older (or newer) versions work or fail to work.
 
-We have provided a simple standard script to run these programs for you:
-simply run ${source-directory}/buildall, in the same way you would normally
-run configure.  Arguments passed to buildall are in turn passed on to configure.
+We have provided a simple script (bootstrap) to run these programs for you
+and produce a source tree like that you'd get from unpacking the result of
+"make dist".
 
-You may need to add extra macro directories to the path searched by aclocal
-(which is part of autoconf) - you may do this by specifying these in the
-ACLOCAL_FLAGS environment variable.
+When running bootstrap, you may need to add extra macro directories to the path
+searched by aclocal (which is part of autoconf) - you may do this by specifying
+these in the ACLOCAL_FLAGS environment variable.
 
-See "buildall --help" for more information. Alternatively, there is a
-good overview of the GNU autotools at <http://sources.redhat.com/autobook/>.
+There is a good overview of the GNU autotools at
+<http://sources.redhat.com/autobook/>.
 
 Miscellaneous Portability Issues:
 =================================

@@ -46,11 +46,6 @@ Finish reading through generated docs to ensure they read well in collated form.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-Strip down buildall and rename to bootstrap.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
 Check for swig version.
 
 </todoitem>

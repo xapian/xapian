@@ -1,3 +1,10 @@
+Tue Oct 01 12:33:38 BST 2002  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am,bootstrap,buildall,xapian.spec.in,
+	  autoconf/dir_contents,docs/todo.xml: Added bootstrap script as a
+	  replacement for buildall (buildall left in place for now until
+	  bootstrap receives wider testing).
+
 Tue Oct 01 12:19:32 BST 2002  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,configure.in,PLATFORMS: require automake 1.6.3

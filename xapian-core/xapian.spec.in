@@ -15,19 +15,10 @@ Source0: http://www.xapian.org/download/distributions/xapian-core-%{version}.tar
 # Where are we going to build the install set to?
 BuildRoot: %{_tmppath}/%{name}-root
 
+# FIXME improve description
 %description
-Xapian is not an application, but a library that enables developers to use
-advanced information retrieval techniques in their own projects. This
-makes it an attractive alternative to "packaged" search engines that need
-to be extensively hacked in order to use it as a specialty search engine.
- 
-Features of Xapian include: 
- 
-* Flexible indexing of documents; 
-* Full access to the index: from term to document and from document to terms; 
-* Good query possibilities, including Boolean and phrase search; 
-* Advanced ranking techniques; 
-* Relevance feedback. 
+Xapian is a library that enables developers to use advanced probabilistic
+information retrieval techniques in their own projects.
 
 %package devel
 Group: Development/Libraries
@@ -42,12 +33,12 @@ pre-built packages which make use of Xapian.
 %prep
 %setup -q -n xapian-core-%{version}
 
-# Weld the patchs into the main source
+# Apply the patches to the main source
 #%patch0 -p1
 
 %build
 
-test -f ./configure || ./buildall
+test -f ./configure || ./bootstap
 ./configure --prefix=/usr
 make
 echo $RPM_BUILD_ROOT
