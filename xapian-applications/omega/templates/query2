@@ -146,14 +146,13 @@ $NEXT
 $ifhiddenvar{DB,$dbname}
 $hiddenvar{xDB,$dbname}
 $hiddenvar{xP,$queryterms,.,.}
-$hiddenvar{xB,$cgi{B}}
 $hiddenvar{xFILTERS,$filters}
 $if{$ne{$topdoc,0},$hiddenvar{TOPDOC,topdoc>}}
 $if{$ne{$hitsperpage,10},$hiddenvar{HITSPERPAGE,$hitsperpage}}
 $ifhiddenvar{FMT,$fmt}
 $ifhiddenvar{COLLAPSE,$cgi{COLLAPSE}}
 $ifhiddenvar{THRESHOLD,$cgi{THRESHOLD}}
-$ifhiddenvar{B,$cgi{B}}
+$ifhiddenvar{B,$cgilist{B}}
 $hiddenvar{R,$relevants,.}
 $ifhiddenvar{GROUP,$cgi{GROUP}}
 </FORM>

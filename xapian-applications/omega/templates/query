@@ -57,7 +57,7 @@ $if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
  $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
   All $nice{$msize} matches,
-  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$msize},-$nice{$last}} of exactly $nice{$msize} matches}
+  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <hr>
 </center>
@@ -113,9 +113,9 @@ $list{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE=",.,.">}
 <INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}
-${Preserve the B filter if used.  When it becomes part of the template UI just leave the xB behind}
-$if{$cgi{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$cgi{B}}">
-            <INPUT TYPE=hidden NAME=xB VALUE="$html{$cgi{B}}">}
+${Preserve any B filters used - this needs modifying if you modify this template
+  to have B on radio buttons, SELECT, etc}
+$map{$cgilist{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$_}">}
 </FORM>
 <hr><div align=right><i><small><a href="http://www.xapian.org/">$html{$version}</a></small></i></div>
 </body>
