@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 AC_PREREQ(2.54)
-AC_INIT(xapian-queryserver, 0.8.2, richard@tartarus.org)
+AC_INIT(xapian-queryserver, 0.8.3, richard@tartarus.org)
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(source/queryserver.cpp)
 
