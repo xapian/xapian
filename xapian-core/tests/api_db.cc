@@ -272,6 +272,43 @@ static bool test_multidb5()
     return true;
 }
 
+class MyErrorHandler : public OmErrorHandler {
+    public:
+	bool count;
+
+	bool handle_error(OmError & error) {
+	    count += 1;
+	    return true;
+	};
+
+	MyErrorHandler() : count (0) {}
+};
+
+// tests error handler in multimatch().
+static bool test_multidb6()
+{
+    MyErrorHandler myhandler;
+
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmDatabase mydb4(get_database("-e", "apitest_termorder"));
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
+    enquire.set_error_handler(&myhandler);
+
+    // make a query
+    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    myquery.set_bool(true);
+    enquire.set_query(myquery);
+
+    // retrieve the top ten results
+    OmMSet mymset = enquire.get_mset(0, 10);
+
+    TEST_EQUAL(myhandler.count, 1);
+    mset_expect_order(mymset, 2, 3, 10);
+
+    return true;
+}
+
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
 static bool test_changequery1()
@@ -1638,5 +1675,10 @@ test_desc localdb_tests[] = {
     {"postlist2",	   test_postlist2},
     {"postlist3",	   test_postlist3},
     {"postlist4",	   test_postlist4},
+    {0, 0}
+};
+
+test_desc remotedb_tests[] = {
+    {"multidb6",           test_multidb6},
     {0, 0}
 };

@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
 
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
     RUNTESTS("remote", db);
+    RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);
 #endif

@@ -62,9 +62,14 @@ class OmEnquireInternal {
 	 */
 	om_termname_list calc_matching_terms(om_docid did) const;
     public:
+	/** The error handler, if set.  (0 if not set).
+	 */
+	OmErrorHandler * errorhandler;
+
 	OmEnquireInternal(const OmDatabase &databases);
 	~OmEnquireInternal();
 
+	void set_error_handler(OmErrorHandler * errorhandler_);
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
 	OmMSet get_mset(om_doccount first,

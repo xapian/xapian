@@ -158,6 +158,9 @@ BackendManager::set_dbtype(const std::string &type)
     if (type == "inmemory") {
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
+    } else if (type == "inmemoryerr") {
+	do_getdb = &BackendManager::getdb_inmemoryerr;
+	do_getwritedb = &BackendManager::getwritedb_inmemoryerr;
     } else if (type == "sleepycat") {
 	do_getdb = &BackendManager::getdb_sleepycat;
 	do_getwritedb = &BackendManager::getwritedb_sleepycat;
@@ -242,6 +245,24 @@ BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
+    OmWritableDatabase db(params);
+    index_files_to_database(db, change_names_to_paths(dbnames));
+
+    return db;
+}
+
+OmDatabase
+BackendManager::getdb_inmemoryerr(const std::vector<std::string> &dbnames)
+{
+    return getwritedb_inmemoryerr(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_inmemoryerr(const std::vector<std::string> &dbnames)
+{
+    OmSettings params;
+    params.set("backend", "inmemory");
+    params.set("inmemory_error", "next");
     OmWritableDatabase db(params);
     index_files_to_database(db, change_names_to_paths(dbnames));
 

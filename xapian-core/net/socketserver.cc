@@ -229,7 +229,7 @@ SocketServer::run_match(const std::string &firstmessage)
     DEBUGLINE(UNKNOWN, "About to get_mset(" << first
 	      << ", " << maxitems << "...");
 
-    match.get_mset(first, maxitems, mset, 0);
+    match.get_mset(first, maxitems, mset, 0, 0);
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 

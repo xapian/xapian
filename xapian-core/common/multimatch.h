@@ -33,6 +33,7 @@
 #include "om/autoptr.h"  // auto_ptr
 
 class SubMatch;
+class OmErrorHandler;
 
 class MultiMatch
 {
@@ -94,9 +95,11 @@ class MultiMatch
 		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
 
-	void get_mset(om_doccount first, om_doccount maxitems,
+	void get_mset(om_doccount first,
+		      om_doccount maxitems,
 		      OmMSet & mset,
-		      const OmMatchDecider *mdecider);
+		      const OmMatchDecider * mdecider,
+		      OmErrorHandler * errorhandler);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

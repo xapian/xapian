@@ -21,10 +21,22 @@
  */
 
 #include "om/omerror.h"
+#include "om/omerrorhandler.h"
 #include "omdebug.h"
 
-OmError::OmError(const std::string &msg_, const std::string &type_)
-	: msg(msg_), type(type_)
+OmError::OmError(const std::string &msg_,
+		 const std::string &context_,
+		 const std::string &type_)
+	: msg(msg_), context(context_), type(type_), has_been_handled(false)
 {
-    DEBUGLINE(EXCEPTION, type << "(" << msg << ")");
+    DEBUGLINE(EXCEPTION, type << "(" << msg << ", " << context_ << ")");
 }
+
+void
+OmErrorHandler::operator() (OmError & error)
+{
+    if (error.has_been_handled) throw error;
+    error.has_been_handled = true;
+    if (!handle_error(error)) throw error;
+}
+

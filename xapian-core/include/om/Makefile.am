@@ -3,7 +3,7 @@
 libomusincludedir = $(includedir)/om
 libomusinclude_HEADERS = om.h \
 omstem.h \
-omerror.h omtypes.h omenquire.h omdocument.h \
+omerror.h omerrorhandler.h omtypes.h omenquire.h omdocument.h \
 omdatabase.h omindexdoc.h omsettings.h omoutput.h \
 ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
 omindexer.h omindexerbuilder.h omindexercommon.h omindexerdesc.h \

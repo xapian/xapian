@@ -61,6 +61,8 @@
 #include "om/autoptr.h"
 #include <queue>
 
+class OmErrorHandler;
+
 // Comparison which sorts equally weighted MSetItems in docid order
 bool msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b) {
     if(a.wt > b.wt) return true;
@@ -157,7 +159,8 @@ MultiMatch::prepare_matchers()
 
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     OmMSet & mset, const OmMatchDecider *mdecider)
+		     OmMSet & mset, const OmMatchDecider *mdecider,
+		     OmErrorHandler * errorhandler)
 {
     Assert(!leaves.empty());
 
@@ -178,7 +181,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	for (i = leaves.begin(); i != leaves.end(); i++) {
 	    v.push_back((*i)->get_postlist(first + maxitems, this));
 	}
-	pl = new MergePostList(v);
+	pl = new MergePostList(v, errorhandler);
     }
 
     const std::map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts =

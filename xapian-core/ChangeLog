@@ -1,7 +1,32 @@
+Tue Oct 17 18:44:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* API Change: add error handlers.  This involves: adding an
+	  OmErrorHandler base class, which should be subclassed to make a
+	  custom handler; and adding a OmEnquire::set_error_handler() method.
+	  OmErrors also have a new flag
+
+	  The error handler is used in the OmEnquire object, and any errors
+	  produced by this object will be passed to the handler before being
+	  thrown.  The handler is also used by the matcher (in fact, by
+	  MergePostList), and errors in a merge postlist may be ignored
+	  and coped with as well as possible if the error handler decides
+	  not to propagate the error.
+
+	* Added a "context" member to OmErrors - this is set to a null string
+	  at the moment, but will be used to store the context which an error
+	  occurred in at a later date - for example, the identity of the
+	  database in which a remote error occurred.
+
+	* Added a parameter to InMemory databases which causes any postlists
+	  to throw a database corrupt error when next is called.  Also added a
+	  parameter to progserver to cause this parameter to be specified for
+	  the database being opened.  This allows testing of the error handler
+	  code.
+
 Tue Oct 17 15:53:47 BST 2000 Olly Betts
 
-	* net/progserver.cc: Removed `#include "localmatch.h"' - missed this file
-	  in earlier checkin.
+	* net/progserver.cc: Removed `#include "localmatch.h"' - missed this
+	  file in earlier checkin.
 
 Tue Oct 17 12:58:48 BST 2000 Olly Betts
 

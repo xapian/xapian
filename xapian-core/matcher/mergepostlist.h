@@ -36,6 +36,7 @@ class MergePostList : public PostList {
 
 	int current;
 
+	OmErrorHandler * errorhandler;
     public:
 	om_doccount get_termfreq() const;
 
@@ -60,7 +61,8 @@ class MergePostList : public PostList {
 
 	virtual PositionList * get_position_list();
 
-        MergePostList(std::vector<PostList *> plists_);
+        MergePostList(std::vector<PostList *> plists_,
+		      OmErrorHandler * errorhandler_);
         ~MergePostList();
 };
 

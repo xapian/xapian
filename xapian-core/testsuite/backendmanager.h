@@ -58,8 +58,18 @@ class BackendManager {
 	/// Get an inmemory database instance.
 	OmDatabase getdb_inmemory(const std::vector<std::string> &dbnames);
 
-	/// Get an writable inmemory database instance.
+	/// Get a writable inmemory database instance.
 	OmWritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
+
+	/** Get an inmemory database instance, which will throw an error when
+	 *  next is called.
+	 */
+	OmDatabase getdb_inmemoryerr(const std::vector<std::string> &dbnames);
+
+	/** Get a writable inmemory database instance, which will throw an
+	 *  error when next is called.
+	 */
+	OmWritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
 
 	/// Get a network database instance
 	OmDatabase getdb_network(const std::vector<std::string> &dbnames);

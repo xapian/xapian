@@ -34,6 +34,7 @@
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
+class OmErrorHandler;    // Declare ErrorHandler class
 class OmMSetCmp;         // Declare mset item comparison class
 
 ///////////////////////////////////////////////////////////////////
@@ -547,6 +548,21 @@ class OmEnquire {
 	 *  not be used subsequently.
 	 */
 	~OmEnquire();
+
+	/** Set an error handler to use.
+	 *
+	 *  The error handler is called whenever an error occurs, and
+	 *  determines what is done with the error.
+	 *
+	 *  @param errorhandler_  A pointer to the error handler to use.
+	 *                        Ownership of the object pointed to is not
+	 *                        assumed by the OmEnquire object - the user
+	 *                        should free the OmErrorHandler object after
+	 *                        the OmEnquire object closes.  To remove
+	 *                        the error handler, this parameter should be
+	 *                        0.
+	 */
+	void set_error_handler(OmErrorHandler * errorhandler_);
 
 	/** Set the query to run.
 	 *

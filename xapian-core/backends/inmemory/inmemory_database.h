@@ -245,6 +245,11 @@ class InMemoryDatabase : public Database {
 	//@}
 
     public:
+	/** Hack put in to cause an error when calling next, for testing
+	 *  purposes.
+	 */
+	bool die_in_next;
+
 	~InMemoryDatabase();
 
 	om_doccount  get_doccount() const;
@@ -299,6 +304,7 @@ InMemoryPostList::get_docid() const
 inline PostList *
 InMemoryPostList::next(om_weight w_min)
 {
+    if (this_db->die_in_next) throw OmDatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
     //DebugMsg(tname << ".next()" << endl);
     if(started) {
 	Assert(!at_end());

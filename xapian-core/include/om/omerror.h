@@ -28,15 +28,25 @@
 
 #include "omtypes.h"
 
+class OmErrorHandler;
+
 /// Base class for all errors reported
 class OmError {
+    friend OmErrorHandler;
     private:
 	/// A message explaining the error.
         std::string msg;
 
+	/// A message giving the context in which the error occurred.
+	std::string context;
+
 	/** The type of the error.
 	 */
 	std::string type;
+
+	/** Whether the error has passed through a handler yet.
+	 */
+	bool has_been_handled;
 
 	/// assignment operator private and unimplemented
 	void operator=(const OmError &copyme);
@@ -44,8 +54,15 @@ class OmError {
     	/** Constructors are protected, since they can only
 	 *  be used by derived classes anyway.
 	 */
-        OmError(const std::string &msg_, const std::string &type_);
-	OmError(const OmError &copyme) : msg(copyme.msg), type(copyme.type) {}
+        OmError(const std::string &msg_,
+		const std::string &context_,
+		const std::string &type_);
+
+	OmError(const OmError &copyme)
+		: msg(copyme.msg),
+		  context(copyme.context),
+		  type(copyme.type),
+		  has_been_handled(copyme.has_been_handled) {}
     public:
 	/** Return a message describing the error.
 	 *  This is in a human readable form.
@@ -62,6 +79,13 @@ class OmError {
 	    return type;
 	}
 
+	/** Get the context of the error.
+	 */
+	std::string get_context() const
+	{
+	    return context;
+	}
+
         /// Instantiations of OmError (as opposed to subclasses) are forbidden
 	virtual ~OmError() = 0;
 };
@@ -72,17 +96,22 @@ inline OmError::~OmError() {}
 class a : public b { \
     protected: \
 	/** Constructor used by derived classes. */ \
-	a(const std::string &msg_, const std::string &type_) : b(msg_, type_) {}; \
+	a(const std::string &msg_, \
+	  const std::string &context_, \
+	  const std::string &type_) : b(msg_, context_, type_) {}; \
 }
 
 #define DEFINE_ERROR_CLASS(a, b) \
 class a : public b { \
     public: \
 	/** Constructor used publically. */ \
-	a(const std::string &msg_) : b(msg_, #a) {}; \
+	a(const std::string &msg_, \
+	  const std::string &context_ = "") : b(msg_, context_, #a) {}; \
     protected: \
 	/** Constructor used by derived classes. */ \
-	a(const std::string &msg_, const std::string &type_) : b(msg_, type_) {}; \
+	a(const std::string &msg_, \
+	  const std::string &context_, \
+	  const std::string &type_) : b(msg_, context_, type_) {}; \
 }
 
 /** Base class for errors due to programming errors.

@@ -26,6 +26,7 @@
 /* Types and exceptions */
 #include "omtypes.h"
 #include "omerror.h"
+#include "omerrorhandler.h"
 
 /* Settings/Options */
 #include "omsettings.h"

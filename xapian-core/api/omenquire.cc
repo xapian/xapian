@@ -34,7 +34,8 @@
 #include "expand.h"
 #include "database.h"
 #include "database_builder.h"
-#include <om/omdocument.h>
+#include "om/omdocument.h"
+#include "om/omerrorhandler.h"
 #include "omdocumentparams.h"
 #include "omenquireinternal.h"
 #include "utils.h"
@@ -246,7 +247,7 @@ OmESet::get_description() const
 ///////////////////////////////////
 
 OmEnquireInternal::OmEnquireInternal(const OmDatabase &db_)
-  : db(db_), query(0)
+  : db(db_), query(0), errorhandler(0)
 {
 }
 
@@ -256,6 +257,12 @@ OmEnquireInternal::~OmEnquireInternal()
 	delete query;
 	query = 0;
     }
+}
+
+void
+OmEnquireInternal::set_error_handler(OmErrorHandler * errorhandler_)
+{
+    errorhandler = errorhandler_;
 }
 
 void
@@ -308,18 +315,15 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     // FIXME: make match take a refcntptr
     //
-    // Notes: when accessing query, we don't need to lock mutex, since its our
-    // own copy and we're locked ourselves
+    // Notes: when accessing query, we don't need to lock mutex, since it's
+    // our own copy and we're locked ourselves
     MultiMatch match(db, query->internal, *omrset, *moptions);
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object
-    match.get_mset(first, maxitems, retval, mdecider);
+    match.get_mset(first, maxitems, retval, mdecider, errorhandler);
 
     Assert(!(query->is_bool()) || retval.max_possible == 0);
-
-    // Store what the first item requested was, so that this information is
-    // kept with the mset.
 
     return retval;
 }
@@ -533,17 +537,34 @@ OmEnquire::~OmEnquire()
 }
 
 void
+OmEnquire::set_error_handler(OmErrorHandler * errorhandler_)
+{
+    DEBUGAPICALL(void, "OmEnquire::set_error_handler", errorhandler_);
+    internal->set_error_handler(errorhandler_);
+}
+
+void
 OmEnquire::set_query(const OmQuery & query_)
 {
     DEBUGAPICALL(void, "OmEnquire::set_query", query_);
-    internal->set_query(query_);
+    try {
+	internal->set_query(query_);
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 const OmQuery &
 OmEnquire::get_query()
 {
     DEBUGAPICALL(const OmQuery &, "OmEnquire::get_query", "");
-    RETURN(internal->get_query());
+    try {
+	RETURN(internal->get_query());
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 OmMSet
@@ -560,10 +581,13 @@ OmEnquire::get_mset(om_doccount first,
 		 omrset << ", " <<
 		 moptions << ", " << mdecider);
 
-    // FIXME: this copies the mset too much: pass it in by reference?
-    OmMSet mset(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
-
-    RETURN(mset);
+    try {
+	// FIXME: this copies the mset too much: pass it in by reference?
+	RETURN(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 OmESet
@@ -580,55 +604,87 @@ OmEnquire::get_eset(om_termcount maxitems,
 		 eoptions << ", " <<
 		 edecider);
 
-    // FIXME: this copies the eset too much: pass it in by reference?
-    OmESet eset(internal->get_eset(maxitems, omrset, eoptions, edecider));
-    RETURN(eset);
+    try {
+	// FIXME: this copies the eset too much: pass it in by reference?
+	RETURN(internal->get_eset(maxitems, omrset, eoptions, edecider));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 const OmDocument
 OmEnquire::get_doc(om_docid did) const
 {
     DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", did);
-    OmDocument doc(internal->get_doc(did));
-    RETURN(doc);
+    try {
+	RETURN(internal->get_doc(did));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
     DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", mitem);
-    OmDocument doc(internal->get_doc(mitem));
-    RETURN(doc);
+    try {
+	RETURN(internal->get_doc(mitem));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 const std::vector<OmDocument>
 OmEnquire::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 		    std::vector<OmMSetItem>::const_iterator end) const
 {
-    // FIXME apicall tracing stuff
-    return internal->get_docs(begin, end);
+    DEBUGAPICALL(const std::vector<OmDocument>,
+		 "OmEnquire::get_docs", begin << ", " << end);
+    try {
+	// FIXME - debug info for return
+	return(internal->get_docs(begin, end));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
     DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", mitem);
-    om_termname_list matching_terms(internal->get_matching_terms(mitem));
-    RETURN(matching_terms);
+    try {
+	RETURN(internal->get_matching_terms(mitem));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
     DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", did);
-    om_termname_list matching_terms(internal->get_matching_terms(did));
-    RETURN(matching_terms);
+    try {
+	RETURN(internal->get_matching_terms(did));
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
 
 std::string
 OmEnquire::get_description() const
 {
     DEBUGAPICALL(std::string, "OmEnquire::get_description", "");
-    std::string description = "OmEnquire(" + internal->get_description() + ")";
-    RETURN(description);
+    try {
+	RETURN("OmEnquire(" + internal->get_description() + ")");
+    } catch (OmError & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
 }
+

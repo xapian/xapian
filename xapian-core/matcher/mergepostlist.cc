@@ -24,9 +24,11 @@
 
 #include "mergepostlist.h"
 #include "omdebug.h"
+#include "om/omerrorhandler.h"
 
-MergePostList::MergePostList(std::vector<PostList *> plists_)
-    : plists(plists_), current(-1)
+MergePostList::MergePostList(std::vector<PostList *> plists_,
+			     OmErrorHandler * errorhandler_)
+    : plists(plists_), current(-1), errorhandler(errorhandler_)
 {
     DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
 }
@@ -49,13 +51,22 @@ MergePostList::next(om_weight w_min)
     do {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
-	PostList *p = plists[current]->next(w_min);
-	if (p) {
+	PostList *p = 0;
+	
+	try {
+	    p = plists[current]->next(w_min);
+	    if (p) {
+		delete plists[current];
+		plists[current] = p;
+	    }
+	    if (!plists[current]->at_end()) break;
+	    current++;
+	} catch (OmError & e) {
+	    if (errorhandler) (*errorhandler)(e);
+	    // Continue match without this sub-postlist.
 	    delete plists[current];
-	    plists[current] = p;
+	    plists.erase(plists.begin() + current);
 	}
-	if (!plists[current]->at_end()) break;
-	current++;
     } while ((unsigned)current < plists.size());
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
@@ -66,5 +77,6 @@ MergePostList::skip_to(om_docid did, om_weight w_min)
 {
     // MergePostList doesn't return documents in docid order, so skip_to
     // isn't a meaningful operation.
-    throw OmUnimplementedError("MergePostList doesn't support skip_to");
+    throw OmInvalidOperationError("MergePostList doesn't support skip_to");
 }
+
