@@ -1,3 +1,9 @@
+Tue Jun 15 15:40:11 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fixed PostlistChunkReader to
+	  take a copy of the postlist data being read to avoid problems with
+	  reading data from a string that's been deleted.
+
 Tue Jun 15 15:26:54 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Updated the list of tasks required for a new release.

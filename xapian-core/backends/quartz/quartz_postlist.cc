@@ -247,12 +247,10 @@ class PostlistChunkReader {
 	/** Initialise the postlist chunk reader.
 	 *
 	 *  @param first_did  First document id in this chunk.
-	 *  @param pos        A pointer to the tag string just after the header.
-	 *  @param end        A pointer to one-past-the-end of the tag value.
+	 *  @param data       The tag string with the header removed.
 	 */
-	PostlistChunkReader(Xapian::docid first_did,
-			    const char *pos_, const char *end_)
-	    : pos(pos_), end(end_), at_end(pos == end), did(first_did)
+	PostlistChunkReader(Xapian::docid first_did, const string & data_)
+	    : data(data_), pos(data.data()), end(pos + data.length()), at_end(data.empty()), did(first_did)
 	{
 	    if (!at_end) read_wdf_and_length(&pos, end, &wdf, &doclength);
 	}
@@ -276,6 +274,8 @@ class PostlistChunkReader {
 	void next();
 
     private:
+	string data;
+
 	const char *pos;
 	const char *end;
 
@@ -960,7 +960,7 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
 	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
 			  string(pos, end)); 
     } else {
-	*from = new PostlistChunkReader(first_did_in_chunk, pos, end);
+	*from = new PostlistChunkReader(first_did_in_chunk, string(pos, end));
     }
     if (is_last_chunk) return Xapian::docid(-1);
 
