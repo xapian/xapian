@@ -30,7 +30,8 @@ class SleepyPostList : public virtual DBPostList {
 
 	docid      get_docid() const;   // Current docid
 	weight     get_weight() const;  // Current weight
-        PostList * next(weight w_min);  // Move next docid
+        PostList * next(weight);  // Move to next docid
+        PostList * skip_to(docid, weight);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list
 };
 
@@ -87,8 +88,8 @@ class SleepyDatabase : public virtual IRSingleDatabase {
 	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
-	TermList * open_term_list(docid id) const;
-	IRDocument * open_document(docid id) const;
+	TermList * open_term_list(docid) const;
+	IRDocument * open_document(docid) const;
 
 	const string get_database_path() const;
 };
@@ -118,6 +119,18 @@ SleepyPostList::next(weight w_min)
 {
     Assert(!at_end());
     pos ++;
+    return NULL;
+}
+
+inline PostList *
+SleepyPostList::skip_to(docid did, weight w_min)
+{
+    Assert(!at_end());
+    if(pos == 0) pos++;
+    while (!at_end() && data[pos - 1] < did) {
+	PostList *ret = next(w_min);
+	if (ret) return ret;
+    }
     return NULL;
 }
 

@@ -53,7 +53,7 @@ class MultiPostList : public virtual DBPostList {
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
 	PostList *next(weight);          // Moves to next docid
-	//PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
+	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 };
 

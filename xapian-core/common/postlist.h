@@ -27,24 +27,11 @@ class PostList {
 	// calculation is expensive, since many documents will be thrown
 	// away anyway without calculating the weight.
 	virtual PostList *next(weight w_min) = 0; // Moves to next docid
-	virtual PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
+	virtual PostList *skip_to(docid, weight w_min) = 0; // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
 };
-
-// naive implementation for database that can't do any better
-inline PostList *
-PostList::skip_to(docid id, weight w_min)
-{
-    Assert(!at_end());
-    while (!at_end() && get_docid() < id) {
-	PostList *ret = next(w_min);
-	if (ret) return ret;
-    }
-    return NULL;
-}
-
 
 // Postlist which is actually directly related to entries in a database
 // (in some sense)  Nice description, eh -- Richard

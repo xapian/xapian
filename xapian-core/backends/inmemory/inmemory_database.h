@@ -116,12 +116,7 @@ class TextfilePostList : public virtual DBPostList {
 	weight get_weight() const;    // Gets current weight
 	PostList *next(weight);          // Moves to next docid
 
-	//PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
-	// FIXME - implement a skip_to.  Note, though, that a binary search of
-	// the remaining list may NOT be a good idea (search time is then
-	// O(log {length of list}), as opposed to O(distance we want to skip)
-	// Since we will frequently only be skipping a short distance, this
-	// could be worse.
+	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
 };
@@ -245,6 +240,23 @@ TextfilePostList::next(weight w_min)
 	pos++;
     } else {
 	started = true;
+    }
+    return NULL;
+}
+
+inline PostList *
+TextfilePostList::skip_to(docid did, weight w_min)
+{
+    // FIXME - see if we can make more efficient, perhaps using better
+    // data structure.  Note, though, that a binary search of
+    // the remaining list may NOT be a good idea (search time is then
+    // O(log {length of list}), as opposed to O(distance we want to skip)
+    // Since we will frequently only be skipping a short distance, this
+    // could well be worse.
+    Assert(!at_end());
+    while (!at_end() && (*pos).did < did) {
+	PostList *ret = next(w_min);
+	if (ret) return ret;
     }
     return NULL;
 }

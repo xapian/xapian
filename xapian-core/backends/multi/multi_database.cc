@@ -55,8 +55,6 @@ weight MultiPostList::get_weight() const
 PostList * MultiPostList::next(weight w_min)
 {
     Assert(!at_end());
-    
-    docid newdoc = 0;
 
     list<MultiPostListInternal>::iterator i = postlists.begin();
     while(i != postlists.end()) {
@@ -77,20 +75,40 @@ PostList * MultiPostList::next(weight w_min)
 	    (*i).currdoc = ((*i).pl->get_docid() - 1) * (*i).multiplier +
 		           (*i).offset;
 	}
-
-	// Check if it might be the newdoc
-	if(newdoc > (*i).currdoc || newdoc == 0) newdoc = (*i).currdoc;
 	i++;
     }
+    if(postlists.size() == 0) {
+	finished = true;
+	return NULL;
+    }
+
+    i = postlists.begin();
+    docid newdoc = (*i).currdoc;
+    for(i++; i != postlists.end(); i++) {
+	// Check if it might be the newdoc
+	if((*i).currdoc < newdoc) newdoc = (*i).currdoc;
+    }
+
+    cout << "MultiPostList::next() -- currdoc = " << currdoc <<
+	    " newdoc = " << newdoc << endl;
 
     currdoc = newdoc;
 
-    if(postlists.begin() == postlists.end())
-	finished = true;
     return NULL;
 }
 
-// FIXME - implement skip_to() for efficiency
+// FIXME - write implementation to use skip_to methods of sub-postlists
+// for greater efficiency
+PostList *
+MultiPostList::skip_to(docid did, weight w_min)
+{
+    Assert(!at_end());
+    while (!at_end() && currdoc < did) {
+	PostList *ret = next(w_min);
+	if (ret) return ret;
+    }
+    return NULL;
+}
 
 ///////////////////////////
 // Actual database class //

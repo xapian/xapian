@@ -15,7 +15,8 @@ class EmptyPostList : public virtual PostList {
 
         weight recalc_maxweight();
 
-	PostList *next(weight w_min);
+	PostList *next(weight);
+	PostList *skip_to(docid, weight);
 	bool   at_end() const;
 };
 
@@ -53,6 +54,12 @@ EmptyPostList::recalc_maxweight()
 
 inline PostList *
 EmptyPostList::next(weight w_min)
+{
+    return NULL;
+}
+
+inline PostList *
+EmptyPostList::skip_to(docid did, weight w_min)
 {
     return NULL;
 }
