@@ -1,3 +1,7 @@
+Wed May 08 17:09:14 BST 2002  Olly Betts <olly@survex.com>
+
+	* Include findheaders.pl in tarball.
+
 Wed May 08 16:09:14 BST 2002  Olly Betts <olly@survex.com>
 
 	* Killed off acconfig.h.

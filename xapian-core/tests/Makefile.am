@@ -55,7 +55,8 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_allterms2.txt \
 	     testdata/apitest_poslist.txt \
 	     testdata/apitest_manydocs.txt \
-	     testdata/etext.txt
+	     testdata/etext.txt \
+	     findheaders.pl
 
 CLEANFILES = includetest.cc stemtest.pl
 
