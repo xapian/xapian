@@ -1066,7 +1066,7 @@ class BM25Weight : public Weight {
  *   - \f$L_{d}\f$ is the normalised length of document d
  *   - \f$k\f$ is a user specifiable parameter
  *
- * TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
+ * TradWeight(k) is equivalent to BM25Weight(1, 1, 0, k, 0)
  */
 class TradWeight : public Weight {
     private:
@@ -1083,13 +1083,16 @@ class TradWeight : public Weight {
 	/** Construct a TradWeight
 	 *
 	 * @param k  parameter governing the importance of within
-         *           document frequency and document length - any positive
-         *           number, 0 being wdf and doc length not used.  Default
-         *           is 1.
+         *           document frequency and document length - any non-negative
+         *           number (0 meaning to ignore wdf and doc length when
+	 *           calculating weights).  Default is 1.
 	 */
-	TradWeight(double k = 1) : param_k(k), weight_calculated(false) {
+	explicit TradWeight(double k) : param_k(k), weight_calculated(false) {
 	    if (param_k < 0) param_k = 0;
 	}
+
+	TradWeight() : param_k(1.0), weight_calculated(false) { }
+	
 	Weight * clone() const {
 	    return new TradWeight(param_k);
 	}

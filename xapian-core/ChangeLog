@@ -1,3 +1,11 @@
+Mon Jan 05 16:00:07 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Made the TradWeight constructor explicit.
+	  This is technically an API change as before you could pass a
+	  double where a Xapian::Weight was required - now you must pass
+	  Xapian::TradWeight(2.0) instead of 2.0.  That seems desirable, and
+	  it's unlikely any existing code will be affected.
+
 Mon Jan 05 15:08:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/: Added "explicit" qualifier to internal ctors
