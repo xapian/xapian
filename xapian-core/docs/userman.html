@@ -554,7 +554,17 @@ and new documents are being added to the end of the database.
 </TABLE>
 
 <H3>Match decision functors</H3>
-These are not yet implemented.
+<P>
+Sometimes it may be useful to only return documents matching criteria
+which can't be easily represented by queries.  This can be done using
+a match decision functor.  To set such a condition, derive a class
+from <CODE>OmMatchDecider</CODE> and override the function operator,
+<CODE>operator()(const OmDocument *doc)</CODE>.  The operator can make
+a decision based on the document keys via <CODE>OmDocument::get_key(om_keyno)</CODE>.
+The functor will also have access to the document data stored in the
+database (via <CODE>OmDocument::get_data()</CODE>), but this is usually
+going to be a bad idea and is likely to slow down the search considerably.
+</P>
 
 <H2>Expand - Suggesting new terms for the query</H2>
 <P>
@@ -595,7 +605,14 @@ The default is <CODE>false</CODE>.
 
 <H3>Expand decision functors</H3>
 <P>
-These are not yet documented.
+It is often useful to only allow certain classes of term to be returned
+in the expand set.  For example, there may be special terms in the
+database with various prefixes, which should be removed from the expand
+set.  This is accomplished by providing a decision functor.  To do this,
+dervive a class from <CODE>OmExpandDecider</CODE> and override the
+function operator, <CODE>operator()(const om_termname &amp;)</CODE>.
+The functor is presented with each term before it is added to the set,
+and it may accept or reject the term as appropriate.
 </P>
 
 <H2>A simple example</H2>
@@ -606,7 +623,7 @@ example in the om-examples package.
 
 <HR>
 
-Last modified: 15 Feb 2000 by Richard Boulton
+Last modified: 18 Feb 2000 by Chris Emerson
 
 </BODY>
 </HTML>
