@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,7 +118,7 @@ BranchPostList::open_position_list() const
 // Returns true iff a prune was handled, so the caller can recalculate
 // weights etc if necessary
 inline bool
-next_handling_prune(PostList * & pl, om_weight w_min,
+next_handling_prune(PostList * & pl, Xapian::weight w_min,
 		    MultiMatch *matcher)
 {
     PostList *p = pl->next(w_min);
@@ -130,7 +131,7 @@ next_handling_prune(PostList * & pl, om_weight w_min,
 }
 
 inline bool
-skip_to_handling_prune(PostList * & pl, om_docid did, om_weight w_min,
+skip_to_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
 		       MultiMatch *matcher)
 {
     PostList *p = pl->skip_to(did, w_min);

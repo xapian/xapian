@@ -36,7 +36,7 @@ ValueIterator::operator *() const
     Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
     if (d->value_nos.empty()) {
 	d->value_nos.reserve(d->values.size());
-	map<om_valueno, string>::const_iterator i;
+	map<Xapian::valueno, string>::const_iterator i;
 	for (i = d->values.begin(); i != d->values.end(); ++i) {
 	    d->value_nos.push_back(i->first);
 	}
@@ -52,7 +52,7 @@ ValueIterator::operator->() const
     Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
     if (d->value_nos.empty()) {
 	d->value_nos.reserve(d->values.size());
-	map<om_valueno, string>::const_iterator i;
+	map<Xapian::valueno, string>::const_iterator i;
 	for (i = d->values.begin(); i != d->values.end(); ++i) {
 	    d->value_nos.push_back(i->first);
 	}
@@ -61,14 +61,14 @@ ValueIterator::operator->() const
     RETURN(&(d->values[d->value_nos[index]]));
 }
 
-om_valueno
+Xapian::valueno
 ValueIterator::get_valueno() const
 {
-    DEBUGAPICALL(om_valueno, "ValueIterator::get_valueno", "");
+    DEBUGAPICALL(Xapian::valueno, "ValueIterator::get_valueno", "");
     Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
     if (d->value_nos.empty()) {
 	d->value_nos.reserve(d->values.size());
-	map<om_valueno, string>::const_iterator i;
+	map<Xapian::valueno, string>::const_iterator i;
 	for (i = d->values.begin(); i != d->values.end(); ++i) {
 	    d->value_nos.push_back(i->first);
 	}

@@ -49,12 +49,12 @@ struct querytok {
 	OP_BRA,
 	ERROR
     } type;
-    om_termcount qlen;
+    Xapian::termcount qlen;
     string tname;
-    om_termcount wqf;
-    om_termpos term_pos;
-    om_termpos window; // for NEAR and PHRASE
-    om_termcount elite_set_size;
+    Xapian::termcount wqf;
+    Xapian::termpos term_pos;
+    Xapian::termpos window; // for NEAR and PHRASE
+    Xapian::termcount elite_set_size;
     double cutoff; // for *_CUTOFF
 
     querytok(etype type_ = ERROR)

@@ -40,7 +40,7 @@ DAAllTermsList::~DAAllTermsList()
 {
 }
 
-om_termcount
+Xapian::termcount
 DAAllTermsList::get_approx_size() const
 {
     return DA_t->itemcount;
@@ -62,7 +62,7 @@ DAAllTermsList::get_termname() const
     return current_term;
 }
 
-om_doccount
+Xapian::doccount
 DAAllTermsList::get_termfreq() const
 {
     Assert(started);
@@ -70,7 +70,7 @@ DAAllTermsList::get_termfreq() const
     return termfreq;
 }
 
-om_termcount
+Xapian::termcount
 DAAllTermsList::get_collection_freq() const
 {
     Assert(started);

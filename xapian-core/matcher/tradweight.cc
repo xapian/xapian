@@ -47,17 +47,17 @@ TradWeight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
 
-    om_doccount dbsize = internal->get_total_collection_size();
+    Xapian::doccount dbsize = internal->get_total_collection_size();
     lenpart = param_k / internal->get_total_average_length();
 
-    om_doccount termfreq = internal->get_total_termfreq(tname);
+    Xapian::doccount termfreq = internal->get_total_termfreq(tname);
 
     DEBUGLINE(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
 
-    om_weight tw = 0;
-    om_doccount rsize = internal->get_total_rset_size();
+    Xapian::weight tw = 0;
+    Xapian::doccount rsize = internal->get_total_rset_size();
     if (rsize != 0) {
-	om_doccount rtermfreq = internal->get_total_reltermfreq(tname);
+	Xapian::doccount rtermfreq = internal->get_total_reltermfreq(tname);
 
 	DEBUGLINE(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 
@@ -83,39 +83,39 @@ TradWeight::calc_termweight() const
     weight_calculated = true;
 }
 
-om_weight
-TradWeight::get_sumpart(om_termcount wdf, om_doclength len) const
+Xapian::weight
+TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumpart", wdf << ", " << len);
+    DEBUGCALL(MATCH, Xapian::weight, "TradWeight::get_sumpart", wdf << ", " << len);
     if (!weight_calculated) calc_termweight();
 
-    om_weight wt = (double) wdf / (len * lenpart + wdf);
+    Xapian::weight wt = (double) wdf / (len * lenpart + wdf);
 
     wt *= termweight;
 
     RETURN(wt);
 }
 
-om_weight
+Xapian::weight
 TradWeight::get_maxpart() const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxpart", "");
+    DEBUGCALL(MATCH, Xapian::weight, "TradWeight::get_maxpart", "");
     if (!weight_calculated) calc_termweight();
 
     RETURN(termweight);
 }
 
-om_weight
-TradWeight::get_sumextra(om_doclength /*len*/) const
+Xapian::weight
+TradWeight::get_sumextra(Xapian::doclength /*len*/) const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", "/*len*/");
+    DEBUGCALL(MATCH, Xapian::weight, "TradWeight::get_sumextra", "/*len*/");
     RETURN(0);
 }
 
-om_weight
+Xapian::weight
 TradWeight::get_maxextra() const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxextra", "");
+    DEBUGCALL(MATCH, Xapian::weight, "TradWeight::get_maxextra", "");
     RETURN(0);
 }
 

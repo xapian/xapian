@@ -118,11 +118,11 @@ bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 
 static void
 mset_expect_order_(const Xapian::MSet &A, bool beginning,
-		   om_docid d1, om_docid d2, om_docid d3, om_docid d4,
-		   om_docid d5, om_docid d6, om_docid d7, om_docid d8,
-		   om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+		   Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
+		   Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
+		   Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
-    std::vector<om_docid> expect;
+    std::vector<Xapian::docid> expect;
     if (d1) {
 	expect.push_back(d1);
 	if (d2) {
@@ -188,18 +188,18 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 
 void
 mset_expect_order_begins(const Xapian::MSet &A,
-			 om_docid d1, om_docid d2, om_docid d3, om_docid d4,
-			 om_docid d5, om_docid d6, om_docid d7, om_docid d8,
-			 om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+			 Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
+			 Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
+			 Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
     mset_expect_order_(A, true, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
 }
 
 void
 mset_expect_order(const Xapian::MSet &A,
-		  om_docid d1, om_docid d2, om_docid d3, om_docid d4,
-		  om_docid d5, om_docid d6, om_docid d7, om_docid d8,
-		  om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+		  Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
+		  Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
+		  Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
     mset_expect_order_(A, false, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
 }

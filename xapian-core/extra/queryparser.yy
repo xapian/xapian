@@ -180,7 +180,7 @@ nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 
 static string::iterator qptr;
 static int pending_token;
-static om_termpos term_pos;
+static Xapian::termpos term_pos;
 static string prefix;
 
 void

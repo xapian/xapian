@@ -75,7 +75,7 @@ string stats_to_string(const Stats &stats)
     os << stats.collection_size << ' ';
     os << stats.average_length << ' ';
 
-    map<string, om_doccount>::const_iterator i;
+    map<string, Xapian::doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	os << 'T' << encode_tname(i->first) << ' ' << i->second << ' ';
@@ -101,7 +101,7 @@ string stats_to_string(const Stats &stats)
     result += om_tostring(stats.average_length);
     result += ' ';
 
-    map<string, om_doccount>::const_iterator i;
+    map<string, Xapian::doccount>::const_iterator i;
 
     for (i = stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	result += 'T';
@@ -567,12 +567,12 @@ string_to_ommset(const string &s)
     istrstream is(s.data(), s.length());
 #endif
 
-    om_doccount firstitem;
-    om_doccount matches_lower_bound;
-    om_doccount matches_estimated;
-    om_doccount matches_upper_bound;
-    om_weight max_possible;
-    om_weight max_attained;
+    Xapian::doccount firstitem;
+    Xapian::doccount matches_lower_bound;
+    Xapian::doccount matches_estimated;
+    Xapian::doccount matches_upper_bound;
+    Xapian::weight max_possible;
+    Xapian::weight max_attained;
     vector<Xapian::Internal::MSetItem> items;
     int msize;
 
@@ -589,8 +589,8 @@ string_to_ommset(const string &s)
     }
     while (msize > 0) {
 	string s;
-	om_weight wt;
-	om_docid did;
+	Xapian::weight wt;
+	Xapian::docid did;
 	is >> wt >> did >> s;
 	if (!is) {
 	    throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
@@ -647,7 +647,7 @@ string_to_omrset(const string &s)
 {
     Xapian::RSet omrset;
 
-    om_docid did;
+    Xapian::docid did;
     int numitems;
 
 #ifdef HAVE_SSTREAM

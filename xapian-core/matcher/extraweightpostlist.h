@@ -31,28 +31,28 @@ class ExtraWeightPostList : public PostList {
 	PostList * pl;
 	Xapian::Weight * wt;
 	MultiMatch * matcher;
-	om_weight max_weight;
+	Xapian::weight max_weight;
 
     public:
-	om_doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
-	om_doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
-	om_doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
+	Xapian::doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
+	Xapian::doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
+	Xapian::doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
 
-	om_docid  get_docid() const { return pl->get_docid(); }
+	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
-	om_weight get_weight() const {
+	Xapian::weight get_weight() const {
 	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
 	}
 
-	om_weight get_maxweight() const {
+	Xapian::weight get_maxweight() const {
 	    return pl->get_maxweight() + max_weight;
 	}
 
-        om_weight recalc_maxweight() {
+        Xapian::weight recalc_maxweight() {
 	    return pl->recalc_maxweight() + max_weight;
 	}
 
-	PostList *next(om_weight w_min) {
+	PostList *next(Xapian::weight w_min) {
 	    PostList *p = pl->next(w_min - max_weight);
 	    if (p) {
 		delete pl;
@@ -62,7 +62,7 @@ class ExtraWeightPostList : public PostList {
 	    return NULL;
 	}
 	    
-	PostList *skip_to(om_docid did, om_weight w_min) {
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min) {
 	    PostList *p = pl->skip_to(did, w_min - max_weight);
 	    if (p) {
 		delete pl;
@@ -81,7 +81,7 @@ class ExtraWeightPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const {
+	virtual Xapian::doclength get_doclength() const {
 	    return pl->get_doclength();
 	}
 

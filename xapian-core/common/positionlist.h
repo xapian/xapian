@@ -51,10 +51,10 @@ class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBa
 	 *  Typical use is to look for positional match restrictions (e.g.
 	 *  NEAR, PHRASE) around the least frequent term.
 	 */	
-	virtual om_termcount get_size() const = 0;
+	virtual Xapian::termcount get_size() const = 0;
 
 	/// Gets current position.
-	virtual om_termpos get_position() const = 0;
+	virtual Xapian::termpos get_position() const = 0;
 
 	/** Move to the next item in the list.
 	 *  Either next() or skip_to() must be called before get_position()
@@ -68,7 +68,7 @@ class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBa
 	 *  - the list initially points to before the beginning of the
 	 *  list.
 	 */
-	virtual void skip_to(om_termpos termpos) = 0;
+	virtual void skip_to(Xapian::termpos termpos) = 0;
 
 	/** True if we're off the end of the list
 	 */
@@ -79,7 +79,7 @@ class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBa
 	 *  eases the implementation of PhrasePostList which can't subclass
 	 *  PositionList (since it gets it from PostList::get_position_list())
 	 */
-	om_termcount index;
+	Xapian::termcount index;
 };
 
 typedef Xapian::PositionListIterator::Internal PositionList;

@@ -57,10 +57,10 @@ Xapian::PostListIterator::operator=(const Xapian::PostListIterator &other)
     internal = other.internal;
 }
 
-om_docid
+Xapian::docid
 Xapian::PostListIterator::operator *() const
 {
-    DEBUGAPICALL(om_docid, "Xapian::PostListIterator::operator*", "");
+    DEBUGAPICALL(Xapian::docid, "Xapian::PostListIterator::operator*", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_docid());
@@ -91,7 +91,7 @@ Xapian::PostListIterator::operator++(int)
 
 // extra method, not required to be an input_iterator
 void
-Xapian::PostListIterator::skip_to(om_docid did)
+Xapian::PostListIterator::skip_to(Xapian::docid did)
 {
     DEBUGAPICALL(void, "Xapian::PostListIterator::skip_to", did);
     Assert(internal.get());
@@ -102,26 +102,26 @@ Xapian::PostListIterator::skip_to(om_docid did)
 }    
 
 // need to set Xapian::Weight object for this to work
-//om_weight
+//Xapian::weight
 //Xapian::PostListIterator::get_weight() const
 //{
-//    DEBUGAPICALL(om_weight, "Xapian::PostListIterator::get_weight", "");
+//    DEBUGAPICALL(Xapian::weight, "Xapian::PostListIterator::get_weight", "");
 //    RETURN(internal->get_weight());
 //}
     
-om_doclength
+Xapian::doclength
 Xapian::PostListIterator::get_doclength() const
 {
-    DEBUGAPICALL(om_doclength, "Xapian::PostListIterator::get_doclength", "");
+    DEBUGAPICALL(Xapian::doclength, "Xapian::PostListIterator::get_doclength", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_doclength());
 }
 
-om_termcount
+Xapian::termcount
 Xapian::PostListIterator::get_wdf() const
 {
-    DEBUGAPICALL(om_termcount, "Xapian::PostListIterator::get_wdf", "");
+    DEBUGAPICALL(Xapian::termcount, "Xapian::PostListIterator::get_wdf", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_wdf());

@@ -138,15 +138,15 @@ Database::postlist_end(const string &tname) const
 }
 
 TermIterator
-Database::termlist_begin(om_docid did) const
+Database::termlist_begin(Xapian::docid did) const
 {
     DEBUGAPICALL(TermIterator, "Database::termlist_begin", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
     Assert(multiplier != 0);
-    om_doccount n = (did - 1) % multiplier; // which actual database
-    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
     LeafTermList *tl;
     tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
@@ -154,7 +154,7 @@ Database::termlist_begin(om_docid did) const
 }
 
 TermIterator
-Database::termlist_end(om_docid did) const
+Database::termlist_end(Xapian::docid did) const
 {
     DEBUGAPICALL(TermIterator, "Database::termlist_end", did);
     (void)did;
@@ -188,7 +188,7 @@ Database::allterms_end() const
 }
 
 PositionListIterator
-Database::positionlist_begin(om_docid did, const string &tname) const
+Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
     DEBUGAPICALL(PositionListIterator, "Database::positionlist_begin",
 		 did << ", " << tname);
@@ -198,14 +198,14 @@ Database::positionlist_begin(om_docid did, const string &tname) const
 
     unsigned int multiplier = internal.size();
     Assert(multiplier != 0);
-    om_doccount n = (did - 1) % multiplier; // which actual database
-    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
     RETURN(PositionListIterator(internal[n]->open_position_list(m, tname)));
 }
 
 PositionListIterator
-Database::positionlist_end(om_docid did, const string &tname) const
+Database::positionlist_end(Xapian::docid did, const string &tname) const
 {
     DEBUGAPICALL(PositionListIterator, "Database::positionlist_end",
 		 did << ", " << tname);
@@ -214,11 +214,11 @@ Database::positionlist_end(om_docid did, const string &tname) const
     RETURN(PositionListIterator(NULL));
 }
 
-om_doccount
+Xapian::doccount
 Database::get_doccount() const
 {
-    DEBUGAPICALL(om_doccount, "Database::get_doccount", "");
-    om_doccount docs = 0;
+    DEBUGAPICALL(Xapian::doccount, "Database::get_doccount", "");
+    Xapian::doccount docs = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	docs += (*i)->get_doccount();
@@ -226,16 +226,16 @@ Database::get_doccount() const
     RETURN(docs);
 }
 
-om_doclength
+Xapian::doclength
 Database::get_avlength() const
 {
-    DEBUGAPICALL(om_doclength, "Database::get_avlength", "");
-    om_doccount docs = 0;
-    om_doclength totlen = 0;
+    DEBUGAPICALL(Xapian::doclength, "Database::get_avlength", "");
+    Xapian::doccount docs = 0;
+    Xapian::doclength totlen = 0;
 
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	om_doccount db_doccount = (*i)->get_doccount();
+	Xapian::doccount db_doccount = (*i)->get_doccount();
 	docs += db_doccount;
 	totlen += (*i)->get_avlength() * db_doccount;
     }
@@ -246,13 +246,13 @@ Database::get_avlength() const
     RETURN(totlen / docs);
 }
 
-om_doccount
+Xapian::doccount
 Database::get_termfreq(const string & tname) const
 {
-    DEBUGAPICALL(om_doccount, "Database::get_termfreq", tname);
+    DEBUGAPICALL(Xapian::doccount, "Database::get_termfreq", tname);
     if (tname.empty())
 	throw InvalidArgumentError("Zero length terms are invalid");
-    om_doccount tf = 0;
+    Xapian::doccount tf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	tf += (*i)->get_termfreq(tname);
@@ -260,14 +260,14 @@ Database::get_termfreq(const string & tname) const
     RETURN(tf);
 }
 
-om_termcount
+Xapian::termcount
 Database::get_collection_freq(const string & tname) const
 {
-    DEBUGAPICALL(om_termcount, "Database::get_collection_freq", tname);
+    DEBUGAPICALL(Xapian::termcount, "Database::get_collection_freq", tname);
     if (tname.empty())
 	throw InvalidArgumentError("Zero length terms are invalid");
 
-    om_termcount cf = 0;
+    Xapian::termcount cf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	cf += (*i)->get_collection_freq(tname);
@@ -275,29 +275,29 @@ Database::get_collection_freq(const string & tname) const
     RETURN(cf);
 }
 
-om_doclength
-Database::get_doclength(om_docid did) const
+Xapian::doclength
+Database::get_doclength(Xapian::docid did) const
 {
-    DEBUGAPICALL(om_doclength, "Database::get_doclength", did);
+    DEBUGAPICALL(Xapian::doclength, "Database::get_doclength", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
     Assert(multiplier != 0);
-    om_doccount n = (did - 1) % multiplier; // which actual database
-    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
     RETURN(internal[n]->get_doclength(m));
 }
 
 Document
-Database::get_document(om_docid did) const
+Database::get_document(Xapian::docid did) const
 {
     DEBUGAPICALL(Document, "Database::get_document", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
     Assert(multiplier != 0);
-    om_doccount n = (did - 1) % multiplier; // which actual database
-    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
     RETURN(Document(internal[n]->open_document(m)));
 }
@@ -390,15 +390,15 @@ WritableDatabase::cancel_transaction()
 }
 
 
-om_docid
+Xapian::docid
 WritableDatabase::add_document(const Document & document)
 {
-    DEBUGAPICALL(om_docid, "WritableDatabase::add_document", document);
+    DEBUGAPICALL(Xapian::docid, "WritableDatabase::add_document", document);
     RETURN(internal[0]->add_document(document));
 }
 
 void
-WritableDatabase::delete_document(om_docid did)
+WritableDatabase::delete_document(Xapian::docid did)
 {
     DEBUGAPICALL(void, "WritableDatabase::delete_document", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
@@ -406,7 +406,7 @@ WritableDatabase::delete_document(om_docid did)
 }
 
 void
-WritableDatabase::replace_document(om_docid did, const Document & document)
+WritableDatabase::replace_document(Xapian::docid did, const Document & document)
 {
     DEBUGAPICALL(void, "WritableDatabase::replace_document",
 		 did << ", " << document);

@@ -50,10 +50,10 @@ Xapian::PositionListIterator::operator=(Xapian::PositionListIterator &o)
     internal = o.internal;
 }
 
-om_termpos
+Xapian::termpos
 Xapian::PositionListIterator::operator *() const
 {
-    DEBUGAPICALL(om_termpos, "Xapian::PositionListIterator::operator*", "");
+    DEBUGAPICALL(Xapian::termpos, "Xapian::PositionListIterator::operator*", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_position());
@@ -82,7 +82,7 @@ Xapian::PositionListIterator::operator++(int)
 
 // extra method, not required to be an input_iterator
 void
-Xapian::PositionListIterator::skip_to(om_termpos pos)
+Xapian::PositionListIterator::skip_to(Xapian::termpos pos)
 {
     DEBUGAPICALL(void, "Xapian::PositionListIterator::skip_to", pos);
     Assert(internal.get());

@@ -73,14 +73,14 @@ class PostListIterator {
 	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	void skip_to(om_docid did);
+	void skip_to(Xapian::docid did);
 
 // Get the weight of the posting at the current position: will
 // need to set a weight object for this to work.
-// om_weight get_weight() const;
+// Xapian::weight get_weight() const;
 
 	/// Get the document id at the current position in the postlist.
-	om_docid operator *() const;
+	Xapian::docid operator *() const;
 
 	/** Get the length of the document at the current position in the
 	 *  postlist.
@@ -91,12 +91,12 @@ class PostListIterator {
 	 *  it will be retrieved from the database, at a greater performance
 	 *  cost.
 	 */
-	om_doclength get_doclength() const;
+	Xapian::doclength get_doclength() const;
 
 	/** Get the within document frequency of the document at the
 	 *  current position in the postlist.
 	 */
-        om_termcount get_wdf() const;
+        Xapian::termcount get_wdf() const;
 
     	// allow iteration of positionlist for current term
 	PositionListIterator positionlist_begin();
@@ -104,8 +104,8 @@ class PostListIterator {
 
 	// Don't expose these methods here.  A container iterator doesn't
 	// provide a method to find the size of the container...
-	// om_doccount get_termfreq() const;
-	// om_termcount get_collection_freq() const;
+	// Xapian::doccount get_termfreq() const;
+	// Xapian::termcount get_collection_freq() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -115,10 +115,10 @@ class PostListIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef om_docid value_type;
+	typedef Xapian::docid value_type;
 	typedef Xapian::doccount_diff difference_type;
-	typedef om_docid * pointer;
-	typedef om_docid & reference;
+	typedef Xapian::docid * pointer;
+	typedef Xapian::docid & reference;
 	//@}
 };
 

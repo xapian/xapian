@@ -37,14 +37,14 @@ using namespace std;
 class OmExpandBits {
     friend class OmExpandWeight;
     private:
-	om_weight multiplier;   // Multiplier to apply to get expand weight
-	om_doccount rtermfreq; // Number of relevant docs indexed by term
-	om_doccount termfreq;  // Term frequency (may be within a subset of whole database)
-	om_doccount dbsize;     // Size of database to which termfreq applies
+	Xapian::weight multiplier;   // Multiplier to apply to get expand weight
+	Xapian::doccount rtermfreq; // Number of relevant docs indexed by term
+	Xapian::doccount termfreq;  // Term frequency (may be within a subset of whole database)
+	Xapian::doccount dbsize;     // Size of database to which termfreq applies
     public:
-	OmExpandBits(om_weight multiplier_new,
-		   om_termcount termfreq_new,
-		   om_doccount dbsize_new)
+	OmExpandBits(Xapian::weight multiplier_new,
+		   Xapian::termcount termfreq_new,
+		   Xapian::doccount dbsize_new)
 		: multiplier(multiplier_new),
 		  rtermfreq(1),
 		  termfreq(termfreq_new),
@@ -59,12 +59,12 @@ class OmExpandBits {
 class OmExpandWeight {
     protected:
 	const Xapian::Database root; // Root database
-	om_doccount dbsize;        // Size of whole collection
-	om_doccount rsize;         // Size of RSet
+	Xapian::doccount dbsize;        // Size of whole collection
+	Xapian::doccount rsize;         // Size of RSet
 
 	/** Average length of a document in whole collection.
 	 */
-	om_doclength average_length;
+	Xapian::doclength average_length;
 
 	/** If true, the exact term frequency will be requested from the
 	 *  root database, rather than an approximation made, when expand
@@ -83,19 +83,19 @@ class OmExpandWeight {
     public:
 
 	OmExpandWeight(const Xapian::Database &root_,
-		       om_doccount rsetsize_,
+		       Xapian::doccount rsetsize_,
 		       bool use_exact_termfreq_,
 		       double expand_k_ );
 
-	OmExpandBits get_bits(om_termcount wdf,
-			      om_doclength len,
-			      om_doccount termfreq,
-			      om_doccount dbsize_) const;
+	OmExpandBits get_bits(Xapian::termcount wdf,
+			      Xapian::doclength len,
+			      Xapian::doccount termfreq,
+			      Xapian::doccount dbsize_) const;
 
-	om_weight get_weight(const OmExpandBits & bits,
+	Xapian::weight get_weight(const OmExpandBits & bits,
 			     const string & tname) const;
 
-	om_weight get_maxweight() const;
+	Xapian::weight get_maxweight() const;
 };
 
 #endif /* OM_HGUARD_EXPANDWEIGHT_H */

@@ -46,7 +46,7 @@ using std::pair;
 
 DAPostList::DAPostList(const string & tname_,
 		       struct DA_postings * postlist_,
-		       om_doccount termfreq_,
+		       Xapian::doccount termfreq_,
 		       Xapian::Internal::RefCntPtr<const DADatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
@@ -58,31 +58,31 @@ DAPostList::~DAPostList()
     DA_close_postings(postlist);
 }
 
-PostList * DAPostList::next(om_weight /*w_min*/)
+PostList * DAPostList::next(Xapian::weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     DEBUGLINE(DB, "DAPostList::next(/*w_min*/): current docid = " << currdoc);
-    if (currdoc && currdoc < om_docid(postlist->E)) {
+    if (currdoc && currdoc < Xapian::docid(postlist->E)) {
 	currdoc++;
     } else {
 	DA_read_postings(postlist, 1, 0);
-	currdoc = om_docid(postlist->Doc);
+	currdoc = Xapian::docid(postlist->Doc);
     }
     DEBUGLINE(DB, "DAPostList::next(/*w_min*/): new docid = " << currdoc);
     return NULL;
 }
 
-PostList * DAPostList::skip_to(om_docid did, om_weight /*w_min*/)
+PostList * DAPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
     DEBUGLINE(DB, "DAPostList::skip_to(" << did <<
 	      ", /*w_min*/): current docid = " << currdoc);
-    if (currdoc && did <= om_docid(postlist->E)) {
+    if (currdoc && did <= Xapian::docid(postlist->E)) {
 	currdoc = did;
     } else {
 	DA_read_postings(postlist, 1, did);
-	currdoc = om_docid(postlist->Doc);
+	currdoc = Xapian::docid(postlist->Doc);
     }
     DEBUGLINE(DB, "DAPostList::skip_to(" << did <<
 	      ", /*w_min*/): new docid = " << currdoc);
@@ -105,7 +105,7 @@ DAPostList::open_position_list() const
 
 
 
-DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
+DATermList::DATermList(struct termvec *tv, Xapian::doccount dbsize_,
 		       Xapian::Internal::RefCntPtr<const DADatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
@@ -114,7 +114,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
 
-	om_doccount freq = tv->freq;
+	Xapian::doccount freq = tv->freq;
 	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
@@ -213,33 +213,33 @@ DADatabase::~DADatabase()
     }
 }
 
-om_doccount
+Xapian::doccount
 DADatabase::get_doccount() const
 {
     return DA_r->itemcount;
 }
 
-om_doclength
+Xapian::doclength
 DADatabase::get_avlength() const
 {
     // FIXME - actually want to return real avlength.
     return 1;
 }
 
-om_doclength
-DADatabase::get_doclength(om_docid /*did*/) const
+Xapian::doclength
+DADatabase::get_doclength(Xapian::docid /*did*/) const
 {
     // FIXME: should return actual length.
     return get_avlength();
 }
 
-om_doccount
+Xapian::doccount
 DADatabase::get_termfreq(const string & tname) const
 {
     if (term_lookup(tname).get() == 0) return 0;
 
     LeafPostList *pl = open_post_list_internal(tname);
-    om_doccount freq = 0;
+    Xapian::doccount freq = 0;
     if (pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
@@ -269,7 +269,7 @@ DADatabase::open_post_list_internal(const string & tname) const
 
 // Returns a new term list, for the terms in this database for given document
 LeafTermList *
-DADatabase::open_term_list(om_docid did) const
+DADatabase::open_term_list(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
@@ -288,7 +288,7 @@ DADatabase::open_term_list(om_docid did) const
 }
 
 struct record *
-DADatabase::get_record(om_docid did) const
+DADatabase::get_record(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
@@ -306,7 +306,7 @@ DADatabase::get_record(om_docid did) const
 
 /// Get the specified value for given document from the fast lookup file.
 string
-DADatabase::get_value(om_docid did, om_valueno valueid) const
+DADatabase::get_value(Xapian::docid did, Xapian::valueno valueid) const
 {
     string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
@@ -333,13 +333,13 @@ DADatabase::get_value(om_docid did, om_valueno valueid) const
 }
 
 Document *
-DADatabase::open_document(om_docid did, bool lazy) const
+DADatabase::open_document(Xapian::docid did, bool lazy) const
 {
     return new DADocument(this, did, heavy_duty, lazy);
 }
 
 PositionList * 
-DADatabase::open_position_list(om_docid /*did*/, const string & /*tname*/) const
+DADatabase::open_position_list(Xapian::docid /*did*/, const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()
     return NULL;

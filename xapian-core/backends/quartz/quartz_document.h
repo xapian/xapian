@@ -44,7 +44,7 @@ class QuartzDocument : public Xapian::Document::Internal {
 	QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 		       QuartzTable *value_table_,
 		       QuartzTable *record_table_,
-		       om_docid did_, bool lazy);
+		       Xapian::docid did_, bool lazy);
 
 	// Prevent copying
 	QuartzDocument(const QuartzDocument &);
@@ -52,8 +52,8 @@ class QuartzDocument : public Xapian::Document::Internal {
     public:
 	~QuartzDocument();
 
-	string do_get_value(om_valueno valueid) const;
-	map<om_valueno, string> do_get_all_values() const;
+	string do_get_value(Xapian::valueno valueid) const;
+	map<Xapian::valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 

@@ -28,37 +28,37 @@
 
 class EmptyPostList : public LeafPostList {
     public:
-	om_doccount get_termfreq() const { return 0; }
-	om_termcount get_collection_freq() const { return 0; }
+	Xapian::doccount get_termfreq() const { return 0; }
+	Xapian::termcount get_collection_freq() const { return 0; }
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
-	om_doclength get_doclength() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
+	Xapian::doclength get_doclength() const;
 	PositionList *read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	string get_description() const;
 };
 
-inline om_docid
+inline Xapian::docid
 EmptyPostList::get_docid() const
 {
     Assert(0); // no documents
     return 0;
 }
 
-inline om_weight
+inline Xapian::weight
 EmptyPostList::get_weight() const
 {
     Assert(0); // no documents
     return 0;
 }
 
-inline om_doclength
+inline Xapian::doclength
 EmptyPostList::get_doclength() const
 {
     Assert(0); // no documents
@@ -80,13 +80,13 @@ EmptyPostList::open_position_list() const
 }
 
 inline PostList *
-EmptyPostList::next(om_weight /*w_min*/)
+EmptyPostList::next(Xapian::weight /*w_min*/)
 {
     return 0;
 }
 
 inline PostList *
-EmptyPostList::skip_to(om_docid /*did*/, om_weight /*w_min*/)
+EmptyPostList::skip_to(Xapian::docid /*did*/, Xapian::weight /*w_min*/)
 {
     return 0;
 }

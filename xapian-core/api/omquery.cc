@@ -99,7 +99,7 @@ Xapian::Query::abort_construction()
     internal = 0;
 }
 
-Xapian::Query::Query(const string & tname_, om_termcount wqf_, om_termpos pos_)
+Xapian::Query::Query(const string & tname_, Xapian::termcount wqf_, Xapian::termpos pos_)
 	: internal(new Xapian::Query::Internal(tname_, wqf_, pos_))
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
@@ -154,36 +154,36 @@ Xapian::Query::get_description() const
     RETURN(res);
 }
 
-void Xapian::Query::set_window(om_termpos window)
+void Xapian::Query::set_window(Xapian::termpos window)
 {
     DEBUGAPICALL(void, "Xapian::Query::set_window", window);
     Assert(internal.get());
     internal->set_window(window);
 }
 
-void Xapian::Query::set_cutoff(om_weight cutoff)
+void Xapian::Query::set_cutoff(Xapian::weight cutoff)
 {
     DEBUGAPICALL(void, "Xapian::Query::set_cutoff", cutoff);
     Assert(internal.get());
     internal->set_cutoff(cutoff);
 }
 
-void Xapian::Query::set_elite_set_size(om_termcount size)
+void Xapian::Query::set_elite_set_size(Xapian::termcount size)
 {
     DEBUGAPICALL(void, "Xapian::Query::set_elite_set_size", size);
     Assert(internal.get());
     internal->set_elite_set_size(size);
 }
 
-om_termcount Xapian::Query::get_length() const
+Xapian::termcount Xapian::Query::get_length() const
 {
-    DEBUGAPICALL(om_termcount, "Xapian::Query::get_length", "");
+    DEBUGAPICALL(Xapian::termcount, "Xapian::Query::get_length", "");
     RETURN(internal.get() ? internal->get_length() : 0);
 }
 
-om_termcount Xapian::Query::set_length(om_termcount qlen)
+Xapian::termcount Xapian::Query::set_length(Xapian::termcount qlen)
 {
-    DEBUGAPICALL(om_termcount, "Xapian::Query::set_length", qlen);
+    DEBUGAPICALL(Xapian::termcount, "Xapian::Query::set_length", qlen);
     Assert(internal.get());
     RETURN(internal->set_length(qlen));
 }

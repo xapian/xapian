@@ -46,7 +46,7 @@ Document::Document() : internal(new Xapian::Document::Internal())
 }
 
 string
-Document::get_value(om_valueno value) const
+Document::get_value(Xapian::valueno value) const
 {
     DEBUGAPICALL(string, "Document::get_value", value);
     RETURN(internal->get_value(value));
@@ -89,14 +89,14 @@ Document::get_description() const
 }
 
 void
-Document::add_value(om_valueno valueno, const string &value)
+Document::add_value(Xapian::valueno valueno, const string &value)
 {
     DEBUGAPICALL(void, "Document::add_value", valueno << ", " << value);
     internal->add_value(valueno, value);
 }
 
 void
-Document::remove_value(om_valueno valueno)
+Document::remove_value(Xapian::valueno valueno)
 {
     DEBUGAPICALL(void, "Document::remove_value", valueno);
     internal->remove_value(valueno);
@@ -111,8 +111,8 @@ Document::clear_values()
 
 void
 Document::add_posting(const string & tname,
-			om_termpos tpos,
-			om_termcount wdfinc)
+			Xapian::termpos tpos,
+			Xapian::termcount wdfinc)
 {
     DEBUGAPICALL(void, "Document::add_posting",
 		 tname << ", " << tpos << ", " << wdfinc);
@@ -123,7 +123,7 @@ Document::add_posting(const string & tname,
 }
 
 void
-Document::add_term_nopos(const string & tname, om_termcount wdfinc)
+Document::add_term_nopos(const string & tname, Xapian::termcount wdfinc)
 {
     DEBUGAPICALL(void, "Document::add_term_nopos", tname << ", " << wdfinc);
     if (tname.empty()) {
@@ -133,8 +133,8 @@ Document::add_term_nopos(const string & tname, om_termcount wdfinc)
 }
 
 void
-Document::remove_posting(const string & tname, om_termpos tpos,
-			 om_termcount wdfdec)
+Document::remove_posting(const string & tname, Xapian::termpos tpos,
+			 Xapian::termcount wdfdec)
 {
     DEBUGAPICALL(void, "Document::remove_posting",
 		 tname << ", " << tpos << ", " << wdfdec);
@@ -158,9 +158,9 @@ Document::clear_terms()
     internal->clear_terms();
 }
 
-om_termcount
+Xapian::termcount
 Document::termlist_count() const {
-    DEBUGAPICALL(om_termcount, "Document::termlist_count", "");
+    DEBUGAPICALL(Xapian::termcount, "Document::termlist_count", "");
     RETURN(internal->termlist_count());
 }
 
@@ -178,9 +178,9 @@ Document::termlist_end() const
     RETURN(TermIterator(NULL));
 }
 
-om_termcount
+Xapian::termcount
 Document::values_count() const {
-    DEBUGAPICALL(om_termcount, "Document::values_count", "");
+    DEBUGAPICALL(Xapian::termcount, "Document::values_count", "");
     RETURN(internal->values_count());
 }
 
@@ -203,13 +203,13 @@ Document::values_end() const
 /////////////////////////////////////////////////////////////////////////////
 
 void
-OmDocumentTerm::add_position(om_termpos tpos)
+OmDocumentTerm::add_position(Xapian::termpos tpos)
 {
     DEBUGAPICALL(void, "OmDocumentTerm::add_position", tpos);
     
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
-    om_termpos last = positions.empty() ? 0 : positions.back();
+    Xapian::termpos last = positions.empty() ? 0 : positions.back();
     if (tpos > last) {
 	positions.push_back(tpos);
 	return;
@@ -217,7 +217,7 @@ OmDocumentTerm::add_position(om_termpos tpos)
 
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
-    vector<om_termpos>::iterator i;
+    vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
 	positions.insert(i, tpos);
@@ -225,13 +225,13 @@ OmDocumentTerm::add_position(om_termpos tpos)
 }
 
 void
-OmDocumentTerm::remove_position(om_termpos tpos)
+OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
     DEBUGAPICALL(void, "OmDocumentTerm::remove_position", tpos);
     
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
-    vector<om_termpos>::iterator i;
+    vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
 	throw Xapian::InvalidArgumentError("Position `" + om_tostring(tpos) +
@@ -258,10 +258,10 @@ OmDocumentTerm::get_description() const
 }
 
 string
-Xapian::Document::Internal::get_value(om_valueno valueid) const
+Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
 {
     if (values_here) {
-	map<om_valueno, string>::const_iterator i;
+	map<Xapian::valueno, string>::const_iterator i;
 	i = values.find(valueid);
 	if (i == values.end()) return "";
 	return i->second;
@@ -270,7 +270,7 @@ Xapian::Document::Internal::get_value(om_valueno valueid) const
     return do_get_value(valueid);
 }
 	
-map<om_valueno, string>
+map<Xapian::valueno, string>
 Xapian::Document::Internal::get_all_values() const
 {
     need_values();
@@ -304,7 +304,7 @@ Xapian::Document::Internal::open_term_list() const
 }
 
 void
-Xapian::Document::Internal::add_value(om_valueno valueno, const string &value)
+Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &value)
 {
     need_values();
     values.insert(make_pair(valueno, value));	
@@ -312,10 +312,10 @@ Xapian::Document::Internal::add_value(om_valueno valueno, const string &value)
 }
 
 void
-Xapian::Document::Internal::remove_value(om_valueno valueno)
+Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
 {
     need_values();
-    map<om_valueno, string>::iterator i = values.find(valueno);
+    map<Xapian::valueno, string>::iterator i = values.find(valueno);
     if (i == values.end()) {
 	throw Xapian::InvalidArgumentError("Value #" + om_tostring(valueno) +
 		" is not present in document, in "
@@ -334,8 +334,8 @@ Xapian::Document::Internal::clear_values()
 }
 
 void
-Xapian::Document::Internal::add_posting(const string & tname, om_termpos tpos,
-			      om_termcount wdfinc)
+Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tpos,
+			      Xapian::termcount wdfinc)
 {
     need_terms();
 
@@ -353,7 +353,7 @@ Xapian::Document::Internal::add_posting(const string & tname, om_termpos tpos,
 }
 
 void
-Xapian::Document::Internal::add_term_nopos(const string & tname, om_termcount wdfinc)
+Xapian::Document::Internal::add_term_nopos(const string & tname, Xapian::termcount wdfinc)
 {
     need_terms();
 
@@ -370,8 +370,8 @@ Xapian::Document::Internal::add_term_nopos(const string & tname, om_termcount wd
 
 void
 Xapian::Document::Internal::remove_posting(const string & tname,
-					   om_termpos tpos,
-					   om_termcount wdfdec)	
+					   Xapian::termpos tpos,
+					   Xapian::termcount wdfdec)	
 {
     need_terms();
 
@@ -384,7 +384,7 @@ Xapian::Document::Internal::remove_posting(const string & tname,
     }
     i->second.remove_position(tpos);
     if (wdfdec) {
-	om_termcount currwdf = i->second.get_wdf();
+	Xapian::termcount currwdf = i->second.get_wdf();
 	currwdf = ((currwdf > wdfdec) ? (currwdf - wdfdec) : 0);
 	i->second.set_wdf(currwdf);
     }
@@ -411,7 +411,7 @@ Xapian::Document::Internal::clear_terms()
     terms_here = true;
 }
 
-om_termcount
+Xapian::termcount
 Xapian::Document::Internal::termlist_count() const
 {
     if (!terms_here) {
@@ -444,7 +444,7 @@ Xapian::Document::Internal::need_terms() const
     terms_here = true;
 }
 
-om_valueno
+Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
     DEBUGLINE(UNKNOWN, "Xapian::Document::Internal::values_count() called");

@@ -50,9 +50,9 @@ namespace Internal {
  */
 class ESetItem {
     public:
-	ESetItem(om_weight wt_, string tname_) : wt(wt_), tname(tname_) { }
+	ESetItem(Xapian::weight wt_, string tname_) : wt(wt_), tname(tname_) { }
 	/// Weight calculated.
-	om_weight wt;
+	Xapian::weight wt;
 	/// Term suggested.
 	string tname;
 	
@@ -68,17 +68,17 @@ class ESetItem {
  */
 class MSetItem {
     public:
-	MSetItem(om_weight wt_, om_docid did_) 
+	MSetItem(Xapian::weight wt_, Xapian::docid did_) 
 		: wt(wt_), did(did_), collapse_count(0) {}
 
-	MSetItem(om_weight wt_, om_docid did_, const string &key_)
+	MSetItem(Xapian::weight wt_, Xapian::docid did_, const string &key_)
 		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
 
 	/** Weight calculated. */
-	om_weight wt;
+	Xapian::weight wt;
 
 	/** Document id. */
-	om_docid did;
+	Xapian::docid did;
 
 	/** Value which was used to collapse upon.
 	 *
@@ -99,7 +99,7 @@ class MSetItem {
 	 * It is not neccessarily an indication of how many collapses
 	 * might be done if an exhaustive match was done
 	 */
-	 om_doccount collapse_count;
+	 Xapian::doccount collapse_count;
 
 	/** For use by match_sort_key option - FIXME: document if this stays */
 	/* FIXME: this being mutable is a gross hack */
@@ -132,7 +132,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
-	TermIterator calc_matching_terms(om_docid did) const;
+	TermIterator calc_matching_terms(Xapian::docid did) const;
 
 	/// Copy not allowed
 	Internal(const Internal &);
@@ -140,19 +140,19 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Internal &);
 
     public:
-	om_valueno collapse_key;
+	Xapian::valueno collapse_key;
 
 	bool sort_forward;
 
 	percent percent_cutoff;
 
-	om_weight weight_cutoff;
+	Xapian::weight weight_cutoff;
 
-	om_valueno sort_key;
+	Xapian::valueno sort_key;
 	int sort_bands;
 
 	time_t bias_halflife;
-	om_weight bias_weight;
+	Xapian::weight bias_weight;
 
 	/** The error handler, if set.  (0 if not set).
 	 */
@@ -175,12 +175,12 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	void set_query(const Query & query_);
 	const Query & get_query();
-	MSet get_mset(om_doccount first, om_doccount maxitems,
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet *omrset, const MatchDecider *mdecider) const;
-	ESet get_eset(om_termcount maxitems, const RSet & omrset, int flags,
+	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
 		      double k, const ExpandDecider *edecider) const;
 
-	TermIterator get_matching_terms(om_docid did) const;
+	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
 	void register_match_decider(const string &name,
@@ -196,10 +196,10 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
 	/// The set of documents which have been requested but not yet
 	/// collected.
-	mutable set<om_doccount> requested_docs;
+	mutable set<Xapian::doccount> requested_docs;
 
 	/// Cache of documents, indexed by MSet index.
-	mutable map<om_doccount, Xapian::Document> indexeddocs;
+	mutable map<Xapian::doccount, Xapian::Document> indexeddocs;
 
 	/// Read and cache the documents so far requested.
 	void read_docs() const;
@@ -217,8 +217,8 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	 *  given query term.
 	 */
 	struct TermFreqAndWeight {
-	    om_doccount termfreq;
-	    om_weight termweight;
+	    Xapian::doccount termfreq;
+	    Xapian::weight termweight;
 	};
 
 	/** The term frequencies and weights returned by the match process.
@@ -232,17 +232,17 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	vector<Xapian::Internal::MSetItem> items;
 
 	/// Rank of first item in Mset.
-	om_doccount firstitem;
+	Xapian::doccount firstitem;
 
-	om_doccount matches_lower_bound;
+	Xapian::doccount matches_lower_bound;
 
-	om_doccount matches_estimated;
+	Xapian::doccount matches_estimated;
 
-	om_doccount matches_upper_bound;
+	Xapian::doccount matches_upper_bound;
 
-	om_weight max_possible;
+	Xapian::weight max_possible;
 
-	om_weight max_attained;
+	Xapian::weight max_attained;
 
 	Internal()
 		: percent_factor(0),
@@ -253,15 +253,15 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_possible(0),
 		  max_attained(0) {}
 
-	Internal(om_doccount firstitem_,
-	     om_doccount matches_upper_bound_,
-	     om_doccount matches_lower_bound_,
-	     om_doccount matches_estimated_,
-	     om_weight max_possible_,
-	     om_weight max_attained_,
+	Internal(Xapian::doccount firstitem_,
+	     Xapian::doccount matches_upper_bound_,
+	     Xapian::doccount matches_lower_bound_,
+	     Xapian::doccount matches_estimated_,
+	     Xapian::weight max_possible_,
+	     Xapian::weight max_attained_,
 	     const vector<Xapian::Internal::MSetItem> &items_,
 	     const map<string, TermFreqAndWeight> &termfreqandwts_,
-	     om_weight percent_factor_)
+	     Xapian::weight percent_factor_)
 		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),
 		  items(items_),
@@ -273,10 +273,10 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_attained(max_attained_) {}
 
 	/// get a document by index in mset, via the cache.
-	Xapian::Document get_doc_by_index(om_doccount index) const;
+	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
 
 	/// Converts a weight to a percentage weight
-	percent convert_to_percent_internal(om_weight wt) const;
+	percent convert_to_percent_internal(Xapian::weight wt) const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.
@@ -285,7 +285,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Fetch items specified into the document cache.
 	 */
-	void fetch_items(om_doccount first, om_doccount last) const;
+	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
 };
 
 class ESet::Internal {
@@ -300,7 +300,7 @@ class ESet::Internal {
 	 *  set of results of the expand.  This will be greater than or
 	 *  equal to items.size()
 	 */
-	om_termcount ebound;
+	Xapian::termcount ebound;
 
     public:
 	Internal() : ebound(0) {}

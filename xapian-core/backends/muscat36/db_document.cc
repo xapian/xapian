@@ -28,7 +28,7 @@
 #include "dbread.h"
 #include "omdebug.h"
 
-DBDocument::DBDocument(const DBDatabase * database_, om_docid did_,
+DBDocument::DBDocument(const DBDatabase * database_, Xapian::docid did_,
 		       bool heavy_duty_, bool lazy)
         : Xapian::Document::Internal(database_, did_), database(database_),
 	  rec(NULL), heavy_duty(heavy_duty_)
@@ -42,7 +42,7 @@ DBDocument::~DBDocument()
 }
 
 string
-DBDocument::do_get_value(om_valueno valueid) const
+DBDocument::do_get_value(Xapian::valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
 
@@ -69,11 +69,11 @@ DBDocument::do_get_value(om_valueno valueid) const
  *  Note: this only returns values from the valuefile.  If values are being
  *  read from the record, this will not return them.
  */
-map<om_valueno, string>
+map<Xapian::valueno, string>
 DBDocument::do_get_all_values() const
 {
-    om_valueno valueid = 0;
-    map<om_valueno, string> values;
+    Xapian::valueno valueid = 0;
+    map<Xapian::valueno, string> values;
 
     string value = database->get_value(did, valueid);
     if (!value.empty()) values[valueid] = value;

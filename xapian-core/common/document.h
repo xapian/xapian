@@ -41,7 +41,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
     friend class Xapian::ValueIterator;
     public:
 	/// Type to store values in.
-	typedef map<om_valueno, string> document_values;
+	typedef map<Xapian::valueno, string> document_values;
 
 	/// Type to store terms in.
 	typedef map<string, OmDocumentTerm> document_terms;
@@ -65,7 +65,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	mutable document_values values; // FIXME mutable is a hack
 
 	/// The value numbers, for use by ValueIterators.
-	mutable vector<om_valueno> value_nos; // FIXME mutable is a hack
+	mutable vector<Xapian::valueno> value_nos; // FIXME mutable is a hack
 
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
@@ -75,13 +75,13 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	//
 	//  If we're using multiple databases together this may not be the
 	//  same as the docid in the combined database.
-	om_docid did;
+	Xapian::docid did;
 
     private:
 	// Functions for backend to implement
-	virtual string do_get_value(om_valueno /*valueno*/) const { return ""; }
-	virtual map<om_valueno, string> do_get_all_values() const {
-	    map<om_valueno, string> none;
+	virtual string do_get_value(Xapian::valueno /*valueno*/) const { return ""; }
+	virtual map<Xapian::valueno, string> do_get_all_values() const {
+	    map<Xapian::valueno, string> none;
 	    return none;
 	}
 	virtual string do_get_data() const { return ""; }
@@ -103,7 +103,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	string get_value(om_valueno valueid) const;
+	string get_value(Xapian::valueno valueid) const;
 
 	/** Get all values for this document
 	 *
@@ -114,18 +114,18 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @return   A map of strings containing all the values.
 	 */
-	map<om_valueno, string> get_all_values() const;
+	map<Xapian::valueno, string> get_all_values() const;
 
-	om_valueno values_count() const;
-	void add_value(om_valueno, const string &);
-	void remove_value(om_valueno);
+	Xapian::valueno values_count() const;
+	void add_value(Xapian::valueno, const string &);
+	void remove_value(Xapian::valueno);
 	void clear_values();
-	void add_posting(const string &, om_termpos, om_termcount);
-	void add_term_nopos(const string &, om_termcount);
-	void remove_posting(const string &, om_termpos, om_termcount);
+	void add_posting(const string &, Xapian::termpos, Xapian::termcount);
+	void add_term_nopos(const string &, Xapian::termcount);
+	void remove_posting(const string &, Xapian::termpos, Xapian::termcount);
 	void remove_term(const string &);
 	void clear_terms();
-	om_termcount termlist_count() const;
+	Xapian::termcount termlist_count() const;
 
 	/** Get data stored in document.
 	 *
@@ -167,7 +167,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Internal(const Xapian::Database::Internal *database_, om_docid did_)
+	Internal(const Xapian::Database::Internal *database_, Xapian::docid did_)
 	    : database(database_), data_here(false), values_here(false),
 	      terms_here(false), did(did_) { }
 

@@ -60,10 +60,10 @@ class QuartzPositionList : public PositionList {
 	bool have_started;
 
 	/// The current position.
-	om_termpos current_pos;
+	Xapian::termpos current_pos;
 	
 	/// The number of entries in the position list.
-	om_termcount number_of_entries;
+	Xapian::termcount number_of_entries;
 
         /// Copying is not allowed.
         QuartzPositionList(const QuartzPositionList &);
@@ -75,7 +75,7 @@ class QuartzPositionList : public PositionList {
 	void next_internal();
 
 	/// Make a key for accessing the positionlist.
-	static void make_key(om_docid did,
+	static void make_key(Xapian::docid did,
 			     const string & tname,
 			     string & key);
 
@@ -88,19 +88,19 @@ class QuartzPositionList : public PositionList {
 
         /// Fill list with data, and move the position to the start.
         void read_data(const QuartzTable * table,
-		       om_docid did,
+		       Xapian::docid did,
 		       const string & tname);
 
         /// Gets size of position list.
-        om_termcount get_size() const {
-	    DEBUGCALL(DB, om_termcount, "QuartzPositionList::get_size", "");
+        Xapian::termcount get_size() const {
+	    DEBUGCALL(DB, Xapian::termcount, "QuartzPositionList::get_size", "");
 	    RETURN(number_of_entries);
 	}
 
         /// Gets current position.
-        om_termpos get_position() const {
+        Xapian::termpos get_position() const {
 	    Assert(have_started);
-	    DEBUGCALL(DB, om_termpos, "QuartzPositionList::get_position", "");
+	    DEBUGCALL(DB, Xapian::termpos, "QuartzPositionList::get_position", "");
 	    RETURN(current_pos);
 	}
 
@@ -114,7 +114,7 @@ class QuartzPositionList : public PositionList {
          *  Either next() or skip_to() must be called before any other
          *  methods.
          */
-        void skip_to(om_termpos termpos);
+        void skip_to(Xapian::termpos termpos);
 
         /// True if we're off the end of the list
         bool at_end() const {
@@ -124,17 +124,17 @@ class QuartzPositionList : public PositionList {
 
 	/// Set the position list for the given docid and termname
 	static void set_positionlist(QuartzBufferedTable * table,
-			om_docid did,
+			Xapian::docid did,
 			const string & tname,
 			Xapian::PositionListIterator pos,
 			const Xapian::PositionListIterator &pos_end);
 
 	/// Delete the position list for the given docid and termname
 	static void delete_positionlist(QuartzBufferedTable * table,
-					om_docid did,
+					Xapian::docid did,
 					const string & tname);
 	/// Return the current position
-	om_termpos get_current_pos() {
+	Xapian::termpos get_current_pos() {
 	    return(current_pos);
 	}
 };

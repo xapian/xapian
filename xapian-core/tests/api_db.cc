@@ -885,12 +885,12 @@ static bool test_cutoff1()
     }
 
     unsigned int num_items = 0;
-    om_weight my_wt = -100;
+    Xapian::weight my_wt = -100;
     int changes = 0;
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-        om_weight new_wt = i.get_weight();
+        Xapian::weight new_wt = i.get_weight();
         if (new_wt != my_wt) {
 	    changes++;
 	    if (changes > 3) break;
@@ -940,12 +940,12 @@ static bool test_cutoff2()
     }
 
     unsigned int num_items = 0;
-    om_weight my_wt = -100;
+    Xapian::weight my_wt = -100;
     int changes = 0;
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-        om_weight new_wt = i.get_weight();
+        Xapian::weight new_wt = i.get_weight();
         if (new_wt != my_wt) {
 	    changes++;
 	    if (changes > 3) break;
@@ -1078,7 +1078,7 @@ static bool test_maxattain1()
 {
     Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 100, 0);
 
-    om_weight mymax = 0;
+    Xapian::weight mymax = 0;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
         if (i.get_weight() > mymax) mymax = i.get_weight();
@@ -1095,16 +1095,16 @@ static bool test_collapsekey1()
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
-    om_doccount mymsize1 = mymset1.size();
+    Xapian::doccount mymsize1 = mymset1.size();
 
-    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	enquire.set_collapse_key(value_no);
 	Xapian::MSet mymset = enquire.get_mset(0, 100);
 
 	TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
-	map<string, om_docid> values;
+	map<string, Xapian::docid> values;
 	Xapian::MSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
 	    string value = i.get_document().get_value(value_no);
@@ -1123,16 +1123,16 @@ static bool test_collapsekey2()
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
-    om_doccount mymsize1 = mymset1.size();
+    Xapian::doccount mymsize1 = mymset1.size();
 
-    const om_valueno value_no = 0;
+    const Xapian::valueno value_no = 0;
     enquire.set_collapse_key(value_no);
     Xapian::MSet mymset = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
 
-    map<string, om_docid> values;
+    map<string, Xapian::docid> values;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
 	string value = i.get_document().get_value(value_no);
@@ -1179,14 +1179,14 @@ static bool test_reversebool1()
     {
 	Xapian::MSetIterator i = mymset1.begin();
 #ifdef __SUNPRO_CC
-	vector<om_docid> rev;
+	vector<Xapian::docid> rev;
 	for (Xapian::MSetIterator t = mymset3.begin(); t != mymset3.end(); ++t) 
 	    rev.push_back(*t);
 #else
-	vector<om_docid> rev(mymset3.begin(), mymset3.end());
+	vector<Xapian::docid> rev(mymset3.begin(), mymset3.end());
 #endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<om_docid>::reverse_iterator j = rev.rbegin();
+	vector<Xapian::docid>::reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
@@ -1211,7 +1211,7 @@ static bool test_reversebool2()
 		     "Mset was too small to test properly");
 
     enquire.set_sort_forward(true);
-    om_doccount msize = mymset1.size() / 2;
+    Xapian::doccount msize = mymset1.size() / 2;
     Xapian::MSet mymset2 = enquire.get_mset(0, msize);
     enquire.set_sort_forward(false);
     Xapian::MSet mymset3 = enquire.get_mset(0, msize);
@@ -1233,14 +1233,14 @@ static bool test_reversebool2()
     TEST_EQUAL(msize, mymset3.size());
     {
 #ifdef __SUNPRO_CC
-	vector<om_docid> rev;
+	vector<Xapian::docid> rev;
 	for (Xapian::MSetIterator t = mymset1.begin(); t != mymset1.end(); ++t) 
 	    rev.push_back(*t);
 #else
-	vector<om_docid> rev(mymset1.begin(), mymset1.end());
+	vector<Xapian::docid> rev(mymset1.begin(), mymset1.end());
 #endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<om_docid>::reverse_iterator i = rev.rbegin();
+	vector<Xapian::docid>::reverse_iterator i = rev.rbegin();
 	Xapian::MSetIterator j = mymset3.begin();
 	for ( ; j != mymset3.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
@@ -1433,7 +1433,7 @@ static bool test_spaceterms1()
 {
     Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
-    om_doccount count;
+    Xapian::doccount count;
     Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
@@ -1444,7 +1444,7 @@ static bool test_spaceterms1()
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
 
-    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
     }
@@ -1456,7 +1456,7 @@ static bool test_spaceterms1()
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
 
-    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	string value = mymset.begin().get_document().get_value(value_no);
 	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
@@ -1678,7 +1678,7 @@ static bool test_specialterms1()
 {
     Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
-    om_doccount count;
+    Xapian::doccount count;
     Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
@@ -1689,7 +1689,7 @@ static bool test_specialterms1()
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
 
-    for (om_valueno value_no = 0; value_no < 7; ++value_no) {
+    for (Xapian::valueno value_no = 0; value_no < 7; ++value_no) {
 	string value = mymset.begin().get_document().get_value(value_no);
 	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
@@ -2014,8 +2014,8 @@ static bool test_termlisttermfreq1()
     // search for weight of term 'another'
     string theterm = stemmer.stem_word("another");
 
-    om_weight wt1 = 0;
-    om_weight wt2 = 0;
+    Xapian::weight wt1 = 0;
+    Xapian::weight wt2 = 0;
     {
 	Xapian::ESetIterator i = eset1.begin();
 	for ( ; i != eset1.end(); i++) {
@@ -2296,7 +2296,7 @@ static bool test_adddoc2()
     // Quartz had a bug handling a term >= 128 characters longer than the
     // previous term - this is "foo" + 130 "X"s
     doc1.add_posting("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 1);
-    om_docid did;
+    Xapian::docid did;
 
     Xapian::Document doc2 = db.get_document(did = db.add_document(doc1));
     TEST_EQUAL(did, 1);
@@ -2500,7 +2500,7 @@ static bool test_deldoc1()
     doc1.add_posting("foo", 2);
     doc1.add_posting("bar", 3);
     doc1.add_posting("gone", 1);
-    om_docid did;
+    Xapian::docid did;
 
     did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
@@ -2545,7 +2545,7 @@ static bool test_replacedoc()
     doc1.add_posting("gone",3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
-    om_docid did;
+    Xapian::docid did;
 
     did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
@@ -2589,7 +2589,7 @@ static bool test_deldoc2()
     doc1.add_posting("one", 1);
     doc1.add_posting("two", 2);
     doc1.add_posting("two", 3);
-    om_docid did;
+    Xapian::docid did;
 
     did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
@@ -2663,7 +2663,7 @@ static bool test_deldoc3()
 
     doc1.add_posting("one", 1);
 
-    om_docid did = db.add_document(doc1);
+    Xapian::docid did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
 
     db.flush();
@@ -2723,7 +2723,7 @@ static bool test_deldoc4()
     doc3.remove_term("two");
 
     const int maxdoc = 1000 * 3;
-    om_docid did;
+    Xapian::docid did;
     for (unsigned int i=0; i<maxdoc / 3; ++i) {
 	did = db.add_document(doc1);
 	TEST_EQUAL(did, i*3+1);
@@ -2950,18 +2950,18 @@ static bool test_postlist2()
     TEST_EQUAL(p, p_clone);
 
 #ifdef __SUNPRO_CC
-    vector<om_docid> v;
+    vector<Xapian::docid> v;
     while (p != pend) {
 	v.push_back(*p);
 	++p;
     }
 #else
-    vector<om_docid> v(p, pend);
+    vector<Xapian::docid> v(p, pend);
 #endif
 
     p = db.postlist_begin("this");
     pend = db.postlist_end("this");
-    vector<om_docid>::const_iterator i;
+    vector<Xapian::docid>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
 	TEST_NOT_EQUAL(p, pend);
 	TEST_EQUAL(*i, *p);
@@ -3070,9 +3070,9 @@ static bool test_sortbands1()
     const char * terms[] = {"better", "place", "reader", "without", "would"};
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
 	enquire.set_query(Xapian::Query(terms[j]));
-	enquire.set_sorting(om_valueno(-1), 10);
+	enquire.set_sorting(Xapian::valueno(-1), 10);
 	Xapian::MSet mset = enquire.get_mset(0, 20);
-	om_docid prev = 0;
+	Xapian::docid prev = 0;
 	int band = 9;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    int this_band = (i.get_percent() - 1) / 10;
@@ -3096,7 +3096,7 @@ static bool test_sortbands2()
 
     for (int pass = 1; pass <= 2; ++pass) { 
 	for (int bands = 1; bands <= 10; bands += 9) {
-	    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+	    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 		tout << "Sorting on value " << value_no << endl;
 		enquire.set_sorting(value_no, bands);
 		Xapian::MSet allbset = enquire.get_mset(0, 100);
@@ -3140,11 +3140,11 @@ static bool test_consistency1()
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
-    om_doccount lots = 214;
+    Xapian::doccount lots = 214;
     Xapian::MSet bigmset = enquire.get_mset(0, lots);
     try {
-	for (om_doccount start = 0; start < lots; ++start) {
-	    for (om_doccount size = 0; size < lots - start; ++size) {
+	for (Xapian::doccount start = 0; start < lots; ++start) {
+	    for (Xapian::doccount size = 0; size < lots - start; ++size) {
 		Xapian::MSet mset = enquire.get_mset(start, size);
 		if (mset.size()) {
 		    TEST_EQUAL(start + mset.size(),
@@ -3153,7 +3153,7 @@ static bool test_consistency1()
 //		tout << start << mset.size() << bigmset.size() << endl;
 		    TEST(start >= bigmset.size());
 		}
-		for (om_doccount i = 0; i < mset.size(); ++i) {
+		for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 		    TEST_EQUAL(*mset[i], *bigmset[start + i]);
 		    TEST_EQUAL(mset[i].get_weight(),
 			       bigmset[start + i].get_weight());

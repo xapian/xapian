@@ -51,7 +51,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
 	virtual ~Internal() {}
 
 	// Gets size of termlist
-	virtual om_termcount get_approx_size() const = 0;
+	virtual Xapian::termcount get_approx_size() const = 0;
 
 	// Gets weighting info for current term
 	virtual OmExpandBits get_weighting() const = 0;
@@ -60,13 +60,13 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
 	virtual string get_termname() const = 0;
 
 	// Get wdf of current term
-	virtual om_termcount get_wdf() const = 0;
+	virtual Xapian::termcount get_wdf() const = 0;
 
 	// Get num of docs indexed by term
-	virtual om_doccount get_termfreq() const = 0;
+	virtual Xapian::doccount get_termfreq() const = 0;
 
 	// Get num of docs indexed by term
-	virtual om_termcount get_collection_freq() const {
+	virtual Xapian::termcount get_collection_freq() const {
 	    Assert(false);
 	    return 0;
 	}

@@ -152,7 +152,7 @@ string_to_tlistitem(const string &s)
 }
 
 void
-SocketClient::get_tlist(om_docid did,
+SocketClient::get_tlist(Xapian::docid did,
 			vector<NetClient::TermListItem> &items) {
     /* avoid confusing the protocol if there are requested documents
      * being returned.
@@ -169,9 +169,9 @@ SocketClient::get_tlist(om_docid did,
 }
 
 void
-SocketClient::request_doc(om_docid did)
+SocketClient::request_doc(Xapian::docid did)
 {
-    map<om_docid, unsigned int>::iterator i = request_count.find(did);
+    map<Xapian::docid, unsigned int>::iterator i = request_count.find(did);
     if (i != request_count.end()) {
 	/* This document has been requested already - just count it again. */
 	(i->second)++;
@@ -188,7 +188,7 @@ SocketClient::get_requested_docs()
     while (!requested_docs.empty()) {
 	TimerSentry timersentry(this);
 
-	om_docid cdid = requested_docs.front();
+	Xapian::docid cdid = requested_docs.front();
 
 	/* Create new entry, and get a reference to it */
 	cached_doc &cdoc = collected_docs[cdid];
@@ -206,7 +206,7 @@ SocketClient::get_requested_docs()
 #else
 	    istrstream is(message.data(), message.length());
 #endif
-	    om_valueno valueno;
+	    Xapian::valueno valueno;
 	    string omvalue;
 	    is >> valueno >> omvalue;
 	    cdoc.values[valueno] = decode_tname(omvalue);
@@ -220,11 +220,11 @@ SocketClient::get_requested_docs()
 }
 
 void
-SocketClient::collect_doc(om_docid did, string &doc,
-			  map<om_valueno, string> &values)
+SocketClient::collect_doc(Xapian::docid did, string &doc,
+			  map<Xapian::valueno, string> &values)
 {
     /* First check that the data isn't in our temporary cache */
-    map<om_docid, cached_doc>::iterator i;
+    map<Xapian::docid, cached_doc>::iterator i;
     i = collected_docs.find(did);
 
     if (i != collected_docs.end()) {
@@ -274,21 +274,21 @@ SocketClient::collect_doc(om_docid did, string &doc,
 }
 
 void
-SocketClient::get_doc(om_docid did,
+SocketClient::get_doc(Xapian::docid did,
 		      string &doc,
-		      map<om_valueno, string> &values)
+		      map<Xapian::valueno, string> &values)
 {
     request_doc(did);
     collect_doc(did, doc, values);
 }
 
-om_doccount
+Xapian::doccount
 SocketClient::get_doccount() const
 {
     return doccount;
 }
 
-om_doclength
+Xapian::doclength
 SocketClient::get_avlength() const
 {
     return avlength;
@@ -303,7 +303,7 @@ SocketClient::term_exists(const string & tname)
     return message[1] == '1';
 }
 
-om_doccount
+Xapian::doccount
 SocketClient::get_termfreq(const string & tname)
 {
     do_write(string("F") + encode_tname(tname));
@@ -314,7 +314,7 @@ SocketClient::get_termfreq(const string & tname)
 #else
     istrstream is(message.data() + 1, message.length() - 1);
 #endif
-    om_doccount freq;
+    Xapian::doccount freq;
     is >> freq;
     return freq;
 }
@@ -384,8 +384,8 @@ SocketClient::~SocketClient()
 
 void
 SocketClient::set_query(const Xapian::Query::Internal *query_,
-			om_valueno collapse_key, bool sort_forward,
-			int percent_cutoff, om_weight weight_cutoff,
+			Xapian::valueno collapse_key, bool sort_forward,
+			int percent_cutoff, Xapian::weight weight_cutoff,
 			const Xapian::Weight *wtscheme,
 			const Xapian::RSet &omrset_)
 {
@@ -484,8 +484,8 @@ SocketClient::send_global_stats(const Stats &stats)
 }
 
 bool
-SocketClient::get_mset(om_doccount first,
-		       om_doccount maxitems,
+SocketClient::get_mset(Xapian::doccount first,
+		       Xapian::doccount maxitems,
 		       Xapian::MSet &mset)
 {
     /* avoid confusing the protocol if there are requested documents
@@ -540,7 +540,7 @@ SocketClient::get_mset(om_doccount first,
 }
 
 bool
-SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
+SocketClient::get_posting(Xapian::docid &did, Xapian::weight &w, string &value)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::get_posting", "");
     Assert(global_stats_valid);
@@ -599,7 +599,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
 }
 
 void
-SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, string &value)
+SocketClient::next(Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value)
 {
     if (w_min > minw) {
 	minw = w_min;
@@ -610,7 +610,7 @@ SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, string &value)
 }
 
 void
-SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, string &value)
+SocketClient::skip_to(Xapian::docid new_did, Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value)
 {
     do_write("S" + om_tostring(new_did));
     if (w_min > minw) {

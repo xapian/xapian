@@ -36,7 +36,7 @@ using std::string;
 static const string METAINFO_KEY("", 1);
 
 string
-QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
+QuartzRecordManager::get_record(QuartzTable & table, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, string, "QuartzRecordManager::get_record", "[table], " << did);
     string key(quartz_docid_to_key(did));
@@ -50,27 +50,27 @@ QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 }
 
 
-om_doccount
+Xapian::doccount
 QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
-    DEBUGCALL_STATIC(DB, om_doccount, "QuartzRecordManager::get_doccount", "[table]");
+    DEBUGCALL_STATIC(DB, Xapian::doccount, "QuartzRecordManager::get_doccount", "[table]");
     // Check that we can't overflow (the unsigned test is actually too
     // strict as we can typically assign an unsigned short to a signed long,
     // but this shouldn't actually matter here).
-    CASSERT(sizeof(om_doccount) >= sizeof(quartz_tablesize_t));
-    CASSERT((om_doccount)(-1) > 0);
+    CASSERT(sizeof(Xapian::doccount) >= sizeof(quartz_tablesize_t));
+    CASSERT((Xapian::doccount)(-1) > 0);
     CASSERT((quartz_tablesize_t)(-1) > 0);
-    om_doccount entries = table.get_entry_count();
+    Xapian::doccount entries = table.get_entry_count();
     RETURN(entries ? entries - 1 : 0);
 }
 
-om_docid
+Xapian::docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
-    DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::get_newdocid", "[table]");
+    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_newdocid", "[table]");
     string * tag = table.get_or_make_tag(METAINFO_KEY);
 
-    om_docid did;
+    Xapian::docid did;
     quartz_totlen_t totlen;
     if (tag->empty()) {
 	did = 1u;
@@ -95,12 +95,12 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
     RETURN(did);
 }
 
-om_docid
+Xapian::docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
 				const string & data)
 {
-    DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::add_record", "[table], " << data);
-    om_docid did = get_newdocid(table);
+    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::add_record", "[table], " << data);
+    Xapian::docid did = get_newdocid(table);
 
     string key(quartz_docid_to_key(did));
     string * tag = table.get_or_make_tag(key);
@@ -112,7 +112,7 @@ QuartzRecordManager::add_record(QuartzBufferedTable & table,
 void
 QuartzRecordManager::replace_record(QuartzBufferedTable & table,
 				    const string & data,
-				    om_docid did)
+				    Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
     string key(quartz_docid_to_key(did));
@@ -128,7 +128,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
     string * tag = table.get_or_make_tag(METAINFO_KEY);
 
-    om_docid did;
+    Xapian::docid did;
     quartz_totlen_t totlen;
     if (tag->empty()) {
 	did = 1u;
@@ -158,17 +158,17 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 }
 
 // FIXME: probably want to cache the average length (but not miss updates)
-om_doclength
+Xapian::doclength
 QuartzRecordManager::get_avlength(QuartzTable & table)
 {
-    DEBUGCALL_STATIC(DB, om_doclength, "QuartzRecordManager::get_avlength", "QuartzTable &");
-    om_doccount docs = get_doccount(table);
+    DEBUGCALL_STATIC(DB, Xapian::doclength, "QuartzRecordManager::get_avlength", "QuartzTable &");
+    Xapian::doccount docs = get_doccount(table);
     if (docs == 0) RETURN(0);
 
     string tag;
     if (!table.get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
 
-    om_docid did;
+    Xapian::docid did;
     quartz_totlen_t totlen;
     const char * data = tag.data();
     const char * end = data + tag.size();
@@ -183,7 +183,7 @@ QuartzRecordManager::get_avlength(QuartzTable & table)
 
 void
 QuartzRecordManager::delete_record(QuartzBufferedTable & table,
-				   om_docid did)
+				   Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::delete_record", "[table], " << did);
     table.delete_tag(quartz_docid_to_key(did));

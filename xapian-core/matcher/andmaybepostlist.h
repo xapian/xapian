@@ -6,6 +6,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,24 +54,24 @@
  */
 class AndMaybePostList : public BranchPostList {
     private:
-	om_doccount dbsize; // only need in case we decay to an AndPostList
-	om_docid lhead, rhead;
-	om_weight lmax, rmax;
+	Xapian::doccount dbsize; // only need in case we decay to an AndPostList
+	Xapian::docid lhead, rhead;
+	Xapian::weight lmax, rmax;
 
-        PostList * process_next_or_skip_to(om_weight w_min, PostList *ret);
+        PostList * process_next_or_skip_to(Xapian::weight w_min, PostList *ret);
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -78,12 +79,12 @@ class AndMaybePostList : public BranchPostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
         AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
-			 om_doccount dbsize_)
+			 Xapian::doccount dbsize_)
 		: BranchPostList(left_, right_, matcher_),
 		  dbsize(dbsize_), lhead(0), rhead(0)
 	{
@@ -94,9 +95,9 @@ class AndMaybePostList : public BranchPostList {
         AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
-			 om_doccount dbsize_,
-			 om_docid lhead_,
-			 om_docid rhead_)
+			 Xapian::doccount dbsize_,
+			 Xapian::docid lhead_,
+			 Xapian::docid rhead_)
 		: BranchPostList(left_, right_, matcher_),
 		  dbsize(dbsize_), lhead(lhead_), rhead(rhead_)
 	{
@@ -107,60 +108,60 @@ class AndMaybePostList : public BranchPostList {
 	}
 };
 
-inline om_doccount
+inline Xapian::doccount
 AndMaybePostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_max", "");
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_max());
 }
 
-inline om_doccount
+inline Xapian::doccount
 AndMaybePostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_min", "");
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_min());
 }
 
-inline om_doccount
+inline Xapian::doccount
 AndMaybePostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_est", "");
     // Termfreq is exactly that of left hand branch.
     RETURN(l->get_termfreq_est());
 }
 
-inline om_docid
+inline Xapian::docid
 AndMaybePostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "AndMaybePostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     RETURN(lhead);
 }
 
 // only called if we are doing a probabilistic AND MAYBE
-inline om_weight
+inline Xapian::weight
 AndMaybePostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
     RETURN(l->get_weight());
 }
 
 // only called if we are doing a probabilistic operation
-inline om_weight
+inline Xapian::weight
 AndMaybePostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_maxweight", "");
     RETURN(lmax + rmax);
 }
 
-inline om_weight
+inline Xapian::weight
 AndMaybePostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     RETURN(AndMaybePostList::get_maxweight());
@@ -180,10 +181,10 @@ AndMaybePostList::get_description() const
 	   ")";
 }
 
-inline om_doclength
+inline Xapian::doclength
 AndMaybePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "AndMaybePostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "AndMaybePostList::get_doclength", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
     RETURN(l->get_doclength());

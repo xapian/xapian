@@ -80,17 +80,17 @@ class NetworkDatabase : public Xapian::Database::Internal {
 		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const Xapian::Document & /*document*/) {
+	Xapian::docid do_add_document(const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::add_document() not implemented: readonly database type");
 	}
 
-	void do_delete_document(om_docid /*did*/) {
+	void do_delete_document(Xapian::docid /*did*/) {
 	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid /*did*/, const Xapian::Document & /*document*/) {
+	void do_replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::replace_document() not implemented: readonly database type");
 	}
@@ -102,23 +102,23 @@ class NetworkDatabase : public Xapian::Database::Internal {
 
 	~NetworkDatabase();
 
-	om_doccount  get_doccount() const;
-	om_doclength get_avlength() const;
-	om_doclength get_doclength(om_docid did) const;
+	Xapian::doccount  get_doccount() const;
+	Xapian::doclength get_avlength() const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
 
-	om_doccount get_termfreq(const string & tname) const;
-	om_termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount get_termfreq(const string & tname) const;
+	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(om_docid did) const;
-	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
-	PositionList * open_position_list(om_docid did,
+	LeafTermList * open_term_list(Xapian::docid did) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	PositionList * open_position_list(Xapian::docid did,
 					const string & tname) const;
 	TermList * open_allterms() const;
 
-	void request_document(om_docid did) const;
-	Xapian::Document::Internal * collect_document(om_docid did) const;
+	void request_document(Xapian::docid did) const;
+	Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	
 	// keep-alive
 	void keep_alive() const;
@@ -127,7 +127,7 @@ class NetworkDatabase : public Xapian::Database::Internal {
 	const NetworkDatabase * as_networkdatabase() const { return this; }
 };
 
-inline om_termcount
+inline Xapian::termcount
 NetworkDatabase::get_collection_freq(const string & /*tname*/) const
 {
     throw Xapian::UnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");

@@ -57,13 +57,13 @@ NetworkDatabase::keep_alive() const
     link->keep_alive();
 }
 
-om_doccount
+Xapian::doccount
 NetworkDatabase::get_doccount() const
 {
     return link->get_doccount();
 }
 
-om_doclength
+Xapian::doclength
 NetworkDatabase::get_avlength() const
 {
     return link->get_avlength();
@@ -76,7 +76,7 @@ NetworkDatabase::do_open_post_list(const string & /*tname*/) const
 }
 
 LeafTermList *
-NetworkDatabase::open_term_list(om_docid did) const {
+NetworkDatabase::open_term_list(Xapian::docid did) const {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
@@ -85,42 +85,42 @@ NetworkDatabase::open_term_list(om_docid did) const {
 }
 
 Xapian::Document::Internal *
-NetworkDatabase::open_document(om_docid did, bool /*lazy*/) const
+NetworkDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
     // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     string doc;
-    map<om_valueno, string> values;
+    map<Xapian::valueno, string> values;
     link->get_doc(did, doc, values);
     return new NetworkDocument(this, did, doc, values);
 }
 
 PositionList * 
-NetworkDatabase::open_position_list(om_docid /*did*/,
+NetworkDatabase::open_position_list(Xapian::docid /*did*/,
 				    const string & /*tname*/) const
 {
     throw Xapian::UnimplementedError("Network databases do not support opening positionlist");
 }
 
 void
-NetworkDatabase::request_document(om_docid did) const
+NetworkDatabase::request_document(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     link->request_doc(did);
 }
 
 Xapian::Document::Internal *
-NetworkDatabase::collect_document(om_docid did) const
+NetworkDatabase::collect_document(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     string doc;
-    map<om_valueno, string> values;
+    map<Xapian::valueno, string> values;
     link->collect_doc(did, doc, values);
     return new NetworkDocument(this, did, doc, values);
 }
 
-om_doclength
-NetworkDatabase::get_doclength(om_docid /*did*/) const
+Xapian::doclength
+NetworkDatabase::get_doclength(Xapian::docid /*did*/) const
 {
     throw Xapian::UnimplementedError("NetworkDatabase::get_doclength() not implemented");
 }
@@ -133,7 +133,7 @@ NetworkDatabase::term_exists(const string & tname) const
     return link->term_exists(tname);
 }
 
-om_doccount
+Xapian::doccount
 NetworkDatabase::get_termfreq(const string & tname) const
 {
     Assert(!tname.empty());

@@ -37,22 +37,22 @@
  */
 class OrPostList : public BranchPostList {
     private:
-        om_docid lhead, rhead;
-        om_weight lmax, rmax, minmax;
-	om_doccount dbsize;
+        Xapian::docid lhead, rhead;
+        Xapian::weight lmax, rmax, minmax;
+	Xapian::doccount dbsize;
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -64,52 +64,52 @@ class OrPostList : public BranchPostList {
 	 *  current document for the document length.  If both subpostlists
 	 *  are valid, the left one is asked.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
         OrPostList(PostList * left_,
 		   PostList * right_,
 		   MultiMatch * matcher_,
-		   om_doccount dbsize_);
+		   Xapian::doccount dbsize_);
 };
 
-inline om_doccount
+inline Xapian::doccount
 OrPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_max", "");
     RETURN(std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize));
 }
 
-inline om_doccount
+inline Xapian::doccount
 OrPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_min", "");
     RETURN(std::max(l->get_termfreq_min(), r->get_termfreq_min()));
 }
 
-inline om_doccount
+inline Xapian::doccount
 OrPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    RETURN(static_cast<om_doccount> (lest + rest - lest * rest / dbsize));
+    RETURN(static_cast<Xapian::doccount> (lest + rest - lest * rest / dbsize));
 }
 
-inline om_docid
+inline Xapian::docid
 OrPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "OrPostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "OrPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     RETURN(std::min(lhead, rhead));
 }
 
 // only called if we are doing a probabilistic OR
-inline om_weight
+inline Xapian::weight
 OrPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "OrPostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) RETURN(l->get_weight());
     if (lhead > rhead) RETURN(r->get_weight());
@@ -117,17 +117,17 @@ OrPostList::get_weight() const
 }
 
 // only called if we are doing a probabilistic operation
-inline om_weight
+inline Xapian::weight
 OrPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "OrPostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_maxweight", "");
     RETURN(lmax + rmax);
 }
 
-inline om_weight
+inline Xapian::weight
 OrPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "OrPostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
@@ -149,11 +149,11 @@ OrPostList::get_description() const
     return "(" + l->get_description() + " Or " + r->get_description() + ")";
 }
 
-inline om_doclength
+inline Xapian::doclength
 OrPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "OrPostList::get_doclength", "");
-    om_doclength doclength;
+    DEBUGCALL(MATCH, Xapian::doclength, "OrPostList::get_doclength", "");
+    Xapian::doclength doclength;
 
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead > rhead) {

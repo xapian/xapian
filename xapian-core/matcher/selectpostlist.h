@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,17 +45,17 @@ class SelectPostList : public PostList {
 	 */
     	virtual bool test_doc() = 0;
     public:
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 
 	// pass all these through to the underlying source PostList
-	om_doccount get_termfreq_max() const { return source->get_termfreq_max(); }
-	om_doccount get_termfreq_min() const { return 0; }
-	om_weight get_maxweight() const { return source->get_maxweight(); }
-	om_docid get_docid() const { return source->get_docid(); }
-	om_weight get_weight() const { return source->get_weight(); }
-	om_doclength get_doclength() const { return source->get_doclength(); }
-	om_weight recalc_maxweight() { return source->recalc_maxweight(); }
+	Xapian::doccount get_termfreq_max() const { return source->get_termfreq_max(); }
+	Xapian::doccount get_termfreq_min() const { return 0; }
+	Xapian::weight get_maxweight() const { return source->get_maxweight(); }
+	Xapian::docid get_docid() const { return source->get_docid(); }
+	Xapian::weight get_weight() const { return source->get_weight(); }
+	Xapian::doclength get_doclength() const { return source->get_doclength(); }
+	Xapian::weight recalc_maxweight() { return source->recalc_maxweight(); }
 	PositionList * read_position_list() { return source->read_position_list(); }
 	PositionList * open_position_list() const { return source->open_position_list(); }
 	bool at_end() const { return source->at_end(); }

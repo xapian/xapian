@@ -33,7 +33,7 @@ using std::make_pair;
 #include "omdebug.h"
 
 void
-QuartzValueManager::make_key(string & key, om_docid did, om_valueno valueno)
+QuartzValueManager::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key",
 		     key << ", " << did << ", " << valueno);
@@ -44,7 +44,7 @@ QuartzValueManager::make_key(string & key, om_docid did, om_valueno valueno)
 void
 QuartzValueManager::unpack_entry(const char ** pos,
 				 const char * end,
-				 om_valueno * this_value_no,
+				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry", pos << ", " << end << ", " << this_value_no << ", " << this_value);
@@ -65,8 +65,8 @@ QuartzValueManager::unpack_entry(const char ** pos,
 void
 QuartzValueManager::add_value(QuartzBufferedTable & table,
 			      const string & value,
-			      om_docid did,
-			      om_valueno valueno)
+			      Xapian::docid did,
+			      Xapian::valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::add_value", "[table], " << value << ", " << did << ", " << valueno);
     string key;
@@ -80,7 +80,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
     bool have_added = false;
     
     while (pos && pos != end) {
-	om_valueno this_value_no;
+	Xapian::valueno this_value_no;
 	string this_value;
 
 	unpack_entry(&pos, end, &this_value_no, this_value);
@@ -109,8 +109,8 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 void
 QuartzValueManager::get_value(const QuartzTable & table,
 			      string & value,
-			      om_docid did,
-			      om_valueno valueno)
+			      Xapian::docid did,
+			      Xapian::valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_value", "[table], " << value << ", " << did << ", " << valueno);
     string key;
@@ -123,7 +123,7 @@ QuartzValueManager::get_value(const QuartzTable & table,
 	const char * end = pos + tag.size();
 
 	while (pos && pos != end) {
-	    om_valueno this_value_no;
+	    Xapian::valueno this_value_no;
 	    string this_value;
 
 	    unpack_entry(&pos, end, &this_value_no, this_value);
@@ -139,8 +139,8 @@ QuartzValueManager::get_value(const QuartzTable & table,
 
 void
 QuartzValueManager::get_all_values(const QuartzTable & table,
-				map<om_valueno, string> & values,
-				om_docid did)
+				map<Xapian::valueno, string> & values,
+				Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_all_values", "[table], [values], " << did);
     string key;
@@ -155,7 +155,7 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
     const char * end = pos + tag.size();
 
     while (pos && pos != end) {
-	om_valueno this_value_no;
+	Xapian::valueno this_value_no;
 	string this_value;
 
 	unpack_entry(&pos, end, &this_value_no, this_value);
@@ -164,7 +164,7 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
 }
 
 void
-QuartzValueManager::delete_all_values(QuartzBufferedTable & table, om_docid did)
+QuartzValueManager::delete_all_values(QuartzBufferedTable & table, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::delete_all_values", "[table], " << did);
     string key;

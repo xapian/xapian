@@ -56,9 +56,9 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const Xapian::Document & document);
-	virtual void do_delete_document(om_docid did);
-	virtual void do_replace_document(om_docid did,
+	virtual Xapian::docid do_add_document(const Xapian::Document & document);
+	virtual void do_delete_document(Xapian::docid did);
+	virtual void do_replace_document(Xapian::docid did,
 					 const Xapian::Document & document);
 
 	virtual void do_reopen();
@@ -69,7 +69,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
 
 	/// Implementation of open_term_list()
-	LeafTermList * open_term_list_internal(om_docid did,
+	LeafTermList * open_term_list_internal(Xapian::docid did,
 		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
 
     public:
@@ -92,17 +92,17 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	/** Virtual methods of Database.
 	 */
 	//@{
-	om_doccount  get_doccount() const;
-	om_doclength get_avlength() const;
-	om_doclength get_doclength(om_docid did) const;
-	om_doccount get_termfreq(const string & tname) const;
-	om_termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount  get_doccount() const;
+	Xapian::doclength get_avlength() const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::doccount get_termfreq(const string & tname) const;
+	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(om_docid did) const;
-	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
-	PositionList * open_position_list(om_docid did,
+	LeafTermList * open_term_list(Xapian::docid did) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 	//@}
@@ -140,9 +140,9 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const Xapian::Document & document);
-	virtual void do_delete_document(om_docid did);
-	virtual void do_replace_document(om_docid did,
+	virtual Xapian::docid do_add_document(const Xapian::Document & document);
+	virtual void do_delete_document(Xapian::docid did);
+	virtual void do_replace_document(Xapian::docid did,
 					 const Xapian::Document & document);
 
 	virtual void do_reopen();
@@ -162,17 +162,17 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	/** Virtual methods of Database.
 	 */
 	//@{
-	om_doccount  get_doccount() const;
-	om_doclength get_avlength() const;
-	om_doclength get_doclength(om_docid did) const;
-	om_doccount get_termfreq(const string & tname) const;
-	om_termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount  get_doccount() const;
+	Xapian::doclength get_avlength() const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::doccount get_termfreq(const string & tname) const;
+	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(om_docid did) const;
-	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
-	PositionList * open_position_list(om_docid did,
+	LeafTermList * open_term_list(Xapian::docid did) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 	//@}

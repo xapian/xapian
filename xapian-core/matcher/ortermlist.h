@@ -32,12 +32,12 @@ class OrTermList : public BranchTermList {
         string lhead, rhead;
 	bool started;
     public:
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
 	string get_termname() const;
-        om_termcount get_wdf() const;
-        om_doccount get_termfreq() const;
+        Xapian::termcount get_wdf() const;
+        Xapian::doccount get_termfreq() const;
 
 	TermList *next();
 	bool at_end() const;
@@ -55,10 +55,10 @@ OrTermList::get_weighting() const
     return l->get_weighting() + r->get_weighting();
 }
 
-inline om_doccount
+inline Xapian::doccount
 OrTermList::get_termfreq() const
 {
-    DEBUGCALL(MATCH, om_doccount, "OrTermList::get_termfreq", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "OrTermList::get_termfreq", "");
     Assert(started);
     if (lhead < rhead) return l->get_termfreq();
     return r->get_termfreq();
@@ -73,10 +73,10 @@ OrTermList::get_termname() const
     return r->get_termname();
 }
 
-inline om_termcount
+inline Xapian::termcount
 OrTermList::get_wdf() const
 {
-    DEBUGCALL(MATCH, om_termcount, "OrTermList::get_wdf", "");
+    DEBUGCALL(MATCH, Xapian::termcount, "OrTermList::get_wdf", "");
     Assert(started);
     if (lhead < rhead) return l->get_wdf();
     if (lhead > rhead) return r->get_wdf();
@@ -91,10 +91,10 @@ OrTermList::at_end() const
     return false; // Should have thrown a sub-tree, rather than got to end
 }
 
-inline om_termcount
+inline Xapian::termcount
 OrTermList::get_approx_size() const
 {
-    DEBUGCALL(MATCH, om_termcount, "OrTermList::get_approx_size", "");
+    DEBUGCALL(MATCH, Xapian::termcount, "OrTermList::get_approx_size", "");
     return l->get_approx_size() + r->get_approx_size();
 }
 

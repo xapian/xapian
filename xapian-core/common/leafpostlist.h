@@ -40,18 +40,18 @@ class LeafPostList : public PostList {
 
 	~LeafPostList() { delete ir_wt; }
 
-	virtual om_doccount get_termfreq() const = 0;
-	om_doccount get_termfreq_max() const { return get_termfreq(); }
-	om_doccount get_termfreq_min() const { return get_termfreq(); }
-	om_doccount get_termfreq_est() const { return get_termfreq(); }
+	virtual Xapian::doccount get_termfreq() const = 0;
+	Xapian::doccount get_termfreq_max() const { return get_termfreq(); }
+	Xapian::doccount get_termfreq_min() const { return get_termfreq(); }
+	Xapian::doccount get_termfreq_est() const { return get_termfreq(); }
 
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const Xapian::Weight * wt);
 
-	virtual om_weight get_weight() const;
+	virtual Xapian::weight get_weight() const;
 
-	virtual om_weight get_maxweight() const;    // Gets max weight
-        virtual om_weight recalc_maxweight();       // recalculate weights
+	virtual Xapian::weight get_maxweight() const;    // Gets max weight
+        virtual Xapian::weight recalc_maxweight();       // recalculate weights
 };
 
 inline void
@@ -61,7 +61,7 @@ LeafPostList::set_termweight(const Xapian::Weight * wt)
     want_doclength = wt->get_sumpart_needs_doclength();
 }
 
-inline om_weight
+inline Xapian::weight
 LeafPostList::get_weight() const
 {
     Assert(ir_wt != NULL);
@@ -69,14 +69,14 @@ LeafPostList::get_weight() const
 }
 
 // return an upper bound on the termweight
-inline om_weight
+inline Xapian::weight
 LeafPostList::get_maxweight() const
 {
     Assert(ir_wt != NULL);
     return ir_wt->get_maxpart();
 }
 
-inline om_weight
+inline Xapian::weight
 LeafPostList::recalc_maxweight()
 {
     return LeafPostList::get_maxweight();

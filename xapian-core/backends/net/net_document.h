@@ -32,18 +32,18 @@ class NetworkDocument : public Xapian::Document::Internal {
     private:
 	string doc;
 
-	map<om_valueno, string> values;
+	map<Xapian::valueno, string> values;
 
-	NetworkDocument(const Xapian::Database::Internal *database_, om_docid did_,
+	NetworkDocument(const Xapian::Database::Internal *database_, Xapian::docid did_,
 			const string & doc_,
-			const map<om_valueno, string> &values_);
+			const map<Xapian::valueno, string> &values_);
 
 	// Stop copying
 	NetworkDocument(const NetworkDocument &);
 	NetworkDocument & operator = (const NetworkDocument &);
     public:
-	string do_get_value(om_valueno valueid) const;
-	map<om_valueno, string> do_get_all_values() const;
+	string do_get_value(Xapian::valueno valueid) const;
+	map<Xapian::valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 

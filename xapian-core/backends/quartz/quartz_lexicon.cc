@@ -30,7 +30,7 @@
 #include "omdebug.h"
 
 void
-QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
+QuartzLexicon::parse_entry(const std::string & data, Xapian::doccount * termfreq)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::parse_entry", data << ", " << termfreq);
     const char * pos = data.data();
@@ -42,7 +42,7 @@ QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
 }
 
 void
-QuartzLexicon::make_entry(std::string & data, om_doccount termfreq)
+QuartzLexicon::make_entry(std::string & data, Xapian::doccount termfreq)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_entry", data << ", " << termfreq);
     data = pack_uint_last(termfreq);
@@ -55,7 +55,7 @@ QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
     string * tag = table->get_or_make_tag(tname);
 
-    om_doccount termfreq;
+    Xapian::doccount termfreq;
 
     if (tag->empty()) {
 	termfreq = 1;
@@ -79,7 +79,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 		     table << ", " << tname);
     string * tag = table->get_or_make_tag(tname);
 
-    om_doccount termfreq;
+    Xapian::doccount termfreq;
     if (tag->empty()) {
 	// Have no tag - this shouldn't really happen - in a production
 	// build its probably okay to ignore it though.
@@ -105,7 +105,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 bool
 QuartzLexicon::get_entry(const QuartzTable * table,
 			 const string & tname,
-			 om_doccount * termfreq)
+			 Xapian::doccount * termfreq)
 {
     DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry",
 		     table << ", " << tname << ", " << termfreq);

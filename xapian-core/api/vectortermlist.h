@@ -43,7 +43,7 @@ class VectorTermList : public TermList {
 	}
 
 	// Gets size of termlist
-	om_termcount get_approx_size() const {
+	Xapian::termcount get_approx_size() const {
 	    return terms.size();
 	}
 
@@ -60,13 +60,13 @@ class VectorTermList : public TermList {
 	}
 
 	// Get wdf of current term
-	om_termcount get_wdf() const {
+	Xapian::termcount get_wdf() const {
 	    Assert(!before_start && offset < terms.size());
 	    return 1; // FIXME: or is Xapian::InvalidOperationError better?
 	}
 
 	// Get num of docs indexed by term
-	om_doccount get_termfreq() const {
+	Xapian::doccount get_termfreq() const {
             throw Xapian::InvalidOperationError("VectorTermList::get_termfreq() not supported");
 	}
 

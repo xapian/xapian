@@ -64,7 +64,7 @@ class LocalSubMatch : public SubMatch {
 	AutoPtr<RSetI> rset;
     
 	/// The size of the query (passed to Xapian::Weight objects)
-	om_doclength querysize;
+	Xapian::doclength querysize;
     
 	/// Weighting scheme object
 	const Xapian::Weight * wtscheme;
@@ -85,8 +85,8 @@ class LocalSubMatch : public SubMatch {
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
 				const Xapian::Query::Internal::subquery_list &queries,
-				om_termpos window,
-				om_termcount elite_set_size,
+				Xapian::termpos window,
+				Xapian::termcount elite_set_size,
 				MultiMatch *matcher,
 				bool is_bool);
 
@@ -125,9 +125,9 @@ class LocalSubMatch : public SubMatch {
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
-	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
+	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	virtual Xapian::Document::Internal * open_document(om_docid did) const {
+	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const {
 	    return db->open_document(did);
 	}
 

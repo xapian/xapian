@@ -42,20 +42,20 @@ class MSetPostList : public PostList {
 	int current;
 
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
 	const string * get_collapse_key() const;
 
-	om_weight get_maxweight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	string get_description() const;
@@ -63,7 +63,7 @@ class MSetPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
 	virtual PositionList * read_position_list();
 	virtual PositionList * open_position_list() const;
@@ -72,39 +72,39 @@ class MSetPostList : public PostList {
         ~MSetPostList();
 };
 
-inline om_doccount
+inline Xapian::doccount
 MSetPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_max", "");
     return mset.get_matches_upper_bound();
 }
 
-inline om_doccount
+inline Xapian::doccount
 MSetPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_min", "");
     return mset.get_matches_lower_bound();
 }
 
-inline om_doccount
+inline Xapian::doccount
 MSetPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MSetPostList::get_termfreq_est", "");
     return mset.get_matches_estimated();
 }
 
-inline om_docid
+inline Xapian::docid
 MSetPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "MSetPostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "MSetPostList::get_docid", "");
     Assert(current != -1);
     RETURN(mset.internal->items[current].did);
 }
 
-inline om_weight
+inline Xapian::weight
 MSetPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "MSetPostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::get_weight", "");
     Assert(current != -1);
     return mset.internal->items[current].wt;
 }
@@ -117,10 +117,10 @@ MSetPostList::get_collapse_key() const
     return &(mset.internal->items[current].collapse_key);
 }
 
-inline om_weight
+inline Xapian::weight
 MSetPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "MSetPostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::get_maxweight", "");
     // Before we've started, return max_possible...
     // FIXME: when current advances from -1 to 0, we should probably call
     // recalc_maxweight on the matcher...
@@ -130,10 +130,10 @@ MSetPostList::get_maxweight() const
     return mset.internal->items[current].wt;
 }
 
-inline om_weight
+inline Xapian::weight
 MSetPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "MSetPostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::recalc_maxweight", "");
     return get_maxweight();
 }
 
@@ -151,10 +151,10 @@ MSetPostList::get_description() const
     return "( MSet " + mset.get_description() + " )";
 }
 
-inline om_doclength
+inline Xapian::doclength
 MSetPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "MSetPostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "MSetPostList::get_doclength", "");
     Assert(current != -1);
     return 1; // FIXME: this info is unused with present weights
 //    return db->get_doclength(mset.internal->items[current].did);
@@ -182,7 +182,7 @@ class PendingMSetPostList : public PostList {
     private:
 	const NetworkDatabase *db;
 	MSetPostList *pl;
-	om_doccount maxitems;
+	Xapian::doccount maxitems;
 
 	void make_pl() {
 	    if (pl) return;
@@ -194,31 +194,31 @@ class PendingMSetPostList : public PostList {
 	}
 
     public:
-	om_doccount get_termfreq_max() const {
+	Xapian::doccount get_termfreq_max() const {
 	    Assert(pl);
 	    return pl->get_termfreq_max();
 	}
 
-	om_doccount get_termfreq_min() const {
+	Xapian::doccount get_termfreq_min() const {
 	    Assert(pl);
 	    return pl->get_termfreq_min();
 	}
 
-	om_doccount get_termfreq_est() const {
+	Xapian::doccount get_termfreq_est() const {
 	    Assert(pl);
 	    return pl->get_termfreq_est();
 	}
 
-	om_docid  get_docid() const { Assert(false); return 0; }
-	om_weight get_weight() const { Assert(false); return 0; }
-	om_weight get_maxweight() const { Assert(false); return 0; }
+	Xapian::docid  get_docid() const { Assert(false); return 0; }
+	Xapian::weight get_weight() const { Assert(false); return 0; }
+	Xapian::weight get_maxweight() const { Assert(false); return 0; }
 	
-        om_weight recalc_maxweight() {
+        Xapian::weight recalc_maxweight() {
 	    make_pl();
 	    return pl->recalc_maxweight();
 	}
 
-	PostList *next(om_weight w_min) {
+	PostList *next(Xapian::weight w_min) {
 	    make_pl();
 	    PostList *pl2 = pl->next(w_min);
 	    Assert(pl2 == NULL); // MSetPostList-s don't prune
@@ -227,7 +227,7 @@ class PendingMSetPostList : public PostList {
 	    return pl2;
 	}
 
-	PostList *skip_to(om_docid /*did*/, om_weight /*w_min*/) {
+	PostList *skip_to(Xapian::docid /*did*/, Xapian::weight /*w_min*/) {
 	    // MSetPostList doesn't return documents in docid order, so skip_to
 	    // isn't a meaningful operation.
 	    throw Xapian::UnimplementedError("PendingMSetPostList doesn't support skip_to");	    
@@ -243,7 +243,7 @@ class PendingMSetPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const { Assert(false); return 1; }
+	virtual Xapian::doclength get_doclength() const { Assert(false); return 1; }
 
 	virtual PositionList * read_position_list() { Assert(false); return 0; }
 	virtual PositionList * open_position_list() const {
@@ -251,7 +251,7 @@ class PendingMSetPostList : public PostList {
 	    return 0;
 	}
 
-        PendingMSetPostList(const NetworkDatabase *db_, om_doccount maxitems_)
+        PendingMSetPostList(const NetworkDatabase *db_, Xapian::doccount maxitems_)
 		: db(db_), pl(NULL), maxitems(maxitems_) { }
         ~PendingMSetPostList();
 };

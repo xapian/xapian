@@ -43,24 +43,24 @@ class QuartzRecordManager {
 	/** Retrieve a document from the table.
 	 */
 	static string get_record(QuartzTable & table,
-				 om_docid did);
+				 Xapian::docid did);
 
 	/** Get the number of records in the table.
 	 */
-	static om_doccount get_doccount(QuartzTable & table);
+	static Xapian::doccount get_doccount(QuartzTable & table);
 
 	/** Return the average length of records in the table.
 	 */
-	static om_doclength get_avlength(QuartzTable & table);
+	static Xapian::doclength get_avlength(QuartzTable & table);
 
 	/** Get the next document ID to use.
 	 */
-	static om_docid get_newdocid(QuartzBufferedTable & table);
+	static Xapian::docid get_newdocid(QuartzBufferedTable & table);
 
 	/** Add a new record to the table.
 	 *
 	 */
-	static om_docid add_record(QuartzBufferedTable & table,
+	static Xapian::docid add_record(QuartzBufferedTable & table,
 				   const string & data);
 	/* Replace an existing record in the table
 	 *
@@ -70,12 +70,12 @@ class QuartzRecordManager {
 	 */
 	static void replace_record(QuartzBufferedTable &table,
 				   const string & data,
-				   om_docid did);
+				   Xapian::docid did);
 
 	/** Delete a record from the table.
 	 */
 	static void delete_record(QuartzBufferedTable & table,
-				  om_docid did);
+				  Xapian::docid did);
 
 	/** Modify the stored total length of the records, by supplying an
 	 *  old length for a document, and the new length of the document

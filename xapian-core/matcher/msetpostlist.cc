@@ -38,7 +38,7 @@ MSetPostList::~MSetPostList()
 }
 
 PostList *
-MSetPostList::next(om_weight w_min)
+MSetPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
     (void)w_min;
@@ -48,7 +48,7 @@ MSetPostList::next(om_weight w_min)
 }
 
 PostList *
-MSetPostList::skip_to(om_docid did, om_weight w_min)
+MSetPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MSetPostList::skip_to", did << ", " << w_min);
     (void)did;

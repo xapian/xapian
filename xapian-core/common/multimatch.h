@@ -51,21 +51,21 @@ class MultiMatch
 
 	const Xapian::Query::Internal *query;
 
-	om_valueno collapse_key;
+	Xapian::valueno collapse_key;
 
 	int percent_cutoff;
 
-	om_weight weight_cutoff;
+	Xapian::weight weight_cutoff;
 
 	bool sort_forward;
 
-	om_valueno sort_key;
+	Xapian::valueno sort_key;
 
 	int sort_bands;
 
 	time_t bias_halflife;
 
-	om_weight bias_weight;
+	Xapian::weight bias_weight;
 	
 	/// ErrorHandler
 	Xapian::ErrorHandler * errorhandler;
@@ -87,14 +87,14 @@ class MultiMatch
 
 	/// get the collapse key
 	string get_collapse_key(PostList *pl, const Xapian::Database &db,
-				om_docid did, om_valueno keyno,
+				Xapian::docid did, Xapian::valueno keyno,
 				Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc);
 
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
 	 *  Must only be called on the top of the postlist tree.
 	 */
-        om_weight getorrecalc_maxweight(PostList *pl);
+        Xapian::weight getorrecalc_maxweight(PostList *pl);
 
 	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);
@@ -117,21 +117,21 @@ class MultiMatch
 	MultiMatch(const Xapian::Database &db_,
 		   const Xapian::Query::Internal * query,
 		   const Xapian::RSet & omrset,
-		   om_valueno collapse_key_,
+		   Xapian::valueno collapse_key_,
 		   int percent_cutoff_,
-		   om_weight weight_cutoff_,
+		   Xapian::weight weight_cutoff_,
 		   bool sort_forward_,
-		   om_valueno sort_key_,
+		   Xapian::valueno sort_key_,
 		   int sort_bands_,
 		   time_t bias_halflife_,
-		   om_weight bias_weight_,
+		   Xapian::weight bias_weight_,
 		   Xapian::ErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_,
 		   const Xapian::Weight *wtscheme);
 	~MultiMatch();
 
-	void get_mset(om_doccount first,
-		      om_doccount maxitems,
+	void get_mset(Xapian::doccount first,
+		      Xapian::doccount maxitems,
 		      Xapian::MSet & mset,
 		      const Xapian::MatchDecider * mdecider);
 

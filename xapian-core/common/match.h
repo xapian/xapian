@@ -60,11 +60,11 @@ class SubMatch : public Xapian::Internal::RefCntBase {
 	virtual bool prepare_match(bool nowait) = 0;
 
 	/// Start the remote match going
-	virtual void start_match(om_doccount /*maxitems*/) { }
+	virtual void start_match(Xapian::doccount /*maxitems*/) { }
 	
-	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
+	virtual PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher) = 0;
 
-	virtual Xapian::Document::Internal * open_document(om_docid did) const = 0;
+	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const = 0;
 
 	virtual const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const = 0;
 };

@@ -62,7 +62,7 @@
         <FONT color=#0000ff>// Prepare the relevant document list</FONT>
         Xapian::RSet reldocs;
         <B><FONT color=#a52a2a>for</FONT></B>(; optpos &lt; argc; optpos++) {
-            om_docid rdid = atoi(argv[optpos]);
+            Xapian::docid rdid = atoi(argv[optpos]);
             <B><FONT color=#a52a2a>if</FONT></B>(rdid != <FONT color=#ff00ff>0</FONT>) {
                 reldocs.add_document(rdid);
             }

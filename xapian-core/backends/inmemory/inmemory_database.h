@@ -43,10 +43,10 @@ using namespace std;
 // all the relevant positional information, is a single posting)
 class InMemoryPosting {
     public:
-	om_docid did;
+	Xapian::docid did;
 	string tname;
-	vector<om_termpos> positions; // Sorted vector of positions
-	om_termcount wdf;
+	vector<Xapian::termpos> positions; // Sorted vector of positions
+	Xapian::termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
@@ -84,7 +84,7 @@ class InMemoryTerm {
     public:
 	vector<InMemoryPosting> docs;// Sorted list of documents indexing term
 
-	om_termcount collection_freq;
+	Xapian::termcount collection_freq;
 
 	InMemoryTerm() : collection_freq(0) {}
 
@@ -130,7 +130,7 @@ class InMemoryPostList : public LeafPostList {
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
 	string tname;
-	om_doccount termfreq;
+	Xapian::doccount termfreq;
 	bool started;
 
 	/** List of positions of the current term.
@@ -143,17 +143,17 @@ class InMemoryPostList : public LeafPostList {
 	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
     public:
-	om_doccount get_termfreq() const;
+	Xapian::doccount get_termfreq() const;
 
-	om_docid       get_docid() const;     // Gets current docid
-	om_doclength   get_doclength() const; // Length of current document
-        om_termcount   get_wdf() const;	      // Within Document Frequency
+	Xapian::docid       get_docid() const;     // Gets current docid
+	Xapian::doclength   get_doclength() const; // Length of current document
+        Xapian::termcount   get_wdf() const;	      // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
-	PostList *next(om_weight w_min); // Moves to next docid
+	PostList *next(Xapian::weight w_min); // Moves to next docid
 
-	PostList *skip_to(om_docid did, om_weight w_min); // Moves to next docid >= specified docid
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
 
@@ -166,23 +166,23 @@ class InMemoryTermList : public LeafTermList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
-	om_termcount terms;
+	Xapian::termcount terms;
 	bool started;
 
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
-	om_docid did;
-	om_doclength document_length;
+	Xapian::docid did;
+	Xapian::doclength document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, om_docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, Xapian::docid did,
 			 const InMemoryDoc & doc,
-			 om_doclength len);
+			 Xapian::doclength len);
     public:
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
 	string get_termname() const;
-	om_termcount get_wdf() const; // Number of occurrences of term in current doc
-	om_doccount get_termfreq() const;  // Number of docs indexed by term
+	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
+	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 	Xapian::PositionListIterator positionlist_begin() const;
@@ -197,13 +197,13 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	map<string, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<std::string> doclists;
-	vector<std::map<om_valueno, string> > valuelists;
+	vector<std::map<Xapian::valueno, string> > valuelists;
 
-	vector<om_doclength> doclengths;
+	vector<Xapian::doclength> doclengths;
 
-	om_doccount totdocs;
+	Xapian::doccount totdocs;
 
-	om_doclength totlen;
+	Xapian::doclength totlen;
 
 	bool indexing; // Whether we have started to index to the database
 
@@ -213,17 +213,17 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	void make_term(const string & tname);
 
-	bool doc_exists(om_docid did) const;
-	om_docid make_doc(const string & docdata);
+	bool doc_exists(Xapian::docid did) const;
+	Xapian::docid make_doc(const string & docdata);
 
 	/* The common parts of add_doc and replace_doc */
-	void finish_add_doc(om_docid did, const Xapian::Document &document);
-	void add_values(om_docid did, const map<om_valueno, string> &values_);
+	void finish_add_doc(Xapian::docid did, const Xapian::Document &document);
+	void add_values(Xapian::docid did, const map<Xapian::valueno, string> &values_);
 
 	void make_posting(const string & tname,
-			  om_docid did,
-			  om_termpos position,
-			  om_termcount wdf,
+			  Xapian::docid did,
+			  Xapian::termpos position,
+			  Xapian::termcount wdf,
 			  bool use_position = true);
 
 	//@{
@@ -237,9 +237,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	void do_commit_transaction();
 	void do_cancel_transaction();
 
-	om_docid do_add_document(const Xapian::Document & document);
-	void do_delete_document(om_docid did);
-	void do_replace_document(om_docid did, const Xapian::Document & document);
+	Xapian::docid do_add_document(const Xapian::Document & document);
+	void do_delete_document(Xapian::docid did);
+	void do_replace_document(Xapian::docid did, const Xapian::Document & document);
 	//@}
 
     public:
@@ -260,18 +260,18 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	~InMemoryDatabase();
 
-	om_doccount  get_doccount() const;
-	om_doclength get_avlength() const;
-	om_doclength get_doclength(om_docid did) const;
+	Xapian::doccount  get_doccount() const;
+	Xapian::doclength get_avlength() const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
 
-	om_doccount get_termfreq(const string & tname) const;
-	om_termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount get_termfreq(const string & tname) const;
+	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(om_docid did) const;
-	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
-	PositionList * open_position_list(om_docid did,
+	LeafTermList * open_term_list(Xapian::docid did) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 };
@@ -294,13 +294,13 @@ InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDat
     Assert(pos != end);
 }
 
-inline om_doccount
+inline Xapian::doccount
 InMemoryPostList::get_termfreq() const
 {
     return termfreq;
 }
 
-inline om_docid
+inline Xapian::docid
 InMemoryPostList::get_docid() const
 {
     //DebugMsg(tname << ".get_docid()");
@@ -311,7 +311,7 @@ InMemoryPostList::get_docid() const
 }
 
 inline PostList *
-InMemoryPostList::next(om_weight /*w_min*/)
+InMemoryPostList::next(Xapian::weight /*w_min*/)
 {
 #if 0
     if (db->error_in_next) {
@@ -338,7 +338,7 @@ InMemoryPostList::next(om_weight /*w_min*/)
 }
 
 inline PostList *
-InMemoryPostList::skip_to(om_docid did, om_weight w_min)
+InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
@@ -373,9 +373,9 @@ InMemoryPostList::get_description() const
 
 inline
 InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   om_docid did_,
+				   Xapian::docid did_,
 				   const InMemoryDoc & doc,
-				   om_doclength len)
+				   Xapian::doclength len)
 	: pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
 	  started(false), db(db_), did(did_)
 {
@@ -385,7 +385,7 @@ InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDat
     return;
 }
 
-inline om_termcount
+inline Xapian::termcount
 InMemoryTermList::get_approx_size() const
 {
     return terms;
@@ -411,7 +411,7 @@ InMemoryTermList::get_termname() const
     return (*pos).tname;
 }
 
-inline om_termcount
+inline Xapian::termcount
 InMemoryTermList::get_wdf() const
 {
     Assert(started);
@@ -419,7 +419,7 @@ InMemoryTermList::get_wdf() const
     return (*pos).wdf;
 }
 
-inline om_doccount
+inline Xapian::doccount
 InMemoryTermList::get_termfreq() const
 {
     Assert(started);
@@ -457,21 +457,21 @@ InMemoryTermList::positionlist_begin() const
 // Inline function definitions for database //
 //////////////////////////////////////////////
 
-inline om_doccount
+inline Xapian::doccount
 InMemoryDatabase::get_doccount() const
 {
     return totdocs;
 }
 
-inline om_doclength
+inline Xapian::doclength
 InMemoryDatabase::get_avlength() const
 {
-    om_doccount docs = InMemoryDatabase::get_doccount();
+    Xapian::doccount docs = InMemoryDatabase::get_doccount();
     if (docs == 0) return 0;
-    return ((om_doclength) totlen) / docs;
+    return ((Xapian::doclength) totlen) / docs;
 }
 
-inline om_doccount
+inline Xapian::doccount
 InMemoryDatabase::get_termfreq(const string & tname) const
 {
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
@@ -479,7 +479,7 @@ InMemoryDatabase::get_termfreq(const string & tname) const
     return i->second.docs.size();
 }
 
-inline om_termcount
+inline Xapian::termcount
 InMemoryDatabase::get_collection_freq(const string &tname) const
 {
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
@@ -487,8 +487,8 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
     return i->second.collection_freq;
 }
 
-inline om_doclength
-InMemoryDatabase::get_doclength(om_docid did) const
+inline Xapian::doclength
+InMemoryDatabase::get_doclength(Xapian::docid did) const
 {
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +

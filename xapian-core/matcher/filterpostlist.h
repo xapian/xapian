@@ -4,6 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,20 +42,20 @@
  */
 class FilterPostList : public AndPostList {
     private:
-        void process_next_or_skip_to(om_weight w_min, PostList *ret);
+        void process_next_or_skip_to(Xapian::weight w_min, PostList *ret);
     public:
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 
 	std::string get_description() const;
 
         FilterPostList(PostList *left_, PostList *right_, MultiMatch *matcher_,
-		       om_doccount dbsize_)
+		       Xapian::doccount dbsize_)
 		: AndPostList(left_, right_, matcher_, dbsize_) {}
 };
 

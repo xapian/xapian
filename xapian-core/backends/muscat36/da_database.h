@@ -46,42 +46,42 @@ class DAPostList : public LeafPostList {
     friend class DADatabase;
     private:
 	struct DA_postings * postlist;
-	om_docid  currdoc;
+	Xapian::docid  currdoc;
 
 	string tname;
-	om_doccount termfreq;
+	Xapian::doccount termfreq;
 
 	Xapian::Internal::RefCntPtr<const DADatabase> this_db; // Just used to keep a reference
 
 	DAPostList(const string & tname_,
 		   struct DA_postings * postlist_,
-		   om_doccount termfreq_,
+		   Xapian::doccount termfreq_,
 		   Xapian::Internal::RefCntPtr<const DADatabase> this_db_);
     public:
 	~DAPostList();
 
-	om_doccount get_termfreq() const;
+	Xapian::doccount get_termfreq() const;
 
-	om_docid  get_docid() const;     // Gets current docid
-	om_doclength get_doclength() const; // Get length of current document
-        om_termcount get_wdf() const;    // Within Document Frequency
+	Xapian::docid  get_docid() const;     // Gets current docid
+	Xapian::doclength get_doclength() const; // Get length of current document
+        Xapian::termcount get_wdf() const;    // Within Document Frequency
 	PositionList *read_position_list(); // Gets positions
 	PositionList * open_position_list() const; // Gets positions
-	PostList *next(om_weight w_min);          // Moves to next docid
-	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
+	PostList *next(Xapian::weight w_min);          // Moves to next docid
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	std::string get_description() const;
 };
 
-inline om_doccount
+inline Xapian::doccount
 DAPostList::get_termfreq() const
 {
     DEBUGLINE(DB, "DAPostList::get_termfreq() = " << termfreq);
     return termfreq;
 }
 
-inline om_docid
+inline Xapian::docid
 DAPostList::get_docid() const
 {
     Assert(!at_end());
@@ -90,7 +90,7 @@ DAPostList::get_docid() const
     return currdoc;
 }
 
-inline om_doclength
+inline Xapian::doclength
 DAPostList::get_doclength() const
 {
     // FIXME: return database->get_doclength()
@@ -98,7 +98,7 @@ DAPostList::get_doclength() const
     return 1;
 }
 
-inline om_termcount
+inline Xapian::termcount
 DAPostList::get_wdf() const
 {
     DEBUGLINE(DB, "DAPostList::get_wdf() = " << postlist->wdf);
@@ -124,11 +124,11 @@ DAPostList::get_description() const
 class DATermListItem {
     public:
 	string tname;
-	om_termcount wdf;
-	om_doccount termfreq;
+	Xapian::termcount wdf;
+	Xapian::doccount termfreq;
 
-	DATermListItem(string tname_, om_termcount wdf_,
-		       om_doccount termfreq_)
+	DATermListItem(string tname_, Xapian::termcount wdf_,
+		       Xapian::doccount termfreq_)
 		: tname(tname_), wdf(wdf_), termfreq(termfreq_)
 	{ }
 };
@@ -140,24 +140,24 @@ class DATermList : public LeafTermList {
 	std::vector<DATermListItem>::iterator pos;
 	std::vector<DATermListItem> terms;
 	bool have_started;
-	om_doccount dbsize;
+	Xapian::doccount dbsize;
 
 	Xapian::Internal::RefCntPtr<const DADatabase> this_db;
 
-	DATermList(struct termvec *tv, om_doccount dbsize_,
+	DATermList(struct termvec *tv, Xapian::doccount dbsize_,
 		   Xapian::Internal::RefCntPtr<const DADatabase> this_db_);
     public:
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
 	string get_termname() const;
-	om_termcount get_wdf() const; // Number of occurrences of term in current doc
-	om_doccount get_termfreq() const;  // Number of docs indexed by term
+	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
+	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 };
 
-inline om_termcount DATermList::get_approx_size() const
+inline Xapian::termcount DATermList::get_approx_size() const
 {
     return terms.size();
 }
@@ -169,14 +169,14 @@ inline string DATermList::get_termname() const
     return pos->tname;
 }
 
-inline om_termcount DATermList::get_wdf() const
+inline Xapian::termcount DATermList::get_wdf() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->wdf;
 }
 
-inline om_doccount DATermList::get_termfreq() const
+inline Xapian::doccount DATermList::get_termfreq() const
 {
     Assert(!at_end());
     Assert(have_started);
@@ -275,12 +275,12 @@ class DADatabase : public Xapian::Database::Internal {
 	Xapian::Internal::RefCntPtr<const DATerm> term_lookup(const string & tname) const;
 
 	// Get a record
-	struct record * get_record(om_docid did) const;
+	struct record * get_record(Xapian::docid did) const;
 
 	/** Get a value from valuefile (will return empty value if valuefile
 	 *  not open.
 	 */
-	string get_value(om_docid did, om_valueno valueid) const;
+	string get_value(Xapian::docid did, Xapian::valueno valueid) const;
 
 	/** Internal method for opening postlists.
 	 */
@@ -302,22 +302,22 @@ class DADatabase : public Xapian::Database::Internal {
 	~DADatabase();
 
 	/// Get the database size.
-	om_doccount  get_doccount() const;
+	Xapian::doccount  get_doccount() const;
 	/// Get the average length of a document in the database.
-	om_doclength get_avlength() const;
-	om_doclength get_doclength(om_docid did) const;
+	Xapian::doclength get_avlength() const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
 
-	om_doccount get_termfreq(const string & tname) const;
-	om_termcount get_collection_freq(const string & /*tname*/) const {
+	Xapian::doccount get_termfreq(const string & tname) const;
+	Xapian::termcount get_collection_freq(const string & /*tname*/) const {
 	    throw Xapian::UnimplementedError(
 		"DADatabase::get_collection_freq() not implemented: data not stored in database.");
 	}
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(om_docid did) const;
-	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
-	PositionList * open_position_list(om_docid did,
+	LeafTermList * open_term_list(Xapian::docid did) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 
@@ -355,17 +355,17 @@ class DADatabase : public Xapian::Database::Internal {
 		"DADatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const Xapian::Document & /*document*/) {
+	Xapian::docid do_add_document(const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"DADatabase::add_document() not implemented: readonly database type");
 	}
 
-	void do_delete_document(om_docid /*did*/) {
+	void do_delete_document(Xapian::docid /*did*/) {
 	    throw Xapian::UnimplementedError(
 		"DADatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid /*did*/, const Xapian::Document & /*document*/) {
+	void do_replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"DADatabase::replace_document() not implemented: readonly database type");
 	}

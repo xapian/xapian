@@ -134,12 +134,12 @@ class MSetSortCmp {
     private:
 	Xapian::Database db;
 	double factor;
-	om_valueno sort_key;
+	Xapian::valueno sort_key;
 	bool forward;
 	int bands;
     public:
 	MSetSortCmp(const Xapian::Database &db_, int bands_, double percent_scale,
-		    om_valueno sort_key_, bool forward_)
+		    Xapian::valueno sort_key_, bool forward_)
 	    : db(db_), factor(percent_scale * bands_ / 100.0),
 	      sort_key(sort_key_), forward(forward_), bands(bands_) {
 	}
@@ -150,7 +150,7 @@ class MSetSortCmp {
 	    if (band_b > bands) band_b = bands;
 	    
 	    if (band_a != band_b) return band_a > band_b;
-	    if (sort_key != om_valueno(-1)) {
+	    if (sort_key != Xapian::valueno(-1)) {
 		if (a.sort_key.empty()) {
 		    Xapian::Document doc = db.get_document(a.did);
 		    a.sort_key = doc.get_value(sort_key);
@@ -172,11 +172,11 @@ class MSetSortCmp {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Internal * query_,
-		       const Xapian::RSet & omrset, om_valueno collapse_key_,
-		       int percent_cutoff_, om_weight weight_cutoff_,
-		       bool sort_forward_, om_valueno sort_key_,
+		       const Xapian::RSet & omrset, Xapian::valueno collapse_key_,
+		       int percent_cutoff_, Xapian::weight weight_cutoff_,
+		       bool sort_forward_, Xapian::valueno sort_key_,
 		       int sort_bands_, time_t bias_halflife_,
-		       om_weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
+		       Xapian::weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_,
 		       const Xapian::Weight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_),
@@ -196,15 +196,15 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 
     query->validate_query();
 
-    om_doccount number_of_leaves = db.internal.size();
+    Xapian::doccount number_of_leaves = db.internal.size();
     vector<Xapian::RSet> subrsets(number_of_leaves);
 
     {
-	set<om_docid> & items = omrset.internal->items;
-	set<om_docid>::const_iterator i; 
+	set<Xapian::docid> & items = omrset.internal->items;
+	set<Xapian::docid>::const_iterator i; 
 	for (i = items.begin(); i != items.end(); ++i) {
-	    om_doccount local_docid = (*i - 1) / number_of_leaves + 1;
-	    om_doccount subdatabase = (*i - 1) % number_of_leaves;
+	    Xapian::doccount local_docid = (*i - 1) / number_of_leaves + 1;
+	    Xapian::doccount subdatabase = (*i - 1) % number_of_leaves;
 	    subrsets[subdatabase].add_document(local_docid);
 	}
     }
@@ -222,7 +222,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    const NetworkDatabase *netdb = db->as_networkdatabase();
 	    if (netdb) {
-		if (sort_key != om_valueno(-1) || sort_bands) {
+		if (sort_key != Xapian::valueno(-1) || sort_bands) {
 		    throw Xapian::UnimplementedError("sort_key and sort_bands not supported with remote backend");
 		}
 		if (bias_halflife) {
@@ -294,8 +294,8 @@ MultiMatch::prepare_matchers()
 }
 
 string
-MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid did,
-			     om_valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
+MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, Xapian::docid did,
+			     Xapian::valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
 {		      
     DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
     const string *key = pl->get_collapse_key();
@@ -303,8 +303,8 @@ MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid 
     if (doc.get() == 0) {
 	unsigned int multiplier = db.internal.size();
 	Assert(multiplier != 0);
-	om_doccount n = (did - 1) % multiplier; // which actual database
-	om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+	Xapian::doccount n = (did - 1) % multiplier; // which actual database
+	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
    	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
 	doc = temp;
@@ -312,11 +312,11 @@ MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid 
     RETURN(doc->get_value(keyno));
 }
 
-om_weight
+Xapian::weight
 MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
-    DEBUGCALL(MATCH, om_weight, "MultiMatch::getorrecalc_maxweight", pl);
-    om_weight wt;
+    DEBUGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
+    Xapian::weight wt;
     if (recalculate_w_max) {
 	DEBUGLINE(MATCH, "recalculating max weight");
 	wt = pl->recalc_maxweight();
@@ -330,7 +330,7 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 }
 
 void
-MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
+MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
@@ -428,19 +428,19 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
-    om_doccount docs_matched = 0;
-    om_weight greatest_wt = 0;
+    Xapian::doccount docs_matched = 0;
+    Xapian::weight greatest_wt = 0;
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
-    const om_weight max_weight = pl->recalc_maxweight();
+    const Xapian::weight max_weight = pl->recalc_maxweight();
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
 
-    om_doccount matches_upper_bound = pl->get_termfreq_max();
-    om_doccount matches_lower_bound = pl->get_termfreq_min();
-    om_doccount matches_estimated   = pl->get_termfreq_est();
+    Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
+    Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
+    Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
     // Check if any results have been asked for (might just be wanting
     // maxweight)
@@ -459,17 +459,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
-    om_doccount max_msize = first + maxitems;
+    Xapian::doccount max_msize = first + maxitems;
     items.reserve(max_msize + 1);
 
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
     Xapian::Internal::MSetItem min_item(weight_cutoff, 0);
 
-    om_weight percent_factor = percent_cutoff / 100.0;
+    Xapian::weight percent_factor = percent_cutoff / 100.0;
  
     // Table of keys which have been seen already, for collapsing.
-    map<string, pair<Xapian::Internal::MSetItem,om_weight> > collapse_tab;
+    map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
 
     /// Comparison functor for sorting MSet
     // The sort_bands == 1 case is special - then we only need to compare
@@ -517,15 +517,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    break;
 	}
 
-	om_docid did = pl->get_docid();
-	om_weight wt = 0.0;
+	Xapian::docid did = pl->get_docid();
+	Xapian::weight wt = 0.0;
 	// Only calculate the weight if we need it for mcmp - otherwise
 	// we calculate it below only if we keep the item
 	if (min_item.wt > 0.0) wt = pl->get_weight();
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
-	if (sort_key != om_valueno(-1) && sort_bands == 1) {
+	if (sort_key != Xapian::valueno(-1) && sort_bands == 1) {
 	    Xapian::Document doc = db.get_document(new_item.did);
 	    new_item.sort_key = doc.get_value(sort_key);
 	}
@@ -543,8 +543,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    if (doc.get() == 0) {
 		unsigned int multiplier = db.internal.size();
 		Assert(multiplier != 0);
-		om_doccount n = (did - 1) % multiplier; // which actual database
-		om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+		Xapian::doccount n = (did - 1) % multiplier; // which actual database
+		Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
 		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
 		doc = temp;
@@ -562,20 +562,20 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	bool pushback = true;
 
 	// Perform collapsing on key if requested.
-	if (collapse_key != om_valueno(-1)) {
+	if (collapse_key != Xapian::valueno(-1)) {
 	    new_item.collapse_key = get_collapse_key(pl, db, did,
 						     collapse_key, doc);
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.empty()) {
-		map<string, pair<Xapian::Internal::MSetItem, om_weight> >::iterator oldkey;
+		map<string, pair<Xapian::Internal::MSetItem, Xapian::weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<
 			      new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
-					make_pair(new_item, om_weight(0))));
+					make_pair(new_item, Xapian::weight(0))));
 		} else {
 		    const Xapian::Internal::MSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
@@ -601,7 +601,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry
 			// FIXME: more efficient way than just scanning?
-			om_docid olddid = old_item.did;
+			Xapian::docid olddid = old_item.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key);
 			vector<Xapian::Internal::MSetItem>::iterator i;
@@ -634,7 +634,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
-		    om_weight tmp = min_item.wt;
+		    Xapian::weight tmp = min_item.wt;
 		    min_item = items.front();
 		    min_item.wt = tmp;
 #if 0
@@ -677,7 +677,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			     OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    items.pop_back(); 
 		    if (sort_bands == 1) {
-			om_weight tmp = min_item.wt;
+			Xapian::weight tmp = min_item.wt;
 			min_item = items.front();
 			min_item.wt = tmp;
 		    } else {
@@ -703,7 +703,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-	        om_weight w = wt * percent_factor;
+	        Xapian::weight w = wt * percent_factor;
 	        if (w > min_item.wt) {
 	            min_item.wt = w;
 	            min_item.did = 0;
@@ -736,7 +736,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    }
 		    // greatest_wt cannot now rise any further, so we now know
 		    // exactly where the relevance bands are.
-		    om_weight w = greatest_wt / sort_bands *
+		    Xapian::weight w = greatest_wt / sort_bands *
 			    floor(items.front().wt * sort_bands / greatest_wt);
 		    if (w > min_item.wt) min_item.wt = w;
 		}
@@ -754,7 +754,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
-	om_termcount matching_terms = 0;
+	Xapian::termcount matching_terms = 0;
 	map<string,
 	    Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
@@ -791,7 +791,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    om_weight min_wt = percent_factor / percent_scale;
+	    Xapian::weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
@@ -829,8 +829,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
     } else if (percent_cutoff) {
-	// another approach: om_doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
-	om_doccount new_est = (om_doccount)((1 - percent_factor) *
+	// another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
+	Xapian::doccount new_est = (Xapian::doccount)((1 - percent_factor) *
 					    matches_estimated);
 	matches_estimated = max((size_t)new_est, items.size());
 	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
@@ -897,16 +897,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // of an item that has already been pushed-back as we don't know where it is
     // any more.  If we keep or find references we won't need to mess with
     // is_heap so much maybe?
-    if (collapse_key != om_valueno(-1) && /*percent_cutoff &&*/ !items.empty() &&
+    if (collapse_key != Xapian::valueno(-1) && /*percent_cutoff &&*/ !items.empty() &&
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
-	om_weight min_wt = percent_factor / (percent_scale / 100);
+	Xapian::weight min_wt = percent_factor / (percent_scale / 100);
 	vector<Xapian::Internal::MSetItem>::iterator i;
 	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?
 	    if (/*i->collapse_count > 0 &&*/ !i->collapse_key.empty()) {
-		map<string, pair<Xapian::Internal::MSetItem, om_weight> >::iterator key;
+		map<string, pair<Xapian::Internal::MSetItem, Xapian::weight> >::iterator key;
 		key = collapse_tab.find(i->collapse_key);
 		// Because we collapse, each collapse key can only occur once
 		// in the items, we remove from collapse_tab here as processed

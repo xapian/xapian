@@ -390,7 +390,7 @@ pack_bool(bool value)
  *  component of the key).
  */
 inline string
-quartz_docid_to_key(om_docid did)
+quartz_docid_to_key(Xapian::docid did)
 {
     return pack_uint_last(did);
 }

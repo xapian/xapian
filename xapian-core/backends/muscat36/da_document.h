@@ -38,7 +38,7 @@ class DADocument : public Xapian::Document::Internal {
 	mutable struct record * rec;
 	bool heavy_duty;
 
-	DADocument(const DADatabase * database_, om_docid did_,
+	DADocument(const DADatabase * database_, Xapian::docid did_,
 		   bool heavy_duty_, bool lazy);
 
 	// Stop copying
@@ -47,8 +47,8 @@ class DADocument : public Xapian::Document::Internal {
     public:
 	~DADocument();
 
-	string do_get_value(om_valueno valueid) const;
-	map<om_valueno, string> do_get_all_values() const;
+	string do_get_value(Xapian::valueno valueid) const;
+	map<Xapian::valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 

@@ -30,7 +30,7 @@
 
 /** Create a DADocument: this is only called by DADatabase::open_document()
  */
-DADocument::DADocument(const DADatabase * database_, om_docid did_,
+DADocument::DADocument(const DADatabase * database_, Xapian::docid did_,
 		       bool heavy_duty_, bool lazy)
         : Xapian::Document::Internal(database_, did_), database(database_),
 	  rec(NULL), heavy_duty(heavy_duty_)
@@ -51,7 +51,7 @@ DADocument::~DADocument()
  *  value lookup.
  */
 string
-DADocument::do_get_value(om_valueno valueid) const
+DADocument::do_get_value(Xapian::valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
 
@@ -78,11 +78,11 @@ DADocument::do_get_value(om_valueno valueid) const
  *  Note: this only returns values from the valuefile.  If values are being
  *  read from the record, this will not return them.
  */
-map<om_valueno, string>
+map<Xapian::valueno, string>
 DADocument::do_get_all_values() const
 {
-    om_valueno valueid = 0;
-    map<om_valueno, string> values;
+    Xapian::valueno valueid = 0;
+    map<Xapian::valueno, string> values;
 
     string value = database->get_value(did, valueid);
     if (!value.empty()) values[valueid] = value;

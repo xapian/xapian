@@ -53,8 +53,8 @@ class QuartzAllTermsList : public AllTermsList
 
 	/// Cached statistics
 	mutable bool have_stats;
-	mutable om_termcount termfreq;
-	mutable om_termcount collection_freq;
+	mutable Xapian::termcount termfreq;
+	mutable Xapian::termcount collection_freq;
 
 	void get_stats() const;
     public:
@@ -67,16 +67,16 @@ class QuartzAllTermsList : public AllTermsList
 	~QuartzAllTermsList();
 
         // Gets size of termlist
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	// Gets current termname
 	string get_termname() const;
 
 	// Get num of docs indexed by term
-	om_doccount get_termfreq() const;
+	Xapian::doccount get_termfreq() const;
 
 	// Get num of docs indexed by term
-	om_termcount get_collection_freq() const;
+	Xapian::termcount get_collection_freq() const;
 
 	TermList * skip_to(const string &tname);
 

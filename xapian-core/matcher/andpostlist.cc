@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +26,7 @@
 #include "andpostlist.h"
 
 inline void
-AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
+AndPostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 {
     DEBUGCALL(MATCH, void, "AndPostList::process_next_or_skip_to",
 	      w_min << ", " << ret);
@@ -36,14 +37,14 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
-    om_docid rhead = r->get_docid();
+    Xapian::docid rhead = r->get_docid();
     DEBUGLINE(MATCH, "rhead " << rhead);
     DEBUGLINE(MATCH, "w_min " << w_min << " rmax " << rmax);
     skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
     DEBUGLINE(MATCH, "l at_end = " << l->at_end());
     if (l->at_end()) return;
 
-    om_docid lhead = l->get_docid();
+    Xapian::docid lhead = l->get_docid();
     DEBUGLINE(MATCH, "lhead " << lhead);
 
     while (lhead != rhead) {
@@ -76,7 +77,7 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 
 AndPostList::AndPostList(PostList *left_, PostList *right_,
 			 MultiMatch *matcher_,
-			 om_doccount dbsize_,
+			 Xapian::doccount dbsize_,
 			 bool replacement)
 	: BranchPostList(left_, right_, matcher_), head(0), dbsize(dbsize_)
 {
@@ -90,7 +91,7 @@ AndPostList::AndPostList(PostList *left_, PostList *right_,
 }
 
 PostList *
-AndPostList::next(om_weight w_min)
+AndPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndPostList::next", w_min);
     process_next_or_skip_to(w_min, r->next(w_min - lmax));
@@ -98,7 +99,7 @@ AndPostList::next(om_weight w_min)
 }
 
 PostList *
-AndPostList::skip_to(om_docid did, om_weight w_min)
+AndPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndPostList::skip_to", did << ", " << w_min);
     if (did > head)

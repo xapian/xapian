@@ -43,7 +43,7 @@ using std::make_pair;
 // Postlist //
 //////////////
 
-om_doclength
+Xapian::doclength
 InMemoryPostList::get_doclength() const
 {
     return db->get_doclength(get_docid());
@@ -62,7 +62,7 @@ InMemoryPostList::open_position_list() const
     return new InMemoryPositionList(pos->positions);
 }
 
-om_termcount
+Xapian::termcount
 InMemoryPostList::get_wdf() const
 {
     return (*pos).wdf;
@@ -108,13 +108,13 @@ InMemoryDatabase::do_open_post_list(const string & tname) const
 }
 
 bool
-InMemoryDatabase::doc_exists(om_docid did) const
+InMemoryDatabase::doc_exists(Xapian::docid did) const
 {
     return (did > 0 && did <= termlists.size() && termlists[did - 1].is_valid);
 }
 
 LeafTermList *
-InMemoryDatabase::open_term_list(om_docid did) const
+InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
@@ -127,7 +127,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 }
 
 Xapian::Document::Internal *
-InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
+InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
     // we're never lazy so ignore that flag
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
@@ -141,7 +141,7 @@ InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 }
 
 PositionList * 
-InMemoryDatabase::open_position_list(om_docid did,
+InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
     if (!doc_exists(did)) {
@@ -160,8 +160,8 @@ InMemoryDatabase::open_position_list(om_docid did,
 }
 
 void
-InMemoryDatabase::add_values(om_docid /*did*/,
-			     const map<om_valueno, string> &values_)
+InMemoryDatabase::add_values(Xapian::docid /*did*/,
+			     const map<Xapian::valueno, string> &values_)
 {
     valuelists.push_back(values_);
 }
@@ -200,7 +200,7 @@ InMemoryDatabase::do_cancel_transaction()
 }
 
 void
-InMemoryDatabase::do_delete_document(om_docid did)
+InMemoryDatabase::do_delete_document(Xapian::docid did)
 {
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -238,7 +238,7 @@ InMemoryDatabase::do_delete_document(om_docid did)
 }
 
 void
-InMemoryDatabase::do_replace_document(om_docid did,
+InMemoryDatabase::do_replace_document(Xapian::docid did,
 				      const Xapian::Document & document)
 {
     DEBUGLINE(DB, "InMemoryDatabase::do_replace_document(): replaceing doc "
@@ -254,10 +254,10 @@ InMemoryDatabase::do_replace_document(om_docid did,
     finish_add_doc(did, document);
 }
 
-om_docid
+Xapian::docid
 InMemoryDatabase::do_add_document(const Xapian::Document & document)
 {
-    om_docid did = make_doc(document.get_data());
+    Xapian::docid did = make_doc(document.get_data());
 
     DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc " << did);
 
@@ -267,10 +267,10 @@ InMemoryDatabase::do_add_document(const Xapian::Document & document)
 }
 
 void
-InMemoryDatabase::finish_add_doc(om_docid did, const Xapian::Document &document)
+InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &document)
 {
     {
-	map<om_valueno, string> values;
+	map<Xapian::valueno, string> values;
 	Xapian::ValueIterator k = document.values_begin();
 	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
@@ -315,7 +315,7 @@ InMemoryDatabase::make_term(const string & tname)
     postlists[tname];  // Initialise, if not already there.
 }
 
-om_docid
+Xapian::docid
 InMemoryDatabase::make_doc(const string & docdata)
 {
     termlists.push_back(InMemoryDoc());
@@ -328,9 +328,9 @@ InMemoryDatabase::make_doc(const string & docdata)
 }
 
 void InMemoryDatabase::make_posting(const string & tname,
-				    om_docid did,
-				    om_termpos position,
-				    om_termcount wdf,
+				    Xapian::docid did,
+				    Xapian::termpos position,
+				    Xapian::termcount wdf,
 				    bool use_position)
 {
     Assert(postlists.find(tname) != postlists.end());

@@ -549,7 +549,7 @@ static bool test_poslist2()
 
     Xapian::Document doc;
     doc.add_term_nopos("nopos");
-    om_docid did = db.add_document(doc);
+    Xapian::docid did = db.add_document(doc);
 
     TEST_EXCEPTION(Xapian::RangeError,
 	// Check what happens when term doesn't exist
@@ -579,7 +579,7 @@ static bool test_poslist2()
 
     Xapian::Document doc3;
     doc3.add_posting("hadpos", 1);
-    om_docid did2 = db.add_document(doc3);
+    Xapian::docid did2 = db.add_document(doc3);
 
     Xapian::Document doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);

@@ -59,7 +59,7 @@ NearPostList::test_doc()
 
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
 
-    om_termpos pos;
+    Xapian::termpos pos;
     do {
 	plists[0]->next();
 	if (plists[0]->at_end()) RETURN(false);
@@ -70,17 +70,17 @@ NearPostList::test_doc()
 }
 
 bool
-NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
-		      om_termcount min, om_termcount max)
+NearPostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
+		      Xapian::termcount min, Xapian::termcount max)
 {
     DEBUGCALL(MATCH, bool, "NearPostList::do_test", "[plists], " << i << ", " << min << ", " << max);
     DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
-    om_termcount tmp = max + 1;
+    Xapian::termcount tmp = max + 1;
     // take care to avoid underflow
     if (window <= tmp) tmp -= window; else tmp = 0;
     plists[i]->skip_to(tmp);
     while (!plists[i]->at_end()) {
-	om_termpos pos = plists[i]->get_position();
+	Xapian::termpos pos = plists[i]->get_position();
 	DEBUGLINE(MATCH, "[" << i << "]: " << max - window + 1 << " " << min
 		  << " " << pos << " " << max << " " << min + window - 1);
 	if (pos > min + window - 1) RETURN(false);
@@ -114,8 +114,8 @@ PhrasePostList::test_doc()
 
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
 
-    om_termpos pos;
-    om_termpos idx, min;
+    Xapian::termpos pos;
+    Xapian::termpos idx, min;
     do {
 	plists[0]->next();
 	if (plists[0]->at_end()) {
@@ -132,28 +132,28 @@ PhrasePostList::test_doc()
 }
 
 bool
-PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
-			om_termcount min, om_termcount max)
+PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
+			Xapian::termcount min, Xapian::termcount max)
 {
     DEBUGCALL(MATCH, bool, "PhrasePostList::do_test", "[plists],  " << i << ", " << min << ", " << max);
     DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
-    om_termpos idxi = plists[i]->index;
+    Xapian::termpos idxi = plists[i]->index;
     DEBUGLINE(MATCH, "my idx in phrase is " << idxi);
 
-    om_termpos mymin = min + idxi;
-    om_termpos mymax = max - plists.size() + idxi;
+    Xapian::termpos mymin = min + idxi;
+    Xapian::termpos mymax = max - plists.size() + idxi;
     DEBUGLINE(MATCH, "MIN = " << mymin << " MAX = " << mymax);
     // FIXME: this is worst case O(n^2) where n = length of phrase
     // Can we do better?
-    for (om_termcount j = 0; j < i; j++) {
-	om_termpos idxj = plists[j]->index;
+    for (Xapian::termcount j = 0; j < i; j++) {
+	Xapian::termpos idxj = plists[j]->index;
 	if (idxj > idxi) {
-	    om_termpos tmp = plists[j]->get_position() + idxj - idxi;
+	    Xapian::termpos tmp = plists[j]->get_position() + idxj - idxi;
 	    DEBUGLINE(MATCH, "ABOVE " << tmp);
 	    if (tmp < mymax) mymax = tmp;
 	} else {
 	    Assert(idxi != idxj);
-	    om_termpos tmp = plists[j]->get_position() + idxi - idxj;
+	    Xapian::termpos tmp = plists[j]->get_position() + idxi - idxj;
 	    DEBUGLINE(MATCH, "BELOW " << tmp);
 	    if (tmp > mymin) mymin = tmp;
 	}
@@ -162,11 +162,11 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
     plists[i]->skip_to(mymin);
 
     while (!plists[i]->at_end()) {
-	om_termpos pos = plists[i]->get_position();
+	Xapian::termpos pos = plists[i]->get_position();
 	DEBUGLINE(MATCH, " " << mymin << " " << pos << " " << mymax);
 	if (pos > mymax) RETURN(false);
 	if (i + 1 == plists.size()) RETURN(true);
-	om_termpos tmp = pos + window - idxi;
+	Xapian::termpos tmp = pos + window - idxi;
 	if (tmp < max) max = tmp;
 	tmp = pos + plists.size() - idxi;
 	if (tmp > window) {

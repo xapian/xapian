@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +26,7 @@
 #include "selectpostlist.h"
 
 PostList *
-SelectPostList::next(om_weight w_min)
+SelectPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
@@ -37,7 +38,7 @@ SelectPostList::next(om_weight w_min)
 }
 
 PostList *
-SelectPostList::skip_to(om_docid did, om_weight w_min)
+SelectPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "SelectPostList::skip_to", did << ", " << w_min);
     if (did > get_docid()) {

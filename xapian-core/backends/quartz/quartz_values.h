@@ -43,12 +43,12 @@ class QuartzValueManager {
 	 */
 	static void unpack_entry(const char ** pos,
 				 const char * end,
-				 om_valueno * this_value_no,
+				 Xapian::valueno * this_value_no,
 				 string & this_value);
 
 	/** Generate key representing docid/valueno pair.
 	 */
-	static void make_key(string & key, om_docid did, om_valueno valueno);
+	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
     public:
 
 	/** Store a value.  If a value of the same document ID and
@@ -56,8 +56,8 @@ class QuartzValueManager {
 	 */
 	static void add_value(QuartzBufferedTable & table,
 				  const string & value,
-				  om_docid did,
-				  om_valueno valueno);
+				  Xapian::docid did,
+				  Xapian::valueno valueno);
 
 	/** Get a value.
 	 *
@@ -65,8 +65,8 @@ class QuartzValueManager {
 	 */
 	static void get_value(const QuartzTable & table,
 				  string & value,
-				  om_docid did,
-				  om_valueno valueno);
+				  Xapian::docid did,
+				  Xapian::valueno valueno);
 
 	/** Get all values.
 	 *
@@ -75,8 +75,8 @@ class QuartzValueManager {
 	 *
 	 */
 	static void get_all_values(const QuartzTable & table,
-				       map<om_valueno, string> & values,
-				       om_docid did);
+				       map<Xapian::valueno, string> & values,
+				       Xapian::docid did);
 
 	/** Remove all values.
 	 *
@@ -84,7 +84,7 @@ class QuartzValueManager {
 	 *
 	 */
 	static void delete_all_values(QuartzBufferedTable &table,
-					  om_docid did);
+					  Xapian::docid did);
 };
 
 #endif /* OM_HGUARD_QUARTZ_VALUES_H */

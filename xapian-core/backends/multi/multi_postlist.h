@@ -38,18 +38,18 @@ class MultiPostList : public LeafPostList {
 	const Xapian::Database &this_db;
 
 	bool   finished;
-	om_docid  currdoc;
+	Xapian::docid  currdoc;
 
 	string tname;
 	mutable bool freq_initialised;
-	mutable om_doccount termfreq;
+	mutable Xapian::doccount termfreq;
 
 	mutable bool collfreq_initialised;
-	mutable om_termcount collfreq;
+	mutable Xapian::termcount collfreq;
 
-	om_weight termweight;
+	Xapian::weight termweight;
 
-	om_doccount multiplier;
+	Xapian::doccount multiplier;
 
 	MultiPostList(std::vector<LeafPostList *> & pls,
 		      const Xapian::Database &this_db_);
@@ -58,16 +58,16 @@ class MultiPostList : public LeafPostList {
 
 	void set_termweight(const Xapian::Weight * wt); // Sets term weight
 
-	om_doccount get_termfreq() const;
-	om_termcount get_collection_freq() const;
+	Xapian::doccount get_termfreq() const;
+	Xapian::termcount get_collection_freq() const;
 
-	om_docid  get_docid() const;     // Gets current docid
-	om_doclength get_doclength() const; // Get length of current document
-        om_termcount get_wdf() const;	    // Within Document Frequency
+	Xapian::docid  get_docid() const;     // Gets current docid
+	Xapian::doclength get_doclength() const; // Get length of current document
+        Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList *read_position_list();
 	PositionList * open_position_list() const;
-	PostList *next(om_weight w_min);          // Moves to next docid
-	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
+	PostList *next(Xapian::weight w_min);          // Moves to next docid
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	std::string get_description() const;
@@ -84,7 +84,7 @@ MultiPostList::set_termweight(const Xapian::Weight * wt)
     }
 }
 
-inline om_doccount
+inline Xapian::doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
@@ -101,7 +101,7 @@ MultiPostList::get_termfreq() const
     return termfreq;
 }
 
-inline om_termcount
+inline Xapian::termcount
 MultiPostList::get_collection_freq() const
 {
     if(collfreq_initialised) return collfreq;
@@ -118,10 +118,10 @@ MultiPostList::get_collection_freq() const
     return collfreq;
 }
 
-inline om_docid
+inline Xapian::docid
 MultiPostList::get_docid() const
 {
-    DEBUGCALL(DB, om_docid, "MultiPostList::get_docid", "");
+    DEBUGCALL(DB, Xapian::docid, "MultiPostList::get_docid", "");
     Assert(!at_end());
     Assert(currdoc != 0);
     RETURN(currdoc);

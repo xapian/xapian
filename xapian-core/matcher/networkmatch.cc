@@ -39,8 +39,8 @@
 RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const Xapian::Query::Internal * query,
 			       const Xapian::RSet & omrset,
-			       om_valueno collapse_key, bool sort_forward,
-			       int percent_cutoff, om_weight weight_cutoff,
+			       Xapian::valueno collapse_key, bool sort_forward,
+			       int percent_cutoff, Xapian::weight weight_cutoff,
 			       StatsGatherer *gatherer_,
 			       const Xapian::Weight *wtscheme)
 	: is_prepared(false), db(db_), gatherer(gatherer_)
@@ -69,7 +69,7 @@ RemoteSubMatch::~RemoteSubMatch()
 }
 
 PostList *
-RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
+RemoteSubMatch::get_postlist(Xapian::doccount maxitems, MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", maxitems << ", " << matcher);
     (void)matcher;
@@ -112,7 +112,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 }
 
 void
-RemoteSubMatch::start_match(om_doccount maxitems)
+RemoteSubMatch::start_match(Xapian::doccount maxitems)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match", maxitems);
     Assert(is_prepared);

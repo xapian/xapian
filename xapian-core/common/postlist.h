@@ -56,29 +56,29 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	/** Return an upper bound on the number of documents in this postlist.
 	 *  This should be as tight a bound as possible.
 	 */
-	virtual om_doccount get_termfreq_max() const = 0;
+	virtual Xapian::doccount get_termfreq_max() const = 0;
 
 	/** Return a lower bound on the number of documents in this postlist.
 	 *  This should be as tight a bound as possible.
 	 */
-	virtual om_doccount get_termfreq_min() const = 0;
+	virtual Xapian::doccount get_termfreq_min() const = 0;
 
 	/** Return an estimate of the number of documents in this postlist.
 	 *  This will be within the range specified by the lower and upper
 	 *  bounds.
 	 */
-	virtual om_doccount get_termfreq_est() const = 0;
+	virtual Xapian::doccount get_termfreq_est() const = 0;
 
 	/** Return an upper bound on the value of get_weight() for this
 	 *  postlist.  This is used for optimisation purposes, and should
 	 *  be as tight as possible. */
-        virtual om_weight get_maxweight() const = 0;
+        virtual Xapian::weight get_maxweight() const = 0;
 
 	/** Return the total number of occurrences of the term in the
 	 *  database.  This is equal to the sum of the wdfs of all the
 	 *  items in the postlist.
 	 */
-	virtual om_termcount get_collection_freq() const {
+	virtual Xapian::termcount get_collection_freq() const {
 	    throw Xapian::UnimplementedError("PostList::get_collection_freq() unimplemented");
 	}
 
@@ -92,7 +92,7 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  performed, and before at_end() returns true (or would do were it to
 	 *  be called).
 	 */
-	virtual om_docid get_docid() const = 0;
+	virtual Xapian::docid get_docid() const = 0;
 
 	/** Calculate the weight for the item at the current position.
 	 *
@@ -101,7 +101,7 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  performed, and before at_end() returns true (or would do were it to
 	 *  be called).
 	 */
-	virtual om_weight get_weight() const = 0;
+	virtual Xapian::weight get_weight() const = 0;
 
 	virtual const string * get_collapse_key() const { return NULL; }
 
@@ -119,10 +119,10 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  performed, and before at_end() returns true (or would do were it to
 	 *  be called).
 	 */
-	virtual om_doclength get_doclength() const = 0;
+	virtual Xapian::doclength get_doclength() const = 0;
 
 	/// Recalculate weights (used when tree has been autopruned)
-        virtual om_weight recalc_maxweight() = 0;
+        virtual Xapian::weight recalc_maxweight() = 0;
 
 	/** Get the within document frequency of the document at the
 	 *  current position in the postlist.
@@ -133,7 +133,7 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  which where wdf isn't meaningful then an Xapian::UnimplementedError
 	 *  exception will be thrown.
 	 */
-        virtual om_termcount get_wdf() const {
+        virtual Xapian::termcount get_wdf() const {
 	    throw Xapian::UnimplementedError("PostList::get_wdf() unimplemented");
 	}
 
@@ -173,14 +173,14 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	// either one of P's children, or another branch.  P will be deleted
 	// by the parent after it replaces P.
 
-	virtual Internal *next(om_weight w_min) = 0;
+	virtual Internal *next(Xapian::weight w_min) = 0;
 
 	/// Moves to next docid >= specified docid
-	Internal *skip_to(om_docid did) { return skip_to(did, -9e20); }
+	Internal *skip_to(Xapian::docid did) { return skip_to(did, -9e20); }
 
 	/// Moves to next docid >= specified docid, and weight greater than
 	/// w_min
-	virtual Internal *skip_to(om_docid, om_weight w_min) = 0;
+	virtual Internal *skip_to(Xapian::docid, Xapian::weight w_min) = 0;
 
 	/// Returns true if we're off the end of the list
 	virtual bool at_end() const = 0;

@@ -54,7 +54,7 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 
 
 OmExpandWeight::OmExpandWeight(const Xapian::Database &root_,
-			       om_doccount rsetsize_,
+			       Xapian::doccount rsetsize_,
 			       bool use_exact_termfreq_,
 			       double expand_k_ )
 	: root(root_),
@@ -69,15 +69,15 @@ OmExpandWeight::OmExpandWeight(const Xapian::Database &root_,
 }
 
 OmExpandBits
-OmExpandWeight::get_bits(om_termcount wdf,
-			 om_doclength document_length,
-			 om_doccount termfreq,
-			 om_doccount dbsize_) const
+OmExpandWeight::get_bits(Xapian::termcount wdf,
+			 Xapian::doclength document_length,
+			 Xapian::doccount termfreq,
+			 Xapian::doccount dbsize_) const
 {
     DEBUGCALL(MATCH, OmExpandBits, "OmExpandWeight::get_bits", wdf << ", " << document_length << ", " << termfreq << ", " << dbsize_);
-    om_weight multiplier = 1.0;
+    Xapian::weight multiplier = 1.0;
 
-    om_doclength normalised_length = document_length / average_length;
+    Xapian::doclength normalised_length = document_length / average_length;
 
     DEBUGLINE(WTCALC, "(doc_length, average_length) = (" <<
 	      document_length << ", " <<
@@ -98,11 +98,11 @@ OmExpandWeight::get_bits(om_termcount wdf,
     return OmExpandBits(multiplier, termfreq, dbsize_);
 }
 
-om_weight
+Xapian::weight
 OmExpandWeight::get_weight(const OmExpandBits &bits,
 			   const string &tname) const
 {
-    DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_weight", "[bits], " << tname);
+    DEBUGCALL(MATCH, Xapian::weight, "OmExpandWeight::get_weight", "[bits], " << tname);
     double termfreq = (double)bits.termfreq;
     if (bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
@@ -127,7 +127,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 
     double rtermfreq = bits.rtermfreq;
 
-    om_weight tw;
+    Xapian::weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
 
@@ -151,10 +151,10 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 }
 
 // Provide an upper bound on the values which may be returned as weights
-om_weight
+Xapian::weight
 OmExpandWeight::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "OmExpandWeight::get_maxweight", "");
     // FIXME - check the maths behind this.
     RETURN(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);
 }

@@ -92,7 +92,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
     }
 }
 
-static om_termpos
+static Xapian::termpos
 get_min_window(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
@@ -273,7 +273,7 @@ Xapian::Query::Internal::get_description() const
 }
 
 void
-Xapian::Query::Internal::set_window(om_termpos window_)
+Xapian::Query::Internal::set_window(Xapian::termpos window_)
 {
     window = window_;
 }
@@ -287,7 +287,7 @@ Xapian::Query::Internal::set_cutoff(double cutoff_)
 }
 
 void
-Xapian::Query::Internal::set_elite_set_size(om_termcount size_)
+Xapian::Query::Internal::set_elite_set_size(Xapian::termcount size_)
 {
     if (op != Xapian::Query::OP_ELITE_SET)
 	throw Xapian::InvalidOperationError("Can only set elite set size for elite set operator.");
@@ -296,10 +296,10 @@ Xapian::Query::Internal::set_elite_set_size(om_termcount size_)
     elite_set_size = size_;
 }
 
-om_termcount
-Xapian::Query::Internal::set_length(om_termcount qlen_)
+Xapian::termcount
+Xapian::Query::Internal::set_length(Xapian::termcount qlen_)
 {
-    om_termcount oldqlen = qlen;
+    Xapian::termcount oldqlen = qlen;
     qlen = qlen_;
     return oldqlen;
 }
@@ -307,7 +307,7 @@ Xapian::Query::Internal::set_length(om_termcount qlen_)
 /** Private function used to implement get_terms() */
 void
 Xapian::Query::Internal::accumulate_terms(
-			std::vector<std::pair<string, om_termpos> > &terms) const
+			std::vector<std::pair<string, Xapian::termpos> > &terms) const
 {
     if (is_leaf(op)) {
         // We're a leaf, so just return our term.
@@ -322,7 +322,7 @@ Xapian::Query::Internal::accumulate_terms(
 }
 
 struct LessByTermpos {
-    typedef const std::pair<string, om_termpos> argtype;
+    typedef const std::pair<string, Xapian::termpos> argtype;
     bool operator()(argtype &left, argtype &right) {
 	if (left.second != right.second) {
 	    return left.second < right.second;
@@ -335,20 +335,20 @@ struct LessByTermpos {
 Xapian::TermIterator
 Xapian::Query::Internal::get_terms() const
 {
-    std::vector<std::pair<string, om_termpos> > terms;
+    std::vector<std::pair<string, Xapian::termpos> > terms;
     accumulate_terms(terms);
 
     sort(terms.begin(), terms.end(), LessByTermpos());
 
     // remove adjacent duplicates, and return an iterator pointing
     // to just after the last unique element
-    std::vector<std::pair<string, om_termpos> >::iterator newlast =
+    std::vector<std::pair<string, Xapian::termpos> >::iterator newlast =
 	    	unique(terms.begin(), terms.end());
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
     std::vector<string> result;
-    std::vector<std::pair<string, om_termpos> >::const_iterator i;
+    std::vector<std::pair<string, Xapian::termpos> >::const_iterator i;
     for (i = terms.begin(); i != terms.end(); ++i) {
 	result.push_back(i->first);
     }
@@ -416,8 +416,8 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 //////////////////////////////////////////
 // Methods for making new query objects
 
-Xapian::Query::Internal::Internal(const string & tname_, om_termcount wqf_,
-		 om_termpos term_pos_)
+Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
+		 Xapian::termpos term_pos_)
 	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
 	  qlen(wqf_),
@@ -531,7 +531,7 @@ Xapian::Query::Internal::simplify_query()
     // if elite set size is 0, use sqrt of number of subqueries, or a minimum
     // of 10.  Gives a reasonable default.
     if (elite_set_size == 0) {
-	elite_set_size = static_cast<om_termcount>(ceil(sqrt(double(subqs.size()))));
+	elite_set_size = static_cast<Xapian::termcount>(ceil(sqrt(double(subqs.size()))));
 	if (elite_set_size < 10) elite_set_size = 10;
     }
 

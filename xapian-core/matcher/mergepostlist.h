@@ -40,7 +40,7 @@ class MergePostList : public PostList {
         MergePostList(const MergePostList &);
         MergePostList & operator=(const MergePostList &);
 
-        om_weight w_max;
+        Xapian::weight w_max;
 
 	vector<PostList *> plists;
 
@@ -55,20 +55,20 @@ class MergePostList : public PostList {
 
 	Xapian::ErrorHandler * errorhandler;
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
 	const string * get_collapse_key() const;
 
-	om_weight get_maxweight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	string get_description() const;
@@ -76,7 +76,7 @@ class MergePostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
 	virtual PositionList * read_position_list();
 	virtual PositionList * open_position_list() const;
@@ -87,12 +87,12 @@ class MergePostList : public PostList {
         ~MergePostList();
 };
 
-inline om_doccount
+inline Xapian::doccount
 MergePostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_max", "");
     // sum of termfreqs for all children
-    om_doccount total = 0;
+    Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_max();
@@ -100,12 +100,12 @@ MergePostList::get_termfreq_max() const
     return total;
 }
 
-inline om_doccount
+inline Xapian::doccount
 MergePostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_min", "");
     // sum of termfreqs for all children
-    om_doccount total = 0;
+    Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_min();
@@ -113,12 +113,12 @@ MergePostList::get_termfreq_min() const
     return total;
 }
 
-inline om_doccount
+inline Xapian::doccount
 MergePostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_est", "");
     // sum of termfreqs for all children
-    om_doccount total = 0;
+    Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_est();
@@ -126,20 +126,20 @@ MergePostList::get_termfreq_est() const
     return total;
 }
 
-inline om_docid
+inline Xapian::docid
 MergePostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "MergePostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "MergePostList::get_docid", "");
     Assert(current != -1);
     // FIXME: this needs fixing so we can prune plists - see MultiPostlist
     // for code which does this...
     RETURN((plists[current]->get_docid() - 1) * plists.size() + current + 1);
 }
 
-inline om_weight
+inline Xapian::weight
 MergePostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "MergePostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::get_weight", "");
     Assert(current != -1);
     return plists[current]->get_weight();
 }
@@ -152,22 +152,22 @@ MergePostList::get_collapse_key() const
     return plists[current]->get_collapse_key();
 }
 
-inline om_weight
+inline Xapian::weight
 MergePostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "MergePostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::get_maxweight", "");
     return w_max;
 }
 
-inline om_weight
+inline Xapian::weight
 MergePostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "MergePostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "MergePostList::recalc_maxweight", "");
     w_max = 0;
     vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	try {
-	    om_weight w = (*i)->recalc_maxweight();
+	    Xapian::weight w = (*i)->recalc_maxweight();
 	    if (w > w_max) w_max = w;
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
@@ -212,10 +212,10 @@ MergePostList::get_description() const
     return desc + ")";
 }
 
-inline om_doclength
+inline Xapian::doclength
 MergePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "MergePostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "MergePostList::get_doclength", "");
     Assert(current != -1);
     return plists[current]->get_doclength();
 }

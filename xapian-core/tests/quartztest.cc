@@ -1129,7 +1129,7 @@ static bool test_adddoc1()
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
     Xapian::Document document;
-    om_docid did;
+    Xapian::docid did;
 
     did = db->add_document(document);
     TEST_EQUAL(db->get_doccount(), 1);
@@ -1180,7 +1180,7 @@ static bool test_adddoc2()
     deletedir(dbdir);
     makedir(dbdir);
 
-    om_docid did;
+    Xapian::docid did;
     Xapian::Document document_in;
     document_in.set_data("Foobar rising");
     document_in.add_value(7, "Value7");
@@ -1210,7 +1210,7 @@ static bool test_adddoc2()
 	TEST_EQUAL(database.get_termfreq("falling"), 0);
 	TEST_EQUAL(database.get_collection_freq("falling"), 0);
 
-	om_docid did2 = database.add_document(document_in2);
+	Xapian::docid did2 = database.add_document(document_in2);
 	TEST_EQUAL(database.get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
 	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
@@ -1669,7 +1669,7 @@ static bool test_positionlist1()
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
-    vector<om_termpos> positions;
+    vector<Xapian::termpos> positions;
 
     Xapian::Document document;
     document.add_posting("foo", 5);
@@ -1801,7 +1801,7 @@ static bool test_overwrite2()
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
 
-    om_docid last_doc = 0;
+    Xapian::docid last_doc = 0;
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);

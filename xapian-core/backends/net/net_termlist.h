@@ -47,14 +47,14 @@ class NetworkTermListItem {
 	 *  This is the number of documents (in the network database)
 	 *  indexed by the term.
 	 */
-	om_doccount termfreq;
+	Xapian::doccount termfreq;
 
 	/** The within-document-frequency of the term.
 	 *
 	 *  This information may not be available, in which case the field
 	 *  should have a value of 0.
 	 */
-	om_termcount wdf;
+	Xapian::termcount wdf;
 
 	/** Sorted list of positions
 	 *
@@ -65,7 +65,7 @@ class NetworkTermListItem {
 	 *  should also be present (but need not neccessarily agree with
 	 *  the length of the position vector, for various reasons).
 	 */
-	vector<om_termpos> positions;
+	vector<Xapian::termpos> positions;
 };
 
 /** A term list for a database on the other side of a network connection.
@@ -91,7 +91,7 @@ class NetworkTermList : public LeafTermList {
 	 *
 	 *  Note that this is not a normalised document length.
 	 */
-	om_doclength document_length;
+	Xapian::doclength document_length;
 
 	/** The number of documents in the database in which this
 	 *  document resides.
@@ -99,7 +99,7 @@ class NetworkTermList : public LeafTermList {
 	 *  Note that this may not be the number of documents in the combined
 	 *  database when multiple databases are being searched.
 	 */
-	om_doccount database_size;
+	Xapian::doccount database_size;
 
 	///  Keep a reference to our database
 	Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db;
@@ -110,20 +110,20 @@ class NetworkTermList : public LeafTermList {
 	 *  @param average_length_  The average length of a document
 	 *  @param database_size_
 	 */
-	NetworkTermList(om_doclength average_length_,
-			om_doccount  database_size_,
+	NetworkTermList(Xapian::doclength average_length_,
+			Xapian::doccount  database_size_,
 			const vector<NetClient::TermListItem> &items_,
 			Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_);
     public:
 
 	/** Get the number of terms in the termlist.
 	 */
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
 	string get_termname() const;
-	om_termcount get_wdf() const;
-	om_doccount get_termfreq() const;
+	Xapian::termcount get_wdf() const;
+	Xapian::doccount get_termfreq() const;
 	TermList * next();
 	bool   at_end() const;
 };

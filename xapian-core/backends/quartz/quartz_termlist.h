@@ -47,7 +47,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
-	om_docid did;
+	Xapian::docid did;
 
 	/** The table holding the termlist.
 	 */
@@ -87,7 +87,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** The size of the termlist.
 	 */
-	om_termcount termlist_size;
+	Xapian::termcount termlist_size;
 	
 	/** Current termname.
 	 */
@@ -95,7 +95,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** Current wdf.
 	 */
-	om_termcount current_wdf;
+	Xapian::termcount current_wdf;
 
 	/** Whether the termlist stores term frequencies (this cannot be
 	 *  done in an updatable database, but improves expand efficiency
@@ -109,11 +109,11 @@ class QuartzTermList : public LeafTermList {
 	 *  available (in which case it will be looked up in the database
 	 *  if requested).
 	 */
-	mutable om_doccount current_termfreq;
+	mutable Xapian::doccount current_termfreq;
 
 	/** Number of documents in database.
 	 */
-	om_doccount doccount;
+	Xapian::doccount doccount;
 
     public:
 	/** Set the entries in the termlist.
@@ -127,22 +127,22 @@ class QuartzTermList : public LeafTermList {
 	 *         while storing term frequencies.
 	 */
 	static void
-	set_entries(QuartzBufferedTable * table_, om_docid did,
+	set_entries(QuartzBufferedTable * table_, Xapian::docid did,
 		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
 	 *  specified document ID will not exist.
 	 */
-	static void delete_termlist(QuartzBufferedTable * table, om_docid did);
+	static void delete_termlist(QuartzBufferedTable * table, Xapian::docid did);
 
 	/** Open the termlist for the specified document, for reading.
 	 */
 	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * lexicon_table_,
-		       om_docid did_,
-		       om_doccount doccount_);
+		       Xapian::docid did_,
+		       Xapian::doccount doccount_);
 
 	/** Get the length of the document represented by the termlist.
 	 *
@@ -156,7 +156,7 @@ class QuartzTermList : public LeafTermList {
 	 *  (This is actually exact - it may be approximate for combined
 	 *  termlists.)
 	 */
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	/** Move to next entry.  Must be called before any of the other
 	 *  methods, including at_end(), to move onto the first entry.
@@ -177,14 +177,14 @@ class QuartzTermList : public LeafTermList {
 
 	/** Get the within document frequency of the current term.
 	 */
-	om_termcount get_wdf() const;
+	Xapian::termcount get_wdf() const;
 
 	/** Get the term frequency of the current term - the number of
 	 *  documents containing this term.  For an updateable database, this
 	 *  cannot be stored in the termlist, so involves a relatively expensive
 	 *  lookup in the lexicon.
 	 */
-	om_doccount get_termfreq() const;
+	Xapian::doccount get_termfreq() const;
 
 	/** Get weighting information for the current term in termlist.
 	 */

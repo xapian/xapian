@@ -85,12 +85,19 @@ typedef std::string om_termname;
 #define OM_DB_CREATE_OR_OVERWRITE Xapian::DB_CREATE_OR_OVERWRITE
 #define OM_DB_OPEN Xapian::DB_OPEN
 
-#define om_percent Xapian::percent
+#define om_doccount Xapian::doccount
 #define om_doccount_diff Xapian::doccount_diff
+#define om_docid Xapian::docid
+#define om_doclength Xapian::doclength
+#define om_percent Xapian::percent
+#define om_termcount Xapian::termcount
 #define om_termcount_diff Xapian::termcount_diff
+#define om_termpos Xapian::termpos
 #define om_termpos_diff Xapian::termpos_diff
-#define om_valueno_diff Xapian::valueno_diff
 #define om_timeout Xapian::timeout
+#define om_valueno Xapian::valueno
+#define om_valueno_diff Xapian::valueno_diff
+#define om_weight Xapian::weight
 
 // om/omoutput.h used to include iostream, but xapian/output.h includes iosfwd
 // instead.  So we include iostream here in case anyone relied on iostream

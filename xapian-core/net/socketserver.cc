@@ -287,9 +287,9 @@ SocketServer::run_match(const string &firstmessage)
 #endif
 
     bool sort_forward;
-    om_valueno collapse_key;
+    Xapian::valueno collapse_key;
     int percent_cutoff;
-    om_weight weight_cutoff;
+    Xapian::weight weight_cutoff;
     string weighting_scheme;
 
     is >> collapse_key >> sort_forward >> percent_cutoff >> weight_cutoff;
@@ -308,7 +308,7 @@ SocketServer::run_match(const string &firstmessage)
     Xapian::RSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, query, omrset, collapse_key, percent_cutoff,
-		     weight_cutoff, sort_forward, om_valueno(-1), 0, 0, 0,
+		     weight_cutoff, sort_forward, Xapian::valueno(-1), 0, 0, 0,
 		     NULL, AutoPtr<StatsGatherer>(gatherer), wt.get());
 
 #if 0
@@ -343,8 +343,8 @@ SocketServer::run_match(const string &firstmessage)
     sleep(2);
 #endif
 
-    om_doccount first;
-    om_doccount maxitems;
+    Xapian::doccount first;
+    Xapian::doccount maxitems;
     {
 	// extract first,maxitems
 #ifdef HAVE_SSTREAM
@@ -397,7 +397,7 @@ SocketServer::run_gettermlist(const string &firstmessage)
 {
     string message = firstmessage;
 
-    om_docid did = atoi(message);
+    Xapian::docid did = atoi(message);
 
     Xapian::TermIterator tl = db.termlist_begin(did);
     Xapian::TermIterator tlend = db.termlist_end(did);
@@ -420,19 +420,19 @@ SocketServer::run_getdocument(const string &firstmessage)
 {
     string message = firstmessage;
 
-    om_docid did = atoi(message);
+    Xapian::docid did = atoi(message);
 
     unsigned int multiplier = db.internal.size();
     Assert(multiplier != 0);
-    om_doccount n = (did - 1) % multiplier; // which actual database
-    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
     AutoPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m));
 
     writeline("O" + encode_tname(doc->get_data()));
 
-    map<om_valueno, string> values = doc->get_all_values();
+    map<Xapian::valueno, string> values = doc->get_all_values();
 
-    map<om_valueno, string>::const_iterator i = values.begin();
+    map<Xapian::valueno, string>::const_iterator i = values.begin();
     while (i != values.end()) {
 	string item = om_tostring(i->first);
 	item += ' ';

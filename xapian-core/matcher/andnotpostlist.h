@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,25 +36,25 @@
  */
 class AndNotPostList : public BranchPostList {
     private:
-        om_docid lhead, rhead;
+        Xapian::docid lhead, rhead;
 
 	/// Number of documents in the database this postlist is across
-	om_doccount dbsize;
+	Xapian::doccount dbsize;
 
-        PostList *advance_to_next_match(om_weight w_min, PostList *ret);
+        PostList *advance_to_next_match(Xapian::weight w_min, PostList *ret);
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -61,79 +62,79 @@ class AndNotPostList : public BranchPostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
         AndNotPostList(PostList *left,
 		       PostList *right,
 		       MultiMatch *matcher_,
-		       om_doccount dbsize_);
+		       Xapian::doccount dbsize_);
 
-        PostList *sync_and_skip_to(om_docid id,
-				   om_weight w_min,
-				   om_docid lh,
-				   om_docid rh);
+        PostList *sync_and_skip_to(Xapian::docid id,
+				   Xapian::weight w_min,
+				   Xapian::docid lh,
+				   Xapian::docid rh);
 };
 
-inline om_doccount
+inline Xapian::doccount
 AndNotPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_max", "");
     // Max is when as many docs as possible on left, and none excluded.
     RETURN(l->get_termfreq_max());
 }
 
-inline om_doccount
+inline Xapian::doccount
 AndNotPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_min", "");
     // Min is when as few docs as possible on left, and maximum are excluded.
-    om_doccount l_min = l->get_termfreq_min();
-    om_doccount r_max = r->get_termfreq_max();
+    Xapian::doccount l_min = l->get_termfreq_min();
+    Xapian::doccount r_max = r->get_termfreq_max();
     if (l_min > r_max) RETURN(l_min - r_max);
     RETURN(0u);
 }
 
-inline om_doccount
+inline Xapian::doccount
 AndNotPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
-    om_doccount est = static_cast<om_doccount>
+    Xapian::doccount est = static_cast<Xapian::doccount>
 	    (l->get_termfreq_est() *
 	     (1.0 - static_cast<double>(r->get_termfreq_est()) / dbsize));
 
     RETURN(est);
 }
 
-inline om_docid
+inline Xapian::docid
 AndNotPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "AndNotPostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "AndNotPostList::get_docid", "");
     RETURN(lhead);
 }
 
 // only called if we are doing a probabilistic AND NOT
-inline om_weight
+inline Xapian::weight
 AndNotPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::get_weight", "");
     RETURN(l->get_weight());
 }
 
 // only called if we are doing a probabilistic AND NOT
-inline om_weight
+inline Xapian::weight
 AndNotPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::get_maxweight", "");
     RETURN(l->get_maxweight());
 }
 
-inline om_weight
+inline Xapian::weight
 AndNotPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "AndNotPostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::recalc_maxweight", "");
     RETURN(l->recalc_maxweight());
 }
 
@@ -150,10 +151,10 @@ AndNotPostList::get_description() const
     return "(" + l->get_description() + " AndNot " + r->get_description() + ")";
 }
 
-inline om_doclength
+inline Xapian::doclength
 AndNotPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "AndNotPostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "AndNotPostList::get_doclength", "");
     RETURN(l->get_doclength());
 }
 

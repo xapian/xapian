@@ -35,18 +35,18 @@ class MapTermList : public TermList {
     private:
 	Xapian::Document::Internal::document_terms::const_iterator it;
 	Xapian::Document::Internal::document_terms::const_iterator it_end;
-	om_termcount size;
+	Xapian::termcount size;
 	bool started;
 
     public:
         MapTermList(const Xapian::Document::Internal::document_terms::const_iterator &it_,
 		    const Xapian::Document::Internal::document_terms::const_iterator &it_end_,
-		    om_termcount size_)
+		    Xapian::termcount size_)
 		: it(it_), it_end(it_end_), size(size_), started(false)
 	{ }
 
 	// Gets size of termlist
-	om_termcount get_approx_size() const {
+	Xapian::termcount get_approx_size() const {
 	    return size;
 	}
 
@@ -68,14 +68,14 @@ class MapTermList : public TermList {
 	}
 
 	// Get wdf of current term
-	om_termcount get_wdf() const {
+	Xapian::termcount get_wdf() const {
 	    Assert(started);
 	    Assert(!at_end());
 	    return it->second.wdf;
 	}
 
 	// Get num of docs indexed by term
-	om_doccount get_termfreq() const {
+	Xapian::doccount get_termfreq() const {
 	    Assert(started);
 	    Assert(!at_end());
 	    return it->second.termfreq;

@@ -39,22 +39,22 @@ typedef Xapian::PositionListIterator::Internal PositionList;
  */
 class NearPostList : public SelectPostList {
     private:
-        om_termpos window;
+        Xapian::termpos window;
 	std::vector<PostList *> terms;
 
     	bool test_doc();
-        bool do_test(std::vector<PositionList *> &plists, om_termcount i,
-		     om_termcount min, om_termcount max);
+        bool do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
+		     Xapian::termcount min, Xapian::termcount max);
     public:
 	std::string get_description() const;
 
-	om_doccount get_termfreq_est() const
+	Xapian::doccount get_termfreq_est() const
 	{
 	    // No idea how to estimate this - FIXME
 	    return source->get_termfreq_est() / 2;
 	}
 
-        NearPostList(PostList *source, om_termpos window_,
+        NearPostList(PostList *source, Xapian::termpos window_,
 		     std::vector<PostList *> terms_)
 		: SelectPostList(source)
         {
@@ -80,22 +80,22 @@ NearPostList::get_description() const
  */
 class PhrasePostList : public SelectPostList {
     private:
-        om_termpos window;
+        Xapian::termpos window;
 	std::vector<PostList *> terms;
 
     	bool test_doc();
-        bool do_test(std::vector<PositionList *> &plists, om_termcount i,
-		     om_termcount min, om_termcount max);
+        bool do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
+		     Xapian::termcount min, Xapian::termcount max);
     public:
 	std::string get_description() const;
 
-	om_doccount get_termfreq_est() const
+	Xapian::doccount get_termfreq_est() const
 	{
 	    // No idea how to estimate this - FIXME
 	    return source->get_termfreq_est() / 3;
 	}
 
-        PhrasePostList(PostList *source, om_termpos window_,
+        PhrasePostList(PostList *source, Xapian::termpos window_,
 		       std::vector<PostList *> terms_) : SelectPostList(source)
         {
 	    window = window_;

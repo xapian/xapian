@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,25 +40,25 @@
  */
 class XorPostList : public BranchPostList {
     private:
-        om_docid lhead, rhead;
-        om_weight lmax, rmax, minmax;
+        Xapian::docid lhead, rhead;
+        Xapian::weight lmax, rmax, minmax;
 
-	om_doccount dbsize;
+	Xapian::doccount dbsize;
 
-        PostList *advance_to_next_match(om_weight w_min);
+        PostList *advance_to_next_match(Xapian::weight w_min);
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -65,33 +66,33 @@ class XorPostList : public BranchPostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
         XorPostList(PostList * left_,
 		    PostList * right_,
 		    MultiMatch * matcher_,
-		    om_doccount dbsize_);
+		    Xapian::doccount dbsize_);
 };
 
-inline om_doccount
+inline Xapian::doccount
 XorPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_max", "");
     return l->get_termfreq_max() + r->get_termfreq_max();
 }
 
-inline om_doccount
+inline Xapian::doccount
 XorPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_min", "");
     // Min = freq_min(a or b) - freq_max(a and b)
     //     = max(a_min, b_min) - min(a_max, b_max)
     //     = min(b_min - a_max, a_min - b_max)
-    om_doccount r_min = r->get_termfreq_min();
-    om_doccount l_min = l->get_termfreq_min();
-    om_doccount r_max = r->get_termfreq_max();
-    om_doccount l_max = l->get_termfreq_max();
-    om_doccount termfreq_min = 0u;
+    Xapian::doccount r_min = r->get_termfreq_min();
+    Xapian::doccount l_min = l->get_termfreq_min();
+    Xapian::doccount r_max = r->get_termfreq_max();
+    Xapian::doccount l_max = l->get_termfreq_max();
+    Xapian::doccount termfreq_min = 0u;
     if (r_min > l_max)
 	termfreq_min = r_min - l_max;
     if (l_min > r_max && (l_min - r_max) > termfreq_min)
@@ -100,30 +101,30 @@ XorPostList::get_termfreq_min() const
     return termfreq_min;
 }
 
-inline om_doccount
+inline Xapian::doccount
 XorPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "XorPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    return static_cast<om_doccount> (lest + rest - 2.0 * lest * rest / dbsize);
+    return static_cast<Xapian::doccount> (lest + rest - 2.0 * lest * rest / dbsize);
 }
 
-inline om_docid
+inline Xapian::docid
 XorPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "XorPostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "XorPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     return std::min(lhead, rhead);
 }
 
 // only called if we are doing a probabilistic XOR
-inline om_weight
+inline Xapian::weight
 XorPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "XorPostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_weight();
     Assert(lhead > rhead);
@@ -131,17 +132,17 @@ XorPostList::get_weight() const
 }
 
 // only called if we are doing a probabilistic operation
-inline om_weight
+inline Xapian::weight
 XorPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "XorPostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::get_maxweight", "");
     return std::max(lmax, rmax);
 }
 
-inline om_weight
+inline Xapian::weight
 XorPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "XorPostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "XorPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
@@ -161,10 +162,10 @@ XorPostList::get_description() const
     return "(" + l->get_description() + " Xor " + r->get_description() + ")";
 }
 
-inline om_doclength
+inline Xapian::doclength
 XorPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "XorPostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "XorPostList::get_doclength", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_doclength();
     Assert(lhead > rhead);

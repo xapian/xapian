@@ -37,19 +37,19 @@ using namespace std;
 class Stats {
     public:
 	/** Number of documents in the collection. */
-	om_doccount collection_size;
+	Xapian::doccount collection_size;
 
 	/** Number of relevant documents in the collection. */
-	om_doccount rset_size;
+	Xapian::doccount rset_size;
 
 	/** Average length of documents in the collection. */
-	om_doclength average_length;
+	Xapian::doclength average_length;
 
 	/** Map of term frequencies for the collection. */
-	std::map<string, om_doccount> termfreq;
+	std::map<string, Xapian::doccount> termfreq;
 
 	/** Map of relevant term frequencies for the collection. */
-	std::map<string, om_doccount> reltermfreq;
+	std::map<string, Xapian::doccount> reltermfreq;
 
 
 	Stats() : collection_size(0),
@@ -92,7 +92,7 @@ class StatsGatherer {
 	/** Set the global collection statistics.
 	 *  Should be called before the match is performed.
 	 */
-	virtual void set_global_stats(om_doccount rset_size);
+	virtual void set_global_stats(Xapian::doccount rset_size);
 
 	/** Add a Xapian::Weight::Internal object to this gatherer.
 	 *  The gatherer will include the source's statistics
@@ -177,19 +177,19 @@ class Xapian::Weight::Internal {
 	/** Set stats about this sub-database: the number of documents and
 	 *  average length of a document.
 	 */
-	void take_my_stats(om_doccount csize, om_doclength avlen);
+	void take_my_stats(Xapian::doccount csize, Xapian::doclength avlen);
 
 	/** Set the term frequency in the sub-database which this stats
 	 *  object represents.  This is the number of documents in
 	 *  the sub-database indexed by the given term.
 	 */
-	void my_termfreq_is(const string & tname, om_doccount tfreq);
+	void my_termfreq_is(const string & tname, Xapian::doccount tfreq);
 
 	/** Set the relevant term-frequency in the sub-database which this
 	 *  stats object represents.  This is the number of relevant
 	 *  documents in the sub-database indexed by the given term.
 	 */
-	void my_reltermfreq_is(const string & tname, om_doccount rtfreq);
+	void my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq);
 
 
 
@@ -201,27 +201,27 @@ class Xapian::Weight::Internal {
 
 	/** Get the number of documents in the whole collection.
 	 */
-	om_doccount get_total_collection_size() const;
+	Xapian::doccount get_total_collection_size() const;
 
 	/** Get the number of documents marked relevant in the collection.
 	 */
-	om_doccount get_total_rset_size() const;
+	Xapian::doccount get_total_rset_size() const;
 
 	/** Get the average length of documents in the collection.
 	 */
-	om_doclength get_total_average_length() const;
+	Xapian::doclength get_total_average_length() const;
 
 	/** Get the term frequency over the whole collection, for the
 	 *  given term.  This is "n_t", the number of documents in the
 	 *  collection indexed by the given term.
 	 */
-	om_doccount get_total_termfreq(const string & tname) const;
+	Xapian::doccount get_total_termfreq(const string & tname) const;
 
 	/** Get the relevant term-frequency over the whole collection, for
 	 *  the given term.  This is "r_t", the number of relevant documents
 	 *  in the collection indexed by the given term.
 	 */
-	om_doccount get_total_reltermfreq(const string & tname) const;
+	Xapian::doccount get_total_reltermfreq(const string & tname) const;
 };
 
 /** LocalStatsSource: the Xapian::Weight::Internal object which provides methods
@@ -251,7 +251,7 @@ inline Stats &
 Stats::operator +=(const Stats & inc)
 {
     // Set the new collection size and average length.
-    om_doccount new_collection_size = collection_size + inc.collection_size;
+    Xapian::doccount new_collection_size = collection_size + inc.collection_size;
     if(new_collection_size != 0) {
 	// Cope with adding in a collection of zero size at the beginning:
 	// perhaps we have multiple databases, but some are not yet populated
@@ -266,7 +266,7 @@ Stats::operator +=(const Stats & inc)
     Assert(inc.rset_size == 0);
 
     // Add termfreqs and reltermfreqs
-    std::map<string, om_doccount>::const_iterator i;
+    std::map<string, Xapian::doccount>::const_iterator i;
     for(i = inc.termfreq.begin(); i != inc.termfreq.end(); i++) {
 	termfreq[i->first] += i->second;
     }
@@ -286,7 +286,7 @@ StatsGatherer::StatsGatherer()
 {}
 
 inline void
-StatsGatherer::set_global_stats(om_doccount rset_size)
+StatsGatherer::set_global_stats(Xapian::doccount rset_size)
 {
     total_stats.rset_size = rset_size;
 }
@@ -304,7 +304,7 @@ LocalStatsSource::contrib_my_stats()
 }
 
 inline void
-Xapian::Weight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
+Xapian::Weight::Internal::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
@@ -312,7 +312,7 @@ Xapian::Weight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
 }
 
 inline void
-Xapian::Weight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq)
+Xapian::Weight::Internal::my_termfreq_is(const string & tname, Xapian::doccount tfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -323,7 +323,7 @@ Xapian::Weight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq
 }
 
 inline void
-Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, om_doccount rtfreq)
+Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -333,28 +333,28 @@ Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, om_doccount rt
     my_stats.reltermfreq[tname] = rtfreq;
 }
 
-inline om_doccount
+inline Xapian::doccount
 Xapian::Weight::Internal::get_total_collection_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->collection_size;
 }
 
-inline om_doccount
+inline Xapian::doccount
 Xapian::Weight::Internal::get_total_rset_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->rset_size;
 }
 
-inline om_doclength
+inline Xapian::doclength
 Xapian::Weight::Internal::get_total_average_length() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->average_length;
 }
 
-inline om_doccount
+inline Xapian::doccount
 Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
@@ -363,17 +363,17 @@ Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
     // supplied our own ones first.
     Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
 
-    std::map<string, om_doccount>::const_iterator tfreq;
+    std::map<string, Xapian::doccount>::const_iterator tfreq;
     tfreq = total_stats->termfreq.find(tname);
     Assert(tfreq != total_stats->termfreq.end());
     return tfreq->second;
 }
 
-inline om_doccount
+inline Xapian::doccount
 Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
-    std::map<string, om_doccount>::const_iterator rtfreq;
+    std::map<string, Xapian::doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);
     Assert(rtfreq != total_stats->reltermfreq.end());
     return rtfreq->second;

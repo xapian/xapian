@@ -48,9 +48,9 @@ string_to_document(string paragraph)
 
     Xapian::Document document;
     document.set_data(paragraph);
-    om_termcount position = 1;
+    Xapian::termcount position = 1;
 
-    for (om_valueno i = 1; i <= 10; ++i) {
+    for (Xapian::valueno i = 1; i <= 10; ++i) {
 	if (i >= paragraph.length()) break;
 	string value = paragraph.substr(i, 1);
 	document.add_value(i, value);

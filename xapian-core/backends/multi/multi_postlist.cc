@@ -55,16 +55,16 @@ MultiPostList::~MultiPostList()
     postlists.clear();
 }
 
-om_doclength
+Xapian::doclength
 MultiPostList::get_doclength() const
 {
-    DEBUGCALL(DB, om_doclength, "MultiPostList::get_doclength", "");
-    om_doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
+    DEBUGCALL(DB, Xapian::doclength, "MultiPostList::get_doclength", "");
+    Xapian::doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
     AssertParanoid(result == this_db.get_doclength(get_docid()));
     RETURN(result);
 }
 
-om_termcount
+Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
@@ -83,17 +83,17 @@ MultiPostList::open_position_list() const
 }
 
 PostList *
-MultiPostList::next(om_weight w_min)
+MultiPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(DB, PostList *, "MultiPostList::next", w_min);
     Assert(!at_end());
 
-    om_docid newdoc = 0;
-    om_docid offset = 1;
+    Xapian::docid newdoc = 0;
+    Xapian::docid offset = 1;
     std::vector<LeafPostList *>::iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	if (!(*i)->at_end()) {
-	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
+	    Xapian::docid id = ((*i)->get_docid() - 1) * multiplier + offset;
 	    // Check if it needs to be advanced
 	    if (currdoc >= id) {
 		(*i)->next(w_min);
@@ -120,14 +120,14 @@ MultiPostList::next(om_weight w_min)
 }
 
 PostList *
-MultiPostList::skip_to(om_docid did, om_weight w_min)
+MultiPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(DB, PostList *, "MultiPostList::skip_to", did << ", " << w_min);
     Assert(!at_end());
-    om_docid newdoc = 0;
-    om_docid offset = 1;
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
+    Xapian::docid newdoc = 0;
+    Xapian::docid offset = 1;
+    Xapian::docid realdid = (did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {	
 	Assert((realdid - 1) * multiplier + offset >= did);
@@ -135,7 +135,7 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
 	if (!(*i)->at_end()) {
 	    (*i)->skip_to(realdid, w_min);
 	    if (!(*i)->at_end()) {
-		om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
+		Xapian::docid id = ((*i)->get_docid() - 1) * multiplier + offset;
 		if (newdoc == 0 || id < newdoc) newdoc = id;
 	    }
 	}

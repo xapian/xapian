@@ -31,8 +31,8 @@
 
 #include "xapian/error.h"
 
-NetworkTermList::NetworkTermList(om_doclength /*average_length*/,
-				 om_doccount database_size_,
+NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
+				 Xapian::doccount database_size_,
 				 const std::vector<NetClient::TermListItem> &items_,
 				 Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_)
 	: items(),
@@ -57,7 +57,7 @@ NetworkTermList::NetworkTermList(om_doclength /*average_length*/,
     current_position = items.begin();
 }
 
-om_termcount
+Xapian::termcount
 NetworkTermList::get_approx_size() const
 {
     return items.size();
@@ -86,7 +86,7 @@ NetworkTermList::get_termname() const
     return current_position->tname;
 }
 
-om_termcount
+Xapian::termcount
 NetworkTermList::get_wdf() const
 {
     Assert(started);
@@ -94,7 +94,7 @@ NetworkTermList::get_wdf() const
     return current_position->wdf;
 }
 
-om_doccount
+Xapian::doccount
 NetworkTermList::get_termfreq() const
 {
     Assert(started);

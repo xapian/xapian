@@ -80,13 +80,13 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual void do_cancel_transaction() = 0;
 
 	/// Virtual method providing implementation of add_document();
-	virtual om_docid do_add_document(const Xapian::Document & document) = 0;
+	virtual Xapian::docid do_add_document(const Xapian::Document & document) = 0;
 
 	/// Virtual method providing implementation of delete_document();
-	virtual void do_delete_document(om_docid did) = 0;
+	virtual void do_delete_document(Xapian::docid did) = 0;
 
 	/// Virtual method providing implementation of replace_document();
-	virtual void do_replace_document(om_docid did,
+	virtual void do_replace_document(Xapian::docid did,
 					 const Xapian::Document & document) = 0;
 
 	/// Start a modification session if there isn't one already.
@@ -149,14 +149,14 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Return the number of docs in this (sub) database.
 	 */
-	virtual om_doccount get_doccount() const = 0;
+	virtual Xapian::doccount get_doccount() const = 0;
 
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::Internal::get_doclength() for the meaning of document
 	 *  length within Xapian.
 	 */
-	virtual om_doclength get_avlength() const = 0;
+	virtual Xapian::doclength get_avlength() const = 0;
 
 	/** Get the length of a given document.
 	 *
@@ -168,7 +168,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param did  The document id of the document whose length is
 	 *              being requested.
 	 */
-	virtual om_doclength get_doclength(om_docid did) const = 0;
+	virtual Xapian::doclength get_doclength(Xapian::docid did) const = 0;
 
 	/** Return the number of documents indexed by a given term.  This
 	 *  may be an approximation, but must be an upper bound (ie,
@@ -177,7 +177,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @param tname  The term whose term frequency is being requested.
 	 */
-	virtual om_doccount get_termfreq(const string & tname) const = 0;
+	virtual Xapian::doccount get_termfreq(const string & tname) const = 0;
 
 	/** Return the total number of occurrences of the given term.  This
 	 *  is the sum of the number of ocurrences of the term in each
@@ -187,7 +187,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param tname  The term whose collection frequency is being
 	 *                requested.
 	 */
-	virtual om_termcount get_collection_freq(const string & tname) const = 0;
+	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
 
 	/** Check whether a given term is in the database.
 	 *
@@ -240,7 +240,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual LeafTermList * open_term_list(om_docid did) const = 0;
+	virtual LeafTermList * open_term_list(Xapian::docid did) const = 0;
 
 	/** Open an allterms list.
 	 *
@@ -263,7 +263,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual PositionList * open_position_list(om_docid did,
+	virtual PositionList * open_position_list(Xapian::docid did,
 					const string & tname) const = 0;
 
 	/** Open a document.
@@ -283,7 +283,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                use.
 	 */
 	virtual Xapian::Document::Internal *
-	open_document(om_docid did, bool lazy = false) const = 0;
+	open_document(Xapian::docid did, bool lazy = false) const = 0;
 
 	/** do_reopen the database to the latest available revision.
 	 *
@@ -325,19 +325,19 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::add_document() for more information.
 	 */
-	om_docid add_document(const Xapian::Document & document);
+	Xapian::docid add_document(const Xapian::Document & document);
 
 	/** Delete a document in the database.
 	 *
 	 *  See WritableDatabase::delete_document() for more information.
 	 */
-	void delete_document(om_docid did);
+	void delete_document(Xapian::docid did);
 
 	/** Replace a given document in the database.
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	void replace_document(om_docid did, const Xapian::Document & document);
+	void replace_document(Xapian::docid did, const Xapian::Document & document);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),
@@ -349,9 +349,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  no-op and collect_document() the same as open_document().
 	 */
 	//@{
-	virtual void request_document(om_docid /*did*/) const { }
+	virtual void request_document(Xapian::docid /*did*/) const { }
 
-	virtual Xapian::Document::Internal * collect_document(om_docid did) const {
+	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const {
 	    return open_document(did);
 	}
 	//@}

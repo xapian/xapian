@@ -81,8 +81,8 @@ class TermIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(const std::string & tname);
 
-	om_termcount get_wdf() const;
-	om_doccount get_termfreq() const;
+	Xapian::termcount get_wdf() const;
+	Xapian::doccount get_termfreq() const;
 
     	// allow iteration of positionlist for current document
 	PositionListIterator positionlist_begin();

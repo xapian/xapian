@@ -39,13 +39,13 @@ InMemoryPositionList::set_data(const OmDocumentTerm::term_positions & positions_
     iterating_in_progress = false;
 }
 
-om_termcount
+Xapian::termcount
 InMemoryPositionList::get_size() const
 {
     return positions.size();
 }
 
-om_termpos
+Xapian::termpos
 InMemoryPositionList::get_position() const
 {
     Assert(iterating_in_progress);
@@ -65,7 +65,7 @@ InMemoryPositionList::next()
 }
 
 void
-InMemoryPositionList::skip_to(om_termpos termpos)
+InMemoryPositionList::skip_to(Xapian::termpos termpos)
 {
     if (!iterating_in_progress) iterating_in_progress = true;
     while (!at_end() && *mypos < termpos) mypos++;

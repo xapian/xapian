@@ -65,8 +65,8 @@ class RemoteSubMatch : public SubMatch {
 	RemoteSubMatch(const NetworkDatabase *db_,
 		       const Xapian::Query::Internal * query,
 		       const Xapian::RSet & omrset,
-		       om_valueno collapse_key, bool sort_forward,
-		       int percent_cutoff, om_weight weight_cutoff,
+		       Xapian::valueno collapse_key, bool sort_forward,
+		       int percent_cutoff, Xapian::weight weight_cutoff,
 		       StatsGatherer *gatherer_, const Xapian::Weight *wtscheme);
 
 	~RemoteSubMatch();
@@ -75,11 +75,11 @@ class RemoteSubMatch : public SubMatch {
 	bool prepare_match(bool nowait);
 
 	/// Start the remote match going
-	void start_match(om_doccount maxitems);
+	void start_match(Xapian::doccount maxitems);
 	
-	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
+	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	virtual Xapian::Document::Internal * open_document(om_docid did) const {
+	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const {
 	    return db->open_document(did);
 	}
 

@@ -69,12 +69,12 @@ class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
 	subquery_list subqs;
 	
 	/// Length of query
-	om_termcount qlen;
+	Xapian::termcount qlen;
 
 	/** How close terms must be for NEAR or PHRASE.
 	 *  To match, all terms must occur in a window of this size.
 	 */
-	om_termpos window;
+	Xapian::termpos window;
 
 	/** What's the cutoff for *_CUTOFF queries.
 	 */
@@ -82,16 +82,16 @@ class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** How many terms to select for the elite set, for ELITE_SET queries.
 	 */
-	om_termcount elite_set_size;
+	Xapian::termcount elite_set_size;
 
 	/// Term that this node represents - leaf node only
 	string tname;
 
 	/// Position in query of this term - leaf node only
-	om_termpos term_pos;
+	Xapian::termpos term_pos;
 
 	/// Within query frequency of this term - leaf node only
-	om_termcount wqf;
+	Xapian::termcount wqf;
 
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
@@ -106,7 +106,7 @@ class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
 	void initialise_from_copy(const Xapian::Query::Internal & copyme);
 
         void accumulate_terms(
-	    vector<pair<string, om_termpos> > &terms) const;
+	    vector<pair<string, Xapian::termpos> > &terms) const;
 
 	/** Simplify the query.
 	 *  For example, an AND query with only one subquery would become the
@@ -150,8 +150,8 @@ class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Xapian::Query::Internal & copyme);
 
 	/** A query consisting of a single term. */
-	Internal(const string & tname_, om_termcount wqf_ = 1,
-		 om_termpos term_pos_ = 0);
+	Internal(const string & tname_, Xapian::termcount wqf_ = 1,
+		 Xapian::termpos term_pos_ = 0);
 
 	/** Create internals given only the operator. */
 	Internal(op_t op_);
@@ -187,26 +187,26 @@ class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
 	string get_description() const;
 
 	/** Set window for NEAR or PHRASE queries */
-	void set_window(om_termpos window);
+	void set_window(Xapian::termpos window);
 
 	/** Set cutoff for *_CUTOFF queries */
 	void set_cutoff(double cutoff);
 
 	/** Set elite set size */
-	void set_elite_set_size(om_termcount size);
+	void set_elite_set_size(Xapian::termcount size);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden
 	 *  using set_length().
 	 */
-	om_termcount get_length() const { return qlen; }
+	Xapian::termcount get_length() const { return qlen; }
 
 	/** Set the length of the query.
 	 *  This overrides the automatically calculated value, which may
 	 *  be desirable in some situations.
 	 *  Returns the old value of the query length.
 	 */
-	om_termcount set_length(om_termcount qlen_);
+	Xapian::termcount set_length(Xapian::termcount qlen_);
 
 	/** Return an iterator over all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term

@@ -113,7 +113,7 @@ RSet::~RSet()
     delete internal;
 }
 
-om_doccount
+Xapian::doccount
 RSet::size() const
 {
     return internal->items.size();
@@ -126,22 +126,22 @@ RSet::empty() const
 }
 
 void
-RSet::add_document(om_docid did)
+RSet::add_document(Xapian::docid did)
 {
     internal->items.insert(did);
 }
 
 void
-RSet::remove_document(om_docid did)
+RSet::remove_document(Xapian::docid did)
 {
-    set<om_docid>::iterator i = internal->items.find(did);
+    set<Xapian::docid>::iterator i = internal->items.find(did);
     if (i != internal->items.end()) internal->items.erase(i);
 }
 
 bool
-RSet::contains(om_docid did) const
+RSet::contains(Xapian::docid did) const
 {
-    set<om_docid>::iterator i = internal->items.find(did);
+    set<Xapian::docid>::iterator i = internal->items.find(did);
     return i != internal->items.end();
 }
 
@@ -158,7 +158,7 @@ RSet::Internal::get_description() const
     DEBUGCALL(INTRO, string, "RSet::get_description", "");
     string description;
 
-    for (set<om_docid>::const_iterator i = items.begin();
+    for (set<Xapian::docid>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	if (!description.empty()) description += ", ";
@@ -240,7 +240,7 @@ MSet::fetch() const
 }
 
 percent
-MSet::convert_to_percent(om_weight wt) const
+MSet::convert_to_percent(Xapian::weight wt) const
 {
     DEBUGAPICALL(Xapian::percent, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
@@ -255,10 +255,10 @@ MSet::convert_to_percent(const MSetIterator & it) const
     RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
 
-om_doccount
+Xapian::doccount
 MSet::get_termfreq(const string &tname) const
 {
-    DEBUGAPICALL(om_doccount, "Xapian::MSet::get_termfreq", tname);
+    DEBUGAPICALL(Xapian::doccount, "Xapian::MSet::get_termfreq", tname);
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
@@ -269,10 +269,10 @@ MSet::get_termfreq(const string &tname) const
     RETURN(i->second.termfreq);
 }
 
-om_weight
+Xapian::weight
 MSet::get_termweight(const string &tname) const
 {
-    DEBUGAPICALL(om_weight, "Xapian::MSet::get_termweight", tname);
+    DEBUGAPICALL(Xapian::weight, "Xapian::MSet::get_termweight", tname);
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
@@ -283,60 +283,60 @@ MSet::get_termweight(const string &tname) const
     RETURN(i->second.termweight);
 }
 
-om_doccount
+Xapian::doccount
 MSet::get_firstitem() const
 {
     Assert(internal.get() != 0);
     return internal->firstitem;
 }
 
-om_doccount
+Xapian::doccount
 MSet::get_matches_lower_bound() const
 {
     Assert(internal.get() != 0);
     return internal->matches_lower_bound;
 }
 
-om_doccount
+Xapian::doccount
 MSet::get_matches_estimated() const
 {
     Assert(internal.get() != 0);
     return internal->matches_estimated;
 }
 
-om_doccount
+Xapian::doccount
 MSet::get_matches_upper_bound() const
 {
     Assert(internal.get() != 0);
     return internal->matches_upper_bound;
 }
 
-om_weight
+Xapian::weight
 MSet::get_max_possible() const
 {
     Assert(internal.get() != 0);
     return internal->max_possible;
 }
 
-om_weight
+Xapian::weight
 MSet::get_max_attained() const
 {
     Assert(internal.get() != 0);
     return internal->max_attained;
 }
 
-om_doccount
+Xapian::doccount
 MSet::size() const
 {
     Assert(internal.get() != 0);
     return internal->items.size();
 }
 
-om_doccount
+Xapian::doccount
 MSet::max_size() const
 {
     Assert(internal.get() != 0);
-    return om_doccount(-1); // FIXME: is there a better way to do this?
+    return Xapian::doccount(-1); // FIXME: is there a better way to do this?
 }
 
 bool
@@ -366,7 +366,7 @@ MSet::end() const
 }
 
 MSetIterator
-MSet::operator[](om_doccount i) const
+MSet::operator[](Xapian::doccount i) const
 {
     // Don't test 0 <= i - that gives a compiler warning if i is unsigned
     Assert(0 < (i + 1) && i < size());
@@ -390,7 +390,7 @@ MSet::get_description() const
 }
 
 percent
-MSet::Internal::convert_to_percent_internal(om_weight wt) const
+MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
 {
     DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent", wt);
     if (percent_factor == 0) RETURN(100);
@@ -407,11 +407,11 @@ MSet::Internal::convert_to_percent_internal(om_weight wt) const
 }
 
 Document
-MSet::Internal::get_doc_by_index(om_doccount index) const
+MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
     DEBUGCALL(API, Document, "Xapian::MSet::Internal::Data::get_doc_by_index",
 	      index);
-    map<om_doccount, Document>::const_iterator doc;
+    map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {
 	RETURN(doc->second);
@@ -428,19 +428,19 @@ MSet::Internal::get_doc_by_index(om_doccount index) const
 }
 
 void
-MSet::Internal::fetch_items(om_doccount first, om_doccount last) const
+MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
 {
     DEBUGAPICALL(void, "Xapian::MSet::Internal::Data::fetch_items",
 		 first << ", " << last);
     if (enquire.get() == 0) {
 	throw InvalidOperationError("Can't fetch documents from an MSet which is not derived from a query.");
     }
-    for (om_doccount i = first; i <= last; ++i) {
-	map<om_doccount, Document>::const_iterator doc;
+    for (Xapian::doccount i = first; i <= last; ++i) {
+	map<Xapian::doccount, Document>::const_iterator doc;
 	doc = indexeddocs.find(i);
 	if (doc == indexeddocs.end()) {
 	    /* We don't have the document cached */
-	    set<om_doccount>::const_iterator s;
+	    set<Xapian::doccount>::const_iterator s;
 	    s = requested_docs.find(i);
 	    if (s == requested_docs.end()) {
 		/* We haven't even requested it yet - do so now. */
@@ -477,7 +477,7 @@ MSet::Internal::get_description() const
 void
 MSet::Internal::read_docs() const
 {
-    set<om_doccount>::const_iterator i;
+    set<Xapian::doccount>::const_iterator i;
     for (i = requested_docs.begin(); i != requested_docs.end(); ++i) {
 	indexeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
 	DEBUGLINE(API, "stored doc at index " << *i << " is " << indexeddocs[*i]);
@@ -513,13 +513,13 @@ ESet::operator=(const ESet &other)
     internal = other.internal;
 }
 
-om_termcount
+Xapian::termcount
 ESet::get_ebound() const
 {
     return internal->ebound;
 }
 
-om_termcount
+Xapian::termcount
 ESet::size() const
 {
     return internal->items.size();
@@ -577,7 +577,7 @@ ESetIterator::operator *() const
     return eset.internal->items[index].tname;
 }
 
-om_weight
+Xapian::weight
 ESetIterator::get_weight() const
 {
     return eset.internal->items[index].wt;
@@ -591,7 +591,7 @@ ESetIterator::get_description() const
 
 // MSetIterator
 
-om_docid
+Xapian::docid
 MSetIterator::operator *() const
 {
     return mset.internal->items[index].did;
@@ -603,13 +603,13 @@ MSetIterator::get_document() const
     return mset.internal->get_doc_by_index(index);
 }
 
-om_weight
+Xapian::weight
 MSetIterator::get_weight() const
 {
     return mset.internal->items[index].wt;
 }
 
-om_doccount
+Xapian::doccount
 MSetIterator::get_collapse_count() const
 {
     return mset.internal->items[index].collapse_count;
@@ -631,8 +631,8 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
-    percent_cutoff(0), weight_cutoff(0), sort_key(om_valueno(-1)),
+  : db(db_), query(0), collapse_key(Xapian::valueno(-1)), sort_forward(true), 
+    percent_cutoff(0), weight_cutoff(0), sort_key(Xapian::valueno(-1)),
     sort_bands(0), bias_halflife(0), bias_weight(0),
     errorhandler(errorhandler_), weight(0)
 {
@@ -662,7 +662,7 @@ Enquire::Internal::get_query()
 }
 
 MSet
-Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
+Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
                     const RSet *rset, const MatchDecider *mdecider) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
@@ -704,7 +704,7 @@ Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
 }
 
 ESet
-Enquire::Internal::get_eset(om_termcount maxitems,
+Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
 		    const ExpandDecider * edecider) const
 {
@@ -748,7 +748,7 @@ Enquire::Internal::get_eset(om_termcount maxitems,
 }
 
 TermIterator
-Enquire::Internal::get_matching_terms(om_docid did) const
+Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
     return calc_matching_terms(did);
 }
@@ -777,8 +777,8 @@ Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
     try {
 	unsigned int multiplier = db.internal.size();
 
-	om_docid realdid = (item.did - 1) / multiplier + 1;
-	om_doccount dbnumber = (item.did - 1) % multiplier;
+	Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+	Xapian::doccount dbnumber = (item.did - 1) % multiplier;
 
 	db.internal[dbnumber]->request_document(realdid);
     } catch (Error & e) {
@@ -793,8 +793,8 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
     try {
 	unsigned int multiplier = db.internal.size();
 
-	om_docid realdid = (item.did - 1) / multiplier + 1;
-	om_doccount dbnumber = (item.did - 1) % multiplier;
+	Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+	Xapian::doccount dbnumber = (item.did - 1) % multiplier;
 
 	Xapian::Document::Internal *doc;
 	doc = db.internal[dbnumber]->collect_document(realdid);
@@ -827,7 +827,7 @@ class ByQueryIndexCmp {
 namespace Xapian {
 
 TermIterator
-Enquire::Internal::calc_matching_terms(om_docid did) const
+Enquire::Internal::calc_matching_terms(Xapian::docid did) const
 {
     if (query == 0) {
         throw InvalidArgumentError("Can't get matching terms before setting query");
@@ -922,7 +922,7 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
-Enquire::set_collapse_key(om_valueno collapse_key)
+Enquire::set_collapse_key(Xapian::valueno collapse_key)
 {
     internal->collapse_key = collapse_key;
 }
@@ -934,29 +934,29 @@ Enquire::set_sort_forward(bool sort_forward)
 }
 
 void
-Enquire::set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff)
+Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
     internal->weight_cutoff = weight_cutoff;
 }
 
 void
-Enquire::set_sorting(om_valueno sort_key, int sort_bands)
+Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands)
 {
     internal->sort_key = sort_key;
     internal->sort_bands = sort_bands;
 }
 
 void
-Enquire::set_bias(om_weight bias_weight, time_t bias_halflife)
+Enquire::set_bias(Xapian::weight bias_weight, time_t bias_halflife)
 {
     internal->bias_weight = bias_weight;
     internal->bias_halflife = bias_halflife;
 }
 
 MSet
-Enquire::get_mset(om_doccount first,
-                    om_doccount maxitems,
+Enquire::get_mset(Xapian::doccount first,
+                    Xapian::doccount maxitems,
                     const RSet *rset,
 		    const MatchDecider *mdecider) const
 {
@@ -973,7 +973,7 @@ Enquire::get_mset(om_doccount first,
 }
 
 ESet
-Enquire::get_eset(om_termcount maxitems, const RSet & rset, int flags,
+Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 		    double k, const ExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and rset, if they're not
@@ -1003,7 +1003,7 @@ Enquire::get_matching_terms_begin(const MSetIterator &it) const
 }
 
 TermIterator
-Enquire::get_matching_terms_begin(om_docid did) const
+Enquire::get_matching_terms_begin(Xapian::docid did) const
 {
     DEBUGAPICALL(Xapian::TermIterator, "Xapian::Enquire::get_matching_terms", did);
     try {
@@ -1021,7 +1021,7 @@ Enquire::get_matching_terms_end(const MSetIterator &/*it*/) const
 }
 
 TermIterator
-Enquire::get_matching_terms_end(om_docid /*did*/) const
+Enquire::get_matching_terms_end(Xapian::docid /*did*/) const
 {
     return TermIterator(NULL);
 }

@@ -64,7 +64,7 @@ class NetworkStatsGatherer : public StatsGatherer {
 
 	/// Ignore the rset size - we need to get it from the
 	/// remote end.
-	virtual void set_global_stats(om_doccount /*rset_size*/) {}
+	virtual void set_global_stats(Xapian::doccount /*rset_size*/) {}
 };
 
 class NetClient;

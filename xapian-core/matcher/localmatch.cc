@@ -97,7 +97,7 @@ class CmpMaxOrTerms {
 	 *  is quite likely to be zero in this case.
 	 */
 	bool operator()(const PostList *a, const PostList *b) {
-	    om_weight amax, bmax;
+	    Xapian::weight amax, bmax;
 	    if (a->get_termfreq_max() == 0)
 		amax = 0;
 	    else
@@ -261,8 +261,8 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 PostList *
 LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 				const Xapian::Query::Internal::subquery_list &queries,
-				om_termpos window,
-				om_termcount elite_set_size,
+				Xapian::termpos window,
+				Xapian::termcount elite_set_size,
 				MultiMatch *matcher,
 				bool is_bool)
 {
@@ -495,7 +495,7 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
 }
 
 PostList *
-LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
+LocalSubMatch::get_postlist(Xapian::doccount maxitems, MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
     (void)maxitems; // Avoid warning in non-debug build

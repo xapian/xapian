@@ -115,20 +115,20 @@ class Database {
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
 	 */
-	TermIterator termlist_begin(om_docid did) const;
+	TermIterator termlist_begin(Xapian::docid did) const;
 	
 	/** Corresponding end iterator to termlist_begin()
 	 */
-	TermIterator termlist_end(om_docid did) const;
+	TermIterator termlist_end(Xapian::docid did) const;
 
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
-	PositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
+	PositionListIterator positionlist_begin(Xapian::docid did, const std::string &tname) const;
 
 	/** Corresponding end iterator to positionlist_begin()
 	 */
-	PositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
+	PositionListIterator positionlist_end(Xapian::docid did, const std::string &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */
@@ -139,13 +139,13 @@ class Database {
 	TermIterator allterms_end() const;
 
 	/// Get the number of documents in the database.
-	om_doccount get_doccount() const;
+	Xapian::doccount get_doccount() const;
 	
 	/// Get the average length of the documents in the database.
-	om_doclength get_avlength() const;
+	Xapian::doclength get_avlength() const;
 
 	/// Get the number of documents in the database indexed by a given term.
-	om_doccount get_termfreq(const std::string & tname) const;
+	Xapian::doccount get_termfreq(const std::string & tname) const;
 
 	/** Check if a given term exists in the database.
 	 *
@@ -164,11 +164,11 @@ class Database {
 	 *  @param tname  The term whose collection frequency is being
 	 *  requested.
 	 */
-	om_termcount get_collection_freq(const std::string & tname) const;
+	Xapian::termcount get_collection_freq(const std::string & tname) const;
 
 	/** Get the length of a document.
 	 */
-	om_doclength get_doclength(om_docid did) const;
+	Xapian::doclength get_doclength(Xapian::docid did) const;
 
 	/** Send a "keep-alive" to remote databases to stop them timing
 	 *  out.
@@ -187,7 +187,7 @@ class Database {
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
 	 */
-	Xapian::Document get_document(om_docid did) const;
+	Xapian::Document get_document(Xapian::docid did) const;
 };
 
 /** This class provides read/write access to a database.
@@ -368,17 +368,17 @@ class WritableDatabase : public Database {
 	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
 	 *  couldn't be acquired or subsequently released on the database.
 	 */
-	om_docid add_document(const Xapian::Document & document);
+	Xapian::docid add_document(const Xapian::Document & document);
 
 	/** Delete a document in the database.
 	 */
 	// FIXME: document more.
-	void delete_document(om_docid did);
+	void delete_document(Xapian::docid did);
 
 	/** Replace a given document in the database.
 	 */
 	// FIXME: document more.
-	void replace_document(om_docid did, const Xapian::Document & document);
+	void replace_document(Xapian::docid did, const Xapian::Document & document);
 
 	/** Introspection method.
 	 *

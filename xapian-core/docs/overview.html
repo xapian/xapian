@@ -365,8 +365,8 @@ used to specify positional and frequency information for terms in the query:
 <P>
 <PRE>
 Xapian::Query(const string &amp; tname_,
-        om_termcount wqf_ = 1,
-        om_termpos term_pos_ = 0)
+        Xapian::termcount wqf_ = 1,
+        Xapian::termpos term_pos_ = 0)
 </PRE>
 <P>
 The <CODE>wqf</CODE> (<B>W</B>ithin <B>Q</B>uery <B>F</B>requency) is
@@ -729,8 +729,8 @@ and it will perform whatever calculations are necessary to provide the
 answer:
 </P>
 <PRE>
-Xapian::MSet <A HREF="apidoc/html/classXapian_1_1Enquire.html">Xapian::Enquire::get_mset</A>(om_doccount first,
-                           om_doccount maxitems,
+Xapian::MSet <A HREF="apidoc/html/classXapian_1_1Enquire.html">Xapian::Enquire::get_mset</A>(Xapian::doccount first,
+                           Xapian::doccount maxitems,
                            const Xapian::RSet * omrset = 0,
                            const Xapian::MatchDecider * mdecider = 0) const
 <!-- FIXME check parameters -->
@@ -805,7 +805,7 @@ displaying to a user.  This may be done using the
 methods:
 <PRE>
      int Xapian::MSet::convert_to_percent(const Xapian::MSetIterator &amp; item) const
-     int Xapian::MSet::convert_to_percent(om_weight wt) const
+     int Xapian::MSet::convert_to_percent(Xapian::weight wt) const
 </PRE>
 These methods return a value in the range 0 to 100, which will be
 0 if and only if the item did not match the query at all.
@@ -860,7 +860,7 @@ The options are as follows.
 </TD><TD VALIGN="top">
 Each document in a database may have a set of numbered keys.   The
 contents of each key is a string of arbitrary length.
-The <CODE>set_collapse_key</A>(om_valueno collapse_key)</CODE>
+The <CODE>set_collapse_key</A>(Xapian::valueno collapse_key)</CODE>
 method specifies a key number upon which to remove duplicates.
 Only the most recently set duplicate removal key is active at any time, and the
 default is to perform no duplicate removal.
@@ -891,7 +891,7 @@ which can't be easily represented by queries.  This can be done using
 a match decision functor.  To set such a condition, derive a class
 from <CODE>Xapian::MatchDecider</CODE> and override the function operator,
 <CODE>operator()(const Xapian::Document &amp;doc)</CODE>.  The operator can make
-a decision based on the document values via <CODE>Xapian::Document::get_value(om_valueno)</CODE>.
+a decision based on the document values via <CODE>Xapian::Document::get_value(Xapian::valueno)</CODE>.
 </p>
 <p>
 The functor will also have access to the document data stored in the
@@ -906,13 +906,13 @@ Xapian also supports the idea of calculating terms to add to the
 query, based on the relevant documents supplied.  A set of such
 terms, together with their weights, may be returned by:
 <PRE>
-Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(om_termcount maxitems,
+Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(Xapian::termcount maxitems,
                            const Xapian::RSet &amp; omrset,
 			   bool exclude_query_terms = true,
 			   bool use_exact_termfreq = false,
 			   double k = 1.0,
 			   const Xapian::ExpandDecider * edecider = 0) const;
-Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(om_termcount maxitems,
+Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(Xapian::termcount maxitems,
                            const Xapian::RSet &amp; omrset,
                            const Xapian::ExpandDecider * edecider) const
 </PRE>

@@ -72,8 +72,8 @@ class NetClient : public Xapian::Internal::RefCntBase {
 	 * @param omrset_ The rset.
 	 */
 	virtual void set_query(const Xapian::Query::Internal *query_,
-			       om_valueno collapse_key, bool sort_forward,
-			       int percent_cutoff, om_weight weight_cutoff,
+			       Xapian::valueno collapse_key, bool sort_forward,
+			       int percent_cutoff, Xapian::weight weight_cutoff,
 			       const Xapian::Weight *wtscheme,
 			       const Xapian::RSet &omrset_) = 0;
 
@@ -92,52 +92,52 @@ class NetClient : public Xapian::Internal::RefCntBase {
 	virtual void send_global_stats(const Stats &stats) = 0;
 
 	/** Do the actual MSet fetching */
-	virtual bool get_mset(om_doccount first, om_doccount maxitems,
+	virtual bool get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			      Xapian::MSet &mset) = 0;
 
 	virtual void close_end_time() = 0;
 	
-	virtual void next(om_weight w_min, om_docid &did, om_weight &w,
+	virtual void next(Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w,
 			  string &value) = 0;
 
-	virtual void skip_to(om_docid new_did, om_weight w_min, om_docid &did,
-			     om_weight &w, string &value) = 0;
+	virtual void skip_to(Xapian::docid new_did, Xapian::weight w_min, Xapian::docid &did,
+			     Xapian::weight &w, string &value) = 0;
 
 	/** The structure used to hold a termlist item */
 	struct TermListItem {
 	    string tname;
-	    om_doccount termfreq;
-	    om_termcount wdf;
+	    Xapian::doccount termfreq;
+	    Xapian::termcount wdf;
 
-	    vector<om_termpos> positions;
+	    vector<Xapian::termpos> positions;
 	};
 
 	/** Retrieve a remote termlist */
-	virtual void get_tlist(om_docid did,
+	virtual void get_tlist(Xapian::docid did,
 			       vector<TermListItem> &items) = 0;
 
 	/** Retrieve a remote document */
-	virtual void get_doc(om_docid did, string &doc,
-			     map<om_valueno, string> &values) = 0;
+	virtual void get_doc(Xapian::docid did, string &doc,
+			     map<Xapian::valueno, string> &values) = 0;
 
 	/** Request a remote document */
-	virtual void request_doc(om_docid did) = 0;
+	virtual void request_doc(Xapian::docid did) = 0;
 
 	/** Collect a remote document */
-	virtual void collect_doc(om_docid did, string &doc,
-				 map<om_valueno, string> &values) = 0;
+	virtual void collect_doc(Xapian::docid did, string &doc,
+				 map<Xapian::valueno, string> &values) = 0;
 
 	/** Find out the remote document count */
-	virtual om_doccount get_doccount() const = 0;
+	virtual Xapian::doccount get_doccount() const = 0;
 
 	/** Find out the remote average document length */
-	virtual om_doclength get_avlength() const = 0;
+	virtual Xapian::doclength get_avlength() const = 0;
 
 	/// Find out if term exists
 	virtual bool term_exists(const string & tname) = 0;
 
 	/// Find frequency of term
-	virtual om_doccount get_termfreq(const string & tname) = 0;
+	virtual Xapian::doccount get_termfreq(const string & tname) = 0;
 
 	/** Determine if any data is waiting to be read.  */
 	virtual bool data_is_available() = 0;

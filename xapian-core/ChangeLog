@@ -1,3 +1,13 @@
+Thu May 29 01:26:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/database.cc,backends/inmemory/,backends/multi/,
+	  backends/muscat36/,backends/net/,backends/quartz/,common/,
+	  docs/overview.html,docs/quickstart.html,
+	  docs/quickstartexpand.cc.html,extra/queryparser.yy,include/om/om.h,
+	  include/xapian/,matcher/,net/,tests/api_db.cc,tests/api_posdb.cc,
+	  tests/quartztest.cc,testsuite/: Converted remaining om_xxx types
+	  to Xapian::xxx.
+
 Wed May 28 23:06:18 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

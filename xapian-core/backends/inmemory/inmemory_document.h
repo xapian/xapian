@@ -31,18 +31,18 @@ class InMemoryDocument : public Xapian::Document::Internal {
     friend class InMemoryDatabase;
     private:
 	string doc;
-	map<om_valueno, string> values;
+	map<Xapian::valueno, string> values;
 
 	InMemoryDocument(const Xapian::Database::Internal *database_,
-			 om_docid did_, const string & doc_,
-			 const map<om_valueno, string> &values_);
+			 Xapian::docid did_, const string & doc_,
+			 const map<Xapian::valueno, string> &values_);
 
 	// Stop copying
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
-	string do_get_value(om_valueno valueid) const;
-	map<om_valueno, string> do_get_all_values() const;
+	string do_get_value(Xapian::valueno valueid) const;
+	map<Xapian::valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 

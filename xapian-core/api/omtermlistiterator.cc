@@ -65,19 +65,19 @@ Xapian::TermIterator::operator *() const
     RETURN(internal->get_termname());
 }
 
-om_termcount
+Xapian::termcount
 Xapian::TermIterator::get_wdf() const
 {
-    DEBUGAPICALL(om_termcount, "Xapian::TermIterator::get_wdf", "");
+    DEBUGAPICALL(Xapian::termcount, "Xapian::TermIterator::get_wdf", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_wdf());
 }
 
-om_doccount
+Xapian::doccount
 Xapian::TermIterator::get_termfreq() const
 {
-    DEBUGAPICALL(om_doccount, "Xapian::TermIterator::get_termfreq", "");
+    DEBUGAPICALL(Xapian::doccount, "Xapian::TermIterator::get_termfreq", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_termfreq());

@@ -67,14 +67,14 @@ class Document {
 	~Document();
 
 	/// Get value by number (>= 0)
-	std::string get_value(om_valueno value) const;
+	std::string get_value(Xapian::valueno value) const;
 
 	/// Add a new value.  It will replace any existing value with the
 	//  same number.
-	void add_value(om_valueno valueno, const std::string &value);
+	void add_value(Xapian::valueno valueno, const std::string &value);
 
 	/// Remove any value with the given number.
-	void remove_value(om_valueno valueno);
+	void remove_value(Xapian::valueno valueno);
 
 	/// Remove all values associated with the document.
 	void clear_values();
@@ -104,8 +104,8 @@ class Document {
 	 *                   for this term.
 	 */
 	void add_posting(const std::string & tname,
-			 om_termpos tpos,
-			 om_termcount wdfinc = 1);
+			 Xapian::termpos tpos,
+			 Xapian::termcount wdfinc = 1);
 
 	/** Add a term to the document, without specifying a position that
 	 *  it occurs at.
@@ -118,7 +118,7 @@ class Document {
 	 *                   for this term.
 	 */
 	void add_term_nopos(const std::string & tname,
-			    om_termcount wdfinc = 1);
+			    Xapian::termcount wdfinc = 1);
 
 	/** Remove a posting of a term from the document.
 	 *
@@ -140,8 +140,8 @@ class Document {
 	 *  is not in the document
 	 */
 	void remove_posting(const std::string & tname,
-			    om_termpos tpos,
-			    om_termcount wdfdec = 1);
+			    Xapian::termpos tpos,
+			    Xapian::termcount wdfdec = 1);
 
 	/** Remove a term and all postings associated with it.
 	 *
@@ -156,7 +156,7 @@ class Document {
 	void clear_terms();
 
 	/// Count the terms in this document.
-	om_termcount termlist_count() const;
+	Xapian::termcount termlist_count() const;
 
 	/// Iterator for the terms in this document.
 	TermIterator termlist_begin() const;
@@ -165,7 +165,7 @@ class Document {
 	TermIterator termlist_end() const;
 
 	/// Count the values in this document.
-	om_termcount values_count() const;
+	Xapian::termcount values_count() const;
 
 	/// Iterator for the values in this document.
 	ValueIterator values_begin() const;

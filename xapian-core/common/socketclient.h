@@ -61,10 +61,10 @@ class SocketClient : public NetClient {
 	} conv_state;
 
 	/// The remote document count, given at open.
-	om_doccount doccount;
+	Xapian::doccount doccount;
 
 	/// The remote document avlength, given at open.
-	om_doclength avlength;
+	Xapian::doclength avlength;
 
 	/// The current query, as a string
 	string query_string;
@@ -96,14 +96,14 @@ class SocketClient : public NetClient {
 	int get_spawned_socket(string progname, string arg);
 
 	/// minimum weight we're interested in
-	om_weight minw;
+	Xapian::weight minw;
 
 	/// The context to return with any error messages
 	string context;
 
 	/// The queue of requested docids, in the right order
-	deque<om_docid> requested_docs;
-	/* This would be a queue<om_docid>, but that conflicts with
+	deque<Xapian::docid> requested_docs;
+	/* This would be a queue<Xapian::docid>, but that conflicts with
 	 * some networking headers on Solaris.  Maybe when the 
 	 * namespace actually works properly it can go back. */
 
@@ -113,16 +113,16 @@ class SocketClient : public NetClient {
 	 *  but removed from the cache on the first collect(), causing
 	 *  an error on the second.
 	 */
-	map<om_docid, unsigned int> request_count;
+	map<Xapian::docid, unsigned int> request_count;
 
 	struct cached_doc {
 	    string data;
-	    map<om_valueno, string> values;
+	    map<Xapian::valueno, string> values;
 	    int users;  // number of clients wanting to retrieve this document
 	};
 	/// A store of the undecoded documents we've collected from the
 	/// other end
-	map<om_docid, cached_doc> collected_docs;
+	map<Xapian::docid, cached_doc> collected_docs;
 
 	void get_requested_docs();
 
@@ -153,7 +153,7 @@ class SocketClient : public NetClient {
 	/// Close the socket
 	void do_close();
 
-	bool get_posting(om_docid &did, om_weight &w, string &value);
+	bool get_posting(Xapian::docid &did, Xapian::weight &w, string &value);
 
 	/// The timeout value used in network communications,
 	/// in milliseconds
@@ -189,8 +189,8 @@ class SocketClient : public NetClient {
 	 * @param omrset_ The rset.
 	 */
 	void set_query(const Xapian::Query::Internal *query_,
-		       om_valueno collapse_key, bool sort_forward,
-		       int percent_cutoff, om_weight weight_cutoff,
+		       Xapian::valueno collapse_key, bool sort_forward,
+		       int percent_cutoff, Xapian::weight weight_cutoff,
 		       const Xapian::Weight *wtscheme,
 		       const Xapian::RSet &omrset_);
 
@@ -207,38 +207,38 @@ class SocketClient : public NetClient {
 	void send_global_stats(const Stats &stats);
 
 	/** Do the actual MSet fetching */
-	bool get_mset(om_doccount first, om_doccount maxitems, Xapian::MSet &mset);
+	bool get_mset(Xapian::doccount first, Xapian::doccount maxitems, Xapian::MSet &mset);
 
-	void next(om_weight w_min, om_docid &did, om_weight &w, string &value);
-	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, string &value);
+	void next(Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value);
+	void skip_to(Xapian::docid new_did, Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value);
 	
 	/** get the remote termlist */
-	void get_tlist(om_docid did,
+	void get_tlist(Xapian::docid did,
 		       vector<NetClient::TermListItem> &items);
 
 	/** Retrieve a remote document */
-	void get_doc(om_docid did,
+	void get_doc(Xapian::docid did,
 		     string &doc,
-		     map<om_valueno, string> &values);
+		     map<Xapian::valueno, string> &values);
 
 	/** Request a remote document */
-	void request_doc(om_docid did);
+	void request_doc(Xapian::docid did);
 
 	/** Collect a remote document */
-	void collect_doc(om_docid did, string &doc,
-			 map<om_valueno, string> &values);
+	void collect_doc(Xapian::docid did, string &doc,
+			 map<Xapian::valueno, string> &values);
 
 	/** Get the document count. */
-	om_doccount get_doccount() const;
+	Xapian::doccount get_doccount() const;
 
 	/** Find out the remote average document length */
-	om_doclength get_avlength() const;
+	Xapian::doclength get_avlength() const;
 
 	/// Find out if term exists
 	virtual bool term_exists(const string & tname);
 
 	/// Find frequency of term
-	virtual om_doccount get_termfreq(const string & tname);
+	virtual Xapian::doccount get_termfreq(const string & tname);
 
 	/** Determine if any data is waiting to be read.
 	 */

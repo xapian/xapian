@@ -62,7 +62,7 @@ class IndexerDestination {
 	 *  The destination may return a document ID, but this will be ignored
 	 *  by the indexer.
 	 */
-	virtual om_docid add_document(const Xapian::Document & document) = 0;
+	virtual Xapian::docid add_document(const Xapian::Document & document) = 0;
 };
 
 /** A way to generate terms from sources

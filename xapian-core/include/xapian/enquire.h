@@ -97,7 +97,7 @@ class MSet {
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
 	 */
-	Xapian::percent convert_to_percent(om_weight wt) const;
+	Xapian::percent convert_to_percent(Xapian::weight wt) const;
 
 	/// Return the percentage score for a particular item.
 	Xapian::percent convert_to_percent(const MSetIterator &it) const;
@@ -109,7 +109,7 @@ class MSet {
 	 *  @exception Xapian::InvalidArgumentError is thrown if the term was
 	 *             not in the query.
 	 */
-	om_doccount get_termfreq(const std::string &tname) const;
+	Xapian::doccount get_termfreq(const std::string &tname) const;
 
 	/** Return the term weight of the given query term.
 	 *
@@ -118,7 +118,7 @@ class MSet {
 	 *  @exception  Xapian::InvalidArgumentError is thrown if the term was
 	 *		not in the query.
 	 */
-	om_weight get_termweight(const std::string &tname) const;
+	Xapian::weight get_termweight(const std::string &tname) const;
 
 	/** The index of the first item in the result which was put into the
 	 *  MSet.
@@ -127,7 +127,7 @@ class MSet {
 	 *  Xapian::Enquire::get_mset().  A value of 0 corresponds to the
 	 *  highest result being the first item in the mset.
 	 */
-	om_doccount get_firstitem() const;
+	Xapian::doccount get_firstitem() const;
 
 	/** A lower bound on the number of documents in the database which
 	 *  have a weight greater than zero.
@@ -135,7 +135,7 @@ class MSet {
 	 *  This number is usually considerably less than the actual number
 	 *  of documents which match the query.
 	 */
-	om_doccount get_matches_lower_bound() const;
+	Xapian::doccount get_matches_lower_bound() const;
 
 	/** An estimate for the number of documents in the database which
 	 *  have a weight greater than zero.
@@ -146,7 +146,7 @@ class MSet {
 	 *  large number of results, rather than how useful those at the top
 	 *  of the result set are, and is thus undesirable.
 	 */
-	om_doccount get_matches_estimated() const;
+	Xapian::doccount get_matches_estimated() const;
 
 	/** An upper bound on the number of documents in the database with
 	 *  a weight greater than zero.
@@ -154,14 +154,14 @@ class MSet {
 	 *  This number is usually considerably greater than the actual
 	 *  number of documents which match the query.
 	 */
-	om_doccount get_matches_upper_bound() const;
+	Xapian::doccount get_matches_upper_bound() const;
 
 	/** The maximum possible weight in the mset.
 	 *  This weight is likely not to be attained in the set of results,
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
 	 */
-	om_weight get_max_possible() const;
+	Xapian::weight get_max_possible() const;
 
 	/** The greatest weight which is attained by any document in the
 	 *  database.  
@@ -176,11 +176,11 @@ class MSet {
 	 *  requested when the query was performed (by specifying
 	 *  maxitems = 0 in Xapian::Enquire::get_mset()), this value will be 0.
 	 */
-	om_weight get_max_attained() const;
+	Xapian::weight get_max_attained() const;
 
-	om_doccount size() const;
+	Xapian::doccount size() const;
 
-	om_doccount max_size() const;
+	Xapian::doccount max_size() const;
 
 	bool empty() const;
 
@@ -201,7 +201,7 @@ class MSet {
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
 	 */
-	MSetIterator operator[](om_doccount i) const;
+	MSetIterator operator[](Xapian::doccount i) const;
 
 	/// Allow use as an STL container
 	//@{	
@@ -212,7 +212,7 @@ class MSet {
 	typedef MSetIterator & const_reference;
 	typedef MSetIterator * pointer; // Hmm
 	typedef Xapian::doccount_diff difference_type;
-	typedef om_doccount size_type;
+	typedef Xapian::doccount size_type;
 	//@}
 	
 	/** Returns a string representing the mset.
@@ -230,10 +230,10 @@ class MSetIterator {
         friend bool operator==(const MSetIterator &a, const MSetIterator &b);
         friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
 
-	MSetIterator(om_doccount index_, const MSet & mset_)
+	MSetIterator(Xapian::doccount index_, const MSet & mset_)
 	    : index(index_), mset(mset_) { }
 
-	om_doccount index;
+	Xapian::doccount index;
 	MSet mset;
 
     public:
@@ -267,7 +267,7 @@ class MSetIterator {
 	}
 
 	/// Get the document ID for the current position.
-	om_docid operator*() const;
+	Xapian::docid operator*() const;
 
 	/** Get a Xapian::Document object for the current position.
 	 *
@@ -295,12 +295,12 @@ class MSetIterator {
 	 *  list of results of the query.  The document judged "most relevant"
 	 *  will have rank of 0.
 	 */
-        om_doccount get_rank() const {
+        Xapian::doccount get_rank() const {
 	    return mset.get_firstitem() + index;
 	}
 
 	/// Get the weight of the document at the current position
-        om_weight get_weight() const;
+        Xapian::weight get_weight() const;
 
 	/** Get an estimate of the number of documents that have been collapsed
 	 *  into this one.
@@ -318,7 +318,7 @@ class MSetIterator {
 	 *  (but note that it may not offer it in every case where it would
 	 *  show other documents).
 	 */
-	om_doccount get_collapse_count() const;
+	Xapian::doccount get_collapse_count() const;
 
 	/** This returns the weight of the document as a percentage score.
 	 *
@@ -335,10 +335,10 @@ class MSetIterator {
 	/// Allow use as an STL iterator
 	//@{	
 	typedef std::input_iterator_tag iterator_category; // FIXME: better than input_iterator!
-	typedef om_docid value_type;
+	typedef Xapian::docid value_type;
 	typedef Xapian::doccount_diff difference_type;
-	typedef om_docid * pointer;
-	typedef om_docid & reference;
+	typedef Xapian::docid * pointer;
+	typedef Xapian::docid & reference;
 	//@}
 };
 
@@ -380,10 +380,10 @@ class ESet {
 	 *  set of results of the expand.  This will be greater than or
 	 *  equal to size()
 	 */
-	om_termcount get_ebound() const;
+	Xapian::termcount get_ebound() const;
 
 	/** The number of terms in this E-Set */
-	om_termcount size() const;
+	Xapian::termcount size() const;
 
 	/** Test if this E-Set is empty */
 	bool empty() const;
@@ -408,10 +408,10 @@ class ESetIterator {
         friend bool operator==(const ESetIterator &a, const ESetIterator &b);
         friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
 
-	ESetIterator(om_termcount index_, const ESet & eset_)
+	ESetIterator(Xapian::termcount index_, const ESet & eset_)
 	    : index(index_), eset(eset_) { }
 
-	om_termcount index;
+	Xapian::termcount index;
 	ESet eset;
 
     public:
@@ -448,7 +448,7 @@ class ESetIterator {
 	const std::string & operator *() const;
 
 	/// Get the weight of the term at the current position
-        om_weight get_weight() const;
+        Xapian::weight get_weight() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -500,25 +500,25 @@ class RSet {
 	~RSet();
 
 	/** The number of documents in this R-Set */
-	om_doccount size() const;
+	Xapian::doccount size() const;
 
 	/** Test if this R-Set is empty */
 	bool empty() const;
 
 	/// Add a document to the relevance set.
-	void add_document(om_docid did);
+	void add_document(Xapian::docid did);
 	
 	/// Add a document to the relevance set.
 	void add_document(const Xapian::MSetIterator & i) { add_document(*i); }
 
 	/// Remove a document from the relevance set.
-	void remove_document(om_docid did);
+	void remove_document(Xapian::docid did);
 
 	/// Remove a document from the relevance set.
 	void remove_document(const Xapian::MSetIterator & i) { remove_document(*i); }
 
 	/// Test if a given document in the relevance set.
-	bool contains(om_docid did) const;
+	bool contains(Xapian::docid did) const;
 
 	/// Test if a given document in the relevance set.
 	bool contains(const Xapian::MSetIterator & i) { return contains(*i); }
@@ -650,9 +650,9 @@ class Enquire {
 	 *      you can offer a link to a non-collapsed search restricted to
 	 *      that thread using a boolean filter.
 	 *      
-	 *      (default is om_valueno(-1) which means no collapsing).
+	 *      (default is Xapian::valueno(-1) which means no collapsing).
          */
-	void set_collapse_key(om_valueno collapse_key);
+	void set_collapse_key(Xapian::valueno collapse_key);
 
         /** Set the collapse key to use for queries.
          *
@@ -679,14 +679,14 @@ class Enquire {
 	 *	alerting operations.  The other potential use is with a user
 	 *	specified weighting scheme.
          */
-	void set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff = 0);
+	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
 
         /** Set the sorting key and number of sort bands.
          *
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  Higher is better.  If match_sort_key is set,
 	 *	but match_sort_bands isn't, sort the whole mset my the key.
-	 *	(default is om_valueno(-1) which means re-sort by doc id
+	 *	(default is Xapian::valueno(-1) which means re-sort by doc id
 	 *	- ascending or descending as controlled by sort_forward).
 	 * 
 	 * @param sort_bands sort results into this many bands of equal
@@ -694,7 +694,7 @@ class Enquire {
 	 *	 number specified by sort_key.  (default is 0 which means
 	 *	 no re-sorting).
 	 */
-	void set_sorting(om_valueno sort_key, int sort_bands);
+	void set_sorting(Xapian::valueno sort_key, int sort_bands);
 
         /** Set the bias functor parameters.
          *
@@ -707,7 +707,7 @@ class Enquire {
 	 * 	back in time.  This sets the half-life of this decay in seconds
 	 * 	(default 0 => no bias).
 	 */
-	void set_bias(om_weight bias_weight, time_t bias_halflife);
+	void set_bias(Xapian::weight bias_weight, time_t bias_halflife);
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -729,7 +729,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	MSet get_mset(om_doccount first, om_doccount maxitems,
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
 
@@ -758,7 +758,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	ESet get_eset(om_termcount maxitems,
+	ESet get_eset(Xapian::termcount maxitems,
 			const RSet & omrset,
 			int flags = 0,
 			double k = 1.0,
@@ -778,7 +778,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	inline ESet get_eset(om_termcount maxitems, const RSet & omrset,
+	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
 			       const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
@@ -791,7 +791,7 @@ class Enquire {
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
-	 *  an MSetIterator instead of a om_docid, since this will enable
+	 *  an MSetIterator instead of a Xapian::docid, since this will enable
 	 *  database backends with suitable support to prevent this
 	 *  occurring.
 	 *
@@ -812,10 +812,10 @@ class Enquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	TermIterator get_matching_terms_begin(om_docid did) const;
+	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(om_docid did) const;
+	TermIterator get_matching_terms_end(Xapian::docid did) const;
 
 	/** Get terms which match a given document, by match set item.
 	 *
@@ -823,7 +823,7 @@ class Enquire {
 	 *  the given document.
 	 *
 	 *  If the underlying database has suitable support, using this call
-	 *  (rather than passing an om_docid) will enable the system to
+	 *  (rather than passing an Xapian::docid) will enable the system to
 	 *  ensure that the correct data is returned, and that the document
 	 *  has not been deleted or changed since the query was performed.
 	 *
@@ -882,8 +882,8 @@ class Weight {
 
     protected:
 	const Internal * internal; // Weight::Internal == StatsSource
-	om_doclength querysize;
-	om_termcount wqf;
+	Xapian::doclength querysize;
+	Xapian::termcount wqf;
 	std::string tname;
 
     public:
@@ -902,8 +902,8 @@ class Weight {
 	 *		      associated with.
 	 *  @param tname_     Term which this object is associated with.
 	 */
-	Weight * create(const Internal * internal_, om_doclength querysize_,
-			  om_termcount wqf_, std::string tname_) const {
+	Weight * create(const Internal * internal_, Xapian::doclength querysize_,
+			  Xapian::termcount wqf_, std::string tname_) const {
 	    Weight * wt = clone();
 	    wt->internal = internal_;
 	    wt->querysize = querysize_;
@@ -930,15 +930,15 @@ class Weight {
 	 *  @param wdf the within document frequency of the term.
 	 *  @param len the (unnormalised) document length.
 	 */
-	virtual om_weight get_sumpart(om_termcount wdf,
-				      om_doclength len) const = 0;
+	virtual Xapian::weight get_sumpart(Xapian::termcount wdf,
+				      Xapian::doclength len) const = 0;
 
 	/** Gets the maximum value that get_sumpart() may return.  This
 	 *  is used in optimising searches, by having the postlist tree
 	 *  decay appropriately when parts of it can have limited, or no,
 	 *  further effect.
 	 */
-	virtual om_weight get_maxpart() const = 0;
+	virtual Xapian::weight get_maxpart() const = 0;
 
 	/** Get an extra weight for a document to add to the sum calculated
 	 *  over the query terms.
@@ -948,12 +948,12 @@ class Weight {
 	 *
 	 *  @param len the (unnormalised) document length.
 	 */
-	virtual om_weight get_sumextra(om_doclength len) const = 0;
+	virtual Xapian::weight get_sumextra(Xapian::doclength len) const = 0;
 
 	/** Gets the maximum value that get_sumextra() may return.  This
 	 *  is used in optimising searches.
 	 */
-	virtual om_weight get_maxextra() const = 0;
+	virtual Xapian::weight get_maxextra() const = 0;
 
 	/// return false if the weight object doesn't need doclength
 	virtual bool get_sumpart_needs_doclength() const { return true; }
@@ -972,11 +972,11 @@ class BoolWeight : public Weight {
 	Weight * unserialise(const std::string & /*s*/) const {
 	    return new BoolWeight;
 	}
-	om_weight get_sumpart(om_termcount /*wdf*/, om_doclength /*len*/) const { return 0; }
-	om_weight get_maxpart() const { return 0; }
+	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 0; }
+	Xapian::weight get_maxpart() const { return 0; }
 
-	om_weight get_sumextra(om_doclength /*len*/) const { return 0; }
-	om_weight get_maxextra() const { return 0; }
+	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
+	Xapian::weight get_maxextra() const { return 0; }
 
 	bool get_sumpart_needs_doclength() const { return false; }	
 };
@@ -994,12 +994,12 @@ class BoolWeight : public Weight {
 //   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
 class BM25Weight : public Weight {
     private:
-	mutable om_weight termweight;
-	mutable om_doclength lenpart;
+	mutable Xapian::weight termweight;
+	mutable Xapian::doclength lenpart;
 	mutable double BD;
 
 	double A, B, C, D;
-	om_doclength min_normlen;
+	Xapian::doclength min_normlen;
 
 	mutable bool weight_calculated;
 
@@ -1044,11 +1044,11 @@ class BM25Weight : public Weight {
 	std::string name() const { return "BM25"; }
 	std::string serialise() const;
 	Weight * unserialise(const std::string & s) const;
-	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
-	om_weight get_maxpart() const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
 
-	om_weight get_sumextra(om_doclength len) const;
-	om_weight get_maxextra() const;
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
 
 	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
@@ -1066,8 +1066,8 @@ class BM25Weight : public Weight {
 // TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
 class TradWeight : public Weight {
     private:
-	mutable om_weight termweight;
-	mutable om_doclength lenpart;
+	mutable Xapian::weight termweight;
+	mutable Xapian::doclength lenpart;
 
 	double param_k;
 
@@ -1093,11 +1093,11 @@ class TradWeight : public Weight {
 	std::string serialise() const;
 	Weight * unserialise(const std::string & s) const;
 	
-	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
-	om_weight get_maxpart() const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
 
-	om_weight get_sumextra(om_doclength len) const;
-	om_weight get_maxextra() const;
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
 
 	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };

@@ -46,12 +46,12 @@ class MultiTermList : public LeafTermList {
     public:
 	void set_weighting(const OmExpandWeight *wt_new);
 
-	om_termcount get_approx_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
 	string get_termname() const;
-	om_termcount get_wdf() const; // Number of occurrences of term in current doc
-	om_doccount get_termfreq() const;  // Number of docs indexed by term
+	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
+	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 
@@ -74,7 +74,7 @@ inline MultiTermList::~MultiTermList()
     delete tl;
 }
 
-inline om_termcount
+inline Xapian::termcount
 MultiTermList::get_approx_size() const
 {
     return tl->get_approx_size();
@@ -98,15 +98,15 @@ MultiTermList::get_termname() const
     return tl->get_termname();
 }
 
-inline om_termcount MultiTermList::get_wdf() const
+inline Xapian::termcount MultiTermList::get_wdf() const
 {
     return tl->get_wdf();
 }
 
-inline om_doccount MultiTermList::get_termfreq() const
+inline Xapian::doccount MultiTermList::get_termfreq() const
 {
     // Approximate term frequency
-    return (om_doccount) (tl->get_termfreq() * termfreq_factor);
+    return (Xapian::doccount) (tl->get_termfreq() * termfreq_factor);
 }
 
 inline TermList * MultiTermList::next()

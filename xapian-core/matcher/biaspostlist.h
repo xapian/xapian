@@ -44,12 +44,12 @@ class OmBiasFunctor {
 	time_t now;
 	Xapian::Database db;
 #else /* DOCID_BASED */
-	om_docid max_id;
+	Xapian::docid max_id;
 #endif /* DOCID_BASED */
-	om_weight max_w;
+	Xapian::weight max_w;
 	double K; // factor in exponential decay
     public:
-	OmBiasFunctor(const Xapian::Database &db_, om_weight max_w_, double halflife)
+	OmBiasFunctor(const Xapian::Database &db_, Xapian::weight max_w_, double halflife)
 #ifndef DOCID_BASED
 	    : now(time(NULL)), db(db_), max_w(max_w_),
 	      K(log(0.5) / fabs(halflife)) 
@@ -58,11 +58,11 @@ class OmBiasFunctor {
 #endif /* DOCID_BASED */
 	    {}
 
-	om_weight get_maxweight() {
+	Xapian::weight get_maxweight() {
 	    return max_w; 
 	}
 
-	om_weight get_weight(om_docid id) {
+	Xapian::weight get_weight(Xapian::docid id) {
 #ifndef DOCID_BASED
 	    string value = db.get_document(id).get_value(0);
 	    time_t t = atoi(value);
@@ -90,29 +90,29 @@ class BiasPostList : public PostList {
 	Xapian::Database db;
 	OmBiasFunctor *bias;
 	MultiMatch *matcher;
-	om_weight max_bias;
-	om_weight w;
+	Xapian::weight max_bias;
+	Xapian::weight w;
 
     public:
-	om_doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
-	om_doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
-	om_doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
+	Xapian::doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
+	Xapian::doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
+	Xapian::doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
 
-	om_docid get_docid() const { return pl->get_docid(); }
+	Xapian::docid get_docid() const { return pl->get_docid(); }
 
-	om_weight get_weight() const {
+	Xapian::weight get_weight() const {
 	    return w + bias->get_weight(pl->get_docid());
 	}
 
-	om_weight get_maxweight() const {
+	Xapian::weight get_maxweight() const {
 	    return pl->get_maxweight() + max_bias;
 	}
 
-        om_weight recalc_maxweight() {
+        Xapian::weight recalc_maxweight() {
 	    return pl->recalc_maxweight() + max_bias;
 	}
 
-	PostList *next(om_weight w_min) {
+	PostList *next(Xapian::weight w_min) {
 	    do {
 		PostList *p = pl->next(w_min - max_bias);
 		if (p) {
@@ -126,7 +126,7 @@ class BiasPostList : public PostList {
 	    return NULL;
 	}
 	    
-	PostList *skip_to(om_docid did, om_weight w_min) {
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min) {
 	    do {
 		PostList *p = pl->skip_to(did, w_min - max_bias);
 		if (p) {
@@ -149,7 +149,7 @@ class BiasPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const {
+	virtual Xapian::doclength get_doclength() const {
 	    return pl->get_doclength();
 	}
 

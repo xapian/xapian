@@ -68,8 +68,8 @@ OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
 	set<Xapian::docid>::const_iterator i;
 	for (i = rset->documents.begin(); i != rset->documents.end(); ++i) {
 	    unsigned int multiplier = db.internal.size();
-	    om_docid realdid = (*i - 1) / multiplier + 1;
-	    om_doccount dbnumber = (*i - 1) % multiplier;
+	    Xapian::docid realdid = (*i - 1) / multiplier + 1;
+	    Xapian::doccount dbnumber = (*i - 1) % multiplier;
 
 	    AutoPtr<LeafTermList> tl(db.internal[dbnumber]->open_term_list(realdid));
 	    tl->set_weighting(ewt);
@@ -114,7 +114,7 @@ OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
 }
 
 void
-OmExpand::expand(om_termcount max_esize,
+OmExpand::expand(Xapian::termcount max_esize,
 		 Xapian::ESet & eset,
 		 const RSetI * rset,
 		 const Xapian::ExpandDecider * decider,
@@ -130,7 +130,7 @@ OmExpand::expand(om_termcount max_esize,
 	return; // No possibility of results
     DEBUGLINE(EXPAND, "OmExpand::expand() 2");
 
-    om_weight w_min = 0;
+    Xapian::weight w_min = 0;
 
     // Start weighting scheme
     OmExpandWeight ewt(db, rset->get_rsize(), 
@@ -158,7 +158,7 @@ OmExpand::expand(om_termcount max_esize,
 	    eset.internal->ebound++;
 
 	    OmExpandBits ebits = merger->get_weighting();
-	    om_weight wt = ewt.get_weight(ebits, tname);
+	    Xapian::weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
 		eset.internal->items.push_back(Xapian::Internal::ESetItem(wt, tname));

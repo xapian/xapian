@@ -83,15 +83,6 @@ typedef unsigned int timeout;
 
 #ifdef __cplusplus
 }
-
-#define om_doccount Xapian::doccount
-#define om_docid Xapian::docid
-#define om_doclength Xapian::doclength
-#define om_termcount Xapian::termcount
-#define om_termpos Xapian::termpos
-#define om_valueno Xapian::valueno
-#define om_weight Xapian::weight
-
 #endif
 
 #endif /* XAPIAN_INCLUDED_TYPES_H */

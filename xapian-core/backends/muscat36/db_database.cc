@@ -47,7 +47,7 @@ using std::pair;
 
 DBPostList::DBPostList(const string & tname_,
 		       struct DB_postings * postlist_,
-		       om_doccount termfreq_,
+		       Xapian::doccount termfreq_,
 		       Xapian::Internal::RefCntPtr<const DBDatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
@@ -59,35 +59,35 @@ DBPostList::~DBPostList()
     DB_close_postings(postlist);
 }
 
-PostList * DBPostList::next(om_weight /*w_min*/)
+PostList * DBPostList::next(Xapian::weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     DEBUGLINE(DB, "DBPostList::next(/*w_min*/): current docid = " << currdoc);
-    if (currdoc && currdoc < om_docid(postlist->E)) {
+    if (currdoc && currdoc < Xapian::docid(postlist->E)) {
 	currdoc++;
     } else {
 	DB_read_postings(postlist, 1, 0);
-	currdoc = om_docid(postlist->Doc);
+	currdoc = Xapian::docid(postlist->Doc);
     }
     DEBUGLINE(DB, "DBPostList::next(" << w_min <<
 	      "): new docid = " << currdoc);
     return NULL;
 }
 
-PostList * DBPostList::skip_to(om_docid did, om_weight /*w_min*/)
+PostList * DBPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
     DEBUGLINE(DB, "DBPostList::skip_to(" << did <<
 	      ", /*w_min*/): current docid = " << currdoc);
-    if (currdoc && did <= om_docid(postlist->E)) {
+    if (currdoc && did <= Xapian::docid(postlist->E)) {
 	DEBUGLINE(DB, "skip within range (end of range is " <<
-		  om_docid(postlist->E) << ")");
+		  Xapian::docid(postlist->E) << ")");
 	currdoc = did;
     } else {
 	DB_read_postings(postlist, 1, did);
 	DEBUGLINE(DB, "reading more postings");
-	currdoc = om_docid(postlist->Doc);
+	currdoc = Xapian::docid(postlist->Doc);
     }
     DEBUGLINE(DB, "DBPostList::skip_to(" << did <<
 	      ", /*w_min*/): new docid = " << currdoc);
@@ -109,7 +109,7 @@ DBPostList::open_position_list() const
 
 
 
-DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
+DBTermList::DBTermList(struct termvec *tv, Xapian::doccount dbsize_,
 		       Xapian::Internal::RefCntPtr<const DBDatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
@@ -118,7 +118,7 @@ DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
 
-	om_doccount freq = tv->freq;
+	Xapian::doccount freq = tv->freq;
 	terms.push_back(DBTermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
@@ -128,13 +128,13 @@ DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
     pos = terms.begin();
 }
 
-om_doccount
+Xapian::doccount
 DBTermList::get_termfreq() const
 {   
     Assert(!at_end());
     Assert(have_started);
     // FIXME: really icky cast
-    if (pos->termfreq == (om_termcount) -1) {
+    if (pos->termfreq == (Xapian::termcount) -1) {
 	// Not available - read from database
 	DEBUGLINE(DB, "DBTermList::get_termfreq - termfreq for `" << pos->tname
 		  << "' not available, reading from database");
@@ -217,32 +217,32 @@ DBDatabase::~DBDatabase()
     }
 }
 
-om_doccount
+Xapian::doccount
 DBDatabase::get_doccount() const
 {
     return DB->doc_count;
 }
 
-om_doclength
+Xapian::doclength
 DBDatabase::get_avlength() const
 {
     // FIXME - actually want to return real avlength.
     return 1;
 }
 
-om_doclength
-DBDatabase::get_doclength(om_docid /*did*/) const
+Xapian::doclength
+DBDatabase::get_doclength(Xapian::docid /*did*/) const
 {
     // FIXME: should return actual length.
     return get_avlength();
 }
 
-om_doccount
+Xapian::doccount
 DBDatabase::get_termfreq(const string & tname) const
 {
     if (!term_exists(tname)) return 0;
     LeafPostList *pl = open_post_list_internal(tname);
-    om_doccount freq = 0;
+    Xapian::doccount freq = 0;
     if (pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
@@ -278,7 +278,7 @@ DBDatabase::do_open_post_list(const string & tname) const
 
 // Returns a new term list, for the terms in this database for given document
 LeafTermList *
-DBDatabase::open_term_list(om_docid did) const
+DBDatabase::open_term_list(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
@@ -297,7 +297,7 @@ DBDatabase::open_term_list(om_docid did) const
 }
 
 struct record *
-DBDatabase::get_record(om_docid did) const
+DBDatabase::get_record(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
@@ -315,7 +315,7 @@ DBDatabase::get_record(om_docid did) const
 
 /// Get the specified value for given document from the fast lookup file.
 string
-DBDatabase::get_value(om_docid did, om_valueno valueid) const
+DBDatabase::get_value(Xapian::docid did, Xapian::valueno valueid) const
 {
     string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
@@ -342,13 +342,13 @@ DBDatabase::get_value(om_docid did, om_valueno valueid) const
 }
 
 Xapian::Document::Internal *
-DBDatabase::open_document(om_docid did, bool lazy) const
+DBDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     return new DBDocument(this, did, DB->heavy_duty, lazy);
 }
 
 PositionList * 
-DBDatabase::open_position_list(om_docid /*did*/,
+DBDatabase::open_position_list(Xapian::docid /*did*/,
 			       const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()

@@ -68,10 +68,10 @@ class QuartzPostList : public LeafPostList {
 	bool is_last_chunk;
 
 	/// The first document id in this chunk;
-	om_docid first_did_in_chunk;
+	Xapian::docid first_did_in_chunk;
 
 	/// The last document id in this chunk;
-	om_docid last_did_in_chunk;
+	Xapian::docid last_did_in_chunk;
 
 	/// Position of iteration through current chunk.
 	const char * pos;
@@ -81,13 +81,13 @@ class QuartzPostList : public LeafPostList {
 
 
         /// Document id we're currently at.
-	om_docid did;
+	Xapian::docid did;
 
 	/// The (absolute) length of the current document, 
 	quartz_doclen_t doclength;
 
 	/// The wdf of the current document.
-	om_termcount wdf;
+	Xapian::termcount wdf;
 
 
 	/// Whether we've run off the end of the list yet.
@@ -97,10 +97,10 @@ class QuartzPostList : public LeafPostList {
 	bool have_started;
 
 	/// The number of entries in the posting list.
-	om_doccount number_of_entries;
+	Xapian::doccount number_of_entries;
 
 	/// The number of occurrences of the term in the posting list.
-	om_termcount collection_freq;
+	Xapian::termcount collection_freq;
 
 	/// The position list object for this posting list.
 	QuartzPositionList positionlist;
@@ -130,7 +130,7 @@ class QuartzPostList : public LeafPostList {
 	 *  less than the first document ID in the next chunk: it is possible
 	 *  for no chunk to contain a particular document ID.
 	 */
-	bool current_chunk_contains(om_docid desired_did);
+	bool current_chunk_contains(Xapian::docid desired_did);
 
 	/** Move to chunk containing the specified document ID.
 	 *
@@ -143,7 +143,7 @@ class QuartzPostList : public LeafPostList {
 	 *  might lie after the end of this chunk, but before the start
 	 *  of the next chunk.
 	 */
-	void move_to_chunk_containing(om_docid desired_did);
+	void move_to_chunk_containing(Xapian::docid desired_did);
 
 	/** Scan forward in the current chunk for the specified document ID.
 	 *
@@ -154,12 +154,12 @@ class QuartzPostList : public LeafPostList {
 	 *  @return true if we moved to a valid document,
 	 *          false if we reached the end of the chunk.
 	 */
-	bool move_forward_in_chunk_to_at_least(om_docid desired_did);
+	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
 	/** Move to the desired document ID, or the next document ID if it
 	 *  doesn't exist, whether it's before or after the current position.
 	 */
-	void move_to(om_docid desired_did);
+	void move_to(Xapian::docid desired_did);
 
     public:
         /// Default constructor.
@@ -175,27 +175,27 @@ class QuartzPostList : public LeafPostList {
 	 *
 	 *  This is the length of the postlist.
 	 */
-	om_doccount   get_termfreq() const { return number_of_entries; }
+	Xapian::doccount   get_termfreq() const { return number_of_entries; }
 
 	/** Returns the number of occurrences of the term in the database.
 	 *
 	 *  This is the sum of the wdfs in the postlist.
 	 */
-	om_termcount get_collection_freq() const { return collection_freq; }
+	Xapian::termcount get_collection_freq() const { return collection_freq; }
 
 	/// Returns the current docid.
-	om_docid     get_docid() const { Assert(have_started); return did; }
+	Xapian::docid     get_docid() const { Assert(have_started); return did; }
 
 	/// Returns the length of current document.
-	om_doclength get_doclength() const {
+	Xapian::doclength get_doclength() const {
 	    Assert(have_started);
-	    return static_cast<om_doclength>(doclength);
+	    return static_cast<Xapian::doclength>(doclength);
 	}
 
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.
 	 */
-	om_termcount get_wdf() const { Assert(have_started); return wdf; }
+	Xapian::termcount get_wdf() const { Assert(have_started); return wdf; }
 
 	/** Get the list of positions of the term in the current document.
 	 */
@@ -206,10 +206,10 @@ class QuartzPostList : public LeafPostList {
 	PositionList * open_position_list() const;
 
 	/// Move to the next document.
-	PostList * next(om_weight w_min);
+	PostList * next(Xapian::weight w_min);
 
 	/// Skip to next document with docid >= docid.
-	PostList * skip_to(om_docid desired_did, om_weight w_min);
+	PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
 
 	/// Return true if and only if we're off the end of the list.
 	bool       at_end() const { return is_at_end; }
@@ -220,19 +220,19 @@ class QuartzPostList : public LeafPostList {
 	/// Insert an entry
 	static void add_entry(QuartzBufferedTable * bufftable,
 			      const string & tname,
-			      om_docid new_did,
-			      om_termcount new_wdf,
+			      Xapian::docid new_did,
+			      Xapian::termcount new_wdf,
 			      quartz_doclen_t new_doclen);
 
 	/// Delete an entry
 	static void delete_entry(QuartzBufferedTable * bufftable,
 				 const string & tname,
-				 om_docid did);
+				 Xapian::docid did);
 
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,
-					   om_termcount * number_of_entries_ptr,
-					   om_termcount * collection_freq_ptr);
+					   Xapian::termcount * number_of_entries_ptr,
+					   Xapian::termcount * collection_freq_ptr);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSTLIST_H */

@@ -67,7 +67,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 
 	Xapian::Document document;
 	document.set_data(para);
-	om_termcount position = 1;
+	Xapian::termcount position = 1;
 
 	string::size_type spacepos;
 	string word;

@@ -71,14 +71,14 @@ class PositionListIterator {
 	 */
 	void operator=(PositionListIterator &o);
 
-	om_termpos operator *() const;
+	Xapian::termpos operator *() const;
 
 	PositionListIterator & operator++();
 
 	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	void skip_to(om_termpos pos);
+	void skip_to(Xapian::termpos pos);
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -87,10 +87,10 @@ class PositionListIterator {
 
 	// Allow use as an STL iterator
 	typedef std::input_iterator_tag iterator_category;
-	typedef om_termpos value_type;
+	typedef Xapian::termpos value_type;
 	typedef Xapian::termpos_diff difference_type;  // "om_termposcount"
-	typedef om_termpos * pointer;
-	typedef om_termpos & reference;
+	typedef Xapian::termpos * pointer;
+	typedef Xapian::termpos & reference;
 };
 
 inline bool

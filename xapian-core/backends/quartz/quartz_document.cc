@@ -35,7 +35,7 @@
 QuartzDocument::QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 			       QuartzTable *value_table_,
 			       QuartzTable *record_table_,
-			       om_docid did_, bool lazy)
+			       Xapian::docid did_, bool lazy)
 	: Xapian::Document::Internal(database_.get(), did_),
 	  database(database_),
 	  value_table(value_table_),
@@ -59,7 +59,7 @@ QuartzDocument::~QuartzDocument()
  *  @param valueid	The value number to retrieve.
  */
 string
-QuartzDocument::do_get_value(om_valueno valueid) const
+QuartzDocument::do_get_value(Xapian::valueno valueid) const
 {
     DEBUGCALL(DB, string, "QuartzDocument::do_get_value", valueid);
     string retval;
@@ -69,11 +69,11 @@ QuartzDocument::do_get_value(om_valueno valueid) const
 
 /** Retrieve all value values from the database
  */
-map<om_valueno, string>
+map<Xapian::valueno, string>
 QuartzDocument::do_get_all_values() const
 {
     DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
-    map<om_valueno, string> values;
+    map<Xapian::valueno, string> values;
     QuartzValueManager::get_all_values(*value_table, values, did);
     return values;
 }

@@ -27,23 +27,23 @@
 #include "omdebug.h"
 
 NetworkDocument::NetworkDocument(const Xapian::Database::Internal *db_,
-				 om_docid did_,
+				 Xapian::docid did_,
 				 const string & doc_,
-				 const map<om_valueno, string> &values_)
+				 const map<Xapian::valueno, string> &values_)
 	: Xapian::Document::Internal(db_, did_), doc(doc_), values(values_)
 {
 }
 
 string
-NetworkDocument::do_get_value(om_valueno valueid) const
+NetworkDocument::do_get_value(Xapian::valueno valueid) const
 {
     DEBUGCALL(DB, string, "NetworkDocument::get_value", valueid);
-    map<om_valueno, string>::const_iterator k = values.find(valueid);
+    map<Xapian::valueno, string>::const_iterator k = values.find(valueid);
     if (k == values.end()) RETURN("");
     RETURN(k->second);
 }
 
-map<om_valueno, string>
+map<Xapian::valueno, string>
 NetworkDocument::do_get_all_values() const
 {
     return values;

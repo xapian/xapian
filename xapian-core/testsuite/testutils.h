@@ -57,17 +57,17 @@ inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
 
 void
 mset_expect_order(const Xapian::MSet &A,
-		  om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
-		  om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
-		  om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
-		  om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0);
+		  Xapian::docid d1 = 0, Xapian::docid d2 = 0, Xapian::docid d3 = 0,
+		  Xapian::docid d4 = 0, Xapian::docid d5 = 0, Xapian::docid d6 = 0,
+		  Xapian::docid d7 = 0, Xapian::docid d8 = 0, Xapian::docid d9 = 0,
+		  Xapian::docid d10 = 0, Xapian::docid d11 = 0, Xapian::docid d12 = 0);
 
 void
 mset_expect_order_begins(const Xapian::MSet &A,
-			 om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
-			 om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
-			 om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
-			 om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0);
+			 Xapian::docid d1 = 0, Xapian::docid d2 = 0, Xapian::docid d3 = 0,
+			 Xapian::docid d4 = 0, Xapian::docid d5 = 0, Xapian::docid d6 = 0,
+			 Xapian::docid d7 = 0, Xapian::docid d8 = 0, Xapian::docid d9 = 0,
+			 Xapian::docid d10 = 0, Xapian::docid d11 = 0, Xapian::docid d12 = 0);
 
 bool doubles_are_equal_enough(double a, double b);
 

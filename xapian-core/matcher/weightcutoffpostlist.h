@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +36,7 @@ class MultiMatch;
 class WeightCutoffPostList : public PostList {
     private:
 	PostList *pl;
-	om_weight cutoff;
+	Xapian::weight cutoff;
 
 	/** The object which is using this postlist to perform
 	 *  a match.  This object needs to be notified when the
@@ -45,18 +46,18 @@ class WeightCutoffPostList : public PostList {
 	MultiMatch *matcher;
 
     public:
-	om_doccount get_termfreq_max() const;
-	om_doccount get_termfreq_min() const;
-	om_doccount get_termfreq_est() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_est() const;
 
-	om_weight get_maxweight() const;
-	om_docid  get_docid() const;
-	om_weight get_weight() const;
+	Xapian::weight get_maxweight() const;
+	Xapian::docid  get_docid() const;
+	Xapian::weight get_weight() const;
 
-        om_weight recalc_maxweight();
+        Xapian::weight recalc_maxweight();
 
-	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid did, om_weight w_min);
+	PostList *next(Xapian::weight w_min);
+	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 	bool   at_end() const;
 
 	std::string get_description() const;
@@ -67,10 +68,10 @@ class WeightCutoffPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const;
+	virtual Xapian::doclength get_doclength() const;
 
         WeightCutoffPostList(PostList * pl_,
-			     om_weight cutoff_,
+			     Xapian::weight cutoff_,
 			     MultiMatch * matcher_);
 
         ~WeightCutoffPostList();
@@ -82,26 +83,26 @@ WeightCutoffPostList::~WeightCutoffPostList()
     if (pl) delete pl;
 }
 
-inline om_doccount
+inline Xapian::doccount
 WeightCutoffPostList::get_termfreq_max() const
 {
-    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_max", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_max", "");
     if (cutoff > pl->get_maxweight()) return 0;
     return pl->get_termfreq_max();
 }
 
-inline om_doccount
+inline Xapian::doccount
 WeightCutoffPostList::get_termfreq_min() const
 {
-    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_min", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_min", "");
     if (cutoff == 0) return pl->get_termfreq_min();
     return 0u;
 }
 
-inline om_doccount
+inline Xapian::doccount
 WeightCutoffPostList::get_termfreq_est() const
 {
-    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_est", "");
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double est = static_cast<double>(pl->get_termfreq_est());
@@ -116,35 +117,35 @@ WeightCutoffPostList::get_termfreq_est() const
 	est *= wtfrac;
     }
 
-    return static_cast<om_doccount> (est);
+    return static_cast<Xapian::doccount> (est);
 }
 
 // only called if we are doing a probabilistic operation
-inline om_weight
+inline Xapian::weight
 WeightCutoffPostList::get_maxweight() const
 {
-    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::get_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::get_maxweight", "");
     return pl->get_maxweight();
 }
 
-inline om_docid
+inline Xapian::docid
 WeightCutoffPostList::get_docid() const
 {
-    DEBUGCALL(MATCH, om_docid, "WeightCutoffPostList::get_docid", "");
+    DEBUGCALL(MATCH, Xapian::docid, "WeightCutoffPostList::get_docid", "");
     return pl->get_docid();
 }
 
-inline om_weight
+inline Xapian::weight
 WeightCutoffPostList::get_weight() const
 {
-    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::get_weight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::get_weight", "");
     return pl->get_weight();
 }
 
-inline om_weight
+inline Xapian::weight
 WeightCutoffPostList::recalc_maxweight()
 {
-    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::recalc_maxweight", "");
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::recalc_maxweight", "");
     return pl->recalc_maxweight();
 }
 
@@ -175,10 +176,10 @@ WeightCutoffPostList::open_position_list() const
     return pl->open_position_list();
 }
 
-inline om_doclength
+inline Xapian::doclength
 WeightCutoffPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, om_doclength, "WeightCutoffPostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::doclength, "WeightCutoffPostList::get_doclength", "");
     return pl->get_doclength();
 }
 

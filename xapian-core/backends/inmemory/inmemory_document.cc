@@ -26,22 +26,22 @@
 #include "inmemory_document.h"
 
 InMemoryDocument::InMemoryDocument(const Xapian::Database::Internal *db_,
-				   om_docid did_,
+				   Xapian::docid did_,
 				   const string & doc_,
-				   const map<om_valueno, string> &values_)
+				   const map<Xapian::valueno, string> &values_)
 	: Xapian::Document::Internal(db_, did_), doc(doc_), values(values_)
 {
 }
 
 string
-InMemoryDocument::do_get_value(om_valueno valueid) const
+InMemoryDocument::do_get_value(Xapian::valueno valueid) const
 {
-    map<om_valueno, string>::const_iterator k = values.find(valueid);
+    map<Xapian::valueno, string>::const_iterator k = values.find(valueid);
     if (k == values.end()) return "";
     return k->second;
 }
 
-map<om_valueno, string>
+map<Xapian::valueno, string>
 InMemoryDocument::do_get_all_values() const
 {
     return values;

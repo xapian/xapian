@@ -104,41 +104,41 @@ void
 QuartzDatabase::do_cancel_transaction()
 { Assert(false); }
 
-om_docid
+Xapian::docid
 QuartzDatabase::do_add_document(const Xapian::Document & /*document*/)
 {
-    DEBUGCALL(DB, om_docid, "QuartzDatabase::do_add_document", "");
+    DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::do_add_document", "");
     Assert(false);
     RETURN(0);
 }
 
 void
-QuartzDatabase::do_delete_document(om_docid /*did*/)
+QuartzDatabase::do_delete_document(Xapian::docid /*did*/)
 { Assert(false); }
 
 void
-QuartzDatabase::do_replace_document(om_docid /*did*/,
+QuartzDatabase::do_replace_document(Xapian::docid /*did*/,
 				    const Xapian::Document & /*document*/)
 { Assert(false); }
 
-om_doccount 
+Xapian::doccount 
 QuartzDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount", "");
+    DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_doccount", "");
     RETURN(QuartzRecordManager::get_doccount(*(tables->get_record_table())));
 }
 
-om_doclength
+Xapian::doclength
 QuartzDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength", "");
+    DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_avlength", "");
     RETURN(QuartzRecordManager::get_avlength(*(tables->get_record_table())));
 }
 
-om_doclength
-QuartzDatabase::get_doclength(om_docid did) const
+Xapian::doclength
+QuartzDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_doclength", did);
     Assert(did != 0);
 
     QuartzTermList termlist(0,
@@ -153,13 +153,13 @@ QuartzDatabase::get_doclength(om_docid did) const
     RETURN(termlist.get_doclength());
 }
 
-om_doccount
+Xapian::doccount
 QuartzDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_termfreq", tname);
+    DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    om_doccount termfreq = 0; // If not found, this value will be unchanged.
+    Xapian::doccount termfreq = 0; // If not found, this value will be unchanged.
 #ifdef USE_LEXICON               
     QuartzLexicon::get_entry(tables->get_lexicon_table(),
 			     tname,
@@ -171,13 +171,13 @@ QuartzDatabase::get_termfreq(const string & tname) const
     RETURN(termfreq);
 }
 
-om_termcount
+Xapian::termcount
 QuartzDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzDatabase::get_collection_freq", tname);
+    DEBUGCALL(DB, Xapian::termcount, "QuartzDatabase::get_collection_freq", tname);
     Assert(!tname.empty());
 
-    om_termcount collfreq = 0; // If not found, this value will be unchanged.
+    Xapian::termcount collfreq = 0; // If not found, this value will be unchanged.
     QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
     collfreq = pl.get_collection_freq();
     RETURN(collfreq);
@@ -223,7 +223,7 @@ QuartzDatabase::open_post_list_internal(const string& tname,
 }
 
 LeafTermList *
-QuartzDatabase::open_term_list_internal(om_docid did,
+QuartzDatabase::open_term_list_internal(Xapian::docid did,
 				Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal",
@@ -241,7 +241,7 @@ QuartzDatabase::open_term_list_internal(om_docid did,
 }
 
 LeafTermList *
-QuartzDatabase::open_term_list(om_docid did) const
+QuartzDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
@@ -249,7 +249,7 @@ QuartzDatabase::open_term_list(om_docid did) const
 }
 
 Xapian::Document::Internal *
-QuartzDatabase::open_document(om_docid did, bool lazy) const
+QuartzDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzDatabase::open_document",
 	      did << ", " << lazy);
@@ -263,7 +263,7 @@ QuartzDatabase::open_document(om_docid did, bool lazy) const
 }
 
 PositionList *
-QuartzDatabase::open_position_list(om_docid did,
+QuartzDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
     Assert(did != 0);
@@ -377,10 +377,10 @@ QuartzWritableDatabase::do_cancel_transaction()
     throw Xapian::UnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
 }
 
-om_docid
+Xapian::docid
 QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 {
-    DEBUGCALL(DB, om_docid,
+    DEBUGCALL(DB, Xapian::docid,
 	      "QuartzWritableDatabase::do_add_document", document);
     Assert(buffered_tables != 0);
 
@@ -394,7 +394,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	}
     }
 
-    om_docid did;
+    Xapian::docid did;
 
     try {
 	// Set the record, and get the document ID to use.
@@ -465,7 +465,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 }
 
 void
-QuartzWritableDatabase::do_delete_document(om_docid did)
+QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_delete_document", did);
     Assert(did != 0);
@@ -539,7 +539,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 }
 
 void
-QuartzWritableDatabase::do_replace_document(om_docid did,
+QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 				    const Xapian::Document & document)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_replace_document", did << ", " << document);
@@ -755,38 +755,38 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     }
 }
 
-om_doccount 
+Xapian::doccount 
 QuartzWritableDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_doccount", "");
+    DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_doccount", "");
     RETURN(database_ro.get_doccount());
 }
 
-om_doclength
+Xapian::doclength
 QuartzWritableDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, om_doclength, "QuartzWritableDatabase::get_avlength", "");
+    DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_avlength", "");
     RETURN(database_ro.get_avlength());
 }
 
-om_doclength
-QuartzWritableDatabase::get_doclength(om_docid did) const
+Xapian::doclength
+QuartzWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, om_doclength, "QuartzWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_doclength", did);
     RETURN(database_ro.get_doclength(did));
 }
 
-om_doccount
+Xapian::doccount
 QuartzWritableDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_termfreq", tname);
+    DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_termfreq", tname);
     RETURN(database_ro.get_termfreq(tname));
 }
 
-om_termcount
+Xapian::termcount
 QuartzWritableDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzWritableDatabase::get_collection_freq", tname);
+    DEBUGCALL(DB, Xapian::termcount, "QuartzWritableDatabase::get_collection_freq", tname);
     RETURN(database_ro.get_collection_freq(tname));
 }
 
@@ -808,7 +808,7 @@ QuartzWritableDatabase::do_open_post_list(const string& tname) const
 }
 
 LeafTermList *
-QuartzWritableDatabase::open_term_list(om_docid did) const
+QuartzWritableDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
 	      did);
@@ -818,7 +818,7 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
 }
 
 Xapian::Document::Internal *
-QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
+QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzWritableDatabase::open_document",
 	      did << ", " << lazy);
@@ -833,7 +833,7 @@ QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 }
 
 PositionList * 
-QuartzWritableDatabase::open_position_list(om_docid did,
+QuartzWritableDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
     Assert(did != 0);

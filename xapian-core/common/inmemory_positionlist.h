@@ -39,10 +39,10 @@ class InMemoryPositionList : public PositionList
 {
     private:
 	/// The list of positions.
-	vector<om_termpos> positions;
+	vector<Xapian::termpos> positions;
 
 	/// Position of iteration through positions
-	vector<om_termpos>::const_iterator mypos;
+	vector<Xapian::termpos>::const_iterator mypos;
 
 	/// True if we have started iterating
 	bool iterating_in_progress;
@@ -67,10 +67,10 @@ class InMemoryPositionList : public PositionList
 	void set_data(const OmDocumentTerm::term_positions & positions_);
 
 	/// Gets size of position list.
-	om_termcount get_size() const;
+	Xapian::termcount get_size() const;
 
 	/// Gets current position.
-	om_termpos get_position() const;
+	Xapian::termpos get_position() const;
 
 	/** Move to the next item in the list.
 	 *  Either next() or skip_to() must be called before any other
@@ -82,7 +82,7 @@ class InMemoryPositionList : public PositionList
 	 *  Either next() or skip_to() must be called before any other
 	 *  methods.
 	 */
-	void skip_to(om_termpos termpos);
+	void skip_to(Xapian::termpos termpos);
 
 	/// True if we're off the end of the list
 	bool at_end() const;

@@ -32,7 +32,7 @@ using std::string;
 
 void
 QuartzPositionList::read_data(const QuartzTable * table,
-			      om_docid did,
+			      Xapian::docid did,
 			      const string & tname)
 {
     DEBUGCALL(DB, void, "QuartzPositionList::read_data",
@@ -84,7 +84,7 @@ QuartzPositionList::next_internal()
 	return;
     }
 
-    om_termpos pos_increment;
+    Xapian::termpos pos_increment;
     bool success = unpack_uint(&pos, end, &pos_increment);
     if (! success) {
 	if (pos == 0) {
@@ -112,7 +112,7 @@ QuartzPositionList::next()
 }
 
 void
-QuartzPositionList::skip_to(om_termpos termpos)
+QuartzPositionList::skip_to(Xapian::termpos termpos)
 {
     DEBUGCALL(DB, void, "QuartzPositionList::skip_to", termpos);
     if (!have_started) {
@@ -126,7 +126,7 @@ QuartzPositionList::skip_to(om_termpos termpos)
 }
 
 void
-QuartzPositionList::make_key(om_docid did,
+QuartzPositionList::make_key(Xapian::docid did,
 			     const string & tname,
 			     string & key)
 {
@@ -138,7 +138,7 @@ QuartzPositionList::make_key(om_docid did,
 
 void
 QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
-			om_docid did,
+			Xapian::docid did,
 			const string & tname,
 			Xapian::PositionListIterator pos,
 			const Xapian::PositionListIterator &pos_end)
@@ -151,7 +151,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 
     *tag = "";
 
-    om_termpos prevpos = 0;
+    Xapian::termpos prevpos = 0;
     unsigned int size = 0;
     for ( ; pos != pos_end; ++pos) {
 	*tag += pack_uint(*pos - prevpos - 1);
@@ -163,7 +163,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 
 void
 QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
-			om_docid did,
+			Xapian::docid did,
 			const string & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);

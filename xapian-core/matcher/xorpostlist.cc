@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,7 @@
 // doesn't cause a match
 
 inline PostList *
-XorPostList::advance_to_next_match(om_weight w_min)
+XorPostList::advance_to_next_match(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", w_min);
     while (rhead == lhead) {
@@ -59,7 +60,7 @@ XorPostList::advance_to_next_match(om_weight w_min)
 XorPostList::XorPostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
-			 om_doccount dbsize_)
+			 Xapian::doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0),
 	  rhead(0),
@@ -69,7 +70,7 @@ XorPostList::XorPostList(PostList *left_,
 }
 
 PostList *
-XorPostList::next(om_weight w_min)
+XorPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "XorPostList::next", w_min);
     if (w_min > minmax) {
@@ -129,7 +130,7 @@ XorPostList::next(om_weight w_min)
 }
 
 PostList *
-XorPostList::skip_to(om_docid did, om_weight w_min)
+XorPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "XorPostList::skip_to", did << ", " << w_min);
     if (w_min > minmax) {

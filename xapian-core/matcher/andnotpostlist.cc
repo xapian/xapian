@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +26,7 @@
 #include "andnotpostlist.h"
 
 inline PostList *
-AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
+AndNotPostList::advance_to_next_match(Xapian::weight w_min, PostList *ret)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::advance_to_next_match", w_min << ", " << ret);
     handle_prune(l, ret);
@@ -58,7 +59,7 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 AndNotPostList::AndNotPostList(PostList *left_,
 			       PostList *right_,
 			       MultiMatch *matcher_,
-			       om_doccount dbsize_)
+			       Xapian::doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), dbsize(dbsize_)
 {
@@ -66,17 +67,17 @@ AndNotPostList::AndNotPostList(PostList *left_,
 }
 
 PostList *
-AndNotPostList::next(om_weight w_min)
+AndNotPostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
     RETURN(advance_to_next_match(w_min, l->next(w_min)));
 }
 
 PostList *
-AndNotPostList::sync_and_skip_to(om_docid id,
-				 om_weight w_min,
-				 om_docid lh,
-				 om_docid rh)
+AndNotPostList::sync_and_skip_to(Xapian::docid id,
+				 Xapian::weight w_min,
+				 Xapian::docid lh,
+				 Xapian::docid rh)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::sync_and_skip_to", id << ", " << w_min << ", " << lh << ", " << rh);
     lhead = lh;
@@ -85,7 +86,7 @@ AndNotPostList::sync_and_skip_to(om_docid id,
 }
 
 PostList *
-AndNotPostList::skip_to(om_docid did, om_weight w_min)
+AndNotPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did << ", " << w_min);
     if (did <= lhead) RETURN(NULL);

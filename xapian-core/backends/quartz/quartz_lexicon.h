@@ -53,12 +53,12 @@ class QuartzLexicon {
 	 *                  term frequency, if the term is found.  If the
 	 *                  pointer is 0, the termfreq read is discarded
 	 */
-	static void parse_entry(const string & data, om_doccount * termfreq);
+	static void parse_entry(const string & data, Xapian::doccount * termfreq);
 
 	/** Make an entry to go into the lexicon.
 	 */
 	static void make_entry(string & data,
-			       om_doccount termfreq);
+			       Xapian::doccount termfreq);
 
     public:
 	/** Add an occurrence of a term within a document to the lexicon.
@@ -93,7 +93,7 @@ class QuartzLexicon {
 	 */
 	static bool get_entry(const QuartzTable * table,
 			      const string & tname,
-			      om_doccount * termfreq);
+			      Xapian::doccount * termfreq);
 };
 
 #endif /* OM_HGUARD_QUARTZ_LEXICON_H */

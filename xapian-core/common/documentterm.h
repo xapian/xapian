@@ -49,9 +49,9 @@ class OmDocumentTerm {
     /** Within document frequency of the term.
      *  This is the number of occurrences of the term in the document.
      */
-    om_termcount wdf;
+    Xapian::termcount wdf;
 
-    typedef vector<om_termpos> term_positions;
+    typedef vector<Xapian::termpos> term_positions;
 
     /** Positional information.
      *
@@ -74,7 +74,7 @@ class OmDocumentTerm {
      *
      *  If the information is not available, the value will be 0.
      */
-    om_doccount termfreq;
+    Xapian::doccount termfreq;
 
     /** Add a position to the posting list.
      *
@@ -86,7 +86,7 @@ class OmDocumentTerm {
      *  @param tpos The position within the document at which the term
      *              occurs.
      */
-    void add_position(om_termpos tpos);
+    void add_position(Xapian::termpos tpos);
 
     /** Remove an entry from the posting list.
      *
@@ -96,13 +96,13 @@ class OmDocumentTerm {
      *
      *  @exception Xapian::InvalidArgumentError is thrown if the 
      */
-    void remove_position(om_termpos tpos);
+    void remove_position(Xapian::termpos tpos);
 
     /// Set the wdf
-    void set_wdf(om_termcount wdf_) { wdf = wdf_; }
+    void set_wdf(Xapian::termcount wdf_) { wdf = wdf_; }
 
     /// Get the wdf
-    om_termcount get_wdf() { return wdf; }
+    Xapian::termcount get_wdf() { return wdf; }
 
     /** Returns a string representing the OmDocumentTerm.
      *  Introspection method.

@@ -38,7 +38,7 @@ using namespace std;
 
 void
 QuartzTermList::set_entries(QuartzBufferedTable * table_,
-			    om_docid did,
+			    Xapian::docid did,
 			    Xapian::TermIterator t,
 			    const Xapian::TermIterator &t_end,
 			    quartz_doclen_t doclen_,
@@ -87,7 +87,7 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 }
 
 void
-QuartzTermList::delete_termlist(QuartzBufferedTable * table_, om_docid did)
+QuartzTermList::delete_termlist(QuartzBufferedTable * table_, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", table_ << ", " << did);
     table_->delete_tag(quartz_docid_to_key(did));
@@ -101,8 +101,8 @@ QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Databas
 #else
 			       const QuartzTable * postlist_table_,
 #endif
-			       om_docid did_,
-			       om_doccount doccount_)
+			       Xapian::docid did_,
+			       Xapian::doccount doccount_)
 	: this_db(this_db_), did(did_), table(table_),
 #ifdef USE_LEXICON               
 	  lexicon_table(lexicon_table_),
@@ -149,10 +149,10 @@ QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Databas
     }
 }
 
-om_termcount
+Xapian::termcount
 QuartzTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzTermList::get_approx_size", "");
+    DEBUGCALL(DB, Xapian::termcount, "QuartzTermList::get_approx_size", "");
     RETURN(termlist_size);
 }
 
@@ -243,17 +243,17 @@ QuartzTermList::get_termname() const
     RETURN(current_tname);
 }
 
-om_termcount
+Xapian::termcount
 QuartzTermList::get_wdf() const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzTermList::get_wdf", "");
+    DEBUGCALL(DB, Xapian::termcount, "QuartzTermList::get_wdf", "");
     RETURN(current_wdf);
 }
 
-om_doccount
+Xapian::doccount
 QuartzTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzTermList::get_termfreq", "");
+    DEBUGCALL(DB, Xapian::doccount, "QuartzTermList::get_termfreq", "");
     if (current_termfreq == 0) {
 	// If not found, value of current_termfreq will be unchanged from 0.
 #ifdef USE_LEXICON

@@ -57,7 +57,7 @@ BM25Weight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "BM25Weight::calc_termweight", "");
 
-    om_doccount dbsize = internal->get_total_collection_size();
+    Xapian::doccount dbsize = internal->get_total_collection_size();
     BD = B * D;
     lenpart = internal->get_total_average_length();
 
@@ -67,14 +67,14 @@ BM25Weight::calc_termweight() const
 
     lenpart = 1 / lenpart;
 
-    om_doccount termfreq = internal->get_total_termfreq(tname);
+    Xapian::doccount termfreq = internal->get_total_termfreq(tname);
 
     DEBUGMSG(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
 
-    om_weight tw = 0;
-    om_doccount rsize = internal->get_total_rset_size();
+    Xapian::weight tw = 0;
+    Xapian::doccount rsize = internal->get_total_rset_size();
     if (rsize != 0) {
-	om_doccount rtermfreq = internal->get_total_reltermfreq(tname);
+	Xapian::doccount rtermfreq = internal->get_total_reltermfreq(tname);
 
 	DEBUGMSG(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 
@@ -98,17 +98,17 @@ BM25Weight::calc_termweight() const
     weight_calculated = true;
 }
 
-om_weight
-BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
+Xapian::weight
+BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const
 {
-    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_sumpart", wdf << ", " << len);
+    DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_sumpart", wdf << ", " << len);
     if (!weight_calculated) calc_termweight();
 
-    om_doclength normlen = len * lenpart;
+    Xapian::doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
 
     double denom = (normlen * BD + B * (1 - D) + wdf);
-    om_weight wt;
+    Xapian::weight wt;
     if (denom != 0) {
 	wt = (double) wdf * (B + 1) / denom;
     } else {
@@ -124,10 +124,10 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
     RETURN(wt);
 }
 
-om_weight
+Xapian::weight
 BM25Weight::get_maxpart() const
 {
-    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_maxpart", "");
+    DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_maxpart", "");
     if (!weight_calculated) calc_termweight();
     DEBUGLINE(WTCALC, "maxpart = " << ((B + 1) * termweight));
     RETURN((B + 1) * termweight);
@@ -138,23 +138,23 @@ BM25Weight::get_maxpart() const
  * return.  ie: return C * querysize / (1 + len)  (factor of 2 is
  * incorporated into C)
  */
-om_weight
-BM25Weight::get_sumextra(om_doclength len) const
+Xapian::weight
+BM25Weight::get_sumextra(Xapian::doclength len) const
 {
-    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_sumextra", len);
-    om_doclength normlen = len * lenpart;
+    DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_sumextra", len);
+    Xapian::doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
-    om_weight extra = C * querysize / (1 + normlen);
+    Xapian::weight extra = C * querysize / (1 + normlen);
     DEBUGLINE(WTCALC, "len = " << len << " querysize = " << querysize <<
 	      " => normlen = " << normlen << " => sumextra = " << extra);
     RETURN(extra);
 }
 
-om_weight
+Xapian::weight
 BM25Weight::get_maxextra() const
 {
-    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_maxextra", "");
-    om_weight maxextra = C * querysize;
+    DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_maxextra", "");
+    Xapian::weight maxextra = C * querysize;
     DEBUGLINE(WTCALC, "querysize = " << querysize <<
 	      " => maxextra = " << maxextra);
     RETURN(maxextra);

@@ -49,7 +49,7 @@ MergePostList::~MergePostList()
 }
 
 PostList *
-MergePostList::next(om_weight w_min)
+MergePostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     DEBUGLINE(MATCH, "current = " << current);
@@ -82,7 +82,7 @@ MergePostList::next(om_weight w_min)
 }
 
 PostList *
-MergePostList::skip_to(om_docid did, om_weight w_min)
+MergePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MergePostList::skip_to", did << ", " << w_min);
     (void)did;

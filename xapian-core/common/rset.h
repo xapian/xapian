@@ -48,7 +48,7 @@ class RSetI {
 	const Xapian::Database root;
 	const Xapian::Database::Internal *dbroot;
 
-	std::map<string, om_doccount> reltermfreqs;
+	std::map<string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
 	std::set<Xapian::docid> documents;
@@ -61,8 +61,8 @@ class RSetI {
 	void calculate_stats();
 	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
 
-	om_doccount get_rsize() const;
-	om_doccount get_reltermfreq(string tname) const;
+	Xapian::doccount get_rsize() const;
+	Xapian::doccount get_reltermfreq(string tname) const;
 };
 
 ///////////////////////////////
@@ -87,7 +87,7 @@ RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rse
 
 #if 0
 inline void
-RSetI::add_document(om_docid did)
+RSetI::add_document(Xapian::docid did)
 {
     Assert(!calculated_reltermfreqs);
     Assert(!documents[did]);
@@ -101,18 +101,18 @@ RSetI::will_want_reltermfreq(string tname)
     reltermfreqs[tname] = 0;
 }
 
-inline om_doccount
+inline Xapian::doccount
 RSetI::get_rsize() const
 {
     return documents.size();
 }
 
-inline om_doccount
+inline Xapian::doccount
 RSetI::get_reltermfreq(string tname) const
 {
     Assert(calculated_reltermfreqs);
 
-    std::map<string, om_doccount>::const_iterator rfreq;
+    std::map<string, Xapian::doccount>::const_iterator rfreq;
     rfreq = reltermfreqs.find(tname);
     Assert(rfreq != reltermfreqs.end());
 

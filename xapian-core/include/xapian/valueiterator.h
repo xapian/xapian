@@ -41,10 +41,10 @@ class ValueIterator {
         friend bool operator==(const ValueIterator &a, const ValueIterator &b);
         friend bool operator!=(const ValueIterator &a, const ValueIterator &b);
 
-	ValueIterator(om_valueno index_, const Document & doc_)
+	ValueIterator(Xapian::valueno index_, const Document & doc_)
 	    : index(index_), doc(doc_) { }
 
-	om_valueno index;
+	Xapian::valueno index;
 	Document doc;
 
     public:
@@ -84,7 +84,7 @@ class ValueIterator {
 	const std::string * operator->() const;
 
 	/// Get the number of the value at the current position
-        om_valueno get_valueno() const;
+        Xapian::valueno get_valueno() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.

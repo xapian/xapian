@@ -60,7 +60,7 @@ class OmExpand {
     public:
         OmExpand(const Xapian::Database &db_);
 
-	void expand(om_termcount max_esize,
+	void expand(Xapian::termcount max_esize,
 		    Xapian::ESet & eset,
 		    const RSetI * rset,
 		    const Xapian::ExpandDecider * decider,

@@ -34,7 +34,7 @@ InMemoryAllTermsList::~InMemoryAllTermsList()
 {
 }
 
-om_termcount
+Xapian::termcount
 InMemoryAllTermsList::get_approx_size() const
 {
     return tmap->size();
@@ -48,7 +48,7 @@ InMemoryAllTermsList::get_termname() const
     return it->first;
 }
 
-om_doccount
+Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
     Assert(started);
@@ -57,7 +57,7 @@ InMemoryAllTermsList::get_termfreq() const
     return it->second.docs.size();
 }
 
-om_termcount
+Xapian::termcount
 InMemoryAllTermsList::get_collection_freq() const
 {
     Assert(started);

@@ -50,10 +50,10 @@ QuartzAllTermsList::~QuartzAllTermsList()
     DEBUGCALL(DB, void, "~QuartzAllTermsList", "");
 }
 
-om_termcount
+Xapian::termcount
 QuartzAllTermsList::get_approx_size() const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_approx_size", "");
+    DEBUGCALL(DB, Xapian::termcount, "QuartzAllTermsList::get_approx_size", "");
     RETURN(size);
 }
 
@@ -89,10 +89,10 @@ void QuartzAllTermsList::get_stats() const
     have_stats = true;
 }
 
-om_doccount
+Xapian::doccount
 QuartzAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, om_doccount, "QuartzAllTermsList::get_termfreq", "");
+    DEBUGCALL(DB, Xapian::doccount, "QuartzAllTermsList::get_termfreq", "");
     Assert(started);
     if (have_stats) {
 	RETURN(termfreq);
@@ -103,10 +103,10 @@ QuartzAllTermsList::get_termfreq() const
     throw Xapian::InvalidArgumentError("Attempt to get termfreq after end");
 }
 
-om_termcount
+Xapian::termcount
 QuartzAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_collection_freq", "");
+    DEBUGCALL(DB, Xapian::termcount, "QuartzAllTermsList::get_collection_freq", "");
     Assert(started);
     if (have_stats) {
 	RETURN(collection_freq);

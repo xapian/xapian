@@ -347,7 +347,7 @@ Database::Internal::cancel_transaction()
     do_cancel_transaction();
 }
 
-om_docid
+Xapian::docid
 Database::Internal::add_document(const Xapian::Document & document)
 {
     ensure_session_in_progress();
@@ -355,14 +355,14 @@ Database::Internal::add_document(const Xapian::Document & document)
 }
 
 void
-Database::Internal::delete_document(om_docid did)
+Database::Internal::delete_document(Xapian::docid did)
 {
     ensure_session_in_progress();
     do_delete_document(did);
 }
 
 void
-Database::Internal::replace_document(om_docid did, const Xapian::Document & document)
+Database::Internal::replace_document(Xapian::docid did, const Xapian::Document & document)
 {
     ensure_session_in_progress();
     do_replace_document(did, document);

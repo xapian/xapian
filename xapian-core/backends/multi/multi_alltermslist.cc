@@ -62,10 +62,10 @@ MultiAllTermsList::update_current()
     }
 }
 
-om_termcount
+Xapian::termcount
 MultiAllTermsList::get_approx_size() const
 {
-    om_termcount size = 0;
+    Xapian::termcount size = 0;
 
     std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i!=lists.end(); ++i) {
@@ -81,11 +81,11 @@ MultiAllTermsList::get_termname() const
     return current;
 }
 
-om_doccount
+Xapian::doccount
 MultiAllTermsList::get_termfreq() const
 {
     Assert(started);
-    om_doccount termfreq = 0;
+    Xapian::doccount termfreq = 0;
 
     std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i!=lists.end(); ++i) {
@@ -97,10 +97,10 @@ MultiAllTermsList::get_termfreq() const
     return termfreq;
 }
 
-om_termcount
+Xapian::termcount
 MultiAllTermsList::get_collection_freq() const
 {
-    om_termcount collection_freq = 0;
+    Xapian::termcount collection_freq = 0;
 
     std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i!=lists.end(); ++i) {

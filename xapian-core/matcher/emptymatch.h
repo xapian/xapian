@@ -41,7 +41,7 @@ class EmptySubMatch : public SubMatch {
 	}
 
 	/// get a postlist - returns an empty postlist
-	PostList * get_postlist(om_doccount /*maxitems*/, MultiMatch * /*matcher*/) {
+	PostList * get_postlist(Xapian::doccount /*maxitems*/, MultiMatch * /*matcher*/) {
 	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
 	    // give it a weighting object
 	    // FIXME: make it an EmptyWeight instead of BoolWeight
@@ -49,7 +49,7 @@ class EmptySubMatch : public SubMatch {
 	    return lpl.release();
 	}
 
-	Xapian::Document::Internal * open_document(om_docid /*did*/) const {
+	Xapian::Document::Internal * open_document(Xapian::docid /*did*/) const {
 	    throw Xapian::InternalError("Attempt to open document from EmptySubMatch should not happen.");
 	}
 
