@@ -1,3 +1,7 @@
+Sat Jul 05 10:37:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* getopt/getopt.c: Suppress "unused variable" warnings from getopt.c.
+
 Sat Jul 05 02:21:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.
