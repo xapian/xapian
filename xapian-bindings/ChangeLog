@@ -1,3 +1,7 @@
+Mon Sep 13 05:08:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Version 0.8.2.
+
 Mon Sep 13 04:59:54 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,xapian.i,php4/docs/bindings.html,python/docs/bindings.html:
