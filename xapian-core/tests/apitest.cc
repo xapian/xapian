@@ -96,7 +96,7 @@ bool runtest(om_test *test)
     try {
         success = test->run();
     } catch (OmError &err) {
-	cout << "OMError exception: " << err.get_msg();
+	cout << "OmError exception: " << err.get_msg();
 	success = false;
     } catch (...) {
 	cout << "Unknown exception! ";
