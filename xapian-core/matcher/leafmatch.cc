@@ -442,7 +442,7 @@ LeafMatch::match(om_doccount first, om_doccount maxitems,
         (*mbound)++;
 	
 	om_docid did = query->get_docid();
-	// FIXME: next line is inefficient, by design.  (Makes it hard /
+	// FIXME: next line is inefficient, due to design.  (Makes it hard /
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
         om_weight wt = query->get_weight() +

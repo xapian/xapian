@@ -1,4 +1,4 @@
-/* leafmatch.h: class for performing the match operation
+/* leafmatch.h: class for performing the match calculations on postlists
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -47,7 +47,10 @@ bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 class MSetCmp;
 
-/// Class which encapsulates best match operation
+/** Class for performing the best match calculations on a database.
+ *  This is the Match class which performs the main calculation: other
+ *  Match objects merge or transmit the results of LeafMatch objects.
+ */
 class LeafMatch : public Match
 {
     private:

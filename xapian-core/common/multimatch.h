@@ -32,6 +32,13 @@
 // Class which encapsulates best match operation
 class MultiMatch : public Match
 {
+    private:
+	// disallow copies
+	MultiMatch(const MultiMatch &);
+	void operator=(const MultiMatch &);
+    public:
+	MultiMatch();
+	~MultiMatch();
 };
 
 ///////////////////////////////

@@ -45,13 +45,22 @@ bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 class MSetCmp;
 
-/// Class which encapsulates best match operation
+/// Base class for matchers
 class Match
 {
+    private:
+	// disallow copies
+	Match(const Match &);
+	void operator=(const Match &);
+    public:
+	Match() {};
+	virtual ~Match() = 0;
 };
 
 ///////////////////////////////
 // Inline method definitions //
 ///////////////////////////////
+
+inline Match::~Match() {}
 
 #endif /* OM_HGUARD_MATCH_H */
