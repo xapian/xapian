@@ -75,9 +75,6 @@ using std::string;
 
 const string::size_type Btree::max_key_len;
 
-// FIXME: This named constant isn't used everywhere it should be below...
-#define BYTES_PER_BLOCK_NUMBER 4
-
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
 
@@ -1032,19 +1029,7 @@ K set accordingly. c is set to 1.
 
 void Btree::form_key(const string & key) const
 {
-    Assert(key.length() <= max_key_len);
-
-    // This just so it doesn't fall over horribly in non-debug builds.
-    string::size_type key_len = min(key.length(), max_key_len);
-
-    /// XXX to Key or Item
-    int c = I2;
-    byte * p = const_cast<byte*>(kt.get_address());
-    SETK(p, c, key_len + K1 + C2);
-    c += K1;
-    memmove(p + c, key.data(), key_len);
-    c += key_len;
-    SETC(p, c, 1);
+    kt.form_key(key);
 }
 
 /* Btree::add(key, tag) adds the key/tag item to the

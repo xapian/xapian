@@ -24,10 +24,40 @@
 #ifndef OM_HGUARD_BCURSOR_H
 #define OM_HGUARD_BCURSOR_H
 
-#include "btree_types.h"
+#include "quartz_types.h"
 
 #include <string>
 using std::string;
+
+#define BLK_UNUSED uint4(-1)
+
+class Cursor {
+    private:
+        // Prevent copying
+        Cursor(const Cursor &);
+        Cursor & operator=(const Cursor &);
+
+    public:
+	/// Constructor, to initialise important elements.
+	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
+	{}
+
+	/// pointer to a block
+	byte * p;
+	/// offset in the block's directory
+	int c;
+	/** block number
+	 *
+	 * n is kept in tandem with p.  The unassigned state is when
+	 * p == 0 and n == BLK_UNUSED.
+	 * 
+	 * Setting n to BLK_UNUSED is necessary in at least some cases.
+	 */
+
+	uint4 n;
+	/// true if the block is not the same as on disk, and so needs rewriting
+	bool rewrite;
+};
 
 class Btree;
 

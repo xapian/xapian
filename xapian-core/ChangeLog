@@ -1,3 +1,9 @@
+Tue Nov 09 17:13:10 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: More refactoring.  Also rearranged the contents
+	  of the quartz and btree headers, eliminating btree_types.h in the
+	  process.
+
 Tue Nov 09 16:47:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_metafile.cc: Using fdcloser is less clear in

@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_BTREE_BASE_H
 #define OM_HGUARD_BTREE_BASE_H
 
-#include "btree_types.h"
+#include "quartz_types.h"
 #include "btree_util.h"
 
 class Btree_base {

@@ -16,7 +16,6 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_metafile.h \
 		       btree.h \
 		       bcursor.h \
-		       btree_types.h \
 		       btree_util.h \
 		       btree_base.h
 
