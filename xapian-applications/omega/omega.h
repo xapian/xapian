@@ -38,6 +38,7 @@ using namespace std;
 
 extern string dbname;
 extern string fmtname;
+extern string filters;
 
 extern OmDatabase * omdb;
 extern OmEnquire * enquire;

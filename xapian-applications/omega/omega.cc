@@ -54,6 +54,7 @@ const string default_dbname = "default";
 string dbname;
 string log_dir = "/tmp";
 string fmtname = "query";
+string filters;
 
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
@@ -65,6 +66,12 @@ int threshold = 0;
 bool sort_numeric = true;
 om_valueno sort_key = 0;
 int sort_bands = 0; // Don't sort
+
+const static char filter_sep = '-';
+// Any choice of character for filter_sep could conceivably lead to
+// false positives, but the situation is contrived, and just means that if
+// someone changed a filter, the first page wouldn't be forced.
+// That's hardly the end of the world...
 
 static void
 make_log_entry(const string &action, long matches)
@@ -264,12 +271,24 @@ main2(int argc, char *argv[])
    
     got_query_from_morelike:
 
-    // set any boolean filters
-    g = cgi_params.equal_range("B");
-    for (MCI i = g.first; i != g.second; i++) {
-	string v = i->second;
-        // we'll definitely get empty B fields from "-ALL-" options
-	if (!v.empty() && isalnum(v[0])) add_bterm(v);
+    {
+	// set any boolean filters
+	g = cgi_params.equal_range("B");
+	vector<string> filter_v;
+	for (MCI i = g.first; i != g.second; i++) {
+	    string v = i->second;
+	    // we'll definitely get empty B fields from "-ALL-" options
+	    if (!v.empty() && isalnum(v[0])) {
+		add_bterm(v);
+		filter_v.push_back(v);
+	    }
+	}
+	sort(filter_v.begin(), filter_v.end());
+	vector<string>::const_iterator i;
+	for (i = filter_v.begin(); i != filter_v.end(); ++i) {
+	    filters += *i;
+	    filters += filter_sep;
+	}
     }
 
     // date range filters
@@ -279,6 +298,9 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) date2 = val->second;
     val = cgi_params.find("DAYSMINUS");
     if (val != cgi_params.end()) daysminus = val->second;
+
+    filters += date1 + filter_sep + date2 + filter_sep + daysminus
+	+ (default_op == OmQuery::OP_AND ? 'A' : 'O');
 
     // sorting
     val = cgi_params.find("SORT");
@@ -303,7 +325,7 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) {
 	min_hits = atol(val->second.c_str());
     } else {
-        min_hits=0;
+        min_hits = 0;
     }
 
     // Should we discard the existing R-set recorded in R CGI parameters?
@@ -348,22 +370,38 @@ main2(int argc, char *argv[])
 	    val = cgi_params.find("xDB");
 	    if (val != cgi_params.end() && val->second != dbname) break;
 	    if (result == SAME_QUERY && force_first_page) {
-		static const char * check_vars[] = {
-		    "DEFAULTOP", "B", "DAYSMINUS", "DATE1", "DATE2", NULL
-		};
 		force_first_page = false;
-		// FIXME: cope with multiple values for B...
-		for (const char **pv = check_vars; *pv; ++pv) {
-		    val = cgi_params.find('x' + string(*pv));
-		    if (val != cgi_params.end()) {
-			string oldv = val->second;
-			val = cgi_params.find(*pv);
-			if (val == cgi_params.end() || val->second != oldv) {
-			    // Filters changed since last query
-			    force_first_page = true;
-			    break;
-			}
+		val = cgi_params.find("xFILTERS");
+		string xfilters;
+		if (val != cgi_params.end()) {
+		    xfilters = val->second;
+		} else {
+		    // compatibility with older xB/xDATE/... scheme
+		    val = cgi_params.find("xB");
+		    if (val != cgi_params.end())
+			xfilters = val->second + filter_sep;
+		    static const char * check_vars[] = {
+			"DATE1", "DATE2", "DAYSMINUS", NULL
+		    };
+		    for (const char **pv = check_vars; *pv; ++pv) {
+			val = cgi_params.find('x' + string(*pv));
+			if (val != cgi_params.end()) xfilters += val->second;
+			xfilters += filter_sep;
 		    }
+		    val = cgi_params.find("xDEFAULTOP");
+		    if (val == cgi_params.end() && xfilters.length() == 3) {
+			// no x values, so don't force first page
+			xfilters = filters;
+		    } else {
+			char ch = 'O';
+			if (val != cgi_params.end() && val->second == "and")
+			    ch = 'A';
+			xfilters[xfilters.length() - 1] = ch;
+		    }
+		}
+		if (filters != xfilters) {
+		    // Filters changed since last query
+		    force_first_page = true;
 		}
 	    }
 	    discard_rset = false;
@@ -374,8 +412,9 @@ main2(int argc, char *argv[])
 	// Work out which mset element is the first hit we want
 	// to display
 	val = cgi_params.find("TOPDOC");
-	if (val != cgi_params.end())
+	if (val != cgi_params.end()) {
 	    topdoc = atol(val->second.c_str());
+	}
 
 	// Handle next, previous, and page links
 	if (cgi_params.find(">") != cgi_params.end()) {

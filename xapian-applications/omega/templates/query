@@ -106,14 +106,8 @@ $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $list{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE=",.,.">}
-${Need these if the respective values can change
-$if{$dbname,<INPUT TYPE=hidden NAME=xDB VALUE="$html{$dbname}">}
-$if{$cgi{DATE1},<INPUT TYPE=hidden NAME=xDATE1 VALUE="$html{$cgi{DATE1}}">}
-$if{$cgi{DATE2},<INPUT TYPE=hidden NAME=xDATE2 VALUE="$html{$cgi{DATE2}}">}
-$if{$cgi{DAYSMINUS},<INPUT TYPE=hidden NAME=xDAYSMINUS VALUE="$html{$cgi{DAYSMINUS}}">}
-${FIXME: need to deal with multiple values of B}
-$if{$cgi{B},<INPUT TYPE=hidden NAME=xB VALUE="$html{$cgi{B}}">}
-}
+<INPUT TYPE=hidden NAME=xDB VALUE="$html{$dbname}">
+<INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">}
 $if{$cgi{DEFAULTOP},<INPUT TYPE=hidden NAME=xDEFAULTOP VALUE="$html{$cgi{DEFAULTOP}}">}
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}

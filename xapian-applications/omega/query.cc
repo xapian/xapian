@@ -162,12 +162,22 @@ set_probabilistic(const string &newp, const string &oldp)
     return SAME_QUERY;
 }
 
-static multimap<char, string> filter_map;
+static multimap<string, string> filter_map;
 
-typedef multimap<char,string>::const_iterator FMCI;
+typedef multimap<string, string>::const_iterator FMCI;
     
 void add_bterm(const string &term) {
-    filter_map.insert(make_pair(term[0], term));
+    string prefix;
+    if (term[0] == 'X') {
+	string::const_iterator i = term.begin() + 1;
+	while (i != term.end() && isupper(*i)) ++i;
+	if (i != term.end() && *i == ':') ++i;
+	prefix = string(term.begin(), i);
+    } else {
+	prefix = term[0];
+    }
+	
+    filter_map.insert(make_pair(prefix, term));
 }
 
 static int
@@ -256,7 +266,7 @@ run_query()
 	// OR together filters with the same prefix, then AND together
 	vector<OmQuery> filter_vec;
 	vector<om_termname> and_vec;
-	int current = -256;
+	string current;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
@@ -398,7 +408,7 @@ run_query()
 // <OPTION VALUE="Mtext/plain">Text
 // </SELECT>
 static void
-do_picker(char prefix, const char **opts)
+do_picker(string prefix, const char **opts)
 {
     const char **p;
     bool do_current = false;
@@ -407,8 +417,8 @@ do_picker(char prefix, const char **opts)
 
     // FIXME: what if multiple values present for a prefix???
     FMCI i = filter_map.find(prefix);
-    if (i != filter_map.end() && i->second.length() > 1) {
-	current = i->second.substr(1);
+    if (i != filter_map.end() && i->second.length() > prefix.length()) {
+	current = i->second.substr(prefix.length());
 	do_current = true;
     }
 
@@ -430,7 +440,7 @@ do_picker(char prefix, const char **opts)
 	string trans = option[string('B') + prefix + *p];
 	if (trans.empty()) {
 	    // FIXME: nasty special casing on prefix...
-	    if (prefix == 'N')
+	    if (prefix == "N")
 		trans = string(".") + *p;
 	    else 
 		trans = "[" + string(*p) + "]";
@@ -703,6 +713,7 @@ CMD_env,
 CMD_error,
 CMD_field,
 CMD_filesize,
+CMD_filters,
 CMD_fmt,
 CMD_freq,
 CMD_freqs,
@@ -793,6 +804,7 @@ static struct func_desc func_tab[] = {
 {T(eq),		2, 2, N, 0, 0}}, // test equality
 {T(field),	1, 1, N, 0, 0}}, // lookup field in record
 {T(filesize),	1, 1, N, 0, 0}}, // pretty printed filesize
+{T(filters),	0, 0, N, 0, 0}}, // serialisation of current filters
 {T(fmt),	0, 0, N, 0, 0}}, // name of current format
 {T(freq),	1, 1, N, 0, 0}}, // frequency of a term
 {T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
@@ -1092,6 +1104,9 @@ eval(const string &fmt, const vector<string> &param)
 		value = buf;
 		break;
 	    }
+	    case CMD_filters:
+		value = filters;
+		break;
 	    case CMD_fmt:
 		value = fmtname;
 		break;
@@ -1688,9 +1703,14 @@ ensure_match()
     run_query();
     done_query = true;
     last = mset.get_matches_lower_bound();
-    if (topdoc > last)
-	topdoc = ((last - 1) / hits_per_page) * hits_per_page;
-    
-    if (topdoc + hits_per_page < last)
-	last = topdoc + hits_per_page;
+    if (last == 0) {
+	// Otherwise topdoc ends up being -6 if it's non-zero!
+	topdoc = 0;
+    } else {
+	if (topdoc > last)
+	    topdoc = ((last - 1) / hits_per_page) * hits_per_page;
+	
+	if (topdoc + hits_per_page < last)
+	    last = topdoc + hits_per_page;
+    }
 }

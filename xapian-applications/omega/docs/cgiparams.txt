@@ -85,13 +85,11 @@ DATE2
 	end of date range if DAYSMINUS not set (defaults to now)
 	DATE1 should not be larger (more recent) than DATE2
 
-xDAYSMINUS, xDATE1, xDATE2
-	values of DAYSMINUS/DATE1/DATE2 from previous search - used to detect
-	when a filter has changed so we can show the first page of matches.
-
-xB
-	similarly for B - NB the code currently doesn't cope with tracking
-	multiple values of B.
+xFILTERS
+	used to spot when the filters have changed from the previous search.
+	Set this to $html{$filters} in your query template ($filters is a
+	compact serialisation of the currently set B filters, date-range
+	filters, and DEFAULTOP).
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter

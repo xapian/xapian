@@ -93,6 +93,11 @@ $field{NAME}
 $filesize{SIZE}
 	pretty printed filesize (e.g. 100 bytes, 2K, 4M, 1G)
 
+$filters
+	serialised version of filtery type settings (B, DATE1, DATE2,
+	DAYSMINUS, and DEFAULTOP) - set xFILTERS to this so that Omega
+	can detect when the filters have changed and force the first page.
+
 $fmt
 	name of current format (as set by FMT, or the default)
 

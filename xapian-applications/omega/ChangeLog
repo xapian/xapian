@@ -1,3 +1,16 @@
+Wed Oct 09 16:55:56 BST 2002  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,query.cc,docs/{cgiparams.txt,omegascript.txt},
+	  templates/query: revamped the "reset first page when filter changes"
+	  scheme - all filtery things are now serialised and put into the
+	  xFILTER CGI parameter, which copes with multiple B values.  Support
+	  for the old way (xB, xDATE1, xDATE2, xDAYSMINUS, xDEFAULTOP) is
+	  included for now (but only copes with a single B value).  Added (and
+	  documented) $filters Omegascript command to implement this.
+	* query.cc: fixed handling of case when topdoc is non-zero, but
+	  no matches were found.  This was causing topdoc to be set to -6!
+	* query.cc: fixed handling of prefixes starting with an X.
+
 Wed Oct 09 15:35:54 BST 2002  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Added scriptindex and omega-*.tar.gz; removed libtool.
