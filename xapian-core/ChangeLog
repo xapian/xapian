@@ -1,3 +1,13 @@
+Tue Nov 02 01:51:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AC_TYPE_SIZE_T causes problems with Compaq C++ when it
+	  fails to spot size_t (which is there) and the "#define size_t
+	  unsigned long" it adds to config.h breaks "using std::size_t;".
+	  Also removed AC_C_CONST as I don't believe that's needed either
+	  in a largely C++ library.  Both of these have been in configure.in
+	  since the very first version so I suspect autoscan decided we wanted
+	  them.
+
 Mon Nov 01 05:44:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fixed compilation problem on alpha Linux.
