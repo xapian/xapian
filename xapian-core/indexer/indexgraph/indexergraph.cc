@@ -303,7 +303,7 @@ OmIndexer::set_node_config(const std::string &node_id,
 			   const std::string &value)
 {
     NodeMap::iterator i = nodemap.find(node_id);
-    if (i != nodemap.end()) {
+    if (i == nodemap.end()) {
 	throw OmInvalidArgumentError(std::string("Node id ") + node_id +
 				     " doesn't exist");
     }

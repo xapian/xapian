@@ -1,3 +1,7 @@
+Wed Sep 13 14:28:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fix reversed test bug in OmIndexer::set_node_config()
+
 Wed Sep 13 13:14:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add lots of tests of the QuartzDbTables.  Currently these fail due
