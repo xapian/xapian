@@ -1,3 +1,8 @@
+Sat May 01 01:41:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added up-to-date success reports for x86-openbsd and
+	  x86-solaris.
+
 Fri Apr 30 04:05:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Don't delete and reload the Btree_base just after
