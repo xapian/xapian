@@ -35,7 +35,7 @@ class OpeningError : public OmError {
         OpeningError(string msg) : OmError(msg) {};
 };
 
-class PostListIterator {
+class PostList {
     private:
     public:
 	virtual docid  get_docid() = 0;     // Gets current docid
@@ -43,20 +43,20 @@ class PostListIterator {
 
 	virtual void   next() = 0;          // Moves to next docid
 	virtual void   skip_to(docid) = 0;  // Moves to next docid >= specified docid
-	virtual bool   at_end() = 0;        // True if iterator is off the end of the list
+	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
-        virtual ~PostListIterator() { return; }
+        virtual ~PostList() { return; }
 };
 
-class TermListIterator {
+class TermList {
     private:
     public:
 	virtual termid get_termid() = 0;    // Gets current termid
 	virtual void   next() = 0;          // Moves to next termid
 	virtual void   skip_to(termid) = 0; // Moves to next termid >= specified termid
-	virtual bool   at_end() = 0;        // True if iterator is off the end of the list
+	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
-        virtual ~TermListIterator() { return; }
+        virtual ~TermList() { return; }
 };
 
 class IRDatabase {
@@ -69,10 +69,10 @@ class IRDatabase {
 	virtual void close() = 0;
 
 	// Throws RangeError if termid invalid
-	virtual PostListIterator * open_post_list(termid) = 0;
+	virtual PostList * open_post_list(termid) = 0;
 
 	// Throws RangeError if docid invalid
-	virtual TermListIterator * open_term_list(docid) = 0;
+	virtual TermList * open_term_list(docid) = 0;
 
         virtual ~IRDatabase() { return; }
 };

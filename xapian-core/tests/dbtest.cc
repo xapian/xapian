@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     ProtoDatabase database;
-    PostListIterator * postlist;
+    PostList * postlist;
     termid tid;
 
     try {
