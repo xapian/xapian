@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,8 +33,8 @@
  *  QuartzDatabase::open_document().
  */
 QuartzDocument::QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			       QuartzTable *value_table_,
-			       QuartzTable *record_table_,
+			       const QuartzTable *value_table_,
+			       const QuartzTable *record_table_,
 			       Xapian::docid did_, bool lazy)
 	: Xapian::Document::Internal(database_.get(), did_),
 	  database(database_),

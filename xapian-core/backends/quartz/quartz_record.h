@@ -43,16 +43,16 @@ class QuartzRecordManager {
     public:
 	/** Retrieve a document from the table.
 	 */
-	static string get_record(QuartzTable & table,
+	static string get_record(const QuartzTable & table,
 				 Xapian::docid did);
 
 	/** Get the number of records in the table.
 	 */
-	static Xapian::doccount get_doccount(QuartzTable & table);
+	static Xapian::doccount get_doccount(const QuartzTable & table);
 
 	/** Return the average length of records in the table.
 	 */
-	static Xapian::doclength get_avlength(QuartzTable & table);
+	static Xapian::doclength get_avlength(const QuartzTable & table);
 
 	/** Get the next document ID to use.
 	 */
@@ -60,7 +60,7 @@ class QuartzRecordManager {
 
 	/** Get the last document id used.
 	 */
-	static Xapian::docid get_lastdocid(QuartzTable & table);
+	static Xapian::docid get_lastdocid(const QuartzTable & table);
 
 	/** Add a new record to the table.
 	 *

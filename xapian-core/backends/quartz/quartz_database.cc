@@ -25,13 +25,13 @@
 
 #include <config.h>
 
-#include "quartz_table_manager.h"
-
 #include "quartz_database.h"
 #include "utils.h"
 #include "omdebug.h"
 #include "autoptr.h"
 #include <xapian/error.h>
+
+#include "btree_util.h"
 
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
@@ -42,50 +42,532 @@
 #include "quartz_document.h"
 #include "quartz_alltermslist.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+#include <cerrno>
+
+#ifdef __WIN32__
+#include <windows.h>
+#define getpid() GetCurrentProcessId()
+#endif
+
 #include <list>
 #include <string>
 
 using namespace std;
 using namespace Xapian;
 
-QuartzDatabase::QuartzDatabase(const string &quartz_dir)
+/* This finds the tables, opens them at consistent revisions, manages
+ * determining the current and next revision numbers, and stores handles
+ * to the tables.
+ */
+QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
+			       unsigned int block_size)
+	: db_dir(quartz_dir),
+	  readonly(action == OM_DB_READONLY),
+	  metafile(metafile_path()),
+	  postlist_table(postlist_path(), readonly, block_size),
+	  positionlist_table(positionlist_path(), readonly, block_size),
+	  termlist_table(termlist_path(), readonly, block_size),
+	  value_table(value_path(), readonly, block_size),
+	  record_table(record_path(), readonly, block_size),
+	  log(db_dir + "/log")
 {
-    DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir);
-    // Open database manager
-    tables.reset(new QuartzTableManager(quartz_dir, OM_DB_READONLY, 0u));
-}
+    DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir << ", " << action <<
+	      ", " << block_size);
+    static const char *acts[] = {
+	"Open readonly", "Create or open", "Create", "Create or overwrite",
+	"Open" // , "Overwrite"
+    };
+    log.make_entry(string(acts[action]) + " database at `" + db_dir + "'");
 
-QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
-	: tables(tables_)
-{
-    DEBUGCALL(DB, void, "QuartzDatabase", "[tables_]");
+    // set cache size parameters, etc, here.
+
+    // open environment here
+
+    bool dbexists = database_exists();
+    // open tables
+    if (action == OM_DB_READONLY) {
+	if (!dbexists) {
+	    // Catch pre-0.6 Xapian databases and give a better error
+	    if (file_exists(db_dir + "/attribute_DB"))
+		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	}
+	// Can still allow searches even if recovery is needed
+	open_tables_consistent();
+    } else {
+	if (!dbexists) {
+	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	    if (action == Xapian::DB_OPEN) {
+		// Catch pre-0.6 Xapian databases and give a better error
+		if (file_exists(db_dir + "/attribute_DB"))
+		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	    }
+
+	    // Create the directory for the database, if it doesn't exist
+	    // already.
+	    bool fail = false;
+	    struct stat statbuf;
+	    if (stat(db_dir, &statbuf) == 0) {
+		if (!S_ISDIR(statbuf.st_mode)) fail = true;
+	    } else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+		fail = true;
+	    }
+	    if (fail) {
+		throw Xapian::DatabaseOpeningError("Cannot create directory `"
+						   + db_dir + "'", errno);
+	    }
+	    get_database_write_lock();
+
+	    create_and_open_tables();
+	    return;
+	}
+	
+	log.make_entry("Old database exists");
+	if (action == Xapian::DB_CREATE) {
+	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
+		    db_dir + "': a database already exists and I was told "
+		    "not to overwrite it");
+	}
+
+	get_database_write_lock();
+	// if we're overwriting, pretend the db doesn't exists
+	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
+	    create_and_open_tables();
+	    return;
+	}
+
+	// Get latest consistent version
+	open_tables_consistent();
+
+	// Check that there are no more recent versions of tables.  If there
+	// are, perform recovery by writing a new revision number to all
+	// tables.
+	if (record_table.get_open_revision_number() != 
+	    postlist_table.get_latest_revision_number()) {
+	    quartz_revision_number_t new_revision = get_next_revision_number();
+
+	    log.make_entry("Detected partially applied changes, updating "
+			    "all revision numbers to consistent state (" +
+			    om_tostring(new_revision) + ") to proceed - "
+			    "this will remove partial changes");
+	    postlist_table    .apply(new_revision);
+	    positionlist_table.apply(new_revision);
+	    termlist_table    .apply(new_revision);
+	    value_table       .apply(new_revision);
+	    record_table      .apply(new_revision);
+	}
+    }
 }
 
 QuartzDatabase::~QuartzDatabase()
 {
     DEBUGCALL(DB, void, "~QuartzDatabase", "");
     // Only needed for a writable database: dtor_called();
+    log.make_entry("Closing database");
+    if (!readonly) release_database_write_lock();
+}
+
+bool
+QuartzDatabase::database_exists() {
+    DEBUGCALL(DB, bool, "QuartzDatabase::database_exists", "");
+    return record_table.exists() &&
+	   postlist_table.exists() &&
+	   positionlist_table.exists() &&
+	   termlist_table.exists() &&
+	   value_table.exists();
+}
+
+void
+QuartzDatabase::create_and_open_tables()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::create_and_open_tables", "");
+    //FIXME - check that database directory exists.
+
+    // Delete any existing tables
+    // FIXME: would be better to arrange that this works such that there's
+    // always a valid database in place...  Or does it already?  The metafile
+    // is created before erasing...
+    log.make_entry("Cleaning up database directory");
+    metafile.create();
+    postlist_table.erase();
+    positionlist_table.erase();
+    termlist_table.erase();
+    value_table.erase();
+    record_table.erase();
+
+    log.make_entry("Creating new database");
+    // Create postlist_table first, and record_table last.  Existence of
+    // record_table is considered to imply existence of the database.
+    metafile.create();
+    postlist_table.create();
+    positionlist_table.create();
+    termlist_table.create();
+    value_table.create();
+    record_table.create();
+
+    Assert(database_exists());
+
+    log.make_entry("Opening new database");
+    metafile.open();
+    record_table.open();
+    value_table.open();
+    termlist_table.open();
+    positionlist_table.open();
+    postlist_table.open();
+
+    // Check consistency
+    quartz_revision_number_t revision = record_table.get_open_revision_number();
+    if (revision != value_table.get_open_revision_number() ||
+	revision != termlist_table.get_open_revision_number() ||
+	revision != positionlist_table.get_open_revision_number() ||
+	revision != postlist_table.get_open_revision_number()) {
+	log.make_entry("Revisions are not consistent: have " + 
+			om_tostring(revision) + ", " +
+			om_tostring(value_table.get_open_revision_number()) + ", " +
+			om_tostring(termlist_table.get_open_revision_number()) + ", " +
+			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
+			om_tostring(postlist_table.get_open_revision_number()));
+	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
+    }
+    log.make_entry("Opened tables at revision " + om_tostring(revision));
+}
+
+void
+QuartzDatabase::open_tables_consistent()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::open_tables_consistent", "");
+    // Open record_table first, since it's the last to be written to,
+    // and hence if a revision is available in it, it should be available
+    // in all the other tables (unless they've moved on already).
+    //
+    // If we find that a table can't open the desired revision, we
+    // go back and open record_table again, until record_table has
+    // the same revision as the last time we opened it.
+
+    log.make_entry("Opening tables at latest consistent revision");
+    metafile.open();
+    record_table.open();
+    quartz_revision_number_t revision = record_table.get_open_revision_number();
+
+    bool fully_opened = false;
+    int tries = 100;
+    int tries_left = tries;
+    while (!fully_opened && (tries_left--) > 0) {
+	log.make_entry("Trying revision " + om_tostring(revision));
+	
+	bool opened;
+	opened = value_table.open(revision);
+	if (opened) opened = termlist_table.open(revision);
+	if (opened) opened = positionlist_table.open(revision);
+	if (opened) opened = postlist_table.open(revision);
+	if (opened) {
+	    fully_opened = true;
+	} else {
+	    // Couldn't open consistent revision: two cases possible:
+	    // i)   An update has completed and a second one has begun since
+	    //      record was opened.  This leaves a consistent revision
+	    //      available, but not the one we were trying to open.
+	    // ii)  Tables have become corrupt / have no consistent revision
+	    //      available.  In this case, updates must have ceased.
+	    //
+	    // So, we reopen the record table, and check its revision number,
+	    // if it's changed we try the opening again, otherwise we give up.
+	    //
+	    record_table.open();
+	    quartz_revision_number_t newrevision =
+		    record_table.get_open_revision_number();
+	    if (revision == newrevision) {
+		// Revision number hasn't changed - therefore a second index
+		// sweep hasn't begun and the system must have failed.  Database
+		// is inconsistent.
+		log.make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision));
+		throw Xapian::DatabaseCorruptError("Cannot open tables at consistent revisions");
+	    }
+	}
+    }
+
+    if (!fully_opened) {
+	log.make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts");
+	throw Xapian::DatabaseOpeningError("Cannot open tables at stable revision - changing too fast");
+    }
+
+    log.make_entry("Opened tables at revision " + om_tostring(revision));
+}
+
+string
+QuartzDatabase::metafile_path() const
+{
+    return db_dir + "/meta";
+}
+
+string
+QuartzDatabase::record_path() const
+{
+    return db_dir + "/record_";
+}
+
+string
+QuartzDatabase::value_path() const
+{
+    return db_dir + "/value_";
+}
+
+string
+QuartzDatabase::termlist_path() const
+{
+    return db_dir + "/termlist_";
+}
+
+string
+QuartzDatabase::positionlist_path() const
+{
+    return db_dir + "/position_";
+}
+
+string
+QuartzDatabase::postlist_path() const
+{
+    return db_dir + "/postlist_";
+}
+
+void
+QuartzDatabase::open_tables(quartz_revision_number_t revision)
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::open_tables", revision);
+    log.make_entry("Opening tables at revision " + om_tostring(revision));
+    metafile.open();
+    record_table.open(revision);
+    value_table.open(revision);
+    termlist_table.open(revision);
+    positionlist_table.open(revision);
+    postlist_table.open(revision);
+    log.make_entry("Opened tables at revision " + om_tostring(revision));
+}
+
+quartz_revision_number_t
+QuartzDatabase::get_revision_number() const
+{
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDatabase::get_revision_number", "");
+    // We could use any table here, theoretically.
+    RETURN(postlist_table.get_open_revision_number());
+}
+
+quartz_revision_number_t
+QuartzDatabase::get_next_revision_number() const
+{
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDatabase::get_next_revision_number", "");
+    /* We _must_ use postlist_table here, since it is always the first
+     * to be written, and hence will have the greatest available revision
+     * number.
+     */
+    quartz_revision_number_t new_revision =
+	    postlist_table.get_latest_revision_number();
+    new_revision += 1;
+    RETURN(new_revision);
+}
+
+void
+QuartzDatabase::set_revision_number(quartz_revision_number_t new_revision)
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::set_revision_number", new_revision);
+    postlist_table    .apply(new_revision);
+    positionlist_table.apply(new_revision);
+    termlist_table    .apply(new_revision);
+    value_table       .apply(new_revision);
+    record_table      .apply(new_revision);
+}
+
+void
+QuartzDatabase::reopen()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::reopen", "");
+    if (readonly) {
+	open_tables_consistent();
+    }
+}
+
+void
+QuartzDatabase::get_database_write_lock()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::get_database_write_lock", "");
+    // FIXME:: have a backoff strategy to avoid stalling on a stale lockfile
+#ifdef HAVE_SYS_UTSNAME_H
+    const char *hostname;
+    struct utsname host;
+    if (!uname(&host)) {
+	host.nodename[0] = '\0';
+    }
+    hostname = host.nodename;
+#elif defined(HAVE_GETHOSTNAME)
+    char hostname[256];
+    if (gethostname(hostname, sizeof hostname) == -1) {
+	*hostname = '\0';
+    }
+#else
+    const char *hostname = "";
+#endif
+    string tempname = db_dir + "/db_lock.tmp." + om_tostring(getpid()) + "." +
+	    hostname + "." +
+	    om_tostring(reinterpret_cast<long>(this)); /* should work within
+							  one process too! */
+    DEBUGLINE(DB, "Temporary file " << tempname << " created");
+    int num_tries = 5;
+    while (true) {
+	num_tries--;
+	if (num_tries < 0) {
+	    throw Xapian::DatabaseLockError("Unable to acquire database write lock "
+				      + db_dir + "/db_lock");
+	}
+
+	int tempfd = open(tempname, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+	if (tempfd < 0) {
+	    throw Xapian::DatabaseLockError("Unable to create " + tempname +
+				      ": " + strerror(errno),
+				      errno);
+	}
+	fdcloser fdclose(tempfd);
+
+#ifdef HAVE_LINK
+	/* Now link(2) the temporary file to the lockfile name.
+	 * If either link() returns 0, or the temporary file has
+	 * link count 2 afterwards, then the lock succeeded.
+	 * Otherwise, it failed.  (Reference: Linux open() manpage)
+	 */
+	/* FIXME: sort out all these unlinks */
+	int result = link(tempname, db_dir + "/db_lock");
+	if (result == 0) {
+	    unlink(tempname);
+	    return;
+	}
+#ifdef MUS_DEBUG_VERBOSE
+	int link_errno = errno;
+#endif
+	struct stat statbuf;
+	int statresult = fstat(tempfd, &statbuf);
+	int fstat_errno = errno;
+	unlink(tempname);
+	if (statresult != 0) {
+	    throw Xapian::DatabaseLockError("Unable to fstat() temporary file " +
+				      tempname + " while locking: " +
+				      strerror(fstat_errno));
+	}
+	if (statbuf.st_nlink == 2) {
+	    /* success */
+	    return;
+	}
+	DEBUGLINE(DB, "link() returned " << result << "(" <<
+		  strerror(link_errno) << ")");
+	DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
+	/* also failed */
+#else
+	// win32 doesn't support link() so just rename()
+	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
+	    return;
+	}
+#endif
+    }
+}
+
+void
+QuartzDatabase::release_database_write_lock()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::release_database_write_lock", "");
+    unlink(db_dir + "/db_lock");
+}
+
+void
+QuartzDatabase::apply()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::apply", "");
+    if (!postlist_table.is_modified() &&
+	!positionlist_table.is_modified() &&
+	!termlist_table.is_modified() &&
+	!value_table.is_modified() &&
+	!record_table.is_modified()) {
+	log.make_entry("No modifications to apply");
+	return;
+    }
+
+    quartz_revision_number_t old_revision = get_revision_number();
+    quartz_revision_number_t new_revision = get_next_revision_number();
+
+    log.make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision));
+
+    try {
+	postlist_table.apply(new_revision);
+	positionlist_table.apply(new_revision);
+	termlist_table.apply(new_revision);
+	value_table.apply(new_revision);
+	record_table.apply(new_revision);
+
+	log.make_entry("Modifications succeeded");
+    } catch (...) {
+	// Modifications failed.  Wipe all the modifications from memory.
+	log.make_entry("Attempted modifications failed.  Wiping partial modifications");
+	
+	// Reopen tables with old revision number, 
+	log.make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision));
+	open_tables(old_revision);
+
+	// Increase revision numbers to new revision number plus one,
+	// writing increased numbers to all tables.
+	new_revision += 1;
+	log.make_entry("Increasing revision number in all tables to " + om_tostring(new_revision));
+
+	try {
+	    set_revision_number(new_revision);
+
+	    // This cancel() causes any buffered changes to be thrown away,
+	    // and the buffer to be reinitialised with the old entry count.
+	    cancel();
+	} catch (const Xapian::Error & e) {
+	    log.make_entry("Setting revision number failed: " +
+				       e.get_type() + ": " + e.get_msg() + " " +
+				       e.get_context());
+	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
+	}
+	throw;
+    }
+}
+
+void
+QuartzDatabase::cancel()
+{
+    DEBUGCALL(DB, void, "QuartzDatabase::cancel", "");
+    postlist_table.cancel();
+    positionlist_table.cancel();
+    termlist_table.cancel();
+    value_table.cancel();
+    record_table.cancel();
 }
 
 Xapian::doccount
 QuartzDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_doccount", "");
-    RETURN(QuartzRecordManager::get_doccount(*(tables->get_record_table())));
+    RETURN(QuartzRecordManager::get_doccount(record_table));
 }
 
 Xapian::docid
 QuartzDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::get_lastdocid", "");
-    RETURN(QuartzRecordManager::get_lastdocid(*(tables->get_record_table())));
+    RETURN(QuartzRecordManager::get_lastdocid(record_table));
 }
 
 Xapian::doclength
 QuartzDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_avlength", "");
-    RETURN(QuartzRecordManager::get_avlength(*(tables->get_record_table())));
+    RETURN(QuartzRecordManager::get_avlength(record_table));
 }
 
 Xapian::doclength
@@ -94,7 +576,7 @@ QuartzDatabase::get_doclength(Xapian::docid did) const
     DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_doclength", did);
     Assert(did != 0);
 
-    QuartzTermList termlist(0, tables->get_termlist_table(), did, 0);
+    QuartzTermList termlist(0, &termlist_table, did, 0);
     RETURN(termlist.get_doclength());
 }
 
@@ -104,7 +586,7 @@ QuartzDatabase::get_termfreq(const string & tname) const
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
+    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
     RETURN(pl.get_termfreq());
 }
 
@@ -115,7 +597,7 @@ QuartzDatabase::get_collection_freq(const string & tname) const
     Assert(!tname.empty());
 
     Xapian::termcount collfreq = 0; // If not found, this value will be unchanged.
-    QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
+    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
     collfreq = pl.get_collection_freq();
     RETURN(collfreq);
 }
@@ -125,8 +607,7 @@ QuartzDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
-    const QuartzTable * table = tables->get_postlist_table();
-    AutoPtr<QuartzCursor> cursor(table->cursor_get());
+    AutoPtr<QuartzCursor> cursor(postlist_table.cursor_get());
     // FIXME: nasty C&P from backends/quartz/quartz_postlist.cc
     string key = pack_string_preserving_sort(tname);
     return cursor->find_entry(key);
@@ -149,8 +630,8 @@ QuartzDatabase::open_post_list_internal(const string& tname,
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::open_post_list_internal", tname << ", [ptrtothis]");
     Assert(!tname.empty());
     return(new QuartzPostList(ptrtothis,
-			      tables->get_postlist_table(),
-			      tables->get_positionlist_table(),
+			      &postlist_table,
+			      &positionlist_table,
 			      tname));
 }
 
@@ -161,7 +642,7 @@ QuartzDatabase::open_term_list_internal(Xapian::docid did,
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal",
 	      did << ", [ptrtothis]");
     Assert(did != 0);
-    return(new QuartzTermList(ptrtothis, tables->get_termlist_table(),
+    return(new QuartzTermList(ptrtothis, &termlist_table,
 			      did, get_doccount()));
 }
 
@@ -182,8 +663,8 @@ QuartzDatabase::open_document(Xapian::docid did, bool lazy) const
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
     RETURN(new QuartzDocument(ptrtothis,
-			      tables->get_value_table(),
-			      tables->get_record_table(),
+			      &value_table,
+			      &record_table,
 			      did, lazy));
 }
 
@@ -194,7 +675,7 @@ QuartzDatabase::open_position_list(Xapian::docid did,
     Assert(did != 0);
 
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
-    poslist->read_data(tables->get_positionlist_table(), did, tname);
+    poslist->read_data(&positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
@@ -208,21 +689,13 @@ QuartzDatabase::open_position_list(Xapian::docid did,
     return poslist.release();
 }
 
-void
-QuartzDatabase::reopen()
-{
-    DEBUGCALL(DB, void, "QuartzDatabase::reopen", "");
-    tables->reopen();
-}
-
 TermList *
 QuartzDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
-    QuartzTable *t = tables->get_postlist_table();
-    AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
+    AutoPtr<QuartzCursor> pl_cursor(postlist_table.cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzDatabase>(this),
-				  pl_cursor, t->get_entry_count()));
+				  pl_cursor, postlist_table.get_entry_count()));
 }
 
 
@@ -233,7 +706,7 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
-	  database_ro(AutoPtr<QuartzTableManager>(new QuartzTableManager(dir, action, block_size))),
+	  database_ro(dir, action, block_size),
 	  changes_made(0)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
@@ -256,18 +729,16 @@ void
 QuartzWritableDatabase::do_flush_const() const
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
-    Assert(database_ro.tables.get() != 0);
 
-    QuartzTable * pl_table = database_ro.tables->get_postlist_table();
-    QuartzPostList::merge_changes(pl_table, mod_plists, doclens, freq_deltas);
+    QuartzPostList::merge_changes(&database_ro.postlist_table, mod_plists, doclens, freq_deltas);
 
     // Update the total document length.
     QuartzRecordManager::modify_total_length(
-	    *(database_ro.tables->get_record_table()),
+	    database_ro.record_table,
 	    totlen_removed,
 	    totlen_added);
 
-    database_ro.tables->apply();
+    database_ro.apply();
     totlen_added = 0;
     totlen_removed = 0;
     freq_deltas.clear();
@@ -288,19 +759,17 @@ Xapian::docid
 QuartzWritableDatabase::add_document_(Xapian::docid did,
 				      const Xapian::Document & document)
 {
-    Assert(database_ro.tables.get() != 0);
-
     try {
 	if (did == 0) {
 	    // Set the record, and get the document ID to use.
 	    did = QuartzRecordManager::add_record(
-		    *(database_ro.tables->get_record_table()),
+		    database_ro.record_table,
 		    document.get_data());
 	    Assert(did != 0);
 	} else {
 	    // Set the record using the provided document ID.
 	    QuartzRecordManager::replace_record(
-		    *(database_ro.tables->get_record_table()),
+		    database_ro.record_table,
 		    document.get_data(),
 		    did);
 	}
@@ -311,7 +780,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
 		QuartzValueManager::add_value(
-		    *(database_ro.tables->get_value_table()),
+		    database_ro.value_table,
 		    *value, did, value.get_valueno());
 	    }
 	}
@@ -347,14 +816,14 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    QuartzPositionList::set_positionlist(
-			database_ro.tables->get_positionlist_table(), did, tname,
+			&database_ro.positionlist_table, did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(database_ro.tables->get_termlist_table(), did,
+	QuartzTermList::set_entries(&database_ro.termlist_table, did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -366,7 +835,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.tables->cancel();
+	database_ro.cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -400,7 +869,6 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::delete_document", did);
     Assert(did != 0);
-    Assert(database_ro.tables.get() != 0);
 
     try {
 	if (doclens.find(did) != doclens.end()) {
@@ -412,17 +880,17 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 
 	// Remove the record.
 	QuartzRecordManager::delete_record(
-		*(database_ro.tables->get_record_table()), did);
+		database_ro.record_table, did);
 
 	// Remove the values
 	QuartzValueManager::delete_all_values(
-		*(database_ro.tables->get_value_table()),
+		database_ro.value_table,
 		did);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
-				database_ro.tables->get_termlist_table(),
+				&database_ro.termlist_table,
 				did, get_doccount());
 
 	totlen_removed += termlist.get_doclength();
@@ -431,7 +899,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
 	    QuartzPositionList::delete_positionlist(
-		database_ro.tables->get_positionlist_table(),
+		&database_ro.positionlist_table,
 		did, tname);
 	    termcount wdf = termlist.get_wdf();
 
@@ -458,14 +926,14 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the termlist.
-	QuartzTermList::delete_termlist(database_ro.tables->get_termlist_table(),
+	QuartzTermList::delete_termlist(&database_ro.termlist_table,
 					did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.tables->cancel();
+	database_ro.cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -487,7 +955,6 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::replace_document", did << ", " << document);
     Assert(did != 0);
-    Assert(database_ro.tables.get() != 0);
 
     try {
 	if (doclens.find(did) != doclens.end()) {
@@ -500,7 +967,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
-				database_ro.tables->get_termlist_table(),
+				&database_ro.termlist_table,
 				did, get_doccount());
 
 	termlist.next();
@@ -534,7 +1001,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 
 	// Replace the record
 	QuartzRecordManager::replace_record(
-		*(database_ro.tables->get_record_table()),
+		database_ro.record_table,
 		document.get_data(),
 		did);
 
@@ -549,19 +1016,19 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
 	//	QuartzValueManager::add_value(
-	//	    *(database_ro.tables->get_value_table()),
+	//	    database_ro.value_table,
 	//	    *value, did, value.get_valueno());
 	
 	    // Replace the values.
 	    QuartzValueManager::delete_all_values(
-		    *(database_ro.tables->get_value_table()),
+		    database_ro.value_table,
 		    did);
 
 	    // Set the values.
 	    list<pair<string, Xapian::valueno> >::const_iterator i;
 	    for (i = tmp.begin(); i != tmp.end(); ++i) {
 		QuartzValueManager::add_value(
-		    *(database_ro.tables->get_value_table()),
+		    database_ro.value_table,
 		    i->first, did, i->second);
 	    }
 	}
@@ -606,18 +1073,18 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		// with itself (e.g. if a document is replaced with itself
 		// with just the values changed)
 		QuartzPositionList::delete_positionlist(
-		    database_ro.tables->get_positionlist_table(),
+		    &database_ro.positionlist_table,
 		    did, tname);
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    QuartzPositionList::set_positionlist(
-			database_ro.tables->get_positionlist_table(), did, tname,
+			&database_ro.positionlist_table, did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(database_ro.tables->get_termlist_table(), did,
+	QuartzTermList::set_entries(&database_ro.termlist_table, did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -631,7 +1098,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.tables->cancel();
+	database_ro.cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -753,8 +1220,8 @@ QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
     RETURN(new QuartzDocument(ptrtothis,
-			      database_ro.tables->get_value_table(),
-			      database_ro.tables->get_record_table(),
+			      &database_ro.value_table,
+			      &database_ro.record_table,
 			      did, lazy));
 }
 
@@ -765,7 +1232,7 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
     Assert(did != 0);
 
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
-    poslist->read_data(database_ro.tables->get_positionlist_table(), did, tname);
+    poslist->read_data(&database_ro.positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
@@ -785,7 +1252,7 @@ QuartzWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
-    QuartzTable *t = database_ro.tables->get_postlist_table();
+    QuartzTable *t = &database_ro.postlist_table;
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));

@@ -1,3 +1,7 @@
+Thu Aug 12 02:00:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Merged QuartzTableManager into QuartzDatabase.
+
 Wed Aug 11 23:40:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,backends/quartz/quartz_database.h:

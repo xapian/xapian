@@ -38,7 +38,7 @@ using std::string;
 static const string METAINFO_KEY("", 1);
 
 string
-QuartzRecordManager::get_record(QuartzTable & table, Xapian::docid did)
+QuartzRecordManager::get_record(const QuartzTable & table, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, string, "QuartzRecordManager::get_record", "[table], " << did);
     string key(quartz_docid_to_key(did));
@@ -53,7 +53,7 @@ QuartzRecordManager::get_record(QuartzTable & table, Xapian::docid did)
 
 
 Xapian::doccount
-QuartzRecordManager::get_doccount(QuartzTable & table)
+QuartzRecordManager::get_doccount(const QuartzTable & table)
 {   
     DEBUGCALL_STATIC(DB, Xapian::doccount, "QuartzRecordManager::get_doccount", "[table]");
     // Check that we can't overflow (the unsigned test is actually too
@@ -100,7 +100,7 @@ QuartzRecordManager::get_newdocid(QuartzTable & table)
 }
 
 Xapian::docid
-QuartzRecordManager::get_lastdocid(QuartzTable & table)
+QuartzRecordManager::get_lastdocid(const QuartzTable & table)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_lastdocid", "[table]");
 
@@ -180,7 +180,7 @@ QuartzRecordManager::modify_total_length(QuartzTable & table,
 
 // FIXME: probably want to cache the average length (but not miss updates)
 Xapian::doclength
-QuartzRecordManager::get_avlength(QuartzTable & table)
+QuartzRecordManager::get_avlength(const QuartzTable & table)
 {
     DEBUGCALL_STATIC(DB, Xapian::doclength, "QuartzRecordManager::get_avlength", "QuartzTable &");
     Xapian::doccount docs = get_doccount(table);
