@@ -19,14 +19,18 @@ int main(int argc, char *argv[])
 	parameters.push_back(argv[1]);
 	OmWritableDatabase database("sleepycat", parameters);
 
+	// Make the document
 	OmDocumentContents newdocument;
 
+	// Put the data in the document
 	newdocument.data = string(argv[2]);
 
+	// Put the terms into the document
 	for(int i = 3; i < argc; i++) {
 	    newdocument.add_posting(argv[i], i - 2);
 	}
-	
+
+	// Add the document to the database
 	database.add_document(newdocument);
     }
     catch(OmError &error) {
