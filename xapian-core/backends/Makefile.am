@@ -26,10 +26,10 @@ BUILDSUBDIR_QUARTZ = quartz
 LIBADD_QUARTZ = quartz/libquartz.la
 endif
 
-if BUILD_BACKEND_INMEMORY
+# InMemoryPositionList is used by MapTermList which is used by Xapian::Document
+# so disable inmemory more selectively.
 BUILDSUBDIR_INMEMORY = inmemory
 LIBADD_INMEMORY = inmemory/libinmemory.la
-endif
 
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE = net
