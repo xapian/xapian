@@ -1,0 +1,669 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Muscat Indexing: Quickstart</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<H1>Quickstart</H1>
+
+<P>
+This document is a short introduction to the graph-based indexing facilities
+of Open Muscat.  For an introduction to the basic facilities of OM, see
+<a href="quickstart.html">quickstart.html</a>.
+</P>
+
+<HR>
+<H2>Requirements</H2>
+
+<P>
+Before following the steps outlined in this document, you will need to have
+the Muscat library installed on your system.
+For instructions on obtaining and installing Muscat, read the
+<A HREF="intro.html">Introduction</A> document.
+</P>
+<P>
+You will also need a reasonably recent C++ compiler.  We currently use GCC
+version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
+a decent chance of successfully compiling the code.
+</P>
+<P>
+To build indexers using an XML description, you will need to have libxml
+(and the development libraries if you are building the library).  libxml
+is available from
+<a href="ftp://ftp.gnome.org/pub/GNOME/MIRRORS.html">ftp.gnome.org</a> or
+from your operating system distribution.
+</P>
+
+<HR>
+<H2>Indexing scripts</H2>
+
+<P>
+A document in a database has the following information in OM:
+
+<ul>
+	<li>A list of terms, with positional information and frequencies.</li>
+	<li>Some application-specific data describing the document</li>
+	<li>A set of attributes used at match time</li>
+</ul>
+
+The role of an indexer is to convert a source document (which can be
+an HTML page, a PDF document, or anything else) into a form suitable
+for storing in the database.
+</P>
+
+<H3>The old way</H3>
+
+<P>
+In traditional Muscat, the indexing is done by a script written in a
+special text processing language.
+<!--FIXME: say more here-->
+</P>
+
+<H3>The new way</H3>
+
+<P>
+Open Muscat provides a new way to build an indexer based on a group of
+co-operating nodes joined together into a network.  Each node is a unit
+with some inputs and some outputs.  Each input is connected to the
+output of node higher up in the network.  Once the network is constructed
+it can be considered to be a single unit which takes raw documents from
+the top and returns the extracted data at the bottom.
+</P><P>
+The nodes themselves each typically perform one relatively simple task.
+Such tasks can be splitting on whitespace, stemming terms, joining lists,
+etc.  A number of nodes are provided with the library to do useful general
+tasks.  If necessary, an indexer writer can add new node types to the
+system.
+</P>
+
+<HR>
+<H2><A NAME="indexer">An example indexer</A></H2>
+
+<P>
+The code for this example is in the examples package, in
+the &quot;<CODE>indexer</CODE>&quot; subdirectory.
+</P>
+<P>
+The &quot;indexer&quot; presented here is a small program which
+takes a path to a database and a filename on the command line, and
+indexes that file into the database.  The terms generated are:
+
+<ul>
+    <li>Capitalised words lowercased and added without stemming</li>
+    <li>All words (including capitalised ones), stemmed</li>
+    <li>The filename, prefixed by "F"</li>
+    <li>The base filename, prefixed by "B" (eg foo/bar.txt -&gt; bar)</li>
+    <li>The filename extension, prefixed by "E"</li>
+</ul>
+
+The keys generated are:
+
+<ol>
+    <li>The filename, without directory</li>
+    <li>The directory</li>
+</ol>
+
+The data contains just the original filename.
+</P>
+
+<!-- FIXME: beyond this is just part of the original quickstart -->
+<H3>Include header files</H3>
+<P>
+The first requirement in any program using the Muscat library is to
+include the Muscat header file, &quot;<CODE>om.h</CODE>&quot;.
+This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
+a directory on the include path, so:
+<PRE>    #include &lt;om/om.h&gt;</PRE>
+</P>
+<P>
+Our example only has a single function, main(), so next we start that:
+<PRE>    int main(int argc, char *argv[])</PRE>
+</P>
+<H3>Options parsing</H3>
+<P>
+For this example we do very simple options parsing.  We are going to
+use the core functionality of Muscat of searching for specific terms in the
+database, and we are not going to use any of the extra facilities, such as
+the keys which may be associated with each document.  We are also going to
+store a simple string as the data associated with each document.
+</P><P>
+Thus, our command line syntax is:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameter 2</B> - the string to be stored as the document data.
+</LI><LI>
+<B>Parameters 3 onward</B> - the terms to be stored in the database.  The
+terms will be assumed to occur at successive positions in the document.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 3 parameters:
+<PRE>
+    if(argc &lt; 4) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+	        " &lt;path to database> &lt;document data> &lt;document terms>" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
+
+<H3>Catching exceptions</H3>
+<P>
+When an error occurs in Muscat it is reported by means of the C++ exception
+mechanism.  All errors in Muscat are derived classes of
+<CODE>OmError</CODE>, so simple error handling can be performed by
+enclosing all the code in a try-catch block to catch any
+<CODE>OmError</CODE> exceptions.  A (hopefully) helpful message can be
+extracted from the <CODE>OmError</CODE> object by calling its
+<CODE>get_msg()</CODE> method, which returns a human readable string.
+</P>
+<P>
+Note that all calls to the Muscat library should be performed inside a
+try-catch block, since otherwise errors will result in uncaught exceptions;
+this usually results in the execution aborting.
+</P>
+<P>
+Note also that OmError is a virtual base class, and thus can't be copied:
+you must therefore catch exceptions by reference, as in the following example
+code:
+</P>
+<PRE>
+    try {
+        <B>[code which accesses Muscat]</B>
+    }
+    catch(OmError &amp; error) {
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+</PRE>
+
+<H3>Opening the database</H3>
+
+<P>
+In Muscat, a database is opened for writing by creating an OmWritableDatabase
+object.  The constructor for this object takes two arguments.
+<OL><LI>
+<B>type</B> - this is a string determining the type of the database to open.
+The possible values for this depend on which backends are compiled into the
+system: if the type is not known an <CODE>OmInvalidArgument</CODE> error will
+be thrown.  For this example, we use the &quot;<CODE>sleepycat</CODE>&quot;
+database type.
+</LI><LI>
+<B>parameters</B> - this is a set of parameters to be used to open the
+database, stored in an STL vector. The meaning of the parameters is
+dependent on the database type: for a sleepycat database there is expected
+to be one and only one argument, which is the path (possibly relative to
+the current directory) of a directory in which the database files reside.
+</LI></OL>
+</P>
+<P>
+If an attempt is made to open a database which doesn't exist, an attempt
+to create an empty database in the specified position will be made.
+</P>
+<P>
+If an error occurs when trying to open a database, or to create a new database,
+an exception, usually of type <CODE>OmOpeningError</CODE>, will be thrown.
+</P>
+<P>
+The code to open a database for writing is, then:
+</P>
+
+<PRE>
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    OmWritableDatabase database(db_parameters);
+</PRE>
+
+<H3>Preparing the new document</H3>
+
+<P>
+Now that we have the database open, we need to prepare a document to put
+in it.  This is done by creating an OmDocumentContents struct, filling
+this with data, and then giving it to the database.
+</P>
+
+<P>
+The first step, then, is to create the document:
+</P>
+<PRE>
+    OmDocumentContents newdocument;
+</PRE>
+
+<P>
+Next, we associate some data with the document.  The meaning of this data
+is entirely user-defined, and is typically structured in some manner to
+contain information such as a URL pointing to the source of the data, and
+some text which is to be displayed when returning the document as a result
+of a search.
+</P>
+<P>
+For our example, we shall simply store the second parameter given on the
+command line in the data field:
+</P>
+<PRE>
+    newdocument.data = string(argv[2]);
+</PRE>
+
+<P>
+The next step is to put the terms which are to be used when searching for
+the document into the OmDocumentContents struct.
+The members of the OmDocumentContents struct are all public, so can be
+accessed directly, but there are also some convenience methods to help
+with the process of filling the struct.
+</P>
+<P>
+We shall use the <CODE>add_posting()</CODE> method, which adds an
+occurrence of a term to the struct.  The first parameter is the
+&quot;<EM>termname</EM>&quot;, which is a string defining the term.  This
+string can be anything, as long as the same string is always used to refer
+to the same term.  The string will often be the (possibly stemmed) text
+of the term, but might be in a compressed, or even hashed, form.
+In general, there is no upper limit to the length of a termname, but some
+database methods may impose their own limits.
+</P>
+<P>
+The second parameter is the position at which the term occurs within the
+document.  These positions start at 1.  This information is used for
+some search features such as phrase matching or passage retrieval, but
+is not essential to the search.
+</P>
+
+<P>
+We add postings for terms with the termname given as each of the remaining
+command line parameters:
+</P>
+<PRE>
+    for(int i = 3; i &lt; argc; i++) {
+        newdocument.add_posting(argv[i], i - 2);
+    }
+</PRE>
+
+<H3>Adding the document to the database</H3>
+
+<P>
+Finally, we can add the document to the database.  This simply involves
+calling <CODE>OmWritableDatabase::add_document()</CODE>, and passing it
+the <CODE>OmDocumentContents</CODE> object:
+</P>
+<PRE>
+    database.add_document(newdocument);
+</PRE>
+
+<P>
+The operation of adding a document is atomic: either the document will be
+added, or an exception will be thrown and the document will not be in the
+new database.
+</P>
+<P>
+<CODE>add_document()</CODE> returns a value of type <CODE>om_docid</CODE>.
+This is the document ID of the newly added document, which is simply a
+handle which can be used to access the document in future.
+</P>
+<P>
+Note that this use of <CODE>add_document()</CODE> is actually fairly
+inefficient: if we had a large database, it would be desirable to group
+as many document additions together as possible, by encapsulating
+them within a session.  For details of this, and of the transaction
+facility for performing sets of database modifications atomically, see
+the <A HREF="userman.html">user manual</A>.
+</P>
+
+<HR>
+<H2><A NAME="searcher">An example searcher</A></H2>
+
+<P>
+The code for this example is also in the examples package, in
+the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
+version is available <A HREF="simplesearch.cc.html">here</A>.
+</P>
+<P>
+The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
+simply a small command line driven program.  It takes a path to a database
+and some search terms, performs a probabilistic search for documents
+represented by those terms and displays a ranked list of matching documents.
+</P>
+
+<H3>Setting up</H3>
+
+<P>
+Just like &quot;simpleindex&quot;, we have a single-function example.
+So we include the Muscat header file, and begin:
+</P>
+<PRE>
+    #include &lt;om/om.h&gt;
+
+    int main(int argc, char *argv[])
+    {
+</PRE>
+
+<H3>Options parsing</H3>
+<P>
+Again, we are going to use no special options, and have a very simple
+command line syntax:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameters 2 onward</B> - the terms to be searched for in the database.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 2 parameters:
+</P>
+<PRE>
+    if(argc &lt; 3) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+                " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
+
+<H3>Catching exceptions</H3>
+<P>
+Again, this is performed just as it was for the simple indexer.
+</P>
+<PRE>
+    try {
+        <B>[code which accesses Muscat]</B>
+    }
+    catch(OmError &amp; error) {
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+</PRE>
+
+<H3>Specifying the databases</H3>
+<P>
+Muscat has the ability to search over many databases simultaneously,
+possibly even with the databases distributed across a network of machines.
+Each database can be in its own format, so, for example, we might have a
+system searching across two DA databases and a sleepycat database.
+</P>
+<P>
+This means that, when we are preparing to search, we create an
+OmDatabase object, and give it a set of parameters to specify
+databases by successively calling the
+<CODE>OmDatabase::add_database()</CODE> method.
+The parameters given to this method are the same as those which would be
+used in the constructor of an <CODE>OmWritableDatabase</CODE> to write
+to the database.
+</P>
+<PRE>
+    OmDatabase databases;
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    databases.add_database(db_parameters);
+</PRE>
+<P>
+You can also just pass the parameters to the <CODE>OmDatabase</CODE>
+constructor, which is a handy shortcut if you only want to search one database:
+</P>
+<PRE>
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    OmDatabase db(db_parameters);
+</PRE>
+
+<H3>Starting an enquire session</H3>
+<P>
+All searches across databases by Muscat are performed within the context of
+an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by an
+<CODE>OmEnquire</CODE> object, and is across a specified collection of
+databases.  To change the database collection, it is neccessary to open a
+new enquire session, by creating a new <CODE>OmEnquire</CODE> object.
+<PRE>
+    OmEnquire enquire(databases);
+</PRE>
+</P>
+<P>
+An enquire session is also the context within which all other database
+reading operations, such as query expansion and reading the data associated
+with a document, are performed.
+</P>
+
+<H3>Preparing to search</H3>
+
+<P>
+We are going to use all command line parameters from the second onward
+as terms to search for in the database.  For convenience, we shall store
+them in an STL vector.  This is probably the point at which we would want
+to apply a stemming algorithm, or any other desired normalisation and
+conversion operation, to the terms.
+<PRE>
+    vector&lt;om_termname&gt; queryterms;
+    for (int optpos = 2; optpos &lt; argc; optpos++) {
+        queryterms.push_back(argv[optpos]);
+    }
+</PRE>
+</P>
+
+<P>
+Queries are represented within muscat by <CODE>OmQuery</CODE> objects, so
+the next step is to construct one from our query terms.
+By an amazing coincidence, there is a constructor ready to take our vector
+of terms and create an <CODE>OmQuery</CODE> object from it.
+<PRE>
+    OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+</PRE>
+</P>
+
+<P>
+You will notice that we had to specify an operation to be performed on
+the terms (the <CODE>OM_MOP_OR</CODE> parameter).  If you're interested,
+MOP stands for &quot;Match OPeration&quot;.  Queries in Muscat are actually
+fairly complex things: a full range of boolean operations can be applied to
+queries to restrict the result set, and probabilistic weightings are then
+applied to order the results by relevance.  By specifying the OR operation,
+we are not performing any boolean restriction, and are performing a
+traditional pure probabilistic search.
+</P>
+
+<P>
+We now print a message out to confirm to the user what the query being
+performed is.  This is done with the <CODE>OmQuery::get_description()</CODE>
+method, which is mainly included for debugging purposes, and displays
+a string representation of the query.
+</P>
+<PRE>
+    cout &lt;&lt; "Performing query `" &lt;&lt;
+         query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+</PRE>
+
+<H3>Performing the search</H3>
+<P>
+Now, we are ready to perform the search.  The first step of this is to
+give the query object to the enquire session.  Note that the query is
+copied at this operation, and that changing the OmQuery object after
+setting the query with it has no effect.
+</P>
+<PRE>
+    enquire.set_query(query);
+</PRE>
+
+<P>
+Next, we ask for the results of the search.  There is no need to tell
+Muscat to perform the search: it will do this automatically.  We use
+the <CODE>get_mset()</CODE> method to get the results, which are returned
+in an <CODE>OmMSet</CODE> object.  (MSet for Match Set)
+</P>
+<P>
+<CODE>get_mset()</CODE> can take many parameters, such as a set of
+relevant documents to use, and various options to modify the search,
+but we give it the minimum; which is the first document to return (starting
+at 0 for the top ranked document), and the maximum number of documents
+to return (we specify 10 here):
+<PRE>
+    OmMSet matches = enquire.get_mset(0, 10);
+</PRE>
+</P>
+
+<H3>Displaying the results of the search</H3>
+<P>
+Finally, we display the results of the search.  The results are stored in
+a container called <CODE>items</CODE> in the <CODE>OmMSet</CODE> object,
+so first we display how many items are in that:
+<PRE>
+    cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
+</PRE>
+</P>
+
+<P>
+Now we display some information about each of the items in the
+<CODE>OmMSet</CODE>.  Each of these items is an object of type
+<CODE>OmMSetItem</CODE>, representing a document found by the search:
+<UL><LI>
+First, we display the document ID, stored in the <CODE>did</CODE> field.
+This is not usually very useful information to give to users, but it is
+at least a unique handle on each document.
+</LI><LI>
+Next, we display a &quot;percentage&quot; score for the document.  Readers
+familiar with Information Retrieval will not be surprised to hear that this
+is not really a percentage: it is just a value from 0 to 100, such that a
+more relevant document has a higher value.
+OmEnquire provides a utility method, <CODE>convert_to_percent</CODE> to
+return such a value from an <CODE>OmMSetItem</CODE>, which we use here.
+</LI><LI>
+Last, we display the data associated with each returned document, which
+was specified by the user at database generation time.  To do this, we
+first use the <CODE>OmEnquire::get_doc()</CODE> method, to get an
+<CODE>OmDocument</CODE> object representing the returned document, and
+then we use the <CODE>get_data()</CODE> method of this object to get
+access to the data stored in this document.
+</LI></UL>
+<PRE>
+    vector&lt;OmMSetItem&gt;::const_iterator i;
+    for (i = matches.items.begin(); i != matches.items.end(); i++) {
+        cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
+	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
+        OmDocument doc = enquire.get_doc(*i);
+	cout &lt;&lt; "[" &lt;&lt; doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
+    }
+</PRE>
+</P>
+
+<HR>
+<H2>Compiling</H2>
+
+Now that we have the code written, all we need to do is compile it!
+
+<H3>Finding the Muscat library</H3>
+
+<P>
+A small utility, &quot;libomus-config&quot;, is installed along with Muscat
+to assist you in finding the installed Muscat library, and in generating
+the flags to pass to the compiler and linker to compile.
+</P><P>
+After a successful compilation, this utility should be in your path, so
+you can simply run
+<BLOCKQUOTE><CODE>libomus-config --cflags</CODE></BLOCKQUOTE>
+to determine the flags to pass to the compiler, and
+<BLOCKQUOTE><CODE>libomus-config --libs</CODE></BLOCKQUOTE>
+to determine the flags to pass to the linker.
+
+These flags are returned on the utility's standard output (so you could use
+backtick notation to include them on your command line).
+</P><P>
+If your project uses the GNU autoconf tool, you may also use the
+<CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Muscat,
+and will check for an installation of Muscat and set (and
+<CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and
+<CODE>LIBOMUS_LIBS</CODE> variables to
+be the flags to pass to the compiler and linker, respectively.
+This macro will also allow you to use an uninstalled version of Muscat.
+</P><P>
+If you don't use GNU autoconf, don't worry about this.
+</P>
+
+<H3>Compiling the simple examples</H3>
+Once you know the compilation flags, compilation is a simple matter of
+invoking the compiler!  For our example, we could compile the two
+utilities (simpleindex and simplesearch) with the commands:
+<PRE>
+c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
+c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
+</PRE>
+
+<HR>
+<H2>Running the examples</H2>
+
+<P>
+Once we have compiled the examples, we can build up a simple database as
+follows.  Note that we must first create a directory for the database files to
+live in; although Muscat will create new empty database files if they do not
+yet exist, it will not create a new directory for them.
+<PRE>
+$ mkdir proverbs
+$ ./simpleindex proverbs \
+&gt; "people who live in glass houses should not throw stones" \
+&gt; people live glass house stone
+$ ./simpleindex proverbs \
+&gt; "Don't look a gift horse in the mouth" \
+&gt; look gift horse mouth
+</PRE>
+</P>
+
+<P>
+Now, we should have a database with a couple of documents in it.  Looking
+in the database directory, you should see something like:
+<PRE>
+$ ls proverbs/
+document.db  postlist.db  termid.db  termlist.db  termname.db
+</PRE>
+</P>
+<P>
+Given the small amount of data in the database, you may be concerned that
+the total size of these files is somewhat over 50k.  Be reassured that the
+database is block structured, here consisting of largely empty
+blocks, and will behave much better for large databases.  It is worth
+noting, however, that the sleepycat backend is not currently very efficient
+(in either space or time), and that this will be improving greatly in the
+future.
+</P>
+
+<P>
+We can at last perform searches over the database using the simplesearch
+program.
+<PRE>
+$ ./simplesearch proverbs look
+Performing query `look'
+1 results found
+Document ID 2   50% [Don't look a gift horse in the mouth]
+</PRE>
+</P>
+
+<HR>
+<H2>Further documentation</H2>
+
+For more detailed documentation on the API, there are two pieces of
+documentation available.
+<UL><LI>
+The <A HREF="userman.html">user manual</A>, which is designed as an
+introduction to the API.
+</LI>
+<LI>
+An <A HREF="apidoc/html/index.html">API reference</A>, which is automatically extracted from the extensive
+comments in the source code by
+<EM><A HREF="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</A></EM>.
+This is distributed together with the source code packages, but in the
+event that you do not have a this there is a
+<A HREF="http://open.muscat.com/developer/docs/apidoc/html/index.html">copy</A>
+available on our website.
+</LI></UL>
+
+For those interested in how Muscat works internally, there is also
+automatically extracted documentation of the full source code, available
+on our
+<A HREF="http://open.muscat.com/developer/docs/sourcedoc/html/index.html">website</A>.  You may also build this documentation yourself, if you have Doxygen
+installed, by running
+<PRE>
+    make doxygen_docs
+</PRE>
+from within the <CODE>docs</CODE> subdirectory of the <CODE>om</CODE> source
+tree.
+
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

@@ -1,3 +1,7 @@
+Thu Oct 26 18:32:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Start of an indexer quickstart
+
 Wed Oct 25 17:03:03 BST 2000 Olly Betts
 
 	* RemotePostList is now filtered through a forming mset at the
