@@ -149,7 +149,7 @@ main(int argc, char **argv)
         }
     }
 
-    if (argc - optind < 3) {
+    if (argc - optind < 2) {
 	usage(argv[0]);
 	exit(1);
     }
@@ -193,12 +193,13 @@ main(int argc, char **argv)
 
 	struct stat sb;
 
-	vector<Xapian::docid> offset(argc - 1 - optind);
+	const size_t out_of = argc - 1 - optind;
+	vector<Xapian::docid> offset(out_of);
 	Xapian::docid tot_off = 0;
-	for (int i = optind; i < argc - 1; ++i) {
-	    Xapian::Database db(argv[i]);
+	for (int i = 0; i < out_of; ++i) {
+	    Xapian::Database db(argv[i + optind]);
 	    Xapian::docid last = db.get_lastdocid();
-	    offset[i - optind] = tot_off;
+	    offset[i] = tot_off;
 	    tot_off += last;
 	    // FIXME: prune unused docids off the start and end of each range...
 	}
@@ -217,13 +218,14 @@ main(int argc, char **argv)
 
 	    off_t in_size = 0;
 
-	    for (int i = optind; i < argc - 1; ++i) {
-		size_t j = i - optind;
-		cout << "\r" << *t << " " << j << "/" << argc - 1 - optind
-		     << " ..." << flush;
+	    for (int i = 0; i < out_of; ++i) {
+		if (i) cout << '\r';
+		cout << *t;
+		if (out_of > 1) cout << ' ' << i << '/' << out_of;
+		cout << " ..." << flush;
 
-		Xapian::docid off = offset[j];
-		const char *srcdir = argv[i];
+		Xapian::docid off = offset[i];
+		const char *srcdir = argv[i + optind];
 		string src(srcdir);
 		src += '/';
 		src += *t;
@@ -257,7 +259,7 @@ main(int argc, char **argv)
 				    if (tot_totlen < tot_totlen) {
 					throw "totlen wrapped!";
 				    }
-				    if (i == argc - 2) {
+				    if (i == out_of - 1) {
 					string tag = pack_uint(tot_off);
 					tag += pack_uint_last(tot_totlen);
 					out.add(string("", 1), tag);
@@ -330,9 +332,9 @@ main(int argc, char **argv)
 	vector<Btree *> btrees;
 
 	priority_queue<MyBcursor *, std::vector<MyBcursor *>, MyBcursorGt> pq;
-	for (int i = optind; i < argc - 1; ++i) {
-	    Xapian::docid off = offset[i - optind];
-	    const char *srcdir = argv[i];
+	for (int i = 0; i < out_of; ++i) {
+	    Xapian::docid off = offset[i];
+	    const char *srcdir = argv[i + optind];
 	    string src(srcdir);
 	    src += "/postlist_";
 
@@ -353,12 +355,12 @@ main(int argc, char **argv)
 	Xapian::termcount tf, cf;
 	vector<pair<Xapian::docid, string> > tags;
 	while (true) {
-	    MyBcursor * bc;
+	    MyBcursor * bc = NULL;
 	    if (!pq.empty()) {
 		bc = pq.top();
 		pq.pop();
 	    }
-	    if (pq.empty() || bc->key != last_key) {
+	    if (bc == NULL || bc->key != last_key) {
 		if (!tags.empty()) {
 		    string first_tag = pack_uint(tf);
 		    first_tag += pack_uint(cf);
@@ -378,7 +380,7 @@ main(int argc, char **argv)
 		    }
 		}
 		tags.clear();
-		if (pq.empty()) break;
+		if (bc == NULL) break;
 		tf = cf = 0;
 		last_key = bc->key;
 	    }
