@@ -1,3 +1,8 @@
+Fri May 09 01:06:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Fixed MSet::Internal::get_description() to include
+	  class name.
+
 Fri May 09 01:04:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/rset.h,matcher/expand.cc,matcher/rset.cc: RSetI now uses

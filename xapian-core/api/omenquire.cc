@@ -462,7 +462,7 @@ MSet::Internal::get_description() const
 {
     string description = "Xapian::MSet::Internal(";
 
-    description = "firstitem=" + om_tostring(firstitem) + ", " +
+    description += "firstitem=" + om_tostring(firstitem) + ", " +
 	    "matches_lower_bound=" + om_tostring(matches_lower_bound) + ", " +
 	    "matches_estimated=" + om_tostring(matches_estimated) + ", " +
 	    "matches_upper_bound=" + om_tostring(matches_upper_bound) + ", " +
