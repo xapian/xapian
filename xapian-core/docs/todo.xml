@@ -27,12 +27,6 @@ Write indexer modules.
 </todoitem>
 <todoitem priority="H" difficulty="3" owner="" area="Quartz" release="1.0">
 
-Get a lock on database when writing, to prevent accidental multiple
-writers (which would result in a corrupt database).
-
-</todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="Quartz" release="1.0">
-
 Detect and deal with btree overwritten condition.  Write tests to ensure
 this works.
 
