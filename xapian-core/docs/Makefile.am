@@ -14,7 +14,7 @@ endif
 
 if HAVE_DOCPP
 
-DOCPPFLAGS = -j -A -c -q -u --no-define
+DOCPPFLAGS = --sort --no-java-graphs --all --c-comments --quantel --private --upwards-arrows --no-define
 
 CREATED_DOCUMENTS2=apidoc/index.html sourcedoc/index.html
 

@@ -52,7 +52,7 @@ class OmError {
         }
 
         // forbid instantiations of OmError (as opposed to subclasses)
-	inline virtual ~OmError() = 0;
+	virtual ~OmError() = 0;
 };
 
 inline OmError::~OmError() {}
