@@ -217,4 +217,3 @@ IRDatabase::get_document(om_docid did)
 {
     return do_get_document(did);
 }
-

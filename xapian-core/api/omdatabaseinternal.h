@@ -1,4 +1,5 @@
-/* omdatabaseinternal.h: Class definition for OmDatabaseGroup::Internal
+/* omdatabaseinternal.h: Class definition for OmDatabase::Internal
+ * and OmDatabaseGroup::Internal
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -30,6 +31,43 @@
 #include "omrefcnt.h"
 #include "database_builder.h"
 #include "multi_database.h"
+#include "database.h"
+#include "om/omdatabase.h"
+
+/////////////////////////////
+// Internals of OmDatabase //
+/////////////////////////////
+
+/** Reference counted internals for OmDatabase.
+ */
+class OmDatabase::Internal {
+    public:
+	/** Make a new internal object, with the user supplied parameters.
+	 *
+	 *  This opens the database and stores it in the ref count pointer.
+	 *
+	 *  @param params  a vector of parameters to be used to open the
+	 *                 database: meaning and number required depends
+	 *                 on database type.
+	 *
+	 *  @param readonly flag as to whether to open database read only
+	 */
+	Internal(const OmSettings &params, bool readonly);
+
+	/** Make a copy of this object, copying the ref count pointer.
+	 */
+	Internal(const Internal &other) : mydb(other.mydb), mutex() {}
+
+	/** The database.  Access to this is not protected by a mutex here -
+	 *  it is up to the database to deal with thread safety.
+	 */
+	OmRefCntPtr<IRDatabase> mydb;
+
+	/** A lock to control concurrent access to this object.
+	 *  This is not intended to control access to the IRDatabase object.
+	 */
+	OmLock mutex;
+};
 
 //////////////////////////////////
 // Internals of OmDatabaseGroup //
@@ -61,7 +99,7 @@ class OmDatabaseGroup::Internal {
 	 */
 	void add_database(const OmSettings &params);
 
-	/** Add an opened database to the group.
+	/** Add an already opened database to the group.
 	 */
 	void add_database(OmRefCntPtr<IRDatabase> newdb);
 
