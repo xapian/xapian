@@ -121,7 +121,8 @@ class QuartzPositionList : public PositionList {
 	static void set_positionlist(QuartzBufferedTable * table,
 			om_docid did,
 			const om_termname & tname,
-			const OmDocumentTerm::term_positions & positions);
+			OmPositionListIterator pos,
+			const OmPositionListIterator &pos_end);
 
 	/// Delete the position list for the given docid and termname
 	static void delete_positionlist(QuartzBufferedTable * table,

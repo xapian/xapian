@@ -195,7 +195,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	static void
 	set_entries(QuartzBufferedTable * table, om_docid did,
-		    OmTermListIterator t_begin, OmTermListIterator t_end,
+		    OmTermListIterator t, const OmTermListIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the

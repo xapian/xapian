@@ -180,53 +180,6 @@ QuartzDatabase::do_replace_document(om_docid did,
     Assert(false);
 }
 
-OmDocument
-QuartzDatabase::do_get_document_internal(om_docid did,
-					 RefCntPtr<const Database> ptrtothis)
-{
-    Assert(did != 0);
-
-    OmDocument document;
-
-    document.set_data(
-	QuartzRecordManager::get_record(*(tables->get_record_table()), did));
-
-    QuartzAttributesManager::get_all_attributes(
-		*(tables->get_attribute_table()),
-		document.keys,
-		did);
-
-    QuartzTermList termlist(ptrtothis,
-			    tables->get_termlist_table(),
-			    tables->get_lexicon_table(),
-			    did,
-			    get_doccount_internal());
-
-    termlist.next();
-    while (!termlist.at_end()) {
-	OmDocumentTerm term(termlist.get_termname());
-	term.wdf = termlist.get_wdf();
-	term.termfreq = termlist.get_termfreq();
-
-	// read appropriate QuartzPositionList, and store it too.
-	QuartzPositionList positionlist;
-	positionlist.read_data(tables->get_positionlist_table(),
-			       did,
-			       term.tname);
-	positionlist.next();
-	while (!positionlist.at_end()) {
-	    term.positions.push_back(positionlist.get_position());
-	    positionlist.next();
-	}
-
-	document.terms.insert(std::make_pair(term.tname, term));
-	termlist.next();
-    }
-
-    return document;
-}
-
-
 om_doccount 
 QuartzDatabase::get_doccount() const
 {
@@ -520,7 +473,7 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 					  new_doclen);
 		QuartzPositionList::set_positionlist(
 		    buffered_tables->get_positionlist_table(), did,
-		    *term, term->second.positions);
+		    *term, term.positionlist_begin(), term.positionlist_end());
 	    }
 	}
 
@@ -544,36 +497,32 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
-    QuartzDatabase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
-
-    OmDocument document(database_ro.do_get_document_internal(did, ptrtothis));
-
     try {
-	OmTermListIterator term = document.termlist_begin();
-	OmTermListIterator term_end = document.termlist_end();    
-	for ( ; term != term_end; ++term) {
+	QuartzDatabase::RefCntPtrToThis tmp;
+	RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+	QuartzTermList termlist(ptrtothis,
+				database_ro.tables->get_termlist_table(),
+				database_ro.tables->get_lexicon_table(),
+				did,
+				database_ro.get_doccount_internal());
+
+	termlist.next();
+	while (!termlist.at_end()) {
+	    om_termname tname = termlist.get_termname();
 	    QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
-		*term, did);
+		tname, did);
 	    QuartzPositionList::delete_positionlist(
 		buffered_tables->get_positionlist_table(),
-		did, *term);
+		did, tname);
 	    QuartzLexicon::decrement_termfreq(
 		buffered_tables->get_lexicon_table(),
-		*term);
+		tname);
 	}
 
 	// Set the document length.
 	// (New doclen is always zero, since we're deleting the document.)
-	// FIXME: (make and) use a static method of QuartzTermList, to avoid
-	// having to open a temporary termlist object.
-	quartz_doclen_t old_doclen = 0;
-	QuartzTermList termlist(0,
-				buffered_tables->get_termlist_table(),
-				buffered_tables->get_lexicon_table(),
-				did,
-				database_ro.get_doccount_internal());
-	old_doclen = termlist.get_doclength();
+	quartz_doclen_t old_doclen = termlist.get_doclength();
 	QuartzRecordManager::modify_total_length(
 		*(buffered_tables->get_record_table()),
 		old_doclen,

@@ -569,9 +569,9 @@ ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 
 std::string
 ommset_termfreqwts_to_string(const std::map<om_termname,
-			                OmMSet::TermFreqAndWeight> &terminfo)
+			     OmMSet::TermFreqAndWeight> &terminfo)
 {
-    // encode as term freq,weight;term2 freq2,weight2;...
+    // encode as term freq weight term2 freq2 weight2 ...
     std::string result;
 
     std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;

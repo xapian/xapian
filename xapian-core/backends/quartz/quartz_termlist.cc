@@ -118,25 +118,29 @@ QuartzTermList::write_item(std::string & data,
 void
 QuartzTermList::set_entries(QuartzBufferedTable * table,
 			    om_docid did,
-			    const OmDocument::document_terms & terms,
+			    OmTermListIterator t,
+			    const OmTermListIterator &t_end,
 			    quartz_doclen_t doclen,
 			    bool store_termfreqs)
 {
     QuartzDbTag * tag = table->get_or_make_tag(quartz_docid_to_key(did));
 
     tag->value = "";
-    write_doclen(tag->value, doclen);
-    write_size(tag->value, terms.size());
-    write_has_termfreqs(tag->value, store_termfreqs);
-
-    OmDocument::document_terms::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
+    unsigned int size = 0;
+    for ( ; t != t_end; ++t) {
 	write_item(tag->value,
-		   i->second.tname,
-		   i->second.wdf,
+		   *t,
+		   t.get_wdf(),
 		   store_termfreqs,
-		   i->second.termfreq);
+		   t.get_termfreq());
+	size++;
     }
+    std::string v;
+    write_doclen(v, doclen);
+    write_size(v, size);
+    write_has_termfreqs(v, store_termfreqs);
+    tag->value = v + tag->value;
+
     DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + tag->value + "'");
 }
 

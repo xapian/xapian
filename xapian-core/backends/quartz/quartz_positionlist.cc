@@ -127,7 +127,8 @@ void
 QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			om_docid did,
 			const om_termname & tname,
-			const OmDocumentTerm::term_positions & positions)
+			OmPositionListIterator pos,
+			const OmPositionListIterator &pos_end)
 {
     QuartzDbKey key;
     QuartzDbTag * tag;
@@ -135,16 +136,16 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
     make_key(did, tname, key);
     tag = table->get_or_make_tag(key);
 
-    tag->value = pack_uint(positions.size());
+    tag->value = "";
 
-    OmDocumentTerm::term_positions::const_iterator i;
     om_termpos prevpos = 0;
-    for (i = positions.begin();
-	 i != positions.end();
-	 i++) {
-	tag->value += pack_uint(*i - prevpos);
-	prevpos = *i;
+    unsigned int size = 0;
+    for ( ; pos != pos_end; ++pos) {
+	tag->value += pack_uint(*pos - prevpos);
+	prevpos = *pos;
+	size++;
     }
+    tag->value = pack_uint(size) + tag->value;
 }
 
 void

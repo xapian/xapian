@@ -66,10 +66,6 @@ class QuartzDatabase : public Database {
 					 const OmDocument & document);
 	//@}
 
-	/// Implementation of do_get_document()
-	OmDocument do_get_document_internal(om_docid did,
-					 RefCntPtr<const Database> ptrtothis);
-
 	/// Implementation of get_avlength()
 	om_doclength get_avlength_internal() const;
 
@@ -161,7 +157,6 @@ class QuartzWritableDatabase : public Database {
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
 					 const OmDocument & document);
-	virtual OmDocument do_get_document(om_docid did);
 	//@}
 
     public:
