@@ -1,3 +1,8 @@
+Thu Nov 04 10:21:25 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Found clean fix for inttypes.h problem (previous bodge
+	  didn't work anyway).
+
 Thu Nov 04 01:18:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Eliminated use of \( \) in sed expression as it

@@ -105,24 +105,20 @@ dnl this early in configure so such settings are used for other tests, and
 dnl put them in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS are only used in
 dnl the Makefiles.
 case "$CXX" in
-  dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
-  dnl   for (int i = 1; i < n; ++i) { ... }
-  dnl (note the latest is controlled by: -ansi_for_scope,on if we need
-  dnl drop -AA)
-  dnl Note this means that user code must be built with -AA (which is
-  dnl the default on Itanium, but not on PARISC:
-  dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
-  dnl )
-  aCC|*/aCC) CXXFLAGS="$CXXFLAGS -AA" ;;
+  aCC|*/aCC)
+    dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
+    dnl   for (int i = 1; i < n; ++i) { ... }
+    dnl (note the latest is controlled by: -ansi_for_scope,on if we need
+    dnl drop -AA)
+    dnl Note this means that user code must be built with -AA (which is
+    dnl the default on Itanium, but not on PARISC:
+    dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
+    dnl )
+    CXXFLAGS="$CXXFLAGS -AA" ;;
   cxx|*/cxx)
     dnl Select ANSI iostream implementation (default is a pre-standard
     dnl AT&T-compatible version).
-    CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM"
-    dnl cc finds inttypes.h, but cxx doesn't (presumably because it's C99)
-    dnl which makes any configure test with cxx fail because they all try
-    dnl to include inttypes.h.
-    ac_cv_header_inttypes_h=no
-    ;;
+    CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM" ;;
 esac
 
 dnl Check for time functions.
@@ -148,8 +144,10 @@ AC_PREPROC_IFELSE([#include <stdlib.h>
   AC_DEFINE(HAVE_GLIBC, 1, [Define if the C library is glibc]),
   AC_MSG_RESULT(no))
 
-dnl how to find the hostname
-AC_CHECK_HEADERS(sys/utsname.h) dnl uname function in here
+dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
+dnl Don't use default includes as inttypes.h is found by Compaq C but not C++
+dnl so it causes all header probes to fail.
+AC_CHECK_HEADERS(sys/utsname.h, [], [], [])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
@@ -157,9 +155,9 @@ AC_CHECK_TYPE(ssize_t, long)
 
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
-AC_CHECK_HEADERS(sstream)
+AC_CHECK_HEADERS(sstream, [], [], [])
 dnl Check for a new streams implementation.
-AC_CHECK_HEADERS(streambuf)
+AC_CHECK_HEADERS(streambuf, [], [], [])
 
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
@@ -205,7 +203,7 @@ dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
 dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(fcntl.h limits.h)
+AC_CHECK_HEADERS(fcntl.h limits.h, [], [], [])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.
