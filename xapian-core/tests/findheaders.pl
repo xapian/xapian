@@ -1,9 +1,7 @@
-#! @PERL@ -w
-# @configure_input@
-# findheaders.pl is automatically generated from findheaders.pl.in
-# *** Do not edit the generated file ***
-
-# findheaders.pl.in: generate a list of all included headers from Makefile.ins
+#! /usr/bin/perl -w
+# findheaders.pl: generate a list of all included headers from Makefile.in-s
+# Note: we read them from Makefile.in rather than Makefile.am so that automake
+# has unwrapped lines for us
 require 5.000;
 use strict;
 

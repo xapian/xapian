@@ -1,3 +1,7 @@
+Tue May 07 14:54:12 BST 2002  Olly Betts <olly@survex.com>
+
+	* Sorted out tests/findheaders.pl wrt last change.
+
 Tue May 07 13:12:23 BST 2002  Olly Betts <olly@survex.com>
 
 	* Run perl scripts from Makefiles explicitly with $(PERL) rather than
