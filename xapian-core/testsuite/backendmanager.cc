@@ -255,7 +255,7 @@ BackendManager::getdb_net(const vector<string> &dbnames)
     args.push_back("../netprogs/omprogsrv");
     args.push_back(datadir);
     args.insert(args.end(), dbnames.begin(), dbnames.end());
-    OmWritableDatabase db("net", args);
+    OmDatabase db("net", args);
 
     return db;
 }
