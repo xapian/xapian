@@ -23,8 +23,9 @@
 #include "inmemory_document.h"
 #include <om/omdocument.h>
 
-InMemoryDocument::InMemoryDocument(const string & doc_)
-	: doc(doc_)
+InMemoryDocument::InMemoryDocument(const string & doc_,
+				   const vector<OmKey> &keys_)
+	: doc(doc_), keys(keys_)
 {
     return;
 }
@@ -33,10 +34,10 @@ OmKey
 InMemoryDocument::do_get_key(om_keyno keyid) const
 {
     OmKey key;
-    if(doc.size() <= keyid) {
+    if(keys.size() <= keyid) {
 	key.value = "";
     } else {
-        key.value = doc[keyid];
+        key = keys[keyid];
     }
     return key;
 }
@@ -44,7 +45,7 @@ InMemoryDocument::do_get_key(om_keyno keyid) const
 vector<OmKey>
 InMemoryDocument::do_get_all_keys() const
 {
-    throw OmUnimplementedError("InmemoryDocument::do_get_all_keys() unimplemented");
+    return keys;
 }
 
 OmData

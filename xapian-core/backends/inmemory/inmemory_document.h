@@ -30,8 +30,9 @@ class InMemoryDocument : public LeafDocument {
     friend class InMemoryDatabase;
     private:
 	string doc;
+	vector<OmKey> keys;
 
-	InMemoryDocument(const string & doc_);
+	InMemoryDocument(const string & doc_, const vector<OmKey> &keys_);
 
 	// Stop copying
 	InMemoryDocument(const InMemoryDocument &);

@@ -132,15 +132,36 @@ InMemoryDatabase::open_document(om_docid did) const
 {
     Assert(did > 0 && did <= doclists.size());
 
-    return new InMemoryDocument(doclists[did - 1]);
+    return new InMemoryDocument(doclists[did - 1], keylists[did - 1]);
+}
+
+void
+InMemoryDatabase::add_keys(om_docid did,
+	      const OmDocumentContents::document_keys &keys_)
+{
+    vector<OmKey> keys;
+    OmDocumentContents::document_keys::const_iterator i;
+    i = keys_.begin();
+    om_keyno this_keyno = 0;
+    while (i != keys_.end()) {
+	while (this_keyno < i->first) {
+	    keys.push_back(OmKey());
+	    ++this_keyno;
+	}
+	keys.push_back(i->second);
+	++i, ++this_keyno;
+    }
+    Assert(keys.size() == this_keyno);
+    Assert(keylists.size() == did-1);
+    keylists.push_back(keys);
 }
 
 om_docid
 InMemoryDatabase::add_document(const struct OmDocumentContents & document)
 {
     om_docid did = make_doc(document.data);
+    add_keys(did, document.keys);
 
-    // FIXME: add the keys
     
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {

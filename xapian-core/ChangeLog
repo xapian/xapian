@@ -1,3 +1,7 @@
+Mon Jun  5 14:31:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Inmemory database now supports "keys" properly.
+
 Mon Jun  5 14:26:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Enable storage of the sum of the wdfs in a SleepyList in the list.

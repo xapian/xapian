@@ -35,6 +35,7 @@
 #include <list>
 #include <algorithm>
 #include "om/omdocument.h"
+#include "om/omindexdoc.h"
 
 
 // Class representing a posting (a term/doc pair, and
@@ -185,6 +186,7 @@ class InMemoryDatabase : public IRDatabase {
 	map<om_termname, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<string> doclists;
+	vector<vector<OmKey> > keylists;
 
 	vector<om_doclength> doclengths;
 
@@ -211,6 +213,8 @@ class InMemoryDatabase : public IRDatabase {
 	void make_term(const om_termname & tname);
 
 	om_docid make_doc(const OmData & docdata);
+	void add_keys(om_docid did,
+		      const OmDocumentContents::document_keys &keys_);
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,
