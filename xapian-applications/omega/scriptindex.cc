@@ -215,7 +215,7 @@ parse_index_script(const string &filename)
 			    code = Action::UNHTML;  
 			} else if (action == "unique") {
 			    code = Action::UNIQUE;  
-			    arg = YES; // to enable hash unique: OPT;
+			    arg = YES;
 			}
 			break;
 		    case 'v':
@@ -301,18 +301,6 @@ lowercase_string(string &term)
         i++;
     }
 } 
-
-#if 0
-static unsigned int
-hash(const string &s)
-{
-    unsigned int h = 1;
-    for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
-	h += (h << 5) + static_cast<unsigned char>(*i);
-    }
-    return h;
-}
-#endif
 
 static bool
 index_file(istream &stream, Xapian::WritableDatabase &database,
@@ -416,22 +404,6 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 			// Argument is the prefix to add to the field value
 			// to get the unique term.
 			string t = i->get_string_arg();
-#if 0
-			if (t.empty()) {
-			    // Generate the docid from a hash of the value
-			    // - quicker than performing a lookup in the
-			    // database and the probability of a collision
-			    // is very low unless the number of documents
-			    // is vast.
-			    // 
-			    // FIXME: this doesn't current work since
-			    // replace_document() requires that the document id
-			    // already exists in the DB...
-			    docid = hash(value);
-			    if (docid == 0) docid = 1;
-			    break;
-			}
-#endif
 			t += value;
 again:
 			try {

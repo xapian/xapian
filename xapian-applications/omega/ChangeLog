@@ -1,3 +1,9 @@
+Wed Jun 18 16:32:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Removed already disabled unique id hashing to docid
+	  code.  Xapian doesn't support setting arbitrary docids - if it ever
+	  does we can retrieve this code from CVS.
+
 Wed Jun 18 16:28:33 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,indextext.cc,indextext.h,omindex.cc,scriptindex.cc:
