@@ -60,10 +60,6 @@ Priority | Area            | Task
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
 ---------+-----------------+--------------------------------------------------
- Medium  |CDistribution    | Make omprogsrv use a MultiMatch instead of Local
----------+-----------------+--------------------------------------------------
- Medium  |CDistribution    | Make Stats gathering etc. work asynchronously
----------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Make add_document() atomic.
 ---------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Add pthread locking to all database classes.
