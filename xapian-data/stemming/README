@@ -1,5 +1,5 @@
-This directory heirarchy contains test data for the Muscat stemming
-algorithms.  The heirarchy is organised into a set of directories,
+This directory hierarchy contains test data for the Xapian stemming
+algorithms.  The hierarchy is organised into a set of directories,
 one for each stemming algorithm.  The actual stemming data is stored in
 a subdirectory ('data') in each of these directories, as a pair of files:
 
@@ -7,5 +7,5 @@ a subdirectory ('data') in each of these directories, as a pair of files:
   voc.st   -- The result of passing these words through the stemming
               algorithm.
 
-For more information see the Muscat package, available from
-http://open.muscat.com/
+For more information see the Xapian package, available from
+http://www.xapian.org/
