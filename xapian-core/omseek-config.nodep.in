@@ -22,6 +22,7 @@ Known values for OPTION are:
   --cflags		print pre-processor and compiler flags
   --prefix              set prefix
   --exec-prefix         set executable prefix (must also specify a --prefix)
+  --uninst              this is from an uninstalled version of Omseek
   --help		display this help and exit successfully
   --version		output version information
 
@@ -38,6 +39,7 @@ echo_cflags=false
 echo_libs=false
 prefix_set=false
 exec_prefix_set=false
+uninst=false
 
 while test $# -gt 0; do
     case "$1" in
@@ -63,6 +65,10 @@ while test $# -gt 0; do
     --exec-prefix)
 	echo $exec_prefix
 	;;
+
+    --uninst)
+        uninst=true
+       ;;
 
     --version)
 	echo omseek @VERSION@
@@ -126,7 +132,11 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-    echo -L$libdir -lomseek $dependency_libs
+    if test "$uninst" = "true"; then
+       echo $exec_prefix/libomseek.la $dependency_libs
+    else
+       echo -L$libdir -lomseek $dependency_libs
+    fi
 fi
 
 exit 0

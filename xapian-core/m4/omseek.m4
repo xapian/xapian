@@ -1,5 +1,5 @@
 # a macro to get the libs/cflags for omseek library
-# serial 2
+# serial 3
 
 dnl OM_PATH_OMSEEK[ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 dnl Find paths to Omseek library
@@ -92,8 +92,8 @@ else
     OMSEEK_CONFIG_TMP=./.omseek-config_tmp
     chmod +x .omseek-config_tmp
   fi
-  OMSEEK_CFLAGS=`$OMSEEK_CONFIG_TMP --prefix=$OMSEEK_UNINST --exec-prefix=$OMSEEK_UNINST_EXEC --cflags`
-  OMSEEK_LIBS=`$OMSEEK_CONFIG_TMP --prefix=$OMSEEK_UNINST --exec-prefix=$OMSEEK_UNINST_EXEC --libs`
+  OMSEEK_CFLAGS=`$OMSEEK_CONFIG_TMP --uninst --prefix=$OMSEEK_UNINST --exec-prefix=$OMSEEK_UNINST_EXEC --cflags`
+  OMSEEK_LIBS=`$OMSEEK_CONFIG_TMP --uninst --prefix=$OMSEEK_UNINST --exec-prefix=$OMSEEK_UNINST_EXEC --libs`
   if test -x ".omseek-config_tmp"; then
     rm -f .omseek-config_tmp;
   fi

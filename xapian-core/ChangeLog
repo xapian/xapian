@@ -1,3 +1,8 @@
+Mon Oct 22 11:21:45 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Altered omseek-config and the AC m4 macro to make uninst
+	  executables link to the right version of the library
+
 Mon Oct 22 10:38:20 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Minor fixes to enable build (and test) under Solaris.
