@@ -99,7 +99,8 @@ msetcmp_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSe
 // Comparison which sorts by a value - used when sort_bands == 1.
 // If sort keys compare equal, return documents in docid order.
 static bool
-msetcmp_sort_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
+msetcmp_sort_forward(const Xapian::Internal::MSetItem &a,
+		     const Xapian::Internal::MSetItem &b)
 {
     // "bigger is better"
     if (a.sort_key > b.sort_key) return true;
@@ -111,13 +112,45 @@ msetcmp_sort_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal
 }
 
 // Comparison which sorts by a value - used when sort_bands == 1.
-// If sort keys compare equal, return documents in reverse docid order.
+// If sort keys compare equal, return documents in weight, then docid order.
 static bool
-msetcmp_sort_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
+msetcmp_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
+			       const Xapian::Internal::MSetItem &b)
 {
     // "bigger is better"
     if (a.sort_key > b.sort_key) return true;
     if (a.sort_key < b.sort_key) return false;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    return (a.did < b.did);
+}
+
+// Comparison which sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in reverse docid order.
+static bool
+msetcmp_sort_reverse(const Xapian::Internal::MSetItem &a,
+		     const Xapian::Internal::MSetItem &b)
+{
+    // "bigger is better"
+    if (a.sort_key > b.sort_key) return true;
+    if (a.sort_key < b.sort_key) return false;
+    return (a.did > b.did);
+}
+
+// Comparison which sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in reverse docid order.
+static bool
+msetcmp_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
+			       const Xapian::Internal::MSetItem &b)
+{
+    // "bigger is better"
+    if (a.sort_key > b.sort_key) return true;
+    if (a.sort_key < b.sort_key) return false;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
     return (a.did > b.did);
 }
 
@@ -166,7 +199,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		       const Xapian::RSet & omrset, Xapian::valueno collapse_key_,
 		       int percent_cutoff_, Xapian::weight weight_cutoff_,
 		       bool sort_forward_, Xapian::valueno sort_key_,
-		       int sort_bands_, time_t bias_halflife_,
+		       int sort_bands_, bool sort_by_relevance_,
+		       time_t bias_halflife_,
 		       Xapian::weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_,
 		       const Xapian::Weight * weight_)
@@ -174,15 +208,16 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
 	  weight_cutoff(weight_cutoff_), sort_forward(sort_forward_),
 	  sort_key(sort_key_), sort_bands(sort_bands_),
+	  sort_by_relevance(sort_by_relevance_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
 	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
 	      ", " << weight_cutoff_ << ", " << sort_forward << ", " <<
-	      sort_key_ << ", " << sort_bands_ << ", " << bias_halflife_ <<
-	      ", " << bias_weight_ << ", " << errorhandler_ <<
-	      ", [gatherer_], [weight_]");
+	      sort_key_ << ", " << sort_bands_ << ", " << sort_by_relevance_ <<
+	      ", " << bias_halflife_ << ", " << bias_weight_ << ", " <<
+	      errorhandler_ << ", [gatherer_], [weight_]");
     if (!query) return;
 
     query->validate_query();
@@ -480,8 +515,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // The sort_bands == 1 case is special - then we only need to compare
     // weights when the sortkeys are identical.
     OmMSetCmp mcmp(sort_bands != 1 ?
-		   (sort_forward ? msetcmp_forward : msetcmp_reverse) :
-		   (sort_forward ? msetcmp_sort_forward : msetcmp_sort_reverse));
+	(sort_forward ? msetcmp_forward : msetcmp_reverse) :
+	(sort_forward ?
+	    (sort_by_relevance ? msetcmp_sort_forward_relevance : msetcmp_sort_forward) :
+	    (sort_by_relevance ? msetcmp_sort_reverse_relevance : msetcmp_sort_reverse)));
 
     // Perform query
 

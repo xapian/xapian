@@ -63,6 +63,8 @@ class MultiMatch
 
 	int sort_bands;
 
+	bool sort_by_relevance;
+
 	time_t bias_halflife;
 
 	Xapian::weight bias_weight;
@@ -123,6 +125,7 @@ class MultiMatch
 		   bool sort_forward_,
 		   Xapian::valueno sort_key_,
 		   int sort_bands_,
+		   bool sort_by_relevance_,
 		   time_t bias_halflife_,
 		   Xapian::weight bias_weight_,
 		   Xapian::ErrorHandler * errorhandler,

@@ -1,3 +1,11 @@
+Thu Sep 09 21:46:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
+	  include/xapian/enquire.h,matcher/multimatch.cc,net/socketserver.cc,
+	  tests/api_db.cc,tests/testdata/apitest_sortrel.txt: You can now
+	  specify to sort by value, then relevance, then docid instead of
+	  by value then docid.
+
 Thu Sep 09 19:30:07 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Removed unused file - todo entries are now in

@@ -1117,6 +1117,44 @@ static bool test_quartzdatabaseopeningerror1()
     return true;
 }
 
+// feature test for Enquire: sort by value, then relevance.
+static bool test_sortrel1()
+{
+    Xapian::Enquire enquire(get_database("apitest_sortrel"));
+    enquire.set_sorting(1, 1);
+    enquire.set_query(Xapian::Query("woman"));
+
+    const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
+    const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
+
+    Xapian::MSet mset;
+    size_t i;
+    
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order1) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order1[i]);
+    }
+
+    enquire.set_sorting(1, 1, true);
+
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order2) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order2) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order2[i]);
+    }
+
+    enquire.set_sorting(1, 1, false);
+
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order1) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order1[i]);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1195,5 +1233,6 @@ test_desc remotedb_tests[] = {
 
 test_desc quartz_tests[] = {
     {"quartzdatabaseopeningerror1",	test_quartzdatabaseopeningerror1},
+    {"sortrel1",	   test_sortrel1},
     {0, 0}
 };

@@ -308,8 +308,9 @@ SocketServer::run_match(const string &firstmessage)
     Xapian::RSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, query, omrset, collapse_key, percent_cutoff,
-		     weight_cutoff, sort_forward, Xapian::valueno(-1), 0, 0, 0,
-		     NULL, AutoPtr<StatsGatherer>(gatherer), wt.get());
+		     weight_cutoff, sort_forward, Xapian::valueno(-1),
+		     false, 0, 0, 0, NULL,
+		     AutoPtr<StatsGatherer>(gatherer), wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

@@ -745,8 +745,12 @@ class Enquire {
 	 *	 percentage relevance.  Within each band, sort by the value
 	 *	 number specified by sort_key.  (default is 0 which means
 	 *	 no re-sorting).
+	 * 
+	 * @param sort_by_relevance sort results with equal keys by relevance
+	 *       rather than docid.  (default is false).
 	 */
-	void set_sorting(Xapian::valueno sort_key, int sort_bands);
+	void set_sorting(Xapian::valueno sort_key, int sort_bands,
+			 bool sort_by_relevance = false);
 
         /** Set the bias functor parameters.
          *

@@ -669,7 +669,7 @@ MSetIterator::get_description() const
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(Xapian::valueno(-1)), sort_forward(true), 
     percent_cutoff(0), weight_cutoff(0), sort_key(Xapian::valueno(-1)),
-    sort_bands(0), bias_halflife(0), bias_weight(0),
+    sort_bands(0), sort_by_relevance(false), bias_halflife(0), bias_weight(0),
     errorhandler(errorhandler_), weight(0)
 {
 }
@@ -725,7 +725,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // FIXME: make match take a refcntptr
     ::MultiMatch match(db, query->internal.get(), *rset, collapse_key,
 		     percent_cutoff, weight_cutoff,
-		     sort_forward, sort_key, sort_bands,
+		     sort_forward, sort_key, sort_bands, sort_by_relevance,
 		     bias_halflife, bias_weight, errorhandler,
 		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
@@ -903,7 +903,7 @@ Enquire::Internal::calc_matching_terms(Xapian::docid did) const
     sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
     return TermIterator(new VectorTermList(matching_terms.begin(),
-						   matching_terms.end()));
+					   matching_terms.end()));
 }
 
 void
@@ -982,10 +982,12 @@ Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff
 }
 
 void
-Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands)
+Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
+		     bool sort_by_relevance)
 {
     internal->sort_key = sort_key;
     internal->sort_bands = sort_bands;
+    internal->sort_by_relevance = sort_by_relevance;
 }
 
 void
