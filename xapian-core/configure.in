@@ -38,7 +38,6 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(streambuf)
 AC_LANG_RESTORE
-AC_SYS_LARGEFILE
 
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
@@ -580,6 +579,9 @@ if test "x$use_stlport" = "xyes"; then
   LIBS="$STLPORT_LIBS $LIBS"
 fi
 AC_SUBST(STLPORT_CFLAGS)
+
+dnl See if large file support is available
+AC_SYS_LARGEFILE
 
 dnl *******************************************************************
 dnl * Make sure we can reference the top source and build directories *
