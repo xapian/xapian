@@ -1,3 +1,9 @@
+Fri Jan 12 15:20:09 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix STLport macro so that it will accept an STLport installation
+	  with foo/include/stlport and foo/lib instead of foo/stlport and
+	  foo/lib.
+
 Fri Jan 12 14:04:37 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed buglet in configure.in which produced a bogus warning

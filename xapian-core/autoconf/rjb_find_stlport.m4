@@ -33,7 +33,16 @@ AC_ARG_WITH(stlport,
   yes) use_stlport=yes ;;
   no)  use_stlport=no ;;
   *)   use_stlport=yes ;
-       STLPORT_INCLUDE="-I${withval}/stlport/" ;
+       if test -d  "${withval}/stlport/"; then
+         STLPORT_INCLUDE="-I${withval}/stlport/" ;
+       else
+         if test -d  "${withval}/include/stlport"; then
+	   STLPORT_INCLUDE="-I${withval}/include/stlport" ;
+	 else
+	   AC_MSG_RESULT()
+	   AC_MSG_ERROR([Can't find STLport directory at specified path])
+	 fi
+       fi
        STLPORT_LIBS="-L${withval}/lib/" ;;
 esac], [])
 
