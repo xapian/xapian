@@ -253,10 +253,12 @@ static void read_start_of_chunk(const char ** posptr,
 QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 			       om_doclength avlength_,
 			       const QuartzTable * table_,
+			       const QuartzTable * positiontable_,
 			       const om_termname & tname_)
 	: this_db(this_db_),
 	  avlength(avlength_),
 	  table(table_),
+	  positiontable(positiontable_),
 	  tname(tname_),
 	  cursor(table->cursor_get()),
 	  is_at_end(false),
@@ -359,7 +361,9 @@ QuartzPostList::next_chunk()
 PositionList *
 QuartzPostList::get_position_list()
 {
-    throw OmUnimplementedError("FIXME");
+    positionlist.read_data(positiontable, did, tname);
+
+    return &positionlist;
 }
 
 PostList *

@@ -30,6 +30,7 @@
 #include "quartz_table_entries.h"
 #include "omassert.h"
 #include "quartz_types.h"
+#include "quartz_positionlist.h"
 
 class QuartzTable;
 class QuartzCursor;
@@ -50,6 +51,9 @@ class QuartzPostList : public LeafPostList {
 
 	/// The table containing the postlist.
 	const QuartzTable * table;
+
+	/// The table containing positionlists.
+	const QuartzTable * positiontable;
 
 	/// The termname for this postlist.
 	om_termname tname;
@@ -92,6 +96,9 @@ class QuartzPostList : public LeafPostList {
 
 	/// The number of entries in the posting list.
 	om_termcount number_of_entries;
+
+	/// The position list object for this posting list.
+	QuartzPositionList positionlist;
 
         /// Copying is not allowed.
         QuartzPostList(const QuartzPostList &);
@@ -154,6 +161,7 @@ class QuartzPostList : public LeafPostList {
         QuartzPostList(RefCntPtr<const Database> this_db_,
 		       om_doclength avlength_,
 		       const QuartzTable * table_,
+		       const QuartzTable * positiontable_,
 		       const om_termname & tname);
 
         /// Destructor.

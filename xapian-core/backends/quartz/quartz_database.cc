@@ -313,6 +313,7 @@ QuartzDatabase::open_post_list_internal(const om_termname& tname,
     return(new QuartzPostList(ptrtothis,
 			      get_avlength_internal(),
 			      tables->get_postlist_table(),
+			      tables->get_positionlist_table(),
 			      tname));
 }
 
