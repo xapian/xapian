@@ -1,3 +1,7 @@
+Mon Sep 13 03:19:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Version 0.8.2.
+
 Sat Sep 11 16:39:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/version.h.in: GCC 3.1 reported the wrong value for

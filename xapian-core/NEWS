@@ -1,6 +1,4 @@
-Xapian-core 0.8.2 (2004-09-??):
-
-up to: Thu Sep 09 03:39:52 BST 2004  Olly Betts <olly@survex.com>
+Xapian-core 0.8.2 (2004-09-13):
 
 API:
 
@@ -24,6 +22,14 @@ API:
 * Renamed Query::is_empty() to Query::empty() for consistency.  Keep
   Query::is_empty() for now as a deprecated alias.
 
+* Enquire::set_sorting() now takes an optional third parameter which allows
+  you to specify a sort by value, then relevance, then docid instead of
+  by value then docid.
+
+* Enquire::get_mset() now takes an optional "check_at_least" parameter
+  which allows Omega's MIN_HITS functionality to be implemented in the matcher
+  (where it can be done a bit more efficiently).
+
 testsuite:
 
 * Reworked quartztest's positionlist1 into a generic api test as apitest's
@@ -42,26 +48,33 @@ testsuite:
 
 quartz backend:
 
+* Refactored the quartz backend code to reduce the number of layered classes
+  and eliminate unnecessary buffering, reducing memory usage so that more
+  posting list changes can be batched together (see next change) and database
+  building can be done several times faster.
+
+* Added tunable flush threshold - set XAPIAN_FLUSH_THRESHOLD=50000 to flush
+  every 50000 documents.  The default is now every 10000 documents (was
+  every 1000 documents previously).  The optimum value will most likely
+  depend on your data and hardware.
+
+* WritableDatabase::get_document() no longer forces pending changes to be
+  flushed.  The document will read things lazily from the database, and that
+  reading may trigger a forced flush).
+
+* WritableDatabase::get_avlength() no longer forces pending changes to be
+  flushed.  This means you can now search a modified WritableDatabase without
+  causing a flush unless the search includes a term whose postlist has pending
+  modifications.
+
 * Reduced quartz postlist chunk threshold from "2048 or a few bytes more" to
-  "2000 or a few bytes more" so that chunks won't get split by the Btree.
+  "2000 or a few bytes more" so that full size chunks won't get split by the
+  Btree.
 
 * Improved the "Db block overwritten" message.  The DatabaseCorruptError
   version now suggests multiple writers may be the cause, while the
   DatabaseModifiedError version uses less alarming wording and says to call
   Database::reopen().
-
-* Adjusted some Asserts to check c is within blocksize rather than 65536.
-  Added a FIXME for those which can't be trivially changed.
-
-* WritableDatabase::get_document() no longer forces a flush.  The document will
-  read things lazily from the database, and that reading may trigger a forced
-  flush).
-
-* WritableDatabase::get_avlength()
-  no longer forces pending changes to be flushed.  This means you can
-  now search a modified WritableDatabase without causing a flush
-  unless the search includes a term whose postlist has pending
-  modifications.
 
 * QuartzWritableDatabase now stores the total document length and the last
   docid itself rather than tallying added and removed document length and
@@ -72,37 +85,13 @@ quartz backend:
   It saves disk space for a tiny CPU and RAM cost so is bound to be
   a win overall.
 
-* matcher/localmatch.cc: Fixed problems handling termweights in
-  queries with the same term repeated (bug #37) and added
-  regression test (qterminfo2).
+* matcher/localmatch.cc: Fixed problems handling termweights in queries with
+  the same term repeated (bug #37) and added regression test (qterminfo2).
 
-* QuartzCursor no longer automatically reads the tag - you have to call
-  read_tag() to get it read.  This speeds up iterator over all the terms in a
-  database.  Also commented out QuartzCursor::prev as it's unused and untested
-  (at least in its latest form).
+* Sped up iteration over all the terms in a database (QuartzCursor now only
+  reads the tag from the Btree if asked to).
 
-* Added tunable flush threshold - set XAPIAN_FLUSH_THRESHOLD=50000 to flush
-  every 50000 documents.  The default is now every 10000 documents (was
-  every 1000 documents previously).
-
-* Eliminated QuartzBufferedTable and refactored the code to
-  reduce the number of classes and improve maintainability.  This
-  speeds up building databases.  Merged QuartzCursor into Bcursor.
-  Eliminated QuartzTable which had become just a thin wrapper around
-  Btree.
-  Changed Btree::create() to remove any pre-existing alternate base
-  file, so we no longer need to call Btree::erase before
-  Btree::create.
-  Removed no-longer-used Btree::erase and
-  QuartzTable::erase methods.
-* backends/quartz/btree.cc,backends/quartz/btree.h: Don't redundantly
-  store next_revision - it's always just revision_number + 1.
-* backends/quartz/btree.cc,backends/quartz/btree.h: Calculate and
-  store the latest revision number, rather than storing the other
-  one and working out which is newer every time we're asked.
-
-* backends/quartz/btree.cc: Implemented Btree::cancel directly rather
-  than closing and reopening the Btree.
+* Cancelling an operation is now implemented more efficiently.
 
 inmemory backend:
 
@@ -115,20 +104,22 @@ muscat36 backend:
 
 build system:
 
-	* HACKING: Updated details of which autotools we require.
-	* configure.ac: Require autoconf 2.59.  Noted LIBRARY_VERSION_INFO
-	  which 0.8.2 will probably have.
-	* Makefile.am: Require automake 1.8.5. libtool 1.5.8
-
 * Fixed to compile when configured with --disable-inmemory (bug #33).
 
-* XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
+* XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION so your application's build
+  system can easily check for a particular version of Xapian.
+
+* When compiling with GCC, we check that the compiler used to compile the
+  library and the compiler used to compile the application have compatible
+  C++ ABI versions.  Unfortunately GCC 3.1 incorrectly reports the same
+  ABI version as GCC 3.0, so we now special case that test.
+
+* Bumped the versions of the autotools we require for bootstrapping, and
+  updated the documentation of these in the HACKING document.
 
 * Quote macro names to fix warnings from newer aclocal.
 
 documentation:
-
-* Various minor updates and improvements.
 
 * Improved API documentation for Xapian::WritableDatabase::replace_document and
   delete_document.
@@ -139,9 +130,6 @@ documentation:
 * Removed bogus documentation comments saying that some Enquire methods can
   throw DatabaseOpeningError.
 
-* HACKING: Noted automake 1.8 may be problematic.  Tweaked list of
-  release tasks.
-
 * Updated quartz design docs to reflect recent changes.  Also pulled
   out the Btree and Bcursor API docs and slotted them in as doxygen
   documentation comments - this way they're much more likely to
@@ -150,11 +138,13 @@ documentation:
 * Corrected multiple occurences of "an Xapian::XXX" to "a Xapian::XXX"
   (presumably these all resulted from replacing "Om" with "Xapian::").
 
+* Various minor updates and improvements.
+
 portability:
 
-* Reworked how we cope with fcntl.h #define-ing open on Solaris.  This
-  change allows Sun's C++ compiler to produce a working Xapian build on
-  sparc Solaris.
+* Reworked how we cope with fcntl.h #define-ing open on Solaris.  This change
+  finally allows Sun's C++ compiler to produce a working Xapian build on
+  sparc Solaris!
 
 * configure.ac: Don't define DATADIR - we no longer use it and clashes
   with more recent mingw headers.

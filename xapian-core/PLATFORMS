@@ -23,8 +23,8 @@ Two notes about GCC 2.95:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4|~0.8.2 |Passed|
-x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 |~0.8.2 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.2 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC 3.4pre| 0.8.1 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC "3.5" | 0.8.0~|Passed| gcc-3.5-20040327
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Passed| from Olly Betts
@@ -38,7 +38,7 @@ x86   |*Linux 2.4 RedHat AS3 GCC 2.96  |~0.8.2 |Passed|
 x86   |*Linux 2.4 RedHat AS3 GCC 3.2.3 |~0.8.2 |Passed|
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.1 |Passed| from gmane.org
-x86   |!FreeBSD 4.8 GCC 2.95.4         |~0.8.2 |Passed|
+x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.2 |Passed|
 x86   |*FreeBSD 4.10 GCC 2.95.4        |~0.8.2 |Passed|
 x86   |*NetBSD 1.6.1 GCC 2.95.3        |~0.8.2 |Passed|
 x86   |*OpenBSD 3.4 GCC 2.95.3         |~0.8.2 |Passed|
@@ -58,7 +58,7 @@ mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [6] from Jim Lynch
 arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
 arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux cross to mingw GCC 2.95.3| 0.8.0 |Built | [3]
+x86   |&Linux cross to mingw GCC 2.95.3| 0.8.2 |Built | [3]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
 ------+--------------------------------+-------+------+------------------------
 x86   |*Solaris 9 Sun Workshop C++     |~0.8.2 |Failed| [2] [5]
