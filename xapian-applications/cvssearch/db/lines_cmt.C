@@ -29,14 +29,13 @@ lines_cmt::load_offset_file(  const string& file_offset, vector<string>& files, 
 //
 //    * in_comment is the stream for reading from cmt file
 //
-lines_cmt::lines_cmt( const string& src,         // path (e.g., "cvsdata/root0/src/")
-                      const string& root,        // ?????????
+lines_cmt::lines_cmt( const string& root,        // e.g. root0, root1, local storage directory for a repository
                       const string& pkg,         // package 
                       const string& file_db,     // name of cmt file
                       const string& file_offset, // name of offset file 
                       const string& mes          // message used for progress indicator
     )
-    :lines(src, root, pkg, mes)
+    :lines(root, pkg, mes)
 {
     load_offset_file( file_offset, files, offsets );
     in_comments = new ifstream(file_db.c_str());

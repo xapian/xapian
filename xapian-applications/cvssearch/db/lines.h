@@ -46,7 +46,7 @@ protected:
     string message;
 
 public:
-    lines(const string & src_path, const string & root, const string & package, const string & message);
+    lines(const string & root, const string & package, const string & message);
     virtual ~lines();
 
     // ----------------------------------------

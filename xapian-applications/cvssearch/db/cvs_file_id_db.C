@@ -45,8 +45,14 @@ cvs_file_id_db::cvs_file_id_db(DbEnv *dbenv, u_int32_t flags)
 int
 cvs_file_id_db::do_open(const string & filename, bool read_only)
 {
+    int val = 0;
     int flag = read_only ? DB_RDONLY : DB_CREATE;
-    return _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+    try {
+        val = _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+    } catch (DbException & e) {
+        cerr << "SleepyCat Exception: " << e.what() << endl;
+    }
+    return val;
 }
 
 /**

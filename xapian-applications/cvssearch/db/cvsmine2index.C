@@ -162,7 +162,7 @@ int main(unsigned int argc, char *argv[]) {
             // ----------------------------------------
             // this line NEEDS to be changed..
             // ----------------------------------------
-            lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" ); 
+            lines_cmt lines(root, "", "", "", " mining" ); 
             
             // ------------------------------------------------------------
             // need first input to be 

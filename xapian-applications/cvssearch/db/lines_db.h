@@ -19,7 +19,7 @@ private:
     unsigned int  file_id;
     cvs_db_file & _db_file;
 public:
-    lines_db(const string & src, const string & root, const string & pkg, const string & mes, cvs_db_file  & db_file);
+    lines_db(const string & root, const string & pkg, const string & mes, cvs_db_file  & db_file);
     ~lines_db();
     bool readNextLine();
 };

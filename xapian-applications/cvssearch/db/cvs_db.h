@@ -41,7 +41,7 @@ protected:
 
 public:
     cvs_db(const string & name, const string & index, DbEnv *dbenv, u_int32_t flags) 
-        : _db(dbenv, flags), _db_name(name), _db_index(index), _opened(false) {}
+        : _db(dbenv, flags|DB_CXX_NO_EXCEPTIONS), _db_name(name), _db_index(index), _opened(false) {}
     virtual ~cvs_db() {}
     int open(const string & filename, bool read_only);
     int close(int flags = 0);

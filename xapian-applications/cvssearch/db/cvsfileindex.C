@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
       map<string, int> app_symbol_count;
       set<string> found_symbol_before;
 
-      lines_cmt lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " mining" ); 
+      lines_cmt lines("root0", package, file_cmt, file_offset, " mining" ); 
 
       while ( lines.readNextLine() ) {
 

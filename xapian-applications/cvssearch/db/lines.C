@@ -1,12 +1,14 @@
 #include "lines.h"
 #include "util.h"
 
-lines::lines(const string & src_path, const string & r, const string & p, const string & m)
-    :path(src_path),
-     root(r),
-     package(p),
-     message(m)
+lines::lines(const string & r, const string & p, const string & m)
+    :
+    root(r),
+    package(p),
+    message(m)
 {
+    static string cvsdata = get_cvsdata();
+    path = cvsdata + "/" + root + "/src/";
     stemmer = new OmStem("english");
     current_fn = "";
     line_no = 0;  

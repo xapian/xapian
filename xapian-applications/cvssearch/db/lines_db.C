@@ -11,13 +11,12 @@
 #include "lines_db.h"
 #include "util.h"
 
-lines_db::lines_db(const string & src, 
-                   const string & root, 
+lines_db::lines_db(const string & root, 
                    const string & pkg, 
                    const string & mes,
                    cvs_db_file  & db_file 
     ) 
-    :lines(src, root, pkg, mes),
+    :lines(root, pkg, mes),
      _db_file(db_file)
 {
     file_id = 0;
@@ -42,20 +41,24 @@ bool lines_db::readNextLine() {
     set<string, cvs_revision_less> revisions;
     if (0) {
     } else if (_db_file.get_revision(file_id, ++line_no, revisions) == 0) {
+        // ----------------------------------------
+        // first try to get the revision info for 
+        // the next line.
+        // even if the next t
     } else if (_db_file.get_revision(++file_id, line_no = 1, revisions) == 0) {
         if (_db_file.get_filename(file_id, current_fn) == 0)
         {
-            cerr << "... " << message << " " << current_fn << endl;
-            current_fn = convert(package, '_', '/') + "/" + current_fn;
             if ( in_code != 0 ) {
                 delete in_code;
             }
+            current_fn = package + "/" + current_fn;
             string file_path = path + "/" + current_fn;
             in_code = new ifstream(file_path.c_str());
             if( ! *in_code ) {
-                cerr << "** could not open " << file_path << endl;
+                cerr << "*** could not open " << file_path << endl;
                 assert(0);
             }
+            cerr << "..." << message << " " << current_fn << endl;
         }
     } else {
         return false;
