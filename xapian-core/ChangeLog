@@ -1,3 +1,9 @@
+Thu Jun 05 00:46:16 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,bindings/Makefile.am,bindings/python/Makefile.am:
+	  Check for python and find the correct paths for building python
+	  bindings; Added dependencies for building _xapian.so.
+
 Wed Jun  4 17:19:37 2003  James Aylett  <james@tartarus.org>
 
 	* configure.in, Makefile.am, bindings: build system will build

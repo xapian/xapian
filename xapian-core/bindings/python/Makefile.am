@@ -1,11 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
-PY_PREFIXDIR = /usr/local
-PY_DESTDIR = $(PY_PREFIXDIR)/lib/python2.2/site-packages/
+PY_DESTDIR = @PYTHON_LIB@/site-packages/
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(top_srcdir)/extra
 SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
-PY_CFLAGS = -I$(PY_PREFIXDIR)/include/python2.2/
+PY_CFLAGS = -I@PYTHON_INC@/
 
 all: _xapian.so xapian.py
 
@@ -29,10 +28,10 @@ omstem_wrap.o: omstem_wrap.cc
 xapian_wrap.o: xapian_wrap.cc
 	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< $(PY_CFLAGS) -o $@
 
-_omstem.so: omstem_wrap.o $(top_builddir)/libxapian.la
+_omstem.so: omstem_wrap.o ../../libxapian.la
 	$(LIBTOOL) --mode link $(CXX) -shared omstem_wrap.o ../../libxapian.la -o $@
 
-_xapian.so: xapian_wrap.o
+_xapian.so: xapian_wrap.o ../../libxapian.la ../../extra/libomqueryparser.la
 	$(LIBTOOL) --mode link $(CXX) -shared xapian_wrap.o ../../libxapian.la ../../extra/libomqueryparser.la -o $@
 
 apitestfuncs.py: $(top_srcdir)/tests/apitest.cc apitest_to_python.pl \
