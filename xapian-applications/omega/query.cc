@@ -1103,8 +1103,12 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_terms: {
 		// list of matching terms
 		OmTermIterator term = enquire->get_matching_terms_begin(q0);
-		for ( ; term != enquire->get_matching_terms_end(q0); term++)
-		    value = value + *term + '\t';
+		for ( ; term != enquire->get_matching_terms_end(q0); term++) {
+		    // check term was in the typed query so we ignore
+		    // boolean filter terms
+		    if (qp.termset.find(*term) != qp.termset.end()) 
+			value = value + *term + '\t';
+		}
 
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;

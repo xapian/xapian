@@ -1,3 +1,8 @@
+Tue Nov 20 12:30:47 GMT 2001  Olly Betts <olly@survex.com>
+
+	* $terms now only returns terms which were in the parsed query
+	  (boolean filter terms are excluded).
+
 Tue Nov 20 12:07:54 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed bug in date range filtering (got it wrong when start and end
