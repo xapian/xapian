@@ -42,17 +42,19 @@ cvs_log::read(istream & is)
     string line;
     while (getline(is, line))
     {
-        if (line.find(cvs_output::cvs_log_rcs_file_tag) == 0)
-        {
-            unsigned int n = line.length() - 
-                cvs_output::cvs_log_rcs_file_tag.length()-2-scvs_root.length()-offset;
-            unsigned int pos = cvs_output::cvs_log_rcs_file_tag.length()+
-                scvs_root.length() + offset;
-            _pathname = line.substr(pos,n);
-        }
+//         if (line.find(cvs_output::cvs_log_rcs_file_tag) == 0)
+//         {
+//             unsigned int n = line.length() - 
+//                 cvs_output::cvs_log_rcs_file_tag.length()-2-scvs_root.length()-offset;
+//             unsigned int pos = cvs_output::cvs_log_rcs_file_tag.length()+
+//                 scvs_root.length() + offset;
+            
+//         }
         if (line.find(cvs_output::cvs_log_filename_tag) == 0)
         {
+            // _pathname = line.substr(pos,n);
             _filename = line.substr(cvs_output::cvs_log_filename_tag.length());
+            _pathname = _filename;
         }
         if (line == cvs_output::cvs_log_separator)
         {
