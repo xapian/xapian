@@ -133,7 +133,8 @@ inline MultiTermList::MultiTermList(TermList *tl_new,
 				    const IRDatabase *rootdb_new)
 	: tl(tl_new), termdb(termdb_new), rootdb(rootdb_new)
 {
-    termfreq_factor = (rootdb->get_doccount()) / (termdb->get_doccount());
+    termfreq_factor = ((double)(rootdb->get_doccount())) /
+		      (termdb->get_doccount());
 printf("Approximation factor for termfrequency: %f\n", termfreq_factor);
 }
 
