@@ -24,23 +24,50 @@
 #ifndef OM_HGUARD_BIASPOSTLIST_H
 #define OM_HGUARD_BIASPOSTLIST_H
 
+#include <time.h>
+#include <math.h>
+#include "om/omdatabase.h"
+#include "postlist.h"
+#include "multimatch.h"
+
 class OmBiasFunctor {
     private:
+#ifndef DOCID_BASED
 	time_t now;
-	const static om_weight max_w = 10000;
+	OmDatabase db;
+	om_weight max_w;
+#else /* DOCID_BASED */
+	om_docid max_id;
+	om_weight max_w;
+	PostList *pl;
+#endif /* DOCID_BASED */
     public:
-	OmBiasFunctor() : now(time(NULL)) {}
+	OmBiasFunctor(const OmDatabase &db_)
+#ifndef DOCID_BASED
+	    : now(time(NULL)), db(db_), max_w(10000) {}
+#else /* DOCID_BASED */
+	    : max_id(db_.get_doccount()), max_w(7000) {}
+#endif /* DOCID_BASED */
 
 	om_weight get_maxweight() {
 	    return max_w; 
 	}
 
-	om_weight get_weight(const OmDatabase &db, om_docid id) {
+	om_weight get_weight(om_docid id) {
+#ifndef DOCID_BASED
 	    OmKey key = db.get_document(id).get_key(0);
-	    time_t t = now;//atoi(key.value.c_str());
+	    time_t t = atoi(key.value.c_str());
 	    if (t >= now) return max_w;
+#else /* DOCID_BASED */
+	    if (id >= max_id) return max_w;
+#endif /* DOCID_BASED */
 	    // the same story but 2 days old gets half the extra weight
+#ifndef DOCID_BASED
 	    return max_w * exp((t - now) * .6931472 / 60 / 60 / 24 / 2);
+#else /* DOCID_BASED */
+	    // (assumes ~250 docs per day)
+	    return max_w * exp(double(max_id - id) * -0.6931472 / 250 / 2);
+#endif /* DOCID_BASED */
 	}
 };
 
@@ -62,7 +89,7 @@ class BiasPostList : public PostList {
 	om_docid get_docid() const { return pl->get_docid(); }
 
 	om_weight get_weight() const {
-	    return w + bias->get_weight(db, pl->get_docid());
+	    return w + bias->get_weight(pl->get_docid());
 	}
 
 	om_weight get_maxweight() const {

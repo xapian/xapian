@@ -1,8 +1,12 @@
+Sat Dec 15 13:43:47 GMT 2001  Olly Betts <olly@survex.com>
+
+	* More fettling of OmBiasFunctor stuff - still not ready for use yet...
+
 Tue Dec 11 13:06:08 GMT 2001  Olly Betts <olly@survex.com>
 
-	* Don't work out probabilistic weights for boolean bits of the query (rhs
-	  of FILTER and AND_NOT) which fixes incorrect percentage weights in filtered
-	  queries.
+	* Don't work out probabilistic weights for boolean bits of the query
+	  (rhs of FILTER and AND_NOT) which fixes incorrect percentage weights
+	  in filtered queries.
 
 Tue Dec 11 12:26:44 GMT 2001  Olly Betts <olly@survex.com>
 
@@ -10,8 +14,8 @@ Tue Dec 11 12:26:44 GMT 2001  Olly Betts <olly@survex.com>
 
 Mon Dec 10 16:58:21 GMT 2001  Olly Betts <olly@survex.com>
 
-	* can_replace_by_single_subq shouldn't return true for OP_ELITE_SET since you can't
-	  call set_elite_set_size() on an arbitrary subquery.
+	* can_replace_by_single_subq shouldn't return true for OP_ELITE_SET
+	  since you can't call set_elite_set_size() on an arbitrary subquery.
 
 Thu Dec  6 15:02:05 GMT 2001  Richard Boulton <richard@tartarus.org>
 

@@ -302,8 +302,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	pl = new MergePostList(postlists, this, errorhandler);
     }
 
-#if 0 // FIXME : BiasPostList needs generalising and performance sorting out
-    pl = new BiasPostList(pl, db, new OmBiasFunctor(), this);
+#if 0 // FIXME : BiasPostList needs generalising and stuff
+    pl = new BiasPostList(pl, db, new OmBiasFunctor(db), this);
 #endif
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -379,7 +379,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // lowest ranking document in the mset.  Each document added expels the
     // current lowest ranking document.
     //
-    // If a percentage cutoff is in effect, it cause the matcher to return
+    // If a percentage cutoff is in effect, it can cause the matcher to return
     // from the second stage from the first.
 
     // Is the mset a valid heap?
