@@ -26,6 +26,7 @@
 #include "document.h"
 #include <db_cxx.h>
 #include <map>
+#include <om/omdocument.h>
 
 /** A document in a sleepycat Database.
  */
@@ -39,6 +40,24 @@ class SleepyDocument : public LeafDocument {
 	/** The document ID of the document.
 	 */
 	om_docid did;
+
+	/** The data for this document, if it has been read from the database.
+	 */
+	mutable OmData data;
+
+	/** Whether we have read the data from the database (if so, it will
+	 *  be stored in data, otherwise the contents of data will be
+	 *  undefined).
+	 */
+	mutable bool have_data;
+
+	/** The keys for this document.
+	 *
+	 *  If a key ID is not in this map, then the database has not been
+	 *  checked for it: if the key is not in the database, it will simply
+	 *  have an empty value.
+	 */
+	mutable map<om_keyno, OmKey> keys;
 
 	/** Constructor: called by SleepyDatabase to read a document
 	 *

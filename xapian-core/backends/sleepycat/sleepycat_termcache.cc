@@ -69,6 +69,7 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 
     Dbt key(&tid, sizeof(tid));
     Dbt data;
+    data.set_flags(DB_DBT_MALLOC);
 
     // Get, no transactions, no flags
     try {
@@ -79,10 +80,11 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmDatabaseError("TermnameDb error:" + string(e.what()));
+	throw OmDatabaseError("TermnameDb error :" + string(e.what()));
     }
 
     om_termname tname((char *)data.get_data(), data.get_size());
+    free(data.get_data());
     return tname;
 }
 
