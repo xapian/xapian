@@ -612,10 +612,10 @@ main(int argc, char **argv)
 	while (true) {
 	    try {
 		if (!overwrite) {
-		    database = Xapian::Auto::open(argv[0],
+		    database = Xapian::WritableDatabase(argv[0],
 						  Xapian::DB_CREATE_OR_OPEN);
 		} else {
-		    database = Xapian::Auto::open(argv[0],
+		    database = Xapian::WritableDatabase(argv[0],
 						  Xapian::DB_CREATE_OR_OVERWRITE);
 		}
 		break;

@@ -146,7 +146,7 @@ try {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
 			dbname += *j;
-			db.add_database(Xapian::Auto::open(map_dbname_to_dir(*j)));
+			db.add_database(Xapian::Database(map_dbname_to_dir(*j)));
 			seen.insert(*j);
 		    }
 		}
@@ -154,7 +154,7 @@ try {
 	}
 	if (dbname.empty()) {
 	    dbname = default_dbname;
-	    db.add_database(Xapian::Auto::open(map_dbname_to_dir(dbname)));
+	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
     }

@@ -701,10 +701,10 @@ main(int argc, char **argv)
 
     try {
 	if (!overwrite) {
-	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OPEN);
+	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
 	    updated.resize(db.get_lastdocid() + 1);
 	} else {
-	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
+	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 	index_directory("/", mime_map);
 	for (Xapian::docid did = 1; did < updated.size(); ++did) {
