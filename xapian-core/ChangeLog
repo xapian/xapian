@@ -1,3 +1,7 @@
+Thu Mar  2 14:53:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed all mentions of virtual inheritance.
+	
 Thu Mar  2 10:58:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Begun to abstract statistics requesting and collecting operations

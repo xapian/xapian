@@ -25,7 +25,7 @@
 
 #include "indexer.h"
 
-class TextfileIndexerSource : public virtual IndexerSource {
+class TextfileIndexerSource : public IndexerSource {
     private:
 	string filename;
     public:
@@ -33,7 +33,7 @@ class TextfileIndexerSource : public virtual IndexerSource {
 	istream * get_stream() const;
 };
 
-class TextfileIndexer : public virtual Indexer {
+class TextfileIndexer : public Indexer {
     public:
 	void add_source(const IndexerSource & source);
 };

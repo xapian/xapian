@@ -38,7 +38,7 @@ class RSet;
 
 /** Base class for databases.
  */
-class IRDatabase : public virtual IndexerDestination {
+class IRDatabase : public IndexerDestination {
     // Class which can create IRDatabases.
     // All classes derived from IRDatabase must also have DatabaseBuilder as
     // a friend, so that they can be constructed in a unified way.

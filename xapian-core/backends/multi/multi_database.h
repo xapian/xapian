@@ -30,7 +30,7 @@
 #include <vector>
 #include <list>
 
-class MultiDatabase : public virtual IRDatabase {
+class MultiDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
 	mutable set<om_termname> terms;

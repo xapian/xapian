@@ -31,7 +31,7 @@
 #include <stack>
 #include <vector>
 
-class OmExpandDeciderAlways : public virtual OmExpandDecider {
+class OmExpandDeciderAlways : public OmExpandDecider {
     public:
 	int operator()(const om_termname & tname) const { return true; }
 };

@@ -26,7 +26,7 @@
 #include "database.h"
 #include "branchtermlist.h"
 
-class OrTermList : public virtual BranchTermList {
+class OrTermList : public BranchTermList {
     private:
         om_termname lhead, rhead;
 	bool started;

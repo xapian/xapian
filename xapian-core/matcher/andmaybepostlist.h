@@ -30,7 +30,7 @@
 #include "database.h"
 #include "branchpostlist.h"
 
-class AndMaybePostList : public virtual BranchPostList {
+class AndMaybePostList : public BranchPostList {
     private:
         om_docid lhead, rhead;
         om_weight lmax, rmax;

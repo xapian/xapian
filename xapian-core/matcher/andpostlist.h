@@ -26,7 +26,7 @@
 #include "database.h"
 #include "branchpostlist.h"
 
-class AndPostList : public virtual BranchPostList {
+class AndPostList : public BranchPostList {
     private:
         om_docid head;
         om_weight lmax, rmax;

@@ -29,7 +29,7 @@
 // Postlist which generates termweights (rather than merely modifying them
 // and passing them on)
 // FIXME - choose a better name for this class
-class LeafPostList : public virtual PostList
+class LeafPostList : public PostList
 {
     protected:
 	const IRWeight * ir_wt;

@@ -115,7 +115,7 @@ class InMemoryDoc {
 
 
 // Post List
-class InMemoryPostList : public virtual LeafPostList {
+class InMemoryPostList : public LeafPostList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -144,7 +144,7 @@ class InMemoryPostList : public virtual LeafPostList {
 
 
 // Term List
-class InMemoryTermList : public virtual LeafTermList {
+class InMemoryTermList : public LeafTermList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -171,7 +171,7 @@ class InMemoryTermList : public virtual LeafTermList {
 
 
 // Database
-class InMemoryDatabase : public virtual IRDatabase {
+class InMemoryDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
 	map<om_termname, InMemoryTerm> postlists;

@@ -30,7 +30,7 @@
 // FilterPostList(probabilistic, boolean)
 // AntiFilterPostList(probabilistic, boolean)
 
-class FilterPostList : public virtual AndPostList {
+class FilterPostList : public AndPostList {
     public:
 	om_weight get_weight() const;
 	om_weight get_maxweight() const;

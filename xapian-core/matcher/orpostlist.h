@@ -27,7 +27,7 @@
 
 class PostList;
 
-class OrPostList : public virtual BranchPostList {
+class OrPostList : public BranchPostList {
     private:
         om_docid lhead, rhead;
         om_weight lmax, rmax, minmax;

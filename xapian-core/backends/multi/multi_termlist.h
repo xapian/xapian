@@ -31,7 +31,7 @@
 #include <vector>
 #include <list>
 
-class MultiTermList : public virtual LeafTermList {
+class MultiTermList : public LeafTermList {
     friend class MultiDatabase;
     private:
 	TermList *tl;

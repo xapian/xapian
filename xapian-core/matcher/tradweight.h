@@ -28,7 +28,7 @@
 #include "omassert.h"
 
 // Traditional weighting scheme
-class TradWeight : public virtual IRWeight {
+class TradWeight : public IRWeight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;

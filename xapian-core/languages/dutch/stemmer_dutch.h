@@ -26,7 +26,7 @@
 #include "stemmer.h"
 #include "stem_dutch.h"
 
-class StemmerDutch : public virtual Stemmer {
+class StemmerDutch : public Stemmer {
     private:
 	struct dutch_stemmer * stemmer_data;
     public:

@@ -26,7 +26,7 @@
 #include <om/omdocument.h>
 #include <string>
 
-class InMemoryDocument : public virtual OmDocument {
+class InMemoryDocument : public OmDocument {
     friend class InMemoryDatabase;
     private:
 	string doc;

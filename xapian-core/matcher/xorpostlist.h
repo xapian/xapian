@@ -26,7 +26,7 @@
 #include "database.h"
 #include "branchpostlist.h"
 
-class XorPostList : public virtual BranchPostList {
+class XorPostList : public BranchPostList {
     private:
         om_docid lhead, rhead;
         om_weight lmax, rmax, minmax;

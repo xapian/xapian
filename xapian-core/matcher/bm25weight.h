@@ -28,7 +28,7 @@
 #include "omassert.h"
 
 // BM25 weighting scheme
-class BM25Weight : public virtual IRWeight {
+class BM25Weight : public IRWeight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;

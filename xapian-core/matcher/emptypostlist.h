@@ -25,7 +25,7 @@
 
 #include "postlist.h"
 
-class EmptyPostList : public virtual PostList {
+class EmptyPostList : public PostList {
     public:
 	om_doccount get_termfreq() const;
 

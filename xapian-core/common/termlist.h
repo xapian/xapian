@@ -55,7 +55,7 @@ class TermList {
 	virtual ~TermList() { return; }
 };
 
-class LeafTermList : public virtual TermList {
+class LeafTermList : public TermList {
     protected:
 	const OmExpandWeight * wt;
     public:

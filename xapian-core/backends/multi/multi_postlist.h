@@ -45,7 +45,7 @@ class MultiPostListInternal {
 		: pl(pl_new), currdoc(0), offset(off), multiplier(mult) {}
 };
 
-class MultiPostList : public virtual LeafPostList {
+class MultiPostList : public LeafPostList {
     friend class MultiDatabase;
     private:
 	list<MultiPostListInternal> postlists;

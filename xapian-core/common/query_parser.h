@@ -48,7 +48,7 @@ class QueryTerm {
 	}
 };
 
-class QueryParserSource : public virtual IndexerSource {
+class QueryParserSource : public IndexerSource {
     private:
 	string query;
     public:
@@ -56,7 +56,7 @@ class QueryParserSource : public virtual IndexerSource {
 	istream * get_stream() const;
 };
 
-class QueryParser : public virtual IndexerDestination {
+class QueryParser : public IndexerDestination {
     private:
 	map<om_termname, om_termid> termidmap;
 	vector<QueryTerm> termvec;

@@ -26,7 +26,7 @@
 #include "stemmer.h"
 #include "stem_portuguese.h"
 
-class StemmerPortuguese : public virtual Stemmer {
+class StemmerPortuguese : public Stemmer {
     private:
 	struct portuguese_stemmer * stemmer_data;
     public:

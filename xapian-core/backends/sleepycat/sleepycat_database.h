@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 // Postlist - a list of documents indexed by a given term
-class SleepyPostList : public virtual LeafPostList {
+class SleepyPostList : public LeafPostList {
     friend class SleepyDatabase;
     private:
 	doccount pos;
@@ -59,7 +59,7 @@ class SleepyPostList : public virtual LeafPostList {
 
 class SleepyDatabaseTermCache;
 // Termlist - a list of terms indexing a given document
-class SleepyTermList : public virtual LeafTermList {
+class SleepyTermList : public LeafTermList {
     friend class SleepyDatabase;
     private:
 	termcount pos;
@@ -99,7 +99,7 @@ class SleepyDatabaseTermCache {
 	termid term_name_to_id(const termname & tname) const;
 };
 
-class SleepyDatabase : public virtual IRDatabase {
+class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
 	SleepyDatabaseInternals * internals;

@@ -25,7 +25,7 @@
 
 #include "termlist.h"
 
-class BranchTermList : public virtual TermList {
+class BranchTermList : public TermList {
     protected:
         void handle_prune(TermList *&kid, TermList *ret);
         TermList *l, *r;

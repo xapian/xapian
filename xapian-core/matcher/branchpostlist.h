@@ -26,7 +26,7 @@
 #include "leafmatch.h"
 #include "postlist.h"
 
-class BranchPostList : public virtual PostList {
+class BranchPostList : public PostList {
     protected:
 	/** Utility method, to call recalc_maxweight() and
 	 *  do the pruning if a next() or skip_to() returns
