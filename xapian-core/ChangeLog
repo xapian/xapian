@@ -1,3 +1,8 @@
+Tue Sep 10 14:50:16 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: tweaked test for perl modules - stderr is now
+	  fully supressed on sh (which behaves slightly differently to bash).
+
 Tue Sep 10 14:27:15 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* backend_manager.cc: Fix stub database code so that it doesn't use

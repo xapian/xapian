@@ -75,29 +75,24 @@ AM_CONDITIONAL(HAVE_PERL, test x"$PERL" != x"$MISSING perl")
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
-if perl -MXML::Parser -e '' 2>/dev/null ; then
+if (exec >&5 2>&5 ; $PERL -MXML::Parser -e ''; exit $?) then
     have_perl_xml=yes
 else
-    have_perl_xml=no
-fi
-AC_MSG_RESULT("$have_perl_xml")
-if test no = "$have_perl_xml"; then
     AC_MSG_WARN([Perl XML::Parser module not present; TODO won't be built.])
+    have_perl_xml=no
     have_perl_xml_and_text=no
 fi
+AC_MSG_RESULT($have_perl_xml)
 
 AC_MSG_CHECKING([for perl Text::Format module])
-if perl -MText::Format -e '' 2>/dev/null
-then
+if (exec >&5 2>&5 ; $PERL -MText::Format -e ''; exit $?) then
     have_perl_text=yes
 else
-    have_perl_text=no
-fi
-AC_MSG_RESULT("$have_perl_text")
-if test no = "$have_perl_text"; then
     AC_MSG_WARN([Perl Text::Format not present; TODO won't be built.])
+    have_perl_text=no
     have_perl_xml_and_text=no
 fi
+AC_MSG_RESULT($have_perl_text)
 
 AM_CONDITIONAL(HAVE_PERL_XML_AND_TEXT, test yes = "$have_perl_xml_and_text")
 
