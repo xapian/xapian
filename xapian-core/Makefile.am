@@ -39,18 +39,13 @@ EXTRA_libxapian_la_SOURCES =
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 
-libxapian_la_LIBADD = \
- common/libcommon.la \
- backends/libbackend.la \
- matcher/libmatcher.la \
- languages/liblanguages.la \
- api/libapi.la \
- $(LIBNET_LA)
+libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
+ matcher/libmatcher.la languages/liblanguages.la api/libapi.la $(LIBNET_LA)
 
 xapian-config: xapian-config.nodep libxapian.la
 	@echo "Creating $@"
 	export dependency_libs; \
 	. $(top_builddir)/libxapian.la ; \
-	sed "s%@dependency_libs@%$${dependency_libs}%" < xapian-config.nodep > tmp-$@
+	sed "s%@dependency_libs@%`echo \"$$dependency_libs\"|sed 's/[^ ]*.la\>//g;s/  */ /g'`%" < xapian-config.nodep > tmp-$@
 	-rm -f $@
 	mv tmp-$@ $@
