@@ -11,6 +11,7 @@
 #include "da_database.h"
 #include "da_record.h"
 #include "daread.h"
+#include "damuscat.h"
 
 DAPostList::DAPostList(const IRDatabase *db, struct postings *pl, doccount tf)
 	: postlist(pl), currdoc(0), termfreq(tf)

@@ -9,7 +9,11 @@ extern "C" {
 #endif
 
 #include <stdio.h>   /* main etc */
-#include "damuscat.h"
+/* #include "damuscat.h" */
+
+typedef  unsigned char  byte;
+typedef  int  filehandle;     /* would be 'FILE *' in ANSI C */
+#define MAXINT      0X7FFFFFFF
 
 struct DAfile
 {   filehandle locator;

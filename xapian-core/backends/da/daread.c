@@ -6,6 +6,7 @@
 #include <sys/types.h> /* lseek */
 #include <unistd.h> /* read, open, lseek */
 #include "daread.h"
+#include "damuscat.h"
 
 int wordat(byte * p) { return ((p[0]<<8|p[1])<<8|p[2])<<8|p[3]; }
 

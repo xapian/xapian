@@ -9,9 +9,6 @@
 #define true        1
 #define false       0
 
-typedef  unsigned char  byte;
-typedef  int  filehandle;     /* would be 'FILE *' in ANSI C */
-
 #define BYTERANGE   256
 
 /* next 2 defs are different in HDM (Heavy Duty Muscat) */
@@ -19,7 +16,6 @@ typedef  int  filehandle;     /* would be 'FILE *' in ANSI C */
 #define LOF(p,c)    ((p)[(c)+1] << 8 | (p)[(c)])
 #define LWIDTH      2         /* bytes in a Muscat length (3 in HDM) */
 
-#define MAXINT      0X7FFFFFFF
 #define DATERMS     10101     /* word used to identify DA index files */
 #define DARECS      23232     /* word used to identify DA record files */
 #define TVSTART     (LWIDTH+1)
