@@ -63,11 +63,12 @@ static void write_line(ostream & os,
                        const string & select1, unsigned int index1, const string & line1, bool do1,
                        const string & select2, unsigned int index2, const string & line2, bool do2)
 {
+    unsigned int size = 40;
     os << "<TR>";
     os << "<TD" << select2 << "> "; if (do2) os << index2; os << "</TD>";
-    os << "<TD" << select2 << "> "; if (do2) os << line2 ; os << "</TD>";
+    os << "<TD" << select2 << "> "; if (do2) os << ((line2.length() > size) ? line2.substr(0,size) + "..." : line2) ; os << "</TD>";
     os << "<TD" << select1 << "> "; if (do1) os << index1; os << "</TD>";
-    os << "<TD" << select1 << "> "; if (do1) os << line1 ; os << "</TD>";
+    os << "<TD" << select1 << "> "; if (do1) os << ((line1.length() > size) ? line1.substr(0,size) + "..." : line1) ; os << "</TD>";
     os << "</TR>" << endl;
 }
 
@@ -90,7 +91,7 @@ html_comparer::write(ostream & os) const
        << ", and the propagation of the affected lines to version " << _revision 
        << endl;
 
-    os << "<TABLE align=center border=0 width=100% cellspacing=0 cellpadding=1>" << endl;
+    os << "<TABLE align=center border=0 cellspacing=0 cellpadding=1>" << endl;
     os << "<TR>";
     os << "<TD" << select2 << "> </TD>";
     os << "<TD" << select2 << "align=center> <B>version " << _revision2 << "</B></TD>";
