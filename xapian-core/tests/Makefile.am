@@ -22,26 +22,16 @@ else
 THREADTESTS =
 endif
 
-if BUILD_INDEXER
-INDEXERTESTS = indextest
-INDEXERTESTS_RUN = run-indextest
-else
-INDEXERTESTS =
-INDEXERTESTS_RUN =
-endif
-
 ## Test programs to be run
 TESTS = $(THREADTESTS) \
         run-apitest \
         run-internaltest \
-        $(INDEXERTESTS_RUN) \
 	$(PERLTESTS)
 
 ## Programs to build
 check_PROGRAMS = $(THREADTESTS) \
                  apitest \
 		 internaltest \
-		 $(INDEXERTESTS) \
 		 stemtest \
 		 delve
 
@@ -68,9 +58,6 @@ internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
 
-indextest_SOURCES = indextest.cc
-indextest_LDADD = ../testsuite/libtest.la ../libxapian.la
-
 delve_SOURCES = delve.cc
 delve_LDADD = ../libxapian.la
 
@@ -86,7 +73,6 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_allterms.txt \
 	     testdata/apitest_allterms2.txt \
 	     testdata/apitest_poslist.txt \
-	     testdata/indextest_filereader.txt \
 	     testdata/apitest_manydocs.txt
 
 
@@ -156,7 +142,3 @@ run-apitest: apitest
 run-internaltest: internaltest
 	@rm -f run-internaltest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest
-
-run-indextest: indextest
-	@rm -f run-indextest
-	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-indextest

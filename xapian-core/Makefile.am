@@ -8,21 +8,15 @@ BUILDSUBDIR_REMOTE2 = netprogs
 LIB_REMOTE1 = net/libnet.la
 endif
 
-if BUILD_INDEXER
-BUILDSUBDIR_INDEXER = indexer
-LIB_INDEXER = indexer/libindexer.la
-endif
-
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include testsuite autoconf common \
           api backends matcher languages $(BUILDSUBDIR_REMOTE1) \
-	  $(BUILDSUBDIR_INDEXER) . m4 \
-	  docs $(BUILDSUBDIR_REMOTE2) tests bindings extra
+	  . m4 docs $(BUILDSUBDIR_REMOTE2) tests bindings extra
 
 DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
-	       indexer  . m4 docs netprogs tests bindings extra
+	       . m4 docs netprogs tests bindings extra
 
 bin_SCRIPTS=xapian-config
 
@@ -71,7 +65,6 @@ libxapian_la_LIBADD = \
  backends/libbackend.la \
  matcher/libmatcher.la \
  languages/liblanguages.la \
- $(LIB_INDEXER) \
  api/libapi.la \
  $(LIB_REMOTE1)
 

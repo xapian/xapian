@@ -1,4 +1,10 @@
-Thu Apr 04 15:43:43 BST 2002 Olly Betts
+Thu Apr 04 20:06:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed XML indexer stuff from the main xapian library.  All the
+	  removed bits are now in the indexer subdirectory, ready to be
+	  reassembled into a supplementary library.
+
+Thu Apr 04 15:43:43 BST 2002  Olly Betts <olly@survex.com>
 
 	* More debug tracing in the matcher.
 
