@@ -689,6 +689,10 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 	// Want one byte of difference.
 	if (i < newkey_len) i++;
     } else {
+	/* Can't truncate between branch levels, since the separated keys
+	 * are in at the leaf level, and truncating again will change the
+	 * branch point.
+	 */
 	i = newkey_len;
     }
 
