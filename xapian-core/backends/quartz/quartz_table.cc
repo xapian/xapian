@@ -253,6 +253,11 @@ quartz_revision_number_t
 QuartzDiskTable::get_latest_revision_number() const
 {
     // FIXME: implement with a call to martin's code
+    if (btree_for_reading->both_bases &&
+	btree_for_reading->other_revision_number > btree_for_reading->revision_number) {
+	return btree_for_reading->other_revision_number;
+    }
+    return btree_for_reading->revision_number;
 }
 
 quartz_tablesize_t
@@ -260,6 +265,13 @@ QuartzDiskTable::get_entry_count() const
 {
     Assert(opened);
     return btree_for_reading->item_count;
+}
+
+AutoPtr<QuartzCursor>
+QuartzDiskTable::make_cursor()
+{
+    Assert(opened);
+    return AutoPtr<QuartzCursor>(new QuartzCursor(btree_for_reading.get()));
 }
 
 bool
@@ -270,29 +282,18 @@ QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
     Assert(opened);
     Assert(!(key.value.empty()));
 
-    /// FIXME: replace with calls to martin's code
-    std::map<QuartzDbKey, QuartzDbTag>::const_iterator j;
-    j = data.lower_bound(key);
+    int found = Bcursor_find_key(cursor.cursor, key.value.data(), key.value.size());
 
-    if (j != data.end() && j->first.value == key.value) {
-	// Exact match
-	tag.value = j->second.value;
-	return true;
-    }
+    Btree_item * item = Btree_item_create();
+    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
 
-    if (j == data.begin()) {
-	// Nothing before this match
-	key.value = "";
-	tag.value = "";
-	return false;
-    }
-    
-    // Make j point to match _before_ that searched for.
-    j--;
+    // FIXME: unwanted copy
+    tag.value = string(item->tag, item->tag_len);
+    Assert(key.value == string(item->key, item->key_len));
 
-    key.value = (j->first).value;
-    tag.value = (j->second).value;
-    return false;
+    // FIXME: delete item
+
+    return found;
 }
 
 bool
@@ -301,6 +302,11 @@ QuartzDiskTable::get_next_entry(QuartzDbKey &key,
 				QuartzCursor &cursor) const
 {
     Assert(opened);
+
+    if (!cursor.is_positioned) {
+	return false;
+    }
+    // FIXME: implement
 }
 
 bool
@@ -497,6 +503,12 @@ quartz_tablesize_t
 QuartzBufferedTable::get_entry_count() const
 {
     return entry_count;
+}
+
+AutoPtr<QuartzCursor>
+QuartzBufferedTable::make_cursor()
+{
+    return disktable->make_cursor();
 }
 
 bool

@@ -373,7 +373,7 @@ int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
         /* Now we'll print all the keys in the B-tree (assuming they
            have a simple form */
 
-        Btree_find_key(BC, "", 0); /* must give result 1 */
+        Bcursor_find_key(BC, "", 0); /* must give result 1 */
 
         while(Btree_next(BC)) {    /* bypassing the null item */
             Bcursor_get_key(BC, kt);
@@ -386,7 +386,7 @@ int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
 
 
 
-void Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
+int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
 
     If cursor BC is unpositioned, the result is simply 0.
 
@@ -403,7 +403,7 @@ void Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
         /* Now do something to each key-tag pair in the Btree */
            have a simple form */
 
-        Btree_find_key(BC, "", 0); /* must give result 1 */
+        Bcursor_find_key(BC, "", 0); /* must give result 1 */
 
         while(Bcursor_get_key(BC, kt)) {
             Bcursor_get_tag(BC, kt);
@@ -428,7 +428,7 @@ void Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
         for (year = 1; year <= 2000; year++) {
             unsigned char s[20]; /* 20 is fine */
             sprintf(s, "YEAR%d CALENDAR", year);
-            if (Btree_find_key(BC, s, strlen(s))) {
+            if (Bcursor_find_key(BC, s, strlen(s))) {
                 Bcursor_get_tag(BC, kt);
 
                 calendar[year] = kt->tag;  /* may be zero */

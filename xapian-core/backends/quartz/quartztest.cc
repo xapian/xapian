@@ -59,7 +59,7 @@ static void check_table_values_hello(const QuartzDiskTable & table,
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
-    QuartzCursor cursor;
+    AutoPtr<QuartzCursor> cursor(table.get_cursor);
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
@@ -117,7 +117,7 @@ static void check_table_values_empty(const QuartzDiskTable & table)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
-    QuartzCursor cursor;
+    AutoPtr<QuartzCursor> cursor(table.get_cursor);
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
@@ -472,7 +472,7 @@ static bool test_bufftable2()
 
 	key.value = "foo";
 	tag.value = "";
-	QuartzCursor cursor;
+	AutoPtr<QuartzCursor> cursor(bufftable.get_cursor);
 	TEST(!bufftable.get_nearest_entry(key, tag, cursor));
 	TEST_EQUAL(key.value, "");
 	TEST_EQUAL(tag.value, "");
@@ -550,7 +550,7 @@ static bool test_bufftable2()
 
 	key.value = "foo";
 	tag.value = "";
-	QuartzCursor cursor;
+	AutoPtr<QuartzCursor> cursor(bufftable.get_cursor);
 	TEST(!bufftable.get_nearest_entry(key, tag, cursor));
 	TEST_EQUAL(key.value, "");
 	TEST_EQUAL(tag.value, "");
@@ -609,10 +609,10 @@ static bool test_cursor1()
     QuartzTable * table = &disktable1;
     int count = 2;
 
-    QuartzCursor cursor;
     while(count != 0) {
 	key.value = "foo25";
 	tag.value = "";
+	AutoPtr<QuartzCursor> cursor(table->get_cursor);
 	TEST(!table->get_nearest_entry(key, tag, cursor));
 	TEST_EQUAL(key.value, "foo2");
 	TEST_EQUAL(tag.value, "bar2");

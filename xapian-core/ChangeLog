@@ -1,3 +1,9 @@
+Wed Nov  1 18:59:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Corrected a couple of points in btree_api.txt
+
+	* More work on quartz - implemented cursors, and some cursor operations.
+
 Wed Nov  1 18:26:53 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Wrote more of the indexer quickstart document.

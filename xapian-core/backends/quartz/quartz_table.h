@@ -26,6 +26,7 @@
 #include "config.h"
 #include "quartz_types.h"
 #include "quartz_table_entries.h"
+#include "om/autoptr.h"
 #include <string>
 #include <map>
 
@@ -46,20 +47,23 @@ class QuartzCursor {
 
     public:
 	/// Initialise the cursor
-	QuartzCursor() : is_positioned(false) {}
+	QuartzCursor(struct Btree * btree) : is_positioned(false), cursor(Bcursor_create(btree)) {}
 
 	/// Destroy the cursor
-	~QuartzCursor() {}
+	~QuartzCursor() { Bcursor_lose(cursor); }
 
 	/** Current tag.
-	 *  FIXME: this is just a dummy implementation - replace with Martins
-	 *  Btree manager.
 	 */
 	QuartzDbTag tag;
 
 	/** Whether the cursor is positioned at a valid entry.
 	 */
 	bool is_positioned;
+
+	/** The btree cursor.  This points to the next item, not the current
+	 *  item.
+	 */
+	struct Bcursor * cursor;
 };
 
 
@@ -90,6 +94,10 @@ class QuartzTable {
 	 *  @return The number of entries in the table.
 	 */
 	virtual quartz_tablesize_t get_entry_count() const = 0;
+
+	/** Create a cursor for reading from the table.
+	 */
+	virtual AutoPtr<QuartzCursor> make_cursor() = 0;
 
 	/** Read an entry from the table.
 	 *
@@ -283,6 +291,7 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
+	AutoPtr<QuartzCursor> make_cursor();
 	bool get_nearest_entry(QuartzDbKey &key,
 			       QuartzDbTag &tag,
 			       QuartzCursor &cursor) const;
@@ -389,6 +398,7 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
+	AutoPtr<QuartzCursor> make_cursor();
 	bool get_nearest_entry(QuartzDbKey &key,
 			       QuartzDbTag &tag,
 			       QuartzCursor &cursor) const;
