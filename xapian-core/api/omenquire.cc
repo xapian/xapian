@@ -307,7 +307,7 @@ om_doccount
 OmMSet::get_termfreq(om_termname tname) const
 {
     DEBUGAPICALL("OmMSet::get_termfreq", tname);
-    map<om_termname, TermFreqAndWeight>::const_iterator i;
+    std::map<om_termname, TermFreqAndWeight>::const_iterator i;
     i = termfreqandwts.find(tname);
     if(i == termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term frequency of `" + tname +
@@ -321,7 +321,7 @@ om_weight
 OmMSet::get_termweight(om_termname tname) const
 {
     DEBUGAPICALL("OmMSet::get_termweight", tname);
-    map<om_termname, TermFreqAndWeight>::const_iterator i;
+    std::map<om_termname, TermFreqAndWeight>::const_iterator i;
     i = termfreqandwts.find(tname);
     if(i == termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term weight of `" + tname +

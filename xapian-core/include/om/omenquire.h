@@ -480,7 +480,7 @@ class OmMSet {
 	 *  This map will contain information for each term which was in
 	 *  the query.
 	 */
-	map<om_termname, TermFreqAndWeight> termfreqandwts;
+	std::map<om_termname, TermFreqAndWeight> termfreqandwts;
 
 	/// Internal method used for percentage conversion
 	int convert_to_percent_internal(om_weight wt) const;
