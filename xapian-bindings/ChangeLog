@@ -1,3 +1,9 @@
+Thu May 13 17:57:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/WritableDatabase.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/WritableDatabase.java,
+	  java/org/xapian/XapianJNI.java: repalce -> replace.
+
 Thu May 13 10:41:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Test phpize can actually be run, rather than just that

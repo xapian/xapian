@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1delete_1docum
     CATCH(;)
 }
 
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1repalce_1document (JNIEnv *env, jclass clazz, jlong dbid, jlong assigned_docid, jlong docid) {
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1replace_1document (JNIEnv *env, jclass clazz, jlong dbid, jlong assigned_docid, jlong docid) {
     TRY
         WritableDatabase *db = (WritableDatabase *) _database.get(dbid);
         Document *doc = _document.get(docid);

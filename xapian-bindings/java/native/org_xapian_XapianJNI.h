@@ -353,10 +353,10 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1delete_1docum
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    writabledatabase_repalce_document
+ * Method:    writabledatabase_replace_document
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1repalce_1document
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1replace_1document
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*

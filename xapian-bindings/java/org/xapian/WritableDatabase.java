@@ -64,7 +64,7 @@ public class WritableDatabase extends Database {
     }
 
     public void replaceDocument(long which_docid, Document newdoc) throws XapianError, DatabaseError {
-        XapianJNI.writabledatabase_repalce_document(id, which_docid, newdoc.id);
+        XapianJNI.writabledatabase_replace_document(id, which_docid, newdoc.id);
     }
 
     public String toString() {

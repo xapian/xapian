@@ -177,7 +177,7 @@ public class XapianJNI {
 
     public static native void writabledatabase_delete_document(long dbid, long assigned_docid) throws DatabaseError, DatabaseCorruptError, DatabaseLockError, XapianError;
 
-    public static native void writabledatabase_repalce_document(long dbid, long assigned_docid, long docid) throws DatabaseError, DatabaseCorruptError, DatabaseLockError, XapianError;
+    public static native void writabledatabase_replace_document(long dbid, long assigned_docid, long docid) throws DatabaseError, DatabaseCorruptError, DatabaseLockError, XapianError;
 
     public static native String writabledatabase_get_description(long dbid) throws XapianError;
 
