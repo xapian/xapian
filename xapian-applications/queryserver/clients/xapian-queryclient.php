@@ -23,8 +23,8 @@ class Enquiry {
     var $query;
     var $filterlist;
     
-    function Enquiry() {
-        $this->queryserver_socket = '/home/richard/pub/socket';
+    function Enquiry($socket = '') {
+        $this->queryserver_socket = $socket;
         $this->dbname = 'default';
         $this->query = '';
         $this->filterlist = '';
@@ -55,7 +55,8 @@ class Enquiry {
         }
 
         $request  = 'db:' . base64_encode($this->dbname) . "\n";
-        $request .= 'query:' . chunk_split(base64_encode($this->query));
+        $request .= 'query:' . trim(chunk_split(base64_encode($this->query)));
+        $request .= "\n";
         $request .= $this->filterlist;
         $request .= "firstdoc:$firstdoc\n";
         $request .= "maxitems:$maxitems\n";

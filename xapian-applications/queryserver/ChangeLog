@@ -1,3 +1,12 @@
+Mon Apr 26 23:22:58 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * clients/index.php: Add example PHP page using
+          xapian-queryclient.php.
+        * clients/xapian-queryclient.php: Add $socket parameter to
+          Enquiry() constructor, to allow location of socket to be
+          configurable.  Fix bug when building request if no query is
+          specified.
+
 Fri Apr 23 19:27:52 BST 2004  Richard Boulton <richard.boulton@omsee.com>
 
 	* (xapian-queryclient.php, xapian-queryserver.txt): Add to dist.
