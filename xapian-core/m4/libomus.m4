@@ -31,11 +31,13 @@ if test "x$LIBOMUS_UNINST_EXEC" = "xyes"; then
 fi
 
 dnl If paths aren't absolute, complain
-case $LIBOMUS_UNINST in
-  /*) : ;;
-  *) AC_MSG_ERROR(Paths specified for libomus must be absolute) ;;
+case x$LIBOMUS_UNINST in
+  x) : ;;
+  x/*) : ;;
+  x*) AC_MSG_ERROR(Paths specified for libomus must be absolute) ;;
 esac
-case $LIBOMUS_UNINST_EXEC in
+case x$LIBOMUS_UNINST_EXEC in
+  x) : ;;
   /*) : ;;
   *) AC_MSG_ERROR(Paths specified for libomus must be absolute) ;;
 esac
