@@ -5,6 +5,7 @@ Makefile
 .deps
 .libs
 xapian.py
+xapian.pyc
 xapian_wrap.cc
 xapian_wrap.h
 _xapian.la
