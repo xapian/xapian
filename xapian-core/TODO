@@ -22,6 +22,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | MultiMatch      | Fix the MSet docid merging
 ---------+-----------------+--------------------------------------------------
+ High    | MultiMatch      | Fix the MSet docid merging with collapsing on.
+---------+-----------------+--------------------------------------------------
  High    | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
 ---------+-----------------+--------------------------------------------------
