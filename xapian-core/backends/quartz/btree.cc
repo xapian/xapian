@@ -24,13 +24,23 @@
 
 #include <config.h>
 
-// Need this to get pread and pwrite with GNU libc and on OSF.
+#ifdef __osf__
+// GCC's fixincluded unistd seems to be missing pread and pwrite prototypes.
+extern ssize_t pread(int, void *, size_t, off_t);
+extern ssize_t pwrite(int, const void *, size_t, off_t);
+#elif defined(__SOLARIS__)
+// x86 Solaris always prototypes pread and pwrite anyway, but seems to have
+// a buggy unistd.h which fails to prototype _xmknod (presumably an internal
+// helper function).
+#else
+// Need this to get pread and pwrite with GNU libc.
 #if !defined _XOPEN_SOURCE
 #define _XOPEN_SOURCE 500
 #endif
 // Required by OpenBSD (tested on 3.4)
 #if !defined _XOPEN_VERSION
 #define _XOPEN_VERSION 500
+#endif
 #endif
 
 #include <unistd.h>
