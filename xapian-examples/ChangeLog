@@ -1,3 +1,7 @@
+Sat Jul 26 20:04:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* simplesearch.cc: Stem search terms.
+
 Sat Jul 26 19:15:45 BST 2003  Olly Betts <olly@survex.com>
 
 	* simpleindex.cc: Fixed not to run words together between lines.

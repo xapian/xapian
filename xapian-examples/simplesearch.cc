@@ -25,6 +25,8 @@
 #include <xapian.h>
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 using namespace Xapian;
 using namespace std;
@@ -47,8 +49,16 @@ int main(int argc, char **argv)
 	// Start an enquire session
 	Enquire enquire(db);
 
+	Stem stemmer("english");
+	vector<string> stemmed_terms;
+
+	argv += 2;
+	while (*argv) {
+	    stemmed_terms.push_back(stemmer.stem_word(*argv++));
+	}
+	    
 	// Build a query by OR-ing together all the terms
-	Query query(Query::OP_OR, argv + 2, argv + argc);
+	Query query(Query::OP_OR, stemmed_terms.begin(), stemmed_terms.end());
 	cout << "Performing query `" << query.get_description() << "'" << endl;
 
 	// Give the query object to the enquire session
