@@ -61,9 +61,9 @@ class PLPCmpLt {
 class MSetCmp {
     public:
 	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
-	MSetCmp(bool (* _fn)(const OmMSetItem &a, const OmMSetItem &b))
-		: fn(_fn) {}
-	bool operator()(const OmMSetItem &a, const OmMSetItem &b) {
+	MSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
+		: fn(fn_) {}
+	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
 	    return fn(a, b);
 	}
 };
@@ -312,6 +312,55 @@ OmMatch::recalc_maxweight()
     recalculate_maxweight = true;
 }
 
+// Internal method to perform the collapse operation
+inline bool
+OmMatch::perform_collapse(vector<OmMSetItem> &mset,
+         		  map<IRKey, OmMSetItem> &collapse_table,
+			  om_docid did,
+			  const OmMSetItem &new_item,
+			  const MSetCmp &mcmp,
+			  const OmMSetItem &min_item)
+{
+    bool add_item = true;
+
+    IRDocument * irdoc = database->open_document(did);
+    IRKey irkey = irdoc->get_key(collapse_key);
+    map<IRKey, OmMSetItem>::iterator oldkey;
+    oldkey = collapse_table.find(irkey);
+    if(oldkey == collapse_table.end()) {
+	DebugMsg("collapsem: new key: " << irkey.value << endl);
+	// Key not been seen before
+	collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, new_item));
+    } else {
+	const OmMSetItem olditem = (*oldkey).second;
+	if(mcmp(olditem, new_item)) {
+	    DebugMsg("collapsem: better exists: " << irkey.value << endl);
+	    // There's already a better match with this key
+	    add_item = false;
+	} else {
+	    // This is best match with this key so far:
+	    // remove the old one from the MSet
+	    if(mcmp(olditem, min_item)) {
+		// Old one hasn't fallen out of MSet yet
+		// Scan through (unsorted) MSet looking for entry
+		// FIXME: more efficient way that just scanning?
+		om_weight olddid = olditem.did;
+		DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
+		vector<OmMSetItem>::iterator i = mset.begin();
+		for(;;) {
+		    if(i->did == olddid) {
+			mset.erase(i);
+			break;
+		    }
+		    i++;
+		}
+	    }
+	    oldkey->second = new_item;
+	}
+    }
+    return add_item;
+}
+
 // This is the method which runs the query, generating the M set
 void
 OmMatch::match(om_doccount first, om_doccount maxitems,
@@ -330,8 +379,8 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 
     DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
 
-    om_weight w_min = 0;
-    if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight / 100;
+    OmMSetItem min_item(0, 0);
+    if (min_weight_percent >= 0) min_item.wt = min_weight_percent * max_weight / 100;
 
     om_doccount max_msize = first + maxitems;
 
@@ -346,13 +395,13 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    recalculate_maxweight = false;
 	    w_max = query->recalc_maxweight();
 	    DebugMsg("max possible doc weight = " << w_max << endl);
-	    if (w_max < w_min) {
+	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (1)" << endl);
 		break;
 	    }
 	}    
 
-	PostList *ret = query->next(w_min);
+	PostList *ret = query->next(min_item.wt);
         if (ret) {
 	    delete query;
 	    query = ret;
@@ -364,7 +413,7 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    DebugMsg("max possible doc weight = " << w_max << endl);
             AssertParanoid(recalculate_maxweight || fabs(w_max - query->recalc_maxweight()) < 1e-9);
 
-	    if (w_max < w_min) {
+	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (2)" << endl);
 		break;
 	    }
@@ -376,56 +425,24 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	
         om_weight w = query->get_weight();
         
-        if (w > w_min) {
+        if (w > min_item.wt) {
 	    om_docid did = query->get_docid();
 	    bool add_item = true;
-	    OmMSetItem mitem(w, did);
+	    OmMSetItem new_item(w, did);
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(do_collapse) {
-		IRDocument * irdoc = database->open_document(did);
-		IRKey irkey = irdoc->get_key(collapse_key);
-		map<IRKey, OmMSetItem>::iterator oldkey;
-		oldkey = collapse_table.find(irkey);
-		if(oldkey == collapse_table.end()) {
-		    DebugMsg("collapsem: new key: " << irkey.value << endl);
-		    // Key not been seen before
-		    collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, mitem));
-		} else {
-		    OmMSetItem olditem = (*oldkey).second;
-		    if(mcmp.operator()(olditem, mitem)) {
-			DebugMsg("collapsem: better exists: " << irkey.value << endl);
-			// There's already a better match with this key
-			add_item = false;
-		    } else {
-			// This is best match with this key so far:
-			// remove the old one from the MSet
-			if(olditem.wt >= w_min) { // FIXME: should use MSetCmp
-			    // Old one hasn't fallen out of MSet yet
-			    // Scan through (unsorted) MSet looking for entry
-			    // FIXME: more efficient way that just scanning?
-			    om_weight olddid = olditem.did;
-			    DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
-			    vector<OmMSetItem>::iterator i = mset.begin();
-			    for(;;) {
-				if(i->did == olddid) {
-				    mset.erase(i);
-				    break;
-				}
-				i++;
-			    }
-			}
-			oldkey->second = mitem;
-		    }
-		}
+		add_item = perform_collapse(mset, collapse_table, did,
+					    new_item, mcmp, min_item);
 	    }
 
 	    if(add_item) {
-		mset.push_back(mitem);
+		mset.push_back(new_item);
 		if(w > *greatest_wt) *greatest_wt = w;
 
 		// FIXME: find balance between larger size for more efficient
-		// nth_element and smaller size for better w_min optimisations
+		// nth_element and smaller size for better minimum weight
+		// optimisations
 		if (mset.size() == max_msize * 2) {
 		    // find last element we care about
 		    DebugMsg("finding nth" << endl);
@@ -433,7 +450,7 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 				mset.end(), mcmp);
 		    // erase elements which don't make the grade
 		    mset.erase(mset.begin() + max_msize, mset.end());
-		    w_min = mset.back().wt;
+		    min_item = mset.back();
 		    DebugMsg("mset size = " << mset.size() << endl);
 		}
 	    }
@@ -505,7 +522,7 @@ OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
 	om_docid did = query->get_docid();
 	bool add_item = true;
-	OmMSetItem mitem(1.0, did);
+	OmMSetItem new_item(1.0, did);
 
 	// Item has high enough weight to go in MSet: do collapse if wanted
 	if(do_collapse) {
@@ -516,7 +533,7 @@ OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
 	    if(oldkey == collapse_table.end()) {
 		DebugMsg("collapsem: new key: " << irkey.value << endl);
 		// Key not been seen before
-		collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, mitem));
+		collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, new_item));
 	    } else {
 		DebugMsg("collapsem: already exists: " << irkey.value << endl);
 		// There's already a better match with this key
@@ -525,7 +542,7 @@ OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
 	}
 
 	if(add_item) {
-	    mset.push_back(mitem);
+	    mset.push_back(new_item);
 	}
     }
 

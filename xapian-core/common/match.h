@@ -25,12 +25,14 @@
 
 #include "database.h"
 #include "omassert.h"
+#include "irdocument.h"
 #include "om/omenquire.h"
 
 class IRWeight;
 
 #include <stack>
 #include <vector>
+#include <map>
 
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
@@ -41,6 +43,7 @@ class IRWeight;
 typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
+class MSetCmp;
 
 // Class which encapsulates best match operation
 class OmMatch
@@ -72,6 +75,14 @@ class OmMatch
 	// Open a postlist
 	DBPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
+
+	// Internal method to perform the collapse operation
+	bool perform_collapse(vector<OmMSetItem> &mset,
+			      map<IRKey, OmMSetItem> &collapse_table,
+			      om_docid did,
+			      const OmMSetItem &new_item,
+			      const MSetCmp &mcmp,
+			      const OmMSetItem &min_item);
     public:
         OmMatch(IRDatabase * database_);
         ~OmMatch();
