@@ -387,7 +387,7 @@ class OmMSet {
 
 	/** Return all the available term weights and frequencies
 	 */
-	std::map<om_termname, TermFreqAndWeight> get_all_terminfo() const;
+	const std::map<om_termname, TermFreqAndWeight> get_all_terminfo() const;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;

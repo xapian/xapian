@@ -67,12 +67,10 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	Database *db = (*i).get();
 	Assert(db);
 	RefCntPtr<SubMatch> smatch;
-	/* There is currently only one special case, for network
-	 * databases.
-	 */
+	// There is currently only one special case, for network databases.
 	if (db->is_network()) {
-#if 0 //FIXME def MUS_BUILD_BACKEND_REMOTE
-	    smatch = RefCntPtr<SubMatch>(new NetworkMatch(db, query, *subrset, moptions, gatherer.get()));
+#ifdef MUS_BUILD_BACKEND_REMOTE
+	    smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(db, query, *subrset, moptions, gatherer.get()));
 #else /* MUS_BUILD_BACKEND_REMOTE */
 	    throw OmUnimplementedError("Network operation is not available");
 #endif /* MUS_BUILD_BACKEND_REMOTE */
@@ -99,8 +97,8 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	for (std::vector<RefCntPtr<SubMatch> >::iterator leaf = leaves.begin();
-	    leaf != leaves.end(); leaf++) {
+	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
 	    if (!(*leaf)->prepare_match(nowait)) prepared = false;
 	}
 	// Use blocking IO on subsequent passes, so that we don't go into
@@ -111,43 +109,21 @@ MultiMatch::prepare_matchers()
 
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     OmMSet & mset,
-		     const OmMatchDecider *mdecider)
+		     OmMSet & mset, const OmMatchDecider *mdecider)
 {
-    Assert(leaves.size() > 0);
+    Assert(!leaves.empty());
 
     PostList *pl;
-
     if (leaves.size() == 1) {
 	// Only one mset to get - so get it
-	pl = leaves.front()->get_postlist();
+	pl = leaves.front()->get_postlist(first + maxitems);
     } else {
 	std::vector<PostList *> v;
 	std::vector<RefCntPtr<SubMatch> >::iterator i;
-	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
 	for (i = leaves.begin(); i != leaves.end(); i++) {
-	    v.push_back((*i)->get_postlist());
+	    v.push_back((*i)->get_postlist(first + maxitems));
 	}
 	pl = new MergePostList(v);
-//	try {
-//	}
-//	catch (const OmUnimplementedError &e) {
-#if 0
-	    // it's a NetworkMatch
-	    OmMSet mset_tmp;
-	    (*i)->get_mset(0, first + maxitems, mset_tmp, mdecider, false);
-	    NetworkMatch *m = dynamic_cast<NetworkMatch *>((*i).get());
-	    v.push_back(new MSetPostList(mset_tmp, m->database));
-	    static const std::map<om_termname, OmMSet::TermFreqAndWeight> &M =
-		OmMSet::InternalInterface::get_termfreqandwts(mset_tmp);
-	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
-	    for (i = M.begin(); i != M.end(); i++) {
-		std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator j;
-		j = term_info.find(i->first);
-		if (j == term_info.end()) term_info.insert(*i);
-	    }
-#endif
-//	}
     }
 
     // Extra weight object - used to calculate part of doc weight which

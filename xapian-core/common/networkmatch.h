@@ -23,69 +23,66 @@
 #ifndef OM_HGUARD_NETWORKMATCH_H
 #define OM_HGUARD_NETWORKMATCH_H
 
-#include "match.h"
+#include "localmatch.h"
 #include "stats.h"
 #include "net_database.h"
 
-class MultiMatch;
+#include "../matcher/msetpostlist.h"
 
-/** Class for performing match calculations over a network interface.
- */
-class NetworkMatch : public SingleMatch
-{
-    friend class MultiMatch; // FIXME for now, to get at database
+/// Class for performing match calculations remotely
+class RemoteSubMatch : public SubMatch {
     private:
-	// disallow copies
-	NetworkMatch(const NetworkMatch &);
-	void operator=(const NetworkMatch &);
+	bool is_prepared;
 
-	// the database object
-	NetworkDatabase *database;
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+    
+	const NetworkDatabase *db;
+
+	PendingMSetPostList *postlist; // FIXME remove this crap
+
+	/// RSet to be used (affects weightings)
+	AutoPtr<RSet> rset;
+    
+	/// A pointer to the gatherer, to access the statistics.
+	StatsGatherer *gatherer;
 
 	/// the statistics object
 	Stats remote_stats;
+
+
+	// disallow copies
+	RemoteSubMatch(const RemoteSubMatch &);
+	void operator=(const RemoteSubMatch &);
 
 	/// Prepare the stats object with contributed
 	/// statistics from the remote end.
 	void finish_query();
 
-	/// The StatsSource object
-	NetworkStatsSource statssource;
+	/// Make a weight - default argument is used for finding extra_weight
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
-	/// A pointer to the gatherer, to access the statistics.
-	StatsGatherer *gatherer;
-
-	/// The maximum weight which can be returned
-	om_weight max_weight;
-
-	/// Indication of whether max_weight needs to be updated
-	bool max_weight_needs_fetch;
     public:
-        NetworkMatch(Database * database_, StatsGatherer *gatherer_);
-        ~NetworkMatch();
+	RemoteSubMatch(const Database *db_, const OmQueryInternal * query,
+		       const OmRSet & omrset, const OmSettings &mopts,
+		       StatsGatherer *gatherer_);
 
-	void set_query(const OmQueryInternal * query_);
+	~RemoteSubMatch();
 
-	void set_rset(const OmRSet & omrset);
+	/// Calculate the statistics for the query
+	bool prepare_match(bool nowait);
 
-	void set_options(const OmSettings & moptions_);
+	PostList * get_postlist(om_doccount maxitems);
 
-        om_weight get_max_weight();
-	bool get_mset(om_doccount first,
-		      om_doccount maxitems,
-		      OmMSet &mset,
-		      const OmMatchDecider *mdecider,
-		      bool nowait
-		     );
+	virtual LeafDocument * open_document(om_docid did) const {
+	    return db->open_document(did);
+	}
 
-	///////////////////////////////////////////////////////////////////
-	// Miscellaneous
-	// =============
-
-	/** Called by postlists to indicate that they've rearranged themselves
-	 *  and the maxweight now possible is smaller.
-	 */
-        void recalc_maxweight();
-};
+	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
+	    Assert(postlist);
+	    postlist->make_pl();
+	    return postlist->pl->mset.get_all_terminfo();
+	}
+};   
 
 #endif /* OM_HGUARD_NETWORKMATCH_H */

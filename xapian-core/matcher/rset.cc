@@ -69,15 +69,12 @@ RSet::calculate_stats()
 }
 
 void
-RSet::give_stats_to_statssource(StatsSource &statssource)
+RSet::give_stats_to_statssource(StatsSource *statssource)
 {
     Assert(calculated_reltermfreqs);
 
-    std::map<om_termname, om_doccount>::const_iterator reltermfreq;
-    for (reltermfreq = reltermfreqs.begin();
-	 reltermfreq != reltermfreqs.end();
-	 reltermfreq++) {
-	statssource.my_reltermfreq_is(reltermfreq->first,
-				      reltermfreq->second);
+    std::map<om_termname, om_doccount>::const_iterator i;
+    for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
+	statssource->my_reltermfreq_is(i->first, i->second);
     }
 }

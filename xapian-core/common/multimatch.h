@@ -32,7 +32,7 @@
 #include <vector>
 #include "autoptr.h"  // auto_ptr
 
-class SingleMatch;
+class SubMatch;
 
 /** Class for performing a match over multiple SingleMatch objects.
  */

@@ -29,6 +29,7 @@
 #include <vector>
 #include "omlocks.h"
 
+class SubMatch;
 class LocalSubMatch;
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +38,8 @@ class LocalSubMatch;
 
 /// Internal class, implementing most of OmQuery
 class OmQueryInternal {
-    friend class LocalSubMatch;
+    friend class SubMatch;
+    friend class LocalSubMatch;	
     public:
     	OmLock mutex;
     private:

@@ -407,12 +407,6 @@ SocketClient::get_mset(om_doccount first,
     return true;
 }
 
-om_weight
-SocketClient::get_max_weight()
-{
-    return remote_maxweight;
-}
-
 void
 SocketClient::set_rset(const OmRSet &omrset_)
 {

@@ -41,7 +41,40 @@ class PostList;
 
 class SubMatch : public RefCntBase {
     public:
-	virtual ~SubMatch() { }
+	/** Name of weighting scheme to use.
+	 *  This may differ from the requested scheme if, for example,
+	 *  the query is pure boolean.
+	 */
+	string weighting_scheme;
+
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+    
+	/// Stored match options object
+	OmSettings mopts;
+
+	StatsSource * statssource;
+	
+	SubMatch(const OmQueryInternal * query, const OmSettings &mopts_,
+		 StatsSource * statssource_)
+	    : querysize(query->qlen), mopts(mopts_), statssource(statssource_)
+	{
+	    // Check that we have a valid query to run
+	    if (!query->isdefined) {
+		throw OmInvalidArgumentError("Query is not defined.");
+	    }
+	    
+	    // If query is boolean, set weighting to boolean
+	    if (query->is_bool()) {
+		weighting_scheme = "bool";
+	    } else {
+		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
+	    }	    
+	}
+
+	virtual ~SubMatch() {
+	    delete statssource;
+	}
 
 	///////////////////////////////////////////////////////////////////
 	// Prepare to do the match
@@ -69,9 +102,9 @@ class SubMatch : public RefCntBase {
 	virtual bool prepare_match(bool nowait) = 0;
 
 	/// Make a weight - default argument is used for finding extra_weight
-	virtual IRWeight * mk_weight(const OmQueryInternal *query = NULL) = 0;
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
-	virtual PostList * get_postlist() = 0;
+	virtual PostList * get_postlist(om_doccount maxitems) = 0;
 
 	virtual LeafDocument * open_document(om_docid did) const = 0;
 
@@ -85,11 +118,7 @@ class LocalSubMatch : public SubMatch {
 	/// Query to be run
 	OmQueryInternal users_query;
 
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-    
 	const Database *db;
-	LocalStatsSource statssource;
 	PostList *postlist;
 
 	/// RSet to be used (affects weightings)
@@ -99,18 +128,6 @@ class LocalSubMatch : public SubMatch {
 	 *  If zero, there is no limit.
 	 */
 	om_termcount max_or_terms;
-
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	string weighting_scheme;
-    
-	/// Stored match options object
-	OmSettings mopts;
-
-	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
 	/// The weights and termfreqs of terms in the query.
 	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
@@ -129,37 +146,30 @@ class LocalSubMatch : public SubMatch {
 	PostList *postlist_from_query(const OmQueryInternal * query);
 
 	void register_term(const om_termname &tname) {
-	    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
+	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
 	}
 
     public:
 	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
 		      const OmRSet & omrset, const OmSettings &mopts_,
 		      StatsGatherer *gatherer)
-		: is_prepared(false), users_query(*query), db(db_),
-		  mopts(mopts_)
+		: SubMatch(query, mopts_, new LocalStatsSource),
+		  is_prepared(false), users_query(*query), db(db_)
 	{	    
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 
 	    max_or_terms = mopts.get_int("match_max_or_terms", 0);
 
-	    // If query is boolean, set weighting to boolean
-	    if (users_query.is_bool()) {
-		weighting_scheme = "bool";
-	    } else {
-		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
-	    }
-
-	    statssource.my_collection_size_is(db->get_doccount());
-	    statssource.my_average_length_is(db->get_avlength());
-	    statssource.connect_to_gatherer(gatherer);
+	    statssource->my_collection_size_is(db->get_doccount());
+	    statssource->my_average_length_is(db->get_avlength());
+	    statssource->connect_to_gatherer(gatherer);
 	}
 
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
-	PostList * get_postlist();
+	PostList * get_postlist(om_doccount maxitems);
 
 	virtual LeafDocument * open_document(om_docid did) const {
 	    return db->open_document(did);

@@ -26,117 +26,103 @@
 #include "stats.h"
 #include "utils.h"
 
+#include "msetpostlist.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
 #include <cstdio>
 
-////////////////////////////////////
-// Initialisation and cleaning up //
-////////////////////////////////////
-
-NetworkMatch::NetworkMatch(Database *database_, StatsGatherer *gatherer_)
-	: database(dynamic_cast<NetworkDatabase *>(database_)),
-	  statssource(database->link),
-	  gatherer(gatherer_),
-	  max_weight_needs_fetch(true)
-{
+RemoteSubMatch::RemoteSubMatch(const Database *db_,
+			       const OmQueryInternal * query,
+			       const OmRSet & omrset, const OmSettings &mopts,
+			       StatsGatherer *gatherer_)
+	: SubMatch(query, mopts, new NetworkStatsSource(dynamic_cast<const NetworkDatabase *>(db_)->link)),
+	  is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
+	  gatherer(gatherer_)
+{	    
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
-    Assert(database != 0);
+    Assert(db);
 
-    database->link->register_statssource(&statssource);
-    statssource.connect_to_gatherer(gatherer);
-}
+    db->link->set_query(query);
+    db->link->set_options(mopts);
 
-NetworkMatch::~NetworkMatch()
-{
-}
+    NetworkStatsSource * nss = dynamic_cast<NetworkStatsSource *>(statssource);
+    Assert(nss != NULL);
+    db->link->register_statssource(nss);
+    statssource->connect_to_gatherer(gatherer);
 
-/////////////////////////////////////////////////////////////////////
-// Setting query options
-//
-void
-NetworkMatch::set_options(const OmSettings & mopts)
-{
-    database->link->set_options(mopts);
-    // weighting scheme has potentially changed
-    max_weight_needs_fetch = true;
-}
-
-void
-NetworkMatch::set_rset(const OmRSet & omrset)
-{
-    database->link->set_rset(omrset);
-}
-
-////////////////////////
-// Building the query //
-////////////////////////
-
-void
-NetworkMatch::set_query(const OmQueryInternal *query_)
-{
-    database->link->set_query(query_);
-    max_weight_needs_fetch = true;
-}
-
-// Return the maximum possible weight, calculating it if necessary.
-om_weight
-NetworkMatch::get_max_weight()
-{
-//    Assert(is_prepared);
-    if (max_weight_needs_fetch) {
-	max_weight = database->link->get_max_weight();
-	max_weight_needs_fetch = false;
+    // If query is boolean, set weighting to boolean
+    if (query->is_bool()) {
+	weighting_scheme = "bool";
+    } else {
+	weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
     }
+    
+    AutoPtr<RSet> new_rset(new RSet(db, omrset));
+    rset = new_rset;
 
-    return max_weight;
+    db->link->set_rset(omrset);
 }
 
-///////////////////
-// Run the query //
-///////////////////
-
-// This method is called by branch postlists when they rebalance
-// in order to recalculate the weights in the tree
-void
-NetworkMatch::recalc_maxweight()
+RemoteSubMatch::~RemoteSubMatch()
 {
-    Assert(false);
 }
 
-// This is the method which runs the query, generating the M set
-bool
-NetworkMatch::get_mset(om_doccount first,
-		       om_doccount maxitems,
-		       OmMSet &mset,
-		       const OmMatchDecider *mdecider,
-		       bool nowait)
+PostList *
+RemoteSubMatch::get_postlist(om_doccount maxitems)
+//		       const OmMatchDecider *mdecider,
 {
     // FIXME: need to pass termfreqandwts to each link->get_mset() call and
     // to get the results back.
-//    Assert(is_prepared);
 
-    if (mdecider != 0) {
-	throw OmInvalidArgumentError("Can't use a match decider remotely");
-    }
+// FIXME: for efficiency, MatchDecider should probably be applied remotely
+//    if (mdecider != 0) {
+//	throw OmInvalidArgumentError("Can't use a match decider remotely");
+//    }
 
-    database->link->send_global_stats(*(gatherer->get_stats()));
+    // FIXME: Want to get remote end going, and return an MSetPostList
+    // which will return the results later.  And MergePostList should
+    // skip over Remote matchers which aren't ready yet and come back to
+    // them later...
 
-    bool finished = false;
-    if (nowait) {
-	finished = database->link->get_mset(first, maxitems,
-					    mset);
-    } else {
-	finished = database->link->get_mset(first, maxitems,
-					    mset);
-	while (!finished) {
-	    database->link->wait_for_input();
-	    finished = database->link->get_mset(first, maxitems,
-						mset);
+    db->link->send_global_stats(*(gatherer->get_stats()));
+    return (postlist = new PendingMSetPostList(db, maxitems));
+}
+
+bool
+RemoteSubMatch::prepare_match(bool nowait)
+{
+    if (!is_prepared) {
+	bool finished_query = db->link->finish_query();
+
+	if (!finished_query) {
+	    if (nowait) {
+		return false;
+	    } else {
+		do {
+		    db->link->wait_for_input();
+		} while (!db->link->finish_query());
+	    }
 	}
+
+	// Read the remote statistics and give them to the stats source
+	//
+	Stats mystats;
+	bool read_remote_stats = db->link->get_remote_stats(mystats);
+	if (!read_remote_stats) {
+	    if (nowait) return false;
+	    do {
+		db->link->wait_for_input();
+	    } while (!db->link->get_remote_stats(mystats));
+	}
+	NetworkStatsSource * nss = dynamic_cast<NetworkStatsSource *>(statssource);
+	Assert(nss != NULL);
+	nss->take_remote_stats(mystats);
+
+	is_prepared = true;
     }
-    return finished;
+    return true;
 }

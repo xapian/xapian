@@ -61,7 +61,7 @@ class RSet {
 	void will_want_reltermfreq(om_termname tname);
 
 	void calculate_stats();
-	void give_stats_to_statssource(StatsSource &statssource);
+	void give_stats_to_statssource(StatsSource *statssource);
 
 	om_doccount get_rsize() const;
 	om_doccount get_reltermfreq(om_termname tname) const;

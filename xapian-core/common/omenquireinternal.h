@@ -83,15 +83,4 @@ class OmEnquireInternal {
 	std::string get_description() const;
 };
 
-
-class OmMSet::InternalInterface {
-    public:
-	/** Get a reference to the termfreqandwts member of an OmMSet.
-	 */
-	static const std::map<om_termname, TermFreqAndWeight> &
-		get_termfreqandwts(const OmMSet & mset) {
-		    return mset.termfreqandwts;
-		}
-};
-
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

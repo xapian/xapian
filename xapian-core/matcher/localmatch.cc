@@ -215,27 +215,6 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists)
     }
 }
 
-IRWeight *
-LocalSubMatch::mk_weight(const OmQueryInternal *query_)
-{
-    om_termname tname = "";
-    om_termcount wqf = 1;
-    if (query_) {
-	tname = query_->tname;
-	wqf = query_->wqf;
-    }
-    IRWeight * wt = IRWeight::create(weighting_scheme, mopts);
-    wt->set_stats(&statssource, querysize, wqf, tname);
-#ifdef MUS_DEBUG_PARANOID
-    if (!tname.empty()) {
-	AutoPtr<IRWeight> extra_weight(mk_weight());
-	// Check that max_extra weight is really right
-	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
-    }
-#endif /* MUS_DEBUG_PARANOID */
-    return wt;
-}
-
 // Make a postlist from a vector of query objects.
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
@@ -340,7 +319,7 @@ LocalSubMatch::postlist_from_query(const OmQueryInternal *query)
 	    info.termweight = wt->get_maxpart();
 
 	    // MULTI - this statssource should be the combined one...
-	    info.termfreq = statssource.get_total_termfreq(query->tname);
+	    info.termfreq = statssource->get_total_termfreq(query->tname);
 
 	    DEBUGLINE(MATCH, " weight = " << info.termweight <<
 		      ", frequency = " << info.termfreq);
@@ -411,55 +390,9 @@ LocalSubMatch::prepare_match(bool nowait)
     return true;
 }
 
-#if 0 // FIXME: use this code
-bool
-NetworkMatch::prepare_match(bool nowait)
-{
-    if (!is_prepared) {
-	bool finished_query = database->link->finish_query();
-
-	if (!finished_query) {
-	    if (nowait) {
-		return false;
-	    } else {
-		do {
-		    database->link->wait_for_input();
-		} while (!database->link->finish_query());
-	    }
-	}
-
-	// Read the remote statistics and give them to the stats source
-	//
-	Stats mystats;
-	bool read_remote_stats = database->link->get_remote_stats(mystats);
-	if (!read_remote_stats) {
-	    if (nowait) {
-		return false;
-	    } else {
-		do {
-		    database->link->wait_for_input();
-		} while (!database->link->get_remote_stats(mystats));
-	    }
-	}
-	statssource.take_remote_stats(mystats);
-
-	is_prepared = true;
-    }
-    return true;
-}
-#endif
-
 PostList *
-LocalSubMatch::get_postlist()
+LocalSubMatch::get_postlist(om_doccount maxitems)
 {
-    // Check that we have a valid query to run
-    if (!(users_query.isdefined)) {
-	throw OmInvalidArgumentError("Query is not defined.");
-    }
-
-    querysize = users_query.qlen;
-    
-    // Root postlist of query tree
     return postlist_from_query(&users_query);
 }
 
@@ -749,4 +682,25 @@ LocalMatch::get_mset(PostList *query, om_doccount first,
     mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
 		  termfreqandwts);
     return true;
+}
+
+IRWeight *
+SubMatch::mk_weight(const OmQueryInternal *query_)
+{
+    om_termname tname = "";
+    om_termcount wqf = 1;
+    if (query_) {
+	tname = query_->tname;
+	wqf = query_->wqf;
+    }
+    IRWeight * wt = IRWeight::create(weighting_scheme, mopts);
+    wt->set_stats(statssource, querysize, wqf, tname);
+#ifdef MUS_DEBUG_PARANOID
+    if (!tname.empty()) {
+	AutoPtr<IRWeight> extra_weight(mk_weight());
+	// Check that max_extra weight is really right
+	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
+    }
+#endif /* MUS_DEBUG_PARANOID */
+    return wt;
 }
