@@ -135,7 +135,7 @@ dnl This detects the default 3.1 install from sleepycat
 if test "x$have_berkeley_3_1_cxx" != "xyes"; then
   SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB.3.1/include"
   SLEEPYCAT_LINKFLAGS="-L/usr/local/BerkeleyDB.3.1/lib"
-  SLEEPYCAT_LIBS="-ldb"
+  SLEEPYCAT_LIBS="-ldb_cxx"
 
   have_sleepy_cxx=no
   AC_MSG_CHECKING([for C++ interface to Berkeley DB, version 3.1, in /usr/local/BerkeleyDB.3.1])
@@ -153,7 +153,7 @@ fi
 
 dnl This looks for a package of 3.1 in a plausible place
 if test "x$have_berkeley_3_1_cxx" != "xyes"; then
-  SLEEPYCAT_LIBS="-ldb++"
+  SLEEPYCAT_LIBS="-ldb_cxx"
   SLEEPYCAT_INCLUDES="-I/usr/include/db"
   SLEEPYCAT_LINKFLAGS=
 

@@ -1,3 +1,8 @@
+Tue Aug 15 20:39:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct library name to link against for BerkeleyDB 3.1, from libdb
+	  to libdb_cxx
+
 Tue Aug 15 20:24:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OmFeatureUnavailableError exception, to be thrown when a
