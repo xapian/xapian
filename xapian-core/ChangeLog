@@ -1,3 +1,7 @@
+Mon Feb 14 21:16:05 GMT 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Results from upgraded sourceforge x86_64 box.
+
 Mon Feb 14 18:36:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/xapian/queryparser.h: Fixed compilation error.
