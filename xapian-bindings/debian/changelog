@@ -1,3 +1,10 @@
+xapian-bindings (0.8-3) unstable; urgency=low
+
+  * Add --list-missing back to dh_install command, since we're already
+    depending on a debhelper version high enough to support that option.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 12:27:27 +0100
+
 xapian-bindings (0.8-2) unstable; urgency=low
 
   * Add rules to make symlinks to config.guess and config.sub, and added

@@ -93,7 +93,7 @@ install: build
 	done
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp
+	dh_install --sourcedir=debian/tmp --list-missing
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
