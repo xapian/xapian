@@ -2,7 +2,8 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = include backends matcher languages indexer . \
+SUBDIRS = include common \
+          backends matcher languages indexer . \
           tests docs
 
 EXTRA_DIST = AUTHORS INSTALL README COPYING ChangeLog buildall HACKING TODO

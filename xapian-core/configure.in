@@ -175,16 +175,18 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
- languages/Makefile
- languages/en/Makefile
- matcher/Makefile
- indexer/Makefile
+ include/Makefile
+ common/Makefile
  backends/Makefile
  backends/da/Makefile
  backends/sleepy/Makefile
  backends/multi/Makefile
  backends/inmemory/Makefile
- include/Makefile
+ languages/Makefile
+ languages/en/Makefile
+ matcher/Makefile
+ indexer/Makefile
+ tests/Makefile
  docs/Makefile
  docs/mkdoc.pl
- tests/Makefile)
+)
