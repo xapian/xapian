@@ -1,3 +1,9 @@
+Thu Mar 03 02:20:26 GMT 2005  Olly Betts <olly@survex.com>
+
+	* templates/query2: Remove Sam's unfinished rewrite of the query
+	  template.  It's not been worked on for nearly two years, and we
+	  don't ship it.
+
 Wed Mar 02 03:09:52 GMT 2005  Olly Betts <olly@survex.com>
 
 	* COPYING: Put in CVS.
