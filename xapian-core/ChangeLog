@@ -1,3 +1,7 @@
+Tue Sep 12 15:23:09 BST 2000 Olly Betts
+
+	* Oops, AndMaybePostList didn't compile...
+
 Tue Sep 12 14:44:26 BST 2000 Olly Betts
 
 	* Fixed problem with OrPostList decomposing into AndMaybePostList at
