@@ -4,7 +4,7 @@ Makefile.in
 Makefile
 .deps
 .libs
-.sleepy
+.sleepycat
 libnet.la
 readquery.cc
 omnetclient
