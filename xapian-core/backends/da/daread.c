@@ -774,7 +774,7 @@ void DAreadunit(struct DAfile * p, int m, int n, struct record * r)
 
 extern struct record * makerecord()
 {  struct record * r = (struct record *) malloc(sizeof(struct record));
-   r->size = 0; r->p = malloc(0); r->number = -1; return r;
+   r->size = 0; r->p = 0; r->number = -1; return r;
 }
 
 extern void loserecord(struct record * r) { free(r->p); free(r); }
@@ -827,7 +827,7 @@ extern void readterms(struct termvec * tv)
 
 extern struct termvec * maketermvec()
 {  struct termvec * tv = (struct termvec *) malloc(sizeof(struct termvec));
-   tv->size = 0; tv->p = malloc(0); tv->number = -1; return tv;
+   tv->size = 0; tv->p = 0; tv->number = -1; return tv;
 }
 
 extern void losetermvec(struct termvec * tv) { free(tv->p); free(tv); }
