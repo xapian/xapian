@@ -164,6 +164,9 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	    value_table.commit(new_revision);
 	    record_table.commit(new_revision);
 	}
+	if (record_table.get_doccount() == 0) {
+	    record_table.set_total_length_and_lastdocid(0, record_table.get_lastdocid());
+	}
     }
 }
 
@@ -226,6 +229,7 @@ QuartzDatabase::create_and_open_tables(unsigned int block_size)
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
     log.make_entry("Opened tables at revision " + om_tostring(revision));
+    record_table.set_total_length_and_lastdocid(0, 0);
 }
 
 void

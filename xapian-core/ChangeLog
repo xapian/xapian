@@ -1,3 +1,13 @@
+Thu Sep 02 14:50:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Not storing the document length
+	  and last docid on every add means that the magic key won't always
+	  exists when there are records and
+	  QuartzWritableDatabase::get_doccount() is sometimes off by one.  Fix
+	  crudely for now by making sure that the magic key does always exist.
+	  Longer term the magic key probably should be in the postlist table
+	  but that's an incompatible change.
+
 Wed Sep 01 16:15:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Change QuartzWritableDatabase to store the total
