@@ -26,24 +26,36 @@
 #include <string>
 #include <vector>
 #include "omdebug.h"
+#include "om/omerror.h"
 
 inline std::string
 encode_tname(const std::string &tname)
 {
+    // Encoding is:
+    // ascii value          leading character      result
+    // 0 to 35              ! (33)                 value + 36 (36 - 71)
+    // 36 to 126            none                   value      (36 - 126)
+    // 127 to 191           " (34)                 value - 91 (36 - 100)
+    // 192 to 255           # (35)                 value - 156 (36 - 99)
+    // A completely null string is represented by a lone !
     std::string result;
     
     std::string::const_iterator i;
     for (i = tname.begin(); i != tname.end(); ++i) {
-	if ((unsigned char)*i < 33) {
-	    result += "\\";
-	    result += (char)(*i + 64);
-	} else if (*i == '\\') {
-	    result += "\\!";
-	} else {
+	if ((unsigned char)*i <= 35) {
+	    result += (char)(33);
+	    result += (char)(*i + 36);
+	} else if ((unsigned char)*i <= 126) {
 	    result += *i;
+	} else if ((unsigned char)*i <= 191) {
+	    result += (char)(34);
+	    result += (char)(*i - 91);
+	} else {
+	    result += (char)(35);
+	    result += (char)(*i - 156);
 	}
     }
-    if (result.empty()) result = "\\x";
+    if (result.empty()) result = "!";
     
     return result;
 }
@@ -52,24 +64,32 @@ inline std::string
 decode_tname(const std::string &tcode)
 {
     std::string result;
-    if (tcode == "\\x") return result;
+    if (tcode == "!") return result;
 
     std::string::const_iterator i;
     for (i = tcode.begin(); i != tcode.end(); ++i) {
 	switch (*i) {
-	    case '\\':
+	    case 33:
 	        i++;
-	        Assert(i != tcode.end());
-		if (*i == '!') {
-		    result += "\\";
-		} else {
-		    Assert((unsigned char)(*i) >= 64);
-		    Assert((unsigned char)(*i) <= 96);
-		    result += (char)(*i - 64);
-		}
+	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 71)
+		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following !");
+		result += (char)(*i - 36);
+	        break;
+	    case 34:
+	        i++;
+	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 100)
+		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following \"");
+		result += (char)(*i + 91);
+	        break;
+	    case 35:
+	        i++;
+	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 99)
+		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following #");
+		result += (char)(*i + 156);
 	        break;
 	    default:
-	        Assert((unsigned char)(*i) > 32);
+	        if((unsigned char)(*i) < 36 || (unsigned char)(*i) > 126)
+		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "'");
 	        result += *i;
 	}
     }

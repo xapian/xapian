@@ -1,3 +1,11 @@
+Tue Dec 19 20:06:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Escaping for termnames in remote database communication modified
+	  to use only characters in range 33 to 126.  Should now work on all
+	  architectures.
+
+	* Increased OM_SOCKET_PROTOCOL_VERSION to 8.
+
 Mon Dec 18 17:23:48 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added "match_cutoff" option to get_mset OmSettings.
