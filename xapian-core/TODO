@@ -22,36 +22,24 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Auto generate TeX documentation, and put it on
-         |                 | the website.
+ High    | Matcher         | Implement match decision functor
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Change OMQueries to hold subqs in a deque, so
-         |                 | that we can add a subquery to the beginning in
-         |                 | the OR or AND case (see FIXME)
+ High    | Matcher         | Finish implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Write get_matching_terms method for OmEnquire.
+ High    | Tests           | Write tests for collapse M.
 ---------+-----------------+--------------------------------------------------
- Medium  | Matcher         | Implement match decision functor
----------+-----------------+--------------------------------------------------
- Medium  | Matcher         | Finish implementation of BM25 weight
+ High    | Expand          | Implement option to remove current query terms
 ---------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Document how each function should work in
-         |                 | database, and what it should do in error
-	 |                 | conditions (when things should be Asserted /
-	 |                 | when exceptions should be thrown / when error
-	 |                 | condition should be returned.)  Do same for
-	 |                 | postlists, termlists, documents, matcher, etc.
----------+-----------------+--------------------------------------------------
- Medium  | Tests           | Write tests for collapse M.
----------+-----------------+--------------------------------------------------
- Medium  | Expand          | Implement option to remove current query terms
+ Medium  | Documentation   | Document backend API (database, postlist,
+         |                 | termlist, document, etc) in same way as enquire
+	 |                 | API.
 ---------+-----------------+--------------------------------------------------
  Medium  | Positional      | Calculate query length automatically.
 ---------+-----------------+--------------------------------------------------
- Medium  | Positional      | Pass within query frequency and query length
+ Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Make OmQuery collapse on termpos's in AND's and
@@ -60,9 +48,11 @@ Priority | Area            | Task
          |                 | OmQuery(OM_MOP_OR, OmQuery(tname),
          |                 | OmQuery(tname)) are exactly equivalent. 
 ---------+-----------------+--------------------------------------------------
- Low     | API             | Make OmEnquire::get_matching_terms and
+ Medium  | API             | Make OmEnquire::get_matching_terms and
          |                 | OmQuery::get_terms return terms in sorted order
 	 |                 | of termpos.
+---------+-----------------+--------------------------------------------------
+ Low     | Documentation   | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Website         | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
