@@ -1,3 +1,8 @@
+Tue Jul 15 16:27:52 BST 2003  Olly Betts <olly@survex.com>
+
+	* omindex.cc: file_to_string() and stdout_to_string() now throw an
+	  exception on a read error, avoiding the " "-for-empty-file bodge.
+
 Tue Jul 15 15:18:32 BST 2003  James Aylett  <james@tartarus.org>
 
 	* omindex.cc: fix file_to_string() to return the file on
