@@ -1,3 +1,10 @@
+Tue Mar 01 00:05:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am,xapian-config.in,xapian.spec.in,extra/.cvsignore,
+	  extra/Makefile.am: Eliminated the extra library for the queryparser
+	  - it's tiny compared to the main library and having it around just
+	  complicates things.
+
 Mon Feb 28 23:52:19 GMT 2005  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: More set_length() changes.

@@ -5,7 +5,7 @@ Makefile
 .deps
 .libs
 queryparsertest
-libxapianqueryparser.la
+libqueryparser.la
 lemon
 queryparser_internal.cc
 queryparser_token.h

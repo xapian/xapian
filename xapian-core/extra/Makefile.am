@@ -9,7 +9,8 @@ xapianincludedir = $(includedir)/xapian
 
 xapianinclude_HEADERS = xapian/queryparser.h
 
-lib_LTLIBRARIES = libxapianqueryparser.la
+noinst_LTLIBRARIES = libqueryparser.la
+
 check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
@@ -27,10 +28,7 @@ BUILT_SOURCES = $(lemon_built_sources)
 MAINTAINERCLEANFILES = lemon $(lemon_built_sources)
 endif
 
-libxapianqueryparser_la_LDFLAGS = -no-undefined -version-info $(LIBRARY_VERSION_INFO)
-libxapianqueryparser_la_LIBADD = @ldflags@ ../libxapian.la
-
-libxapianqueryparser_la_SOURCES = queryparser.cc queryparser_internal.cc
+libqueryparser_la_SOURCES = queryparser.cc queryparser_internal.cc
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = libxapianqueryparser.la ../libxapian.la
+queryparsertest_LDADD = @ldflags@ ../libxapian.la
