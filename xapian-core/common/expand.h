@@ -30,6 +30,7 @@
 #include <queue>
 #include <stack>
 #include <vector>
+#include <memory>
 
 /** Expand decision functor which always decides to use the term. */
 class OmExpandDeciderAlways : public OmExpandDecider {
@@ -47,7 +48,8 @@ class OmExpand {
         IRDatabase *database;
 
         bool recalculate_maxweight;
-	TermList * build_tree(const RSet *rset, const OmExpandWeight *ewt);
+	auto_ptr<TermList> build_tree(const RSet *rset,
+				      const OmExpandWeight *ewt);
     public:
         OmExpand(IRDatabase * database_);
 

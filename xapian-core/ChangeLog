@@ -1,3 +1,8 @@
+Tue Aug  8 17:50:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Use auto_ptr's and similar to protect TermLists being manipulated by
+	  OmExpand so that they're not leaked if an exception happens.
+
 Tue Aug  8 16:36:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add test of mbound.
