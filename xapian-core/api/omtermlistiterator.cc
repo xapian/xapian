@@ -122,12 +122,12 @@ void
 OmTermIterator::skip_to(const om_termname & tname)
 {
     DEBUGAPICALL(void, "OmTermIterator::skip_to", tname);
-    Assert(internal);
-    Assert(!internal->at_end());
-    internal->skip_to(tname);
-    if (internal->at_end()) {
-	delete internal;
-	internal = 0;
+    if(internal && !internal->at_end()) {
+	internal->skip_to(tname);
+	if (internal->at_end()) {
+	    delete internal;
+	    internal = 0;
+	}
     }
 }
 

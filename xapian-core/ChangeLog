@@ -1,3 +1,8 @@
+Tue Jan  9 17:22:12 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make skip_to() work (ie, do nothing) on OmTermIterators, when the
+	  term iterator is at_end() already.
+
 Tue Jan  9 13:32:08 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updates to make the quartzdump utility more useful.
