@@ -90,9 +90,9 @@ AndMaybePostList::skip_to(docid did, weight w_min)
 	PostList *ret;
 	DebugMsg("AND MAYBE -> AND (in skip_to)" << endl);
 	ret = new AndPostList(l, r, root, true);
-	id = max(id, max(lhead, rhead));
+	did = max(did, max(lhead, rhead));
 	l = r = NULL;
-	PostList *ret2 = ret->skip_to(id, w_min);
+	PostList *ret2 = ret->skip_to(did, w_min);
 	if (ret2) {
 	    delete ret;
 	    ret = ret2;
@@ -101,7 +101,7 @@ AndMaybePostList::skip_to(docid did, weight w_min)
     }
 
     // exit if we're already past the skip point (or at it)
-    if (id <= lhead) return NULL;
+    if (did <= lhead) return NULL;
 
-    return process_next_or_skip_to(w_min, l->skip_to(id, w_min - rmax));
+    return process_next_or_skip_to(w_min, l->skip_to(did, w_min - rmax));
 }

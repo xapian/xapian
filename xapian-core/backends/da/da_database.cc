@@ -37,7 +37,7 @@
 DAPostList::DAPostList(const termname & tname_,
 		       struct postings * postlist_,
 		       doccount termfreq_)
-	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(tf)
+	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
 {
 }
 
@@ -72,17 +72,17 @@ PostList * DAPostList::next(weight w_min)
 PostList * DAPostList::skip_to(docid did, weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
-    Assert(id >= currdoc);
-    if (currdoc && id <= docid(postlist->E)) {
+    Assert(did >= currdoc);
+    if (currdoc && did <= docid(postlist->E)) {
 	// skip_to later in the current range
-	currdoc = id;
-	//cout << "Skip within range " << id << endl;
+	currdoc = did;
+	//cout << "Skip within range " << did << endl;
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
-    DAreadpostings(postlist, 1, id);
+    DAreadpostings(postlist, 1, did);
     currdoc = docid(postlist->Doc);
-    //printf("%d - get_id %d\n", id, currdoc);
+    //printf("%d - get_id %d\n", did, currdoc);
     return NULL;
 }
 

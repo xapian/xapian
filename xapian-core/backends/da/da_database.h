@@ -107,12 +107,12 @@ class DATermListItem {
 	termcount wdf;
 	doccount termfreq;
 
-	DATermListItem(termname tname_new,
-		       termcount wdf_new,
-		       doccount termfreq_new)
-		: tname(tname_new),
-		  wdf(wdf_new),
-		  termfreq(termfreq_new)
+	DATermListItem(termname tname_,
+		       termcount wdf_,
+		       doccount termfreq_)
+		: tname(tname_),
+		  wdf(wdf_),
+		  termfreq(termfreq_)
 	{ return; }
 };
  
@@ -198,7 +198,7 @@ class DATerm {
         mutable struct terminfo ti;
         mutable struct DAfile * DA_t;
     public:
-	termname name;
+	termname tname;
 };
 
 inline
@@ -207,12 +207,12 @@ DATerm::DATerm(struct terminfo * ti_,
 	       struct DAfile * DA_t_)
 	: terminfo_initialised(false)
 {
-    if (ti_new) {
-	ti = *ti_new;
+    if (ti_) {
+	ti = *ti_;
 	terminfo_initialised = true;
     }
-    name = name_new;
-    DA_t = DA_t_new;
+    tname = tname_;
+    DA_t = DA_t_;
 }
 
 inline struct terminfo *
@@ -220,12 +220,12 @@ DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
 	DebugMsg("Getting terminfo" << endl);
-	int len = name.length();
+	int len = tname.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw OmError(strerror(ENOMEM));
 	k[0] = len + 1;
-	name.copy((char*)(k + 1), len);
+	tname.copy((char*)(k + 1), len);
 
 	int found = DAterm(k, &ti, DA_t);
 	free(k);
