@@ -25,7 +25,7 @@ class PLPCmpLt {
 };
 
 Match::Match(IRDatabase *database)
-	: have_added_terms(false);
+	: have_added_terms(false)
 {
     DB = database;
     max_msize = 1000;
