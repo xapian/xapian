@@ -250,6 +250,18 @@ sub prologue() {
     my $self = shift;
     my $result = <<MAINSTART;
     public static void main(String[] argv) throws Throwable {
+        String test = null;
+        for (int i=0; i<argv.length; ++i) {
+	    if (argv[i].equals("-v")) {
+	        verbose = true;
+	    } else {
+	        if (test == null) {
+		    test = argv[i];
+		} else {
+		    System.err.println("syntax: ApiTestFuncs [-v] [single test]");
+		}
+	    }
+	}
         ApiTest.init();
 
 	int succeeded = 0;
@@ -259,18 +271,20 @@ MAINSTART
     foreach $name (split(/ +/, $self->{tests})) {
         next if $name eq "";
         $result .= <<TESTEND;
-    System.out.print("${name}... ");
-    try {
-        boolean result = ${name}();
-	if (result) {
-	    System.out.println("ok.");
-	    succeeded++;
-	} else {
+    if ((test == null) || (test.equals("$name"))) {
+	System.out.print("${name}... ");
+	try {
+	    boolean result = ${name}();
+	    if (result) {
+		System.out.println("ok.");
+		succeeded++;
+	    } else {
+		System.out.println("FAIL");
+		failed++;
+	    }
+	} catch (TestFail foo) {
 	    System.out.println("FAIL");
-	    failed++;
 	}
-    } catch (TestFail foo) {
-        System.out.println("FAIL");
     }
 TESTEND
     }

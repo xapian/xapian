@@ -48,7 +48,10 @@ public class BackendManager {
 		    new OmWritableDatabase("sleepycat", make_strvec(dbdir));
 		System.err.println("Indexing to " + dbdir);
 	        index_files_to_database(db, change_names_to_paths(dbnames));
-		return db;
+		db = null;
+		System.runFinalization();
+		System.gc();
+		return new OmDatabase("sleepycat", make_strvec(dbdir));
 	    }
 	    return new OmDatabase("sleepycat", make_strvec(dbdir));
 	} else {

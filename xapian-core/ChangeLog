@@ -1,3 +1,11 @@
+Thu Aug  3 17:40:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now 21 tests pass, 5 fail (including alwaysfail) - databases
+	  weren't being flushed properly when created.
+	
+	* ApiTestFuncs.main() now understands some of the normal testsuite
+	  command-line options.
+
 Thu Aug  3 14:39:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Java automatically converted apitest now runs 25 tests (and fails

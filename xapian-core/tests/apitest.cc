@@ -213,7 +213,11 @@ bool test_zerodocid()
     if ((mymset.items.size() != 1) ||
 	(mymset.items[0].did == 0)) {
 	if (verbose) {
-	    cout << "A query on a database returned a zero docid" << endl;
+	    if (mymset.items.size() != 1) {
+		cout << "Expected 1 item, got " << mymset.items.size() << endl;
+	    } else {
+		cout << "A query on a database returned a zero docid" << endl;
+	    }
 	}
 	success = false;
     }
