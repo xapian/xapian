@@ -106,6 +106,17 @@ OmDatabaseGroup::add_database(const string &type,
     internal->add_database(type, params);
 }
 
+void
+OmDatabaseGroup::add_database(const OmDatabase & database)
+{
+    OmRefCntPtr<IRDatabase> dbptr;
+    {
+	OmLockSentry locksentry(database.internal->mutex);
+	dbptr = database.internal->mydb;
+    }
+
+    internal->add_database(dbptr);
+}
 
 //////////////////////////////////////////
 // Methods of OmDatabaseGroup::Internal //
@@ -133,6 +144,18 @@ OmDatabaseGroup::Internal::add_database(const string & type,
     databases.push_back(newdb);
 }
 
+void
+OmDatabaseGroup::Internal::add_database(OmRefCntPtr<IRDatabase> newdb)
+{
+    OmLockSentry locksentry(mutex);
+
+    // Forget existing multidatabase
+    multi_database = 0;
+
+    // Add database to the list
+    databases.push_back(newdb);
+}
+
 OmRefCntPtr<MultiDatabase>
 OmDatabaseGroup::Internal::get_multidatabase()
 {
@@ -155,4 +178,3 @@ OmDatabaseGroup::InternalInterface::get_multidatabase(
 {
     return dbg.internal->get_multidatabase();
 }
-

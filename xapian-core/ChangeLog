@@ -1,3 +1,8 @@
+Tue May 16 15:07:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added add_database() method to OmDatabaseGroup which takes an
+	  OmDatabase object, instead of parameters for opening a database.
+
 Tue May 16 12:48:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Assignment operators for OmDatabase and OmWritableDatabase are

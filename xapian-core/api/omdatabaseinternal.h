@@ -62,6 +62,10 @@ class OmDatabaseGroup::Internal {
 	void add_database(const string & type,
 			  const vector<string> & paths);
 
+	/** Add an opened database to the group.
+	 */
+	void add_database(OmRefCntPtr<IRDatabase> newdb);
+
 	/** Create a MultiDatabase from an OmDatabaseGroup.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been

@@ -27,6 +27,7 @@
 #include "omindexdoc.h"
 
 class OmWritableDatabase;
+class OmDatabaseGroup;
 
 ///////////////////////////////////////////////////////////////////
 // OmDatabase class
@@ -35,7 +36,15 @@ class OmWritableDatabase;
 /** This class is used to access a database.
  */
 class OmDatabase {
+    /** OmWritableDatabase is a friend so that it can call is_writable().
+     */
     friend OmWritableDatabase;
+
+    /** OmDatabaseGroup is a friend so that it can access the internals
+     *  to extract the database pointer.
+     */
+    friend OmDatabaseGroup;
+
     private:
 	/** Check whether this is a writable database.
 	 *
@@ -246,9 +255,9 @@ class OmDatabaseGroup {
 	 *  The handle on the database will be copied, so may be deleted
 	 *  or reused by the caller as desired.
 	 *
-	 *  @param database_ the opened database to add.
+	 *  @param database the opened database to add.
 	 */
-	void add_database(const OmDatabase & database_);
+	void add_database(const OmDatabase & database);
 };
 
 #endif /* OM_HGUARD_OMDATABASE_H */
