@@ -50,15 +50,15 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 }
 
 
-OmExpandWeight::OmExpandWeight(const Database *root_,
+OmExpandWeight::OmExpandWeight(const OmDatabase &root_,
 			       om_doccount rsetsize_,
 			       bool use_exact_termfreq_)
 	: root(root_),
 	  rsize(rsetsize_),
 	  use_exact_termfreq(use_exact_termfreq_)
 {
-    dbsize = root->get_doccount();
-    average_length = root->get_avlength();
+    dbsize = root.get_doccount();
+    average_length = root.get_avlength();
     return;
 }
 
@@ -101,9 +101,9 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 	    DEBUGLINE(WTCALC, "Approximating termfreq of `" << tname << "': " <<
 		      bits.termfreq << " * " << dbsize << " / " <<
 		      bits.dbsize << " = " << termfreq << " (true value is:" <<
-		      root->get_termfreq(tname) << ")");
+		      root.get_termfreq(tname) << ")");
 	} else {
-	    termfreq = root->get_termfreq(tname);
+	    termfreq = root.get_termfreq(tname);
 	    DEBUGLINE(WTCALC, "Asked database for termfreq of `" << tname <<
 		      "': " << termfreq);
 	}

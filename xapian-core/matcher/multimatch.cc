@@ -25,9 +25,11 @@
 #include "match.h"
 #include "localmatch.h"
 #include "rset.h"
-#include "multi_database.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
+#include "../api/omdatabaseinternal.h"
+#include "mergepostlist.h"
+#include "msetpostlist.h"
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
 #include "networkmatch.h"
@@ -39,20 +41,18 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
+MultiMatch::MultiMatch(const OmDatabase &db,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
 		       const OmSettings & moptions,
 		       AutoPtr<StatsGatherer> gatherer_)
-	: multi_database(multi_database_),
-	  gatherer(gatherer_),
-	  mcmp(msetcmp_forward)
+	: gatherer(gatherer_),
+query_save_for_hack(*query), moptions_save_for_hack(moptions)
 {
-    std::vector<RefCntPtr<Database> >::const_iterator db;
-    for (db = multi_database->databases.begin();
-	 db != multi_database->databases.end();
-	 ++db) {
-	RefCntPtr<SingleMatch> smatch(make_match_from_database(db->get()));
+    std::vector<RefCntPtr<Database> >::iterator i;
+    for (i = db.internal->databases.begin();
+	 i != db.internal->databases.end(); ++i) {
+	RefCntPtr<SingleMatch> smatch(make_match_from_database((*i).get()));
 	smatch->link_to_multi(gatherer.get());
 	leaves.push_back(smatch);
     }
@@ -76,9 +76,8 @@ MultiMatch::make_match_from_database(Database *db)
 #else /* MUS_BUILD_BACKEND_REMOTE */
 	throw OmUnimplementedError("Network operation is not available");
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-    } else {
-	return RefCntPtr<SingleMatch>(new LocalMatch(db));
     }
+    return RefCntPtr<SingleMatch>(new LocalMatch(db));
 }
 
 MultiMatch::~MultiMatch()
@@ -126,153 +125,6 @@ MultiMatch::set_options(const OmSettings & moptions)
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions);
     }
-
-    // FIXME: same code as in localmatch.cc...
-    if (moptions.get_bool("match_sort_forward", true)) {
-	mcmp = OmMSetCmp(msetcmp_forward);
-    } else {
-	mcmp = OmMSetCmp(msetcmp_reverse);
-    }
-}
-
-void
-MultiMatch::change_docids_to_global(std::vector<OmMSetItem> & mset,
-				    om_doccount leaf_number)
-{
-    om_doccount number_of_leaves = leaves.size();
-    std::vector<OmMSetItem>::iterator mset_item;
-    for (mset_item = mset.begin();
-	 mset_item != mset.end();
-	 mset_item++) {
-	mset_item->did = (mset_item->did - 1) * number_of_leaves + leaf_number;
-    }
-}
-
-bool
-MultiMatch::have_not_seen_key(std::set<OmKey> & collapse_entries,
-			      const OmKey & new_key)
-{
-    if (new_key.value.size() == 0) return true;
-    std::pair<std::set<OmKey>::iterator, bool> p = collapse_entries.insert(new_key);
-    return p.second;
-}
-
-void
-MultiMatch::merge_msets(std::vector<OmMSetItem> &mset,
-			std::vector<OmMSetItem> &more_mset,
-			om_doccount lastitem)
-{
-    // FIXME - this method is likely to be very inefficient
-    // both because of the fact that we're doing a binary merge, and
-    // because we collapse very inefficiently.  (Don't use fact that
-    // each key can only occur once in each mset, for a start)
-    DEBUGLINE(MATCH, "Merging mset of size " << more_mset.size() <<
-	      " to existing set of size " << mset.size());
-
-    std::vector<OmMSetItem> old_mset;
-    old_mset.swap(mset);
-
-    std::set<OmKey> collapse_entries;
-
-    std::vector<OmMSetItem>::const_iterator i = old_mset.begin();
-    std::vector<OmMSetItem>::const_iterator j = more_mset.begin();
-    while(mset.size() < lastitem &&
-	  i != old_mset.end() && j != more_mset.end()) {
-	if(mcmp(*i, *j)) {
-	    if (have_not_seen_key(collapse_entries, i->collapse_key))
-		mset.push_back(*i);
-	    i++;
-	} else {
-	    if (have_not_seen_key(collapse_entries, j->collapse_key))
-		mset.push_back(*j);
-	    j++;
-	}
-    }
-    while(mset.size() < lastitem &&
-	  i != old_mset.end()) {
-	if (have_not_seen_key(collapse_entries, i->collapse_key))
-	    mset.push_back(*i);
-	i++;
-    }
-    while(mset.size() < lastitem &&
-	  j != more_mset.end()) {
-	if (have_not_seen_key(collapse_entries, j->collapse_key))
-	    mset.push_back(*j);
-	j++;
-    }
-}
-
-bool
-MultiMatch::add_next_sub_mset(SingleMatch * leaf,
-			      om_doccount leaf_number,
-			      om_doccount lastitem,
-			      const OmMatchDecider *mdecider,
-			      OmMSet & mset,
-			      bool nowait)
-{
-    OmMSet sub_mset;
-
-    // Get next mset
-    if (!leaf->get_mset(0, lastitem, sub_mset, mdecider, nowait))
-        return false;
-
-    // Merge stats
-    mset.mbound += sub_mset.mbound;
-    if (sub_mset.max_attained > mset.max_attained)
-	mset.max_attained = sub_mset.max_attained;
-    if (sub_mset.max_possible > mset.max_possible)
-	mset.max_possible = sub_mset.max_possible;
-    
-    // Merge items
-    change_docids_to_global(sub_mset.items, leaf_number);
-    merge_msets(mset.items, sub_mset.items, lastitem);
-
-    // Merge term information
-    std::map<om_termname, OmMSet::TermFreqAndWeight> *msettermfreqandwts =
-	&OmMSet::InternalInterface::get_termfreqandwts(mset);
-    std::map<om_termname, OmMSet::TermFreqAndWeight> *sub_msettermfreqandwts =
-	&OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
-
-    if (msettermfreqandwts->empty()) {
-	*msettermfreqandwts = *sub_msettermfreqandwts;
-    } else {
-	std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator i;
-	std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
-
-	for (i = msettermfreqandwts->begin(),
-	     j = sub_msettermfreqandwts->begin();
-	     i != msettermfreqandwts->end() &&
-	     j != sub_msettermfreqandwts->end();
-	     i++, j++) {
-	    if (i->second.termweight == 0 && i->second.termfreq != 0) {
-		DEBUGLINE(WTCALC, "termweight of `" << i->first <<
-			  "' in first mset is 0, setting to " <<
-			  j->second.termweight);
-		i->second.termweight = j->second.termweight;
-	    }
-	}
-
-#ifdef MUS_DEBUG_PARANOID
-	AssertParanoid(msettermfreqandwts->size() ==
-		       sub_msettermfreqandwts->size());
-	for (i = msettermfreqandwts->begin(),
-	     j = sub_msettermfreqandwts->begin();
-	     i != msettermfreqandwts->end() &&
-	     j != sub_msettermfreqandwts->end();
-	     i++, j++) {
-	    DebugMsg("Comparing " << i->first << "," <<
-		     i->second.termfreq << "," << i->second.termweight <<
-		     " with " << j->first << "," << 
-		     j->second.termfreq << "," << j->second.termweight);
-	    AssertParanoid(i->first == j->first);
-	    AssertParanoid(i->second.termfreq == j->second.termfreq);
-	    AssertParanoid(i->second.termweight == j->second.termweight ||
-			   j->second.termweight == 0);
-	}
-#endif /* MUS_DEBUG_PARANOID */
-    }
-
-    return true;
 }
 
 void
@@ -295,84 +147,46 @@ MultiMatch::prepare_matchers()
 }
 
 void
-MultiMatch::collect_msets(om_doccount lastitem,
-			  const OmMatchDecider *mdecider,
-			  OmMSet & mset)
-{
-    // Empty the mset
-    mset.items.clear();
-    mset.mbound = 0;
-    mset.max_attained = 0;
-    mset.max_possible = 0;
-    mset.firstitem = 0;
-
-    std::vector<bool> mset_received(leaves.size(), false);
-    std::vector<RefCntPtr<SingleMatch> >::size_type msets_received = 0;
-
-    om_doccount leaf_number;
-    std::vector<RefCntPtr<SingleMatch> >::iterator leaf;
-
-    // Get msets one by one, and merge each one with the current mset.
-    // FIXME: this approach may be very inefficient - needs attention.
-    bool nowait = true;
-    while (msets_received != leaves.size()) {
-	for(leaf = leaves.begin(),
-	    leaf_number = 1;
-	    leaf != leaves.end();
-	    leaf++, leaf_number++) {
-
-	    if (mset_received[leaf_number - 1]) {
-		continue;
-	    }
-
-	    if (add_next_sub_mset((*leaf).get(),
-				  leaf_number,
-				  lastitem,
-				  mdecider,
-				  mset,
-				  nowait)) {
-		msets_received++;
-		mset_received[leaf_number - 1] = true;
-	    }
-	}
-
-	// Use blocking IO on subsequent passes, so that we don't go into
-	// a tight loop.
-	nowait = false;
-    }
-}
-
-void
-MultiMatch::remove_leading_elements(om_doccount number_to_remove,
-				    OmMSet & mset)
-{
-    // Clear unwanted leading elements.
-    if(number_to_remove != 0) {
-	if(mset.items.size() < number_to_remove) {
-	    mset.items.clear();
-	} else {
-	    mset.items.erase(mset.items.begin(),
-			     mset.items.begin() + number_to_remove);
-	}
-	mset.firstitem += number_to_remove;
-    }
-}
-
-void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset,
 		     const OmMatchDecider *mdecider)
 {
     Assert(leaves.size() > 0);
-
-    if(leaves.size() == 1) {
+    if (leaves.size() == 1) {
 	// Only one mset to get - so get it, and block.
-	leaves.front()->get_mset(first, maxitems, mset,
-				 mdecider, false);
-    } else if(leaves.size() > 1) {
-	// Need to merge msets.
-	collect_msets(first + maxitems, mdecider, mset);
-	remove_leading_elements(first, mset);
+	leaves.front()->get_mset(first, maxitems, mset, mdecider, false);
+	return;
+    }
+
+    std::vector<PostList *> v;
+    std::vector<RefCntPtr<SingleMatch> >::iterator i;
+    SingleMatch *lm = NULL;
+    for (i = leaves.begin(); i != leaves.end(); i++) {
+	try {
+	    v.push_back((*i)->do_postlist_hack());
+	    if (!lm) lm = (*i).get();
+	}
+	catch (const OmUnimplementedError &e) {
+	    // it's a NetworkMatch
+	    OmMSet mset_tmp;
+	    (*i)->get_mset(0, first + maxitems, mset_tmp, mdecider, false);
+	    NetworkMatch *m = dynamic_cast<NetworkMatch *>((*i).get());
+	    v.push_back(new MSetPostList(mset_tmp, m->database));
+	}
+    }
+    if (lm) {
+	DEBUGLINE(MATCH, "Have a localmatch to abuse");
+	lm->do_postlist_hack2(new MergePostList(v));
+	lm->get_mset(first, maxitems, mset, mdecider, false);
+    } else {
+	DEBUGLINE(MATCH, "Don't have a localmatch to abuse");
+	NetworkMatch *m = dynamic_cast<NetworkMatch *>(leaves.front().get());
+	lm = new LocalMatch(m->database);
+	LocalStatsSource s;
+	lm->set_query(&query_save_for_hack);
+	lm->set_options(moptions_save_for_hack);
+	lm->do_postlist_hack2(new MergePostList(v));
+	lm->get_mset(first, maxitems, mset, mdecider, false);
+	delete lm;
     }
 }
-

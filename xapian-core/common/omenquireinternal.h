@@ -26,8 +26,6 @@
 #include "config.h"
 
 #include <om/omenquire.h>
-#include "database.h"
-#include "multi_database.h"
 #include "omlocks.h"
 #include "refcnt.h"
 #include <algorithm>
@@ -42,10 +40,8 @@
  */
 class OmEnquireInternal {
     private:
-	/** The multidatabase which this enquire object uses.
-	 *  This is obtained from the OmDatabase passed to the constructor.
-	 */
-	RefCntPtr<MultiDatabase> database;
+	/// The database which this enquire object uses.
+	const OmDatabase db;
 
 	/** The user's query.
 	 *  This may need to be mutable in future so that it can be
@@ -92,8 +88,8 @@ class OmMSet::InternalInterface {
     public:
 	/** Get a reference to the termfreqandwts member of an OmMSet.
 	 */
-	static std::map<om_termname, TermFreqAndWeight> &
-		get_termfreqandwts(OmMSet & mset) {
+	static const std::map<om_termname, TermFreqAndWeight> &
+		get_termfreqandwts(const OmMSet & mset) {
 		    return mset.termfreqandwts;
 		}
 };

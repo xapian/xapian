@@ -120,7 +120,7 @@ OmDatabase::postlist_begin(const om_termname &tname) const
 {
     DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_begin", tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
-    RETURN(OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname))));
+    RETURN(OmPostListIterator(new OmPostListIterator::Internal(internal->open_post_list(tname, *this))));
 }
 
 OmPostListIterator
@@ -135,7 +135,7 @@ OmTermListIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->get_multi_database()->open_term_list(did))));
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this))));
 }
 
 OmTermListIterator
@@ -161,6 +161,58 @@ OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
 		 did << ", " << tname);
     throw OmUnimplementedError("positionlist_end() needs backends to support get_position_list on databases");
     RETURN(OmPositionListIterator(NULL));
+}
+
+om_doccount
+OmDatabase::get_doccount() const
+{
+    DEBUGAPICALL(om_doccount, "OmDatabase::get_doccount", "");
+    om_doccount docs = 0;
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	docs += (*i)->get_doccount();
+    }
+    RETURN(docs);
+}
+
+om_doclength
+OmDatabase::get_avlength() const
+{
+    DEBUGAPICALL(om_doclength, "OmDatabase::get_avlength", "");
+    RETURN(internal->get_avlength());
+}
+
+om_doccount
+OmDatabase::get_termfreq(const om_termname & tname) const
+{
+    DEBUGAPICALL(om_doccount, "OmDatabase::get_termfreq", tname);
+    om_doccount tf = 0;
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	tf += (*i)->get_termfreq(tname);
+    }
+    RETURN(tf);
+}
+
+om_doclength
+OmDatabase::get_doclength(om_docid did) const
+{
+    DEBUGAPICALL(om_doclength, "OmDatabase::get_doclength", did);
+    unsigned int multiplier = internal->databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+    RETURN(internal->databases[dbnumber]->get_doclength(realdid));
+}
+
+bool
+OmDatabase::term_exists(const om_termname & tname) const
+{
+    Assert(tname.size() != 0);
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	if ((*i)->term_exists(tname)) return true;
+    }
+    return false;
 }
 
 std::string

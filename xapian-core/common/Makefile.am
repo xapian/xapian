@@ -11,8 +11,7 @@ noinst_HEADERS = \
  indexer.h textfile_indexer.h \
  utils.h omlocks.h omqueryinternal.h refcnt.h autoptr.h \
  omdocumentparams.h document.h networkmatch.h \
- netclient.h progclient.h multi_database.h net_database.h \
- omdatabaseinterface.h \
+ netclient.h progclient.h net_database.h \
  netutils.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \

@@ -24,10 +24,7 @@
 #define OM_HGUARD_TCPSERVER_H
 
 #include "socketserver.h"
-#include "database.h"
-#include "multi_database.h"
 #include "socketcommon.h"
-#include "autoptr.h"
 
 /** A TCP server class, which uses SocketServer.
  */
@@ -41,7 +38,7 @@ class TcpServer {
 	int port;
 
 	/// The database we're using.
-	RefCntPtr<MultiDatabase> db;
+	OmDatabase db;
 
 	/// The listening socket
 	int listen_socket;
@@ -62,8 +59,7 @@ class TcpServer {
 	int get_connected_socket();
     public:
 	/** Default constructor. */
-	TcpServer(RefCntPtr<MultiDatabase> db_, int port_,
-		  int msecs_timeout_ = 10000);
+	TcpServer(OmDatabase db_, int port_, int msecs_timeout_ = 10000);
 
 	/** Destructor. */
 	~TcpServer();

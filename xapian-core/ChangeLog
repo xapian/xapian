@@ -1,3 +1,16 @@
+Thu Sep 28 12:19:25 BST 2000 Olly Betts
+
+	* Major overhaul of matcher including addition of MergePostList and
+	  MSetPostList.
+
+	* Use OmDatabase instead of converting it into a MultiDatabase.
+
+	* OmDatabase new methods: get_doccount(), get_avlength(),
+	  get_termfreq(), get_doclength(), term_exists().
+
+	* Currently MultiMatch / LocalMatch / NetworkMatch interface is
+	  highly bodged.
+
 Wed Sep 27 19:30:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Almost added ability to add an empty document to a quartz database

@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <strstream.h>
 #include <iomanip.h>
-#include "database.h"
 #include "database_builder.h"
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -37,7 +36,6 @@
 #include "netutils.h"
 #include "progserver.h"
 #include "omerr_string.h"
-#include "omdatabaseinterface.h"
 #include "backendmanager.h"
 
 int main(int argc, char *argv[]) {
@@ -70,25 +68,7 @@ int main(int argc, char *argv[]) {
 	OmDatabase dbgrp;
 	dbgrp.add_database(db);
 
-#if 0
-	OmSettings param;
-	param.set("backend", "inmemory");
-
-	std::vector<Database> dbs;
-	dbs.push_back(DatabaseBuilder::create(param));
-	AutoPtr<Database> db(DatabaseBuilder::create(dbs));
-	RefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
-	if (!mdb.get()) {
-	    throw OmDatabaseError("Invalid database");
-	} else {
-	    // db no longer should have ownership
-	    db.release();
-	}
-#endif
-
-	RefCntPtr<MultiDatabase> multidb;
-	multidb = OmDatabase::InternalInterface::get_multi_database(dbgrp);
-	ProgServer server(multidb, 0, 1);
+	ProgServer server(dbgrp, 0, 1);
 
 	server.run();
     } catch (OmError &e) {

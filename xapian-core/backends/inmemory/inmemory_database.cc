@@ -106,8 +106,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     if (did > termlists.size()) {
-	// FIXME: the docid in this message will be local, not global, in
-	// the case of a multidatabase
+	// FIXME: the docid in this message will be local, not global
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
@@ -120,8 +119,7 @@ InMemoryDatabase::open_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     if (did > doclists.size()) {
-	// FIXME: the docid in this message will be local, not global, in
-	// the case of a multidatabase
+	// FIXME: the docid in this message will be local, not global
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }

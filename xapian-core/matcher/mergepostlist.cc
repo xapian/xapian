@@ -26,10 +26,9 @@
 #include "omdebug.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_)
+    : plists(plists_), current(-1)
 {
     DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
-    current = -1;
-    plists = plists_;
 }
 
 MergePostList::~MergePostList()

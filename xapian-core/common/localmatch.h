@@ -40,11 +40,13 @@ class PostList;
 
 class SubMatch {
     public:
-	Database *db;
+	const Database *db;
 	LocalStatsSource statssource;
 	PostList *postlist;
 
-	SubMatch(Database *db_) : db(db_) {
+	SubMatch() { } // FIXME: hackity hack
+
+	SubMatch(const Database *db_) : db(db_) {
 	    statssource.my_collection_size_is(db->get_doccount());
 	    statssource.my_average_length_is(db->get_avlength());
 	}
@@ -148,7 +150,7 @@ class LocalMatch : public SingleMatch
 	PostList * build_and_tree(std::vector<PostList *> &postlists);
 	PostList * build_or_tree(std::vector<PostList *> &postlists);
     public:
-        LocalMatch(Database * database_);
+        LocalMatch(Database * db_);
 
 	///////////////////////////////////////////////////////////////////
 	// Implement these virtual methods
@@ -169,6 +171,14 @@ class LocalMatch : public SingleMatch
 		      bool nowait
 		     );
 
+	// gross bodge
+	PostList *do_postlist_hack();    
+	void do_postlist_hack2(PostList *pl);
+    private:    
+	bool hackery;
+	PostList *query_hackery;
+    public:
+    
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
 	// =============

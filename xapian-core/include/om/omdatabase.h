@@ -30,6 +30,11 @@
 #include "omtermlistiterator.h"
 #include "ompositionlistiterator.h"
 
+class OmEnquireInternal;
+class OmExpand;
+class MultiMatch;
+class SocketServer;
+
 class OmWritableDatabase;
 
 ///////////////////////////////////////////////////////////////////
@@ -86,6 +91,10 @@ class OmDatabase {
 	class InternalInterface;
 
 	friend class InternalInterface;
+	friend class OmEnquireInternal; // to allow access to my internals
+	friend class OmExpand; // ditto
+	friend class MultiMatch; // ditto
+	friend class SocketServer;
 
 	/** Open a database, possibly readonly.
 	 *
@@ -153,6 +162,13 @@ class OmDatabase {
 
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
+
+	om_doccount get_doccount() const;
+	om_doclength get_avlength() const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	om_doclength get_doclength(om_docid did) const;
+
+	bool term_exists(const om_termname & tname) const;
 };
 
 ///////////////////////////////////////////////////////////////////

@@ -33,6 +33,7 @@
 #include "phrasepostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
+#include "mergepostlist.h"
 
 #include "document.h"
 #include "rset.h"
@@ -217,14 +218,15 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
 ////////////////////////////////////
 
 // MULTI
-LocalMatch::LocalMatch(Database *database_)
-	: submatch(database_),
+LocalMatch::LocalMatch(Database *db_)
+	: submatch(db_),
 	  users_query(),
 	  rset(0),
 	  max_or_terms(0),
 	  mcmp(msetcmp_forward),
 	  querysize(1)
 {
+    hackery = false;
 }
 
 void
@@ -543,6 +545,31 @@ LocalMatch::prepare_match(bool nowait)
     return true;
 }
 
+PostList *
+LocalMatch::do_postlist_hack()
+{
+    // Check that we have prepared to run the query
+    Assert(is_prepared);
+
+    // Check that we have a valid query to run
+    if (!(users_query.isdefined)) {
+	throw OmInvalidArgumentError("Query is not defined.");
+    }
+
+    querysize = users_query.qlen;
+    
+    // Root postlist of query tree
+    return postlist_from_query(&users_query);
+}
+
+void
+LocalMatch::do_postlist_hack2(PostList *pl)
+{
+    hackery = true;
+    query_hackery = pl;
+    is_prepared = true;
+}
+
 // This is the method which runs the query, generating the M set
 bool
 LocalMatch::get_mset(om_doccount first,
@@ -561,9 +588,14 @@ LocalMatch::get_mset(om_doccount first,
     }
 
     querysize = users_query.qlen;
-    
+
     // Root postlist of query tree
-    PostList * query = postlist_from_query(&users_query);
+    PostList *query;
+    if (hackery) {
+	query = query_hackery;
+    } else {
+	query = postlist_from_query(&users_query);
+    }
 
     Assert(query != NULL);
     DEBUGLINE(MATCH, "query = (" << query->get_description() << ")");
@@ -639,10 +671,10 @@ LocalMatch::get_mset(om_doccount first,
 
 	PostList *ret = query->next(min_item.wt - max_extra_weight);
         if (ret) {
+	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 	    delete query;
 	    query = ret;
 
-	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
 	    w_max = query->get_maxweight() + max_extra_weight;
@@ -660,11 +692,11 @@ LocalMatch::get_mset(om_doccount first,
         mbound++;
 
 	om_docid did = query->get_docid();
-	DEBUGLINE(MATCH, "submatch.db->get_doclength(" << did << ") == " <<
-		  submatch.db->get_doclength(did));
+// FIXME:	DEBUGLINE(MATCH, "submatch.db->get_doclength(" << did << ") == " <<
+//		  submatch.db->get_doclength(did));
 	DEBUGLINE(MATCH, "query->get_doclength() == " <<
 		  query->get_doclength());
-	AssertEqDouble(submatch.db->get_doclength(did), query->get_doclength());
+// FIXME: not true with MergePostList	AssertEqDouble(submatch.db->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
 		extra_weight->get_sumextra(query->get_doclength());
 

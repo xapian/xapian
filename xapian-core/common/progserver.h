@@ -24,12 +24,9 @@
 #define OM_HGUARD_PROGSERVER_H
 
 #include "socketserver.h"
-#include "database.h"
-#include "multi_database.h"
 #include "multimatch.h"
 #include "socketcommon.h"
 #include "networkstats.h"
-#include "autoptr.h"
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
@@ -43,7 +40,7 @@ class ProgServer : public SocketServer {
 
     public:
 	/** Default constructor. */
-	ProgServer(RefCntPtr<MultiDatabase> db, int readfd_,
+	ProgServer(OmDatabase db, int readfd_,
 		   int writefd_, int msecs_timeout_ = 10000);
 
 	/** This destructor is only here to avoid strange linking errors

@@ -27,10 +27,13 @@
 #include "stats.h"
 #include "net_database.h"
 
+class MultiMatch;
+
 /** Class for performing match calculations over a network interface.
  */
 class NetworkMatch : public SingleMatch
 {
+    friend class MultiMatch; // FIXME for now, to get at database
     private:
 	// disallow copies
 	NetworkMatch(const NetworkMatch &);

@@ -154,6 +154,15 @@ class SingleMatch : public RefCntBase
 			      OmMSet &mset,
 			      const OmMatchDecider *mdecider,
 			      bool nowait) = 0;
+
+	// gross bodge FIXME
+	virtual PostList *do_postlist_hack() {
+	    throw OmUnimplementedError("do_postlist_hack not supported by network stuff");
+	}
+
+	virtual void do_postlist_hack2(PostList *pl) {
+	    throw OmUnimplementedError("do_postlist_hack2 not supported by network stuff");
+	}
 };
 
 ///////////////////////////////

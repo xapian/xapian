@@ -24,7 +24,6 @@
 // need _POSIX_SOURCE to get kill() on Linux
 #define _POSIX_SOURCE 1
 #include "tcpserver.h"
-#include "database.h"
 #include "stats.h"
 #include "localmatch.h"
 #include "netutils.h"
@@ -44,8 +43,7 @@
 #include <sys/wait.h>
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(RefCntPtr<MultiDatabase> db_,
-		       int port_, int msecs_timeout_)
+TcpServer::TcpServer(OmDatabase db_, int port_, int msecs_timeout_)
 	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
 	  msecs_timeout(msecs_timeout_)
 {
