@@ -219,7 +219,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     string file = root + url;
     string title, sample, keywords, dump;
 
-    cout << "Indexing \"" << baseurl << url << "\" as " << mimetype << " ... ";
+    cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
     if (dupes==DUPE_ignore && db->term_exists("U" + baseurl + url)) {
 	cout << "duplicate. Ignored." << endl;

@@ -1,3 +1,7 @@
+Wed Aug 21 18:03:43 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* omindex.cc: tidy up output so it doesn't wrap so much
+
 Wed Aug 21 18:01:38 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* htmlparse.cc: fixed bug in entity reference handling
