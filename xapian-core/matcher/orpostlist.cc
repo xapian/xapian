@@ -37,7 +37,6 @@ OrPostList::OrPostList(PostList *left_,
     DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
 }
 
-#include <iostream.h>
 PostList *
 OrPostList::next(om_weight w_min)
 {

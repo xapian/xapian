@@ -34,7 +34,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
-using std::ostream_iterator;
 using std::map;
 using std::max;
 using std::ostream;

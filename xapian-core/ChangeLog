@@ -1,7 +1,11 @@
-Thu May 16 13:36:19 BST 2002  Sam Liddicott <saml@ananova.net>
+Thu May 16 16:57:42 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* Minor tweaks to get a warning-less compile with GCC 3.1.
+
+Thu May 16 13:36:19 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Clean up the spec file
- 
+
 Thu May 16 12:20:09 BST 2002  Olly Betts <olly@survex.com>
 
 	* Documented match_sort_key.
@@ -29,7 +33,7 @@ Wed May 15 13:27:21 BST 2002  Richard Boulton <richard@tartarus.org>
 Wed May 15 11:40:58 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* SWIG cvs (php4) now writes all output files to the same directory as
-	  the main output file, so need for hacks to move these, also no more 
+	  the main output file, so need for hacks to move these, also no more
 	  clobbering our source files when building in the checkout dir
 
 Tue May 14 21:54:02 BST 2002  James Aylett  <tartarus@users.sourceforge.net>

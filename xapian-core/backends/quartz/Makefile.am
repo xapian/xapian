@@ -46,25 +46,21 @@ libquartz_la_SOURCES = quartz_database.cc \
 
 noinst_LTLIBRARIES = libquartz.la
 
-TESTS = quartztest btreetest
+TESTS = btreetest quartztest
 
 check_PROGRAMS = btreetest quartztest quartzdump
 
 clean-local:
 	rm -rf .quartztmp .btreetmp
 
+btreetest_SOURCES = btreetest.cc
+btreetest_LDADD = ../../testsuite/libtest.la \
+		  ../../libxapian.la
+
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = libquartz.la \
-		   ../../getopt/libgetopt.la \
+quartztest_LDADD = ../../getopt/libgetopt.la \
                    ../../testsuite/libtest.la \
 		   ../../libxapian.la
 
-btreetest_SOURCES = btreetest.cc
-btreetest_LDADD = ../../testsuite/libtest.la \
-		  ../../common/libcommon.la \
-		  ../../api/omerror.lo \
-		  btree.lo bcursor.lo btree_base.lo
-
 quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = libquartz.la \
-		   ../../libxapian.la
+quartzdump_LDADD = ../../libxapian.la
