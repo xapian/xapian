@@ -1,3 +1,9 @@
+Tue Nov 18 17:37:20 GMT 2003  Olly Betts <olly@survex.com>
+
+	* docs/: Added first cut of documentation for Xapian::QueryParser
+	  query syntax.
+	* docs/scalability.html: Fixed typo.
+
 Fri Oct 31 18:17:13 GMT 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: Added support for
