@@ -68,12 +68,10 @@ class RefCntPtr {
 	/** Make a RefCntPtr for an object which may already
 	 *  have reference counted pointers.
 	 *
-	 *  You usually pass in
-	 *  a newly created object, or an object may pass in "this"
-	 *  to get a RefCntPtr to itself to pass to other classes.
-	 *
-	 *  (e.g. a database might pass a newly created postlist
-	 *  a reference counted pointer to itself.)
+	 *  You usually pass in a newly created object, or an object may pass
+	 *  in "this" to get a RefCntPtr to itself to pass to other classes.
+	 *  (e.g. a database might pass a newly created postlist a reference
+	 *  counted pointer to itself.)
 	 */
 	RefCntPtr(T *dest_);
 	RefCntPtr();

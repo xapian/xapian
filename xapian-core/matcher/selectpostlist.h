@@ -56,7 +56,7 @@ class SelectPostList : public PostList {
 	om_doclength get_doclength() const { return source->get_doclength(); }
 	om_weight recalc_maxweight() { return source->recalc_maxweight(); }
 	PositionList * read_position_list() { return source->read_position_list(); }
-	AutoPtr<PositionList> open_position_list() const { return source->open_position_list(); }
+	PositionList * open_position_list() const { return source->open_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
 	std::string get_description() const;    

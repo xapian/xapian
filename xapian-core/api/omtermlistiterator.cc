@@ -25,7 +25,6 @@
 #include "omtermlistiteratorinternal.h"
 #include "termlist.h"
 #include "inmemory_positionlist.h"
-#include "ompositionlistiteratorinternal.h"
 #include "omdebug.h"
 
 OmTermIterator::OmTermIterator()
@@ -137,22 +136,22 @@ OmTermIterator::skip_to(const string & tname)
     }
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmTermIterator::positionlist_begin()
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmTermIterator::positionlist_begin", "");
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmTermIterator::positionlist_begin", "");
     Assert(internal);
     Assert(!internal->at_end());
     RETURN(internal->positionlist_begin());
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmTermIterator::positionlist_end()
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmTermIterator::positionlist_end", "");
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmTermIterator::positionlist_end", "");
     Assert(internal);
     Assert(!internal->at_end());
-    RETURN(OmPositionListIterator(NULL));
+    RETURN(Xapian::PositionListIterator(NULL));
 }
 
 std::string

@@ -29,7 +29,7 @@
 #include "om/omdocument.h"
 #include "om/ompostlistiterator.h"
 #include "om/omtermlistiterator.h"
-#include "om/ompositionlistiterator.h"
+#include "xapian/positionlistiterator.h"
 
 class OmWritableDatabase;
 
@@ -119,11 +119,11 @@ class OmDatabase {
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
-	OmPositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
+	Xapian::PositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
 
 	/** Corresponding end iterator to positionlist_begin()
 	 */
-	OmPositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
+	Xapian::PositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */
@@ -494,7 +494,7 @@ OmDatabase OmMuscat36DB__open(const std::string &DB, const std::string &values =
  * @param program the program to run
  * @param arguments the arguments to pass to the program
  * @param timeout how long to wait for a response (in milliseconds).
- *  If this timeout is reached for any operation, then an OmNetworkTimeout
+ *  If this timeout is reached for any operation, then a Xapian::NetworkTimeoutError
  *  exception will be thrown.  The default if not specified is 10000ms
  *  (10 seconds).
  */
@@ -509,12 +509,12 @@ OmDatabase OmRemote__open(const std::string &program, const std::string &args,
  * @param host the name of the host running a tcp server
  * @param port the port on which the tcp server is running
  * @param timeout how long to wait for a response (in milliseconds).
- *  If this timeout is reached for any operation, then an OmNetworkTimeout
+ *  If this timeout is reached for any operation, then a Xapian::NetworkTimeoutError
  *  exception will be thrown.  The default if not specified is 10000ms
  *  (10 seconds).
  * @param connect_timeout how long to wait when attempting to connect to
  *  the server.  If this timeout is reached when attempting to connect, then
- *  an OmNetworkTimeout exception wil be thrown.  The default if not specified
+ *  a Xapian::NetworkTimeoutError exception wil be thrown.  The default if not specified
  *  is to use the same value given for timeout.
  */
 OmDatabase

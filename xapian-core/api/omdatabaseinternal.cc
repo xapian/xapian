@@ -329,7 +329,7 @@ OmDatabase::Internal::open_document(om_docid did) const
     return databases[dbnumber]->open_document(realdid);
 }
 
-AutoPtr<PositionList>
+PositionList *
 OmDatabase::Internal::open_position_list(om_docid did,
 					 const string &tname) const
 {
@@ -337,9 +337,7 @@ OmDatabase::Internal::open_position_list(om_docid did,
     Assert(multiplier != 0);
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
-
-    // FIXME: databases should return these positionlists as AutoPtrs
-    return AutoPtr<PositionList>(databases[dbnumber]->open_position_list(realdid, tname));
+    return databases[dbnumber]->open_position_list(realdid, tname);
 }
 
 TermList *

@@ -64,7 +64,7 @@ class MultiPostList : public LeafPostList {
 	om_doclength get_doclength() const; // Get length of current document
         om_termcount get_wdf() const;	    // Within Document Frequency
 	PositionList *read_position_list();
-	AutoPtr<PositionList> open_position_list() const;
+	PositionList * open_position_list() const;
 	PostList *next(om_weight w_min);          // Moves to next docid
 	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list

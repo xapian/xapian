@@ -30,7 +30,9 @@
 #include "om/omtypes.h"
 
 class OmDatabase;
-class OmPositionListIterator;
+namespace Xapian {
+class PositionListIterator;
+}
 
 class OmPostListIterator {
     public:
@@ -94,8 +96,8 @@ class OmPostListIterator {
         om_termcount get_wdf() const;
 
     	// allow iteration of positionlist for current term
-	OmPositionListIterator positionlist_begin();
-	OmPositionListIterator positionlist_end();
+	Xapian::PositionListIterator positionlist_begin();
+	Xapian::PositionListIterator positionlist_end();
 
 	// Don't expose these methods here.  A container iterator doesn't
 	// provide a method to find the size of the container...

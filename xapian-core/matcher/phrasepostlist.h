@@ -27,7 +27,8 @@
 #include "selectpostlist.h"
 #include "omdebug.h"
 
-class PositionList;
+class Xapian::PositionListIterator::Internal;
+typedef Xapian::PositionListIterator::Internal PositionList;
 
 /** A postlist comprising several postlists NEARed together.
  *

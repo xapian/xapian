@@ -28,7 +28,6 @@
 #include "termlist.h"
 
 #include "omdocumentinternal.h"
-#include "ompositionlistiteratorinternal.h"
 
 #include "inmemory_positionlist.h"
 
@@ -68,7 +67,7 @@ class OmTermIterator::Internal {
 	    return termlist->get_termfreq();
 	}
 	
-	OmPositionListIterator positionlist_begin() const {
+	Xapian::PositionListIterator positionlist_begin() const {
 	    if (did)
 		return db.positionlist_begin(did, termlist->get_termname());
 	    return termlist->positionlist_begin();
@@ -211,11 +210,10 @@ class MapTermList : public TermList {
 	    return it->second.termfreq;
 	}
 
-	OmPositionListIterator positionlist_begin() const {
+	Xapian::PositionListIterator positionlist_begin() const {
 	    AutoPtr<InMemoryPositionList> pl(new InMemoryPositionList());
 	    pl->set_data(it->second.positions);
-	    return OmPositionListIterator(new OmPositionListIterator::Internal(
-					AutoPtr<PositionList>(pl.release())));
+	    return Xapian::PositionListIterator(pl.release());
 	}
 
 	// FIXME: needs to allow a next() before we start

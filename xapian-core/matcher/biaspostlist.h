@@ -156,7 +156,7 @@ class BiasPostList : public PostList {
 	    return pl->read_position_list();
 	}
 
-	virtual AutoPtr<PositionList> open_position_list() const {
+	virtual PositionList * open_position_list() const {
 	    return pl->open_position_list();
 	}
 

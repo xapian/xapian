@@ -30,8 +30,7 @@
 #include "ompostlistiteratorinternal.h"
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
-#include "om/ompositionlistiterator.h"
-#include "ompositionlistiteratorinternal.h"
+#include "xapian/positionlistiterator.h"
 #include "om/omoutput.h"
 
 OmDatabase::OmDatabase() : internal(new OmDatabase::Internal())
@@ -147,29 +146,26 @@ OmDatabase::allterms_end() const
     RETURN(OmTermIterator(NULL));
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmDatabase::positionlist_begin(om_docid did, const string &tname) const
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_begin",
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmDatabase::positionlist_begin",
 		 did << ", " << tname);
     if (tname.empty())
        	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    AutoPtr<PositionList> poslist = internal->open_position_list(did, tname);
-    if (poslist.get() == NULL) RETURN(OmPositionListIterator(NULL));
-
-    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(poslist)));
+    RETURN(Xapian::PositionListIterator(internal->open_position_list(did, tname)));
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmDatabase::positionlist_end(om_docid did, const string &tname) const
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_end",
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmDatabase::positionlist_end",
 		 did << ", " << tname);
     if (tname.empty())
        	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(OmPositionListIterator(NULL));
+    RETURN(Xapian::PositionListIterator(NULL));
 }
 
 om_doccount

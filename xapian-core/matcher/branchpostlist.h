@@ -75,7 +75,7 @@ class BranchPostList : public PostList {
 	 *  If open_position_list() is called on such a branch postlist,
 	 *  an Xapian::UnimplementedError exception will be thrown.
 	 */
-	virtual AutoPtr<PositionList> open_position_list() const;
+	virtual PositionList * open_position_list() const;
 };
 
 inline
@@ -105,7 +105,7 @@ BranchPostList::read_position_list()
     throw Xapian::UnimplementedError("BranchPostList::read_position_list() unimplemented");
 }
 
-inline AutoPtr<PositionList>
+inline PositionList *
 BranchPostList::open_position_list() const
 {
     throw Xapian::UnimplementedError("BranchPostList::open_position_list() unimplemented");

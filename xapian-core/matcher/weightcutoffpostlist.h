@@ -62,7 +62,7 @@ class WeightCutoffPostList : public PostList {
 	std::string get_description() const;
 
 	PositionList *read_position_list();
-	AutoPtr<PositionList> open_position_list() const;
+	PositionList * open_position_list() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -169,7 +169,7 @@ WeightCutoffPostList::read_position_list()
     return pl->read_position_list();
 }
 
-inline AutoPtr<PositionList>
+inline PositionList *
 WeightCutoffPostList::open_position_list() const
 {
     return pl->open_position_list();

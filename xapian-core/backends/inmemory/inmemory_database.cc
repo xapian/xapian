@@ -56,12 +56,12 @@ InMemoryPostList::read_position_list()
     return &mypositions;
 }
 
-AutoPtr<PositionList>
+PositionList *
 InMemoryPostList::open_position_list() const
 {
     AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
     poslist->set_data(pos->positions);
-    return AutoPtr<PositionList>(poslist.release());
+    return poslist.release();
 }
 
 om_termcount
@@ -142,7 +142,7 @@ InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 				valuelists[did - 1]);
 }
 
-AutoPtr<PositionList> 
+PositionList * 
 InMemoryDatabase::open_position_list(om_docid did,
 				     const string & tname) const
 {
@@ -157,7 +157,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 	if (i->tname == tname) {
 	    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
 	    poslist->set_data(i->positions);
-	    return AutoPtr<PositionList>(poslist.release());
+	    return poslist.release();
 	}
     }
     throw Xapian::RangeError("No positionlist for term in document.");
@@ -292,8 +292,8 @@ InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 
 	DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding term "
 		  << *i);
-	OmPositionListIterator j = i.positionlist_begin();
-	OmPositionListIterator j_end = i.positionlist_end();
+	Xapian::PositionListIterator j = i.positionlist_begin();
+	Xapian::PositionListIterator j_end = i.positionlist_end();
 
 	if (j == j_end) {
 	    /* Make sure the posting exists, even without a position. */

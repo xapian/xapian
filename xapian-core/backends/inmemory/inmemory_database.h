@@ -148,8 +148,8 @@ class InMemoryPostList : public LeafPostList {
 	om_docid       get_docid() const;     // Gets current docid
 	om_doclength   get_doclength() const; // Length of current document
         om_termcount   get_wdf() const;	      // Within Document Frequency
-	PositionList *read_position_list();
-	AutoPtr<PositionList> open_position_list() const;
+	PositionList * read_position_list();
+	PositionList * open_position_list() const;
 
 	PostList *next(om_weight w_min); // Moves to next docid
 
@@ -270,7 +270,7 @@ class InMemoryDatabase : public Database {
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
-	AutoPtr<PositionList> open_position_list(om_docid did,
+	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 };

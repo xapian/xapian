@@ -66,7 +66,7 @@ class MSetPostList : public PostList {
 	virtual om_doclength get_doclength() const;
 
 	virtual PositionList * read_position_list();
-	virtual AutoPtr<PositionList> open_position_list() const;
+	virtual PositionList * open_position_list() const;
 
         MSetPostList(const OmMSet mset_, const NetworkDatabase *db_);
         ~MSetPostList();
@@ -167,7 +167,7 @@ MSetPostList::read_position_list()
     throw Xapian::UnimplementedError("MSetPostList::read_position_list() unimplemented");
 }
 
-inline AutoPtr<PositionList>
+inline PositionList *
 MSetPostList::open_position_list() const
 {
     throw Xapian::UnimplementedError("MSetPostList::open_position_list() unimplemented");
@@ -246,8 +246,9 @@ class PendingMSetPostList : public PostList {
 	virtual om_doclength get_doclength() const { Assert(false); return 1; }
 
 	virtual PositionList * read_position_list() { Assert(false); return 0; }
-	virtual AutoPtr<PositionList> open_position_list() const {
-	    Assert(false); return AutoPtr<PositionList>(0);
+	virtual PositionList * open_position_list() const {
+	    Assert(false);
+	    return 0;
 	}
 
         PendingMSetPostList(const NetworkDatabase *db_, om_doccount maxitems_)

@@ -66,7 +66,7 @@ class DAPostList : public LeafPostList {
 	om_doclength get_doclength() const; // Get length of current document
         om_termcount get_wdf() const;    // Within Document Frequency
 	PositionList *read_position_list(); // Gets positions
-	AutoPtr<PositionList> open_position_list() const; // Gets positions
+	PositionList * open_position_list() const; // Gets positions
 	PostList *next(om_weight w_min);          // Moves to next docid
 	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
@@ -318,7 +318,7 @@ class DADatabase : public Database {
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
-	AutoPtr<PositionList> open_position_list(om_docid did,
+	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
 

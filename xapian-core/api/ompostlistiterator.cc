@@ -23,9 +23,8 @@
 
 #include <config.h>
 #include "om/ompostlistiterator.h"
-#include "om/ompositionlistiterator.h"
+#include "xapian/positionlistiterator.h"
 #include "ompostlistiteratorinternal.h"
-#include "ompositionlistiteratorinternal.h"
 #include "postlist.h"
 #include "omdebug.h"
 
@@ -153,22 +152,22 @@ OmPostListIterator::get_wdf() const
     RETURN(internal->postlist->get_wdf());
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmPostListIterator::positionlist_begin()
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_begin", "");
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmPostListIterator::positionlist_begin", "");
     Assert(internal);
     Assert(!internal->postlist->at_end());
-    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->open_position_list())));
+    RETURN(Xapian::PositionListIterator(internal->postlist->open_position_list()));
 }
 
-OmPositionListIterator
+Xapian::PositionListIterator
 OmPostListIterator::positionlist_end()
 {
-    DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_end", "");
+    DEBUGAPICALL(Xapian::PositionListIterator, "OmPostListIterator::positionlist_end", "");
     Assert(internal);
     Assert(!internal->postlist->at_end());
-    RETURN(OmPositionListIterator(NULL));
+    RETURN(Xapian::PositionListIterator(NULL));
 }
 
 string

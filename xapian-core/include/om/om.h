@@ -31,6 +31,7 @@
 #include <string>
 typedef std::string om_termname;
 #define OmStem Xapian::Stem
+#define OmError Xapian::Error
 #define OmLogicError Xapian::LogicError
 #define OmRuntimeError Xapian::RuntimeError
 #define OmAssertionError Xapian::AssertionError
@@ -56,6 +57,7 @@ typedef std::string om_termname;
 #define OmExpandDecider Xapian::ExpandDecider
 #define OmExpandDeciderAnd Xapian::ExpandDeciderAnd
 #define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms
+#define OmPositionListIterator Xapian::PositionListIterator
 
 // Types and exceptions
 #include "om/omtypes.h"
@@ -66,7 +68,7 @@ typedef std::string om_termname;
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
 #include "om/ompostlistiterator.h"
-#include "om/ompositionlistiterator.h"
+#include "xapian/positionlistiterator.h"
 #include "om/omtermlistiterator.h"
 #include "om/omvalueiterator.h"
 

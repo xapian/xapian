@@ -30,7 +30,9 @@
 #include "om/omtypes.h"
 
 class OmDatabase;
-class OmPositionListIterator;
+namespace Xapian {
+class PositionListIterator;
+}
 
 /** An iterator pointing to items in a list of terms.
  */
@@ -81,8 +83,8 @@ class OmTermIterator {
 	om_doccount get_termfreq() const;
 
     	// allow iteration of positionlist for current document
-	OmPositionListIterator positionlist_begin();
-	OmPositionListIterator positionlist_end();
+	Xapian::PositionListIterator positionlist_begin();
+	Xapian::PositionListIterator positionlist_end();
     
 	/** Returns a string describing this object.
 	 *  Introspection method.

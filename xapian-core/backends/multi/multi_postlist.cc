@@ -76,7 +76,7 @@ MultiPostList::read_position_list()
     return postlists[(currdoc - 1) % multiplier]->read_position_list();
 }
 
-AutoPtr<PositionList>
+PositionList *
 MultiPostList::open_position_list() const
 {
     return postlists[(currdoc - 1) % multiplier]->open_position_list();

@@ -95,11 +95,11 @@ DAPostList::read_position_list()
     return NULL;
 }
 
-AutoPtr<PositionList>
+PositionList *
 DAPostList::open_position_list() const
 {
     // This tells the level above to return begin() = end()
-    return AutoPtr<PositionList>(NULL);
+    return NULL;
 }
 
 
@@ -338,11 +338,11 @@ DADatabase::open_document(om_docid did, bool lazy) const
     return new DADocument(this, did, heavy_duty, lazy);
 }
 
-AutoPtr<PositionList> 
+PositionList * 
 DADatabase::open_position_list(om_docid /*did*/, const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()
-    return AutoPtr<PositionList>(NULL);
+    return NULL;
 }
 
 RefCntPtr<const DATerm>

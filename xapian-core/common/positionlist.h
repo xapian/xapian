@@ -32,20 +32,20 @@
 using namespace std;
 
 /** Abstract base class for position lists. */
-class PositionList : public RefCntBase
+class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBase
 {
     private:
 	/// Copying is not allowed.
-	PositionList(const PositionList &);
+	Internal(const Internal &);
 
 	/// Assignment is not allowed.
-	void operator=(const PositionList &);
+	void operator=(const Internal &);
     public:
 	/// Default constructor.
-	PositionList() {}
+	Internal() { }
 
 	/// Destructor.
-	virtual ~PositionList() { return; }
+	virtual ~Internal() { }
 
 	/** Gets size of position list.  This need only be an approximation.
 	 *  Typical use is to look for positional match restrictions (e.g.
@@ -81,5 +81,7 @@ class PositionList : public RefCntBase
 	 */
 	om_termcount index;
 };
+
+typedef Xapian::PositionListIterator::Internal PositionList;
 
 #endif /* OM_HGUARD_POSITIONLIST_H */

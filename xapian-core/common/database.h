@@ -39,7 +39,8 @@ class Document;
 class LeafPostList;
 class TermList;
 class LeafTermList;
-class PositionList;
+class Xapian::PositionListIterator::Internal;
+typedef Xapian::PositionListIterator::Internal PositionList;
 class NetworkDatabase;
 
 /** Base class for databases.
@@ -263,7 +264,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual AutoPtr<PositionList> open_position_list(om_docid did,
+	virtual PositionList * open_position_list(om_docid did,
 					const string & tname) const = 0;
 
 	/** Open a document.

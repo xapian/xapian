@@ -133,7 +133,7 @@ class SocketClient : public NetClient {
 	 *
 	 *  @param socketfd_  	The socket used for the communications.
 	 *  @param msecs_timeout_ The timeout used with the network operations.
-	 *                       Generally an OmNetworkTimeout exception will
+	 *                       Generally a Xapian::NetworkTimeout exception will
 	 *                       be thrown if the remote end doesn't respond
 	 *                       for this length of time (in milliseconds).
 	 *  @param context_     The context to return with any error messages.

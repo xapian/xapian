@@ -264,7 +264,7 @@ QuartzDatabase::open_document(om_docid did, bool lazy) const
 			      did, lazy);
 }
 
-AutoPtr<PositionList> 
+PositionList *
 QuartzDatabase::open_position_list(om_docid did,
 				   const string & tname) const
 {
@@ -274,14 +274,14 @@ QuartzDatabase::open_position_list(om_docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	RefCntPtr<const QuartzDatabase> ptrtothis(this);
-	// If the doc doesn't exist, this will throw OmDocNotFound:
+	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
 	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
-    return AutoPtr<PositionList>(poslist.release());
+    return poslist.release();
 }
 
 void
@@ -703,7 +703,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
                   QuartzPositionList qpl;
                   qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
                   qpl.next();
-                  OmPositionListIterator pIter = tIter.positionlist_begin();
+                  Xapian::PositionListIterator pIter = tIter.positionlist_begin();
                   while (!qpl.at_end() && pIter != tIter.positionlist_end()) {
 		    if (qpl.get_current_pos() != (*pIter)) break;
                     qpl.next();
@@ -834,7 +834,7 @@ QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 			      did, lazy));
 }
 
-AutoPtr<PositionList> 
+PositionList * 
 QuartzWritableDatabase::open_position_list(om_docid did,
 				   const string & tname) const
 {
@@ -845,14 +845,14 @@ QuartzWritableDatabase::open_position_list(om_docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-	// If the doc doesn't exist, this will throw OmDocNotFound:
+	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
 	AutoPtr<LeafTermList> ltl(database_ro.open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
-    return AutoPtr<PositionList>(poslist.release());
+    return poslist.release();
 }
 
 void

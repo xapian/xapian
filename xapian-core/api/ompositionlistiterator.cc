@@ -21,116 +21,79 @@
  */
 
 #include <config.h>
-#include "om/ompositionlistiterator.h"
-#include "ompositionlistiteratorinternal.h"
+#include "xapian/positionlistiterator.h"
 #include "positionlist.h"
 #include "omdebug.h"
 
-OmPositionListIterator::OmPositionListIterator()
-	: internal(0)
-{
-}
-
-OmPositionListIterator::OmPositionListIterator(Internal *internal_)
+Xapian::PositionListIterator::PositionListIterator(Internal *internal_)
 	: internal(internal_)
 {
-    if (internal && internal->positionlist->at_end()) {
-	delete internal;
-	internal = 0;
+    if (internal.get()) {
+	internal->next();
+       	if (internal->at_end()) internal = 0;
     }
 }
 
-OmPositionListIterator::~OmPositionListIterator()
+Xapian::PositionListIterator::PositionListIterator(const Xapian::PositionListIterator &o)
+	: internal(o.internal)
 {
-    DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
-    delete internal;
 }
 
-OmPositionListIterator::OmPositionListIterator(const OmPositionListIterator &other)
-	: internal(NULL)
+Xapian::PositionListIterator::~PositionListIterator()
 {
-    DEBUGAPICALL(void, "OmPositionListIterator::OmPositionListIterator", other);
-    if (other.internal) internal = new Internal(*(other.internal));
 }
 
 void
-OmPositionListIterator::operator=(OmPositionListIterator &other)
+Xapian::PositionListIterator::operator=(Xapian::PositionListIterator &o)
 {
-    DEBUGAPICALL(void, "OmPositionListIterator::operator=", other);
-    if (this == &other) {
-	DEBUGLINE(API, "OmPositionListIterator assigned to itself");
-	return;
-    }
-
-    Internal * newinternal = NULL;
-    if (other.internal)
-	newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
-    delete newinternal;
+    internal = o.internal;
 }
 
 om_termpos
-OmPositionListIterator::operator *() const
+Xapian::PositionListIterator::operator *() const
 {
-    DEBUGAPICALL(om_termpos, "OmPositionListIterator::operator*", "");
+    DEBUGAPICALL(om_termpos, "Xapian::PositionListIterator::operator*", "");
     Assert(internal);
-    Assert(!internal->positionlist->at_end());
-    RETURN(internal->positionlist->get_position());
+    Assert(!internal->at_end());
+    RETURN(internal->get_position());
 }
 
-OmPositionListIterator &
-OmPositionListIterator::operator++()
+Xapian::PositionListIterator &
+Xapian::PositionListIterator::operator++()
 {
-    DEBUGAPICALL(OmPositionListIterator &, "OmPositionListIterator::operator++", "");
+    DEBUGAPICALL(Xapian::PositionListIterator &, "Xapian::PositionListIterator::operator++", "");
     Assert(internal);
-    Assert(!internal->positionlist->at_end());
-    internal->positionlist->next();
-    if (internal->positionlist->at_end()) {
-	delete internal;
-	internal = 0;
-    }
+    Assert(!internal->at_end());
+    internal->next();
+    if (internal->at_end()) internal = 0;
     RETURN(*this);
 }
 
 void
-OmPositionListIterator::operator++(int)
+Xapian::PositionListIterator::operator++(int)
 {
-    DEBUGAPICALL(void, "OmPositionListIterator::operator++(int)", "");
+    DEBUGAPICALL(void, "Xapian::PositionListIterator::operator++(int)", "");
     Assert(internal);
-    Assert(!internal->positionlist->at_end());
-    internal->positionlist->next();
-    if (internal->positionlist->at_end()) {
-	delete internal;
-	internal = 0;
-    }
+    Assert(!internal->at_end());
+    internal->next();
+    if (internal->at_end()) internal = 0;
 }
 
 // extra method, not required to be an input_iterator
 void
-OmPositionListIterator::skip_to(om_termpos pos)
+Xapian::PositionListIterator::skip_to(om_termpos pos)
 {
-    DEBUGAPICALL(void, "OmPositionListIterator::skip_to", pos);
+    DEBUGAPICALL(void, "Xapian::PositionListIterator::skip_to", pos);
     Assert(internal);
-    Assert(!internal->positionlist->at_end());
-    internal->positionlist->skip_to(pos);
-    if (internal->positionlist->at_end()) {
-	delete internal;
-	internal = 0;
-    }
+    Assert(!internal->at_end());
+    internal->skip_to(pos);
+    if (internal->at_end()) internal = 0;
 }    
 
 std::string
-OmPositionListIterator::get_description() const
+Xapian::PositionListIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmPositionListIterator::get_description", "");
+    DEBUGCALL(INTRO, std::string, "Xapian::PositionListIterator::get_description", "");
     /// \todo display contents of the object
-    RETURN("OmPositionListIterator()");
-}
-
-bool
-operator==(const OmPositionListIterator &a, const OmPositionListIterator &b)
-{
-    if (a.internal == b.internal) return true;
-    if (a.internal == 0 || b.internal == 0) return false;
-    return (a.internal->positionlist.get() == b.internal->positionlist.get());
+    RETURN("Xapian::PositionListIterator()");
 }

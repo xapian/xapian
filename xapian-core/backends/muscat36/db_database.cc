@@ -100,11 +100,11 @@ DBPostList::read_position_list()
     return NULL;
 }
 
-AutoPtr<PositionList>
+PositionList *
 DBPostList::open_position_list() const
 {
     // This tells the level above to return begin() = end()
-    return AutoPtr<PositionList>(NULL);
+    return NULL;
 }
 
 
@@ -347,12 +347,12 @@ DBDatabase::open_document(om_docid did, bool lazy) const
     return new DBDocument(this, did, DB->heavy_duty, lazy);
 }
 
-AutoPtr<PositionList> 
+PositionList * 
 DBDatabase::open_position_list(om_docid /*did*/,
 			       const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()
-    return AutoPtr<PositionList>(NULL);
+    return NULL;
 }
 
 RefCntPtr<const DBTerm>

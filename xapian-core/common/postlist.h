@@ -143,7 +143,7 @@ class PostList : public RefCntBase
 	 *  This method returns a pointer to a PositionList, which is valid
 	 *  indefinitely.
 	 */
-	virtual AutoPtr<PositionList> open_position_list() const = 0;
+	virtual PositionList * open_position_list() const = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Movement around the postlist

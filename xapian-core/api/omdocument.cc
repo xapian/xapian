@@ -157,8 +157,8 @@ OmDocument::Internal::read_termlist(OmTermIterator t,
 {
     if (!terms_here) {
 	for ( ; t != tend; t++) {
-	    OmPositionListIterator p = t.positionlist_begin();
-	    OmPositionListIterator pend = t.positionlist_end();
+	    Xapian::PositionListIterator p = t.positionlist_begin();
+	    Xapian::PositionListIterator pend = t.positionlist_end();
 	    OmDocumentTerm term(*t);
 	    for ( ; p != pend; p++) {
 		term.add_position(*p);

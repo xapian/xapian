@@ -78,7 +78,7 @@ class OmDatabase::Internal {
 
 	Document * open_document(om_docid did) const;
 
-	AutoPtr<PositionList> open_position_list(om_docid did,
+	PositionList * open_position_list(om_docid did,
 					 const string &tname) const;
 };
 

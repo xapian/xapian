@@ -1278,8 +1278,8 @@ static bool test_adddoc2()
 		    TEST_EQUAL(*i, "rising");
 		    TEST_EQUAL(1, j.get_termfreq());
 		}
-		OmPositionListIterator k(i.positionlist_begin());
-		OmPositionListIterator l(j.positionlist_begin());
+		Xapian::PositionListIterator k(i.positionlist_begin());
+		Xapian::PositionListIterator l(j.positionlist_begin());
 		for (; k != i.positionlist_end(); k++, l++) {
 		    TEST_NOT_EQUAL(l, j.positionlist_end());
 		    TEST_EQUAL(*k, *l);

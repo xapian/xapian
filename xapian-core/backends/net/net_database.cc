@@ -95,7 +95,7 @@ NetworkDatabase::open_document(om_docid did, bool /*lazy*/) const
     return new NetworkDocument(this, did, doc, values);
 }
 
-AutoPtr<PositionList> 
+PositionList * 
 NetworkDatabase::open_position_list(om_docid /*did*/,
 				    const string & /*tname*/) const
 {

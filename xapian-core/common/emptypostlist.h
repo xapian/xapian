@@ -35,7 +35,7 @@ class EmptyPostList : public LeafPostList {
 	om_weight get_weight() const;
 	om_doclength get_doclength() const;
 	PositionList *read_position_list();
-	AutoPtr<PositionList> open_position_list() const;
+	PositionList * open_position_list() const;
 
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
@@ -72,11 +72,11 @@ EmptyPostList::read_position_list()
     return 0;
 }
 
-inline AutoPtr<PositionList>
+inline PositionList *
 EmptyPostList::open_position_list() const
 {
     Assert(0); // no positions
-    return AutoPtr<PositionList>(0);
+    return 0;
 }
 
 inline PostList *

@@ -71,7 +71,7 @@ QuartzLog::make_entry(const string &entry) const
 	    ssize_t n = write(fd, p, c);
 	    if (n == -1) {
 		if (errno == EINTR) continue;
-		// FIXME: Om*Opening*Error ?!
+		// FIXME: Xapian::*Opening*Error ?!
 		throw Xapian::OpeningError("Error writing log file: " +
 			string(strerror(errno)));
 	    }

@@ -59,8 +59,8 @@ OUTPUT_FUNCTION(Xapian::Stem)
 #include "om/ompostlistiterator.h"
 OUTPUT_FUNCTION(OmPostListIterator)
 
-#include "om/ompositionlistiterator.h"
-OUTPUT_FUNCTION(OmPositionListIterator)
+#include "xapian/positionlistiterator.h"
+OUTPUT_FUNCTION(Xapian::PositionListIterator)
 
 #include "om/omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermIterator)

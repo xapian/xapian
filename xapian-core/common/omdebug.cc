@@ -55,7 +55,7 @@ OmDebug::OmDebug() : initialised(false), wanted_types(0), fd(2)
 
 OmDebug::~OmDebug()
 {
-    display_message(OM_DEBUG_UNKNOWN, "Om debugging version, closing down\n");
+    display_message(OM_DEBUG_UNKNOWN, "Xapian debug version, closing down\n");
     initialised = false;
 }
 
@@ -88,7 +88,7 @@ OmDebug::initialise()
 	    }
 	}
 
-	display_message(OM_DEBUG_UNKNOWN, "Om debugging version, initialised\n");
+	display_message(OM_DEBUG_UNKNOWN, "Xapian:: debugging version, initialised\n");
     }
 }
 

@@ -79,7 +79,7 @@ class MergePostList : public PostList {
 	virtual om_doclength get_doclength() const;
 
 	virtual PositionList * read_position_list();
-	virtual AutoPtr<PositionList> open_position_list() const;
+	virtual PositionList * open_position_list() const;
 
         MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
@@ -227,7 +227,7 @@ MergePostList::read_position_list()
     throw Xapian::UnimplementedError("MergePostList::read_position_list() unimplemented");
 }
 
-inline AutoPtr<PositionList>
+inline PositionList *
 MergePostList::open_position_list() const
 {
     throw Xapian::UnimplementedError("MergePostList::open_position_list() unimplemented");

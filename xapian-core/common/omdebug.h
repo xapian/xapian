@@ -153,7 +153,7 @@ extern OmDebug om_debug;
     } \
 } while (0)
 
-#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om " << getpid() << ": " << b << '\n')
+#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Xapian " << getpid() << ": " << b << '\n')
 
 /** Class to manage printing a message at the start and end of a method call.
  */
