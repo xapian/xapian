@@ -636,17 +636,20 @@ QuartzBufferedCursor::next()
 
     // While iter is the current item, and is pointing to a deleted item,
     // move forward.
-    while (!changed_entries->after_end(iter) &&
-	   tagptr == 0 &&
-	   (diskcursor->after_end() || *keyptr <= diskcursor->current_key)) {
+    if (!changed_entries->after_end(iter)) {
+	while (tagptr == 0 &&
+	       (diskcursor->after_end() || *keyptr <= diskcursor->current_key)) {
 
-	if (!diskcursor->after_end() &&
-	    keyptr->value == diskcursor->current_key.value) {
-	    diskcursor->next();
+	    if (!diskcursor->after_end() &&
+		keyptr->value == diskcursor->current_key.value) {
+		diskcursor->next();
+	    }
+
+	    changed_entries->next(iter);
+	    if (changed_entries->after_end(iter)) break;
+
+	    changed_entries->get_item(iter, &keyptr, &tagptr);
 	}
-	
-	changed_entries->next(iter);
-	changed_entries->get_item(iter, &keyptr, &tagptr);
     }
 
     // Now we just have to pick the lower cursor, and store its key and tag.
@@ -661,6 +664,7 @@ QuartzBufferedCursor::next()
 	}
     } else {
 	if (diskcursor->after_end() || *keyptr < diskcursor->current_key) {
+	    Assert(tagptr != 0);
 	    current_key.value = keyptr->value;
 	    current_tag.value = tagptr->value;
 	} else {
