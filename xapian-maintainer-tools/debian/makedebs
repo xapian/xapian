@@ -85,20 +85,23 @@ if [ $ONIXION == yes ] ; then
   CONTROL_OMEGA="${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.dsc"
 else
   mkdir -p src
-  scp \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-core_${VERSION}.orig.tar.gz" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.dsc" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.diff.gz" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}.orig.tar.gz" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.dsc" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.diff.gz" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}.orig.tar.gz" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.dsc" \
-    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.diff.gz" \
-    src
-  CONTROL_CORE="src/${FILEBASE_CORE}.dsc"
-  CONTROL_BINDINGS="src/${FILEBASE_BINDINGS}.dsc"
-  CONTROL_OMEGA="src/${FILEBASE_OMEGA}.dsc"
+  FILES="www.xapian.org:${PUBDIR}/$POOLDIR/xapian-core_${VERSION}.orig.tar.gz \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.dsc \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.diff.gz \
+    www.xapian.org:${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}.orig.tar.gz \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.dsc \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.diff.gz \
+    www.xapian.org:${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}.orig.tar.gz \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.dsc \
+    www.xapian.org:${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.diff.gz"
+  # Transfer the files one at a time - rsync doesn't seem to allow multiple
+  # remote source files.
+  for FILE in ${FILES}; do
+    rsync --progress -e ssh ${FILE} src
+  done
+  CONTROL_CORE="`pwd`/src/${FILEBASE_CORE}.dsc"
+  CONTROL_BINDINGS="`pwd`/src/${FILEBASE_BINDINGS}.dsc"
+  CONTROL_OMEGA="`pwd`/src/${FILEBASE_OMEGA}.dsc"
 fi
 
 # Make tarballs, if we don't already have some
@@ -174,7 +177,7 @@ if [ $ONIXION == yes ] ; thens
   mkdir -p ${PUBDIR}
   cp -af upload-packages/* ${PUBDIR}
 else
-  scp -r upload-packages/* ixion.tartarus.org:${PUBDIR}
+  rsync --progress -e ssh -r upload-packages/* ixion.tartarus.org:${PUBDIR}
 fi
 
 trap EXIT
