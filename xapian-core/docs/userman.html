@@ -197,6 +197,29 @@ and it is thus unlikely to be useful outside our company.
 It takes one parameter, which is the path to the directory containing
 the Term and Record files.
 </TD></TR>
+<TR><TD VALIGN="top"><B>da_heavy</B></TD><TD>
+This is a similar to da_flimsy, allowing access to the &quot;heavy duty&quot;
+variant for larger documents.  This is the format produced by the
+&quot;makeda&quot; utility, and is thus useful while new file formats have
+not been created for the new development.
+<BR>
+It takes the same parameters as da_flimsy.
+</TD></TR>
+<TR><TD VALIGN="top"><B>db_flimsy</B></TD><TD>
+This is a proprietory, legacy format, holding a database in a dynamically
+updatable form (ie, the database can be altered while queries are being
+performed on it.)  We support read-only access to this,
+and it is thus unlikely to be useful outside our company.
+<BR>
+It takes one parameter, which is the full path to the DB file.
+</TD></TR>
+<TR><TD VALIGN="top"><B>db_heavy</B></TD><TD>
+This is a similar to db_flimsy, allowing access to the &quot;heavy duty&quot;
+variant for larger documents.  We support read-only access to this,
+and it is thus unlikely to be useful outside our company.
+<BR>
+It takes the same parameters as db_flimsy.
+</TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is an index held entirely in memory.
 It is really designed to be used as a cache while building indexes

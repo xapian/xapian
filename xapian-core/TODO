@@ -20,12 +20,11 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | Documentation   | Write more and more API documentation
----------+-----------------+--------------------------------------------------
- High    |RDocumentation   | Document muscat36 access methods.
----------+-----------------+--------------------------------------------------
  High    | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
+---------+-----------------+--------------------------------------------------
+ Medium  | Documentation   | Ensure that API documentation covers entirity of
+         |                 | API.  Then rewrite it for clarity.
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
          |                 | termlist, document, etc) in same way as enquire
