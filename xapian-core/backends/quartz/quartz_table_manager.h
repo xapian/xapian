@@ -135,6 +135,16 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	/// Assignment not allowed
 	void operator=(const QuartzDiskTableManager &);
 
+	/** Return true if a database exists at the path specified for this
+	 *  database.
+	 */
+	bool database_exists();
+
+	/** Create new tables, and open them.
+	 *  Any existing tables will be removed first.
+	 */
+	void create_and_open_tables();
+
 	/** Open all tables at most recent consistent revision.
 	 *
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
@@ -180,7 +190,9 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	QuartzDiskTableManager(std::string db_dir_,
 			       std::string log_filename_,
 			       bool readonly_,
-			       unsigned int block_size);
+			       unsigned int block_size,
+			       bool create,
+			       bool allow_overwrite);
 
 	/** Delete the manager.
 	 */
@@ -275,7 +287,9 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 */
 	QuartzBufferedTableManager(std::string db_dir_,
 				   std::string log_filename_,
-				   unsigned int block_size);
+				   unsigned int block_size,
+				   bool create,
+				   bool allow_overwrite);
 	
 	/** Destroy the manager.  Any anapplied modifications will
 	 *  be lost.

@@ -203,6 +203,31 @@ QuartzDiskTable::close()
     opened = false;
 }
 
+bool
+QuartzDiskTable::exists() {
+    // FIXME: use btree library to check if table exists yet.
+    return (file_exists(path + "DB") &&
+	    (file_exists(path + "baseA") || file_exists(path + "baseB")));
+}
+
+void
+QuartzDiskTable::create()
+{
+    DEBUGCALL(DB, void, "QuartzDiskTable::create", "");
+    Assert(!readonly);
+
+    close();
+
+    int err_num = Btree_create(path.c_str(), blocksize);
+    if (err_num != 0) {
+	// FIXME: check for errors
+
+	throw OmOpeningError("Cannot create table `" + path + "': " +
+			     om_tostring(err_num) + ", " + strerror(errno));
+	// FIXME: explain why
+    }
+}
+
 void
 QuartzDiskTable::open()
 {
@@ -222,19 +247,6 @@ QuartzDiskTable::open()
 	}
 	opened = true;
 	return;
-    }
-
-    // Create database if needed
-    // FIXME: use btree library to check if table exists yet.
-    if (!file_exists(path + "DB")) {
-	int err_num = Btree_create(path.c_str(), blocksize);
-	if (err_num != 0) {
-	    // FIXME: check for errors
-
-	    throw OmOpeningError("Cannot create table `" + path + "': " +
-				 om_tostring(err_num) + ", " + strerror(errno));
-	    // FIXME: explain why
-	}
     }
 
     btree_for_writing = Btree_open_to_write(path.c_str());

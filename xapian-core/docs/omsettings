@@ -1,8 +1,14 @@
   The settings available for use in an OmSettings object are:
 
   - general
-    - backend : database backend type - current backends are: auto, da,
-      db, inmemory, remote, quartz, and sleepycat
+    - backend : database backend type - current backends are: auto, da, db,
+      inmemory, remote, quartz, and sleepycat
+    - database_create : boolean, true if a new database should be created.
+      Default is false.
+    - database_allow_overwrite : boolean.  This has no effect unless
+      backend_create is true.  If this setting is true a new database will be
+      created in place of an existing one.  If false, an exception will be
+      thrown if there is an existing database in place.  Default is false.
 
   - auto pseudo-backend
     - auto_dir : directory for auto pseudo-backend to look for database in

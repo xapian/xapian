@@ -108,6 +108,14 @@ class QuartzDatabase : public Database {
 	/// Get the block size to use.
 	static unsigned int get_block_size(const OmSettings & settings);
 
+	/// Get whether a new database should be created.
+	static bool get_create(const OmSettings & settings);
+
+	/** Get whether we should allow creation over the top of an old
+	 *  database.
+	 */
+	static bool get_allow_overwrite(const OmSettings & settings);
+
 	/** Virtual methods of Database.
 	 */
 	//@{

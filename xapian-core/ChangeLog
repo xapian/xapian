@@ -1,3 +1,19 @@
+Tue Jan 16 18:28:03 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add two new OmSettings, for use when opening databases:
+	  database_create and database_allow_overwrite.  The idea is that
+	  databases will only be created if database_create is specified,
+	  and that when they are being created an exception will be thrown
+	  if there's an existing database unless database_allow_overwrite
+	  is specified.
+
+	* Implemented database_create and database_allow_overwrite for
+	  Quartz, which is the only relevant type for now.  Note that this
+	  breaks the testsuite, quite badly.
+
+	* Add OmDatabaseCreateError, which is thrown when creating a database
+	  fails.
+
 Tue Jan 16 17:08:47 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a typo in -ldl detection

@@ -66,7 +66,9 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings)
     tables.reset(new QuartzDiskTableManager(get_db_dir(settings),
 					    get_log_filename(settings),
 					    true,
-					    0u));
+					    0u,
+					    false,
+					    false));
 }
 
 QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
@@ -102,6 +104,18 @@ unsigned int
 QuartzDatabase::get_block_size(const OmSettings & settings)
 {
     return settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE);
+}
+
+bool
+QuartzDatabase::get_create(const OmSettings & settings)
+{
+    return settings.get_bool("database_create", false);
+}
+
+bool
+QuartzDatabase::get_allow_overwrite(const OmSettings & settings)
+{
+    return settings.get_bool("database_allow_overwrite", false);
 }
 
 void
@@ -321,7 +335,9 @@ QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
 	: buffered_tables(new QuartzBufferedTableManager(
 				QuartzDatabase::get_db_dir(settings),
 				QuartzDatabase::get_log_filename(settings),
-				QuartzDatabase::get_block_size(settings))),
+				QuartzDatabase::get_block_size(settings),
+				QuartzDatabase::get_create(settings),
+				QuartzDatabase::get_allow_overwrite(settings))),
 	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {

@@ -87,6 +87,10 @@ DEFINE_ERROR_CLASS(OmNetworkTimeoutError, OmNetworkError);
 /** thrown if the database is corrupt. */
 DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmDatabaseError);
 
+/** Thrown when creating a database fails. */
+DEFINE_ERROR_CLASS(OmDatabaseCreateError, OmDatabaseError);
+
+// FIXME: should be called OmDatabaseOpeningError
 /** Thrown when opening a database fails. */
 DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
 

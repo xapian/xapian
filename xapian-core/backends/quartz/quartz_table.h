@@ -277,8 +277,14 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	void close();
     public:
-	/** Create a new table.  This does not open the table - the open()
-	 *  method must be called before use is made of the table.
+
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
 	 *
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
@@ -293,6 +299,16 @@ class QuartzDiskTable : public QuartzTable {
 	/** Close the table.
 	 */
 	~QuartzDiskTable();
+
+	/** Determine whether the table exists on disk.
+	 */
+	bool exists();
+
+	/** Create the table on disk.
+	 *
+	 *  @exception OmDatabaseCreateError if the table can't be created.
+	 */
+	void create();
 
 	/** Open the table at the specified revision.
 	 *

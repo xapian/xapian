@@ -40,7 +40,9 @@
 QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 					       std::string log_filename,
 					       bool readonly_,
-					       unsigned int block_size)
+					       unsigned int block_size,
+					       bool create,
+					       bool allow_overwrite)
 	: db_dir(db_dir_),
 	  readonly(readonly_),
 	  postlist_table(postlist_path(), readonly, block_size),
@@ -67,6 +69,11 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
     if (readonly) {
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
+    } else if (create) {
+	if (allow_overwrite || database_exists()) {
+	    throw OmDatabaseCreateError("Can't create new database: a database already exists in place.  Move it, or set database_allow_overwrite parameter");
+	}
+	create_and_open_tables();
     } else {
 	// Get latest consistent version
 	open_tables_consistent();
@@ -95,6 +102,61 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 QuartzDiskTableManager::~QuartzDiskTableManager()
 {
     log->make_entry("Closing database at `" + db_dir + "'.");
+}
+
+bool
+QuartzDiskTableManager::database_exists() {
+    return  record_table.exists() &&
+	    postlist_table.exists() &&
+	    positionlist_table.exists() &&
+	    termlist_table.exists() &&
+	    lexicon_table.exists() &&
+	    attribute_table.exists();
+}
+
+void
+QuartzDiskTableManager::create_and_open_tables()
+{
+    log->make_entry("Cleaning up database directory at `" + db_dir + "'.");
+    //FIXME - delete any existing tables
+
+    log->make_entry("Creating new database at `" + db_dir + "'.");
+    // Create postlist_table first, and record_table last.  Existence of
+    // record_table is considered to imply existence of the database.
+    postlist_table.create();
+    positionlist_table.create();
+    termlist_table.create();
+    lexicon_table.create();
+    attribute_table.create();
+    record_table.create();
+
+    Assert(database_exists());
+
+    log->make_entry("Opening new database at `" + db_dir + "'.");
+    record_table.open();
+    attribute_table.open();
+    lexicon_table.open();
+    termlist_table.open();
+    positionlist_table.open();
+    postlist_table.open();
+
+    // Check consistency
+    quartz_revision_number_t revision = record_table.get_open_revision_number();
+    if (revision != attribute_table.get_open_revision_number() ||
+	revision != lexicon_table.get_open_revision_number() ||
+	revision != termlist_table.get_open_revision_number() ||
+	revision != positionlist_table.get_open_revision_number() ||
+	revision != postlist_table.get_open_revision_number()) {
+	log->make_entry("Revisions are not consistent: have " + 
+			om_tostring(revision) + ", " +
+			om_tostring(attribute_table.get_open_revision_number()) + ", " +
+			om_tostring(lexicon_table.get_open_revision_number()) + ", " +
+			om_tostring(termlist_table.get_open_revision_number()) + ", " +
+			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
+			om_tostring(postlist_table.get_open_revision_number()) + ".");
+	throw OmDatabaseCreateError("Newly created tables are not in consistent state.");
+    }
+    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
 void
@@ -285,11 +347,15 @@ QuartzDiskTableManager::reopen()
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 						       std::string log_filename,
-						       unsigned int block_size)
+						       unsigned int block_size,
+						       bool create,
+						       bool allow_overwrite)
 	: disktables(db_dir_,
 		     log_filename,
 		     false,
-		     block_size),
+		     block_size,
+		     create,
+		     allow_overwrite),
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
 	  termlist_buffered_table(disktables.get_termlist_table()),
