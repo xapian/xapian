@@ -33,7 +33,7 @@ QuartzAttributesManager::make_key(QuartzDbKey & key,
 				  om_docid did,
 				  om_keyno keyno)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::make_key", key << ", " << did << ", " << keyno);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::make_key", "QuartzDbKey(" << key.value << "), " << did << ", " << keyno);
     key.value = pack_uint(did);
 }
 
@@ -43,7 +43,7 @@ QuartzAttributesManager::unpack_entry(const char ** pos,
 				      om_keyno * this_attrib_no,
 				      std::string & this_attribute)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::unpack_entry", pos << ", " << end << ", " << this_attrib_no << ", " << this_attribute);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::unpack_entry", pos << ", " << end << ", " << this_attrib_no << ", " << this_attribute);
     if (!unpack_uint(pos, end, this_attrib_no)) {
 	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table");
 	else throw OmRangeError("Key number in attribute table is too large");
@@ -64,7 +64,7 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
 				       om_docid did,
 				       om_keyno keyno)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::add_attribute", table << ", " << attribute << ", " << did << ", " << keyno);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::add_attribute", "[table], " << attribute << ", " << did << ", " << keyno);
     QuartzDbKey key;
     make_key(key, did, keyno);
     QuartzDbTag * tag = table.get_or_make_tag(key);
@@ -108,7 +108,7 @@ QuartzAttributesManager::get_attribute(const QuartzTable & table,
 				       om_docid did,
 				       om_keyno keyno)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::get_attribute", table << ", " << attribute << ", " << did << ", " << keyno);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::get_attribute", "[table], " << attribute << ", " << did << ", " << keyno);
     QuartzDbKey key;
     make_key(key, did, keyno);
     QuartzDbTag tag;
@@ -138,7 +138,7 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
 					    std::map<om_keyno, OmKey> & attributes,
 					    om_docid did)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::get_all_attributes", table << ", [om_keyno], " << attributes << ", " << did);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::get_all_attributes", "[table], [attributes], " << did);
     QuartzDbKey key;
     make_key(key, did, 0);
     QuartzDbTag tag;
@@ -163,7 +163,7 @@ void
 QuartzAttributesManager::delete_all_attributes(QuartzBufferedTable & table,
 					       om_docid did)
 {
-    DEBUGCALL(DB, void, "QuartzAttributesManager::delete_all_attributes", table << ", " << did);
+    DEBUGCALL_STATIC(DB, void, "QuartzAttributesManager::delete_all_attributes", "[table], " << did);
     QuartzDbKey key;
     make_key(key, did, 0);
     QuartzDbTag tag;

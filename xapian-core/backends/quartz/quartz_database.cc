@@ -97,35 +97,35 @@ QuartzDatabase::~QuartzDatabase()
 string
 QuartzDatabase::get_db_dir(const OmSettings & settings)
 {
-    DEBUGCALL(DB, string, "QuartzDatabase::get_db_dir", settings);
+    DEBUGCALL_STATIC(DB, string, "QuartzDatabase::get_db_dir", settings);
     RETURN(settings.get("quartz_dir"));
 }
 
 string
 QuartzDatabase::get_log_filename(const OmSettings & settings)
 {
-    DEBUGCALL(DB, string, "QuartzDatabase::get_log_filename", settings);
+    DEBUGCALL_STATIC(DB, string, "QuartzDatabase::get_log_filename", settings);
     RETURN(settings.get("quartz_logfile", ""));
 }
 
 unsigned int
 QuartzDatabase::get_block_size(const OmSettings & settings)
 {
-    DEBUGCALL(DB, string, "QuartzDatabase::get_block_size", settings);
+    DEBUGCALL_STATIC(DB, unsigned int, "QuartzDatabase::get_block_size", settings);
     RETURN(settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE));
 }
 
 bool
 QuartzDatabase::get_create(const OmSettings & settings)
 {
-    DEBUGCALL(DB, bool, "QuartzDatabase::get_create", settings);
+    DEBUGCALL_STATIC(DB, bool, "QuartzDatabase::get_create", settings);
     RETURN(settings.get_bool("database_create", false));
 }
 
 bool
 QuartzDatabase::get_allow_overwrite(const OmSettings & settings)
 {
-    DEBUGCALL(DB, bool, "QuartzDatabase::get_allow_overwrite", settings);
+    DEBUGCALL_STATIC(DB, bool, "QuartzDatabase::get_allow_overwrite", settings);
     RETURN(settings.get_bool("database_allow_overwrite", false));
 }
 
@@ -160,7 +160,7 @@ QuartzDatabase::do_cancel_transaction()
 om_docid
 QuartzDatabase::do_add_document(const OmDocument & document)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::do_end_session", "");
+    DEBUGCALL(DB, om_docid, "QuartzDatabase::do_add_document", document);
     Assert(false);
     RETURN(0);
 }
@@ -177,7 +177,7 @@ QuartzDatabase::do_replace_document(om_docid did,
 om_doccount 
 QuartzDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::do_delete_document", did);
+    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount", "");
     OmLockSentry sentry(quartz_mutex);
 
     RETURN(get_doccount_internal());
@@ -628,8 +628,6 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     Assert(buffered_tables != 0);
-    DEBUGCALL(DB, void,
-	      "QuartzWritableDatabase::do_replace_document", document);
 
     // Calculate the new document length
     quartz_doclen_t new_doclen = 0;

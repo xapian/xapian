@@ -27,34 +27,31 @@
 #include "omdebug.h"
 
 void
-QuartzLexicon::make_key(QuartzDbKey & key,
-			const om_termname & tname)
+QuartzLexicon::make_key(QuartzDbKey & key, const om_termname & tname)
 {
-    DEBUGCALL(DB, void, "QuartzLexicon::make_key", key << ", " << tname);
-    if (tname.size() == 0)
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_key", "QuartzDbKey( " << key.value << "), " << tname);
+    if (tname.empty())
 	throw OmInvalidArgumentError("QuartzLexicon: Term names must not be null.");
     key.value = pack_string(tname);
 }
 
 void
-QuartzLexicon::parse_entry(const std::string & data,
-			   om_doccount * termfreq)
+QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
 {
-    DEBUGCALL(DB, void, "QuartzLexicon::parse_entry", data << ", " << termfreq);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::parse_entry", data << ", " << termfreq);
     const char * pos = data.data();
     const char * end = pos + data.size();
 
     if (!unpack_uint(&pos, end, termfreq)) {
-	if(pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termfreq from lexicon.");
-	else throw OmRangeError("Size of termfreq out of range, in lexicon.");
+	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termfreq from lexicon.");
+	throw OmRangeError("Size of termfreq out of range, in lexicon.");
     }
 }
 
 void
-QuartzLexicon::make_entry(std::string & data,
-			  om_doccount termfreq)
+QuartzLexicon::make_entry(std::string & data, om_doccount termfreq)
 {
-    DEBUGCALL(DB, void, "QuartzLexicon::make_entry", data << ", " << termfreq);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_entry", data << ", " << termfreq);
     data = pack_uint(termfreq);
 }
 
@@ -62,7 +59,7 @@ void
 QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
-    DEBUGCALL(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
     QuartzDbKey key;
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
@@ -87,7 +84,7 @@ void
 QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
-    DEBUGCALL(DB, void, "QuartzLexicon::decrement_termfreq", table << ", " << tname);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::decrement_termfreq", table << ", " << tname);
     QuartzDbKey key;
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
@@ -120,7 +117,7 @@ QuartzLexicon::get_entry(const QuartzTable * table,
 			 const om_termname & tname,
 			 om_doccount * termfreq)
 {
-    DEBUGCALL(DB, bool, "QuartzLexicon::get_entry", table << ", " << tname << ", " << termfreq);
+    DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry", table << ", " << tname << ", " << termfreq);
     // This may be called internally.
     QuartzDbTag tag;
     QuartzDbKey key;

@@ -34,7 +34,7 @@
 OmData
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 {
-    DEBUGCALL(DB, OmData, "QuartzRecordManager::get_record", table << ", " << did);
+    DEBUGCALL_STATIC(DB, OmData, "QuartzRecordManager::get_record", "[table], " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag tag;
 
@@ -49,7 +49,7 @@ QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 om_doccount
 QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
-    DEBUGCALL(DB, om_doccount, "QuartzRecordManager::get_doccount", table);
+    DEBUGCALL_STATIC(DB, om_doccount, "QuartzRecordManager::get_doccount", "[table]");
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
     om_doccount entries = table.get_entry_count();
@@ -62,7 +62,7 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
-    DEBUGCALL(DB, om_docid, "QuartzRecordManager::get_newdocid", table);
+    DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::get_newdocid", "[table]");
     QuartzDbKey key;
     key.value = NEXTDOCID_TAG;
 
@@ -102,7 +102,7 @@ om_docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
 				const OmData & data)
 {
-    DEBUGCALL(DB, om_docid, "QuartzRecordManager::add_record", table << ", " << data);
+    DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::add_record", "[table], " << data);
     om_docid did = get_newdocid(table);
 
     QuartzDbKey key(quartz_docid_to_key(did));
@@ -117,7 +117,7 @@ QuartzRecordManager::replace_record(QuartzBufferedTable & table,
 				    const OmData & data,
 				    om_docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordManager::replace_record", table << ", " << data << ", " << did);
+    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag * tag = table.get_or_make_tag(key);
     tag->value = data.value;
@@ -128,7 +128,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t old_doclen,
 					 quartz_doclen_t new_doclen)
 {
-    DEBUGCALL(DB, void, "QuartzRecordManager::modify_total_length", table << ", " << old_doclen << ", " << new_doclen);
+    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
     QuartzDbKey key;
     key.value = TOTLEN_TAG;
     QuartzDbTag * tag = table.get_or_make_tag(key);
@@ -198,7 +198,7 @@ void
 QuartzRecordManager::delete_record(QuartzBufferedTable & table,
 				   om_docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordManager::delete_record", table << ", " << did);
+    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::delete_record", "[table], " << did);
     table.delete_tag(quartz_docid_to_key(did));
 }
 

@@ -42,25 +42,25 @@ QuartzTableEntries::~QuartzTableEntries()
 QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key)
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key);
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key.value);
     Assert(key.value != "");
     items::iterator i = entries.find(key);
     Assert(i != entries.end());
-    RETURN(i->second);
+    return i->second; // FIXME can't use RETURN for now
 }
 
 const QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key) const
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key);
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key.value);
     Assert(key.value != "");
-    RETURN(const_cast<QuartzTableEntries *>(this)->get_tag(key));
+    return const_cast<QuartzTableEntries *>(this)->get_tag(key); // FIXME RETURN
 }
 
 bool
 QuartzTableEntries::have_entry(const QuartzDbKey &key) const
 {
-    DEBUGCALL(DB, bool, "QuartzTableEntries::have_entry", key);
+    DEBUGCALL(DB, bool, "QuartzTableEntries::have_entry", key.value);
     Assert(key.value != "");
     RETURN((entries.find(key) != entries.end()));
 }
@@ -68,6 +68,8 @@ QuartzTableEntries::have_entry(const QuartzDbKey &key) const
 QuartzTableEntries::items::const_iterator
 QuartzTableEntries::get_iterator(const QuartzDbKey & key) const
 {
+    DEBUGCALL(DB, QuartzTableEntries::items::const_iterator,
+	      "QuartzTableEntries::get_iterator", key.value);
     Assert(key.value != "");
     items::const_iterator result = entries.lower_bound(key);
 
@@ -90,7 +92,7 @@ QuartzTableEntries::get_item(items::const_iterator iter,
 			     const QuartzDbKey ** keyptr,
 			     const QuartzDbTag ** tagptr) const
 {
-    DEBUGCALL(DB, void, "QuartzTableEntries::get_item", iter << ", " << keyptr << ", " << tagptr);
+    DEBUGCALL(DB, void, "QuartzTableEntries::get_item", "[iter], " << keyptr << ", " << tagptr);
     Assert (iter != entries.end());
 
     *keyptr = &(iter->first);
@@ -100,7 +102,7 @@ QuartzTableEntries::get_item(items::const_iterator iter,
 void
 QuartzTableEntries::prev(items::const_iterator & iter) const
 {
-    DEBUGCALL(DB, void, "QuartzTableEntries::prev", iter);
+    DEBUGCALL(DB, void, "QuartzTableEntries::prev", "[iter]");
     Assert(iter != entries.begin());
     iter--;
 }
@@ -108,7 +110,7 @@ QuartzTableEntries::prev(items::const_iterator & iter) const
 void
 QuartzTableEntries::next(items::const_iterator & iter) const
 {
-    DEBUGCALL(DB, void, "QuartzTableEntries::next", iter);
+    DEBUGCALL(DB, void, "QuartzTableEntries::next", "[iter]");
     Assert(iter != entries.end());
     iter++;
 }
@@ -116,7 +118,7 @@ QuartzTableEntries::next(items::const_iterator & iter) const
 bool
 QuartzTableEntries::after_end(items::const_iterator & iter) const
 {
-    DEBUGCALL(DB, bool, "QuartzTableEntries::after_end", iter);
+    DEBUGCALL(DB, bool, "QuartzTableEntries::after_end", "[iter]");
     return (iter == entries.end());
 }
 
@@ -130,7 +132,7 @@ QuartzTableEntries::empty() const
 void
 QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {
-    DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", key << ", [tag]");
+    DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", "[key], [tag]");
     Assert(key.value != "");
     items::iterator i = entries.find(key);
 

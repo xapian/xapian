@@ -128,7 +128,7 @@ QuartzPositionList::make_key(om_docid did,
 			     const om_termname & tname,
 			     QuartzDbKey & key)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
+    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", QuartzDbKey(" << key.value << ")");
     key.value = pack_uint(did);
     key.value += pack_string(tname);
 }
@@ -142,7 +142,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			OmPositionListIterator pos,
 			const OmPositionListIterator &pos_end)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
+    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
     QuartzDbKey key;
     QuartzDbTag * tag;
 
@@ -166,7 +166,7 @@ QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
 			om_docid did,
 			const om_termname & tname)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
+    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
     QuartzDbKey key;
     make_key(did, tname, key);
     table->delete_tag(key);

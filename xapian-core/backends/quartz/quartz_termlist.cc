@@ -41,7 +41,7 @@ void
 QuartzTermList::write_size(std::string & data,
 			   om_termcount size)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::write_size", data << ", " << size);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::write_size", data << ", " << size);
     data += pack_uint(size);
 }
 
@@ -59,7 +59,7 @@ void
 QuartzTermList::write_doclen(std::string & data,
 			     quartz_doclen_t doclen)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::write_doclen", data << ", " << doclen);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::write_doclen", data << ", " << doclen);
     data += pack_uint(doclen);
 }
 
@@ -77,7 +77,7 @@ void
 QuartzTermList::write_has_termfreqs(std::string & data,
 				    bool store_termfreqs)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::write_has_termfreqs", data << ", " << store_termfreqs);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::write_has_termfreqs", data << ", " << store_termfreqs);
     data += pack_bool(store_termfreqs);
 }
 
@@ -115,7 +115,7 @@ QuartzTermList::write_item(std::string & data,
 			   bool store_termfreq,
 			   om_doccount termfreq)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::write_item", data << ", " << tname << ", " << wdf << ", " << store_termfreq << ", " << termfreq);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::write_item", data << ", " << tname << ", " << wdf << ", " << store_termfreq << ", " << termfreq);
     data += pack_string(tname);
     data += pack_uint(wdf);
     if (store_termfreq) {
@@ -132,7 +132,7 @@ QuartzTermList::set_entries(QuartzBufferedTable * table,
 			    quartz_doclen_t doclen,
 			    bool store_termfreqs)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::set_entries", table << ", " << did << ", " << t << ", " << t_end << ", " << doclen << ", " << store_termfreqs);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::set_entries", table << ", " << did << ", " << t << ", " << t_end << ", " << doclen << ", " << store_termfreqs);
     QuartzDbTag * tag = table->get_or_make_tag(quartz_docid_to_key(did));
 
     tag->value = "";
@@ -158,7 +158,7 @@ void
 QuartzTermList::delete_termlist(QuartzBufferedTable * table,
 				om_docid did)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::delete_termlist", table << ", " << did);
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", table << ", " << did);
     table->delete_tag(quartz_docid_to_key(did));
 }
 

@@ -230,7 +230,6 @@ QuartzDiskTable::erase()
 {
     DEBUGCALL(DB, void, "QuartzDiskTable::erase", "");
     // FIXME: implement
-    DEBUGCALL(DB, void, "QuartzDiskTable::erase", "");
     Assert(!readonly);
 
     close();
@@ -568,7 +567,8 @@ QuartzBufferedTable::is_modified()
 bool
 QuartzBufferedTable::have_tag(const QuartzDbKey &key)
 {
-    DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag", key);
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag",
+	      "QuartzDbKey(" << key.value << ")");
     if (changed_entries.have_entry(key)) {
 	RETURN((changed_entries.get_tag(key) != 0));
     } else {
@@ -582,7 +582,8 @@ QuartzBufferedTable::have_tag(const QuartzDbKey &key)
 QuartzDbTag *
 QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzBufferedTable::get_or_make_tag", key);
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzBufferedTable::get_or_make_tag",
+	      "QuartzDbKey(" << key.value << ")");
     QuartzDbTag * tagptr;
 
     // Check cache first
@@ -626,7 +627,8 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 void
 QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag", key);
+    DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag",
+	      "QuartzDbKey(" << key.value << ")");
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
     if (have_tag(key)) entry_count -= 1;
@@ -644,7 +646,9 @@ bool
 QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
 				     QuartzDbTag & tag) const
 {
-    DEBUGCALL(DB, bool, "QuartzBufferedTable::get_exact_entry", key << ", " << tag);
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::get_exact_entry",
+	      "QuartzDbKey(" << key.value << "), " <<
+	      "QuartzDbTag(" << tag.value << ")");
     if (changed_entries.have_entry(key)) {
 	const QuartzDbTag * tagptr = changed_entries.get_tag(key);
 	if (tagptr == 0) RETURN(false);

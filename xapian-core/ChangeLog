@@ -1,3 +1,8 @@
+Fri Apr 19 16:06:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed some compilation problems which I somehow failed to notice
+	  before the last check-in.
+
 Fri Apr 19 15:04:13 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added more RETURN(...) wrappers.
