@@ -1,3 +1,7 @@
+Mon Apr 29 15:58:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tweaked use of HAVE_STREAMBUF
+
 Fri Apr 26 14:41:09 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Swig is now modified so it can build config.m4 and Makefile.in

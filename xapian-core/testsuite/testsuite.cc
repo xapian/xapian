@@ -31,6 +31,7 @@
 
 #ifdef HAVE_STREAMBUF
 #include <streambuf>
+using std::streambuf;
 #else // HAVE_STREAMBUF
 #include <streambuf.h>
 #endif // HAVE_STREAMBUF
@@ -56,13 +57,8 @@
 #include "testsuite.h"
 #include "omdebug.h"
 
-#ifdef HAVE_STREAMBUF
-class null_streambuf : public std::streambuf {
-};
-#else // HAVE_STREAMBUF
 class null_streambuf : public streambuf {
 };
-#endif // HAVE_STREAMBUF
 
 /// A null stream buffer which we can redirect output to.
 static null_streambuf nullsb;
