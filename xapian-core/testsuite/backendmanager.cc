@@ -466,7 +466,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 	    args += *i;
 	}
     }
-    return Xapian::Remote::open("../netprogs/omprogsrv", args);
+    return Xapian::Remote::open("../bin/omprogsrv", args);
 }
 
 Xapian::WritableDatabase

@@ -319,7 +319,7 @@ static bool test_stubdb1()
 {
     ofstream out("stubdb1");
     TEST(out.is_open());
-    out << "remote :../netprogs/omprogsrv " << backendmanager.get_datadir() << " apitest_simpledata\n";
+    out << "remote :../bin/omprogsrv " << backendmanager.get_datadir() << " apitest_simpledata\n";
     out.close();
 
     {

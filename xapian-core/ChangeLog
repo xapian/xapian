@@ -1,3 +1,11 @@
+Tue May 27 02:03:07 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in,xapian.spec.in,backends/quartz/,bin/,
+	  docs/remote.html,netprogs/,tests/api_db.cc,tests/remotetest.cc,
+	  testsuite/backendmanager.cc,testsuite/testsuite.cc: Sorted out
+	  the source tree structure so that programs which aren't tests which
+	  were previously built by "make check" are now be built by "make".
+
 Tue May 27 01:01:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* autoconf/dir_contents,backends/dir_contents,

@@ -138,7 +138,7 @@ static bool test_tcpmatch1()
     paths.push_back("apitest_simpledata");
     Xapian::Database dbremote = backendmanager.get_database(paths);
 
-    string command = "../netprogs/omtcpsrv --one-shot --quiet --port 1235 "
+    string command = "../bin/omtcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
     system(command);
     sleep(3);
@@ -173,7 +173,7 @@ static bool test_tcpdead1()
     if (pid == 0) {
 	// child code
 	char *args[] = {
-	    "../netprogs/omtcpsrv",
+	    "../bin/omtcpsrv",
 	    "--one-shot",
 	    "--quiet",
 	    "--port",
@@ -184,7 +184,7 @@ static bool test_tcpdead1()
 	// FIXME: we run this directly so we know the pid of the omtcpsrv
 	// parent - below we assume the child is the next pid (which isn't
 	// necessarily true)
-	execv("../netprogs/.libs/lt-omtcpsrv", args);
+	execv("../bin/.libs/lt-omtcpsrv", args);
 	// execv only returns if it couldn't start omtcpsrv
 	exit(1);
     } else if (pid < 0) {

@@ -4,6 +4,8 @@ Makefile.in
 Makefile
 .deps
 .libs
-readquery.cc
+quartzcheck
+quartzcompact
+quartzdump
 omprogsrv
 omtcpsrv

@@ -119,8 +119,6 @@ test_driver::get_srcdir()
 	srcdir = '.';
 	if (file_exists("tests/" + srcfile)) {
 	    chdir("tests");
-	} else if (file_exists("netprogs/" + srcfile)) {
-	    chdir("netprogs");
 	} else {
 	    cout << argv0
 		 << ": srcdir not in the environment and I can't guess it!"

@@ -49,10 +49,7 @@ noinst_LTLIBRARIES = libquartz.la
 
 TESTS = btreetest$(EXEEXT) quartztest$(EXEEXT)
 
-check_PROGRAMS = btreetest quartztest quartzdump quartzcheck quartzcompact
-
-#FIXME: need to make these *after* libxapian, but want to install them...
-#bin_PROGRAMS = quartzcheck quartzcompact
+check_PROGRAMS = btreetest quartztest
 
 clean-local:
 	rm -rf .quartztmp .btreetmp
@@ -63,12 +60,3 @@ btreetest_LDADD = ../../testsuite/libtest.la ../../libxapian.la
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = ../../getopt/libgetopt.la ../../testsuite/libtest.la \
 		   ../../libxapian.la
-
-quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = ../../getopt/libgetopt.la ../../libxapian.la
-
-quartzcheck_SOURCES = quartzcheck.cc btreecheck.cc
-quartzcheck_LDADD = ../../libxapian.la
-
-quartzcompact_SOURCES = quartzcompact.cc
-quartzcompact_LDADD = ../../libxapian.la 

@@ -39,18 +39,11 @@ make
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
 make
-cd backends/quartz && make quartzcheck quartzcompact
-cd ../..
 make install-strip DESTDIR=%{buildroot}
 # Move the docs to the "right" place
 mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 # Copy HACKING now, as "%doc HACKING" would overwrite everything
 cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
-# Extra binaries
-install -D -m755 netprogs/.libs/omtcpsrv %{buildroot}%{_bindir}/omtcpsrv
-install -D -m755 netprogs/.libs/omprogsrv %{buildroot}%{_bindir}/omprogsrv
-install -D -m755 backends/quartz/.libs/quartzcheck %{buildroot}%{_bindir}/quartzcheck
-install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quartzcompact
 
 %post -p /sbin/ldconfig
 
@@ -62,9 +55,9 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %files
 %defattr(-, root, root)
 %{_bindir}/omtcpsrv
-%{_bindir}/omprogsrv
 %{_bindir}/quartzcheck
 %{_bindir}/quartzcompact
+%{_bindir}/quartzdump
 %{_libdir}/libomqueryparser.so
 %{_libdir}/libomqueryparser.so.0
 %{_libdir}/libomqueryparser.so.0.0.0
@@ -78,6 +71,7 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %{_bindir}/xapian-config
 %{_includedir}/om
 %{_includedir}/xapian
+%{_includedir}/xapian.h
 %{_libdir}/libomqueryparser.a
 %{_libdir}/libomqueryparser.la
 %{_libdir}/libxapian.a

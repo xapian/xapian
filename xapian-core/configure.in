@@ -400,7 +400,7 @@ AC_CONFIG_FILES([
  m4/Makefile
  autoconf/Makefile
  net/Makefile
- netprogs/Makefile
+ bin/Makefile
  getopt/Makefile
  extra/Makefile
  xapian-config.nodep
