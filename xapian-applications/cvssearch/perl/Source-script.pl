@@ -85,7 +85,7 @@ if(param()){
 		$line = $_;
 		$line = Entities::encode_entities($line);
 		print "<tr>";
-		print "<td><pre>$i<a name=$i></a></td>";
+		print "<td><pre><a name=$i>$i</a></td>";
         my $space ="";
         if (length($line) == 0) {
             $space = " ";
@@ -104,11 +104,11 @@ if(param()){
 	print "</table>";	
 	
 	#print an empty page so html can scroll to the last line
-	print "<pre>";
-	for($j=0;$j<60;$j++){
-		print "\n";	
-	}
-	print "</pre>";
+#	print "<pre>";
+#	for($j=0;$j<60;$j++){
+#		print "\n";	
+#	}
+#	print "</pre>";
 }
 
 print "</body></html>";

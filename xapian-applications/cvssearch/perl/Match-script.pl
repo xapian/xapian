@@ -172,7 +172,6 @@ if(param()){
 	print "<DIV onclick='event.cancelBubble = true;' class=popup id='grep'>";
     print "grep matched <b>$grepquery</b> on this line.</DIV>\n";
     
-    
 	$i=0;
 	foreach (@revs){
 		$currev = $_;
@@ -182,7 +181,6 @@ if(param()){
 		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'><pre><b>Rev:$currev</b>\n$curcomment</pre></DIV>\n";
 		$i++;
 	}
-	print "<!-- begin body of document -->\n";
     
 	#----------------
 	#display file
@@ -197,16 +195,17 @@ if(param()){
 	foreach ($i=0;$i<$#revs+1;$i++){
 		$revMAPcolor{$revs[$i]} = $colors[$i];
 		$ch = &toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
-		print "<span style=\"background-color:$colors[$i]\">";
-		print "<a href=# ";
-        print "onclick=\"l('$ch',event);\" onmouseover=\"s('$ch',event);\" onmouseout=\"h();\"";
-		print ">";
+        $ch1 = $ch;
+        $ch1 =~ tr/\./-/;
+		print "<span class=$ch1><a href=# \n";
+        print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
+
 		if($revMAPmatch{$revs[$i]}){
 			print "<b>$revs[$i]</b>";
 		}else{
 			print "$revs[$i]";
 		}
-		print "</a></span> ";
+		print "</a></span>";
 	}
 	print "</pre>\n";
 	
@@ -242,11 +241,10 @@ if(param()){
                         if ($color) {
                             $ch1 = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
                             $ch1 =~ tr/\./-/;
-                            print "<span class=$ch1";
+                            print "<span class=$ch1>";
                         } 
-                        print ">";
-                        print "<a href=# ";
-                        print "onclick=\"l('$ch',event);\" onmouseover=\"s('$ch',event);\" onmouseout=\"h();\">";
+                        print "<a href=# \n";
+                        print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 						if($revMAPmatch{$currev}){
 							print "C";
 						}elsif($currev eq "grep"){
@@ -281,18 +279,16 @@ if(param()){
 			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=s>$line$space</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
-			print "<tr></tr>";
-			print "<tr></tr>";
-			print "<tr></tr>\n";
+            print "<tr><td colspan=3><div style=\"height:5px;\"> </div></td></tr>\n";
 		}
 		$i++;
 	}
 	print "</table>";
-	print "<pre>";
-	for($j=0;$j<60;$j++){
-		print "\n";	
-	}
-	print "</pre>";
+#	print "<pre>";
+#	for($j=0;$j<60;$j++){
+#		print "\n";	
+#	}
+#	print "</pre>";
 }
 
 print "</body></html>";
