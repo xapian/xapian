@@ -1,3 +1,7 @@
+Sat Aug 09 23:45:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Wrapped an overlong line.
+
 Sat Aug 09 23:31:30 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,
