@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -161,9 +162,9 @@ static void step_1(struct swedish_stemmer * z)
                 ends(z, "erns") ||
                 ends(z, "as") ||
                 ends(z, "es") ||
-                ends(z, "s") && (cons(z, z->j) ||
-                                 z->p[z->j] == 'o' ||
-                                 z->p[z->j] == 'y')) break;
+                (ends(z, "s") && (cons(z, z->j) ||
+				  z->p[z->j] == 'o' ||
+				  z->p[z->j] == 'y'))) break;
             return;
         case 't':
             if (ends(z, "het") ||

@@ -1,8 +1,12 @@
+Tue Oct 31 16:25:14 GMT 2000 Olly Betts
+
+	* Fixed a few warnings from gcc.
+
 Tue Oct 31 16:12:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmMakePairNode, OmMakePairsNode, OmMakeRangeNode,
 	  OmSelectItemsNode
-	
+
 	* OmRegexMatchNode uses empty strings rather than empty data
 	  items for unmatched subexpressions.
 
@@ -23,7 +27,7 @@ Tue Oct 31 14:36:08 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Tue Oct 31 14:34:19 GMT 2000 Olly Betts
 
 	* Revised remote protocol to be somewhat less verbose.
- 
+
 Tue Oct 31 14:18:24 GMT 2000 Olly Betts
 
 	* Improved output from test programs.
@@ -113,7 +117,7 @@ Wed Oct 25 11:32:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a bug in the indexer dataflow checking which complained
 	  when there was no problem.
-	
+
 	* Enabled omlistconcat test, which was failing due to that bug.
 
 Wed Oct 25 10:36:57 BST 2000 Olly Betts
@@ -124,7 +128,7 @@ Tue Oct 24 18:57:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmIndexerData now uses vector::size_type instead of int in some
 	  places dealing with vectors - gets rid of some compiler warnings.
-	
+
 	* The omfilereader node works better.
 
 	* More tests in indextest, plus an extra text file for use with
@@ -162,7 +166,7 @@ Fri Oct 20 14:55:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added DATADIR define to find the arch-independent data, with
 	  m4 macro AC_DEFINE_DIR.
-	
+
 	* Added omindexer.dtd to the distribution.
 
 	* Indexer now finds the DTD by itself to use for verification,
@@ -253,7 +257,7 @@ Wed Oct 18 15:38:39 BST 2000 Olly Betts
 
 	* Reverted Richard's max_possible_item change as after discussion
 	  we've decided it doesn't actually work correctly.
- 
+
 Wed Oct 18 14:17:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a debug class for indexer messages
@@ -366,7 +370,7 @@ Thu Oct 12 16:55:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Thu Oct 12 16:49:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Changed the interface for creating indexer nodes.  
+	* Changed the interface for creating indexer nodes.
 	  Inputs are all fetched at once by request_inputs(), which must
 	  be called before any call to get_input_*.  It can be called
 	  more than once.
@@ -469,7 +473,7 @@ Tue Oct 10 12:14:20 BST 2000 Olly Betts
 
 	* Documents should now fetch in parallel pipelines with the remote
 	  backend.
- 
+
 Mon Oct  9 18:13:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartz now stores general database information in record database.
@@ -570,7 +574,7 @@ Thu Oct  5 17:51:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	  and QuartzBufferedTableManager.
 
 	* Removed QuartzModifications object.  We now use
-	  QuartzBufferedTables to hold changes before committing instead. 
+	  QuartzBufferedTables to hold changes before committing instead.
 
 	* QuartzDatabase has a QuartzTableManager object, which is actually
 	  a QuartzBufferedTableManager if the database is writable.
@@ -589,7 +593,7 @@ Thu Oct 05 16:51:09 BST 2000 Olly Betts
 
 	* IRWeight: now possible to register user weight objects (not yet
 	  externally visible).
- 
+
 Thu Oct  5 16:43:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added omindexer.cc
@@ -645,7 +649,7 @@ Wed Oct 04 13:15:04 BST 2000 Olly Betts
 	* Eliminated internal friends from external headers.
 
 	* Fixed two more compiler warnings.
- 
+
 Wed Oct 04 11:43:19 BST 2000 Olly Betts
 
 	* stats.h: Removed unneeded bodge.
@@ -885,7 +889,7 @@ Sat Sep 23 16:17:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Fri Sep 22 18:24:00 BST 2000 Olly Betts
 
-	* mergepostlist.{cc,h}: started to rework matcher in earnest.	
+	* mergepostlist.{cc,h}: started to rework matcher in earnest.
 
 Fri Sep 22 18:19:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
@@ -946,7 +950,7 @@ Thu Sep 21 15:06:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Thu Sep 21 13:05:58 BST 2000 Olly Betts
 
 	* Removed unused variable `weights' from LocalMatch class.
- 
+
 Thu Sep 21 13:00:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* A fix for building on Solaris with gcc.
@@ -1088,7 +1092,7 @@ Tue Sep 19 15:55:34 BST 2000 Olly Betts
 	* api_db.cc: Added query() helper functions
 
 	* Added rsetmultidb3 to demonstrate assertion failiure in stats.h.
- 
+
 Tue Sep 19 15:50:26 BST 2000 Olly Betts
 
 	* testsuite.cc: output newline after skipped test.
@@ -1155,7 +1159,7 @@ Mon Sep 18 17:38:38 BST 2000 Olly Betts
 	* All api tests now have a number suffix.
 
 	* apitest_parser.pm cope with tests being declared "static".
-	
+
 Mon Sep 18 17:19:32 BST 2000 Olly Betts
 
 	* Efficiency tweak to max_or_terms comparator - don't call
@@ -1173,7 +1177,7 @@ Mon Sep 18 14:36:13 BST 2000 Olly Betts
 
 	* Implemented API side of OmDatabase::positionlist_{begin,end} -
 	  still needs support in backends.
- 
+
 Mon Sep 18 14:03:58 BST 2000 Olly Betts
 
 	* Sorted out wrinkles with geacinclude.sh.
@@ -1198,7 +1202,7 @@ Mon Sep 18 12:26:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Tests in the testsuite can now be skipped, and avoid being
 	  counted as either a pass or a fail.
-	
+
 	* Leak detection code partly separated out.
 
 Mon Sep 18 11:55:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -1347,7 +1351,7 @@ Wed Sep 13 15:34:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Wed Sep 13 15:33:35 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Some changes to Python (and general SWIG) bindings to support 
+	* Some changes to Python (and general SWIG) bindings to support
 	  new OmDatabase and OmSettings.  There's a bug in there somewhere
 	  though.
 
@@ -1403,7 +1407,7 @@ Wed Sep 13 10:08:25 BST 2000 Olly Betts
 
 	* Now run localdb tests on da and db backends (multiexpand1 currently
 	  fails for db).
- 
+
 Wed Sep 13 00:47:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartz:  database tables now have a class to store revision numbers
@@ -1448,7 +1452,7 @@ Tue Sep 12 16:32:30 BST 2000 Olly Betts
 
 	* Added reference counting to an instantiation of SleepycatTermList
 	  which I'd missed.
- 
+
 Tue Sep 12 15:23:09 BST 2000 Olly Betts
 
 	* Oops, AndMaybePostList didn't compile...
@@ -1464,7 +1468,7 @@ Tue Sep 12 14:15:13 BST 2000 Olly Betts
 
 	* findheaders.pl now copes with wrapped lines in Makefile.in (cvs
 	  automake leaves them wrapped - last release version unwrapped them).
-	
+
 Tue Sep 12 12:35:49 BST 2000 Olly Betts
 
 	* *PostList and *TermList now keep a reference to their parent database
@@ -1518,7 +1522,7 @@ Mon Sep 11 14:00:04 BST 2000 Olly Betts
 Mon Sep 11 13:31:38 BST 2000 Olly Betts
 
 	* Fixed OmTermListIterator so termlist2 test passes.
- 
+
 Mon Sep 11 12:28:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* If a test fails and leaks, then don't rerun it (ie, only rerun if
@@ -1536,12 +1540,12 @@ Mon Sep 11 11:56:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Mon Sep 11 11:21:27 BST 2000 Olly Betts
 
 	* Fixed compiler warning in string_to_ommsetitems in non-debug builds.
- 
+
 Mon Sep 11 10:28:43 BST 2000 Olly Betts
 
 	* Test suite now exercises flimsy version of da backend, and both
 	  heavy duty and flimsy versions of db backend.
- 
+
 Fri Sep  8 20:10:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix problem with OmPostListIterator's internals not being reference
@@ -1589,7 +1593,7 @@ Fri Sep  8 12:02:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Sep 08 11:02:53 BST 2000 Olly Betts
 
 	* Reenabled termlist1 for DA backend so Martin can investigate bug.
- 
+
 Fri Sep 08 10:44:53 BST 2000 Olly Betts
 
 	* Removed a number of superfluous semicolons.
@@ -1634,10 +1638,10 @@ Thu Sep 07 16:15:17 BST 2000 Olly Betts
 	* Fixed a problem with distributing NEAR and PHRASE.
 
 Thu Sep  7 13:45:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
- 
+
 	* Change om_tostring(double) so that it doesn't pad with spaces,
 	  fixing all the network stuff.  (Whoops)
- 
+
 Thu Sep  7 11:50:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various other fixes needed to compile with --disable-pthread-support
@@ -1660,9 +1664,9 @@ Thu Sep  7 01:40:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Wed Sep  6 17:44:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* <param> added to the test.dtd
-	
+
 	* mt_vector added as a message type separate from mt_record
-	
+
 Wed Sep 06 17:37:50 BST 2000 Olly Betts
 
 	* Tom Mortimer gets a well deserved mention in the AUTHORS list for
@@ -1681,15 +1685,15 @@ Wed Sep  6 15:43:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	  XML description.  OmIndexerNode::get_config_string() actually
 	  implemented, plus OmIndexerNode constructor now takes an
 	  OmSettings.
-	
+
 	* OmIndexerNode methods set_output_{string,int,double,record} renamed
 	  to overloaded set_output.
-	
+
 	* New Record constructor for initialising from a vector, along with
 	  accessor functions get_vector_length() and operator[].  The
 	  stream insertion operator uses these to recursively print out the
 	  values.
-	
+
 Wed Sep 06 13:34:24 BST 2000 Olly Betts
 
 	* Opening a termlist for a document which is not present now always
@@ -1700,7 +1704,7 @@ Wed Sep 06 13:34:24 BST 2000 Olly Betts
 Wed Sep 06 11:31:00 BST 2000 Olly Betts
 
 	* Fixed problems with distributing NEAR/PHRASE over subexpressions.
- 
+
 Wed Sep 06 09:28:04 BST 2000 Olly Betts
 
 	* Added omtermlistiteratorinternal.h to list of files to distribute.
@@ -1755,7 +1759,7 @@ Mon Sep  4 18:30:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Reduced the number of copies of messages needed in indexing
 	  networks.
-	
+
 	* Added some type safety to the Record class.
 
 Mon Sep 04 17:40:18 BST 2000 Olly Betts
@@ -1780,7 +1784,7 @@ Mon Sep  4 16:48:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 Mon Sep 04 14:42:56 BST 2000 Olly Betts
 
 	* Implemented MultiPostList::get_position_list.
- 
+
 Mon Sep 04 12:05:40 BST 2000 Olly Betts
 
 	* Moved multidbN tests together.
@@ -1794,7 +1798,7 @@ Mon Sep 04 09:30:38 BST 2000 Olly Betts
 Sun Sep 03 15:58:07 BST 2000 Olly Betts
 
 	* Implemented OmPositionListIterator.
-	
+
 	* Fixed up operator== on OmPostListIterator.
 
 	* Updated delve to use new Om*Iterator classes.
@@ -1820,22 +1824,22 @@ Fri Sep 01 18:36:09 BST 2000 Olly Betts
 Fri Sep 01 18:18:08 BST 2000 Olly Betts
 
 	* apitest: Split off api_posdb.cc - tests requiring positional info.
- 
+
 Fri Sep 01 16:51:52 BST 2000 Olly Betts
 
 	* apitest: pctcutoff1 now works with DA backend; tests which need
 	  document length are now a separate category.
- 
+
 Fri Sep 01 15:52:06 BST 2000 Olly Betts
 
 	* apitest: Split off nodb tests into api_nodb.cc.
 
 	* Testsuite "-f" switch is now pointless - removed.
-	
+
 Fri Sep 01 13:22:33 BST 2000 Olly Betts
 
 	* apitest now uses test helpers in many more tests.
- 
+
 Fri Sep  1 13:12:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change find invocations to be portable, in docs/Makefile.am and
@@ -1849,7 +1853,7 @@ Fri Sep  1 12:57:59 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Sep 01 11:20:03 BST 2000 Olly Betts
 
 	* Moved some test helper functions from apitest.cc to testsuite.cc.
- 
+
 Fri Sep 01 10:06:00 BST 2000 Olly Betts
 
 	* testutils.h and testsuite.h moved from common to testsuite.
@@ -2356,7 +2360,7 @@ Wed Aug 16 12:41:00 BST 2000 Olly Betts
 
 	* OmSettings used to replace DatabaseBuilderParams and ad-hoc
 	  passing of database parameters as vector<string>.
-	  
+
 	* Added OmSettings::get_description() and macros so it can be
 	  written to streams
 
@@ -2585,7 +2589,7 @@ Thu Aug  3 17:40:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now 21 tests pass, 5 fail (including alwaysfail) - databases
 	  weren't being flushed properly when created.
-	
+
 	* ApiTestFuncs.main() now understands some of the normal testsuite
 	  command-line options.
 

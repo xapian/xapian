@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +64,7 @@ struct norwegian_stemmer
 
    Norwegian :   a-ring    ae lig    o-slash
    Danish    :      -      ae lig    o-slash
-   Swedish   :   a-ring      -         -       a-umlaut   o-uumlaut
+   Swedish   :   a-ring      -         -       a-umlaut   o-umlaut
 
 */
 
@@ -155,8 +156,8 @@ static void step_1(struct norwegian_stemmer * z)
                 ends(z, "ens") ||
                 ends(z, "ers") ||
                 ends(z, "ets") ||
-                ends(z, "s") && ((cons(z, z->j) && z->p[z->j] != 's') ||
-                                 z->p[z->j] == 'o')
+                (ends(z, "s") && ((cons(z, z->j) && z->p[z->j] != 's') ||
+				  z->p[z->j] == 'o'))
                ) break;
             return;
         case 't':
