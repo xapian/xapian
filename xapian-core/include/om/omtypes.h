@@ -25,9 +25,6 @@
 #ifndef OM_HGUARD_OMTYPES_H
 #define OM_HGUARD_OMTYPES_H
 
-/// @internal A term id.
-typedef unsigned int om_termid;
-
 /** A unique id for a document.
  *  Document ids start at 1.  A zero docid isn't valid, and may be used to
  *  indicate "no document".
@@ -41,7 +38,7 @@ typedef om_docid     om_doccount;
 typedef int	     om_doccount_diff;
 
 /** Type for counts of terms (eg, wdf, wqf). */
-typedef om_termid    om_termcount;
+typedef unsigned int om_termcount;
 
 /** Type for signed difference between counts of terms. */
 typedef int	     om_termcount_diff;
@@ -58,9 +55,6 @@ typedef int	     om_termpos_diff;
 /** Type for (normalised) lengths of documents. */
 typedef double       om_doclength;
 
-/** Type for sum of lengths of documents. */
-typedef double       om_totlength;
-
 /** Type for referring to the number of a value in document. */
 typedef unsigned int om_valueno;
 
@@ -71,7 +65,7 @@ typedef int	     om_valueno_diff;
 typedef double       om_weight;
 
 /** A percentage weight, for a term or document. */
-typedef int       om_percent;
+typedef int	     om_percent;
 
 /** Type for specifying a timeout.  This refers to a time in microseconds:
  *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.

@@ -69,7 +69,7 @@ class InMemoryPostingLessByDocId {
 	}
 };
 
-// Compare by term ID
+// Compare by termname
 class InMemoryPostingLessByTermName {
     public:
 	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
@@ -208,7 +208,7 @@ class InMemoryDatabase : public Database {
 
 	om_doccount totdocs;
 
-	om_totlength totlen;
+	om_doclength totlen;
 
 	bool indexing; // Whether we have started to index to the database
 
@@ -479,11 +479,8 @@ inline om_doclength
 InMemoryDatabase::get_avlength() const
 {
     om_doccount docs = InMemoryDatabase::get_doccount();
-    if (docs == 0) {
-	return 0;
-    } else {
-	return ((om_doclength) totlen) / docs;
-    }
+    if (docs == 0) return 0;
+    return ((om_doclength) totlen) / docs;
 }
 
 inline om_doccount

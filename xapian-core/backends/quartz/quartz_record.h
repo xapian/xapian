@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,9 +46,9 @@ class QuartzRecordManager {
 	 */
 	static om_doccount get_doccount(QuartzTable & table);
 
-	/** Read the total length of the records in the table.
+	/** Return the average length of records in the table.
 	 */
-	static om_totlength get_total_length(QuartzTable & table);
+	static om_doclength get_avlength(QuartzTable & table);
 
 	/** Get the next document ID to use.
 	 */

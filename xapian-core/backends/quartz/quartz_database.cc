@@ -190,15 +190,7 @@ om_doclength
 QuartzDatabase::get_avlength() const
 {
     DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength", "");
-    // FIXME: probably want to cache this value (but not miss updates)
-    // FIXME: streamline this - get_doccount() and get_total_length()
-    // now both do the same thing in QuartzRecordManager
-    om_doccount docs = get_doccount();
-    if (docs == 0) RETURN(0);
-    om_totlength totlen =
-	QuartzRecordManager::get_total_length(*(tables->get_record_table()));
-
-    RETURN((double) totlen / docs);
+    RETURN(QuartzRecordManager::get_avlength(*(tables->get_record_table())));
 }
 
 om_doclength

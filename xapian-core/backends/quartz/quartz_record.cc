@@ -53,8 +53,12 @@ om_doccount
 QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
     DEBUGCALL_STATIC(DB, om_doccount, "QuartzRecordManager::get_doccount", "[table]");
-    // FIXME: check that the sizes of these types (om_doccount and
-    // quartz_tablesize_t) are compatible.
+    // Check that we can't overflow (the unsigned test is actually too
+    // strict as we can assign an unsigned char to a signed long, but this
+    // shouldn't actually matter).
+    CASSERT(sizeof(om_doccount) >= sizeof(quartz_tablesize_t));
+    CASSERT((om_doccount)(-1) > 0);
+    CASSERT((quartz_tablesize_t)(-1) > 0);
     om_doccount entries = table.get_entry_count();
 
     if (entries < 1) RETURN(0);
@@ -160,10 +164,14 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     *tag += pack_uint(newlen);
 }
 
-om_totlength
-QuartzRecordManager::get_total_length(QuartzTable & table)
+// FIXME: probably want to cache the average length (but not miss updates)
+om_doclength
+QuartzRecordManager::get_avlength(QuartzTable & table)
 {
-    DEBUGCALL_STATIC(DB, om_totlength, "QuartzRecordManager::get_total_length", "QuartzTable &");
+    DEBUGCALL_STATIC(DB, om_doclength, "QuartzRecordManager::get_avlength", "QuartzTable &");
+    om_doccount docs = get_doccount(table);
+    if (docs == 0) RETURN(0);
+
     string tag;
     if (!table.get_exact_entry(METAINFO_TAG, tag)) RETURN(0u);
 
@@ -180,7 +188,7 @@ QuartzRecordManager::get_total_length(QuartzTable & table)
     if (data != end) {
 	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
     }
-    RETURN((om_totlength)totlen);
+    RETURN((double)totlen / docs);
 }
 
 void
