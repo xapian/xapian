@@ -76,12 +76,12 @@ class om_ostringstream {
 #define OSTRINGSTREAMFUNC(X) \
     inline om_ostringstream & \
     operator << (om_ostringstream &os, const X & obj) { \
-	return os << obj.get_description(); \
+	return os << (obj.get_description()); \
     } \
     inline om_ostringstream & \
     operator << (om_ostringstream &os, const X * obj) { \
-	if (obj) return os << "<"#X" - NULL>"; \
-	return os << obj->get_description(); \
+	if (obj == 0) return os << "<"#X" - NULL>"; \
+	return os << (obj->get_description()); \
     }
 
 OSTRINGSTREAMFUNC(OmDatabase);
