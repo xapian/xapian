@@ -151,9 +151,11 @@ index_directory(const string &dir)
     }
     while ((ent = readdir(d)) != NULL) {
 	struct stat statbuf;
-	// ".", "..", and other special files
+	// ".", "..", and other hidden files
 	if (ent->d_name[0] == '.') continue;
-	string url = dir + '/' + ent->d_name;
+	string url = dir;
+	if (url.size() && url[url.size() - 1] != '/') url += '/';
+	url += ent->d_name;
 	string file = root + url;
 	if (stat(file.c_str(), &statbuf) == -1) {
 	    cout << "Can't stat \"" << file << "\" - skipping\n";

@@ -1,4 +1,4 @@
-$set{thousand,$.}$set{decimal,.}<html>
+$set{thousand,$.}$set{decimal,.}$set{selected_pages,1}<html>
 <script language=javascript><!--
 function C(c) {var i, o;
 o = document.P.P.value;
@@ -22,25 +22,28 @@ ACTION="$html{$or{$env{SCRIPT_NAME},ompf}}" TARGET="_top">
 <INPUT NAME=P VALUE="$query" SIZE=65>
 <INPUT TYPE=IMAGE VALUE="Search" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle 
 SRC="http://www.euroferret.com/fx-gif/find.gif">
-<!--
+${
 <SELECT NAME=MATCHOP>
 <OPTION VALUE=or$if{$eq{$defaultop,or}, SELECTED}>Matching any words
 <OPTION VALUE=and$if{$eq{$defaultop,and}, SELECTED}>Matching all words
 </SELECT>
--->
-<br><INPUT TYPE=radio NAME=MATCHOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
-<br><INPUT TYPE=radio NAME=MATCHOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
+}
+<hr>
+<INPUT TYPE=radio NAME=MATCHOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
+<INPUT TYPE=radio NAME=MATCHOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
+<hr>
 <table><tr><td bgcolor="#ccffcc">
 $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
 $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
 </td></tr></table>
-<!-- $list{$freqs,<hr>,$. ,<hr>} -->
+${$list{$freqs,<hr>,$. ,<hr>}}
 <hr>
 $if{$eq{$msize,0},$if{$queryterms,No documents match your query}}
 $if{$ne{$msize,0},$if{$eq{$last,$msize},$if{$eq{$topdoc,0},All $msize matches}}}
 $if{$ne{$msize,0},$if{$eq{$last,$msize},$if{$ne{$topdoc,0},$add{$topdoc,1}
 $if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}}}
 $if{$ne{$msize,0},$if{$ne{$last,$msize},$add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches}}
+<hr>
 </center>
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
@@ -53,16 +56,24 @@ ALT="$percentage%" HEIGHT=35 WIDTH=35></TD>
 HREF="$field{url}">$html{$or{$field{caption},$field{url},Untitled}}</A></B><BR>
 $html{$field{sample}}$if{$field{sample},...}<br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
-<!-- <small>Language: <b>$html{$or{$field{language},unknown}}</b>
+${
+<small>Language: <b>$html{$or{$field{language},unknown}}</b>
 Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>
 Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>
--->
+}
 $percentage% relevant, matching:
 <i>$list{$html{$terms},$. ,</i> and <i>}</i></small></TD></TR>}
 </table>
-$map{$range{1,$pagemax},<INPUT TYPE=submit NAME="[" VALUE=,>}
+${$map{$range{1,$pagemax},<INPUT TYPE=submit NAME="[" VALUE=,>}}
 <br>
-$pages<br>
+$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="<"
+SRC="http://www.euroferret.com/fx-gif/previous.gif" BORDER=0 HEIGHT=56 WIDTH=56>}
+${$if{$eq{$topdoc,0},<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/prevoff.gif" HEIGHT=56 WIDTH=56>}}
+$pages
+$if{$ne{$last,$msize},<INPUT TYPE=image NAME=">"
+SRC="http://www.euroferret.com/fx-gif/next.gif" BORDER=0 HEIGHT=56 WIDTH=56>}
+${$if{$eq{$last,$msize},<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH=56>}}
+<br>
 $map{$html{$cgilist{DB}},<INPUT TYPE=hidden NAME=DB VALUE=",">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}

@@ -13,18 +13,19 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 // -->
 </script>
 <head>
-<title>Omega: search for `$html{$query}'</title>
+$select{$cgi{ID}}
+<title>Omega: dump of record $id</title>
 </head>
 <body bgcolor=white>
 <b>Clunk<b> ... <i>god mode engaged!</i><hr>
-$select{$id}Raw record #$id:<br>
+Raw record #$id:<br>
 $html{$record}
 <hr>
 Terms indexing this record<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
 <FORM NAME=P METHOD=GET ACTION="$env{SCRIPT_NAME}">
 <NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
-"<SCRIPT> <!--
+<SCRIPT><!--
 document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 // -->
 </SCRIPT>

@@ -178,16 +178,22 @@ run_query()
 				filter_vec.end()));
     }
 
+    if (!query.is_defined()) {
+	// FIXME: for now set a query which will match nothing (yuckity yuck)
+	query = OmQuery(OM_MOP_AND_NOT, OmQuery("xyzzy"), OmQuery("xyzzy"));
+    }
     enquire->set_query(query);
 
     // We could use the value of topdoc as first parameter, but we
     // need to know the first few items on the mset to fake a
     // relevance set for topterms
-    mset = enquire->get_mset(0, topdoc + list_size, rset); // FIXME - set msetcmp to reverse
+    mset = enquire->get_mset(0, topdoc + list_size, rset);
+    // FIXME - set msetcmp to reverse?
 }
 
-/* generate a sorted picker */
-extern void
+#if 0
+// generate a sorted picker
+static void
 do_picker(char prefix, const char **opts)
 {
     const char **p;
@@ -250,6 +256,7 @@ do_picker(char prefix, const char **opts)
     }
     cout << "</SELECT>\n";
 }
+#endif
 
 // FIXME: we can't easily do this in the macro language...
 static string
@@ -261,7 +268,7 @@ print_page_links()
     if (mset.mbound <= list_size) return res;
 
     string g = option["gif_dir"];
-    option["gif_dir"] = "http://www.muscat.com/fx_gif/oval/";
+    option["gif_dir"] = "http://www.muscat.com/muscat/oval/";
     int lastpage = (mset.mbound - 1) / list_size + 1;
     if (lastpage > 10) lastpage = 10;
 
@@ -426,7 +433,11 @@ eval(const string &fmt)
 	    p = q + 1;
 	    continue;
 	}
-	if (!isalpha(fmt[q])) {
+	bool ok = false;
+	if (fmt[q] == '{') {
+	    // commented out code
+	    ok = true;
+	} else if (!isalpha(fmt[q])) {
 	    string msg = "Unknown $ code in: $" + fmt.substr(q);
 	    throw msg;
 	}
@@ -448,7 +459,9 @@ eval(const string &fmt)
 		    ++nest;
 		} else {
 		    if (nest == 1) {
-			args.push_back(fmt.substr(q, p - q));
+			// if ok is set this is a comment so skip
+			// building args array (ick)
+			if (!ok) args.push_back(fmt.substr(q, p - q));
 			q = p + 1;
 		    }
 		    if (fmt[p] == '}' && --nest == 0) break;
@@ -457,7 +470,6 @@ eval(const string &fmt)
 	    p++;
 	}
 
-	bool ok = false;
 	string value;
 	switch (var[0]) {
 	 case 'a':

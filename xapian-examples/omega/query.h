@@ -43,8 +43,6 @@ om_doccount do_match();
 
 void add_bterm(const string &);
 
-extern void do_picker(char prefix, const char **opts);
-
 extern om_queryop op;
 
 extern string raw_prob;

@@ -1,3 +1,10 @@
+Sun Jul 09 16:47:00 BST 2000 Olly Betts
+
+	* omindex: fixed double slash at start of pathnames
+
+	* omega: bodge for empty query; added %{...} for commenting out
+	  code; turned on "selected" gif for current page of hits
+
 Sun Jul 09 13:40:00 BST 2000 Olly Betts
 
 	* omindex: added "&quot;" to entity list as stopgap measure; now put
