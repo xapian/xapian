@@ -29,67 +29,23 @@ dnl Check for getopt_long -- FreeBSD has a gnugetopt library
 AC_CHECK_FUNCS([getopt_long],,
   AC_CHECK_LIB([gnugetopt],[getopt_long],[AC_DEFINE([HAVE_GETOPT_LONG])]))
 
-dnl *************************
-dnl * Set debugging options *
-dnl *************************
-
-dnl Work out what debugging we want
-
-AC_ARG_ENABLE(debug,
-[  --enable-debug          Turn on debugging (no|yes)(default=no)],
-[case "${enableval}" in
-  yes) use_debug=yes ;;
-  no)  use_debug=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac], [use_debug=no])
-
-dnl Now set appropriate defines
-
-dnl Clear -g flag
-CFLAGS=`echo " $CFLAGS " | sed 's/[     ][      ]*/  /g' | sed 's/ -g / /g'`
-CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[         ][      ]*/  /g' | sed 's/ -g / /g'`
-
-if test "$use_debug" = yes; then
-CFLAGS="$CFLAGS -g";
-CXXFLAGS="$CXXFLAGS -g";
-AC_DEFINE(MUS_DEBUG,,
-  [Define if you want debugging to be enabled (will cause some slow down)])
-fi
-
-if test "$use_debug" = yes; then
-AC_DEFINE(MUS_DEBUG_VERBOSE,,
-  [Define if you want lots of debugging messages])
-fi
-
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
-  changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
-  case "$CFLAGS" in
-    *-O6*) ;;
-    *) CFLAGS="$CFLAGS -O6"
-  esac
-
-  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
-  case "$CXXFLAGS" in
-    *-O6*) ;;
-    *) CXXFLAGS="$CXXFLAGS -O6"
-  esac
-  changequote([, ])
+  AM_CFLAGS="$AM_CFLAGS -Wall -Wunused -Wno-long-long"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -Wno-long-long -fno-gnu-keywords"
 fi
 
 dnl modify flags for building with stlport
 if test "x$use_stlport" = "xyes"; then
   dnl STLport doesn't work with -ansi (at least, at version 4.0)
-  CXXFLAGS=`echo "$CXXFLAGS" | sed "s/-ansi//"`
   if test "$GCC" = yes; then
-    CXXFLAGS="-nostdinc++ $CXXFLAGS"
+    AM_CXXFLAGS="-nostdinc++ $AM_CXXFLAGS"
   fi
-  CXXFLAGS="$STLPORT_INCLUDE $CXXFLAGS"
+  AM_CXXFLAGS="$STLPORT_INCLUDE $AM_CXXFLAGS"
   LIBS="$STLPORT_LIBS $LIBS"
 fi
 
@@ -97,6 +53,4 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_OUTPUT(
- Makefile
-)
+AC_OUTPUT(Makefile)

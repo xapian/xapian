@@ -1,0 +1,3 @@
+Fri Apr 12 12:43:10 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed to use AM_CFLAGS and AM_CXXFLAGS.

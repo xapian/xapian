@@ -22,10 +22,10 @@ check_PROGRAMS = parsequerytest
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy utils.cc \
 		configfile.cc
-omega_LDADD = @XAPIAN_LIBS@
+omega_LDADD = $(XAPIAN_LIBS)
 
 omindex_SOURCES = omindex.cc htmlparse.cc
-omindex_LDADD = @XAPIAN_LIBS@
+omindex_LDADD = $(XAPIAN_LIBS)
 
 if HAVE_LIBXML2
 omindex_config_SOURCES = omindex-config.cc
@@ -36,4 +36,4 @@ omindex_config_LDADD = $(LIBXML_LIBS)
 endif
 
 parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
-parsequerytest_LDADD = @XAPIAN_LIBS@
+parsequerytest_LDADD = $(XAPIAN_LIBS)

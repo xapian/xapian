@@ -54,50 +54,14 @@ fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
 
-dnl *************************
-dnl * Set debugging options *
-dnl *************************
-
-dnl Work out what debugging we want
-
-AC_ARG_ENABLE(debug,
-[  --enable-debug          Turn on debugging (no|yes)(default=no)],
-[case "${enableval}" in
-  yes) use_debug=yes ;;
-  no)  use_debug=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac], [use_debug=no])
-
-dnl Now set appropriate defines
-
-dnl Clear -g flag
-CFLAGS=`echo " $CFLAGS " | sed 's/[     ][      ]*/  /g' | sed 's/ -g / /g'`
-CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[         ][      ]*/  /g' | sed 's/ -g / /g'`
-
-if test "$use_debug" = yes; then
-CFLAGS="$CFLAGS -g";
-CXXFLAGS="$CXXFLAGS -g";
-fi
-
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
-  changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
-  case "$CFLAGS" in
-    *-O6*) ;;
-    *) CFLAGS="$CFLAGS -O6"
-  esac
-
-  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
-  case "$CXXFLAGS" in
-    *-O6*) ;;
-    *) CXXFLAGS="$CXXFLAGS -O6"
-  esac
-  changequote([, ])
+  AM_CFLAGS="$AM_CFLAGS -Wall -Wunused -Wno-long-long"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -Wno-long-long -fno-gnu-keywords"
 fi
 
 dnl **************************

@@ -1,3 +1,7 @@
+Fri Apr 12 12:41:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed to use AM_CFLAGS and AM_CXXFLAGS.
+
 Thu Dec 20 16:10:32 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Add "using std::" statements to compile with g++ 3.0
