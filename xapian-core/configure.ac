@@ -128,14 +128,17 @@ AC_CHECK_FUNCS(gethostname)
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, long)
 
-AC_LANG_SAVE
+dnl Compaq's C++ compiler doesn't know snprintf, yet their C compiler does.
+dnl Let's try running *all* the configure checks with the C++ compiler, since
+dnl that's what we compile most code with.
+dnl AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
 AC_CHECK_HEADERS(sstream)
 dnl Check for a new streams implementation.
 AC_CHECK_HEADERS(streambuf)
-AC_LANG_RESTORE
+dnl AC_LANG_RESTORE
 
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])

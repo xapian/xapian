@@ -1,3 +1,9 @@
+Mon Nov 01 02:41:58 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Compaq's C++ compiler doesn't know snprintf, yet their
+	  C compiler does.  Let's try running *all* the configure checks with
+	  the C++ compiler, since that's what we compile most code with.
+
 Mon Nov 01 01:12:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/netutils.cc: Fixed to compile.
@@ -26,7 +32,7 @@ Sat Oct 30 19:15:48 BST 2004  Olly Betts <olly@survex.com>
 
 Sat Oct 30 16:42:24 BST 2004  Olly Betts <olly@survex.com>
 
-	* backends/quartz/bcursor.cc: Fix Bcusor::del() which didn't always
+	* backends/quartz/bcursor.cc: Fix Bcursor::del() which didn't always
 	  leave the cursor on the next item like it should.
 	* backends/quartz/quartz_postlist.cc: If we're removing a posting
 	  list entirely, often there will only be one chunk, so avoid
@@ -244,7 +250,7 @@ Mon Sep 20 13:06:59 BST 2004  Olly Betts <olly@survex.com>
 	  changes from Alan Cox's RPM spec files): split off libs into a
 	  separate package to allow 32 and 64 bit versions to be installed
 	  concurrently; include binaries from xapian-examples; updated source
-	  URLs. 
+	  URLs.
 
 Mon Sep 20 03:25:44 BST 2004  Olly Betts <olly@survex.com>
 
