@@ -1,3 +1,7 @@
+Fri Jul 11 12:36:18 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated in preparation for 0.7.2.
+
 Fri Jul 11 12:12:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Fixed test for snprintf.

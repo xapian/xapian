@@ -1,3 +1,58 @@
+Xapian 0.7.2 (2003-07-1?):
+
+testsuite:
+
+* Fixed dereference of a NULL pointer which would happen when a test threw an
+  unexpected exception.
+
+backends:
+
+* Quartz: When asked to create a quartz database, try to create the directory
+  if it doesn't already exist.  Then we don't have to do it in every single
+  Xapian program which wants to create a database...
+
+portability:
+
+* common/getopt.h: Fixed to work better with C++ compilers on non-glibc
+  platforms.
+
+* common/utils.h: missing #include <ctype.h>
+
+* Quartz: Defined _XOPEN_SOURCE=500 for GLIBC so we get pread() and pwrite().
+
+* common/utils.h: Improved mingw implementation of rmdir().
+
+documentation:
+
+* PLATFORMS: Added MacOS X 10.2 success report.
+
+* Improvements to doxygen-generated documentation.
+
+bindings:
+
+* Moved to separate xapian-bindings module.
+
+* Added configure check for SWIG version (require at least 1.3.14).
+
+* bindings/swig/xapian.i: Fixed over-enthusiastic automatic conversion of
+  termname to std::string.
+
+* Tidied up a bit.
+
+	* bindings/php4/Makefile.am,bindings/php4/xapian/.cvsignore: More
+	  work on the php4 bindings.
+	* bindings/guile/Makefile.am,bindings/python/Makefile.am,
+	  bindings/tcl8/Makefile.am: Worked towards getting guile and tcl8
+	  bindings up-to-date.
+	* bindings/php4/.cvsignore: Ignore the whole xapian subdirectory.
+
+omega:
+
+* omega: If the same database is listed more than once, only search the first
+  occurrence.
+ 
+* omega: use snprintf to help guard against buffer overflows.
+
 Xapian 0.7.1 (2003-07-08):
 
 testsuite:
