@@ -90,6 +90,9 @@ QuartzDiskCursor::next()
 	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << current_key.value <<
+	      "', tag=`" << current_tag.value << "'");
 }
 
 void
@@ -135,6 +138,9 @@ QuartzDiskCursor::prev()
 	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << current_key.value <<
+	      "', tag=`" << current_tag.value << "'");
 }
 
 
