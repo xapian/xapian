@@ -1,3 +1,8 @@
+Fri Jul 05 19:20:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am, docs/quickstart.txt: Install omega as
+	  ${prefix}/lib/omega/bin/omega.
+
 Thu Jul 04 02:11:46 BST 2002  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc, docs/scriptindex.txt: new indexer - indexing

@@ -56,7 +56,9 @@ EXTRA_DIST = templates/query \
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
-bin_PROGRAMS = omega omindex scriptindex
+pkglibbindir = $(pkglibdir)/bin
+pkglibbin_PROGRAMS = omega
+bin_PROGRAMS = omindex scriptindex
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
 omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser

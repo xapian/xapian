@@ -17,7 +17,7 @@ are - e.g. /var/lib/omega/templates.
 
 3.      Test omega from the command line:
 
-$ ./omega 'P=my search terms' HITSPERPAGE=10
+$ /usr/lib/omega/bin/omega 'P=my search terms' HITSPERPAGE=10
 
 You then get a large-ish HTML file.  This is the test mode - useful for
 checking that everything works independent of your webserver configuration.
