@@ -23,6 +23,8 @@
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "termlist.h"
+#include "inmemory_positionlist.h"
+#include "ompositionlistiteratorinternal.h"
 #include "omdebug.h"
 
 OmTermListIterator::OmTermListIterator(Internal *internal_)
@@ -145,12 +147,15 @@ OmTermListIterator::positionlist_begin()
     DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_begin", "");
     Assert(internal);
     Assert(!internal->at_end());
-    if (internal->using_termlist) 
+    if (internal->using_termlist) {
 	RETURN(internal->database.positionlist_begin(internal->did,
 						     internal->termlist->get_termname()));
-    else
-	RETURN(internal->database.positionlist_begin(internal->did,
-						     internal->it->first));
+    } else {
+	RefCntPtr<InMemoryPositionList> pl = new InMemoryPositionList();
+	pl->set_data(internal->it->second.positions);
+	RETURN(OmPositionListIterator(
+		new OmPositionListIterator::Internal(pl)));
+    }
 }
 
 OmPositionListIterator

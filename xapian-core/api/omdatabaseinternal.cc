@@ -82,8 +82,8 @@ OmDatabase::Internal::get_avlength() const
 	    docs += db_doccount;
 	    totlen += (*i)->get_avlength() * db_doccount;
 	}
-
-	avlength = totlen / docs;
+	if (docs != 0)
+	    avlength = totlen / docs;
     }
 
     return avlength;

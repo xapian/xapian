@@ -1,3 +1,16 @@
+Mon Dec 11 16:03:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* If no documents in database, don't divide by zero in
+	  omdatabaseinternal.cc
+
+	* If a document object doesn't come from the database, when iterating
+	  through its termlist don't open postlists from the nonexistant
+	  database; open them from the DocumentTerm objects in the document
+	  instead.
+
+	* Remove old unused and undefined method
+	  OmDocument::Internal::add_posting()
+
 Mon Dec 11 13:53:18 GMT 2000 Olly Betts
 
 	* omenquire.h: Removed superfluous declaration of OmMSetCmp.

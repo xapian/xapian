@@ -35,47 +35,46 @@ class OmTermListIterator::Internal {
 
 	RefCntPtr<TermList> termlist;
 
+	/// The database to read position lists from.
+	OmDatabase database;
+
+	/// The document ID in the database to read position lists from.
+	om_docid did;
+
 	OmDocument::Internal::document_terms::const_iterator it;
 	OmDocument::Internal::document_terms::const_iterator it_end;
 
 	/// Whether we're using the termlist object, or the iterator
 	bool using_termlist;
 
-	OmDatabase database;
-
-	om_docid did;
 
     public:
         Internal(TermList *termlist_,
 		 const OmDatabase &database_,
 		 om_docid did_)
 		: termlist(termlist_),
-		  using_termlist(true),
 		  database(database_),
-		  did(did_)
+		  did(did_),
+		  using_termlist(true)
 	{
 	    // A TermList starts before the start, iterators start at the start
 	    termlist->next();
 	}
 
 	Internal(const OmDocument::Internal::document_terms::const_iterator &it_,
-		 const OmDocument::Internal::document_terms::const_iterator &it_end_,
-		 const OmDatabase &database_,
-		 om_docid did_)
+		 const OmDocument::Internal::document_terms::const_iterator &it_end_)
 		: it(it_),
 		  it_end(it_end_),
-		  using_termlist(false),
-		  database(database_),
-		  did(did_)
+		  using_termlist(false)
 	{ }
 
         Internal(const Internal &other)
 		: termlist(other.termlist),
+		  database(other.database),
+		  did(other.did),
 		  it(other.it),
 		  it_end(other.it_end),
-		  using_termlist(other.using_termlist),
-		  database(other.database),
-		  did(other.did)
+		  using_termlist(other.using_termlist)
 	{ }
 
 	void next()

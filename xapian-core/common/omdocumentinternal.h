@@ -138,15 +138,8 @@ class OmDocument::Internal {
 		: ptr(NULL), data_here(true), keys_here(true), terms_here(true)
 	{}
 
-	/** Add an occurrence of a term to the document.
-	 *
-	 *  Multiple occurrences of the term at the same position are represented
-	 *  only once in the positional information, but do increase the wdf.
-	 *
-	 *  @param tname  The name of the term.
-	 *  @param tpos   The position of the term.
-	 */
-	void add_posting(const om_termname & tname, om_termpos tpos = 0);
+	void read_termlist(OmTermListIterator t,
+			   const OmTermListIterator & tend);
 
 	/** Returns a string representing the object.
 	 *  Introspection method.

@@ -150,16 +150,11 @@ OmDocument::clear_keys()
 }
 
 void
-OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
+OmDocument::Internal::read_termlist(OmTermListIterator t,
+				    const OmTermListIterator & tend)
 {
-    DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
-    if (tname.empty()) {
-	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
-    }
     // FIXME: need to lock here...
-    if (!internal->terms_here) {
-	OmTermListIterator t = termlist_begin();
-	OmTermListIterator tend = termlist_end();
+    if (!terms_here) {
 	for ( ; t != tend; t++) {
 	    OmPositionListIterator p = t.positionlist_begin();
 	    OmPositionListIterator pend = t.positionlist_end();
@@ -169,13 +164,23 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
 	    for ( ; p != pend; p++) {
 		term.add_posting(*p);
 	    }
-	    internal->terms.insert(std::make_pair(*t, term));
+	    terms.insert(std::make_pair(*t, term));
 	}
-	internal->terms_here = true;
+	terms_here = true;
     }
+}
+
+void
+OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
+{
+    DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
+    if (tname.empty()) {
+	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+    }
+    internal->read_termlist(termlist_begin(), termlist_end());
+
     std::map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
-
     if (i == internal->terms.end()) {
 	internal->terms.insert(std::make_pair(tname,
 					      OmDocumentTerm(tname, tpos)));
@@ -237,9 +242,7 @@ OmDocument::termlist_begin() const
     if (internal->terms_here) {
 	RETURN(OmTermListIterator(new OmTermListIterator::Internal(
 		internal->terms.begin(),
-		internal->terms.end(),
-		internal->database,
-		internal->did)));	   
+		internal->terms.end())));
     }
     RETURN(OmTermListIterator(new OmTermListIterator::Internal(
 		internal->ptr->open_term_list(),
