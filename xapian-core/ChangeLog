@@ -1,3 +1,15 @@
+Tue May 27 01:01:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* autoconf/dir_contents,backends/dir_contents,
+	  backends/inmemory/dir_contents,backends/multi/dir_contents,
+	  backends/muscat36/dir_contents,backends/net/dir_contents,
+	  backends/quartz/dir_contents,bindings/dir_contents,
+	  common/dir_contents,docs/dir_contents,include/om/dir_contents,
+	  include/xapian/dir_contents,include/dir_contents,
+	  indexer/dir_contents,indexer/indexgraph/dir_contents,
+	  languages/dir_contents,m4/dir_contents,tests/dir_contents:
+	  Updated all the dir_contents files - many were out-of-date.
+
 Tue May 27 00:42:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Filter any .la files out of dependency_libs.

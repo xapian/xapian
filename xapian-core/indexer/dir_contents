@@ -1,5 +1,5 @@
 <Directory>indexer</Directory>
 
 <Description>
-This directory contains the Xapian indexer framework.
+The Xapian indexer framework.
 </Description>

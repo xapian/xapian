@@ -1,8 +1,6 @@
 <Directory>include/om</Directory>
 
 <Description>
-This directory contains the externally visible header files which are
-needed to link applications against Xapian.
-
-Internal header files are kept in the "common" directory.
+This directory contains om.h, which provides backward compatibility and allows
+older programs written to use Xapian to be built using Xapian 0.7 or later.
 </Description>

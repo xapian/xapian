@@ -1,7 +1,7 @@
 <Directory>backends/muscat36</Directory>
 
 <Description>
-This directory contains the Muscat36 backend, used to access old-style
+The Muscat36 backend, used to access old-style
 Muscat 3.6 databases.
 
 This backend only supports reading from the database: databases

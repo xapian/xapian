@@ -1,6 +1,5 @@
 <Directory>bindings</Directory>
 
 <Description>
-This directory contains everything needed to create libxapian bindings
-for languages other than C++.
+Bindings allowing Xapian to be used from languages other than C++.
 </Description>
