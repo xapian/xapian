@@ -47,8 +47,9 @@ x86   | Cygwin v??                     |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   |~0.8.2 |Passed| [2]
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4|~0.8.2 |Passed|
-alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 |~0.8.2 |Passed|
+alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 |~0.8.2 |Passed| [9]
 sparc |*Solaris 9 GCC 3.3.2            |~0.8.2 |Passed| [2]
+sparc |*Solaris 9 Sun Workshop C++     |~0.8.2 |Passed|
 ppc   |*MacOS X 10.1.4 GCC 2.95.2      |~0.8.2 |Passed| [7]
 ppc   |*MacOS X 10.2.8 GCC 3.1 20020420|~0.8.2 |Passed|
 ppc   |*MacOS X 10.2.8 GCC 3.3         |~0.8.2 |Passed|
@@ -60,8 +61,7 @@ arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
 x86   | Linux cross to mingw GCC 2.95.3| 0.8.0 |Built | [3]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
 ------+--------------------------------+-------+------+------------------------
-x86   |*Solaris 9 Sun Workshop C++     |~0.8.2 |Failed| [5]
-sparc |*Solaris 9 Sun Workshop C++     |~0.8.2 |Failed| [5]
+x86   |*Solaris 9 Sun Workshop C++     |~0.8.2 |Failed| [2] [5]
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [8]
 ------+--------------------------------+-------+------+------------------------
 
@@ -110,6 +110,8 @@ x86   | Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| from Peter Marelas
 
 [1] ./configure emits many warnings (we believe these are harmless):
 mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
+(This problem is believed fixed by a newer autoconf, which we use from
+0.8.2 onwards.)
 
 [2] Must be compiled as a static library (./configure --disable-shared).
 
@@ -119,7 +121,8 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 of portability.  Remote backend is automatically disabled due to lack of
 socketpair.  Not tried to run the binaries yet.
 
-[5] Everything builds, but some tests fail.
+[5] queryparsertest fails - it seems '\xb7' gets regarded as "isalnum", but
+it doesn't in a short test program.
 
 [6] Compiler emits a number of warnings.
 
@@ -131,3 +134,6 @@ socketpair.  Not tried to run the binaries yet.
 [8] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
 (SEGV).  This appears to be due to buggy handling of nested exceptions on arm
 - you should use GCC 3.3 or newer.
+
+[9] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
+./configure CFLAGS=-O0 CXXFLAGS=-O0
