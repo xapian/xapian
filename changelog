@@ -1,3 +1,15 @@
+xapian-omega (0.8.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Improved indexing of HTML, add support for OpenOffice, MS Word,
+    Wordperfect, and RTF. (If appropriate helper packages are installed.)
+  * Add helper packages (unzip, antiword, libwpd, unrtf) to Suggests field.
+  * Safer passing of filenames to helper packages.
+  * Tweaks for boolean only queries.
+  * Update for changed Xapian API.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  9 Dec 2004 17:44:00 +0000
+
 xapian-omega (0.8.3-1) unstable; urgency=low
 
   * New upstream release.
