@@ -1,3 +1,8 @@
+Sat Nov 06 04:22:57 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't AC_SUBST(STLPORT_CXXFLAGS) as it is never used
+	  that way (it's included in AM_CXXFLAGS).
+
 Sat Nov 06 01:03:53 GMT 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.h: Removed incorrect comment about how STRINGIZE

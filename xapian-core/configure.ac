@@ -480,7 +480,7 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
-if test yes = "$GXX" ; then
+if test yes = "$GXX"; then
   dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
   dnl Xapian will build with any earlier version, so there's not much point
   dnl testing if -Wno-long-long is supported.
@@ -497,16 +497,13 @@ if test yes = "$GXX" ; then
 fi
 
 dnl modify flags for building with stlport
-STLPORT_CXXFLAGS=
 if test yes = "$use_stlport"; then
   if test yes = "$GXX"; then
-    STLPORT_CXXFLAGS="-nostdinc++"
+    AM_CXXFLAGS="-nostdinc++ $AM_CXXFLAGS"
   fi
-  STLPORT_CXXFLAGS="$STLPORT_CXXFLAGS $STLPORT_INCLUDE"
-  AM_CXXFLAGS="$STLPORT_CXXFLAGS $AM_CXXFLAGS"
+  AM_CXXFLAGS="$STLPORT_INCLUDE $AM_CXXFLAGS"
   LIBS="$STLPORT_LIBS $LIBS"
 fi
-AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
 
