@@ -12,6 +12,8 @@ if HAVE_DOCPP
 
 CREATED_DOCUMENTS2=apidoc/index.html # sourcedoc/index.html
 
+all-local: apidoc/index.html sourcedoc/index.html
+
 dist-hook: apidoc/index.html
 	mkdir $(distdir)/apidoc
 	if [ -r apidoc/index.html ] ; then \
