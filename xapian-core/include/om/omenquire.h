@@ -25,6 +25,7 @@
 
 #include <om/omtypes.h>
 #include <om/omdocument.h>
+#include <om/omdatabase.h>
 #include <om/omerror.h>
 #include <string>
 #include <vector>
@@ -503,56 +504,6 @@ class OmESet {
 	om_termcount ebound;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmDatabaseGroup class
-// =====================
-
-/** This class encapsulates a set of databases.
- *
- *  This class is used in conjunction with an OmEnquire object.
- *
- *  @exception OmInvalidArgumentError will be thrown if an invalid
- *  argument is supplied, for example, an unknown database type.
- *
- *  @exception OmOpeningError may be thrown if the database cannot
- *  be opened (for example, a required file cannot be found).
- */
-class OmDatabaseGroup {
-    private:
-	class Internal;
-	Internal *internal;
-
-	/** InternalInterface is a class used externally to interact
-	 *  with OmDatabaseGroup objects.
-	 */
-	class InternalInterface;
-	friend class InternalInterface;
-
-    public:
-	OmDatabaseGroup();
-	~OmDatabaseGroup();
-	OmDatabaseGroup(const OmDatabaseGroup &other);
-	void operator=(const OmDatabaseGroup &other);
-
-	/** Add a new database to use.
-	 *
-	 *  The database may not be opened by this call: the system may wait
-	 *  until a get_mset (or similar call).
-	 *  Thus, failure to open the database may not result in an
-	 *  OmOpeningError exception being thrown until the database is used.
-	 *
-	 *  The database will always be opened read-only.
-	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *  database: meaning and number required depends on database type.
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 */
-	void add_database(const string & type,
-			  const vector<string> & params);
-};
 
 ///////////////////////////////////////////////////////////////////
 // OmEnquire class

@@ -1,3 +1,7 @@
+Mon May 15 13:34:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Moved OmDatabaseGroup into a separate header file.
+
 Mon May 15 12:23:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Bugfix: MultiDatabases term existence cache no longer grows
