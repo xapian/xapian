@@ -1,3 +1,11 @@
+Tue Sep 19 14:52:24 BST 2000 Olly Betts
+
+	* makesymboltabh.pl: ''' -> '\'' in generated code.
+
+	* omega: renamed op to default_op; size_t -> std::string::size_type;
+	  now lookup macro commands in a map; removed $pagemax which was
+	  indentical to $lastpage; godmode template improved.
+
 Fri Sep  8 11:59:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add option to msearch to turn off stemming of terms.

@@ -17,9 +17,9 @@ $select{$cgi{ID}}
 <title>Omega: dump of record $id</title>
 </head>
 <body bgcolor=white>
-<b>Clunk<b> ... <i>god mode engaged!</i><hr>
+<b>Clunk</b> ... <i>god mode engaged!</i><hr>
 Raw record #$id:<br>
-$html{$record}
+<small><pre>$html{$record}</pre></small>
 <hr>
 Terms indexing this record<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
@@ -33,7 +33,7 @@ document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 ${$terms should be all terms indexing the document}
-$map{${terms},
+$map{$terms,
 <tr><td>
 ${if (isupper(*p)<input type=checkbox name=B value=\"" << p << "\">";}
 ${	       else if (strchr(p, ' ')) 
@@ -54,7 +54,7 @@ ${	       else if (strchr(p, ' '))
 		      q++;
 		  }
 		  cout << "%22\">";
-	      }}P=$url{${termname}.}</A></td><td>${freq}</td></tr>
+	      }}P=$url{${termname}.}"</A></td><td>${freq}</td></tr>}
 <hr>
 Expand terms<br>
 <table><tr><th>Term</th><th>Freq</th></tr>

@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <map>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -50,7 +51,7 @@ map<om_docid, bool> ticked;
 
 static OmQuery query;
 static string query_string;
-OmQuery::op op = OmQuery::OP_OR; // default matching mode
+OmQuery::op default_op = OmQuery::OP_OR; // default matching mode
 
 static QueryParser qp;
 
@@ -58,11 +59,11 @@ querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
     // strip leading and trailing whitespace
-    size_t first_nonspace = newp.find_first_not_of(" \t\r\n\v");
+    std::string::size_type first_nonspace = newp.find_first_not_of(" \t\r\n\v");
     if (first_nonspace == string::npos) {
 	raw_prob = "";
     } else {
-	size_t len = newp.find_last_not_of(" \t\r\n\v");
+	std::string::size_type len = newp.find_last_not_of(" \t\r\n\v");
 	raw_prob = newp.substr(first_nonspace, len + 1 - first_nonspace);
     }
 
@@ -188,7 +189,7 @@ do_picker(char prefix, const char **opts)
 
     vector<string>::const_iterator i2;
     for (i2 = picker.begin(); i2 != picker.end(); i2++) {
-	size_t j = (*i2).find('\t');
+	std::string::size_type j = (*i2).find('\t');
 	if (j == string::npos) continue;
 	const char *p = (*i2).c_str();
 	cout << "\n<OPTION VALUE=" << prefix << string(p + j + 1);
@@ -226,7 +227,7 @@ static string
 html_escape(const string &str)
 {
     string res;
-    size_t p = 0;
+    std::string::size_type p = 0;
     while (p < str.size()) {
 	char ch = str[p++];
 	switch (ch) {
@@ -255,7 +256,7 @@ print_query_string(const char *after)
 {
     if (after && strncmp(after, "&B=", 3) == 0) {
 	char prefix = after[3];
-	size_t start = 0, amp = 0;
+	std::string::size_type start = 0, amp = 0;
 	while (1) {
 	    amp = query_string.find('&', amp);
 	    if (amp == string::npos) {
@@ -315,14 +316,137 @@ static string print_caption(om_docid m, const string &fmt);
 
 static bool relevant_cached = false;
 
+enum tagval {
+CMD_,
+CMD_add,
+CMD_cgi,
+CMD_cgilist,
+CMD_date,
+CMD_dbname,
+CMD_defaultop,
+CMD_eq,
+CMD_env,
+CMD_field,
+CMD_filesize,
+CMD_fmt,
+CMD_freqs,
+CMD_hitlist,
+CMD_html,
+CMD_id,
+CMD_if,
+CMD_last,
+CMD_lastpage,
+CMD_list,
+CMD_map,
+CMD_max,
+CMD_maxhits,
+CMD_min,
+CMD_msize,
+CMD_ne,
+CMD_not,
+CMD_opt,
+CMD_or,
+CMD_percentage,
+CMD_query,
+CMD_queryterms,
+CMD_range,
+CMD_record,
+CMD_relevant,
+CMD_relevants,
+CMD_score,
+CMD_select,
+CMD_set,
+CMD_terms,
+CMD_thispage,
+CMD_topdoc,
+CMD_topterms,
+CMD_url,
+CMD_version
+};
+
+struct func_attrib {
+    int tag;
+    int minargs, maxargs, evalargs;
+    bool ensure_match;
+    bool cache; // FIXME: implement cache
+};
+
+#define STRINGIZE(N) _STRINGIZE(N)
+#define _STRINGIZE(N) #N
+    
+#define T(F) STRINGIZE(F), CMD_##F
+struct func_desc {
+    const char *name;
+    struct func_attrib a;
+};
+
+#define N -1
+static struct func_desc func_tab[] = {
+//name minargs maxargs evalargs ensure_match cache
+{"", CMD_,	N, N, 0, 0, 0 }, // commented out code
+{T(add),	0, N, N, 0, 0 }, // add a list of numbers
+{T(cgi),	1, 1, N, 0, 0 }, // return cgi parameter value
+{T(cgilist),	1, 1, N, 0, 0 }, // return list of values for cgi parameter
+{T(date),	1, 1, N, 0, 0 }, // convert time_t to YYYY-MM-DD
+{T(dbname),	0, 0, N, 0, 0 }, // database name
+{T(defaultop),	0, 0, N, 0, 0 }, // default operator: "and" or "or"
+{T(env),	1, 1, N, 0, 0 }, // environment variable
+{T(eq),		2, 2, N, 0, 0 }, // test equality
+{T(field),	1, 1, N, 0, 0 }, // lookup field in record
+{T(filesize),	1, 1, N, 0, 0 }, // pretty printed filesize
+{T(fmt),	0, 0, N, 0, 0 }, // name of current format
+{T(freqs),	0, 0, N, 1, 1 }, // return HTML string listing query terms and frequencies
+{T(hitlist),	N, N, 0, 1, 0 }, // display hitlist using format in argument
+{T(html),	1, 1, N, 0, 0 }, // html escape string (<>&)
+{T(id),		0, 0, N, 0, 0 }, // docid of current doc
+{T(if),		2, 3, 1, 0, 0 }, // conditional
+{T(last),	0, 0, N, 1, 0 }, // m-set number of last hit on page
+{T(lastpage),	0, 0, N, 1, 0 }, // number of last hit page
+{T(list),	2, 5, N, 0, 0 }, // pretty print list
+{T(map),	1, N, 1, 0, 0 }, // map a list into another list
+{T(max),	1, N, N, 0, 0 }, // maximum of a list of values
+{T(maxhits),	0, 0, N, 0, 0 }, // hits per page
+{T(min),	1, N, N, 0, 0 }, // minimum of a list of values
+{T(msize),	0, 0, N, 1, 0 }, // number of matches
+{T(ne), 	2, 2, N, 0, 0 }, // test not equal
+{T(not),	1, 1, N, 0, 0 }, // logical not
+{T(opt),	1, 1, N, 0, 0 }, // lookup an option value
+{T(or),		1, N, 0, 0, 0 }, // logical shorcutting or of a list of values
+{T(percentage),	0, 0, N, 0, 0 }, // percentage score of current hit
+{T(query),	0, 0, N, 0, 0 }, // query
+{T(queryterms),	0, 0, N, 0, 1 }, // list of query terms
+{T(range),	2, 2, N, 0, 0 }, // return list of values between start and end
+{T(record),	0, 0, N, 0, 0 }, // record contents of current hit
+{T(relevant),	0, 0, N, 0, 0 }, // is current document relevant?
+{T(relevants),	0, 0, N, 1, 0 }, // return list of relevant documents
+{T(score),	0, 0, N, 0, 0 }, // score (0-10) of current hit
+{T(select),	1, 1, N, 0, 0 }, // select record id
+{T(set),	2, 2, N, 0, 0 }, // set option value
+{T(terms),	0, 0, N, 1, 0 }, // list of matching terms
+{T(thispage),	0, 0, N, 1, 0 }, // page number of current page
+{T(topdoc),	0, 0, N, 0, 0 }, // first document on current page of hit list (counting from 0)
+// FIXME: cache really needs to be smart about parameter value...
+{T(topterms),	0, 1, N, 1, 1 }, // list of up to N top relevance feedback terms (default 20)
+{T(url),	1, 1, N, 0, 0 }, // url encode argument
+{T(version),	0, 0, N, 0, 0 }, // omega version string
+{ NULL, 0,      0, 0, 0, 0, 0 }
+};
+
 static string
 eval(const string &fmt)
 {
+    static map<string, const struct func_attrib *> func_map;
+    if (func_map.empty()) {
+	struct func_desc *p;
+	for (p = func_tab; p->name != NULL; p++) {
+	    func_map[string(p->name)] = &(p->a);
+	}
+    }
     string res;
-    size_t p = 0, q;
+    std::string::size_type p = 0, q;
     while ((q = fmt.find('$', p)) != string::npos) {
 	res += fmt.substr(p, q - p);
-	size_t code_start = q; // note down for error reporting
+	std::string::size_type code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
 	// Magic sequences:
@@ -339,11 +463,7 @@ eval(const string &fmt)
 	    p = q + 1;
 	    continue;
 	}
-	bool ok = false;
-	if (fmt[q] == '{') {
-	    // commented out code
-	    ok = true;
-	} else if (!isalpha(fmt[q])) {
+	if (fmt[q] != '{' && !isalpha(fmt[q])) {
 	    string msg = "Unknown $ code in: $" + fmt.substr(q);
 	    throw msg;
 	}
@@ -352,6 +472,11 @@ eval(const string &fmt)
 				  "0123456789_", q);
 	if (p == string::npos) p = fmt.size();
 	string var = fmt.substr(q, p - q);
+	map<string, const struct func_attrib *>::const_iterator i;
+	i = func_map.find(var);
+	if (i == func_map.end()) {
+	    throw "Unknown function `" + var + "'";
+	}
 	vector<string> args;
 	if (fmt[p] == '{') {
 	    q = p + 1;
@@ -364,51 +489,66 @@ eval(const string &fmt)
 		    ++nest;
 		} else {
 		    if (nest == 1) {
-			// if ok is set this is a comment so skip
-			// building args array (ick)
-			if (!ok) args.push_back(fmt.substr(q, p - q));
-			q = p + 1;
+			// should we split the args
+			if (i->second->minargs != N) {
+			    args.push_back(fmt.substr(q, p - q));
+			    q = p + 1;
+			}
 		    }
 		    if (fmt[p] == '}' && --nest == 0) break;
 		}
 	    }
+	    if (i->second->minargs == N) args.push_back(fmt.substr(q, p - q));
 	    p++;
 	}
 
+	// allow "$thispage{}s.gif" to work...
+	if (i->second->maxargs == 0 && args.size() == 1 && args[0].empty())
+	    args.clear();
+
+	if (i->second->minargs != N) {
+	    if (args.size() < i->second->minargs)
+		throw "too few arguments to $" + var;
+	    if (i->second->maxargs != N && args.size() > i->second->maxargs)
+		throw "too many arguments to $" + var;
+
+	    std::vector<string>::size_type n;
+	    if (i->second->evalargs != N)
+		n = i->second->evalargs;
+	    else
+		n = args.size();
+	    
+	    for (std::vector<string>::size_type j = 0; j < n; j++)
+		args[j] = eval(args[j]);
+	}
+	if (i->second->ensure_match) ensure_match();
 	string value;
-	switch (var[0]) {
-	 case 'a':
-	    if (var == "add") {
-		ok = true;
+	switch (i->second->tag) {
+	    case CMD_:
+	        break;
+	    case CMD_add: {
 		int total = 0;
 		vector<string>::const_iterator i;
 		for (i = args.begin(); i != args.end(); i++)
-		    total += string_to_int(eval(*i));
+		    total += string_to_int(*i);
 		value = int_to_string(total);
 		break;
 	    }
-	    break;
-	 case 'c':
-	    if (var == "cgi") {
-		ok = true;
-		MCI i = cgi_params.find(eval(args[0]));
+	    case CMD_cgi: {
+		MCI i = cgi_params.find(args[0]);
 		if (i != cgi_params.end()) value = i->second;
 		break;
 	    }
-	    if (var == "cgilist") {
-		ok = true;
+	    case CMD_cgilist: {
 		pair<MCI, MCI> g;
-		g = cgi_params.equal_range(eval(args[0]));
+		g = cgi_params.equal_range(args[0]);
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
-	    break;
-	 case 'd':
-	    if (var == "date") {
-		ok = true;
-		value = eval(args[0]);
+	    case CMD_date:
+		value = args[0];
 		if (!value.empty()) {
 		    char buf[64] = "";
 		    time_t date = string_to_int(value);
@@ -420,65 +560,31 @@ eval(const string &fmt)
 		    value = buf;
 		}
 		break;
-	    }
-	    if (var == "defaultop") {
-		if (op == OmQuery::OP_AND) {
+	    case CMD_dbname:
+		if (dbname != default_dbname) value = dbname;
+		break;
+	    case CMD_defaultop:
+		if (default_op == OmQuery::OP_AND) {
 		    value = "and";
 		} else {
 		    value = "or";
 		}
 		break;
-	    }
-	    if (var == "dbname") {
-		ok = true;
-		if (dbname != default_dbname) value = dbname;
+	    case CMD_eq:
+		if (args[0] == args[1]) value = "true";
 		break;
-	    }
-	    break;
-	 case 'e':
-	    if (var == "env") {
-		ok = true;
-		var = eval(args[0]);
-		char *env = getenv(var.c_str());
+	    case CMD_env: {
+		char *env = getenv(args[0].c_str());
 		if (env != NULL) value = env;
 		break;
 	    }
-	    if (var == "eq") {
-		ok = true;
-		if (eval(args[0]) == eval(args[1])) value = "true";
+	    case CMD_field:
+		value = field[args[0]];
 		break;
-	    }
-	    break;
-	 case 'f':
-	    if (var == "field") {
-		ok = true;
-		value = field[eval(args[0])];
-		break;
-	    }
-	    if (var == "freqs") {
-		ensure_match();
-		ok = true;
-		if (!qp.termlist.empty()) {
-		    static string val;
-		    if (val.empty()) {
-			list<om_termname>::const_iterator i;
-			for (i = qp.termlist.begin();
-			     i != qp.termlist.end(); i++) {
-			    int freq = mset.get_termfreq(*i);
-			    val = val + *i + ":&nbsp;"
-				+ pretty_sprintf("%d", &freq) + '\t';
-			}		    
-			if (!val.empty()) val.erase(val.size() - 1);
-		    }
-		    value = val;
-		}
-		break;
-	    }
-	    if (var == "filesize") {
-		ok = true;
+	    case CMD_filesize: {
 		// FIXME: rounding?
 		// FIXME: for smaller sizes give decimal fractions, e.g. "1.4K"
-		int size = atoi(eval(args[0]).c_str());
+		int size = string_to_int(args[0]);
 		char buf[200] = "";
 		if (size && size < 1024) {
 		    sprintf(buf, "%d bytes", size);
@@ -492,19 +598,22 @@ eval(const string &fmt)
 		value = buf;
 		break;
 	    }
-	    if (var == "fmt") {
-		ok = true;
+	    case CMD_fmt:
 		value = fmtname;
 		break;
-	    }
-	    break;
-	 case 'h':
-	    if (var == "html") {
-		ok = true;
-	        value = html_escape(eval(args[0]));
+	    case CMD_freqs:
+		if (!qp.termlist.empty()) {
+		    list<om_termname>::const_iterator i;
+		    for (i = qp.termlist.begin();
+			 i != qp.termlist.end(); i++) {
+			int freq = mset.get_termfreq(*i);
+			value = value + *i + ":&nbsp;"
+			    + pretty_sprintf("%d", &freq) + '\t';
+		    }		    
+		    if (!value.empty()) value.erase(value.size() - 1);
+		}
 		break;
-	    }
-	    if (var == "hitlist") {
+	    case CMD_hitlist:
 #if 0
 		const char *q;
 		int ch;
@@ -535,75 +644,54 @@ eval(const string &fmt)
 		    query_string += i->second;
 		}
 #endif
-		ensure_match();
-		// FIXME: really nasty bodge
-		string fmthit;		
-		vector<string>::const_iterator i = args.begin();
-		while (true) {
-		    fmthit += *i;
-		    if (++i == args.end()) break;
-		    fmthit += ',';
-		}
 		for (om_docid m = topdoc; m < last; m++)
-		    value += print_caption(m, fmthit);
-
-		ok = true;
+		    value += print_caption(m, args[0]);
 		break;
-	    }
-	    break;
-	 case 'i':
-	    if (var == "id") {
+	    case CMD_html:
+	        value = html_escape(args[0]);
+		break;
+	    case CMD_id:
 		// document id
 		value = int_to_string(q0);
 		break;
-	    }
-	    if (var == "if") {
-		ok = true;
-		if (!eval(args[0]).empty())
+	    case CMD_if:
+		if (!args[0].empty())
 		    value = eval(args[1]);
 		else if (args.size() > 2)
 		    value = eval(args[2]);
 		break;
-	    }
-	    break;
-	 case 'l':
-	    if (var == "last") {
-		ensure_match();
+	    case CMD_last:
 		value = int_to_string(last);
 		break;
-	    }
-	    if (var == "lastpage") {
-		ensure_match();
+	    case CMD_lastpage:
 		value = int_to_string((mset.mbound - 1) / list_size + 1);
 		break;
-	    }
-	    if (var == "list") {
-		ok = true;
-		string list = eval(args[0]);
-		if (!list.empty()) {
+	    case CMD_list: {
+		if (!args[0].empty()) {
 		    string pre, inter, interlast, post;
 		    switch (args.size()) {
 		     case 2:
-			inter = interlast = eval(args[1]);
+			inter = interlast = args[1];
 			break;
 		     case 3:
-			inter = eval(args[1]);
-			interlast = eval(args[2]);
+			inter = args[1];
+			interlast = args[2];
 			break;
 		     case 4:
-			pre = eval(args[1]);
-			inter = interlast = eval(args[2]);
-			post = eval(args[3]);
+			pre = args[1];
+			inter = interlast = args[2];
+			post = args[3];
 			break;
 		     case 5:
-			pre = eval(args[1]);
-			inter = eval(args[2]);
-			interlast = eval(args[3]);
-			post = eval(args[4]);
+			pre = args[1];
+			inter = args[2];
+			interlast = args[3];
+			post = args[4];
 			break;
 		    }
 		    value += pre;
-		    size_t split = 0, split2;
+		    string list = args[0];
+		    std::string::size_type split = 0, split2;
 		    while ((split2 = list.find('\t', split)) != string::npos) {
 			if (split) value += inter;
 			value += list.substr(split, split2 - split);
@@ -615,29 +703,16 @@ eval(const string &fmt)
 		}
 		break;
 	    }
-	    break;
-	 case 'm':
-	    if (var == "msize") {
-		ensure_match();		
-		// number of matches
-		value = int_to_string(mset.mbound);
-		break;
-	    }
-	    if (var == "maxhits") {
-		value = int_to_string(list_size);
-		break;
-	    }
-	    if (var == "map") {
-		ok = true;
-		string list = eval(args[0]);
-		if (!list.empty()) {
-		    size_t i = 0;
+	    case CMD_map:
+		if (!args[0].empty()) {
+		    std::vector<string>::size_type i = 0;
 		    while (++i < args.size()) args[i] = eval(args[i]);
-		    size_t split = 0, split2;
+		    string list = args[0];
+		    std::string::size_type split = 0, split2;
 		    while (1) {
 			split2 = list.find('\t', split);
 			string item = list.substr(split, split2 - split);
-			size_t i = 0;
+			std::string::size_type i = 0;
 			while (++i < args.size() - 1)
 			    value = value + args[i] + item;
 			value += args[args.size() - 1];
@@ -645,100 +720,70 @@ eval(const string &fmt)
 			split = split2 + 1;
 		    }
 		}
-		break;
-	    }
-	    if (var == "min") {
-		ok = true;
+	        break;
+	    case CMD_max: {
 		vector<string>::const_iterator i = args.begin();
-		int val = string_to_int(eval(*i++));
+		int val = string_to_int(*i++);
 		for (; i != args.end(); i++) {
-		    int x = string_to_int(eval(*i));
-		    if (x < val) val = x;
-	        }
-		value = int_to_string(val);
-		break;
-	    }
-	    break;
-	    if (var == "max") {
-		ok = true;
-		vector<string>::const_iterator i = args.begin();
-		int val = string_to_int(eval(*i++));
-		for (; i != args.end(); i++) {
-		    int x = string_to_int(eval(*i));
+		    int x = string_to_int(*i);
 		    if (x > val) val = x;
 	        }
 		value = int_to_string(val);
 		break;
 	    }
-	    break;
-	 case 'n':
-	    if (var == "ne") {
-		ok = true;
-		if (eval(args[0]) != eval(args[1])) value = "true";
+	    case CMD_maxhits:
+		value = int_to_string(list_size);
+		break;
+	    case CMD_min: {
+		vector<string>::const_iterator i = args.begin();
+		int val = string_to_int(*i++);
+		for (; i != args.end(); i++) {
+		    int x = string_to_int(*i);
+		    if (x < val) val = x;
+	        }
+		value = int_to_string(val);
 		break;
 	    }
-	    if (var == "not") {
-		ok = true;
-		if (eval(args[0]).empty()) value = "true";
+	    case CMD_msize:
+		// number of matches
+		value = int_to_string(mset.mbound);
 		break;
-	    }
-	    break;
-	 case 'o':
-	    if (var == "or") {
-		ok = true;
-		vector<string>::const_iterator i;
-		for (i = args.begin(); i != args.end(); i++) {
+	    case CMD_ne:
+		if (args[0] != args[1]) value = "true";
+		break;
+	    case CMD_not:
+		if (args[0].empty()) value = "true";
+		break;
+	    case CMD_opt:
+		value = option[args[0]];
+		break;
+	    case CMD_or:
+		for (vector<string>::const_iterator i = args.begin();
+		     i != args.end(); i++) {
 		    value = eval(*i);
 		    if (!value.empty()) break;
 	        }
 		break;
-	    }
-	    if (var == "opt") {
-		ok = true;
-		value = option[eval(args[0])];
-		break;
-	    }
-	    break;
-	 case 'p':
-	    if (var == "percentage") {
+	    case CMD_percentage:
 		// percentage score
 		value = int_to_string(percent);
 		break;
-	    }
-	    if (var == "pagemax") {
-		value = int_to_string((mset.mbound - 1) / list_size + 1);
-		break;
-	    }
-
-	    break;
-	 case 'q':
-	    if (var == "query") {
+	    case CMD_query:
 		value = raw_prob;
-		ok = true;
 		break;
-	    }
-	    if (var == "queryterms") {
-		ok = true;
+	    case CMD_queryterms:
 		if (!qp.termlist.empty()) {
-		    static string val;
-		    if (val.empty()) {
-			list<om_termname>::const_iterator i;
-			for (i = qp.termlist.begin();
-			     i != qp.termlist.end(); i++) {
-			    val = val + *i + '\t';
-			}		    
-			if (!val.empty()) val.erase(val.size() - 1);
-		    }
-		    value = val;
+		    list<om_termname>::const_iterator i;
+		    for (i = qp.termlist.begin();
+			 i != qp.termlist.end(); i++) {
+			value = value + *i + '\t';
+		    }		    
+		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;
-	    }
-	    break;
-	 case 'r':
-	    if (var == "range") {
-		ok = true;
-		int start = atoi(eval(args[0]).c_str());
-		int end = atoi(eval(args[1]).c_str());
+	    case CMD_range: {
+		int start = string_to_int(args[0]);
+		int end = string_to_int(args[1]);
 	        while (start <= end) {
 		    value = value + int_to_string(start);
 		    if (start < end) value += '\t';
@@ -746,8 +791,10 @@ eval(const string &fmt)
 		}
 		break;
 	    }
-	    if (var == "relevant") {
-		ok = true;
+	    case CMD_record:
+		value = enquire->get_doc(q0).get_data().value;
+		break;
+	    case CMD_relevant: {
 		static string val;
 		if (!relevant_cached) {
 		    relevant_cached = true;
@@ -762,45 +809,26 @@ eval(const string &fmt)
 		value = val;
 		break;
 	    }
-	    if (var == "relevants") {
-		ensure_match();		
-		ok = true;
-		map <om_docid, bool>::const_iterator i;
-		for (i = ticked.begin(); i != ticked.end(); i++) {
+	    case CMD_relevants:		
+		for (map <om_docid, bool>::const_iterator i = ticked.begin();
+		     i != ticked.end(); i++) {
 		    if (i->second) value += int_to_string(i->first) + '\t';
 		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
-	    }
-	    if (var == "record") {
-		ok = true;		
-		value = enquire->get_doc(q0).get_data().value;
-		break;
-	    }
-	    break;
-	 case 's':
-	    if (var == "score") {
-		// Score (0 to 10)
+	    case CMD_score:
+	        // Score (0 to 10)
 		value = int_to_string(percent / 10);
 		break;
-	    }
-	    if (var == "set") {
-		ok = true;
-		option[eval(args[0])] = eval(args[1]);
-		break;
-	    }
-	    if (var == "select") {
-		ok = true;
-		q0 = string_to_int(eval(args[0]));
+	    case CMD_select:
+		q0 = string_to_int(args[0]);
 		// FIXME: more stuff?
 		break;
-	    }
-	    break;
-	 case 't':
-	    if (var == "terms") {
-		ensure_match();		
+	    case CMD_set:
+		option[args[0]] = args[1];
+		break;
+	    case CMD_terms: {
 		// list of matching terms
-		ok = true;
 		om_termname_list matching = enquire->get_matching_terms(q0);
 		list<om_termname>::const_iterator term;
 		for (term = matching.begin(); term != matching.end(); term++)
@@ -809,70 +837,54 @@ eval(const string &fmt)
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
-	    if (var == "topdoc") {
+	    case CMD_thispage:
+		value = int_to_string(topdoc / list_size + 1);
+		break;
+	    case CMD_topdoc:
 		// first document on current page of hit list (counting from 0)
 		value = int_to_string(topdoc);
 		break;
-	    }
-	    if (var == "thispage") {
-		ensure_match();
-		value = int_to_string(topdoc / list_size + 1);
-		break;
-	    }
-	    if (var == "topterms") {
-		ok = true;
-		static string val;
-		if (val.empty()) {		    
-		    ensure_match();
-		    int howmany = 20;
-		    if (!args.empty()) howmany = string_to_int(eval(args[0]));
-		    if (howmany < 0) howmany = 0;
+	    case CMD_topterms: {
+		int howmany = 20;
+		if (!args.empty()) howmany = string_to_int(args[0]);
+		if (howmany < 0) howmany = 0;
 		    
-		    // Present a clickable list of expand terms
-		    if (mset.mbound) {
-			OmESet eset;
-			ExpandDeciderOmega decider;
+		// Present a clickable list of expand terms
+		if (mset.mbound) {
+		    OmESet eset;
+		    ExpandDeciderOmega decider;
+		    
+		    if (!rset->items.empty()) {
+			eset = enquire->get_eset(howmany, *rset, 0, &decider);
+		    } else {
+			// invent an rset
+			OmRSet tmp;
 			
-			if (!rset->items.empty()) {
-			    eset = enquire->get_eset(howmany, *rset, 0, &decider);
-			} else {
-			    // invent an rset
-			    OmRSet tmp;
-			    
-			    for (int m = min(4, int(mset.mbound) - 1); m >= 0; m--)
-				tmp.add_document(mset.items[m].did);
-			    
-			    eset = enquire->get_eset(howmany, tmp, 0, &decider);
-			}
-		    
-			vector<OmESetItem>::const_iterator i;
-			for (i = eset.items.begin();
-			     i != eset.items.end(); i++) {
-			    val = val + i->tname + '\t';
-			}
-			if (!val.empty()) val.erase(val.size() - 1);
+			for (int m = min(4, int(mset.mbound) - 1); m >= 0; m--)
+			    tmp.add_document(mset.items[m].did);
+			
+			eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		    }
+		    
+		    vector<OmESetItem>::const_iterator i;
+		    for (i = eset.items.begin();
+			 i != eset.items.end(); i++) {
+			value = value + i->tname + '\t';
+		    }
+		    if (!value.empty()) value.erase(value.size() - 1);
 		}
-		value = val;
 		break;
 	    }
-	    break;
-	 case 'u':
-	    if (var == "url") {
-		ok = true;
-	        value = percent_encode(eval(args[0]));
+	    case CMD_url:
+	        value = percent_encode(args[0]);
 		break;
-	    }
-	    break;
-	 case 'v':
-	    if (var == "version") {
+	    case CMD_version:
 		value = PROGRAM_NAME" - "PACKAGE" "VERSION;
-		ok = true;
 		break;
-	    }
-	    break;
+	    default:
+		// FIXME: should never get here, so assert this?
+		throw "Unknown function `" + var + "'";
 	}
-	if (!ok && value == "") throw "Unknown variable `" + var + "'";
         res += value;
     }
 	     
@@ -943,12 +955,12 @@ print_caption(om_docid m, const string &fmt)
 
     // parse record
     field.clear();
-    size_t i = 0;
+    std::string::size_type i = 0;
     while (1) {
-	size_t old_i = i;
+	std::string::size_type old_i = i;
 	i = text.find('\n', i);
 	string line = text.substr(old_i, i - old_i);
-	size_t j = line.find('=');
+	std::string::size_type j = line.find('=');
 	if (j != string::npos) {
 	    field[line.substr(0, j)] = line.substr(j + 1);
 	} else if (!line.empty()) {

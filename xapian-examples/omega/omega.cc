@@ -178,9 +178,10 @@ main2(int argc, char *argv[])
 
     val = cgi_params.find("MATCHOP");
     if (val != cgi_params.end()) {
-	if (val->second == "AND" || val->second == "and") op = OmQuery::OP_AND;
+	if (val->second == "AND" || val->second == "and")
+	    default_op = OmQuery::OP_AND;
     } else if ((val = cgi_params.find("THRESHOLD")) != cgi_params.end()) {
-	if (atoi(val->second.c_str()) == 100) op = OmQuery::OP_AND;
+	if (atoi(val->second.c_str()) == 100) default_op = OmQuery::OP_AND;
     }
 
     enquire = new OmEnquire(omdb);

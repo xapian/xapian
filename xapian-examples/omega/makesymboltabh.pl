@@ -33,7 +33,7 @@ while (<>) {
       $ch =~ s/'/\\'/g;
       if (length $cache) {
          $cache =~ s/\\/\\\\/g;
-	 $cache =~ s/'/\'/g;
+	 $cache =~ s/'/\\'/g;
       }
       
       my $out = "case $uni: ch = '$ch'; ";

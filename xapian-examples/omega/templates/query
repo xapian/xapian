@@ -71,7 +71,7 @@ Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>
 $percentage% relevant, matching:
 <i>$list{$html{$terms},$. ,</i> and <i>}</i></small></TD></TR>}
 </table>
-${$map{$range{1,$pagemax},<INPUT TYPE=submit NAME="[" VALUE=,>}}
+${$map{$range{1,$lastpage},<INPUT TYPE=submit NAME="[" VALUE=,>}}
 <br>
 $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;"
 SRC="http://www.euroferret.com/fx-gif/previous.gif" BORDER=0 HEIGHT=56
