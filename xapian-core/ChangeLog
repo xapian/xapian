@@ -1,3 +1,7 @@
+Tue Jan 16 17:08:47 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a typo in -ldl detection
+
 Tue Jan 16 15:15:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove OmNeedRecoveryError, and quartz's quartz_perform_recovery
