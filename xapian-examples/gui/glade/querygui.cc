@@ -138,8 +138,8 @@ static void do_resultdisplay(gint row) {
     try {
 	om_docid did = mset.items[row].did;
 	
-	auto_ptr<const OmDocument> doc(enquire->get_doc(mset.items[row]));
-	string fulltext = doc->get_data().value;
+	OmDocument doc(enquire->get_doc(mset.items[row]));
+	string fulltext = doc.get_data().value;
 	
 	string score = inttostring(mset.convert_to_percent(mset.items[row]));
 

@@ -217,8 +217,8 @@ main(int argc, char *argv[])
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {
-		auto_ptr<const OmDocument> doc(enquire.get_doc(*i));
-		string p = doc->get_data().value;
+		OmDocument doc(enquire.get_doc(*i));
+		string p = doc.get_data().value;
 		cout << i->did << ":[" << p << "] " << i->wt << endl << endl;
 	    }
 	    cout << endl;
