@@ -734,8 +734,8 @@ bool test_matchfunctor1()
     OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
 
     for (unsigned int i=0; i<mymset.items.size(); ++i) {
-	auto_ptr<const OmDocument> doc(enquire.get_doc(mymset.items[i]));
-        if (!myfunctor(doc.get())) {
+	const OmDocument doc(enquire.get_doc(mymset.items[i]));
+        if (!myfunctor(&doc)) {
 	    success = false;
 	    break;
 	}
