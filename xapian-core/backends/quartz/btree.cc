@@ -673,7 +673,9 @@ Btree::split_root(uint4 split_n)
 
     /* check level overflow - this isn't something that should ever happen
      * but deserves more than an Assert()... */
-    if (level == BTREE_CURSOR_LEVELS) abort();
+    if (level == BTREE_CURSOR_LEVELS) {
+	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("STRINGIZE(BTREE_CURSOR_LEVELS)" levels)");
+    }
 
     byte * q = zeroed_new(block_size);
     if (q == 0) {
@@ -723,8 +725,10 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
 	i = newkey_len;
     }
 
-    // FIXME: abort not good - better than buffer overrun though
-    if (I2 + i + C2 + 4 > (int)result_len) abort();
+    // FIXME: Not ideal - better than buffer overrun though
+    if (I2 + i + C2 + 4 > (int)result_len) {
+	throw Xapian::DatabaseCorruptError("make_index_item: key would have overflowed buffer");
+    }
 
     SETI(result, 0, I2 + i + C2 + 4); // Set item length
     SETK(result, I2, i + C2);    // Set key length
@@ -968,21 +972,20 @@ Btree::delete_item(int j, bool repeatedly)
 	    delete_item(j + 1, true);
 	}
     } else {
-	/* j == B->level */
-	while (dir_end == DIR_START + D2 && j > 0) {
+	Assert(j == level);
+	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
 	    uint4 new_root = block_given_by(p, DIR_START);
 	    delete [] p;
-	    C[j].p = 0;
-	    base.free_block(C[j].n);
-	    C[j].rewrite = false;
-	    C[j].n = BLK_UNUSED;
+	    C[level].p = 0;
+	    base.free_block(C[level].n);
+	    C[level].rewrite = false;
+	    C[level].n = BLK_UNUSED;
 	    level--;
 
 	    block_to_cursor(C, level, new_root);
 
-	    j--;
-	    p = C[j].p;
+	    p = C[level].p;
 	    dir_end = DIR_END(p); /* prepare for the loop */
 	}
     }

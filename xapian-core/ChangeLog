@@ -1,3 +1,8 @@
+Mon Jun 21 03:25:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Eliminated two calls to abort() - throw
+	  exceptions instead.
+
 Mon Jun 21 03:21:14 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Finish backing out incorrect
