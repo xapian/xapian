@@ -167,12 +167,17 @@ Key: pack_uint(did) + tname
 <p>
 </li><li>
 <b>PostList</b>.
-This stores the list of documents in which each term appears.
+This stores the list of documents in which each term appears.  Each entry
+in the table is a chunk of entries in the posting list for the term.
+<p>
+Key: pack_string_preserving_sort(tname) [first chunk]
+<br>
+Key: pack_string_preserving_sort(tname) + pack_uint_preserving_sort(first_did_in_chunk) [second and subsequent chunks]
 <p>
 </li>
 </ul>
 
-<h2>Representation of integers, strings, etc.</h2>
+<h2>Representation of integers, strings, etc</h2>
 
 It is well known that in modern computers there are many, many CPU cycles
 for each disk read, or even memory read.  It is therefore important to
@@ -214,7 +219,7 @@ names are compressed by storing differences between consecutive terms.
 </li>
 </ul>
 
-<h2>PostLists and chunks.</h2>
+<h2>PostLists and chunks</h2>
 
 Posting lists can grow to be very large - some terms occur in a very large
 proportion of the documents, and their posting lists can represent a
@@ -235,8 +240,8 @@ allows the cursor methods to be used to scan through the chunks in order,
 and also to jump to the chunk containing a particular document ID.
 
 <p>
-It is quite possible that data in other tables (eg, termlist and possibly
-position lists) would benefit from being split into chunks in this way.
+It is quite possible that the termlists and 
+position lists would benefit from being split into chunks in this way.
 
 <h2>Btree implementation</h2>
 
@@ -315,9 +320,6 @@ the table - one for reading and one for writing.  This is simply
 because the interface for writing a table is more limited than that
 for reading a table (in particular, cursor operations are not
 available).
-<p>
-(Note: the current temporary implementation of quartz tables doesn't
-use two handles.  It doesn't implement Cursor operations yet either.)
 
 <h2>Applying changes to all the tables simultaneously</h2>
 
