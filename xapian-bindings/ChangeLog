@@ -1,3 +1,7 @@
+Tue Feb 22 01:38:14 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to 0.8.5.1 and fix version check.
+
 Mon Feb 21 20:17:07 GMT 2005  Olly Betts <olly@survex.com>
 
 	* COPYING: This code is under the GPL (except the Java bindings which
