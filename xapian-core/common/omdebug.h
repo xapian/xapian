@@ -148,14 +148,9 @@ class OmDebug {
 
 extern OmDebug om_debug;
 
-
+/** Display a debugging message, if it is of a desired type. */
 // Don't bracket b, because it may have <<'s in it
-// Don't use the sentry, because it causes to much difficulty (can't call
-// a debug msg from within a debug msg.
-// FIXME:  Would prefer to send output to a string first, and then to lock
-// and write it to output.
 #define DEBUGMSG(a,b) { \
-    /*OmLockSentry sentry(*(om_debug.get_mutex()));*/ \
     if(om_debug.want_type(OM_DEBUG_##a)) { \
 	om_ostringstream os; \
 	os << b; \
@@ -163,9 +158,6 @@ extern OmDebug om_debug;
 	om_debug << OM_DEBUG_##a << os.str(); \
     } \
 }
-#else
-#define DEBUGMSG(a,b)
-#endif
 
 #ifdef HAVE_LIBPTHREAD
 #define THREAD_INFO " (Thread " << pthread_self() << ")"
@@ -174,6 +166,56 @@ extern OmDebug om_debug;
 #endif // HAVE_LIBPTHREAD
 
 #define DEBUGLINE(a,b) DEBUGMSG(a, "Om" THREAD_INFO ": " << b << endl)
+
+/** Class to manage printing a message at the start and end of a method call.
+ */
+class OmDebugApiCall {
+    private:
+	/** The name of the method being called. */
+        string methodname;
+
+	/** The return value. */
+        string returnval;
+    public:
+	/** Constructor: called at the beginning of the method. */
+        OmDebugApiCall(string methodname_, string params)
+		: methodname(methodname_) {
+	    DEBUGLINE(APICALL, "Calling " << methodname << "(" <<
+		      params << ")");
+	};
+
+	/** Optionally called to specify a return value. */
+        void setreturnval(string returnval_) { returnval = returnval_; }
+
+	/** Destructor: displays message indicating that method has returned */
+        ~OmDebugApiCall() {
+            DEBUGLINE(APICALL, methodname << "() returning " << returnval);
+        }
+};
+
+/** Display a message indicating that a method has been called, and another
+ *  message when the method ends.
+ */
+#define DEBUGAPICALL(a,b) \
+    om_ostringstream omdebugapicall_os; \
+    omdebugapicall_os << b; \
+    OmDebugApiCall omdebugapicall(a, omdebugapicall_os.str());
+
+/** Use in conjunction with DEBUGAPICALL - specify the value that the method
+ *  is going to return.
+ */
+#define DEBUGAPIRETURN(a) { \
+    om_ostringstream os; \
+    os << a; \
+    omdebugapicall.setreturnval(os.str()); \
+}
+
+#else /* MUS_DEBUG_VERBOSE */
+#define DEBUGMSG(a,b)
+#define DEBUGAPICALL(a,b)
+#define DEBUGAPIRETURN(a)
+#define DEBUGLINE(a,b)
+#endif /* MUS_DEBUG_VERBOSE */
 
 #define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 
