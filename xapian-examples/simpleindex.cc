@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,8 +85,11 @@ int main(int argc, char **argv)
     string para;
     while (true) {
 	string line;
-	if (cin.eof()) break;
-	getline(cin, line); 
+	if (cin.eof()) {
+	    if (para.empty()) break;
+	} else {
+	    getline(cin, line); 
+	}
 	if (line.empty()) {
 	    if (!para.empty()) {
 		try {

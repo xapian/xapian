@@ -1,3 +1,8 @@
+Thu Mar 18 23:14:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: We were ignoring the last paragraph if it had no
+	  trailing \n - fixed (bug#24).
+
 Fri Aug 08 01:39:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.3.
