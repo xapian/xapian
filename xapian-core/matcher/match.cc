@@ -25,6 +25,7 @@ class PLPCmpLt {
 };
 
 Match::Match(IRDatabase *database)
+	: rset(database)
 {
     DB = database;
     max_msize = 1000;
@@ -37,7 +38,7 @@ Match::add_term(termid id)
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
     if (id) {
-	q.push(DB->open_post_list(id));
+	q.push(DB->open_post_list(id, &rset));
     } else {
 	q.push(new EmptyPostList());
     }
@@ -67,7 +68,7 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	for (i = ids.begin(); i != ids.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
 	    termid id = *i;
-	    if (id) pq.push(DB->open_post_list(id));
+	    if (id) pq.push(DB->open_post_list(id, &rset));
 	}
 
 	// Build a tree balanced by the term frequencies
@@ -109,7 +110,7 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	    sorted.clear();
 	    break;
 	}
-	sorted.push_back(DB->open_post_list(id));
+	sorted.push_back(DB->open_post_list(id, &rset));
     }
     
     if (sorted.empty()) {

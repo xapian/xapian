@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 	    termname tname = database.term_id_to_name(tid);
 	    printf("tname is `%s'\n", tname.c_str());
 	    // posting list 122 141 142 174 ...
-	    postlist = database.open_post_list(tid);
+	    postlist = database.open_post_list(tid, NULL);
 	    printf("Termfreq: %d\n", postlist->get_termfreq());
 	    postlist->next(0.0);
 	    while(!postlist->at_end()) {

@@ -11,6 +11,7 @@
 class IRDocument;
 class DBPostList;
 class TermList;
+class RSet;
 
 class IRDatabase {
     protected:
@@ -37,7 +38,8 @@ class IRDatabase {
 	virtual doclength get_avlength() const = 0;
 
 	// Throws RangeError if termid invalid
-	virtual DBPostList * open_post_list(termid) const = 0;
+	//virtual DBPostList * open_post_list(termid, RSet * = NULL) const = 0;
+	virtual DBPostList * open_post_list(termid, RSet *) const = 0;
 
 	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;

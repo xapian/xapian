@@ -3,6 +3,7 @@
 
 #include "database.h"
 #include "postlist.h"
+#include "rset.h"
 
 #include <queue>
 #include <stack>
@@ -28,6 +29,7 @@ class Match {
 	stack<PostList *> q;
 
         PostList *merger;
+	RSet rset;
     
         bool recalculate_maxweight;
     public:

@@ -22,7 +22,7 @@ class SleepyPostList : public virtual DBPostList {
 		       docid *,
 		       doccount,
 		       termid tid,
-		       const RSet *rset = NULL);
+		       const RSet *rset);
     public:
 	~SleepyPostList();
 
@@ -152,7 +152,7 @@ class SleepyDatabase : public virtual IRDatabase {
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	DBPostList * open_post_list(termid id) const;
+	DBPostList * open_post_list(termid id, RSet *) const;
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 

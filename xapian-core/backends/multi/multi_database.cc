@@ -144,7 +144,7 @@ void MultiDatabase::close() {
 }
 
 DBPostList *
-MultiDatabase::open_post_list(termid tid) const {
+MultiDatabase::open_post_list(termid tid, RSet *rset) const {
     Assert(opened);
     Assert((used = true) == true);
 
@@ -158,7 +158,7 @@ MultiDatabase::open_post_list(termid tid) const {
     while(i != databases.end()) {
 	termid local_tid = (*i)->term_name_to_id(tname);
 	if(local_tid) {
-	    MultiPostListInternal pl((*i)->open_post_list(local_tid),
+	    MultiPostListInternal pl((*i)->open_post_list(local_tid, rset),
 				     offset, multiplier);
 	    pls.push_back(pl);
 	}
@@ -167,7 +167,7 @@ MultiDatabase::open_post_list(termid tid) const {
     }
     Assert(pls.begin() != pls.end());
     
-    DBPostList * newpl = new MultiPostList(root, pls, tid);
+    DBPostList * newpl = new MultiPostList(root, pls, tid, rset);
     return newpl;
 }
 

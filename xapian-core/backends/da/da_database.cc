@@ -145,7 +145,7 @@ DADatabase::close()
 }
 
 // Returns a new posting list, for the postings in this database for given term
-DBPostList * DADatabase::open_post_list(termid id) const
+DBPostList * DADatabase::open_post_list(termid id, RSet *rset) const
 {
     Assert(opened);
     Assert(id > 0 && id <= termvec.size());
@@ -157,7 +157,7 @@ DBPostList * DADatabase::open_post_list(termid id) const
 
     DBPostList * pl = new DAPostList(root, postlist,
 				     termvec[id - 1].get_ti()->freq,
-				     id);
+				     id, rset);
     return pl;
 }
 

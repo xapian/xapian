@@ -108,7 +108,7 @@ class TextfilePostList : public virtual DBPostList {
 			 const TextfileDatabase *,
 			 const TextfileTerm &,
 			 termid tid,
-			 const RSet *rset = NULL);
+			 const RSet *rset);
     public:
 	doccount get_termfreq() const;
 
@@ -186,7 +186,7 @@ class TextfileDatabase : public virtual IRDatabase,
 	doclength get_avlength() const;
 	doccount get_termfreq(termid) const;  // Number of docs indexed by term
 
-	DBPostList * open_post_list(termid) const;
+	DBPostList * open_post_list(termid, RSet *) const;
 	TermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
 

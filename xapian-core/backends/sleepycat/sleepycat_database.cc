@@ -176,7 +176,7 @@ void SleepyDatabase::close() {
 }
 
 DBPostList *
-SleepyDatabase::open_post_list(termid tid) const {
+SleepyDatabase::open_post_list(termid tid, RSet * rset) const {
     Assert(opened);
     Dbt key(&tid, sizeof(tid));
     Dbt data;
@@ -199,7 +199,7 @@ SleepyDatabase::open_post_list(termid tid) const {
     return new SleepyPostList(root,
 			      (docid *)data.get_data(),
 			      data.get_size() / sizeof(docid),
-			      tid);
+			      tid, rset);
 }
 
 TermList *

@@ -21,19 +21,23 @@ class IRWeight {
 	mutable doclength lenpart;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	void set_stats(const IRDatabase *root_new,
-		       doccount termfreq_new,
-		       termid tid_new,
-		       const RSet *rset_new = NULL) {
-	    root = root_new;
-	    termfreq = termfreq_new;
-	    tid = tid_new;
-	    rset = rset_new;
-	    initialised = true;
-	}
+	void set_stats(const IRDatabase *, doccount, termid, const RSet *);
 	void calc_termweight() const;
 	weight get_weight(doccount wdf, doclength len) const;
 	weight get_maxweight() const;
 };
+
+inline void
+IRWeight::set_stats(const IRDatabase *root_new,
+	  doccount termfreq_new,
+	  termid tid_new,
+	  const RSet *rset_new = NULL) {
+    // Can set stats several times ...
+    Assert(!weight_calculated);
+
+    tid = tid_new;
+    rset = rset_new;
+    initialised = true;
+}
 
 #endif /* _irweight_h_ */
