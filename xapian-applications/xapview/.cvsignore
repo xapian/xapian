@@ -12,3 +12,7 @@ config.status
 configure
 stamp-h1
 xapview
+stamp-h.in
+stamp-h
+libtool
+config.cache
