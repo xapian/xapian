@@ -1,3 +1,7 @@
+Fri Dec 15 12:56:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove begin_session() and end_session() from omindex.cc
+
 Wed Dec 13 15:36:28 GMT 2000 Olly Betts
 
 	* Updated to use OmMSet::operator[]().
