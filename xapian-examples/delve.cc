@@ -1,9 +1,9 @@
-/* delve.cc - Show the contents of a Xapian database in various ways
+/* delve.cc - Allow inspection of the contents of a Xapian database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,23 +43,36 @@ static void
 syntax(const char *progname)
 {
     cout << "Syntax: " << progname << " [<options>] <database>...\n"
-	"\t-r <recno>            for term list(s)\n"
-	"\t-t <term>             for posting list(s)\n"
-	"\t-t <term> -r <recno>  for position list(s)\n"
-	"\t-1                    output one list entry per line\n"
-	"\t-k                    output values for each document referred to\n"
-	"\t-d                    output document data for each document\n"
-	"\t-v                    extra info (wdf and len for postlist;\n"
-	"\t\t\t\twdf termfreq for termlist)\n";
+	"  -r <recno>            for term list(s)\n"
+	"  -t <term>             for posting list(s)\n"
+	"  -t <term> -r <recno>  for position list(s)\n"
+	"  -1                    output one list entry per line\n"
+	"  -k                    output values for each document referred to\n"
+	"  -d                    output document data for each document\n"
+	"  -v                    extra info (wdf and len for postlist;\n"
+	"                        wdf termfreq for termlist; number of terms for db)\n";
     exit(1);
 }
 
 static void
 show_db_stats(Database &db)
 {
-    // just display a few database stats
+    // Display a few database stats.
     cout << "number of documents = " << db.get_doccount() << endl;
     cout << "average document length = " << db.get_avlength() << endl;
+    if (verbose) {
+	// To find the number of terms, we have to count them!
+	// This will take a few seconds or minutes, so only do it if -v
+	// was specified.
+	termcount terms = 0;
+	TermIterator t = db.allterms_begin();
+	const TermIterator end = db.allterms_end();
+	while (t != end) {
+	    ++terms;
+	    ++t;
+	}
+	cout << "number of unique terms = " << terms << endl;
+    }
 }
 
 static void

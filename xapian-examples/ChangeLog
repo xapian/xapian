@@ -1,3 +1,7 @@
+Thu Apr 01 01:10:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* delve.cc: `delve -v DATABASE' now reports the number of terms.
+
 Thu Apr 01 01:09:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* quest.cc,simpleexpand.cc,simpleindex.cc,simplesearch.cc: Added
