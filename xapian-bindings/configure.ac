@@ -20,15 +20,22 @@ AC_PROG_LIBTOOL
 dnl Checks for programs.
 AC_PROG_CXX
 
+dnl Run tests using the C++ compiler.
+AC_LANG_CPLUSPLUS
+
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
-if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
+dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5
+case "$PACKAGE_VERSION" in
+"$XAPIAN_VERSION"|"$XAPIAN_VERSION".[0-9]*) ;;
+*)
     dnl 0.8.2 was the first version which set XAPIAN_VERSION
     AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
-fi
+    ;;
+esac
 
 SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags`"
 AC_SUBST(SWIG_FLAGS)
@@ -214,7 +221,7 @@ if test yes = "$GXX" ; then
   dnl Swig generated code gives lots of unused and uninitialized warnings.
   dnl They're non-harmful, so suppress them.
   SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
-  JAVA_CXXFLAGS="-Wall -W -Wunused"
+  JAVA_CXXFLAGS="-Wall -W -Wno-unused"
 fi
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)

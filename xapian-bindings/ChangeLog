@@ -1,3 +1,12 @@
+Mon Feb 21 20:11:36 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Run tests using the C++ compiler; Allow bindings
+	  version to have an extra "patchlevel", yet still match with
+	  corresponding xapian-core version (e.g. 0.8.5.1 and 0.8.5);
+	  Use "-Wno-unused" when compiling JNI C++ code to ignore harmless
+	  warnings in generated code (we were specially passing "-Wunused"
+	  which was a thinko I believe!)
+
 Mon Feb 21 20:08:56 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am,java/org/xapian/examples/Makefile.am: "make clean"
