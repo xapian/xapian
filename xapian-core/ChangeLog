@@ -1,3 +1,8 @@
+Sat Jun 24 03:11:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed need for om_debug object to be initialised, since it wasn't
+	  being on Solaris.
+
 Fri Jun 23 18:56:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed use of a static object to do string to type conversion

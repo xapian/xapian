@@ -36,45 +36,68 @@ OmDebug om_debug;
 #define OM_ENV_DEBUG_TYPES "OM_DEBUG_TYPES"
 
 OmDebug::OmDebug()
+	: output_initialised(false),
+	  types_initialised(false)
 {
-    out.rdbuf(cerr.rdbuf());
-
-    char * filename = getenv(OM_ENV_DEBUG_FILE);
-    if (filename != 0) {
-	{
-	    // FIXME: have to do this to get around compiler brokenness
-	    // in gcc version 2.95.2
-	    auto_ptr<std::ofstream> temp(new std::ofstream(filename));
-	    to = temp;
-	}
-	if (to.get() && *to) {
-	    out.rdbuf(to->rdbuf());
-	} else {
-	    out << "Can't open requested debug file `" <<
-		    string(filename) << "' using stderr." << endl << flush;
-	}
-    }
-    char * typestring = getenv(OM_ENV_DEBUG_TYPES);
-    if (typestring != 0) {
-	unsigned int types = atoi(typestring);
-	while (types != 0) {
-	    if(types & 1) {
-		unwanted_types.push_back(false);
-	    } else {
-		unwanted_types.push_back(true);
-	    }
-	    types = types >> 1;
-	}
-    }
+    open_output();
+    select_types();
 }
 
 OmDebug::~OmDebug()
 {
 }
 
+void
+OmDebug::open_output()
+{
+    if (!output_initialised) {
+	out.rdbuf(cerr.rdbuf());
+
+	char * filename = getenv(OM_ENV_DEBUG_FILE);
+	if (filename != 0) {
+	    {
+		// FIXME: have to do this to get around compiler brokenness
+		// in gcc version 2.95.2
+		auto_ptr<std::ofstream> temp(new std::ofstream(filename));
+		to = temp;
+	    }
+	    if (to.get() && *to) {
+		out.rdbuf(to->rdbuf());
+	    } else {
+		out << "Can't open requested debug file `" <<
+		string(filename) << "' using stderr." << endl << flush;
+	    }
+	}
+	output_initialised = true;
+    }
+}
+
+void
+OmDebug::select_types()
+{
+    if (!types_initialised) {
+	char * typestring = getenv(OM_ENV_DEBUG_TYPES);
+	if (typestring != 0) {
+	    unsigned int types = atoi(typestring);
+	    while (types != 0) {
+		if(types & 1) {
+		    unwanted_types.push_back(false);
+		} else {
+		    unwanted_types.push_back(true);
+		}
+		types = types >> 1;
+	    }
+	}
+	types_initialised = true;
+    }
+}
+
 bool
 OmDebug::want_type(enum om_debug_types type)
 {
+    open_output();
+    select_types();
+
     if (unwanted_types.size() == 0) {
 	return true;
     }

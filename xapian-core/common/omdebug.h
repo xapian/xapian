@@ -89,6 +89,18 @@ class OmDebug {
 	 */
 	vector<bool> unwanted_types;
 
+	/// Whether the output stream has been opened.
+	bool output_initialised;
+
+	/// Open the output stream (if it hasn't already been opened)
+	void open_output();
+
+	/// Whether the list of types wanted has been initialised.
+	bool types_initialised;
+
+	/// Initialise the list of types wanted.
+	void select_types();
+
 	/** File to send this output to.  If this is null, it'll go to
 	 *  stderr.
 	 */
