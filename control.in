@@ -18,7 +18,7 @@ Description: Xapian search engine interface for Python [dummy package]
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scaleable, and is capable of
+ simultaneous update and searching. It is highly scalable, and is capable of
  working with collections containing many millions of documents.
  .
  The Xapian python bindings provide an interface to the Xapian library from the
