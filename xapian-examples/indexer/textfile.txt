@@ -1,2 +1,0 @@
-This is an example of a text file with a few terms.  It's short enough
-for Xapian users to see what the example indexer does.
