@@ -152,37 +152,50 @@ inline bool DATermList::at_end() const
 class DATerm {
     friend class DADatabase;
     private:
-	DATerm(struct terminfo *ti_new, termname name_new, struct DAfile * DA_t_new = NULL) {
-	    if (ti_new) {
-		ti = *ti_new;
-	    } else {
-		ti.freq = 0;
-	    }
-	    name = name_new;
-	    DA_t = DA_t_new;
-	}
-        struct terminfo * get_ti() {
-	    if (ti.freq == 0) {
-		int len = name.length();
-		if(len > 255) abort();
-		byte * k = (byte *) malloc(len + 1);
-		if(k == NULL) throw OmError(strerror(ENOMEM));
-		k[0] = len + 1;
-		name.copy((char*)(k + 1), len);
+	DATerm(struct terminfo *, termname, struct DAfile * = NULL);
+        struct terminfo * get_ti();
 
-		int found = DAterm(k, &ti, DA_t);
-		free(k);
-
-		if(found == 0) abort();
-	    }
-	    return &ti;
-	}
+	bool terminfo_initialised;
         struct terminfo ti;
         struct DAfile * DA_t;
     public:
 	termname name;
 };
 
+inline
+DATerm::DATerm(struct terminfo *ti_new,
+	       termname name_new,
+	       struct DAfile * DA_t_new)
+	: terminfo_initialised(false)
+{
+    if (ti_new) {
+	ti = *ti_new;
+	terminfo_initialised = true;
+    }
+    name = name_new;
+    DA_t = DA_t_new;
+}
+
+inline struct terminfo *
+DATerm::get_ti()
+{
+    if (!terminfo_initialised) {
+	cout << "Getting terminfo" << endl;
+	int len = name.length();
+	if(len > 255) abort();
+	byte * k = (byte *) malloc(len + 1);
+	if(k == NULL) throw OmError(strerror(ENOMEM));
+	k[0] = len + 1;
+	name.copy((char*)(k + 1), len);
+
+	int found = DAterm(k, &ti, DA_t);
+	free(k);
+
+	if(found == 0) abort();
+	terminfo_initialised = true;
+    }
+    return &ti;
+}
 
 class DADatabase : public virtual IRDatabase {
     friend class DATermList;
