@@ -21,4 +21,4 @@ html: simpleindex.cc.html simplesearch.cc.html
 		+"q" $<
 
 clean:
-	rm -f simpleindex simplesearch
+	rm -f simpleindex simplesearch simpleindex.cc.html simplesearch.cc.html
