@@ -239,7 +239,7 @@ MultiMatch::get_mset_2(PostList *pl,
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
-    om_doccount docs_considered = 0;
+    om_doccount docs_matched = 0;
     om_weight greatest_wt = 0;
     std::vector<OmMSetItem> items;
 
@@ -318,8 +318,6 @@ MultiMatch::get_mset_2(PostList *pl,
 
 	    if (pl->at_end()) break;
 	    
-	    docs_considered++;
-	    
 	    om_docid did = pl->get_docid();
 	    
 	    RefCntPtr<Document> doc;
@@ -380,7 +378,10 @@ MultiMatch::get_mset_2(PostList *pl,
 	    }
 	    
 	    // OK, actually add the item to the mset.
-	    if (pushback) items.push_back(new_item);
+	    if (pushback) {
+		items.push_back(new_item);
+		docs_matched++;
+	    }
 	    
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
@@ -420,8 +421,6 @@ MultiMatch::get_mset_2(PostList *pl,
 		DEBUGLINE(MATCH, "Reached end of potential matches");
 		break;
 	    }
-	    
-	    docs_considered++;
 	    
 	    om_docid did = pl->get_docid();
 	    om_weight wt = pl->get_weight();
@@ -491,7 +490,10 @@ MultiMatch::get_mset_2(PostList *pl,
 	    }
 	    
 	    // OK, actually add the item to the mset.
-	    if (pushback) items.push_back(new_item);
+	    if (pushback) {
+		items.push_back(new_item);
+		docs_matched++;
+	    }
 
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
@@ -548,7 +550,7 @@ MultiMatch::get_mset_2(PostList *pl,
 
     DEBUGLINE(MATCH,
 	      "msize = " << items.size() << ", " <<
-	      "docs_considered = " << docs_considered << ", " <<
+	      "docs_matched = " << docs_matched << ", " <<
 	      "matches_lower_bound = " << matches_lower_bound << ", " <<
 	      "matches_estimated = " << matches_estimated << ", " <<
 	      "matches_upper_bound = " << matches_upper_bound);
@@ -566,17 +568,17 @@ MultiMatch::get_mset_2(PostList *pl,
     Assert(matches_estimated >= matches_lower_bound);
     Assert(matches_estimated <= matches_upper_bound);
 
-    Assert(docs_considered <= matches_upper_bound);
-    if (docs_considered > matches_lower_bound)
-	matches_lower_bound = docs_considered;
-    if (docs_considered > matches_estimated)
-	matches_estimated = docs_considered;
+    Assert(docs_matched <= matches_upper_bound);
+    if (docs_matched > matches_lower_bound)
+	matches_lower_bound = docs_matched;
+    if (docs_matched > matches_estimated)
+	matches_estimated = docs_matched;
 
     if (items.size() < maxitems) {
-	Assert(docs_considered >= items.size() + first || items.size() == 0);
-	matches_lower_bound = docs_considered;
-	matches_upper_bound = docs_considered;
-	matches_estimated = docs_considered;
+	Assert(docs_matched >= items.size() + first || items.size() == 0);
+	matches_lower_bound = docs_matched;
+	matches_upper_bound = docs_matched;
+	matches_estimated = docs_matched;
     }
 
     mset = OmMSet(new OmMSet::Internal(first,

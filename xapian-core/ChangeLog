@@ -1,3 +1,11 @@
+Thu Jan 18 17:09:43 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix to btreetest.cc: shouldn't fail if test data files are not
+	  available.
+
+	* Fix to multimatch.cc: clamp hits values to number of documents
+	  matched after collapsing and match functors, rather than before.
+
 Thu Jan 18 14:13:21 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix error messages thrown by quartz when a database doesn't exist /

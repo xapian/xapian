@@ -26,6 +26,11 @@
 #include "testutils.h"
 #include <string>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+
 static std::string tmpdir;
 static std::string datadir;
 
@@ -127,12 +132,25 @@ static void do_create(const std::string & btree_dir, int block_size = 1024)
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 
+static bool
+file_exists(const std::string & filename)
+{
+    struct stat buf;
+    if (stat(filename.c_str(), &buf)) {
+	if (errno == ENOENT) return false;
+    }
+    return true;
+}
+
 /// Test making and playing with a QuartzBufferedTable
 static bool test_insertdelete1()
 {
     std::string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     do_check(btree_dir, "v");
+
+    if (!file_exists(datadir + "+ord") ||
+	!file_exists(datadir + "-ord")) SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "+ord");
     do_check(btree_dir, "v");
