@@ -558,4 +558,10 @@ Move "min_hits" into matcher?
 Look at reworking StatsGatherer mechanism to be simpler and clearer.
 
 </todoitem>
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+
+Find paper about "illusion of control" that boolean operators give.  It's
+makes some good points which ought to be more widely aired.
+
+</todoitem>
 </todo>

@@ -1,3 +1,9 @@
+Tue Oct 01 13:34:24 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/: tweaked navigation links in index.html; converted bm25
+	  text document to HTML and linked it in; added todo entry to
+	  locate the "illusion of control" paper.
+
 Tue Oct 01 12:48:41 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: renamed intro.html to install.html, and userman.html to
