@@ -1,3 +1,7 @@
+Fri Aug 08 01:34:29 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with more tinderbox results.
+
 Wed Aug 06 16:27:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Noted that libtool 1.5 is the first version to actually
