@@ -1,3 +1,11 @@
+Tue Jun 17 17:54:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Read output from pstotext and pdftotext via pipes rather
+	  than temporary files to side-step the whole problem of secure
+	  temporary file creation; Use pdfinfo to get the title and keywords
+	  from when indexing a PDF; Safe filename escaping tweaked to not
+	  escape common safe punctuation.
+
 Tue Jun 17 17:50:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparse.h: Moved initialisation of named_ents out of

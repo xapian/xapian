@@ -38,6 +38,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include <xapian.h>
 
@@ -308,6 +309,72 @@ truncate_to_word(string & input, string::size_type maxlen)
     return output;
 }
 
+static string
+shell_protect(const string & file)
+{
+    string safefile = file;
+    string::size_type p = 0;
+    while (p < safefile.size()) {
+	// Exclude a few safe characters which are common in filenames
+	if (!isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
+	    safefile.insert(p, "\\");
+	    ++p;
+	}
+	++p;
+    }
+    return safefile;
+}
+
+static string
+file_to_string(const string &file)
+{
+    string out;
+    struct stat st;
+    int fd = open(file.c_str(), O_RDONLY);
+    if (fd >= 0) {
+	if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode)) {
+	    // Distinguish "empty file" from "failed to read file"
+	    if (st.st_size == 0) return " ";
+	    char *blk = (char*)malloc(st.st_size);
+	    if (blk) {
+		char *p = blk;
+		int len = st.st_size;
+		while (len) {
+		    int r = read(fd, p, len);
+		    if (r < 0) break;
+		    p += r;
+		    len -= r;
+		}
+		if (len == 0) out = string(blk, st.st_size);
+		free(blk);			
+	    }
+	}
+	close(fd);
+    }
+    return "";
+}
+
+static string
+stdout_to_string(const string &cmd)
+{
+    string out;
+    FILE * fh = popen(cmd.c_str(), "r");
+    if (fh == NULL) return out;
+    while (!feof(fh)) {
+	char buf[4096];
+	size_t len = fread(buf, 1, 4096, fh);
+	if (ferror(fh)) {
+	    (void)fclose(fh);
+	    return "";
+	}
+	out.append(buf, len);
+    }
+    if (fclose(fh) == -1) return "";
+    // Distinguish "no text extracted" from "extraction failed"
+    if (out.empty()) return " ";
+    return out;
+}
+
 static void
 index_file(const string &url, const string &mimetype, time_t last_mod)
 {
@@ -325,22 +392,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     }
 
     if (mimetype == "text/html") {
-	ifstream in(file.c_str());
-	if (!in) {
-	    cout << "can't open \"" << file << "\" - skipping\n";
+	string text = file_to_string(file);
+	if (!text.empty()) {
+	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
-	string text;
-	while (!in.eof()) {
-	    string line;
-	    getline(in, line);
-	    text += line + '\n';
-	}
-	in.close();
 	MyHtmlParser p;
 	p.parse_html(text);
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag\n";
+	    cout << "indexing disallowed by meta tag - skipping\n";
 	    return;
 	}
 	dump = p.dump;
@@ -348,75 +408,41 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	keywords = p.keywords;
 	sample = p.sample;
     } else if (mimetype == "text/plain") {
-	ifstream in(file.c_str());
-	if (!in) {
-	    cout << "can't open \"" << file << "\" - skipping\n";
+	dump = file_to_string(file);
+	if (!dump.empty()) {
+	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
-	while (!in.eof()) {
-	    string line;
-	    getline(in, line);
-	    dump += line + '\n';
-	}
-	in.close();	
     } else if (mimetype == "application/pdf") {
-	string safefile = file;
-	string::size_type p = 0;
-	while (p < safefile.size()) {
-	    if (!isalnum(safefile[p])) safefile.insert(p++, "\\");
-            p++;
-	}
-	string tmp = "/tmp/omindex.txt";
-	unlink(tmp.c_str());
-	string cmd = "pdftotext " + safefile + " " + tmp;
-	if (system(cmd.c_str()) != 0) {
-	    cout << "pdftotext failed to extract text from \"" << file << "\" - skipping\n";
+	string safefile = shell_protect(file);
+	string cmd = "pdftotext " + safefile + " -";
+	cout << "[" << cmd << "]" << endl;
+	dump = stdout_to_string(cmd);
+	if (dump.empty()) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-	ifstream in(tmp.c_str());
-	unlink(tmp.c_str());
-	if (!in) {
-	    cout << "pdftotext failed to extract text from \"" << file << "\" - skipping\n";
-	    return;
-	}
-	while (!in.eof()) {
-	    string line;
-	    getline(in, line);
-	    dump += line + '\n';
-	}
-	in.close();
+
+	title = stdout_to_string("pdfinfo " + safefile +
+				 "|sed 's/^Title: *//p;d'");
+	if (title == " ") title = "";
+
+	keywords = stdout_to_string("pdfinfo " + safefile +
+				    "|sed 's/^Keywords: *//p;d'");
+	if (keywords == " ") keywords = "";
     } else if (mimetype == "application/postscript") {
-	string safefile = file;
-	string::size_type p = 0;
-	while (p < safefile.size()) {
-	    if (!isalnum(safefile[p])) safefile.insert(p++, "\\");
-            p++;
-	}
-	string tmp = "/tmp/omindex.txt";
-	unlink(tmp.c_str());
-	string cmd = "pstotext -output " + tmp + ' ' + safefile;
-	if (system(cmd.c_str()) != 0) {
-	    cout << "pstotext failed to extract text from \"" << file << "\" - skipping\n";
+	string cmd = "pstotext " + shell_protect(file);
+	dump = stdout_to_string(cmd);
+	if (dump.empty()) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-	ifstream in(tmp.c_str());
-	unlink(tmp.c_str());
-	if (!in) {
-	    cout << "pstotext failed to extract text from \"" << file << "\" - skipping\n";
-	    return;
-	}
-	while (!in.eof()) {
-	    string line;
-	    getline(in, line);
-	    dump += line + '\n';
-	}
-	in.close();
     } else {
 	// Don't know how to index this
 	cout << "unknown MIME type - skipping\n";
 	return;
     }
-    Xapian::Stem stemmer("english");    
+    Xapian::Stem stemmer("english");
 
     // Produce a sample
     if (sample.empty()) {
