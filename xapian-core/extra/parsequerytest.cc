@@ -23,6 +23,9 @@
 #include "omparsequery.h"
 #include <strstream.h>
 
+#include <iostream>
+using std::cout;
+
 typedef struct {
     const char *query;
     const char *expect;

@@ -1,3 +1,7 @@
+Wed Nov 07 12:30:32 GMT 2001  Olly Betts <olly@survex.com>
+
+	* GCC 3 fixes.
+
 Tue Nov 06 11:16:42 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Matcher now calculates percentages like Omega does (or did as I'm
