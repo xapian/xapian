@@ -430,8 +430,9 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 void
 test_driver::usage()
 {
-    cout << "Usage: " << argv0 << " [-v] [-o] " << opt_help
+    cout << "Usage: " << argv0 << " [-v|--verbose] [-o|--abort-on-error] " << opt_help
          << "[TESTNAME]..." << endl;
+    cout << "       " << argv0 << " [-h|--help]" << endl;
     exit(1);
 }
 
@@ -502,6 +503,13 @@ test_driver::parse_command_line(int argc, char **argv)
 	col_reset = "\x1b[0m";
     }
 
+    struct option long_opts[] = {
+	{"verbose",		no_argument, 0, 'v'},
+	{"abort-on-error",	no_argument, 0, 'o'},
+	{"help",		no_argument, 0, 'h'},
+	{NULL,			0, 0, 0}
+    };
+
     string opts = "voh";
     map<int, string *>::const_iterator i;
     for (i = short_opts.begin(); i != short_opts.end(); ++i) {
@@ -510,7 +518,7 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 
     int c;
-    while ((c = getopt(argc, argv, opts.c_str())) != EOF) {
+    while ((c = getopt_long(argc, argv, opts.c_str(), long_opts, 0)) != EOF) {
 	switch (c) {
 	    case 'v':
 		verbose = true;

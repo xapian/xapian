@@ -1,3 +1,8 @@
+Mon Jul 14 23:32:15 BST 2003  Olly Betts <olly@survex.com>
+
+	* bin/quartzdump.cc,testsuite/testsuite.cc: Added long option support
+	  to quartzdump, and to the testsuite programs.
+
 Mon Jul 14 22:45:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Changed test exception1 to actually test

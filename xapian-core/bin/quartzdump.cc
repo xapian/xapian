@@ -66,8 +66,15 @@ main(int argc, char *argv[])
     bool use_endterm = false;
 
     bool syntax_error = false;
+
+    struct option long_opts[] = {
+	{"revision",	required_argument, 0, 'r'},
+	{"start-term",	required_argument, 0, 's'},
+	{"end-term",	required_argument, 0, 'e'},
+    };
+
     int c;
-    while ((c = getopt(argc, argv, "r:s:e:")) != EOF) {
+    while ((c = getopt_long(argc, argv, "r:s:e:", long_opts, 0)) != EOF) {
         switch (c) {
             case 'r':
 		revnum = atoi(optarg);
@@ -92,9 +99,9 @@ main(int argc, char *argv[])
 
     if (syntax_error || tables.empty()) {
 	cout << "Syntax: " << progname << " [<options>] <table>...\n"
-		"\t-r <revno>            Specify revision number to open\n"
-		"\t-s <start>            Start at term start\n"
-		"\t-e <end>              End at term end" << endl;
+		"  -r, --revision=REVNO    Specify revision number to open\n"
+		"  -s, --start-term=START  Start at term START\n"
+		"  -e, --end-term=END      End at term END" << endl;
 	exit(1);
     }
 
