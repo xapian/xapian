@@ -4,7 +4,6 @@ dnl Need autoconf 2.50 or later for many features
 AC_PREREQ(2.50)
 AC_INIT(xapian-core, 0.4.1-cvs)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE(xapian-core, 0.4.1-cvs)dnl remove args once we require am1.6
-AC_CONFIG_AUX_DIR(autoconf)
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AM_CONFIG_HEADER(config.h)

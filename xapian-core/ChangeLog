@@ -1,3 +1,7 @@
+Tue May 07 17:51:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* It's "m4_include", not "m4include".
+
 Tue May 07 17:52:36 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added autoconf/type_socklen_t macro.
