@@ -5,7 +5,9 @@ use strict;
 use cvssearch;
 
 my $cvsdata = &cvssearch::get_cvsdata();
+my $cvscompare = "./cvscompare.cgi";
 my $cvsquery = "./cvsquerydb";
+my $cvshuild = "./cvsbuilddb";
 my $cvsmap = "./cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
@@ -59,7 +61,7 @@ sub compare_index() {
         compare_root_index($roots[1]);
     } else {
         print start_html;
-        print "no packages have been built, please run ./cvsbuild -d \$CVSROOT packages... to build packages";
+        print "no packages have been built, please run $cvsbuild -d \$CVSROOT packages... to build packages";
         print end_html;
         exit(0);
     }
@@ -75,7 +77,7 @@ sub compare_root_index() {
     print "</head>\n";
     print "<body>\n";
 
-    print "<form action=./cvscompare.cgi>\n";
+    print "<form action=$cvscompare>\n";
     print "<b>Select Repository: </b>\n";
     print "<select name=root>\n";
     my %roots = read_cvs_roots();
@@ -107,7 +109,7 @@ sub compare_root_index() {
         my $pkg1 = $_;
         $pkg1 =~tr/\_/\//;
         print "<tr>\n";
-        print "<td $class[$i%2]><a href=\"./cvscompare.cgi?root=$root&pkg=$pkg1\">$pkg1</a></td>";
+        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg1\">$pkg1</a></td>";
         print "</tr>\n";
         $i++;
     }
@@ -153,7 +155,7 @@ sub compare_pkg_index {
     }
     close (OFFSET);
     
-    my $command = "./cvsquery-script $root $pkg ";
+    my $command = "$cvsquery $root $pkg ";
     for ($i = 1; $i <= $#filenames + 1; $i++) {
         $command = $command . " -a $i";
     }
@@ -195,7 +197,7 @@ sub compare_pkg_index {
     my $cvsroot = &cvssearch::read_cvsroot_dir($root, $cvsdata);
     print "<H1 align=center>$pkg1</H1>\n";
     print "<b>Up to ";
-    print "<a href=\"./cvscompare.cgi?root=$root\">[$cvsroot]</a>/\n";
+    print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
     print "</b><p>\n";
     print "Click on a file to display its revision history and to get a chance to display aligned diffs between consecutive revisions.\n";
     print "<HR NOSHADE>\n";
@@ -207,7 +209,7 @@ sub compare_pkg_index {
         $class[0] = "class=\"e\"";
         $class[1] = "class=\"o\"";
         print "<tr>\n";
-        print "<td $class[$i%2]><a href=\"./cvscompare.cgi?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
+        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
         print "<td $class[$i%2]>$versions[$i]</td>\n";
         print "<td $class[$i%2]>$comments[$i]</td>\n";
         print "</tr>\n";
@@ -298,8 +300,8 @@ sub compare_file_index {
         my $cvsroot = &cvssearch::read_cvsroot_dir($root, $cvsdata);
         print "<H1 align=\"center\">aligned diff outputs for <B>$filename</B></H1>\n";
         print "<b>Up to ";
-        print "<a href=\"./cvscompare.cgi?root=$root\">[$cvsroot]</a>/\n";
-        print "<a href=\"./cvscompare.cgi?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
+        print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
+        print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
         print "</b><p>\n";
         
         print "<HR NOSHADE>\n";
@@ -307,7 +309,7 @@ sub compare_file_index {
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
             print "<HR size=1 NOSHADE>\n";
-            print "<a href=\"./cvscompare.cgi?";
+            print "<a href=\"$cvscompare?";
             print "fileid=$fileid&";
             print "pkg=$pkg&";
             print "root=$root&";
@@ -317,7 +319,7 @@ sub compare_file_index {
         }
         $i = $#versions;
         print "<HR size=1 NOSHADE>\n";
-        print "<a href=\"./cvscompare.cgi?";
+        print "<a href=\"$cvscompare?";
         print "fileid=$fileid&";
         print "pkg=$pkg&";
         print "root=$root&";
