@@ -4,6 +4,8 @@
 #ifndef _irweight_h_
 #define _irweight_h_
 
+#include "omassert.h"
+
 class IRDatabase;
 class RSet;
 
