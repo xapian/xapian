@@ -20,8 +20,9 @@
  * -----END-LICENCE-----
  */
 
-#include <stdio.h>   /* stderr etc */
-#include <stdlib.h>  /* malloc, exit etc */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "3point6.h"
 #include "daread.h"
 
