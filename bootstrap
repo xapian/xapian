@@ -110,7 +110,7 @@ for d in $modules ; do
     fi
     echo "Configuring \`$d'"
     # Use a shared config.cache for speed
-    cd "$d" && "$srcdir/$d/configure" --cache-file="$here/config.cache" ${1+"$@"}
+    cd "$d" && "$srcdir/$d/configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
     cd "$here"
     dirs="$dirs $d"
   fi
