@@ -678,8 +678,16 @@ OmQueryInternal::initialise_from_vector(
 	case OM_MOP_NEAR:
 	case OM_MOP_PHRASE:
 	    break;
-	default:
-	    throw OmInvalidArgumentError("Vector query op must be AND, OR, NEAR, or PHRASE");
+	case OM_MOP_AND_NOT:
+	case OM_MOP_XOR:
+	case OM_MOP_AND_MAYBE:
+	case OM_MOP_FILTER:
+	    if ((qend - qbegin) != 2) {
+		throw OmInvalidArgumentError("AND_NOT, XOR, AND_MAYBE, FILTER must have exactly two subqueries.");
+	    }
+	    break;
+	case OM_MOP_LEAF:
+	    throw OmInvalidArgumentError("LEAF queries from vectors invalid");
     }
     // FIXME: if NEAR/PHRASE and window_ == 0 default to number of subqueries
     window = window_;

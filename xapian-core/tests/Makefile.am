@@ -27,14 +27,14 @@ THREADTESTS =
 endif
 
 ## Test programs to be run
-TESTS = $(THREADTESTS) apitest internaltest includetest $(PERLTESTS)
+TESTS = $(THREADTESTS) apitest internaltest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = $(THREADTESTS) apitest internaltest includetest stemtest
+check_PROGRAMS  = $(THREADTESTS) apitest internaltest stemtest
+
+check-local: includetest.o
 
 ## Sources:
-
-includetest_SOURCES = includetest.cc
 
 threadtest_SOURCES = threadtest.cc
 threadtest_LDADD = ../testsuite/libtest.la ../libomus.la

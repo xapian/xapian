@@ -76,7 +76,11 @@ enum om_debug_types {
     /** A debug message to report the calling of an API method.
      *  (The aim is that all API methods will produce such messages.)
      */
-    OM_DEBUG_APICALL
+    OM_DEBUG_APICALL,
+
+    /** A debug message to report exceptions being called.
+     */
+    OM_DEBUG_EXCEPTION
 };
 
 /** Class to manage verbose debugging output

@@ -44,8 +44,7 @@ class OmError {
     	/** Constructors are protected, since they can only
 	 *  be used by derived classes anyway.
 	 */
-        OmError(const std::string &msg_, const std::string &type_)
-		: msg(msg_), type(type_) {}
+        OmError(const std::string &msg_, const std::string &type_);
 	OmError(const OmError &copyme) : msg(copyme.msg), type(copyme.type) {}
     public:
 	/** Return a message describing the error.

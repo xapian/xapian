@@ -1,3 +1,13 @@
+Thu Jul  6 12:23:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The OmQuery constructors taking vector iterators now accept
+	  FILTER, XOR, etc. as long as there are exactly two subqueries.
+	
+	* OmError exceptions are now also part of the debug logs.  (With
+	  new tag OM_DEBUG_EXCEPTION)
+
+	* includetest is now only compiled, not linked and run.
+
 Thu Jul  6 10:55:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a problem stopping OmLineBuf from compiling.

@@ -94,7 +94,9 @@ class OmQuery {
 
 	/** A set of OmQuery's, merged together with specified operator.
 	 * (Takes begin and end iterators).
-	 * The only operators allowed are AND, OR, NEAR, and PHRASE */
+	 * If the operator is anything other than AND, OR, NEAR, and PHRASE,
+	 * then there must be exactly two subqueries.
+	 */
 	OmQuery(om_queryop op_,
 		const std::vector<OmQuery>::const_iterator qbegin,
 		const std::vector<OmQuery>::const_iterator qend,
