@@ -87,11 +87,11 @@ Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
 }
 
 Database
-Muscat36::open_da(const string &R, const string &T, const string &keys,
+Muscat36::open_da(const string &R, const string &T, const string &values,
 		  bool heavy_duty) {
     DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
-			keys << ", " << heavy_duty);
-    return Database(new DADatabase(R, T, keys, heavy_duty));
+			values << ", " << heavy_duty);
+    return Database(new DADatabase(R, T, values, heavy_duty));
 }
 
 Database
@@ -102,10 +102,10 @@ Muscat36::open_db(const string &DB, size_t cache_size) {
 }
 
 Database
-Muscat36::open_db(const string &DB, const string &keys, size_t cache_size) {
-    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << keys <<
+Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << values <<
 			", " << cache_size);
-    return Database(new DBDatabase(DB, keys, cache_size));
+    return Database(new DBDatabase(DB, values, cache_size));
 }
 #endif
 
