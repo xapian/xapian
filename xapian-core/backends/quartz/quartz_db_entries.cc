@@ -31,11 +31,7 @@ QuartzDbEntries::QuartzDbEntries()
 
 QuartzDbEntries::~QuartzDbEntries()
 {
-    std::map<QuartzDbKey, QuartzDbTag *>::iterator i;
-    for (i = entries.begin(); i != entries.end(); i++) {
-	delete (i->second);
-	i->second = 0;
-    }
+    clear();
 }
 
 QuartzDbTag *
@@ -84,6 +80,11 @@ QuartzDbEntries::forget_entry(const QuartzDbKey &key)
 void
 QuartzDbEntries::clear()
 {
+    std::map<QuartzDbKey, QuartzDbTag *>::iterator i;
+    for (i = entries.begin(); i != entries.end(); i++) {
+	delete (i->second);
+	i->second = 0;
+    }
     entries.clear();
 }
 

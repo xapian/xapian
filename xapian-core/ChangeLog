@@ -1,3 +1,7 @@
+Thu Sep 28 15:52:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed a silly memory leak in QuartzDbEntries.
+
 Wed Sep 27 19:30:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Almost added ability to add an empty document to a quartz database

@@ -58,6 +58,9 @@ QuartzDiffs::get_or_make_tag(const QuartzDbKey &key)
 
 	table->get_exact_entry(key, *tag);
 	changed_entries.set_tag(key, tag);
+	Assert(changed_entries.have_entry(key));
+	Assert(changed_entries.get_tag(key) == tagptr);
+	Assert(tag.get() == 0);
 
 	return tagptr;
     }
