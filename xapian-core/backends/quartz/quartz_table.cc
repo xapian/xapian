@@ -30,6 +30,7 @@
 #include <errno.h>
 #include "omdebug.h"
 
+#ifdef DEBUG_VERBOSE
 static std::string hex_encode(const std::string & input) {
     const char * table = "0123456789abcdef";
     std::string result;
@@ -46,6 +47,7 @@ static std::string hex_encode(const std::string & input) {
 
     return result;
 }
+#endif
 
 bool
 QuartzDiskCursor::find_entry(const QuartzDbKey &key)
@@ -77,7 +79,7 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     if (item == 0) throw std::bad_alloc();
 
     int err = cursor->get_key(item);
-    // FIXME: check for errors
+    (void)err; // FIXME: check for errors
 
     is_positioned = cursor->get_tag(item);
     // FIXME: check for errors
@@ -139,7 +141,7 @@ QuartzDiskCursor::prev()
 	int found = cursor->find_key(reinterpret_cast<const byte *>(
 				     current_key.value.data()),
 				     current_key.value.size());
-	// FIXME: check for errors
+	(void)found; // FIXME: check for errors
 	Assert(found);
     } else {
 	cursor->prev();
@@ -378,7 +380,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Assert(opened);
     Assert(!(key.value.empty()));
 
-    if (key.value.size() > btree_for_reading->max_key_len) return false;
+    if (int(key.value.size()) > btree_for_reading->max_key_len) return false;
 
     // FIXME: avoid having to create a cursor here.
     AutoPtr<Bcursor> cursor = Bcursor_create(btree_for_reading);
@@ -426,7 +428,7 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
     Assert(opened);
     if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    if (key.value.size() > btree_for_writing->max_key_len) {
+    if (int(key.value.size()) > btree_for_writing->max_key_len) {
 	throw OmInvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.value.size()) +
@@ -440,7 +442,7 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 	int result = Btree_delete(btree_for_writing,
 				  (byte *)(key.value.data()),
 				  key.value.size());
-	// FIXME: Check result
+	(void)result; // FIXME: Check result
     } else {
 	// add entry
 	int result = Btree_add(btree_for_writing,
@@ -448,7 +450,7 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 			       key.value.size(),
 			       (byte *)(tag->value.data()),
 			       tag->value.size());
-	// FIXME: Check result
+	(void)result; // FIXME: Check result
     }
 }
 

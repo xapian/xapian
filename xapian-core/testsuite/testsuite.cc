@@ -228,7 +228,7 @@ test_driver::runtest(const test_desc *test)
     bool success = true;
 
     // This is used to make a note of how many times we've run the test
-    int runcount = 0;
+    volatile int runcount = 0;
 
     while (true) {
 	runcount++;

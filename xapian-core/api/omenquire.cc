@@ -1059,7 +1059,6 @@ OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 
 	Document *doc = dbinternal->databases[dbnumber]->collect_document(realdid);
 	return OmDocument(new OmDocument::Internal(doc, db, item.did));
-
     } catch (OmError & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;

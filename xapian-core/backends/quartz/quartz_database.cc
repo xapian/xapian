@@ -148,7 +148,10 @@ QuartzDatabase::do_cancel_transaction()
 
 om_docid
 QuartzDatabase::do_add_document(const OmDocument & document)
-{ Assert(false); }
+{
+    Assert(false);
+    return 0;
+}
 
 void
 QuartzDatabase::do_delete_document(om_docid did)

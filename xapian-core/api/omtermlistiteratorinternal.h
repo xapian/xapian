@@ -182,6 +182,7 @@ class MapTermList : public TermList {
 	// Gets weighting info for current term
 	OmExpandBits get_weighting() const {
 	    Assert(false); // should never get called
+	    abort();
 	}
 	    
 	// Gets current termname

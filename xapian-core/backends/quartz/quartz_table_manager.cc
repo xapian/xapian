@@ -454,7 +454,9 @@ QuartzBufferedTableManager::get_database_write_lock()
 	    unlink(tempname.c_str());
 	    return;
 	} else {
+#ifdef MUS_DEBUG_VERBOSE
 	    int link_errno = errno;
+#endif
 	    struct stat statbuf;
 	    int statresult = fstat(tempfd, &statbuf);
 	    int fstat_errno = errno;

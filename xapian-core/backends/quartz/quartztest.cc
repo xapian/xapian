@@ -1855,6 +1855,7 @@ static bool test_overwrite1()
     return true;
 }
 
+#if 0 // FIXME - why isn't this used?
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_overwrite2()
 {
@@ -1960,6 +1961,7 @@ static bool test_overwrite2()
 
     return true;
 }
+#endif
 
 /// Test large bitmap files.
 static bool test_bitmap1()

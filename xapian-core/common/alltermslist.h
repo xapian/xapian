@@ -49,6 +49,7 @@ class AllTermsList : public TermList
         // Gets weighting info for current term
 	virtual OmExpandBits get_weighting() const {
 	    Assert(false); // should never get called
+	    abort();
 	}
 
 	// Gets current termname
@@ -57,6 +58,7 @@ class AllTermsList : public TermList
 	// Get wdf of current term
 	virtual om_termcount get_wdf() const {
 	    Assert(false);
+	    return 0;
 	}
 
 	// Get num of docs indexed by term

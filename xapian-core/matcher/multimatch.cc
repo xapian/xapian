@@ -371,7 +371,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Whether to perform collapse operation
     bool do_collapse = false;
     // Key to collapse on, if desired
-    om_keyno collapse_key;
+    om_keyno collapse_key = 0; // Initialise to shut up compiler warnings
     {
 	int val = opts.get_int("match_collapse_key", -1);
 	if (val >= 0) {

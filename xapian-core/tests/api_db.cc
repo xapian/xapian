@@ -1527,6 +1527,7 @@ static bool test_allterms1()
     return true;
 }
     
+#if 0 // FIXME: why isn't this used?
 // test that iterating through all terms in two databases works.
 static bool test_allterms2()
 {
@@ -1580,6 +1581,7 @@ static bool test_allterms2()
 
     return true;
 }
+#endif
 
 // test that skip_to sets at_end (regression test)
 static bool test_allterms3()

@@ -176,6 +176,7 @@ static bool test_tcpmatch1()
     return true;
 }
 
+#if 0
 // test a tcp match when the remote end dies
 static bool test_tcpdead1()
 {
@@ -248,6 +249,7 @@ static bool test_tcpdead1()
     FAIL_TEST("Client didn't get exception when server died");
     return false;
 }
+#endif
 
 // #######################################################################
 // # End of test cases.

@@ -63,7 +63,8 @@ class TermList : public RefCntBase
 
 	// Get num of docs indexed by term
 	virtual om_termcount get_collection_freq() const {
-	    Assert(0);
+	    Assert(false);
+	    return 0;
 	}
 
 	/** next() causes the TermList to move to the next term in the list.

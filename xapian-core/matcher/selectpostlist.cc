@@ -29,6 +29,7 @@ SelectPostList::next(om_weight w_min)
     DEBUGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
         PostList *p = source->next(w_min);
+	(void)p;
 	Assert(p == NULL); // AND should never prune
     } while (!source->at_end() && !test_doc());
     return NULL;
@@ -40,6 +41,7 @@ SelectPostList::skip_to(om_docid did, om_weight w_min)
     DEBUGCALL(MATCH, PostList *, "SelectPostList::skip_to", did << ", " << w_min);
     if (did > get_docid()) {
 	PostList *p = source->skip_to(did, w_min);
+	(void)p;
 	Assert(p == NULL); // AND should never prune
         if (!source->at_end() && !test_doc()) this->next(w_min);
     }

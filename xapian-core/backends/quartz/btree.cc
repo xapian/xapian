@@ -1176,7 +1176,8 @@ Btree::add(byte *key, int key_len,
             int m = tag_len == 0 ? 1 :        /* a null tag must be added in of course */
                     (tag_len - first_L + L - 1) / L + 1;
                                               /* there are m items to add */
-            int n;                            /* - and there will be n to delete */
+            int n = 0; /* initialise to shut off warning */
+					      /* - and there will be n to delete */
             int o = 0;                        /* offset into the tag */
             int residue = tag_len;            /* bytes of the tag remaining to add in */
             int replacement = false;          /* has there been a replacement ? */

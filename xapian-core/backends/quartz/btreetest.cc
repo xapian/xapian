@@ -169,7 +169,7 @@ static bool test_insertdelete1()
 /// try to pass the 2G boundry.  Should succeed if LFS is enabled
 static bool test_LFSinsertdelete1()
 {
-    bool LFSunlikely=sizeof(off_t)==4;
+    // FIXME: unused ?!? bool LFSunlikely=sizeof(off_t)==4;
 
     std::string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
