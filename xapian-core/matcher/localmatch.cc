@@ -87,7 +87,7 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 
 LocalMatch::LocalMatch(IRDatabase *database_)
 	: database(database_),
-	  statsleaf(),
+	  statssource(),
 	  min_weight_percent(-1),
 	  max_weight_needs_calc(true),
 	  query(0),
@@ -103,9 +103,9 @@ void
 LocalMatch::link_to_multi(StatsGatherer *gatherer)
 {
     Assert(!is_prepared);
-    statsleaf.connect_to_gatherer(gatherer);
-    statsleaf.my_collection_size_is(database->get_doccount());
-    statsleaf.my_average_length_is(database->get_avlength());
+    statssource.connect_to_gatherer(gatherer);
+    statssource.my_collection_size_is(database->get_doccount());
+    statssource.my_average_length_is(database->get_avlength());
 }
 
 LocalMatch::~LocalMatch()
@@ -121,7 +121,7 @@ LocalMatch::mk_postlist(const om_termname& tname, RSet * rset)
     if(rset) rset->will_want_termfreq(tname);
 
     IRWeight * wt = mk_weight(1, tname, rset);
-    statsleaf.my_termfreq_is(tname, pl->get_termfreq());
+    statssource.my_termfreq_is(tname, pl->get_termfreq());
     // Query size of 1 for now.  FIXME
     pl->set_termweight(wt);
     return pl;
@@ -144,7 +144,7 @@ LocalMatch::mk_weight(om_doclength querysize_,
     IRWeight * wt = IRWeight::create(wt_type);
     //IRWeight * wt = new TradWeight();
     weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(&statsleaf, querysize_, tname_, rset_);
+    wt->set_stats(&statssource, querysize_, tname_, rset_);
     return wt;
 }
 
@@ -470,7 +470,7 @@ LocalMatch::prepare_match()
 	Assert(query != 0);
 
 	DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
-	statsleaf.contrib_my_stats();
+	statssource.contrib_my_stats();
 
 	is_prepared = true;
     }

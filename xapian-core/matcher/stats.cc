@@ -31,7 +31,7 @@ StatsGatherer::contrib_stats(const Stats & extra_stats)
 }
 
 const Stats *
-StatsGatherer::get_stats() const
+LocalStatsGatherer::get_stats() const
 {
     if(!have_gathered) {
 	// FIXME: gather here (ie, wait for all subdatabases to contribute,
@@ -43,14 +43,14 @@ StatsGatherer::get_stats() const
 }
 
 void
-StatsLeaf::perform_request() const
+StatsSource::perform_request() const
 {
     Assert(total_stats == 0);
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);
 
 #ifdef MUS_DEBUG_VERBOSE
-    DebugMsg("StatsLeaf::perform_request(): stats are:" << endl);
+    DebugMsg("StatsSource::perform_request(): stats are:" << endl);
     DebugMsg("  collection_size = " << total_stats->collection_size << endl);
     DebugMsg("  rset_size = "       << total_stats->rset_size << endl);
     DebugMsg("  average_length = "  << total_stats->average_length << endl);

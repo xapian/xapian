@@ -44,7 +44,7 @@ class MultiMatch
 	MultiDatabase *database;
 
 	/// stats gatherer
-	StatsGatherer gatherer;
+	auto_ptr<StatsGatherer> gatherer;
 
 	/// Saved RSet (so that it can delete it properly)
 	auto_ptr<RSet> rset;

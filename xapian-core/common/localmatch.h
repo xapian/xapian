@@ -54,7 +54,7 @@ class LocalMatch : public SingleMatch
 {
     private:
         IRDatabase *database;
-	StatsLeaf statsleaf;
+	StatsSource statssource;
 
         int min_weight_percent;
 

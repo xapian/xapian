@@ -35,7 +35,8 @@
 ////////////////////////////////////
 
 MultiMatch::MultiMatch(MultiDatabase *database_)
-	: database(database_)
+	: database(database_),
+	  gatherer(new LocalStatsGatherer())
 #ifdef MUS_DEBUG
 	, allow_add_singlematch(true)
 #endif /* MUS_DEBUG */
@@ -53,7 +54,7 @@ MultiMatch::MultiMatch(MultiDatabase *database_)
 	    smatch.release();
 
 	    // Link the SingleMatch object to the StatsGatherer
-	    temp->link_to_multi(&gatherer);
+	    temp->link_to_multi(gatherer.get());
 	}
     } catch (...) {
 	// clean up in case an exception happens above
@@ -110,7 +111,7 @@ MultiMatch::set_rset(auto_ptr<RSet> rset_)
 	(*i)->set_rset(rset.get());
     }
 
-    gatherer.set_global_stats(rset->get_rsize());
+    gatherer->set_global_stats(rset->get_rsize());
 }
 
 void

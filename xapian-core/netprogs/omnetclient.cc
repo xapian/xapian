@@ -263,7 +263,7 @@ void run_matcher(const char *filename) {
     param.paths.push_back(filename);
     auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 
-    StatsGatherer statgath;
+    LocalStatsGatherer statgath;
 
     LocalMatch singlematch(db.get());
     singlematch.link_to_multi(&statgath);

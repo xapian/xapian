@@ -28,7 +28,7 @@
 
 class IRDatabase;
 class RSet;
-class StatsLeaf;
+class StatsSource;
 
 /// Abstract base class for weighting schemes
 class IRWeight {
@@ -36,7 +36,7 @@ class IRWeight {
 	IRWeight(const IRWeight &);
 	void operator=(IRWeight &);
     protected:
-	const StatsLeaf *stats;
+	const StatsSource *stats;
 	
 	om_doclength querysize;
 	om_termname tname;
@@ -64,7 +64,7 @@ class IRWeight {
 	 *  @param tname_    Term which this object is associated with.
 	 *  @param rset_     Relevance set to use for calculating weights.
 	 */
-	virtual void set_stats(const StatsLeaf * stats_,
+	virtual void set_stats(const StatsSource * stats_,
 			       om_doclength querysize_,
 			       om_termname tname_,
 			       const RSet * rset_);
@@ -107,7 +107,7 @@ class IRWeight {
 ///////////////////////////////
 
 inline void
-IRWeight::set_stats(const StatsLeaf * stats_,
+IRWeight::set_stats(const StatsSource * stats_,
 		    om_doclength querysize_,
 		    om_termname tname_,
 		    const RSet * rset_ = NULL) {

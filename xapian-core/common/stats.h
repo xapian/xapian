@@ -61,7 +61,7 @@ class Stats {
  *  overall statistics to each sub-database.
  */
 class StatsGatherer {
-    private:
+    protected:
 	/** Flag to say that statistics have been gathered.
 	 *  Some entries in stats are only valid after this.
 	 *  Stats should also not be modified before this.
@@ -73,6 +73,7 @@ class StatsGatherer {
 	Stats total_stats;
     public:
 	StatsGatherer();
+	virtual ~StatsGatherer() {};
 
 	/** Set the global collection statistics.
 	 *  Should be called before the match is performed.
@@ -86,14 +87,21 @@ class StatsGatherer {
 
 	/** Get the collected statistics for the whole collection.
 	 */
-	const Stats * get_stats() const;
+	virtual const Stats * get_stats() const = 0;
 };
 
-/** Statistics leaf: gathers notifications of statistics which will be
+/** The top-level StatsGatherer.
+ */
+class LocalStatsGatherer : public StatsGatherer {
+    public:
+	const Stats *get_stats() const;
+};
+
+/** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk.  There is one of these for each
  *  LocalMatch.
  */
-class StatsLeaf {
+class StatsSource {
     private:
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.
@@ -115,8 +123,8 @@ class StatsLeaf {
 	 */
 	void perform_request() const;
     public:
-	/// Constructor: takes the gatherer to talk to.
-	StatsLeaf();
+	/// Constructor
+	StatsSource();
 
 	/// set up the parent gatherer
 	void connect_to_gatherer(StatsGatherer *gatherer_);
@@ -184,9 +192,9 @@ class StatsLeaf {
 	om_doccount get_total_reltermfreq(const om_termname & tname) const;
 };
 
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
+/////////////////////////////////////////
+// Inline method definitions for Stats //
+/////////////////////////////////////////
 
 inline Stats &
 Stats::operator +=(const Stats & inc)
@@ -217,9 +225,9 @@ Stats::operator +=(const Stats & inc)
     return *this;
 }
 
-
-
-
+/////////////////////////////////////////////////
+// Inline method definitions for StatsGatherer //
+/////////////////////////////////////////////////
 
 inline
 StatsGatherer::StatsGatherer()
@@ -232,44 +240,44 @@ StatsGatherer::set_global_stats(om_doccount rset_size)
     total_stats.rset_size = rset_size;
 }
 
-
-
-
+///////////////////////////////////////////////
+// Inline method definitions for StatsSource //
+///////////////////////////////////////////////
 
 inline
-StatsLeaf::StatsLeaf()
+StatsSource::StatsSource()
 	: gatherer(0), total_stats(0)
 {
 }
 
 inline void
-StatsLeaf::connect_to_gatherer(StatsGatherer *gatherer_)
+StatsSource::connect_to_gatherer(StatsGatherer *gatherer_)
 {
     gatherer = gatherer_;
 }
 
 inline void
-StatsLeaf::contrib_my_stats()
+StatsSource::contrib_my_stats()
 {
     gatherer->contrib_stats(my_stats);
 }
 
 inline void
-StatsLeaf::my_collection_size_is(om_doccount csize)
+StatsSource::my_collection_size_is(om_doccount csize)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
 }
 
 inline void
-StatsLeaf::my_average_length_is(om_doclength avlen)
+StatsSource::my_average_length_is(om_doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.average_length = avlen;
 }
 
 inline void
-StatsLeaf::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
+StatsSource::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
     Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end());
@@ -277,7 +285,7 @@ StatsLeaf::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 }
 
 inline void
-StatsLeaf::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
+StatsSource::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 {   
     Assert(total_stats == 0);
     Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end());
@@ -285,28 +293,28 @@ StatsLeaf::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 }
 
 inline om_doccount
-StatsLeaf::get_total_collection_size() const
+StatsSource::get_total_collection_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->collection_size;
 }
 
 inline om_doccount
-StatsLeaf::get_total_rset_size() const
+StatsSource::get_total_rset_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->rset_size;
 }
 
 inline om_doclength
-StatsLeaf::get_total_average_length() const
+StatsSource::get_total_average_length() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->average_length;
 }
 
 inline om_doccount
-StatsLeaf::get_total_termfreq(const om_termname & tname) const
+StatsSource::get_total_termfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
 
@@ -321,7 +329,7 @@ StatsLeaf::get_total_termfreq(const om_termname & tname) const
 }
 
 inline om_doccount
-StatsLeaf::get_total_reltermfreq(const om_termname & tname) const
+StatsSource::get_total_reltermfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
     map<om_termname, om_doccount>::const_iterator rtfreq;
