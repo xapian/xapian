@@ -144,8 +144,8 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 // Methods for OmEnquireInternal //
 ///////////////////////////////////
 
-OmEnquireInternal::OmEnquireInternal(const OmDatabase &db)
-	: database(0), dbdesc(db), query(0)
+OmEnquireInternal::OmEnquireInternal(const OmDatabaseGroup &databases)
+	: database(0), dbdesc(databases), query(0)
 {
 }
 
@@ -439,9 +439,9 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 // Initialise and delete OmEnquire object //
 ////////////////////////////////////////////
 
-OmEnquire::OmEnquire(const OmDatabase &db)
+OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
 {
-    internal = new OmEnquireInternal(db);
+    internal = new OmEnquireInternal(databases);
 }
 
 OmEnquire::~OmEnquire()

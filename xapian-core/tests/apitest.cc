@@ -322,7 +322,7 @@ bool test_zerodocid_inmemory()
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_onedoc.txt");
 
-    OmDatabase mydb;
+    OmDatabaseGroup mydb;
     mydb.add_database("inmemory", dbargs);
     OmEnquire enquire(mydb);
 
@@ -345,9 +345,9 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
-OmDatabase get_simple_database()
+OmDatabaseGroup get_simple_database()
 {
-    OmDatabase mydb;
+    OmDatabaseGroup mydb;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_simpledata.txt");
     mydb.add_database("inmemory", dbargs);
@@ -449,14 +449,14 @@ bool test_simplequery3()
 bool test_multidb1()
 {
     bool success = true;
-    OmDatabase mydb1;
+    OmDatabaseGroup mydb1;
     vector<string> dbargs1;
     dbargs1.push_back(datadir + "/apitest_simpledata.txt");
     dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
     mydb1.add_database("inmemory", dbargs1);
     OmEnquire enquire1(mydb1);
 
-    OmDatabase mydb2;
+    OmDatabaseGroup mydb2;
     vector<string> dbargs2;
     dbargs2.push_back(datadir + "/apitest_simpledata.txt");
     mydb2.add_database("inmemory", dbargs2);
@@ -497,14 +497,14 @@ bool test_multidb1()
 bool test_multidb2()
 {
     bool success = true;
-    OmDatabase mydb1;
+    OmDatabaseGroup mydb1;
     vector<string> dbargs1;
     dbargs1.push_back(datadir + "/apitest_simpledata.txt");
     dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
     mydb1.add_database("inmemory", dbargs1);
     OmEnquire enquire1(mydb1);
 
-    OmDatabase mydb2;
+    OmDatabaseGroup mydb2;
     vector<string> dbargs2;
     dbargs2.push_back(datadir + "/apitest_simpledata.txt");
     mydb2.add_database("inmemory", dbargs2);
@@ -1194,7 +1194,7 @@ bool test_getmterms1()
 	"four"
     };
 
-    OmDatabase mydb;
+    OmDatabaseGroup mydb;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_termorder.txt");
     mydb.add_database("inmemory", dbargs);
@@ -1260,7 +1260,7 @@ bool test_absentfile1()
     bool success = false;
 
     try {
-	OmDatabase mydb;
+	OmDatabaseGroup mydb;
 	vector<string> dbargs;
 	dbargs.push_back("/this_does_not_exist");
 	mydb.add_database("inmemory", dbargs);

@@ -1,3 +1,11 @@
+Tue Apr 11 19:18:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Backwards incompatible API CHANGE:
+	  OmDatabase renamed to OmDatabaseGroup, since this is what it is,
+	  and better to change it sooner than later.
+	  No work other than renaming the class should be neccessary to fix
+	  old code.
+
 Tue Apr 11 18:05:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Rework of indexer classes.  The indexer destination interface now

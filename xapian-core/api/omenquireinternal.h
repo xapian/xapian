@@ -48,12 +48,12 @@ class OmEnquireInternal {
 	 */
 	mutable MultiDatabase * database;
 
-	/** A copy of the OmDatabase object used to specify the database
+	/** A copy of the OmDatabaseGroup object used to specify the database
 	 *  or databases to be used.
 	 *
 	 *  This is set by the constructor.
 	 */
-	OmDatabase dbdesc;
+	OmDatabaseGroup dbdesc;
 	
 	/** The user's query.
 	 *  This may need to be mutable in future so that it can be
@@ -79,7 +79,7 @@ class OmEnquireInternal {
 	 */
 	void open_database() const;
     public:
-	OmEnquireInternal(const OmDatabase &db);
+	OmEnquireInternal(const OmDatabaseGroup &databases);
 	~OmEnquireInternal();
 
 	void set_query(const OmQuery & query_);

@@ -434,8 +434,8 @@ class OmESet {
 };
 
 ///////////////////////////////////////////////////////////////////
-// OmDatabase class
-// ================
+// OmDatabaseGroup class
+// =====================
 
 /** This class encapsulates a set of databases.
  *
@@ -447,17 +447,17 @@ class OmESet {
  *  @exception OmOpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
-class OmDatabase {
+class OmDatabaseGroup {
     private:
 	friend class OmEnquireInternal;
 	class Internal;
 	Internal *internal;
 
     public:
-	OmDatabase();
-	~OmDatabase();
-	OmDatabase(const OmDatabase &other);
-	void operator=(const OmDatabase &other);
+	OmDatabaseGroup();
+	~OmDatabaseGroup();
+	OmDatabaseGroup(const OmDatabaseGroup &other);
+	void operator=(const OmDatabaseGroup &other);
 
 	/** Add a new database to use.
 	 *
@@ -516,7 +516,7 @@ class OmEnquire {
 	 *  @param database Specification of the database or databases to
 	 *         use.
 	 */
-        OmEnquire(const OmDatabase &database);
+        OmEnquire(const OmDatabaseGroup &databases);
 
 	/** Close the OmEnquire object.
 	 *
@@ -721,7 +721,7 @@ class OmBatchEnquire {
 	OmBatchEnquire(const OmBatchEnquire &);
 	void operator=(const OmBatchEnquire &);
     public:
-        OmBatchEnquire(const OmDatabase &db);
+        OmBatchEnquire(const OmDatabaseGroup &databases);
         ~OmBatchEnquire();
 
 	/** This class stores a set of queries to be performed as a batch.

@@ -1,4 +1,4 @@
-/* omdatabaseinternal.h: Class definition for OmDatabase::Internal
+/* omdatabaseinternal.h: Class definition for OmDatabaseGroup::Internal
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -29,10 +29,10 @@
 #include "omlocks.h"
 #include "database_builder.h"
 
-/////////////////////////////////
-// Internals of OmDatabase     //
-/////////////////////////////////
-class OmDatabase::Internal {
+//////////////////////////////////
+// Internals of OmDatabaseGroup //
+//////////////////////////////////
+class OmDatabaseGroup::Internal {
     public:
 	Internal() {}
 	Internal(const Internal &other)

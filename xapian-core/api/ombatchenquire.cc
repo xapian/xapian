@@ -41,8 +41,8 @@ class OmBatchEnquire::Internal {
 	// pthread mutexes, if available.
 	OmLock mutex;
     public:
-	Internal(const OmDatabase &db)
-		: enquire(db), mutex() {};
+	Internal(const OmDatabaseGroup &databases)
+		: enquire(databases), mutex() {};
 	~Internal() {};
 
 	void set_queries(const query_batch &queries_);
@@ -58,10 +58,10 @@ class OmBatchEnquire::Internal {
 // OmBatchEnquire methods //
 ////////////////////////////
 
-OmBatchEnquire::OmBatchEnquire(const OmDatabase &db)
+OmBatchEnquire::OmBatchEnquire(const OmDatabaseGroup &databases)
 	: internal(0)
 {
-    internal = new Internal(db);
+    internal = new Internal(databases);
 }
 
 OmBatchEnquire::~OmBatchEnquire()

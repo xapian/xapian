@@ -20,18 +20,18 @@ operator<<(ostream &os, const OmMSet &mset)
 int main()
 {
     try {
-	OmDatabase db;
+	OmDatabaseGroup databases;
 	vector<string> params;
 	params.push_back("prog");
 	params.push_back("./omprogsrv");
 	params.push_back("text1.txt");
-	db.add_database("net", params);
+	databases.add_database("net", params);
 
 	params.pop_back();
 	params.push_back("text2.txt");
-	db.add_database("net", params);
+	databases.add_database("net", params);
 
-	OmEnquire enq(db);
+	OmEnquire enq(databases);
 
 	enq.set_query(OmQuery("word"));
 

@@ -41,7 +41,7 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 };
 
 void
-OmDatabase::Internal::add_database(const string & type,
+OmDatabaseGroup::Internal::add_database(const string & type,
 			const vector<string> & param)
 {
     // Convert type into an om_database_type
@@ -57,19 +57,19 @@ OmDatabase::Internal::add_database(const string & type,
     //add_database(params);
 }
 
-///////////////////////////
-// Methods of OmDatabase //
-///////////////////////////
+////////////////////////////////
+// Methods of OmDatabaseGroup //
+////////////////////////////////
 
-OmDatabase::OmDatabase() {
-    internal = new OmDatabase::Internal();
+OmDatabaseGroup::OmDatabaseGroup() {
+    internal = new OmDatabaseGroup::Internal();
 }
 
-OmDatabase::~OmDatabase() {
+OmDatabaseGroup::~OmDatabaseGroup() {
     delete internal;
 }
 
-OmDatabase::OmDatabase(const OmDatabase &other)
+OmDatabaseGroup::OmDatabaseGroup(const OmDatabaseGroup &other)
 	: internal(0)
 {
     OmLockSentry locksentry(other.internal->mutex);
@@ -77,7 +77,7 @@ OmDatabase::OmDatabase(const OmDatabase &other)
     internal = new Internal(*other.internal);
 }
 
-void OmDatabase::operator=(const OmDatabase &other)
+void OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 {
     // we get these locks in a defined order to avoid deadlock
     // should two threads try to assign two databases to each
@@ -92,7 +92,7 @@ void OmDatabase::operator=(const OmDatabase &other)
     delete newinternal;
 }
 
-void OmDatabase::add_database(const string &type,
+void OmDatabaseGroup::add_database(const string &type,
 			      const vector<string> &params)
 {
     OmLockSentry locksentry(internal->mutex);
