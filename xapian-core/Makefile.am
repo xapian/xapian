@@ -13,7 +13,7 @@ SUBDIRS = include testsuite autoconf common \
 	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
-             ar-wrapper-solaris
+             ar-wrapper-solaris genacinclude.sh
 
 if HAVE_PERL_XML
 dist-hook: todo_dist 
@@ -36,7 +36,7 @@ TODO: docs/todo2html.pl
 	@echo "Generating TODO"
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO
 
-acinclude.m4: @m4_files@ configure.in
+acinclude.m4: @m4_files@ configure.in genacinclude.sh
 	./genacinclude.sh @m4_files@
 
 # doesn't really work as we'd hope as we get to play with the mangled symbols
