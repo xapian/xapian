@@ -1,3 +1,7 @@
+Fri Apr 23 19:27:52 BST 2004  Richard Boulton <richard.boulton@omsee.com>
+
+	* (xapian-queryclient.php, xapian-queryserver.txt): Add to dist.
+
 Fri Apr 23 19:14:34 BST 2004  Richard Boulton <richard.boulton@omsee.com>
 
 	* Rename queryclient.php to xapian-queryclient.php, and add it to
