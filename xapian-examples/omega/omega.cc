@@ -1,3 +1,5 @@
+#include "main.h"
+
 int dlist[64];
 int n_dlist = 0;
 
@@ -36,7 +38,6 @@ extern char *sys_errlist[];
 #define MAXBQ 255
 
 #include "cgiparam.h"
-#include "main.h"
 #include "query.h"
 
 DADatabase database;
