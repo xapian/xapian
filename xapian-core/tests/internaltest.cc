@@ -337,7 +337,7 @@ bool test_sleepypack1()
     om_doccount termfreq = 92;
     om_termcount wdf = 81;
     om_doclength doclen = 75;
-    vector<om_termpos> positions;
+    std::vector<om_termpos> positions;
     positions.push_back(6u);
     positions.push_back(16u);
 
@@ -378,13 +378,7 @@ bool test_sleepypack1()
     if(item1.positions != item2.positions) {
 	success = false;
 	if(verbose) {
-	    cout << "Unpacked items were not equal (positions '";
-	    copy(item1.positions.begin(), item1.positions.end(),
-		 ostream_iterator<om_termpos>(cout, " "));
-	    cout << "' and '";
-	    copy(item2.positions.begin(), item2.positions.end(),
-		 ostream_iterator<om_termpos>(cout, " "));
-	    cout << "')" << endl;
+	    cout << "Unpacked items were not equal" << endl;
 	}
     }
     if(item1.doclength != item2.doclength) {
