@@ -48,7 +48,7 @@ using std::ostream;
 #include "backendmanager.h"
 #include "utils.h"
 
-static void inline
+static void
 TEST_EXPECTED_DOCS(const OmMSet &A,
 		   om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
 		   om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
@@ -125,13 +125,13 @@ TEST_EXPECTED_DOCS(const OmMSet &A,
 }
 
 
-bool floats_are_equal_enough(double a, double b)
+static bool floats_are_equal_enough(double a, double b)
 {
     if (fabs(a - b) > 1E-5) return false;
     return true;
 }
 
-bool weights_are_equal_enough(double a, double b)
+static bool weights_are_equal_enough(double a, double b)
 {
     if (floats_are_equal_enough(a, b)) return true;
 
@@ -204,19 +204,19 @@ OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
 // # Tests start here
 
 // always succeeds
-bool test_trivial()
+static bool test_trivial()
 {
     return true;
 }
 
 // always fails (for testing the framework)
-bool test_alwaysfail()
+static bool test_alwaysfail()
 {
     return false;
 }
 
 // tests that the backend doesn't return zero docids
-bool test_zerodocid()
+static bool test_zerodocid()
 {
     bool success = true;
     // open the database (in this case a simple text file
@@ -271,7 +271,7 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 }
 
 // tests the document count for a simple query
-bool test_simplequery1()
+static bool test_simplequery1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
     TEST_EQUAL(mymset.items.size(), 2);
@@ -279,7 +279,7 @@ bool test_simplequery1()
 }
 
 // tests for the right documents and weights returned with simple query
-bool test_simplequery2()
+static bool test_simplequery2()
 {
     bool success = true;
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
@@ -298,7 +298,7 @@ bool test_simplequery2()
 }
 
 // tests for the right document count for another simple query
-bool test_simplequery3()
+static bool test_simplequery3()
 {
     bool success = true;
     // The search is for "thi" rather than "this" because
@@ -325,7 +325,7 @@ bool test_simplequery3()
 }
 
 // tests a query accross multiple databases
-bool test_multidb1()
+static bool test_multidb1()
 {
     bool success = true;
 
@@ -367,7 +367,7 @@ bool test_multidb1()
 
 // tests a query accross multiple databases with terms only
 // in one of the two databases
-bool test_multidb2()
+static bool test_multidb2()
 {
     bool success = true;
 
@@ -413,7 +413,7 @@ bool test_multidb2()
 
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
-bool test_changequery1()
+static bool test_changequery1()
 {
     bool success = true;
     // The search is for "thi" rather than "this" because
@@ -440,7 +440,7 @@ bool test_changequery1()
 }
 
 // tests that a null query throws an exception
-bool test_nullquery1()
+static bool test_nullquery1()
 {
     bool success = false;
     try {
@@ -453,7 +453,7 @@ bool test_nullquery1()
 
 // tests that when specifiying maxitems to get_mset, no more than
 // that are returned.
-bool test_msetmaxitems1()
+static bool test_msetmaxitems1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
     return (mymset.items.size() == 1);
@@ -461,7 +461,7 @@ bool test_msetmaxitems1()
 
 // tests that when specifiying maxitems to get_eset, no more than
 // that are returned.
-bool test_expandmaxitems1()
+static bool test_expandmaxitems1()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
@@ -480,7 +480,7 @@ bool test_expandmaxitems1()
 }
 
 // tests that a pure boolean query has all weights set to 1
-bool test_boolquery1()
+static bool test_boolquery1()
 {
     bool success = true;
     OmQuery myboolquery(OmQuery(OmQuery::OP_FILTER,
@@ -519,7 +519,7 @@ bool test_boolquery1()
 }
 
 // tests that get_mset() specifying "first" works as expected
-bool test_msetfirst1()
+static bool test_msetfirst1()
 {
     bool success = true;
 
@@ -533,7 +533,7 @@ bool test_msetfirst1()
 }
 
 // tests the converting-to-percent functions
-bool test_topercent1()
+static bool test_topercent1()
 {
     bool success = true;
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 20, 0);
@@ -577,7 +577,7 @@ class myExpandFunctor : public OmExpandDecider {
 };
 
 // tests the expand decision functor
-bool test_expandfunctor1()
+static bool test_expandfunctor1()
 {
     bool success = true;
 
@@ -667,7 +667,7 @@ class myMatchDecider : public OmMatchDecider {
 };
 
 // tests the match decision functor
-bool test_matchfunctor1()
+static bool test_matchfunctor1()
 {
     // FIXME: check that the functor works both ways.
     bool success = true;
@@ -699,7 +699,7 @@ void print_mset_percentages(const OmMSet &mset)
 }
 
 // tests the percent cutoff option
-bool test_pctcutoff1()
+static bool test_pctcutoff1()
 {
     bool success = true;
 
@@ -770,7 +770,7 @@ bool test_pctcutoff1()
 }
 
 // tests the allow query terms expand option
-bool test_allowqterms1()
+static bool test_allowqterms1()
 {
     bool success = true;
 
@@ -805,7 +805,7 @@ bool test_allowqterms1()
 }
 
 // tests that the MSet max_attained works
-bool test_maxattain1()
+static bool test_maxattain1()
 {
     bool success = true;
 
@@ -829,7 +829,7 @@ bool test_maxattain1()
 }
 
 // tests the collapse-on-key
-bool test_collapsekey1()
+static bool test_collapsekey1()
 {
     bool success = true;
 
@@ -888,7 +888,7 @@ bool test_collapsekey1()
 }
 
 // tests a reversed boolean query
-bool test_reversebool1()
+static bool test_reversebool1()
 {
     OmEnquire enquire(get_simple_database());
     OmQuery query("thi");
@@ -968,7 +968,7 @@ bool test_reversebool1()
 }
 
 // tests a reversed boolean query, where the full mset isn't returned
-bool test_reversebool2()
+static bool test_reversebool2()
 {
     OmEnquire enquire(get_simple_database());
     OmQuery query("thi");
@@ -1038,7 +1038,7 @@ bool test_reversebool2()
 }
 
 // tests that get_query_terms() returns the terms in the right order
-bool test_getqterms1()
+static bool test_getqterms1()
 {
     bool success;
 
@@ -1076,7 +1076,7 @@ bool test_getqterms1()
 }
 
 // tests that get_matching_terms() returns the terms in the right order
-bool test_getmterms1()
+static bool test_getmterms1()
 {
     bool success = true;
 
@@ -1131,7 +1131,7 @@ bool test_getmterms1()
 }
 
 // tests that building a query with boolean sub-queries throws an exception.
-bool test_boolsubq1()
+static bool test_boolsubq1()
 {
     bool success = false;
 
@@ -1150,7 +1150,7 @@ bool test_boolsubq1()
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-bool test_absentfile1()
+static bool test_absentfile1()
 {
     bool success = false;
 
@@ -1170,7 +1170,7 @@ bool test_absentfile1()
 }
 
 // tests that query lengths are calculated correctly
-bool test_querylen1()
+static bool test_querylen1()
 {
     // test that a null query has length 0
     bool success = (OmQuery().get_length()) == 0;
@@ -1179,7 +1179,7 @@ bool test_querylen1()
 }
 
 // tests that query lengths are calculated correctly
-bool test_querylen2()
+static bool test_querylen2()
 {
     // test that a simple query has the right length
     bool success = true;
@@ -1208,7 +1208,7 @@ bool test_querylen2()
 }
 
 // tests that query lengths are calculated correctly
-bool test_querylen3()
+static bool test_querylen3()
 {
     bool success = true;
 
@@ -1299,7 +1299,7 @@ bool test_querylen3()
 }
 
 // tests that the collapsing on termpos optimisation works
-bool test_poscollapse1()
+static bool test_poscollapse1()
 {
     OmQuery myquery1(OmQuery::OP_OR,
 		     OmQuery("thi", 1, 1),
@@ -1320,7 +1320,7 @@ bool test_poscollapse1()
 }
 
 // tests that the collapsing on termpos optimisation gives correct query length
-bool test_poscollapse2()
+static bool test_poscollapse2()
 {
     OmQuery q(OmQuery::OP_OR, OmQuery("thi", 1, 1), OmQuery("thi", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
@@ -1328,7 +1328,7 @@ bool test_poscollapse2()
 }
 
 // tests that collapsing of queries includes subqueries
-bool test_subqcollapse1()
+static bool test_subqcollapse1()
 {
     bool success = true;
 
@@ -1372,7 +1372,7 @@ bool test_subqcollapse1()
 }
 
 // test that the batch query functionality works
-bool test_batchquery1()
+static bool test_batchquery1()
 {
     bool success = true;
 
@@ -1435,7 +1435,7 @@ bool test_batchquery1()
 }
 
 // test that running a query twice returns the same results
-bool test_repeatquery1()
+static bool test_repeatquery1()
 {
     bool success = true;
 
@@ -1462,7 +1462,7 @@ bool test_repeatquery1()
 }
 
 // test that searching for a term not in the database fails nicely
-bool test_absentterm1()
+static bool test_absentterm1()
 {
     bool success = true;
 
@@ -1485,7 +1485,7 @@ bool test_absentterm1()
 }
 
 // as absentterm1, but setting query from a vector of terms
-bool test_absentterm2()
+static bool test_absentterm2()
 {
     bool success = true;
 
@@ -1510,7 +1510,7 @@ bool test_absentterm2()
 }
 
 // test behaviour when creating a query from an empty vector
-bool test_emptyquerypart1()
+static bool test_emptyquerypart1()
 {
     vector<om_termname> emptyterms;
     OmQuery query(OmQuery::OP_OR, emptyterms.begin(), emptyterms.end());
@@ -1518,7 +1518,7 @@ bool test_emptyquerypart1()
     return true;
 }
 
-bool test_stemlangs()
+static bool test_stemlangs()
 {
     vector<string> langs;
     langs = OmStem::get_available_languages();
@@ -1536,7 +1536,7 @@ bool test_stemlangs()
 }
 
 // test that a multidb with 2 dbs query returns correct docids
-bool test_multidb3()
+static bool test_multidb3()
 {
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
@@ -1557,7 +1557,7 @@ bool test_multidb3()
 }
 
 // test that a multidb with 3 dbs query returns correct docids
-bool test_multidb4()
+static bool test_multidb4()
 {
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
@@ -1579,7 +1579,7 @@ bool test_multidb4()
 }
 
 // test that rsets do sensible things
-bool test_rset1()
+static bool test_rset1()
 {
     bool success = true;
 
@@ -1616,7 +1616,7 @@ bool test_rset1()
 }
 
 // test that rsets do more sensible things
-bool test_rset2()
+static bool test_rset2()
 {
     bool success = true;
 
@@ -1651,7 +1651,7 @@ bool test_rset2()
 }
 
 // test that rsets behave correctly with multiDBs
-bool test_rsetmultidb1()
+static bool test_rsetmultidb1()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     OmDatabase mydb2(get_database("apitest_rset"));
@@ -1702,7 +1702,7 @@ bool test_rsetmultidb1()
 }
 
 // test that rsets behave correctly with multiDBs
-bool test_rsetmultidb2()
+static bool test_rsetmultidb2()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     OmDatabase mydb2(get_database("apitest_rset"));
@@ -1751,7 +1751,7 @@ bool test_rsetmultidb2()
 }
 
 /// Simple test of the match_max_or_terms option.
-bool test_maxorterms1()
+static bool test_maxorterms1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1788,7 +1788,7 @@ bool test_maxorterms1()
 
 /// Test the match_max_or_terms option works if the OR contains
 /// sub-expressions (regression test)
-bool test_maxorterms2()
+static bool test_maxorterms2()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1822,7 +1822,7 @@ bool test_maxorterms2()
 
 /// Test that max_or_terms doesn't affect query results if we have fewer
 /// terms than the threshold
-bool test_maxorterms3()
+static bool test_maxorterms3()
 {
     OmDatabase mydb1(get_database("apitest_simpledata"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -1870,7 +1870,7 @@ bool test_maxorterms3()
 }
 
 /// Test that the termfreq returned by termlists is correct.
-bool test_termlisttermfreq()
+static bool test_termlisttermfreq()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1910,7 +1910,7 @@ bool test_termlisttermfreq()
 }
 
 // tests an expand accross multiple databases
-bool test_multiexpand1()
+static bool test_multiexpand1()
 {
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -1961,7 +1961,7 @@ bool test_multiexpand1()
 }
 
 /// Simple test of NEAR
-bool test_near1()
+static bool test_near1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -2115,7 +2115,7 @@ bool test_near1()
 #if 0
 // This isn't implemented yet...
 /// Test NEAR over operators
-bool test_near2()
+static bool test_near2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -2154,7 +2154,7 @@ bool test_near2()
 #endif
 
 /// Simple test of PHRASE
-bool test_phrase1()
+static bool test_phrase1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -2360,7 +2360,7 @@ bool test_phrase1()
 #if 0
 // This isn't implemented yet...
 /// Test PHRASE over operators
-bool test_phrase2()
+static bool test_phrase2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -2412,7 +2412,7 @@ bool test_phrase2()
 #endif
 
 /// Test the termfrequency and termweight info returned for query terms
-bool test_qterminfo1()
+static bool test_qterminfo1()
 {
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -2470,7 +2470,7 @@ bool test_qterminfo1()
 
 // tests that when specifiying that no items are to be returned, those
 // statistics which should be the same are.
-bool test_msetzeroitems1()
+static bool test_msetzeroitems1()
 {
     OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 0);
     OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 1);
@@ -2481,7 +2481,7 @@ bool test_msetzeroitems1()
 }
 
 // test that the mbound of a simple query is as expected
-bool test_mbound1()
+static bool test_mbound1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
     TEST_EQUAL(mymset.mbound, 2);
@@ -2491,32 +2491,32 @@ bool test_mbound1()
 #define CHECK_BACKEND_UNKNOWN(BACKEND) do {\
     OmSettings p;\
     p.set("backend", (BACKEND));\
-    try { OmDatabase db(p); result = false; }\
+    try { OmDatabase db(p);\
+	FAIL_TEST("Backend `" << (BACKEND) << "' shouldn't be known but is"); }\
     catch (const OmInvalidArgumentError &e) { }\
-    catch (...) { result = false; } } while (0)
+    } while (0)
 
 #define CHECK_BACKEND_UNAVAILABLE(BACKEND) do {\
     OmSettings p;\
     p.set("backend", (BACKEND));\
-    try { OmDatabase db(p); result = false; }\
+    try { OmDatabase db(p);\
+	FAIL_TEST("Backend `" << (BACKEND) << "' shouldn't be available but is"); }\
     catch (const OmFeatureUnavailableError &e) { }\
-    catch (...) { result = false; } } while (0)
+    } while (0)
 
 // test that DatabaseBuilder throws correct error for a completely unknown
 // database backend, or if an empty string is passed for the backend
-bool test_badbackend1()
+static bool test_badbackend1()
 {
-    bool result = true;
     CHECK_BACKEND_UNKNOWN("shorterofbreathanotherdayclosertodeath");
     CHECK_BACKEND_UNKNOWN("");
-    return result;
+    return true;
 }
 
 // test that DatabaseBuilder throws correct error for any unavailable
 // database backends
-bool test_badbackend2()
+static bool test_badbackend2()
 {
-    bool result = true;
 #ifndef MUS_BUILD_BACKEND_INMEMORY
     CHECK_BACKEND_UNAVAILABLE("inmemory");
 #endif
@@ -2533,12 +2533,12 @@ bool test_badbackend2()
     CHECK_BACKEND_UNAVAILABLE("da");
     CHECK_BACKEND_UNAVAILABLE("db");
 #endif
-    return result;
+    return true;
 }
 
 // test that indexing a term more than once at the same position increases
 // the wdf
-bool test_adddoc1()
+static bool test_adddoc1()
 {
     OmWritableDatabase db = backendmanager.get_writable_database("");
 
@@ -2584,7 +2584,7 @@ bool test_adddoc1()
 }
 
 // tests that database destructors end_session if it isn't done explicitly
-bool test_implicitendsession()
+static bool test_implicitendsession()
 {
     try {
 	OmWritableDatabase db = backendmanager.get_writable_database("");
@@ -2609,7 +2609,7 @@ bool test_implicitendsession()
 }
 
 // tests that wqf affects the document weights
-bool test_wqf1()
+static bool test_wqf1()
 {
     // both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
     OmQuery q1("word", 2);
@@ -2622,7 +2622,7 @@ bool test_wqf1()
 }
 
 // tests that query length affects the document weights
-bool test_qlen1()
+static bool test_qlen1()
 {
     OmQuery q1("word");
     OmQuery q2("word");
