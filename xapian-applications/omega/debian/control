@@ -7,21 +7,27 @@ Standards-Version: 3.6.1
 
 Package: xapian-omega
 Section: web
-Architecture: all
+Architecture: any
 Depends: ${shlibs:Depends}
 Suggests: xapian-scriptindex
 Description: CGI interface to Xapian search engine
  This package contains the "omega" CGI application which provides a
  customisable web interface for searching Xapian databases.
  .
- The package also contains the "omindex" tool for indexing local webpages
+ The package also contains the "omindex" tool for indexing local documents
  into a Xapian database in a form suitable for searching with omega.
- .
- blurb
 
 Package: xapian-scriptindex
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}
+Recommends: libdbi-perl
 Description: Configurable indexer for Xapian search engine
- blurb
+ This package contains the "scriptindex" indexer, which takes a simple
+ text input format representing documents as a set of fields, together
+ with a configuration file specifying actions to be performed on each field,
+ and processes the documents into a Xapian database.
+ .
+ The package also contains the "dbi2omega" script, which dumps an SQL database
+ into a file of format suitable for processing by scriptindex.  This script
+ requires the libdbi-perl package.

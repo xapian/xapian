@@ -1,4 +1,3 @@
-usr/bin/dbi2omega
 usr/bin/omindex
 usr/lib/omega/bin/omega usr/lib/cgi-bin/omega
 usr/share/doc/omega/cgiparams* usr/share/doc/xapian-omega/
