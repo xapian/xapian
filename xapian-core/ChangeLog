@@ -1,3 +1,8 @@
+Sun Sep 05 01:54:49 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Removed now unused files_exist()
+	  function.
+
 Sun Sep 05 01:50:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc,tests/apitest.cc,tests/apitest.h,
@@ -59,7 +64,7 @@ Wed Sep 01 16:15:23 BST 2004  Olly Betts <olly@survex.com>
 Wed Sep 01 14:21:19 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Turn on previously commented-out code to
-	  make the first key null for blocks more than 1 away from the leaves.  
+	  make the first key null for blocks more than 1 away from the leaves.
 	  It saves disk space for a tiny CPU and RAM cost so is bound to be
 	  a win overall.
 

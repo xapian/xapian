@@ -129,15 +129,3 @@ file_exists(const string &fname)
     // exists && is a regular file
     return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
 }
-
-/** Return true if all the files fnames exist.
- */
-bool
-files_exist(const vector<string> &fnames)
-{
-    vector<string>::const_iterator i;
-    for (i = fnames.begin(); i != fnames.end(); ++i) {
-	if (!file_exists(*i)) return false;
-    }
-    return true;
-}

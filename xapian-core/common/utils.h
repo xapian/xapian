@@ -136,10 +136,6 @@ int map_string_to_value(const StringAndValue * haystack, const string & needle);
  */
 bool file_exists(const string &fname);
 
-/** Return true if all the files fnames exist.
- */
-bool files_exist(const vector<string> &fnames);
-
 /// Allow atoi to work directly on C++ strings.
 inline int atoi(const string &s) { return atoi(s.c_str()); }
 
