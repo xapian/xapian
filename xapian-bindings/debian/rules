@@ -76,6 +76,7 @@ debian/configure-stamp:
 	    cd build-python$$v; \
 	    ../configure $(commonconfflags) \
 	     --without-php --without-tcl --without-java --without-guile \
+	     --without-csharp \
 	     PYTHON=/usr/bin/python$$v; \
 	    cd ..; \
 	done
