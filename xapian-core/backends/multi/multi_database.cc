@@ -4,7 +4,7 @@
 
 #include "omassert.h"
 #include "multi_database.h"
-#include "database_factory.h"
+#include "database_builder.h"
 
 #include <string>
 #include <vector>
@@ -133,8 +133,8 @@ MultiDatabase::open(om_database_type type,
 		    bool readonly) {
     Assert(!used);
 
-    DatabaseFactory dbfact;
-    IRSingleDatabase *db = dbfact.make(type);
+    DatabaseBuilder dbbuild;
+    IRSingleDatabase *db = dbbuild.make(type);
 
     db->open(pathname, readonly);
     db->set_root(root);

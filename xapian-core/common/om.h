@@ -9,7 +9,7 @@
 
 /* Data access */
 #include "database.h"
-#include "database_factory.h"
+#include "database_builder.h"
 #include "irdocument.h"
 
 /* Searching */

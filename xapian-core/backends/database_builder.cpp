@@ -1,7 +1,7 @@
-/* database_factory.cc: Factory for creating databases */
+/* database_builder.cc: Builder for creating databases */
 
 #include "omassert.h"
-#include "database_factory.h"
+#include "database_builder.h"
 
 // Include headers for all the database types
 #include "da/da_database.h"
@@ -11,7 +11,7 @@
 #include "database.h"
 
 IRSingleDatabase *
-DatabaseFactory::make(om_database_type type)
+DatabaseBuilder::make(om_database_type type)
 {
     IRSingleDatabase * database = NULL;
 
@@ -35,7 +35,7 @@ DatabaseFactory::make(om_database_type type)
 }
 
 IRGroupDatabase *
-DatabaseFactory::makegroup(om_databasegroup_type type)
+DatabaseBuilder::makegroup(om_databasegroup_type type)
 {
     IRGroupDatabase * database = NULL;
 
