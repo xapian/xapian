@@ -311,7 +311,13 @@ SocketClient::do_close()
     // mustn't let any exception escape or else we
     // abort immediately if called from a destructor.
     try {
-	do_write("X");
+	/* Don't wait for a timeout to expire while writing
+	 * the close-down message.
+	 * FIXME: come up with a better way of not waiting.
+	 */
+	time_t secs = time(NULL) + 1;
+	unsigned int msecs = 0;
+	buf.writeline("X", secs, msecs);
     } catch (...) {
     }
     close(socketfd);
