@@ -1,3 +1,10 @@
+Wed Apr 17 12:29:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapian-config: Removed --uninst support - it's very hard to make it
+	  work reliably and we're better off directing our efforts towards
+	  improving the library than trying to get it working and keep it
+	  working.
+
 Mon Apr 15 12:10:29 BST 2002  Olly Betts <olly@survex.com>
 
 	* getopt usage fixes.

@@ -413,13 +413,6 @@ all these issues.
 
 xapian-core is OK.  Need to check xapian-examples and -apps.
 
- * xapian-config in an uninst system doesn't get +x. This could be
-   worked round in the AC macro rather than doing something hideous
-   in the build system.
- * xapview won't build with - -uninst (at least, didn't for me)
-
-Propose: remove - -uninst support.
-
 Code
 ====
 

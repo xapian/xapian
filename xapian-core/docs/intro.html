@@ -76,23 +76,22 @@ library: if it doesn't you may need to specify the path to the
 <CODE>xapian-config</CODE> script, by using the
 <CODE>--with-xapian-config</CODE> option to configure.
 <p>
-If you do not have an installed version of Xapian, you
-you must pass parameters to configure to specify where to find
-Xapian, as follows:
-<ul><li>
-The <code>--with-xapian-uninst</code> parameter specifies an (absolute) path
-where the Xapian code can be found.
-</li><li>
-The <code>--with-xapian-uninst-exec</code> specifies an
-(absolute) path where a built Xapian library can be found (this defaults to
-the value of <code>--with-xapian-uninst</code>).
-</li></ul>
+Note: you must install the Xapian library to be able to link applications
+with it.  In the past we've attempted to allow linking against uninstalled
+builds of the library, but it's very hard to do it reliably and portably.
+If you don't have the rights to install libraries in /usr/local/lib
+(or similar) then you can build Xapian to install in your home directory.
+
 <p>
 Supposing you had unpacked both om and om-examples in the same
 directory, you could use:
 <pre>
-    cd om-examples
-    ./configure --with-xapian-uninst=`pwd`/../om
+    cd om
+    ./configure --prefix=`pwd`/tempinstall
+    make
+    make install
+    cd ../om-examples
+    ./configure --with-xapian-config=`pwd`/../om/tempinstall/bin/xapian-config
     make
 </pre>
 <p>

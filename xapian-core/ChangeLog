@@ -1,3 +1,10 @@
+Wed Apr 17 12:27:07 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapian-config: Removed --uninst support - it's very hard to make it
+	  work reliably and we're better off directing our efforts towards
+	  improving the library than trying to get it working and keep it
+	  working.
+
 Wed Apr 17 10:39:02 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fixed btreetest code to use new names "ord+" and "ord-" for

@@ -179,7 +179,7 @@ ensuring that there are at least 3 parameters:
 <PRE>
     if(argc &lt; 4) {
         cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
-	        " &lt;path to database> &lt;document data> &lt;document terms>" &lt;&lt; endl;
+	        " &lt;path to database&gt; &lt;document data&gt; &lt;document terms&gt;" &lt;&lt; endl;
         exit(1);
     }
 </PRE>
@@ -608,7 +608,6 @@ and will check for an installation of Xapian and set (and
 <CODE>AC_SUBST</CODE>) the <CODE>XAPIAN_CFLAGS</CODE> and
 <CODE>XAPIAN_LIBS</CODE> variables to
 be the flags to pass to the compiler and linker, respectively.
-This macro will also allow you to use an uninstalled version of Xapian.
 </P><P>
 If you don't use GNU autoconf, don't worry about this.
 </P>
