@@ -118,7 +118,7 @@ QuartzDatabase::get_perform_recovery(const OmSettings & settings)
 unsigned int
 QuartzDatabase::get_block_size(const OmSettings & settings)
 {
-    return settings.get_bool("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE);
+    return settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE);
 }
 
 void
