@@ -44,9 +44,9 @@ main(int argc, char *argv[])
     bool syntax_error = false;
 
     struct option opts[] = {
-	{"msize",		required_argument, &msize, 0},
-	{"mfirst",		required_argument, &mfirst, 0},
-	{"key",			required_argument, &collapse_key, 0},
+	{"msize",		required_argument, 0, 'c'},
+	{"mfirst",		required_argument, 0, 'f'},
+	{"key",			required_argument, 0, 'k'},
 	{"remote",		required_argument, 0, 'r'},
 	{"dbdir",		required_argument, 0, 'd'},
 	{"stem",		no_argument, 0, 's'},
@@ -61,6 +61,15 @@ main(int argc, char *argv[])
     int c;
     while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
 	switch (c) {
+	    case 'c':
+		msize = atoi(argv[optind]);
+		break;
+	    case 'f':
+		mfirst = atoi(argv[optind]);
+		break;
+	    case 'k':
+		collapse_key = atoi(argv[optind]);
+		break;
 	    case 'r': {
 		OmSettings *params = new OmSettings;
 		params->set("backend", "remote");

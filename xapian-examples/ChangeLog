@@ -1,3 +1,7 @@
+Mon Apr 15 11:34:40 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed getopt_long usage.
+
 Fri Apr 12 16:24:48 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.
@@ -410,7 +414,7 @@ Tue Sep 05 10:44:28 BST 2000 Olly Betts
 	* msearch: --multidb option no longer exists, so removed from
 	  syntax message; complain if operator doesn't have 2 arguments;
 	  Implicitly AND in boolean queries.
- 
+
 	* simpleindex: Setting sleepy_dir corrected to sleepycat_dir.
 
 Mon Sep  4 17:44:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
@@ -456,7 +460,7 @@ Thu Aug 17 10:19:00 BST 2000 Olly Betts
 	* Updated examples to reflect API changes
 
 	* gui, msearch: removed slew of backend switches - now open database
-	  with auto backend 
+	  with auto backend
 
 Thu Aug 10 12:00:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
@@ -567,7 +571,7 @@ Tue Jul 11 14:17:00 BST 2000 Olly Betts
 	  which handles phrases and boolean queries
 
 	* omindex: lowercase tag names; added virtual destructor for
-	  HtmlParser class; generate index terms from title	
+	  HtmlParser class; generate index terms from title
 
 Mon Jul 10 15:05:00 BST 2000 Olly Betts
 
