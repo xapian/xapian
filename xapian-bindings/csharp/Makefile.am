@@ -49,6 +49,7 @@ $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
 
 lib_LTLIBRARIES = XapianSharp.la
 
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 XapianSharp_la_LDFLAGS = -avoid-version -module
 nodist_XapianSharp_la_SOURCES = XapianSharp.cc
 XapianSharp_la_LIBADD = $(XAPIAN_LIBS)

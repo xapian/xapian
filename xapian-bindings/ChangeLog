@@ -1,33 +1,37 @@
+Tue Sep 28 19:04:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Set AM_CXXFLAGS.
+
 Tue Sep 28 16:45:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Workaround not being able to include stl.i with C#.
 
 Tue Sep 28 16:22:47 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * csharp/AssemblyInfo.cs.in: New file - includes strong name
-          in the assembly.
-        * csharp/Makefile.am: Build assembly with a strong name, to
-          make gacutil happy.  Use gacutil to install the assembly.
-          Change xapian_wrap.cc to XapianSharp.cc
-        * csharp/XapianSharp.snk: New file - strong name for XapianSharp.
-        * csharp/.cvsignore: Ignore XapianSharp.{cc,loT}
-        * configure.ac: Generate csharp/AssemblyInfo.cs
+	* csharp/AssemblyInfo.cs.in: New file - includes strong name
+	  in the assembly.
+	* csharp/Makefile.am: Build assembly with a strong name, to
+	  make gacutil happy.  Use gacutil to install the assembly.
+	  Change xapian_wrap.cc to XapianSharp.cc
+	* csharp/XapianSharp.snk: New file - strong name for XapianSharp.
+	* csharp/.cvsignore: Ignore XapianSharp.{cc,loT}
+	* configure.ac: Generate csharp/AssemblyInfo.cs
 
 Sun Sep 26 19:34:54 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * README: Mention that I'm working on C# bindings.
-        * csharp/.cvsignore: Ignore generated .cs and .dll files
+	* README: Mention that I'm working on C# bindings.
+	* csharp/.cvsignore: Ignore generated .cs and .dll files
 
 Sat Sep 25 02:51:22 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * configure.ac,Makefile.am,csharp/: Add C sharp bindings, created
-          with SWIG.  Build disabled by default for now, because these are
-          completely untested, and probably need quite a bit of work.  In
-          addition, all the SWIG packages I've found seem to require a
-          patch to work correctly with csharp (various stl_*.i packages are
-          reported missing, creating them with "touch" seems to work, but
-          may break things subtly).  I need to learn C# before I can test
-          these bindings...
+	* configure.ac,Makefile.am,csharp/: Add C sharp bindings, created
+	  with SWIG.  Build disabled by default for now, because these are
+	  completely untested, and probably need quite a bit of work.  In
+	  addition, all the SWIG packages I've found seem to require a
+	  patch to work correctly with csharp (various stl_*.i packages are
+	  reported missing, creating them with "touch" seems to work, but
+	  may break things subtly).  I need to learn C# before I can test
+	  these bindings...
 
 Mon Sep 20 15:28:04 BST 2004  Olly Betts <olly@survex.com>
 
@@ -40,7 +44,7 @@ Mon Sep 20 15:10:57 BST 2004  Olly Betts <olly@survex.com>
 
 Sun Sep 19 23:28:14 BST 2004  Olly Betts <olly@survex.com>
 
-	* .cvsignore,Makefile.am,configure.ac,xapian-bindings.spec.in: 
+	* .cvsignore,Makefile.am,configure.ac,xapian-bindings.spec.in:
 	  Added spec file contributed by Fabrice Colin.
 
 Sun Sep 19 17:56:32 BST 2004  Olly Betts <olly@survex.com>
