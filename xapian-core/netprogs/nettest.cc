@@ -24,6 +24,7 @@
 #include "tcpclient.h"
 #include "testsuite.h"
 #include <om/omenquire.h>
+#include <unistd.h>
 
 // Test a simple network match
 bool test_netmatch1();
@@ -118,7 +119,13 @@ bool test_netmatch2()
 
 bool test_tcpclient1()
 {
-    system("./omtcpsrv --im text1.txt --port 1235 &");
+    string command =
+	    string("./omtcpsrv --im ") +
+	    datadir +
+	    "apitest_simpledata.txt --port 1235 &";
+
+    system(command.c_str());
+
     sleep(5);
     TcpClient tc("localhost", 1235);
 
