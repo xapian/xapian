@@ -23,8 +23,6 @@
  * -----END-LICENCE-----
  */
 
-dl('xapian.so');
-
 define('MAX_PROB_TERM_LENGTH', 64);
 
 if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
