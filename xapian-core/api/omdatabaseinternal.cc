@@ -111,6 +111,7 @@ LeafTermList *
 OmDatabase::Internal::open_term_list(om_docid did, const OmDatabase &db) const
 {
     unsigned int multiplier = databases.size();
+    Assert(multiplier != 0);
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
@@ -122,6 +123,7 @@ Document *
 OmDatabase::Internal::open_document(om_docid did) const
 {
     unsigned int multiplier = databases.size();
+    Assert(multiplier != 0);
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
@@ -133,6 +135,7 @@ OmDatabase::Internal::open_position_list(om_docid did,
 					 const om_termname &tname) const
 {
     unsigned int multiplier = databases.size();
+    Assert(multiplier != 0);
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 

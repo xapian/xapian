@@ -107,6 +107,8 @@ class OmMSet {
 
 	OmMSet();
 
+	~OmMSet();
+
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.

@@ -326,10 +326,12 @@ QuartzDatabase::open_position_list(om_docid did,
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
 
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    poslist->read_data(tables->get_positionlist_table(), did, tname);
 
-    throw OmUnimplementedError("Quartz databases do not support opening positionlist");
+    PositionList * result = poslist.get();
+    poslist.release();
+    return result;
 }
 
 
@@ -650,9 +652,11 @@ QuartzWritableDatabase::open_position_list(om_docid did,
     Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    poslist->read_data(buffered_tables->get_positionlist_table(), did, tname);
 
-    throw OmUnimplementedError("Quartz databases do not support opening positionlist");
+    PositionList * result = poslist.get();
+    poslist.release();
+    return result;
 }
 

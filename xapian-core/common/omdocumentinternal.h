@@ -131,8 +131,15 @@ class OmDocument::Internal {
 		  keys_here(false), terms_here(false) {}
 
 	Internal(const Internal &other)
-		: ptr(other.ptr), data_here(other.data_here),
-		  keys_here(other.keys_here), terms_here(other.terms_here) {}
+		: ptr(other.ptr),
+		  database(other.database),
+		  did(other.did),
+		  data_here(other.data_here),
+		  keys_here(other.keys_here),
+		  terms_here(other.terms_here),
+		  data(other.data),
+		  keys(other.keys),
+		  terms(other.terms) {}
 
 	Internal()
 		: ptr(NULL), data_here(true), keys_here(true), terms_here(true)

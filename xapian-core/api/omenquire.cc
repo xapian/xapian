@@ -184,6 +184,11 @@ OmMSet::OmMSet(OmMSet::Internal * internal_) : internal(internal_)
 {
 }
 
+OmMSet::~OmMSet()
+{
+    delete internal;
+}
+
 int
 OmMSet::convert_to_percent(om_weight wt) const
 {

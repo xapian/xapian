@@ -589,11 +589,15 @@ static bool test_pctcutoff1()
     }
 
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
-		     "Match with % cutoff lost too many items");    
+		     "Match with % cutoff lost too many items");
+
+    /* FIXME: uncomment
     TEST_AND_EXPLAIN(mymset2.size() == num_items ||
-		     (mymset2.convert_to_percent(mymset2.items[num_items]) == my_pct &&
-		      mymset2.convert_to_percent(mymset2.items.back()) == my_pct),
+		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
+		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
 		     "Match with % cutoff returned too many items");
+		     */
+    return false;
 
     return true;
 }
@@ -707,7 +711,7 @@ static bool test_reversebool1()
     {
 	OmMSetIterator i = mymset1.begin();
 	std::vector<om_docid> rev(mymset3.begin(), mymset3.end());
-	std::vector<om_docid>::reverse_const_iterator j = rev.rbegin();
+	std::vector<om_docid>::const_reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
@@ -755,7 +759,7 @@ static bool test_reversebool2()
     TEST_EQUAL(msize, mymset3.size());
     {
 	std::vector<om_docid> rev(mymset1.begin(), mymset1.end());
-	std::vector<om_docid>::reverse_const_iterator i = rev.rbegin();
+	std::vector<om_docid>::const_reverse_iterator i = rev.rbegin();
 	OmMSetIterator j = mymset3.begin();
 	for ( ; j != mymset3.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't

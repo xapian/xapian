@@ -1,3 +1,19 @@
+Wed Dec 13 01:05:44 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add Asserts to api/omdatabaseinternal.cc to ensure that there is at
+	  least one database present when opening termlists, etc.  This should
+	  really be done by throwing errors.
+
+	* Add destructor to OmMSet, deleting internals.
+
+	* Implement getting positionlists from QuartzDatabases.
+
+	* Fix bug in copy constructor of OmDocument::Internal - some fields
+	  were not being copied.
+
+	* Fix api_db.cc so it compiles: code referring to mset by subscripting
+	  temporarily commented out.
+
 Tue Dec 12 20:05:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug with truncation of intermediate keys in btrees.
