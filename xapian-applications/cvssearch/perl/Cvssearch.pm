@@ -82,21 +82,23 @@ sub read_root_dir {
         # ----------------------------------------
         # read root entries
         # ----------------------------------------
-        open(CVSROOTS, "<$cvsdata/CVSROOTS");
         my $j = 0;
-        while(<CVSROOTS>) {
-            chomp;
-            my @fields = split(/\ /);
-            if (strip_last_slash($fields[0]) eq $cvsroot) {
-                # ----------------------------------------
-                # found one
-                # ----------------------------------------
-                $root_dir = $fields[1];
-                last;
+        if (-e "$cvsdata/CVSROOTS") {
+            open(CVSROOTS, "<$cvsdata/CVSROOTS");
+            while(<CVSROOTS>) {
+                chomp;
+                my @fields = split(/\ /);
+                if (strip_last_slash($fields[0]) eq $cvsroot) {
+                    # ----------------------------------------
+                    # found one
+                    # ----------------------------------------
+                    $root_dir = $fields[1];
+                    last;
+                }
+                $j++;
             }
-            $j++;
+            close(CVSROOTS);
         }
-        close(CVSROOTS);
 
         # ----------------------------------------
         # lets try to create that directory if not

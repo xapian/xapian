@@ -15,7 +15,11 @@
 
 #define INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST true
 
+#define SHOW_WARNINGS 0 
+
+#if SHOW_WARNINGS
 #warning "use stemming on symbols"
+#endif
 
 // http://www.dcs.gla.ac.uk/idom/ir_resources/linguistic_utils/stop_words
 const static char *term_stoplist[] = {
@@ -555,14 +559,17 @@ void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
     }
 }
 
+#if SHOW_WARNINGS
 #warning "we should be able to specify granularity here:  line/file/app"
 #warning "perhaps we should rename this class"
 #warning "the default should work on a line by line basis"
+#endif
+
 Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, const string& gran, bool use_stop_words ) {
   
   granularity = gran;
 
-  cerr << "** granularity " << granularity << endl;
+  cerr << "... granularity " << granularity << endl;
 
   path = p;
   root = sroot;
@@ -602,7 +609,7 @@ Lines::Lines( const string& p, const string& sroot, const string& pkg, const str
     }
 
   } else {
-    cerr << "[ no stop words ]" << endl;
+      cerr << "... [ no stop words ]" << endl;
   }
   
   in_code = 0;
@@ -744,7 +751,7 @@ bool Lines::ReadNextLine() {
     assert( revisions.size() == lines.size() );
     assert( revisions.size() == comments.size() );
 
-    for( int i = 0; i < comments.size(); i++ ) {
+    for(unsigned int i = 0; i < comments.size(); i++ ) {
       combined_comments += (" "+comments[i]);
 
       list<string> words;
@@ -876,7 +883,10 @@ list<string> Lines::getTermList() {
   return term_list_return;
 }
 
+#if SHOW_WARNINGS
 #warning "doesn't handle all upper case yet"
+#endif
+
 set<string> Lines::getCodeSymbolTerms() {
   // computed here, since may not be required by some apps
   
@@ -927,14 +937,14 @@ void readTags( const string& fn, set<string>& S ) {
       continue;
     }
     //    cerr << "FOUND -" << s << "-" << endl;
-    bool function = (s.find("\tfunction\t") != -1) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != -1);
+    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos);
     string symbol = s.substr( 0, s.find("\t") );
-    if ( symbol.find("::") != -1 ) {
+    if ( symbol.find("::") != string::npos ) {
       symbol = symbol.substr( symbol.find("::")+2 );
     }
 
     // skip it if still has ::
-    if ( symbol.find("::") != -1 ) {
+    if ( symbol.find("::") != string::npos ) {
       continue;
     }
 
