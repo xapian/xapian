@@ -4,8 +4,7 @@ EXTRA_DIST = util.i
 
 noinst_LTLIBRARIES = xapianc.la
 
-# swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapianc_la_LDFLAGS = -avoid-version -module
 nodist_xapianc_la_SOURCES = xapian_wrap.cc
 xapianc_la_LIBADD = $(XAPIAN_LIBS)

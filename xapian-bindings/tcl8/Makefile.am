@@ -7,8 +7,7 @@ tcllibdir = @TCL_LIB@
 tcllib_LTLIBRARIES = xapian.la
 
 AM_CPPFLAGS = -I@TCL_INC@
-# swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapian_la_LDFLAGS = -avoid-version -module
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS)

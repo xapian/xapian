@@ -17,13 +17,12 @@ install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
 AM_CPPFLAGS = -I@PYTHON_INC@
-# swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 _xapian_la_LDFLAGS = -avoid-version -module
 nodist__xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
 xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
 	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o xapian_wrap.cc $(srcdir)/../xapian.i

@@ -95,6 +95,8 @@ if test no != "$with_swig" ; then
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
+	    SWIG_PHP_LDFLAGS="`$SWIG -php -ldflags`"
+	    AC_SUBST(SWIG_PHP_LDFLAGS)
 	    PHP_INC="`$PHP_CONFIG --includes`"
 	    AC_SUBST(PHP_INC)
 	    PHP_EXTENSION_DIR="`$PHP_CONFIG --extension-dir`"
@@ -144,13 +146,26 @@ if test no != "$with_java" ; then
       dnl  I've only tested with JDK 1.3 and 1.4 from Sun.
       dnl
       dnl So checking for jni.h presumably checks we have "Java 2"?!
-      dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems) - we
-      dnl could check for that if we want to check for a particular JDK version...
+      dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
+      dnl So we could check for that if we want to check for a particular
+      dnl JDK version...
       AC_CHECK_HEADER(jni.h, [BINDINGS="$BINDINGS java"])
   fi
 fi
 
 AC_SUBST(BINDINGS)
+
+dnl extra flags for building with gcc
+SWIG_CXXFLAGS=
+JAVA_CXXFLAGS=
+if test yes = "$GCC" ; then
+  dnl Swig generated code gives lots of unused and uninitialized warnings.
+  dnl They're non-harmful, so suppress them.
+  SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+  JAVA_CXXFLAGS="-Wall -W -Wunused"
+fi
+AC_SUBST(SWIG_CXXFLAGS)
+AC_SUBST(JAVA_CXXFLAGS)
 
 AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile

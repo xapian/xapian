@@ -1,3 +1,12 @@
+Wed Sep 08 04:15:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,guile/Makefile.am,java/native/Makefile.am,
+	  php4/Makefile.am,python/Makefile.am,tcl8/Makefile.am:
+	  Use special SWIG PHP ldflags when linking the PHP glue library;
+	  Only pass -W* switches when building with GCC; Suppress compiler
+	  warnings by passing -Wno-uninitialized when building SWIG glue code;
+	  Python bindings now delete generated xapian_wrap.h on "make clean".
+
 Wed Sep 08 04:06:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/util.i: Suppress SWIG warning about MatchDecider::operator()
