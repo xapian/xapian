@@ -81,6 +81,10 @@ public:
   map< string, string > getRevisionCommentString();
 };
 
-void readTags( const string& fn, set<string>& S, map< string, string>& tag );
+void readTags( const string& fn, set<string>& S, map<string, set<string> >& parents
+#if 0
+      , map< string, string>& tag 
+#endif
+);
 
 string get_cvsdata();

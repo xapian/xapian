@@ -456,8 +456,11 @@ set<string> Lines::getCodeSymbolTerms() {
   return code_terms;
 }
 
-void readTags( const string& fn, set<string>& S,
-	       map< string, string >& tag ) {
+void readTags( const string& fn, set<string>& S, map<string, set<string> >& symbol_parents
+#if 0
+	       , map< string, string >& tag // for line numbers for start/end of function
+#endif
+ ) {
   cerr << "readTags " << fn << endl;
   ifstream in(fn.c_str());
   assert (in);
@@ -467,11 +470,21 @@ void readTags( const string& fn, set<string>& S,
       continue;
     }
     //    cerr << "FOUND -" << s << "-" << endl;
-    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos ) || ( s.find("\tmember\t") != string::npos ) || (s.find("\tmember")+string("\tmember").length() == s.length() );
+    bool function =
+
+      (s.find("\tfunction\t") != string::npos) ||
+      (s.find("\tfunction")+string("\tfunction").length() == s.length()) ||
+
+      (s.find("\tmethod\t") != string::npos ) ||
+      (s.find("\tmethod")+string("\tmethod").length() == s.length()) ||
+
+      ( s.find("\tmember\t") != string::npos ) ||
+      (s.find("\tmember")+string("\tmember").length() == s.length() );
+
 #warning "should we look for member not method?"
 
     string symbol = s.substr( 0, s.find("\t") );
-    string osymbol = symbol;
+    //    string osymbol = symbol;
 
     if ( symbol.find("::") != string::npos ) {
       symbol = symbol.substr( symbol.find("::")+2 );
@@ -484,7 +497,7 @@ void readTags( const string& fn, set<string>& S,
 
     if ( function ) {
       symbol += "()";
-
+#if 0
       // pick up line numbers for function
 
       //      cerr << "-" << s << "-" << endl;
@@ -520,7 +533,35 @@ void readTags( const string& fn, set<string>& S,
       //      cerr << "-" << l << "-" << endl;
       tag[ s.substr(i,j-i+1)] = klass+"::"+osymbol + "()";
       
+#endif
 
+
+    } else {
+
+      // this is a class
+
+      int k1 = s.find("\tinherits:");
+      if ( k1 != -1 ) {
+	k1 += 10;
+	int k2 = s.length()-1;
+	for( int i = k1; i <= k2; i++ ) {
+	  if ( s[i] == '\t' ) {
+	    k2 = i-1;
+	    break;
+	  }
+	}
+	string parent_string = s.substr( k1, k2-k1+1 );
+	//	cerr << symbol << " has parent string -" << parent_string << "-" << endl;
+	list<string> parents;
+	split( parent_string, ",", parents );
+	for( list<string>::iterator i = parents.begin(); i != parents.end(); i++ ) {
+	  if ( i->find("::") == -1 ) {
+	    //	    cerr << "..." << (*i) << endl;
+	    symbol_parents[symbol].insert(*i);
+	  }
+	}
+      }
+      
     }
     S.insert(symbol);
     //      cerr << "** found symbol -" << symbol << "-" << endl;
