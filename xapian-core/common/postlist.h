@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,8 @@
 
 #include "positionlist.h"
 #include "autoptr.h"
+
+using std::string;
 
 /** Abstract base class for postlists. */
 class PostList : public RefCntBase
@@ -173,7 +176,7 @@ class PostList : public RefCntBase
 
 	// Returns a description of the term or terms from which the postlist
 	// derives.
-	virtual std::string get_description() const = 0;
+	virtual string get_description() const = 0;
 };
 
 inline om_termcount

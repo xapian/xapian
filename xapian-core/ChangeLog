@@ -1,3 +1,7 @@
+Wed Jun 26 13:55:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* todo.xml: added note to fix 100% being in its own sort band.
+
 Wed Jun 26 13:46:02 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* btree.cc: Fix splitting of blocks in sequential mode to ensure

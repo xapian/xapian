@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +41,7 @@ class EmptyPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	std::string get_description() const;
+	string get_description() const;
 };
 
 inline om_docid
@@ -96,7 +97,7 @@ EmptyPostList::at_end() const
     return true;
 }
 
-inline std::string
+inline string
 EmptyPostList::get_description() const
 {
     return "[empty]";

@@ -112,8 +112,8 @@ class MSetSortCmp {
 	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    int band_a = int(a.wt * factor);
-	    int band_b = int(b.wt * factor);
+	    int band_a = int(a.wt * factor); // FIXME: 100%?
+	    int band_b = int(b.wt * factor); // FIXME: 100%?
 	    if (band_a != band_b) return band_a > band_b;
 	    if (have_key) {
 		if (a.sort_key.empty()) {
