@@ -1,3 +1,8 @@
+Mon Feb 14 05:49:50 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/: Tweak lemon so we can avoid generating files in builddir
+	  in a VPATH build.
+
 Mon Feb 14 02:44:17 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Update to reflect lempar.c -> queryparser.lt.

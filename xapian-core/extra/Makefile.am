@@ -2,7 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/common -I$(top_srcdir)/api
 
-noinst_HEADERS = accentnormalisingitor.h symboltab.h queryparser.h
+noinst_HEADERS = accentnormalisingitor.h symboltab.h queryparser_internal.h \
+	queryparser_token.h
 
 xapianincludedir = $(includedir)/xapian
 
@@ -12,18 +13,18 @@ lib_LTLIBRARIES = libxapianqueryparser.la
 check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
-EXTRA_DIST = queryparser.lemony queryparser_internal.cc lemon.c queryparser.lt
+lemon_built_sources = queryparser_internal.cc queryparser_token.h
+EXTRA_DIST = lemon.c queryparser.lemony queryparser.lt $(lemon_built_sources)
 
 if MAINTAINER_MODE
 lemon: lemon.c
 	$(CC_FOR_BUILD) -o lemon $(srcdir)/lemon.c
 
-queryparser_internal.cc queryparser.h: queryparser.lemony queryparser.lt lemon
-	./lemon $(srcdir)/queryparser.lemony
-	mv -f queryparser.c queryparser_internal.cc
+queryparser_internal.cc queryparser_token.h: queryparser.lemony queryparser.lt lemon
+	./lemon -q -oqueryparser_internal.cc -hqueryparser_token.h $(srcdir)/queryparser.lemony
 
-MAINTAINERCLEANFILES = queryparser_internal.cc queryparser.h queryparser.c\
- queryparser.out lemon
+BUILT_SOURCES = $(lemon_built_sources)
+MAINTAINERCLEANFILES = lemon $(lemon_built_sources)
 endif
 
 libxapianqueryparser_la_LDFLAGS = -no-undefined -version-info $(LIBRARY_VERSION_INFO)

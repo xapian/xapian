@@ -7,6 +7,5 @@ Makefile
 queryparsertest
 libxapianqueryparser.la
 lemon
-queryparser.h
-queryparser.out
 queryparser_internal.cc
+queryparser_token.h

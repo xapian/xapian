@@ -4,7 +4,9 @@
 ** single file to make it easy to include LEMON in the source tree
 ** and Makefile of another program.
 **
-** The author of this program disclaims copyright.
+** The authors of this program disclaim copyright.
+**
+** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -1336,6 +1338,32 @@ static void handle_D_option(char *z){
   *z = 0;
 }
 
+static char *output_filename = 0;  /* Output filename from -o */
+
+/* This routine is called with the argument to any -o command-line option.
+*/
+static void handle_o_option(char *z){
+  output_filename = malloc( strlen(z)+1 );
+  if( output_filename==0 ){
+    fprintf(stderr,"out of memory\n");
+    exit(1);
+  }
+  strcpy(output_filename, z);
+}
+
+static char *output_header_filename = 0;  /* Output filename from -h */
+
+/* This routine is called with the argument to any -h command-line option.
+*/
+static void handle_h_option(char *z){
+  output_header_filename = malloc( strlen(z)+1 );
+  if( output_header_filename==0 ){
+    fprintf(stderr,"out of memory\n");
+    exit(1);
+  }
+  strcpy(output_header_filename, z);
+}
+
 
 /* The main program.  Parse the command line and do it... */
 int main(argc,argv)
@@ -1359,6 +1387,8 @@ char **argv;
     {OPT_FLAG, "s", (char*)&statistics,
                                    "Print parser stats to standard output."},
     {OPT_FLAG, "x", (char*)&version, "Print the version number."},
+    {OPT_FSTR, "o", (char*)handle_o_option, "Specify output filename."},
+    {OPT_FSTR, "h", (char*)handle_h_option, "Specify output header filename."},
     {OPT_FLAG,0,0,0}
   };
   int i;
@@ -2579,7 +2609,6 @@ char *suffix;
 {
   char *name;
   char *cp;
-
   name = malloc( strlen(lemp->filename) + strlen(suffix) + 5 );
   if( name==0 ){
     fprintf(stderr,"Can't allocate space for a filename.\n");
@@ -3355,7 +3384,16 @@ int mhflag;     /* Output in makeheaders format if true */
 
   in = tplt_open(lemp);
   if( in==0 ) return;
-  out = file_open(lemp,".c","wb");
+  if( output_filename!=0 ){
+    char *ext = strrchr(output_filename, '.');
+    if( ext==0 ) ext = ".c";
+    char *tmp = lemp->filename;
+    lemp->filename = output_filename;
+    out = file_open(lemp,ext,"wb");
+    lemp->filename = tmp;
+  }else{
+    out = file_open(lemp,".c","wb");
+  }
   if( out==0 ){
     fclose(in);
     return;
@@ -3764,7 +3802,16 @@ struct lemon *lemp;
 
   if( lemp->tokenprefix ) prefix = lemp->tokenprefix;
   else                    prefix = "";
-  in = file_open(lemp,".h","rb");
+  if( output_header_filename!=0 ){
+    char *ext = strrchr(output_header_filename, '.');
+    if( ext==0 ) ext = ".h";
+    char *tmp = lemp->filename;
+    lemp->filename = output_header_filename;
+    in = file_open(lemp,ext,"rb");
+    lemp->filename = tmp;
+  }else{
+    in = file_open(lemp,".h","rb");
+  }
   if( in ){
     for(i=1; i<lemp->nterminal && fgets(line,LINESIZE,in); i++){
       sprintf(pattern,"#define %s%-30s %2d\n",prefix,lemp->symbols[i]->name,i);
@@ -3776,7 +3823,16 @@ struct lemon *lemp;
       return;
     }
   }
-  out = file_open(lemp,".h","wb");
+  if( output_header_filename!=0 ){
+    char *ext = strrchr(output_header_filename, '.');
+    if( ext==0 ) ext = ".h";
+    char *tmp = lemp->filename;
+    lemp->filename = output_header_filename;
+    out = file_open(lemp,ext,"wb");
+    lemp->filename = tmp;
+  }else{
+    out = file_open(lemp,".h","wb");
+  }
   if( out ){
     for(i=1; i<lemp->nterminal; i++){
       fprintf(out,"#define %s%-30s %2d\n",prefix,lemp->symbols[i]->name,i);

@@ -24,7 +24,7 @@
 #include "utils.h"
 
 // Include the list of token values lemon generates.
-#include "queryparser.h"
+#include "queryparser_token.h"
 
 #include <algorithm>
 #include <list>
