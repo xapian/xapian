@@ -28,13 +28,19 @@
 
 extern string scvs_update;
 
+static string sclass_a = " class=\"a\"";
+static string sclass_d = " class=\"d\"";
+static string sclass_c = " class=\"c\"";
+static string sclass_n = " class=\"n\"";
+
 html_comparer::html_comparer(const vector<unsigned int> & input1,
                              const vector<unsigned int> & input2, 
                              const string & filename, 
                              const string & pathname,
                              const string & revision0, 
                              const string & revision1, 
-                             const string & revision2, const diff & diff)
+                             const string & revision2, const diff & diff,
+                             bool  short_output)
     : _input1(input1),
       _input2(input2),
       _revision0(revision0),
@@ -42,7 +48,8 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
       _revision2(revision2),
       _filename(filename),
       _pathname(pathname),
-      _diff(diff)
+      _diff(diff),
+      _short(short_output)
 {
 
     p0 = p1 = p2 = 0;
@@ -107,15 +114,15 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
     select2 = "";
 
     if (!do0) {
-        select0 = " class=\"n\"";
+        select0 = sclass_n;
     }
 
     if (!do1) {
-        select1 = " class=\"n\"";
+        select1 = sclass_n;
     }
 
     if (!do2) {
-        select2 = " class=\"n\"";
+        select2 = sclass_n;
     }
     
 
@@ -172,12 +179,12 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].source().begin() <= index1 && 
             _diff[diff_index].source().end()   >  index1) 
         {
-            select1 = " class=\"c\"";        
+            select1 = sclass_c;
         }
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select2 = " class=\"c\"";
+            select2 = sclass_c;
         }
     }
     
@@ -185,8 +192,8 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select2 = " class=\"d\"";
-            select1 = " class=\"n\"";
+            select2 = sclass_d;
+            select1 = sclass_n;
         }
     }
     
@@ -194,8 +201,8 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].source().begin() <= index1 && 
             _diff[diff_index].source().end()   >  index1) 
         {
-            select2 = " class=\"n\"";        
-            select1 = " class=\"a\"";
+            select2 = sclass_n;
+            select1 = sclass_a;
         }
     }
 
@@ -225,29 +232,36 @@ html_comparer::write_line(ostream & os,
     if (do2 && pis2) getline(*pis2, line2);
 
     if (pis0 && !*pis0) {
-        select0= " class=\"n\"";                
+        select0= sclass_n;
     }
     if (pis1 && !*pis1) {
-        select1= " class=\"n\"";                
+        select1= sclass_n;
     }
     if (pis2 && !*pis2) {
-        select2= " class=\"n\"";                
+        select2= sclass_n;
     }
 
-    if ((pis0 && *pis0) || (pis1 && *pis1) || (pis2 && *pis2))
+    if (!_short || 
+        !strcmp (select2.c_str(), sclass_d.c_str()) ||
+        !strcmp (select1.c_str(), sclass_a.c_str()) ||
+        !strcmp (select2.c_str(), sclass_c.c_str()) ||
+        !strcmp (select1.c_str(), sclass_c.c_str()))
     {
-        unsigned int size = 40;
-        code_to_html converter0(line0, size);
-        code_to_html converter1(line1, size);
-        code_to_html converter2(line2, size);
-        os << "<tr>";
-        os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << index2;     os << " </td>";
-        os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << converter2; os << " </td>";
-        os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << index1;     os << " </td>";
-        os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << converter1; os << " </td>";
-        os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre><a name=" << index0 << "> " << index0 << "</a>";     os << " </td>";
-        os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre>" << converter0; os << " </td>";
-        os << "</tr>" << endl;
+        if ((pis0 && *pis0) || (pis1 && *pis1) || (pis2 && *pis2))
+        {
+            unsigned int size = 40;
+            code_to_html converter0(line0, size);
+            code_to_html converter1(line1, size);
+            code_to_html converter2(line2, size);
+            os << "<tr>";
+            os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << index2;     os << " </td>";
+            os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << converter2; os << " </td>";
+            os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << index1;     os << " </td>";
+            os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << converter1; os << " </td>";
+            os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre><a name=" << index0 << "> " << index0 << "</a>";     os << " </td>";
+            os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre>" << converter0; os << " </td>";
+            os << "</tr>" << endl;
+        }
     }
     if (do0) ++index0;
     if (do1) ++index1;
@@ -261,13 +275,7 @@ html_comparer::write(ostream & os) const
     string select1 = " class=\"s\"";
     string select2 = " class=\"s\"";
 
-    os << "<h3 align=center>aligned diff for " << _pathname 
-       << " between "
-       << " version " << _revision2
-       << " and"
-       << " version " << _revision1
-       << "</h3>" << endl
-       << " Here we show where the differences occurred between "
+    os << " Here we show where the differences occurred between "
        << " version " << _revision2
        << " and"
        << " " << _revision1

@@ -50,6 +50,7 @@ string slatest_version = "";
 string sversion    = "";
 
 bool use_html = false;
+bool short_html = false;
 bool read_mode = false;
 bool comp_mode = false;
 
@@ -92,6 +93,8 @@ main(unsigned int argc, const char **argv)
             scmt_db = argv[++i];
         } else if (!strcmp(argv[i], "-f2") && i+1 < argc) {
             soffset_db = argv[++i];
+        } else if (!strcmp(argv[i], "-s")) {
+            short_html = true;
         } else if (!strcmp(argv[i], "-html") && i+2 < argc) {
             file_index = atoi(argv[++i]);
             sversion = argv[++i];
@@ -212,6 +215,7 @@ static void usage(const string & prog_name)
          << "  -i                   input file contain a list of files to map" << endl
          << "  -r version           backtrack from version instead from the latest version" << endl
          << "  -html fileid version output html comparason result" << endl
+         << "  -s                   display abbreviated html output" << endl
          << "  -db pkg.db           specify the database file" << endl
          << "  -f1 pkg.cmt          specify the line-comment map file" << endl
          << "  -f2 pkg.offset       specify the filename index file" <<endl
