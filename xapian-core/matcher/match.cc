@@ -241,7 +241,8 @@ Match::add_op(matchop op)
 // Run the query //
 ///////////////////
 
-// This method is called by 
+// This method is called by branch postlists when they rebalance
+// in order to recalculate the weights in the tree
 void
 Match::recalc_maxweight()
 {
@@ -250,6 +251,7 @@ Match::recalc_maxweight()
     recalculate_maxweight = true;
 }
 
+// This is the method which runs the query, generating the M set
 void
 Match::match()
 {
@@ -266,6 +268,8 @@ Match::match()
     while (query.size() > 1) add_op(default_op);
 
     merger = query.top();
+
+    DebugMsg("match.match(" << merger->intro_term_description() << ")" << endl);
 
     weight w_max = max_weight = merger->recalc_maxweight();
     recalculate_maxweight = false;
