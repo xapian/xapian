@@ -430,10 +430,10 @@ int main(unsigned int argc, char *argv[]) {
                 lowercase_term(term);
                 term = stemmer.stem_word(term);
                 queryterms.push_back(term);
-                //cout << term << " ";
+                cout << term << " ";
             }
         }
-        //cout << endl;
+        cout << endl; // empty line if no query words
 
         OmMSet matches;
 
