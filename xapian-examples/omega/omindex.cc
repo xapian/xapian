@@ -127,7 +127,7 @@ index_file(const string &url, const string &mimetype)
     string file = root + url;
     string title, sample, keywords, dump;
 
-    cout << "Indexing \"" << url << "\"\n";
+    cout << "Indexing \"" << url << "\" as " << mimetype << "\n";
 
     if (mimetype == "text/html") {
 	std::ifstream in(file.c_str());
@@ -139,7 +139,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    text = text + line + '\n';
+	    text += line + '\n';
 	}
 	in.close();
 	MyHtmlParser p;

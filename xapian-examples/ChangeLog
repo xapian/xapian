@@ -1,3 +1,8 @@
+Thu Nov 23 12:44:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Append to string, rather than replace it.  Tiny change to
+	  omindex, big speedup with large files.
+
 Thu Nov 23 11:55:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove dependency on index_utils.h, which has been removed.
