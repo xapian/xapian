@@ -50,6 +50,7 @@ class OmRefCntBase {
 	OmRefCntBase(const OmRefCntBase &other)
 		: ref_count(0), ref_count_mutex() {};
 
+    public:
 	/** Return the current ref count.
 	 *
 	 *  This is only rarely useful.  One use is for copy-on-write.
@@ -58,7 +59,7 @@ class OmRefCntBase {
 	{
 	    return ref_count;
 	}
-    public:
+
 	/// The constructor, which initialises the ref_count to 0.
 	OmRefCntBase() : ref_count(0) {};
 
