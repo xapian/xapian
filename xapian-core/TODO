@@ -1,171 +1,150 @@
 This file contains items which need to be worked on.
 
+[P]riority values, in decreasing priority order, are:
 
-Priority values, in decreasing priority order, are:
+ [U]rgent  - can't do anything else until this is done.
+ [H]igh    - must be done as soon as possible.
+ [M]edium  - should be done fairly soon.
+ [L]ow     - not needed soon.
+ [V]erylow - do when there is nothing else to do.
+ [D]ubious - not sure that we want to do this.
 
- Urgent  - can't do anything else until this is done.
- High    - must be done as soon as possible.
- Medium  - should be done fairly soon.
- Low     - not needed soon.
- Verylow - do when there is nothing else to do.
- Dubious - not sure that we want to do this.
+[D]ifficulty values range from 1 (easy) to 5 (hard)
 
-Little Jobs
-===========
+[W]ho the task is assigned to: [C]hris [R]ichard
 
-         |                 |
-Priority | Area            | Task
----------+-----------------+--------------------------------------------------
- High    |CDistribution    | Make timeouts configurable with a sensible
-         |                 | default.
----------+-----------------+--------------------------------------------------
- High    | Tests	   | Make apitest's tests use da/db backends as well
-         |                 | [Now test da.  No program to write dbs so that's
-         |                 | not doable yet].
----------+-----------------+--------------------------------------------------
- High    | LocalMatch      | Pass around partially created postlist as an
-         |                 | auto_ptr, for exception safety.
----------+-----------------+--------------------------------------------------
- Medium  | Exceptions      | Make exceptions threadsafe: see
-	 |                 | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
-	 |                 | GCC (and EGCS) need existence of exceptions to
-	 |                 | be protected by a mutex - will need to cope with
-	 |                 | exception being copied.
----------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Patch doxygen, so that todo items in the body of
-         |                 | methods get displayed.
----------+-----------------+--------------------------------------------------
- Medium  | OmDatabase      | Test assignment operators for OmDatabase and
-         |                 | OmWritableDatabase
----------+-----------------+--------------------------------------------------
- Medium  | Databases       | Make OmDatabaseGroup::Internal return same
-         |                 | multidatabase object if get_multi_database() is
-	 |                 | called repeatedly without calling add_database()
-	 |                 | in-between.
----------+-----------------+--------------------------------------------------
- Medium  | LocalMatch      | Test performance when nth_element is run more
-         |                 | or less frequently, to see what is best.
----------+-----------------+--------------------------------------------------
- Medium  | General         | Check that it is safe for an exception to be
-         |                 | thrown and caught within a destructor, when that
-	 |                 | destructor is being called due to an exception
-	 |                 | unwinding the stack.  eg, a database is
-	 |                 | destroyed due to an exception, database's
-	 |                 | destructor calls internal_end_session() which
-	 |                 | throws an exception (which is caught and handled
-	 |                 | by the destructor): is this safe - two exceptions
-	 |                 | exist simultaneously.
----------+-----------------+--------------------------------------------------
- Medium  | Exceptions      | Throw an OmFeatureUnavailableError() exception
-         |                 | whenever a task can't be performed because
-	 |                 | something isn't compiled in.
----------+-----------------+--------------------------------------------------
- Medium  | Exceptions      | Make exceptions work with shared libs on solaris /
-         |                 | find an alternative.
----------+-----------------+--------------------------------------------------
- Medium  | Options         | Use OmSettings for specifying what debugging info
-	 |                 | to output
----------+-----------------+--------------------------------------------------
- Medium  | Postlist        | Add ability to retrieve collection frequency
-         |                 | (ie, sum of wdfs).
----------+-----------------+--------------------------------------------------
- Medium  | WritableDbs     | Make add_document() atomic.
----------+-----------------+--------------------------------------------------
- Medium  | Databases       | Ensure that opening a termlist which
-         |                 | is not present throws the correct exception.
----------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Ensure that API documentation covers entirety of
-         |                 | API.  Then rewrite it for clarity.
----------+-----------------+--------------------------------------------------
- Medium  | Documentation   | Document backend API (database, postlist,
-         |                 | termlist, document, etc) in same way as enquire
-	 |                 | API.
----------+-----------------+--------------------------------------------------
- Medium  | Positional      | Pass within-query-frequency and query length
-	 |                 | information to matcher.
----------+-----------------+--------------------------------------------------
- Medium  |RPositional      | Add a get_position_list() method to databases.
----------+-----------------+--------------------------------------------------
- Medium  | Positional      | Implement get_position_list() method on operators
-	 |                 | so that (A OR B) NEAR (C AND D) works.
----------+-----------------+--------------------------------------------------
- Medium  | General / API   | Put Om into its own namespace, to ensure lack of
-         |                 | symbol conflicts.
----------+-----------------+--------------------------------------------------
- Medium  | Bindings        | Ensure that (Java in particular) bindings throw
-         |                 | correct exception types.
----------+-----------------+--------------------------------------------------
- Medium  | General         | Make om_queryop a member of OmQuery, as far as
-	 |                 | the API is concerned.  Have an internal typedef
-	 |                 | so that this isn't inappropriate internally.
----------+-----------------+--------------------------------------------------
- Medium  | MultiDatabase   | Termcache currently clears itself when full: make
-         |                 | more efficient.
----------+-----------------+--------------------------------------------------
- Medium  | Stemming        | Make a separate package to contain stemming
-         | Algorithms      | algorithm stuff (docs, code, stemtest)
----------+-----------------+--------------------------------------------------
- Low     | Purify          | Write autoconf macro to turn on purify support.
-         |                 | Submit to http://peti.cys.de/autoconf-archive/
----------+-----------------+--------------------------------------------------
- Low     | Documentation   | Add notes about catching exceptions throughout
-         |                 | userman, particularly in examples (eg, search
-	 |                 | engine example)
----------+-----------------+--------------------------------------------------
- Low     |cBackends        | Use thread locks around inmemory methods
----------+-----------------+--------------------------------------------------
- Low     | Website         | Put TeX documentation on website.
----------+-----------------+--------------------------------------------------
- Low     | Backends        | Stop d[ba]read from exporting junk symbols
----------+-----------------+--------------------------------------------------
- Low     |RPositional      | Use within query frequency and query length
-	 |                 | information in matcher.
----------+-----------------+--------------------------------------------------
- Low     |cGeneral         | Audit for exception safety.
----------+-----------------+--------------------------------------------------
- Low     |cTODO            | Write some VIM macros to deal with this TODO
----------+-----------------+--------------------------------------------------
- Verylow | General         | Improve performance using SIMD instructions
----------+-----------------+--------------------------------------------------
- Verylow | General         | Make backends / weighting schemes / indexer
-	 |                 | modules register themselves automatically.  At
-	 |                 | runtime / linktime?  (ie, replace current
-	 |                 | conditional compilation scheme)
----------+-----------------+--------------------------------------------------
- Verylow | Backends        | Split database definition files into
-	 |                 | database/postlist/termlist files.
----------+-----------------+--------------------------------------------------
- Verylow | General         | A couple of classes get copied a lot - look into
-         |                 | doing copy-on-write for them.  (Notably term
-	 |                 | objects (currently strings so this happens, but
-	 |                 | may not stay that way) and ExpandBits)
----------+-----------------+--------------------------------------------------
- Verylow | API		   | Do allow boolean subqueries in OmQuery
-         |                 | constructors, where it makes sense.
----------+-----------------+--------------------------------------------------
- Dubious | Weighting       | Allow for a non-zero minimum value for the ndl
-	 |                 | (normalised doc len).
----------+-----------------+--------------------------------------------------
- Dubious | Matcher         | Boolean filters result in collection statistics
-         |                 | being for the wrong set of documents (should be
-  	 |                 | appropriate subset)
----------+-----------------+--------------------------------------------------
-
-
-Big Jobs
-========
-
-         |                 |
-Priority | Area            | Task
----------+-----------------+--------------------------------------------------
- High    |CAPI             | Write bindings for other languages (Java, C,
-         |                 | perl, python, etc.). [In progress, apart from C].
----------+-----------------+--------------------------------------------------
- High    | Performance     | Write (speed) performance test suite.
----------+-----------------+--------------------------------------------------
- High    |CIndexer         | Write indexer modules.
----------+-----------------+--------------------------------------------------
- Low     | Positional      | Passage retrieval.
----------+-----------------+--------------------------------------------------
- Low     | Matcher         | Clustering algorithms.
----------+-----------------+--------------------------------------------------
+ | | |             |
+P|D|W|Area         | Task
+-+-+-+-------------+-----------------------------------------------------------
+H|2|C|Distribution | Make timeouts configurable with a sensible default.
+-+-+-+-------------+-----------------------------------------------------------
+H|2| |Tests	   | Make apitest's tests use da/db backends as well
+ | | |             | [Now test da.  Need "makeDB" to test db.]
+-+-+-+-------------+-----------------------------------------------------------
+H|2| |LocalMatch   | Pass around partially created postlist as an
+ | | |             | auto_ptr, for exception safety.
+-+-+-+-------------+-----------------------------------------------------------
+H|2| |Postlist     | Add ability to retrieve collection frequency
+ | | |             | (ie, sum of wdfs).
+-+-+-+-------------+-----------------------------------------------------------
+H|2| |General / API| Put Om into its own namespace, to ensure lack of
+ | | |             | symbol conflicts.
+-+-+-+-------------+-----------------------------------------------------------
+H|2| |General      | Make om_queryop a member of OmQuery, as far as
+ | | |             | the API is concerned.  Have an internal typedef
+ | | |             | so that this isn't inappropriate internally.
+-+-+-+-------------+-----------------------------------------------------------
+H|5|C|API          | Write bindings for other languages (Java, C,
+ | | |             | perl, python, etc.). [In progress, apart from C].
+-+-+-+-------------+-----------------------------------------------------------
+H|5| |Performance  | Write (speed) performance test suite.
+-+-+-+-------------+-----------------------------------------------------------
+H|5|C|Indexer      | Write indexer modules.
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |Exceptions   | Make exceptions threadsafe: see
+ | | |             | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
+ | | |             | GCC (and EGCS) need existence of exceptions to
+ | | |             | be protected by a mutex - will need to cope with
+ | | |             | exception being copied.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Documentation| Patch doxygen, so that todo items in the body of
+ | | |             | methods get displayed.
+-+-+-+-------------+-----------------------------------------------------------
+M|4| |OmDatabase   | Test assignment operators for OmDatabase and
+ | | |             | OmWritableDatabase
+-+-+-+-------------+-----------------------------------------------------------
+M|2| |Databases    | Make OmDatabaseGroup inherit from OmDatabase
+-+-+-+-------------+-----------------------------------------------------------
+M|4| |LocalMatch   | Test performance when nth_element is run more
+ | | |             | or less frequently, to see what is best.
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |General      | Check that it is safe for an exception to be
+ | | |             | thrown and caught within a destructor, when that
+ | | |             | destructor is being called due to an exception
+ | | |             | unwinding the stack.  eg, a database is
+ | | |             | destroyed due to an exception, database's
+ | | |             | destructor calls internal_end_session() which
+ | | |             | throws an exception (which is caught and handled
+ | | |             | by the destructor): is this safe - two exceptions
+ | | |             | exist simultaneously.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Exceptions   | Throw an OmFeatureUnavailableError() exception
+ | | |             | whenever a task can't be performed because
+ | | |             | something isn't compiled in.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Exceptions   | Make exceptions work with shared libs on solaris /
+ | | |             | find an alternative. (gcc => DISABLE_SHARED on Solaris)
+-+-+-+-------------+-----------------------------------------------------------
+M|2| |Options      | Use OmSettings for specifying what debugging info
+ | | |             | to output
+-+-+-+-------------+-----------------------------------------------------------
+M|1| |Databases    | Ensure that opening a termlist which is not present
+ | | |             | throws the correct exception.
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |Documentation| Ensure that API documentation covers entirety of
+ | | |             | API.  Then rewrite it for clarity.
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |Documentation| Document backend API (database, postlist,
+ | | |             | termlist, document, etc) in same way as enquire API.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Positional   | Pass within-query-frequency and query length
+ | | |             | information to matcher (and use it)
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Positional   | Implement get_position_list() method on operators
+ | | |             | so that (A OR B) NEAR (C AND D) works.
+-+-+-+-------------+-----------------------------------------------------------
+M|5| |Bindings     | Ensure that (Java in particular) bindings throw
+ | | |             | correct exception types.
+-+-+-+-------------+-----------------------------------------------------------
+M|2| |MultiDatabase| Termcache currently clears itself when full: make
+ | | |             | more efficient.  Do we even want a cache here?
+-+-+-+-------------+-----------------------------------------------------------
+M|4| |Stemming     | Make a separate package to contain stemming
+ | | |Algorithms   | algorithm stuff (docs, code, stemtest)
+-+-+-+-------------+-----------------------------------------------------------
+L|3| |Purify       | Write autoconf macro to turn on purify support.
+ | | |             | Submit to http://peti.cys.de/autoconf-archive/
+-+-+-+-------------+-----------------------------------------------------------
+L|3| |Documentation| Add notes about catching exceptions throughout
+ | | |             | userman, particularly in examples (eg, search
+ | | |             | engine example)
+-+-+-+-------------+-----------------------------------------------------------
+L|3|c|Backends     | Use thread locks around inmemory methods
+-+-+-+-------------+-----------------------------------------------------------
+L|2| |Website      | Put PS/PDF documentation on website.
+-+-+-+-------------+-----------------------------------------------------------
+L|3| |Backends     | Stop d[ba]read from exporting junk symbols
+-+-+-+-------------+-----------------------------------------------------------
+L|5|c|General      | Audit for exception safety.
+-+-+-+-------------+-----------------------------------------------------------
+L|5|c|TODO         | Write some VIM macros to deal with this TODO
+-+-+-+-------------+-----------------------------------------------------------
+L|4|R|Positional   | Add a get_position_list() method to databases.
+-+-+-+-------------+-----------------------------------------------------------
+L|3| |Weighting    | Allow for a non-zero minimum value for the ndl
+ | | |             | (normalised doc len).
+-+-+-+-------------+-----------------------------------------------------------
+L|5| |Positional   | Passage retrieval.
+-+-+-+-------------+-----------------------------------------------------------
+L|5| |Matcher      | Clustering algorithms.
+-+-+-+-------------+-----------------------------------------------------------
+V|5| |General      | Improve performance using SIMD instructions
+-+-+-+-------------+-----------------------------------------------------------
+V|4| |General      | Make backends / weighting schemes / indexer modules
+ | | |             | register themselves automatically.  At runtime / linktime?
+ | | |             | (ie, replace current conditional compilation scheme)
+-+-+-+-------------+-----------------------------------------------------------
+V|3| |Backends     | Split database definition files into
+ | | |             | database/postlist/termlist files.
+-+-+-+-------------+-----------------------------------------------------------
+V|4| |General      | A couple of classes get copied a lot - look into doing
+ | | |             | copy-on-write for them.  Notably ExpandBits and term names
+ | | |             | (currently strings so this happens, but may change)
+-+-+-+-------------+-----------------------------------------------------------
+D|3| |API	   | Do allow boolean subqueries in OmQuery constructors, where
+ | | |             | it makes sense (or note in documentation to use FILTER).
+-+-+-+-------------+-----------------------------------------------------------
+D|5| |Matcher      | Boolean filters result in collection statistics
+ | | |             | being for the wrong set of documents (should be
+ | | |             | appropriate subset).  Hard to be efficient
+-+-+-+-------------+-----------------------------------------------------------

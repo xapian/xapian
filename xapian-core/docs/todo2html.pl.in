@@ -14,9 +14,21 @@ print <<EOT;
 <BODY BGCOLOR="#FFFFFF">
 EOT
 
+my %priority = qw(
+U Urgent
+H High
+M Medium
+L Low
+V Verylow
+D Dubious
+);
+
+$priority{' '} = '';
+
 my $line;
 my $lastline=' ';
 my $priority='';
+my $difficulty='';
 my $area='';
 my $task='';
 my $owner='';
@@ -30,13 +42,14 @@ while($line = <>) {
 	$tableopen = 0;
         print "<H2>" . $lastline . "</H2>\n";
     } else {
-        if(($line =~ m/---------\+-----------------\+--------------------------------------------------/)) {
+        if(($line =~ m/-\+-\+-\+-------------\+-----------------------------------------------------------/)) {
 	    if($priority ne '') {
 		if(!$tableopen) {
 		print <<EOT;
 <TABLE BORDER=1>
 <TR>
 <TD>Priority</TD>
+<TD>Difficulty</TD>
 <TD>Area</TD>
 <TD>Task</TD>
 <TD>Owner</TD>
@@ -47,6 +60,7 @@ EOT
 		print <<EOT;
 <TR VALIGN=top>
 <TD VALIGN=top>$priority</TD>
+<TD VALIGN=top>$difficulty</TD>
 <TD VALIGN=top>$area</TD>
 <TD VALIGN=top>$task</TD>
 <TD VALIGN=top>$owner</TD>
@@ -54,20 +68,23 @@ EOT
 EOT
 		$priority = '';
 		$owner = '';
+		$difficulty = '';
 		$area = '';
 		$task = '';
 	    }
 	    $isitem=1;
 	} else {
 	    if($isitem &&
-	       $line =~ m/^\s*([^|]*?)\s*\|(.)([^|]*?)\s*\|\s*([^|]*?)\s*$/) {
-		$priority .= $1;
-		$owner .= $2;
-		$area .= $3 . " ";
-		$task .= $4 . " ";
+	       $line =~ m/^([UHMLVD ])\|([1-5 ])\|([\w ])\|([^|]*?)\s*\|\s*([^|]*?)\s*$/) {
+		$priority .= $priority{$1};
+		$difficulty .= $2;
+		$owner .= $3;
+		$area .= $4 . " ";
+		$task .= $5 . " ";
 	    } else {
 		$priority = '';
 		$owner = '';
+		$difficulty = '';
 		$area = '';
 		$task = '';
 	    }
