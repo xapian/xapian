@@ -21,7 +21,7 @@ TextfilePostList::get_weight() const
     Assert(!at_end());
 
     return ir_wt->get_weight((*pos).positions.size(),
-			     this_db->get_normlength(get_docid()));
+			     this_db->get_doclength(get_docid()));
 }
 
 ///////////////////////////
@@ -45,16 +45,26 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     totlen = 0;
 
     // Index document
-    termname word = "thou";
-    docid did = make_doc();
-    termcount position = 1;
+    termname word;
+    docid did;
+    termcount position;
+
+    word = "thou";
+    did = make_doc();
+    position = 1;
 
     make_posting(make_term(word), did, position++);
     make_posting(make_term("things"), did, position++);
     make_posting(make_term(word), did, position++);
     did = make_doc();
     position = 1;
-    make_posting(make_term(word), did, position++);
+
+    make_posting(make_term("things"), did, position++);
+    make_posting(make_term("junk"), did, position++);
+
+    // Make sure that there's at least one document
+    if(postlists.size() <= 0)
+	throw OmError("Document was empty or nearly empty - nothing to search");
 
     opened = true;
 }

@@ -186,7 +186,7 @@ class TextfileDatabase : public virtual IRDatabase {
 	TermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
 
-	doclength get_normlength(docid) const;
+	doclength get_doclength(docid) const;
 };
 
 
@@ -328,12 +328,12 @@ TextfileDatabase::get_termfreq(termid tid) const
 }
 
 inline doclength
-TextfileDatabase::get_normlength(docid did) const
+TextfileDatabase::get_doclength(docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
-    return ((doclength) doclengths[did - 1]) / get_avlength();
+    return (doclength) doclengths[did - 1];
 }
 
 inline termname
