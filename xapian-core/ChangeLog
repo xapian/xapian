@@ -1,3 +1,9 @@
+Tue Oct 08 19:53:02 BST 2002  Olly Betts <olly@survex.com>
+
+	* include/om/Makefile.am: remove include/om/om.h on "make distclean",
+	  not "make clean".  Otherwise "./configure ; make clean ; make"
+	  fails which is wrong.
+
 Sun Oct 06 18:37:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.

@@ -8,4 +8,4 @@ libxapianinclude_HEADERS = omstem.h \
  omvalueiterator.h omexpanddecider.h
 nodist_libxapianinclude_HEADERS = om.h
 EXTRA_DIST = om.h.in
-CLEANFILES = om.h
+DISTCLEANFILES = om.h
