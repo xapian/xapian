@@ -59,6 +59,11 @@ AC_PATH_PROG(DVIPS_PATH, dvips)
 AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS_PATH")
 AC_SUBST(DVIPS_PATH)
 
+dnl Check for swig. (For generating scripting language bindings)
+AC_PATH_PROG(SWIG_PATH, swig)
+AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG_PATH")
+AC_SUBST(SWIG_PATH)
+
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
