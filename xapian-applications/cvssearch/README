@@ -1,0 +1,36 @@
+CVSSearch
+=========
+
+
+INSTALLATION
+============
+
+* install the latest release of the sleepycat database from
+  http://www.sleepycat.com/download.html  
+
+* install the latest version of omsee from 
+  ftp://ftp.omsee.com/pub/unstable/nightly/latest/
+
+* now configure CVSSearch, compile, and install:
+
+  ./configure
+  make
+  make install
+
+
+
+
+Building a CVSSearch Database
+=============================
+
+
+
+Searching a CVSSearch Database
+==============================
+
+
+
+
+
+
+
