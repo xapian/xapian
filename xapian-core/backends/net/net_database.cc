@@ -65,6 +65,7 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
 
 
 NetworkDatabase::~NetworkDatabase() {
+    // FIXME: could throw an exception
     internal_end_session();
 }
 

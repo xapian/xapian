@@ -98,6 +98,10 @@ class IRDatabase : public OmRefCntBase {
 	 *  Derived class' destructors should call this method before
 	 *  destroying the database to ensure that no sessions are in
 	 *  progress at destruction time.
+	 *
+	 *  Note that it is not safe to throw exceptions from destructors,
+	 *  so this must be enclosed in a try - catch clause, and exceptions
+	 *  dealt with.
 	 */
 	void internal_end_session();
 

@@ -80,6 +80,7 @@ InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
 
 InMemoryDatabase::~InMemoryDatabase()
 {
+    // FIXME: could throw an exception
     internal_end_session();
 }
 

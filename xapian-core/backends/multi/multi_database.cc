@@ -56,6 +56,7 @@ MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
 
 MultiDatabase::~MultiDatabase()
 {
+    // FIXME: could throw an exception
     internal_end_session();
 }
 

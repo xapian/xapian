@@ -57,6 +57,7 @@ class QuartzDatabase::Internals {
     public:
 	static void      check_library_version();
 	static u_int32_t calc_env_flags(bool readonly, bool use_transactions);
+	static u_int32_t calc_db_flags(bool readonly, bool use_transactions);
 	static int       calc_mode();
 	DbEnv dbenv;
 	
@@ -104,7 +105,9 @@ QuartzDatabase::Internals::calc_env_flags(bool readonly, bool use_transactions)
     // Work out which subsystems to initialise.
     flags |= DB_INIT_MPOOL;
     if (use_transactions) {
-	flags |= DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_TXN;
+	flags |= DB_INIT_LOCK;
+
+	flags |= DB_INIT_LOG | DB_INIT_TXN;
 
 	// If using transactions, always must have permission to write to
 	// the database anyway, and we want to be sure that normal recovery
@@ -117,6 +120,25 @@ QuartzDatabase::Internals::calc_env_flags(bool readonly, bool use_transactions)
 
     if (readonly) {
 	flags |= 0;
+    } else {
+	flags |= DB_CREATE;
+    }
+
+#ifdef MUS_USE_PTHREAD
+    // Allows access to the dbenv handle from multiple threads
+    flags |= DB_THREAD;
+#endif
+    
+    return flags;
+}
+
+u_int32_t
+QuartzDatabase::Internals::calc_db_flags(bool readonly, bool use_transactions)
+{
+    u_int32_t flags = 0;
+
+    if (readonly) {
+	flags |= DB_RDONLY;
     } else {
 	flags |= DB_CREATE;
     }
@@ -148,35 +170,36 @@ QuartzDatabase::Internals::calc_mode()
 // quartz_envdir - Directory to use to keep the database environment in.
 // 		   If not specified, the database directory will be used.
 //
-QuartzDatabase::QuartzDatabase(const OmSettings & params, bool readonly)
+QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 	: internals(new Internals())
 {
 // FIXME: Make sure that environment is not in a network filesystem, eg NFS.
 
     Internals::check_library_version();
 
-    string db_dir="quartz";
-    string tmp_dir;
-    string env_dir;
+    string db_dir=settings.get_value("quartz_dir");
+    string tmp_dir=settings.get_value("quartz_tmpdir", db_dir);
+    string env_dir=settings.get_value("quartz_envdir", db_dir);
 
     bool use_transactions = false;
 
     // set cache size parameters, etc, here.
+
+    // FIXME: check return value
+    internals->dbenv.set_tmp_dir(tmp_dir.c_str());
 
     // open environment here
     // FIXME: check return value
     internals->dbenv.open(db_dir.c_str(),
 			  Internals::calc_env_flags(readonly, use_transactions),
 			  Internals::calc_mode());
-
-    if (!tmp_dir.empty()) {
-	// FIXME: check return value
-	internals->dbenv.set_tmp_dir(tmp_dir.c_str());
-    }
 }
 
 QuartzDatabase::~QuartzDatabase()
 {
+    // FIXME: could throw an exception
+    internal_end_session();
+
     // FIXME: check return value
     internals->dbenv.close(0);
 
@@ -187,16 +210,19 @@ QuartzDatabase::~QuartzDatabase()
 void
 QuartzDatabase::do_begin_session(om_timeout timeout)
 {
+    throw OmUnimplementedError("QuartzDatabase::do_begin_session() not yet implemented");
 }
 
 void
 QuartzDatabase::do_end_session()
 {
+    throw OmUnimplementedError("QuartzDatabase::do_end_session() not yet implemented");
 }
 
 void
 QuartzDatabase::do_flush()
 {
+    throw OmUnimplementedError("QuartzDatabase::do_flush() not yet implemented");
 }
 
 
@@ -222,23 +248,27 @@ QuartzDatabase::do_cancel_transaction()
 om_docid
 QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
+    throw OmUnimplementedError("QuartzDatabase::do_add_document() not yet implemented");
 }
 
 void
 QuartzDatabase::do_delete_document(om_docid did)
 {
+    throw OmUnimplementedError("QuartzDatabase::do_delete_document() not yet implemented");
 }
 
 void
 QuartzDatabase::do_replace_document(om_docid did,
 				    const OmDocumentContents & document)
 {
+    throw OmUnimplementedError("QuartzDatabase::do_replace_document() not yet implemented");
 }
 
 
 OmDocumentContents
 QuartzDatabase::do_get_document(om_docid did)
 {
+    throw OmUnimplementedError("QuartzDatabase::do_get_document() not yet implemented");
 }
 
 
@@ -246,41 +276,49 @@ QuartzDatabase::do_get_document(om_docid did)
 om_doccount 
 QuartzDatabase::get_doccount() const
 {
+    throw OmUnimplementedError("QuartzDatabase::get_doccount() not yet implemented");
 }
 
 om_doclength
 QuartzDatabase::get_avlength() const
 {
+    throw OmUnimplementedError("QuartzDatabase::get_avlength() not yet implemented");
 }
 
 om_doclength
 QuartzDatabase::get_doclength(om_docid did) const
 {
+    throw OmUnimplementedError("QuartzDatabase::get_doclength() not yet implemented");
 }
 
 om_doccount
 QuartzDatabase::get_termfreq(const om_termname & tname) const
 {
+    throw OmUnimplementedError("QuartzDatabase::get_termfreq() not yet implemented");
 }
 
 bool
 QuartzDatabase::term_exists(const om_termname & tname) const
 {
+    throw OmUnimplementedError("QuartzDatabase::term_exists() not yet implemented");
 }
 
 
 LeafPostList *
 QuartzDatabase::open_post_list(const om_termname& tname) const
 {
+    throw OmUnimplementedError("QuartzDatabase::open_post_list() not yet implemented");
 }
 
 LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
+    throw OmUnimplementedError("QuartzDatabase::open_term_list() not yet implemented");
 }
 
 LeafDocument *
 QuartzDatabase::open_document(om_docid did) const
 {
+    throw OmUnimplementedError("QuartzDatabase::open_document() not yet implemented");
 }
 

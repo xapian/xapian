@@ -188,6 +188,7 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), keyfil
 
 DBDatabase::~DBDatabase()
 {
+    // FIXME: could throw an exception
     internal_end_session();
 
     if(keyfile != 0) {

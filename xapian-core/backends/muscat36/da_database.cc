@@ -198,6 +198,7 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
 
 DADatabase::~DADatabase()
 {
+    // FIXME: could throw an exception
     internal_end_session();
 
     if(keyfile != 0) {
