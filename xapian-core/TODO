@@ -24,6 +24,10 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Matcher         | Finish implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
+ Medium  | API             | Use pthread locks around API methods, to make
+         |                 | all operations thread safe.  Conditionally
+         |                 | compile such locks.
+---------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------
