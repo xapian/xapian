@@ -18,8 +18,7 @@ P|D|W|Area         | Task
 -+-+-+-------------+-----------------------------------------------------------
 H|2|C|Distribution | Make timeouts configurable with a sensible default.
 -+-+-+-------------+-----------------------------------------------------------
-H|2| |Tests	   | Make apitest's tests use da/db backends as well
- | | |             | [Now test da.  Need "makeDB" to test db.]
+H|2| |Tests	   | Make apitest's tests use db backend as well
 -+-+-+-------------+-----------------------------------------------------------
 H|2| |LocalMatch   | Pass around partially created postlist as an
  | | |             | auto_ptr, for exception safety.
@@ -51,9 +50,6 @@ M|3| |OmDocument   | Remove termfreq element from OmDocumentContents - not
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |Documentation| Patch doxygen, so that todo items in the body of
  | | |             | methods get displayed.
--+-+-+-------------+-----------------------------------------------------------
-M|4| |OmDatabase   | Test assignment operators for OmDatabase and
- | | |             | OmWritableDatabase
 -+-+-+-------------+-----------------------------------------------------------
 M|4| |LocalMatch   | Test performance when nth_element is run more
  | | |             | or less frequently, to see what is best.
