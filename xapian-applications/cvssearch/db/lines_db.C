@@ -9,7 +9,7 @@
 
 #include <strstream>
 #include <iostream>
-#include <stdio.h>
+#include <unistd.h>
 #include "lines_db.h"
 #include "util.h"
 using namespace std;
@@ -59,23 +59,26 @@ bool lines_db::readNextLine() {
         }
         current_fn = package + "/" + current_fn;
         string file_path = path + "/" + current_fn;
-        {
-            string command = "wc -l " + file_path;
-            FILE * fout = popen(command.c_str(), "r");
-            if (fout != NULL)
-            {
-		char buf[1024];
-		size_t c = fread(buf, 1, 1024, fout);
-		buf[c] = '\0';
-		file_length = strtoul(buf, NULL, 10);
-            }
-            pclose(fout);
-        }
         in_code = new ifstream(file_path.c_str());
-        if( ! *in_code ) {
+        if (! *in_code) {
             cerr << "*** could not open " << file_path << endl;
             assert(0);
         }
+
+	// in_code->rdbuf()->setbuf(0, 0);
+	char buf[4096];
+	unsigned int no_of_lines = 0;
+	while (!in_code->bad()) {
+	    in_code->get(buf, sizeof(buf));
+	    if (in_code->eof()) {
+		// End of file
+		file_length = no_of_lines;
+		break;
+	    }
+	    if (in_code->get() == '\n') ++no_of_lines;
+	}
+        in_code->seekg(0, ios_base::beg);
+
         cerr << "..." << message << " " << current_fn << endl;
         _db_file.get_revision(file_id, line_no = 1, revisions);
     } else {
