@@ -1,3 +1,7 @@
+Mon Nov 29 18:28:57 GMT 2004  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Updated.
+
 Mon Nov 29 18:27:12 GMT 2004  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Added -no-undefined to
