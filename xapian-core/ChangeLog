@@ -1,3 +1,7 @@
+Mon Nov 11 18:10:23 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Fixed broken link.
+
 Mon Nov 11 18:07:41 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,docs/quartzdesign.html: Store next free docid
