@@ -2,24 +2,16 @@ This file contains items which need to be worked on.
 It tends to be a huge list, partially incomplete and partially out of date.
 
 
-
-
 ToDo items on the coding side.
 (Not a complete list)
 
-Near term (within a fortnight)
-=========================
+Near term
+=========
 
 Split database definition files into database/postlist/termlist files.
 
 Remove hardcoded reference to an indexer in InMemoryDatabase.  Index to it
 in the usual way.
-
-Reformat code to be consistent style, before distributing it.
-
-Write proper weighting formula for termlists, so expand works correctly.
-
-Add tags to all files so can add licences easily.
 
 Make InMemoryDatabase allow (size of position vector) != (wdf), ie, if posting
 is made and position is already there, leave position vector same but
@@ -41,8 +33,8 @@ error conditions (when things should be Asserted / when exceptions should
 be thrown / when error condition should be returned.)
 Do same for postlists, termlists, documents, matcher, etc.
 
-Middle term (within a couple of months)
-============================
+Middle term
+===========
 
 A couple of objects get copied a lot - look into doing copy-on-write for them.
 (Notably term objects (currently strings so this happens, but may not stay
