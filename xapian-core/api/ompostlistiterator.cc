@@ -33,6 +33,20 @@ OmPostListIterator::OmPostListIterator(Internal *internal_)
     DEBUGAPICALL("OmPostListIterator::OmPostListIterator", "Internal");
 }
 
+OmPostListIterator::OmPostListIterator(const OmPostListIterator &o)
+	: internal(new OmPostListIterator::Internal(*(o.internal)))
+{
+    DEBUGAPICALL("OmPostListIterator::OmPostListIterator", o);
+}
+
+void
+OmPostListIterator::operator=(const OmPostListIterator &o)
+{
+    delete internal;
+    internal = new OmPostListIterator::Internal(*(o.internal));
+    DEBUGAPICALL("OmPostListIterator::operator=", o);
+}
+
 OmPostListIterator::~OmPostListIterator() {
     DEBUGAPICALL("OmPostListIterator::~OmPostListIterator", "");
     delete internal;

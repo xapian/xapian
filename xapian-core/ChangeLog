@@ -1,3 +1,10 @@
+Fri Sep  8 20:10:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix problem with OmPostListIterator's internals not being reference
+	  counted, and copy still being allowed; internals are refcnt again,
+	  and copy and assignment operations are fully defined.
+	  OmTermListIterators and OmPositionListIterators are still broken.
+
 Fri Sep  8 18:42:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In delve, ensure that recno's are in sorted order.

@@ -44,7 +44,9 @@ class OmPostListIterator {
     public:
         ~OmPostListIterator();
 
-	OmPostListIterator operator=(OmPostListIterator &o);
+	void operator=(const OmPostListIterator &o);
+
+	OmPostListIterator(const OmPostListIterator &o);
     
 	const om_docid operator *();
 

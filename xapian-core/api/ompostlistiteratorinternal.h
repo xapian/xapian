@@ -31,7 +31,7 @@ class OmPostListIterator::Internal {
 	friend class OmPostListIterator; // allow access to postlist
         friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
 
-	PostList *postlist;
+	OmRefCntPtr<PostList> postlist;
     
     public:
         Internal(PostList *postlist_) : postlist(postlist_)
@@ -41,7 +41,7 @@ class OmPostListIterator::Internal {
 	    if (p) postlist = p; // handle prune
 	}
 
-	~Internal() { delete postlist; }
+	~Internal() {}
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */
