@@ -153,7 +153,7 @@ class BackendManager {
 	Xapian::Database get_database(const std::vector<std::string> &dbnames);
 
 	/// Get a database instance of the current type, single file case.
-	Xapian::Database BackendManager::get_database(const string &dbname);
+	Xapian::Database get_database(const string &dbname);
 
 	/// Get a writable database instance.
 	Xapian::WritableDatabase get_writable_database(const std::string & dbname);
