@@ -171,6 +171,7 @@ sub cvsbuild {
                 } else {
                     mkdir ("$prefix_path.db",0777) || die " cannot mkdir $prefix_path.db: $!";
                 }
+                system ("chmod o+r $prefix_path.db?");
                 system ("mv $prefix_path.db? $prefix_path.db");
                 print TIME "Finished @ ", `date`;
                 $delta_time += time - $start_date;

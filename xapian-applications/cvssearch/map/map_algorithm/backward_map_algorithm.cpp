@@ -170,7 +170,7 @@ backward_map_algorithm::get_diff(const cvs_log & log, unsigned int j)
 diff *
 backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j) 
 {
-cerr << "calc_diff" << endl;
+// cerr << "calc_diff" << endl;
     diff * pdiff = 0;
     if (j == log.size()-1)
     {

@@ -115,15 +115,15 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
     select2 = "";
 
     if (!do0) {
-        select0 = " class=\"current\"";
+        select0 = " class=\"n\"";
     }
 
     if (!do1) {
-        select1 = " class=\"current\"";
+        select1 = " class=\"n\"";
     }
 
     if (!do2) {
-        select2 = " class=\"current\"";
+        select2 = " class=\"n\"";
     }
     
 
@@ -180,12 +180,12 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].source().begin() <= index1 && 
             _diff[diff_index].source().end()   >  index1) 
         {
-            select1 = " class=\"change\"";        
+            select1 = " class=\"c\"";        
         }
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select2 = " class=\"change\"";
+            select2 = " class=\"c\"";
         }
     }
     
@@ -193,8 +193,8 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select2 = " class=\"current\"";
-            select1 = " class=\"delete\"";
+            select2 = " class=\"n\"";
+            select1 = " class=\"a\"";
         }
     }
     
@@ -202,8 +202,8 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].source().begin() <= index1 && 
             _diff[diff_index].source().end()   >  index1) 
         {
-            select2 = " class=\"current\"";        
-            select1 = " class=\"add\"";
+            select2 = " class=\"n\"";        
+            select1 = " class=\"d\"";
         }
     }
 
@@ -261,9 +261,9 @@ html_comparer::write_line(ostream & os,
 ostream &
 html_comparer::write(ostream & os) const
 {
-    string select0 = " class=\"select\"";
-    string select1 = " class=\"select\"";
-    string select2 = " class=\"select\"";
+    string select0 = " class=\"s\"";
+    string select1 = " class=\"s\"";
+    string select2 = " class=\"s\"";
     
     os << "<H3 align=center>aligned diff for " << _pathname 
        << " between "
@@ -544,11 +544,11 @@ html_comparer::write(ostream & os) const
     os << "<HR width=100%>" << endl;
     os << "<TABLE border=0>" << endl;
     os << "<TR><TD colspan=2>Legend:</TD></TR>" << endl;
-    os << "<TR><TD class=\"current\"> </TD><TD align=center class=\"delete\"> added in v."
+    os << "<TR><TD class=\"n\"> </TD><TD align=center class=\"d\"> added in v."
        << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
-    os << "<TR><TD colspan=2 align=center class=\"change\"> changed lines from v." << _revision2 << " to v." 
+    os << "<TR><TD colspan=2 align=center class=\"c\"> changed lines from v." << _revision2 << " to v." 
        << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
-    os << "<TR><TD align=center class=\"add\"> removed in v." << _revision1 << "</TD><TD class=\"current\"> </TD></TR>" << endl;
+    os << "<TR><TD align=center class=\"a\"> removed in v." << _revision1 << "</TD><TD class=\"n\"> </TD></TR>" << endl;
     os << "</TABLE>" << endl;
 
     return os;
@@ -561,11 +561,11 @@ html_comparer::style(ostream & os) const
     os << "BODY  {background-color:#EEEEEE;}" << endl;
     os << "TABLE {background-color:#FFFFFF;}" << endl;
     os << "TD    {font-family:fixed;white-space:pre; overflow:hidden}" << endl;
-    os << ".select {background-color:yellow;}" << endl;
-    os << ".delete {background-color:#CCCCFF;}" << endl;
-    os << ".change {background-color:#99FF99;}" << endl;
-    os << ".add    {background-color:#FF9999;}" << endl;
-    os << ".current{background-color:#CCCCCC;}" << endl;
+    os << ".s {background-color:yellow;}" << endl;
+    os << ".d {background-color:#CCCCFF;}" << endl;
+    os << ".c {background-color:#99FF99;}" << endl;
+    os << ".a {background-color:#FF9999;}" << endl;
+    os << ".n {background-color:#CCCCCC;}" << endl;
     os << "</STYLE>" << endl;
     return os;
 }

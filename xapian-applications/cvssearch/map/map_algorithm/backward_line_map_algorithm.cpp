@@ -128,7 +128,7 @@ backward_line_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
 {
     const range & diff_source = diff_entry.source();
     const range & diff_dest   = diff_entry.dest();
-    cerr << diff_entry << endl;
+    // cerr << diff_entry << endl;
     unsigned int index = _current_index;
     switch (diff_entry.type())
     {
