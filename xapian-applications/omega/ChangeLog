@@ -1,3 +1,10 @@
+Thu Jun 13 00:01:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* omega.conf: removed trailing slashes from directory names.
+
+	* query.cc: removed extra slash added to template_dir; improved
+	  reporting of errors opening template file.
+
 Wed Jun 12 23:51:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added an alternative test mode - you can now pass parameters as

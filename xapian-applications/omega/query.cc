@@ -5,6 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +29,9 @@
 #include <map>
 #include <set>
 
-#include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
+#include <stdio.h>
 #include <time.h>
 
 #include <unistd.h>
@@ -1505,14 +1507,15 @@ eval(const string &fmt, const vector<string> &param)
 
 static string
 eval_file(const string &fmtfile)
-{    
+{
     // don't allow ".." in format names as this would allow people to open
     // a format "../../etc/passwd" or similar
     // FIXME: make this check more exact ("foo..bar" is safe)
     // FIXME: log when this check fails
+    string err;
     string::size_type i = fmtfile.find("..");
     if (i == string::npos) {
-	string file = template_dir + "/" + fmtfile;
+	string file = template_dir + fmtfile;
 	struct stat st;
 	int fd = open(file.c_str(), O_RDONLY);
 	if (fd >= 0) {
@@ -1539,13 +1542,19 @@ eval_file(const string &fmtfile)
 		    free(blk);
 		}
 	    }
+	    err = strerror(errno);
 	    close(fd);
+	} else {
+	    err = strerror(errno);
 	}
+    } else {
+	err = "name contains `..'";
     }
 
     // FIXME: report why!
-    string err = string("Couldn't read format template `") + fmtfile + '\'';
-    throw err;
+    string msg = string("Couldn't read format template `") + fmtfile + '\'';
+    if (!err.empty()) msg += " (" + err + ')';
+    throw msg;
 }
 
 /* return a sane (1-100) percentage value for ratio */
