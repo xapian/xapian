@@ -1,3 +1,7 @@
+Mon Sep 04 12:05:40 BST 2000 Olly Betts
+
+	* Moved multidbN tests together.
+
 Mon Sep 04 09:30:38 BST 2000 Olly Betts
 
 	* Implemented OmTermListIterator.

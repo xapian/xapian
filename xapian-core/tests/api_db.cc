@@ -215,6 +215,49 @@ static bool test_multidb2()
     return success;
 }
 
+// test that a multidb with 2 dbs query returns correct docids
+static bool test_multidb3()
+{
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
+
+    // make a query
+    OmQuery myquery(OmQuery::OP_OR,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
+    myquery.set_bool(true);
+    enquire.set_query(myquery);
+
+    // retrieve the top ten results
+    OmMSet mymset = enquire.get_mset(0, 10);
+    mset_expect_order(mymset, 2, 3, 7);
+
+    return true;
+}
+
+// test that a multidb with 3 dbs query returns correct docids
+static bool test_multidb4()
+{
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmDatabase mydb4(get_database("apitest_termorder"));
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
+
+    // make a query
+    OmQuery myquery(OmQuery::OP_OR,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
+    myquery.set_bool(true);
+    enquire.set_query(myquery);
+
+    // retrieve the top ten results
+    OmMSet mymset = enquire.get_mset(0, 10);
+    mset_expect_order(mymset, 2, 3, 4, 10);
+
+    return true;
+}
+
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
 static bool test_changequery1()
@@ -937,49 +980,6 @@ static bool test_absentterm2()
     return true;
 }
 
-// test that a multidb with 2 dbs query returns correct docids
-static bool test_multidb3()
-{
-    OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
-
-    // make a query
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemory"),
-		    OmQuery("word"));
-    myquery.set_bool(true);
-    enquire.set_query(myquery);
-
-    // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
-    mset_expect_order(mymset, 2, 3, 7);
-
-    return true;
-}
-
-// test that a multidb with 3 dbs query returns correct docids
-static bool test_multidb4()
-{
-    OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmDatabase mydb4(get_database("apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
-
-    // make a query
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemory"),
-		    OmQuery("word"));
-    myquery.set_bool(true);
-    enquire.set_query(myquery);
-
-    // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
-    mset_expect_order(mymset, 2, 3, 4, 10);
-
-    return true;
-}
-
 // test that rsets do sensible things
 static bool test_rset1()
 {
@@ -1533,6 +1533,8 @@ test_desc db_tests[] = {
     {"simplequery3",       test_simplequery3},
     {"multidb1",           test_multidb1},
     {"multidb2",           test_multidb2},
+    {"multidb3",           test_multidb3},
+    {"multidb4",           test_multidb4},
     {"changequery1",	   test_changequery1},
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
@@ -1554,8 +1556,6 @@ test_desc db_tests[] = {
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
     {"absentterm2",	   test_absentterm2},
-    {"multidb3",           test_multidb3},
-    {"multidb4",           test_multidb4},
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
