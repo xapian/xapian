@@ -52,7 +52,6 @@ class OmLock {
 	// disallow copies
 	OmLock(const OmLock &);
 	void operator=(const OmLock &);
-
     public:
 	/// The constructor, which initialises the mutex
     	OmLock() : islocked(false) {
@@ -142,6 +141,10 @@ class OmLockSentry {
 #else // !MUS_USE_PTHREAD
 
 class OmLock {
+    private:
+	// disallow copies
+	OmLock(const OmLock &);
+	void operator=(const OmLock &);
     public:
 	OmLock() {}
 	void lock() const {}
@@ -149,14 +152,12 @@ class OmLock {
 };
 
 class OmLockSentry {
-
-    // disallow copies
-    OmLockSentry(const OmLockSentry &);
-    void operator=(const OmLockSentry &);
-
+    private:
+	// disallow copies
+	OmLockSentry(const OmLockSentry &);
+	void operator=(const OmLockSentry &);
     public:
     	OmLockSentry(const OmLock &mut_) { }
-
 	~OmLockSentry() { }
 };
 
