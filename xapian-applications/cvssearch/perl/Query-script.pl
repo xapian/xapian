@@ -612,6 +612,7 @@ print <<_HTML_;
 <li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.
 The top 1500 lines are returned.
 <li>Multiple words are AND queries for CVS comment matches and OR queries for grep matches.
+<li><B class=red>Searching through hundreds of applications may take a long time so we recommend using in: whenever possible to restrict your search to only a few applications!</B>
 </ul>
 </body>
 </html>
