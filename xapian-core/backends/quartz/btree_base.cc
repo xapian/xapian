@@ -415,8 +415,7 @@ Btree_base::write_to_file(const string &filename)
     int h = sys_open_to_write(filename);
     fdcloser closefd(h);
 
-    sys_write_bytes(h, buf.length(),
-		    reinterpret_cast<const byte *>(buf.data()));
+    sys_write_string(h, buf);
     sys_flush(h);
 }
 

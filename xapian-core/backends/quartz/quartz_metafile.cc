@@ -115,7 +115,7 @@ void QuartzMetaFile::create()
 
     data += encode_version(metafile_version);
 
-    sys_write_bytes(fd, data.length(), (const byte *)data.data());
+    sys_write_string(fd, data);
 }
 
 void QuartzMetaFile::erase()

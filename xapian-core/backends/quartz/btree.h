@@ -76,7 +76,7 @@ class Btree {
 	Btree_errors commit(uint4 revision);
 
 	bool find_key(const string &key);
-	bool find_tag(const string &key, struct Btree_item * t);
+	bool find_tag(const string &key, Btree_item * t);
 
 	bool add(const string &key, const string &tag);
 	bool del(const string &key);
@@ -152,8 +152,8 @@ class Btree {
 	void read_block(int4 n, byte *p);
 	void write_block(int4 n, const byte *p);
 	void set_overwritten();
-	void block_to_cursor(struct Cursor *C_, int j, int4 n);
-	void alter(struct Cursor *C);
+	void block_to_cursor(Cursor *C_, int j, int4 n);
+	void alter(Cursor *C);
 	void compress(byte *p);
 	void enter_key(Cursor *C_, int j, byte *kq, byte *kp);
 	void split_off(Cursor *C_, int j, int c, byte *p, byte *q);
@@ -166,7 +166,7 @@ class Btree {
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);
 	void block_check(Cursor *C, int j, int opts);
-	void split_root(struct Cursor * C_, int j);
+	void split_root(Cursor * C_, int j);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
 			     const int4 blocknumber, bool truncate) const;
@@ -211,8 +211,8 @@ class Btree {
 
 	bool writable; 	/* Set to true when the database is opened to write. */
 
-	int (* prev)(struct Btree *, struct Cursor *, int);
-	int (* next)(struct Btree *, struct Cursor *, int);
+	int (* prev)(Btree *, Cursor *, int);
+	int (* next)(Btree *, Cursor *, int);
 
 	static int prev_default(Btree *, Cursor *C, int j);
 	static int next_default(Btree *, Cursor *C, int j);
@@ -222,10 +222,10 @@ class Btree {
 
 	/* B-tree navigation functions */
 
-	struct Cursor C[BTREE_CURSOR_LEVELS];
+	Cursor C[BTREE_CURSOR_LEVELS];
 
 	/* Debugging methods */
-	void report_block_full(int m, int n, byte * p);
+	void report_block_full(int m, int n, const byte * p);
 };
 
 #endif /* OM_HGUARD_BTREE_H */

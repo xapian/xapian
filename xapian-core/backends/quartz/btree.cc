@@ -30,7 +30,6 @@
 #include <sys/stat.h>
 
 #include <stdio.h>
-#include <stdlib.h>   /* for calloc */
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
@@ -59,8 +58,8 @@ using std::string;
 /*------debugging aids from here--------*/
 
 static void print_bytes(int n, const byte * p);
-static void print_key(byte * p, int c, int j);
-static void print_tag(byte * p, int c, int j);
+static void print_key(const byte * p, int c, int j);
+static void print_tag(const byte * p, int c, int j);
 
 /*
 static void report_cursor(int N, struct Btree * B, struct Cursor * C)
@@ -134,42 +133,29 @@ static void sys_lseek(int h, off_t offset)
     }
 }
 
-static void sys_read_block(int h, int m, int4 n, byte * p)
+static void sys_write_bytes(int h, int n, const byte * p)
 {
-    sys_lseek(h, (off_t)m * n);
-    sys_read_bytes(h, m, p);
-}
-
-static void sys_write_block(int h, int m, int4 n, const byte * p)
-{
-    sys_lseek(h, (off_t)m * n);
-    sys_write_bytes(h, m, p);
-}
-
-int sys_read_bytes(int h, int n, byte * p)
-{
-    ssize_t bytes_read;
+    ssize_t bytes_written;
     while (1) {
-	bytes_read = read(h, (char *)p, n);
-	if (bytes_read == n) {
+	bytes_written = write(h, (char *)p, n);
+	if (bytes_written == n) {
 	    // normal case - read succeeded, so return.
-	    break;
-	} else if (bytes_read == -1) {
-	    string message = "Error reading block: ";
+	    return;
+	} else if (bytes_written == -1) {
+	    string message = "Error writing block: ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
-	} else if (bytes_read == 0) {
-	    string message = "Error reading block: got end of file";
+	} else if (bytes_written == 0) {
+	    string message = "Error writing block: wrote no data";
 	    throw OmDatabaseError(message);
-	} else if (bytes_read < n) {
-	    /* Read part of the block, which is not an error.  We should
-	     * continue reading the rest of the block.
+	} else if (bytes_written < n) {
+	    /* Wrote part of the block, which is not an error.  We should
+	     * continue writing the rest of the block.
 	     */
-	    n -= bytes_read;
-	    p += bytes_read;
+	    n -= bytes_written;
+	    p += bytes_written;
 	}
     }
-    return true;
 }
 
 string sys_read_all_bytes(int h, size_t bytes_to_read)
@@ -198,30 +184,10 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
     return retval;
 }
 
-int sys_write_bytes(int h, int n, const byte * p)
+void
+sys_write_string(int h, const string &s)
 {
-    ssize_t bytes_written;
-    while (1) {
-	bytes_written = write(h, (char *)p, n);
-	if (bytes_written == n) {
-	    // normal case - read succeeded, so return.
-	    break;
-	} else if (bytes_written == -1) {
-	    string message = "Error writing block: ";
-	    message += strerror(errno);
-	    throw OmDatabaseError(message);
-	} else if (bytes_written == 0) {
-	    string message = "Error writing block: wrote no data";
-	    throw OmDatabaseError(message);
-	} else if (bytes_written < n) {
-	    /* Wrote part of the block, which is not an error.  We should
-	     * continue writing the rest of the block.
-	     */
-	    n -= bytes_written;
-	    p += bytes_written;
-	}
-    }
-    return true;
+    sys_write_bytes(h, s.length(), (const byte *)s.data());
 }
 
 int sys_flush(int h) {
@@ -332,7 +298,27 @@ Btree::read_block(int4 n, byte * p)
      */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
-    sys_read_block(handle, block_size, n, p);
+    sys_lseek(handle, (off_t)block_size * n);
+    int m = block_size;
+    while (1) {
+	ssize_t bytes_read = read(handle, (char *)p, m);
+	// normal case - read succeeded, so return.
+	if (bytes_read == m) return;
+	if (bytes_read == -1) {
+	    string message = "Error reading block: ";
+	    message += strerror(errno);
+	    throw OmDatabaseError(message);
+	} else if (bytes_read == 0) {
+	    string message = "Error reading block: got end of file";
+	    throw OmDatabaseError(message);
+	} else if (bytes_read < m) {
+	    /* Read part of the block, which is not an error.  We should
+	     * continue reading the rest of the block.
+	     */
+	    m -= bytes_read;
+	    p += bytes_read;
+	}
+    }
     /** Previously, this would set B->error to BTREE_ERROR_DB_READ
      *  when sys_read_block() failed.  However, it now throws an
      *  exception, so we never get here.
@@ -377,7 +363,8 @@ Btree::write_block(int4 n, const byte * p)
 	}
     }
 
-    sys_write_block(handle, block_size, n, p);
+    sys_lseek(handle, (off_t)block_size * n);
+    sys_write_bytes(handle, block_size, p);
     /* This used to set B->error as below, but will now throw
      * an exception if it fails.
 	B->error = BTREE_ERROR_DB_WRITE;
@@ -468,7 +455,7 @@ static void set_block_given_by(byte * p, int c, int4 n)
    and returns its tag value as an integer.
 */
 
-static int block_given_by(byte * p, int c)
+static int block_given_by(const byte * p, int c)
 {
     c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
@@ -569,7 +556,7 @@ static int compare_keys(const byte * key1, const byte * key2)
 
 */
 
-static int find_in_block(byte * p, byte * key, int offset, int c)
+static int find_in_block(const byte * p, const byte * key, int offset, int c)
 {
     int i = DIR_START - offset;
     int j = DIR_END(p);
@@ -603,7 +590,7 @@ bool
 Btree::find(struct Cursor * C_)
 {
     /* FIXME: is the parameter necessary? */
-    byte * p;
+    const byte * p;
     int c;
     byte * k = kt + I2;
     int j;
@@ -916,7 +903,8 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
 	    c -= (m - DIR_START);
 	    add_item_to_block(p, kt, c);
 	    n = C[j].n;
-	} else {   add_item_to_block(q, kt, c);
+	} else {
+	    add_item_to_block(q, kt, c);
 	    n = C[j].split_n;
 	}
 	write_block(C[j].split_n, q);
@@ -1098,8 +1086,7 @@ Btree::delete_kt()
 	print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); putchar('\n');
     }
     */
-    if (found)
-    {
+    if (found) {
 	components = components_of(C[0].p, C[0].c);
 	alter(C);
 	delete_item(C, 0, true);
@@ -1913,9 +1900,9 @@ static void print_bytes(int n, const byte * p)
     fwrite(p, n, 1, stdout);
 }
 
-static void print_key(byte * p, int c, int j)
+static void print_key(const byte * p, int c, int j)
 {
-    byte * k = key_of(p, c);
+    const byte * k = key_of(p, c);
     int l = GETK(k, 0);
 
     if (j == 0) {
@@ -1930,7 +1917,7 @@ static void print_key(byte * p, int c, int j)
     }
 }
 
-static void print_tag(byte * p, int c, int j)
+static void print_tag(const byte * p, int c, int j)
 {
     int o = GETD(p, c);
     int o_tag = o + I2 + GETK(p, o + I2);
@@ -1952,14 +1939,14 @@ static void print_spaces(int n)
    m spaces.
 */
 
-static int block_usage(struct Btree * B, byte * p)
+static int block_usage(const Btree * B, const byte * p)
 {
     int space = B->block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
     return (space - free) * 100 / space;  /* a percentage */
 }
 
-static void report_block(struct Btree * B, int m, int n, byte * p)
+static void report_block(const Btree * B, int m, int n, const byte * p)
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
@@ -1978,7 +1965,7 @@ static void report_block(struct Btree * B, int m, int n, byte * p)
     putchar('\n');
 }
 
-void Btree::report_block_full(int m, int n, byte * p)
+void Btree::report_block_full(int m, int n, const byte * p)
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);

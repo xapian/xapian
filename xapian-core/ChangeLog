@@ -1,3 +1,7 @@
+Tue Jun 25 13:56:01 BST 2002  Olly Betts <olly@survex.com>
+
+	* btree/quartz: More use of const pointers; more use of C++ strings.
+
 Wed Jun 19 08:56:00 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Fixed spec file to build for prefix=/usr not just install there

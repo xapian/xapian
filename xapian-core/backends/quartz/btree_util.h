@@ -237,15 +237,20 @@ inline byte * key_of(byte * p, int c)
     return p + c + I2;
 }
 
+inline const byte * key_of(const byte * p, int c)
+{
+    c = GETD(p, c);
+    return p + c + I2;
+}
+
 bool valid_handle(int h);
-int sys_open_to_read(const std::string & name);
-int sys_open_to_read_no_except(const std::string & name);
-int sys_open_to_write(const std::string & name);
-void sys_unlink_if_exists(const std::string &filename);
+int sys_open_to_read(const string & name);
+int sys_open_to_read_no_except(const string & name);
+int sys_open_to_write(const string & name);
+void sys_unlink_if_exists(const string &filename);
 int sys_close(int h);
-int sys_read_bytes(int h, int n, byte *p);
-std::string sys_read_all_bytes(int h, size_t max);
-int sys_write_bytes(int h, int n, const byte *p);
+string sys_read_all_bytes(int h, size_t max);
+void sys_write_string(int h, const string &s);
 int sys_flush(int h);
 
 inline byte *zeroed_new(size_t size)

@@ -260,15 +260,13 @@ static void read_start_of_chunk(const char ** posptr,
     }
 }
 
-static string make_did_increase(om_docid new_did,
-				     om_docid last_did_in_chunk)
+static string make_did_increase(om_docid new_did, om_docid last_did_in_chunk)
 {
     Assert(new_did > last_did_in_chunk);
     return pack_uint(new_did - last_did_in_chunk);
 }
 
-static string make_wdf_and_length(om_termcount wdf,
-				       quartz_doclen_t doclength)
+static string make_wdf_and_length(om_termcount wdf, quartz_doclen_t doclength)
 {
     return pack_uint(wdf) + pack_uint(doclength);
 }

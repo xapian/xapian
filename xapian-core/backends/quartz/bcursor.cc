@@ -129,9 +129,9 @@ Bcursor::get_key(Btree_item * item)
 
     if (! positioned) return false;
 
-    byte * p = key_of(C[0].p, C[0].c);
+    const byte * p = key_of(C[0].p, C[0].c);
     int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
-    item->key.assign(reinterpret_cast<char *>(p + K1), l);
+    item->key.assign(reinterpret_cast<const char *>(p + K1), l);
     return true;
 }
 
