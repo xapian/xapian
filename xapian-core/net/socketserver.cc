@@ -54,7 +54,9 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 	throw OmNetworkError(string("signal: ") + strerror(errno));
     }
     buf.readline();
-    buf.writeline("Hello!");
+    buf.writeline("HELLO " +
+		  inttostring(db->get_doccount()) + " " +
+		  doubletostring(db->get_avlength()));
 }
 
 /// The SocketServer destructor

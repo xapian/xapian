@@ -70,33 +70,18 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 
 
 NetworkDatabase::~NetworkDatabase() {
-    // Close all databases
-#if 0
-    while(databases.begin() != databases.end()) {
-	delete *(databases.begin());
-	databases.erase(databases.begin());
-    }
-#endif
 }
-
-
-#if 0
-void NetworkDatabase::initialise_link() {
-    link->write_data("GETDOCCOUNT");
-    string response = link->read_data();
-    if (response == "ERROR") {
-	throw OmNetworkError("Remote error retrieving doccount");
-    }
-    // FIXME: do some more error checking
-    remote_doccount = atol(response.c_str());
-}
-#endif
 
 om_doccount
 NetworkDatabase::get_doccount() const
 {
-    throw OmUnimplementedError("NetworkDatabase::get_doccount() not implemented");
-//    return remote_doccount;
+    return link->get_doccount();
+}
+
+om_doclength
+NetworkDatabase::get_avlength() const
+{
+    return link->get_avlength();
 }
 
 LeafPostList *

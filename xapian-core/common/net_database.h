@@ -68,31 +68,6 @@ class NetworkDatabase : public IRDatabase {
 	bool is_network() const;
 };
 
-inline om_doclength
-NetworkDatabase::get_avlength() const
-{
-    throw OmUnimplementedError("NetworkDatabase::get_avlength() not implemented");
-#if 0
-    if(!length_initialised) {
-	om_doccount docs = 0;
-	om_doclength totlen = 0;
-
-	vector<IRDatabase *>::const_iterator i = databases.begin(); 
-	while(i != databases.end()) {
-	    om_doccount db_doccount = (*i)->get_doccount();
-	    docs += db_doccount;
-	    totlen += (*i)->get_avlength() * db_doccount;
-	    i++;
-	}
-
-	avlength = totlen / docs;
-	length_initialised = true;
-    }
-
-    return avlength;
-#endif
-}
-
 inline om_doccount
 NetworkDatabase::get_termfreq(const om_termname & tname) const
 {

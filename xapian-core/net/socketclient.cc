@@ -51,7 +51,33 @@ SocketClient::SocketClient(int socketfd_)
     do_write("HELLO!\n");
 
     string received = do_read();
+
     DebugMsg("Read back " << received << endl);
+    if (received.substr(0, 5) != "HELLO") {
+	throw OmNetworkError("Unknown start of conversation");
+    }
+
+    handle_hello(received.substr(6));
+}
+
+void
+SocketClient::handle_hello(const string &s)
+{
+    istrstream is(s.c_str());
+
+    is >> doccount >> avlength;
+}
+
+om_doccount
+SocketClient::get_doccount()
+{
+    return doccount;
+}
+
+om_doclength
+SocketClient::get_avlength()
+{
+    return avlength;
 }
 
 string

@@ -52,6 +52,12 @@ class SocketClient : public NetClient {
 	    state_getresult  // Waiting for result
 	} conv_state;
 
+	/// The remote document count, given at open.
+	om_doccount doccount;
+
+	/// The remote document avlength, given at open.
+	om_doclength avlength;
+
 	/// The weighting type to be used, as a string
 	string wt_string;
 
@@ -82,6 +88,9 @@ class SocketClient : public NetClient {
 	/// functions which actually do the work
 	string do_read();
 	void do_write(string data);
+
+	/// Read the initial data sent at the start of connection
+	void handle_hello(const string &s);
 
 	/** Write the string and get an "OK" message back,
 	 *  or else throw an exception
@@ -155,6 +164,12 @@ class SocketClient : public NetClient {
 
 	/** Find the max weight */
 	om_weight get_max_weight();
+
+	/** Get the document count. */
+	om_doccount get_doccount();
+
+	/** Find out the remote average document length */
+	om_doclength get_avlength();
 
 	/** Read some data from the process.
 	 */

@@ -1,3 +1,8 @@
+Wed May 24 16:37:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented get_doccount and get_avlength in NetworkDatabase.
+	  Only 4 tests left failing with the net backend...
+
 Wed May 24 12:50:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Exceptions are now propagated over the net link.

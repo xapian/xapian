@@ -107,6 +107,12 @@ class NetClient : public OmRefCntBase {
 	/** Find out the max_weight */
 	virtual om_weight get_max_weight() = 0;
 
+	/** Find out the remote document count */
+	virtual om_doccount get_doccount() = 0;
+
+	/** Find out the remote average document length */
+	virtual om_doclength get_avlength() = 0;
+
 	/** Read some data from the remote process.
 	 */
 	virtual std::string read_data() = 0;
