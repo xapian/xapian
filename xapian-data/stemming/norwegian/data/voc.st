@@ -469,14 +469,14 @@ antyd
 antyd
 antyd
 antyd
-anvend
+anv
 anvend
 anvend
 anvend
 anvendelsesområd
 anvendelsesområd
 anvend
-anvend
+anv
 anvend
 anvis
 anvisning
@@ -847,7 +847,7 @@ avhend
 avhend
 avhendar
 avhend
-avhend
+avh
 avhending
 avhending
 avhending
@@ -2546,7 +2546,7 @@ dagligliv
 dagligliv
 dagligvar
 dagmulkt
-dagslys
+dagsly
 dagslysbegrensning
 dagslys
 dagtid
@@ -8085,7 +8085,7 @@ inntrykk
 inntråd
 innund
 innvend
-innvend
+innv
 innvend
 innvend
 innvending
@@ -12161,7 +12161,7 @@ omtvist
 omvandr
 omveg
 omvei
-omvend
+omv
 omvend
 omverd
 on
@@ -16521,7 +16521,7 @@ stein
 steineksport
 stein
 steinn
-steinrøys
+steinrøy
 steinrøys
 stek
 stekt
@@ -17585,7 +17585,7 @@ tilbydern
 tilbydern
 tilbyd
 tilbyr
-tilbys
+tilby
 tilbør
 tildel
 tildeling
@@ -19268,8 +19268,8 @@ utporsjoner
 utprøving
 utpå
 utrasing
-utred
-utred
+utr
+utr
 utred
 utredning
 utredning
@@ -19326,10 +19326,10 @@ utslippskostnad
 utslått
 utslått
 utspring
+utst
 utsted
 utsted
-utsted
-utsted
+utst
 utsted
 utstengd
 utstenging
@@ -20430,7 +20430,7 @@ zu
 åpen
 åpenbar
 åpenbart
-åpenlys
+åpenly
 åpent
 åpn
 åpn
@@ -20626,3 +20626,4 @@ zu
 øyn
 øyn
 øystein
+

@@ -26,7 +26,7 @@ al             -  a + el
 es             -  ->SER
 lo             -  him
 como           -  how
-ma^as          -  more
+más          -  more
 dijo = said
 pero           -  pero
 sus            -  su plural
@@ -36,22 +36,22 @@ o              -  or
 fue            -  ->SER
 este           -  this
 ha             -  ->HABER
-si^a           -  himself etc
+sí           -  himself etc
 porque         -  because
 dos = two
 esta           -  this
 son            -  ->SER
 entre          -  between
-esta^a         -  ->ESTAR
+está         -  ->ESTAR
 cuando         -  when
 muy            -  very
 sin            -  without
     - mil = thousand
-    - an^tos = year (the source was news stories ... )
+    - años = year (the source was news stories ... )
 sobre          -  on
 ser            -  ->SER
 tiene          -  ->TENER
-tambie^an      -  also
+también      -  also
     - ciento = hundred
 me             -  me
 hasta          -  until
@@ -60,9 +60,9 @@ donde          -  where
     - hoy = today
 han            -  ->HABER
 quien          -  whom, that
-    - an^to = year
+    - año = year
   - the stopwords that follow were interspersed with many ordinary words
-esta^an        -  ->ESTAR
+están        -  ->ESTAR
 estado         -  ->ESTAR
 desde          -  from
 todo           -  all
@@ -78,21 +78,21 @@ otros          -  other
 fueron         -  ->SER
 ese            -  that
 eso            -  that
-habi^aa        -  ->HABER
+había        -  ->HABER
 ante           -  before
 ellos          -  they
 e              -  and (variant of y)
 esto           -  this
-mi^a           -  me
+mí           -  me
 antes          -  before
 algunos        -  some
-que^a          -  what?
+qué          -  what?
 unos           -  a
 yo             -  I
 otro           -  other
 otras          -  other
 otra           -  other
-e^al           -  he
+él           -  he
 tanto          -  so much, many
 esa            -  that
 estos          -  these
@@ -117,7 +117,7 @@ nosotros       -  we
 
 mi             -  me
 mis            -  mi plural
-tu^a           -  thou
+tú           -  thou
 te             -  thee
 ti             -  thee
 tu             -  thy
@@ -127,10 +127,10 @@ nosotras       -  we
 vosostros      -  you
 vosostras      -  you
 os             -  you
-mi^ao          -  mine
-mi^aa          -
-mi^aos         -
-mi^aas         -
+mío          -  mine
+mía          -
+míos         -
+mías         -
 tuyo           -  thine
 tuya           -
 tuyos          -

@@ -57,7 +57,7 @@ adolf
 adopter
 adopter
 adoratör
-adres
+adress
 adress
 adresser
 adresser
@@ -252,7 +252,7 @@ akti
 aktning
 aktning
 aktningsfull
-aktningsfullt
+aktningsfull
 aktningsvärd
 aktningsvärd
 aktningsvärd
@@ -2025,7 +2025,7 @@ beslöto
 bespar
 bespar
 bespar
-bes
+bess
 best
 best
 bestjäl
@@ -2187,7 +2187,7 @@ betyd
 betyd
 betydelsefull
 betydelsefull
-betydelsefullt
+betydelsefull
 betydelselös
 betyd
 betyden
@@ -2631,7 +2631,7 @@ blond
 blondermöss
 blondin
 blont
-blos
+bloss
 bloss
 bloss
 bloss
@@ -3376,7 +3376,7 @@ busk
 busk
 busk
 busk
-bus
+buss
 buss
 butelj
 butelj
@@ -3949,7 +3949,7 @@ des
 desamm
 desorganisation
 desper
-des
+dess
 dess
 dessemellan
 dessert
@@ -5371,7 +5371,7 @@ fas
 fas
 fasan
 fasansfull
-fasansfullt
+fasansfull
 fas
 fas
 fas
@@ -5543,7 +5543,7 @@ fick
 fickpeng
 ficktjuv
 fickur
-fideikommis
+fideikommiss
 fiend
 fiendeland
 fiend
@@ -6351,7 +6351,7 @@ frid
 frid
 fridfu
 fridfull
-fridfullt
+fridfull
 fridlyst
 fridlyst
 fridlös
@@ -6416,7 +6416,7 @@ fromm
 fromsinn
 fromt
 frontespis
-fros
+fross
 fross
 fross
 frossbrytning
@@ -7963,7 +7963,7 @@ förtjän
 förtjänst
 förtjänst
 förtjänstfull
-förtjänstfullt
+förtjänstfull
 förtjänt
 förtjänt
 förtopp
@@ -7981,7 +7981,7 @@ förtro
 förtrod
 förtroend
 förtroendebefattning
-förtroendefullt
+förtroendefull
 förtroend
 förtroendet
 förtroendeväck
@@ -8018,7 +8018,7 @@ förträff
 förtröst
 förtröstan
 förtröst
-förtröstansfullt
+förtröstansfull
 förtröst
 förtröt
 fört
@@ -8942,7 +8942,7 @@ grop
 grop
 grop
 gror
-grosses
+grossess
 grosshandlardot
 grosshandl
 grotesk
@@ -9348,7 +9348,7 @@ gåsving
 gåt
 gåtan
 gåtfull
-gåtfullt
+gåtfull
 gåtlik
 gåt
 gåt
@@ -9841,7 +9841,7 @@ hem
 hemlighet
 hemlighetsfull
 hemlighetsfull
-hemlighetsfullt
+hemlighetsfull
 hem
 hemlots
 hemlängtan
@@ -10256,7 +10256,7 @@ hopplös
 hopplös
 hopplös
 hoppning
-hoppningsfullt
+hoppningsfull
 hoppress
 hoprafs
 hopsjunk
@@ -10903,7 +10903,7 @@ hån
 hån
 hånfull
 hånfull
-hånfullt
+hånfull
 hångrin
 hånl
 hånlog
@@ -11874,7 +11874,7 @@ iynn
 iys
 iys
 iys
-iys
+iyss
 iyssn
 iyssn
 iyssn
@@ -12169,7 +12169,7 @@ jättenavel
 jättesolv
 jättesteg
 jättest
-jättetas
+jättetass
 jätteviskning
 k
 ka
@@ -12430,7 +12430,7 @@ karn
 karo
 karolin
 karolin
-karos
+kaross
 karot
 karriär
 karriärsynpunk
@@ -12627,7 +12627,7 @@ klarög
 klarög
 klas
 klas
-klas
+klass
 klassbildning
 klass
 klass
@@ -13031,7 +13031,7 @@ kompanjon
 kompanjon
 kompanjon
 kompanjonskap
-kompas
+kompass
 kompetent
 komplimang
 komponer
@@ -13265,7 +13265,7 @@ kraftfull
 kraftfull
 kraftfull
 kraftfull
-kraftfullt
+kraftfull
 kraftgrepp
 kraft
 kraft
@@ -13530,7 +13530,7 @@ kul
 kulan
 kul
 kulet
-kulis
+kuliss
 kuliss
 kuliss
 kull
@@ -13638,7 +13638,7 @@ kvald
 kvald
 kvald
 kvalfull
-kvalfullt
+kvalfull
 kvalfylld
 kvalitetsvagn
 kvall
@@ -13814,7 +13814,7 @@ kyrktupp
 kyrkvall
 kysk
 kysk
-kys
+kyss
 kyss
 kyss
 kyss
@@ -13930,7 +13930,7 @@ kärleksbrev
 kärleksfull
 kärleksfull
 kärleksfull
-kärleksfullt
+kärleksfull
 kärleksförkiaring
 kärleksförklaring
 kärleksförklaring
@@ -14179,7 +14179,7 @@ larsmessefärd
 larsson
 lart
 larv
-las
+lass
 lasset
 lassman
 lassman
@@ -14283,7 +14283,7 @@ lek
 lek
 lek
 lek
-lekfullt
+lekfull
 lekhus
 lekkamr
 lekman
@@ -14389,7 +14389,7 @@ lid
 lidandet
 lid
 lidelsefull
-lidelsefullt
+lidelsefull
 lid
 lid
 lid
@@ -14450,7 +14450,7 @@ likadan
 likadan
 likadant
 likadån
-likafullt
+likafull
 lik
 likart
 likart
@@ -14791,7 +14791,7 @@ lorgnetter
 lorgnettkedj
 lorrain
 los
-los
+loss
 loss
 loss
 lossn
@@ -15022,7 +15022,7 @@ lys
 lys
 lys
 lysning
-lys
+lyss
 lyssn
 lyssn
 lyssn
@@ -15134,7 +15134,7 @@ längtan
 läng
 längtan
 längtansfull
-längtansfullt
+längtansfull
 läng
 läng
 länk
@@ -15610,7 +15610,7 @@ maskin
 maskineriet
 maskin
 mask
-mas
+mass
 mass
 massag
 masser
@@ -15673,7 +15673,7 @@ mattan
 matt
 matt
 matt
-mattfullt
+mattfull
 matt
 mattimm
 mattinan
@@ -15980,7 +15980,7 @@ minut
 minut
 minuter
 miserabl
-mis
+miss
 miss
 missbelåt
 missbild
@@ -16740,7 +16740,7 @@ mörksamt
 mörks
 mörk
 mös
-mös
+möss
 möss
 mössan
 möt
@@ -16820,7 +16820,7 @@ napp
 nappt
 nar
 nar
-narcis
+narciss
 narcissism
 narkosmask
 narmn
@@ -17018,7 +17018,7 @@ neg
 negerhår
 negertroll
 neglige
-negres
+negress
 negress
 nehej
 nej
@@ -17112,7 +17112,7 @@ njutit
 njutning
 njutning
 njutning
-njutningsfullt
+njutningsfull
 njöt
 njöto
 nk
@@ -17128,7 +17128,7 @@ nobel
 nobelt
 nobl
 nobl
-nobles
+nobless
 nocturn
 nog
 nog
@@ -17274,7 +17274,7 @@ nys
 nysilverbrick
 nyskur
 nyskur
-nys
+nyss
 nyst
 nystan
 nystfot
@@ -17986,7 +17986,7 @@ omsorg
 omsorg
 omsorg
 omsorgsfull
-omsorgsfullt
+omsorgsfull
 omspänd
 omstuvning
 omstän
@@ -18054,7 +18054,7 @@ ondo
 ondsk
 ondskefull
 ondskefull
-ondskefullt
+ondskefull
 ondt
 onek
 onkel
@@ -18444,7 +18444,7 @@ ovillkoi
 ovillkor
 ovillkor
 ovis
-ovis
+oviss
 oviss
 oviss
 ovisst
@@ -18568,7 +18568,7 @@ pappersroset
 pappersrull
 pappersskärm
 pappersstadg
-papperstus
+papperstuss
 par
 par
 par
@@ -18621,7 +18621,7 @@ partu
 parvis
 pas
 pascal
-pas
+pass
 pass
 pass
 passager
@@ -19117,7 +19117,7 @@ prakt
 praktartikl
 prakt
 praktfull
-praktfullt
+praktfull
 praktgemak
 praktik
 praktik
@@ -19169,7 +19169,7 @@ present
 presenter
 presenter
 present
-pres
+press
 press
 press
 press
@@ -19705,7 +19705,7 @@ rand
 rang
 ranger
 ranger
-rangklas
+rangklass
 rang
 rang
 rangordning
@@ -19964,7 +19964,7 @@ resonemanget
 resoner
 resoner
 res
-respas
+respass
 respek
 respektabel
 respektabelt
@@ -21821,7 +21821,7 @@ skinnstol
 skinnstol
 skinntorr
 skir
-skis
+skiss
 skiv
 skivan
 skiv
@@ -21866,7 +21866,7 @@ skog
 skogsdung
 skogsdunklet
 skogsfrun
-skogskulis
+skogskuliss
 skogssidan
 skogssluttning
 skogsst
@@ -22614,7 +22614,7 @@ släng
 släng
 släng
 slängkapp
-slängkys
+slängkyss
 släng
 släp
 släp
@@ -22646,7 +22646,7 @@ slåend
 slåkt
 slår
 slås
-slås
+slåss
 slö
 slöa
 slöhet
@@ -22682,7 +22682,7 @@ smak
 smak
 smakfull
 smakfull
-smakfullt
+smakfull
 smaklös
 smaksät
 smal
@@ -23989,7 +23989,7 @@ strid
 strid
 strid
 strid
-stridsblos
+stridsbloss
 stridslust
 stridsämn
 strimm
@@ -25273,7 +25273,7 @@ tankeruset
 tankeverksam
 tankfull
 tankfull
-tankfullt
+tankfull
 tanklös
 tanklös
 tanklös
@@ -25309,7 +25309,7 @@ tarv
 tarv
 tarv
 tas
-tas
+tass
 tass
 tass
 tass
@@ -25541,7 +25541,7 @@ tillbättr
 tillbör
 tillbör
 tilldel
-tilldes
+tilldess
 tilldrag
 tilldrag
 tilldrag
@@ -25554,7 +25554,7 @@ tillfog
 tillfog
 tillfog
 tillfred
-tillfreds
+tillfredss
 tillfredsstallt
 tillfredsstäld
 tillfredsstäld
@@ -25613,7 +25613,7 @@ tillik
 tillintetgjord
 tillintetgör
 tillit
-tillitsfullt
+tillitsfull
 tillkall
 tillkall
 tillkom
@@ -26967,7 +26967,7 @@ underkast
 underkast
 underkast
 underkjol
-underklas
+underklass
 underkläd
 underkur
 underkuv
@@ -27821,7 +27821,7 @@ utnämnd
 utnämn
 utnöt
 utom
-utomdes
+utomdess
 utomhus
 utomordent
 utomordent
@@ -27968,7 +27968,7 @@ uttryck
 uttrycksfull
 uttrycksfull
 uttrycksfull
-uttrycksfullt
+uttrycksfull
 uttrycksfyll
 uttryckssät
 uttryck
@@ -28346,7 +28346,7 @@ vasenl
 vas
 vas
 vask
-vas
+vass
 vass
 vass
 vassrör
@@ -28859,7 +28859,7 @@ vis
 visp
 visp
 visp
-vis
+viss
 viss
 viss
 visser
@@ -29208,7 +29208,7 @@ vänskap
 vänskap
 vänskapsbefattning
 vänskapsfull
-vänskapsfullt
+vänskapsfull
 vänskapsförbind
 vänskapsförhåll
 vänskapstjänst
@@ -29964,14 +29964,14 @@ zuav
 ångbåtslustfärd
 ång
 ångerfull
-ångerfullt
+ångerfull
 ång
 ång
 ångest
 ångest
 ångestfull
 ångestfull
-ångestfullt
+ångestfull
 ångfartyg
 ångfartyg
 ång
@@ -30493,7 +30493,7 @@ zuav
 överflöd
 överf
 överfull
-överfullt
+överfull
 överföll
 övergav
 överg
@@ -30621,3 +30621,4 @@ zuav
 övr
 övr
 öänd
+

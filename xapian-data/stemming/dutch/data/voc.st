@@ -1,6 +1,6 @@
 a
 a
-a
+à
 aa
 aach
 aachener
@@ -98,7 +98,7 @@ aangekondigd
 aangeland
 aangelegd
 aangelegd
-aangelegenhed
+aangeleg
 aangeleg
 aangeleverd
 aangeleverd
@@ -270,7 +270,7 @@ aanspor
 aansprak
 aansprak
 aansprak
-aansprakelijkhed
+aansprak
 aansprak
 aansprakelijkheidskort
 aansprakelijkheidsverzeker
@@ -1139,7 +1139,7 @@ afvalpers
 afvalplan
 afvalplastic
 afvalpreventie
-afvalpreventiemogelijkhed
+afvalpreventiemog
 afvalpreventieproject
 afvalpreventieteam
 afvalproblem
@@ -1336,7 +1336,7 @@ afzetgebied
 afzetinstallaties
 afzetkanal
 afzetmarkt
-afzetmogelijkhed
+afzetmog
 afzetruimt
 afzetsystem
 afzetsystem
@@ -1516,7 +1516,7 @@ alkylphenol
 all
 allaert
 all
-all
+àlle
 allebei
 alledag
 allee
@@ -1536,7 +1536,7 @@ allerlei
 allerminst
 alles
 allesbehalv
-allesomvatt
+allesomvat
 allianc
 alliantie
 allianties
@@ -1553,7 +1553,7 @@ almer
 aloema
 alom
 alomtegenwoord
-alomvatt
+alomvat
 alomvattender
 alp
 alpes
@@ -1705,7 +1705,7 @@ amover
 ampa
 ampas
 amper
-amper
+ampèr
 ampolex
 amro
 amstel
@@ -1912,7 +1912,7 @@ arbeidskost
 arbeidskostenbespar
 arbeidsmarkt
 arbeidsmat
-arbeidsomstandighed
+arbeidsomstand
 arbeidsomstandighedencongres
 arbeidsomstandighedenwet
 arbeidsonstadighedenregelgev
@@ -2034,7 +2034,7 @@ asbestos
 asbestos
 asbestovertred
 asbestplat
-asbestsaneringswerkzaamhed
+asbestsaneringswerkzam
 asbestslachtoffer
 asbestverbod
 asbestvergift
@@ -2370,7 +2370,7 @@ baggervolum
 baggerwater
 baggerwereld
 baggerwerk
-baggerwerkzaamhed
+baggerwerkzam
 bag
 bahamas
 baia
@@ -2449,7 +2449,7 @@ barneveld
 barometer
 barrel
 barrett
-barrieres
+barrières
 barseback
 barst
 bas
@@ -2561,7 +2561,7 @@ bebouwd
 bebouwd
 bebouw
 bebouwingscontour
-bebouwingsmogelijkhed
+bebouwingsmog
 bechtel
 becijferd
 becijfer
@@ -3468,7 +3468,7 @@ bespar
 bespar
 besparingsbeleid
 besparingseis
-besparingsmogelijkhed
+besparingsmog
 besparingsopties
 besparingsovereenkomst
 besparingsplann
@@ -3507,7 +3507,7 @@ bestek
 bestekadviez
 bestekgered
 bestek
-bestekshoeveelhed
+bestekshoevel
 besteksredacties
 bestektekst
 bestelbuss
@@ -3590,7 +3590,7 @@ bestuursrechtsprak
 bestuursvoorzitter
 bestuurszak
 beta
-beta
+bèta
 betal
 betal
 betaald
@@ -3603,7 +3603,7 @@ betal
 betal
 betalingsbalan
 betalingsvoorwaard
-betastral
+bètastral
 betek
 betek
 beteken
@@ -3705,7 +3705,7 @@ beurz
 bevat
 bevat
 bevat
-bevatt
+bevat
 bevecht
 beveelt
 beveil
@@ -3735,7 +3735,7 @@ bevochtigd
 bevocht
 bevoegd
 bevoegd
-bevoegdhed
+bevoegd
 bevoegd
 bevol
 bevolk
@@ -3842,7 +3842,7 @@ bezicht
 bezien
 bezienswaard
 bezig
-bezighed
+bezig
 bezighoud
 bezighoudt
 bezinestation
@@ -4685,7 +4685,7 @@ bouwcontract
 bouwd
 bouwdel
 bouwd
-bouwdichthed
+bouwdicht
 bouwdicht
 bouwdienst
 bouwelement
@@ -4724,7 +4724,7 @@ bouwmaterieel
 bouwmecc
 bouwmethod
 bouwministersconferentie
-bouwmogelijkhed
+bouwmog
 bouwnijver
 bouwondernemer
 bouwondernem
@@ -4772,7 +4772,7 @@ bouwvoorschrift
 bouwwereld
 bouwwerk
 bouwwerk
-bouwwerkzaamhed
+bouwwerkzam
 bouwwijz
 bouwwijz
 bouwzak
@@ -4819,7 +4819,7 @@ boycot
 boycotaanvoerder
 boycotactie
 boycot
-boycott
+boycot
 boz
 bp
 bpa
@@ -5396,7 +5396,7 @@ carpooler
 carpoolplat
 carpoolplek
 carr
-carrieremaker
+carrièremaker
 carrier
 carrosserie
 carrot
@@ -5691,7 +5691,7 @@ chronisch
 chrom
 chroomafval
 chroombad
-chroombevatt
+chroombevat
 chroomemissie
 chroomemissies
 chroomhoud
@@ -6371,7 +6371,7 @@ creatiev
 creatinin
 creativ
 creativ
-creches
+crèches
 creeert
 crer
 creil
@@ -6447,7 +6447,7 @@ cumulatiev
 cuneraweg
 cup
 cur
-curacao
+curaçao
 curatel
 curatief
 cur
@@ -6618,7 +6618,7 @@ dassenpopulatie
 dassenproject
 dassentunnel
 dat
-dat
+dàt
 data
 databank
 databank
@@ -6651,8 +6651,8 @@ ddr
 dds
 ddt
 de
-de
-debacles
+dè
+debâcles
 debat
 debatteerd
 debat
@@ -7014,7 +7014,7 @@ dicht
 dichter
 dichterbij
 dichtgeknoopt
-dichthed
+dichtheid
 dichtheid
 dichtheidsscheid
 dichtheidsverschil
@@ -8089,7 +8089,7 @@ eenduid
 eenduid
 eenduid
 eenentwintigst
-eenhed
+eenheid
 eenheid
 eenhoorn
 eenjar
@@ -8501,7 +8501,7 @@ emv
 emveka
 en
 en
-en
+èn
 enbb
 enceb
 encevort
@@ -8546,7 +8546,7 @@ energiebesparingsbeleid
 energiebesparingsfond
 energiebesparingsmaatregel
 energiebesparingsmaatregel
-energiebesparingsmogelijkhed
+energiebesparingsmog
 energiebesparingsplan
 energiebesparingsplann
 energiebesparingsproject
@@ -8643,7 +8643,7 @@ energiescherm
 energiesector
 energiesector
 energiesituatie
-energiesparingsmogelijkhed
+energiesparingsmog
 energiespecialist
 energiespeicher
 energiestrev
@@ -8714,10 +8714,10 @@ enkelvoud
 enkhuiz
 enorm
 enorm
-enquet
-enquetecommissie
-enqueteerd
-enquetes
+enquêt
+enquêtecommissie
+enquêteerd
+enquêtes
 ensched
 enschedes
 enserink
@@ -9084,7 +9084,7 @@ exploitatiefas
 exploitatiekost
 exploitatiemaatschappij
 exploitatiemaatschappij
-exploitatiemogelijkhed
+exploitatiemog
 exploitatieprogramma
 exploitatiesaldo
 exploitatievergunn
@@ -9116,7 +9116,7 @@ exporter
 exporteur
 exporteur
 exportgroei
-exportmogelijkhed
+exportmog
 exportorganisaties
 exportprodukt
 exportprodukt
@@ -9397,7 +9397,7 @@ financieringsbronn
 financieringsinstrument
 financieringskader
 financieringsmechanism
-financieringsmogelijkhed
+financieringsmog
 financieringsorgan
 financieringsproblem
 financieringssteun
@@ -9559,7 +9559,7 @@ forel
 forell
 forest
 forestal
-forest
+fôrest
 forfait
 forfaitair
 forma
@@ -10133,7 +10133,7 @@ gebruiksdur
 gebruiksfas
 gebruiksgedrag
 gebruikskost
-gebruiksmogelijkhed
+gebruiksmog
 gebruikspatron
 gebruiksspecificaties
 gebruiksverbod
@@ -10285,7 +10285,7 @@ geemitteerd
 geemulgeerd
 gen
 gen
-geenqueteerd
+geenquêteerd
 geent
 geent
 geenterd
@@ -10520,7 +10520,7 @@ gelen
 geleerd
 gelegd
 geleg
-gelegenhed
+geleg
 geleg
 geleid
 geleid
@@ -10766,7 +10766,7 @@ genetic
 genetisch
 genetisch
 geneutraliseerd
-genev
+genèv
 genformeerd
 geniet
 geniet
@@ -11162,7 +11162,7 @@ geurcassettes
 geurcomponent
 geurconcentratie
 geurconcentraties
-geureenhed
+geuren
 geuren
 geuremissie
 geuremissies
@@ -11634,7 +11634,7 @@ graf
 graafproces
 graafschap
 graaft
-graafwerkzaamhed
+graafwerkzam
 grag
 gran
 graanbeleid
@@ -11985,7 +11985,7 @@ grootgebruiker
 grootgruttersket
 groothandel
 groothandelsondernem
-groothed
+grootheid
 groothuiz
 grootkeuken
 grootmacht
@@ -12130,7 +12130,7 @@ halfgeleid
 halfgeleider
 halfjar
 halfjar
-halfjaarlyk
+halfjaarlÿk
 halfjaarresultat
 halflast
 halfprodukt
@@ -12393,7 +12393,7 @@ hectares
 hectoliter
 hectoliter
 hedel
-hed
+heden
 hedendag
 hedonisch
 hedrix
@@ -12552,7 +12552,7 @@ hergebruik
 hergebruik
 hergebruikinstallaties
 hergebruikmaatschappij
-hergebruikmogelijkhed
+hergebruikmog
 hergebruiksdoelstell
 hergebruiksgrond
 hergebruikspercentag
@@ -12623,7 +12623,7 @@ herstell
 herstelmaatregel
 herstelt
 herstelwerk
-herstelwerkzaamhed
+herstelwerkzam
 herstrat
 herstructurer
 herstructurer
@@ -12741,7 +12741,7 @@ hilversum
 hinder
 hinderbelev
 hinder
-hinderenquet
+hinderenquêt
 hindergren
 hinder
 hinderniss
@@ -12795,7 +12795,7 @@ hoendiep
 hoensbroek
 hoep
 hoevel
-hoeveelhed
+hoevel
 hoevel
 hoev
 hoever
@@ -13004,7 +13004,7 @@ hopper
 horeca
 horecabedrijv
 horecabeleid
-horecagelegenhed
+horecageleg
 horecazak
 horecazak
 hor
@@ -13216,7 +13216,7 @@ hunkemoller
 hunz
 hunzedal
 hurk
-hus
+hûs
 hur
 huurappartement
 huurder
@@ -14153,7 +14153,7 @@ investeringsklimat
 investeringskost
 investeringsland
 investeringsmiddel
-investeringsmogelijkhed
+investeringsmog
 investeringspiek
 investeringspolitiek
 investeringsprogramma
@@ -14195,7 +14195,7 @@ inwonertal
 inzag
 inzak
 inzak
-inzakk
+inzak
 inzamel
 inzamelar
 inzamelar
@@ -14665,9 +14665,9 @@ kankermechanismes
 kankerrisico
 kanker
 kankersoort
-kankerverwekk
-kankerverwekk
-kankerverwekk
+kankerverwek
+kankerverwek
+kankerverwek
 kankerverwekker
 kann
 kanon
@@ -15547,8 +15547,8 @@ kostenbespar
 kostenbespar
 kostendal
 kostend
-kostendekk
-kostendekk
+kostendek
+kostendek
 kosteneffectief
 kosteneffectiev
 kosteneffectiever
@@ -16088,7 +16088,7 @@ landbouwmethod
 landbouwminister
 landbouwministerie
 landbouwminister
-landbouwontwikkelingsmogelijkhed
+landbouwontwikkelingsmog
 landbouworganisatie
 landbouworganisaties
 landbouwpercel
@@ -16462,7 +16462,7 @@ levensmiddelendetailhandel
 levensmiddelenhandel
 levensmiddelenindustrie
 levensmiddelenonderzoek
-levensomstandighed
+levensomstand
 levensonderhoud
 levensstijl
 levensstijl
@@ -17282,7 +17282,7 @@ marktkans
 marktleider
 marktleider
 marktmechanism
-marktmogelijkhed
+marktmog
 marktniches
 marktonderzoek
 marktonderzoeksinstitut
@@ -17397,7 +17397,7 @@ maximaliser
 maximer
 maximum
 maximumgren
-maximumsnelhed
+maximumsnel
 maximumsnel
 may
 mayr
@@ -18581,7 +18581,7 @@ minez
 mini
 miniair
 minicontainer
-minier
+minièr
 minimal
 minimal
 minimaliser
@@ -18728,7 +18728,7 @@ moeheid
 moeilijk
 moeilijk
 moeilijker
-moeilijkhed
+moeilijk
 moeilijk
 moeit
 moeizam
@@ -18759,7 +18759,7 @@ mogadishu
 mog
 mogelijk
 mogelijk
-mogelijkhed
+mogelijk
 mogelijk
 mog
 mogend
@@ -19026,7 +19026,7 @@ mzo
 n
 na
 na
-na
+nà
 naadloz
 naafhoogt
 naaldboss
@@ -19053,7 +19053,7 @@ nabewerkt
 nabij
 nabij
 nabijgeleg
-nabijheid
+nabij
 naboots
 nabur
 nachenlus
@@ -19592,7 +19592,7 @@ niveaus
 niveauschakelar
 niveausensor
 niveauverschil
-nivos
+nivô
 nizhnevartovsk
 nizna
 njmo
@@ -19955,7 +19955,7 @@ oever
 oeververbind
 oezbek
 of
-of
+òf
 off
 offensiev
 offer
@@ -19996,7 +19996,7 @@ okd
 oke
 oklahoma
 oko
-okologisk
+økologisk
 oktaangehalt
 oktober
 ol
@@ -20184,7 +20184,7 @@ omslag
 omspring
 omspringt
 omspuit
-omstandighed
+omstand
 omstred
 omstrek
 omstrek
@@ -20345,7 +20345,7 @@ onderhoudsstructur
 onderhoudsvriend
 onderhoudsvrij
 onderhoudswerk
-onderhoudswerkzaamhed
+onderhoudswerkzam
 onderhuid
 onderin
 onderkant
@@ -20513,7 +20513,7 @@ ondoorzicht
 ondrag
 onduid
 onduid
-onduidelijkhed
+onduid
 onduid
 onen
 oner
@@ -20553,7 +20553,7 @@ ongemoeid
 ongenoeg
 ongenuanceerd
 ongeoorloofd
-ongerechtighed
+ongerecht
 ongeremd
 ongerept
 ongerust
@@ -20592,7 +20592,7 @@ onhor
 onivin
 onjuist
 onjuist
-onjuisthed
+onjuist
 onklar
 onkost
 onkruid
@@ -20641,10 +20641,10 @@ onpraktisch
 onrealistisch
 onrecht
 onrechtmat
-onrechtmatighed
+onrechtmat
 onrechtvaard
 onregelmat
-onregelmatighed
+onregelmat
 onrendabel
 onri
 onroer
@@ -20969,7 +20969,7 @@ onvred
 onvriend
 onvriend
 onvrucht
-onwaarhed
+onwar
 onwaarschijn
 onwer
 onweerleg
@@ -20983,13 +20983,13 @@ onzat
 onz
 onzeker
 onzeker
-onzekerhed
+onzeker
 onzeker
 onzicht
 onzin
 onzorgvuld
 onzorgvuld
-onzuiverhed
+onzuiver
 ooftbom
 oog
 oogluik
@@ -21366,14 +21366,14 @@ oproep
 oproep
 oproepkracht
 oproept
-oproereenhed
+oproeren
 oprolt
 opruim
 opruim
 opruimkost
 opruimploeg
 opruimt
-oprukk
+opruk
 ops
 opschal
 opschal
@@ -21711,7 +21711,7 @@ overhand
 overhand
 overhang
 overhead
-overhed
+over
 overhen
 overheers
 overheers
@@ -21845,7 +21845,7 @@ overschrijd
 overschrijd
 overschrijd
 overschrijdt
-overschrydt
+overschrÿdt
 overseas
 overslan
 overslaand
@@ -22113,7 +22113,7 @@ parkbos
 parkeerelement
 parkeergarages
 parkeergeleg
-parkeermogelijkhed
+parkeermog
 parkeerplat
 parkeerplaats
 parkeerterrein
@@ -22526,7 +22526,7 @@ plaatsgebond
 plaatsgevond
 plaatsing
 plaatsingsbeleid
-plaatsingsmogelijkhed
+plaatsingsmog
 plaatsingsproblematiek
 plaatsingsrichtlijn
 plaatsingsruimt
@@ -22573,7 +22573,7 @@ plantaard
 plantag
 plantages
 plant
-planteavlforsog
+planteavlforsøg
 plant
 plantengroei
 plantenkas
@@ -22949,7 +22949,7 @@ praktijkgerichter
 praktijkgroep
 praktijkinformatie
 praktijkkennis
-praktijkomstandighed
+praktijkomstand
 praktijkonderzoek
 praktijkoploss
 praktijkproev
@@ -22989,7 +22989,7 @@ premie
 premiebetal
 premier
 premier
-premier
+premièr
 premier
 premies
 premiestelsel
@@ -23639,7 +23639,7 @@ rabobank
 rabovisie
 rac
 rad
-rad
+råd
 radar
 radarreflexies
 radarsystem
@@ -23907,7 +23907,7 @@ recreatie
 recreatiebehoeft
 recreatiegebied
 recreatiegebied
-recreatiemogelijkhed
+recreatiemog
 recreatiepark
 recreatieplan
 recreatieproject
@@ -23969,7 +23969,7 @@ recyclingsinstallatie
 recyclingsmaterial
 recyclingsmethod
 recyclingsmethod
-recyclingsmogelijkhed
+recyclingsmog
 recyclingsondernem
 recyclingspercentag
 recyclingspercentages
@@ -24012,7 +24012,7 @@ reduc
 reductie
 reductiedoelstell
 reductiekatalysator
-reductiemogelijkhed
+reductiemog
 reductiepercentag
 reductieplan
 reductiepotentiaal
@@ -24464,12 +24464,12 @@ revolutie
 rezes
 rfg
 rgd
-rhed
+rheden
 rhein
 rheinberg
 rhen
 rhizopus
-rhon
+rhône
 rhon
 ria
 riba
@@ -25192,7 +25192,7 @@ saneringstechnologieen
 saneringsurgentie
 saneringsurgentiesystematiek
 saneringsvariant
-saneringswerkzaamhed
+saneringswerkzam
 sanghvi
 sanitair
 sanitairreinigingsmiddel
@@ -25341,7 +25341,7 @@ scheidingsfabriek
 scheidingsgrad
 scheidingsinstallatie
 scheidingsinstallaties
-scheidingsmogelijkhed
+scheidingsmog
 scheidingsproced
 scheidingsproced
 scheidingsprocess
@@ -26148,7 +26148,7 @@ sneeuwploeg
 sneeuwval
 snel
 snelgroei
-snelhed
+snelheid
 snelheid
 snelheidsbegrenzer
 snelheidsbegrenzer
@@ -26558,7 +26558,7 @@ spuitmond
 spuittechniek
 spuitvlieger
 spuitvrij
-spuitwerkzaamhed
+spuitwerkzam
 spuiverlies
 spuiwater
 spul
@@ -26841,7 +26841,7 @@ steenkolenmijn
 steenkol
 steenkoolbrand
 steenkoolderivat
-steenkooleenhed
+steenkoolen
 steenkoollag
 steenkoolreserves
 steenkoolsoort
@@ -26980,7 +26980,7 @@ stik
 stikstof
 stikstofarm
 stikstofbemestingsadvies
-stikstofbevatt
+stikstofbevat
 stikstofconcentratie
 stikstofconcentraties
 stikstofdeeltjes
@@ -27366,7 +27366,7 @@ stroomproducent
 stroomproduktiebedrijv
 stroomschema
 stroomsector
-stroomsnelhed
+stroomsnel
 stroomsnel
 stroomsterkt
 stroomt
@@ -27501,7 +27501,7 @@ subsidieert
 subsidiefraud
 subsidiegeld
 subsidiegeld
-subsidiemogelijkhed
+subsidiemog
 subsidiepot
 subsidieprogramma
 subsidieregel
@@ -28122,7 +28122,7 @@ terugsluiz
 terugstrom
 terugtred
 terugtrek
-terugtrekk
+terugtrek
 terugvall
 terugverdi
 terugverdien
@@ -28417,7 +28417,7 @@ toekomstideeen
 toekomst
 toekomst
 toekomstmodell
-toekomstmogelijkhed
+toekomstmog
 toekomstmuziek
 toekomstplann
 toekomstscenario
@@ -28463,7 +28463,7 @@ toepasser
 toepass
 toepass
 toepassingsgericht
-toepassingsmogelijkhed
+toepassingsmog
 toepassingsproject
 toepassingswijz
 toepasss
@@ -28769,7 +28769,7 @@ trend
 trendbox
 trendbreuk
 trend
-trendsett
+trendset
 trendsetter
 trendzet
 trent
@@ -29286,7 +29286,7 @@ uitontwikkeld
 uitpak
 uitpers
 uitput
-uitputt
+uitput
 uitput
 uitputtingsslag
 uitreik
@@ -29538,7 +29538,7 @@ vag
 vak
 vaarboer
 vaardig
-vaardighed
+vaardig
 vaargebied
 vaargeul
 vaargeul
@@ -29797,7 +29797,7 @@ veeler
 veelgebruikt
 veelgevraagd
 veelheid
-veelomvatt
+veelomvat
 veelvoud
 veelvuld
 ven
@@ -29933,7 +29933,7 @@ ventiel
 ventiel
 ventielsystem
 ventilatie
-ventilatiehoeveelhed
+ventilatiehoevel
 ventilatiekanal
 ventilatielucht
 ventilatiemog
@@ -29967,7 +29967,7 @@ verantwoord
 verantwoord
 verantwoord
 verantwoord
-verantwoordelijkhed
+verantwoord
 verantwoord
 verantwoord
 verantwoord
@@ -30631,7 +30631,7 @@ verolma
 veronderstell
 veronderstell
 veronderstelt
-verongelukk
+verongeluk
 veronica
 verontreinigd
 verontreinigd
@@ -30872,7 +30872,7 @@ verstor
 verstoringsonderzoek
 verstraet
 verstrek
-verstrekk
+verstrek
 verstrekt
 verstrekt
 verstrekt
@@ -30923,7 +30923,7 @@ vertragingstactiek
 vertrapp
 vertrek
 vertrek
-vertrekk
+vertrek
 vertrektijd
 vertrok
 vertrouwd
@@ -30983,7 +30983,7 @@ vervoersdienst
 vervoersgewoont
 vervoerskeuz
 vervoerskost
-vervoersmogelijkhed
+vervoersmog
 vervoersplan
 vervoersplann
 vervoerssector
@@ -31022,7 +31022,7 @@ vervuiler
 vervuiler
 vervuil
 vervuil
-vervuilingseenhed
+vervuilingsen
 vervuilingsgrad
 vervuilingsregel
 vervuilt
@@ -31090,7 +31090,7 @@ verwerkingsinstallaties
 verwerkingskost
 verwerkingslijn
 verwerkingsmethod
-verwerkingsmogelijkhed
+verwerkingsmog
 verwerkingsmog
 verwerkingspas
 verwerkingsplan
@@ -31155,7 +31155,7 @@ verzadigd
 verzad
 verzadigt
 verzakelijk
-verzakk
+verzak
 verzamelar
 verzamelcontainer
 verzameld
@@ -31224,7 +31224,7 @@ verzuringsonderzoek
 verzuringsproces
 verzuurd
 verzuurd
-verzwakk
+verzwak
 verzwak
 verzwakt
 verzwar
@@ -31343,7 +31343,7 @@ viltstift
 vinamul
 vincent
 vincot
-vincot
+vinçot
 vind
 vind
 vinding
@@ -32015,7 +32015,7 @@ voortplantingsorgan
 voortplantingssystem
 voortplantingstijd
 voortraject
-voortrekk
+voortrek
 voortrekkersrol
 voort
 voortvar
@@ -32360,7 +32360,7 @@ waard
 waard
 waardebon
 waardedal
-waardedrukk
+waardedruk
 waardeerd
 waard
 waarder
@@ -32451,7 +32451,7 @@ wal
 walaansluit
 walburcht
 walcher
-waldwei
+wâldwei
 wales
 walhi
 waling
@@ -32929,7 +32929,7 @@ weerribb
 weersgesteld
 weersinvloed
 weerskant
-weersomstandighed
+weersomstand
 weerstan
 weerstand
 weerstand
@@ -32989,7 +32989,7 @@ weging
 wegingsfactor
 wegklap
 weglat
-weglekk
+weglek
 wegmateriaal
 wegneemt
 wegnem
@@ -33050,7 +33050,7 @@ wek
 wekkerradio
 wekt
 wel
-wel
+wèl
 welch
 weldon
 welen
@@ -33180,7 +33180,7 @@ werkmethod
 werknemer
 werknemer
 werkomgev
-werkomstandighed
+werkomstand
 werkplat
 werkplaatsconcentraties
 werkplaats
@@ -33214,7 +33214,7 @@ werkwater
 werkwek
 werkwijz
 werkzam
-werkzaamhed
+werkzam
 werkzam
 werkzam
 werp
@@ -33394,7 +33394,7 @@ wijzigt
 wil
 wild
 wildbeher
-wildbeheerseenhed
+wildbeheersen
 wild
 wild
 wildgroei
@@ -33499,7 +33499,7 @@ windscal
 windscherm
 windshift
 windsituatie
-windsnelhed
+windsnel
 windsnel
 windsterkt
 windstil
@@ -33535,7 +33535,7 @@ winkel
 winkelsector
 winkelt
 winkra
-winmogelijkhed
+winmog
 winnar
 winnar
 winn
@@ -33696,7 +33696,7 @@ woningbouwtaakstell
 woningbouwveren
 woningcorporatie
 woningcorporaties
-woningdichthed
+woningdicht
 woningeigenar
 woningeigenar
 woning
@@ -33968,7 +33968,7 @@ zeehav
 zeehaven
 zeehond
 zeehond
-zeehondencrech
+zeehondencrèch
 zeehondendeskund
 zeehondenjager
 zeehondenkolonie
@@ -34036,7 +34036,7 @@ zeis
 zeist
 zeker
 zeker
-zekerhed
+zeker
 zeker
 zekerheidsstell
 zekerheidswaard
@@ -34060,7 +34060,7 @@ zelf
 zelfstand
 zelfstand
 zelfstandigenaftrek
-zelftrekk
+zelftrek
 zelfvoorzien
 zelfvoorzien
 zelfvoorzieningsbeginsel
@@ -34144,7 +34144,7 @@ ziektekiem
 ziekt
 ziekteproblem
 ziektes
-ziekteverwekk
+ziekteverwek
 ziekteverwekker
 ziekteverzuim
 ziektevrij
@@ -34217,7 +34217,7 @@ zodoend
 zodra
 zoek
 zoek
-zoekmogelijkhed
+zoekmog
 zoekt
 zoel
 zoemend
@@ -34281,7 +34281,7 @@ zonneceltechniek
 zonnecentrales
 zonnecollector
 zonnecollector
-zonnecrem
+zonnecrèm
 zonnedauw
 zonnedorp
 zonneenergie
@@ -34328,7 +34328,7 @@ zorgt
 zorgvuld
 zorgvuld
 zorgvuldiger
-zorgwekk
+zorgwek
 zoro
 zos
 zou
@@ -34561,3 +34561,4 @@ zwitser
 zwo
 zwoll
 zwol
+

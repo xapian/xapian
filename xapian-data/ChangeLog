@@ -1,4 +1,10 @@
+Sun Oct 13 03:34:09 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemming/: Updated files so that they are correct for the Snowball
+	  stemmers (which use iso-8859-1 accents and produce slightly
+	  different results).
+
 Fri Apr 12 14:07:40 BST 2002  Olly Betts <olly@survex.com>
 
-	* Started ChangeLog; updated README files to refer to Xapian and the
+	* Started ChangeLog; updated README files to refer to Xapian and
 	  www.xapian.org.
