@@ -1,3 +1,7 @@
+Thu Oct 12 14:45:03 BST 2000 Olly Betts
+
+	* Moved common/networkmatch.h into match/
+
 Thu Oct 12 14:28:21 BST 2000 Olly Betts
 
 	* NetClient: Merged set_rset() into set_query().

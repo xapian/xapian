@@ -51,7 +51,6 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 
     AutoPtr<RSet> new_rset(new RSet(db, omrset));
     rset = new_rset;
-
 }
 
 RemoteSubMatch::~RemoteSubMatch()
@@ -61,14 +60,7 @@ RemoteSubMatch::~RemoteSubMatch()
 
 PostList *
 RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
-//		       const OmMatchDecider *mdecider,
 {
-// FIXME: for efficiency, MatchDecider should probably be applied remotely
-//    if (mdecider != 0) {
-//	throw OmInvalidArgumentError("Can't use a match decider remotely");
-//    }
-    // FIXME: no longer needed
-    db->link->send_global_stats(*(gatherer->get_stats()));
     postlist = new PendingMSetPostList(db, maxitems);
     return postlist;
 }

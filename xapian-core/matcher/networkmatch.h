@@ -27,7 +27,7 @@
 #include "stats.h"
 #include "net_database.h"
 
-#include "../matcher/msetpostlist.h"
+#include "msetpostlist.h"
 
 /// Class for performing match calculations remotely
 class RemoteSubMatch : public SubMatch {

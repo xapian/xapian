@@ -6,7 +6,7 @@ noinst_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  andmaybepostlist.h xorpostlist.h branchpostlist.h filterpostlist.h \
  phrasepostlist.h branchtermlist.h ortermlist.h \
  selectpostlist.h boolweight.h bm25weight.h tradweight.h \
- mergepostlist.h msetpostlist.h extraweightpostlist.h
+ mergepostlist.h msetpostlist.h extraweightpostlist.h networkmatch.h
 
 noinst_LTLIBRARIES = libmatcher.la
 
