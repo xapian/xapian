@@ -1,3 +1,7 @@
+Fri Apr 18 16:12:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: GCC 3.2.2 on Redhat 7.1 works with CXXFLAGS=-Werror
+
 Thu Apr 10 20:05:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/Makefile.am,common/indexer.h,testsuite/Makefile.am,
@@ -5021,6 +5025,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 
