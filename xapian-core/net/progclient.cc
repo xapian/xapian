@@ -80,51 +80,49 @@ ProgClient::get_spawned_socket(string progname, const string &args)
 	throw Xapian::NetworkError(string("fork:") + strerror(errno), get_progcontext(progname, args));
     }
 
-    if (pid == 0) {
-	/* child process:
-	 *   set up file descriptors and exec program
-	 */
-
-	// replace stdin and stdout with the socket
-	// FIXME: check return values.
-	close(0);
-	close(1);
-	dup2(sv[1], 0);
-	dup2(sv[1], 1);
-
-	// close unnecessary file descriptors
-	// FIXME: Probably a bit excessive...
-	for (int i=3; i<256; ++i) {
-	    close(i);
-	}
-
-	vector<string> argvec;
-	split_words(args, argvec);
-
-	// In theory, a potential memory leak here.
-	// In practice, we either execvp() or exit().
-	const char **new_argv = new const char *[argvec.size() + 2];
-
-	new_argv[0] = progname.c_str();
-	for (vector<string>::size_type i=0;
-	     i<argvec.size();
-	     ++i) {
-	    new_argv[i+1] = argvec[i].c_str();
-	}
-	new_argv[argvec.size() + 1] = 0;
-	execvp(progname.c_str(),
-	       const_cast<char *const *>(new_argv));
-
-	// if we get here, then execvp failed.
-	/* throwing an exception is a bad idea, since we're
-	 * not the original process. */
-	_exit(-1);
-    } else {
+    if (pid != 0) {
 	// parent
 	// close the child's end of the socket
 	close(sv[1]);
 	return sv[0];
     }
+
+    /* child process:
+     *   set up file descriptors and exec program
+     */
+
+    // replace stdin and stdout with the socket
+    // FIXME: check return values.
+    close(0);
+    close(1);
+    dup2(sv[1], 0);
+    dup2(sv[1], 1);
+
+    // close unnecessary file descriptors
+    // FIXME: Probably a bit excessive...
+    for (int fd = 3; fd < 256; ++fd) {
+	close(fd);
+    }
+
+    vector<string> argvec;
+    split_words(args, argvec);
+
+    // We never explicitly free this memory, but that's OK as we're about
+    // to either execvp() or _exit().
+    const char **new_argv = new const char *[argvec.size() + 2];
+
+    new_argv[0] = progname.c_str();
+    for (vector<string>::size_type i = 0; i < argvec.size(); ++i) {
+	new_argv[i + 1] = argvec[i].c_str();
+    }
+    new_argv[argvec.size() + 1] = 0;
+    execvp(progname.c_str(),
+	   const_cast<char *const *>(new_argv));
+
+    // if we get here, then execvp failed.
+    /* throwing an exception is a bad idea, since we're
+     * not the original process. */
+    _exit(-1);
 }
 
 ProgClient::~ProgClient()

@@ -1,3 +1,7 @@
+Thu Aug 14 22:31:23 BST 2003  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Tidied a little.
+
 Tue Aug 12 12:50:19 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Pass 0 for the lexicon/postlist
