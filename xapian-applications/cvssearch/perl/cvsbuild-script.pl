@@ -262,7 +262,8 @@ sub cvsbuild {
                     my $cvs_words;
                     my $code_words = 0;
 
-                    $cvs_words = `./cvs_comment_extractor $cvsdata/$root/src/$app_name|wc -c|`;
+                    my $pwd = 'pwd';
+                    $cvs_words = `./cvs_comment_extractor $pwd $cvsdata/$root/src $app_path|wc -c|`;
 
                     open(LIST, "<$list_file") || die "cannot create temporary file list\n";
                     while (<LIST>) {

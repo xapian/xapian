@@ -1,7 +1,7 @@
 bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb \
 	cvscompare.cgi \
 	Match.cgi Query.cgi Queryfile.cgi Source.cgi \
-        cvs_comment_extractor code_comment_extractor \
+        cvs_comment_extractor code_comment_extractor cvs2cl \
 	popup.js utility.js \
 	cvssearch.pm Entities.pm
 
@@ -20,6 +20,11 @@ echo "#!" $(PERL) > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef
+
+cvs2cl: $(srcdir)/cvs2cl.pl
+	rm -rf $@
+	cat $(firstword $^) >> $@
+	chmod ugo+rx $@
 
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)

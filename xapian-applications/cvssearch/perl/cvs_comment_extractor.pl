@@ -1,10 +1,13 @@
 use strict;
 
-my $pkg = $ARGV[$0];
+my $pwd = $ARGV[0];
+my $path= $ARGV[1];
+my $pkg = $ARGV[2];
 my $get_msg = 0;
 
 if ($pkg ne "") {
-    open (ChangeLog, "./cvs2cl.pl --stdout --xml $pkg |");
+    chdir $path || die "cannot change directory to $path: $!";
+    open (ChangeLog, "$pwd/cvs2cl --stdout --xml $pkg |");
     while (<ChangeLog>){ 
         chomp;
         if (0) {
@@ -17,4 +20,5 @@ if ($pkg ne "") {
         }
     }
     close (ChangeLog);
+    chdir $pwd || die "cannot change directory to $pwd: $!";
 }
