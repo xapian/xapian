@@ -110,6 +110,14 @@ class OmRangeError : public OmRuntimeError {
 	OmRangeError(const string &msg) : OmRuntimeError(msg) {};
 };
 
+/** thrown when really weird stuff happens.  If this is thrown something
+ *  has gone badly wrong.
+ */
+class OmInternalError : public OmRuntimeError {
+    public:
+	OmInternalError(const string &msg) : OmRuntimeError(msg) {};
+};
+
 /** thrown for miscellaneous database errors. */
 class OmDatabaseError : public OmRuntimeError {
     public:

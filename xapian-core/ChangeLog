@@ -1,3 +1,7 @@
+Thu May 18 11:15:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added new exception OmInternalError for really weird problems.
+
 Wed May 17 18:12:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added simple test for RSet usage.
