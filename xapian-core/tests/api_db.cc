@@ -657,7 +657,7 @@ static bool test_expandfunctor1()
     return true;
 }
 
-class myMatchDecider : public OmMatchDecider {
+class myMatchDecider : public Xapian::MatchDecider {
     public:
         int operator()(const OmDocument &doc) const {
 	    // Note that this is not recommended usage of get_data()

@@ -729,7 +729,7 @@ OmMSet <A HREF="apidoc/html/class_OmEnquire.html">OmEnquire::get_mset</A>(om_doc
                            om_doccount maxitems,
                            const OmRSet * omrset = 0,
                            const OmMatchOptions * moptions = 0,
-                           const OmMatchDecider * mdecider = 0) const
+                           const Xapian::MatchDecider * mdecider = 0) const
 </PRE>
 <P>
 When asking for the results, you must specify (in <CODE>first</CODE>) the
@@ -889,7 +889,7 @@ and new documents are being added to the end of the database.
 Sometimes it may be useful to return only documents matching criteria
 which can't be easily represented by queries.  This can be done using
 a match decision functor.  To set such a condition, derive a class
-from <CODE>OmMatchDecider</CODE> and override the function operator,
+from <CODE>Xapian::MatchDecider</CODE> and override the function operator,
 <CODE>operator()(const OmDocument *doc)</CODE>.  The operator can make
 a decision based on the document keys via <CODE>OmDocument::get_key(om_keyno)</CODE>.
 </p>

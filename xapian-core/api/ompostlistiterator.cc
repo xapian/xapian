@@ -101,7 +101,7 @@ Xapian::PostListIterator::skip_to(om_docid did)
     if (internal->at_end()) internal = 0;
 }    
 
-// need to set OmWeight object for this to work
+// need to set Xapian::Weight object for this to work
 //om_weight
 //Xapian::PostListIterator::get_weight() const
 //{
