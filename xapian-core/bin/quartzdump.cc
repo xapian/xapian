@@ -31,6 +31,7 @@
 #include <string>
 #include <ctype.h>
 
+#include "autoptr.h"
 #include "getopt.h"
 
 using namespace std;

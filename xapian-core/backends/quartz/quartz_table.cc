@@ -50,7 +50,7 @@ hex_encode(const string & input)
 
 QuartzCursor::QuartzCursor(Btree * btree)
 	: is_positioned(false),
-	  cursor(new Bcursor(btree)) {}
+	  cursor(btree) {}
 
 bool
 QuartzCursor::find_entry(const string &key)
@@ -63,17 +63,17 @@ QuartzCursor::find_entry(const string &key)
 
     if (key.size() > Btree::max_key_len) {
 	// Can't find key - too long to possibly be present.
-	(void) cursor->find_key(key.substr(0, Btree::max_key_len));
+	(void) cursor.find_key(key.substr(0, Btree::max_key_len));
 	// FIXME: check for errors
     } else {
-	found = cursor->find_key(key);
+	found = cursor.find_key(key);
 	// FIXME: check for errors
     }
 
-    bool err = cursor->get_key(&current_key);
+    bool err = cursor.get_key(&current_key);
     (void)err; // FIXME: check for errors
 
-    is_positioned = cursor->get_tag(&current_tag);
+    is_positioned = cursor.get_tag(&current_tag);
     // FIXME: check for errors
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) <<
@@ -92,9 +92,9 @@ QuartzCursor::next()
 	return;
     }
 
-    cursor->get_key(&current_key);
+    cursor.get_key(&current_key);
     // FIXME: check for errors
-    is_positioned = cursor->get_tag(&current_tag);
+    is_positioned = cursor.get_tag(&current_tag);
     // FIXME: check for errors
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
@@ -111,25 +111,25 @@ QuartzCursor::prev()
     if (!is_positioned) {
 	// FIXME: want to go to last item in table - this method
 	// should work, but isn't going to be of great efficiency.
-	int found = cursor->find_key(current_key);
+	int found = cursor.find_key(current_key);
 	(void)found; // FIXME: check for errors
 	Assert(found);
     } else {
-	cursor->prev();
+	cursor.prev();
 	// FIXME: check for errors
     }
 
-    cursor->get_key(&current_key);
+    cursor.get_key(&current_key);
     // FIXME: check for errors
 
     if (!current_key.empty()) {
-	cursor->prev();
+	cursor.prev();
 	// FIXME: check for errors
-	cursor->get_key(&current_key);
+	cursor.get_key(&current_key);
 	// FIXME: check for errors
     }
 
-    is_positioned = cursor->get_tag(&current_tag);
+    is_positioned = cursor.get_tag(&current_tag);
     // FIXME: check for errors
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<

@@ -28,6 +28,7 @@
 
 using namespace std;
 
+#include "autoptr.h"
 #include "btreecheck.h"
 #include "quartz_table.h"
 #include "quartz_types.h"

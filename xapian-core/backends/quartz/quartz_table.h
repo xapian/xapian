@@ -27,7 +27,6 @@
 
 #include "quartz_types.h"
 #include "bcursor.h"
-#include "autoptr.h"
 #include <string>
 using std::string;
 
@@ -56,7 +55,7 @@ class QuartzCursor {
 	/** The btree cursor.  This points to the next item, not the current
 	 *  item.
 	 */
-	AutoPtr<Bcursor> cursor;
+	Bcursor cursor;
 
     public:
 	/// Initialise the cursor 

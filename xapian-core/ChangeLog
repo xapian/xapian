@@ -1,3 +1,9 @@
+Thu Aug 12 16:26:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table.cc,backends/quartz/quartz_table.h,
+	  bin/quartzcheck.cc,bin/quartzdump.cc: QuartzCursor now has a
+	  Bcursor member, rather than an AutoPtr<Bcursor> member.
+
 Thu Aug 12 14:13:37 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc: Fixed up in line with the recent refactoring.
