@@ -42,6 +42,17 @@ typedef unsigned long int quartz_revision_number_t;
  */
 typedef unsigned long int quartz_tablesize_t;
 
+/** An integer type for storing the length of a document - ie, the sum of the
+ *  wdfs of the terms in the document.
+ */
+typedef unsigned long int quartz_doclen_t;
+
+/** An integer type which can store the sum of the lengths of the documents
+ *  in the database.
+ *
+ *  FIXME - change this to a double?
+ */
+typedef unsigned long long int quartz_totlen_t;
 
 /** The maximum length that a key is allowed to have in a B-tree table.
  */

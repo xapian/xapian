@@ -465,42 +465,50 @@ static bool test_adddoc1()
 
     database->begin_session(0);
     TEST_EQUAL(database->get_doccount(), 0);
+    TEST_EQUAL(database->get_avlength(), 0);
     OmDocumentContents document;
     om_docid did;
 
     did = database->add_document(document);
     TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 1);
+    TEST_EQUAL(database->get_avlength(), 0);
     settings.set("quartz_logfile", "log_ro");
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
+	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
     database->flush();
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
+	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
 
     database->delete_document(did);
     TEST_EQUAL(database->get_doccount(), 0);
+    TEST_EQUAL(database->get_avlength(), 0);
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
+	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
     database->flush();
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
+	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
 
     did = database->add_document(document);
     TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 2);
+    TEST_EQUAL(database->get_avlength(), 0);
 
     database->flush();
     database->end_session();
@@ -536,13 +544,24 @@ static bool test_adddoc2()
 	RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
 
 	TEST_EQUAL(database->get_doccount(), 0);
+	TEST_EQUAL(database->get_avlength(), 0);
 
 	did = database->add_document(document_in);
 	TEST_EQUAL(database->get_doccount(), 1);
+	TEST_EQUAL(database->get_avlength(), 3);
 
 	om_docid did2 = database->add_document(document_in2);
 	TEST_EQUAL(database->get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
+	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
+
+	database->delete_document(did);
+	TEST_EQUAL(database->get_doccount(), 1);
+	TEST_EQUAL(database->get_avlength(), 2);
+
+	did = database->add_document(document_in);
+	TEST_EQUAL(database->get_doccount(), 2);
+	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
     }
 
     {

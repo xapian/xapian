@@ -48,6 +48,10 @@ class QuartzRecordManager {
 	 */
 	static om_doccount get_doccount(QuartzTable & table);
 
+	/** Read the total length of the records in the table.
+	 */
+	static om_totlength get_total_length(QuartzTable & table);
+
 	/** Get the next document ID to use.
 	 */
 	static om_docid get_newdocid(QuartzBufferedTable & table);
@@ -63,6 +67,16 @@ class QuartzRecordManager {
 	static void delete_record(QuartzBufferedTable & table,
 				  om_docid did);
 
+	/** Modify the stored total length of the records, by supplying an
+	 *  old length for a document, and the new length of the document
+	 *  replacing it.
+	 *
+	 *  @param old_doclen  The old length of the document.
+	 *  @param new_doclen  The new length of the document.
+	 */
+	static void modify_total_length(QuartzBufferedTable & table,
+					quartz_doclen_t old_doclen,
+					quartz_doclen_t new_doclen);
 };
 
 #endif /* OM_HGUARD_QUARTZ_RECORD_H */

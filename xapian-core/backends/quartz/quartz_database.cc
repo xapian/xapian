@@ -235,7 +235,14 @@ om_doclength
 QuartzDatabase::get_avlength() const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::get_avlength() not yet implemented");
+    // FIXME: probably want to cache this value (but not miss updates)
+
+    om_doccount docs =
+	    QuartzRecordManager::get_doccount(*(tables->get_record_table()));
+
+    if (docs == 0) return 0;
+    return QuartzRecordManager::get_total_length(*(tables->get_record_table()))
+	    / docs;
 }
 
 om_doclength
@@ -405,20 +412,20 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 
     Assert(buffered_tables != 0);
 
-    om_doclength doclen = 0;
-
+    // Calculate the new document length
+    quartz_doclen_t new_doclen = 0;
     OmDocumentContents::document_terms::const_iterator term;
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
-	doclen += term->second.wdf;
+	new_doclen += term->second.wdf;
     }
 
     // Set the record, and get the document ID to use.
     om_docid did = QuartzRecordManager::add_record(
 			*(buffered_tables->get_record_table()),
 			document.data,
-			doclen);
+			new_doclen);
     Assert(did != 0);
-
+    
     // Set the attributes.
     OmDocumentContents::document_keys::const_iterator key;
     for (key = document.keys.begin(); key != document.keys.end(); key++) {
@@ -433,8 +440,17 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
     QuartzTermList::set_entries(buffered_tables->get_termlist_table(),
 				did,
 				document.terms,
+				new_doclen,
 				false);
 
+    // Set the new document length
+    // (Old doclen is always zero, since this is a new document)
+    QuartzRecordManager::modify_total_length(
+		*(buffered_tables->get_record_table()),
+		0,
+		new_doclen);
+
+    
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
 	om_termid tid;
 	QuartzLexicon::increment_termfreq(buffered_tables->get_lexicon_table(),
@@ -485,13 +501,28 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 					  term->second.tname);
     }
 
+    // Set the document length.
+    // (New doclen is always zero, since we're deleting the document.)
+    // FIXME: (make and) use a static method of QuartzTermList, to avoid
+    // having to open a temporary termlist object.
+    quartz_doclen_t old_doclen = 0;
+    QuartzTermList termlist(0,
+			    buffered_tables->get_termlist_table(),
+			    buffered_tables->get_lexicon_table(),
+			    did);
+    old_doclen = termlist.get_doclength();
+    QuartzRecordManager::modify_total_length(
+		*(buffered_tables->get_record_table()),
+		old_doclen,
+		0);
+    
+    // Remove the attributes
+    // FIXME: implement
+
     // Remove the termlist.
     QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
 				    did);
 
-    // Remove the attributes
-    // FIXME: implement
-    
     // Remove the record.
     QuartzRecordManager::delete_record(*(buffered_tables->get_record_table()),
 				       did);

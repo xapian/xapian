@@ -25,12 +25,14 @@
 #include "utils.h"
 #include "om/omerror.h"
 
+#define NEXTDOCID_TAG std::string("\000\000", 2)
+#define TOTLEN_TAG std::string("\000\001", 2)
+
 OmData
 QuartzRecordManager::get_record(QuartzTable & table,
 				om_docid did)
 {
     QuartzDbKey key(quartz_docid_to_key(did));
-
     QuartzDbTag tag;
 
     if (!table.get_exact_entry(key, tag)) {
@@ -53,7 +55,7 @@ om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
     QuartzDbKey key;
-    key.value = std::string("\000\000", 2);
+    key.value = NEXTDOCID_TAG;
 
     QuartzDbTag * tag = table.get_tag(key);
     if (tag == 0) {
@@ -66,11 +68,9 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
     bool success = unpack_uint(&data, end, &did);
 
     if (!success) {
-	if (data == end) {
-	    // Overflow
+	if (data == end) { // Overflow
 	    throw OmRangeError("Next document number is out of range.");
-	} else {
-	    // Number ran out
+	} else { // Number ran out
 	    throw OmDatabaseCorruptError("Record containing next free docid is corrupt.");
 	}
     }
@@ -93,13 +93,12 @@ QuartzRecordManager::initialise(QuartzDiskTable & table,
     QuartzDbTag tag_nextdoc;
     QuartzDbTag tag_totallen;
 
+    key.value = NEXTDOCID_TAG;
     tag_nextdoc.value = pack_uint(1u);
-    tag_totallen.value = pack_uint(0u);
-    
-    key.value = std::string("\000\000", 2);
     entries[key] = &tag_nextdoc;
 
-    key.value = std::string("\000\001", 2);
+    key.value = TOTLEN_TAG;
+    tag_totallen.value = pack_uint(0u);
     entries[key] = &tag_totallen;
 
     table.set_entries(entries, new_revision);
@@ -108,17 +107,71 @@ QuartzRecordManager::initialise(QuartzDiskTable & table,
 om_docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
 				const OmData & data,
-				om_doclength doclen)
+				om_doclength new_doclen)
 {
     om_docid did = get_newdocid(table);
 
     QuartzDbKey key(quartz_docid_to_key(did));
-
     QuartzDbTag * tag = table.get_or_make_tag(key);
-
     tag->value = data.value;
 
     return did;
+}
+
+void
+QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
+					 quartz_doclen_t old_doclen,
+					 quartz_doclen_t new_doclen)
+{
+    QuartzDbKey key;
+    key.value = TOTLEN_TAG;
+    QuartzDbTag * tag = table.get_or_make_tag(key);
+
+    quartz_totlen_t totlen;
+    const char * data = tag->value.data();
+    const char * end = data + tag->value.size();
+    bool success = unpack_uint(&data, end, &totlen);
+    if (!success) {
+	if (data == end) { // Overflow
+	    throw OmRangeError("Total document length is out of range.");
+	} else { // Number ran out
+	    throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
+	}
+    }
+
+    quartz_totlen_t newlen = totlen + new_doclen;
+    if (newlen < totlen)
+	throw OmRangeError("New total document length is out of range.");
+    if (newlen < old_doclen)
+	throw OmDatabaseCorruptError("Total document length is less than claimed old document length");
+    newlen -= old_doclen;
+    tag->value = pack_uint(newlen);
+}
+
+om_totlength
+QuartzRecordManager::get_total_length(QuartzTable & table)
+{
+    QuartzDbKey key;
+    key.value = TOTLEN_TAG;
+    QuartzDbTag tag;
+
+    if (!table.get_exact_entry(key, tag)) {
+	throw OmDatabaseCorruptError("Record containing total document length is missing.");
+    }
+
+    quartz_totlen_t totlen;
+    const char * data = tag.value.data();
+    const char * end = data + tag.value.size();
+    bool success = unpack_uint(&data, end, &totlen);
+    if (!success) {
+	if (data == end) { // Overflow
+	    throw OmRangeError("Total document length is out of range.");
+	} else { // Number ran out
+	    throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
+	}
+    }
+
+    return (om_totlength) totlen;
 }
 
 void

@@ -1,3 +1,9 @@
+Fri Oct 20 18:17:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In quartz: store document lengths in termlists, store total
+	  length in a field in the record table, and add methods to access
+	  all these.  QuartzDatabase::get_avlength() now implemented.
+
 Fri Oct 20 16:21:41 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The xml warn function now prints to debug rather than stderr

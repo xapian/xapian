@@ -43,6 +43,22 @@ QuartzTermList::write_size(std::string & data,
 }
 
 void
+QuartzTermList::read_doclen()
+{
+    if (!unpack_uint(&pos, end, &doclen)) {
+	if(pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
+	else throw OmRangeError("Size of termlist out of range.");
+    }
+}
+
+void
+QuartzTermList::write_doclen(std::string & data,
+			     quartz_doclen_t doclen)
+{
+    data += pack_uint(doclen);
+}
+
+void
 QuartzTermList::read_has_termfreqs()
 {
     if (!unpack_bool(&pos, end, &has_termfreqs)) {
@@ -103,11 +119,13 @@ void
 QuartzTermList::set_entries(QuartzBufferedTable * table,
 			    om_docid did,
 			    const OmDocumentContents::document_terms & terms,
+			    quartz_doclen_t doclen,
 			    bool store_termfreqs)
 {
     QuartzDbTag * tag = table->get_or_make_tag(quartz_docid_to_key(did));
 
     tag->value = "";
+    write_doclen(tag->value, doclen);
     write_size(tag->value, terms.size());
     write_has_termfreqs(tag->value, store_termfreqs);
 
@@ -154,6 +172,7 @@ QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
     pos = termlist_part.value.data();
     end = pos + termlist_part.value.size();
 
+    read_doclen();
     read_size();
     read_has_termfreqs();
 }
@@ -163,6 +182,14 @@ QuartzTermList::get_approx_size() const
 {
     return termlist_size;
 }
+
+quartz_doclen_t
+QuartzTermList::get_doclength() const
+{
+    return doclen;
+}
+
+
 
 TermList *
 QuartzTermList::next()

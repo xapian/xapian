@@ -72,6 +72,10 @@ class QuartzTermList : public LeafTermList {
 	bool have_finished;
 
 
+	/** The length of the document represented by the termlist.
+	 */
+	quartz_doclen_t doclen;
+
 	/** The size of the termlist.
 	 */
 	om_termcount termlist_size;
@@ -115,6 +119,23 @@ class QuartzTermList : public LeafTermList {
 	 */
 	static void write_size(std::string & data, 
 			       om_termcount size);
+
+	/** Read the document length from the termlist.
+	 *
+	 *  The value read is stored in the termlist_size member variable.
+	 *
+	 *  @exception OmDatabaseCorruptError is thrown if there is an error
+	 *  (eg, data runs out).
+	 */
+	void read_doclen();
+
+	/** Write the document length into the string supplied.
+	 *
+	 *  @param data A string to append the representation of the doclen to.
+	 *  @param size The document length (sum of wdfs).
+	 */
+	static void write_doclen(std::string & data,
+				 quartz_doclen_t doclen);
 
 	/** Read whether the termlist stores term frequencies.
 	 *
@@ -166,10 +187,12 @@ class QuartzTermList : public LeafTermList {
 	 *         databases (which are probably generated from dumps of
 	 *         dynamic databases) - updating cannot be done efficiently
 	 *         while storing term frequencies.
+	 *  @param 
 	 */
 	static void set_entries(QuartzBufferedTable * table,
 			om_docid did,
 			const OmDocumentContents::document_terms & terms,
+			quartz_doclen_t doclen,
 			bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
@@ -178,7 +201,6 @@ class QuartzTermList : public LeafTermList {
 	static void delete_termlist(QuartzBufferedTable * table,
 				    om_docid did);
 
-
 	/** Open the termlist for the specified document, for reading.
 	 */
 	QuartzTermList(RefCntPtr<const Database> this_db_,
@@ -186,12 +208,19 @@ class QuartzTermList : public LeafTermList {
 		       const QuartzTable * lexicon_table_,
 		       om_docid did);
 
+	/** Get the length of the document represented by the termlist.
+	 *
+	 *  FIXME: having a static version of this available would be nice -
+	 *  database could then avoid having to create a temporary termlist
+	 *  object.
+	 */
+	quartz_doclen_t get_doclength() const;
+
 	/** Return number of items in termlist.
 	 *  (This is actually exact - it may be approximate for combined
 	 *  termlists.)
 	 */
 	om_termcount get_approx_size() const;
-
 
 	/** Move to next entry.  Must be called before any of the other
 	 *  methods, including at_end(), to move onto the first entry.
