@@ -31,9 +31,7 @@ class AutoPtr {
     private:
 	template <class U>
 	struct AutoPtrRef {
-	    explicit AutoPtrRef(AutoPtr &ap_)
-		    : ap(ap_) {}
-	    AutoPtr &ap;
+	    AutoPtr<U> ap;
 	};
     public:
 	typedef T element_type;
@@ -144,7 +142,9 @@ template <class T>
 template <class U>
 AutoPtr<T>::operator AutoPtr<T>::AutoPtrRef<U>() throw()
 {
-    return AutoPtrRef<U>(*this);
+    AutoPtrRef<U> ar;
+    ar.ap = *this;
+    return ar;
 }
 
 template <class T>
