@@ -142,6 +142,9 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 
     // Read database
     Dbt data;
+
+    // FIXME - this flag results in extra copying - more inefficiency.
+    // We should use DB_DBT_USERMEM and DB_DBT_PARTIAL
     data.set_flags(DB_DBT_MALLOC);
     int found;
 
@@ -150,14 +153,17 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 	// FIXME - read list only as desired, for efficiency
 	found = db->get(NULL, &key, &data, 0);
 
-	if(found != DB_NOTFOUND) {
-	    // Unpack list
-	    Assert(found == 0); // Any other errors should cause an exception.
-
-	    string packed(reinterpret_cast<char *>(data.get_data()),
-			  data.get_size());
-	    unpack(packed);
+	if(found == DB_NOTFOUND) {
+	    throw OmDatabaseError("Database error: item not found");
 	}
+	Assert(found == 0); // Any other errors should cause an exception.
+
+	// Unpack list
+	string packed(reinterpret_cast<char *>(data.get_data()),
+		      data.get_size());
+	unpack(packed);
+
+	free(data.get_data());
     } catch (DbException e) {
 	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
     }
@@ -170,6 +176,12 @@ SleepyList::~SleepyList()
     // Close the list
     free(key.get_data());
     key.set_data(NULL);
+}
+
+SleepyList::itemcount_type
+SleepyList::get_item_count() const
+{
+    return items.size();
 }
 
 void

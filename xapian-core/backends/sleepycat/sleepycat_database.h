@@ -74,19 +74,4 @@ class SleepyDatabase : public IRDatabase {
 	void make_posting(const om_termname &, unsigned int, unsigned int);
 };
 
-inline void
-SleepyDatabase::make_term(const om_termname &) {
-    throw OmUnimplementedError("DADatabase::make_term() not implemented");
-}
-
-inline om_docid 
-SleepyDatabase::make_doc(const om_docname &) {
-    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
-}
-
-inline void 
-SleepyDatabase::make_posting(const om_termname &, unsigned int, unsigned int) {
-    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
-}
-
 #endif /* OM_HGUARD_SLEEPY_DATABASE_H */

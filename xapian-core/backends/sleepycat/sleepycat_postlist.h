@@ -27,19 +27,35 @@
 #include <stdlib.h>
 
 class SleepyDatabase;
+class SleepyDatabaseInternals;
+#include "sleepy_list.h"
 
 /** A poslist in a sleepycat database.
  */
 class SleepyPostList : public LeafPostList {
     friend class SleepyDatabase;
     private:
-	om_doccount pos;
-	om_docid *data;
-
+        /** The termname for this postlist: this is used for
+	 *  introspection methods.
+	 */
 	om_termname tname;
-	om_doccount termfreq;
 
-	SleepyPostList(const om_termname &tn, om_docid *data_new, om_doccount tf);
+	/** List object which deals with the low-level list accessing
+	 *  and unpacking.
+	 */
+	SleepyList mylist;
+
+	/** Create a SleepyPostList from the specified internals, and
+	 *  using the specified termid.
+	 *
+	 *  @param tid_        The termid to use to open the postlist.
+	 *  @param internals_  
+	 *  @param tname_      The termname for this postlist: this is
+	 *                     used for introspection methods.
+	 */
+	SleepyPostList(om_termid tid_,
+		       SleepyDatabaseInternals * internals_,
+		       const om_termname & tname_);
     public:
 	~SleepyPostList();
 

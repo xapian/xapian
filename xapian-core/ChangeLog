@@ -1,3 +1,15 @@
+Thu Apr  6 00:57:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More sleepycat stuff:
+	  o) Generic list implementation now allows items to be added, lists
+	     to be written to databases, and lists to be read back from
+	     databases.  Doesn't yet allow iteration through lists.
+	  o) PostLists can be opened using the list implementation, and sizes
+	     returned, but all other functionality not there yet.
+
+	* Modifications to the configure system: now picks up sleepycat stuff
+	  on my home machine.
+
 Tue Apr  4 18:49:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Generic list implementation for sleepycat is now almost complete

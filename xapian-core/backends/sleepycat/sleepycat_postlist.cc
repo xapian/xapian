@@ -26,57 +26,69 @@
 #include "omassert.h"
 #include "utils.h"
 #include "sleepy_postlist.h"
+#include "sleepy_database_internals.h"
 
 ///////////////
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(const om_termname &tn,
-			       om_docid *data_new,
-			       om_doccount tf)
-	: pos(0), data(data_new), tname(tn), termfreq(tf)
+SleepyPostList::SleepyPostList(om_termid tid_,
+			       SleepyDatabaseInternals * internals_,
+			       const om_termname & tname_)
+	: tname(tname_),
+	  mylist(internals_->postlist_db,
+		 reinterpret_cast<void *>(&tid_),
+		 sizeof(tid_))
 {
 }
 
-SleepyPostList::~SleepyPostList() {
-    free(data);
+SleepyPostList::~SleepyPostList()
+{
 }
 
 
 om_doccount
 SleepyPostList::get_termfreq() const
 {
-    return termfreq;
+    return mylist.get_item_count();
 }
 
 om_docid
 SleepyPostList::get_docid() const
 {
+#if 0
     Assert(!at_end());
     Assert(pos != 0);
     return data[pos - 1];
+#endif
 }
 
-om_weight SleepyPostList::get_weight() const {
+om_weight SleepyPostList::get_weight() const
+{
+#if 0
     Assert(!at_end());
     Assert(ir_wt != NULL);
     
     om_doccount wdf = 1;
 
     return ir_wt->get_sumpart(wdf, 1.0);
+#endif
 }
 
 PostList *
 SleepyPostList::next(om_weight w_min)
 {
+#if 0
     Assert(!at_end());
     pos ++;
     return NULL;
+#endif
 }
 
 PostList *
 SleepyPostList::skip_to(om_docid did, om_weight w_min)
 {
+#if 0
     Assert(!at_end());
     if(pos == 0) pos++;
     while (!at_end() && data[pos - 1] < did) {
@@ -84,17 +96,20 @@ SleepyPostList::skip_to(om_docid did, om_weight w_min)
 	if (ret) return ret;
     }
     return NULL;
+#endif
 }
 
 bool
 SleepyPostList::at_end() const
 {
+#if 0
     if(pos > termfreq) return true;
     return false;
+#endif
 }
 
 string
 SleepyPostList::intro_term_description() const
-{   
-    return tname + ":" + inttostring(termfreq);
+{
+    return tname + ":" + inttostring(get_termfreq());
 }

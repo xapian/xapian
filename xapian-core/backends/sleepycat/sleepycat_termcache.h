@@ -24,7 +24,6 @@
 #define OM_HGUARD_SLEEPY_TERMCACHE_H
 
 class SleepyDatabaseInternals;
-class SleepyDatabase;
 
 /** Termname to termID mappings.
  *
@@ -34,12 +33,56 @@ class SleepyDatabase;
  *  Entries are not deleted from the cache until the object is destroyed.
  */
 class SleepyDatabaseTermCache {
-    friend class SleepyDatabase;
     private:
+        /** Pointer to the database internals.  These are owned by
+	 *  someone else (typically a SleepyDatabase), so we don't have to
+	 *  worry about deleting them.
+	 */
 	SleepyDatabaseInternals * internals;
-	SleepyDatabaseTermCache(SleepyDatabaseInternals *i) : internals(i) {}
+
+	/// Copying is not allowed.
+	SleepyDatabaseTermCache(const SleepyDatabaseTermCache &);
+
+	/// Assignment is not allowed.
+	void operator=(const SleepyDatabaseTermCache &);
     public:
+	/** Create a term cache, for the database refered to by the
+	 *  supplied internals.
+	 *
+	 *  @param internals_  A pointer to the internals to use.  This is
+	 *                     owned by the caller (so SleepyDatabaseTermCache
+	 *                     won't delete it).
+	 */
+	SleepyDatabaseTermCache(SleepyDatabaseInternals *internals_)
+		: internals(internals_) {}
+
+	/** Convert a term ID into a termname.
+	 *  This is expected to be called with known term ID's, since it
+	 *  will throw an exception if the term ID is not found.
+	 *
+	 *  @param tid  The term ID to lookup.
+	 *
+	 *  @return     The termname string corresponding to term ID tid.
+	 *
+	 *  @exception OmRangeError is thrown if the term id supplied is
+	 *                          not found in the database.
+	 *
+	 *  @exception OmDatabaseError is thrown if a error occurs when
+	 *                             accessing the database.
+	 */
 	om_termname term_id_to_name(om_termid tid) const;
+
+	/** Convert a termname into a term ID.
+	 *
+	 *  @param tname  The termname to lookup in the database.
+	 *
+	 *  @return The term ID which corresponds to the specified termname.
+	 *          If the termname is not found in the database, the special
+	 *          value of 0 is returned.
+	 *
+	 *  @exception OmDatabaseError is thrown if a error occurs when
+	 *                             accessing the database.
+	 */
 	om_termid term_name_to_id(const om_termname & tname) const;
 };
 

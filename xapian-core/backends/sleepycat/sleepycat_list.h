@@ -163,7 +163,18 @@ class SleepyList {
 	 */
 	string pack() const;
 
+	/// Copying is not allowed.
+	SleepyList(const SleepyList &);
+
+	/// Assignment is not allowed.
+	void operator=(const SleepyList &);
+	
     public:
+	/** A type big enough to represent the number of items which a
+	 *  list could hold.
+	 */
+	typedef unsigned int itemcount_type;
+
 	/** Make the list referring to that stored in the specified database
 	 *  referenced by the given key.
 	 *
@@ -196,6 +207,10 @@ class SleepyList {
 	 */
 	~SleepyList();
 
+	/** Get the number of items in the list.
+	 */
+	itemcount_type get_item_count() const;
+	
 	/** Add an entry to the list.
 	 *
 	 *  If no changes have yet been made to the list, this method will

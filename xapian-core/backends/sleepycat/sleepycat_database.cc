@@ -41,12 +41,13 @@
 #include "sleepy_termcache.h"
 
 SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
-	: internals(new SleepyDatabaseInternals()),
-	  termcache(new SleepyDatabaseTermCache(internals))
 {
     // Check validity of parameters
     Assert(params.paths.size() == 1);
     Assert(params.subdbs.size() == 0);
+
+    internals = new SleepyDatabaseInternals();
+    termcache = new SleepyDatabaseTermCache(internals);
 
     // Open database with specified path
     try {
@@ -72,24 +73,27 @@ SleepyDatabase::~SleepyDatabase() {
 om_doccount
 SleepyDatabase::get_doccount() const
 {
+    // FIXME
     return 1;
 }
 
 om_doclength
 SleepyDatabase::get_avlength() const
 {
+    // FIXME
     return 1;
 }
 
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
+    // FIXME
     return 1;
 }
 
 om_doccount
 SleepyDatabase::get_termfreq(const om_termname &tname) const
-{   
+{
     PostList *pl = open_post_list(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
@@ -108,32 +112,18 @@ LeafPostList *
 SleepyDatabase::open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
-    Assert(tid != 0);
+    if(tid == 0) throw OmRangeError("Termid not found");
 
-    Dbt key(&tid, sizeof(tid));
-    Dbt data;
-
-    // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
-    data.set_flags(DB_DBT_MALLOC);
-
-    // Get, no transactions, no flags
-    try {
-	int found = internals->postlist_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw OmDatabaseError("Termid not found");
-
-	// Any other errors should cause an exception.
-	Assert(found == 0);
-    }
-    catch (DbException e) {
-	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
-    }
-
-    return new SleepyPostList(tname, (om_docid *)data.get_data(),
-			      data.get_size() / sizeof(om_docid));
+    // FIXME - specify which of termfreqs, wdfs, and positional info
+    // should be stored.
+    return new SleepyPostList(tid, internals, tname);
 }
 
 LeafTermList *
-SleepyDatabase::open_term_list(om_docid did) const {
+SleepyDatabase::open_term_list(om_docid did) const
+{
+    throw OmUnimplementedError(
+	"SleepyDatabase.open_term_list() not implemented");
     Dbt key(&did, sizeof(did));
     Dbt data;
 
@@ -267,3 +257,18 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos)
     }
 }
 */
+
+void
+SleepyDatabase::make_term(const om_termname &) {
+    throw OmUnimplementedError("DADatabase::make_term() not implemented");
+}
+
+om_docid
+SleepyDatabase::make_doc(const om_docname &) {
+    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
+}
+
+void
+SleepyDatabase::make_posting(const om_termname &, unsigned int, unsigned int) {
+    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+}

@@ -19,4 +19,4 @@ libsleepy_la_SOURCES = sleepy_list.cc \
                        sleepy_termcache.cc \
                        sleepy_database.cc \
                        sleepy_database_internals.cc
-libsleepy_la_LIBADD = -L/usr/local/BerkeleyDB/lib -ldb
+libsleepy_la_LIBADD = @SLEEPYCAT_LIBS@
