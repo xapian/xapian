@@ -24,9 +24,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- High    | Documentation   | Add auto documentation to distributions,
-         |                 | generate TeX documentation, and put it on the
-         |                 | website.
+ Medium  | Documentation   | Auto generate TeX documentation, and put it on
+         |                 | the website.
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Change OMQueries to hold subqs in a deque, so
          |                 | that we can add a subquery to the beginning in
