@@ -1,3 +1,9 @@
+Thu Apr 18 14:17:24 BST 2002  Olly Betts <olly@survex.com>
+
+	* buildall: Removed search for GNU make (as of automake
+	  1.5 it's not needed for automake and we aim to have portable
+	  makefiles).  Made buildall more portable.
+
 Thu Apr 18 14:16:18 BST 2002  Olly Betts <olly@survex.com>
 
 	* xapian-config.nodep is a generated file, so don't look for it in
