@@ -6,7 +6,7 @@ SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@/site-packages
 
-pylib_SCRIPTS = xapian.py
+pylib_SCRIPTS = xapian.py xapian.pyc
 
 pylib_LTLIBRARIES = _xapian.la
 
@@ -14,7 +14,7 @@ pylib_LTLIBRARIES = _xapian.la
 # and Python doesn't use libltdl.
 # FIXME: -hook seems to execute first, not after everything else as the
 # automake manual says it does, so (ab)use install-exec-local instead.
-# Investigate and report to libtool developers...
+# Investigate and report to automake developers...
 install-exec-local:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
@@ -25,9 +25,12 @@ _xapian_la_LDFLAGS = -avoid-version -module
 nodist__xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc xapian.py
+BUILT_SOURCES = xapian_wrap.cc xapian.py xapian.pyc
 
 xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
 	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o $@ $(srcdir)/../xapian.i
+
+xapian.pyc: xapian.py
+	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
 
 CLEANFILES = $(BUILT_SOURCES)

@@ -1,3 +1,8 @@
+Fri Sep 03 13:04:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Byte compile the python code and install that
+	  too.
+
 Fri Sep 03 13:03:55 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Tell libtool not to build static libraries as the
