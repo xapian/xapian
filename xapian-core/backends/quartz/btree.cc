@@ -97,7 +97,7 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 
 int sys_open_to_read_no_except(const string & name)
 {
-    int fd = open(name, O_RDONLY | O_BINARY, 0666);
+    int fd = open(name, O_RDONLY | O_BINARY);
     return fd;
 }
 
@@ -131,7 +131,7 @@ int sys_open_to_write(const string & name)
 
 static int sys_open_for_readwrite(const string & name)
 {
-    int fd = open(name, O_RDWR | O_BINARY, 0666);
+    int fd = open(name, O_RDWR | O_BINARY);
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);

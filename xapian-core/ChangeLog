@@ -1,3 +1,8 @@
+Wed Oct 08 13:22:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Don't pass mode argument to open when we
+	  aren't specifying O_CREAT.
+
 Thu Oct 02 15:29:38 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Another entry for omega for 0.7.4.
