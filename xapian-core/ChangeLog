@@ -1,3 +1,7 @@
+Wed Sep 20 13:31:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added untested AutoPtr template (auto_ptr clone)
+
 Wed Sep 20 13:11:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* malloc_wrapper.sh now passes parameters in

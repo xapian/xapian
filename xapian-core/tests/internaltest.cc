@@ -23,7 +23,6 @@
 #include "config.h"
 #include <iostream>
 #include <string>
-#include <memory>
 #include <dlfcn.h>
 using std::cout;
 using std::endl;

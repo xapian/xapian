@@ -9,7 +9,7 @@ noinst_HEADERS = \
  irweight.h expandweight.h stats.h networkstats.h \
  match.h localmatch.h networkmatch.h multimatch.h expand.h rset.h \
  indexer.h textfile_indexer.h \
- utils.h omlocks.h omqueryinternal.h refcnt.h \
+ utils.h omlocks.h omqueryinternal.h refcnt.h autoptr.h \
  omdocumentparams.h document.h networkmatch.h \
  netclient.h progclient.h multi_database.h net_database.h \
  omdatabaseinterface.h \
