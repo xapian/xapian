@@ -26,6 +26,7 @@
 
 #include "rset.h"
 #include "match.h"
+#include "expand.h"
 #include "database.h"
 #include "database_builder.h"
 #include "irdocument.h"
@@ -356,17 +357,12 @@ class OMEnquireInternal {
     public:
 	IRDatabase * database;
 	mutable OMQuery * query;
-	OMMatchOptions options;
-	OMRSet omrset;
 
 	OMEnquireInternal();
 	~OMEnquireInternal();
 
 	void add_database(IRDatabase *);
 	void set_query(const OMQuery &);
-	void set_rset(const OMRSet &);
-	void set_match_options(const OMMatchOptions &);
-	void get_mset(OMMSet &, doccount, doccount) const;
 };
 
 //////////////////////////////////////////
@@ -405,53 +401,6 @@ OMEnquireInternal::set_query(const OMQuery &_query)
 	query = NULL;
     }
     query = new OMQuery(_query);
-}
-
-void
-OMEnquireInternal::set_rset(const OMRSet &_rset)
-{
-    omrset = _rset;
-}
-
-void
-OMEnquireInternal::set_match_options(const OMMatchOptions &_options)
-{
-    options = _options;
-}
-
-void
-OMEnquireInternal::get_mset(OMMSet &mset,
-			    doccount first, doccount maxitems) const
-{
-    Assert(database != NULL);
-    Assert(query != NULL);
-
-    // Set Database
-    OMMatch match(database);
-
-    // Set Rset
-    RSet *rset = NULL;
-    if(omrset.items.size() != 0) {
-	rset = new RSet(database, omrset);
-	match.set_rset(rset);
-    }
-
-    // Set options
-    if(options.do_collapse) {
-	match.set_collapse_key(options.collapse_key);
-    }
-
-    // Set Query
-    match.set_query(query);
-
-    // Run query and get results into supplied OMMSet object
-    match.match(first, maxitems, mset.items, msetcmp_forward, &(mset.mbound));
-
-    // Get max weight for an item in the MSet
-    mset.max_weight = match.get_max_weight();
-
-    // Clear up
-    delete rset;
 }
 
 ////////////////////////////////////////////
@@ -496,31 +445,62 @@ OMEnquire::set_query(const OMQuery &query)
 }
 
 void
-OMEnquire::set_rset(const OMRSet &rset)
+OMEnquire::get_mset(OMMSet &mset,
+                    doccount first,
+                    doccount maxitems,
+                    const OMRSet *omrset,
+                    const OMMatchOptions *moptions) const
 {
-    internal->set_rset(rset);
+    Assert(internal->database != NULL);
+    Assert(internal->query != NULL);
+
+    // Use default options if none supplied
+    OMMatchOptions defmoptions;
+    if (moptions == 0) {
+        moptions = &defmoptions;
+    }
+
+    // Set Database
+    OMMatch match(internal->database);
+
+    // Set Rset
+    RSet *rset = 0;
+    if((omrset == 0) || (omrset->items.size() != 0)) {
+	rset = new RSet(internal->database, *omrset);
+	match.set_rset(rset);
+    }
+
+    // Set options
+    if(moptions->do_collapse) {
+	match.set_collapse_key(moptions->collapse_key);
+    }
+
+    // Set Query
+    match.set_query(internal->query);
+
+    // Run query and get results into supplied OMMSet object
+    match.match(first, maxitems, mset.items, msetcmp_forward, &(mset.mbound));
+
+    // Get max weight for an item in the MSet
+    mset.max_weight = match.get_max_weight();
+
+    // Clear up
+    delete rset;
 }
 
 void
-OMEnquire::set_match_options(const OMMatchOptions &opts)
+OMEnquire::get_eset(OMESet &eset,
+	            termcount maxitems,
+                    const OMRSet &omrset,
+	            const OMExpandOptions *eoptions) const
 {
-    internal->set_match_options(opts);
-}
+    OMExpand expand(internal->database);
+    RSet rset(internal->database, omrset);
 
-void
-OMEnquire::get_mset(OMMSet &mset, doccount first, doccount maxitems) const
-{
-    internal->get_mset(mset, first, maxitems);
-}
+    DebugMsg("rset size is " << rset.get_rsize() << endl);
 
-void
-OMEnquire::set_expand_options(const OMExpandOptions &)
-{
-    // FIXME - implement
-}
-
-void
-OMEnquire::get_eset(OMESet &, termcount maxitems) const
-{
-    // FIXME - implement
+    OMExpandDeciderAlways expanddecider;
+    
+    //  FIXME: only accept maxitems
+    expand.expand(eset, &rset, &expanddecider);
 }

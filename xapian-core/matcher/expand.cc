@@ -95,7 +95,9 @@ OMExpand::expand(class OMESet &eset,
     eset.items.clear();
     eset.etotal = 0;
 
+    DebugMsg("OMExpand::expand()" << endl);
     if (rset->get_rsize() == 0) return; // No query
+    DebugMsg("OMExpand::expand() 2" << endl);
 
     weight w_min = 0;
 

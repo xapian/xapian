@@ -115,8 +115,6 @@ main(int argc, char *argv[])
 	    enquire.add_database(*p, *q);
 	}
 
-	enquire.set_rset(rset);
-       
 	Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
 
 	OMQuery query;
@@ -185,10 +183,8 @@ main(int argc, char *argv[])
 	OMMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
-	enquire.set_match_options(opts);
-
 	OMMSet mset;
-	enquire.get_mset(mset, mfirst, msize);
+	enquire.get_mset(mset, mfirst, msize, &rset, &opts);
 	
 	if (showmset) {
 	    vector<OMMSetItem>::const_iterator i;

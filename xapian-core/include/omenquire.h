@@ -29,6 +29,7 @@
 #include <set>
 
 class OMEnquireInternal; // Internal state of enquire
+class OMEnquire;         // Declare Enquire class
 class OMMatch;           // Class which performs queries
 
 ///////////////////////////////////////////////////////////////////
@@ -106,7 +107,7 @@ class OMQuery {
 // Used to specify options for running a query
 
 class OMMatchOptions {
-    friend OMEnquireInternal;
+    friend OMEnquire;
     private:
 	bool  do_collapse;
 	keyno collapse_key;
@@ -125,7 +126,7 @@ class OMMatchOptions {
 // Used to specify options for performing expand
 
 class OMExpandOptions {
-    friend OMEnquireInternal;
+    friend OMEnquire;
     private:
     public:
 	OMExpandOptions();
@@ -177,6 +178,9 @@ class OMMSet {
     private:
     public:
 	OMMSet() : mbound(0) {}
+	// FIXME - implement convert_to_percent
+	int convert_to_percent(const OMMSetItem &) const;
+	int convert_to_percent(weight) const;
 	vector<OMMSetItem> items;
 	doccount mbound;
 	weight max_weight;
@@ -233,20 +237,18 @@ class OMEnquire {
 	// Set the query to run.
 	void set_query(const OMQuery &);
 
-	// Set the relevance set to use.
-	void set_rset(const OMRSet &);
-
-	// Set options for the match, such as a collapse key.
-	void set_match_options(const OMMatchOptions &);
-
 	// Get (a portion of) the match set for the current query
-	void get_mset(OMMSet &, doccount first, doccount maxitems) const;
+	void get_mset(OMMSet &,
+                      doccount first,
+                      doccount maxitems,
+		      const OMRSet * = 0,
+	              const OMMatchOptions * = 0) const;
 
-	// Set options for the match, such as a collapse key.
-	void set_expand_options(const OMExpandOptions &);
-
-	// Get the expand set for the current rset
-	void get_eset(OMESet &, termcount maxitems) const;
+	// Get the expand set for the given rset
+	void get_eset(OMESet &,
+                      termcount maxitems,
+                      const OMRSet &,
+                      const OMExpandOptions * = 0) const;
 };
 
 #endif /* _omenquire_h_ */
