@@ -146,6 +146,7 @@ void readTags( const string& fn, set<string>& S, map<string, set<string> >& symb
         S.insert(symbol);
         //      cerr << "** found symbol -" << symbol << "-" << endl;
     }
+    cerr << "read tag finishd" << endl;
     in.close();
 }
 

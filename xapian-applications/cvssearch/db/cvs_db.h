@@ -46,7 +46,7 @@ public:
     int open(const string & filename, bool read_only);
     int close(int flags = 0);
     int remove(const string & filename, int flags = 0);
-    int sync();
+     int sync();
 };
 
 #endif

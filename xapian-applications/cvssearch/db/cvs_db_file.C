@@ -315,3 +315,15 @@ cvs_db_file::get_commit(unsigned int commit_id, vector<unsigned int> & fileids, 
     }
     return val;
 }
+
+int
+cvs_db_file::get_commit_count     (unsigned int & count){
+    int val = 0;
+    if ((val = _comment_db.open(_database_name, true)) == 0)
+    {
+        if ((val = _comment_db.count(count)) == 0)
+        {
+        }
+    }
+    return val;
+}

@@ -38,6 +38,21 @@ cvs_filename_db::cvs_filename_db(const string & name, const string & index, DbEn
 {
 }
 
+int
+cvs_filename_db::count(unsigned int & count)
+{
+    int val = 0;
+    DB_BTREE_STAT *sp;
+    try {
+        val = _db.stat(&sp, malloc, DB_RECORDCOUNT);
+        count = sp->bt_nkeys;
+        free(sp);
+    }  catch (DbException& e ) {
+        cerr << "SleepyCat Exception: " << e.what() << endl;
+    }
+    return val;
+}
+
 /**
  * Opens the database storing recno->filename.
  *

@@ -41,6 +41,7 @@ public:
     cvs_filename_db(const string & name, const string & index, DbEnv *dbenv = 0, u_int32_t flags = 0);
     int get(unsigned int   fileId,       string & filename);
     int put(unsigned int & fileId, const string & filename);
+    int count(unsigned int & count);
 };
 
 #endif

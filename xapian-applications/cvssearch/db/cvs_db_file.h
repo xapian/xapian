@@ -93,7 +93,8 @@ public:
     int put_commit           (unsigned int file_id, const string & revision, unsigned int   commitid);
     int get_commit           (unsigned int file_id, const string & revision, unsigned int & commitid);
     int get_commit           (unsigned int commitid, vector<unsigned int> & fileids, vector<string> & revisions);
-
+    int get_commit_count     (unsigned int & count);
+    
     int sync();
     virtual ~cvs_db_file();
 

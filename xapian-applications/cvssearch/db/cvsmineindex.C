@@ -228,7 +228,7 @@ int main(unsigned int argc, char *argv[]) {
             map<string, int> app_symbol_count;
             set<string> found_symbol_before;
             
-            lines_cmt lines( cvsdata + "/root0/src/", "", package_name, file_cmt, file_offset, " mining" ); 
+            lines_cmt lines    (package_src_path, "", package_name, file_cmt, file_offset, " mining" ); 
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);            
             
             // ----------------------------------------
