@@ -34,7 +34,7 @@ if {[catch {
     set query firstterm
     for {set i 2} {$i < $argc} {incr i} {
 	xapian::Query nextterm [stemmer stem_word [lindex $argv $i]]
-	xapian::Query newquery 1 $query nextterm
+	xapian::Query newquery $Query_OP_OR $query nextterm
 	set query newquery
     }
     puts "Performing query `[$query get_description]'"
