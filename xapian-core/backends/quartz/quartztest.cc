@@ -1109,7 +1109,9 @@ static bool test_create1()
     settings1.set("database_create", true);
     settings1.set("database_allow_overwrite", true);
     database = DatabaseBuilder::create(settings1, true);
+    TEST_EQUAL(database->get_doccount(), 0);
     database = DatabaseBuilder::create(settings1, false);
+    TEST_EQUAL(database->get_doccount(), 0);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
     document_in.add_value(7, "Value7");

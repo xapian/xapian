@@ -1,3 +1,9 @@
+Fri Nov 15 03:06:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartztest.cc,backends/quartz/btreetest.cc:
+	  added another test (btreetest: emptykey1) and added extra
+	  checks to existing tests.
+
 Thu Nov 14 01:59:06 GMT 2002  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc,tests/api_db.cc,docs/todo.xml:

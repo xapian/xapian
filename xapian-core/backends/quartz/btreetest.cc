@@ -51,25 +51,28 @@ static void make_dir(string filename)
     mkdir(filename, 0700);
 }
 
-static void process_lines(Btree & btree, ifstream &f)
+static int process_lines(Btree & btree, ifstream &f)
 {
+    int count = 0;
     while (true) {
 	string s;
-        if (!getline(f, s)) return;
+        if (!getline(f, s)) return count;
 	if (s.empty()) continue;
 	if (s[0] == '+') {
 	    string::size_type sp = s.find(' ');
 	    btree.add(s.substr(1, min(sp - 1, btree.max_key_len)),
 		      s.substr(sp + 1));
+	    ++count;
 	} else if (s[0] == '-') {
 	    btree.del(s.substr(1, btree.max_key_len));
+	    --count;
 	} else {
 	    throw "No '+' or '-' on line `" + s + "'";
 	}
     }
 }
 
-static void do_update(const string & btree_dir,
+static int do_update(const string & btree_dir,
 		     const string & datafile,
 		     bool full_compact = false)
 {
@@ -81,13 +84,16 @@ static void do_update(const string & btree_dir,
 	btree.set_full_compaction(true);
     }
     
+    int count;
     {
 	ifstream f(datafile.c_str());
 	TEST_AND_EXPLAIN(f.is_open(), "File " << datafile << " not found");
-	process_lines(btree, f);
+	count = process_lines(btree, f);
     }
 
     btree.commit(btree.revision_number + 1);
+
+    return count;
 }
 
 static void do_create(const string & btree_dir, int block_size = 1024)
@@ -111,15 +117,22 @@ static bool test_insertdelete1()
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
-    do_update(btree_dir, datadir + "ord+");
+    int count = do_update(btree_dir, datadir + "ord+");
     BtreeCheck::check(btree_dir, VERBOSE("v"));
+    {
+	Btree btree;
+	btree.open_to_read(btree_dir.c_str());
+	TEST_EQUAL(count, btree.item_count);
+    }
 
-    do_update(btree_dir, datadir + "ord-");
+    count += do_update(btree_dir, datadir + "ord-");
     BtreeCheck::check(btree_dir, VERBOSE("vt"));
-
-    Btree btree;
-    btree.open_to_read(btree_dir.c_str());
-    TEST_EQUAL(btree.item_count, 0);
+    {
+	Btree btree;
+	btree.open_to_read(btree_dir.c_str());
+	TEST_EQUAL(btree.item_count, 0);
+	TEST_EQUAL(count, btree.item_count);
+    }
 
     return true;
 }
@@ -153,6 +166,64 @@ static bool test_sequent1()
     return true;
 }
 
+static bool test_emptykey1()
+{
+    string btree_dir = tmpdir + "/B/";
+    do_create(btree_dir);
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
+
+    {
+	Btree btree;
+	btree.open_to_write(btree_dir.c_str());
+
+	tout << "Setting tag to jam" << endl;
+	btree.add("", "jam");
+	btree.commit(btree.revision_number + 1);
+    }
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
+
+    {
+	Btree btree;
+	btree.open_to_write(btree_dir.c_str());
+	TEST_EQUAL(btree.item_count, 0);
+
+	tout << "Setting tag to marmite" << endl;
+	btree.add("", "marmite");
+	btree.commit(btree.revision_number + 1);
+    }
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
+
+    {
+	Btree btree;
+	btree.open_to_write(btree_dir.c_str());
+	TEST_EQUAL(btree.item_count, 0);
+
+	tout << "Deleting tag" << endl;
+	btree.del("");
+	btree.commit(btree.revision_number + 1);
+    }
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
+
+    {
+	Btree btree;
+	btree.open_to_write(btree_dir.c_str());
+	TEST_EQUAL(btree.item_count, 0);
+
+	tout << "Setting tag to butter" << endl;
+	btree.add("", "butter");
+	btree.add("test", "me");
+	btree.commit(btree.revision_number + 1);
+    }
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
+
+
+    Btree btree;
+    btree.open_to_read(btree_dir.c_str());
+    TEST_EQUAL(btree.item_count, 1);
+ 
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -161,10 +232,11 @@ static bool test_sequent1()
 test_desc tests[] = {
     {"insertdelete1",         test_insertdelete1},
     {"sequent1",              test_sequent1},
+    {"emptykey1",             test_emptykey1},
     {0, 0}
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     char * e_tmpdir = getenv("BTREETMP");
     if (e_tmpdir) {
