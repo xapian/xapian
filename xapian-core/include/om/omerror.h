@@ -124,6 +124,9 @@ DEFINE_ERROR_CLASS(OmInternalError, OmRuntimeError);
 /** thrown for miscellaneous database errors. */
 DEFINE_ERROR_CLASS(OmDatabaseError, OmRuntimeError);
 
+/** thrown if the database is corrupt. */
+DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmRuntimeError);
+
 /** thrown when there is a communications problem with
  *  a remote database.
  */

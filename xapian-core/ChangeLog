@@ -1,3 +1,7 @@
+Wed Aug  2 18:09:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added OmDatabaseCorruptError - for when a database is corrupt.
+
 Wed Aug  2 14:29:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added description of OM_NEW_TRAP[_COUNT] environment variables to
