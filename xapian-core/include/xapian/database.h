@@ -360,21 +360,106 @@ class WritableDatabase : public Database {
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
-	 *
-	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
-	 *  couldn't be acquired or subsequently released on the database.
 	 */
 	Xapian::docid add_document(const Xapian::Document & document);
 
-	/** Delete a document in the database.
+	/** Delete a document from the database.
+	 *
+	 *  This method removes the document with the specified document ID
+	 *  from the database.
+	 *
+	 *  Note that this does not mean the document will immediately
+	 *  disappear from the database; see flush() for more details.
+	 *
+	 *  As with all database modification operations, the effect is
+	 *  atomic: the document will either be fully removed, or the document
+	 *  fails to be removed and an exception is thrown (possibly at a
+	 *  later time when flush is called or the database is closed).
+	 *
+	 *  @param did     The document ID of the document to be removed. 
+	 *
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 *
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
 	 */
-	// FIXME: document more.
 	void delete_document(Xapian::docid did);
 
-	/** Replace a given document in the database.
+	/** Delete any documents indexed by a term from the database.
+	 *
+	 *  This method removes any documents indexed by the specified term
+	 *  from the database.
+	 *
+	 *  The intended use is to allow UIDs from another system to easily
+	 *  be mapped to terms in Xapian, although this method probably has
+	 *  other uses.
+	 *
+	 *  @param unique_term     The term to remove references to.
+	 *
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 *
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
 	 */
-	// FIXME: document more.
-	void replace_document(Xapian::docid did, const Xapian::Document & document);
+	void delete_document(const std::string & unique_term);
+
+	/** Replace a given document in the database.
+	 *
+	 *  This method replaces the document with the specified document ID.
+	 *
+	 *  Note that this does not mean the document will immediately
+	 *  change in the database; see flush() for more details.
+	 *
+	 *  As with all database modification operations, the effect is
+	 *  atomic: the document will either be fully replaced, or the document
+	 *  fails to be replaced and an exception is thrown (possibly at a
+	 *  later time when flush is called or the database is closed).
+	 *
+	 *  @param did     The document ID of the document to be replaced.
+	 *  @param document The new document.
+	 *
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 *
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 */
+	void replace_document(Xapian::docid did,
+			      const Xapian::Document & document);
+
+	/** Replace any documents matching a term.
+	 *
+	 *  This method replaces any documents indexed by the specified term
+	 *  with the specified document.  If any documents are indexed by the
+	 *  term, the lowest document ID will be used for the document,
+	 *  otherwise a new document ID will be generated as for add_document.
+	 *
+	 *  The intended use is to allow UIDs from another system to easily
+	 *  be mapped to terms in Xapian, although this method probably has
+	 *  other uses.
+	 *
+	 *  Note that this does not mean the document(s) will immediately
+	 *  change in the database; see flush() for more details.
+	 *
+	 *  As with all database modification operations, the effect is
+	 *  atomic: the document(s) will either be fully replaced, or the
+	 *  document(s) fail to be replaced and an exception is thrown
+	 *  (possibly at a
+	 *  later time when flush is called or the database is closed).
+	 *
+	 *  @param unique_term    The "unique" term.
+	 *  @param document The new document.
+	 *
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 *
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 */
+	void replace_document(const std::string & unique_term,
+			      const Xapian::Document & document);
 
 	/** Introspection method.
 	 *

@@ -1,3 +1,11 @@
+Wed Aug 11 20:09:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h: Added replace_document
+	  and delete_document variants which take a unique id term name rather
+	  than a document id.
+	* include/xapian/database.h: Better documentation for replace_document
+	  and delete_document.
+
 Wed Aug 11 16:15:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,bin/quartzcheck.cc,bin/quartzdump.cc,
