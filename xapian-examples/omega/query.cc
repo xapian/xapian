@@ -16,7 +16,7 @@
 #include "query.h"
 
 // declared in parsepage.ll
-extern void print_query_page(const char *, long int, long int);
+extern void print_query_page(const string &, long int, long int);
 // declared in parsequery.ll
 extern void parse_prob(const string&);
 

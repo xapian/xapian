@@ -15,7 +15,7 @@
 #define MLIMIT 1000 // FIXME: deeply broken
 
 #define YY_DECL \
- void print_query_page(const char *page, long int first, long int size)
+ void print_query_page(const string &page, long int first, long int size)
 
 #define yyterminate() return
 
