@@ -1,3 +1,10 @@
+Sat Mar 05 00:25:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,include/xapian/enquire.h,
+	  matcher/multimatch.cc,tests/api_db.cc: Fixed Xapian::RSet to have
+	  the same "it's a handle" copy semantics as most of the other
+	  classes.
+
 Sat Mar 05 00:23:47 GMT 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.h: Fixed TEST_EQUAL_DOUBLE to use DBL_EPSILON

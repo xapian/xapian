@@ -1110,8 +1110,8 @@ static bool test_consistency1()
 		}
 		for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 		    TEST_EQUAL(*mset[i], *bigmset[start + i]);
-		    TEST_EQUAL(mset[i].get_weight(),
-			       bigmset[start + i].get_weight());
+		    TEST_EQUAL_DOUBLE(mset[i].get_weight(),
+				      bigmset[start + i].get_weight());
 		}
 	    }
 	}

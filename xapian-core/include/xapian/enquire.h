@@ -543,7 +543,7 @@ class RSet {
 	class Internal;
 
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/// Copy constructor
 	RSet(const RSet &rset);

@@ -312,7 +312,7 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
 	string get_description() const;
 };
 
-class RSet::Internal {
+class RSet::Internal : public Xapian::Internal::RefCntBase {
     friend class Xapian::RSet;
     friend class ::RSetI;
     friend class ::OmExpand;

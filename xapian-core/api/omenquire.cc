@@ -95,20 +95,18 @@ RSet::RSet() : internal(new RSet::Internal())
 {
 }
 
-RSet::RSet(const RSet &other)
-	: internal(new RSet::Internal(*other.internal))
+RSet::RSet(const RSet &other) : internal(other.internal)
 {
 }
 
 void
 RSet::operator=(const RSet &other)
 {
-    *internal = *other.internal;
+    internal = other.internal;
 }
 
 RSet::~RSet()
 {
-    delete internal;
 }
 
 Xapian::doccount

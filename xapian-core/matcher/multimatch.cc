@@ -224,11 +224,18 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 
     query->validate_query();
 
-    Xapian::doccount number_of_leaves = db.internal.size();
-    vector<Xapian::RSet> subrsets(number_of_leaves);
+    vector<Xapian::RSet> subrsets;
+    if (db.internal.size() == 1) {
+	// Shortcut the common case.
+	subrsets.push_back(omrset);
+    } else {
+	Xapian::doccount number_of_leaves = db.internal.size();
+	// Can't just use resize - that creates N copies of the same RSet!
+	for (int i = 0; i < number_of_leaves; ++i) {
+	    subrsets.push_back(Xapian::RSet());
+	}
 
-    {
-	set<Xapian::docid> & items = omrset.internal->items;
+	const set<Xapian::docid> & items = omrset.internal->items;
 	set<Xapian::docid>::const_iterator i; 
 	for (i = items.begin(); i != items.end(); ++i) {
 	    Xapian::doccount local_docid = (*i - 1) / number_of_leaves + 1;
