@@ -321,6 +321,7 @@ OmIndexerMessage::get_vector_length() const
 OmIndexerMessage &
 OmIndexerMessage::operator[](unsigned int offset)
 {
+    copy_on_write();
     return get_element(offset);
 }
 
@@ -351,6 +352,7 @@ OmIndexerMessage::get_element(size_type offset)
     if (offset > internal->u.vector_val->size()) {
 	throw OmRangeError("Access to non-existant element of vector record");
     }
+    copy_on_write();
     return (*internal->u.vector_val)[offset];
 }
 

@@ -205,6 +205,8 @@ OmIndexerNode::Internal::get_output_record(const std::string &output_name)
 	result = i->second;
 	outputs_record.erase(i);
     }
+    DEBUGLINE(INDEXER, "Output " << id << "[" <<
+	      output_name << "] = " << result);
     return result;
 }
 
@@ -236,6 +238,8 @@ OmIndexerNode::Internal::get_output_int(const std::string &output_name)
 	result = i->second.get_int();
 	outputs_record.erase(i);
     }
+    DEBUGLINE(INDEXER, "Output " << id << "[" <<
+	      output_name << "] = " << result);
     return result;
 }
 
@@ -267,6 +271,8 @@ OmIndexerNode::Internal::get_output_double(const std::string &output_name)
 	result = i->second.get_double();
 	outputs_record.erase(i);
     }
+    DEBUGLINE(INDEXER, "Output " << id << "[" <<
+	      output_name << "] = " << result);
     return result;
 }
 
@@ -298,6 +304,8 @@ OmIndexerNode::Internal::get_output_string(const std::string &output_name)
 	result = i->second.get_string();
 	outputs_record.erase(i);
     }
+    DEBUGLINE(INDEXER, "Output " << id << "[" <<
+	      output_name << "] = " << result);
     return result;
 }
 
@@ -311,7 +319,7 @@ OmIndexerNode::Internal::calculate_if_needed(const std::string &output_name)
 	outputs_record.clear();
 	// start with no inputs.
 	stored_inputs.clear();
-	DEBUGLINE(UNKNOWN, "Calculating " << typeid(*owner).name() <<
+	DEBUGLINE(INDEXER, "Calculating " << typeid(*owner).name() <<
 		           " (output " << output_name << " requested)");
 	/*
 	cerr << "Calculating " << typeid(*owner).name() <<

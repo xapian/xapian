@@ -25,6 +25,7 @@
 #include "node_reg.h"
 #include <cctype>
 #include "om/omerror.h"
+#include "omdebug.h"
 
 /** Node which adds items to a termlist structure.
  *
@@ -74,6 +75,7 @@ class OmTermlistAddNode : public OmIndexerNode {
 
 	OmIndexerMessage make_term(const OmIndexerMessage &word, int pos) {
 	    OmIndexerMessage retval;
+	    retval.set_vector();
 	    retval.append_element(word);
 	    retval.append_element(1);  // wdf
 	    retval.append_element(1);  // termfreq
