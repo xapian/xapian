@@ -194,7 +194,7 @@ static int main2(int argc, char *argv[])
     }
 
     // Open enquire system
-    OmDatabase omdb;
+    OmDatabaseGroup omdb;
 
     // read dlist
     try {

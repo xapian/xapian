@@ -135,14 +135,14 @@ pretty_printf(const char *p, int *a)
     /*** save prob query ***/
     if (!new_terms.empty()) {
 	cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-	vector<termname>::const_iterator i;
+	vector<om_termname>::const_iterator i;
 	for (i = new_terms.begin(); i != new_terms.end(); i++)
 	    cout << *i << '.';
 	cout << "\">\n";
     }
 
     // save ticked documents which don't have checkboxes displayed
-    map <docid, bool>::const_iterator i;
+    map <om_docid, bool>::const_iterator i;
     for (i = ticked.begin(); i != ticked.end(); i++) {
         if (i->second)
 	    cout << "<INPUT TYPE=hidden NAME=R VALUE=" << i->first << ">\n";
@@ -302,41 +302,41 @@ pretty_printf(const char *p, int *a)
     if (size == atoi(num.c_str())) cout << "SELECTED";
 }
 \\OSELECT[AO] {
-    if ((op == MOP_AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
+    if ((op == OM_MOP_AND) ^! (yytext[8] == 'A')) cout << "SELECTED";
 }
 \\TOPTERMS {
     // Olly's expand on query page idea
     if (msize) {
-	Expand topterms(database);
+    	OmESet eset;
 	ExpandDeciderFerret decider;
 
-	if (rset->get_rsize()) {
+	if (rset->items.size()) {
 #ifdef DEBUG
 	    cout << "Expanding with " << rset->get_rsize() << " ids" << endl;
 #endif
-	    topterms.expand(rset, &decider);
+	    eset = enquire->get_eset(30, *rset, 0, &decider);
 	} else {
 	    // invent an rset
-	    RSet tmp(database);
+	    OmRSet tmp;
 	    
 	    for (int m = min(4, int(msize) - 1); m >= 0; m--) {
 #ifdef DEBUG
-		cout << "Autotopterm id: " << mset[m].did << endl;
+		cout << "Autotopterm id: " << mset.items[m].did << endl;
 #endif
-		tmp.add_document(mset[m].did);
+		tmp.add_document(mset.items[m].did);
 	    }
 		
-	    topterms.expand(&tmp, &decider);
+	    eset = enquire->get_eset(30, tmp, 0, &decider);
 	}
 
 	int c = 0;
-	vector<ESetItem>::const_iterator i;
+	vector<OmESetItem>::const_iterator i;
 #ifdef DEBUG
-	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	for (i = eset.items.begin(); i != eset.items.end(); i++) {
 	    cout << i->tname << ":" << i->wt << " " << endl;
 	}
 #endif
-	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	for (i = eset.items.begin(); i != eset.items.end(); i++) {
 	    string tname = i->tname;
 
 	    // Ignore terms in the query already
@@ -424,12 +424,13 @@ pretty_printf(const char *p, int *a)
 	    "></A>\n";
 }
 \\FREQS {
+#if 0 // FIXME:
     if (!new_terms.empty()) {
-	vector<termname>::const_iterator i;
+	vector<om_termname>::const_iterator i;
 	for (i = new_terms.begin(); i != new_terms.end(); i++) {
 	    const char *term = i->c_str();
 
-	    int freq = database->get_termfreq(*i);
+	    int freq = enquire->get_termfreq(*i);
 	    
 	    if (i == new_terms.begin()) {
 		cout << "<B>Individual word frequencies:</B>\n";
@@ -445,4 +446,5 @@ pretty_printf(const char *p, int *a)
 	}
 	if (!new_terms.empty()) cout << "<BR>";
     }
+#endif
 }

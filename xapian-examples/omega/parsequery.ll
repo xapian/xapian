@@ -83,7 +83,7 @@ get_next_char(const char **p)
     query = prob_query;
     query_index = 0;
     vector<string> quoted_terms;
-    Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
+    OmStem stemmer("English");
     termtype type = NORMAL;
     int stem, stem_all;
 
@@ -147,7 +147,7 @@ get_next_char(const char **p)
     }
 
     if (stem && (stem_all || !isupper(qlextext[0])))
-        termname = stemmer->stem_word(termname);
+        termname = stemmer.stem_word(termname);
 
     check_term(termname, type);
     BEGIN(AFTERTERM);
@@ -169,7 +169,7 @@ get_next_char(const char **p)
     // end quoted term
     if (quoted_terms.size() == 1) {
 	// FIXME: don't always stem...
-	check_term(stemmer->stem_word(quoted_terms[0]), type);
+	check_term(stemmer.stem_word(quoted_terms[0]), type);
     } else {
 	// we only index word pairs, so add a series of pairs for
 	// phrases of more than 2 words
@@ -219,5 +219,4 @@ get_next_char(const char **p)
     }
     quoted_terms.clear();
 #endif
-    delete stemmer;
 %}

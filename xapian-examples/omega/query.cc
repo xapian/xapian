@@ -464,7 +464,8 @@ print_caption(long int m)
 
     wt = static_cast<long int>(mset.items[m].wt);
     q0 = mset.items[m].did;
-    
+
+#if 0 // FIXME: need access to TermList...
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
     int len = -1, got_plus = 0;
@@ -494,13 +495,14 @@ print_caption(long int m)
 	terms->next();
     }
     delete terms;
-    
+#endif
+
     country = option["BOOL-N" + country_code];
     if (country.empty()) country = country_code;
     language = option["BOOL-L" + language_code];
     if (language.empty()) language = language_code;
    
-    percent = percentage((double)wt, matcher->get_max_weight());
+    percent = percentage((double)wt, mset.max_possible);
     
     string path, sample, caption;
     int port = -1;
@@ -518,8 +520,8 @@ print_caption(long int m)
     }
 #endif
 
-    IRDocument *doc = database->open_document(q0);
-    IRData data = doc->get_data();
+    OmDocument doc = enquire->get_doc(q0);
+    OmData data = doc.get_data();
     pp = data.value.c_str() + 14;
 
     u = (const unsigned char *)pp;
@@ -632,11 +634,12 @@ print_caption(long int m)
 	 case 'P':
 	    cout << percent << '%';
 	    break;
+#if 0 // FIXME:
 	 case 'T': {
 	     // Store the matching terms in a vector and then sort by the
 	     // value of matching_map[] so that they come back in the same
 	     // order as in the query.
-	     vector<termname> matching_terms;
+	     vector<om_termname> matching_terms;
 	     TermList *terms = database->open_term_list(q0);
 	     terms->next();
 	     while (!terms->at_end()) {
@@ -670,6 +673,7 @@ print_caption(long int m)
 	     }
 	     break;
 	  }
+#endif
 	  case 'G': /* score Gif */
 	     cout << "/fx-gif/score-" << percent / 10 << ".gif";
 	     break;
