@@ -1009,7 +1009,7 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
 	// (FIXME)
 	*from = NULL;
 	*to = new PostlistChunkWriter(cursor->current_key,
-			(keypos == keyend),
+			is_first_chunk,
 			tname,
 			is_last_chunk);
 	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
@@ -1018,7 +1018,7 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
     } else {
 	*from = new PostlistChunkReader(keypos, keyend, *tag);
 	*to = new PostlistChunkWriter(cursor->current_key,
-		(keypos == keyend),
+		is_first_chunk,
 		tname,
 		(*from)->get_is_last_chunk());
 	if ((*from)->get_is_last_chunk()) return Xapian::docid(-1);
@@ -1134,8 +1134,8 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		from->next();
 	    }
 	    if (from && from->is_at_end() && did > max_did) {
-		to->flush(bufftable);
 		delete from;
+		to->flush(bufftable);
 		delete to;
 		max_did = get_chunk(bufftable, tname, did, false, &from, &to);
 		continue;

@@ -1,3 +1,8 @@
+Sat Jan 10 03:04:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fixed bug in new postlist
+	  chunking code.
+
 Sat Jan 10 00:45:04 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_termlist.cc: Removed unused
