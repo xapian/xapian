@@ -141,7 +141,7 @@ class Enquiry {
                 $key = substr($line, 0, $colon);
                 $value = substr($line, $colon + 1);
             } else {
-                $value .= $line;
+                $value .= "\n" . $line;
             }
         }
         if ($key != false) {

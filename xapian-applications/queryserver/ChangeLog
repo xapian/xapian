@@ -1,3 +1,9 @@
+Tue May 11 11:52:26 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * clients/queryclient.php: Don't strip newlines out of the data
+          we're going to pass to base64_decode(), incase we get a fussy
+          implementation that cares about overlong lines.
+
 Tue May 11 11:28:13 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * source/base64.c: Include newlines in the encoded length returned
