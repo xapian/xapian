@@ -250,7 +250,7 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision2);
     if (revision != revision2) {
 	err_msg += "Revision number mismatch in " +
-		name + "base" + ch + ": " +
+		basename + ": " +
 		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
 	return false;
     }
@@ -258,7 +258,7 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     /* Read the bitmap */
     if (end - start <= bit_map_size) {
 	err_msg += "Not enough space for bitmap in base file " +
-		name + "base" + ch + "\n";
+		basename + "\n";
 	return false;
     }
 
@@ -277,19 +277,19 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     uint4 revision3;
     if (!unpack_uint(&start, end, &revision3)) {
 	err_msg += "Couldn't read revision2 from base file " +
-	name + "base" + ch + "\n";
+	basename + "\n";
 	return false;
     }
 
     if (revision != revision3) {
 	err_msg += "Revision number mismatch in " +
-		name + "base" + ch + ": " +
+		basename + ": " +
 		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
 	return false;
     }
 
     if (start != end) {
-	err_msg += "Junk at end of base file " + name + "base" + ch + "\n";
+	err_msg += "Junk at end of base file " + basename + "\n";
 	return false;
     }
 
