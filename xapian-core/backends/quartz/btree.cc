@@ -38,6 +38,7 @@
 
 #include "btree.h"
 #include "btree_util.h"
+#include "btree_base.h"
 
 #include "omassert.h"
 #include <string>
@@ -61,9 +62,9 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
-static int valid_handle(int h) { return h >= 0; }
+bool valid_handle(int h) { return h >= 0; }
 
-static int sys_open_to_read_no_except(const std::string & name)
+int sys_open_to_read_no_except(const std::string & name)
 {
     int fd = open(name.c_str(), O_RDONLY, 0666);
     return fd;
@@ -86,7 +87,7 @@ static int sys_open_to_write_no_except(const std::string & name)
     return fd;
 }
 
-static int sys_open_to_write(const std::string & name)
+int sys_open_to_write(const std::string & name)
 {
     int fd = sys_open_to_write_no_except(name);
     if (fd < 0) {
@@ -108,17 +109,33 @@ static int sys_open_for_readwrite(const std::string & name)
     return fd;
 }
 
-static void sys_read_block(int h, int m, int4 n, byte * p)
+static void sys_lseek(int h, off_t offset)
 {
-    if (lseek(h, (off_t)m * n, SEEK_SET) == -1) {
+    if (lseek(h, (off_t)offset, SEEK_SET) == -1) {
 	std::string message = "Error seeking to block: ";
 	message += strerror(errno);
 	throw OmDatabaseError(message);
     }
+}
+
+static void sys_read_block(int h, int m, int4 n, byte * p)
+{
+    sys_lseek(h, (off_t)m * n);
+    sys_read_bytes(h, m, p);
+}
+
+static void sys_write_block(int h, int m, int4 n, byte * p)
+{
+    sys_lseek(h, (off_t)m * n);
+    sys_write_bytes(h, m, p);
+}
+
+int sys_read_bytes(int h, int n, byte * p)
+{
     ssize_t bytes_read;
     while (1) {
-	bytes_read = read(h, (char *)p, m);
-	if (bytes_read == m) {
+	bytes_read = read(h, (char *)p, n);
+	if (bytes_read == n) {
 	    // normal case - read succeeded, so return.
 	    break;
 	} else if (bytes_read == -1) {
@@ -128,27 +145,23 @@ static void sys_read_block(int h, int m, int4 n, byte * p)
 	} else if (bytes_read == 0) {
 	    std::string message = "Error reading block: got end of file";
 	    throw OmDatabaseError(message);
-	} else if (bytes_read < m) {
+	} else if (bytes_read < n) {
 	    /* Read part of the block, which is not an error.  We should
 	     * continue reading the rest of the block.
 	     */
-	    m -= bytes_read;
+	    n -= bytes_read;
 	    p += bytes_read;
 	}
     }
+    return true;
 }
 
-static void sys_write_block(int h, int m, int4 n, byte * p)
+int sys_write_bytes(int h, int n, byte * p)
 {
-    if (lseek(h, (off_t)m * n, SEEK_SET) == -1) {
-	std::string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw OmDatabaseError(message);
-    }
     ssize_t bytes_written;
     while (1) {
-	bytes_written = write(h, (char *)p, m);
-	if (bytes_written == m) {
+	bytes_written = write(h, (char *)p, n);
+	if (bytes_written == n) {
 	    // normal case - read succeeded, so return.
 	    break;
 	} else if (bytes_written == -1) {
@@ -158,28 +171,18 @@ static void sys_write_block(int h, int m, int4 n, byte * p)
 	} else if (bytes_written == 0) {
 	    std::string message = "Error writing block: wrote no data";
 	    throw OmDatabaseError(message);
-	} else if (bytes_written < m) {
+	} else if (bytes_written < n) {
 	    /* Wrote part of the block, which is not an error.  We should
 	     * continue writing the rest of the block.
 	     */
-	    m -= bytes_written;
+	    n -= bytes_written;
 	    p += bytes_written;
 	}
     }
+    return true;
 }
 
-/* FIXME: implement sys_{read,write}_block in terms of
- * sys_{read,write}_bytes and put the same error logic into them.
- */
-static int sys_read_bytes(int h, int n, byte * p)
-{   return read(h, (char *)p, n) == n;
-}
-
-static int sys_write_bytes(int h, int n, byte * p)
-{   return write(h, (char *)p, n) == n;
-}
-
-static int sys_flush(int h) {
+int sys_flush(int h) {
 #ifdef _POSIX_SYNCHRONIZED_IO
     fdatasync(h);
 #else
@@ -188,7 +191,7 @@ static int sys_flush(int h) {
     return true;
 }
 
-static int sys_close(int h) {
+int sys_close(int h) {
     return close(h) == 0;
 }  /* 0 if success */
 
@@ -1260,62 +1263,6 @@ extern void Btree_full_compaction(struct Btree * B, int parity)
 
 /************ B-tree opening and closing ************/
 
-#define B_SIZE          80  /* 2 bytes */
-
-#define B_FORMAT         2  /* 1 byte - spare; 256 possible styles ... */
-#define B_REVISION       3  /* 4 bytes */
-#define B_BLOCK_SIZE     7  /* 4 bytes */
-#define B_ROOT          11  /* 4 bytes */
-#define B_LEVEL         15  /* 4 bytes */
-#define B_BIT_MAP_SIZE  19  /* 4 bytes */
-#define B_ITEM_COUNT    23  /* 4 bytes */
-#define B_LAST_BLOCK    27  /* 4 bytes */
-#define B_HAVE_FAKEROOT 31  /* 1 byte - boolean */
-
-        /* 31 to 75 are spare */
-
-#define B_REVISION2     (B_SIZE - 4)
-
-static byte * read_base(const std::string & name, char ch,
-			std::string &err_msg)
-{
-    int h = sys_open_to_read_no_except(name + "base" + ch);
-    byte w[2];
-    byte * p;
-    int size;
-    if ( ! valid_handle(h)) {
-	err_msg += "Couldn't open " + name + "base" +
-		ch + ": " + strerror(errno) + "\n";
-	return 0;
-    }
-    if (! sys_read_bytes(h, 2, w)) {
-	err_msg += "Couldn't read from " + name + "base" + ch +
-		": " + strerror(errno) + "\n";
-	sys_close(h);
-	return 0;
-    }
-    size = GETINT2(w, 0);
-    p = (byte *)malloc(size);
-    if (p != 0) {
-	SETINT2(p, 0, size);
-	if (sys_read_bytes(h, size - 2, p + 2) &&
-	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) {
-	    sys_close(h);
-	    return p;
-	} else {
-	    err_msg += "Couldn't read revision number from " +
-		    name + "base" + ch + ": " + strerror(errno) + "\n";
-	}
-    } else {
-	sys_close(h);
-	throw std::bad_alloc();
-    }
-
-    free(p);
-    sys_close(h);
-    return 0;
-}
-
 static byte * read_bit_map(const std::string & name, char ch, int size)
 {
     byte * p = (byte *)malloc(size);
@@ -1341,19 +1288,16 @@ static int write_bit_map(struct Btree * B)
 
 static int write_base(struct Btree * B)
 {
-    int h = sys_open_to_write(B->name + "base" + B->other_base_letter);
-    return valid_handle(h) &&
-	    sys_write_bytes(h, GETINT2(B->base, 0), B->base) &&
-	    sys_flush(h) &&
-	    sys_close(h);
+    B->base.write_to_file(B->name + "base" + B->other_base_letter);
+    return true;
 }
 
 static struct Btree * basic_open(const char * name_,
 				 int revision_supplied,
 				 uint4 revision)
 {
-    struct Btree * B = new struct Btree;
-    Assert(B != 0);
+    AutoPtr<Btree> B(new Btree);
+    Assert(B.get() != 0);
 
     int ch = 'X'; /* will be 'A' or 'B' */
 
@@ -1361,82 +1305,77 @@ static struct Btree * basic_open(const char * name_,
 
     {
 	std::string err_msg;
-	byte * baseA = read_base(B->name, 'A', err_msg);
-        byte * baseB = read_base(B->name, 'B', err_msg);
-        byte * base;
-        byte * other_base;
+	Btree_base baseA;
+	Btree_base baseB;
+	bool baseA_ok;
+	bool baseB_ok;
+	baseA_ok = baseA.read(B->name, 'A', err_msg);
+        baseB_ok = baseB.read(B->name, 'B', err_msg);
 
-        if (baseA != 0 && baseB != 0) B->both_bases = true;
-        if (baseA == 0 && baseB == 0) {
+        if (baseA_ok && baseB_ok) B->both_bases = true;
+        if (!baseA_ok && !baseB_ok) {
 	    std::string message = "Error opening table `"; 
 	    message += name_;
 	    message += "': ";
 	    message += err_msg;
-	    /*  FIXME: use a smart pointer, or turn this into a
-	     *  constructor. */
-	    delete B;
 	    throw OmOpeningError(message);
 	}
 
         if (revision_supplied) {
-	    if (baseA != 0 && get_uint4(baseA, B_REVISION) == revision) {
+	    if (baseA_ok && baseA.get_revision() == revision) {
 		ch = 'A';
-	    } else if (baseB != 0 &&
-		       get_uint4(baseB, B_REVISION) == revision) {
+	    } else if (baseB_ok && baseB.get_revision() == revision) {
 		ch = 'B';
 	    } else {
 		/* Couldn't open the revision that was asked for.
 		 * This shouldn't throw an exception, but should just return
 		 * 0 to upper levels.
 		 */
-		free(baseA);
-		free(baseB);
-		delete B;
 		return 0;
 	    }
         } else {
-	    if (baseA == 0) ch = 'B'; else
-            if (baseB == 0) ch = 'A'; else
-            ch = get_int4(baseA, B_REVISION) > get_int4(baseB, B_REVISION) ? 'A' : 'B';
+	    if (!baseA_ok) ch = 'B'; else
+            if (!baseB_ok) ch = 'A'; else
+            ch = baseA.get_revision() > baseB.get_revision() ? 'A' : 'B';
                                   /* unsigned comparison */
         }
 
+	Btree_base *base;
+	Btree_base *other_base;
         if (ch == 'A') {
-	    base = baseA;
-	    other_base = baseB;
+	    base = &baseA;
+	    other_base = baseB_ok?&baseB : 0;
 	} else if (ch == 'B') {
-	    base = baseB;
-	    other_base = baseA;
+	    base = &baseB;
+	    other_base = baseA_ok?&baseA : 0;
 	} else {
 	    Assert(false);
 	    B->error = BTREE_ERROR_BASE_READ;
-	    free (baseA);
-	    free (baseB);
-	    delete B;
 	}
 
         /* base now points to the most recent base block */
 
-        B->base = base;
+        B->base = *base;
 
-        B->revision_number = get_int4(base, B_REVISION);
-        B->block_size =      get_int4(base, B_BLOCK_SIZE);
-        B->root =            get_int4(base, B_ROOT);
-        B->level =           get_int4(base, B_LEVEL);
-        B->bit_map_size =    get_int4(base, B_BIT_MAP_SIZE);
-        B->item_count =      get_int4(base, B_ITEM_COUNT);
-        B->last_block =      get_int4(base, B_LAST_BLOCK);
-        B->faked_root_block = (GETINT1(base, B_HAVE_FAKEROOT) != 0);
+        B->revision_number = base->get_revision();
+        B->block_size =      base->get_block_size();
+        B->root =            base->get_root();
+        B->level =           base->get_level();
+        B->bit_map_size =    base->get_bit_map_size();
+        B->item_count =      base->get_item_count();
+        B->last_block =      base->get_last_block();
+        B->faked_root_block = base->get_have_fakeroot();
 
         if (other_base != 0) {
-	    B->other_revision_number = get_int4(other_base, B_REVISION);
-            free(other_base);
+	    B->other_revision_number = other_base->get_revision();
         }
     }
 
     /* k holds contructed items as well as keys */
     B->kt = (byte *)calloc(1, B->block_size);
-    if (B->kt == 0) goto no_space;
+    if (B->kt == 0) {
+	throw std::bad_alloc();
+    }
 
     B->max_item_size = (B->block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
 
@@ -1458,9 +1397,8 @@ static struct Btree * basic_open(const char * name_,
     B->base_letter = ch;
     B->next_revision = B->revision_number + 1;
 
-    return B;
-no_space:
-    Btree_quit(B); return 0;
+    // Extract the pointer from the AutoPtr without deleting it.
+    return B.release();
 }
 
 static void read_root(struct Btree * B, struct Cursor * C)
@@ -1591,6 +1529,98 @@ extern void Btree_quit(struct Btree * B)
     delete B;
 }
 
+Btree::Btree()
+	: error(BTREE_ERROR_NONE),
+	  overwritten(false),
+	  revision_number(0),
+	  other_revision_number(0),
+	  both_bases(false),
+	  item_count(0),
+	  max_key_len(0),
+	  block_size(0),
+	  base_letter('A'),
+	  last_block(0),
+	  faked_root_block(true),
+	  handle(-1),
+	  level(0),
+	  root(0),
+	  kt(0),
+	  buffer(0),
+	  next_revision(0),
+	  bit_map_size(0),
+	  bit_map_low(0),
+	  bit_map0(0),
+	  bit_map(0),
+	  base(),
+	  other_base_letter(0),
+	  seq_count(0),
+	  changed_n(0),
+	  changed_c(0),
+	  max_item_size(0),
+	  shared_level(0),
+	  Btree_modified(false),
+	  full_compaction(false)
+{
+}
+
+int
+Btree::create(const char *name_, int block_size)
+{
+    std::string name(name_);
+
+    if (block_size > BYTE_PAIR_RANGE) {
+	/* block size too large (64K maximum) */
+	throw OmInvalidArgumentError("Btree block size too large");
+    }
+
+    if (block_size < DIR_START + BLOCK_CAPACITY * (D2 + I3 + KEY_CAPACITY + 2 * C2 + TAG_CAPACITY)) {
+        /* block size far too small */
+	throw OmInvalidArgumentError("Btree block size too small");
+    }
+
+    /* indeed it will need to be a good bit bigger */
+
+    /* write initial values of to files */
+    {
+	/* create the bitmap file */
+        {
+	    byte temp = 0;
+	    int h = sys_open_to_write(name + "bitmapA");
+            if ( ! (valid_handle(h) &&
+                    sys_write_bytes(h, 1, &temp) &&
+                    sys_close(h))) {
+		std::string message = "Error writing ";
+		message += name + "bitmapA";
+		message += ": ";
+		message += strerror(errno);
+		sys_close(h); // may not have been called above.
+		throw OmDatabaseError(message);
+	    }
+        }
+
+	/* create the base file */
+        /* error = BTREE_ERROR_BASE_CREATE; */
+	Btree_base base;
+	base.set_block_size(block_size);
+	base.set_bit_map_size(1);
+	base.set_have_fakeroot(true);
+	base.write_to_file(name + "baseA");
+
+	/* create the main file */
+        /* error = BTREE_ERROR_DB_CREATE; */
+        {
+	    int h = sys_open_to_write(name + "DB");      /* - null */
+            if ( ! (valid_handle(h) &&
+                    sys_close(h))) {
+		std::string message = "Error creating DB file: ";
+		message += strerror(errno);
+		throw OmOpeningError(message);
+	    }
+        }
+    }
+    return BTREE_ERROR_NONE;
+}
+
 Btree::~Btree() {
     if (valid_handle(handle)) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1605,7 +1635,7 @@ Btree::~Btree() {
     }
 
     free(kt); free(buffer);
-    free(bit_map); free(bit_map0); free(base);
+    free(bit_map); free(bit_map0);
 }
 
 extern int Btree_close(struct Btree * B_, uint4 revision)
@@ -1670,14 +1700,13 @@ extern int Btree_close(struct Btree * B_, uint4 revision)
     }
 
     error = BTREE_ERROR_BASE_WRITE;
-    set_int4(B->base, B_REVISION, revision);
-    set_int4(B->base, B_REVISION2, revision);
-    set_int4(B->base, B_ROOT, C[B->level].n);
-    set_int4(B->base, B_LEVEL, B->level);
-    set_int4(B->base, B_BIT_MAP_SIZE, B->bit_map_size);
-    set_int4(B->base, B_ITEM_COUNT, B->item_count);
-    set_int4(B->base, B_LAST_BLOCK, B->last_block);
-    SETINT1(B->base, B_HAVE_FAKEROOT, B->faked_root_block ? 1 : 0);
+    B->base.set_revision(revision);
+    B->base.set_root(C[B->level].n);
+    B->base.set_level(B->level);
+    B->base.set_bit_map_size(B->bit_map_size);
+    B->base.set_item_count(B->item_count);
+    B->base.set_last_block(B->last_block);
+    B->base.set_have_fakeroot(B->faked_root_block);
 
     if (! write_base(B.get())) {
 	return error;
@@ -1884,56 +1913,7 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
 
 extern int Btree_create(const char * name_, int block_size)
 {
-    std::string name(name_);
-    byte * b = 0;
-    Btree_errors error;
-
-    error = BTREE_ERROR_BLOCKSIZE;
-    if (block_size > BYTE_PAIR_RANGE) goto end; /* block size too large (64K maximum) */
-
-    if (block_size < DIR_START + BLOCK_CAPACITY * (D2 + I3 + KEY_CAPACITY + 2 * C2 + TAG_CAPACITY))
-        goto end;  /* block size far too small */
-
-    /* indeed it will need to be a good bit bigger */
-
-    /* write initial values of to files */
-    {
-	/* create the bitmap file */
-	error = BTREE_ERROR_BITMAP_CREATE;
-        {
-	    byte temp = 0;
-	    int h = sys_open_to_write(name + "bitmapA");
-            if ( ! (valid_handle(h) &&
-                    sys_write_bytes(h, 1, &temp) &&
-                    sys_close(h))) goto end;
-        }
-
-	/* create the base file */
-        error = BTREE_ERROR_BASE_CREATE;
-        b = (byte *)calloc(B_SIZE, 1);
-        if (b == 0) goto end;
-        SETINT2(b, 0, B_SIZE);
-        set_int4(b, B_BLOCK_SIZE, block_size);
-        set_int4(b, B_BIT_MAP_SIZE, 1);
-	SETINT1(b, B_HAVE_FAKEROOT, 1);
-        {
-	    int h = sys_open_to_write(name + "baseA");
-            if ( ! (valid_handle(h) &&
-                    sys_write_bytes(h, B_SIZE, b) &&
-                    sys_close(h))) goto end;
-        }
-
-	/* create the main file */
-        error = BTREE_ERROR_DB_CREATE;
-        {
-	    int h = sys_open_to_write(name + "DB");      /* - null */
-            if ( ! (valid_handle(h) &&
-                    sys_close(h))) goto end;
-        }
-    }
-    error = BTREE_ERROR_NONE;
-end:
-    free(b); return error;
+    return Btree::create(name_, block_size);
 }
 
 /*********** B-tree checking ************/

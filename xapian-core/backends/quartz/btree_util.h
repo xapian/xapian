@@ -211,4 +211,12 @@ inline byte * key_of(byte * p, int c)
 void form_key(struct Btree * B, byte * p, byte * key, int key_len);
 int find(struct Btree * B, struct Cursor * C);
 
+bool valid_handle(int h);
+int sys_open_to_read_no_except(const std::string & name);
+int sys_open_to_write(const std::string & name);
+int sys_close(int h);
+int sys_read_bytes(int h, int n, byte *p);
+int sys_write_bytes(int h, int n, byte *p);
+int sys_flush(int h);
+
 #endif /* OM_HGUARD_BTREE_UTIL_H */

@@ -1,3 +1,13 @@
+Mon Nov 20 19:00:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added new class Btree_base encapsulating the structure of the
+	  Quartz base file.
+	
+	* sys_read_bytes() and sys_read_block() now share most of their
+	  code.  Some of the sys_* made available in btree_util.h.
+	
+	* Btree_create now a wrapper around Btree::create().
+
 Mon Nov 20 14:27:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix some warnings in net/socketclient.cc.  Remove an unneeded line

@@ -25,129 +25,103 @@
 
 #include <string>
 #include "btree_types.h"
+#include "btree_base.h"
 #include "bcursor.h"
 
 #define BTREE_CURSOR_LEVELS 10
     /* allow for this many levels in the B-tree. Overflow practically impossible */
 
-struct Btree {
-    /** Constructor, to set important elements to 0.
-     */
-    Btree() : error(BTREE_ERROR_NONE),
-	      overwritten(false),
-	      revision_number(0),
-	      other_revision_number(0),
-	      both_bases(false),
-	      item_count(0),
-	      max_key_len(0),
-	      block_size(0),
-	      base_letter('A'),
-	      last_block(0),
-	      faked_root_block(true),
-	      handle(-1),
-	      level(0),
-	      root(0),
-	      kt(0),
-	      buffer(0),
-	      next_revision(0),
-	      bit_map_size(0),
-	      bit_map_low(0),
-	      bit_map0(0),
-	      bit_map(0),
-	      base(0),
-	      other_base_letter(0),
-	      seq_count(0),
-	      changed_n(0),
-	      changed_c(0),
-	      max_item_size(0),
-	      shared_level(0),
-	      Btree_modified(false),
-	      full_compaction(false) {}
+class Btree {
+    public:
+	/** Constructor, to set important elements to 0.
+	 */
+	Btree();
 
-    ~Btree();
+	~Btree();
 
-/* 'public' information */
+	/** Create an initial btree structure on disk */
+	static int create(const char *name_, int blocksize);
 
-    /** error number setting */
-    Btree_errors error;
+	/** error number setting */
+	Btree_errors error;
 
-    /** set to true if a parallel overwrite is detected. */
-    bool overwritten;
+	/** set to true if a parallel overwrite is detected. */
+	bool overwritten;
 
-    /** revision number of the opened B-tree. */
-    uint4 revision_number;
+	/** revision number of the opened B-tree. */
+	uint4 revision_number;
 
-    /** revision number of the other base. */
-    uint4 other_revision_number;
+	/** revision number of the other base. */
+	uint4 other_revision_number;
 
-    /** set to true if baseA and baseB both exist. The old base
-     *  is deleted as soon as a write to the Btree takes place. */
-    bool both_bases;
+	/** set to true if baseA and baseB both exist. The old base
+	 *  is deleted as soon as a write to the Btree takes place. */
+	bool both_bases;
 
-    /* keeps a count of the number of items in the B-tree. */
-    int4 item_count;
+	/* keeps a count of the number of items in the B-tree. */
+	int4 item_count;
 
-    /* the largest possible value of a key_len. */
-    int max_key_len;
+	/* the largest possible value of a key_len. */
+	int max_key_len;
 
-/* 'semi-public': the user might be allowed to read this */
+	/* 'semi-public': the user might be allowed to read this */
 
-    /** block size of the B tree in bytes */
-    int block_size;
+	/** block size of the B tree in bytes */
+	int block_size;
 
-    /** the value 'A' or 'B' of the current base */
-    int base_letter;
+	/** the value 'A' or 'B' of the current base */
+	int base_letter;
 
-    /** the last used block of B->bit_map0 */
-    int4 last_block;
+	/** the last used block of B->bit_map0 */
+	int4 last_block;
 
-/* 'private' information */
+	// FIXME: make these private once operations are member functions.
+//    private:
 
-    /** true if the root block is faked (not written to disk).
-     *  false otherwise.  This is true when the btree hasn't been modified yet.
-     */
-    bool faked_root_block;
+	/** true if the root block is faked (not written to disk).
+	 *  false otherwise.  This is true when the btree hasn't been modified yet.
+	 */
+	bool faked_root_block;
 
-    int handle;           /* corresponding file handle */
-    int level;            /* number of levels, counting from 0 */
-    int4 root;            /* the root block of the B-tree */
-    byte * kt;            /* buffer of size B->block_size for making up key-tag items */
-    byte * buffer;        /* buffer of size block_size for reforming blocks */
-    uint4 next_revision;  /* 1 + revision number of the opened B-tree */
-    int bit_map_size;     /* size of the bit map of blocks, in bytes */
-    int bit_map_low;      /* byte offset into the bit map below which there
-			     are no free blocks */
-    byte * bit_map0;      /* the initial state of the bit map of blocks: 1 means in
-                             use, 0 means free */
-    byte * bit_map;       /* the current state of the bit map of blocks */
-    byte * base;          /* for writing back as file baseA or baseB */
-    char other_base_letter;/* - and the value 'B' or 'A' of the next base */
+	int handle;           /* corresponding file handle */
+	int level;            /* number of levels, counting from 0 */
+	int4 root;            /* the root block of the B-tree */
+	byte * kt;            /* buffer of size B->block_size for making up key-tag items */
+	byte * buffer;        /* buffer of size block_size for reforming blocks */
+	uint4 next_revision;  /* 1 + revision number of the opened B-tree */
+	int bit_map_size;     /* size of the bit map of blocks, in bytes */
+	int bit_map_low;      /* byte offset into the bit map below which there
+				 are no free blocks */
+	byte * bit_map0;      /* the initial state of the bit map of blocks: 1 means in
+				 use, 0 means free */
+	byte * bit_map;       /* the current state of the bit map of blocks */
+	Btree_base base;          /* for writing back as file baseA or baseB */
+	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
 
-    std::string name;     /* The path name of the B tree */
+	std::string name;     /* The path name of the B tree */
 
-    /** count of the number of successive instances of purely sequential
-     *  addition, starting at SEQ_START_POINT (neg) and going up to zero */
-    int seq_count;
+	/** count of the number of successive instances of purely sequential
+	 *  addition, starting at SEQ_START_POINT (neg) and going up to zero */
+	int seq_count;
 
-    /** the last block to be changed by an addition */
-    int4 changed_n;
+	/** the last block to be changed by an addition */
+	int4 changed_n;
 
-    /* - and the corresponding directory offset */
-    int changed_c;
+	/* - and the corresponding directory offset */
+	int changed_c;
 
-    int max_item_size;    /* maximum size of an item (key-tag pair) */
-    int shared_level;     /* in B-tree read mode, cursors share blocks in
-                             BC->C for levels at or above B->shared_level */
-    char Btree_modified;  /* set to true the first time the B-tree is written to */
-    char full_compaction; /* set to true when full compaction is to be achieved */
+	int max_item_size;    /* maximum size of an item (key-tag pair) */
+	int shared_level;     /* in B-tree read mode, cursors share blocks in
+				 BC->C for levels at or above B->shared_level */
+	char Btree_modified;  /* set to true the first time the B-tree is written to */
+	char full_compaction; /* set to true when full compaction is to be achieved */
 
-    int (* prev)(struct Btree *, struct Cursor *, int);
-    int (* next)(struct Btree *, struct Cursor *, int);
+	int (* prev)(struct Btree *, struct Cursor *, int);
+	int (* next)(struct Btree *, struct Cursor *, int);
 
-                          /* B-tree navigation functions */
+	/* B-tree navigation functions */
 
-    struct Cursor C[BTREE_CURSOR_LEVELS];
-
+	struct Cursor C[BTREE_CURSOR_LEVELS];
 };
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
