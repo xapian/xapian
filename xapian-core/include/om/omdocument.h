@@ -44,9 +44,11 @@ class OmData {
 /// A key in a document.
 class OmKey {
     public:
-	/// The value of a key.
-	// FIXME: The value here should be of variable length (some
-	// backend will have a fixed length requirement, though.)
+	/** The value of a key.
+	 *  FIXME: The value here should be of variable length, rather
+	 *  than an integer. (Some backends will only allow keys of a given
+	 *  fixed length, however.)
+	 */
 	unsigned int value;
 
 	/// Ordering for keys, so they can be stored in STL containers.
@@ -66,9 +68,10 @@ class OmDocument {
 	/// Get key by number (>= 0)
 	OmKey get_key(om_keyno key) const;
 	
-	/// Get data stored in document.
-	/// This can be expensive, and shouldn't normally be used
-	/// in a match decider functor.
+	/** Get data stored in document.
+	 *  This can be expensive, and shouldn't normally be used
+	 *  in a match decider functor.
+	 */
 	OmData get_data() const;     
 
 	void operator=(const OmDocument &other);
