@@ -723,13 +723,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    while (!items.empty() && items.front().wt < min_wt) {
 		pop_heap<vector<OmMSetItem>::iterator,
 			 OmMSetCmp>(items.begin(), items.end(), mcmp);
-		Assert(items.back().wt < min_item.wt);
+		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }
 #ifdef MUS_DEBUG_PARANOID
 	    vector<OmMSetItem>::const_iterator i;
 	    for (i = items.begin(); i != items.end(); ++i) {
-		Assert(i->wt >= min_item.wt);
+		Assert(i->wt >= min_wt);
 	    }
 #endif
 	}
