@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -333,7 +333,7 @@ QuartzWritableDatabase::do_flush_const() const
     Assert(buffered_tables != 0);
 
     QuartzBufferedTable * pl_table = buffered_tables->get_postlist_table();
-    QuartzPostList::merge_changes(pl_table, mod_plists, doclens);
+    QuartzPostList::merge_changes(pl_table, mod_plists, doclens, freq_deltas);
 
     // Update the total document length.
     QuartzRecordManager::modify_total_length(
@@ -473,7 +473,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
     //     ", doclens.size() " << doclens.size() <<
     //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
     //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (totlen_added + totlen_removed >= 1000) {
+    if (totlen_added + totlen_removed >= 150000) {
 	do_flush();
     }
 
@@ -570,7 +570,7 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
     }
 
     // FIXME: this should be configurable and/or different - see above.
-    if (totlen_added + totlen_removed >= 1000) {
+    if (totlen_added + totlen_removed >= 150000) {
 	do_flush();
     }
 }
@@ -742,7 +742,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
     }
 
     // FIXME: this should be configurable and/or different - see above.
-    if (totlen_added + totlen_removed >= 1000) {
+    if (totlen_added + totlen_removed >= 150000) {
 	do_flush();
     }
 }

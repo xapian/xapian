@@ -1,3 +1,10 @@
+Wed Jan 07 23:21:59 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Set threshold for flushing to
+	  a saner value for the value we are now using.
+	* backends/quartz/: Use freq_deltas to update the stats in the first
+	  chunk of each postlist.
+
 Mon Jan 05 16:00:07 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Made the TradWeight constructor explicit.

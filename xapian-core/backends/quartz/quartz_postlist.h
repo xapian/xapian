@@ -223,7 +223,8 @@ class QuartzPostList : public LeafPostList {
 	/// Merge added, removed, and changed entries.
 	static void merge_changes(QuartzBufferedTable * bufftable,
 	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
-	    const map<Xapian::docid, Xapian::termcount> & doclens);
+	    const map<Xapian::docid, Xapian::termcount> & doclens,
+	    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSTLIST_H */
