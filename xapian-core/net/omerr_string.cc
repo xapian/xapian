@@ -4,7 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,8 +74,8 @@ void string_to_omerror(const string &except,
 	context = mycontext;
     }
 
-#define DEFINE_ERROR_BASECLASS(a,b)
-#define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw Xapian::a(msg, context)
+#define XAPIAN_DEFINE_ERROR_BASECLASS(a,b)
+#define XAPIAN_DEFINE_ERROR_CLASS(a,b) if (type == #a) throw Xapian::a(msg, context)
 #include <xapian/errortypes.h>
 
     msg = "Unknown remote exception type `" + type + "', " + msg;
