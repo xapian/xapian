@@ -68,10 +68,6 @@ void writeFileDB( const string& prev_file, const string& package_path, const map
 
   filedb_dir = package_path + ".om2/"+filedb_dir;
 
-  cerr << "FILEDB_DIR = -" << filedb_dir << "-" << endl;
-
-  
-
   system(("mkdir " + filedb_dir ).c_str()); // for file db's
 
   OmSettings db_parameters;
