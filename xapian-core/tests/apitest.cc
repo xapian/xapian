@@ -88,6 +88,12 @@ bool test_getmterms1();
 bool test_boolsubq1();
 // tests that specifying a nonexistent input file throws an exception.
 bool test_absentfile1();
+// tests that query lengths are calculated correctly
+bool test_querylen1();
+// tests that query lengths are calculated correctly
+bool test_querylen2();
+// tests that query lengths are calculated correctly
+bool test_querylen3();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -116,6 +122,9 @@ om_test tests[] = {
     {"getmterms1",	   test_getmterms1},
     {"boolsubq1",	   test_boolsubq1},
     {"absentfile1",	   test_absentfile1},
+    {"querylen1",	   test_querylen1},
+    {"querylen2",	   test_querylen2},
+    {"querylen3",	   test_querylen3},
     {0, 0}
 };
 
@@ -1069,6 +1078,129 @@ bool test_absentfile1() {
 	OmMSet mymset = enquire.get_mset(0, 10);
     } catch (OmOpeningError &) {
 	success = true;
+    }
+
+    return success;
+}
+
+bool test_querylen1() {
+    // test that a null query has length 0
+    bool success = (OmQuery().get_length()) == 0;
+
+    return success;
+}
+
+bool test_querylen2() {
+    // test that a simple query has the right length
+    bool success = true;
+
+    OmQuery myquery;
+
+    myquery = OmQuery(OM_MOP_OR,
+		      OmQuery("foo"),
+		      OmQuery("bar"));
+    myquery = OmQuery(OM_MOP_AND,
+		      myquery,
+		      OmQuery(OM_MOP_OR,
+			      OmQuery("wibble"),
+			      OmQuery("spoon")));
+
+    if (myquery.get_length() != 4) {
+	success = false;
+	if (verbose) {
+	    cout << "Query had length "
+		 << myquery.get_length()
+		 << ", expected 4" << endl;
+	}
+    }
+
+    return success;
+}
+
+bool test_querylen3() {
+    bool success = true;
+
+    // test with an even bigger and strange query
+
+    om_termname terms[3] = {
+	"foo",
+	"bar",
+	"baz"
+    };
+    OmQuery queries[3] = {
+	OmQuery("wibble"),
+	OmQuery("wobble"),
+	OmQuery(OM_MOP_OR, std::string("jelly"), std::string("belly"))
+    };
+
+    OmQuery myquery;
+    vector<om_termname> v1(terms, terms+3);
+    vector<OmQuery> v2(queries, queries+3);
+    vector<OmQuery *> v3;
+
+    auto_ptr<OmQuery> dynquery1(new OmQuery(OM_MOP_AND,
+					    std::string("ball"),
+					    std::string("club")));
+    auto_ptr<OmQuery> dynquery2(new OmQuery("ring"));
+    v3.push_back(dynquery1.get());
+    v3.push_back(dynquery2.get());
+    
+    OmQuery myq1 = OmQuery(OM_MOP_AND, v1.begin(), v1.end());
+    if (myq1.get_length() != 3) {
+	success = false;
+	if (verbose) {
+	    cout << "Query myq1 length is "
+		    << myq1.get_length()
+		    << ", expected 3.  Description: "
+		    << myq1.get_description() << endl;
+	}
+    }
+
+    OmQuery myq2_1 = OmQuery(OM_MOP_OR, v2.begin(), v2.end());
+    if (myq2_1.get_length() != 4) {
+	success = false;
+	if (verbose) {
+	    cout << "Query myq2_1 length is "
+		    << myq2_1.get_length()
+		    << ", expected 4.  Description: "
+		    << myq2_1.get_description() << endl;
+	}
+    }
+
+    OmQuery myq2_2 = OmQuery(OM_MOP_AND, v3.begin(), v3.end());
+    if (myq2_2.get_length() != 3) {
+	success = false;
+	if (verbose) {
+	    cout << "Query myq2_2 length is "
+		    << myq2_2.get_length()
+		    << ", expected 3.  Description: "
+		    << myq2_2.get_description() << endl;
+	}
+    }
+
+    OmQuery myq2 = OmQuery(OM_MOP_OR, myq2_1, myq2_2);
+    if (myq2.get_length() != 7) {
+	success = false;
+	if (verbose) {
+	    cout << "Query myq2 length is "
+		    << myq2.get_length()
+		    << ", expected 7.  Description: "
+		    << myq2.get_description() << endl;
+	}
+    }
+
+    myquery = OmQuery(OM_MOP_OR, myq1, myq2);
+    if (myquery.get_length() != 10) {
+	success = false;
+	if (verbose) {
+	    cout << "Query length is "
+		 << myquery.get_length()
+		 << ", expected 9"
+		 << endl;
+	    cout << "Query is: "
+		 << myquery.get_description()
+		 << endl;
+	}
     }
 
     return success;

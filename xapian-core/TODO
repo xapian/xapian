@@ -28,7 +28,7 @@ Priority | Area            | Task
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
 ---------+-----------------+--------------------------------------------------
- Medium  |CPositional      | Calculate query length automatically.
+ Medium  |CPositional      | Clean up the calculated query length code
 ---------+-----------------+--------------------------------------------------
  Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.

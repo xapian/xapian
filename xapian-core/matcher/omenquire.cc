@@ -300,7 +300,7 @@ OmQueryInternal::get_terms() const
 }
 
 OmQueryInternal::OmQueryInternal()
-	: mutex(), isdefined(false)
+	: mutex(), isdefined(false), qlen(0)
 {}
 
 OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
@@ -322,13 +322,14 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
 	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
-	tname(tname_), term_pos(term_pos_), wqf(wqf_)
+	qlen(1), tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {}
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 				 const OmQueryInternal &left,
 				 const OmQueryInternal &right)
-	: isdefined(true), isbool(false), op(op_)
+	: isdefined(true), isbool(false), op(op_),
+	  qlen(left.qlen + right.qlen)
 {
     if (op == OM_MOP_LEAF) {
     	throw OmInvalidArgumentError("Invalid query operation");
@@ -413,10 +414,16 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		// Query2 has different operation (or is a leaf)
 		initialise_from_copy(left);
 		subqs.push_back(new OmQueryInternal(right));
+		// the initialise_from_copy will have set our
+		// qlen to be just left's
+		qlen += right.qlen;
 	    } else if(right.op == op) { // left has different operation
 		// Query1 has different operation (or is a leaf)
 		initialise_from_copy(right);
 		subqs.push_back(new OmQueryInternal(left));
+		// the initialise_from_copy will have set our
+		// qlen to be just right's
+		qlen += left.qlen;
 	    } else {
 		subqs.push_back(new OmQueryInternal(left));
 		subqs.push_back(new OmQueryInternal(right));
@@ -466,6 +473,7 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
     isdefined = copyme.isdefined;
     isbool = copyme.isbool;
     op = copyme.op;
+    qlen = copyme.qlen;
     if(op == OM_MOP_LEAF) {
 	tname = copyme.tname;
 	term_pos = copyme.term_pos;
@@ -491,6 +499,7 @@ OmQueryInternal::initialise_from_vector(
     if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
     	throw OmInvalidArgumentError("Vector query op must be AND or OR");
     }
+    qlen = 0;
 
     vector<OmQueryInternal *>::const_iterator i;
     // reject any attempt to make up a composite query when any sub-query
@@ -504,7 +513,10 @@ OmQueryInternal::initialise_from_vector(
     
     for(i = qbegin; i != qend; i++) {
 	// FIXME: see other initialise_from_vector comment re exceptions.
-	if(!(*i)->isdefined) subqs.push_back(new OmQueryInternal(**i));
+	if((*i)->isdefined) {
+	    subqs.push_back(new OmQueryInternal(**i));
+	    qlen += (*i)->qlen;
+	}
     }
 
     if(subqs.size() == 0) {

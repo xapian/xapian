@@ -1,3 +1,9 @@
+Mon Feb 28 13:09:18 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Query lengths are now automatically calculated
+
+	* Some tests of the query length calculation are now in apitest
+
 Fri Feb 25 16:38:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test for -Wno-long-long in configure.in
