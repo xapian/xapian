@@ -1,3 +1,8 @@
+Sat Jun 26 00:51:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Malcolm Baldridge (helped fix a problem with building
+	  the PHP bindings with newer versions of SWIG and PHP).
+
 Fri Jun 26 00:29:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING,api/ompositionlistiterator.cc,api/ompostlistiterator.cc,
