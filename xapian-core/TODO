@@ -20,6 +20,11 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
+ Urgent  | General         | Probe for thread safety problems.
+---------+-----------------+--------------------------------------------------
+ High    | API             | Make all api calls produce APICALL messages, and
+         |                 | fully display their parameters, and return vals
+---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make the network server better (multithreaded
          |                 | etc.).
 ---------+-----------------+--------------------------------------------------

@@ -24,6 +24,7 @@
 
 #ifdef MUS_DEBUG_VERBOSE
 
+#include "omlocks.h"
 #include "omdebug.h"
 
 OmDebug om_debug;
@@ -37,14 +38,18 @@ OmDebug om_debug;
 
 OmDebug::OmDebug()
 	: output_initialised(false),
-	  types_initialised(false)
+	  types_initialised(false),
+	  mutex_initialised(false)
 {
-    open_output();
-    select_types();
 }
 
 OmDebug::~OmDebug()
 {
+    if(mutex_initialised) {
+	delete mutex;
+	mutex = 0;
+	mutex_initialised = false;
+    }
 }
 
 void
@@ -86,6 +91,22 @@ OmDebug::select_types()
 	}
 	types_initialised = true;
     }
+}
+
+void
+OmDebug::initialise_mutex()
+{
+    if (!mutex_initialised) {
+	mutex = new OmLock();
+	mutex_initialised = true;
+    }
+}
+
+OmLock *
+OmDebug::get_mutex()
+{
+    initialise_mutex();
+    return mutex;
 }
 
 bool

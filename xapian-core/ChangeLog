@@ -1,3 +1,16 @@
+Thu Jun 29 02:44:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Protected output of debug messages with a mutex, so messages
+	  aren't tangled up.  Added DEBUGLINE() macro, which displays a
+	  message which has a line to itself, said line starting with an
+	  indication of the thread the message comes from.  Could add
+	  time message was generated as well.
+
+	* Added APICALL debug message type, and made many of the API calls
+	  produce messages of this type.  Task for tomorrow is to make
+	  all api calls produce such messages, and fully display their
+	  parameters, and return values.
+
 Wed Jun 28 20:14:54 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make threadtest use a dlist file.

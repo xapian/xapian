@@ -36,6 +36,9 @@
 #include <memory>
 #include <vector>
 
+class OmLock;
+#include "omlocks.h"
+
 /** The types of debug output.  These are specified within a DEBUGMSG in
  *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...
  */
@@ -67,7 +70,12 @@ enum om_debug_types {
 
     /** A debug message to do with some part of the API.
      */
-    OM_DEBUG_API
+    OM_DEBUG_API,
+
+    /** A debug message to report the calling of an API method.
+     *  (The aim is that all API methods will produce such messages.)
+     */
+    OM_DEBUG_APICALL
 };
 
 /** Class to manage verbose debugging output
@@ -101,6 +109,20 @@ class OmDebug {
 	/// Initialise the list of types wanted.
 	void select_types();
 
+	/// Whether the mutex has been initialised.
+	bool mutex_initialised;
+
+	/** A mutex to protect the displaying of messages.
+	 *  Note that this is a pointer, not a member, because of Solaris
+	 *  not initialising global statics (or, at least, clearing the
+	 *  data of any global statics when main() is called).  We also
+	 *  don't initialise the mutex in the constructor, for this reason.
+	 */
+	OmLock * mutex;
+
+	/// Initialised the mutex
+	void initialise_mutex();
+
 	/** File to send this output to.  If this is null, it'll go to
 	 *  stderr.
 	 */
@@ -111,6 +133,9 @@ class OmDebug {
 
 	/// Check whether a given type is wanted for output
 	bool want_type(enum om_debug_types type);
+
+	/// Get the mutex to use to protect access to the debug object.
+	OmLock * get_mutex();
 
 	/// Standard constructor
 	OmDebug();
@@ -123,10 +148,22 @@ extern OmDebug om_debug;
 
 
 // Don't bracket b, because it may have <<'s in it
-#define DEBUGMSG(a,b) if(om_debug.want_type(OM_DEBUG_##a)) { om_debug << OM_DEBUG_##a << b ; }
+#define DEBUGMSG(a,b) { \
+    OmLockSentry sentry(*(om_debug.get_mutex())); \
+    if(om_debug.want_type(OM_DEBUG_##a)) { \
+	om_debug << OM_DEBUG_##a << b ; \
+    } \
+}
 #else
 #define DEBUGMSG(a,b)
 #endif
+
+#ifdef HAVE_LIBPTHREAD
+#define DEBUGLINE(a,b) DEBUGMSG(a, "Om (Thread " << pthread_self() << \
+                                   "): " << b << endl)
+#else /* HAVE_LIBPTHREAD */
+#define DEBUGLINE(a,b) DEBUGMSG(a, "Om: " << b << endl)
+#endif /* HAVE_LIBPTHREAD */
 
 #define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 

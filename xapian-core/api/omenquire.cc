@@ -150,6 +150,7 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 int
 OmMSet::convert_to_percent(om_weight wt) const
 {
+    DEBUGLINE(APICALL, "Calling OmMSet::convert_to_percent(" << wt << ")");
     if(max_possible == 0) return 100;
 
     int pcent = (int) ceil(wt * 100 / max_possible);
@@ -159,12 +160,15 @@ OmMSet::convert_to_percent(om_weight wt) const
     if(pcent < 0) pcent = 0;
     if(pcent == 0 && wt > 0) pcent = 1;
 
+    DEBUGLINE(APICALL, "OmMSet::convert_to_percent() returning " << pcent);
     return pcent;
 }
 
 int
 OmMSet::convert_to_percent(const OmMSetItem & item) const
 {
+    // FIXME: should call an internal method, not a public one.
+    // FIXME: should output debugging
     return OmMSet::convert_to_percent(item.wt);
 }
 
@@ -419,24 +423,35 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 
 OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
 {
+    // FIXME: display contents of databases
+    DEBUGLINE(APICALL, "Calling OmEnquire::OmEnquire(" << "<databases>" << ")");
     internal = new OmEnquireInternal(databases);
+    DEBUGLINE(APICALL, "OmEnquire::OmEnquire() returning");
 }
 
 OmEnquire::~OmEnquire()
 {
+    DEBUGLINE(APICALL, "Calling OmEnquire::~OmEnquire()");
     delete internal;
     internal = NULL;
+    DEBUGLINE(APICALL, "OmEnquire::~OmEnquire() returning");
 }
 
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
+    DEBUGLINE(APICALL, "Calling OmEnquire::set_query(" <<
+	      query_.get_description() << ")");
     internal->set_query(query_);
+    DEBUGLINE(APICALL, "OmEnquire::set_query() returning");
 }
 
 const OmQuery &
 OmEnquire::get_query()
 {
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_query()");
+    DEBUGLINE(APICALL, "OmEnquire::get_query() returning " <<
+	      internal->get_query().get_description());
     return internal->get_query();
 }
 
@@ -447,7 +462,23 @@ OmEnquire::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
-    return internal->get_mset(first, maxitems, omrset, moptions, mdecider);
+    // FIXME: display contents of pointer params, if they're not null.
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_mset(" <<
+	      first << ", " <<
+	      maxitems << ", " <<
+	      omrset << ", " <<
+	      moptions << ", " <<
+	      mdecider << ", " <<
+	      ")");
+
+    // FIXME: this copies the mset too much: pass it in by reference?
+    OmMSet mset(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
+
+    // FIXME: display contents of mset.
+    DEBUGLINE(APICALL, "OmEnquire::get_mset() returning " <<
+	      "mset");
+
+    return mset;
 }
 
 OmESet
@@ -456,29 +487,60 @@ OmEnquire::get_eset(om_termcount maxitems,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * edecider) const
 {
-    return internal->get_eset(maxitems, omrset, eoptions, edecider);
+    // FIXME: display contents of pointer params and omrset, if they're not
+    // null.
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_eset(" <<
+	      maxitems << ", " <<
+	      "<omrset>" << ", " <<
+	      eoptions << ", " <<
+	      edecider << ", " <<
+	      ")");
+
+    // FIXME: this copies the eset too much: pass it in by reference?
+    OmESet eset(internal->get_eset(maxitems, omrset, eoptions, edecider));
+
+    // FIXME: display contents of eset.
+    DEBUGLINE(APICALL, "OmEnquire::get_eset() returning " << "<eset>");
+
+    return eset;
 }
 
 const OmDocument
 OmEnquire::get_doc(om_docid did) const
 {
-    return internal->get_doc(did);
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_doc(" << did << ")");
+    OmDocument doc(internal->get_doc(did));
+    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << "<doc>");
+    return doc;
 }
 
 const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    return internal->get_doc(mitem);
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_doc(" << "<mitem>" << ")");
+    OmDocument doc(internal->get_doc(mitem));
+    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << "<doc>");
+    return doc;
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
-    return internal->get_matching_terms(mitem);
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_matching_terms(" <<
+	      "<mitem>" << ")");
+    om_termname_list matching_terms(internal->get_matching_terms(mitem));
+    DEBUGLINE(APICALL, "OmEnquire::get_matching_terms() returning " <<
+	      "<matching_terms>");
+    return matching_terms;
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
-    return internal->get_matching_terms(did);
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_matching_terms(" <<
+	      "<did>" << ")");
+    om_termname_list matching_terms(internal->get_matching_terms(did));
+    DEBUGLINE(APICALL, "OmEnquire::get_matching_terms() returning " <<
+	      "<matching_terms>");
+    return matching_terms;
 }
