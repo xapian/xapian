@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     try {
 	// Make the database
 	OmSettings settings;
-	settings.set_value("backend", "sleepycat");
-	settings.set_value("sleepy_dir", argv[1]);
+	settings.set("backend", "sleepycat");
+	settings.set("sleepy_dir", argv[1]);
 	OmWritableDatabase database(settings);
 
 	// Make the document

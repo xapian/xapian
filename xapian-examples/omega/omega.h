@@ -44,7 +44,7 @@ extern const string default_dbname;
 
 class ExpandDeciderOmega : public OmExpandDecider {
     public:
-	int operator()(const om_termname& tname) const {
+	int operator()(const om_termname & tname) const {
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (tname.length() <= 3) return false;

@@ -309,8 +309,8 @@ int main(int argc, char *argv[]) {
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
 	    OmSettings *params = new OmSettings;
-	    params->set_value("backend", "auto");
-	    params->set_value("auto_dir", argv[1]);
+	    params->set("backend", "auto");
+	    params->set("auto_dir", argv[1]);
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;

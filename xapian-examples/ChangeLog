@@ -1,3 +1,8 @@
+Fri Aug 18 16:24:00 BST 2000 Olly Betts
+
+	* OmSettings::get_value* -> OmSettings::get*
+	  OmSettings::set_value -> OmSettings::set
+
 Fri Aug 18 14:20:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update simple examples to reflect change to OmSettings.

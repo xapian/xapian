@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     try {
 	// Make the database group
 	OmSettings settings;
-	settings.set_value("backend", "sleepycat");
-	settings.set_value("sleepy_dir", argv[1]);
+	settings.set("backend", "sleepycat");
+	settings.set("sleepy_dir", argv[1]);
 	OmDatabaseGroup databases;
 	databases.add_database(settings);
 

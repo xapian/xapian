@@ -149,8 +149,8 @@ main2(int argc, char *argv[])
 			if (!dbname.empty()) dbname += '/';
 			dbname += *i;
 			OmSettings params;          
-			params.set_value("backend", "auto");
-			params.set_value("auto_dir", map_dbname_to_dir(*i));
+			params.set("backend", "auto");
+			params.set("auto_dir", map_dbname_to_dir(*i));
 			omdb.add_database(params);
 		    }
 		}
@@ -159,8 +159,8 @@ main2(int argc, char *argv[])
 	if (dbname.empty()) {
 	    dbname = default_dbname;
 	    OmSettings params;          
-	    params.set_value("backend", "auto");
-	    params.set_value("auto_dir", map_dbname_to_dir(dbname));
+	    params.set("backend", "auto");
+	    params.set("auto_dir", map_dbname_to_dir(dbname));
 	    omdb.add_database(params);
 	}
     } catch (OmError &e) {
@@ -205,7 +205,7 @@ main2(int argc, char *argv[])
 	tmprset.add_document(doc);
 
 	OmSettings eoptions;
-	eoptions.set_value("expand_use_query_terms", false);
+	eoptions.set("expand_use_query_terms", false);
 	ExpandDeciderOmega decider;
 	OmESet topterms = enquire->get_eset(6, tmprset, &eoptions, &decider);
 
