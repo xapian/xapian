@@ -138,7 +138,7 @@ MultiMatch::get_max_weight()
     for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->prepare_match(false);
-	Assert((*i)->get_max_weight() == result);
+	AssertEqDouble((*i)->get_max_weight(), result);
     }
 #endif /* MUS_DEBUG */
 

@@ -32,6 +32,9 @@
 // Include the definitions of the exceptions we're going to throw
 #include "om/omerror.h"
 
+// Include utility functions
+#include "utils.h"
+
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but
 // is required in general  (#N doesn't work outside a macro definition)
@@ -61,8 +64,10 @@
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
 #define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
+#define AssertEqDouble(a,b) if ((a) == (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - values were " + doubletostring(a) + " and " + doubletostring(b))
 #else
 #define Assert(a)
+#define AssertEqDouble(a,b)
 #endif
 
 #ifdef MUS_DEBUG_VERBOSE
