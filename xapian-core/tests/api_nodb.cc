@@ -59,7 +59,8 @@ static bool test_getqterms1()
 		    OmQuery("four", 1, 4),
 		    OmQuery("two", 1, 2)));
 
-    TEST_EQUAL(myquery.get_terms(), answers_list);
+    om_termname_list list(myquery.get_terms_begin(), myquery.get_terms_end());
+    TEST_EQUAL(list, answers_list);
     return true;
 }
 

@@ -30,6 +30,9 @@
 #include <om/omenquire.h>
 #include <om/omoutput.h>
 
+#include <om/omtermlistiterator.h>
+#include "omtermlistiteratorinternal.h"
+
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -183,11 +186,17 @@ om_termcount OmQuery::set_length(om_termcount qlen_)
     RETURN(internal->set_length(qlen_));
 }
 
-om_termname_list OmQuery::get_terms() const
+OmTermIterator OmQuery::get_terms_begin() const
 {
-    DEBUGAPICALL(om_termname_list, "OmQuery::get_terms", "");
+    DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms", "");
     OmLockSentry locksentry(internal->mutex);
     RETURN(internal->get_terms());
+}
+
+OmTermIterator OmQuery::get_terms_end() const
+{
+    DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms_end", "");
+    RETURN(OmTermIterator(NULL));
 }
 
 /////////////////////////////////
@@ -357,11 +366,9 @@ struct LessByTermpos {
     }
 };
 
-om_termname_list
+OmTermIterator
 OmQuery::Internal::get_terms() const
 {
-    om_termname_list result;
-
     std::vector<std::pair<om_termname, om_termpos> > terms;
     if (isdefined) {
         accumulate_terms(terms);
@@ -376,12 +383,14 @@ OmQuery::Internal::get_terms() const
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
+    std::vector<om_termname> result;
     std::vector<std::pair<om_termname, om_termpos> >::const_iterator i;
-    for (i=terms.begin(); i!= terms.end(); ++i) {
+    for (i = terms.begin(); i != terms.end(); ++i) {
 	result.push_back(i->first);
     }
 
-    return result;
+    return OmTermIterator(new OmTermIterator::Internal(result.begin(),
+						       result.end()));
 }
 
 OmQuery::Internal::Internal()

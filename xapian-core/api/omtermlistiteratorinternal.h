@@ -47,7 +47,6 @@ class OmTermListIterator::Internal {
 	/// Whether we're using the termlist object, or the iterator
 	bool using_termlist;
 
-
     public:
         Internal(TermList *termlist_,
 		 const OmDatabase &database_,
@@ -109,13 +108,31 @@ class OmTermListIterator::Internal {
 	bool operator== (const OmTermListIterator::Internal &other)
 	{
 	    if (using_termlist != other.using_termlist) return false;
-	    if (using_termlist == true) {
-		return (termlist.get() ==
-			other.termlist.get());
+	    if (using_termlist) {
+		return (termlist.get() == other.termlist.get());
 	    } else {
 		return (it == other.it);
 	    }
 	}
+};
+
+class OmTermIterator::Internal {
+    private:
+	friend class OmTermIterator; // allow access to iterators
+        friend bool operator==(const OmTermIterator &a, const OmTermIterator &b);
+
+	std::vector<om_termname> terms;
+	std::vector<om_termname>::const_iterator it;
+
+    public:
+	Internal(const std::vector<om_termname>::const_iterator &begin,
+		 const std::vector<om_termname>::const_iterator &end)
+		: terms(begin, end), it(terms.begin())
+	{ }
+
+        Internal(const Internal &other)
+		: terms(other.terms), it(other.it - other.terms.begin() + terms.begin())
+	{ }
 };
 
 #endif /* OM_HGUARD_OMTERMLISTITERATOR_H */

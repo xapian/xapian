@@ -29,6 +29,9 @@
 #include <om/omerror.h>
 #include <om/omenquire.h>
 #include <om/omoutput.h>
+#include <om/omtermlistiterator.h>
+
+#include "omtermlistiteratorinternal.h"
 
 #include "rset.h"
 #include "multimatch.h"
@@ -45,18 +48,26 @@
 #include <algorithm>
 #include <math.h>
 
-OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
-                               const om_termname_list &terms)
+OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
+						       OmTermIterator termsend)
+#if 1
+    // the comment below suggests this may not work on Solaris CC -
+    // but perhaps the issue is with the STL list iterator so let's
+    // give it a go... [FIXME check and fix or remove these comments]
+    : tset(terms, termsend)
+{
+}
+#else
 {
     // I'd prefer using an initialiser list for this, but it seems
     // that Solaris' CC doesn't like initialising a set with list
     // iterators.
-    om_termname_list::const_iterator i = terms.begin();
-    while (i != terms.end()) {
-        tset.insert(*i);
-	i++;
+    while (terms != termsend) {
+        tset.insert(*terms);
+	terms++;
     }
 }
+#endif
 
 int
 OmExpandDeciderFilterTerms::operator()(const om_termname &tname) const
@@ -740,7 +751,8 @@ OmEnquire::Internal::get_eset(om_termcount maxitems,
 
     if (query != 0 && !eoptions->get_bool("expand_use_query_terms", false)) {
 	AutoPtr<OmExpandDecider> temp1(
-	    new OmExpandDeciderFilterTerms(query->get_terms()));
+	    new OmExpandDeciderFilterTerms(query->get_terms_begin(),
+					   query->get_terms_end()));
         decider_noquery = temp1;
 
 	AutoPtr<OmExpandDecider> temp2(
@@ -801,14 +813,14 @@ OmEnquire::Internal::get_docs(const OmMSetIterator &begin,
     return docs;
 }
 
-om_termname_list
+OmTermIterator
 OmEnquire::Internal::get_matching_terms(om_docid did) const
 {
     OmLockSentry locksentry(mutex);
     return calc_matching_terms(did);
 }
 
-om_termname_list
+OmTermIterator
 OmEnquire::Internal::get_matching_terms(const OmMSetIterator &it) const
 {
     OmLockSentry locksentry(mutex);
@@ -860,7 +872,7 @@ class ByQueryIndexCmp {
     }
 };
 
-om_termname_list
+OmTermIterator
 OmEnquire::Internal::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
@@ -869,17 +881,16 @@ OmEnquire::Internal::calc_matching_terms(om_docid did) const
     Assert(query->is_defined());
 
     // the ordered list of terms in the query.
-    om_termname_list query_terms = query->get_terms();
+    OmTermIterator qt = query->get_terms_begin();
+    OmTermIterator qt_end = query->get_terms_end();
 
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
     std::map<om_termname, unsigned int> tmap;
     unsigned int index = 1;
-    for (om_termname_list::const_iterator i = query_terms.begin();
-	 i != query_terms.end();
-	 ++i) {
-	tmap[*i] = index++;
+    for ( ; qt != qt_end; qt++) {
+	tmap[*qt] = index++;
     }
 
     std::vector<om_termname> matching_terms;
@@ -896,7 +907,8 @@ OmEnquire::Internal::calc_matching_terms(om_docid did) const
     // sort the resulting list by query position.
     sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
-    return om_termname_list(matching_terms.begin(), matching_terms.end());
+    return OmTermIterator(new OmTermIterator::Internal(matching_terms.begin(),
+						       matching_terms.end()));
 }
 
 //////////////////////////
@@ -1026,10 +1038,10 @@ OmEnquire::get_docs(const OmMSetIterator &begin,
     }
 }
 
-om_termname_list
-OmEnquire::get_matching_terms(const OmMSetIterator &it) const
+OmTermIterator
+OmEnquire::get_matching_terms_begin(const OmMSetIterator &it) const
 {
-    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", it);
+    DEBUGAPICALL(OmTermIterator, "OmEnquire::get_matching_terms", it);
     try {
 	RETURN(internal->get_matching_terms(it));
     } catch (OmError & e) {
@@ -1038,16 +1050,28 @@ OmEnquire::get_matching_terms(const OmMSetIterator &it) const
     }
 }
 
-om_termname_list
-OmEnquire::get_matching_terms(om_docid did) const
+OmTermIterator
+OmEnquire::get_matching_terms_begin(om_docid did) const
 {
-    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", did);
+    DEBUGAPICALL(OmTermIterator, "OmEnquire::get_matching_terms", did);
     try {
 	RETURN(internal->get_matching_terms(did));
     } catch (OmError & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
+}
+
+OmTermIterator
+OmEnquire::get_matching_terms_end(const OmMSetIterator &it) const
+{
+    return OmTermIterator(NULL);
+}
+
+OmTermIterator
+OmEnquire::get_matching_terms_end(om_docid did) const
+{
+    return OmTermIterator(NULL);
 }
 
 std::string

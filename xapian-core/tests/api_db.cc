@@ -835,7 +835,9 @@ static bool test_getmterms1()
     OmMSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
-    TEST_EQUAL(enquire.get_matching_terms(mymset.begin()), answers_list);
+    om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
+			  enquire.get_matching_terms_end(mymset.begin()));
+    TEST_EQUAL(list, answers_list);
 
     return true;
 }

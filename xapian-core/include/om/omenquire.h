@@ -287,8 +287,8 @@ class OmESetIterator {
 	//@}
 };
 
-inline bool operator!=(const OmESetIterator &a,
-		       const OmESetIterator &b)
+inline bool
+operator!=(const OmESetIterator &a, const OmESetIterator &b)
 {
     return !(a == b);
 }
@@ -407,7 +407,8 @@ class OmExpandDeciderFilterTerms : public OmExpandDecider {
         /** Constructor, which takes a list of terms which
 	 *  will be filtered out.
 	 */
-        OmExpandDeciderFilterTerms(const om_termname_list &terms);
+        OmExpandDeciderFilterTerms(OmTermIterator terms,
+				   OmTermIterator termsend);
 
         virtual int operator()(const om_termname &tname) const;
     private:
@@ -644,9 +645,9 @@ class OmEnquire {
 	 *  @param did     The document id for which to retrieve the matching
 	 *                 terms.
 	 *
-	 *  @return        A vector containing the terms which match the
-	 *                 document.  This vector will be, as far as this
-	 *                 makes any sense, in the same order as the terms
+	 *  @return        An iterator returning the terms which match the
+	 *                 document.  The terms will be returned (as far as this
+	 *                 makes any sense) in the same order as the terms
 	 *                 in the query.  Terms will not occur more than once,
 	 *                 even if they do in the query.
 	 *
@@ -655,7 +656,8 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	om_termname_list get_matching_terms(om_docid did) const;
+	OmTermIterator get_matching_terms_begin(om_docid did) const;
+	OmTermIterator get_matching_terms_end(om_docid did) const;
 
 	/** Get terms which match a given document, by match set item.
 	 *
@@ -669,8 +671,10 @@ class OmEnquire {
 	 *
 	 *  @param it   The iterator for which to retrieve the matching terms.
 	 *
-	 *  @return        A list containing the terms which match the
-	 *                 document.  Terms will not occur more than once,
+	 *  @return        An iterator returning the terms which match the
+	 *                 document.  The terms will be returned (as far as this
+	 *                 makes any sense) in the same order as the terms
+	 *                 in the query.  Terms will not occur more than once,
 	 *                 even if they do in the query.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
@@ -678,7 +682,8 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
+	OmTermIterator get_matching_terms_begin(const OmMSetIterator &it) const;
+	OmTermIterator get_matching_terms_end(const OmMSetIterator &it) const;
 
 	/** Returns a string representing the enquire object.
 	 *  Introspection method.
@@ -810,12 +815,13 @@ class OmQuery {
 	 */
 	om_termcount set_length(om_termcount qlen_);
 
-	/** Return an om_termname_list containing all the terms in the query,
+	/** Return an OmTermIterator returning all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.
 	 */
-	om_termname_list get_terms() const;
+	OmTermIterator get_terms_begin() const;
+	OmTermIterator get_terms_end() const;
 
 	/** Returns a string representing the query.
 	 *  Introspection method.
@@ -977,12 +983,12 @@ class OmBatchEnquire {
 	/** Get terms which match a given document, by document id.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
-	om_termname_list get_matching_terms(om_docid did) const;
+	OmTermIterator get_matching_terms(om_docid did) const;
 
 	/** Get terms which match a given document, by match set iterator.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
-	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
+	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
 
 	/** Returns a string representing the batchenquire object.
 	 *  Introspection method.

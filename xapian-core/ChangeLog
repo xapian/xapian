@@ -1,3 +1,7 @@
+Sun Dec 17 16:15:03 GMT 2000 Olly Betts
+
+	* Replaced all API uses of om_termname_list with OmTermIterator.
+
 Fri Dec 15 18:54:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmAllTermsIterator interface in API.  It works for

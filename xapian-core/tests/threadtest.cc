@@ -109,7 +109,7 @@ search_stuff(OmEnquire & enq,
 	enq.set_query(*i);
 	results.push_back(enq.get_mset(0, 10));
 	if (results.back().size() > 0) {
-	    enq.get_matching_terms(results.back().begin());
+	    enq.get_matching_terms_begin(results.back().begin());
 	}
     }
 }

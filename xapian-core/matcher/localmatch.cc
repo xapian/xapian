@@ -374,13 +374,12 @@ LocalSubMatch::prepare_match(bool nowait)
 {
     if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
-	om_termname_list terms = users_query.get_terms();
-
-	om_termname_list::const_iterator tname;
-	for (tname = terms.begin(); tname != terms.end(); tname++) {
+	OmTermIterator terms = users_query.get_terms();
+	OmTermIterator terms_end(NULL);
+	for ( ; terms != terms_end; terms++) {
 	    // MULTI
-	    register_term(*tname);
-	    if (rset.get() != 0) rset->will_want_reltermfreq(*tname);
+	    register_term(*terms);
+	    if (rset.get() != 0) rset->will_want_reltermfreq(*terms);
 	}
 
 	if (rset.get() != 0) {

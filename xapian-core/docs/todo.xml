@@ -55,13 +55,11 @@ not use STL containers as parameters or return types.
 
 Particular offenders are:
 
-OmBatchEnquire
+OmBatchEnquire [probably leave this out of the first api release]
 
 OmEnquire::get_docs()
-OmEnquire::get_matching_terms()
-OmQuery::get_terms(),
 OmStem::get_available_languages()
-OmSettings::set()
+OmSettings::set() [vector]
 OmSettings::get_vector()
 OmIndexerNode::get_config_vector()
 OmIndexerMessage::size_type
@@ -69,8 +67,6 @@ OmIndexerMessage::OmIndexerMessage()
 OmIndexerMessage::set_vector()
 OmIndexerDesc::nodes
 OmIndexerBuilder::NodeType
-
-OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms()
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">

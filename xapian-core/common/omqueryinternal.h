@@ -185,7 +185,7 @@ class OmQuery::Internal {
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.
 	 */
-	om_termname_list get_terms() const;
+	OmTermIterator get_terms() const;
 };
 
 #endif // OM_HGUARD_OMQUERYINTERNAL_H

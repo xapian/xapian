@@ -33,6 +33,7 @@
 #include <map>
 
 class OmErrorHandler;
+class OmTermIterator;
 
 /** An item in the ESet.
  *  This item contains the termname, and the weight calculated for
@@ -157,7 +158,7 @@ class OmEnquire::Internal {
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
-	om_termname_list calc_matching_terms(om_docid did) const;
+	OmTermIterator calc_matching_terms(om_docid did) const;
     public:
 	/** The error handler, if set.  (0 if not set).
 	 */
@@ -183,8 +184,8 @@ class OmEnquire::Internal {
 	const std::vector<OmDocument> get_docs(const OmMSetIterator & begin,
 					       const OmMSetIterator & end) const;
 
-	om_termname_list get_matching_terms(om_docid did) const;
-	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
+	OmTermIterator get_matching_terms(om_docid did) const;
+	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
 	std::string get_description() const;
 };
 

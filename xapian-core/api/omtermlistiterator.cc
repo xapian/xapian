@@ -175,11 +175,116 @@ OmTermListIterator::get_description() const
     RETURN("OmTermListIterator()");
 }
 
-
 bool
 operator==(const OmTermListIterator &a, const OmTermListIterator &b)
 {
     if (a.internal == b.internal) return true;
     if (a.internal == 0 || b.internal == 0) return false;
     return (*(a.internal) == *(b.internal));
+}
+
+OmTermIterator::OmTermIterator(Internal *internal_)
+	: internal(internal_)
+{
+    if (internal && internal->it == internal->terms.end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
+OmTermIterator::~OmTermIterator() {
+    DEBUGAPICALL(void, "OmTermIterator::~OmTermIterator", "");
+    delete internal;
+}
+
+OmTermIterator::OmTermIterator(const OmTermIterator &other)
+    : internal(NULL)
+{
+    DEBUGAPICALL(void, "OmTermIterator::OmTermIterator", other);
+    if (other.internal) internal = new Internal(*(other.internal));
+}
+
+void
+OmTermIterator::operator=(const OmTermIterator &other)
+{
+    DEBUGAPICALL(void, "OmTermIterator::operator=", other);
+    if (this == &other) {
+	DEBUGLINE(API, "OmTermIterator assigned to itself");
+	return;
+    }
+
+    Internal * newinternal = NULL;
+    if (other.internal)
+	newinternal = new Internal(*(other.internal));
+    std::swap(internal, newinternal);
+    delete newinternal;
+}
+
+om_termname
+OmTermIterator::operator *() const
+{
+    DEBUGAPICALL(om_termname, "OmTermIterator::operator*", "");
+    Assert(internal);
+    Assert(internal->it != internal->terms.end());
+    RETURN(*(internal->it));
+}
+
+OmTermIterator &
+OmTermIterator::operator++()
+{
+    DEBUGAPICALL(OmTermIterator &, "OmTermIterator::operator++", "");
+    Assert(internal);
+    Assert(internal->it != internal->terms.end());
+    internal->it++;
+    if (internal->it == internal->terms.end()) {
+	delete internal;
+	internal = 0;
+    }
+    RETURN(*this);
+}
+
+void
+OmTermIterator::operator++(int)
+{
+    DEBUGAPICALL(void, "OmTermIterator::operator++(int)", "");
+    Assert(internal);
+    Assert(internal->it != internal->terms.end());
+    internal->it++;
+    if (internal->it == internal->terms.end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
+// extra method, not required to be an input_iterator
+void
+OmTermIterator::skip_to(const om_termname & tname)
+{
+    DEBUGAPICALL(void, "OmTermIterator::skip_to", tname);
+    Assert(internal);
+    Assert(internal->it != internal->terms.end());
+    // FIXME: use find or something?
+    // FIXME: vector is probably not sorted, so this may not make sense...
+    while (internal->it != internal->terms.end() && *(internal->it) < tname)
+	internal->it++;
+    if (internal->it == internal->terms.end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
+std::string
+OmTermIterator::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "OmTermIterator::get_description", "");
+    /// \todo display contents of the object
+    RETURN("OmTermIterator()");
+}
+
+bool
+operator==(const OmTermIterator &a, const OmTermIterator &b)
+{
+    if (a.internal == b.internal) return true;
+    if (a.internal == 0 || b.internal == 0) return false;
+    return (a.internal->it == b.internal->it);
 }
