@@ -25,6 +25,15 @@
 #include "positionlist.h"
 #include "omdebug.h"
 
+OmPositionListIterator::OmPositionListIterator(Internal *internal_)
+	: internal(internal_)
+{
+    if (internal && internal->positionlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
 OmPositionListIterator::~OmPositionListIterator()
 {
     DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
@@ -35,6 +44,7 @@ OmPositionListIterator::operator *() const
 {
     DEBUGAPICALL(om_termpos, "OmPositionListIterator::operator*", "");
     Assert(internal);
+    Assert(!internal->positionlist->at_end());
     RETURN(internal->positionlist->get_position());
 }
 
@@ -43,6 +53,7 @@ OmPositionListIterator::operator++()
 {
     DEBUGAPICALL(OmPositionListIterator &, "OmPositionListIterator::operator++", "");
     Assert(internal);
+    Assert(!internal->positionlist->at_end());
     internal->positionlist->next();
     if (internal->positionlist->at_end()) {
 	delete internal;
@@ -56,6 +67,7 @@ OmPositionListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmPositionListIterator::operator++(int)", "");
     Assert(internal);
+    Assert(!internal->positionlist->at_end());
     internal->positionlist->next();
     if (internal->positionlist->at_end()) {
 	delete internal;
@@ -69,6 +81,7 @@ OmPositionListIterator::skip_to(om_termpos pos)
 {
     DEBUGAPICALL(void, "OmPositionListIterator::skip_to", pos);
     Assert(internal);
+    Assert(!internal->positionlist->at_end());
     internal->positionlist->skip_to(pos);
     if (internal->positionlist->at_end()) {
 	delete internal;

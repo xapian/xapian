@@ -42,9 +42,7 @@ class OmPositionListIterator {
 
         friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 
-	OmPositionListIterator(Internal *internal_) {
-	    internal = internal_;
-	}
+	OmPositionListIterator(Internal *internal_);
 
     public:
         ~OmPositionListIterator();

@@ -1,3 +1,11 @@
+Thu Dec  7 20:39:24 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug: Om*Iterators which were created over empty lists didn't
+	  have null internals, causing them not to compare equal to end
+	  iterators.
+
+	* Added many asserts to iterator code.
+
 Thu Dec  7 20:02:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed OmTermListIteratorMap - OmTermListIterator can now be

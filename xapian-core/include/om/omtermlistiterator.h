@@ -40,8 +40,7 @@ class OmTermListIterator {
 
         friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
 
-    protected:
-	OmTermListIterator(Internal *internal_) : internal(internal_) { }
+	OmTermListIterator(Internal *internal_);
 
     public:
         ~OmTermListIterator();

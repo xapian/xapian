@@ -39,7 +39,7 @@ class OmKeyListIterator {
 
         friend bool operator==(const OmKeyListIterator &a, const OmKeyListIterator &b);
 
-	OmKeyListIterator(Internal *internal_) : internal(internal_) { }
+	OmKeyListIterator(Internal *internal_);
 
     public:
         ~OmKeyListIterator();

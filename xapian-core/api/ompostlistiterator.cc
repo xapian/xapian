@@ -27,6 +27,15 @@
 #include "postlist.h"
 #include "omdebug.h"
 
+OmPostListIterator::OmPostListIterator(Internal *internal_)
+	: internal(internal_)
+{
+    if (internal && internal->postlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
 OmPostListIterator::~OmPostListIterator() {
     DEBUGAPICALL(void, "OmPostListIterator::~OmPostListIterator", "");
     delete internal;
@@ -60,6 +69,7 @@ OmPostListIterator::operator *() const
 {
     DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     om_docid result = internal->postlist->get_docid();
     RETURN(result);
 }
@@ -69,6 +79,7 @@ OmPostListIterator::operator++()
 {
     DEBUGAPICALL(OmPostListIterator &, "OmPostListIterator::operator++", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
     if (internal->postlist->at_end()) {
@@ -83,6 +94,7 @@ OmPostListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmPostListIterator::operator++", "int");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
     if (internal->postlist->at_end()) {
@@ -97,6 +109,7 @@ OmPostListIterator::skip_to(om_docid did)
 {
     DEBUGAPICALL(void, "OmPostListIterator::skip_to", did);
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     PostList *p = internal->postlist->skip_to(did, 0);
     if (p) internal->postlist = p; // handle prune
     if (internal->postlist->at_end()) {
@@ -118,6 +131,7 @@ OmPostListIterator::get_doclength() const
 {
     DEBUGAPICALL(om_doclength, "OmPostListIterator::get_doclength", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     RETURN(internal->postlist->get_doclength());
 }
 
@@ -126,6 +140,7 @@ OmPostListIterator::get_wdf() const
 {
     DEBUGAPICALL(om_termcount, "OmPostListIterator::get_wdf", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     RETURN(internal->postlist->get_wdf());
 }
 
@@ -134,6 +149,7 @@ OmPostListIterator::positionlist_begin()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_begin", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list())));
 }
 
@@ -142,6 +158,7 @@ OmPostListIterator::positionlist_end()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_end", "");
     Assert(internal);
+    Assert(!internal->postlist->at_end());
     RETURN(OmPositionListIterator(NULL));
 }
 
@@ -149,7 +166,6 @@ std::string
 OmPostListIterator::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmPostListIterator::get_description", "");
-    Assert(internal);
     /// \todo display contents of the object
     om_ostringstream desc;
     desc << "OmPostListIterator([pos=";

@@ -25,6 +25,15 @@
 #include "termlist.h"
 #include "omdebug.h"
 
+OmTermListIterator::OmTermListIterator(Internal *internal_)
+	: internal(internal_)
+{
+    if (internal && internal->at_end()) {
+	delete internal;
+	internal = 0;
+    }
+}
+
 OmTermListIterator::~OmTermListIterator() {
     DEBUGAPICALL(void, "OmTermListIterator::~OmTermListIterator", "");
     delete internal;
@@ -58,6 +67,7 @@ OmTermListIterator::operator *() const
 {
     DEBUGAPICALL(om_termname, "OmTermListIterator::operator*", "");
     Assert(internal);
+    Assert(!internal->at_end());
     if (internal->using_termlist) 
 	RETURN(internal->termlist->get_termname());
     else
@@ -69,6 +79,7 @@ OmTermListIterator::get_wdf() const
 {
     DEBUGAPICALL(om_termcount, "OmTermListIterator::get_wdf", "");
     Assert(internal);
+    Assert(!internal->at_end());
     if (internal->using_termlist)
 	RETURN(internal->termlist->get_wdf());
     else
@@ -80,6 +91,7 @@ OmTermListIterator::get_termfreq() const
 {
     DEBUGAPICALL(om_doccount, "OmTermListIterator::get_termfreq", "");
     Assert(internal);
+    Assert(!internal->at_end());
     if (internal->using_termlist)
 	RETURN(internal->termlist->get_termfreq());
     else
@@ -91,6 +103,7 @@ OmTermListIterator::operator++()
 {
     DEBUGAPICALL(OmTermListIterator &, "OmTermListIterator::operator++", "");
     Assert(internal);
+    Assert(!internal->at_end());
     internal->next();
     if (internal->at_end()) {
 	delete internal;
@@ -104,6 +117,7 @@ OmTermListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmTermListIterator::operator++(int)", "");
     Assert(internal);
+    Assert(!internal->at_end());
     internal->next();
     if (internal->at_end()) {
 	delete internal;
@@ -117,6 +131,7 @@ OmTermListIterator::skip_to(const om_termname & tname)
 {
     DEBUGAPICALL(void, "OmTermListIterator::skip_to", tname);
     Assert(internal);
+    Assert(!internal->at_end());
     internal->skip_to(tname);
     if (internal->at_end()) {
 	delete internal;
@@ -129,6 +144,7 @@ OmTermListIterator::positionlist_begin()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_begin", "");
     Assert(internal);
+    Assert(!internal->at_end());
     if (internal->using_termlist) 
 	RETURN(internal->database.positionlist_begin(internal->did,
 						     internal->termlist->get_termname()));
@@ -142,6 +158,7 @@ OmTermListIterator::positionlist_end()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_end", "");
     Assert(internal);
+    Assert(!internal->at_end());
     RETURN(OmPositionListIterator(NULL));
 }
 

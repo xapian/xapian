@@ -24,6 +24,11 @@
 #include "omkeylistiteratorinternal.h"
 #include "omdebug.h"
 
+OmKeyListIterator::OmKeyListIterator(Internal *internal_)
+	: internal(internal_)
+{
+}
+
 OmKeyListIterator::~OmKeyListIterator() {
     DEBUGAPICALL(void, "OmKeyListIterator::~OmKeyListIterator", "");
     delete internal;
