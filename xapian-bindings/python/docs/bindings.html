@@ -3,8 +3,8 @@
 <h1>Python bindings for Xapian</h1>
 
 <p>
-The Python bindings for Xapian are packaged in the <code>xapian</code> module, and
-largely follow the C++ API, with the following differences and
+The Python bindings for Xapian are packaged in the <code>xapian</code> module,
+and largely follow the C++ API, with the following differences and
 additions. Python strings and lists, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
@@ -22,7 +22,8 @@ in the bindings, so generally it should just work as expected.
 <h2>Iterators</h2>
 
 <p>
-   All iterators support <code>next()</code> and <code>equals()</code> methods to move through
+   All iterators support <code>next()</code> and <code>equals()</code> methods
+   to move through
    and test iterators (as for all language bindings). Python-wrapped
    iterators also support direct comparison, so something like:
 </p>
@@ -46,14 +47,15 @@ in the bindings, so generally it should just work as expected.
 <thead><td>Iterator</td><td>Dereferencing method</td></thead>
 <tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
 <tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>TermIterator</td>		<td><code>get_term()</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
 <tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
-<tr><td>MSetIterator</td>		<td><code>get_docid()</code></td></tr>
-<tr><td>ESetIterator</td>		<td><code>get_termname()</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_termname()</code></td></tr>
 </table>
 
 <p>
-   Other methods, such as <code>MSetIterator.get_document()</code>, are available unchanged.
+   Other methods, such as <code>MSetIterator.get_document()</code>, are
+   available unchanged.
 </p>
    
 <h2>MSet</h2>
@@ -102,8 +104,9 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
 <h2>Xapian::Auto</h2>
 
 <p>
-   Functions in <code>Xapian::Auto</code> are mapped directly into the <code>xapian</code>
-   module (so <code>Xapian::Auto::open()</code> becomes <code>xapian.open()</code>, for
+   Functions in <code>Xapian::Auto</code> are mapped directly into the
+   <code>xapian</code> module (so <code>Xapian::Auto::open()</code> becomes
+   <code>xapian.open()</code>, for
    instance). The <code>Xapian::Auto::DB_*</code> constants are available as
    <code>xapian.DB_*</code>.
 </p>
@@ -121,8 +124,8 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
 <h2>Enquire</h2>
 
 <p>
-   There is an additional method <code>get_matching_terms()</code> which takes an
-   MSetIterator and returns a list of terms in the current query which
+   There is an additional method <code>get_matching_terms()</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator. This may be slightly
    more convenient than using the TermIterator directly.
 </p>
@@ -131,14 +134,17 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
 
 <p>
    The query parser and C++ wrapped stemmers are wrapped for Python as
-   <code>xapian.QueryParser</code> and <code>xapian.Stem</code>. The interfaces are identical to
-   the C++ versions.
+   <code>xapian.QueryParser</code> and <code>xapian.Stem</code>. The interfaces
+   are identical to the C++ versions.
 </p>
 
 <h2>MatchDecider</h2>
 
 <p>
-Custom MatchDeciders can be created in Python; simply subclass xapian.MatchDecider, ensure you call the super-constructor, and define a __call__ method that will do the work. The simplest example (which does nothing useful) would be as follows.
+Custom MatchDeciders can be created in Python; simply subclass
+xapian.MatchDecider, ensure you call the super-constructor, and define a
+__call__ method that will do the work. The simplest example (which does nothing
+useful) would be as follows.
 </p>
 
 <pre>
@@ -152,7 +158,8 @@ class mymatcher(xapian.MatchDecider):
 
 <p>
 There are examples of the Python bindings, based on simplesearch and
-simpleindex from <code>xapian-examples</code>, in the <code>examples</code> subdirectory. There is also an example of defining a MatchDecider in Python.
+simpleindex from <code>xapian-examples</code>, in the <code>examples</code>
+subdirectory. There is also an example of defining a MatchDecider in Python.
 </p>
 
 <address>
