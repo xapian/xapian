@@ -12,9 +12,13 @@ typedef termid termcount;      // Type for counts of terms (eg, wdf, termfreq)
 
 typedef double doclength;      // Type for (averaged) lengths of documents
 
+typedef unsigned int keyno;    // Type for referring to key in document
+typedef unsigned int recno;    // Type for referring to record in document
+
 typedef double weight;
 
 #ifdef __cplusplus
+#include <string>
 typedef string termname;
 #endif
 
