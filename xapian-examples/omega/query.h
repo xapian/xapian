@@ -13,6 +13,6 @@ void muscat_stem( char * );
 
 extern char dec_sep, thou_sep;
 
-extern int percent_min;
+extern matchop op;
 
 #endif /* QUERY_H */

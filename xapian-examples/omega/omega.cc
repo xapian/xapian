@@ -286,8 +286,10 @@ int main(int argc, char *argv[]) {
        list_size = 1000;
     }
 
-    if ((val = GetEntry ("THRESHOLD")) != NULL) {
-	percent_min = atoi(val);
+    if ((val = GetEntry("MATCHOP")) != NULL) {
+	if (strcmp(val, "AND") == 0 || strcmp(val, "and") == 0) op = AND;
+    } else if ((val = GetEntry("THRESHOLD")) != NULL) {
+	if (atoi(val) == 100) op = AND;
     }
 
     *to = '\0';

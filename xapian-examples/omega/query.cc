@@ -56,7 +56,6 @@ static long int r_di;
 static struct term new_terms[MAXTERMS];
 static int n_new_terms;
 static long int score_height, score_width;
-static int weight_threshold = 0;
 
 char thou_sep = ',', dec_sep = '.';
 
@@ -71,7 +70,7 @@ extern int n_dlist;
 
 static string query_string;
 
-int percent_min = 0; /* default to old behaviour */
+matchop op = OR; // default matching mode
 
 static void do_adjustm ( void );
 static int parse_prob( const char *, struct term * );
@@ -234,7 +233,7 @@ int set_probabilistic(const char *p, const char *oldp) {
 	// (minusterm_1 OR ... OR minusterm_p)
 	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
 	if (!normals.empty()) {
-	    matcher->add_oplist(OR, normals);
+	    matcher->add_oplist(op, normals);
 	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
 	}       
 	if (!minuses.empty()) {
@@ -482,6 +481,7 @@ static void run_query(void) {
     while (matcher->add_op(OR)) {
 	// OR all the probabilistic terms together
 	// FIXME: use AND for "matching all"
+	cout << "<B>EEK</B>" << endl;
     }
 
     int bool_terms = 0;
@@ -502,29 +502,6 @@ static void run_query(void) {
        maxweight = 0;
        msize = 0;
        return;
-    }
-
-    percent_min = (percent_min > 100) ? 100 : ((percent_min < 0) ? 0 : percent_min);
-
-    /* Trim the M-set to remove matches with negative weights, or those below
-     * the percentage threshold.  Only trim if we need to:
-     * (hits && not pure boolean && (negative weights || threshold))
-     * [note: Muscat returns maxweight 0 for pure boolean queries]
-     * NB we also trim if we have plus-ed terms, so that hits without them are
-     * removed
-     */
-    if (weight_threshold || percent_min) {
-#if 1 // FIXME
-	matcher->set_min_weight_percent(percent_min);
-#else
-	weight t = maxweight * percent_min / 100;
-	if (t > weight_threshold) weight_threshold = t;
-	msize = trim_msize(msize, weight_threshold);
-
-	/* if we're using MTOTAL, give up on it now, since we can't binary
-	 * chop off the end of the M-set */
-	if (oldmsize > MLIMIT) oldmsize = MLIMIT;
-#endif
     }
 
     matcher->match();
@@ -737,8 +714,9 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 
       /*** save number of hits per page and relevance threshold ***/
       if (which != 'Q') {
-          printf ("<INPUT TYPE=hidden NAME=MAXHITS VALUE=%ld>\n", maxhits );
-          printf ("<INPUT TYPE=hidden NAME=THRESHOLD VALUE=%d>\n", percent_min );
+          cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << maxhits << ">\n";
+	  if (op == AND)
+	      cout << "<INPUT TYPE=hidden NAME=MATCHOP VALUE=AND>\n";
       }
 
       return 4;
@@ -1099,22 +1077,16 @@ static void print_query_page( const char* page, long int first, long int size) {
 	        /* SA 7/4/1997 - item in max hits selector box */
                 else if (!strncmp (pc, "MAXHITS", 7)) {
 		    if (size == atoi(pc + 7))
-		        fputs("SELECTED", stdout);
+		        cout << "SELECTED";
 		    pc += 10; /* 7 for MAXHITS + 3 for number */
 		}
 
-	        /* SA 1997-07-11 - item in threshold selector box */
-                else if (!strncmp (pc, "TSELECT", 7)) {
-		    if (percent_min == atoi(pc + 7))
-		        fputs("SELECTED", stdout);
-		    pc += 10; /* 7 for TSELECT + 3 for number */
+                else if (!strncmp (pc, "OSELECT", 7)) {
+		    if ((op == AND) ^! (pc[7] == 'A'))
+		        cout << "SELECTED";
+		    pc += 8; /* 7 for TSELECT + 1 for char */
 		}
 
-	        /* SA 1997-07-11 - text entry of threshold */
-                else if (!strncmp (pc, "THRESHOLD", 9)) {
-		    printf ("%d", percent_min);
-		    pc += 9;
-		}
 		else if (!strncmp (pc, "TOPTERMS", 8)) {
 		  if (msize) {
 		    /* Olly's expand on query page idea */
@@ -1451,7 +1423,6 @@ static int print_caption( long int m, int do_expand ) {
     char language_code[3] = "x";
 
     w = (int)matcher->mset[m].w;
-    if (w < weight_threshold) return 1; /** not relevant enough **/
     q0 = matcher->mset[m].id;
     
     /* get hostname from longest N tag
