@@ -1,11 +1,11 @@
-/** \file omtypes.h
+/** \file types.h
  * \brief Common types used
  */
 /*
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@
 
 /* Keep this file free from C++ style comments (//) so it can be used from C */
 
-#ifndef OM_HGUARD_OMTYPES_H
-#define OM_HGUARD_OMTYPES_H
+#ifndef XAPIAN_INCLUDED_TYPES_H
+#define XAPIAN_INCLUDED_TYPES_H
 
 /** A unique id for a document.
  *  Document ids start at 1.  A zero docid isn't valid, and may be used to
@@ -76,4 +76,4 @@ typedef int	     om_percent;
  */
 typedef unsigned int om_timeout;
 
-#endif /* OM_HGUARD_OMTYPES_H */
+#endif /* XAPIAN_INCLUDED_TYPES_H */

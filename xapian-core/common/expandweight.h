@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "database.h"
 
 using namespace std;

@@ -384,7 +384,7 @@ pack_bool(bool value)
 }
 
 #include "quartz_table_entries.h"
-#include "om/omtypes.h"
+#include <xapian/types.h>
 
 /** Convert a document id to a key (suitable when the docid is the only
  *  component of the key).

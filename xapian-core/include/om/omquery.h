@@ -26,7 +26,7 @@
 #define OM_HGUARD_OMQUERY_H
 
 #ifndef OM_HGUARD_OMTYPES_H
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #endif
 #ifndef OM_HGUARD_OMTERMLISTITERATOR_H
 #include "xapian/termiterator.h"

@@ -31,7 +31,7 @@
 #include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "xapian/positionlistiterator.h"
-#include "om/omoutput.h"
+#include <xapian/output.h>
 
 OmDatabase::OmDatabase() : internal(new OmDatabase::Internal())
 {

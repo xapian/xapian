@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_OMQUERYINTERNAL_H
 #define OM_HGUARD_OMQUERYINTERNAL_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "om/omenquire.h"
 #include "om/omquery.h"
 #include <string>

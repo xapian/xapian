@@ -24,7 +24,7 @@
 
 #include <config.h>
 #include "om/omdocument.h"
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "refcnt.h"
 #include "document.h"
 #include "omdocumentinternal.h"

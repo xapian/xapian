@@ -27,7 +27,7 @@
 
 
 // So that we can use the output functions declared here.
-#include "om/omoutput.h"
+#include <xapian/output.h>
 
 #ifdef HAVE_SSTREAM
 #include <sstream>

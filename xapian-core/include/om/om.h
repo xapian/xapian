@@ -60,28 +60,33 @@ typedef std::string om_termname;
 #define OmPositionListIterator Xapian::PositionListIterator
 #define OmTermIterator Xapian::TermIterator
 
+// om/omoutput.h used to include iostream, but xapian/output.h includes iosfwd
+// instead.  We include iostream here in case anyone relied on iostream being
+// included.
+#include <iostream>
+
 // Types and exceptions
-#include "om/omtypes.h"
-#include "xapian/error.h"
-#include "xapian/errorhandler.h"
+#include <xapian/types.h>
+#include <xapian/error.h>
+#include <xapian/errorhandler.h>
 
 // Data access
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
 #include "om/ompostlistiterator.h"
-#include "xapian/positionlistiterator.h"
-#include "xapian/termiterator.h"
+#include <xapian/positionlistiterator.h>
+#include <xapian/termiterator.h>
 #include "om/omvalueiterator.h"
 
 // Searching
 #include "om/omenquire.h"
 #include "om/omquery.h"
-#include "xapian/expanddecider.h"
+#include <xapian/expanddecider.h>
 
 // Stemming
-#include "xapian/stem.h"
+#include <xapian/stem.h>
 
 // Output
-#include "om/omoutput.h"
+#include <xapian/output.h>
 
 #endif

@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_NETREADQUERY_H
 #define OM_HGUARD_NETREADQUERY_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include <string>
 #include "netutils.h"
 

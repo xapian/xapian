@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_DOCUMENT_H
 #define OM_HGUARD_DOCUMENT_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "refcnt.h"
 #include "termlist.h"
 #include <map>

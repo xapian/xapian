@@ -28,7 +28,7 @@
 #include <string>
 
 #include "leafpostlist.h"
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "quartz_table_entries.h"
 #include "omassert.h"
 #include "quartz_types.h"

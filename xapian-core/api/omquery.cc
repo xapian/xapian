@@ -29,7 +29,7 @@
 
 #include "xapian/error.h"
 #include "om/omenquire.h"
-#include "om/omoutput.h"
+#include <xapian/output.h>
 
 #include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"

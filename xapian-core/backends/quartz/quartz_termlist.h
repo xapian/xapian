@@ -28,7 +28,7 @@
 #include <string>
 
 #include "quartz_table.h"
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "termlist.h"
 #include "quartz_database.h"
 

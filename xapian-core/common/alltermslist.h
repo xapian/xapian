@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "xapian/error.h"
 #include "termlist.h"
 

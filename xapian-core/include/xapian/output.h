@@ -1,11 +1,11 @@
-/** \file omoutput.h
- * \brief Functions for outputting strings describing OM objects.
+/** \file output.h
+ * \brief Functions for output of strings describing Xapian objects.
  */
 /*
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,48 +24,48 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMOUTPUT_H
-#define OM_HGUARD_OMOUTPUT_H
+#ifndef XAPIAN_INCLUDED_OUTPUT_H
+#define XAPIAN_INCLUDED_OUTPUT_H
 
-#include <iostream>
+#include <iosfwd>
 
-#define OUTPUT_FUNCTION(a) \
+#define XAPIAN_OUTPUT_FUNCTION(CLASS) \
 inline std::ostream & \
-operator<<(std::ostream & os, const a & obj) { \
-    return os << obj.get_description(); \
+operator<<(std::ostream & os, const CLASS & object) { \
+    return os << object.get_description(); \
 }
 
 #include "om/omdatabase.h"
-OUTPUT_FUNCTION(OmDatabase)
-OUTPUT_FUNCTION(OmWritableDatabase)
+XAPIAN_OUTPUT_FUNCTION(OmDatabase)
+XAPIAN_OUTPUT_FUNCTION(OmWritableDatabase)
 
 #include "om/omdocument.h"
-OUTPUT_FUNCTION(OmDocument)
+XAPIAN_OUTPUT_FUNCTION(OmDocument)
 
 #include "om/omquery.h"
-OUTPUT_FUNCTION(OmQuery)
+XAPIAN_OUTPUT_FUNCTION(OmQuery)
 
 #include "om/omenquire.h"
-OUTPUT_FUNCTION(OmRSet)
-OUTPUT_FUNCTION(OmMSetIterator)
-OUTPUT_FUNCTION(OmMSet)
-OUTPUT_FUNCTION(OmESetIterator)
-OUTPUT_FUNCTION(OmESet)
-OUTPUT_FUNCTION(OmEnquire)
+XAPIAN_OUTPUT_FUNCTION(OmRSet)
+XAPIAN_OUTPUT_FUNCTION(OmMSetIterator)
+XAPIAN_OUTPUT_FUNCTION(OmMSet)
+XAPIAN_OUTPUT_FUNCTION(OmESetIterator)
+XAPIAN_OUTPUT_FUNCTION(OmESet)
+XAPIAN_OUTPUT_FUNCTION(OmEnquire)
 
-#include "xapian/stem.h"
-OUTPUT_FUNCTION(Xapian::Stem)
+#include <xapian/stem.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
 
 #include "om/ompostlistiterator.h"
-OUTPUT_FUNCTION(OmPostListIterator)
+XAPIAN_OUTPUT_FUNCTION(OmPostListIterator)
 
-#include "xapian/positionlistiterator.h"
-OUTPUT_FUNCTION(Xapian::PositionListIterator)
+#include <xapian/positionlistiterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::PositionListIterator)
 
-#include "xapian/termiterator.h"
-OUTPUT_FUNCTION(Xapian::TermIterator)
+#include <xapian/termiterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)
 
 #include "om/omvalueiterator.h"
-OUTPUT_FUNCTION(OmValueIterator)
+XAPIAN_OUTPUT_FUNCTION(OmValueIterator)
 
-#endif /* OM_HGUARD_OMOUTPUT_H */
+#endif /* XAPIAN_INCLUDED_OUTPUT_H */

@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 
 #include "om/omdocument.h"
 #include "refcnt.h"

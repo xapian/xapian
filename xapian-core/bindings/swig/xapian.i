@@ -7,7 +7,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 James Aylett
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,7 @@
  * -----END-LICENCE-----
  */
 #undef list
-#include "om/om.h"
-#include <om/omtypes.h>
+#include <om/om.h>
 #include <omparsequery.h>
 #include <string>
 #include <vector>
@@ -297,9 +296,9 @@ class OmDatabase {
 	void reopen();
 	om_doccount get_doccount() const;
 	om_doclength get_avlength() const;
-	om_doccount get_termfreq(const om_termname &tname) const;
-	bool term_exists(const om_termname &tname) const;
-	om_termcount get_collection_freq(const om_termname &tname) const;
+	om_doccount get_termfreq(const std::string &tname) const;
+	bool term_exists(const std::string &tname) const;
+	om_termcount get_collection_freq(const std::string &tname) const;
 	om_doclength get_doclength(om_docid docid) const;
 	void keep_alive();
 	// FIXME still need term, postlist, positionlist and allterms iterators
@@ -335,7 +334,7 @@ const int OM_DB_CREATE_OR_OVERWRITE = 3;
 const int OM_DB_OPEN = 4;
 
 // so we can typemap this to arrays
-//typedef std::list<om_termname> om_termname_list;
+//typedef std::list<std::string> om_termname_list;
 
 class OmEnquire {
     public:
@@ -357,8 +356,8 @@ class OmEnquire {
 	// FIXME: add new methods to set match options...
 
 	%extend {
-		std::list<om_termname> get_matching_terms(const OmMSetIterator &hit) const {
-		  std::list<om_termname> terms;
+		std::list<std::string> get_matching_terms(const OmMSetIterator &hit) const {
+		  std::list<std::string> terms;
 		  OmTermIterator term = self->get_matching_terms_begin(hit);
 
 		  while (term != self->get_matching_terms_end(hit)) {

@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_INMEMORY_POSITIONLIST_H
 #define OM_HGUARD_INMEMORY_POSITIONLIST_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "xapian/error.h"
 
 #include <string>

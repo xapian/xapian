@@ -25,7 +25,7 @@
 #define OM_HGUARD_OMNODEINSTANCEITERATOR_H
 
 #include <iterator>
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "om/omindexercommon.h"
 
 class OmNodeInstanceIterator {

@@ -25,7 +25,7 @@
 #define OM_HGUARD_OMDOCUMENTINTERNAL_H
 
 #include <string>
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "refcnt.h"
 #include "document.h"
 

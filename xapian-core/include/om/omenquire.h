@@ -26,7 +26,7 @@
 #ifndef OM_HGUARD_OMENQUIRE_H
 #define OM_HGUARD_OMENQUIRE_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
 #include "xapian/error.h"

@@ -1,3 +1,9 @@
+Tue Apr 29 20:37:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/,common/,include/,indexer/omnodeinstanceiterator.h,
+	  indexer/ompaditerator.h,net/readquery.h,testsuite/indexer.h:
+	  om/omoutput.h -> xapian/output.h; om/omtypes.h -> xapian/types.h.
+
 Tue Apr 29 18:28:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/,common/,include/,matcher/,net/socketserver.cc,tests/,

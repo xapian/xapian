@@ -27,7 +27,7 @@
 #define OM_HGUARD_OMDOCUMENT_H
 
 #include <string>
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "xapian/termiterator.h"
 #include "om/omvalueiterator.h"
 

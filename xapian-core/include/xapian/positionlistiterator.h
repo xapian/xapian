@@ -30,7 +30,7 @@
 
 #include <xapian/base.h>
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 
 class OmPostListIterator;
 class OmDatabase;

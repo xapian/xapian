@@ -26,7 +26,7 @@
 #ifndef OM_HGUARD_QUARTZ_POSITIONLIST_H
 #define OM_HGUARD_QUARTZ_POSITIONLIST_H
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 #include "positionlist.h"
 #include "om/omdocument.h"
 #include "quartz_table_entries.h"

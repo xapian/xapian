@@ -36,7 +36,7 @@
 #include "../backends/multi/multi_termlist.h"
 
 #include "omdebug.h"
-#include "om/omoutput.h"
+#include <xapian/output.h>
 #include <vector>
 #include <fstream>
 

@@ -27,7 +27,7 @@
 #include <iosfwd>
 #include "autoptr.h"
 
-#include "om/omtypes.h"
+#include <xapian/types.h>
 
 class OmDocument;
 
