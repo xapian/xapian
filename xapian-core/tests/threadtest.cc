@@ -36,7 +36,7 @@
 
 static string database_path;
 static string queryfile;
-static num_threads = 1;
+static int num_threads;
 
 struct some_searches
 {
@@ -105,14 +105,17 @@ read_queries(string filename, vector<OmQuery> & queries)
 	    }
 	}
 
-	OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
-	//cout << new_query.get_description() << endl;
-	queries.push_back(new_query);
+	if (terms.size() != 0) {
+	    OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
+	    //cout << new_query.get_description() << endl;
+	    queries.push_back(new_query);
+	}
     }
     fclose (fp);
 }
 
-bool test_twothreads1()
+/// Test behaviour when multiple threads but each has its own db.
+bool test_separatedbs()
 {
     vector<pthread_t> threads;
     vector<struct some_searches> searches;
@@ -158,15 +161,16 @@ bool test_twothreads1()
 	cout << "waiting for end of thread search " << (i + 1) << endl;
 	pthread_join(threads[i], NULL);
     }
+    cout << "all threads finished" << endl;
 
     for (int i = 0; i < num_threads; i++) {
 	TEST_EQUAL(searches[i].expected_results.size(),
 		   searches[i].inthread_results.size());
 
-	for (vector<OmMSet>::size_type i = 0;
-	     i != searches[i].expected_results.size(); i++) {
-	    TEST_EQUAL(searches[i].expected_results[i],
-		       searches[i].inthread_results[i]);
+	for (vector<OmMSet>::size_type j = 0;
+	     j != searches[i].expected_results.size(); j++) {
+	    TEST_EQUAL(searches[i].expected_results[j],
+		       searches[i].inthread_results[j]);
 	}
     }
 
@@ -181,7 +185,7 @@ bool test_twothreads1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"twothreads1",		test_twothreads1},
+    {"separatedbs",		test_separatedbs},
     {0, 0}
 };
 
