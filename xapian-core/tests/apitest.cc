@@ -73,6 +73,8 @@ bool test_pctcutoff1();
 bool test_allowqterms1();
 // tests that the MSet max_attained works
 bool test_maxattain1();
+// tests the collapse-on-key
+bool test_collapsekey1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -94,6 +96,7 @@ om_test tests[] = {
     {"pctcutoff1",	   test_pctcutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
+    {"collapsekey1",	   test_collapsekey1},
     {0, 0}
 };
 
@@ -742,6 +745,43 @@ bool test_maxattain1()
 	    cout << "Max weight in MSet is " << mymax
 	         << ", max_attained = " << mymset.max_attained << endl;
         }
+    }
+
+    return success;
+}
+
+bool test_collapsekey1()
+{
+    bool success = true;
+
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    OmMatchOptions mymopt;
+    for (int key_no = 1; key_no<7; ++key_no) {
+        vector<om_docid> dids(key_no);
+	mymopt.set_collapse_key(key_no);
+
+	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
+
+	for (vector<OmMSetItem>::const_iterator i=mymset.items.begin();
+	     i != mymset.items.end();
+	     ++i) {
+	    if (dids[i->did % key_no] != 0) {
+	        success = false;
+		if (verbose) {
+		    cout << "docids " << dids[i->did % key_no]
+		         << " and " << i->did
+			 << " both found in MSet with key_no " << key_no
+			 << endl;
+		}
+		break;
+	    } else {
+	        dids[i->did % key_no] = i->did;
+	    }
+	}
+	// don't bother continuing if we've already failed.
+	if (!success) break;
     }
 
     return success;

@@ -1,3 +1,7 @@
+Thu Feb 17 18:13:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test for collapsing on a key
+
 Thu Feb 17 16:57:42 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added interface to stemming algorithms to API (OmStem class)
