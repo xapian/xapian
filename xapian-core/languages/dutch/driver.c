@@ -98,8 +98,6 @@ int main(int argc, char * argv[])
 
     void * z = setup_dutch_stemmer();
 
-
-    printf("version 1: ");
     s = (char *) malloc(i_max+1);
     for (i = 1; i < argc; i++)
     {   FILE * f = fopen(argv[i], "r");
