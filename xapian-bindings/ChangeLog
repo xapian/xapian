@@ -1,3 +1,7 @@
+Mon Apr 05 22:23:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Added details on adding support for recent languages.
+
 Sun Apr 04 18:53:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* java/native/Document.cc,java/native/org_xapian_XapianJNI.h,
