@@ -98,7 +98,7 @@ const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu -
 // ----------------------------------------
 static void usage(char * prog_name);
 static void write_OM_database( const string & database_dir,
-                               const map<unsigned int, set <string> > & commit_symbols, 
+                               const map<unsigned int, set <string> > & commit_symbols,
                                const map<unsigned int, list<string> > & commit_words
                                );
 
@@ -106,9 +106,9 @@ static void write_DB_database( const string & database_file,
                                const map<unsigned int, set<string> > & commit_symbols
                                );
 
-static map<string, unsigned int>  write_commit_offset (ostream & os, 
-                                                       const string & cvsdata, 
-                                                       const string & root, 
+static map<string, unsigned int>  write_commit_offset (ostream & os,
+                                                       const string & cvsdata,
+                                                       const string & root,
                                                        const set<string> & packages);
 
 
@@ -118,7 +118,7 @@ int main(unsigned int argc, char *argv[]) {
     string root = "";
     set<string> packages;
     bool read_library = false;
-    system( ("rm -f " + CTAGS_OUTPUT).c_str() ); 
+    system( ("rm -f " + CTAGS_OUTPUT).c_str() );
     for (unsigned int i = 1; i < argc; ++i)
     {
         if (0) {
@@ -145,7 +145,7 @@ int main(unsigned int argc, char *argv[]) {
     if (root.length() == 0) {
         usage(argv[0]);
     }
-    
+
     // ----------------------------------------
     // get symbols from library
     // ----------------------------------------
@@ -155,7 +155,7 @@ int main(unsigned int argc, char *argv[]) {
         cerr << "... reading library tags" << endl;
         readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
     }
-        
+
     // ----------------------------------------
     // This is the key:   It takes a commit id
     // (global) to all the symbols under that commit.
@@ -201,7 +201,7 @@ int main(unsigned int argc, char *argv[]) {
             cerr << "... reading application tags" << endl;
             readTags( CTAGS_OUTPUT, app_symbols, app_symbol_parents );
 
-#if 0      
+#if 0
             for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
                 cerr << (*s) << endl;
                 set<string> parents = app_symbol_parents[*s];
@@ -210,19 +210,19 @@ int main(unsigned int argc, char *argv[]) {
                 }
             }
 #endif
-      
+
             // map< unsigned int, const set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
             // map< unsigned int, int> app_symbol_count;
             // set<string> found_symbol_before;
 
-            
-            map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
-            map<string, int> app_symbol_count;
-            set<string> found_symbol_before;
+
+            //map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
+            //map<string, int> app_symbol_count;
+            //set<string> found_symbol_before;
 
 //             string file_cmt    = package_db_path + ".cmt";
 //             string file_offset = package_db_path + ".offset";
-            
+
 //             // file may not exist (if it was deleted in repostory at some point)
 //             {
 //                 ifstream in( file_cmt.c_str() );
@@ -234,15 +234,15 @@ int main(unsigned int argc, char *argv[]) {
 //             cerr << "... reading " << file_cmt << endl;
 //             lines_cmt lines(cvsdata + "/" + root + "/src/", root, package_name, file_cmt, file_offset, " mining");
 
-            cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);            
-            lines_db lines(cvsdata + "/" + root + "/src/", "", package_name, " mining", db_file); 
-            
-            
+            cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
+            lines_db lines(cvsdata + "/" + root + "/src/", "", package_name, " mining", db_file);
+
+
 
             // ----------------------------------------
             // this line NEEDS to be changed..
             // ----------------------------------------
-            // lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" ); 
+            // lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" );
             
             // ------------------------------------------------------------
             // need first input to be 
