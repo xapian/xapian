@@ -267,7 +267,7 @@ static int main2(int argc, char *argv[])
 	tmprset.add_document(doc);
 
 	OmExpandOptions eoptions;
-	eoptions.use_query_terms(false);
+	eoptions.set_use_query_terms(false);
 	ExpandDeciderFerret decider;
 	OmESet topterms =
 		enquire->get_eset(100, tmprset, &eoptions, &decider);
