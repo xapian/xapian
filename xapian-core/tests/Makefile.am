@@ -124,8 +124,8 @@ internaltest.lo: internaltest.cc
 ## checking
 run-apitest:
 	@rm -f run-apitest
-	ln -s $(top_srcdir)/testsuite/malloc_wrapper.sh run-apitest
+	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-apitest
 
 run-internaltest:
 	@rm -f run-internaltest
-	ln -s $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest
+	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest

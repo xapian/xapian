@@ -143,6 +143,9 @@ DEFINE_ERROR_CLASS(OmNetworkTimeoutError, OmNetworkError);
 /** thrown if the database is corrupt. */
 DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmDatabaseError);
 
+/** Thrown when a database needs recovery to be performed. */
+DEFINE_ERROR_CLASS(OmNeedRecoveryError, OmDatabaseError);
+
 /** Thrown when opening a database fails. */
 DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
 
