@@ -69,8 +69,24 @@ using namespace std;
 
 class OmErrorHandler;
 
+// Comparison functions to determine the order of elements in the MSet
+// Return true if a should be listed before b
+typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
+
+/// Compare an OmMSetItem, using a custom function
+class OmMSetCmp {
+    private:
+	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
+    public:
+	OmMSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
+		: fn(fn_) {}
+	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
+	    return fn(a, b);
+	}
+};
+
 // Comparison which sorts equally weighted MSetItems in docid order
-bool
+static bool
 msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b)
 {
     if (a.wt > b.wt) return true;
@@ -82,11 +98,36 @@ msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b)
 }
 
 // Comparison which sorts equally weighted MSetItems in reverse docid order
-bool
+static bool
 msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
 {
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
+    return (a.did > b.did);
+}
+
+// Comparison which sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in docid order.
+static bool
+msetcmp_sort_forward(const OmMSetItem &a, const OmMSetItem &b)
+{
+    // "bigger is better"
+    if (a.sort_key > b.sort_key) return true;
+    if (a.sort_key < b.sort_key) return false;
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    return (a.did < b.did);
+}
+
+// Comparison which sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in reverse docid order.
+static bool
+msetcmp_sort_reverse(const OmMSetItem &a, const OmMSetItem &b)
+{
+    // "bigger is better"
+    if (a.sort_key > b.sort_key) return true;
+    if (a.sort_key < b.sort_key) return false;
     return (a.did > b.did);
 }
 
@@ -144,7 +185,6 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 	  weight_cutoff(weight_cutoff_), sort_forward(sort_forward_),
 	  sort_key(sort_key_), sort_bands(sort_bands_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
-	  mcmp(sort_forward ? msetcmp_forward : msetcmp_reverse),
 	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
@@ -421,6 +461,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Table of keys which have been seen already, for collapsing.
     map<string, OmMSetItem> collapse_tab;
 
+    /// Comparison functor for sorting MSet
+    // The sort_bands == 1 case is special - then we only need to compare
+    // weights when the sortkeys are identical.
+    OmMSetCmp mcmp(sort_bands != 1 ?
+		   (sort_forward ? msetcmp_forward : msetcmp_reverse) :
+		   (sort_forward ? msetcmp_sort_forward : msetcmp_sort_reverse));
+
     // Perform query
 
     // We form the mset in two stages.  In the first we fill up our working
@@ -466,6 +513,10 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	OmMSetItem new_item(wt, did);
+	if (sort_key != om_valueno(-1) && sort_bands == 1) {
+	    OmDocument doc = db.get_document(new_item.did);
+	    new_item.sort_key = doc.get_value(sort_key);
+	}
 
 	// test if item has high enough weight to get into proto-mset
 	if (min_item.wt > 0.0 && !mcmp(new_item, min_item)) continue;
@@ -545,7 +596,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (pushback) {
 	    ++docs_matched;
 	    if (items.size() >= max_msize) {
-		if (sort_bands) {
+		if (sort_bands > 1) {
 		    if (!is_heap) {
 			is_heap = true;
 			make_heap<vector<OmMSetItem>::iterator,
@@ -554,34 +605,24 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    om_weight tmp = min_item.wt;
 		    min_item = items.front();
 		    min_item.wt = tmp;
-		    om_weight cmp = min_item.wt - new_item.wt;
 #if 0
-		    // FIXME: This optimisation gives incorrect results.
-		    // Disable for now, but check that the comparisons
-		    // are the correct way round.  We really should rework
-		    // to share code with MSetSortCmp anyway...
-		    // Also the sort_bands == 1 case is special - then
-		    // we only need to compare weights when the sortkeys
-		    // are identical.
-		    if (cmp != 0.0) {
-			if (min_item.sort_key.empty()) {
-			    OmDocument doc = db.get_document(min_item.did);
-			    min_item.sort_key = doc.get_value(sort_key);
-			}
-			if (new_item.sort_key.empty()) {
-			    OmDocument doc = db.get_document(new_item.did);
-			    new_item.sort_key = doc.get_value(sort_key);
-			}
-			if (cmp > 0) {
-			    if (min_item.sort_key >= new_item.sort_key)
-				pushback = false;
-			} else {
-			    if (min_item.sort_key <= new_item.sort_key) {
-				pop_heap<vector<OmMSetItem>::iterator,
-					 OmMSetCmp>(items.begin(), items.end(),
-						    mcmp);
-				items.pop_back();
-			    }
+                    // FIXME: This optimisation gives incorrect results.
+                    // Disable for now, but check that the comparisons
+                    // are the correct way round.  We really should rework
+                    // to share code with MSetSortCmp anyway...
+		    if (new_item.sort_key.empty()) {
+			OmDocument doc = db.get_document(new_item.did);
+			new_item.sort_key = doc.get_value(sort_key);
+		    }
+		    if (min_item.wt > new_item.wt) {
+			if (min_item.sort_key >= new_item.sort_key)
+			    pushback = false;
+		    } else {
+			if (min_item.sort_key <= new_item.sort_key) {
+			    pop_heap<vector<OmMSetItem>::iterator,
+				     OmMSetCmp>(items.begin(), items.end(),
+						mcmp);
+			    items.pop_back();
 			}
 		    }
 #endif
@@ -732,7 +773,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	percent_scale *= 100.0;
     }
     
-    if (sort_bands) {
+    if (sort_bands > 1) {
 	sort(items.begin(), items.end(),
 	     MSetSortCmp(db, sort_bands, percent_scale,
 			 sort_key, sort_forward));
@@ -772,7 +813,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    if (!sort_bands)
+	    if (sort_bands <= 1)
 		nth_element(items.begin(), items.begin() + first, items.end(),
 			    mcmp);
 	    // erase the leading ``first'' elements
@@ -787,7 +828,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	      "matches_estimated = " << matches_estimated << ", " <<
 	      "matches_upper_bound = " << matches_upper_bound);
 
-    if (!sort_bands && !items.empty()) {
+    if (sort_bands <= 1 && !items.empty()) {
 	DEBUGLINE(MATCH, "sorting");
 
 	// Need a stable sort, but this is provided by comparison operator

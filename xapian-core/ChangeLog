@@ -1,3 +1,9 @@
+Thu Feb 27 15:28:08 GMT 2003  Olly Betts <olly@survex.com>
+
+	* common/match.h,common/multimatch.h,matcher/multimatch.cc: Optimise
+	  the common sort_bands == 1 case better.
+	* tests/api_db.cc: sortbands2 now tests 1 sortband as well as 10.
+
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
 	* Fix success message in bootstrap when building in non-src dir

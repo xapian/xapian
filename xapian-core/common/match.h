@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,26 +34,6 @@
 #include "refcnt.h"
 
 #include <vector>
-
-////////////////////////////////////////////////////////////////////////////
-// Comparison functions to determine the order of elements in the MSet
-// Return true if a should be listed before b
-
-typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
-bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
-bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
-
-/// Compare an OmMSetItem, using a custom function
-class OmMSetCmp {
-    private:
-	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
-    public:
-	OmMSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
-		: fn(fn_) {}
-	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    return fn(a, b);
-	}
-};
 
 class SubMatch : public RefCntBase {
     public:

@@ -2989,35 +2989,38 @@ static bool test_sortbands2()
     init_simple_enquire(enquire);
 
     for (int pass = 1; pass <= 2; ++pass) { 
-	for (om_valueno value_no = 1; value_no < 7; ++value_no) {
-	    tout << "Sorting on value " << value_no << endl;
-	    enquire.set_sorting(value_no, 10);
-	    OmMSet allbset = enquire.get_mset(0, 100);
-	    OmMSet partbset1 = enquire.get_mset(0, 3);
-	    OmMSet partbset2 = enquire.get_mset(3, 97);
-	    TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
+	for (int bands = 1; bands <= 10; bands += 9) {
+	    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+		tout << "Sorting on value " << value_no << endl;
+		enquire.set_sorting(value_no, bands);
+		OmMSet allbset = enquire.get_mset(0, 100);
+		OmMSet partbset1 = enquire.get_mset(0, 3);
+		OmMSet partbset2 = enquire.get_mset(3, 97);
+		TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
 
-	    bool ok = true;
-	    int n = 0;
-	    OmMSetIterator i, j;
-	    j = allbset.begin();
-	    for (i = partbset1.begin(); i != partbset1.end(); ++i) {
-		tout << "Entry " << n << ": " << *i << " <=> " << *j << endl;
-		TEST(j != allbset.end()); 	
-		if (*i != *j) ok = false;
-		++j;
-		++n;
+		bool ok = true;
+		int n = 0;
+		OmMSetIterator i, j;
+		j = allbset.begin();
+		for (i = partbset1.begin(); i != partbset1.end(); ++i) {
+		    tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		    TEST(j != allbset.end()); 	
+		    if (*i != *j) ok = false;
+		    ++j;
+		    ++n;
+		}
+		tout << "===\n";
+		for (i = partbset2.begin(); i != partbset2.end(); ++i) {
+		    tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		    TEST(j != allbset.end()); 	
+		    if (*i != *j) ok = false;
+		    ++j;
+		    ++n;
+		}
+		TEST(j == allbset.end()); 	
+		if (!ok)
+		    FAIL_TEST("Split msets aren't consistent with unsplit");
 	    }
-	    tout << "===\n";
-	    for (i = partbset2.begin(); i != partbset2.end(); ++i) {
-		tout << "Entry " << n << ": " << *i << " <=> " << *j << endl;
-		TEST(j != allbset.end()); 	
-		if (*i != *j) ok = false;
-		++j;
-		++n;
-	    }
-	    TEST(j == allbset.end()); 	
-	    if (!ok) FAIL_TEST("Split msets aren't consistent with unsplit");
 	}
         enquire.set_sort_forward(false);
     }
