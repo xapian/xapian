@@ -22,6 +22,14 @@ Write (speed) performance test suite.
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
 
+Check behaviour when positionlists are empty, particularly in quartz.
+Test what happens if:  a positionlist is requested for a term which exists
+but has no position lists.  A positionlist is request for a term which does
+not exist at all.  A document is inserted with a positionlist, then modified so that there is no positionlist, and then the positionlist is requested.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
+
 Make sure that all methods and classes in the API have documentation
 comments.
 
