@@ -101,10 +101,6 @@ API cleanup.  Classes should hide implementation in internals, and should
 not use STL containers as parameters or return types.  Member variables
 shouldn't be exposed.
 
-Particular offenders are:
-
-OmIndexerDesc::nodes
-
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
