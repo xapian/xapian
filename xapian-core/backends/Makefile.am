@@ -22,23 +22,23 @@ LIBADD_MUSCAT36 = muscat36/libmuscat36.la
 endif
 
 if BUILD_BACKEND_SLEEPY
-BUILDSUBDIR_SLEEPY += sleepy
-LIBADD_SLEEPY += sleepy/libsleepy.la
+BUILDSUBDIR_SLEEPY = sleepy
+LIBADD_SLEEPY = sleepy/libsleepy.la
 endif
 
 if BUILD_BACKEND_INMEMORY
-BUILDSUBDIR_INMEMORY += inmemory
-LIBADD_INMEMORY += inmemory/libinmemory.la
+BUILDSUBDIR_INMEMORY = inmemory
+LIBADD_INMEMORY = inmemory/libinmemory.la
 endif
 
 if BUILD_BACKEND_MULTI
-BUILDSUBDIR_MULTI += multi
-LIBADD_MULTI += multi/libmulti.la
+BUILDSUBDIR_MULTI = multi
+LIBADD_MULTI = multi/libmulti.la
 endif
 
 if BUILD_BACKEND_NET
-BUILDSUBDIR_NET += net
-LIBADD_NET += net/libnetdb.la
+BUILDSUBDIR_NET = net
+LIBADD_NET = net/libnetdb.la
 endif
 
 SUBDIRS = \
