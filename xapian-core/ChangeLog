@@ -1,3 +1,8 @@
+Tue Sep 10 02:07:29 BST 2002  Olly Betts <olly@tartarus.org>
+
+        * remote backend: implemented term_exists() and get_termfreq();
+	  added test to check they work.
+
 Mon Sep  9 12:59:15 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* Add stub databases: if backend type is auto, and auto_dir points

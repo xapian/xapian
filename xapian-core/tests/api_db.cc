@@ -85,6 +85,22 @@ OmDatabase get_simple_database()
     return OmDatabase(get_database("apitest_simpledata"));
 }
 
+// tests OmDatabase::get_termfreq() and OmDatabase::term_exists()
+static bool test_termstats()
+{
+    // open the database (in this case a simple text file
+    // we prepared earlier)
+
+    OmDatabase db(get_simple_database());
+
+    TEST(!db.term_exists("corn"));
+    TEST(db.term_exists("paragraph"));
+    TEST_EQUAL(db.get_termfreq("banana"), 1);
+    TEST_EQUAL(db.get_termfreq("paragraph"), 5);
+
+    return true;
+}
+
 void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
 {
     enq.set_query(query);
@@ -3118,6 +3134,7 @@ test_desc localdb_tests[] = {
     {"postlist4",	   test_postlist4},
     {"postlist5",	   test_postlist5},
     {"postlist6",	   test_postlist6},
+    {"termstats",	   test_termstats},
     {0, 0}
 };
 
@@ -3125,5 +3142,6 @@ test_desc remotedb_tests[] = {
     {"multierrhandler1",   test_multierrhandler1},
     {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
+    {"termstats",	   test_termstats},
     {0, 0}
 };

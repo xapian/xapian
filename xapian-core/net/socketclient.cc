@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -279,15 +280,40 @@ SocketClient::get_doc(om_docid did,
 }
 
 om_doccount
-SocketClient::get_doccount()
+SocketClient::get_doccount() const
 {
     return doccount;
 }
 
 om_doclength
-SocketClient::get_avlength()
+SocketClient::get_avlength() const
 {
     return avlength;
+}
+
+bool
+SocketClient::term_exists(const om_termname & tname)
+{
+    do_write(string("t") + encode_tname(tname));
+    string message = do_read();
+    Assert(!message.empty() && message[0] == 't');
+    return message[1] == '1';
+}
+
+om_doccount
+SocketClient::get_termfreq(const om_termname & tname)
+{
+    do_write(string("F") + encode_tname(tname));
+    string message = do_read();
+    Assert(!message.empty() && message[0] == 'F');
+#ifdef HAVE_SSTREAM
+    istringstream is(message.substr(1));
+#else
+    istrstream is(message.data() + 1, message.length() - 1);
+#endif
+    om_doccount freq;
+    is >> freq;
+    return freq;
 }
 
 string

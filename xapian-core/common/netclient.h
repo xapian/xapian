@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,13 +127,18 @@ class NetClient : public RefCntBase {
 				 map<om_valueno, string> &values) = 0;
 
 	/** Find out the remote document count */
-	virtual om_doccount get_doccount() = 0;
+	virtual om_doccount get_doccount() const = 0;
 
 	/** Find out the remote average document length */
-	virtual om_doclength get_avlength() = 0;
+	virtual om_doclength get_avlength() const = 0;
 
-	/** Determine if any data is waiting to be read.
-	 */
+	/// Find out if term exists
+	virtual bool term_exists(const om_termname & tname) = 0;
+
+	/// Find frequency of term
+	virtual om_doccount get_termfreq(const om_termname & tname) = 0;
+
+	/** Determine if any data is waiting to be read.  */
 	virtual bool data_is_available() = 0;
 };
 

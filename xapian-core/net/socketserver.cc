@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -203,6 +204,16 @@ SocketServer::run()
 		case 'm': // ignore min weight message left over from postlist
 		    break;
 		case 'S': // ignore skip_to message left over from postlist
+		    break;
+		case 'F': // get_termfreq
+		    writeline("F" +
+			      om_tostring(db.get_termfreq(decode_tname(message.substr(1)))));
+		    break;
+		case 't': // term_exists
+		    if (db.term_exists(decode_tname(message.substr(1))))
+			writeline("t1");
+		    else
+			writeline("t0");
 		    break;
 		default:
 		    throw OmInvalidArgumentError(string("Unexpected message:") +

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -224,10 +225,16 @@ class SocketClient : public NetClient {
 			 map<om_valueno, string> &values);
 
 	/** Get the document count. */
-	om_doccount get_doccount();
+	om_doccount get_doccount() const;
 
 	/** Find out the remote average document length */
-	om_doclength get_avlength();
+	om_doclength get_avlength() const;
+
+	/// Find out if term exists
+	virtual bool term_exists(const om_termname & tname);
+
+	/// Find frequency of term
+	virtual om_doccount get_termfreq(const om_termname & tname);
 
 	/** Determine if any data is waiting to be read.
 	 */

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -126,20 +127,6 @@ class NetworkDatabase : public Database {
 	// Introspection methods...
 	bool is_network() const;
 };
-
-inline om_doccount
-NetworkDatabase::get_termfreq(const om_termname & tname) const
-{
-    throw OmUnimplementedError("NetworkDatabase::get_termfreq() not implemented");
-#if 0
-    if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname, NULL);
-    om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
-    delete pl;
-    return freq;
-#endif
-}
 
 inline om_termcount
 NetworkDatabase::get_collection_freq(const om_termname & tname) const

@@ -1,9 +1,8 @@
 FIXME: This description is now very out of date and needs rewriting
 to reflect what actually happens...
 
-This is a brief description of the protocol used by the ProgClient
-and ProgServer classes.  They don't currently work like this, but
-will soon.
+This is a brief description of the wire protocol used by the remote
+backend:
 
 Message 1:
 Direction: ProgClient->ProgServer

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -163,7 +164,16 @@ bool
 NetworkDatabase::term_exists(const om_termname & tname) const
 {
     Assert(tname.size() != 0);
-    throw OmUnimplementedError("NetworkDatabase::term_exists() not implemented");
+    // FIXME: have cache of termfreqs?
+    return link->term_exists(tname);
+}
+
+om_doccount
+NetworkDatabase::get_termfreq(const om_termname & tname) const
+{
+    Assert(tname.size() != 0);
+    // FIXME: have cache of termfreqs?
+    return link->get_termfreq(tname);
 }
 
 TermList *
