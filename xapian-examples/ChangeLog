@@ -1,3 +1,9 @@
+Thu Jun 27 21:36:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* AUTHORS, README, TODO: updated.
+
+	* simple/indexnasty.cc, simple/Makefile: removed (sorry Sam!)
+
 Thu Jun 27 15:33:00 BST 2002  Olly Betts <olly@survex.com>
 
 	* copydatabase: enhanced to also allow several databases to be merged

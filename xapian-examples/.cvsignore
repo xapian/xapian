@@ -1,7 +1,7 @@
 .*.swp
 *.lo
 aclocal.m4
-autom4te-*.cache
+autom4te*.cache
 Makefile.in
 Makefile
 configure
@@ -17,4 +17,4 @@ stamp-h.in
 stamp-h1
 .deps
 .libs
-msearch delve createdatabase simpleindex
+msearch delve createdatabase simpleindex copydatabase simpleexpand simplesearch
