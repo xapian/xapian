@@ -42,24 +42,46 @@ struct some_searches
 {
     string database_type;
     string database_path;
+    OmDatabaseGroup dbgrp;
     vector<OmQuery> queries;
     vector<OmMSet> expected_results;
     vector<OmMSet> inthread_results;
 };
 
+OmDatabaseGroup
+open_db_group(string database_type, string dlist_path)
+{
+    OmDatabaseGroup dbgrp;
+
+    FILE * fp = fopen (dlist_path.c_str(), "r");
+    TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << dlist_path << "' - " <<
+		     strerror(errno))
+    while(!feof(fp)) {
+	string database_path;
+	while(1) {
+	    char c;
+	    fread(&c, sizeof(char), 1, fp);
+	    if (feof (fp) || c == '\n') {
+		break;
+	    }
+	    database_path += string(&c, 1);
+	}
+	if(database_path.size() != 0) {
+	    cout << "Adding `" << database_path << "' to dlist" << endl;
+	    vector<string> params;
+	    params.push_back(database_path);
+	    OmDatabase db(database_type, params);
+	    dbgrp.add_database(db);
+	}
+    }
+    return dbgrp;
+}
+
 void
-search_stuff(string database_type,
-	     string database_path,
+search_stuff(OmEnquire & enq,
 	     vector<OmQuery> & queries,
 	     vector<OmMSet> & results)
 {
-    vector<string> params;
-    params.push_back(database_path);
-    OmDatabase db(database_type, params);
-    OmDatabaseGroup dbgrp;
-    dbgrp.add_database(db);
-    OmEnquire enq(dbgrp);
-
     vector<OmQuery>::const_iterator i;
     for (i = queries.begin(); i != queries.end(); i++) {
 	enq.set_query(*i);
@@ -67,14 +89,46 @@ search_stuff(string database_type,
     }
 }
 
+void
+search_stuff(OmDatabaseGroup & dbgrp,
+	     vector<OmQuery> & queries,
+	     vector<OmMSet> & results)
+{
+    cout << "OmDatabaseGroup: " << &dbgrp << endl;
+    OmEnquire enq(dbgrp);
+    search_stuff(enq, queries, results);
+}
+
+void
+search_stuff(string database_type,
+	     string database_path,
+	     vector<OmQuery> & queries,
+	     vector<OmMSet> & results)
+{
+    OmDatabaseGroup dbgrp = open_db_group(database_type, database_path);
+    search_stuff(dbgrp, queries, results);
+}
+
 void *
-search_thread(void * data)
+search_thread_separatedbs(void * data)
 {
     struct some_searches * searches =
 	reinterpret_cast<struct some_searches *>(data);
 
     search_stuff(searches->database_type,
 		 searches->database_path,
+		 searches->queries,
+		 searches->inthread_results);
+    return 0;
+}
+
+void *
+search_thread_separateenqs(void * data)
+{
+    struct some_searches * searches =
+	reinterpret_cast<struct some_searches *>(data);
+
+    search_stuff(searches->dbgrp,
 		 searches->queries,
 		 searches->inthread_results);
     return 0;
@@ -114,18 +168,27 @@ read_queries(string filename, vector<OmQuery> & queries)
     fclose (fp);
 }
 
-/// Test behaviour when multiple threads but each has its own db.
-bool test_separatedbs()
+bool check_query_threads(void * (* search_thread)(void *))
 {
     vector<pthread_t> threads;
     vector<struct some_searches> searches;
 
     cout << "Performing test with " << num_threads << " threads." << endl;
 
+    struct some_searches mainsearch;
+
+    mainsearch.database_type = "da_heavy";
+    mainsearch.database_path = database_path;
+
+    mainsearch.dbgrp = open_db_group(mainsearch.database_type,
+				     mainsearch.database_path);
+
     for (int i = 0; i < num_threads; i++) {
 	struct some_searches newsearch;
-	newsearch.database_type = "da_heavy";
-	newsearch.database_path = database_path;
+	newsearch.database_type = mainsearch.database_type;
+	newsearch.database_path = mainsearch.database_path;
+	newsearch.dbgrp = mainsearch.dbgrp;
+
 	read_queries(queryfile + om_inttostring(i + 1), newsearch.queries);
 	cout << "search " << (i + 1) << " has " <<
 		newsearch.queries.size() << " items" << endl;
@@ -177,6 +240,20 @@ bool test_separatedbs()
     return true;
 }
 
+/** Test behaviour when multiple threads sharing a db, but each has its own
+ *  enquire.
+ */
+bool test_samedb()
+{
+    return check_query_threads(search_thread_separateenqs);
+}
+
+/// Test behaviour when multiple threads but each has its own db and enquire.
+bool test_separatedbs()
+{
+    return check_query_threads(search_thread_separatedbs);
+}
+
 
 
 // ##################################################################
@@ -186,6 +263,7 @@ bool test_separatedbs()
 /// The lists of tests to perform
 test_desc tests[] = {
     {"separatedbs",		test_separatedbs},
+    {"samedb",			test_samedb},
     {0, 0}
 };
 
