@@ -21,11 +21,16 @@
  */
 
 #include "quartz_database.h"
+#include "om/omsettings.h"
 #include "testsuite.h"
 
 /// Test opening of a quartz database
 static bool test_quartzopen1()
 {
+    OmSettings settings;
+    settings.set("", "");
+
+    QuartzDatabase database(settings, true);
     return true;
 }
 

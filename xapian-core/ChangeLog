@@ -1,3 +1,7 @@
+Wed Aug 30 18:21:02 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a test to the quartz testsuite - currently doesn't compile.
+
 Wed Aug 30 17:50:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make OmWritableDatabase::get_document() into a const method -

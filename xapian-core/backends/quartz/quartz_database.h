@@ -40,7 +40,6 @@ class QuartzModifications;
  *  BerkeleyDB is available from http://www.sleepycat.com/
  */
 class QuartzDatabase : public IRDatabase {
-    friend class DatabaseBuilder;
     private:
 	/** Mutex to protect this object against concurrent access.
 	 */
@@ -66,15 +65,6 @@ class QuartzDatabase : public IRDatabase {
 	 */
 	bool readonly;
 
-	/** Create and open a quartz database.
-	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
-	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.
-	 */
-	QuartzDatabase(const OmSettings & params, bool readonly);
-
 	//@{
 	/** Implementation of virtual methods: see IRDatabase for details.
 	 */
@@ -94,6 +84,15 @@ class QuartzDatabase : public IRDatabase {
 	//@}
 
     public:
+	/** Create and open a quartz database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.
+	 */
+	QuartzDatabase(const OmSettings & params, bool readonly);
+
 	~QuartzDatabase();
 
 	// Virtual methods of IRDatabase

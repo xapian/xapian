@@ -29,5 +29,6 @@ check_PROGRAMS = quartztest
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = ../../testsuite/libtest.la \
                    ../../common/libcommon.la \
+		   ../libbackend.la \
 		   libquartz.la
 
