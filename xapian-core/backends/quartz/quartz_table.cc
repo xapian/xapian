@@ -37,9 +37,12 @@ static std::string hex_encode(const std::string & input) {
     for (i = input.begin();
 	 i != input.end();
 	 i++) {
+	unsigned char val = *i;
+	Assert(val >= 0);
+	Assert(val < 256);
 	result += "\\x";
-	result += table[(*i)/16];
-	result += table[(*i)%16];
+	result += table[val/16];
+	result += table[val%16];
     }
 
     return result;
