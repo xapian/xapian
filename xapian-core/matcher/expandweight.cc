@@ -65,7 +65,6 @@ OmExpandWeight::OmExpandWeight(const Xapian::Database &root_,
     DEBUGCALL(MATCH, void, "OmExpandWeight", root_ << ", " << rsetsize_ << ", " << use_exact_termfreq_ << ", " << expand_k_);
     dbsize = root.get_doccount();
     average_length = root.get_avlength();
-    return;
 }
 
 OmExpandBits
@@ -77,21 +76,18 @@ OmExpandWeight::get_bits(Xapian::termcount wdf,
     DEBUGCALL(MATCH, OmExpandBits, "OmExpandWeight::get_bits", wdf << ", " << document_length << ", " << termfreq << ", " << dbsize_);
     Xapian::weight multiplier = 1.0;
 
-    Xapian::doclength normalised_length = document_length / average_length;
-
-    DEBUGLINE(WTCALC, "(doc_length, average_length) = (" <<
-	      document_length << ", " <<
-	      average_length << ") => normalised_length = " <<
-	      normalised_length);
-
     if (wdf > 0) {
+	const Xapian::doclength norm_length = document_length / average_length;
+	DEBUGLINE(WTCALC, "(doc_length, average_length) = (" <<
+		  document_length << ", " << average_length <<
+		  ") => norm_length = " << norm_length);
+
 	// FIXME -- use alpha, document importance
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
-	multiplier = (expand_k + 1) * wdf / 
-	  (expand_k * normalised_length + wdf);
-	DEBUGLINE(WTCALC, "Using (wdf, normalised_length) = (" << wdf << ", " <<
-		  normalised_length << ") => multiplier = " << multiplier);
+	multiplier = (expand_k + 1) * wdf / (expand_k * norm_length + wdf);
+	DEBUGLINE(WTCALC, "Using (wdf, norm_length) = (" << wdf << ", " <<
+		  norm_length << ") => multiplier = " << multiplier);
     } else {
 	DEBUGLINE(WTCALC, "No wdf information => multiplier = " << multiplier);
     }
@@ -104,6 +100,8 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 {
     DEBUGCALL(MATCH, Xapian::weight, "OmExpandWeight::get_weight", "[bits], " << tname);
     double termfreq = double(bits.termfreq);
+    const double rtermfreq = bits.rtermfreq;
+
     if (bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
 	    termfreq *= double(dbsize) / bits.dbsize;
@@ -111,6 +109,17 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 		      bits.termfreq << " * " << dbsize << " / " <<
 		      bits.dbsize << " = " << termfreq << " (true value is:" <<
 		      root.get_termfreq(tname) << ")");
+	    // termfreq must be at least rtermfreq since there are at least
+	    // rtermfreq documents indexed by this term.  And it can't be
+	    // more than (dbsize - rsize + rtermfreq) since the number
+	    // of releveant documents not indexed by this term can't be
+	    // more than the number of documents not indexed by this term.
+	    if (termfreq < rtermfreq) {
+		termfreq = rtermfreq;
+	    } else {
+		const double upper_bound = dbsize - rsize + rtermfreq;
+		if (termfreq > upper_bound) termfreq = upper_bound;
+	    }
 	} else {
 	    termfreq = root.get_termfreq(tname);
 	    DEBUGLINE(WTCALC, "Asked database for termfreq of `" << tname <<
@@ -118,27 +127,23 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 	}
     }
 
-    DEBUGMSG(WTCALC, "OmExpandWeight::get_weight("
+    DEBUGMSG(WTCALC, "OmExpandWeight::get_weight: "
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
 	     "R=" << rsize << ", "
-	     "r=" << bits.rtermfreq << ", "
-	     "mult=" << bits.multiplier << ")");
-
-    double rtermfreq = bits.rtermfreq;
+	     "r=" << rtermfreq << ", "
+	     "mult=" << bits.multiplier);
 
     Xapian::weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+    Assert(tw > 0);
 
-    // FIXME - this is c&pasted from tradweight.  Inherit instead.
     // FIXME This is to guarantee nice properties (monotonic increase) of the
-    // weighting function.
+    // weighting function.  Actually, I think the important point is that
+    // it ensures that tw is positive.
     // Check whether this actually helps / whether it hinders efficiency
     if (tw < 2) {
-	// if size and/or termfreq is estimated we can get tw <= 0
-	// so handle this gracefully
-	if (tw <= 1e-6) tw = 1e-6;
 	tw = tw / 2 + 1;
     }
     tw = log(tw);

@@ -67,19 +67,36 @@ TradWeight::calc_termweight() const
 
 	DEBUGLINE(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 
+	// FIXME: I don't believe this is needed, since I don't think we
+	// approximate the termfreq in this case (only for expand).  But
+	// without fully following the StatsGatherer mechanism it's hard to
+	// be sure...
+	//
+	// termfreq must be at least rtermfreq since there are at least
+	// rtermfreq documents indexed by this term.  And it can't be
+	// more than (dbsize - rsize + rtermfreq) since the number
+	// of releveant documents not indexed by this term can't be
+	// more than the number of documents not indexed by this term.
+	if (termfreq < rtermfreq) {
+	    termfreq = rtermfreq;
+	} else {
+	    const Xapian::doccount upper_bound = dbsize - rsize + rtermfreq;
+	    if (termfreq > upper_bound) termfreq = upper_bound;
+	}
+
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 		((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
     } else {
 	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
     }
 
+    Assert(tw > 0);
+
     // FIXME This is to guarantee nice properties (monotonic increase) of the
-    // weighting function.
+    // weighting function.  Actually, I think the important point is that
+    // it ensures that tw is positive.
     // Check whether this actually helps / whether it hinders efficiency
     if (tw < 2) {
-	// if size and/or termfreq is estimated we can get tw <= 0
-	// so handle this gracefully
-	if (tw <= 1e-6) tw = 1e-6;
 	tw = tw / 2 + 1;
     }
     tw = log(tw);
