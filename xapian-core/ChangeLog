@@ -1,3 +1,7 @@
+Thu Jul 03 19:24:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* buildall,docs/OMAims: Removed unwanted old files.
+
 Thu Jul 03 19:18:41 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/runquartztest: Obsolete, so removed.
