@@ -16,14 +16,15 @@
 //  Warning:  it always deletes the directory package if it exists already.
 
 #include <om/om.h>
-//#include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util.h"
 
 #define FLUSH_RATE 50
 
+// $CVSDATA tells us where to find .db/.offset and where to put the resulting omsee database
 
 int main(int argc, char *argv[]) {
 
@@ -31,6 +32,20 @@ int main(int argc, char *argv[]) {
     cout << "Usage:  " << argv[0] <<
       " <path to database>" << endl;
     exit(1);
+  }
+
+  string cvsdata;
+  char *s = getenv("CVSDATA");
+  if ( s==0 ) {
+    cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
+    cvsdata = ".";
+  } else {
+    cvsdata = s;
+    // strip trailing / if any
+    if ( cvsdata[cvsdata.length()-1] == '/' ) {
+      cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
+    }
+    cerr << "$CVSDATA = " << cvsdata << endl;
   }
 
   for (int i = 1; i < argc; i++ ) {
@@ -52,34 +67,28 @@ int main(int argc, char *argv[]) {
     assert( package != "." ); // safety checks
     assert( package != ".." );
 
-    cerr << "... removing directory " << package << " (if it already exists)" << endl;
-    system( ("rm -rf " + package).c_str() );
+    cerr << "... removing directory " << (cvsdata+"/"+package) << " (if it already exists)" << endl;
+    system( ("rm -rf " + cvsdata +"/" + package).c_str() );
 
-    string file_db = package + ".db";
-    string file_offset = package +".offset";
+    string file_db = cvsdata+"/"+package + ".db";
+    string file_offset = cvsdata+"/"+package +".offset";
+
 
     try {
 
 
  
       // create database directory
-      system(("mkdir " + package).c_str());
+      system(("mkdir " + cvsdata +"/"+ package).c_str());
 
       // code which accesses Omsee
 
       OmSettings db_parameters;
       db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", package);
+      db_parameters.set("quartz_dir", cvsdata+"/"+package);
       OmWritableDatabase database(db_parameters); // open database 
 
       database.begin_session();
-
-      // also write out file:line -> comments mapping using sleepy cat
-      //      Db db(0, 0);
-      //      db.open((package+"/comments.db").c_str(), 0, DB_HASH, DB_CREATE, 0 );
-
-
-      ////////////////////////////////// cycle through each document
 
       cerr << "... reading " << file_db << endl;
 
@@ -100,7 +109,7 @@ int main(int argc, char *argv[]) {
 	list<string> words = lines.getTermList();
 	string data = lines.getData();
 	// we want to output something like:
-	// 0.453 80 15:1.8 1.3 1.1
+	// 0.453 80 15 kdebase/konqueror:1.8 1.3 1.1
 	// 0.453 is the score
 	// 80 is the file number
 	// 15 is the line number
@@ -123,8 +132,11 @@ int main(int argc, char *argv[]) {
       
 
 
-      //      db.close(0);
       database.end_session();
+
+      // finally, put result in project listing
+      string cmd = "cvsupdatedb.pl " + package;
+      system( cmd.c_str() );
 
       cerr << "Done!" << endl;
 
@@ -132,12 +144,6 @@ int main(int argc, char *argv[]) {
     catch(OmError & error) {
       cerr << "OMSEE Exception: " << error.get_msg() << endl;
     } 
-/*
-    catch (DbException& e ) {
-      cerr << "SleepyCat Exception: " << e.what() << endl;
-    }
-*/
-
   }
   
 }

@@ -312,6 +312,7 @@ int main(int argc, char *argv[]) {
 
 #warning "penalty could be zero resulting in division by zero"
 	  double penalty = 100.0*(double)R.size() / (double)apps.size();
+	  penalty = log(1.1 + penalty); // penalty was too severe, also don't want zero
 	  
 	  double surprise = conf / penalty; // / con_usage;
 
