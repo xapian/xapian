@@ -1,3 +1,8 @@
+Mon Feb 14 21:21:08 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.h: Workaround a shortcoming in Sun's C++
+	  compiler.
+
 Mon Feb 14 21:16:05 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Results from upgraded sourceforge x86_64 box.

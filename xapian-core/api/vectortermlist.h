@@ -48,9 +48,16 @@ class VectorTermList : public TermList {
 
 	VectorTermList(list<string>::const_iterator begin,
 		       list<string>::const_iterator end)
+#ifdef __SUNPRO_CC
+	    : offset(0), before_start(true)
+	{
+	    while (begin != end) terms.push_back(*begin++);
+	}
+#else
 	    : terms(begin, end), offset(0), before_start(true)
 	{
 	}
+#endif
 
 	// Gets size of termlist
 	Xapian::termcount get_approx_size() const {
