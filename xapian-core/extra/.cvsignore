@@ -1,9 +1,0 @@
-.*.swp
-*.lo
-Makefile.in
-Makefile
-.deps
-.libs
-queryparser.cc
-queryparsertest
-libxapianqueryparser.la
