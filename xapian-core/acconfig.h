@@ -24,6 +24,12 @@
 #define OM_HGUARD_OM_CONFIG_H
 @TOP@
 
+/* package name */
+#undef PACKAGE
+
+/* version */
+#undef VERSION
+
 /* Define if you want to build DA backend */
 #undef MUS_BUILD_BACKEND_DA
 
