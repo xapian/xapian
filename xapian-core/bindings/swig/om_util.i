@@ -2,7 +2,7 @@
 /* om_util.i: the Omsee scripting interface helpers.
  *
  * ----START-LICENCE----
- * Copyright 1999,2000 Dialog Corporation
+ * Copyright 1999,2000,2001 BrightStation PLC
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

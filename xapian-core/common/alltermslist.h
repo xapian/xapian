@@ -1,7 +1,7 @@
 /* alltermslist.h
  *
  * ----START-LICENCE----
- * Copyright 1999,2000 BrightStation PLC
+ * Copyright 1999,2000,2001 BrightStation PLC
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

@@ -2,7 +2,7 @@
 /* om_util_tcl8.i: the Omsee scripting Tcl8 interface helpers.
  *
  * ----START-LICENCE----
- * Copyright 1999,2000 Dialog Corporation
+ * Copyright 1999,2000,2001 BrightStation PLC
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
