@@ -1,3 +1,7 @@
+Wed Nov 22 11:03:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Don't build indextest if you don't have LIBXML
+
 Tue Nov 21 17:49:15 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Btree_close() -> Btree::commit() + delete B.

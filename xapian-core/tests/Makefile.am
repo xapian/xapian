@@ -26,11 +26,28 @@ else
 THREADTESTS =
 endif
 
+if HAVE_LIBXML
+INDEXERTESTS = indextest
+INDEXERTESTS_RUN = run-indextest
+else
+INDEXERTESTS =
+INDEXERTESTS_RUN =
+endif
+
 ## Test programs to be run
-TESTS = $(THREADTESTS) run-apitest run-internaltest run-indextest $(PERLTESTS)
+TESTS = $(THREADTESTS) \
+        run-apitest \
+        run-internaltest \
+        $(INDEXERTESTS_RUN) \
+	$(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = $(THREADTESTS) apitest internaltest indextest stemtest delve
+check_PROGRAMS = $(THREADTESTS) \
+                 apitest \
+		 internaltest \
+		 $(INDEXERTESTS) \
+		 stemtest \
+		 delve
 
 if HAVE_PERL
 check-local: includetest.o
@@ -130,14 +147,14 @@ internaltest.lo: internaltest.cc
 
 ## Make links to a wrapper script which adds the LD_PRELOAD for malloc
 ## checking
-run-apitest:
+run-apitest: apitest
 	@rm -f run-apitest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-apitest
 
-run-internaltest:
+run-internaltest: internaltest
 	@rm -f run-internaltest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest
 
-run-indextest:
+run-indextest: indextest
 	@rm -f run-indextest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-indextest

@@ -11,12 +11,12 @@ libindexer_la_SOURCES = textfile_indexer.cc index_utils.cc
 if HAVE_LIBXML
 BUILDSUBDIR_INDEXGRAPH = indexgraph
 LIBADD_INDEXGRAPH = indexgraph/libindexgraph.la
-#BUILDSUBDIR_INDEXGRAPH =
-#LIBADD_INDEXGRAPH =
 else
 BUILDSUBDIR_INDEXGRAPH =
 LIBADD_INDEXGRAPH =
 endif
 
 SUBDIRS = $(BUILDSUBDIR_INDEXGRAPH)
+DIST_SUBDIRS = indexgraph
+
 libindexer_la_LIBADD = $(LIBADD_INDEXGRAPH)
