@@ -196,7 +196,7 @@ p_notalnum(unsigned int c)
  * document, which is not desirable, but also wouldn't be a total disaster.
  */
 static string
-hash(const string &s)
+hash_string(const string &s)
 {
     unsigned long int h = 1;
     for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
@@ -223,7 +223,7 @@ make_url_term(const string &url)
     string result = "U" + baseurl + url;
     if (result.length() > MAX_URL_LENGTH) {
 	result = result.substr(0, MAX_URL_LENGTH - HASH_LEN) +
-		 hash(result.substr(MAX_URL_LENGTH - HASH_LEN));
+		 hash_string(result.substr(MAX_URL_LENGTH - HASH_LEN));
 	//printf("Using '%s' as the url term\n", result.c_str());
     }
     return result;
@@ -569,7 +569,7 @@ main(int argc, char **argv)
 
     int getopt_ret;
 
-    map<string, string> mime_map = map<string, string>();
+    map<string, string> mime_map;
     mime_map["txt"] = "text/plain";
     mime_map["text"] = "text/plain";
     mime_map["html"] = "text/html";

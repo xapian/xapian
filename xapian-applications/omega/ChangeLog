@@ -1,3 +1,9 @@
+Tue Jun 29 01:45:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Renamed hash() to hash_string() to avoid colliding
+	  with something on IRIX;  Removed explicit initialisation of
+	  mime_types - perhaps that's spooking the SGI CC prelinker.
+
 Sun Jun 27 23:47:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* omega.cc: Change MORELIKE to pick up to 40 terms, rather than up to
