@@ -64,9 +64,12 @@ om_weight
 SleepyPostList::get_weight() const
 {
     Assert(ir_wt != NULL);
-    
+ 
     om_termcount wdf = mylist.get_current_item().wdf;
-    if(wdf == 0) wdf = 1;
+    if(wdf == 0) {
+	DebugMsg("WDF not present in postlist - using 1." << endl);
+	wdf = 1;
+    }
 
     return ir_wt->get_sumpart(wdf, 1.0);
 }
