@@ -1,3 +1,8 @@
+Fri Jun 11 02:16:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc,
+	  backends/quartz/quartz_postlist.h: Merged move_to() into skip_to().
+
 Fri Jun 11 02:14:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Fixed typo in comment.

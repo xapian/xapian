@@ -866,21 +866,6 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     // Don't skip back, and don't need to do anything if already there.
     if (desired_did <= did) RETURN(NULL);
 
-    move_to(desired_did);
-
-    DEBUGLINE(DB, string("Skipped to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
-	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
-	       om_tostring(doclength) + "."));
-
-    RETURN(NULL);
-}
-
-void
-QuartzPostList::move_to(Xapian::docid desired_did)
-{
-    DEBUGCALL(DB, void, "QuartzPostList::move_to", desired_did);
-
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
 	move_to_chunk_containing(desired_did);
@@ -902,6 +887,13 @@ QuartzPostList::move_to(Xapian::docid desired_did)
 		move_forward_in_chunk_to_at_least(desired_did);
 	Assert(have_document);
     }
+
+    DEBUGLINE(DB, string("Skipped to ") <<
+	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
+	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
+	       om_tostring(doclength) + "."));
+
+    RETURN(NULL);
 }
 
 string

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -152,11 +152,6 @@ class QuartzPostList : public LeafPostList {
 	 *	    false if we reached the end of the chunk.
 	 */
 	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
-
-	/** Move to the desired document ID, or the next document ID if it
-	 *  doesn't exist, whether it's before or after the current position.
-	 */
-	void move_to(Xapian::docid desired_did);
 
     public:
 	/// Default constructor.
