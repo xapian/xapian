@@ -1,3 +1,8 @@
+Sun Jul 27 04:46:48 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fixed --cxxflags in non-installed case.
+	  Tidied up --help output and error messages.
+
 Sun Jul 27 01:40:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Check termfreq in allterms4.

@@ -13,11 +13,11 @@ Usage: xapian-config [OPTION]...
 
 Known values for OPTION are:
 
-  --libs		print library linking information
-  --ltlibs		print library linking information for linking with GNU libtool
-  --cxxflags		print pre-processor and compiler flags
-  --help		display this help and exit successfully
-  --version		output version information
+  --libs	print library linking information
+  --ltlibs	print library linking information for linking with GNU libtool
+  --cxxflags	print pre-processor and compiler flags
+  --help	display this help and exit successfully
+  --version	output version information
 EOF
 
     exit $1
@@ -49,11 +49,7 @@ while test 0 != "$#"; do
 	inc=
     	# check if this is an uninstalled xapian-config
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
-	    if test . = "@srcdir@"; then
-		inc="-Iinclude -Iextra"
-	    else
-		inc="-I@srcdir@/include -I@srcdir@/extra"
-	    fi
+	    inc="-I@abs_srcdir@/include -I@abs_srcdir@/extra"
 	else	    
 	    case "$includedir" in
 	    /usr/include|/usr/include/c++) ;;
@@ -70,9 +66,7 @@ while test 0 != "$#"; do
     --libs)
     	# check if this is an uninstalled xapian-config
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
-	    echo "$0: If you want to link against an uninstalled libxapian," 1>&2
-	    echo "use libtool and \`xapian-config --ltlibs'." 1>&2
-	    echo "If using XO_LIB_XAPIAN, simply add AC_PROG_LIBTOOL to your configure.in." 1>&2
+	    echo "$0: If you want to link against an uninstalled libxapian, use libtool and \`xapian-config --ltlibs'.  If you're using XO_LIB_XAPIAN, simply add AC_PROG_LIBTOOL to your configure.in." 1>&2
 	    exit 1
 	fi
 	L=
