@@ -25,3 +25,4 @@ missing
 mkinstalldirs
 confdefs.h
 xapian-bindings-*.tar.gz
+xapian-bindings.spec

@@ -1,3 +1,8 @@
+Sun Sep 19 23:28:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,configure.ac,xapian-bindings.spec.in: 
+	  Added spec file contributed by Fabrice Colin.
+
 Sun Sep 19 17:56:32 BST 2004  Olly Betts <olly@survex.com>
 
 	* guile/.cvsignore: Added xapian_wrap.cc and xapianc.la.

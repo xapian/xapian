@@ -1,0 +1,98 @@
+# RedHat-style .spec file for Xapian
+# @configure_input@
+
+Summary: Bindings for the Xapian Probabilistic Information Retrieval Library.
+Name: xapian-bindings
+Version: @VERSION@
+Release: 1
+License: GPL
+Vendor: www.xapian.org
+Group: Development/Libraries
+URL: http://www.xapian.org/
+Requires: xapian-core-libs = %{version}
+BuildRequires: swig >= 1.3.20, python-devel >= 2.3, php-devel >= 4.3, tcl-devel >= 8.4
+Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+Xapian is an Open Source Probabilistic Information Retrieval Library. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for scripts which use Xapian.
+
+%package python
+Group: Development/Libraries
+Summary: Files needed for developing Python scripts which use Xapian.
+Requires: %{name} = %{version}, python
+
+%description python
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing Python scripts which use Xapian.
+
+%package php4
+Group: Development/Libraries
+Summary: Files needed for developing PHP scripts which use Xapian.
+Requires: %{name} = %{version}, php
+
+%description php4
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing PHP scripts which use Xapian.
+
+%package tcl8
+Group: Development/Libraries
+Summary: Files needed for developing TCL scripts which use Xapian.
+Requires: %{name} = %{version}, tcl
+
+%description tcl8
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing TCL scripts which use Xapian.
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+# These options and BuildRequires should ensure we build only the Python, PHP
+# and TCL bindings
+%configure --without-java --without-guile
+make
+
+%install
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}
+# Installation of some files does not obey prefix, DESTDIR is required
+%makeinstall DESTDIR=%{buildroot}
+# Move the docs to the right place, and correct the effects of prefix+DESTDIR
+mkdir -p %{buildroot}/usr/share/doc/
+mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}
+mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/php %{buildroot}/usr/share/doc/%{name}-php4-%{version}
+rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
+
+%clean
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+
+%files
+%defattr(-, root, root)
+# There are no common files at the moment
+%doc AUTHORS ChangeLog COPYING NEWS README
+
+%files python
+%defattr(-, root, root)
+/usr/lib/python2.3/site-packages/_xapian.so
+/usr/lib/python2.3/site-packages/xapian.py
+/usr/lib/python2.3/site-packages/xapian.pyc
+%doc /usr/share/doc/%{name}-python-%{version}
+
+%files php4
+%defattr(-, root, root)
+/usr/lib/php4/xapian.so
+%doc /usr/share/doc/%{name}-php4-%{version}
+
+%files tcl8
+%defattr(-, root, root)
+/usr/share/tcl8.4/xapian.so
