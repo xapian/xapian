@@ -1,9 +1,9 @@
 This directory contains example programs which can be compiled against
 Muscat.
 
-Due to the lack of a proper API, Muscat should currently not be installed.
-Therefore, when configuring this directory, you need to specify the
-location of the Muscat code, using the --with-libomus-uninst configure option.
+If you haven't installed Muscat when configuring this directory, you need
+to specify the location of the Muscat code, using the --with-libomus-uninst
+configure option.
 
 This is further complicated if you are performing a VPATH build
 (ie, builddir != srcdir), in which case you must also specify the
@@ -13,16 +13,6 @@ location of a built, but not installed, Muscat library, using the
 Note that you shouldn't specify relative directories in the
 --with-libomus-uninst* parameters.
 
-Here's the way I get this compiled and working:
-
-Check out om and examples within the same directory. Within this directory:
-
-mkdir BUILD
-cd BUILD
-mkdir om
-cd om
-../../om/buildall
-cd ..
-mkdir examples
-cd examples
-../../examples/buildall --with-libomus-uninst=`pwd`/../../om --with-libomus-uninst-exec=`pwd`/../om
+Once configure has run successfully, simply running "make" in the top-level
+directory should build the examples.  Note that the "ferretfx" example is
+currently disabled, and won't compile.
