@@ -1,3 +1,8 @@
+Mon May 26 22:41:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
+	  autoconf way!
+			  
 Mon May 26 12:12:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Removed %changelog - it hasn't been reliably updated

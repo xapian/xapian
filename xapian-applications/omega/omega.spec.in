@@ -67,13 +67,3 @@ mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{versi
 %config(noreplace) /etc/omega.conf
 
 %doc AUTHORS ChangeLog COPYING NEWS README TODO
-
-%changelog
-* Wed Apr 09 2003  Olly Betts <olly@survex.com>
-  Further tweaking, partly based on comments from Sam Liddicott 
-
-* Mon Mar 31 2003  Olly Betts <olly@survex.com>
-  Merged in changes from Fabrice Colin
-
-* Wed May 14 2002  Sam Liddicott <sam@ananova.com>
-  First cut based on xapian spec file

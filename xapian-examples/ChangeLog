@@ -1,3 +1,8 @@
+Mon May 26 22:37:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
+	  autoconf way!
+
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
         * Fix success message in bootstrap when building in non-src dir
