@@ -1,3 +1,7 @@
+Thu Sep 21 17:08:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix typo in tests/Makefile.am
+
 Thu Sep 21 16:25:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove unwanted set_entries() method from QuartzDbTable - must now
