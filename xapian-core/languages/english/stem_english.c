@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -37,6 +37,15 @@
  */
 
 /* Later additions:
+
+   June 2000
+
+   The 'l' of the 'logi' -> 'log' rule is put with the stem, so that
+   short stems like 'geo' 'theo' etc work like 'archaeo' 'philo' etc.
+
+   This follows a suggestion of Barry Wilkins, reasearch student at
+   Birmingham.
+
 
    February 2000
 
@@ -343,7 +352,10 @@ static void step_2(struct english_stemmer * z)
             if (ends(z, "biliti", 6)) { r(z, "ble", 3); break; }
             break;
         case 'g':
-            if (ends(z, "logi", 4)) { r(z, "log", 3); break; } /*-DEPARTURE-*/
+            if (ends(z, "logi", 4))
+            {   z->j++;                /*-NEW-*/ /*(Barry Wilkins)*/
+                r(z, "og", 3); break;
+            } /*-DEPARTURE-*/
 
      /* To match the published algorithm, delete this line */
 
