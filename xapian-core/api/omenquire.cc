@@ -590,9 +590,11 @@ OmEnquireInternal::read_doc(om_docid did) const
 }
 
 
-struct ByQueryIndexCmp {
+class ByQueryIndexCmp {
+ private:
     typedef std::map<om_termname, unsigned int> tmap_t;
     const tmap_t &tmap;
+ public:
     ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
     bool operator()(const om_termname &left,
 		    const om_termname &right) const {
@@ -644,7 +646,7 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 	}
 	docterms->next();
     }
-    
+
     // sort the resulting list by query position.
     sort(matching_terms.begin(),
 	 matching_terms.end(),
