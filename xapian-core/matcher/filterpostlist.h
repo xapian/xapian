@@ -39,7 +39,7 @@ class FilterPostList : public virtual AndPostList {
 
 	string intro_term_description() const;
 
-        FilterPostList(PostList *l, PostList *r, Match *root) :
+        FilterPostList(PostList *l, PostList *r, OMMatch *root) :
             AndPostList(l, r, root) {};
 };
 

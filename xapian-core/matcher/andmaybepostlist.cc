@@ -48,7 +48,7 @@ AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
 }
 
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   Match *root_, docid lh, docid rh)
+				   OMMatch *root_, docid lh, docid rh)
 {
     root = root_;
     l = left;

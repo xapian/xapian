@@ -25,21 +25,12 @@
 
 #include "database.h"
 #include "omassert.h"
+#include "omenquire.h"
 
 class IRWeight;
 
 #include <stack>
 #include <vector>
-
-// An item in the MSet
-class MSetItem {
-    public:
-        weight wt;
-        docid did;
-        MSetItem(weight wt_new, docid did_new)
-		: wt(wt_new), did(did_new)
-		{ return; }
-};
 
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
@@ -47,27 +38,17 @@ class MSetItem {
 // (By default, equally weighted items will be returned in reverse
 // document id number.)
 
-typedef bool (* mset_cmp)(const MSetItem &, const MSetItem &);
-bool msetcmp_forward(const MSetItem &, const MSetItem &);
-bool msetcmp_reverse(const MSetItem &, const MSetItem &);
-
-// Match operations
-typedef enum {
-    MOP_AND,
-    MOP_OR,
-    MOP_FILTER,
-    MOP_AND_NOT,
-    MOP_AND_MAYBE,
-    MOP_XOR
-} matchop;
+typedef bool (* mset_cmp)(const OMMSetItem &, const OMMSetItem &);
+bool msetcmp_forward(const OMMSetItem &, const OMMSetItem &);
+bool msetcmp_reverse(const OMMSetItem &, const OMMSetItem &);
 
 // Class which encapsulates best match operation
-class Match
+class OMMatch
 {
     private:
         IRDatabase *database;
 
-	matchop default_op;
+	om_queryop default_op;
    
         int min_weight_percent;
         weight max_weight;
@@ -89,8 +70,8 @@ class Match
 	DBPostList * mk_postlist(const termname& tname,
 				 RSet * rset);
     public:
-        Match(IRDatabase *);
-        ~Match();
+        OMMatch(IRDatabase *);
+        ~OMMatch();
 
 	///////////////////////////////////////////////////////////////////
 	// Set the terms and operations which comprise the query
@@ -100,14 +81,14 @@ class Match
         void add_term(const termname &);
 
 	// Apply operator to top items on stack
-	bool add_op(matchop op);
+	bool add_op(om_queryop op);
 
 	// Add list of terms op'd together to stack
-	void add_oplist(matchop op, const vector<termname>&);
+	void add_oplist(om_queryop op, const vector<termname>&);
 
 	// Set operator to use for any terms which are left over -
-	// default is MOP_OR
-	void set_default_op(matchop);
+	// default is OM_MOP_OR
+	void set_default_op(om_queryop);
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query
@@ -138,24 +119,24 @@ class Match
 	// Perform the match operation, and get the matching items
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
-		   vector<MSetItem> &,     // Results will be put in this vector
+		   vector<OMMSetItem> &,   // Results will be put in this vector
 		   mset_cmp);              // Comparison operator to sort by
 
 	// Perform the match operation, but also return a lower bound on the
-	// number of matching records in the database (mtotal).  Because of
+	// number of matching records in the database (mbound).  Because of
 	// some of the optimisations performed, this is likely to be much
 	// lower than the actual number of matching records, but it is
 	// expensive to do the calculation properly.
 	//
-	// It is generally considered that presenting the mtotal to users
+	// It is generally considered that presenting the mbound to users
 	// causes them to worry about the large number of results, rather
 	// than how useful those at the top of the mset are, and is thus
 	// undesirable.
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
-		   vector<MSetItem> &,     // Results will be put in this vector
+		   vector<OMMSetItem> &,   // Results will be put in this vector
 		   mset_cmp,               // Comparison operator to sort by
-		   doccount *);            // Mtotal will returned here
+		   doccount *);            // Mbound will returned here
 
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
@@ -171,26 +152,26 @@ class Match
 ///////////////////////////////
 
 inline void
-Match::set_default_op(matchop _default_op)
+OMMatch::set_default_op(om_queryop _default_op)
 {
     default_op = _default_op;
 }
 
 inline void
-Match::set_collapse_key(keyno key)
+OMMatch::set_collapse_key(keyno key)
 {
     do_collapse = true;
     collapse_key = key;
 }
 
 inline void
-Match::set_no_collapse()
+OMMatch::set_no_collapse()
 {
     do_collapse = false;
 }
 
 inline void
-Match::set_rset(RSet *new_rset)
+OMMatch::set_rset(RSet *new_rset)
 {
     Assert(!have_added_terms);
     query_ready = false;
@@ -198,13 +179,13 @@ Match::set_rset(RSet *new_rset)
 }
 
 inline void
-Match::set_min_weight_percent(int pcent)
+OMMatch::set_min_weight_percent(int pcent)
 {
     min_weight_percent = pcent;
 }
 
 inline weight
-Match::get_max_weight()
+OMMatch::get_max_weight()
 {
     (void) build_query();
     return max_weight;

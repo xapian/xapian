@@ -23,8 +23,10 @@
 #include <stdio.h>
 
 #include "om.h"
+#include "stemmer.h"
 
-#include <list>
+#include <vector>
+#include <stack>
 
 int
 main(int argc, char *argv[])
@@ -32,12 +34,11 @@ main(int argc, char *argv[])
     int msize = 10;
     int mfirst = 0;
     const char *progname = argv[0];
-    list<docid> reldocs;
-    list<string> dbnames;
-    list<om_database_type> dbtypes;
-    bool multidb = false;
+    OMRSet rset;
+    vector<vector<string> > dbargs;
+    vector<string> dbtypes;
     bool showmset = false;
-    matchop default_op = MOP_OR;
+    om_queryop default_op = OM_MOP_OR;
     int collapse_key = -1;
 
     bool syntax_error = false;
@@ -56,30 +57,30 @@ main(int argc, char *argv[])
 	    collapse_key = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
-	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_DA);
+	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
+	    dbtypes.push_back("da_flimsy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
-	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_INMEMORY);
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
+	    dbtypes.push_back("inmemory");
 	    argc -= 2;
 	    argv += 2;
-	} else if (strcmp(argv[0], "--multidb") == 0) {
-	    multidb = true;
-	    argc--;
-	    argv++;
 	} else if (strcmp(argv[0], "--showmset") == 0) {
 	    showmset = true;
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--matchall") == 0) {
-	    default_op = MOP_AND;
+	    default_op = OM_MOP_AND;
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--rel") == 0) {
-	    reldocs.push_back(atoi(argv[1]));
+	    rset.add_document(atoi(argv[1]));
 	    argc -= 2;
 	    argv += 2;
 	} else {
@@ -88,12 +89,12 @@ main(int argc, char *argv[])
 	}
     }
 	
-    if (syntax_error || argc < 1) {
+    if (syntax_error || argc < 1 || !dbtypes.size()) {
 	cout << "Syntax: " << progname << " TERM ..." << endl;
 	cout << "\t--msize <msize>\n";
 	cout << "\t--mfirst <first mitem to return>\n";
 	cout << "\t--key <key to collapse mset on>\n";
-	cout << "\t--db DBDIRECTORY\n";
+	cout << "\t--da DBDIRECTORY\n";
 	cout << "\t--im INMEMORY\n";
 	cout << "\t--rel DOCID\n";
 	cout << "\t--multidb\n";
@@ -102,139 +103,105 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if(!dbnames.size()) {
-	dbnames.push_back("testdir");
-	dbtypes.push_back(OM_DBTYPE_DA);
-    }
-    
     try {
-	IRDatabase *database;
+        OMEnquire enquire;
 
-	DatabaseBuilderParams dbparams;
-	if (multidb || dbnames.size() > 1) {
-	    dbparams.type = OM_DBTYPE_MULTI;
+	vector<string>::const_iterator p;
+	vector<vector<string> >::const_iterator q;
+	for(p = dbtypes.begin(), q = dbargs.begin();
+	    p != dbtypes.end();
+	    p++, q++) {
 
-	    list<string>::const_iterator p;
-	    list<om_database_type>::const_iterator q;
-	    for(p = dbnames.begin(), q = dbtypes.begin();
-		p != dbnames.end();
-		p++, q++) {
-		DatabaseBuilderParams subparams(*q);
-		subparams.paths.push_back(*p);
-		dbparams.subdbs.push_back(subparams);
-	    }
-	} else {
-	    dbparams.type = *(dbtypes.begin());
-	    dbparams.paths.push_back(*(dbnames.begin()));
-	}
-	database = DatabaseBuilder::create(dbparams);
-       
-	RSet rset(database);
-	list<docid>::const_iterator i;
-	for(i = reldocs.begin(); i != reldocs.end(); i++) {
-	    rset.add_document(*i);
+	    enquire.add_database(*p, *q);
 	}
 
-        Match match(database);
-	match.set_rset(&rset);
+	enquire.set_rset(rset);
        
 	Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
 
+	OMQuery query;
+	stack<OMQuery> boolquery;
+	// Parse query into OMQuery object
 	bool boolean = false;
-	vector<termname> prob_terms;
         for (char **p = argv; *p; p++) {
 	    string term = *p;
 	    if (term == "B") {
-		if (!prob_terms.empty()) {
-		    match.add_oplist(default_op, prob_terms);
-		    prob_terms.clear();
-		}
 		boolean = true;
 		continue;
 	    } else if (term == "P") {
-		boolean = false;		
+		Assert(boolquery.size() == 1);
+		query = OMQuery(OM_MOP_FILTER, query, boolquery.top());
+		boolean = false;
 		continue;
 	    } else {
 		if (boolean) {
+		    bool doop = false;
+		    om_queryop boolop = default_op;
 		    if (term == "OR") {
-			if (match.add_op(MOP_OR)) {
-			    printf("Added boolean OR\n");
-			} else {
-			    printf("Failed to add boolean OR\n");
-			}
-			continue;
+			boolop = OM_MOP_OR;
+			doop = true;
 		    } else if (term == "NOT") {
-			if (match.add_op(MOP_AND_NOT)) {
-			    printf("Added boolean ANDNOT\n");
-			} else {
-			    printf("Failed to add boolean ANDNOT\n");
-			}
-			continue;
+			boolop = OM_MOP_AND_NOT;
+			doop = true;
 		    } else if (term == "AND") {
-			if (match.add_op(MOP_AND)) {
-			    printf("Added boolean AND\n");
-			} else {
-			    printf("Failed to add boolean AND\n");
-			}
-			continue;
+			boolop = OM_MOP_AND;
+			doop = true;
 		    } else if (term == "XOR") {
-			if (match.add_op(MOP_XOR)) {
-			    printf("Added boolean XOR\n");
-			} else {
-			    printf("Failed to add boolean XOR\n");
-			}
-			continue;
+			boolop = OM_MOP_XOR;
+			doop = true;
 		    } else if (term == "ANDMAYBE") {
-			if (match.add_op(MOP_AND_MAYBE)) {
-			    printf("Added boolean ANDMAYBE\n");
-			} else {
-			    printf("Failed to add boolean ANDMAYBE\n");
-			}
-			continue;
+			boolop = OM_MOP_AND_MAYBE;
+			doop = true;
 		    } else if (term == "ANDNOT") {
-			if (match.add_op(MOP_AND_NOT)) {
-			    printf("Added boolean ANDNOT\n");
-			} else {
-			    printf("Failed to add boolean ANDNOT\n");
-			}
-			continue;
+			boolop = OM_MOP_AND_NOT;
+			doop = true;
 		    }
-		}
-
-		term = stemmer->stem_word(term);
-
-		if (boolean) {
-		    match.add_term(term);
+		    if(doop) {
+			Assert(boolquery.size() >= 2);
+			OMQuery boolq_right(boolquery.top());
+			boolquery.pop();
+			OMQuery newtop(boolop, boolquery.top(), boolq_right);
+			boolquery.pop();
+			boolquery.push(newtop);
+		    } else {
+			boolquery.push(OMQuery(stemmer->stem_word(term)));
+		    }
 		} else {
-		    prob_terms.push_back(term);
+		    term = stemmer->stem_word(term);
+		    query = OMQuery(default_op, query, term);
 		}
 	    }
         }
-
-	if (!prob_terms.empty()) {
-	    match.add_oplist(default_op, prob_terms);
-	    prob_terms.clear();
+	if(boolean) {
+	    Assert(boolquery.size() == 1);
+	    query = OMQuery(OM_MOP_FILTER, query, boolquery.top());
 	}
 
-	if(collapse_key != -1) match.set_collapse_key(collapse_key);
+	OMQueryOptions opts;
+	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
-	vector<MSetItem> mset;
-        match.match(mfirst, msize, mset, msetcmp_forward);
+	enquire.set_options(opts);
+	
+	OMMSet mset;
+	enquire.get_mset(mset, mfirst, msize);
 	
 	if (showmset) {
-	    vector<MSetItem>::const_iterator i;
-	    for(i = mset.begin();
-		i != mset.end();
+	    vector<OMMSetItem>::const_iterator i;
+	    for(i = mset.items.begin();
+		i != mset.items.end();
 		i++) {
 		docid did = i->did;
+#if 0
 		IRDocument *doc = database->open_document(did);
 		IRData data = doc->get_data();
 		string p = data.value;
+#else
+		string p = "<unimplemented>";
+#endif
 		cout << did << ":[" << p << "] " << i->wt << endl << endl;
 	    }
 	    cout << endl;
 	}
-	delete database;
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;

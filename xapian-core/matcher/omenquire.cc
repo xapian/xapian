@@ -24,15 +24,17 @@
 #include "omassert.h"
 #include "omenquire.h"
 
+#include "rset.h"
+#include "match.h"
 #include "database.h"
 #include "database_builder.h"
 #include "irdocument.h"
 
 #include <vector>
 
-//////////////////////////////////////////////////////////////
-// Mapping of database names, as strings, to database types //
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+// Mapping of database types as strings to enum om_database_type //
+///////////////////////////////////////////////////////////////////
 
 template<class X> struct stringToType {
     string name;
@@ -118,6 +120,11 @@ OMQuery::OMQuery(const OMQuery *copyme)
     initialise_from_copy(*copyme);
 }
 
+OMQuery::OMQuery()
+	: left(NULL), right(NULL), tname("")
+{
+}
+
 OMQuery::~OMQuery()
 {
     delete left;
@@ -132,6 +139,9 @@ OMQuery::initialise_from_copy(const OMQuery &copyme)
     if(copyme.left != NULL) {
 	left = new OMQuery(*(copyme.left));
 	right = new OMQuery(*(copyme.right));
+    } else {
+	left = NULL;
+	right = NULL;
     }
 }
 
@@ -139,8 +149,11 @@ void
 OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 				const vector<OMQuery>::const_iterator qend)
 {
-    Assert(qbegin != qend);
-    if(qbegin + 1 == qend) {
+    if(qbegin == qend) {
+	left = NULL;
+	right = NULL;
+	tname = "";
+    } else if(qbegin + 1 == qend) {
 	// Copy into self
 	initialise_from_copy(*qbegin);
     } else {
@@ -149,36 +162,58 @@ OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
     }
 }
 
-//////////////////////////////////////
-// Internal state of enquire object //
-//////////////////////////////////////
+/////////////////////////
+// Methods for OMQuery //
+/////////////////////////
 
-class OMEnquireState {
+void
+OMQueryOptions::set_collapse_key(keyno _key)
+{
+    do_collapse = true;
+    collapse_key = _key;
+}
+
+void
+OMQueryOptions::set_no_collapse()
+{
+    do_collapse = false;
+}
+
+/////////////////////////////////
+// Internals of enquire system //
+/////////////////////////////////
+
+class OMEnquireInternal {
     public:
 	IRDatabase * database;
 	OMQuery * query;
+	OMQueryOptions options;
+	OMRSet omrset;
 
-	OMEnquireState();
-	~OMEnquireState();
+	OMEnquireInternal();
+	~OMEnquireInternal();
 
-	void set_database(IRDatabase *);
+	void add_database(IRDatabase *);
 	void set_query(const OMQuery &);
+	void set_rset(const OMRSet &);
+	void set_options(const OMQueryOptions &);
+	void get_mset(OMMSet &, doccount, doccount) const;
 };
 
-///////////////////////////////////////
-// Inline methods for OMEnquireState //
-///////////////////////////////////////
+//////////////////////////////////////////
+// Inline methods for OMEnquireInternal //
+//////////////////////////////////////////
 
 inline
-OMEnquireState::OMEnquireState()
+OMEnquireInternal::OMEnquireInternal()
 	: database(NULL), query(NULL)
 {
 }
 
 inline
-OMEnquireState::~OMEnquireState()
+OMEnquireInternal::~OMEnquireInternal()
 {
-    set_database(NULL);
+    add_database(NULL); // FIXME
     if(query) {
 	delete query;
 	query = NULL;
@@ -186,14 +221,15 @@ OMEnquireState::~OMEnquireState()
 }
 
 inline void
-OMEnquireState::set_database(IRDatabase * _database)
+OMEnquireInternal::add_database(IRDatabase * _database)
 {
+    // FIXME (and in destructor): actually add database, rather than replace
     if(database) delete database;
     database = _database;
 }
 
 inline void
-OMEnquireState::set_query(const OMQuery &_query)
+OMEnquireInternal::set_query(const OMQuery &_query)
 {
     if(query) {
 	delete query;
@@ -202,19 +238,55 @@ OMEnquireState::set_query(const OMQuery &_query)
     query = new OMQuery(_query);
 }
 
+void
+OMEnquireInternal::set_rset(const OMRSet &_rset)
+{
+    omrset = _rset;
+}
+
+void
+OMEnquireInternal::set_options(const OMQueryOptions &_options)
+{
+    options = _options;
+}
+
+void
+OMEnquireInternal::get_mset(OMMSet &mset,
+			    doccount first, doccount maxitems) const
+{
+    Assert(database != NULL);
+
+    // Set Database
+    OMMatch match(database);
+
+    // Set Rset
+    if(omrset.reldocs.size() != 0) {
+	RSet *rset = new RSet(database, omrset);
+	match.set_rset(rset);
+    }
+
+    // Set options
+    if(options.do_collapse) {
+	match.set_collapse_key(options.collapse_key);
+    }
+
+    // Set Query
+    match.match(first, maxitems, mset.items, msetcmp_forward, &(mset.mbound));
+}
+
 ////////////////////////////////////////////
 // Initialise and delete OMEnquire object //
 ////////////////////////////////////////////
 
 OMEnquire::OMEnquire()
 {
-    state = new OMEnquireState();
+    internal = new OMEnquireInternal();
 }
 
 OMEnquire::~OMEnquire()
 {
-    delete state;
-    state = NULL;
+    delete internal;
+    internal = NULL;
 }
 
 //////////////////
@@ -222,7 +294,7 @@ OMEnquire::~OMEnquire()
 //////////////////
 
 void
-OMEnquire::set_database(const string & type,
+OMEnquire::add_database(const string & type,
 			const vector<string> & entries,
 			bool readonly)
 {
@@ -233,12 +305,30 @@ OMEnquire::set_database(const string & type,
     DatabaseBuilderParams params(dbtype, readonly);
     params.paths = entries;
 
-    // Use params to create database
-    state->set_database(DatabaseBuilder::create(params));
+    // Use params to create database, and add it to the list of databases
+    internal->add_database(DatabaseBuilder::create(params));
 }
 
 void
 OMEnquire::set_query(const OMQuery &query)
 {
-    state->set_query(query);
+    internal->set_query(query);
+}
+
+void
+OMEnquire::set_rset(const OMRSet &rset)
+{
+    internal->set_rset(rset);
+}
+
+void
+OMEnquire::set_options(const OMQueryOptions &opts)
+{
+    internal->set_options(opts);
+}
+
+void
+OMEnquire::get_mset(OMMSet &mset, doccount first, doccount maxitems) const
+{
+    internal->get_mset(mset, first, maxitems);
 }

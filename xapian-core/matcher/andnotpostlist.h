@@ -46,7 +46,7 @@ class AndNotPostList : public virtual BranchPostList {
 
 	string intro_term_description() const;
 
-        AndNotPostList(PostList *l, PostList *r, Match *root_);
+        AndNotPostList(PostList *l, PostList *r, OMMatch *root_);
 
         PostList *sync_and_skip_to(docid id, weight w_min, docid lh, docid rh);
 };

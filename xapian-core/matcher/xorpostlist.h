@@ -47,7 +47,7 @@ class XorPostList : public virtual BranchPostList {
 
 	string intro_term_description() const;
 
-        XorPostList(PostList *, PostList *, Match *);
+        XorPostList(PostList *, PostList *, OMMatch *);
 };
 
 inline doccount

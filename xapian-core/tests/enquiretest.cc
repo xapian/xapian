@@ -49,7 +49,7 @@ main(int argc, char *argv[])
     }
 
     try {
-	enquire.set_database(type, dbparams);
+	enquire.add_database(type, dbparams);
     } catch (OmError e) {
 	cout << progname << ": OmError " << e.get_msg() << endl;
     }

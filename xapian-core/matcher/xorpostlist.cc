@@ -52,7 +52,7 @@ XorPostList::advance_to_next_match(weight w_min)
     return NULL;
 }
 
-XorPostList::XorPostList(PostList *left, PostList *right, Match *root_)
+XorPostList::XorPostList(PostList *left, PostList *right, OMMatch *root_)
 {
     root = root_;
     l = left;

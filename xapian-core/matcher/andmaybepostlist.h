@@ -52,7 +52,7 @@ class AndMaybePostList : public virtual BranchPostList {
 
 	string intro_term_description() const;
 
-        AndMaybePostList(PostList *, PostList *, Match *root_,
+        AndMaybePostList(PostList *, PostList *, OMMatch *root_,
 			 docid lh = 0, docid rh = 0);
 };
 

@@ -26,6 +26,7 @@
 #include <vector>
 #include <map>
 #include "omassert.h"
+#include "omenquire.h"
 
 class IRDatabase;
 
@@ -44,8 +45,9 @@ class RSet {
     public:
 	vector<RSetItem> documents; // FIXME - should be encapsulated
 
-	RSet(IRDatabase *root_new)
-		: root(root_new), initialised_reltermfreqs(false) { return; }
+	RSet(IRDatabase *root_new);
+	RSet(IRDatabase *root_new, const OMRSet & _rset);
+
 	void add_document(docid did);
 	void will_want_termfreq(termname tname) const;
 	doccount get_rsize() const;
@@ -55,6 +57,23 @@ class RSet {
 ///////////////////////////////
 // Inline method definitions //
 ///////////////////////////////
+
+// Empty initialisation
+inline
+RSet::RSet(IRDatabase *root_new)
+	: root(root_new), initialised_reltermfreqs(false)
+{}
+
+// Initialise with an OMRset
+inline
+RSet::RSet(IRDatabase *root_new, const OMRSet & _rset)
+	: root(root_new), initialised_reltermfreqs(false)
+{
+    set<docid>::const_iterator i;
+    for(i = _rset.reldocs.begin(); i != _rset.reldocs.end(); i++) {
+	add_document(*i);
+    }
+}
 
 inline void
 RSet::add_document(docid did)

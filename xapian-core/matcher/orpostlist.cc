@@ -24,7 +24,7 @@
 #include "andpostlist.h"
 #include "andmaybepostlist.h"
 
-OrPostList::OrPostList(PostList *left, PostList *right, Match *root_)
+OrPostList::OrPostList(PostList *left, PostList *right, OMMatch *root_)
 {
     root = root_;
     l = left;

@@ -60,7 +60,7 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
     return;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right, Match *root_,
+AndPostList::AndPostList(PostList *left, PostList *right, OMMatch *root_,
 			 bool replacement)
 {
     root = root_;

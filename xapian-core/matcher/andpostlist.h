@@ -48,7 +48,7 @@ class AndPostList : public virtual BranchPostList {
 
 	string intro_term_description() const;
 
-        AndPostList(PostList *l, PostList *r, Match *root_,
+        AndPostList(PostList *l, PostList *r, OMMatch *root_,
 		    bool replacement = false);
 };
 
