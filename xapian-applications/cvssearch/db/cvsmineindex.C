@@ -203,16 +203,6 @@ int main(unsigned int argc, char *argv[]) {
             lines_db lines(root, package_path, " mining", db_file);
             unsigned int count;
 
-            // ----------------------------------------
-            // writing to the offset of each package
-            // commits here. (pkg, commit_offset)
-            // so later we can do
-            // global commit id-> (pkg, local commit id)
-            // ----------------------------------------
-            if (db_file.get_commit_count(count) == 0) {
-                fout << package_path << " " << offset << endl;
-                offset += count;
-            }
 
             unsigned int commitid = 0;
             unsigned int fileid = 0;
@@ -303,6 +293,17 @@ int main(unsigned int argc, char *argv[]) {
                         }
                     }
                 }
+            }
+            // ----------------------------------------
+            // writing to the offset of each package
+            // commits here. (pkg, commit_offset)
+            // so later we can do
+            // global commit id-> (pkg, local commit id)
+            // ----------------------------------------
+            if (db_file.get_commit_count(count) == 0) {
+                fout << package_path << " " << offset << endl;
+                offset += count;
+		cerr << "... offset now " << offset << endl;
             }
         } // for packages
         fout.close();
@@ -484,7 +485,7 @@ void write_OM_database( const string & database_dir,
         // ----------------------------------------
         for(j = symbols.begin(); j != symbols.end(); ++j) {
             newdocument.add_posting(":"+(*j), ++pos);
-            cerr << "... symbol " << (":"+(*j)) << endl;
+            //cerr << "... symbol " << (":"+(*j)) << endl;
         }
 
         // ----------------------------------------
