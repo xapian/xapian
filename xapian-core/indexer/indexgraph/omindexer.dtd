@@ -5,7 +5,8 @@
 <!ELEMENT param (#PCDATA|item)*>
 <!ELEMENT item EMPTY>
 
-<!ATTLIST omindexer>
+<!ATTLIST omindexer
+	  xmlns CDATA "http://xapian.sourceforge.net/schemas/indexgraph">
 <!ATTLIST node
           type CDATA #REQUIRED
 	  id   ID    #REQUIRED>
