@@ -23,11 +23,11 @@
  */
 
 #include <config.h>
-#include "progclient.h"
-#include "tcpclient.h"
+#include "omdebug.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
+#include <xapian/database.h>
 #include <xapian/enquire.h>
 #include "utils.h"
 #include <unistd.h>
@@ -124,26 +124,6 @@ static bool test_netexpand1()
     rset.add_document(*mset.begin());
 
     Xapian::ESet eset(enq.get_eset(10, rset));
-
-    return true;
-}
-
-// test a tcp connection
-static bool test_tcpclient1()
-{
-    BackendManager backendmanager;
-    backendmanager.set_dbtype("quartz");
-    backendmanager.set_datadir(datadir);
-    vector<string> paths;
-    paths.push_back("apitest_simpledata");
-    Xapian::Database db = backendmanager.get_database(paths);
-
-    string command = "./omtcpsrv --one-shot --quiet --port 1236 "
-	                  ".quartz/db=apitest_simpledata &";
-    system(command);
-
-    sleep(3);
-    TcpClient tc("localhost", 1236, 10000, 10000);
 
     return true;
 }
@@ -255,7 +235,6 @@ test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
-    {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
 // disable until we can work out how to kill the right process cleanly
     //{"tcpdead1",	test_tcpdead1},

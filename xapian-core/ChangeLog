@@ -1,3 +1,9 @@
+Mon May 26 23:49:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* netprogs/nettest.cc: Removed test tcpclient1 - the functionality it
+	  tests is also tested by tcpmatch1, and it introduces dependencies on
+	  internal headers.
+
 Mon May 26 22:00:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_manager.cc: Give a better error message
