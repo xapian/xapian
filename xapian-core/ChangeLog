@@ -1,3 +1,10 @@
+Wed Nov 27 01:36:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btreecheck.cc,backends/quartz/btreecheck.h,
+	  backends/quartz/btreetest.cc: Tidied up BtreeCheck - btreetest now
+	  sends check output to tout so it's only displayed if the check fails
+	  (or btreetest is run with -v).
+
 Tue Nov 26 19:47:24 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Split the btree checking code out into a separate

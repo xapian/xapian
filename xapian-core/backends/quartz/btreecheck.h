@@ -27,26 +27,33 @@
 
 #include "btree.h"
 
+#include <iostream>
+
 class BtreeCheck : public Btree {
     public:
-	/** Constructor */
-	BtreeCheck() : Btree() {}
-
-	static void check(const string & name, int opts);
+	static void check(const string & name, int opts,
+			  std::ostream &out = cout);
     private:
+	BtreeCheck(std::ostream &out_) : out(out_) {}
+
 	void block_check(Cursor * C_, int j, int opts);
 	int block_usage(const byte * p) const;
 	void report_block(int m, int n, const byte * p) const;
 	void report_block_full(int m, int n, const byte * p) const;
 	void report_cursor(int N, const Cursor *C_) const;
+
+	void failure(int n) const;
+	void print_key(const byte * p, int c, int j) const;
+	void print_tag(const byte * p, int c, int j) const;
+	void print_spaces(int n) const;
+	void print_bytes(int n, const byte * p) const;
+
+	mutable std::ostream &out;
 };
 
 #define OPT_SHORT_TREE  1
 #define OPT_FULL_TREE   2
 #define OPT_SHOW_BITMAP 4
 #define OPT_SHOW_STATS  8
-
-//void print_bytes(int n, const byte * p);
-//void print_key(const byte * p, int c, int j);
 
 #endif /* OM_HGUARD_BTREECHECK_H */
