@@ -83,6 +83,7 @@ if($searchmode eq "c"){
 	if($root eq $all){
 		$root = "";
 	}
+	print "<title>CVSSearch : Commit Search</title>\n";
 	print "<META HTTP-EQUIV=Refresh CONTENT=\"0; URL=./PatternBrowser.cgi?query=$urlquery&root=$root\">";
 	print "</head></html>";
 	return (0);
@@ -95,6 +96,7 @@ if($searchmode eq "m"){
 
         $urlquery =~ s/;/%3b/g;
 
+	print "<title>CVSSearch : Library Classes/Functions Search</title>\n";
 	print "<META HTTP-EQUIV=Refresh CONTENT=\"0; URL=./CommitSearch.cgi?query=$urlquery&root=$root\">";
 	print "</head></html>";
 	return (0);
@@ -103,6 +105,7 @@ if($searchmode eq "m"){
 #---------------
 # style sheet
 #---------------
+print "<title>CVSSearch : File Search</title>\n";
 Cvssearch::print_style_sheet();
 print "</head>\n";
 
