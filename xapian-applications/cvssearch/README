@@ -6,7 +6,8 @@ INSTALLATION
 ============
 
 * install ctags 5.0 or higher from http://ctags.sourceforge.net;
-  make sure this version of ctags is in your path
+  make sure this version of ctags is in your path *and* is executed
+  by default
   (warning: version 4.x won't work)
 
 * install the latest release of the sleepycat database from
