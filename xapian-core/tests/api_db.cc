@@ -511,7 +511,7 @@ class myMatchDecider : public OmMatchDecider {
     public:
         int operator()(const OmDocument &doc) const {
 	    // Note that this is not recommended usage of get_data()
-	    return strncmp(doc.get_data().value.c_str(), "This is", 7) == 0;
+	    return doc.get_data().value.find("This is") != std::string::npos;
 	}
 };
 
@@ -528,10 +528,51 @@ static bool test_matchfunctor1()
 
     OmMSetIterator i = mymset.begin();
     TEST(i != mymset.end());
+    TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const OmDocument doc(enquire.get_doc(i));
         TEST(myfunctor(doc));
     }
+
+    return true;
+}
+
+// tests that mset iterators on empty msets compare equal.
+static bool test_msetiterator1()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+    OmMSet mymset = enquire.get_mset(0, 0);
+
+    OmMSetIterator i = mymset.begin();
+    OmMSetIterator j = mymset.end();
+
+    TEST_EQUAL(i, j);
+
+    return true;
+}
+
+// tests that mset iterators on empty msets compare equal.
+static bool test_esetiterator1()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    TEST(mymset.size() >= 2);
+
+    OmRSet myrset;
+    OmMSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    OmSettings eopt;
+    eopt.set("expand_use_query_terms", false);
+
+    OmESet myeset = enquire.get_eset(0, myrset, &eopt);
+    OmESetIterator j = myeset.begin();
+    OmESetIterator k = myeset.end();
+    TEST_EQUAL(j, k);
 
     return true;
 }
@@ -1821,6 +1862,8 @@ test_desc writabledb_tests[] = {
 
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
+    {"msetiterator1",	   test_msetiterator1},
+    {"esetiterator1",	   test_esetiterator1},
     {"multiexpand1",       test_multiexpand1},
     {"postlist1",	   test_postlist1},
     {"postlist2",	   test_postlist2},
