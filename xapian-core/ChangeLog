@@ -1,3 +1,8 @@
+Wed Mar 15 18:27:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Now uses a MultiMatch object to do match.  Doesn't yet use more
+	  than one LeafMatch for this object though.
+
 Tue Mar 14 18:46:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Match now has the appropriate virtual methods, which are

@@ -308,7 +308,6 @@ LeafMatch::set_query(const OmQueryInternal *query_)
     // Prepare query
     if(query_->isdefined) {
 	query = postlist_from_query(query_);
-	Assert(weights.size() != 0);
 	max_weight = query->recalc_maxweight() + (*weights.begin())->get_maxextra();
     }
 }

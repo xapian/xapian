@@ -33,17 +33,31 @@ class LeafMatch;
 class MultiMatch : public Match
 {
     private:
+	/// Vector of the items 
 	vector<LeafMatch *> leaves;
+#ifdef MUS_DEBUG
+	bool allow_add_leafmatch;
+#endif /* MUS_DEBUG */
 
 	// disallow copies
 	MultiMatch(const MultiMatch &);
 	void operator=(const MultiMatch &);
     public:
-	MultiMatch(const vector<LeafMatch *> & leaves);
+	MultiMatch();
 	~MultiMatch();
 
-	void set_query(const OmQueryInternal * query_);
-	void set_rset(RSet * rset_);
+	/** Add a new leafmatch object to the multimatch.
+	 *
+	 *  Caller is responsible for ensuring that the leafmatch object
+	 *  pointed to remains valid until the multimatch object is
+	 *  destroyed, and for deallocating the object afterwards.
+	 *
+	 *  @param leaf A pointer to the new object to add.
+	 */
+	void add_leafmatch(LeafMatch * leaf);
+
+	void set_query(const OmQueryInternal * query);
+	void set_rset(RSet * rset);
 	void set_min_weight_percent(int pcent);
 	void set_collapse_key(om_keyno key);
 	void set_no_collapse();
