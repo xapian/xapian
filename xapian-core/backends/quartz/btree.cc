@@ -191,15 +191,13 @@ sys_write_string(int h, const string &s)
 }
 
 int sys_flush(int h) {
-#ifdef HAVE_FDATASYNC
+#if defined HAVE_FDATASYNC
     fdatasync(h);
-#else // HAVE_FDATASYNC
-#ifdef HAVE_FSYNC
+#elif defined HAVE_FSYNC
     fsync(h);
-#else // HAVE_FSYNC
+#else
 #error "Have neither fsync() nor fdatasync() - can't sync."
-#endif // HAVE_FSYNC
-#endif // HAVE_FDATASYNC
+#endif
     return true;
 }
 

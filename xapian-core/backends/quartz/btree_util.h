@@ -25,6 +25,8 @@
 #define OM_HGUARD_BTREE_UTIL_H
 
 #include "btree_types.h"
+#include "omassert.h"
+
 #include <string.h>  /* memset */
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
@@ -45,24 +47,32 @@
 inline int
 GETINT1(const byte *p, int c)
 {
+    Assert(c >= 0);
+    Assert(c < 65536);
     return p[c];
 }
 
 inline void
 SETINT1(byte *p, int c, int x)
 {
+    Assert(c >= 0);
+    Assert(c < 65536);
     p[c] = x;
 }
 
 inline int
 GETINT2(const byte *p, int c)
 {
+    Assert(c >= 0);
+    Assert(c + 1 < 65536);
     return p[c] << 8 | p[c + 1];
 }
 
 inline void
 SETINT2(byte *p, int c, int x)
 {
+    Assert(c >= 0);
+    Assert(c + 1 < 65536);
     p[c] = x >> 8;
     p[c + 1] = x;
 }
@@ -70,12 +80,16 @@ SETINT2(byte *p, int c, int x)
 inline int
 get_int4(const byte *p, int c)
 {
+    Assert(c >= 0);
+    Assert(c + 3 < 65536);
     return p[c] << 24 | p[c + 1] << 16 | p[c + 2] << 8 | p[c + 3];
 }
 
 inline void
 set_int4(byte *p, int c, int x)
 {
+    Assert(c >= 0);
+    Assert(c + 3 < 65536);
     p[c] = x >> 24;
     p[c + 1] = x >> 16;
     p[c + 2] = x >> 8;

@@ -1,3 +1,7 @@
+Tue Jun 25 17:53:19 BST 2002  Olly Betts <olly@survex.com>
+
+	* Assert that the value of c is sane in GETINT1, etc.
+
 Tue Jun 25 16:30:09 BST 2002  Olly Betts <olly@survex.com>
 
 	* btreetest.cc: use C++ IO rather than C stdio; removed commented out
