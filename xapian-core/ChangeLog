@@ -1,3 +1,8 @@
+Wed Apr 09 22:43:31 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/remote_protocol.html: Talk about Server/Client rather than
+	  ProgServer/ProgClient; reworked first paragraph.
+
 Wed Apr 09 13:23:05 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Install docs in /usr/share/doc/xapian-core to be
