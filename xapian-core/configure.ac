@@ -416,11 +416,21 @@ dnl ******************************
 
 dnl extra flags for building with gcc
 if test yes = "$GCC" ; then
-  dnl Since -Wno-long-long appeared by GCC 2.95 and there's not much likelihood
-  dnl Xapian will with anything earlier version, there's not much point testing
-  dnl for it.
+  dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
+  dnl Xapian will build with any earlier version, so there's not much point
+  dnl testing if -Wno-long-long is supported.
   AM_CFLAGS="$AM_CFLAGS -Wall -W -Wno-long-long"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
+  dnl Automatically add -Werror if maintainer mode is enabled and we're using
+  dnl GCC3 or newer.  We don't do this for older GCCs as GCC 2.95 issues
+  dnl spurious warnings.
+  if test x$USE_MAINTAINER_MODE = xyes; then
+    case `$CC --version` in
+    [3-9]*.*|[12][0-9]*.*) 
+      AM_CFLAGS="$AM_CFLAGS -Werror"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+    esac
+  fi
 fi
 
 dnl modify flags for building with stlport

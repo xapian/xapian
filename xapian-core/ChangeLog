@@ -1,3 +1,9 @@
+Wed Sep 22 02:58:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Automatically add -Werror to CFLAGS and CXXFLAGS if
+	  maintainer mode is enabled and we're using GCC3 or newer.  Don't
+	  do this for older GCCs as GCC 2.95 issues spurious warnings.
+
 Wed Sep 22 02:41:41 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_record.cc,backends/quartz/quartz_utils.h:
