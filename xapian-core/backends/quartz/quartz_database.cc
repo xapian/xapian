@@ -36,7 +36,7 @@
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
-#ifdef USE_LEXICON               
+#ifdef USE_LEXICON
 #include "quartz_lexicon.h"
 #else
 #include "quartz_utils.h"
@@ -49,6 +49,7 @@
 #include <string>
 
 using namespace std;
+using namespace Xapian;
 
 QuartzDatabase::QuartzDatabase(const string &quartz_dir)
 {
@@ -121,7 +122,7 @@ QuartzDatabase::do_replace_document(Xapian::docid /*did*/,
 				    const Xapian::Document & /*document*/)
 { Assert(false); }
 
-Xapian::doccount 
+Xapian::doccount
 QuartzDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_doccount", "");
@@ -141,11 +142,7 @@ QuartzDatabase::get_doclength(Xapian::docid did) const
     DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_doclength", did);
     Assert(did != 0);
 
-    QuartzTermList termlist(0,
-			    tables->get_termlist_table(),
-			    0, // unused ptr to lexicon/postlist table
-			    did,
-			    0);
+    QuartzTermList termlist(0, tables->get_termlist_table(), did, 0);
     RETURN(termlist.get_doclength());
 }
 
@@ -155,16 +152,15 @@ QuartzDatabase::get_termfreq(const string & tname) const
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    Xapian::doccount termfreq = 0; // If not found, this value will be unchanged.
-#ifdef USE_LEXICON               
-    QuartzLexicon::get_entry(tables->get_lexicon_table(),
-			     tname,
-			     &termfreq);
+#ifdef USE_LEXICON
+    Xapian::doccount termfreq = 0;
+    // If not found, termfreq's value will be unchanged.
+    QuartzLexicon::get_entry(tables->get_lexicon_table(), tname, &termfreq);
+    RETURN(termfreq);
 #else
     QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
-    termfreq = pl.get_termfreq();
+    RETURN(pl.get_termfreq());
 #endif
-    RETURN(termfreq);
 }
 
 Xapian::termcount
@@ -185,8 +181,7 @@ QuartzDatabase::term_exists(const string & tname) const
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
 #ifdef USE_LEXICON
-    return QuartzLexicon::get_entry(tables->get_lexicon_table(),
-				    tname, 0);
+    return QuartzLexicon::get_entry(tables->get_lexicon_table(), tname, 0);
 #else
     const QuartzTable * table = tables->get_postlist_table();
     AutoPtr<QuartzCursor> cursor(table->cursor_get());
@@ -225,15 +220,8 @@ QuartzDatabase::open_term_list_internal(Xapian::docid did,
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal",
 	      did << ", [ptrtothis]");
     Assert(did != 0);
-    return(new QuartzTermList(ptrtothis,
-			      tables->get_termlist_table(),
-#ifdef USE_LEXICON
-			      tables->get_lexicon_table(),
-#else
-			      tables->get_postlist_table(),
-#endif
-			      did,
-			      get_doccount()));
+    return(new QuartzTermList(ptrtothis, tables->get_termlist_table(),
+			      did, get_doccount()));
 }
 
 LeafTermList *
@@ -263,6 +251,7 @@ QuartzDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
     Assert(did != 0);
+
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
     poslist->read_data(tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
@@ -301,6 +290,11 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 	: buffered_tables(new QuartzBufferedTableManager(dir, action,
 							 block_size)),
 	  changecount(0),
+	  totlen_added(0),
+	  totlen_removed(0),
+	  freq_deltas(),
+	  doclens(),
+	  mod_plists(),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
@@ -337,7 +331,7 @@ QuartzWritableDatabase::do_end_session()
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_end_session", "");
     Assert(buffered_tables != 0);
 
-    buffered_tables->apply();
+    do_flush();
 
     // FIXME - release write lock on the database (even if an apply() throws)
 }
@@ -345,11 +339,56 @@ QuartzWritableDatabase::do_end_session()
 void
 QuartzWritableDatabase::do_flush()
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush", "");
+    return do_flush_const();
+}
+
+void
+QuartzWritableDatabase::do_flush_const() const
+{
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
     Assert(buffered_tables != 0);
 
-    changecount = 0;
+    QuartzBufferedTable * pl_table = buffered_tables->get_postlist_table();
+
+    map<string, map<docid, pair<char, termcount> > >::const_iterator i;
+    for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
+	string term = i->first;
+	map<docid, pair<char, termcount> >::const_iterator j;
+	for (j = i->second.begin(); j != i->second.end(); ++j) {
+	    docid did = j->first;
+	    switch (j->second.first) {
+		case 'M':
+		    QuartzPostList::delete_entry(pl_table, term, did);
+		    /* FALL THRU */
+		case 'A': {
+		    map<docid, termcount>::const_iterator k = doclens.find(did);
+		    Assert(k != doclens.end());
+		    termcount doclen = k->second;
+		    termcount wdf = j->second.second;
+		    QuartzPostList::add_entry(pl_table, term, did, wdf, doclen);
+		    break;
+		}
+		case 'D':
+		    QuartzPostList::delete_entry(pl_table, term, did);
+		    break;
+	    }
+	}
+    }
+
+    // Update the total document length.
+    QuartzRecordManager::modify_total_length(
+	    *(buffered_tables->get_record_table()),
+	    totlen_removed,
+	    totlen_added);
+
     buffered_tables->apply();
+    totlen_added = 0;
+    totlen_removed = 0;
+    freq_deltas.clear();
+    doclens.clear();
+    mod_plists.clear();
+
+    changecount = 0;
 }
 
 void
@@ -380,18 +419,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	      "QuartzWritableDatabase::do_add_document", document);
     Assert(buffered_tables != 0);
 
-    // Calculate the new document length
-    quartz_doclen_t new_doclen = 0;
-    {
-	Xapian::TermIterator term = document.termlist_begin();
-	Xapian::TermIterator term_end = document.termlist_end();    
-	for ( ; term != term_end; ++term) {
-	    new_doclen += term.get_wdf();
-	}
-    }
-
     Xapian::docid did;
-
     try {
 	// Set the record, and get the document ID to use.
 	did = QuartzRecordManager::add_record(
@@ -410,42 +438,75 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	    }
 	}
 
+	quartz_doclen_t new_doclen = 0;
+	{
+	    Xapian::TermIterator term = document.termlist_begin();
+	    Xapian::TermIterator term_end = document.termlist_end();
+	    for ( ; term != term_end; ++term) {
+		// Calculate the new document length
+		new_doclen += term.get_wdf();
+#ifdef USE_LEXICON
+		QuartzLexicon::increment_termfreq(
+		    buffered_tables->get_lexicon_table(),
+		    *term);
+#endif
+		string tname = *term;
+		termcount wdf = term.get_wdf();
+
+		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+		i = freq_deltas.find(tname);
+		if (i == freq_deltas.end()) {
+		    freq_deltas.insert(make_pair(tname, make_pair(1, wdf)));
+		} else {
+		    ++i->second.first;
+		    i->second.second += wdf;
+		}
+
+		// Add did to tname's postlist
+		map<string, map<docid, pair<char, termcount> > >::iterator j;
+		j = mod_plists.find(tname);
+		if (j == mod_plists.end()) {
+		    map<docid, pair<char, termcount> > m;
+		    j = mod_plists.insert(make_pair(tname, m)).first;
+		}
+		map<docid, pair<char, termcount> >::iterator k;
+		k = j->second.find(did);
+		if (k != j->second.end()) {
+		    if (k->second.first == 'D') k->second.first = 'M';
+		    k->second.second = wdf;
+		} else {
+		    j->second.insert(make_pair(did, make_pair('A', wdf)));
+		}
+
+		if (term.positionlist_begin() != term.positionlist_end()) {
+		    QuartzPositionList::set_positionlist(
+			buffered_tables->get_positionlist_table(), did, tname,
+			term.positionlist_begin(), term.positionlist_end());
+		}
+	    }
+	}
+
 	// Set the termlist
 	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
 	// Set the new document length
-	// (Old doclen is always zero, since this is a new document)
-	QuartzRecordManager::modify_total_length(
-		*(buffered_tables->get_record_table()),
-		0,
-		new_doclen);
-
-	Xapian::TermIterator term = document.termlist_begin();
-	Xapian::TermIterator term_end = document.termlist_end();    
-	for ( ; term != term_end; ++term) {
-#ifdef USE_LEXICON
-	    QuartzLexicon::increment_termfreq(
-		buffered_tables->get_lexicon_table(),
-		*term);
-#endif
-	    QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
-				      *term, did, term.get_wdf(),
-				      new_doclen);
-	    if (term.positionlist_begin() != term.positionlist_end()) {
-		QuartzPositionList::set_positionlist(
-		    buffered_tables->get_positionlist_table(), did,
-		    *term, term.positionlist_begin(), term.positionlist_end());
-	    }
-	}
-
+	doclens.insert(make_pair(did, new_doclen));
+	totlen_added += new_doclen;
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	buffered_tables->cancel();
+	totlen_added = 0;
+	totlen_removed = 0;
+	freq_deltas.clear();
+	doclens.clear();
+	mod_plists.clear();
+
+	changecount = 0;
 	throw;
     }
 
@@ -453,8 +514,7 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount >= 1000) {
-	changecount = 0;
-	buffered_tables->apply();
+	do_flush();
     }
 
     RETURN(did);
@@ -468,23 +528,34 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
     Assert(buffered_tables != 0);
 
     try {
-	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
+	// Remove the record.
+	QuartzRecordManager::delete_record(
+		*(buffered_tables->get_record_table()), did);
 
+	// Remove the values
+	QuartzValueManager::delete_all_values(
+		*(buffered_tables->get_value_table()),
+		did);
+
+	// OK, now add entries to remove the postings in the underlying record.
+	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
 				database_ro.tables->get_termlist_table(),
-#ifdef USE_LEXICON
-				database_ro.tables->get_lexicon_table(),
-#else
-				database_ro.tables->get_postlist_table(),
-#endif
-				did,
-				database_ro.get_doccount());
+				did, database_ro.get_doccount());
+
+	map<docid, termcount>::iterator k = doclens.find(did);
+	if (k != doclens.end()) {
+	    // Deleting one we've literally just added
+	    // FIXME: or just modified?
+	    doclens.erase(k);
+	    totlen_added -= termlist.get_doclength();
+	} else {
+	    totlen_removed += termlist.get_doclength();
+	}
 
 	termlist.next();
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
-	    QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
-		tname, did);
 	    QuartzPositionList::delete_positionlist(
 		buffered_tables->get_positionlist_table(),
 		did, tname);
@@ -493,35 +564,55 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 		buffered_tables->get_lexicon_table(),
 		tname);
 #endif
+	    termcount wdf = termlist.get_wdf();
+
+	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+	    i = freq_deltas.find(tname);
+	    if (i == freq_deltas.end()) {
+		freq_deltas.insert(make_pair(tname, make_pair(-1, -wdf)));
+	    } else {
+		--i->second.first;
+		i->second.second -= wdf;
+	    }
+
+	    // Remove did from tname's postlist
+	    map<string, map<docid, pair<char, termcount> > >::iterator j;
+	    j = mod_plists.find(tname);
+	    if (j == mod_plists.end()) {
+		map<docid, pair<char, termcount> > m;
+		j = mod_plists.insert(make_pair(tname, m)).first;
+	    }
+	    map<docid, pair<char, termcount> >::iterator k;
+	    k = j->second.find(did);
+	    if (k != j->second.end()) {
+		if (k->second.first == 'A') {
+		    j->second.erase(k);
+		} else {
+		    k->second.first = 'D';
+		}
+	    } else {
+		j->second.insert(make_pair(did, make_pair('D', 0)));
+	    }
+
 	    termlist.next();
 	}
-
-	// Set the document length.
-	// (New doclen is always zero, since we're deleting the document.)
-	quartz_doclen_t old_doclen = termlist.get_doclength();
-	QuartzRecordManager::modify_total_length(
-		*(buffered_tables->get_record_table()),
-		old_doclen,
-		0);
-
-	// Remove the values
-	QuartzValueManager::delete_all_values(*(buffered_tables->get_value_table()),
-					      did);
 
 	// Remove the termlist.
 	QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
 					did);
-
-	// Remove the record.
-	QuartzRecordManager::delete_record(*(buffered_tables->get_record_table()),
-					   did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	buffered_tables->cancel();
+	totlen_added = 0;
+	totlen_removed = 0;
+	freq_deltas.clear();
+	doclens.clear();
+	mod_plists.clear();
 
+	changecount = 0;
 	throw;
     }
 
@@ -529,8 +620,7 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount > 1000) {
-	changecount = 0;
-	buffered_tables->apply();
+	do_flush();
     }
 }
 
@@ -542,203 +632,168 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
     Assert(did != 0);
     Assert(buffered_tables != 0);
 
-    // Calculate the new document length
-    quartz_doclen_t new_doclen = 0;
-    {
-	Xapian::TermIterator term = document.termlist_begin();
-	Xapian::TermIterator term_end = document.termlist_end();    
-	for ( ; term != term_end; ++term) {
-	    new_doclen += term.get_wdf();
-	}
-    }
-
     try {
+	// OK, now add entries to remove the postings in the underlying record.
+	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
+	QuartzTermList termlist(ptrtothis,
+				database_ro.tables->get_termlist_table(),
+				did, database_ro.get_doccount());
+
+	termlist.next();
+	while (!termlist.at_end()) {
+	    string tname = termlist.get_termname();
+	    termcount wdf = termlist.get_wdf();
+
+	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+	    i = freq_deltas.find(tname);
+	    if (i == freq_deltas.end()) {
+		freq_deltas.insert(make_pair(tname, make_pair(-1, -wdf)));
+	    } else {
+		--i->second.first;
+		i->second.second -= wdf;
+	    }
+
+	    // Remove did from tname's postlist
+	    map<string, map<docid, pair<char, termcount> > >::iterator j;
+	    j = mod_plists.find(tname);
+	    if (j == mod_plists.end()) {
+		map<docid, pair<char, termcount> > m;
+		j = mod_plists.insert(make_pair(tname, m)).first;
+	    }
+	    map<docid, pair<char, termcount> >::iterator k;
+	    k = j->second.find(did);
+	    if (k != j->second.end()) {
+		if (k->second.first == 'A') {
+		    j->second.erase(k);
+		} else {
+		    k->second.first = 'D';
+		}
+	    } else {
+		j->second.insert(make_pair(did, make_pair('D', 0)));
+	    }
+
+	    termlist.next();
+	}
+
+	map<docid, termcount>::iterator k = doclens.find(did);
+	if (k != doclens.end()) {
+	    // Replacing one we've literally just added
+	    // FIXME: or just modified?
+	    doclens.erase(k);
+	    totlen_added -= termlist.get_doclength();
+	} else {
+	    totlen_removed += termlist.get_doclength();
+	}
+
 	// Replace the record
 	QuartzRecordManager::replace_record(
 		*(buffered_tables->get_record_table()),
 		document.get_data(),
 		did);
 
-	// Replace the values.
-	QuartzValueManager::delete_all_values(
-		*(buffered_tables->get_value_table()),
-		did);
+	// FIXME: we read the values delete them and then replace in case
+	// they come from where they're going!  Better to ask Document
+	// nicely and shortcut in this case!
 	{
+	    list<pair<string, Xapian::valueno> > tmp;
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
+		tmp.push_back(make_pair(*value, value.get_valueno()));
+	    }
+	//	QuartzValueManager::add_value(
+	//	    *(buffered_tables->get_value_table()),
+	//	    *value, did, value.get_valueno());
+	
+	    // Replace the values.
+	    QuartzValueManager::delete_all_values(
+		    *(buffered_tables->get_value_table()),
+		    did);
+
+	    // Set the values.
+	    list<pair<string, Xapian::valueno> >::const_iterator i;
+	    for (i = tmp.begin(); i != tmp.end(); ++i) {
 		QuartzValueManager::add_value(
 		    *(buffered_tables->get_value_table()),
-		    *value, did, value.get_valueno());
+		    i->first, did, i->second);
 	    }
 	}
 
-	// Set the termlist.
-	// We detect what terms have been deleted, and which ones have
-	// been added. Then we add/delete only those terms, then adjust
-	// the others.
-	quartz_doclen_t old_doclen;
+	quartz_doclen_t new_doclen = 0;
 	{
-            vector<string> delTerms;
-            vector<string> addTerms;
-            vector<string> posTerms;
-
-	    // First, before we modify the Postlist, we should detect the old
-	    // document length, since we need that to correctly update the
-	    // total length of all documents (which is used to calculate the
-	    // average document length).
-	    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-	    QuartzTermList termlist(ptrtothis,
-	  			    database_ro.tables->get_termlist_table(),
-#ifdef USE_LEXICON
-				    database_ro.tables->get_lexicon_table(),
-#else
-				    database_ro.tables->get_postlist_table(),
-#endif
-				    did,
-				    database_ro.get_doccount());
-	    old_doclen = termlist.get_doclength();
-            Xapian::TermIterator tNewIter = document.termlist_begin();
-            termlist.next();
-            while (!termlist.at_end() && tNewIter != document.termlist_end()) {
-              string tname = termlist.get_termname();
-              if (tname < (*tNewIter)) {
-		// Deleted term exists in the old termlist, but not in the new
-		// one.
-                delTerms.push_back(tname);
-                termlist.next();
-              } else {
-                if (tname > (*tNewIter)) {
-		  // Added term does not exist in the old termlist, but it does
-		  // in the new one.
-                  addTerms.push_back((*tNewIter));
-                } else {
-		  // Terms are equal, but perhaps its positionlist has been
-		  // modified. Record it, and skip to the next.
-                  posTerms.push_back(tname);
-                  termlist.next();
-                }
-		++tNewIter;
-              }
-            }
-	    // One of the lists (or both!) has been processed. Check if any of
-	    // the iterators are not at the end.
-            while (!termlist.at_end()) {
-              // Any term left in the old list must be removed.
-              string tname = termlist.get_termname();
-              delTerms.push_back(tname);
-              termlist.next();
-            }
-            while (tNewIter != document.termlist_end()) {
-              // Any term left in the new list must be added.
-              addTerms.push_back((*tNewIter));
-              ++tNewIter;
-            }
-	    // We now know which terms to add and which to remove. Let's get to
-	    // work!
-            // Delete the terms on our "hitlist"...
-            vector<string>::iterator vIter = delTerms.begin();
-            while (vIter != delTerms.end()) {
-	        string tname = (*vIter);
-	        QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
-		    tname, did);
-	        QuartzPositionList::delete_positionlist(
-		    buffered_tables->get_positionlist_table(),
-		    did, tname);
-#ifdef USE_LEXICON
-	        QuartzLexicon::decrement_termfreq(
-		    buffered_tables->get_lexicon_table(),
-		    tname);
-#endif
-                ++vIter;
-	    }
-            // Now add the terms that are new...
-            vIter = addTerms.begin();
-	    Xapian::TermIterator tIter = document.termlist_begin();
-            while (vIter != addTerms.end()) {
-                tIter.skip_to((*vIter));
+	    Xapian::TermIterator term = document.termlist_begin();
+	    Xapian::TermIterator term_end = document.termlist_end();
+	    for ( ; term != term_end; ++term) {
+		// Calculate the new document length
+		new_doclen += term.get_wdf();
 #ifdef USE_LEXICON
 		QuartzLexicon::increment_termfreq(
 		    buffered_tables->get_lexicon_table(),
-		    *tIter);
+		    *term);
 #endif
-		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
-					  *tIter, did, tIter.get_wdf(),
-					  new_doclen);
-		if (tIter.positionlist_begin() != tIter.positionlist_end()) {
-		  QuartzPositionList::set_positionlist(
-		      buffered_tables->get_positionlist_table(), did,
-		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+		string tname = *term;
+		termcount wdf = term.get_wdf();
+
+		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+		i = freq_deltas.find(tname);
+		if (i == freq_deltas.end()) {
+		    freq_deltas.insert(make_pair(tname, make_pair(1, wdf)));
+		} else {
+		    ++i->second.first;
+		    i->second.second += wdf;
 		}
-                ++vIter;
+
+		// Add did to tname's postlist
+		map<string, map<docid, pair<char, termcount> > >::iterator j;
+		j = mod_plists.find(tname);
+		if (j == mod_plists.end()) {
+		    map<docid, pair<char, termcount> > m;
+		    j = mod_plists.insert(make_pair(tname, m)).first;
+		}
+		map<docid, pair<char, termcount> >::iterator k;
+		k = j->second.find(did);
+		if (k != j->second.end()) {
+		    if (k->second.first == 'D') k->second.first = 'M';
+		    k->second.second = wdf;
+		} else {
+		    j->second.insert(make_pair(did, make_pair('A', wdf)));
+		}
+
+		// FIXME : this might not work if we replace a positionlist
+		// with itself (e.g. if a document is replaced with itself
+		// with just the values changed)
+		QuartzPositionList::delete_positionlist(
+		    buffered_tables->get_positionlist_table(),
+		    did, tname);
+		if (term.positionlist_begin() != term.positionlist_end()) {
+		    QuartzPositionList::set_positionlist(
+			buffered_tables->get_positionlist_table(), did, tname,
+			term.positionlist_begin(), term.positionlist_end());
+		}
 	    }
-	    // Finally, update the positionlist of terms that are not new or
-	    // removed.
-            vIter = posTerms.begin();
-	    tIter = document.termlist_begin();
-            while (vIter != posTerms.end()) {
-                tIter.skip_to((*vIter));
-                if (tIter.positionlist_begin() == tIter.positionlist_end()) {
-		  // In the new document, this term does not have any positions
-		  // associated with it, so delete the existing positionlist
-		  // (if any)
-                  QuartzPositionList::delete_positionlist(buffered_tables->get_positionlist_table(), did, *tIter);
-                } else {
-		  // FIXME Perhaps we should always recreate the list rather
-		  // than doing work to check if it's the same?  Unless
-		  // you're in the habit of replace docs with exact duplicates,
-		  // it may be more efficient *not* to check, and not
-		  // updating dupes is better checked for at a higher level
-		  // really (e.g. md5sums in the indexer).
-#if 1
-		  // In the new document, this term has positions associated
-		  // with it. Check whether we need to re-create the
-		  // positionlist.
-                  QuartzPositionList qpl;
-                  qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
-                  qpl.next();
-                  Xapian::PositionIterator pIter = tIter.positionlist_begin();
-                  while (!qpl.at_end() && pIter != tIter.positionlist_end()) {
-		    if (qpl.get_current_pos() != (*pIter)) break;
-                    qpl.next();
-                    ++pIter;
-                  }
-                  if (!qpl.at_end() || pIter != tIter.positionlist_end()) {
-		    // One of the position lists has not reached yet the end --
-		    // which means they are different. Create a new
-		    // positionlist based on the one in the new Xapian::Document.
-  		    QuartzPositionList::set_positionlist(
-		      buffered_tables->get_positionlist_table(), did,
-		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
-                  }
-#else
-  		    QuartzPositionList::set_positionlist(
-		      buffered_tables->get_positionlist_table(), did,
-		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
-#endif
-                }
-                ++vIter;
-	    }
-            // All done!
 	}
 
-        // Set the termlist
+	// Set the termlist
 	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
 	// Set the new document length
-	QuartzRecordManager::modify_total_length(
-		*(buffered_tables->get_record_table()),
-		old_doclen,
-		new_doclen);
-
+	doclens.insert(make_pair(did, new_doclen));
+	totlen_added += new_doclen;
     } catch (...) {
-	// If an error occurs while adding a document, or doing any other
+	// If an error occurs while replacing a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	buffered_tables->cancel();
+	totlen_added = 0;
+	totlen_removed = 0;
+	freq_deltas.clear();
+	doclens.clear();
+	mod_plists.clear();
+
+	changecount = 0;
 	throw;
     }
 
@@ -746,12 +801,11 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount > 1000) {
-	changecount = 0;
-	buffered_tables->apply();
+	do_flush();
     }
 }
 
-Xapian::doccount 
+Xapian::doccount
 QuartzWritableDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_doccount", "");
@@ -762,6 +816,9 @@ Xapian::doclength
 QuartzWritableDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_avlength", "");
+    // Need to flush (or adjust return value, or at least flush the changes to
+    // the total length).
+    do_flush_const();
     RETURN(database_ro.get_avlength());
 }
 
@@ -769,6 +826,9 @@ Xapian::doclength
 QuartzWritableDatabase::get_doclength(Xapian::docid did) const
 {
     DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_doclength", did);
+    map<docid, termcount>::const_iterator i = doclens.find(did);
+    if (i != doclens.end()) RETURN(i->second);
+
     RETURN(database_ro.get_doclength(did));
 }
 
@@ -776,21 +836,39 @@ Xapian::doccount
 QuartzWritableDatabase::get_termfreq(const string & tname) const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_termfreq", tname);
+#ifdef USE_LEXICON
     RETURN(database_ro.get_termfreq(tname));
+#else
+    Xapian::doccount termfreq = database_ro.get_termfreq(tname);
+    map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
+    i = freq_deltas.find(tname);
+    if (i != freq_deltas.end()) termfreq += i->second.first;
+    RETURN(termfreq);
+#endif
 }
 
 Xapian::termcount
 QuartzWritableDatabase::get_collection_freq(const string & tname) const
 {
     DEBUGCALL(DB, Xapian::termcount, "QuartzWritableDatabase::get_collection_freq", tname);
-    RETURN(database_ro.get_collection_freq(tname));
+    Xapian::termcount collfreq = database_ro.get_collection_freq(tname);
+
+    map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
+    i = freq_deltas.find(tname);
+    if (i != freq_deltas.end()) collfreq += i->second.second;
+
+    RETURN(collfreq);
 }
 
 bool
 QuartzWritableDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
+#ifdef USE_LEXICON
     RETURN(database_ro.term_exists(tname));
+#else
+    RETURN(get_termfreq(tname) != 0);
+#endif
 }
 
 
@@ -798,6 +876,12 @@ LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
+
+    // Need to flush iff we've got buffered changes to this term's postlist.
+    map<string, map<docid, pair<char, termcount> > >::const_iterator j;
+    j = mod_plists.find(tname);
+    if (j != mod_plists.end()) do_flush_const();
+
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
     RETURN(database_ro.open_post_list_internal(tname, ptrtothis));
@@ -808,8 +892,11 @@ QuartzWritableDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
 	      did);
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
+    // Only need to flush if document #did has been modified.
+    if (doclens.find(did) != doclens.end()) do_flush_const();
+
+    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
     RETURN(database_ro.open_term_list_internal(did, ptrtothis));
 }
 
@@ -820,15 +907,17 @@ QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 	      did << ", " << lazy);
     Assert(did != 0);
 
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
+    // Only need to flush if document #did has been modified.
+    if (doclens.find(did) != doclens.end()) do_flush_const();
 
+    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
     RETURN(new QuartzDocument(ptrtothis,
 			      buffered_tables->get_value_table(),
 			      buffered_tables->get_record_table(),
 			      did, lazy));
 }
 
-PositionList * 
+PositionList *
 QuartzWritableDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
@@ -853,13 +942,15 @@ void
 QuartzWritableDatabase::do_reopen()
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_reopen", "");
-    /* Do nothing - we're the only writer, and so must be up to date. */
+    // Nothing to do - we're the only writer, and so must be up to date.
 }
 
 TermList *
 QuartzWritableDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
+    // Terms may have been added or removed, so we need to flush.
+    do_flush_const();
     QuartzTable *t = buffered_tables->get_postlist_table();
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),

@@ -1,3 +1,11 @@
+Fri Dec 19 22:51:26 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Buffer up changes to the postlists and apply them
+	  all at once (at present they're applied inefficiently, but this is
+	  change enables us to apply them with an efficient merge).
+	* tests/api_db.cc,tests/quartztest.cc: Added a couple of tests, and
+	  commented out some test lines which fail in debug builds.
+
 Sun Dec 14 03:38:55 GMT 2003  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc: Open debug log with flag O_WRONLY so that we can

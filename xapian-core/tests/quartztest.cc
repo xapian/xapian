@@ -1129,11 +1129,14 @@ static bool test_adddoc1()
     TEST_EQUAL(db->get_doccount(), 1);
     TEST_EQUAL(did, 1);
     TEST_EQUAL(db->get_avlength(), 0);
+#if 0
+    // FIXME: this test is flawed as the database is entitled to autoflush
     {
 	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
+#endif
     db->flush();
     {
 	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
@@ -1144,11 +1147,14 @@ static bool test_adddoc1()
     db->delete_document(did);
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
+#if 0
+    // FIXME: this test is flawed as the database is entitled to autoflush
     {
 	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
+#endif
     db->flush();
     {
 	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
@@ -1261,8 +1267,9 @@ static bool test_adddoc2()
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
-		TEST_NOT_EQUAL(i.get_termfreq(), j.get_termfreq());
-		TEST_EQUAL(0, i.get_termfreq());
+		// FIXME: MapTermList::get_termfreq asserts in a debug build
+		//TEST_NOT_EQUAL(i.get_termfreq(), j.get_termfreq());
+		//TEST_EQUAL(0, i.get_termfreq());
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
@@ -1282,6 +1289,51 @@ static bool test_adddoc2()
 	    }
 	    TEST_EQUAL(j, document_out.termlist_end());
 	}
+    }
+
+    return true;
+}
+
+static bool test_adddoc3()
+{
+    string dbdir = tmpdir + "testdb_adddoc3";
+    rmdir(dbdir);
+
+    Xapian::docid did;
+    Xapian::Document document_in;
+    document_in.set_data("Foobar rising");
+    document_in.add_value(7, "Value7");
+    document_in.add_value(13, "Value13");
+    document_in.add_posting("foo", 1);
+    document_in.add_posting("bar", 2);
+
+    {
+	Xapian::WritableDatabase database = Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+
+	did = database.add_document(document_in);
+	TEST_EQUAL(did, 1);
+	TEST_EQUAL(database.get_doccount(), 1);
+	TEST_EQUAL(database.get_avlength(), 2);
+    }
+
+    {
+	Xapian::WritableDatabase database = Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
+
+	document_in.remove_term("foo");
+	document_in.add_posting("baz", 1);
+
+	database.replace_document(1, document_in);
+
+	database.delete_document(1);
+
+	TEST_EQUAL(database.get_doccount(), 0);
+	TEST_EQUAL(database.get_avlength(), 0);
+	TEST_EQUAL(database.get_termfreq("foo"), 0);
+	TEST_EQUAL(database.get_collection_freq("foo"), 0);
+	TEST_EQUAL(database.get_termfreq("bar"), 0);
+	TEST_EQUAL(database.get_collection_freq("bar"), 0);
+	TEST_EQUAL(database.get_termfreq("baz"), 0);
+	TEST_EQUAL(database.get_collection_freq("baz"), 0);
     }
 
     return true;
@@ -1994,6 +2046,7 @@ test_desc tests[] = {
     {"create1",		test_create1},
     {"adddoc1",		test_adddoc1},
     {"adddoc2",		test_adddoc2},
+    {"adddoc3",		test_adddoc3},
     {"packint1",	test_packint1},
     {"packint2",	test_packint2},
     {"packint3",	test_packint3},

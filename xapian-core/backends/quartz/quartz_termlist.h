@@ -53,15 +53,6 @@ class QuartzTermList : public LeafTermList {
 	 */
 	const QuartzTable * table;
 
-	/** The table holding the lexicon.
-	 *  (Used when we have to perform a term frequency lookup).
-	 */
-#ifdef USE_LEXICON               
-	const QuartzTable * lexicon_table;
-#else
-	const QuartzTable * postlist_table;
-#endif
-
 	/** The data for the (part of the) termlist currently being read.
 	 *
 	 *  FIXME: currently, we read the whole termlist as one chunk.
@@ -140,7 +131,6 @@ class QuartzTermList : public LeafTermList {
 	 */
 	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 		       const QuartzTable * table_,
-		       const QuartzTable * lexicon_table_,
 		       Xapian::docid did_,
 		       Xapian::doccount doccount_);
 

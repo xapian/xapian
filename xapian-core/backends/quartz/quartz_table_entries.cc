@@ -137,7 +137,7 @@ QuartzTableEntries::empty() const
 void
 QuartzTableEntries::set_tag(const string &key, AutoPtr<string> tag)
 {
-    DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", "[key], [tag]");
+    DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", key << ", " << (tag.get() ? *tag : string("<NULL>")));
     Assert(!key.empty());
     items::iterator i = entries.find(key);
 

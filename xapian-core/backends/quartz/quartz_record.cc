@@ -131,7 +131,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     Xapian::docid did;
     quartz_totlen_t totlen;
     if (tag->empty()) {
-	did = 1u;
+	did = 0u;
 	totlen = 0u;
     } else {
 	const char * data = tag->data();

@@ -25,11 +25,6 @@
 #include <config.h>
 #include <xapian/error.h>
 #include "quartz_termlist.h"
-#ifdef USE_LEXICON
-#include "quartz_lexicon.h"
-#else
-#include "quartz_postlist.h"
-#endif
 #include "quartz_utils.h"
 #include "utils.h"
 
@@ -96,29 +91,15 @@ QuartzTermList::delete_termlist(QuartzBufferedTable * table_, Xapian::docid did)
 
 QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 			       const QuartzTable * table_,
-#ifdef USE_LEXICON               
-			       const QuartzTable * lexicon_table_,
-#else
-			       const QuartzTable * postlist_table_,
-#endif
 			       Xapian::docid did_,
 			       Xapian::doccount doccount_)
 	: this_db(this_db_), did(did_), table(table_),
-#ifdef USE_LEXICON               
-	  lexicon_table(lexicon_table_),
-#else
-	  postlist_table(postlist_table_),
-#endif
 	  have_finished(false), current_wdf(0), has_termfreqs(false),
 	  current_termfreq(0), doccount(doccount_)
 {
-#ifdef USE_LEXICON
     DEBUGCALL(DB, void, "QuartzTermList", "[this_db_], " << table_ << ", "
-	      << lexicon_table_ << ", " << did << ", " << doccount_);
-#else
-    DEBUGCALL(DB, void, "QuartzTermList", "[this_db_], " << table_ << ", "
-	      << postlist_table_ << ", " << did << ", " << doccount_);
-#endif
+	      << did << ", " << doccount_);
+
     string key(quartz_docid_to_key(did));
 
     if (!table->get_exact_entry(key, termlist_part))
@@ -254,18 +235,8 @@ Xapian::doccount
 QuartzTermList::get_termfreq() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzTermList::get_termfreq", "");
-    if (current_termfreq == 0) {
-	// If not found, value of current_termfreq will be unchanged from 0.
-#ifdef USE_LEXICON
-	QuartzLexicon::get_entry(lexicon_table,
-				 current_tname,
-				 &current_termfreq);
-#else
-	QuartzPostList pl(NULL, postlist_table, NULL, current_tname);
-	current_termfreq = pl.get_termfreq();
-#endif
-    }
-
+    if (current_termfreq == 0)
+	current_termfreq = this_db->get_termfreq(current_tname);
     RETURN(current_termfreq);
 }
 

@@ -34,6 +34,10 @@ class QuartzTermList;
 
 #include "autoptr.h"
 
+#include "quartz_types.h"
+
+#include <map>
+
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
  */
@@ -121,9 +125,18 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 
 	/** A count of the number of changes since the last flush:
 	 *  FIXME: this should be replaced by keeping track of the memory used
-	 *  up, and flushing when it reaches a critical value.
+	 *  up, and flushing when it reaches a threshold value.
 	 */
-	int changecount;
+	mutable int changecount;
+
+	mutable quartz_totlen_t totlen_added;
+	mutable quartz_totlen_t totlen_removed;
+	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
+		freq_deltas;
+	mutable map<Xapian::docid, Xapian::termcount> doclens;
+	/// Modifications to posting lists.
+	mutable map<string, map<Xapian::docid,
+				pair<char, Xapian::termcount> > > mod_plists;
 
 	/** The readonly database encapsulated in the writable database.
 	 */
@@ -135,6 +148,8 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	virtual void do_begin_session();
 	virtual void do_end_session();
 	virtual void do_flush();
+
+	void do_flush_const() const;
 
 	virtual void do_begin_transaction();
 	virtual void do_commit_transaction();
