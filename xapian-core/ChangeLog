@@ -1,3 +1,7 @@
+Fri Jan 26 15:50:32 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Move OmQuery definition into a separate header file.
+
 Fri Jan 26 15:46:42 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Move OmQuery::OP_LEAF out of public visibility, by taking it out
