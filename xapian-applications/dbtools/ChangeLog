@@ -1,3 +1,9 @@
+Tue Nov 27 18:12:09 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* default generator can be specified (using indexgraph from
+	  a separate file). If you're generating the XML input
+	  automatically, this is probably easier
+
 Mon Nov 26 14:40:30 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* options parsing code fixed so it doesn't segfault

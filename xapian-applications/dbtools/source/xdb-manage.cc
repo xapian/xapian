@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include <xmlmemory.h>
 #include <parser.h>
@@ -36,7 +37,18 @@
 using std::cout;
 using std::endl;
 
+static string default_generator="";
+static string default_generator_string="";
+
 OmSettings read_db_options(xmlDocPtr, xmlNodePtr); // xdb-options.cc
+
+string fetch_file(const string& filename)
+{
+    std::ifstream file(filename.c_str());
+    string s;
+    getline(file, s, char(26) /* ^Z */);
+    return s;
+}
 
 string make_generator (xmlDocPtr document,xmlNodePtr node)
 {
@@ -135,7 +147,8 @@ typedef enum {
 } duplicates_strategy;
 
 doc_status add_document(OmWritableDatabase* database,xmlNodePtr document,
-			string generator_string, duplicates_strategy duplicates)
+			string generator_string,
+			duplicates_strategy duplicates)
 {
     OmDocument new_document;
     int have_document = 0;
@@ -156,7 +169,14 @@ doc_status add_document(OmWritableDatabase* database,xmlNodePtr document,
 	if(element->type==XML_ELEMENT_NODE && 
 	   !xmlStrcmp(element->name,(const xmlChar*) "word-list")) {	
 	    if (generator_string=="") {
-	        throw string("encountered word-list element, but no term generator was set");
+		if (default_generator_string=="") {
+		    default_generator_string = fetch_file(default_generator);
+		}
+		generator_string = default_generator_string;
+	    }
+
+	    if (generator_string=="") {
+		throw string("generator was empty - this isn't going to work");
 	    }
 
 	    OmIndexerBuilder builder = OmIndexerBuilder();
@@ -612,8 +632,8 @@ void process_file(char* filename, bool auto_create)
 int main(int argc, char** argv)
 {
     // getopt
-    char* optstring = "hvc";
-    struct option longopts[4];
+    char* optstring = "hvcg:";
+    struct option longopts[5];
     int longindex, getopt_ret;
     bool auto_create = false;
 
@@ -629,10 +649,14 @@ int main(int argc, char** argv)
     longopts[2].has_arg = 0;
     longopts[2].flag = NULL;
     longopts[2].val = 'c';
-    longopts[3].name = 0;
-    longopts[3].has_arg = 0;
+    longopts[3].name = "generator";
+    longopts[3].has_arg = required_argument;
     longopts[3].flag = 0;
-    longopts[3].val = 0;
+    longopts[3].val = 'g';
+    longopts[4].name = 0;
+    longopts[4].has_arg = 0;
+    longopts[4].flag = 0;
+    longopts[4].val = 0;
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {
@@ -641,6 +665,7 @@ int main(int argc, char** argv)
             cout << "Usage: " << argv[0] << " [OPTION] FILE" << endl
 	         << endl << "Manage an Xapian database via XML files." << endl
                  << "  -c, --auto-create\tcreate database if necessary" << endl
+                 << "  -g, --generator\tdefault indexgraph generator file" << endl
                  << "  -h, --help\t\tdisplay this help and exit" << endl
                  << "  -v --version\t\toutput version and exit" << endl << endl
                  << "Report bugs via the web interface at:" << endl
@@ -656,6 +681,9 @@ int main(int argc, char** argv)
             break;
 	case 'c':
 	    auto_create = true;
+	    break;
+	case 'g':
+	    default_generator = string(optarg);
 	    break;
         case ':': // missing param
             return 1;

@@ -1,6 +1,5 @@
 TODO list for dbtools
 =====================
 
-* default generator (read from a specified file) for xdb-manage
 * some tests? :-)
 * getopt, libxml (and libxml2 test) in configure
