@@ -95,9 +95,11 @@ class SingleMatch
 	virtual void set_rset(RSet * rset_) = 0;
 
 	/** Set weighting scheme.
+	 *  FIXME: fold this into set_options()
 	 */
 	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
-	
+
+#if 0
 	/** Set cutoff at min percentage - defaults to -1, which means no
 	 *  cutoff.
 	 */
@@ -111,6 +113,10 @@ class SingleMatch
 
 	/** Remove the collapse key. */
 	virtual void set_no_collapse() = 0;
+#endif
+
+	/** Set the match options. */
+	virtual void set_options(const OmMatchOptions & moptions_) = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Prepare to do the match

@@ -103,9 +103,7 @@ class MultiMatch
 	void set_query(const OmQueryInternal * query);
 	void set_rset(auto_ptr<RSet> rset_);
 	void set_weighting(IRWeight::weight_type wt_type);
-	void set_min_weight_percent(int pcent);
-	void set_collapse_key(om_keyno key);
-	void set_no_collapse();
+	void set_options(const OmMatchOptions & moptions_);
 
 	om_weight get_max_weight();
 

@@ -127,32 +127,12 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 
 
 void
-MultiMatch::set_min_weight_percent(int pcent)
+MultiMatch::set_options(const OmMatchOptions & moptions_)
 {
     Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
-	(*i)->set_min_weight_percent(pcent);
-    }
-}
-
-void
-MultiMatch::set_collapse_key(om_keyno key)
-{
-    Assert((allow_add_singlematch = false) == false);
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_collapse_key(key);
-    }
-}
-
-void
-MultiMatch::set_no_collapse()
-{
-    Assert((allow_add_singlematch = false) == false);
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_no_collapse();
+	(*i)->set_options(moptions_);
     }
 }
 

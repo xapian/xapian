@@ -174,31 +174,9 @@ NetworkMatch::del_query_tree()
 // Setting query options
 //
 void
-NetworkMatch::set_collapse_key(om_keyno key)
+NetworkMatch::set_options(const OmMatchOptions & moptions_)
 {
     Assert(false);
-#if 0
-    do_collapse = true;
-    collapse_key = key;
-#endif
-}
-
-void
-NetworkMatch::set_no_collapse()
-{
-    Assert(false);
-#if 0
-    do_collapse = false;
-#endif
-}
-
-void
-NetworkMatch::set_min_weight_percent(int pcent)
-{
-    Assert(false);
-#if 0
-    min_weight_percent = pcent;
-#endif
 }
 
 void

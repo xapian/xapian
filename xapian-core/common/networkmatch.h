@@ -69,9 +69,7 @@ class NetworkMatch : public SingleMatch
 
         void set_rset(RSet * rset_);
 	void set_weighting(IRWeight::weight_type wt_type_);
-        void set_min_weight_percent(int pcent);
-	void set_collapse_key(om_keyno key);
-	void set_no_collapse();
+	void set_options(const OmMatchOptions & moptions_);
 
 	bool prepare_match(bool nowait);
 

@@ -159,10 +159,11 @@ class OmQuery {
 // ====================
 
 /** Class used to specify options for running a query.
+ *  FIXME: make this into a struct?
  */
 class OmMatchOptions {
     friend OmEnquireInternal;
-    private:
+    public:
         /** If true, duplicates will be removed based on a key.
 	 *  This defaults to false.
 	 */
@@ -190,13 +191,15 @@ class OmMatchOptions {
 	 *  See set_max_or_terms() for more details.
 	 */
 	om_termcount max_or_terms;
-    public:
+    
+
 	/** Create a match options object.
 	 */
 	OmMatchOptions();
 
 	/** Set a key to collapse (remove duplicates) on.
 	 *  There may only be one key in use at a time.
+	 *  Each key value will appear only once in the result set.
 	 */
 	void set_collapse_key(om_keyno key_);
 

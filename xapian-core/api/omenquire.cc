@@ -208,22 +208,16 @@ OmEnquireInternal::get_mset(om_doccount first,
     // Set Database
     MultiMatch match(database);
 
-    // Set cutoff percent
-    if (moptions->percent_cutoff > 0) {
-        match.set_min_weight_percent(moptions->percent_cutoff);
-    }
+    // Set options
+    match.set_options(*moptions);
 
     // Set Rset
     if((omrset != 0) && (omrset->items.size() != 0)) {
 	match.set_rset(auto_ptr<RSet>(new RSet(database, *omrset)));
     }
 
-    // Set options
-    if(moptions->do_collapse) {
-	match.set_collapse_key(moptions->collapse_key);
-    }
-
     // Set weighting scheme
+    // FIXME: incorporate into setting options
     if(query->is_bool()) {
 	match.set_weighting(IRWeight::WTTYPE_BOOL);
     } else {
@@ -235,6 +229,8 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     OmMSet retval;
 
+    // Set sort order
+    // FIXME: incorporate into setting options
     mset_cmp cmp;
     if(moptions->sort_forward) {
 	cmp = msetcmp_forward;

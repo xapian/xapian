@@ -164,27 +164,22 @@ LocalMatch::del_query_tree()
 /////////////////////////////////////////////////////////////////////
 // Setting query options
 //
-void
-LocalMatch::set_collapse_key(om_keyno key)
-{
-    Assert(!is_prepared);
-    do_collapse = true;
-    collapse_key = key;
-}
 
 void
-LocalMatch::set_no_collapse()
+LocalMatch::set_options(const OmMatchOptions & moptions_)
 {
     Assert(!is_prepared);
-    do_collapse = false;
+
+    if(moptions_.percent_cutoff > 0) {
+	min_weight_percent = moptions_.percent_cutoff;
+    }
+
+    if(moptions_.do_collapse) {
+	do_collapse = true;
+	collapse_key = moptions_.collapse_key;
+    }
 }
 
-void
-LocalMatch::set_min_weight_percent(int pcent)
-{
-    Assert(!is_prepared);
-    min_weight_percent = pcent;
-}
 
 void
 LocalMatch::set_rset(RSet *rset_)
