@@ -19,6 +19,12 @@ Should OmWritableDatabase have a default ctor?  Consider for all API classes...
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
 
+Add private copy ctors and assignment operators to classes which can't
+be safely copied (have paper list).
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
+
 Should it be possible to specify an arbitrary docid for a document (perhaps to
 match numeric docids in another system?)  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
@@ -38,7 +44,7 @@ Or touch the lock periodically to keep it?
 Finish reading through generated docs to ensure they read well in collated form.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
 
 Check for swig version.
 
@@ -190,7 +196,7 @@ Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Stemming" release="0.6">
+<todoitem priority="M" difficulty="3" owner="Olly" area="Stemming" release="0.6">
 
 Replace our own stemming code with Martin Porter's snowball stemmers (with a
 thin OmStem wrapper).
@@ -461,9 +467,9 @@ Investigate and find a proper fix for FILTER problem (believe this
 was fixed by fixes to quartz btree stuff).
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Richard" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
 
-Look at replacing btree implementation, or at least tidying it
+Continue tidying up of quartz/btree code.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">
