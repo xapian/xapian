@@ -98,12 +98,14 @@ class OmMSetIterator {
       return *(*self);
     }
     bool next() {
-      if ((*self).internal) (*self)++;
-      return ((*self).internal!=NULL);
+      (*self)++;
+      return true;
     }
+    /*
     bool valid() {
       return ((*self).internal!=NULL);
     }
+    */
     bool equals(const OmMSetIterator &other) {
       return (*self)==other;
     }
@@ -218,13 +220,13 @@ class OmQuery {
          *  @param wqf  Within-?-frequency.
          *  @param term_pos  Position of term related to other terms but there aren't any anyway!
         */
-        %name(OmQuery) OmQuery(const string &tname,
-			       om_termcount wqf = 1,
-			       om_termpos term_pos = 0);
-	%extend {
+        OmQuery(const string &tname,
+		om_termcount wqf = 1,
+		om_termpos term_pos = 0);
+        %extend {
             /** Constructs a query from a set of queries merged with the specified operator */
-	    %name (OmQueryList) OmQuery(OmQuery::op op,
-	    	    const vector<OmQuery *> *subqs,
+	    %name (OmQuery) OmQuery(OmQuery::op op,
+		    const vector<OmQuery *> *subqs,
 		    om_termpos window = 0) {
 		if ((subqs->size() == 2) && (window == 0)) {
 		    return new OmQuery(op, *(*subqs)[0], *(*subqs)[1]);
@@ -237,7 +239,7 @@ class OmQuery {
 	}
 
         /** Constructs a new empty query object */
-	%name(OmEmptyQuery) OmQuery();
+        OmQuery();
 
 	~OmQuery();
 
@@ -286,7 +288,7 @@ struct OmDocumentTerm {
 class OmDatabase {
     public:
 	OmDatabase(const OmDatabase & database);
-	%name(emptyOmDatabase) OmDatabase();
+	OmDatabase();
 	virtual ~OmDatabase();
 
 	void add_database(const OmDatabase & database);
@@ -326,7 +328,7 @@ class OmWritableDatabase : public OmDatabase {
 
 // New-style database constructors (FIXME: these will be renamed)
 extern OmDatabase OmAuto__open(const string & path);
-%name(OmAuto__open_writable) extern OmWritableDatabase OmAuto__open(const string & path, int action);
+extern OmWritableDatabase OmAuto__open(const string & path, int action);
 
 const int OM_DB_CREATE_OR_OPEN = 1;
 const int OM_DB_CREATE = 2;

@@ -279,7 +279,7 @@ PyObject *OmESet_items_get(OmESet *eset)
     %mutable;
 }
 
-%apply LangSpecificListType items { PyObject *items }
+//%apply LangSpecificListType items { PyObject *items }
 
 %typemap(python, out) OmKey {
     $result = PyString_FromString(($1).value.c_str());

@@ -22,15 +22,16 @@
  * -----END-LICENCE-----
  */
 #undef list
-#include "om/omstem.h"
+#include "xapian/stem.h"
 #include <string>
+using namespace Xapian;
 %}
 %include om_util.i
 
-class OmStem {
+class Stem {
 public:
-    OmStem(const string &language);
-    ~OmStem();
+    Stem(const string &language);
+    ~Stem();
 
     string stem_word(const string &word);
 };

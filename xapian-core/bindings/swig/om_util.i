@@ -23,6 +23,7 @@
 #undef list
 #include "om/om.h"
 #include <string>
+using std::string;
 %}
 #ifndef SWIGGUILE
 %include typemaps.i

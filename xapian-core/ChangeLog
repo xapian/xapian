@@ -1,3 +1,9 @@
+Sat May 31 15:03:47 BST 2003  James Aylett  <james@tartarus.org>
+
+	* bindings/swig: update so can build Python bindings against
+	  latest Xapian; untested, and other languages are likely to
+	  fail
+
 Fri May 30 02:59:48 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: Embedded '.' is
