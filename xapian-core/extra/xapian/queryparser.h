@@ -72,7 +72,20 @@ class QueryParser {
     /// Set the stemming options.
     void set_stemming_options(stem_strategy strategy);
 
+    /// Set the stopper.
     void set_stopper(Stopper *stop = NULL);
+
+    /// Deprecated method for backward compatibility.
+    void set_stemming_options(const std::string &lang, bool stem_all = false,
+			      Stopper *stop = NULL) {
+	set_stemmer(new Xapian::Stem(lang));
+	if (lang.empty() || lang == "none") {
+	    set_stemming_options(STEM_NONE);
+	} else {
+	    set_stemming_options(stem_all ? STEM_ALL : STEM_SOME);
+	}
+	set_stopper(stop);
+    }
 
     /** Set the default boolean operator. */
     void set_default_op(Query::op default_op);

@@ -1,3 +1,8 @@
+Mon Feb 14 18:00:12 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/xapian/queryparser.h: Added backward compatibility wrapper for
+	  old version of QueryParser::set_stemming_options().
+
 Mon Feb 14 17:50:47 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/xapian/queryparser.h: Added dummy QueryParser::set_database()
