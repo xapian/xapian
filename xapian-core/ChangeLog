@@ -1,3 +1,7 @@
+Tue Nov 09 03:24:59 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Added --swigflags option for use with SWIG.
+
 Mon Nov 08 22:54:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,xapian-config.in: If flags are needed to select ANSI
