@@ -1,3 +1,7 @@
+Wed Apr 30 01:08:39 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Added config.guess.
+
 Tue Apr 29 21:08:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* include/om/om.h,include/xapian/base.h,include/xapian/error.h,
