@@ -138,16 +138,16 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	    }
 	    DebugMsg("XOR -> AND NOT (in skip_to) (1)" << endl);
 	    AndNotPostList *ret3 = new AndNotPostList(r, l, root);
-	    id = max(id, rhead);
-	    ret2 = ret3->sync_and_skip_to(id, w_min, rhead, lhead);
+	    did = max(did, rhead);
+	    ret2 = ret3->sync_and_skip_to(did, w_min, rhead, lhead);
 	    ret = ret3;
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DebugMsg("XOR -> AND NOT (in skip_to) (2)" << endl);
 	    AndNotPostList *ret3 = new AndNotPostList(l, r, root);
-	    id = max(id, lhead);
-	    ret2 = ret3->sync_and_skip_to(id, w_min, lhead, rhead);
+	    did = max(did, lhead);
+	    ret2 = ret3->sync_and_skip_to(did, w_min, lhead, rhead);
 	    ret = ret3;
 	}
 		
@@ -160,13 +160,13 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
     }
 
     bool ldry = false;
-    if (lhead < id) {
-	handle_prune(l, l->skip_to(id, w_min));
+    if (lhead < did) {
+	handle_prune(l, l->skip_to(did, w_min));
 	ldry = l->at_end();
     }
 
-    if (rhead < id) {
-	handle_prune(r, r->skip_to(id, w_min));
+    if (rhead < did) {
+	handle_prune(r, r->skip_to(did, w_min));
 
 	if (r->at_end()) {
 	    PostList *ret = l;

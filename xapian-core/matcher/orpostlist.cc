@@ -105,21 +105,21 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	    if (w_min > rmax) {
 		DebugMsg("OR -> AND (in skip_to)" << endl);
 		ret = new AndPostList(l, r, root, true);
-		id = max(id, max(lhead, rhead));
+		did = max(did, max(lhead, rhead));
 	    } else {
 		DebugMsg("OR -> AND MAYBE (in skip_to) (1)" << endl);
 		ret = new AndMaybePostList(r, l, root, rhead, lhead);
-		id = max(id, rhead);
+		did = max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DebugMsg("OR -> AND MAYBE (in skip_to) (2)" << endl);
 	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
-	    id = max(id, lhead);
+	    did = max(did, lhead);
 	}
 
-	PostList *ret2 = ret->skip_to(id, w_min);	
+	PostList *ret2 = ret->skip_to(did, w_min);	
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;
@@ -129,13 +129,13 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
     }
 
     bool ldry = false;
-    if (lhead < id) {
-	handle_prune(l, l->skip_to(id, w_min - rmax));
+    if (lhead < did) {
+	handle_prune(l, l->skip_to(did, w_min - rmax));
 	ldry = l->at_end();
     }
 
-    if (rhead < id) {
-	handle_prune(r, r->skip_to(id, w_min - lmax));
+    if (rhead < did) {
+	handle_prune(r, r->skip_to(did, w_min - lmax));
 
 	if (r->at_end()) {
 	    PostList *ret = l;
