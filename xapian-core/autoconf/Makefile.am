@@ -5,7 +5,8 @@ m4_files = cme_find_hstrerror.m4 \
 	   cme_find_socketpair.m4 \
 	   rjb_find_gethostent.m4 \
 	   rjb_find_stlport.m4 \
-	   rjb_check_berkeleydb.m4
+	   rjb_check_berkeleydb.m4 \
+	   definedir.m4
 
 EXTRA_DIST = $(m4_files) acinclude.m4 genacinclude.sh
 

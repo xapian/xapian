@@ -44,31 +44,31 @@ static const int max_allocations = MAX_ALLOCATIONS;
 struct allocation_info {
     void *p;
     size_t size;
+    int id;
 };
 
 /* The full allocation state */
 struct allocation_data {
     long num_allocations;
     long allocations_bound;
+    int id;
     struct allocation_info allocations[MAX_ALLOCATIONS];
 };
 
-#define ALLOC_DATA_INIT { 0, 0 }
+#define ALLOC_DATA_INIT { 0, 0, 0 }
 
 /************ Functions for use of allocator functions **********/
-
-/** Register an allocator to be used with leak-detection.
- */
-void
-register_allocator(const char *name,
-		   struct allocation_data *allocdata);
 
 /** Register an allocation in the table.
  */
 void
 handle_allocation(struct allocation_data *data,
-		       void *address,
-		       size_t size);
+		  void *address,		  
+		  size_t size);
+
+/* checked versions of malloc and free (for use by new and delete) */
+void * checked_malloc(size_t size);
+void checked_free(void *ptr, const char *msg);
 
 enum dealloc_result {
     alloc_ok,

@@ -11,6 +11,8 @@ run_prog() {
         preload="../$preload"
     fi
 
+    preload="$preload "`echo $preload | sed 's!malloccheck!alloccommon!'`
+
     if test "x$OM_NO_MALLOCCHECK" != "x"
     then
         preload=""
