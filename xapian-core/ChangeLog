@@ -1,3 +1,7 @@
+Wed Jul  5 15:17:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Made some progress towards things compiling with Sun's CC.
+
 Wed Jul  5 14:57:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More debugging stuff: flush after each message, and correct a
