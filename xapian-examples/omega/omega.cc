@@ -1,4 +1,4 @@
-/* omega.cc: Main module for omega (example CGI frontend for Open Muscat)
+/* omega.cc: Main module for omega (example CGI frontend for Xapian)
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

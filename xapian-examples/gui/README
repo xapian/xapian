@@ -1,5 +1,5 @@
 <Directory>gui</Directory>
 
 <Description>
-This contains graphical user interfaces to test various features of Muscat.
+This contains graphical user interfaces to test various features of Xapian.
 </Description>

@@ -5,7 +5,7 @@ This contains a simple GUI, using GTK and libglade.
 It is known to work with GTK version 1.2.6 and libglade version 0.7
 
 This GUI demonstrates the retrieval and relevance feedback parts of
-Muscat.
+Xapian.
 
 Currently it fails to work with DA files: there appears to be some memory
 corruption somewhere, and reading DA files either results in a consistency
