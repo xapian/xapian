@@ -20,6 +20,11 @@ AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
 AC_SUBST(PERL_PATH)
 
+dnl Check for latex. (Needed to make some more of the documentation)
+AC_PATH_PROG(LATEX_PATH, latex)
+AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX_PATH")
+AC_SUBST(LATEX_PATH)
+
 dnl Check for doc++. (Needed to make some more of the documentation)
 AC_PATH_PROG(DOCPP_PATH, doc++)
 AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")

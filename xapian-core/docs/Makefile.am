@@ -2,6 +2,7 @@
 
 DOCPP = @DOCPP_PATH@
 DVIPS = @DVIPS_PATH@
+LATEX = @LATEX_PATH@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
@@ -18,11 +19,25 @@ if HAVE_PERL
 CREATED_DOCUMENTS1=code_structure.html
 endif
 
+# Things to do if have latex installed
+if HAVE_LATEX
+all-dvi: apidoc.dvi sourcedoc.dvi
+# Things to do if also have dvips installed
+if HAVE_DVIPS
+all-ps: apidoc.ps sourcedoc.ps
+else
+all-ps:
+endif
+else
+all-dvi:
+all-ps:
+endif
+
 # Things to do if have doc++ installed
 if HAVE_DOCPP
-all-local: apidoc/index.html sourcedoc/index.html apidoc.dvi sourcedoc.dvi
-dist-hook: apidoc/index.html apidoc.dvi apidoc-dist
-install-data-local: apidoc/index.html apidoc.dvi apidoc-install
+all-local: apidoc/index.html sourcedoc/index.html all-dvi all-ps
+dist-hook: all-local apidoc-dist
+install-data-local: all-local apidoc-install
 else
 all-local:
 dist-hook: apidoc-dist
@@ -142,8 +157,8 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 
 %.dvi: %.tex docxx.sty
 	if [ ! -r docxx.sty ] ; then ln -s ${srcdir}/docxx.sty . ; fi
-	latex "$(basename $@)" || :
-	latex "$(basename $@)" || ( $(RM) $@ ; false )
+	$(LATEX) "$(basename $@)" || :
+	$(LATEX) "$(basename $@)" || ( $(RM) $@ ; false )
 
 %.ps: %.dvi
 	$(DVIPS) -o $@ $<
