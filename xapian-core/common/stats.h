@@ -26,6 +26,7 @@
 #include "om/omtypes.h"
 #include "omassert.h"
 #include <map>
+#include <vector>
 
 /** Class to hold statistics for a given collection. */
 class Stats {
@@ -56,6 +57,8 @@ class Stats {
 	Stats & operator +=(const Stats & inc);
 };
 
+class StatsSource;
+
 /** Statistics collector: gathers statistics from sub-databases, puts them 
  *  together to build statistics for whole collection, and returns the
  *  overall statistics to each sub-database.
@@ -68,6 +71,12 @@ class StatsGatherer {
 	 */
 	mutable bool have_gathered;
 
+	/** A collection of StatsSource children.
+	 *  The Gatherer uses this to make sure that each child
+	 *  has contributed before it will give out its statistics.
+	 */
+	mutable vector<StatsSource *> sources;
+
 	/** The total statistics gathered for the whole collection.
 	 */
 	Stats total_stats;
@@ -79,6 +88,12 @@ class StatsGatherer {
 	 *  Should be called before the match is performed.
 	 */
 	void set_global_stats(om_doccount rset_size);
+
+	/** Add a StatsSource object to this gatherer.
+	 *  The gatherer will include the source's statistics
+	 *  into its own summary statistics.
+	 */
+	void add_child(StatsSource *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -267,6 +282,7 @@ inline void
 StatsSource::connect_to_gatherer(StatsGatherer *gatherer_)
 {
     gatherer = gatherer_;
+    gatherer->add_child(this);
 }
 
 inline void

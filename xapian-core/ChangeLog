@@ -1,3 +1,11 @@
+Tue Apr 18 15:43:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* StatsGatherer now knows about its associated StatsSource objects.
+
+	* StatsGatherer is now responsible for calling
+	  StatsSource::contrib_my_stats() on all its children, instead
+	  of LocalMatch::prepare_match().
+
 Mon Apr 17 17:48:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented sleepycat termlists.

@@ -24,6 +24,11 @@
 #include "omassert.h"
 
 void
+StatsGatherer::add_child(StatsSource *source) {
+    sources.push_back(source);
+}
+
+void
 StatsGatherer::contrib_stats(const Stats & extra_stats)
 {
     Assert(have_gathered == false);
@@ -34,8 +39,11 @@ const Stats *
 LocalStatsGatherer::get_stats() const
 {
     if(!have_gathered) {
-	// FIXME: gather here (ie, wait for all subdatabases to contribute,
-	// or just check, or something along those lines)
+	for (vector<StatsSource *>::iterator i = sources.begin();
+	     i != sources.end();
+	     ++i) {
+	    (*i)->contrib_my_stats();
+	}
 	have_gathered = true;
     }
 
@@ -46,8 +54,11 @@ const Stats *
 NetworkStatsGatherer::get_stats() const
 {
     if (!have_gathered) {
-	// FIXME: gather here (ie, wait for all subdatabases to contribute,
-	// or just check, or something along those lines)
+	for (vector<StatsSource *>::iterator i = sources.begin();
+	     i != sources.end();
+	     ++i) {
+	    (*i)->contrib_my_stats();
+	}
 	have_gathered = true;
     }
     // FIXME: wait until the global stats have arrived

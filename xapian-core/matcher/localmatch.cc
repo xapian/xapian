@@ -469,8 +469,8 @@ LocalMatch::prepare_match()
 	build_query_tree();
 	Assert(query != 0);
 
-	DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
-	statssource.contrib_my_stats();
+	//DebugMsg("LocalMatch::prepare_match() - Giving my stats to gatherer" << endl);
+	//statssource.contrib_my_stats();
 
 	is_prepared = true;
     }
