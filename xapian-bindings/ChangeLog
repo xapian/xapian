@@ -1,3 +1,8 @@
+Tue Oct 19 21:05:11 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: Wrap in a tcl8 namespace "Xapian".
+	* tcl8/Makefile.am,tcl8/smoketest.tcl: Added a smoketest.
+
 Wed Oct  6 17:28:54 BST 2004  James Aylett  <james@tartarus.org>
 
 	* get overloaded Query(Query::op, vector<string>*, termpos)
@@ -5,13 +10,13 @@ Wed Oct  6 17:28:54 BST 2004  James Aylett  <james@tartarus.org>
 
 Thu Sep 30 02:29:13 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * csharp/Makefile.am: Add XapianSharp.snk to CLEANFILES.
-          Place generated bindings into C# namespace "Xapian".
-          Change module name to Xapian. (Assembly remains as XapianSharp).
-          Remove -noproxy option from swig.
-          Update list of csharp source file to work with new swig options.
-        * csharp/.cvsignore: Add XapianSharp.snk, now it's a generated
-          file.
+	* csharp/Makefile.am: Add XapianSharp.snk to CLEANFILES.
+	  Place generated bindings into C# namespace "Xapian".
+	  Change module name to Xapian. (Assembly remains as XapianSharp).
+	  Remove -noproxy option from swig.
+	  Update list of csharp source file to work with new swig options.
+	* csharp/.cvsignore: Add XapianSharp.snk, now it's a generated
+	  file.
 
 Wed Sep 29 19:04:41 BST 2004  Olly Betts <olly@survex.com>
 
@@ -27,7 +32,6 @@ Wed Sep 29 17:23:23 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* csharp/: Generate strong name file automatically.
 
->>>>>>> 1.118
 Wed Sep 29 14:17:50 BST 2004  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Added "touch op.cs" so the build system works

@@ -1,6 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i
+TESTS_ENVIRONMENT = $(TCLSH)
+
+## Test programs to be run
+TESTS = smoketest.tcl
+
+EXTRA_DIST = util.i extra.i $(TESTS)
 
 tcllibdir = @TCL_LIB@
 
@@ -21,6 +26,6 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../xapian.i util.i extra.i
-	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -namespace -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)
