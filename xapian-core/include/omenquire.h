@@ -179,6 +179,21 @@ class OmMatchOptions {
 	void set_sort_forward(bool forward_ = true);
 };
 
+/** Base class for matcher decision functor.
+ *
+ *  Note:  Matcher decision functors are not yet implemented!
+ */
+// FIXME - implement
+class OmMatchDecider {
+    public:
+	/** Decide whether we want this document to be in the mset.
+	 *
+	 *  Note: The signature of this function is extremely likely to change
+	 *  in the near future.
+	 */
+	virtual bool want_doc(om_docid did) const = 0;
+};
+
 ///////////////////////////////////////////////////////////////////
 // OmExpandOptions class
 // =====================
@@ -199,7 +214,7 @@ class OmExpandOptions {
 	void use_query_terms(bool allow_query_terms_);
 };
 
-/** Base class for expand decision functions.
+/** Base class for expand decision functor.
  */
 class OmExpandDecider {
     public:
@@ -276,7 +291,7 @@ class OmMSet {
 	/// Return the percentage score for the given item.
 	int convert_to_percent(const OmMSetItem & item) const;
 
-	/// A list of items comprising the mset.
+	/// A list of items comprising the (selected part of the) mset.
 	vector<OmMSetItem> items;
 
 	/** The index of the first item in the result to put into the mset.
@@ -334,7 +349,9 @@ class OmESetItem {
 	OmESetItem(om_weight wt_new, om_termname tname_new)
 		: wt(wt_new), tname(tname_new) {}
     public:
+	/// Weight calculated.
 	om_weight wt;
+	/// Term suggested.
 	om_termname tname;
 };
 
@@ -347,7 +364,7 @@ class OmESet {
     public:
 	OmESet() : ebound(0) {}
 
-	/// A list of items comprising the eset.
+	/// A list of items comprising the (selected part of the) eset.
 	vector<OmESetItem> items;
 
 	/** A lower bound on the number of terms which are in the full
@@ -362,8 +379,8 @@ class OmESet {
 // ============
 // Representing the document data
 
-/** @memo Retrieve the data in a document.
- *  @doc This retrieves the arbitrary chunk of data which is associated
+/** @memo The data in a document.
+ *  @doc This contains the arbitrary chunk of data which is associated
  *  with each document in the database: it is up to the user to define
  *  the format of this data, and to set it at indexing time.
  */
@@ -400,17 +417,18 @@ class OmEnquire {
 	/** Add a new database to use.
 	 *
 	 *  The database may not be opened by this call: the system may wait
-	 *  until a get_mset.  Thus failure to open the database may not
-	 *  result in an OmOpeningError exception being thrown until the
-	 *  database is used.
+	 *  until a get_mset (or similar call).
+	 *  Thus, failure to open the database may not result in an
+	 *  OmOpeningError exception being thrown until the database is used.
 	 *
 	 *  The database will always be opened read-only.
 	 *
-	 * 
 	 *  @param type    a string describing the database type.
 	 *  @param params  a vector of parameters to be used to open the
 	 *  database: meaning and number required depends on database type.
-	 * 
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
 	 */
 	void add_database(const string & type,
 			  const vector<string> & params);
@@ -418,28 +436,90 @@ class OmEnquire {
 	/** Set the query to run.
 	 *
 	 *  @param query_  the new query to run.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
 	 */
 	void set_query(const OmQuery & query_);
 
 	/** Get (a portion of) the match set for the current query.
+	 *
+	 *  @param first     the first item in the result set to return.
+	 *                   A value of zero corresponds to the first item
+	 *                   returned being that with the highest score.
+	 *                   A value of 10 corresponds to the first 10 items
+	 *                   being ignored, and the returned items starting
+	 *                   at the eleventh.
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing the query.
+	 *  @param moptions  options to use when performing the match.
+	 *  @param mdecider  a decision functor to use to decide whether a
+	 *                   given document should be put in the MSet
+	 *
+	 *
+	 *  @return          An OmMSet object containing the results of the
+	 *                   query.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
 	 */
 	OmMSet get_mset(om_doccount first,
                         om_doccount maxitems,
 			const OmRSet * omrset = 0,
-			const OmMatchOptions * moptions = 0) const;
+			const OmMatchOptions * moptions = 0,
+			const OmMatchDecider * mdecider = 0) const;
 
 	/** Get the expand set for the given rset.
+	 *
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing
+	 *                   the expand operation.
+	 *  @param eoptions  options to use when performing the expand.
+	 *  @param edecider  a decision functor to use to decide whether a
+	 *                   given term should be put in the ESet
+	 *
+	 *  @return          An OmESet object containing the results of the
+	 *                   expand.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
 	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
 			const OmExpandOptions * eoptions = 0,
-			const OmExpandDecider * decider = 0) const;
+			const OmExpandDecider * edecider = 0) const;
 
 	/** Get the document data by document id.
+	 *
+	 *  It is possible for the document to have been removed from the
+	 *  database between the time it is returned in an mset, and the
+	 *  time that this call is made.  If possible, you should specify
+	 *  an OmMSetItem instead of a om_docid, since this will enable
+	 *  database backend with suitable support to prevent this
+	 *  occurring.
+	 *
+	 *  @param did   The document id for which to retrieve the data.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception OmDocNotFoundError  The document specified could not
+	 *  be found in the database.
 	 */
 	OmData get_doc_data(om_docid did) const;
 
 	/** Get the document data by match set item.
+	 *
+	 *  If the underlying database has suitable support, using this call
+	 *  (rather than passing an om_docid) will enable the system to
+	 *  ensure that the correct data is returned, and that the document
+	 *  has not been deleted or changed since the query was performed.
+	 *
+	 *  @param mitem   The item for which to retrieve the data.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception OmDocNotFoundError  The document specified could not
+	 *  be found in the database.
 	 */
 	OmData get_doc_data(const OmMSetItem &mitem) const;
 };

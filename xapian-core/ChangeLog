@@ -1,3 +1,10 @@
+Thu Feb 10 14:17:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Lots more documentation comments in omerror.h and omenquire.h
+
+	* Added API calls to set decision functors for matcher - not yet
+	  implemented, however.
+
 Wed Feb  9 17:11:13 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented far enough for it to compile.

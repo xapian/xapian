@@ -551,8 +551,14 @@ OmMSet
 OmEnquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-                    const OmMatchOptions *moptions) const
+                    const OmMatchOptions *moptions,
+		    const OmMatchDecider *mdecider) const
 {
+    // FIXME - implement this
+    if(mdecider != 0)
+	throw OmUnimplementedError("Decision functors are not yet implemented "
+				   "in OmEnquire::get_mset().");
+    
     internal->open_database();
     Assert(internal->database != NULL);
     Assert(internal->query != NULL);
