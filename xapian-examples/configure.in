@@ -25,6 +25,38 @@ AM_PATH_GLIB(1.2.0, , build_gui=no)
 AM_PATH_LIBGLADE(, build_gui=no)
 AM_CONDITIONAL(BUILD_GUI, test "X$build_gui" = Xyes)
 
+dnl *************************
+dnl * Set debugging options *
+dnl *************************
+
+dnl Work out what debugging we want
+
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Turn on debugging (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_debug=yes ;;
+  no)  use_debug=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac], [use_debug=no])
+
+dnl Now set appropriate defines
+
+dnl Clear -g flag
+CFLAGS=`echo " $CFLAGS " | sed 's/[     ][      ]*/  /g' | sed 's/ -g / /g'`
+CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[         ][      ]*/  /g' | sed 's/ -g / /g'`
+
+if test "$use_debug" = yes; then
+CFLAGS="$CFLAGS -g";
+CXXFLAGS="$CXXFLAGS -g";
+AC_DEFINE(MUS_DEBUG,,
+  [Define if you want debugging to be enabled (will cause some slow down)])
+fi
+
+if test "$use_debug" = yes; then
+AC_DEFINE(MUS_DEBUG_VERBOSE,,
+  [Define if you want lots of debugging messages])
+fi
+
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
