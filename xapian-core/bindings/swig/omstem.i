@@ -25,6 +25,46 @@
 #include <string>
 %}
 %include typemaps.i
+%include exception.i
+%{
+#define OMSWIG_exception(type, msg) \
+    SWIG_exception((type), const_cast<char *>((msg).c_str()))
+%}
+
+%except {
+    try {
+    	$function
+    } catch (OmAssertionError &e) {
+        OMSWIG_exception(SWIG_UnknownError,
+		       string("OmAssertion: ") + e.get_msg());
+    } catch (OmUnimplementedError &e) {
+        OMSWIG_exception(SWIG_UnknownError,
+		       string("OmUnimplemented: ") + e.get_msg());
+    } catch (OmInvalidArgumentError &e) {
+        OMSWIG_exception(SWIG_ValueError,e.get_msg());
+    } catch (OmDocNotFoundError &e) {
+        OMSWIG_exception(SWIG_RuntimeError,
+		       string("OmDocNotFoundError: ") + e.get_msg());
+    } catch (OmRangeError &e) {
+        OMSWIG_exception(SWIG_IndexError,
+		       string("OmRangeError: ") + e.get_msg());
+    } catch (OmInternalError &e) {
+        OMSWIG_exception(SWIG_UnknownError,
+		       string("OmInternalError: ") + e.get_msg());
+    } catch (OmDatabaseError &e) {
+        OMSWIG_exception(SWIG_IOError,
+		       string("OmDatabaseError: ") + e.get_msg());
+    } catch (OmNetworkError &e) {
+        OMSWIG_exception(SWIG_IOError,
+		       string("OmNetworkError: ") + e.get_msg());
+    } catch (OmInvalidResultError &e) {
+        OMSWIG_exception(SWIG_ValueError,
+		       string("OmInvalidResultError: ") + e.get_msg());
+    } catch (...) {
+        OMSWIG_exception(SWIG_UnknownError,
+			 string("unknown error in Open Muscat"));
+    }
+}
 
 %typemap(python, out) string {
     $target = PyString_FromString(($source)->c_str());
