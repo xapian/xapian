@@ -123,13 +123,18 @@ int main(int argc, char *argv[]) {
       int sim = matches.convert_to_percent(i);
       //      cout << sim << " ";
       OmDocument doc = i.get_document();
-      static char str[4096];
-      sprintf(str, "%d", sim);
-      string data = string(str)+" "+ doc.get_data().value;
+      string data = doc.get_data().value;
+
       int imp = 0;
       imp = atoi( data.substr( 0, data.find(" ") ).c_str() );
       assert( imp > 0 );
+
+      static char str[4096];
+      sprintf(str, "%d", sim);
+      data = string(str)+" " +data;
+
       //      cout << data << endl; 
+      //      cout << "...sim = " << sim << " and imp = " << imp<<  endl;
       results[ -sim*log(1.0+imp)].insert(data);
     }
 

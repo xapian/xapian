@@ -890,7 +890,7 @@ void readTags( const string& fn, set<string>& S ) {
       continue;
     }
     //    cerr << "FOUND -" << s << "-" << endl;
-    bool function = (s.find("\tfunction\t") != -1) || (s.find("\tfunction")+string("\tfunction").length() == s.length());
+    bool function = (s.find("\tfunction\t") != -1) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != -1);
     string symbol = s.substr( 0, s.find("\t") );
     if ( symbol.find("::") != -1 ) {
       symbol = symbol.substr( symbol.find("::")+2 );
@@ -905,7 +905,7 @@ void readTags( const string& fn, set<string>& S ) {
       symbol += "()";
     }
     S.insert(symbol);
-    //    cerr << "** found symbol -" << symbol << "-" << endl;
+    cerr << "** found symbol -" << symbol << "-" << endl;
   } 
   in.close();
 }
