@@ -59,6 +59,8 @@ bool test_msetmaxitems1();
 bool test_expandmaxitems1();
 // tests that a pure boolean query has all weights set to 1
 bool test_boolquery1();
+// tests that get_mset() specifying "first" works as expected
+bool test_msetfirst1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -73,6 +75,7 @@ om_test tests[] = {
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},
+    {"msetfirst1",         test_msetfirst1},
     {0, 0}
 };
 
@@ -171,6 +174,19 @@ int main(int argc, char *argv[])
     }
 }
 
+
+bool mset_range_is_same(const OMMSet &mset1, unsigned int first1,
+                        const OMMSet &mset2, unsigned int first2,
+			unsigned int count)
+{
+    for (unsigned int i=0; i<count; ++i) {
+        if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
+	    (mset1.items[first1+i].did != mset2.items[first2+i].did)) {
+	    return false;
+        }
+    }
+}
+
 bool operator==(const OMMSet &first, const OMMSet &second)
 {
     if ((first.mbound != second.mbound) ||
@@ -178,14 +194,7 @@ bool operator==(const OMMSet &first, const OMMSet &second)
 	(first.items.size() != second.items.size())) {
          return false;
     }
-
-    for (unsigned int i=0; i<first.items.size(); ++i) {
-        if ((first.items[i].wt != second.items[i].wt) ||
-	    (first.items[i].did != second.items[i].did)) {
-	    return false;
-        }
-    }
-    return true;
+    return mset_range_is_same(first, 0, second, 0, first.items.size());
 }
 
 bool test_trivial()
@@ -229,7 +238,8 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
-void do_get_simple_query_mset(OMMSet &mset, OMQuery query, int maxitems = 10)
+void do_get_simple_query_mset(OMMSet &mset, OMQuery query,
+                              int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -243,7 +253,7 @@ void do_get_simple_query_mset(OMMSet &mset, OMQuery query, int maxitems = 10)
     enquire.set_query(query);
 
     // retrieve the top results
-    enquire.get_mset(mset, 0, maxitems);
+    enquire.get_mset(mset, first, maxitems);
 }
 
 bool test_simplequery1()
@@ -455,5 +465,19 @@ bool test_boolquery1()
 	}
     }
 
+    return success;
+}
+
+bool test_msetfirst1()
+{
+    bool success = true;
+    OMMSet mymset1, mymset2;
+
+    do_get_simple_query_mset(mymset1, OMQuery("thi"), 6, 0);
+    do_get_simple_query_mset(mymset2, OMQuery("thi"), 3, 3);
+
+    if (!mset_range_is_same(mymset1, 3, mymset2, 0, 3)) {
+        success = false;
+    }
     return success;
 }

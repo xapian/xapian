@@ -39,17 +39,82 @@ while ($_ = shift @ARGV) {
   };
 };
 
+my ($val_succeeded, $val_failed, $val_skipped) = (0, 1, 2);
+
 $main::testspassed = 0;
 $main::testsfailed = 0;
 $main::testsskipped = 0;
 
+# we need to generate a file of random rubbish to feed to each
+# of the stemming routines.
+my ($randtext, $randjunk) = (".stemtest.pl_randtext", ".stemtest.pl_randjunk");
+my $seed = 1;
+srand $seed;
+print "Generating random text... (seed $seed)\n";
+&make_randomtext($randtext);
+srand $seed;
+print "Generating random junk... (seed $seed)\n";
+&make_randomjunk($randjunk);
+
 foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spanish") {
     my $language = $_;
+    my $myretval = &dicttest($language);
+    if ($myretval == $val_succeeded) {
+        $main::testspassed++;
+    } elsif ($myretval == $val_failed) {
+        $main::retval = $myretval;
+	$main::testsfailed++;
+    } elsif ($myretval == $val_skipped) {
+        $main::testsskipped++;
+    } else {
+        die "Internal error";
+    };
+
+    $myretval = &randtest($language, $randtext);
+    if ($myretval == $val_succeeded) {
+        $main::testspassed++;
+    } elsif ($myretval == $val_failed) {
+        $main::retval = $myretval;
+	$main::testsfailed++;
+    } elsif ($myretval == $val_skipped) {
+        $main::testsskipped++;
+    } else {
+        die "Internal error";
+    };
+
+    $myretval = &randtest($language, $randjunk);
+    if ($myretval == $val_succeeded) {
+        $main::testspassed++;
+    } elsif ($myretval == $val_failed) {
+        $main::retval = $myretval;
+	$main::testsfailed++;
+    } elsif ($myretval == $val_skipped) {
+        $main::testsskipped++;
+    } else {
+        die "Internal error";
+    };
+};
+
+unlink($randtext);
+unlink($randjunk);
+
+print "$0 finished: $main::testspassed tests passed, " .
+      "$main::testsfailed failed" .
+      ($main::testsskipped? ", $main::testsskipped skipped" : "") . ".\n";
+
+if ($main::did_something) {
+    exit $main::retval;
+} else {
+    exit 77;  # magic value meaning "ignore test"
+};
+
+sub dicttest {
+    my $language = shift;
     my $datadir = $ENV{"srcdir"} . "/../../data/stemming/$language/data";
     my $wordcount = 0;
-    my $myretval = 0;
+    my $myretval = $val_succeeded;
 
-    print "Testing $language...";
+    print "Testing $language with fixed dictionary...";
     if (-r "$datadir/voc.txt" &&
         -r "$datadir/voc.st") {
 	$main::did_something = 1;
@@ -79,14 +144,14 @@ foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spani
 		chomp $answer;
 
 	        if ($stemmed ne $answer) {
-		    $myretval = 1;
+		    $myretval = $val_failed;
 		    if ($main::verbose) {
 		    	print "Got $stemmed, expected $answer\n";
 		    };
 		    last;
 		};
 	    } else {
-	        $myretval = 1;
+	        $myretval = $val_failed;
 		if ($main::verbose) {
 		    print "Got an unexpected EOF\n";
 		};
@@ -98,22 +163,55 @@ foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spani
     } else {
         print "stemming test data not available in $datadir\n";
 	print "(skipping language $language)\n";
-	$main::testsskipped++;
+	return $val_skipped;
     };
-    if ($myretval) {
-        $main::retval = $myretval;
-	$main::testsfailed++;
+    return $myretval;
+};
+
+sub randtest {
+    my $retval;
+    my $language = shift;
+    my $filename = shift;
+
+    print "Testing $language with file $filename...";
+    $retval = system("./stemtest --$language $filename > /dev/null 2>&1");
+    if ($retval) {
+        if ($main::verbose) {
+	    print "stemtest returned $retval\n";
+	};
+	print " FAILED\n";
+        return $val_failed;
     } else {
-        $main::testspassed++;
+        print " ok.\n";
+        return $val_succeeded;
     };
 };
 
-print "$0 finished: $main::testspassed tests passed, " .
-      "$main::testsfailed failed" .
-      ($main::testsskipped? ", $main::testsskipped skipped" : "") . ".\n";
+# these are inefficient, I know...
+sub make_randomtext {
+    my $filename = shift;
+    my $count = 0;
+    my @allowedchars = split(//,
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^ \n");
 
-if ($main::did_something) {
-    exit $main::retval;
-} else {
-    exit 77;  # magic value meaning "ignore test"
+    open(OUTPUT, ">$filename") or die "Failed to create random text file";
+
+    while ($count < 2048576) {
+        print OUTPUT $allowedchars[int(rand(@allowedchars))];
+	$count++;
+    };
+    close OUTPUT;
+};
+
+sub make_randomjunk {
+    my $filename = shift;
+    my $count = 0;
+
+    open(OUTPUT, ">$filename") or die "Failed to create random junk file";
+
+    while ($count < 2048576) {
+        print OUTPUT pack("C", int(rand(256)));
+	$count++;
+    };
+    close OUTPUT;
 };
