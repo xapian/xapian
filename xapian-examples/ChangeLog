@@ -1,3 +1,7 @@
+Thu Nov 23 11:55:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove dependency on index_utils.h, which has been removed.
+
 Wed Nov 22 16:05:01 GMT 2000 Olly Betts
 
 	* Corrected a comment.

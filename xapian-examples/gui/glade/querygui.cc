@@ -35,10 +35,33 @@
 
 #include <om/om.h>
 
-#include "../indexer/index_utils.h"
-
 #include <list>
 #include <memory>
+
+// FIXME: these 2 copied from om/indexer/index_utils.cc
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+	*i = tolower(*i);
+	i++;
+    }
+}
+
+// Keep only the characters in keep
+static void
+select_characters(om_termname &term)
+{
+    string chars(
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    string::size_type pos;
+    while((pos = term.find_first_not_of(chars)) != string::npos)
+    {
+	string::size_type endpos = term.find_first_of(chars, pos);
+	term.erase(pos, endpos - pos);
+    }
+}
 
 OmEnquire * enquire;
 OmMSet mset;
@@ -234,7 +257,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    if(spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
 	    spacepos = unparsed_query.find_first_of(" \t\n");
 	    word = unparsed_query.substr(0, spacepos);
-	    select_characters(word, "");
+	    select_characters(word);
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
 	    omquery = OmQuery(OmQuery::OP_OR, omquery, OmQuery(word, 1, position++));

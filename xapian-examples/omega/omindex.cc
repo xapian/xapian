@@ -337,7 +337,9 @@ main(int argc, char **argv)
     root = argv[2];
     try {
 	db = new OmWritableDatabase(params);
+	db->begin_session();
 	index_directory(argv[3]);
+	db->end_session();
 	delete db;
     }
     catch (OmError &e) {
