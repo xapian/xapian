@@ -49,6 +49,7 @@ typedef enum {
 class OMQuery {
     friend class OMMatch;
     private:
+	bool isnull;
 	vector<OMQuery *> subqs;
 	termname tname;
 	om_queryop op;
@@ -56,6 +57,8 @@ class OMQuery {
 	void initialise_from_copy(const OMQuery &);
 	void initialise_from_vector(const vector<OMQuery>::const_iterator,
 				    const vector<OMQuery>::const_iterator);
+	void initialise_from_vector(const vector<OMQuery *>::const_iterator,
+				    const vector<OMQuery *>::const_iterator);
     public:
 	// A query consisting of a single term
 	OMQuery(const termname &);
@@ -64,16 +67,20 @@ class OMQuery {
 	OMQuery(om_queryop, const OMQuery &, const OMQuery &);
 
 	// A set of OMQuery's, merged together with specified operator.
-	// The only operators allowed are AND and OR
-	OMQuery(om_queryop, const vector<OMQuery> &);
-
-	// As before, except subqueries are all individual terms.
-	OMQuery(om_queryop, const vector<termname> &);
-
-	// As before, but use begin and end iterators
+	// (Takes begin and end iterators).
+	// The only operators allowed are AND and OR.
 	OMQuery(om_queryop,
 		const vector<OMQuery>::const_iterator,
 		const vector<OMQuery>::const_iterator);
+
+	OMQuery(om_queryop,
+		const vector<OMQuery *>::const_iterator,
+		const vector<OMQuery *>::const_iterator);
+
+	// As before, except subqueries are all individual terms.
+	OMQuery(om_queryop,
+		const vector<termname>::const_iterator,
+		const vector<termname>::const_iterator);
 
 	// Copy constructor
 	OMQuery(const OMQuery &);
@@ -81,7 +88,8 @@ class OMQuery {
 	// Assignment
 	OMQuery & operator=(const OMQuery &);
 
-	// Default constructor: creates a null query
+	// Default constructor: makes a null query which can't be used
+	// (Convenient to have a default constructor though)
 	OMQuery();
 
 	// Destructor

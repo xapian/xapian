@@ -65,15 +65,6 @@ class OMMatch
 	bool query_ready; 
 	PostList * build_query();
 
-	// Add term to query stack
-        void add_term(const termname &);
-
-	// Apply operator to top items on stack
-	bool add_op(om_queryop op);
-
-	// Add list of terms op'd together to stack
-	void add_oplist(om_queryop op, const vector<termname>&);
-
 	// Make a postlist from a query object
 	PostList * postlist_from_query(const OMQuery *);
 
