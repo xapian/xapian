@@ -28,6 +28,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Tests           | Write tests for collapse M.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matcher         | Test what happens if reversed sort order is
+         |                 | specified for a boolean search.
+---------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------
