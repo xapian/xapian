@@ -1,4 +1,3 @@
-
 #! @PERL_PATH@ -w
 # @configure_input@
 # todo2html.pl is automatically generated from todo2html.pl.in
