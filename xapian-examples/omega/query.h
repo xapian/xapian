@@ -6,10 +6,8 @@ int set_boolean( const char *query, const char *old_query, int boolean_present )
 void set_relevant( const char * );
 long do_match( long int, long int ); /* Ol 1997-01-31 return msize */
 
-void add_bterm( const char * );
+void add_bterm(const string &);
 void do_showdoc( long int, long int, long int );
-
-void muscat_stem( char * );
 
 extern char dec_sep, thou_sep;
 

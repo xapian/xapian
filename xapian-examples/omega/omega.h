@@ -22,3 +22,8 @@ extern Match *matcher;
 extern map<string, string> option;
 
 extern const string default_db_name;
+
+#ifdef FERRET
+extern int dlist[];
+extern int n_dlist;
+#endif

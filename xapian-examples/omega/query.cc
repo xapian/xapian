@@ -57,10 +57,6 @@ char thou_sep = ',', dec_sep = '.';
 #ifdef FERRET
 static string ad_keywords;
 int n_ad_keywords = 0;
-
-/* from main.c */
-extern int dlist[];
-extern int n_dlist;
 #endif
 
 static string query_string;
@@ -264,10 +260,8 @@ static void
 parse_prob(const char *text)
 {
     const char *pC = text;
-    char *pTo;
-    int size;
     termtype type = NORMAL;
-    char buf[MAX_TERM_LEN];
+    string buf;
     int stem, stem_all;
     int ch;
 #ifdef FERRET
@@ -285,69 +279,26 @@ parse_prob(const char *text)
     stem_all = atoi(option["all_stem"].c_str());
 #endif
 
-    ch = get_next_char( &pC );
+    ch = get_next_char(&pC);
     while (ch) {	
-	if (isalnum (ch)) {
+	if (isalnum(ch)) {
 	    bool got_next = false;
 	    int do_stem;
-#ifdef COLONFILTERS
-	    int is_bool = 0;
-	    const char *extra_chars = "+&";
-#endif /* COLONFILTERS */
-	    pTo = buf;
-	    size = 0;
+	    // FIXME: allow domain:uk in query...
+	    // don't allow + and & in term then ?
+	    // or allow +&.-_ ?
+	    // domain/site/language/host ?
 	    do_stem = stem;
 
 	    if (in_quotes) do_stem = 0;
 
 	    if (!stem_all && ch >= 'A' && ch <= 'Z') do_stem = 0;
 
-#ifndef COLONFILTERS
-	    while (isalnum (ch) || ch == '+' || ch == '&') {
-		*pTo++ = tolower(ch);
-	        ch = get_next_char( &pC );
-		if (++size > MAX_TERM_LEN-3) break;
+            buf = "";
+	    while (isalnum(ch) || ch == '+' || ch == '&') {
+		buf += tolower(ch);
+	        ch = get_next_char(&pC);
 	    }
-#else /* COLONFILTERS */
- 	    read_on:
-	    while (isalnum(ch) || strchr(extra_chars, ch)) {
-		*pTo++ = tolower(ch);
-	        ch = get_next_char( &pC );
-		if (++size > MAX_TERM_LEN-3) break;
-	    }
-#endif /* COLONFILTERS */
-
-	    *pTo = '\0';
-	   
-#ifdef COLONFILTERS
-	    if (is_bool) {
-	       add_term(buf); /* turn into boolean term */
-	       if (ch) ch = get_next_char( &pC ); /* skip unless it's a '\0' */
-	       continue;
-	    }
-
-	    if (!in_quotes && ch == ':') {
-	       /* handle "domain:uk", etc */
-	       switch (buf[0]) {
-		case 'd': /* domain */
-		case 's': /* site */
-		  buf[0] = 'N';
-		  break;
-		case 'l': /* language */
-		  buf[0] = 'L';
-		  break;
-		default:
-		  goto bogus_prefix;
-	       }
-	       pTo = buf + 1;
-	       ch = get_next_char( &pC );
-	       extra_chars = "+&.-_";
-	       is_bool = 1;
-	       
-	       goto read_on;
-	       bogus_prefix:
-	    }
-#endif /* COLONFILTERS */
 
 	    if (n_ad_keywords < 4) {
 	       /* FIXME: && type != ABSENT, or pick 4 top +ve weights later? */
@@ -365,11 +316,7 @@ parse_prob(const char *text)
 	       if (!isalnum(ch)) do_stem = 0;
 	    }
 
-	    /* muscat_stem() writes stemmed word over unstemmed */
-	    if (do_stem) {
-		string term = stemmer.stem_word(buf);
-		strcpy(buf, term.c_str());
-	    }
+	    if (do_stem) buf = stemmer.stem_word(buf);
 
 	    if (!in_quotes) {
 		check_term(buf, type);
@@ -417,8 +364,8 @@ parse_prob(const char *text)
 // FIXME: multimap for general use?
 static map<char, string> filter_map;
 /**************************************************************/
-void add_bterm(const char *term) {
-    filter_map[term[0]] = string(term);
+void add_bterm(const string &term) {
+    filter_map[term[0]] = term;
 }
 
 /**************************************************************/
@@ -507,9 +454,9 @@ static void pretty_printf(const char *p, int *a) {
 
 /*******************************************************************/
 /* showdoc and docid are only relevant for print_doc_page */
-static size_t process_common_codes( int which, char *pc, long int topdoc,
+static size_t process_common_codes(int which, char *pc, long int topdoc,
 				   long int maxhits, long int last,
-				   long int showdoc, long int docid ) {
+				   long int showdoc, long int docid) {
    if (!strncmp (pc, "GIF_DIR", 7)) {
       cout << gif_dir;
       return 7;
