@@ -1,0 +1,115 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(source/xdb-manage.cc)
+AM_INIT_AUTOMAKE(dbtools, 0.1-cvs)
+AM_CONFIG_HEADER(config.h)
+
+dnl Add parameters for aclocal
+dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+
+dnl Use libtool to manage our libraries
+AM_PROG_LIBTOOL
+
+dnl Check for xapian bits
+OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
+dnl Check for libxml.  We do this by looking for xml-config.
+dnl FIXME: is something else needed for non-gnome libxml?
+AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
+AC_SUBST(XML_CONFIG_PATH)
+if test -n "$XML_CONFIG_PATH"
+then
+AC_DEFINE(HAVE_LIBXML,,
+  [ Define if libxml is available.])
+fi
+
+if test -n "$XML_CONFIG_PATH"
+then
+    AC_MSG_CHECKING([libxml flags])
+    LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
+    LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
+
+dnl    AC_LANG_SAVE
+dnl    AC_LANG_C
+dnl    SAVE_CFLAGS="$CFLAGS"
+dnl    CFLAGS="$CFLAGS $LIBXML_CFLAGS"
+dnl    AC_TRY_COMPILE([
+dnl#include <parser.h>
+dnl#include <valid.h>
+dnl], [ xmlValidCtxt ctxt;
+dnl     xmlDocPtr doc;
+dnl     xmlValidateDocument(&ctxt, doc);
+dnl     ], [have_libxml_valid=yes], [have_libxml_valid=no])
+dnl    CFLAGS="$SAVE_CFLAGS"
+dnl    AC_LANG_RESTORE
+    AC_MSG_RESULT("$LIBXML_CFLAGS")
+else
+    AC_MSG_ERROR(can't build dbtool without xml)
+fi
+AC_SUBST(LIBXML_CFLAGS)
+AC_SUBST(LIBXML_LIBS)
+dnl if test "x$have_libxml_valid" = "xyes"; then
+dnl AC_DEFINE(HAVE_LIBXML_VALID,,
+dnl	  [ Define if libxml has validation available ])
+dnl else
+dnl AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
+dnl fi
+
+dnl *************************
+dnl * Set debugging options *
+dnl *************************
+
+dnl Work out what debugging we want
+
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Turn on debugging (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_debug=yes ;;
+  no)  use_debug=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac], [use_debug=no])
+
+dnl Now set appropriate defines
+
+dnl Clear -g flag
+CFLAGS=`echo " $CFLAGS " | sed 's/[     ][      ]*/  /g' | sed 's/ -g / /g'`
+CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[         ][      ]*/  /g' | sed 's/ -g / /g'`
+
+if test "$use_debug" = yes; then
+CFLAGS="$CFLAGS -g";
+CXXFLAGS="$CXXFLAGS -g";
+fi
+
+dnl ******************************
+dnl * Set special compiler flags *
+dnl ******************************
+
+dnl extra flags for building with gcc
+if test "$GCC" = yes; then
+  changequote(, ) dnl avoid problems with [] in sed expressions
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
+  case "$CFLAGS" in
+    *-O6*) ;;
+    *) CFLAGS="$CFLAGS -O6"
+  esac
+
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  case "$CXXFLAGS" in
+    *-O6*) ;;
+    *) CXXFLAGS="$CXXFLAGS -O6"
+  esac
+  changequote([, ])
+fi
+
+dnl **************************
+dnl * Build the output files *
+dnl **************************
+
+AC_OUTPUT(
+ Makefile
+ source/Makefile
+)
