@@ -1,3 +1,9 @@
+Fri Dec 06 04:30:17 GMT 2002  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Ignore PHP tags and their contents; fixed tag
+	  scanning code to never read one character past the end of
+	  the document.
+
 Wed Dec 04 18:42:51 GMT 2002  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h,omindex.cc,query.cc,scriptindex.cc:

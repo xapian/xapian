@@ -136,7 +136,8 @@ HtmlParser::parse_html(const string &body)
 	    p = find(p, body.end(), '<');
 	    if (p == body.end()) break;
 	    char ch = *(p + 1);
-	    if (isalpha(ch) || ch == '/' || ch == '!') break;
+	    // tag, closing tag, comment (or SGML declaration), or PHP
+	    if (isalpha(ch) || ch == '/' || ch == '!' || ch == '?') break;
 	    p++; 
 	}
 
@@ -152,10 +153,14 @@ HtmlParser::parse_html(const string &body)
 
 	start = p + 1;
    
+	if (start == body.end()) break;
+
 	if (*start == '!') {
+	    if (++start == body.end()) break;
+	    if (++start == body.end()) break;
 	    // comment or SGML declaration
-	    if (*(start + 1) == '-' && *(start + 2) == '-') {
-		start = find(start + 3, body.end(), '>');
+	    if (*(start - 1) == '-' && *start == '-') {
+		start = find(start + 1, body.end(), '>');
 		// unterminated comment swallows rest of document
 		// (like NS, but unlike MSIE iirc)
 		if (start == body.end()) break;
@@ -170,10 +175,22 @@ HtmlParser::parse_html(const string &body)
 		if (p != body.end()) start = p;
 	    } else {
 		// just an SGML declaration, perhaps giving the DTD - ignore it
-		start = find(start + 1, body.end(), '>');
+		start = find(start - 1, body.end(), '>');
 		if (start == body.end()) break;
 	    }
-	    start++;
+	    ++start;
+	} else if (*start == '?') {
+	    if (++start == body.end()) break;
+	    // PHP - swallow until ?> or EOF
+	    start = find(start + 1, body.end(), '>');
+
+	    // look for ?>
+	    while (start != body.end() && *(start - 1) != '?')
+		start = find(start + 1, body.end(), '>');
+
+	    // unterminated PHP swallows rest of document (rather arbitrarily
+	    // but it avoids polluting the database when things go wrong)
+	    if (start != body.end()) ++start;
 	} else {
 	    // opening or closing tag
 	    int closing = 0;
@@ -208,7 +225,7 @@ HtmlParser::parse_html(const string &body)
 		    p = find_if(p, body.end(), p_notwhitespace);
 		      
 		    start = p;
-		    if (*start == '=') {
+		    if (start != body.end() && *start == '=') {
 			int quote;
 		       
 			start = find_if(start + 1, body.end(), p_notwhitespace);
@@ -241,14 +258,14 @@ HtmlParser::parse_html(const string &body)
 			    // (as Netscape does)
 			    if (Param.find(name) == Param.end())
 				Param[name] = value;
-		       }
-		   }
-	       }
-	       opening_tag(tag, Param);
-	       Param.clear();
-	       
-	       if (*start == '>') start++;
-	   }
+			}
+		    }
+		}
+		opening_tag(tag, Param);
+		Param.clear();
+
+		if (start != body.end() && *start == '>') ++start;
+	    }
 	}
     }
 }
