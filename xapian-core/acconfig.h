@@ -75,12 +75,12 @@
  */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
-#endif // _GNU_SOURCE
-#endif // MUS_MUTEX_ERRCHECK
+#endif /* _GNU_SOURCE */
+#endif /* MUS_MUTEX_ERRCHECK */
 
 #ifndef HAVE_GETOPT_H
 /* needed for Solaris for getopt to be defined in stdlib.h */
 #define __EXTENSIONS__
-#endif // HAVE_GETOPT_H
+#endif /* HAVE_GETOPT_H */
 
 #endif /* OM_HGUARD_OM_CONFIG_H */

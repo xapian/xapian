@@ -1,3 +1,7 @@
+Tue Aug  1 15:39:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change C++ style comments in acconfig.h into C style comments.
+
 Mon Jul 31 19:05:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Updates to the Perl and Python test scripts, and an extra
