@@ -33,6 +33,12 @@ INSTALLATION
 Building a CVSSearch Database
 =============================
 
+setenv CVSROOT ... (location of CVS repository)
+setenv CVSDATA ... (location of CVSSearch database to be built)
+
+cvsbuild -f dir.list [ dir.list is a list of directories in CVS
+                       repostory to index ]
+
 
 
 Searching a CVSSearch Database
@@ -40,7 +46,7 @@ Searching a CVSSearch Database
 
 
 
-
-
+Advanced Usage:  Multiple CVS Repositories
+==========================================
 
 
