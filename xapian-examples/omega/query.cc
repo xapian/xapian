@@ -410,6 +410,17 @@ static int percentage(double num, double denom) {
     return (int)percent;
 }
 
+class MatchingTermCmp {
+    public:
+	bool operator()(const termname &a, const termname &b) {
+	    if(matching_map.find(a) != matching_map.end() &&
+	       matching_map.find(b) != matching_map.end()) {
+		return matching_map[a] < matching_map[b];
+	    }
+	    return a < b;
+	}
+};
+
 extern void
 print_caption(long int m)
 {
@@ -594,30 +605,41 @@ print_caption(long int m)
 	    cout << percent << '%';
 	    break;
 	 case 'T': {
-	     bool comma = false;
-	     // FIXME: we should store the matching terms
-	     // in a vector and then sort by the value of matching_map[]
-	     // so that they come back in the same order as in the query
+	     // Store the matching terms in a vector and then sort by the
+	     // value of matching_map[] so that they come back in the same
+	     // order as in the query.
+	     vector<termname> matching_terms;
 	     TermList *terms = database->open_term_list(q0);
 	     terms->next();
 	     while (!terms->at_end()) {
 		 termname term = terms->get_termname();
-		 map<termname, int>::iterator i = matching_map.find(term);
+		 map<termname, int>::const_iterator i = matching_map.find(term);
 		 if (i != matching_map.end()) {
-#ifdef META
-		     if (comma) cout << ','; else comma = true;
-#else
-		     if (comma) cout << ' '; else comma = true;
-#endif
-		     /* quote terms with spaces in */
-		     if (term.find(' ') != string::npos)
-			 cout << '"' << term << '"';
-		     else
-			 cout << term;
+		     matching_terms.push_back(term);
 		 }
 		 terms->next();
 	     }
 	     delete terms;
+
+	     sort(matching_terms.begin(),
+		  matching_terms.end(),
+		  MatchingTermCmp());
+
+	     vector<termname>::const_iterator term = matching_terms.begin();
+	     bool comma = false;
+	     while (term != matching_terms.end()) {
+#ifdef META
+		 if (comma) cout << ','; else comma = true;
+#else
+		 if (comma) cout << ' '; else comma = true;
+#endif
+		 /* quote terms with spaces in */
+		 if (term->find(' ') != string::npos)
+		     cout << '"' << *term << '"';
+		 else
+		     cout << *term;
+		 term++;
+	     }
 	     break;
 	  }
 	  case 'G': /* score Gif */
