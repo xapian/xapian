@@ -16,9 +16,6 @@ Little Jobs
          |                 |
 Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
- High    |CDistribution    | Make the network server better (multithreaded
-         |                 | etc.).
----------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make timeouts configurable with a sensible
          |                 | default.
 ---------+-----------------+--------------------------------------------------
@@ -159,7 +156,7 @@ Priority | Area            | Task
  Verylow | Backends        | Split database definition files into
 	 |                 | database/postlist/termlist files.
 ---------+-----------------+--------------------------------------------------
- Verylow | General         | A couple of objects get copied a lot - look into
+ Verylow | General         | A couple of classes get copied a lot - look into
          |                 | doing copy-on-write for them.  (Notably term
 	 |                 | objects (currently strings so this happens, but
 	 |                 | may not stay that way) and ExpandBits)

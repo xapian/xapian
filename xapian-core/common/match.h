@@ -99,10 +99,9 @@ class SingleMatch : public OmRefCntBase
 	// =======================
 
 	/** Prepare to perform the match operation.
-	 *  This must be called before either get_max_weight() or
-	 *  get_mset().  It can be called more than once.  If nowait
-	 *  is true, the operation has only succeeded when the return
-	 *  value is true.
+	 *  This must be called before get_mset().  It can be called more
+	 *  than once.  If nowait is true, the operation has only succeeded
+	 *  when the return value is true.
 	 *
 	 *  @param nowait	If true, then return as soon as
 	 *  			possible even if the operation hasn't
@@ -122,11 +121,6 @@ class SingleMatch : public OmRefCntBase
 	///////////////////////////////////////////////////////////////////
 	// Get information about result
 	// ============================
-
-	/** Get an upper bound on the possible weights.
-	 *  (This bound is unlikely to be attained.)
-	 */
-	virtual om_weight get_max_weight() = 0;
 
 	/** Perform the match operation, and get the matching items.
 	 *  Also returns a lower bound on the number of matching records in
