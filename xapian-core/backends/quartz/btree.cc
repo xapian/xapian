@@ -1223,17 +1223,15 @@ K set accordingly. c is set to 1.
 
 static void form_key(struct Btree * B, byte * p, byte * key, int key_len)
 {
-    if (key_len > B->max_key_len)
-    {
-        key_len = B->max_key_len;  /* just to keep things working */
-	/* FIXME: handle this higher up in the code. */
-        B->error = BTREE_ERROR_KEYSIZE;
-    }
-    {   int c = I2;
-        SETK(p, c, key_len + K1 + C2); c += K1;
-        memmove(p + c, key, key_len); c += key_len;
-        SETC(p, c, 1);
-    }
+    Assert(key_len <= B->max_key_len);
+
+    // This just so it doesn't fall over horribly in non-debug builds.
+    if (key_len > B->max_key_len) key_len = B->max_key_len;
+
+    int c = I2;
+    SETK(p, c, key_len + K1 + C2); c += K1;
+    memmove(p + c, key, key_len); c += key_len;
+    SETC(p, c, 1);
 }
 
 /* Btree_add(B, key, key_len, tag, tag_len) adds the key/tag item to the
@@ -2116,11 +2114,11 @@ extern int Bcursor_next(struct Bcursor * BC)
 extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 {
     struct Btree * B = BC->B;
+    struct Cursor * C = BC->C;
 
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
-    struct Cursor * C = BC->C;
     form_key(B, B->kt, key, key_len);
     {   int found = find(B, C);
 

@@ -1,3 +1,11 @@
+Fri Nov 17 15:39:29 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixes to check key length when searching for a key or adding an
+	  item.  If a key which is too long is searched for, it simply
+	  will not be found (but cursor operations will find first key
+	  before it, as expected).  If an attempt is made to add a key
+	  which is too long, an exception will be thrown.
+
 Fri Nov 17 14:37:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a problem with errors opening a database at a particular

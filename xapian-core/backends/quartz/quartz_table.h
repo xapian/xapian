@@ -121,11 +121,16 @@ class QuartzDiskCursor : public QuartzCursor {
 	 */
 	struct Bcursor * cursor;
 
+	/** The maximum length of a key.
+	 */
+	unsigned int max_key_len;
+
     public:
 	/// Create the cursor
 	QuartzDiskCursor(struct Btree * btree)
 		: is_positioned(false),
-		  cursor(Bcursor_create(btree)) {}
+		  cursor(Bcursor_create(btree)),
+		  max_key_len(btree->max_key_len) {}
 	
 	/// Destroy the cursor
 	~QuartzDiskCursor() { Bcursor_lose(cursor); }
