@@ -33,6 +33,11 @@ Tue Apr 01 02:52:57 BST 2003  Olly Betts <olly@survex.com>
 	  "unsigned long int" so that quartz_tablesize_t matches om_doccount
 	  on 64 bit machines.
 
+Mon Mar 31 19:34:54 BST 2003  Olly Betts <olly@survex.com>
+   
+	* AUTHORS,xapian.spec.in: Merged in changes to RPM packaging from
+	  Fabrice Colin and reworked further.
+  
 Fri Mar 28 20:04:04 GMT 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.
