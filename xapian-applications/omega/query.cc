@@ -276,6 +276,7 @@ run_query()
 	    query = Xapian::Query(Xapian::Query::OP_AND,
 			    filter_vec.begin(),
 			    filter_vec.end());
+	    if (enquire) enquire->set_weighting_scheme(Xapian::BoolWeight());
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER,
 		    query,

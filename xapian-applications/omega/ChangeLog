@@ -1,3 +1,8 @@
+Wed Nov 24 04:12:09 GMT 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: If there's only a boolean query so we promote it to be
+	  the query, switch to boolean weights.
+
 Wed Nov 24 03:29:36 GMT 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,myhtmlparse.cc,myhtmlparse.h,omindex.cc,scriptindex.cc:
