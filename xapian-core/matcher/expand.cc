@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +35,11 @@
 
 #include "omenquireinternal.h"
 
+using std::nth_element;
+using std::priority_queue;
+using std::sort;
+using std::vector;
+
 class OmESetCmp {
     public:
         bool operator()(const OmESetItem &a, const OmESetItem &b) {
@@ -59,12 +65,10 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
     // the matcher.
     //
     // FIXME: try using a heap instead (C++ sect 18.8)?
-    std::priority_queue<TermList*, std::vector<TermList*>, TLPCmpGt> pq;
+    priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
     try {
-	std::vector<RSetItem>::const_iterator i;
-	for (i = rset->documents.begin();
-	     i != rset->documents.end();
-	     i++) {
+	vector<RSetItem>::const_iterator i;
+	for (i = rset->documents.begin(); i != rset->documents.end(); ++i) {
 	    unsigned int multiplier = db.internal->databases.size();
 	    om_docid realdid = ((*i).did - 1) / multiplier + 1;
 	    om_doccount dbnumber = ((*i).did - 1) % multiplier;
@@ -103,7 +107,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	    newtl.release();
 	}
     } catch (...) {
-	while(!pq.empty()) {
+	while (!pq.empty()) {
 	    delete pq.top();
 	    pq.pop();
 	}
@@ -136,7 +140,7 @@ OmExpand::expand(om_termcount max_esize,
 		       expand_k );
 
     AutoPtr<TermList> merger(build_tree(rset, &ewt));
-    if(merger.get() == 0) return;
+    if (merger.get() == 0) return;
 
     DEBUGLINE(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight());
     while (1) {
@@ -152,7 +156,7 @@ OmExpand::expand(om_termcount max_esize,
 	if (merger->at_end()) break;
 
 	om_termname tname = merger->get_termname();
-	if((*decider)(tname)) {
+	if ((*decider)(tname)) {
 	    eset.internal->ebound++;
 
 	    OmExpandBits ebits = merger->get_weighting();
@@ -163,10 +167,12 @@ OmExpand::expand(om_termcount max_esize,
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations
+		// Or perhaps better, switch to using minheap like matcher now
+		// uses.
 		if (eset.internal->items.size() == max_esize * 2) {
 		    // find last element we care about
 		    DEBUGLINE(EXPAND, "finding nth");
-		    std::nth_element(eset.internal->items.begin(),
+		    nth_element(eset.internal->items.begin(),
 				eset.internal->items.begin() + max_esize - 1,
 				eset.internal->items.end(),
 				OmESetCmp());
@@ -183,7 +189,7 @@ OmExpand::expand(om_termcount max_esize,
     if (eset.internal->items.size() > max_esize) {
 	// find last element we care about
 	DEBUGLINE(EXPAND, "finding nth");
-	std::nth_element(eset.internal->items.begin(),
+	nth_element(eset.internal->items.begin(),
 		    eset.internal->items.begin() + max_esize - 1,
 		    eset.internal->items.end(), OmESetCmp());
 	// erase elements which don't make the grade
@@ -192,7 +198,7 @@ OmExpand::expand(om_termcount max_esize,
     DEBUGLINE(EXPAND, "sorting");
 
     // Need a stable sort, but this is provided by comparison operator
-    std::sort(eset.internal->items.begin(), eset.internal->items.end(), OmESetCmp());
+    sort(eset.internal->items.begin(), eset.internal->items.end(), OmESetCmp());
 
     DEBUGLINE(EXPAND, "esize = " << eset.internal->items.size() << ", ebound = " << eset.internal->ebound);
     if (eset.internal->items.size()) {

@@ -1,3 +1,8 @@
+Mon Nov 18 22:16:57 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,matcher/expand.cc,matcher/expandweight.cc:
+	  Bit of an expand tidy up.
+
 Mon Nov 18 19:49:09 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_termlist.cc: I'd put the new termlist stuff

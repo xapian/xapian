@@ -962,14 +962,12 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 
     DEBUGLINE(API, "rset size is " << omrset.size());
 
-    OmExpandDeciderAlways decider_always;
-    if (edecider == 0) edecider = &decider_always;
-
     /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
     AutoPtr<OmExpandDecider> decider_noquery;
     AutoPtr<OmExpandDecider> decider_andnoquery;
+    OmExpandDeciderAlways decider_always;
 
     if (query != 0 && !eoptions->get_bool("expand_use_query_terms", false)) {
 	AutoPtr<OmExpandDecider> temp1(
@@ -977,12 +975,17 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 					   query->get_terms_end()));
         decider_noquery = temp1;
 
-	AutoPtr<OmExpandDecider> temp2(
-	    new OmExpandDeciderAnd(decider_noquery.get(),
-				   edecider));
-	decider_andnoquery = temp2;
-
-        edecider = decider_andnoquery.get();
+	if (edecider) {
+	    AutoPtr<OmExpandDecider> temp2(
+	      new OmExpandDeciderAnd(decider_noquery.get(),
+				     edecider));
+	    decider_andnoquery = temp2;
+	    edecider = decider_andnoquery.get();
+	} else {
+	    edecider = decider_noquery.get();
+	}
+    } else if (edecider == 0) {
+	edecider = &decider_always;
     }
 
     expand.expand(maxitems, retval, &rset, edecider,

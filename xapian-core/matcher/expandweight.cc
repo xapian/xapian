@@ -36,7 +36,7 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
     sum.rtermfreq += bits2.rtermfreq;
 
     // FIXME - try to share this information rather than pick half of it
-    if(bits2.dbsize > sum.dbsize) {
+    if (bits2.dbsize > sum.dbsize) {
 	DEBUGLINE(WTCALC, "OmExpandBits::operator+ using second operand: " <<
 		  bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
 		  bits1.termfreq << "/" << bits1.dbsize);
