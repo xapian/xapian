@@ -62,6 +62,11 @@
 
 using namespace std;
 
+// This should be configurable per database (or something like that) but
+// for now at least set it in one place in the file to make it easier to
+// customise by hacking the source...
+static const char * STEM_LANGUAGE = "english";
+
 static bool done_query = false;
 static om_docid last = 0;
 
@@ -152,7 +157,7 @@ set_probabilistic(const string &newp, const string &oldp)
     }
 
     // call YACC generated parser
-    qp.set_stemming_options(option["no_stem"] == "true" ? "" : "english",
+    qp.set_stemming_options(option["no_stem"] == "true" ? "" : STEM_LANGUAGE,
 			    option["all_stem"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
@@ -576,7 +581,7 @@ html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
 {
     if (!stemmer) {
-	stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+	stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
     }
     string::const_iterator i, j = s.begin(), k, l;
     string res;
@@ -1558,7 +1563,7 @@ eval(const string &fmt, const vector<string> &param)
 		    set<om_termname> seen;
 		    {
 			if (!stemmer)
-			    stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+			    stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
 			// Exclude terms "similar" to those already in
 			// the query
 			set<om_termname>::const_iterator t;
@@ -1751,7 +1756,7 @@ pretty_term(const string & term)
 	return term + '.';
 
     if (!stemmer)
-	stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+	stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
 
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting

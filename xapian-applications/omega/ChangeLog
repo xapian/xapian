@@ -1,3 +1,8 @@
+Thu May 29 00:22:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Set STEM_LANGUAGE near the start of the file so it's easy
+	  for users to change until we get better configurability.
+
 Thu May 29 00:00:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,date.cc,date.h,query.cc: Split code to build a
