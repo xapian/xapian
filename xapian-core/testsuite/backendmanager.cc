@@ -33,6 +33,7 @@
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
 #include "backendmanager.h"
+#include "omassert.h"
 
 OmDocumentContents
 string_to_document(string paragraph)
@@ -117,7 +118,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &getdb_inmemory;
     } else if (type == "sleepycat") {
 	do_getdb = &getdb_sleepy;
-	cout << "Removing .sleepy/..." << endl;
+	DebugMsg("Removing .sleepy/..." << endl);
 	system("rm -fr .sleepy");
     } else if (type == "net") {
 	do_getdb = &getdb_net;
