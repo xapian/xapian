@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 # buildall - run everything needed to configure and build the system from
 # a CVS checkout.
 #
@@ -58,11 +58,6 @@ error() {
   # Display an error message and stop
   printlines "${PROGNAME}: error: $*" >&2
   exit 1
-}
-
-warn() {
-  # Display a warning
-  printlines "${PROGNAME}: warning: $*" >&2
 }
 
 run() {
