@@ -83,7 +83,9 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 	    if (tag == "fieldset" || tag == "form") pending_space = true;
 	    break;
 	case 'h':
-	    if (tag == "hr") pending_space = true;
+	    // hr, and h1, ..., h6
+	    if (tag.length() == 2 && strchr("r123456", tag[1]))
+		pending_space = true;
 	    break;
 	case 'i':
 	    if (tag == "iframe" || tag == "img" || tag == "isindex" ||
@@ -189,7 +191,9 @@ MyHtmlParser::closing_tag(const string &tag)
 	    if (tag == "fieldset" || tag == "form") pending_space = true;
 	    break;
 	case 'h':
-	    if (tag == "hr") pending_space = true;
+	    // hr, and h1, ..., h6
+	    if (tag.length() == 2 && strchr("r123456", tag[1]))
+		pending_space = true;
 	    break;
 	case 'i':
 	    if (tag == "iframe") pending_space = true;
