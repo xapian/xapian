@@ -1,8 +1,9 @@
-/* copydatabase.cc: Document-by-document copy of quartz db
+/* copydatabase.cc: Document-by-document copy of quartz databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,60 +35,72 @@ using namespace std;
 int
 main(int argc, char **argv)
 {
-    // We take two arguments - the source databse pathname and the 
-    // pathname to the database to create
-    if (argc != 3) {
-	cout << "usage: " << argv[0] << " <path to source database> <path to destination database>" << endl;
+    // We take at least two arguments - one or more paths to source databases
+    // and the path to the database to create
+    if (argc < 3) {
+	cout << "usage: " << argv[0]
+	     << " <path to source database>... <path to destination database>"
+	     << endl;
 	exit(1);
     }
-    
+
+    const char *dest = argv[argc - 1];
     try {
 	// Create the directory for the database, if it doesn't exist already
-	if (mkdir(argv[2], 0755) == -1) {
+	if (mkdir(dest, 0755) == -1) {
 	    // Check if mkdir failed because there's already a directory there
 	    // or for some other reason.  EEXIST can also mean there's a file
 	    // with that name already.
 	    if (errno == EEXIST) {
 		struct stat sb;
-		if (stat(argv[2], &sb) == 0 && S_ISDIR(sb.st_mode))
+		if (stat(dest, &sb) == 0 && S_ISDIR(sb.st_mode))
 		    errno = 0;
 		else
-		    errno = EEXIST;
+		    errno = EEXIST; // stat might have changed it
 	    }
 	    if (errno) {
 		cerr << argv[0] << ": couldn't create directory `"
-		     << argv[2] << "': " << strerror(errno) << endl;
+		     << dest << "': " << strerror(errno) << endl;
 		exit(1);
 	    }
 	}
 
-	// Create the databases
-	OmSettings src_settings;
-	src_settings.set("backend", "quartz");
-	src_settings.set("database_create", true);
-	src_settings.set("quartz_dir", argv[1]);
-	OmDatabase src_database(src_settings);
-
+	// Create the destination database
 	OmSettings dest_settings;
 	dest_settings.set("backend", "quartz");
 	dest_settings.set("database_create", true);
-	dest_settings.set("quartz_dir", argv[2]);
+	dest_settings.set("quartz_dir", dest);
 	OmWritableDatabase dest_database(dest_settings);
 
-	// Now start copying mate!
-	om_doccount sofar=0;
-	om_doccount count=src_database.get_doccount();
-	for(om_docid docid=1; docid<2000000000 && sofar<count;docid++) {
-	  try {
-	    OmDocument document=src_database.get_document(docid);
-	    if (dest_database.add_document(document) && ! (++sofar % 1000)) dest_database.flush();
-	    cout << sofar << "/" << count << endl;
-	  } catch (const OmDocNotFoundError &error) {
-cout << "No " << docid << endl;
-	    continue;
-	  }
+	for (int i = 1; i < argc - 1; ++i) {
+	    // Open the source database
+	    OmSettings src_settings;
+	    src_settings.set("backend", "quartz");
+	    src_settings.set("quartz_dir", argv[i]);
+	    OmDatabase src_database(src_settings);
+
+	    // Copy each document across
+
+	    // At present there's no way to iterate across all documents
+	    // so we have to test each docid in turn until we've found all
+	    // the documents
+	    om_doccount count = src_database.get_doccount();
+	    om_docid docid = 1;
+	    while (count) {
+		try {
+		    OmDocument document = src_database.get_document(docid);
+		    dest_database.add_document(document);
+		    --count;
+		    cout << '\r' << argv[i] << ": " << count
+			 << " docs to go" << flush;
+		} catch (const OmDocNotFoundError &/*error*/) {
+		    // that document must have been deleted
+		}
+		if (docid == (om_docid)-1) break;
+		++docid;
+	    }
+	    cout << '\r' << argv[i] << ": Done                  " << endl;
 	}
-	dest_database.flush();
     }
     catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;

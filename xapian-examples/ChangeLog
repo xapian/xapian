@@ -1,3 +1,13 @@
+Thu Jun 27 15:33:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase: enhanced to also allow several databases to be merged
+	  into one (which has more obvious real-world applications than a
+	  simple copy).
+
+Tue Jun 18 08:46:16 BST 2002  Sam Liddicott <sam@ananova.com>
+
+	* copydatabase: new example created.
+
 Wed Jun  5 20:50:15 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* simpleindex.cc: delete database pointer (otherwise never

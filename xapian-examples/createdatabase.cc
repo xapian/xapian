@@ -51,7 +51,7 @@ main(int argc, char **argv)
 		if (stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode))
 		    errno = 0;
 		else
-		    errno = EEXIST;
+		    errno = EEXIST; // stat might have changed it
 	    }
 	    if (errno) {
 		cerr << argv[0] << ": couldn't create directory `"
