@@ -1,701 +1,113 @@
-Project moved to SourceForge, changed to Xapian.
-================================================
+New in 0.5:
 
-Following BrightStation's decision to take Omsee development private,
-the code have been used to create a new project, hosted at
-SourceForge, called Xapian.
+VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
 
-The website is now at <http://xapian.org/>; CVS, mailing list and
-other useful tools are available from there.
+* The project is now called "Xapian".
 
-Project name changes to Omsee.
-==============================
+* Improved documentation.
 
-From now on, this project is called Omsee, rather than OpenMuscat.  This
-change is being done primarily to reduce confusion between the closed-source
-Muscat 3.6 software and the open source Omsee software.
+* Renamed "om" to "xapian-core" and "om-examples" to "xapian-examples".
+  Added "xapian-applications" which contains sample applications.
 
-The official website is now at http://www.omsee.com/,
-with cvs repository at http://cvs.omsee.com/
-mailing list interface at http://lists.omsee.com/
-ftp archive at ftp://ftp.omsee.com/
+* OmData and OmKey removed - methods which used them now just take and return
+  strings.
 
-The email system still needs some time to switch over fully, but you should
-now send mails directed to this list to:
-om-announce@lists.omsee.com
+* Terminology change - "keys" are now known as "values", except when actually
+  being used as a "key" - e.g. "match_collapse_key".
 
-The old addresses will continue to work or redirect for a reasonable period
-of time, but I would suggest that you use the new addresses for all
-purposes from now on.
+* Removed thread locks.  Rather than try to explicitly support multi-threaded
+  use, we intended to be "thread-friendly".  Different threads can access
+  different objects without problems.  In the rare event that you want
+  to call methods on the same object from different threads at the same time,
+  you'll have to perform the locking yourself.
 
-Announcing version 0.4.1 of Muscat.
-===================================
+* Indexgraph removed from core library.  It will reappear as an add-on library
+  at some point.
+  
+* Cleaner build system.  Support for largefiles (>2G).  Builds as cleanly
+  as we can achieve with GCC 2.95.* (some bogus warnings); Builds cleanly with
+  GCC 3.0, and with GCC 3.1 snapshots.
 
-This is mainly a bug fix release, but also contains one API addition.
-It should require no changes to code to make existing applications work,
-so we recommend that you upgrade.
+* xapian-config no longer support "--uninst".  It's hard to make this
+  work reliably, and the effort is better expended elsewhere.  Configure with
+  a prefix and install to a temporary directory instead.
 
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
+* Portability improvements.  Should now build "out of the box" on most Unix
+  platforms.
 
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
+* Removed problematic leak checking from testsuite.  We plan to use valgrind
+  instead soon.
 
+* Use GNU getopt for option parsing.
 
-API modifications:
+* Fixed a few matcher bugs: failing to correctly discard items from the
+  proto-mset when it was full (which could result in incorrect search results);
+  FilterPostList misbehaving; problems with boolean filters;
+  mishandling when OR or ANDMAYBE decayed to AND; fixed OR in a pure boolean
+  context.
 
- * Added a get_collection_freq() method to OmDatabase, which returns
-   the total number of occurences of a term in the database (this is
-   the sum over all the documents of the number of occurences of the
-   term, and is quite distinct from the "term frequency" which is the
-   number of documents containing the term).
+* Added experimental match bias functors.
 
+* Added experimental sorting within relevance bands to the matcher.
 
-Bug fixes:
+* Matcher now calculates percentages differently, such that 100% relevance is
+  actually achievable.
 
- * Detect dead hosts when trying to make a tcp connection to them: don't
-   block indefinitely.
+* Matcher now uses a min-heap rather than nth-element to maintain the
+  proto-mset.  This is cleaner and more efficient.
 
- * Perform automatic detection of fdatasync(), and libraries required for it.
+* Implemented multiple XOR queries.
 
- * More validity checking of user supplied parameters.
+* Add a new query operator, OP_WEIGHT_CUTOFF, which returns only
+  those documents from a query which have a weight greater than a
+  specified cutoff value.
 
- * Errors occuring within quartz get reported in a consistent manner.
+* Removed the experimental sleepycat backend.
 
- * Fixes so that it compiles again with --disable-phread-support.
+* Muscat 3.6 backends disabled by default.
 
- * Various warnings present only with --disable-debug eliminated.
+* Removed OmBatchEnquire from system: it may return at a later date,
+  but for now it is simply out of date and a maintainance liability,
+  and gives no significant advantage.
 
- * Testsuite now works despite RTLD_DEFAULT not being defined on some systems.
+* OmDocumentContents and OmIndexDoc merged into OmDocument.
 
+* Lots more test cases in the test suite.
 
-Quartz continues to undergo significant modifications for performance
-improvments, to use less disk space (a fair way to go here), remove some
-arbitrary limits which existed in the file format.
+* Implemented deleting of items from postlists.
 
-Quartz still needs to be made properly safe for reading whilst updating,
-and also needs to lock database directory to prevent accidental multiple
-writers (which would result in a corrupt database).
+* Omega's query parser has now been reworked as a separate library.
 
+* Many fixes and improvements in remote backend.
 
-Announcing version 0.4.0 of Muscat.
-===================================
+* Many fixes and improvements to Quartz backend.
 
-The modifications in this release represent two months of solid work, and
-cover over 1300 lines of ChangeLog entries - in other words, there's quite
-a bit that's new.
+* Fixes and improvements to inmemory backend.
 
-We have a new database backend (codename "quartz"), a simple, but powerful,
-graph-based indexing system, performance improvments to distributed
-searching, many bug fixes, and many minor enhancements.
+* New operator OP_ELITE_SET replaces match_max_or_terms option.
 
-This release contains a few fairly significant API changes, but most of
-these changes are additions rather than modifications.  Applications should
-require only a few modifications and a recompile to work with this release.
+* FIXME: lots more prior to:
 
+* OmQuery interface cleaned up.
 
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
+* In Muscat3.6 backends, don't read the key from the keyfile unless
+  keyno is 0.
 
-Binary packages will be made available shortly.
+* Our iterators now have default constructors, making use easier.
 
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
+* Assorted changes to many API classes.  Almost all have reference counted
+  internals, so assignment and copying are cheap.
 
+* Replaced om_termname_list with OmTermIterator.
 
-Main API modifications:
+* OmESetItem replaced by OmESetIterator; OmMSetItem replaced by OmMSetIterator.
 
- * Added indexing system to API.  User programs simply need to do
-   "#include <om/om.h>" as previously, and the indexing system will be
-   available.
+* OmDocumentTerm and OmDocumentParams removed.
 
- * PostListIterators now have get_doclength() and get_wdf() methods.
-   OmTermListIterators now have get_wdf() and get_termfreq() methods.
-   Also, OmTermListIterator::operator* is now const.
+* Replace OmMSet::mbound with
+  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more
+  useful information.
 
- * Added OmErrorHandler base class, and methods to allow an error handler
-   to be set in an OmEnquire object.  Error handlers allow a piece of code
-   to be run when an error occurs during the match, to decide whether to
-   continue with the match as well as possible, or to fail and throw an
-   exception.
-
- * Added a "context" member to OmErrors - this is set to a null string
-   at the moment, but will be used to store the context which an error
-   occurred in at a later date - for example, the identity of the database
-   in which a remote error occurred.
-
- * Added OmEnquire::get_docs(), to retrieve several documents at once.  In
-   networked situations, this can result in a significant performance
-   improvment.
-
- * Added get_doccount(), get_avlength(), get_termfreq(), get_doclength()
-   and term_exists() methods to OmDatabase, to allow general information
-   about the contents of the database to be accessed.
-
-
-Several new features 
-
- * Quartz: this is a database backend designed to replace "sleepycat".  It
-   uses its own btree routines, and provides a full atomic-update, multiple
-   reader / single writer environment.  Work is still proceeding to make
-   it thread-safe, fully tested, and higher performance.  The file formats
-   used by quartz will change frequently in the near future, and backwards
-   compatability will be in no way maintained - you have been warned. :)
-
- * Indexing system.  This is a graph based system for describing and
-   performing arbitrary indexing methods.  See the indexerquickstart.html
-   document for more information.
-
- * ErrorHandlers, to allow coping with errors occuring during the match
-   operation, instead of giving up.  These currently only function for
-   distributed searches.
-
- * Internal performance enhancements to the matcher.
-
-See the ChangeLog for full details on all the changes, including the
-numerous bug fixes and internal reorganisations.
-
-
-
-Announcing version 0.3.1 of Muscat.
-===================================
-
-This release contains bugfixes and minor enhancements.
-
-This release contains a few fairly significant API changes; applications
-will require several modifications to work with this version.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-API modifications:
-
- * OmDatabaseGroup merged into OmDatabase.  Upgrading your code should
-   just be a matter of replacing OmDatabaseGroup with OmDatabase.
-
- * Added iterators to allow direct access to PostLists, PositionLists and
-   TermLists from an OmDatabase object - mainly useful for debugging, but
-   _very_ useful for this.
-
- * Sorted out various irregularities with assignment of OmDatabases and
-   OmWritableDatabases, and constness of methods; these shouldn't require
-   changes to any sensible code.
-
- * Window size for NEAR and PHRASE now defaults to number of subqueries.
-
- * NEAR and PHRASE queries can now be built with OmQuery pair constructor.
-
- * New exceptions: OmInvalidDataError, for bad data which isn't really an
-   API misuse, and OmNeedRecoveryError, to signal that a database needs a
-   recovery step to be performed.
-
-
-Several new features 
-
- * Parameters for the weighting formulae may now be specified by the user:
-   see the autoextracted documentation for OmSettings for details.
-   (http://open.muscat.com/developer/docs/apidoc/html/
-    class_OmSettings.html#_details)
-   (This feature will not yet work with distributed searching.)
-
- * Timeouts for distributed searching are also now user configurable (see
-   same page).
-
- * Query length is now included in the calculation of a document's score.
-
- * Many more tests in the testsuite, including some rather whizzy malloc
-   checking stuff.
-
- * Various portability fixes (including our own implementation of auto_ptr,
-   (called AutoPtr) to get around the differing versions available).
-
-
-Bugs fixed include:
-
- * Fixed potential core-dump bug in OmSocketLineBuf.
-
- * The java bindings should function again with this release, but the testsuite
-   has not yet been updated to match, so you may experience problems.
-
- * The python bindings have also been updated, but not quite enough to work
-   correctly.
-
- * Fixed a very occasional problem which DB databases had with skip_to.
-
- * Fixed segfault problem with OrPostList decomposing into AndMaybePostList
-   at the very start of a query.
-
- * Assertion error in matcher when searching for several terms, none of which
-   exist.
-
-
-Work in progress:
-
- * New database backend, Quartz, is coming along nicely.  It has been decided
-   not to use sleepycat as the underlying database system initially; instead
-   we're writing our own B-tree management system, drawing on our previous
-   proprietary developments.  The structure is such that sleepycat could be
-   slotted in later as an alternative, and we may well do this to compare
-   performance at a later date.
-
- * Indexing system is progressing; the framework is nearly complete; the
-   main work remaining is to produce suitably generic nodes and
-   documentation.
-
- * A rework of the matcher is just beginning, to share statistics between
-   different matchers as they progress, and also to neaten up the code.
-
-
-
-Announcing version 0.3.0 of Muscat.
-===================================
-
-This release contains some fairly significant API changes; applications
-will require several modifications to work with this version.
-
-Note that the Java, Perl and Python bindings will not function with this
-release, due to the incompatible API changes: a release containing updated
-versions of these will be made soon.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-API modifications:
-
- * An OmSettings classes is now used to store settings for various other
-   classes.  It stores (name, value) pairs, which avoids library binary
-   compatibility problems when new settings are added.
-
-   The parameters available are documented with the OmSettings class,
-   see the "omsettings.h" header file, or
-   http://open.muscat.com/developer/docs/apidoc/html/class_OmSettings.html
-
- * OmDataBase, OmWritableDatabase and OmDatabaseGroup now use OmSettings
-   rather than vector<string>.  OmMatchOptions and OmExpandOptions have
-   also been replaced by OmSettings (as has the internal class
-   DatabaseBuilderParams).
-
-   Updating your code should be a very quick job - all the code in
-   om-examples was updated in about 10 minutes.  If you have any problems
-   updating, let us know and we'll try to help.
-
- * om_queryop is now replaced by OmQuery::op.  
-
-   For example, code should be changed from
-     OmQuery(OM_MOP_OR, "a", "b")
-   to
-     OmQuery(OmQuery::OP_OR, "a", "b")
-
- * A transaction must now be begun within an explicit session - implicit
-   sessions will only be started for single operations.  As a result,
-   begin_transaction() no longer takes a timeout parameter.
-   
- * Replaced OmWritableDatabase::end_transaction() by
-   OmWritableDatabase::commit_transaction() and
-   OmWritableDatabase::cancel_transaction().
-
-   Cancelling will prevent the changes within the transaction
-   being applied to the database.
-
- * const's added in various appropriate places (eg, OmData and OmKey
-   constructors).
-
- * We now always refer to the sleepycat database backend as "sleepycat",
-   never as "sleepy".  Only externally visible effect is in options to
-   configure.
-
- * All externally visibile references to "net"/"network" backend now
-   call it "remote".
-
-
-There aren't many new features with this release.  Some of the tasks
-performed include:
-
- * Within query frequency and query size are now used in the weighting
-   formula.
-
- * Work began on the new database type: this is codenamed "quartz".  In
-   the absence of any better suggestions, future database types will be
-   named after rocks.
-
- * Much of apitest is now translated into Python, for testing the Python
-   bindings.  Most of these tests ran correctly, before Python bindings
-   were broken by the new API. ;-)
-
- * Many internal tidyups.  Lots of items removed from the TODO list.
-
- * Nearly possible to have user-defined weighting schemes.
-
- * Incorporated Jon Fielder's patches to TcpServer - it's now a
-   forking server rather than serving connections one at a time.
-
- * Improved documentation comments throughout.
-
- * Added DA format databases to tests performed by apitest.
-
- * "Difficulty" column added to TODO list!
-
-
-Bugs fixed include:
-
- * Fixed a bug which could cause a TCP server to loop nastily if
-   an exception were thrown.
-
- * Fixed wdf handling in inmemory backend.
-
- 
-
-Announcing version 0.2.1 of Muscat.
-===================================
-
-This release contains many bugfixes and new features.  We recommend
-upgrading to this version.
-
-It has been two months since the last release: as a result, this release
-note is rather lengthy.  We have had 40k of entries in ChangeLog since the
-last time I compiled one of these...
-
-Expect the next minor release to happen sooner.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-API modifications:
-
- * API change: changed OmWritableDatabase considerably, so that it
-   has begin_session() and end_session() methods instead of lock()
-   and unlock() methods, amongst other things.
-
- * API change: renamed OmExpandOptions::use_query_terms() to
-   OmExpandOptions::set_use_query_terms().  This is to be consistent
-   with OmMatchOptions' naming scheme.
-
- * API addition: added NEAR and PHRASE operators to om_queryop, and
-   added a window size parameter to the appropriate OmQuery constructors.
-
- * API addition: added OmExpandOptions::use_exact_termfreq() to
-   allow disabling of termfreq approximation in ExpandWeight.
-
- * API addition: Add an OmEnquire::get_query() method, to retrieve the
-   query which was set.
-
- * API addition: Add get_description() methods to all API objects,
-   returning a human readable description of the contents of the object.
-
- * API addition: Added output operators for API objects, so that you can
-   do, for example, "cout << omenquire;"
-
- * API addition: added OmInvalidOperationError to report invalid
-   API usage, for example, ending a session when one hasn't been
-   begun.
-
- * API addition: added OmDatabaseCorruptError to report that a
-   database has become corrupt.
-
- * API addition: added OmDatabaseLockError to report when a lock on
-   a database couldn't be aquired.
-
- * API addition: added get_type() method to OmError, to return a string
-   describing the class.
-
- * API addition: added OmMSet::get_termfreq() and OmMSet::get_termweight()
-   methods, to get information about the terms involved in the query.
-
-Here are the highlights of the new features:
-
- * Added phrase and near-term searching.
-
- * New stemming algorithms - for Norwegian, Swedish and Danish.
-
- * Better autodetection of available features.  Muscat should now compile
-   on Solaris "out-of-the-box", with either GCC or the native compiler.
-
- * All tests now pass, for all database types (including the network database
-   type, used for distributed searching).
-
- * Added threadtest, for testing of Muscat in multithreaded use.
-
- * Debugging system has been thouroughly reworked: much easier to get
-   details of what's going on, and control the level of debug information
-   by the OM_DEBUG_FILE and OM_DEBUG_TYPES environment variables. Also
-   memory allocation trapping has been improved in the testsuite, with
-   the OM_NEW_TRAP[_COUNT] environment variables.
-
- * Java API is now up-to-date with the C++ API, except for the database
-   writing methods.  The Java API is also tested with an automatically
-   translated subset of apitest, and passes all 32 of these tests.
-
- * Omega, an example CGI based search system (derived from the old
-   ferretfx example) has been added to the examples.
-
- * Delve, a simple utility to inspect databases, has been added to the
-   tests.  This will currently only compile with GCC.
-
- * Various new tests added to testsuite.
-
- See the Changelog for full details of the work done (but beware - it's
- 40k of stuff since the last release).
-
-Bugs fixed include:
-
- * Pretty much any concurrent access to Muscat was causing occasional memory
-   corruption / segfaults / other weird behaviour.  After a huge bughunt,
-   we finally traced this to the standard C++ library we were using,
-   libstdc++.  Recompiling using the STLport C++ library, fixes the
-   problem, so we have added configuration options to support this (see the
-   INSTALL file for details).
-
- * Concurrency problems in Muscat 3.6 databases fixed.  It's now safe for
-   multiple threads to perform searches across the same OmDatabaseGroup
-   object (using separate OmEnquire objects).
-
- * Fix potential concurrency problem in big file descriptor stuff:
-   although it was very unlikely to have actually caused a problem.
-
- * Distributed searching didn't work with DA or DB databases, due to
-   unimplemented do_get_all_keys() methods.
-
-
-The next tasks ahead of us are:
-
- * Continue the developement of the Java, Perl and Python interfaces to
-   Muscat, to get the Perl and Python versions up-to-date, and to keep
-   them all in sync with the full API.
-
-   Chris Emerson is working on this.
-
- * A new general purpose database backend.  The existing Sleepycat backend
-   is functionally complete, but is highly inefficient: try indexing more
-   than a few 1000 documents, and the system will slow to a crawl.  This
-   is due to an inefficient design, so a new system is being written using
-   the knowledge gained, a newer version of Berkeley DB.
-
-   The existing "Sleepycat" database backend will provide a useful cross-check
-   for correctness during the development of the new backend, and will then be
-   removed.
-
-   I am performing this work.
-
- * Creation of an indexing system, for taking documents and parsing them into
-   terms, keys and data.  We are working on a detailed design for this, which
-   will be added to the documentation reasonably soon.
-
-   Chris Emerson will be working on this.
-
- * As ever, completing the items in the TODO list...
-
-Have fun with this release, and as ever let us know of any problems /
-successes you have.
-
-
-
-Announcing version 0.2.0 of Muscat.
-===================================
-
-This release contains many bugfixes and new features.  We recommend
-upgrading to this version.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-API changes:
-
- * A new OmMatchOption has been added, to allow the user to set a large
-   query, of which only the most important, elite, terms should be used
-   when actually performing the query.
-
- * A new exception may be thrown by some methods, when performing
-   distributed searching: OmNetworkTimeoutError.
-
- * Format of sleepycat databases has (incompatibly) changed.  Expect this
-   to keep occurring for the next month or two...
-
-
-And here are the highlights of the new features:
-
- * Distributed searching is now implemented.  Work remains to be done on:
-
-   i)   Improving efficiency (in particular, the server is single threaded)
-   ii)  Adding ability to use MatchDeciders on remote databases.
-   iii) Improving configurability (especially timeout times).
-
-   In all other aspects, this feature is now complete.  It is all pretty
-   transparent from the users point of view: simply run a set of servers,
-   and open network databases giving their addresses, but has required a
-   lot of work, and a lot of internal reorganisation.
-
-   (Well done Chris, for getting this going!)
-
- * InMemory databases now don't have indexing hacked into them: they are
-   plain honest writable databases.
-
- * Many more tests have been added to the test suite.
-
-   Also, the test suite now runs all suitable tests on databases of each
-   type, in turn.  Currently tests inmemory and sleepycat databases, and
-   optionally network databases (which fail one test due to unimplemented
-   functionality).  All other tests pass.
-
- * Initial work on producing scripting language interfaces (using SWIG).
-   We currently have interfaces to the stemming algorithms from Perl and
-   Python, and as I type Chris is working on extending this to our entire
-   API.
-
- * Many other things I can't remember: see the ChangeLog...
-
-
-Bugs fixed include:
-
- * The OmMSet::mbound member will have the maximum value from each of the
-   sub-databases, rather than the value from the first database (which
-   could be far too small).
-
- * An exception will be thrown if a term of zero length is supplied to the
-   library, rather than mysterious strange behaviour occuring.
-
- * Sleepycat has been virtually rewritten in order to make it work
-   correctly.
-
- * Collapse now works correctly across multiple databases.
-
- * More memory / resource leaks fixed.
-
-
-
-Announcing version 0.1.3 of Muscat.
-===================================
-
-This is mainly a bugfix release: we suggest upgrading to this version.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-The bugs fixed are:
-
- * MultiMatch was failing to return the correct document ID's: this was
-   causing searches across multiple databases to return effectively useless
-   results.
-
- * Memory leaks in DA / DB databases.
-
- * Memory leaks in OmQuery constructor.
-
- * Miscellaneous other memory leaks.
-
-
-There's been a minor API change, concerning the database writing API.
-
- * OmDocumentContents now contains OmData and a set of OmKey objects, rather
-   than strings.  Added constructors to OmData and OmKey.
-
-
-There have been several other changes:
-
- * More work on the distributed searching.
-
- * Termlists are now implemented for the sleepycat stuff - expand now works.
-
- * PostingLists can now return a PositionList, containing the locations at
-   which a posting occurs within a document.  This is implemented for
-   sleepycat.
-
- * Parameter checks when opening databases now throw
-   OmInvalidArgumentError exceptions, rather than just being Asserts.
-
- * Test suite now attempts to detect memory leaks.
-
- * More tests in the test suite, and fixes to code.
-
- * Test suite now passes all tests.
-
-
-
-Announcing version 0.1.2 of Muscat.
-===================================
-
-It's been a month since the last release, and a lot has happened since
-then.  We've been to a conference (the BCS IRSG), got a prototype
-of distributed searching working, written a writable database,
-and improved the documentation a great deal.
-
-In particular, we've now got a "QuickStart" guide, leading you through
-some simple examples of how to use Muscat.
-
-
-This release is available from the usual place:
-        http://open.muscat.com/download/index.html
-
-As ever, for the most up-to-date documentation, see our online copy at
-	http://open.muscat.com/developer/index.html
-
-
-There have been a couple of API changes, the first one of which is
-backwards INCOMPATIBLE.
-
- * OmDatabase has been renamed to OmDatabaseGroup.  After all, that's what
-   it actually is...
-
- * New classes/structs (OmWritableDatabase, OmDocumentContents and
-   OmDocumentTerm) have been added to the API, for writing to databases.
-   Note that this part of the API should be considered experimental: we'll
-   no doubt be changing it somewhat in the coming weeks.
-
-
-There have been lots of other changes:
-
- * Created an API for writing to databases (centered around the
-   new OmWritableDatabase class).
-
- * Implemented sleepycat backend, enough to perform queries.  There are
-   still significant amounts of work to do on this, (regarding collection
-   statistics, termlists, and keys), but the fundamental operations
-   needed to support retrieval are there.  This is the first writable
-   database!
-
- * Greatly improved documentation: especially see the quickstart guide, at
-   docs/quickstart.html in the om package, or online at
-   http://open.muscat.com/developer/docs/quickstart.html
-
- * Added many documentation comments throughout the code, and started using
-   Doxygen to generate documentation instead of doc++.
-
- * Reworked the weighting schemes to allow easier plugging in of new schemes.
-   Made the pure boolean queries simply use a different weighting scheme,
-   fixing the reversebool test failures and removing significant amounts of
-   duplicated code.
-
- * Many internal changes to allow distributed searching, and to clean up
-   the code.  Further implementation of distributed searching: we now have
-   a functioning prototype.
-
- * Fixes to the Autoconf macro for finding the Muscat library.
-
- * Various bug fixes, including one for a bug causing a segfault when
-   searching for terms not present in the database.
-
- * Test suite now passes all tests.
+* Fix bug in expander due to nth_element being called on the wrong
+  element.  This is the counterpoint of the bug fixed on Nov 24th
+  with the matcher.

@@ -1,7 +1,6 @@
 Xapian
 ======
 
-----START-LICENCE----
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the
@@ -16,10 +15,31 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA
------END-LICENCE-----
 
-You should be able to find a copy of the GNU General Public License in
-the file "COPYING" in the top level of this distribution of Xapian.
+You should find a copy of the GNU General Public License in the file "COPYING"
+in the top level of this distribution of Xapian.
 
-See the file "INSTALL" for information on building and installing
-Xapian.
+Welcome to Xapian.
+
+See the file "INSTALL" for information on building and installing Xapian.
+
+Xapian is based largely on software originally developed by BrightStation plc
+under the GPL as a replacement for their closed source Muscat 3.6 Information
+Retrieval library (which was written almost entirely in BCPL, and becoming hard
+to extend in the ways they wanted).  The project was originally known as
+OpenMuscat and later Omsee.  They sadly decided to take Omsee development
+closed-source.
+
+A number of developers (including some former BrightStation employees) took the
+last GPLed version and have been continuing development under the GPL.  This
+project was initially known as OmSeek, but BrightStation complain this was too
+close to their (untrademarked and unpublicised) name Omsee.  It was simpler to
+change it than to argue, and he name Xapian was chosen.
+
+The last numbered BrightStation release was Omsee 0.4.1, although there was
+extensive development in CVS after that.  The first official Xapian release is
+0.5.0.
+
+The Xapian website is current hosted by SourceForge and is located at
+<http://www.xapian.org/>; you can find downloads, mailing lists, CVS access,
+and other useful resources there.

@@ -1,3 +1,10 @@
+Thu May 09 11:57:59 BST 2002  Olly Betts <olly@survex.com>
+
+	* NEWS, PLATFORMS, README: Updated to something approximating what we
+	  want for a release.
+
+	* docs/todo.xml: Updated.
+
 Thu May 09 10:57:59 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed references to match_max_or_terms (which was replaced

@@ -467,12 +467,6 @@ anything that needs them for non-glibc platforms.
 Automated testing across CF machines
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="0.5">
-
-I have some fixes for linux/alpha build, but they're somewhere in a
-pile of paper on my desk. I'll dig them out and test at some point
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">
 
 Update the PLATFORMS file
