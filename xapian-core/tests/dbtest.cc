@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	    printf("tname is `%s'\n", tname.c_str());
 	    // posting list 122 141 142 174 ...
 	    postlist = database.open_post_list(tid);
+	    printf("Termfreq: %d\n", postlist->get_termfreq());
 	    postlist->next(0.0);
 	    while(!postlist->at_end()) {
 		docid did;
