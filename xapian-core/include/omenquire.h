@@ -35,8 +35,9 @@ class OMMatch;           // Class which performs queries
 ///////////////////////////////////////////////////////////////////
 // OMQuery class
 // =============
-// Class representing a query
+// Representation of a query
 
+// Enum of possible query operations
 typedef enum {
     OM_MOP_LEAF,      // For internal use - must never be specified as parameter
 
@@ -48,6 +49,7 @@ typedef enum {
     OM_MOP_FILTER     // As AND, but use only weights from left subquery
 } om_queryop;
 
+// Class representing a query
 class OMQuery {
     friend class OMMatch;
     private:
@@ -161,7 +163,7 @@ OMRSet::remove_document(docid did)
 ///////////////////////////////////////////////////////////////////
 // OMMSet class
 // =============
-// Class representing a match result set
+// Representaton of a match result set
 
 // An item in the MSet
 class OMMSetItem {
@@ -173,7 +175,7 @@ class OMMSetItem {
 	docid did;
 };
 
-// Encapsulation of match set
+// Class representing an MSet
 class OMMSet {
     private:
     public:
@@ -189,7 +191,7 @@ class OMMSet {
 ///////////////////////////////////////////////////////////////////
 // OMESet class
 // =============
-// Class representing a set of expand terms
+// Representation a set of expand terms
 
 // An item in the ESet
 class OMESetItem {
@@ -202,7 +204,7 @@ class OMESetItem {
 	termname tname;
 };
 
-// Encapsulation of expand set
+// Class representing an ESet
 class OMESet {
     private:
     public:
@@ -229,8 +231,8 @@ class OMEnquire {
 	// First parameter is a string describing the database type.
 	// Second parameter is a vector of parameters to be used to open the
 	// database: meaning and number required depends on database type.
-	// Third parameter is a flag: if set, the database will be opened
-	// read-only.
+	//
+	// The database will always be opened read-only.
 	void add_database(const string &,
 			  const vector<string> &);
 
