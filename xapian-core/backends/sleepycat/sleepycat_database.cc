@@ -136,6 +136,7 @@ SleepycatDatabase::do_open_post_list(const om_termname & tname) const
 LeafTermList *
 SleepycatDatabase::open_term_list(om_docid did) const
 {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     return new SleepycatTermList(did, this, internals.get(), termcache.get());
 }
 
@@ -269,8 +270,8 @@ SleepycatDatabase::add_entry_to_postlist(om_termid tid,
 // FIXME: suggest refactoring most of this method into a constructor of
 // SleepycatPostList, followed by adding an item to the postlist
     SleepycatList mylist(internals->postlist_db,
-		      reinterpret_cast<void *>(&tid),
-		      sizeof(tid));
+			 reinterpret_cast<void *>(&tid),
+			 sizeof(tid), false);
 
     // Term frequency isn't used for postlists: give 0.
     SleepycatListItem myitem(did, wdf, positions, 0, doclength);
@@ -294,9 +295,8 @@ SleepycatDatabase::make_new_termlist(om_docid did,
 {
 // FIXME: suggest refactoring this method into a constructor of SleepycatTermList
     SleepycatList mylist(internals->termlist_db,
-		      reinterpret_cast<void *>(&did),
-		      sizeof(did),
-		      false);
+			 reinterpret_cast<void *>(&did),
+			 sizeof(did), false, false);
 
     Assert(mylist.get_item_count() == 0);
 

@@ -295,6 +295,7 @@ DBDatabase::do_open_post_list(const om_termname & tname) const
 LeafTermList *
 DBDatabase::open_term_list(om_docid did) const
 {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     OmLockSentry sentry(mutex);
 
     struct termvec *tv = M_make_termvec();
@@ -315,6 +316,7 @@ DBDatabase::open_term_list(om_docid did) const
 struct record *
 DBDatabase::get_record(om_docid did) const
 {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     OmLockSentry sentry(mutex);
 
     struct record *r = M_make_record();

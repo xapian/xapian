@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (syntax_error || argc != 1) {
+    if (syntax_error || argc != 1 || (recno == 0 && term.empty())) {
 	cout << "Syntax:\t" << progname << " -r <recno> <db>  for termlist\n";
 	cout << "or:\t" << progname << " -t <term> <db>  for posting list\n";
 	cout << "or:\t" << progname << " -t <term> -r <recno> <db> for position list\n";

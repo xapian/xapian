@@ -38,7 +38,7 @@ SleepycatPostList::SleepycatPostList(om_termid tid_,
 	: tname(tname_),
 	  mylist(internals_->postlist_db,
 		 reinterpret_cast<void *>(&tid_),
-		 sizeof(tid_))
+		 sizeof(tid_), true)
 {
     mylist.move_to_start();
 }

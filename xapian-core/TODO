@@ -16,8 +16,6 @@ This file contains items which need to be worked on.
  | | |             |
 P|D|W|Area         | Task
 -+-+-+-------------+-----------------------------------------------------------
-H|2|C|Distribution | Make timeouts configurable with a sensible default.
--+-+-+-------------+-----------------------------------------------------------
 H|2| |Tests	   | Make apitest's tests use db backend as well
 -+-+-+-------------+-----------------------------------------------------------
 H|2| |LocalMatch   | Pass around partially created postlist as an
@@ -64,18 +62,11 @@ M|5| |General      | Check that it is safe for an exception to be
  | | |             | by the destructor): is this safe - two exceptions
  | | |             | exist simultaneously.
 -+-+-+-------------+-----------------------------------------------------------
-M|3| |Exceptions   | Throw an OmFeatureUnavailableError() exception
- | | |             | whenever a task can't be performed because
- | | |             | something isn't compiled in.
--+-+-+-------------+-----------------------------------------------------------
 M|3| |Exceptions   | Make exceptions work with shared libs on solaris /
  | | |             | find an alternative. (gcc => DISABLE_SHARED on Solaris)
 -+-+-+-------------+-----------------------------------------------------------
 M|2| |Options      | Use OmSettings for specifying what debugging info
  | | |             | to output
--+-+-+-------------+-----------------------------------------------------------
-M|1| |Databases    | Ensure that opening a termlist which is not present
- | | |             | throws the correct exception.
 -+-+-+-------------+-----------------------------------------------------------
 M|5| |Documentation| Ensure that API documentation covers entirety of
  | | |             | API.  Then rewrite it for clarity.
@@ -96,10 +87,6 @@ M|3| |Databases    | Make references to muscat36/m36 consistent (may require
  | | |             | externally visible changes)
 -+-+-+-------------+-----------------------------------------------------------
 M|5| |DA backend   | Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
--+-+-+-------------+-----------------------------------------------------------
-M|1| |CVS          | CVS tag last snapshot that built OK (so people can cvs
- | | |             | update to it and avoid some of the problems of riding
- | | |             | the bleeding edge)
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |Website      | Consider changing from cvsweb to viewcvs
 -+-+-+-------------+-----------------------------------------------------------

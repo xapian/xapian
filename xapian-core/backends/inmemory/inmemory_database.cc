@@ -103,22 +103,26 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
-    Assert(did > 0);
-    if(did > termlists.size()) {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did > termlists.size()) {
 	// FIXME: the docid in this message will be local, not global, in
 	// the case of a multidatabase
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
-
     return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
 }
 
 LeafDocument *
 InMemoryDatabase::open_document(om_docid did) const
 {
-    Assert(did > 0 && did <= doclists.size());
-
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did > doclists.size()) {
+	// FIXME: the docid in this message will be local, not global, in
+	// the case of a multidatabase
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
+				 std::string(" not found"));
+    }
     return new InMemoryDocument(doclists[did - 1], keylists[did - 1]);
 }
 
@@ -126,7 +130,7 @@ void
 InMemoryDatabase::add_keys(om_docid did,
 	      const OmDocumentContents::document_keys &keys_)
 {
-    Assert(keylists.size() == did-1);
+    Assert(keylists.size() == did - 1);
     keylists.push_back(keys_);
 }
 

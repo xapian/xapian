@@ -92,6 +92,7 @@ NetworkDatabase::do_open_post_list(const om_termname & tname) const
 
 LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items);
@@ -100,6 +101,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
 LeafDocument *
 NetworkDatabase::open_document(om_docid did) const
 {
+    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::string doc;
     std::map<om_keyno, OmKey> keys;
     link->get_doc(did, doc, keys);

@@ -1543,6 +1543,19 @@ static bool test_qlen1()
     return (mset1.items[0].wt < mset2.items[0].wt);
 }
 
+// tests that opening a non-existant termlist throws the correct exception
+static bool test_termlist1()
+{
+    OmDatabase db(get_database("apitest_onedoc"));
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmTermListIterator t = db.termlist_begin(0));
+    TEST_EXCEPTION(OmDocNotFoundError,
+		   OmTermListIterator t = db.termlist_begin(2));
+    TEST_EXCEPTION(OmDocNotFoundError,
+		   OmTermListIterator t = db.termlist_begin(999999999));
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1599,6 +1612,8 @@ test_desc doclendb_tests[] = {
     {"simplequery2",       test_simplequery2},
 // Mset comes out in wrong order - no document length?
     {"rsetmultidb2",       test_rsetmultidb2},
+// FIXME: not really doclen - just fails for DA - needs fixing
+    {"termlist1",	   test_termlist1},
     {0, 0}
 };
 

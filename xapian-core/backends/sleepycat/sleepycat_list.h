@@ -231,6 +231,9 @@ class SleepycatList {
 	 *  @param db_      The database to find the list in.
 	 *  @param keydata_ The key to use for looking up list.
 	 *  @param keylen_  The size of keydata_.
+	 *  @param throw_if_not_found If true, throw an exception if the list
+	 *			     is not found.  Set to false when creating
+	 *			     a new list.
 	 *  @param store_termfreq_   If true, term frequencies will be stored
 	 *                           in the list.
 	 *  @param store_wdf_        If true, wdf information will be stored
@@ -243,6 +246,7 @@ class SleepycatList {
 	 *                           the collection frequency for postlists.
 	 */
 	SleepycatList(Db * db_, void * keydata_, size_t keylen_,
+		      bool throw_if_not_found,
 		      bool store_termfreq_ = true,
 		      bool store_wdf_ = true,
 		      bool store_positional_ = true,

@@ -146,6 +146,7 @@ SleepycatListItem::pack(bool store_termfreq) const
 
 
 SleepycatList::SleepycatList(Db * db_, void * keydata_, size_t keylen_,
+		       bool throw_if_not_found,
 		       bool store_termfreq_,
 		       bool store_wdf_,
 		       bool store_positional_,
@@ -179,6 +180,9 @@ SleepycatList::SleepycatList(Db * db_, void * keydata_, size_t keylen_,
 
 	if(found == DB_NOTFOUND) {
 	    // Item not found: we have an empty list.
+	    if (throw_if_not_found)
+		// FIXME: wrong error if this is a posting list...
+		throw OmDocNotFoundError("Can't open termlist");
 	} else {
 	    Assert(found == 0); // Any other errors should cause an exception.
 

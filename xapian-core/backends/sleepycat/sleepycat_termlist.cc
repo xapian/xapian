@@ -38,7 +38,7 @@ SleepycatTermList::SleepycatTermList(om_docid did_,
 	: mylist(internals_->termlist_db,
 		 reinterpret_cast<void *>(&did_),
 		 sizeof(did_),
-		 false),
+		 true, false),
 	  database(database_),
 	  termcache(termcache_),
 	  db_size(database->get_doccount())
