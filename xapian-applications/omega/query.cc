@@ -1896,12 +1896,22 @@ print_caption(const string &fmt, const vector<string> &param)
 void
 parse_omegascript()
 {
-    std::string output = eval_file(fmtname);
-    if (!set_content_type) {
-	cout << "Content-Type: text/html" << std::endl;
+    try {
+	std::string output = eval_file(fmtname);
+	if (!set_content_type) {
+	    cout << "Content-Type: text/html" << std::endl;
+	}
+	cout << std::endl;
+	cout << output;
+    } catch (...) {
+	// Ensure the headers have been output so that any exception gets
+	// reported rather than giving a server error.
+	if (!set_content_type) {
+	    cout << "Content-Type: text/html" << std::endl;
+	}
+	cout << std::endl;
+	throw;
     }
-    cout << std::endl;
-    cout << output;
 }
 
 static void

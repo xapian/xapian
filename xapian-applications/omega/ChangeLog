@@ -1,3 +1,10 @@
+Mon Dec 20 11:33:59 GMT 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: If an exception is thrown, make sure that the HTTP headers
+	  get written so that we don't cause "500 Internal Server Error".
+	  This problem was introduced by the change to allow a user specified
+	  Content-Type in 0.8.0.  Partly addresses bug#60.
+
 Fri Dec 17 22:50:01 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Only try to delete removed documents in DUPE_replace
