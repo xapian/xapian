@@ -312,7 +312,8 @@ main2(int argc, char *argv[])
     }
 
     // Percentage relevance cut-off
-    if (cgi_params.find("THRESHOLD") != cgi_params.end()) {
+    val = cgi_params.find("THRESHOLD");
+    if (val != cgi_params.end()) {
         threshold = atoi(val->second.c_str());
         if (threshold < 0) threshold = 0;
         if (threshold > 100) threshold = 100;

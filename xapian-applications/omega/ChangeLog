@@ -1,3 +1,7 @@
+Tue Nov 06 13:02:04 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed lookup of CGI parameter THRESHOLD.
+
 Tue Nov  6 12:38:37 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Moved configure.ac to configure.in: depending on autoconf 2.13 is
