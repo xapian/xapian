@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -580,7 +580,8 @@ class OmEnquire {
 	 *  such as handles on the databases used.  As a result, any object
 	 *  which refers to these databases, such as an OmDocument, will
 	 *  become invalid after the destruction of the object, and must
-	 *  not be used subsequently.
+	 *  not be used subsequently. (FIXME: I don't think this is actually
+	 *  true - check)
 	 */
 	~OmEnquire();
 

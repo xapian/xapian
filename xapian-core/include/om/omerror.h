@@ -3,7 +3,7 @@
  */
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,9 @@
 
 class OmErrorHandler;
 
-/// Base class for all Xapian-specific errors reported
+/// Base class for all Xapian-specific errors reported.
+//
+// Instantiations of OmError (as opposed to subclasses) are forbidden.
 class OmError {
     friend class OmErrorHandler;
     private:
@@ -94,9 +96,7 @@ class OmError {
 	    return errno_value;
 	}
 
-	/// Instantiations of OmError (as opposed to subclasses) are forbidden
-	// FIXME: no longer pure virtual as that stops us throwing OmError
-	// objects
+	/// Destructor
 	virtual ~OmError();
 };
 
