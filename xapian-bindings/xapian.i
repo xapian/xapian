@@ -68,7 +68,7 @@ using namespace std;
     } catch (const Xapian::Error &e) {
         OMSWIG_exception(SWIG_UnknownError, e);
     } catch (...) {
-        SWIG_exception(SWIG_UnknownError, "unknown error in Xapian"));
+        SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
 

@@ -1,3 +1,7 @@
+Wed May 26 14:51:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Removed bogus extra ")".
+
 Wed May 26 04:04:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Fixed the %exception handler to cover all the exceptions
