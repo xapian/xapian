@@ -37,21 +37,23 @@ case "$bison_version" in
   ;;
 esac
 
-for d in xapian-core xapian-bindings xapian-examples xapian-applications/* ; do
+srcdir="`echo $0|sed 's![^/]*$!!'`"
+for module in xapian-core xapian-bindings xapian-examples xapian-applications/* ; do
+  d="${srcdir}$module"
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
-    echo "Bootstrapping \`$d'"
+    echo "Bootstrapping \`$module'"
     ${AUTORECONF-autoreconf} -i "$d"
   fi
 
-  if test xapian-core = "$d" ; then
-    if test -d xapian-core/m4 ; then
-      # set ACLOCAL_FLAGS so xapian.m4 can be found by modules other than xapian-core
-      aclocal_dir="`cd xapian-core/m4 && pwd`"
-      ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I $aclocal_dir"
+  if test xapian-core = "$module" ; then
+    if test -d "$d/m4" ; then
+      # pass extra option to ACLOCAL so xapian.m4 can be found by other modules
+      aclocal_dir="`cd \"$d/m4\" && pwd`"
+      ACLOCAL="${ACLOCAL-aclocal} -I $aclocal_dir"
+      export ACLOCAL
     fi
   fi
 done
 
 trap EXIT
-srcdir="`echo $0|sed 's![^/]*$!!'`"
 echo "Bootstrapped successfully - now run \"${srcdir}configure\" and \"${MAKE-make}\""
