@@ -18,7 +18,7 @@ if HAVE_DOCPP
 CREATED_DOCUMENTS2=html/index.html
 
 html/index.html:
-	doc++ -j -A -c --dir html `find .. -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	doc++ -j -A -c --dir html `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 endif
 
