@@ -176,7 +176,7 @@ static int main2(int argc, char *argv[])
     std::ifstream dlist_in(dlist_file.c_str());
     if (dlist_in) {
 #ifdef DEBUG
-	cout << "Dlist opened" << endl;
+	cout << "Dlist file opened" << endl;
 #endif
 	DatabaseFactory dbfact;
 	IRGroupDatabase * dbgroup = dbfact.makegroup(OM_DBGRPTYPE_MULTI);
@@ -206,6 +206,16 @@ static int main2(int argc, char *argv[])
 	    }
 	}
 	dlist_in.close();
+    } else {
+	cout << "Opening DA database " << db_dir << endl;
+	DatabaseFactory dbfact;
+	IRSingleDatabase * db = dbfact.make(OM_DBTYPE_DA);
+	database = db;
+	try {
+	    db->open(db_dir, true);
+	} catch (OmError e) {
+	    cout << e.get_msg() << endl;
+	}
     }
 #if 0 //def FERRET
      {
