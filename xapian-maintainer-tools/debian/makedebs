@@ -1,0 +1,165 @@
+#!/bin/sh -x
+# Make Debian packages from a xapian source tree.
+#
+# Copyright (C) 2004 Richard Boulton
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+
+set -e
+
+# Version of Xapian to build
+VERSION=0.8.0
+
+# Patch numbers of packages to build
+PATCHNUM_CORE=9
+PATCHNUM_BINDINGS=4
+PATCHNUM_OMEGA=1
+
+# CVS tag to use to check out xapian.
+CVSTAG="v`echo ${VERSION} | sed 's/\./-/g'`"
+DEBTAG="debian`echo ${VERSION} | sed 's/\./-/g'`_"
+
+# Debian component to build for (libc version being the most important factor)
+COMPONENT=stable
+
+# Options to pass to dpkg-buildpackage
+BUILDPACKAGE_OPTS="-us -uc -d"
+
+# Location to download tarballs from.
+CVSROOT=":pserver:cvsuser@cvs.xapian.org:/usr/data/cvs"
+
+# Location to place the generated apt repository
+PUBDIR="/home/richard/pub/http/xapian-apt/"
+
+# Temporary directory to install core in
+TMPDIR="/tmp/xapian-core$$"
+
+
+## BEGIN PROCESSING ##
+trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
+
+# Checkout original packages from CVS
+mkdir -p src
+cd src
+  cvs -Q -d ${CVSROOT} co -r $CVSTAG xapian
+cd ..
+
+# Checkout debian control files from CVS
+mkdir -p control
+cd control
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_CORE} -d xapian-core xapian/xapian-core/debian
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_BINDINGS} -d xapian-bindings xapian/xapian-bindings/debian
+  cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_OMEGA} -d xapian-omega xapian/xapian-applications/omega/debian
+cd ..
+
+# Make distribution tarballs
+cd src
+  cd xapian
+    ./bootstrap
+    ./configure --enable-maintainer-mode
+    (cd xapian-core && make dist)
+    (cd xapian-bindings && make dist)
+    (cd xapian-applications/omega && make dist)
+    make dist
+  cd ..
+cd ..
+
+# Unpack distribution tarballs, and put the debian control files into place.
+rm -rf build
+mkdir -p build
+cd build
+  tar zxf ../src/xapian/xapian-core/xapian-core-${VERSION}.tar.gz
+  mkdir -p xapian-core-${VERSION}/debian
+  cp -af ../control/xapian-core/* xapian-core-${VERSION}/debian/
+
+  tar zxf ../src/xapian/xapian-bindings/xapian-bindings-${VERSION}.tar.gz
+  mkdir -p xapian-bindings-${VERSION}/debian
+  cp -af ../control/xapian-bindings/* xapian-bindings-${VERSION}/debian/
+
+  tar zxf ../src/xapian/xapian-applications/omega/omega-${VERSION}.tar.gz
+  mv omega-${VERSION} xapian-omega-${VERSION}
+  mkdir -p xapian-omega-${VERSION}/debian
+  cp -af ../control/xapian-omega/* xapian-omega-${VERSION}/debian/
+
+
+  # Build packages from xapian-core
+  cd xapian-core-${VERSION}
+    debian/rules # Needed to generate control from control.in
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
+
+    # Build and install (to a temporary location) the core library
+    mkdir -p build-tmp
+    cd build-tmp
+      ../configure --prefix=${TMPDIR}
+      make
+      make install
+  cd ../..
+  # Add new library to beginning of path.
+  export PATH
+  PATH="$TMPDIR/bin:$PATH"
+
+  # Build packages from xapian-bindings
+  cd xapian-bindings-${VERSION}
+    debian/rules # Needed to generate control from control.in and control-python.in
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
+  cd ..
+
+  # Build packages from xapian-omega
+  cd xapian-omega-${VERSION}
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
+  cd ..
+
+# FIXME - Build packages from xapian-examples
+
+# Leave the build directory
+cd ..
+
+# Create package repository
+mkdir -p apt/pool/main
+packages="build/*.deb build/xapian*.dsc build/xapian*.tar.gz build/xapian*.changes"
+mv $packages apt/pool/main
+
+cd apt
+  touch Override
+  DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
+  PACKAGES_DIR=dists/$COMPONENT/main/binary-$DEB_HOST_ARCH
+  SOURCES_DIR=dists/$COMPONENT/main/source
+  mkdir -p $PACKAGES_DIR
+  mkdir -p $SOURCES_DIR
+  dpkg-scanpackages pool Override | gzip -9 > $PACKAGES_DIR/Packages.gz
+  dpkg-scansources  pool Override | gzip -9 > $SOURCES_DIR/Sources.gz
+  cat >$PACKAGES_DIR/Release <<EOF
+Archive: $COMPONENT
+Component: main
+Origin: Xapian
+Label: Xapian
+Architecture: $DEB_HOST_ARCH
+EOF
+  cat >$SOURCES_DIR/Release <<EOF
+Archive: $COMPONENT
+Component: main
+Origin: Xapian
+Label: Xapian
+Architecture: source
+EOF
+cd ..
+
+mkdir -p ${PUBDIR}
+cp -af apt/* ${PUBDIR}
+
+trap EXIT
+rm -rf "${TMPDIR}"
+echo "Made Debian packages successfully"
