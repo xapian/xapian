@@ -4,7 +4,6 @@
 #define _branchpostlist_h_
 
 #include "database.h"
-#include "emptypostlist.h"
 
 #include <stdio.h>
 
