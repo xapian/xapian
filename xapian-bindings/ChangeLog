@@ -1,3 +1,8 @@
+Wed Oct 27 03:34:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added note that the bindings can easily be compiled
+	  for use with Tcl 8.0, in case anybody needs that for some reason.
+
 Sun Oct 24 02:07:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simpleindex.py: Trim spaces from the start as

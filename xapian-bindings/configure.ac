@@ -126,7 +126,9 @@ if test no != "$with_swig" ; then
   if test no != "$with_tcl" ; then
     AC_PATH_PROG(TCLSH, tclsh, [])
     if test -n "$TCLSH" ;  then
-	# We need Tcl 8.1 or later for TCL_STUBS
+	# We need Tcl 8.1 or later for TCL_STUBS.
+	# Note: The bindings can easily be made to work with Tcl 8.0 (just
+	# don't pass -DUSE_TCL_STUBS when compiling) should you need that.
 	if `echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
 	    TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
 	    AC_SUBST(TCL_LIB)
