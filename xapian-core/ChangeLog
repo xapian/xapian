@@ -1,3 +1,8 @@
+Mon May 26 16:50:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Added note adapted from an old email noting why compile-time
+	  options are generally best avoided.
+
 Mon May 26 12:03:29 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc,testsuite/textfile_indexer.cc: Corrected

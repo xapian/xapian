@@ -43,7 +43,8 @@ environment variables.  You can:
    output to be stored in (to override the default of stderr).
 
  * set XAPIAN_DEBUG_TYPES to a bitmap to select the types of debugging message
-   you would like to display.
+   you would like to display (the default value is 0, which displays no debug
+   messages).
 
 Of course, if you didn't compile with --enable-debug=full, these environment
 variables will have no effect.
@@ -139,8 +140,8 @@ at the time of writing, the versions known to work are:
 		things - Xapian appears to work fine with Bison 1.50.
 
 		Bison 1.875 generates code which GNU C++ won't compile -
-		the problem appears to have been fixed in 1.875a but we've
-		not verified this.
+		the problem appears to have been fixed in 1.875a (judging
+		from the NEWS files) but we'venot verified this.
 
 	GNU Flex
 
@@ -318,6 +319,31 @@ AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
 	with Asserts enabled, but without a great performance overhead, then
 	passing --enable-debug=partial to configure and AssertParanoids won't
 	be checked, but Asserts will.
+
+Configure Options
+=================
+
+Especially for a library, compile-time options aren't a good solution for
+how to integrate a new feature.  Increasingly few people compile stuff
+from source these days - rather they install from packages.  Unless
+the package is capable of being split into modules, the packager can really
+only choose what compile time options to use.  And they'll tend to choose
+either the standard ones, or perhaps a broader set to try to keep everyone
+happy.  For a library, similar issues occur when installing from source as
+well - the sysadmin must choose the options which will keep all users happy.
+
+Another problem with compile-time options is that it's hard to ensure that
+a change doesn't break compilation under some combination of options without
+actually building and running the test-suite on all combinations.  The fewer
+compile-time options, the more likely the code will compile with them.
+
+So please think carefully before adding more compile-time options.  They're
+probably OK for experimental features (but should go away once a feature is no
+longer experimental).  Options to instrument a build for special purposes
+(debug, profiling, etc) are also acceptable.  Disabling whole features probably
+isn't (e.g. the --disable-backend-XXX options we already have are dubious,
+though being able to disable the remote backend can be useful when trying to
+get Xapian going on a platform).
 
 Submitting Patches:
 ===================
