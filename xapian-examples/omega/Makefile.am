@@ -8,7 +8,7 @@ EXTRA_DIST = parsequery.cc templates/query templates/godmode
 
 INCLUDES = $(OMSEE_CFLAGS)
 
-bin_PROGRAMS = omega omindex
+bin_PROGRAMS = omega omindex omindex-config
 
 TESTS = parsequerytest
 
@@ -19,6 +19,9 @@ omega_LDADD = @OMSEE_LIBS@
 
 omindex_SOURCES = omindex.cc htmlparse.cc
 omindex_LDADD = @OMSEE_LIBS@
+
+omindex_config_SOURCES = omindex-config.cc
+omindex_config_LDADD = -lxml
 
 parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
 parsequerytest_LDADD = @OMSEE_LIBS@
