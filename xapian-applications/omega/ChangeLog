@@ -1,3 +1,7 @@
+Tue May 14 11:24:42 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed config.h inclusion; using std::*.
+
 Tue May 14 11:18:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated.

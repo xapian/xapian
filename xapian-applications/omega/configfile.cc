@@ -23,6 +23,7 @@
 
 #include <fstream>
 #include <iostream>
+using std::ifstream;
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,15 +31,15 @@
 
 #include "configfile.h"
 
-static std::string config_file = "/etc/omega.conf";
+static string config_file = "/etc/omega.conf";
 
-std::string database_dir = "/home/omega/data/";
-std::string template_dir = "/home/omega/templates/";
+string database_dir = "/home/omega/data/";
+string template_dir = "/home/omega/templates/";
 
 /** Return true if the file fname exists
  */
 static bool
-file_readable(const std::string &fname)
+file_readable(const string &fname)
 {
     struct stat sbuf;
     // exists && is a regular file or symlink
@@ -46,17 +47,17 @@ file_readable(const std::string &fname)
 }   
 
 static bool
-try_read_config_file(std::string cfile)
+try_read_config_file(string cfile)
 {
     if (!file_readable(cfile)) return false;
 
-    std::ifstream in(cfile.data());
+    ifstream in(cfile.data());
     if (!in) {
-	throw std::string("Can't open configuration file `") + cfile + "'";
+	throw string("Can't open configuration file `") + cfile + "'";
 	return false;
     }
 
-    std::string name, value;
+    string name, value;
     
     while (in) {
 	in >> name >> value;

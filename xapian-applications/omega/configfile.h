@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 2001 Lemur Consulting Ltd.
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +24,12 @@
 #ifndef HGUARD_OMEGA_CONFIGFILE
 #define HGUARD_OMEGA_CONFIGFILE
 
-#include "config.h"
+#include <config.h>
 #include <string>
+using std::string;
 
-extern std::string database_dir;
-extern std::string template_dir;
+extern string database_dir;
+extern string template_dir;
 
 void read_config_file();
 
