@@ -149,7 +149,6 @@ DADatabase::DADatabase()
 {
     DA_r = NULL;
     DA_t = NULL;
-    max_termid = 0;
     opened = false;
 }
 

@@ -144,7 +144,6 @@ class DADatabase : public virtual IRDatabase {
 	struct DAfile * DA_t;
 	doccount dbsize;
 
-	mutable termid max_termid;
 	mutable map<termname, termid> termidmap;
 	mutable vector<DATerm> termvec;
     public:
