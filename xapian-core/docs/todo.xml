@@ -368,6 +368,8 @@ share some techniques from implementing synonym postlists.
 </todo>
 <!-- FIXME: enter these as TODO entries
 
+"make install" on omega should install CGI binary somewhere more helpful
+
  * .deb and RPMs built, control files via autoconf
 
 I've some experience of producing debs and rpms, so I'll take a look at this
@@ -503,8 +505,6 @@ And here are my extra points:
    project.
 
  * Move "min_hits" into matcher?
-
- * xapian-config - -cflags should be - -cxxflags, and related cleaning up.
 
  * Look at reworking StatsGatherer mechanism to be simpler and clearer.
 -->

@@ -3,25 +3,22 @@
 # xapian-config.in: This file is processed by configure to
 # generate xapian-config
 
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
-dependency_libs="@dependency_libs@"
-stlport_cflags="@STLPORT_CFLAGS@"
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+libdir="@libdir@"
+includedir="@includedir@"
 
 usage()
 {
     cat <<EOF
-Usage: xapian-config [OPTION]
+Usage: xapian-config [OPTION]...
 
 Known values for OPTION are:
 
-  --check		check for existence of xapian
+  --prefix		set prefix
+  --exec-prefix		set executable prefix (specify after --prefix)
   --libs		print library linking information
-  --cflags		print pre-processor and compiler flags
-  --prefix              set prefix
-  --exec-prefix         set executable prefix (must also specify a --prefix)
+  --cxxflags		print pre-processor and compiler flags
   --help		display this help and exit successfully
   --version		output version information
 
@@ -30,38 +27,34 @@ EOF
     exit $1
 }
 
-if test $# -eq 0; then
+if test 0 = "$#"; then
     usage 1
 fi
 
-echo_cflags=false
-echo_libs=false
-prefix_set=false
-exec_prefix_set=false
-
-while test $# -gt 0; do
+while test 0 != "$#"; do
     case "$1" in
-    -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    -*=*) optarg="`echo \"$1\" | sed 's/[-_a-zA-Z0-9]*=//'`" ;;
     *) optarg= ;;
     esac
 
     case "$1" in
     --prefix=*)
-	prefix=$optarg
-	prefix_set=true
+	prefix="$optarg"
+	includedir="$prefix/include"
+	libdir="$prefix/lib"
 	;;
 
     --prefix)
-	echo $prefix
+	echo "$prefix"
 	;;
 
     --exec-prefix=*)
-	exec_prefix=$optarg
-	exec_prefix_set=true
+	exec_prefix="$optarg"
+	libdir="$exec_prefix/lib"
 	;;
 
     --exec-prefix)
-	echo $exec_prefix
+	echo "$exec_prefix"
 	;;
 
     --version)
@@ -73,16 +66,23 @@ while test $# -gt 0; do
 	usage 0
 	;;
 
-    --cflags)
-	echo_cflags=yes
+    --cxxflags)
+	case "$includedir" in
+	/usr/include|/usr/include/c++)
+	    echo "@STLPORT_CXXFLAGS@" ;;
+	*)
+	    echo "@STLPORT_CXXFLAGS@ -I$includedir" ;;
+	esac
        	;;
 
     --libs)
-	echo_libs=yes
+	case "$libdir" in
+	/usr/lib)
+	    echo "-lxapian @dependency_libs@" ;;
+	*)
+	    echo "-L$libdir -lxapian @dependency_libs@" ;;
+	esac
        	;;
-
-    --check)
-	;;
 
     *)
 	usage 1 1>&2
@@ -91,42 +91,4 @@ while test $# -gt 0; do
     esac
     shift
 done
-
-if test "$prefix_set" = "true"; then
-    includedir=${prefix}
-    libdir=${prefix}
-
-fi
-
-if test "$exec_prefix_set" = "true"; then
-    if test "$prefix_set" = "true"; then
-	libdir=${exec_prefix}
-    else
-	usage 1 1>&2
-	exit 1
-    fi
-fi
-
-if test "$prefix_set" = "true"; then
-    if test -d "${includedir}/include"; then
-        includedir="${includedir}/include"
-    fi
-
-    if test -d "${libdir}/lib"; then
-	libdir="${libdir}/lib"
-    else
-        if test -d "${libdir}/.libs"; then
-            libdir="${libdir}/.libs"
-        fi
-    fi
-fi
-
-if test "$echo_cflags" = "yes"; then
-    echo $stlport_cflags -I$includedir
-fi
-
-if test "$echo_libs" = "yes"; then
-    echo -L$libdir -lxapian $dependency_libs
-fi
-
 exit 0
