@@ -1,3 +1,8 @@
+Tue Nov 23 12:47:54 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix the test for GCC3 used to turn on -Werror with
+	  --enable-maintainer-mode.
+
 Mon Nov 22 03:08:10 GMT 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Assorted updates.

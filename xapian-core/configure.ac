@@ -488,9 +488,12 @@ if test yes = "$GXX"; then
   dnl GCC3 or newer.  We don't do this for older GCCs as GCC 2.95 issues
   dnl spurious warnings.
   if test x$USE_MAINTAINER_MODE = xyes; then
-    case `$CXX --version` in
-    [3-9]*.*|[12][0-9]*.*) 
-      AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+    dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
+    dnl but somewhere in the 3.X series the output became more verbose.
+    dnl So for simplicitly, we test for the earlier versions.
+    case `$CXX --version 2>&1` in
+    [12].*) ;;
+    *) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
     esac
   fi
 fi
