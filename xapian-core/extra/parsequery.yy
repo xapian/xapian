@@ -25,16 +25,15 @@
 %{
 #include <config.h>
 #include <algorithm>
-using std::find;
 #include <vector>
-using std::vector;
 #include <string>
-using std::string;
 #include <list>
-using std::list;
+#include <map>
 #include <om/om.h>
 #include <stdio.h>
 #include <ctype.h>
+
+using namespace std;
  
 class U {
     public:
@@ -62,7 +61,7 @@ static string q;
 %}
 
 /* BISON Declarations */
-%token TERM HYPHEN
+%token TERM PREFIXTERM HYPHEN
 %left OR XOR NOT
 %left AND
 %left NEAR
@@ -111,8 +110,8 @@ exp:	  prob		{
 	| XOR exp	{ throw "Syntax: expression XOR expression"; }
 ;
 
-prob:	  stopterm
-	| prob stopterm	{ if ($1.q.is_empty()) {
+prob:	  probterm
+	| prob probterm	{ if ($1.q.is_empty()) {
 	    		      $$ = $2; // even if $2.q.is_empty()
 			  } else if ($2.q.is_empty()) {
 			      $$ = $1;
@@ -125,6 +124,10 @@ prob:	  stopterm
 	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }
 	| '-' term	{ $$.hate.push_back($2.q); }
 	| prob '-' term	{ $$ = $1; $$.hate.push_back($3.q); }
+;
+
+probterm: stopterm
+	| PREFIXTERM
 ;
 
 stopterm: TERM		{ om_termname term = *($1.q.get_terms_begin()); 
@@ -152,6 +155,7 @@ stopterm: TERM		{ om_termname term = *($1.q.get_terms_begin());
 ;
 
 term:	  TERM
+	| PREFIXTERM
 	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
 	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
@@ -177,6 +181,7 @@ nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 static string::iterator qptr;
 static int pending_token;
 static om_termpos termpos;
+static string prefix;
 
 void
 OmQueryParser::set_stemming_options(const string &lang, bool stem_all_,
@@ -253,9 +258,11 @@ yylex()
 	return c;
     }
     
-    /* skip whitespace */
-    qptr = find_if(qptr, q.end(), p_notwhitespace);
-    if (qptr == q.end()) return 0;
+    if (prefix.empty()) {
+	/* skip whitespace */
+	qptr = find_if(qptr, q.end(), p_notwhitespace);
+	if (qptr == q.end()) return 0;
+    }
 
     /* process terms */
     if (isalnum(*qptr)) {
@@ -327,18 +334,44 @@ more_term:
 		    pending_token = HYPHEN;
 		}
 	    }
+	    if (prefix.empty() && *qptr == ':') {
+		string::iterator saved_qptr = qptr;
+		++qptr;
+		if (qptr != q.end() && !isspace(*qptr)) {
+		    map<string, string>::const_iterator f;
+		    f = qp->prefixes.find(term);
+		    if (f != qp->prefixes.end()) {
+		       prefix = f->second;
+		       // FIXME: what about boolean prefix terms?
+		       // search for "subject:xapian anon cvs" should
+		       // use default_op (or should it?) but search
+		       // for "cvs site:xapian.org" should use FILTER
+		       //
+		       // FIXME: Also, what about prefix terms in NEAR,
+		       // prefixed phrases (subject:"space flight")
+		       if (yylex() == TERM) return PREFIXTERM;
+		       prefix = "";
+		    }
+		}
+		qptr = saved_qptr;
+	    }
 	}
-	if (term == "AND") {
-	    return AND;
-        } else if (term == "OR") {
-	    return OR;
-        } else if (term == "NOT") {
-	    return NOT;
-        } else if (term == "XOR") {
-	    return XOR;
-        } else if (term == "NEAR") {
-	    return NEAR;
-        }
+
+	// Boolean operators
+	if (prefix.empty()) {
+	    if (term == "AND") {
+		return AND;
+	    } else if (term == "OR") {
+		return OR;
+	    } else if (term == "NOT") {
+		return NOT;
+	    } else if (term == "XOR") {
+		return XOR;
+	    } else if (term == "NEAR") {
+		return NEAR;
+	    }
+	}
+
 	bool raw_term = (!already_stemmed && !qp->stem_all && !islower(term[0]));
 	string original_term = term;
 	lowercase_term(term);
@@ -346,6 +379,13 @@ more_term:
 	    term = 'R' + term;
 	else if (!already_stemmed)
 	    term = qp->stemmer->stem_word(term);
+	if (!prefix.empty()) {
+	    if (prefix.length() > 1 && (isupper(term[0]) || isdigit(term[0]))) {
+		prefix += ':';
+	    }
+	    term = prefix + term;
+	    prefix = "";
+	}
 	yylval = U(OmQuery(term, 1, termpos++));
 	qp->termlist.push_back(term);
 	qp->unstem.insert(make_pair(term, original_term));
@@ -386,6 +426,7 @@ OmQueryParser::parse_query(const string &q_)
     q = q_;
     pending_token = 0;
     termpos = 1;
+    prefix = "";
     qptr = q.begin();
     if (yyparse() == 1) {
 	throw "query failed to parse";

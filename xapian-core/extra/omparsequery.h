@@ -70,6 +70,10 @@ class OmQueryParser {
 
 	std::multimap<om_termname, om_termname> unstem;
 
+	// Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
+	// "foobar" -> "XFOO"
+	std::map<std::string, std::string> prefixes;
+
 	// don't touch these - FIXME: make private and use friend...
 	OmQuery::op default_op;
 

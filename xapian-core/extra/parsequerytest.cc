@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,9 +25,9 @@
 #include <config.h>
 #include "omparsequery.h"
 #include <iostream>
-using std::cout;
 #include <string>
-using std::string;
+
+using namespace std;
 
 OmQuery::op default_op = OmQuery::OP_OR;
 
@@ -45,6 +46,7 @@ static test tests[] = {
     { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
     { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
     { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR Rab:(pos=3) OR c:(pos=4))" },
+    { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
     { NULL, NULL }
 };
 
@@ -53,11 +55,21 @@ main(void)
 {
     OmQueryParser qp;
     qp.set_stemming_options("english");
+    qp.prefixes.insert(make_pair("author", "A"));
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {
-	string parsed = qp.parse_query(p->query).get_description();
 	string expect = string("OmQuery(") + p->expect + ')';
+	string parsed;
+	try {
+	    parsed = qp.parse_query(p->query).get_description();
+	} catch (const OmError &e) {
+	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
 	if (parsed == expect) {
 	    succeed++;
 	} else {
