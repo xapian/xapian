@@ -4,6 +4,7 @@
 #include "andpostlist.h"
 
 // FilterPostList(probabilistic, boolean)
+// AntiFilterPostList(probabilistic, boolean)
 
 class FilterPostList : public virtual AndPostList {
     public:
@@ -30,6 +31,37 @@ FilterPostList::get_maxweight() const
 
 inline weight
 FilterPostList::recalc_maxweight()
+{
+    return l->recalc_maxweight();    
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+class AntiFilterPostList : public virtual AndNotPostList {
+    public:
+	weight get_weight() const;
+	weight get_maxweight() const;
+
+        weight recalc_maxweight();
+
+        AntiFilterPostList(PostList *l, PostList *r, Match *root) :
+            AndNotPostList(l, r, root) {};
+};
+
+inline weight
+AntiFilterPostList::get_weight() const
+{
+    return l->get_weight();
+}
+
+inline weight
+AntiFilterPostList::get_maxweight() const
+{
+    return l->get_maxweight();
+}
+
+inline weight
+AntiFilterPostList::recalc_maxweight()
 {
     return l->recalc_maxweight();    
 }
