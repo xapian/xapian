@@ -38,6 +38,8 @@
 // EXTENDED_QUERY new query, but based on the old one
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY } querytype;
 
+void html_escape(const string &str);
+
 querytype set_probabilistic(const string&, const string&);
 long do_match(long int, long int);
 

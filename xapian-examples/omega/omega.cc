@@ -22,8 +22,6 @@
 
 #include "main.h"
 
-#include <stdio.h>
-
 #include <fstream>
 
 #include <string.h>
@@ -237,81 +235,33 @@ static int main2(int argc, char *argv[])
 	if (more) goto got_query_from_morelike;
     }
 
-#if 0 // FIXME def FERRET
     val = cgi_params.find("IDSPISPOPD");
-    if (val != notfound) {
-       int doc = atol(val->second.c_str());
-
+    if (val != cgi_params.end()) {
+	int doc = atol(val->second.c_str());
+	
 	cout << "<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
 	        "Raw record #" << doc << ":<br>\n";
-      
-       Give_Muscat("set p to d d (a) x s + g0;");
-       Ignore_Muscat();
-       Give_Muscat("pspec !p");
-       Ignore_Muscat();
-       Give_Muscatf("dprint %ld", doc);
-       while (!Getfrom_Muscat (&z)) {
-	  check_error(&z);
-	  if (z.p[1] == ')' || z.p[1] == ']') {
-	     unsigned char *p = z.p + 2;
-	     int ch;
-	     while ((ch = *p++) != '\0') {
-		  switch (ch) {
-		   case '<':
-		      cout << "&lt;";
-		      break;
-		   case '>':
-		      cout << "&gt;";
-		      break;
-		   case '&':
-		      cout << "&amp;";
-		      break;
-		   case '\t':
-		      cout << "\\t";
-		      break;
-		   case '\r':
-		      cout << "\\r";
-		      break;
-		   case '\b':
-		      cout << "\\b";
-		      break;		   
-		   default:
-		      if (ch < 32 || ch >= 127) {
-			  printf("\\x%02x", ch);
-		      } else {
-			  putchar(ch);
-		      }
-		      break;
-		}
-	     }
-	     cout << "<br>\n";
-	  }
-       }
-       
-	cout "<hr>\nTerms indexing this record<br>\n"
-	     "<table><tr><th>Term</th><th>Freq</th></tr>\n"
-	     "<FORM NAME=P METHOD=GET ACTION=\"/\">\n"
-	     "<NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>\n"
-	     "<SCRIPT> <!--\n"
-	     "document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')\n"
-	     "// -->\n"
-	     "</SCRIPT>\n"
-	     "<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 "
-	     "SRC=\"http://www.euroferret.com/fx-gif/find.gif\" "
-	     "VALUE=Find>\n";
+	
+	html_escape(enquire->get_doc(doc).get_data().value);
+	
+	
+	cout << "<hr>\nTerms indexing this record<br>\n"
+	        "<table><tr><th>Term</th><th>Freq</th></tr>\n"
+		"<FORM NAME=P METHOD=GET ACTION=\"/\">\n"
+		"<NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>\n"
+		"<SCRIPT> <!--\n"
+		"document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')\n"
+		"// -->\n"
+		"</SCRIPT>\n"
+		"<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 "
+		"SRC=\"http://www.euroferret.com/fx-gif/find.gif\" "
+		"VALUE=Find>\n";
 
 	cout << "<INPUT TYPE=hidden NAME=DB VALUE=" << db_name << ">\n";
 
-       Give_Muscatf("tof %ld style f", doc);
-       while (!Getfrom_Muscat (&z)) {
-	  check_error(&z);
-	  if (z.p[0] == 'I') {
-	      unsigned char *p;
-	      int ch;
-	      int freq = strtol(z.p + 2, &p, 10);
-	     
-	      while (*p == ' ') p++;
-	     
+	// FIXME: dump terms
+#if 0
+	// for each term
 	      cout << "<tr><td>";
 	      if (isupper(*p)) {
 		  cout << "<input type=checkbox name=B value=\"" << p << "\">";
@@ -351,64 +301,16 @@ static int main2(int argc, char *argv[])
 		  cout << ".\">";
 	      }
 
-	      while ((ch = *p++) != '\0') {
-		  switch (ch) {
-		   case '<':
-		      cout << "&lt;";
-		      break;
-		   case '>':
-		      cout << "&gt;";
-		      break;
-		   case '&':
-		      cout << "&amp;";
-		      break;
-		   case '\t':
-		      cout << "\\t";
-		      break;
-		   case '\r':
-		      cout << "\\r";
-		      break;
-		   case '\b':
-		      cout << "\\b";
-		      break;		   
-		   default:
-		      if (ch < 32 || ch >= 127) {
-			  printf("\\x%02x", ch);
-		      } else {
-			  putchar(ch);
-		      }
-		      break;
-		  }
-	      }
-	      cout << "</A></td><td>" << freq << "</td></tr>\n";
-	  }
-       }
-       cout << "</table>\n";
-#if 0
-       cout << "<hr>\nExpand terms<br>\n"
-	       "<table><tr><th>Term</th><th>Freq</th></tr>\n";
-       
-       Give_Muscatf("rel %ld", doc);
-       Ignore_Muscat();
-       Give_Muscat("expand 1000");
-       while (!Getfrom_Muscat (&z)) {
-	  check_error(&z);
-	  if (z.p[0] == 'I') {
-	     if (more) big_buf += ' ';
-	     big_buf += (z.p + 2);
-	     big_buf += '.';
-	     more = true;
-	  }
-       }
-       Give_Muscat("delrels r0-*");
-       Ignore_Muscat();
+	      cout << "</A></td><td>" << freq << "</td></tr>\n";	
+#endif
 
-       if (more) goto got_query_from_morelike;
-#endif
-       cout << "<hr>\n";
-       exit(0);
+	cout << "<hr>\nExpand terms<br>\n"
+	        "<table><tr><th>Term</th><th>Freq</th></tr>\n";
+	// FIXME: generate lots of expand terms for this doc and list them
+
+	cout << "<hr>\n";
+	exit(0);
     }
-#endif
       
     // collect the prob fields
     g = cgi_params.equal_range("P");

@@ -306,62 +306,26 @@ print_page_links(char type, long int hits_per_page, long int topdoc)
    }
 }
 
-static void utf8_to_html(const string &str) {
-   const unsigned char *p = (const unsigned char *)str.c_str();
-   while (1) {
-      int ch = *p++;
-      if (ch == 0) break;
-
-      // this is some extra magic, not part of utf-8
-      switch (ch) {
-       case '\b': // was \r but muscat 3.6 swallows that...
-	  cout << " / "; // line break in original
-	  continue;
-       case '\t':
-	  cout << " * "; // bullet point in original
-	  continue;
-       case '\f':
-	  cout << "&nbsp;"; // hardspace in original
-	  continue;
-       case '<':
-	  cout << "&lt;";
-	  continue;
-       case '>':
-	  cout << "&gt;";
-	  continue;
-       case '&':
-	  cout << "&amp;";
-	  continue;
-      }
-
-      /* A byte in the range 0x80-0xbf or 0xf0-0xff isn't valid in this state,
-       * (0xf0-0xfd mean values > 0xffff) so if we encounter one, treat it as
-       * literal and try to resync so we cope better when fed non-utf-8 data.
-       * Similarly we abandon a multibyte sequence if we hit an invalid
-       * character */
-      if (ch >= 0xc0 && ch < 0xf0) {
-	 int ch1 = *p;
-	 if ((ch1 & 0xc0) != 0x80) goto resync;
-	 
-	 if (ch < 0xe0) {
-	    /* 2 byte sequence */
-	    ch = ((ch & 0x1f) << 6) | (ch1 & 0x3f);
-	    p++;
-	 } else {
-	    /* 3 byte sequence */
-	    int ch2 = p[1];
-	    if ((ch2 & 0xc0) != 0x80) goto resync;
-	    ch = ((ch & 0x1f) << 12) | ((ch1 & 0x3f) << 6) | (ch2 & 0x3f);
-	    p += 2;
-	 }
-	 if (ch > 255) {
-	    cout << "&#" << ch << ";";
-	    continue;
-	 }
-      }
-      resync:
-      cout << char(ch);
-   }
+void html_escape(const string &str) {
+    const char *p = str.c_str();
+    while (1) {
+	char ch = *p++;
+	switch (ch) {
+	    case '\0':
+	        return;
+ 	    case '<':
+	        cout << "&lt;";
+	        continue;
+	    case '>':
+	        cout << "&gt;";
+	        continue;
+	    case '&':
+	        cout << "&amp;";
+	        continue;
+	    default:
+	        cout << ch;
+	}
+    }
 }
 
 static void print_query_string(const char *after) {		      
@@ -514,7 +478,7 @@ print_caption(long int m)
 	switch (q[1]) {
 	 case 'C': /* caption */
 	    if (!caption.empty()) {
-		utf8_to_html(caption);
+		html_escape(caption);
 		break;
 	    }
 	    /* otherwise fall through... */
@@ -534,7 +498,7 @@ print_caption(long int m)
 	    break;
 	 case 'S': /* sample */
 	    if (!sample.empty()) {
-		utf8_to_html(sample);
+		html_escape(sample);
 		cout << "...";
 	    }
 	    break;
