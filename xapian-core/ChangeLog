@@ -1,3 +1,8 @@
+Wed Apr 12 17:36:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added internal test to check that SleepyList packs and unpacks
+	  correctly.
+
 Wed Apr 12 16:22:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* libomus-config now gives flags required to link with dependent

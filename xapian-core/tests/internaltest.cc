@@ -317,9 +317,9 @@ bool test_sleepypack1()
     SleepyListItem::id_type id = 7;
     om_doccount termfreq = 92;
     om_termcount wdf = 81;
-    const vector<om_termpos> positions;
-    positions.push_back(6);
-    positions.push_back(16);
+    vector<om_termpos> positions;
+    positions.push_back(6u);
+    positions.push_back(16u);
 
     SleepyListItem item1(id, termfreq, wdf, positions);
     string packed1 = item1.pack();
@@ -331,6 +331,40 @@ bool test_sleepypack1()
 	if(verbose) {
 	    cout << "Packed items were not equal ('" << packed1 <<
 		    "' and '" << packed2 << "'" << endl;
+	}
+    }
+    if(item1.id != item2.id) {
+	success = false;
+	if(verbose) {
+	    cout << "Unpacked items were not equal (ids '" << item1.id <<
+		    "' and '" << item2.id << "')" << endl;
+	}
+    }
+    if(item1.termfreq != item2.termfreq) {
+	success = false;
+	if(verbose) {
+	    cout << "Unpacked items were not equal (termfreqs '" <<
+		    item1.termfreq << "' and '" << item2.termfreq << "')" <<
+		    endl;
+	}
+    }
+    if(item1.wdf != item2.wdf) {
+	success = false;
+	if(verbose) {
+	    cout << "Unpacked items were not equal (wdfs '" << item1.wdf <<
+		    "' and '" << item2.wdf << "')" << endl;
+	}
+    }
+    if(item1.positions != item2.positions) {
+	success = false;
+	if(verbose) {
+	    cout << "Unpacked items were not equal (positions '";
+	    copy(item1.positions.begin(), item1.positions.end(),
+		 ostream_iterator<om_termpos>(cout, " "));
+	    cout << "' and '";
+	    copy(item2.positions.begin(), item2.positions.end(),
+		 ostream_iterator<om_termpos>(cout, " "));
+	    cout << "')" << endl;
 	}
     }
 
