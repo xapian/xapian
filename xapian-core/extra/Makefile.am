@@ -27,5 +27,10 @@ libomqueryparser_la_LDFLAGS = -version-info 0:1:0
 
 libomqueryparser_la_SOURCES = queryparser.yy
 
+# FreeBSD's make insists on regenerating queryparser.cc for VPATH builds
+# this stops that
+queryparser.cc: $(srcdir)/queryparser.cc
+	ln -s $(srcdir)/queryparser.cc .
+
 queryparsertest_SOURCES = queryparsertest.cc
 queryparsertest_LDADD = libomqueryparser.la ../libxapian.la
