@@ -14,8 +14,7 @@ DAPostList::DAPostList(struct postings *pl) {
 }
 
 DAPostList::~DAPostList() {
-    //if(da_closepostlist(database, postlist))
-	throw OmError("Can't close postlist.");
+    DAclosepostings(postlist);
 }
 
 docid DAPostList::get_docid() {
@@ -113,7 +112,6 @@ PostList * DADatabase::open_post_list(termid id)
 
     struct postings * postlist;
     postlist = DAopenpostings(&ti, DA_t);
-
 
     DAPostList * pl = new DAPostList(postlist);
     return pl;
