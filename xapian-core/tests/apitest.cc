@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     int num_succeeded = 0;
     int c;
 
-    while ((c = getopt(argc, argv, "vo")) != EOF) {
+    while ((c = getopt(argc, argv, "vof")) != EOF) {
 	switch (c) {
 	    case 'v':
 		verbose = true;
