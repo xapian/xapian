@@ -1,4 +1,7 @@
 <Directory>indexer</Directory>
 
 <Description>
+This directory will contain the indexer portion of Muscat.  Currently it just
+contains a few utilities, and a simple indexer put together for testing
+purposes.
 </Description>

@@ -2,6 +2,8 @@
 
 <Description>
 The code for performing the best match algorithm lives here.
+This is the heart of the Muscat system, and is the code which calculates
+relevance rankings for the documents in the collection for a given query.
 
-
+The query expansion (relevance feedback) code also lives here.
 </Description>
