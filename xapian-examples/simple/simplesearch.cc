@@ -35,10 +35,11 @@ int main(int argc, char *argv[])
     // Catch any OmError exceptions thrown
     try {
 	// Make the database group
+	OmSettings settings;
+	settings.set_value("backend", "sleepycat");
+	settings.set_value("sleepy_dir", argv[1]);
 	OmDatabaseGroup databases;
-	vector<string> parameters;
-	parameters.push_back(argv[1]);
-	databases.add_database("sleepycat", parameters);
+	databases.add_database(settings);
 
 	// Start an enquire session
 	OmEnquire enquire(databases);
