@@ -1,3 +1,9 @@
+Wed May 01 14:01:12 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added test consistency1 to check matcher optimisations don't
+	  result in inconsistent results (i.e. that same matches and
+	  weights are returned regardless of size of mset asked for).
+
 Wed May 01 11:48:10 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fixed mismatched tags in todo.xml.

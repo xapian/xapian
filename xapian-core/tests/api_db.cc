@@ -23,15 +23,17 @@
  */
 
 #include "config.h"
+#include <algorithm>
+using std::min;
 #include <iostream>
+using std::endl;
 #include <map>
 using std::map;
 #include <string>
-#include <vector>
-#include <unistd.h>
-
-using std::vector;
 using std::string;
+#include <vector>
+using std::vector;
+#include <unistd.h>
 
 #include "om/om.h"
 #include "testsuite.h"
@@ -42,7 +44,9 @@ using std::string;
 #include "api_db.h"
 
 #include <list>
-typedef std::list<om_termname> om_termname_list;
+using std::list;
+
+typedef list<om_termname> om_termname_list;
 
 // #######################################################################
 // # Tests start here
@@ -446,7 +450,7 @@ static bool test_emptyquery1()
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
-    std::vector<OmQuery> v;
+    vector<OmQuery> v;
     mymset = do_get_simple_query_mset(OmQuery(OmQuery::OP_AND,
 					      v.begin(), v.end()));
     TEST_MSET_SIZE(mymset, 0);
@@ -620,7 +624,7 @@ class myMatchDecider : public OmMatchDecider {
     public:
         int operator()(const OmDocument &doc) const {
 	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().value.find("This is") != std::string::npos;
+	    return doc.get_data().value.find("This is") != string::npos;
 	}
 };
 
@@ -1119,9 +1123,9 @@ static bool test_reversebool1()
 
     {
 	OmMSetIterator i = mymset1.begin();
-	std::vector<om_docid> rev(mymset3.begin(), mymset3.end());
+	vector<om_docid> rev(mymset3.begin(), mymset3.end());
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	std::vector<om_docid>::reverse_iterator j = rev.rbegin();
+	vector<om_docid>::reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
@@ -2951,6 +2955,32 @@ static bool test_collfreq1()
     return true;
 }
 
+// consistency check match - vary mset size and check results agree
+static bool test_consistency1()
+{
+    OmDatabase db(get_database("etext"));
+    OmEnquire enquire(db);
+    enquire.set_query(OmQuery(OmQuery::OP_OR, OmQuery("the"), OmQuery("sky")));
+    om_doccount lots = 214;
+    OmMSet bigmset = enquire.get_mset(0, lots);
+    for (om_doccount start = 0; start < lots; ++start) {
+	for (om_doccount size = 0; size < lots - start; ++size) {
+	    OmMSet mset = enquire.get_mset(start, size);
+	    if (mset.size()) {
+		TEST(start + mset.size() == min(start + size, bigmset.size()));
+	    } else if (size) {
+//		tout << start << mset.size() << bigmset.size() << endl;
+		TEST(start >= bigmset.size());
+	    }
+	    for (om_doccount i = 0; i < mset.size(); ++i) {
+		TEST_EQUAL(*mset[i], *bigmset[start + i]);
+		TEST_EQUAL(mset[i].get_weight(), bigmset[start + i].get_weight());
+	    }
+	}
+    }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -3012,6 +3042,7 @@ test_desc db_tests[] = {
     {"xor1",		   test_xor1},
     {"getdoc1",		   test_getdoc1},
     {"emptyop1",	   test_emptyop1},
+    {"consistency1",	   test_consistency1},
     {0, 0}
 };
 
