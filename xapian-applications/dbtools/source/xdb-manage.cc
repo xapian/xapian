@@ -629,6 +629,10 @@ int main(int argc, char** argv)
     longopts[2].has_arg = 0;
     longopts[2].flag = NULL;
     longopts[2].val = 'c';
+    longopts[3].name = 0;
+    longopts[3].has_arg = 0;
+    longopts[3].flag = 0;
+    longopts[3].val = 0;
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {

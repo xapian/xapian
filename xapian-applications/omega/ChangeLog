@@ -1,3 +1,8 @@
+Mon Nov 26 14:39:00 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* options parsing fixed so minimised/unrecognised long options
+	  doesn't segfault
+
 Mon Nov 26 14:00:13 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* omindex can now index part of a site (previously 'subsite')

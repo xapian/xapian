@@ -439,6 +439,10 @@ main(int argc, char **argv)
     longopts[5].has_arg = required_argument;
     longopts[5].flag = NULL;
     longopts[5].val = 'M';
+    longopts[6].name = 0;
+    longopts[6].has_arg = 0;
+    longopts[6].flag = 0;
+    longopts[6].val = 0;
 
     map<string, string> mime_map = map<string, string>();
     mime_map["txt"] = "text/plain";

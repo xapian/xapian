@@ -52,6 +52,10 @@ int main(int argc, char** argv)
     longopts[1].has_arg = 0;
     longopts[1].flag = NULL;
     longopts[1].val = 'v';
+    longopts[2].name = 0;
+    longopts[2].has_arg = 0;
+    longopts[2].flag = 0;
+    longopts[2].val = 0;
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {
