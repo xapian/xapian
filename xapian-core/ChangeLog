@@ -1,3 +1,7 @@
+Thu May 25 12:06:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add max_or_terms member to localmatch, to store option in.
+
 Wed May 24 17:55:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Separated collection of statistics and building of the query

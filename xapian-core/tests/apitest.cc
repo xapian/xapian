@@ -47,11 +47,6 @@ bool test_simplequery1();
 bool test_simplequery2();
 // tests for the right document count for another simple query
 bool test_simplequery3();
-// tests a query accross multiple databases
-bool test_multidb1();
-// tests a query accross multiple databases with terms only
-// in one of the two databases
-bool test_multidb2();
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
 bool test_changequery1();
@@ -554,6 +549,7 @@ bool test_simplequery3()
     return success;
 }
 
+// tests a query accross multiple databases
 bool test_multidb1()
 {
     bool success = true;
@@ -573,7 +569,6 @@ bool test_multidb1()
     // retrieve the top ten results from each method of accessing
     // multiple text files
     OmMSet mymset1 = enquire1.get_mset(0, 10);
-
     OmMSet mymset2 = enquire2.get_mset(0, 10);
 
     if (mymset1.items.size() != mymset2.items.size()) {
@@ -595,6 +590,8 @@ bool test_multidb1()
     return success;
 }
 
+// tests a query accross multiple databases with terms only
+// in one of the two databases
 bool test_multidb2()
 {
     bool success = true;
@@ -1977,6 +1974,32 @@ bool test_rsetmultidb2()
     return true;
 }
 
+/// Test the set_max_or_terms() match option.
+bool test_maxorterms1()
+{
+    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+
+    OmStem stemmer("english");
+    OmQuery myquery1(stemmer.stem_word("word"));
+
+    OmQuery myquery2(OM_MOP_OR,
+		    OmQuery(stemmer.stem_word("simple")),
+		    OmQuery(stemmer.stem_word("word")));
+
+    enquire.set_query(myquery1);
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+
+    enquire.set_query(myquery2);
+    OmMatchOptions moptions;
+    moptions.set_max_or_terms(1);
+    OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
+
+    TEST_EQUAL(mymset1, mymset2);
+
+    return true;
+}
+
 
 
 
@@ -2020,6 +2043,7 @@ test_desc db_tests[] = {
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
+    {"maxorterms1",        test_maxorterms1},
     {0, 0}
 };
 
@@ -2071,7 +2095,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 0 && defined(MUS_BUILD_BACKEND_NET)
+#if defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

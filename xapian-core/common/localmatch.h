@@ -102,6 +102,15 @@ class LocalMatch : public SingleMatch
 	/// Key to collapse on, if desired
 	om_keyno collapse_key;
 
+	/** Optional limit on number of terms to OR together.
+	 *  If zero, there is no limit.
+	 */
+	om_termcount max_or_terms;
+
+	/** The weights of terms in the query: used to select the top ones.
+	 */
+	map<om_termname, om_weight> term_weights;
+
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 

@@ -96,6 +96,7 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  rset(0),
 	  requested_weighting(IRWeight::WTTYPE_BM25),
 	  do_collapse(false),
+	  max_or_terms(0),
 	  mcmp(msetcmp_forward)
 {
     statssource.my_collection_size_is(database->get_doccount());
@@ -177,6 +178,8 @@ LocalMatch::set_options(const OmMatchOptions & moptions_)
 	do_collapse = true;
 	collapse_key = moptions_.collapse_key;
     }
+
+    max_or_terms = moptions_.max_or_terms;
 
     mcmp = moptions_.get_sort_comparator();
 }
@@ -422,13 +425,17 @@ LocalMatch::build_query_tree()
 void
 LocalMatch::select_query_terms()
 {
-    om_termname_list terms = users_query.get_terms();
+    term_weights.clear();
+    if(max_or_terms != 0) {
+	om_termname_list terms = users_query.get_terms();
 
-    om_termname_list::const_iterator tname;
-    for (tname = terms.begin(); tname != terms.end(); tname++) {
-	IRWeight * wt = mk_weight(1, *tname);
-	DebugMsg("TERM `" <<  *tname << "' get_maxpart = " <<
-		wt->get_maxpart() << endl);
+	om_termname_list::const_iterator tname;
+	for (tname = terms.begin(); tname != terms.end(); tname++) {
+	    IRWeight * wt = mk_weight(1, *tname);
+	    term_weights.insert(make_pair(*tname, wt->get_maxpart()));
+	    DebugMsg("TERM `" <<  *tname << "' get_maxpart = " <<
+		     wt->get_maxpart() << endl);
+	}
     }
 }
 
