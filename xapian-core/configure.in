@@ -42,9 +42,6 @@ dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
 AC_CHECK_LIB(db, db_open, :)
 
-dnl check for pthreads
-AC_CHECK_LIB(pthread, pthread_create)
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
@@ -114,6 +111,11 @@ AC_ARG_ENABLE(profiling,
   no)  use_profiling=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
 esac], [use_profiling=false])
+
+dnl Check whether we have pthreads, but only if we want it
+if test x$use_pthread = xtrue; then
+  AC_CHECK_LIB(pthread, pthread_create)
+fi
 
 dnl Turn off compilation of anything that we don't have the requirements for
 
