@@ -151,10 +151,11 @@ parameters and use a normal anchor.
 Match Bias Functor
 ------------------
 
-Note: this is a temporary bodge to allow experimentation with OmBiasFunctor.
+Note: this is a temporary bodge to allow experimentation with
+Xapian::BiasFunctor.
 
 bias_weight
-	if set, enable the OmBiasFunctor with max_weight "bias_weight".
+	if set, enable the Xapian::BiasFunctor with max_weight "bias_weight".
 
 bias_halflife
 	optionally set the halflife of the bias (default is 2 days).  Has no

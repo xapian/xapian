@@ -230,7 +230,7 @@ $query
 	terms from ADD and X).
 
 $querydescription
-	a human readable description of the OmQuery object omega builds.
+	a human readable description of the Xapian::Query object omega builds.
 	Mostly useful for debugging omega itself.
 
 $queryterms
