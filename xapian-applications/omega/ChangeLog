@@ -1,3 +1,7 @@
+Tue Sep 30 18:32:25 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Cleaner version of T macro.
+
 Tue Sep 30 18:09:30 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Hopefully the final piece in the Sun C++ puzzle.
