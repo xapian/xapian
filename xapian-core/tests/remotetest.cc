@@ -51,12 +51,10 @@ static bool test_netmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
-    paths.push_back("apitest_simpledata");
 
-    Xapian::Database db(backendmanager.get_database(paths));
+    Xapian::Database db(backendmanager.get_database("apitest_simpledata"));
     Xapian::Enquire enq(db);
-    //Xapian::Enquire enq(backendmanager.get_database(paths));
+    //Xapian::Enquire enq(backendmanager.get_database("apitest_simpledata"));
 
     enq.set_query(Xapian::Query("word"));
 
@@ -76,14 +74,11 @@ static bool test_netmatch2()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
 
-    paths.push_back("apitest_simpledata");
-    Xapian::Database db = backendmanager.get_database(paths);
+    Xapian::Database db = backendmanager.get_database("apitest_simpledata");
     databases.add_database(db);
 
-    paths[0] = "apitest_simpledata2";
-    db = backendmanager.get_database(paths);
+    db = backendmanager.get_database("apitest_simpledata2");
     databases.add_database(db);
 
     Xapian::Enquire enq(databases);
@@ -105,10 +100,8 @@ static bool test_netexpand1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
-    paths.push_back("apitest_simpledata");
 
-    Xapian::Enquire enq(backendmanager.get_database(paths));
+    Xapian::Enquire enq(backendmanager.get_database("apitest_simpledata"));
 
     enq.set_query(Xapian::Query("word"));
 
@@ -134,9 +127,7 @@ static bool test_tcpmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
-    paths.push_back("apitest_simpledata");
-    Xapian::Database dbremote = backendmanager.get_database(paths);
+    Xapian::Database dbremote = backendmanager.get_database("apitest_simpledata");
 
     string command = "../bin/omtcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
@@ -165,9 +156,7 @@ static bool test_tcpdead1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
-    paths.push_back("apitest_simpledata");
-    Xapian::Database dbremote = backendmanager.get_database(paths);
+    Xapian::Database dbremote = backendmanager.get_database("apitest_simpledata");
 
     int pid = fork();
     if (pid == 0) {
