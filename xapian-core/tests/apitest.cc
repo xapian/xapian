@@ -1863,26 +1863,204 @@ bool test_multiexpand1()
 /// Simple test of NEAR
 bool test_near1()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
 
-    // make a query
-    vector<OmQuery> subqs;
-    subqs.push_back(OmQuery(stemmer.stem_word("this")));
-    subqs.push_back(OmQuery(stemmer.stem_word("paragraph")));
-    OmQuery myquery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 2);
-
-    enquire.set_query(myquery);
-
     try {
+	// make a query
+	vector<OmQuery> subqs;
+	vector<om_docid> expected_docs;
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 2));
+
 	// retrieve the top ten results
 	OmMSet mymset = enquire.get_mset(0, 10);
-	vector<om_docid> expected_docs;
 	expected_docs.push_back(3);
-	expected_docs.push_back(1);
-	expected_docs.push_back(2);
     
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 3));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(1);
+	expected_docs.push_back(3);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 5));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(1);
+	expected_docs.push_back(3);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 6));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(2);
+	expected_docs.push_back(1);
+	expected_docs.push_back(3);
+
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 3));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 4));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(10);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 5));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(10);
+	expected_docs.push_back(11);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 6));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(10);
+	expected_docs.push_back(12);
+	expected_docs.push_back(11);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 7));
+
+	// retrieve the top twenty results
+	mymset = enquire.get_mset(0, 20);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(10);
+	expected_docs.push_back(12);
+	expected_docs.push_back(11);
+	expected_docs.push_back(13);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 8));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 20);
+	expected_docs.push_back(6);
+	expected_docs.push_back(4);
+	expected_docs.push_back(5);
+	expected_docs.push_back(7);
+	expected_docs.push_back(10);
+	expected_docs.push_back(12);
+	expected_docs.push_back(11);
+	expected_docs.push_back(13);
+	expected_docs.push_back(9);
+	expected_docs.push_back(8);
+	expected_docs.push_back(14);
+	
+	subqs.clear();
+	// same expected documents as previous query
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	// test really large window size
+	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(),
+				  999999999));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 20);
+	
 	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
     }
     catch (OmUnimplementedError &err) {
@@ -1901,26 +2079,155 @@ bool test_near1()
 /// Simple test of PHRASE
 bool test_phrase1()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
 
-    // make a query
-    vector<OmQuery> subqs;
-    subqs.push_back(OmQuery(stemmer.stem_word("this")));
-    subqs.push_back(OmQuery(stemmer.stem_word("paragraph")));
-    OmQuery myquery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2);
-
-    enquire.set_query(myquery);
-
     try {
+	// make a query
+	vector<OmQuery> subqs;
+	vector<om_docid> expected_docs;
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2));
+
 	// retrieve the top ten results
 	OmMSet mymset = enquire.get_mset(0, 10);
-	vector<om_docid> expected_docs;
-	expected_docs.push_back(3);
-	expected_docs.push_back(1);
-	expected_docs.push_back(2);
     
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 3));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(1);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 5));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(1);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 6));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(2);
+	expected_docs.push_back(1);
+
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 3));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(4);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 4));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(4);
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 5));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(4);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 6));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+	expected_docs.push_back(4);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 7));
+
+	// retrieve the top twenty results
+	mymset = enquire.get_mset(0, 20);
+	expected_docs.push_back(4);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 8));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 20);
+	expected_docs.push_back(4);
+	
+	subqs.clear();
+	// same expected documents as previous query
+	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	subqs.push_back(OmQuery(stemmer.stem_word("on")));
+	// test really large window size
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(),
+				  999999999));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 20);
+	
 	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
     }
     catch (OmUnimplementedError &err) {
@@ -1982,7 +2289,7 @@ test_desc db_tests[] = {
     {"termlisttermfreq",   test_termlisttermfreq},
     {"multiexpand1",       test_multiexpand1},
     {"near1",		   test_near1},
-    {"phrase1",		   test_near1},
+    {"phrase1",		   test_phrase1},
     {0, 0}
 };
 

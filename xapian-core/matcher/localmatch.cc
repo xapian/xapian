@@ -350,7 +350,7 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	{
 	    PostList *res = build_and_tree(postlists);
 	    // FIXME: handle EmptyPostList return specially?
-	    // FIXME: return new PhrasePostList(res, window, postlists);
+	    return new PhrasePostList(res, window, postlists);
 	}
     
 	case OM_MOP_OR:

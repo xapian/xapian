@@ -1,3 +1,8 @@
+Mon Jun 19 14:09:00 BST 2000 Olly Betts
+
+	* Improved near1 and phrase1 tests; fixed problems thrown up by more
+	  demanding test cases.
+
 Mon Jun 19 13:48:40 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The Python interface now passes the OmBatchEnquire test.
