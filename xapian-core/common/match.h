@@ -17,6 +17,7 @@ class Match {
         PostList *merger;
 //        const int msize = 1000;
 
+        // FIXME: try using a heap instead (C++ sect 18.8)
         priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
 
     public:
