@@ -1,3 +1,7 @@
+Sun Aug 22 13:11:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,configure.ac: Renamed configure.in to configure.ac.
+
 Sat Aug 21 12:41:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Added note about that $add{$hit,1} gives
