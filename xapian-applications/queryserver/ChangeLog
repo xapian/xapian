@@ -10,7 +10,7 @@ Tue May 11 17:15:34 BST 2004  Richard Boulton <richard@tartarus.org>
           characters, and then retry.  This means that we get some kind of
           result even if the query is broken.
 
-Tue May 11 12:54:55 BST 2004  Richard Boulton <richard.boulton@omsee.com>
+Tue May 11 12:54:55 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* Disable documentation build until we can expect to have halibut on
 	  developers machines.
