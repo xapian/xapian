@@ -1,3 +1,7 @@
+Tue Mar 01 18:48:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: '/usr/share' -> '%{_datadir}'.
+
 Tue Mar 01 16:21:07 GMT 2005  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Fixed warning from Sun's C++ compiler.

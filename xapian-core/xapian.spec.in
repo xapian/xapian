@@ -60,12 +60,12 @@ cd %{name}-%{version}
 # makeinstall doesn't work properly with libtool built libraries
 make DESTDIR=%{buildroot} install
 # Move the docs to the right place
-mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-devel-%{version}
+mv %{buildroot}%{_datadir}/doc/%{name} %{buildroot}%{_datadir}/doc/%{name}-devel-%{version}
 # Copy HACKING now, as "%doc HACKING" would overwrite everything
-cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
+cp HACKING %{buildroot}%{_datadir}/doc/%{name}-devel-%{version}
 # Copy the rest while we are in this directory
-mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}
-cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}/usr/share/doc/%{name}-%{version}
+mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
+cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%{name}-%{version}
 cd ../xapian-examples-%{version}
 make DESTDIR=%{buildroot} install
 
@@ -88,7 +88,7 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/simpleindex
 %{_bindir}/simplesearch
 %{_bindir}/simpleexpand
-%doc /usr/share/doc/%{name}-%{version}
+%doc %{_datadir}/doc/%{name}-%{version}
 
 %files libs
 %defattr(-, root, root)
@@ -102,5 +102,5 @@ make DESTDIR=%{buildroot} install
 %{_libdir}/libxapian.so
 %{_libdir}/libxapian.a
 %{_libdir}/libxapian.la
-/usr/share/aclocal/xapian.m4
-%doc /usr/share/doc/%{name}-devel-%{version}
+%{_datadir}/aclocal/xapian.m4
+%doc %{_datadir}/doc/%{name}-devel-%{version}
