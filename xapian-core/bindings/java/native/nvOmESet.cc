@@ -1,7 +1,7 @@
 // C++ includes
 #include <vector>
 
-// Open Muscat includes
+// Omsee includes
 #include "om/om.h"
 
 // JNI includes

@@ -1,5 +1,5 @@
 %{
-/* om_util_tcl8.i: the Open Muscat scripting Tcl8 interface helpers.
+/* om_util_tcl8.i: the Omsee scripting Tcl8 interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation

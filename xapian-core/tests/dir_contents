@@ -2,7 +2,7 @@
 
 <Description>
 This directory contains various test programs which use various parts
-of the Muscat software.
+of the Omsee software.
 
 At some future stage, these will be replaced by test harnesses designed to
 ensure that all parts of the software are working, to be run after building

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Muscat: Quickstart</TITLE>
+<TITLE>Omsee: Quickstart</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
@@ -9,12 +9,12 @@
 
 <P>
 This document contains sufficient information to enable you to build your
-first application using Muscat.  It does not attempt to provide complete
-coverage of all the features of Muscat: for that, see the accompanying
+first application using Omsee.  It does not attempt to provide complete
+coverage of all the features of Omsee: for that, see the accompanying
 user manual and reference document.
 </P><P>
 The document contains a quick introduction to the basic concepts, and then
-a walk-through development of a simple application using the Muscat
+a walk-through development of a simple application using the Omsee
 library, together with commentary on how the application could be taken
 further.
 </P>
@@ -24,8 +24,8 @@ further.
 
 <P>
 Before following the steps outlined in this document, you will need to have
-the Muscat library installed on your system.
-For instructions on obtaining and installing Muscat, read the
+the Omsee library installed on your system.
+For instructions on obtaining and installing Omsee, read the
 <A HREF="intro.html">Introduction</A> document.
 </P>
 <P>
@@ -34,10 +34,10 @@ version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
 a decent chance of successfully compiling the code.
 </P>
 <P>
-In addition, to run the examples, you will need a version of Muscat compiled
+In addition, to run the examples, you will need a version of Omsee compiled
 with support for the "sleepycat" database access method.  This requires a
 copy of the Berkeley Database library, from Sleepycat software, to be
-installed on your system, and for Muscat to be compiled to use this (by
+installed on your system, and for Omsee to be compiled to use this (by
 passing the --enable-backend-sleepycat parameter to the configuration
 script).  The sleepycat database system is available for most architectures,
 free for open source projects, from
@@ -60,7 +60,7 @@ this guide should be useful to you as an overview of how the system works.
 <H2>Databases</H2>
 
 <P>
-An information retrieval system using Muscat typically has two parts.  The
+An information retrieval system using Omsee typically has two parts.  The
 first part is the <EM>indexer</EM>, which takes documents in various
 formats, processes them so that they can be efficiently searched, and
 stores the processed documents in an appropriate data structure (the
@@ -84,7 +84,7 @@ example, it may be required to have small database sizes, even at the
 expense of getting poorer results from the system.
 </P>
 <P>
-To provide the required flexibility, Muscat has the ability to use one of
+To provide the required flexibility, Omsee has the ability to use one of
 many available database <EM>backends</EM>, each of which satisfies a
 different set of constraints, and stores its data in a different way.
 
@@ -96,7 +96,7 @@ modification.
 <!--
 <P>
 If you are in a real hurry, you could probably skip the rest of this
-section, but it is helpful to understand roughly what information Muscat
+section, but it is helpful to understand roughly what information Omsee
 stores in a database and how it is structured, and the following
 subsections detail this.
 </P>
@@ -163,8 +163,8 @@ the command line, and stores that document as a new entry in the database.
 </P>
 <H3>Include header files</H3>
 <P>
-The first requirement in any program using the Muscat library is to
-include the Muscat header file, &quot;<CODE>om.h</CODE>&quot;.
+The first requirement in any program using the Omsee library is to
+include the Omsee header file, &quot;<CODE>om.h</CODE>&quot;.
 This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
 a directory on the include path, so:
 <PRE>    #include &lt;om/om.h&gt;</PRE>
@@ -176,7 +176,7 @@ Our example only has a single function, main(), so next we start that:
 <H3>Options parsing</H3>
 <P>
 For this example we do very simple options parsing.  We are going to
-use the core functionality of Muscat of searching for specific terms in the
+use the core functionality of Omsee of searching for specific terms in the
 database, and we are not going to use any of the extra facilities, such as
 the keys which may be associated with each document.  We are also going to
 store a simple string as the data associated with each document.
@@ -204,8 +204,8 @@ ensuring that there are at least 3 parameters:
 
 <H3>Catching exceptions</H3>
 <P>
-When an error occurs in Muscat it is reported by means of the C++ exception
-mechanism.  All errors in Muscat are derived classes of
+When an error occurs in Omsee it is reported by means of the C++ exception
+mechanism.  All errors in Omsee are derived classes of
 <CODE>OmError</CODE>, so simple error handling can be performed by
 enclosing all the code in a try-catch block to catch any
 <CODE>OmError</CODE> exceptions.  A (hopefully) helpful message can be
@@ -213,7 +213,7 @@ extracted from the <CODE>OmError</CODE> object by calling its
 <CODE>get_msg()</CODE> method, which returns a human readable string.
 </P>
 <P>
-Note that all calls to the Muscat library should be performed inside a
+Note that all calls to the Omsee library should be performed inside a
 try-catch block, since otherwise errors will result in uncaught exceptions;
 this usually results in the execution aborting.
 </P>
@@ -224,7 +224,7 @@ code:
 </P>
 <PRE>
     try {
-        <B>[code which accesses Muscat]</B>
+        <B>[code which accesses Omsee]</B>
     }
     catch(OmError &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
@@ -234,7 +234,7 @@ code:
 <H3>Opening the database</H3>
 
 <P>
-In Muscat, a database is opened for writing by creating an OmWritableDatabase
+In Omsee, a database is opened for writing by creating an OmWritableDatabase
 object.  The constructor for this object takes two arguments.
 <OL><LI>
 <B>type</B> - this is a string determining the type of the database to open.
@@ -382,7 +382,7 @@ represented by those terms and displays a ranked list of matching documents.
 
 <P>
 Just like &quot;simpleindex&quot;, we have a single-function example.
-So we include the Muscat header file, and begin:
+So we include the Omsee header file, and begin:
 </P>
 <PRE>
     #include &lt;om/om.h&gt;
@@ -419,7 +419,7 @@ Again, this is performed just as it was for the simple indexer.
 </P>
 <PRE>
     try {
-        <B>[code which accesses Muscat]</B>
+        <B>[code which accesses Omsee]</B>
     }
     catch(OmError &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
@@ -428,7 +428,7 @@ Again, this is performed just as it was for the simple indexer.
 
 <H3>Specifying the databases</H3>
 <P>
-Muscat has the ability to search over many databases simultaneously,
+Omsee has the ability to search over many databases simultaneously,
 possibly even with the databases distributed across a network of machines.
 Each database can be in its own format, so, for example, we might have a
 system searching across two DA databases and a sleepycat database.
@@ -462,7 +462,7 @@ constructor, which is a handy shortcut if you only want to search one database:
 
 <H3>Starting an enquire session</H3>
 <P>
-All searches across databases by Muscat are performed within the context of
+All searches across databases by Omsee are performed within the context of
 an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by an
 <CODE>OmEnquire</CODE> object, and is across a specified collection of
 databases.  To change the database collection, it is neccessary to open a
@@ -494,7 +494,7 @@ conversion operation, to the terms.
 </P>
 
 <P>
-Queries are represented within muscat by <CODE>OmQuery</CODE> objects, so
+Queries are represented within Omsee by <CODE>OmQuery</CODE> objects, so
 the next step is to construct one from our query terms.
 By an amazing coincidence, there is a constructor ready to take our vector
 of terms and create an <CODE>OmQuery</CODE> object from it.
@@ -506,7 +506,7 @@ of terms and create an <CODE>OmQuery</CODE> object from it.
 <P>
 You will notice that we had to specify an operation to be performed on
 the terms (the <CODE>OM_MOP_OR</CODE> parameter).  If you're interested,
-MOP stands for &quot;Match OPeration&quot;.  Queries in Muscat are actually
+MOP stands for &quot;Match OPeration&quot;.  Queries in Omsee are actually
 fairly complex things: a full range of boolean operations can be applied to
 queries to restrict the result set, and probabilistic weightings are then
 applied to order the results by relevance.  By specifying the OR operation,
@@ -538,7 +538,7 @@ setting the query with it has no effect.
 
 <P>
 Next, we ask for the results of the search.  There is no need to tell
-Muscat to perform the search: it will do this automatically.  We use
+Omsee to perform the search: it will do this automatically.  We use
 the <CODE>get_mset()</CODE> method to get the results, which are returned
 in an <CODE>OmMSet</CODE> object.  (MSet for Match Set)
 </P>
@@ -602,11 +602,11 @@ access to the data stored in this document.
 
 Now that we have the code written, all we need to do is compile it!
 
-<H3>Finding the Muscat library</H3>
+<H3>Finding the Omsee library</H3>
 
 <P>
-A small utility, &quot;libomus-config&quot;, is installed along with Muscat
-to assist you in finding the installed Muscat library, and in generating
+A small utility, &quot;libomus-config&quot;, is installed along with Omsee
+to assist you in finding the installed Omsee library, and in generating
 the flags to pass to the compiler and linker to compile.
 </P><P>
 After a successful compilation, this utility should be in your path, so
@@ -620,12 +620,12 @@ These flags are returned on the utility's standard output (so you could use
 backtick notation to include them on your command line).
 </P><P>
 If your project uses the GNU autoconf tool, you may also use the
-<CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Muscat,
-and will check for an installation of Muscat and set (and
+<CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Omsee,
+and will check for an installation of Omsee and set (and
 <CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and
 <CODE>LIBOMUS_LIBS</CODE> variables to
 be the flags to pass to the compiler and linker, respectively.
-This macro will also allow you to use an uninstalled version of Muscat.
+This macro will also allow you to use an uninstalled version of Omsee.
 </P><P>
 If you don't use GNU autoconf, don't worry about this.
 </P>
@@ -645,7 +645,7 @@ c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
 <P>
 Once we have compiled the examples, we can build up a simple database as
 follows.  Note that we must first create a directory for the database files to
-live in; although Muscat will create new empty database files if they do not
+live in; although Omsee will create new empty database files if they do not
 yet exist, it will not create a new directory for them.
 <PRE>
 $ mkdir proverbs
@@ -702,14 +702,14 @@ comments in the source code by
 <EM><A HREF="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</A></EM>.
 This is distributed together with the source code packages, but in the
 event that you do not have a this there is a
-<A HREF="http://open.muscat.com/developer/docs/apidoc/html/index.html">copy</A>
+<A HREF="http://www.omsee.com/developer/docs/apidoc/html/index.html">copy</A>
 available on our website.
 </LI></UL>
 
-For those interested in how Muscat works internally, there is also
+For those interested in how Omsee works internally, there is also
 automatically extracted documentation of the full source code, available
 on our
-<A HREF="http://open.muscat.com/developer/docs/sourcedoc/html/index.html">website</A>.  You may also build this documentation yourself, if you have Doxygen
+<A HREF="http://www.omsee.com/developer/docs/sourcedoc/html/index.html">website</A>.  You may also build this documentation yourself, if you have Doxygen
 installed, by running
 <PRE>
     make doxygen_docs

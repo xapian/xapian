@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-// Open Muscat includes
+// Omsee includes
 #include "om/om.h"
 #include "om/omstem.h"
 

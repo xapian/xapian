@@ -259,7 +259,7 @@ test_driver::test_driver(const test_desc *tests_)
 //  A wrapper around the tests to trap exceptions,
 //  and avoid having to catch them in every test function.
 //  If this test driver is used for anything other than
-//  Open Muscat tests, then this ought to be provided by
+//  Omsee tests, then this ought to be provided by
 //  the client, really.
 bool
 test_driver::runtest(const test_desc *test)

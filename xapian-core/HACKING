@@ -1,8 +1,8 @@
-Instructions for Hacking on Muscat
-==================================
+Instructions for hacking on Omsee
+=================================
 
 This file is aimed to help developers get started with working on
-Muscat.
+Omsee.
 
 Extra options to give to configure:
 ===================================
@@ -10,7 +10,7 @@ Extra options to give to configure:
 Note: Non-developer configure options are described in INSTALL
 
 You will probably want to use some of these if you're going to be developing
-muscat.
+Omsee.
 
 --enable-debug
 	This enables compiling of assertion code, to produce warnings if

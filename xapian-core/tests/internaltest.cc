@@ -1,4 +1,4 @@
-/* internaltest.cc: test of the OpenMuscat internals
+/* internaltest.cc: test of the Omsee internals
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

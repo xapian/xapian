@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from omuscat import *
+from omsee import *
 
 def get_simple_database():
     mydb = OmDatabase({ "backend": "sleepycat",

@@ -1,7 +1,7 @@
 // C++ includes
 #include <string>
 
-// Open Muscat includes
+// Omsee includes
 #include "om/om.h"
 #include "om/omdocument.h"
 

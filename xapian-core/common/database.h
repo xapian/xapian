@@ -147,13 +147,13 @@ class Database : public RefCntBase {
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::get_doclength() for the meaning of document
-	 *  length within Muscat.
+	 *  length within Omsee.
 	 */
 	virtual om_doclength get_avlength() const = 0;
 
 	/** Get the length of a given document.
 	 *
-	 *  Document length, for the purposes of Muscat, is defined to be
+	 *  Document length, for the purposes of Omsee, is defined to be
 	 *  the number of instances of terms within a document.  Expressed
 	 *  differently, the sum of the within document frequencies over
 	 *  all the terms in the document.
@@ -218,7 +218,6 @@ class Database : public RefCntBase {
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching
 		// cleaner (term might exist in other databases).
-		// This is similar to using the muscat3.6 zerofreqs option.
 		return new EmptyPostList();
 	    }
 	    return do_open_post_list(tname);

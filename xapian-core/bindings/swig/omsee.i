@@ -1,6 +1,6 @@
-%module omuscat
+%module omsee
 %{
-/* omuscat.i: the Open Muscat scripting interface.
+/* omsee.i: the Omsee scripting interface.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation

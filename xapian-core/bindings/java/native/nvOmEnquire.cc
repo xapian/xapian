@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-// Open Muscat includes
+// Omsee includes
 #include "om/om.h"
 
 // JNI includes

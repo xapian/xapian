@@ -24,19 +24,19 @@ DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
 	       indexer  . m4 docs netprogs tests bindings
 
-bin_SCRIPTS=libomus-config
+bin_SCRIPTS=omsee-config
 
-CLEANFILES=TODO libomus-config
+CLEANFILES=TODO omsee-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
              ar-wrapper-solaris TODO TODO.release
 
-lib_LTLIBRARIES = libomus.la
+lib_LTLIBRARIES = libomsee.la
 
 # This line is present because of a bug in some versions of libtool
 # (exhibited when there are no source files)
-libomus_la_SOURCES = dummy.c
-EXTRA_libomus_la_SOURCES =
+libomsee_la_SOURCES = dummy.c
+EXTRA_libomsee_la_SOURCES =
 
 TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML
@@ -64,9 +64,9 @@ acinclude.m4: autoconf/acinclude.m4
 	cp autoconf/acinclude.m4 acinclude.m4
 
 # doesn't really work as we'd hope as we get to play with the mangled symbols
-libomus_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
+libomsee_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 
-libomus_la_LIBADD = \
+libomsee_la_LIBADD = \
  common/libcommon.la \
  backends/libbackend.la \
  matcher/libmatcher.la \
@@ -75,8 +75,8 @@ libomus_la_LIBADD = \
  api/libapi.la \
  $(LIB_REMOTE1)
 
-libomus-config: libomus-config.nodep libomus.la
+omsee-config: omsee-config.nodep libomsee.la
 	@echo "Creating $@"
 	@export dependency_libs; \
-	. $(top_builddir)/libomus.la ; \
+	. $(top_builddir)/libomsee.la ; \
 	cat $< | sed "s%@dependency_libs@%$${dependency_libs}%" > $@

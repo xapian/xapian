@@ -71,7 +71,7 @@ if ($ARGV[0] eq '--text') {
     $preamble =
 "<HTML>
 <HEAD>
-<TITLE>Muscat: ToDo</TITLE>
+<TITLE>Omsee: ToDo</TITLE>
 </HEAD>
 <BODY BGCOLOR=\"#FFFFFF\">
 ";

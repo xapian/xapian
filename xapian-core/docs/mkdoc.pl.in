@@ -119,11 +119,11 @@ sub output_html() {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Muscat: Code structure</TITLE>
+<TITLE>Omsee: Code structure</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 This documentation was automatically generated, and corresponds to version
-@VERSION@ of Muscat.
+@VERSION@ of Omsee.
 <HR>
 EOF
 

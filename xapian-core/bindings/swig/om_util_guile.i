@@ -1,5 +1,5 @@
 %{
-/* om_util_guile.i: the Open Muscat scripting interface helpers.
+/* om_util_guile.i: the Omsee scripting interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation

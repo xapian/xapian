@@ -1,7 +1,5 @@
 <Directory>indexer/indexgraph</Directory>
 
 <Description>
-This directory contains the Muscat indexer framework.
-This is currently (Aug 30 2000) in early development, and the pieces here
-are unlikely to be helpful to anyone other than developers.
+This directory contains the Omsee indexer framework.
 </Description>

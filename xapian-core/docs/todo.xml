@@ -20,6 +20,12 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="General" release="0.9">
+
+Replace references to the old name with "Omsee", particularly in
+documentation.
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Quartz" release="0.9">
 
 Add format numbers to the quartz database as a whole, rather than just relying

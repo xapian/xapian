@@ -1,4 +1,4 @@
-/* apitest.h: tests the OpenMuscat API
+/* apitest.h: tests the Omsee API
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

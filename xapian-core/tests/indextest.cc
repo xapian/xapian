@@ -1,4 +1,4 @@
-/* indextest.cc: test of the OpenMuscat indexing system
+/* indextest.cc: test of the Omsee indexing system
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

@@ -22,7 +22,7 @@
 # -----END-LICENCE-----
 
 # Set this to be the name of your package
-PACKAGE="Muscat"
+PACKAGE="Omsee"
 
 # Set this if you want verbose messages by default (probably a good idea)
 VERBOSE=1

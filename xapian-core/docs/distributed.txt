@@ -1,4 +1,4 @@
-This document describes how to make use of the facilities in Open Muscat
+This document describes how to make use of the facilities in Omsee
 for distributed searches.
 
 OVERVIEW

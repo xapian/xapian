@@ -3,7 +3,7 @@
 #include <set>
 #include <iostream>
 
-// Open Muscat includes
+// Omsee includes
 #include "om/om.h"
 #include "om/omenquire.h"
 

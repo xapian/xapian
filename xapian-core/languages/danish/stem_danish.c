@@ -65,7 +65,7 @@ struct danish_stemmer
    c) HTML hex lower case   F8         E6        E5
    d) representation here   'O'        'A'       'B'
 
-   Soon Object Muscat will move towards a Unicode representation. Meanwhile,
+   Soon Omsee will move towards a Unicode representation. Meanwhile,
    this algorithm translates forms (a), (b) and (c) to (d) on entry, and
    (d) back to (c) on exit. This happens at the place marked NOTE below.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from omuscat import *
+from omsee import *
 from apitest import *
 
 foo = OmStem("english")

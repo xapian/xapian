@@ -1,3 +1,17 @@
+Thu Jan 25 11:36:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Project name changed to Omsee.
+
+	  Ramifications from a technical viewpoint are:
+
+	  - library name changed from libomus.* to libomsee.*
+	  - libomus-config renamed to omsee-config
+	  - Autoconf macro file libomus.m4 renamed to omsee.m4,
+	    macro name OM_PATH_LIBOMUS changed to OM_PATH_OMSEE
+	    and macro now defines OMSEE_CFLAGS and OMSEE_LIBS rather
+	    than LIBOMUS_CFLAGS and LIBOMUS_LIBS.  configure arguments
+	    changed name, also.
+
 Wed Jan 24 15:57:10 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Improve test of OmMSetIterators equality comparisions.

@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Muscat: User manual</TITLE>
+<TITLE>Omsee: User manual</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
 <H1>Overview</H1>
 
 <P>
-This document provides an introduction to the native C++ Muscat API.
+This document provides an introduction to the native C++ Omsee API.
 This API provides programmers with the ability to search through
 (potentially very large) bodies of data using probabilistic methods.
 </P>
@@ -16,17 +16,17 @@ This API provides programmers with the ability to search through
 <P>
 <EM>Note:</EM>
 The portion of the API currently documented here covers only the part
-of Muscat concerned with searching through existing databases, not that
+of Omsee concerned with searching through existing databases, not that
 concerned with creating them.
 </P>
 
 <P>
 It is probably a good idea to read the
 <A HREF="intro_ir.html">Introduction to Information Retrieval</A> and the
-<A HREF="intro.html">Introduction to Muscat</A> before reading this document,
+<A HREF="intro.html">Introduction to Omsee</A> before reading this document,
 or at least before attempting to use the API.  You may also wish to read
 the <A HREF="quickstart.html">QuickStart</A> reference, for some simple
-worked examples of Muscat usage.
+worked examples of Omsee usage.
 </P>
 
 <P>
@@ -40,7 +40,7 @@ generated using the
 application.  To save you having to generate this documentation yourself,
 we include the <A HREF="apidoc/html/index.html">built version</A>
 in our distributions, and also keep the
-<A HREF="http://open.muscat.com/open/developer/docs/apidoc/html/index.html">latest version</A> on our website.
+<A HREF="http://www.omsee.com/open/developer/docs/apidoc/html/index.html">latest version</A> on our website.
 </P>
 
 <H2>Errors and exceptions</H2>
@@ -56,8 +56,8 @@ through them, and distributed enquiry systems.
 </P>
 
 <P>
-Errors in Muscat are all reported by means of exceptions.  All exceptions
-thrown by Muscat will be subclasses of
+Errors in Omsee are all reported by means of exceptions.  All exceptions
+thrown by Omsee will be subclasses of
 <A HREF="apidoc/html/class_OmError.html"><CODE>OmError</CODE></A>.  Note that
 <CODE>OmError</CODE> is an abstract class; thus you must catch exceptions
 by reference rather than by value.
@@ -94,9 +94,9 @@ of memory, a <CODE>std::bad_alloc()</CODE> exception will be thrown.
 <H2>Terminology</H2>
 <H3>Databases</H3>
 <P>
-These may also occasionally be called <EM>Indexes</EM>.  In Muscat (as
+These may also occasionally be called <EM>Indexes</EM>.  In Omsee (as
 opposed to a database package) a database consists of little more than
-indexed documents: this reflects the purpose of Muscat as an information
+indexed documents: this reflects the purpose of Omsee as an information
 retrieval system, rather than an information storage system.
 </P>
 <P>
@@ -108,7 +108,7 @@ of the database types currently provided).
 <H3>Queries</H3>
 <P>
 The information to be searched for is specified by a <EM>Query</EM>.  In
-Muscat, queries are made up of a structured boolean tree, upon which
+Omsee, queries are made up of a structured boolean tree, upon which
 probabilistic weightings are imposed: when the search is performed, the
 documents returned are filtered according to the boolean structure, and
 weighted (and sorted) according to the probabilistic model of information
@@ -117,11 +117,11 @@ retrieval.
 
 <H2>Memory handling</H2>
 <P>
-The user of Muscat does not usually need to worry about how Muscat performs
-its memory allocation: Muscat objects can all be created and deleted as any
+The user of Omsee does not usually need to worry about how Omsee performs
+its memory allocation: Omsee objects can all be created and deleted as any
 other C++ objects.  The convention is that whoever creates an object
 is ultimately responsible for deleting it.  This becomes relevant when
-passing a pointer to data to Muscat: Muscat will not assume that such
+passing a pointer to data to Omsee: Omsee will not assume that such
 pointers remain valid across separate API calls, and it will be the
 callers responsibility to delete the object pointed to, as and when
 required.
@@ -181,7 +181,7 @@ depend on the database type.
 Note that these parameters <EM>are</EM> case sensitive.
 
 <A NAME="database_types"><H3>Database types</H3></A>
-The current types understood by Muscat are:
+The current types understood by Omsee are:
 </P>
 <TABLE>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
@@ -257,7 +257,7 @@ database when the database is first used.
 <H3>Multiple databases</H3>
 
 <P>
-Muscat can search across several databases as easily as searching across a
+Omsee can search across several databases as easily as searching across a
 single one.  Simply call
 <A HREF="apidoc/html/class_OmDatabase.html"><CODE>OmDatabase::add_database()</CODE></A>
 for each database that you wish to search through.
@@ -272,7 +272,7 @@ and then perform the query again to get the results with the extra database
 <H2>Specifying a query</H2>
 
 <P>
-Muscat implements both boolean and probabilistic searching.
+Omsee implements both boolean and probabilistic searching.
 There are two obvious ways in which a pure boolean query can be combined
 with a pure probabilistic query:
 <UL><LI>
@@ -303,13 +303,13 @@ databases.
 
 </P>
 <P>
-In fact Muscat, as described below, goes for the second approach, which
+In fact Omsee, as described below, goes for the second approach, which
 can be implemented very efficiently, despite the the fact that the first
 is more exact.
 
 </P>
 <P>
-In reality, Muscat performs the combined boolean and probabilistic searches
+In reality, Omsee performs the combined boolean and probabilistic searches
 simultaneously.  This allows various optimisations to be performed, such
 as giving up on calculating a boolean AND operation when the probabilistic
 weights that could result from further documents can have no effect on the
@@ -329,9 +329,9 @@ for a single term.  This can be created as follows (where <CODE>tname</CODE> is 
 OmQuery query(tname);
 </PRE>
 <P>
-A term in Muscat is represented simply by a string of binary characters.
+A term in Omsee is represented simply by a string of binary characters.
 Usually, when searching text, these characters will be the word which the
-term represents, but during the information retrieval process Muscat
+term represents, but during the information retrieval process Omsee
 attaches no specific meaning to the term.
 </P>
 <P>
@@ -583,7 +583,7 @@ going into the M set. The M set contains the documents which get the highest wei
 they are held in the M set in weight order.
 </P>
 <P>
-It is important to realise that within Muscat the structure of a query is optimised for
+It is important to realise that within Omsee the structure of a query is optimised for
 best performance, and it undergoes various transformations as the query progresses. The
 precise way in which the query is built up is therefore of little importance.
 </P>
@@ -706,7 +706,7 @@ used in many places in construction of a query.
 <H3><A NAME="purebool">Specifying a pure boolean query</A></H3>
 <P>
 Occasionally it may be desirable to perform a purely boolean query, and not
-to calculate weights for each document.  This can be performed within Muscat
+to calculate weights for each document.  This can be performed within Omsee
 as follows:
 <UL><LI>
 Make the desired query, as described above.
@@ -841,12 +841,12 @@ or other special characters.
 
 <H2>Specifying a relevance set</H2>
 <P>
-Muscat supports the idea of relevance feedback: that is, of allowing the user
+Omsee supports the idea of relevance feedback: that is, of allowing the user
 to mark documents as being relevant to the search, and using this information
 to modify the search.  This is supported by means of relevance sets, which
 are simply sets of document id's which are marked as relevant.  These
 are held in <A HREF="apidoc/html/class_OmRSet.html"><CODE>OmRSet</CODE></A> objects,
-one of which may optionally be supplied to Muscat in the
+one of which may optionally be supplied to Omsee in the
 <CODE>omrset</CODE> parameter when calling
 <CODE>OmEnquire::get_mset()</CODE>.
 </P>
@@ -912,7 +912,7 @@ down the search considerably.
 
 <H2>Expand - Suggesting new terms for the query</H2>
 <P>
-Muscat also supports the idea of calculating terms to add to the
+Omsee also supports the idea of calculating terms to add to the
 query, based on the relevant documents supplied.  A set of such
 terms, together with their weights, may be returned by:
 <PRE>
@@ -963,7 +963,7 @@ and it may accept (by returning <CODE>true</CODE>) or reject (by returning
 <H2>Query batches</H2>
 <P>
 In some applications you may want to run many queries against the
-same database as a batch.  Open Muscat provides an API to do this, with the
+same database as a batch.  Omsee provides an API to do this, with the
 <CODE>OmBatchEnquire</CODE> class.  This is currently implemented
 as a wrapper around OmEnquire.  Using <CODE>OmBatchEnquire</CODE>
 will make it possible to take advantage of possible future
@@ -1011,7 +1011,7 @@ associated with the relevant query.  If that query failed, however,
 
 <H2>Thread safety</H2>
 <P>
-All of the main Muscat API classes (<CODE>OmEnquire</CODE>,
+All of the main Omsee API classes (<CODE>OmEnquire</CODE>,
 <CODE>OmQuery</CODE>, <CODE>OmDatabase</CODE>,
 <CODE>OmBatchEnquire</CODE>) are protected by
 pthread mutexes when available and not disabled.  This means that
@@ -1024,12 +1024,12 @@ thread gets there first.
 
 <H2>Examples</H2>
 <P>
-Extensively documented examples of simple usage of the Muscat API for
+Extensively documented examples of simple usage of the Omsee API for
 creating databases and then for searching through them are given in the
 <A HREF="quickstart.html">QuickStart</A> tutorial.
 </P>
 <P>
-Further examples of usage of Muscat are available in the om-examples package.
+Further examples of usage of Omsee are available in the om-examples package.
 </P>
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->

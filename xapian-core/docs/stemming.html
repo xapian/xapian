@@ -248,20 +248,19 @@ table.<p>
 
 <h2>Using stemming in IR</h2>
 
-In earlier versions of Muscat, the words of a text were usually stemmed as
-part of the indexing process, and the stemmed forms only held in the main
-IR index. The words of each incoming query would then be stemmed similarly.
-When the index terms were seen by the user, for example during query
-expansion, they would be seen in their stemmed form. It was important
+In earlier implementations of IR systems, the words of a text were usually
+stemmed as part of the indexing process, and the stemmed forms only held in the
+main IR index. The words of each incoming query would then be stemmed
+similarly.  When the index terms were seen by the user, for example during
+query expansion, they would be seen in their stemmed form. It was important
 therefore that the stemmed form of a word should not be too unfamiliar in
-appearance. A user will be comfortable with seeing `apprehend', which
-stands for 'apprehending', `apprehended' as well as `apprehend'. More
-problematical is `apprehens', standing for `apprehension', `apprehensive'
-etc., but even so, a trained user would not have a problem with this. In
-fact all the Muscat stemming algorithms are built on the assumption that it
-leave stemmed forms which it would not be embarrassing to show to real
-users, and we suggest that new stemming algorithms are designed with this
-criterion in mind.<p>
+appearance. A user will be comfortable with seeing `apprehend', which stands
+for 'apprehending', `apprehended' as well as `apprehend'. More problematical is
+`apprehens', standing for `apprehension', `apprehensive' etc., but even so, a
+trained user would not have a problem with this. In fact all the Omsee stemming
+algorithms are built on the assumption that it leave stemmed forms which it
+would not be embarrassing to show to real users, and we suggest that new
+stemming algorithms are designed with this criterion in mind.<p>
 
 A superior approach is to keep each word, <i>W</i>, and its stemmed form,
 <i>s(W)</i>, as a two-way relation in the IR system. <i>W</i> is held in

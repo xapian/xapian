@@ -1,4 +1,4 @@
-/* RunTest.java: test class for Open Muscat java bindings.
+/* RunTest.java: test class for Omsee java bindings.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

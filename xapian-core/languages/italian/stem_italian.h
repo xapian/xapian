@@ -19,7 +19,7 @@
  * USA
  * -----END-LICENCE-----
  */
-/* Version 1: see http://open.muscat.com/ for further information */
+/* Version 1: see http://open.omsee.com/ for further information */
 
 #ifndef OM_HGUARD_STEM_ITALIAN_H
 #define OM_HGUARD_STEM_ITALIAN_H

@@ -1,3 +1,23 @@
+Project name changes to Omsee.
+==============================
+
+From now on, this project is called Omsee, rather than OpenMuscat.  This
+change is being done primarily to reduce confusion between the closed-source
+Muscat 3.6 software and the open source Omsee software.
+
+The official website is now at http://www.omsee.com/,
+with cvs repository at http://cvs.omsee.com/
+mailing list interface at http://lists.omsee.com/
+ftp archive at ftp://ftp.omsee.com/
+
+The email system still needs some time to switch over fully, but you should
+now send mails directed to this list to:
+om-announce@lists.omsee.com
+
+The old addresses will continue to work or redirect for a reasonable period
+of time, but I would suggest that you use the new addresses for all
+purposes from now on.
+
 Announcing version 0.4.1 of Muscat.
 ===================================
 
