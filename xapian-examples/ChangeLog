@@ -1,3 +1,9 @@
+Sat Jul 15 18:23:00 BST 2000 Olly Betts
+
+	* omega: hooked in parsequerytest to `make check'; `size_t' now
+	  means the same as `size-t' and `"size t"'; tweaked templates/query
+	  to improve output when there's no search
+
 Sat Jul 15 17:59:00 BST 2000 Olly Betts
 
 	* omega: added tests for QueryParser (not yet hooked into make check);

@@ -154,11 +154,6 @@ next_char()
    return q[qptr++];
 }
 
-// FIXME: allow domain:uk in query...
-// don't allow + and & in term then ?
-// or allow +&.-_ ?
-// domain/site/language/host ?
-
 int
 yylex()
 {
@@ -224,6 +219,8 @@ yylex()
 	return AND;
      case '|':
 	return OR;
+     case '_':
+	return HYPHEN;
     }
     /* return single chars */
     return c;                                

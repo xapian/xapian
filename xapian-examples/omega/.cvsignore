@@ -7,3 +7,4 @@ Makefile
 .deps
 .libs
 parsequery.cc
+parsequerytest

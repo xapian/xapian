@@ -18,3 +18,5 @@ Sort out some images...
 Query parser and indexer parser should share code somehow.
 
 Split long HTML docs at some <A NAME=...> tags.
+
+Boolean filters like `domain:uk' in query... (domain/site/language/host/...)

@@ -13,7 +13,7 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 // -->
 </script>
 <head>
-<title>Omega: search for `$html{$query}'</title>
+<title>Omega: $if{$query,search for `$html{$query}',New Search}</title>
 </head>
 <body bgcolor=white>
 <FORM NAME=P METHOD=GET 
@@ -31,15 +31,17 @@ ${
 <hr>
 <INPUT TYPE=radio NAME=MATCHOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
 <INPUT TYPE=radio NAME=MATCHOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
-<hr>
-<table><tr><td bgcolor="#ccffcc">
-$map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
-$if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
-</td></tr></table>
-<hr>
+$if{$or{$query,$ne{$msize,0}},
+ <hr>
+ <table><tr><td bgcolor="#ccffcc">
+ $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
+ $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
+ </td></tr></table>
+ <hr>
+}
 $if{$eq{$msize,0},
 
-$if{$queryterms,No documents match your query},
+$if{$query,No documents match your query},
 
 $if{$ne{$last,$msize},
  $add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches,
