@@ -1,3 +1,7 @@
+Tue May  2 18:56:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* get_mset() now actually asynchronous.
+
 Tue May  2 18:22:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The framework for making get_mset() asynch is there.
