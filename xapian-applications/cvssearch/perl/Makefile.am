@@ -44,9 +44,6 @@ cvsquerydb: $(srcdir)/cvsquery-script.pl
 Compare.cgi: $(srcdir)/Compare-script.pl 
 	$(build-perl-script)
 
-Match.cgi:$(srcdir)/Match-script.pl 
-	$(build-perl-script)
-
 Matchfile.cgi:$(srcdir)/Matchfile-script.pl
 	$(build-perl-script)
 
