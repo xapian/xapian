@@ -1314,7 +1314,6 @@ Btree::basic_open(const string & name_,
 {
     int ch = 'X'; /* will be 'A' or 'B' */
 
-    /* FIXME: move this into constructor initialiser name(name_) */
     name = name_;
 
     {
@@ -1352,7 +1351,7 @@ Btree::basic_open(const string & name_,
 	    if (!found_revision) {
 		/* Couldn't open the revision that was asked for.
 		 * This shouldn't throw an exception, but should just return
-		 * 0 to upper levels.
+		 * false to upper levels.
 		 */
 		return false;
 	    }
