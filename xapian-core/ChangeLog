@@ -1,7 +1,11 @@
 Fri Dec 08 14:24:02 GMT 2000 Olly Betts
 
-	* 
+	* omindexdoc.{cc,h}: no longer used so removed.
 
+	* Pushed OmDocumentTerm from API level into the internals of the
+	  library.
+
+	* Updated TODO.
 
 Fri Dec 08 12:08:49 GMT 2000 Olly Betts
 
