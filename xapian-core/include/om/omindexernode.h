@@ -25,9 +25,6 @@
 
 #include <string>
 #include <om/omindexermessage.h>
-#include <map>
-#include <vector>
-#include "deleter_map.h"
 #include <om/omsettings.h>
 
 class OmIndexerNode {

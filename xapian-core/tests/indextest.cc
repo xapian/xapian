@@ -27,13 +27,14 @@ using std::cout;
 using std::endl;
 
 #include "om/om.h"
+#include "om/omindexerbuilder.h"
 #include "testsuite.h"
 
 bool test_basic1()
 {
     OmIndexerBuilder builder;
 
-    builder.build_from_string("<?xml version="1.0"?><omindexer/>");
+    builder.build_from_string("<?xml version=\"1.0\"?><omindexer/>");
 
     return true;
 }
