@@ -1,3 +1,8 @@
+Fri Dec 17 01:28:27 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Source-script.pl,perl/SourceComment-script.pl,
+	  perl/Top-script.pl: HTML has a <head> tag, not a <header> tag.
+
 Fri Dec 17 01:24:32 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/: Sanitise root parameter to all CGI scripts.  It should always

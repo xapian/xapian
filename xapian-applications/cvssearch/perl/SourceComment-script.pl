@@ -29,12 +29,12 @@ my $cvsquery = "./cvsquerydb";
 
 print "Content-type:text/html\n\n";
 print "<html>\n";
-print "<header>\n";
+print "<head>\n";
 # ----------------------------------------
 # common style sheet
 # ----------------------------------------
 Cvssearch::print_style_sheet();
-print "</header>\n";
+print "</head>\n";
 print "<body>\n";
 
 #----------------------------------------

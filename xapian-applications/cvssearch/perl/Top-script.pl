@@ -16,13 +16,13 @@ use Cvssearch;
 
 print "Content-type:text/html\n\n";
 print "<html>\n";
-print "<header>\n";
+print "<head>\n";
 
 #---------------
 # style sheet
 #---------------
 Cvssearch::print_style_sheet();
-print "</header>\n";
+print "</head>\n";
 #----------------------------------------
 # Parse Parameters
 #----------------------------------------
