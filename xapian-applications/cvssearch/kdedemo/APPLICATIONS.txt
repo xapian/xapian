@@ -313,7 +313,7 @@ kdetoys/ktux
 kdetoys/kworldwatch
 kdetoys/mouse
 
-
+kdeutils/ark
 kdeutils/kab
 kdeutils/karm
 kdeutils/kcalc
