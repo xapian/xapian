@@ -1,16 +1,16 @@
 all: simplecreate simpleindex simplesearch simpleexpand
 
 simplecreate: simplecreate.cc
-	$(CXX) $< `omsee-config --libs --cflags` -o $@
+	$(CXX) $< `omseek-config --libs --cflags` -o $@
 
 simpleindex: simpleindex.cc
-	$(CXX) $< `omsee-config --libs --cflags` -o $@
+	$(CXX) $< `omseek-config --libs --cflags` -o $@
 
 simplesearch: simplesearch.cc
-	$(CXX) $< `omsee-config --libs --cflags` -o $@
+	$(CXX) $< `omseek-config --libs --cflags` -o $@
 
 simpleexpand: simpleexpand.cc
-	$(CXX) $< `omsee-config --libs --cflags` -o $@
+	$(CXX) $< `omseek-config --libs --cflags` -o $@
 
 html: simplecreate.cc.html simpleindex.cc.html \
       simplesearch.cc.html simpleexpand.cc.html

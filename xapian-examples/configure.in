@@ -15,8 +15,8 @@ AC_PROG_YACC
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
-dnl Check for libomsee
-OM_PATH_OMSEE(, AC_MSG_ERROR([Can't find Omsee library]))
+dnl Check for libomseek
+OM_PATH_OMSEEK(, AC_MSG_ERROR([Can't find Omseek library]))
 
 dnl Checks for gtk / glib / glade
 build_gui=yes

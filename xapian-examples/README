@@ -1,17 +1,17 @@
 This directory contains example programs which can be compiled against
-Muscat.
+Omseek.
 
-If you haven't installed Muscat when configuring this directory, you need
-to specify the location of the Muscat code, using the --with-omsee-uninst
-configure option.
+If you haven't installed Omseek when configuring this directory, you
+need to specify the location of the Omseek code, using the
+--with-omseek-uninst configure option.
 
-This is further complicated if you are performing a VPATH build
-(ie, builddir != srcdir), in which case you must also specify the
-location of a built, but not installed, Muscat library, using the
---with-omsee-uninst-exec configure option.
+This is further complicated if you are performing a VPATH build (ie,
+builddir != srcdir), in which case you must also specify the location
+of a built, but not installed, Omseek library, using the
+--with-omseek-uninst-exec configure option.
 
 Note that you shouldn't specify relative directories in the
---with-omsee-uninst* parameters.
+--with-omseek-uninst* parameters.
 
 Once configure has run successfully, simply running "make" in the top-level
 directory should build the examples.
