@@ -49,6 +49,7 @@ Write tests for copying term and postlist iterators.
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
 
 Rename keys to attributes.  (OmKey -&gt; OmAttrib / OmAttribute / OmAttr ?)
+Latest suggestion: OmFacet
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
