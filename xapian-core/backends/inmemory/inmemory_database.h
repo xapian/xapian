@@ -34,6 +34,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include "om/omdocument.h"
 
 
 // Class representing a posting (a term/doc pair, and
@@ -205,7 +206,7 @@ class InMemoryDatabase : public IRDatabase {
 
 	void make_term(const om_termname & tname);
 
-	om_docid make_doc(const om_docname & dname);
+	om_docid make_doc(const OmData & docdata);
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,

@@ -62,7 +62,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	//get_a_line(*from, para);
 	
 	OmDocumentContents document;
-	document.data = para;
+	document.data = OmData(para);
 	om_termcount position = 1;
 
 	string::size_type spacepos;

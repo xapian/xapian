@@ -187,14 +187,11 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 }
 
 om_docid
-SleepyDatabase::make_new_document(const string & docdata) 
+SleepyDatabase::make_new_document(const OmData & docdata) 
 {
-    OmData omdata;
     map<om_keyno, OmKey> omkeys;
 
-    omdata.value = docdata;
-
-    SleepyDocument document(internals->document_db, omdata, omkeys);
+    SleepyDocument document(internals->document_db, docdata, omkeys);
     return document.get_docid();
 }
 

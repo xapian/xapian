@@ -26,7 +26,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "om/omtypes.h"
+#include <om/omtypes.h>
+#include <om/omdocument.h>
 
 ///////////////////////////////////////////////////////////////////
 // OmDocumentTerm class
@@ -104,10 +105,10 @@ struct OmDocumentTerm {
  */
 struct OmDocumentContents {
     /** The (user defined) data associated with this document. */
-    string data;
+    OmData data;
 
     /** Type to store keys in. */
-    typedef map<om_keyno, string> document_keys;
+    typedef map<om_keyno, OmKey> document_keys;
 
     /** The keys associated with this document. */
     document_keys keys;

@@ -1,3 +1,8 @@
+Tue Apr 18 16:42:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made OmDocumentContents contain OmDatas and OmKeys rather than
+	  strings.  Added constructors to OmData and OmKey.
+
 Tue Apr 18 15:43:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* StatsGatherer now knows about its associated StatsSource objects.

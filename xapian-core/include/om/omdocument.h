@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_OMDOCUMENT_H
 #define OM_HGUARD_OMDOCUMENT_H
 
-#include "om/omtypes.h"
+#include <om/omtypes.h>
 
 ///////////////////////////////////////////////////////////////////
 // OmData class
@@ -39,6 +39,12 @@ class OmData {
     public:
 	/// The data.
 	string value;
+
+	/// Construct from a string.
+	OmData(string data) : value(data) {}
+
+	/// Default constructor.
+	OmData() {}
 };
 
 /// A key in a document.
@@ -49,6 +55,12 @@ class OmKey {
 
 	/// Ordering for keys, so they can be stored in STL containers.
 	bool operator < (const OmKey &k) const { return(value < k.value); }
+
+	/// Construct from a string.
+	OmKey(string data) : value(data) {}
+
+	/// Default constructor.
+	OmKey() {}
 };
 
 /// Opaque class containing parameters used to construct an OmDocument.

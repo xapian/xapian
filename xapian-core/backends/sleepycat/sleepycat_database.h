@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include "database.h"
 #include "om/omerror.h"
+#include "om/omdocument.h"
 
 class SleepyDatabaseTermCache;
 class SleepyDatabaseInternals;
@@ -81,7 +82,7 @@ class SleepyDatabase : public IRDatabase {
 	 *
 	 *  @return The newly allocated document ID.
 	 */
-	om_docid make_new_document(const string & data);
+	om_docid make_new_document(const OmData & data);
 
 	/** Make a new termlist.
 	 *

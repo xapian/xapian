@@ -135,11 +135,11 @@ InMemoryDatabase::make_term(const om_termname & tname)
 }
 
 om_docid
-InMemoryDatabase::make_doc(const om_docname & dname)
+InMemoryDatabase::make_doc(const OmData & docdata)
 {
     termlists.push_back(InMemoryDoc());
     doclengths.push_back(0);
-    doclists.push_back(dname);
+    doclists.push_back(docdata.value);
 
     AssertParanoid(termlists.size() == doclengths.size());
 
