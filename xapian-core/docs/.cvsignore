@@ -13,3 +13,5 @@ apidoc
 *.dvi
 *.ps
 *.aux
+*.eps
+*.png
