@@ -49,13 +49,13 @@ class MultiDatabase : public IRDatabase {
     friend class MultiMatch;
 
     private:
-	mutable std::set<om_termname> terms;
-
 	// List of subdatabases
 	std::vector<OmRefCntPtr<IRDatabase> > databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
+
+	om_doccount multiplier;
 
 	/** This constructor isn't supported by the multibackend.
 	 *

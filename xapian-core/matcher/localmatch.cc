@@ -373,6 +373,8 @@ LocalMatch::postlist_from_queries(OmQuery::op op,
 	default:
 	    Assert(0);
     }
+    Assert(0);
+    return NULL;
 }
 
 // Make a postlist from a query object - this is called recursively down
@@ -411,7 +413,6 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query)
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0]),
 					postlist_from_query(query->subqs[1]),
 					this);
-	    break;
 	case OmQuery::OP_XOR:
 	    Assert(query->subqs.size() == 2);
 	    return new XorPostList(postlist_from_query(query->subqs[0]),
@@ -419,6 +420,7 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query)
 				   this);
     }
     Assert(false);
+    return NULL;
 }
 
 ////////////////////////

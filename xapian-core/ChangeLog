@@ -1,3 +1,12 @@
+Mon Sep 04 17:22:29 BST 2000 Olly Betts
+
+	* Overhauled MultiDatabase and MultiPostList: Complexity used to
+	  be O(# of subdatabases) in many operations, now constant time;
+	  Removed termname cache (no evidence that same termname is often
+	  looked up more than once).
+
+	* Fixed a couple of stupid compiler warnings in localmatch.cc.
+
 Mon Sep  4 16:48:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Cleaned up the registration of new indexer nodes a bit.

@@ -29,7 +29,6 @@
 #include "database_builder.h"
 
 #include <vector>
-#include <list>
 
 #include "om/omerror.h"
 
@@ -50,9 +49,9 @@ MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
 	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
     }
 
+    multiplier = databases_.size();
     databases = databases_;
 }
-
 
 MultiDatabase::~MultiDatabase()
 {
@@ -65,35 +64,30 @@ MultiDatabase::~MultiDatabase()
     }
 }
 
-
 om_doccount
 MultiDatabase::get_doccount() const
 {
     om_doccount docs = 0;
 
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
-    while(i != databases.end()) {
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+    for (i = databases.begin(); i != databases.end(); i++) {
 	docs += (*i)->get_doccount();
-	i++;
     }
-
     return docs;
 }
-
 
 om_doclength
 MultiDatabase::get_avlength() const
 {
-    if(!length_initialised) {
+    if (!length_initialised) {
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
 
-	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
-	while(i != databases.end()) {
+	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+	for (i = databases.begin(); i != databases.end(); i++) {
 	    om_doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
 	    totlen += (*i)->get_avlength() * db_doccount;
-	    i++;
 	}
 
 	avlength = totlen / docs;
@@ -103,37 +97,26 @@ MultiDatabase::get_avlength() const
     return avlength;
 }
 
-
 om_doccount
 MultiDatabase::get_termfreq(const om_termname & tname) const
 {
-    if(!term_exists(tname)) return 0;
+    if (!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname);
     om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
+    if (pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
 }
-
 
 LeafPostList *
 MultiDatabase::do_open_post_list(const om_termname & tname) const
 {
     Assert(term_exists(tname));
 
-    om_doccount offset = 1;
-    om_doccount multiplier = databases.size();
-
-    std::list<MultiPostListInternal> pls;
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	if((*i)->term_exists(tname)) {
-	    MultiPostListInternal pl((*i)->open_post_list(tname),
-				     offset, multiplier);
-	    pls.push_back(pl);
-	}
-	offset++;
-	i++;
+    std::vector<LeafPostList *> pls;
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+    for (i = databases.begin(); i != databases.end(); i++) {
+	pls.push_back((*i)->open_post_list(tname));
     }
     Assert(pls.begin() != pls.end());
 
@@ -143,8 +126,6 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
 
 LeafTermList *
 MultiDatabase::open_term_list(om_docid did) const {
-    om_doccount multiplier = databases.size();
-
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
@@ -158,8 +139,6 @@ MultiDatabase::open_term_list(om_docid did) const {
 LeafDocument *
 MultiDatabase::open_document(om_docid did) const
 {
-    om_doccount multiplier = databases.size();
-
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
@@ -169,8 +148,6 @@ MultiDatabase::open_document(om_docid did) const
 om_doclength
 MultiDatabase::get_doclength(om_docid did) const
 {
-    om_doccount multiplier = databases.size();
-
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
@@ -180,32 +157,9 @@ MultiDatabase::get_doclength(om_docid did) const
 bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
-    DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
-    std::set<om_termname>::const_iterator p = terms.find(tname);
-
-    bool found = false;
-
-    if (p == terms.end()) {
-	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
-	while(i != databases.end()) {
-	    found = (*i)->term_exists(tname);
-	    if(found) break;
-	    i++;
-	}
-
-	if(found) {
-	    if (terms.size() > 500) {
-		DEBUGLINE(DB, "(term cache full - clearing) ");
-		terms.clear();
-	    }
-	    DEBUGLINE(DB, "found in sub-database");
-	    terms.insert(tname);
-	} else {
-	    DEBUGLINE(DB, "not in collection");
-	}
-    } else {
-	found = true;
-	DEBUGLINE(DB, "found in cache");
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+    for (i = databases.begin(); i != databases.end(); i++) {
+	if ((*i)->term_exists(tname)) return true;
     }
-    return found;
+    return false;
 }

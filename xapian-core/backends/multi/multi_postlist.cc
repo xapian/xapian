@@ -33,7 +33,7 @@
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(std::list<MultiPostListInternal> & pls,
+MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 			     const MultiDatabase * this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
@@ -41,29 +41,23 @@ MultiPostList::MultiPostList(std::list<MultiPostListInternal> & pls,
 	  currdoc(0),
 	  freq_initialised(false)
 {
+    multiplier = pls.size();
 }
 
 
 MultiPostList::~MultiPostList()
 {
-    // Will be empty if we've got to the end of all lists,
-    // but we might not have, so remove anything left.
-    while(postlists.begin() != postlists.end()) {
-	delete (*postlists.begin()).pl;
-	postlists.erase(postlists.begin());
+    std::vector<LeafPostList *>::iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	delete *i;
     }
+    postlists.clear();
 }
 
 om_weight
 MultiPostList::get_weight() const
 {
-    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    while(i != postlists.end()) {
-	if((*i).currdoc == currdoc)
-	    return (*i).pl->get_weight();
-	i++;
-    }
-    Assert(false);
+    return postlists[(currdoc - 1) % multiplier]->get_weight();
 }
 
 om_doclength
@@ -75,25 +69,13 @@ MultiPostList::get_doclength() const
 om_termcount
 MultiPostList::get_wdf() const
 {
-    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    while (i != postlists.end()) {
-	if ((*i).currdoc == currdoc)
-	    return (*i).pl->get_wdf();
-	i++;
-    }
-    Assert(false);
+    return postlists[(currdoc - 1) % multiplier]->get_wdf();
 }
 
 PositionList *
 MultiPostList::get_position_list()
 {
-    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    while (i != postlists.end()) {
-	if ((*i).currdoc == currdoc)
-	    return (*i).pl->get_position_list();
-	i++;
-    }
-    Assert(false);
+    return postlists[(currdoc - 1) % multiplier]->get_position_list();
 }
 
 PostList *
@@ -101,53 +83,55 @@ MultiPostList::next(om_weight w_min)
 {
     Assert(!at_end());
 
-    std::list<MultiPostListInternal>::iterator i = postlists.begin();
-    while(i != postlists.end()) {
-	// Check if it needs to be advanced
-	if(currdoc >= (*i).currdoc) {
-	    (*i).pl->next(w_min);
-	    if((*i).pl->at_end()) {
-		// Close sub-postlist
-		delete (*i).pl;
-		std::list<MultiPostListInternal>::iterator erase_iter = i;
-		i++;
-		postlists.erase(erase_iter);
-		// erase iter is now invalid, but i is still valid because
-		// i) this is a list, and ii) i wasn't pointing to a deleted
-		// entry
-		continue;
+    om_docid newdoc = 0;
+    om_docid offset = 1;
+    std::vector<LeafPostList *>::iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	if (!(*i)->at_end()) {
+	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
+	    // Check if it needs to be advanced
+	    if (currdoc >= id) {
+		(*i)->next(w_min);
+		if (!(*i)->at_end()) {
+		    id = ((*i)->get_docid() - 1) * multiplier + offset;
+		    if (newdoc == 0 || id < newdoc) newdoc = id;
+		}
 	    }
-	    (*i).currdoc = ((*i).pl->get_docid() - 1) * (*i).multiplier +
-		           (*i).offset;
 	}
-	i++;
+	offset++;
     }
-    if(postlists.size() == 0) {
+    if (newdoc == 0) {
 	finished = true;
 	return NULL;
     }
 
-    i = postlists.begin();
-    om_docid newdoc = (*i).currdoc;
-    for(i++; i != postlists.end(); i++) {
-	// Check if it might be the newdoc
-	if((*i).currdoc < newdoc) newdoc = (*i).currdoc;
-    }
-
     currdoc = newdoc;
-
     return NULL;
 }
 
-// FIXME - write implementation to use skip_to methods of sub-postlists
-// for greater efficiency
 PostList *
 MultiPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(!at_end());
-    while (!at_end() && currdoc < did) {
-	PostList *ret = next(w_min);
-	if (ret) return ret;
+    om_docid newdoc = 0;
+    om_docid offset = 1;
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+    std::vector<LeafPostList *>::iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {	
+	if (!(*i)->at_end()) {
+	    (*i)->skip_to(realdid, w_min);
+	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
+	    if (newdoc == 0 || id < newdoc) newdoc = id;
+	}
+	offset++;
+	if (offset == dbnumber) realdid--;
     }
+    if (newdoc == 0) {
+	finished = true;
+	return NULL;
+    }
+
+    currdoc = newdoc;
     return NULL;
 }
