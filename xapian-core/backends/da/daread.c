@@ -504,7 +504,8 @@ extern void readterms(struct termvec * tv)
       tv->wdf = 0;
       if (flags & 2) { tv->wdf = t[0]; t++; }
       tv->termp = 0;
-      if (flags & 8) { tv -> termp = t; tv->nextterm = t+L2(t,0)+1; }
+      if (flags & 8) { tv -> termp = t; t += L2(t,0); }
+      tv->nextterm = t+1;
    }
 }
 
@@ -547,7 +548,7 @@ int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
 struct terms * openterms(struct termvec * tv)
 void readterms(struct termvec * tv)
 
-To open DA record and/or DAterm files for example:
+To open DA record and/or DA term files for example:
 
         struct DAfile * DA_r;
         struct DAfile * DA_t;
@@ -557,6 +558,11 @@ To open DA record and/or DAterm files for example:
 and to close:
 
         DAclose(DA_r); DAclose(DA_t);
+
+The total number of documents (or terms) in the DA file is given
+by
+
+        DA_r->itemcount       (DA_t->itemcount)
 
 A term is expected to be a 'k-string', with length L in k[0], and
 characters in k[1] ... k[L-1]. This is how they come in the packed term
