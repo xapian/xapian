@@ -1,3 +1,7 @@
+Mon Dec 18 11:19:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update todo.xml
+
 Mon Dec 18 10:47:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove const from reverse_iterators in api_db.cc, so get around

@@ -102,14 +102,10 @@ filters)?
 Produce NT version of OM.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
-
-Implement methods to enable iteration through all the terms in the database.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="">
 
-Possibly to iterate through all the documents in the database.
+Implement methods to iterate through all the documents in the database.
+Possibly via a special term which indexes all documents.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Quartz" release="1.0">
