@@ -264,6 +264,9 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 	  is_at_end(false),
 	  have_started(false)
 {
+    DEBUGCALL(DB, void, "QuartzPostList::QuartzPostList",
+	      this_db_.get() << ", " << avlength_ << ", " <<
+	      table_ << ", " << positiontable_ << ", " << tname_);
     QuartzDbKey key;
     key.value = pack_string(tname);
     int found = cursor->find_entry(key);
@@ -288,6 +291,7 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 
 QuartzPostList::~QuartzPostList()
 {
+    DEBUGCALL(DB, void, "QuartzPostList::~QuartzPostList", "");
     delete cursor;
 }
 
@@ -296,7 +300,8 @@ QuartzPostList::~QuartzPostList()
 bool
 QuartzPostList::next_in_chunk()
 {
-    if (pos == end) return false;
+    DEBUGCALL(DB, bool, "QuartzPostList::next_in_chunk", "");
+    if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
@@ -306,12 +311,13 @@ QuartzPostList::next_in_chunk()
     Assert(did < last_did_in_chunk || pos == end);
     Assert(pos != end || did == last_did_in_chunk);
 
-    return true;
+    RETURN(true);
 }
 
 void
 QuartzPostList::next_chunk()
 {
+    DEBUGCALL(DB, void, "QuartzPostList::next_chunk", "");
     if (is_last_chunk) {
 	is_at_end = true;
 	return;
@@ -361,36 +367,49 @@ QuartzPostList::next_chunk()
 PositionList *
 QuartzPostList::get_position_list()
 {
+    DEBUGCALL(DB, PositionList *, "QuartzPostList::get_position_list", "");
+
     positionlist.read_data(positiontable, did, tname);
 
-    return &positionlist;
+    RETURN(&positionlist);
 }
 
 PostList *
 QuartzPostList::next(om_weight w_min)
 {
+    DEBUGCALL(DB, PostList *, "QuartzPostList::next", w_min);
+
     if (!have_started) {
 	have_started = true;
     } else {
 	if (!next_in_chunk()) next_chunk();
     }
-    return NULL;
+
+    DEBUGLINE(DB, string("Moved to ") <<
+	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
+	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
+	       om_tostring(doclength) + "."));
+    
+    RETURN(NULL);
 }
 
 bool
 QuartzPostList::current_chunk_contains(om_docid desired_did)
 {
+    DEBUGCALL(DB, bool, "QuartzPostList::current_chunk_contains", desired_did);
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
-	return true;
+	RETURN(true);
     } else {
-	return false;
+	RETURN(false);
     }
 }
 
 void
 QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 {
+    DEBUGCALL(DB, void,
+	      "QuartzPostList::move_to_chunk_containing", desired_did);
     QuartzDbKey key;
     make_key(tname, desired_did, key);
     (void) cursor->find_entry(key);
@@ -438,36 +457,42 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 bool
 QuartzPostList::move_forward_in_chunk_to_at_least(om_docid desired_did)
 {
+    DEBUGCALL(DB, bool,
+	      "QuartzPostList::move_forward_in_chunk_to_at_least", desired_did);
     if (desired_did > last_did_in_chunk) {
 	pos = end;
-	return false;
+	RETURN(false);
     }
     while (did < desired_did) {
 	// FIXME: perhaps we don't need to decode the wdf and documnet length
 	// for documents we're skipping past.
 	bool at_end_of_chunk = !next_in_chunk();
-	if (at_end_of_chunk) return false;
+	if (at_end_of_chunk) RETURN(false);
     }
-    return true;
+    RETURN(true);
 }
 
 PostList *
 QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 {
+    DEBUGCALL(DB, PostList *,
+	      "QuartzPostList::skip_to", desired_did << ", " << w_min);
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
     have_started = true;
 
     // Don't skip back, and don't need to do anthing if already there.
-    if (desired_did <= did) return NULL;
+    if (desired_did <= did) RETURN(NULL);
 
     move_to(desired_did);
-    return NULL;
+    RETURN(NULL);
 }
 
 void
 QuartzPostList::move_to(om_docid desired_did)
 {
+    DEBUGCALL(DB, void, "QuartzPostList::move_to", desired_did);
+
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
 	move_to_chunk_containing(desired_did);
@@ -484,7 +509,7 @@ QuartzPostList::move_to(om_docid desired_did)
 #ifdef MUS_DEBUG
 	bool have_document =
 #else
-	(void)
+		(void)
 #endif
 		move_forward_in_chunk_to_at_least(desired_did);
 	Assert(have_document);
@@ -505,6 +530,13 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 			  om_termcount new_wdf,
 			  quartz_doclen_t new_doclen)
 {
+    DEBUGCALL_STATIC(DB, void, "QuartzPostList::add_entry",
+		     bufftable << ", " <<
+		     tname << ", " <<
+		     new_did << ", " <<
+		     new_wdf << ", " <<
+		     new_doclen);
+    
     // How big should chunks in the posting list be?  (They will grow
     // slightly bigger than this, but not more than a few bytes extra)
     unsigned int chunksize = 2048;
