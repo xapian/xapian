@@ -45,7 +45,7 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 
     string v;
     string prev_term;
-    unsigned int size = 0;
+    Xapian::doccount size = 0;
     for ( ; t != t_end; ++t) {
 	bool stored_wdf = false;
 	// If there was a previous term, work out how much we can reuse.

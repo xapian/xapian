@@ -1,3 +1,8 @@
+Thu Jan 15 01:00:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_termlist.cc: Use Xapian::doccount instead of
+	  unsigned int in set_entries().
+
 Thu Jan 15 00:56:47 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,
