@@ -22,6 +22,9 @@ lib_LTLIBRARIES = libomus.la
 libomus_la_SOURCES = dummy.c
 EXTRA_libomus_la_SOURCES =
 
+# doesn't really work as we'd hope as we get to play with the mangled symbols
+libomus_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
+
 libomus_la_LIBADD = \
  common/libcommon.la \
  backends/libbackend.la \

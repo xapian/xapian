@@ -112,8 +112,6 @@ L|3|c|Backends     | Use thread locks around inmemory methods
 -+-+-+-------------+-----------------------------------------------------------
 L|2| |Website      | Put PS/PDF documentation on website.
 -+-+-+-------------+-----------------------------------------------------------
-L|3| |Backends     | Stop d[ba]read from exporting junk symbols
--+-+-+-------------+-----------------------------------------------------------
 L|5|c|General      | Audit for exception safety.
 -+-+-+-------------+-----------------------------------------------------------
 L|5|c|TODO         | Write some VIM macros to deal with this TODO

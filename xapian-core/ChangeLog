@@ -1,3 +1,9 @@
+Wed Sep 13 11:28:18 BST 2000 Olly Betts
+
+	* Use libtool's -export-symbols-regex switch to cut down on junk
+	  symbols in library.  Doesn't really work as we'd hope as we get to
+	  play with the mangled symbols.
+
 Wed Sep 13 10:08:25 BST 2000 Olly Betts
 
 	* Updated TODO.
