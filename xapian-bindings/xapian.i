@@ -565,12 +565,12 @@ class Query {
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const std::string & left, const std::string & right);
         %extend {
-           /** Constructs a query from a set of terms merged with the specified operator */
+           /** Constructs a query from a vector of terms merged with the specified operator */
 	    Query(Query::op op,
 		  const std::vector<std::string>* subqs,
 		  termpos window = 0) {
 		    Xapian::Query * query=new Xapian::Query(op, subqs->begin(),subqs->end());
-		    query->set_window(window);
+		    if (window) query->set_window(window);
 		    return query;
 	    }
 	}

@@ -1,3 +1,9 @@
+Thu Oct 28 04:37:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: In the Query ctor which takes a vector of terms, only
+	  call set_window if window is non-zero.  Otherwise things go wrong
+	  if we're passed an empty vector.
+
 Wed Oct 27 03:34:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Added note that the bindings can easily be compiled
