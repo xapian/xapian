@@ -1,3 +1,9 @@
+Fri May 07 02:46:53 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Remove unneeded call to
+	  bufftable->get_or_make_tag() in a case when we're using a cursor
+	  which has already fetched the tag.
+
 Thu May 06 23:30:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Improved a comment.

@@ -933,7 +933,6 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
 
-    string * tag;
     if (!check_tname_in_key(&keypos, keyend, tname)) {
 	// Postlist for this termname doesn't exist.
 	if (!adding)
@@ -943,17 +942,13 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
 	*to = new PostlistChunkWriter("", true, tname, true);
 	return Xapian::docid(-1);
     }
-    
-    tag = bufftable->get_or_make_tag(cursor->current_key);
-    Assert(tag != 0);
-    Assert(!tag->empty());
-
+ 
     // See if we're appending - if so we can shortcut by just copying
     // the data part of the chunk wholesale.
     bool is_first_chunk = (keypos == keyend);
 
-    const char * pos = tag->data();
-    const char * end = pos + tag->size();
+    const char * pos = cursor->current_tag.data();
+    const char * end = pos + cursor->current_tag.size();
     Xapian::docid first_did_in_chunk;
     if (is_first_chunk) {
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
