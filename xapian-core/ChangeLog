@@ -1,3 +1,8 @@
+Thu Sep 19 00:45:51 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Tested on Solaris 7 with GCC 2.95.3 (works) and Solaris 8
+	  Sun Workshop C++ compiler (fails to compile).
+	 
 Thu Sep 19 00:41:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* ar-wrapper-solaris,ltconfig,Makefile.am: libtool 1.4 doesn't use

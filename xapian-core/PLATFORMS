@@ -11,9 +11,11 @@ x86   | * Linux 2.4 - Debian 2.2 | [+]     | Passed |
 x86   | * Linux 2.4 - RedHat 7.3 | [+]     | Passed | --disable-remote-backend
 x86   | * FreeBSD 4.5            | [+]     | Passed | [1]
 sparc | * Linux 2.2 - Debian 2.2 | [+]     | Passed |
-sparc | * Solaris 8              | [+]     | Passed | [2] [3]
+sparc | * Solaris 8, GCC 2.95.3  | [+]     | Passed | [2] [3]
+sparc |   Solaris 7, GCC 2.95.3  | [+]     | Passed | [2] [3] 
 ppc   | * Linux 2.4 - Debian 2.2 | [+]     | Passed | [3]
 ------+--------------------------+---------+--------+------------------------
+sparc | * Solaris 8, Sun Workshop| [+]     | Failed | [2] [4]
 alpha | * Linux 2.2 - Debian 2.2 | [+]     | Failed | Quartz tests fail
 ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | [3] All tests fail
 ------+--------------------------+---------+--------+------------------------
@@ -28,3 +30,5 @@ ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | [3] All tests fail
     Building the library can be done using the native Solaris make.
 
 [3] Must be compiled as a static library (--disable-shared).
+
+[4] Compilation fails.
