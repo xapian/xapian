@@ -32,4 +32,4 @@ norwegian/libnorwegian.la \
 portuguese/libportuguese.la \
 spanish/libspanish.la \
 swedish/libswedish.la \
-porter/libporter.la \
+porter/libporter.la

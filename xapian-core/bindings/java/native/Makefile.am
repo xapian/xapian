@@ -26,6 +26,8 @@ check_PROGRAMS = dummy
 
 dummy_SOURCES = dummy.cc
 
+noinst_HEADERS = utils.h
+
 EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmDatabaseGroup.cc		\
 	nvOmDatabase.cc			\

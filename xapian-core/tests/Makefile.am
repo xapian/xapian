@@ -34,7 +34,9 @@ TESTS = $(THREADTESTS) apitest internaltest $(PERLTESTS)
 ## Programs to build
 check_PROGRAMS  = $(THREADTESTS) apitest internaltest stemtest delve
 
+if HAVE_PERL
 check-local: includetest.o
+endif
 
 ## Sources:
 
@@ -95,7 +97,7 @@ distclean-local: clean-local
 # Get GENDEPS macro
 include $(top_srcdir)/Makefile_common.am
 
-ALL_INCLUDES = `find $(top_srcdir) -name indexgraph -prune -o -name bindings -prune -o -name \*.h -not -name acconfig.h -type f -print`
+ALL_INCLUDES = `./findheaders.pl $(top_srcdir)`
 
 ## Extra rules:
 includetest.cc:

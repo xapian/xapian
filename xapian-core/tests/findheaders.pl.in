@@ -1,0 +1,43 @@
+#! @PERL_PATH@ -w
+# @configure_input@
+# findheaders.pl is automatically generated from findheaders.pl.in
+# *** Do not edit the generated file ***
+
+# findheaders.pl.in: generate a list of all included headers from Makefile.ins
+require 5.000;
+use strict;
+
+foreach (find_headers($ARGV[0] || ".")) {
+   print "$_\n";
+}
+
+sub find_headers {
+   my $dir = shift;
+   # skip directory if it doesn't use automake
+   return () unless -f "$dir/Makefile.am";
+   open F, "<$dir/Makefile.in" or die "Makefile.in not present";
+   my %h = ();
+   my @subs = ();
+   while (<F>) {
+       # automake helpfully unfolds lines in Makefile.in
+#       while (s/\\\n//) {
+#           my $l = <F>;
+#	   last unless defined $l;
+#	   $_ .= $l;
+#       }
+       if (s/^[A-Za-z0-9_]+_HEADERS\s*=\s*//) {
+           foreach (map "$dir/$_", split /\s+/) {
+               $h{$_}++;
+	   }
+       } elsif (s/^DIST_SUBDIRS\s*=\s*//) {
+           push @subs, grep {$_ ne '.'} split /\s+/;
+       }
+   }
+   close F;
+   my @h = sort keys %h;
+   undef %h;
+   foreach my $d (sort @subs) {
+       push @h, find_headers("$dir/$d");
+   }
+   return @h;
+}
