@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-doc_sources = xapian-queryserver.but xapian-queryserver-manpage.but
+doc_sources = xapian-queryserver.but \
+	      protocol.but \
+	      xapian-queryserver-manpage.but
 doc_targets = xapian-queryserver.txt \
 	      xapian-queryserver.html \
 	      xapian-queryserver.pdf \

@@ -1,3 +1,8 @@
+Wed Apr 28 12:02:27 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * docs/: Split protocol description into a separate file, and
+          remove it from the manual for now.
+
 Wed Apr 28 11:43:19 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * source/base64.h: Remove definition of array as variable sized -

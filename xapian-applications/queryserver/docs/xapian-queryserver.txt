@@ -290,39 +290,20 @@ Chapter 3: Clients
          }
          ?>
 
-Appendix A: Communications protocol
------------------------------------
-
-       The communications protocol is intentionally kept extremely simple.
-       A conversation consists of exactly two messages, and is always
-       initiated by the client.
-
-       Much of the data passed over the protocol is Base64 encoded - this
-       avoids problems with communications channels dealing badly with
-       certain character codes.
-
-   A.1 Client request
-
-       FIXME - document.
-
-   A.2 Server response
-
-       FIXME - document.
-
-Appendix B: man pages
+Appendix A: man pages
 ---------------------
 
-   B.1 man page for `xapian-queryserver'
+   A.1 man page for `xapian-queryserver'
 
- B.1.1 NAME
+ A.1.1 NAME
 
        `xapian-queryserver' - Simple socket based query server for Xapian
 
- B.1.2 SYNOPSIS
+ A.1.2 SYNOPSIS
 
          ./queryserver socketpath data_directory
 
- B.1.3 DESCRIPTION
+ A.1.3 DESCRIPTION
 
        xapian-queryserver listens to a UNIX socket for queries, performs
        the queries, and sends the results back over the socket.
@@ -345,16 +326,16 @@ Appendix B: man pages
 
          ./queryserver /tmp/socket /var/lib/omega/data
 
- B.1.4 AUTHOR
+ A.1.4 AUTHOR
 
        Written by Richard Boulton.
 
- B.1.5 REPORTING BUGS
+ A.1.5 REPORTING BUGS
 
        Please report bugs using Xapian's online bugzilla system at
        http://www.xapian.org/bugs.php
 
- B.1.6 COPYRIGHT
+ A.1.6 COPYRIGHT
 
        Copyright (C) 2004 Lemur Consulting Ltd.
 
@@ -362,7 +343,7 @@ Appendix B: man pages
        is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
        PARTICULAR PURPOSE.
 
- B.1.7 SEE ALSO
+ A.1.7 SEE ALSO
 
        For more information on xapian-queryserver see the full manual,
        which is available in a variety of formats.
