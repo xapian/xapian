@@ -1,3 +1,7 @@
+Wed Nov 22 11:50:21 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add --prefix and --exec-prefix parameters to libomus-config script.
+
 Wed Nov 22 11:03:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Don't build indextest if you don't have LIBXML
