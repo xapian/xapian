@@ -33,7 +33,7 @@
 #include <errno.h>
 #include "querygui.h"
 
-#include "om.h"
+#include "om/om.h"
 
 #include "textfile_indexer.h"
 #include "query_parser.h"

@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#include "om.h"
+#include "om/om.h"
 #include "stemmer.h"
 
 #include <vector>
