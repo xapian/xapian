@@ -25,9 +25,6 @@
 #define OM_HGUARD_PROGSERVER_H
 
 #include "socketserver.h"
-#include "multimatch.h"
-#include "socketcommon.h"
-#include "networkstats.h"
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care

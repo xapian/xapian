@@ -1,3 +1,8 @@
+Tue May 27 16:59:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/progserver.h,common/socketserver.h,net/socketserver.cc:
+	  Reduced needless header inclusion.
+
 Tue May 27 16:53:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* bin/omprogsrv.cc,tests/api_db.cc: Use variable name "dbs" in

@@ -36,6 +36,7 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include <xapian/enquire.h>
+#include "multimatch.h"
 #include <signal.h>
 #include <cerrno>
 #include <cstring>

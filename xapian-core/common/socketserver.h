@@ -27,8 +27,6 @@
 //#define TIMING_PATCH // for webtop
 
 #include "netserver.h"
-#include "multimatch.h"
-#include "socketcommon.h"
 #include "networkstats.h"
 #include "omlinebuf.h"
 #include "autoptr.h"
