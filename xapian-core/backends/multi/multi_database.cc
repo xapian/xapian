@@ -182,8 +182,8 @@ MultiDatabase::open_term_list(docid did) const {
 
     doccount multiplier = databases.size();
 
-    docid realdid = (did - 1) / multiplier + 1;
-    doccount dbnumber = (did - 1) % multiplier;
+    docid realdid = did / multiplier;
+    doccount dbnumber = did % multiplier;
 
     TermList *newtl;
     newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
@@ -197,8 +197,8 @@ MultiDatabase::open_document(docid did) const {
 
     doccount multiplier = databases.size();
 
-    docid realdid = (did - 1) / multiplier + 1;
-    doccount dbnumber = (did - 1) % multiplier;
+    docid realdid = did / multiplier;
+    doccount dbnumber = did % multiplier;
 
     return (*(databases.begin() + dbnumber))->open_document(realdid);
 }
