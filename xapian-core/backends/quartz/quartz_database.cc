@@ -191,18 +191,6 @@ QuartzDatabase::create_and_open_tables()
     DEBUGCALL(DB, void, "QuartzDatabase::create_and_open_tables", "");
     //FIXME - check that database directory exists.
 
-    // Delete any existing tables
-    // FIXME: would be better to arrange that this works such that there's
-    // always a valid database in place...  Or does it already?  The metafile
-    // is created before erasing...
-    log.make_entry("Cleaning up database directory");
-    metafile.create();
-    postlist_table.erase();
-    positionlist_table.erase();
-    termlist_table.erase();
-    value_table.erase();
-    record_table.erase();
-
     log.make_entry("Creating new database");
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.

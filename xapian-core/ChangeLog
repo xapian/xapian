@@ -1,3 +1,10 @@
+Fri Aug 13 15:37:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/quartz_database.cc:
+	  Changed Btree::create() to remove any pre-existing alternate base
+	  file, so we no longer need to call Btree::erase before
+	  Btree::create.
+
 Fri Aug 13 15:36:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_posdb.cc,tests/quartztest.cc: Reworked quartztest's

@@ -1,3 +1,24 @@
+Xapian-core 0.8.2 (2004-08-??):
+
+up to: Thu Aug 12 16:26:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* quartz: Eliminated QuartzBufferedTable and refactored the code to
+	  reduce the number of classes and improve maintainability.  This
+	  speeds up building databases.
+
+	* m4/xapian.m4: XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
+
+	* API: Xapian::WritableDatabase::replace_document can now be used
+	  to add a document with a specific docid (to allow keeping docids
+	  in sync with numeric UIDs from another system).
+
+	* API: Added Xapian::WritableDatabase::replace_document and
+	  delete_document variants which take a unique id term name rather
+	  than a document id.
+
+	* include/xapian/database.h: Better generated API documentation for
+	  Xapian::WritableDatabase::replace_document and delete_document.
+
 Xapian-core 0.8.1 (2004-06-30):
 
 API:
