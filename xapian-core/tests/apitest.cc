@@ -148,7 +148,7 @@ void usage(char *progname)
 
 int main(int argc, char *argv[])
 {
-    bool fussy = false;
+    bool fussy = true;
 
     int c;
 

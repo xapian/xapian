@@ -37,11 +37,14 @@ bool test_testsuite1();
 bool test_testsuite2();
 // test the reference counted pointers
 bool test_refcnt1();
+// test string comparisions
+bool test_stringcomp1();
 
 test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"refcnt1",			test_refcnt1},
+    {"stringcomp1",		test_stringcomp1},
     {0, 0}
 };
 
@@ -242,6 +245,54 @@ bool test_refcnt1()
 	if (verbose) {
 	    cout << "Object not properly deleted"
 		 << endl;
+	}
+    }
+
+    return success;
+}
+
+bool test_stringcomp1()
+{
+    bool success = true;
+
+    string s1;
+    string s2;
+
+    s1 = "foo";
+    s2 = "foo";
+
+    if ((s1 != s2) || (s1 > s2)) {
+	success = false;
+	if (verbose) {
+	    cout << "String comparisons BADLY wrong" << endl;
+	}
+    }
+
+    s1 += '\0';
+
+    if ((s1 == s2) || (s1 < s2)) {
+	success = false;
+	if (verbose) {
+	    cout << "String comparisions don't cope with extra nulls" << endl;
+	}
+    }
+
+    s2 += '\0';
+
+    s1 += 'a';
+    s2 += 'z';
+
+    if ((s1.length() != 5) || (s2.length() != 5)) {
+	success = false;
+	if (verbose) {
+	    cout << "Lengths with added nulls wrong" << endl;
+	}
+    }
+
+    if ((s1 == s2) || !(s1 < s2)) {
+	success = false;
+	if (verbose) {
+	    cout << "Characters after a null ignored in comparisons" << endl;
 	}
     }
 
