@@ -39,6 +39,8 @@
 #include <stdlib.h>
 #endif // HAVE_GETOPT_H
 
+#include <unistd.h> // for chdir
+
 #include <exception>
 
 #include "om/omerror.h"
@@ -73,6 +75,49 @@ test_driver::set_quiet(bool quiet_)
     } else {
 	out.rdbuf(std::cout.rdbuf());
     }
+}
+
+string
+test_driver::get_srcdir(const string & argv0)
+{
+    char *p = getenv("srcdir");
+    if (p != NULL) return string(p);
+
+    string srcdir = argv0;
+    // default srcdir to everything leading up to the last "/" on argv0
+    string::size_type i = srcdir.find_last_of('/');
+    string srcfile;
+    if (i != string::npos) {
+	srcfile = srcdir.substr(i + 1);
+	srcdir.erase(i);
+    } else {
+	// default to current directory - probably won't work if libtool
+	// is involved as the true executable is usually in .libs
+	srcfile = srcdir;
+	srcdir = ".";
+    }
+    srcfile += ".cc";
+    // deal with libtool
+    if (srcfile[0] == 'l' && srcfile[1] == 't' && srcfile[2] == '-')
+        srcfile.erase(0, 3);
+    // sanity check
+    if (!file_exists(srcdir + "/" + srcfile)) {
+	// try the likely subdirectories and chdir to them if we find one
+	// with a likely looking source file in - some tests need to run
+	// from the current directory
+	srcdir = '.';
+	if (file_exists("tests/" + srcfile)) {
+	    chdir("tests");
+	} else if (file_exists("netprogs/" + srcfile)) {
+	    chdir("netprogs");
+	} else {
+	    cout << argv0
+		<< ": srcdir not in the environment and I can't guess it!"
+		<< endl;
+	    exit(1);
+	}
+    }
+    return srcdir;
 }
 
 /* Global data used by the overridden new and delete

@@ -200,12 +200,9 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
-    char *srcdir = getenv("srcdir");
-    if (srcdir == NULL) {
-        std::cout << "Error: $srcdir must be in the environment!" << std::endl;
-	return(1);
-    }
-    datadir = std::string(srcdir) + "/../tests/testdata/";
+    string srcdir = test_driver::get_srcdir(argv[0]);
+
+    datadir = srcdir + "/../tests/testdata/";
 
     return test_driver::main(argc, argv, tests);
 }

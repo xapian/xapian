@@ -2548,33 +2548,7 @@ test_desc localdb_tests[] = {
 
 int main(int argc, char *argv[])
 {
-    string srcdir;
-    char *srcdir_ = getenv("srcdir");
-    if (srcdir_ != NULL) {
-	srcdir = srcdir_;
-    } else {
-	// default srcdir to everything leading up to the last "/" on argv[0]
-	srcdir = argv[0];
-	string::size_type i = srcdir.find_last_of('/');
-	if (i != string::npos) {
-	    srcdir.erase(i);
-	} else {
-	    // default to current directory - probably won't work if libtool
-	    // is involved
-	    srcdir = ".";
-	}
-        // sanity check
-	if (!file_exists(srcdir + "/apitest.cc")) {
-	    if (file_exists("tests/apitest.cc")) {
-		srcdir = "tests";
-	    } else {
-		cout << argv[0]
-		     << ": srcdir not in the environment and I can't guess it!"
-		     << endl;
-		return(1);
-	    }
-	}
-    }
+    string srcdir = test_driver::get_srcdir(argv[0]);
 
     int result;
     test_driver::result summary = {0, 0};

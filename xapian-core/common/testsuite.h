@@ -120,6 +120,12 @@ class test_driver {
 	/** If set to true, the testsuite will produce no output whatsoever.
 	 */
 	void set_quiet(bool quiet_);
+
+	/** Read srcdir from environment and if not present, make a valiant
+	 *  attempt to guess a value
+	 */
+	static string get_srcdir(const string &argv0);
+
     private:
 	/** Runs the test function and returns its result.  It will
 	 *  also trap exceptions and some memory leaks and force a
