@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_line_db::cvs_line_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision-line", dbenv, flags)
+    :cvs_db("file_revision-line", "5", dbenv, flags)
 {
 }
 
@@ -130,8 +130,6 @@ cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
-        cerr << "PUT LINE " << endl;
-        abort();
     }
     return val;
 }

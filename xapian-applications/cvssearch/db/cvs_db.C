@@ -28,7 +28,8 @@ int
 cvs_db::open(const string & filename) 
 {
     int val = 0;
-    if (_opened || (val = do_open(filename)) == 0)
+    string filename1 = filename + _db_index;
+    if (_opened || (val = do_open(filename1)) == 0)
     {
         _opened = true;
     }

@@ -35,12 +35,13 @@ class cvs_db
 protected:
     Db _db;
     string _db_name;
+    string _db_index;
     bool _opened;
     virtual int do_open(const string & filename) = 0;
 
 public:
-    cvs_db(const string & name, DbEnv *dbenv, u_int32_t flags) 
-        : _db(dbenv, flags), _db_name(name), _opened(false) {}
+    cvs_db(const string & name, const string & index, DbEnv *dbenv, u_int32_t flags) 
+        : _db(dbenv, flags), _db_name(name), _db_index(index), _opened(false) {}
     virtual ~cvs_db() {}
     int open(const string & filename);
     int close(int flags = 0);

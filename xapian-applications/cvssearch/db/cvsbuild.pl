@@ -72,7 +72,7 @@ system ("cvsmap-script @ARGV");
 # ------------------------------------------------------------
 foreach (@modules) {
     $_ =~ tr/\//\_/;    
-#    system ("cvsindex $_.cmt");
+    system ("cvsindex $_.cmt");
 }
 
 sub usage()

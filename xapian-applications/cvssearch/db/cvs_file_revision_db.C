@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_file_revision_db::cvs_file_revision_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file-revision", dbenv, flags)
+    :cvs_db("file-revision", "3", dbenv, flags)
 {
 }
 

@@ -79,7 +79,7 @@ foreach (@modules) {
             print TIME "$app_path", "\n";
             print TIME "Started  @ ", `date`;
             $start_date = time;
-            system ("rm -rf $app_name.db");
+            system ("rm -rf $app_name.db*");
             system ("cvsmap -i $list_file -db $app_name.db -f1 $app_name.cmt -f2 $app_name.offset");
             print TIME "Finished @ ", `date`;
             $delta_time += time - $start_date;

@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_revision_line_db::cvs_revision_line_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision_line-line", dbenv, flags)
+    :cvs_db("file_revision_line-line", "7", dbenv, flags)
 {
 }
 
@@ -100,7 +100,6 @@ cvs_revision_line_db::put(unsigned int fileId, const string & revision, unsigned
     ostrstream ost;
     ost << fileId << ':' << revision << ':' << line_new << ends;
     string skey = ost.str();
-    cout << "key " << skey << ":" << line_old << endl;
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
         Dbt data((void *) &line_old, sizeof(unsigned int));

@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_comment_id_db::cvs_comment_id_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision-comment_id", dbenv, flags)
+    :cvs_db("file_revision-comment_id", "2", dbenv, flags)
 {
 }
 
@@ -104,8 +104,6 @@ cvs_comment_id_db::put(unsigned int fileId, const string & revision, unsigned in
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
-        cerr << "Put Comment Id " << endl;
-        abort();
     }
     return val;
 }

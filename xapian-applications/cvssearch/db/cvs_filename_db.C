@@ -29,7 +29,7 @@
 #include "cvs_filename_db.h"
 
 cvs_filename_db::cvs_filename_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("recno-filename", dbenv, flags)
+    :cvs_db("recno-filename", "4", dbenv, flags)
 {
 }
 
@@ -97,8 +97,6 @@ cvs_filename_db::put(unsigned int & fileId, const string & filename)
         }
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
-        cerr << "PUT FILENAME " << endl;
-        abort();
     }
     return val;
 }

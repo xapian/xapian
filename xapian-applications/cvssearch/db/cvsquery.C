@@ -46,7 +46,7 @@ main(unsigned int argc, char **argv)
     string revision;
     string database_name;
 
-    if (argc < 2 || !strcmp(argv[2], "-h")) {
+    if (argc < 3 || !strcmp(argv[2], "-h")) {
         usage(argv[0]);
     }
    

@@ -29,7 +29,7 @@
 #include "cvs_comment_db.h"
 
 cvs_comment_db::cvs_comment_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("recno-comment", dbenv, flags)
+    :cvs_db("recno-comment", "1", dbenv, flags)
 {
 }
 
@@ -99,8 +99,6 @@ cvs_comment_db::put(unsigned int & comment_id, const string & comment)
         return val;
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
-        cerr << "PUT Comment " << endl;
-        abort();
     }
     return val;
 }
