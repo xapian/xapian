@@ -450,12 +450,12 @@ omrset_to_string(const OmRSet &omrset)
 }
 
 string
-ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
+ommsetitems_to_string(const vector<Xapian::Internal::MSetItem> &ommsetitems)
 {
     // format: length wt did key wt did key ...
     string result = om_tostring(ommsetitems.size());
 
-    vector<OmMSetItem>::const_iterator i;
+    vector<Xapian::Internal::MSetItem>::const_iterator i;
     for (i = ommsetitems.begin(); i != ommsetitems.end(); ++i) {
 	result += ' ';
 
@@ -517,10 +517,10 @@ ommset_to_string(const Xapian::MSet &ommset)
     return result;
 }
 
-vector<OmMSetItem>
+vector<Xapian::Internal::MSetItem>
 string_to_ommsetitems(const string &s_)
 {
-    vector<OmMSetItem> result;
+    vector<Xapian::Internal::MSetItem> result;
 
     string::size_type colon = s_.find_first_of(' ');
     string s = s_.substr(colon + 1);
@@ -549,7 +549,7 @@ string_to_ommsetitems(const string &s_)
 	    value_s = s.substr(0, pos);
 	    s = s.substr(pos + 1);
 	}
-	result.push_back(OmMSetItem(atof(wt_s.c_str()),
+	result.push_back(Xapian::Internal::MSetItem(atof(wt_s.c_str()),
 				    atol(did_s.c_str()),
 				    decode_tname(value_s)));
     }
@@ -572,7 +572,7 @@ string_to_ommset(const string &s)
     om_doccount matches_upper_bound;
     om_weight max_possible;
     om_weight max_attained;
-    vector<OmMSetItem> items;
+    vector<Xapian::Internal::MSetItem> items;
     int msize;
 
     // first the easy ones...
@@ -594,7 +594,7 @@ string_to_ommset(const string &s)
 	if (!is) {
 	    throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
 	}
-	items.push_back(OmMSetItem(wt, did, decode_tname(s)));
+	items.push_back(Xapian::Internal::MSetItem(wt, did, decode_tname(s)));
 	msize--;
     }
 

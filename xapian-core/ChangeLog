@@ -1,3 +1,12 @@
+Wed May 07 02:16:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/expand.h,common/omenquireinternal.h,
+	  common/omstringstream.h,docs/quickstart.html,include/om/om.h,
+	  include/xapian/enquire.h,include/xapian/output.h,matcher/expand.cc,
+	  matcher/multimatch.cc,net/socketcommon.cc,netprogs/nettest.cc,
+	  tests/api_db.cc,testsuite/testutils.cc: OmMSet -> Xapian::MSet,
+	  similarly for OmMSetIterator, OmESet, and OmESetIterator.
+
 Tue May 06 19:31:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: New file I failed to checkin on Friday.

@@ -161,7 +161,7 @@ static bool test_simplequery2()
 
     // Check the weights
     //these weights are for C=.5 in bm25weight
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     //weights_are_equal_enough(i.get_weight(), 0.661095);
     weights_are_equal_enough(i.get_weight(), 1.046482);
     i++;
@@ -519,11 +519,11 @@ static bool test_expandmaxitems1()
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmESet myeset = enquire.get_eset(1, myrset);
+    Xapian::ESet myeset = enquire.get_eset(1, myrset);
     TEST_EQUAL(myeset.size(), 1);
 
     return true;
@@ -545,7 +545,7 @@ static bool test_boolquery1()
 
     TEST_NOT_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_max_possible(), 0);
-    for (OmMSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
+    for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
 	TEST_EQUAL(i.get_weight(), 0);
     }
     return true;
@@ -566,7 +566,7 @@ static bool test_topercent1()
     Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 20, 0);
 
     int last_pct = 100;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
 	int pct = mymset.convert_to_percent(i);
 	TEST_AND_EXPLAIN(pct == i.get_percent(),
@@ -605,36 +605,36 @@ static bool test_expandfunctor1()
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
     myExpandFunctor myfunctor;
 
-    OmESet myeset_orig = enquire.get_eset(1000, myrset);
+    Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
-    OmESetIterator j = myeset_orig.begin();
+    Xapian::ESetIterator j = myeset_orig.begin();
     for ( ; j != myeset_orig.end(); ++j) {
         if (myfunctor(*j)) neweset_size++;
     }
-    OmESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
+    Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
 
 #if 0
     // Compare myeset with the hand-filtered version of myeset_orig.
     if (verbose) {
 	tout << "orig_eset: ";
 	copy(myeset_orig.begin(), myeset_orig.end(),
-	     ostream_iterator<OmESetItem>(tout, " "));
+	     ostream_iterator<Xapian::ESetItem>(tout, " "));
 	tout << "\n";
 
 	tout << "new_eset: ";
 	copy(myeset.begin(), myeset.end(),
-	     ostream_iterator<OmESetItem>(tout, " "));
+	     ostream_iterator<Xapian::ESetItem>(tout, " "));
 	tout << "\n";
     }
 #endif
-    OmESetIterator orig = myeset_orig.begin();
-    OmESetIterator filt = myeset.begin();
+    Xapian::ESetIterator orig = myeset_orig.begin();
+    Xapian::ESetIterator filt = myeset.begin();
     for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
 	// skip over items that shouldn't be in myeset
 	while (orig != myeset_orig.end() && !myfunctor(*orig)) {
@@ -676,7 +676,7 @@ static bool test_matchfunctor1()
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     TEST(i != mymset.end());
     TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
@@ -694,13 +694,13 @@ static bool test_msetiterator1()
     init_simple_enquire(enquire);
     Xapian::MSet mymset = enquire.get_mset(0, 2);
 
-    OmMSetIterator j;
+    Xapian::MSetIterator j;
     j = mymset.begin();
-    OmMSetIterator k = mymset.end();
-    OmMSetIterator l(j);
-    OmMSetIterator m(k);
-    OmMSetIterator n = mymset.begin();
-    OmMSetIterator o = mymset.begin();
+    Xapian::MSetIterator k = mymset.end();
+    Xapian::MSetIterator l(j);
+    Xapian::MSetIterator m(k);
+    Xapian::MSetIterator n = mymset.begin();
+    Xapian::MSetIterator o = mymset.begin();
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(l, m);
     TEST_EQUAL(k, m);
@@ -740,10 +740,10 @@ static bool test_msetiterator2()
     init_simple_enquire(enquire);
     Xapian::MSet mymset = enquire.get_mset(0, 0);
 
-    OmMSetIterator j = mymset.begin();
-    OmMSetIterator k = mymset.end();
-    OmMSetIterator l(j);
-    OmMSetIterator m(k);
+    Xapian::MSetIterator j = mymset.begin();
+    Xapian::MSetIterator k = mymset.end();
+    Xapian::MSetIterator l(j);
+    Xapian::MSetIterator m(k);
     TEST_EQUAL(j, k);
     TEST_EQUAL(l, m);
     TEST_EQUAL(k, m);
@@ -764,17 +764,17 @@ static bool test_esetiterator1()
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmESet myeset = enquire.get_eset(2, myrset);
-    OmESetIterator j;
+    Xapian::ESet myeset = enquire.get_eset(2, myrset);
+    Xapian::ESetIterator j;
     j = myeset.begin();
-    OmESetIterator k = myeset.end();
-    OmESetIterator l(j);
-    OmESetIterator m(k);
-    OmESetIterator n = myeset.begin();
+    Xapian::ESetIterator k = myeset.end();
+    Xapian::ESetIterator l(j);
+    Xapian::ESetIterator m(k);
+    Xapian::ESetIterator n = myeset.begin();
 
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(l, m);
@@ -814,15 +814,15 @@ static bool test_esetiterator2()
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmESet myeset = enquire.get_eset(0, myrset);
-    OmESetIterator j = myeset.begin();
-    OmESetIterator k = myeset.end();
-    OmESetIterator l(j);
-    OmESetIterator m(k);
+    Xapian::ESet myeset = enquire.get_eset(0, myrset);
+    Xapian::ESetIterator j = myeset.begin();
+    Xapian::ESetIterator k = myeset.end();
+    Xapian::ESetIterator l(j);
+    Xapian::ESetIterator m(k);
     TEST_EQUAL(j, k);
     TEST_EQUAL(l, m);
     TEST_EQUAL(k, m);
@@ -836,7 +836,7 @@ static bool test_esetiterator2()
 static void
 print_mset_weights(const Xapian::MSet &mset)
 {
-    OmMSetIterator i = mset.begin();
+    Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
         tout << " " << i.get_weight();
     }
@@ -859,7 +859,7 @@ static bool test_cutoff1()
     unsigned int num_items = 0;
     om_weight my_wt = -100;
     int changes = 0;
-    OmMSetIterator i = mymset1.begin();
+    Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
         om_weight new_wt = i.get_weight();
@@ -914,7 +914,7 @@ static bool test_cutoff2()
     unsigned int num_items = 0;
     om_weight my_wt = -100;
     int changes = 0;
-    OmMSetIterator i = mymset1.begin();
+    Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
         om_weight new_wt = i.get_weight();
@@ -956,7 +956,7 @@ static bool test_cutoff2()
 static void
 print_mset_percentages(const Xapian::MSet &mset)
 {
-    OmMSetIterator i = mset.begin();
+    Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
         tout << " " << mset.convert_to_percent(i);
     }
@@ -979,7 +979,7 @@ static bool test_pctcutoff1()
     unsigned int num_items = 0;
     int my_pct = 100;
     int changes = 0;
-    OmMSetIterator i = mymset1.begin();
+    Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
         int new_pct = mymset1.convert_to_percent(i);
@@ -1026,17 +1026,17 @@ static bool test_allowqterms1()
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmESet myeset = enquire.get_eset(1000, myrset);
-    OmESetIterator j = myeset.begin();
+    Xapian::ESet myeset = enquire.get_eset(1000, myrset);
+    Xapian::ESetIterator j = myeset.begin();
     for ( ; j != myeset.end(); ++j) {
         TEST_NOT_EQUAL(*j, "this");
     }
 
-    OmESet myeset2 = enquire.get_eset(1000, myrset, OmEnquire::include_query_terms);
+    Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, OmEnquire::include_query_terms);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
         if (*j == "this") break;
@@ -1051,7 +1051,7 @@ static bool test_maxattain1()
     Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 100, 0);
 
     om_weight mymax = 0;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
         if (i.get_weight() > mymax) mymax = i.get_weight();
     }
@@ -1077,7 +1077,7 @@ static bool test_collapsekey1()
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
 	map<string, om_docid> values;
-	OmMSetIterator i = mymset.begin();
+	Xapian::MSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
 	    string value = i.get_document().get_value(value_no);
 	    TEST(values[value] == 0 || value == "");
@@ -1105,7 +1105,7 @@ static bool test_collapsekey2()
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
 
     map<string, om_docid> values;
-    OmMSetIterator i = mymset.begin();
+    Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
 	string value = i.get_document().get_value(value_no);
 	TEST(values[value] == 0 || value == "");
@@ -1136,8 +1136,8 @@ static bool test_reversebool1()
     TEST_EQUAL(mymset1.size(), mymset2.size());
 
     {
-	OmMSetIterator i = mymset1.begin();
-	OmMSetIterator j = mymset2.begin();
+	Xapian::MSetIterator i = mymset1.begin();
+	Xapian::MSetIterator j = mymset2.begin();
 	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
@@ -1149,10 +1149,10 @@ static bool test_reversebool1()
     TEST_EQUAL(mymset1.size(), mymset3.size());
 
     {
-	OmMSetIterator i = mymset1.begin();
+	Xapian::MSetIterator i = mymset1.begin();
 #ifdef __SUNPRO_CC
 	vector<om_docid> rev;
-	for (OmMSetIterator t = mymset3.begin(); t != mymset3.end(); ++t) 
+	for (Xapian::MSetIterator t = mymset3.begin(); t != mymset3.end(); ++t) 
 	    rev.push_back(*t);
 #else
 	vector<om_docid> rev(mymset3.begin(), mymset3.end());
@@ -1192,8 +1192,8 @@ static bool test_reversebool2()
     TEST_EQUAL(msize, mymset2.size());
 
     {
-	OmMSetIterator i = mymset1.begin();
-	OmMSetIterator j = mymset2.begin();
+	Xapian::MSetIterator i = mymset1.begin();
+	Xapian::MSetIterator j = mymset2.begin();
 	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
@@ -1206,14 +1206,14 @@ static bool test_reversebool2()
     {
 #ifdef __SUNPRO_CC
 	vector<om_docid> rev;
-	for (OmMSetIterator t = mymset1.begin(); t != mymset1.end(); ++t) 
+	for (Xapian::MSetIterator t = mymset1.begin(); t != mymset1.end(); ++t) 
 	    rev.push_back(*t);
 #else
 	vector<om_docid> rev(mymset1.begin(), mymset1.end());
 #endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
 	vector<om_docid>::reverse_iterator i = rev.rbegin();
-	OmMSetIterator j = mymset3.begin();
+	Xapian::MSetIterator j = mymset3.begin();
 	for ( ; j != mymset3.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
@@ -1383,8 +1383,8 @@ static bool test_fetchdocs1()
     mymset2.fetch(mymset2.begin());
     mymset2.fetch();
 
-    OmMSetIterator it1 = mymset1.begin();
-    OmMSetIterator it2 = mymset2.begin();
+    Xapian::MSetIterator it1 = mymset1.begin();
+    Xapian::MSetIterator it2 = mymset2.begin();
 
     while(it1 != mymset1.end() && it2 != mymset2.end()) {
 	TEST_EQUAL(it1.get_document().get_data(),
@@ -1406,7 +1406,7 @@ static bool test_spaceterms1()
     OmEnquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     om_doccount count;
-    OmMSetIterator m;
+    Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
     init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("space man")));
@@ -1645,7 +1645,7 @@ static bool test_specialterms1()
     OmEnquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     om_doccount count;
-    OmMSetIterator m;
+    Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
     init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("new\nline")));
@@ -1974,8 +1974,8 @@ static bool test_termlisttermfreq1()
     rset1.add_document(5);
     rset2.add_document(6);
 
-    OmESet eset1 = enquire.get_eset(1000, rset1);
-    OmESet eset2 = enquire.get_eset(1000, rset2);
+    Xapian::ESet eset1 = enquire.get_eset(1000, rset1);
+    Xapian::ESet eset2 = enquire.get_eset(1000, rset2);
 
     // search for weight of term 'another'
     string theterm = stemmer.stem_word("another");
@@ -1983,7 +1983,7 @@ static bool test_termlisttermfreq1()
     om_weight wt1 = 0;
     om_weight wt2 = 0;
     {
-	OmESetIterator i = eset1.begin();
+	Xapian::ESetIterator i = eset1.begin();
 	for ( ; i != eset1.end(); i++) {
 	    if (*i == theterm) {
 		wt1 = i.get_weight();
@@ -1992,7 +1992,7 @@ static bool test_termlisttermfreq1()
 	}
     }
     {
-	OmESetIterator i = eset2.begin();
+	Xapian::ESetIterator i = eset2.begin();
 	for ( ; i != eset2.end(); i++) {
 	    if (*i == theterm) {
 		wt2 = i.get_weight();
@@ -2030,20 +2030,20 @@ static bool test_multiexpand1()
     // multiple text files
 
     // This is the single database one.
-    OmESet eset1 = enquire1.get_eset(1000, rset1);
+    Xapian::ESet eset1 = enquire1.get_eset(1000, rset1);
 
     // This is the multi database with approximation
-    OmESet eset2 = enquire2.get_eset(1000, rset2);
+    Xapian::ESet eset2 = enquire2.get_eset(1000, rset2);
 
     // This is the multi database without approximation
-    OmESet eset3 = enquire2.get_eset(1000, rset2, OmEnquire::use_exact_termfreq);
+    Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, OmEnquire::use_exact_termfreq);
 
     TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());
 
-    OmESetIterator i = eset1.begin();
-    OmESetIterator j = eset2.begin();
-    OmESetIterator k = eset3.begin();
+    Xapian::ESetIterator i = eset1.begin();
+    Xapian::ESetIterator j = eset2.begin();
+    Xapian::ESetIterator k = eset3.begin();
     bool all_iwts_equal_jwts = true;
     while (i != eset1.end() && j != eset2.end() && k != eset3.end()) {
 	if (i.get_weight() != j.get_weight()) all_iwts_equal_jwts = false;
@@ -3040,7 +3040,7 @@ static bool test_sortbands1()
 	Xapian::MSet mset = enquire.get_mset(0, 20);
 	om_docid prev = 0;
 	int band = 9;
-	for (OmMSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    int this_band = (i.get_percent() - 1) / 10;
 	    TEST(this_band <= band);
 	    if (this_band == band) {
@@ -3072,7 +3072,7 @@ static bool test_sortbands2()
 
 		bool ok = true;
 		int n = 0;
-		OmMSetIterator i, j;
+		Xapian::MSetIterator i, j;
 		j = allbset.begin();
 		for (i = partbset1.begin(); i != partbset1.end(); ++i) {
 		    tout << "Entry " << n << ": " << *i << " | " << *j << endl;

@@ -54,12 +54,12 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items.");
 
-    OmMSetIterator i = mset1.begin();
+    Xapian::MSetIterator i = mset1.begin();
     for (unsigned int k = 0; k < first1; ++k) {
 	++i;
     }
 
-    OmMSetIterator j = mset2.begin();
+    Xapian::MSetIterator j = mset2.begin();
     for (unsigned int k = 0; k < first2; ++k) {
 	++j;
     }
@@ -85,12 +85,12 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items." << endl);
 
-    OmMSetIterator i = mset1.begin();
+    Xapian::MSetIterator i = mset1.begin();
     for (unsigned int k = 0; k < first1; ++k) {
 	++i;
     }
 
-    OmMSetIterator j = mset2.begin();
+    Xapian::MSetIterator j = mset2.begin();
     for (unsigned int k = 0; k < first2; ++k) {
 	++j;
     }
@@ -175,7 +175,7 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 			 << "Expected order: {" << expect << "}");
     }
 
-    OmMSetIterator j = A.begin();
+    Xapian::MSetIterator j = A.begin();
     for (size_t i = 0; i < expect.size(); i++, j++) {
 	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
@@ -225,8 +225,8 @@ test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
     TEST_AND_EXPLAIN(mset1.size() == mset2.size(),
 		     "Msets not the same size - "
 		     << mset1.size() << " != " << mset2.size());
-    OmMSetIterator i = mset1.begin();
-    OmMSetIterator j = mset2.begin();
+    Xapian::MSetIterator i = mset1.begin();
+    Xapian::MSetIterator j = mset2.begin();
     for (; i != mset1.end(); i++, j++) {
 	TEST_AND_EXPLAIN(*i == *j,
 			 "Msets have different contents -\n" <<

@@ -63,6 +63,9 @@ typedef std::string om_termname;
 #define OmQuery Xapian::Query
 #define OmEnquire Xapian::Enquire
 #define OmMSet Xapian::MSet
+#define OmMSetIterator Xapian::MSetIterator
+#define OmESet Xapian::ESet
+#define OmESetIterator Xapian::ESetIterator
 //#define OmDocument Xapian::Document
 
 #define om_percent Xapian::percent

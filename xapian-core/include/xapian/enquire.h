@@ -33,131 +33,12 @@
 #include <string>
 #include <time.h> // for time_t
 
+class OmWeight;
+
 namespace Xapian {
 class Query;
 class ErrorHandler;
-class MSet;
-}
-
-class OmWeight;
-
-/** An iterator pointing to items in an MSet.
- *  This is used for access to individual results of a match.
- */
-class OmMSetIterator {
-    public:
-	friend class Xapian::MSet;
-
-	class Internal;
-	/// @internal Reference counted internals.
-	Internal *internal;
-
-        friend bool operator==(const OmMSetIterator &a,
-			       const OmMSetIterator &b);
-
-    private:
-	OmMSetIterator(Internal *internal_);
-
-    public:
-	/** Create an uninitialised iterator; this cannot be used, but is
-	 *  convenient syntactically.
-	 */
-        OmMSetIterator();
-
-        ~OmMSetIterator();
-
-	/// Copying is allowed (and is cheap).
-	OmMSetIterator(const OmMSetIterator &other);
-
-        /// Assignment is allowed (and is cheap).
-	void operator=(const OmMSetIterator &other);
-
-	/// Advance the iterator
-	OmMSetIterator & operator++();
-
-	void operator++(int);
-
-	/// Get the document ID for the current position.
-	om_docid operator *() const;
-
-	/** Get a OmDocument object for the current position.
-	 *
-	 *  This method returns a OmDocument object which provides the
-	 *  information about the document pointed to by the MSetIterator.
-	 *
-	 *  If the underlying database has suitable support, using this call
-	 *  (rather than asking the database for a document based on its
-	 *  document ID) will enable the system to ensure that the correct
-	 *  data is returned, and that the document has not been deleted
-	 *  or changed since the query was performed.
-	 *
-	 *  @param it   The OmMSetIterator for which to retrieve the data.
-	 *
-	 *  @return     A OmDocument object containing the document data.
-	 *
-	 *  @exception Xapian::DocNotFoundError The document specified could not
-	 *                                 be found in the database.
-	 */
-	OmDocument get_document() const;
-
-	/** Get the rank of the document at the current position.
-	 * 
-	 *  The rank is the position that this document is at in the ordered
-	 *  list of results of the query.  The document judged "most relevant"
-	 *  will have rank of 0.
-	 */
-        om_doccount get_rank() const;
-
-	/// Get the weight of the document at the current position
-        om_weight get_weight() const;
-
-	/** Get an estimate of the number of documents that have been collapsed
-	 *  into this one.
-	 *
-	 *  The estimate will always be less than or equal to the actual
-	 *  number of other documents satisfying the match criteria with the
-	 *  same collapse key as this document.
-	 *
-	 *  This method may return 0 even though there are other documents with
-	 *  the same collapse key which satisfying the match criteria.  However
-	 *  if this method returns non-zero, there definitely are other such
-	 *  documents.  So this method may be used to inform the user that
-	 *  there are "at least N other matches in this group", or to control
-	 *  whether to offer a "show other documents in this group" feature
-	 *  (but note that it may not offer it in every case where it would
-	 *  show other documents).
-	 */
-	om_doccount get_collapse_count() const;
-
-	/** This returns the weight of the document as a percentage score.
-	 *
-	 *  The return value will be in the range 0 to 100:  0 meaning
-	 *  that the item did not match the query at all.
-	 */
-	Xapian::percent get_percent() const;
-
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-
-	/// Allow use as an STL iterator
-	//@{	
-	typedef std::input_iterator_tag iterator_category;
-	typedef om_docid value_type;
-	typedef Xapian::doccount_diff difference_type;
-	typedef om_docid * pointer;
-	typedef om_docid & reference;
-	//@}
-};
-
-inline bool operator!=(const OmMSetIterator &a,
-		       const OmMSetIterator &b)
-{
-    return !(a == b);
-}
-
-namespace Xapian {
+class MSetIterator;
 
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
@@ -197,15 +78,15 @@ class MSet {
 	 *  The iterators must be over this Xapian::MSet: undefined behaviour
 	 *  will result otherwise.
 	 *
-	 *  @param begin   OmMSetIterator for first item to fetch.
-	 *  @param end     OmMSetIterator for item after last item to fetch.
+	 *  @param begin   MSetIterator for first item to fetch.
+	 *  @param end     MSetIterator for item after last item to fetch.
 	 */
-	void fetch(const OmMSetIterator &begin,
-		   const OmMSetIterator &end) const;
+	void fetch(const MSetIterator &begin,
+		   const MSetIterator &end) const;
 
 	/** Fetch the single item specified.
 	 */
-	void fetch(const OmMSetIterator &item) const;
+	void fetch(const MSetIterator &item) const;
 
 	/** Fetch all the items in the MSet.
 	 */
@@ -218,14 +99,14 @@ class MSet {
 	Xapian::percent convert_to_percent(om_weight wt) const;
 
 	/// Return the percentage score for a particular item.
-	Xapian::percent convert_to_percent(const OmMSetIterator &it) const;
+	Xapian::percent convert_to_percent(const MSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the term was not
-	 *             in the query.
+	 *  @exception Xapian::InvalidArgumentError is thrown if the term was
+	 *             not in the query.
 	 */
 	om_doccount get_termfreq(const std::string &tname) const;
 
@@ -233,16 +114,17 @@ class MSet {
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the term was not
-	 *             in the query.
+	 *  @exception  Xapian::InvalidArgumentError is thrown if the term was
+	 *		not in the query.
 	 */
 	om_weight get_termweight(const std::string &tname) const;
 
 	/** The index of the first item in the result which was put into the
-	 *  mset.
+	 *  MSet.
+	 *
 	 *  This corresponds to the parameter "first" specified in
-	 *  Xapian::Enquire::get_mset().  A value of 0 corresponds to the highest
-	 *  result being the first item in the mset.
+	 *  Xapian::Enquire::get_mset().  A value of 0 corresponds to the
+	 *  highest result being the first item in the mset.
 	 */
 	om_doccount get_firstitem() const;
 
@@ -303,11 +185,11 @@ class MSet {
 
 	void swap(MSet & other);
 
-	OmMSetIterator begin() const;
+	MSetIterator begin() const;
 
-	OmMSetIterator end() const;
+	MSetIterator end() const;
 
-	OmMSetIterator back() const;
+	MSetIterator back() const;
 	
 	/** This returns the document at position i in this MSet object.
 	 *
@@ -318,17 +200,16 @@ class MSet {
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
 	 */
-	OmMSetIterator operator[](om_doccount i) const;
+	MSetIterator operator[](om_doccount i) const;
 
 	/// Allow use as an STL container
 	//@{	
-	typedef std::input_iterator_tag iterator_category;
-	typedef OmMSetIterator value_type; // FIXME: not assignable...
-	typedef OmMSetIterator iterator;
-	typedef OmMSetIterator const_iterator;
-	typedef OmMSetIterator & reference; // Hmm
-	typedef OmMSetIterator & const_reference;
-	typedef OmMSetIterator * pointer; // Hmm
+	typedef MSetIterator value_type; // FIXME: not assignable...
+	typedef MSetIterator iterator;
+	typedef MSetIterator const_iterator;
+	typedef MSetIterator & reference; // Hmm
+	typedef MSetIterator & const_reference;
+	typedef MSetIterator * pointer; // Hmm
 	typedef Xapian::doccount_diff difference_type;
 	typedef om_doccount size_type;
 	//@}
@@ -339,47 +220,111 @@ class MSet {
 	std::string get_description() const;
 };
 
-}
-
-/** Iterate through terms in the ESet */
-class OmESetIterator {
-    public:
-	friend class OmESet;
-	class Internal;
-	/// @internal Reference counted internals.
-	Internal *internal;
-
-        friend bool operator==(const OmESetIterator &a,
-			       const OmESetIterator &b);
-
+/** An iterator pointing to items in an MSet.
+ *  This is used for access to individual results of a match.
+ */
+class MSetIterator {
     private:
+	friend class MSet;
+        friend bool operator==(const MSetIterator &a, const MSetIterator &b);
+        friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
 
-	OmESetIterator(Internal *internal_);
+	MSetIterator(om_doccount index_, const MSet & mset_)
+	    : index(index_), mset(mset_) { }
+
+	om_doccount index;
+	MSet mset;
 
     public:
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-        OmESetIterator();
+        MSetIterator() : index(0), mset() { }
 
-	/// Destructor
-        ~OmESetIterator();
+        ~MSetIterator() { }
 
 	/// Copying is allowed (and is cheap).
-	OmESetIterator(const OmESetIterator &other);
+	MSetIterator(const MSetIterator &other) {
+	    index = other.index;
+	    mset = other.mset;
+	}
 
         /// Assignment is allowed (and is cheap).
-	void operator=(const OmESetIterator &other);
+	void operator=(const MSetIterator &other) {
+	    index = other.index;
+	    mset = other.mset;
+	}
 
-	OmESetIterator & operator++();
+	/// Advance the iterator
+	MSetIterator & operator++() {
+	    ++index;
+	    return *this;
+	}
 
-	void operator++(int);
+	void operator++(int) {
+	    ++index;
+	}
 
-	/// Get the term for the current position
-	const std::string & operator *() const;
+	/// Get the document ID for the current position.
+	om_docid operator*() const;
 
-	/// Get the weight of the term at the current position
+	/** Get a OmDocument object for the current position.
+	 *
+	 *  This method returns a OmDocument object which provides the
+	 *  information about the document pointed to by the MSetIterator.
+	 *
+	 *  If the underlying database has suitable support, using this call
+	 *  (rather than asking the database for a document based on its
+	 *  document ID) will enable the system to ensure that the correct
+	 *  data is returned, and that the document has not been deleted
+	 *  or changed since the query was performed.
+	 *
+	 *  @param it   The MSetIterator for which to retrieve the data.
+	 *
+	 *  @return     A OmDocument object containing the document data.
+	 *
+	 *  @exception Xapian::DocNotFoundError The document specified could not
+	 *                                 be found in the database.
+	 */
+	OmDocument get_document() const;
+
+	/** Get the rank of the document at the current position.
+	 * 
+	 *  The rank is the position that this document is at in the ordered
+	 *  list of results of the query.  The document judged "most relevant"
+	 *  will have rank of 0.
+	 */
+        om_doccount get_rank() const {
+	    return mset.get_firstitem() + index;
+	}
+
+	/// Get the weight of the document at the current position
         om_weight get_weight() const;
+
+	/** Get an estimate of the number of documents that have been collapsed
+	 *  into this one.
+	 *
+	 *  The estimate will always be less than or equal to the actual
+	 *  number of other documents satisfying the match criteria with the
+	 *  same collapse key as this document.
+	 *
+	 *  This method may return 0 even though there are other documents with
+	 *  the same collapse key which satisfying the match criteria.  However
+	 *  if this method returns non-zero, there definitely are other such
+	 *  documents.  So this method may be used to inform the user that
+	 *  there are "at least N other matches in this group", or to control
+	 *  whether to offer a "show other documents in this group" feature
+	 *  (but note that it may not offer it in every case where it would
+	 *  show other documents).
+	 */
+	om_doccount get_collapse_count() const;
+
+	/** This returns the weight of the document as a percentage score.
+	 *
+	 *  The return value will be in the range 0 to 100:  0 meaning
+	 *  that the item did not match the query at all.
+	 */
+	Xapian::percent get_percent() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -388,41 +333,47 @@ class OmESetIterator {
 
 	/// Allow use as an STL iterator
 	//@{	
-	typedef std::input_iterator_tag iterator_category;
-	typedef std::string value_type;
-	typedef Xapian::termcount_diff difference_type;
-	typedef std::string * pointer;
-	typedef std::string & reference;
+	typedef std::input_iterator_tag iterator_category; // FIXME: better than input_iterator!
+	typedef om_docid value_type;
+	typedef Xapian::doccount_diff difference_type;
+	typedef om_docid * pointer;
+	typedef om_docid & reference;
 	//@}
 };
 
-inline bool
-operator!=(const OmESetIterator &a, const OmESetIterator &b)
+inline bool operator==(const MSetIterator &a, const MSetIterator &b)
 {
-    return !(a == b);
+    return (a.index == b.index);
 }
+
+inline bool operator!=(const MSetIterator &a, const MSetIterator &b)
+{
+    return (a.index != b.index);
+}
+
+class ESetIterator;
 
 /** Class representing an ordered set of expand terms (an ESet).
  *  This set represents the results of an expand operation, which is
  *  performed by Xapian::Enquire::get_eset().
  */
-class OmESet {
+class ESet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
 	Internal *internal;
 
-	/// Construct an empty OmESet
-	OmESet();
+	/// Construct an empty ESet
+	ESet();
 
 	/// Destructor.
-	~OmESet();
+	~ESet();
 
 	/// Copying is allowed (and is cheap).
-	OmESet(const OmESet & other);
+	ESet(const ESet & other);
 
         /// Assignment is allowed (and is cheap).
-	void operator=(const OmESet &other);
+	void operator=(const ESet &other);
 
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
@@ -437,17 +388,93 @@ class OmESet {
 	bool empty() const;
 
 	/** Iterator for the terms in this E-Set */
-	OmESetIterator begin() const;
+	ESetIterator begin() const;
 
 	/** End iterator corresponding to begin() */
-	OmESetIterator end() const;
+	ESetIterator end() const;
 
 	/** Introspection method.
 	 *
-	 *  @return  A string representing this OmESet.
+	 *  @return  A string representing this ESet.
 	 */
 	std::string get_description() const;
 };
+
+/** Iterate through terms in the ESet */
+class ESetIterator {
+    private:
+	friend class ESet;
+        friend bool operator==(const ESetIterator &a, const ESetIterator &b);
+        friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
+
+	ESetIterator(om_termcount index_, const ESet & eset_)
+	    : index(index_), eset(eset_) { }
+
+	om_termcount index;
+	ESet eset;
+
+    public:
+	/** Create an uninitialised iterator; this cannot be used, but is
+	 *  convenient syntactically.
+	 */
+        ESetIterator() : index(0), eset() { }
+
+        ~ESetIterator() { }
+
+	/// Copying is allowed (and is cheap).
+	ESetIterator(const ESetIterator &other) {
+	    index = other.index;
+	    eset = other.eset;
+	}
+
+        /// Assignment is allowed (and is cheap).
+	void operator=(const ESetIterator &other) {
+	    index = other.index;
+	    eset = other.eset;
+	}
+
+	/// Advance the iterator
+	ESetIterator & operator++() {
+	    ++index;
+	    return *this;
+	}
+
+	void operator++(int) {
+	    ++index;
+	}
+
+	/// Get the term for the current position
+	const std::string & operator *() const;
+
+	/// Get the weight of the term at the current position
+        om_weight get_weight() const;
+
+	/** Returns a string describing this object.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+
+	/// Allow use as an STL iterator
+	//@{	
+	typedef std::input_iterator_tag iterator_category; // FIXME: better than input_iterator!
+	typedef std::string value_type;
+	typedef Xapian::termcount_diff difference_type;
+	typedef std::string * pointer;
+	typedef std::string & reference;
+	//@}
+};
+
+inline bool operator==(const ESetIterator &a, const ESetIterator &b)
+{
+    return (a.index == b.index);
+}
+
+inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
+{
+    return (a.index != b.index);
+}
+
+}
 
 /** A relevance set (R-Set).
  *  This is the set of documents which are marked as relevant, for use
@@ -482,19 +509,19 @@ class OmRSet {
 	void add_document(om_docid did);
 	
 	/// Add a document to the relevance set.
-	void add_document(const OmMSetIterator & i) { add_document(*i); }
+	void add_document(const Xapian::MSetIterator & i) { add_document(*i); }
 
 	/// Remove a document from the relevance set.
 	void remove_document(om_docid did);
 
 	/// Remove a document from the relevance set.
-	void remove_document(const OmMSetIterator & i) { remove_document(*i); }
+	void remove_document(const Xapian::MSetIterator & i) { remove_document(*i); }
 
 	/// Test if a given document in the relevance set.
 	bool contains(om_docid did) const;
 
 	/// Test if a given document in the relevance set.
-	bool contains(const OmMSetIterator & i) { return contains(*i); }
+	bool contains(const Xapian::MSetIterator & i) { return contains(*i); }
 
 	/** Introspection method.
 	 *
@@ -727,13 +754,13 @@ class Enquire {
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *                   given term should be put in the ESet
 	 *
-	 *  @return          An OmESet object containing the results of the
+	 *  @return          An ESet object containing the results of the
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	OmESet get_eset(om_termcount maxitems,
+	ESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
 			int flags = 0,
 			double k = 1.0,
@@ -747,13 +774,13 @@ class Enquire {
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *                   given term should be put in the ESet
 	 *
-	 *  @return          An OmESet object containing the results of the
+	 *  @return          An ESet object containing the results of the
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
+	inline ESet get_eset(om_termcount maxitems, const OmRSet & omrset,
 			       const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
@@ -766,7 +793,7 @@ class Enquire {
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
-	 *  an OmMSetIterator instead of a om_docid, since this will enable
+	 *  an MSetIterator instead of a om_docid, since this will enable
 	 *  database backends with suitable support to prevent this
 	 *  occurring.
 	 *
@@ -815,10 +842,10 @@ class Enquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	Xapian::TermIterator get_matching_terms_begin(const OmMSetIterator &it) const;
+	Xapian::TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	Xapian::TermIterator get_matching_terms_end(const OmMSetIterator &it) const;
+	Xapian::TermIterator get_matching_terms_end(const MSetIterator &it) const;
 
 	/** Register an OmMatchDecider.
 	 */

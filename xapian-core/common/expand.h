@@ -59,7 +59,7 @@ class OmExpand {
         OmExpand(const OmDatabase &db_);
 
 	void expand(om_termcount max_esize,
-		    OmESet & eset,
+		    Xapian::ESet & eset,
 		    const RSet * rset,
 		    const Xapian::ExpandDecider * decider,
 		    bool use_exact_termfreq,

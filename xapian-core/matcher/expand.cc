@@ -42,7 +42,7 @@ using std::vector;
 
 class OmESetCmp {
     public:
-        bool operator()(const OmESetItem &a, const OmESetItem &b) {
+        bool operator()(const Xapian::Internal::ESetItem &a, const Xapian::Internal::ESetItem &b) {
 	    if (a.wt > b.wt) return true;
 	    if (a.wt != b.wt) return false;
 	    return a.tname > b.tname;
@@ -117,7 +117,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 
 void
 OmExpand::expand(om_termcount max_esize,
-		 OmESet & eset,
+		 Xapian::ESet & eset,
 		 const RSet * rset,
 		 const Xapian::ExpandDecider * decider,
 		 bool use_exact_termfreq,
@@ -163,7 +163,7 @@ OmExpand::expand(om_termcount max_esize,
 	    om_weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
-		eset.internal->items.push_back(OmESetItem(wt, tname));
+		eset.internal->items.push_back(Xapian::Internal::ESetItem(wt, tname));
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations

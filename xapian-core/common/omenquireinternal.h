@@ -32,17 +32,24 @@
 #include <map>
 #include <set>
 
-class Xapian::ErrorHandler;
-class Xapian::TermIterator;
+using namespace std;
 
+class OmExpand;
+
+namespace Xapian {
+
+class ErrorHandler;
+class TermIterator;
+
+namespace Internal {
+ 
 /** An item in the ESet.
  *  This item contains the termname, and the weight calculated for
  *  the document.
  */
-class OmESetItem {
+class ESetItem {
     public:
-	OmESetItem(om_weight wt_, string tname_)
-		: wt(wt_), tname(tname_) {}
+	ESetItem(om_weight wt_, string tname_) : wt(wt_), tname(tname_) { }
 	/// Weight calculated.
 	om_weight wt;
 	/// Term suggested.
@@ -51,43 +58,19 @@ class OmESetItem {
 	/** Returns a string representing the eset item.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
-};
-
-class OmESetIterator::Internal {
-    private:
-	friend class OmESetIterator; // allow access to it
-
-	std::vector<OmESetItem>::const_iterator it;
-	std::vector<OmESetItem>::const_iterator end;
-    
-    public:
-        Internal(std::vector<OmESetItem>::const_iterator it_,
-		 std::vector<OmESetItem>::const_iterator end_)
-	    : it(it_), end(end_)
-	{ }
-
-        Internal(const Internal &other)
-	    : it(other.it), end(other.end)
-	{ }
-
-	bool operator==(const OmESetIterator::Internal & other)
-	{
-	    return (it == other.it);
-	}
+	string get_description() const;
 };
 
 /** An item resulting from a query.
  *  This item contains the document id, and the weight calculated for
  *  the document.
  */
-class OmMSetItem {
-    private:
+class MSetItem {
     public:
-	OmMSetItem(om_weight wt_, om_docid did_) 
+	MSetItem(om_weight wt_, om_docid did_) 
 		: wt(wt_), did(did_), collapse_count(0) {}
 
-	OmMSetItem(om_weight wt_, om_docid did_, const string &key_)
+	MSetItem(om_weight wt_, om_docid did_, const string &key_)
 		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
 
 	/** Weight calculated. */
@@ -125,12 +108,10 @@ class OmMSetItem {
 	/** Returns a string representing the mset item.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 };
 
-class OmExpand;
-
-namespace Xapian {
+}
 
 /** Internals of enquire system.
  *  This allows the implementation of Xapian::Enquire to be hidden and reference
@@ -176,7 +157,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	std::map<std::string, const OmMatchDecider *> mdecider_map;
+	map<string, const OmMatchDecider *> mdecider_map;
 
 	mutable OmWeight * weight; // mutable so get_mset can set default
 
@@ -185,27 +166,27 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Request a document from the database.
 	 */
-	void request_doc(const OmMSetItem &item) const;
+	void request_doc(const Xapian::Internal::MSetItem &item) const;
 
 	/** Read a previously requested document from the database.
 	 */
-	OmDocument read_doc(const OmMSetItem &item) const;
+	OmDocument read_doc(const Xapian::Internal::MSetItem &item) const;
 
 	void set_query(const Query & query_);
 	const Query & get_query();
 	Xapian::MSet get_mset(om_doccount first, om_doccount maxitems,
 			const OmRSet *omrset, 
 			const OmMatchDecider *mdecider) const;
-	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
+	Xapian::ESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
 			double k, const ExpandDecider *edecider) const;
 
 	TermIterator get_matching_terms(om_docid did) const;
-	TermIterator get_matching_terms(const OmMSetIterator &it) const;
+	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
-	void register_match_decider(const std::string &name,
+	void register_match_decider(const string &name,
 				    const OmMatchDecider *mdecider);
     
-	std::string get_description() const;
+	string get_description() const;
 };
 
 class MSet::Internal : public Xapian::Internal::RefCntBase {
@@ -215,10 +196,10 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
 	/// The set of documents which have been requested but not yet
 	/// collected.
-	mutable std::set<om_doccount> requested_docs;
+	mutable set<om_doccount> requested_docs;
 
-	/// Cache of documents, indexed by rank.
-	mutable std::map<om_doccount, OmDocument> rankeddocs;
+	/// Cache of documents, indexed by MSet index.
+	mutable map<om_doccount, OmDocument> indexeddocs;
 
 	/// Read and cache the documents so far requested.
 	void read_docs() const;
@@ -241,12 +222,14 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	};
 
 	/** The term frequencies and weights returned by the match process.
-	 *  This map will contain information for each term which was in                 *  the query.
+	 * 
+	 *  This map will contain information for each term which was in
+	 *  the query.
 	 */
-	std::map<string, TermFreqAndWeight> termfreqandwts;
+	map<string, TermFreqAndWeight> termfreqandwts;
 
 	/// A list of items comprising the (selected part of the) mset.
-	std::vector<OmMSetItem> items;
+	vector<Xapian::Internal::MSetItem> items;
 
 	/// Rank of first item in Mset.
 	om_doccount firstitem;
@@ -276,8 +259,8 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	     om_doccount matches_estimated_,
 	     om_weight max_possible_,
 	     om_weight max_attained_,
-	     const std::vector<OmMSetItem> &items_,
-	     const std::map<string, TermFreqAndWeight> &termfreqandwts_,
+	     const vector<Xapian::Internal::MSetItem> &items_,
+	     const map<string, TermFreqAndWeight> &termfreqandwts_,
 	     om_weight percent_factor_)
 		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),
@@ -289,8 +272,8 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_possible(max_possible_),
 		  max_attained(max_attained_) {}
 
-	/// get a document by rank, via the cache.
-	OmDocument get_doc_by_rank(om_doccount rank) const;
+	/// get a document by index in mset, via the cache.
+	OmDocument get_doc_by_index(om_doccount index) const;
 
 	/// Converts a weight to a percentage weight
 	percent convert_to_percent_internal(om_weight wt) const;
@@ -298,52 +281,20 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 
 	/** Fetch items specified into the document cache.
 	 */
-	void fetch_items(om_doccount rank,
-			 std::vector<OmMSetItem>::const_iterator begin,
-			 std::vector<OmMSetItem>::const_iterator end) const;
+	void fetch_items(om_doccount first, om_doccount last) const;
 };
 
-}
-
-class OmMSetIterator::Internal {
-    private:
-	friend class OmMSetIterator; // allow access to it
-	friend class Xapian::MSet;
-
-	std::vector<OmMSetItem>::const_iterator it;
-	std::vector<OmMSetItem>::const_iterator end;
-
-	om_doccount currrank;
-	Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> msetdata;
-    public:
-        Internal(std::vector<OmMSetItem>::const_iterator it_,
-		 std::vector<OmMSetItem>::const_iterator end_,
-		 om_doccount currrank_,
-		 Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> msetdata_)
-	    : it(it_), end(end_), currrank(currrank_), msetdata(msetdata_)
-	{ }
-
-        Internal(const Internal &other)
-	    : it(other.it), end(other.end),
-	      currrank(other.currrank), msetdata(other.msetdata)
-	{ }
-
-	bool operator==(const OmMSetIterator::Internal & other)
-	{
-	    return (it == other.it);
-	}
-};
-
-class OmESet::Internal {
-    friend class OmESet;
+class ESet::Internal {
+    friend class ESet;
+    friend class ESetIterator;
     friend class OmExpand;
     private:
 	/// A list of items comprising the (selected part of the) eset.
-	std::vector<OmESetItem> items;
+	vector<Xapian::Internal::ESetItem> items;
 
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
@@ -357,8 +308,10 @@ class OmESet::Internal {
 	/** Returns a string representing the eset.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 };
+
+}
 
 class RSet;
 
@@ -367,17 +320,17 @@ class OmRSet::Internal {
     friend class RSet;
     friend class OmExpand;
     friend class MultiMatch;
-    friend std::string omrset_to_string(const OmRSet &omrset);
+    friend string omrset_to_string(const OmRSet &omrset);
 
     private:
 	/// Items in the relevance set.
-	std::set<om_docid> items;
+	set<om_docid> items;
 
     public:
 	/** Returns a string representing the rset.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 };
 
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

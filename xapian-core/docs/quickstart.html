@@ -515,7 +515,7 @@ setting the query with it has no effect.
 Next, we ask for the results of the search.  There is no need to tell
 Xapian to perform the search: it will do this automatically.  We use
 the <CODE>get_mset()</CODE> method to get the results, which are returned
-in an <CODE>OmMSet</CODE> object.  (MSet for Match Set)
+in an <CODE>Xapian::MSet</CODE> object.  (MSet for Match Set)
 </P>
 <P>
 <CODE>get_mset()</CODE> can take many parameters, such as a set of
@@ -524,14 +524,14 @@ but we give it the minimum; which is the first document to return (starting
 at 0 for the top ranked document), and the maximum number of documents
 to return (we specify 10 here):
 <PRE>
-    OmMSet matches = enquire.get_mset(0, 10);
+    Xapian::MSet matches = enquire.get_mset(0, 10);
 </PRE>
 </P>
 
 <H3>Displaying the results of the search</H3>
 <P>
 Finally, we display the results of the search.  The results are stored in
-a container called <CODE>items</CODE> in the <CODE>OmMSet</CODE> object,
+a container called <CODE>items</CODE> in the <CODE>Xapian::MSet</CODE> object,
 so first we display how many items are in that:
 <PRE>
     cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
@@ -540,8 +540,8 @@ so first we display how many items are in that:
 
 <P>
 Now we display some information about each of the items in the
-<CODE>OmMSet</CODE>.  We access these items using an
-<CODE>OmMSetIterator</CODE>:
+<CODE>Xapian::MSet</CODE>.  We access these items using an
+<CODE>Xapian::MSetIterator</CODE>:
 <UL><LI>
 First, we display the document ID, accessed by <CODE>*i</CODE>.
 This is not usually very useful information to give to users, but it is
@@ -561,7 +561,7 @@ object representing the returned document; then we use the
 access to the data stored in this document.
 </LI></UL>
 <PRE>
-    vector&lt;OmMSetItem&gt;::const_iterator i;
+    vector&lt;Xapian::MSetItem&gt;::const_iterator i;
     for (i = matches.begin(); i != matches.end(); i++) {
         cout &lt;&lt; "Document ID " &lt;&lt; *i &lt;&lt; "\t";
 	cout &lt;&lt; i.get_percent() &lt;&lt; "% ";

@@ -73,23 +73,23 @@ class Xapian::ErrorHandler;
 
 // Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
-typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
+typedef bool (* mset_cmp)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
 
-/// Compare an OmMSetItem, using a custom function
+/// Compare an Xapian::Internal::MSetItem, using a custom function
 class OmMSetCmp {
     private:
-	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
+	bool (* fn)(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b);
     public:
-	OmMSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
+	OmMSetCmp(bool (* fn_)(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b))
 		: fn(fn_) {}
-	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
+	bool operator()(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b) const {
 	    return fn(a, b);
 	}
 };
 
 // Comparison which sorts equally weighted MSetItems in docid order
 static bool
-msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b)
+msetcmp_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
 {
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
@@ -101,7 +101,7 @@ msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b)
 
 // Comparison which sorts equally weighted MSetItems in reverse docid order
 static bool
-msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
+msetcmp_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
 {
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
@@ -111,7 +111,7 @@ msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
 // Comparison which sorts by a value - used when sort_bands == 1.
 // If sort keys compare equal, return documents in docid order.
 static bool
-msetcmp_sort_forward(const OmMSetItem &a, const OmMSetItem &b)
+msetcmp_sort_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
 {
     // "bigger is better"
     if (a.sort_key > b.sort_key) return true;
@@ -125,7 +125,7 @@ msetcmp_sort_forward(const OmMSetItem &a, const OmMSetItem &b)
 // Comparison which sorts by a value - used when sort_bands == 1.
 // If sort keys compare equal, return documents in reverse docid order.
 static bool
-msetcmp_sort_reverse(const OmMSetItem &a, const OmMSetItem &b)
+msetcmp_sort_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
 {
     // "bigger is better"
     if (a.sort_key > b.sort_key) return true;
@@ -146,7 +146,7 @@ class MSetSortCmp {
 	    : db(db_), factor(percent_scale * bands_ / 100.0),
 	      sort_key(sort_key_), forward(forward_), bands(bands_) {
 	}
-	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
+	bool operator()(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b) const {
 	    int band_a = int(ceil(a.wt * factor));
 	    int band_b = int(ceil(b.wt * factor));
 	    if (band_a > bands) band_a = bands;
@@ -427,7 +427,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Empty result set
     om_doccount docs_matched = 0;
     om_weight greatest_wt = 0;
-    vector<OmMSetItem> items;
+    vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
     const om_weight max_weight = pl->recalc_maxweight();
@@ -461,12 +461,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
-    OmMSetItem min_item(weight_cutoff, 0);
+    Xapian::Internal::MSetItem min_item(weight_cutoff, 0);
 
     om_weight percent_factor = percent_cutoff / 100.0;
  
     // Table of keys which have been seen already, for collapsing.
-    map<string, pair<OmMSetItem,om_weight> > collapse_tab;
+    map<string, pair<Xapian::Internal::MSetItem,om_weight> > collapse_tab;
 
     /// Comparison functor for sorting MSet
     // The sort_bands == 1 case is special - then we only need to compare
@@ -521,7 +521,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (min_item.wt > 0.0) wt = pl->get_weight();
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
-	OmMSetItem new_item(wt, did);
+	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_key != om_valueno(-1) && sort_bands == 1) {
 	    OmDocument doc = db.get_document(new_item.did);
 	    new_item.sort_key = doc.get_value(sort_key);
@@ -560,7 +560,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.empty()) {
-		map<string, pair<OmMSetItem, om_weight> >::iterator oldkey;
+		map<string, pair<Xapian::Internal::MSetItem, om_weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<
@@ -569,7 +569,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
 					make_pair(new_item, om_weight(0))));
 		} else {
-		    const OmMSetItem &old_item = oldkey->second.first;
+		    const Xapian::Internal::MSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
@@ -596,7 +596,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			om_docid olddid = old_item.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key);
-			vector<OmMSetItem>::iterator i;
+			vector<Xapian::Internal::MSetItem>::iterator i;
 			for (i = items.begin(); i->did != olddid; ++i) {
 			    Assert(i != items.end());
 			}
@@ -623,7 +623,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		if (sort_bands > 1) {
 		    if (!is_heap) {
 			is_heap = true;
-			make_heap<vector<OmMSetItem>::iterator,
+			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
 		    om_weight tmp = min_item.wt;
@@ -643,7 +643,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			    pushback = false;
 		    } else {
 			if (min_item.sort_key <= new_item.sort_key) {
-			    pop_heap<vector<OmMSetItem>::iterator,
+			    pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				     OmMSetCmp>(items.begin(), items.end(),
 						mcmp);
 			    items.pop_back();
@@ -652,20 +652,20 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 #endif
 		    if (pushback) {
 			items.push_back(new_item);
-			push_heap<vector<OmMSetItem>::iterator,
+			push_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
 		} else {
 		    items.push_back(new_item);
 		    if (!is_heap) {
 			is_heap = true;
-			make_heap<vector<OmMSetItem>::iterator,
+			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    } else {
-			push_heap<vector<OmMSetItem>::iterator,
+			push_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
-		    pop_heap<vector<OmMSetItem>::iterator,
+		    pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			     OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    items.pop_back(); 
 		    if (sort_bands == 1) {
@@ -701,18 +701,18 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	            min_item.did = 0;
 		    if (!is_heap) {
 			is_heap = true;
-			make_heap<vector<OmMSetItem>::iterator,
+			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(),
 						  mcmp);
 		    }
 		    while (!items.empty() && items.front().wt < min_item.wt) {
-			pop_heap<vector<OmMSetItem>::iterator,
+			pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				 OmMSetCmp>(items.begin(), items.end(), mcmp);
 			Assert(items.back().wt < min_item.wt);
 			items.pop_back();
 		    }
 #ifdef MUS_DEBUG_PARANOID
-		    vector<OmMSetItem>::const_iterator i;
+		    vector<Xapian::Internal::MSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_item.wt);
 		    }
@@ -723,7 +723,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		if (greatest_wt >= getorrecalc_maxweight(pl)) {
 		    if (!is_heap) {
 			is_heap = true;
-			make_heap<vector<OmMSetItem>::iterator,
+			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
 		    // greatest_wt cannot now rise any further, so we now know
@@ -743,7 +743,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     if (!items.empty() && greatest_wt > 0) {
 	// Find the document with the highest weight, then total up the
 	// weights for the terms it contains
-	vector<OmMSetItem>::const_iterator best;
+	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
 	om_termcount matching_terms = 0;
@@ -786,17 +786,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    om_weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
-		make_heap<vector<OmMSetItem>::iterator,
+		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			  OmMSetCmp>(items.begin(), items.end(), mcmp);
 	    }
 	    while (!items.empty() && items.front().wt < min_wt) {
-		pop_heap<vector<OmMSetItem>::iterator,
+		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			 OmMSetCmp>(items.begin(), items.end(), mcmp);
 		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }
 #ifdef MUS_DEBUG_PARANOID
-	    vector<OmMSetItem>::const_iterator i;
+	    vector<Xapian::Internal::MSetItem>::const_iterator i;
 	    for (i = items.begin(); i != items.end(); ++i) {
 		Assert(i->wt >= min_wt);
 	    }
@@ -894,11 +894,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
 	om_weight min_wt = percent_factor / (percent_scale / 100);
-	vector<OmMSetItem>::iterator i;
+	vector<Xapian::Internal::MSetItem>::iterator i;
 	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?
 	    if (/*i->collapse_count > 0 &&*/ !i->collapse_key.empty()) {
-		map<string, pair<OmMSetItem, om_weight> >::iterator key;
+		map<string, pair<Xapian::Internal::MSetItem, om_weight> >::iterator key;
 		key = collapse_tab.find(i->collapse_key);
 		// Because we collapse, each collapse key can only occur once
 		// in the items, we remove from collapse_tab here as processed

@@ -25,7 +25,6 @@
 #ifndef OM_HGUARD_OMSTRINGSTREAM_H
 #define OM_HGUARD_OMSTRINGSTREAM_H
 
-
 // So that we can use the output functions declared here.
 #include <xapian/output.h>
 
@@ -97,9 +96,9 @@ OSTRINGSTREAMFUNC(OmDocument)
 OSTRINGSTREAMFUNC(Xapian::Query)
 OSTRINGSTREAMFUNC(OmRSet)
 OSTRINGSTREAMFUNC(Xapian::MSet)
-OSTRINGSTREAMFUNC(OmMSetIterator)
-OSTRINGSTREAMFUNC(OmESet)
-OSTRINGSTREAMFUNC(OmESetIterator)
+OSTRINGSTREAMFUNC(Xapian::MSetIterator)
+OSTRINGSTREAMFUNC(Xapian::ESet)
+OSTRINGSTREAMFUNC(Xapian::ESetIterator)
 OSTRINGSTREAMFUNC(Xapian::Enquire)
 OSTRINGSTREAMFUNC(Xapian::Stem)
 OSTRINGSTREAMFUNC(Xapian::PostListIterator)
