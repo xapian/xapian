@@ -1,3 +1,11 @@
+Tue Dec 24 19:29:27 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,backends/quartz/quartz_table.cc:
+	  Don't bother checking is position_list is empty - just delete it and
+	  let the layer below handle not having anything to delete.
+	* backends/quartz/quartz_termlist.cc,docs/todo.xml: Fixed unpacking
+	  of termlist on platforms where char is signed.
+
 Tue Dec 24 05:48:06 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Fixed double setting of position

@@ -201,11 +201,11 @@ QuartzTermList::next()
 #else
     // If there was a previous term, how much to reuse (one byte for now)
     if (!current_tname.empty()) {
-	current_tname.resize(*pos++);
+	current_tname.resize((unsigned char)(*pos++));
     }
     // What to append (note len must be positive, since just truncating
     // always takes us backwards in the sort order)
-    string::size_type len = *pos++;
+    string::size_type len = (unsigned char)(*pos++);
     current_tname.append(pos, len);
     pos += len;
 

@@ -420,7 +420,7 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 	    }
 	}
 
-	// Set the termlist.
+	// Set the termlist
 	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
@@ -585,8 +585,9 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	}
 
 	// Set the termlist.
-	// We should detect what terms have been deleted, and which ones have
-	// been added. Then we'll add/delete only those terms.
+	// We detect what terms have been deleted, and which ones have
+	// been added. Then we add/delete only those terms, then adjust
+	// the others.
 	quartz_doclen_t old_doclen;
 	{
             vector<om_termname> delTerms;
@@ -594,8 +595,9 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             vector<om_termname> posTerms;
 
 	    // First, before we modify the Postlist, we should detect the old
-	    // document length, since that seems to be of some importance later
-	    // on.
+	    // document length, since we need that to correctly update the
+	    // total length of all documents (which is used to calculate the
+	    // average document length).
 	    QuartzDatabase::RefCntPtrToThis tmp;
 	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 	    QuartzTermList termlist(ptrtothis,
@@ -690,15 +692,17 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
                 tIter.skip_to((*vIter));
                 if (tIter.positionlist_begin() == tIter.positionlist_end()) {
 		  // In the new document, this term does not have any positions
-		  // associated with it
-                  QuartzPositionList qpl;
-                  qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
-                  if (qpl.get_size() != 0) {
-		    // But there are positions associated with this term in the
-		    // index. Delete the positionlist.
-                    QuartzPositionList::delete_positionlist(buffered_tables->get_positionlist_table(), did, *tIter);
-                  }
+		  // associated with it, so delete the existing positionlist
+		  // (if any)
+                  QuartzPositionList::delete_positionlist(buffered_tables->get_positionlist_table(), did, *tIter);
                 } else {
+		  // FIXME Perhaps we should always recreate the list rather
+		  // than doing work to check if it's the same?  Unless
+		  // you're in the habit of replace docs with exact duplicates,
+		  // it may be more efficient *not* to check, and not
+		  // updating dupes is better checked for at a higher level
+		  // really (e.g. md5sums in the indexer).
+#if 1
 		  // In the new document, this term has positions associated
 		  // with it. Check whether we need to re-create the
 		  // positionlist.
@@ -719,15 +723,22 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		      buffered_tables->get_positionlist_table(), did,
 		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
                   }
+#else
+  		    QuartzPositionList::set_positionlist(
+		      buffered_tables->get_positionlist_table(), did,
+		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+#endif
                 }
                 ++vIter;
 	    }
             // All done!
 	}
-        // Set pointers from the document to the terms.
+
+        // Set the termlist
 	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
+
 	// Set the new document length
 	QuartzRecordManager::modify_total_length(
 		*(buffered_tables->get_record_table()),

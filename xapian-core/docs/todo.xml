@@ -1,4 +1,10 @@
 <todo>
+<todoitem priority="H" difficulty="1" owner="Olly" area="Tests" release="0.7">
+
+Write testcase for termlist with long term bug fixed recently (>= 128
+characters longer than previous term will do the job).
+
+</todoitem>
 <todoitem priority="H" difficulty="3" owner="Olly" area="API" release="0.7">
 
 Put Xapian into its own namespace, and

@@ -616,8 +616,8 @@ QuartzBufferedTable::delete_tag(const string &key)
     if (have_tag(key)) {
 	DEBUGLINE(DB, "decrementing entry_count - '" << key << "' deleted");
 	--entry_count;
+	changed_entries.set_tag(key, AutoPtr<string>(0));
     }
-    changed_entries.set_tag(key, AutoPtr<string>(0));
 }
 
 quartz_tablesize_t
