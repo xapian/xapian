@@ -8,3 +8,7 @@
   one in the same file(s) necessarily
 
 * by browsing CVS space, should get some understanding of domain (i.e., KDE)
+
+--
+
+* allow sorting of commits by date, not just similarity
