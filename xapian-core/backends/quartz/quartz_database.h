@@ -26,7 +26,9 @@
 #include "database.h"
 
 class QuartzDBManager;
+class QuartzModifications;
 #include <memory>
+#include "omlocks.h"
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and the Berkeley database library (version
@@ -37,9 +39,29 @@ class QuartzDBManager;
 class QuartzDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
+	/** Mutex to protect this object against concurrent access.
+	 */
+	OmLock quartz_mutex;
+
 	/** Pointer to database manager.
 	 */
 	auto_ptr<QuartzDBManager> db_manager;
+
+	/** Pointer to database modifications.
+	 */
+	auto_ptr<QuartzModifications> modifications;
+
+	/** Logfile recording database modifications.
+	 */
+	string modification_logfile;
+
+	/** Flag saying whether we're using transactions or not.
+	 */
+	bool use_transactions;
+
+	/** Flag saying whether we're readonly or not.
+	 */
+	bool readonly;
 
 	/** Create and open a quartz database.
 	 *

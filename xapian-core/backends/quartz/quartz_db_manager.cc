@@ -45,18 +45,19 @@
 /// Minor version number of required Berkeley DB library
 #define DB_DESIRED_VERSION_MINOR 1
 
-QuartzDBManager::QuartzDBManager(const OmSettings & settings, bool readonly)
+QuartzDBManager::QuartzDBManager(const OmSettings & settings,
+				 bool use_transactions,
+				 bool readonly)
 	: dbenv(DB_CXX_NO_EXCEPTIONS)
 {
     // FIXME: Make sure that environment is not in a network filesystem, eg NFS.
 
     QuartzDBManager::check_library_version();
 
-    string db_dir=settings.get_value("quartz_dir");
-    string tmp_dir=settings.get_value("quartz_tmpdir", db_dir);
-    string env_dir=settings.get_value("quartz_envdir", db_dir);
+    string db_dir  = settings.get_value("quartz_dir");
+    string tmp_dir = settings.get_value("quartz_tmpdir", db_dir);
+    string env_dir = settings.get_value("quartz_envdir", db_dir);
 
-    bool use_transactions = false;
 
     // set cache size parameters, etc, here.
 
@@ -66,7 +67,7 @@ QuartzDBManager::QuartzDBManager(const OmSettings & settings, bool readonly)
     // open environment here
     // FIXME: check return value
     dbenv.open(db_dir.c_str(),
-	       calc_env_flags(readonly, use_transactions),
+	       calc_env_flags(use_transactions, readonly),
 	       calc_mode());
 }
 
@@ -94,7 +95,7 @@ QuartzDBManager::check_library_version()
 }
 
 u_int32_t
-QuartzDBManager::calc_env_flags(bool readonly, bool use_transactions)
+QuartzDBManager::calc_env_flags(bool use_transactions, bool readonly)
 {
     u_int32_t flags = 0;
 
@@ -129,7 +130,7 @@ QuartzDBManager::calc_env_flags(bool readonly, bool use_transactions)
 }
 
 u_int32_t
-QuartzDBManager::calc_db_flags(bool readonly, bool use_transactions)
+QuartzDBManager::calc_db_flags(bool use_transactions, bool readonly)
 {
     u_int32_t flags = 0;
 

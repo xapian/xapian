@@ -59,11 +59,11 @@ class QuartzDBManager {
 
 	/** Calculate the flags required to open the database environment.
 	 */
-	static u_int32_t calc_env_flags(bool readonly, bool use_transactions);
+	static u_int32_t calc_env_flags(bool use_transactions, bool readonly);
 
 	/** Calculate the flags required to open a database.
 	 */
-	static u_int32_t calc_db_flags(bool readonly, bool use_transactions);
+	static u_int32_t calc_db_flags(bool use_transactions, bool readonly);
 
 	/** Calculate the mode that database files should be opened with.
 	 */
@@ -71,7 +71,9 @@ class QuartzDBManager {
 
 	/** Construct the manager.
 	 */
-	QuartzDBManager(const OmSettings & settings, bool readonly);
+	QuartzDBManager(const OmSettings & settings,
+			bool use_transactions,
+			bool readonly);
 
 	/** Delete the manager.
 	 */
