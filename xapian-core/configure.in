@@ -56,8 +56,8 @@ dnl Check for -fno-access-control flag to compiler.
 dnl Used in some low-level test suite stuff.
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
-SAVED_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS -fno-access-control"
+SAVED_AM_CXXFLAGS="$AM_CXXFLAGS"
+AM_CXXFLAGS="$AM_CXXFLAGS -fno-access-control"
 AC_MSG_CHECKING([for -fno-access-control])
 dnl Use AC_TRY_LINK instead of AC_TRY_COMPILE, since some compilers
 dnl ignore options they don't understand and just pass them on to ld,
@@ -65,8 +65,8 @@ dnl rather than giving an error.  (eg Solaris CC)
 AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes); [FNO_ACCESS_FLAG=yes],
 		AC_MSG_RESULT(no); [FNO_ACCESS_FLAG=no])
-CXXFLAGS="$SAVED_CXXFLAGS"
-unset SAVED_CXXFLAGS
+AM_CXXFLAGS="$SAVED_AM_CXXFLAGS"
+unset SAVED_AM_CXXFLAGS
 AC_LANG_RESTORE
 AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
 
@@ -213,8 +213,8 @@ if test x$use_pthread = xtrue; then
   ACX_PTHREAD(HAVE_PTHREAD="yes")
   if test x$HAVE_PTHREAD != x; then
     LIBS="$PTHREAD_LIBS $LIBS"
-    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+    AM_CFLAGS="$AM_CFLAGS $PTHREAD_CFLAGS"
+    AM_CXXFLAGS="$AM_CXXFLAGS $PTHREAD_CFLAGS"
     CC="$PTHREAD_CC"
   fi
 fi
@@ -281,8 +281,8 @@ RJB_FIND_STLPORT
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
-CFLAGS="$CFLAGS -D_REENTRANT -D_PTHREADS"
-CXXFLAGS="$CXXFLAGS -D_REENTRANT -D_PTHREADS"
+AM_CFLAGS="$AM_CFLAGS -D_REENTRANT -D_PTHREADS"
+AM_CXXFLAGS="$AM_CXXFLAGS -D_REENTRANT -D_PTHREADS"
 fi
 
 dnl *************************
@@ -325,13 +325,7 @@ esac], [use_mutex_errcheck=no])
 
 dnl Now set appropriate defines
 
-dnl Clear -g flag
-CFLAGS=`echo " $CFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
-CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
-
 if test "$use_debug" = yes; then
-CFLAGS="$CFLAGS -g"
-CXXFLAGS="$CXXFLAGS -g"
 AC_DEFINE(MUS_DEBUG,,
   [Define if you want debugging to be enabled (will cause some slow down)])
 fi
@@ -361,51 +355,34 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
-dnl Add -Wno-long-long to $CXXFLAGS if it's supported
+dnl Add -Wno-long-long to $AM_CXXFLAGS if it's supported
 AC_MSG_CHECKING([whether -Wno-long-long works with C++])
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
-SAVED_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS -Wno-long-long"
+SAVED_AM_CXXFLAGS="$AM_CXXFLAGS"
+AM_CXXFLAGS="$AM_CXXFLAGS -Wno-long-long"
 AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes),
-		AC_MSG_RESULT(no); [CXXFLAGS="$SAVED_CXXFLAGS"])
-unset SAVED_CXXFLAGS
+		AC_MSG_RESULT(no); [AM_CXXFLAGS="$SAVED_AM_CXXFLAGS"])
+unset SAVED_AM_CXXFLAGS
 AC_LANG_RESTORE
 
-dnl Add -Wno-long-long to $CFLAGS if it's supported
+dnl Add -Wno-long-long to $AM_CFLAGS if it's supported
 AC_MSG_CHECKING([whether -Wno-long-long works with C])
 AC_LANG_SAVE
 AC_LANG_C
-SAVED_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS -Wno-long-long"
+SAVED_AM_CFLAGS="$AM_CFLAGS"
+AM_CFLAGS="$AM_CFLAGS -Wno-long-long"
 AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes),
-		AC_MSG_RESULT(no); [CFLAGS="$SAVED_CFLAGS"])
-unset SAVED_CFLAGS
+		AC_MSG_RESULT(no); [AM_CFLAGS="$SAVED_AM_CFLAGS"])
+unset SAVED_AM_CFLAGS
 AC_LANG_RESTORE
-
-if test "$use_debug" = yes; then
-  OPT_LEVEL=""
-else
-  OPT_LEVEL="-O6"
-fi
 
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
-  changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -Wall -Wunused " | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
-  case "$CFLAGS" in
-    *${OPT_LEVEL}*) ;;
-    *) CFLAGS="$CFLAGS $OPT_LEVEL"
-  esac
-
-  CXXFLAGS=`echo "$CXXFLAGS -Wall -Wunused -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
-  case "$CXXFLAGS" in
-    *${OPT_LEVEL}*) ;;
-    *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
-  esac
-  changequote([, ])
+  AM_CFLAGS="$AM_CFLAGS -Wall -Wunused"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -fno-gnu-keywords"
 fi
 
 dnl modify flags for building with stlport
@@ -415,7 +392,7 @@ if test "x$use_stlport" = "xyes"; then
     STLPORT_CFLAGS="-nostdinc++ "
   fi
   STLPORT_CFLAGS="$STLPORT_CFLAGS $STLPORT_INCLUDE"
-  CXXFLAGS="$STLPORT_CFLAGS $CXXFLAGS"
+  AM_CXXFLAGS="$STLPORT_CFLAGS $AM_CXXFLAGS"
   LIBS="$STLPORT_LIBS $LIBS"
 fi
 AC_SUBST(STLPORT_CFLAGS)
