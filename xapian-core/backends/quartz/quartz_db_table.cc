@@ -36,36 +36,96 @@ QuartzRevisionNumber::get_description() const
 }
 
 
-static void writerevnos(FILE * fp, quartz_revision_number_t * rev1, quartz_revision_number_t * rev2)
-{
-    clearerr(fp);
-    Assert(!fseek(fp, 0, SEEK_SET));
+// FIXME: just temporary
+#include <stdio.h>
 
-    size_t bytes;
-    bytes = fwrite((void *) rev1, sizeof(quartz_revision_number_t), 1, fp);
-    if (bytes != 0) 
-	bytes = fwrite((void *) rev2, sizeof(quartz_revision_number_t), 1, fp);
-    fflush(fp);
-    if (bytes == 0) {
-	throw OmDatabaseError("Table not writeable");
+static string
+readline(FILE *fp)
+{
+    string res;
+
+    while(1) {
+	int ch = fgetc(fp);
+	if (ch == EOF) break;
+	if (ch == '\n') break;
+	if (ch == '\r') break;
+	res += string(&((char)ch), 1);
     }
+
+    return res;
 }
 
-static void readrevnos(bool readonly, FILE * fp, quartz_revision_number_t * rev1, quartz_revision_number_t * rev2)
+static void
+writefile(string filename,
+	  std::map<QuartzDbKey, QuartzDbTag> & data,
+	  quartz_revision_number_t rev)
 {
-    clearerr(fp);
-    Assert(!fseek(fp, 0, SEEK_SET));
+    FILE * fp = fopen(filename.c_str(), "w+");
 
-    size_t bytes;
-    bytes = fread((void *) rev1, sizeof(quartz_revision_number_t), 1, fp);
-    if (bytes != 0) 
-	bytes = fread((void *) rev2, sizeof(quartz_revision_number_t), 1, fp);
-    if (bytes == 0) {
-	if (readonly) throw OmOpeningError("Table not present");
-	*rev1 = 0;
-	*rev2 = 0;
-	writerevnos(fp, rev1, rev2);
+    if (fp == 0) {
+	throw OmDatabaseCorruptError(string("Can't access database: ") +
+				     strerror(errno));
     }
+
+    size_t items;
+    items = fwrite((const void *) &rev,
+		   sizeof(quartz_revision_number_t),
+		   1,
+		   fp);
+    if (items != 1) {
+	fclose(fp);
+	throw OmDatabaseCorruptError("Can't write to Quartz table (" + filename + ")" + strerror(errno));
+    }
+
+    std::map<QuartzDbKey, QuartzDbTag>::const_iterator i;
+    for (i = data.begin(); i != data.end(); i++) {
+	fprintf(fp, "%s\n%s\n",
+		i->first.value.c_str(),
+		i->second.value.c_str());
+    }
+
+    fclose(fp);
+}
+
+static void
+readfile(string filename,
+	 std::map<QuartzDbKey, QuartzDbTag> & data,
+	 quartz_revision_number_t * rev,
+	 bool readonly)
+{
+    FILE * fp = fopen(filename.c_str(), "r");
+
+    if (fp == 0) {
+	if(readonly)
+	    throw OmOpeningError("Table `" + filename + "' does not exist.");
+	*rev = 0;
+	data.clear();
+	writefile(filename, data, *rev);
+	return;
+    }
+
+    size_t items;
+    items = fread((void *) rev, sizeof(quartz_revision_number_t), 1, fp);
+    if (items != 1) {
+	fclose(fp);
+	throw OmDatabaseCorruptError("Can't open Quartz table (" + filename + ")" + strerror(errno));
+    }
+
+    while(!feof(fp)) {
+	QuartzDbKey key;
+	QuartzDbTag tag ;
+	key.value = readline(fp);
+	if (feof(fp) && key.value != "") {
+	    fclose(fp);
+	    throw OmDatabaseCorruptError("Can't open Quartz table (" + filename + ") - no tag for key `" + key.value + "': " + strerror(errno));
+	}
+
+	tag.value = readline(fp);
+	if (!feof(fp)) {
+	    data[key] = tag;
+	}
+    }
+    fclose(fp);
 }
 
 QuartzDbTable::QuartzDbTable(string path_,
@@ -76,41 +136,49 @@ QuartzDbTable::QuartzDbTable(string path_,
 {
 }
 
-bool
+void
 QuartzDbTable::open()
 {
     // FIXME implement
+    std::map<QuartzDbKey, QuartzDbTag> data1;
+    readfile(path + "data_1", data1, &revision1, readonly);
+
+    std::map<QuartzDbKey, QuartzDbTag> data2;
+    readfile(path + "data_2", data2, &revision2, readonly);
+
+    if(revision1 > revision2) {
+	data = data1;
+	revision.value = revision1;
+    } else {
+	data = data2;
+	revision.value = revision2;
+    }
 }
 
 bool
 QuartzDbTable::open(QuartzRevisionNumber revision_)
 {
     // FIXME implement
+    std::map<QuartzDbKey, QuartzDbTag> data1;
+    readfile(path + "data_1", data1, &revision1, readonly);
 
-    string filename = path + "fakefoo";
-    if (readonly) {
-	fp = fopen(filename.c_str(), "r");
+    std::map<QuartzDbKey, QuartzDbTag> data2;
+    readfile(path + "data_2", data2, &revision2, readonly);
+
+    if (revision1 ==revision_.value) {
+	data = data1;
+	revision.value = revision1;
+    } else if (revision2 == revision_.value) {
+	data = data2;
+	revision.value = revision2;
     } else {
-	fp = fopen(filename.c_str(), "a+");
+	return false;
     }
-    if (fp == 0) {
-	throw OmOpeningError("Can't open Quartz table (" + filename + ")" +
-			     strerror(errno));
-    }
-
-    quartz_revision_number_t rev1 = 0;
-    quartz_revision_number_t rev2 = 0;
-    readrevnos(readonly, fp, &rev1, &rev2);
-
-    if (rev1 != revision.value && rev2 != revision.value) {
-	throw OmOpeningError("Can't open table at revision " +
-			     revision.get_description() + ".");
-    }
+    return true;
 }
 
 QuartzDbTable::~QuartzDbTable()
 {
-    fclose(fp);
 }
 
 QuartzRevisionNumber
@@ -123,9 +191,13 @@ QuartzRevisionNumber
 QuartzDbTable::get_latest_revision_number() const
 {
     // FIXME: replace with a call to martin's code
-    quartz_revision_number_t rev1 = 0;
-    quartz_revision_number_t rev2 = 0;
-    readrevnos(readonly, fp, &rev1, &rev2);
+    std::map<QuartzDbKey, QuartzDbTag> data1;
+    quartz_revision_number_t rev1;
+    readfile(path + "data_1", data1, &rev1, readonly);
+
+    std::map<QuartzDbKey, QuartzDbTag> data2;
+    quartz_revision_number_t rev2;
+    readfile(path + "data_2", data2, &rev2, readonly);
 
     if (rev1 > rev2) return QuartzRevisionNumber(rev1);
     return QuartzRevisionNumber(rev2);
@@ -187,6 +259,19 @@ QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 {
     if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
 
+    // Find out which table is not opened
+    std::map<QuartzDbKey, QuartzDbTag> data1;
+    quartz_revision_number_t rev1;
+    readfile(path + "data_1", data1, &rev1, readonly);
+
+    std::map<QuartzDbKey, QuartzDbTag> data2;
+    quartz_revision_number_t rev2;
+    readfile(path + "data_2", data2, &rev2, readonly);
+
+    data1.clear();
+    data2.clear();
+
+
     // FIXME: replace with calls to martin's code
     {
 	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator i;
@@ -209,22 +294,17 @@ QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 		}
 	    }
 	}
+    }
 
-	quartz_revision_number_t rev1 = 0;
-	quartz_revision_number_t rev2 = 0;
-	readrevnos(readonly, fp, &rev1, &rev2);
-	    cout << revision.value << " " << rev1 << " " << rev2 << endl;
 
-	if (rev1 == revision.value) {
-	    revision = new_revision;
-	    rev2 = revision.value;
-	} else if (rev2 == revision.value) {
-	    revision = new_revision;
-	    rev1 = revision.value;
-	} else {
-	    Assert(0);
-	}
-	writerevnos(fp, &rev1, &rev2);
+    // Write data
+    if(revision.value == rev1) {
+	revision.value = new_revision.value;
+	writefile(path + "data_2", data, revision.value);
+    } else {
+	Assert(revision.value == rev2);
+	revision.value = new_revision.value;
+	writefile(path + "data_1", data, revision.value);
     }
 
     return true;

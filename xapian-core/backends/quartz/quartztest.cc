@@ -148,10 +148,15 @@ static void check_table_values_empty(const QuartzDbTable & table)
 /// Test making and playing with a QuartzDbTable
 static bool test_dbtable1()
 {
-    TEST_EXCEPTION(OmOpeningError,
-		   QuartzDbTable table0("./test_dbtable1_", true));
+    {
+	QuartzDbTable table0("./test_dbtable1_", true);
+	TEST_EXCEPTION(OmOpeningError, table0.open());
+    }
     QuartzDbTable table2("./test_dbtable1_", false);
+    table2.open();
     QuartzDbTable table1("./test_dbtable1_", true);
+    table1.open();
+
 
     QuartzRevisionNumber rev1 = table1.get_open_revision_number();
     QuartzRevisionNumber rev2 = table2.get_open_revision_number();

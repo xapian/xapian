@@ -1,3 +1,9 @@
+Tue Sep 26 18:17:38 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added dummy implementation of quartz tables, storing stuff in
+	  files and reading it all into memory, pretending its in a tree
+	  structure.
+
 Tue Sep 26 18:17:11 BST 2000 Olly Betts
 
 	* Removed superfluous MergePostList:: qualification.
