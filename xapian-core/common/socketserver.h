@@ -66,9 +66,6 @@ class SocketServer : public NetServer {
 	/// The gatherer we can use to get local statistics
 	NetworkStatsGatherer *gatherer;
 
-	/// The multimatch object used
-	MultiMatch match;
-
 	/// Locally cached global statistics
 	Stats global_stats;
 

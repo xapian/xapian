@@ -31,6 +31,8 @@
 #include <memory>
 #include <strstream.h>
 #include <signal.h>
+#include <cerrno>
+#include <cstring>
 #include <unistd.h>
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
@@ -42,8 +44,6 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 	  buf(readfd, writefd),
 	  conversation_state(conv_ready),
 	  gatherer(0),
-	  match(db_.get(),
-		auto_ptr<StatsGatherer>(gatherer = new NetworkStatsGatherer(this))),
 	  have_global_stats(0)
 {
     // ignore SIGPIPE - we check return values instead, and that
@@ -82,6 +82,10 @@ void
 SocketServer::run()
 {
     while (1) {
+	MultiMatch match(db.get(),
+			 auto_ptr<StatsGatherer>(gatherer =
+				new NetworkStatsGatherer(this)));
+
 	string message;
 
 	// Message 3 (see README_progprotocol.txt)

@@ -1,3 +1,7 @@
+Tue May 23 12:18:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* SocketServer now correctly handles more than one query.
+
 Tue May 23 12:00:38 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a NetworkTermList object.  Currently a fair way from working
