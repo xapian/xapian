@@ -54,13 +54,13 @@
  *  - m36_heavyduty : true for 3 byte offset form, false for older 2 byte form.
  *    Only used by da backend - db backend autodetects. (default true)
  *
- *  network backend:
+ *  remote backend:
  *
- *  - network_type : "prog" or "tcp"
- *  - network_program
- *  - network_args
- *  - network_server
- *  - network_port
+ *  - remote_type : "prog" or "tcp"
+ *  - remote_program
+ *  - remote_args
+ *  - remote_server
+ *  - remote_port
  *
  *  quartz backend:
  *
