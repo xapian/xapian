@@ -12,6 +12,17 @@ well" - a previous version of the software powered BrightStation's Webtop
 search engine, which offered a search over around 500 million web pages (around
 1.5 terabytes of database files).  Searches took less than a second.
 
+<H2>Benchmarking</H2>
+
+<P>One effect to be aware of when designing benchmarks is that queries will be
+a lot slower when nothing is cached.  So the first few queries on a database
+which hasn't been searched recently will be unrepresentatively slow compared to
+the typical case.</P>
+
+<P>In real use, pretty much all the non-leaf blocks from the B-trees being used
+for the search will be cached pretty quickly, as well as many commonly used
+leaf blocks.</P>
+
 <H2>General Scalability Considerations</H2>
 
 <P>In a large search application, I/O will end up being

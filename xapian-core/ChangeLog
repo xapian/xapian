@@ -1,3 +1,8 @@
+Mon Sep 27 16:01:37 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/scalability.html: Added note warning about benchmarking from
+	  cold.
+
 Mon Sep 27 15:20:13 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Note that we use doxygen 1.3.8 for snapshots and releases;
