@@ -136,6 +136,73 @@ pack_uint(T value)
     return result;
 }
 
+/** Reads an unsigned integer from a string starting at a given position.
+ *  This encoding requires that we know the encoded length from out-of-band
+ *  information (so is suitable when only one integer is encoded, or for
+ *  the last integer encoded).
+ *
+ *  @param src       A pointer to a pointer to the data to read.
+ *  @param src_end   A pointer to the byte after the end of the data to
+ *                   read the integer from.
+ *  @param resultptr A pointer to a place to store the result.  If an
+ *                   error occurs, the value stored in this location is
+ *                   undefined.  If this pointer is 0, the result is not
+ *                   stored, and the method simply skips over the result.
+ *
+ *  @result True if an integer was successfully read.  False if the read
+ *          failed.  Failure can hapen if the value read overflows
+ *          the size of result.
+ */
+template<class T>
+bool
+unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
+{
+    // Check unsigned
+    CASSERT((T)(-1) > 0);
+    // Check byte is what it's meant to be
+    CASSERT(sizeof(om_byte) == 1);
+
+    if (src_end - *src > sizeof(T)) {
+	// Would overflow
+	*src = src_end;
+	return false;
+    }
+
+    T result = 0;
+    int shift = 0;
+    while (*src != src_end) {
+	result |= static_cast<T>(static_cast<om_byte>(**src)) << shift;
+	++(*src);
+	shift += 8;
+    }
+    *resultptr = result;
+    return true;
+}
+
+/** Generates a packed representation of an integer.
+ *  This encoding requires that we know the encoded length from out-of-band
+ *  information (so is suitable when only one integer is encoded, or for
+ *  the last integer encoded).
+ *
+ *  @param value  The integer to represent.
+ *
+ *  @result       A string containing the representation of the integer.
+ */
+template<class T>
+string
+pack_uint_last(T value)
+{
+    // Check unsigned
+    CASSERT((T)(-1) > 0);
+
+    string result;
+    while (value) {
+        result += (char)value;
+	value >>= 8;
+    }
+    return result;
+}
+
 /** Generate a packed representation of an integer, preserving sort order.
  *
  *  This representation is less compact than the usual one, and has a limit
@@ -318,20 +385,13 @@ pack_bool(bool value)
 #include "quartz_table_entries.h"
 #include "om/omtypes.h"
 
-/** Convert a document id to a key.
- *
- * This key encoding works when the key consists of just the docid, since the
- * encoding doesn't include its own length...
+/** Convert a document id to a key (suitable when the docid is the only
+ *  component of the key).
  */
 inline string
 quartz_docid_to_key(om_docid did)
 {
-    string r;
-    while (did) {
-        r += (char)did;
-	did >>= 8;
-    }
-    return r;
+    return pack_uint_last(did);
 }
 
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */

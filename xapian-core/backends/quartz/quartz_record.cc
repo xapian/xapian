@@ -55,7 +55,7 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
     DEBUGCALL_STATIC(DB, om_doccount, "QuartzRecordManager::get_doccount", "[table]");
     // Check that we can't overflow (the unsigned test is actually too
-    // strict as we can typucally assign an unsigned short to a signed long,
+    // strict as we can typically assign an unsigned short to a signed long,
     // but this shouldn't actually matter here).
     CASSERT(sizeof(om_doccount) >= sizeof(quartz_tablesize_t));
     CASSERT((om_doccount)(-1) > 0);
@@ -81,10 +81,7 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	if (!unpack_uint(&data, end, &did)) {
 	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
-	if (!unpack_uint(&data, end, &totlen)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-	if (data != end) {
+	if (!unpack_uint_last(&data, end, &totlen)) {
 	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	++did;
@@ -93,7 +90,7 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	}
     }
     *tag = pack_uint(did);
-    *tag += pack_uint(totlen);
+    *tag += pack_uint_last(totlen);
 
     RETURN(did);
 }
@@ -142,10 +139,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 	if (!unpack_uint(&data, end, &did)) {
 	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
-	if (!unpack_uint(&data, end, &totlen)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-	if (data != end) {
+	if (!unpack_uint_last(&data, end, &totlen)) {
 	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
     }
@@ -160,7 +154,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 	throw OmRangeError("New total document length is out of range.");
 
     *tag = pack_uint(did);
-    *tag += pack_uint(newlen);
+    *tag += pack_uint_last(newlen);
 }
 
 // FIXME: probably want to cache the average length (but not miss updates)
@@ -181,10 +175,7 @@ QuartzRecordManager::get_avlength(QuartzTable & table)
     if (!unpack_uint(&data, end, &did)) {
 	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
     }
-    if (!unpack_uint(&data, end, &totlen)) {
-	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
-    }
-    if (data != end) {
+    if (!unpack_uint_last(&data, end, &totlen)) {
 	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
     }
     RETURN((double)totlen / docs);
