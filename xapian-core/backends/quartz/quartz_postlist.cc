@@ -1108,7 +1108,34 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	if (!is_last_chunk ||
 	    !(last_did_in_chunk < new_did)) {
 	    // Add in middle of postlist.
-	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
+	    keypos = cursor->current_key.value.data();
+	    keyend = keypos + cursor->current_key.value.size();
+            if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+               /* Postlist for this termname doesn't exist. */
+	       return;
+            }
+            PostlistChunkReader from(keypos, keyend, tag->value);
+            PostlistChunkWriter to(cursor->current_key, (keypos == keyend), tname,
+			   from.get_collectionfreq(),
+			   from.get_is_last_chunk(),
+			   from.get_number_of_entries());
+            while ((!from.is_at_end()) && (from.get_docid() < new_did))
+            {
+                to.append(from.get_docid(),
+	  	      from.get_wdf(),
+		      from.get_doclength());
+	        from.next();
+            }
+            to.append(new_did, new_wdf, new_doclen);
+            while (!from.is_at_end())
+            {
+                to.append(from.get_docid(),
+	  	      from.get_wdf(),
+		      from.get_doclength());
+	        from.next();
+            }
+            to.write_to_disk(bufftable);
+//	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
 	} else {
 	    // Append
 	    if (tag->value.size() > chunksize) {
