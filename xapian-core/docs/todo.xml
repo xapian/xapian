@@ -20,12 +20,6 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmDocument" release="0.9">
-
-Test behaviour of add_posting(), remove_posting(), add_term() and set_wdf(),
-particularly on the value of the wdf.
-
-</todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
 
 Check behaviour when positionlists are empty, particularly in quartz.
