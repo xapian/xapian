@@ -299,7 +299,7 @@ LocalMatch::set_rset(const OmRSet & omrset)
 // Optimise query by building tree carefully.
 PostList *
 LocalMatch::postlist_from_queries(OmQuery::op op,
-				  const std::vector<const OmQueryInternal *> &queries,
+				  const std::vector<OmQueryInternal *> &queries,
 				  om_termcount window)
 {
     Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND || op == OmQuery::OP_NEAR ||

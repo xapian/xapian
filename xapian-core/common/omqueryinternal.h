@@ -48,7 +48,7 @@ class OmQueryInternal {
 	OmQuery::op op;
 
 	/// The container type for storing pointers to subqueries
-	typedef std::vector<const OmQueryInternal *> subquery_list;
+	typedef std::vector<OmQueryInternal *> subquery_list;
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;

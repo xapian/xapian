@@ -5,4 +5,4 @@ libomusinclude_HEADERS = om.h \
 omstem.h \
 omerror.h omtypes.h omenquire.h omdocument.h \
 omdatabase.h omindexdoc.h omsettings.h omoutput.h \
-ompostlistiterator.h
+ompostlistiterator.h ompositionlistiterator.h

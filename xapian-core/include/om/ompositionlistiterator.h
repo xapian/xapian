@@ -1,4 +1,4 @@
-/* ompostlistiterator.h
+/* ompositionlistiterator.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,48 +20,42 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMPOSTLISTITERATOR_H
-#define OM_HGUARD_OMPOSTLISTITERATOR_H
+#ifndef OM_HGUARD_OMPOSITIONLISTITERATOR_H
+#define OM_HGUARD_OMPOSITIONLISTITERATOR_H
 
 //#include <iterator>
 #include "omtypes.h"
 
 class OmDatabase;
-class OmPositionListIterator;
 
-class OmPostListIterator {
-    //    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
+class OmPositionListIterator {
+    //    : public iterator<input_iterator_tag, om_termpos, om_termpos, const om_termpos *, om_termpos> {
     private:
-	friend class OmDatabase; // So OmDatabase can construct us
+	friend class OmPostListIterator; // So OmPostListIterator can construct us
 
 	class Internal;
 
 	Internal *internal; // reference counted internals
 
-        friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
+        friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 
-	OmPostListIterator(Internal *internal_) {
+	OmPositionListIterator(Internal *internal_) {
 	    internal = internal_;
 	}
 
     public:
-        ~OmPostListIterator();
+        ~OmPositionListIterator();
 
-	OmPostListIterator operator=(OmPostListIterator &o);
+	OmPositionListIterator operator=(OmPositionListIterator &o);
     
-	const om_docid operator *();
+	const om_termpos operator *();
 
-	OmPostListIterator & operator++();
+	OmPositionListIterator & operator++();
 
-	OmPostListIterator operator++(int);
+	OmPositionListIterator operator++(int);
 
 	// extra method, not required for an input_iterator
-	OmPostListIterator skip_to(om_docid did);
-
-    	// allow iteration of positionlist for current term
-	OmPositionListIterator positionlist_begin();
-
-	OmPositionListIterator positionlist_end();
+	OmPositionListIterator skip_to(om_termpos pos);
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -69,4 +63,4 @@ class OmPostListIterator {
 	std::string get_description() const;
 };
 
-#endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */
+#endif /* OM_HGUARD_OMPOSITIONLISTITERATOR_H */

@@ -1,8 +1,14 @@
+Sun Sep 03 15:58:07 BST 2000 Olly Betts
+
+	* Implemented OmPositionListIterator.
+	
+	* Fixed up operator== on OmPostListIterator.
+
+	* Updated delve to use new Om*Iterator classes.
+
 Sun Sep 03 13:06:31 BST 2000 Olly Betts
 
 	* Added OmPostListIterator::get_description method.
-	
-	* Added missing const in OmQuery.cc.
 
 	* Fixed maxorterms1 test to work with da backend.
 

@@ -23,12 +23,10 @@
 #include <stdio.h>
 
 #include <om/om.h>
-#include <om/omstem.h>
 
 #include "../common/database.h"
-#include "../common/postlist.h"
 #include "../common/termlist.h"
-#include "../common/leafpostlist.h"
+#include "../common/postlist.h"
 
 #include <vector>
 #include <stack>
@@ -72,8 +70,7 @@ main(int argc, char *argv[])
 	OmSettings params;
 	params.set("backend", "auto");
 	params.set("auto_dir", argv[0]);
-	DatabaseBuilder dbb;
-	IRDatabase *db = dbb.create(params, true);
+	OmDatabase db(params);
 
 	if (!term.empty()) {
 	    OmStem stemmer("english");
@@ -82,44 +79,48 @@ main(int argc, char *argv[])
 	    } else {
 		term = stemmer.stem_word(term);
 	    }
-	    if (!db->term_exists(term)) {
+#if 0
+	    if (!db.term_exists(term)) {
 		cout << "term `" << term << "' not in database\n";
 		exit(0);
 	    }
-	    LeafPostList *plist = db->open_post_list(term);
+#endif
+	    OmPostListIterator p = db.postlist_begin(term);
+	    OmPostListIterator pend = db.postlist_end(term);
 	    if (recno == 0) {
 		cout << "Posting List for term `" << term << "':";
-		plist->next(0);
-		while (!plist->at_end()) {
-		    cout << ' ' << plist->get_docid();
-		    plist->next(0);
+		while (p != pend) {
+		    cout << ' ' << *p;
+		    p++;
 		}
 		cout << endl;
 	    } else {
-		plist->skip_to(recno, 0);
-		if (plist->at_end() || plist->get_docid() != recno) {
+		p.skip_to(recno);
+		if (p == pend || *p != recno) {
 		    cout << "term `" << term << "' doesn't index document #"
 			 << recno << endl;
 		    exit(0);
 		}
 		cout << "Position List for term `" << term
 		     << "', record #" << recno << ':';
-		PositionList *pl = plist->get_position_list();
-		pl->next();
-		while (!pl->at_end()) {
-		    cout << ' ' << pl->get_position();
-		    pl->next();
+		OmPositionListIterator pos = p.positionlist_begin();
+		OmPositionListIterator posend = p.positionlist_end();
+		while (pos != posend) {
+		    cout << ' ' << *pos;
+		    pos++;
 		}
 		cout << endl;
 	    }
 	} else {
-	    LeafTermList *t = db->open_term_list(recno);
+#if 0
+	    LeafTermList *t = db.open_term_list(recno);
 	    cout << "Term List for record #" << recno << ':';
 	    t->next();
 	    while (!t->at_end()) {
 		cout << ' ' << t->get_termname();
 		t->next();
 	    }
+#endif
 	    cout << endl;
 	}
     }

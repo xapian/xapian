@@ -21,7 +21,9 @@
  */
 
 #include "om/ompostlistiterator.h"
+#include "om/ompositionlistiterator.h"
 #include "ompostlistiteratorinternal.h"
+#include "ompositionlistiteratorinternal.h"
 #include "postlist.h"
 #include "omassert.h"
 
@@ -54,6 +56,18 @@ OmPostListIterator::skip_to(om_docid did) {
     return *this;
 }    
 
+OmPositionListIterator
+OmPostListIterator::positionlist_begin()
+{
+    return OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list()));
+}
+
+OmPositionListIterator
+OmPostListIterator::positionlist_end()
+{
+    return OmPositionListIterator(NULL);
+}
+
 std::string
 OmPostListIterator::get_description() const
 {
@@ -67,6 +81,7 @@ OmPostListIterator::get_description() const
 bool
 operator==(const OmPostListIterator &a, const OmPostListIterator &b)
 {
-    return (a.internal->postlist->at_end() && b.internal->postlist->at_end());
+    return (a.internal == b.internal ||
+	    a.internal->postlist->at_end() && b.internal->postlist->at_end());
 }
 

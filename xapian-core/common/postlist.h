@@ -93,7 +93,7 @@ class PostList : public OmRefCntBase
 	 */
 	virtual om_doclength get_doclength() const = 0;
 
-	// recalculate weights (used when tree has been autopruned)
+	/// Recalculate weights (used when tree has been autopruned)
         virtual om_weight recalc_maxweight() = 0;
 
 	/** Get the within document frequency of this postlist.
