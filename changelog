@@ -1,3 +1,10 @@
+xapian-core (0.8.2-3) unstable; urgency=low
+
+  * Make libxapian3 conflict with libxapian2, because libxapian2 version
+    0.8.1-1 actually contained libxapian.so.3 (which was a bug).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 17:34:43 +0100
+
 xapian-core (0.8.2-2) unstable; urgency=low
 
   * Oops - library version number should be 3.  Changed it back,
