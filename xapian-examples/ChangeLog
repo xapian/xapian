@@ -1,3 +1,7 @@
+Fri May 03 16:23:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated wrt key->value change in xapian-core.
+
 Thu May 02 16:02:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated to reflect removal of OmData.

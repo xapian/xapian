@@ -22,13 +22,15 @@
  */
 
 #include <om/om.h>
+using std::cout;
+using std::endl;
 
 int main(int argc, char *argv[])
 {
     // Simplest possible options parsing: we just require two parameters.
-    if(argc != 3) {
-	std::cout << "usage: " << argv[0] <<
-		" <path to database> <file to index>" << std::endl;
+    if (argc != 3) {
+	cout << "usage: " << argv[0] <<
+		" <path to database> <file to index>" << endl;
 	exit(1);
     }
     
@@ -57,25 +59,25 @@ int main(int argc, char *argv[])
 	indexer.set_input(filename);
 	OmDocument newdocument = indexer.get_output();
 
-	std::cout << "Document data: " << newdocument.get_data() << std::endl;
-	std::cout << "Document keys: " << std::endl;
-	for (OmKeyListIterator i = newdocument.keylist_begin();
-	     i != newdocument.keylist_end();
+	cout << "Document data: " << newdocument.get_data() << endl;
+	cout << "Document values: " << endl;
+	for (OmValueIterator i = newdocument.values_begin();
+	     i != newdocument.values_end();
 	     ++i) {
-	    std::cout << "\t" << i.get_keyno() << "\t" << *i << std::endl;
+	    cout << "\t" << i.get_valueno() << "\t" << *i << endl;
 	}
 
-	std::cout << "Document terms: " << std::endl;
+	cout << "Document terms: " << endl;
 	for (OmTermIterator i = newdocument.termlist_begin();
 	     i != newdocument.termlist_end();
 	     ++i) {
-	    std::cout << "\t" << *i << " [" << i.get_wdf() << "]" << std::endl;
+	    cout << "\t" << *i << " [" << i.get_wdf() << "]" << endl;
 	}
 
 	// Add the document to the database
 	database.add_document(newdocument);
     }
     catch(OmError &error) {
-	std::cout << error.get_type() << ": "  << error.get_msg() << std::endl;
+	cout << error.get_type() << ": "  << error.get_msg() << endl;
     }
 }
