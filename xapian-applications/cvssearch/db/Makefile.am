@@ -10,7 +10,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h lines_db.C lines_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch cvsrelatedindex cvsrelatedsearch
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch cvsfileindex cvsfilesearch cvsrelatedindex cvsrelatedsearch
 
 LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 
@@ -49,6 +49,14 @@ cvscommitindex_SOURCES =   cvscommitindex.C
 cvscommitindex_LDADD = $(LIBS)
 cvscommitindex_LDFLAGS = $(FLAGS)
 
+
+cvsfilesearch_SOURCES =  cvsfilesearch.C
+cvsfilesearch_LDFLAGS = $(FLAGS)
+cvsfilesearch_LDADD = $(LIBS)
+
+cvsfileindex_SOURCES =   cvsfileindex.C
+cvsfileindex_LDADD = $(LIBS)
+cvsfileindex_LDFLAGS = $(FLAGS)
 
 cvsrelatedsearch_SOURCES =  cvsrelatedsearch.C
 cvsrelatedsearch_LDFLAGS = $(FLAGS)
