@@ -248,16 +248,24 @@ class BackendManager {
 	/// The current get_database member function
 	getdb_func do_getdb;
 
+	/// Throw an exception.
+	OmDatabase getdb_void(const string &dbname1,
+			      const string &dbname2);
+
+	/// Get a net database instance
+	OmDatabase getdb_net(const string &dbname1,
+			     const string &dbname2);
+
 	/// Get an inmemory database instance.
 	OmDatabase getdb_inmemory(const string &dbname1,
 				  const string &dbname2);
 
-	/// Get an inmemory database instance.
+	/// Get a sleepy database instance.
 	OmDatabase getdb_sleepy(const string &dbname1,
 				const string &dbname2);
     public:
 	/// Constructor - set up default state.
-	BackendManager() : do_getdb(&getdb_inmemory) {};
+	BackendManager() : do_getdb(&getdb_void) {};
 
 	/** Set the database type to use.
 	 *
@@ -278,9 +286,18 @@ void BackendManager::set_dbtype(const string &type)
 	do_getdb = &getdb_inmemory;
     } else if (type == "sleepycat") {
 	do_getdb = &getdb_sleepy;
+    } else if (type == "net") {
+	do_getdb = &getdb_net;
+    } else if (type == "void") {
+	do_getdb = &getdb_void;
     } else {
 	throw OmInvalidArgumentError("Expected inmemory or sleepy");
     }
+}
+
+OmDatabase BackendManager::getdb_void(const string &, const string &)
+{
+    throw OmInvalidArgumentError("Attempted to open a disabled database");
 }
 
 OmDatabase BackendManager::getdb_inmemory(const string &dbname1,
@@ -367,6 +384,12 @@ OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
 	// open a non-existant database
 	return OmDatabase("sleepycat", make_strvec(dbdir));
     }
+}
+
+OmDatabase BackendManager::getdb_net(const string &dbname1,
+				     const string &dbname2)
+{
+    return getdb_void(dbname1, dbname2);
 }
 
 OmDatabase BackendManager::get_database(const string &dbname1,
@@ -1949,9 +1972,8 @@ bool test_rsetmultidb2()
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
-test_desc tests[] = {
-    {"trivial",            test_trivial},
-    // {"alwaysfail",       test_alwaysfail},
+/// The tests which don't use any of the backends
+test_desc db_tests[] = {
     {"zerodocid", 	   test_zerodocid},
     {"simplequery1",       test_simplequery1},
     {"simplequery2",       test_simplequery2},
@@ -1959,7 +1981,6 @@ test_desc tests[] = {
     {"multidb1",           test_multidb1},
     {"multidb2",           test_multidb2},
     {"changequery1",	   test_changequery1},
-    {"nullquery1",	   test_nullquery1},
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},
@@ -1973,26 +1994,34 @@ test_desc tests[] = {
     {"collapsekey1",	   test_collapsekey1},
     {"reversebool1",	   test_reversebool1},
     {"reversebool2",	   test_reversebool2},
-    {"getqterms1",	   test_getqterms1},
     {"getmterms1",	   test_getmterms1},
-    {"boolsubq1",	   test_boolsubq1},
     {"absentfile1",	   test_absentfile1},
-    {"querylen1",	   test_querylen1},
-    {"querylen2",	   test_querylen2},
-    {"querylen3",	   test_querylen3},
     {"poscollapse1",	   test_poscollapse1},
-    {"subqcollapse1",	   test_subqcollapse1},
     {"batchquery1",	   test_batchquery1},
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
     {"absentterm2",	   test_absentterm2},
-    {"emptyquerypart1",    test_emptyquerypart1},
     {"multidb3",           test_multidb3},
     {"multidb4",           test_multidb4},
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
+    {0, 0}
+};
+
+/// The tests which use a backend
+test_desc nodb_tests[] = {
+    {"trivial",            test_trivial},
+    // {"alwaysfail",       test_alwaysfail},
+    {"nullquery1",	   test_nullquery1},
+    {"getqterms1",	   test_getqterms1},
+    {"boolsubq1",	   test_boolsubq1},
+    {"querylen1",	   test_querylen1},
+    {"querylen2",	   test_querylen2},
+    {"querylen3",	   test_querylen3},
+    {"subqcollapse1",	   test_subqcollapse1},
+    {"emptyquerypart1",    test_emptyquerypart1},
     {0, 0}
 };
 
@@ -2009,20 +2038,36 @@ int main(int argc, char *argv[])
     test_driver::result summary = {0, 0};
     test_driver::result sum_temp;
     
+    backendmanager.set_dbtype("void");
+    cout << "Running tests with no backend..." << endl;
+    result = test_driver::main(argc, argv, nodb_tests, &summary);
+
+#if defined(MUS_BUILD_BACKEND_INMEMORY)
     backendmanager.set_dbtype("inmemory");
     cout << "Running tests with inmemory backend..." << endl;
-    result = test_driver::main(argc, argv, tests, &summary);
+    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+#endif
 
 #if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
+    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+#endif
+
+#if 0 && defined(MUS_BUILD_BACKEND_NET)
+    backendmanager.set_dbtype("net");
+    cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
+#endif
 
     cout << argv[0] << " total: " << summary.succeeded << " passed, "
 	 << summary.failed << " failed." << endl;
-#endif
 
     return result;
 }

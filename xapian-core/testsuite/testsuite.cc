@@ -286,7 +286,7 @@ int test_driver::main(int argc,
 	*summary = myresult;
     }
 
-    cout << argv[0] << " finished: "
+    cout << argv[0] << " completed test run: "
          << myresult.succeeded << " tests passed, "
 	 << myresult.failed << " failed."
 	 << endl;

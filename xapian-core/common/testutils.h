@@ -29,94 +29,29 @@
 // ######################################################################
 // Useful display operators
 
-inline ostream &
-operator<<(ostream &os, const OmMSetItem &mitem)
-{
-    os << mitem.wt << " " << mitem.did;
-    return os;
-}
+ostream &operator<<(ostream &os, const OmMSetItem &mitem);
 
-inline ostream &
-operator<<(ostream &os, const OmMSet &mset)
-{
-    copy(mset.items.begin(), mset.items.end(),
-	 ostream_iterator<OmMSetItem>(os, "\n"));
-    return os;
-}
+ostream &operator<<(ostream &os, const OmMSet &mset);
 
-inline ostream &
-operator<<(ostream &os, const OmESetItem &item)
-{
-    cout << item.tname;
-    return os;
-}
+ostream &operator<<(ostream &os, const OmESetItem &item);
 
-inline ostream &
-operator<<(ostream &os, const vector<unsigned int> &ints)
-{
-    copy(ints.begin(), ints.end(),
-	 ostream_iterator<unsigned int>(os, ", "));
-    return os;
-}
+ostream &operator<<(ostream &os, const vector<unsigned int> &ints);
 
 
 // ######################################################################
 // Useful comparison operators
 
-inline bool
+bool
 mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 		   const OmMSet &mset2, unsigned int first2,
-		   unsigned int count)
-{
-    TEST_AND_EXPLAIN(mset1.items.size() >= first1 + count - 1,
-		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items." << endl);
+		   unsigned int count);
 
-    TEST_AND_EXPLAIN(mset2.items.size() >= first2 + count - 1,
-		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items." << endl);
-
-    for (unsigned int i=0; i<count; ++i) {
-	if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
-	    (mset1.items[first1+i].did != mset2.items[first2+i].did)) {
-	    return false;
-	}
-    }
-    return true;
-}
-
-inline bool
+bool
 mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 			   const OmMSet &mset2, unsigned int first2,
-			   unsigned int count)
-{   
-    TEST_AND_EXPLAIN(mset1.items.size() >= first1 + count - 1,
-		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items." << endl);
+			   unsigned int count);
 
-    TEST_AND_EXPLAIN(mset2.items.size() >= first2 + count - 1,
-		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items." << endl);
-
-
-    for (unsigned int i=0; i<count; ++i) {
-	if (mset1.items[first1+i].wt != mset2.items[first2+i].wt) {
-	    return false;
-	}
-    }
-    return true;
-}
-
-bool operator==(const OmMSet &first, const OmMSet &second)
-{   
-    if ((first.mbound != second.mbound) ||
-	(first.max_possible != second.max_possible) ||
-	(first.items.size() != second.items.size())) {
-	return false;
-    }
-    if(first.items.size() == 0) return true;
-    return mset_range_is_same(first, 0, second, 0, first.items.size());
-}
+bool operator==(const OmMSet &first, const OmMSet &second);
 
 
 // ######################################################################

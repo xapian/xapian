@@ -1,3 +1,11 @@
+Mon May 22 15:31:12 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved inline functions from testutils.h to testutils.cc
+
+	* Separated out the non-backend-using tests from apitest to
+	  avoid running them more than once when more than one backend
+	  is compiled in.
+
 Mon May 22 14:53:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* FAIL_TEST macro in testsuite.h now takes notice of the verbose
