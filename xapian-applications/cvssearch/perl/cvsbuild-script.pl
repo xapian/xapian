@@ -5,10 +5,11 @@ use Cvssearch;
 # check for existence of programs used in this script
 # if not found, exit.
 # ------------------------------------------------------------
-my $cvsindex = "./cvsindex";
-my $cvsmap = "./cvsmap";
 my $pwd = `pwd`;
 chomp $pwd;
+
+my $cvsindex = "$pwd/cvsindex";
+my $cvsmap = "$pwd/cvsmap";
 
 if (not (-x $cvsindex)) {
     print STDERR "WARNING: a program used in this script called cvsindex is not found.\n";
