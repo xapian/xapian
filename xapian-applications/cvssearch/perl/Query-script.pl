@@ -564,8 +564,8 @@ if($query && ($query ne "")){
 	print "</font>";
 	close STORE;
 	system("chmod 777 $cache/$storefile");
-	$ls = `ls -la $cache`;
-	print "<pre>$ls</pre>";
+#	$ls = `ls -la $cache`;
+#	print "<pre>$ls</pre>";
 
 }
 
