@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,6 +100,13 @@ p_notplusminus(unsigned int c)
     return c != '+' && c != '-';
 }
 
+// Characters allowed as second or subsequent characters in a fieldname
+inline static bool
+p_notfieldnamechar(unsigned int c)
+{
+    return !isalnum(c) && c != '_';
+}
+
 class Action {
 public:
     typedef enum {
@@ -140,7 +147,7 @@ parse_index_script(const string &filename)
 		     << endl;
 		exit(1);
 	    }
-	    j = find_if(i, s.end(), p_notalnum);
+	    j = find_if(i, s.end(), p_notfieldnamechar);
 	    fields.push_back(string(i, j));
 	    i = find_if(j, s.end(), p_notspace);
 	    if (i == s.end()) break;
@@ -148,6 +155,11 @@ parse_index_script(const string &filename)
 		++i;
 		i = find_if(i, s.end(), p_notspace);
 		break;
+	    }
+	    if (i == j) {
+		cout << argv0 << ": bad character '" << *j << "' in fieldname"
+		     << endl;
+		exit(1);
 	    }
 	}
 	j = i;

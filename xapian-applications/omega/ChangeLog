@@ -1,3 +1,8 @@
+Wed Feb 26 17:50:26 GMT 2003  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Allow '_' in fieldnames.  Diagnose bad characters
+	  in fieldnames better.
+
 Wed Feb 26 15:13:02 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
         * Add DBUSER and DBPASSWD env var support to dbi2omega
