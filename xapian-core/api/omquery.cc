@@ -140,12 +140,14 @@ OmQuery::~OmQuery()
     delete internal;
 }
 
-string OmQuery::get_description() const
+string
+OmQuery::get_description() const
 {
     DEBUGAPICALL("OmQuery::get_description", "");
     OmLockSentry locksentry(internal->mutex);
-    DEBUGAPIRETURN("OmQuery(" + internal->get_description() + ")");
-    return "OmQuery(" + internal->get_description() + ")";
+    string description = "OmQuery(" + internal->get_description() + ")";
+    DEBUGAPIRETURN(description);
+    return description;
 }
 
 bool OmQuery::is_defined() const

@@ -28,6 +28,8 @@
 #include "omdatabaseinterface.h"
 #include "multi_database.h"
 
+#include "omdebug.h"
+#include <om/omoutput.h>
 #include <vector>
 
 OmDatabase::Internal::Internal(const string & type,
@@ -46,17 +48,21 @@ OmDatabase::Internal::Internal(const string & type,
 // Methods of OmDatabaseGroup //
 ////////////////////////////////
 
-OmDatabaseGroup::OmDatabaseGroup() {
+OmDatabaseGroup::OmDatabaseGroup()
+{
+    DEBUGAPICALL("OmDatabaseGroup::OmDatabaseGroup", "");
     internal = new OmDatabaseGroup::Internal();
 }
 
 OmDatabaseGroup::~OmDatabaseGroup() {
+    DEBUGAPICALL("OmDatabaseGroup::~OmDatabaseGroup", "");
     delete internal;
 }
 
 OmDatabaseGroup::OmDatabaseGroup(const OmDatabaseGroup &other)
 	: internal(0)
 {
+    DEBUGAPICALL("OmDatabaseGroup::OmDatabaseGroup", "OmDatabaseGroup");
     OmLockSentry locksentry(other.internal->mutex);
 
     internal = new Internal(*other.internal);
@@ -65,6 +71,7 @@ OmDatabaseGroup::OmDatabaseGroup(const OmDatabaseGroup &other)
 void
 OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 {
+    DEBUGAPICALL("OmDatabaseGroup::operator=", "OmDatabaseGroup");
     // we get these locks in a defined order to avoid deadlock
     // should two threads try to assign two databases to each
     // other at the same time.
@@ -82,12 +89,15 @@ void
 OmDatabaseGroup::add_database(const string &type,
 			      const vector<string> &params)
 {
+    // FIXME: describe the params
+    DEBUGAPICALL("OmDatabaseGroup::add_database", type << ", " << "[params]");
     internal->add_database(type, params);
 }
 
 void
 OmDatabaseGroup::add_database(const OmDatabase & database)
 {
+    DEBUGAPICALL("OmDatabaseGroup::add_database", "OmDatabase");
     OmRefCntPtr<IRDatabase> dbptr;
     {
 	OmLockSentry locksentry(database.internal->mutex);
@@ -100,8 +110,11 @@ OmDatabaseGroup::add_database(const OmDatabase & database)
 string
 OmDatabaseGroup::get_description() const
 {
+    DEBUGAPICALL("OmDatabaseGroup::get_description", "");
     /// \todo display the contents of the database group
-    return "OmDatabaseGroup()";
+    string description = "OmDatabaseGroup()";
+    DEBUGAPIRETURN(description);
+    return description;
 }
 
 //////////////////////////////////////////

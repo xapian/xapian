@@ -22,35 +22,44 @@
 
 #include "om/omerror.h"
 #include "omwritabledbinternal.h"
+#include "omdebug.h"
+#include <om/omoutput.h>
 
 OmDatabase::OmDatabase(const string & type,
 		       const vector<string> & params,
 		       bool readonly)
 	: internal(new OmDatabase::Internal(type, params, readonly))
 {
+    DEBUGAPICALL("OmDatabase::OmDatabase",
+		 type << ", " << "[params]" << ", " << readonly);
 }
 
 OmDatabase::OmDatabase(const string & type,
 		       const vector<string> & params)
 	: internal(new OmDatabase::Internal(type, params, true))
 {
+    DEBUGAPICALL("OmDatabase::OmDatabase",
+		 type << ", " << "[params]");
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
 	: internal(new Internal(*(other.internal)))
 {
+    DEBUGAPICALL("OmDatabase::OmDatabase", "OmDatabase");
 }
 
 void
 OmDatabase::operator=(const OmDatabase &other)
 {
     OmLockSentry locksentry(internal->mutex);
+    DEBUGAPICALL("OmDatabase::operator=", "OmDatabase");
     // pointers are reference counted.
     internal->mydb = other.internal->mydb;
 }
 
 OmDatabase::~OmDatabase()
 {
+    DEBUGAPICALL("OmDatabase::~OmDatabase", "");
     delete internal;
     internal = 0;
 }
@@ -58,6 +67,7 @@ OmDatabase::~OmDatabase()
 string
 OmDatabase::get_description() const
 {
+    DEBUGAPICALL("OmDatabase::get_description", "");
     /// \todo display contents of the database
     return "OmDatabase()";
 }
@@ -67,16 +77,20 @@ OmWritableDatabase::OmWritableDatabase(const string & type,
 				       const vector<string> & params)
 	: OmDatabase(type, params, false)
 {
+    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase",
+		 type << ", [params]");
 }
 
 OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
 	: OmDatabase(other)
 {
+    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase", "OmWritableDatabase");
 }
 
 void
 OmWritableDatabase::operator=(const OmDatabase &other)
 {
+    DEBUGAPICALL("OmWritableDatabase::operator=", "OmDatabase");
     if(other.is_writable()) {
 	OmLockSentry locksentry(internal->mutex);
 	// pointers are reference counted.
@@ -89,6 +103,7 @@ OmWritableDatabase::operator=(const OmDatabase &other)
 void
 OmWritableDatabase::operator=(const OmWritableDatabase &other)
 {
+    DEBUGAPICALL("OmWritableDatabase::operator=", "OmWritableDatabase");
     OmLockSentry locksentry(internal->mutex);
     // pointers are reference counted.
     internal->mydb = other.internal->mydb;
@@ -96,6 +111,7 @@ OmWritableDatabase::operator=(const OmWritableDatabase &other)
 
 OmWritableDatabase::~OmWritableDatabase()
 {
+    DEBUGAPICALL("OmWritableDatabase::~OmWritableDatabase", "");
     delete internal;
     internal = 0;
 }
@@ -103,6 +119,7 @@ OmWritableDatabase::~OmWritableDatabase()
 void
 OmWritableDatabase::lock(om_timeout timeout)
 {
+    DEBUGAPICALL("OmWritableDatabase::lock", timeout);
     // Get the pointer while locked, in case someone is assigning to it.
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();
@@ -114,6 +131,7 @@ OmWritableDatabase::lock(om_timeout timeout)
 void
 OmWritableDatabase::unlock()
 {
+    DEBUGAPICALL("OmWritableDatabase::unlock", "");
     // Get the pointer while locked, in case someone is assigning to it.
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();
@@ -125,6 +143,7 @@ OmWritableDatabase::unlock()
 om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document)
 {
+    DEBUGAPICALL("OmWritableDatabase::add_document", document);
     // Check the validity of the document
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
@@ -139,13 +158,17 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     IRDatabase * database = internal->mydb.get();
     internal->mutex.unlock();
  
-    return database->add_document(document);
+    om_docid did = database->add_document(document);
+    DEBUGAPIRETURN(did);
+    return did;
 }
 
 string
 OmWritableDatabase::get_description() const
 {
     /// \todo display contents of the writable database
-    return "OmWritableDatabase()";
+    string description = "OmWritableDatabase()";
+    DEBUGAPICALL("OmWritableDatabase::get_description", "");
+    return description;
 }
 
