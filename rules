@@ -94,7 +94,7 @@ install: build \
 	dh_clean -k
 	dh_installdirs
 
-	# Install the files into debian/*
+	# Install the files into debian/tmp
 	cd build-nodebug; $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
