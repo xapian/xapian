@@ -1,3 +1,7 @@
+Mon Apr 29 19:28:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* More string.c_str() tidying.
+
 Mon Apr 29 17:41:33 BST 2002  Olly Betts <olly@survex.com>
 
 	* Tidied up some uses of string.c_str().

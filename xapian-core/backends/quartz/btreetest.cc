@@ -25,6 +25,7 @@
 #include "btree.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "utils.h"
 #include <string>
 using std::string;
 
@@ -132,16 +133,6 @@ static void do_create(const string & btree_dir, int block_size = 1024)
 
     Btree::create(btree_dir.c_str(), block_size);
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
-}
-
-static bool
-file_exists(const string & filename)
-{
-    struct stat buf;
-    if (stat(filename, &buf)) {
-	if (errno == ENOENT) return false;
-    }
-    return true;
 }
 
 /// Test making and playing with a QuartzBufferedTable

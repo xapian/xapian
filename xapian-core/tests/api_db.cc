@@ -24,6 +24,8 @@
 
 #include "config.h"
 #include <iostream>
+#include <map>
+using std::map;
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -1040,7 +1042,7 @@ static bool test_collapsekey1()
 	TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
-	std::map<string, om_docid> keys;
+	map<string, om_docid> keys;
 	OmMSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
 	    OmKey key = i.get_document().get_key(key_no);
@@ -1070,7 +1072,7 @@ static bool test_collapsekey2()
     TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
 
-    std::map<string, om_docid> keys;
+    map<string, om_docid> keys;
     OmMSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
 	OmKey key = i.get_document().get_key(key_no);

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,7 +125,7 @@ file_exists(const std::string &fname)
 {
     struct stat sbuf;
     // exists && is a regular file
-    return stat(fname, &sbuf) >= 0 && S_ISREG(sbuf.st_mode);
+    return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
 }
 
 /** Return true if all the files fnames exist.
