@@ -110,8 +110,10 @@ HtmlParser::decode_entities(string &s)
 	if (end < s_end && *end == ';') end++;
 	if (val) {
 	    string::size_type amp_pos = amp - s.begin();
-	    s.replace(amp - s.begin(), end - amp, 1u, char(val));
+	    s.replace(amp_pos, end - amp, 1u, char(val));
 	    s_end = s.end();
+	    // We've modified the string, so the iterators are no longer
+	    // valid...
 	    amp = s.begin() + amp_pos + 1;
 	} else {
 	    amp = end;

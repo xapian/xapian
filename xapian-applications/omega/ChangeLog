@@ -1,3 +1,8 @@
+Thu Sep 12 15:11:16 BST 2002  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Add comment about string::replace() invalidating
+	  iterators.
+
 Thu Sep 12 13:38:05 BST 2002  Olly Betts <olly@survex.com>
 
 	* omegascript.vim,omegascript.txt,query.cc: cosmetic tweaks.
