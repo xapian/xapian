@@ -1,3 +1,7 @@
+Sat Jul 12 09:15:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Need stdio.h for rename().
+
 Sat Jul 12 01:11:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Noted another reason my libtool 1.5 is needed.

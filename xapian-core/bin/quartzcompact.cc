@@ -29,6 +29,7 @@
 using namespace std;
 
 #include <errno.h>
+#include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/stat.h>
 
