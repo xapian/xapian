@@ -23,14 +23,14 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
-if test "$GCC" = yes; then
+if test yes = "$GCC"; then
   AM_CFLAGS="$AM_CFLAGS -Wall -Wunused -Wno-long-long"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -Wno-long-long -fno-gnu-keywords"
 fi
 
 dnl modify flags for building with stlport
-if test "x$use_stlport" = "xyes"; then
-  if test "$GCC" = yes; then
+if test yes = "$use_stlport"; then
+  if test yes = "$GCC"; then
     AM_CXXFLAGS="-nostdinc++ $AM_CXXFLAGS"
   fi
   AM_CXXFLAGS="$STLPORT_INCLUDE $AM_CXXFLAGS"

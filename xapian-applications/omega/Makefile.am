@@ -10,7 +10,7 @@ EXTRA_DIST = parsequery.cc templates/query templates/godmode
 
 MAINTAINERCLEANFILES = parsequery.cc
 
-INCLUDES = $(XAPIAN_CFLAGS)
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 if HAVE_LIBXML2
 XML2_PROGS=omindex-config

@@ -1,3 +1,7 @@
+Tue Apr 23 14:23:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated for xapian-config and xapian.m4 changes.
+
 Thu Apr 18 14:27:48 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated buildall in line with buildall in xapian-core.
