@@ -64,11 +64,12 @@ set_probabilistic(const string &newp, const string &oldp)
 {
     // strip leading and trailing whitespace
     size_t first_nonspace = newp.find_first_not_of(" \t\r\n\v");
-    size_t len = newp.find_last_not_of(" \t\r\n\v");
-    if (len < first_nonspace)
+    if (first_nonspace == string::npos) {
 	raw_prob = "";
-    else
+    } else {
+	size_t len = newp.find_last_not_of(" \t\r\n\v");
 	raw_prob = newp.substr(first_nonspace, len + 1 - first_nonspace);
+    }
 
     // call YACC generated parser
     parse_prob();

@@ -49,7 +49,7 @@ static string::const_iterator q_ptr;
 %}
 
 /* BISON Declarations */
-%token TERM
+%token TERM HYPHEN
 %left OR XOR NOT
 %left AND
 %left NEAR
@@ -103,7 +103,7 @@ term:	  TERM		{ $$ = $1; }
 	                  v.push_back($3.q);
 			  $$ = U(OmQuery(OM_MOP_NEAR, v.begin(), v.end(), 11)); }
 	| '"' phrase '"'{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
-/*	| dashphr       { $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); } */
+	| hypphr        { $$ = U(OmQuery(OM_MOP_PHRASE, $1.v.begin(), $1.v.end(), $1.v.size())); }
 	| '{' phrase '}'{ $$ = U(OmQuery(OM_MOP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
 ;
 
@@ -111,12 +111,9 @@ phrase:	  TERM		{ $$.v.push_back($1.q); }
 	| phrase TERM	{ $$ = $1; $$.v.push_back($2.q); }
 ;
 
-/*
-dashphr:  TERM '-' TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
-	| dashphr '-' TERM
-			{ $$ = $1; $$.v.push_back($3.q); }
+hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
+	| hypphr HYPHEN TERM	{ $$ = $1; $$.v.push_back($3.q); }
 ;
-*/
 
 %%
 
@@ -145,11 +142,18 @@ static bool stem, stem_all;
 // or allow +&.-_ ?
 // domain/site/language/host ?
 
+static int pending_token = 0;
+
 static int
 yylex()
 {
     int c;
-
+    if (pending_token) {
+	c = pending_token;
+	pending_token = 0;
+	return c;
+    }
+    
     /* skip white space  */
     while (isspace((c = next_char())))
 	;
@@ -168,6 +172,15 @@ yylex()
 	    // space after '.' to mean "don't stem"
 	    c = next_char();
 	    if (c == EOF || isspace(c)) stem_term = false;	    
+	}
+	if (c == '-') {
+	    int newc = next_char();
+	    if (isalnum(newc)) {
+		pending_token = HYPHEN;
+		c = newc;
+	    } else {
+		q_ptr--;
+	    }
 	}
 	if (c != EOF) q_ptr--;
 	if (term == "AND") {
@@ -208,6 +221,7 @@ yyerror(const char *s)
 void
 parse_prob()
 {
+    pending_token = 0;
     stem = !atoi(option["no_stem"].c_str());
     // stem capitalised words too -- needed for EuroFerret
     stem_all = atoi(option["all_stem"].c_str());
