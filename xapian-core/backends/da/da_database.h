@@ -12,15 +12,16 @@ class DAPostList : public virtual PostList {
 	struct postings * postlist;
 	docid  currdoc;
 	doccount termfreq;
+	weight termweight;
 
-	DAPostList(struct postings *pl, doccount tf);
+	DAPostList(struct postings *pl, doccount termf, doccount dbsize);
     public:
 	~DAPostList();
 
 	doccount get_termfreq(); 
 
 	docid  get_docid();     // Gets current docid
-	docid  get_weight();    // Gets current weight
+	weight get_weight();    // Gets current weight
 	void   next();          // Moves to next docid
 	void   skip_to(docid);  // Moves to next docid >= specified docid
 	bool   at_end();        // True if we're off the end of the list
@@ -35,6 +36,7 @@ class DADatabase : public virtual IRDatabase {
 	bool   opened;
 	struct DAfile * DA_r;
 	struct DAfile * DA_t;
+	doccount dbsize;
 
 	termid max_termid;
 	map<termname, termid> termidmap;

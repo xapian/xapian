@@ -1,16 +1,23 @@
 /* da_database.cc: C++ class for datype access routines */
 
 #include <string.h>
+#include <stdio.h>
 #include <errno.h>
+#include <math.h>
 #include <string>
 
 #include "database.h"
 #include "da_database.h"
 #include "daread.h"
 
-DAPostList::DAPostList(struct postings *pl, doccount tf) {
+DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size) {
     termfreq = tf;
     postlist = pl;
+    termweight = log((size - tf) / tf);
+
+    printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
+	   size, tf, termweight);
+
     DAreadpostings(postlist, 0, 0);
 }
 
@@ -27,9 +34,27 @@ docid DAPostList::get_docid() {
     return postlist->Doc;
 }
 
+/* This is the biggie */
 weight DAPostList::get_weight() {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    return postlist->wdf;
+    doccount wdf;
+    weight wt;
+
+    wdf = postlist->wdf;
+
+    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
+
+    double k = 1;
+    // FIXME - precalculate this freq score for several values of wt - may
+    // remove much computation.
+    wt = (double) wdf / (k + wdf);
+//    printf("(freq score %4.2f)", wt);
+
+    wt *= termweight;
+
+    printf("\t=> weight = %f\n", wt);
+
+    return wt;
 }
 
 void DAPostList::next() {
@@ -68,14 +93,17 @@ DADatabase::open(string pathname, bool readonly)
 
     DA_r = DAopen((byte *)(filename_r.c_str()), DARECS);
     if(DA_r == NULL)
-	throw OpeningError(string("Opening ") + filename_r + ": " + strerror(errno));
+	throw OpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
 
     DA_t = DAopen((byte *)(filename_t.c_str()), DATERMS);
     if(DA_t == NULL) {
 	DAclose(DA_r);
 	DA_r = NULL;
-	throw OpeningError(string("Opening ") + filename_t + ": " + strerror(errno));
+	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
+
+    dbsize = 1000;  /* FIXME - read from database */
+
     opened = true;
 
     return;
@@ -116,7 +144,7 @@ PostList * DADatabase::open_post_list(termid id)
     struct postings * postlist;
     postlist = DAopenpostings(&ti, DA_t);
 
-    DAPostList * pl = new DAPostList(postlist, ti.freq);
+    DAPostList * pl = new DAPostList(postlist, ti.freq, dbsize);
     return pl;
 }
 
@@ -129,6 +157,7 @@ TermList * DADatabase::open_term_list(termid id)
 termid
 DADatabase::term_name_to_id(termname name)
 {
+    if(!opened) throw OmError("DADatabase not opened.");
     termid id;
 
     id = termidmap[name];
@@ -145,6 +174,7 @@ DADatabase::term_name_to_id(termname name)
 termname
 DADatabase::term_id_to_name(termid id)
 {
+    if(!opened) throw OmError("DADatabase not opened.");
     if (id <= 0 || id > termidvec.size()) throw RangeError("invalid termid");
 //    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1].c_str());
     return termidvec[id - 1];

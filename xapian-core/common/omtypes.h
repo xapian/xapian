@@ -8,7 +8,7 @@ typedef unsigned int docid;
 
 typedef docid doccount;
 
-typedef unsigned int weight;
+typedef double weight;
 
 #ifdef __cplusplus
 typedef string termname;

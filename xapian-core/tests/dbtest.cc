@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
 	    did = postlist->get_docid();
 	    wt = postlist->get_weight();
-	    printf("TermId: %d  DocId: %d  Weight: %d\n", tid, did, wt);
+	    printf("TermId: %d  DocId: %d  Weight: %f\n", tid, did, wt);
 	    if(did == 120) postlist->skip_to(144);
 	    else postlist->next();
 	}
