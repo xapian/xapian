@@ -3,13 +3,15 @@ Muscat.
 
 Due to the lack of a proper API, Muscat should currently not be installed.
 Therefore, when configuring this directory, you need to specify the
-location of a built, but not installed, Muscat library.
+location of the Muscat code, using the --with-libomus-uninst configure option.
 
 This is further complicated if you are performing a VPATH build
-(ie, builddir != srcdir), in which case you must also specify
+(ie, builddir != srcdir), in which case you must also specify the
+location of a built, but not installed, Muscat library, using the
+--with-libomus-uninst-exec configure option.
 
-Note that you shouldn't specify relative directories in this environment
-variable, or in the --with-libomus-uninst* parameters
+Note that you shouldn't specify relative directories in the
+--with-libomus-uninst* parameters.
 
 Here's the way I get this compiled and working:
 
