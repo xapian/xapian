@@ -2967,6 +2967,33 @@ static bool test_collfreq1()
     return true;
 }
 
+// Regression test for the "more than 100%" sort_bands bug
+static bool test_sortbands1()
+{
+    OmDatabase db(get_database("etext"));
+    OmEnquire enquire(db);
+    const char * terms[] = {"better", "place", "reader", "without", "would"};
+    for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
+	enquire.set_query(OmQuery(terms[j]));
+	OmSettings opts;
+	opts.set("match_sort_bands", 10);
+	OmMSet mset = enquire.get_mset(0, 20, 0, &opts);
+	om_docid prev = 0;
+	int band = 9;
+	for (OmMSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	    int this_band = (i.get_percent() - 1) / 10;
+	    TEST(this_band <= band);
+	    if (this_band == band) {
+		TEST(prev < *i);
+	    } else {
+		this_band = band;
+	    }
+	    prev = *i;
+	}
+    }
+    return true;
+}
+
 // consistency check match - vary mset size and check results agree
 static bool test_consistency1()
 {
@@ -3132,6 +3159,7 @@ test_desc localdb_tests[] = {
     {"postlist5",	   test_postlist5},
     {"postlist6",	   test_postlist6},
     {"termstats",	   test_termstats},
+    {"sortbands1",	   test_sortbands1},
     // consistency1 will run on the remote backend, but it's particularly slow
     // with that, and testing it there doesn't actually improve the test
     // coverage really.

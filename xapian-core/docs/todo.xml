@@ -1,10 +1,4 @@
 <todo>
-<todoitem priority=" " difficulty="" owner="Olly" area="Matcher" release="">
-
-Check that sort bands are correct for borderline cases (for e.g. 2 bands, the
-bands are now 100% &gt;= p &gt; 50% and 50% &gt;= p &gt; 0%).
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Matcher" release="">
 
 Optimisation:  Consider using hash_map instead of map in various places -

@@ -99,31 +99,27 @@ msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
     return (a.did > b.did);
 }
 
-// cheap muldiv with builtin ceil.  div represents max range of x,
-// so for example x could be a percentage, 0-100 so div would be 100
-// and mul could possibly be the number of bands.
-inline int
-ceilint(int x, int mul, int div) {
-    return (x * mul) / div + (x % div == 0)?0:1;
-}
-
 class MSetSortCmp {
     private:
 	OmDatabase db;
+	double factor;
 	bool have_key;
 	om_valueno sort_key;
 	bool forward;
 	int bands;
-	double percent_scale;
     public:
-	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
+	MSetSortCmp(const OmDatabase &db_, int bands_, double percent_scale,
 		    bool have_key_, om_valueno sort_key_, bool forward_)
-	    : db(db_), have_key(have_key_), sort_key(sort_key_), 
-	      forward(forward_), bands(bands), percent_scale(percent_scale) {
+	    : db(db_), factor(percent_scale * bands_ / 100.0),
+	      have_key(have_key_), sort_key(sort_key_), forward(forward_),
+	      bands(bands_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    int band_a = ceilint(int(a.wt*percent_scale),bands,100);
-	    int band_b = ceilint(int(b.wt*percent_scale),bands,100);
+	    int band_a = int(ceil(a.wt * factor));
+	    int band_b = int(ceil(b.wt * factor));
+	    if (band_a > bands) band_a = bands;
+	    if (band_b > bands) band_b = bands;
+	    
 	    if (band_a != band_b) return band_a > band_b;
 	    if (have_key) {
 		if (a.sort_key.empty()) {
@@ -692,28 +688,45 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     double percent_scale = 0;
     if (!items.empty() && greatest_wt > 0) {
-	// OK, work out weight corresponding to 100%
-	double denom = 0;
-	map<om_termname,
-	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
-	for (i = termfreqandwts.begin(); i != termfreqandwts.end(); i++)
-	    denom += i->second.termweight;
-	denom *= greatest_wt;
-	Assert(denom > 0);
+	// Find the document with the highest weight, then total up the
+	// weights for the terms it contains
 	vector<OmMSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
+
+	om_termcount matching_terms = 0;
+	map<om_termname,
+	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
 
 	OmTermIterator docterms = db.termlist_begin(best->did);
         OmTermIterator docterms_end = db.termlist_end(best->did);
 	while (docterms != docterms_end) {
 	    i = termfreqandwts.find(*docterms);
-	    if (i != termfreqandwts.end())
+	    if (i != termfreqandwts.end()) {
 		percent_scale += i->second.termweight;
-	    docterms++;
+		++matching_terms;
+		if (matching_terms == termfreqandwts.size()) break;
+	    }
+	    ++docterms;
 	}
-	percent_scale /= denom;
+	if (matching_terms < termfreqandwts.size()) {
+	    // OK, work out weight corresponding to 100%
+	    double denom = 0;
+	    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
+		denom += i->second.termweight;
+	    denom *= greatest_wt;
+	    Assert(denom > 0);
+	    Assert(denom <= percent_scale);
+	    percent_scale /= denom;
+	} else {
+	    // If all the terms match, the 2 sums of weights cancel
+	    percent_scale = 1.0 / greatest_wt;
+	}
 	Assert(percent_scale > 0);
 	if (percent_cutoff) {
+	    // FIXME: better to sort and binary chop maybe?  we
+	    // could use the sort above to find "best" too.
+	    // Or we could just use a linear scan here instead.
+
 	    // trim the mset to the correct answer...
 	    om_weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {

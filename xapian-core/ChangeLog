@@ -1,3 +1,9 @@
+Thu Nov 14 01:59:06 GMT 2002  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc,tests/api_db.cc,docs/todo.xml:
+	  match_sort_bands code fettled, and added regression test for the
+	  >100% problem (test_sortbands1).
+
 Tue Nov 12 00:00:44 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.h,backends/quartz/,
