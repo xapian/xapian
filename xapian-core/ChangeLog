@@ -1,3 +1,7 @@
+Fri Jul 11 00:36:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/getopt.h: Removed space between \ and newline.
+
 Fri Jul 11 00:32:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added MacOS X 10.2 success report.

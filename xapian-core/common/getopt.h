@@ -149,7 +149,7 @@ extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shorto
 // In C++ "getopt ()" means it takes no argument, which is no good.  This
 // makes use of the fact that internally getopt () and getopt_long () call
 // the same function to actually do the work!
-#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\ 
+#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\
 	(const struct option *) 0, (int *) 0)
 #else
 extern int getopt ();
