@@ -1066,11 +1066,14 @@ static bool test_create1()
     settings.set("backend", "quartz");
 
     OmSettings settings1 = settings;
+
+    // (1) db doesn't exist (no create)
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, true));
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, false));
 
+    // (2) db doesn't exist, basedir doesn't exist (create)
     settings1.set("database_create", true);
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, true));
@@ -1079,26 +1082,31 @@ static bool test_create1()
 
     makedir(tmpdir + "testdb_create1");
 
+    // (3) db doesn't exist, basedir exists (no create)
     settings1 = settings;
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, true));
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, false));
-    settings1.set("database_create", true);
 
+    // (4) db doesn't exist, basedir exists (create)
+    settings1.set("database_create", true);
     TEST_EXCEPTION(OmOpeningError,
 		   database = DatabaseBuilder::create(settings1, true));
     database = DatabaseBuilder::create(settings1, false);
     database = DatabaseBuilder::create(settings1, true);
 
+    // (5) db exists (create, no overwrite)
     database = DatabaseBuilder::create(settings1, true);
     TEST_EXCEPTION(OmDatabaseCreateError,
 		   database = DatabaseBuilder::create(settings1, false));
     database = DatabaseBuilder::create(settings1, true);
 
+    // (6) db exists (no create)
     settings1.set("database_create", false);
     database = DatabaseBuilder::create(settings1, false);
 
+    // (7) db exists (create, overwrite)
     settings1.set("database_create", true);
     settings1.set("database_allow_overwrite", true);
     database = DatabaseBuilder::create(settings1, true);
@@ -1115,6 +1123,7 @@ static bool test_create1()
     database->add_document(document_in);
     TEST_EQUAL(database->get_doccount(), 2);
 
+    // (8) db exists with data (create, overwrite)
     database = DatabaseBuilder::create(settings1, true);
     database = DatabaseBuilder::create(settings1, false);
     database->add_document(document_in);
