@@ -2,6 +2,7 @@
 .*.swp
 dbtest
 matchtest
+stemtest
 testdir
 Makefile.in
 Makefile
