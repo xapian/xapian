@@ -1,7 +1,7 @@
 /************************************************************
  *
- *  cvs_db.h the base class to manipulate a database to store
- *  something.
+ *  cvs_revision_line_db.h the class to manipulate a database to store
+ *  (file_id, revision, line_in_latest version)->line_in_revision
  *
  *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
  *
@@ -19,33 +19,29 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+ *  Usage:
+ *
+ *  See cvs_db_file.h
+ *
  *  $Id$
  *
  ************************************************************/
 
-#ifndef __CVS_DB_H__
-#define __CVS_DB_H__
+#ifndef __CVS_REVISION_LINE_DB_H__
+#define __CVS_REVISION_LINE_DB_H__
 
-#include "db_cxx.h"
-#include <string>
-using std::string;
+#include "cvs_db.h"
+#include <set>
+using std::set;
 
-class cvs_db
+class cvs_revision_line_db : public cvs_db 
 {
 protected:
-    Db _db;
-    string _db_name;
-    bool _opened;
-    virtual int do_open(const string & filename) = 0;
-
+    int do_open(const string & filename);
 public:
-    cvs_db(const string & name, DbEnv *dbenv, u_int32_t flags) 
-        : _db(dbenv, flags), _db_name(name), _opened(false) {}
-    virtual ~cvs_db() {}
-    int open(const string & filename);
-    int close(int flags = 0);
-    int remove(const string & filename, int flags = 0);
-    int sync();
+    cvs_revision_line_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
+    int get(unsigned int fileId, const string & revision, unsigned int line_new, unsigned int & line_current);
+    int put(unsigned int fileId, const string & revision, unsigned int line_new, unsigned int line_current);
 };
 
 #endif
