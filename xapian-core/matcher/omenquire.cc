@@ -32,6 +32,7 @@
 #include "irdocument.h"
 
 #include <vector>
+#include <set>
 #include <math.h>
 
 ///////////////////////////////////////////////////////////////////
@@ -357,6 +358,40 @@ OmQuery::set_length(om_termcount qlen_) {
     return oldqlen;
 }
 
+om_termname_list
+OmQuery::internal_get_terms() const
+{
+    Assert(isdefined);
+
+    om_termname_list retval;
+    if (op == OM_MOP_LEAF) {
+        // We're a leaf, so just return our term.
+        retval.push_back(tname);
+    } else {
+    	subquery_list::const_iterator end = subqs.end();
+        // not a leaf, concatenate results from all subqueries
+	for (subquery_list::const_iterator i = subqs.begin();
+	     i != end;
+	     ++i) {
+	     om_termname_list sub_list = (*i)->internal_get_terms();
+	     retval.splice(retval.end(), sub_list);
+	}
+    }
+    return retval;
+}
+
+om_termname_list
+OmQuery::get_terms() const
+{
+    om_termname_list result;
+
+    if (isdefined) {
+        result = internal_get_terms();
+    }
+
+    return result;
+}
+
 
 ////////////////////////////////
 // Methods for OmMatchOptions //
@@ -442,7 +477,8 @@ class OmEnquireInternal {
 	IRDatabase * database;
 	vector<DatabaseBuilderParams> dbparams;
 	
-	mutable OmQuery * query;
+	// This is mutable so that it can be replaced by an optimised version.
+	OmQuery * query;
 
 	OmEnquireInternal();
 	~OmEnquireInternal();
@@ -664,4 +700,59 @@ OmEnquire::get_doc_data(const OmMSetItem &mitem) const
 {
     internal->open_database();
     return get_doc_data(mitem.did);
+}
+
+om_termname_list
+OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
+{
+    // FIXME: take advantage of OmMSetItem to ensure that database
+    // doesn't change underneath us.
+    return get_matching_terms(mitem.did);
+}
+
+om_termname_list
+OmEnquire::get_matching_terms(om_docid did) const
+{
+    if (internal->query == 0) {
+        throw OmInvalidArgumentError("Can't get matching terms before setting query");
+    }
+
+    internal->open_database();  // will throw if database not set.
+
+    // the ordered list of terms in the query.
+    om_termname_list query_terms = internal->query->get_terms();
+
+    // copy the list of query terms into a set for faster access.
+    // FIXME: a hash would be faster than a set, if this becomes
+    // a problem.
+    set<om_termname> tset(query_terms.begin(), query_terms.end());
+    // matching_terms is the list of terms from the document actually
+    // matching the query.
+    om_termname_list matching_terms;
+    
+    TermList *docterms = internal->database->open_term_list(did);
+    
+    /* next() must be called on a TermList before you can
+     * do anything else with it.
+     */
+    docterms->next();
+
+    /* For every entry in the termlist, add the term to the
+     * matching_terms set if it's a query term (ie is in tset).
+     */
+    while (!docterms->at_end()) {
+        set<om_termname>::iterator t = tset.find(docterms->get_termname());
+        if (t != tset.end()) {
+	    matching_terms.push_back(docterms->get_termname());
+	    /* remove this term from the tset, so that our result
+             * list doesn't include duplicates.
+	     */
+	    tset.erase(t);
+	}
+	docterms->next();
+    }
+
+    delete docterms;
+
+    return matching_terms;
 }

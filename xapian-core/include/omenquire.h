@@ -67,6 +67,7 @@ enum om_queryop {
  */
 class OmQuery {
     friend class OmMatch;
+    friend class OmEnquire;
     private:
 	bool isdefined;
 	bool isbool;
@@ -105,6 +106,14 @@ class OmQuery {
 	 *  supplied vector of OmQuery pointers. */
 	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 				    const vector<OmQuery *>::const_iterator qend);
+
+	/** Private function implementing get_terms() */
+        om_termname_list internal_get_terms() const;
+
+	/** Return an om_termname_list containing all the terms in the query,
+	 *  in left to right order.
+	 */
+	om_termname_list get_terms() const;
     public:
 	/** A query consisting of a single term. */
 	OmQuery(const om_termname & tname_,
@@ -614,7 +623,7 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	vector<om_termname> get_matching_terms(om_docid did) const;
+	om_termname_list get_matching_terms(om_docid did) const;
 
 	/** @memo Get terms which match a given document, by match set item.
 	 *
@@ -629,10 +638,8 @@ class OmEnquire {
 	 *
 	 *  @param mitem   The item for which to retrieve the matching terms.
 	 *
-	 *  @return        A vector containing the terms which match the
-	 *                 document.  This vector will be, as far as this
-	 *                 makes any sense, in the same order as the terms
-	 *                 in the query.  Terms will not occur more than once,
+	 *  @return        A list containing the terms which match the
+	 *                 document.  Terms will not occur more than once,
 	 *                 even if they do in the query.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
@@ -640,7 +647,7 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	vector<om_termname> get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 };
 
 #endif /* OM_HGUARD_OMENQUIRE_H */

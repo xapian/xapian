@@ -57,8 +57,12 @@ typedef double       om_weight;
 
 #ifdef __cplusplus
 #include <string>
+#include <list>
 /// A term name.  This is a string representing the term, and will often be the actual text of the term.
 typedef string om_termname;
+
+/// A list of terms.  This is a container of term names.
+typedef list<om_termname> om_termname_list;
 
 /// A document name.  This is used when making a new document.
 typedef string om_docname;
