@@ -26,23 +26,39 @@
 
 use strict;
 
+my @all_languages = ("danish", "dutch", "english", "french", "german", "italian", "norwegian", "portuguese", "spanish", "swedish");
+my @languages = ();
+
 my $seed = undef;
 my $junksize = 2 * 1048576;
 
 my ($did_something, $retval, $verbose) = (0, 0, 0);
 my ($val_succeeded, $val_failed, $val_skipped) = (0, 1, 2);
 my ($testspassed, $testsfailed, $testsskipped) = (0, 0, 0);
+my $use_random = 1;
+
+sub usage {
+    die "Usage: $0 [-v] [--seed <seed>] [--no-random] [language(s)]";
+}
 
 while ($_ = shift @ARGV) {
   if ($_ =~ /^-v$/) {
       $verbose = 1;
+  } elsif ($_ =~ /^--no-random$/) {
+      $use_random = 0;
   } elsif ($_ =~ /^--seed$/) {
-      $seed = shift or die "Usage: $0 [-v] [--seed <seed>]";
+      $seed = shift or usage();
+  } elsif (join(' ', @all_languages) =~ /\b$_\b/) {
+      @languages = (@languages, $_);
   } else {
-      print "Usage: $0 [-v]\n";
+      usage();
       exit 1;
   };
 };
+
+if ($#languages == -1) {
+    @languages = @all_languages;
+}
 
 # we need to generate a file of random rubbish to feed to each
 # of the stemming routines.
@@ -52,14 +68,17 @@ if (!defined $seed) {
 };
 
 my ($randtext, $randjunk) = ("randtext_seed_$seed", "randjunk_seed_$seed");
-srand $seed;
-print "Generating random text... (seed $seed)\n";
-&make_randomtext($randtext);
-srand $seed;
-print "Generating random junk... (seed $seed)\n";
-&make_randomjunk($randjunk);
 
-foreach ("danish", "dutch", "english", "french", "german", "italian", "norwegian", "portuguese", "spanish", "swedish") {
+if ($use_random) {
+    srand $seed;
+    print "Generating random text... (seed $seed)\n";
+    &make_randomtext($randtext);
+    srand $seed;
+    print "Generating random junk... (seed $seed)\n";
+    &make_randomjunk($randjunk);
+}
+
+foreach (@languages) {
     my $language = $_;
     my $myretval = &dicttest($language);
     if ($myretval == $val_succeeded) {
@@ -73,29 +92,31 @@ foreach ("danish", "dutch", "english", "french", "german", "italian", "norwegian
         die "Internal error";
     };
 
-    $myretval = &randtest($language, $randtext);
-    if ($myretval == $val_succeeded) {
-        $testspassed++;
-    } elsif ($myretval == $val_failed) {
-        $retval = $myretval;
-	$testsfailed++;
-    } elsif ($myretval == $val_skipped) {
-        $testsskipped++;
-    } else {
-        die "Internal error";
-    };
+    if ($use_random) {
+	$myretval = &randtest($language, $randtext);
+	if ($myretval == $val_succeeded) {
+	    $testspassed++;
+	} elsif ($myretval == $val_failed) {
+	    $retval = $myretval;
+	    $testsfailed++;
+	} elsif ($myretval == $val_skipped) {
+	    $testsskipped++;
+	} else {
+	    die "Internal error";
+	};
 
-    $myretval = &randtest($language, $randjunk);
-    if ($myretval == $val_succeeded) {
-        $testspassed++;
-    } elsif ($myretval == $val_failed) {
-        $retval = $myretval;
-	$testsfailed++;
-    } elsif ($myretval == $val_skipped) {
-        $testsskipped++;
-    } else {
-        die "Internal error";
-    };
+	$myretval = &randtest($language, $randjunk);
+	if ($myretval == $val_succeeded) {
+	    $testspassed++;
+	} elsif ($myretval == $val_failed) {
+	    $retval = $myretval;
+	    $testsfailed++;
+	} elsif ($myretval == $val_skipped) {
+	    $testsskipped++;
+	} else {
+	    die "Internal error";
+	};
+    }
 };
 
 # don't delete them, since we want them cached.

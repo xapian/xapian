@@ -1,3 +1,12 @@
+Thu Jul 20 13:01:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* stemtest.pl now has new options:
+
+	  --no-random avoids running the tests with randomly generated junk
+
+	  languages can be specified on the command line to only run tests
+	  on one (or more) specified language.
+
 Wed Jul 19 18:14:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a script to convert apitest into other languages.  So far
