@@ -124,9 +124,9 @@ sub dicttest {
 	$did_something = 1;
 
 	if ($verbose) {
-	    print "Running \`./stemtest --$language $datadir/voc.txt'...\n";
+	    print "Running \`./stemtest --language $language $datadir/voc.txt'...\n";
 	};
-	open(STEMMER_OUTPUT, "./stemtest --$language $datadir/voc.txt|")
+	open(STEMMER_OUTPUT, "./stemtest --language $language $datadir/voc.txt|")
 	    or die "Failed to run stemtest";
 	open(STEMMED_ANSWERS, "<$datadir/voc.st")
 	    or die "Failed to open stemmed data";
@@ -186,7 +186,7 @@ sub randtest {
     $did_something = 1;
 
     print "Testing $language with file $filename...";
-    $system_retval = system("./stemtest --$language $filename > $outputfname 2>&1");
+    $system_retval = system("./stemtest --language $language $filename > $outputfname 2>&1");
     if ($system_retval) {
         if ($verbose) {
 	    print "stemtest returned $system_retval\n";
