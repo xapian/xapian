@@ -62,6 +62,7 @@ sub tohtml() {
   $html = $_[0];
   $html =~ s#>#&gt;#g;
   $html =~ s#<#&lt;#g;
+  $html =~ s#"#&quot;#g;
   $html =~ s#\n\n#\n<P>\n#g;
   return $html;
 }
