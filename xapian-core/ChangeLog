@@ -1,3 +1,9 @@
+Mon Feb 28 04:31:58 GMT 2005  Olly Betts <olly@survex.com>
+
+	* matcher/weightcutoffpostlist.cc: Fix updating of docid in
+	  WeightCutoffPostList - the current code works, but can end up doing
+	  lots (potentially millions) of pointless loop iterations.
+
 Mon Feb 28 02:57:29 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html: Note that + and - work on phrases and

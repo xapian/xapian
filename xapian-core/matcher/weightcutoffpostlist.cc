@@ -52,16 +52,15 @@ WeightCutoffPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "WeightCutoffPostList::skip_to", did << ", " << w_min);
     if (w_min < cutoff) w_min = cutoff;
-    do {
-	// skip to guarantees skipping to at least docid did, but not that
-	// it moves forward past did, or that the weight is taken into account.
+    while (true) {
+	// skip_to guarantees skipping to at least docid did, but not that
+	// it moves forward past did, or that the weight parameter is taken
+	// into account.
 	(void) skip_to_handling_prune(pl, did, w_min, matcher);
 
-	if (pl->at_end()) RETURN(NULL);
-	did += 1; // To ensure that skipping further ahead happens.
-    } while (pl->get_weight() < w_min);
-
-    RETURN(NULL);
+	if (pl->at_end() || pl->get_weight() >= w_min) RETURN(NULL);
+	did = pl->get_docid() + 1;
+    }
 }
 
 inline
