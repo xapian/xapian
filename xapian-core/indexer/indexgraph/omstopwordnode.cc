@@ -51,7 +51,7 @@ static const char *const default_swords[] = {
 
 /** Node which removes certain stopwords from a list of words.
  *
- *  The omstopword node removes occurences of stopwords from a list
+ *  The omstopword node removes occurrences of stopwords from a list
  *  of strings.  The list of words can be specified in a parameter.
  *  If not specified, then a default list of (stemmed) English
  *  stopwords is used.

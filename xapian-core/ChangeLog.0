@@ -304,7 +304,7 @@ Thu Nov 16 19:27:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	  Did lots of tweaking to error handling.
 	  
-	  There are a few more occurences to change.  In some cases things
+	  There are a few more occurrences to change.  In some cases things
 	  can be made much cleaner when the code is objectified with
 	  constructors and destructors.  Most of Btree_quit() moved
 	  into Btree::~Btree().

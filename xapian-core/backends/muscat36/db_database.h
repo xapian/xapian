@@ -148,7 +148,7 @@ class DBTermList : public LeafTermList {
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
 	string get_termname() const;
-	om_termcount get_wdf() const; // Number of occurences of term in current doc
+	om_termcount get_wdf() const; // Number of occurrences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;

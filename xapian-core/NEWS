@@ -135,7 +135,7 @@ Xapian 0.6.4 (2002-12-24):
   (since all blocks are as full as possible).
 
 * omega: Added $unstem to map a stemmed term to the form(s) used in the query;
-  $queryterms now only includes the first occurence of each stemmed form;
+  $queryterms now only includes the first occurrence of each stemmed form;
   $prettyterm makes use of the unstem map; prefer MINHITS to MIN_HITS and
   RAWSEARCH to RAW_SEARCH since none of the other CGI parameter names have
   _ separating words (continue to support old names for now); fixed default
@@ -306,7 +306,7 @@ Notable changes: Improvements to the test suite, and internal code cleanups:
 
 * Implemented QuartzAllTermsList::get_approx_size().
 
-* Removed a couple of occurences of "using std::XXX;" from externally
+* Removed a couple of occurrences of "using std::XXX;" from externally
   visible headers.
 
 * With GCC, add warning flags "-Wall -W" rather than "-Wall -Wunused" (-Wall

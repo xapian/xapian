@@ -99,7 +99,7 @@ class QuartzPostList : public LeafPostList {
 	/// The number of entries in the posting list.
 	om_doccount number_of_entries;
 
-	/// The number of occurences of the term in the posting list.
+	/// The number of occurrences of the term in the posting list.
 	om_termcount collection_freq;
 
 	/// The position list object for this posting list.
@@ -177,7 +177,7 @@ class QuartzPostList : public LeafPostList {
 	 */
 	om_doccount   get_termfreq() const { return number_of_entries; }
 
-	/** Returns the number of occurences of the term in the database.
+	/** Returns the number of occurrences of the term in the database.
 	 *
 	 *  This is the sum of the wdfs in the postlist.
 	 */

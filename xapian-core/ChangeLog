@@ -1,3 +1,11 @@
+Tue May 13 00:40:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* ChangeLog.0,NEWS,backends/inmemory/inmemory_database.h,
+	  backends/muscat36/da_database.h,backends/muscat36/db_database.h,
+	  backends/quartz/quartz_postlist.h,
+	  indexer/indexgraph/omstopwordnode.cc: Spelling correction:
+	  "occurence" should be "occurrence".
+
 Mon May 12 22:39:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/ompositionlistiteratorinternal.h,
