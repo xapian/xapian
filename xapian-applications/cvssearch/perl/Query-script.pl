@@ -640,6 +640,8 @@ print <<_HTML_;
 <br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt>
 <br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages. <br>It does not have to be full path, for example, you can use <tt class=orange>in:kword</tt> instead of <tt class=orange>in:koffice/kword</tt>, however you cannot use <tt class=orange>in:kwo</tt>.
 <li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)
+<li> Commit comments are useful not only for finding changes made to the code (e.g., fixed footnotes) but also identifying where certain functionality is implemented (e.g., the code changed in fixing footnotes reveals the regions of code that implement footnotes).
+<li> Searches across all applications can be useful in finding out how a certain task is accomplished using library functions.
 </ul>
 </body>
 </html>
