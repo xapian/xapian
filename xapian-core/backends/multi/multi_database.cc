@@ -35,7 +35,6 @@ weight MultiPostList::get_weight() const
 {
     Assert(freq_initialised);
 
-    // FIXME - incorrect formula
     weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
@@ -49,15 +48,10 @@ weight MultiPostList::get_weight() const
 weight MultiPostList::get_maxweight() const
 {
     Assert(freq_initialised);
-    // FIXME - incorrect formula (?)
-    weight wt = 0;
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
-    while(i != postlists.end()) {
-	if((*i).currdoc == currdoc)
-	    wt += (*i).pl->get_maxweight();
-	i++;
-    }
-    return wt;
+
+    // Should AssertParanoid that all maxweights are the same
+    
+    return (*postlists.begin()).pl->get_maxweight();
 }
 
 PostList * MultiPostList::next(weight w_min)
@@ -72,6 +66,7 @@ PostList * MultiPostList::next(weight w_min)
 	if(currdoc >= (*i).currdoc) {
 	    (*i).pl->next(w_min);
 	    if((*i).pl->at_end()) {
+		// Close sub-postlist
 		delete (*i).pl;
 		list<MultiPostListInternal>::iterator erase_iter = i;
 		i++;
