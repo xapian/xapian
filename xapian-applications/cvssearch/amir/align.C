@@ -484,7 +484,7 @@ public:
 
     alignment.findOptimalAlignment();
 
-    //    if ( DEBUG_MODE ) cerr << "optimal alignment of " << l1 << " and " << l2 << " is " << alignment.optimalAlignmentValue() << endl;
+    if ( DEBUG_MODE ) cerr << "optimal alignment of " << l1 << " and " << l2 << " is " << alignment.optimalAlignmentValue() << endl;
     //    alignment.dump();
     return alignment.optimalAlignmentValue();
 
@@ -696,51 +696,60 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 
 int main( int argc, char *argv[] ) {
   
-  assert( argc == 3 );
+  //  assert( argc == 3 );
 
   string f1 = argv[1];
-  string f2 = argv[2];
-
-  assert( string(argv[0]).find("search") == -1 ||
-	  string(argv[0]).find("align") == -1 ); // don't want both in path
   
-  search_mode = (string(argv[0]).find("search")  != -1 );
-
-  //  cerr << "Search mode = " << search_mode << endl;
-
-  if ( DEBUG_MODE ) cerr << "Comparing " << f1 << " with " << f2 << "." << endl;
-
-  // the first thing to do is to call GNU diff to get an approximate
-  // alignment
-
-  if ( ! search_mode ) {
-
-    string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
-    int rc = system(diff_cmd.c_str());
+  for( int i = 2; i < argc; i++ ) {
     
-    if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
+    string f2 = argv[i];
+
+    if ( argc > 3 ) {
+      cerr << "** Looking at " << f2 << endl;
+    }
     
-    LineSequence l1(f1);
-    LineSequence l2(f2);
+    assert( string(argv[0]).find("search") == -1 ||
+	    string(argv[0]).find("align") == -1 ); // don't want both in path
     
-    processDiffOutput( DIFF_OUTPUT, l1, l2 );
-
-  } else {
+    search_mode = (string(argv[0]).find("search")  != -1 );
     
-    // find block in file
-    // uses local alignment
+    //  cerr << "Search mode = " << search_mode << endl;
+    
+    if ( DEBUG_MODE ) cerr << "Comparing " << f1 << " with " << f2 << "." << endl;
+    
+    // the first thing to do is to call GNU diff to get an approximate
+    // alignment
+    
+    if ( ! search_mode ) {
+      
+      string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
+      int rc = system(diff_cmd.c_str());
+      
+      if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
+      
+      LineSequence l1(f1);
+      LineSequence l2(f2);
+      
+      processDiffOutput( DIFF_OUTPUT, l1, l2 );
+      
+    } else {
+      
+      // find block in file
+      // uses local alignment
+      
+      LineSequence l1(f1);
+      LineSequence l2(f2);
+      
+      if (DEBUG_MODE) cerr << "l1 size = " << l1.size() << endl;
+      
+      LocalAlignment<LineSequence> local_alignment( l1, l2 );
+      int score = local_alignment.findOptimalAlignment();
+      int start1, start2;
+      string marker_seq = local_alignment.reconstruct( start1, start2 );
+      cout << score << endl;
+      outputDelta( marker_seq, start1, start2 );
+    }
 
-    LineSequence l1(f1);
-    LineSequence l2(f2);
-
-    if (DEBUG_MODE) cerr << "l1 size = " << l1.size() << endl;
-
-    LocalAlignment<LineSequence> local_alignment( l1, l2 );
-    int score = local_alignment.findOptimalAlignment();
-    int start1, start2;
-    string marker_seq = local_alignment.reconstruct( start1, start2 );
-    cout << score << endl;
-    outputDelta( marker_seq, start1, start2 );
   }
 
   return 0;
