@@ -228,3 +228,12 @@ sourcedoc.tex:
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
 	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
 
+##################################
+# Generate images from dia files #
+##################################
+
+%.eps: %.dia
+	dia -e $@ $<
+
+%.png: %.eps
+	pstoimg -aaliastext -antialias -center 0 -density 40 -depth 1 $<
