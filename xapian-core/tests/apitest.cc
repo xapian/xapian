@@ -135,10 +135,15 @@ int main(int argc, char *argv[])
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)
-    // need makeDA tool to build da databases
-    if (file_exists("../../makeda/makeDA")) {
+    // need makeDA, etc tools to build da and db databases
+    if (file_exists("../../makeda/makeDA"))
 	RUNTESTS("da", db);
-    }
+    if (file_exists("../../makeda/makeDAflimsy"))
+	RUNTESTS("daflimsy", db);
+    if (file_exists("../../makeda/makeDB"))
+	RUNTESTS("db", db);
+    if (file_exists("../../makeda/makeDBflimsy"))
+	RUNTESTS("dbflimsy", db);
 #endif
 
     cout << argv[0] << " total: " << summary.succeeded << " passed, "

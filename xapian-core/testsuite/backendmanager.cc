@@ -91,7 +91,8 @@ index_files_to_database(OmWritableDatabase & database,
 }
 
 void
-index_files_to_da(const string &dbdir, std::vector<std::string> paths)
+index_files_to_m36(const string &prog, const string &dbdir,
+		   std::vector<std::string> paths)
 {
     string dump = dbdir + "/DATA";
     ofstream out(dump.c_str());
@@ -123,8 +124,8 @@ index_files_to_da(const string &dbdir, std::vector<std::string> paths)
 	}
     }
     out.close();
-    string cmd = "../../makeda/makeDA -source " + dump + " -da " + dbdir +
-	"/ -work " + dbdir + "/tmp- > /dev/null";
+    string cmd = "../../makeda/" + prog + " -source " + dump +
+	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
     system(cmd.c_str());
     unlink(dump.c_str());
 }
@@ -172,12 +173,25 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
 	system("rm -fr .da");
+    } else if (type == "db") {
+	do_getdb = &BackendManager::getdb_db;
+	do_getwritedb = &BackendManager::getwritedb_db;
+	system("rm -fr .db");
+    } else if (type == "daflimsy") {
+	do_getdb = &BackendManager::getdb_daflimsy;
+	do_getwritedb = &BackendManager::getwritedb_daflimsy;
+	system("rm -fr .daflimsy");
+    } else if (type == "dbflimsy") {
+	do_getdb = &BackendManager::getdb_dbflimsy;
+	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
+	system("rm -fr .dbflimsy");
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError(
-		"Expected inmemory, sleepycat, quartz, remote, da or void");
+		"Expected inmemory, sleepycat, quartz, remote, da, db, "
+		"daflimsy, dbflimsy, or void");
     }
 }
 
@@ -402,7 +416,35 @@ BackendManager::getdb_da(const std::vector<std::string> &dbnames)
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
 	    // need to build temporary file and run it through makeda (yum)
-	    index_files_to_da(dbdir, change_names_to_paths(dbnames));
+	    index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
+	}
+    }
+    return OmDatabase(params);
+}
+
+OmDatabase
+BackendManager::getdb_daflimsy(const std::vector<std::string> &dbnames)
+{
+    std::string parent_dir = ".daflimsy";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    OmSettings params;
+    params.set("backend", "da");
+    params.set("m36_record_file", dbdir + "/R");
+    params.set("m36_term_file", dbdir + "/T");
+    params.set("m36_key_file", dbdir + "/keyfile");
+    params.set("m36_heavyduty", false);
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    // need to build temporary file and run it through makeda (yum)
+	    index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
 	}
     }
     return OmDatabase(params);
@@ -412,6 +454,77 @@ OmWritableDatabase
 BackendManager::getwritedb_da(const std::vector<std::string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable da database");
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_daflimsy(const std::vector<std::string> &dbnames)
+{
+    throw OmInvalidArgumentError("Attempted to open writable daflimsy database");
+}
+
+OmDatabase
+BackendManager::getdb_db(const std::vector<std::string> &dbnames)
+{
+    std::string parent_dir = ".db";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    OmSettings params;
+    params.set("backend", "db");
+    params.set("m36_db_file", dbdir + "/DB");
+    params.set("m36_key_file", dbdir + "/keyfile");
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    // need to build temporary file and run it through makedb (yum)
+	    index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
+	}
+    }
+    return OmDatabase(params);
+}
+
+OmDatabase
+BackendManager::getdb_dbflimsy(const std::vector<std::string> &dbnames)
+{
+    std::string parent_dir = ".dbflimsy";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    OmSettings params;
+    params.set("backend", "db");
+    params.set("m36_db_file", dbdir + "/DB");
+    params.set("m36_key_file", dbdir + "/keyfile");
+    // should autodetect flimsy - don't specify to test this
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    // need to build temporary file and run it through makedb (yum)
+	    index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
+	}
+    }
+    return OmDatabase(params);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_db(const std::vector<std::string> &dbnames)
+{
+    throw OmInvalidArgumentError("Attempted to open writable db database");
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_dbflimsy(const std::vector<std::string> &dbnames)
+{
+    throw OmInvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 
 OmDatabase
@@ -437,4 +550,3 @@ BackendManager::get_writable_database(const std::string &dbname)
     dbnames.push_back(dbname);
     return (this->*do_getwritedb)(dbnames);
 }
-

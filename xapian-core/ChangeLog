@@ -1,3 +1,8 @@
+Mon Sep 11 10:28:43 BST 2000 Olly Betts
+
+	* Test suite now exercises flimsy version of da backend, and both
+	  heavy duty and flimsy versions of db backend.
+ 
 Fri Sep  8 20:10:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix problem with OmPostListIterator's internals not being reference

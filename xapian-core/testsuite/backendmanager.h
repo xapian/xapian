@@ -93,6 +93,24 @@ class BackendManager {
 	/// Get a writable da database instance.
 	OmWritableDatabase getwritedb_da(const std::vector<std::string> &dbnames);
 
+	/// Get a daflimsy database instance.
+	OmDatabase getdb_daflimsy(const std::vector<std::string> &dbnames);
+
+	/// Get a writable daflimsy database instance.
+	OmWritableDatabase getwritedb_daflimsy(const std::vector<std::string> &dbnames);
+
+	/// Get a db database instance.
+	OmDatabase getdb_db(const std::vector<std::string> &dbnames);
+
+	/// Get a writable db database instance.
+	OmWritableDatabase getwritedb_db(const std::vector<std::string> &dbnames);
+
+	/// Get a dbflimsy database instance.
+	OmDatabase getdb_dbflimsy(const std::vector<std::string> &dbnames);
+
+	/// Get a writable dbflimsy database instance.
+	OmWritableDatabase getwritedb_dbflimsy(const std::vector<std::string> &dbnames);
+
 
     public:
 	/// Constructor - set up default state.
@@ -103,7 +121,7 @@ class BackendManager {
 	/** Set the database type to use.
 	 *
 	 *  Valid values for dbtype are "inmemory", "sleepycat", "quartz",
-	 *  "void", "da" and "remote".
+	 *  "void", "da", "daflimsy", "db", "dbflimsy", and "remote".
 	 */
 	void set_dbtype(const std::string &type);
 
