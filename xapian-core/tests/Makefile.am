@@ -16,12 +16,13 @@ endif
 
 ## Test programs to be run
 TESTS = $(quartz_tests) $(remote_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
+ apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
+ runtest
 
 ## Programs to build
 check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
  apitest internaltest stemtest
-    
+
 ## Sources:
 
 noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
@@ -51,8 +52,8 @@ remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
 	     testdata/apitest_onedoc.txt \
-             testdata/apitest_simpledata.txt \
-             testdata/apitest_simpledata2.txt \
+	     testdata/apitest_simpledata.txt \
+	     testdata/apitest_simpledata2.txt \
 	     testdata/apitest_termorder.txt \
 	     testdata/apitest_rset.txt \
 	     testdata/apitest_phrase.txt \
