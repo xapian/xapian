@@ -48,7 +48,21 @@ static const string muscat_dir = "/usr/muscat";
 
 int have_query; /* use to trap the "no query" case more reliably */
 
-int main(int argc, char *argv[]) {
+static int main2(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
+{
+    try {
+	return main2(argc, argv);
+    }
+    catch (...) {
+	cout << "Caught unknown exception\n";
+    }
+    return 0;
+}
+
+static int main2(int argc, char *argv[])
+{
     int n;
     char     big_buf[4048];
     long int list_size;
