@@ -38,7 +38,7 @@ class ExtraWeightPostList : public PostList {
 	om_weight get_weight() const {
 // FIXME don't have db here... DEBUGLINE(MATCH, "db.get_doclength(" << did << ") == " << db.get_doclength(did));
 	    DEBUGLINE(MATCH, "pl->get_doclength() == " << pl->get_doclength());
-// FIXME don;t have db here... AssertEq(db.get_doclength(did), pl->get_doclength());
+// FIXME don't have db here... AssertEqDouble(db.get_doclength(did), pl->get_doclength());
 	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
 	}
 

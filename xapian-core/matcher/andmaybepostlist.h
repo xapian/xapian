@@ -153,7 +153,7 @@ inline om_doclength
 AndMaybePostList::get_doclength() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
-    if (lhead == rhead) AssertEq(l->get_doclength(), r->get_doclength());
+    if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
     return l->get_doclength();
 }
 

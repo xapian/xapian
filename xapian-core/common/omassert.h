@@ -35,6 +35,8 @@
 // Include utility functions
 #include "utils.h"
 
+#include <float.h> // for DBL_EPSILON
+
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but
 // is required in general  (#N doesn't work outside a macro definition)
@@ -64,10 +66,13 @@
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
 #define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
+// Keep AssertEqDouble separate so we can use an epsilon test
+#define AssertEqDouble(a,b) if (fabs((a) - (b)) < DBL_EPSILON) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
 #define AssertEq(a,b) if ((a) == (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
 #define AssertNe(a,b) if ((a) != (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a))
 #else
 #define Assert(a)
+#define AssertEqDouble(a,b)
 #define AssertEq(a,b)
 #define AssertNe(a,b)
 

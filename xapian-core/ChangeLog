@@ -1,3 +1,8 @@
+Mon Nov 06 16:32:08 GMT 2000 Olly Betts
+
+	* Reinstated AssertEqDouble() - now does an epsilon test as
+	  originally intended.
+
 Mon Nov 06 13:31:00 GMT 2000 Olly Betts
 
 	* Fixed handling of min weight changes with streamed msets.

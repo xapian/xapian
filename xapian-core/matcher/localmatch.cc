@@ -412,7 +412,7 @@ LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
     if (!tname.empty()) {
 	AutoPtr<IRWeight> extra_weight(mk_weight());
 	// Check that max_extra weight is really right
-	AssertEq(wt->get_maxextra(), extra_weight->get_maxextra());
+	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
     }
 #endif /* MUS_DEBUG_PARANOID */
     return wt;
