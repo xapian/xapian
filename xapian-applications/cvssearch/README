@@ -7,6 +7,7 @@ INSTALLATION
 
 * install the latest release of the sleepycat database from
   http://www.sleepycat.com/download.html  
+  enable C++ api with ./configure --enable-cxx
 
 * install the latest version of omsee from 
   ftp://ftp.omsee.com/pub/unstable/nightly/latest/
