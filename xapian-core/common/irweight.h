@@ -6,6 +6,17 @@
 
 class IRDatabase;
 
+#include <vector>
+class RSetItem {
+    public:
+	docid did;
+};
+
+class RSet {
+    public:
+	vector<RSetItem> documents;
+};
+
 class IRWeight {
     private:
 	const IRDatabase *database;
@@ -17,7 +28,12 @@ class IRWeight {
 	mutable weight termweight;
 	mutable doclength lenpart;
     public:
-	IRWeight() : initialised(false), weight_calculated(false) {}
+	IRWeight() : initialised(false), weight_calculated(false) { return; }
+	void set_stats(const IRDatabase *db, doccount tf, const RSet rset) {
+	    database = db;
+	    termfreq = tf;
+	    initialised = true;
+	}
 	void set_stats(const IRDatabase *db, doccount tf) {
 	    database = db;
 	    termfreq = tf;
