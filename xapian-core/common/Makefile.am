@@ -10,13 +10,13 @@ noinst_HEADERS = \
  match.h multimatch.h expand.h rset.h \
  indexer.h \
  utils.h omlocks.h omqueryinternal.h refcnt.h \
- omdocumentparams.h document.h \
+ document.h \
  netclient.h progclient.h net_database.h \
  netutils.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
- omdatabaseinterface.h
+ omdocumentinternal.h omdatabaseinterface.h
 
 noinst_LTLIBRARIES = libcommon.la
 

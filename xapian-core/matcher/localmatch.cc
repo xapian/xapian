@@ -39,7 +39,6 @@
 #include "document.h"
 #include "rset.h"
 #include "omqueryinternal.h"
-#include "omdocumentparams.h"
 
 #include "../api/omdatabaseinternal.h"
 

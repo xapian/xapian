@@ -29,6 +29,7 @@
 #include "omenquireinternal.h"
 #include "../api/omdatabaseinternal.h"
 #include "omdatabaseinterface.h"
+#include "omdocumentinternal.h"
 
 #include "andpostlist.h"
 #include "orpostlist.h"
@@ -49,7 +50,6 @@
 #include "document.h"
 #include "rset.h"
 #include "omqueryinternal.h"
-#include "omdocumentparams.h"
 
 #include "../api/omdatabaseinternal.h"
 
@@ -298,7 +298,8 @@ MultiMatch::get_mset_2(PostList *pl,
 		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
-		if (!mdecider->operator()(OmDocument(doc))) continue;
+		OmDocument mydoc(new OmDocument::Internal(doc));
+		if (!mdecider->operator()(mydoc)) continue;
 	    }
 	    
 	    om_weight wt = pl->get_weight();
@@ -414,7 +415,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
-		OmDocument mydoc(doc);
+		OmDocument mydoc(new OmDocument::Internal(doc));
 		if (!mdecider->operator()(mydoc)) continue;
 	    }
 	    

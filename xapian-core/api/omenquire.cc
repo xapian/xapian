@@ -24,6 +24,7 @@
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
 #include "omdatabaseinterface.h"
+#include "omdocumentinternal.h"
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -36,7 +37,6 @@
 #include "database_builder.h"
 #include "om/omdocument.h"
 #include "om/omerrorhandler.h"
-#include "omdocumentparams.h"
 #include "omenquireinternal.h"
 #include "utils.h"
 
@@ -410,7 +410,7 @@ OmEnquire::Internal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 	om_doccount dbnumber = (i->did - 1) % multiplier;
 	
 	LeafDocument *doc = internal->databases[dbnumber]->collect_document(realdid);
-	docs.push_back(OmDocument(OmDocumentParams(doc)));
+	docs.push_back(OmDocument(new OmDocument::Internal(doc)));
     }
 
     return docs;
@@ -440,9 +440,9 @@ OmEnquire::Internal::get_description() const
     return description;
 }
 
-///////////////////////////////////////////
+/////////////////////////////////////////////
 // Private methods for OmEnquire::Internal //
-///////////////////////////////////////////
+/////////////////////////////////////////////
 
 const OmDocument
 OmEnquire::Internal::read_doc(om_docid did) const
@@ -454,7 +454,7 @@ OmEnquire::Internal::read_doc(om_docid did) const
 
     LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
 
-    return OmDocument(OmDocumentParams(doc));
+    return OmDocument(new OmDocument::Internal(doc));
 }
 
 

@@ -24,54 +24,35 @@
 #include "om/omtypes.h"
 #include "refcnt.h"
 #include "document.h"
-#include "omdocumentparams.h"
-
-// A document in the database - holds keys and records
-class OmDocument::Internal {
-    public:
-	/// The reference counted pointer to a LeafDocument instance
-	RefCntPtr<LeafDocument> ptr;
-	OmLock mutex;
-
-	explicit Internal(RefCntPtr<LeafDocument> ptr_) : ptr(ptr_) {}
-
-	Internal(const Internal &other)
-		: ptr(other.ptr), mutex() {}
-};
+#include "omdocumentinternal.h"
 
 //////////////////////////////////
 // implementation of OmDocument //
 //////////////////////////////////
 
-OmDocument::OmDocument(const OmDocumentParams & params)
-	: internal(new OmDocument::Internal(params.ld_ptr))
+OmDocument::OmDocument(OmDocument::Internal *internal_) : internal(internal_)
 {
 }
 
 OmKey
 OmDocument::get_key(om_keyno key) const
 {
-    internal->mutex.lock();
-    LeafDocument *myptr = internal->ptr.get();
-    internal->mutex.unlock();
-
+    // create our own RefCntPtr in case another thread assigns new internals
+    RefCntPtr<LeafDocument> myptr = internal->ptr;
     return myptr->get_key(key);
 }
 
 OmData
 OmDocument::get_data() const
 {
-    internal->mutex.lock();
-    LeafDocument *myptr = internal->ptr.get();
-    internal->mutex.unlock();
-
+    // create our own RefCntPtr in case another thread assigns new internals
+    RefCntPtr<LeafDocument> myptr = internal->ptr;
     return myptr->get_data();
 }
 
 void
 OmDocument::operator=(const OmDocument &other)
 {
-    OmLockSentry locksentry(internal->mutex);
     // pointers are reference counted.
     internal->ptr = other.internal->ptr;
 }
@@ -93,4 +74,3 @@ OmDocument::get_description() const
     // FIXME - return document contents
     return "OmDocument()";
 }
-

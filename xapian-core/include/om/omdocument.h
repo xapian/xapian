@@ -1,4 +1,4 @@
-/* omdocument.h: class for performing a match
+/* omdocument.h: representation of a document
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -76,9 +76,6 @@ class OmKey {
 	std::string get_description() const { return "OmKey(" + value + ")"; }
 };
 
-/// Opaque class containing parameters used to construct an OmDocument.
-class OmDocumentParams;
-
 /// A document in the database - holds keys and records
 class OmDocument {
     private:
@@ -88,9 +85,9 @@ class OmDocument {
     public:
 	/** Constructor is only used by internal classes.
 	 *
-	 *  @param params Parameters used to construct the document.
+	 *  @param params int internal opaque class
 	 */
-	explicit OmDocument(const OmDocumentParams & params);
+	explicit OmDocument(OmDocument::Internal *internal_);
 
 	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.

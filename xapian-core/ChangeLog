@@ -1,3 +1,9 @@
+Tue Nov 28 13:06:36 GMT 2000 Olly Betts
+
+	* Eliminated OmDocumentParams.
+
+	* Removed unnecessary mutex from OmDocument::Internal.
+
 Mon Nov 27 18:45:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement get_position_list() on databases.  Untested.  Also needs
