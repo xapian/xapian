@@ -180,31 +180,31 @@ static bool test_disktable1()
 	TEST_EXCEPTION(OmOpeningError, table0.open());
 	TEST_EXCEPTION(OmOpeningError, table0.open(10));
     }
-    QuartzDiskTable table2(tmpdir + "test_disktable1_", false, 8192);
-    table2.create();
-    table2.open();
-    QuartzDiskTable table1(tmpdir + "test_disktable1_", true, 0);
-    table1.open();
+    QuartzDiskTable rw_table(tmpdir + "test_disktable1_", false, 8192);
+    rw_table.create();
+    rw_table.open();
+    QuartzDiskTable ro_table(tmpdir + "test_disktable1_", true, 0);
+    ro_table.open();
 
-    quartz_revision_number_t rev1 = table1.get_open_revision_number();
-    quartz_revision_number_t rev2 = table2.get_open_revision_number();
+    quartz_revision_number_t rev1 = ro_table.get_open_revision_number();
+    quartz_revision_number_t rev2 = rw_table.get_open_revision_number();
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_EQUAL(rev2, table2.get_open_revision_number());
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 0);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_EQUAL(rev2, rw_table.get_open_revision_number());
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding no entries
     TEST_EXCEPTION(OmInvalidOperationError,
-		   table1.apply(table1.get_latest_revision_number() + 1));
-    table2.apply(table2.get_latest_revision_number() + 1);
+		   ro_table.apply(ro_table.get_latest_revision_number() + 1));
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 0);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding some entries
     QuartzDbKey key;
@@ -212,102 +212,103 @@ static bool test_disktable1()
     key.value = "hello";
     tag.value = "world";
     
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
-    table2.set_entry(key, &tag);
-    table2.apply(table2.get_latest_revision_number() + 1);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
+    rw_table.set_entry(key, &tag);
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 1);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
 
     // Check getting the entries out again
-    check_table_values_empty(table1);
-    check_table_values_hello(table2, "world");
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
 
     // Check adding the same entries
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
-    table2.set_entry(key, &tag);
-    table2.apply(table2.get_latest_revision_number() + 1);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
+    rw_table.set_entry(key, &tag);
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 1);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
 
     // Check getting the entries out again
-    check_table_values_empty(table1);
-    check_table_values_hello(table2, "world");
-
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
 
     // Check adding an entry with a null key
     key.value = "";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(OmAssertionError, table1.set_entry(key, &tag));
-    TEST_EXCEPTION(OmAssertionError, table2.set_entry(key, &tag));
+    // Empty keys aren't allowed
+    TEST_EXCEPTION(OmAssertionError, ro_table.set_entry(key, &tag));
+    TEST_EXCEPTION(OmAssertionError, rw_table.set_entry(key, &tag));
 #else
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
+    // Can't add a key to a read-only table anyway
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
 #endif
 
     // Check changing an entry, to a null tag
     key.value = "hello";
     tag.value = "";
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
-    table2.set_entry(key, &tag);
-    table2.apply(table2.get_latest_revision_number() + 1);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
+    rw_table.set_entry(key, &tag);
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 1);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
     
     // Check getting the entries out again
-    check_table_values_empty(table1);
-    check_table_values_hello(table2, "");
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "");
 
     // Check deleting an entry
     key.value = "hello";
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, 0));
-    table2.set_entry(key, 0);
-    table2.apply(table2.get_latest_revision_number() + 1);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, 0));
+    rw_table.set_entry(key, 0);
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 0);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check the entries in the table
-    check_table_values_empty(table1);
-    check_table_values_empty(table2);
+    check_table_values_empty(ro_table);
+    check_table_values_empty(rw_table);
     
     // Check find_entry when looking for something between two elements
     key.value = "hello";
     tag.value = "world";
-    table2.set_entry(key, &tag);
+    rw_table.set_entry(key, &tag);
     key.value = "whooo";
     tag.value = "world";
-    table2.set_entry(key, &tag);
+    rw_table.set_entry(key, &tag);
 
-    table2.apply(table2.get_latest_revision_number() + 1);
+    rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
-    TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
-    rev1 = table1.get_open_revision_number();
-    rev2 = table2.get_open_revision_number();
-    TEST_EQUAL(table1.get_entry_count(), 0);
-    TEST_EQUAL(table2.get_entry_count(), 2);
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 2);
 
     // Check the entries in the table
-    check_table_values_empty(table1);
-    check_table_values_hello(table2, "world");
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
     
     return true;
 }

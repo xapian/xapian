@@ -422,9 +422,9 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 	      "QuartzDbKey(" << key.value << "), "
 	      "QuartzDbTag*(" << (tag == 0 ? "<NULL>" : tag->value) << ")");
 
-    Assert(key.value.size() != 0);
+    Assert(!key.value.empty());
     Assert(opened);
-    if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
     if (key.value.size() > btree_for_writing->max_key_len) {
 	throw OmInvalidArgumentError(
@@ -458,7 +458,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     DEBUGCALL(DB, void, "QuartzDiskTable::apply", new_revision);
 
     Assert(opened);
-    if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
     // Close reading table
     Assert(btree_for_reading != 0);

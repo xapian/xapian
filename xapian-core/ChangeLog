@@ -1,3 +1,7 @@
+Tue Oct 23 11:29:47 BST 2001  Olly Betts <olly@survex.com>
+
+	* Code tidying while investigating sporadic fails from quartztest.
+
 Mon Oct 22 17:42:30 BST 2001  Olly Betts <olly@survex.com>
 
 	* Minor fettles to quartztest: fixed warnings, whitespace tidying,
