@@ -1,3 +1,7 @@
+Fri Apr 12 12:42:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* Failed to "cvs add" msearch.cc and delve.cc in last check-in.
+
 Fri Apr 12 11:43:44 BST 2002  Olly Betts <olly@survex.com>
 
 	* delve moved here (was in tests subdirectory of xapian-core

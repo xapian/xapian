@@ -1,0 +1,200 @@
+/* delve.cc
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#include "om/om.h"
+
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+#include "getopt.h"
+
+using std::string;
+using std::cout;
+using std::endl;
+
+static char separator = ' ';
+
+static bool verbose = false;
+
+static void
+syntax(const char *progname)
+{
+    cout << "Syntax: " << progname << " [<options>] <database>...\n"
+	"\t-r <recno>            for term list(s)\n"
+	"\t-t <term>             for posting list(s)\n"
+	"\t-t <term> -r <recno>  for position list(s)\n"
+	"\t-1                    output one list entry per line\n"
+	"\t-v                    extra info (wdf and len for postlist;\n"
+	"\t\t\t\twdf termfreq for termlist)\n";
+    exit(1);
+}
+
+static void
+show_db_stats(OmDatabase &db)
+{
+    // just display a few database stats
+    cout << "number of documents = " << db.get_doccount() << endl;
+    cout << "average document length = " << db.get_avlength() << endl;
+}
+
+static void
+show_termlists(OmDatabase &db, std::vector<om_docid>::const_iterator i,
+	       std::vector<om_docid>::const_iterator end)
+{
+    // Display termlists
+    while (i != end) {
+	OmTermIterator t = db.termlist_begin(*i);
+	OmTermIterator tend = db.termlist_end(*i);
+	cout << "Term List for record #" << *i << ':';
+	while (t != tend) {
+	    cout << separator << *t;
+	    if (verbose) {
+		cout << ' ' << t.get_wdf() << ' ' << t.get_termfreq();
+	    }
+	    ++t;
+	}
+	cout << endl;
+	++i;
+    }
+}
+
+int
+main(int argc, char *argv[])
+{
+    std::vector<om_docid> recnos;
+    std::vector<om_termname> terms;
+    std::vector<string> dbs;
+
+    int c;
+    while ((c = getopt(argc, argv, "r:t:1v")) != EOF) {
+	switch (c) {
+	    case 'r':
+		recnos.push_back(atoi(argv[optind]));
+		break;
+	    case 't':
+		terms.push_back(argv[optind]);
+		break;
+	    case '1':
+		separator = '\n';
+		break;
+	    case 'v':
+		verbose = true;
+		break;
+	    default:
+		syntax(argv[0]);
+	}
+    }
+
+    while (argv[optind]) dbs.push_back(argv[optind++]);
+
+    if (dbs.empty()) syntax(argv[0]);
+
+    std::sort(recnos.begin(), recnos.end());
+    
+    OmDatabase db;
+    try {
+	std::vector<string>::const_iterator i;
+	for (i = dbs.begin(); i != dbs.end(); i++) {
+	    OmSettings params;
+	    params.set("backend", "auto");
+	    params.set("auto_dir", *i);
+	    db.add_database(params);
+	}
+    }
+    catch (const OmError &e) {
+	cout << "Error opening database: " << e.get_msg() << endl;
+	return 1;
+    }
+
+    try {
+	if (terms.empty() && recnos.empty()) {
+	    show_db_stats(db);
+	    return 0;
+	}
+
+	if (terms.empty()) {
+	    show_termlists(db, recnos.begin(), recnos.end());
+	    return 0;
+	}
+
+	std::vector<om_termname>::const_iterator i;
+	for (i = terms.begin(); i != terms.end(); i++) {
+	    om_termname term = *i;
+	    OmStem stemmer("english");
+	    if (*(term.end() - 1) == '.') {
+		term = term.erase(term.size() - 1);
+	    } else {
+		term = stemmer.stem_word(term);
+	    }
+	    OmPostListIterator p = db.postlist_begin(term);
+	    OmPostListIterator pend = db.postlist_end(term);
+	    if (p == pend) {
+		cout << "term `" << term << "' not in database\n";
+		continue;
+	    }
+	    if (recnos.empty()) {
+		// Display posting list
+		cout << "Posting List for term `" << term << "':";
+		while (p != pend) {
+		    cout << separator << *p;
+		    if (verbose) {
+			cout << ' ' << p.get_wdf()
+			    << ' ' << p.get_doclength();
+		    }
+		    p++;
+		}
+		cout << endl;
+	    } else {
+		// Display position lists
+		std::vector<om_docid>::const_iterator j;
+		for (j = recnos.begin(); j != recnos.end(); j++) {
+		    p.skip_to(*j);
+		    if (p == pend || *p != *j) {
+			cout << "term `" << term <<
+			    "' doesn't index document #" << *j << endl;
+		    } else {
+			cout << "Position List for term `" << term
+			    << "', record #" << *j << ':';
+			try {
+			    OmPositionListIterator pos = p.positionlist_begin();
+			    OmPositionListIterator posend = p.positionlist_end();
+			    while (pos != posend) {
+				cout << separator << *pos;
+				++pos;
+			    }
+			    cout << endl;
+			} catch (const OmError &e) {
+			    cout << "Error: " << e.get_msg() << endl;
+			}
+		    }
+		}
+	    }
+	}
+    }
+    catch (const OmError &e) {
+	cout << "Error: " << e.get_msg() << endl;
+	return 1;
+    }
+    return 0;
+}
