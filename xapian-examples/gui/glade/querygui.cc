@@ -26,6 +26,7 @@
 #include <glade/glade.h>
 #include <cstdio>
 #include <string>
+#include <algorithm>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -135,8 +136,10 @@ result_destroy_notify(gpointer data)
 static void do_resultdisplay(gint row) {
     try {
 	om_docid did = mset.items[row].did;
+	
 	OmData data = enquire->get_doc_data(mset.items[row]);
 	string fulltext = data.value;
+	
 	string score = inttostring(mset.convert_to_percent(mset.items[row]));
 
 	gtk_text_freeze(result_text);
@@ -246,8 +249,16 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<OmMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
-	    OmData data = enquire->get_doc_data(*j);
-	    string message = data.value;
+	    om_termname_list mterms = enquire->get_matching_terms(*j);
+	    vector<string> sorted_mterms(mterms.begin(), mterms.end());
+	    string message;
+	    for (vector<string>::const_iterator i = sorted_mterms.begin();
+		 i != sorted_mterms.end();
+		 ++i) {
+		if (message.size() > 0) message += " ";
+
+		message += *i;
+	    }
 
 	    ResultItemGTK * item = new ResultItemGTK(j->did,
 		mset.convert_to_percent(*j), message);
