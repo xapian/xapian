@@ -106,7 +106,6 @@ ProgClient::get_spawned_socket(string progname, const vector<string> &args)
 ProgClient::~ProgClient()
 {
     // close the socket and reap the child.
-    do_write("QUIT");
     do_close();
     waitpid(pid, 0, 0);
 }

@@ -1,3 +1,8 @@
+Mon Jul  3 14:28:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed ProgClient's destructor (was throwing an exception duplicating
+	  work being done elsewhere, causing an abort under some circumstances.)
+
 Mon Jul  3 14:11:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed stemtest so that it now works with the swedish data set.
