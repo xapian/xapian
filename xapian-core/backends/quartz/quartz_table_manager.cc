@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "quartz_table_manager.h"
+#include "quartz_record.h"
 
 #include "utils.h"
 #include <om/omerror.h>
@@ -96,20 +97,15 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	    QuartzRevisionNumber new_revision = get_next_revision_number();
 	    log->make_entry("Initialising database - new revision is " +
 			    new_revision.get_description() + ".");   
-	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
-	    std::map<QuartzDbKey, QuartzDbTag *> record_entries;
-	    QuartzDbKey key;
-	    QuartzDbTag tag;
-	    key.value = string("\0", 1);
-	    tag.value = "";
-	    record_entries[key] = &tag;
 
+	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
 	    postlist_table    .set_entries(empty_entries,  new_revision);
 	    positionlist_table.set_entries(empty_entries,  new_revision);
 	    termlist_table    .set_entries(empty_entries,  new_revision);
 	    lexicon_table     .set_entries(empty_entries,  new_revision);
 	    attribute_table   .set_entries(empty_entries,  new_revision);
-	    record_table      .set_entries(record_entries, new_revision);
+
+	    QuartzRecordManager::initialise(record_table, new_revision);
 	}
     }
 }

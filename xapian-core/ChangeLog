@@ -1,3 +1,16 @@
+Mon Oct  9 18:13:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Quartz now stores general database information in record database.
+	  Very close to allocating new document ID's correctly.
+
+	* Quartz database initialisation code is separated out of table
+	  manager.
+
+	* {un,}pack_uint32 functions changed to {un,}pack_uint templates -
+	  should work on different data type sizes.  Work towards using
+	  whatever datatype sizes are handy, rather than relying on any
+	  particular size.
+
 Mon Oct 09 18:09:05 BST 2000 Olly Betts
 
 	* StatsSource::set_gatherer() merged into ctor;

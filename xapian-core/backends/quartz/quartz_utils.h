@@ -52,9 +52,51 @@ typedef long long           om_int64;
  *          read overflowing the size of result (in which case *source_ptr
  *          will point to wherever the value ends, despite the overflow).
  */
-bool unpack_uint32(const char ** source_ptr,
-		   const char * source_end,
-		   om_uint32 * result);
+template<class T>
+bool
+unpack_uint(const char ** src,
+	    const char * src_end,
+	    T * result)
+{
+    // Check unsigned
+    CASSERT((T)(-1) > 0);
+
+    // Check byte is what it's meant to be
+    CASSERT(sizeof(om_byte) == 1);
+
+    unsigned int shift = 0;
+    *result = 0;
+
+    while(1) {
+	if ((*src) == src_end) {
+	    return false;
+	}
+
+	om_byte part = static_cast<om_byte> (**src);
+	(*src)++;
+
+	// if new byte might cause overflow, and it does
+	if (((shift > (sizeof(*result) - 1) * 8 + 1) &&
+	     ((part & 0x7f) << (shift % 8)) >= 0x100) ||
+	    (shift >= sizeof(*result) * 8))  {
+	    // Overflowed - move to end of this integer
+	    while(1) {
+		if ((part & 0x80) == 0) return false;
+		if ((*src) == src_end) return false;
+		part = static_cast<const om_byte> (**src);
+		(*src)++;
+	    }
+	}
+
+	*result += (part & 0x7f) << shift;
+	shift += 7;
+
+	if ((part & 0x80) == 0) {
+	    return true;;
+	}
+    }
+}
+
 
 /** Generates a packed representation of an integer.
  *
@@ -62,7 +104,25 @@ bool unpack_uint32(const char ** source_ptr,
  *
  *  @result       A string containing the representation of the integer.
  */
-std::string pack_uint32(om_uint32 value);
+template<class T>
+std::string
+pack_uint(T value)
+{
+    // Check unsigned
+    CASSERT((T)(-1) > 0);
+
+    if (value == 0) return std::string("\000", 1);
+    std::string result;
+
+    while(value != 0) {
+	om_byte part = value & 0x7f;
+	value = value >> 7;
+	if (value) part |= 0x80;
+	result.append(1, (char) part);
+    }
+
+    return result;
+}
 
 #include "quartz_table_entries.h"
 #include "om/omtypes.h"

@@ -177,7 +177,12 @@ QuartzDatabase::do_get_document(om_docid did)
 OmDocumentContents
 QuartzDatabase::do_get_document_internal(om_docid did)
 {
-    throw OmUnimplementedError("QuartzDatabase::do_get_document_internal() not yet implemented");
+    OmDocumentContents document;
+
+    document.data = QuartzRecordManager::get_record(
+			*(tables->get_record_table()), did);
+
+    return document;
 }
 
 
@@ -186,9 +191,7 @@ QuartzDatabase::get_doccount() const
 {
     OmLockSentry sentry(quartz_mutex);
 
-    // FIXME: check that the sizes of these types (om_doccount and
-    // quartz_tablesize_t) are compatible.
-    return tables->get_record_table()->get_entry_count() - 1;
+    return QuartzRecordManager::get_doccount(*(tables->get_record_table()));
 }
 
 om_doclength
@@ -335,13 +338,19 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 
     Assert(buffered_tables != 0);
 
-    om_docid did = get_newdocid();
-    
-    did = QuartzRecord::add_record(*(buffered_tables->get_record_table()),
-				   did,
-				   document.data);
+    om_doclength doclen = 0;
 
     OmDocumentContents::document_terms::const_iterator i;
+    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+	const OmDocumentTerm & t = i->second;
+	doclen += t.wdf;
+    }
+
+    om_docid did = QuartzRecordManager::add_record(
+			*(buffered_tables->get_record_table()),
+			document.data,
+			doclen);
+
     for (i = document.terms.begin(); i != document.terms.end(); i++) {
 #if 0
 	QuartzPostList::add_posting(*(buffered_tables.get_postlist_table()),
@@ -382,8 +391,8 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     }
 #endif
 
-    QuartzRecord::delete_record(*(buffered_tables->get_record_table()),
-				did);
+    QuartzRecordManager::delete_record(*(buffered_tables->get_record_table()),
+				       did);
 }
 
 void
@@ -403,13 +412,6 @@ QuartzWritableDatabase::do_get_document(om_docid did)
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     return database_ro.do_get_document_internal(did);
-}
-
-om_docid
-QuartzWritableDatabase::get_newdocid()
-{
-    // FIXME read from item 0 in record table.
-    return 1;
 }
 
 om_doccount 

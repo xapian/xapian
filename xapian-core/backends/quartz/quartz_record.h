@@ -30,16 +30,33 @@
 
 /** A record in a quartz database.
  */
-class QuartzRecord {
+class QuartzRecordManager {
     private:
+	QuartzRecordManager();
+	~QuartzRecordManager();
     public:
-	QuartzRecord();
+	/** Initialise table for searching.
+	 */
+	static void initialise(QuartzDiskTable & table,                                                        QuartzRevisionNumber new_revision);
+
+	/** Retrieve a docuement from the table.
+	 */
+	static OmData get_record(QuartzTable & table,
+				 om_docid did);
+
+	/** Get the number of records in the table.
+	 */
+	static om_doccount get_doccount(QuartzTable & table);
+
+	/** Get the next document ID to use.
+	 */
+	static om_docid get_newdocid(QuartzBufferedTable & table);
 
 	/** Add a new record to the table.
 	 */
 	static om_docid add_record(QuartzBufferedTable & table,
-				   om_docid did,
-				   const OmData & data);
+				   const OmData & data,
+				   om_doclength doclen);
 
 	/** Delete a record from the table.
 	 */

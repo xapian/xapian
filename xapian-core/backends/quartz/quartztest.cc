@@ -443,6 +443,7 @@ static bool test_adddoc1()
 
     did = database.add_document(document);
     TEST_EQUAL(database.get_doccount(), 1);
+    TEST_EQUAL(did, 1);
     settings.set("quartz_logfile", "log_ro");
     {
 	QuartzDatabase db_readonly(settings);
@@ -465,6 +466,11 @@ static bool test_adddoc1()
 	QuartzDatabase db_readonly(settings);
 	TEST_EQUAL(db_readonly.get_doccount(), 0);
     }
+
+    did = database.add_document(document);
+    TEST_EQUAL(database.get_doccount(), 1);
+    TEST_EQUAL(did, 2);
+
     database.flush();
     database.end_session();
 
@@ -483,11 +489,26 @@ static bool test_adddoc2()
 
     om_docid did;
     OmDocumentContents document_in;
+    document_in.data.value = "Foobar rising";
+    document_in.keys[7] = OmKey("Key7");
+    document_in.keys[13] = OmKey("Key13");
+    document_in.add_posting("foobar", 1);
+    document_in.add_posting("rising", 2);
+
+    OmDocumentContents document_in2;
+    document_in2.data.value = "Foobar falling";
+    document_in2.add_posting("foobar", 1);
+    document_in2.add_posting("falling", 2);
     {
 	QuartzWritableDatabase database(settings);
 	TEST_EQUAL(database.get_doccount(), 0);
+
 	did = database.add_document(document_in);
 	TEST_EQUAL(database.get_doccount(), 1);
+
+	om_docid did2 = database.add_document(document_in2);
+	TEST_EQUAL(database.get_doccount(), 2);
+	TEST_NOT_EQUAL(did, did2);
     }
 
     {
@@ -496,8 +517,39 @@ static bool test_adddoc2()
 	OmDocumentContents document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.data.value, document_out.data.value);
-	TEST(document_in.keys.size() == document_out.keys.size());
-	TEST(document_in.terms.size() == document_out.terms.size());
+	TEST_EQUAL(document_in.keys.size(), document_out.keys.size());
+	TEST_EQUAL(document_in.terms.size(), document_out.terms.size());
+
+	{
+	    OmDocumentContents::document_keys::const_iterator i,j;
+	    for (i = document_in.keys.begin(), j = document_out.keys.begin();
+		 i != document_in.keys.end();
+		 i++, j++) {
+		TEST_EQUAL(i->first, j->first);
+		TEST_EQUAL(i->second.value, j->second.value);
+	    }
+	}
+	{
+	    OmDocumentContents::document_terms::const_iterator i,j;
+	    for (i = document_in.terms.begin(), j = document_out.terms.begin();
+		 i != document_in.terms.end();
+		 i++, j++) {
+		TEST_EQUAL(i->first, j->first);
+		TEST_EQUAL(i->second.tname, j->second.tname);
+		TEST_EQUAL(i->second.wdf, j->second.wdf);
+		TEST_NOT_EQUAL(i->second.termfreq, j->second.termfreq);
+		TEST_EQUAL(0, j->second.termfreq);
+		TEST_EQUAL(i->second.positions.size(),
+			   j->second.positions.size());
+		OmDocumentTerm::term_positions::const_iterator k,l;
+		for (k = i->second.positions.begin(),
+		     l = j->second.positions.begin();
+		     k != i->second.positions.end();
+		     k++, l++) {
+		    TEST_EQUAL(*k, *l);
+		}
+	    }
+	}
     }
 
     return true;
@@ -506,12 +558,12 @@ static bool test_adddoc2()
 /// Test packing integers into strings
 static bool test_packint1()
 {
-    TEST_EQUAL(pack_uint32(0), std::string("\000", 1));
-    TEST_EQUAL(pack_uint32(1), std::string("\001", 1));
-    TEST_EQUAL(pack_uint32(127), std::string("\177", 1));
-    TEST_EQUAL(pack_uint32(128), std::string("\200\001", 2));
-    TEST_EQUAL(pack_uint32(0xffff), std::string("\377\377\003", 3));
-    TEST_EQUAL(pack_uint32(0xffffffff), std::string("\377\377\377\377\017", 5));
+    TEST_EQUAL(pack_uint(0u), std::string("\000", 1));
+    TEST_EQUAL(pack_uint(1u), std::string("\001", 1));
+    TEST_EQUAL(pack_uint(127u), std::string("\177", 1));
+    TEST_EQUAL(pack_uint(128u), std::string("\200\001", 2));
+    TEST_EQUAL(pack_uint(0xffffu), std::string("\377\377\003", 3));
+    TEST_EQUAL(pack_uint(0xffffffffu), std::string("\377\377\377\377\017", 5));
 
     return true;
 }
@@ -521,37 +573,37 @@ static bool test_packint2()
 {
     std::string foo;
 
-    foo += pack_uint32(3);
-    foo += pack_uint32(12475123);
-    foo += pack_uint32(128);
-    foo += pack_uint32(0xffffffff);
-    foo += pack_uint32(127);
-    foo += pack_uint32(0);
-    foo += pack_uint32(0xffffffff);
-    foo += pack_uint32(0);
-    foo += pack_uint32(82134);
+    foo += pack_uint(3u);
+    foo += pack_uint(12475123u);
+    foo += pack_uint(128u);
+    foo += pack_uint(0xffffffffu);
+    foo += pack_uint(127u);
+    foo += pack_uint(0u);
+    foo += pack_uint(0xffffffffu);
+    foo += pack_uint(0u);
+    foo += pack_uint(82134u);
 
     const char * p = foo.data();
     om_uint32 result;
 
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 3);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 12475123);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 128);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 0xffffffff);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 127);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 0);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 0xffffffff);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 0);
-    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
-    TEST_EQUAL(result, 82134);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 3u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 12475123u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 128u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0xffffffffu);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 127u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0xffffffffu);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0u);
+    TEST(unpack_uint(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 82134u);
 
     return true;
 }
@@ -565,7 +617,7 @@ static bool test_unpackint1()
     bool success;
     
     p = foo.data();
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data());
 
@@ -573,22 +625,22 @@ static bool test_unpackint1()
     result = 1;
     p = foo.data();
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 0);
     TEST_EQUAL((void *)p, (void *)(foo.data() + 1));
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 2);
     TEST_EQUAL(p, foo.data() + 2);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 65 + 128);
     TEST_EQUAL(p, foo.data() + 4);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data() + 4);
 
@@ -596,29 +648,29 @@ static bool test_unpackint1()
     result = 1;
     p = foo.data();
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 0xffffffff);
     TEST_EQUAL(p, foo.data() + 5);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data() + 10);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 7);
     TEST_EQUAL(p, foo.data() + 11);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data() + 19);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data() + 26);
 
-    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
     TEST_EQUAL(p, foo.data() + 32);
 

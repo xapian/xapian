@@ -44,7 +44,7 @@ struct QuartzDbTag {
 	 *  Tags which are null strings _are_ valid, and are different from a
 	 *  tag simply not being in the table.
 	 */
-	string value;
+	std::string value;
 };
 
 /** The key used to access a block of data in a quartz table.
@@ -59,7 +59,7 @@ struct QuartzDbKey {
 	 *
 	 *  Keys may not have null contents.
 	 */
-	string value;
+	std::string value;
 
 	/** Comparison operator, so that keys may be used in standard
 	 *  containers.

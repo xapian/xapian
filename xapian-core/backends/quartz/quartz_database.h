@@ -143,10 +143,6 @@ class QuartzWritableDatabase : public Database {
 	virtual OmDocumentContents do_get_document(om_docid did);
 	//@}
 
-	/** Get a document ID for a new document.
-	 */
-	om_docid get_newdocid();
-
     public:
 
 	/** Create and open a writable quartz database.
