@@ -1,3 +1,10 @@
+Wed Jun 30 14:54:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.8.1; Corrected --without-tcl help to say
+	  it disables Tcl (not Java!) and list the SWIG bindings which
+	  --without-swig disables; note that SWIG 1.3.21 isn't relevant
+	  and the SWIG changelog URL.
+
 Wed Jun 30 00:09:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated for 0.8.1 release.
