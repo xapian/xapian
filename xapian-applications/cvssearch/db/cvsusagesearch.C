@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
       //      cout << data << endl; 
       //      cout << "...sim = " << sim << " and imp = " << imp<<  endl;
       //  results[ -sim*log(1.0+imp)].insert(data);
-      results[ -sim*log(1.0+log(1.0+imp)) ].insert(data);
+      results[ -sim*log(1.0+imp) ].insert(data);
     }
 
 

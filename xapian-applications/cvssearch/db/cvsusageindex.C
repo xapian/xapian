@@ -137,7 +137,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
   for( map<string, int>::iterator c = app_symbol_count.begin(); c != app_symbol_count.end(); c++ ) {
     string symbol = c->first;
 
-    int count = app_symbol_terms[symbol].size();  //= c->second;
+    int count = c->second; //app_symbol_terms[symbol].size();  //= c->second;
 
     bool isFunction = ( symbol.find("()") != -1 );
 
@@ -338,7 +338,7 @@ int main(int argc, char *argv[]) {
 
       map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
       map<string, int> app_symbol_count;
-      map< string, int > contributed_terms;
+      set<string> found_symbol_before;
 
       Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " accumulating" ); 
 
@@ -376,7 +376,10 @@ int main(int argc, char *argv[]) {
 
 	    if ( lib_symbol_app_count[*i] < MAX_FROM_APP ) {
 	      
-	      lib_symbol_count[*i]++; // count number of lines that contain symbol
+	      if ( found_symbol_before.find(*i) == found_symbol_before.end() ) {
+		lib_symbol_count[*i]++; // count number of lines that contain symbol
+		found_symbol_before.insert(*i);
+	      } 
 	      
 	      for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
 		list<string> word_list = r->second;
