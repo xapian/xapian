@@ -35,10 +35,17 @@ field[=FIELDNAME]
 	a given field: all instances will be processed and stored in the
 	Xapian record.
 
-index[=nopos]
-	split text into words and index probabilistically (if "nopos" is
-	specified then positional information will be omitted - this makes the
-	database smaller, but phrase searching won't work).
+index[=PREFIX]
+	split text into words and index probabilistically (with prefix PREFIX
+	if specified).  For backwards compatibility, the prefix "nopos" is
+	treated specially - this indexes the text with no prefix, and
+	probabilistically, as if you'd written indexnopos.
+
+indexnopos[=PREFIX]
+	split text into words and index probabilistically (with prefix PREFIX
+	if specified), but don't include positional information in the
+	database - this makes the database smaller, but phrase searching won't
+	work.
 
 lower
 	lowercase the text (useful for generating boolean terms)

@@ -1,6 +1,13 @@
+Sat Dec 21 17:47:33 GMT 2002  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc,docs/scriptindex.txt: Replaced index=nopos with
+	  indexnopos action; index and indexnopos now take an optional
+	  prefix argument; index=nopos is handled specially for backwards
+	  compatibility.
+
 Sat Dec 21 17:18:02 GMT 2002  Olly Betts <olly@survex.com>
 
-	* scriptindex.cc, docs/scriptindex.txt: Added new scriptindex action
+	* scriptindex.cc,docs/scriptindex.txt: Added new scriptindex action
 	  date=FORMAT to generate terms for date range searching.
 
 Sat Dec 21 01:51:32 GMT 2002  Olly Betts <olly@survex.com>

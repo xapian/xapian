@@ -103,7 +103,7 @@ class Action {
 public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, INDEX, LOWER,
+	BOOLEAN, DATE, FIELD, INDEX, INDEXNOPOS, LOWER,
 	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
     } type;
 private:
@@ -177,9 +177,11 @@ parse_index_script(const string &filename)
 			break;
 		    case 'i':
 			if (action == "index") {
-			    code = Action::INDEX;  
+			    code = Action::INDEX;
 			    arg = OPT;
-			    // arg = nopos to not store positions
+			} else if (action == "indexnopos") {
+			    code = Action::INDEXNOPOS;
+			    arg = OPT;
 			}
 			break;
 		    case 'l':
@@ -231,7 +233,16 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		actions.push_back(Action(code, string(j, i)));
+		string arg = string(j, i);
+		if (code == Action::INDEX && arg == "nopos") {
+		    // index used to take an optional argument which could
+		    // be "nopos" to mean the same that indexnopos now does.
+		    // translate this to allow older scripts to work (this
+		    // is safe to do since nopos isn't a sane prefix value)
+		    actions.push_back(Action(Action::INDEXNOPOS));
+		} else {
+		    actions.push_back(Action(code, string(j, i)));
+		}
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
 		if (arg == YES) {
@@ -279,7 +290,7 @@ lowercase_string(string &term)
 // FIXME: this function is almost identical to one in omindex.cc...
 static om_termpos
 index_text(const string &s, OmDocument &doc, OmStem &stemmer,
-	   om_termcount wdfinc = 1,
+	   om_termcount wdfinc, const string &prefix,
 	   om_termpos pos = static_cast<om_termpos>(-1)
 	   // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
 	   )
@@ -319,9 +330,9 @@ moreterm:
 		if (pos != static_cast<om_termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
 		   ) {
-		    doc.add_posting('R' + term, pos, wdfinc);
+		    doc.add_posting(prefix + 'R' + term, pos, wdfinc);
 		} else {
-		    doc.add_term_nopos('R' + term, wdfinc);
+		    doc.add_term_nopos(prefix + 'R' + term, wdfinc);
 		}
 	    }
 
@@ -329,9 +340,9 @@ moreterm:
 	    if (pos != static_cast<om_termpos>(-1)
 		    // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
 	       ) {
-		doc.add_posting(term, pos++, wdfinc);
+		doc.add_posting(prefix + term, pos++, wdfinc);
 	    } else {
-		doc.add_term_nopos(term, wdfinc);
+		doc.add_term_nopos(prefix + term, wdfinc);
 	    }
 	}
     }
@@ -403,15 +414,15 @@ index_file(istream &stream, OmWritableDatabase &database, OmStem &stemmer)
 			}
 			break;
 		    case Action::INDEX:
-			if (i->get_string_arg() == "nopos") {
-			    // No positional information so phrase searching
-			    // won't work.  However, the database will use much
-			    // less diskspace.
-			    index_text(value, doc, stemmer, weight);	
-			} else {
-			    wordcount = index_text(value, doc, stemmer, weight,
-						   wordcount);
-			}
+			wordcount = index_text(value, doc, stemmer, weight,
+					       i->get_string_arg(), wordcount);
+			break;
+		    case Action::INDEXNOPOS:
+			// No positional information so phrase searching
+			// won't work.  However, the database will use much
+			// less diskspace.
+			index_text(value, doc, stemmer, weight,
+				   i->get_string_arg());	
 			break;
 		    case Action::BOOLEAN:
 			doc.add_term_nopos(i->get_string_arg() + value);
