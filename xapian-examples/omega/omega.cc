@@ -99,7 +99,7 @@ main2(int argc, char *argv[])
     bool more = false;
     char *method;
     MCI val;
-    pair<MCI, MCI> g;
+    std::pair<MCI, MCI> g;
 
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";

@@ -29,6 +29,14 @@
 #include <map>
 #include <vector>
 
+// FIXME: yuckky
+using std::string;
+using std::vector;
+using std::map;
+using std::multimap;
+using std::cout;
+using std::endl;
+
 extern string dbname;
 extern string fmtname;
 

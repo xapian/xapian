@@ -2,6 +2,9 @@
 #include <vector>
 #include <stdio.h>
 
+using std::string;
+using std::vector;
+
 int
 string_to_int(const string &s)
 {

@@ -540,7 +540,7 @@ eval(const string &fmt)
 		break;
 	    }
 	    case CMD_cgilist: {
-		pair<MCI, MCI> g;
+		std::pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
@@ -664,7 +664,8 @@ eval(const string &fmt)
 		value = int_to_string(last);
 		break;
 	    case CMD_lastpage:
-		value = int_to_string((mset.mbound - 1) / list_size + 1);
+		value = int_to_string((mset.matches_lower_bound - 1) /
+				      list_size + 1);
 		break;
 	    case CMD_list: {
 		if (!args[0].empty()) {
@@ -746,7 +747,7 @@ eval(const string &fmt)
 	    }
 	    case CMD_msize:
 		// number of matches
-		value = int_to_string(mset.mbound);
+		value = int_to_string(mset.matches_estimated);
 		break;
 	    case CMD_ne:
 		if (args[0] != args[1]) value = "true";
@@ -850,7 +851,7 @@ eval(const string &fmt)
 		if (howmany < 0) howmany = 0;
 		    
 		// Present a clickable list of expand terms
-		if (mset.mbound) {
+		if (mset.matches_lower_bound) {
 		    OmESet eset;
 		    ExpandDeciderOmega decider;
 		    
@@ -860,7 +861,8 @@ eval(const string &fmt)
 			// invent an rset
 			OmRSet tmp;
 			
-			for (int m = min(4, int(mset.mbound) - 1); m >= 0; m--)
+			// FIXME: what if mset does not start at first match?
+			for (int m = std::min(std::min(4u, int(mset.matches_lower_bound) - 1u), mset.items.size() - 1u); m >= 0; m--)
 			    tmp.add_document(mset.items[m].did);
 			
 			eset = enquire->get_eset(howmany, tmp, 0, &decider);
@@ -986,7 +988,7 @@ om_doccount
 do_match()
 {
     print_query_page(fmtname);
-    return mset.mbound;
+    return mset.matches_estimated;
 }
 
 // run query if we haven't already
@@ -997,10 +999,10 @@ ensure_match()
     
     run_query();
     done_query = true;
-    if (topdoc > mset.mbound) topdoc = 0;
+    if (topdoc > mset.matches_lower_bound) topdoc = 0;
     
-    if (topdoc + list_size < mset.mbound)
+    if (topdoc + list_size < mset.matches_lower_bound)
 	last = topdoc + list_size;
     else
-	last = mset.mbound;
+	last = mset.matches_lower_bound;
 }

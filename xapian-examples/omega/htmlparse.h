@@ -1,6 +1,9 @@
 #include <string>
 #include <map>
 
+using std::string;
+using std::map;
+
 class HtmlParser {
     protected:
 	void decode_entities(string &s);

@@ -53,19 +53,19 @@ lowercase_term(om_termname &term)
 static void
 select_characters(om_termname &term)
 {
-    string chars(
+    std::string chars(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-    string::size_type pos;
-    while((pos = term.find_first_not_of(chars)) != string::npos)
+    std::string::size_type pos;
+    while((pos = term.find_first_not_of(chars)) != std::string::npos)
     {
-	string::size_type endpos = term.find_first_of(chars, pos);
+	std::string::size_type endpos = term.find_first_of(chars, pos);
 	term.erase(pos, endpos - pos);
     }
 }
 
 OmEnquire * enquire;
 OmMSet mset;
-string querystring;
+std::string querystring;
 
 om_doccount max_msize;
 GtkCList *results_widget;
@@ -76,32 +76,32 @@ GtkLabel *result_docid;
 GtkText *result_text;
 
 gchar *
-c_string(const string & s)
+c_string(const std::string & s)
 {
     gchar * p = new gchar[s.length() + 1];
-    s.copy(p, string::npos);
+    s.copy(p, std::string::npos);
     p[s.length()] = '\0';
     return p;
 }
 
 // Convert an integer to a string
 #include <strstream.h>
-string inttostring(int a)
+std::string inttostring(int a)
 {
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
     ost << a << ends;
-    return string(buf);
+    return std::string(buf);
 }
 
-string floattostring(double a)
+std::string floattostring(double a)
 {
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
     ost << a << ends;
-    return string(buf);
+    return std::string(buf);
 }
 
 class TopTermItemGTK {
@@ -161,9 +161,9 @@ static void do_resultdisplay(gint row) {
 	om_docid did = mset.items[row].did;
 	
 	OmDocument doc(enquire->get_doc(mset.items[row]));
-	string fulltext = doc.get_data().value;
+	std::string fulltext = doc.get_data().value;
 	
-	string score = inttostring(mset.convert_to_percent(mset.items[row]));
+	std::string score = inttostring(mset.convert_to_percent(mset.items[row]));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -194,7 +194,7 @@ static void do_topterms() {
 	if (!rset.items.size()) {
 	    // invent an rset
 	    gint msize = results_widget->rows;
-	    for (index = min(4, msize - 1); index >= 0; index--) {
+	    for (index = std::min(4, msize - 1); index >= 0; index--) {
 		gpointer rowdata = gtk_clist_get_row_data(results_widget, index);
 		ResultItemGTK * item = (ResultItemGTK *) rowdata;
 		rset.add_document(item->did);
@@ -207,9 +207,9 @@ static void do_topterms() {
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);
 
-	vector<OmESetItem>::const_iterator i;
+	std::vector<OmESetItem>::const_iterator i;
 	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
-	    string tname = i->tname;
+	    std::string tname = i->tname;
 //#ifdef DEBUG
 	    tname = tname + " (" + floattostring(i->wt) + ")";
 //#endif
@@ -242,7 +242,7 @@ static void
 on_query_changed(GtkWidget *widget, gpointer user_data) {
     GtkEditable *textbox = GTK_EDITABLE(widget);
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
-    querystring = string(tmp);
+    querystring = std::string(tmp);
     g_free(tmp);
 
     try {
@@ -250,10 +250,10 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	OmQuery omquery;
 	OmStem stemmer("english");
 	om_termname word;
-        string::size_type spacepos;
+	std::string::size_type spacepos;
 	om_termcount position = 1;
-	string unparsed_query = querystring;
-	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != string::npos) {
+	std::string unparsed_query = querystring;
+	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != std::string::npos) {
 	    if(spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
 	    spacepos = unparsed_query.find_first_of(" \t\n");
 	    word = unparsed_query.substr(0, spacepos);
@@ -270,16 +270,18 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
-	cout << "MBound: " << mset.mbound <<
-	        " Max_possible: " << mset.max_possible <<
-	        " Max_attained: " << mset.max_attained << endl;
+	cout << "matches_lower_bound: " << mset.matches_lower_bound <<
+		" matches_estimated: " << mset.matches_estimated <<
+		" matches_upper_bound: " << mset.matches_upper_bound <<
+	        " max_possible: " << mset.max_possible <<
+	        " max_attained: " << mset.max_attained << endl;
 
-	vector<OmMSetItem>::const_iterator j;
+	std::vector<OmMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
 	    om_termname_list mterms = enquire->get_matching_terms(*j);
-	    vector<string> sorted_mterms(mterms.begin(), mterms.end());
-	    string message;
-	    for (vector<string>::const_iterator i = sorted_mterms.begin();
+	    std::vector<std::string> sorted_mterms(mterms.begin(), mterms.end());
+	    std::string message;
+	    for (std::vector<std::string>::const_iterator i = sorted_mterms.begin();
 		 i != sorted_mterms.end();
 		 ++i) {
 		if (message.size() > 0) message += " ";
@@ -312,10 +314,10 @@ on_mainwindow_destroy(GtkWidget *widget,
 }
 
 int main(int argc, char *argv[]) {
-    string gladefile = "querygui.glade";
+    std::string gladefile = "querygui.glade";
     enquire = NULL;
     max_msize = 10;
-    vector<OmSettings *> dbs;
+    std::vector<OmSettings *> dbs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -359,7 +361,7 @@ int main(int argc, char *argv[]) {
     try {
 	OmDatabase mydbs;
 
-	vector<OmSettings *>::const_iterator p;
+	std::vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
 	    mydbs.add_database(**p);
 	    delete *p;

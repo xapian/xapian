@@ -12,6 +12,9 @@
 
 #include <om/om.h>
 
+using std::cout;
+using std::endl;
+
 // FIXME: these 2 copied from om/indexer/index_utils.cc
 static void
 lowercase_term(om_termname &term)

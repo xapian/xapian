@@ -21,10 +21,13 @@
  */
 
 %{
+#include <vector>
 #include <string>
 #include <om/om.h>
 #include <stdio.h>
 #include <ctype.h>
+using std::vector;
+using std::string;
 
 class U {
     public:

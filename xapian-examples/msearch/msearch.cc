@@ -27,7 +27,7 @@
 
 #ifdef MUS_DEBUG_VERBOSE
 // Verbose debugging output
-#define DebugMsg(a) cout << a ; cout.flush()
+#define DebugMsg(a) std::cout << a ; std::cout.flush()
 #else
 #define DebugMsg(a)
 #endif
@@ -51,7 +51,7 @@ main(int argc, char *argv[])
     int mfirst = 0;
     const char *progname = argv[0];
     OmRSet rset;
-    vector<OmSettings *> dbs;
+    std::vector<OmSettings *> dbs;
     bool showmset = true;
     bool applystem = false;
     OmQuery::op default_op = OmQuery::OP_OR;
@@ -121,7 +121,7 @@ main(int argc, char *argv[])
     }
 	
     if (syntax_error || argc < 1 || dbs.empty()) {
-	cout << "Syntax: " << progname << " [OPTIONS] TERM ..." << endl <<
+	std::cout << "Syntax: " << progname << " [OPTIONS] TERM ...\n" <<
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
@@ -139,7 +139,7 @@ main(int argc, char *argv[])
     try {
         OmDatabase mydbs;
 
-	vector<OmSettings *>::const_iterator p;
+	std::vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
 	    mydbs.add_database(**p);
 	    delete *p;
@@ -150,11 +150,11 @@ main(int argc, char *argv[])
 	OmStem stemmer("english");
 
 	OmQuery query;
-	stack<OmQuery> boolquery;
+	std::stack<OmQuery> boolquery;
 	// Parse query into OmQuery object
 	bool boolean = false;
         for (char **p = argv; *p; p++) {
-	    string term = *p;
+	    std::string term = *p;
 	    if (term == "B") {
 		boolean = true;
 		continue;
@@ -194,7 +194,7 @@ main(int argc, char *argv[])
 //		    }
 		    if (doop) {
 			if (boolquery.size() < 2) {
-			    cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
+			    std::cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
 			    exit(1);
 			}
 			OmQuery boolq_right(boolquery.top());
@@ -210,15 +210,15 @@ main(int argc, char *argv[])
 		} else {
 		    if (applystem)
 			term = stemmer.stem_word(term);
-		    DebugMsg("oldquery: " << query.get_description() << endl);
+		    DebugMsg("oldquery: " << query.get_description() << std::endl);
 		    query = OmQuery(default_op, query, term);
-		    DebugMsg("newquery: " << query.get_description() << endl);
+		    DebugMsg("newquery: " << query.get_description() << std::endl);
 		}
 	    }
         }
 	if (boolean) {
 	    if (boolquery.size() == 0) {
-		cout << "Syntax error: Empty boolean query.\n";
+		std::cout << "Syntax error: Empty boolean query.\n";
 		exit(1);
 	    }
 	    while (boolquery.size() > 1) {
@@ -233,7 +233,7 @@ main(int argc, char *argv[])
 	}
 
 	enquire.set_query(query);
-	DebugMsg("Query is: " << query.get_description() << endl);
+	DebugMsg("Query is: " << query.get_description() << std::endl);
 
 	OmSettings opts;
 	if (collapse_key != -1)
@@ -242,18 +242,19 @@ main(int argc, char *argv[])
 	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
 	
 	if (showmset) {
-	    vector<OmMSetItem>::const_iterator i;
+	    std::vector<OmMSetItem>::const_iterator i;
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {
 		OmDocument doc(enquire.get_doc(*i));
-		string p = doc.get_data().value;
-		cout << i->did << ":[" << p << "] " << i->wt << endl << endl;
+		std::string p = doc.get_data().value;
+		std::cout << i->did << ":[" << p << "] " << i->wt
+			<< std::endl << std::endl;
 	    }
-	    cout << endl;
+	    std::cout << std::endl;
 	}
     }
     catch (OmError &e) {
-	cout << e.get_msg() << endl;
+	std::cout << e.get_msg() << std::endl;
     }
 }

@@ -36,7 +36,7 @@ HtmlParser::decode_entities(string &s)
 	}
 	if (end < s.size() && s[end] == ';') end++;
 	if (val) {
-	    s.replace(amp, end - amp, char(val));
+	    s.replace(amp, end - amp, 1u, char(val));
 	    amp += 1;
 	} else {
 	    amp = end;

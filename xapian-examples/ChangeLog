@@ -1,3 +1,10 @@
+Tue Dec  5 16:26:24 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixes to compile with stlport.
+
+	* Fixes to use the new matches_{{lower,upper}_bound,estimated}
+	  interface.
+
 Tue Nov 28 15:07:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Updated indexer/indexfile.xml to use the omsplitonchars node

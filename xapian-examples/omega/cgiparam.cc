@@ -25,6 +25,10 @@
 #include <map>
 #include <string>
 
+using std::string;
+using std::map;
+using std::multimap;
+
 multimap<string, string> cgi_params;
 
 static void

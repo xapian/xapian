@@ -26,6 +26,11 @@
 #include <string>
 #include <om/om.h>
 
+#include <list>
+#include <set>
+using std::list;
+using std::set;
+
 class QueryParser {
     public:
 	QueryParser() {
