@@ -1,3 +1,10 @@
+Thu Aug 15 11:18:21 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* buildall: Copy buildall from xapian-core - the old one breaks
+	  for me (due to odd aclocal paths) but the new one is fine.
+	  We should make a common module to hold build stuff to be shared
+	  between modules, though.
+
 Mon Aug 12 01:34:42 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* scriptindex.cc: Bug fix - index without positional information
