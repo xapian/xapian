@@ -21,7 +21,7 @@
     <node type="omtranslatelist" id="lowercaps">
         <param name="from" type="string" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
         <param name="to" type="string" value="abcdefghijklmnopqrstuvwxyz"/>
-	<input name="in" node="capsonly" out_name="out"/></node>
+	<input name="in" node="capsonly" out_name="matching"/></node>
     <!-- Right branch, lower case everything... -->
     <node type="omtranslatelist" id="tolower">
         <param name="from" type="string" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
