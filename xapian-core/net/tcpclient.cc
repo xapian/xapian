@@ -24,6 +24,8 @@
 #include "tcpclient.h"
 #include "om/omerror.h"
 
+#include <errno.h>
+#include <string.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>

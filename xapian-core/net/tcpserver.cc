@@ -27,6 +27,9 @@
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"
+
+#include <errno.h>
+#include <string.h>
 #include <unistd.h>
 #include <memory>
 #include <netinet/ip.h>
