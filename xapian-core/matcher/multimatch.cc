@@ -196,6 +196,7 @@ class MSetSortCmp {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Internal * query_,
+		       Xapian::termcount qlen,
 		       const Xapian::RSet & omrset, Xapian::valueno collapse_key_,
 		       int percent_cutoff_, Xapian::weight weight_cutoff_,
 		       bool sort_forward_, Xapian::valueno sort_key_,
@@ -213,6 +214,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
+	      qlen << ", " <<
 	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
 	      ", " << weight_cutoff_ << ", " << sort_forward << ", " <<
 	      sort_key_ << ", " << sort_bands_ << ", " << sort_by_relevance_ <<
@@ -255,12 +257,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
-			new RemoteSubMatch(netdb, query, *subrset, collapse_key,
+			new RemoteSubMatch(netdb, query, qlen,
+			    *subrset, collapse_key,
 			    sort_forward, percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
 #endif /* XAPIAN_BUILD_BACKEND_REMOTE */
-		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, *subrset, gatherer.get(), weight));
+		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight));
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    }
 #endif /* XAPIAN_BUILD_BACKEND_REMOTE */

@@ -286,13 +286,14 @@ SocketServer::run_match(const string &firstmessage)
     istrstream is(message.data(), message.length());
 #endif
 
+    Xapian::termcount qlen;
     bool sort_forward;
     Xapian::valueno collapse_key;
     int percent_cutoff;
     Xapian::weight weight_cutoff;
     string weighting_scheme;
 
-    is >> collapse_key >> sort_forward >> percent_cutoff >> weight_cutoff;
+    is >> qlen >> collapse_key >> sort_forward >> percent_cutoff >> weight_cutoff;
 
     // extract the weight object
     message = readline(msecs_active_timeout);
@@ -307,7 +308,7 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     Xapian::RSet omrset = string_to_omrset(message);
 
-    MultiMatch match(db, query, omrset, collapse_key, percent_cutoff,
+    MultiMatch match(db, query, qlen, omrset, collapse_key, percent_cutoff,
 		     weight_cutoff, sort_forward, Xapian::valueno(-1),
 		     false, 0, 0, 0, NULL, gatherer, wt.get());
 

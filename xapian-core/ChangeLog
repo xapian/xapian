@@ -1,3 +1,11 @@
+Mon Feb 28 20:31:13 GMT 2005  Olly Betts <olly@survex.com>
+
+	* net/socketclient.cc,net/socketserver.cc,api/omenquire.cc,
+	  api/omquery.cc,api/omqueryinternal.cc,common/,
+	  include/xapian/enquire.h,include/xapian/query.h,matcher/:
+	  Remove Query::set_length() in favour of an optional length
+	  parameter to Enquire::set_query().
+
 Mon Feb 28 15:32:32 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,common/Makefile.am,common/deleter_vector.h:

@@ -54,13 +54,13 @@ class LocalSubMatch : public SubMatch {
 	/// Query to be run
 	Xapian::Query::Internal users_query;
 
+	/// The size of the query (passed to Xapian::Weight objects)
+	Xapian::termcount qlen;
+
 	const Xapian::Database::Internal *db;
 
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSetI> rset;
-
-	/// The size of the query (passed to Xapian::Weight objects)
-	Xapian::doclength querysize;
 
 	/// Weighting scheme object
 	const Xapian::Weight * wtscheme;
@@ -98,7 +98,8 @@ class LocalSubMatch : public SubMatch {
 
     public:
 	LocalSubMatch(const Xapian::Database::Internal *db_,
-		      const Xapian::Query::Internal * query,
+		      const Xapian::Query::Internal * query_,
+		      Xapian::termcount qlen_,
 		      const Xapian::RSet & omrset, StatsGatherer *gatherer,
 		      const Xapian::Weight *wtscheme_);
 

@@ -119,7 +119,6 @@ string
 Xapian::Query::Internal::serialise() const
 {
     Xapian::termpos curpos = 1;
-    Xapian::termcount len = 0;
     string result;
 
     if (op == Xapian::Query::Internal::OP_LEAF) {
@@ -128,8 +127,6 @@ Xapian::Query::Internal::serialise() const
        	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
 	if (wqf != 1) result += '#' + om_tostring(wqf);
 	++curpos;
-	len += wqf;
-	if (qlen != len) result += '=' + om_tostring(qlen);
     } else {
 	result += "(";
 	for (subquery_list::const_iterator i = subqs.begin();
@@ -169,7 +166,6 @@ Xapian::Query::Internal::serialise() const
 		result += "*" + om_tostring(parameter);
 		break;
 	}
-	/*if (qlen != len)*/ result += '=' + om_tostring(qlen);
     }
     return result;
 }
@@ -227,11 +223,15 @@ Xapian::Query::Internal::get_description() const
 }
 
 Xapian::termcount
-Xapian::Query::Internal::set_length(Xapian::termcount qlen_)
+Xapian::Query::Internal::get_length() const
 {
-    Xapian::termcount oldqlen = qlen;
-    qlen = qlen_;
-    return oldqlen;
+    if (is_leaf(op)) return wqf;
+    Xapian::termcount len = 0;
+    subquery_list::const_iterator i;
+    for (i = subqs.begin(); i != subqs.end(); ++i) {
+	len += (**i).get_length();
+    }
+    return len;
 }
 
 /** Private function used to implement get_terms() */
@@ -293,13 +293,12 @@ class QUnserial {
   private:
     const char *p;
     Xapian::termpos curpos;
-    Xapian::termpos len;
  
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readcompound();
     
   public:
-    QUnserial(const char *p_) : p(p_), curpos(1), len(0) { }
+    QUnserial(const char *p_) : p(p_), curpos(1) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -307,13 +306,6 @@ Xapian::Query::Internal *
 QUnserial::decode() {
     DEBUGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
     Xapian::Query::Internal * qint = readquery();
-    if (*p == '=') {
-	char *tmp; // avoid compiler warning
-	qint->set_length(Xapian::termcount(strtol(p + 1, &tmp, 10)));
-	p = tmp;
-    } else {
-	qint->set_length(len);
-    }
     DEBUGLINE(UNKNOWN, "Remainder of query (should be none) is `" << p << "'");
     Assert(*p == '\0');
     return qint;
@@ -341,7 +333,6 @@ QUnserial::readquery() {
 		p = tmp;
 	    }
 	    ++curpos;
-	    len += wqf;
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);
 	}
 	case '(':
@@ -375,13 +366,7 @@ QUnserial::readcompound() {
 		subqs.push_back(readquery());
 		break;
 	    case '(': {
-		Xapian::Query::Internal * qint = readcompound();
-		if (*p == '=') {
-		    char *tmp; // avoid compiler warning
-		    qint->set_length(Xapian::termcount(strtol(p + 1, &tmp, 10)));
-		    p = tmp;
-		}
-		subqs.push_back(qint);
+		subqs.push_back(readcompound());
 		break;
 	    }
 	    case '&':
@@ -432,7 +417,7 @@ Xapian::Query::Internal::unserialise(const string &s)
     return qint;
 }
 
-/** swap the contents of this with another Xapian::Query::Internal,
+/** Swap the contents of this with another Xapian::Query::Internal,
  *  in a way which is guaranteed not to throw.  This is
  *  used with the assignment operator to make it exception
  *  safe.
@@ -444,7 +429,6 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
 {
     std::swap(op, other.op);
     subqs.swap(other.subqs);
-    std::swap(qlen, other.qlen);
     std::swap(parameter, other.parameter);
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
@@ -455,7 +439,6 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	: Xapian::Internal::RefCntBase(),
 	  op(copyme.op),
 	  subqs(),
-	  qlen(copyme.qlen),
 	  parameter(copyme.parameter),
 	  tname(copyme.tname),
 	  term_pos(copyme.term_pos),
@@ -475,7 +458,6 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 		 Xapian::termpos term_pos_)
 	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
-	  qlen(wqf_),
 	  parameter(0),
 	  tname(tname_),
 	  term_pos(term_pos_),
@@ -489,7 +471,6 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	: op(op_),
 	  subqs(),
-	  qlen(0),
 	  parameter(parameter_),
 	  tname(),
 	  term_pos(0),
@@ -637,7 +618,6 @@ Xapian::Query::Internal::collapse_subqs()
 		Assert((*s)->tname == (*sq)->tname);
 		Assert((*s)->term_pos == (*sq)->term_pos);
 		(*s)->wqf += (*sq)->wqf;
-		(*s)->qlen += (*sq)->qlen;
 		// Rather than incrementing, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.
@@ -701,7 +681,6 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal & subq)
 	    add_subquery(**i);
 	}
     } else {
-	qlen += subq.qlen;
 	subqs.push_back(new Xapian::Query::Internal(subq));
     }
 }

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,11 +67,13 @@ class NetClient : public Xapian::Internal::RefCntBase {
 
 	/** Set the query
 	 *
-	 * @param query_ The query.
-	 * @param wtscheme Weighting scheme.
-	 * @param omrset_ The rset.
+	 * @param query_    The query.
+	 * @param qlen      The query length.
+	 * @param wtscheme  Weighting scheme.
+	 * @param omrset_   The rset.
 	 */
 	virtual void set_query(const Xapian::Query::Internal *query_,
+			       Xapian::termcount qlen,
 			       Xapian::valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, Xapian::weight weight_cutoff,
 			       const Xapian::Weight *wtscheme,

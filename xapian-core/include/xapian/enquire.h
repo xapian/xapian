@@ -658,11 +658,11 @@ class Enquire {
 
 	/** Set the query to run.
 	 *
-	 *  @param query_  the new query to run.
-	 *
-	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @param query  the new query to run.
+	 *  @param qlen   the query length to use in weight calculations -
+	 *	by default the sum of the wqf of all terms is used.
 	 */
-	void set_query(const Xapian::Query & query_);
+	void set_query(const Xapian::Query & query, Xapian::termcount qlen = 0);
 
 	/** Get the query which has been set.
 	 *  This is only valid after set_query() has been called.

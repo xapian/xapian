@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,6 +64,7 @@ class RemoteSubMatch : public SubMatch {
     public:
 	RemoteSubMatch(const NetworkDatabase *db_,
 		       const Xapian::Query::Internal * query,
+		       Xapian::termcount qlen,
 		       const Xapian::RSet & omrset,
 		       Xapian::valueno collapse_key, bool sort_forward,
 		       int percent_cutoff, Xapian::weight weight_cutoff,

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -383,6 +383,7 @@ SocketClient::~SocketClient()
 
 void
 SocketClient::set_query(const Xapian::Query::Internal *query_,
+			Xapian::termcount qlen,
 			Xapian::valueno collapse_key, bool sort_forward,
 			int percent_cutoff, Xapian::weight weight_cutoff,
 			const Xapian::Weight *wtscheme,
@@ -396,7 +397,8 @@ SocketClient::set_query(const Xapian::Query::Internal *query_,
     Assert(conv_state == state_getquery);
     // FIXME: no point carefully serialising these all separately...
     query_string = query_->serialise();
-    optstring = om_tostring(collapse_key) + (sort_forward ? " 1 " : " 0 ") +
+    optstring = om_tostring(qlen) + ' ' + om_tostring(collapse_key) +
+	(sort_forward ? " 1 " : " 0 ") +
 	om_tostring(percent_cutoff) + ' ' + om_tostring(weight_cutoff);
     wtstring = wtscheme->name() + '\n' + wtscheme->serialise();
     omrset = omrset_;

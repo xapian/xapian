@@ -154,17 +154,10 @@ class Query {
 	Query(Query::op op_, Xapian::Query q);
 
 	/** Get the length of the query, used by some ranking formulae.
-	 *  This value is calculated automatically, but may be overridden
-	 *  using set_length().
+	 *  This value is calculated automatically - if you want to override
+	 *  it you can pass a different value to Enquire::set_query().
 	 */
 	Xapian::termcount get_length() const;
-
-	/** Set the length of the query.
-	 *  This overrides the automatically calculated value, which may
-	 *  be desirable in some situations.
-	 *  Returns the old value of the query length.
-	 */
-	Xapian::termcount set_length(Xapian::termcount qlen);
 
 	/** Return a Xapian::TermIterator returning all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term
@@ -241,9 +234,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
 	
-	/// Length of query
-	Xapian::termcount qlen;
-
 	/** For NEAR or PHRASE, how close terms must be to match: all terms
 	 *  within the operation must occur in a window of this size.
 	 *
@@ -347,17 +337,10 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	std::string get_description() const;
 
 	/** Get the length of the query, used by some ranking formulae.
-	 *  This value is calculated automatically, but may be overridden
-	 *  using set_length().
+	 *  This value is calculated automatically - if you want to override
+	 *  it you can pass a different value to Enquire::set_query().
 	 */
-	Xapian::termcount get_length() const { return qlen; }
-
-	/** Set the length of the query.
-	 *  This overrides the automatically calculated value, which may
-	 *  be desirable in some situations.
-	 *  Returns the old value of the query length.
-	 */
-	Xapian::termcount set_length(Xapian::termcount qlen_);
+	Xapian::termcount get_length() const;
 
 	/** Return an iterator over all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term

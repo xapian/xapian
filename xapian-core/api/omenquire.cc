@@ -658,7 +658,7 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(0), collapse_key(Xapian::valueno(-1)), sort_forward(true), 
+  : db(db_), query(), collapse_key(Xapian::valueno(-1)), sort_forward(true), 
     percent_cutoff(0), weight_cutoff(0), sort_key(Xapian::valueno(-1)),
     sort_bands(0), sort_by_relevance(false), bias_halflife(0), bias_weight(0),
     errorhandler(errorhandler_), weight(0)
@@ -667,28 +667,21 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
 
 Enquire::Internal::~Internal()
 {
-    delete query;
-    query = 0;
     delete weight;
     weight = 0;
 }
 
 void
-Enquire::Internal::set_query(const Query &query_)
+Enquire::Internal::set_query(const Query &query_, termcount qlen_)
 {
-    delete query;
-    // FIXME - I believe this is meant to copy the query, but it actually just
-    // copies the handle...
-    query = new Query(query_);
+    query = query_;
+    qlen = qlen_ ? qlen_ : query.get_length();
 }
 
 const Query &
 Enquire::Internal::get_query()
 {
-    if (query == 0) {
-        throw InvalidArgumentError("Can't get query before setting it");
-    }
-    return *query;
+    return query;
 }
 
 MSet
@@ -699,9 +692,6 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
 	      << maxitems << ", " << check_at_least << ", " << rset << ", "
 	      << mdecider);
-    if (query == 0) {
-        throw InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
-    }
 
     // Set Rset
     RSet emptyrset;
@@ -713,8 +703,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	weight = new BM25Weight;
     }
 
-    // FIXME: make match take a refcntptr
-    ::MultiMatch match(db, query->internal.get(), *rset, collapse_key,
+    ::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       sort_forward, sort_key, sort_bands, sort_by_relevance,
 		       bias_halflife, bias_weight, errorhandler,
@@ -755,10 +744,10 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     AutoPtr<ExpandDecider> decider_andnoquery;
     ExpandDeciderAlways decider_always;
 
-    if (query != 0 && !(flags & Enquire::include_query_terms)) {
+    if (!query.empty() && !(flags & Enquire::include_query_terms)) {
 	AutoPtr<ExpandDecider> temp1(
-	    new ExpandDeciderFilterTerms(query->get_terms_begin(),
-					   query->get_terms_end()));
+	    new ExpandDeciderFilterTerms(query.get_terms_begin(),
+					 query.get_terms_end()));
         decider_noquery = temp1;
 
 	if (edecider) {
@@ -779,10 +768,60 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     return retval;
 }
 
+class ByQueryIndexCmp {
+ private:
+    typedef map<string, unsigned int> tmap_t;
+    const tmap_t &tmap;
+ public:
+    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
+    bool operator()(const string &left,
+		    const string &right) const {
+	tmap_t::const_iterator l, r;
+	l = tmap.find(left);
+	r = tmap.find(right);
+	Assert((l != tmap.end()) && (r != tmap.end()));
+
+	return l->second < r->second;
+    }
+};
+
 TermIterator
 Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
-    return calc_matching_terms(did);
+    if (query.empty())
+	throw Xapian::InvalidArgumentError("get_matching_terms with empty query");
+	//return TermIterator(NULL);
+
+    // The ordered list of terms in the query.
+    TermIterator qt = query.get_terms_begin();
+    TermIterator qt_end = query.get_terms_end();
+
+    // copy the list of query terms into a map for faster access.
+    // FIXME: a hash would be faster than a map, if this becomes
+    // a problem.
+    map<string, unsigned int> tmap;
+    unsigned int index = 1;
+    for ( ; qt != qt_end; qt++) {
+	if (tmap.find(*qt) == tmap.end())
+	    tmap[*qt] = index++;
+    }
+
+    vector<string> matching_terms;
+
+    TermIterator docterms = db.termlist_begin(did);
+    TermIterator docterms_end = db.termlist_end(did);
+    while (docterms != docterms_end) {
+	string term = *docterms;
+        map<string, unsigned int>::iterator t = tmap.find(term);
+        if (t != tmap.end()) matching_terms.push_back(term);
+	docterms++;
+    }
+
+    // sort the resulting list by query position.
+    sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
+
+    return TermIterator(new VectorTermList(matching_terms.begin(),
+					   matching_terms.end()));
 }
 
 TermIterator
@@ -790,14 +829,14 @@ Enquire::Internal::get_matching_terms(const MSetIterator &it) const
 {
     // FIXME: take advantage of MSetIterator to ensure that database
     // doesn't get modified underneath us.
-    return calc_matching_terms(*it);
+    return get_matching_terms(*it);
 }
 
 string
 Enquire::Internal::get_description() const
 {
     string description = db.get_description();
-    if (query) description += ", " + query->get_description();
+    description += ", " + query.get_description();
     return description;
 }
 
@@ -837,66 +876,6 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
     }
 }
 
-}
-
-class ByQueryIndexCmp {
- private:
-    typedef map<string, unsigned int> tmap_t;
-    const tmap_t &tmap;
- public:
-    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
-    bool operator()(const string &left,
-		    const string &right) const {
-	tmap_t::const_iterator l, r;
-	l = tmap.find(left);
-	r = tmap.find(right);
-	Assert((l != tmap.end()) && (r != tmap.end()));
-
-	return l->second < r->second;
-    }
-};
-
-namespace Xapian {
-
-TermIterator
-Enquire::Internal::calc_matching_terms(Xapian::docid did) const
-{
-    if (query == 0) {
-        throw InvalidArgumentError("Can't get matching terms before setting query");
-    }
-
-    // the ordered list of terms in the query.
-    TermIterator qt = query->get_terms_begin();
-    TermIterator qt_end = query->get_terms_end();
-
-    // copy the list of query terms into a map for faster access.
-    // FIXME: a hash would be faster than a map, if this becomes
-    // a problem.
-    map<string, unsigned int> tmap;
-    unsigned int index = 1;
-    for ( ; qt != qt_end; qt++) {
-	if (tmap.find(*qt) == tmap.end())
-	    tmap[*qt] = index++;
-    }
-
-    vector<string> matching_terms;
-
-    TermIterator docterms = db.termlist_begin(did);
-    TermIterator docterms_end = db.termlist_end(did);
-    while (docterms != docterms_end) {
-	string term = *docterms;
-        map<string, unsigned int>::iterator t = tmap.find(term);
-        if (t != tmap.end()) matching_terms.push_back(term);
-	docterms++;
-    }
-
-    // sort the resulting list by query position.
-    sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
-
-    return TermIterator(new VectorTermList(matching_terms.begin(),
-					   matching_terms.end()));
-}
-
 void
 Enquire::Internal::register_match_decider(const string &name,
 	const MatchDecider *mdecider)
@@ -922,15 +901,10 @@ Enquire::~Enquire()
 }
 
 void
-Enquire::set_query(const Query & query_)
+Enquire::set_query(const Query & query, termcount len)
 {
-    DEBUGAPICALL(void, "Xapian::Enquire::set_query", query_);
-    try {
-	internal->set_query(query_);
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    DEBUGAPICALL(void, "Xapian::Enquire::set_query", query << ", " << len);
+    internal->set_query(query, len);
 }
 
 const Query &

@@ -109,15 +109,15 @@ class CmpMaxOrTerms {
 };
 
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
-	const Xapian::Query::Internal * query,
+	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
 	const Xapian::RSet & omrset, StatsGatherer *gatherer,
 	const Xapian::Weight *wtscheme_)
 	: statssource(new LocalStatsSource(gatherer)),
-	  is_prepared(false), users_query(*query), db(db_),
-	  querysize(query->qlen), wtscheme(wtscheme_)
+	  is_prepared(false), users_query(*query), qlen(qlen_), db(db_),
+	  wtscheme(wtscheme_)
 {
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
-	      db << ", " << query << ", " << omrset << ", " <<
+	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
 	      gatherer << ", [wtscheme]");
     AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
     rset = new_rset;
@@ -401,12 +401,12 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    if (is_bool) {
 		wt = new Xapian::BoolWeight();
 	    } else {
-		wt = wtscheme->create(statssource.get(), querysize, query->wqf,
+		wt = wtscheme->create(statssource.get(), qlen, query->wqf,
 				      query->tname);
 #ifdef XAPIAN_DEBUG_PARANOID
 		// Check that max_extra weight is really right
 		AutoPtr<Xapian::Weight> temp_wt(wtscheme->create(statssource.get(),
-					  querysize, 1, ""));
+					  qlen, 1, ""));
 		AssertEqDouble(wt->get_maxextra(), temp_wt->get_maxextra());
 #endif
 	    }
@@ -520,7 +520,7 @@ LocalSubMatch::get_postlist(Xapian::doccount maxitems, MultiMatch *matcher)
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.
     AutoPtr<Xapian::Weight> extra_wt(wtscheme->create(statssource.get(),
-			       querysize, 1, ""));
+			       qlen, 1, ""));
     if (extra_wt->get_maxextra() == 0) {
 	RETURN(pl);
     }

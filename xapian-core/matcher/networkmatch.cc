@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,7 @@
 
 RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const Xapian::Query::Internal * query,
+			       Xapian::termcount qlen,
 			       const Xapian::RSet & omrset,
 			       Xapian::valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, Xapian::weight weight_cutoff,
@@ -42,6 +43,7 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 	: is_prepared(false), db(db_), gatherer(gatherer_)
 {	    
     DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " <<
+	      qlen << ", " <<
 	      omrset << ", " << collapse_key << ", " << sort_forward << ", " <<
 	      percent_cutoff << ", " << weight_cutoff << ", " << gatherer_);
     Assert(db);
@@ -49,7 +51,7 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
     Assert(gatherer_);
     statssource = new NetworkStatsSource(gatherer_, db->link);
 
-    db->link->set_query(query, collapse_key, sort_forward, percent_cutoff,
+    db->link->set_query(query, qlen, collapse_key, sort_forward, percent_cutoff,
 			weight_cutoff, wtscheme, omrset);
     db->link->register_statssource(statssource);
 

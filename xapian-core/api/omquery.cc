@@ -179,13 +179,6 @@ termcount Query::get_length() const
     RETURN(internal.get() ? internal->get_length() : 0);
 }
 
-termcount Query::set_length(termcount qlen)
-{
-    DEBUGAPICALL(Xapian::termcount, "Xapian::Query::set_length", qlen);
-    Assert(internal.get());
-    RETURN(internal->set_length(qlen));
-}
-
 TermIterator Query::get_terms_begin() const
 {
     DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_begin", "");

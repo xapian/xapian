@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/enquire.h>
+#include <xapian/query.h>
 #include <algorithm>
 #include <math.h>
 #include <map>
@@ -125,16 +126,11 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	/// The database which this enquire object uses.
 	const Xapian::Database db;
 
-	/** The user's query.
-	 *  This may need to be mutable in future so that it can be
-	 *  replaced by an optimised version.
-	 */
-	Query * query;
+	/// The user's query.
+	Query query;
 
-	/** Calculate the matching terms.
-	 *  This method does the work for get_matching_terms().
-	 */
-	TermIterator calc_matching_terms(Xapian::docid did) const;
+	/// The query length.
+	termcount qlen;
 
 	/// Copy not allowed
 	Internal(const Internal &);
@@ -176,7 +172,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	Xapian::Document read_doc(const Xapian::Internal::MSetItem &item) const;
 
-	void set_query(const Query & query_);
+	void set_query(const Query & query_, termcount qlen_);
 	const Query & get_query();
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
