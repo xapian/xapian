@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -134,7 +134,7 @@ static bool test_tcpmatch1()
     system(command);
     sleep(3);
 
-    Xapian::Database db = Xapian::Remote::open("localhost", 1235);
+    Xapian::Database db = Xapian::Remote::open("127.0.0.1", 1235);
 
     Xapian::Enquire enq(db);
 
@@ -184,7 +184,7 @@ static bool test_tcpdead1()
     sleep(3);
 
     // parent code:
-    Xapian::Database db(Xapian::Remote::open("localhost", 1237);
+    Xapian::Database db(Xapian::Remote::open("127.0.0.1", 1237);
 
     Xapian::Enquire enq(db);
 

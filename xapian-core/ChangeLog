@@ -1,3 +1,8 @@
+Fri Apr 23 11:24:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/remotetest.cc: Use 127.0.0.1 instead of localhost so that
+	  tcpmatch1 doesn't fail just because the network setup is broken.
+
 Thu Apr 22 00:54:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Stripped out the Btree_errors as it's almost
