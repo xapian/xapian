@@ -1,3 +1,7 @@
+Tue Sep 05 08:29:04 BST 2000 Olly Betts
+
+	* Added missing class: OmTypeError.
+
 Mon Sep  4 18:30:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Reduced the number of copies of messages needed in indexing

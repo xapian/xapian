@@ -152,4 +152,7 @@ DEFINE_ERROR_CLASS(OmDatabaseLockError, OmDatabaseError);
 /** Thrown when trying to access invalid data. */
 DEFINE_ERROR_CLASS(OmInvalidResultError, OmRuntimeError);
 
+/** Type mismatch or similar in indexer. */
+DEFINE_ERROR_CLASS(OmTypeError, OmRuntimeError);
+
 #endif /* OM_HGUARD_OMERROR_H */
