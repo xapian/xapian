@@ -839,6 +839,10 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 	    				    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
+
+    // Possible, since desired_did might be after end of this chunk and before
+    // the next.
+    if (desired_did > last_did_in_chunk) next_chunk();
 }
 
 bool
@@ -875,12 +879,8 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
 	move_to_chunk_containing(desired_did);
-	if (!current_chunk_contains(desired_did)) {
-	    // Possible, since desired_did might be after end of
-	    // this chunk and before the next.
-	    next_chunk();
-	    // Might be at_end now - this is why we need the test before moving forward in chunk.
-	}
+	// Might be at_end now - this is why we need the test before moving
+	// forward in chunk.
     }
 
     // Move to correct position in chunk
