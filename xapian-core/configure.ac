@@ -116,9 +116,10 @@ case "$CXX" in
     dnl )
     CXXFLAGS="$CXXFLAGS -AA" ;;
   cxx|*/cxx)
-    dnl Select ANSI iostream implementation (default is a pre-standard
-    dnl AT&T-compatible version).
-    CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM" ;;
+    dnl Select ANSI mode (strict_ansi is needed for ANSI iostream, as -std ansi
+    dnl gives a pre-standard AT&T-compatible version).
+    dnl If this is a problem, try "-std ansi -D__USE_STD_IOSTREAM"
+    CXXFLAGS="$CXXFLAGS -std strict_ansi" ;;
 esac
 
 dnl Check for time functions.
