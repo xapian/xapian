@@ -38,6 +38,10 @@ Priority | Area            | Task
  Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
 	 |                 | through positionlist for sequential positions.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Documentation   | Add notes about catching exceptions throughout
+         |                 | userman, particuarly in examples (eg, search
+	 |                 | engine example)
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
