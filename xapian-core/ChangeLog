@@ -1,3 +1,7 @@
+Thu Dec 07 16:21:28 GMT 2000 Olly Betts
+
+	* Some work on getting quartztest working.
+
 Thu Dec 07 16:10:00 GMT 2000 Olly Betts
 
 	* The library now builds, but "make check" still fails.
