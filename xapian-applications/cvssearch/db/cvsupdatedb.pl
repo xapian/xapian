@@ -3,13 +3,13 @@
 # the database that has been built.
 # This is used to keep track of which database has been built
 # Usage:
-# 1. ./cvsupdatedb.pl filepath
-#    inserts a database stored in the filepath if the database 
+# 1. cvsupdatedb root filepath
+#    inserts a database stored in the filepath under root if the database 
 #    is not already stored.
-#    e.g. ./insertdb.pl kdebase/konqueror
-# 2. ./cvsupdatedb.pl -r filepath
-#    removes a database stored in the filepath
-# 3. ./cvsupdatedb.pl -f filepath
+#    e.g. cvsupdatedb kdebase/konqueror
+# 2. cvsupdatedb root -r filepath
+#    remove a database stored in the filepath
+# 3. cvsupdatedb root -f filepath
 #    finds if the database for this filepath is built, if not, 
 #    returns all the database built under that filepath if any.
 # 
@@ -17,42 +17,51 @@
 # Date: Feb 17 2001
 #------------------------------------------------------------------------
 
-my $cvsdata = $ENV{"CVSDATA"}; # path where database content file is stored
-my $filename = "dbcontent"; # file containing database built
+$CVSDATA = $ENV{"CVSDATA"}; # path where database content file is stored
+$filename = "dbcontent"; # file containing database built
+$root = shift @ARGV;
 
-if($cvsdata){
-	$path = "$cvsdata/$filename";
+if($CVSDATA){
+	$path = "$CVSDATA/$root/$filename";
 }else{
 	print STDERR "WARNING: \$CVSDATA not set!\n";
     exit(1);
 }
 
-if (0) {
-} elsif($ARGV[0] eq "-d"){ # delete database
-	@files = `cat $path`;
-	open FILE, ">$path";
-	foreach (@files){
-		if("$ARGV[1]\n" ne $_){
-			print FILE $_;
-		}else{
-			print "$ARGV[1] found and deleted.\n";
-		}
-	}
-	close FILE;
-}elsif($ARGV[0] eq "-f") { # file database
-	@matches = `grep ^$ARGV[1] $path`;
-	foreach (@matches){
-		if("$ARGV[1]\n" eq $_){
-			print $ARGV[1];
-			exit(0);
-		}
-	}
-	print @matches;
-} else{ # insert database
-	if(!`grep ^"$ARGV[0]"\$ $path`){
-		print "$ARGV[0] inserted.";
-		`echo "$ARGV[0]" >> $path`;
-	}else{
-		print "$ARGV[0] already exists!\n";
-	}
+if(-d "$CVSDATA/$root") {
+    if($ARGV[0] eq "-r"){ # remove database
+        @files = `cat $path`;
+        open FILE, ">$path";
+        foreach (@files){
+            if("$ARGV[1]\n" ne $_){
+                print FILE $_;
+            }else{
+                print "$ARGV[1] found and deleted.\n";
+            }
+        }
+        close FILE;
+    }elsif($ARGV[0] eq "-f"){ # find database
+        @bestmatches = `grep $ARGV[1]\$ $path`; # match filepath from the end
+        if(@bestmatches){
+            print @bestmatches;
+        }else{ #find everything below it
+            if ($ARGV[1] eq "."){#whole repository
+                @all = `cat path`;
+                print @all;	
+            }else{
+                @secmatches = `grep $ARGV[1] $path`;
+                print @secmatches;
+            }
+        }
+    }else{ # insert database
+        if(!`grep ^"$ARGV[0]"\$ $path`){
+            print "$ARGV[0] inserted.";
+            `echo "$ARGV[0]" >> $path`;
+        }else{
+            print "$ARGV[0] already exists!\n";
+        }
+    }
+} else {
+    print STDERR "WARNING: \$root $root does not exist.\n";
+    exit(1);
 }

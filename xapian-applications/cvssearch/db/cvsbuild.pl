@@ -109,7 +109,7 @@ sub cvsbuild {
     open(TIME, ">$time_file");
     
     foreach (@modules) {
-        my $app_path = $_;
+        my $app_path = strip_last_slash($_);
         my $app_name = $app_path;
         
         $app_name =~tr/\//\_/;
@@ -150,6 +150,7 @@ sub cvsbuild {
                         " -f2 $cvsdata/$cvsroot_dir/db/$app_name.offset");
                 
                 system ("cvsindex $cvsdata/$cvsroot_dir/db/$app_name.cmt");
+                system ("cvsupdatedb $cvsroot_dir $app_name");
                 # ----------------------------------------
                 # cvsindex should have created directory
                 # $cvsdata/$cvsroot_dir/db/$app_name.
