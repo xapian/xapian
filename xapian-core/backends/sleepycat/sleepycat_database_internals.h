@@ -59,8 +59,9 @@ class SleepyDatabaseInternals {
 	void close();
 
 	om_doccount get_doccount() const;
-	om_doclength get_totlength() const;
-	om_doclength get_doclength(om_docid did) const;
+	om_totlength get_totlength() const;
+	void set_doccount(om_doccount doccount);
+	void set_totlength(om_totlength doclength);
 };
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H */

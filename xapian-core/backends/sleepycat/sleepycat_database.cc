@@ -98,18 +98,22 @@ SleepyDatabase::get_doccount() const
 om_doclength
 SleepyDatabase::get_avlength() const
 {
-    return internals->get_totlength() / internals->get_doccount();
+    om_doccount doccount = internals->get_doccount();
+    if(doccount == 0) return 0;
+    return internals->get_totlength() / doccount;
 }
 
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    return internals->get_doclength(did);
+    // FIXME
+    return get_avlength();
 }
 
 om_doccount
 SleepyDatabase::get_termfreq(const om_termname &tname) const
 {
+    if(!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
@@ -120,7 +124,9 @@ SleepyDatabase::get_termfreq(const om_termname &tname) const
 bool
 SleepyDatabase::term_exists(const om_termname &tname) const
 {
-    if(termcache->term_name_to_id(tname)) return true;
+    DebugMsg("termcache->term_name_to_id(tname) = " << 
+	     termcache->term_name_to_id(tname) << endl);
+    if(termcache->term_name_to_id(tname) != 0) return true;
     return false;
 }
 
@@ -128,7 +134,8 @@ LeafPostList *
 SleepyDatabase::open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
-    if(tid == 0) throw OmRangeError("Termid not found");
+    if(tid == 0) throw OmRangeError("Termid " + inttostring(tid) +
+				    " not found; can't open postlist");
 
     return new SleepyPostList(tid, internals.get(), tname);
 }
@@ -154,12 +161,16 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
     // Make a new document to store the data, and use the document id returned
     om_docid did = make_new_document(document.data);
 
+    om_doclength doclength = 0;
+
     // Build list of terms, sorted by termID
     map<om_termid, OmDocumentTerm> terms;
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
+	Assert(i->second.tname.size() != 0);
 	om_termid tid = termcache->assign_new_termid(i->second.tname);
 	terms.insert(make_pair(tid, i->second));
+	doclength += i->second.wdf;
     }
 
     // Add this document to the postlist for each of its terms
@@ -180,6 +191,13 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
     // appropriate postlist, and for each document in each of these postlists
     // update the documents termlist to have the correct wdf for this document.
     // EEEK!
+
+    // Increase the document count and total length
+    internals->set_doccount(get_doccount() + 1);
+    internals->set_totlength(internals->get_totlength() + doclength);
+    DebugMsg("New doccount and total length is: " <<
+	     internals->get_doccount() << ", " <<
+	     internals->get_totlength() << endl);
 
     return did;
 }

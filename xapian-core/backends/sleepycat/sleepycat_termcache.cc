@@ -34,6 +34,7 @@ om_termid
 SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 {
     DebugMsg("Looking up term ID for `" << tname <<  "' ...");
+    Assert(tname.size() != 0);
 
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
@@ -78,7 +79,9 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
     // Get, no transactions, no flags
     try {
 	int found = internals->termname_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw OmRangeError("Termid not found");
+	if(found == DB_NOTFOUND) throw OmRangeError("Termid " +
+						    inttostring(tid) +
+						    " not found in termcache");
 
 	// Any other errors should cause an exception.
 	Assert(found == 0);

@@ -166,7 +166,7 @@ SleepyDatabaseInternals::get_doccount() const
     return doccount;
 }
 
-om_doclength
+om_totlength
 SleepyDatabaseInternals::get_totlength() const
 {
     const db_recno_t doccount_totallen = RECNUM_TOTALLEN;
@@ -201,8 +201,54 @@ SleepyDatabaseInternals::get_totlength() const
     return totlength;
 }
 
-om_doclength
-SleepyDatabaseInternals::get_doclength(om_docid did) const
+
+void
+SleepyDatabaseInternals::set_doccount(om_doccount doccount)
 {
-    throw OmUnimplementedError("SleepyDatabaseInternals::get_doclength() not implemented");
+    const db_recno_t doccount_recnum = RECNUM_DOCCOUNT;
+
+    Assert(opened);
+    try {
+	Dbt key(const_cast<db_recno_t *>(&doccount_recnum),
+		sizeof(doccount_recnum));
+	Dbt data(const_cast<om_doccount *>(&doccount),
+		 sizeof(doccount));
+
+#ifdef MUS_DEBUG
+	int err_num =
+#endif
+		stats_db->put(0, &key, &data, 0);
+
+	// Any errors should cause an exception.
+	Assert(err_num == 0);
+    }
+    catch (DbException e) {
+	throw (OmDatabaseError(string("Database error setting document count: ") + e.what()));
+    }
 }
+
+void
+SleepyDatabaseInternals::set_totlength(om_totlength totlength)
+{
+    const db_recno_t doccount_totallen = RECNUM_TOTALLEN;
+
+    Assert(opened);
+    try {
+	Dbt key(const_cast<db_recno_t *>(&doccount_totallen),
+		sizeof(doccount_totallen));
+	Dbt data(const_cast<om_doclength *>(&totlength),
+		 sizeof(totlength));
+
+#ifdef MUS_DEBUG
+	int err_num =
+#endif
+		stats_db->put(0, &key, &data, 0);
+
+	// Any errors should cause an exception.
+	Assert(err_num == 0);
+    }
+    catch (DbException e) {
+	throw (OmDatabaseError(string("Database error setting total document length: ") + e.what()));
+    }
+}
+

@@ -1,3 +1,15 @@
+Fri Jun  2 18:12:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Many fixes to sleepycat:
+
+	  o Implemented document count and average document length
+	    information.  (involves using a new "stats" database)
+
+	  o Fix problem with calling get_termfreq for a term which doesn't
+	    exist (used to throw: now returns 0)
+
+	  o More useful debugging messages.  Better assertion checks.
+
 Fri Jun  2 18:05:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Don't use terms with zero length names (ie, "") in the test
