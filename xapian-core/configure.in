@@ -389,12 +389,12 @@ AC_CONFIG_FILES([
  bin/Makefile
  getopt/Makefile
  extra/Makefile
- xapian-config.nodep
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
+AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_OUTPUT
 
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"

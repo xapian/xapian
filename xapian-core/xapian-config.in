@@ -1,0 +1,101 @@
+#! /bin/sh
+# @configure_input@
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+libdir="@libdir@"
+includedir="@includedir@"
+
+usage()
+{
+    cat <<EOF
+Usage: xapian-config [OPTION]...
+
+Known values for OPTION are:
+
+  --libs		print library linking information
+  --ltlibs		print library linking information for linking with GNU libtool
+  --cxxflags		print pre-processor and compiler flags
+  --help		display this help and exit successfully
+  --version		output version information
+EOF
+
+    exit $1
+}
+
+if test 0 = "$#"; then
+    usage 1
+fi
+
+builddir="`echo $0|sed 's![^/]*$!!'`"
+
+while test 0 != "$#"; do
+    case "$1" in
+    -*=*) optarg="`echo \"$1\" | sed 's/[-_a-zA-Z0-9]*=//'`" ;;
+    *) optarg= ;;
+    esac
+
+    case "$1" in
+    --version)
+	echo "xapian @VERSION@"
+	exit 0
+	;;
+
+    --help)
+	usage 0
+	;;
+
+    --cxxflags)
+	inc=
+	if test -f "${builddir}libxapian.la"; then
+	    if test . = "@srcdir@"; then
+		inc="-Iinclude"
+	    else
+		inc="-I@srcdir@/include"
+	    fi
+	else	    
+	    case "$includedir" in
+	    /usr/include|/usr/include/c++) ;;
+	    *) inc="-I$includedir" ;;
+	    esac
+	fi
+	if test -n "@STLPORT_CXXFLAGS@" ; then
+	    echo "@STLPORT_CXXFLAGS@ $inc"
+	else
+	    echo "$inc"
+	fi
+	;;
+
+    --libs)
+	if test -f "${builddir}libxapian.la" ; then
+	    echo "$0: If you want to link against an uninstalled libxapian," 1>&2
+	    echo "use libtool and \`xapian-config --ltlibs'." 1>&2
+	    exit 1
+	fi
+	L=
+	test /usr/lib != "$libdir" && L="-L$libdir "
+	eval `grep ^dependency_libs= "$libdir/libxapian.la"`
+	D=
+	test -n "$dependency_libs" && D=" $dependency_libs"
+	echo "$L-lxapian$D"
+	;;
+
+    --ltlibs)
+	for d in "$builddir" "$libdir/" ; do
+	    if test -f "${d}libxapian.la"; then
+		echo "${d}libxapian.la"
+		exit 0
+	    fi
+	done
+	echo "$0: Can't find libxapian.la to link against." 1>&2
+	exit 1
+	;;
+
+    *)
+	usage 1 1>&2
+	exit 1
+	;;
+    esac
+    shift
+done
+exit 0

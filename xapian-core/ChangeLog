@@ -1,3 +1,12 @@
+Sun Jul 20 16:00:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,configure.in,xapian-config.in,
+	  xapian-config.nodep.in: Reworked xapian-config so that it
+	  now supports linking with libtool - using libtool means that the
+	  run-time library path is set and that you can now link with an
+	  uninstalled libxapian.  Also xapian-config will now work
+	  once configure is run, rather than only after "make all".
+
 Thu Jul 17 01:42:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc,backends/quartz/btree.cc: Check for

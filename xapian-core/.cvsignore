@@ -13,13 +13,13 @@ config.status
 config.sub
 install-sh
 libtool
+ltmain.sh
 stamp-h
 stamp-h1
 stamp-h.in
 .deps
 .libs
 xapian-config
-xapian-config.nodep
 libxapian.la
 xapian-core-*.tar.gz
 autom4te*.cache

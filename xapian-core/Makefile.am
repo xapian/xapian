@@ -9,7 +9,7 @@ remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
 
-# Order is relvant: when building, tests must be at end
+# Order is relevant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include getopt autoconf common \
           api backends matcher languages $(remote_subdirs) \
@@ -64,11 +64,3 @@ libxapian_la_LDFLAGS = -version-info 0:0:0
 
 libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
  matcher/libmatcher.la languages/liblanguages.la api/libapi.la $(LIBNET_LA)
-
-xapian-config: xapian-config.nodep libxapian.la
-	@echo "Creating $@"
-	export dependency_libs; \
-	. $(top_builddir)/libxapian.la ; \
-	sed "s%@dependency_libs@%`echo \"$$dependency_libs\"|sed 's/[^ ]*.la\>//g;s/  */ /g'`%" < xapian-config.nodep > tmp-$@
-	-rm -f $@
-	mv tmp-$@ $@
