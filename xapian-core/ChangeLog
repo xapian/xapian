@@ -1,3 +1,9 @@
+Sun Sep 07 03:51:37 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Use x & (x - 1) trick to check for x being a power
+	  of 2, rather than an elaborate loop with shifting; use Xapian::docid
+	  rather than "int" and "unsigned int".
+
 Sun Sep 07 02:24:06 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Fixed small memory leak if

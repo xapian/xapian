@@ -2763,28 +2763,17 @@ static bool test_deldoc4()
     doc3.add_posting("one", 7);
     doc3.remove_term("two");
 
-    const int maxdoc = 1000 * 3;
+    const Xapian::docid maxdoc = 1000 * 3;
     Xapian::docid did;
-    for (unsigned int i=0; i<maxdoc / 3; ++i) {
+    for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
 	did = db.add_document(doc1);
-	TEST_EQUAL(did, i*3+1);
+	TEST_EQUAL(did, i * 3 + 1);
 	did = db.add_document(doc2);
-	TEST_EQUAL(did, i*3+2);
+	TEST_EQUAL(did, i * 3 + 2);
 	did = db.add_document(doc3);
-	TEST_EQUAL(did, i*3+3);
+	TEST_EQUAL(did, i * 3 + 3);
 
-	bool is_power_of_two = false;
-	unsigned int temp = i;
-	int count = 0;
-	while (temp > 0) {
-	    int next = temp >> 1;
-	    if (next == 0) {
-		is_power_of_two = (temp << count) == i;
-		break;
-	    }
-	    count++;
-	    temp = next;
-	}
+	bool is_power_of_two = ((i & (i - 1)) == 0);
 	if (is_power_of_two) {
 	    db.flush();
 	    db.reopen();
@@ -2794,10 +2783,10 @@ static bool test_deldoc4()
     db.reopen();
 
     /* delete the documents in a peculiar order */
-    for (unsigned int i=0; i < (maxdoc/3); i++) {
+    for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
 	db.delete_document(maxdoc - i);
-	db.delete_document(maxdoc/3 + i + 1);
-	db.delete_document(i+1);
+	db.delete_document(maxdoc / 3 + i + 1);
+	db.delete_document(i + 1);
     }
 
     db.flush();
@@ -2808,7 +2797,7 @@ static bool test_deldoc4()
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
     TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
 
-    for (int i=1; i<=maxdoc; ++i) {
+    for (Xapian::docid i = 1; i <= maxdoc; ++i) {
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
