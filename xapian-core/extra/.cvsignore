@@ -6,4 +6,5 @@ Makefile
 .libs
 queryparser.cc
 queryparsertest
+libomqueryparser.la
 libxapianqueryparser.la

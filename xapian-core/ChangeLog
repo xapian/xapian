@@ -1,3 +1,8 @@
+Sun Jul 27 13:02:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/.cvsignore: We still create libomqueryparser.la for backward
+	  compatibility.
+
 Sun Jul 27 04:56:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in,m4/xapian.m4: Added --from-xo-lib-xapian option
