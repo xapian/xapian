@@ -4,6 +4,7 @@ aclocal.m4
 Makefile.in
 Makefile
 configure
+confdefs.h
 config.cache
 config.h
 config.h.in
