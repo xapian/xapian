@@ -1,8 +1,8 @@
 <results Query="$html{$query}" TopDoc="$topdoc" Matches="$msize" Last="$last"
-xP="$list{$queryterms,,.,.}" 
+ThisPage="$thispage" LastPage="$lastpage" xP="$list{$queryterms,,.,.}" 
 $if{$cgi{DAYSMINUS},xDAYSMINUS="$html{$cgi{DAYSMINUS}}" } 
 $if{$cgi{DATE1},xDATE1="$html{$cgi{DATE1}}" } 
-$if{$cgi{DATE2},xDATE1="$html{$cgi{DATE2}}" } 
+$if{$cgi{DATE2},xDATE2="$html{$cgi{DATE2}}" } 
 $if{$cgi{THRESHOLD},xTHRESHOLD="$html{$cgi{THRESHOLD}}" } 
 $if{$dbname,xDB="$html{$dbname}" }
 $if{$ne{$msize,0},$list{$relevants,relevants=",.,"}}
@@ -25,8 +25,10 @@ $hitlist{
 url="$html{$field{url}}" title="$html{$field{title}}" 
 $if{$field{language},language="$field{language}",}
 $if{$field{size},size="$html{$field{size}}",}
-sample="$html{$field{sample}}"
-example="$html{$highlight{$field{sample},$terms}}"
+$if{$field{sitename},sitename="$html{$field{sitename}}",}
+score="$html{$score}"
+sample="$html{$htmlstrip{$field{sample}}}"
+example="$html{$highlight{$htmlstrip{$field{sample}},$terms}}"
 ><terms>
 $map{$html{$terms},<term term="$html{$_}" show="$html{$prettyterm{$_}}" />}
 </terms>
