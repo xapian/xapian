@@ -2013,7 +2013,7 @@ int main(int argc, char *argv[])
     cout << "Running tests with inmemory backend..." << endl;
     result = test_driver::main(argc, argv, tests, &summary);
 
-#if 0
+#if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, tests, &sum_temp));

@@ -45,7 +45,9 @@ class TestFailure {
  */
 // Don't bracket a, because it may have <<'s in it
 //#define FAIL_TEST(a) { TestFailure testfail; testfail << a; throw testfail; }
-#define FAIL_TEST(a) { TestFailure testfail; cout << a; throw testfail; }
+#define FAIL_TEST(a) { TestFailure testfail; \
+                       if (verbose) { cout << a;} \
+		       throw testfail; }
 
 /// Type for a test function.
 typedef bool (*test_func)();

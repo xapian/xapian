@@ -1,3 +1,11 @@
+Mon May 22 14:53:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* FAIL_TEST macro in testsuite.h now takes notice of the verbose
+	  flag.
+
+	* In theory, the sleepy tests are only run if the sleepy backend
+	  is compiled in (as well as the #if 0)
+
 Mon May 22 13:44:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Slightly improved summary reporting in apitest.
