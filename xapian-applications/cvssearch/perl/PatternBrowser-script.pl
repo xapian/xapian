@@ -47,7 +47,7 @@ $modeMAPhtml{"<=>"} = "&lt;=&gt;";
 # start html
 #-------------
 
-print "Content-type:text/html\n\n";
+print "Content-Type: text/html\n\n";
 print "<html>\n";
 print "<head>\n";
 print "<title>CVSSearch : Library Classes/Functions Search</title>\n";
