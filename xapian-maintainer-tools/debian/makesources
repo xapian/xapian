@@ -28,12 +28,12 @@ set -e
 # Otherwise, we are building a snapshot package, and will build directly
 # from CVS code.  (FIXME - currently generates from a cached tarball if there
 # is one.  Not sure this is a bad thing.)
-CVSTAG='v0-8-0'
+CVSTAG='v0-8-1'
 
 # CVS tags to use to check out Debian control files
-DEBTAG_CORE='debian0-8-0_9'
-DEBTAG_BINDINGS='debian0-8-0_9'
-DEBTAG_OMEGA='debian0-8-0_3'
+DEBTAG_CORE='debian0-8-1_1'
+DEBTAG_BINDINGS='debian0-8-1_1'
+DEBTAG_OMEGA='debian0-8-1_1'
 
 #CVSTAG=HEAD
 #DEBTAG_CORE=HEAD
@@ -137,10 +137,8 @@ else
   TARGETDIR="dists/$COMPONENT/snapshot"
 fi
 SRCDIR="$TARGETDIR/source"
-PKGDIR="$TARGETDIR/binary-$DEB_HOST_ARCH"
 POOLDIR="pool"
 mkdir -p "$PUBDIR/$SRCDIR"
-mkdir -p "$PUBDIR/$PKGDIR"
 
 # Calculate location that tarballs should be found at
 TARBALL_CORE="${PUBDIR}/$POOLDIR/xapian-core_${SNAP_VERSION}.orig.tar.gz"
@@ -292,7 +290,11 @@ cd ..
 
 # Upload to $PUBDIR
 mkdir -p ${PUBDIR}
+chgrp -R xapian upload-sources/*
+chmod -R g+w upload-sources/*
 cp -af upload-sources/* ${PUBDIR}
+chgrp -R xapian ${PUBDIR}/*
+chmod -R g+w ${PUBDIR}/*
 
 # Source packages are now generated and uploaded.
 
