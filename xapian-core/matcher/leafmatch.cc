@@ -465,7 +465,13 @@ void
 LeafMatch::prepare_match()
 {
     if(!is_prepared) {
+	DebugMsg("LeafMatch::prepare_match() - Building query tree" << cout);
+	build_query_tree();
+	Assert(query != 0);
+
+	DebugMsg("LeafMatch::prepare_match() - Giving my stats to gatherer" << cout);
 	statsleaf.contrib_my_stats();
+
 	is_prepared = true;
     }
 }
@@ -477,8 +483,7 @@ LeafMatch::get_max_weight()
     // Check that we have prepared to run the query
     Assert(is_prepared);
     if (max_weight_needs_calc) {
-	// Ensure query tree is built
-	build_query_tree();
+	Assert(query != 0);
 
 	mk_extra_weight();
 	max_extra_weight = extra_weight->get_maxextra();
@@ -502,6 +507,7 @@ LeafMatch::get_mset(om_doccount first,
 {
     // Check that we have prepared to run the query
     Assert(is_prepared);
+    Assert(query != 0);
 
     // Empty result set
     *mbound = 0;
@@ -517,9 +523,6 @@ LeafMatch::get_mset(om_doccount first,
     // Check that any results have been asked for (might just be wanting
     // maxweight)
     if(maxitems == 0) return;
-
-    // Ensure query tree is built
-    build_query_tree();
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.

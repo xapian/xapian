@@ -1,3 +1,8 @@
+Tue Mar 28 11:17:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Now builds query tree when prepare_match() is called, so correct
+	  stats get shared again.
+
 Mon Mar 27 18:36:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Renamed SingleMatch::match() to SingleMatch::get_mset()
