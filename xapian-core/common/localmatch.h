@@ -102,9 +102,9 @@ class LocalSubMatch : public SubMatch {
 	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
 		      const OmRSet & omrset, const OmSettings &opts_,
 		      StatsGatherer *gatherer)
-		: statssource(new LocalStatsSource), is_prepared(false),
-		  users_query(*query), db(db_), querysize(query->qlen),
-		  opts(opts_)	
+		: statssource(new LocalStatsSource(gatherer)),
+		  is_prepared(false), users_query(*query), db(db_),
+		  querysize(query->qlen), opts(opts_)
 	{	    
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
@@ -118,9 +118,7 @@ class LocalSubMatch : public SubMatch {
 		weighting_scheme = opts.get("match_weighting_scheme", "bm25");
 	    }
 
-	    statssource->my_collection_size_is(db->get_doccount());
-	    statssource->my_average_length_is(db->get_avlength());
-	    statssource->connect_to_gatherer(gatherer);
+	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
 	}
 
 	~LocalSubMatch()

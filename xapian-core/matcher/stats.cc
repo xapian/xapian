@@ -102,8 +102,9 @@ NetworkStatsGatherer::fetch_global_stats() const
     have_global_stats = true;
 }
 
-NetworkStatsSource::NetworkStatsSource(RefCntPtr<NetClient> nclient_)
-	: nclient(nclient_),
+NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
+				       RefCntPtr<NetClient> nclient_)
+	: StatsSource(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {
 }
@@ -128,7 +129,8 @@ NetworkStatsSource::take_remote_stats(Stats stats)
 
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 
-LocalStatsSource::LocalStatsSource()
+LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
+	: StatsSource(gatherer_)
 {
 }
 

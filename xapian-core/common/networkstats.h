@@ -81,7 +81,8 @@ class NetworkStatsSource : public StatsSource {
 	bool have_remote_stats;
     public:
 	/// Constructor
-	NetworkStatsSource(RefCntPtr<NetClient> nclient_);
+	NetworkStatsSource(StatsGatherer * gatherer_,
+			   RefCntPtr<NetClient> nclient_);
 
 	/// Destructor
 	~NetworkStatsSource();

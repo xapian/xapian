@@ -39,16 +39,15 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 			       const OmRSet & omrset, const OmSettings &opts,
 			       StatsGatherer *gatherer_)
 	: is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
-	  gatherer(gatherer_), statssource(new NetworkStatsSource(db->link))
+	  gatherer(gatherer_)
 {	    
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
     Assert(db);
+    statssource = new NetworkStatsSource(gatherer_, db->link);
 
     db->link->set_query(query, opts);
-
     db->link->register_statssource(statssource);
-    statssource->connect_to_gatherer(gatherer);
 
     AutoPtr<RSet> new_rset(new RSet(db, omrset));
     rset = new_rset;
@@ -69,8 +68,10 @@ RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 //    if (mdecider != 0) {
 //	throw OmInvalidArgumentError("Can't use a match decider remotely");
 //    }
+    // FIXME: no longer needed
     db->link->send_global_stats(*(gatherer->get_stats()));
-    return (postlist = new PendingMSetPostList(db, maxitems));
+    postlist = new PendingMSetPostList(db, maxitems);
+    return postlist;
 }
 
 bool

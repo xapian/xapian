@@ -1,3 +1,9 @@
+Mon Oct 09 18:09:05 BST 2000 Olly Betts
+
+	* StatsSource::set_gatherer() merged into ctor;
+	  my_collection_size_is() and my_average_length_is() merged as
+	  take_my_stats().
+
 Mon Oct  9 17:19:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmFileReaderNode

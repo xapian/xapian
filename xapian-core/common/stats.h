@@ -139,13 +139,10 @@ class StatsSource {
 	void perform_request() const;
     public:
 	/// Constructor
-	StatsSource();
+	StatsSource(StatsGatherer *gatherer_);
 
 	/// Virtual destructor
 	virtual ~StatsSource() {};
-
-	/// set up the parent gatherer
-	void connect_to_gatherer(StatsGatherer *gatherer_);
 
 	/// Contribute all the statistics that don't depend on global
 	/// stats.  Used by StatsGatherer.
@@ -157,13 +154,10 @@ class StatsSource {
 	 * ################################################################
 	 */
 
-	/** Set the number of documents in this sub-database.
+	/** Set stats about this sub-database: the number of documents and
+	 *  average length of a document.
 	 */
-	void my_collection_size_is(om_doccount csize);
-
-	/** Set the average length of a document in this sub-database.
-	 */
-	void my_average_length_is(om_doclength avlen);
+	void take_my_stats(om_doccount csize, om_doclength avlen);
 
 	/** Set the term frequency in the sub-database which this stats
 	 *  object represents.  This is the number of documents in
@@ -219,7 +213,7 @@ class LocalStatsSource : public StatsSource {
     private:
     public:
 	/// Constructor
-	LocalStatsSource();
+	LocalStatsSource(StatsGatherer * gatherer_);
 
 	/// Destructor
 	~LocalStatsSource();
@@ -281,16 +275,12 @@ StatsGatherer::set_global_stats(om_doccount rset_size)
 // Inline method definitions for StatsSource //
 ///////////////////////////////////////////////
 
-inline
-StatsSource::StatsSource()
-	: gatherer(0), total_stats(0)
-{
-}
 
-inline void
-StatsSource::connect_to_gatherer(StatsGatherer *gatherer_)
+    
+inline
+StatsSource::StatsSource(StatsGatherer *gatherer_)
+	: gatherer(gatherer_), total_stats(0)
 {
-    gatherer = gatherer_;
     gatherer->add_child(this);
 }
 
@@ -301,16 +291,10 @@ LocalStatsSource::contrib_my_stats()
 }
 
 inline void
-StatsSource::my_collection_size_is(om_doccount csize)
+StatsSource::take_my_stats(om_doccount csize, om_doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
-}
-
-inline void
-StatsSource::my_average_length_is(om_doclength avlen)
-{
-    Assert(total_stats == 0);
     my_stats.average_length = avlen;
 }
 
