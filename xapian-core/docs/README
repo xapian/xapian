@@ -3,5 +3,6 @@
 <Description>
 This directory contains documentation, and scripts to automatically generate
 further documentation from the source code.  If you have the appropriate
-packages installed, these scripts will be run by make.
+packages installed (currently, this means Perl), these scripts will be run
+by make.
 </Description>

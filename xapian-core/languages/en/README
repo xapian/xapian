@@ -1,13 +1,6 @@
-<Directory>backends</Directory>
+<Directory>languages/en</Directory>
 
 <Description>
-This directory contains a subdirectory for each of the available database
-backends.  Each backend corresponds to a different underlying file
-structure.  For example, the DA backend corresponds to (old-style)
-Direct Access databases and the sleepy backend corresponds to (the
-currently highly experimental) sleepycat based backend.
-
-The directory also contains the implementation of DatabaseBuilder
-which creates and opens instances of each type of database, encapsulating
-the differences between backends.
+Code for processing english, such as the porter stemming algorithm for
+normalising english words.
 </Description>

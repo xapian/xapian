@@ -1,13 +1,17 @@
-<Directory>backends</Directory>
+<Directory>gui/glade</Directory>
 
 <Description>
-This directory contains a subdirectory for each of the available database
-backends.  Each backend corresponds to a different underlying file
-structure.  For example, the DA backend corresponds to (old-style)
-Direct Access databases and the sleepy backend corresponds to (the
-currently highly experimental) sleepycat based backend.
+This contains a simple GUI, using GTK and libglade.
+It is known to work with GTK version 1.2.6 and libglade version 0.7
 
-The directory also contains the implementation of DatabaseBuilder
-which creates and opens instances of each type of database, encapsulating
-the differences between backends.
+This GUI demonstrates the retrieval and relevance feedback parts of
+Muscat.
+
+Currently it fails to work with DA files: there appears to be some memory
+corruption somewhere, and reading DA files either results in a consistency
+check error within the DA reading code, or simply in a segfault and core
+dump.
+
+Whether this is the fault of the DA file reading code or a bug somewhere
+within libglade is currently unknown.
 </Description>
