@@ -11,11 +11,11 @@
 
 class OmPrefixExpandDecider : public OmExpandDecider {
     private:
-    string prefix;
+    std::string prefix;
     int prelen;
 
     public:
-    OmPrefixExpandDecider (const string& p) {
+    OmPrefixExpandDecider (const std::string& p) {
 	prefix = p;
 	prelen = p.length();
     }

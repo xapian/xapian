@@ -29,8 +29,8 @@
 #include <om/omerror.h>
 #include <string>
 
-QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
-					       string log_filename,
+QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
+					       std::string log_filename,
 					       bool readonly_,
 					       bool perform_recovery,
 					       unsigned int block_size)
@@ -302,8 +302,8 @@ QuartzDiskTableManager::get_record_table()
 }
 
 
-QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
-						       string log_filename,
+QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
+						       std::string log_filename,
 						       bool perform_recovery,
 						       unsigned int block_size)
 	: disktables(db_dir_,

@@ -87,7 +87,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	    break;
 	case DBTYPE_AUTO: {
 	    // Check validity of parameters
-	    string path = params.get("auto_dir");
+			      std::string path = params.get("auto_dir");
 	    OmSettings myparams = params;
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    if (file_exists(path + "/R") && file_exists(path + "/T")) {

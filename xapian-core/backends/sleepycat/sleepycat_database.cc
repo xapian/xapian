@@ -49,7 +49,7 @@ SleepycatDatabase::SleepycatDatabase(const OmSettings &params, bool readonly)
 	: internals(new SleepycatDatabaseInternals()),
 	termcache(new SleepycatDatabaseTermCache(internals.get()))
 {
-    string path = params.get("sleepycat_dir");
+    std::string path = params.get("sleepycat_dir");
 
     // Open database with specified path
     // May throw an OmOpeningError exception

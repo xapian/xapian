@@ -272,7 +272,7 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
-    string srcdir = test_driver::get_srcdir(argv[0]);
+    std::string srcdir = test_driver::get_srcdir(argv[0]);
 
     datadir = srcdir + "/../tests/testdata/";
 

@@ -52,10 +52,10 @@ class IRWeight {
 	IRWeight() : initialised(false), weight_calculated(false) { }
 	virtual ~IRWeight() { }
 
-	static IRWeight *create(const string &wt_type, const OmSettings & opts);
+	static IRWeight *create(const std::string &wt_type, const OmSettings & opts);
 
 	/// Register a custom weight object
-	static void register_custom(const string &wt_type, const IRWeight *wt);
+	static void register_custom(const std::string &wt_type, const IRWeight *wt);
 
 	/// Return a new weight object of this type.
 	virtual IRWeight * create(const OmSettings &opts) const = 0;

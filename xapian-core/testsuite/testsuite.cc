@@ -97,16 +97,16 @@ test_driver::set_quiet(bool quiet_)
 }
 
 string
-test_driver::get_srcdir(const string & argv0)
+test_driver::get_srcdir(const std::string & argv0)
 {
     char *p = getenv("srcdir");
-    if (p != NULL) return string(p);
+    if (p != NULL) return std::string(p);
 
-    string srcdir = argv0;
+    std::string srcdir = argv0;
     // default srcdir to everything leading up to the last "/" on argv0
-    string::size_type i = srcdir.find_last_of('/');
-    string srcfile;
-    if (i != string::npos) {
+    std::string::size_type i = srcdir.find_last_of('/');
+    std::string srcfile;
+    if (i != std::string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
     } else {
@@ -362,7 +362,7 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 	if (!do_this_test) {
 	    // if this test is "foo123" see if "foo" was listed
 	    // this way "./testprog foo" can run foo1, foo2, etc.
-	    string t = test->name;
+	    std::string t = test->name;
 	    std::string::size_type i;
 	    i = t.find_last_not_of("0123456789") + 1;
 	    if (i < t.length()) {
@@ -465,7 +465,7 @@ test_driver::main(int argc, char *argv[], const test_desc *tests)
     }
 
     while (argv[optind]) {
-	test_names.push_back(string(argv[optind]));
+	test_names.push_back(std::string(argv[optind]));
 	optind++;
     }
 

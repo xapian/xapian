@@ -574,7 +574,7 @@ OmIndexerBuilder::Internal::register_node_type(const OmNodeDescriptor::Internal 
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(ndesc_.nodename);
     if (i != nodetypes.end()) {
-	throw OmInvalidArgumentError(string("Attempt to register node type ")
+	throw OmInvalidArgumentError(std::string("Attempt to register node type ")
 				     + ndesc_.nodename + ", which already exists.");
     }
 

@@ -608,7 +608,7 @@ ommset_termfreqwts_to_string(const std::map<om_termname,
 			                OmMSet::TermFreqAndWeight> &terminfo)
 {
     // encode as term:freq,weight;term2:freq2,weight2;...
-    string result;
+    std::string result;
 
     std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i!= terminfo.end(); ++i) {

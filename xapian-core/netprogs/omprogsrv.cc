@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	backendmanager.set_dbtype("inmemory");
 
 	std::vector<std::string> paths;
-	if (argc > 3 && string(argv[2]) == "-e") {
+	if (argc > 3 && std::string(argv[2]) == "-e") {
 	    backendmanager.set_dbtype("inmemoryerr");
 	    argc--;
 	    argv++;

@@ -36,8 +36,8 @@
 
 class SettingsData : public RefCntBase {
     public:
-	typedef string key_type;
-	typedef string value_type;
+	typedef std::string key_type;
+	typedef std::string value_type;
 
 	typedef map<key_type, value_type> map_type;
 
@@ -74,7 +74,7 @@ class OmSettings::Internal {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set(const string &key, const string &value);
+	void set(const std::string &key, const std::string &value);
 
 	/** Get a setting value.
 	 *
@@ -82,12 +82,12 @@ class OmSettings::Internal {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	string get(const string &key) const;
+	std::string get(const std::string &key) const;
 
 	/** Return stored settings as a string for use by
 	 *  OmSettings::get_description()
 	 */
-        string get_description() const;
+	std::string get_description() const;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -123,46 +123,46 @@ OmSettings::~OmSettings()
 }
 
 void
-OmSettings::set(const string &key, const string &value)
+OmSettings::set(const std::string &key, const std::string &value)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value);
 }
 
 void
-OmSettings::set(const string &key, const char *value)
+OmSettings::set(const std::string &key, const char *value)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value);
 }
 
 void
-OmSettings::set(const string &key, int value)
+OmSettings::set(const std::string &key, int value)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, om_tostring(value));
 }
 
 void
-OmSettings::set(const string &key, double value)
+OmSettings::set(const std::string &key, double value)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, om_tostring(value));
 }
 
 void
-OmSettings::set(const string &key, bool value)
+OmSettings::set(const std::string &key, bool value)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value ? "1" : "");
 }
 
 void
-OmSettings::set(const string &key, vector<string>::const_iterator begin,
+OmSettings::set(const std::string &key, vector<string>::const_iterator begin,
 		      vector<string>::const_iterator end)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << begin << ", " << end);
-    string s;
+    std::string s;
     while (true) {
 	s += *begin;
 	begin++;
@@ -173,44 +173,44 @@ OmSettings::set(const string &key, vector<string>::const_iterator begin,
 }
 
 string
-OmSettings::get(const string &key) const
+OmSettings::get(const std::string &key) const
 {
-    DEBUGAPICALL(string, "OmSettings::get", key);
+    DEBUGAPICALL(std::string, "OmSettings::get", key);
     RETURN(internal->get(key));
 }
 
 bool
-OmSettings::get_bool(const string &key) const
+OmSettings::get_bool(const std::string &key) const
 {
     DEBUGAPICALL(bool, "OmSettings::get_bool", key);
-    string s = internal->get(key);
+    std::string s = internal->get(key);
     RETURN(!(s.empty() || s == "0"));
 }
 
 int
-OmSettings::get_int(const string &key) const
+OmSettings::get_int(const std::string &key) const
 {
     DEBUGAPICALL(int, "OmSettings::get_int", key);
-    string s = internal->get(key);
+    std::string s = internal->get(key);
     int res;
     sscanf(s.c_str(), "%d", &res);
     RETURN(res);
 }
 
 double
-OmSettings::get_real(const string &key) const
+OmSettings::get_real(const std::string &key) const
 {
     DEBUGAPICALL(double, "OmSettings::get_real", key);
-    string s = internal->get(key);
+    std::string s = internal->get(key);
     double res;
     sscanf(s.c_str(), "%lf", &res);
     RETURN(res);
 }
 
 string
-OmSettings::get(const string &key, string def) const
+OmSettings::get(const std::string &key, std::string def) const
 {
-    DEBUGAPICALL(string, "OmSettings::get", key << ", " << def);
+    DEBUGAPICALL(std::string, "OmSettings::get", key << ", " << def);
     try {
 	RETURN(internal->get(key));
     }
@@ -220,7 +220,7 @@ OmSettings::get(const string &key, string def) const
 }
 
 bool
-OmSettings::get_bool(const string &key, bool def) const
+OmSettings::get_bool(const std::string &key, bool def) const
 {
     DEBUGAPICALL(bool, "OmSettings::get_bool", key << ", " << def);
     try {
@@ -232,7 +232,7 @@ OmSettings::get_bool(const string &key, bool def) const
 }
 
 int
-OmSettings::get_int(const string &key, int def) const
+OmSettings::get_int(const std::string &key, int def) const
 {
     DEBUGAPICALL(int, "OmSettings::get_int", key << ", " << def);
     try {
@@ -244,7 +244,7 @@ OmSettings::get_int(const string &key, int def) const
 }
 
 double
-OmSettings::get_real(const string &key, double def) const
+OmSettings::get_real(const std::string &key, double def) const
 {
     DEBUGAPICALL(double, "OmSettings::get_real", key << ", " << def);
     try {
@@ -256,16 +256,16 @@ OmSettings::get_real(const string &key, double def) const
 }
 
 vector<string>
-OmSettings::get_vector(const string &key) const
+OmSettings::get_vector(const std::string &key) const
 {
     DEBUGAPICALL(vector<string>, "OmSettings::get_vector", key);
-    string s = internal->get(key);
-    string::size_type p = 0, q;
+    std::string s = internal->get(key);
+    std::string::size_type p = 0, q;
     vector<string> v;
     while (1) {	    
 	q = s.find('\0', p);
 	v.push_back(s.substr(p, q - p));
-	if (q == string::npos) break;
+	if (q == std::string::npos) break;
 	p = q + 1;
     }
     RETURN(v);
@@ -306,7 +306,7 @@ OmSettings::Internal::~Internal()
 }
 
 void
-OmSettings::Internal::set(const string &key, const string &value)
+OmSettings::Internal::set(const std::string &key, const std::string &value)
 {
     OmLockSentry sentry(mutex);
     // copy on write...
@@ -317,7 +317,7 @@ OmSettings::Internal::set(const string &key, const string &value)
 }
 
 string
-OmSettings::Internal::get(const string &key) const
+OmSettings::Internal::get(const std::string &key) const
 {
     OmLockSentry sentry(mutex);
 
@@ -325,7 +325,7 @@ OmSettings::Internal::get(const string &key) const
     i = data->values.find(key);
 
     if (i == data->values.end()) {
-	throw OmRangeError(string("Setting ") + key + " doesn't exist.");
+	throw OmRangeError(std::string("Setting ") + key + " doesn't exist.");
     }
     return i->second;
 }

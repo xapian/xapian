@@ -30,7 +30,7 @@
 map<string, const IRWeight *> IRWeight::custom_weights;
 
 IRWeight *
-IRWeight::create(const string &wt_type, const OmSettings & opts)
+IRWeight::create(const std::string &wt_type, const OmSettings & opts)
 {
     DEBUGLINE(UNKNOWN, "IRWeight::create(" << wt_type << ")");
     IRWeight * weight = NULL;
@@ -65,7 +65,7 @@ IRWeight::create(const string &wt_type, const OmSettings & opts)
 }
 
 void
-IRWeight::register_custom(const string &wt_type, const IRWeight *wt)
+IRWeight::register_custom(const std::string &wt_type, const IRWeight *wt)
 {
     // FIXME threadlock
     Assert(wt);

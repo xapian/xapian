@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmQuery_deleteNativeObject
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2II
   (JNIEnv *env, jobject obj, jstring term, jint count, jint pos)
 {
-    string thing = getStringValue (env, term);
+    std::string thing = getStringValue (env, term);
     try {
 	return (jlong) new OmQuery (thing,
 				    (om_termcount) count,
@@ -154,7 +154,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmQuery_get_1terms
     for (om_termname_list::iterator it = terms.begin ();
 	 it != terms.end (); it++, p++)
     {
-	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((string) *it).c_str()));
+	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((std::string) *it).c_str()));
     }
 
     return ret;

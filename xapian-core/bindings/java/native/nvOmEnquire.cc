@@ -163,7 +163,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmEnquire_get_1matching_1terms
     for (om_termname_list::iterator it = terms.begin ();
 	 it != terms.end (); it++, p++)
     {
-	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((string) *it).c_str()));
+	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((std::string) *it).c_str()));
     }
 
     return ret;

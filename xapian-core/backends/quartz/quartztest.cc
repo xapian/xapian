@@ -149,7 +149,7 @@ static void check_table_values_empty(QuartzDiskTable & table)
     TEST_EQUAL(cursor->current_tag.value, "");
 }
 
-static void unlink_table(const string & path)
+static void unlink_table(const std::string & path)
 {
     unlink((path + "DB").c_str());
     unlink((path + "baseA").c_str());
@@ -859,7 +859,7 @@ static bool test_cursor2()
     QuartzBufferedTable bufftable1(&disktable1);
 
     std::string key1 = "a";
-    std::string tag1 = string(2036, '\x00');
+    std::string tag1 = std::string(2036, '\x00');
     std::string key2 = "c";
     std::string tag2 = "bar2";
     std::string searchkey = "b";
@@ -1283,7 +1283,7 @@ static bool test_btree1()
     Btree_create(path, 8192);
     struct Btree * btree = Btree_open_to_read(path);
 
-    string key = "foo";
+    std::string key = "foo";
     {
 	struct Bcursor * cursor = Bcursor_create(btree);
 	int found = Bcursor_find_key(cursor, key.data(), key.size());

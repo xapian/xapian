@@ -71,7 +71,7 @@ OmIndexerData::OmIndexerData(const OmIndexerData &other)
 	    u.double_val = other.u.double_val;
 	    break;
 	case rt_string:
-	    u.string_val = new string(*other.u.string_val);
+	    u.string_val = new std::string(*other.u.string_val);
 	    break;
 	case rt_vector:
 	    u.vector_val = new vector<OmIndexerData>(*other.u.vector_val);

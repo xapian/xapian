@@ -48,7 +48,7 @@ class QuartzLog {
 	 *                   null, no logfile is opened, and messages are
 	 *                   discarded.
 	 */
-	QuartzLog(string filename);
+	QuartzLog(std::string filename);
 
 	/** Close the log.
 	 */
@@ -56,7 +56,7 @@ class QuartzLog {
 	 
 	/** Make an entry in the log.
 	 */
-	void make_entry(string entry) const;
+	void make_entry(std::string entry) const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_LOG_H */

@@ -42,7 +42,7 @@ void stemfile(const OmStem &stemmer, FILE * f)
 	int ch = getc(f);
 	if (ch == EOF) return;
 	if (IS_LETTER(ch)) {
-	    string word;
+	    std::string word;
 	    while(true) {
 		/* force lower case: */
 		if (isupper(ch)) {
@@ -63,7 +63,7 @@ void stemfile(const OmStem &stemmer, FILE * f)
 
 int main(int argc, char **argv)
 {
-    string lang = "english";
+    std::string lang = "english";
     if(argc > 2) {
 	if(!strcmp(argv[1], "--language")) {
 	    lang = argv[2];

@@ -25,14 +25,14 @@
 #include <string.h>
 #include <errno.h>
 
-QuartzLog::QuartzLog(string filename)
+QuartzLog::QuartzLog(std::string filename)
 	: fp(0)
 {
     if (!filename.empty()) {
 	fp = fopen(filename.c_str(), "a");
 	if (fp == 0)
 	    throw OmOpeningError("Can't open logfile `" + filename + "': " +
-				 string(strerror(errno)));
+				 std::string(strerror(errno)));
     }
 }
 
@@ -46,13 +46,13 @@ QuartzLog::~QuartzLog()
 }
  
 void
-QuartzLog::make_entry(string entry) const
+QuartzLog::make_entry(std::string entry) const
 {
     if (fp != 0) {
 	fprintf(fp, "%s\n", entry.c_str());
 	if (fflush(fp)) {
 	    throw OmOpeningError("Error when flushing logfile: " +
-				 string(strerror(errno)));
+				 std::string(strerror(errno)));
 	}
     }
 }

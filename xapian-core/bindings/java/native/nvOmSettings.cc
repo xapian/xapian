@@ -319,7 +319,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmSettings_get_1vector
     for (std::vector<std::string>::const_iterator it = value_n.begin ();
 	 it != value_n.end (); it++, p++)
     {
-	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((string) *it).c_str()));
+	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((std::string) *it).c_str()));
     }
 
     return ret;

@@ -93,8 +93,8 @@ QuartzPositionList::next()
     Assert(!is_at_end);
     next_internal();
     have_started = true;
-    DEBUGLINE(DB, string("QuartzPositionList - moved to ") <<
-	      (is_at_end ? string("end.") : string("position = ") +
+    DEBUGLINE(DB, std::string("QuartzPositionList - moved to ") <<
+	      (is_at_end ? std::string("end.") : std::string("position = ") +
 	       om_tostring(current_pos) + "."));
 }
 
@@ -107,8 +107,8 @@ QuartzPositionList::skip_to(om_termpos termpos)
 	have_started = true;
     }
     while(!is_at_end && current_pos < termpos) next_internal();
-    DEBUGLINE(DB, string("QuartzPositionList - skipped to ") <<
-	      (is_at_end ? string("end.") : string("position = ") +
+    DEBUGLINE(DB, std::string("QuartzPositionList - skipped to ") <<
+	      (is_at_end ? std::string("end.") : std::string("position = ") +
 	       om_tostring(current_pos) + "."));
 }
 

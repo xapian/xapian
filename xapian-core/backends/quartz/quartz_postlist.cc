@@ -398,8 +398,8 @@ QuartzPostList::next(om_weight w_min)
 	if (!next_in_chunk()) next_chunk();
     }
 
-    DEBUGLINE(DB, string("Moved to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
+    DEBUGLINE(DB, std::string("Moved to ") <<
+	      (is_at_end ? std::string("end.") : std::string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength) + "."));
     
@@ -504,8 +504,8 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 
     move_to(desired_did);
 
-    DEBUGLINE(DB, string("Skipped to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
+    DEBUGLINE(DB, std::string("Skipped to ") <<
+	      (is_at_end ? std::string("end.") : std::string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength) + "."));
     

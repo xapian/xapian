@@ -67,13 +67,13 @@ make_dbgrp(OmDatabase * db1, OmDatabase * db2,
 static BackendManager backendmanager;
 
 OmDatabase
-get_database(const string &dbname, const string &dbname2)
+get_database(const std::string &dbname, const std::string &dbname2)
 {
     return backendmanager.get_database(dbname, dbname2);
 }
 
 OmWritableDatabase
-get_writable_database(const string &dbname)
+get_writable_database(const std::string &dbname)
 {
     return backendmanager.get_writable_database(dbname);
 }
@@ -86,8 +86,8 @@ get_writable_database(const string &dbname)
 
 int main(int argc, char *argv[])
 {
-    string srcdir = test_driver::get_srcdir(argv[0]);
-    string backend;
+    std::string srcdir = test_driver::get_srcdir(argv[0]);
+    std::string backend;
     const char *p = getenv("OM_TEST_BACKEND");
     if (p) backend = p;
 

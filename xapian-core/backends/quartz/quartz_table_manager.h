@@ -83,7 +83,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
     private:
 	/** Directory to store databases in.
 	 */
-	string db_dir;
+	std::string db_dir;
 
 	/** Whether the database is readonly.
 	 */
@@ -145,22 +145,22 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	void open_tables_consistent();
 
 	/// Return the path that the record table is stored at.
-	string record_path() const;
+	std::string record_path() const;
 
 	/// Return the path that the attribute table is stored at.
-	string attribute_path() const;
+	std::string attribute_path() const;
 
 	/// Return the path that the lexicon table is stored at.
-	string lexicon_path() const;
+	std::string lexicon_path() const;
 
 	/// Return the path that the termlist table is stored at.
-	string termlist_path() const;
+	std::string termlist_path() const;
 
 	/// Return the path that the positionlist table is stored at.
-	string positionlist_path() const;
+	std::string positionlist_path() const;
 
 	/// Return the path that the postlist table is stored at.
-	string postlist_path() const;
+	std::string postlist_path() const;
     public:
 
 	/** Pointer to object to log modifications.
@@ -181,8 +181,8 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
-	QuartzDiskTableManager(string db_dir_,
-			       string log_filename_,
+	QuartzDiskTableManager(std::string db_dir_,
+			       std::string log_filename_,
 			       bool readonly_,
 			       bool perform_recovery,
 			       unsigned int block_size);
@@ -266,8 +266,8 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 *  This may throw any exceptions which are thrown by
 	 *  QuartzDiskTableManager's constructor.
 	 */
-	QuartzBufferedTableManager(string db_dir_,
-				   string log_filename_,
+	QuartzBufferedTableManager(std::string db_dir_,
+				   std::string log_filename_,
 				   bool perform_recovery,
 				   unsigned int block_size);
 	

@@ -178,7 +178,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set(const string &key, const char *value);
+	void set(const std::string &key, const char *value);
     
 	/** Set an option value to an integer.
 	 *
@@ -212,7 +212,7 @@ class OmSettings {
 	 *
 	 *  @param end   Iterator pointing to end of vector.
 	 */
-	void set(const string &key, vector<string>::const_iterator begin,
+	void set(const std::string &key, vector<string>::const_iterator begin,
 		 vector<string>::const_iterator end);
 
 	/** Get a setting value as a string.
@@ -227,7 +227,7 @@ class OmSettings {
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
-	std::string get(const std::string &key, string def) const;
+	std::string get(const std::string &key, std::string def) const;
 
 	/** Get a setting value as an integer.
 	 *
@@ -277,7 +277,7 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-        vector<string> get_vector(const string &key) const;
+        vector<string> get_vector(const std::string &key) const;
 
 	/** Returns a string representing the database group object.
 	 *  Introspection method.

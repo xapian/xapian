@@ -144,7 +144,7 @@ class test_driver {
 	/** Read srcdir from environment and if not present, make a valiant
 	 *  attempt to guess a value
 	 */
-	static string get_srcdir(const string &argv0);
+	static std::string get_srcdir(const std::string &argv0);
 
 	// running total for a test run
 	static result total;

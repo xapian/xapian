@@ -81,9 +81,9 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -113,9 +113,9 @@ QuartzDiskCursor::next()
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
 
@@ -161,9 +161,9 @@ QuartzDiskCursor::prev()
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
 
@@ -387,7 +387,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     // FIXME: check for errors
 
     // FIXME: unwanted copy
-    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
+    tag.value = std::string(reinterpret_cast<char *>(item->tag), item->tag_len);
 
     // FIXME: ensure that these loses get called whatever exit route happens.
     Btree_item_lose(item);

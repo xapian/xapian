@@ -73,13 +73,13 @@ void handleNativeError (JNIEnv *env, OmError& err_ref) {
 jobject makeReturnObject (JNIEnv* env, const char* classname, jlong native) {
     jclass clazz = env->FindClass (classname);
     if (clazz == NULL) {
-	string msg = string ("NATIVE: error getting class for: ") + classname;
+	std::string msg = std::string ("NATIVE: error getting class for: ") + classname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
 
     jmethodID cid = env->GetMethodID (clazz, "<init>", "(J)V");
     if (cid == NULL) {
-	string msg = string ("NATIVE: error getting constructor ID for: ") + classname;
+	std::string msg = std::string ("NATIVE: error getting constructor ID for: ") + classname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
 
@@ -91,7 +91,7 @@ jobject makeReturnObject (JNIEnv* env, const char* classname, jlong native) {
 jlong tryGetLongField (JNIEnv* env, const jobject& obj, const char* fieldname) {
     jfieldID fid = env->GetFieldID (env->GetObjectClass (obj), fieldname, "J");
     if (fid == NULL) {
-	string msg = string ("NATIVE: error getting long field: ") + fieldname;
+	std::string msg = std::string ("NATIVE: error getting long field: ") + fieldname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
 
@@ -102,7 +102,7 @@ jlong tryGetLongField (JNIEnv* env, const jobject& obj, const char* fieldname) {
 jdouble tryGetDoubleField (JNIEnv* env, const jobject& obj, const char* fieldname) {
     jfieldID fid = env->GetFieldID (env->GetObjectClass (obj), fieldname, "J");
     if (fid == NULL) {
-	string msg = string ("NATIVE: error getting double field: ") + fieldname;
+	std::string msg = std::string ("NATIVE: error getting double field: ") + fieldname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
 
@@ -112,7 +112,7 @@ jdouble tryGetDoubleField (JNIEnv* env, const jobject& obj, const char* fieldnam
 
 string getStringValue (JNIEnv* env, const jstring& str) {
     const char* ptr = env->GetStringUTFChars (str, NULL);
-    string ret (ptr);
+    std::string ret (ptr);
     env->ReleaseStringUTFChars (str, ptr);
     return ret;
 }

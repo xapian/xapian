@@ -1081,9 +1081,9 @@ static bool test_maxorterms3()
     // make a query
     OmStem stemmer("english");
 
-    string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("rubbish");
-    string term3 = stemmer.stem_word("banana");
+    std::string term1 = stemmer.stem_word("word");
+    std::string term2 = stemmer.stem_word("rubbish");
+    std::string term3 = stemmer.stem_word("banana");
 
     OmQuery myquery(OmQuery::OP_OR,
 		    OmQuery(term1),
@@ -1160,7 +1160,7 @@ static bool test_termlisttermfreq1()
     OmESet eset2 = enquire.get_eset(1000, rset2);
 
     // search for weight of term 'another'
-    string theterm = stemmer.stem_word("another");
+    std::string theterm = stemmer.stem_word("another");
 
     vector<OmESetItem>::const_iterator i;
     om_weight wt1 = 0;
@@ -1249,9 +1249,9 @@ static bool test_qterminfo1()
     // make a query
     OmStem stemmer("english");
 
-    string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("inmemory");
-    string term3 = stemmer.stem_word("flibble");
+    std::string term1 = stemmer.stem_word("word");
+    std::string term2 = stemmer.stem_word("inmemory");
+    std::string term3 = stemmer.stem_word("flibble");
 
     OmQuery myquery(OmQuery::OP_OR,
 		    OmQuery(term1),
@@ -1324,7 +1324,7 @@ static bool test_adddoc1()
     // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
     // doc3 should beat both
     // Note: all docs have same length
-    doc1.data = string("tom");
+    doc1.data = std::string("tom");
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
@@ -1332,7 +1332,7 @@ static bool test_adddoc1()
     doc1.add_posting("bar", 4);
     db.add_document(doc1);
     
-    doc2.data = string("dick");
+    doc2.data = std::string("dick");
     doc2.add_posting("foo", 1);
     doc2.add_posting("foo", 2);
     doc2.add_posting("bar", 3);
@@ -1340,7 +1340,7 @@ static bool test_adddoc1()
     doc2.add_posting("bar", 3);
     db.add_document(doc2);
 
-    doc3.data = string("harry");
+    doc3.data = std::string("harry");
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 2);
@@ -1370,7 +1370,7 @@ static bool test_implicitendsession1()
 
 	OmDocumentContents doc;
 	
-	doc.data = string("top secret");
+	doc.data = std::string("top secret");
 	doc.add_posting("cia", 1);
 	doc.add_posting("nsa", 2);
 	doc.add_posting("fbi", 3);
@@ -1514,7 +1514,7 @@ static bool test_postlist1()
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 
-    string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
+    std::string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
     s += s;
     s += s;
     s += s;

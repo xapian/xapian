@@ -233,7 +233,7 @@ unpack_string(const char ** src,
 	return false;
     }
 
-    result = string(*src, length);
+    result = std::string(*src, length);
     *src += length;
     return true;
 }

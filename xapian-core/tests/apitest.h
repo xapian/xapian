@@ -30,8 +30,8 @@ OmDatabase make_dbgrp(OmDatabase * db1 = 0,
 		      OmDatabase * db3 = 0,
 		      OmDatabase * db4 = 0);
 
-OmDatabase get_database(const string &dbname, const string &dbname2 = "");
+OmDatabase get_database(const std::string &dbname, const std::string &dbname2 = "");
 
-OmWritableDatabase get_writable_database(const string &dbname);
+OmWritableDatabase get_writable_database(const std::string &dbname);
 
 #endif /* OM_HGUARD_APITEST_H */

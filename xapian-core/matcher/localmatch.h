@@ -67,7 +67,7 @@ class LocalSubMatch : public SubMatch {
 	 *  This may differ from the requested scheme if, for example,
 	 *  the query is pure boolean.
 	 */
-	string weighting_scheme;
+	std::string weighting_scheme;
 
 	/// Stored match options object
 	OmSettings opts;

@@ -91,12 +91,12 @@ index_files_to_database(OmWritableDatabase & database,
 }
 
 void
-index_files_to_m36(const string &prog, const string &dbdir,
+index_files_to_m36(const std::string &prog, const std::string &dbdir,
 		   std::vector<std::string> paths)
 {
-    string dump = dbdir + "/DATA";
+    std::string dump = dbdir + "/DATA";
     ofstream out(dump.c_str());
-    string keyfile = dbdir + "/keyfile";
+    std::string keyfile = dbdir + "/keyfile";
     ofstream keys(keyfile.c_str());
     keys << "omrocks!"; // magic word
     for (std::vector<std::string>::const_iterator p = paths.begin();
@@ -117,14 +117,14 @@ index_files_to_m36(const string &prog, const string &dbdir,
 	    out << "#TEND#\n";
 	    OmDocumentContents::document_keys::const_iterator key_i;
 	    key_i = doc.keys.begin();
-	    string key = string("\0\0\0\0\0\0\0", 8);
+	    std::string key = std::string("\0\0\0\0\0\0\0", 8);
 	    if (key_i != doc.keys.end()) key = key_i->second.value + key;
 	    key = key.substr(0, 8);
 	    keys << key;
 	}
     }
     out.close();
-    string cmd = "../../makeda/" + prog + " -source " + dump +
+    std::string cmd = "../../makeda/" + prog + " -source " + dump +
 	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
     system(cmd.c_str());
     unlink(dump.c_str());
