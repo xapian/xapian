@@ -23,6 +23,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <string>
 #include <algorithm>
@@ -60,6 +61,18 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     internals = new SleepyDatabaseInternals();
     termcache = new SleepyDatabaseTermCache(internals);
 
+    // Check that path is to a valid extant directory
+    struct stat buf;
+    int err_num = stat(params.paths[0].c_str(), &buf);
+    if (err_num != 0) {
+	throw OmOpeningError(string("SleepyDatabase: can't stat `") +
+			     params.paths[0] + "'");
+    }
+    if (!S_ISDIR(buf.st_mode)) {
+	throw OmOpeningError(string("SleepyDatabase: `") + params.paths[0] +
+			     "' is not a directory.");
+    }
+    
     // Open database with specified path
     // May throw an OmOpeningError exception
     internals->open(params.paths[0], params.readonly);
