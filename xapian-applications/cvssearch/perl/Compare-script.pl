@@ -451,6 +451,7 @@ sub compare_file_version {
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
     print "<a href=\"$cvscompare?pkg=$pkg&root=$root&fileid=$fileid\">[$filename]</a>\n";
+    print "</b><p>\n";
 
     print "<h1 align=center>aligned diff for $filename\n(";
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version\">full</a>,\n";
