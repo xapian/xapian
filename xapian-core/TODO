@@ -48,6 +48,10 @@ Priority | Area            | Task
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
 ---------+-----------------+--------------------------------------------------
+ Medium  | WritableDB      | Ensure that, if a term occurs several times at
+         |                 | the same location, this is indexed as a single
+	 |                 | term with the combined wdf.
+---------+-----------------+--------------------------------------------------
  Medium  | LocalMatch      | Make query a local variable of get_mset(), rather
          |                 | than a member of the class.
 ---------+-----------------+--------------------------------------------------
