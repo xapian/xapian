@@ -132,7 +132,7 @@ static string::size_type qptr;
 static int pending_token;
 static om_termpos termpos;
 static bool stem, stem_all;
-static OmStem *stemmer;
+OmStem *stemmer;
 
 void
 QueryParser::set_stemming_options(const string &lang, bool stem_all_)
