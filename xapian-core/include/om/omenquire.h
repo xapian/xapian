@@ -106,9 +106,37 @@ class OmMSetIterator {
 	/// Get the weight of the document at the current position
         om_weight get_weight() const;
 
-	// Get the number of documents that have been collapsed into this one
+	/** Get the number of documents that have been collapsed into this one
+	 *
+	 * If no documents have been collapsed, the result will be 0
+	 * NOTE: that this is a record on processing that occurred and not a
+	 * predictive indicator on the type of results available.
+	 *
+	 * It is entirely possible to get a collapse_count of zero when
+	 * there exist other documents that might collapse, but were not found
+	 * because the search terminated early with a full m-set.  
+	 *
+	 * It is entirely possible to get a non-zero collapse_count but
+	 * find when repeating the search that none of the collapsed values
+	 * proved relevant enough.
+	 *
+	 * The collapse_count IS useful in at least this circumstance:
+	 *   It can be used to collapse multiple results of a similar type 
+	 * (share a common key) to avoid this type of result masking other
+	 * types of results on account of the quanity of this document type.
+	 *   In such cases it is appropriate to offer an "expanded" search
+	 * of the same search options but additionally filtering the results
+	 * only to that type of document.
+	 *   So perhaps the top "Helpdesk" ticket would be shown along with
+	 * other types of hit, but with this helpdesk hit will be a link to
+	 * repeat the search over all helpdesk tickets only.
+	 *
+	 * It must be stressed that this is just a technique to present one
+	 * common document type from obscuring other rarer results without
+	 * hiding the common results althogether.
+	 */
 	om_doccount get_collapse_count() const;
-	
+
 	/** This returns the weight of the document as a percentage score
 	 *  The return value will be in the range 0 to 100:  0 meaning
 	 *  that the item did not match the query at all.
