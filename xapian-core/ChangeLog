@@ -1,3 +1,8 @@
+Thu Feb 10 18:02:37 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added tests to apitest for the match and expand decision functors,
+	  and added another shorthand function to reduce code duplication.
+
 Thu Feb 10 16:04:45 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More documentation in omenquire.h

@@ -63,6 +63,10 @@ bool test_boolquery1();
 bool test_msetfirst1();
 // tests the converting-to-percent functions
 bool test_topercent1();
+// tests the expand decision functor
+bool test_expandfunctor1();
+// tests the match decision functor
+bool test_matchfunctor1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -79,6 +83,8 @@ om_test tests[] = {
     {"boolquery1",         test_boolquery1},
     {"msetfirst1",         test_msetfirst1},
     {"topercent1",	   test_topercent1},
+    {"expandfunctor1",	   test_expandfunctor1},
+    {"matchfunctor1",	   test_matchfunctor1},
     {0, 0}
 };
 
@@ -241,18 +247,21 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
+void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
+{
+    vector<string> dbargs;
+    dbargs.push_back(datadir + "/apitest_simpledata.txt");
+    enq.add_database("inmemory", dbargs);
+
+    enq.set_query(query);
+}
+
 OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
     OmEnquire enquire;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-
-    enquire.add_database("inmemory", dbargs);
-
-    // make a simple query
-    enquire.set_query(query);
+    init_simple_enquire(enquire, query);
 
     // retrieve the top results
     return enquire.get_mset(first, maxitems);
@@ -375,7 +384,7 @@ bool test_changequery1()
 
     enquire.add_database("inmemory", dbargs);
 
-    OmQuery myquery("this");
+    OmQuery myquery("thi");
     // make a simple query
     enquire.set_query(myquery);
 
@@ -412,11 +421,7 @@ bool test_msetmaxitems1()
 bool test_expandmaxitems1()
 {
     OmEnquire enquire;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-    enquire.add_database("inmemory", dbargs);
-
-    enquire.set_query(OmQuery("thi"));
+    init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
 
@@ -498,5 +503,105 @@ bool test_topercent1()
 	}
 	last_pct = pct;
     }
+    return success;
+}
+
+class myExpandFunctor : public OmExpandDecider {
+    public:
+	bool want_term(const om_termname & tname) const {
+	    unsigned long sum = 0;
+	    for (om_termname::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
+		sum += *i;
+	    }
+	    return (sum % 2) == 0;
+	}
+};
+
+bool test_expandfunctor1()
+{
+    bool success = true;
+
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    OmRSet myrset;
+    myrset.add_document(mymset.items[0].did);
+    myrset.add_document(mymset.items[1].did);
+
+    myExpandFunctor myfunctor;
+
+    OmESet myeset_orig = enquire.get_eset(1000, myrset);
+    unsigned int neweset_size = 0;
+    for (unsigned int i=0; i<myeset_orig.items.size(); ++i) {
+        if (myfunctor.want_term(myeset_orig.items[i].tname)) neweset_size++;
+    }
+    OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
+
+    // Compare myeset with the hand-filtered version of myeset_orig.
+    vector<OmESetItem>::const_iterator orig,filt;
+    for (orig=myeset_orig.items.begin(), filt=myeset.items.begin();
+         orig!=myeset_orig.items.end() && filt!=myeset.items.end();
+	 ++orig, ++filt) {
+	// skip over items that shouldn't be in myeset
+	while (orig != myeset_orig.items.end() && !myfunctor.want_term(orig->tname)) {
+	    ++orig;
+	}
+
+	if ((orig->tname != filt->tname) ||
+	    (orig->wt != filt->wt)) {
+	    success = false;
+	    if (verbose) {
+	        cout << "Mismatch in the items after filtering" << endl;
+	    }
+	    break;
+	}
+    }
+    
+    while (orig != myeset_orig.items.end() && !myfunctor.want_term(orig->tname)) {
+	++orig;
+    }
+
+    if (orig != myeset_orig.items.end()) {
+	success = false;
+	if (verbose) {
+	    cout << "Extra items in the non-filtered eset." << endl;
+	}
+    } else if (filt != myeset.items.end()) {
+        success = false;
+	if (verbose) {
+	    cout << "Extra items in the filtered eset." << endl;
+	}
+    }
+
+    return success;
+}
+
+class myMatchDecider : public OmMatchDecider {
+    public:
+        bool want_doc(om_docid did) const {
+	    return (did % 2) == 1;
+	}
+};
+
+bool test_matchfunctor1()
+{
+    // FIXME: check that the functor works both ways.
+    bool success = true;
+
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    myMatchDecider myfunctor;
+
+    OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
+
+    for (unsigned int i=0; i<mymset.items.size(); ++i) {
+        if (!myfunctor.want_doc(mymset.items[i].did)) {
+	    success = false;
+	    break;
+	}
+    }
+
     return success;
 }
