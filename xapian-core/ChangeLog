@@ -1,3 +1,7 @@
+Tue Sep 19 12:11:58 BST 2000 Olly Betts
+
+	* More work on tests.
+
 Tue Sep 19 10:50:43 BST 2000 Olly Betts
 
 	* More tests in apitest and includetest changed to use TEST_* macros.

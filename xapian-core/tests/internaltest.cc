@@ -255,66 +255,32 @@ class test_refcnt : public RefCntBase {
 
 bool test_refcnt1()
 {
-    bool success = true;
-
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
 
-    if (p->ref_count != 0) {
-	success = false;
-	if (verbose) {
-	    cout << "Plain ref-counted class has ref count "
-		 << p->ref_count << endl;
-	}
-	delete p;
-    } else {
+    TEST_EQUAL(p->ref_count, 0);
+
+    {
 	RefCntPtr<test_refcnt> rcp(p);
 
-	if (rcp->ref_count != 1) {
-	    success = false;
-	    if (verbose) {
-		cout << "Reference count not 1: "
-	             << rcp->ref_count << endl;
-	    }
-	}
-
+	TEST_EQUAL(rcp->ref_count, 1);
+	
 	{
 	    RefCntPtr<test_refcnt> rcp2;
 	    rcp2 = rcp;
-	    if (rcp->ref_count != 2) {
-		success = false;
-		if (verbose) {
-		    cout << "Refcount not 2: "
-			 << rcp->ref_count << endl;
-		}
-	    }
+	    TEST_EQUAL(rcp->ref_count, 2);
 	    // rcp2 goes out of scope here
 	}
-
-	if (deleted) {
-	    success = false;
-	    if (verbose) {
-		cout << "Object prematurely deleted!" << endl;
-	    }
-	} else if (rcp->ref_count != 1) {
-	    success = false;
-	    if (verbose) {
-		cout << "Reference count not 1 again: "
-	             << rcp->ref_count << endl;
-	    }
-	}
+	
+	TEST_AND_EXPLAIN(!deleted, "Object prematurely deleted!");
+	TEST_EQUAL(rcp->ref_count, 1);
+	// rcp goes out of scope here
     }
+    
+    TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
 
-    if (deleted != true) {
-	success = false;
-	if (verbose) {
-	    cout << "Object not properly deleted"
-		 << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 #endif /* HAVE_NO_ACCESS_CONTROL */
@@ -370,20 +336,11 @@ bool test_stringcomp1()
 
 bool test_omstringstream1()
 {
-    bool success = true;
-
     om_ostringstream oss;
     oss << "foo" << 4 << "bar";
+    TEST_EQUAL(oss.str(), "foo4bar");
 
-    if (oss.str() != "foo4bar") {
-	success = false;
-	if (verbose) {
-	    cout << "oss.str() returned `" << oss.str()
-		 << "' instead of foo4bar" << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
@@ -459,19 +416,15 @@ bool test_sleepycatpack1()
 bool
 test_omsettings1()
 {
-    bool success = true;
-
     OmSettings settings;
 
     settings.set("K1", "V1");
     settings.set("K2", "V2");
     settings.set("K1", "V3");
 
-    if (settings.get("K1") != "V3" ||
-	settings.get("K2") != "V2") {
-	success = false;
-    }
-    return success;
+    TEST_EQUAL(settings.get("K1"), "V3");
+    TEST_EQUAL(settings.get("K2"), "V2");
+    return true;
 }
 
 bool

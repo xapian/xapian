@@ -60,8 +60,7 @@ static bool test_getqterms1()
 		    OmQuery("four", 1, 4),
 		    OmQuery("two", 1, 2)));
 
-    om_termname_list terms = myquery.get_terms();
-    TEST_EQUAL(terms, answers_list);
+    TEST_EQUAL(myquery.get_terms(), answers_list);
     return true;
 }
 
@@ -119,8 +118,8 @@ static bool test_querylen3()
     };
 
     OmQuery myquery;
-    vector<om_termname> v1(terms, terms+3);
-    vector<OmQuery> v2(queries, queries+3);
+    vector<om_termname> v1(terms, terms + 3);
+    vector<OmQuery> v2(queries, queries + 3);
     vector<OmQuery *> v3;
 
     auto_ptr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,

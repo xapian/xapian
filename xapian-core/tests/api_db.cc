@@ -326,8 +326,9 @@ static bool test_boolquery1()
 
     TEST_NOT_EQUAL(mymset.items.size(), 0);
     TEST_EQUAL(mymset.max_possible, 0);
-    for (unsigned int i = 0; i<mymset.items.size(); ++i) {
-	TEST_EQUAL(mymset.items[i].wt, 0);
+    vector<OmMSetItem>::const_iterator i;
+    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
+	TEST_EQUAL(i->wt, 0);
     }
 
     return true;
@@ -349,9 +350,10 @@ static bool test_topercent1()
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 20, 0);
 
     int last_pct = 100;
-    for (unsigned i = 0; i < mymset.items.size(); ++i) {
-	int pct = mymset.convert_to_percent(mymset.items[i]);
-	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(mymset.items[i].wt),
+    vector<OmMSetItem>::const_iterator i;
+    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
+	int pct = mymset.convert_to_percent(*i);
+	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i->wt),
 			 "convert_to_%(msetitem) != convert_to_%(wt)");
         TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
 			 "percentage out of range: " << pct);
@@ -392,8 +394,9 @@ static bool test_expandfunctor1()
 
     OmESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
-    for (unsigned int i=0; i<myeset_orig.items.size(); ++i) {
-        if (myfunctor(myeset_orig.items[i].tname)) neweset_size++;
+    vector<OmESetItem>::const_iterator i;
+    for (i = myeset_orig.items.begin(); i != myeset_orig.items.end(); ++i) {
+        if (myfunctor(i->tname)) neweset_size++;
     }
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
@@ -409,9 +412,9 @@ static bool test_expandfunctor1()
 	     ostream_iterator<OmESetItem>(cout, " "));
 	cout << endl;
     }
-    vector<OmESetItem>::const_iterator orig,filt;
-    for (orig=myeset_orig.items.begin(), filt=myeset.items.begin();
-         orig!=myeset_orig.items.end() && filt!=myeset.items.end();
+    vector<OmESetItem>::const_iterator orig, filt;
+    for (orig = myeset_orig.items.begin(), filt = myeset.items.begin();
+         orig != myeset_orig.items.end() && filt != myeset.items.end();
 	 ++orig, ++filt) {
 	// skip over items that shouldn't be in myeset
 	while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
@@ -452,19 +455,21 @@ static bool test_matchfunctor1()
 
     OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
 
-    for (unsigned int i=0; i<mymset.items.size(); ++i) {
-	const OmDocument doc(enquire.get_doc(mymset.items[i]));
+    vector<OmMSetItem>::const_iterator i;
+    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
+	const OmDocument doc(enquire.get_doc(*i));
         TEST(myfunctor(doc));
     }
 
     return true;
 }
 
-void print_mset_percentages(const OmMSet &mset)
+static void
+print_mset_percentages(const OmMSet &mset)
 {
-    for (unsigned i = 0; i < mset.items.size(); ++i) {
-        cout << " ";
-	cout << mset.convert_to_percent(mset.items[i]);
+    vector<OmMSetItem>::const_iterator i;
+    for (i = mset.items.begin(); i != mset.items.end(); ++i) {
+        cout << " " << mset.convert_to_percent(*i);
     }
 }
 
@@ -543,8 +548,9 @@ static bool test_allowqterms1()
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
 
-    for (unsigned i = 0; i < myeset.items.size(); ++i) {
-        TEST_NOT_EQUAL(myeset.items[i].tname, "thi");
+    vector<OmESetItem>::const_iterator i;
+    for (i = myeset.items.begin(); i != myeset.items.end(); ++i) {
+        TEST_NOT_EQUAL(i->tname, "thi");
     }
 
     return true;
@@ -556,14 +562,11 @@ static bool test_maxattain1()
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 100, 0);
 
     om_weight mymax = 0;
-    for (unsigned i=0; i<mymset.items.size(); ++i) {
-        if (mymset.items[i].wt > mymax) {
-	    mymax = mymset.items[i].wt;
-	}
+    vector<OmMSetItem>::const_iterator i;
+    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
+        if (i->wt > mymax) mymax = i->wt;
     }
-    TEST_AND_EXPLAIN(mymax == mymset.max_attained,
-		     "Max weight in MSet is " << mymax
-		     << ", max_attained = " << mymset.max_attained);
+    TEST_EQUAL(mymax, mymset.max_attained);
 
     return true;
 }
@@ -609,25 +612,16 @@ static bool test_reversebool1()
 
     OmSettings mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    TEST_AND_EXPLAIN(mymset1.items.size() > 1,
+		     "Mset was too small to test properly");
+
     mymopt.set("match_sort_forward", true);
     OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
     mymopt.set("match_sort_forward", false);
     OmMSet mymset3 = enquire.get_mset(0, 100, 0, &mymopt);
 
-    if(mymset1.items.size() == 0) {
-	if (verbose) cout << "Mset was empty" << endl;
-	return false;
-    }
-
     // mymset1 and mymset2 should be identical
-    if(mymset1.items.size() != mymset2.items.size()) {
-	if (verbose) {
-	    cout << "mymset1 and mymset2 were of different sizes (" <<
-		    mymset1.items.size() << " and " <<
-		    mymset2.items.size() << ")" << endl;
-	}
-	return false;
-    }
+    TEST_EQUAL(mymset1.items.size(), mymset2.items.size());
 
     {
 	vector<OmMSetItem>::const_iterator i;
@@ -635,44 +629,23 @@ static bool test_reversebool1()
 	for (i = mymset1.items.begin(), j = mymset2.items.begin();
 	     i != mymset1.items.end(), j != mymset2.items.end();
 	     ++i, j++) {
-	    if(i->did != j->did) {
-		if (verbose) {
-		    cout << "Setting match_sort_forward=true was not"
-			    "same as default." << endl;
-		    cout << "docids " << i->did << " and " << j->did <<
-			    " should have been the same" << endl;
-		}
-		return false;
-	    }
+	    // if this fails, then setting match_sort_forward=true was not
+	    // the same as the default.
+	    TEST_EQUAL(i->did, j->did);
 	}
     }
 
     // mymset1 and mymset3 should be same but reversed
-    if(mymset1.items.size() != mymset3.items.size()) {
-	if (verbose) {
-	    cout << "mymset1 and mymset2 were of different sizes (" <<
-		    mymset1.items.size() << " and " <<
-		    mymset2.items.size() << ")" << endl;
-	}
-	return false;
-    }
+    TEST_EQUAL(mymset1.items.size(), mymset3.items.size());
 
     {
 	vector<OmMSetItem>::const_iterator i;
 	vector<OmMSetItem>::reverse_iterator j;
-	for (i = mymset1.items.begin(),
-	     j = mymset3.items.rbegin();
-	     i != mymset1.items.end();
-	     ++i, j++) {
-	    if(i->did != j->did) {
-		if (verbose) {
-		    cout << "Setting match_sort_forward=false "
-			    "did not reverse results." << endl;
-		    cout << "docids " << i->did << " and " << j->did <<
-			    " should have been the same" << endl;
-		}
-		return false;
-	    }
+	for (i = mymset1.items.begin(), j = mymset3.items.rbegin();
+	     i != mymset1.items.end(); ++i, j++) {
+	    // if this fails, then setting match_sort_forward=false didn't
+	    // reverse the results.
+	    TEST_EQUAL(i->did, j->did);
 	}
     }
 
@@ -690,14 +663,8 @@ static bool test_reversebool2()
     OmSettings mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
 
-    if(mymset1.items.size() == 0) {
-	if (verbose) cout << "Mset was empty" << endl;
-	return false;
-    }
-    if(mymset1.items.size() == 1) {
-	if (verbose) cout << "Mset was too small to test properly" << endl;
-	return false;
-    }
+    TEST_AND_EXPLAIN(mymset1.items.size() > 1,
+		     "Mset was too small to test properly");
 
     mymopt.set("match_sort_forward", true);
     om_doccount msize = mymset1.items.size() / 2;
@@ -706,43 +673,30 @@ static bool test_reversebool2()
     OmMSet mymset3 = enquire.get_mset(0, msize, 0, &mymopt);
 
     // mymset2 should be first msize items of mymset1
-    if(msize != mymset2.items.size()) return false;
+    TEST_EQUAL(msize, mymset2.items.size());
+
     {
 	vector<OmMSetItem>::const_iterator i;
 	vector<OmMSetItem>::const_iterator j;
 	for (i = mymset1.items.begin(), j = mymset2.items.begin();
 	     i != mymset1.items.end(), j != mymset2.items.end();
 	     ++i, j++) {
-	    if(i->did != j->did) {
-		if (verbose) {
-		    cout << "Setting match_sort_forward=true was not"
-			    "same as default." << endl;
-		    cout << "docids " << i->did << " and " << j->did <<
-			    " should have been the same" << endl;
-		}
-		return false;
-	    }
+	    // if this fails, then setting match_sort_forward=true was not
+	    // the same as the default.
+	    TEST_EQUAL(i->did, j->did);
 	}
     }
 
     // mymset3 should be last msize items of mymset1, in reverse order
-    if(msize != mymset3.items.size()) return false;
+    TEST_EQUAL(msize, mymset3.items.size());
     {
 	vector<OmMSetItem>::reverse_iterator i;
 	vector<OmMSetItem>::const_iterator j;
-	for (i = mymset1.items.rbegin(),
-	     j = mymset3.items.begin();
-	     j != mymset3.items.end();
-	     ++i, j++) {
-	    if(i->did != j->did) {
-		if (verbose) {
-		    cout << "Setting match_sort_forward=false "
-			    "did not reverse results." << endl;
-		    cout << "docids " << i->did << " and " << j->did <<
-			    " should have been the same" << endl;
-		}
-		return false;
-	    }
+	for (i = mymset1.items.rbegin(), j = mymset3.items.begin();
+	     j != mymset3.items.end(); ++i, j++) {
+	    // if this fails, then setting match_sort_forward=false didn't
+	    // reverse the results.
+	    TEST_EQUAL(i->did, j->did);
 	}
     }
 
@@ -1414,9 +1368,9 @@ static bool test_implicitendsession1()
     }
     catch (...) {
 	// in a debug build, an assertion in OmWritableDatabase's destructor
-	// will fail at this point if the backend doesn't implicitly call
-	// end_session()
-	return false;
+	// will fail at the end of the try block if the backend doesn't
+	// implicitly call end_session()
+	throw;
     }
     return true;
 }
@@ -1433,10 +1387,8 @@ static bool test_databaseassign1()
     OmDatabase d2(actually_wdb);
     d2 = wdb;
     d2 = actually_wdb;
-    try { wdb = wdb; } // assign to itself
-    catch (const OmInvalidArgumentError &e) { }
-    try { db = db; } // assign to itself
-    catch (const OmInvalidArgumentError &e) { }
+    wdb = wdb; // check assign to itself works
+    db = db; // check assign to itself works
     return true;
 }
 
@@ -1450,7 +1402,8 @@ static bool test_wqf1()
     OmMSet mset1 = do_get_simple_query_mset(q1);
     OmMSet mset2 = do_get_simple_query_mset(q2);
     // Check the weights
-    return (mset1.items[0].wt > mset2.items[0].wt);
+    TEST(mset1.items[0].wt > mset2.items[0].wt);
+    return true;
 }
 
 // tests that query length affects the document weights
