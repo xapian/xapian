@@ -42,8 +42,8 @@
     <B><FONT color=#a52a2a>try</FONT></B> {
         <FONT color=#0000ff>// Make the database</FONT>
         OmSettings settings;
-        settings.set_value(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
-        settings.set_value(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
+        settings.set(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
+        settings.set(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
         OmWritableDatabase database(settings);
 
         <FONT color=#0000ff>// Make the document</FONT>

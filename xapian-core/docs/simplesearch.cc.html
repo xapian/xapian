@@ -42,8 +42,8 @@
     <B><FONT color=#a52a2a>try</FONT></B> {
         <FONT color=#0000ff>// Make the database group</FONT>
         OmSettings settings;
-        settings.set_value(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
-        settings.set_value(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
+        settings.set(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
+        settings.set(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
         OmDatabaseGroup databases;
         databases.add_database(settings);
 
@@ -57,7 +57,7 @@
         }
 
         <FONT color=#0000ff>// Build the query object</FONT>
-        OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+        OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
         cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt; <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
 
         <FONT color=#0000ff>// Give the query object to the enquire session</FONT>
