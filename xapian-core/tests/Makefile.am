@@ -6,7 +6,10 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # ie: when we have an API
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_PROGRAMS = dbtest matchtest idxtest stemtest enquiretest
+noinst_PROGRAMS = apitest dbtest matchtest idxtest stemtest enquiretest
+
+apitest_SOURCES = apitest.cc
+apitest_LDADD = ../libomus.la
 
 dbtest_SOURCES = dbtest.cc
 dbtest_LDADD = ../libomus.la
