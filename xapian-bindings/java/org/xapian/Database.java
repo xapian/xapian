@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,31 +34,27 @@ import java.util.List;
 public class Database {
     private Database _createdfrom = null;
 
-    protected String _path;
     long id = -1;
 
     private List _children;
 
-    protected Database(long id) throws XapianError {
+    protected Database(long id) {
         this.id = id;
-    }
-
-    public Database(String path) throws XapianError {
-        this(XapianJNI.database_new(path));
-        _path = path;
     }
 
     public Database(Database db) throws XapianError {
         this(XapianJNI.database_new(db.id));
-        _createdfrom = db;
-    }
 
-    public String getPath() {
-        return _path;
+        // we *must* hold a reference to the Database passed into us
+        // so the JVM won't garbage-collect it out from under us!
+        _createdfrom = db;
     }
 
     public void addDatabase(Database db) throws XapianError {
         XapianJNI.database_add_database(id, db.id);
+
+        // we must hold references to all databases added
+        // so the JVM won't garbage-collect them out from under us
         if (_children == null)
             _children = new ArrayList();
         _children.add(db);
@@ -71,7 +68,7 @@ public class Database {
         try {
             return XapianJNI.database_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -108,7 +105,7 @@ public class Database {
     }
 
     public TermIterator getAllTerms() throws XapianError {
-        return new TermIterator(id, XapianJNI.database_allterms_begin(id), XapianJNI.database_allterms_end(id));
+        return new TermIterator(XapianJNI.database_allterms_begin(id), XapianJNI.database_allterms_end(id));
     }
 
     public TermIterator getTermsForField(String fieldname) throws XapianError {
@@ -117,7 +114,7 @@ public class Database {
 
     public TermIterator getTermsForField(String fieldname, String prefix) throws XapianError {
         TermIterator itr = getAllTerms();
-        itr.skip_to(fieldname + prefix);
+        itr.setFilter(fieldname + prefix);
         return itr;
     }
 

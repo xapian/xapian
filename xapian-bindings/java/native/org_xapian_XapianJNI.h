@@ -7,6 +7,102 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef org_xapian_XapianJNI_DB_CREATE_OR_OPEN
+#define org_xapian_XapianJNI_DB_CREATE_OR_OPEN 1L
+#undef org_xapian_XapianJNI_DB_CREATE
+#define org_xapian_XapianJNI_DB_CREATE 2L
+#undef org_xapian_XapianJNI_DB_CREATE_OR_OVERWRITE
+#define org_xapian_XapianJNI_DB_CREATE_OR_OVERWRITE 3L
+#undef org_xapian_XapianJNI_DB_OPEN
+#define org_xapian_XapianJNI_DB_OPEN 4L
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    auto_open
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_auto_1open__Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    auto_open
+ * Signature: (Ljava/lang/String;I)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_auto_1open__Ljava_lang_String_2I
+  (JNIEnv *, jclass, jstring, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    auto_open_stub
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_auto_1open_1stub
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    inmemory_open
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_inmemory_1open
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    muscat36_open_da
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Z)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2Z
+  (JNIEnv *, jclass, jstring, jstring, jboolean);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    muscat36_open_da
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Z
+  (JNIEnv *, jclass, jstring, jstring, jstring, jboolean);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    muscat36_open_da
+ * Signature: (Ljava/lang/String;Ljava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2J
+  (JNIEnv *, jclass, jstring, jstring, jlong);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    quartz_open
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_quartz_1open__Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    quartz_open
+ * Signature: (Ljava/lang/String;II)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_quartz_1open__Ljava_lang_String_2II
+  (JNIEnv *, jclass, jstring, jint, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    remote_open
+ * Signature: (Ljava/lang/String;Ljava/lang/String;I)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_remote_1open__Ljava_lang_String_2Ljava_lang_String_2I
+  (JNIEnv *, jclass, jstring, jstring, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    remote_open
+ * Signature: (Ljava/lang/String;III)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_remote_1open__Ljava_lang_String_2III
+  (JNIEnv *, jclass, jstring, jint, jint, jint);
+
 /*
  * Class:     org_xapian_XapianJNI
  * Method:    database_new
@@ -249,7 +345,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1add_1documen
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    writabledatabase__document
+ * Method:    writabledatabase_delete_document
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_writabledatabase_1delete_1document
@@ -350,6 +446,14 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1set_1data
  */
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1posting
   (JNIEnv *, jclass, jlong, jstring, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    document_add_term
+ * Signature: (JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term
+  (JNIEnv *, jclass, jlong, jstring);
 
 /*
  * Class:     org_xapian_XapianJNI

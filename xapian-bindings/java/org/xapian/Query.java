@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 import org.xapian.query_parser.ParseException;
 import org.xapian.query_parser.QueryParser;
 
@@ -47,6 +48,7 @@ public class Query {
     long id = -1;
 
     private String _nativeStuff;
+    private String _nativeOperator;
 
     public static Query parse(String query) throws ParseException, XapianError {
         QueryParser parser = new QueryParser(new StringReader(query));
@@ -54,6 +56,7 @@ public class Query {
         if (q == null)
             throw new ParseException("syntax error: " + query);
         q.setNativeStuff(parser.getNativeStuff());
+        q.setNativeOperator(parser.getNativeOperator());
         return q;
     }
 
@@ -72,6 +75,9 @@ public class Query {
 
     public Query(int operator, Query left, Query right) throws XapianError {
         validateOperator(operator);
+
+        // must hold onto left and right Queries or the JVM might
+        // garbage-collect them on us!
         _left = left;
         _right = right;
 
@@ -107,6 +113,14 @@ public class Query {
         _nativeStuff = str;
     }
 
+    public String getNativeOperator() {
+        return _nativeOperator;
+    }
+
+    void setNativeOperator(String str) {
+        _nativeOperator = str;
+    }
+
     public void setWindow(long termpos) throws XapianError {
         XapianJNI.query_set_window(id, termpos);
     }
@@ -139,7 +153,7 @@ public class Query {
         try {
             return XapianJNI.query_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

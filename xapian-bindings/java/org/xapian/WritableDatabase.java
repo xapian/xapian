@@ -29,18 +29,13 @@ package org.xapian;
 import org.xapian.errors.*;
 
 public class WritableDatabase extends Database {
-    public static final int DB_CREATE_OR_OPEN = 1;
-    public static final int DB_CREATE = 2;
-    public static final int DB_CREATE_OR_OVERWRITE = 3;
-    public static final int DB_OPEN = 4;
+
+    protected WritableDatabase(long id) {
+        super(id);
+    }
 
     public WritableDatabase() throws XapianError {
         super(XapianJNI.writabledatabase_new());
-    }
-
-    public WritableDatabase(String path, int mode) throws XapianError {
-        super(XapianJNI.writabledatabase_new(path, mode));
-        _path = path;
     }
 
     public void flush() throws XapianError, DatabaseError {
@@ -72,15 +67,11 @@ public class WritableDatabase extends Database {
         XapianJNI.writabledatabase_repalce_document(id, which_docid, newdoc.id);
     }
 
-    public Database getReaderDatabase() throws XapianError {
-        return new Database(_path);
-    }
-
     public String toString() {
         try {
             return XapianJNI.writabledatabase_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

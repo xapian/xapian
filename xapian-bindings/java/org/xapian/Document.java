@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 public class Document {
     private Document _createdfrom = null;
@@ -41,6 +42,8 @@ public class Document {
     }
 
     public Document(Document doc) throws XapianError {
+        // must hold a reference to the Document, or the JVM
+        // might garbage-collect it on us!
         _createdfrom = doc;
         id = XapianJNI.document_new(doc.id);
     }
@@ -80,7 +83,7 @@ public class Document {
     public void addTerm(String term) throws XapianError {
         if (term == null || term.length() == 0)
             return;
-        XapianJNI.document_add_term_nopos(id, fixTerm(term));
+        XapianJNI.document_add_term(id, fixTerm(term));
     }
 
     public void removePosting(String term, int position) throws XapianError {
@@ -113,7 +116,7 @@ public class Document {
         try {
             return XapianJNI.document_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

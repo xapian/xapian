@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 
 public class MSet {
@@ -96,7 +97,7 @@ public class MSet {
         try {
             return XapianJNI.mset_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

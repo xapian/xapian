@@ -26,9 +26,8 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -38,21 +37,25 @@ public class Stem {
     long id = -1;
 
     public static final String[] getAvailableLanguages() throws XapianError {
-        StringTokenizer st = new StringTokenizer (XapianJNI.stem_get_available_languages(), " ");
+        StringTokenizer st = new StringTokenizer(XapianJNI.stem_get_available_languages(), " ");
         String[] languages = new String[st.countTokens()];
-        int x=0;
+        int x = 0;
         while (st.hasMoreTokens())
             languages[x++] = st.nextToken();
 
         return languages;
     }
 
-    /** Create a stemmer that leaves words unchanged */
+    /**
+     * Create a stemmer that leaves words unchanged
+     */
     public Stem() throws XapianError {
         id = XapianJNI.stem_new();
     }
 
-    /** Create a stemmer for a specifiec language */
+    /**
+     * Create a stemmer for a specific language
+     */
     public Stem(String language) throws XapianError {
         id = XapianJNI.stem_new(language);
     }
@@ -65,7 +68,7 @@ public class Stem {
         try {
             return XapianJNI.stem_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

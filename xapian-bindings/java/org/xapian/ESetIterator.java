@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 import java.util.Iterator;
 
@@ -55,7 +56,7 @@ public class ESetIterator implements Iterator {
             XapianJNI.esetiterator_next(id);
             return this;
         } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -67,7 +68,7 @@ public class ESetIterator implements Iterator {
         try {
             return XapianJNI.esetiterator_equals(id, _end_id);
         } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -75,7 +76,7 @@ public class ESetIterator implements Iterator {
         try {
             return XapianJNI.esetiterator_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

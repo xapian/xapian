@@ -27,6 +27,7 @@ package org.xapian;
 
 import org.xapian.errors.InvalidOperationError;
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 import java.util.Iterator;
 
@@ -48,27 +49,37 @@ public class TermIterator implements Iterator {
     private long _end;
     private final long _dbdocid;
     private Info _info = new Info();
+    private String _filter = null;
+    private boolean _hasNext = true;
 
-    TermIterator(long id, long end_id) {
+    TermIterator(long id, long end_id) throws XapianError {
         this(-1, id, end_id);
     }
 
-    TermIterator(long dbdocid, long id, long end_id) {
+    TermIterator(long dbdocid, long id, long end_id) throws XapianError {
         _dbdocid = dbdocid;
         this.id = id;
         _end = end_id;
+        _hasNext = !XapianJNI.termiterator_equals(id, end_id);
     }
 
     public void skip_to(String term) throws XapianError {
         XapianJNI.termiterator_skip_to(id, term);
     }
 
+    public void setFilter(String filter) throws XapianError {
+        _filter = filter;
+        skip_to(filter);
+        if (XapianJNI.termiterator_equals(id, _end))
+            _hasNext = false;
+        else if (_filter != null && !XapianJNI.termiterator_get_termname(id).startsWith(_filter))
+            _hasNext = false;
+        else
+            _hasNext = true;
+    }
+
     public boolean hasNext() {
-        try {
-            return !XapianJNI.termiterator_equals(id, _end);
-        } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
-        }
+        return _hasNext;
     }
 
     public Object next() {
@@ -79,9 +90,15 @@ public class TermIterator implements Iterator {
                     XapianJNI.termiterator_get_wdf(id));
 
             XapianJNI.termiterator_next(id);
+            if (XapianJNI.termiterator_equals(id, _end))
+                _hasNext = false;
+            else if (_filter != null && !XapianJNI.termiterator_get_termname(id).startsWith(_filter))
+                _hasNext = false;
+            else
+                _hasNext = true;
             return termname;
         } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -119,7 +136,7 @@ public class TermIterator implements Iterator {
         try {
             return XapianJNI.termiterator_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 }

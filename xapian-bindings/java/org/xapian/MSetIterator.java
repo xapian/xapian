@@ -27,6 +27,7 @@ package org.xapian;
 
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 import java.util.Iterator;
 
@@ -39,10 +40,12 @@ public class MSetIterator implements Iterator {
 
     MSetIterator(MSet set) throws XapianError {
         this(XapianJNI.mset_begin(set.id), XapianJNI.mset_size(set.id));
+        // must hold a reference to the MSet or the JVM might
+        // garbage-collect it on us!
         _createdfrom = set;
     }
 
-    MSetIterator(long id, int size) throws XapianError {
+    MSetIterator(long id, int size) {
         this.id = id;
         _size = size;
     }
@@ -75,7 +78,7 @@ public class MSetIterator implements Iterator {
         try {
             return XapianJNI.msetiterator_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -84,7 +87,7 @@ public class MSetIterator implements Iterator {
             MSetIterator itr = (MSetIterator) o;
             return XapianJNI.msetiterator_equals(id, itr.id);
         } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
+            throw new XapianRuntimeError(xe);
         }
     }
 
@@ -101,7 +104,7 @@ public class MSetIterator implements Iterator {
 
             return this;
         } catch (XapianError xe) {
-            throw new RuntimeException(xe.toString());
+            throw new XapianRuntimeError(xe);
         }
     }
 

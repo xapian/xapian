@@ -1,3 +1,10 @@
+Sun Apr 04 18:53:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/Document.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/: Applied update from Eric B. Ridge.  Added
+	  support for Xapian::Document::add_term() - new name for
+	  add_term_nopos().
+
 Sun Apr 04 18:53:00 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Added add_term() - new name for add_term_nopos().

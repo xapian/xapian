@@ -108,11 +108,21 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1posting (JNIEnv 
     CATCH(;)
 }
 
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term (JNIEnv *env, jclass clazz, jlong docid, jstring term) {
+    TRY
+        Document *doc = _document.get(docid);
+        const char *c_term = env->GetStringUTFChars(term, 0);
+        doc->add_term(c_term);
+        env->ReleaseStringUTFChars(term, c_term);
+    CATCH(;)
+}
+
+/* For compatibility with older code. */
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term_1nopos (JNIEnv *env, jclass clazz, jlong docid, jstring term) {
     TRY
         Document *doc = _document.get(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        doc->add_term_nopos(c_term);
+        doc->add_term(c_term);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }

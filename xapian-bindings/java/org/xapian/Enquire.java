@@ -26,6 +26,7 @@
 package org.xapian;
 
 import org.xapian.errors.XapianError;
+import org.xapian.errors.XapianRuntimeError;
 
 /**
  *
@@ -37,6 +38,8 @@ public class Enquire {
     long id = -1;
 
     public Enquire(Database db) throws XapianError {
+        // must hold a reference to the database, otherwise the JVM
+        // might garbage-collect it on us!
         _database = db;
         id = XapianJNI.enquire_new(db.id);
     }
@@ -56,9 +59,9 @@ public class Enquire {
     //
 
     /**
-    public void setWeightingScheme (Weight weight) {
-    }
-    **/
+     * public void setWeightingScheme (Weight weight) {
+     * }
+     */
 
     public void setCollapseKey(long collapse_key) throws XapianError {
         XapianJNI.enquire_set_collapse_key(id, collapse_key);
@@ -83,14 +86,14 @@ public class Enquire {
     //
     // TODO: Xapian docs say this API call is temporary
     // find out if this is true
-    // also figure out how to handle the 'time_t' type
+    // if not, figure out how to handle the 'time_t' type
     //
     
     /**
-    public void setBias (double bias_weight, time_t bias_halflife) throws XapianError {
-        XapianJNI.enquire_set_bias (id, bias_weight, bias_halflife);
-    }
-    */
+     * public void setBias (double bias_weight, time_t bias_halflife) throws XapianError {
+     * XapianJNI.enquire_set_bias (id, bias_weight, bias_halflife);
+     * }
+     */
 
     public MSet getMSet(long first, long maxitems) throws XapianError {
         return getMSet(first, maxitems, null, null);
@@ -124,7 +127,7 @@ public class Enquire {
         try {
             return XapianJNI.enquire_get_description(id);
         } catch (XapianError xe) {
-            return xe.toString();
+            throw new XapianRuntimeError(xe);
         }
     }
 

@@ -30,12 +30,88 @@ import org.xapian.errors.*;
 
 /**
  * Static proxy class that gets us access to Xapian.<p>
+ * <p/>
+ * Although this class is defined as <i>public</i>, it is not
+ * meant to be used outside this package.  It is available
+ * for those that desire lower-level access to Xapian without
+ * going through the API classes in this package.
  */
 public class XapianJNI {
 
     static {
+        // static initialization for loading the native library
         System.loadLibrary("xapian_jni");
     }
+
+
+    // functions to support the Xapian::Auto namespace
+    public static final int DB_CREATE_OR_OPEN = 1;
+    public static final int DB_CREATE = 2;
+    public static final int DB_CREATE_OR_OVERWRITE = 3;
+    public static final int DB_OPEN = 4;
+
+    /* Returns id of a Xapian::Database */
+    public static native long auto_open(String path) throws XapianError;
+
+    /* Returns id of a Xapian::WritableDatabase */
+    public static native long auto_open(String path, int mode) throws XapianError;
+
+    /* Returns id of a Xapian::Database */
+    public static native long auto_open_stub(String path) throws XapianError;
+
+    // support for the Xapian::InMemory namespace
+    /* Returns id of a Xapian::WritableDatabase */
+    public static native long inmemory_open() throws XapianError;
+
+    // support for the Xapian::Muscat36 namespace
+    /* Returns id of a Xapian::Database */
+    public static native long muscat36_open_da(String r, String t, boolean heavy_duty) throws XapianError;
+
+    /* Returns id of a Xapian::Database */
+    public static native long muscat36_open_da(String r, String t, String values, boolean heavy_duty) throws XapianError;
+
+    /* Returns id of a Xapian::Database */
+    public static long muscat36_open_da(String db) throws XapianError {
+        return muscat36_open_da(db, 30);
+    }
+
+    /* Returns id of a Xapian::Database */
+    public static long muscat36_open_da(String db, long cache_size) throws XapianError {
+        return muscat36_open_da(db, "", cache_size);
+    }
+
+    /* Returns id of a Xapian::Database */
+    public static native long muscat36_open_da(String db, String values, long cache_size) throws XapianError;
+
+
+    // support for the Xapian::Quartz namespace
+    /* Returns id of a Xapian::Database */
+    public static native long quartz_open(String dir) throws XapianError;
+
+    /* Returns id of a Xapian::WritableDatabase */
+    public static long quartz_open(String dir, int action) throws XapianError {
+        return quartz_open(dir, action, 8192);
+    }
+
+    /* Returns id of a Xapian::WritableDatabase */
+    public static native long quartz_open(String dir, int action, int block_size) throws XapianError;
+
+    // support for the Xapian::Remote namespace
+    /* Returns id of a Xapian::Database */
+    public static long remote_open(String program, String args) throws XapianError {
+        return remote_open(program, args, 10000);
+    }
+
+    /* Returns id of a Xapian::Database */
+    public static native long remote_open(String program, String args, int timeout) throws XapianError;
+
+    /* Returns id of a Xapian::Database */
+    public static long remote_open(String host, int port) throws XapianError {
+        return remote_open(host, port, 10000, 0);
+    }
+
+    public static native long remote_open(String host, int port, int timeout, int connect_timeout) throws XapianError;
+
 
     // database functions
     public static native long database_new() throws XapianError;
@@ -127,6 +203,9 @@ public class XapianJNI {
 
     public static native void document_add_posting(long docid, String term, int position) throws XapianError, InvalidArgumentError;
 
+    public static native void document_add_term(long docid, String term) throws XapianError, InvalidArgumentError;
+
+    // For compatibility with older code.
     public static native void document_add_term_nopos(long docid, String term) throws XapianError, InvalidArgumentError;
 
     public static native void document_remove_posting(long docid, String term, int position) throws XapianError, InvalidArgumentError;
