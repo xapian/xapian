@@ -411,7 +411,9 @@ namespace Auto {
 Database open(const std::string &path);
 
 /** Open a database for update, automatically determining the database
- *  backend to use.
+ *  backend to use.  If the database is to be created, Xapian will try
+ *  to create the directory indicated by path if it doesn't already
+ *  exist (but only the leaf directory).
  *
  * @param path directory that the database is stored in.
  * @param action one of:

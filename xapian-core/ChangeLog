@@ -1,3 +1,7 @@
+Fri Jul 11 00:57:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Document that the directory is created.
+
 Fri Jul 11 00:53:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_manager.cc: When asked to create a
