@@ -77,16 +77,4 @@ class IRDatabase {
         virtual ~IRDatabase() { return; }
 };
 
-class DADatabase : public virtual IRDatabase {
-    private:
-        termid max_termid;
-        map<termname, termid> termidmap;
-        vector<termname> termidvec;
-    public:
-	termid term_name_to_id(termname);
-	termname term_id_to_name(termid);
-
-        DADatabase();
-};
-
 #endif /* _database_h_ */

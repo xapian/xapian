@@ -3,6 +3,10 @@
 #ifndef _daread_h_
 #define _daread_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>   /* main etc */
 #include "muscat.h"
 
@@ -70,5 +74,9 @@ int    DAterm(byte * k, int d, struct terminfo * t, struct DAfile * p);
 struct postings * DAopenpostings(struct terminfo * t, struct DAfile * p);
 void   DAreadpostings(struct postings * q, int style, int Z0);
 void   DAclosepostings(struct postings * q);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* daread.h */
