@@ -12,6 +12,8 @@
 #include <math.h>
 #include <algorithm>
 
+#warning "*** IN: DOESN'T WORK WELL DUE TO LIMITING # OF SEARCH RESULTS"
+
 // should probably put a limit on # of terms we look at in a commit
 // when doing query expansion; now it may too long for some queries
 

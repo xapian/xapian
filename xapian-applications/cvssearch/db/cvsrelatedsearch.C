@@ -12,6 +12,13 @@
 #include <math.h>
 #include <algorithm>
 
+#warning "IN: DOESN'T WORK WELL DUE TO LIMIT ON # OF SEARCH RESULTS"
+
+
+
+
+
+
 // should probably put a limit on # of terms we look at in a commit
 // when doing query expansion; now it may too long for some queries
 
@@ -311,7 +318,11 @@ int main(unsigned int argc, char *argv[]) {
       OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
       enquire.set_query(query);
 
-      matches = enquire.get_mset(0, max_results);
+      if ( in_opt == "" ) {
+	      matches = enquire.get_mset(0, max_results);
+      } else { // in: used
+	      matches = enquire.get_mset(0, 10000000);
+      }
       cerr <<  matches.size() << " results found" << endl;
     } else {
       cerr << "... no query words specified" << endl;
@@ -319,6 +330,8 @@ int main(unsigned int argc, char *argv[]) {
     }
 
     int last_percentage = 100;
+
+    int count = 0;
 
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
 
@@ -356,11 +369,17 @@ int main(unsigned int argc, char *argv[]) {
 
 	  if ( commit_of_interest( commit_id, in_opt_list, commit_package, package_last_commit ) ) {
 	    cout << commit_id << endl;
+	    count ++;
+            if ( count == max_results ) {
+		goto done;
+            }
 	  }
 
 	}
       }
     }
+
+done: ;
 
     } catch(OmError & error) {
       cerr << "Exception: " << error.get_msg() << endl;
