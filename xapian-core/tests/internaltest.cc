@@ -303,11 +303,12 @@ bool test_sleepypack1()
     SleepyListItem::id_type id = 7;
     om_doccount termfreq = 92;
     om_termcount wdf = 81;
+    om_doclength doclen = 75;
     vector<om_termpos> positions;
     positions.push_back(6u);
     positions.push_back(16u);
 
-    SleepyListItem item1(id, termfreq, wdf, positions);
+    SleepyListItem item1(id, wdf, positions, termfreq, doclen);
     string packed1 = item1.pack();
     SleepyListItem item2(packed1);
     string packed2 = item2.pack();
@@ -351,6 +352,14 @@ bool test_sleepypack1()
 	    copy(item2.positions.begin(), item2.positions.end(),
 		 ostream_iterator<om_termpos>(cout, " "));
 	    cout << "')" << endl;
+	}
+    }
+    if(item1.doclength != item2.doclength) {
+	success = false;
+	if(verbose) {
+	    cout << "Unpacked items were not equal (doclengths '" <<
+		    item1.doclength << "' and '" << item2.doclength <<
+		    "')" << endl;
 	}
     }
 
