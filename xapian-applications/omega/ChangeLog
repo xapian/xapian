@@ -1,3 +1,7 @@
+Tue May 14 13:08:41 BST 2002  Olly Betts <olly@survex.com>
+
+	* Index <word>&<word> as a single term (e.g. AT&T, M&S, A&P).
+
 Tue May 14 12:37:49 BST 2002  Olly Betts <olly@survex.com>
 
 	* omindex.cc: cleaned up a little. 

@@ -181,7 +181,15 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {
     string::const_iterator i, j = s.begin(), k;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-        j = find_if(i, s.end(), p_notalnum);
+	k = i;
+moreterm:
+        j = find_if(k, s.end(), p_notalnum);
+	if (j != s.end() && *j == '&') {
+	    if (j + 1 != s.end() && isalnum(j[1])) {
+		k = j + 1;
+		goto moreterm;
+	    }
+	}
         k = find_if(j, s.end(), p_notplusminus);
         if (k == s.end() || !isalnum(*k)) j = k;
         om_termname term = s.substr(i - s.begin(), j - i);
