@@ -27,6 +27,8 @@ public class RunTest {
     public static void main (String[] args) throws Throwable {
         backendmanager = new BackendManager();
 
+	backendmanager.set_datadir(".sleepy");
+
         boolean success = true;
     	// First some quick playing with stemmers and queries.
     	OmStem foo = new OmStem("english");
@@ -100,12 +102,12 @@ public class RunTest {
 	System.out.println("");
     }
 
-    private static OmDatabaseGroup get_simple_database() throws OmError {
+    private static OmDatabaseGroup get_simple_database() throws Throwable {
         OmDatabase mydb = get_database("apitest_simpledata");
 	return make_dbgrp(mydb);
     }
 
-    private static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws OmError {
+    private static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws Throwable {
         OmDatabaseGroup result = new OmDatabaseGroup();
 
 	result.add_database(db1);
@@ -115,7 +117,7 @@ public class RunTest {
 
     private static BackendManager backendmanager;
 
-    private static OmDatabase get_database(String dbname) throws OmError {
+    private static OmDatabase get_database(String dbname) throws Throwable {
         return backendmanager.get_database(dbname);
     }
 }

@@ -24,16 +24,15 @@ import java.util.*;
 import java.io.*;
 
 public class BackendManager {
-
-    public OmDatabase get_database(String[] dbnames) throws OmError {
+    public OmDatabase get_database(String[] dbnames) throws Throwable {
         return do_getdb(dbnames);
     }
 
-    public OmDatabase do_getdb(String[] dbnames) throws OmError {
+    public OmDatabase do_getdb(String[] dbnames) throws Throwable {
         return do_getdb_sleepy(dbnames);
     }
 
-    public OmDatabase do_getdb_sleepy(String[] dbnames) throws OmError {
+    public OmDatabase do_getdb_sleepy(String[] dbnames) throws Throwable {
         String parent_dir = ".sleepy";
 	create_dir_if_needed(parent_dir);
 
@@ -45,7 +44,7 @@ public class BackendManager {
 	    boolean created = create_dir_if_needed(dbdir);
 
 	    if (created) {
-	        OmDatabase db =
+	        OmWritableDatabase db =
 		    new OmWritableDatabase("sleepycat", make_strvec(dbdir));
 	        index_files_to_database(db, change_names_to_paths(dbnames));
 		return db;
@@ -53,11 +52,11 @@ public class BackendManager {
 	        return new OmDatabase("sleepycat", make_strvec(dbdir));
 	    }
 	} else {
-	    return new OmDatabase("sleepycat", make_strvec(dbdir));
+	    return new OmWritableDatabase("sleepycat", make_strvec(dbdir));
 	}
     }
 
-    public OmDatabase get_database(String dbname1) throws OmError {
+    public OmDatabase get_database(String dbname1) throws Throwable {
         String[] dbnames = new String[1];
 
         dbnames[0] = dbname1;
@@ -71,7 +70,7 @@ public class BackendManager {
 	return retval;
     }
 
-    public static boolean create_dir_if_needed(String dirname) throws OmError {
+    public static boolean create_dir_if_needed(String dirname) throws Throwable {
         File dir = new File(dirname);
 
 	if (!dir.exists()) {
@@ -121,11 +120,74 @@ public class BackendManager {
     }
 
     private static void index_files_to_database(OmWritableDatabase database,
-                                                String[] paths)
+                                                String[] paths) throws Throwable
     {
         for (int i=0; i<paths.length; ++i) {
-	    TextfileIndexerSource source = new TextfileIndexerSource(paths[i]);
+	    FileReader from = new FileReader(paths[i]);
 
+	    while (from.ready()) {
+	        String para = get_paragraph(from);
+		database.add_document(string_to_document(para));
+	    }
 	}
+    }
+
+    private static String get_paragraph(InputStreamReader rawinput) throws Throwable {
+        LineNumberReader input = new LineNumberReader(rawinput);
+        String para = "";
+	String line;
+	int linecount = 0;
+	do {
+	    line = input.readLine();
+	    if (line != null) {
+		para += line + "\n";
+		linecount++;
+		if (linecount > 30) {
+		    break;
+		}
+	    }
+	} while(linecount < 3 || line.trim() != "");
+        return para;
+    }
+
+    private static OmDocumentContents string_to_document(String paragraph) throws OmError {
+        OmStem stemmer = new OmStem("english");
+
+	OmDocumentContents document = new OmDocumentContents();
+
+	document.set_data(paragraph);
+
+	for (int i=1; i<10; ++i) {
+	    if (i >= paragraph.length()) {
+	        break;
+	    } else {
+	        document.add_key(i, paragraph.substring(i, i+1));
+	    }
+	}
+
+	int position = 1;
+
+	while (paragraph.trim().length() > 0) {
+	    paragraph = paragraph.trim();
+
+	    int spacepos = 0;
+	    while (spacepos < paragraph.length() &&
+	           !isspace(paragraph.charAt(spacepos))) {
+		spacepos++;
+	    }
+	    String word = paragraph.substring(0, spacepos);
+	    word = word.toLowerCase();
+	    word = stemmer.stem_word(word);
+	    if (word.length() != 0) {
+	        document.add_posting(word, position++);
+	    }
+	    paragraph = paragraph.substring(spacepos);
+	}
+
+	return document;
+    }
+
+    private static boolean isspace(char c) {
+        return (c == ' ' || c == '\t' || c == '\n');
     }
 }
