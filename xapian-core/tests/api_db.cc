@@ -435,10 +435,14 @@ static bool test_changequery1()
     return true;
 }
 
-// tests that a null query returns no matches
-static bool test_nullquery1()
+// tests that an empty query returns no matches
+static bool test_emptyquery1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery());
+    TEST_MSET_SIZE(mymset, 0);
+    std::vector<OmQuery> v;
+    mymset = do_get_simple_query_mset(OmQuery(OmQuery::OP_AND,
+					      v.begin(), v.end()));
     TEST_MSET_SIZE(mymset, 0);
     return true;
 }
@@ -2944,7 +2948,7 @@ static bool test_collfreq1()
 /// The tests which use a backend
 test_desc db_tests[] = {
     {"zerodocid1", 	   test_zerodocid1},
-//    {"nullquery1",	   test_nullquery1},
+    {"emptyquery1",	   test_emptyquery1},
     {"simplequery1",       test_simplequery1},
     {"simplequery3",       test_simplequery3},
     {"multidb1",           test_multidb1},

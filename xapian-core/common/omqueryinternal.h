@@ -214,6 +214,10 @@ class OmQuery::Internal {
 	 *  termpos) will be removed.
 	 */
 	OmTermIterator get_terms() const;
+	
+	/// Test is the query is empty (i.e. was set using OmQuery() or with
+	//  an empty iterator ctor)
+	bool is_empty() const { return op == OP_UNDEF; }
 };
 
 #endif // OM_HGUARD_OMQUERYINTERNAL_H

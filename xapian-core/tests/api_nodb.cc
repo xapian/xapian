@@ -67,16 +67,21 @@ static bool test_getqterms1()
     return true;
 }
 
-// tests that query lengths are calculated correctly
-static bool test_querylen1()
+// tests that empty queries work correctly
+static bool test_emptyquery1()
 {
-    // test that a null query has length 0
+    // test that an empty query is_empty
+    TEST(OmQuery().is_empty());
+    // test that an empty query has length 0
     TEST(OmQuery().get_length() == 0);
+    vector<OmQuery> v;
+    TEST(OmQuery(OmQuery::OP_OR, v.begin(), v.end()).is_empty());
+    TEST(OmQuery(OmQuery::OP_OR, v.begin(), v.end()).get_length() == 0);
     return true;
 }
 
 // tests that query lengths are calculated correctly
-static bool test_querylen2()
+static bool test_querylen1()
 {
     // test that a simple query has the right length
     OmQuery myquery;
@@ -94,7 +99,7 @@ static bool test_querylen2()
 }
 
 // tests that query lengths are calculated correctly
-static bool test_querylen3()
+static bool test_querylen2()
 {
     // test with an even bigger and strange query
     om_termname terms[3] = {
@@ -279,9 +284,9 @@ static bool test_badbackend2()
 test_desc nodb_tests[] = {
     {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
-// tries to use a null OmQuery...    {"querylen1",	   test_querylen1},
+    {"emptyquery1",	   test_emptyquery1},
+    {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
-    {"querylen3",	   test_querylen3},
     {"queryvalid1",	   test_queryvalid1},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},

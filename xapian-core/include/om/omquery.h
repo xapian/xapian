@@ -148,7 +148,8 @@ class OmQuery {
 	//OmQuery(OmQuery::op op_, const OmQuery * left, const OmQuery * right);
 
 	/** A query consisting of two termnames opp-ed together. */
-	OmQuery(OmQuery::op op_, const om_termname & left, const om_termname & right);
+	OmQuery(OmQuery::op op_,
+		const om_termname & left, const om_termname & right);
 
 	/** A set of OmQuery's, merged together with specified operator.
 	 *  (Takes begin and end iterators).
@@ -208,6 +209,10 @@ class OmQuery {
 	 */
 	OmTermIterator get_terms_end() const;
 
+	/// Test is the query is empty (i.e. was set using OmQuery() or with
+	//  an empty iterator ctor)
+	bool is_empty() const;
+		
 	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */

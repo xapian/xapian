@@ -1,3 +1,7 @@
+Fri Nov 16 15:32:09 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added OmQuery::is_empty() method.
+
 Thu Nov 15 15:36:07 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Updated todo list.

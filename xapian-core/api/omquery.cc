@@ -221,3 +221,11 @@ OmTermIterator OmQuery::get_terms_end() const
     DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms_end", "");
     RETURN(OmTermIterator(NULL));
 }
+	
+bool
+OmQuery::is_empty() const
+{
+    DEBUGAPICALL(void, "OmQuery::is_empty", "");
+    Assert(internal);
+    return internal->is_empty();
+}
