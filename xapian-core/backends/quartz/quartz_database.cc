@@ -559,7 +559,7 @@ QuartzDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
-    AutoPtr<QuartzCursor> cursor(postlist_table.cursor_get());
+    AutoPtr<Bcursor> cursor(postlist_table.cursor_get());
     // FIXME: nasty C&P from backends/quartz/quartz_postlist.cc
     string key = pack_string_preserving_sort(tname);
     return cursor->find_entry(key);
@@ -645,7 +645,7 @@ TermList *
 QuartzDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
-    AutoPtr<QuartzCursor> pl_cursor(postlist_table.cursor_get());
+    AutoPtr<Bcursor> pl_cursor(postlist_table.cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzDatabase>(this),
 				  pl_cursor, postlist_table.get_entry_count()));
 }
@@ -1194,7 +1194,7 @@ QuartzWritableDatabase::open_allterms() const
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
     QuartzPostListTable *t = &database_ro.postlist_table;
-    AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
+    AutoPtr<Bcursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
 }

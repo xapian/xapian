@@ -131,12 +131,12 @@ static bool test_simple1()
     string key = "foo";
     {
 	Bcursor cursor(&btree);
-	int found = cursor.find_key(key);
+	int found = cursor.find_entry(key);
 	TEST(!found);
     }
     {
 	Bcursor cursor(&btree);
-	int found = cursor.find_key(key);
+	int found = cursor.find_entry(key);
 	TEST(!found);
     }
 

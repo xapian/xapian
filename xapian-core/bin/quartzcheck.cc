@@ -30,7 +30,7 @@ using namespace std;
 
 #include "autoptr.h"
 #include "btreecheck.h"
-#include "quartz_table.h"
+#include "bcursor.h"
 #include "quartz_types.h"
 #include "quartz_utils.h"
 
@@ -109,7 +109,7 @@ static void check_table(const char *filename, int opts) {
     // Now check the quartz structures inside the btree.
     Btree table(filename, true);
     table.open();
-    AutoPtr<QuartzCursor> cursor(table.cursor_get());
+    AutoPtr<Bcursor> cursor(table.cursor_get());
 
     cursor->find_entry("");
     cursor->next(); // Skip the empty entry.

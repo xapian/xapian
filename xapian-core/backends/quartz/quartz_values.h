@@ -28,7 +28,6 @@
 #include <map>
 #include <string>
 
-#include "quartz_table.h"
 #include <xapian/types.h>
 #include "btree.h"
 

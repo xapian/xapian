@@ -25,7 +25,7 @@
 #include "omdebug.h"
 #include "quartz_postlist.h"
 #include "quartz_utils.h"
-#include "quartz_table.h"
+#include "bcursor.h"
 #include "database.h"
 
 /// Make a key for accessing the postlist.
@@ -400,7 +400,7 @@ PostlistChunkWriter::flush(Btree *table)
 	     * it.  Need to rewrite the next chunk as the first
 	     * chunk.
 	     */
-	    AutoPtr<QuartzCursor> cursor(table->cursor_get());
+	    AutoPtr<Bcursor> cursor(table->cursor_get());
 
 	    if (!cursor->find_entry(orig_key)) {
 		throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
@@ -473,7 +473,7 @@ PostlistChunkWriter::flush(Btree *table)
 	if (is_last_chunk) {
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
-	    AutoPtr<QuartzCursor> cursor(table->cursor_get());
+	    AutoPtr<Bcursor> cursor(table->cursor_get());
 
 	    /* Should not find the key we just deleted, but should
 	     * find the previous chunk. */
@@ -925,7 +925,7 @@ QuartzPostListTable::get_chunk(const string &tname,
     make_key(tname, did, key);
 
     // Find the right chunk
-    AutoPtr<QuartzCursor> cursor(cursor_get());
+    AutoPtr<Bcursor> cursor(cursor_get());
 
     cursor->find_entry(key);
     Assert(!cursor->after_end());
@@ -1039,7 +1039,7 @@ QuartzPostListTable::merge_changes(
 	    termfreq += deltas->second.first;
 	    if (termfreq == 0) {
 		// All postings deleted!
-		AutoPtr<QuartzCursor> cursor(cursor_get());
+		AutoPtr<Bcursor> cursor(cursor_get());
 
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");

@@ -31,76 +31,47 @@ using std::string;
 
 class Btree;
 
-/************ B-tree reading ************/
-
-class QuartzCursor;
-
+/** A cursor pointing to a position in a Btree table, for reading several
+ *  entries in order, or finding approximate matches.
+ */
 class Bcursor {
-    friend class QuartzCursor;
     private:
-        // Prevent copying
+	/// Copying not allowed
         Bcursor(const Bcursor &);
+
+	/// Assignment not allowed
         Bcursor & operator=(const Bcursor &);
 
-    public:
-	/** Create a bcursor attached to a Btree.
+	/** Whether the cursor is positioned at a valid entry.
 	 *
-	 *  Creates a cursor, which can be used to remember a position inside
-	 *  the B-tree. The position is simply the item (key and tag) to which
-	 *  the cursor points. A cursor is either positioned or unpositioned,
-	 *  and is initially unpositioned.
-	 *
-	 *  NB: You must not try to use a Bcursor after the Btree it is
-	 *  attached to is destroyed.  It's safe to destroy the Bcursor
-	 *  after the Btree though.
+	 *  false initially, and after the cursor has dropped
+	 *  off either end of the list of items
 	 */
-	Bcursor(Btree *B);
+	bool is_positioned;
 
-	/** Destroy the Bcursor */
-	~Bcursor();
+	/** Whether the cursor is off the end of the table.
+	 */
+	bool is_after_end;
 
-	/** Advance to the next key.
-	 *
-	 *  If cursor BC is unpositioned, the result is simply false.
-	 *  
-	 *  If cursor BC is positioned, and points to the very last item in the
-	 *  Btree the cursor is made unpositioned, and the result is false.
-	 *  Otherwise the cursor BC is moved to the next item in the B-tree,
-	 *  and the result is true.
-	 *  
-	 *  Effectively, Bcursor::next() loses the position of BC when it drops
-	 *  off the end of the list of items. If this is awkward, one can
-	 *  always arrange for a key to be present which has a rightmost
-	 *  position in a set of keys,
+	/** Have we read the tag for the current key?
 	 */
-	bool next();
- 
-	/** Move to the previous key.
-	 *
-	 *  This is like Bcursor::next, but BC is taken to the previous rather
-	 *  than next item.
-	 */
-	bool prev();
+	bool have_read_tag;
 
-	/** Position the cursor at a key in the Btree.
-	 * 
-	 *  The result is true iff the specified key is found in the Btree.
-	 *
-	 *  If found, the cursor is made to point to the item with the given
-	 *  key, and if not found, it is made to point to the last item in the
-	 *  B-tree whose key is >= the key being searched for, The cursor is
-	 *  then set as 'positioned'.  Since the B-tree always contains a null
-	 *  key, which precedes everything, a call to Bcursor::find_key always
-	 *  results in a valid key being pointed to by the cursor.
-	 */
-	bool find_key(const string &key);
+	/// The Btree table
+	Btree * B;
+
+	/// Pointer to an array of Cursors
+	Cursor * C;
+
+	/** The value of level in the Btree structure. */
+	int level;
 
 	/** Get the key.
 	 *
-	 *  If cursor BC is unpositioned, the result is false.
+	 *  If the cursor is unpositioned, the result is false.
 	 *
-	 *  If BC is positioned, the key of the item at cursor BC is copied
-	 *  into key and the result is then true.
+	 *  If the cursor is positioned, the key of the item at the cursor
+	 *  is copied into key and the result is then true.
 	 *
 	 *  e.g.
 	 *
@@ -119,12 +90,14 @@ class Bcursor {
 
 	/** Get the tag.
 	 *
-	 *  If cursor BC is unpositioned, the result is false.
+	 *  If cursor is unpositioned, the result is false.
 	 *
-	 *  If BC is positioned, the tag of the item at cursor BC is copied
-	 *  into tag.  BC is then moved to the next item as if Bcursor::next()
-	 *  had been called - this may leave BC unpositioned.  The result is
-	 *  true iff BC is left positioned.
+	 *  If the cursor is positioned, the tag of the current item is copied
+	 *  into tag.  The cursor is then moved to the next item as if
+	 *  Bcursor::next() had been called - this may leave the cursor
+	 *  unpositioned.
+	 *
+	 *  The result is true iff the cursor is left positioned.
 	 *
 	 *  e.g.
 	 *
@@ -139,21 +112,104 @@ class Bcursor {
 	 *        do_something_to(key, tag);
 	 *    }
 	 *
-	 *  If BC is unpositioned by Bcursor::get_tag, Bcursor::get_key
+	 *  If the cursor is unpositioned by Bcursor::get_tag, Bcursor::get_key
 	 *  gives result false the next time it called.
 	 */
 	bool get_tag(string * tag);
 
-    private:
-	/** false initially, and after the cursor has dropped
-	 *  off either end of the list of items */
-	bool positioned;
+    public:
+	/** Create a cursor attached to a Btree.
+	 *
+	 *  Creates a cursor, which can be used to remember a position inside
+	 *  the B-tree. The position is simply the item (key and tag) to which
+	 *  the cursor points. A cursor is either positioned or unpositioned,
+	 *  and is initially unpositioned.
+	 *
+	 *  NB: You must not try to use a Bcursor after the Btree it is
+	 *  attached to is destroyed.  It's safe to destroy the Bcursor
+	 *  after the Btree though, you just may not use the Bcursor.
+	 */
+	Bcursor(Btree *B);
 
-	Btree * B;
-	Cursor * C;
+	/** Destroy the Bcursor */
+	~Bcursor();
 
-	/** The value of level in the Btree structure. */
-	int level;
+	/** Current key pointed to by cursor.
+	 */
+	string current_key;
+
+	/** Current tag pointed to by cursor.  You must call read_tag to
+	 *  make this value available.
+	 */
+	string current_tag;
+
+	/** Read the tag from the table and store it in current_tag.
+	 *
+	 *  Some cursor users don't need the tag, so for efficiency we
+	 *  only read it when asked to.
+	 */
+	void read_tag();
+
+	/** Advance to the next key.
+	 *
+	 *  If cursor is unpositioned, the result is simply false.
+	 *  
+	 *  If cursor  is positioned, and points to the very last item in the
+	 *  Btree the cursor is made unpositioned, and the result is false.
+	 *  Otherwise the cursor is moved to the next item in the B-tree,
+	 *  and the result is true.
+	 *  
+	 *  Effectively, Bcursor::next() loses the position of BC when it drops
+	 *  off the end of the list of items. If this is awkward, one can
+	 *  always arrange for a key to be present which has a rightmost
+	 *  position in a set of keys,
+	 */
+	bool next();
+ 
+	/** Move to the previous key.
+	 *
+	 *  This is like Bcursor::next, but BC is taken to the previous rather
+	 *  than next item.
+	 */
+	bool prev();
+
+	/** Find an entry, or a near match, in the table.
+	 *
+	 *  If the exact key is found in the table, the cursor will be
+	 *  set to point to it, and the method will return true.
+	 *
+	 *  If the key is not found, the cursor will be set to point to
+	 *  the key preceding that asked for, and the method will return
+	 *  false.
+	 *
+	 *  If there is no key preceding that asked for, the cursor will
+	 *  point to a null key.
+	 *
+	 *  Note:  Since the B-tree always contains a null key, which precedes
+	 *  everything, a call to Bcursor::find_entry always results in a valid
+	 *  key being pointed to by the cursor.
+	 *
+	 *  Note: Calling this method with a null key, then calling next()
+	 *  will leave the cursor pointing to the first key.
+	 *
+	 *  @param key    The key to look for in the table.
+	 *
+	 *  @return true if the exact key was found in the table, false
+	 *          otherwise.
+	 */
+	bool find_entry(const string &key);
+
+	/** Determine whether cursor is off the end of table.
+	 *
+	 *  @return true if the cursor has been moved off the end of the
+	 *          table, past the last entry in it, and false otherwise.
+	 */
+	bool after_end() { return is_after_end; }
+
+	/** Delete the current key/tag pair, leaving the cursor on the next
+	 *  entry.
+	 */
+	void del();
 };
 
 #endif /* OM_HGUARD_BCURSOR_H */

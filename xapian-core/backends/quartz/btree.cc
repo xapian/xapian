@@ -46,7 +46,7 @@
 #include "btree.h"
 #include "btree_util.h"
 #include "btree_base.h"
-#include "quartz_table.h"
+#include "bcursor.h"
 
 #include "omassert.h"
 #include "omdebug.h"
@@ -1329,9 +1329,9 @@ Btree::set_full_compaction(bool parity)
     full_compaction = parity;
 }
 
-QuartzCursor * Btree::cursor_get() const {
+Bcursor * Btree::cursor_get() const {
     // FIXME Ick - casting away const is nasty
-    return new QuartzCursor((Btree *)this);
+    return new Bcursor((Btree *)this);
 }
 
 /************ B-tree opening and closing ************/

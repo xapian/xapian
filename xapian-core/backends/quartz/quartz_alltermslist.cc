@@ -28,7 +28,7 @@
 #include "quartz_postlist.h"
 
 QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-				       AutoPtr<QuartzCursor> pl_cursor_,
+				       AutoPtr<Bcursor> pl_cursor_,
 				       quartz_tablesize_t size_)
 	: database(database_), pl_cursor(pl_cursor_), size(size_), 
 	  started(false)
@@ -46,7 +46,7 @@ QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian:
 	const char *start = pl_cursor->current_key.data();
 	const char *end = start + pl_cursor->current_key.length();
 	if (!unpack_string_preserving_sort(&start, end, current_term)) {
-	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
 	}
     }
 
@@ -153,7 +153,7 @@ QuartzAllTermsList::next()
 	    const char *start = pl_cursor->current_key.data();
 	    const char *end = start + pl_cursor->current_key.length();
 	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
-		throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+		throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
 	    }
 	    // Check if this is the first chunk of a postlist, skip otherwise
 	    if (start == end) break;

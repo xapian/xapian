@@ -28,9 +28,29 @@
 #include "btree.h"
 #include "btree_util.h"
 #include "omassert.h"
+#include "omdebug.h"
+
+#ifdef MUS_DEBUG_VERBOSE
+static string
+hex_encode(const string & input)
+{
+    const char * table = "0123456789abcdef";
+    string result;
+    for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
+	unsigned char val = *i;
+	result += "\\x";
+	result += table[val/16];
+	result += table[val%16];
+    }
+
+    return result;
+}
+#endif
 
 Bcursor::Bcursor(Btree *B_)
-	: positioned(false),
+	: is_positioned(false),
+	  is_after_end(false),
+	  have_read_tag(false),
 	  B(B_),
 	  level(B_->level)
 {
@@ -55,63 +75,121 @@ Bcursor::~Bcursor()
     delete [] C;
 }
 
+#if 0 // Unused and untested in its current form...
 bool
 Bcursor::prev()
 {
+    DEBUGCALL(DB, bool, "Bcursor::prev", "");
     Assert(level == B->level);
+    Assert(!is_after_end);
 
-    if (!positioned) return false;
+    if (!is_positioned) return false;
+
+    if (have_read_tag) {
+	while (true) {
+	    if (! B->prev(C, 0)) {
+		is_positioned = false;
+		return false;
+	    }
+	    if (component_of(C[0].p, C[0].c) == 1) {
+		break;
+	    }
+	}
+    }
 
     while (true) {
-        if (! B->prev(C, 0)) {
-	    positioned = false;
+	if (! B->prev(C, 0)) {
+	    is_positioned = false;
 	    return false;
 	}
 	if (component_of(C[0].p, C[0].c) == 1) {
-	    return true;
+	    break;
 	}
     }
+    get_key(&current_key);
+    // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
+#endif
 
 bool
 Bcursor::next()
 {
+    DEBUGCALL(DB, bool, "Bcursor::next", "");
     Assert(level == B->level);
-
-    if (!positioned) return false;
-
-    while (true) {
-	if (! B->next(C, 0)) {
-	    positioned = false;
-	    return false;
-	}
-	if (component_of(C[0].p, C[0].c) == 1) {
-	    return true;
+    Assert(!is_after_end);
+    if (!have_read_tag) {
+	while (true) {
+	    if (! B->next(C, 0)) {
+		is_positioned = false;
+		break;
+	    }
+	    if (component_of(C[0].p, C[0].c) == 1) {
+		is_positioned = true;
+		break;
+	    }
 	}
     }
+
+    if (!is_positioned) {
+	is_after_end = true;
+	return false;
+    }
+
+    get_key(&current_key);
+    // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    return true;
 }
 
 bool
-Bcursor::find_key(const string &key)
+Bcursor::find_entry(const string &key)
 {
+    DEBUGCALL(DB, bool, "Bcursor::find_entry", key);
     Assert(level == B->level);
 
-    B->form_key(key);
-    if (B->find(C)) {
-	positioned = true;
-	return true;
+    is_after_end = false;
+
+    bool found;
+
+    if (key.size() > Btree::max_key_len) {
+	is_positioned = true;
+	// Can't find key - too long to possibly be present, so find the
+	// truncated form but ignore "found".
+	B->form_key(key.substr(0, Btree::max_key_len));
+	(void)(B->find(C));
+	found = false;
+    } else {
+	is_positioned = true;
+	B->form_key(key);
+	found = B->find(C);
     }
 
-    if (C[0].c < DIR_START) {
-	C[0].c = DIR_START;
-	if (! B->prev(C, 0)) return false;
+    if (!found) {
+	if (C[0].c < DIR_START) {
+	    C[0].c = DIR_START;
+	    if (! B->prev(C, 0)) goto done;
+	}
+	while (component_of(C[0].p, C[0].c) != 1) {
+	    if (! B->prev(C, 0)) {
+		is_positioned = false;
+		break;
+	    }
+	}
     }
-    while (component_of(C[0].p, C[0].c) != 1) {
-	if (! B->prev(C, 0)) return false;
-    }
+done:
 
-    positioned = true;
-    return false;
+    bool err = get_key(&current_key);
+    (void)err; // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
+
+    RETURN(found);
 }
 
 bool
@@ -119,7 +197,7 @@ Bcursor::get_key(string * key) const
 {
     Assert(level == B->level);
 
-    if (! positioned) return false;
+    if (!is_positioned) return false;
 
     const byte * p = key_of(C[0].p, C[0].c);
     int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
@@ -132,7 +210,7 @@ Bcursor::get_tag(string * tag)
 {
     Assert(level == B->level);
 
-    if (!positioned) return false;
+    if (!is_positioned) return false;
 
     const byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
     int ct = GETK(p, I2) + I2;          /* offset to the tag */
@@ -153,9 +231,58 @@ Bcursor::get_tag(string * tag)
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
 	// We need to call B->next(...) on the last pass so that the
 	// cursor ends up on the next key.
-	positioned = B->next(C, 0);
+	is_positioned = B->next(C, 0);
 
 	p = item_of(C[0].p, C[0].c);
     }
-    return positioned;
+    return is_positioned;
+}
+
+
+void
+Bcursor::read_tag()
+{
+    DEBUGCALL(DB, void, "Bcursor::read_tag", "");
+
+    if (have_read_tag) return;
+
+    is_positioned = get_tag(&current_tag);
+    // FIXME: check for errors
+
+    have_read_tag = true;
+
+    DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
+}
+
+void
+Bcursor::del()
+{
+    Assert(!is_after_end);
+    string doomed_key = current_key;
+
+    if (!have_read_tag) {
+	while (true) {
+	    if (! B->next(C, 0)) {
+		is_positioned = false;
+		break;
+	    }
+	    if (component_of(C[0].p, C[0].c) == 1) {
+		is_positioned = true;
+		break;
+	    }
+	}
+    }
+
+    B->del(current_key);
+
+    if (!is_positioned) {
+	is_after_end = true;
+	return;
+    }
+
+    get_key(&current_key);
+    // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }

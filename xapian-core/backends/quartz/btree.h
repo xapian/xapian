@@ -37,8 +37,6 @@ using std::string;
 // FIXME: but we want it to be completely impossible...
 #define BTREE_CURSOR_LEVELS 10
 
-class QuartzCursor;
-
 /** Class managing a Btree table in a Quartz database.
  *
  *  A table is a store holding a set of key/tag pairs.
@@ -284,7 +282,7 @@ class Btree {
 	 *  The cursor is owned by the caller - it is the caller's
 	 *  responsibility to ensure that it is deleted.
 	 */
-	QuartzCursor * cursor_get() const;
+	Bcursor * cursor_get() const;
 
 	/** Determine whether the object contains uncommitted modifications.
 	 *

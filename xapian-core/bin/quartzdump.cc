@@ -25,7 +25,7 @@
 #include <config.h>
 #include <xapian/error.h>
 #include "btree.h"
-#include "quartz_table.h"
+#include "bcursor.h"
 #include "quartz_types.h"
 #include <iostream>
 #include <vector>
@@ -130,10 +130,9 @@ main(int argc, char *argv[])
 	    cout << "table contains " << entrycount <<
 		    (entrycount == 1 ? " entry" : " entries") << endl;
 	    
-	    AutoPtr<QuartzCursor> cursor(table.cursor_get());
+	    AutoPtr<Bcursor> cursor(table.cursor_get());
 
-	    string key;
-	    key = startkey;
+	    string key = startkey;
 	    cursor->find_entry(key);
 
 	    if (startkey.empty() || cursor->current_key < startkey) {

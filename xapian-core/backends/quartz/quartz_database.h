@@ -31,7 +31,6 @@
 #include "quartz_positionlist.h"
 #include "quartz_postlist.h"
 #include "quartz_record.h"
-#include "quartz_table.h"
 #include "quartz_termlist.h"
 #include "quartz_values.h"
 

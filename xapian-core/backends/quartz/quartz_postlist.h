@@ -33,11 +33,10 @@
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"
-#include "quartz_table.h"
 
 using namespace std;
 
-class QuartzCursor;
+class Bcursor;
 class QuartzDatabase;
 class Xapian::Database::Internal;
 
@@ -93,7 +92,7 @@ class QuartzPostList : public LeafPostList {
 	string tname;
 
 	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<QuartzCursor> cursor;
+	AutoPtr<Bcursor> cursor;
 
 	/// True if this is the last chunk.
 	bool is_last_chunk;

@@ -26,7 +26,6 @@
 #include "omdebug.h"
 #include "quartz_positionlist.h"
 #include "quartz_utils.h"
-#include "quartz_table.h"
 
 using std::string;
 

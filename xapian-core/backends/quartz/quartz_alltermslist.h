@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,8 @@
 
 #include "alltermslist.h"
 #include "quartz_database.h"
-#include "quartz_table.h"
+
+class Bcursor;
 
 /** class for alltermslists over several databases */
 class QuartzAllTermsList : public AllTermsList
@@ -42,7 +43,7 @@ class QuartzAllTermsList : public AllTermsList
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	/// A cursor pointing at the current term's postlist entry
-	AutoPtr<QuartzCursor> pl_cursor;
+	AutoPtr<Bcursor> pl_cursor;
 
 	/// Cached "at-end" value
 	bool is_at_end;
@@ -63,7 +64,7 @@ class QuartzAllTermsList : public AllTermsList
     public:
 	/// Standard constructor for base class.
 	QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			   AutoPtr<QuartzCursor> pl_cursor_,
+			   AutoPtr<Bcursor> pl_cursor_,
 		       	   quartz_tablesize_t size_);
 
 	/// Standard destructor for base class.

@@ -29,7 +29,6 @@
 
 #include <xapian/types.h>
 #include "quartz_types.h"
-#include "quartz_table.h"
 #include "btree.h"
 
 using namespace std;

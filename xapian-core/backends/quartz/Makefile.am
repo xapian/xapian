@@ -4,7 +4,6 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_builddir)/incl
 
 noinst_HEADERS =       quartz_types.h \
                        quartz_database.h \
-		       quartz_table.h \
 		       quartz_termlist.h \
 		       quartz_postlist.h \
 		       quartz_positionlist.h \
@@ -22,7 +21,6 @@ noinst_HEADERS =       quartz_types.h \
 		       btree_base.h
 
 libquartz_la_SOURCES = quartz_database.cc \
-		       quartz_table.cc \
 		       quartz_termlist.cc \
 		       quartz_postlist.cc \
 		       quartz_positionlist.cc \

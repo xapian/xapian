@@ -91,13 +91,12 @@ main(int argc, char **argv)
 	    out.open();
 	    out.set_full_compaction(true);
 
-	    string key, tag;
 	    if (in.get_entry_count()) {
 		Bcursor BC(&in);
-		BC.find_key(key);
-		while (BC.get_key(&key)) {
-		    BC.get_tag(&tag);
-		    out.add(key, tag);
+		BC.find_entry("");
+		while (BC.next()) {
+		    BC.read_tag();
+		    out.add(BC.current_key, BC.current_tag);
 		}
 	    }
 	    out.commit(1);

@@ -1,3 +1,9 @@
+Fri Aug 20 17:38:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,bin/quartzcheck.cc,bin/quartzcompact.cc,
+	  bin/quartzdump.cc,tests/btreetest.cc,tests/quartztest.cc:
+	  Merged QuartzCursor into Bcursor.
+
 Fri Aug 20 13:43:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,backends/quartz/: Fixed the problem with "lazy tag reading"

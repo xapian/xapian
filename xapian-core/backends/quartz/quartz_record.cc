@@ -24,7 +24,6 @@
 
 #include <config.h>
 #include "quartz_record.h"
-#include "quartz_table.h"
 #include "quartz_utils.h"
 #include "utils.h"
 #include <xapian/error.h>

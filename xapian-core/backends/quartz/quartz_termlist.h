@@ -27,7 +27,6 @@
 
 #include <string>
 
-#include "quartz_table.h"
 #include <xapian/types.h>
 #include "termlist.h"
 #include "btree.h"

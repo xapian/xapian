@@ -29,7 +29,7 @@
 
 #include "quartz_database.h"
 #include "quartz_postlist.h"
-#include "quartz_table.h"
+#include "bcursor.h"
 #include "quartz_utils.h"
 
 #include "autoptr.h"
@@ -104,7 +104,7 @@ static void check_table_values_hello(Btree & table, const string &world)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag, "foo");
     
-    AutoPtr<QuartzCursor> cursor(table.cursor_get());
+    AutoPtr<Bcursor> cursor(table.cursor_get());
 
     // Check normal reads
     key = "hello";
@@ -151,7 +151,7 @@ static void check_table_values_empty(Btree & table)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag, "foo");
     
-    AutoPtr<QuartzCursor> cursor(table.cursor_get());
+    AutoPtr<Bcursor> cursor(table.cursor_get());
     
     // Check normal reads
     key = "hello";
@@ -389,7 +389,7 @@ static bool test_disktable3()
     }
 
     {
-	AutoPtr<QuartzCursor> cursor(table.cursor_get());
+	AutoPtr<Bcursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
 	TEST_EQUAL(cursor->current_key, tradekey);
 	cursor->read_tag();
@@ -406,7 +406,7 @@ static bool test_disktable3()
     }
 
     {
-	AutoPtr<QuartzCursor> cursor(table.cursor_get());
+	AutoPtr<Bcursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
 	TEST_EQUAL(cursor->current_key, tradekey);
 	cursor->read_tag();
@@ -530,7 +530,7 @@ static bool test_bufftable2()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key = "foo";
-	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
@@ -621,7 +621,7 @@ static bool test_bufftable2()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key = "foo";
-	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
@@ -715,7 +715,7 @@ static bool test_bufftable3()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key = "foo";
-	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
@@ -760,7 +760,7 @@ static bool test_cursor3()
 	{
 	    string key;
 	    key = "AA";
-	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	    AutoPtr<Bcursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
@@ -780,7 +780,7 @@ static bool test_cursor3()
 	{
 	    string key;
 	    key = "AA";
-	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	    AutoPtr<Bcursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
@@ -808,7 +808,7 @@ static bool test_cursor3()
 	{
 	    string key;
 	    key = "AA";
-	    AutoPtr<QuartzCursor> cursor(disktable.cursor_get());
+	    AutoPtr<Bcursor> cursor(disktable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
@@ -824,7 +824,7 @@ static bool test_cursor3()
     return true;
 }
 
-/// Test QuartzCursors
+/// Test Bcursors
 static bool test_cursor1()
 {
     unlink_table(tmpdir + "test_cursor1_");
@@ -854,7 +854,7 @@ static bool test_cursor1()
 
     while (count != 0) {
 	key = "foo25";
-	AutoPtr<QuartzCursor> cursor(table->cursor_get());
+	AutoPtr<Bcursor> cursor(table->cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "foo2");
 	cursor->read_tag();
@@ -910,7 +910,7 @@ static bool test_cursor1()
     bufftable1.del(key);
 
     key = "foo25";
-    AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
+    AutoPtr<Bcursor> cursor(disktable1.cursor_get());
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
@@ -1066,7 +1066,7 @@ static bool test_cursor2()
     bufftable1.commit(new_revision);
     disktable1.open();
 
-    AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
+    AutoPtr<Bcursor> cursor(disktable1.cursor_get());
 
     TEST(!cursor->find_entry(searchkey));
     TEST_EQUAL(cursor->current_key, key1);
