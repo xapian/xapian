@@ -1,3 +1,8 @@
+Wed Dec 15 15:53:55 GMT 2004  Richard Boulton <richard@tartarus.org>
+
+	* dbi2omega: Add a comment to the start of the file detailing what
+	  dbi2omega does.
+
 Wed Dec 15 15:08:41 GMT 2004  Richard Boulton <richard@tartarus.org>
 
 	* omindex.cc: Change behaviour of crawler such that it doesn't

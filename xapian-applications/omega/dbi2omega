@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+# dbi2omega - dump an SQL database into a form suitable for indexing
+# into a Xapian database using scriptindex.  This script requires the perl DBI
+# interface to be installed (on Debian systems, this is provided by the
+# libdbi-perl package).
+#
 # Copyright 2002 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
