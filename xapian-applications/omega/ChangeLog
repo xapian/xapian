@@ -1,3 +1,7 @@
+Mon Jan 17 03:35:35 GMT 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Corrected a comment.
+
 Mon Jan 17 03:32:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Updated to use the new QueryParser API.

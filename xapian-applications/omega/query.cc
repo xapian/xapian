@@ -1821,9 +1821,9 @@ pretty_term(const string & term)
     if (term.length() >= 2 && term[0] == 'R')
 	return char(toupper(term[1])) + term.substr(2);
 
-    // If there's an unstemmed version in the query, use that
-    // (FIXME currently uses the first of multiple forms - might be
-    // "better" to pick the one with the highest termfreq)
+    // If there's an unstemmed version in the query, use that.
+    // If the multiple forms with the same stem appear, we arbitrarily pick
+    // the first.
     Xapian::TermIterator i = qp.unstem_begin(term);
     if (i != qp.unstem_end(term)) return *i;
 
@@ -1838,7 +1838,7 @@ pretty_term(const string & term)
     }
 
     // The term is present unstemmed, but if it would stem further it still
-    // needs protecting
+    // needs protecting.
     if (stemmer->stem_word(term) != term)
 	return term + '.';
  
