@@ -25,7 +25,7 @@ class Match {
 
         PostList *merger;
     
-        weight w_max;
+        bool recalculate_maxweight;
     public:
         Match(IRDatabase *);
         bool add_pterm(const string &);

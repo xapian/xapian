@@ -102,10 +102,9 @@ class MSetCmp {
 void
 Match::recalc_maxweight()
 {
+    // if we don't have a merger, who the hell is telling us to recalc?
     Assert(merger != NULL);
-    cout << "recalculating weights\n";
-    w_max = merger->recalc_maxweight();
-    cout << "new w_max = " << w_max << endl;
+    recalculate_maxweight = true;
 }
 
 void
@@ -150,21 +149,29 @@ Match::match()
     vector<MSetItem> mset;
     int sorted_to = 0;
 
-    recalc_maxweight();
-    cout << "max possible doc weight = " << w_max << endl;
+    recalculate_maxweight = true;
+    weight w_max;
 
     // FIXME: clean all this up
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
     while (1) {
-        PostList *ret = merger->next(w_min);
+	if (recalculate_maxweight) {
+	    recalculate_maxweight = false;
+	    w_max = merger->recalc_maxweight();
+	    cout << "max possible doc weight = " << w_max << endl;
+	}    
+
+	PostList *ret = merger->next(w_min);
         if (ret) {
 	    delete merger;
 	    merger = ret;
+	    cout << "*** REPLACING ROOT\n";
+	    // no need for a full recalc - we're just switching to a subtree
 	    w_max = merger->get_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
 	    if (w_max < w_min) {
-		cout << "TERMINATING EARLY" << endl;
+		cout << "*** TERMINATING EARLY" << endl;
 		break;
 	    }
 	}
