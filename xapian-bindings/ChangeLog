@@ -1,3 +1,8 @@
+Wed Sep 15 18:47:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Noted that -modern affects xapian.py (xapian_wrap.cc
+	  is unchanged).
+
 Wed Sep 15 18:22:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,php4/Makefile.am: Removed the recently added

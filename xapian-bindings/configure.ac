@@ -85,7 +85,7 @@ if test no != "$with_swig" ; then
 	;;
       [2.[1-9]*|[3-9].*])
 	dnl Call swig -modern for Python 2.2 and up for cleaner, leaner, faster
-	dnl wrapper code.
+	dnl wrapper code in xapian.py.
 	SWIG_PYTHON_FLAGS=-modern
 	;;
       *)
