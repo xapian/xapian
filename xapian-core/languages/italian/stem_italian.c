@@ -166,7 +166,7 @@ static void measure(struct italian_stemmer * z)
    The result is true/false, and if true, j is decreased by the length of s.
 */
 
-static int look_for(struct italian_stemmer * z, char * s)
+static int look_for(struct italian_stemmer * z, const char * s)
 {   char * p = z->p;
     int length = strlen(s);
     int jbase = z->j-length+1;
@@ -214,7 +214,7 @@ static int look_for(struct italian_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-static int ends(struct italian_stemmer * z, char * s)
+static int ends(struct italian_stemmer * z, const char * s)
 {  z->j = z->k - 1;
    return look_for(z, s);
 }
@@ -223,7 +223,7 @@ static int ends(struct italian_stemmer * z, char * s)
    k.
 */
 
-static void setto(struct italian_stemmer * z, char * s)
+static void setto(struct italian_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p+z->j+1, s, length);
     z->k = z->j+length+1;
@@ -241,7 +241,7 @@ static void setto(struct italian_stemmer * z, char * s)
 
 */
 
-static int attachV(struct italian_stemmer * z, char * s)
+static int attachV(struct italian_stemmer * z, const char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
@@ -253,9 +253,9 @@ static int after_posV(struct italian_stemmer * z)
     return true;
 }
 
-static int chopV(struct italian_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct italian_stemmer * z, const char * s) { return ends(z, s) && after_posV(z); }
 
-static int attach2(struct italian_stemmer * z, char * s)
+static int attach2(struct italian_stemmer * z, const char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
@@ -267,7 +267,7 @@ static int after_pos2(struct italian_stemmer * z)
     return true;
 }
 
-static int chop2(struct italian_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct italian_stemmer * z, const char * s) { return ends(z, s) && after_pos2(z); }
 
 /*
 
@@ -509,7 +509,7 @@ static void tidy_up(struct italian_stemmer * z)
 
 #define PAIR(a, b)   ((a)<<8|(b))
 
-extern char * italian_stem(struct italian_stemmer * z, char * q, int i0, int i1)
+extern const char * italian_stem(struct italian_stemmer * z, const char * q, int i0, int i1)
 {   char * p = z->p;
     int p_size = z->p_size;
     int k = 0;
@@ -536,7 +536,7 @@ extern char * italian_stem(struct italian_stemmer * z, char * q, int i0, int i1)
     }
     z->k = k;
 
-    {   char * t = search_pool(z->irregulars, k, p);
+    {   const char * t = search_pool(z->irregulars, k, p);
         if (t != 0) return t;
     }
 
@@ -565,7 +565,7 @@ extern char * italian_stem(struct italian_stemmer * z, char * q, int i0, int i1)
    process is then bypassed.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     "aver" ,
 

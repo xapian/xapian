@@ -171,7 +171,7 @@ static void measure(struct french_stemmer * z)
    s.
 */
 
-static int look_for(struct french_stemmer * z, char * s)
+static int look_for(struct french_stemmer * z, const char * s)
 {   int length = strlen(s);
     int jbase = z->j - length + 1;
     if (jbase < 0) return false;
@@ -182,7 +182,7 @@ static int look_for(struct french_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-static int ends(struct french_stemmer * z, char * s)
+static int ends(struct french_stemmer * z, const char * s)
 {  z->j = z->k - 1;
 /*printf("[%s] ",s); */
    return look_for(z, s);
@@ -192,7 +192,7 @@ static int ends(struct french_stemmer * z, char * s)
    k.
 */
 
-static void setto(struct french_stemmer * z, char * s)
+static void setto(struct french_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length + 1;
@@ -212,7 +212,7 @@ static void setto(struct french_stemmer * z, char * s)
 
 */
 
-static int attachV(struct french_stemmer * z, char * s)
+static int attachV(struct french_stemmer * z, const char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
@@ -224,16 +224,16 @@ static int after_posV(struct french_stemmer * z)
     return true;
 }
 
-static int chopV(struct french_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct french_stemmer * z, const char * s) { return ends(z, s) && after_posV(z); }
 
 
-static int attach0(struct french_stemmer * z, char * s)
+static int attach0(struct french_stemmer * z, const char * s)
 {   if (z->j < z->pos0) return false;
     setto(z, s);
     return true;
 }
 
-static int attach1(struct french_stemmer * z, char * s)
+static int attach1(struct french_stemmer * z, const char * s)
 {   if (z->j < z->pos1) return false;
     setto(z, s);
     return true;
@@ -245,9 +245,9 @@ static int after_pos1(struct french_stemmer * z)
     return true;
 }
 
-static int chop1(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos1(z); }
+static int chop1(struct french_stemmer * z, const char * s) { return ends(z, s) && after_pos1(z); }
 
-static int attach2(struct french_stemmer * z, char * s)
+static int attach2(struct french_stemmer * z, const char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
@@ -259,12 +259,12 @@ static int after_pos2(struct french_stemmer * z)
     return true;
 }
 
-static int chop2(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct french_stemmer * z, const char * s) { return ends(z, s) && after_pos2(z); }
 
 /* chopV_ge(z, s) is like chopV, but removes a preceding 'e' after 'g'.
 */
 
-static int chopV_ge(struct french_stemmer * z, char * s)
+static int chopV_ge(struct french_stemmer * z, const char * s)
 {   if (! (ends(z, s) && after_posV(z))) return false;
     if (look_for(z, "ge")) z->k --;
     return true;
@@ -274,7 +274,7 @@ static int chopV_ge(struct french_stemmer * z, char * s)
    a CON.
 */
 
-static int chopV_CON(struct french_stemmer * z, char * s)
+static int chopV_CON(struct french_stemmer * z, const char * s)
 {   return ends(z, s) && char_type(z, z->j) == CON && after_posV(z);
 }
 
@@ -558,7 +558,7 @@ static int double_letter(struct french_stemmer * z)
 
 #define PAIR(a, b)   ((a)<<8|(b))
 
-extern char * french_stem(struct french_stemmer * z, char * q, int i0, int i1)
+extern const char * french_stem(struct french_stemmer * z, const char * q, int i0, int i1)
 {   char * p = z->p;
     int p_size = z->p_size;
     int k = 0;
@@ -592,7 +592,7 @@ extern char * french_stem(struct french_stemmer * z, char * q, int i0, int i1)
     }
     z->k = k;
 
-    {   char * t = search_pool(z->irregulars, k, p);
+    {   const char * t = search_pool(z->irregulars, k, p);
         if (t != 0) return t;
     }
 
@@ -654,7 +654,7 @@ extern char * french_stem(struct french_stemmer * z, char * q, int i0, int i1)
    process is then bypassed.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     "etr" ,
     "Etre/FtF/FtFe/FtFes/FtFs/Ftant/Ftante/Ftants/Ftantes/suis/es/"

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -153,7 +153,7 @@ static int cvc(struct english_stemmer * z, int i)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-static int ends(struct english_stemmer * z, char * s, int length)
+static int ends(struct english_stemmer * z, const char * s, int length)
 {
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -165,7 +165,7 @@ static int ends(struct english_stemmer * z, char * s, int length)
    readjusting k.
 */
 
-static void setto(struct english_stemmer * z, char * s, int length)
+static void setto(struct english_stemmer * z, const char * s, int length)
 {
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
@@ -173,7 +173,7 @@ static void setto(struct english_stemmer * z, char * s, int length)
 
 /* r(z, s, length) is used further down. */
 
-static void r(struct english_stemmer * z, char * s, int length)
+static void r(struct english_stemmer * z, const char * s, int length)
 {
     if (m(z) > 0) setto(z, s, length);
 }
@@ -399,7 +399,7 @@ static void step_5(struct english_stemmer * z)
     if (z->p[z->k] == 'l' && doublec(z, z->k) && m(z) > 1) z->k--;
 }
 
-extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1)
+extern const char * english_stem(struct english_stemmer * z, const char * q, int i0, int i1)
 {
     int p_size = z->p_size;
 
@@ -414,7 +414,7 @@ extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1)
     z->k = i1 - i0;
 
 
-    {   char * t = search_pool(z->irregulars, z->k + 1, z->p);
+    {   const char * t = search_pool(z->irregulars, z->k + 1, z->p);
         if (t != 0) return t;
     }
 
@@ -455,7 +455,7 @@ extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1)
    process is then bypassed.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     "sky",     "sky/skies/",
     "die",     "dying/",

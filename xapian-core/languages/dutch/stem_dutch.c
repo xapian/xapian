@@ -139,7 +139,7 @@ static int m(struct dutch_stemmer * z)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-static int ends(struct dutch_stemmer * z, char * s)
+static int ends(struct dutch_stemmer * z, const char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -150,7 +150,7 @@ static int ends(struct dutch_stemmer * z, char * s)
 /* after ends(z, s1), context(z, s2) checks that s1 is preceded by s2
 */
 
-static int context(struct dutch_stemmer * z, char * s)
+static int context(struct dutch_stemmer * z, const char * s)
 {   int keep_j = z->j;
     int keep_k = z->k;
     z->k = z->j;
@@ -194,7 +194,7 @@ static int step_1(struct dutch_stemmer * z) /* result true if '-e' removed */
     return ends_e(z);
 }
 
-static int chop(struct dutch_stemmer * z, char * s)
+static int chop(struct dutch_stemmer * z, const char * s)
 {   if (ends(z,s) && m(z) > 1) { z->k = z->j; return true; }
     return false;
 }
@@ -202,7 +202,7 @@ static int chop(struct dutch_stemmer * z, char * s)
 static int valid_i(struct dutch_stemmer * z) { return z->p[z->j] != 'e'; }
 static int valid_h(struct dutch_stemmer * z) { return z->p[z->j] != 'c'; }
 
-static int chop_test(struct dutch_stemmer * z, char * s, int (*f)(struct dutch_stemmer *))
+static int chop_test(struct dutch_stemmer * z, const char * s, int (*f)(struct dutch_stemmer *))
 {   if (ends(z,s) && m(z) > 1 && f(z)) { z->k = z->j; return true; }
     return false;
 }
@@ -256,7 +256,7 @@ static void step_3(struct dutch_stemmer * z)   /* undouble vowel in -cvvc contex
     }
 }
 
-extern char * dutch_stem(struct dutch_stemmer * z, char * q, int i0, int i1)
+extern const char * dutch_stem(struct dutch_stemmer * z, const char * q, int i0, int i1)
 {
     int p_size = z->p_size;
 
@@ -275,7 +275,7 @@ extern char * dutch_stem(struct dutch_stemmer * z, char * q, int i0, int i1)
         z->k = k - 1;
     }
 
-    {   char * t = search_pool(z->irregulars, z->k + 1, z->p);
+    {   const char * t = search_pool(z->irregulars, z->k + 1, z->p);
         if (t != 0) return t;
     }
 
@@ -292,7 +292,7 @@ extern char * dutch_stem(struct dutch_stemmer * z, char * q, int i0, int i1)
     The list of Dutch irregularities is left blank at the moment.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     0, 0  /* terminator */
 

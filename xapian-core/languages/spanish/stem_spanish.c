@@ -144,7 +144,7 @@ static void measure(struct spanish_stemmer * z)
 
 static int aei(int ch) { return (ch == 'a' || ch == 'e' || ch == 'i'); }
 
-static int look_for(struct spanish_stemmer * z, char * s)
+static int look_for(struct spanish_stemmer * z, const char * s)
 {   char * p = z->p;
     int length = strlen(s);
     int jbase = z->j-length+1;
@@ -167,7 +167,7 @@ static int look_for(struct spanish_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-static int ends(struct spanish_stemmer * z, char * s)
+static int ends(struct spanish_stemmer * z, const char * s)
 {  z->j = z->k - 1;
    return look_for(z, s);
 }
@@ -176,7 +176,7 @@ static int ends(struct spanish_stemmer * z, char * s)
    k.
 */
 
-static void setto(struct spanish_stemmer * z, char * s)
+static void setto(struct spanish_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p+z->j+1, s, length);
     z->k = z->j+length+1;
@@ -198,7 +198,7 @@ static void setto(struct spanish_stemmer * z, char * s)
 */
 
 /*
-static int attachV(struct spanish_stemmer * z, char * s)
+static int attachV(struct spanish_stemmer * z, const char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
@@ -211,15 +211,15 @@ static int after_posV(struct spanish_stemmer * z)
     return true;
 }
 
-static int chopV(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct spanish_stemmer * z, const char * s) { return ends(z, s) && after_posV(z); }
 
-static int chopV_try_u(struct spanish_stemmer * z, char * s)
+static int chopV_try_u(struct spanish_stemmer * z, const char * s)
 {   if (!ends(z, s)) return false;
     if (z->p[z->j-1] == 'g') look_for(z, "u");
     return after_posV(z);
 }
 
-static int attach2(struct spanish_stemmer * z, char * s)
+static int attach2(struct spanish_stemmer * z, const char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
@@ -231,7 +231,7 @@ static int after_pos2(struct spanish_stemmer * z)
     return true;
 }
 
-static int chop2(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct spanish_stemmer * z, const char * s) { return ends(z, s) && after_pos2(z); }
 
 /* attached pronouns can of course double, but apart from
    -se + lo, la, los, las they seem to be v. rare, and are ignored here.
@@ -514,10 +514,9 @@ static void tidy_up(struct spanish_stemmer * z)
 
 #define PAIR(a, b)   ((a)<<8|(b))
 
-extern char * spanish_stem(struct spanish_stemmer * z, char * q, int i0, int i1)
+extern const char * spanish_stem(struct spanish_stemmer * z, const char * q, int i0, int i1)
 {   char * p = z->p;
     int p_size = z->p_size;
-    int error = false;
     int k = 0;
     if (i1-i0+50 > p_size)
     {   free(p);
@@ -548,7 +547,7 @@ extern char * spanish_stem(struct spanish_stemmer * z, char * q, int i0, int i1)
     }
     z->k = k;
 
-    {   char * t = search_pool(z->irregulars, k, p);
+    {   const char * t = search_pool(z->irregulars, k, p);
         if (t != 0) return t;
     }
 
@@ -558,7 +557,6 @@ extern char * spanish_stem(struct spanish_stemmer * z, char * q, int i0, int i1)
         tidy_up(z);
     }
     k = z->k;
-    if (k > p_size) { k = p_size; error = true; }
     {   int i = 0;
         while (i != k)
         {   int ch = p[i];
@@ -572,7 +570,6 @@ extern char * spanish_stem(struct spanish_stemmer * z, char * q, int i0, int i1)
     }
     p[k] = 0; /* C string form for now */
     z->k = k;
-    if (error) printf("Term %s truncated\n", p);
     return p;
 }
 
@@ -592,7 +589,7 @@ extern char * spanish_stem(struct spanish_stemmer * z, char * q, int i0, int i1)
    process is then bypassed.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     "dar" , "dar/"
     "doy/das/da/damos/dais/dan/dE/des/deis/den/darE/darAs/darA/"

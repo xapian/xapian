@@ -1,18 +1,18 @@
 /* stem_french.h: header for french stemming algorithm.
- * 
+ *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,7 +32,7 @@ struct french_stemmer;
 
 extern struct french_stemmer * setup_french_stemmer();
 
-extern char * french_stem(struct french_stemmer * z, char * q, int i0, int i1);
+extern const char * french_stem(struct french_stemmer * z, const char * q, int i0, int i1);
 
 extern void closedown_french_stemmer(struct french_stemmer * z);
 
@@ -43,7 +43,7 @@ extern void closedown_french_stemmer(struct french_stemmer * z);
 
    to use it:
 
-       char * p = french_stem(z, q, i0, i1);
+       const char * p = french_stem(z, q, i0, i1);
 
    The word to be stemmed is in byte address q offsets i0 to i1
    inclusive (i.e. from q[i0] to q[i1]). The stemmed result is the

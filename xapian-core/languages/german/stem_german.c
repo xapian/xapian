@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -120,7 +120,7 @@ static int m(struct german_stemmer * z)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-static int ends(struct german_stemmer * z, char * s)
+static int ends(struct german_stemmer * z, const char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -131,7 +131,7 @@ static int ends(struct german_stemmer * z, char * s)
 /* starts(z, s) is true <=> p[0], ... p[k] starts with the string s.
 */
 
-static int starts(struct german_stemmer * z, char * s)
+static int starts(struct german_stemmer * z, const char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k0, s, length) != 0) return false;
@@ -143,7 +143,7 @@ static int starts(struct german_stemmer * z, char * s)
    readjusting k.
 */
 
-static void setto(struct german_stemmer * z, char * s)
+static void setto(struct german_stemmer * z, const char * s)
 {   int length = strlen(s);
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
@@ -268,7 +268,7 @@ static void step_0(struct german_stemmer * z)
     }
 }
 
-static int drop(struct german_stemmer * z, char * s, int (*f)(struct german_stemmer *))
+static int drop(struct german_stemmer * z, const char * s, int (*f)(struct german_stemmer *))
 {   if (ends(z, s) && f(z) && m(z) > 0) {  z->k = z->j; return true; }
     return false;
 }
@@ -291,10 +291,10 @@ static int ends_e(struct german_stemmer * z) { return true; }
 static int ends_t(struct german_stemmer * z) { return ends_s(z); }
 static int dummy(struct german_stemmer * z) { return true; }
 
-static int drop_e(struct german_stemmer * z, char * s) { return drop(z, s, ends_e); }
-static int drop_s(struct german_stemmer * z, char * s) { return drop(z, s, ends_s); }
-static int drop_st(struct german_stemmer * z, char * s) { return drop(z, s, ends_st); }
-static int drop_t(struct german_stemmer * z, char * s) { return drop(z, s, ends_t); }
+static int drop_e(struct german_stemmer * z, const char * s) { return drop(z, s, ends_e); }
+static int drop_s(struct german_stemmer * z, const char * s) { return drop(z, s, ends_s); }
+static int drop_st(struct german_stemmer * z, const char * s) { return drop(z, s, ends_st); }
+static int drop_t(struct german_stemmer * z, const char * s) { return drop(z, s, ends_t); }
 
 static void step_1x(struct german_stemmer * z)
 {   switch(z->p[z->k])
@@ -338,12 +338,12 @@ static void step_2x(struct german_stemmer * z)
     }
 }
 
-static int ends1(struct german_stemmer * z, char * s)
+static int ends1(struct german_stemmer * z, const char * s)
 {   if (ends(z, s) && m(z) > 1) {  z->k = z->j; return true; }
     return false;
 }
 
-static int ends1i(struct german_stemmer * z, char * s)
+static int ends1i(struct german_stemmer * z, const char * s)
 {   if (ends(z, s) && m(z) > 1 && ends_i(z)) {  z->k = z->j; return true; }
     return false;
 }
@@ -372,7 +372,7 @@ static void step_2(struct german_stemmer * z)
 
 
 
-extern char * german_stem(struct german_stemmer * z, char * q, int i0, int i1)
+extern const char * german_stem(struct german_stemmer * z, const char * q, int i0, int i1)
 {
     int p_size = z->p_size;
 
@@ -391,7 +391,7 @@ extern char * german_stem(struct german_stemmer * z, char * q, int i0, int i1)
         z->k = k - 1;
     }
 
-    {   char * t = search_pool(z->irregulars, z->k + 1, z->p);
+    {   const char * t = search_pool(z->irregulars, z->k + 1, z->p);
         if (t != 0) return t;
     }
 
@@ -409,7 +409,7 @@ extern char * german_stem(struct german_stemmer * z, char * q, int i0, int i1)
     The list of German irregularities needs further development.
 */
 
-static char * irregular_forms[] = {
+static const char * irregular_forms[] = {
 
     "abendstern", "abendstern/",       /* Otherwise 'abendstern' -> 'abend' etc */
     "morgenstern", "morgenstern/",
