@@ -242,13 +242,13 @@ int main(unsigned int argc, char *argv[]) {
 
       string s = argv[optpos];
 
-      if ( s.find(":") != -1 ) {
+      if ( s.find("@") != -1 ) {
 
 	// we have:  package_name:commit_id
-	string package = s.substr( 0, s.find(":"));
+	string package = s.substr( 0, s.find("@"));
 	cerr << "PACKAGE -" << package << "-" << endl;
 
-	string query_commit = s.substr( s.find(":")+1, s.length()-s.find(":"));
+	string query_commit = s.substr( s.find("@")+1, s.length()-s.find("@"));
 	cerr << "QUERY COMMIT -" << query_commit << "-" << endl;
 	
 

@@ -13,8 +13,10 @@ use Entities;
 # path variables
 #-------------------
 $CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stored
-$cvsmine = "./cvscommitsearch";
-$num_query = "10000"; # to get 100 matches
+$cvscommit = "./cvscommitsearch";
+$cvsrelated = "./cvsrelatedsearch";
+$commit_num_query = "10000"; # to get 100 matches
+$related_num_query = "100";
 $cvsquery = "./cvsquerydb";
 $own = "./CommitSearch.cgi"; # name of this script
 
@@ -106,11 +108,16 @@ _HTML_
 		$querysymbol .=	" \":$_\"";
 	}
 	
-	#query cvsminesearch for global commit id
-	#print "$cvsmine $root/db/commit.om $num_query $query $querysymbol";
+	#query cvscommitsearch for global commit id
+	#print "$cvscommit $root/db/commit.om $commit_num_query $query $querysymbol";
 
-	$query =~ s/;/\\;/g;
-	@ids = `$cvsmine $root/db/commit.om $num_query $query $querysymbol`;
+	  $query =~ s/;/\\;/g; # used in in: command
+print STDERR "QUERY IS -$query-\n";
+	    if ( $query =~ /@/ ) {
+	      @ids = `$cvsrelated $root/db/related.om $related_num_query $query $querysymbol`;
+	    } else {
+	      @ids = `$cvscommit $root/db/commit.om $commit_num_query $query $querysymbol`;
+            }
 	$gquery = shift @ids;
 	if($gquery){
 		@tmpquery = split /\s/, $gquery;
@@ -145,9 +152,9 @@ _HTML_
                         print "<tr";
               } 
                  print " valign=top>";
-              print "<td><pre>$key</pre></td>";
+              print "<td>$key</td>";
 
-              print "<td><pre><a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">Browse Code</a></pre></td>";
+              print "<td>[&nbsp<a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">code</a>&nbsp/&nbsp<a href=\"./CommitSearch.cgi?query=$key\@$val&root=$root\">similar</a>&nbsp]</td>";
 
               print "<td><pre>$curcomments</pre></td>";
 
@@ -201,6 +208,14 @@ sub insertArray{
 #-----------------------------------
 sub highlightquery{
 	my ($words) = @_;
-	$words =~ s/($grepquery)/<b>\1<\/b>/ig;
+
+	  if ($query =~ /@/ ) {
+	    # don't highlight for now
+	  } else {
+
+	    $words =~ s/(^|[^a-zA-Z]+)($grepquery)/\1<b>\2<\/b>/ig;
+          }
+
+
 	return $words;
 }
