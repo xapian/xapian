@@ -99,8 +99,8 @@ Make all errors return a context if appropriate.
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
-Produce Microsoft Windows version, probably cross-compiling to mingw.  0.6.5
-can be built with a mingw cross-compiler.  Test suite not tried.
+Produce Microsoft Windows version, probably cross-compiling to mingw.  0.7.0
+can be built with a mingw cross-compiler.  Test suite builds, but not yet run.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
@@ -297,7 +297,8 @@ efficiently.
 <todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
 
 Ensure that quartz databases don't have a problem if there is no positional
-information entry available for a term / document combination.
+information entry available for a term / document combination.  Think this
+was actually sorted out long ago, but check.
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Matcher" release="">
@@ -341,7 +342,7 @@ it in cgi-bin directory).
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
 
-Language bindings: Python, PHP and Java (C would be good too).
+Language bindings: PHP, Java, Guile, tcl (C would be good too).
 All can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools
 available just because it's less overall work.  We have contributed XS
@@ -349,7 +350,7 @@ bindings for Perl, so we may as well keep using those while they're
 supported for us.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="Bindings" release="0.8">
 
 Check for swig version.
 
@@ -441,14 +442,6 @@ Get nightly snapshot builds set up again
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
 
-Look at getting the btree code to use pread and pwrite or similar calls 
-where available (e.g. on Linux and Solaris).  These combine a seek and
-read or write into a single syscall, which halves the syscall overhead and
-can make an observable difference to performance.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
-
 Think about using hashing instead of a btree for the backend?  Long term
 project.
 
@@ -528,11 +521,6 @@ match bias functors: adjust weights back for display? cutoff?
 no weighting? params for bias? abuse term wdf instead of keys?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-Stopwording?  Improve?  Support in Xapian itself?
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="" area="tests" release="">
 
 Make test suite more uniform in structure.
@@ -600,7 +588,7 @@ min and max.
 
 Try to reduce unnecessary inclusion of headers - sometimes just saying
 "class Xapian::Foo;" is enough.  Look at using iosfwd instead of iostream
-where applicable (TC++PL 3ed 8.2.7).
+where applicable (TC++PL 3ed 8.2.7).  Partly done.
 
 </todoitem>
 <todoitem priority="" difficulty="" owner="" area="tests" release="">
@@ -633,112 +621,3 @@ data field.
 
 </todoitem>
 </todo>
-<!--
-Goals:
-
-Desirable traits of M3.6:
-
-* Reliability and robustness - fewer than 60 bugs reported since 3.2, and
-many of these were in "beta" code or have never affected users.
-
-= Xapian has an extensive test suite checking correctness of many features
-and including regression tests for most bug fixes.
-
-* Code Compactness - 3.6 is impressively small given the rich functionality
-it offers.
-
-= A lot of 3.6 features are no longer needed (e.g. sed and sentry, Muscat
-expressions).  Also shared libraries and VM make this less of an issue
-except on embedded platforms.  Xapian would benefit from code size profiling.
-
-* Versatility and adaptability.  Once you've scaled the learning curve, 3.6's
-functionality can be used in many varied ways.  The steep learning curve is
-a barrier to entry though.
-
-= Learning curve for Xapian is more gentle.
-
-* Speed.  Although the evidence is largely anecdotal, 3.6 seems to perform
-well against other IR systems.  Customers are generally happy with the speed
-although large systems seem to get rather slow.
-
-= In early tests, Xapian was up to 10 times faster.  We've not tested recently
-but it should be typically at least as faster, and sometimes much faster.
-
-* Data Compactness.  Again anecdotally, 3.6's indexes are comparable in size
-to those of other systems.  EuroFerret style indexing allows a lot to be
-squeezed into a very small index, yet still with good retrieval.
-
-= Fully compacted quartz databases are now smaller than Muscat 3.6 DA databases!
-
-* Portability.  Interpreted 3.6 is very portable, but performance is a little
-disappointing.  Compiled is nearly as portable, and typically 10x faster.
-Obstacles to porting compiled 3.6 were coroutines (setjmp abuse made that
-less of an issue) and platforms with 64 bit pointers (e.g. alphas).
-
-= We can compile Xapian on many platforms, though there are a number of
-unexplained failures.  At present, it's not as widely ported as 3.6 (in
-particular, not to MS Windows).
-
-
-Xapian combines boolean filtering, structured boolean queries, and ranked free-text
-retrieval.
-
-Scalable indexing and search technology.
-
-Machine independent data formats.
-
-Low memory and disk requirements.
-
-Allow simultaneous update and searching.  Updates become searchable right away.
-
-Can search over multiple databases as if they were one.
-
-
-
-Omega: allow filters to be set on a separate page.
-
-
-
-Benchmark searches/sec and updates/sec.
-
-
-
-Index size as percentage of data size.
-
-
-
-Set default search language from browser settings.
-
-
-
-Scale relevance by language comprehension factors?
-
-
-
-Boolean filters can be categorised as one of 2 kinds:
-
-* at most one per page - e.g. filename extension - only useful to OR these
-  (also applies to e.g. path prefix - the case where if when tags overlap, one
-  is always a subset)
-
-* potentially more than one per page - e.g. links to a file with extension XXX
-  - here AND and OR are useful...
-
-
-
-Hash page after whitespace squashing for duplicate detection?  Maybe normalise
-for BASE HREF too?  Or just the extracted text?
-
-
-
-CGI checking in crawler?  ';' in URLs?
-
-
-
-Crawler: use Expires: to decide on revisit time?
-
-
-
-HTML parser - don't index stuff outside <body> </body>?
-
--->

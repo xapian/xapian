@@ -1,3 +1,7 @@
+Sat Jul 05 02:21:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Sat Jul 05 02:09:06 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,backends/quartz/btree.cc: Use pread() and pwrite() if
