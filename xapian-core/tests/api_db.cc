@@ -1299,7 +1299,7 @@ static bool test_absentfile1()
 		   OmQuery myquery("cheese");
 		   enquire.set_query(myquery);
 		   
-		   OmMSet mymset = enquire.get_mset(0, 10);)
+		   OmMSet mymset = enquire.get_mset(0, 10););
     return true;
 }
 
