@@ -30,7 +30,7 @@ class PostList {
 	virtual PostList *skip_to(docid, weight w_min) = 0; // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
-        virtual ~PostList() { return; }
+        virtual ~PostList();
 };
 
 // Postlist which is actually directly related to entries in a database
@@ -40,6 +40,13 @@ class DBPostList : public virtual PostList {
 	const IRWeight * ir_wt;
     public:
 	DBPostList() : ir_wt(NULL) { return; }
+
+	~DBPostList() {
+	    cout << "Deleting DBPostlist and weight" << endl;
+	    if(ir_wt) delete ir_wt;
+	    return;
+	}
+
 	void set_termweight(const IRWeight *); // Sets term weight
         weight get_maxweight() const;    // Gets max weight
         weight recalc_maxweight();       // recalculate weights

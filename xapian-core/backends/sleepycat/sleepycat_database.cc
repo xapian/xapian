@@ -102,14 +102,9 @@ SleepyDatabaseInternals::close()
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(const IRDatabase *root,
-			       docid *data_new,
-			       doccount tf,
-			       const termname tname,
-			       const RSet *rset)
+SleepyPostList::SleepyPostList(docid *data_new, doccount tf)
 	: pos(0), data(data_new), termfreq(tf)
 {
-    own_wt.set_stats(root, tf, tname, rset);
 }
 
 SleepyPostList::~SleepyPostList() {
@@ -204,10 +199,8 @@ SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 	throw OmError("PostlistDb error:" + string(e.what()));
     }
 
-    return new SleepyPostList(root,
-			      (docid *)data.get_data(),
-			      data.get_size() / sizeof(docid),
-			      tname, rset);
+    return new SleepyPostList((docid *)data.get_data(),
+			      data.get_size() / sizeof(docid));
 }
 
 TermList *

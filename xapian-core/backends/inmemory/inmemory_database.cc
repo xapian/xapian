@@ -80,7 +80,7 @@ TextfileDatabase::open_post_list(const termname & tname, RSet *rset) const
     map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
-    return new TextfilePostList(root, this, i->second, tname, rset);
+    return new TextfilePostList(this, i->second);
 }
 
 TermList *

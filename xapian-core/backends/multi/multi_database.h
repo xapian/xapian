@@ -39,10 +39,7 @@ class MultiPostList : public virtual DBPostList {
 
 	weight termweight;
 
-	MultiPostList(const IRDatabase *,
-		      list<MultiPostListInternal> &,
-		      termname, 
-		      const RSet *rset);
+	MultiPostList(list<MultiPostListInternal> &);
     public:
 	~MultiPostList();
 

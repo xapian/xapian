@@ -104,11 +104,8 @@ class TextfilePostList : public virtual DBPostList {
 
 	const TextfileDatabase * this_db;
 
-	TextfilePostList(const IRDatabase *,
-			 const TextfileDatabase *,
-			 const TextfileTerm &,
-			 const termname tname,
-			 const RSet *rset);
+	TextfilePostList(const TextfileDatabase *,
+			 const TextfileTerm &);
     public:
 	doccount get_termfreq() const;
 
@@ -204,18 +201,14 @@ class TextfileDatabase : public virtual IRSingleDatabase,
 //////////////////////////////////////////////
 
 inline
-TextfilePostList::TextfilePostList(const IRDatabase *root,
-				   const TextfileDatabase *db,
-				   const TextfileTerm &term,
-				   const termname tname,
-				   const RSet *rset)
+TextfilePostList::TextfilePostList(const TextfileDatabase *db,
+				   const TextfileTerm &term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
 	  termfreq(term.docs.size()),
 	  started(false),
 	  this_db(db)
 {
-    own_wt.set_stats(root, termfreq, tname, rset);
 }
 
 inline doccount
