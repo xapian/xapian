@@ -122,11 +122,11 @@ if test no != "$with_swig" ; then
   fi
 
   if test no != "$with_php" ; then
-    AC_PATH_PROG(PHP_CONFIG, php-config, [])
+    AC_PATH_PROG(PHP_CONFIG, [php-config], [])
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
-	    AC_PATH_PROG(PHP4, php4, [])
+	    AC_PATH_PROGS(PHP4, [php4 php], [missing])
 	    PHP_INC="`$PHP_CONFIG --includes`"
 	    AC_SUBST(PHP_INC)
 	    PHP_EXTENSION_DIR="`$PHP_CONFIG --extension-dir`"

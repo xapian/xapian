@@ -1,3 +1,8 @@
+Sun Jan 09 13:59:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for "php" as well as "php4", and fall-back to
+	  missing so the error message from "make check" is better.
+
 Thu Dec 23 19:17:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,NEWS: Version 0.8.5.
