@@ -3,9 +3,6 @@
 EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in
 CLEANFILES = AssemblyInfo.cs $(ASSEMBLY).dll $(BUILT_SOURCES)
 
-GACUTIL=gacutil
-CSC=mcs
-
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_SRCS=\
