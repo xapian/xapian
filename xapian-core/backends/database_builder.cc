@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +41,8 @@
 #include "net_database.h"
 #endif
 #include "database.h"
+
+using std::string;
 
 /** Type of a database */
 enum om_database_type {
@@ -83,7 +86,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	    break;
 	case DBTYPE_AUTO: {
 	    // Check validity of parameters
-			      std::string path = params.get("auto_dir");
+	    string path = params.get("auto_dir");
+	    // Copy so we get any other parameters the user gave
 	    OmSettings myparams = params;
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    if (file_exists(path + "/R") && file_exists(path + "/T")) {
@@ -126,8 +130,20 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 		} else {
 		    database = new QuartzWritableDatabase(myparams);
 		}
+		break;
 	    }
 #endif
+	    // OK, we didn't detect a known database.  If we're constructing
+	    // a writable database, this may mean it doesn't exist, so try
+	    // defaulting to a backend which supports writing and is actually
+	    // built in...
+	    if (!readonly) {
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+		myparams.set("quartz_dir", path);
+		database = new QuartzWritableDatabase(myparams);
+		break;
+#endif
+	    }
             break;
         }
 	case DBTYPE_MUSCAT36_DA:

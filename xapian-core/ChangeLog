@@ -1,3 +1,9 @@
+Fri Jun 28 02:59:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* Backend "auto" now works when creating an OmWritableDatabase which
+	  doesn't already exist - it'll pick a backend which supports writing
+	  and is compiled in (currently this means quartz).
+
 Thu Jun 27 20:31:13 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* backends/quartz/btreetest.cc (sequent1): Add regression test for
