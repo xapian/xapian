@@ -41,6 +41,14 @@ Priority | Area            | Task
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
+ High    |CDistribution    | Add support for RSets, and any match options
+         |                 | which make sense over a net link
+---------+-----------------+--------------------------------------------------
+ High    |CDistribution    | Write a network server version
+---------+-----------------+--------------------------------------------------
+ High    |CDistribution    | Add timeouts and throw an exception if no answer
+ 	 |		   | is received soon enough.
+---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make OmDatabaseGroup::Internal return same
          |                 | multidatabase object if get_multi_database() is
 	 |                 | called repeatedly without calling add_database()
