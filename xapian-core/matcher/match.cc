@@ -28,7 +28,7 @@
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
 #include "emptypostlist.h"
-#include "dbpostlist.h"
+#include "leafpostlist.h"
 #include <om/omdocument.h>
 #include "rset.h"
 
@@ -105,11 +105,11 @@ OmMatch::~OmMatch()
     }
 }
 
-DBPostList *
+LeafPostList *
 OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
-    DBPostList * pl = database->open_post_list(tname, rset);
+    LeafPostList * pl = database->open_post_list(tname, rset);
     if(rset) rset->will_want_termfreq(tname);
 
     IRWeight * wt = mk_weight(database, 1, pl->get_termfreq(), tname, rset);

@@ -58,7 +58,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
     for (i = rset->documents.begin();
 	 i != rset->documents.end();
 	 i++) {
-	DBTermList *tl = database->open_term_list((*i).did);
+	LeafTermList *tl = database->open_term_list((*i).did);
 	tl->set_weighting(ewt);
 	pq.push(tl);
     }
