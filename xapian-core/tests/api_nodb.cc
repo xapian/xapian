@@ -202,6 +202,19 @@ static bool test_emptyquerypart1()
     return true;
 }
 
+static bool test_singlesubq1()
+{
+    vector<om_termname> oneterm;
+    oneterm.push_back("solo");
+    OmQuery q_eliteset(OmQuery::OP_ELITE_SET, oneterm.begin(), oneterm.end());
+    q_eliteset.set_elite_set_size(1);
+    OmQuery q_near(OmQuery::OP_NEAR, oneterm.begin(), oneterm.end());
+    q_near.set_window(1);
+    OmQuery q_phrase(OmQuery::OP_PHRASE, oneterm.begin(), oneterm.end());
+    q_phrase.set_window(1);
+    return true;
+}
+
 static bool test_stemlangs1()
 {
     vector<string> langv;
@@ -290,6 +303,7 @@ test_desc nodb_tests[] = {
     {"queryvalid1",	   test_queryvalid1},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
+    {"singlesubq1",	   test_singlesubq1},
     {"stemlangs1",	   test_stemlangs1},
     {"badbackend1",	   test_badbackend1},
     {"badbackend2",	   test_badbackend2},
