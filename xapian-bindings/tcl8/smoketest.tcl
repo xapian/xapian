@@ -17,6 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
+# We need at least Tcl version 8
+package require Tcl 8
+
 load [file join ".libs" xapian.so]
 xapian::Stem stem "english"
 xapian::Document doc

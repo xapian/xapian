@@ -1,3 +1,7 @@
+Thu Oct 21 01:39:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Explicitly require at least Tcl version 8.
+
 Thu Oct 21 01:35:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simplesearch.tcl: Use more idiomatic (and less
