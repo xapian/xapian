@@ -1,3 +1,8 @@
+Wed Jun 28 15:23:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed configure so that --enable-debug=full actually _does_ select
+	  verbose output.
+
 Wed Jun 28 12:24:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API addition - Add a OmEnquire::get_query() method, to retrieve the

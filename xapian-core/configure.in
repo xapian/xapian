@@ -287,6 +287,10 @@ dnl *************************
 
 dnl Work out what debugging we want
 
+use_debug=no;
+use_debug_paranoid=no;
+use_debug_verbose=no;
+
 AC_ARG_ENABLE(debug, 
 [  --enable-debug          Turn on debugging (no|partial|yes|full)(default=no)],
 [case "${enableval}" in
@@ -295,7 +299,7 @@ AC_ARG_ENABLE(debug,
   partial) use_debug=yes ;;
   no)  use_debug=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac], [use_debug=no])
+esac])
 
 AC_ARG_ENABLE(debug-verbose, 
 [  --enable-debug-verbose  Turn on debugging messages (no|yes)(default=no)],
@@ -303,7 +307,7 @@ AC_ARG_ENABLE(debug-verbose,
   yes) use_debug_verbose=yes ;;
   no)  use_debug_verbose=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug-verbose) ;;
-esac], [use_debug_verbose=no])
+esac])
 
 AC_ARG_ENABLE(mutex-errcheck,
 [  --enable-mutex-errcheck Turn on error-checking mutexes (no|yes)(default=no)],
