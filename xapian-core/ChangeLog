@@ -1,3 +1,8 @@
+Wed Jun 16 02:39:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Note the value of LIBRARY_VERSION_INFO which 0.8.1
+	  would get if it were released now.
+
 Wed Jun 16 02:39:11 BST 2004  Robert Pollak <robert.pollak@fabasoft.com>
 
 	* api/omdatabase.cc, include/xapian/database.h,
@@ -44,9 +49,9 @@ Tue Jun 15 15:26:54 BST 2004  Olly Betts <olly@survex.com>
 Tue Jun 15 15:24:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in,extra/Makefile.am: Unify the shlib version
-	  numbers (the benefit of tracking them individually makes it hard
-	  to justify the extra work required, and have one version simplifies
-	  debian packaging too).
+	  numbers (the small benefit of tracking them individually makes it
+	  hard to justify the extra work required, and having one version
+	  simplifies debian packaging too).
 
 Tue Jun 15 14:52:36 BST 2004  Robert Pollak <robert.pollak@fabasoft.com>
 
@@ -374,7 +379,7 @@ Fri Apr 23 11:24:23 BST 2004  Olly Betts <olly@survex.com>
 
 Thu Apr 22 00:54:58 BST 2004  Olly Betts <olly@survex.com>
 
-	* backends/quartz/: Stripped out the Btree_errors as it's almost
+	* backends/quartz/: Stripped out Btree_errors as it's almost
 	  totally unused now.  Fixed up the last few uses.
 	* backends/quartz/quartz_table.cc: Fixed another case where read
 	  and write Btrees should share fds.

@@ -28,6 +28,9 @@ AC_INIT(xapian-core, 0.8.0)dnl FIXME: bugreport addr as third argument
 #
 # 6. If any interfaces have been removed since the last public release
 #    then set AGE to 0.
+# 2:0:0 0.8.0
+# 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
+#	       reparsing after stripping punctuation)
 LIBRARY_VERSION_INFO=2:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
