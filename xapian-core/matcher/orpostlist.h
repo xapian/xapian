@@ -9,7 +9,6 @@
 class OrPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-        PostList *maybe_throw_kid(void);
     public:
 	doccount get_termfreq() const;
 
@@ -51,7 +50,7 @@ OrPostList::get_weight() const
 inline bool
 OrPostList::at_end() const
 {
-    // Can never really happen - OrPostList will throw a child instead
+    // Can never really happen - OrPostList next/skip_to autoprune
     return false;
 }
 
