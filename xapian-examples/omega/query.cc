@@ -946,28 +946,45 @@ eval(const string &fmt, const string &loopvar)
 static string
 eval_file(const string &fmtfile)
 {    
-    // FIXME: worry about ".." etc in fmt
-    string file = "/usr/omega/data/default-html/" + fmtfile;
-    string fmt;
-    struct stat st;
-    int fd = open(file.c_str(), O_RDONLY);
-    if (fd < 0) {
-	string err = string("Couldn't open format template `") + file + '\'';
-	throw err;
-    }
-    if (fstat(fd, &st) == 0 && st.st_size) {
-	char *p;
-	p = (char*)malloc(st.st_size);
-	if (p) {
-	    if (read(fd, p, st.st_size) == st.st_size)
-		fmt = string(p, st.st_size);
-	    free(p);
+    // don't allow ".." in format names as this would allow people to open
+    // a format "../../etc/passwd" or similar
+    // FIXME: make this check more exact ("foo..bar" is safe)
+    // FIXME: log when this check fails
+    string::size_type i = fmtfile.find("..");
+    if (i == string::npos) {
+	string file = "/home/omega/templates/" + fmtfile;
+	struct stat st;
+	int fd = open(file.c_str(), O_RDONLY);
+	if (fd >= 0) {
+	    if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode)) {
+		char *blk;
+		blk = (char*)malloc(st.st_size);
+		if (blk) {
+		    char *p = blk;
+		    int len = st.st_size;
+		    while (len) {
+			int r = read(fd, p, len);
+			if (r < 0) break;
+			p += r;
+			len -= r;
+		    }
+		    if (len == 0) {
+			string fmt = string(blk, st.st_size);
+			free(blk);			
+			close(fd);
+			string empty;
+			return eval(fmt, empty);
+		    }
+		    free(blk);
+		}
+	    }
+	    close(fd);
 	}
     }
-    close(fd);
 
-    string empty;
-    return eval(fmt, empty);
+    // FIXME: report why!
+    string err = string("Couldn't read format template `") + fmtfile + '\'';
+    throw err;
 }
 
 /* return a sane (1-100) percentage value for num/denom */

@@ -50,7 +50,7 @@ string fmtname = "query";
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
 
-static const string muscat_dir = "/usr/data/richard/Working/openmuscat/om-examples/omega";
+static const string db_dir = "/home/omega/data/";
 
 static void
 make_log_entry(const string &action, long matches)
@@ -90,7 +90,7 @@ make_log_entry(const string &action, long matches)
 static string
 map_dbname_to_dir(const string &dbname)
 {
-    return muscat_dir + "/data/" + dbname;
+    return db_dir + dbname;
 }
 
 static int
@@ -191,10 +191,7 @@ main2(int argc, char *argv[])
     val = cgi_params.find("FMT");
     if (val != cgi_params.end()) {
 	string v = val->second;
-	if (!v.empty()) {
-	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
-	    if (i == string::npos) fmtname = v;
-	}
+	if (!v.empty()) fmtname = v;
     }
 
     val = cgi_params.find("MORELIKE");

@@ -1,3 +1,10 @@
+Wed Apr 11 10:56:33 BST 2001 Olly Betts
+
+	* Settled on "/home/omega" as location of databases (for now, later
+	  this should be configurable).
+
+	* Format names can now contain anything except "..".
+
 Sat Mar 31 15:06:23 BST 2001 Olly Betts
 
 	* Tidied up issues in omega with ammended $map and new $include.
