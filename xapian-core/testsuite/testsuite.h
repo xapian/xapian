@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,15 +160,17 @@ class test_driver {
 	test_driver(const test_driver &);
 	test_driver & operator = (const test_driver &);
 
+	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+
 	/** Runs the test function and returns its result.  It will
 	 *  also trap exceptions and some memory leaks and force a
 	 *  failure in those cases.
 	 *
 	 *  @param test A description of the test to run.
 	 */
-	bool runtest(const test_desc *test);
+	test_result runtest(const test_desc *test);
 
-	/** The implementation used by both run_test and run_tests.
+	/** The implementation used by run_tests.
 	 *  it runs test(s) (with runtest()), prints out messages for
 	 *  the user, and tracks the successes and failures.
 	 *

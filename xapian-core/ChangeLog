@@ -1,3 +1,10 @@
+Tue Apr 29 00:33:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,testsuite/testsuite.cc,testsuite/testsuite.h: valgrind is
+	  now mostly hooked into the testsuite.
+	* HACKING: Bison 1.875 doesn't work but Bison 1.875a probably does;
+	  suggest CXXFLAGS=-Werror, not CFLAGS.
+ 
 Tue Apr 29 00:14:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* INSTALL: Updated.

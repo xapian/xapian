@@ -51,15 +51,29 @@ variables will have no effect.
 Debugging memory allocations
 ============================
 
-The testsuite's leak checking has unfortunately proved not to work well with
-many STL implementations, and it gives spurious reports.  For the time being
-we've removed it, and suggest using a third party product to trap leaks.
+The testsuite can make use of valgrind to check for memory leaks and reads
+from uninitialised memory durings tests.  valgrind is x86 specific, and
+currently only works on Linux, but Xapian contains little platform specific
+code so this still gives good coverage.
+
+FIXME: explain how to enable use of valgrind once we've implemented a nice
+configure option...
 
 Building with various profiling and leak-finding tools:
 =======================================================
 
 For use with valgrind, no special build flags are required.  You just need to
-run the program to be checked with valgrind, e.g.:
+run the program to be checked with valgrind.  The only tricky part is that
+libtool creates a wrapper script for executables if you use dynamic linking,
+so you need to get libtool to run valgrind on the actually executable, which
+can be done by fooling libtool into running valgrind like gdb - e.g.:
+
+  ln -s `which valgrind` valgrind-hack-to-fool-libtool-gdb
+  env srcdir=. libtool ./valgrind-hack-to-fool-libtool-gdb ./apitest -v deldoc1
+
+If you're statically linking xapian (note that you must use dynamic linking
+for at least one library (e.g. libc) for valgrind to work), you can avoid this
+and just use:
 
   env srcdir=. valgrind ./apitest -v deldoc1
 
@@ -117,8 +131,12 @@ at the time of writing, the versions known to work are:
 		Bison 1.50 is stricter than previous versions about certain
 		things - Xapian appears to work fine with Bison 1.50.
 
+		Bison 1.875 generates code which GNU C++ won't compile -
+		the problem appears to have been fixed in 1.875a but we've
+		not verified this.
+
 	GNU Flex
-	
+
 Please tell us if you find that older (or newer) versions work or fail to work.
 
 We have provided a simple script (bootstrap) to run these programs for you
@@ -142,7 +160,7 @@ Use of C++ Features:
   use another STL implementation such as STLPort (http://www.stlport.org/).
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
-  library is most likely a sign of a design flaw, and you should avoid use
+  library most likely indicates a design flaw, and you should avoid use
   of these features.  Where necessary, you can use a technique similar to
   Database::as_networkdatabase() to replace dynamic_cast<>.
 
@@ -181,7 +199,7 @@ warnings (e.g. about not returning a value from a non-void function).
 
 If using GCC 3.0 or newer, you should consider configure-ing with:
 
-./configure CFLAGS=-Werror
+./configure CXXFLAGS=-Werror
 
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.  If you find out how to

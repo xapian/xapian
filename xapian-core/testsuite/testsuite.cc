@@ -50,8 +50,12 @@
 #include "utils.h"
 
 #ifdef HAVE_MEMCHECK_H
-#undef HAVE_MEMCHECK_H // Need to get suitable hooks in valgrind
-//#include <memcheck.h>
+# include <valgrind/memcheck.h>
+// Check that the valgrind version installed supports the client requests
+// which we use
+# if !defined(VALGRIND_DO_LEAK_CHECK) || !defined(VALGRIND_COUNT_ERRORS) || !defined(VALGRIND_COUNT_LEAKS)
+#  undef HAVE_MEMCHECK_H
+# endif
 #endif
 
 using namespace std;
@@ -201,13 +205,14 @@ class SignalRedirector {
 //  If this test driver is used for anything other than
 //  Xapian tests, then this ought to be provided by
 //  the client, really.
-bool
+//  return: test_driver::PASS, test_driver::FAIL, or test_driver::SKIP
+test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-    bool success = true;
-
+#ifdef HAVE_MEMCHECK_H
     // This is used to make a note of how many times we've run the test
-    //volatile int runcount = 0;
+    volatile int runcount = 0;
+#endif
 
     while (true) {
 	tout.str("");
@@ -216,35 +221,81 @@ test_driver::runtest(const test_desc *test)
 	    if (getenv("XAPIAN_SIG_DFL") == NULL) sig.activate();
 	    try {
 		expected_exception = NULL;
-		success = test->run();
-		if (!success) {
+#ifdef HAVE_MEMCHECK_H
+		VALGRIND_DO_LEAK_CHECK;
+		int vg_errs = VALGRIND_COUNT_ERRORS;
+		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
+		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+#endif
+		if (!test->run()) {
 		    out << tout.str();
 		    tout.str("");
 		    out << " " << col_red << "FAILED" << col_reset;
+		    return FAIL;
 		}
+#ifdef HAVE_MEMCHECK_H
+		VALGRIND_DO_LEAK_CHECK;
+		int vg_errs2 = VALGRIND_COUNT_ERRORS;
+		vg_errs = vg_errs2 - vg_errs;
+		int vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
+		VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
+			dummy);
+		vg_leaks = vg_leaks2 - vg_leaks;
+		vg_dubious = vg_dubious2 - vg_dubious;
+		vg_reachable = vg_reachable2 - vg_reachable;
+		if (vg_errs) {
+		    out << " " << col_red << "USED UNINITIALISED DATA" << col_reset;
+		    return FAIL;
+		}
+		if (vg_leaks > 0) {
+		    out << " " << col_red << "LEAKED " << vg_leaks << " BYTES" << col_reset;
+		    return FAIL;
+		}
+		if (vg_dubious > 0) {
+		    out << " " << col_red << "PROBABLY LEAKED " << vg_dubious << " BYTES" << col_reset;
+		    return FAIL;
+		}
+		if (vg_reachable > 0) {
+		    // FIXME:
+		    // C++ STL implementations often "horde" released
+		    // memory - perhaps we can supply our own allocator
+		    // so we can tell the difference?
+		    // Also see Q14 here:
+// http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/valgrind/valgrind/FAQ.txt?rev=HEAD&content-type=text/plain 
+		    //
+		    // For now, just use runcount to rerun the test and see
+		    // if more is leaked - hopefully this shouldn't give
+		    // false positives.
+		    if (runcount == 0) {
+			out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+			++runcount;
+			continue;
+		    }
+		    out << " " << col_red << "FAILED TO RELEASE " << vg_reachable << " BYTES" << col_reset;
+		    return FAIL;
+		}
+#endif
 	    } catch (const TestFailure &fail) {
-		success = false;
 		out << tout.str();
 		tout.str("");
 		out << " " << col_red << "FAILED" << col_reset;
 		if (verbose) {
 		    out << fail.message << endl;
 		}
+		return FAIL;
 	    } catch (const TestSkip &skip) {
 		out << " " << col_yellow << "SKIPPED" << col_reset;
 		if (verbose) {
 		    out << skip.message << endl;
 		}
-		// Rethrow the exception to avoid success/fail
-		// (caught in do_run_tests())
-		throw;
+		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
 		out << tout.str();
 		tout.str("");
 		if (expected_exception == errclass) {
-		    out << " " << col_yellow << "FAILED TO CATCH " << errclass << col_reset;
-		    throw TestSkip();
+		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
+		    return SKIP;
 		}
 		out << " " << col_red << errclass << col_reset;
 		if (verbose) {
@@ -255,7 +306,7 @@ test_driver::runtest(const test_desc *test)
 			out << " (errno:" << strerror(err.get_errno()) << ")";
 		    out << endl;
 		}
-		success = false;
+		return FAIL;
 	    } catch (...) {
 		out << tout.str();
 		tout.str("");
@@ -263,7 +314,7 @@ test_driver::runtest(const test_desc *test)
 		if (verbose) {
 		    out << "Unknown exception!" << endl;
 		}
-		success = false;
+		return FAIL;
 	    }
 	} else {
 	    // caught signal
@@ -282,18 +333,9 @@ test_driver::runtest(const test_desc *test)
 #endif
 	    }
     	    out << " " << col_red << sig << col_reset;
-	    success = false;
+	    return FAIL;
 	}
-
-#ifdef HAVE_MEMCHECK_H
-	if (VALGRIND_DO_LEAK_CHECK(verbose && success)) {
-	    if (success) {
-		out << " " << col_red << "LEAK" << col_reset;
-		return false;
-	    }
-	}
-#endif
-	return success;
+	return PASS;
     }
 }
 
@@ -338,24 +380,25 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	if (do_this_test) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
-	    try {
-		bool succeeded = runtest(test);
-		if (succeeded) {
+	    switch (runtest(test)) {
+		case PASS:
 		    ++result.succeeded;
 //		    out << " ok." << endl;
 		    out << "\r                                                                               \r";
-		} else {
+		    break;
+		case FAIL:
 		    ++result.failed;
 		    out << endl;
 		    if (abort_on_error) {
 			out << "Test failed - aborting further tests." << endl;
-			break;
+			return result;
 		    }
-		}
-	    } catch (const TestSkip &e) {
-		out << endl;
-		// ignore the result of this test.
-		++result.skipped;
+		    break;
+		case SKIP:
+		    ++result.skipped;
+		    out << endl;
+		    // ignore the result of this test.
+		    break;
 	    }
 	}
     }
