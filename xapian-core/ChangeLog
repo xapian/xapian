@@ -1,3 +1,8 @@
+Tue Aug 22 18:19:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add class to hold modified blocks in a quartz DB.  Doesn't compile
+	  yet, but then, its not linked into the build system either. ;-)
+
 Tue Aug 22 17:00:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added some proof-of-concept XML-generated indexer network code.
