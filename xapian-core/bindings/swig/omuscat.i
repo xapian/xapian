@@ -28,7 +28,7 @@
 %}
 %include "om_util.i"
 %include "omstem.i"
-%include "om/omtypes.h"
+%include "omtypes.i"
 
 enum om_queryop {
     OM_MOP_AND,
@@ -117,7 +117,7 @@ class OmESet {
 	%readonly
 	om_termcount ebound;
 	/* Each language-specific part should include something like:
-	 * %addmethods OmMSet {
+	 * %addmethods OmESet {
 	 *     %readonly
 	 *     LangListType items;
 	 * }
@@ -172,9 +172,9 @@ class OmSettings {
 #endif
 
 struct OmDocumentTerm {
-    OmDocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
+    OmDocumentTerm(const string & tname_, om_termpos tpos = 0);
 
-    om_termname tname;
+    string tname;
     om_termcount wdf;
 
     //TODO: sort out access to term_positions
@@ -184,9 +184,21 @@ struct OmDocumentTerm {
     void add_posting(om_termpos tpos = 0);
 };
 
-struct OmDocumentContents {
+class OmDocumentContents {
+  public:
+    %addmethods {
+        OmDocumentContents() {
+	    return new OmDocumentContents();
+	};
+    }
     /** The (user defined) data associated with this document. */
     OmData data;
+
+    %addmethods {
+        void set_data(string data_) {
+	    self->data = data_;
+	}
+    }
 
     /** Type to store keys in. */
     typedef map<om_keyno, OmKey> document_keys;
@@ -196,7 +208,7 @@ struct OmDocumentContents {
 
     // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
-    typedef map<om_termname, OmDocumentTerm> document_terms;
+    typedef map<string, OmDocumentTerm> document_terms;
 
     /** The terms (and their frequencies and positions) in this document. */
     document_terms terms;
@@ -209,7 +221,7 @@ struct OmDocumentContents {
      *  @param tname  The name of the term.
      *  @param tpos   The position of the term.
      */
-    void add_posting(const om_termname & tname, om_termpos tpos = 0);
+    void add_posting(const string & tname, om_termpos tpos = 0);
 };
 
 class OmDatabase {
@@ -247,8 +259,10 @@ class OmDatabaseGroup {
     	OmDatabaseGroup();
 	~OmDatabaseGroup();
 
-	void add_database(const string &type,
+	%name(add_dbargs) void add_database(const string &type,
 			  const vector<string> &params);
+	
+	void add_database(const OmDatabase & database);
 };
 
 class OmEnquire {
@@ -294,4 +308,6 @@ class OmMSet {
 	om_weight max_possible;
 	om_weight max_attained;
 	%readwrite
+
+	string get_description();
 };

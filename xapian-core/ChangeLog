@@ -1,3 +1,8 @@
+Mon Jul 31 15:41:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixes and updates to the SWIG bindings.  Perl5 has done its
+	  first actual query (using an inmemory database).
+
 Fri Jul 21 14:37:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* A couple of tweaks for Solaris.

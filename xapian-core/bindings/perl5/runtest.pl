@@ -28,3 +28,22 @@ if ($terms ne "one, two, three, four") {
     print "Incorrect term list."
 };
 
+$db = new OmWritableDatabase("inmemory", []);
+
+$doc = new OmDocumentContents();
+
+print "foo1\n";
+$doc->set_data("This is a document");
+print "foo2\n";
+$doc->add_posting("foo", 1);
+$doc->add_posting("word", 1);
+print "foo3\n";
+
+$db->add_document($doc);
+$dbgrp = new OmDatabaseGroup();
+$dbgrp->add_database($db);
+
+$enquire = new OmEnquire($dbgrp);
+
+$enquire->set_query(OmQuery->new_OmQueryTerm("word"));
+print $enquire->get_mset(0, 10)->get_description();
