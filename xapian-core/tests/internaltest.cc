@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -238,6 +239,7 @@ bool test_exception1()
 // # Tests of the reference counted pointers #
 // ###########################################
 
+#ifdef HAVE_NO_ACCESS_CONTROL
 class test_refcnt : public RefCntBase {
     private:
 	bool &deleted;
@@ -257,9 +259,11 @@ class test_refcnt : public RefCntBase {
 	    }
 	}
 };
+#endif
 
 bool test_refcnt1()
 {
+#ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
@@ -286,12 +290,16 @@ bool test_refcnt1()
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
 
     return true;
+#else
+    SKIP_TEST("Unable to disable class member access checking in C++ compiler");
+#endif
 }
 
 // This is a regression test - a RefCntPtr used to delete the object pointed
 // to if it was the reference count was 1 and you assigned it to itself.
 bool test_refcnt2()
 {
+#ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
 
     test_refcnt *p = new test_refcnt(deleted);
@@ -303,6 +311,9 @@ bool test_refcnt2()
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
     return true;
+#else
+    SKIP_TEST("Unable to disable class member access checking in C++ compiler");
+#endif
 }
 
 // test string comparisions

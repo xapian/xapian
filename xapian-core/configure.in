@@ -51,6 +51,24 @@ AC_CHECK_FUNCS([strcasecmp])
 dnl check for socklen_t
 TYPE_SOCKLEN_T
 
+dnl Check for -fno-access-control flag to compiler.
+dnl Used in some low-level test suite stuff.
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+SAVED_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -fno-access-control"
+AC_MSG_CHECKING([for -fno-access-control])
+dnl Use AC_TRY_LINK instead of AC_TRY_COMPILE, since some compilers
+dnl ignore options they don't understand and just pass them on to ld,
+dnl rather than giving an error.  (eg Solaris CC)
+AC_TRY_LINK(,[return 0],
+		AC_MSG_RESULT(yes); [FNO_ACCESS_FLAG=yes],
+		AC_MSG_RESULT(no); [FNO_ACCESS_FLAG=no])
+CXXFLAGS="$SAVED_CXXFLAGS"
+unset SAVED_CXXFLAGS
+AC_LANG_RESTORE
+AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test yes = "$FNO_ACCESS_FLAG")
+
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL, perl, [$MISSING perl])
 

@@ -25,15 +25,11 @@
 
 #include <config.h>
 #include <algorithm>
-using std::min;
+#include <fstream>
 #include <iostream>
-using std::endl;
 #include <map>
-using std::map;
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
 #include <unistd.h>
 
 #include "om/om.h"
@@ -45,7 +41,8 @@ using std::vector;
 #include "api_db.h"
 
 #include <list>
-using std::list;
+
+using namespace std;
 
 typedef list<om_termname> om_termname_list;
 extern BackendManager backendmanager;

@@ -1,3 +1,13 @@
+Sat Sep 14 22:39:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,tests/Makefile.am,tests/internaltest.cc: It turns out
+	  that internaltest *does* need -fno-access-control, so put it back.
+	  Not quite sure how I missed this.  Changed to skip refcnt tests
+	  when -fno-access-control isn't available (rather than omitting them
+	  entirely).
+
+	* tests/api_db.cc: Fixed compile problem.
+
 Sat Sep 14 21:44:34 BST 2002  Olly Betts <olly@survex.com>
 
 	* internaltest: doesn't actually need -fno-access-control these

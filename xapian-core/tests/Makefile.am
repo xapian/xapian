@@ -20,6 +20,11 @@ stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
+if HAVE_CPP_ACCESS_BYPASS
+internaltest_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+else
+internaltest_CXXFLAGS =
+endif
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
