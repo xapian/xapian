@@ -1,7 +1,9 @@
 /************************************************************
  *
- *  collection.h a very simple base class for storing a vector 
- *  of objects.
+ *  cvs_diff_db.h the class to manipulate a database to store
+ *  (file_id, revision)->diff.
+ *  file_id is the recno of the filename, diff is the recno
+ *  of the comment.
  *
  *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
  *
@@ -20,31 +22,33 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Usage:
- *  
- *  See diff/diff.h for an example.
- * 
+ *
+ *  See cvs_db_file.h
+ *
  *  $Id$
- * 
+ *
  ************************************************************/
 
-#ifndef __COLLECTION_H__
-#define __COLLECTION_H__
+#ifndef __CVS_DIFF_DB_H__
+#define __CVS_DIFF_DB_H__
 
+#include "cvs_db.h"
 #include <vector>
 using std::vector;
 
-template<class T>
-class collection
+class cvs_diff_db : public cvs_db 
 {
 protected:
-    vector<T> _entries;
+    int do_open(const string & filename);
 public:
-    collection() {}
-    collection(const vector<T> & entries) : _entries(entries) {}
-    unsigned int size() const {  return _entries.size(); }
-    const T & operator[](unsigned int i) const { assert (i < size()); return _entries[i]; }
-          T & operator[](unsigned int i)       { assert (i < size()); return _entries[i]; }
-    void add(const T & entry)                  { _entries.push_back(entry);}
+    cvs_diff_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
+    int get(unsigned int fileId, const string & revision, 
+            vector<unsigned int> & s1, vector<unsigned int> & s2, 
+            vector<unsigned int> & d1, vector<unsigned int> & d2, vector<char> & type);
+    int put(unsigned int fileId, const string & revision, 
+            const vector<unsigned int> & s1, const vector<unsigned int> & s2, 
+            const vector<unsigned int> & d1, const vector<unsigned int> & d2, const vector<char> & type);
+            
 };
 
 #endif

@@ -54,11 +54,13 @@ aligned_diff::read(istream & is)
                      ++itr)
                 {
                     _entries.push_back(*itr);
+                    read_status(true);
                 }
             }
             else
             {
                 _entries.push_back(entry);
+                read_status(true);
             }
         }
         else

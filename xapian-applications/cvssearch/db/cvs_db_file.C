@@ -33,6 +33,7 @@ cvs_db_file::~cvs_db_file()
     _revision_db.close();
     _file_revision_db.close();
     _revision_line_db.close();
+    _diff_db.close();
 }
 
 int
@@ -132,7 +133,8 @@ cvs_db_file::clear()
         (val = _filename_db.remove(_database_name)) == 0 &&
         (val = _line_db.remove(_database_name)) == 0 &&
         (val = _revision_db.remove(_database_name)) == 0 &&
-        (val = _file_revision_db.remove(_database_name)) == 0)
+        (val = _file_revision_db.remove(_database_name)) == 0 &&
+        (val = _diff_db.remove(_database_name)) == 0)
     {
     }
     return val;
@@ -235,5 +237,36 @@ cvs_db_file::sync()
     _revision_db.sync();
     _file_revision_db.sync();
     _revision_line_db.sync();
+    _diff_db.sync();
     return 0;
+}
+
+int
+cvs_db_file::get_diff(unsigned int fileId, const string & revision, 
+                      vector<unsigned int> & s1, vector<unsigned int> & s2, 
+                      vector<unsigned int> & d1, vector<unsigned int> & d2, vector<char> & type)
+{
+    int val = 0;
+    if ((val = _diff_db.open(_database_name)) == 0)
+    {
+        if ((val = _diff_db.get(fileId, revision, s1, s2, d1, d2, type)) == 0)
+        {
+        }
+    }
+    return val;
+}
+
+int
+cvs_db_file::put_diff(unsigned int fileId, const string & revision, 
+                      const vector<unsigned int> & s1, const vector<unsigned int> & s2, 
+                      const vector<unsigned int> & d1, const vector<unsigned int> & d2, const vector<char> & type)
+{
+    int val = 0;
+    if ((val = _diff_db.open(_database_name)) == 0)
+    {
+        if ((val = _diff_db.put(fileId, revision, s1, s2, d1, d2, type)) == 0)
+        {
+        }
+    }
+    return val;
 }

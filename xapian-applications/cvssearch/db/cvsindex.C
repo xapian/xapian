@@ -66,14 +66,13 @@ int main(int argc, char *argv[])
             cerr << "Cannot parse package.cmt. found a \"/\" after \".cmt\" in the filename." << endl;
             exit(1);
         }
-        package_name = string(package, q, p);
+        package_name = string(package, q, p-q);
         package_path = string(package, 0, p);
 
-        package = string(package, q, p);
         cerr << "package -" << package_name << "-" << endl;
 
-        assert( package != "." ); // safety checks
-        assert( package != ".." );
+        assert( package_name != "." ); // safety checks
+        assert( package_name != ".." );
 
 
         string file_cmt    = package_path + ".cmt";

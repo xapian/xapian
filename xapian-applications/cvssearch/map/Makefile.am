@@ -6,5 +6,4 @@ INCLUDES = $(foreach dir, $(SUBDIRS), -I$(dir)) -I../db
 cvsmap_SOURCES = map.cpp  collection.h  virtual_iostream.h  virtual_istream.h  virtual_ostream.h
 cvsmap_LDADD = $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) ../db/libcvs_db.a \
  -lm -ldb_cxx $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) ../db/libcvs_db.a
-CXXFLAGS = -O3 -DINLINE -DNDEBUG -Wall
 

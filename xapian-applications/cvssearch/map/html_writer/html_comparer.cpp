@@ -30,19 +30,14 @@ extern string scvs_update;
 
 html_comparer::html_comparer(const vector<unsigned int> & input1,
                              const vector<unsigned int> & input2, 
-                             const set<unsigned int> & adds,
-                             const set<unsigned int> & changes,
-                             const set<unsigned int> & deletes,
                              const string & filename, 
                              const string & pathname,
                              const cvs_revision & revision0, 
-                             const cvs_revision & revision1, const cvs_revision & revision2, const diff & diff)
+                             const cvs_revision & revision1, 
+                             const cvs_revision & revision2, const diff & diff)
     : html_writer(string("comparing")),
       _input1(input1),
       _input2(input2),
-      _adds(adds),
-      _changes(changes),
-      _deletes(deletes),
       _revision0(revision0),
       _revision1(revision1),
       _revision2(revision2),
@@ -66,6 +61,40 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
     p0 = new process(ost0.str());
     p1 = new process(ost1.str());
     p2 = new process(ost2.str());
+
+    // ----------------------------------------
+    // ****************************
+    // this is done in aligned_diff,
+    // need to undo this.
+    // ****************************
+    // 
+    // because the diff entry are read in
+    // increasing order, each entry affects
+    // all subsequent entries, but the source 
+    // range produced by cvs diff 
+    // refers to the old position
+    //
+    // e.g.
+    // 2a3,4   <- this causes a shift of +2
+    //            add to the source of subsequent
+    //            entries.
+    // 
+    // 5,6c7,8 <- this causes no shift
+    // this is already done..
+    //
+    // ----------------------------------------
+    int offset = 0;
+    for (unsigned int i = 0; i < _diff.size(); ++i)
+    {
+        try {
+            _diff[i].source() += -offset;
+        }
+        catch (range_exception & e)
+        {
+            cerr << e;
+        }
+        offset += _diff[i].size();
+    }
 }
 
 html_comparer::~html_comparer()
@@ -76,34 +105,80 @@ html_comparer::~html_comparer()
 }
 
 void
-html_comparer::get_class_type (string & select0, unsigned int index0, bool do0,
-                               string & select1, unsigned int index1, bool do1,
-                               string & select2, unsigned int index2, bool do2,
+html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0,
+                               string & select1, unsigned int index1, bool & do1,
+                               string & select2, unsigned int index2, bool & do2,
                                unsigned int & diff_index) const
 {
     select0 = "";
     select1 = "";
     select2 = "";
 
-    if (diff_index >= _diff.size()) {
-         return;
-    } 
-
-    if (do1 && do2 && index1 >= _diff[diff_index].source().begin() && index1 < _diff[diff_index].source().end()) {
-        switch (_diff[diff_index].type())
-        {
-        case e_change:
-            select1 = " class=\"change\"";
-            select2 = " class=\"change\"";            
-        default:
-            break;
-        }
-    }
-
     if (!do0) {
         select0 = " class=\"current\"";
     }
 
+    if (!do1) {
+        select1 = " class=\"current\"";
+    }
+
+    if (!do2) {
+        select2 = " class=\"current\"";
+    }
+    
+
+    if (diff_index >= _diff.size()) {
+        // ----------------------------------------
+        // no more differences, all select class are 
+        // default to normal
+        // ----------------------------------------
+        return;
+    } 
+
+    if (0) {
+    } else if (!do0 && do1 && do2) {
+        // ----------------------------------------
+        // only show lines in early & later version
+        // need to figure out which ones to show
+        // and which ones not to show.
+        // ----------------------------------------
+        switch (_diff[diff_index].type())
+        {
+        case e_delete:
+            assert(_diff[diff_index].dest().begin() == _diff[diff_index].dest().end());
+            if (_diff[diff_index].dest().begin() == index2) 
+            {
+                do2 = false;
+            }
+            break;
+        case e_add:
+            assert(_diff[diff_index].source().begin() == _diff[diff_index].source().end());
+            if (_diff[diff_index].source().begin() == index1) 
+            {
+                do1 = false;
+            }
+            break;
+        case e_change:
+            break;
+        case e_none:
+            break;
+        }
+    }
+
+    if (do1 && do2) 
+    {
+        if (_diff[diff_index].source().begin() <= index1 && 
+            _diff[diff_index].source().end()   >  index1) 
+        {
+            select2 = " class=\"change\"";        
+        }
+        if (_diff[diff_index].dest().begin() <= index2 && 
+            _diff[diff_index].dest().end()   >  index2) 
+        {
+            select1 = " class=\"change\"";
+        }
+    }
+    
     if (!do1 && do2) {
         select1 = " class=\"current\"";
         select2 = " class=\"add\"";
@@ -113,9 +188,10 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool do0,
         select1 = " class=\"delete\"";
         select2 = " class=\"current\"";        
     }
-
     
-    if (index1 == _diff[diff_index].source().end()) {
+    if (index1 == _diff[diff_index].source().end() && 
+        index2 == _diff[diff_index].dest().end()) 
+    {
         ++diff_index;
     }
 }
@@ -132,28 +208,31 @@ html_comparer::write_line(ostream & os,
     pis0 = p0->process_output();
     pis1 = p1->process_output();
     pis2 = p2->process_output();    
-    if (do0) getline(*pis0, line0);
-    if (do1) getline(*pis1, line1);
-    if (do2) getline(*pis2, line2);
 
     get_class_type (select0, index0, do0,
                     select1, index1, do1,
                     select2, index2, do2,
                     diff_index);
 
-    unsigned int size = 40;
-    code_to_html converter0(line0, size);
-    code_to_html converter1(line1, size);
-    code_to_html converter2(line2, size);
-    os << "<TR>";
-    os << "<TD" << select2 << "> "; if (do2) os << index2;     os << "</TD>";
-    os << "<TD" << select2 << "> "; if (do2) os << converter2; os << "</TD>";
-    os << "<TD" << select1 << "> "; if (do1) os << index1;     os << "</TD>";
-    os << "<TD" << select1 << "> "; if (do1) os << converter1; os << "</TD>";
-    os << "<TD" << select0 << "> "; if (do0) os << index0;     os << "</TD>";
-    os << "<TD" << select0 << "> "; if (do0) os << converter0; os << "</TD>";
-    os << "</TR>" << endl;
+    if (do0) getline(*pis0, line0);
+    if (do1) getline(*pis1, line1);
+    if (do2) getline(*pis2, line2);
 
+    if (*pis0 || *pis1 || *pis2) 
+    {
+        unsigned int size = 40;
+        code_to_html converter0(line0, size);
+        code_to_html converter1(line1, size);
+        code_to_html converter2(line2, size);
+        os << "<TR>";
+        os << "<TD" << select2 << "> "; if (do2) os << index2;     os << "</TD>";
+        os << "<TD" << select2 << "> "; if (do2) os << converter2; os << "</TD>";
+        os << "<TD" << select1 << "> "; if (do1) os << index1;     os << "</TD>";
+        os << "<TD" << select1 << "> "; if (do1) os << converter1; os << "</TD>";
+        os << "<TD" << select0 << "> "; if (do0) os << index0;     os << "</TD>";
+        os << "<TD" << select0 << "> "; if (do0) os << converter0; os << "</TD>";
+        os << "</TR>" << endl;
+    }
     if (do0) ++index0;
     if (do1) ++index1;
     if (do2) ++index2;
@@ -199,98 +278,246 @@ html_comparer::write(ostream & os) const
         p1 && (pis1 = p1->process_output()) &&
         p2 && (pis2 = p2->process_output()))
     {
-        while (*pis0 && *pis1 && *pis2)
+        assert(_input1.size() == _input2.size());
+        
+        while (index0 < _input1.size())
         {
+            // ----------------------------------------
+            // currently we want to print line #index0
+            // of the latest version.
+            // 
+            // it is possible that index2 is smaller than
+            // or equal to _input2[index0] because there
+            // are more things in the early version to be printed.
+            //
+            // it is possible that index1 is smaller than
+            // or equal to _input1[index0] because there
+            // are more things in the later version to be printed.
+            // 
+            // it is not possible that index2 is larger than
+            // (_input2[index0] > 0), this means we are ready to 
+            // print some line in the early version, but at the same,
+            // we want to print a line in the final version that
+            // matches an earlier line in the earlier version.
+            //
+            // it is not possible that index1 is larger than
+            // (_input1[index0] > 0), this means we are ready to 
+            // print some line in the later version, but at the same,
+            // we want to print a line in the final version that
+            // matches an earlier line in the later version.
+            // ----------------------------------------
+            assert(_input2[index0] == 0 || _input2[index0] >= index2);
+            assert(_input1[index0] == 0 || _input1[index0] >= index1);
+            // ----------------------------------------
+            // _input2[index0] gives the line # of later version
+            // that matches line index0 of the latest version.
+            // 
+            // if _input2[index0] == 0 that means
+            // not used.
+            // ----------------------------------------
+
             if (0) {
-                // index0 == line # of latest version
-                // index1 == line # of later version
-                // index2 == line # of earlier version
-            } else if (_input1[index0] == index1 && _input2[index0] == index2) {
+            } else if (_input1[index0] == index1) {
+                if (0) {
+                } else if (_input2[index0] == index2) {
+                    // ----------------------------------------
+                    // should be the most common case.
+                    // 
+                    // index0 == line # of final version
+                    // index1 == line # of later version
+                    // index2 == line # of earlier version
+                    // 
+                    // umm.. all the lines are need to be produced.
+                    // ----------------------------------------
+                    write_line(os,
+                               select0, index0, true,
+                               select1, index1, true,
+                               select2, index2, true,
+                               diff_index);
+                } else if (_input2[index0] > index2) {
+                    // ----------------------------------------
+                    // do not print a line in the final version
+                    // because we still need to print some line
+                    // in the early version.
+                    // since the line in the later version
+                    // matches the line in the final version,
+                    // don't print that either.
+                    // ----------------------------------------
+                    write_line(os,
+                               select0, index0, false,
+                               select1, index1, false,
+                               select2, index2, true,
+                               diff_index);
+                } else {
+                    assert (_input2[index0] == 0);
+                    // ----------------------------------------
+                    // this means a line in the final version
+                    // still exists in the later version,
+                    // but is deleted in the earlier version.
+                    // do not print anything from the earlier 
+                    // version.
+                    // ----------------------------------------
+                    write_line(os,
+                               select0, index0, true,
+                               select1, index1, true,
+                               select2, index2, false,
+                               diff_index);
+                }
+            } else if (_input1[index0] == 0) {
                 // ----------------------------------------
-                // umm.. all the lines are need to be produced.
+                // a line is deleted in the later version.
+                // it must be also deleted in the earlier version.
+                // leave both earlier and later version
+                // blank and only print the line in final version.
                 // ----------------------------------------
-                write_line(os,
-                           select0, index0, true,
-                           select1, index1, true,
-                           select2, index2, true,
-                           diff_index);
-            } else if (_input1[index0] == index1 && _input2[index0] >  index2) {
-                // ----------------------------------------
-                // later version == last version, but something in earlier version
-                // is deleted in the later version, so only show earlier version.
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, false,
-                           select1, index1, false,
-                           select2, index2, true, 
-                           diff_index);
-            } else if (_input1[index0] == index1 && _input2[index0] <  index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, true,
-                           select1, index1, true,
-                           select2, index2, false,
-                           diff_index);
-            } else if (_input1[index0] >  index1 && _input2[index0] == index2) {
-                write_line(os,
-                           select0, index0, false,
-                           select1, index1, true,
-                           select2, index2, false,
-                           diff_index);
-            } else if (_input1[index0] >  index1 && _input2[index0] >  index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, false,
-                           select1, index1, true,
-                           select2, index2, true,
-                           diff_index);
-            } else if (_input1[index0] >  index1 && _input2[index0] <  index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, false,
-                           select1, index1, true,
-                           select2, index2, false,
-                           diff_index);
-            } else if (_input1[index0] <  index1 && _input2[index0] == index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, true,
-                           select1, index1, false,
-                           select2, index2, true,
-                           diff_index);
-            } else if (_input1[index0] <  index1 && _input2[index0] >  index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
-                write_line(os,
-                           select0, index0, false,
-                           select1, index1, false,
-                           select2, index2, true,
-                           diff_index);
-            } else if (_input1[index0] <  index1 && _input2[index0] <  index2) {
-                // ----------------------------------------
-                // something is inserted in the later version
-                // and propagated to the final version
-                // ----------------------------------------
+                assert(_input2[index0] == 0);
                 write_line(os,
                            select0, index0, true,
                            select1, index1, false,
                            select2, index2, false,
                            diff_index);
+            } else if (_input1[index0] > index1) {
+                if (0) {
+                } else if (_input2[index0] == index2) {
+                    // ----------------------------------------
+                    // a line in the earlier version matches
+                    // a line in the final version, but
+                    // there are still lines in the later version
+                    // to be printed.
+                    // ----------------------------------------
+                    write_line(os,
+                               select0, index0, false,
+                               select1, index1, true,
+                               select2, index2, false,
+                               diff_index);
+                } else if (_input2[index0] >  index2) {
+                    // ----------------------------------------
+                    // most difficult case, cause 
+                    // a line in the earlier and later version
+                    // are deleted in the final version.
+                    // ----------------------------------------
+                    write_line(os,
+                               select0, index0, false,
+                               select1, index1, true,
+                               select2, index2, true,
+                               diff_index);
+                } else if (_input2[index0] == 0) {
+                    write_line(os,
+                               select0, index0, false,
+                               select1, index1, true,
+                               select2, index2, false,
+                               diff_index);
+                }
             }
+
+//             if (0) {
+//             } else if (_input1[index0] == index1 && _input2[index0] == index2) {
+//                 // ----------------------------------------
+//                 // index0 == line # of latest version
+//                 // index1 == line # of later version
+//                 // index2 == line # of earlier version
+//                 // 
+//                 // umm.. all the lines are need to be produced.
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, true,
+//                            select1, index1, true,
+//                            select2, index2, true,
+//                            diff_index);
+//             } else if (_input1[index0] == index1 && _input2[index0] >  index2) {
+//                 // ----------------------------------------
+//                 // later version == last version, but something in earlier version
+//                 // is deleted in the later version, so only show earlier version.
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, false,
+//                            select1, index1, false,
+//                            select2, index2, true, 
+//                            diff_index);
+//             } else if (_input1[index0] == index1 && _input2[index0] <  index2) {
+//                 // ----------------------------------------
+//                 // something is inserted in the later version
+//                 // and propagated to the final version
+//                 // ----------------------------------------
+//                 assert(_input2[index0] == 0);
+//                 write_line(os,
+//                            select0, index0, true,
+//                            select1, index1, true,
+//                            select2, index2, false,
+//                            diff_index);
+//             } else if (_input1[index0] >  index1 && _input2[index0] == index2) {
+//                 assert(0);
+//                 write_line(os,
+//                            select0, index0, false,
+//                            select1, index1, true,
+//                            select2, index2, false,
+//                            diff_index);
+//             } else if (_input1[index0] >  index1 && _input2[index0] >  index2) {
+//                 // ----------------------------------------
+//                 // some thing to show in both later and early 
+//                 // version, but not in final version.
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, false,
+//                            select1, index1, true,
+//                            select2, index2, true,
+//                            diff_index);
+//             } else if (_input1[index0] >  index1 && _input2[index0] <  index2) {
+//                 // ----------------------------------------
+//                 // something is inserted in the later version
+//                 // and propagated to the final version
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, false,
+//                            select1, index1, true,
+//                            select2, index2, false,
+//                            diff_index);
+//             } else if (_input1[index0] <  index1 && _input2[index0] == index2) {
+//                 // ----------------------------------------
+//                 // something is inserted in the later version
+//                 // and propagated to the final version
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, true,
+//                            select1, index1, false,
+//                            select2, index2, true,
+//                            diff_index);
+//             } else if (_input1[index0] <  index1 && _input2[index0] >  index2) {
+//                 // ----------------------------------------
+//                 // something is inserted in the later version
+//                 // and propagated to the final version
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, false,
+//                            select1, index1, false,
+//                            select2, index2, true,
+//                            diff_index);
+//             } else if (_input1[index0] <  index1 && _input2[index0] <  index2) {
+//                 // ----------------------------------------
+//                 // something is inserted in the later version
+//                 // and propagated to the final version
+//                 // ----------------------------------------
+//                 write_line(os,
+//                            select0, index0, true,
+//                            select1, index1, false,
+//                            select2, index2, false,
+//                            diff_index);
+//             }
+        }
+        while (*pis1 || *pis2) 
+        {
+            bool do1, do2;
+            if (*pis1) {
+                do1 = true;
+            } 
+            if (*pis2) {
+                do2 = true;
+            }
+            write_line(os,
+                       select0, index0, false,
+                       select1, index1, do1,
+                       select2, index2, do2,
+                       diff_index);
         }
     }
     os << "</TABLE>" << endl;

@@ -50,6 +50,7 @@ protected:
 public:
     diff_entry::diff_entry();
     diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type);
+    diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, char type);
 
     virtual ~diff_entry();
     range &     source() { return _src;}

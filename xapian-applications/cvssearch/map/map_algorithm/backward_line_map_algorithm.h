@@ -36,7 +36,6 @@ using std::set;
 class backward_line_map_algorithm : public backward_map_algorithm, public line_map_algorithm
 {
 protected:
-    cvs_db_file * _db_file;
     const cvs_log & _log;
     const string & _filename;
     const string & _pathname;

@@ -28,6 +28,7 @@
 #include "aligned_diff.h"
 
 extern bool output_html;
+extern bool read_mode;
 
 extern string scvs_update;
 extern string scvs_diff;
@@ -59,40 +60,142 @@ backward_map_algorithm::parse_log(const cvs_log & log)
             init(log[0], length);
         }
 
-        if (j == log.size()-1)
+        diff * pdiff = 0;
+        pdiff = get_diff(log, j);
+
+        if (pdiff && pdiff->read_status()) 
         {
-            unsigned int length = get_length(log, j);
-            if (length > 0)
+            if (j == log.size()-1)
             {
-                ostrstream ost2;
-                ost2 << "1," << length << "d0" << endl << ends;
-                istrstream ist(ost2.str());
-                diff diff_output;
-                ist >> diff_output;
-
-                if (diff_output.read_status())
-                {
-                    parse_diff(log[j], log[j], diff_output);
-                }
+                parse_diff(log[j], log[j], *pdiff);
+            }
+            else
+            {
+                parse_diff(log[j], log[j+1], *pdiff);
             }
         }
-        else
-        {
-            ost << scvs_diff
-                << "-r" << log[j].revision()   << " " 
-                << "-r" << log[j+1].revision() << " "
-                << log.file_name() << ends;
-            
-            process p(ost.str());
-            istream *pis = p.process_output();
-            if (*pis)
-            {    
-                aligned_diff diff_output;
-                *pis >> diff_output;
-                parse_diff(log[j], log[j+1], diff_output);
-
-            }
-        }
+        delete pdiff;
     }
 }
 
+diff *
+backward_map_algorithm::save_diff(const cvs_log & log, unsigned int j)
+{
+    diff * pdiff = calc_diff(log, j);
+
+    if (pdiff && _db_file && !read_mode) 
+    {
+        // ----------------------------------------
+        // save diff to database
+        // ----------------------------------------
+        vector<unsigned int> s1;
+        vector<unsigned int> s2;
+        vector<unsigned int> d1;
+        vector<unsigned int> d2;
+        vector<char> type;
+        
+        for (unsigned int i = 0; i < pdiff->size(); ++i) 
+        {
+            s1.push_back((*pdiff)[i].source().begin());
+            s2.push_back((*pdiff)[i].source().end());
+            d1.push_back((*pdiff)[i].dest().begin());
+            d2.push_back((*pdiff)[i].dest().end());
+            switch ((*pdiff)[i].type())
+            {
+            case e_add:
+                type.push_back('a');
+                break;
+            case e_delete:
+                type.push_back('d');
+                break;
+            case e_change:
+                type.push_back('c');
+                break;
+            case e_none:
+                type.push_back(' ');
+                break;
+            }
+        }
+        _db_file->put_diff(_file_id, log[j].revision(), s1, s2, d1, d2, type);
+    }
+    return pdiff;
+}
+
+diff *
+backward_map_algorithm::read_diff(const cvs_log & log, unsigned int j)
+{
+    diff * pdiff = 0;
+    
+    if (_db_file) 
+    {
+        vector<unsigned int> s1;
+        vector<unsigned int> s2;
+        vector<unsigned int> d1;
+        vector<unsigned int> d2;
+        vector<char> type;
+
+        if (_db_file->get_diff(_file_id, log[j].revision(), s1, s2, d1, d2, type) == 0)
+        {
+            pdiff = new diff();
+            if (pdiff) 
+            {
+                for (unsigned int i = 0; i < s1.size(); ++i) 
+                {
+                    pdiff->add(diff_entry(s1[i],s2[i],d1[i],d2[i],type[i]));
+                }
+                pdiff->read_status(true);
+            }
+        }
+    }
+
+    return pdiff;
+}
+
+diff *
+backward_map_algorithm::get_diff(const cvs_log & log, unsigned int j)
+{
+    diff * pdiff = 0;
+    if ((pdiff = read_diff(log, j)) != 0) {
+        return pdiff;
+    } else {
+        return save_diff(log, j);
+    }
+}
+
+diff *
+backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j) 
+{
+    diff * pdiff = 0;
+    if (j == log.size()-1)
+    {
+        unsigned int length = get_length(log, j);
+        if (length > 0)
+        {
+            ostrstream ost2;
+            ost2 << "1," << length << "d0" << endl << ends;
+            istrstream ist(ost2.str());
+            pdiff = new diff();
+            if (pdiff) {
+                ist >> *pdiff;
+            }
+        }
+    }
+    else {
+        ostrstream ost;
+        ost << scvs_diff
+            << "-r" << log[j].revision()   << " " 
+            << "-r" << log[j+1].revision() << " "
+            << log.file_name() << ends;
+        
+        process p(ost.str());
+        istream *pis = p.process_output();
+        if (*pis)
+        {    
+            pdiff = new aligned_diff();
+            if (pdiff) {
+                *pis >> *pdiff;
+            }
+        }
+    }
+    return pdiff;
+}

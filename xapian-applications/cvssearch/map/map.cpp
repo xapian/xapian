@@ -47,11 +47,15 @@ string scvs_log    = "cvs -f log -b ";
 string scvs_diff   = "cvs -f diff -b ";
 string scvs_update = "cvs -f update -p ";
 
+string sversion    = "";
+bool use_html = false;
+bool read_mode = false;
+
 static string smax_version_file;
-static string sline_db    = "/tmp/line.db";
-static string soffset_db  = "/tmp/line.offset";
-static string sfile_db    = "/tmp/file.db";
-static string sstats_file = "";
+static string scmt_db     = "/dev/null";
+static string soffset_db  = "/dev/null";
+static string sfile_db    = "/dev/null";
+static string sstats_file = "/dev/null";
 
 static unsigned int num_mappings = 0;
 static unsigned int num_size = 0;
@@ -63,6 +67,7 @@ static unsigned int num_version = 0;
 static unsigned int max_version = 0;
 static unsigned int file_index = 0;
 static unsigned int file_offset = 1;
+
 
 static const int ssync_rate = 20;
 static bool use_db = false;
@@ -78,7 +83,8 @@ main(unsigned int argc, const char **argv)
     string input_file = "";
 
     // ----------------------------------------
-    // determine what the cvsroot is
+    // determine what the cvsroot is,
+    // make sure cvs use it explicitly.
     // ----------------------------------------
     char *cvsroot = getenv("CVSROOT");
     if (cvsroot) {
@@ -95,9 +101,13 @@ main(unsigned int argc, const char **argv)
         } else if (!strcmp(argv[i], "-l")) {
             use_line = true;
         } else if (!strcmp(argv[i], "-f1") && i+1 < argc) {
-            sline_db = argv[++i];
+            scmt_db = argv[++i];
         } else if (!strcmp(argv[i], "-f2") && i+1 < argc) {
             soffset_db = argv[++i];
+        } else if (!strcmp(argv[i], "-html") && i+1 < argc) {
+            sversion = argv[++i];
+            use_html = true;
+            read_mode = true;
         } else if (!strcmp(argv[i], "-h")) {
             usage(argv[0]);
         } else if (!strcmp(argv[i], "-d") && i+1 < argc) {
@@ -117,15 +127,10 @@ main(unsigned int argc, const char **argv)
     scvs_diff   = "cvs -f -d " + scvs_root + " diff -b ";
     scvs_update = "cvs -f -d " + scvs_root + " update -p ";
     
-    ofstream line_fout  (sline_db.c_str());
-    ofstream offset_fout(soffset_db.c_str());
-    ostream * pstats_fout = 0;
-    if (strcmp(sstats_file.c_str(), "")) {
-        pstats_fout = new ofstream(sstats_file.c_str());
-    } else {
-        pstats_fout = &cerr;
-    }
-
+    ofstream cmt_fout   (scmt_db.c_str());
+    ofstream offset_fout (soffset_db.c_str());
+    ofstream stats_fout  (sstats_file.c_str());
+    
     cvs_db_file * pdb_file = 0;
     if (use_db)
     {
@@ -142,7 +147,7 @@ main(unsigned int argc, const char **argv)
             istream * pis = p.process_output();
             if (pis)
             {
-                cvsmap(*pis, line_fout, offset_fout, pdb_file);
+                cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
                 if (pdb_file && i % ssync_rate == 0)
                 {
                     pdb_file->sync();
@@ -161,7 +166,7 @@ main(unsigned int argc, const char **argv)
             istream * pis = p.process_output();
             if (pis)
             {
-                cvsmap(*pis, line_fout, offset_fout, pdb_file);
+                cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
                 if (pdb_file && i % ssync_rate == 0)
                 {
                     pdb_file->sync();
@@ -176,21 +181,18 @@ main(unsigned int argc, const char **argv)
     // ----------------------------------------
     if (num_size != 0 && num_lines != 0)
     {
-        *pstats_fout << "************************************************************"
-                     << "total number of updates  " << num_updates << endl
-                     << "total number of deletes  " << num_deletes << endl
-                     << "total number of searches " << num_searches << endl
-                     << "total number of versions " << num_version << endl
-                     << "total number of files " << file_index << endl
-                     << "average number of versions in a file " << num_version / file_index << endl
-                     << "maximum number of versions in a file " << max_version << " " << smax_version_file << endl
-                     << "total number of comments " << num_mappings << endl
-                     << "total number of lines " << num_lines << endl
-                     << "average number of comments per line " << (double) num_mappings / (double) num_lines << endl
-                     << "************************************************************" << endl;
-        if (strcmp(sstats_file.c_str(), "")) {
-            delete pstats_fout;
-        }
+        stats_fout << "************************************************************"
+                   << "total number of updates  " << num_updates << endl
+                   << "total number of deletes  " << num_deletes << endl
+                   << "total number of searches " << num_searches << endl
+                   << "total number of versions " << num_version << endl
+                   << "total number of files " << file_index << endl
+                   << "average number of versions in a file " << num_version / file_index << endl
+                   << "maximum number of versions in a file " << max_version << " " << smax_version_file << endl
+                   << "total number of comments " << num_mappings << endl
+                   << "total number of lines " << num_lines << endl
+                   << "average number of comments per line " << (double) num_mappings / (double) num_lines << endl
+                   << "************************************************************" << endl;
     }
     if (pdb_file)
     {

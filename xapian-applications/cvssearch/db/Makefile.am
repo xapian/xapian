@@ -6,7 +6,8 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C \
  cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h \
  cvs_revision_line_db.C cvs_revision_line_db.h \
- cvs_revision_less.h
+ cvs_revision_less.h \
+ cvs_diff_db.C cvs_diff_db.h
 
 bin_PROGRAMS = cvsindex cvsusageindex cvssearch cvsclasses cvsfunctions cvscomments cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script

@@ -33,6 +33,7 @@
 #include "cvs_revision_db.h"
 #include "cvs_file_revision_db.h"
 #include "cvs_revision_line_db.h"
+#include "cvs_diff_db.h"
 
 #include <set>
 #include <string>
@@ -50,6 +51,7 @@ protected:
     cvs_line_db _line_db;
     cvs_revision_db _revision_db;
     cvs_file_revision_db _file_revision_db;
+    cvs_diff_db _diff_db;
     cvs_revision_line_db _revision_line_db;
     const string _database_name;
 
@@ -61,12 +63,18 @@ public:
     int get_revision_comment (unsigned int file_id, set<string, cvs_revision_less> & revisions, vector<string> & comments);
     int get_filename         (unsigned int file_id, string & filename);
     int get_line_mapping     (unsigned int file_id, const string & revision, unsigned int line_new, unsigned int & line_old);
+    int get_diff             (unsigned int fileId, const string & revision, 
+                              vector<unsigned int> & s1, vector<unsigned int> & s2, 
+                              vector<unsigned int> & d1, vector<unsigned int> & d2, vector<char> & type);
 
     int put_revision         (unsigned int file_id, const string & revision);
     int put_comment          (unsigned int file_id, const string & revision, const string & comment);
     int put_mapping          (unsigned int file_id, const string & revision, unsigned int line);
     int put_filename         (unsigned int & file_id, const string & filename);
     int put_line_mapping     (unsigned int file_id, const string & revision, unsigned int line_new, unsigned int line_old);
+    int put_diff             (unsigned int fileId, const string & revision, 
+                              const vector<unsigned int> & s1, const vector<unsigned int> & s2, 
+                              const vector<unsigned int> & d1, const vector<unsigned int> & d2, const vector<char> & type);
 
     int sync();
     virtual ~cvs_db_file();

@@ -15,4 +15,3 @@ libmap_algorithm_a_SOURCES = \
 	backward_map_algorithm.h       forward_range_map_algorithm.h  line_map_algorithm.h  \
 	range_end_less_than.h  		   range_map_algorithm.h \
 	range_begin_less_than.h  range_map.h
-CXXFLAGS = -O3 -DINLINE -DNDEBUG -Wall

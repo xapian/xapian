@@ -36,6 +36,25 @@ diff_entry::diff_entry()
 
 }
 
+diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, char c) 
+{
+    diff_type type = e_none;
+    switch (c) {
+    case 'a':
+        type = e_add;
+        break;
+    case 'd':
+        type = e_delete;
+        break;
+    case 'c':
+        type = e_change;
+        break;
+    default:
+        break;
+    }
+    init(s1,s2,d1,d2,type);
+}
+
 diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type)
 {
     init(s1,s2,d1,d2,type);
@@ -53,11 +72,13 @@ diff_entry::init(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2,
         switch (type)
         {
         case e_add:
+            assert(s1 == s2);
             _src = range(s2);
             _dst = range(d1,d2);
             _src.begin_shift(1);
             break;
         case e_delete:
+            assert(d1 == d2);
             _src = range(s1,s2);
             _dst = range(d2);
             _dst.begin_shift(1);

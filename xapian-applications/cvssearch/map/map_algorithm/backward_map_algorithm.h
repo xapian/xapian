@@ -28,17 +28,25 @@
 
 #include "cvs_log.h"
 #include "map_algorithm.h"
+#include "cvs_db_file.h"
 
 class backward_map_algorithm : public map_algorithm
 {
 protected:
+    cvs_db_file * _db_file;
+    unsigned int _file_id;
     unsigned int _lines;
     virtual void parse_log(const cvs_log & log);
     virtual void init(const cvs_log_entry &, unsigned int) = 0;
     virtual void last(const cvs_log_entry &, unsigned int) = 0;
+    diff * get_diff (const cvs_log & log, unsigned int j);
+    diff * save_diff(const cvs_log & log, unsigned int j);
+    diff * calc_diff(const cvs_log & log, unsigned int j);
+    diff * read_diff(const cvs_log & log, unsigned int j);
+
 public:
     unsigned int lines() const { return _lines;}
-
+    backward_map_algorithm(unsigned int file_id, cvs_db_file * db_file) : _db_file(db_file), _file_id(file_id) {}
 };
 
 #endif
