@@ -231,8 +231,13 @@ void add_bterm(const string &term) {
     } else {
 	prefix = term[0];
     }
-	
+
+#ifdef __SUNPRO_CC
+    string term_as_string(term);
+    filter_map.insert(make_pair(prefix, term_as_string));
+#else
     filter_map.insert(make_pair(prefix, term));
+#endif
 }
 
 static void
@@ -1300,7 +1305,12 @@ eval(const string &fmt, const vector<string> &param)
 		if (fd == -1) break;
 		vector<string> noargs;
 		noargs.resize(1);
-		string line = (args.size() > 1 ? args[1] : DEFAULT_LOG_ENTRY);
+		string line;
+		if (args.size() > 1) {
+		    line = args[1];
+		} else {
+		    line = DEFAULT_LOG_ENTRY;
+		}
 		line = eval(line, noargs);
 		line += '\n';
 		write(fd, line.data(), line.length());

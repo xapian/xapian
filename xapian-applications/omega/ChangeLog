@@ -1,3 +1,7 @@
+Mon Sep 29 01:39:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Fixes for compiling with Sun's C++ compiler.
+
 Mon Sep 29 01:17:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc: Added workaround for compilation problem with Sun's C++.
