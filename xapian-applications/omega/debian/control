@@ -9,7 +9,7 @@ Package: xapian-omega
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}
-Suggests: libdbi-perl
+Suggests: libdbi-perl, unzip, antiword, libwpd, unrtf
 Recommends: httpd
 Description: CGI search interface and indexers using Xapian
  This package contains the "omega" CGI application which provides a
