@@ -1,3 +1,76 @@
+Xapian 0.6.5 (2003-0x-xx):
+
+up to Wed Mar 26 01:04:30 GMT 2003  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fixed sort_bands == 1 bug which would
+	  incorrectly reject many documents with a low score.
+	* common/match.h,common/multimatch.h,matcher/multimatch.cc: Optimise
+	  the common sort_bands == 1 case better.
+	* tests/api_db.cc: sortbands2 now tests 1 sortband as well as 10.
+	* matcher/multimatch.cc: Disabled (for now) sort_bands
+	  optimisation which is misbehaving.  Fixed forward ordered boolean
+	  optimisation broken by last check-in. 
+	* tests/api_db.cc: Added test_sortbands2 based on James' test code.
+	* matcher/multimatch.cc: Fixed problem with sort_bands when asking
+	  for an m-set which didn't start with the first match.
+
+	* Add writeup about document collapsing to matcherdesign.html
+	* Add collapse_count threshold checking to ensure that most
+	  relevant collapsed-away hit is more relevant than threshold
+	  (if specified)
+	* Add get_collapse_count() to OmMSetIterator
+	* Add collapse_count to OmMSetItem
+	* Add collapse_count tracking to get_mset()
+
+	* testsuite/index_utils.cc: Handling of ^x was just downright wrong
+	  due to a typo.
+
+	* extra/parsequerytest.cc: Fixed to build with GCC 2.95.
+
+omega:
+
+	* query.cc: If xP and P are both empty, classify as SAME_QUERY not
+	  NEW_QUERY as there may be a boolean query too.
+	* query.cc: Fixed off-by-one error in rounding down topdoc - it was
+	  possible to get to an empty page of hits if there were exactly a
+	  multiple of HITSPERPAGE matches and the matcher over-estimated the
+	  number of matches and Omega displayed page links.
+
+	* templates/query: Added propagation of B boolean filter
+	* templates/query2: factored about a bit more, query2 is
+	  a more modular version of query which will ultimately
+	  lend itself to customisation a bit more to the uninitiated.
+
+	* omega.cc: Fixed handling of multiple DB parameters to be as
+	  documented.
+
+	* Added $collapsed to omegascript to give the number of hits
+	  collapsed into the current hit, eg:
+
+	  $if{$ne{$collapsed,0},$collapsed hidden results 
+	                        ($value{$cgi{COLLAPSE}})}
+
+	* templates/godmode: removed euro ferret icon reference
+	* templates/godmode: added value dumping, for values from 0-255
+
+	* Makefile.am,query.cc,docs/omegascript.txt,templates/query:
+	  Added $transform{} which does regexp manipulation (currently
+	  disabled); Added $uniq{} to eliminate duplicates from a sorted
+	  list; Fixed a query with repeated terms to be identified as
+	  SAME_QUERY not EXTENDED_QUERY; remove duplicates from terms
+	  listed in term frequencies.
+
+	* scriptindex.cc: Allow '_' in fieldnames.  Diagnose bad characters
+	  in fieldnames better.
+
+        * Add DBUSER and DBPASSWD env var support to dbi2omega
+	  so that password protected DB's can easily be used
+	* add cgi paramter COLLAPSE to collapse on key values
+	* Add $value{key[,docid]} support to omegascript
+
+	* scriptindex.cc: added missing "#include <stdio.h>" which caused builds
+	to fail for some platforms.
+
 Xapian 0.6.4 (2002-12-24):
 
 * Quartz backend: Fixed double setting of position list when updating a

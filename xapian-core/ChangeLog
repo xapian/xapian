@@ -1,3 +1,7 @@
+Thu Mar 27 04:52:27 GMT 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Started to prepare for next release.
+
 Thu Mar 27 04:49:52 GMT 2003  Olly Betts <olly@survex.com>
 
 	* include/om/omenquire.h,include/om/omerror.h: Improved documentation
