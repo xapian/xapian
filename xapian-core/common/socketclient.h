@@ -94,15 +94,24 @@ class SocketClient : public NetClient {
 	/// The context to return with any error messages
 	std::string context;
 
-	/// The queue of requested docids
+	/// The queue of requested docids, in the right order
 	std::deque<om_docid> requested_docs;
 	/* This would be a std::queue<om_docid>, but that conflicts with
 	 * some networking headers on Solaris.  Maybe when the std::
 	 * namespace actually works properly it can go back. */
 
+	/** The number of times each requested document has been
+	 *  requested.  This avoids multiple fetches of the same docuemnt,
+	 *  as well as cases where the document is requested twice,
+	 *  but removed from the cache on the first collect(), causing
+	 *  an error on the second.
+	 */
+	std::map<om_docid, unsigned int> request_count;
+
 	struct cached_doc {
 	    std::string data;
 	    std::map<om_keyno, OmKey> keys;
+	    int users;  // number of clients wanting to retrieve this document
 	};
 	/// A store of the undecoded documents we've collected from the
 	/// other end

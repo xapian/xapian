@@ -136,8 +136,15 @@ SocketClient::get_tlist(om_docid did,
 void
 SocketClient::request_doc(om_docid did)
 {
-    do_write(std::string("D") + om_tostring(did));
-    requested_docs.push_back(did);
+    std::map<om_docid, unsigned int>::iterator i = request_count.find(did);
+    if (i != request_count.end()) {
+	/* This document has been requested already - just count it again. */
+	(i->second)++;
+    } else {
+	do_write(std::string("D") + om_tostring(did));
+	requested_docs.push_back(did);
+	request_count[did] = 1;
+    }
 }
 
 void
@@ -163,6 +170,8 @@ SocketClient::get_requested_docs()
 	    is >> keyno >> omkey;
 	    cdoc.keys[keyno] = string_to_omkey(omkey);
 	}
+	cdoc.users = request_count[cdid];
+	request_count.erase(cdid);
 
 	/* Remove this did from the queue */
 	requested_docs.pop_front();
@@ -182,8 +191,11 @@ SocketClient::collect_doc(om_docid did, std::string &doc,
 	doc = i->second.data;
 	keys = i->second.keys;
 
-	/* remove from cache */
-	collected_docs.erase(i);
+	/* remove from cache if necessary */
+	i->second.users--;
+	if (i->second.users == 0) {
+	    collected_docs.erase(i);
+	}
 
 	return;
     }
@@ -207,8 +219,12 @@ SocketClient::collect_doc(om_docid did, std::string &doc,
 	doc = i->second.data;
 	keys = i->second.keys;
 
-	/* remove from cache */
-	collected_docs.erase(i);
+	i->second.users--;
+
+	if (i->second.users == 0) {
+	    /* remove from cache */
+	    collected_docs.erase(i);
+	}
     } else {
 	throw OmInternalError("Failed to collect document " +
 			      om_tostring(did) + ", possibly not requested.",

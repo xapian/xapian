@@ -1,3 +1,9 @@
+Thu Feb 22 16:56:33 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Fixed a bug in the fetch() bits: requesting documents at the
+	  same time from different OmMSet instances could cause a
+	  document to disappear from the cache at the wrong moment.
+
 Thu Feb 22 15:39:49 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Updated todo.
