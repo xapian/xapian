@@ -9,10 +9,10 @@
 
 // Calculate weights using statistics retrieved from db
 // If db is NULL weights are not calculated
-IRWeight::IRWeight(IRDatabase *db, PostList *pl) {
+IRWeight::IRWeight(const IRDatabase *db, doccount tf) {
     doccount dbsize = db->get_doccount();
     doclength avlength = db->get_avlength();
-    doccount termfreq = pl->get_termfreq();
+    doccount termfreq = tf;
 
     printf("Statistics: N=%d L=%f n_t=%d ", 
 	   dbsize, avlength, termfreq);

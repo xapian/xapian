@@ -16,14 +16,9 @@ class DAPostList : public virtual DBPostList {
 
 	doccount termfreq;
     
-        bool weight_initialised;
-        weight termweight;
-
 	DAPostList(struct postings *, doccount);
     public:
 	~DAPostList();
-
-	void  set_termweight(weight); // Sets term weight
 
 	doccount get_termfreq() const;
 
@@ -36,15 +31,6 @@ class DAPostList : public virtual DBPostList {
 	PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 };
-
-inline void
-DAPostList::set_termweight(weight wt)
-{
-    termweight = wt;
-
-    // Set weight_initialised, but only if we're doing asserts
-    Assert((weight_initialised = true) == true);  // Deliberate =
-}
 
 inline doccount
 DAPostList::get_termfreq() const

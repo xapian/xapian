@@ -14,7 +14,15 @@
 #include "omtypes.h"
 #include "error.h"
 
-class IRWeight;
+class IRDatabase;
+
+class IRWeight {
+    private:
+	weight termweight;
+    public:
+	IRWeight(const IRDatabase *, doccount termfreq);
+	weight get_weight() {return termweight;}
+};
 
 class PostList {
     private:
@@ -52,9 +60,24 @@ PostList::skip_to(docid id, weight w_min)
 }
 
 class DBPostList : public virtual PostList {
+    protected:
+	IRWeight * ir_wt;
+	bool weight_initialised;
+	weight termweight;
     public:
-	virtual void  set_termweight(weight) = 0; // Sets term weight
+	void set_termweight(IRWeight *); // Sets term weight
 };
+
+inline void
+DBPostList::set_termweight(IRWeight * wt)
+{
+    ir_wt = wt;
+
+    termweight = wt->get_weight();
+
+    // Set weight_initialised, but only if we're doing asserts
+    Assert((weight_initialised = true) == true);  // Deliberate =
+}
 
 class TermList {
     private:
@@ -100,14 +123,6 @@ class IRDatabase {
 
 	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;
-};
-
-class IRWeight {
-    private:
-	weight termweight;
-    public:
-	IRWeight(IRDatabase *, PostList *);
-	weight get_weight() {return termweight;}
 };
 
 #endif /* _database_h_ */

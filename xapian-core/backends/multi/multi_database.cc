@@ -34,6 +34,9 @@ MultiPostList::~MultiPostList()
 weight MultiPostList::get_weight() const
 {
     Assert(freq_initialised);
+
+
+
     // FIXME - incorrect formula
     weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();

@@ -179,6 +179,7 @@ DBPostList * DADatabase::open_post_list(termid id) const
     postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
 
     DBPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq);
+    pl->set_termweight(new IRWeight(this, termvec[id - 1].ti.freq));
     return pl;
 }
 
