@@ -26,6 +26,11 @@
 // Sleepycat database stuff
 #include <db_cxx.h>
 
+/** Internals of the sleepycat database.
+ *
+ *  This class allows the internals of the sleepycat database (ie,
+ *  the sleepycat library includes) to be hidden from view externally.
+ */
 class SleepyDatabaseInternals {
     private:
 	DbEnv dbenv;
