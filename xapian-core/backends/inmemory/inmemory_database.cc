@@ -111,7 +111,13 @@ InMemoryDatabase::open_post_list(const om_termname & tname) const
 LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
-    Assert(did > 0 && did <= termlists.size());
+    Assert(did > 0);
+    if(did > termlists.size()) {
+	// FIXME: the docid in this message will be local, not global, in
+	// the case of a multidatabase
+	throw OmDocNotFoundError(string("Docid ") + inttostring(did) +
+				 string(" not found"));
+    }
 
     return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
 }
