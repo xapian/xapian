@@ -1,0 +1,7 @@
+.cme_cvs*
+.*.swp
+*.lo
+Makefile.in
+Makefile
+.deps
+.libs

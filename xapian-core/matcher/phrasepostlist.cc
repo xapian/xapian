@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+// #define NEW_PHRASE_STUFF // more efficient, but flawed at present
+
 #include "phrasepostlist.h"
 
 #include <algorithm>
@@ -63,9 +65,9 @@ class PosListBuffer {
 
 class PosListBufferPhrase : public PosListBuffer {
     public:
-	om_termpos index; // only needed to phrase
+	om_termpos index;
 	PosListBufferPhrase(PositionList *poslist, om_termpos index_)
-		: PosListBuffer(poslist) { }
+		: PosListBuffer(poslist) { index = index_; }
 };
 
 /** Class providing an operator which returns true if a has a (strictly)
@@ -151,12 +153,22 @@ PhrasePostList::test_doc()
     sort(plists.begin(), plists.end(), PosListBufferCmpLt());
      
     om_termpos pos;
+#ifdef NEW_PHRASE_STUFF
+    om_termpos idx, min;
+#endif
     do {
 	plists[0].next();
 	if (plists[0].at_end()) return false;
 	pos = plists[0].get_position();
+#ifdef NEW_PHRASE_STUFF
+	idx = plists[0].index;
+	min = pos + plists.size() - idx;
+	if (min > window) min -= window; else min = 0;
+    } while (!do_test(plists, 1, min, pos + window - idx));
+#else
     } while (!do_test(plists, 1, pos, pos));
-
+#endif
+    DebugMsg("**HIT**\n");
     return true;
 }
 
@@ -167,9 +179,18 @@ PhrasePostList::do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
     DebugMsg("PhrasePostList::do_test([...], " << i << ", " << min << ", "
 	     << max << ")\ndocid = " << get_docid() << ", window = "
 	     << window << endl);
+#ifndef NEW_PHRASE_STUFF
     // max passes pos, min unused as parameter
+#endif
     om_termpos idxi = plists[i].index;
     DebugMsg("my idx in phrase is " << idxi << endl);
+
+#ifdef NEW_PHRASE_STUFF
+    om_termpos mymin = min + idxi;
+    om_termpos mymax = max - plists.size() + idxi;
+    DebugMsg("MIN = " << mymin << " MAX = " << mymax << endl);
+    plists[i].skip_to(mymin);
+#else
     min = max + 1;
     // take care to avoid underflow
     if (window <= min) min -= window; else min = 0;
@@ -192,15 +213,33 @@ PhrasePostList::do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
 	DebugMsg("min = " << min << " max = " << max << endl);
     }
     plists[i].skip_to(min);
+#endif
+
     while (!plists[i].at_end()) {
 	om_termpos pos = plists[i].get_position();
+#ifdef NEW_PHRASE_STUFF
+	DebugMsg(" " << mymin << " " << pos << " " << mymax << endl);
+	if (pos > mymax) {
+#else
 	DebugMsg(" " << min << " " << pos << " " << max << endl);
 	if (pos > max) {	    
+#endif
 	    plists[i].pushback(pos);
 	    return false;
 	}
 	if (i + 1 == plists.size()) return true;
+#ifdef NEW_PHRASE_STUFF
+	om_termpos tmp = pos + window - idxi;
+	if (tmp < max) max = tmp;
+	tmp = pos + plists.size() - idxi;
+	if (tmp > window) {
+	    tmp -= window;
+	    if (tmp > min) min = tmp;
+	}
+	if (do_test(plists, i + 1, min, max)) return true;
+#else
 	if (do_test(plists, i + 1, 0, pos)) return true;
+#endif
 	plists[i].next();
     }
     return false;
