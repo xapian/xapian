@@ -1,3 +1,10 @@
+Tue Sep 12 09:21:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove dependency of quartz on Berkeley DB 3.1, in configure.in
+
+	* Small changes to quartz - added a QuartzDbTable class for managing
+	  database tables.
+
 Mon Sep 11 18:39:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Some updates to Java half of the Java bindings.  The native half

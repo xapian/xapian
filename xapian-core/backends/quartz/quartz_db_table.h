@@ -1,4 +1,4 @@
-/* quartz_db_manager.h: Management of databases for quartz
+/* quartz_db_table.h: A table in a quartz database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,42 +20,31 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DB_MANAGER_H
-#define OM_HGUARD_QUARTZ_DB_MANAGER_H
+#ifndef OM_HGUARD_QUARTZ_DB_TABLE_H
+#define OM_HGUARD_QUARTZ_DB_TABLE_H
 
 #include "config.h"
-#ifdef MUS_BUILD_BACKEND_QUARTZ
 
-#include <om/omsettings.h>
-
-/** Class managing the databases used by Quartz.
- *
- *  This holds the handles used to access the Berkeley DB library.
+/** Class managing a table in a Quartz database.
  */
-class QuartzDbManager {
+class QuartzDbTable {
     private:
 	/// Copying not allowed
-	QuartzDbManager(const QuartzDbManager &);
+	QuartzDbTable(const QuartzDbTable &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDbManager &);
+	void operator=(const QuartzDbTable &);
 
     public:
-	/** Calculate the mode that database files should be created with.
+	/** Open the table.
+	 *
+	 *  @param - whether to open the table for read only access.
 	 */
-	static int       calc_mode();
+	QuartzDbTable(bool readonly);
 
-	/** Construct the manager.
+	/** Close the table.
 	 */
-	QuartzDbManager(const OmSettings & settings,
-			bool use_transactions,
-			bool readonly);
-
-	/** Delete the manager.
-	 */
-	~QuartzDbManager();
+	~QuartzDbTable();
 };
 
-#endif /* MUS_BUILD_BACKEND_QUARTZ */
-
-#endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */
+#endif /* OM_HGUARD_QUARTZ_DB_TABLE_H */

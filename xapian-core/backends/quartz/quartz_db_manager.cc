@@ -22,14 +22,6 @@
 
 #include "config.h"
 
-// This is needed so that u_long gets defined, despite our specifying -ansi;
-// otherwise db_cxx.h is broken.
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
-#include <sys/types.h>
-#include <db_cxx.h>
-
 // Needed for macros to specify file modes
 #include <sys/stat.h>
 
@@ -39,30 +31,16 @@
 #include <om/omerror.h>
 #include <string>
 
-/// Major version number of required Berkeley DB library
-#define DB_DESIRED_VERSION_MAJOR 3
-
-/// Minor version number of required Berkeley DB library
-#define DB_DESIRED_VERSION_MINOR 1
-
 QuartzDbManager::QuartzDbManager(const OmSettings & settings,
 				 bool use_transactions,
 				 bool readonly)
-	: dbenv(DB_CXX_NO_EXCEPTIONS)
 {
-    // FIXME: Make sure that environment is not in a network filesystem, eg NFS.
-
-    QuartzDbManager::check_library_version();
-
     string db_dir  = settings.get("quartz_dir");
     string tmp_dir = settings.get("quartz_tmpdir", db_dir);
     string env_dir = settings.get("quartz_envdir", db_dir);
 
 
     // set cache size parameters, etc, here.
-
-    // FIXME: check return value
-    dbenv.set_tmp_dir(tmp_dir.c_str());
 
     // open environment here
     // FIXME: check return value
