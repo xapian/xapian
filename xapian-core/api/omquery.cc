@@ -232,6 +232,10 @@ OmQueryInternal::serialise() const
 	    case OM_MOP_XOR:
 		result += "%xor";
 		break;
+	    case OM_MOP_NEAR:
+		result += "%near";
+	        // FIXME: max_separation and order_matters?
+		break;
 	} // switch(op)
 	result += "%)";
     }
@@ -265,6 +269,9 @@ OmQueryInternal::get_description() const
 	    break;
 	case OM_MOP_XOR:
 	    opstr = " XOR ";
+	    break;
+	case OM_MOP_NEAR:
+	    opstr = " NEAR ";
 	    break;
     }
     string description;
@@ -479,6 +486,13 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    isdefined = true;
 		} else {
 		    throw OmInvalidArgumentError("XOR can't have one undefined argument");
+		}
+		break;
+	    case OM_MOP_NEAR:
+		if (!left.isdefined && !right.isdefined) {
+		    isdefined = true;
+		} else {
+		    throw OmInvalidArgumentError("NEAR can't have one undefined argument");
 		}
 		break;
 	    case OM_MOP_LEAF:

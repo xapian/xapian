@@ -30,6 +30,7 @@
 #include "andnotpostlist.h"
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
+#include "nearpostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 
@@ -426,6 +427,14 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 				postlist_from_query(query_->subqs[0]).postlist,
 				postlist_from_query(query_->subqs[1]).postlist,
 				this);
+	    break;
+	case OM_MOP_NEAR:
+	    Assert(query_->subqs.size() == 2);
+	 // FIXME: last 2 parameters should be specifiable...
+	    result.postlist = new NearPostList(
+				postlist_from_query(query_->subqs[0]).postlist,
+				postlist_from_query(query_->subqs[1]).postlist,
+				this, 1, false);
 	    break;
     }
     return result;

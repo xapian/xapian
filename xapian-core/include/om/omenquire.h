@@ -61,7 +61,10 @@ enum om_queryop {
     OM_MOP_AND_MAYBE,
 
     /// As AND, but use only weights from left subquery
-    OM_MOP_FILTER
+    OM_MOP_FILTER,
+
+    /// As AND, but also check terms are close using positional information
+    OM_MOP_NEAR
 };
 
 /// Internals of query class
