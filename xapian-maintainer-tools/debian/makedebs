@@ -122,13 +122,13 @@ cd build
 
   # Build packages from xapian-bindings
   dpkg-source -x ${CONTROL_BINDINGS}
-  cd xapian-core-${VERSION}
+  cd xapian-bindings-${VERSION}
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_BIN_OPTS}
   cd ..
 
   # Build packages from xapian-omega
   dpkg-source -x ${CONTROL_OMEGA}
-  cd xapian-core-${VERSION}
+  cd xapian-omega-${VERSION}
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_BIN_OPTS}
   cd ..
 
