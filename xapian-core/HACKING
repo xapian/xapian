@@ -586,5 +586,9 @@ updated as follows:
 * Use xapian-maintainer-tools/debian/makesources to make and upload
   new source packages, for both the stable and unstable distributions.
 
-* Build new binary packages.  (Currently there isn't a script to do
-  this, so it has to be done manually.)
+* Use xapian-maintainer-tools/debian/makedebs to make and upload
+  new binary packages for the stable distribution.
+
+* Build new binary packages for the unstable distribution manually.
+  (FIXME - xapian-maintainer-tools/debian/makedebs should be extended
+  to run on machines other than ixion, so that this can be semi-automated.)
