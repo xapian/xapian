@@ -1,3 +1,7 @@
+Thu Aug 12 13:23:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
+
 Thu Aug 12 13:21:36 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,tests/quartztest.cc: Refactored, replacing

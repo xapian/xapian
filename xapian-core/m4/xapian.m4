@@ -12,7 +12,8 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 
 # XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 # --------------------------------------------------------
-# AC_SUBST-s XAPIAN_CXXFLAGS and XAPIAN_LIBS for use in Makefile.am
+# AC_SUBST-s XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION for use in
+# Makefile.am
 #
 # If ACTION-IF-FOUND and ACTION-IF-NOT-FOUND are both unset, then an
 # appropriate AC_MSG_ERROR is used as a default ACTION-IF-NOT-FOUND.
@@ -42,6 +43,7 @@ dnl If AC_PROG_LIBTOOL (or the deprecated older version AM_PROG_LIBTOOL)
 dnl has already been expanded, enable libtool support now, otherwise add
 dnl hooks to the end of AC_PROG_LIBTOOL and AM_PROG_LIBTOOL to enable it
 dnl if either is expanded later.
+    XAPIAN_VERSION="`$XAPIAN_CONFIG --version|sed 's/.* //'`"
     XAPIAN_CXXFLAGS="`$XAPIAN_CONFIG --cxxflags`"
     AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
@@ -59,6 +61,7 @@ dnl if either is expanded later.
   fi
   AC_SUBST(XAPIAN_CXXFLAGS)
   AC_SUBST(XAPIAN_LIBS)
+  AC_SUBST(XAPIAN_VERSION)
 ])
 
 dnl OM_PATH_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
