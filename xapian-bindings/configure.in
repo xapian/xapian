@@ -46,6 +46,7 @@ if test -n "$PYTHON" ; then
     AC_SUBST(PYTHON_LIB)
     BINDINGS="$BINDINGS python"
 fi
+
 AC_PATH_PROG(PHP_CONFIG, php-config, [])
 if test -n "$PHP_CONFIG" ; then
     dnl FIXME: check version: $PHP_CONFIG --version returns e.g. "4.2.1"
@@ -53,18 +54,26 @@ if test -n "$PHP_CONFIG" ; then
     AC_SUBST(PHPIZE)
     BINDINGS="$BINDINGS php4"
 fi
-dnl FIXME: also check for guile, tcl8, java
+
+AC_PATH_PROG(JAVA, java, [],
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+AC_PATH_PROG(JAVAC, javac, [],
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+AC_PATH_PROG(JAR, jar, [],
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
+    dnl FIXME: check version?  
+    BINDINGS="$BINDINGS java"
+fi
+
+dnl FIXME: also check for guile, tcl8
 
 AC_SUBST(BINDINGS)
 
-AC_CONFIG_FILES([
- Makefile
-
- python/Makefile
- python/docs/Makefile
- python/docs/examples/Makefile
-
+AC_CONFIG_FILES([Makefile
+ python/Makefile python/docs/Makefile python/docs/examples/Makefile
  php4/Makefile
+ java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  guile/Makefile
  tcl8/Makefile])
 AC_OUTPUT

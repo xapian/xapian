@@ -3,4 +3,4 @@
 EXTRA_DIST = xapian.i
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php4 guile tcl8
+DIST_SUBDIRS = python php4 java guile tcl8
