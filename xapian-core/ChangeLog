@@ -1,3 +1,7 @@
+Fri Sep 22 14:59:20 BST 2000 Olly Betts
+
+	* Tiny tweak to threadtest.
+
 Fri Sep 22 14:44:06 BST 2000 Olly Betts
 
 	* Fixed typo in DEBUGLINE() in localmatch.cc.

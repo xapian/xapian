@@ -108,8 +108,8 @@ search_stuff(OmEnquire & enq,
     for (i = queries.begin(); i != queries.end(); i++) {
 	enq.set_query(*i);
 	results.push_back(enq.get_mset(0, 10));
-	if(results[results.size() - 1].items.size() > 0) {
-	    enq.get_matching_terms(results[results.size() - 1].items[0]);
+	if(results.back().items.size() > 0) {
+	    enq.get_matching_terms(results.back().items[0]);
 	}
     }
 }
