@@ -1,3 +1,8 @@
+Mon Feb 14 17:50:47 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/xapian/queryparser.h: Added dummy QueryParser::set_database()
+	  (currently it ignores the parameter).
+
 Mon Feb 14 15:34:13 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/lemon.c: C90, not C99!

@@ -81,7 +81,7 @@ class QueryParser {
     Query::op get_default_op() const;
 
     /// Specify the database being searched.
-//    void set_database(const Database &db);
+    void set_database(const Database &/*db*/) { /* FIXME Ignore for now. */ }
 
     /// Parse a query.
     Query parse_query(const std::string &query_string);
