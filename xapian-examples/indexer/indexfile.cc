@@ -49,6 +49,23 @@ int main(int argc, char *argv[])
 	indexer->set_input(filename);
 	OmDocumentContents newdocument = indexer->get_output();
 
+	cout << "Document data: " << newdocument.data.value << endl;
+	cout << "Document keys: " << endl;
+	for (OmDocumentContents::document_keys::const_iterator i =
+	     newdocument.keys.begin();
+	     i != newdocument.keys.end();
+	     ++i) {
+	    cout << "\t" << i->first << "\t" << i->second << endl;
+	}
+
+	cout << "Document terms: " << endl;
+	for (OmDocumentContents::document_terms::const_iterator i =
+	     newdocument.terms.begin();
+	     i != newdocument.terms.end();
+	     ++i) {
+	    cout << "\t" << i->first << "\t" << i->second << endl;
+	}
+
 	// Add the document to the database
 	database.add_document(newdocument);
     }
