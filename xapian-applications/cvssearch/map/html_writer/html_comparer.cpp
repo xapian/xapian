@@ -62,6 +62,10 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
 
     p0 = new process(ost0.str());
     p1 = new process(ost1.str());
+    ost0.freeze(0);
+    ost1.freeze(0);
+    ost2.freeze(0);
+
     if (revision2 != "none") 
     {
         p2 = new process(ost2.str());

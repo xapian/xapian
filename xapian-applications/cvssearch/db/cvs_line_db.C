@@ -73,6 +73,7 @@ cvs_line_db::get(unsigned int fileId, const string & revision, set<unsigned int>
     ostrstream ost;
     ost << fileId << ':' << revision << ends;
     string skey = ost.str();
+    ost.freeze(0);
 
     int val = 0;
     try {
@@ -126,6 +127,7 @@ cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line
     ostrstream ost;
     ost << fileId << ':' << revision << ends;
     string skey = ost.str();
+
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
         Dbt data((void *) &line, sizeof(unsigned int));
@@ -133,5 +135,6 @@ cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
+    ost.freeze(0);
     return val;
 }

@@ -56,6 +56,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
                 }
                 delete p;
             }
+            ost.freeze(0);
         }
         else
         {
@@ -75,6 +76,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
                         ost2 << "0a1," << length << endl << ends;
                         diff diff_output;
                         istrstream ist(ost2.str());
+                        ost2.freeze(0);
                         ist >> diff_output;
                         parse_diff(log[j-1], log[j], diff_output);
                     }

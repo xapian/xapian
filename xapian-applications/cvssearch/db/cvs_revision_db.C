@@ -71,6 +71,8 @@ cvs_revision_db::get(unsigned int fileId, unsigned int line, set<string, cvs_rev
     ostrstream ost;
     ost << fileId << ':' << line << ends;
     string skey = ost.str();
+    ost.freeze(0);
+
     int val = 0;
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
@@ -122,6 +124,8 @@ cvs_revision_db::put(unsigned int fileId, unsigned int line, const string & revi
     ostrstream ost;
     ost << fileId << ':' << line << ends;
     string skey = ost.str();
+    ost.freeze(0);
+
     int val = 0;
     try {
         Dbt key((void *) skey.c_str(), skey.length()+1);

@@ -70,6 +70,7 @@ cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & 
     ostrstream ost;
     ost << fileId << ends;
     string skey = ost.str();
+    ost.freeze(0);
     
     int val = 0;
     
@@ -122,13 +123,14 @@ cvs_file_revision_db::put(unsigned int fileId, const string & revision)
     ostrstream ost;
     ost << fileId << ends;
     string skey = ost.str();
+    ost.freeze(0);
+
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
         Dbt data((void *) revision.c_str(), revision.length()+1);
         val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
-        cerr << "PUT FILE REVISION " << endl;
         abort();
     }
     return val;

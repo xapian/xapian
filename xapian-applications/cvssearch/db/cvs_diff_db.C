@@ -80,6 +80,7 @@ cvs_diff_db::get(unsigned int fileId, const string & revision,
         ostrstream ost;
         ost << fileId << ':' << revision << ends;
         string skey = ost.str();
+        ost.freeze(0);
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data;
@@ -156,6 +157,7 @@ cvs_diff_db::put(unsigned int fileId, const string & revision,
         ostrstream ost;
         ost << fileId << ':' << revision << ends;
         string skey = ost.str();
+        ost.freeze(0);
 
         ostrstream ost1;
         assert(s1.size() == s2.size() &&
@@ -169,6 +171,7 @@ cvs_diff_db::put(unsigned int fileId, const string & revision,
         }
         ost1 << ends;
         string sdata = ost1.str();
+        ost.freeze(0);
 
         Dbt key ((void *)  skey.c_str(), skey.length() + 1);
         Dbt data((void *) sdata.c_str(), sdata.length() + 1);

@@ -83,6 +83,7 @@ cvs_revision_line_db::get(unsigned int fileId, const string & revision, unsigned
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
+    ost.freeze(0);
     return val;
 }
 
@@ -109,5 +110,6 @@ cvs_revision_line_db::put(unsigned int fileId, const string & revision, unsigned
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
+    ost.freeze(0);
     return val;
 }

@@ -47,6 +47,7 @@ main( int argc, char *argv[] )
     ostrstream ost;
     ost << "diff -b " << f1 << " " << f2 << ends;
     string command = ost.str();
+    ost.freeze(0);
     process p = process(command);
     istream *pis = p.process_output();
     if (pis)

@@ -36,6 +36,7 @@ range_exception::range_exception(unsigned int begin, unsigned int end)
     ostrstream s;
     s << "[" << begin << "," << end << ")" << ends;
     _error = s.str();
+    s.freeze(0);
 }
 
 ostream & 

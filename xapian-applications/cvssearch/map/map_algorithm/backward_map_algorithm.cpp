@@ -41,6 +41,7 @@ static unsigned int get_length(const cvs_log & log, unsigned int j)
     ost << scvs_update << "-r" << log[j].revision() 
         << " " << log.file_name() << " 2>/dev/null |wc -l" << ends;
     process p(ost.str());
+    ost.freeze(0);
     istream *pis = p.process_output();
     unsigned int length = 0;
     if (*pis)
@@ -64,11 +65,8 @@ backward_map_algorithm::parse_log(const cvs_log & log)
         }
     }
 
-    cerr << "start" << start << endl;
     for (j = start; j < log.size(); ++j)
     {
-        ostrstream ost;
-
         if (j == start)
         {
             unsigned int length = get_length(log, j);
@@ -194,6 +192,7 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
             ostrstream ost2;
             ost2 << "1," << length << "d0" << endl << ends;
             istrstream ist(ost2.str());
+            ost2.freeze(0);
             pdiff = new diff();
             if (pdiff) {
                 ist >> *pdiff;
@@ -206,8 +205,8 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
             << "-r" << log[j].revision()   << " " 
             << "-r" << log[j+1].revision() << " "
             << log.file_name() << ends;
-        // cerr << ost.str() << endl;        
         process p(ost.str());
+        ost.freeze(0);
         istream *pis = p.process_output();
         if (*pis)
         {    
@@ -233,6 +232,9 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
                 
                 system (ost0.str());
                 system (ost1.str());
+                ost0.freeze(0);
+                ost1.freeze(0);
+
                 process p2("./alignment /tmp/a0 /tmp/a1");
 
                 istream * pis2 = p2.process_output();

@@ -66,6 +66,7 @@ cvs_comment_id_db::get(unsigned int fileId, const string & revision, unsigned in
         ostrstream ost;
         ost << fileId << ':' << revision << ends;
         string skey = ost.str();
+        ost.freeze(0);
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data((void *) comment_id, sizeof(unsigned int));
@@ -99,6 +100,7 @@ cvs_comment_id_db::put(unsigned int fileId, const string & revision, unsigned in
         ostrstream ost;
         ost << fileId << ':' << revision << ends;
         string skey = ost.str();
+        ost.freeze(0);
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data((void *) &comment_id, sizeof(unsigned int));
