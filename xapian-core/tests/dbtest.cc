@@ -24,7 +24,7 @@
 
 #include "omerror.h"
 #include "database.h"
-#include "postlist.h"
+#include "dbpostlist.h"
 #include "termlist.h"
 #include "database_builder.h"
 
