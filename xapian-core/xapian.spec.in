@@ -59,14 +59,11 @@ cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 %{_bindir}/quartzcompact
 %{_bindir}/quartzdump
 %{_libdir}/libomqueryparser.so
-%{_libdir}/libomqueryparser.so.0
-%{_libdir}/libomqueryparser.so.0.0.0
+%{_libdir}/libomqueryparser.so.*
 %{_libdir}/libxapianqueryparser.so
-%{_libdir}/libxapianqueryparser.so.0
-%{_libdir}/libxapianqueryparser.so.0.0.1
+%{_libdir}/libxapianqueryparser.so.*
 %{_libdir}/libxapian.so
-%{_libdir}/libxapian.so.0
-%{_libdir}/libxapian.so.0.0.1
+%{_libdir}/libxapian.so.*
 %doc AUTHORS ChangeLog COPYING NEWS PLATFORMS README
 
 %files devel

@@ -1,3 +1,7 @@
+Thu Oct 02 13:35:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Don't hardcode the shared library versioning info.
+
 Wed Oct 01 13:51:15 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated - Solaris 8 + Sun Workshop C++ doesn't actually
