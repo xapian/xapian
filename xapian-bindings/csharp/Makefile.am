@@ -14,32 +14,32 @@ XAPIAN_SWIG_SRCS=\
 	$(srcdir)/extra.i
 
 XAPIAN_SWIG_CS_SRCS=\
-	$(srcdir)/SWIGTYPE_p_Xapian__Database.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Document.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__ESet.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__ESetIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Enquire.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__ExpandDecider.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__MSet.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__MSetIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__MatchDecider.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__PositionIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__PostingIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Query.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__QueryParser.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__RSet.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Stem.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Stopper.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__TermIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__ValueIterator.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__Weight.cs \
-	$(srcdir)/SWIGTYPE_p_Xapian__WritableDatabase.cs \
-	$(srcdir)/SWIGTYPE_p_std__listTstd__string_t.cs \
-	$(srcdir)/SWIGTYPE_p_time_t.cs \
-	$(srcdir)/SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
-	$(srcdir)/op.cs \
-	$(srcdir)/$(ASSEMBLY)PINVOKE.cs \
-	$(srcdir)/$(ASSEMBLY).cs
+	SWIGTYPE_p_Xapian__Database.cs \
+	SWIGTYPE_p_Xapian__Document.cs \
+	SWIGTYPE_p_Xapian__ESet.cs \
+	SWIGTYPE_p_Xapian__ESetIterator.cs \
+	SWIGTYPE_p_Xapian__Enquire.cs \
+	SWIGTYPE_p_Xapian__ExpandDecider.cs \
+	SWIGTYPE_p_Xapian__MSet.cs \
+	SWIGTYPE_p_Xapian__MSetIterator.cs \
+	SWIGTYPE_p_Xapian__MatchDecider.cs \
+	SWIGTYPE_p_Xapian__PositionIterator.cs \
+	SWIGTYPE_p_Xapian__PostingIterator.cs \
+	SWIGTYPE_p_Xapian__Query.cs \
+	SWIGTYPE_p_Xapian__QueryParser.cs \
+	SWIGTYPE_p_Xapian__RSet.cs \
+	SWIGTYPE_p_Xapian__Stem.cs \
+	SWIGTYPE_p_Xapian__Stopper.cs \
+	SWIGTYPE_p_Xapian__TermIterator.cs \
+	SWIGTYPE_p_Xapian__ValueIterator.cs \
+	SWIGTYPE_p_Xapian__Weight.cs \
+	SWIGTYPE_p_Xapian__WritableDatabase.cs \
+	SWIGTYPE_p_std__listTstd__string_t.cs \
+	SWIGTYPE_p_time_t.cs \
+	SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
+	op.cs \
+	$(ASSEMBLY)PINVOKE.cs \
+	$(ASSEMBLY).cs
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
 	$(CSC) --unsafe --target library -o $(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs

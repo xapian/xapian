@@ -1,3 +1,7 @@
+Wed Sep 29 02:57:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Fixed to build when srcdir != builddir.
+
 Tue Sep 28 20:33:21 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: The guile bindings do now build (though I don't
