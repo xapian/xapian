@@ -1,3 +1,8 @@
+Mon Dec 13 01:39:02 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Fixed to build with AssertParanoid
+	  enabled.
+
 Mon Dec 13 00:41:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Added missing '#include <config.h>' so that

@@ -27,6 +27,10 @@
 #include "omdebug.h"
 #include "multi_postlist.h"
 
+#ifdef XAPIAN_DEBUG_PARANOID
+#include "xapian/database.h"
+#endif
+
 #include <list>
 
 //////////////
