@@ -1,3 +1,7 @@
+Tue Apr 20 03:20:22 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Generate Makefiles for new directories under java/.
+
 Tue Apr 20 02:27:07 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 0.8.0.

@@ -138,6 +138,7 @@ AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile
  php4/Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
+ java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
  tcl8/Makefile])
 AC_OUTPUT
