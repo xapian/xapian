@@ -215,8 +215,6 @@ class InMemoryDatabase : public IRDatabase {
     public:
 	~InMemoryDatabase();
 
-	void set_root(IRDatabase *);
-
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;

@@ -67,20 +67,6 @@ NetworkDatabase::~NetworkDatabase() {
 #endif
 }
 
-void
-NetworkDatabase::set_root(IRDatabase * db) {
-    throw OmUnimplementedError("NetworkDatabase::set_root() not implemented");
-#if 0
-    root = db;
-
-    vector<IRDatabase *>::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	(*i)->set_root(db);
-	i++;
-    }
-#endif
-}
-
 
 #if 0
 void NetworkDatabase::initialise_link() {

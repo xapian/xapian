@@ -1,3 +1,9 @@
+Fri May 12 16:10:44 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove set_root() method and "root" member from IRDatabase, and
+	  subclasses.  This is now catered for by stats and weighting
+	  objects.
+
 Thu May 11 18:51:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add constructor to MultiDatabase, taking a vector of IRDatabase

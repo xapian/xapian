@@ -46,8 +46,6 @@ class NetworkDatabase : public IRDatabase {
     public:
 	~NetworkDatabase();
 
-	void set_root(IRDatabase * db);
-
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;

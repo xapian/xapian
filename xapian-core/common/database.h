@@ -50,22 +50,7 @@ class IRDatabase : public IndexerDestination,
     protected:
     	/** Create a database - called only by derived classes.
 	 */
-	IRDatabase() : root(this) { return; }
-
-	/** A pointer to the "root" database.  This defaults to "this", but
-	 *  may be overridden in some situations (such as, when a database
-	 *  is a sub-database of a MultiDatabase).
-	 *
-	 *  The root database is used to calculate collection statistics
-	 *  such as term frequencies and collection size.
-	 *
-	 *  FIXME: For a match operation, this should not point to a
-	 *  multidatabase which is being used by a multimatch, but during
-	 *  an expand it should.  This will currently cause some inaccuracy
-	 *  in the result in a multidatabase situation.  root should
-	 *  probably be replaced by a StatsLeaf object, somehow.
-	 */
-	IRDatabase * root;
+	IRDatabase() { return; }
 
     public:
 	/** Destroy the database.  This method must not be called until all
@@ -76,23 +61,11 @@ class IRDatabase : public IndexerDestination,
 	 */
         virtual ~IRDatabase() { return; }
 
-	/** Set the root database.  This is used by MultiDatabase to ensure
-	 *  that
-	 *
-	 *  @param root_ The new root database.
-	 */
-	void set_root(IRDatabase *root_) {root = root_;}
-
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
 	// ====================
 
 	/** Return the number of docs in this (sub) database.
-	 *
-	 *  For a database which is part of a MultiDatabase, the result of
-	 *  this method should refer to the number of documents in this
-	 *  part of the collection, rather than the number of documents
-	 *  in the collection pointed to by "root".
 	 */
 	virtual om_doccount  get_doccount() const = 0;
 
@@ -172,7 +145,6 @@ class IRDatabase : public IndexerDestination,
 	 *                use.
 	 */
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
-
 
 	/** Open a document.
 	 *

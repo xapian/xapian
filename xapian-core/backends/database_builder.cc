@@ -103,11 +103,5 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	throw OmOpeningError("Couldn't create database");
     }
 
-    // Set the root of the database, if specified, otherwise it will default
-    // to itself.
-    // Doing this after opening ensures that for a group database, all the
-    // sub-databases also have their root set.
-    if(params.root != NULL) database->set_root(params.root);
-    
     return database;
 }

@@ -46,14 +46,12 @@ enum om_database_type {
 class DatabaseBuilderParams {
     public:
 	DatabaseBuilderParams(om_database_type type_ = OM_DBTYPE_NULL,
-			      bool readonly_ = true,
-			      IRDatabase * root_ = NULL)
-		: type(type_), readonly(readonly_), root(root_)
+			      bool readonly_ = true)
+		: type(type_), readonly(readonly_)
 	{ return; }
 
 	om_database_type type;
 	bool readonly;
-	IRDatabase * root;
 
 	vector<string> paths;
 	vector<DatabaseBuilderParams> subdbs;

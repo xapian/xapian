@@ -40,8 +40,7 @@ class MultiDatabase : public IRDatabase {
     friend class DatabaseBuilder;
 
     /** MultiMatch is a friend of this class so that it can access
-     *  `databases'.  FIXME: this isn't very clean, and is tied in with the
-     *  problems surrounding the `root' field.
+     *  `databases'.  FIXME: this isn't very clean.
      */
     friend class MultiMatch;
 
@@ -81,8 +80,6 @@ class MultiDatabase : public IRDatabase {
 	
     public:
 	~MultiDatabase();
-
-	void set_root(IRDatabase * db);
 
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;

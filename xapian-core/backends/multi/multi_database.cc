@@ -61,7 +61,6 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
     for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
 	DatabaseBuilderParams sub_params = *p;
 	if(params.readonly) sub_params.readonly = params.readonly;
-	if(params.root != NULL) sub_params.root = params.root;
 
 	databases.push_back(DatabaseBuilder::create(sub_params));
     }
@@ -137,17 +136,6 @@ MultiDatabase::get_termfreq(const om_termname & tname) const
     return freq;
 }
 
-
-void
-MultiDatabase::set_root(IRDatabase * db) {
-    root = db;
-
-    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	(*i)->set_root(db);
-	i++;
-    }
-}
 
 LeafPostList *
 MultiDatabase::open_post_list(const om_termname & tname) const
