@@ -35,7 +35,7 @@ A head may optionally be prefixed with !,~ or *, followed by an optional ':'
 terminated prefix, followed by am optional field name; 
 
 i.e.
-  [[!|~|*][prefix:]][fieldname]=
+  [[!|~|*][-][prefix:]][fieldname]=
 
 Prefix and fieldname may be null.
 If ~ is specified then the data is stemmed for terms.
@@ -44,6 +44,10 @@ already exists with this it is overwritten
 If a ! is specified
 If a prefix is specified then terms are prefixed.
 If neither * or ~ or a prefix or a : are specified the field is not used for terms
+If - is specified (must be after ! ~ *) then the term is lowercased before having
+the prefix attached.  The term is not lowercased for storage in the field
+
+Note: ~ lowercases terms as part of stemming, - just lowercases
 
 If a fieldname is specified then the data is stored as a line in the document
 data field.
@@ -52,8 +56,10 @@ e.g.
 
 ~P:P1=Stem terms with prefix P, also store in field P1
 Q:Q1=Don't stem terms but give prefix Q, also store in field Q1
+-Q:Q1=Don't stem terms but lowercase and give prefix Q, also store in field Q1 without lowercasing
 ~:R1=Stem terms, no prefix and sore as R1
 :S1=No Stem terms, no prefix and store as S1
+~T:=Stem terms, prefix as T, no store
 ~T:=Stem terms, prefix as T, no store
 U:=No stem terms , prefix U, no store
 ~:=Stem terms, no prefix, no store
@@ -116,7 +122,17 @@ lowercase_term(om_termname &term)
     }
 } 
 
-inline static bool
+static void
+lowercase_string(string &term)
+{
+    string::iterator i = term.begin();
+    while (i != term.end()) {
+        *i = tolower(*i);
+        i++;
+    }
+} 
+
+inline static bool 
 p_alnum(unsigned int c)
 {
     return isalnum(c);
@@ -137,14 +153,28 @@ p_notplusminus(unsigned int c)
 static om_termpos
 index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {
+#ifdef GCC3
     std::string::const_iterator i, j = s.begin(), k;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
         j = find_if(i, s.end(), p_notalnum);
         k = find_if(j, s.end(), p_notplusminus);
         if (k == s.end() || !isalnum(*k)) j = k;
         om_termname term = s.substr(i - s.begin(), j - i);
+#else
+    size_t i, j = 0, k;
+    while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz", j))
+           != string::npos) {
+ 
+        j = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz"
+                                "0123456789", i);
+        k = s.find_first_not_of("+-", j);
+        if (k == string::npos || !isalnum(s[k])) j = k;
+        om_termname term = s.substr(i, j - i);
+#endif
         lowercase_term(term);
-        if (isupper(*i) || isdigit(*i)) {
+        if (isupper(s[i]) || isdigit(s[i])) {
 	    doc.add_posting('R' + term, pos);
         }
  
@@ -180,7 +210,7 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
     string uniqueterm="";
 
     while (getline(stream,line) && !line.empty()) {
-      bool stem, term, unique;
+      bool stem, term, unique, lcterm = false;
       string prefix="";
       string field="";
       string header;
@@ -204,6 +234,7 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
 
         if (stem=(header[hindex]=='~')) hindex++;
         if (unique=(header[hindex]=='*')) hindex++;
+        if (lcterm=(header[hindex]=='-')) hindex++;
 
         // now scan up to colon to get terms prefix
 	hcursor = header.find(':', hindex);
@@ -226,9 +257,12 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
         if (term) {
           if (stem) index_text(text, newdocument, stemmer, wordcount);
           else {
+            if (lcterm) { lowercase_string(text); } 
             if (unique) { // note unique field - only one per document tho!
 	      uniqueterm=prefix+text;
 	    }
+            // if prefix is lower case then lowercase text
+            // but always use uppercase prefix
 	    if (!text.empty()) newdocument.add_posting(prefix+text,wordcount++);
 	  }
         }
