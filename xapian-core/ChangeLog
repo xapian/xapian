@@ -153,7 +153,7 @@ Sun Sep 07 02:09:50 BST 2003  Olly Betts <olly@survex.com>
 
 Sun Sep 07 00:09:32 BST 2003  Olly Betts <olly@survex.com>
 
-	* testsuite/testsuite.cc: Actaully open temporary file for valgrind
+	* testsuite/testsuite.cc: Actually open temporary file for valgrind
 	  to log to.
 
 Sat Sep 06 20:50:58 BST 2003  Olly Betts <olly@survex.com>
@@ -251,7 +251,7 @@ Mon Aug 11 12:05:13 BST 2003  Olly Betts <olly@survex.com>
 
 Sun Aug 10 02:25:59 BST 2003  Olly Betts <olly@survex.com>
 
-	* PLATFORMS: Out of curiousity, I tried to build with a Linux->DJGPP
+	* PLATFORMS: Out of curiosity, I tried to build with a Linux->DJGPP
 	  cross-compiler I had to hand.  It built (just had to disable the
 	  remote backend if socketpair isn't found and add the workaround for
 	  not having snprintf).
