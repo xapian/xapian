@@ -28,13 +28,15 @@
 #include "quartz_database.h"
 #include "quartz_db_table.h"
 #include "quartz_db_entries.h"
+#include "quartz_utils.h"
 
 #include "autoptr.h"
 
 #include "unistd.h"
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
-static void check_table_values_hello(const QuartzDbTable & table, string world)
+static void check_table_values_hello(const QuartzDbTable & table,
+				     std::string world)
 {
     QuartzDbKey key;
     QuartzDbTag tag;
@@ -332,14 +334,14 @@ static bool test_dbentries1()
 	entries.set_tag(key1, tagptr);
     }
     TEST(entries.have_entry(key1));
-    TEST(entries.get_tag(key1) != 0);
-    TEST(entries.get_tag(key1)->value == "bar");
+    TEST_NOT_EQUAL(entries.get_tag(key1), 0);
+    TEST_EQUAL(entries.get_tag(key1)->value, "bar");
     {
 	AutoPtr<QuartzDbTag> tagptr(0);
 	entries.set_tag(key1, tagptr);
     }
     TEST(entries.have_entry(key1));
-    TEST(entries.get_tag(key1) == 0);
+    TEST_EQUAL(entries.get_tag(key1), 0);
 
     return true;
 }
@@ -381,6 +383,125 @@ static bool test_adddoc1()
     return true;
 }
 
+static bool test_packint1()
+{
+    TEST_EQUAL(pack_uint32(0), std::string("\000", 1));
+    TEST_EQUAL(pack_uint32(1), std::string("\001", 1));
+    TEST_EQUAL(pack_uint32(127), std::string("\177", 1));
+    TEST_EQUAL(pack_uint32(128), std::string("\200\001", 2));
+    TEST_EQUAL(pack_uint32(0xffff), std::string("\377\377\003", 3));
+    TEST_EQUAL(pack_uint32(0xffffffff), std::string("\377\377\377\377\017", 5));
+
+    return true;
+}
+
+static bool test_packint2()
+{
+    std::string foo;
+
+    foo += pack_uint32(3);
+    foo += pack_uint32(12475123);
+    foo += pack_uint32(128);
+    foo += pack_uint32(0xffffffff);
+    foo += pack_uint32(127);
+    foo += pack_uint32(0);
+    foo += pack_uint32(0xffffffff);
+    foo += pack_uint32(0);
+    foo += pack_uint32(82134);
+
+    const char * p = foo.data();
+    om_uint32 result;
+
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 3);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 12475123);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 128);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0xffffffff);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 127);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0xffffffff);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 0);
+    TEST(unpack_uint32(&p, foo.data() + foo.size(), &result));
+    TEST_EQUAL(result, 82134);
+
+    return true;
+}
+
+static bool test_unpackint1()
+{
+    std::string foo;
+    const char *p;
+    om_uint32 result;
+    bool success;
+    
+    p = foo.data();
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data());
+
+    foo = std::string("\000\002\301\001", 4);
+    result = 1;
+    p = foo.data();
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(success);
+    TEST_EQUAL(result, 0);
+    TEST_EQUAL((void *)p, (void *)(foo.data() + 1));
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(success);
+    TEST_EQUAL(result, 2);
+    TEST_EQUAL(p, foo.data() + 2);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(success);
+    TEST_EQUAL(result, 65 + 128);
+    TEST_EQUAL(p, foo.data() + 4);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data() + 4);
+
+    foo = std::string("\377\377\377\377\017\377\377\377\377\020\007\200\200\200\200\200\200\200\000\200\200\200\200\200\200\001\200\200\200\200\200\200", 32);
+    result = 1;
+    p = foo.data();
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(success);
+    TEST_EQUAL(result, 0xffffffff);
+    TEST_EQUAL(p, foo.data() + 5);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data() + 10);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(success);
+    TEST_EQUAL(result, 7);
+    TEST_EQUAL(p, foo.data() + 11);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data() + 19);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data() + 26);
+
+    success = unpack_uint32(&p, foo.data() + foo.size(), &result);
+    TEST(!success);
+    TEST_EQUAL(p, foo.data() + 32);
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -391,6 +512,9 @@ test_desc tests[] = {
     {"quartzdbentries1",	test_dbentries1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
+    {"quartzpackint1",		test_packint1},
+    {"quartzpackint2",		test_packint2},
+    {"quartzunpackint1",	test_unpackint1},
     {0, 0}
 };
 

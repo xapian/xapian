@@ -32,43 +32,52 @@ unpack_uint32(const char ** src,
     CASSERT(sizeof(om_int32) == 4);
     CASSERT(sizeof(om_int64) == 8);
 
-    int shift = 0;
+    unsigned int shift = 0;
     *result = 0;
 
     while(1) {
-	if ((*src) == src_end) return false;
+	if ((*src) == src_end) {
+	    return false;
+	}
 
-	const om_byte part = static_cast<const om_byte> (**src);
+	om_byte part = static_cast<om_byte> (**src);
 	(*src)++;
 
-	//if ((part & 0x7f) << (shift % 8)) {
-	if (1) {
+	// if new byte might cause overflow, and it does
+	if (((shift > (sizeof(*result) - 1) * 8 + 1) &&
+	     ((part & 0x7f) << (shift % 8)) >= 0x100) ||
+	    (shift >= sizeof(*result) * 8))  {
+	    // Overflowed - move to end of this integer
 	    while(1) {
-		// Move to end of this integer
+		if ((part & 0x80) == 0) return false;
 		if ((*src) == src_end) return false;
-		const om_byte part = static_cast<const om_byte> (**src);
+		part = static_cast<const om_byte> (**src);
 		(*src)++;
-		if ((part & 0x80) == 0) break;
 	    }
-	    return false;
 	}
 
 	*result += (part & 0x7f) << shift;
 	shift += 7;
 
-	if ((part & 0x80) == 0) break;
+	if ((part & 0x80) == 0) {
+	    return true;;
+	}
     }
-
-    return true;;
 }
 
-
-static void foo()
+std::string
+pack_uint32(om_uint32 value)
 {
-    std::string data;
-    om_uint32 bar;
-    const char * boo = data.data();
-    bool res = unpack_uint32(&boo, data.data() + data.size(), &bar);
-    cout << res << endl;
+    if (value == 0) return std::string("\000", 1);
+    std::string result;
+
+    while(value != 0) {
+	om_byte part = value & 0x7f;
+	value = value >> 7;
+	if (value) part |= 0x80;
+	result.append(1, (char) part);
+    }
+
+    return result;
 }
 

@@ -24,6 +24,7 @@
 #define OM_HGUARD_QUARTZ_UTILS_H
 
 #include "config.h"
+#include <string>
 
 /// Compile time assert a condition
 #define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}
@@ -38,7 +39,7 @@ typedef long long           om_int64;
  *
  *  @param source_ptr   A pointer to a pointer to the data to read.  The
  *                      character pointer will be updated to point to the
- *                      end of the data read.
+ *                      next character to read, or source_end if sooner.
  *  @param source_end   A pointer to the byte after the end of the data to
  *                      read the integer from.
  *  @param result       A pointer to a place to store the result.  If an
@@ -48,10 +49,19 @@ typedef long long           om_int64;
  *  @result True if an integer was successfully read.  False if the read
  *          failed.  Failure may either be due to the data running out (in
  *          which case *source_ptr will equal source_end), or due to the value
- *          read overflowing the size of result.
+ *          read overflowing the size of result (in which case *source_ptr
+ *          will point to wherever the value ends, despite the overflow).
  */
 bool unpack_uint32(const char ** source_ptr,
 		   const char * source_end,
 		   om_uint32 * result);
+
+/** Generates a packed representation of an integer.
+ *
+ *  @param value  The integer to represent.
+ *
+ *  @result       A string containing the representation of the integer.
+ */
+std::string pack_uint32(om_uint32 value);
 
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */

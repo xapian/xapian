@@ -1,3 +1,7 @@
+Mon Oct  2 14:27:00 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added utilities to pack and unpack integers to quartz_utils.h
+
 Fri Sep 29 18:29:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Split XML-specific code into a separate file and cleaned up
