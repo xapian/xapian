@@ -50,6 +50,8 @@ OmDebug::OmDebug()
 
 OmDebug::~OmDebug()
 {
+    display_message(OM_DEBUG_UNKNOWN,
+		    std::string("Om debugging version, closing down\n"));
     if(initialised) {
 	delete mutex;
 	mutex = 0;
