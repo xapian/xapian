@@ -123,8 +123,7 @@ static void do_create(const std::string & btree_dir, int block_size = 1024)
     delete_dir(btree_dir);
     make_dir(btree_dir);
 
-    int res = Btree::create(btree_dir.c_str(), block_size);
-    TEST(res == 0);
+    Btree::create(btree_dir.c_str(), block_size);
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 

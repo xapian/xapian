@@ -304,6 +304,10 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	bool exists();
 
+	/** Erase the table from disk.
+	 */
+	void erase();
+
 	/** Create the table on disk.
 	 *
 	 *  @exception OmDatabaseCreateError if the table can't be created.

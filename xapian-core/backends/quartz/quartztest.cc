@@ -1119,7 +1119,22 @@ static bool test_create1()
     settings1.set("database_allow_overwrite", true);
     database = DatabaseBuilder::create(settings1, true);
     database = DatabaseBuilder::create(settings1, false);
+    OmDocument document_in;
+    document_in.set_data("Foobar rising");
+    document_in.add_key(7, OmKey("Key7"));
+    document_in.add_key(13, OmKey("Key13"));
+    document_in.add_posting("foobar", 1);
+    document_in.add_posting("rising", 2);
+    document_in.add_posting("foobar", 3);
+    database->add_document(document_in);
+    TEST_EQUAL(database->get_doccount(), 1);
+    database->add_document(document_in);
+    TEST_EQUAL(database->get_doccount(), 2);
+
     database = DatabaseBuilder::create(settings1, true);
+    database = DatabaseBuilder::create(settings1, false);
+    database->add_document(document_in);
+    TEST_EQUAL(database->get_doccount(), 1);
 
     return true;
 }

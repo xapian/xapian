@@ -29,12 +29,14 @@
 #endif /* _GNU_SOURCE */
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <stdio.h>
 #include <stdlib.h>   /* for calloc */
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 #include <fcntl.h>    /* O_RDONLY etc */
-#include <unistd.h>
 #include <errno.h>
 #include "autoptr.h"
 
@@ -1679,7 +1681,33 @@ Btree::Btree()
 {
 }
 
-int
+/** Delete file, throwing an error if can't delete it (but not if it
+ *  doesn't exist)
+ */
+static void
+delete_file(const std::string & filename)
+{
+    struct stat buf;
+    if (stat(filename.c_str(), &buf)) {
+	if (errno == ENOENT) return;
+    }
+
+    if (unlink (filename.c_str())) {
+	if (errno == ENOENT) return;
+	throw OmDatabaseError("Can't delete file: `" + filename +
+			      "': " + strerror(errno));
+    }
+}
+
+void
+Btree::erase(const std::string & tablename)
+{
+    delete_file(tablename + "DB");
+    delete_file(tablename + "baseA");
+    delete_file(tablename + "baseB");
+}
+ 
+void
 Btree::create(const char *name_, int block_size)
 {
     std::string name(name_);
@@ -1718,7 +1746,6 @@ Btree::create(const char *name_, int block_size)
 	    }
         }
     }
-    return BTREE_ERROR_NONE;
 }
 
 Btree::~Btree() {
@@ -2031,9 +2058,9 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
 
 /*********** B-tree creating ************/
 
-extern int Btree_create(const char * name_, int block_size)
+extern void Btree_create(const char * name_, int block_size)
 {
-    return Btree::create(name_, block_size);
+    Btree::create(name_, block_size);
 }
 
 /*********** B-tree checking ************/

@@ -218,14 +218,19 @@ QuartzDiskTable::create()
 
     close();
 
-    int err_num = Btree_create(path.c_str(), blocksize);
-    if (err_num != 0) {
-	// FIXME: check for errors
+    Btree_create(path.c_str(), blocksize);
+}
 
-	throw OmOpeningError("Cannot create table `" + path + "': " +
-			     om_tostring(err_num) + ", " + strerror(errno));
-	// FIXME: explain why
-    }
+void
+QuartzDiskTable::erase()
+{
+    // FIXME: implement
+    DEBUGCALL(DB, void, "QuartzDiskTable::erase", "");
+    Assert(!readonly);
+
+    close();
+
+    Btree::erase(path);
 }
 
 void
@@ -296,16 +301,6 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	}
 	opened = true;
 	RETURN(true);
-    }
-
-    // Create database if needed
-    // FIXME: use btree library to check if table exists yet.
-    if (!file_exists(path + "DB")) {
-	if (!Btree_create(path.c_str(), blocksize)) {
-	// FIXME: check for errors
-	    // FIXME: explain why
-	    throw OmOpeningError("Cannot create table `" + path + "'.");
-	}
     }
 
     btree_for_writing = Btree_open_to_write_revision(path.c_str(), revision);

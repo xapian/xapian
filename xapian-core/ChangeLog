@@ -1,3 +1,12 @@
+Thu Jan 18 14:13:21 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix error messages thrown by quartz when a database doesn't exist /
+	  already exists and isn't to be overwritten.
+
+	* Make quartz clean up an old database directory, if
+	  database_allow_overwrite is specified, so that old base files don't
+	  confuse things.
+
 Wed Jan 17 18:18:50 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added all used toplevel directories to DIST_SUBDIRS

@@ -71,20 +71,28 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 
     // open environment here
 
+    bool dbexists = database_exists();
     // open tables
     if (readonly) {
+	if (!dbexists) {
+	    throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
     } else if (create) {
-	bool dbexists = database_exists();
 	if (dbexists) {
 	    log->make_entry("Old database exists at `" + db_dir + "'");
 	}
 	if (!allow_overwrite && dbexists) {
-	    throw OmDatabaseCreateError("Can't create new database: a database already exists in place.  Move it, or set database_allow_overwrite parameter");
+	    throw OmDatabaseCreateError("Can't create new database at `" +
+		db_dir + "': a database already exists in place."
+		"  Move it, or set database_allow_overwrite parameter");
 	}
 	create_and_open_tables();
     } else {
+	if (!dbexists) {
+	    throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	}
 	// Get latest consistent version
 	open_tables_consistent();
 
@@ -129,9 +137,14 @@ QuartzDiskTableManager::create_and_open_tables()
 {
     //FIXME - check that database directory exists.
 
+    // Delete any existing tables
     log->make_entry("Cleaning up database directory at `" + db_dir + "'.");
-    //FIXME - delete any existing tables
-    log->make_entry("FIXME: cleaning of database directory not yet implemented.");
+    postlist_table.erase();
+    positionlist_table.erase();
+    termlist_table.erase();
+    lexicon_table.erase();
+    attribute_table.erase();
+    record_table.erase();
 
     log->make_entry("Creating new database at `" + db_dir + "'.");
     // Create postlist_table first, and record_table last.  Existence of

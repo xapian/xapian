@@ -78,7 +78,10 @@ class Btree {
 	int delete_(byte * key, int key_len);
 
 	/** Create an initial btree structure on disk */
-	static int create(const char *name_, int blocksize);
+	static void create(const char *name_, int blocksize);
+
+	/** Erase the btree structure from disk */
+	static void erase(const std::string & tablename);
 
 	void set_full_compaction(int parity);
 
@@ -231,7 +234,7 @@ extern struct Btree * Btree_open_to_write(const char * name);
 extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
 extern void Btree_quit(struct Btree * B);
 extern int Btree_close(struct Btree * B, unsigned long revision);
-extern int Btree_create(const char * name, int block_size);
+extern void Btree_create(const char * name, int block_size);
 extern void Btree_check(const char * name, const char * opt_string); //
 extern struct Btree * Btree_open_to_read(const char * name);
 extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
