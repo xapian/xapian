@@ -3,6 +3,7 @@
 dbtest
 idxtest
 matchtest
+enquiretest
 stemtest
 Makefile.in
 Makefile

@@ -4,4 +4,4 @@ Makefile.in
 Makefile
 .deps
 .libs
-liben.la
+libportuguese.la
