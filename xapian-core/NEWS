@@ -1,3 +1,9 @@
+Xapian 0.5.4 (2002-10-16):
+
+* Fixed a compilation error with "make check" when using GCC 3.2.
+
+* PLATFORMS: checked 0.5.3 works on OpenBSD and Solaris 7.
+
 Xapian 0.5.3 (2002-10-12):
 
 Notable changes: Improvements to the test suite, and internal code cleanups:
