@@ -102,7 +102,6 @@ QuartzTableEntries::next(items::const_iterator & iter) const
 {
     Assert(iter != entries.end());
     iter++;
-    Assert(iter != entries.end());
 }
 
 bool
