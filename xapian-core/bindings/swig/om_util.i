@@ -24,8 +24,10 @@
 #include "om/om.h"
 #include <string>
 %}
+#ifndef SWIGGUILE
 %include typemaps.i
 %include exception.i
+#endif
 %{
 #define OMSWIG_exception(type, msg) \
     SWIG_exception((type), const_cast<char *>((msg).c_str()))
@@ -66,6 +68,9 @@
     }
 }
 
+#ifdef SWIGTCL
+%include "om_util_tcl8.i"
+#endif
 #ifdef SWIGPYTHON
 %include "om_util_python.i"
 #endif
@@ -73,5 +78,35 @@
 %include "om_util_perl5.i"
 #endif
 #ifdef SWIGGUILE
-#include "om_util_guile.i"
+%include "om_util_guile.i"
 #endif
+
+%typemap(tcl8, in) const string & (string temp) {
+    int len;
+    char *cval = Tcl_GetStringFromObj($source, &len);
+
+    temp = string(cval, len);
+    $target = &temp;
+}
+
+%typemap(tcl8, out) string {
+    Tcl_SetStringObj($target,$source->c_str(), $source->length());
+}
+
+%typemap(guile, in) const string &(string temp) {
+    if (!gh_string_p($source)) {
+//        OMSWIG_exception(SWIG_TypeError,
+//	                 "Expected string argument");
+    } else {
+	int len;
+	char *ctemp;
+	ctemp = gh_scm2newstr($source, &len);
+//	cout << "ctemp = " << ctemp << endl;
+	temp = string(ctemp, len);
+	$target = &temp;
+    }
+}
+
+%typemap(guile, out) string {
+    $target = gh_str2scm((char *)$source->c_str(), $source->length());
+}

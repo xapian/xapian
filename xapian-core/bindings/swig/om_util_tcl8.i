@@ -1,5 +1,5 @@
 %{
-/* om_util_guile.i: the Open Muscat scripting interface helpers.
+/* om_util_tcl8.i: the Open Muscat scripting Tcl8 interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -21,3 +21,12 @@
  * -----END-LICENCE-----
  */
 %}
+%include typemaps.i
+
+%typemap(tcl8, in) const string & (string temp) {
+    int len;
+    char *cval = Tcl_GetStringFromObj($source, &len);
+
+    temp = string(cval, len);
+    $target = &temp;
+}

@@ -1,3 +1,8 @@
+Fri Jun  9 16:09:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Stemming interface working with tcl8, and guile (but with some
+	  tweaks to the generated code.).
+
 Thu Jun  8 18:59:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Initial guile bits.  (Not yet functional)
