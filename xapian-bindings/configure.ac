@@ -53,24 +53,21 @@ if test no != "$with_swig" ; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.20
-  dnl James says:
-  dnl  1.3.18 -> 1.3.19 was very quick, and 1.3.15 through 1.3.17
-  dnl  were mostly bugfixes on 1.3.14, so 1.3.14 might be sufficient. 1.3.12
-  dnl  introduced support for C++ namespaces; you need 1.3.14 for overloaded
-  dnl  functions (which we use).
-  dnl swig 1.3.19 was missing std_common.i - it was empty at the time so you
+  dnl Check for swig >= 1.3.22
+  dnl We need 1.3.14 for overloaded functions.
+  dnl 1.3.19 was missing std_common.i - it was empty at the time so you
   dnl can just touch it into existence, but it's cleaner to just require
   dnl 1.3.20.
   dnl 1.3.21 fixes a few minor issues which don't look to be relevant to
-  dnl us currently.  1.3.22 has lots of changes, but again nothing looks
-  dnl relevant to us currently.  For details see:
+  dnl us currently.
+  dnl 1.3.22 fixes a problem with wrapping classes in namespaces with guile.
+  dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
   v="`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`"
   case "$v" in
-   [1.3.[2-9][0-9]|1.3.[1-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+   [1.3.2[2-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.20 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.22 required (you have $v)]) ;;
   esac
 
   if test no != "$with_python" ; then
