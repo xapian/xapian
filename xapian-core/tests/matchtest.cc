@@ -32,6 +32,7 @@ main(int argc, char *argv[])
     list<string> dbtypes;
     bool multidb = false;
     bool showmset = false;
+    matchop default_op = OR;
 
     bool syntax_error = false;
     argv++;
@@ -59,6 +60,10 @@ main(int argc, char *argv[])
 	    showmset = true;
 	    argc--;
 	    argv++;
+	} else if (strcmp(argv[0], "--matchall") == 0) {
+	    default_op = AND;
+	    argc--;
+	    argv++;
 	} else {
 	    syntax_error = true;
 	    break;
@@ -72,6 +77,7 @@ main(int argc, char *argv[])
 	cout << "\t--tf TEXTFILE\n";
 	cout << "\t--multidb\n";
 	cout << "\t--showmset\n";
+	cout << "\t--matchall\n";
 	exit(1);
     }
 
@@ -105,11 +111,20 @@ main(int argc, char *argv[])
 	if (msize) match.set_max_msize(msize);
 
 	bool boolean = false;
+	vector<termname> prob_terms;
         for (char **p = argv; *p; p++) {
 	    string term = *p;
-	    if(term == "B") { boolean = true;}
-	    else if(term == "P") { boolean = false;}
-	    else {
+	    if (term == "B") {
+		if (!prob_terms.empty()) {
+		    match.add_oplist(default_op, prob_terms);
+		    prob_terms.clear();
+		}
+		boolean = true;
+		continue;
+	    } else if (term == "P") {
+		boolean = false;		
+		continue;
+	    } else {
 		if (boolean) {
 		    if (term == "OR") {
 			if (match.add_op(OR)) {
@@ -157,14 +172,23 @@ main(int argc, char *argv[])
 		}
 
 		term = stemmer.stem_word(term);
-		
-		if (match.add_term(term)) {
-		    printf("Added term \"%s\" ok\n", term.c_str());
+
+		if (boolean) {
+		    if (match.add_term(term)) {
+			printf("Added term \"%s\" ok\n", term.c_str());
+		    } else {
+			printf("Failed to add term \"%s\"\n", term.c_str());
+		    }
 		} else {
-		    printf("Failed to add term \"%s\"\n", term.c_str());
+		    prob_terms.push_back(term);
 		}
 	    }
         }
+
+	if (!prob_terms.empty()) {
+	    match.add_oplist(default_op, prob_terms);
+	    prob_terms.clear();
+	}
 
         match.match();
 	
