@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_TERMLIST_H
 #define OM_HGUARD_SLEEPYCAT_TERMLIST_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 #include "termlist.h"
 #include "om/omtypes.h"
 
@@ -83,5 +86,7 @@ class SleepycatTermList : public LeafTermList {
 
 	om_doclength      get_doclength() const; // Get length of document.
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_TERMLIST_H */

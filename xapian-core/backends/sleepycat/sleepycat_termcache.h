@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_TERMCACHE_H
 #define OM_HGUARD_SLEEPYCAT_TERMCACHE_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 class SleepycatDatabaseInternals;
 
 /** Termname to termID mappings.
@@ -99,5 +102,7 @@ class SleepycatDatabaseTermCache {
 	 */
 	om_termid assign_new_termid(const om_termname & tname) const;
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_TERMCACHE_H */

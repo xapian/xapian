@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_LIST_H
 #define OM_HGUARD_SLEEPYCAT_LIST_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 #include <om/omtypes.h>
 #include <vector>
 #include <db_cxx.h>
@@ -341,5 +344,7 @@ class SleepycatList {
 	 */
 	void flush();
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_LIST_H */

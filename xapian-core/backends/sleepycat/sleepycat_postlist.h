@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_POSTLIST_H
 #define OM_HGUARD_SLEEPYCAT_POSTLIST_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 #include "leafpostlist.h"
 #include <stdlib.h>
 
@@ -78,5 +81,7 @@ class SleepycatPostList : public LeafPostList {
 
 	std::string intro_term_description() const;
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_POSTLIST_H */

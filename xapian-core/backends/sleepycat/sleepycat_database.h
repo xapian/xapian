@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_DATABASE_H
 #define OM_HGUARD_SLEEPYCAT_DATABASE_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 #include <stdlib.h>
 #include <memory>
 #include "database.h"
@@ -127,5 +130,7 @@ class SleepycatDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_DATABASE_H */

@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H
 #define OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 // Sleepycat database stuff
 #include <db_cxx.h>
 
@@ -64,5 +67,7 @@ class SleepycatDatabaseInternals {
 	void set_doccount(om_doccount doccount);
 	void set_totlength(om_totlength doclength);
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_DATABASE_INTERNALS_H */

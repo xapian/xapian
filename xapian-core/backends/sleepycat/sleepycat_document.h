@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_SLEEPYCAT_DOCUMENT_H
 #define OM_HGUARD_SLEEPYCAT_DOCUMENT_H
 
+#include "config.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+
 #include "document.h"
 #include <db_cxx.h>
 #include <map>
@@ -105,5 +108,7 @@ class SleepycatDocument : public LeafDocument {
 	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
+
+#endif /* MUS_BUILD_BACKEND_SLEEPYCAT */
 
 #endif /* OM_HGUARD_SLEEPYCAT_DOCUMENT_H */
