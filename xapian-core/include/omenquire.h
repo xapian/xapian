@@ -190,6 +190,8 @@ class OmMatchOptions {
 	om_keyno collapse_key;
 
 	bool  sort_forward;
+
+	int percent_cutoff;
     public:
 	OmMatchOptions();
 
@@ -206,6 +208,16 @@ class OmMatchOptions {
 	 *  weighting schemes.
 	 */
 	void set_sort_forward(bool forward_ = true);
+
+	/** Set a percentage cutoff for the match.  Only documents
+	 *  with a percent weight of at least this percentage will
+	 *  be returned in the mset.  (If the intention is to return
+	 *  only matches which contain all the terms in the query,
+	 *  then consider using OM_MOP_AND instead of OM_MOP_OR in
+	 *  the query.)  The percentage must be between 0 and 100, or
+	 *  an OmInvalidArgumentError will be thrown.
+	 */
+	void set_percentage_cutoff(int percent_);
 };
 
 /** Base class for matcher decision functor.

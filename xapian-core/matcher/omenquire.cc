@@ -364,7 +364,8 @@ OmQuery::set_length(om_termcount qlen_) {
 
 OmMatchOptions::OmMatchOptions()
 	: do_collapse(false),
-	  sort_forward(true)
+	  sort_forward(true),
+	  percent_cutoff(-1)
 {}
 
 void
@@ -384,6 +385,15 @@ void
 OmMatchOptions::set_sort_forward(bool forward_)
 {
     sort_forward = forward_;
+}
+
+void OmMatchOptions::set_percentage_cutoff(int percent_)
+{
+    if (percent_ >=0 && percent_ <= 100) {
+        percent_cutoff = percent_;
+    } else {
+        throw OmInvalidArgumentError("Percent cutoff must be in 0..100");
+    }
 }
 
 
@@ -571,6 +581,11 @@ OmEnquire::get_mset(om_doccount first,
 
     // Set Database
     OmMatch match(internal->database);
+
+    // Set cutoff percent
+    if (moptions->percent_cutoff > 0) {
+        match.set_min_weight_percent(moptions->percent_cutoff);
+    }
 
     // Set Rset
     RSet *rset = 0;

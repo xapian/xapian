@@ -67,6 +67,8 @@ bool test_topercent1();
 bool test_expandfunctor1();
 // tests the match decision functor
 bool test_matchfunctor1();
+// tests the percent cutoff option
+bool test_pctcutoff1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -85,6 +87,7 @@ om_test tests[] = {
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
     {"matchfunctor1",	   test_matchfunctor1},
+    {"pctcutoff1",	   test_pctcutoff1},
     {0, 0}
 };
 
@@ -600,6 +603,44 @@ bool test_matchfunctor1()
         if (!myfunctor(mymset.items[i].did)) {
 	    success = false;
 	    break;
+	}
+    }
+
+    return success;
+}
+
+bool test_pctcutoff1()
+{
+    bool success = true;
+
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    OmMSet mymset1 = enquire.get_mset(0, 100);
+
+    bool ready = false;
+    int last_item = mymset1.items.size() / 2;
+    int my_pct = mymset1.convert_to_percent(mymset1.items[last_item]);
+    
+    OmMatchOptions mymopt;
+    mymopt.set_percentage_cutoff(my_pct);
+    OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
+    
+    if (mymset2.items.size() < (last_item+1)) {
+        success = false;
+	if (verbose) {
+	    cout << "Match with % cutoff lost too many items" << endl;
+	}
+    } else if (mymset2.items.size() > (last_item+1)) {
+        for (unsigned int i=last_item+1; i<mymset2.items.size(); ++i) {
+	    if (mymset2.convert_to_percent(mymset2.items[i]) != my_pct) {
+	        success = false;
+		if (verbose) {
+		    cout << "Match with % cutoff returned "
+		            " too many items" << endl;
+		}
+		break;
+	    }
 	}
     }
 

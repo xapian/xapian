@@ -1,3 +1,8 @@
+Fri Feb 11 17:52:42 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added percent cutoff to the API, and added a test to apitest
+	  for it.
+
 Fri Feb 11 16:44:34 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The api docs now go into the distribution tarball.
