@@ -90,7 +90,7 @@ InMemoryDatabase::open_term_list(docid did) const
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
-    return new InMemoryTermList(this, termlists[did - 1]);
+    return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
 }
 
 IRDocument *

@@ -129,8 +129,11 @@ class InMemoryTermList : public virtual DBTermList {
 	bool started;
 
 	const InMemoryDatabase * this_db;
+	doclength norm_len;
 
-	InMemoryTermList(const InMemoryDatabase *, const InMemoryDoc &);
+	InMemoryTermList(const InMemoryDatabase *,
+			 const InMemoryDoc &,
+			 doclength);
     public:
 	termcount get_approx_size() const;
 
@@ -263,13 +266,15 @@ InMemoryPostList::at_end() const
 //////////////////////////////////////////////
 
 inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase *db,
-					  const InMemoryDoc &doc)
+					  const InMemoryDoc &doc,
+					  doclength len)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
 	  terms(doc.terms.size()),
 	  started(false),
 	  this_db(db)
 {
+    norm_len = len / this_db->get_avlength();
     return;
 }
 
@@ -282,9 +287,10 @@ inline ExpandBits InMemoryTermList::get_weighting() const
 {
     Assert(started);
     Assert(!at_end());
-    doclength len = 1.0;
+    Assert(wt != NULL);
+
     return wt->get_bits(InMemoryTermList::get_wdf(),
-			len,
+			norm_len,
 			InMemoryTermList::get_termfreq(),
 			this_db->get_doccount());
 }
@@ -368,7 +374,7 @@ InMemoryDatabase::get_doclength(docid did) const
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
-    return (doclength) doclengths[did - 1];
+    return doclengths[did - 1];
 }
 
 #endif /* _inmemory_database_h_ */
