@@ -1,3 +1,8 @@
+Wed Nov 28 15:45:39 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed clipping of hit page in case when there are a multiple of HITSPERPAGE
+	  matches. 
+
 Wed Nov 28 14:03:48 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added $hostname{URL}; $version output now says "Xapian - omega <version>".
