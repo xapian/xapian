@@ -6,14 +6,14 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = netclient.h progclient.h
 
-noinst_PROGRAMS = nettest omnetclient
+#noinst_PROGRAMS = nettest omnetclient
 
 noinst_LTLIBRARIES = libnet.la
 
 libnet_la_SOURCES = progclient.cc
 
-nettest_SOURCES = nettest.cc
-nettest_LDADD = ../libomus.la
+#nettest_SOURCES = nettest.cc
+#nettest_LDADD = ../libomus.la
 
-omnetclient_SOURCES = omnetclient.cc
-omnetclient_LDADD =
+#omnetclient_SOURCES = omnetclient.cc
+#omnetclient_LDADD =
