@@ -38,15 +38,16 @@ case "$bison_version" in
 esac
 
 srcdir="`echo $0|sed 's![^/]*$!!'`"
-# don't try to build xapian-applications/dbtools or xapview - they need work.
+# Don't try to build xapian-applications/dbtools or xapview - they need work.
 modules=
-for module in xapian-core xapian-bindings xapian-examples xapian-applications/omega xapian-applications/queryserver xapian-applications/cvssearch ; do
+for module in xapian-core xapian-examples xapian-applications/omega xapian-bindings xapian-applications/queryserver xapian-applications/cvssearch ; do
   d="${srcdir}$module"
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
     # use --install as debian's autoconf wrapper uses 2.5X if it sees it
     # (but it doesn't check for -i).
     ${AUTORECONF-autoreconf} --install "$d"
+    modules="$modules $module"
   fi
 
   if test xapian-core = "$module" ; then
@@ -57,10 +58,9 @@ for module in xapian-core xapian-bindings xapian-examples xapian-applications/om
       export ACLOCAL
     fi
   fi
-  modules="$modules $module"
 done
 
-# generate the top-level configure script
+# Generate the top-level configure script.
 rm -f configure.tmp
 cat <<'TOP_OF_CONFIGURE' > configure.tmp
 #!/bin/sh
@@ -100,9 +100,9 @@ done
 
 TOP_OF_CONFIGURE
 
-# produce an absolute version of srcdir
+# Produce an absolute version of srcdir.
 srcdir_abs="`cd \"${srcdir-.}\"&&pwd`"
-# unquoted section so we can subst variables
+# This section is unquoted so we can substitute variables.
 cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
 srcdir="$srcdir_abs"
 modules="$modules"
@@ -112,8 +112,14 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
 here="`pwd`"
 XAPIAN_CONFIG="$here/xapian-core/xapian-config"
+ACLOCAL="${ACLOCAL-aclocal} -I $srcdir/xapian-core/m4"
 for d in $modules ; do
-  if test -f "$srcdir/$d/configure" ; then
+  if test "$here" == "$srcdir" ; then
+    configure="./configure"
+  else
+    configure="$srcdir/$d/configure"
+  fi
+  if test -f "$configure" ; then
     if test -d "$d" ; then : ; else
       case "$d" in
       xapian-applications/*) test -d xapian-applications || mkdir xapian-applications ;;
@@ -121,8 +127,12 @@ for d in $modules ; do
       mkdir "$d"
     fi
     echo "Configuring \`$d'"
-    # Use a shared config.cache for speed
-    cd "$d" && "$srcdir/$d/configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
+    # Use a shared config.cache for speed and to save a bit of diskspace.
+    if test xapian-core = "$d" ; then
+      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
+    else
+      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ACLOCAL="$ACLOCAL" ${1+"$@"}
+    fi
     cd "$here"
     dirs="$dirs $d"
   fi
