@@ -23,10 +23,18 @@ if test 0 = "$#"; then
    echo "syntax: $0 <test program> [<arguments>]"
    exit 1
 fi
+
+# Set srcdir if it isn't already.
+: ${srcdir="@srcdir@"}
+export srcdir
+
+# If valgrind isn't involved, just run the test program.
 if test -z "@VALGRIND@" ; then
    exec "$@"
    exit 1
 fi
+
+# Get libtool to run the test program under valgrind.
 : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
 export top_builddir
 LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"

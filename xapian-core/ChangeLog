@@ -1,3 +1,8 @@
+Mon Jul 28 15:34:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Set srcdir if it isn't already to make it easy
+	  to manually run test programs from a VPATH build.
+
 Mon Jul 28 10:38:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fixed --cxxflags for uninstalled VPATH builds.
