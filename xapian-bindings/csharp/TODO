@@ -18,6 +18,8 @@ The following problems, reported by Olly, need to be looked at:
 > Methods like Document::add_term() with optional parameters insist on
 > having all parameters specified (another SWIG bug?)
 
+SWIG 1.3.23 apparently implements optional parameters for C#.
+
 > And the bits of SmokeTest.cs which actually compile fail with an
 > exception.  Not sure what exception.  I'd had enough by that point
 > and gave up before figuring out how to catch and report them.
