@@ -24,6 +24,29 @@ Table for result of operations when one of the operands is undefined (0):
 * - this represents a pure boolean query - all weights will be 1
 
 =====================
+
+Table describing effect of building a query with boolean subqueries:
+(NOTE: This is unimplemented, and is what should probably happen if
+it ever is.  The current behaviour is that any pure boolean subquery
+throws an exception, and it's not clear that it's worth adding the
+code to check for special cases where it might make sense.)
+
+              | result when        | result when    | result when
+operation     | a is bool          | b is bool      | a and b bool
+--------------+--------------------+----------------+--------------
+a OR b        | exception          | exception      | bool (a OR b)
+a AND b       | b FILTER a         | a FILTER b     | bool (a AND b)
+	      | vector of ANDs -> split into pure bool and prob. parts,
+	      | and FILTER the two trees.
+a FILTER b    | bool (a AND b)     | ok             | bool (a AND b)
+a AND_MAYBE b | exception          | exception      | exception
+a AND_NOT b   | bool (a AND_NOT b) | ok             | bool (a AND_NOT b)
+a XOR b       | exception          | exception      | bool (a XOR b)
+
+"bool (a OP b)" means the query (a OP b) with the bool flag set.
+The exception thrown in invalid cases is OmInvalidArgumentError.
+
+=====================
 PostList::next()
 
 In the normal case this returns a NULL PostList pointer.  This is actually

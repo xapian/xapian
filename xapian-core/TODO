@@ -28,8 +28,6 @@ Priority | Area            | Task
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
 ---------+-----------------+--------------------------------------------------
- Medium  |CPositional      | Clean up the calculated query length code
----------+-----------------+--------------------------------------------------
  Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
@@ -39,9 +37,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
 	 |                 | through positionlist for sequential positions.
----------+-----------------+--------------------------------------------------
- Low     |cAPI		   | Do allow boolean subqueries in OmQuery
-         |                 | constructors, where it makes sense.
 ---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
@@ -93,6 +88,9 @@ Priority | Area            | Task
          |                 | doing copy-on-write for them.  (Notably term
 	 |                 | objects (currently strings so this happens, but
 	 |                 | may not stay that way) and ExpandBits)
+---------+-----------------+--------------------------------------------------
+ VeryLow | API		   | Do allow boolean subqueries in OmQuery
+         |                 | constructors, where it makes sense.
 ---------+-----------------+--------------------------------------------------
  Dubious | Weighting       | Allow for a non-zero minimum value for the ndl
 	 |                 | (normalised doc len).
