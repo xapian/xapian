@@ -1,3 +1,7 @@
+Thu Sep 19 00:57:23 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Added depcomp, missing, mkinstalldirs.
+
 Thu Sep 19 00:49:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note about safe way to generate files in make rules.

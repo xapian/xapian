@@ -22,4 +22,7 @@ xapian-core-*.tar.gz
 TODO
 TODO.release
 autom4te*.cache
+depcomp
+missing
+mkinstalldirs
 xapian.spec
