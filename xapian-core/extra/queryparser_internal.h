@@ -36,8 +36,8 @@ using namespace std;
 class State;
 
 class QueryParser::Internal : public Xapian::Internal::RefCntBase {
-    friend QueryParser;
-    friend State;
+    friend class QueryParser;
+    friend class State;
     Stem stemmer;
     stem_strategy stem_action;
     Stopper * stopper;

@@ -39,12 +39,12 @@ class Stopper {
 
 /// Build a Xapian::Query object from a user query string.
 class QueryParser {
+  public:
     /// Class representing the queryparser internals.
     class Internal;
     /// @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;
 
-  public:
     /// Enum of feature flags.
     typedef enum {
 	FLAG_BOOLEAN = 1,
@@ -96,8 +96,8 @@ class QueryParser {
     TermIterator stoplist_begin() const;
     TermIterator stoplist_end() const;
 
-    TermIterator unstem_begin(const string &term) const;
-    TermIterator unstem_end(const string &term) const;
+    TermIterator unstem_begin(const std::string &term) const;
+    TermIterator unstem_end(const std::string &term) const;
 };
 
 }

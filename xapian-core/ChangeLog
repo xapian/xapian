@@ -1,3 +1,8 @@
+Sun Feb 13 23:30:02 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.cc,extra/queryparser_internal.h,
+	  extra/xapian/queryparser.h: Fixed to compile with GCC 3.3.
+
 Sun Feb 13 23:09:15 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Enhanced valgrind test to (a) see if --tool=memcheck

@@ -110,7 +110,7 @@ QueryParser::add_boolean_prefix(const std::string &field,
 TermIterator
 QueryParser::termlist_begin() const
 {
-    list<string> & tl = internal->termlist;
+    list<std::string> & tl = internal->termlist;
     return TermIterator(new VectorTermList(tl.begin(), tl.end()));
 }
 
@@ -123,7 +123,7 @@ QueryParser::termlist_end() const
 TermIterator
 QueryParser::stoplist_begin() const
 {
-    list<string> & sl = internal->stoplist;
+    list<std::string> & sl = internal->stoplist;
     return TermIterator(new VectorTermList(sl.begin(), sl.end()));
 }
 
@@ -134,13 +134,13 @@ QueryParser::stoplist_end() const
 }
 
 TermIterator
-QueryParser::unstem_begin(const string &term) const
+QueryParser::unstem_begin(const std::string &term) const
 {
-    pair<multimap<string, string>::iterator,
-	 multimap<string, string>::iterator> range;
+    pair<multimap<std::string, std::string>::iterator,
+	 multimap<std::string, std::string>::iterator> range;
     range = internal->unstem.equal_range(term);
-    list<string> l;
-    multimap<string, string>::iterator & i = range.first;
+    list<std::string> l;
+    multimap<std::string, std::string>::iterator & i = range.first;
     while (i != range.second) {
 	l.push_back(i->second);
 	++i;
@@ -149,7 +149,7 @@ QueryParser::unstem_begin(const string &term) const
 }
 
 TermIterator
-QueryParser::unstem_end(const string &/*term*/) const
+QueryParser::unstem_end(const std::string &/*term*/) const
 {
     return TermIterator(NULL);
 }
