@@ -36,6 +36,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <algorithm>
 #include <math.h>
 
 // Table of names of database types
@@ -333,35 +334,45 @@ OmQuery::set_length(om_termcount qlen_) {
     return oldqlen;
 }
 
-om_termname_list
-OmQuery::internal_get_terms() const
+void
+OmQuery::accumulate_terms(vector<pair<om_termname, om_termpos> > &terms) const
 {
     Assert(isdefined);
 
-    om_termname_list retval;
     if (op == OM_MOP_LEAF) {
         // We're a leaf, so just return our term.
-        retval.push_back(tname);
+        terms.push_back(make_pair(tname, term_pos));
     } else {
     	subquery_list::const_iterator end = subqs.end();
         // not a leaf, concatenate results from all subqueries
 	for (subquery_list::const_iterator i = subqs.begin();
 	     i != end;
 	     ++i) {
-	     om_termname_list sub_list = (*i)->internal_get_terms();
-	     retval.splice(retval.end(), sub_list);
+ 	    (*i)->accumulate_terms(terms);
 	}
     }
-    return retval;
 }
+
+struct LessByTermpos {
+    typedef const pair<om_termname, om_termpos> argtype;
+    bool operator()(argtype &left, argtype &right) {
+	return left.second < right.second;
+    }
+};
 
 om_termname_list
 OmQuery::get_terms() const
 {
     om_termname_list result;
 
+    vector<pair<om_termname, om_termpos> > terms;
     if (isdefined) {
-        result = internal_get_terms();
+        accumulate_terms(terms);
+    }
+    sort(terms.begin(), terms.end(), LessByTermpos());
+    vector<pair<om_termname, om_termpos> >::const_iterator i;
+    for (i=terms.begin(); i!= terms.end(); ++i) {
+	result.push_back(i->first);
     }
 
     return result;

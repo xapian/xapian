@@ -1,3 +1,7 @@
+Fri Feb 18 17:49:13 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmQuery::get_terms now returns the terms in termpos order.
+
 Fri Feb 18 13:53:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
         * Added second test for reversed boolean queries.

@@ -108,8 +108,9 @@ class OmQuery {
 	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 				    const vector<OmQuery *>::const_iterator qend);
 
-	/** Private function implementing get_terms() */
-        om_termname_list internal_get_terms() const;
+	/** Private function used to implement get_terms() */
+        void accumulate_terms(
+	    vector<pair<om_termname, om_termpos> > &terms) const;
 
 	/** Return an om_termname_list containing all the terms in the query,
 	 *  in left to right order.
