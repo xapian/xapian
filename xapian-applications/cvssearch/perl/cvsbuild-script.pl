@@ -48,7 +48,7 @@ if (not (-x $cvsmap)) {
 
 my $mask = umask "0002";
 my $comp_mode = 0;
-gy $cvsdata = Cvssearch::get_cvsdata();
+my $cvsdata = Cvssearch::get_cvsdata();
 my $cvsroot = $ENV{"CVSROOT"};
 my $cvscache = "cache";
 my @file_types= qw(cc h cpp c C java);
