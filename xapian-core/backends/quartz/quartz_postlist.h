@@ -28,6 +28,7 @@
 #include "om/omtypes.h"
 #include <string>
 #include "quartz_table_entries.h"
+#include "omassert.h"
 
 class QuartzTable;
 class QuartzCursor;
@@ -37,7 +38,6 @@ class QuartzDatabase;
 /** A postlist in a quartz database.
  */
 class QuartzPostList : public LeafPostList {
-    friend class QuartzDatabase;
     private:
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
@@ -98,16 +98,9 @@ class QuartzPostList : public LeafPostList {
         /// Assignment is not allowed.
         void operator=(const QuartzPostList &);
 
-        /// Default constructor.
-        QuartzPostList(RefCntPtr<const Database> this_db_,
-		       om_doclength avlength_,
-		       const QuartzTable * table_,
-		       const om_termname & tname);
-
 	/// Make a key for accessing the postlist.
-	static void make_key(const om_termname & tname,
-			     om_docid did,
-			     QuartzDbKey & key);
+	void make_key(om_docid did,
+		      QuartzDbKey & key);
 
 	/** Move to the next item in the chunk, if possible.
 	 *  If already at the end of the chunk, returns false.
@@ -127,14 +120,33 @@ class QuartzPostList : public LeafPostList {
 	 */
 	void read_number_of_entries();
 
+	/// Write the number of entries in the posting list.
+	void write_number_of_entries(std::string & chunk,
+				     om_termcount new_number_of_entries);
+
 	/// Read the docid of the first entry in the posting list.
 	void read_first_docid();
 
-	/// Read the start of a chunk, including the first item in it.
+	/// Write the docid of the first entry in the posting list.
+	void write_first_docid(std::string & chunk,
+			       om_docid new_did);
+
+	/// Read the start of a chunk, including the first docid in it.
 	void read_start_of_chunk();
+
+	/// Write the start of a chunk, including the first docid in it.
+	void write_start_of_chunk(std::string & chunk,
+				  bool new_is_last_chunk,
+				  om_docid new_first_did,
+				  om_docid new_final_did);
 
 	/// Read the wdf and the length of an item.
 	void read_wdf_and_length();
+
+	/// Write the wdf and length of an item into a chunk.
+	void write_wdf_and_length(std::string & chunk,
+				  om_termcount new_wdf,
+				  om_termcount new_doclength);
 
 	/** Return true if the given document ID lies in the range covered
 	 *  by the current chunk.  This does not say whether the document ID
@@ -176,7 +188,16 @@ class QuartzPostList : public LeafPostList {
 
 	/// Report an error when reading the posting list.
 	void report_read_error(const char * position);
+
+	/// Set the number of entries
+	void set_number_of_entries(QuartzBufferedTable * bufftable,
+				   om_termcount new_number_of_entries);
     public:
+        /// Default constructor.
+        QuartzPostList(RefCntPtr<const Database> this_db_,
+		       om_doclength avlength_,
+		       const QuartzTable * table_,
+		       const om_termname & tname);
 
         /// Destructor.
         ~QuartzPostList();
@@ -188,17 +209,18 @@ class QuartzPostList : public LeafPostList {
 	om_doccount   get_termfreq() const { return number_of_entries; }
 
 	/// Returns the current docid.
-	om_docid     get_docid() const { return did; }
+	om_docid     get_docid() const { Assert(have_started); return did; }
 
 	/// Returns the normalised length of current document.
 	om_doclength get_doclength() const {
+	    Assert(have_started);
 	    return (om_doclength)doclength / avlength;
 	}
 
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.
 	 */
-	om_termcount get_wdf() const { return wdf; }
+	om_termcount get_wdf() const { Assert(have_started); return wdf; }
 
 	/** Get the list of positions of the term in the current document.
 	 */
@@ -216,16 +238,14 @@ class QuartzPostList : public LeafPostList {
 	/// Get a description of the document.
 	std::string get_description() const;
 
-	////////////////////
+	/// Insert an entry
+	void set_entry(QuartzBufferedTable * bufftable,
+		       om_docid new_did,
+		       om_termcount new_wdf,
+		       om_doclength new_doclen,
+		       om_doclength new_avlength);
 
 #if 0
-	/// Insert an entry
-	static void set_entry(QuartzBufferedTable * table,
-			      const om_termname & tname,
-			      om_docid did,
-			      om_termcount wdf,
-			      om_doclength doclen);
-
 	/// Delete an entry
 	static void delete_entry(QuartzBufferedTable * table,
 				 const om_termname & tname,

@@ -61,9 +61,13 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     key.value = pack_string(tname);
     int found = cursor->find_entry(key);
     if (!found) {
-	throw OmInvalidDataError("Attempt to open a postlist for term `" +
-				 tname +
-				 "', which can't be found in database.");
+	number_of_entries = 0;
+	is_at_end = true;
+	pos = 0;
+	end = 0;
+	first_did_in_chunk = 0;
+	last_did_in_chunk = 0;
+	return;
     }
     pos = cursor->current_tag.value.data();
     end = pos + cursor->current_tag.value.size();
@@ -75,8 +79,7 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 }
 
 void
-QuartzPostList::make_key(const om_termname & tname,
-			 om_docid did,
+QuartzPostList::make_key(om_docid did,
 			 QuartzDbKey & key)
 {
     key.value = pack_string(tname);
@@ -131,7 +134,6 @@ QuartzPostList::read_start_of_chunk()
 void
 QuartzPostList::read_wdf_and_length()
 {
-    // Read the wdf and length of an item
     if (!unpack_uint(&pos, end, &wdf)) report_read_error(pos);
     if (!unpack_uint(&pos, end, &doclength)) report_read_error(pos);
 }
@@ -233,7 +235,7 @@ void
 QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 {
     QuartzDbKey key;
-    make_key(tname, desired_did, key);
+    make_key(desired_did, key);
     (void) cursor->find_entry(key);
     Assert(!cursor->after_end());
 
@@ -246,9 +248,10 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 	report_read_error(keypos);
     }
     if (tname_in_key != tname) {
+	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
-	throw OmDatabaseCorruptError("Posting list (for `" +
-				     tname + "') vanished under our feet.");
+	is_last_chunk = true;
+	return;
     }
     is_at_end = false;
 
@@ -257,7 +260,11 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 
     if (keypos == keyend) {
 	// In first chunk
+#ifdef MUS_DEBUG
+	om_termcount old_number_of_entries = number_of_entries;
+#endif
 	read_number_of_entries();
+	Assert(old_number_of_entries == number_of_entries);
 	read_first_docid();
     } else {
 	// In normal chunk
@@ -332,5 +339,105 @@ QuartzPostList::get_description() const
 }
 
 
-// Methods modifying position lists
+// Methods modifying posting list
+
+void
+QuartzPostList::write_number_of_entries(std::string & chunk,
+					om_termcount new_number_of_entries)
+{
+    chunk += pack_uint(new_number_of_entries);
+}
+
+void
+QuartzPostList::write_first_docid(std::string & chunk,
+				  om_docid new_did)
+{
+    chunk += pack_uint(new_did);
+}
+
+void
+QuartzPostList::write_start_of_chunk(std::string & chunk,
+				     bool new_is_last_chunk,
+				     om_docid new_first_did,
+				     om_docid new_final_did)
+{
+    chunk += pack_bool(new_is_last_chunk);
+    Assert(new_final_did >= new_first_did);
+    chunk += pack_uint(new_final_did - new_first_did);
+}
+
+void
+QuartzPostList::write_wdf_and_length(std::string & chunk,
+				     om_termcount new_wdf,
+				     om_termcount new_doclength)
+{
+    chunk += pack_uint(new_wdf);
+    chunk += pack_uint(new_doclength);
+}
+
+void
+QuartzPostList::set_number_of_entries(QuartzBufferedTable * bufftable,
+				      om_termcount new_number_of_entries)
+{
+    QuartzDbKey key;
+    key.value = pack_string(tname);
+    QuartzDbTag * tag = bufftable->get_or_make_tag(key);
+
+    om_termcount old_number_of_entries;
+    const char * tagpos = tag->value.data();
+    const char * tagend = tagpos + tag->value.size();
+    if (!unpack_uint(&tagpos, tagend, &old_number_of_entries))
+	report_read_error(pos);
+    Assert(old_number_of_entries == number_of_entries);
+
+    number_of_entries = new_number_of_entries;
+    tag->value.replace(0, tagpos - tag->value.data(), 
+		       pack_uint(number_of_entries));
+}
+
+void
+QuartzPostList::set_entry(QuartzBufferedTable * bufftable,
+			  om_docid new_did,
+			  om_termcount new_wdf,
+			  om_doclength new_doclen,
+			  om_doclength new_avlength)
+{
+    // How big should chunks in the posting list be?  (They will grow
+    // slightly bigger than this, but not more than a few bytes extra)
+    unsigned int chunksize = 2048;
+
+    if (number_of_entries == 0) {
+	// New posting list.
+	QuartzDbKey key;
+	key.value = pack_string(tname);
+	QuartzDbTag * tag = bufftable->get_or_make_tag(key);
+	Assert(tag != 0);
+
+	number_of_entries += 1;
+	write_number_of_entries(tag->value, number_of_entries);
+	write_first_docid(tag->value, new_did);
+	write_start_of_chunk(tag->value, true, new_did, new_did);
+	write_wdf_and_length(tag->value, new_wdf, new_doclen);
+    } else {
+	move_to(new_did);
+
+	if (is_at_end) {
+	    QuartzDbKey key;
+	    make_key(new_did, key);
+	    // Add an entry to the end of the posting list
+	    QuartzDbTag * tag = bufftable->get_or_make_tag(key);
+	    Assert(tag != 0);
+
+	    if (tag->value.size() > chunksize) {
+		//append_chunk(new_did);
+	    } else {
+		//append_to_chunk(tag->value, new_did, new_wdf, new_doclen);
+		set_number_of_entries(bufftable, number_of_entries + 1);
+	    }
+	} else {
+	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
+	}
+    }
+    avlength = new_avlength;
+}
 

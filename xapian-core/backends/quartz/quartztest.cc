@@ -26,6 +26,7 @@
 #include "om/omerror.h"
 
 #include "quartz_database.h"
+#include "quartz_postlist.h"
 #include "quartz_table.h"
 #include "quartz_table_entries.h"
 #include "quartz_utils.h"
@@ -1115,6 +1116,51 @@ static bool test_btree1()
     return true;
 }
 
+
+/// Test playing with a postlist
+static bool test_postlist1()
+{
+    OmSettings settings;
+    system("rm -fr .testdb_postlist1");
+    system("mkdir .testdb_postlist1");
+    settings.set("quartz_dir", ".testdb_postlist1");
+    settings.set("quartz_logfile", "log_postlist1");
+    settings.set("backend", "quartz");
+    RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
+
+    QuartzDiskTable disktable("./test_postlist1_", false, 8192);
+    disktable.open();
+    QuartzBufferedTable bufftable(&disktable);
+    QuartzTable * table = &bufftable;
+
+    QuartzPostList pl(database_w, 7, table, "foo");
+
+    TEST_EQUAL(pl.get_termfreq(), 0);
+    {
+	QuartzPostList pl2(database_w, 7, table, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), 0);
+	pl2.next(0);
+	TEST(pl2.at_end());
+    }
+
+    pl.set_entry(&bufftable, 5, 7, 3, 8);
+    TEST_EQUAL(pl.get_termfreq(), 1);
+
+    {
+	QuartzPostList pl2(database_w, 7, table, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), 1);
+	pl2.next(0);
+	TEST(!pl2.at_end());
+	TEST_EQUAL(pl2.get_docid(), 5);
+	TEST_EQUAL(pl2.get_doclength(), 3 / 8);
+	TEST_EQUAL(pl2.get_wdf(), 7);
+	pl2.next(0);
+	TEST(pl2.at_end());
+    }
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -1139,6 +1185,7 @@ test_desc tests[] = {
     {"quartzpackint3",		test_packint3},
     {"quartzunpackint1",	test_unpackint1},
     {"quartzbtree1",		test_btree1},
+    {"quartzpostlist1",		test_postlist1},
     {0, 0}
 };
 
