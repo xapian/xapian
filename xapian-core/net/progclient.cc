@@ -170,7 +170,7 @@ ProgClient::finish_query()
 	case state_sentquery:
 
 	    // Message 4
-	    if (!data_is_available()) {
+	    if (!buf.data_waiting()) {
 		break;
 	    }
 	    
@@ -185,9 +185,11 @@ ProgClient::finish_query()
 		success = true;
 	    }
 
-	    conv_state = state_getmset;
+	    conv_state = state_sendglobal;
 	    // fall through...
+	case state_sendglobal:
 	case state_getmset:
+	case state_getresult:
 	    ;
     }
     return success;
@@ -203,13 +205,15 @@ bool
 ProgClient::get_remote_stats(Stats &out)
 {
     Assert(remote_stats_valid && conv_state >= state_sentquery);
-    if (!remote_stats_valid && conv_state <= state_getmset) {
+    if (!remote_stats_valid && conv_state <= state_sendglobal) {
 	bool finished = finish_query();
 
 	if (!finished) return false;
     }
 
     out = remote_stats;
+
+    conv_state = state_sendglobal;
     return true;
 }
 
@@ -254,12 +258,15 @@ string_to_msetitem(string s)
 void
 ProgClient::send_global_stats(const Stats &stats)
 {
-    Assert(conv_state == state_getmset);
-    global_stats = stats;
-    global_stats_valid = true;
+    Assert(conv_state >= state_sendglobal);
+    if (conv_state == state_sendglobal) {
+	global_stats = stats;
+	global_stats_valid = true;
+	conv_state = state_getmset;
+    };
 }
 
-void
+bool
 ProgClient::get_mset(om_doccount first,
 		     om_doccount maxitems,
 		     vector<OmMSetItem> &mset,
@@ -267,36 +274,59 @@ ProgClient::get_mset(om_doccount first,
 		     om_weight *greatest_wt)
 {
     Assert(global_stats_valid);
-    Assert(conv_state == state_getmset);
+    Assert(conv_state >= state_getmset);
+    switch (conv_state) {
+	case state_getquery:
+	case state_sentquery:
+	case state_sendglobal:
+	    throw OmInvalidArgumentError("get_mset called before global stats given");
+	    break;
+	case state_getmset:
 
-    // Message 5 (see README_progprotocol.txt)
-    string message = "GLOBSTATS " + stats_to_string(global_stats) + '\n';
-    message += "GETMSET " +
-	       inttostring(first) + " " +
-	       inttostring(maxitems);
-    do_write(message);
+	    // Message 5 (see README_progprotocol.txt)
+	    {
+		string message = "GLOBSTATS " + stats_to_string(global_stats) + '\n';
+		message += "GETMSET " +
+			    inttostring(first) + " " +
+			    inttostring(maxitems);
+		do_write(message);
+	    }
+	    conv_state = state_getresult;
 
-    // Message 6
-    string response = do_read();
-    if (response.substr(0, 9) != "MSETITEMS") {
-	throw OmNetworkError(string("Expected MSETITEMS, got ") + response);
-    }
-    response = response.substr(10);
+	    // fall through...
+	case state_getresult:
 
-    int numitems;
-    {
-	istrstream is(response.c_str());
+	    if (!buf.data_waiting()) {
+		return false;
+	    }
+	
+	    // Message 6
+	    {
+		string response = do_read();
+		if (response.substr(0, 9) != "MSETITEMS") {
+		    throw OmNetworkError(string("Expected MSETITEMS, got ") + response);
+		}
+		response = response.substr(10);
 
-	is >> numitems >> remote_maxweight;
-    }
+		int numitems;
+		{
+		    istrstream is(response.c_str());
 
-    for (int i=0; i<numitems; ++i) {
-	mset.push_back(string_to_msetitem(do_read()));
-    }
-    response = do_read();
-    if (response != "OK") {
-	throw OmNetworkError("Error at end of mset");
-    }
+		    is >> numitems >> remote_maxweight;
+		}
+
+		for (int i=0; i<numitems; ++i) {
+		    mset.push_back(string_to_msetitem(do_read()));
+		}
+		response = do_read();
+		if (response != "OK") {
+		    throw OmNetworkError("Error at end of mset");
+		}
+	    }
+    } // switch (conv_state)
+    // reset the state
+    conv_state = state_getquery;
+    return true;
 }
 
 om_weight

@@ -86,7 +86,7 @@ class NetClient : public OmRefCntBase {
 	virtual void send_global_stats(const Stats &stats) = 0;
 
 	/** Do the actual MSet fetching */
-	virtual void get_mset(om_doccount first,
+	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
 			      vector<OmMSetItem> &mset,
 			      om_doccount *mbound,

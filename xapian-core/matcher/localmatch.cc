@@ -502,14 +502,15 @@ LocalMatch::get_max_weight()
 }
 
 // This is the method which runs the query, generating the M set
-void
+bool
 LocalMatch::get_mset(om_doccount first,
 		    om_doccount maxitems,
 		    vector<OmMSetItem> & mset,
 		    mset_cmp cmp,
 		    om_doccount * mbound,
 		    om_weight * greatest_wt,
-		    const OmMatchDecider *mdecider)
+		    const OmMatchDecider *mdecider,
+		    bool nowait)
 {
     // Check that we have prepared to run the query
     Assert(is_prepared);
@@ -524,11 +525,11 @@ LocalMatch::get_mset(om_doccount first,
     MSetCmp mcmp(cmp);
 
     // Check that we have a valid query to run
-    if(!(users_query.isdefined)) return;
+    if(!(users_query.isdefined)) return false;
 
     // Check that any results have been asked for (might just be wanting
     // maxweight)
-    if(maxitems == 0) return;
+    if(maxitems == 0) return false;
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
@@ -683,4 +684,6 @@ LocalMatch::get_mset(om_doccount first,
     // Query now needs to be recalculated if it is needed again.
     delete query;
     query = 0;
+
+    return true;
 }

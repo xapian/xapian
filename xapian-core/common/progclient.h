@@ -46,7 +46,9 @@ class ProgClient : public NetClient {
 	enum {
 	    state_getquery,  // Accumulate the query and other info
 	    state_sentquery, // Query has been sent, waiting for remote stats.
-	    state_getmset    // Ready to call get_mset
+	    state_sendglobal,// Ready to send the global stats
+	    state_getmset,   // Ready to call get_mset
+	    state_getresult  // Waiting for result
 	} conv_state;
 
 	/// The weighting type to be used, as a string
@@ -125,7 +127,7 @@ class ProgClient : public NetClient {
 	void send_global_stats(const Stats &stats);
 
 	/** Do the actual MSet fetching */
-	void get_mset(om_doccount first,
+	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
 		      vector<OmMSetItem> &mset,
 		      om_doccount *mbound,

@@ -338,6 +338,8 @@ OmLineBuf::data_waiting()
 
     struct timeval tv;
     tv.tv_sec = 0;
+    // a tenth of a second, as an arbitrary non-zero number to avoid
+    // hogging the CPU in a loop.
     tv.tv_usec = 100000;
     if (select(readfd+1, &fdset, 0, 0, &tv) > 0) {
 	return true;

@@ -76,13 +76,14 @@ class NetworkMatch : public SingleMatch
 	bool prepare_match(bool nowait);
 
         om_weight get_max_weight();
-	void get_mset(om_doccount first,
+	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
 		      vector<OmMSetItem> & mset,
 		      mset_cmp cmp,
 		      om_doccount * mbound,
 		      om_weight * greatest_wt,
-		      const OmMatchDecider *mdecider
+		      const OmMatchDecider *mdecider,
+		      bool nowait
 		     );
 
 	///////////////////////////////////////////////////////////////////

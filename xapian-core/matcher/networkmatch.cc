@@ -491,14 +491,15 @@ NetworkMatch::perform_collapse(vector<OmMSetItem> &mset,
 #endif
 
 // This is the method which runs the query, generating the M set
-void
+bool
 NetworkMatch::get_mset(om_doccount first,
 		       om_doccount maxitems,
 		       vector<OmMSetItem> & mset,
 		       mset_cmp cmp,
 		       om_doccount * mbound,
 		       om_weight * greatest_wt,
-		       const OmMatchDecider *mdecider)
+		       const OmMatchDecider *mdecider,
+		       bool nowait)
 {
     Assert(is_prepared);
 
@@ -508,5 +509,16 @@ NetworkMatch::get_mset(om_doccount first,
 
     database->link->send_global_stats(*(gatherer->get_stats()));
 
-    database->link->get_mset(first, maxitems, mset, mbound, greatest_wt);
+    bool finished = false;
+    if (nowait) {
+	finished = database->link->get_mset(first, maxitems,
+					    mset, mbound, greatest_wt);
+    } else {
+	do {
+	    database->link->wait_for_input();
+	    finished = database->link->get_mset(first, maxitems,
+						mset, mbound, greatest_wt);
+	} while (!finished);
+    }
+    return finished;
 }
