@@ -1,3 +1,11 @@
+Tue Dec 12 15:07:39 GMT 2000 Olly Betts
+
+	* OmMSetItem replaced by OmMSetIterator.
+
+	* Added OmESet::empty().
+
+	* Fixed == on OmESetIterator.
+
 Tue Dec 12 14:16:57 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed arguments to compare_keys()

@@ -48,9 +48,9 @@ class OmBatchEnquire::Internal {
 	void set_queries(const query_batch &queries_);
         mset_batch get_msets() const;
 
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetIterator &it) const;
 	const OmDocument get_doc(om_docid did) const;
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 
 	std::string get_description() const;
@@ -89,9 +89,9 @@ OmBatchEnquire::get_doc(om_docid did) const
 }
 
 const OmDocument
-OmBatchEnquire::get_doc(const OmMSetItem &mitem) const
+OmBatchEnquire::get_doc(const OmMSetIterator &it) const
 {
-    return internal->get_doc(mitem);
+    return internal->get_doc(it);
 }
 
 om_termname_list
@@ -101,9 +101,9 @@ OmBatchEnquire::get_matching_terms(om_docid did) const
 }
 
 om_termname_list
-OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
+OmBatchEnquire::get_matching_terms(const OmMSetIterator &it) const
 {
-    return internal->get_matching_terms(mitem);
+    return internal->get_matching_terms(it);
 }
 
 std::string
@@ -163,10 +163,10 @@ OmBatchEnquire::Internal::get_doc(om_docid did) const
 }
 
 const OmDocument
-OmBatchEnquire::Internal::get_doc(const OmMSetItem &mitem) const
+OmBatchEnquire::Internal::get_doc(const OmMSetIterator &it) const
 {
     OmLockSentry locksentry(mutex);
-    return enquire.get_doc(mitem);
+    return enquire.get_doc(it);
 }
 
 om_termname_list
@@ -177,10 +177,10 @@ OmBatchEnquire::Internal::get_matching_terms(om_docid did) const
 }
 
 om_termname_list
-OmBatchEnquire::Internal::get_matching_terms(const OmMSetItem &mitem) const
+OmBatchEnquire::Internal::get_matching_terms(const OmMSetIterator &it) const
 {
     OmLockSentry locksentry(mutex);
-    return enquire.get_matching_terms(mitem);
+    return enquire.get_matching_terms(it);
 }
 
 std::string

@@ -43,17 +43,23 @@ mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 		   const OmMSet &mset2, unsigned int first2,
 		   unsigned int count)
 {
-    TEST_AND_EXPLAIN(mset1.items.size() >= first1 + count - 1,
+    TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
 		     "mset1 is too small: expected at least " <<
 		     (first1 + count - 1) << " items.");
 
-    TEST_AND_EXPLAIN(mset2.items.size() >= first2 + count - 1,
+    TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items.");
 
-    for (unsigned int i=0; i<count; ++i) {
-	if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
-	    (mset1.items[first1+i].did != mset2.items[first2+i].did)) {
+    OmMSetIterator i = mset1.begin();
+    OmMSetIterator j = mset2.begin();
+    for (unsigned int k = 0; k < first1; ++k) {
+	++i;
+	++j;
+    }
+	
+    for (unsigned int l = 0; l < count; ++l) {
+	if (*i != *j || i.get_weight() != j.get_weight()) {
 	    return false;
 	}
     }
@@ -65,16 +71,23 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 			   const OmMSet &mset2, unsigned int first2,
 			   unsigned int count)
 {
-    TEST_AND_EXPLAIN(mset1.items.size() >= first1 + count - 1,
+    TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
 		     "mset1 is too small: expected at least " <<
 		     (first1 + count - 1) << " items." << endl);
 
-    TEST_AND_EXPLAIN(mset2.items.size() >= first2 + count - 1,
+    TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items." << endl);
 
-    for (unsigned int i = 0; i < count; ++i) {
-	if (mset1.items[first1+i].wt != mset2.items[first2+i].wt) {
+    OmMSetIterator i = mset1.begin();
+    OmMSetIterator j = mset2.begin();
+    for (unsigned int k = 0; k < first1; ++k) {
+	++i;
+	++j;
+    }
+	
+    for (unsigned int l = 0; l < count; ++l) {
+	if (i.get_weight() != j.get_weight()) {
 	    return false;
 	}
     }
@@ -83,15 +96,15 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 
 bool operator==(const OmMSet &first, const OmMSet &second)
 {
-    if ((first.matches_lower_bound != second.matches_lower_bound) ||
-	(first.matches_upper_bound != second.matches_upper_bound) ||
-	(first.matches_estimated != second.matches_estimated) ||
-	(first.max_possible != second.max_possible) ||
-	(first.items.size() != second.items.size())) {
+    if ((first.get_matches_lower_bound() != second.get_matches_lower_bound()) ||
+	(first.get_matches_upper_bound() != second.get_matches_upper_bound()) ||
+	(first.get_matches_estimated() != second.get_matches_estimated()) ||
+	(first.get_max_possible() != second.get_max_possible()) ||
+	(first.size() != second.size())) {
 	return false;
     }
-    if (first.items.empty()) return true;
-    return mset_range_is_same(first, 0, second, 0, first.items.size());
+    if (first.size() == 0) return true;
+    return mset_range_is_same(first, 0, second, 0, first.size());
 }
 
 static void
@@ -140,26 +153,27 @@ mset_expect_order_(const OmMSet &A, bool beginning,
     // Wheeee!
 
     if (beginning) {
-	TEST_AND_EXPLAIN(A.items.size() >= expect.size(),
-			 "Mset is of wrong size (" << A.items.size()
+	TEST_AND_EXPLAIN(A.size() >= expect.size(),
+			 "Mset is of wrong size (" << A.size()
 			 << " < " << expect.size() << "):\n"
 			 << "Full mset was: " << A << endl
 			 << "Expected order to start: {" << expect << "}");
     } else {
-	TEST_AND_EXPLAIN(A.items.size() == expect.size(),
-			 "Mset is of wrong size (" << A.items.size()
+	TEST_AND_EXPLAIN(A.size() == expect.size(),
+			 "Mset is of wrong size (" << A.size()
 			 << " != " << expect.size() << "):\n"
 			 << "Full mset was: " << A << endl
 			 << "Expected order: {" << expect << "}");
     }
 
-    for (size_t i = 0; i < expect.size(); i++) {
-	TEST_AND_EXPLAIN(A.items[i].did == expect[i],
+    OmMSetIterator j = A.begin();
+    for (size_t i = 0; i < expect.size(); i++, j++) {
+	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
-			 << "Item " << i << " was " << A.items[i].did
+			 << "Item " << i << " was " << *j
 			 << ", expected " << expect[i] << endl
 			 << "Full mset was: " << A << endl
-			 << "Expected: {" << expect << "}");
+			 << "Expected: {" << expect << "}");	
     }
 }
 
@@ -199,11 +213,13 @@ weights_are_equal_enough(double a, double b)
 void
 test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2)
 {
-    TEST_AND_EXPLAIN(mset1.items.size() == mset2.items.size(),
+    TEST_AND_EXPLAIN(mset1.size() == mset2.size(),
 		     "Msets not the same size - "
-		     << mset1.items.size() << " != " << mset2.items.size());
-    for (unsigned int i = 0; i < mset1.items.size(); i++) {
-	TEST_AND_EXPLAIN(mset1.items[i].did == mset2.items[i].did,
+		     << mset1.size() << " != " << mset2.size());
+    OmMSetIterator i = mset1.begin();
+    OmMSetIterator j = mset2.begin();
+    for (; i != mset1.end(); i++, j++) {
+	TEST_AND_EXPLAIN(*i == *j,
 			 "Msets have different contents -\n" <<
 			 mset1 << "\n !=\n" << mset2);
     }

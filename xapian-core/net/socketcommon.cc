@@ -594,19 +594,19 @@ ommset_to_string(const OmMSet &ommset)
 
     // termandfreqthingies
     // items
-    result += om_tostring(ommset.firstitem);
+    result += om_tostring(ommset.get_firstitem());
     result += " ";
-    result += om_tostring(ommset.matches_lower_bound);
+    result += om_tostring(ommset.get_matches_lower_bound());
     result += " ";
-    result += om_tostring(ommset.matches_estimated);
+    result += om_tostring(ommset.get_matches_estimated());
     result += " ";
-    result += om_tostring(ommset.matches_upper_bound);
+    result += om_tostring(ommset.get_matches_upper_bound());
     result += " ";
-    result += om_tostring(ommset.max_possible);
+    result += om_tostring(ommset.get_max_possible());
     result += " ";
-    result += om_tostring(ommset.max_attained);
+    result += om_tostring(ommset.get_max_attained());
     result += " ";
-    result += ommsetitems_to_string(ommset.items);
+    result += ommsetitems_to_string(ommset.internal->items);
     result += " ";
     result += ommset_termfreqwts_to_string(ommset.get_all_terminfo());
 
@@ -695,12 +695,12 @@ string_to_ommset(const std::string &s)
 	terminfo[term] = tfaw;
     }
 
-    return OmMSet(firstitem,
-		  matches_upper_bound,
-		  matches_lower_bound,
-		  matches_estimated,
-		  max_possible, max_attained,
-		  items, terminfo);
+    return OmMSet(new OmMSet::Internal(firstitem,
+				       matches_upper_bound,
+				       matches_lower_bound,
+				       matches_estimated,
+				       max_possible, max_attained,
+				       items, terminfo));
 }
 
 std::map<om_termname, OmMSet::TermFreqAndWeight>

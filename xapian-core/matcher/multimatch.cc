@@ -241,12 +241,12 @@ MultiMatch::get_mset_2(PostList *pl,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	mset = OmMSet(first,
-		      matches_upper_bound,
-		      matches_lower_bound,
-		      matches_estimated,
-		      max_weight, greatest_wt, items,
-		      termfreqandwts);
+	mset = OmMSet(new OmMSet::Internal(first,
+					   matches_upper_bound,
+					   matches_lower_bound,
+					   matches_estimated,
+					   max_weight, greatest_wt, items,
+					   termfreqandwts));
 	return;
     }
 
@@ -550,12 +550,12 @@ MultiMatch::get_mset_2(PostList *pl,
     if (docs_considered > matches_estimated)
 	matches_estimated = docs_considered;
 
-    mset = OmMSet(first,
-		  matches_upper_bound,
-		  matches_lower_bound,
-		  matches_estimated,
-		  max_weight, greatest_wt, items,
-		  termfreqandwts);
+    mset = OmMSet(new OmMSet::Internal(first,
+				       matches_upper_bound,
+				       matches_lower_bound,
+				       matches_estimated,
+				       max_weight, greatest_wt, items,
+				       termfreqandwts));
 }
 
 // This method is called by branch postlists when they rebalance

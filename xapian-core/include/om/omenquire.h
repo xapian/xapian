@@ -40,56 +40,74 @@ class OmErrorHandler;
 // =============
 // Representaton of a match result set
 
-/** An item resulting from a query.
- *  This item contains the document id, and the weight calculated for
- *  the document.
- */
-class OmMSetItem {
+class OmMSetIterator {
     private:
+	friend class OmMSet; // So OmMSet can construct us
+
+	class Internal;
+
+	Internal *internal; // reference counted internals
+
+        friend bool operator==(const OmMSetIterator &a, const OmMSetIterator &b);
+
+	OmMSetIterator(Internal *internal_);
+
     public:
-	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
+        ~OmMSetIterator();
 
-	OmMSetItem(om_weight wt_, om_docid did_, const OmKey &key_)
-		: wt(wt_), did(did_), collapse_key(key_) {}
+	/// Copying is allowed (and is cheap).
+	OmMSetIterator(const OmMSetIterator &other);
 
-	/** Weight calculated. */
-	om_weight wt;
+        /// Assignment is allowed (and is cheap).
+	void operator=(const OmMSetIterator &other);
 
-	/** Document id. */
-	om_docid did;
+	OmMSetIterator & operator++();
 
-	/** Key which was used to collapse upon.
-	 *
-	 *  If the collapse option is not being used, this will always
-	 *  have a null value.
-	 *
-	 *  If a key of collapsing upon is specified, this will contain
-	 *  the key for this particular item.  If the key is not present
-	 *  for this item, the value will be a null string.  Only one
-	 *  instance of each key value (apart from the null string) will
-	 *  be present in the items in the returned OmMSet.
-	 *
-	 *  See the OmSettings match_collapse_key parameter for more
-	 *  information about setting a key to collapse upon.
-	 */
-	OmKey collapse_key;
+	void operator++(int);
 
-	/** Returns a string representing the mset item.
+	/// Get the term for the current position
+	om_docid operator *() const;
+
+	/// Get the weight of the document at the current position
+        om_weight get_weight() const;
+
+	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+	/// Allow use as an STL iterator
+	//@{	
+	typedef std::input_iterator_tag iterator_category;
+	typedef om_docid value_type;
+	typedef om_doccount difference_type;
+	typedef om_docid * pointer;
+	typedef om_docid & reference;
+	//@}
 };
+
+inline bool operator!=(const OmMSetIterator &a,
+		       const OmMSetIterator &b)
+{
+    return !(a == b);
+}
 
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
  */
 class OmMSet {
-    public:
-	/** Interface used to the MSet class internally.
-	 */
-	class InternalInterface;
-	friend class InternalInterface;
+    friend class OmExpand;
+    private:
+	class Internal;
 
+    public: // FIXME: public for now, private would be better
+	Internal *internal; // reference counted internals
+
+    private:
+	/// Internal method used for percentage conversion
+	int convert_to_percent_internal(om_weight wt) const;
+
+    public:
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
 	 */
@@ -98,41 +116,9 @@ class OmMSet {
 	    om_weight termweight;
 	};
 
-    private:
-	/** The term frequencies and weights returned by the match process.
-	 *  This map will contain information for each term which was in                 *  the query.
-	 */
-	std::map<om_termname, TermFreqAndWeight> termfreqandwts;
+	OmMSet(OmMSet::Internal * internal_);
 
-	/// Internal method used for percentage conversion
-	int convert_to_percent_internal(om_weight wt) const;
-    public:
-	OmMSet() : firstitem(0),
-		  matches_lower_bound(0),
-		  matches_estimated(0),
-		  matches_upper_bound(0),
-		  max_possible(0),
-		  max_attained(0) {}
-
-	/** Create an OmMSet from the constituent data.
-	 *  There should be no need to use this from user programs.
-	 */
-	OmMSet(om_doccount firstitem_,
-	       om_doccount matches_upper_bound_,
-	       om_doccount matches_lower_bound_,
-	       om_doccount matches_estimated_,
-	       om_weight max_possible_,
-	       om_weight max_attained_,
-	       const std::vector<OmMSetItem> &items_,
-	       const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
-		: termfreqandwts(termfreqandwts_),
-		  items(items_),
-		  firstitem(firstitem_),
-		  matches_lower_bound(matches_lower_bound_),
-		  matches_estimated(matches_estimated_),
-		  matches_upper_bound(matches_upper_bound_),
-		  max_possible(max_possible_),
-		  max_attained(max_attained_) {}
+	OmMSet();
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
@@ -140,8 +126,8 @@ class OmMSet {
 	 */
 	int convert_to_percent(om_weight wt) const;
 
-	/// Return the percentage score for the given item.
-	int convert_to_percent(const OmMSetItem & item) const;
+	/// Return the percentage score for a particular item.
+	int convert_to_percent(const OmMSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *
@@ -165,16 +151,13 @@ class OmMSet {
 	 */
 	const std::map<om_termname, TermFreqAndWeight> get_all_terminfo() const;
 
-	/// A list of items comprising the (selected part of the) mset.
-	std::vector<OmMSetItem> items;
-
 	/** The index of the first item in the result which was put into the
 	 *  mset.
 	 *  This corresponds to the parameter "first" specified in
 	 *  OmEnquire::get_mset().  A value of 0 corresponds to the highest
 	 *  result being the first item in the mset.
 	 */
-	om_doccount firstitem;
+	om_doccount get_firstitem() const;
 
 	/** A lower bound on the number of documents in the database which
 	 *  have a weight greater than zero.
@@ -182,7 +165,7 @@ class OmMSet {
 	 *  This number is usually considerably less than the actual number
 	 *  of documents which match the query.
 	 */
-	om_doccount matches_lower_bound;
+	om_doccount get_matches_lower_bound() const;
 
 	/** An estimate for the number of documents in the database which
 	 *  have a weight greater than zero.
@@ -193,7 +176,7 @@ class OmMSet {
 	 *  large number of results, rather than how useful those at the top
 	 *  of the result set are, and is thus undesirable.
 	 */
-	om_doccount matches_estimated;
+	om_doccount get_matches_estimated() const;
 
 	/** An upper bound on the number of documents in the database with
 	 *  a weight greater than zero.
@@ -201,14 +184,14 @@ class OmMSet {
 	 *  This number is usually considerably greater than the actual
 	 *  number of documents which match the query.
 	 */
-	om_doccount matches_upper_bound;
+	om_doccount get_matches_upper_bound() const;
 
 	/** The maximum possible weight in the mset.
-	 *  This weight is likely not to be obtained in the set of results,
+	 *  This weight is likely not to be attained in the set of results,
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
 	 */
-	om_weight max_possible;
+	om_weight get_max_possible() const;
 
 	/** The greatest weight which is attained by any document in the
 	 *  database.  
@@ -223,7 +206,15 @@ class OmMSet {
 	 *  requested when the query was performed (by specifying
 	 *  maxitems = 0 in OmEnquire::get_mset()), this value will be 0.
 	 */
-	om_weight max_attained;
+	om_weight get_max_attained() const;
+
+	om_doccount size() const;
+
+	bool empty() const;
+
+	OmMSetIterator begin() const;
+
+	OmMSetIterator end() const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.
@@ -271,13 +262,11 @@ class OmESetIterator {
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termname value_type;
-	typedef ptrdiff_t difference_type;
+	typedef om_termcount difference_type;
 	typedef om_termname * pointer;
 	typedef om_termname & reference;
 	//@}
 };
-
-class OmESetIterator;
 
 inline bool operator!=(const OmESetIterator &a,
 		       const OmESetIterator &b)
@@ -285,9 +274,8 @@ inline bool operator!=(const OmESetIterator &a,
     return !(a == b);
 }
 
-/** Class representing a set of expand terms (an ESet).  The ESet is
- *  ordered so it's not really a set in the mathematical sense.
- *  This set represents the results of an expand operation, which can be
+/** Class representing an ordered set of expand terms (an ESet).
+ *  This set represents the results of an expand operation, which is
  *  performed by OmEnquire::get_eset().
  */
 class OmESet {
@@ -300,6 +288,8 @@ class OmESet {
     public:
 	OmESet();
 
+	~OmESet();
+
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
 	 *  equal to size()
@@ -307,6 +297,8 @@ class OmESet {
 	om_termcount get_ebound() const;
 
 	om_termcount size() const;
+
+	bool empty() const;
 
 	OmESetIterator begin() const;
 
@@ -345,6 +337,8 @@ class OmRSet {
 	~OmRSet();
 
 	om_doccount size() const;
+
+	bool empty() const;
 
 	/// Add a document to the relevance set.
 	void add_document(om_docid did);
@@ -546,7 +540,7 @@ class OmEnquire {
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
-	 *  an OmMSetItem instead of an om_docid, since this will enable
+	 *  an OmMSetIterator instead of an om_docid, since this will enable
 	 *  database backends with suitable support to prevent this
 	 *  occurring.
 	 *
@@ -564,7 +558,7 @@ class OmEnquire {
 	 */
 	const OmDocument get_doc(om_docid did) const;
 
-	/** Get the document info by match set item.
+	/** Get the document info via an OmMSetIterator
 	 *
 	 *  This method returns an OmDocument object
 	 *  which provides the information about a document.
@@ -574,7 +568,7 @@ class OmEnquire {
 	 *  ensure that the correct data is returned, and that the document
 	 *  has not been deleted or changed since the query was performed.
 	 *
-	 *  @param mitem   The item for which to retrieve the data.
+	 *  @param it   The OmMSetIterator for which to retrieve the data.
 	 *
 	 *  @return      An OmDocument object containing the
 	 *  document data.
@@ -584,7 +578,7 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError  The document specified could not
 	 *  be found in the database.
 	 */
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetIterator &it) const;
 
 	/** Get the document info for multiple documents.
 	 *
@@ -594,8 +588,8 @@ class OmEnquire {
 	 *  to get_doc() - for example, a match across multiple remote
 	 *  databases may fetch documents in parallel.
 	 *
-	 *  @param begin   Iterator to first OmMSetItem to fetch.
-	 *  @param end     End iterator.
+	 *  @param begin   OmMSetIterator for first to fetch.
+	 *  @param end     End OmMSetIterator.
 	 *
 	 *  @return      A vector of OmDocument objects containing the
 	 *  document data.
@@ -606,8 +600,8 @@ class OmEnquire {
 	 *  be found in the database.
 	 */
 	const std::vector<OmDocument> get_docs(
-		std::vector<OmMSetItem>::const_iterator begin,
-		std::vector<OmMSetItem>::const_iterator end) const;
+		std::vector<OmMSetIterator>::const_iterator begin,
+		std::vector<OmMSetIterator>::const_iterator end) const;
 
 	/** Get terms which match a given document, by document id.
 	 *
@@ -617,7 +611,7 @@ class OmEnquire {
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
-	 *  an OmMSetItem instead of a om_docid, since this will enable
+	 *  an OmMSetIterator instead of a om_docid, since this will enable
 	 *  database backends with suitable support to prevent this
 	 *  occurring.
 	 *
@@ -650,7 +644,7 @@ class OmEnquire {
 	 *  ensure that the correct data is returned, and that the document
 	 *  has not been deleted or changed since the query was performed.
 	 *
-	 *  @param mitem   The item for which to retrieve the matching terms.
+	 *  @param it   The iterator for which to retrieve the matching terms.
 	 *
 	 *  @return        A list containing the terms which match the
 	 *                 document.  Terms will not occur more than once,
@@ -661,7 +655,7 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
 
 	/** Returns a string representing the enquire object.
 	 *  Introspection method.
@@ -952,10 +946,10 @@ class OmBatchEnquire {
 	 */
 	const OmDocument get_doc(om_docid did) const;
 
-	/** Get the document info by match set item.
+	/** Get the document info by match set iterator.
 	 *  See OmEnquire::get_doc() for details
 	 */
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetIterator &it) const;
 
 
 	/** Get terms which match a given document, by document id.
@@ -963,10 +957,10 @@ class OmBatchEnquire {
 	 */
 	om_termname_list get_matching_terms(om_docid did) const;
 
-	/** Get terms which match a given document, by match set item.
+	/** Get terms which match a given document, by match set iterator.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
 
 	/** Returns a string representing the batchenquire object.
 	 *  Introspection method.

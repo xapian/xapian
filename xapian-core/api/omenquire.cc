@@ -110,6 +110,12 @@ OmRSet::size() const
     return internal->items.size();
 }
 
+bool
+OmRSet::empty() const
+{
+    return internal->items.empty();
+}
+
 void
 OmRSet::add_document(om_docid did)
 {
@@ -170,18 +176,26 @@ OmMSetItem::get_description() const
 // Methods for OmMSet //
 ////////////////////////
 
+OmMSet::OmMSet() : internal(new OmMSet::Internal())
+{
+}
+
+OmMSet::OmMSet(OmMSet::Internal * internal_) : internal(internal_)
+{
+}
+
 int
 OmMSet::convert_to_percent_internal(om_weight wt) const
 {
     DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
-    if (max_possible == 0) RETURN(100);
+    if (internal->max_possible == 0) RETURN(100);
 
-    int pcent = (int) ceil(wt * 100 / max_possible);
-    DEBUGLINE(API, "wt = " << wt << ", max_possible = " << max_possible <<
-	      " =>  pcent = " << pcent);
-    if(pcent > 100) pcent = 100;
-    if(pcent < 0) pcent = 0;
-    if(pcent == 0 && wt > 0) pcent = 1;
+    int pcent = (int) ceil(wt * 100 / internal->max_possible);
+    DEBUGLINE(API, "wt = " << wt << ", max_possible = "
+	      << internal->max_possible << " =>  pcent = " << pcent);
+    if (pcent > 100) pcent = 100;
+    if (pcent < 0) pcent = 0;
+    if (pcent == 0 && wt > 0) pcent = 1;
 
     RETURN(pcent);
 }
@@ -194,10 +208,10 @@ OmMSet::convert_to_percent(om_weight wt) const
 }
 
 int
-OmMSet::convert_to_percent(const OmMSetItem & item) const
+OmMSet::convert_to_percent(const OmMSetIterator & it) const
 {
-    DEBUGAPICALL(int, "OmMSet::convert_to_percent", item);
-    RETURN(convert_to_percent_internal(item.wt));
+    DEBUGAPICALL(int, "OmMSet::convert_to_percent", it);
+    RETURN(convert_to_percent_internal(it.get_weight()));
 }
 
 om_doccount
@@ -205,8 +219,8 @@ OmMSet::get_termfreq(const om_termname &tname) const
 {
     DEBUGAPICALL(om_doccount, "OmMSet::get_termfreq", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;
-    i = termfreqandwts.find(tname);
-    if(i == termfreqandwts.end()) {
+    i = internal->termfreqandwts.find(tname);
+    if (i == internal->termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term frequency of `" + tname +
 				     "' not available.");
     }
@@ -218,8 +232,8 @@ OmMSet::get_termweight(const om_termname &tname) const
 {
     DEBUGAPICALL(om_weight, "OmMSet::get_termweight", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;
-    i = termfreqandwts.find(tname);
-    if(i == termfreqandwts.end()) {
+    i = internal->termfreqandwts.find(tname);
+    if (i == internal->termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term weight of `" + tname +
 				     "' not available.");
     }
@@ -229,14 +243,81 @@ OmMSet::get_termweight(const om_termname &tname) const
 const std::map<om_termname, OmMSet::TermFreqAndWeight>
 OmMSet::get_all_terminfo() const
 {
-    return termfreqandwts;
+    return internal->termfreqandwts;
+}
+
+om_doccount
+OmMSet::get_firstitem() const
+{
+    return internal->firstitem;
+}
+
+om_doccount
+OmMSet::get_matches_lower_bound() const
+{
+    return internal->matches_lower_bound;
+}
+
+om_doccount
+OmMSet::get_matches_estimated() const
+{
+    return internal->matches_estimated;
+}
+
+om_doccount
+OmMSet::get_matches_upper_bound() const
+{
+    return internal->matches_upper_bound;
+}
+
+om_weight
+OmMSet::get_max_possible() const
+{
+    return internal->max_possible;
+}
+
+om_weight
+OmMSet::get_max_attained() const
+{
+    return internal->max_attained;
+}
+
+om_termcount
+OmMSet::size() const
+{
+    return internal->items.size();
+}
+
+bool
+OmMSet::empty() const
+{
+    return internal->items.empty();
+}
+
+OmMSetIterator
+OmMSet::begin() const
+{
+    return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin(),
+						       internal->items.end()));
+}
+
+OmMSetIterator
+OmMSet::end() const
+{
+    return OmMSetIterator(NULL);
 }
 
 std::string
 OmMSet::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmMSet::get_description", "");
-    std::string description;
+    RETURN("OmMSet(" + internal->get_description() + ")");
+}
+
+std::string
+OmMSet::Internal::get_description() const
+{
+    std::string description = "OmMSet::Internal(";
 
     description = "firstitem=" + om_tostring(firstitem) + ", " +
 	    "matches_lower_bound=" + om_tostring(matches_lower_bound) + ", " +
@@ -252,9 +333,9 @@ OmMSet::get_description() const
 	description += i->get_description();
     }
 
-    description = "OmMSet(" + description + ")";
+    description = description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 ////////////////////////////
@@ -274,6 +355,11 @@ OmESetItem::get_description() const
 
 OmESet::OmESet() : internal(new OmESet::Internal()) {}
 
+OmESet::~OmESet()
+{
+    delete internal;
+}
+
 om_termcount
 OmESet::get_ebound() const
 {
@@ -284,6 +370,12 @@ om_termcount
 OmESet::size() const
 {
     return internal->items.size();
+}
+
+bool
+OmESet::empty() const
+{
+    return internal->items.empty();
 }
 
 OmESetIterator
@@ -390,6 +482,78 @@ OmESetIterator::get_description() const
 bool
 operator==(const OmESetIterator &a, const OmESetIterator &b)
 {
+    if (a.internal == b.internal) return true;
+    if (!a.internal || !b.internal) return false;
+    return (a.internal->it == b.internal->it);
+}
+
+// OmMSetIterator
+
+OmMSetIterator::OmMSetIterator(Internal *internal_) : internal(internal_)
+{
+}
+
+OmMSetIterator::~OmMSetIterator()
+{
+    delete internal;
+}
+
+OmMSetIterator::OmMSetIterator(const OmMSetIterator &other)
+    : internal(new OmMSetIterator::Internal(*(other.internal)))
+{
+}
+
+void
+OmMSetIterator::operator=(const OmMSetIterator &other)
+{
+    internal->it = other.internal->it;
+    internal->end = other.internal->end;
+}
+
+OmMSetIterator &
+OmMSetIterator::operator++()
+{
+    ++internal->it;
+    if (internal->it == internal->end) {
+	delete internal;
+	internal = NULL;
+    }
+    return *this;
+}
+
+void
+OmMSetIterator::operator++(int)
+{
+    ++internal->it;
+    if (internal->it == internal->end) {
+	delete internal;
+	internal = NULL;
+    }
+}
+
+om_docid
+OmMSetIterator::operator *() const
+{
+    return internal->it->did;
+}
+
+om_weight
+OmMSetIterator::get_weight() const
+{
+    return internal->it->wt;
+}
+
+std::string
+OmMSetIterator::get_description() const
+{
+    return "OmMSetIterator()"; // FIXME
+}
+
+bool
+operator==(const OmMSetIterator &a, const OmMSetIterator &b)
+{
+    if (a.internal == b.internal) return true;
+    if (!a.internal || !b.internal) return false;
     return (a.internal->it == b.internal->it);
 }
 
@@ -398,7 +562,7 @@ operator==(const OmESetIterator &a, const OmESetIterator &b)
 /////////////////////////////////////
 
 OmEnquire::Internal::Internal(const OmDatabase &db_,
-				     OmErrorHandler * errorhandler_)
+			      OmErrorHandler * errorhandler_)
   : db(db_), query(0), errorhandler(errorhandler_)
 {
 }
@@ -469,7 +633,7 @@ OmEnquire::Internal::get_mset(om_doccount first,
     // Run query and get results into supplied OmMSet object
     match.get_mset(first, maxitems, retval, mdecider, errorhandler);
 
-    Assert(!(query->is_bool()) || retval.max_possible == 0);
+    Assert(!(query->is_bool()) || retval.get_max_possible() == 0);
 
     return retval;
 }
@@ -530,38 +694,38 @@ OmEnquire::Internal::get_doc(om_docid did) const
 }
 
 const OmDocument
-OmEnquire::Internal::get_doc(const OmMSetItem &mitem) const
+OmEnquire::Internal::get_doc(const OmMSetIterator &it) const
 {
     OmLockSentry locksentry(mutex);
-    // FIXME: take advantage of OmMSetItem to ensure that database
+    // FIXME: take advantage of OmMSetIterator to ensure that database
     // doesn't get modified underneath us.
-    return read_doc(mitem.did);
+    return read_doc(*it);
 }
 
 const std::vector<OmDocument>
-OmEnquire::Internal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
-			    std::vector<OmMSetItem>::const_iterator end) const
+OmEnquire::Internal::get_docs(std::vector<OmMSetIterator>::const_iterator begin,
+			      std::vector<OmMSetIterator>::const_iterator end) const
 {
     OmLockSentry locksentry(mutex);
 
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     unsigned int multiplier = internal->databases.size();
 
-    std::vector<OmMSetItem>::const_iterator i;
+    std::vector<OmMSetIterator>::const_iterator i;
     for (i = begin; i != end; i++) {
-	om_docid realdid = (i->did - 1) / multiplier + 1;
-	om_doccount dbnumber = (i->did - 1) % multiplier;
+	om_docid realdid = (**i - 1) / multiplier + 1;
+	om_doccount dbnumber = (**i - 1) % multiplier;
 	
 	internal->databases[dbnumber]->request_document(realdid);
     }
 
     std::vector<OmDocument> docs;
     for (i = begin; i != end; i++) {
-	om_docid realdid = (i->did - 1) / multiplier + 1;
-	om_doccount dbnumber = (i->did - 1) % multiplier;
+	om_docid realdid = (**i - 1) / multiplier + 1;
+	om_doccount dbnumber = (**i - 1) % multiplier;
 	
 	Document *doc = internal->databases[dbnumber]->collect_document(realdid);
-	docs.push_back(OmDocument(new OmDocument::Internal(doc, db, i->did)));
+	docs.push_back(OmDocument(new OmDocument::Internal(doc, db, **i)));
     }
 
     return docs;
@@ -575,12 +739,12 @@ OmEnquire::Internal::get_matching_terms(om_docid did) const
 }
 
 om_termname_list
-OmEnquire::Internal::get_matching_terms(const OmMSetItem &mitem) const
+OmEnquire::Internal::get_matching_terms(const OmMSetIterator &it) const
 {
     OmLockSentry locksentry(mutex);
-    // FIXME: take advantage of OmMSetItem to ensure that database
+    // FIXME: take advantage of OmMSetIterator to ensure that database
     // doesn't get modified underneath us.
-    return calc_matching_terms(mitem.did);
+    return calc_matching_terms(*it);
 }
 
 std::string
@@ -766,11 +930,11 @@ OmEnquire::get_doc(om_docid did) const
 }
 
 const OmDocument
-OmEnquire::get_doc(const OmMSetItem &mitem) const
+OmEnquire::get_doc(const OmMSetIterator &it) const
 {
-    DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", mitem);
+    DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", it);
     try {
-	RETURN(internal->get_doc(mitem));
+	RETURN(internal->get_doc(it));
     } catch (OmError & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
@@ -778,8 +942,8 @@ OmEnquire::get_doc(const OmMSetItem &mitem) const
 }
 
 const std::vector<OmDocument>
-OmEnquire::get_docs(std::vector<OmMSetItem>::const_iterator begin,
-		    std::vector<OmMSetItem>::const_iterator end) const
+OmEnquire::get_docs(std::vector<OmMSetIterator>::const_iterator begin,
+		    std::vector<OmMSetIterator>::const_iterator end) const
 {
     DEBUGAPICALL(const std::vector<OmDocument>,
 		 "OmEnquire::get_docs", begin << ", " << end);
@@ -793,11 +957,11 @@ OmEnquire::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 }
 
 om_termname_list
-OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
+OmEnquire::get_matching_terms(const OmMSetIterator &it) const
 {
-    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", mitem);
+    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", it);
     try {
-	RETURN(internal->get_matching_terms(mitem));
+	RETURN(internal->get_matching_terms(it));
     } catch (OmError & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

@@ -68,19 +68,19 @@ class MSetPostList : public PostList {
 inline om_doccount
 MSetPostList::get_termfreq_max() const
 {
-    return mset.matches_upper_bound;
+    return mset.get_matches_upper_bound();
 }
 
 inline om_doccount
 MSetPostList::get_termfreq_min() const
 {
-    return mset.matches_lower_bound;
+    return mset.get_matches_lower_bound();
 }
 
 inline om_doccount
 MSetPostList::get_termfreq_est() const
 {
-    return mset.matches_estimated;
+    return mset.get_matches_estimated();
 }
 
 inline om_docid
@@ -88,21 +88,21 @@ MSetPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "MSetPostList::get_docid", "");
     Assert(current != -1);
-    RETURN(mset.items[current].did);
+    RETURN(mset.internal->items[current].did);
 }
 
 inline om_weight
 MSetPostList::get_weight() const
 {
     Assert(current != -1);
-    return mset.items[current].wt;
+    return mset.internal->items[current].wt;
 }
 
 inline const OmKey *
 MSetPostList::get_collapse_key() const
 {
     Assert(current != -1);
-    return &(mset.items[current].collapse_key);
+    return &(mset.internal->items[current].collapse_key);
 }
 
 inline om_weight
@@ -111,10 +111,10 @@ MSetPostList::get_maxweight() const
     // Before we've started, return max_possible...
     // FIXME: when current advances from -1 to 0, we should probably call
     // recalc_maxweight on the matcher...
-    if (current == -1) return mset.max_possible;    
-    if (mset.items.empty()) return 0;
+    if (current == -1) return mset.get_max_possible();
+    if (mset.empty()) return 0;
     // mset.max_attained is bigger than this if firstitem != 0
-    return mset.items[current].wt;
+    return mset.internal->items[current].wt;
 }
 
 inline om_weight
@@ -127,7 +127,7 @@ inline bool
 MSetPostList::at_end() const
 {
     Assert(current != -1);
-    return (unsigned int)current >= mset.items.size();
+    return (unsigned int)current >= mset.size();
 }
 
 inline std::string
@@ -141,7 +141,7 @@ MSetPostList::get_doclength() const
 {
     Assert(current != -1);
     return 1; // FIXME: this info is unused with present weights
-//    return db->get_doclength(mset.items[current].did);
+//    return db->get_doclength(mset.internal->items[current].did);
 }
 
 inline PositionList *
@@ -367,7 +367,7 @@ RemotePostList::get_doclength() const
 {
     Assert(did != 0);
     return 1; // FIXME: this info is unused with present weights
-//    return db->get_doclength(mset.items[current].did);
+//    return db->get_doclength(mset.internal->items[current].did);
 }
 
 inline PositionList *

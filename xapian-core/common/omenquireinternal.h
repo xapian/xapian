@@ -71,6 +71,64 @@ class OmESetIterator::Internal {
 	{ }
 };
 
+/** An item resulting from a query.
+ *  This item contains the document id, and the weight calculated for
+ *  the document.
+ */
+class OmMSetItem {
+    private:
+    public:
+	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
+
+	OmMSetItem(om_weight wt_, om_docid did_, const OmKey &key_)
+		: wt(wt_), did(did_), collapse_key(key_) {}
+
+	/** Weight calculated. */
+	om_weight wt;
+
+	/** Document id. */
+	om_docid did;
+
+	/** Key which was used to collapse upon.
+	 *
+	 *  If the collapse option is not being used, this will always
+	 *  have a null value.
+	 *
+	 *  If a key of collapsing upon is specified, this will contain
+	 *  the key for this particular item.  If the key is not present
+	 *  for this item, the value will be a null string.  Only one
+	 *  instance of each key value (apart from the null string) will
+	 *  be present in the items in the returned OmMSet.
+	 *
+	 *  See the OmSettings match_collapse_key parameter for more
+	 *  information about setting a key to collapse upon.
+	 */
+	OmKey collapse_key;
+
+	/** Returns a string representing the mset item.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
+
+class OmMSetIterator::Internal {
+    private:
+	friend class OmMSetIterator; // allow access to it
+        friend bool operator==(const OmMSetIterator &a, const OmMSetIterator &b);
+
+	std::vector<OmMSetItem>::const_iterator it;
+	std::vector<OmMSetItem>::const_iterator end;
+    
+    public:
+        Internal(std::vector<OmMSetItem>::const_iterator it_,
+		 std::vector<OmMSetItem>::const_iterator end_)
+	    : it(it_), end(end_)
+	{ }
+
+        Internal(const Internal &other) : it(other.it), end(other.end)
+	{ }
+};
+
 /** Internals of enquire system.
  *  This allows the implementation of OmEnquire to be hidden, allows
  *  cleaner pthread locking by separating the API calls from the internals,
@@ -120,18 +178,75 @@ class OmEnquire::Internal {
 			const OmSettings *eoptions,
 			const OmExpandDecider *edecider) const;
 	const OmDocument get_doc(om_docid did) const;
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetIterator &it) const;
 
 	const std::vector<OmDocument> get_docs(
-		std::vector<OmMSetItem>::const_iterator begin,
-		std::vector<OmMSetItem>::const_iterator end) const;
+		std::vector<OmMSetIterator>::const_iterator begin,
+		std::vector<OmMSetIterator>::const_iterator end) const;
 
 	om_termname_list get_matching_terms(om_docid did) const;
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(const OmMSetIterator &it) const;
 	std::string get_description() const;
 };
 
 class OmExpand;
+
+class OmMSet::Internal {
+    friend class OmMSet;
+    friend class MSetPostList;
+    friend std::string ommset_to_string(const OmMSet &ommset);
+    private:
+	/** The term frequencies and weights returned by the match process.
+	 *  This map will contain information for each term which was in                 *  the query.
+	 */
+	std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
+
+	/// A list of items comprising the (selected part of the) mset.
+	std::vector<OmMSetItem> items;
+
+	om_doccount firstitem;
+
+	om_doccount matches_lower_bound;
+
+	om_doccount matches_estimated;
+
+	om_doccount matches_upper_bound;
+
+	om_weight max_possible;
+
+	om_weight max_attained;
+
+    public:
+	Internal()
+		: firstitem(0),
+		  matches_lower_bound(0),
+		  matches_estimated(0),
+		  matches_upper_bound(0),
+		  max_possible(0),
+		  max_attained(0) {}
+
+	Internal(om_doccount firstitem_,
+		 om_doccount matches_upper_bound_,
+		 om_doccount matches_lower_bound_,
+		 om_doccount matches_estimated_,
+		 om_weight max_possible_,
+		 om_weight max_attained_,
+		 const std::vector<OmMSetItem> &items_,
+		 const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
+		: termfreqandwts(termfreqandwts_),
+		  items(items_),
+		  firstitem(firstitem_),
+		  matches_lower_bound(matches_lower_bound_),
+		  matches_estimated(matches_estimated_),
+		  matches_upper_bound(matches_upper_bound_),
+		  max_possible(max_possible_),
+		  max_attained(max_attained_) {}
+
+	/** Returns a string representing the mset.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
 
 class OmESet::Internal {
     friend class OmESet;
