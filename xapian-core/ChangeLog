@@ -1,3 +1,8 @@
+Mon Aug 04 12:40:25 BST 2003  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.am: Fixed compilation for compilers other than
+	  GCC.
+
 Wed Jul 30 17:03:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/getopt.h: Another try - the previous one failed on FreeBSD.

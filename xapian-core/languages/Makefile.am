@@ -11,7 +11,7 @@ noinst_LTLIBRARIES = liblanguages.la
 
 # snowball_*.c are machine generated sources which sometimes contain unused
 # labels and variables
-AM_CFLAGS = -Wall -W -Wno-unused
+AM_CFLAGS = # FIXME: these are GCC specific: -Wall -W -Wno-unused
 
 liblanguages_la_SOURCES = api.c snowball_danish.c snowball_dutch.c\
  snowball_english.c snowball_finnish.c snowball_french.c snowball_german.c\
