@@ -32,6 +32,102 @@
 // FIXME: just temporary
 #include <stdio.h>
 
+bool
+QuartzDiskCursor::find_entry(const QuartzDbKey &key)
+{
+    Assert(!(key.value.empty()));
+
+    is_after_end = false;
+
+    int found = Bcursor_find_key(cursor, key.value.data(), key.value.size());
+    // FIXME: check for errors
+
+    Btree_item * item = Btree_item_create();
+    // FIXME: check for errors
+    int err = Bcursor_get_key(cursor, item);
+    // FIXME: check for errors
+    is_positioned = Bcursor_get_tag(cursor, item);
+    // FIXME: check for errors
+
+    // FIXME: unwanted copies
+    current_key.value =
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+    current_tag.value =
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+
+    Btree_item_lose(item);
+
+    return found;
+}
+
+void
+QuartzDiskCursor::next()
+{
+    Assert(!is_after_end);
+    if (!is_positioned) {
+	is_after_end = true;
+	return;
+    }
+
+    Btree_item * item = Btree_item_create();
+    // FIXME: check for errors
+    Bcursor_get_key(cursor, item);
+    // FIXME: check for errors
+    is_positioned = Bcursor_get_tag(cursor, item);
+    // FIXME: check for errors
+
+    // FIXME: unwanted copies
+    current_key.value =
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+    current_tag.value =
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+
+    Btree_item_lose(item);
+}
+
+void
+QuartzDiskCursor::prev()
+{
+    Assert(!is_after_end);
+    Assert(current_key.value.size() != 0);
+
+    if (!is_positioned) {
+	// FIXME: want to go to last item in table - this method
+	// should work, but isn't going to be of great efficiency.
+	int found = Bcursor_find_key(cursor,
+				     current_key.value.data(),
+				     current_key.value.size());
+	Assert(found);
+    } else {
+	Bcursor_prev(cursor);
+	// FIXME: check for errors
+    }
+
+    Btree_item * item = Btree_item_create();
+    // FIXME: check for errors
+    Bcursor_get_key(cursor, item);
+    // FIXME: check for errors
+
+    if (item->key_len != 0) {
+	Bcursor_prev(cursor);
+	// FIXME: check for errors
+	Bcursor_get_key(cursor, item);
+	// FIXME: check for errors
+    }
+
+    is_positioned = Bcursor_get_tag(cursor, item);
+    // FIXME: check for errors
+
+    // FIXME: unwanted copies
+    current_key.value =
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+    current_tag.value =
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+
+    Btree_item_lose(item);
+}
+
+
 QuartzDiskTable::QuartzDiskTable(std::string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
@@ -76,14 +172,10 @@ QuartzDiskTable::open()
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
     if (!file_exists(path + "DB")) {
-#if 1
-	Btree_create(path.c_str(), blocksize);
-#else
 	if (!Btree_create(path.c_str(), blocksize)) {
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
 	}
-#endif
     }
 
     btree_for_writing = Btree_open_to_write(path.c_str());
@@ -123,14 +215,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
     if (!file_exists(path + "/DB")) {
-#if 1
-	Btree_create(path.c_str(), blocksize);
-#else
 	if (!Btree_create(path.c_str(), blocksize)) {
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
 	}
-#endif
     }
 
     btree_for_writing = Btree_open_to_write_revision(path.c_str(), revision);
@@ -186,68 +274,6 @@ QuartzDiskTable::get_entry_count() const
     return btree_for_reading->item_count;
 }
 
-AutoPtr<QuartzCursor>
-QuartzDiskTable::make_cursor()
-{
-    Assert(opened);
-    return AutoPtr<QuartzCursor>(new QuartzCursor(btree_for_reading));
-}
-
-bool
-QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
-				   QuartzDbTag &tag,
-				   QuartzCursor &cursor) const
-{
-    Assert(opened);
-    Assert(!(key.value.empty()));
-
-    int found = Bcursor_find_key(cursor.cursor, key.value.data(), key.value.size());
-    // FIXME: check for errors
-
-    Btree_item * item = Btree_item_create();
-    // FIXME: check for errors
-
-    int err = Bcursor_get_key(cursor.cursor, item);
-    Assert(err != 0); // Must be positioned
-    // FIXME: check for errors
-
-    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
-    // FIXME: check for errors
-
-    // FIXME: unwanted copies
-    key.value = string(reinterpret_cast<char *>(item->key), item->key_len);
-    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
-
-    Btree_item_lose(item);
-
-    return found;
-}
-
-bool
-QuartzDiskTable::get_next_entry(QuartzDbKey &key,
-				QuartzDbTag &tag,
-				QuartzCursor &cursor) const
-{
-    Assert(opened);
-
-    if (!cursor.is_positioned) {
-	return false;
-    }
-
-    Btree_item * item = Btree_item_create();
-    // FIXME: check for errors
-    Bcursor_get_key(cursor.cursor, item);
-    // FIXME: check for errors
-    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
-    // FIXME: check for errors
-
-    // FIXME: unwanted copies
-    key.value = string(reinterpret_cast<char *>(item->key), item->key_len);
-    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
-
-    return true;
-}
-
 bool
 QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
@@ -273,6 +299,13 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Bcursor_lose(cursor);
     
     return true;
+}
+
+QuartzDiskCursor *
+QuartzDiskTable::cursor_get() const
+{
+    Assert(opened);
+    return new QuartzDiskCursor(btree_for_reading);
 }
 
 bool
@@ -452,117 +485,6 @@ QuartzBufferedTable::get_entry_count() const
     return entry_count;
 }
 
-AutoPtr<QuartzCursor>
-QuartzBufferedTable::make_cursor()
-{
-    return disktable->make_cursor();
-}
-
-bool
-QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
-				       QuartzDbTag &tag,
-				       QuartzCursor &cursor) const
-{
-    Assert(key.value != "");
-
-    // Whether we have an exact match.
-    bool have_exact;
-
-    // Set disktable part of cursor.
-    cursor.current_key = key;
-    have_exact = disktable->get_nearest_entry(cursor.current_key,
-					      cursor.current_tag,
-					      cursor);
-    Assert(have_exact || key.value != cursor.current_key.value);
-
-    // Set and read changed_entries part of cursor.
-    cursor.iter = changed_entries.get_iterator(key);
-
-    const QuartzDbKey * keyptr;
-    const QuartzDbTag * tagptr;
-
-    bool have_item = changed_entries.get_item(cursor.iter, &keyptr, &tagptr);
-    // We should have an item, even if it's just the initial null item
-    Assert(have_item);
-
-    if (keyptr->value == key.value) {
-	// Have an exact match in changed entries => this is the one to use
-	have_exact = true;
-	key = *keyptr;
-	tag = *tagptr;
-    } else {
-	Assert(*keyptr < key);
-	// We use whichever match is greater
-	if (*keyptr > cursor.current_key) {
-	    Assert(!have_exact);
-	    key = *keyptr;
-	    tag = *tagptr;
-	} else {
-	    Assert(have_exact || key.value != cursor.current_key.value);
-	    key = cursor.current_key;
-	    tag = cursor.current_tag;
-	}
-
-	// Advance the disktable part.  If it now points to an entry it
-	// must be an entry > key asked for.  If it doesn't, we store an
-	// entry of value "".
-	int read_entry = disktable->get_next_entry(cursor.current_key,
-						   cursor.current_tag,
-						   cursor);
-	if (!read_entry) cursor.current_key.value = "";
-
-	// Advance iterator.  If it now points to an entry it must be an
-	// entry > key asked for.
-	changed_entries.advance(cursor.iter);
-    }
-
-    return have_exact;
-}
-
-bool
-QuartzBufferedTable::get_next_entry(QuartzDbKey &key,
-				    QuartzDbTag &tag,
-				    QuartzCursor &cursor) const
-{
-    // Read item from iterator;
-
-    const QuartzDbKey * keyptr;
-    const QuartzDbTag * tagptr;
-
-    bool iter_valid = changed_entries.get_item(cursor.iter, &keyptr, &tagptr);
-    bool current_valid = (cursor.current_key.value.size() != 0); 
-
-    if (iter_valid && current_valid) {
-	// Pick earlier one;
-	if (*keyptr < cursor.current_key) {
-	    key = *keyptr;
-	    tag = *tagptr;
-	    changed_entries.advance(cursor.iter);
-	} else {
-	    key = cursor.current_key;
-	    tag = cursor.current_tag;
-	    int read_entry = disktable->get_next_entry(cursor.current_key,
-						       cursor.current_tag,
-						       cursor);
-	    if (!read_entry) cursor.current_key.value = "";
-	}
-    } else if (iter_valid) {
-	key = *keyptr;
-	tag = *tagptr;
-	changed_entries.advance(cursor.iter);
-    } else if (current_valid) {
-	key = cursor.current_key;
-	tag = cursor.current_tag;
-	int read_entry = disktable->get_next_entry(cursor.current_key,
-						   cursor.current_tag,
-						   cursor);
-	if (!read_entry) cursor.current_key.value = "";
-    } else {
-	return false;
-    }
-    return true;
-}
-
 bool
 QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
 				     QuartzDbTag & tag) const
@@ -573,5 +495,133 @@ QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
     }
 
     return disktable->get_exact_entry(key, tag);
+}
+
+QuartzBufferedCursor *
+QuartzBufferedTable::cursor_get() const
+{
+    return new QuartzBufferedCursor(disktable->cursor_get(),
+				    &changed_entries);
+}
+
+bool
+QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
+{
+    Assert(key.value != "");
+
+    // Whether we have an exact match.
+    bool have_exact;
+
+    // Set diskcursor.
+    have_exact = diskcursor->find_entry(key);
+    Assert(have_exact || key.value != diskcursor->current_key.value);
+
+    // Set changed_entries part of cursor.
+    iter = changed_entries->get_iterator(key);
+
+    const QuartzDbKey * keyptr;
+    const QuartzDbTag * tagptr;
+    changed_entries->get_item(iter, &keyptr, &tagptr);
+
+    // Check for exact matches
+    if (keyptr->value == key.value) {
+	if (tagptr != 0) {
+	    // Have an exact match in the cache, and it's not a deletion.
+	    current_key.value = keyptr->value;
+	    current_tag.value = tagptr->value;
+	    return true;
+	}
+    } else if (diskcursor->current_key.value == key.value) {
+	// Have an exact match on disk, and it's not shadowed by the cache.
+	current_key.value = diskcursor->current_key.value;
+	current_tag.value = diskcursor->current_tag.value;
+	return true;
+    }
+
+    // No exact match.  Move backwards until match isn't a deletion.
+    while (*keyptr >= diskcursor->current_key && tagptr == 0) {
+	if (keyptr->value.size() == 0) {
+	    // diskcursor must also point to a null key - we're done.
+	    current_key.value = "";
+	    return false;
+	}
+	if (keyptr->value == diskcursor->current_key.value) {
+	    diskcursor->prev();
+	}
+	changed_entries->prev(iter);
+	changed_entries->get_item(iter, &keyptr, &tagptr);
+    }
+
+    // Have found a match which isn't a deletion.
+    if (*keyptr >= diskcursor->current_key) {
+	// Match is in cache
+	current_key.value = keyptr->value;
+	current_tag.value = tagptr->value;
+    } else {
+	// Match is on disk
+	current_key.value = diskcursor->current_key.value;
+	current_tag.value = diskcursor->current_tag.value;
+    }
+
+    return false;
+}
+
+bool
+QuartzBufferedCursor::after_end()
+{
+    return (diskcursor->after_end() && changed_entries->after_end(iter));
+}
+
+void
+QuartzBufferedCursor::next()
+{
+    const QuartzDbKey * keyptr;
+    const QuartzDbTag * tagptr;
+
+    // Ensure that both cursors are after current position, or ended.
+    while (!changed_entries->after_end(iter)) {
+	changed_entries->get_item(iter, &keyptr, &tagptr);
+	if (*keyptr > current_key) break;
+	changed_entries->next(iter);
+    }
+    while (!diskcursor->after_end()) {
+	if (diskcursor->current_key > current_key) break;
+	diskcursor->next();
+    }
+
+    // While iter is the current item, and is pointing to a deleted item,
+    // move forward.
+    while (!changed_entries->after_end(iter) &&
+	   tagptr == 0 &&
+	   (diskcursor->after_end() || *keyptr <= diskcursor->current_key)) {
+
+	if (!diskcursor->after_end() &&
+	    keyptr->value == diskcursor->current_key.value) {
+	    diskcursor->next();
+	}
+	
+	changed_entries->next(iter);
+	changed_entries->get_item(iter, &keyptr, &tagptr);
+    }
+
+    // Now we just have to pick the lower cursor, and store its key and tag.
+
+    if (changed_entries->after_end(iter)) {
+	if (diskcursor->after_end()) {
+	    // Have reached end.
+	} else {
+	    // Only have diskcursor left.
+	    current_key.value = diskcursor->current_key.value;
+	    current_tag.value = diskcursor->current_tag.value;
+	}
+    } else {
+	if (diskcursor->after_end() || *keyptr < diskcursor->current_key) {
+	    current_key.value = keyptr->value;
+	    current_tag.value = tagptr->value;
+	} else {
+	    current_key.value = diskcursor->current_key.value;
+	    current_tag.value = diskcursor->current_tag.value;
+	}
+    }
 }
 

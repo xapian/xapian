@@ -33,6 +33,7 @@
 #include "btree.h"
 
 class QuartzDiskTable;
+class QuartzBufferedTable;
 
 /** A cursor pointing to a position in a quartz table, for reading several
  *  entries in order, or finding approximate matches.
@@ -46,38 +47,134 @@ class QuartzCursor {
 	void operator=(const QuartzCursor &);
 
     public:
-	/// Initialise the cursor
-	QuartzCursor(struct Btree * btree) : is_positioned(false), cursor(Bcursor_create(btree)) {}
+	/// Initialise the cursor 
+	QuartzCursor();
 
 	/// Destroy the cursor
-	~QuartzCursor() { Bcursor_lose(cursor); }
+	virtual ~QuartzCursor();
 
-	/** Iterator in buffered table.
-	 *
-	 *  FIXME: This item only used by buffered tables.
-	 */
-	QuartzTableEntries::items::const_iterator iter;
-
-	/** Current key.
-	 *
-	 *  FIXME: This item only used by buffered tables.
+	/** Current key pointed to by cursor.
 	 */
 	QuartzDbKey current_key;
 
-	/** Current tag.
-	 *
-	 *  FIXME: This item only used by buffered tables.
+	/** Current tag pointed to by cursor.
 	 */
 	QuartzDbTag current_tag;
 
+	/** Find an entry, or a near match, in the table.
+	 *
+	 *  If the exact key is found in the table, the cursor will be
+	 *  set to point to it, and the method will return true.
+	 *
+	 *  If the key is not found, the cursor will be set to point to
+	 *  the key preceding that asked for, and the method will return
+	 *  false.
+	 *
+	 *  If there is no key preceding that asked for, the cursor will
+	 *  point to a null key.
+	 *
+	 *  @param key    The key to look for in the table.
+	 *
+	 *  @return true if the exact key was found in the table, false
+	 *          otherwise.
+	 */
+	virtual bool find_entry(const QuartzDbKey &key) = 0;
+
+	/** Move the cursor forward in the table.
+	 *
+	 *  Unless there are no more entries in the table, this method moves
+	 *  the cursor forward one position.
+	 */
+	virtual void next() = 0;
+
+	/** Move the cursor back in the table.
+	 *
+	 *  If there are no previous entries in the table, the cursor
+	 *  will point to a null key.  Otherwise, this method moves the
+	 *  cursor back one position.
+	 */
+	virtual void prev() = 0;
+
+	/** Determine whether cursor is off the end of table.
+	 *
+	 *  @return true if the cursor has been moved off the end of the
+	 *          table, past the last entry in it, and false otherwise.
+	 */
+	virtual bool after_end() = 0;
+};
+
+/** A cursor in a disktable.
+ */
+class QuartzDiskCursor : public QuartzCursor {
+    friend QuartzDiskTable;
+    private:
 	/** Whether the cursor is positioned at a valid entry.
 	 */
 	bool is_positioned;
+
+	/** Whether the cursor is off the end of the table.
+	 */
+	bool is_after_end;
 
 	/** The btree cursor.  This points to the next item, not the current
 	 *  item.
 	 */
 	struct Bcursor * cursor;
+
+    public:
+	/// Create the cursor
+	QuartzDiskCursor(struct Btree * btree)
+		: is_positioned(false),
+		  cursor(Bcursor_create(btree)) {}
+	
+	/// Destroy the cursor
+	~QuartzDiskCursor() { Bcursor_lose(cursor); }
+
+	/** Virtual methods of QuartzCursor.
+	 */
+	//@{
+	bool find_entry(const QuartzDbKey &key);
+	void next();
+	void prev();
+	bool after_end() { return is_after_end; }
+	//@}
+};
+
+/** A cursor in a bufftable.
+ */
+class QuartzBufferedCursor : public QuartzCursor {
+    friend QuartzBufferedTable;
+    private:
+	/** The cursor on disk.
+	 */
+	QuartzDiskCursor * diskcursor;
+
+	/** Pointer to changes stored in the buffer.
+	 */
+	const QuartzTableEntries * changed_entries;
+
+	/** Iterator in changed entries.
+	 */
+	QuartzTableEntries::items::const_iterator iter;
+    public:
+	/// Standard constructor
+	QuartzBufferedCursor(QuartzDiskCursor * diskcursor_,
+			     const QuartzTableEntries * changed_entries_)
+		: diskcursor(diskcursor_),
+		  changed_entries(changed_entries_)
+		{}
+
+	/// Destroy the cursor
+	~QuartzBufferedCursor() { delete(diskcursor);}
+
+	/** Virtual methods of QuartzCursor.
+	 */
+	//@{
+	bool find_entry(const QuartzDbKey &key);
+	void next();
+	void prev();
+	bool after_end();
+	//@}
 };
 
 
@@ -109,54 +206,6 @@ class QuartzTable {
 	 */
 	virtual quartz_tablesize_t get_entry_count() const = 0;
 
-	/** Create a cursor for reading from the table.
-	 */
-	virtual AutoPtr<QuartzCursor> make_cursor() = 0;
-
-	/** Read an entry from the table.
-	 *
-	 *  If the key is found in the table, the tag will be filled with
-	 *  the data associated with the key.
-	 *
-	 *  If the key is not found, the key will be set to the value of
-	 *  the key preceding that asked for, and the tag will be filled
-	 *  with the data associated with that key.
-	 *
-	 *  If there is no key preceding that asked for, the key and tag
-	 *  will be set to a null value.  Note that, if you are testing
-	 *  for this condition, you should test whether the key has a null
-	 *  value, since null tag values are allowed to be stored in
-	 *  tables.
-	 *
-	 *  @param key    The key to look for in the table.
-	 *  @param tag    A tag object to fill with the value found.
-	 *  @param cursor A cursor, which will be positioned to point to
-	 *                the item found.
-	 *
-	 *  @return true if the exact key was found in the table, false
-	 *          otherwise.
-	 */
-	virtual bool get_nearest_entry(QuartzDbKey &key,
-				       QuartzDbTag &tag,
-				       QuartzCursor &cursor) const = 0;
-
-	/** Read the next entry from the table.
-	 *
-	 *  This moves the cursor forward one position, and then
-	 *  reads an entry from the position pointed to by the cursor.
-	 *  If there is no such entry, the cursor becomes invalid, (and
-	 *  the method returns false, and the key and tag are unaltered).
-	 *
-	 *  @param key    Will be filled with the key of the item found.
-	 *  @param tag    Will be filled with the tag of the item found.
-	 *  @param cursor The cursor pointing to the entry.
-	 *
-	 *  @return true if an entry was read, false otherwise.
-	 */
-	virtual bool get_next_entry(QuartzDbKey &key,
-				    QuartzDbTag &tag,
-				    QuartzCursor &cursor) const = 0;
-
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
 	 *
@@ -164,14 +213,18 @@ class QuartzTable {
 	 *  the data associated with the key.  If the key is not found,
 	 *  the tag will be unmodified.
 	 *
-	 *  @param key  The key to look for in the table
+	 *  @param key  The key to look for in the table.
 	 *  @param tag  A tag object to fill with the value if found.
 	 *
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	virtual bool get_exact_entry(const QuartzDbKey &key,
+	virtual bool get_exact_entry(const QuartzDbKey & key,
 				     QuartzDbTag & tag) const = 0;
+
+	/** Get a cursor for reading from the table.
+	 */
+	virtual QuartzCursor * cursor_get() const = 0;
 };
 
 /** Class managing a table in a Quartz database.
@@ -297,7 +350,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   A pointer to the tag to store in the table, or 0
-	 *               to delete the item in the table.
+	 *               to delete the entry in the table.
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
@@ -324,14 +377,9 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	AutoPtr<QuartzCursor> make_cursor();
-	bool get_nearest_entry(QuartzDbKey &key,
-			       QuartzDbTag &tag,
-			       QuartzCursor &cursor) const;
-	bool get_next_entry(QuartzDbKey &key,
-			    QuartzDbTag &tag,
-			    QuartzCursor &cursor) const;
-	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey & key,
+			     QuartzDbTag & tag) const;
+	QuartzDiskCursor * cursor_get() const;
 	//@}
 };
 
@@ -431,14 +479,9 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	AutoPtr<QuartzCursor> make_cursor();
-	bool get_nearest_entry(QuartzDbKey &key,
-			       QuartzDbTag &tag,
-			       QuartzCursor &cursor) const;
-	bool get_next_entry(QuartzDbKey &key,
-			    QuartzDbTag &tag,
-			    QuartzCursor &cursor) const;
-	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey & key,
+			     QuartzDbTag & tag) const;
+	QuartzBufferedCursor * cursor_get() const;
 	//@}
 };
 

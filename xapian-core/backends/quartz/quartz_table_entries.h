@@ -126,7 +126,7 @@ class QuartzTableEntries {
 	 *  If it doesn't exist, the iterator points to the first item
 	 *  which does exist which is before that specified.
 	 *  If there are no items before that specified, it points to the
-	 *  first item.
+	 *  first item, which has a null key.
 	 *
 	 *  @param key  The key to look for an item at or before.
 	 *
@@ -136,8 +136,7 @@ class QuartzTableEntries {
 
 	/** Get the item pointed to by the iterator.
 	 *
-	 *  If the iterator doesn't point to an item, the keyptr and tagptr
-	 *  are unmodified.
+	 *  The iterator must point to an item when this is called.
 	 *
 	 *  @param iterator  The iterator.
 	 *  @param keyptr    A pointer to a pointer to a key, which is set
@@ -148,16 +147,25 @@ class QuartzTableEntries {
 	 *                   to point to the item's tag.  The tag pointed
 	 *                   to is owned by the QuartzTableEntries object,
 	 *                   and must not be deleted.
-	 *
-	 *  @return true if the iterator pointed to an item, false if not.
 	 */
-	bool get_item(items::const_iterator iter,
+	void get_item(items::const_iterator iter,
 		      const QuartzDbKey ** keyptr,
 		      const QuartzDbTag ** tagptr) const;
 
-	/** Advance the iterator, unless it is already at the end.
+	/** Decrease the iterator.
 	 */
-	void advance(items::const_iterator iter) const;
+	void prev(items::const_iterator & iter) const;
+
+	/** Advance the iterator.
+	 */
+	void next(items::const_iterator & iter) const;
+
+	/** Check whether the iterator is at the end.
+	 *
+	 *  @return true if iterator is pointing to the last item,
+	 *          false otherwise.
+	 */
+	bool after_end(items::const_iterator & iter) const;
 
 	/** Return whether there are any entries stored in this object.
 	 *
