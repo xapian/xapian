@@ -223,6 +223,8 @@ class QuartzTable {
 				     QuartzDbTag & tag) const = 0;
 
 	/** Get a cursor for reading from the table.
+	 *  The cursor is owned by the caller - it is the caller's
+	 *  responsibility to ensure that it is deleted.
 	 */
 	virtual QuartzCursor * cursor_get() const = 0;
 };
