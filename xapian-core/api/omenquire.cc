@@ -49,6 +49,7 @@
 
 OmMatchOptions::OmMatchOptions()
 	: do_collapse(false),
+	  collapse_key(0),
 	  sort_forward(true),
 	  percent_cutoff(-1),
 	  max_or_terms(0)
