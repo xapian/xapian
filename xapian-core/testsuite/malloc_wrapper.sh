@@ -22,10 +22,10 @@ run_prog() {
     then
         LD_PRELOAD="$preload"
 	export LD_PRELOAD
-	exec "$@"
+	exec $USE_GDB "$@"
     else
         echo "malloccheck.so not found" >&2
-	exec "$@"
+	exec $USE_GDB "$@"
     fi
 }
 

@@ -1,3 +1,9 @@
+Tue Nov 14 17:32:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add hack to malloccheck.so to allow running of gdb with the malloc
+	  checking.  To run gdb, set environment variable USE_GDB to gdb
+	  command: eg, USE_GDB="../libtool gdb" ./run-apitest
+
 Tue Nov 14 17:22:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added new debugging category for display of messages related to
