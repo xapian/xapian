@@ -23,9 +23,11 @@
 #ifndef OM_HGUARD_OMSTRINGSTREAM_H
 #define OM_HGUARD_OMSTRINGSTREAM_H
 
+#include "config.h"
+
 #ifdef HAVE_SSTREAM
 #include <sstream>
-typedef std::ostringstream om_stringstream;
+typedef std::ostringstream om_ostringstream;
 
 #else // HAVE_SSTREAM
 

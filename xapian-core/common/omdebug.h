@@ -100,7 +100,7 @@ class OmDebug {
 	 *  present, or is false, messages of the corresponding type will
 	 *  be displayed.
 	 */
-	vector<bool> unwanted_types;
+	std::vector<bool> unwanted_types;
 
 	/// Whether the output stream has been opened.
 	bool output_initialised;
@@ -131,7 +131,7 @@ class OmDebug {
 	/** File to send this output to.  If this is null, it'll go to
 	 *  stderr.
 	 */
-	auto_ptr<std::ofstream> to;
+	std::auto_ptr<std::ofstream> to;
     public:
 	/// Operator for outputting something
 	ostream & operator << (enum om_debug_types type);
@@ -175,20 +175,20 @@ extern OmDebug om_debug;
 class OmDebugApiCall {
     private:
 	/** The name of the method being called. */
-        string methodname;
+        std::string methodname;
 
 	/** The return value. */
-        string returnval;
+        std::string returnval;
     public:
 	/** Constructor: called at the beginning of the method. */
-        OmDebugApiCall(string methodname_, string params)
+        OmDebugApiCall(std::string methodname_, std::string params)
 		: methodname(methodname_) {
 	    DEBUGLINE(APICALL, "Calling " << methodname << "(" <<
 		      params << ")");
 	};
 
 	/** Optionally called to specify a return value. */
-        void setreturnval(string returnval_) { returnval = returnval_; }
+        void setreturnval(std::string returnval_) { returnval = returnval_; }
 
 	/** Destructor: displays message indicating that method has returned */
         ~OmDebugApiCall() {
@@ -200,7 +200,7 @@ class OmDebugApiCall {
  *  message when the method ends.
  */
 #define DEBUGAPICALL(a,b) \
-    string omdebugapicall_str; \
+    std::string omdebugapicall_str; \
     {\
 	om_ostringstream os; \
 	os << b; \

@@ -61,12 +61,12 @@ OmDebug::open_output()
 	    {
 		// FIXME: have to do this to get around compiler brokenness
 		// in gcc version 2.95.2
-		auto_ptr<std::ofstream> temp(new std::ofstream(filename));
+		std::auto_ptr<std::ofstream> temp(new std::ofstream(filename));
 		to = temp;
 	    }
 	    if (to.get() == 0 || *to == 0) {
 		cerr << "Can't open requested debug file `" <<
-			string(filename) << "' using stderr." << endl << flush;
+			std::string(filename) << "' using stderr." << endl << flush;
 	    }
 	}
 	output_initialised = true;
