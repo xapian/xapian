@@ -1,3 +1,9 @@
+Sun Apr 11 23:11:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Call posix_fadvise with POSIX_FADV_DONTNEED just before
+	  closing an input file.  Again should help improve indexing
+	  throughput.
+
 Fri Apr 02 16:09:03 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in,omindex.cc: Use O_STREAMING and/or posix_fadvise()

@@ -305,6 +305,9 @@ file_to_string(const string &file)
 	    out.append(blk, r);
 	}
     }
+#ifdef HAVE_POSIX_FADVISE
+    posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif
     close(fd);
     return out;
 }
