@@ -563,7 +563,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
 					make_pair(new_item, 0)));
 		} else {
-		    const OmMSetItem old_item = oldkey->second.first;
+		    const OmMSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
@@ -582,9 +582,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 		    // This is best match with this key so far:
 		    // remove the old one from the MSet
-		    // 
-		    // FIXME: what about sort_bands == 1 case here?
-		    if (min_item.wt <= 0.0 || mcmp(old_item, min_item)) {
+		    if ((sort_bands != 1 && min_item.wt <= 0.0) ||
+			mcmp(old_item, min_item)) {
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry
 			// FIXME: more efficient way than just scanning?

@@ -1,3 +1,8 @@
+Wed Mar 26 20:30:18 GMT 2003  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: fixed interaction of collapsing and
+	  sort_bands == 1.
+
 Wed Mar 26 01:04:30 GMT 2003  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fixed sort_bands == 1 bug which would
@@ -5,7 +10,7 @@ Wed Mar 26 01:04:30 GMT 2003  Olly Betts <olly@survex.com>
 
 Thu Mar 06 13:04:06 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-	* Add writeup about document collapsing to matcherdesign.html
+	* docs/matcherdesign.html: Add writeup about document collapsing.
 
 Thu Mar 06 11:32:05 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
