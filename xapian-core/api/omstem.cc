@@ -34,6 +34,7 @@
 #include "italian/stem_italian.h"
 #include "portuguese/stem_portuguese.h"
 #include "spanish/stem_spanish.h"
+#include "swedish/stem_swedish.h"
 #include "porter/stem_porter.h"
 
 ////////////////////////////////////////////////////////////
