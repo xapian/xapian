@@ -389,16 +389,20 @@ sub compare_file_version {
         print end_html;
     }
     open (FILE, "$cvsquery $root $pkg -f $fileid |");
+    my $pwd = `pwd`;
+    chomp $pwd;
+    chdir ("$cvsdata/$root/src");
     while (<FILE>) {
         chomp;
         my $file = $_;
-        open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $cvsdata/$root/src/$file |");
+        open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $file |");
         while (<OUTPUT>) {
             print $_;
         }
         close(OUTPUT);
         last;
     }
+    chdir ($pwd);
     close(FILE);
 }
 
