@@ -35,13 +35,13 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 
     // FIXME - try to share this information rather than pick half of it
     if(bits2.dbsize > sum.dbsize) {
-	DebugMsg("OmExpandBits::operator+ using second operand: " <<
+	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using second operand: " <<
 		 bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
 		 bits1.termfreq << "/" << bits1.dbsize << endl);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     } else {
-	DebugMsg("OmExpandBits::operator+ using first operand: " << 
+	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl);
 	// sum already contains the parts of the first operand
@@ -63,10 +63,10 @@ OmExpandWeight::get_bits(om_termcount wdf,
 	// termlist, so can cache results?
 	multiplier = (k + 1) * wdf / (k * len + wdf);
 #if 1   
-	DebugMsg("Using (wdf, len) = (" << wdf << ", " << len <<
+	DEBUGMSG(WTCALC, "Using (wdf, len) = (" << wdf << ", " << len <<
 		 ") => multiplier = " << multiplier << endl);
     } else {
-	DebugMsg("No wdf information => multiplier = " << multiplier << endl);
+	DEBUGMSG(WTCALC, "No wdf information => multiplier = " << multiplier << endl);
 #endif
     }
     return OmExpandBits(multiplier, termfreq, dbsize);
@@ -80,19 +80,19 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     if(bits.dbsize != dbsize) {
 	if(bits.dbsize > 0) {
 	    termfreq *= (double) dbsize / (double)bits.dbsize;
-	    DebugMsg("Approximating termfreq of `" << tname << "': " <<
+	    DEBUGMSG(WTCALC, "Approximating termfreq of `" << tname << "': " <<
 		     bits.termfreq << " * " << dbsize << " / " <<
 		     bits.dbsize << " = " << termfreq << " (true value is:" <<
 		     root->get_termfreq(tname) << ")" << endl);
 	} else {
 	    termfreq = root->get_termfreq(tname);
-	    DebugMsg("Asking database for termfreq of `" << tname << "': " <<
+	    DEBUGMSG(WTCALC, "Asking database for termfreq of `" << tname << "': " <<
 		     termfreq << endl);
 	}
     }
 
 #if 1
-    DebugMsg("OmExpandWeight::get_weight("
+    DEBUGMSG(WTCALC, "OmExpandWeight::get_weight("
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
 	     "R=" << rsize << ", "
@@ -119,7 +119,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     tw = log(tw);
 
 #if 1
-    DebugMsg(" => Term weight = " << tw <<
+    DEBUGMSG(WTCALC, " => Term weight = " << tw <<
 	     " Expand weight = " << bits.multiplier * tw << endl);
 #endif
 

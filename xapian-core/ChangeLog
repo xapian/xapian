@@ -1,3 +1,8 @@
+Mon Jun 12 12:20:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Document the intended purpose of the debug message types, and
+	  make the expand code emit typed debug messages.
+
 Fri Jun  9 17:51:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added lock() and unlock() methods to databases.

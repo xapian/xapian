@@ -36,11 +36,37 @@
 #include <memory>
 #include <vector>
 
+/** The types of debug output.  These are specified within a DEBUGMSG in
+ *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...
+ */
 enum om_debug_types {
+    /** A debug message of unknown type: probably just not been classified
+     *  yet.
+     */
     OM_DEBUG_UNKNOWN,
+
+    /** A debug message involved with locking or unlocking something.
+     */
     OM_DEBUG_LOCK,
+
+    /** A debug message to do with a database backend.
+     */
     OM_DEBUG_DB,
+
+    /** A debug message to do with the matcher.
+     */
+    OM_DEBUG_MATCH,
+
+    /** A debug message to do with the expander.
+     */
+    OM_DEBUG_EXPAND,
+
+    /** A debug message to do with calculating weights.
+     */
     OM_DEBUG_WTCALC,
+
+    /** A debug message to do with some part of the API.
+     */
     OM_DEBUG_API
 };
 
