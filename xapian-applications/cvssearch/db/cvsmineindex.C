@@ -3,6 +3,7 @@
  * 
  * (c) 2001 Amir Michail (amir@users.sourceforge.net)
  * modified by Andrew Yao (andrewy@users.sourceforge.net)
+ * Copyright (C) 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +24,9 @@
 
 #warning "CODE TERMS IMPROVE THINGS A LOT BUT NOW WE NEED COMMIT RANKING"
 #warning "DOES NOT USE STOP WORDS"
-#warning "SHOULD SPECIFY INCLUDE DIRECTORIES OF HEADER FILES ONLY"
-#warning "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"
-#warning "EXAMPLE: qt/include and kde/include"
+#warning "SHOULD SPECIFY INCLUDE DIRECTORIES OF HEADER FILES ONLY"\
+ "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"\
+ "EXAMPLE: qt/include and kde/include"
 
 // if DB_ONLY is false, it looks at cmt files and compares two methods
 #define DB_ONLY 1
@@ -59,8 +60,8 @@
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "should generate unique file for tags"
-#warning "ctags contains inheritance information; this can help"
+#warning "should generate unique file for tags"\
+ "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
 
 #include <xapian.h>
@@ -77,6 +78,7 @@
 #include <algorithm>
 
 #include "cvs_db_file.h"
+#include "pstream.h"
 #include "util.h"
 
 // ----------------------------------------
@@ -86,22 +88,20 @@
 //  ignore inheritance for now...
 
 // -R (recursive)
-// --c-types=cfsuAC
+// --c-types=cfsuAC  - FIXME: not what is written below...
 // --kind-long=yes (verbose tag descriptions)
 // from this, ignore all entries with access:private
 
-// /tmp is small, so we use /tmp
 // ----------------------------------------
 
-
-// support C/C++/Java for now
+// FIXME: support C/C++/Java for now
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
-// FIXME: this is bad - it allows symlink attacks on the files of the user
-// running cvssearch
-const string CTAGS_OUTPUT = "/tmp/tags";
-
 #warning "some hardcoding of preprocessor commands"
-const string CTAGS_FLAGS = "-R -I Q_OBJECT -I K_DCOP --file-scope=no --fields=aiKs --c-types=cfp --java-types=cim -f" + CTAGS_OUTPUT;
+const char * CTAGS_ARGS[] = {
+    "-R", "-IQ_OBJECT,K_DCOP", "--file-scope=no", "--fields=aiKs",
+    "--c-types=cfp", "--java-types=cim", "-f-"
+};
+// FIXME : --c++-types=... too surely?
 
 // ----------------------------------------
 // function declarations.
@@ -137,8 +137,10 @@ int main(unsigned int argc, char *argv[]) {
     string cvsdata = get_cvsdata();
     string root = "";
     set<string> packages;
-    bool read_library = false;
-    system( ("rm -f " + CTAGS_OUTPUT).c_str() );
+    // ----------------------------------------
+    // for symbols from libraries
+    // ----------------------------------------
+    set<string> lib_symbols;
     for (unsigned int i = 1; i < argc; ++i) {
         if (0) {
         } else if (!strcmp(argv[i],"-f") && i+1 < argc) {
@@ -150,32 +152,22 @@ int main(unsigned int argc, char *argv[]) {
             usage(argv[0]);
         } else {
             // ----------------------------------------
-            // get libraries if any from cmd line
-            // and run ctags on it.
+            // get libraries (if any) from cmd line
+            // and run ctags on them.
             // ----------------------------------------
-            string dir = argv[i];
-            cerr << "... running ctags on library " << dir << endl;
-            string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-            cerr << "... invoking " << cmd << endl;
-            system(cmd.c_str());
-            read_library = true;
-
+            cerr << "... running ctags on library " << argv[i] << endl;
+            vector<string> ctags_args(CTAGS_ARGS,
+				      CTAGS_ARGS +
+				      sizeof(CTAGS_ARGS) / sizeof(const char *));
+	    ctags_args.push_back(argv[i]);
+	    redi::ipstream ctags("ctags", ctags_args);
+	    readTags(ctags, lib_symbols);
+	    cerr << "... reading library tags done" << endl;
         }
     }
 
-    if (root.length() == 0) {
+    if (root.empty()) {
         usage(argv[0]);
-    }
-
-    // ----------------------------------------
-    // get symbols from library
-    // ----------------------------------------
-    set<string> lib_symbols;
-    map<string, set<string> > lib_symbol_parents;
-    if (read_library) {
-        cerr << "... reading library tags" << endl;
-        readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
-        cerr << "... reading library tags done" << endl;
     }
 
     // ----------------------------------------
@@ -209,20 +201,19 @@ int main(unsigned int argc, char *argv[]) {
             string package_src_path = cvsdata + "/" + root + "/src/" + package_path;// e.g. ...cvsdata/root0/src/kdebase/konqueror
 
             // ----------------------------------------
-            // run ctags on that package
-            // ----------------------------------------
-            system( ("rm -f " + CTAGS_OUTPUT).c_str() );
-            string cmd = string("ctags ") + CTAGS_FLAGS + " " + package_src_path;
-            cerr << "... invoking " << cmd << endl;
-            system(cmd.c_str());
-
-            // ----------------------------------------
+            // run ctags on that package and
             // read symbols from each application
             // ----------------------------------------
             set<string> app_symbols;
-            map<string, set<string> > app_symbol_parents;
             cerr << "... reading application tags" << endl;
-            readTags( CTAGS_OUTPUT, app_symbols, app_symbol_parents );
+	    {
+            vector<string> ctags_args(CTAGS_ARGS,
+				      CTAGS_ARGS +
+				      sizeof(CTAGS_ARGS) / sizeof(const char *));
+	    ctags_args.push_back(package_src_path);
+	    redi::ipstream ctags("ctags", ctags_args);
+	    readTags(ctags, app_symbols);
+	    }
 
             // ------------------------------------------------------------
             // need first input to be
@@ -317,7 +308,7 @@ int main(unsigned int argc, char *argv[]) {
 void
 usage(char * prog_name)
 {
-    cerr << "Usage: " << prog_name << "[Options] list of library include directories" << endl
+    cerr << "Usage: " << prog_name << "[Options] [library include directory...]" << endl
          << endl
          << "Options:" << endl
          << "  -f pkg_list_file       a file containing the list of packages to mine" << endl

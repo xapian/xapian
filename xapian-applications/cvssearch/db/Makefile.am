@@ -1,7 +1,7 @@
 noinst_HEADERS = cvs_comment_db.h cvs_db.h cvs_file_revision_db.h \
  cvs_line_db.h cvs_comment_id_db.h cvs_db_file.h cvs_filename_db.h \
  cvs_revision_db.h cvs_comment_id2_db.h cvs_file_id_db.h cvs_revision_less.h \
- cvs_diff_db.h \
+ cvs_diff_db.h pstream.h \
  util.h lines.h lines_cmt.h lines_db.h
 
 bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch \

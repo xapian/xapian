@@ -1,6 +1,7 @@
 // util.h
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
+// Copyright (C) 2004 Olly Betts
 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -11,16 +12,13 @@
 #include <map>
 #include <set>
 #include <list>
+#include <fstream>
 using namespace std;
 
 void lowercase_term(string &term);
 void lowercase_string(string &term);
 void split (const string & text, const string & separators, list<string> & words);
-void readTags( const string& fn, set<string>& S, map<string, set<string> >& parents
-#if 0
-      , map< string, string>& tag 
-#endif
-);
+void readTags(istream & in, set<string>& S);
 
 bool blankChar  (char c);
 bool okFirstChar(char c);

@@ -1,6 +1,7 @@
 // util.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
+// Copyright (C) 2004 Olly Betts
 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -88,7 +89,7 @@ static string get_value( const string& s, const string& field ) {
   string ns = "";
   string f = "\t"+field+":";
   int k1 = s.find(f);
-  if ( k1 != -1 ) {
+  if ( k1 != string::npos ) {
     k1 += f.length();
     int k2 = s.length()-1;
     for( int i = k1; i <= k2; i++ ) {
@@ -103,108 +104,91 @@ static string get_value( const string& s, const string& field ) {
 
 }
 
-void readTags( const string& fn, set<string>& S, map<string, set<string> >& symbol_parents ) {
-  cerr << "... readTags " << fn << endl;
-  ifstream in(fn.c_str());
-  assert (in);
-  string s;
-  while ( getline( in, s ) ) {
-    if ( s == "" || s[0] == '!' ) {
-      continue;
-    }
-    //    cerr << "FOUND -" << s << "-" << endl;
+void readTags(istream &in, set<string>& S) {
+    cerr << "... readTags" << endl;
+    string s;
+    while (getline(in, s)) {
+	if (s.empty() || s[0] == '!') {
+	    continue;
+	}
+	//    cerr << "FOUND -" << s << "-" << endl;
 
-    bool is_private = (get_value( s, "access" ) == "private");
-	
-    if ( ! is_private ) {
+	bool is_private = (get_value( s, "access" ) == "private");
 
-      bool function =
-	    
-	(s.find("\tprototype\t") != string::npos) ||
-	(s.find("\tprototype")+string("\tprototype").length() == s.length()) ||
-	    
-	(s.find("\tfunction\t") != string::npos) ||
-	(s.find("\tfunction")+string("\tfunction").length() == s.length()) ||
-	    
-	(s.find("\tmethod\t") != string::npos ) ||
-	(s.find("\tmethod")+string("\tmethod").length() == s.length()) ||
-	    
-	(s.find("\tmember\t") != string::npos ) ||
-	(s.find("\tmember")+string("\tmember").length() == s.length() );
+	if (!is_private) {
+	    cerr << "skipping private: " << s << endl;
+	    continue;
+	}
 
+	string t = s + "\t";
 
-      string symbol = s.substr( 0, s.find("\t") );
+	bool function =
+	    (t.find("\tprototype\t") != string::npos) ||
+	    (t.find("\tfunction\t") != string::npos) ||
+	    (t.find("\tmethod\t") != string::npos) ||
+	    (t.find("\tmember\t") != string::npos);
+
+	string symbol = s.substr( 0, s.find("\t") );
       
-      /****
-	   if ( symbol.find("::") != string::npos ) {
-	   cerr << "changing " << symbol << " to ";
-	   symbol = symbol.substr( symbol.find("::")+2 );
-	   cerr << symbol << endl;
-	   }
-      
-	   // skip it if still has ::
-	   if ( symbol.find("::") != string::npos ) {
-	   cerr << "... skipping " << symbol << endl;
-	   continue;
-	   }
+#if 0
+	if ( symbol.find("::") != string::npos ) {
+	    cerr << "changing " << symbol << " to ";
+	    symbol = symbol.substr( symbol.find("::")+2 );
+	    cerr << symbol << endl;
+	}
 
-      ****/
+	// skip it if still has ::
+	if ( symbol.find("::") != string::npos ) {
+	    cerr << "... skipping " << symbol << endl;
+	    continue;
+	}
+#endif
 
-      if ( symbol.find("::") != string::npos ) {
-	cerr << "found symbol with :: -" << symbol << "-; skipping!" << endl;
-	continue;
-      }
+	if (symbol.find("::") != string::npos) {
+	    cerr << "found symbol with :: -" << symbol << "-; skipping!" << endl;
+	    continue;
+	}
 
-      if ( function ) {
-	symbol += "()";
-      } else {
+	if (function) {
+	    symbol += "()";
+	} else {
+#if 0
+	    // this is a class
 
-
-	/**
-	 // this is a class
-
-	 int k1 = s.find("\tinherits:");
-	 if ( k1 != -1 ) {
-	 k1 += 10;
-	 int k2 = s.length()-1;
-	 for( int i = k1; i <= k2; i++ ) {
-	 if ( s[i] == '\t' ) {
-	 k2 = i-1;
-	 break;
-	 }
-	 }
-	 string parent_string = s.substr( k1, k2-k1+1 );
-	 //	cerr << symbol << " has parent string -" << parent_string << "-" << endl;
-	 list<string> parents;
-	 split( parent_string, ",", parents );
-	 for( list<string>::iterator i = parents.begin(); i != parents.end(); i++ ) {
-	 if ( i->find("::") == string::npos ) {
-	 //	    cerr << "..." << (*i) << endl;
-	 symbol_parents[symbol].insert(*i);
-	 }
-	 }
-	**/
-
-      }
+	    int k1 = s.find("\tinherits:");
+	    if (k1 != string::npos) {
+		k1 += 10;
+		int k2 = s.length()-1;
+		for( int i = k1; i <= k2; i++ ) {
+		    if ( s[i] == '\t' ) {
+			k2 = i-1;
+			break;
+		    }
+		}
+		string parent_string = s.substr( k1, k2-k1+1 );
+		//	cerr << symbol << " has parent string -" << parent_string << "-" << endl;
+		list<string> parents;
+		split( parent_string, ",", parents );
+		for( list<string>::iterator i = parents.begin(); i != parents.end(); i++ ) {
+		    if ( i->find("::") == string::npos ) {
+			//	    cerr << "..." << (*i) << endl;
+			symbol_parents[symbol].insert(*i);
+		    }
+		}
+	    }
+#endif
+	}
  
-      string ns = get_value( s, "namespace" );
-      
-      if ( ns != "" ) {
-	symbol = ns + "::" + symbol;
-	cerr << "found namespace -" << symbol << "-" << endl;
-      }
-      
-      S.insert(symbol);
-      //      cerr << "** found symbol -" << symbol << "-" << endl;
-      
-      
-  } else {
-    //    cerr << "skipping private: " << s << endl;
-  }
+	string ns = get_value(s, "namespace");
 
+	if (!ns.empty()) {
+	    symbol = ns + "::" + symbol;
+	    cerr << "found namespace -" << symbol << "-" << endl;
+	}
 
-}
-in.close();
+	S.insert(symbol);
+	//      cerr << "** found symbol -" << symbol << "-" << endl;
+    }
 }
 
 string get_cvsdata() 
@@ -219,7 +203,7 @@ string get_cvsdata()
         // ----------------------------------------
         // strip trailing / if any
         // ----------------------------------------
-        if ( cvsdata[cvsdata.length()-1] == '/' ) {
+        if ( !cvsdata.empty() && cvsdata[cvsdata.length()-1] == '/' ) {
             cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
         }
     }

@@ -1,3 +1,8 @@
+Sat Mar 27 13:38:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/: Read the output from ctags using a pipe, which fixes a case of
+	  insecure temporary file creation.
+
 Fri Mar 26 23:00:24 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/Makefile.am: Layout tweaks.
