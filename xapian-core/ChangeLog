@@ -1,3 +1,8 @@
+Mon May 12 20:51:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omdatabaseinternal.cc,backends/database.cc: Moved database
+	  factory functions from api to backends.
+
 Fri May 09 04:02:29 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/expandweight.h: Removed cruft.
