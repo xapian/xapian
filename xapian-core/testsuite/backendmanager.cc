@@ -165,7 +165,7 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	system("rm -fr .quartz");
-    } else if (type == "network") {
+    } else if (type == "remote") {
 	do_getdb = &BackendManager::getdb_network;
 	do_getwritedb = &BackendManager::getwritedb_network;
     } else if (type == "da") {
@@ -177,7 +177,7 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError(
-		"Expected inmemory, sleepycat, quartz, network, da or void");
+		"Expected inmemory, sleepycat, quartz, remote, da or void");
     }
 }
 
@@ -366,10 +366,10 @@ BackendManager::getdb_network(const std::vector<std::string> &dbnames)
     args.insert(args.end(), dbnames.begin(), dbnames.end());
 
     OmSettings params;
-    params.set("backend", "network");
-    params.set("network_type", "prog");
-    params.set("network_program", "../netprogs/omprogsrv");
-    params.set("network_args", args.begin(), args.end());
+    params.set("backend", "remote");
+    params.set("remote_type", "prog");
+    params.set("remote_program", "../netprogs/omprogsrv");
+    params.set("remote_args", args.begin(), args.end());
     OmDatabase db(params);
 
     return db;

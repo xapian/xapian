@@ -11,8 +11,8 @@ them.  In theory, a server can also be a client to other servers, but
 this may not be very useful or efficient.
 
 The client runs queries in the same way that it would on local databases,
-but with different database arguments.  Instead of type, eg, "da_flimsy",
-use "net".  The extra parameters describe how to connect to the server.
+but with different database arguments.  Instead of type, eg, "quartz",
+use "remote".  The extra parameters describe how to connect to the server.
 Once the database is opened, the query process is identical to any other.
 
 There are currently two network client/server methods: prog and tcp.  They
@@ -29,14 +29,15 @@ text files indexed into inmemory databases.
 
 From the client end, the following database parameters are used:
 
-Argument 1: "prog"
-Argument 2: The program to be run, ie "omprogsrv", which is built in the
-            netprogs directory in the OM distribution.  If a full path
-	    isn't given, the PATH environment variable is used.
-Argument >=3: The arguments to the program.  In the case of omprogsrv,
-            each argument is the name of a text file to be indexed into
-	    an inmemory database.  Any number can be used - one file per
-	    argument.
+"remote_type" = "prog"
+
+"remote_program" - The program to be run, ie "omprogsrv", which is built in
+            the netprogs directory in the OM distribution.  If a full path
+            isn't given, the PATH environment variable is used.
+
+"remote_args" - a vector<string> giving the arguments to the program.  In the
+            case of omprogsrv, each argument is the name of a text file to be
+            indexed into an inmemory database.  Any number can be specified.
 
 THE TCP METHOD
 ==============
@@ -45,9 +46,11 @@ remote (or indeed local) machine.
 
 The client's database parameters are:
 
-Argument 1: "tcp"
-Argument 2: The server's hostname.
-Argument 3: The server port to use (as a decimal string).
+"remote_type" = "tcp"
+
+"remote_server" - The server's hostname.
+
+"remote_port" - The tcp port on the server to use.
 
 The server is omtcpsrv in the netprogs/ directory of the OM distribution.
 This should be started and left running in the background before searches
@@ -61,11 +64,10 @@ The arguments omtcpsrv currently knows are:
 	then the server runs until it is killed manually.
 
 Options for specifying the database(s):
-    --da-flimsy <dir>, --da-heavy <dir>, --db-flimsy <dir>, --db-heavy <dir>
-        Add a da/db flimsy/heavy database to the database group served by
-	this server.
+    --da-flimsy <dir>, --da-heavy <dir>, --db <dir>, --db <dir>
+        Add a da/db database to the database group served by this server.
     --im <filename>
-        Add an inmemory (text file) database to the group
+        Add an inmemory (text file) database to the group.
     --sleepycat <dir>
         Add a sleepycat database to the group.
 

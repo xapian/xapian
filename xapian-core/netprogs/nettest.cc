@@ -40,7 +40,7 @@ bool test_netmatch1()
 {
     OmDatabaseGroup databases;
     BackendManager backendmanager;
-    backendmanager.set_dbtype("network");
+    backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
@@ -65,7 +65,7 @@ bool test_netmatch2()
 {
     OmDatabaseGroup databases;
     BackendManager backendmanager;
-    backendmanager.set_dbtype("network");
+    backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
 
@@ -94,7 +94,7 @@ bool test_netmatch2()
 bool test_netexpand1()
 {
     BackendManager backendmanager;
-    backendmanager.set_dbtype("network");
+    backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
@@ -165,10 +165,10 @@ bool test_tcpmatch1()
 
     OmDatabaseGroup databases;
     OmSettings params;
-    params.set("backend", "network");
-    params.set("network_type", "tcp");
-    params.set("network_server", "localhost");
-    params.set("network_port", 1236);
+    params.set("backend", "remote");
+    params.set("remote_type", "tcp");
+    params.set("remote_server", "localhost");
+    params.set("remote_port", 1236);
     databases.add_database(params);
 
     OmEnquire enq(databases);

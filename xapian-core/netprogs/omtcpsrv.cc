@@ -73,21 +73,10 @@ int main(int argc, char *argv[]) {
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
+	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
 	    OmSettings *params = new OmSettings();
 	    std::string path = argv[1];
 	    params->set("backend", "db");
-	    params->set("m36_heavyduty", false);
-	    params->set("m36_db_file", path + "/DB");
-	    params->set("m36_key_file", path + "/keyfile");
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
-	    OmSettings *params = new OmSettings();
-	    std::string path = argv[1];
-	    params->set("backend", "db");
-	    params->set("m36_heavyduty", true);
 	    params->set("m36_db_file", path + "/DB");
 	    params->set("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
@@ -122,7 +111,7 @@ int main(int argc, char *argv[]) {
 
     if (syntax_error || argc > 0 || !dbs.size()) {
 	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
-		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy|sleepycat] DIRECTORY\n" <<
+		"\t--[da-flimsy|da-heavy|db|sleepycat] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" << endl;
 	exit(1);

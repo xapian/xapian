@@ -64,7 +64,6 @@ static const StringAndValue database_strings[] = {
     { "da",			DBTYPE_MUSCAT36_DA	},
     { "db",			DBTYPE_MUSCAT36_DB	},
     { "inmemory",		DBTYPE_INMEMORY		},
-    { "network",		DBTYPE_REMOTE		}, // FIXME: old name
     { "remote",			DBTYPE_REMOTE		},
     { "quartz",			DBTYPE_QUARTZ		},
     { "sleepycat",		DBTYPE_SLEEPYCAT	},
