@@ -32,7 +32,7 @@ $cache = "cache"; #where dump is written to
 $querywords = "";
 
 #---------------------------------------------
-# global mappigns defind in the script
+# global mappings defined in the script
 #---------------------------------------------
 # file = root database fileid
 # filename = full path
@@ -191,8 +191,8 @@ if($query && ($query ne "")){
 			}else{
 				#print "raw projct";#debug;
 				foreach(@rawproj){
-					s/\//_/g;
-					$tmp = Cvssearch::cvsupdatedb($curroot, "-f", "$_");
+					s!/!_!g;
+					$tmp = Cvssearch::cvsupdatedb($curroot, "-f", $_);
 					@curproj = split /\n/, $tmp;
 					
 					foreach (@curproj){
@@ -201,11 +201,11 @@ if($query && ($query ne "")){
 						%rootMAPproj=&insertArray(\%rootMAPproj, $curroot, $_);
 						#for input of cvssearch
 						$rootproj .= "$curroot/db/$_.om ";
-					}						
+					}
 				}
 			}
 		}
-	
+
 	}else{#selected one root
 
 		$curroot = $root;
@@ -222,8 +222,8 @@ if($query && ($query ne "")){
 			}
 		}else{
 			foreach(@rawproj){
-				s/\//_/g;
-				$tmp = Cvssearch::cvsupdatedb($curroot, "-f", "$_");
+				s!/!_!g;
+				$tmp = Cvssearch::cvsupdatedb($curroot, "-f", $_);
 				@curproj = split /\n/, $tmp;
 				
 				foreach (@curproj){
@@ -254,7 +254,7 @@ if($query && ($query ne "")){
 	# find grep matches
 	#----------------------------------
 	
-	#turn query words into "or" grep forma
+	#turn query words into "or" grep form
     my @temp_grep_queries = split /[\s]+/, "$querywords $stemquery";
     my %temp_grep_queries;
     foreach (@temp_grep_queries) {
@@ -276,7 +276,7 @@ if($query && ($query ne "")){
 			$i = 1; #index for file id
 			foreach (@file){
 				($curfile) = split /\s/, $_; #get file name
-				$curprojname =~ s/\//_/g;
+				$curprojname =~ s!/!_!g;
 				$curid = "$curroot $curprojname $i";
 				$idMAPrelPath{$curid} = $curfile;
 				$curfile = "$CVSDATA/$curroot/src/$curfile";
@@ -295,7 +295,7 @@ if($query && ($query ne "")){
 	#----------------
 	
 	$files = join ' ', (values %idMAPfile);
-	@grepmatches = `grep -E -I -i -n -H '$grepquery' $files | head -$num_matches`;
+	@grepmatches = `grep -E -I -i -n -H '$grepquery' $files | head -n$num_matches`;
 	
 	#-----------------------------------
 	# parse matches
@@ -349,12 +349,11 @@ if($query && ($query ne "")){
 	while (($db, $idarray)=each %databaseMAPid){
 		$querystr = "$cvsquery $db";
 		#go through each file
-		foreach (keys %$idarray){
-			$id = $_;
+		foreach $id (keys %$idarray){
 			$revptr = $fileMAPrev{"$db $id"};
 			@tmprevs = keys %$revptr;
-			for ($i=0;$i<=$#tmprevs;$i++){
-				$querystr .= " -c $id $tmprevs[$i]";
+			foreach (@tmprevs) {
+				$querystr .= " -c $id $_";
 			}
 		}
 		#print "<p> $querystr";#debug
@@ -365,8 +364,7 @@ if($query && ($query ne "")){
 		$i=0; # for where in @revs does the revision of the current file starts
 		#save comments for each file
 		
-		foreach (keys %$idarray){
-			$id = $_;
+		foreach $id (keys %$idarray) {
 			#work out number of revisions
 			%tmprev = &hashVal(\%fileMAPrev, "$db $id");
 			$numrev = scalar(keys %tmprev);
@@ -377,7 +375,6 @@ if($query && ($query ne "")){
 			#print " result:$#filerev";#debug
 			$i += $numrev;
 			$fileMAPcomment{"$db $id"} = join $ctrlA, @filerev;
-			
 		}
 	}
 
@@ -399,7 +396,7 @@ if($query && ($query ne "")){
 		%fileMAPgrep =  &insertArray(\%fileMAPgrep, $curid, "$line: $source");
 
 		# keep count of number of grep matches
-		$fileMAPgrepcount{$curid} +=1;
+		$fileMAPgrepcount{$curid}++;
 		
 		#for dump file
 		$lineMAPrevs{"$curid $line"} = "grep ".$lineMAPrevs{"$curid $line"};
@@ -441,9 +438,9 @@ if($query && ($query ne "")){
 	# open file for storing info
 	$storefile = &validFilename($query);
 	#print "$cache/$storefile\n";#DEBUG
-	if (!(-d "$cache")) {
-		system("mkdir $cache");
-		system("chmod 777 $cache");
+	if (!(-d cache)) {
+		mkdir $cache;
+		chmod 0777, $cache;
 	}
 	open (STORE, "> $cache/$storefile") or die "can't open $storefile";
 	
@@ -503,21 +500,23 @@ if($query && ($query ne "")){
 		print "</b>";
 		
 		#print comments
-		@comments = split /$ctrlA/, $fileMAPcomment{$curid};
+		@comments = split /$ctrlA/o, $fileMAPcomment{$curid};
 		$revptr = $fileMAPrev{$curid};
-		@revs = keys %$revptr;
-		
+		my %tmp;
 		for ($i=0;$i<=$#revs;$i++){
-			$origcomment = $comments[$i];
+		    $tmp{$revs[$i]} = $comments[$i];
+		}
+		foreach my $rev (sort keys %tmp) {
+			$origcomment = $tmp{$rev};
 			$tmpcomment = Entities::encode_entities($origcomment);
 			@highlight = &highlightquery($tmpcomment);
 			@linecomment = split /\n/, $origcomment;
 			$beg = $linecomment[1];
 			$back = $linecomment[-1];
-			$beg =~s/($grepquery)/<b>$1<\/b>/ig;
-			$back =~s/($grepquery)/<b>$1<\/b>/ig;
-			if(@highlight){
-				print "<br><b class=lightcvs>$revs[$i]: </b>";
+			$beg =~ s!($grepquery)!<b>$1</b>!ig;
+			$back =~ s!($grepquery)!<b>$1</b>!ig;
+			if (@highlight) {
+				print "<br><b class=lightcvs>$rev: </b>";
 				foreach (@highlight){
 					s/\n//g;
 					$tmpline = $_;
@@ -530,9 +529,8 @@ if($query && ($query ne "")){
 					}
 				}
 			}
-			
 		}
-		
+
 #		#print grep results
 #		$grepptr = $fileMAPgrep{$curid};
 #		foreach (@$grepptr){
@@ -544,7 +542,7 @@ if($query && ($query ne "")){
 #			@highlight = &highlightquery($cursource);
 #			print "<br><b class=lightgreen>$curline:</b>";
 #			foreach (@highlight){
-#				print "$_";
+#				print $_;
 #			}
 #		}
 		#print "</pre>";
@@ -552,9 +550,7 @@ if($query && ($query ne "")){
 	}
 	print "</font>";
 	close STORE;
-	system("chmod 777 $cache/$storefile");
-
-
+	chmod 0777, "$cache/$storefile";
 }
 
 &printTips;

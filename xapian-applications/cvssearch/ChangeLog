@@ -1,3 +1,8 @@
+Sat Mar 27 17:07:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Query-script.pl: Fixed to output cvs revisions sorted
+	  correctly.
+
 Sat Mar 27 15:19:16 GMT 2004  Olly Betts <olly@survex.com>
 
 	* amir/align.C,db/cvsrelatedindex.C,
