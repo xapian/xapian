@@ -24,6 +24,9 @@
 
 
 // for some reason, omseek ranking is better with set than list for data mining purposes??
+// I think the reason is that with a set, omsee ranks those commit higher than contain
+// the fewest # of distinct words; that is smaller commits get ranked higher and this
+// makes it more likely that most of the code is relevant
 #warning "USING SET INSTEAD OF LIST FOR INDEX ENTRIES"
 
 #warning "*** USING COMMENT PROFILES"

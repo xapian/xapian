@@ -833,7 +833,8 @@ void write_OM_database( OmWritableDatabase &database,
       map<string, list<string> >::const_iterator f = commit_comment_words.find(i->first);
 
 
-      set<string> words; // words to index by
+#warning " *** CHANGE TO SET WHEN YOU DO QUERY EXPANSION"
+      list<string> words; // words to index by
 
       assert( f != commit_comment_words.end() );
 
@@ -841,7 +842,7 @@ void write_OM_database( OmWritableDatabase &database,
       const list<string>& comment_words = f->second;
       for( list<string>::const_iterator j = comment_words.begin(); j != comment_words.end(); j++ ) {
 	symbol_string += "+"+(*j) + " "; // comment words have '+' prefix
-	words.insert(*j); // index by comment words (stemmed)
+	words.push_back(*j); // index by comment words (stemmed)
       }
 
       // also index by code words
@@ -849,7 +850,7 @@ void write_OM_database( OmWritableDatabase &database,
       list<string>::const_iterator j;
       for (j = symbols.begin(); j != symbols.end(); ++j) {
 	symbol_string += (*j) + " ";
-	words.insert(*j); // also index by code words (stemmed)
+	words.push_back(*j); // also index by code words (stemmed)
       }
 
       // cerr << "DATA = " << symbol_string << endl;
@@ -863,10 +864,10 @@ void write_OM_database( OmWritableDatabase &database,
       // ----------------------------------------
 
       if ( words.empty() ) {
-	words.insert("EMPTY");
+	words.push_back("EMPTY");
       }
 
-      set<string>::const_iterator w;
+      list<string>::const_iterator w;
       for (w = words.begin(); w != words.end(); ++w) {
 	newdocument.add_posting(*w, ++pos);
 	   //cerr << "... index term " << (*w) << endl;

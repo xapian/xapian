@@ -10,6 +10,9 @@
 // support of 1 is ok for =>, but probably not for <=>, <= !!!
 // however, might want to keep it at 1 for => so we can handle queries
 // with few transactions
+
+
+#warning "support only applies for <=>; we use 1 for =>"
 #define MIN_SUPPORT 10 
 
 // <= and <=> give identical rankings!!
@@ -245,9 +248,11 @@ void generate_rules( Db& db,
       //cerr << "Considering " << symbol << endl;
       unsigned int a_and_b_count = i->second;
 
-      if ( a_and_b_count < MIN_SUPPORT ) {
+      if ( (ranking_system.find( "<=>" ) != ranking_system.end()) && a_and_b_count < MIN_SUPPORT ) {
 	continue;
       }
+
+      assert( a_and_b_count >= 1 );
 
       if ( query_symbols.find(":"+symbol) != query_symbols.end() ) {
 	continue;
