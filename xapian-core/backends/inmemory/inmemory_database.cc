@@ -32,6 +32,7 @@ TextfilePostList::get_weight() const
 ///////////////////////////
 
 TextfileDatabase::TextfileDatabase()
+	: totlen(0)
 {
     Assert((opened = false) == false);
     Assert((indexing = false) == false);
@@ -51,25 +52,23 @@ TextfileDatabase::open(const DatabaseBuilderParams &params)
     Assert(params.paths.size() > 0);
     Assert(params.subdbs.size() == 0);
     
-    // Initialise
-    totlen = 0;
-
-    // Index document
+    // Index documents
     Assert((indexing = true) == true);
 
     TextfileIndexer indexer;
     indexer.set_destination(this);
 
-    vector<string>::const_iterator p;
-    for(p = params.paths.begin(); p != params.paths.end(); p++) {
-	indexer.add_source(TextfileIndexerSource(*p));
+    for(vector<string>::const_iterator p = params.paths.begin();
+	p != params.paths.end(); p++) {
+	TextfileIndexerSource source(*p);
+	cout << *p << endl;
+	indexer.add_source(source);
     }
 
     // Make sure that there's at least one document
     if(postlists.size() <= 0)
 	throw OmError("Document was empty or nearly empty - nothing to search");
 
-    path = *p;
     Assert((opened = true) == true);
 }
 

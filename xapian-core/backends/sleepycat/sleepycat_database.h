@@ -66,7 +66,6 @@ class SleepyDatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
     private:
 	SleepyDatabaseInternals * internals;
-	string path;
 	bool opened;
 	
 	void open(const DatabaseBuilderParams &);
@@ -86,8 +85,6 @@ class SleepyDatabase : public virtual IRDatabase {
 	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
-
-	const string get_database_path() const;
 };
 
 
@@ -226,12 +223,6 @@ SleepyDatabase::term_exists(const termname &tname) const
 {
     if(term_name_to_id(tname)) return true;
     return false;
-}
-
-inline const string
-SleepyDatabase::get_database_path() const {
-    Assert(opened);
-    return path;
 }
 
 #endif /* _sleepy_database_h_ */

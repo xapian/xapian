@@ -131,9 +131,8 @@ DADatabase::open(const DatabaseBuilderParams & params)
     Assert(params.subdbs.size() == 0);
 
     // Open database with specified path
-    path = params.paths[0];
-    string filename_r = path + "/R";
-    string filename_t = path + "/T";
+    string filename_r = params.paths[0] + "/R";
+    string filename_t = params.paths[0] + "/T";
 
     DA_r = DAopen(filename_r.c_str(), DARECS);
     if(DA_r == NULL)

@@ -248,12 +248,3 @@ MultiDatabase::term_exists(const termname &tname) const
     }
     return found;
 }
-
-IRDatabase *
-MultiDatabase::get_database_of_doc(docid did) const
-{
-    Assert(opened);
-    doccount multiplier = databases.size();
-
-    return databases[(did - 1) % multiplier];
-}

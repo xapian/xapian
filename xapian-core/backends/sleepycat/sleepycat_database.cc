@@ -180,9 +180,8 @@ SleepyDatabase::open(const DatabaseBuilderParams &params)
     Assert(params.subdbs.size() == 0);
 
     // Open database with specified path
-    path = params.paths[0];
     try {
-	internals->open(path, params.readonly);
+	internals->open(params.paths[0], params.readonly);
     }
     catch (DbException e) {
 	throw (OmError(string("Database error on open: ") + e.what()));
