@@ -149,7 +149,7 @@ We won't attempt a definition - indeed, perhaps it is undefinable. Essentially
 a document is relevant if it was what the user really wanted. Relevance is
 a separate business from what gets retrieved. Among documents retrieved there
 will be non-relevant ones; among those not retrieved, relevant ones. There
-are no degrees a relevance: at least not in theory. A document either is, or
+are no degrees of relevance: at least not in theory. A document either is, or
 is not, relevant. In the probabilistic model there is however a probability
 of relevance, and it turns out that documents of low probability of relevance
 in theory will correspond to documents that, in practice, one would describe
@@ -190,7 +190,7 @@ and <EM>recall</EM> are defined as being,
 Precision is the density of relevant documents among those retrieved. Recall
 is the proportion of relevant documents retrieved. In most IR systems K is a
 parameter that can be varied, and what you find is that when K is low you get
-high precision at the expense of low low recall, and when K is high, high
+high precision at the expense of low recall, and when K is high you get high
 recall at the expense of low precision. Retrieval effectiveness is often shown
 as a graph of precision against recall, plotted for different values of K.
 <P>
@@ -210,7 +210,7 @@ to a particular query. Even so, the averaging across queries reduces the
 errors that may occasionally arise through faulty relevance judgements, and
 averaging important tests across a number of test collections reduces the
 effects caused by accidental features of individual collections, and the
-results obtained by these tests in modern research are gerenally accepted as
+results obtained by these tests in modern research are generally accepted as
 trustworthy.
 <P>
 Nowadays research with test collections is organised from
@@ -278,7 +278,7 @@ and so substituting in the formula for w(t) we get the estimate,
                     (R - r)(n - r)
 </PRE>
 
-Unfortunaly, this formula is subject to violent behaviour when, say, n = r
+Unfortunately, this formula is subject to violent behaviour when, say, n = r
 (infinity) or r = 0 (minus infinity), and so Robertson suggests the modified
 form
 <PRE>
@@ -318,7 +318,7 @@ becomes,
 This is approximately log((N - n)/n). Or log(N/n), since n is usually small
 compared with N. This is called inverse logarithmic weighting, and has been
 used in IR for many decades, quite independently of the probabilistic theory
-which undepins it. Weights of this form are in fact the starting point in
+which underpins it. Weights of this form are in fact the starting point in
 Muscat when no relevance information is present.
 <P>
 The number n incidentally is often called the <EM>frequency</EM> of a term. We prefer
@@ -331,7 +331,7 @@ disallowed, and simply replaced by a small positive value.
 
 <H2>wdp, wdf, ndl and wqf</H2>
 
-Before we see how the weights are used there are a few more idea to introduce.
+Before we see how the weights are used there are a few more ideas to introduce.
 <P>
 A term t is said to index a document D, or t -&gt; D. We have emphasised that D
 may not be a piece of text in machine readable form, and that, even when it
@@ -345,9 +345,9 @@ and that many, if not all, of the terms which index D derive from these words.
 The relation between words and terms need not be a simple one. A single term
 'connect' might derive from a a number of words, 'connect', 'connects',
 'connection', 'connected' and so on. A single word might give rise to more
-than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>3</sub>8, w<sub>9</sub>7 and
-w<sub>2</sub>21 in the indexing process, we can say that the term 'occurs' in D at
-positions 9, 38, 97 and 211, and so for each term a document may have a
+than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
+w<sub>221</sub> in the indexing process, we can say that the term 'occurs' in D at
+positions 9, 38, 97 and 221, and so for each term a document may have a
 vector of postional information. These are the <EM>within-document positions</EM> of
 t, or the <EM>wdp</EM> information of t.
 <P>
