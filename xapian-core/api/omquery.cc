@@ -24,6 +24,7 @@
 #include "omlocks.h"
 #include "omqueryinternal.h"
 #include "utils.h"
+#include "netutils.h"
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -166,29 +167,6 @@ om_termname_list OmQuery::get_terms() const
 /////////////////////////////////
 // Methods for OmQueryInternal //
 /////////////////////////////////
-
-string
-tohex(char c)
-{
-    static char hexdigits[] = "0123456789ABCDEF";
-    int high = (c & 0xf0) >> 4;
-    int low = (c & 0x0f);
-    return string() + hexdigits[high] + hexdigits[low];
-}
-
-string
-encode_tname(string tname)
-{
-    string result;
-
-    string::const_iterator i;
-    for (i = tname.begin();
-	 i != tname.end();
-	 ++i) {
-	result += tohex(*i);
-    }
-    return result;
-}
 
 /** serialising method, for network matches.
  *
