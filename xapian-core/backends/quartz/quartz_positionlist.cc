@@ -96,7 +96,7 @@ QuartzPositionList::next_internal()
 	}
     }
     Assert(pos != 0);
-    current_pos += pos_increment;
+    current_pos += pos_increment + 1;
 }
 
 void
@@ -119,7 +119,7 @@ QuartzPositionList::skip_to(om_termpos termpos)
 	next_internal();
 	have_started = true;
     }
-    while(!is_at_end && current_pos < termpos) next_internal();
+    while (!is_at_end && current_pos < termpos) next_internal();
     DEBUGLINE(DB, string("QuartzPositionList - skipped to ") <<
 	      (is_at_end ? string("end.") : std::string("position = ") +
 	       om_tostring(current_pos) + "."));
@@ -131,7 +131,7 @@ QuartzPositionList::make_key(om_docid did,
 			     string & key)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
-    key = pack_uint(did) + pack_string(tname);
+    key = pack_uint(did) + tname;
 }
 
 // Methods modifying position lists
@@ -154,7 +154,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
     om_termpos prevpos = 0;
     unsigned int size = 0;
     for ( ; pos != pos_end; ++pos) {
-	*tag += pack_uint(*pos - prevpos);
+	*tag += pack_uint(*pos - prevpos - 1);
 	prevpos = *pos;
 	size++;
     }
@@ -171,4 +171,3 @@ QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
     make_key(did, tname, key);
     table->delete_tag(key);
 }
-

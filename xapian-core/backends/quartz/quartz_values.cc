@@ -38,7 +38,7 @@ QuartzValueManager::make_key(string & key, om_docid did, om_valueno valueno)
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key",
 		     key << ", " << did << ", " << valueno);
     (void)valueno; // no warning
-    key = pack_uint_last(did);
+    key = quartz_docid_to_key(did);
 }
 
 void

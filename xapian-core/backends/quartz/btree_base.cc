@@ -182,7 +182,8 @@ do { \
     } \
 } while(0)
 
-/* This should be big enough that the base file without bitmap
+/* How much of the base file to read at the first go (in bytes).
+ * This should be big enough that the base file without bitmap
  * will fit in to this size with no problem.  Other than that
  * it's fairly arbitrary, but shouldn't be big enough to cause
  * serious memory problems!

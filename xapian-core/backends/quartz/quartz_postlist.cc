@@ -200,7 +200,8 @@ read_start_of_first_chunk(const char ** posptr,
     // Read the docid of the first entry in the posting list.
     if (!unpack_uint(posptr, end, &did))
 	report_read_error(*posptr);
-    DEBUGLINE(DB, "doc_id = " << id);
+    ++did;
+    DEBUGLINE(DB, "doc_id = " << did);
     RETURN(did);
 }
 
@@ -210,7 +211,7 @@ static void read_did_increase(const char ** posptr,
 {
     om_docid did_increase;
     if (!unpack_uint(posptr, end, &did_increase)) report_read_error(*posptr);
-    *did_ptr += did_increase;
+    *did_ptr += did_increase + 1;
 }
 
 /// Read the wdf and the document length of an item.
@@ -246,6 +247,7 @@ read_start_of_chunk(const char ** posptr,
     om_docid increase_to_last;
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
+    ++increase_to_last;
     om_docid last_did_in_chunk = first_did_in_chunk + increase_to_last;
     DEBUGLINE(DB, "last_did_in_chunk = " << last_did_in_chunk);
     RETURN(last_did_in_chunk);
@@ -254,7 +256,7 @@ read_start_of_chunk(const char ** posptr,
 static string make_did_increase(om_docid new_did, om_docid last_did_in_chunk)
 {
     Assert(new_did > last_did_in_chunk);
-    return pack_uint(new_did - last_did_in_chunk);
+    return pack_uint(new_did - last_did_in_chunk - 1);
 }
 
 static string make_wdf_and_length(om_termcount wdf, quartz_doclen_t doclength)
@@ -284,7 +286,7 @@ static void write_start_of_chunk(string & chunk,
 
     chunk.replace(start_of_chunk_header,
 		  end_of_chunk_header - start_of_chunk_header,
-		  pack_bool(is_last_chunk) + pack_uint(increase_to_last));
+		  pack_bool(is_last_chunk) + pack_uint(increase_to_last - 1));
 }
 
 PostlistChunkReader::PostlistChunkReader(const char *keypos,
@@ -361,7 +363,7 @@ static inline string make_start_of_first_chunk(om_termcount entries,
 						    om_termcount collectionfreq,
 						    om_docid new_did)
 {
-    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did);
+    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did - 1);
 }
 
 /** Make the data to go at the start of a standard chunk.
@@ -372,7 +374,7 @@ static inline string make_start_of_chunk(bool new_is_last_chunk,
 {
     Assert(new_final_did >= new_first_did);
     return pack_bool(new_is_last_chunk) +
-	    pack_uint(new_final_did - new_first_did);
+	    pack_uint(new_final_did - new_first_did - 1);
 }
 
 /// Make a key for accessing the postlist.

@@ -1,3 +1,10 @@
+Mon Nov 18 02:28:55 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html,backends/quartz/: We can just store the term
+	  name raw in position list key, since we know its length from the key
+	  length; tweaked storing of deltas to store (delta - 1) as 0 is
+	  invalid.
+
 Mon Nov 18 00:47:54 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_termlist.cc: First cut of compressed term
