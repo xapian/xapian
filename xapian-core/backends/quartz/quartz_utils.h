@@ -205,7 +205,7 @@ unpack_uint_preserving_sort(const char ** src,
     }
 
     // Can't be overflow now.
-    T result;
+    T result = 0;
     while (length > 0) {
 	result = result << 8;
 	result += static_cast<const om_byte> (**src);

@@ -35,6 +35,8 @@
 #include "om/autoptr.h"
 
 #include "unistd.h"
+#include <vector>
+#include <algorithm>
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(QuartzDiskTable & table,
@@ -963,6 +965,61 @@ static bool test_packint2()
     return true;
 }
 
+/// Test the sort preserving packing operations
+static bool test_packint3()
+{
+    std::string foo;
+
+    std::vector<unsigned int> ints;
+    std::vector<std::string> strings;
+
+    ints.push_back(3u);
+    ints.push_back(12475123u);
+    ints.push_back(128u);
+    ints.push_back(0xffffffffu);
+    ints.push_back(127u);
+    ints.push_back(256u);
+    ints.push_back(254u);
+    ints.push_back(255u);
+    ints.push_back(0u);
+    ints.push_back(0xffffffffu);
+    ints.push_back(0u);
+    ints.push_back(82134u);
+
+    std::vector<unsigned int>::const_iterator i;
+    std::vector<std::string>::const_iterator j;
+    for (i = ints.begin();
+	 i != ints.end();
+	 i++) {
+	foo += pack_uint_preserving_sort(*i);
+	strings.push_back(pack_uint_preserving_sort(*i));
+    }
+
+    const char * p = foo.data();
+    om_uint32 result;
+    i = ints.begin();
+    while (p != foo.data() + foo.size()) {
+	TEST(i != ints.end());
+	TEST(p != 0);
+	TEST(unpack_uint_preserving_sort(&p, foo.data() + foo.size(), &result));
+	TEST_EQUAL(result, *i);
+	i++;
+    }
+    TEST(p != 0);
+    TEST(i == ints.end());
+
+    sort(ints.begin(), ints.end());
+    sort(strings.begin(), strings.end());
+
+    for (i = ints.begin(), j = strings.begin();
+	 i != ints.end() && j != strings.end();
+	 i++, j++) {
+	TEST(pack_uint_preserving_sort(*i) == *j);
+    }
+
+    return true;
+}
+
 /// Test unpacking integers from strings
 static bool test_unpackint1()
 {
@@ -1079,6 +1136,7 @@ test_desc tests[] = {
     {"quartzadddoc2",		test_adddoc2},
     {"quartzpackint1",		test_packint1},
     {"quartzpackint2",		test_packint2},
+    {"quartzpackint3",		test_packint3},
     {"quartzunpackint1",	test_unpackint1},
     {"quartzbtree1",		test_btree1},
     {0, 0}
