@@ -95,6 +95,7 @@ done
 if test "$prefix_set" = "true"; then
     includedir=${prefix}
     libdir=${prefix}
+
 fi
 
 if test "$exec_prefix_set" = "true"; then
@@ -106,12 +107,18 @@ if test "$exec_prefix_set" = "true"; then
     fi
 fi
 
-if test -d "${includedir}/include"; then
-  includedir="${includedir}/include"
-fi
+if test "$prefix_set" = "true"; then
+    if test -d "${includedir}/include"; then
+        includedir="${includedir}/include"
+    fi
 
-if test -d "${libdir}/lib"; then
-  libdir="${libdir}/lib"
+    if test -d "${libdir}/lib"; then
+	libdir="${libdir}/lib"
+    else
+        if test -d "${libdir}/.libs"; then
+            libdir="${libdir}/.libs"
+        fi
+    fi
 fi
 
 if test "$echo_cflags" = "yes"; then

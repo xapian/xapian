@@ -1,3 +1,8 @@
+Mon Mar 19 16:46:16 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Further small modification to omsee-config: will now look in
+	  .libs subdirectories, too.
+
 Mon Mar 19 15:57:18 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Update omsee-config to work when a prefix is specified that
