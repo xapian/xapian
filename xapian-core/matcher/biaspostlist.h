@@ -50,10 +50,11 @@ class OmBiasFunctor {
 	OmBiasFunctor(const OmDatabase &db_, om_weight max_w_, double halflife)
 #ifndef DOCID_BASED
 	    : now(time(NULL)), db(db_), max_w(max_w_),
-	      K(-fabs(halflife) * log(2.0)) {}
+	      K(log(0.5) / fabs(halflife)) 
 #else /* DOCID_BASED */
-	    : max_id(db_.get_doccount()), max_w(max_w_) {}
+	    : max_id(db_.get_doccount()), max_w(max_w_)
 #endif /* DOCID_BASED */
+	    {}
 
 	om_weight get_maxweight() {
 	    return max_w; 
