@@ -1,3 +1,9 @@
+Fri Mar 26 22:33:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Fix problems with termfreq and
+	  collfreq in postlist getting out of step when a recently modified
+	  or deleted document is deleted or remodified.
+
 Fri Mar 26 12:31:24 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Fixed check for --enable-runtime-pseudo-reloc.

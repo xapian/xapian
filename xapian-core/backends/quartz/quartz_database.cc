@@ -488,6 +488,13 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
     Assert(buffered_tables != 0);
 
     try {
+	if (doclens.find(did) != doclens.end()) {
+	    // This document was added or modified in the batch currently
+	    // being buffered.  This should be unusual, and it's fiddly
+	    // to handle, so we just flush and then handle as normal.
+	    do_flush_const();
+	}
+
 	// Remove the record.
 	QuartzRecordManager::delete_record(
 		*(buffered_tables->get_record_table()), did);
@@ -503,15 +510,7 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 				database_ro.tables->get_termlist_table(),
 				did, database_ro.get_doccount());
 
-	map<docid, termcount>::iterator k = doclens.find(did);
-	if (k != doclens.end()) {
-	    // Deleting one we've literally just added
-	    // FIXME: or just modified?
-	    doclens.erase(k);
-	    totlen_added -= termlist.get_doclength();
-	} else {
-	    totlen_removed += termlist.get_doclength();
-	}
+	totlen_removed += termlist.get_doclength();
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -584,6 +583,13 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
     Assert(buffered_tables != 0);
 
     try {
+	if (doclens.find(did) != doclens.end()) {
+	    // This document was added or modified in the batch currently
+	    // being buffered.  This should be unusual, and it's fiddly
+	    // to handle, so we just flush and then handle as normal.
+	    do_flush_const();
+	}
+
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
@@ -626,15 +632,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	    termlist.next();
 	}
 
-	map<docid, termcount>::iterator k = doclens.find(did);
-	if (k != doclens.end()) {
-	    // Replacing one we've literally just added
-	    // FIXME: or just modified?
-	    doclens.erase(k);
-	    totlen_added -= termlist.get_doclength();
-	} else {
-	    totlen_removed += termlist.get_doclength();
-	}
+	totlen_removed += termlist.get_doclength();
 
 	// Replace the record
 	QuartzRecordManager::replace_record(
