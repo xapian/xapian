@@ -232,7 +232,8 @@ HREF="apidoc/html/database_8h.html"><CODE>Xapian::Quartz::open()</CODE></A>.
 This is a proprietary, legacy format, holding a database in a
 non-updateable form (ie, the database can't be altered, it is built
 from an existing database).  We support read-only access to this,
-and it is thus unlikely to be useful outside our company.
+and it is only likely to be useful to those with a legacy Muscat 3.6
+based system.
 </P><P>
 This takes one, two or three parameters.  If one parameter is supplied,
 it represents the path to a directory containing the Record file in a file
@@ -249,19 +250,19 @@ the keyfile.
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>da_heavy</B></TD><TD>
-This is a similar to da_flimsy, allowing access to the &quot;heavy duty&quot;
+This is a variant of da_flimsy, allowing access to the &quot;heavy duty&quot;
 variant for larger documents.  This is the format produced by the
-&quot;makeda&quot; utility, and is thus useful while new file formats have
-not been created for the new development.
+&quot;makeda&quot; utility, and was useful in early Xapian development before
+we had designed our own disk based backend.
 <BR>
 It takes the same parameters as da_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>db_flimsy</B></TD><TD>
 <P>
-This is a proprietary, legacy format, holding a database in a dynamically
+This is another proprietary, legacy format supported by Muscat 3.6.  The
+Muscat 3.6 DB format support a database in a dynamically
 updateable form (ie, the database can be altered while queries are being
-performed on it.)  We support read-only access to this,
-and it is thus unlikely to be useful outside our company.
+performed on it.)  Xapian only supports read-only access to this format.
 </P><P>
 This takes one or two parameters.  The first parameter is the full path to
 the DB file.
@@ -275,19 +276,17 @@ It takes one parameter, which is the full path to the DB file.
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>db_heavy</B></TD><TD>
-This is a similar to db_flimsy, allowing access to the &quot;heavy duty&quot;
-variant for larger documents.  We support read-only access to this,
-and it is thus unlikely to be useful outside our company.
+This is a variant of db_flimsy, allowing access to the &quot;heavy duty&quot;
+variant for larger documents.
 <BR>
 It takes the same parameters as db_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is a database held entirely in memory.
-It is really intended to be used for testing purposes only, but may
-occasionally prove useful for building up temporary small databases.
+It was originally written for testing purposes only, but may
+prove useful for building up temporary small databases.
 <BR>
-It takes no parameters at all, except for some undocumented parameters
-which cause special effects for testing.
+It takes no parameters at all.
 </TD></TR>
 </TABLE>
 

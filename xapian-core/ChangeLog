@@ -1,3 +1,10 @@
+Mon Aug 16 12:18:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Removed references to "our company" (meaning
+	  BrightStation) and to the now defunct special parameters which
+	  the inmemory backend accepted to cause deliberate errors for
+	  testing.
+
 Sun Aug 15 23:48:20 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc: item_count -> get_entry_count(); revision_number
