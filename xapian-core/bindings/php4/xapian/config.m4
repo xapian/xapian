@@ -18,7 +18,7 @@ if test "$PHP_XAPIAN" != "no"; then
       XAPIAN_DIR=$i
     fi
 
-    if test -f $i/lib/libxapian*; then
+    if test -f $i/lib/libxapian.a; then
       XAPIAN_LIBDIR=$i/lib
       XAPIAN_DIR=$i
     fi

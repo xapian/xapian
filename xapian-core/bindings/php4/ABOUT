@@ -1,5 +1,7 @@
-The php4 module uses phpize to finish the build-file creation.
-Makefile.am is provided and the xapian buildall type magic creates
-the Makefile.in needed by phpize.
+Makefile.am is part of the xapian make system.  It's consequences
+populate the xapian subdir which is ready for the php make system; 
+suitable for running phpize in directly.
 
-IF PHPIZE EVER WANTS MAKEFILE.AM THEN WE NEED TO THINK AGAIN
+No decision yet made on whether the php build should be able to
+find non-installed libraries.
+
