@@ -286,6 +286,12 @@ class OmESet {
 
 	~OmESet();
 
+	/// Copying is allowed (and is cheap).
+	OmESet(const OmESet & other);
+
+        /// Assignment is allowed (and is cheap).
+	void operator=(const OmESet &other);
+
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
 	 *  equal to size()

@@ -84,12 +84,12 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 ////////////////////////
 
 OmRSet::OmRSet()
-	: internal(new Internal())
+	: internal(new OmRSet::Internal())
 {
 }
 
 OmRSet::OmRSet(const OmRSet &other)
-	: internal(new Internal(*other.internal))
+	: internal(new OmRSet::Internal(*other.internal))
 {
 }
 
@@ -190,7 +190,7 @@ OmMSet::~OmMSet()
 }
 
 OmMSet::OmMSet(const OmMSet & other)
-	: internal(new Internal(*other.internal))
+	: internal(new OmMSet::Internal(*other.internal))
 {
 }
 
@@ -368,6 +368,17 @@ OmESet::OmESet() : internal(new OmESet::Internal()) {}
 OmESet::~OmESet()
 {
     delete internal;
+}
+
+OmESet::OmESet(const OmESet & other)
+	: internal(new OmESet::Internal(*other.internal))
+{
+}
+
+void
+OmESet::operator=(const OmESet &other)
+{
+    *internal = *other.internal;
 }
 
 om_termcount

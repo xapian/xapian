@@ -1,3 +1,7 @@
+Wed Dec 13 02:07:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* And add copy and assignment for OmESet, similarly.
+
 Wed Dec 13 01:58:38 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add copy and assignment operators to OmMSet so that the internals
