@@ -332,8 +332,8 @@ main(int argc, char **argv)
 	     << " /usr/omega/data/default /home/httpd/html /\n";
 	exit(1);
     }
-    params.set("backend", "sleepycat");
-    params.set("sleepycat_dir", argv[1]);
+    params.set("backend", "quartz");
+    params.set("quartz_dir", argv[1]);
     root = argv[2];
     try {
 	db = new OmWritableDatabase(params);

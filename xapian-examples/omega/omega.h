@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "om/om.h"
+#include <om/om.h>
 
 #include "config.h"
 

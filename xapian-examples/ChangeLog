@@ -1,3 +1,7 @@
+Wed Nov 22 13:07:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change examples to use quartz rather than sleepycat.
+
 Fri Nov 17 16:38:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.0

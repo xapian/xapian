@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     try {
 	// Make the database
 	OmSettings settings;
-	settings.set("backend", "sleepycat");
-	settings.set("sleepy_dir", argv[1]);
+	settings.set("backend", "quartz");
+	settings.set("quartz_dir", argv[1]);
 	OmDatabase db(settings);
 
 	// Start an enquire session
