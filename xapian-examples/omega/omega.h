@@ -40,6 +40,7 @@ using std::endl;
 extern string dbname;
 extern string fmtname;
 
+extern OmDatabase * omdb;
 extern OmEnquire * enquire;
 extern OmRSet * rset;
 

@@ -243,7 +243,7 @@ main(int argc, char *argv[])
 	
 	if (showmset) {
 	    for (OmMSetIterator i = mset.begin(); i != mset.end(); i++) {
-		OmDocument doc(enquire.get_doc(i));
+		OmDocument doc = i.get_document();
 		std::string p = doc.get_data().value;
 		std::cout << *i << ":[" << p << "] " << i.get_weight()
 			<< std::endl << std::endl;

@@ -36,6 +36,7 @@
 #include "query.h"
 
 OmEnquire * enquire;
+OmDatabase * omdb;
 OmRSet * rset;
 
 map<string, string> option;
@@ -132,7 +133,7 @@ main2(int argc, char *argv[])
 	hits_per_page = 1000;
     }
 
-    OmDatabase omdb;
+    omdb = new OmDatabase();
     try {
 	// get database(s) to search
 	dbname = "";
@@ -151,7 +152,7 @@ main2(int argc, char *argv[])
 			OmSettings params;          
 			params.set("backend", "auto");
 			params.set("auto_dir", map_dbname_to_dir(*i));
-			omdb.add_database(params);
+			omdb->add_database(params);
 		    }
 		}
 	    }
@@ -161,7 +162,7 @@ main2(int argc, char *argv[])
 	    OmSettings params;          
 	    params.set("backend", "auto");
 	    params.set("auto_dir", map_dbname_to_dir(dbname));
-	    omdb.add_database(params);
+	    omdb->add_database(params);
 	}
     }
     catch (const OmError &e) {
@@ -183,7 +184,7 @@ main2(int argc, char *argv[])
 	    default_op = OmQuery::OP_AND;
     }
 
-    enquire = new OmEnquire(omdb);
+    enquire = new OmEnquire(*omdb);
    
     big_buf = "";
 

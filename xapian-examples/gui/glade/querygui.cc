@@ -160,7 +160,7 @@ static void do_resultdisplay(gint row) {
     try {
 	OmMSetIterator i = mset[row];
 	
-	OmDocument doc(enquire->get_doc(i));
+	OmDocument doc = i.get_document();
 	std::string fulltext = doc.get_data().value;
 	
 	std::string score = inttostring(mset.convert_to_percent(i));

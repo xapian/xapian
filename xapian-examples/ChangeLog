@@ -1,3 +1,8 @@
+Wed Jan 24 12:42:41 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updated to comply with OmEnquire::get_doc() changing to
+	  OmDatabase::get_document()
+
 Fri Jan 12 13:25:11 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove unwanted macros from acinclude.m4, which are part of automake
