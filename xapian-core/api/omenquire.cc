@@ -26,6 +26,7 @@
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
+#include <om/omoutput.h>
 
 #include "rset.h"
 #include "localmatch.h"
@@ -37,6 +38,7 @@
 #include <om/omdocument.h>
 #include "omdocumentparams.h"
 #include "omenquireinternal.h"
+#include "utils.h"
 
 #include <vector>
 #include <memory>
@@ -54,6 +56,37 @@ OmMatchOptions::OmMatchOptions()
 	  percent_cutoff(-1),
 	  max_or_terms(0)
 {}
+
+string
+OmMatchOptions::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmMatchOptions::get_description()");
+    string description;
+    if (do_collapse) {
+	if (description != "") description += ", ";
+	description += "collapse on key " + om_inttostring(collapse_key);
+    }
+
+    if (!sort_forward) {
+	if (description != "") description += ", ";
+	description += "reverse document order";
+    }
+
+    if (percent_cutoff != -1) {
+	if (description != "") description += ", ";
+	description += "cutoff at " + om_inttostring(percent_cutoff) + "%";
+    }
+
+    if (max_or_terms != 0) {
+	if (description != "") description += ", ";
+	description += "max_or_terms = " + om_inttostring(max_or_terms);
+    }
+
+    description = "OmMatchOptions(" + description + ")";
+
+    DEBUGLINE(APICALL, "OmMatchOptions::get_description() returning " << description);
+    return description;
+}
 
 void
 OmMatchOptions::set_collapse_key(om_keyno key_)
@@ -110,6 +143,28 @@ OmExpandOptions::OmExpandOptions()
 	  use_exact_termfreq(false)
 {}
 
+string
+OmExpandOptions::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmExpandOptions::get_description()");
+    string description;
+
+    if (use_query_terms) {
+	if (description != "") description += ", ";
+	description += "use query terms";
+    }
+
+    if (use_exact_termfreq) {
+	if (description != "") description += ", ";
+	description += "use exact term frequency";
+    }
+
+    description = "OmExpandOptions(" + description + ")";
+
+    DEBUGLINE(APICALL, "OmExpandOptions::get_description() returning " << description);
+    return description;
+}
+
 void
 OmExpandOptions::set_use_query_terms(bool use_query_terms_)
 {
@@ -144,6 +199,48 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 }
 
 ////////////////////////
+// Methods for OmRSet //
+////////////////////////
+
+string
+OmRSet::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmRSet::get_description()");
+    string description;
+
+    for (set<om_docid>::const_iterator i = items.begin();
+	 i != items.end();
+	 i++) {
+	if (description != "") description += ", ";
+	description += om_inttostring(*i);
+    }
+
+    description = "OmRSet(" + description + ")";
+
+    DEBUGLINE(APICALL, "OmRSet::get_description() returning " << description);
+    return description;
+}
+
+////////////////////////////
+// Methods for OmMSetItem //
+////////////////////////////
+
+string
+OmMSetItem::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmMSetItem::get_description()");
+    string description;
+
+    description = om_inttostring(did) + ", " + doubletostring(wt) + ", " +
+	    collapse_key.get_description();
+
+    description = "OmMSetItem(" + description + ")";
+
+    DEBUGLINE(APICALL, "OmMSetItem::get_description() returning " << description);
+    return description;
+}
+
+////////////////////////
 // Methods for OmMSet //
 ////////////////////////
 
@@ -170,6 +267,70 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
     // FIXME: should call an internal method, not a public one.
     // FIXME: should output debugging
     return OmMSet::convert_to_percent(item.wt);
+}
+
+string
+OmMSet::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmMSet::get_description()");
+    string description;
+
+    description = "firstitem=" + om_inttostring(firstitem) + ", " +
+	    "mbound=" + om_inttostring(mbound) + ", " +
+	    "max_possible=" + doubletostring(max_possible) + ", " +
+	    "max_attained=" + doubletostring(max_attained);
+
+    for (vector<OmMSetItem>::const_iterator i = items.begin();
+	 i != items.end();
+	 i++) {
+	if (description != "") description += ", ";
+	description += i->get_description();
+    }
+
+    description = "OmMSet(" + description + ")";
+
+    DEBUGLINE(APICALL, "OmMSet::get_description() returning " << description);
+    return description;
+}
+
+////////////////////////////
+// Methods for OmESetItem //
+////////////////////////////
+
+string
+OmESetItem::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmESetItem::get_description()");
+    string description;
+
+    description = "OmESetItem(" + tname + ", " + doubletostring(wt) + ")";
+
+    DEBUGLINE(APICALL, "OmESetItem::get_description() returning " << description);
+    return description;
+}
+
+////////////////////////
+// Methods for OmESet //
+////////////////////////
+
+string
+OmESet::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmESet::get_description()");
+    string description;
+
+    description = "ebound=" + om_inttostring(ebound);
+
+    for (vector<OmESetItem>::const_iterator i = items.begin();
+	 i != items.end();
+	 i++) {
+	if (description != "") description += ", ";
+	description += i->get_description();
+    }
+
+    description = "OmESet(" + description + ")";
+    DEBUGLINE(APICALL, "OmESet::get_description() returning " << description);
+    return description;
 }
 
 ///////////////////////////////////
@@ -341,6 +502,17 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
     return calc_matching_terms(mitem.did);
 }
 
+string
+OmEnquireInternal::get_description() const
+{
+    string description;
+    description = database->get_description();
+    if (query != 0) {
+	description += ", " + query->get_description();
+    }
+    return description;
+}
+
 ///////////////////////////////////////////
 // Private methods for OmEnquireInternal //
 ///////////////////////////////////////////
@@ -424,7 +596,7 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
 {
     // FIXME: display contents of databases
-    DEBUGLINE(APICALL, "Calling OmEnquire::OmEnquire(" << "<databases>" << ")");
+    DEBUGLINE(APICALL, "Calling OmEnquire::OmEnquire(" << databases << ")");
     internal = new OmEnquireInternal(databases);
     DEBUGLINE(APICALL, "OmEnquire::OmEnquire() returning");
 }
@@ -440,8 +612,7 @@ OmEnquire::~OmEnquire()
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
-    DEBUGLINE(APICALL, "Calling OmEnquire::set_query(" <<
-	      query_.get_description() << ")");
+    DEBUGLINE(APICALL, "Calling OmEnquire::set_query(" << query_ << ")");
     internal->set_query(query_);
     DEBUGLINE(APICALL, "OmEnquire::set_query() returning");
 }
@@ -451,7 +622,7 @@ OmEnquire::get_query()
 {
     DEBUGLINE(APICALL, "Calling OmEnquire::get_query()");
     DEBUGLINE(APICALL, "OmEnquire::get_query() returning " <<
-	      internal->get_query().get_description());
+	      internal->get_query());
     return internal->get_query();
 }
 
@@ -468,15 +639,13 @@ OmEnquire::get_mset(om_doccount first,
 	      maxitems << ", " <<
 	      omrset << ", " <<
 	      moptions << ", " <<
-	      mdecider << ", " <<
-	      ")");
+	      mdecider << ")");
 
     // FIXME: this copies the mset too much: pass it in by reference?
     OmMSet mset(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
 
     // FIXME: display contents of mset.
-    DEBUGLINE(APICALL, "OmEnquire::get_mset() returning " <<
-	      "mset");
+    DEBUGLINE(APICALL, "OmEnquire::get_mset() returning " << mset);
 
     return mset;
 }
@@ -491,16 +660,15 @@ OmEnquire::get_eset(om_termcount maxitems,
     // null.
     DEBUGLINE(APICALL, "Calling OmEnquire::get_eset(" <<
 	      maxitems << ", " <<
-	      "<omrset>" << ", " <<
+	      omrset << ", " <<
 	      eoptions << ", " <<
-	      edecider << ", " <<
-	      ")");
+	      edecider << ")");
 
     // FIXME: this copies the eset too much: pass it in by reference?
     OmESet eset(internal->get_eset(maxitems, omrset, eoptions, edecider));
 
     // FIXME: display contents of eset.
-    DEBUGLINE(APICALL, "OmEnquire::get_eset() returning " << "<eset>");
+    DEBUGLINE(APICALL, "OmEnquire::get_eset() returning " << eset);
 
     return eset;
 }
@@ -510,16 +678,16 @@ OmEnquire::get_doc(om_docid did) const
 {
     DEBUGLINE(APICALL, "Calling OmEnquire::get_doc(" << did << ")");
     OmDocument doc(internal->get_doc(did));
-    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << "<doc>");
+    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << doc);
     return doc;
 }
 
 const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    DEBUGLINE(APICALL, "Calling OmEnquire::get_doc(" << "<mitem>" << ")");
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_doc(" << mitem << ")");
     OmDocument doc(internal->get_doc(mitem));
-    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << "<doc>");
+    DEBUGLINE(APICALL, "OmEnquire::get_doc() returning " << doc);
     return doc;
 }
 
@@ -527,10 +695,10 @@ om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
     DEBUGLINE(APICALL, "Calling OmEnquire::get_matching_terms(" <<
-	      "<mitem>" << ")");
+	      mitem << ")");
     om_termname_list matching_terms(internal->get_matching_terms(mitem));
     DEBUGLINE(APICALL, "OmEnquire::get_matching_terms() returning " <<
-	      "<matching_terms>");
+	      matching_terms);
     return matching_terms;
 }
 
@@ -538,9 +706,22 @@ om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
     DEBUGLINE(APICALL, "Calling OmEnquire::get_matching_terms(" <<
-	      "<did>" << ")");
+	      did << ")");
     om_termname_list matching_terms(internal->get_matching_terms(did));
     DEBUGLINE(APICALL, "OmEnquire::get_matching_terms() returning " <<
-	      "<matching_terms>");
+	      matching_terms);
     return matching_terms;
 }
+
+string
+OmEnquire::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmEnquire::get_description()");
+    string description;
+
+    description = "OmEnquire(" + internal->get_description() + ")";
+
+    DEBUGLINE(APICALL, "OmEnquire::get_description() returning " << description);
+    return description;
+}
+

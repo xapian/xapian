@@ -45,6 +45,11 @@ class OmData {
 
 	/// Default constructor.
 	OmData() {}
+
+	/** Returns a string representing the OmData.
+	 *  Introspection method.
+	 */
+	string get_description() const { return "OmData(" + value + ")"; }
 };
 
 /// A key in a document.
@@ -61,6 +66,11 @@ class OmKey {
 
 	/// Default constructor.
 	OmKey() {}
+
+	/** Returns a string representing the OmKey.
+	 *  Introspection method.
+	 */
+	string get_description() const { return "OmKey(" + value + ")"; }
 };
 
 /// Opaque class containing parameters used to construct an OmDocument.
@@ -101,6 +111,11 @@ class OmDocument {
 	 *  in a match decider functor.
 	 */
 	OmData get_data() const;     
+
+	/** Returns a string representing the OmDocument.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 #endif  // OM_HGUARD_OMDOCUMENT_H

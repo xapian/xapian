@@ -85,4 +85,5 @@ class OmEnquireInternal {
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	string get_description() const;
 };

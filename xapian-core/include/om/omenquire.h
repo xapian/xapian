@@ -131,11 +131,6 @@ class OmQuery {
 	/** Destructor. */
 	~OmQuery();
 
-	/** Returns a string representing the query.
-	 * Introspection method.
-	 */
-	string get_description() const;
-
 	/** Check whether the query is defined. */
 	bool is_defined() const;
 
@@ -166,6 +161,11 @@ class OmQuery {
 	 *  termpos) will be removed.
 	 */
 	om_termname_list get_terms() const;
+
+	/** Returns a string representing the query.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -261,6 +261,11 @@ class OmMatchOptions {
 	 *  the matcher to sort the results of a search.
 	 */
 	OmMSetCmp get_sort_comparator() const;
+
+	/** Returns a string representing the options.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 /** Base class for matcher decision functor.
@@ -317,6 +322,11 @@ class OmExpandOptions {
 	 *                              The default is false.
 	 */
 	void set_use_exact_termfreq(bool use_exact_termfreq_);
+
+	/** Returns a string representing the options.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 /** Base class for expand decision functor.
@@ -385,6 +395,11 @@ class OmRSet {
 
 	/** Remove a document from the relevance set. */
 	void remove_document(om_docid did);
+
+	/** Returns a string representing the rset.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 inline void
@@ -438,6 +453,11 @@ class OmMSetItem {
 	 *  about setting a key to collapse upon.
 	 */
 	OmKey collapse_key;
+
+	/** Returns a string representing the mset item.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 /** A match set (MSet).
@@ -499,6 +519,11 @@ class OmMSet {
 	 *  This is useful when firstitem != 0.
 	 */
 	om_weight max_attained;
+
+	/** Returns a string representing the mset.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -520,6 +545,11 @@ class OmESetItem {
 	om_weight wt;
 	/// Term suggested.
 	om_termname tname;
+
+	/** Returns a string representing the eset item.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 /** Class representing an ESet.
@@ -539,6 +569,11 @@ class OmESet {
 	 *  equal to items.size()
 	 */
 	om_termcount ebound;
+
+	/** Returns a string representing the eset.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 
@@ -758,6 +793,11 @@ class OmEnquire {
 	 *                                     be found in the database.
 	 */
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+
+	/** Returns a string representing the enquire object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -900,5 +940,11 @@ class OmBatchEnquire {
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+
+	/** Returns a string representing the batchenquire object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
+
 #endif /* OM_HGUARD_OMENQUIRE_H */

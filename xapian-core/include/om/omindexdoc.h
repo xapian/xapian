@@ -91,6 +91,11 @@ struct OmDocumentTerm {
      *              the default value of 0.
      */
     void add_posting(om_termpos tpos = 0);
+
+    /** Returns a string representing the OmDocumentTerm.
+     *  Introspection method.
+     */
+    string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -128,6 +133,11 @@ struct OmDocumentContents {
      *  @param tpos   The position of the term.
      */
     void add_posting(const om_termname & tname, om_termpos tpos = 0);
+
+    /** Returns a string representing the OmDocumentContents.
+     *  Introspection method.
+     */
+    string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMINDEXDOC_H */

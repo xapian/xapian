@@ -115,6 +115,11 @@ class OmDatabase {
 	 *  so assignment is also cheap.
 	 */
 	virtual void operator=(const OmDatabase &other);
+
+	/** Returns a string representing the database object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -270,6 +275,11 @@ class OmWritableDatabase : public OmDatabase {
 	 *                  writing to the database.
 #endif
 	om_docid add_document(const OmDocumentContents & document);
+
+	/** Returns a string representing the database object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -330,6 +340,11 @@ class OmDatabaseGroup {
 	 *  @param database the opened database to add.
 	 */
 	void add_database(const OmDatabase & database);
+
+	/** Returns a string representing the database group object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMDATABASE_H */

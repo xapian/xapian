@@ -52,6 +52,8 @@ class OmBatchEnquire::Internal {
 	const OmDocument get_doc(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
+
+	string get_description() const;
 };
 
 ////////////////////////////
@@ -103,6 +105,19 @@ om_termname_list
 OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
     return internal->get_matching_terms(mitem);
+}
+
+string
+OmBatchEnquire::get_description() const
+{
+    DEBUGLINE(APICALL, "Calling OmBatchEnquire::get_description()");
+    string description;
+
+    description = "OmBatchEnquire(" + internal->get_description() + ")";
+
+    DEBUGLINE(APICALL, "OmBatchEnquire::get_description() returning " <<
+	      description);
+    return description;
 }
 
 /////////////////////////////////////////
@@ -173,6 +188,17 @@ OmBatchEnquire::Internal::get_matching_terms(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(mutex);
     return enquire.get_matching_terms(mitem);
+}
+
+string
+OmBatchEnquire::Internal::get_description() const
+{
+    string description;
+
+    description = enquire.get_description() + ", " +
+	    om_inttostring(queries.size()) + "queries";
+
+    return description;
 }
 
 ////////////////////////////////////////

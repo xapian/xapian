@@ -42,4 +42,7 @@
 /* Stemming */
 #include "omstem.h"
 
+/* Output */
+#include "omoutput.h"
+
 #endif /* OM_HGUARD_OM_H */

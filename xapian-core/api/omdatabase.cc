@@ -42,7 +42,6 @@ OmDatabase::Internal::Internal(const string & type,
     mydb = DatabaseBuilder::create(params);
 }
 
-
 ////////////////////////////////
 // Methods of OmDatabaseGroup //
 ////////////////////////////////
@@ -96,6 +95,12 @@ OmDatabaseGroup::add_database(const OmDatabase & database)
     }
 
     internal->add_database(dbptr);
+}
+
+string
+OmDatabaseGroup::get_description() const
+{
+    return "OmDatabaseGroup()";
 }
 
 //////////////////////////////////////////

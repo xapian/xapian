@@ -1,3 +1,14 @@
+Mon Jul  3 12:29:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added get_description() methods to all API objects, returning
+	  a human readable description of the contents of the object.
+
+	* Added output operators for API objects, so that you can do
+	  "cout << omenquire;"
+
+	* Improved debug messages when displaying API calls, so that full
+	  information is given about the parameters and return types.
+
 Sun Jul  2 17:17:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updated doxygen configuration files for doxygen 1.1.5.
@@ -12,6 +23,10 @@ Fri Jun 30 16:04:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Debug messages now have a finer-grain lock to avoid entangling
 	  of messages or deadlocks.
+
+Fri Jun 30 12:48:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixes to Makefile dependencies for internaltest.
 
 Thu Jun 29 03:39:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 

@@ -128,7 +128,7 @@ OmQuery::~OmQuery()
 string OmQuery::get_description() const
 {
     OmLockSentry locksentry(internal->mutex);
-    return internal->get_description();
+    return "OmQuery" + internal->get_description();
 }
 
 bool OmQuery::is_defined() const

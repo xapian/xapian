@@ -22,31 +22,6 @@
 
 #include "testutils.h"
 
-// ######################################################################
-// Useful display operators
-
-ostream &
-operator<<(ostream &os, const OmMSetItem &mitem)
-{
-    os << mitem.wt << " " << mitem.did;
-    return os;
-}
-
-ostream &
-operator<<(ostream &os, const OmMSet &mset)
-{
-    copy(mset.items.begin(), mset.items.end(),
-	 ostream_iterator<OmMSetItem>(os, "\n"));
-    return os;
-}
-
-ostream &
-operator<<(ostream &os, const OmESetItem &item)
-{
-    cout << item.tname;
-    return os;
-}
-
 ostream &
 operator<<(ostream &os, const vector<unsigned int> &ints)
 {
@@ -54,7 +29,6 @@ operator<<(ostream &os, const vector<unsigned int> &ints)
 	 ostream_iterator<unsigned int>(os, ", "));
     return os;
 }
-
 
 // ######################################################################
 // Useful comparison operators

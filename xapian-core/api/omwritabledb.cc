@@ -55,6 +55,11 @@ OmDatabase::~OmDatabase()
     internal = 0;
 }
 
+string
+OmDatabase::get_description() const
+{
+    return "OmDatabase()";
+}
 
 
 OmWritableDatabase::OmWritableDatabase(const string & type,
@@ -134,5 +139,11 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     internal->mutex.unlock();
  
     return database->add_document(document);
+}
+
+string
+OmWritableDatabase::get_description() const
+{
+    return "OmWritableDatabase()";
 }
 
