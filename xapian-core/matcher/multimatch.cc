@@ -5,6 +5,7 @@
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003 Olly Betts
  * Copyright 2003 Orange PCS Ltd
+ * Copyright 2003 Sam Liddicott
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -873,9 +874,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    matches_estimated = docs_matched;
     }
 
-    // Do we need to qualify any collapse_count to see if the highest weight
-    // collapsed item would have qualified percent_cutoff ?
-    if (collapse_key != om_valueno(-1) && percent_cutoff && !items.empty() &&
+    // We may need to qualify any collapse_count to see if the highest weight
+    // collapsed item would have qualified percent_cutoff 
+    // We WILL need tp restore collapse_count to the mset by taking from
+    // collapse_tab; this is what comes of copying around whole objects
+    // instead of taking references, we find it hard to update collapse_count
+    // of an item that has already been pushed-back as we don't know where it is
+    // any more.  If we keep or find references we won't need to mess with
+    // is_heap so much maybe?
+    if (collapse_key != om_valueno(-1) && /*percent_cutoff &&*/ !items.empty() &&
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
@@ -883,7 +890,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	vector<OmMSetItem>::iterator i;
 	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?
-	    if (i->collapse_count > 0 && !i->collapse_key.empty()) {
+	    if (/*i->collapse_count > 0 &&*/ !i->collapse_key.empty()) {
 		map<string, pair<OmMSetItem, om_weight> >::iterator key;
 		key = collapse_tab.find(i->collapse_key);
 		// Because we collapse, each collapse key can only occur once
@@ -895,6 +902,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		// then collapse count is bogus in every way
 		// FIXME: Should this be <=?
 		if (key->second.second < min_wt) i->collapse_count = 0;
+		else i->collapse_count = key->second.first.collapse_count;
 		// When collapse_tab is finally empty we can finish this process
 		// without examining any further hits
 		collapse_tab.erase(key);

@@ -80,6 +80,7 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %docdir /usr/share/doc/xapian-core-%{version}
 %{_bindir}/xapian-config
 %{_includedir}/om
+%{_includedir}/xapian/*.h
 %{_libdir}/libomqueryparser.a
 %{_libdir}/libomqueryparser.la
 %{_libdir}/libxapian.a

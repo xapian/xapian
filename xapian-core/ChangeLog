@@ -1,3 +1,13 @@
+Fri Apr 18 22:40:31 BST 2003  Sam Liddicott <sam@liddicott.com>
+
+	* Fixed multimatch so that it updates the OmMSetItem in the MSet
+	  with the collapse_count from the OmMSetItem twin in collapse_tab
+	  or we loose collapse_count if newer collapsing hits are less
+	  relevant than the hits they collapse over
+	  I think we need collapse_tab maybe to keep a reference to
+	  the item in the mset?  But this works for now.
+	* Fixed spec file to also install include/xapian stuff 
+
 Fri Apr 18 19:17:56 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,include/Makefile.am,include/om/.cvsignore,
