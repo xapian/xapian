@@ -44,14 +44,10 @@ endif
 
 # Things to do if have doxygen installed
 if HAVE_DOXYGEN
-all-local:
-dist-hook: doxygen_api_docs doxygen_dist
-install-data-local: doxygen_api_docs doxygen_install
-else
-all-local:
+all-local: doxygen_api_docs
+endif
 dist-hook: doxygen_dist
 install-data-local: doxygen_install
-endif
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/xapian
