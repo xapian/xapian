@@ -51,6 +51,9 @@ class OmKey {
 	bool operator < (const OmKey &k) const { return(value < k.value); }
 };
 
+/// Opaque class containing parameters used to construct an OmDocument.
+class OmDocumentParams;
+
 /// A document in the database - holds keys and records
 class OmDocument {
     private:
@@ -58,10 +61,27 @@ class OmDocument {
 	Internal *internal;
 
     public:
-	// only used by internal classes
-	explicit OmDocument(const Internal *internal_);
+	/** Constructor is only used by internal classes.
+	 *  
+	 *  @param params Parameters used to construct the document.
+	 */
+	explicit OmDocument(const OmDocumentParams & params);
 
-	/// Get key by number (>= 0)
+	/** Copying is allowed.  The internals are reference counted, so
+	 *  copying is also cheap.
+	 */
+	OmDocument(const OmDocument &other);
+
+	/** Assignment is allowed.  The internals are reference counted,
+	 *  so assignment is also cheap.
+	 */
+	void operator=(const OmDocument &other);
+
+	/** Destructor. */
+	~OmDocument();
+
+	/** Get key by number (>= 0)
+	 */
 	OmKey get_key(om_keyno key) const;
 	
 	/** Get data stored in document.
@@ -69,10 +89,6 @@ class OmDocument {
 	 *  in a match decider functor.
 	 */
 	OmData get_data() const;     
-
-	void operator=(const OmDocument &other);
-	OmDocument(const OmDocument &other);
-	~OmDocument();
 };
 
 #endif  // OM_HGUARD_OMDOCUMENT_H

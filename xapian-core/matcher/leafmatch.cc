@@ -33,9 +33,9 @@
 #include "leafpostlist.h"
 
 #include "document.h"
-#include "omdocumentinternal.h"
 #include "rset.h"
 #include "omqueryinternal.h"
+#include "omdocumentparams.h"
 
 #include "match.h"
 #include "stats.h"
@@ -582,8 +582,7 @@ LeafMatch::match(om_doccount first,
 		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
-		OmDocument::Internal temp2(irdoc);
-		OmDocument mydoc(&temp2);
+		OmDocument mydoc(irdoc);
 		add_item = mdecider->operator()(&mydoc);
 	    }
 

@@ -1,4 +1,4 @@
-/* omdocumentinternal.h: internals of OmDocument
+/* omdocumentparams.h: parameters for creating an OmDocument
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,24 +20,29 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMDOCUMENTINTERNAL_H
-#define OM_HGUARD_OMDOCUMENTINTERNAL_H
+#ifndef OM_HGUARD_OMDOCUMENTPARAMS_H
+#define OM_HGUARD_OMDOCUMENTPARAMS_H
 
-#include "om/omtypes.h"
-#include <om/omdocument.h>
-#include "omrefcnt.h"
 #include "document.h"
-
-/// A document in the database - holds keys and records
-class OmDocument::Internal {
+#include "omrefcnt.h"
+/// Parameters used to create an OmDocument
+class OmDocumentParams {
     public:
-	OmRefCntPtr<LeafDocument> ptr;
-	OmLock mutex;
+	/** Create an OmDocumentParams from a leaf document pointer.
+	 *
+	 *  @param ld A pointer to a LeafDocument.  The object pointed
+	 *            to is claimed by the OmDocumentParams, so the
+	 *            caller should not delete it: it will be deleted
+	 *            when no further references to it exist.
+	 */
+	OmDocumentParams(LeafDocument *ld)
+		: ld_ptr(ld) {}
 
-	explicit Internal(OmRefCntPtr<LeafDocument> ptr_) : ptr(ptr_) {}
+	OmDocumentParams(OmRefCntPtr<LeafDocument> ld_ptr_)
+		: ld_ptr(ld_ptr_) {}
 
-	Internal(const Internal &other)
-		: ptr(other.ptr), mutex() {}
+	/// The reference counted pointer to the LeafDocument.
+	OmRefCntPtr<LeafDocument> ld_ptr;
 };
 
-#endif  // OM_HGUARD_OMDOCUMENTINTERNAL_H
+#endif  // OM_HGUARD_OMDOCUMENTPARAMS_H

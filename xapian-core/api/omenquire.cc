@@ -34,7 +34,7 @@
 #include "database.h"
 #include "database_builder.h"
 #include <om/omdocument.h>
-#include "omdocumentinternal.h"
+#include "omdocumentparams.h"
 #include "omenquireinternal.h"
 
 #include <vector>
@@ -357,9 +357,8 @@ OmEnquireInternal::read_doc(om_docid did) const
 {
     open_database();
     LeafDocument *doc = database->open_document(did);
-    OmDocument::Internal docint(doc);
 
-    return OmDocument(&docint);
+    return OmDocument(OmDocumentParams(doc));
 }
 
 

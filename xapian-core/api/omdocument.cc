@@ -21,11 +21,31 @@
  */
 
 #include <om/omdocument.h>
-#include "omdocumentinternal.h"
+#include "om/omtypes.h"
+#include "omrefcnt.h"
+#include "document.h"
+#include "omdocumentparams.h"
 
-// implementation of OmDocument
-OmDocument::OmDocument(const Internal *internal_)
-	: internal(new Internal(*internal_)) {}
+// A document in the database - holds keys and records
+class OmDocument::Internal {
+    public:
+	OmRefCntPtr<LeafDocument> ptr;
+	OmLock mutex;
+
+	explicit Internal(OmRefCntPtr<LeafDocument> ptr_) : ptr(ptr_) {}
+
+	Internal(const Internal &other)
+		: ptr(other.ptr), mutex() {}
+};
+
+//////////////////////////////////
+// implementation of OmDocument //
+//////////////////////////////////
+
+OmDocument::OmDocument(const OmDocumentParams & params)
+	: internal(new OmDocument::Internal(params.ld_ptr))
+{
+}
 
 OmKey
 OmDocument::get_key(om_keyno key) const

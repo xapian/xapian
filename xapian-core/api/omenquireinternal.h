@@ -45,7 +45,6 @@ class OmEnquireInternal {
 	 *  These are specified in the constructor, and are opened lazily,
 	 *  by calling OmEnquireInternal::open_database();
 	 */
-	mutable vector<IRDatabase *> databases;
 	mutable IRDatabase * database;
 
 	/** A copy of the OmDatabase object used to specify the database

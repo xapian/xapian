@@ -1,3 +1,18 @@
+Fri Mar 24 17:39:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added OmDocumentParams class, to provide opaque but clean way
+	  to give parameters to OmDocument constructor.
+
+	* Cleaned up various OmLock mutexes; made them private and made the
+	  classes lock them when public methods are called, rather than
+	  expecting the calling class to lock them.
+
+	* Now follow policy of not calling public methods from within
+	  same class.
+
+	* Added many documentation comments, mainly to API code, but also
+	  generally.
+
 Fri Mar 24 13:41:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added net/ directory with (very) start of remote match code.
