@@ -56,7 +56,7 @@ install-data-local: doxygen_install
 endif
 
 # Data to install, in the usual automake way
-docdatadir   = $(datadir)/omsee
+docdatadir   = $(datadir)/omseek
 docdata_DATA = $(CREATED_DOCUMENTS1) $(CREATED_DOCUMENTS2) $(HTMLFILES)
 
 ###############################################
