@@ -29,16 +29,17 @@
 SleepycatDocument::SleepycatDocument(const Database *database_,
 				     Db * document_db_, Db * key_db_,
 				     om_docid did_)
-	: Document(database_), document_db(document_db_), key_db(key_db_),
-	  did(did_), have_data(false)
+	: Document(database_, did_), document_db(document_db_),
+	  key_db(key_db_), have_data(false)
 {
 }
 
 SleepycatDocument::SleepycatDocument(const Database *database_,
 				     Db * document_db_, Db * key_db_,
 				     const OmDocumentContents & document_)
-	: Document(database_), document_db(document_db_), key_db(key_db_),
-	  data(document_.data), have_data(true), keys(document_.keys)
+	: Document(database_, 0), document_db(document_db_),
+	  key_db(key_db_), data(document_.data), have_data(true),
+	  keys(document_.keys)
 {
     try {
 	int err_num;

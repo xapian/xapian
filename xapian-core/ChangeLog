@@ -1,3 +1,7 @@
+Wed Nov 29 16:27:19 GMT 2000 Olly Betts
+
+	* docid now in Document class rather than subclasses.
+
 Wed Nov 29 14:54:13 GMT 2000 Olly Betts
 
 	* leafdocument.cc renamed to document.cc

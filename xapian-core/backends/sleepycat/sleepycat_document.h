@@ -37,20 +37,13 @@
 class SleepycatDocument : public Document {
     friend class SleepycatDatabase;
     private:
-	/** The database in which the document data is held.
-	 */
+	/// The database in which the document data is held.
 	Db *document_db;
 
-	/** The database in which the document keys are held.
-	 */
+	/// The database in which the document keys are held.
 	Db *key_db;
 
-	/** The document ID of the document.
-	 */
-	om_docid did;
-
-	/** The data for this document, if it has been read from the database.
-	 */
+	/// The data for this document, if it has been read from the database.
 	mutable OmData data;
 
 	/** Whether we have read the data from the database (if so, it will
@@ -97,8 +90,7 @@ class SleepycatDocument : public Document {
 	/// Assignment is not permitted
 	SleepycatDocument & operator = (const SleepycatDocument &);
     public:
-	/** Return the document ID of this document.
-	 */
+	/// Return the document ID of this document.
 	om_docid get_docid() const;
 
 	// Virtual methods of Leaf Document

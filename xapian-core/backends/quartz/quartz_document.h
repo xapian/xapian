@@ -35,7 +35,6 @@ class QuartzDocument : public Document {
     friend class QuartzWritableDatabase;
     private:
 	RefCntPtr<const Database> database;
-	om_docid did;
 
 	QuartzTable *attribute_table;
 	QuartzTable *record_table;

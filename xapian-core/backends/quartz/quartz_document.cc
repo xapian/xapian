@@ -34,9 +34,8 @@ QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
 			       QuartzTable *attribute_table_,
 			       QuartzTable *record_table_,
 			       om_docid did_)
-	: Document(database_.get()),
+	: Document(database_.get(), did_),
 	  database(database_),
-	  did(did_),
 	  attribute_table(attribute_table_),
 	  record_table(record_table_)
 {

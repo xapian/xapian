@@ -33,7 +33,6 @@ class DBDocument : public Document {
     friend class DBDatabase;
     private:
 	const DBDatabase * database;
-	om_docid did;
 	mutable struct record * rec;
 	int heavy_duty;
 

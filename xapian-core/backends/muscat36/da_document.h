@@ -33,7 +33,6 @@ class DADocument : public Document {
     friend class DADatabase;
     private:
 	const DADatabase * database;
-	om_docid did;
 	mutable struct record * rec;
 	int heavy_duty;
 
@@ -50,6 +49,5 @@ class DADocument : public Document {
 	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
-
 
 #endif /* OM_HGUARD_DA_DOCUMENT_H */

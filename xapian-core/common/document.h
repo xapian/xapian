@@ -36,7 +36,7 @@ class Database;
 class Document : public RefCntBase {
     private:
 	/// Copies are not allowed.
-	Document(const Document &);
+	Document(const Document &, om_docid did);
 
 	/// Assignment is not allowed.
 	void operator=(const Document &);
@@ -51,6 +51,11 @@ class Document : public RefCntBase {
 	virtual std::map<om_keyno, OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
 	virtual OmData do_get_data() const = 0;
+
+    protected:
+	/// The document ID of the document.
+	om_docid did;
+	
     public:
 	/** Get key by key number.
 	 *
@@ -95,13 +100,14 @@ class Document : public RefCntBase {
 	 *  @return       An OmData object containing the data for this
 	 *  document.
 	 */
-	OmData get_data() const;
+	OmData get_data() const;	
 
 	/** Constructor.  In derived classes, this will typically be a
 	 *  private method, and only be called by database objects of the
 	 *  corresponding type.
 	 */
-	Document(const Database *database_) : database(database_) {};
+	Document(const Database *database_, om_docid did_)
+	    : database(database_), did(did_) {};
 
 	/** Destructor.  Note that the database object which created this
 	 *  document must still exist at the time this is called.

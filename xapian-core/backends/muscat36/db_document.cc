@@ -28,8 +28,8 @@
 
 DBDocument::DBDocument(const DBDatabase * database_, om_docid did_,
 		       int heavy_duty_)
-        : Document(database_), database(database_),
-	  did(did_), rec(NULL), heavy_duty(heavy_duty_)
+        : Document(database_, did_), database(database_), rec(NULL),
+	  heavy_duty(heavy_duty_)
 {
 }
 
@@ -91,6 +91,6 @@ DBDocument::do_get_data() const
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
     data.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3,
-			len - LWIDTH(heavy_duty) - 3);
+			     len - LWIDTH(heavy_duty) - 3);
     return data;
 }

@@ -122,7 +122,8 @@ InMemoryDatabase::open_document(om_docid did) const
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
-    return new InMemoryDocument(this, doclists[did - 1], keylists[did - 1]);
+    return new InMemoryDocument(this, did, doclists[did - 1],
+				keylists[did - 1]);
 }
 
 PositionList *
