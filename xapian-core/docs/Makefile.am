@@ -46,9 +46,9 @@ endif
 
 # Things to do if have doxygen installed
 if HAVE_DOXYGEN
-all-local: # doxygen_docs
-dist-hook: apidoc/html/index.html doxygen_dist
-install-data-local: doxygen_docs doxygen_install
+all-local:
+dist-hook: doxygen_api_docs doxygen_dist
+install-data-local: doxygen_api_docs doxygen_install
 else
 all-local:
 dist-hook: doxygen_dist
@@ -199,9 +199,11 @@ include $(top_srcdir)/Makefile_common.am
 APIDOC_SRC    = `find $(top_srcdir)/include \( -name \*.h -o -name \*.cc -o -name \*.cpp -o -name \*.c \) -print`
 SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -o -name \*.cc -o -name \*.cpp -o -name \*.c -not -name acconfig.h \) -not -path \*/tests/\* \) -print`
 
-.FORCE: doxygen_docs
+.FORCE: doxygen_source_docs doxygen_api_docs doxygen_docs
 
-doxygen_docs: apidoc/html/index.html sourcedoc/html/index.html
+doxygen_source_docs: sourcedoc/html/index.html
+doxygen_api_docs: apidoc/html/index.html
+doxygen_docs: doxygen_source_docs doxygen_api_docs
 
 doxygen_api_conf: $(top_srcdir)/configure.in
 doxygen_full_conf: $(top_srcdir)/configure.in

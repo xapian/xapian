@@ -1,3 +1,8 @@
+Thu Jan 25 12:33:46 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Build only the API docs when making dist / install.  Full source
+	  docs only get built if explicitly asked for.
+
 Thu Jan 25 11:36:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Project name changed to Omsee.
