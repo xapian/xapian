@@ -197,6 +197,9 @@ void operator delete(void *p) throw() {
 #endif // HAVE_LIBPTHREAD
     if (p) {
 	if (handle_deallocation(&allocdata, p) != alloc_ok) {
+	    fprintf(stderr,
+		    "deleting memory at %p which wasn't newed\n",
+		    p);
 	    abort();
 	}
 

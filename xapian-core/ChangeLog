@@ -1,3 +1,8 @@
+Mon Oct  2 17:08:44 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* operator delete now prints a slightly helpful message before
+	  aborting for a bad delete.
+
 Mon Oct  2 16:21:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Improved messages to quartz log - can now make log entries when
