@@ -61,6 +61,8 @@ bool test_expandmaxitems1();
 bool test_boolquery1();
 // tests that get_mset() specifying "first" works as expected
 bool test_msetfirst1();
+// tests the converting-to-percent functions
+bool test_topercent1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -76,6 +78,7 @@ om_test tests[] = {
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},
     {"msetfirst1",         test_msetfirst1},
+    {"topercent1",	   test_topercent1},
     {0, 0}
 };
 
@@ -238,8 +241,7 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
-void do_get_simple_query_mset(OmMSet &mset, OmQuery query,
-                              int maxitems = 10, int first = 0)
+OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -253,14 +255,13 @@ void do_get_simple_query_mset(OmMSet &mset, OmQuery query,
     enquire.set_query(query);
 
     // retrieve the top results
-    mset = enquire.get_mset(first, maxitems);
+    return enquire.get_mset(first, maxitems);
 }
 
 bool test_simplequery1()
 {
     bool success = true;
-    OmMSet mymset;
-    do_get_simple_query_mset(mymset, OmQuery("word"));
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
     // We've done the query, now check that the result is what
     // we expect (2 documents)
     if (mymset.items.size() != 2) {
@@ -277,8 +278,7 @@ bool test_simplequery1()
 bool test_simplequery2()
 {
     bool success = true;
-    OmMSet mymset;
-    do_get_simple_query_mset(mymset, OmQuery("word"));
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -301,10 +301,9 @@ bool test_simplequery2()
 bool test_simplequery3()
 {
     bool success = true;
-    OmMSet mymset;
     // The search is for "thi" rather than "this" because
     // the index will have stemmed versions of the terms.
-    do_get_simple_query_mset(mymset, OmQuery("thi"));
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -397,8 +396,7 @@ bool test_nullquery1()
 {
     bool success = false;
     try {
-	OmMSet mymset;
-	do_get_simple_query_mset(mymset, OmQuery());
+	OmMSet mymset = do_get_simple_query_mset(OmQuery());
     } catch (const OmError &) {
 	success = true;
     }
@@ -407,8 +405,7 @@ bool test_nullquery1()
 
 bool test_msetmaxitems1()
 {
-    OmMSet mymset;
-    do_get_simple_query_mset(mymset, OmQuery("thi"), 1);
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
     return (mymset.items.size() == 1);
 }
 
@@ -437,8 +434,7 @@ bool test_boolquery1()
     OmQuery myboolquery(OmQuery(OM_MOP_FILTER,
 				OmQuery(),
 				OmQuery("thi")));
-    OmMSet mymset;
-    do_get_simple_query_mset(mymset, myboolquery);
+    OmMSet mymset = do_get_simple_query_mset(myboolquery);
 
     if (mymset.max_possible != 1) {
         success = false;
@@ -466,13 +462,41 @@ bool test_boolquery1()
 bool test_msetfirst1()
 {
     bool success = true;
-    OmMSet mymset1, mymset2;
 
-    do_get_simple_query_mset(mymset1, OmQuery("thi"), 6, 0);
-    do_get_simple_query_mset(mymset2, OmQuery("thi"), 3, 3);
+    OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 6, 0);
+    OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 3, 3);
 
     if (!mset_range_is_same(mymset1, 3, mymset2, 0, 3)) {
         success = false;
+    }
+    return success;
+}
+
+bool test_topercent1()
+{
+    bool success = true;
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 20, 0);
+
+    int last_pct = 101;
+    for (unsigned i=0; i<mymset.items.size(); ++i) {
+	int pct = mymset.convert_to_percent(mymset.items[i]);
+	if (pct != mymset.convert_to_percent(mymset.items[i].wt)) {
+	    success = false;
+	    if (verbose) {
+		cout << "convert_to_%(msetitem) != convert_to_%(wt)" << endl;
+	    }
+	} else if ((pct < 0) || (pct > 100)) {
+	    success = false;
+	    if (verbose) {
+	        cout << "percentage out of range: " << pct << endl;
+	    }
+	} else if (pct > last_pct) {
+	    success = false;
+	    if (verbose) {
+	        cout << "percentage increased over mset" << endl;
+	    }
+	}
+	last_pct = pct;
     }
     return success;
 }
