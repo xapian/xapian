@@ -552,6 +552,7 @@ moptions_to_string(const OmSettings &moptions)
     result += om_tostring(moptions.get_int("match_collapse_key", -1)) + " ";
     result += om_tostring((int)moptions.get_bool("match_sort_forward", true)) + " ";
     result += om_tostring(moptions.get_int("match_percent_cutoff", 0)) + " ";
+    result += om_tostring(moptions.get_real("match_cutoff", 0)) + " ";
     result += om_tostring(moptions.get_int("match_max_or_terms", 0));
     result += moptions.get("match_weighting_scheme", "bm25");
 
@@ -566,17 +567,20 @@ string_to_moptions(const std::string &s)
     OmSettings mopt;
     bool sort_forward;
     int collapse_key, percent_cutoff, max_or_terms;
+    om_weight cutoff;
     std::string weighting_scheme;
 
     is >> collapse_key
        >> sort_forward
        >> percent_cutoff
+       >> cutoff
        >> max_or_terms
        >> weighting_scheme;
 
     mopt.set("match_collapse_key", collapse_key);
     mopt.set("match_sort_forward", sort_forward);
     mopt.set("match_percent_cutoff", percent_cutoff);
+    mopt.set("match_cutoff", cutoff);
     mopt.set("match_max_or_terms", max_or_terms);
     mopt.set("match_weighting_scheme", weighting_scheme);
     

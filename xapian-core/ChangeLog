@@ -1,3 +1,7 @@
+Mon Oct 29 11:53:38 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed remote backend to pass match_cutoff setting across.
+
 Fri Oct 26 13:43:08 BST 2001  Olly Betts <olly@survex.com>
 
 	* Reserve size needed for mset vector.
