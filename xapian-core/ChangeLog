@@ -1,3 +1,10 @@
+Tue Mar 01 02:02:15 GMT 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Extended to allow merging several quartz
+	  databases to produce a single compact quartz database.  This
+	  allows for faster building - simple index in chunks, then merge
+	  the chunks.
+
 Tue Mar 01 00:08:12 GMT 2005  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Put the .so in the -devel package (it's only useful
