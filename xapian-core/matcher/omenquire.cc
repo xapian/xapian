@@ -340,6 +340,21 @@ OmQuery::get_description() const
     return "(" + description + ")";
 }
 
+bool
+OmQuery::set_bool(bool isbool_) {
+    bool oldbool = isbool;
+    isbool = isbool_;
+    return oldbool;
+}
+
+om_termcount
+OmQuery::set_length(om_termcount qlen_) {
+    om_termcount oldqlen = qlen;
+    qlen = qlen_;
+    return oldqlen;
+}
+
+
 ////////////////////////////////
 // Methods for OmMatchOptions //
 ////////////////////////////////
@@ -367,6 +382,7 @@ OmMatchOptions::set_sort_forward(bool forward_)
 {
     sort_forward = forward_;
 }
+
 
 /////////////////////////////////
 // Methods for OmExpandOptions //

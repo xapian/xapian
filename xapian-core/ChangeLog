@@ -1,3 +1,13 @@
+Wed Feb  9 16:45:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added calls to specify within query frequency, positional
+	  information, and query length.  Not yet implemented.  (So, won't
+	  compile.)
+
+	* Can set boolean flag on a query directly.
+
+	* Many documentation comments added to header files in include/
+
 Wed Feb  9 16:42:08 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* stemtest.pl handling of random input data improved:

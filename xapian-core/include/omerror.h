@@ -96,7 +96,9 @@ class OmInvalidArgumentError : public OmLogicError {
         OmInvalidArgumentError(const string &msg) : OmLogicError(msg) {};
 };
 
-/** Thrown when an attempt. */
+/** Thrown when an attempt is made to access a document which is not in the
+ *  database.  This could occur either due to a programming error, or
+ *  because the database has changed since running the query. */
 class OmDocNotFoundError : public OmRuntimeError {
     public:
 	OmDocNotFoundError(const string &msg) : OmRuntimeError(msg) {};

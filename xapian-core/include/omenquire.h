@@ -49,7 +49,9 @@ enum om_queryop {
     OM_MOP_FILTER    /// As AND, but use only weights from left subquery
 };
 
-/// Class representing a query
+/** Class representing a query.
+ *  Queries are represented as a heirarchy of classes.
+ */
 class OmQuery {
     friend class OmMatch;
     private:
@@ -65,10 +67,12 @@ class OmQuery {
 	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 				    const vector<OmQuery *>::const_iterator qend);
     public:
-	/// A query consisting of a single term
-	OmQuery(const om_termname & tname_);
+	/** A query consisting of a single term. */
+	OmQuery(const om_termname & tname_,
+		om_termcount wqf_ = 1,
+		om_termpos term_pos = 0);
 
-	/// A query consisting of two subqueries, opp-ed together
+	/** A query consisting of two subqueries, opp-ed together. */
 	OmQuery(om_queryop op_, const OmQuery & left, const OmQuery & right);
 
 	/** A set of OmQuery's, merged together with specified operator.
@@ -78,38 +82,58 @@ class OmQuery {
 		const vector<OmQuery>::const_iterator qbegin,
 		const vector<OmQuery>::const_iterator qend);
 
-	/// As before, but uses a vector of OmQuery pointers
+	/** As before, but uses a vector of OmQuery pointers. */
 	OmQuery(om_queryop op_,
 		const vector<OmQuery *>::const_iterator qbegin,
 		const vector<OmQuery *>::const_iterator qend);
 
-	/// As before, except subqueries are all individual terms.
+	/** As before, except subqueries are all individual terms. */
 	OmQuery(om_queryop op_,
 		const vector<om_termname>::const_iterator tbegin,
 		const vector<om_termname>::const_iterator tend);
 
-	/// Copy constructor
+	/** Copy constructor. */
 	OmQuery(const OmQuery & copyme);
 
-	/// Assignment
+	/** Assignment. */
 	OmQuery & operator=(const OmQuery & copyme);
 
 	/** Default constructor: makes a null query which can't be used
-	 * (Convenient to have a default constructor though) */
+	 * (Convenient to have a default constructor though)
+	 */
 	OmQuery();
 
-	/// Destructor
+	/** Destructor. */
 	~OmQuery();
 
-	/** Introspection method
-	 * Returns a string representing the query. */
+	/** Returns a string representing the query.
+	 * Introspection method.
+	 */
 	string get_description() const;
 
-	/// Check whether the query is null
-	bool is_null() const { return isnull; };
+	/** Check whether the query is null. */
+	bool is_null() const { return isnull; }
 
-	/// Check whether the query is (pure) boolean
-	bool is_bool() const { return isbool; };
+	/** Check whether the query is (pure) boolean. */
+	bool is_bool() const { return isbool; }
+
+	/** Set whether the query is a pure boolean.
+	 *  Returns true iff the query was previously a boolean query.
+	 */
+	bool set_bool(bool isbool_);
+
+	/** Get the length of the query, used by some ranking formulae.
+	 *  This value is calculated automatically, but may be overridden
+	 *  using set_length().
+	 */
+	om_termcount get_length() const { return qlen; }
+
+	/** Set the length of the query.
+	 *  This overrides the automatically calculated value, which may
+	 *  be desirable in some situations.
+	 *  Returns the old value of the query length.
+	 */
+	om_termcount set_length(om_termcount qlen_);
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -180,21 +204,23 @@ class OmExpandDecider {
 class OmRSet {
     private:
     public:
-	/** Items in the relevance set.  These can be altered directly if
-	 * desired.  */
+	/** Items in the relevance set.
+	 *  These can be altered directly if desired. */
 	set<om_docid> items;
+
+	/** Add a document to the relevance set. */
 	void add_document(om_docid did);
+
+	/** Remove a document from the relevance set. */
 	void remove_document(om_docid did);
 };
 
-/// Add a document to the relevance set.
 inline void
 OmRSet::add_document(om_docid did)
 {
     items.insert(did);
 }
 
-/// Remove a document from the relevance set.
 inline void
 OmRSet::remove_document(om_docid did)
 {
@@ -207,7 +233,10 @@ OmRSet::remove_document(om_docid did)
 // =============
 // Representaton of a match result set
 
-/// An item resulting from a query
+/** An item resulting from a query.
+ *  This item contains the document id, and the weight calculated for
+ *  the document.
+ */
 class OmMSetItem {
     friend class OmMatch;
     private:
@@ -307,9 +336,14 @@ class OmESet {
 // ============
 // Representing the document data
 
-/// The data in a document
+/** @memo Retrieve the data in a document.
+ *  @doc This retrieves the arbitrary chunk of data which is associated
+ *  with each document in the database: it is up to the user to define
+ *  the format of this data, and to set it at indexing time.
+ */
 class OmData {
     public:
+	/// The data.
 	string value;
 };
 
@@ -351,9 +385,12 @@ class OmEnquire {
 			const OmExpandOptions * eoptions = 0,
 			const OmExpandDecider * decider = 0) const;
 
-	// Get the document data by document id
+	/** Get the document data by document id.
+	 */
 	OmData get_doc_data(om_docid did) const;
-	// Get the document data by match set item
+
+	/** Get the document data by match set item.
+	 */
 	OmData get_doc_data(const OmMSetItem &mitem) const;
 };
 

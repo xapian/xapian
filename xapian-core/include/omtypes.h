@@ -23,23 +23,44 @@
 #ifndef OM_HGUARD_OMTYPES_H
 #define OM_HGUARD_OMTYPES_H
 
-typedef unsigned int om_termid;   // Type for term id's.
-typedef unsigned int om_docid;    // Type for document id's.  Start at 1.
-typedef unsigned int om_termpos;  // Type for term positions within documents.  Start at 1.
+/// A term id.  Internal use only.
+typedef unsigned int om_termid;
 
-typedef om_docid om_doccount;     // Type for counts of documents
-typedef om_termid om_termcount;   // Type for counts of terms (eg, wdf, termfreq)
+/** A unique id for a document.
+ *  Start at 1.  A value of 0 should never occur.
+ */
+typedef unsigned int om_docid;
 
-typedef double om_doclength;      // Type for (normalised) lengths of documents
-typedef unsigned long long om_totlength; // Type for sum of lengths of documents
+/// Type for counts of documents
+typedef om_docid     om_doccount;
 
-typedef unsigned int om_keyno;    // Type for referring to key in document
+/// Type for counts of terms (eg, wdf, wqf, termfreq).
+typedef om_termid    om_termcount;
 
-typedef double om_weight;
+/** Type for term positions within documents.
+ *  These start at 1.  A value of 0 means that the positional information
+ *  is not available for that term.
+ */
+typedef unsigned int om_termpos;
+
+/// Type for (normalised) lengths of documents
+typedef double       om_doclength;
+
+/// Type for sum of lengths of documents
+typedef double       om_totlength;
+
+/// Type for referring to key in document
+typedef unsigned int om_keyno;
+
+/// A calculated weight, for a term or document
+typedef double       om_weight;
 
 #ifdef __cplusplus
 #include <string>
+/// A term name.  This is a string representing the term, and will often be the actual text of the term.
 typedef string om_termname;
+
+/// A document name.  This is used when making a new document.
 typedef string om_docname;
 #endif
 
