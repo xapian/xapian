@@ -14,7 +14,7 @@ typedef struct {
 entry entries[100];
 
 static int entry_compare(const void *a, const void *b) {
-   return strcmp( ((entry*)a)->name, ((entry*)b)->name );
+   return strcmp(((entry*)a)->name, ((entry*)b)->name);
 }
 
 static void sort( void ) {
@@ -35,12 +35,12 @@ static void sort( void ) {
 	 *p = '\0';
       }
       p = entries[i].name;
-      if (strchr( "RFS", *p)) {
+      if (*p == 'F') {
 	 char *num = ++p;
 	 while (isdigit(*p)) p++;
 	 if (*p == '\0') {
-	    /* convert R1234=<whatever> into R=1234 */
-	    strcpy( entries[i].val, num );
+	    /* convert F10=<whatever> into F=10 */
+	    strcpy(entries[i].val, num);
 	    *num = '\0';
 	 }
       }

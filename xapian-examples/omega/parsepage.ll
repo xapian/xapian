@@ -290,7 +290,7 @@ pretty_printf(const char *p, int *a)
 	// int c = 0;
 	// int rel_hack = 0;
 #if 1 // FIXME
-	cout << "Sorry, we've not implemented relevance feedback yet\n";
+	cout << "Sorry, we've not implemented relevance feedback query expansion yet\n";
 #else
 	/* see if we have any docs marked as relevant */
 	Give_Muscat( "show docs style w r0" );
@@ -410,7 +410,7 @@ pretty_printf(const char *p, int *a)
 	    int freq = 0;
 	    termid id = database.term_name_to_id(*i);
 	    if (id) {
-		PostList *pl = database.open_post_list(id, NULL); // FIXME
+		PostList *pl = database.open_post_list(id, NULL); // FIXME NULL?
 		freq = pl->get_termfreq();
 		delete pl;
 	    }

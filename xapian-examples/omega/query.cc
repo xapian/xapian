@@ -635,9 +635,9 @@ print_caption(long int m)
 	  case 'X': /* relevance checkboX */
 	     if (ticked[q0]) {
 		 ticked[q0] = false;
-		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
+		 cout << "<INPUT TYPE=checkbox NAME=R VALUE=" << q0 << " CHECKED>\n";
 	     } else {
-		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";
+		 cout << "<INPUT TYPE=checkbox NAME=R VALUE=" << q0 << ">\n";
 	     }
 	     break;
 	  default:
