@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMINDEXERDESC_H
 
 #include <string>
-#include <om/omsettings.h>
+#include "om/omsettings.h"
 
 class OmNodeInstanceIterator;
 

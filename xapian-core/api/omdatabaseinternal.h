@@ -25,7 +25,7 @@
 
 #include <vector>
 
-#include <om/omenquire.h>
+#include "om/omenquire.h"
 #include "omlocks.h"
 #include "refcnt.h"
 #include "database_builder.h"

@@ -23,11 +23,11 @@
 #ifndef OM_HGUARD_OMDATABASE_H
 #define OM_HGUARD_OMDATABASE_H
 
-#include "omdocument.h"
-#include "omsettings.h"
-#include "ompostlistiterator.h"
-#include "omtermlistiterator.h"
-#include "ompositionlistiterator.h"
+#include "om/omdocument.h"
+#include "om/omsettings.h"
+#include "om/ompostlistiterator.h"
+#include "om/omtermlistiterator.h"
+#include "om/ompositionlistiterator.h"
 
 class OmWritableDatabase;
 

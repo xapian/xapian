@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 #include "om/omtypes.h"
 #include "refcnt.h"
 #include "document.h"

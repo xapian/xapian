@@ -25,7 +25,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
-#include <om/omenquire.h>
+#include "om/omenquire.h"
 #include <unistd.h>
 #include <string>
 

@@ -24,8 +24,8 @@
 #include <string>
 
 #include "omdebug.h"
-#include <om/omoutput.h>
-#include <om/omstem.h>
+#include "om/omoutput.h"
+#include "om/omstem.h"
 #include "utils.h"
 #include "omlocks.h"
 

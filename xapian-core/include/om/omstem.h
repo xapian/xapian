@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_OMSTEM_H
 #define OM_HGUARD_OMSTEM_H
 
-#include "omerror.h"
+#include "om/omerror.h"
 
 ///////////////////////////////////////////////////////////////////
 // OmStem class

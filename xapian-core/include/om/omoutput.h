@@ -31,19 +31,19 @@ operator<<(std::ostream & os, const a & obj) { \
     return os << obj.get_description(); \
 }
 
-#include "omdatabase.h"
+#include "om/omdatabase.h"
 OUTPUT_FUNCTION(OmDatabase)
 OUTPUT_FUNCTION(OmWritableDatabase)
 
-#include "omdocument.h"
+#include "om/omdocument.h"
 OUTPUT_FUNCTION(OmData)
 OUTPUT_FUNCTION(OmKey)
 OUTPUT_FUNCTION(OmDocument)
 
-#include "omquery.h"
+#include "om/omquery.h"
 OUTPUT_FUNCTION(OmQuery)
 
-#include "omenquire.h"
+#include "om/omenquire.h"
 OUTPUT_FUNCTION(OmRSet)
 OUTPUT_FUNCTION(OmMSetIterator)
 OUTPUT_FUNCTION(OmMSet)
@@ -51,43 +51,34 @@ OUTPUT_FUNCTION(OmESetIterator)
 OUTPUT_FUNCTION(OmESet)
 OUTPUT_FUNCTION(OmEnquire)
 
-//#include "ombatchenquire.h"
+//#include "om/ombatchenquire.h"
 //OUTPUT_FUNCTION(OmBatchEnquire)
 
-#include "omstem.h"
+#include "om/omstem.h"
 OUTPUT_FUNCTION(OmStem)
 
-#include "omsettings.h"
+#include "om/omsettings.h"
 OUTPUT_FUNCTION(OmSettings)
 
-#include "ompostlistiterator.h"
+#include "om/ompostlistiterator.h"
 OUTPUT_FUNCTION(OmPostListIterator)
 
-#include "ompositionlistiterator.h"
+#include "om/ompositionlistiterator.h"
 OUTPUT_FUNCTION(OmPositionListIterator)
 
-#include "ompaditerator.h"
+#include "om/ompaditerator.h"
 OUTPUT_FUNCTION(OmPadIterator)
 
-#include "omnodeinstanceiterator.h"
+#include "om/omnodeinstanceiterator.h"
 OUTPUT_FUNCTION(OmNodeInstanceIterator)
 
-#include "omtermlistiterator.h"
+#include "om/omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermIterator)
 
-#include "omkeylistiterator.h"
+#include "om/omkeylistiterator.h"
 OUTPUT_FUNCTION(OmKeyListIterator)
 
-#include "omindexermessage.h"
+#include "om/omindexermessage.h"
 OUTPUT_FUNCTION(OmIndexerMessage)
-
-inline std::ostream &
-operator<<(std::ostream & os, const om_termname_list & obj) {
-    os << "om_termname_list(";
-    copy(obj.begin(), obj.end(),
-	 std::ostream_iterator<om_termname>(os, ", "));
-    os << ")";
-    return os;
-}
 
 #endif /* OM_HGUARD_OMOUTPUT_H */

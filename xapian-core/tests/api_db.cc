@@ -36,6 +36,9 @@ using std::string;
 #include "apitest.h"
 #include "api_db.h"
 
+#include <list>
+typedef std::list<om_termname> om_termname_list;
+
 // #######################################################################
 // # Tests start here
 
@@ -1016,7 +1019,7 @@ static bool test_getmterms1()
     TEST_MSET_SIZE(mymset, 1);
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
-    TEST_EQUAL(list, answers_list);
+    TEST(list == answers_list);
 
     return true;
 }
@@ -1047,7 +1050,7 @@ static bool test_getmterms2()
     TEST_MSET_SIZE(mymset, 1);
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
-    TEST_EQUAL(list, answers_list);
+    TEST(list == answers_list);
 
     return true;
 }

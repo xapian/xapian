@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_OMERRORHANDLER_H
 #define OM_HGUARD_OMERRORHANDLER_H
 
-#include "omerror.h"
+#include "om/omerror.h"
 
 /// Base class for all errors reported
 class OmErrorHandler {

@@ -36,8 +36,8 @@
 #include "daread.h"
 #include "omdebug.h"
 
-#include <om/omdocument.h>
-#include <om/omerror.h>
+#include "om/omdocument.h"
+#include "om/omerror.h"
 
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,

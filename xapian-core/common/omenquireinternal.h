@@ -25,12 +25,13 @@
 
 #include "config.h"
 
-#include <om/omenquire.h>
+#include "om/omenquire.h"
 #include "omlocks.h"
 #include "refcnt.h"
 #include <algorithm>
 #include <math.h>
 #include <map>
+#include <set>
 
 class OmErrorHandler;
 class OmTermIterator;

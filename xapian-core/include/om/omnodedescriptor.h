@@ -24,8 +24,8 @@
 #define OM_HGUARD_OMNODEDESCRIPTOR_H
 
 #include <string>
-#include <om/omindexercommon.h>
-#include <om/ompaditerator.h>
+#include "om/omindexercommon.h"
+#include "om/ompaditerator.h"
 
 // available in <om/omindexernode.h>
 class OmIndexerNode;

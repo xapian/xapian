@@ -25,8 +25,8 @@
 
 #include <string>
 
-#include <om/omindexermessage.h>
-#include <om/omdocument.h>
+#include "om/omindexermessage.h"
+#include "om/omdocument.h"
 
 class OmIndexer {
     public:

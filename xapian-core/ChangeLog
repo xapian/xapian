@@ -1,3 +1,20 @@
+Tue Jan 30 16:52:05 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Removed unneeded #includes of STL headers from API headers.
+
+	* All #includes of files which are not installed use "" rather than
+	  <>.  This means all #includes of OM files except for those which
+	  are in example programs (and hence might be compiled against the
+	  installed library).  "" search paths are a superset of <> search
+	  paths: hence this should ensure that the om headers work however
+	  they are used.
+
+	* Moved supplied OmExpandDecider subclasses into
+	  include/om/omexpanddecider.h
+
+	* Remove om_termname_list from API: not used except by code which
+	  displays it, and in testsuite.
+
 Tue Jan 30 12:45:22 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Removed #include <vector> from omstem.h

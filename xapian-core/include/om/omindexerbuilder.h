@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMINDEXERBUILDER_H
 
 #include <string>
-#include <om/omindexer.h>
+#include "om/omindexer.h"
 
 // available from <om/omindexerdesc.h>
 class OmIndexerDesc;

@@ -23,12 +23,11 @@
 #ifndef OM_HGUARD_OMENQUIRE_H
 #define OM_HGUARD_OMENQUIRE_H
 
-#include <om/omtypes.h>
-#include <om/omdocument.h>
-#include <om/omdatabase.h>
-#include <om/omerror.h>
+#include "om/omtypes.h"
+#include "om/omdocument.h"
+#include "om/omdatabase.h"
+#include "om/omerror.h"
 #include <string>
-#include <set>
 
 class OmQuery;
 class OmErrorHandler;
@@ -483,41 +482,6 @@ class OmExpandDecider {
 	virtual int operator()(const om_termname & tname) const = 0;
 
 	virtual ~OmExpandDecider() {};
-};
-
-/** One useful expand decision functor, which provides a way of
- *  filtering out a fixed list of terms from the expand set.
- */
-class OmExpandDeciderFilterTerms : public OmExpandDecider {
-    public:
-        /** Constructor, which takes a list of terms which
-	 *  will be filtered out.
-	 */
-        OmExpandDeciderFilterTerms(OmTermIterator terms,
-				   OmTermIterator termsend);
-
-        virtual int operator()(const om_termname &tname) const;
-    private:
-        std::set<om_termname> tset;
-};
-
-/** An expand decision functor which can be used to join two
- *  functors with an AND operation.
- */
-class OmExpandDeciderAnd : public OmExpandDecider {
-    public:
-    	/** Constructor, which takes as arguments the two
-	 *  decision functors to AND together.
-	 *  OmExpandDeciderAnd will not delete its sub-functors.
-	 */
-	OmExpandDeciderAnd(const OmExpandDecider *left_,
-	                   const OmExpandDecider *right_);
-
-	virtual int operator()(const om_termname &tname) const;
-
-    private:
-        const OmExpandDecider *left;
-	const OmExpandDecider *right;
 };
 
 ///////////////////////////////////////////////////////////////////

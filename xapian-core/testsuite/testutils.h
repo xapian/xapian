@@ -24,7 +24,7 @@
 #define OM_HGUARD_TESTUTILS_H
 
 #include "testsuite.h"
-#include <om/om.h>
+#include "om/om.h"
 
 // ######################################################################
 // Useful display operators

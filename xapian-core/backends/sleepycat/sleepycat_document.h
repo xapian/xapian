@@ -29,7 +29,7 @@
 #include "document.h"
 #include <db_cxx.h>
 #include <map>
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 
 /** A document in a sleepycat Database.
  */

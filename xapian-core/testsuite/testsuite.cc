@@ -34,6 +34,8 @@
 #include <streambuf.h>
 #endif // HAVE_STREAMBUF
 
+#include <set>
+
 #include <string>
 #include <new>
 #include <cstdio>

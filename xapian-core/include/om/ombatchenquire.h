@@ -23,11 +23,11 @@
 #ifndef OM_HGUARD_OMBATCHENQUIRE_H
 #define OM_HGUARD_OMBATCHENQUIRE_H
 
-#include <om/omtypes.h>
-#include <om/omdocument.h>
-#include <om/omdatabase.h>
-#include <om/omerror.h>
-#include <om/omenquire.h>
+#include "om/omtypes.h"
+#include "om/omdocument.h"
+#include "om/omdatabase.h"
+#include "om/omerror.h"
+#include "om/omenquire.h"
 #include <string>
 #include <vector>
 #include <set>

@@ -114,17 +114,6 @@ OSTRINGSTREAMFUNC(OmPadIterator)
 OSTRINGSTREAMFUNC(OmNodeInstanceIterator)
 
 inline om_ostringstream &
-operator<<(om_ostringstream & os, const om_termname_list & obj) {
-    os << "om_termname_list(";
-    for(om_termname_list::const_iterator i = obj.begin(); i != obj.end(); i++) {
-	if (i != obj.end()) os << ", ";
-	os << *i;
-    }
-    os << ")";
-    return os;
-}
-
-inline om_ostringstream &
 operator<<(om_ostringstream & os, const std::vector<std::string> & v)
 {
     os << "vector<string> {";

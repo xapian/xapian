@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"

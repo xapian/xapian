@@ -24,9 +24,8 @@
 #define OM_HGUARD_OMERROR_H
 
 #include <string>
-#include <stdexcept>
 
-#include "omtypes.h"
+#include "om/omtypes.h"
 
 class OmErrorHandler;
 
@@ -127,6 +126,6 @@ class a : public b { \
 	  int errno_value_) : b(msg_, context_, type_, errno_value_) {}; \
 }
 
-#include "omerrortypes.h"
+#include "om/omerrortypes.h"
 
 #endif /* OM_HGUARD_OMERROR_H */

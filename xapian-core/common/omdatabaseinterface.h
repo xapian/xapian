@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_OMDATABASEINTERFACE_H
 #define OM_HGUARD_OMDATABASEINTERFACE_H
 
-#include <om/omdatabase.h>
+#include "om/omdatabase.h"
 
 /** This class is used basically to add an interface to OmDatabase
  *  which isn't exported to the API.  Internal OM classes can get at

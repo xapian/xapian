@@ -24,8 +24,8 @@
 #define OM_HGUARD_OMPADITERATOR_H
 
 #include <iterator>
-#include "omtypes.h"
-#include "omindexercommon.h"
+#include "om/omtypes.h"
+#include "om/omindexercommon.h"
 
 class OmPadIterator {
     private:

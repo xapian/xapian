@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#include <om/om.h>
+#include "om/om.h"
 
 #include "../common/database.h"
 #include "../common/termlist.h"

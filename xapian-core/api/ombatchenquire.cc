@@ -21,7 +21,7 @@
  */
 #include "config.h"
 
-#include <om/omenquire.h>
+#include "om/omenquire.h"
 #include "omenquireinternal.h"
 #include <algorithm>
 #include <math.h>

@@ -27,7 +27,7 @@
 #include <string>
 #include <algorithm>
 
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 
 #include "utils.h"
 #include "omdebug.h"

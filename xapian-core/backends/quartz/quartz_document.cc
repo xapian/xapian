@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 #include "omdebug.h"
 #include "quartz_database.h"
 #include "quartz_document.h"

@@ -26,11 +26,11 @@
 #include "utils.h"
 #include "netutils.h"
 
-#include <om/omerror.h>
-#include <om/omenquire.h>
-#include <om/omoutput.h>
+#include "om/omerror.h"
+#include "om/omenquire.h"
+#include "om/omoutput.h"
 
-#include <om/omtermlistiterator.h>
+#include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
 
 #include <vector>

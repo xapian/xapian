@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMINDEXERMESSAGE_H
 
 #include <string>
-#include <om/omindexercommon.h>
+#include "om/omindexercommon.h"
 
 /** OmIndexerMessage is a basic message element.  More complex message may
  *  be built up from more of these these.

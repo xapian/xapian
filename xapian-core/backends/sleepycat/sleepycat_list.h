@@ -26,7 +26,7 @@
 #include "config.h"
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
 
-#include <om/omtypes.h>
+#include "om/omtypes.h"
 #include <vector>
 #include <db_cxx.h>
 #include "omdocumentinternal.h"

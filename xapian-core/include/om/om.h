@@ -24,40 +24,41 @@
 #define OM_HGUARD_OM_H
 
 /* Types and exceptions */
-#include "omtypes.h"
-#include "omerror.h"
-#include "omerrorhandler.h"
+#include "om/omtypes.h"
+#include "om/omerror.h"
+#include "om/omerrorhandler.h"
 
 /* Settings/Options */
-#include "omsettings.h"
+#include "om/omsettings.h"
 
 /* Data access */
-#include "omdocument.h"
-#include "omdatabase.h"
-#include "ompostlistiterator.h"
-#include "ompositionlistiterator.h"
-#include "omtermlistiterator.h"
-#include "omkeylistiterator.h"
+#include "om/omdocument.h"
+#include "om/omdatabase.h"
+#include "om/ompostlistiterator.h"
+#include "om/ompositionlistiterator.h"
+#include "om/omtermlistiterator.h"
+#include "om/omkeylistiterator.h"
 
 /* Searching */
-#include "omenquire.h"
-#include "omquery.h"
+#include "om/omenquire.h"
+#include "om/omquery.h"
+#include "om/omexpanddecider.h"
 
 /* Indexing */
-#include "omindexer.h"
-#include "omindexerbuilder.h"
-#include "omindexercommon.h"
-#include "omindexerdesc.h"
+#include "om/omindexer.h"
+#include "om/omindexerbuilder.h"
+#include "om/omindexercommon.h"
+#include "om/omindexerdesc.h"
 
 /* Extending the indexing system */
-#include "omindexermessage.h"
-#include "omindexernode.h"
-#include "omnodedescriptor.h"
+#include "om/omindexermessage.h"
+#include "om/omindexernode.h"
+#include "om/omnodedescriptor.h"
 
 /* Stemming */
-#include "omstem.h"
+#include "om/omstem.h"
 
 /* Output */
-#include "omoutput.h"
+#include "om/omoutput.h"
 
 #endif /* OM_HGUARD_OM_H */

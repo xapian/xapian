@@ -36,8 +36,8 @@
 #include "dbread.h"
 #include "omdebug.h"
 
-#include <om/omdocument.h>
-#include <om/omerror.h>
+#include "om/omdocument.h"
+#include "om/omerror.h"
 
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,

@@ -23,8 +23,8 @@
 #ifndef OM_HGUARD_OMQUERYINTERNAL_H
 #define OM_HGUARD_OMQUERYINTERNAL_H
 
-#include <om/omtypes.h>
-#include <om/omenquire.h>
+#include "om/omtypes.h"
+#include "om/omenquire.h"
 #include <string>
 #include <vector>
 #include "omlocks.h"
@@ -184,7 +184,7 @@ class OmQuery::Internal {
 	 */
 	om_termcount set_length(om_termcount qlen_);
 
-	/** Return an om_termname_list containing all the terms in the query,
+	/** Return an iterator over all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.

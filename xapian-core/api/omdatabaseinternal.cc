@@ -32,7 +32,7 @@
 #include "../backends/multi/multi_termlist.h"
 
 #include "omdebug.h"
-#include <om/omoutput.h>
+#include "om/omoutput.h"
 #include <vector>
 
 /////////////////////////////////////

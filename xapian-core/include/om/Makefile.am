@@ -9,4 +9,4 @@ ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
 omkeylistiterator.h \
 omindexer.h omindexerbuilder.h omindexercommon.h omindexerdesc.h \
 omindexermessage.h omindexernode.h omnodedescriptor.h \
-omnodepad.h ompaditerator.h omnodeinstanceiterator.h
+omnodepad.h ompaditerator.h omnodeinstanceiterator.h omexpanddecider.h

@@ -21,7 +21,7 @@
  */
 
 #include "inmemory_document.h"
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 
 InMemoryDocument::InMemoryDocument(const Database *database_,
 				   om_docid did_,

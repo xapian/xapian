@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 #include "db_database.h"
 #include "db_document.h"
 #include "dbread.h"

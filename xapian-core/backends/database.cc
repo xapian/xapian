@@ -22,7 +22,7 @@
 
 #include "config.h"
 #include "database.h"
-#include <om/omerror.h>
+#include "om/omerror.h"
 
 Database::Database()
 	: session_in_progress(false),

@@ -36,6 +36,9 @@ using std::string;
 #include "testutils.h"
 #include "utils.h"
 
+#include <list>
+typedef std::list<om_termname> om_termname_list;
+
 // always succeeds
 static bool test_trivial1()
 {
@@ -60,7 +63,7 @@ static bool test_getqterms1()
 		    OmQuery("two", 1, 2)));
 
     om_termname_list list(myquery.get_terms_begin(), myquery.get_terms_end());
-    TEST_EQUAL(list, answers_list);
+    TEST(list == answers_list);
     return true;
 }
 

@@ -21,7 +21,7 @@
  */
 
 #include "sleepycat_document.h"
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 #include "utils.h"
 #include "omdebug.h"
 #include <string.h>

@@ -30,7 +30,7 @@
 #include "omdebug.h"
 #include "utils.h"
 
-#include <om/omerror.h>
+#include "om/omerror.h"
 
 ///////////////////////////
 // Actual database class //

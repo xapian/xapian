@@ -26,7 +26,7 @@
 #include "quartz_record.h"
 
 #include "utils.h"
-#include <om/omerror.h>
+#include "om/omerror.h"
 #include <string>
 #include "omdebug.h"
 

@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMKEYLISTITERATOR_H
 
 #include <iterator>
-#include "omtypes.h"
+#include "om/omtypes.h"
 
 class OmDocument;
 class OmKey;

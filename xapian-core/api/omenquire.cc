@@ -26,10 +26,11 @@
 #include "omdatabaseinterface.h"
 #include "omdocumentinternal.h"
 
-#include <om/omerror.h>
-#include <om/omenquire.h>
-#include <om/omoutput.h>
-#include <om/omtermlistiterator.h>
+#include "om/omerror.h"
+#include "om/omenquire.h"
+#include "om/omoutput.h"
+#include "om/omtermlistiterator.h"
+#include "om/omexpanddecider.h"
 
 #include "omtermlistiteratorinternal.h"
 
@@ -40,6 +41,7 @@
 #include "database_builder.h"
 #include "om/omdocument.h"
 #include "om/omerrorhandler.h"
+#include "om/omenquire.h"
 #include "omenquireinternal.h"
 #include "utils.h"
 

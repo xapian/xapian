@@ -29,8 +29,8 @@
 #include <iomanip.h>
 #include "database.h"
 #include "database_builder.h"
-#include <om/omerror.h>
-#include <om/omenquire.h>
+#include "om/omerror.h"
+#include "om/omenquire.h"
 #include "tcpserver.h"
 
 using std::vector;

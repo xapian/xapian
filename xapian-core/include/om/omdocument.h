@@ -23,9 +23,9 @@
 #ifndef OM_HGUARD_OMDOCUMENT_H
 #define OM_HGUARD_OMDOCUMENT_H
 
-#include <om/omtypes.h>
-#include <om/omtermlistiterator.h>
-#include <om/omkeylistiterator.h>
+#include "om/omtypes.h"
+#include "om/omtermlistiterator.h"
+#include "om/omkeylistiterator.h"
 
 ///////////////////////////////////////////////////////////////////
 // OmData class

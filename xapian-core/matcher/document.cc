@@ -20,11 +20,11 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omtypes.h>
+#include "om/omtypes.h"
 #include "refcnt.h"
 #include "omlocks.h"
 #include "document.h"
-#include <om/omdocument.h>
+#include "om/omdocument.h"
 
 OmKey
 Document::get_key(om_keyno keyid) const

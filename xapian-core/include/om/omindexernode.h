@@ -24,8 +24,8 @@
 #define OM_HGUARD_OMINDEXERNODE_H
 
 #include <string>
-#include <om/omindexermessage.h>
-#include <om/omsettings.h>
+#include "om/omindexermessage.h"
+#include "om/omsettings.h"
 
 class OmIndexerNode {
     public:
