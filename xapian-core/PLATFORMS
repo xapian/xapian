@@ -1,11 +1,12 @@
-This is a list of platforms which Xapian has been tested on, and which people
-have reported back to us about.  It will probably work on many more platforms
+This is a list of platforms which Xapian has been reported to have built
+and passed "make check" on.  It will probably work on many more platforms
 - lack of an entry here shouldn't be assumed to mean it won't work, just that
-we've not tested it ourselves and nobody has reported to us that it works.
+we've not had any reports.
+
 If you try a platform not listed here (or try a newer version on a listed
 platform) we'd love to hear - please at least include the OS version (e.g.
-output from "uname -a"), compiler and version (e.g. output from g++ -v), and any
-switches you passed to configure.
+output from "uname -a"), compiler and version (e.g. output from g++ -v), and
+any switches you passed to configure.
 
 A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
 notably) may fail with OmError exceptions - investigation reveals that the
@@ -17,8 +18,8 @@ and skip the test in progress with an appropriate message.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.6.0 |Passed|
-x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.3 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.6.1 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.6.1 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
 x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.2 |Passed|
