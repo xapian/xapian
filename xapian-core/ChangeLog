@@ -1,3 +1,7 @@
+Wed Mar 03 19:14:09 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Fri Feb 13 23:56:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,tests/api_nodb.cc: Throw error when an empty query is

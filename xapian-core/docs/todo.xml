@@ -72,12 +72,7 @@ Pass around partially created postlists and termlists as AutoPtrs?
 (for exception safety)
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Performance" release="">
-
-Write (speed) performance test suite.
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="General" release="0.8">
+<todoitem priority="M" difficulty="2" owner="" area="General" release="0.9">
 
 Check for zero byte cleanness wherever strings are used.  There are a
 number of c_str()s in the code, but I believe all in the core library
@@ -194,7 +189,7 @@ on the memory used up as a proportion of that available, rather than simply
 when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.8">
+<todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.9">
 
 Provide fake term (empty termname) which indexes all documents, thus providing
 a clean way to iterate through them.  This would be used for a real "NOT"
@@ -297,13 +292,6 @@ documents (should be appropriate subset).  Hard (impossible?) to implement
 efficiently.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
-
-Ensure that quartz databases don't have a problem if there is no positional
-information entry available for a term / document combination.  Think this
-was actually sorted out long ago, but check.
-
-</todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Matcher" release="">
 
 Add synonym postlists.  Need to be able to take underlying postlists which
@@ -343,32 +331,9 @@ it in cgi-bin directory).
 .deb built, control files via autoconf
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
-
-Language bindings: Guile?, tcl? (C would be good too).
-All can be done using SWIG, and it's probably easier to do so
-even though some languages may have better tools
-available just because it's less overall work.  We have contributed XS
-bindings for Perl, so we may as well keep using those while they're
-supported for us.  What's really needed is someone interested in bindings
-for a particular language who knows that language well and will be using
-them actively.  Otherwise we'll just have a token implementation...
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
-
-Namespace for Java bindings should be org/xapian rather than com/muscat/om.
-
-</todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Bindings" release="">
 
 Ensure that (Java in particular) bindings throw correct exception types.
-
-</todoitem>
-<todoitem priority="M" difficulty="" owner="James" area="" release="0.8">
-
-indexgraph -> extra (needs to build as a support library?)  [James
-expressed an interest in this as dbtools needs it]
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="omega" release="">
@@ -400,7 +365,7 @@ to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
 
 </todoitem>
-<todoitem priority="M" difficulty="" owner="Olly" area="" release="0.8">
+<todoitem priority="M" difficulty="" owner="Olly" area="" release="0.9">
 
 Fix up examples and make sure they are actually instructive.  Add a comment
 to each describing what it demonstrates.
@@ -479,14 +444,17 @@ be good to have.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-Quartz compression using a bitstream.
+Better Quartz compression (using a bitstream?)
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
 Ability to run a postlist backwards - it's chunked, so this is feasible
-(some encodings can even be decoded backwards).  This is useful as we
-can add articles in date order and search backwards to do "sort by date".
+(with a small change we can even decode the current encoding backwards!)
+This is useful as we
+can add articles in date order and do a boolean search running the posting
+lists backwards to do "sort by date" (which is good as it can terminate
+once we've enough matches).
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="omega" release="">
@@ -496,7 +464,7 @@ Allow other date formats in START and END of daterange.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
-Enhance $def: $def{NAME, [min, max, eval, ensure, cache], ...} ?
+Enhance $def: $def{NAME, [min, max, [eval?]], ...} ?
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -526,7 +494,12 @@ no weighting? params for bias? abuse term wdf instead of keys?
 Make test suite more uniform in structure.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority="M" difficulty="5" owner="" area="Performance" release="">
+
+Write (speed) performance test suite.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="Performance" release="">
 
 Code size and performance profiling.  Track over time.
 
@@ -546,6 +519,9 @@ Near/phrase implementation is hard to follow, and so it's hard to be confident
 it's correct.  Perhaps reimplement.  Or write a naive implementation and
 compare the results of the two on a large test set.
 
+Or is it going to work better to index the hashes of pair of adjacent words
+to allow efficient phrase searching?  Is this actually more efficient?
+
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="1.0">
 
@@ -553,7 +529,7 @@ Tidy up internal class naming.  All internal classes should be in a namespace
 too...
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="omega" release="">
+<todoitem priority=" " difficulty="" owner="" area="omega" release="0.9">
 
 omega - $field -> $fields; add new $field to just return first?
 
@@ -566,7 +542,7 @@ delve: show_docdata: different layout for showing several docs
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
 Change expand to use inverse min heap, rather than nth element,
-just like matcher was changed a while ago.
+just like matcher was changed ages ago.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
