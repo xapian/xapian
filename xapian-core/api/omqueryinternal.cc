@@ -88,51 +88,10 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
     }
 }
 
-static Xapian::termpos
-get_min_window(Xapian::Query::Internal::op_t op)
-{
-    switch (op) {
-	case Xapian::Query::OP_NEAR:
-	case Xapian::Query::OP_PHRASE:
-	    return 1;
-	default:
-	    return 0;
-    }
-}
-
-static bool
+static inline bool
 is_leaf(Xapian::Query::Internal::op_t op)
 {
     return (op == Xapian::Query::Internal::OP_LEAF);
-}
-
-static bool
-can_replace_by_single_subq(Xapian::Query::Internal::op_t op)
-{
-    return (op == Xapian::Query::OP_AND ||
-	    op == Xapian::Query::OP_OR ||
-	    op == Xapian::Query::OP_XOR ||
-	    op == Xapian::Query::OP_NEAR ||
-	    op == Xapian::Query::OP_PHRASE ||
-// Can't replace OP_ELITE_SET by a single subq since then set_elite_set_size will barf...
-//	    op == Xapian::Query::OP_ELITE_SET ||
-	    op == Xapian::Query::OP_FILTER ||
-	    op == Xapian::Query::OP_AND_MAYBE ||
-	    op == Xapian::Query::OP_AND_NOT);
-}
-
-static bool
-can_reorder(Xapian::Query::Internal::op_t op)
-{
-    return (op == Xapian::Query::OP_OR ||
-	    op == Xapian::Query::OP_AND ||
-	    op == Xapian::Query::OP_XOR);
-}
-
-static bool
-can_flatten(Xapian::Query::Internal::op_t op)
-{
-    return (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 }
 
 // Methods for Xapian::Query::Internal
@@ -201,13 +160,13 @@ Xapian::Query::Internal::serialise() const
 		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "~" + om_tostring(window);
+		result += "~" + om_tostring(parameter);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "\"" + om_tostring(window);
+		result += "\"" + om_tostring(parameter);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "*" + om_tostring(elite_set_size);
+		result += "*" + om_tostring(parameter);
 		break;
 	}
 	/*if (qlen != len)*/ result += '=' + om_tostring(qlen);
@@ -253,10 +212,10 @@ Xapian::Query::Internal::get_description() const
     }
 
     opstr = " " + get_op_name(op) + " ";
-    if (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE)
-	opstr += om_tostring(window) + " ";
-    if (op == Xapian::Query::OP_ELITE_SET)
-	opstr += om_tostring(elite_set_size) + " ";
+    if (op == Xapian::Query::OP_NEAR ||
+	op == Xapian::Query::OP_PHRASE ||
+	op == Xapian::Query::OP_ELITE_SET)
+	opstr += om_tostring(parameter) + " ";
 
     string description;
     subquery_list::const_iterator i;
@@ -265,16 +224,6 @@ Xapian::Query::Internal::get_description() const
 	description += (**i).get_description();
     }
     return "(" + description + ")";
-}
-
-void
-Xapian::Query::Internal::set_elite_set_size(Xapian::termcount size_)
-{
-    if (op != Xapian::Query::OP_ELITE_SET)
-	throw Xapian::InvalidOperationError("Can only set elite set size for elite set operator.");
-    if (size_ == 0)
-	throw Xapian::InvalidArgumentError("Elite set size may not be zero.");
-    elite_set_size = size_;
 }
 
 Xapian::termcount
@@ -406,9 +355,9 @@ QUnserial::readquery() {
 static Xapian::Query::Internal *
 qint_from_vector(Xapian::Query::op op,
 		 const vector<Xapian::Query::Internal *> & vec,
-		 Xapian::termpos window = 0)
+		 Xapian::termcount parameter = 0)
 {
-    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, window);
+    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++)
 	qint->add_subquery(**i);
@@ -449,23 +398,22 @@ QUnserial::readcompound() {
 		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
 	    case '~': {
 		char *tmp; // avoid compiler warning
-		Xapian::termpos window(strtol(p, &tmp, 10));
+		Xapian::termcount window(strtol(p, &tmp, 10));
 		p = tmp;
 		return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
 	    }
 	    case '"': {
 		char *tmp; // avoid compiler warning
-		Xapian::termpos window(strtol(p, &tmp, 10));
+		Xapian::termcount window(strtol(p, &tmp, 10));
 		p = tmp;
 		return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
 	    }
 	    case '*': {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_elite_set_size(Xapian::termcount(strtol(p, &tmp, 10)));
+		Xapian::termcount elite_set_size(strtol(p, &tmp, 10));
 		p = tmp;
-		return qint;
+		return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
+					elite_set_size);
 	    }
 	    default:
 		DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
@@ -497,8 +445,7 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     std::swap(op, other.op);
     subqs.swap(other.subqs);
     std::swap(qlen, other.qlen);
-    std::swap(window, other.window);
-    std::swap(elite_set_size, other.elite_set_size);
+    std::swap(parameter, other.parameter);
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
@@ -509,8 +456,7 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  op(copyme.op),
 	  subqs(),
 	  qlen(copyme.qlen),
-	  window(copyme.window),
-	  elite_set_size(copyme.elite_set_size),
+	  parameter(copyme.parameter),
 	  tname(copyme.tname),
 	  term_pos(copyme.term_pos),
 	  wqf(copyme.wqf)
@@ -530,8 +476,7 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
 	  qlen(wqf_),
-	  window(0),
-	  elite_set_size(0),
+	  parameter(0),
 	  tname(tname_),
 	  term_pos(term_pos_),
 	  wqf(wqf_)
@@ -541,18 +486,17 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
     }
 }
 
-Xapian::Query::Internal::Internal(op_t op_, Xapian::termpos window_)
+Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	: op(op_),
 	  subqs(),
 	  qlen(0),
-	  window(window_),
-	  elite_set_size(0),
+	  parameter(parameter_),
 	  tname(),
 	  term_pos(0),
 	  wqf(0)
 {
-    if (window != 0 && op != OP_PHRASE && op != OP_NEAR)
-	throw Xapian::InvalidArgumentError("window is only meaningful for OP_NEAR and OP_PHRASE");
+    if (parameter != 0 && op != OP_PHRASE && op != OP_NEAR && op != OP_ELITE_SET)
+	throw Xapian::InvalidArgumentError("parameter is only meaningful for OP_NEAR, OP_PHRASE, or OP_ELITE_SET");
 }
 
 Xapian::Query::Internal::~Internal()
@@ -602,14 +546,6 @@ Xapian::Query::Internal::validate_query() const
     DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
     prevalidate_query();
 
-    // Check that the window size is in acceptable limits
-    if (window < get_min_window(op)) {
-	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
-		" requires a window size of at least " + 
-		om_tostring(get_min_window(op)) + ", had " +
-		om_tostring(window) + ".");
-    }
-
     // Check that all subqueries are valid.
     subquery_list::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); ++i) {
@@ -622,32 +558,41 @@ Xapian::Query::Internal::simplify_query()
 {
     DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
 
-    // if window size is 0, then use number of subqueries
-    // This is cheap, so we might as well always set it.
-    if (window == 0) window = subqs.size();
-
-    // if elite set size is 0, use sqrt of number of subqueries, or a minimum
-    // of 10.  Gives a reasonable default.
-    if (elite_set_size == 0) {
-	elite_set_size = static_cast<Xapian::termcount>(ceil(sqrt(double(subqs.size()))));
-	if (elite_set_size < 10) elite_set_size = 10;
-    }
-
-    // Remove duplicates if we can.
-    if (subqs.size() > 1 && can_reorder(op)) {
-	collapse_subqs();
-    }
-
-    // Flatten out sub queries if this is a phrase (or near) operation.
-    if (can_flatten(op)) {
-	flatten_subqs();
+    switch (op) {
+	case OP_LEAF:
+	    return this;
+	case OP_PHRASE: case OP_NEAR:
+	    // Default to the number of subqueries.
+	    if (!parameter) parameter = subqs.size();
+	    // Flatten out sub queries if this is a phrase (or near) operation.
+	    flatten_subqs();
+	    break;
+	case OP_ELITE_SET:
+	    if (!parameter) {
+		// Default to sqrt(number of subqueries), or a minimum of 10.
+		// Gives a reasonable default.
+		if (subqs.size() <= 100) {
+		    parameter = 10;
+		} else {
+		    parameter = Xapian::termcount(ceil(sqrt(double(subqs.size()))));
+		    Assert(parameter >= 10);
+		}
+	    }
+	    break;
+	case OP_OR: case OP_AND: case OP_XOR:
+	    // Remove duplicates if we can.
+	    if (subqs.size() > 1) collapse_subqs();
+	    break;
+	default:
+	    break;
     }
 
     // If we have no subqueries, then we're simply an undefined query.
-    if (subqs.empty() && !is_leaf(op)) return 0;
+    if (subqs.empty()) return 0;
 
-    // Some nodes with only one subquery can be replaced by the subquery.
-    if (subqs.size() == 1 && can_replace_by_single_subq(op)) {
+    // Any nodes which are valid with only one subquery can be replaced by
+    // that solitary subquery.
+    if (subqs.size() == 1) {
 	Xapian::Query::Internal * qint = subqs[0];
 	subqs[0] = 0;
 	return qint;
@@ -753,7 +698,7 @@ void
 Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal & subq)
 {
     Assert(!is_leaf(op));
-    if (can_reorder(op) && op == subq.op) {
+    if (op == subq.op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq.subqs.begin();
 	     i != subq.subqs.end(); i++) {

@@ -77,7 +77,7 @@ query(Xapian::Query::op op, string t1 = "", string t2 = "",
       string t9 = "", string t10 = "")
 {
     vector<string> v;
-    Xapian::Stem stemmer("english");    
+    Xapian::Stem stemmer("english");
     if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
     if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
     if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
@@ -89,6 +89,28 @@ query(Xapian::Query::op op, string t1 = "", string t2 = "",
     if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
     if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
     return Xapian::Query(op, v.begin(), v.end());
+}
+
+static Xapian::Query
+query(Xapian::Query::op op, Xapian::termcount parameter,
+      string t1 = "", string t2 = "",
+      string t3 = "", string t4 = "", string t5 = "",
+      string t6 = "", string t7 = "", string t8 = "",
+      string t9 = "", string t10 = "")
+{
+    vector<string> v;
+    Xapian::Stem stemmer("english");
+    if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
+    if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
+    if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
+    if (!t4.empty()) v.push_back(stemmer.stem_word(t4));
+    if (!t5.empty()) v.push_back(stemmer.stem_word(t5));
+    if (!t6.empty()) v.push_back(stemmer.stem_word(t6));
+    if (!t7.empty()) v.push_back(stemmer.stem_word(t7));
+    if (!t8.empty()) v.push_back(stemmer.stem_word(t8));
+    if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
+    if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
+    return Xapian::Query(op, v.begin(), v.end(), parameter);
 }
 
 static Xapian::Query
@@ -665,7 +687,7 @@ static bool test_reversebool1()
 	Xapian::MSetIterator i = mymset1.begin();
 #ifdef __SUNPRO_CC
 	vector<Xapian::docid> rev;
-	for (Xapian::MSetIterator t = mymset3.begin(); t != mymset3.end(); ++t) 
+	for (Xapian::MSetIterator t = mymset3.begin(); t != mymset3.end(); ++t)
 	    rev.push_back(*t);
 #else
 	vector<Xapian::docid> rev(mymset3.begin(), mymset3.end());
@@ -718,7 +740,7 @@ static bool test_reversebool2()
     {
 #ifdef __SUNPRO_CC
 	vector<Xapian::docid> rev;
-	for (Xapian::MSetIterator t = mymset1.begin(); t != mymset1.end(); ++t) 
+	for (Xapian::MSetIterator t = mymset1.begin(); t != mymset1.end(); ++t)
 	    rev.push_back(*t);
 #else
 	vector<Xapian::docid> rev(mymset1.begin(), mymset1.end());
@@ -1027,8 +1049,8 @@ static bool test_eliteset1()
     Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
 
-    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "simple", "word");
-    myquery2.set_elite_set_size(1);
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
+				   "simple", "word");
 
     enquire.set_query(myquery1);
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
@@ -1049,10 +1071,11 @@ static bool test_eliteset2()
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_AND, "word", "search");
 
+    vector<Xapian::Query> qs;
+    qs.push_back(query("this"));
+    qs.push_back(query(Xapian::Query::OP_AND, "word", "search"));
     Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET,
-		     query("this"),
-		     query(Xapian::Query::OP_AND, "word", "search"));
-    myquery2.set_elite_set_size(1);
+			   qs.begin(), qs.end(), 1);
 
     enquire.set_query(myquery1);
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
@@ -1093,8 +1116,7 @@ static bool test_eliteset3()
     Xapian::Query myquery1(Xapian::Query::OP_OR, terms.begin(), terms.end());
     enquire1.set_query(myquery1);
 
-    Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET, terms.begin(), terms.end());
-    myquery2.set_elite_set_size(3);
+    Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET, terms.begin(), terms.end(), 3);
     enquire2.set_query(myquery2);
 
     // retrieve the results
@@ -1128,8 +1150,8 @@ static bool test_eliteset4()
     Xapian::Enquire enquire2(mydb2);
 
     Xapian::Query myquery1 = query("rubbish");
-    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "word", "rubbish", "fibble");
-    myquery2.set_elite_set_size(1);
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
+				   "word", "rubbish", "fibble");
     enquire1.set_query(myquery1);
     enquire2.set_query(myquery2);
 
@@ -1422,7 +1444,7 @@ static bool test_termlist2()
     vector<string> v(t, tend);
 #endif
 
-    t = db.termlist_begin(1);    
+    t = db.termlist_begin(1);
     tend = db.termlist_end(1);
     vector<string>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
@@ -1524,7 +1546,7 @@ static bool test_spaceterms1()
 	    TEST_EQUAL(static_cast<unsigned char>(value[261]), 255);
 	}
     }
-    
+
     enquire.set_query(stemmer.stem_word("back\\slash"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
@@ -1563,7 +1585,7 @@ static bool test_getdoc1()
     Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::Document doc(db.get_document(1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(999999999));    
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(999999999));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(123456789));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
@@ -1581,7 +1603,7 @@ static bool test_emptyop1()
 {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     vector<Xapian::Query> nullvec;
-    
+
     Xapian::Query query1(Xapian::Query::OP_XOR, nullvec.begin(), nullvec.end());
 
     Xapian::MSet mymset = do_get_simple_query_mset(query1);

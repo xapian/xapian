@@ -221,8 +221,7 @@ static bool test_singlesubq1()
 {
     vector<string> oneterm;
     oneterm.push_back("solo");
-    Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end());
-    q_eliteset.set_elite_set_size(1);
+    Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end(), 1);
     Xapian::Query q_near(Xapian::Query::OP_NEAR, oneterm.begin(), oneterm.end(), 1);
     Xapian::Query q_phrase(Xapian::Query::OP_PHRASE, oneterm.begin(), oneterm.end(), 1);
     return true;

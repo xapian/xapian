@@ -315,7 +315,7 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	{
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    RETURN(new NearPostList(res, query->window, postlists));
+	    RETURN(new NearPostList(res, query->parameter, postlists));
 	}
 
 	case Xapian::Query::OP_PHRASE:
@@ -326,13 +326,13 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    RETURN(new PhrasePostList(res, query->window, postlists_orig));
+	    RETURN(new PhrasePostList(res, query->parameter, postlists_orig));
 	}
 
 	case Xapian::Query::OP_ELITE_SET:
 	{
 	    // Select top terms
-	    Xapian::termcount elite_set_size = query->elite_set_size;
+	    Xapian::termcount elite_set_size = query->parameter;
 	    DEBUGLINE(API, "Selecting top " << elite_set_size <<
 		      " subqueries, out of " << postlists.size() << ".");
 

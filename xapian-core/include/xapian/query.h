@@ -126,15 +126,6 @@ class Query {
 	/** A query consisting of two subqueries, opp-ed together. */
 	Query(Query::op op_, const Query & left, const Query & right);
 
-	/* A query consisting of two subquery pointers, opp-ed together. */
-	// Don't have this because vector iterators are often implemented as
-	// simple pointers, so this would override the template class and
-	// produce unexpected results.  Only plausible solution we can think
-	// of so far is to change to using construction methods (eg,
-	// static Query::create_vector(op, begin, end) and
-	// static Query::create_pair(op, begin, end)
-	//Query(Query::op op_, const Query * left, const Query * right);
-
 	/** A query consisting of two termnames opp-ed together. */
 	Query(Query::op op_,
 	      const std::string & left, const std::string & right);
@@ -151,17 +142,16 @@ class Query {
 	 *  The iterators may be to Xapian::Query objects, pointers to
 	 *  Xapian::Query objects, or termnames (std::string-s).
 	 *
-	 *  For NEAR and PHRASE, a window size can be specified.
+	 *  For NEAR and PHRASE, a window size can be specified in parameter.
+	 *
+	 *  For ELITE_SET, the elite set size can be specified in parameter.
 	 */
 	template <class Iterator>
 	Query(Query::op op_, Iterator qbegin, Iterator qend,
-	      Xapian::termpos window = 0);
+	      Xapian::termcount parameter = 0);
 
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
-
-	/** Set the elite set size, for ELITE_SET queries.  */
-	void set_elite_set_size(Xapian::termcount size);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden
@@ -205,17 +195,17 @@ class Query {
 	void add_subquery(const Query & subq);
 	void add_subquery(const Query * subq);
 	void add_subquery(const std::string & tname);
-	void start_construction(Query::op op_, Xapian::termpos window);
+	void start_construction(Query::op op_, Xapian::termcount parameter);
 	void end_construction();
 	void abort_construction();
 };
 
 template <class Iterator>
-Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termpos window)
+Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     : internal(0)
 {
     try {
-	start_construction(op_, window);
+	start_construction(op_, parameter);
 
 	/* Add all the elements */
 	while (qbegin != qend) {
@@ -254,14 +244,12 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/// Length of query
 	Xapian::termcount qlen;
 
-	/** How close terms must be for NEAR or PHRASE.
-	 *  To match, all terms must occur in a window of this size.
+	/** For NEAR or PHRASE, how close terms must be to match: all terms
+	 *  within the operation must occur in a window of this size.
+	 *
+	 * For ELITE_SET, the number of terms to select from those specified.
 	 */
-	Xapian::termpos window;
-
-	/** How many terms to select for the elite set, for ELITE_SET queries.
-	 */
-	Xapian::termcount elite_set_size;
+	Xapian::termcount parameter;
 
 	/// Term that this node represents - leaf node only
 	std::string tname;
@@ -332,8 +320,8 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
 		 Xapian::termpos term_pos_ = 0);
 
-	/** Create internals given only the operator (and maybe window). */
-	Internal(op_t op_, Xapian::termpos window);
+	/** Create internals given only the operator and a parameter. */
+	Internal(op_t op_, Xapian::termcount parameter);
 
 	/** Destructor. */
 	~Internal();
@@ -357,9 +345,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 * Introspection method.
 	 */
 	std::string get_description() const;
-
-	/** Set elite set size */
-	void set_elite_set_size(Xapian::termcount size);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden
