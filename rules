@@ -1,0 +1,125 @@
+#!/usr/bin/make -f
+
+export DH_COMPAT=3
+export DH_OPTIONS
+
+export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	confflags += --build $(DEB_HOST_GNU_TYPE)
+else
+	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+else
+	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+PYTHONVERSIONS = 2.1 2.2 2.3
+
+commonconfflags := \
+	$(confflags) \
+	--prefix=/usr \
+	--mandir=\$${prefix}/share/man \
+	--infodir=\$${prefix}/share/info \
+	--sysconfdir=/etc \
+	--enable-maintainer-mode
+
+configure: debian/control configure-stamp
+configure-stamp:
+	dh_testdir
+
+	for v in $(PYTHONVERSIONS); do \
+	    set -e; \
+	    mkdir -p build-python$$v; \
+	    cd build-python$$v; \
+	    ../configure $(commonconfflags) \
+	     --without-php --without-tcl --without-java --without-guile \
+	     PYTHON=/usr/bin/python$$v; \
+	    cd ..; \
+	done
+
+	touch configure-stamp
+
+build: configure build-stamp
+build-stamp:
+	dh_testdir
+	for v in $(PYTHONVERSIONS); do \
+	    set -e; \
+	    cd build-python$$v; \
+	    $(MAKE); \
+	    cd ..; \
+	done
+	touch build-stamp
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Install the files into debian/*
+	for v in $(PYTHONVERSIONS); do \
+	    set -e; \
+	    cd build-python$$v; \
+	    $(MAKE) DESTDIR=../$(CURDIR)/debian/tmp install; \
+	    cd ..; \
+	done
+
+	# Reads the *.install files to decide where to install everything
+	dh_install --sourcedir=debian/tmp
+
+binary: binary-arch binary-indep
+binary-indep: DH_OPTIONS=-i
+binary-indep:
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_python
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+clean:
+	dh_testdir
+	dh_testroot
+	# FIXME - uncomment when we've done making the packages
+	#-$(MAKE) distclean
+	dh_clean
+	rm -f build-stamp configure-stamp
+
+.PHONY: configure build install binary binary-arch binary-indep clean

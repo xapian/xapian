@@ -1,0 +1,6 @@
+xapian-bindings (0.8-1) unstable; urgency=low
+
+  * Initial release - provides packages for only the python bindings, so far.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 15:12:04 +0100
+
