@@ -35,23 +35,15 @@ endif
 maint: \
 	debian/control \
 	debian/libxapian$(libxapian_soversion).install \
-	debian/libxapian$(libxapian_soversion).postinst \
-	debian/libxapian$(libxapian_soversion).postrm \
 	debian/libxapian$(libxapian_dev_soversion)-dev.install \
 	debian/libxapian-queryparser$(libqueryparser_soversion).install \
-	debian/libxapian-queryparser$(libqueryparser_soversion).postinst \
-	debian/libxapian-queryparser$(libqueryparser_soversion).postrm \
 	debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 
 maintclean: debian/control clean
 	rm -f debian/control
 	rm -f debian/libxapian$(libxapian_soversion).install
-	rm -f debian/libxapian$(libxapian_soversion).postinst
-	rm -f debian/libxapian$(libxapian_soversion).postrm
 	rm -f debian/libxapian$(libxapian_dev_soversion)-dev.install
 	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).install
-	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).postinst
-	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).postrm
 	rm -f debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 	rm -rf debian/libxapian$(libxapian_soversion)
 	rm -rf debian/libxapian$(libxapian_dev_soversion)-dev
@@ -71,20 +63,12 @@ debian/control: debian/rules debian/control.in
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
-debian/libxapian$(libxapian_soversion).postinst: debian/rules debian/libxapianVERSION.postinst
-	cp -f debian/libxapianVERSION.postinst debian/libxapian$(libxapian_soversion).postinst
-debian/libxapian$(libxapian_soversion).postrm: debian/rules debian/libxapianVERSION.postrm
-	cp -f debian/libxapianVERSION.postrm debian/libxapian$(libxapian_soversion).postrm
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
 
 debian/libxapian-queryparser$(libqueryparser_soversion).install: debian/rules debian/libxapian-queryparserVERSION.install
 	cp -f debian/libxapian-queryparserVERSION.install debian/libxapian-queryparser$(libqueryparser_soversion).install
-debian/libxapian-queryparser$(libqueryparser_soversion).postinst: debian/rules debian/libxapian-queryparserVERSION.postinst
-	cp -f debian/libxapian-queryparserVERSION.postinst debian/libxapian-queryparser$(libqueryparser_soversion).postinst
-debian/libxapian-queryparser$(libqueryparser_soversion).postrm: debian/rules debian/libxapian-queryparserVERSION.postrm
-	cp -f debian/libxapian-queryparserVERSION.postrm debian/libxapian-queryparser$(libqueryparser_soversion).postrm
 
 debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install: debian/rules debian/libxapian-queryparserVERSION-dev.install
 	cp -f debian/libxapian-queryparserVERSION-dev.install debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
@@ -97,8 +81,16 @@ commonconfflags := \
 	--sysconfdir=/etc \
 	--enable-maintainer-mode
 
+# The autotools target adds forced build-time dependencies on
+# autotools-dev (for /usr/share/misc/config.*)
+# It's also a .PHONY make target.
+autotools:
+	rm -f config.sub config.guess
+	ln -s /usr/share/misc/config.sub config.sub
+	ln -s /usr/share/misc/config.guess config.guess
+
 configure: debian/control configure-stamp
-configure-stamp:
+configure-stamp: autotools
 	dh_testdir
 	./configure $(commonconfflags)
 	touch configure-stamp
@@ -112,12 +104,8 @@ build-stamp:
 install: DH_OPTIONS=
 install: build \
 	 debian/libxapian$(libxapian_soversion).install \
-	 debian/libxapian$(libxapian_soversion).postinst \
-	 debian/libxapian$(libxapian_soversion).postrm \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install \
 	 debian/libxapian-queryparser$(libqueryparser_soversion).install \
-	 debian/libxapian-queryparser$(libqueryparser_soversion).postinst \
-	 debian/libxapian-queryparser$(libqueryparser_soversion).postrm \
 	 debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
@@ -133,7 +121,7 @@ install: build \
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
-binary-indep:
+binary-indep: build install
 	dh_testdir
 	dh_testroot
 	dh_installdocs
@@ -172,7 +160,8 @@ clean:
 	dh_testdir
 	dh_testroot
 	-$(MAKE) distclean
+	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean autotools configure build install binary binary-arch binary-indep clean

@@ -1,4 +1,15 @@
-xapian-core (0.8-1) unstable; urgency=low
+xapian-core (0.8-3) unstable; urgency=low
+
+  * Remove empty maintainer scripts, allowing debhelper to make them.
+  * Add rules to make symlinks to config.guess and config.sub, and added
+    Build-Depends on autotools-dev.  Remove Build-Depends on automake,
+    autoconf and libtool (these will be run before the source package is
+    generated).
+  * Add some more items to TODO list.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 09:48:34 +0100
+
+xapian-core (0.8-2) unstable; urgency=low
 
   * Fixed postinst, postrm, and prerm scripts to have a #!/bin/sh line, so
     they actually work.
