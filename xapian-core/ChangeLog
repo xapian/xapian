@@ -1,3 +1,9 @@
+Thu Nov 18 03:27:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Applied the Quartz "DANGEROUS" patch, but
+	  disabled for now.  This way it won't keep being broken by changes
+	  to the code.
+
 Tue Nov 16 04:29:25 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Ah, it's __sun__/__sun/sun, not

@@ -24,6 +24,17 @@
 
 #include <config.h>
 
+// Define to use "dangerous" mode - in this mode we write modified btree
+// blocks back in place.  This is somewhat faster (especially once we're
+// I/O bound) but the database can't be safely searched during indexing
+// and if indexing is terminated uncleanly, the database may be corrupt.
+//
+// Despite the risks, it's useful for speeding up a full rebuild.
+//
+// FIXME: make this mode run-time selectable.
+//
+// #define DANGEROUS
+
 #ifdef __osf__
 // GCC's fixincluded unistd seems to be missing pread and pwrite prototypes.
 #include <sys/types.h>
@@ -485,6 +496,9 @@ Btree::alter()
 {
     DEBUGCALL(DB, void, "Btree::alter", "");
     Assert(writable);
+#ifdef DANGEROUS
+    C[0].rewrite = true;
+#else
     int j = 0;
     byte * p = C[j].p;
     while (true) {
@@ -507,6 +521,7 @@ Btree::alter()
 	p = C[j].p;
 	Item_wr(p, C[j].c).set_block_given_by(n);
     }
+#endif
 }
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
