@@ -268,14 +268,11 @@ yylex()
 		qptr++;
 		if (qptr == q.end() || isspace(*qptr)) already_stemmed = true;
 	    }
-	    switch (*qptr) {
-		case '-': case '_': case '/': case '\\':
-		    /* Terms separated by these characters are treated as a
-		     * phrase search */
-		    if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
-			qptr++;
-			pending_token = HYPHEN;
-		    }
+	    if (*qptr == '-') {
+		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
+		    qptr++;
+		    pending_token = HYPHEN;
+		}
 	    }
 	}
 	if (term == "AND") {
@@ -300,11 +297,17 @@ yylex()
 	return TERM;
     }
     c = *qptr++;
+    // FIXME: Some people may not want & and | to mean AND and OR
+    // FIXME: Some people may not want _ / and \ to mean phrase search
     switch (c) {
      case '&':
 	return AND;
      case '|':
 	return OR;
+     case '_': case '/': case '\\':
+	/* these characters generate a phrase search */
+	if (!isspace(*qptr)) return HYPHEN;
+	break;
      case '(': case ')': case '-': case '+': case '"':
 	/* these characters are used in the grammar rules */
 	return c;
