@@ -40,7 +40,7 @@
 
 #include <setjmp.h>
 #include <signal.h>
-#include <unistd.h> // for chdir
+#include <unistd.h>
 
 #include <exception>
 
@@ -49,8 +49,9 @@
 #include "omdebug.h"
 #include "utils.h"
 
-#ifdef HAVE_MEMCHECK_H
+#ifdef HAVE_VALGRIND_MEMCHECK_H
 # include <valgrind/memcheck.h>
+# include <stdio.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
@@ -195,7 +196,7 @@ class SignalRedirector {
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-#ifdef HAVE_MEMCHECK_H
+#ifdef HAVE_VALGRIND_MEMCHECK_H
     // This is used to make a note of how many times we've run the test
     volatile int runcount = 0;
 #endif
@@ -208,12 +209,12 @@ test_driver::runtest(const test_desc *test)
 	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
-#ifdef HAVE_MEMCHECK_H
+#ifdef HAVE_VALGRIND_MEMCHECK_H
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs = VALGRIND_COUNT_ERRORS;
 		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
-		ftruncate(LOG_FD_FOR_VG);
+		ftruncate(LOG_FD_FOR_VG, 0);
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -225,16 +226,16 @@ test_driver::runtest(const test_desc *test)
 		    out << " " << col_red << "FAILED" << col_reset;
 		    return FAIL;
 		}
-#ifdef HAVE_MEMCHECK_H
+#ifdef HAVE_VALGRIND_MEMCHECK_H
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
 	char buf[1024]; \
 	ssize_t c; \
-	while ((c = read(LOG_FD_FOR_VG, buf, sizeof(buf)) != 0) { \
+	while ((c = read(LOG_FD_FOR_VG, buf, sizeof(buf))) != 0) { \
 	    if (c > 0) out << string(buf, c); \
 	} \
-	ftruncate(LOG_FD_FOR_VG); \
+	ftruncate(LOG_FD_FOR_VG, 0); \
     } \
     out << " " << col_red << M << col_reset; \
 } while (0)
@@ -483,20 +484,24 @@ test_driver::parse_command_line(int argc, char **argv)
 {
     argv0 = argv[0];
 
-#ifdef HAVE_MEMCHECK_H
+#ifdef HAVE_VALGRIND_MEMCHECK_H
     if (verbose && RUNNING_ON_VALGRIND) {
-	// Open the fd for valgrind to log to
-	int fd = open("/tmp/ol", O_CREAT | O_RDWR | O_APPEND, 0600);
-	if (fd != -1) {
-	    if (fd != LOG_FD_FOR_VG) {
-		dup2(fd, LOG_FD_FOR_VG);
-		close(fd);
+	// Open the fd for valgrind to log to.
+	FILE * f = tmpfile();
+	if (f) {
+	    int fd = fileno(f);
+	    if (fd != -1) {
+		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_APPEND);
+		if (fd != LOG_FD_FOR_VG) {
+		    dup2(fd, LOG_FD_FOR_VG);
+		    close(fd);
+		}
 	    }
-	    ftruncate(LOG_FD_FOR_VG);
 	}
     }
 #endif
 
+#ifndef __WIN32__
     if (isatty(1)) {
 	col_red = "\x1b[1m\x1b[31m";
 	col_green = "\x1b[1m\x1b[32m";
@@ -504,6 +509,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	col_reset = "\x1b[0m";
 	use_cr = true;
     }
+#endif
 
     struct option long_opts[] = {
 	{"verbose",		no_argument, 0, 'v'},

@@ -92,19 +92,23 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
-dnl testsuite
-AC_CHECK_HEADERS(memcheck.h)
+dnl testsuite.
+AC_CHECK_HEADERS([valgrind/memcheck.h])
 AC_PATH_PROG(VALGRIND, valgrind, [])
 if test -z "$VALGRIND" ; then
-    ac_cv_header_memcheck_h=no
+  ac_cv_header_valgrind_memcheck_h=no
 else
-    dnl Check that the valgrind version installed supports the most recently
-    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
-    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-    AC_EGREP_HEADER(VALGRIND_COUNT_LEAKS, memcheck.h, [],
-	VALGRIND=
-	ac_cv_header_memcheck_h=no
-    )
+  dnl Check that the valgrind version installed supports the most recently
+  dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
+  dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
+  AC_EGREP_CPP(yes,
+    [#include <valgrind/memcheck.h>
+     #ifdef VALGRIND_COUNT_LEAKS
+     yes
+     #endif
+    ], [],
+    [VALGRIND=
+     ac_cv_header_valgrind_memcheck_h=no])
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
