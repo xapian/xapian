@@ -1,6 +1,5 @@
-print "Context: image/gif\n";
-print "\n";
-open (GIF, "<fishlogo.gif") || die "no such file exist.";
+print "Context: image/png\n\n";
+open (GIF, "<fishlogo.png") || die "no such file exist.";
 while (<GIF>) {
     print $_;
 }
