@@ -1943,7 +1943,9 @@ extern struct Bcursor * Bcursor_create(struct Btree * B)
 
     struct Bcursor * BC = (struct Bcursor *) calloc(1, sizeof(struct Bcursor));
     // FIXME: throw std::bad_alloc() here?
-    if (BC == 0) return 0;
+    if (BC == 0) {
+	throw std::bad_alloc();
+    }
     BC->B = B;
     BC->C = (struct Cursor *) calloc(B->level + 1, sizeof(struct Cursor));
     if (BC->C == 0) goto no_space;
@@ -2226,16 +2228,13 @@ extern int Btree_create(const char * name_, int block_size)
     {
 	/* create the bitmap file */
 	error = BTREE_ERROR_BITMAP_CREATE;
-        b = (byte *)calloc(1, 1);
-        if (b == 0) goto end;
-        b[0] = 0;  /* set the root block as 'in use' */
         {
+	    char temp = 0;
 	    int h = sys_open_to_write(name + "bitmapA");
             if ( ! (valid_handle(h) &&
-                    sys_write_bytes(h, 1, b) &&
+                    sys_write_bytes(h, 1, &temp) &&
                     sys_close(h))) goto end;
         }
-        free(b);
 
 	/* create the base file */
         error = BTREE_ERROR_BASE_CREATE;

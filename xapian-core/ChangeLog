@@ -1,3 +1,9 @@
+Fri Nov 17 16:26:52 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Annihilated a small memory leak.
+
+	* Fixed a problem with checking enable_shared.
+
 Fri Nov 17 16:12:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove tests to check for Berkeley DB 3.1 - we don't use Berkeley
