@@ -6,8 +6,14 @@ def get_simple_database():
     mydb.add_database("sleepycat", ["/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepy/db=apitest_simpledata="])
     return mydb
 
-def init_simple_enquire(enq):
-    enq.set_query(OmQuery("thi"))
+def init_simple_enquire(enq, query = OmQuery("thi")):
+    enq.set_query(query)
+
+def do_get_simple_query_mset(query, maxitems = 10, first = 0):
+    enquire = OmEnquire(get_simple_database())
+    init_simple_enquire(enquire, query)
+
+    return enquire.get_mset(first, maxitems)
 
 def print_mset_percentages(mset):
     items = mset.items
@@ -122,3 +128,45 @@ def test_expandmaxitems1():
     myeset = enquire.get_eset(1, myrset)
 
     return (len(myeset.items) == 1)
+
+def test_batchquery1():
+    success = 1
+    verbose = 1
+
+    myqueries = [
+	( OmQuery("thi"), 0, 10, 0, 0, 0),
+	( OmQueryNull(), 0, 10, 0, 0, 0),
+	( OmQuery("word"), 0, 10, 0, 0, 0)]
+
+    print myqueries
+
+    benq = OmBatchEnquire(get_simple_database())
+
+    print "foo"
+    benq.set_queries(myqueries)
+
+    print "bar"
+    myresults = benq.get_msets()
+
+    print "myresults = ", myresults
+    if (len(myresults) != 3):
+	success = 0;
+	if (verbose):
+	    print "Results size is", len(myresults), "expected 3."
+	    print "result is: ", myresults
+    else:
+	if (myresults[0] != do_get_simple_query_mset(OmQuery("thi"))):
+	    success = 0
+	    if (verbose):
+		print "Query 1 returned different result!"
+ 	if (myresults[1] != None):
+	    success = 0
+	    if (verbose):
+		print "Query 2 should not be valid"
+
+	if (myresults[2] != do_get_simple_query_mset(OmQuery("word"))):
+	    success = 0
+	    if (verbose):
+		print "Query 3 returned different result!"
+
+    return success

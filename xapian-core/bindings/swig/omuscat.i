@@ -37,7 +37,8 @@ enum om_queryop {
     OM_MOP_XOR,
     OM_MOP_AND_MAYBE,
     OM_MOP_FILTER,
-    OM_MOP_NEAR
+    OM_MOP_NEAR,
+    OM_MOP_PHRASE
 };
 
 class OmQuery {
@@ -46,13 +47,16 @@ class OmQuery {
 				   om_termcount wqf = 1,
 				   om_termpos term_pos = 0);
 
+	%name(OmQueryNull) OmQuery();
+
 	%addmethods {
 	    %name (OmQueryList) OmQuery(om_queryop op,
-	    	    const vector<OmQuery *> *subqs) {
-		if (subqs->size() == 2) {
+	    	    const vector<OmQuery *> *subqs,
+		    om_termpos window = 0) {
+		if ((subqs->size() == 2) && (window == 0)) {
 		    return new OmQuery(op, *(*subqs)[0], *(*subqs)[1]);
 		} else {
-		    return new OmQuery(op, subqs->begin(),subqs->end());
+		    return new OmQuery(op, subqs->begin(),subqs->end(), window);
 		}
 	    }
 	}
@@ -122,33 +126,36 @@ class OmESet {
 	%readwrite
 };
 
+%typedef OmBatchEnquire::batch_result batch_result;
+%typedef OmBatchEnquire::mset_batch mset_batch;
+%typedef OmBatchEnquire::query_desc query_desc;
+%typedef OmBatchEnquire::query_batch query_batch;
+
+class batch_result {
+    public:
+	OmMSet value() const;
+	bool is_valid() const;
+};
+
+class mset_batch {
+    public:
+	/*  Each language needs to define appropriate methods
+	 *  to get at the results (using %addmethods).
+	 */
+};
+
 class OmBatchEnquire {
     public:
         OmBatchEnquire(const OmDatabaseGroup &databases);
         ~OmBatchEnquire();
 
-#ifdef UNDEFINED
 	void set_queries(const query_batch &queries_);
-
-	class batch_result {
-	    public:
-		batch_result(const OmMSet &mset, bool isvalid_);
-		OmMSet value() const;
-		bool is_valid() const { return isvalid; }
-	};
-
-	typedef vector<batch_result> mset_batch;
 
 	mset_batch get_msets() const;
 
 	const OmDocument get_doc(om_docid did) const;
 
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
-
 	om_termname_list get_matching_terms(om_docid did) const;
-
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
-#endif
 };
 
 class OmSettings {
@@ -268,6 +275,7 @@ class OmEnquire {
 class OmMSet {
     public:
 	OmMSet();
+	~OmMSet();
 
 	int convert_to_percent(om_weight wt) const;
 //	int convert_to_percent(const OmMSetItem & item) const;

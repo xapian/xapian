@@ -12,7 +12,7 @@ print bar.get_description()
 baz = OmQueryList(OM_MOP_FILTER, [ OmQuery("giraff"), OmQuery("lion") ])
 print baz.get_description()
 
-baz = OmQueryList(OM_MOP_NEAR, [ OmQuery("giraff"), OmQuery("lion") ])
+baz = OmQueryList(OM_MOP_NEAR, [ OmQuery("giraff"), OmQuery("lion") ], 3)
 print baz.get_description()
 
 myquery = OmQueryList(OM_MOP_OR,
@@ -42,6 +42,17 @@ print mset.items
 match_terms = enq.get_matching_terms(mset.items[0][0])
 print match_terms
 
-print test_pctcutoff1()
-print test_collapsekey1()
-print test_expandmaxitems1()
+tests = [("pctcutoff1", test_pctcutoff1),
+         ("collapsekey1", test_collapsekey1),
+	 ("expandmaxitems1", test_expandmaxitems1),
+	 ("batchquery1", test_batchquery1)]
+
+global verbose
+verbose = 0
+
+for test in tests:
+    print test[0] + "...",
+    if test[1]():
+        print "ok"
+    else:
+        print "FAILED"

@@ -40,6 +40,91 @@
     }
 }
 
+%{
+    class OmPythonProblem {};
+    OmQuery *get_py_omquery(PyObject *obj)
+    {
+	OmQuery *retval = 0;
+	PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+						->in_dict, "this");
+	if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
+				    (void **)&retval,
+				    "_OmQuery_p")) {
+	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+	    cerr << "Problem is: " << err << endl;
+	    PyErr_SetString(PyExc_ValueError,
+			    "OmQuery object invalid");
+	    return 0;
+	}
+	return retval;
+    }
+    
+    OmRSet *get_py_omrset(PyObject *obj)
+    {
+	OmRSet *retval = 0;
+	if (PyInstance_Check(obj)) {
+	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+						    ->in_dict, "this");
+	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
+					(void **)&retval,
+					"_OmRSet_p")) {
+		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		cerr << "Problem is: " << err << endl;
+		PyErr_SetString(PyExc_ValueError,
+				"OmRSet object invalid");
+		return 0;
+	    }
+	}
+	return retval;
+    }
+
+    OmMatchOptions *get_py_ommatchoptions(PyObject *obj)
+    {
+	OmMatchOptions *retval = 0;
+	if (PyInstance_Check(obj)) {
+	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+						    ->in_dict, "this");
+	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
+					(void **)&retval,
+					"_OmMatchOptions_p")) {
+		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		cerr << "Problem is: " << err << endl;
+		PyErr_SetString(PyExc_ValueError,
+				"OmMatchOptions object invalid");
+		return 0;
+	    }
+	}
+	return retval;
+    }
+
+    OmMatchDecider *get_py_ommatchdecider(PyObject *obj)
+    {
+	OmMatchDecider *retval = 0;
+	if (PyInstance_Check(obj)) {
+	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+						    ->in_dict, "this");
+	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
+					(void **)&retval,
+					"_OmMatchDecider_p")) {
+		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		cerr << "Problem is: " << err << endl;
+		PyErr_SetString(PyExc_ValueError,
+				"OmMatchDecider object invalid");
+		return 0;
+	    }
+	}
+	return retval;
+    }
+
+    int get_py_int(PyObject *obj) {
+	if (!PyNumber_Check(obj)) {
+	    throw OmPythonProblem();
+	} else {
+	    return PyInt_AsLong(PyNumber_Int(obj));
+	}
+    }
+%}
+
 %typemap(python, in) const vector<OmQuery *> *(vector<OmQuery *> v){
     if (!PyList_Check($source)) {
         PyErr_SetString(PyExc_TypeError, "expected list");
@@ -49,16 +134,9 @@
     for (int i=0; i<numitems; ++i) {
         PyObject *obj = PyList_GetItem($source, i);
 	if (PyInstance_Check(obj)) {
-	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
-						    ->in_dict, "this");
-	    OmQuery *subqp;
-	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
-			    (void **)&subqp,
-			    "_OmQuery_p")) {
-		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		cerr << "Problem is: " << err << endl;
-		PyErr_SetString(PyExc_ValueError,
-				"OmQuery object invalid");
+	    OmQuery *subqp = get_py_omquery(obj);
+	    if (!subqp) {
+		PyErr_SetString(PyExc_TypeError, "expected query");
 		return NULL;
 	    }
 	    v.push_back(subqp);
@@ -197,4 +275,49 @@ PyObject *OmESet_items_get(OmESet *eset)
     %readonly
     PyObject *items;
     %readwrite
+}
+
+%typemap(python, in) const query_batch &(OmBatchEnquire::query_batch v){
+    if (!PyList_Check($source)) {
+        PyErr_SetString(PyExc_TypeError, "expected list");
+        return NULL;
+    }
+    int numitems = PyList_Size($source);
+    for (int i=0; i<numitems; ++i) {
+        PyObject *obj = PyList_GetItem($source, i);
+	if (PyTuple_Check(obj) && PyTuple_Size(obj) == 6) {
+	    query_desc mydesc;
+	    try {
+		OmQuery *qp = get_py_omquery(PyTuple_GetItem(obj, 0));
+		if (!qp) return NULL;
+		mydesc.query = *qp;
+		mydesc.first = get_py_int(PyTuple_GetItem(obj, 1));
+		mydesc.maxitems = get_py_int(PyTuple_GetItem(obj, 2));
+		mydesc.omrset = get_py_omrset(PyTuple_GetItem(obj, 3));
+		mydesc.moptions = get_py_ommatchoptions(PyTuple_GetItem(obj, 4));
+		mydesc.mdecider = get_py_ommatchdecider(PyTuple_GetItem(obj, 5));
+		v.push_back(mydesc);
+	    } catch (OmPythonProblem &) {
+		return NULL;
+	    }
+	} else {
+	    PyErr_SetString(PyExc_TypeError,
+			    "expected tuple");
+	    return NULL;
+	}
+    }
+    $target = &v;
+}
+
+%addmethods mset_batch {
+    OmMSet __getitem__(int i) {
+	if (i >= self->size()) {
+	    throw OmRangeError("Index out of range");
+	}
+	return (*self)[i].value();
+    }
+
+    int __len__() {
+	return self->size();
+    }
 }
