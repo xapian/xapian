@@ -1,29 +1,30 @@
-%% om.h: Include all externally visible parts of om
-%%
-%% ----START-LICENCE----
-%% Copyright 1999,2000,2001 BrightStation PLC
-%% Copyright 2002 Ananova Ltd
-%% Copyright 2002 Olly Betts
-%%
-%% This program is free software; you can redistribute it and/or
-%% modify it under the terms of the GNU General Public License as
-%% published by the Free Software Foundation; either version 2 of the
-%% License, or (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with this program; if not, write to the Free Software
-%% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-%% USA
-%% -----END-LICENCE-----
+% om.h: Include all externally visible parts of om
+%
+% ----START-LICENCE----
+% Copyright 1999,2000,2001 BrightStation PLC
+% Copyright 2002 Ananova Ltd
+% Copyright 2002 Olly Betts
+%
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public License as
+% published by the Free Software Foundation; either version 2 of the
+% License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+% USA
+% -----END-LICENCE-----
 %
 %ifndef OM_HGUARD_OM_H
 %define OM_HGUARD_OM_H
 %
+#ifdef __GNUC__
 // When building the library with GCC, generate preprocessor code to check that
 // any version of GCC used to build applications has a matching C++ ABI. This
 // means that users get a nice explanatory error message rather than a
@@ -36,10 +37,10 @@
 // strip comments such as this block, etc) we remove blank lines and collapse
 // multiple spaces.
 // 
-// In this file, use "%%" when you want a "//" comment, % on a line by itself
-// for a blank line, % at the start of a line for a "#", and % elsewhere
-// for a __ (so e.g. when we want __GXX_ABI_VERSION literally, we write
-// %GXX_ABI_VERSION).
+// In this file, use "% " at the start of a line when you want a "//" comment,
+// % on a line by itself // for a blank line, % at the start of a line with
+// no space after it for a "#", and % elsewhere // for a __ (so e.g. when we
+// want __GXX_ABI_VERSION literally, we write %GXX_ABI_VERSION).
 #define V2(A,B) J2(A,B)
 #define J2(A,B) g++ A##.##B
 #define V3(A,B,C) J3(A,B,C)
@@ -62,16 +63,17 @@
 #endif
 %endif
 %endif
+#endif
 %
-%% Types and exceptions
+% Types and exceptions
 %include "om/omtypes.h"
 %include "om/omerror.h"
 %include "om/omerrorhandler.h"
 %
-%% Settings/Options
+% Settings/Options
 %include "om/omsettings.h"
 %
-%% Data access
+% Data access
 %include "om/omdocument.h"
 %include "om/omdatabase.h"
 %include "om/ompostlistiterator.h"
@@ -79,15 +81,15 @@
 %include "om/omtermlistiterator.h"
 %include "om/omvalueiterator.h"
 %
-%% Searching
+% Searching
 %include "om/omenquire.h"
 %include "om/omquery.h"
 %include "om/omexpanddecider.h"
 %
-%% Stemming
+% Stemming
 %include "om/omstem.h"
 %
-%% Output
+% Output
 %include "om/omoutput.h"
 %
-%endif %% OM_HGUARD_OM_H
+%endif
