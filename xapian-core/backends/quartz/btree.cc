@@ -68,8 +68,8 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
     int i;
     printf("%d)\n", N);
     for (i = 0; i <= B->level; i++)
-        printf("p=%d, c=%d, n=[%d], rewrite=%d\n",
-                C[i].p, C[i].c, C[i].n, C[i].rewrite);
+	printf("p=%d, c=%d, n=[%d], rewrite=%d\n",
+		C[i].p, C[i].c, C[i].n, C[i].rewrite);
 }
 */
 
@@ -363,24 +363,24 @@ Btree::write_block(int4 n, const byte * p)
     if (! Btree_modified) {
 	// Things to do when we start a modification session.
 
-        Btree_modified = true;
+	Btree_modified = true;
 
-        if (both_bases) {
+	if (both_bases) {
 	    /* delete the old base */
-            sys_unlink(name + "base" + other_base_letter);
+	    sys_unlink(name + "base" + other_base_letter);
 	    /* This used to set B->error as below, but will now throw
 	     * an exception if it fails.
 		B->error = BTREE_ERROR_BASE_DELETE;
 		// FIXME: must exit, otherwise we could cause a corrupt
 		// database to be read.
 	     */
-        }
+	}
     }
 
     sys_write_block(handle, block_size, n, p);
     /* This used to set B->error as below, but will now throw
      * an exception if it fails.
-        B->error = BTREE_ERROR_DB_WRITE;
+	B->error = BTREE_ERROR_DB_WRITE;
      */
 }
 
@@ -433,7 +433,7 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
     if (C_[j].rewrite) {
 	Assert(C == C_);
 	write_block(C_[j].n, p);
-        C_[j].rewrite = false;
+	C_[j].rewrite = false;
     }
     read_block(n, p);
     if (overwritten) return;
@@ -442,9 +442,9 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
     C[j].n = n; /* not necessarily the same (in B-tree read mode) */
     if (j < level) {
 	if (REVISION(p) > REVISION(C_[j + 1].p)) { /* unsigned comparison */
-            set_overwritten();
-            return;
-        }
+	    set_overwritten();
+	    return;
+	}
     }
     AssertEq(j, GET_LEVEL(p));
 }
@@ -542,7 +542,7 @@ static int compare_keys(const byte * key1, const byte * key2)
     // Compare the first part of the keys
     for (i = K1; i < k_smaller; i++) {
 	int diff = (int) key1[i] - key2[i];
-        if (diff != 0) return diff;
+	if (diff != 0) return diff;
     }
 
     {
@@ -553,7 +553,7 @@ static int compare_keys(const byte * key1, const byte * key2)
     // Compare the count
     for (; i < k_smaller + C2; i++) {
 	int diff = (int) key1[i] - key2[i];
-        if (diff != 0) return diff;
+	if (diff != 0) return diff;
     }
     return 0;
 }
@@ -584,8 +584,8 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
 
     while (j - i > D2) {
 	int k = i + ((j - i)/D4)*D2; /* mid way */
-        int t = compare_keys(key, p + GETD(p, k) + I2);
-        if (t < 0) j = k; else i = k;
+	int t = compare_keys(key, p + GETD(p, k) + I2);
+	if (t < 0) j = k; else i = k;
     }
     return i;
 }
@@ -609,14 +609,14 @@ Btree::find(struct Cursor * C_)
     int j;
     for (j = level; j > 0; j--) {
 	p = C_[j].p;
-        c = find_in_block(p, k, 0, C_[j].c);
+	c = find_in_block(p, k, 0, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:find - code position 1");
 	report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
-        C_[j].c = c;
-        block_to_cursor(C_, j - 1, block_given_by(p, c));
-        if (overwritten) return false;
+	C_[j].c = c;
+	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	if (overwritten) return false;
     }
     p = C_[0].p;
     c = find_in_block(p, k, D2, C_[j].c);
@@ -641,9 +641,9 @@ Btree::compress(byte * p)
     int dir_end = DIR_END(p);
     for (int c = DIR_START; c < dir_end; c += D2) {
 	int o = GETD(p, c);
-        int l = GETI(p, o);
-        e -= l;
-        memmove(b + e, p + o, l);
+	int l = GETI(p, o);
+	e -= l;
+	memmove(b + e, p + o, l);
 	SETD(p, c, e);  /* reform in b */
     }
     memmove(p + e, b + e, block_size - e);  /* copy back */
@@ -720,15 +720,15 @@ void Btree::make_index_item(byte * result, int result_len,
     int i;
 
     if (truncate) {
-        i = K1;
-        while (i < prevkey_len && prevkey[i] == newkey[i]) {
-            i++;
-        }
+	i = K1;
+	while (i < prevkey_len && prevkey[i] == newkey[i]) {
+	    i++;
+	}
 
-        // Want one byte of difference.
-        if (i < newkey_len) i++;
+	// Want one byte of difference.
+	if (i < newkey_len) i++;
     } else {
-        i = newkey_len;
+	i = newkey_len;
     }
     SETI(result, 0, I2 + i + C2 + sizeof(blocknumber)); // Set item length
     SETK(result, I2, i + C2);    // Set key length
@@ -829,12 +829,12 @@ Btree::mid_point(byte * p)
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
 	int o = GETD(p, c);
-        int l = GETI(p, o);
-        n += 2 * l;
-        if (n >= size) {
+	int l = GETI(p, o);
+	n += 2 * l;
+	if (n >= size) {
 	    if (l < n - size) return c;
-            return c + D2;
-        }
+	    return c + D2;
+	}
     }
 
     /* falling out of mid_point */
@@ -861,7 +861,7 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
 
     if (new_max < 0) {
 	compress(p);
-        new_max = MAX_FREE(p) - needed;
+	new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
     }
     Assert(dir_end >= c);
@@ -918,9 +918,9 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
 	}
 	write_block(C[j].split_n, q);
 
-        enter_key(C, j + 1,                /* enters a separating key at level j + 1 */
-                  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
-                  key_of(p, DIR_START));      /* - and the first key of block p */
+	enter_key(C, j + 1,                /* enters a separating key at level j + 1 */
+		  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
+		  key_of(p, DIR_START));      /* - and the first key of block p */
     } else {
 	add_item_to_block(p, kt, c);
 	n = C[j].n;
@@ -954,33 +954,35 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
 
     if (!repeatedly) return;
     if (j < level) {
-       if (dir_end == DIR_START) {
-            base.free_block(C[j].n);
-            C[j].rewrite = false;
-            C[j].n = -1;
-            C[j + 1].rewrite = true;  /* *is* necessary */
-            delete_item(C, j + 1, true);
-        }
+	if (dir_end == DIR_START) {
+	    base.free_block(C[j].n);
+	    C[j].rewrite = false;
+	    C[j].n = -1;
+	    C[j + 1].rewrite = true;  /* *is* necessary */
+	    delete_item(C, j + 1, true);
+	}
     } else {
 	/* j == B->level */
 	while (dir_end == DIR_START + D2 && j > 0) {
 	    /* single item in the root block, so lose a level */
 	    int new_root = block_given_by(p, DIR_START);
-	    delete [] p; C[j].p = 0;
-            base.free_block(C[j].n);
-            C[j].rewrite = false;
-            C[j].n = -1;
-            delete [] C[j].split_p; C[j].split_p = 0;
-            C[j].split_n = -1;
-            level--;
+	    delete [] p;
+	    C[j].p = 0;
+	    base.free_block(C[j].n);
+	    C[j].rewrite = false;
+	    C[j].n = -1;
+	    delete [] C[j].split_p;
+	    C[j].split_p = 0;
+	    C[j].split_n = -1;
+	    level--;
 
-            block_to_cursor(C, level, new_root);
+	    block_to_cursor(C, level, new_root);
 	    if (overwritten) return;
 
-            j--;
+	    j--;
 	    p = C[j].p;
 	    dir_end = DIR_END(p); /* prepare for the loop */
-        }
+	}
     }
 }
 
@@ -996,16 +998,16 @@ static addcount = 0;
       If an item with the same key is in the B-tree (found is true), the new kt
       replaces it.
 
-         If then kt is smaller, or the same size as, the item it replaces, kt
-         is put in the same place as the item it replaces, and the TOTAL_FREE
-         measure is reduced.
+	 If then kt is smaller, or the same size as, the item it replaces, kt
+	 is put in the same place as the item it replaces, and the TOTAL_FREE
+	 measure is reduced.
 
-         If kt is larger than the item it replaces it is put in the MAX_FREE
-         space if there is room, and the directory entry and space counts are
-         adjusted accordingly.
+	 If kt is larger than the item it replaces it is put in the MAX_FREE
+	 space if there is room, and the directory entry and space counts are
+	 adjusted accordingly.
 
-            - But if there is not room we do it the long way: the old item is
-            deleted with delete_item and kt is added in with add_item.
+	    - But if there is not room we do it the long way: the old item is
+	    deleted with delete_item and kt is added in with add_item.
 
       If the key of kt is not in the B-tree (found is false), the new kt is
       added in with add_item.
@@ -1021,8 +1023,8 @@ Btree::add_kt(int found, struct Cursor * C)
 
     /*
     {
-        printf("%d) %s ", addcount++, (found ? "replacing " : "adding "));
-        print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); printf("\n");
+	printf("%d) %s ", addcount++, (found ? "replacing " : "adding "));
+	print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); printf("\n");
     }
     */
     alter(C);
@@ -1031,7 +1033,7 @@ Btree::add_kt(int found, struct Cursor * C)
 	seq_count = SEQ_START_POINT;
 	sequential = false;
 
-        byte * p = C[0].p;
+	byte * p = C[0].p;
 	int c = C[0].c;
 	int o = GETD(p, c);
 	int kt_size = GETI(kt, 0);
@@ -1057,17 +1059,17 @@ Btree::add_kt(int found, struct Cursor * C)
 		delete_item(C, 0, false);
 		add_item(C, kt, 0);
 	    }
-        }
+	}
     } else {
 	/* addition */
-        if (changed_n == C[0].n && changed_c == C[0].c) {
+	if (changed_n == C[0].n && changed_c == C[0].c) {
 	    if (seq_count < 0) seq_count++;
 	} else {
 	    seq_count = SEQ_START_POINT;
 	    sequential = false;
 	}
-        C[0].c += D2;
-        add_item(C, kt, 0);
+	C[0].c += D2;
+	add_item(C, kt, 0);
     }
     return components;
 }
@@ -1089,15 +1091,15 @@ Btree::delete_kt()
 
     /*
     {
-        printf("%d) %s ", addcount++, (found ? "deleting " : "ignoring "));
-        print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); printf("\n");
+	printf("%d) %s ", addcount++, (found ? "deleting " : "ignoring "));
+	print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); printf("\n");
     }
     */
     if (found)
     {
-        components = components_of(C[0].p, C[0].c);
-        alter(C);
-        delete_item(C, 0, true);
+	components = components_of(C[0].p, C[0].c);
+	alter(C);
+	delete_item(C, 0, true);
     }
     return components;
 }
@@ -1105,7 +1107,7 @@ Btree::delete_kt()
 /* form_key(B, p, key, key_len) treats address p as an item holder and fills in
 the key part:
 
-           (I) K key c (C tag)
+	   (I) K key c (C tag)
 
 The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
@@ -1149,7 +1151,7 @@ void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
 */
 
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
-                                       byte * tag, int tag_len)
+				       byte * tag, int tag_len)
 {
     return B->add(key, key_len, tag, tag_len);
 }
@@ -1164,56 +1166,57 @@ Btree::add(byte *key, int key_len,
     form_key(this, kt, key, key_len);
 
     {
-        int ck = GETK(kt, I2) + I2 - C2;  /* offset to the counter in the key */
-        int ct = ck + C2;                 /* offset to the tag counter */
-        int cd = ct + C2;                 /* offset to the tag data */
-        int L = max_item_size - cd;    /* largest amount of tag data for any tagi */
+	int ck = GETK(kt, I2) + I2 - C2;  /* offset to the counter in the key */
+	int ct = ck + C2;                 /* offset to the tag counter */
+	int cd = ct + C2;                 /* offset to the tag data */
+	int L = max_item_size - cd;    /* largest amount of tag data for any tagi */
 
-        int first_L = L;                  /* - amount for tag1 */
-        int found = find(C);
-        if (full_compaction && !found)
-        {
+	int first_L = L;                  /* - amount for tag1 */
+	int found = find(C);
+	if (full_compaction && !found) {
 	    byte * p = C[0].p;
-            int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
-            if (n > 0) first_L = n;
-        }
-        {
-            int m = tag_len == 0 ? 1 :        /* a null tag must be added in of course */
-                    (tag_len - first_L + L - 1) / L + 1;
-                                              /* there are m items to add */
-            int n = 0; /* initialise to shut off warning */
+	    int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
+	    if (n > 0) first_L = n;
+	}
+	{
+	    int m = tag_len == 0 ? 1 :        /* a null tag must be added in of course */
+		    (tag_len - first_L + L - 1) / L + 1;
+				              /* there are m items to add */
+	    int n = 0; /* initialise to shut off warning */
 					      /* - and there will be n to delete */
-            int o = 0;                        /* offset into the tag */
-            int residue = tag_len;            /* bytes of the tag remaining to add in */
-            int replacement = false;          /* has there been a replacement ? */
-            int i;
+	    int o = 0;                        /* offset into the tag */
+	    int residue = tag_len;            /* bytes of the tag remaining to add in */
+	    int replacement = false;          /* has there been a replacement ? */
+	    int i;
 	    /* FIXME: sort out this error higher up and turn this into
 	     * an assert.
 	     */
-            if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return 0; }
-            for (i = 1; i <= m; i++)
-            {
-                int l = i == m ? residue :
-                        i == 1 ? first_L : L;
-                memmove(kt + cd, tag + o, l); o += l; residue -= l;
-                SETC(kt, ck, i);
-                SETC(kt, ct, m);
-                SETI(kt, 0, cd + l);
-                if (i > 1) found = find(C);
-                n = add_kt(found, C); if (n > 0) replacement = true;
-            }
-            /* o == tag_len here, and n may be zero */
-            for (i = m + 1; i <= n; i++)
-            {
+	    if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return 0; }
+	    for (i = 1; i <= m; i++) {
+		int l = i == m ? residue :
+			i == 1 ? first_L : L;
+		memmove(kt + cd, tag + o, l);
+		o += l;
+		residue -= l;
+
 		SETC(kt, ck, i);
-                delete_kt();
+		SETC(kt, ct, m);
+		SETI(kt, 0, cd + l);
+		if (i > 1) found = find(C);
+		n = add_kt(found, C);
+		if (n > 0) replacement = true;
+	    }
+	    /* o == tag_len here, and n may be zero */
+	    for (i = m + 1; i <= n; i++) {
+		SETC(kt, ck, i);
+		delete_kt();
 
-                if (overwritten) return 0;
-
-            }
-            if (replacement) return 0;
-            item_count++; return 1;
-        }
+		if (overwritten) return 0;
+	    }
+	    if (replacement) return 0;
+	    item_count++;
+	    return 1;
+	}
     }
 }
 
@@ -1292,43 +1295,45 @@ Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
     if (!find(C)) return 0;
     {
 	int n = components_of(C[0].p, C[0].c);
-                                        /* n components to join */
-        int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
-        int cd = ck + 2 * C2;           /* offset to the tag data */
-        int o = 0;                      /* cursor into item->tag */
-        int i = 1;                      /* see below */
-        byte * p;                       /* pointer to current component */
-        int l;                          /* number of bytes to extract from current component */
+				        /* n components to join */
+	int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
+	int cd = ck + 2 * C2;           /* offset to the tag data */
+	int o = 0;                      /* cursor into item->tag */
+	int i = 1;                      /* see below */
+	byte * p;                       /* pointer to current component */
+	int l;                          /* number of bytes to extract from current component */
 
-        p = item_of(C[0].p, C[0].c);
-        l = GETI(p, 0) - cd;
-        {
+	p = item_of(C[0].p, C[0].c);
+	l = GETI(p, 0) - cd;
+	{
 	    int4 space_for_tag = (int4) max_item_size * n;
-            if (item->tag_size < space_for_tag) {
+	    if (item->tag_size < space_for_tag) {
 		delete [] item->tag;
-                item->tag = zeroed_new(space_for_tag + 5);
-                if (item->tag == 0) {
+		item->tag = zeroed_new(space_for_tag + 5);
+		if (item->tag == 0) {
 		    error = BTREE_ERROR_SPACE;
 		    throw std::bad_alloc();
 		}
-                item->tag_size = space_for_tag + 5;
-            }
-        }
-        while(true) {
+		item->tag_size = space_for_tag + 5;
+	    }
+	}
+	while (true) {
 	    Assert(o + l <= item->tag_size);
 
-            memmove(item->tag + o, p + cd, l); o += l;
-            if (i == n) break;
-            i++;
+	    memmove(item->tag + o, p + cd, l);
+	    o += l;
+
+	    if (i == n) break;
+	    i++;
 	    SETC(kt, ck, i);
-            find(C);
+	    find(C);
 
-            if (overwritten) return 0;
+	    if (overwritten) return 0;
 
-            p = item_of(C[0].p, C[0].c);
-            l = GETI(p, 0) - cd;
-        }
-        item->tag_len = o;
+	    p = item_of(C[0].p, C[0].c);
+	    l = GETI(p, 0) - cd;
+	}
+	item->tag_len = o;
     }
     return 1;
 }
@@ -1388,8 +1393,8 @@ Btree::basic_open(const char * name_,
 	}
 
 	// FIXME: assumption that there are only two bases
-        if (base_ok[0] && base_ok[1]) both_bases = true;
-        if (!base_ok[0] && !base_ok[1]) {
+	if (base_ok[0] && base_ok[1]) both_bases = true;
+	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
 	    message += name_;
 	    message += "':\n";
@@ -1397,9 +1402,9 @@ Btree::basic_open(const char * name_,
 	    throw OmOpeningError(message);
 	}
 
-        if (revision_supplied) {
+	if (revision_supplied) {
 	    bool found_revision = false;
-	    for (size_t i=0; i<basenames.size(); ++i) {
+	    for (size_t i = 0; i < basenames.size(); ++i) {
 		if (base_ok[i] && bases[i].get_revision() == revision_) {
 		    ch = basenames[i];
 		    found_revision = true;
@@ -1413,21 +1418,20 @@ Btree::basic_open(const char * name_,
 		 */
 		return false;
 	    }
-        } else {
+	} else {
 	    uint4 highest_revision = 0;
-	    for (size_t i=0; i<basenames.size(); ++i) {
-		if (base_ok[i] &&
-		    bases[i].get_revision() >= highest_revision) {
+	    for (size_t i = 0; i < basenames.size(); ++i) {
+		if (base_ok[i] && bases[i].get_revision() >= highest_revision) {
 		    ch = basenames[i];
 		    highest_revision = bases[i].get_revision();
 		}
 	    }
-        }
+	}
 
 	Btree_base *basep = 0;
 	Btree_base *other_base = 0;
 
-	for (size_t i=0; i<basenames.size(); ++i) {
+	for (size_t i = 0; i < basenames.size(); ++i) {
 	    /*
 	    cerr << "Checking (ch == " << ch << ") against "
 		    "basenames[" << i << "] == " << basenames[i] << endl;
@@ -1451,25 +1455,25 @@ Btree::basic_open(const char * name_,
 	    error = BTREE_ERROR_BASE_READ;
 	}
 
-        /* basep now points to the most recent base block */
+	/* basep now points to the most recent base block */
 
 	/* Avoid copying the bitmap etc. - swap contents with the base
 	 * object in the vector, since it'll be destroyed anyway soon.
 	 */
-        base.swap(*basep);
+	base.swap(*basep);
 
-        revision_number =  base.get_revision();
-        block_size =       base.get_block_size();
-        root =             base.get_root();
-        level =            base.get_level();
-        //bit_map_size =     basep->get_bit_map_size();
-        item_count =       base.get_item_count();
-        faked_root_block = base.get_have_fakeroot();
+	revision_number =  base.get_revision();
+	block_size =       base.get_block_size();
+	root =             base.get_root();
+	level =            base.get_level();
+	//bit_map_size =     basep->get_bit_map_size();
+	item_count =       base.get_item_count();
+	faked_root_block = base.get_have_fakeroot();
 	sequential =       base.get_sequential();
 
-        if (other_base != 0) {
+	if (other_base != 0) {
 	    other_revision_number = other_base->get_revision();
-        }
+	}
     }
 
     /* k holds contructed items as well as keys */
@@ -1486,11 +1490,11 @@ Btree::basic_open(const char * name_,
     {
 	int max = max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
 
-        /* This limit would come into effect with large keys in a B-tree with a
+	/* This limit would come into effect with large keys in a B-tree with a
 	   small block size.
-        */
+	*/
 
-        if (max_key_len > max) max_key_len = max;
+	if (max_key_len > max) max_key_len = max;
     }
 
     /* ready to open the main file */
@@ -1506,36 +1510,36 @@ Btree::read_root()
 {
     if (faked_root_block) {
 	/* root block for an unmodified database. */
-        int o = block_size - C2;
-        byte * p = C[0].p;
+	int o = block_size - C2;
+	byte * p = C[0].p;
 
 	/* clear block - shouldn't be neccessary, but is a bit nicer,
 	 * and means that the same operations should always produce
 	 * the same database. */
 	memset(p, 0, block_size);
-	
-        SETC(p, o, 1); o -= C2;        /* number of components in tag */
-        SETC(p, o, 1); o -= K1;        /* component one in key */
-        SETK(p, o, K1 + C2); o -= I2;  /* null key length */
-        SETI(p, o, I3 + 2 * C2);       /* length of the item */
-        SETD(p, DIR_START, o);         /* its directory entry */
-        SET_DIR_END(p, DIR_START + D2);/* the directory size */
 
-        o -= (DIR_START + D2);
-        SET_MAX_FREE(p, o);
-        SET_TOTAL_FREE(p, o);
+	SETC(p, o, 1); o -= C2;        /* number of components in tag */
+	SETC(p, o, 1); o -= K1;        /* component one in key */
+	SETK(p, o, K1 + C2); o -= I2;  /* null key length */
+	SETI(p, o, I3 + 2 * C2);       /* length of the item */
+	SETD(p, DIR_START, o);         /* its directory entry */
+	SET_DIR_END(p, DIR_START + D2);/* the directory size */
+
+	o -= (DIR_START + D2);
+	SET_MAX_FREE(p, o);
+	SET_TOTAL_FREE(p, o);
 	SET_LEVEL(p, 0);
 
-        if (!writable) {
+	if (!writable) {
 	    /* reading - revision number doesn't matter as long as it's
 	     * not greater than the current one.*/
-            SET_REVISION(p, 0);
-            C[0].n = 0;
-        } else {
+	    SET_REVISION(p, 0);
+	    C[0].n = 0;
+	} else {
 	    /* writing - */
-            SET_REVISION(p, next_revision);
-            C[0].n = base.next_free_block();
-        }
+	    SET_REVISION(p, next_revision);
+	    C[0].n = base.next_free_block();
+	}
     } else {
 	/* using a root block stored on disk */
 	block_to_cursor(C, level, root);
@@ -1694,7 +1698,7 @@ Btree::erase(const string & tablename)
     sys_unlink_if_exists(tablename + "baseA");
     sys_unlink_if_exists(tablename + "baseB");
 }
- 
+
 void
 Btree::create(const char *name_, int block_size)
 {
@@ -1706,7 +1710,7 @@ Btree::create(const char *name_, int block_size)
     }
 
     if (block_size < DIR_START + BLOCK_CAPACITY * (D2 + I3 + KEY_CAPACITY + 2 * C2 + TAG_CAPACITY)) {
-        /* block size far too small */
+	/* block size far too small */
 	throw OmInvalidArgumentError("Btree block size too small");
     }
 
@@ -1715,7 +1719,7 @@ Btree::create(const char *name_, int block_size)
     /* write initial values of to files */
     {
 	/* create the base file */
-        /* error = BTREE_ERROR_BASE_CREATE; */
+	/* error = BTREE_ERROR_BASE_CREATE; */
 	Btree_base base;
 	base.set_block_size(block_size);
 	base.set_have_fakeroot(true);
@@ -1723,16 +1727,16 @@ Btree::create(const char *name_, int block_size)
 	base.write_to_file(name + "baseA");
 
 	/* create the main file */
-        /* error = BTREE_ERROR_DB_CREATE; */
-        {
+	/* error = BTREE_ERROR_DB_CREATE; */
+	{
 	    int h = sys_open_to_write(name + "DB");      /* - null */
-            if ( ! (valid_handle(h) &&
-                    sys_close(h))) {
+	    if ( ! (valid_handle(h) &&
+		    sys_close(h))) {
 		string message = "Error creating DB file: ";
 		message += strerror(errno);
 		throw OmOpeningError(message);
 	    }
-        }
+	}
     }
 }
 
@@ -1745,8 +1749,8 @@ Btree::~Btree() {
     }
 
     for (int j = level; j >= 0; j--) {
-        delete [] C[j].p;
-        delete [] C[j].split_p;
+	delete [] C[j].p;
+	delete [] C[j].split_p;
     }
 
     delete [] kt;
@@ -1779,15 +1783,13 @@ Btree::commit(uint4 revision)
 	return errorval; /* revision too low */
     }
 
-    for (j = level; j >= 0; j--)
-    {
-        if (C[j].rewrite)
-        {
+    for (j = level; j >= 0; j--) {
+	if (C[j].rewrite) {
 	    write_block(C[j].n, C[j].p);
-            if (error) {
+	    if (error) {
 		return errorval;
 	    }
-        }
+	}
     }
 
     errorval = BTREE_ERROR_DB_CLOSE;
@@ -1842,8 +1844,8 @@ Btree::do_open_to_read(const char * name_,
     handle = sys_open_to_read(name + "DB");
 
     {
-        int common_levels = revision_number <= 1 ? 1 : 2;
-        shared_level = level > common_levels ? common_levels : level;
+	int common_levels = revision_number <= 1 ? 1 : 2;
+	shared_level = level > common_levels ? common_levels : level;
     }
 
     prev = sequential ? prev_for_sequential : prev_default;
@@ -1857,7 +1859,7 @@ Btree::do_open_to_read(const char * name_,
 	}
     }
     read_root();
- 
+
     return true;
 }
 
@@ -1913,8 +1915,8 @@ Btree::force_block_to_cursor(struct Cursor * C_, int j)
 {
     int n = C_[j].n;
     if (n != C[j].n) {
-        C_[j].n = -1;
-        block_to_cursor(C_, j, n);
+	C_[j].n = -1;
+	block_to_cursor(C_, j, n);
 	if (overwritten) return;
     }
 }
@@ -1925,20 +1927,20 @@ Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
     byte * p = C[0].p;
     int c = C[0].c;
     if (c == DIR_START) {
-        int n = C[0].n;
-        while (true) {
+	int n = C[0].n;
+	while (true) {
 	    n--;
-            if (n < 0) return false;
-            B->read_block(n, p);
-            if (B->overwritten) return false;
-            if (REVISION(p) > 1) {
+	    if (n < 0) return false;
+	    B->read_block(n, p);
+	    if (B->overwritten) return false;
+	    if (REVISION(p) > 1) {
 		B->set_overwritten();
 		return false;
 	    }
-            if (GET_LEVEL(p) == 0) break;
-        }
-        c = DIR_END(p);
-        C[0].n = n;
+	    if (GET_LEVEL(p) == 0) break;
+	}
+	c = DIR_END(p);
+	C[0].n = n;
     }
     c -= D2;
     C[0].c = c;
@@ -1952,20 +1954,20 @@ Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
     int c = C[0].c;
     c += D2;
     if (c == DIR_END(p)) {
-        int n = C[0].n;
-        while (true) {
+	int n = C[0].n;
+	while (true) {
 	    n++;
-            if (n > B->base.get_last_block()) return false;
-            B->read_block(n, p);
-            if (B->overwritten) return false;
-            if (REVISION(p) > 1) {
+	    if (n > B->base.get_last_block()) return false;
+	    B->read_block(n, p);
+	    if (B->overwritten) return false;
+	    if (REVISION(p) > 1) {
 		B->set_overwritten();
 		return false;
 	    }
-            if (GET_LEVEL(p) == 0) break;
-        }
-        c = DIR_START;
-        C[0].n = n;
+	    if (GET_LEVEL(p) == 0) break;
+	}
+	c = DIR_START;
+	C[0].n = n;
     }
     C[0].c = c;
     return true;
@@ -1979,19 +1981,19 @@ Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
     if (c == DIR_START) {
 	if (j == B->level) return false;
 
-        if (j + 1 >= B->shared_level) {
+	if (j + 1 >= B->shared_level) {
 	    B->force_block_to_cursor(C, j + 1);
-            if (B->overwritten) return false;
-        }
-        if (! prev_default(B, C, j + 1)) return false;
+	    if (B->overwritten) return false;
+	}
+	if (! prev_default(B, C, j + 1)) return false;
 
-        c = DIR_END(p);
+	c = DIR_END(p);
     }
     c -= D2;
     C[j].c = c;
     if (j > 0) {
 	B->block_to_cursor(C, j - 1, block_given_by(p, c));
-        if (B->overwritten) return false;
+	if (B->overwritten) return false;
     }
     return true;
 }
@@ -2005,18 +2007,18 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
     if (c == DIR_END(p)) {
 	if (j == B->level) return false;
 
-        if (j + 1 >= B->shared_level) {
+	if (j + 1 >= B->shared_level) {
 	    B->force_block_to_cursor(C, j + 1);
-            if (B->overwritten) return false;
-        }
-        if (! next_default(B, C, j + 1)) return false;
+	    if (B->overwritten) return false;
+	}
+	if (! next_default(B, C, j + 1)) return false;
 
-        c = DIR_START;
+	c = DIR_START;
     }
     C[j].c = c;
     if (j > 0) {
 	B->block_to_cursor(C, j - 1, block_given_by(p, c));
-        if (B->overwritten) return false;
+	if (B->overwritten) return false;
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:next_default");
 	B->report_block_full(j - 1, C[j - 1].n, C[j - 1].p);
@@ -2070,14 +2072,14 @@ static void print_key(byte * p, int c, int j)
     int l = GETK(k, 0);
 
     if (j == 0) {
-        print_bytes(l - K1 - C2, k + K1);
-        printf("/%d", GETC(k, l - C2));
+	print_bytes(l - K1 - C2, k + K1);
+	printf("/%d", GETC(k, l - C2));
     } else {
-        for (int i = K1; i < l; i++) {
+	for (int i = K1; i < l; i++) {
 	    /*putchar(k[i] < 32 ? '.' : k[i]);*/
-            int ch = k[i];
-            if (ch < 32) printf("/%d", ch); else putchar(ch);
-        }
+	    int ch = k[i];
+	    if (ch < 32) printf("/%d", ch); else putchar(ch);
+	}
     }
 }
 
@@ -2088,10 +2090,10 @@ static void print_tag(byte * p, int c, int j)
     int l = o + GETI(p, o) - o_tag;
 
     if (j == 0) {
-        printf("/%d", GETC(p, o_tag));
-        print_bytes(l - C2, p + o_tag + C2);
+	printf("/%d", GETC(p, o_tag));
+	print_bytes(l - C2, p + o_tag + C2);
     } else
-        printf("--> [%d]", get_int4(p, o_tag));
+	printf("--> [%d]", get_int4(p, o_tag));
 }
 
 static void print_spaces(int n)
@@ -2117,13 +2119,13 @@ static void report_block(struct Btree * B, int m, int n, byte * p)
     int c;
     print_spaces(m);
     printf("[%d] *%d (%d) %d%% ",
-           n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(B, p));
+	   n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(B, p));
 
     for (c = DIR_START; c < dir_end; c += D2) {
-        if (c == DIR_START + 6) printf ("... ");
-        if (c >= DIR_START + 6 && c < dir_end - 6) continue;
+	if (c == DIR_START + 6) printf ("... ");
+	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
 
-        print_key(p, c, j);
+	print_key(p, c, j);
 	printf(" ");
     }
     printf("\n");
@@ -2140,11 +2142,11 @@ void Btree::report_block_full(int m, int n, byte * p)
 	   n, j, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
 
     for (c = DIR_START; c < dir_end; c += D2) {
-        print_spaces(m);
-        print_key(p, c, j);
+	print_spaces(m);
+	print_key(p, c, j);
 	printf(" ");
 	print_tag(p, c, j);
-        printf("\n");
+	printf("\n");
     }
 }
 
@@ -2161,7 +2163,7 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
     int4 n = C_[j].n;
     int c;
     int significant_c = j == 0 ? DIR_START : DIR_START + D2;
-        /* the first key in an index block is dummy, remember */
+	/* the first key in an index block is dummy, remember */
 
     int max_free = MAX_FREE(p);
     int dir_end = DIR_END(p);
@@ -2180,26 +2182,26 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	int o = GETD(p, c);
-        if (o > block_size) failure(21);
-        if (o - dir_end < max_free) failure(30);
+	if (o > block_size) failure(21);
+	if (o - dir_end < max_free) failure(30);
 
 	int kt_len = GETI(p, o);
 	if (o + kt_len > block_size) failure(40);
 	total_free -= kt_len;
 
-        if (c > significant_c &&
+	if (c > significant_c &&
 	    compare_keys(key_of(p, c - D2), key_of(p,c)) >= 0)
-            failure(50);
+	    failure(50);
     }
     if (total_free != TOTAL_FREE(p)) failure(60);
 
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
-        block_to_cursor(C_, j - 1, block_given_by(p, c));
-        if (overwritten) return;
+	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	if (overwritten) return;
 
-        block_check(C_, j - 1, opts);
+	block_check(C_, j - 1, opts);
 
 	byte * q = C_[j - 1].p;
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be >= the
@@ -2242,14 +2244,14 @@ Btree::check(const char * name, const char * opt_string)
 
     for (size_t i = 0; opt_string[i]; i++) {
 	switch (opt_string[i]) {
-            case 't': opts |= 1; break; /* short tree printing */
-            case 'f': opts |= 2; break; /* full tree printing */
-            case 'b': opts |= 4; break;
-            case 'v': opts |= 8; break;
-            case '+': opts |= 1 | 4 | 8; break;
-            case '?': printf("use t,f,b,v or + in the option string\n"); exit(0);
-            default: printf("option %s unknown\n", opt_string); exit(1);
-        }
+	    case 't': opts |= 1; break; /* short tree printing */
+	    case 'f': opts |= 2; break; /* full tree printing */
+	    case 'b': opts |= 4; break;
+	    case 'v': opts |= 8; break;
+	    case '+': opts |= 1 | 4 | 8; break;
+	    case '?': printf("use t,f,b,v or + in the option string\n"); exit(0);
+	    default: printf("option %s unknown\n", opt_string); exit(1);
+	}
     }
     if (opts & 8)
 	printf("base%c  Revision *%ld  levels %d  root [%ld]%s  blocksize %d  items %ld  lastblock %ld\n",
@@ -2285,7 +2287,7 @@ Btree::check(const char * name, const char * opt_string)
     else {
 	B->block_check(C, B->level, opts);
 
-        /* the bit map should now be entirely clear: */
+	/* the bit map should now be entirely clear: */
 
 	if (!B->base.is_empty()) {
 	    failure(100);

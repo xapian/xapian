@@ -233,7 +233,7 @@ extern struct Btree_item * Btree_item_create(); //
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * t);
 extern void Btree_item_lose(struct Btree_item * kt); //
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
-                                       byte * tag, int tag_len);
+			               byte * tag, int tag_len);
 extern int Btree_delete(struct Btree * B, byte * key, int key_len);
 extern struct Btree * Btree_open_to_write(const char * name);
 extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
@@ -252,4 +252,3 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
 extern void Btree_full_compaction(struct Btree * B, int parity);
 
 #endif /* OM_HGUARD_BTREE_H */
-

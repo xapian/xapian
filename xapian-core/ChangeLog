@@ -1,3 +1,7 @@
+Mon Jun 10 20:33:24 BST 2002  Olly Betts <olly@survex.com>
+
+	* btree.cc,btree.h: cleaned up further.
+
 Mon Jun 10 15:54:49 BST 2002  Olly Betts <olly@survex.com>
 
 	* Further btree and quartz cleanups.
