@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ Weight * BM25Weight::unserialise(const string & s) const {
     // We never actually modify through p, but strtod takes a char **
     // as the second parameter and we can't pass &p if p is const char *
     // (sigh)
-    char *p = (char *)s.c_str();
+    char *p = const_cast<char *>(s.c_str());
     double A, B, C, D;
     A = strtod(p, &p);
     B = strtod(p, &p);
@@ -110,7 +110,7 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const
     double denom = (normlen * BD + B * (1 - D) + wdf);
     Xapian::weight wt;
     if (denom != 0) {
-	wt = (double) wdf * (B + 1) / denom;
+	wt = double(wdf) * (B + 1) / denom;
     } else {
 	wt = 0;
     }

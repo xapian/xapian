@@ -1,3 +1,8 @@
+Tue Nov 02 04:28:07 GMT 2004  Olly Betts <olly@survex.com>
+
+	* matcher/bm25weight.cc,matcher/tradweight.cc: More C casts converted
+	  to C++ casts.
+
 Tue Nov 02 03:22:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/: Removed unused test harness sources.
