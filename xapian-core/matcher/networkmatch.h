@@ -29,6 +29,8 @@
 
 #include "msetpostlist.h"
 
+#define USE_MSETPOSTLIST
+
 /// Class for performing match calculations remotely
 class RemoteSubMatch : public SubMatch {
     private:
@@ -37,7 +39,7 @@ class RemoteSubMatch : public SubMatch {
 	const NetworkDatabase *db;
 
 #ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
-	MSetPostList *postlist; // FIXME used in get_term_info() - do this better
+	PendingMSetPostList *postlist; // FIXME used in get_term_info() - do this better
 #else
 	RemotePostList *postlist; // FIXME used in get_term_info() - do this better
 #endif
