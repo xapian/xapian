@@ -43,8 +43,7 @@ btreetest_LDADD = @ldflags@ ../testsuite/libtest.la \
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = @ldflags@ ../getopt/libgetopt.la ../testsuite/libtest.la \
-	../libxapian.la
+quartztest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
 remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la

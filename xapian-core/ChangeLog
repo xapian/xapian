@@ -1,3 +1,8 @@
+Wed Nov 03 14:53:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: quartztest doesn't use getopt directly, so no
+	  need to link it.
+
 Wed Nov 03 12:56:56 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Prune unused #includes.
