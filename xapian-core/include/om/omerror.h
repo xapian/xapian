@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_ERROR_H
-#define OM_HGUARD_ERROR_H
+#ifndef OM_HGUARD_OMERROR_H
+#define OM_HGUARD_OMERROR_H
 
 #include <string>
 #include <stdexcept>
@@ -152,4 +152,4 @@ DEFINE_ERROR_CLASS(OmDatabaseLockError, OmDatabaseError);
 /** Thrown when trying to access invalid data. */
 DEFINE_ERROR_CLASS(OmInvalidResultError, OmRuntimeError);
 
-#endif /* OM_HGUARD_ERROR_H */
+#endif /* OM_HGUARD_OMERROR_H */

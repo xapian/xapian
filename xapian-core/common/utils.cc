@@ -111,7 +111,7 @@ map_string_to_value(const StringAndValue * haystack,
 bool
 file_exists(const std::string &fname)
 {
-    // create a directory for sleepy indexes if not present
+    // create a directory for sleepycat indexes if not present
     struct stat sbuf;
     int result = stat(fname.c_str(), &sbuf);
     if (result < 0) {

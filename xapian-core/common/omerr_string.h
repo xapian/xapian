@@ -21,8 +21,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_ERR_STRING_H
-#define OM_HGUARD_ERR_STRING_H
+#ifndef OM_HGUARD_OMERR_STRING_H
+#define OM_HGUARD_OMERR_STRING_H
 
 #include <string>
 #include <stdexcept>
@@ -45,4 +45,4 @@ std::string omerror_to_string(const OmError &e);
  */
 void string_to_omerror(const std::string &except, const std::string &prefix = "");
 
-#endif /* OM_HGUARD_ERR_STRING_H */
+#endif /* OM_HGUARD_OMERR_STRING_H */

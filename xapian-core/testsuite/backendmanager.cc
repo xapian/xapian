@@ -1,4 +1,4 @@
-/* backendmanager.cc - manage backends for testsuite
+/* backendmanager.cc: manage backends for testsuite
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -119,9 +119,9 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
     } else if (type == "sleepycat") {
-	do_getdb = &BackendManager::getdb_sleepy;
-	do_getwritedb = &BackendManager::getwritedb_sleepy;
-	system("rm -fr .sleepy");
+	do_getdb = &BackendManager::getdb_sleepycat;
+	do_getwritedb = &BackendManager::getwritedb_sleepycat;
+	system("rm -fr .sleepycat");
     } else if (type == "quartz") {
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
@@ -134,7 +134,7 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError(
-		"Expected inmemory, sleepycat, quartz, net or void");
+		"Expected inmemory, sleepycat, quartz, network, or void");
     }
 }
 
@@ -197,7 +197,7 @@ BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
  */
 bool create_dir_if_needed(const std::string &dirname)
 {
-    // create a directory for sleepy indexes if not present
+    // create a directory for sleepycat indexes if not present
     struct stat sbuf;
     int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
@@ -218,15 +218,15 @@ bool create_dir_if_needed(const std::string &dirname)
 }
 
 OmDatabase
-BackendManager::getdb_sleepy(const std::vector<std::string> &dbnames)
+BackendManager::getdb_sleepycat(const std::vector<std::string> &dbnames)
 {
-    return getwritedb_sleepy(dbnames);
+    return getwritedb_sleepycat(dbnames);
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_sleepycat(const std::vector<std::string> &dbnames)
 {
-    std::string parent_dir = ".sleepy";
+    std::string parent_dir = ".sleepycat";
     create_dir_if_needed(parent_dir);
 
     std::string dbdir = parent_dir + "/db";
@@ -237,7 +237,7 @@ BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
     }
     OmSettings params;
     params.set("backend", "sleepycat");
-    params.set("sleepy_dir", dbdir);
+    params.set("sleepycat_dir", dbdir);
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.

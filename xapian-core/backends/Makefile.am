@@ -21,9 +21,9 @@ BUILDSUBDIR_MUSCAT36 = muscat36
 LIBADD_MUSCAT36 = muscat36/libmuscat36.la
 endif
 
-if BUILD_BACKEND_SLEEPY
-BUILDSUBDIR_SLEEPY = sleepy
-LIBADD_SLEEPY = sleepy/libsleepy.la
+if BUILD_BACKEND_SLEEPYCAT
+BUILDSUBDIR_SLEEPYCAT = sleepycat
+LIBADD_SLEEPYCAT = sleepycat/libsleepycat.la
 endif
 
 if BUILD_BACKEND_QUARTZ
@@ -48,14 +48,14 @@ endif
 
 SUBDIRS = \
           $(BUILDSUBDIR_MUSCAT36) \
-	  $(BUILDSUBDIR_SLEEPY) \
+	  $(BUILDSUBDIR_SLEEPYCAT) \
           $(BUILDSUBDIR_QUARTZ) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_MULTI) \
 	  $(BUILDSUBDIR_NET) .
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
-	  $(LIBADD_SLEEPY) \
+	  $(LIBADD_SLEEPYCAT) \
 	  $(LIBADD_QUARTZ) \
           $(LIBADD_INMEMORY) \
 	  $(LIBADD_MULTI) \

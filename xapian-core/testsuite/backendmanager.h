@@ -20,6 +20,9 @@
  * -----END-LICENCE-----
  */
 
+#ifndef OM_HGUARD_BACKENDMANAGER_H
+#define OM_HGUARD_BACKENDMANAGER_H
+
 #include "om/om.h"
 #include <vector>
 
@@ -64,11 +67,11 @@ class BackendManager {
 	/// Get a writable net database instance
 	OmWritableDatabase getwritedb_net(const std::vector<std::string> &dbnames);
 
-	/// Get a sleepy database instance.
-	OmDatabase getdb_sleepy(const std::vector<std::string> &dbnames);
+	/// Get a sleepycat database instance.
+	OmDatabase getdb_sleepycat(const std::vector<std::string> &dbnames);
 
-	/// Get a writable sleepy database instance.
-	OmWritableDatabase getwritedb_sleepy(const std::vector<std::string> &dbnames);
+	/// Get a writable sleepycat database instance.
+	OmWritableDatabase getwritedb_sleepycat(const std::vector<std::string> &dbnames);
 
 	/// Get a quartz database instance.
 	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
@@ -102,3 +105,5 @@ class BackendManager {
 	/// Get a writable database instance
 	OmWritableDatabase get_writable_database(const std::string & dbname);
 };
+
+#endif /* OM_HGUARD_BACKENDMANAGER_H */

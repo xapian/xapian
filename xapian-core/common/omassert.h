@@ -1,4 +1,4 @@
-/* omassert.h : Provide Assert() and similar functions
+/* omassert.h: Provide Assert() and similar functions
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

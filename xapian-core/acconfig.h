@@ -1,4 +1,4 @@
-/* acconfig.h : config.h template
+/* acconfig.h: config.h template
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OM_CONFIG_H
-#define OM_HGUARD_OM_CONFIG_H
+#ifndef OM_HGUARD_CONFIG_H
+#define OM_HGUARD_CONFIG_H
 @TOP@
 
 /* package name */
@@ -34,7 +34,7 @@
 #undef MUS_BUILD_BACKEND_MUSCAT36
 
 /* Define if you want to build sleepycat backend */
-#undef MUS_BUILD_BACKEND_SLEEPY
+#undef MUS_BUILD_BACKEND_SLEEPYCAT
 
 /* Define if you want to build quartz backend */
 #undef MUS_BUILD_BACKEND_QUARTZ
@@ -89,4 +89,4 @@
 #define __EXTENSIONS__
 #endif /* HAVE_GETOPT_H */
 
-#endif /* OM_HGUARD_OM_CONFIG_H */
+#endif /* OM_HGUARD_CONFIG_H */

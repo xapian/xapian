@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_TCPGSERVER_H
-#define OM_HGUARD_TCPGSERVER_H
+#ifndef OM_HGUARD_TCPSERVER_H
+#define OM_HGUARD_TCPSERVER_H
 
 #include "socketserver.h"
 #include "database.h"
@@ -81,4 +81,4 @@ class TcpServer {
 	static void on_SIGCLD(int);
 };
 
-#endif  /* OM_HGUARD_TCPGSERVER_H */
+#endif  /* OM_HGUARD_TCPSERVER_H */

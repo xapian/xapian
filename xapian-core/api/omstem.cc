@@ -1,4 +1,4 @@
-/* stemmer_builder.cc: Builder for stemming algorithms
+/* omstem.cc: Builder for stemming algorithms
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

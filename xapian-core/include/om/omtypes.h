@@ -1,4 +1,4 @@
-/* omtypes.h : Common types used
+/* omtypes.h: Common types used
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

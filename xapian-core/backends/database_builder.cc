@@ -31,8 +31,8 @@
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 #include "inmemory/inmemory_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-#include "sleepy/sleepy_database.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+#include "sleepycat/sleepycat_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
@@ -119,8 +119,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
                 break;
             }
 #endif
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-            // SleepyDatabase has lots of files so just default to it for now
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+            // SleepycatDatabase has lots of files so just default to it for now
 //#define FILENAME_POSTLIST "postlist.db"
 //#define FILENAME_TERMLIST "termlist.db"
 //#define FILENAME_TERMTOID "termid.db"
@@ -128,8 +128,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 //#define FILENAME_DOCUMENT "document.db"
 //#define FILENAME_DOCKEYDB "dockey.db"
 //#define FILENAME_STATS_DB "stats.db"
-	    myparams.set("sleepy_dir", path);
-            database = new SleepyDatabase(myparams, readonly);
+	    myparams.set("sleepycat_dir", path);
+            database = new SleepycatDatabase(myparams, readonly);
 #endif
             break;
         }
@@ -149,8 +149,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 #endif
 	    break;
 	case DBTYPE_SLEEPYCAT:
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-	    database = new SleepyDatabase(params, readonly);
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+	    database = new SleepycatDatabase(params, readonly);
 #endif
 	    break;
 	case DBTYPE_QUARTZ:

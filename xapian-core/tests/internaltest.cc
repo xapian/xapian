@@ -1,4 +1,4 @@
-/* internaltest.cc - test of the OpenMuscat internals
+/* internaltest.cc: test of the OpenMuscat internals
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -38,8 +38,8 @@ using std::endl;
 #include "omrefcnt.h"
 #include "omstringstream.h"
 
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-#include "../backends/sleepy/sleepy_list.h"
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+#include "../backends/sleepycat/sleepycat_list.h"
 #endif
 
 // always succeeds
@@ -354,13 +354,13 @@ bool test_omstringstream1()
     return success;
 }
 
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-// test whether a SleepyList packs and unpacks correctly
-bool test_sleepypack1()
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+// test whether a SleepycatList packs and unpacks correctly
+bool test_sleepycatpack1()
 {
     bool success = true;
 
-    SleepyListItem::id_type id = 7;
+    SleepycatListItem::id_type id = 7;
     om_doccount termfreq = 92;
     om_termcount wdf = 81;
     om_doclength doclen = 75;
@@ -368,9 +368,9 @@ bool test_sleepypack1()
     positions.push_back(6u);
     positions.push_back(16u);
 
-    SleepyListItem item1(id, wdf, positions, termfreq, doclen);
+    SleepycatListItem item1(id, wdf, positions, termfreq, doclen);
     std::string packed1 = item1.pack(true);
-    SleepyListItem item2(packed1, true);
+    SleepycatListItem item2(packed1, true);
     std::string packed2 = item2.pack(true);
 
     if(packed1 != packed2) {
@@ -531,8 +531,8 @@ test_desc tests[] = {
     {"refcnt1",			test_refcnt1},
 #endif // HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-    {"sleepypack1",		test_sleepypack1},
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
+    {"sleepycatpack1",		test_sleepycatpack1},
 #endif
     {"omstringstream1",		test_omstringstream1},
     {"omsettings1",		test_omsettings1},

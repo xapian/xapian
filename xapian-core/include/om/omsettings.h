@@ -42,7 +42,7 @@
  *
  *  sleepycat backend:
  *
- *  - sleepy_dir : directory containing sleepycat database
+ *  - sleepycat_dir : directory containing sleepycat database
  *
  *  muscat36 backends:
  *

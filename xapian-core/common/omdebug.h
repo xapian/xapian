@@ -1,4 +1,4 @@
-/* omdebug.h : Provide debugging message facilities
+/* omdebug.h: Provide debugging message facilities
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

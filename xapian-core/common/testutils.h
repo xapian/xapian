@@ -1,4 +1,4 @@
-/* testutils.h - utilities used when writing test suites for om.
+/* testutils.h: utilities used when writing test suites for om.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

@@ -1,4 +1,4 @@
-/* boolweight.h : Boolean weighting scheme (everything gets 0)
+/* boolweight.h: Boolean weighting scheme (everything gets 0)
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

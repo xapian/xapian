@@ -1,4 +1,4 @@
-/* omstringstream.h : A replacement for stringstream.
+/* omstringstream.h: A replacement for stringstream.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

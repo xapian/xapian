@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
 	    OmSettings *params = new OmSettings();
 	    params->set("backend", "sleepycat");
-	    params->set("sleepy_dir", argv[1]);
+	    params->set("sleepycat_dir", argv[1]);
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;

@@ -135,7 +135,7 @@ bool test_tcpclient1()
 
     std::string command =
 	    std::string("./omtcpsrv --one-shot --sleepycat ") +
-	    ".sleepy/db=apitest_simpledata" +
+	    ".sleepycat/db=apitest_simpledata" +
 	    " --port 1235 &";
 
     system(command.c_str());
@@ -158,7 +158,7 @@ bool test_tcpmatch1()
 
     std::string command =
 	    std::string("./omtcpsrv --one-shot --sleepycat ") +
-	    ".sleepy/db=apitest_simpledata" +
+	    ".sleepycat/db=apitest_simpledata" +
 	    " --port 1236 &";
     system(command.c_str());
     sleep(1);
@@ -191,7 +191,7 @@ test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
-#ifdef MUS_BUILD_BACKEND_SLEEPY
+#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
 #endif

@@ -1,4 +1,4 @@
-/* apitest.cc - test of the OpenMuscat API
+/* apitest.cc: tests the OpenMuscat API
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -2407,7 +2407,7 @@ bool test_badbackend2()
 #ifndef MUS_BUILD_BACKEND_QUARTZ
     CHECK_BACKEND_UNAVAILABLE("quartz");
 #endif
-#ifndef MUS_BUILD_BACKEND_SLEEPY
+#ifndef MUS_BUILD_BACKEND_SLEEPYCAT
     CHECK_BACKEND_UNAVAILABLE("sleepycat");
 #endif
 #ifndef MUS_BUILD_BACKEND_NET
@@ -2558,7 +2558,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
+#if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

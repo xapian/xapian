@@ -1,4 +1,4 @@
-/* threadtest.cc - test of the OpenMuscat in the multithreaded case
+/* threadtest.cc: test of the OpenMuscat in the multithreaded case
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

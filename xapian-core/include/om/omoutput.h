@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OM_OUTPUT_H
-#define OM_HGUARD_OM_OUTPUT_H
+#ifndef OM_HGUARD_OMOUTPUT_H
+#define OM_HGUARD_OMOUTPUT_H
 
 #include <iostream>
 
@@ -70,4 +70,4 @@ operator<<(std::ostream & os, const om_termname_list & obj) {
     return os;
 }
 
-#endif /* OM_HGUARD_OM_OUTPUT_H */
+#endif /* OM_HGUARD_OMOUTPUT_H */

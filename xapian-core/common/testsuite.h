@@ -1,4 +1,4 @@
-/* testsuite.h - a test suite engine
+/* testsuite.h: a test suite engine
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

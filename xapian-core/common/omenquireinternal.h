@@ -1,4 +1,4 @@
-/* omenquireinternal.cc: Internals
+/* omenquireinternal.h: Internals
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
