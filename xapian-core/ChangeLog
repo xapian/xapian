@@ -1,3 +1,8 @@
+Wed Apr 17 14:29:21 BST 2002  Olly Betts <olly@survex.com>
+
+	* Replaced uses of GNU make specific features with more portable
+	  ones.
+
 Wed Apr 17 12:43:07 BST 2002  Olly Betts <olly@survex.com>
 
 	* Update todo list. 

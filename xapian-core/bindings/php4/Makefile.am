@@ -8,19 +8,18 @@ EXTRA_DIST = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php \
 
 # This target is not needed for make dist
 xapian: xapian/configure
-	cd xapian && \
-	./configure && \
+	cd xapian
+	./configure
 	make
 
 xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php
-	for file in $? ; \
-	do \
-	  if [ "`dirname $$file`" != "xapian" ] ; \
+	for file in $? ; do \
+	  if test "`echo $$file | sed 's!.*/!!'`" != "xapian" ; \
 	  then cp $$file xapian ; \
 	  fi ; \
-	done && \
+	done
 	cd xapian && phpize
 
-xapian/%_wrap.cpp xapian/php_%.h %.php: ../swig/%.i ../swig/omstem.i ../swig/om_util.i
-	test -d xapian || mkdir xapian && \
-	swig $(SWIG_INCLUDES) -c++ -php4 -nosync -shadow -o $@ $<
+xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
+	test -d xapian || mkdir xapian
+	swig $(SWIG_INCLUDES) -c++ -php4 -nosync -shadow -o $@ ../swig/xapian.i
