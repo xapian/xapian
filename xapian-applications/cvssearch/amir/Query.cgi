@@ -508,8 +508,7 @@ if($query && ($query ne "")){
 		#print comments
 		@comments = split /$ctrlA/, $fileMAPcomment{$curid};
 		$revptr = $fileMAPrev{$curid};
-		@revs = keys %$revptr;
-		
+		@revs = sort cvsvercmp keys %$revptr;
 		for ($i=0;$i<=$#revs;$i++){
 			$origcomment = $comments[$i];
 			$tmpcomment = Entities::encode_entities($origcomment);
@@ -848,4 +847,15 @@ sub printhashVal{
 		print "@temp";
 		print "\n";
 	}
+}
+
+sub cvsvercmp {
+    my (@a, @b);
+    @a = split /\./, $a;
+    @b = split /\./, $b;
+    for (0 .. min($#a, $#b)) {
+	my $cmp = $a[$_] cmp $b[$_];
+	if ($cmp) return $cmp;
+    }
+    return $#a cmp $#b;
 }
