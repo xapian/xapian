@@ -37,6 +37,15 @@
 
 using namespace std;
 
+#ifdef __WIN32__
+#include <windows.h>
+#ifndef FOF_NOERRORUI
+#define FOF_NOERRORUI 1024
+#endif
+#undef min
+#undef max
+#endif
+
 #define BUFSIZE 100
 
 #ifdef HAVE_SNPRINTF

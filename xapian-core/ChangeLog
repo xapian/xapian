@@ -1,3 +1,8 @@
+Thu Sep 30 22:16:37 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Fixes for win32 and sun's c++
+	  compiler.
+
 Thu Sep 30 18:24:20 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/utils.h,extra/queryparser.yy: Fixed bug which caused
