@@ -1,3 +1,7 @@
+Thu Dec 05 23:26:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: ixion is actually Linux 2.2.
+
 Thu Dec 05 04:32:40 GMT 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Fixed BackendManager::do_getdb_quartz()
