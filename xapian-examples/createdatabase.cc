@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,14 +22,15 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <iostream>
 
+using namespace Xapian;
 using namespace std;
 
 #include <errno.h>
-#include <string.h>
+#include <string.h> // for strerror()
 #include <sys/stat.h>
 
 int
@@ -62,8 +63,8 @@ main(int argc, char **argv)
 	}
 
 	// Create the database
-	OmWritableDatabase database(OmAuto__open(argv[1], OM_DB_CREATE));
-    } catch (const OmError &error) {
+	WritableDatabase database(Auto::open(argv[1], DB_CREATE));
+    } catch (const Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

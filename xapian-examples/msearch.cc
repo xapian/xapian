@@ -7,7 +7,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,25 +26,27 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
-#include <vector>
-#include <stack>
+#include <iostream>
 #include <memory>
+#include <stack>
+#include <vector>
 
+using namespace Xapian;
 using namespace std;
 
 #include "getopt.h"
 
 int
-main(int argc, char *argv[])
+main(int argc, char **argv)
 {
     int msize = 10;
     int mfirst = 0;
-    OmRSet rset;
+    RSet rset;
     bool showmset = true;
     bool applystem = false;
-    OmQuery::op default_op = OmQuery::OP_OR;
+    Query::op default_op = Query::OP_OR;
     int collapse_key = -1;
     int sort_value = -1;
     int sort_bands = -1;
@@ -69,7 +71,7 @@ main(int argc, char *argv[])
     };
 
     try {
-        OmDatabase mydbs;
+        Database mydbs;
 
 	int n_dbs = 0;
 	int c;
@@ -88,7 +90,7 @@ main(int argc, char *argv[])
 		    char *p = strchr(optarg, ':');
 		    if (p) {
 			*p = '\0';
-			mydbs.add_database(OmRemote__open(optarg, atoi(p + 1)));
+			mydbs.add_database(Remote::open(optarg, atoi(p + 1)));
 			++n_dbs;
 		    } else {
 			syntax_error = true;
@@ -96,7 +98,7 @@ main(int argc, char *argv[])
 		    break;
 		}
 		case 'd':
-		    mydbs.add_database(OmAuto__open(optarg));
+		    mydbs.add_database(Auto::open(optarg));
 		    ++n_dbs;
 		    break;
 		case 's':
@@ -112,7 +114,7 @@ main(int argc, char *argv[])
 		    showmset = false;
 		    break;
 		case 'a':
-		    default_op = OmQuery::OP_AND;
+		    default_op = Query::OP_AND;
 		    break;
 		case 'R':
 		    rset.add_document(atoi(optarg));
@@ -146,15 +148,15 @@ main(int argc, char *argv[])
 	    exit(1);
 	}
 
-	OmEnquire enquire(mydbs);
+	Enquire enquire(mydbs);
 
-	OmStem stemmer("english");
+	Stem stemmer("english");
 
-	OmQuery query;
+	Query query;
 	bool query_defined = false;
 
-	stack<OmQuery> boolquery;
-	// Parse query into OmQuery object
+	stack<Query> boolquery;
+	// Parse query into Query object
 	bool boolean = false;
         for (char **p = argv + optind; *p; p++) {
 	    string term = *p;
@@ -163,36 +165,36 @@ main(int argc, char *argv[])
 		continue;
 	    } else if (term == "P") {
 		if (boolquery.size() >= 1) {
-		    query = OmQuery(OmQuery::OP_FILTER, query, boolquery.top());
+		    query = Query(Query::OP_FILTER, query, boolquery.top());
 		}
 		boolean = false;
 		continue;
 	    } else {
 		if (boolean) {
 		    bool doop = false;
-		    OmQuery::op boolop = default_op;
+		    Query::op boolop = default_op;
 		    if (term == "OR") {
-			boolop = OmQuery::OP_OR;
+			boolop = Query::OP_OR;
 			doop = true;
 		    } else if (term == "NOT") {
-			boolop = OmQuery::OP_AND_NOT;
+			boolop = Query::OP_AND_NOT;
 			doop = true;
 		    } else if (term == "AND") {
-			boolop = OmQuery::OP_AND;
+			boolop = Query::OP_AND;
 			doop = true;
 		    } else if (term == "XOR") {
-			boolop = OmQuery::OP_XOR;
+			boolop = Query::OP_XOR;
 			doop = true;
 		    } else if (term == "ANDMAYBE") {
-			boolop = OmQuery::OP_AND_MAYBE;
+			boolop = Query::OP_AND_MAYBE;
 			doop = true;
 		    } else if (term == "ANDNOT") {
-			boolop = OmQuery::OP_AND_NOT;
+			boolop = Query::OP_AND_NOT;
 			doop = true;
 		    }
 // FIXME: NEAR (and PHRASE) take a window size and multiple terms
 //		    else if (term == "NEAR") {
-//			boolop = OmQuery::OP_NEAR;
+//			boolop = Query::OP_NEAR;
 //			doop = true;
 //		    }
 		    if (doop) {
@@ -203,23 +205,23 @@ main(int argc, char *argv[])
 				    "reverse polish notation).\n";
 			    exit(1);
 			}
-			OmQuery boolq_right(boolquery.top());
+			Query boolq_right(boolquery.top());
 			boolquery.pop();
-			OmQuery newtop(boolop, boolquery.top(), boolq_right);
+			Query newtop(boolop, boolquery.top(), boolq_right);
 			boolquery.pop();
 			boolquery.push(newtop);
 		    } else {
 			if (applystem)
 			    term = stemmer.stem_word(term);
-			boolquery.push(OmQuery(term));
+			boolquery.push(Query(term));
 		    }
 		} else {
 		    if (applystem)
 			term = stemmer.stem_word(term);
 		    if (query_defined) {
-		        query = OmQuery(default_op, query, term);
+		        query = Query(default_op, query, term);
 		    } else {
-		        query = OmQuery(term);
+		        query = Query(term);
 			query_defined = true;
 		    }
 		}
@@ -232,13 +234,13 @@ main(int argc, char *argv[])
 	    }
 	    while (boolquery.size() > 1) {
 		// implicit AND of remains of query
-		OmQuery boolq_right(boolquery.top());
+		Query boolq_right(boolquery.top());
 		boolquery.pop();
-		OmQuery newtop(OmQuery::OP_AND, boolquery.top(), boolq_right);
+		Query newtop(Query::OP_AND, boolquery.top(), boolq_right);
 		boolquery.pop();
 		boolquery.push(newtop);
 	    }
-	    query = OmQuery(OmQuery::OP_FILTER, query, boolquery.top());
+	    query = Query(Query::OP_FILTER, query, boolquery.top());
 	}
 
 	enquire.set_query(query);
@@ -248,17 +250,17 @@ main(int argc, char *argv[])
 	if (sort_bands != -1)
 	    enquire.set_sorting(sort_value, sort_bands);
 
-	OmMSet mset = enquire.get_mset(mfirst, msize, &rset);
+	MSet mset = enquire.get_mset(mfirst, msize, &rset);
 	
 	if (showmset) {
-	    for (OmMSetIterator i = mset.begin(); i != mset.end(); i++) {
-		OmDocument doc = i.get_document();
+	    for (MSetIterator i = mset.begin(); i != mset.end(); i++) {
+		Document doc = i.get_document();
 		string p = doc.get_data();
 		cout << *i << ":[" << p << "] " << i.get_weight() << "\n\n";
 	    }
 	    cout << endl;
 	}
-    } catch (const OmError &e) {
+    } catch (const Error &e) {
 	cout << e.get_msg() << endl;
 	exit(1);
     }

@@ -1,4 +1,4 @@
-/* delve.cc
+/* delve.cc - Show the contents of a Xapian database in various ways
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,7 +22,7 @@
  * -----END-LICENCE-----
  */
 
-#include "om/om.h"
+#include <xapian.h>
 
 #include <algorithm>
 #include <iostream>
@@ -30,10 +30,8 @@
 
 #include "getopt.h"
 
-using std::string;
-using std::cout;
-using std::endl;
-using std::vector;
+using namespace Xapian;
+using namespace std;
 
 static char separator = ' ';
 
@@ -57,7 +55,7 @@ syntax(const char *progname)
 }
 
 static void
-show_db_stats(OmDatabase &db)
+show_db_stats(Database &db)
 {
     // just display a few database stats
     cout << "number of documents = " << db.get_doccount() << endl;
@@ -65,11 +63,11 @@ show_db_stats(OmDatabase &db)
 }
 
 static void
-show_values(OmDatabase &db, om_docid docid, char sep)
+show_values(Database &db, docid docid, char sep)
 {
-    OmDocument doc = db.get_document(docid);
-    OmValueIterator v = doc.values_begin();
-    OmValueIterator vend = doc.values_end();
+    Document doc = db.get_document(docid);
+    ValueIterator v = doc.values_begin();
+    ValueIterator vend = doc.values_end();
     while (v != vend) {
 	cout << sep << v.get_valueno() << ':' << *v;
 	++v;
@@ -77,9 +75,9 @@ show_values(OmDatabase &db, om_docid docid, char sep)
 }
 
 static void
-show_values(OmDatabase &db,
-	    vector<om_docid>::const_iterator i,
-	    vector<om_docid>::const_iterator end)
+show_values(Database &db,
+	    vector<docid>::const_iterator i,
+	    vector<docid>::const_iterator end)
 {
     while (i != end) {
 	cout << "Values for record #" << *i << ':';
@@ -90,15 +88,15 @@ show_values(OmDatabase &db,
 }
 
 static void
-show_docdata(OmDatabase &db, om_docid docid, char sep)
+show_docdata(Database &db, docid docid, char sep)
 {
     cout << sep << "[" << db.get_document(docid).get_data() << ']';
 }
 
 static void
-show_docdata(OmDatabase &db,
-	     vector<om_docid>::const_iterator i,
-	     vector<om_docid>::const_iterator end)
+show_docdata(Database &db,
+	     vector<docid>::const_iterator i,
+	     vector<docid>::const_iterator end)
 {
     while (i != end) {
 	cout << "Data for record #" << *i << ':' << endl;
@@ -108,13 +106,14 @@ show_docdata(OmDatabase &db,
 }
 
 static void
-show_termlists(OmDatabase &db, vector<om_docid>::const_iterator i,
-	       vector<om_docid>::const_iterator end)
+show_termlists(Database &db,
+	       vector<docid>::const_iterator i,
+	       vector<docid>::const_iterator end)
 {
     // Display termlists
     while (i != end) {
-	OmTermIterator t = db.termlist_begin(*i);
-	OmTermIterator tend = db.termlist_end(*i);
+	TermIterator t = db.termlist_begin(*i);
+	TermIterator tend = db.termlist_end(*i);
 	cout << "Term List for record #" << *i << ':';
 	while (t != tend) {
 	    cout << separator << *t;
@@ -129,10 +128,10 @@ show_termlists(OmDatabase &db, vector<om_docid>::const_iterator i,
 }
 
 int
-main(int argc, char *argv[])
+main(int argc, char **argv)
 {
-    vector<om_docid> recnos;
-    vector<om_termname> terms;
+    vector<docid> recnos;
+    vector<string> terms;
     vector<string> dbs;
 
     int c;
@@ -167,13 +166,13 @@ main(int argc, char *argv[])
 
     std::sort(recnos.begin(), recnos.end());
     
-    OmDatabase db;
+    Database db;
     try {
 	vector<string>::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); i++) {
-	    db.add_database(OmAuto__open(*i));
+	    db.add_database(Auto::open(*i));
 	}
-    } catch (const OmError &e) {
+    } catch (const Error &e) {
 	cout << "Error opening database: " << e.get_msg() << endl;
 	return 1;
     }
@@ -184,12 +183,14 @@ main(int argc, char *argv[])
 	    return 0;
 	}
 
-	if (!recnos.empty() && showvalues) {
-	    show_values(db, recnos.begin(), recnos.end());
-	}
+	if (!recnos.empty()) {
+	    if (showvalues) {
+		show_values(db, recnos.begin(), recnos.end());
+	    }
 
-	if (!recnos.empty() && showdocdata) {
-	    show_docdata(db, recnos.begin(), recnos.end());
+	    if (showdocdata) {
+		show_docdata(db, recnos.begin(), recnos.end());
+	    }
 	}
 
 	if (terms.empty()) {
@@ -197,17 +198,17 @@ main(int argc, char *argv[])
 	    return 0;
 	}
 
-	vector<om_termname>::const_iterator i;
+	vector<string>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
-	    om_termname term = *i;
-	    OmStem stemmer("english");
+	    string term = *i;
+	    Stem stemmer("english");
 	    if (*(term.end() - 1) == '.') {
 		term.erase(term.size() - 1);
 	    } else {
 		term = stemmer.stem_word(term);
 	    }
-	    OmPostListIterator p = db.postlist_begin(term);
-	    OmPostListIterator pend = db.postlist_end(term);
+	    PostListIterator p = db.postlist_begin(term);
+	    PostListIterator pend = db.postlist_end(term);
 	    if (p == pend) {
 		cout << "term `" << term << "' not in database\n";
 		continue;
@@ -228,7 +229,7 @@ main(int argc, char *argv[])
 		cout << endl;
 	    } else {
 		// Display position lists
-		vector<om_docid>::const_iterator j;
+		vector<docid>::const_iterator j;
 		for (j = recnos.begin(); j != recnos.end(); j++) {
 		    p.skip_to(*j);
 		    if (p == pend || *p != *j) {
@@ -238,21 +239,21 @@ main(int argc, char *argv[])
 			cout << "Position List for term `" << term
 			    << "', record #" << *j << ':';
 			try {
-			    OmPositionListIterator pos = p.positionlist_begin();
-			    OmPositionListIterator posend = p.positionlist_end();
+			    PositionListIterator pos = p.positionlist_begin();
+			    PositionListIterator posend = p.positionlist_end();
 			    while (pos != posend) {
 				cout << separator << *pos;
 				++pos;
 			    }
 			    cout << endl;
-			} catch (const OmError &e) {
+			} catch (const Error &e) {
 			    cout << "Error: " << e.get_msg() << endl;
 			}
 		    }
 		}
 	    }
 	}
-    } catch (const OmError &e) {
+    } catch (const Error &e) {
 	cout << "Error: " << e.get_msg() << endl;
 	return 1;
     }

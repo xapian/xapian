@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +22,11 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
+#include <iostream>
+
+using namespace Xapian;
 using namespace std;
 
 int main(int argc, char **argv)
@@ -36,32 +39,32 @@ int main(int argc, char **argv)
 	exit(1);
     }
     
-    // Catch any OmError exceptions thrown
+    // Catch any Error exceptions thrown
     try {
 	// Open the database
-	OmDatabase db(OmAuto__open(argv[1]));
+	Database db(Auto::open(argv[1]));
 
 	// Start an enquire session
-	OmEnquire enquire(db);
+	Enquire enquire(db);
 
 	// Build a query by OR-ing together all the terms
-	OmQuery query(OmQuery::OP_OR, argv + 2, argv + argc);
+	Query query(Query::OP_OR, argv + 2, argv + argc);
 	cout << "Performing query `" << query.get_description() << "'" << endl;
 
 	// Give the query object to the enquire session
 	enquire.set_query(query);
 
 	// Get the top 10 results of the query
-	OmMSet matches = enquire.get_mset(0, 10);
+	MSet matches = enquire.get_mset(0, 10);
 
 	// Display the results
 	cout << matches.get_matches_estimated() << " results found" << endl;
 
-	for (OmMSetIterator i = matches.begin(); i != matches.end(); ++i) {
+	for (MSetIterator i = matches.begin(); i != matches.end(); ++i) {
 	    cout << "ID " << *i << " " << i.get_percent() << "% ["
 		 << i.get_document().get_data() << "]" << endl;
 	}
-    } catch (const OmError &error) {
+    } catch (const Error &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
 	exit(1);
     }

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,9 +22,12 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
+
+#include <iostream>
 #include <vector>
 
+using namespace Xapian;
 using namespace std;
 
 int main(int argc, char **argv)
@@ -37,38 +41,38 @@ int main(int argc, char **argv)
 	exit(1);
     }
     
-    // Catch any OmError exceptions thrown
+    // Catch any Error exceptions thrown
     try {
 	// Make the database
-	OmDatabase db(OmAuto__open(argv[1]));
+	Database db(Auto::open(argv[1]));
 
 	// Start an enquire session
-	OmEnquire enquire(db);
+	Enquire enquire(db);
 
 	// Prepare the query terms
-	vector<om_termname> queryterms;
+	vector<string> queryterms;
 	int optpos;
-	for (optpos = 2; optpos < argc; optpos++) {
+	for (optpos = 2; optpos < argc; ++optpos) {
 	    if (string(argv[optpos]) == "--") {
-		optpos++;
+		++optpos;
 		break;
 	    }
 	    queryterms.push_back(argv[optpos]);
 	}
 
 	// Prepare the relevant document set
-	OmRSet reldocs;
+	RSet reldocs;
 	for (; optpos < argc; ++optpos) {
-	    om_docid rdid = atoi(argv[optpos]);
+	    docid rdid = atoi(argv[optpos]);
 	    if (rdid != 0) {
 		reldocs.add_document(rdid);
 	    }
 	}
 
-	OmMSet matches;
+	MSet matches;
 	if (!queryterms.empty()) {
 	    // Build the query object
-	    OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
+	    Query query(Query::OP_OR, queryterms.begin(), queryterms.end());
 
 	    cout << "Performing query `" << query.get_description() << "'"
 		 << endl;
@@ -82,7 +86,7 @@ int main(int argc, char **argv)
 	    // Display the results
 	    cout << matches.get_matches_estimated() << " results found" << endl;
 
-	    for (OmMSetIterator i = matches.begin(); i != matches.end(); ++i) {
+	    for (MSetIterator i = matches.begin(); i != matches.end(); ++i) {
 		cout << "ID " << *i << " " << i.get_percent() << "% ["
 		     << i.get_document().get_data() << "]" << endl;
 	    }
@@ -90,7 +94,7 @@ int main(int argc, char **argv)
 
 	// Put the top 5 (at most) docs into the rset if rset is empty
 	if (reldocs.empty()) {
-	    OmMSetIterator i = matches.begin();
+	    MSetIterator i = matches.begin();
 	    for (int j = 1; j < 5; ++j) {
 		reldocs.add_document(*i);
 		if (++i == matches.end()) break;
@@ -98,16 +102,16 @@ int main(int argc, char **argv)
 	}
 	
 	// Get the suggested expand terms
-	OmESet eterms = enquire.get_eset(10, reldocs);
+	ESet eterms = enquire.get_eset(10, reldocs);
 
 	// Display the expand terms
 	cout << eterms.size() << " suggested additional terms" << endl;
 
-	for (OmESetIterator k = eterms.begin(); k != eterms.end(); ++k) {
+	for (ESetIterator k = eterms.begin(); k != eterms.end(); ++k) {
 	    cout << "Term `" << *k << "'\t "
 		 << "(weight " << k.get_weight() << ")" << endl;
 	}
-    } catch (const OmError &error) {
+    } catch (const Error &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
 	exit(1);
     }

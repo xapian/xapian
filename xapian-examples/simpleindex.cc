@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,12 +22,13 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <algorithm>
 #include <iostream>
 #include <string>
 
+using namespace Xapian;
 using namespace std;
 
 #include <ctype.h>
@@ -55,9 +56,9 @@ p_notplusminus(unsigned int c)
 }
 
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
@@ -71,16 +72,16 @@ int main(int argc, char **argv)
 	exit(1);
     }
 
-    OmWritableDatabase database;
+    WritableDatabase database;
     try {
 	// Open the database
-	database = OmAuto__open(argv[1], OM_DB_OPEN);
-    } catch (const OmError &error) {
+	database = Auto::open(argv[1], DB_OPEN);
+    } catch (const Error &error) {
 	cerr << "Exception: "  << error.get_msg() << endl;
 	exit(1);
     }
     
-    OmStem stemmer("english");
+    Stem stemmer("english");
     string para;
     while (true) {
 	string line;
@@ -89,10 +90,10 @@ int main(int argc, char **argv)
 	if (line.empty()) {
 	    if (!para.empty()) {
 		try {
-		    OmDocument doc;
+		    Document doc;
 		    doc.set_data(para);
 
-		    om_termcount pos = 0;
+		    termcount pos = 0;
 		    string::iterator i, j = para.begin(), k;
 		    while ((i = find_if(j, para.end(), p_alnum)) != para.end())
 		    {
@@ -101,8 +102,7 @@ int main(int argc, char **argv)
 			if (k == para.end() || !isalnum(*k)) j = k;
 			string::size_type len = j - i;
 			if (len <= MAX_PROB_TERM_LENGTH) {
-			    om_termname term = para.substr(i - para.begin(),
-							   len);
+			    string term = para.substr(i - para.begin(), len);
 			    lowercase_term(term);
 			    term = stemmer.stem_word(term);
 			    doc.add_posting(term, pos++);
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
 		    // Add the document to the database
 		    database.add_document(doc);
-		} catch (const OmError &error) {
+		} catch (const Error &error) {
 		    cerr << "Exception: "  << error.get_msg() << endl;
 		    exit(1);
 		}

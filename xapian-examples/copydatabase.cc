@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,14 +22,15 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <iostream>
 
+using namespace Xapian;
 using namespace std;
 
 #include <errno.h>
-#include <string.h>
+#include <string.h> // for strerror()
 #include <sys/stat.h>
 
 int
@@ -66,35 +67,35 @@ main(int argc, char **argv)
 	}
 
 	// Create the destination database
-	OmWritableDatabase dest_database(OmAuto__open(dest, OM_DB_CREATE));
+	WritableDatabase dest_database(Auto::open(dest, DB_CREATE));
 
 	for (int i = 1; i < argc - 1; ++i) {
 	    // Open the source database
-	    OmDatabase src_database(OmAuto__open(argv[i]));
+	    Database src_database(Auto::open(argv[i]));
 
 	    // Copy each document across
 
 	    // At present there's no way to iterate across all documents
 	    // so we have to test each docid in turn until we've found all
 	    // the documents
-	    om_doccount count = src_database.get_doccount();
-	    om_docid docid = 1;
+	    doccount count = src_database.get_doccount();
+	    docid did = 1;
 	    while (count) {
 		try {
-		    OmDocument document = src_database.get_document(docid);
+		    Document document = src_database.get_document(did);
 		    dest_database.add_document(document);
 		    --count;
 		    cout << '\r' << argv[i] << ": " << count
 			 << " docs to go" << flush;
-		} catch (const OmDocNotFoundError &/*error*/) {
+		} catch (const DocNotFoundError &) {
 		    // that document must have been deleted
 		}
-		if (docid == (om_docid)-1) break;
-		++docid;
+		if (did == (docid)-1) break;
+		++did;
 	    }
 	    cout << '\r' << argv[i] << ": Done                  " << endl;
 	}
-    } catch (const OmError &error) {
+    } catch (const Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

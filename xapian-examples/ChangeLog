@@ -1,3 +1,9 @@
+Mon May 26 23:18:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,
+	  simpleexpand.cc,simpleindex.cc,simplesearch.cc: Updated to use new
+	  Xapian namespace.
+
 Mon May 26 22:53:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* delve.cc: Corrected odd use of std::string::erase() (instead of
