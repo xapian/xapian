@@ -1,0 +1,5 @@
+The php4 module uses phpize to finish the build-file creation.
+Makefile.am is provided and the xapian buildall type magic creates
+the Makefile.in needed by phpize.
+
+IF PHPIZE EVER WANTS MAKEFILE.AM THEN WE NEED TO THINK AGAIN
