@@ -55,6 +55,7 @@ clean-local:
 
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
+		   ../../getopt/libgetopt.la \
                    ../../testsuite/libtest.la \
 		   ../../libxapian.la
 

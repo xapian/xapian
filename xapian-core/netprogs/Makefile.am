@@ -16,7 +16,7 @@ omprogsrv_SOURCES = omprogsrv.cc
 omprogsrv_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 omtcpsrv_SOURCES = omtcpsrv.cc
-omtcpsrv_LDADD = ../libxapian.la
+omtcpsrv_LDADD = ../getopt/libgetopt.la ../libxapian.la
 
 clean-local:
 	rm -rf .quartz

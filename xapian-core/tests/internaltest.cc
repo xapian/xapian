@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -180,8 +181,11 @@ bool test_testsuite4()
 	{0, 0}
     };
 
+#if 0
     if (!dlsym(RTLD_DEFAULT, "malloc_allocdata")) {
+#endif
 	SKIP_TEST("malloc tracking library not installed");
+#if 0
     }
 
     test_driver driver(mytests);
@@ -204,6 +208,7 @@ bool test_testsuite4()
     }
 
     return true;
+#endif
 }
 
 class Test_Exception {

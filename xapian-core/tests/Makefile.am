@@ -34,7 +34,7 @@ apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
 apitest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = ../libxapian.la
+stemtest_LDADD = ../getopt/libgetopt.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la

@@ -13,7 +13,7 @@ endif
 
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
-SUBDIRS = include testsuite autoconf common \
+SUBDIRS = include getopt testsuite autoconf common \
           api backends matcher languages $(BUILDSUBDIR_REMOTE1) \
 	  . m4 docs $(BUILDSUBDIR_REMOTE2) tests extra
 # Disabled for now: bindings

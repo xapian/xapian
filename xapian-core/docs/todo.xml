@@ -456,18 +456,12 @@ Investigate and find a proper fix for FILTER problem.
 Look at replacing btree implementation, or at least tidying it
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.5">
-
-Need to ensure getopt.c and getopt1.c get linked against
-anything that needs them for non-glibc platforms.
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">
 
 Automated testing across CF machines
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="">
+<todoitem priority=" " difficulty="" owner="James" area="" release="0.5">
 
 Update the PLATFORMS file
 

@@ -410,6 +410,7 @@ AC_OUTPUT(
  autoconf/Makefile
  net/Makefile
  netprogs/Makefile
+ getopt/Makefile
  xapian-config.nodep
  docs/doxygen_api_conf
  docs/doxygen_full_conf
