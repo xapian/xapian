@@ -3,6 +3,7 @@
 #include "orpostlist.h"
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
+#include "andmaybepostlist.h"
 #include "filterpostlist.h"
 #include "irdocument.h"
 
@@ -16,92 +17,52 @@ Match::Match(IRDatabase *database)
 }
 
 bool
-Match::add_pterm(const string& termname)
+Match::add_term(const string& termname)
 {
     termid id = DB->term_name_to_id(termname);
 
+    // FIXME: we might want to push a null PostList in some situations...
+    // for similar reasons to using the muscat3.6 zerofreqs option
     if (!id) return false;
 
-    PostList *postlist = DB->open_post_list(id);
-
-    pq.push(postlist);
-   
+    q.push(DB->open_post_list(id));
     return true;
 }
 
 bool
-Match::add_bterm(const string& termname)
+Match::add_op(matchop op)
 {
-    termid id = DB->term_name_to_id(termname);
-
-    if (!id) return false;
-
-    PostList *postlist = DB->open_post_list(id);
-    bq.push(postlist);
-
-    return true;
-}
-
-bool
-Match::add_band()
-{
-    if(bq.size() < 2) return false;
+    if (q.size() < 2) return false;
     PostList *left, *right;
 
-    left = bq.top();
-    bq.pop();
-    right = bq.top();
-    bq.pop();
-    bq.push(new AndPostList(left, right, this));
+    left = q.top();
+    q.pop();
+    right = q.top();
+    q.pop();
+    switch (op) {
+     case AND:
+	left = new AndPostList(left, right, this);
+	break;
+     case OR:
+	left = new OrPostList(left, right, this);
+	break;
+     case FILTER:
+	left = new FilterPostList(left, right, this);
+	break;
+     case AND_NOT:
+	left = new AndNotPostList(left, right, this);
+	break;
+     case AND_MAYBE:
+	left = new AndMaybePostList(left, right, this);
+	break;
+     case XOR:
+	left = new XorPostList(left, right, this);
+	break;
+    }
+    q.push(left);
 
     return true;
 }
-
-bool
-Match::add_bor()
-{
-    if(bq.size() < 2) return false;
-    PostList *left, *right;
-
-    left = bq.top();
-    bq.pop();
-    right = bq.top();
-    bq.pop();
-    bq.push(new OrPostList(left, right, this));
-
-    return true;
-}
-
-bool
-Match::add_bxor()
-{
-    if(bq.size() < 2) return false;
-    PostList *left, *right;
-
-    left = bq.top();
-    bq.pop();
-    right = bq.top();
-    bq.pop();
-    bq.push(new XorPostList(left, right, this));
-
-    return true;
-}
-
-bool
-Match::add_bandnot()
-{
-    if(bq.size() < 2) return false;
-    PostList *left, *right;
-
-    right = bq.top();
-    bq.pop();
-    left = bq.top();
-    bq.pop();
-    bq.push(new AndNotPostList(left, right, this));
-
-    return true;
-}
-
 
 class MSetCmp {
     public:
@@ -118,27 +79,17 @@ Match::recalc_maxweight()
     recalculate_maxweight = true;
 }
 
-void
-Match::match()
-{    
-    weight w_min = 0;
-    msize = 0;
-    mtotal = 0;
-    int sorted_to = 0;
-
-    merger = NULL;
-    PostList *boolmerger = NULL;
-
-    if (bq.size() > 1) return; // Partially constructed boolean query
-
-    if (bq.size() == 1) {
-	boolmerger = bq.top();
-	// bq.top() is a boolean query merged postlist
-    }
-
+#if 0
+// FIXME: code to build nice tree for OR-ed terms
+    // FIXME: try using a heap instead (C++ sect 18.8)
+    priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
     if (!pq.empty()) {
-	// build a tree balanced by the term frequencies
-	// (similar to building a huffman encoding tree)
+	// Build a tree balanced by the term frequencies
+	// (similar to building a huffman encoding tree).
+	//
+	// This scheme reduces the number of objects common terms
+	// get "pulled" through, reducing the amount of work done which
+	// speeds things up.
 	while (true) {
 	    merger = pq.top();
 	    pq.pop();
@@ -149,16 +100,53 @@ Match::match()
 	    pq.push(merger);
 	}
     }
+#endif
 
+#if 0
+// FIXME: code to build nice tree for AND-ed terms
+    // SORT list into descending freq order
+    // take first two elements and AND
+    // AND with each subsequent element
+#endif
+
+#if 0
     if (boolmerger) {
 	if (merger) {
-	    merger = new FilterPostList(merger, boolmerger, this);
+	    if (anti_filter) {
+		merger = new AndNotPostList(merger, boolmerger, this);
+	    } else {
+		merger = new FilterPostList(merger, boolmerger, this);
+	    }
 	} else {
+	    // FIXME: What to do if anti_filter is set here?
+	    // at present, we just return no hits
+	    if (anti_filter) return;
 	    merger = boolmerger;
 	}
     } else if (!merger)	{
     	return;
     }
+#endif
+
+void
+Match::match()
+{    
+    weight w_min = 0;
+    int sorted_to = 0;
+    
+    msize = 0;
+    mtotal = 0;
+    max_weight = 0;
+
+    merger = NULL;
+
+    if (q.size() == 0) return; // No query
+
+    // FIXME: option to specify default operator? e.g. combine all remaining
+    // terms with AND
+    while (q.size() > 1) add_op(OR);
+
+    merger = q.top();
 
     weight w_max = max_weight = merger->recalc_maxweight();
     recalculate_maxweight = false;

@@ -21,6 +21,8 @@ class MSetItem {
         MSetItem(weight w_, docid id_) { w = w_; id = id_; }
 };
 
+typedef enum { AND, OR, FILTER, AND_NOT, AND_MAYBE, XOR } matchop;
+
 class Match {
     private:
         IRDatabase *DB;
@@ -29,21 +31,16 @@ class Match {
         int min_weight_percent;
         weight max_weight;
 
-        // FIXME: try using a heap instead (C++ sect 18.8)
-        priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
-	stack<PostList *> bq;
+	stack<PostList *> q;
 
         PostList *merger;
     
         bool recalculate_maxweight;
     public:
         Match(IRDatabase *);
-        bool add_pterm(const string &);
-	bool add_bterm(const string &);
-	bool add_band();
-	bool add_bor();
-	bool add_bxor();
-	bool add_bandnot();
+        bool add_term(const string &);
+	bool add_op(matchop op);
+
         void match();
         void set_max_msize(doccount n);
         weight get_max_weight();
@@ -72,4 +69,5 @@ Match::get_max_weight()
 {
     return max_weight;
 }
+
 #endif /* _match_h_ */

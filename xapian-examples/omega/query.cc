@@ -8,7 +8,7 @@
  */
 
 /* limit on mset size (as given in espec) */
-#define MLIMIT 1000
+#define MLIMIT 1000 // FIXME: deeply broken
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,16 +28,14 @@
 
 #define MAX_TERM_LEN 128
 
+typedef enum { ABSENT = 0, NORMAL, PLUS, MINUS, BOOL_FILTER } termtype;
+
 struct term {
-    char string[MAX_TERM_LEN];
+    string termname;
     termid id;
-    long int weighting;
+    termtype type;
 };
 #define MAXTERMS 500
-
-/* magic values of term.weighting */
-#define MINUS -2
-#define PLUS -1
 
 #ifdef META
 static char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
@@ -65,7 +63,6 @@ static long int r_di;
 static struct term new_terms[MAXTERMS];
 static int n_new_terms;
 static long int score_height, score_width;
-static int have_negative_weights = 0;
 static int weight_threshold = 0;
 
 int thou_sep = ',', dec_sep = '.';
@@ -140,7 +137,7 @@ static int percentage(double num, double denom) {
 /* Heuristic: If any words have been removed, it's a "fresh query"
  * so we should clear the R-set */
 static int is_old_query( const char *oldp ) {
-   char oldterm[MAX_TERM_LEN];
+   string oldterm;
    const char *pend;
    const char *term;
    int is_old;
@@ -174,11 +171,10 @@ static int is_old_query( const char *oldp ) {
       /* ignore oversized terms */
       if (len < MAX_TERM_LEN) {
 	 int i;
-	 memcpy( oldterm, term, len );
-	 oldterm[len] = '\0';
+	 oldterm = string(term, len);
 	 is_old = 0;
 	 for (i = 0; i < n_new_terms; i++ ) {
-	    if (!strcmp(oldterm, new_terms[i].string)) {
+	    if (oldterm == new_terms[i].termname) {
 	       is_old = 1;
 	       break;
 	    }
@@ -227,16 +223,21 @@ int set_probabilistic(const char *p, const char *oldp) {
       int plus = 0;
       int minus = 0;
       for (i = 0; i < n_new_terms; i++) {
-	 if (matcher->add_pterm(new_terms[i].string)) {
-	    switch (new_terms[i].weighting) {
+	 if (matcher->add_term(new_terms[i].termname)) {
+	    switch (new_terms[i].type) {
 	     case MINUS: minus++; break;
 	     case PLUS: plus++; break;
+	     default: break; // suppress compiler warning
 	    }
 	 } else {
-	    new_terms[i].weighting = 0;
+	    new_terms[i].type = ABSENT;
 	 }
       }
-      
+
+       // now we constuct the query:
+       // ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
+       //  (term_1 OR ... OR term_m)) ANDNOT
+       // (minusterm_1 OR ... OR minusterm_p)
 #if 0
       if (plus || minus) {
 	 int w_max = 0;
@@ -254,8 +255,8 @@ int set_probabilistic(const char *p, const char *oldp) {
 		  
 		  for (i = 0; i < n_new_terms; i++) {
 		     struct term *term = new_terms + i;
-		     if (term->weighting &&
-			 strcmp(term->string, z.p + 12) == 0) {
+		     if (term->type &&
+			 strcmp(term->termname.c_str(), z.p + 12) == 0) {
 			w = 0;
 			break;
 		     }
@@ -346,13 +347,13 @@ int set_probabilistic(const char *p, const char *oldp) {
 static int checked_a_term = 0;
 
 /* if term is in the database, add it to the term list */
-static int check_term(struct term *pt, const char *buf, long w) {
+static int check_term(struct term *pt, const char *buf, termtype type) {
     checked_a_term = 1;
     termid id = database.term_name_to_id(buf);
     if (!id) return 0;
     pt->id = id;
-    strcpy(pt->string, buf);
-    pt->weighting = w;
+    pt->termname = buf;
+    pt->type = type;
     return 1;
 }
 
@@ -377,7 +378,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
     const char *pC = text;
     char *pTo;
     int size;
-    long int weighting = 0;
+    termtype type = NORMAL;
     int got = 0;
     char buf[MAX_TERM_LEN];
     int stem, stem_all;
@@ -435,7 +436,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	   
 #ifdef COLONFILTERS
 	    if (is_bool) {
-	       add_bterm(buf); /* turn into boolean term */
+	       add_term(buf); /* turn into boolean term */
 	       if (ch) ch = get_next_char( &pC ); /* skip unless it's a '\0' */
 	       continue;
 	    }
@@ -464,7 +465,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 #endif /* COLONFILTERS */
 
 	    if (n_ad_keywords < 4) {
-	       /* FIXME: && weighting >= 0, or pick 4 top +ve weights later? */
+	       /* FIXME: && type != ABSENT, or pick 4 top +ve weights later? */
 	       if (n_ad_keywords)
 		  strcat( ad_keywords, "+" );
 /*	       else *ad_keywords = '\0'; */
@@ -487,16 +488,16 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	    }
 
 	    if (!in_quotes) {
-	       if (check_term( pTerm, buf, weighting )) {
+	       if (check_term(pTerm, buf, type)) {
 		  got++;
 		  if (got > MAXTERMS) break;
 		  pTerm++;
 	       }
 	       if (ch != '-') {
-		  /* Currently we index hyphenated words as multiple terms, so
-		   * we probably want to keep same weighting for all hyphenated
-		   * components */
-		  weighting = 0;
+		   /* Currently we index hyphenated words as multiple terms, so
+		    * we probably want to keep same +/- weighting for all
+		    * hyphenated */
+		   type = NORMAL;
 	       }
 	    } else {
 	       if (in_quotes > 1) {
@@ -509,7 +510,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 		     tmp_buf[len] = ' ';
 		     strcpy( tmp_buf + len + 1, buf);
 		     
-		     if (check_term( pTerm, tmp_buf, weighting )) {
+		     if (check_term(pTerm, tmp_buf, type)) {
 			got++;
 			if (got > MAXTERMS) break;
 			pTerm++;
@@ -522,27 +523,26 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	    if (ch == '\"') {
 	       if (in_quotes == 1) {
 		  /* had a single term in quotes, so add it */
-		  if (check_term( pTerm, phrase_buf, weighting )) {
+		  if (check_term(pTerm, phrase_buf, type)) {
 		     got++;
 		     if (got > MAXTERMS) break;
 		     pTerm++;
 		  }
 	       }
 	       in_quotes = ! in_quotes;
-	       if (!in_quotes) weighting = 0; /* reset weighting */
+	       if (!in_quotes) type = NORMAL; /* reset +/- */
 	    } else {
 	       if (in_quotes) in_quotes++;
 	    }
 	    if (got_next) continue;
 	} else if (ch == '+') {
-	   weighting = PLUS;
+	   type = PLUS;
 	} else if (ch == '-') {
-	   have_negative_weights = 1;
-	   weighting = MINUS;
+	   type = MINUS;
 	} else if (ch == '\"') {
 	   if (in_quotes == 2) {
 	      /* had a single term in quotes, so add it */
-	      if (check_term( pTerm, phrase_buf, weighting )) {
+	      if (check_term(pTerm, phrase_buf, type)) {
 		 got++;
 		 if (got > MAXTERMS) break;
 		 pTerm++;
@@ -556,7 +556,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 
     if (in_quotes == 2) {
        /* had a single term in unterminated quotes, so add it */
-       if (check_term( pTerm, phrase_buf, weighting )) {
+       if (check_term(pTerm, phrase_buf, type)) {
 	  got++;
 /* pointless: if (got <= MAXTERMS) pTerm++; */ 
        }
@@ -565,15 +565,30 @@ static int parse_prob( const char *text, struct term *pTerm ) {
     return got;
 }
 
+// FIXME: multimap for general use?
 static map<char, string> filter_map;
 /**************************************************************/
-void add_bterm( const char *term ) {
-    matcher->add_bterm(term);
+void add_bterm(const char *term) {
     filter_map[term[0]] = string(term);
 }
 
 /**************************************************************/
 static void run_query(void) {
+    while (matcher->add_op(OR)) {
+	// OR all the probabilistic terms together
+	// FIXME: use AND for "matching all"
+    }
+
+    int bool_terms = 0;
+    // add any boolean terms and AND them together
+    // FIXME: should OR those with same prefix...
+    map <char, string>::const_iterator i;
+    for (i = filter_map.begin(); i != filter_map.end(); i++) {
+        matcher->add_term(i->second);
+	bool_terms++;
+	if (bool_terms) matcher->add_op(AND);
+    }
+    if (bool_terms) matcher->add_op(FILTER);
 
     /* Fix problem when there's a boolean and none of the probabilistic terms
      * were in the term list.  Otherwise Muscat throws away all the pterms and
@@ -582,10 +597,6 @@ static void run_query(void) {
        maxweight = 0;
        msize = 0;
        return;
-    }
-
-    while (matcher->add_band()) {
-	// AND together all filters
     }
 
     percent_min = (percent_min > 100) ? 100 : ((percent_min < 0) ? 0 : percent_min);
@@ -597,7 +608,7 @@ static void run_query(void) {
      * NB we also trim if we have plus-ed terms, so that hits without them are
      * removed
      */
-    if (have_negative_weights || weight_threshold || percent_min) {
+    if (weight_threshold || percent_min) {
 #if 1 // FIXME
 	matcher->set_min_weight_percent(percent_min);
 #else
@@ -742,7 +753,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 if (n_new_terms) {
 	    fputs ("<INPUT TYPE=hidden NAME=OLDP VALUE=\"", stdout);
 	    for (i = 0; i < n_new_terms; i++) {
-	       fputs(new_terms[i].string, stdout);
+	       fputs(new_terms[i].termname.c_str(), stdout);
 	       putchar('.');
 	    }
 	    puts ("\">");
@@ -1351,7 +1362,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   if (msize) {
 		       int i;
 		       for (i = 0; i < n_new_terms; i++) {
-			   const char *term = new_terms[i].string;
+			   const char *term = new_terms[i].termname.c_str();
 
 			   PostList *pl = database.open_post_list(new_terms[i].id);
 			   int freq = pl->get_termfreq();
