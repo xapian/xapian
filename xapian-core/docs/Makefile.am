@@ -199,6 +199,9 @@ SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \
 
 doxygen_docs: apidoc/html/index.html sourcedoc/html/index.html
 
+doxygen_api_conf: ../configure
+doxygen_full_conf: ../configure
+
 apidoc/html/index.html: doxygen_api_conf
 	@echo "Generating API documentation with doxygen"
 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
