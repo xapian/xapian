@@ -1,3 +1,7 @@
+Thu Aug 12 13:15:01 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,php4/: Include xapian version in output from phpinfo().
+
 Fri Jul 02 14:27:42 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/bindings.html: Reference to Xapian::Auto::DB_* should be

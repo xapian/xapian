@@ -1,3 +1,4 @@
 Makefile
 Makefile.in
 xapian
+util.i

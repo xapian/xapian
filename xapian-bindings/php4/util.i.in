@@ -36,8 +36,9 @@
 
 %pragma(php4) phpinfo="
   php_info_print_table_start();
-  php_info_print_table_header(2,\"Directive \",\"Value\");
-  php_info_print_table_row(2,\"libxapian support\",\"Enabled\");
+  php_info_print_table_header(2,\"Directive\",\"Value\");
+  php_info_print_table_row(2,\"Xapian support\",\"Enabled\");
+  php_info_print_table_row(2,\"Xapian version\",\"@PACKAGE_VERSION@\");
   php_info_print_table_end();
 "
 
