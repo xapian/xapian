@@ -1,3 +1,10 @@
+Sun Dec 28 16:06:50 2003  James Aylett  <james@tartarus.org>
+
+	* Python bindings: enable directors for MatchDecider, to allow
+	  subclassing in Python. Add documentation and an example.
+
+	* Add a Python example equivalent to simpleexpand in xapian-examples
+
 Mon Dec 08 02:12:09 GMT 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in,java/: Initial check-in of Eric B. Ridge's

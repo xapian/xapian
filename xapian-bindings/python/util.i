@@ -325,3 +325,12 @@ namespace Xapian {
 	%mutable;
     }
 };
+
+namespace Xapian {
+    %feature("director") MatchDecider;
+    class MatchDecider {
+    public:
+	virtual int operator() (const Xapian::Document &doc) const = 0;
+	virtual ~MatchDecider() { }
+    };
+};

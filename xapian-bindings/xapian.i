@@ -1,4 +1,4 @@
-%module xapian
+%module(directors="1") xapian
 
 %{
 /* xapian.i: the Xapian scripting interface.
@@ -27,7 +27,6 @@
  */
 
 // ExpandDecider (+ subclasses)			TODO
-// MatchDecider					TODO
 // Weight (+ subclasses)			TODO
 
 #undef list
@@ -292,6 +291,7 @@ class MSet {
 class RSet {
     public:
 	~RSet();
+	RSet();
 	RSet(const RSet& other);
 	void add_document(docid did);
 	void add_document(MSetIterator& i);

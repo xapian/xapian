@@ -141,9 +141,24 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
    the C++ versions.
 </p>
 
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in Python; simply subclass xapian.MatchDecider, ensure you call the super-constructor, and define a __call__ method that will do the work. The simplest example (which does nothing useful) would be as follows.
+</p>
+
+<pre>
+class mymatcher(xapian.MatchDecider):
+  def __init__(self):
+    xapian.MatchDecider.__init__(self)
+
+  def __call__(self, doc):
+    return 1
+</pre>
+
 <p>
 There are examples of the Python bindings, based on simplesearch and
-simpleindex from <code>xapian-examples</code>, in the <code>examples</code> subdirectory.
+simpleindex from <code>xapian-examples</code>, in the <code>examples</code> subdirectory. There is also an example of defining a MatchDecider in Python.
 </p>
 
 <address>
