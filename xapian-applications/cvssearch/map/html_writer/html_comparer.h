@@ -42,12 +42,15 @@ private:
     process * p0;
     process * p1;
     process * p2;
+    istream * pis0;
+    istream * pis1;
+    istream * pis2;
     
     const vector<unsigned int> & _input1;
     const vector<unsigned int> & _input2;    
-    const cvs_revision & _revision0;
-    const cvs_revision & _revision1;
-    const cvs_revision & _revision2;
+    const string _revision0;
+    const string _revision1;
+    const string _revision2;
     const string & _filename;
     const string & _pathname;
     diff _diff;
@@ -72,9 +75,9 @@ public:
                   const vector<unsigned int> & input2,
                   const string & filename, 
                   const string & pathname,
-                  const cvs_revision & revision,
-                  const cvs_revision & revision1, 
-                  const cvs_revision & revision2,
+                  const string & revision,
+                  const string & revision1, 
+                  const string & revision2,
                   const diff & diff);
     ~html_comparer();
 };

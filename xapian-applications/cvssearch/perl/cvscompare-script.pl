@@ -245,7 +245,13 @@ sub compare_file_index {
             }
         }
     }
-    
+    if ($filename eq "") {
+        print start_html;
+        print "The specified parameters are not valid\n"; 
+        print end_html;
+        return;
+    }
+
     while (<FILE>) {
         chomp;
         if (0) {
@@ -288,7 +294,7 @@ sub compare_file_index {
     print "</head>\n";
     print "<body>\n";
     
-    if ($#versions > 0) {
+    if ($#versions >= 0) {
         my $cvsroot = &cvssearch::read_cvsroot_dir($root, $cvsdata);
         print "<H1 align=\"center\">aligned diff outputs for <B>$filename</B></H1>\n";
         print "<b>Up to ";
@@ -298,7 +304,8 @@ sub compare_file_index {
         
         print "<HR NOSHADE>\n";
         print "Default branch: MAIN\n";
-        for (my $i = 0; $i < $#versions; $i++) {
+        my $i;
+        for ($i = 0; $i < $#versions; $i++) {
             print "<HR size=1 NOSHADE>\n";
             print "<a href=\"./cvscompare.cgi?";
             print "fileid=$fileid&";
@@ -308,6 +315,15 @@ sub compare_file_index {
             print "version $versions[$i+1] & $versions[$i]</a><br>\n";
             print "<pre>$comments[$i]</pre>\n";
         }
+        $i = $#versions;
+        print "<HR size=1 NOSHADE>\n";
+        print "<a href=\"./cvscompare.cgi?";
+        print "fileid=$fileid&";
+        print "pkg=$pkg&";
+        print "root=$root&";
+        print "version=$versions[$i]\">initial version for <b>$filename</b><br>\n";
+        print "<pre>$comments[$i]</pre>\n";
+
         print "<HR NOSHADE>\n";
     } else {
         print "There are less than two commits for the file <b>$filename</b>, no diff result is available.\n";

@@ -32,9 +32,9 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
                              const vector<unsigned int> & input2, 
                              const string & filename, 
                              const string & pathname,
-                             const cvs_revision & revision0, 
-                             const cvs_revision & revision1, 
-                             const cvs_revision & revision2, const diff & diff)
+                             const string & revision0, 
+                             const string & revision1, 
+                             const string & revision2, const diff & diff)
     : html_writer(string("comparing")),
       _input1(input1),
       _input2(input2),
@@ -47,6 +47,7 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
 {
 
     p0 = p1 = p2 = 0;
+    pis0 = pis1 = pis2 = 0;
     ostrstream ost0;
     ost0 << scvs_update << "-r" << revision0
          << " " << filename << " 2>/dev/null" << ends;
@@ -59,21 +60,29 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
     ost2 << scvs_update << "-r" << revision2 
          << " " << filename << " 2>/dev/null" << ends;
 
+
     p0 = new process(ost0.str());
     p1 = new process(ost1.str());
-    p2 = new process(ost2.str());
+    if (revision2 != "none") 
+    {
+        p2 = new process(ost2.str());
+    }
+
+    if (p0) pis0 = p0->process_output();
+    if (p1) pis1 = p1->process_output();
+    if (p2) pis2 = p2->process_output();
 
     _diff.unalign_top();
 
-    for (unsigned int  i = 0; i < _input1.size(); ++i)
-    {
-        cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
-    }
+//     for (unsigned int  i = 0; i < _input1.size(); ++i)
+//     {
+//         cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
+//     }
     
-    for (unsigned int i = 0; i < _diff.size(); ++i ) 
-    {
-        cerr << "diff[" << i << "]" << _diff[i] << endl;
-    }
+//     for (unsigned int i = 0; i < _diff.size(); ++i ) 
+//     {
+//         cerr << "diff[" << i << "]" << _diff[i] << endl;
+//     }
 }
 
 html_comparer::~html_comparer()
@@ -204,33 +213,39 @@ html_comparer::write_line(ostream & os,
                        unsigned int & diff_index) const
 {
     string line0, line1, line2;
-    istream * pis0, * pis1, * pis2;
-    pis0 = p0->process_output();
-    pis1 = p1->process_output();
-    pis2 = p2->process_output();    
 
     get_class_type (select0, index0, do0,
                     select1, index1, do1,
                     select2, index2, do2,
                     diff_index);
 
-    if (do0) getline(*pis0, line0);
-    if (do1) getline(*pis1, line1);
-    if (do2) getline(*pis2, line2);
+    if (do0 && pis0) getline(*pis0, line0);
+    if (do1 && pis1) getline(*pis1, line1);
+    if (do2 && pis2) getline(*pis2, line2);
 
-    if (*pis0 || *pis1 || *pis2) 
+    if (pis0 && !*pis0) {
+        select0= " class=\"n\"";                
+    }
+    if (pis1 && !*pis1) {
+        select1= " class=\"n\"";                
+    }
+    if (pis2 && !*pis2) {
+        select2= " class=\"n\"";                
+    }
+
+    if ((pis0 && *pis0) || (pis1 && *pis1) || (pis2 && *pis2))
     {
         unsigned int size = 40;
         code_to_html converter0(line0, size);
         code_to_html converter1(line1, size);
         code_to_html converter2(line2, size);
         os << "<TR>";
-        os << "<TD" << select2 << "> "; if (do2) os << index2;     os << "</TD>";
-        os << "<TD" << select2 << "> "; if (do2) os << converter2; os << "</TD>";
-        os << "<TD" << select1 << "> "; if (do1) os << index1;     os << "</TD>";
-        os << "<TD" << select1 << "> "; if (do1) os << converter1; os << "</TD>";
-        os << "<TD" << select0 << "> "; if (do0) os << index0;     os << "</TD>";
-        os << "<TD" << select0 << "> "; if (do0) os << converter0; os << "</TD>";
+        os << "<TD" << select2 << "> "; if (do2 && pis2 && *pis2) os << index2;     os << "</TD>";
+        os << "<TD" << select2 << "> "; if (do2 && pis2 && *pis2) os << converter2; os << "</TD>";
+        os << "<TD" << select1 << "> "; if (do1 && pis1 && *pis1) os << index1;     os << "</TD>";
+        os << "<TD" << select1 << "> "; if (do1 && pis1 && *pis1) os << converter1; os << "</TD>";
+        os << "<TD" << select0 << "> "; if (do0 && pis0 && *pis0) os << index0;     os << "</TD>";
+        os << "<TD" << select0 << "> "; if (do0 && pis0 && *pis0) os << converter0; os << "</TD>";
         os << "</TR>" << endl;
     }
     if (do0) ++index0;
@@ -271,12 +286,9 @@ html_comparer::write(ostream & os) const
     unsigned int index0 = 1, index1 = 1, index2 = 1;
     string line0, line1, line2;
 
-    istream *pis0, *pis1, *pis2;
     unsigned int diff_index = 0;
 
-    if (p0 && (pis0 = p0->process_output()) &&
-        p1 && (pis1 = p1->process_output()) &&
-        p2 && (pis2 = p2->process_output()))
+    if (pis0 || pis1 || pis2 )
     {
         assert(_input1.size() == _input2.size());
         
@@ -518,13 +530,13 @@ html_comparer::write(ostream & os) const
 //                            diff_index);
 //             }
         }
-        while (*pis1 || *pis2) 
+        while ((pis1 && *pis1) || (pis2 && *pis2)) 
         {
             bool do1 = false, do2 = false;
-            if (*pis1) {
+            if (pis1 && *pis1) {
                 do1 = true;
             } 
-            if (*pis2) {
+            if (pis2 && *pis2) {
                 do2 = true;
             }
             write_line(os,
@@ -533,6 +545,7 @@ html_comparer::write(ostream & os) const
                        select2, index2, do2,
                        diff_index);
         }
+        cerr << "DONE" << endl;
     }
     os << "</TABLE>" << endl;
     os << "<HR width=100%>" << endl;

@@ -50,16 +50,21 @@ backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const 
     }
 
     if (use_html && 
-        !strcmp(sversion.c_str(), string(log_entry1.revision()).c_str()) &&
-        strcmp(string(log_entry1.revision()).c_str(), string(log_entry2.revision()).c_str()))
+        !strcmp(sversion.c_str(), string(log_entry1.revision()).c_str()))
     {
+        string entry1 = log_entry1.revision();
+        string entry2 = log_entry2.revision();
+
+        if (entry1 == entry2) {
+            entry2 = "none";
+        }
         html_comparer comp(before, 
                            _contents,
                            _log.file_name(),
                            _log.path_name(),
                            _log[0].revision(),
-                           log_entry1.revision(),
-                           log_entry2.revision(), diff);
+                           entry1,
+                           entry2, diff);
         cout << comp;
     }
 }
