@@ -25,6 +25,7 @@
 #include <xapian.h>
 
 #include <limits.h>
+#include <ctype.h>
 
 #include "symboltab.h"
 

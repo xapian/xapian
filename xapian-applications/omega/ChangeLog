@@ -1,3 +1,7 @@
+Tue Dec 07 18:16:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* indextext.h: Fixed to compile with GCC 3.x.
+
 Tue Dec 07 18:15:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omega.cc,omindex.cc,scriptindex.cc: Use the new
