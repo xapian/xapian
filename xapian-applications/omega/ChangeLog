@@ -1,3 +1,8 @@
+Sun Sep 15 03:07:31 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+
+	* buildall: Update to latest version, to fix bug with VPATH version
+	  checking for autoconf.
+
 Thu Sep 12 15:11:16 BST 2002  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Add comment about string::replace() invalidating
