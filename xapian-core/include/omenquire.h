@@ -217,10 +217,10 @@ class OmMatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
 	 *
-	 *  Note: The signature of this function is extremely likely to change
+	 *  Note: The parameters of this method are extremely likely to change
 	 *  in the near future.
 	 */
-	virtual bool want_doc(om_docid did) const = 0;
+	virtual int operator()(om_docid did) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -247,7 +247,9 @@ class OmExpandOptions {
  */
 class OmExpandDecider {
     public:
-	virtual bool want_term(const om_termname & tname) const = 0;
+	/** Decide whether we want this term to be in the expand set.
+	 */
+	virtual int operator()(const om_termname & tname) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
