@@ -1,3 +1,9 @@
+Thu Sep 21 11:16:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Various work making distclean remove all the files it should.  Still
+	  leaves Makefiles in directories optionally configured off there,
+	  automake bug perhaps?
+
 Thu Sep 21 11:08:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Some tweaks to AutoPtr.

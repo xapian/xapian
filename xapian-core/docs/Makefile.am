@@ -110,6 +110,7 @@ doxygen_dvi_install:
 ###############################
 # How to clean up local files #
 ###############################
+
 clean-local:
 	@if [ -d apidoc ]; then \
 	  echo "removing apidoc/"; \
@@ -119,26 +120,14 @@ clean-local:
 	  echo "removing sourcedoc/"; \
 	  $(RM) -r sourcedoc/* ; rmdir sourcedoc ; \
 	fi
-	@if [ -r doxygen_api_conf ]; then \
-	  echo "removing doxygen_api_conf"; $(RM) doxygen_api_conf ; \
-	fi
-	@if [ -r doxygen_full_conf ]; then \
-	  echo "removing doxygen_full_conf"; $(RM) doxygen_full_conf ; \
-	fi
 
-	@if [ -r code_structure.html ]; then \
-	  echo "removing code_structure.html"; $(RM) code_structure.html ; \
-	fi
-	@if [ -r mkdoc.pl ]; then \
-	  echo "removing mkdoc.pl"; $(RM) mkdoc.pl ; \
-	fi
-
-	@if [ -r todo.html ]; then \
-	  echo "removing todo.html"; $(RM) todo.html ; \
-	fi
-	@if [ -r todo2html.pl ]; then \
-	  echo "removing todo2html.pl"; $(RM) todo2html.pl ; \
-	fi
+CLEANFILES=\
+       doxygen_api_conf \
+       doxygen_full_conf \
+       code_structure.html \
+       mkdoc.pl \
+       todo.html \
+       todo2html.pl
 
 ################################
 # How to uninstall local files #
@@ -191,19 +180,11 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 -include .deps-sourcedoc-html
 -include .deps-sourcedoc-tex
 
-distclean-local: clean-local
-	@if [ -f .deps-apidoc-html ] ; then \
-	  echo "removing .deps-apidoc-html"; $(RM) .deps-apidoc-html ; \
-	fi
-	@if [ -f .deps-apidoc-tex ] ; then \
-	  echo "removing .deps-apidoc-tex"; $(RM) .deps-apidoc-tex ; \
-	fi
-	@if [ -f .deps-sourcedoc-html ] ; then \
-	  echo "removing .deps-sourcedoc-html"; $(RM) .deps-sourcedoc-html ; \
-	fi
-	@if [ -f .deps-sourcedoc-tex ] ; then \
-	  echo "removing .deps-sourcedoc-tex"; $(RM) .deps-sourcedoc-tex ; \
-	fi
+DISTCLEANFILES=\
+        .deps-apidoc-html \
+	.deps-apidoc-tex \
+	.deps-sourcedoc-html \
+	.deps-sourcedoc-tex
 
 # Get GENDEPS macro
 include $(top_srcdir)/Makefile_common.am

@@ -16,5 +16,7 @@ libtest_la_LIBADD = -ldl
 
 all-local: malloccheck.so
 
+CLEANFILES=malloccheck.so
+
 malloccheck.so: malloccheck.c alloccommon.lo
 	$(LIBTOOL) $(CC) -shared $< alloccommon.lo -o $@ -ldl
