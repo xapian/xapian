@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -150,6 +151,8 @@ main(int argc, char *argv[])
 	OmStem stemmer("english");
 
 	OmQuery query;
+	bool query_defined = false;
+
 	std::stack<OmQuery> boolquery;
 	// Parse query into OmQuery object
 	bool boolean = false;
@@ -211,10 +214,11 @@ main(int argc, char *argv[])
 		    if (applystem)
 			term = stemmer.stem_word(term);
 		    DebugMsg("oldquery: " << query.get_description() << std::endl);
-		    if (query.is_defined()) {
+		    if (query_defined) {
 		        query = OmQuery(default_op, query, term);
 		    } else {
 		        query = OmQuery(term);
+			query_defined = true;
 		    }
 		    DebugMsg("newquery: " << query.get_description() << std::endl);
 		}
