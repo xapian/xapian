@@ -69,8 +69,13 @@ class SingleMatch
 	// Link to a multimatch object (used by
 	// MultiMatch::add_singlematch)
 	virtual void link_to_multi(StatsGatherer *gatherer) = 0;
+
+    protected:
+	/// Flag to remember whether we have prepared to run a query yet
+	bool is_prepared;
+
     public:
-	SingleMatch() {};
+	SingleMatch() : is_prepared(false) {};
 	virtual ~SingleMatch() = 0;
 
 	///////////////////////////////////////////////////////////////////
@@ -108,6 +113,16 @@ class SingleMatch
 	virtual void set_no_collapse() = 0;
 
 	///////////////////////////////////////////////////////////////////
+	// Prepare to do the match
+	// =======================
+	
+	/** Prepare to perform the match operation.
+	 *  This must be called before either get_max_weight() or
+	 *  get_mset().
+	 */
+	virtual void prepare_match() = 0;
+	
+	///////////////////////////////////////////////////////////////////
 	// Get information about result
 	// ============================
 
@@ -136,14 +151,14 @@ class SingleMatch
 	 *  @param greatest_wt Gets set to max weight attained
 	 *  @param mdecider    Optional decision functor
 	 */
-	virtual void match(om_doccount first,
-			   om_doccount maxitems,
-			   vector<OmMSetItem> & mset,
-			   mset_cmp cmp,
-			   om_doccount * mbound,
-			   om_weight * greatest_wt,
-			   const OmMatchDecider *mdecider
-			  ) = 0;
+	virtual void get_mset(om_doccount first,
+			      om_doccount maxitems,
+			      vector<OmMSetItem> & mset,
+			      mset_cmp cmp,
+			      om_doccount * mbound,
+			      om_weight * greatest_wt,
+			      const OmMatchDecider *mdecider
+			     ) = 0;
 };
 
 ///////////////////////////////

@@ -1,3 +1,11 @@
+Mon Mar 27 18:36:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Renamed SingleMatch::match() to SingleMatch::get_mset()
+
+	* Added SingleMatch::prepare_match() to be called before get_mset()
+	  or get_max_weight(), which flushes the statistics with the
+	  StatsGatherer.
+
 Fri Mar 24 17:56:41 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a NetClient interface for remote matchers

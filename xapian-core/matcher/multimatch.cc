@@ -188,8 +188,8 @@ MultiMatch::match(om_doccount first,
 
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it.
-	(*(leaves.begin()))->match(first, maxitems, mset, cmp,
-				   mbound, greatest_wt, mdecider);
+	(*(leaves.begin()))->get_mset(first, maxitems, mset, cmp,
+				      mbound, greatest_wt, mdecider);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	MSetCmp mcmp(cmp);
@@ -199,8 +199,8 @@ MultiMatch::match(om_doccount first,
 	om_doccount lastitem = first + maxitems;
 
 	// Get the first mset
-	(*(leaves.begin()))->match(0, lastitem, mset, cmp,
-				   &tot_mbound, &tot_greatest_wt, mdecider);
+	(*(leaves.begin()))->get_mset(0, lastitem, mset, cmp,
+				      &tot_mbound, &tot_greatest_wt, mdecider);
 
 	if(leaves.size() > 1) {
 	    // Get subsequent msets, and merge each one with the current mset
@@ -213,8 +213,8 @@ MultiMatch::match(om_doccount first,
 		vector<OmMSetItem> sub_mset;
 
 		// Get next mset
-		(*leaf)->match(0, lastitem, sub_mset, cmp,
-			       &sub_mbound, &sub_greatest_wt, mdecider);
+		(*leaf)->get_mset(0, lastitem, sub_mset, cmp,
+				  &sub_mbound, &sub_greatest_wt, mdecider);
 
 		DebugMsg("Merging mset of size " << sub_mset.size() <<
 			 " to existing set of size " << mset.size() <<

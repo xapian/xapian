@@ -102,6 +102,7 @@ LeafMatch::LeafMatch(IRDatabase *database_)
 void
 LeafMatch::link_to_multi(StatsGatherer *gatherer)
 {
+    Assert(!is_prepared);
     statsleaf.connect_to_gatherer(gatherer);
     statsleaf.my_collection_size_is(database->get_doccount());
     statsleaf.my_average_length_is(database->get_avlength());
@@ -166,6 +167,7 @@ LeafMatch::del_query_tree()
 void
 LeafMatch::set_collapse_key(om_keyno key)
 {
+    Assert(!is_prepared);
     do_collapse = true;
     collapse_key = key;
 }
@@ -173,18 +175,21 @@ LeafMatch::set_collapse_key(om_keyno key)
 void
 LeafMatch::set_no_collapse()
 {
+    Assert(!is_prepared);
     do_collapse = false;
 }
 
 void
 LeafMatch::set_min_weight_percent(int pcent)
 {
+    Assert(!is_prepared);
     min_weight_percent = pcent;
 }
 
 void
 LeafMatch::set_rset(RSet *rset_)
 {
+    Assert(!is_prepared);
     Assert(query == NULL);
     rset = rset_;
     del_query_tree();
@@ -193,6 +198,7 @@ LeafMatch::set_rset(RSet *rset_)
 void
 LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
+    Assert(!is_prepared);
     Assert(query == NULL);
     wt_type = wt_type_;
     max_weight_needs_calc = true;
@@ -367,6 +373,7 @@ LeafMatch::postlist_from_query(const OmQueryInternal *query_)
 void
 LeafMatch::set_query(const OmQueryInternal *query_)
 {
+    Assert(!is_prepared);
     // Clear existing query
     max_weight = 0;
     if(query) {
@@ -388,24 +395,6 @@ LeafMatch::build_query_tree()
 
     DebugMsg("LeafMatch::query = (" << query->intro_term_description() <<
 	     ")" << endl);
-}
-
-// Return the maximum possible weight, calculating it if necessary.
-om_weight
-LeafMatch::get_max_weight()
-{
-    if (max_weight_needs_calc) {
-	// Ensure query tree is built
-	build_query_tree();
-
-	mk_extra_weight();
-	max_extra_weight = extra_weight->get_maxextra();
-
-	max_weight = query->recalc_maxweight() + max_extra_weight;
-	max_weight_needs_calc = false;
-    }
-
-    return max_weight;
 }
 
 ///////////////////
@@ -472,16 +461,47 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
     return add_item;
 }
 
+void
+LeafMatch::prepare_match()
+{
+    Assert(!is_prepared);
+    statsleaf.contrib_my_stats();
+    is_prepared = true;
+}
+
+// Return the maximum possible weight, calculating it if necessary.
+om_weight
+LeafMatch::get_max_weight()
+{
+    // Check that we have prepared to run the query
+    Assert(is_prepared);
+    if (max_weight_needs_calc) {
+	// Ensure query tree is built
+	build_query_tree();
+
+	mk_extra_weight();
+	max_extra_weight = extra_weight->get_maxextra();
+
+	max_weight = query->recalc_maxweight() + max_extra_weight;
+	max_weight_needs_calc = false;
+    }
+
+    return max_weight;
+}
+
 // This is the method which runs the query, generating the M set
 void
-LeafMatch::match(om_doccount first,
-		 om_doccount maxitems,
-		 vector<OmMSetItem> & mset,
-		 mset_cmp cmp,
-		 om_doccount * mbound,
-		 om_weight * greatest_wt,
-		 const OmMatchDecider *mdecider)
+LeafMatch::get_mset(om_doccount first,
+		    om_doccount maxitems,
+		    vector<OmMSetItem> & mset,
+		    mset_cmp cmp,
+		    om_doccount * mbound,
+		    om_weight * greatest_wt,
+		    const OmMatchDecider *mdecider)
 {
+    // Check that we have prepared to run the query
+    Assert(is_prepared);
+
     // Empty result set
     *mbound = 0;
     *greatest_wt = 0;

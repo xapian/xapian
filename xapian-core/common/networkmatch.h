@@ -58,16 +58,17 @@ class NetworkMatch : public SingleMatch
 	void set_collapse_key(om_keyno key);
 	void set_no_collapse();
 
-        om_weight get_max_weight();
+	void prepare_match();
 
-	void match(om_doccount first,
-		   om_doccount maxitems,
-		   vector<OmMSetItem> & mset,
-		   mset_cmp cmp,
-		   om_doccount * mbound,
-		   om_weight * greatest_wt,
-		   const OmMatchDecider *mdecider
-		   );
+        om_weight get_max_weight();
+	void get_mset(om_doccount first,
+		      om_doccount maxitems,
+		      vector<OmMSetItem> & mset,
+		      mset_cmp cmp,
+		      om_doccount * mbound,
+		      om_weight * greatest_wt,
+		      const OmMatchDecider *mdecider
+		     );
 
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous

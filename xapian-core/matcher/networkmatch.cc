@@ -420,6 +420,7 @@ NetworkMatch::build_query_tree()
 om_weight
 NetworkMatch::get_max_weight()
 {
+    Assert(is_prepared);
 #if 0
     if (max_weight_needs_calc) {
 	// Ensure query tree is built
@@ -504,16 +505,25 @@ NetworkMatch::perform_collapse(vector<OmMSetItem> &mset,
 }
 #endif
 
+void
+NetworkMatch::prepare_match()
+{
+    Assert(!is_prepared);
+    //statsleaf.contrib_my_stats();
+    is_prepared = true;
+}
+
 // This is the method which runs the query, generating the M set
 void
-NetworkMatch::match(om_doccount first,
-		 om_doccount maxitems,
-		 vector<OmMSetItem> & mset,
-		 mset_cmp cmp,
-		 om_doccount * mbound,
-		 om_weight * greatest_wt,
-		 const OmMatchDecider *mdecider)
+NetworkMatch::get_mset(om_doccount first,
+		       om_doccount maxitems,
+		       vector<OmMSetItem> & mset,
+		       mset_cmp cmp,
+		       om_doccount * mbound,
+		       om_weight * greatest_wt,
+		       const OmMatchDecider *mdecider)
 {
+    Assert(is_prepared);
 #if 0
     // Empty result set
     *mbound = 0;

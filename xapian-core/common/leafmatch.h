@@ -151,16 +151,17 @@ class LeafMatch : public SingleMatch
 	void set_collapse_key(om_keyno key);
 	void set_no_collapse();
 
+	void prepare_match();
+	
         om_weight get_max_weight();
-
-	void match(om_doccount first,
-		   om_doccount maxitems,
-		   vector<OmMSetItem> & mset,
-		   mset_cmp cmp,
-		   om_doccount * mbound,
-		   om_weight * greatest_wt,
-		   const OmMatchDecider *mdecider
-		   );
+	void get_mset(om_doccount first,
+		      om_doccount maxitems,
+		      vector<OmMSetItem> & mset,
+		      mset_cmp cmp,
+		      om_doccount * mbound,
+		      om_weight * greatest_wt,
+		      const OmMatchDecider *mdecider
+		     );
 
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
