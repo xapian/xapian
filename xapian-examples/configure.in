@@ -10,12 +10,7 @@ ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AC_PATH_PROG(BISON, bison)
-AC_SUBST(BISON)
-
-dnl Only need the following because otherwise Automake complains.
-YACC="$BISON --file-prefix=y"
-AC_SUBST(YACC)
+AC_PROG_YACC
 
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
