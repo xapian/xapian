@@ -305,7 +305,7 @@ SocketServer::run_match(const string &firstmessage)
 
     // extract the rset
     message = readline(msecs_active_timeout);
-    OmRSet omrset = string_to_omrset(message);
+    Xapian::RSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, query, omrset, collapse_key, percent_cutoff,
 		     weight_cutoff, sort_forward, om_valueno(-1), 0, 0, 0,

@@ -88,7 +88,7 @@ class SocketClient : public NetClient {
 	std::string optstring;
 
 	/// The current RSet.
-	OmRSet omrset;
+	Xapian::RSet omrset;
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
@@ -191,7 +191,8 @@ class SocketClient : public NetClient {
 	void set_query(const Xapian::Query::Internal *query_,
 		       om_valueno collapse_key, bool sort_forward,
 		       int percent_cutoff, om_weight weight_cutoff,
-		       const Xapian::Weight *wtscheme, const OmRSet &omrset_);
+		       const Xapian::Weight *wtscheme,
+		       const Xapian::RSet &omrset_);
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);

@@ -64,7 +64,7 @@ class RemoteSubMatch : public SubMatch {
     public:
 	RemoteSubMatch(const NetworkDatabase *db_,
 		       const Xapian::Query::Internal * query,
-		       const OmRSet & omrset,
+		       const Xapian::RSet & omrset,
 		       om_valueno collapse_key, bool sort_forward,
 		       int percent_cutoff, om_weight weight_cutoff,
 		       StatsGatherer *gatherer_, const Xapian::Weight *wtscheme);

@@ -175,7 +175,7 @@ class MSetSortCmp {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * query_,
-		       const OmRSet & omrset, om_valueno collapse_key_,
+		       const Xapian::RSet & omrset, om_valueno collapse_key_,
 		       int percent_cutoff_, om_weight weight_cutoff_,
 		       bool sort_forward_, om_valueno sort_key_,
 		       int sort_bands_, time_t bias_halflife_,
@@ -200,17 +200,19 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * qu
     query->validate_query();
 
     om_doccount number_of_leaves = db.internal->databases.size();
-    vector<OmRSet> subrsets(number_of_leaves);
+    vector<Xapian::RSet> subrsets(number_of_leaves);
 
-    set<om_docid>::const_iterator reldoc; 
-    for (reldoc = omrset.internal->items.begin();
-	 reldoc != omrset.internal->items.end(); ++reldoc) {
-	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
-	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
-	subrsets[subdatabase].add_document(local_docid);
+    {
+	set<om_docid> & items = omrset.internal->items;
+	set<om_docid>::const_iterator i; 
+	for (i = items.begin(); i != items.end(); ++i) {
+	    om_doccount local_docid = (*i - 1) / number_of_leaves + 1;
+	    om_doccount subdatabase = (*i - 1) % number_of_leaves;
+	    subrsets[subdatabase].add_document(local_docid);
+	}
     }
     
-    vector<OmRSet>::const_iterator subrset = subrsets.begin();
+    vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
 
     vector<RefCntPtr<Database> >::iterator i;
     for (i = db.internal->databases.begin();

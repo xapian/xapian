@@ -175,11 +175,10 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	void set_query(const Query & query_);
 	const Query & get_query();
-	Xapian::MSet get_mset(om_doccount first, om_doccount maxitems,
-			const OmRSet *omrset, 
-			const MatchDecider *mdecider) const;
-	Xapian::ESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
-			double k, const ExpandDecider *edecider) const;
+	MSet get_mset(om_doccount first, om_doccount maxitems,
+		      const RSet *omrset, const MatchDecider *mdecider) const;
+	ESet get_eset(om_termcount maxitems, const RSet & omrset, int flags,
+		      double k, const ExpandDecider *edecider) const;
 
 	TermIterator get_matching_terms(om_docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
@@ -314,14 +313,14 @@ class ESet::Internal {
 
 }
 
-class RSet;
+std::string omrset_to_string(const Xapian::RSet &omrset);
 
-class OmRSet::Internal {
-    friend class OmRSet;
+class Xapian::RSet::Internal {
+    friend class Xapian::RSet;
     friend class RSetI;
     friend class OmExpand;
     friend class MultiMatch;
-    friend string omrset_to_string(const OmRSet &omrset);
+    friend std::string omrset_to_string(const Xapian::RSet &omrset);
 
     private:
 	/// Items in the relevance set.

@@ -546,7 +546,7 @@ static bool test_expandmaxitems1()
     tout << "mymset.size() = " << mymset.size() << endl;
     TEST(mymset.size() >= 2);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
@@ -632,7 +632,7 @@ static bool test_expandfunctor1()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
@@ -791,7 +791,7 @@ static bool test_esetiterator1()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
@@ -841,7 +841,7 @@ static bool test_esetiterator2()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
@@ -1053,7 +1053,7 @@ static bool test_allowqterms1()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     Xapian::MSetIterator i = mymset.begin();
     myrset.add_document(*i);
     myrset.add_document(*(++i));
@@ -1746,7 +1746,7 @@ static bool test_rset1()
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     myrset.add_document(1);
 
     Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
@@ -1769,7 +1769,7 @@ static bool test_rset2()
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
-    OmRSet myrset;
+    Xapian::RSet myrset;
     myrset.add_document(2);
 
     Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
@@ -1795,8 +1795,8 @@ static bool test_rsetmultidb1()
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
-    OmRSet myrset1;
-    OmRSet myrset2;
+    Xapian::RSet myrset1;
+    Xapian::RSet myrset2;
     myrset1.add_document(4);
     myrset2.add_document(2);
 
@@ -1833,8 +1833,8 @@ static bool test_rsetmultidb2()
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
-    OmRSet myrset1;
-    OmRSet myrset2;
+    Xapian::RSet myrset1;
+    Xapian::RSet myrset2;
     myrset1.add_document(4);
     myrset2.add_document(2);
 
@@ -1997,8 +1997,8 @@ static bool test_termlisttermfreq1()
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
-    OmRSet rset1;
-    OmRSet rset2;
+    Xapian::RSet rset1;
+    Xapian::RSet rset2;
     rset1.add_document(5);
     rset2.add_document(6);
 
@@ -2047,8 +2047,8 @@ static bool test_multiexpand1()
     OmEnquire enquire2(mydb2);
 
     // make simple equivalent rsets, with a document from each database in each.
-    OmRSet rset1;
-    OmRSet rset2;
+    Xapian::RSet rset1;
+    Xapian::RSet rset2;
     rset1.add_document(1);
     rset1.add_document(7);
     rset2.add_document(1);

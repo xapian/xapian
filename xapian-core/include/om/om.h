@@ -68,6 +68,7 @@ typedef std::string om_termname;
 #define OmESetIterator Xapian::ESetIterator
 #define OmWeight Xapian::Weight
 #define OmMatchDecider Xapian::MatchDecider
+#define OmRSet Xapian::RSet
 //#define OmDocument Xapian::Document
 
 #define om_percent Xapian::percent

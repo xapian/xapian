@@ -93,74 +93,71 @@ ExpandDeciderAnd::operator()(const string &tname) const
     return ((*left)(tname)) && ((*right)(tname));
 }
 
-}
-
 // Methods for Xapian::RSet
 
-OmRSet::OmRSet()
-	: internal(new OmRSet::Internal())
+RSet::RSet() : internal(new RSet::Internal())
 {
 }
 
-OmRSet::OmRSet(const OmRSet &other)
-	: internal(new OmRSet::Internal(*other.internal))
+RSet::RSet(const RSet &other)
+	: internal(new RSet::Internal(*other.internal))
 {
 }
 
 void
-OmRSet::operator=(const OmRSet &other)
+RSet::operator=(const RSet &other)
 {
     *internal = *other.internal;
 }
 
-OmRSet::~OmRSet()
+RSet::~RSet()
 {
     delete internal;
 }
 
 om_doccount
-OmRSet::size() const
+RSet::size() const
 {
     return internal->items.size();
 }
 
 bool
-OmRSet::empty() const
+RSet::empty() const
 {
     return internal->items.empty();
 }
 
 void
-OmRSet::add_document(om_docid did)
+RSet::add_document(om_docid did)
 {
     internal->items.insert(did);
 }
 
 void
-OmRSet::remove_document(om_docid did)
+RSet::remove_document(om_docid did)
 {
     set<om_docid>::iterator i = internal->items.find(did);
     if (i != internal->items.end()) internal->items.erase(i);
 }
 
 bool
-OmRSet::contains(om_docid did) const
+RSet::contains(om_docid did) const
 {
     set<om_docid>::iterator i = internal->items.find(did);
     return i != internal->items.end();
 }
 
 string
-OmRSet::get_description() const
+RSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "OmRSet::get_description", "");
-    RETURN("OmRSet(" + internal->get_description() + ")");
+    DEBUGCALL(INTRO, string, "RSet::get_description", "");
+    RETURN("RSet(" + internal->get_description() + ")");
 }
 
 string
-OmRSet::Internal::get_description() const
+RSet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "OmRSet::get_description", "");
+    DEBUGCALL(INTRO, string, "RSet::get_description", "");
     string description;
 
     for (set<om_docid>::const_iterator i = items.begin();
@@ -170,12 +167,10 @@ OmRSet::Internal::get_description() const
 	description += om_tostring(*i);
     }
 
-    description = "OmRSet(" + description + ")";
+    description = "RSet(" + description + ")";
 
     RETURN(description);
 }
-
-namespace Xapian {
 
 namespace Internal {
 
@@ -643,12 +638,10 @@ MSetIterator::get_description() const
     return "Xapian::MSetIterator(" + om_tostring(index) + ")";
 }
 
-}
-
 // Methods for Xapian::Enquire::Internal
 
-Xapian::Enquire::Internal::Internal(const OmDatabase &db_,
-			    Xapian::ErrorHandler * errorhandler_)
+Enquire::Internal::Internal(const OmDatabase &db_,
+			    ErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
     percent_cutoff(0), weight_cutoff(0), sort_key(om_valueno(-1)),
     sort_bands(0), bias_halflife(0), bias_weight(0),
@@ -656,7 +649,7 @@ Xapian::Enquire::Internal::Internal(const OmDatabase &db_,
 {
 }
 
-Xapian::Enquire::Internal::~Internal()
+Enquire::Internal::~Internal()
 {
     delete query;
     query = 0;
@@ -665,34 +658,34 @@ Xapian::Enquire::Internal::~Internal()
 }
 
 void
-Xapian::Enquire::Internal::set_query(const Xapian::Query &query_)
+Enquire::Internal::set_query(const Query &query_)
 {
-    query = new Xapian::Query(query_);
+    query = new Query(query_);
 }
 
-const Xapian::Query &
-Xapian::Enquire::Internal::get_query()
+const Query &
+Enquire::Internal::get_query()
 {
     if (query == 0) {
-        throw Xapian::InvalidArgumentError("Can't get query before setting it");
+        throw InvalidArgumentError("Can't get query before setting it");
     }
     return *query;
 }
 
-Xapian::MSet
-Xapian::Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
-                    const OmRSet *omrset, const MatchDecider *mdecider) const
+MSet
+Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
+                    const RSet *rset, const MatchDecider *mdecider) const
 {
-    DEBUGCALL(API, Xapian::MSet, "Enquire::Internal::get_mset", first << ", "
-	      << maxitems << ", " << omrset << ", " << mdecider);
+    DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
+	      << maxitems << ", " << rset << ", " << mdecider);
     if (query == 0) {
-        throw Xapian::InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
+        throw InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
     }
 
     // Set Rset
-    OmRSet emptyrset;
-    if (omrset == 0) {
-	omrset = &emptyrset;
+    RSet emptyrset;
+    if (rset == 0) {
+	rset = &emptyrset;
     }
 
     if (weight == 0) {
@@ -700,14 +693,14 @@ Xapian::Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // FIXME: make match take a refcntptr
-    MultiMatch match(db, query->internal.get(), *omrset, collapse_key,
+    MultiMatch match(db, query->internal.get(), *rset, collapse_key,
 		     percent_cutoff, weight_cutoff,
 		     sort_forward, sort_key, sort_bands,
 		     bias_halflife, bias_weight, errorhandler,
 		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
     // Run query and get results into supplied Xapian::MSet object
-    Xapian::MSet retval;
+    MSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
@@ -716,41 +709,40 @@ Xapian::Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
     // retrieve the documents.  This is set here explicitly to avoid having
     // to pass it into the matcher, which gets messy particularly in the
     // networked case.
-    //Xapian::Internal::RefCntPtr<Xapian::Enquire::Internal> tmp(this);
     retval.internal->enquire = this;
 
     return retval;
 }
 
-Xapian::ESet
-Xapian::Enquire::Internal::get_eset(om_termcount maxitems,
-                    const OmRSet & omrset, int flags, double k,
-		    const Xapian::ExpandDecider * edecider) const
+ESet
+Enquire::Internal::get_eset(om_termcount maxitems,
+                    const RSet & rset, int flags, double k,
+		    const ExpandDecider * edecider) const
 {
-    Xapian::ESet retval;
+    ESet retval;
 
-    // FIXME: make expand and rset take a refcntptr
+    // FIXME: make expand and rseti take a refcntptr
     OmExpand expand(db);
-    RSetI rseti(db, omrset);
+    RSetI rseti(db, rset);
 
-    DEBUGLINE(API, "rset size is " << omrset.size());
+    DEBUGLINE(API, "rset size is " << rset.size());
 
     /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
-    AutoPtr<Xapian::ExpandDecider> decider_noquery;
-    AutoPtr<Xapian::ExpandDecider> decider_andnoquery;
-    Xapian::ExpandDeciderAlways decider_always;
+    AutoPtr<ExpandDecider> decider_noquery;
+    AutoPtr<ExpandDecider> decider_andnoquery;
+    ExpandDeciderAlways decider_always;
 
-    if (query != 0 && !(flags & Xapian::Enquire::include_query_terms)) {
-	AutoPtr<Xapian::ExpandDecider> temp1(
-	    new Xapian::ExpandDeciderFilterTerms(query->get_terms_begin(),
+    if (query != 0 && !(flags & Enquire::include_query_terms)) {
+	AutoPtr<ExpandDecider> temp1(
+	    new ExpandDeciderFilterTerms(query->get_terms_begin(),
 					   query->get_terms_end()));
         decider_noquery = temp1;
 
 	if (edecider) {
-	    AutoPtr<Xapian::ExpandDecider> temp2(
-		new Xapian::ExpandDeciderAnd(decider_noquery.get(), edecider));
+	    AutoPtr<ExpandDecider> temp2(
+		new ExpandDeciderAnd(decider_noquery.get(), edecider));
 	    decider_andnoquery = temp2;
 	    edecider = decider_andnoquery.get();
 	} else {
@@ -761,19 +753,19 @@ Xapian::Enquire::Internal::get_eset(om_termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rseti, edecider,
-		  bool(flags & Xapian::Enquire::use_exact_termfreq), k);
+		  bool(flags & Enquire::use_exact_termfreq), k);
 
     return retval;
 }
 
-Xapian::TermIterator
-Xapian::Enquire::Internal::get_matching_terms(om_docid did) const
+TermIterator
+Enquire::Internal::get_matching_terms(om_docid did) const
 {
     return calc_matching_terms(did);
 }
 
-Xapian::TermIterator
-Xapian::Enquire::Internal::get_matching_terms(const MSetIterator &it) const
+TermIterator
+Enquire::Internal::get_matching_terms(const MSetIterator &it) const
 {
     // FIXME: take advantage of MSetIterator to ensure that database
     // doesn't get modified underneath us.
@@ -781,7 +773,7 @@ Xapian::Enquire::Internal::get_matching_terms(const MSetIterator &it) const
 }
 
 string
-Xapian::Enquire::Internal::get_description() const
+Enquire::Internal::get_description() const
 {
     string description = db.get_description();
     if (query) description += ", " + query->get_description();
@@ -791,7 +783,7 @@ Xapian::Enquire::Internal::get_description() const
 // Private methods for Xapian::Enquire::Internal
 
 void
-Xapian::Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
+Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 {
     try {
 	unsigned int multiplier = db.internal->databases.size();
@@ -800,14 +792,14 @@ Xapian::Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) c
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
 	db.internal->databases[dbnumber]->request_document(realdid);
-    } catch (Xapian::Error & e) {
+    } catch (Error & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;
     }
 }
 
 OmDocument
-Xapian::Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
+Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 {
     try {
 	unsigned int multiplier = db.internal->databases.size();
@@ -817,12 +809,13 @@ Xapian::Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) cons
 
 	::Document *doc = db.internal->databases[dbnumber]->collect_document(realdid);
 	return OmDocument(new OmDocument::Internal(doc, db, item.did));
-    } catch (Xapian::Error & e) {
+    } catch (Error & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;
     }
 }
 
+}
 
 class ByQueryIndexCmp {
  private:
@@ -841,16 +834,18 @@ class ByQueryIndexCmp {
     }
 };
 
-Xapian::TermIterator
-Xapian::Enquire::Internal::calc_matching_terms(om_docid did) const
+namespace Xapian {
+
+TermIterator
+Enquire::Internal::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
-        throw Xapian::InvalidArgumentError("Can't get matching terms before setting query");
+        throw InvalidArgumentError("Can't get matching terms before setting query");
     }
 
     // the ordered list of terms in the query.
-    Xapian::TermIterator qt = query->get_terms_begin();
-    Xapian::TermIterator qt_end = query->get_terms_end();
+    TermIterator qt = query->get_terms_begin();
+    TermIterator qt_end = query->get_terms_end();
 
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
@@ -864,8 +859,8 @@ Xapian::Enquire::Internal::calc_matching_terms(om_docid did) const
 
     vector<string> matching_terms;
 
-    Xapian::TermIterator docterms = db.termlist_begin(did);
-    Xapian::TermIterator docterms_end = db.termlist_end(did);
+    TermIterator docterms = db.termlist_begin(did);
+    TermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	string term = *docterms;
         map<string, unsigned int>::iterator t = tmap.find(term);
@@ -876,12 +871,12 @@ Xapian::Enquire::Internal::calc_matching_terms(om_docid did) const
     // sort the resulting list by query position.
     sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
-    return Xapian::TermIterator(new VectorTermList(matching_terms.begin(),
+    return TermIterator(new VectorTermList(matching_terms.begin(),
 						   matching_terms.end()));
 }
 
 void
-Xapian::Enquire::Internal::register_match_decider(const string &name,
+Enquire::Internal::register_match_decider(const string &name,
 	const MatchDecider *mdecider)
 {
     if (mdecider) {
@@ -889,6 +884,8 @@ Xapian::Enquire::Internal::register_match_decider(const string &name,
     } else {
 	mdecider_map.erase(name);
     }
+}
+
 }
 
 // Methods of Xapian::Enquire
@@ -973,15 +970,15 @@ Xapian::Enquire::set_bias(om_weight bias_weight, time_t bias_halflife)
 Xapian::MSet
 Xapian::Enquire::get_mset(om_doccount first,
                     om_doccount maxitems,
-                    const OmRSet *omrset,
+                    const RSet *rset,
 		    const MatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
     DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
-		 maxitems << ", " << omrset << ", " << mdecider);
+		 maxitems << ", " << rset << ", " << mdecider);
 
     try {
-	RETURN(internal->get_mset(first, maxitems, omrset, mdecider));
+	RETURN(internal->get_mset(first, maxitems, rset, mdecider));
     } catch (Xapian::Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
@@ -989,17 +986,17 @@ Xapian::Enquire::get_mset(om_doccount first,
 }
 
 Xapian::ESet
-Xapian::Enquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
+Xapian::Enquire::get_eset(om_termcount maxitems, const RSet & rset, int flags,
 		    double k, const Xapian::ExpandDecider * edecider) const
 {
-    // FIXME: display contents of pointer params and omrset, if they're not
+    // FIXME: display contents of pointer params and rset, if they're not
     // null.
     DEBUGAPICALL(Xapian::ESet, "Xapian::Enquire::get_eset", maxitems << ", " <<
-		 omrset << ", " << flags << ", " << k << ", " << edecider);
+		 rset << ", " << flags << ", " << k << ", " << edecider);
 
     try {
 	// FIXME: this copies the eset too much: pass it in by reference?
-	RETURN(internal->get_eset(maxitems, omrset, flags, k, edecider));
+	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider));
     } catch (Xapian::Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

@@ -387,7 +387,8 @@ void
 SocketClient::set_query(const Xapian::Query::Internal *query_,
 			om_valueno collapse_key, bool sort_forward,
 			int percent_cutoff, om_weight weight_cutoff,
-			const Xapian::Weight *wtscheme, const OmRSet &omrset_)
+			const Xapian::Weight *wtscheme,
+			const Xapian::RSet &omrset_)
 {
     /* no actual communication performed in this method */
 
@@ -531,7 +532,7 @@ SocketClient::get_mset(om_doccount first,
     remote_stats_valid = false;
     global_stats = Stats();
     global_stats_valid = false;
-    omrset = OmRSet();
+    omrset = Xapian::RSet();
 
     // disable the timeout, now that the mset has been retrieved.
     close_end_time();
@@ -573,7 +574,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
 		global_stats = Stats();
 		global_stats_valid = false;
 		optstring = wtstring = "";
-		omrset = OmRSet();
+		omrset = Xapian::RSet();
 	    } else {
 		did = atoi(message);
 		string::size_type i = message.find(';');

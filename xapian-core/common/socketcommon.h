@@ -39,7 +39,7 @@ using std::map;
 
 class Xapian::Query::Internal;
 class Stats;
-class OmRSet;
+class Xapian::RSet;
 class Xapian::MSet;
 class OmTime;
 
@@ -122,17 +122,17 @@ string stats_to_string(const Stats &stats);
  */
 Stats string_to_stats(const string &s);
 
-/** Convert an OmRSet object into a string representation.
+/** Convert an RSet object into a string representation.
  *
  *  @param omrset		The object to serialise.
  */
-string omrset_to_string(const OmRSet &omrset);
+string omrset_to_string(const Xapian::RSet &omrset);
 
-/** Convert a serialised OmRSet string back into an object.
+/** Convert a serialised RSet string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmRSet string_to_omrset(const string &s);
+Xapian::RSet string_to_omrset(const string &s);
 
 /** Convert an Xapian::MSet object into a string representation.
  *

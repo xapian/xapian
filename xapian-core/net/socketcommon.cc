@@ -436,11 +436,12 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 }
 
 string
-omrset_to_string(const OmRSet &omrset)
+omrset_to_string(const Xapian::RSet &omrset)
 {
     string result = om_tostring(omrset.size());
 
-    for (set<om_docid>::const_iterator i = omrset.internal->items.begin();
+    set<Xapian::docid>::const_iterator i;
+    for (i = omrset.internal->items.begin();
 	 i != omrset.internal->items.end();
 	 ++i) {
 	result += " ";
@@ -641,10 +642,10 @@ string_to_ommset_termfreqwts(const string &s)
     return result;
 }
 
-OmRSet
+Xapian::RSet
 string_to_omrset(const string &s)
 {
-    OmRSet omrset;
+    Xapian::RSet omrset;
 
     om_docid did;
     int numitems;

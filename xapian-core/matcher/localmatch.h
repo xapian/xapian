@@ -102,7 +102,7 @@ class LocalSubMatch : public SubMatch {
     public:
 	LocalSubMatch(const Database *db_,
 		      const Xapian::Query::Internal * query,
-		      const OmRSet & omrset, StatsGatherer *gatherer,
+		      const Xapian::RSet & omrset, StatsGatherer *gatherer,
 		      const Xapian::Weight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),

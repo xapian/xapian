@@ -473,30 +473,29 @@ inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
     return (a.index != b.index);
 }
 
-}
-
 /** A relevance set (R-Set).
  *  This is the set of documents which are marked as relevant, for use
  *  in modifying the term weights, and in performing query expansion.
  */
-class OmRSet {
+class RSet {
     public:
-	/// Class holding details of OmRSet
+	/// Class holding details of RSet
 	class Internal;
+
 	/// @internal Reference counted internals.
 	Internal *internal;
 
 	/// Copy constructor
-	OmRSet(const OmRSet &rset);
+	RSet(const RSet &rset);
 
 	/// Assignment operator
-	void operator=(const OmRSet &rset);
+	void operator=(const RSet &rset);
 
 	/// Default constructor
-	OmRSet();
+	RSet();
 
 	/// Destructor
-	~OmRSet();
+	~RSet();
 
 	/** The number of documents in this R-Set */
 	om_doccount size() const;
@@ -524,12 +523,10 @@ class OmRSet {
 
 	/** Introspection method.
 	 *
-	 *  @return  A string representing this OmRSet.
+	 *  @return  A string representing this RSet.
 	 */
 	std::string get_description() const;
 };
-
-namespace Xapian {
 
 /** Base class for matcher decision functor.
  */
@@ -731,7 +728,7 @@ class Enquire {
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	MSet get_mset(om_doccount first, om_doccount maxitems,
-		      const OmRSet * omrset = 0,
+		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
 
 	static const int include_query_terms = 1;
@@ -760,7 +757,7 @@ class Enquire {
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	ESet get_eset(om_termcount maxitems,
-			const OmRSet & omrset,
+			const RSet & omrset,
 			int flags = 0,
 			double k = 1.0,
 			const Xapian::ExpandDecider * edecider = 0) const;
@@ -779,7 +776,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	inline ESet get_eset(om_termcount maxitems, const OmRSet & omrset,
+	inline ESet get_eset(om_termcount maxitems, const RSet & omrset,
 			       const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}

@@ -118,7 +118,7 @@ static bool test_netexpand1()
 
     Assert(mset.size() > 0);
 
-    OmRSet rset;
+    Xapian::RSet rset;
     rset.add_document(*mset.begin());
 
     Xapian::ESet eset(enq.get_eset(10, rset));

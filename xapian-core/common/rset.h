@@ -54,8 +54,8 @@ class RSetI {
 	std::set<Xapian::docid> documents;
 
 	RSetI(const OmDatabase &root_);
-	RSetI(const OmDatabase &root_, const OmRSet & rset);
-	RSetI(const Database *dbroot_, const OmRSet & rset);
+	RSetI(const OmDatabase &root_, const Xapian::RSet & rset);
+	RSetI(const Database *dbroot_, const Xapian::RSet & rset);
 
 	void will_want_reltermfreq(string tname);
 
@@ -78,17 +78,17 @@ RSetI::RSetI(const OmDatabase &root_)
 
 /// Initialise with an Xapian::RSet
 inline
-RSetI::RSetI(const OmDatabase &root_, const OmRSet & omrset)
+RSetI::RSetI(const OmDatabase &root_, const Xapian::RSet & rset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
-	  documents(omrset.internal->items)
+	  documents(rset.internal->items)
 {
 }
 
-/// Initialise with an OmRSet
+/// Initialise with an Xapian::RSet
 inline
-RSetI::RSetI(const Database *dbroot_, const OmRSet & omrset)
+RSetI::RSetI(const Database *dbroot_, const Xapian::RSet & rset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false),
-	  documents(omrset.internal->items)
+	  documents(rset.internal->items)
 {
 }
 

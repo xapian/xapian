@@ -727,7 +727,7 @@ answer:
 <PRE>
 OmMSet <A HREF="apidoc/html/class_OmEnquire.html">OmEnquire::get_mset</A>(om_doccount first,
                            om_doccount maxitems,
-                           const OmRSet * omrset = 0,
+                           const Xapian::RSet * omrset = 0,
                            const OmMatchOptions * moptions = 0,
                            const Xapian::MatchDecider * mdecider = 0) const
 </PRE>
@@ -835,7 +835,7 @@ Xapian supports the idea of relevance feedback: that is, of allowing the user
 to mark documents as being relevant to the search, and using this information
 to modify the search.  This is supported by means of relevance sets, which
 are simply sets of document id's which are marked as relevant.  These
-are held in <A HREF="apidoc/html/class_OmRSet.html"><CODE>OmRSet</CODE></A> objects,
+are held in <A HREF="apidoc/html/class_RSet.html"><CODE>Xapian::RSet</CODE></A> objects,
 one of which may optionally be supplied to Xapian in the
 <CODE>omrset</CODE> parameter when calling
 <CODE>OmEnquire::get_mset()</CODE>.
@@ -907,13 +907,13 @@ query, based on the relevant documents supplied.  A set of such
 terms, together with their weights, may be returned by:
 <PRE>
 OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
-                           const OmRSet &amp; omrset,
+                           const Xapian::RSet &amp; omrset,
 			   bool exclude_query_terms = true,
 			   bool use_exact_termfreq = false,
 			   double k = 1.0,
 			   const Xapian::ExpandDecider * edecider = 0) const;
 OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
-                           const OmRSet &amp; omrset,
+                           const Xapian::RSet &amp; omrset,
                            const Xapian::ExpandDecider * edecider) const
 </PRE>
 </P>

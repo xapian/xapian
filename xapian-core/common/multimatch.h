@@ -117,7 +117,7 @@ class MultiMatch
 	 */
 	MultiMatch(const OmDatabase &db_,
 		   const Xapian::Query::Internal * query,
-		   const OmRSet & omrset,
+		   const Xapian::RSet & omrset,
 		   om_valueno collapse_key_,
 		   int percent_cutoff_,
 		   om_weight weight_cutoff_,

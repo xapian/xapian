@@ -76,7 +76,7 @@ class NetClient : public RefCntBase {
 			       om_valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, om_weight weight_cutoff,
 			       const Xapian::Weight *wtscheme,
-			       const OmRSet &omrset_) = 0;
+			       const Xapian::RSet &omrset_) = 0;
 
 	/** Read the remote statistics.
 	 *  Returns true if the call succeeded, or false
