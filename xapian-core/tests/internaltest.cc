@@ -327,6 +327,20 @@ bool test_omstringstream1()
     return success;
 }
 
+bool test_omstringstream2()
+{
+    bool success = true;
+
+    om_ostringstream oss;
+
+    oss << "a" << std::endl;
+
+    std::string foo = oss.str();
+    cout << oss.str() << endl;
+
+    return success;
+}
+
 #ifdef MUS_BUILD_BACKEND_SLEEPY
 // test whether a SleepyList packs and unpacks correctly
 bool test_sleepypack1()
@@ -515,6 +529,7 @@ test_desc tests[] = {
     {"sleepypack1",		test_sleepypack1},
 #endif
     {"omstringstream1",		test_omstringstream1},
+    {"omstringstream2",		test_omstringstream2},
 #if 0  // OmSettings currently disabled, and not used.  CME 20/6/2000
     {"omsettings1",		test_omsettings1},
     {"omsettings2",		test_omsettings2},

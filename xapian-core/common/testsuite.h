@@ -46,7 +46,7 @@ class TestFailure {
 // Don't bracket a, because it may have <<'s in it
 //#define FAIL_TEST(a) { TestFailure testfail; testfail << a; throw testfail; }
 #define FAIL_TEST(a) { TestFailure testfail; \
-                       if (verbose) { cout << a;} \
+                       if (verbose) { std::cout << a;} \
 		       throw testfail; }
 
 /// Type for a test function.
@@ -174,8 +174,8 @@ inline void test_driver::set_abort_on_error(bool aoe_)
  *  NB: uses an else clause to avoid dangling else damage
  */
 #define TEST_AND_EXPLAIN(a, b) if (a) { } else \
-                             FAIL_TEST(TESTCASE_LOCN(a) << endl << \
-				       b << endl)
+                             FAIL_TEST(TESTCASE_LOCN(a) << std::endl << \
+				       b << std::endl)
 
 /// Test a condition, without an additional explanation for failure.
 #define TEST(a) TEST_AND_EXPLAIN(a, "")
@@ -183,12 +183,12 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
-	" were " << (a) << " and " << (b) << endl)
+	" were " << (a) << " and " << (b) << std::endl)
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
-	" were " << (a) << " and " << (b) << endl)
+	" were " << (a) << " and " << (b) << std::endl)
 
 
 #endif  // OM_HGUARD_TESTSUITE_H

@@ -1,3 +1,11 @@
+Mon Jul 17 19:35:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The testsuite now has improved reporting of test failures.  It
+	  tells you whether it was an exception, a normal fail, or a
+	  memory leak (and some combinations).
+
+	* Solaris portability tweaks.
+
 Mon Jul 17 19:13:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* BackendManager now working from Java, at least for sleepy databases.

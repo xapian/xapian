@@ -36,10 +36,14 @@
 #include <string.h>
 #include <errno.h>
 
+using std::cout;
+using std::cerr;
+using std::endl;
+
 #include "omlocks.h"
 #include "omstringstream.h"
 #include <memory>
-auto_ptr<OmLock> outputmutex;
+std::auto_ptr<OmLock> outputmutex;
 #define OutputMessage(a) { \
     OmLockSentry sentry(*outputmutex); \
     om_ostringstream os; \
@@ -47,22 +51,22 @@ auto_ptr<OmLock> outputmutex;
     fprintf(stdout, "%s", os.str().c_str()); \
 }
 
-static string database_path;
-static string queryfile;
+static std::string database_path;
+static std::string queryfile;
 static int num_threads;
 
 struct some_searches
 {
-    string database_type;
-    string database_path;
+    std::string database_type;
+    std::string database_path;
     OmDatabaseGroup dbgrp;
-    vector<OmQuery> queries;
-    vector<OmMSet> expected_results;
-    vector<OmMSet> inthread_results;
+    std::vector<OmQuery> queries;
+    std::vector<OmMSet> expected_results;
+    std::vector<OmMSet> inthread_results;
 };
 
 OmDatabaseGroup
-open_db_group(string database_type, string dlist_path)
+open_db_group(std::string database_type, std::string dlist_path)
 {
     OmDatabaseGroup dbgrp;
 
@@ -70,18 +74,18 @@ open_db_group(string database_type, string dlist_path)
     TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << dlist_path << "' - " <<
 		     strerror(errno));
     while(!feof(fp) && !ferror(fp)) {
-	string database_path;
+	std::string database_path;
 	while(1) {
 	    char c;
 	    fread(&c, sizeof(char), 1, fp);
 	    if (feof (fp) || ferror (fp) || c == '\n') {
 		break;
 	    }
-	    database_path += string(&c, 1);
+	    database_path += std::string(&c, 1);
 	}
 	if(database_path.size() != 0) {
 	    OutputMessage("Adding `" << database_path << "' to dlist" << endl);
-	    vector<string> params;
+	    std::vector<std::string> params;
 	    params.push_back(database_path);
 	    OmDatabase db(database_type, params);
 	    dbgrp.add_database(db);
@@ -96,10 +100,10 @@ open_db_group(string database_type, string dlist_path)
 
 void
 search_stuff(OmEnquire & enq,
-	     vector<OmQuery> & queries,
-	     vector<OmMSet> & results)
+	     std::vector<OmQuery> & queries,
+	     std::vector<OmMSet> & results)
 {
-    vector<OmQuery>::const_iterator i;
+    std::vector<OmQuery>::const_iterator i;
     for (i = queries.begin(); i != queries.end(); i++) {
 	enq.set_query(*i);
 	results.push_back(enq.get_mset(0, 10));
@@ -111,18 +115,18 @@ search_stuff(OmEnquire & enq,
 
 void
 search_stuff(OmDatabaseGroup & dbgrp,
-	     vector<OmQuery> & queries,
-	     vector<OmMSet> & results)
+	     std::vector<OmQuery> & queries,
+	     std::vector<OmMSet> & results)
 {
     OmEnquire enq(dbgrp);
     search_stuff(enq, queries, results);
 }
 
 void
-search_stuff(string database_type,
-	     string database_path,
-	     vector<OmQuery> & queries,
-	     vector<OmMSet> & results)
+search_stuff(std::string database_type,
+	     std::string database_path,
+	     std::vector<OmQuery> & queries,
+	     std::vector<OmMSet> & results)
 {
     OmDatabaseGroup dbgrp = open_db_group(database_type, database_path);
     search_stuff(dbgrp, queries, results);
@@ -154,14 +158,14 @@ search_thread_separateenqs(void * data)
 }
 
 void
-read_queries(string filename, vector<OmQuery> & queries)
+read_queries(std::string filename, std::vector<OmQuery> & queries)
 {
     FILE * fp = fopen (filename.c_str(), "r");
     TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << filename << "' - " <<
 		     strerror(errno))
     while(!feof(fp)) {
-	vector<string> terms;
-	string thisterm;
+	std::vector<std::string> terms;
+	std::string thisterm;
 	while(1) {
 	    char c;
 	    fread(&c, sizeof(char), 1, fp);
@@ -174,7 +178,7 @@ read_queries(string filename, vector<OmQuery> & queries)
 		    thisterm = "";
 		}
 	    } else {
-		thisterm += string(&c, 1);
+		thisterm += std::string(&c, 1);
 	    }
 	}
 
@@ -189,8 +193,8 @@ read_queries(string filename, vector<OmQuery> & queries)
 
 bool check_query_threads(void * (* search_thread)(void *))
 {
-    vector<pthread_t> threads;
-    vector<struct some_searches> searches;
+    std::vector<pthread_t> threads;
+    std::vector<struct some_searches> searches;
 
     OutputMessage("Performing test with " << num_threads << " threads." << endl);
 
@@ -253,7 +257,7 @@ bool check_query_threads(void * (* search_thread)(void *))
 	TEST_EQUAL(searches[i].expected_results.size(),
 		   searches[i].inthread_results.size());
 
-	for (vector<OmMSet>::size_type j = 0;
+	for (std::vector<OmMSet>::size_type j = 0;
 	     j != searches[i].expected_results.size(); j++) {
 	    TEST_EQUAL(searches[i].expected_results[j],
 		       searches[i].inthread_results[j]);
@@ -365,7 +369,7 @@ test_desc tests[] = {
 int main(int argc, char *argv[])
 {
     {
-	auto_ptr<OmLock> temp(new OmLock());
+	std::auto_ptr<OmLock> temp(new OmLock());
 	outputmutex = temp;
     }
     if (argc < 4) {

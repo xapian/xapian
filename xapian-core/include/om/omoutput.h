@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_OM_OUTPUT_H
 #define OM_HGUARD_OM_OUTPUT_H
 
+#include <iostream>
 
 #define OUTPUT_FUNCTION(a) \
 inline std::ostream & \

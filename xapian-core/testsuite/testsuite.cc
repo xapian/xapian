@@ -197,17 +197,23 @@ test_driver::runtest(const test_desc *test)
 
     try {
         success = test->run();
+        if (!success) {
+            out << " FAILED";
+        }
     } catch (TestFailure &fail) {
 	success = false;
+        out << " FAILED";
 	if (verbose) {
 	    std::cout << fail.message << std::endl;
 	}
     } catch (OmError &err) {
+        out << " OMEXCEPT";
 	if (verbose) {
 	    out << err.get_type() << " exception: " << err.get_msg() << std::endl;
 	}
 	success = false;
     } catch (...) {
+        out << " EXCEPT";
 	if (verbose) {
 	    out << "Unknown exception!" << std::endl;
 	}
@@ -233,6 +239,7 @@ test_driver::runtest(const test_desc *test)
 			<< " extra frees not allocated!" << std::endl;
 	    }
 	}
+        out << " LEAK";
 	success = false;
     }
     return success;
@@ -265,7 +272,7 @@ test_driver::result test_driver::do_run_tests(const std::string &testname)
 		out << " ok." << std::endl;
 	    } else {
 		++result.failed;
-		out << " FAILED" << std::endl;
+                out << std::endl;
 		if (abort_on_error) {
 		    out << "Test failed - aborting further tests." << std::endl;
 		    break;
