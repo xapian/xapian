@@ -1,3 +1,7 @@
+Tue Sep 26 13:30:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove a comment referring to auto_ptr
+
 Tue Sep 26 13:28:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added retries and suchlike for opening quartz databases.  Tables

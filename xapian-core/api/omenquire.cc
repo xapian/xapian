@@ -349,7 +349,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;
 
-    /* The auto_ptrs will clean up any dynamically allocated
+    /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
     AutoPtr<OmExpandDecider> decider_noquery;
