@@ -770,6 +770,9 @@ class OmBatchEnquire {
 		bool isvalid;
 		OmMSet result;
 	    public:
+		/** Create a batch result.  This is used by
+		 *  OmBatchEnquire::Internal.
+		 */
 		batch_result(const OmMSet &mset, bool isvalid_);
 
 		/** Return the OmMSet, if valid.
