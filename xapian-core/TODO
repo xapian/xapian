@@ -74,6 +74,9 @@ Priority | Area            | Task
 	 |                 | called repeatedly without calling add_database()
 	 |                 | in-between.
 ---------+-----------------+--------------------------------------------------
+ Medium  | LocalMatch      | Test performance when nth_element is run more
+         |                 | or less frequently, to see what is best.
+---------+-----------------+--------------------------------------------------
  Medium  | Exceptions      | Throw an OmFeatureUnavailableError() exception
          |                 | whenever a task can't be performed because
 	 |                 | something isn't compiled in.
