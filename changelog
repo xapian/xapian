@@ -1,3 +1,10 @@
+xapian-bindings (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Remove patch - fixed in slightly different manner in release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:57:17 +0000
+
 xapian-bindings (0.8.4-4) unstable; urgency=low
 
   * Fixes to patch.
