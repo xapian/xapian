@@ -1,3 +1,9 @@
+Tue Mar 08 04:13:03 GMT 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Fixed to add items for all tables in key order
+	  which produces results around 40% more compact (previously in the
+	  merge case, this was only happening for the postlist table).
+
 Tue Mar 08 03:30:06 GMT 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/btreecheck.cc: Make default check output fit on a single

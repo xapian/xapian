@@ -53,14 +53,20 @@ usage(const char * progname)
 	 << endl;
 }
 
-class MyBcursor : private Bcursor {
+static inline bool
+is_metainfo_key(const string & key)
+{
+    return key.size() == 1 && key[0] == '\0';
+}
+
+class PostlistCursor : private Bcursor {
         Xapian::docid offset;
     public:
 	string key, tag;
 	Xapian::docid firstdid;
 	Xapian::termcount tf, cf;
 
-	MyBcursor(Btree *in, Xapian::docid offset_)
+	PostlistCursor(Btree *in, Xapian::docid offset_)
 	    : Bcursor(in), offset(offset_)
 	{
 	    find_entry("");
@@ -109,14 +115,86 @@ class MyBcursor : private Bcursor {
 	}
 };
 
-class MyBcursorGt {
+class DocIDKeyedCursor : private Bcursor {
+        Xapian::docid offset;
+    public:
+	string key, tag;
+
+	DocIDKeyedCursor(Btree *in, Xapian::docid offset_)
+	    : Bcursor(in), offset(offset_)
+	{
+	    find_entry("");
+	    next();
+	}
+
+	bool next() {
+	    if (!Bcursor::next()) return false;
+	    read_tag();
+	    tag = current_tag;
+	    // Adjust the key if this isn't the first database and
+	    // this isn't the METAINFO key.
+	    if (offset && !is_metainfo_key(current_key)) {
+		Xapian::docid did;
+		const char * d = current_key.data();
+		if (!unpack_uint_last(&d, d + current_key.size(), &did))
+		    abort();
+		did += offset;
+		key = pack_uint_last(did);
+	    } else {
+		key = current_key;
+	    }
+	    return true;
+	}
+};
+
+class PositionCursor : private Bcursor {
+        Xapian::docid offset;
+    public:
+	string key, tag;
+
+	PositionCursor(Btree *in, Xapian::docid offset_)
+	    : Bcursor(in), offset(offset_)
+	{
+	    find_entry("");
+	    next();
+	}
+
+	bool next() {
+	    if (!Bcursor::next()) return false;
+	    read_tag();
+	    tag = current_tag;
+	    // Adjust the key if this isn't the first database.
+	    if (offset) {
+		// key is: pack_uint(did) + tname
+		Xapian::docid did;
+		const char * d = current_key.data();
+		if (!unpack_uint(&d, d + current_key.size(), &did))
+		    abort();
+		did += offset;
+		key = pack_uint_last(did);
+		size_t tnameidx = d - current_key.data();
+		key += current_key.substr(tnameidx);
+	    } else {
+		key = current_key;
+	    }
+	    return true;
+	}
+};
+
+class CursorGt {
   public:
     /** Return true if and only if a's key is strictly greater than b's key.
      */
-    bool operator()(const MyBcursor *a, const MyBcursor *b) {
+    bool operator()(const PostlistCursor *a, const PostlistCursor *b) {
 	if (a->key > b->key) return true;
 	if (a->key != b->key) return false;
 	return (a->firstdid > b->firstdid);
+    }
+    bool operator()(const DocIDKeyedCursor *a, const DocIDKeyedCursor *b) {
+	return (a->key > b->key);
+    }
+    bool operator()(const PositionCursor *a, const PositionCursor *b) {
+	return (a->key > b->key);
     }
 };
 
@@ -188,10 +266,8 @@ main(int argc, char **argv)
     quartz_totlen_t tot_totlen = 0;
     try {
 	const char * tables[] = {
-	    "record", "termlist", "position", "value"
+	    "postlist", "record", "termlist", "position", "value"
 	};
-
-	struct stat sb;
 
 	const size_t out_of = argc - 1 - optind;
 	vector<Xapian::docid> offset(out_of);
@@ -206,6 +282,12 @@ main(int argc, char **argv)
 
 	for (const char **t = tables;
 	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+	    // The postlist requires an N-way merge, adjusting the headers
+	    // of various blocks.  The other tables also require an N-way
+	    // merge, because the keys we use in quartz don't sort in
+	    // docid order.
+	    cout << *t << " ..." << flush;
+
 	    string dest = destdir;
 	    dest += '/';
 	    dest += *t;
@@ -216,200 +298,223 @@ main(int argc, char **argv)
 	    out.open();
 	    out.set_full_compaction(full_compaction);
 
+	    // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
+	    // on certain systems).
+	    bool bad_stat = false;
+
 	    off_t in_size = 0;
 
-	    for (int i = 0; i < out_of; ++i) {
-		if (i) cout << '\r';
-		cout << *t;
-		if (out_of > 1) cout << ' ' << i << '/' << out_of;
-		cout << " ..." << flush;
+	    vector<Btree *> btrees;
 
-		Xapian::docid off = offset[i];
-		const char *srcdir = argv[i + optind];
-		string src(srcdir);
-		src += '/';
-		src += *t;
-		src += '_';
-		Btree in(src, true);
-		in.open();
+	    if (*t == "postlist") {
+		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
+			       CursorGt> pq;
+		for (int i = 0; i < out_of; ++i) {
+		    Xapian::docid off = offset[i];
+		    const char *srcdir = argv[i + optind];
+		    string src(srcdir);
+		    src += '/';
+		    src += *t;
+		    src += '_';
 
-		if (stat(src + "DB", &sb) == 0) in_size += sb.st_size / 1024;
+		    Btree *in = new Btree(src, true);
+		    in->open();
+		    if (in->get_entry_count()) {
+			btrees.push_back(in);
+			pq.push(new PostlistCursor(in, off));
+		    } else {
+			delete in;
+		    }
 
-		if (in.get_entry_count()) {
-		    Bcursor BC(&in);
-		    BC.find_entry("");
-		    while (BC.next()) {
-			BC.read_tag();
-			string key = BC.current_key;
-			switch (**t) {
-			    case 'r': // (r)ecord
-				if (key == string("", 1)) {
-				    // Handle the METAINFO key.
-				    Xapian::docid did;
-				    quartz_totlen_t totlen;
-				    const char * data = BC.current_tag.data();
-				    const char * end = data + BC.current_tag.size();
-				    if (!unpack_uint(&data, end, &did)) {
-					throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-				    }
-				    if (!unpack_uint_last(&data, end, &totlen)) {
-					throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-				    }
-				    tot_totlen += totlen;
-				    if (tot_totlen < tot_totlen) {
-					throw "totlen wrapped!";
-				    }
-				    if (i == out_of - 1) {
-					string tag = pack_uint(tot_off);
-					tag += pack_uint_last(tot_totlen);
-					out.add(string("", 1), tag);
-				    }
-				    continue;
-				}
-				/* FALLTHRU */
-			    case 't': // (t)ermlist
-			    case 'v': // (v)alue
-				if (off != 0) {
-				    const char * d = key.data();
-				    Xapian::docid did;
-				    if (!unpack_uint_last(&d, d + key.size(), &did))
-					abort();
-				    key = pack_uint_last(did + off);
-				}
-				break;
-			    case 'p': // (p)osition
-				if (off != 0) {
-				    // key is: pack_uint(did) + tname
-				    const char * d = key.data();
-				    Xapian::docid did;
-				    if (!unpack_uint(&d, d + key.size(), &did))
-					abort();
-				    did += off;
-				    size_t tnameidx = d - key.data();
-				    key = pack_uint(did) + key.substr(tnameidx);
-				}
-				break;
+		    struct stat sb;
+		    if (stat(src + "DB", &sb) == 0)
+			in_size += sb.st_size / 1024;
+		    else
+			bad_stat = true;
+		}
+
+		string last_key;
+		Xapian::termcount tf, cf;
+		vector<pair<Xapian::docid, string> > tags;
+		while (true) {
+		    PostlistCursor * bc = NULL;
+		    if (!pq.empty()) {
+			bc = pq.top();
+			pq.pop();
+		    }
+		    if (bc == NULL || bc->key != last_key) {
+			if (!tags.empty()) {
+			    string first_tag = pack_uint(tf);
+			    first_tag += pack_uint(cf);
+			    first_tag += pack_uint(tags[0].first - 1);
+			    string tag = tags[0].second;
+			    tag[0] = (tags.size() == 1) ? '1' : '0';
+			    first_tag += tag;
+			    out.add(last_key, first_tag);
+			    vector<pair<Xapian::docid, string> >::const_iterator i;
+			    i = tags.begin();
+			    while (++i != tags.end()) {
+				string key = last_key;
+				key += pack_uint_preserving_sort(i->first);
+				tag = i->second;
+				tag[0] = (i + 1 == tags.end()) ? '1' : '0';
+				out.add(key, tag);
+			    }
 			}
-			out.add(key, BC.current_tag);
+			tags.clear();
+			if (bc == NULL) break;
+			tf = cf = 0;
+			last_key = bc->key;
+		    }
+		    tf += bc->tf;
+		    cf += bc->cf;
+		    tags.push_back(make_pair(bc->firstdid, bc->tag));
+		    if (bc->next()) {
+			pq.push(bc);
+		    } else {
+			delete bc;
+		    }
+		}
+	    } else if (*t == "position") {
+		priority_queue<PositionCursor *, vector<PositionCursor *>,
+			       CursorGt> pq;
+		for (int i = 0; i < out_of; ++i) {
+		    Xapian::docid off = offset[i];
+		    const char *srcdir = argv[i + optind];
+		    string src(srcdir);
+		    src += '/';
+		    src += *t;
+		    src += '_';
+
+		    Btree *in = new Btree(src, true);
+		    in->open();
+		    if (in->get_entry_count()) {
+			btrees.push_back(in);
+			pq.push(new PositionCursor(in, off));
+		    } else {
+			delete in;
+		    }
+
+		    struct stat sb;
+		    if (stat(src + "DB", &sb) == 0)
+			in_size += sb.st_size / 1024;
+		    else
+			bad_stat = true;
+		}
+
+		while (!pq.empty()) {
+		    PositionCursor * bc = pq.top();
+		    pq.pop();
+		    out.add(bc->key, bc->tag);
+		    if (bc->next()) {
+			pq.push(bc);
+		    } else {
+			delete bc;
+		    }
+		}
+	    } else {
+		// Record, Termlist, Value
+		priority_queue<DocIDKeyedCursor *, vector<DocIDKeyedCursor *>,
+			       CursorGt> pq;
+		for (int i = 0; i < out_of; ++i) {
+		    Xapian::docid off = offset[i];
+		    const char *srcdir = argv[i + optind];
+		    string src(srcdir);
+		    src += '/';
+		    src += *t;
+		    src += '_';
+
+		    Btree *in = new Btree(src, true);
+		    in->open();
+		    if (in->get_entry_count()) {
+			btrees.push_back(in);
+			pq.push(new DocIDKeyedCursor(in, off));
+		    } else {
+			delete in;
+		    }
+
+		    struct stat sb;
+		    if (stat(src + "DB", &sb) == 0)
+			in_size += sb.st_size / 1024;
+		    else
+			bad_stat = true;
+		}
+
+		if (*t == "record") {
+		    // Merge the METAINFO tags from each database into one.
+		    // They have a key with a single zero byte, which will
+		    // always be the first key.
+		    Xapian::docid did;
+		    quartz_totlen_t totlen = 0;
+		    for (int i = pq.size(); i > 0; --i) {
+			DocIDKeyedCursor * bc = pq.top();
+			pq.pop();
+			if (!is_metainfo_key(bc->key)) {
+			    throw Xapian::DatabaseCorruptError("No METAINFO item in record table.");
+			}
+			const char * data = bc->tag.data();
+			const char * end = data + bc->tag.size();
+			if (!unpack_uint(&data, end, &did)) {
+			    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+			}
+			if (!unpack_uint_last(&data, end, &totlen)) {
+			    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+			}
+			tot_totlen += totlen;
+			if (tot_totlen < tot_totlen) {
+			    throw "totlen wrapped!";
+			}
+			if (bc->next()) {
+			    pq.push(bc);
+			} else {
+			    delete bc;
+			}
+		    }
+		    string tag = pack_uint(tot_off);
+		    tag += pack_uint_last(tot_totlen);
+		    out.add(string("", 1), tag);
+		}
+
+		while (!pq.empty()) {
+		    DocIDKeyedCursor * bc = pq.top();
+		    pq.pop();
+		    out.add(bc->key, bc->tag);
+		    if (bc->next()) {
+			pq.push(bc);
+		    } else {
+			delete bc;
 		    }
 		}
 	    }
+
+	    for (vector<Btree *>::const_iterator b = btrees.begin();
+		 b != btrees.end(); ++b) {
+		delete *b;
+	    }
+	    btrees.clear();
+
 	    out.commit(1);
 
-	    if (in_size != 0 && stat(dest + "DB", &sb) == 0) {
+	    cout << '\r' << *t << ": ";
+	    struct stat sb;
+	    if (!bad_stat && stat(dest + "DB", &sb) == 0) {
 		off_t out_size = sb.st_size / 1024;
-		if (out_size <= in_size) {
-		    cout << '\r' << *t << ": Reduced by "
+		if (out_size == in_size) {
+		    cout << "Size unchanged (";
+		} else if (out_size < in_size) {
+		    cout << "Reduced by "
 			 << 100 * double(in_size - out_size) / in_size << "% "
-			 << in_size - out_size << "K (" << in_size << "K -> "
-			 << out_size << "K)" << endl;
+			 << in_size - out_size << "K (" << in_size << "K -> ";
 		} else {
-		    cout << '\r' << *t << ": INCREASED by "
+		    cout << "INCREASED by "
 			 << 100 * double(out_size - in_size) / in_size << "% "
-			 << out_size - in_size << "K (" << in_size << "K -> "
-			 << out_size << "K)" << endl;
+			 << out_size - in_size << "K (" << in_size << "K -> ";
 		}
+		cout << out_size << "K)";
 	    } else {
-		cout << '\r' << *t << ": Done" << endl;
+		cout << "Done (couldn't stat all the DB files)";
 	    }
-	}
-
-	// The postlist requires an N-way merge, adjusting the headers
-	// of various blocks.
-
-	cout << "postlist ..." << flush;
-
-	string pdest = destdir;
-	pdest += "/postlist_";
-
-	Btree out(pdest, false);
-	out.create(8192);
-	out.open();
-	out.set_full_compaction(full_compaction);
-
-	off_t in_size = 0;
-
-	vector<Btree *> btrees;
-
-	priority_queue<MyBcursor *, std::vector<MyBcursor *>, MyBcursorGt> pq;
-	for (int i = 0; i < out_of; ++i) {
-	    Xapian::docid off = offset[i];
-	    const char *srcdir = argv[i + optind];
-	    string src(srcdir);
-	    src += "/postlist_";
-
-	    Btree *in = new Btree(src, true);
-	    in->open();
-	    if (in->get_entry_count()) {
-		btrees.push_back(in);
-		MyBcursor * bc = new MyBcursor(in, off);
-		pq.push(bc);
-	    } else {
-		delete in;
-	    }
-
-	    if (stat(src + "DB", &sb) == 0) in_size += sb.st_size / 1024;
-	}
-
-	string last_key;
-	Xapian::termcount tf, cf;
-	vector<pair<Xapian::docid, string> > tags;
-	while (true) {
-	    MyBcursor * bc = NULL;
-	    if (!pq.empty()) {
-		bc = pq.top();
-		pq.pop();
-	    }
-	    if (bc == NULL || bc->key != last_key) {
-		if (!tags.empty()) {
-		    string first_tag = pack_uint(tf);
-		    first_tag += pack_uint(cf);
-		    first_tag += pack_uint(tags[0].first - 1);
-		    string tag = tags[0].second;
-		    tag[0] = (tags.size() == 1) ? '1' : '0';
-		    first_tag += tag;
-		    out.add(last_key, first_tag);
-		    vector<pair<Xapian::docid, string> >::const_iterator i;
-		    i = tags.begin();
-		    while (++i != tags.end()) {
-			string key = last_key;
-			key += pack_uint_preserving_sort(i->first);
-			tag = i->second;
-			tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-			out.add(key, tag);
-		    }
-		}
-		tags.clear();
-		if (bc == NULL) break;
-		tf = cf = 0;
-		last_key = bc->key;
-	    }
-	    tf += bc->tf;
-	    cf += bc->cf;
-	    tags.push_back(make_pair(bc->firstdid, bc->tag));
-	    if (bc->next()) {
-		pq.push(bc);
-	    } else {
-		delete bc;
-	    }
-	}
-
-	for (vector<Btree *>::const_iterator b = btrees.begin();
-	     b != btrees.end(); ++b) {
-	    delete *b;
-	}
-	btrees.clear();
-
-	out.commit(1);
-
-	if (in_size != 0 && stat(pdest + "DB", &sb) == 0) {
-	    off_t out_size = sb.st_size / 1024;
-	    cout << "\rpostlist: Reduced by "
-		<< 100 * double(in_size - out_size) / in_size << "% "
-		<< in_size - out_size << "K (" << in_size << "K -> "
-		<< out_size << "K)" << endl;
-	} else {
-	    cout << "\rpostlist: Done" << endl;
+	    cout << endl;
 	}
 
 	// Copy meta file
