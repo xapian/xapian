@@ -32,12 +32,12 @@ set -e
 # Otherwise, we are building a snapshot package, and will build directly
 # from CVS code.  (FIXME - currently generates from a cached tarball if there
 # is one.  Not sure this is a bad thing.)
-CVSTAG='v0-8-3'
+CVSTAG='v0-8-4'
 
 # CVS tags to use to check out Debian control files
-DEBTAG_CORE='debian0-8-3_1'
-DEBTAG_BINDINGS='debian0-8-3_1'
-DEBTAG_OMEGA='debian0-8-3_1'
+DEBTAG_CORE='debian0-8-4_1'
+DEBTAG_BINDINGS='debian0-8-4_1'
+DEBTAG_OMEGA='debian0-8-4_1'
 
 #CVSTAG=HEAD
 #DEBTAG_CORE=HEAD
@@ -59,9 +59,11 @@ PUBDIR="/usr/data/www/xapian.org/debian"
 
 ## Items after this point should not normally need to be modified
 
-# Location to download tarballs from.
+# Location to checkout source from.
 CVSROOT=":pserver:cvsuser@cvs.xapian.org:/usr/data/cvs"
 
+# Location to download tarballs from
+DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 
 ## BEGIN PROCESSING ##
 trap "echo \"makedebs failed\"" EXIT
@@ -167,7 +169,39 @@ TARBALL_CORE="${PUBDIR}/${POOLDIR}/source/xapian-core_${SNAP_VERSION}.orig.tar.g
 TARBALL_BINDINGS="${PUBDIR}/${POOLDIR}/source/xapian-bindings_${SNAP_VERSION}.orig.tar.gz"
 TARBALL_OMEGA="${PUBDIR}/${POOLDIR}/source/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
 
-# Make tarballs, if we don't already have some
+# Download tarballs, if we don't already have some
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+then
+  # Distribution tarballs all exist
+  true
+else
+  URL_CORE="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
+  URL_BINDINGS="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
+  URL_OMEGA="${DOWNLOAD_BASE}/${SNAP_VERSION}/omega-${SNAP_VERSION}.tar.gz"
+
+  # Make download directory
+  rm -rf downloads
+  mkdir -p downloads
+  cd downloads
+    wget -q ${URL_CORE}
+    wget -q ${URL_BINDINGS}
+    wget -q ${URL_OMEGA}
+    if [ -e "xapian-core-${SNAP_VERSION}.tar.gz" -a \
+         -e "xapian-bindings-${SNAP_VERSION}.tar.gz" -a \
+         -e "omega-${SNAP_VERSION}.tar.gz" ];
+    then
+      # Make source directory
+      mkdir -p "${PUBDIR}/${POOLDIR}/source"
+
+      mv "xapian-core-${SNAP_VERSION}.tar.gz" ${TARBALL_CORE};
+      mv "xapian-bindings-${SNAP_VERSION}.tar.gz" ${TARBALL_BINDINGS};
+      mv "omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA};
+    fi
+  cd ..
+  rm -rf downloads
+fi
+
+# Make tarballs, if we still don't have some
 if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
 then
   # Distribution tarballs all exist
