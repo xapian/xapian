@@ -6,6 +6,9 @@ ToDo items on the coding side.  (Not a complete list)
 Near term
 =========
 
+Make a separate package to contain stemming algorithm stuff (docs, code, 
+stemtest)
+
 Set appropriate copy and assignment methods for each class with a destructor.
 
 Change Asserts in API to be OMError exceptions.  Do some general work on the
