@@ -71,7 +71,8 @@ PostList * MultiPostList::next(weight w_min)
 		// entry
 		continue;
 	    }
-	    (*i).currdoc = (*i).pl->get_docid() * (*i).multiplier + (*i).offset;
+	    (*i).currdoc = ((*i).pl->get_docid() - 1) * (*i).multiplier +
+		           (*i).offset;
 	}
 
 	// Check if it might be the newdoc
@@ -147,7 +148,7 @@ MultiDatabase::open_post_list(termid tid) const {
 
     termname tname = term_id_to_name(tid);
 
-    doccount offset = 0;
+    doccount offset = 1;
     doccount multiplier = databases.size();
 
     list<MultiPostListInternal> pls;
@@ -175,8 +176,8 @@ MultiDatabase::open_term_list(docid did) const {
 
     doccount multiplier = databases.size();
 
-    docid realdid = did / multiplier;
-    doccount dbnumber = did % multiplier;
+    docid realdid = (did - 1) / multiplier + 1;
+    doccount dbnumber = (did - 1) % multiplier;
 
     TermList *newtl;
     newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
@@ -190,8 +191,8 @@ MultiDatabase::open_document(docid did) const {
 
     doccount multiplier = databases.size();
 
-    docid realdid = did / multiplier;
-    doccount dbnumber = did % multiplier;
+    docid realdid = (did - 1) / multiplier + 1;
+    doccount dbnumber = (did - 1) % multiplier;
 
     return (*(databases.begin() + dbnumber))->open_document(realdid);
 }
@@ -254,6 +255,7 @@ IRDatabase *
 MultiDatabase::get_database_of_doc(docid did) const
 {
     Assert(opened);
+    doccount multiplier = databases.size();
 
-    return databases[(did - 1) % databases.size()];
+    return databases[(did - 1) % multiplier];
 }
