@@ -326,6 +326,8 @@ try {
 	    sort_bands = atoi(val->second.c_str());
 	    if (sort_bands <= 0) sort_bands = 1;
 	}
+	// FIXME: add SORT and SORTBANDS to filters too!  But in a compatible
+	// way ideally...
     }
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
@@ -336,8 +338,6 @@ try {
     if (val == cgi_params.end()) val = cgi_params.find("MIN_HITS");
     if (val != cgi_params.end()) {
 	min_hits = atol(val->second.c_str());
-    } else {
-        min_hits = 0;
     }
 
     parse_omegascript(); 
