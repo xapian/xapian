@@ -5,6 +5,11 @@ CVSSearch
 INSTALLATION
 ============
 
+If you're using Debian testing or unstable you should be able to install all
+the required dependencies apart from Xapian using:
+
+apt-get install exuberant-ctags libdb4.0++-dev libxml2-dev
+
 * install ctags 5.0 or higher (warning: version 4.x won't work) from
   http://ctags.sourceforge.net
   
