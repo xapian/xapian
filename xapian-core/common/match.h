@@ -14,7 +14,6 @@ class Match {
     private:
         IRDatabase *DB;
    
-        PostList *merger;
         doccount max_msize;
 
         // FIXME: try using a heap instead (C++ sect 18.8)

@@ -5,7 +5,6 @@
 Match::Match(IRDatabase *database)
 {
     DB = database;
-    merger = NULL;
     max_msize = 1000;
 }
 
@@ -40,25 +39,21 @@ class MSetCmp {
 void
 Match::match(void)
 {    
-    if (!merger) {
-        if (pq.empty()) return; // No terms in query
+    PostList *merger;
 
-        PostList *tmp;
-       
-        // build a tree balanced by the term frequencies
-        // (similar to building a huffman encoding tree)
-        while (true) {
-	    tmp = pq.top();
-	    pq.pop();
-	    if (pq.empty()) break;
-	    tmp = new MergedPostList(pq.top(), tmp);
-	    pq.pop();
-	    pq.push(tmp);
-	}
-       
-        merger = tmp;
+    if (pq.empty()) return; // No terms in query
+
+    // build a tree balanced by the term frequencies
+    // (similar to building a huffman encoding tree)
+    while (true) {
+	merger = pq.top();
+	pq.pop();
+	if (pq.empty()) break;
+	merger = new MergedPostList(pq.top(), merger);
+	pq.pop();
+	pq.push(merger);
     }
-
+    
     doccount msize = 0, mtotal = 0;
     weight w_min = 0;
     vector<MSetItem> mset;
@@ -115,4 +110,5 @@ Match::match(void)
         cout << mset[i].id << "\t" << mset[i].w << endl;
     }
 #endif
+    delete merger;
 }
