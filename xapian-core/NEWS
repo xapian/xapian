@@ -1,9 +1,8 @@
-Xapian 0.7.2 (2003-07-1?):
+Xapian 0.7.2 (2003-07-11):
 
 testsuite:
 
-* Fixed dereference of a NULL pointer which would happen when a test threw an
-  unexpected exception.
+* Fixed NULL pointer dereference when a test threw an unexpected exception.
 
 backends:
 
@@ -37,14 +36,8 @@ bindings:
 * bindings/swig/xapian.i: Fixed over-enthusiastic automatic conversion of
   termname to std::string.
 
-* Tidied up a bit.
-
-	* bindings/php4/Makefile.am,bindings/php4/xapian/.cvsignore: More
-	  work on the php4 bindings.
-	* bindings/guile/Makefile.am,bindings/python/Makefile.am,
-	  bindings/tcl8/Makefile.am: Worked towards getting guile and tcl8
-	  bindings up-to-date.
-	* bindings/php4/.cvsignore: Ignore the whole xapian subdirectory.
+* PHP4 bindings much closer to working once again; updated guile and tcl8
+  somewhat.
 
 omega:
 
