@@ -87,11 +87,18 @@ class PlCmpGtTermWt {
 	 *  of the a or b is 0, the termweight is considered to be 0.
 	 */
 	bool operator()(const PostList *a, const PostList *b) {
-	    om_weight amax = a->get_maxweight();
-	    om_weight bmax = b->get_maxweight();
+	    om_weight amax, bmax;
+	    if (a->get_termfreq() == 0)
+		amax = 0;
+	    else
+		amax = a->get_maxweight();
+
+	    if (b->get_termfreq() == 0)
+		bmax = 0;
+	    else
+		bmax = b->get_maxweight();
+
 	    DEBUGLINE(MATCH, "termweights are: " << amax << " and " << bmax);
-	    if (a->get_termfreq() == 0) amax = 0;
-	    if (b->get_termfreq() == 0) bmax = 0;
 	    return amax > bmax;
 	}
 };
@@ -500,7 +507,6 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 			     const OmMSetItem &new_item,
 			     const OmMSetItem &min_item)
 {
-    // MULTI a lot
     // Don't collapse on null key
     if(new_item.collapse_key.value.size() == 0) return true;
 
@@ -524,18 +530,15 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 	    if(mcmp(olditem, min_item)) {
 		// Old one hasn't fallen out of MSet yet
 		// Scan through (unsorted) MSet looking for entry
-		// FIXME: more efficient way that just scanning?
+		// FIXME: more efficient way than just scanning?
 		om_docid olddid = olditem.did;
 		DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 			  ": " << new_item.collapse_key.value);
-		std::vector<OmMSetItem>::iterator i = mset.begin();
-		for(;;) {
-		    if(i->did == olddid) {
-			mset.erase(i);
-			break;
-		    }
-		    i++;
+		std::vector<OmMSetItem>::iterator i;
+		for (i = mset.begin(); i->did != olddid; i++) {
+		    Assert(i != mset.end());
 		}
+		mset.erase(i);
 	    }
 	    oldkey->second = new_item;
 	}
@@ -562,6 +565,7 @@ LocalMatch::get_mset(om_doccount first,
 		     const OmMatchDecider *mdecider,
 		     bool nowait)
 {
+    // MULTI a lot
     // Check that we have prepared to run the query
     Assert(is_prepared);
 

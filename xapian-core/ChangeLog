@@ -1,3 +1,11 @@
+Mon Sep 18 17:19:32 BST 2000 Olly Betts
+
+	* Efficiency tweak to max_or_terms comparator - don't call
+	  get_maxweight() if get_termfreq() is zero.
+
+	* More minor rearrangments in preparation for merging LocalMatch and
+	  MultiMatch.
+
 Mon Sep 18 15:43:46 BST 2000 Olly Betts
 
 	* A testsuite programs asked to run test "foo" will now run tests
