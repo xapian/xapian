@@ -1,3 +1,11 @@
+Thu Mar 27 05:42:41 GMT 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,configure.in,docs/.cvsignore,docs/Makefile.am,
+	  docs/index.html,docs/todo2html.pl: removed machinery to generate
+	  TODO, TODO.release, docs/todo.html, and docs/todo-release.html from
+	  docs/todo.xml - bug and todo items will be tracked in bugzilla
+	  instead.
+
 Thu Mar 27 05:25:12 GMT 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Removed completed items and those already fed into

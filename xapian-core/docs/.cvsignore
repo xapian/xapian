@@ -3,8 +3,6 @@ Makefile.in
 Makefile
 .deps
 code_structure.html
-todo.html
-todo-release.html
 doxygen_api
 doxygen_full
 doxygen_api_conf

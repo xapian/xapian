@@ -24,9 +24,9 @@ DIST_SUBDIRS = include testsuite autoconf common \
 
 bin_SCRIPTS = xapian-config
 
-CLEANFILES = TODO TODO.release xapian-config
+CLEANFILES = xapian-config
 
-EXTRA_DIST = ChangeLog HACKING PLATFORMS TODO TODO.release xapian.spec
+EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec
 
 lib_LTLIBRARIES = libxapian.la
 
@@ -34,24 +34,6 @@ lib_LTLIBRARIES = libxapian.la
 # (exhibited when there are no source files)
 libxapian_la_SOURCES = dummy.c
 EXTRA_libxapian_la_SOURCES =
-
-TODO: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
-if HAVE_PERL_XML_AND_TEXT
-	$(PERL) $(srcdir)/docs/todo2html.pl --text $(srcdir)/docs/todo.xml > TODO.tmp
-	mv TODO.tmp TODO
-else
-	@echo "Can't generate $@: need Perl XML::Parser and Text::Format module."
-	false
-endif
-
-TODO.release: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
-if HAVE_PERL_XML_AND_TEXT
-	$(PERL) $(srcdir)/docs/todo2html.pl --release \* --text $(srcdir)/docs/todo.xml > TODO.release.tmp
-	mv TODO.release.tmp TODO.release
-else
-	@echo "Can't generate $@: need Perl XML::Parser and Text::Format module."
-	false
-endif
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols

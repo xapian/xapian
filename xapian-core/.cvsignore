@@ -20,8 +20,6 @@ xapian-config
 xapian-config.nodep
 libxapian.la
 xapian-core-*.tar.gz
-TODO
-TODO.release
 autom4te*.cache
 depcomp
 missing

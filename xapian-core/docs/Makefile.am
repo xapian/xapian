@@ -12,11 +12,11 @@ SUFFIXES = .eps .dia .png
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
  quartzdesign.html matcherdesign.html tests.html \
- bm25.html code_structure.html todo.html todo-release.html \
+ bm25.html code_structure.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl todo2html.pl todo.xml \
+EXTRA_DIST = mkdoc.pl \
 	doxygen_api_conf.in doxygen_full_conf.in \
        	$(HTMLDOCS) \
 	doxygen_api_header.html_tmpl \
@@ -64,7 +64,7 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(docdatadir)/apidoc
 
 MAINTAINERCLEANFILES= doxygen_api_conf doxygen_full_conf \
-	code_structure.html todo.html todo-release.html apidoc.ps sourcedoc.ps
+	code_structure.html apidoc.ps sourcedoc.ps
 
 .FORCE: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -87,23 +87,6 @@ code_structure.html: mkdoc.pl $(top_srcdir)/configure.in
 	    echo Not rebuilding code_structure.html despite make with crude VPATH ;\
 	else \
 	    $(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@ ;\
-	fi
-
-todo.html: todo2html.pl todo.xml
-	if test -f "$(srcdir)/todo.html" && test ! -f todo.html && \
-	   test -z "`find $(srcdir)/todo2html.pl $(srcdir)/todo.xml -newer $(srcdir)/todo.html -print`" ; then \
-	    echo Not rebuilding todo.html despite make with crude VPATH ;\
-	else \
-	    $(PERL) $(srcdir)/todo2html.pl $(srcdir)/todo.xml >$@ ;\
-	fi
-
-todo-release.html: todo2html.pl todo.xml
-	if test -f "$(srcdir)/todo-release.html" && \
-	   test ! -f todo-release.html && \
-	   test -z "`find $(srcdir)/todo2html.pl $(srcdir)/todo.xml -newer $(srcdir)/todo-release.html -print`" ; then \
-	    echo Not rebuilding todo-release.html despite make with crude VPATH ;\
-	else \
-	    $(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@ ;\
 	fi
 
 # We run into problems with line length limits in older sed implementations
