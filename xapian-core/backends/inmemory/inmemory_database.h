@@ -91,8 +91,7 @@ class InMemoryTerm {
 	    // Add document to right place in list
 	    vector<InMemoryPosting>::iterator p;
 	    p = lower_bound(docs.begin(), docs.end(),
-			    post,
-			    InMemoryPostingLessByDocId());
+			    post, InMemoryPostingLessByDocId());
 	    if (p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
 		docs.insert(p, post);
 	    } else {
@@ -101,7 +100,7 @@ class InMemoryTerm {
 	}
 };
 
-// Class representing a document and the terms indexing it
+/// Class representing a document and the terms indexing it
 class InMemoryDoc {
     public:
 	bool is_valid;
@@ -113,8 +112,7 @@ class InMemoryDoc {
 	    // Add document to right place in list
 	    vector<InMemoryPosting>::iterator p;
 	    p = lower_bound(terms.begin(), terms.end(),
-			    post,
-			    InMemoryPostingLessByTermName());
+			    post, InMemoryPostingLessByTermName());
 	    if (p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
 		terms.insert(p, post);
 	    } else {
@@ -122,9 +120,6 @@ class InMemoryDoc {
 	    }
 	}
 };
-
-
-
 
 /** A PostList in an inmemory database.
  */
@@ -142,7 +137,7 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	RefCntPtr<const InMemoryDatabase> this_db;
+	RefCntPtr<const InMemoryDatabase> db;
 
 	InMemoryPostList(RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
@@ -164,7 +159,6 @@ class InMemoryPostList : public LeafPostList {
 	string get_description() const;
 };
 
-
 // Term List
 class InMemoryTermList : public LeafTermList {
     friend class InMemoryDatabase;
@@ -174,7 +168,7 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount terms;
 	bool started;
 
-	RefCntPtr<const InMemoryDatabase> this_db;
+	RefCntPtr<const InMemoryDatabase> db;
 	om_doclength document_length;
 
 	InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
@@ -190,7 +184,6 @@ class InMemoryTermList : public LeafTermList {
 	TermList * next();
 	bool   at_end() const;
 };
-
 
 /** A database held entirely in memory.
  *
@@ -279,22 +272,19 @@ class InMemoryDatabase : public Database {
 	TermList * open_allterms() const;
 };
 
-
-
-
 //////////////////////////////////////////////
 // Inline function definitions for postlist //
 //////////////////////////////////////////////
 
 inline
-InMemoryPostList::InMemoryPostList(RefCntPtr<const InMemoryDatabase> db,
+InMemoryPostList::InMemoryPostList(RefCntPtr<const InMemoryDatabase> db_,
 				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
 	  tname(pos->tname),
 	  termfreq(term.docs.size()),
 	  started(false),
-	  this_db(db)
+	  db(db_)
 {
     // InMemoryPostLists cannot be empty
     Assert(pos != end);
@@ -319,16 +309,16 @@ InMemoryPostList::get_docid() const
 inline PostList *
 InMemoryPostList::next(om_weight /*w_min*/)
 {
-    if (this_db->error_in_next) {
+    if (db->error_in_next) {
 	// Nasty cast, but this is only in testcase code anyway.
-	(const_cast<InMemoryDatabase *>(this_db.get()))->error_in_next--;
-	if (this_db->error_in_next == 0)
+	(const_cast<InMemoryDatabase *>(db.get()))->error_in_next--;
+	if (db->error_in_next == 0)
 	    throw OmDatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
     }
 
-    if (this_db->abort_in_next) {
-	(const_cast<InMemoryDatabase *>(this_db.get()))->abort_in_next--;
-	if (this_db->abort_in_next == 0)
+    if (db->abort_in_next) {
+	(const_cast<InMemoryDatabase *>(db.get()))->abort_in_next--;
+	if (db->abort_in_next == 0)
 	    abort();
     }
 
@@ -365,27 +355,25 @@ InMemoryPostList::at_end() const
     return (pos == end);
 }
 
-
 inline string
 InMemoryPostList::get_description() const
 {
     return tname + ":" + om_tostring(termfreq);
 }
 
-
 //////////////////////////////////////////////
 // Inline function definitions for termlist //
 //////////////////////////////////////////////
 
 inline
-InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
+InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db_,
 				   const InMemoryDoc & doc,
 				   om_doclength len)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
 	  terms(doc.terms.size()),
 	  started(false),
-	  this_db(db)
+	  db(db_)
 {
     DEBUGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
 	          end - pos << " terms starting from " << pos->tname);
@@ -406,10 +394,9 @@ InMemoryTermList::get_weighting() const
     Assert(!at_end());
     Assert(wt != NULL);
 
-    return wt->get_bits(InMemoryTermList::get_wdf(),
-			document_length,
+    return wt->get_bits(InMemoryTermList::get_wdf(), document_length,
 			InMemoryTermList::get_termfreq(),
-			this_db->get_doccount());
+			db->get_doccount());
 }
 
 inline om_termname
@@ -434,13 +421,13 @@ InMemoryTermList::get_termfreq() const
     Assert(started);
     Assert(!at_end());
 
-    return this_db->get_termfreq((*pos).tname);
+    return db->get_termfreq((*pos).tname);
 }
 
 inline TermList *
 InMemoryTermList::next()
 {
-    if(started) {
+    if (started) {
 	Assert(!at_end());
 	pos++;
     } else {
@@ -455,9 +442,6 @@ InMemoryTermList::at_end() const
     Assert(started);
     return (pos == end);
 }
-
-
-
 
 //////////////////////////////////////////////
 // Inline function definitions for database //
@@ -481,7 +465,7 @@ inline om_doccount
 InMemoryDatabase::get_termfreq(const om_termname & tname) const
 {
     map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if(i == postlists.end()) return 0;
+    if (i == postlists.end()) return 0;
     return i->second.docs.size();
 }
 
@@ -489,7 +473,7 @@ inline om_termcount
 InMemoryDatabase::get_collection_freq(const om_termname &tname) const
 {
     map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if(i == postlists.end()) return 0;
+    if (i == postlists.end()) return 0;
     return i->second.collection_freq;
 }
 

@@ -1,3 +1,9 @@
+Sat Dec 07 03:22:05 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/,matcher/multimatch.cc: Minor code tidying.
+	* backends/quartz/btree.cc: Added Assert in Btree::add() to detect
+	  running off end of buffer.
+
 Sat Dec 07 03:20:52 GMT 2002  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: fixed handling of wtscheme() - we were

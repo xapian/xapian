@@ -46,7 +46,7 @@ using std::make_pair;
 om_doclength
 InMemoryPostList::get_doclength() const
 {
-    return this_db->get_doclength(get_docid());
+    return db->get_doclength(get_docid());
 }
 
 PositionList *
@@ -98,7 +98,7 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 {
     if (!term_exists(tname)) {
 	return new EmptyPostList();
-    };
+    }
 
     map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
@@ -201,7 +201,6 @@ InMemoryDatabase::do_cancel_transaction()
     throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
 }
 
-
 void
 InMemoryDatabase::do_delete_document(om_docid did)
 {
@@ -217,11 +216,10 @@ InMemoryDatabase::do_delete_document(om_docid did)
     totdocs--;
 
     vector<InMemoryPosting>::const_iterator i;
-    for (i = termlists[did-1].terms.begin();
-	 i != termlists[did-1].terms.end();
+    for (i = termlists[did - 1].terms.begin();
+	 i != termlists[did - 1].terms.end();
 	 ++i) {
-	map<om_termname, InMemoryTerm>::iterator t
-		= postlists.find(i->tname);
+	map<om_termname, InMemoryTerm>::iterator t = postlists.find(i->tname);
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
 	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
@@ -251,9 +249,9 @@ InMemoryDatabase::do_replace_document(om_docid did,
     do_delete_document(did);
 
     /* resurrect this document */
-    termlists[did-1] = InMemoryDoc();
-    doclengths[did-1] = 0;
-    doclists[did-1] = document.get_data();
+    termlists[did - 1] = InMemoryDoc();
+    doclengths[did - 1] = 0;
+    doclists[did - 1] = document.get_data();
 
     finish_add_doc(did, document);
 }
@@ -263,8 +261,7 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 {
     om_docid did = make_doc(document.get_data());
 
-    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc "
-	          << did);
+    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc " << did);
 
     finish_add_doc(did, document);
 

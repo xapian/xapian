@@ -454,7 +454,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Is the mset a valid heap?
     bool is_heap = false; 
 
-    while (1) {
+    while (true) {
 	if (recalculate_w_max) {
 	    if (min_item.wt > 0.0 && getorrecalc_maxweight(pl) < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
