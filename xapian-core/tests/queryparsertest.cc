@@ -1,4 +1,4 @@
-/* parsequerytest.cc: Tests of omqueryparser
+/* queryparsertest.cc: Tests of Xapian::QueryParser
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

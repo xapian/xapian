@@ -16,11 +16,12 @@ endif
 
 ## Test programs to be run
 TESTS = $(quartz_tests) $(remote_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
+ apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
+ queryparsertest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
- apitest internaltest stemtest
+ apitest internaltest stemtest queryparsertest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -50,6 +51,9 @@ quartztest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
 remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+
+queryparsertest_SOURCES = queryparsertest.cc
+queryparsertest_LDADD = @ldflags@ ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
