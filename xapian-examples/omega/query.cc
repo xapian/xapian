@@ -1206,7 +1206,7 @@ static void print_page_links( char type, long int hits_per_page,
    if (msize <= hits_per_page) return;
 
    if (type == 'T') {
-      for ( page = 0; page < 10; page++ ) {
+      for (page = 0; page < 10; page++) {
 	  new_first = page * hits_per_page;
 
 	  if (new_first > msize - 1) break;
@@ -1228,13 +1228,13 @@ static void print_page_links( char type, long int hits_per_page,
 	 if (new_first > msize - 1) break;
 
 	 if (new_first == topdoc) {
-	     cout << "<IMG SRC=\"" << gif_dir << "/page" << dash_chr
+	     cout << "<IMG SRC=\"" << gif_dir << "/page-"
 		  << page + 1;
 	     if (have_selected_page_gifs) cout << 's';
 	     cout << ".gif\"";
 	 } else {
 	     cout << "<INPUT TYPE=image NAME=F" << new_first << " VALUE="
-		  << page + 1 << " SRC=\"" << gif_dir << "/page" << dash_chr
+		  << page + 1 << " SRC=\"" << gif_dir << "/page-"
 		  << page + 1 << ".gif\" BORDER=0";
 	 }
 	 if (plh) cout << " HEIGHT=" << plh;

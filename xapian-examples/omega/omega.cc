@@ -40,7 +40,6 @@ static void make_query_log_entry( const char *buf, size_t length );
 
 string db_name;
 static string db_dir;
-char dash_chr = '-'; /* renamed from dash_char to avoid odd BCPL problem -- Olly 1997-03-19 */
 char *fmt = NULL;
 char *fmtfile = "t/fmt";
 
@@ -273,8 +272,6 @@ static int main2(int argc, char *argv[])
     if (option["dec_sep"].size()) dec_sep = option["dec_sep"][0];
     if (option["thou_sep"].size()) thou_sep = option["thou_sep"][0];
    
-    dash_chr = '-';
-
     list_size = 0;
     if ((val = GetEntry ("MAXHITS")) != NULL) list_size = atol( val );
     if (list_size <= 10) {
