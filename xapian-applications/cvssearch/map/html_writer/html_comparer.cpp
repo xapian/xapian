@@ -253,7 +253,7 @@ html_comparer::write_line(ostream & os,
             code_to_html converter0(line0, size);
             code_to_html converter1(line1, size);
             code_to_html converter2(line2, size);
-            os << "<tr>";
+            os << "<tr nowrap>";
             os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << index2;     os << " </td>";
             os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << converter2; os << " </td>";
             os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << index1;     os << " </td>";
