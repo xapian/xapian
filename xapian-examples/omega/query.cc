@@ -16,7 +16,6 @@
 #include <fcntl.h>
 
 #include "main.h"
-#include "cgiparam.h"
 #include "query.h"
 
 #define MAX_TERM_LEN 128
@@ -91,7 +90,8 @@ static void print_escaping_dquotes( char *str, int spaces ) {
 
    p = str;
    if (spaces) {
-      p = buf = xstrdup(str);
+      p = buf = strdup(str);
+      if (!p) throw "memory";
       while ( (p = strchr( p, ' ' )) != NULL )
 	 *p = '+';
       p = buf;
@@ -1254,8 +1254,8 @@ static void print_page_links( char type, long int hits_per_page,
 }
 
 #ifdef FERRET
-static void utf8_to_html(const char *str) {
-   const unsigned char *p = (const unsigned char *)str;
+static void utf8_to_html(const string &str) {
+   const unsigned char *p = (const unsigned char *)str.c_str();
    while (1) {
       int ch = *p++;
       if (ch == 0) break;
@@ -1416,10 +1416,8 @@ static int print_caption( long int m, int do_expand ) {
     percent = percentage((double)w, maxweight);
 
     {
-       char *path = NULL;
+       string path, sample, caption;
        int port = -1;
-       char *caption = NULL;
-       char *sample = NULL;
        const char *pp;
        unsigned const char *u;
        int size = -1;
@@ -1450,18 +1448,19 @@ static int print_caption( long int m, int do_expand ) {
 	  pp++;
        }
 
-       path = xstrdup(pp);
-       char *p = strchr(path, '\xfe');
+       const char *p = strchr(pp, '\xfe');
        if (p) {
-	  *p = '\0';
-	  p++;
-	  if (*p != '\xfe' && *p != '\0') caption = p;
-	  p = strchr(p, '\xfe');
-	  if (p) {
-	     *p = '\0';
-	     p++;
-	     if (*p != '\0') sample = p;
-	  }
+	   path = string(pp, p - pp);
+	   p++;
+	   if (*p != '\xfe' && *p != '\0') {
+	       const char *q = strchr(p, '\xfe');
+	       if (!q) {
+		   caption = string(p);
+	       } else {
+		   caption = string(p, q - p);
+		   sample = string(q + 1);
+	       }
+	   }
        }
 
        {
@@ -1471,9 +1470,9 @@ static int print_caption( long int m, int do_expand ) {
 	     cout << string(p, q - p);
 	     switch (q[1]) {
 	      case 'C': /* caption */
-		if (caption) {
-		   utf8_to_html(caption);
-		   break;
+		if (caption.size()) {
+		    utf8_to_html(caption);
+		    break;
 		}
 		/* otherwise fall through... */
 	      case 'U': /* url */
@@ -1491,7 +1490,7 @@ static int print_caption( long int m, int do_expand ) {
 		 print_query_string(q + 2);
 		 break;
 	      case 'S': /* sample */
-		 if (sample) {
+		 if (sample.size()) {
 		     utf8_to_html(sample);
 		     cout << "...";
 		 }
@@ -1587,7 +1586,6 @@ static int print_caption( long int m, int do_expand ) {
 	  }
 	  cout << p;
        }
-       free(path);
     }
 
     return 0;

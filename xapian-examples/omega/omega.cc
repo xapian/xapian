@@ -7,28 +7,18 @@ int n_dlist = 0;
 
 #include <fstream>
 
-#define EXIT(x) exit((x))
-
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
 
 #include <time.h>
 
-#ifdef FERRET
-#define LOGGING 1
-#define logging 1
-#endif
-
-#ifdef LOGGING
 #include <fcntl.h>
 #ifdef WIN32
 #include <io.h>
 #else
 #include <unistd.h>
-#endif
 #endif
 
 #include "cgiparam.h"
@@ -39,9 +29,7 @@ Match *matcher;
 
 map<string, string> option;
 
-#ifdef FERRET
 static int ssi=0;
-#endif
 
 const string default_db_name = "ompf";
 
@@ -49,8 +37,6 @@ static string map_dbname_to_dir(const string &db_name);
 
 static void make_log_entry( const char *action, long matches );
 static void make_query_log_entry( const char *buf, size_t length );
-
-static void do_easter_egg( void );
 
 string db_name;
 static string db_dir;
@@ -504,9 +490,7 @@ int main(int argc, char *argv[]) {
     val = FirstEntry( "P", &n );
     while (val) {
        if (more) *to++ = ' ';
-       /** Easter Egg! **/
-       if (!strcmp (val, "Rosebud?")) do_easter_egg ();
-       strcpy (to, val);
+       strcpy(to, val);
        more = strlen (val);
        to += more;
        val = NextEntry( "P", &n );
@@ -585,38 +569,23 @@ int main(int argc, char *argv[]) {
     /*** process commands ***/
     if (1) {
         long matches = do_match( topdoc, list_size );
-        if (logging) {
-	   if (GetEntry("X")) {
-	      make_log_entry("add", matches);
-#ifdef FERRET
-	   } else if (GetEntry("MORELIKE")) {
-	      make_log_entry("morelike", matches);
+	if (GetEntry("X")) {
+	    make_log_entry("add", matches);
+#if 0 // def FERRET
+	} else if (GetEntry("MORELIKE")) {
+	    make_log_entry("morelike", matches);
 #endif
-	   } else if (big_buf[0]) {
-	      make_log_entry("query", matches);
-	   }
+	} else if (big_buf[0]) {
+	    make_log_entry("query", matches);
 	}
     }
     /* temporarily stick a newline on so we can add the line to the    */
     /* logfile with one call to write (which seems to be atomic)       */
     *to = '\n';
-    if (logging) make_query_log_entry( big_buf, to-big_buf+1 );
+    make_query_log_entry( big_buf, to-big_buf+1 );
     *to = '\0';
    
     return 0;
-}
-
-/**************************************************************/
-static void do_easter_egg( void ) {
-    cout << "<CENTER><FONT SIZE=\"+2\" COLOR=\"#666600\">\n"
-	"Muscat FX Explorer designed by Tom Mortimer.<BR>\n"
-	"Coded by Tom, Graham Simms, Kev Metcalfe,<BR>\n"
-	"Simon Arrowsmith, Olly Betts, Jon Thackray.<BR>\n"
-	"Graphics by Phil \"The Blue Voice\" Holmes.<BR>\n"
-	"Muscat Search Engine by Dr Martin Porter.<BR>\n"
-	"Cake by Charis Beynon.<BR>\n"
-	"20 November 1997.\n"
-	"</FONT></CENTER>";
 }
 
 static string map_dbname_to_dir(const string &db_name) {
@@ -659,7 +628,6 @@ extern FILE *page_fopen(const string &page) {
 /* Logging code */
 
 static void make_log_entry( const char *action, long matches ) {
-#ifdef LOGGING
    int fd;
    string log_buf = db_dir + "/fx.log";
    fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
@@ -695,11 +663,9 @@ static void make_log_entry( const char *action, long matches ) {
       write( fd, log_buf, strlen(log_buf) );
       close( fd );
    }
-#endif
 }
 
 static void make_query_log_entry( const char *buf, size_t length ) {
-#ifdef LOGGING
    int fd;
    string log_buf = db_dir + "/query.log";
    fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
@@ -707,5 +673,4 @@ static void make_query_log_entry( const char *buf, size_t length ) {
       write( fd, buf, length );
       close( fd );
    }
-#endif
 }
