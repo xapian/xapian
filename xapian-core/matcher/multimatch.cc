@@ -365,10 +365,9 @@ MultiMatch::remove_leading_elements(om_doccount number_to_remove,
 }
 
 void
-MultiMatch::match(om_doccount first,
-		  om_doccount maxitems,
-		  OmMSet & mset,
-		  const OmMatchDecider *mdecider)
+MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
+		     OmMSet & mset,
+		     const OmMatchDecider *mdecider)
 {
     Assert(leaves.size() > 0);
 

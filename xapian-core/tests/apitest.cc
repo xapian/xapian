@@ -2466,6 +2466,31 @@ bool test_adddoc1()
     return true;    
 }
 
+// tests that database destructors end_session if it isn't done explicitly
+bool test_implicitendsession()
+{
+    try {
+	OmWritableDatabase db = backendmanager.get_writable_database("");
+
+	db.begin_session();
+
+	OmDocumentContents doc;
+	
+	doc.data = string("top secret");
+	doc.add_posting("cia", 1);
+	doc.add_posting("nsa", 2);
+	doc.add_posting("fbi", 3);
+	db.add_document(doc);
+    }
+    catch (...) {
+	// in a debug build, an assertion in OmWritableDatabase's destructor
+	// will fail at this point if the backend doesn't implicitly call
+	// end_session()
+	return false;
+    }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 

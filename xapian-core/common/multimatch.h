@@ -171,10 +171,9 @@ class MultiMatch
 		       = std::auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
 
-	void match(om_doccount first,
-		   om_doccount maxitems,
-		   OmMSet & mset,
-		   const OmMatchDecider *mdecider);
+	void get_mset(om_doccount first, om_doccount maxitems,
+		      OmMSet & mset,
+		      const OmMatchDecider *mdecider);
 };
 
 #endif /* OM_HGUARD_MULTIMATCH_H */

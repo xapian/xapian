@@ -26,13 +26,6 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- High    | OmDatabase      | Test that sessions get ended correctly if class
-         |                 | is destroyed without the explicit finishing
-	 |                 | methods being called.
----------+-----------------+--------------------------------------------------
- Medium  | OmDatabase      | Make sure that end_session() gets called from
-         |                 | destructor if a session is in progress.
----------+-----------------+--------------------------------------------------
  Medium  | Exceptions      | Make exceptions threadsafe: see
 	 |                 | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
 	 |                 | GCC (and EGCS) need existence of exceptions to
@@ -44,12 +37,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
----------+-----------------+--------------------------------------------------
- Medium  | Matchers        | Make get_mset() (and MultiMatch::match()) return
-         |                 | msets rather than setting a pass by reference
-	 |                 | parameter.
-	 |                 | [And what do we do with the current bool return?]
-	 |                 | Change match() to get_mset().
 ---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make OmDatabaseGroup::Internal return same
          |                 | multidatabase object if get_multi_database() is
@@ -84,8 +71,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Make add_document() atomic.
 ---------+-----------------+--------------------------------------------------
- Medium  | WritableDbs     | Add pthread locking to all database classes.
----------+-----------------+--------------------------------------------------
  Medium  | Databases       | Ensure that opening a termlist which
          |                 | is not present throws the correct exception.
 ---------+-----------------+--------------------------------------------------
@@ -114,10 +99,6 @@ Priority | Area            | Task
 	 |                 | the API is concerned.  Have an internal typedef
 	 |                 | so that this isn't inappropriate internally.
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Test OmMSet::get_termfreq() and
-         |                 | OmMSet::get_termweight().
-         |                 | [Seem to be tested in apitest now?]
----------+-----------------+--------------------------------------------------
  Medium  | MultiDatabase   | Termcache currently clears itself when full: make
          |                 | more efficient.
 ---------+-----------------+--------------------------------------------------
@@ -131,9 +112,7 @@ Priority | Area            | Task
          |                 | userman, particularly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
- Low     |cBackends        | Use pthread locks around inmemory methods
----------+-----------------+--------------------------------------------------
- Low     | Backends        | Use pthread locks around database methods
+ Low     |cBackends        | Use thread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------

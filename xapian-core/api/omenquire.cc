@@ -332,7 +332,7 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object
-    match.match(first, maxitems, retval, mdecider);
+    match.get_mset(first, maxitems, retval, mdecider);
 
     Assert(!(query->is_bool()) || retval.max_possible == 0);
 
