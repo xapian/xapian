@@ -149,15 +149,16 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
     if (opts & OPT_FULL_TREE) report_block_full(3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	int o = GETD(p, c);
+	Item item(p, c);
+	int o = item.get_address() - p;
 	if (o > int(block_size)) failure(21);
 	if (o - dir_end < max_free) failure(30);
 
-	int kt_len = GETI(p, o);
+	int kt_len = item.size();
 	if (o + kt_len > int(block_size)) failure(40);
 	total_free -= kt_len;
 
-	if (c > significant_c && Item(p, c - D2).key() >= Item(p, c).key())
+	if (c > significant_c && Item(p, c - D2).key() >= item.key())
 	    failure(50);
     }
     if (total_free != TOTAL_FREE(p))

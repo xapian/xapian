@@ -545,7 +545,7 @@ Btree::find(Cursor * C_) const
     // Note: the parameter is needed when we're called by BCursor
     const byte * p;
     int c;
-    Key key(kt + I2);
+    Key key = kt.key();
     int j;
     for (j = level; j > 0; j--) {
 	p = C_[j].p;
@@ -637,7 +637,7 @@ Btree::split_root(uint4 split_n)
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
     form_null_key(b, split_n);
-    add_item(b, level);
+    add_item(Item(b), level);
 }
 
 /** enter_key(j, prevkey, newkey) is called after a block split.
@@ -709,7 +709,7 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 
     C[j].c = find_in_block(C[j].p, Key(b + I2), 0, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
-    add_item(b, j);
+    add_item(Item(b), j);
 }
 
 /** mid_point(p) finds the directory entry in c that determines the
@@ -745,11 +745,11 @@ Btree::mid_point(byte * p)
 */
 
 void
-Btree::add_item_to_block(byte * p, byte * kt_, int c)
+Btree::add_item_to_block(byte * p, Item kt_, int c)
 {
     Assert(writable);
     int dir_end = DIR_END(p);
-    int kt_len = GETI(kt_, 0);
+    int kt_len = kt_.size();
     int needed = kt_len + D2;
     int new_total = TOTAL_FREE(p) - needed;
     int new_max = MAX_FREE(p) - needed;
@@ -769,7 +769,7 @@ Btree::add_item_to_block(byte * p, byte * kt_, int c)
 
     int o = dir_end + new_max;
     SETD(p, c, o);
-    memmove(p + o, kt_, kt_len);
+    memmove(p + o, kt_.get_address(), kt_len);
 
     SET_MAX_FREE(p, new_max);
 
@@ -782,15 +782,14 @@ Btree::add_item_to_block(byte * p, byte * kt_, int c)
  *  added to the appropriate half.
  */
 void
-Btree::add_item(byte * kt_, int j)
+Btree::add_item(Item kt_, int j)
 {
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
     uint4 n;
 
-    int kt_len = GETI(kt_, 0);
-    int needed = kt_len + D2;
+    int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
 	int m;
 	// Prepare to split p. After splitting, the block is in two halves, the
@@ -965,21 +964,22 @@ Btree::add_kt(bool found)
 	byte * p = C[0].p;
 	int c = C[0].c;
 	Item item(p, c);
-	int kt_size = GETI(kt, 0);
+	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
 	components = Item(p, c).components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
-	    memmove(const_cast<byte *>(item.get_address()), kt, kt_size);
+	    memmove(const_cast<byte *>(item.get_address()),
+		    kt.get_address(), kt_size);
 	    SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	} else {
 	    /* new item into the block's freespace */
 	    int new_max = MAX_FREE(p) - kt_size;
 	    if (new_max >= 0) {
 		int o = DIR_END(p) + new_max;
-		memmove(p + o, kt, kt_size);
+		memmove(p + o, kt.get_address(), kt_size);
 		SETD(p, c, o);
 		SET_MAX_FREE(p, new_max);
 		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
@@ -1050,11 +1050,12 @@ void Btree::form_key(const string & key) const
     string::size_type key_len = min(key.length(), max_key_len);
 
     int c = I2;
-    SETK(kt, c, key_len + K1 + C2);
+    byte * p = const_cast<byte*>(kt.get_address());
+    SETK(p, c, key_len + K1 + C2);
     c += K1;
-    memmove(kt + c, key.data(), key_len);
+    memmove(p + c, key.data(), key_len);
     c += key_len;
-    SETC(kt, c, 1);
+    SETC(p, c, 1);
 }
 
 /* Btree::add(key, tag) adds the key/tag item to the
@@ -1096,9 +1097,8 @@ Btree::add(const string &key, const string &tag)
 
     form_key(key);
 
-    size_t ck = GETK(kt, I2) + I2 - C2;  // offset to the counter in the key
-    size_t ct = ck + C2;                 // offset to the tag counter
-    size_t cd = ct + C2;                 // offset to the tag data
+    // sort of matching kt.append_chunk(), but setting the chunk
+    size_t cd = kt.key().length() + K1 + I2 + C2 + C2;  // offset to the tag data
     size_t L = max_item_size - cd;	 // largest amount of tag data for any chunk
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
@@ -1122,24 +1122,25 @@ Btree::add(const string &key, const string &tag)
     size_t residue = tag.length();    // Bytes of the tag remaining to add in
     int replacement = false;          // Has there been a replacement ?
     int i;
+    kt.set_components_of(m);
     for (i = 1; i <= m; i++) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(string::size_type(o + l) <= tag.length());
-	memmove(kt + cd, tag.data() + o, l);
+	byte * p = const_cast<byte*>(kt.get_address());
+	memmove(p + cd, tag.data() + o, l);
 	o += l;
 	residue -= l;
 
-	SETC(kt, ck, i);
-	SETC(kt, ct, m);
-	SETI(kt, 0, cd + l);
+	kt.set_component_of(i);
+	SETI(p, 0, cd + l);
 	if (i > 1) found = find(C);
 	n = add_kt(found);
 	if (n > 0) replacement = true;
     }
     /* o == tag.length() here, and n may be zero */
     for (i = m + 1; i <= n; i++) {
-	SETC(kt, ck, i);
+	kt.set_component_of(i);
 	delete_kt();
     }
     if (!replacement) ++item_count;
@@ -1169,9 +1170,7 @@ Btree::del(const string &key)
     if (n <= 0) RETURN(false);
 
     for (int i = 2; i <= n; i++) {
-	int c = GETK(kt, I2) + I2 - C2;
-	SETC(kt, c, i);
-
+	kt.set_component_of(i);
 	delete_kt();
     }
 
@@ -1344,8 +1343,8 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
     }
 
     /* kt holds constructed items as well as keys */
-    kt = zeroed_new(block_size);
-    if (kt == 0) {
+    kt = Item(zeroed_new(block_size));
+    if (kt.get_address() == 0) {
 	throw std::bad_alloc();
     }
 
@@ -1560,7 +1559,7 @@ void Btree::close() {
     }
     delete [] split_p;
 
-    delete [] kt;
+    delete [] kt.get_address();
     delete [] buffer;
 }
 

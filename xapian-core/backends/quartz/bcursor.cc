@@ -55,14 +55,13 @@ Bcursor::Bcursor(Btree *B_)
 	  level(B_->level)
 {
     C = new Cursor[level + 1];
-    Cursor * C_of_B = B->C;
 
     for (int j = 0; j < level; j++) {
         C[j].n = BLK_UNUSED;
 	C[j].p = new byte[B->block_size];
     }
-    C[level].n = C_of_B[level].n;
-    C[level].p = C_of_B[level].p;
+    C[level].n = B->C[level].n;
+    C[level].p = B->C[level].p;
 }
 
 Bcursor::~Bcursor()

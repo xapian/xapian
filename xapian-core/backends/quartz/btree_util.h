@@ -122,11 +122,11 @@ set_int4(byte *p, int c, int x)
 
 #define GETK(p, c)    GETINT1(p, c)
 #define SETK(p, c, x) SETINT1(p, c, x)
-#define GETI(p, c)    GETINT2(p, c)
+//#define GETI(p, c)    GETINT2(p, c)
 #define SETI(p, c, x) SETINT2(p, c, x)
-#define GETD(p, c)    GETINT2(p, c)
+//#define GETD(p, c)    GETINT2(p, c)
 #define SETD(p, c, x) SETINT2(p, c, x)
-#define GETC(p, c)    GETINT2(p, c)
+//#define GETC(p, c)    GETINT2(p, c)
 #define SETC(p, c, x) SETINT2(p, c, x)
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
@@ -243,14 +243,22 @@ public:
 class Item {
     const byte *p;
 public:
-    Item(const byte * p_, int c) : p(p_ + GETD(p_, c)) { }
+    /* Item from block address and offset to item pointer */
+    Item(const byte * p_, int c) : p(p_ + GETINT2(p_, c)) { }
+    Item(const byte * p_) : p(p_) { }
     const byte * get_address() const { return p; }
-    int size() const { return GETI(p, 0); }
+    int size() const { return GETINT2(p, 0); } /* I in diagram above */
     int component_of() const {
-	return GETC(p, GETK(p, I2) + I2 - C2);
+	return GETINT2(p, GETK(p, I2) + I2 - C2);
+    }
+    void set_component_of(int i) {
+	SETINT2(const_cast<byte*>(p), GETK(p, I2) + I2 - C2, i);
     }
     int components_of() const {
-	return GETC(p, GETK(p, I2) + I2);
+	return GETINT2(p, GETK(p, I2) + I2);
+    }
+    void set_components_of(int m) {
+	SETINT2(const_cast<byte*>(p), GETK(p, I2) + I2, m);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(string * tag) const {

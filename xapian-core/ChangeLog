@@ -1,3 +1,7 @@
+Mon Nov 08 03:55:51 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,testsuite/btreecheck.cc: More refactoring.
+
 Sun Nov 07 20:42:32 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: One more tweak.
