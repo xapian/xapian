@@ -82,8 +82,8 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	if (!dbexists) {
 	    // Catch pre-0.6 Xapian databases and give a better error
 	    if (file_exists(db_dir + "/attribute_baseA"))
-		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
-	    throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
@@ -105,8 +105,8 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	    if (action == Xapian::DB_OPEN) {
 		// Catch pre-0.6 Xapian databases and give a better error
 		if (file_exists(db_dir + "/attribute_baseA"))
-		    throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
-		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 	    create_and_open_tables();
 	    return;
@@ -286,7 +286,7 @@ QuartzDiskTableManager::open_tables_consistent()
 
     if (!fully_opened) {
 	log->make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts");
-	throw Xapian::OpeningError("Cannot open tables at stable revision - changing too fast");
+	throw Xapian::DatabaseOpeningError("Cannot open tables at stable revision - changing too fast");
     }
 
     log->make_entry("Opened tables at revision " + om_tostring(revision));

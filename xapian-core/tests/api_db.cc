@@ -1340,7 +1340,7 @@ static bool test_getmterms2()
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Database mydb(get_database("/this_does_not_exist"));
 		   Xapian::Enquire enquire(mydb);
 		   

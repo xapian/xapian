@@ -75,7 +75,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a quartz database.
 	 *
-	 *  @exception Xapian::OpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 *
 	 *  @param dbdir directory holding quartz tables
 	 */
@@ -151,7 +151,7 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a writable quartz database.
 	 *
-	 *  @exception Xapian::OpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 *
 	 *  @param dir directory holding quartz tables
 	 */

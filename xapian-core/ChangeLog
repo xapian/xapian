@@ -1,3 +1,15 @@
+Mon Jun 23 15:31:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,backends/inmemory/inmemory_database.h,
+	  backends/muscat36/,backends/quartz/,bindings/python/Makefile.am,
+	  bindings/swig/om_util.i,bindings/swig/omstem.i,docs/quickstart.html,
+	  docs/todo.xml,include/xapian/database.h,include/xapian/enquire.h,
+	  include/xapian/errortypes.h,tests/api_db.cc,tests/quartztest.cc,
+	  testsuite/backendmanager.cc,testsuite/textfile_indexer.cc:
+	  Xapian::OpeningError renamed to Xapian::DatabaseOpeningError.
+	* include/om/om.h: OmOpeningError now maps to
+	  Xapian::DatabaseOpeningError.
+
 Mon Jun 23 01:44:45 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/inmemory/inmemory_database.cc,

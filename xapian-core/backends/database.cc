@@ -195,7 +195,7 @@ Auto::open_stub(const string &file)
 	// by revealing part of a sensitive file's contents if they can
 	// arrange it to be read as a stub database.  The line number is
 	// enough information to identify the problem line.
-	throw OpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
+	throw DatabaseOpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
     }
     return db;
 }

@@ -276,7 +276,7 @@ class DBDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a DB database.
 	 *
-	 *  @exception Xapian::OpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 *
 	 *  @param filename Filename of the DB file.
 	 *  @param filename_v Filename of the value file (or "" if none).

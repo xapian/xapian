@@ -253,8 +253,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	/** Create and open an in-memory database.
 	 *
-	 *  @exception Xapian::OpeningError thrown if database can't be opened.
-	 *
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 */
 	InMemoryDatabase();
 

@@ -359,14 +359,14 @@ bool create_dir_if_needed(const string &dirname)
     struct stat sbuf;
     int result = stat(dirname, &sbuf);
     if (result < 0) {
-	if (errno != ENOENT) throw Xapian::OpeningError("Can't stat directory");
+	if (errno != ENOENT) throw Xapian::DatabaseOpeningError("Can't stat directory");
         if (mkdir(dirname, 0700) < 0) {
-	    throw Xapian::OpeningError("Can't create directory");
+	    throw Xapian::DatabaseOpeningError("Can't create directory");
 	}
 	return true; // Successfully created a directory.
     }
     if (!S_ISDIR(sbuf.st_mode))
-	throw Xapian::OpeningError("Is not a directory.");
+	throw Xapian::DatabaseOpeningError("Is not a directory.");
     return false; // Already a directory.
 }
 

@@ -163,7 +163,7 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
     // Actually open
     DB = DB_open(filename.c_str(), cache_size);
     if (DB == 0) {
-	throw Xapian::OpeningError(string("When opening ") + filename + ": " + strerror(errno));
+	throw Xapian::DatabaseOpeningError(string("When opening ") + filename + ": " + strerror(errno));
     }
 
     if (filename_v.empty()) return;
@@ -171,7 +171,7 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
     // Open valuefile
     valuefile = fopen(filename_v.c_str(), "rb");
     if (valuefile == 0) {
-	throw Xapian::OpeningError(string("When opening ") + filename_v +
+	throw Xapian::DatabaseOpeningError(string("When opening ") + filename_v +
 			     ": " + strerror(errno));
     }
 
@@ -180,11 +180,11 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
 	char input[8];
 	size_t bytes_read = fread(input, 1, 8, valuefile);
 	if (bytes_read < 8) {
-	    throw Xapian::OpeningError(string("When opening ") + filename_v +
+	    throw Xapian::DatabaseOpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - " + strerror(errno));
 	}
 	if (memcmp(input, "omrocks!", 8)) {
-	    throw Xapian::OpeningError(string("When opening ") + filename_v +
+	    throw Xapian::DatabaseOpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - got `" +
 				 input + "'");
 	}

@@ -43,21 +43,23 @@ class QuartzMetaFile {
 
 	/** Open the meta-file.
 	 *
-	 *  @except	Xapian::OpeningError if the meta-file was not opened
-	 *  		successfully or	is compatible with this version
+	 *  @except	Xapian::DatabaseOpeningError if the meta-file was not
+	 *		opened successfully or is compatible with this version
 	 *  		of the library.
 	 */
 	void open();
 
 	/** Create a new meta-file.
 	 *
-	 *  @except	Xapian::OpeningError if we couldn't create the meta-file.
+	 *  @except	Xapian::DatabaseOpeningError if we couldn't create the
+	 *		meta-file.
 	 */
 	void create();
 
 	/** Delete the metafile.
 	 *
-	 *  @except	Xapian::DatabaseError if we couldn't delete the meta-file.
+	 *  @except	Xapian::DatabaseError if we couldn't delete the
+	 *		meta-file.
 	 */
 	void erase();
 

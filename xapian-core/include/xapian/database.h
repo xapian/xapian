@@ -47,7 +47,7 @@ class WritableDatabase;
  *  @exception InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  *
- *  @exception OpeningError may be thrown if the database cannot
+ *  @exception DatabaseOpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
 class Database {

@@ -92,9 +92,8 @@ DEFINE_ERROR_CLASS(DatabaseCorruptError, DatabaseError);
 /** Thrown when creating a database fails. */
 DEFINE_ERROR_CLASS(DatabaseCreateError, DatabaseError);
 
-// FIXME: should be called DatabaseOpeningError
 /** Thrown when opening a database fails. */
-DEFINE_ERROR_CLASS(OpeningError, DatabaseError);
+DEFINE_ERROR_CLASS(DatabaseOpeningError, DatabaseError);
 
 /** Thrown when gaining a lock on a database fails. */
 DEFINE_ERROR_CLASS(DatabaseLockError, DatabaseError);

@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 #undef list
-#include "xapian.h"
+#include <xapian.h>
 #include <string>
 using std::string;
 %}

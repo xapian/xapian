@@ -230,7 +230,8 @@ to create an empty database in the specified position will be made.
 </P>
 <P>
 If an error occurs when trying to open a database, or to create a new database,
-an exception, usually of type <CODE>Xapian::OpeningError</CODE>, will be thrown.
+an exception, usually of type <CODE>Xapian::DatabaseOpeningError</CODE> or
+<CODE>Xapian::DatabaseCreateError</CODE>, will be thrown.
 </P>
 <P>
 The code to open a database for writing is, then:

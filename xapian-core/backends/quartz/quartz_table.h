@@ -333,21 +333,21 @@ class QuartzDiskTable : public QuartzTable {
 	 *          false if table cannot be opened at desired revision (but
 	 *          table is otherwise consistent)
 	 *
-	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table is
-	 *             in a corrupt state.
-	 *  @exception Xapian::OpeningError will be thrown if the table cannot be
-	 *             opened (but is not corrupt - eg, permission problems,
-	 *             not present, etc).
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table
+	 *	is in a corrupt state.
+	 *  @exception Xapian::DatabaseOpeningError will be thrown if the table
+	 *	cannot be opened (but is not corrupt - eg, permission problems,
+	 *	not present, etc).
 	 */
 	bool open(quartz_revision_number_t revision_);
 
 	/** Open the latest revision of the table.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table is
-	 *             in a corrupt state.
-	 *  @exception Xapian::OpeningError will be thrown if the table cannot be
-	 *             opened (but is not corrupt - eg, permission problems,
-	 *             not present, etc).
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table
+	 *	is in a corrupt state.
+	 *  @exception Xapian::DatabaseOpeningError will be thrown if the table
+	 *	cannot be opened (but is not corrupt - eg, permission problems,
+	 *	not present, etc).
 	 */
 	void open();
 

@@ -168,8 +168,8 @@ static bool test_disktable1()
     unlink_table(tmpdir + "test_disktable1_");
     {
 	QuartzDiskTable table0(tmpdir + "test_disktable1_", true, 0);
-	TEST_EXCEPTION(Xapian::OpeningError, table0.open());
-	TEST_EXCEPTION(Xapian::OpeningError, table0.open(10));
+	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open());
+	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open(10));
     }
     QuartzDiskTable rw_table(tmpdir + "test_disktable1_", false, 8192);
     rw_table.create();
@@ -1035,7 +1035,7 @@ static bool test_open1()
     string dbdir = tmpdir + "testdb_open1";
     deletedir(dbdir);
     
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
 
     makedir(dbdir);
@@ -1055,27 +1055,27 @@ static bool test_create1()
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
 
     // (1) db doesn't exist (no create)
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
 
     // (2) db doesn't exist, basedir doesn't exist (create)
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048));
 
     makedir(dbdir);
 
     // (3) db doesn't exist, basedir exists (no create)
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
 
     // (4) db doesn't exist, basedir exists (create)
-    TEST_EXCEPTION(Xapian::OpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
     db = new QuartzDatabase(dbdir);

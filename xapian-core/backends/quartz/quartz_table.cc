@@ -216,7 +216,7 @@ QuartzDiskTable::open()
 		errormsg += om_tostring(btree_for_reading->error) + ", ";
 	    errormsg += strerror(errno);
 	    close();
-	    throw Xapian::OpeningError(errormsg);
+	    throw Xapian::DatabaseOpeningError(errormsg);
 	}
 	opened = true;
 	return;
@@ -231,7 +231,7 @@ QuartzDiskTable::open()
 	errormsg += om_tostring(btree_for_writing->error) + ", ";
 	errormsg += strerror(errno);
 	close();
-	throw Xapian::OpeningError(errormsg);
+	throw Xapian::DatabaseOpeningError(errormsg);
     }
 
     btree_for_reading = new Btree();
@@ -245,7 +245,7 @@ QuartzDiskTable::open()
 	    errormsg += om_tostring(btree_for_reading->error) + ", ";
 	errormsg += strerror(errno);
 	close();
-	throw Xapian::OpeningError(errormsg);
+	throw Xapian::DatabaseOpeningError(errormsg);
     }
 
     opened = true;
@@ -269,7 +269,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	    close();
 	    if (errorcode) {
 		// Can't open at all - throw an exception
-		throw Xapian::OpeningError(errormsg + ": " +
+		throw Xapian::DatabaseOpeningError(errormsg + ": " +
 				     Btree_strerror(errorcode));
 	    }
 	    // Can't open this revision - return an error
@@ -290,7 +290,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	close();
 	if (errorcode) {
 	    // Can't open at all - throw an exception
-	    throw Xapian::OpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	    throw Xapian::DatabaseOpeningError(errormsg + ": " + Btree_strerror(errorcode));
 	}
 	// Can't open this revision - return an error
 	DEBUGLINE(DB, errormsg);
@@ -310,7 +310,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	close();
 	if (errorcode == BTREE_ERROR_REVISION) {
 	    // Can't open at all - throw an exception
-	    throw Xapian::OpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	    throw Xapian::DatabaseOpeningError(errormsg + ": " + Btree_strerror(errorcode));
 	}
 	// Can't open this revision - return an error
 	DEBUGLINE(DB, errormsg);

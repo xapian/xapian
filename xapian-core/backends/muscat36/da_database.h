@@ -289,7 +289,8 @@ class DADatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a DA database.
 	 *
-	 *  @exception Xapian::OpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be
+	 *      opened.
 	 *
 	 *  @param filename_r Filename of the record file (usually called "R").
 	 *  @param filename_t Filename of the term file (usually called "T").

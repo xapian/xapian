@@ -22,7 +22,7 @@
  * -----END-LICENCE-----
  */
 #undef list
-#include "xapian/stem.h"
+#include <xapian/stem.h>
 #include <string>
 using namespace Xapian;
 %}

@@ -89,7 +89,7 @@ Btree_base::Btree_base(const string &name_, char ch)
 {
     string err_msg;
     if (!read(name_, ch, err_msg)) {
-	throw Xapian::OpeningError(err_msg);
+	throw Xapian::DatabaseOpeningError(err_msg);
     }
 }
 

@@ -94,7 +94,7 @@ int sys_open_to_read(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " to read: " + strerror(errno);
-	throw Xapian::OpeningError(message);
+	throw Xapian::DatabaseOpeningError(message);
     }
     return fd;
 }
@@ -111,7 +111,7 @@ int sys_open_to_write(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " to write: " + strerror(errno);
-	throw Xapian::OpeningError(message);
+	throw Xapian::DatabaseOpeningError(message);
     }
     return fd;
 }
@@ -122,7 +122,7 @@ static int sys_open_for_readwrite(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);
-	throw Xapian::OpeningError(message);
+	throw Xapian::DatabaseOpeningError(message);
     }
     return fd;
 }
@@ -1355,7 +1355,7 @@ Btree::basic_open(const string & name_,
 	    message += name_;
 	    message += "':\n";
 	    message += err_msg;
-	    throw Xapian::OpeningError(message);
+	    throw Xapian::DatabaseOpeningError(message);
 	}
 
 	if (revision_supplied) {
@@ -1506,7 +1506,7 @@ Btree::do_open_to_write(const string & name_,
 		message += ": ";
 		message += Btree_strerror(error);
 	    }
-	    throw Xapian::OpeningError(message);
+	    throw Xapian::DatabaseOpeningError(message);
 	}
 	/* When the revision is supplied, it's not an exceptional
 	 * case when open failed.  We should just return false
@@ -1644,7 +1644,7 @@ Btree::create(const string &name_, int block_size)
 	    if (h == -1 || !sys_close(h)) {
 		string message = "Error creating DB file: ";
 		message += strerror(errno);
-		throw Xapian::OpeningError(message);
+		throw Xapian::DatabaseOpeningError(message);
 	    }
 	}
     }
@@ -1740,7 +1740,7 @@ Btree::do_open_to_read(const string & name_,
 	    message += ": ";
 	    message += Btree_strerror(error);
 	}
-	throw Xapian::OpeningError(message);
+	throw Xapian::DatabaseOpeningError(message);
     }
 
     handle = sys_open_to_read(name + "DB");

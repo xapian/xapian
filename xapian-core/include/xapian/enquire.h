@@ -564,8 +564,8 @@ class ExpandDecider {
  *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  *
- *  @exception Xapian::OpeningError will be thrown if the database cannot
- *  be opened (for example, a required file cannot be found).
+ *  @exception Xapian::DatabaseOpeningError will be thrown if the database
+ *	cannot be opened (for example, a required file cannot be found).
  */
 class Enquire {
     private:
@@ -606,7 +606,7 @@ class Enquire {
 	 *  @param query_  the new query to run.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	void set_query(const Xapian::Query & query_);
 
@@ -727,7 +727,7 @@ class Enquire {
 	 *                   query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset = 0,
@@ -756,7 +756,7 @@ class Enquire {
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	ESet get_eset(Xapian::termcount maxitems,
 			const RSet & omrset,
@@ -776,7 +776,7 @@ class Enquire {
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
 			       const Xapian::ExpandDecider * edecider) const {
@@ -808,9 +808,9 @@ class Enquire {
 	 *                 even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
-	 *  @exception Xapian::DocNotFoundError      The document specified could not
-	 *                                     be found in the database.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
+	 *  @exception Xapian::DocNotFoundError      The document specified
+	 *	could not be found in the database.
 	 */
 	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
@@ -836,9 +836,9 @@ class Enquire {
 	 *                 even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::OpeningError          See class documentation.
-	 *  @exception Xapian::DocNotFoundError      The document specified could not
-	 *                                     be found in the database.
+	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
+	 *  @exception Xapian::DocNotFoundError      The document specified
+	 *	could not be found in the database.
 	 */
 	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 

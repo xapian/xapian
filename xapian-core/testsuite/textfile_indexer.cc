@@ -45,7 +45,7 @@ TextfileIndexerSource::get_stream() const
 {
     AutoPtr<istream> from(new ifstream(filename.c_str()));
     if (!*from)
-       	throw Xapian::OpeningError("Cannot open file " + filename +
+       	throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
 				   " for indexing");
     return from;
 }

@@ -45,7 +45,7 @@ typedef std::string om_termname;
 #define OmNetworkTimeoutError Xapian::NetworkTimeoutError
 #define OmDatabaseCorruptError Xapian::DatabaseCorruptError
 #define OmDatabaseCreateError Xapian::DatabaseCreateError
-#define OmOpeningError Xapian::OpeningError
+#define OmOpeningError Xapian::DatabaseOpeningError
 #define OmDatabaseLockError Xapian::DatabaseLockError
 #define OmDatabaseModifiedError Xapian::DatabaseModifiedError
 #define OmInvalidResultError Xapian::InvalidResultError

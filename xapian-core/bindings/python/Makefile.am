@@ -9,6 +9,12 @@ pylib_SCRIPTS = xapian.py
 
 pylib_LTLIBRARIES = _xapian.la
 
+# Remove the .la file - _xapian.la is never linked against (it's a module)
+# and Python doesn't use libltdl.
+# hmm -hook doesn't seem to execute after everything else
+install-exec-local:
+	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
+
 AM_CPPFLAGS = -I@PYTHON_INC@
 # swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
 AM_CXXFLAGS = -Wall -Wno-unused
