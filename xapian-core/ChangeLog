@@ -1,3 +1,7 @@
+Tue Aug 15 11:24:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed netprogs/omnetclient.cc - unused file.
+
 Mon Aug 14 19:11:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Python tests up to 25 pass, 3 fail (plus test_alwaysfail).
