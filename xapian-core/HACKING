@@ -43,68 +43,76 @@ Xapian.
 Debugging Messages
 ==================
 
-Lots of places in the code generate debugging messages to tell us what
-they're up to, and this information can be very useful.  However, its got
-to such a stage that we need to be able to turn it on and off easily: and
-so I've set up a system for controlling the debugging output by means of
-environment variables.  You can:
+If you configure with --enable-debug-verbose, lots of places in the code
+generate debugging messages to tell us what they're up to, and this information
+can be very useful for debugging both the Xapian library and code which uses
+it.  But the quantity of information generated is potentially vast so there's a
+mechanism to allow you to select where to store the log and which types of
+message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in (to override the default of stderr).
+   output to be stored in (to override the default of stderr).  The first
+   occurence of %% in the name will be replaced with the process-id.
 
  * set XAPIAN_DEBUG_FLAGS to a bitmap to select the types of debugging message
    you would like to display (the default value is 0, which displays no debug
-   messages).
+   messages).  To turn on all types, set it to -1.
 
-Of course, if you didn't compile with --enable-debug=full, these environment
-variables will have no effect.
+If you didn't configure with --enable-debug-verbose, these environment
+variables have no effect.
 
 Debugging memory allocations
 ============================
 
 The testsuite can make use of valgrind to check for memory leaks and reads
-from uninitialised memory durings tests.  valgrind is x86 specific, and
-currently only works on Linux, but Xapian contains little platform specific
-code so this still gives good coverage.
+from uninitialised memory durings tests.  Although valgrind originally was
+specific to x86 Linux, there are now ports to x86 FreeBSD and PowerPC Linux.
+And anyway, Xapian contains very little platform specific code so testing
+with valgrind on one platform still gives good coverage.
 
 If you have a new enough version of valgrind installed, it's automatically
-detected and used for running the testsuite.  If you want to suppress this
-configure with:
+detected by configure and used when running the testsuite.  The testsuite runs
+more slowly under valgrind, so if you wish to disable this auto-detection you
+can run configure with:
 
 ./configure VALGRIND=
+
+Running test programs
+=====================
+
+The runtest script (in the tests subdirectory) takes care of the details of
+running the test programs (including setting up the environment so they work
+when srcdir != builddir and handling libtool dynamically linked binaries).  To
+run a test program by hand (rather than via make) just use:
+
+./runtest ./apitest
+
+You can specify options and arguments:
+
+./runtest ./apitest -v deldoc1
+
+You can also use runtest to run a test program under gdb (or most other tools):
+
+./runtest gdb ./apitest -v deldoc1
+./runtest valgrind ./apitest -v deldoc1
 
 Using various debugging, profiling, and leak-finding tools:
 ===========================================================
 
-To use gdb on a libtool dynamically linked binary, run gdb like so:
-
-  env srcdir=. libtool --mode=execute gdb ./apitest
-
-For use with valgrind, no special build flags are required.  You just need to
-run the program to be checked with valgrind.  The only tricky part is that
-libtool creates a wrapper script for executables if you use dynamic linking,
-so you need to get libtool to run valgrind on the actual executable.  You can
-get libtool to take care of this like so:
-
-  env srcdir=. libtool --mode=execute valgrind ./apitest -v deldoc1
-
-If you're statically linking xapian (note that you must use dynamic linking
-for at least one library (e.g. libc) for valgrind to work), you can avoid this
-and just use:
-
-  env srcdir=. valgrind ./apitest -v deldoc1
-
-To enable profiling for gprof (was --enable-profiling):
+To enable profiling for gprof:
 
   ./configure CFLAGS=-pg CXXFLAGS=-pg LDFLAGS=-pg
 
-To use Purify (was --enable-purify):
+To use Purify:
 
   ./configure CXXLD='purify c++' CCLD='purify cc' --disable-shared
 
-To use Insure (was --enable-insure):
+To use Insure:
 
   ./configure CXX=insure CC=insure
+
+If you have runes for using other tools, please add them above, or send them
+to us so we can.
 
 Building from CVS:
 ==================
@@ -113,10 +121,10 @@ If you're building code from CVS, you'll want to configure with:
 
 ./configure --enable-maintainer-mode
 
-This will be done for you if you use the top-level bootstrap and then run the
-top-level configure this produces (see below for more information about this).
-If you don't enable maintainer mode, then rules to build the documentation
-are disabled.
+This will be done for you if you use the top-level bootstrap script and then
+run the top-level configure this produces (see below for more information about
+this).  If you don't enable maintainer mode, then rules to build the
+documentation are disabled.
 
 The CVS repository does not contain any automatically generated files
 (such as configure, Makefile.in, Bison generated sources, etc) because

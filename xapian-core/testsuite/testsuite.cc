@@ -99,35 +99,25 @@ test_driver::get_srcdir()
     if (i != string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
+	// libtool puts the real executable in .libs...
+	i = srcdir.find_last_of('/');
+	if (srcdir.substr(i + 1) == ".libs") {
+	    srcdir.erase(i);
+	    if (srcfile.substr(0, 3) == "lt-") srcfile.erase(0, 3);
+	}
     } else {
 	// default to current directory - probably won't work if libtool
 	// is involved as the true executable is usually in .libs
 	srcfile = srcdir;
 	srcdir = ".";
     }
-    // libtool puts the real executable in .libs...
-    i = srcdir.find_last_of('/');
-    if (srcdir.substr(i + 1) == ".libs") {
-	srcdir.erase(i);
-    }
-    srcfile += ".cc";
-    // deal with libtool
-    if (srcfile[0] == 'l' && srcfile[1] == 't' && srcfile[2] == '-')
-        srcfile.erase(0, 3);
     // sanity check
-    if (!file_exists(srcdir + "/" + srcfile)) {
-	// try the likely subdirectories and chdir to them if we find one
-	// with a likely looking source file in - some tests need to run
-	// from the current directory
-	srcdir = '.';
-	if (file_exists("tests/" + srcfile)) {
-	    chdir("tests");
-	} else {
-	    cout << argv0
-		 << ": srcdir not in the environment and I can't guess it!"
-		 << endl;
-	    exit(1);
-	}
+    if (!file_exists(srcdir + "/" + srcfile + ".cc")) {
+	cout << argv0
+	     << ": srcdir not in the environment and I can't guess it!\n"
+		"Run test programs using the runtest script - see HACKING for details"
+	     << endl;
+	exit(1);
     }
     return srcdir;
 }

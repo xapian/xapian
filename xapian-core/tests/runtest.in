@@ -24,6 +24,7 @@
 if test 0 = "$#"; then
    echo "syntax: $0 <test program> [<arguments>]"
    echo "syntax: $0 gdb <test program> [<arguments>]"
+   echo "syntax: $0 <tool> <test program> [<arguments>]"
    exit 1
 fi
 
@@ -31,14 +32,30 @@ fi
 : ${srcdir="@srcdir@"}
 export srcdir
 
-if test "x$1" = "xgdb" ; then
-   shift
-   : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
-   export top_builddir
-   LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
-   echo "Running test '$@' under gdb"
-   exec $LIBTOOL --mode=execute gdb --args "$@"
-fi
+case "$2" in
+*test)
+   case "$1" in
+   *gdb|"*gdb *")
+      # gdb needs special handling (--args)
+      gdb="$1"
+      shift
+      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      export top_builddir
+      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      echo "Running test '$@' under $gdb"
+      exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
+   *)
+      # Handles any tool which can just be run as:
+      #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
+      tool="$1"
+      shift
+      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      export top_builddir
+      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      echo "Running test '$@' under $tool"
+      exec $LIBTOOL --mode=execute $tool "$@" ;;
+   esac
+esac
 
 # If valgrind isn't involved, just run the test program.
 if test -z "@VALGRIND@" ; then

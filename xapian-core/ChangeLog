@@ -1,3 +1,20 @@
+Wed Oct 27 21:17:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING,tests/runtest.in:
+	  Enhanced runtest to allow it to run test programs under valgrind
+	  and other tools (gdb was already supported).
+	* testsuite/testsuite.cc: Point the user to the runtest script if
+	  srcdir can't be guessed.  And no longer look for the test program
+	  in the tests subdirectory of the current directory.
+	* common/omdebug.cc: Removed compatibility code for checking
+	  OM_DEBUG_FILE and OM_DEBUG_TYPES.
+	* HACKING: Document that %% in XAPIAN_DEBUG_LOG is substituted with
+	  the process-id, and that setting XAPIAN_DEBUG_FLAGS to -1 enables
+	  all debug messages.
+	* HACKING: Valgrind now supports x86 FreeBSD and PowerPC Linux.
+	* HACKING: Removed mentions of long-dead configure options
+	  --enable-profiling, --enable-purify and --enable-insure.
+
 Wed Oct 27 21:16:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Document parameters of

@@ -38,8 +38,8 @@ OmDebug om_debug;
 
 using namespace std;
 
-#define OM_ENV_DEBUG_LOG   "XAPIAN_DEBUG_LOG"
-#define OM_ENV_DEBUG_FLAGS "XAPIAN_DEBUG_FLAGS"
+#define ENV_DEBUG_LOG   "XAPIAN_DEBUG_LOG"
+#define ENV_DEBUG_FLAGS "XAPIAN_DEBUG_FLAGS"
   
 #ifdef __WIN32__
 #include <windows.h>
@@ -65,12 +65,10 @@ OmDebug::initialise()
 	initialised = true;
 	// We get this as soon as we can - possible race condition exists here
 	// if the initialise() method is not explicitly called.
-	const char * typestring = getenv(OM_ENV_DEBUG_FLAGS);
-	if (!typestring) typestring = getenv("OM_DEBUG_TYPES"); // Old name
+	const char * typestring = getenv(ENV_DEBUG_FLAGS);
 	if (typestring) wanted_types = atoi(typestring);
 
-	const char * filename = getenv(OM_ENV_DEBUG_LOG);
-	if (!filename) filename = getenv("OM_DEBUG_FILE"); // Old name
+	const char * filename = getenv(ENV_DEBUG_LOG);
 	if (filename) {
 	    string s(filename);
 	    string::size_type token = s.find("%%");
