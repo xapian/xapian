@@ -46,7 +46,6 @@ OmQueryInternal query_from_string(std::string qs)
 
     qfs_start(qs);
 
-//    cerr << "Reading from query " << qs << endl;
     OmQueryInternal retval = qfs_readquery();
     DebugMsg("query_from_string(" << qs << ") = " << retval.serialise());
     Assert(retval.serialise() == qs);
@@ -190,10 +189,10 @@ OmQueryInternal qfs_readquery()
 	    }
 	    break;
 	default:
-	    cout << "Got type " << int(qt.type) << endl;
 	    Assert(false);
     }
-    throw OmInvalidArgumentError("Invalid query string");
+    throw OmInvalidArgumentError("Invalid query string: type was `" +
+				 om_tostring(qt.type) + "'");
 }
 
 OmQueryInternal qfs_readcompound()
@@ -527,8 +526,8 @@ string_to_moptions(const std::string &s)
        >> mopt.percent_cutoff
        >> mopt.max_or_terms;
 
-    DebugMsg("string_to_moptions: mopt " << s << "->"
-	     << moptions_to_string(mopt) << endl);
+    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"
+	      << moptions_to_string(mopt));
     return mopt;
 }
 

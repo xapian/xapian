@@ -144,23 +144,23 @@ StatsSource::perform_request() const
     Assert(total_stats != 0);
 
 #ifdef MUS_DEBUG_VERBOSE
-    DebugMsg("StatsSource::perform_request(): stats are:" << endl);
-    DebugMsg("  collection_size = " << total_stats->collection_size << endl);
-    DebugMsg("  rset_size = "       << total_stats->rset_size << endl);
-    DebugMsg("  average_length = "  << total_stats->average_length << endl);
+    DEBUGLINE(WTCALC, "StatsSource::perform_request(): stats are:");
+    DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
+    DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
+    DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);
 
     std::map<om_termname, om_doccount>::const_iterator i;
     for(i = total_stats->termfreq.begin();
 	i != total_stats->termfreq.end(); i++)
     {
-	DebugMsg("  termfreq of `" << i->first <<
-		 "'\tis " << i->second << endl);
+	DEBUGLINE(WTCALC, "  termfreq of `" << i->first <<
+		  "'\tis " << i->second);
     }
     for(i = total_stats->reltermfreq.begin();
 	i != total_stats->reltermfreq.end(); i++)
     {
-	DebugMsg("  reltermfreq of `" << i->first <<
-		 "'\tis " << i->second << endl);
+	DEBUGLINE(WTCALC, "  reltermfreq of `" << i->first <<
+		 "'\tis " << i->second);
     }
 #endif /* MUS_DEBUG_VERBOSE */
 }

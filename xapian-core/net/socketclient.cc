@@ -55,7 +55,7 @@ SocketClient::SocketClient(int socketfd_,
 
     std::string received = do_read();
 
-    DebugMsg("Read back " << received << endl);
+    DEBUGLINE(UNKNOWN, "Read back " << received);
     if (received.substr(0, 5) != "HELLO") {
 	throw OmNetworkError("Unknown start of conversation");
     }
@@ -153,7 +153,7 @@ SocketClient::do_read()
 {
     std::string retval = buf.readline();
 
-    DebugMsg("do_read(): " << retval << endl);
+    DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
     if (retval.substr(0, 5) == "ERROR") {
 	string_to_omerror(retval.substr(6), "REMOTE:");
@@ -165,7 +165,7 @@ SocketClient::do_read()
 void
 SocketClient::do_write(std::string data)
 {
-    DebugMsg("do_write(): " << data.substr(0, data.find_last_of('\n')) << endl);
+    DEBUGLINE(UNKNOWN, "do_write(): " << data.substr(0, data.find_last_of('\n')));
     buf.writeline(data);
 }
 
@@ -403,9 +403,9 @@ SocketClient::get_mset(om_doccount first,
 
 		for (int i=0; i<numitems; ++i) {
 		    std::string msetline = do_read();
-		    //DebugMsg("MSet string: " << msetline);
+		    //DEBUGLINE(UNKNOWN, "MSet string: " << msetline);
 		    OmMSetItem mitem = string_to_msetitem(msetline);
-		    //DebugMsg("MSet item: " << mitem.wt << " " << mitem.did << endl);
+		    //DEBUGLINE(UNKNOWN, "MSet item: " << mitem.wt << " " << mitem.did);
 		    mset.push_back(mitem);
 		}
 		response = do_read();

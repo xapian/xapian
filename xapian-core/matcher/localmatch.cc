@@ -90,7 +90,7 @@ class PlCmpGtTermWt {
 	bool operator()(const PostList *a, const PostList *b) {
 	    om_weight amax = a->get_maxweight();
 	    om_weight bmax = b->get_maxweight();
-	    DebugMsg("termweights are: " << amax << " and " << bmax << endl);
+	    DEBUGLINE(MATCH, "termweights are: " << amax << " and " << bmax);
 	    return amax > bmax;
 	}
 };
@@ -225,7 +225,7 @@ LocalMatch::~LocalMatch()
 PostList *
 LocalMatch::mk_postlist(const om_termname& tname)
 {
-    DebugMsg("LocalMatch::mk_postlist(" << tname << ")");
+    DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ")");
 
     // Make a postlist
     PostList * pl;
@@ -233,22 +233,20 @@ LocalMatch::mk_postlist(const om_termname& tname)
     om_weight term_weight = 0;
 
     if (!database->term_exists(tname)) {
-	DebugMsg("(not in database)" << endl);
+	DEBUGLINE(MATCH, tname + " is not in database.");
 	// Term doesn't exist in this database.  However, we create
 	// a (empty) postlist for it to help make distributed searching
 	// cleaner (term might exist in other databases).
 	// This is similar to using the muscat3.6 zerofreqs option.
 	pl = new EmptyPostList();
     } else {
-	DebugMsg(endl);
-
 	LeafPostList * leaf_pl = database->open_post_list(tname);
 
 	// FIXME - query size is currently fixed as 1
 	// FIXME - want to use within query frequency here.
 	IRWeight * wt = mk_weight(1, tname);
 	term_weight = wt->get_maxpart();
-	DEBUGLINE(UNKNOWN, "get_maxpart = " << term_weight);
+	DEBUGLINE(MATCH, "get_maxpart = " << term_weight);
 
 	leaf_pl->set_termweight(wt);
 	pl = leaf_pl;
@@ -259,8 +257,8 @@ LocalMatch::mk_postlist(const om_termname& tname)
     term_weights.insert(std::make_pair(tname, term_weight));
     term_frequencies.insert(std::make_pair(tname, term_freq));
 
-    DebugMsg(" weight = " << term_weight <<
-	     ", frequency = " << term_freq << endl);
+    DEBUGLINE(MATCH, " weight = " << term_weight <<
+	      ", frequency = " << term_freq);
 
     return pl;
 }
@@ -360,8 +358,8 @@ LocalMatch::postlist_from_queries(om_queryop op,
     std::vector<OmQueryInternal *>::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
-	DebugMsg("Made postlist: get_termfreq() = " <<
-		 postlists.back()->get_termfreq() << endl);
+	DEBUGLINE(MATCH, "Made postlist: get_termfreq() = " <<
+		  postlists.back()->get_termfreq());
     }
 
     // Build tree
@@ -390,8 +388,8 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	case OM_MOP_OR:
 	    if (max_or_terms != 0) {
 		// Select top terms
-		DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
-			 postlists.size() << "." << endl);
+		DEBUGLINE(API, "Selecting top " << max_or_terms <<
+			  " terms, out of " << postlists.size() << ".");
 		if (postlists.size() > max_or_terms) {
 		    // Call recalc_maxweight() as otherwise get_maxweight()
 		    // may not be valid before next() or skip_to()
@@ -401,8 +399,9 @@ LocalMatch::postlist_from_queries(om_queryop op,
 		    std::nth_element(postlists.begin(),
 				postlists.begin() + max_or_terms,
 				postlists.end(), PlCmpGtTermWt());
-		    DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
-			     " terms." << endl);
+		    DEBUGLINE(MATCH, "Discarding " <<
+			      (postlists.size() - max_or_terms) <<
+			      " terms.");
 
 		    std::vector<PostList *>::const_iterator i;
 	 	    for (i = postlists.begin() + max_or_terms;
@@ -523,10 +522,10 @@ LocalMatch::build_query_tree()
     if (query == 0) {
 	select_query_terms();
 
-	DebugMsg("LocalMatch::build_query_tree()" << endl);
+	DEBUGLINE(MATCH, "LocalMatch::build_query_tree()");
 	query = postlist_from_query(&users_query);
-	DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
-		 ")" << endl);
+	DEBUGLINE(MATCH, "LocalMatch::query = (" <<
+		  query->intro_term_description() << ")");
     }
 }
 
@@ -540,8 +539,8 @@ LocalMatch::select_query_terms()
 	for (tname = terms.begin(); tname != terms.end(); tname++) {
 	    IRWeight * wt = mk_weight(1, *tname);
 	    term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
-	    DebugMsg("TERM `" <<  *tname << "' get_maxpart = " <<
-		     wt->get_maxpart() << endl);
+	    DEBUGLINE(MATCH, "TERM `" <<  *tname << "' get_maxpart = " <<
+		      wt->get_maxpart());
 	}
     }
 }
@@ -573,13 +572,14 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
     std::map<OmKey, OmMSetItem>::iterator oldkey;
     oldkey = collapse_table.find(new_item.collapse_key);
     if(oldkey == collapse_table.end()) {
-	DebugMsg("collapsem: new key: " << new_item.collapse_key.value << endl);
+	DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
 	// Key not been seen before
 	collapse_table.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if(mcmp(olditem, new_item)) {
-	    DebugMsg("collapsem: better exists: " << new_item.collapse_key.value << endl);
+	    DEBUGLINE(MATCH, "collapsem: better exists: " <<
+		      new_item.collapse_key.value);
 	    // There's already a better match with this key
 	    add_item = false;
 	} else {
@@ -590,7 +590,8 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 		// Scan through (unsorted) MSet looking for entry
 		// FIXME: more efficient way that just scanning?
 		om_weight olddid = olditem.did;
-		DebugMsg("collapsem: removing " << olddid << ": " << new_item.collapse_key.value << endl);
+		DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
+			  ": " << new_item.collapse_key.value);
 		std::vector<OmMSetItem>::iterator i = mset.begin();
 		for(;;) {
 		    if(i->did == olddid) {
@@ -610,7 +611,7 @@ bool
 LocalMatch::prepare_match(bool nowait)
 {
     if(!is_prepared) {
-	DebugMsg("LocalMatch::prepare_match() - Gathering my statistics" << endl);
+	DEBUGLINE(MATCH, "LocalMatch::prepare_match() - Gathering my statistics");
 	gather_query_statistics();
 	is_prepared = true;
     }
@@ -711,9 +712,9 @@ LocalMatch::get_mset(om_doccount first,
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
 	    w_max = query->recalc_maxweight() + max_extra_weight;
-	    DebugMsg("max possible doc weight = " << w_max << endl);
+	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
 	    if (w_max < min_item.wt) {
-		DebugMsg("*** TERMINATING EARLY (1)" << endl);
+		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
 	}
@@ -723,15 +724,15 @@ LocalMatch::get_mset(om_doccount first,
 	    delete query;
 	    query = ret;
 
-	    DebugMsg("*** REPLACING ROOT" << endl);
+	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
 	    w_max = query->get_maxweight() + max_extra_weight;
-	    DebugMsg("max possible doc weight = " << w_max << endl);
+	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
             AssertParanoid(recalculate_maxweight || fabs(w_max - max_extra_weight - query->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < min_item.wt) {
-		DebugMsg("*** TERMINATING EARLY (2)" << endl);
+		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		break;
 	    }
 	}
@@ -744,10 +745,10 @@ LocalMatch::get_mset(om_doccount first,
 	// FIXME: next line is inefficient, due to design.  (Makes it hard /
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
-	DebugMsg("database->get_doclength(" << did << ") == " <<
-		 database->get_doclength(did) << endl);
-	DebugMsg("query->get_doclength() == " <<
-		 query->get_doclength() << endl);
+	DEBUGLINE(MATCH, "database->get_doclength(" << did << ") == " <<
+		  database->get_doclength(did));
+	DEBUGLINE(MATCH, "query->get_doclength() == " <<
+		  query->get_doclength());
 	AssertEqDouble(database->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
 		extra_weight->get_sumextra(query->get_doclength());
@@ -791,13 +792,13 @@ LocalMatch::get_mset(om_doccount first,
 		// optimisations
 		if (mset.size() == max_msize * 2) {
 		    // find last element we care about
-		    DebugMsg("finding nth" << endl);
+		    DEBUGLINE(MATCH, "finding nth");
 		    std::nth_element(mset.begin(), mset.begin() + max_msize,
 				mset.end(), mcmp);
 		    // erase elements which don't make the grade
 		    mset.erase(mset.begin() + max_msize, mset.end());
 		    min_item = mset.back();
-		    DebugMsg("mset size = " << mset.size() << endl);
+		    DEBUGLINE(MATCH, "mset size = " << mset.size());
 		}
 	    }
 	}
@@ -805,19 +806,19 @@ LocalMatch::get_mset(om_doccount first,
 
     if (mset.size() > max_msize) {
 	// find last element we care about
-	DebugMsg("finding nth" << endl);
+	DEBUGLINE(MATCH, "finding nth");
 	std::nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), mcmp);
 	// erase elements which don't make the grade
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
-    DebugMsg("sorting" << endl);
+    DEBUGLINE(MATCH, "sorting");
 
     if(first > 0) {
 	// Remove unwanted leading entries
 	if(mset.size() <= first) {
 	    mset.clear();
 	} else {
-	    DebugMsg("finding " << first << "th" << endl);
+	    DEBUGLINE(MATCH, "finding " << first << "th");
 	    std::nth_element(mset.begin(), mset.begin() + first, mset.end(), mcmp);
 	    // erase the leading ``first'' elements
 	    mset.erase(mset.begin(), mset.begin() + first);
@@ -827,10 +828,10 @@ LocalMatch::get_mset(om_doccount first,
     // Need a stable sort, but this is provided by comparison operator
     std::sort(mset.begin(), mset.end(), mcmp);
 
-    DebugMsg("msize = " << mset.size() << ", mbound = " << *mbound << endl);
+    DEBUGLINE(MATCH, "msize = " << mset.size() << ", mbound = " << *mbound);
     if (mset.size()) {
-	DebugMsg("max weight in mset = " << mset[0].wt <<
-		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
+	DEBUGLINE(MATCH, "max weight in mset = " << mset[0].wt <<
+		  ", min weight in mset = " << mset[mset.size() - 1].wt);
     }
 
     // Query now needs to be recalculated if it is needed again.

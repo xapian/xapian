@@ -581,7 +581,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	    subqs.push_back(new OmQueryInternal(right));
 	}
 	collapse_subqs();
-	DebugMsg(get_description() << endl);
+	DEBUGLINE(API, get_description());
     }
 }
 

@@ -41,18 +41,18 @@ OrPostList::next(om_weight w_min)
 	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
-		DebugMsg("OR -> AND" << endl);
+		DEBUGLINE(MATCH, "OR -> AND");
 		ret = new AndPostList(l, r, matcher, true);
 		ret2 = ret->skip_to(std::max(lhead, rhead) + 1, w_min);
 	    } else {
-		DebugMsg("OR -> AND MAYBE (1)" << endl);
+		DEBUGLINE(MATCH, "OR -> AND MAYBE (1)");
 		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
 		ret2 = ret->next(w_min);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
-	    DebugMsg("OR -> AND MAYBE (2)" << endl);
+	    DEBUGLINE(MATCH, "OR -> AND MAYBE (2)");
 	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
 	    ret2 = ret->next(w_min);
 	}
@@ -104,18 +104,18 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
-		DebugMsg("OR -> AND (in skip_to)" << endl);
+		DEBUGLINE(MATCH, "OR -> AND (in skip_to)");
 		ret = new AndPostList(l, r, matcher, true);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
-		DebugMsg("OR -> AND MAYBE (in skip_to) (1)" << endl);
+		DEBUGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
 		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
-	    DebugMsg("OR -> AND MAYBE (in skip_to) (2)" << endl);
+	    DEBUGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (2)");
 	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
 	    did = std::max(did, lhead);
 	}

@@ -150,7 +150,7 @@ SocketServer::run_match(const std::string &firstmessage)
     // extract the rset
     message = buf->readline();
     if (!startswith(message, "RSET ")) {
-	DebugMsg("Expected RSET, got " << message << endl);
+	DEBUGLINE(UNKNOWN, "Expected RSET, got " << message);
 	throw OmNetworkError(std::string("Invalid message: ") + message);
     }
     OmRSet omrset = string_to_omrset(message.substr(5));
@@ -159,7 +159,7 @@ SocketServer::run_match(const std::string &firstmessage)
     message = buf->readline();
 
     if (!startswith(message, "SETQUERY ")) {
-	DebugMsg("Expected SETQUERY, got " << message << endl);
+	DEBUGLINE(UNKNOWN, "Expected SETQUERY, got " << message);
 	throw OmNetworkError("Invalid message");
     }
 
@@ -195,7 +195,7 @@ SocketServer::run_match(const std::string &firstmessage)
 					     new NetworkStatsGatherer(this)));
 
 #if 0
-    DebugMsg("Adding artificial delay for statistics" << endl);
+    DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");
     sleep(1);
 #endif
 
@@ -221,7 +221,7 @@ SocketServer::run_match(const std::string &firstmessage)
     message = message.substr(8);
 
 #if 0
-    DebugMsg("Adding artificial delay..." << endl);
+    DEBUGLINE(UNKNOWN, "Adding artificial delay...");
     sleep(2);
 #endif
 
@@ -235,22 +235,22 @@ SocketServer::run_match(const std::string &firstmessage)
 
     OmMSet mset;
 
-    DebugMsg("About to get_mset(" << first
-	     << ", " << maxitems << "..." << endl);
+    DEBUGLINE(UNKNOWN, "About to get_mset(" << first
+	      << ", " << maxitems << "...");
 
     match.match(first,
 		maxitems,
 		mset,
 		0);
 
-    DebugMsg("done get_mset..." << endl);
+    DEBUGLINE(UNKNOWN, "done get_mset...");
 
     buf->writeline(std::string("MSETITEMS ") +
 		  om_tostring(mset.items.size()) + " "
 		  + om_tostring(mset.max_possible)
 		  + om_tostring(mset.max_attained));
 
-    DebugMsg("sent size, maxweight..." << endl);
+    DEBUGLINE(UNKNOWN, "sent size, maxweight...");
 
     for (std::vector<OmMSetItem>::iterator i=mset.items.begin();
 	 i != mset.items.end();
@@ -261,13 +261,13 @@ SocketServer::run_match(const std::string &firstmessage)
 		" " << omkey_to_string(i->collapse_key) << ends;
 	buf->writeline(charbuf);
 
-	DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
+	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
     }
-    //DebugMsg("sent items..." << endl);
+    //DEBUGLINE(UNKNOWN, "sent items...");
 
     buf->writeline("OK");
 
-    //DebugMsg("sent OK..." << endl);
+    //DEBUGLINE(UNKNOWN, "sent OK...");
 }
 
 void

@@ -275,8 +275,8 @@ OmMSet::convert_to_percent_internal(om_weight wt) const
     if(max_possible == 0) return 100;
 
     int pcent = (int) ceil(wt * 100 / max_possible);
-    DebugMsg("wt = " << wt << ", max_possible = " << max_possible <<
-	     " =>  pcent = " << pcent << endl);
+    DEBUGLINE(API, "wt = " << wt << ", max_possible = " << max_possible <<
+	      " =>  pcent = " << pcent);
     if(pcent > 100) pcent = 100;
     if(pcent < 0) pcent = 0;
     if(pcent == 0 && wt > 0) pcent = 1;
@@ -502,7 +502,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     OmExpand expand(database.get());
     RSet rset(database.get(), omrset);
 
-    DebugMsg("rset size is " << omrset.items.size() << endl);
+    DEBUGLINE(API, "rset size is " << omrset.items.size());
 
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;

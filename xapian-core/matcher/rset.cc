@@ -31,12 +31,12 @@ void
 RSet::calculate_stats()
 {
     Assert(!calculated_reltermfreqs);
-    DebugMsg("RSet::calculate_stats(): ");
+    DEBUGLINE(WTCALC, "RSet::calculate_stats(): ");
     std::vector<RSetItem>::const_iterator doc;
     for (doc = documents.begin();
 	 doc != documents.end();
 	 doc++) {
-	DebugMsg("document " << doc->did << " [ ");
+	DEBUGLINE(WTCALC, "document " << doc->did << " [ ");
 	std::auto_ptr<TermList> tl =
 	    std::auto_ptr<TermList>(root->open_term_list(doc->did));
 	tl->next();
@@ -45,14 +45,14 @@ RSet::calculate_stats()
 	    // Store termnames in a hash for each document, rather than
 	    // a list?
 	    om_termname tname = tl->get_termname();
-	    DebugMsg(tname << ", ");
+	    DEBUGLINE(WTCALC, tname << ", ");
 	    if(reltermfreqs.find(tname) != reltermfreqs.end())
 		reltermfreqs[tname] ++;
 	    tl->next();
 	}
-	DebugMsg("] ");
+	DEBUGLINE(WTCALC, "] ");
     }
-    DebugMsg("done" << endl);
+    DEBUGLINE(WTCALC, "done");
     calculated_reltermfreqs = true;
 }
 

@@ -128,7 +128,7 @@ TcpServer::get_connected_socket()
     }
 
     std::cerr << "Connection from " << hent->h_name
-	 << ", port " << remote_address.sin_port << std::endl;
+	 << ", port " << remote_address.sin_port << "\n";
 
 #endif
 
@@ -156,7 +156,7 @@ TcpServer::run()
 	    run_once();
 	} catch (...) {
 	    // FIXME: better error handling.
-	    std::cerr << "Caught exception." << std::endl;
+	    std::cerr << "Caught exception." << "\n";
 	}
     }
 }

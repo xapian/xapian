@@ -121,7 +121,6 @@ BackendManager::set_dbtype(const std::string &type)
     } else if (type == "sleepycat") {
 	do_getdb = &BackendManager::getdb_sleepy;
 	do_getwritedb = &BackendManager::getwritedb_sleepy;
-	DebugMsg("Removing .sleepy/..." << std::endl);
 	system("rm -fr .sleepy");
     } else if (type == "net") {
 	do_getdb = &BackendManager::getdb_net;

@@ -35,15 +35,15 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 
     // FIXME - try to share this information rather than pick half of it
     if(bits2.dbsize > sum.dbsize) {
-	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using second operand: " <<
-		 bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
-		 bits1.termfreq << "/" << bits1.dbsize << endl);
+	DEBUGLINE(WTCALC, "OmExpandBits::operator+ using second operand: " <<
+		  bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
+		  bits1.termfreq << "/" << bits1.dbsize);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     } else {
-	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using first operand: " <<
-		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
-		bits2.termfreq << "/" << bits2.dbsize << endl);
+	DEBUGLINE(WTCALC, "OmExpandBits::operator+ using first operand: " <<
+		  bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
+		  bits2.termfreq << "/" << bits2.dbsize);
 	// sum already contains the parts of the first operand
     }
     return sum;
@@ -72,20 +72,20 @@ OmExpandWeight::get_bits(om_termcount wdf,
 
     om_doclength normalised_length = document_length / average_length;
 
-    DEBUGMSG(WTCALC, "(doc_length, average_length) = (" <<
-	     document_length << ", " <<
-	     average_length << ") => normalised_length = " <<
-	     normalised_length << endl);
+    DEBUGLINE(WTCALC, "(doc_length, average_length) = (" <<
+	      document_length << ", " <<
+	      average_length << ") => normalised_length = " <<
+	      normalised_length);
 
     if(wdf > 0) {
 	// FIXME -- use alpha, document importance
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
 	multiplier = (k + 1) * wdf / (k * normalised_length + wdf);
-	DEBUGMSG(WTCALC, "Using (wdf, normalised_length) = (" << wdf << ", " <<
-		 normalised_length << ") => multiplier = " << multiplier << endl);
+	DEBUGLINE(WTCALC, "Using (wdf, normalised_length) = (" << wdf << ", " <<
+		  normalised_length << ") => multiplier = " << multiplier);
     } else {
-	DEBUGMSG(WTCALC, "No wdf information => multiplier = " << multiplier << endl);
+	DEBUGLINE(WTCALC, "No wdf information => multiplier = " << multiplier);
     }
     return OmExpandBits(multiplier, termfreq, dbsize);
 }
@@ -98,14 +98,14 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     if(bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
 	    termfreq *= (double) dbsize / (double)bits.dbsize;
-	    DEBUGMSG(WTCALC, "Approximating termfreq of `" << tname << "': " <<
-		     bits.termfreq << " * " << dbsize << " / " <<
-		     bits.dbsize << " = " << termfreq << " (true value is:" <<
-		     root->get_termfreq(tname) << ")" << endl);
+	    DEBUGLINE(WTCALC, "Approximating termfreq of `" << tname << "': " <<
+		      bits.termfreq << " * " << dbsize << " / " <<
+		      bits.dbsize << " = " << termfreq << " (true value is:" <<
+		      root->get_termfreq(tname) << ")");
 	} else {
 	    termfreq = root->get_termfreq(tname);
-	    DEBUGMSG(WTCALC, "Asked database for termfreq of `" << tname <<
-		     "': " << termfreq << endl);
+	    DEBUGLINE(WTCALC, "Asked database for termfreq of `" << tname <<
+		      "': " << termfreq);
 	}
     }
 
@@ -134,8 +134,8 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     }
     tw = log(tw);
 
-    DEBUGMSG(WTCALC, " => Term weight = " << tw <<
-	     " Expand weight = " << bits.multiplier * tw << endl);
+    DEBUGLINE(WTCALC, " => Term weight = " << tw <<
+	      " Expand weight = " << bits.multiplier * tw);
 
     return(bits.multiplier * tw);
 }

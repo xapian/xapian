@@ -66,17 +66,17 @@ bool
 NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 		      om_termcount min, om_termcount max)
 {
-    DebugMsg("NearPostList::do_test([...], " << i << ", " << min << ", "
-	     << max << ")\ndocid = " << get_docid() << ", window = "
-	     << window << endl);
+    DEBUGLINE(MATCH, "NearPostList::do_test([...], " << i << ", " << min <<
+	      ", " << max << ")\ndocid = " << get_docid() << ", window = "
+	      << window);
     om_termcount tmp = max + 1;
     // take care to avoid underflow
     if (window <= tmp) tmp -= window; else tmp = 0;
     plists[i]->skip_to(tmp);
     while (!plists[i]->at_end()) {
 	om_termpos pos = plists[i]->get_position();
-	DebugMsg("[" << i << "]: " << max - window + 1 << " " << min << " "
-		 << pos << " " << max << " " << min + window - 1 << endl);
+	DEBUGLINE(MATCH, "[" << i << "]: " << max - window + 1 << " " << min
+		  << " " << pos << " " << max << " " << min + window - 1);
 	if (pos > min + window - 1) return false;
 	if (i + 1 == plists.size()) return true;
 	if (pos < min) min = pos;
@@ -123,36 +123,37 @@ bool
 PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 			om_termcount min, om_termcount max)
 {
-    DebugMsg("PhrasePostList::do_test([...], " << i << ", " << min << ", "
-	     << max << ")\ndocid = " << get_docid() << ", window = "
-	     << window << endl);
+    DEBUGLINE(MATCH, "PhrasePostList::do_test([...], " << i << ", "
+	      << min << ", "
+	      << max << ")\ndocid = " << get_docid() << ", window = "
+	      << window);
     om_termpos idxi = plists[i]->index;
-    DebugMsg("my idx in phrase is " << idxi << endl);
+    DEBUGLINE(MATCH, "my idx in phrase is " << idxi);
 
     om_termpos mymin = min + idxi;
     om_termpos mymax = max - plists.size() + idxi;
-    DebugMsg("MIN = " << mymin << " MAX = " << mymax << endl);
+    DEBUGLINE(MATCH, "MIN = " << mymin << " MAX = " << mymax);
     // FIXME: this is worst case O(n^2) where n = length of phrase
     // Can we do better?
     for (om_termcount j = 0; j < i; j++) {
 	om_termpos idxj = plists[j]->index;
 	if (idxj > idxi) {
 	    om_termpos tmp = plists[j]->get_position() + idxj - idxi;
-	    DebugMsg("ABOVE " << tmp << endl);
+	    DEBUGLINE(MATCH, "ABOVE " << tmp);
 	    if (tmp < mymax) mymax = tmp;
 	} else {
 	    Assert(idxi != idxj);
 	    om_termpos tmp = plists[j]->get_position() + idxi - idxj;
-	    DebugMsg("BELOW " << tmp << endl);
+	    DEBUGLINE(MATCH, "BELOW " << tmp);
 	    if (tmp > mymin) mymin = tmp;
 	}
-	DebugMsg("min = " << mymin << " max = " << mymax << endl);
+	DEBUGLINE(MATCH, "min = " << mymin << " max = " << mymax);
     }
     plists[i]->skip_to(mymin);
 
     while (!plists[i]->at_end()) {
 	om_termpos pos = plists[i]->get_position();
-	DebugMsg(" " << mymin << " " << pos << " " << mymax << endl);
+	DEBUGLINE(MATCH, " " << mymin << " " << pos << " " << mymax);
 	if (pos > mymax) return false;
 	if (i + 1 == plists.size()) return true;
 	om_termpos tmp = pos + window - idxi;

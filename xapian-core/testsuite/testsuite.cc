@@ -236,7 +236,7 @@ test_driver::runtest(const test_desc *test)
 	success = false;
         out << " FAILED";
 	if (verbose) {
-	    std::cout << fail.message << std::endl;
+	    out << fail.message << std::endl;
 	}
     } catch (OmError &err) {
         out << " OMEXCEPT";

@@ -75,7 +75,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
     // speeds things up.
     while (true) {
 	TermList *p = pq.top();
-	DEBUGMSG(EXPAND, "OmExpand: adding termlist " << p << " to tree" << endl);
+	DEBUGLINE(EXPAND, "OmExpand: adding termlist " << p << " to tree");
 	pq.pop();
 	if (pq.empty()) {
 	    return p;
@@ -97,9 +97,9 @@ OmExpand::expand(om_termcount max_esize,
     eset.items.clear();
     eset.ebound = 0;
 
-    DEBUGMSG(EXPAND, "OmExpand::expand()" << endl);
+    DEBUGLINE(EXPAND, "OmExpand::expand()");
     if (rset->get_rsize() == 0) return; // No query
-    DEBUGMSG(EXPAND, "OmExpand::expand() 2" << endl);
+    DEBUGLINE(EXPAND, "OmExpand::expand() 2");
 
     om_weight w_min = 0;
 
@@ -109,11 +109,11 @@ OmExpand::expand(om_termcount max_esize,
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
 
-    DEBUGMSG(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight() << endl);
+    DEBUGLINE(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight());
     while (1) {
 	TermList *ret = merger->next();
         if (ret) {
-	    DEBUGMSG(EXPAND, "*** REPLACING ROOT" << endl);
+	    DEBUGLINE(EXPAND, "*** REPLACING ROOT");
 	    delete merger;
 	    merger = ret;
 	}
@@ -134,7 +134,7 @@ OmExpand::expand(om_termcount max_esize,
 		// nth_element and smaller size for better w_min optimisations
 		if (eset.items.size() == max_esize * 2) {
 		    // find last element we care about
-		    DEBUGMSG(EXPAND, "finding nth" << endl);
+		    DEBUGLINE(EXPAND, "finding nth");
 		    std::nth_element(eset.items.begin(),
 				eset.items.begin() + max_esize,
 				eset.items.end(),
@@ -143,7 +143,7 @@ OmExpand::expand(om_termcount max_esize,
 		    eset.items.erase(eset.items.begin() + max_esize,
 				     eset.items.end());
 		    w_min = eset.items.back().wt;
-		    DEBUGMSG(EXPAND, "eset size = " << eset.items.size() << endl);
+		    DEBUGLINE(EXPAND, "eset size = " << eset.items.size());
 		}
 	    }
 	}
@@ -151,22 +151,22 @@ OmExpand::expand(om_termcount max_esize,
 
     if (eset.items.size() > max_esize) {
 	// find last element we care about
-	DEBUGMSG(EXPAND, "finding nth" << endl);
+	DEBUGLINE(EXPAND, "finding nth");
 	std::nth_element(eset.items.begin(),
 		    eset.items.begin() + max_esize,
 		    eset.items.end(), OmESetCmp());
 	// erase elements which don't make the grade
 	eset.items.erase(eset.items.begin() + max_esize, eset.items.end());
     }
-    DEBUGMSG(EXPAND, "sorting" << endl);
+    DEBUGLINE(EXPAND, "sorting");
 
     // Need a stable sort, but this is provided by comparison operator
     std::sort(eset.items.begin(), eset.items.end(), OmESetCmp());
 
-    DEBUGMSG(EXPAND, "esize = " << eset.items.size() << ", ebound = " << eset.ebound << endl);
+    DEBUGLINE(EXPAND, "esize = " << eset.items.size() << ", ebound = " << eset.ebound);
     if (eset.items.size()) {
-	DEBUGMSG(EXPAND, "max weight in eset = " << eset.items.front().wt
-		 << ", min weight in eset = " << eset.items.back().wt << endl);
+	DEBUGLINE(EXPAND, "max weight in eset = " << eset.items.front().wt
+		 << ", min weight in eset = " << eset.items.back().wt);
     }
     delete merger;
 }

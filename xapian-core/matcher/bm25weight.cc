@@ -75,7 +75,7 @@ BM25Weight::calc_termweight() const
     }
     tw = log(tw);
 
-    DEBUGMSG(WTCALC, " => termweight = " << tw << endl);
+    DEBUGLINE(WTCALC, " => termweight = " << tw);
     termweight = tw;
     weight_calculated = true;
 }
@@ -91,7 +91,7 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 
     wt *= termweight;
 
-    DEBUGMSG(WTCALC, " =>  sumpart = " << wt << endl);
+    DEBUGLINE(WTCALC, " =>  sumpart = " << wt);
 
     return wt;
 }
@@ -100,7 +100,7 @@ om_weight
 BM25Weight::get_maxpart() const
 {
     if(!weight_calculated) calc_termweight();
-    DEBUGMSG(WTCALC, "maxpart = " << termweight << endl);
+    DEBUGLINE(WTCALC, "maxpart = " << termweight);
     return termweight;
 }
 
@@ -113,10 +113,10 @@ BM25Weight::get_sumextra(om_doclength len) const
 {
     om_doclength normlen = len / stats->get_total_average_length();
     om_weight extra = C * querysize / (1 + normlen);
-    DEBUGMSG(WTCALC, "len = " << len <<
-	     " querysize = " << querysize <<
-	     " =>  normlen = " << normlen <<
-	     " =>  sumextra = " << extra << endl);
+    DEBUGLINE(WTCALC, "len = " << len <<
+	      " querysize = " << querysize <<
+	      " =>  normlen = " << normlen <<
+	      " =>  sumextra = " << extra);
     return extra;
 }
 
@@ -124,7 +124,7 @@ om_weight
 BM25Weight::get_maxextra() const
 {
     om_weight maxextra = C * querysize;
-    DEBUGMSG(WTCALC, "querysize = " << querysize <<
-	     " =>  maxextra = " << maxextra << endl);
+    DEBUGLINE(WTCALC, "querysize = " << querysize <<
+	      " =>  maxextra = " << maxextra);
     return maxextra;
 }

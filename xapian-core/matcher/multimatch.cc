@@ -174,9 +174,8 @@ MultiMatch::merge_msets(std::vector<OmMSetItem> &mset,
     // both because of the fact that we're doing a binary merge, and
     // because we collapse very inefficiently.  (Don't use fact that
     // each key can only occur once in each mset, for a start)
-    DebugMsg("Merging mset of size " << more_mset.size() <<
-	     " to existing set of size " << mset.size() <<
-	     endl);
+    DEBUGLINE(MATCH, "Merging mset of size " << more_mset.size() <<
+	      " to existing set of size " << mset.size());
 
     std::vector<OmMSetItem> old_mset;
     old_mset.swap(mset);

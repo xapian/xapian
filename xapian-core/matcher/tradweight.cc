@@ -42,14 +42,14 @@ TradWeight::calc_termweight() const
 
     om_doccount termfreq = stats->get_total_termfreq(tname);
 
-    DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
+    DEBUGLINE(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
 
     om_weight tw = 0;
     om_doccount rsize = stats->get_total_rset_size();
     if (rsize != 0) {
 	om_doccount rtermfreq = stats->get_total_reltermfreq(tname);
 
-	DebugMsg(" R=" << rsize << " r_t=" << rtermfreq);
+	DEBUGLINE(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 		((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
@@ -68,7 +68,7 @@ TradWeight::calc_termweight() const
     }
     tw = log(tw);
 
-    DebugMsg(" => termweight = " << tw << endl);
+    DEBUGLINE(WTCALC, " => termweight = " << tw);
     termweight = tw;
     weight_calculated = true;
 }
