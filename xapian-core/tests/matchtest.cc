@@ -9,15 +9,13 @@ int main(int argc, char *argv[]) {
 	database.open("testdir", 0);
        
         Match match(&database);
-        
-        char *terms[] = {
-	   "2",
-	   "3",
-//	   "elephant",
-	   NULL
-	};
+
+        if (argc < 2) {
+	    cout << "Syntax: " << argv[0] << " TERM ..." << endl;
+	    exit(1);
+	}
        
-        for (char **p = terms; *p; p++) {
+        for (char **p = argv + 1; *p; p++) {
 	    if (match.add_pterm(*p)) {
 	        printf("Added term \"%s\" ok\n", *p);
 	    } else {
