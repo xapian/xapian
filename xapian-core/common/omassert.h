@@ -63,6 +63,7 @@
 #endif /* MUS_DEBUG_PARANOID */
 
 #ifdef MUS_DEBUG
+#include <math.h> // for fabs() for AssertEqDouble
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
 #define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))

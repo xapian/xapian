@@ -68,6 +68,7 @@ class OmIndexer {
 	 */
 	OmIndexer();
 
+    public: // FIXME
 	class Internal;
 
 	Internal *internal;

@@ -24,7 +24,6 @@
 #include "om/omindexernode.h"
 #include "omindexerinternal.h"
 #include "om/omerror.h"
-#include "deleter_map.h"
 #include "omdebug.h"
 
 OmIndexer::OmIndexer()

@@ -28,13 +28,11 @@
 #include "om/omindexercommon.h"
 
 class OmNodeInstanceIterator {
-    private:
-	// friend classes which need to be able to construct us
-
+    public: // FIXME:
 	class Internal;
-
 	Internal *internal; // reference counted internals
 
+    private:
         friend bool operator==(const OmNodeInstanceIterator &a,
 			       const OmNodeInstanceIterator &b);
 

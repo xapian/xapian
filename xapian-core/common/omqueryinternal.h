@@ -30,7 +30,9 @@
 #include <vector>
 #include "omlocks.h"
 
+#ifdef USE_DELETER_VECTOR
 #include "deleter_vector.h"
+#endif
 
 class MultiMatch;
 class LocalSubMatch;
@@ -50,11 +52,16 @@ class OmQuery::Internal {
     	OmLock mutex;
 
 	/// The container type for storing pointers to subqueries
+#ifdef USE_DELETER_VECTOR
 	typedef deleter_vector<OmQuery::Internal *> subquery_list;
-    private:
+#else
+	typedef std::vector<OmQuery::Internal *> subquery_list;
+#endif
+
 	/// Type storing the operation
 	typedef int op_t;
 
+    private:
 	/// Operation to be performed at this node
 	op_t op;
 

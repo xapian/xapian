@@ -225,6 +225,7 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 	" were " << (a) << " and " << (b))
 
 #include <float.h> // for DBL_EPSILON
+#include <math.h> // for fabs
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN((fabs((a) - (b)) < DBL_EPSILON), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
 	" were " << (a) << " and " << (b))

@@ -88,7 +88,7 @@ void * checked_realloc(void *ptr, size_t size);
 void checked_free(void *ptr, const char *msg);
     
 #ifdef __cplusplus
-}  // from extern "C"
+}  /* from extern "C" */
 #endif
 
 #endif /* OM_HGUARD_ALLOCCOMMON_H */

@@ -31,7 +31,7 @@ class OmErrorHandler;
 
 /// Base class for all errors reported
 class OmError {
-    friend OmErrorHandler;
+    friend class OmErrorHandler;
     private:
 	/// A message explaining the error.
         std::string msg;
@@ -93,7 +93,9 @@ class OmError {
 	}
 
         /// Instantiations of OmError (as opposed to subclasses) are forbidden
-	virtual ~OmError() = 0;
+        // FIXME: no longer pure virtual as that stops us throwing OmError
+	// objects
+	virtual ~OmError();
 };
 
 inline OmError::~OmError() {}

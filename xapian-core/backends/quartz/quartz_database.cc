@@ -627,9 +627,9 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
         //   those terms.
 	quartz_doclen_t old_doclen;
 	{
-            vector<om_termname> delTerms;
-            vector<om_termname> addTerms;
-            vector<om_termname> posTerms;
+            std::vector<om_termname> delTerms;
+            std::vector<om_termname> addTerms;
+            std::vector<om_termname> posTerms;
 
             // First, before we modify the Postlist, we should detect the old document length, since that
             //   seems to be of some importance later on.
@@ -685,7 +685,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             }
             // We now know which terms to add and which to remove. Let's get to work!
             // Delete the terms on our "hitlist"...
-            vector<om_termname>::iterator vIter = delTerms.begin();
+            std::vector<om_termname>::iterator vIter = delTerms.begin();
             while (vIter != delTerms.end())
             {
 	        om_termname tname = (*vIter);

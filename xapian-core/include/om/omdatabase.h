@@ -73,7 +73,7 @@ class OmDatabase {
 	 */
 	void add_database(const OmDatabase & database);
     
-    protected:
+    public: // FIXME protected:
 	class Internal;
 
 	/** Reference counted internals. */
@@ -86,6 +86,7 @@ class OmDatabase {
 
 	friend class InternalInterface;
 
+    protected:
 	/** Open a database, possibly readonly.
 	 *
 	 *  This may be used to open a database for writing, and is used

@@ -83,9 +83,12 @@ class OmIndexerDesc {
 
     private:
 	friend class OmIndexerBuilder;
+
+    public: // FIXME:
 	class Internal;
 	Internal *internal;
 
+    private:
 	OmIndexerDesc(Internal *internal_);
 };
 

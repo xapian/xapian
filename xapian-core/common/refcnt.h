@@ -50,12 +50,12 @@ class RefCntBase {
 	RefCntBase(const RefCntBase &other)
 		: ref_count(0), ref_count_mutex() { }
 
+    public:
 	/** Dummy class, used simply to make the private constructor
 	 *  different.
 	 */
 	class RefCntPtrToThis {};
 
-    public:
 	/** Return the current ref count.
 	 *
 	 *  This is only rarely useful.  One use is for copy-on-write.
@@ -89,7 +89,6 @@ class RefCntBase {
  */
 template <class T>
 class RefCntPtr {
-    friend T;
     private:
 	T *dest;
 

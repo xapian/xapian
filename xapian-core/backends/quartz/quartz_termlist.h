@@ -57,11 +57,11 @@ class QuartzTermList : public LeafTermList {
 	
 	/** Position within tag that we're reading from.
 	 */
-	std::string::const_iterator pos;
+	const char *pos;
 
 	/** End of data within tag;
 	 */
-	std::string::const_iterator end;
+	const char *end;
 
 	/** Whether we have moved past the final item yet.
 	 */

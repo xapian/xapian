@@ -80,7 +80,7 @@ class OmKey {
 
 /// A document in the database - holds keys and records
 class OmDocument {
-    private:
+    public:// FIXME: private:
 	class Internal;
 	Internal *internal;
 

@@ -106,7 +106,7 @@ class QuartzCursor {
 /** A cursor in a disktable.
  */
 class QuartzDiskCursor : public QuartzCursor {
-    friend QuartzDiskTable;
+    friend class QuartzDiskTable;
     private:
 	/** Whether the cursor is positioned at a valid entry.
 	 */
@@ -148,7 +148,7 @@ class QuartzDiskCursor : public QuartzCursor {
 /** A cursor in a bufftable.
  */
 class QuartzBufferedCursor : public QuartzCursor {
-    friend QuartzBufferedTable;
+    friend class QuartzBufferedTable;
     private:
 	/** The cursor on disk.
 	 */

@@ -33,7 +33,11 @@ class OmIndexerStartNode;
 
 class OmIndexer::Internal : public RefCntBase {
     public:
+#ifdef USE_DELETER_MAP
 	typedef deleter_map<std::string, OmIndexerNode *> NodeMap;
+#else
+	typedef std::map<std::string, OmIndexerNode *> NodeMap;
+#endif
 
 	/** Storage for the indexer nodes, by id.
 	 */
@@ -47,6 +51,13 @@ class OmIndexer::Internal : public RefCntBase {
 
 	/** The start node */
 	OmIndexerStartNode *start;
+
+	~Internal() {
+	    NodeMap::iterator i;
+            for (i = nodemap.begin(); i != nodemap.end(); ++i) {
+                delete i->second;
+            }
+	}
 };
 
 /** A special node used internally as the START node by the indexer. */

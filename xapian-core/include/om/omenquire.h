@@ -137,7 +137,7 @@ inline bool operator!=(const OmMSetIterator &a,
  */
 class OmMSet {
     friend class OmEnquire;
-    private:
+    public: // FIXME: private:
 	class Internal;
 
     public:

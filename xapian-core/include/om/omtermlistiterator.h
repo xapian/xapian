@@ -38,10 +38,12 @@ class OmTermIterator {
 	friend class OmDocument;
 	//friend class OmEnquire::Internal;
 
+    public: // FIXME
 	class Internal;
 
 	Internal *internal; // reference counted internals
 
+    private:
         friend bool operator==(const OmTermIterator &a, const OmTermIterator &b);
 
     public:

@@ -37,8 +37,8 @@ void
 QuartzLexicon::parse_entry(const std::string & data,
 			   om_doccount * termfreq)
 {
-    std::string::const_iterator pos = data.begin();
-    std::string::const_iterator end = pos + data.size();
+    const char * pos = data.data();
+    const char * end = pos + data.size();
 
     if (!unpack_uint(&pos, end, termfreq)) {
 	if(pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termfreq from lexicon.");

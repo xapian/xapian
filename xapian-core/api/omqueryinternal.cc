@@ -485,6 +485,12 @@ OmQuery::Internal::Internal(op_t op_)
 
 OmQuery::Internal::~Internal()
 {
+#ifndef USE_DELETER_VECTOR
+    subquery_list::iterator i;
+    for (i = subqs.begin(); i != subqs.end(); i++) {
+        delete *i;
+    }
+#endif
 }
 
 void
@@ -646,6 +652,9 @@ OmQuery::Internal::collapse_subqs()
 		// rather than incrementing, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.
+#ifndef USE_DELETER_VECTOR
+		delete *sq;
+#endif
 		sq = subqs.erase(sq);
 	    }
 	} else {
@@ -660,7 +669,7 @@ OmQuery::Internal::flatten_subqs()
 {
     Assert(op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
 
-    subquery_list::iterator sq = subqs.begin();
+    subquery_list::iterator sq;
     for (sq = subqs.begin(); sq != subqs.end(); sq++) {
 	Assert((*sq)->op != OmQuery::Internal::OP_UNDEF);
 	if (!is_leaf((*sq)->op)) break;
@@ -673,23 +682,20 @@ OmQuery::Internal::flatten_subqs()
 	    throw OmUnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
 	}
 
-	// Offset to subquery we're flattening.
-	subquery_list::size_type offset = sq - subqs.begin();
-	AutoPtr<OmQuery::Internal> flattenme(subqs[offset]);
-	subqs[offset] = 0;
+	AutoPtr<OmQuery::Internal> flattenme(*sq);
+	*sq = 0;
 
 	// New query to build up.
 	OmQuery::Internal newq(flattenme->op);
 
-	for (subquery_list::size_type j = 0;
-	     j != flattenme->subqs.size();
-	     j++) {
-	    subqs[offset] = flattenme->subqs[j];
-	    flattenme->subqs[j] = 0;
+	subquery_list::iterator j;
+	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); j++) {
+	    *sq = *j;
+	    *j = 0;
 	    flatten_subqs();
 	    newq.add_subquery(*this);
-	    delete subqs[offset];
-	    subqs[offset] = 0;
+	    delete *sq;
+	    *sq = 0;
 	}
 
 	newq.end_construction();
