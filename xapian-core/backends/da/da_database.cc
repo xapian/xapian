@@ -10,7 +10,8 @@
 #include "da_database.h"
 #include "daread.h"
 
-DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size) {
+DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
+{
     termfreq = tf;
     postlist = pl;
 
@@ -25,13 +26,14 @@ DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size) {
     DAreadpostings(postlist, 0, 0);
 }
 
-DAPostList::~DAPostList() {
+DAPostList::~DAPostList()
+{
     DAclosepostings(postlist);
 }
 
-
 /* This is the biggie */
-weight DAPostList::get_weight() const {
+weight DAPostList::get_weight() const
+{
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
     doccount wdf;
     weight wt;
@@ -53,29 +55,35 @@ weight DAPostList::get_weight() const {
     return wt;
 }
 
-void DAPostList::next() {
+void DAPostList::next()
+{
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
     DAreadpostings(postlist, 0, 0);
 }
 
-void DAPostList::skip_to(docid id) {
+void DAPostList::skip_to(docid id)
+{
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
     DAreadpostings(postlist, 0, id);
 }
 
 
-DATermList::DATermList(DADatabase *db, struct termvec *tv) {
+
+DATermList::DATermList(DADatabase *db, struct termvec *tv)
+{
     tvec = tv;
     dbase = db;
 
     readterms(tvec);
 }
 
-DATermList::~DATermList() {
+DATermList::~DATermList()
+{
     losetermvec(tvec);
 }
 
-termid DATermList::get_termid() {
+termid DATermList::get_termid()
+{
     if(at_end()) throw OmError("Attempt to access beyond end of termlist.");
 
     char *term = (char *)tvec->term;
@@ -83,13 +91,28 @@ termid DATermList::get_termid() {
     return dbase->term_name_to_id(string(term + 1, (unsigned)term[0]));
 }
 
-void   DATermList::next() {
+void   DATermList::next()
+{
     readterms(tvec);
 }
 
-bool   DATermList::at_end() {
+bool   DATermList::at_end()
+{
     if(tvec->term == 0) return true;
     return false;
+}
+
+
+
+DATerm::DATerm(struct terminfo *ti_new, termname name_new)
+{
+    ti = ti_new;
+    name = name_new;
+}
+
+DATerm::~DATerm()
+{
+    ;
 }
 
 
@@ -146,24 +169,11 @@ PostList * DADatabase::open_post_list(termid id)
 {
     if(!opened) throw OmError("DADatabase not opened.");
 
-    termname name = term_id_to_name(id);
-
-    int len = name.length();
-    if(len > 126) throw OmError("Term too long for DA implementation.");
-    byte * k = (byte *) malloc(len + 1);
-    if(k == NULL) throw OmError(strerror(ENOMEM));
-    k[0] = len + 1;
-    name.copy((char*)(k + 1), len);
-
-    struct terminfo ti;
-    int found = DAterm(k, &ti, DA_t);
-
-    if(found == 0) throw RangeError("Termid not found");
-
     struct postings * postlist;
-    postlist = DAopenpostings(&ti, DA_t);
+    //Assert(id > 0 && id <= termvec.size())
+    postlist = DAopenpostings(termvec[id - 1].ti, DA_t);
 
-    DAPostList * pl = new DAPostList(postlist, ti.freq, dbsize);
+    DAPostList * pl = new DAPostList(postlist, termvec[id - 1].ti->freq, dbsize);
     return pl;
 }
 
@@ -185,17 +195,36 @@ TermList * DADatabase::open_term_list(docid id)
 termid
 DADatabase::term_name_to_id(termname name)
 {
+    printf("Looking up term `%s': ", name.c_str());
     if(!opened) throw OmError("DADatabase not opened.");
-    termid id;
 
-    id = termidmap[name];
-    if (!id) {
-	id = termidvec.size() + 1;
-//	printf("Adding term `%s' as ID %d\n", name.c_str(), id);
-	termidvec.push_back(name);
-	termidmap[name] = id;
+    map<termname,termid>::iterator p = termidmap.find(name);
+
+    termid id = 0;
+    if (p == termidmap.end()) {
+	int len = name.length();
+	if(len > 126) throw OmError("Term too long for DA implementation.");
+	byte * k = (byte *) malloc(len + 1);
+	if(k == NULL) throw OmError(strerror(ENOMEM));
+	k[0] = len + 1;
+	name.copy((char*)(k + 1), len);
+
+	struct terminfo *ti = new struct terminfo;
+	int found = DAterm(k, ti, DA_t);
+	free(k);
+
+	if(found == 0) {
+	    delete ti;
+	} else {
+	    id = termvec.size() + 1;
+	    printf("Adding as ID %d\n", id);
+	    termvec.push_back(DATerm(ti, name));
+	    termidmap[name] = id;
+	}
+    } else {
+	id = (*p).second;
+	printf("found, ID %d\n", id);
     }
-//    printf("Looking up term `%s': ID = %d\n", name.c_str(), id);
     return id;
 }
 
@@ -203,7 +232,7 @@ termname
 DADatabase::term_id_to_name(termid id)
 {
     if(!opened) throw OmError("DADatabase not opened.");
-    if (id <= 0 || id > termidvec.size()) throw RangeError("invalid termid");
-//    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1].c_str());
-    return termidvec[id - 1];
+    if (id <= 0 || id > termvec.size()) throw RangeError("invalid termid");
+    printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
+    return termvec[id - 1].name;
 }

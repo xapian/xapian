@@ -66,6 +66,17 @@ class DATermList : public virtual TermList {
 	bool   at_end();
 };
 
+class DATerm {
+    friend class DADatabase;
+    private:
+	DATerm(struct terminfo *, termname);
+    public:
+	struct terminfo *ti;
+	~DATerm();
+	termname name;
+};
+
+
 class DADatabase : public virtual IRDatabase {
     private:
 	bool   opened;
@@ -75,7 +86,7 @@ class DADatabase : public virtual IRDatabase {
 
 	termid max_termid;
 	map<termname, termid> termidmap;
-	vector<termname> termidvec;
+	vector<DATerm> termvec;
     public:
 	DADatabase();
 
