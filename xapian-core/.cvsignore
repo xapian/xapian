@@ -3,6 +3,7 @@
 aclocal.m4
 Makefile.in
 Makefile
+libomus-config
 configure
 config.cache
 config.h
