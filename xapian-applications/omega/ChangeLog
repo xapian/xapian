@@ -1,3 +1,7 @@
+Sat Jul 19 19:26:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Added missing `#include <errno.h>'.
+
 Sat Jul 19 19:24:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* indextext.cc: Fixed signed character issue.
