@@ -243,11 +243,10 @@ main(int argc, char *argv[])
 
 	enquire.set_query(query);
 
-	OmSettings opts;
 	if (collapse_key != -1)
 	    enquire.set_collapse_key(collapse_key);
 	if (sort_bands != -1)
-	    enquire.set_sort(sort_value, sort_bands);
+	    enquire.set_sorting(sort_value, sort_bands);
 
 	OmMSet mset = enquire.get_mset(mfirst, msize, &rset);
 	
