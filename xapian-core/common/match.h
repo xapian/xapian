@@ -64,8 +64,6 @@ class SubMatch : public Xapian::Internal::RefCntBase {
 	
 	virtual PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher) = 0;
 
-	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const = 0;
-
 	virtual const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const = 0;
 };
 

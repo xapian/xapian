@@ -127,10 +127,6 @@ class LocalSubMatch : public SubMatch {
 
 	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const {
-	    return db->open_document(did);
-	}
-
 	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}

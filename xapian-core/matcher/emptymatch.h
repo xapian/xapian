@@ -49,10 +49,6 @@ class EmptySubMatch : public SubMatch {
 	    return lpl.release();
 	}
 
-	Xapian::Document::Internal * open_document(Xapian::docid /*did*/) const {
-	    throw Xapian::InternalError("Attempt to open document from EmptySubMatch should not happen.");
-	}
-
 	const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    throw Xapian::InternalError("EmptySubMatch can't give terminfo.");
 	}

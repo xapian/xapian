@@ -296,7 +296,7 @@ MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, Xapian::d
 	Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-   	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
+   	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
 	doc = temp;
     }
     RETURN(doc->get_value(keyno));
@@ -536,7 +536,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Xapian::doccount n = (did - 1) % multiplier; // which actual database
 		Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
+		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
 		doc = temp;
 	    }
 	    Xapian::Document mydoc(doc.get());

@@ -79,10 +79,6 @@ class RemoteSubMatch : public SubMatch {
 	
 	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	virtual Xapian::Document::Internal * open_document(Xapian::docid did) const {
-	    return db->open_document(did);
-	}
-
 	const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    Assert(postlist);
 	    postlist->make_pl();

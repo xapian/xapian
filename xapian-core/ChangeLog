@@ -1,3 +1,12 @@
+Mon Aug 11 12:05:13 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/match.h,matcher/: Removed unused open_document() method from
+	  SubMatch and derived classes; calls made by the matcher to
+	  Document::Internal::open_document() now use the lazy flag provided
+	  for precisely this purpose, but apparently never used - this should
+	  give quite a speed boost to any matcher options which use values
+	  (e.g. sort, collapse).
+
 Sun Aug 10 02:25:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Out of curiousity, I tried to build with a Linux->DJGPP
