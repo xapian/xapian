@@ -69,7 +69,7 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(DADatabase *db, struct termvec *tv)
+DATermList::DATermList(IRDatabase *db, struct termvec *tv)
 {
     readterms(tv);
     while(tv->term != 0) {
@@ -142,8 +142,6 @@ DADatabase::close()
 }
 
 // Returns a new posting list, for the postings in this database for given term
-// Weights are calculated using statistics retrieved from db
-// If db is NULL weights are not calculated
 DBPostList * DADatabase::open_post_list(termid id) const
 {
     Assert(opened);
@@ -158,6 +156,7 @@ DBPostList * DADatabase::open_post_list(termid id) const
     return pl;
 }
 
+// Returns a new term list, for the terms in this database for given document
 TermList * DADatabase::open_term_list(docid id) const
 {
     Assert(opened);
@@ -172,7 +171,7 @@ TermList * DADatabase::open_term_list(docid id) const
 
     openterms(tv);
 
-    DATermList *tl = new DATermList((DADatabase *)this, tv);
+    DATermList *tl = new DATermList(root, tv);
     return tl;
 }
 
