@@ -51,7 +51,7 @@ x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.3~|Passed|
 x86   |*OpenBSD 3.4 GCC 2.95.3         | 0.8.3~|Passed|
 x86   |*Solaris 9 GCC 3.3.2            | 0.8.3~|Passed|
 x86   |*Solaris 9 Sun Workshop C++     | 0.8.3~|Passed| [2]
-x86   | Cygwin v??                     |~0.8.0 |Passed| from Hartmut Honisch 
+x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [10] from Mike Boone
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86_64|=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.3~|Passed| (spe189)
 x86_64|=Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.3~|Passed| (spe189)
@@ -158,3 +158,5 @@ ANSI mode) would require changes to Xapian, and is only required if you
 need to link to Xapian and another library not available in -AA form.  HP
 recommend ISVs to supply libraries in -AA form, so this isn't a likely
 scenario.
+
+[10] Fails to build if there are spaces in the full path to the directory.

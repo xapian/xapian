@@ -1,3 +1,7 @@
+Fri Nov 26 17:11:19 GMT 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with new cygwin report.
+
 Fri Nov 26 17:07:21 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_nodb.cc,docs/bm25.html,
