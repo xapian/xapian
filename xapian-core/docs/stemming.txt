@@ -9,7 +9,7 @@ the Scandanavian languages, Czech, Polish, etc.
 
 *What is a stemming algorithm?
 
-It is important to realise the stemming is a process intended to improve the
+It is important to realise that stemming is a process intended to improve the
 performance of IR systems. It is not an exercise in etymology or grammar. In
 fact from an etymological or grammatical viewpoint, a stemming algorithm is
 liable to make many mistakes. In addition, stemming algorithms - at least the
@@ -113,16 +113,17 @@ state table, which can be followed in devising the algorithm. In Latin
 derived languages, there is a state table of morphological endings that
 roughly looks like this:
 
-   -IC (adj) -> -ATION (noun)
-                -ITY (noun)
-                -MENT (adv)
-                -AT (verb)     ->   -IV (adj)    ->   -ITY (noun)
-                                                 ->   -MENT (adv)
-                               ->   -OR (noun)
- -ABLE (adj) -> -ITY (noun)
-                -MENT (adv)
+   -IC (adj) -+->  -ATION (noun)
+              +->  -ITY (noun)
+              +->  -MENT (adv)
+              \->  -AT (verb)     -+->   -IV (adj)    -+->   -ITY (noun)
+                                   |                   \->   -MENT (adv)
+                                   \->   -OR (noun)
 
-  -OUS (adj) -> -MENT (adv)
+ -ABLE (adj) -+->  -ITY (noun)
+              \->  -MENT (adv)
+
+  -OUS (adj) --->  -MENT (adv)
 
 The ending forms take different values in different languages. In French, -OR
 becomes '-eur' (m.) or '-rice' (f.), -AT disappears into the inifinitive form
@@ -209,7 +210,7 @@ appears to be the most elegant.
 *Irregular forms
 
 Linguistic irregularities slip through the net of a stemming algorithm. The
-English stemmer stems 'cows'to 'cow', but does not stem 'oxen' to 'ox'. In
+English stemmer stems 'cows' to 'cow', but does not stem 'oxen' to 'ox'. In
 reality this matters much less than one might suppose. In English, the
 irregular plurals tend to be of things that were common in Anglo-Saxon
 England: oxen, sheep, mice, dice - and lice. Men, women and children are of
@@ -264,10 +265,3 @@ example, the four forms
 (meaning 'that') all stem to
 
     quest
-
-*Compound words
-
-The problem of splitting up compound words is entirely separate, and should
-be done prior to stemming, if it is done at all.
-
-
