@@ -1,3 +1,8 @@
+Fri Jul  4 11:27:53 2003  James Aylett  <james@tartarus.org>
+
+	* bindings/Makefile.am: change commenting so mkdoc.pl doesn't
+	  choke
+
 Fri Jul  4 10:51:04 2003  James Aylett  <james@tartarus.org>
 
 	* bootstrap: add missing ';;' as case pattern delimiter
