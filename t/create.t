@@ -7,7 +7,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 4 };
+BEGIN { plan tests => 6 };
 use Search::Xapian;
 ok(1); # If we made it this far, we're ok.
 
@@ -31,9 +31,12 @@ $settings->set( 'database_create', 'true' );
 $settings->set( 'database_allow_overwrite', 'true' );
 $settings->set( 'auto_dir', $db_dir );
 
+ok( $settings->get('auto_dir') );
+ok( $settings->get_description() );
+
 ok(1);
 
 my $database;
-ok( $database = Search::Xapian::Database::Writable->new( $settings ) );
+ok( $database = Search::Xapian::WritableDatabase->new( $settings ) );
 
 1;

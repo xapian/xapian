@@ -1,5 +1,16 @@
 Revision history for Perl extension Search::Xapian.
 
+0.03  Fri Nov  8 16:53:22 2002
+        - All methods wrapped for OmDatabase, OmWritableDatabase,
+          OmDocument, OmEnquire, OmMSet, OmMSetIterator, OmQuery and
+          OmSettings classes
+        - Overload pragma: copy constructor for all classes that
+          support copying
+        - Overload pragma: '++' for MatchSetIterator
+        - Interface to all overloaded C++ constructors
+        - Mapping for OmQuery::op enumerated type to exported symbols
+        - Removed non-functioning 'MatchSet' method
+
 0.02  Sun Sep 15 19:48:32 2002
         - Added bindings to create databases and index documents
         - Added error handling for Database constructors

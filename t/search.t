@@ -7,8 +7,8 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 13 };
-use Search::Xapian;
+BEGIN { plan tests => 16 };
+use Search::Xapian qw(:ops);
 
 #########################
 
@@ -32,11 +32,14 @@ ok( $db = Search::Xapian::Database->new( $settings ) );
 my $enq;
 ok( $enq = Search::Xapian::Enquire->new( $db ) );
 
-my $query;
-ok( $query = Search::Xapian::Query->new( 'test' ) );
-ok( $query->get_description() );
+my ($query1, $query2, $query3, $query4);
+ok( $query1 = Search::Xapian::Query->new( 'test' ) );
+ok( $query2 = Search::Xapian::Query->new( OP_OR, 'test', 'help' ) );
+ok( $query3 = Search::Xapian::Query->new( OP_OR, $query1, $query2 ) );
+ok( $query4 = Search::Xapian::Query->new( OP_OR, 'test', 'help', 'one', 'two', 'three' ) );
+ok( $query4->get_description() );
 
-$enq->set_query( $query );
+$enq->set_query( $query2 );
 
 my $matches;
 ok( $matches = $enq->get_mset( 0, 10 ) );
@@ -45,7 +48,7 @@ ok( $matches->size() );
 
 my $match;
 ok( $match = $matches->begin() );
-ok( $match->inc() );
+ok( $match++ );
 ok( $match->get_docid() );
 ok( $match->get_percent() );
 

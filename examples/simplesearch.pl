@@ -4,7 +4,7 @@ use strict;
 
 use ExtUtils::testlib;
 use Getopt::Std;
-use Search::Xapian;
+use Search::Xapian qw(:ops);
 
 use vars qw( %opts );
 getopts('d:t:h', \%opts);
@@ -15,14 +15,14 @@ Synopsis: Searches a Xapian database for a particular term.
 Usage: $0 -d testdb -t help
 Options:
         -d : database directory
-        -t : search term
+        -t : search terms
         -h : displays this help screen
 EOF
   exit 0;
 }
 
 if( !$opts{d} or !$opts{t} ) {
-  print "Usage: $0 -d [database dir] -t [search term]\n";
+  print "Usage: $0 -d [database dir] -t [search terms]\n";
   print "Try $0 -h for further information\n";
   exit 0;
 }
@@ -34,7 +34,9 @@ $settings->set( 'auto_dir', $opts{d} );
 
 my $db = Search::Xapian::Database->new( $settings );
 my $enq = Search::Xapian::Enquire->new( $db );
-my $query = Search::Xapian::Query->new( $opts{t} );
+
+my @terms = split ' ', $opts{t};
+my $query = Search::Xapian::Query->new( OP_OR, @terms );
 
 printf "Parsing query '%s'\n", $query->get_description();
 

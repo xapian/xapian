@@ -22,7 +22,7 @@ $settings->set( 'backend', 'auto' );
 $settings->set( 'auto_dir', 'testdb' );
 
 my $database;
-ok( $database = Search::Xapian::Database::Writable->new( $settings ) );
+ok( $database = Search::Xapian::WritableDatabase->new( $settings ) );
 
 my $stemmer;
 ok( $stemmer = Search::Xapian::Stem->new( 'english' ) );
