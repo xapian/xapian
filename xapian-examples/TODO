@@ -1,0 +1,12 @@
+TODO list for examples
+======================
+
+
+querygui
+
+	* give a nice message if can't find .glade file, explaining that it
+	  needs to have the path specified.
+
+ferretfx
+
+	* make it compile ;-)
