@@ -1,18 +1,20 @@
-/* omassert.h : Assert templates
+/* omassert.h : Provide Assert() and similar functions
  *
  * ----START-LICENCE----
  * ----END-LICENCE----
  */
 
-// use macros - with a template approach the location strings typically
-// don't get thrown away by the compiler
+// Note: we use macros to define our assertions, since with a template
+// approach the location strings typically don't get thrown away by the
+// compiler.
 
 #ifndef _omassert_h_
 #define _omassert_h_
 
+#include "config.h"
+
 // Include the definitions of the exceptions we're going to throw
 #include "omerror.h"
-
 
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but
