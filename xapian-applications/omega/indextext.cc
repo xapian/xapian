@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -158,7 +158,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	}
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
 	    lowercase_term(term);
-	    if (isupper(*first) || isdigit(*first)) {
+	    if (isupper(*first)) {
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 		   ) {

@@ -646,6 +646,9 @@ moreterm:
 
 	res += html_escape(s.substr(l - s.begin(), i - l));
 	bool match = false;
+	// As of 0.8.0, raw terms won't start with a digit.  But we may
+	// be searching an older database where it does, so keep the
+	// isdigit check for now...
         if (isupper(*i) || isdigit(*i)) {
 	    if (word_in_list('R' + term, list)) match = true;
         }
