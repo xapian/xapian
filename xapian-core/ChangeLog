@@ -1,3 +1,8 @@
+Sun Feb 23 20:28:47 GMT 2003  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fixed problem with sort_bands when asking
+	  for an m-set which didn't start with the first match.
+
 Sun Jan 05 22:20:33 GMT 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/index_utils.cc: Handling of ^x was just downright wrong

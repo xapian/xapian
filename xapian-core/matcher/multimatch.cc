@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -544,67 +544,70 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// OK, actually add the item to the mset.
 	if (pushback) {
 	    ++docs_matched;
-	    if (!sort_bands && items.size() == max_msize - 1) {
-		items.push_back(new_item);
-		is_heap = false;
-		// We're done if this is a forward boolean match
-		// (bodgetastic, FIXME better if we can)
-		if (max_weight == 0 && sort_forward) break;
-	    } else if (items.size() >= max_msize && sort_bands) {
-		if (!is_heap) {
-		    is_heap = true;
-		    make_heap<vector<OmMSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
-		}
-		min_item = items.front();
-		om_weight cmp = min_item.wt - new_item.wt;
-		if (cmp != 0.0) {
-		    if (min_item.sort_key.empty()) {
-			OmDocument doc = db.get_document(min_item.did);
-			min_item.sort_key = doc.get_value(sort_key);
+	    if (items.size() >= max_msize) {
+		if (sort_bands) {
+		    if (!is_heap) {
+			is_heap = true;
+			make_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
-		    if (new_item.sort_key.empty()) {
-			OmDocument doc = db.get_document(new_item.did);
-			new_item.sort_key = doc.get_value(sort_key);
-		    }
-		    if (cmp > 0) {
-			if (min_item.sort_key >= new_item.sort_key)
-			    pushback = false;
-		    } else {
-			if (min_item.sort_key <= new_item.sort_key) {
-			    pop_heap<vector<OmMSetItem>::iterator,
-				     OmMSetCmp>(items.begin(), items.end(),
-						mcmp);
-			    items.pop_back();
+		    om_weight tmp = min_item.wt;
+		    min_item = items.front();
+		    min_item.wt = tmp;
+		    om_weight cmp = min_item.wt - new_item.wt;
+		    if (cmp != 0.0) {
+			if (min_item.sort_key.empty()) {
+			    OmDocument doc = db.get_document(min_item.did);
+			    min_item.sort_key = doc.get_value(sort_key);
+			}
+			if (new_item.sort_key.empty()) {
+			    OmDocument doc = db.get_document(new_item.did);
+			    new_item.sort_key = doc.get_value(sort_key);
+			}
+			if (cmp > 0) {
+			    if (min_item.sort_key >= new_item.sort_key)
+				pushback = false;
+			} else {
+			    if (min_item.sort_key <= new_item.sort_key) {
+				pop_heap<vector<OmMSetItem>::iterator,
+					 OmMSetCmp>(items.begin(), items.end(),
+						    mcmp);
+				items.pop_back();
+			    }
 			}
 		    }
-		}
-		if (pushback) {
-		    items.push_back(new_item);
-		    push_heap<vector<OmMSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
-		}
-	    } else if (items.size() >= max_msize && sort_bands == 0) {
-		items.push_back(new_item);
-		if (!is_heap) {
-		    is_heap = true;
-		    make_heap<vector<OmMSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    if (pushback) {
+			items.push_back(new_item);
+			push_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    }
 		} else {
-		    push_heap<vector<OmMSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
-		}
-		pop_heap<vector<OmMSetItem>::iterator,
-			 OmMSetCmp>(items.begin(), items.end(), mcmp);
-		items.pop_back(); 
-		min_item = items.front();
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-		    break;
+		    items.push_back(new_item);
+		    if (!is_heap) {
+			is_heap = true;
+			make_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    } else {
+			push_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    }
+		    pop_heap<vector<OmMSetItem>::iterator,
+			     OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    items.pop_back(); 
+		    min_item = items.front();
+		    if (getorrecalc_maxweight(pl) < min_item.wt) {
+			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+			break;
+		    }
 		}
 	    } else {
 		items.push_back(new_item);
 		is_heap = false;
+		if (!sort_bands && items.size() == max_msize - 1) {
+		    // We're done if this is a forward boolean match
+		    // (bodgetastic, FIXME better if we can)
+		    if (max_weight == 0 && sort_forward) break;
+		}
 	    }
 	}
 
@@ -760,7 +763,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    nth_element(items.begin(), items.begin() + first, items.end(), mcmp);
+	    if (!sort_bands)
+		nth_element(items.begin(), items.begin() + first, items.end(),
+			    mcmp);
 	    // erase the leading ``first'' elements
 	    items.erase(items.begin(), items.begin() + first);
 	}
