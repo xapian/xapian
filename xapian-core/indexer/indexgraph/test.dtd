@@ -1,5 +1,5 @@
 <!ELEMENT omindexer (node+, output)>
-<!ELEMENT node (input*)>
+<!ELEMENT node (param*, input*)>
 <!ELEMENT output EMPTY>
 <!ELEMENT input EMPTY>
 
@@ -13,3 +13,6 @@
 	  name CDATA "in"
           node IDREF #REQUIRED
 	  out_name CDATA "out">
+<!ATTLIST param
+	  name CDATA #REQUIRED
+	  value CDATA #REQUIRED>

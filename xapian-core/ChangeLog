@@ -1,3 +1,9 @@
+Wed Sep  6 17:44:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* <param> added to the test.dtd
+	
+	* mt_vector added as a message type separate from mt_record
+	
 Wed Sep 06 17:37:50 BST 2000 Olly Betts
 
 	* Tom Mortimer gets a well deserved mention in the AUTHORS list for

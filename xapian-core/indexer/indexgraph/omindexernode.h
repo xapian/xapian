@@ -35,7 +35,8 @@ enum OmIndexerMessageType {
     mt_int,
     mt_double,
     mt_string,
-    mt_record // Invalid in an actual Record object.
+    mt_vector, // a list type
+    mt_record // a generic type
 };
 
 /** BasicMessage is a basic message element.  More complex message may

@@ -22,6 +22,7 @@
 
 #include "omindexernode.h"
 #include "om/omerror.h"
+#include "omdebug.h"
 #include <typeinfo>
 
 Message
@@ -132,6 +133,8 @@ OmIndexerNode::calculate_if_needed(const std::string &output_name)
 
     if (i == outputs_record.end()) {
 	outputs_record.clear();
+	DEBUGLINE(UNKNOWN, "Calculating " << typeid(*this).name() <<
+		           " (output " << output_name << " requested)")
 	calculate();
     }
 }
