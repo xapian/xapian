@@ -7,11 +7,7 @@ should be:
 
  1) Run ./configure, possibly with some extra arguments (see below)
  2) Run make
-
-[ Don't do this step yet, since we havn't yet specified what should get
-installed...
  3) Run make install to install Muscat
-]
 
 Options to give to configure:
 =============================
