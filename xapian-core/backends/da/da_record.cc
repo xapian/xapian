@@ -6,7 +6,6 @@
 
 DADocument::DADocument(struct record *rec_new) {
     rec = rec_new;
-    pos = rec->p;
 }
 
 DADocument::~DADocument() {
@@ -17,9 +16,15 @@ IRKey
 DADocument::get_key(keyno id) const
 {
     printf("Record at %p, size %d\n", rec->p, rec->size);
+    IRKey key;
+    key.value = 0;
+    return key;
 }
 
-IRRec
-DADocument::get_rec(recno id) const
+IRData
+DADocument::get_data() const
 {
+    IRData data;
+    data.value = string((char *)rec->p, rec->size);
+    return data;
 }

@@ -11,10 +11,10 @@ class IRKey {
 	unsigned int value;  // FIXME TEMPORARY
 };
 
-// A record in a document
-class IRRec {
+// The data in a document
+class IRData {
     public:
-	unsigned int value;  // FIXME TEMPORARY
+	string value;
 };
 
 // A document in the database - holds keys and records
@@ -23,7 +23,7 @@ class IRDocument {
     public:
 	virtual ~IRDocument() { return; }
 	virtual IRKey get_key(keyno) const = 0;
-	virtual IRRec get_rec(recno) const = 0;
+	virtual IRData get_data() const = 0;
 };
 
 #endif /* _irdocument_h_ */

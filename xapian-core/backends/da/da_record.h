@@ -10,7 +10,6 @@ class DADocument : public virtual IRDocument {
     friend class DADatabase;
     private:
 	struct record * rec;
-	char *pos;
 	DADocument(struct record *);
 
 	// Stop copying
@@ -20,7 +19,7 @@ class DADocument : public virtual IRDocument {
 	~DADocument();
 
 	IRKey get_key(keyno) const;
-	IRRec get_rec(recno) const;
+	IRData get_data() const;
 };
 
 #endif /* _da_record_h_ */
