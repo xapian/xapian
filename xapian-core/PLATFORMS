@@ -26,6 +26,7 @@ Arch  | Platform                       |Version|Status| Notes / requirements
 x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.0 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.0 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC 3.4pre| 0.8.0 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC "3.5" | 0.8.0~|Passed| gcc-3.5-20040327
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.0.4 | 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.8.0 |Passed| from Olly Betts
@@ -105,7 +106,7 @@ x86   | Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| from Peter Marelas
 [1] ./configure emits many warnings (we believe these are harmless):
 mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 
-[2] Must be compiled as a static library (--disable-shared).
+[2] Must be compiled as a static library (./configure --disable-shared).
 
 [3] "make check" won't work for a cross-compiled build!
 

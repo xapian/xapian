@@ -1,3 +1,8 @@
+Mon Apr 26 23:45:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Successfully built with gcc-3.5-20040327 snapshot on x86
+	  linux.
+
 Fri Apr 23 11:26:07 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Successfully built and tested on arm linux.
