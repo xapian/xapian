@@ -3,7 +3,7 @@
 #ifndef _da_record_h_
 #define _da_record_h_
 
-#include "da_database.h"
+#include "irdocument.h"
 #include "daread.h"
 
 class DADocument : public virtual IRDocument {
@@ -18,6 +18,9 @@ class DADocument : public virtual IRDocument {
 	DADocument & operator = (const DADocument &);
     public:
 	~DADocument();
+
+	IRKey get_key(keyno) const;
+	IRRec get_rec(recno) const;
 };
 
 #endif /* _da_record_h_ */
