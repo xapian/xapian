@@ -11,10 +11,24 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
-dnl Checks for gtk / glib
-AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]))
-AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]))
-AM_PATH_LIBGLADE(, AC_MSG_ERROR([** LIBGLADE not installed or broken **]))
+dnl Checks for gtk / glib / glade
+have_glade=yes
+ifdef(AM_PATH_GTK,
+ AM_PATH_GTK(1.2.0, , have_glade=no), have_glade=no
+)
+ifdef(AM_PATH_GLIB,
+ AM_PATH_GLIB(1.2.0, , have_glade=no), have_glade=no
+)
+ifdef(AM_PATH_LIBGLADE,
+ AM_PATH_LIBGLADE(, have_glade=no), have_glade=no
+)
+if test "X$have_glade" = Xyes; then
+ AC_MSG(Building GUI frontend)
+ AC_SUBST(GUI_SUBDIR, gui)
+else
+ AC_MSG(Not building GUI frontend)
+ AC_SUBST(GUI_SUBDIR, )
+fi
 
 dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
