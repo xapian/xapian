@@ -17,12 +17,28 @@
 // is involved in at least one commit, so at least one commit will come up 
 // even if the query words show up only in the code
 
+// also, observe that we now index using both comments & code words
+// the data mining will pick up new things now; unfortunately, things are also
+// slower now
+
+//
+// should now have query words => query word with value infinity; need to fix this
+// it actually doesn't show up as infinity but a large number; why? stemming?
+// No.  This one is simple.  For code words, you will always find them
+// in the code. But for comment words, they may or may not be in the code.
+
+// however, even so, we should probably not count these convinction values but just
+// use idf
 
 
+/* test konqueror searches right now, get these numbers from offset file */
+/*
+#define FIRST_COMMIT 5550
+#define LAST_COMMIT 7593
+*/
 
-
-/* test kword searches right now, get these numbers from offset file */
-#define FIRST_COMMIT 0
+/* test kword */
+#define FIRST_COMMIT 41590
 #define LAST_COMMIT 42920
 
 
@@ -31,9 +47,6 @@
 #define FIRST_COMMIT 0
 #define LAST_COMMIT 9999999
 */
-
-#define COMMENT_PROFILE 0
-
 
 
 
@@ -361,6 +374,35 @@ void output_items( const map< double, set<string> >& code_term_ranking, unsigned
     }
 }
 
+double compute_magnitude( const map< string, double >& v ) {
+  double f = 0.0;
+  for( map<string, double>::const_iterator i = v.begin(); i != v.end(); i++ ) {
+    f += (i->second)*(i->second);
+  }
+  f = sqrt(f);
+  return f;
+}
+
+double compute_cosine_similarity( const map< string, double >& v1,
+				  const map< string, double >& v2 ) {
+
+  double dot = 0.0;
+
+  for( map<string, double>::const_iterator i1 = v1.begin(); i1 != v1.end(); i1++ ) {
+    map<string, double>::const_iterator i2 = v2.find(i1->first);
+    if ( i2 != v2.end() ) {
+      cerr << "shared term " << (i1->first) << " with weights " << (i1->second) << " and " << (i2->second) << endl;
+      dot += (i1->second)*(i2->second);
+    }
+  }
+
+  double m1 = compute_magnitude(v1);
+  double m2 = compute_magnitude(v2);
+
+  return dot / (m1*m2);
+  
+}
+
 int main(unsigned int argc, char *argv[]) {
 
   if(argc < 3) {
@@ -436,6 +478,7 @@ int main(unsigned int argc, char *argv[]) {
     vector<om_termname> queryterms;
     set<string> query_symbols;
     set<string> query_term_set;
+    map< string, double > query_vector;
 
     OmStem stemmer("english");
 
@@ -456,6 +499,7 @@ int main(unsigned int argc, char *argv[]) {
 	term = stemmer.stem_word(term);
 	queryterms.push_back(term);
 	query_term_set.insert(term);
+	query_vector[ term ] = 1.0;
 	cout << term << " ";
       }
     }
@@ -544,7 +588,8 @@ int main(unsigned int argc, char *argv[]) {
 
       // construct query vector
 
-      map< string, double > query_vector;
+      map< string, double > expanded_query_vector;
+
       set< string > query_expansion;
 
       //      int rank = 0;
@@ -552,20 +597,17 @@ int main(unsigned int argc, char *argv[]) {
 	set<string> W = i->second;
 	for( set<string>::const_iterator w = W.begin(); w != W.end(); w++ ) {
 
-#if COMMENT_PROFILE
-	  // no point of including query words here, also causes problems with inf in convinction
-	  if ( query_term_set.find(*w) != query_term_set.end() ) {
-	    cerr << "skipping query word " << (*w) << endl;
-	    continue;
-	  }
-#endif
-
 	  double idf = compute_idf( db, *w, total_commit_transactions ); 
 	  //	  rank++;
-	  query_vector[ *w ] = idf*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
-	  cerr << "word " << *w << " has score " << query_vector[*w] << endl;
+	  expanded_query_vector[ *w ] = idf; //*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
+
+	  if ( query_term_set.find(*w) != query_term_set.end() ) {
+	    expanded_query_vector[*w] *= 5.0; // 10 times as much for query words
+	  }
+
+	  cerr << "word " << *w << " has score " << expanded_query_vector[*w] << endl;
 	  query_expansion.insert(*w);
-	  if ( query_vector.size() == MAX_QUERY_VECTOR_TERMS ) {
+	  if ( expanded_query_vector.size() == MAX_QUERY_VECTOR_TERMS ) {
 	    goto done;
 	  }
 	}
@@ -574,13 +616,14 @@ int main(unsigned int argc, char *argv[]) {
 
       /////////////// okay, now we go over every commit and compute the cosine similarity with the query vector
 
-      // compute |V_q|
 
-      double f = 0.0;
-      for( map< string, double>::iterator i = query_vector.begin(); i != query_vector.end(); i++ ) {
-	f += (i->second*i->second);
-      }
-      f = sqrt(f);
+
+      // we compute two cosine similarities
+
+      // cosine similarity 1:  query words with comment vector
+
+      // cosine similarity 2:  query expansion words with code vector
+
 
       map< double, set<int> > final_ranking;
 
@@ -602,60 +645,41 @@ int main(unsigned int argc, char *argv[]) {
 	}
 
 	
+	// build code vector
+
+	map< string, double > code_vector;
 
 	int total_commit_code_words = 0;
-	double f2 = 0.0;
 	for( set<string>::iterator j = T.begin(); j != T.end(); j++ ) {
 	  int c = transaction_term_count[ make_pair(commit_id, *j) ];
-	  f2 += (double)c*(double)c;
+	  code_vector[ *j ] = c;
 	  total_commit_code_words += c;
 	}
-	f2 = sqrt(f2);
 
 
 	cerr << "Transaction " << (t->first-FIRST_COMMIT) << " has # code terms = " << total_commit_code_words << endl;
 	cerr << "...query expansion size " << query_expansion.size() << endl;
 
+	// cosine similarity 2:  query expansion words with code vector
+
+	double cosine2 = compute_cosine_similarity( expanded_query_vector, code_vector );
 
 
-	// intersect T with query_expansion
+	cerr << ".... code cosine similarity = " << cosine2 << endl;
 
-	set<string> result;
-	set_intersection( T.begin(), T.end(), query_expansion.begin(), query_expansion.end(), inserter(result, result.begin()) );
-	//	cerr << "... intersection size " << result.size() << endl;
-	
-	//	assert( result.size() == T.size() ); // if no limit # query expansion
-
-	// compute dot product
-
-	double dot = 0.0;
-	for ( set<string>::iterator i = result.begin(); i != result.end(); i++ ) {
-	  cerr << "... shared term " << *i << " has count " << transaction_term_count[make_pair(commit_id, *i)] << " and query vector weight = " << query_vector[*i] << endl;
-	  dot += query_vector[*i]*transaction_term_count[make_pair(commit_id, *i)]; // multiply by binary doc vector
-	}
-	//	cerr << "..... dot = " << dot << endl;
-
-	// divide by |V_d|, since V_d is binary, this is simply sqrt(T.size())
-
-	double cosine = dot / (f*f2);
-
-	cerr << ".... cosine similarity = " << cosine << endl;
-
-#warning "score is a combination of similarity & size"
-	double final_score = cosine; // * log((double)total_commit_code_words);
+	double final_score = cosine2;
 
 
 	assert( transaction_comment_word_count[ commit_id ] > 0 );
 	
-#warning "we should be using cosine similarity on comment also and then multiply the two similarities together"
-
-	/****
+	/***
 	cerr << "... multiplying by " << log((double)total_commit_code_words) << endl;
 	final_score = final_score * log((double)total_commit_code_words);
 
 	cerr << "... dividing by " <<  log(1.0+transaction_comment_word_count[ commit_id ]) << endl;
 	final_score = final_score / log(1.0+transaction_comment_word_count[ commit_id ]);
 	***/
+
 
 	final_ranking[-final_score].insert( t->first );
       }

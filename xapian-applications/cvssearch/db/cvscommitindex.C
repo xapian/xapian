@@ -864,6 +864,8 @@ void write_OM_database( const string & database_dir,
       transactions_written++;
     }
 #warning "why is this number lower than largest offset?"
+#warning "possibly because some lines where deleted and it doesn't reach the most current version?"
+#warning "since we build up transactions on a line by line basis from the most current version"
   cerr << "transactions written = " << transactions_written << endl;
 }
 
