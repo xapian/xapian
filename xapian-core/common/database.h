@@ -1,8 +1,9 @@
 /* database.h
  */
 
-#include <string>
 #include <map>
+#include <list>
+#include <string>
 #include <vector>
 
 typedef unsigned int termid;
@@ -28,7 +29,7 @@ class PostListIterator {
 	docid  get_docid();     // Gets current docid
 	void   next();          // Moves to next docid
 	void   skip_to(docid);  // Moves to next docid >= specified docid
-	bool   are_more();      // True if there are more docid's
+	bool   at_end();        // True if iterator is off the end of the list
 	void   close();
 };
 
@@ -40,18 +41,18 @@ class TermListIterator {
 	termid get_termid();    // Gets current termid
 	void   next();          // Moves to next termid
 	void   skip_to(termid); // Moves to next termid >= specified termid
-	bool   are_more();      // True if there are more termid's
+	bool   at_end();        // True if iterator is off the end of the list
 	void   close();
 };
 
 class IRDatabase {
     private:
+    public:
 	termid term_name_to_id(termname);
 	termname term_id_to_name(termid);
 
-	vector<PostListIterator> postlist;
-	vector<TermListIterator> termlist;
-    public:
+	list<PostListIterator*> postlist;
+	list<TermListIterator*> termlist;
 };
 
 class DADatabase : public IRDatabase {
