@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +62,8 @@ class RemoteSubMatch : public SubMatch {
 	IRWeight * mk_weight(const OmQuery::Internal *query = NULL);
 
     public:
-	RemoteSubMatch(const Database *db_, const OmQuery::Internal * query,
+	RemoteSubMatch(const NetworkDatabase *db_,
+		       const OmQuery::Internal * query,
 		       const OmRSet & omrset, const OmSettings &opts,
 		       StatsGatherer *gatherer_);
 

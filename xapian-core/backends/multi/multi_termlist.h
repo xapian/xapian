@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,12 +35,12 @@
 class MultiTermList : public LeafTermList {
     friend class OmDatabase::Internal;
     private:
-	TermList *tl;
+	LeafTermList *tl;
 	RefCntPtr<const Database> termdb;
 	const OmDatabase &rootdb;
 	double termfreq_factor;
 
-	MultiTermList(TermList * tl_,
+	MultiTermList(LeafTermList * tl_,
 		      const RefCntPtr<const Database> & termdb_,
 		      const OmDatabase &rootdb_);
     public:
@@ -57,7 +58,7 @@ class MultiTermList : public LeafTermList {
 	~MultiTermList();
 };
 
-inline MultiTermList::MultiTermList(TermList * tl_,
+inline MultiTermList::MultiTermList(LeafTermList * tl_,
 				    const RefCntPtr<const Database> & termdb_,
 				    const OmDatabase &rootdb_)
 	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
@@ -83,10 +84,7 @@ inline void
 MultiTermList::set_weighting(const OmExpandWeight * wt_new)
 {
     // Note: wt in the MultiTermList base class isn't ever set or used
-    LeafTermList * dbtl = dynamic_cast<LeafTermList *> (tl);
-    Assert(dbtl != NULL);
-    dbtl->set_weighting(wt_new);
-    return;
+    tl->set_weighting(wt_new);
 }
 
 inline OmExpandBits

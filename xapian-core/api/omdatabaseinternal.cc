@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,7 +118,9 @@ OmDatabase::Internal::open_term_list(om_docid did, const OmDatabase &db) const
     om_doccount dbnumber = (did - 1) % multiplier;
 
     TermList *newtl = databases[dbnumber]->open_term_list(realdid);
-    return new MultiTermList(newtl, databases[dbnumber], db);
+    LeafTermList *ltl = dynamic_cast<LeafTermList *>(newtl);
+    Assert(ltl != NULL);
+    return new MultiTermList(ltl, databases[dbnumber], db);
 }
 
 Document *

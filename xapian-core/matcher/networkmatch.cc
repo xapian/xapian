@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,17 +36,17 @@
 #include <cerrno>
 #include <cstdio>
 
-RemoteSubMatch::RemoteSubMatch(const Database *db_,
+RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const OmQuery::Internal * query,
 			       const OmRSet & omrset, const OmSettings &opts,
 			       StatsGatherer *gatherer_)
-	: is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
-	  gatherer(gatherer_)
+	: is_prepared(false), db(db_), gatherer(gatherer_)
 {	    
-    DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " << omrset << ", " << opts << ", " << gatherer_);
-    // make sure that the database was a NetworkDatabase after all
-    // (dynamic_cast<foo *> returns 0 if the cast fails)
+    DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " <<
+	      omrset << ", " << opts << ", " << gatherer_);
     Assert(db);
+    Assert(query);
+    Assert(gatherer_);
     statssource = new NetworkStatsSource(gatherer_, db->link);
 
     db->link->set_query(query, opts, omrset);

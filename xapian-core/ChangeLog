@@ -1,3 +1,9 @@
+Fri Oct 04 03:59:29 BST 2002  Olly Betts <olly@survex.com>
+
+	* api/omdatabaseinternal.cc,backends/multi/multi_termlist.h,
+	  matcher/multimatch.cc,matcher/networkmatch.cc,matcher/networkmatch.h:
+	  pulled uses of dynamic_cast<> to higher up in the code.
+
 Fri Oct 04 03:53:44 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS,backends/quartz/{btree.cc,quartz_metafile.cc}: Fixed quartz
@@ -13,7 +19,7 @@ Wed Oct 02 16:32:48 BST 2002  Olly Betts <olly@survex.com>
 Wed Oct 02 16:01:50 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS,configure.in: 0.5.1 release.
- 
+
 Tue Oct 01 13:34:24 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: tweaked navigation links in index.html; converted bm25
@@ -23,7 +29,7 @@ Tue Oct 01 13:34:24 BST 2002  Olly Betts <olly@survex.com>
 Tue Oct 01 12:48:41 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: renamed intro.html to install.html, and userman.html to
-	  overview.html; changed navbar on index.html. 
+	  overview.html; changed navbar on index.html.
 
 Tue Oct 01 12:37:20 BST 2002  Olly Betts <olly@survex.com>
 
@@ -94,7 +100,7 @@ Thu Sep 19 00:45:51 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Tested on Solaris 7 with GCC 2.95.3 (works) and Solaris 8
 	  Sun Workshop C++ compiler (fails to compile).
-	 
+	
 Thu Sep 19 00:41:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* ar-wrapper-solaris,ltconfig,Makefile.am: libtool 1.4 doesn't use
@@ -115,7 +121,7 @@ Thu Sep 19 00:05:40 BST 2002  Olly Betts <olly@survex.com>
 
 Wed Sep 18 19:21:47 BST 2002  Olly Betts <olly@survex.com>
 
-	* net/Makefile.am,net/readquery.ll: #include <config.h> 
+	* net/Makefile.am,net/readquery.ll: #include <config.h>
 	  must be included before any other headers, but that seems to be
 	  impossible to arrange in lex/flex so we use echo and cat in the
 	  Makefile to arrange this.
@@ -136,7 +142,7 @@ Wed Sep 18 11:06:12 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 	* include/om/Makefile.am: We really should install om/om.h, or
 	  applications can't build against us.
 
-Wed Sep 18 05:10:24 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+Wed Sep 18 05:10:24 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* docs/doxygen_{api,full}_header.html_tmpl: Remove meta robots tag -
 	  why shouldn't this be indexed?  Now the omega I set up pointing
@@ -147,7 +153,7 @@ Wed Sep 18 04:52:20 BST 2002  Olly Betts <olly@survex.com>
 	* configure.in: Merged two sed invocations into one - we don't want
 	  configure to run any slower than it has to.
 
-Wed Sep 18 04:17:58 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+Wed Sep 18 04:17:58 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* configure.in: Don't put confdefs.h into SOURCEDOC_H_SRC - this
 	  file only exists during the configure run.  Fixes failure of
@@ -251,7 +257,7 @@ Sat Sep 14 10:00:35 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* configure.in: returned AC_CONDITIONAL for HAVE_PERL
 
-Sat Sep 14 09:29:08 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+Sat Sep 14 09:29:08 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* buildall: change to srcdir before testing for neccessary tools
 	  so that scripts which guess which autotools version to use have more
