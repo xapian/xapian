@@ -16,6 +16,7 @@
 //  Warning:  it always deletes the directory package if it exists already.
 
 #include <om/om.h>
+#include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
 
@@ -50,6 +51,11 @@ int main(int argc, char *argv[]) {
 
   string package = argv[1];
 
+  if ( package[ package.length()-1] == '/' ) {
+    // get rid of trailing /
+    package = string( package, 0, package.length()-1 );
+  }
+
   // remove directory first if it already exists
 
   assert( package != "." ); // safety checks
@@ -78,6 +84,10 @@ int main(int argc, char *argv[]) {
     db_parameters.set("backend", "quartz");
     db_parameters.set("quartz_dir", package);
     OmWritableDatabase database(db_parameters); // open database 
+
+    // also write out file:line -> comments mapping using sleepy cat
+    Db db(0, 0);
+    db.open((package+"/comments.db").c_str(), 0, DB_HASH, DB_CREATE, 0 );
 
 
     ////////////////////////////////// cycle through each document
@@ -126,10 +136,19 @@ int main(int argc, char *argv[]) {
       }
       static char str[4096];
       sprintf(str,"%d", (line_no-current_offset+1));
-      message = current_fn + ":" + str + "\n";
+      string file_and_line = current_fn + ":" + str;
+      message = file_and_line + "\n";
 
       int space = line.find(" ");
-      message += string( line, space+2, line.length() - (space+2) );
+      string comment = string( line, space+2, line.length() - (space+2) );
+      message += comment;
+
+      // put comment in database
+      Dbt key( (void*) file_and_line.c_str(),
+	       file_and_line.length()+1 ); // include 0 at end
+      Dbt data( (void*) comment.c_str(),
+		comment.length()+1 ); // include 0 at end
+      db.put( 0, &key, &data, DB_NOOVERWRITE );   
 
 
       for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
@@ -159,12 +178,16 @@ int main(int argc, char *argv[]) {
     }
     
     in.close();
+    db.close(0);
     
     cerr << "Done!" << endl;
 
   }
   catch(OmError & error) {
-    cout << "Exception: " << error.get_msg() << endl;
+    cerr << "OMSEE Exception: " << error.get_msg() << endl;
   } 
+  catch (DbException& e ) {
+    cerr << "SleepyCat Exception: " << e.what() << endl;
+  }
   
 }

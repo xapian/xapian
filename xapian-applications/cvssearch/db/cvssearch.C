@@ -26,7 +26,7 @@
 
 int main(int argc, char *argv[]) {
      if(argc < 3) {
-        cout << "usage: " << argv[0] <<
+        cout << "Usage: " << argv[0] <<
                 " <path to database> <search terms>" << endl;
         exit(1);
     }
