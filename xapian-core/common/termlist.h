@@ -25,10 +25,11 @@
 
 #include "om/omtypes.h"
 #include "om/omerror.h"
+#include "omrefcnt.h"
 #include "expandweight.h"
 
 /** Abstract base class for termlists. */
-class TermList
+class TermList : public OmRefCntBase
 {
     private:
 	/// Copying is not allowed.

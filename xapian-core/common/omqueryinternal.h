@@ -86,8 +86,8 @@ class OmQueryInternal {
 	/** Set my vector of queries to be a memberwise copy of the
 	 *  supplied vector of OmQueryInternal pointers. */
 	void initialise_from_vector(
-		const std::vector<const OmQueryInternal *>::const_iterator qbegin,
-		const std::vector<const OmQueryInternal *>::const_iterator qend,
+		const std::vector<OmQueryInternal *>::const_iterator qbegin,
+		const std::vector<OmQueryInternal *>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** swap the contents of this with another OmQueryInternal,
@@ -116,15 +116,15 @@ class OmQueryInternal {
 
 	/** A query consisting of two subqueries, opp-ed together. */
 	OmQueryInternal(OmQuery::op op_,
-			const OmQueryInternal & left,
-			const OmQueryInternal & right);
+			OmQueryInternal & left,
+			OmQueryInternal & right);
 
 	/** A vector of pointers to OmQueryInternal-s, merged together with
 	 *  specified operator.  (Takes begin and end iterators).
 	 *  The only operators allowed are AND, OR, NEAR, and PHRASE. */
 	OmQueryInternal(OmQuery::op op_,
-		const std::vector<const OmQueryInternal*>::const_iterator qbegin,
-		const std::vector<const OmQueryInternal*>::const_iterator qend,
+		const std::vector<OmQueryInternal*>::const_iterator qbegin,
+		const std::vector<OmQueryInternal*>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */

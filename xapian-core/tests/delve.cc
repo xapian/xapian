@@ -79,14 +79,12 @@ main(int argc, char *argv[])
 	    } else {
 		term = stemmer.stem_word(term);
 	    }
-#if 0
-	    if (!db.term_exists(term)) {
+	    OmPostListIterator p = db.postlist_begin(term);
+	    OmPostListIterator pend = db.postlist_end(term);
+	    if (p == pend) {
 		cout << "term `" << term << "' not in database\n";
 		exit(0);
 	    }
-#endif
-	    OmPostListIterator p = db.postlist_begin(term);
-	    OmPostListIterator pend = db.postlist_end(term);
 	    if (recno == 0) {
 		cout << "Posting List for term `" << term << "':";
 		while (p != pend) {
@@ -112,15 +110,13 @@ main(int argc, char *argv[])
 		cout << endl;
 	    }
 	} else {
-#if 0
-	    LeafTermList *t = db.open_term_list(recno);
+	    OmTermListIterator t = db.termlist_begin(recno);
+	    OmTermListIterator tend = db.termlist_end(recno);
 	    cout << "Term List for record #" << recno << ':';
-	    t->next();
-	    while (!t->at_end()) {
-		cout << ' ' << t->get_termname();
-		t->next();
+	    while (t != tend) {
+		cout << ' ' << *t;
+		t++;
 	    }
-#endif
 	    cout << endl;
 	}
     }

@@ -16,10 +16,8 @@ endif
 
 if HAVE_CPP_ACCESS_BYPASS
 INTERNALTEST_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
-DELVE_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
 else
 INTERNALTEST_CXXFLAGS =
-DELVE_CXXFLAGS =
 endif
 
 if BUILD_PTHREAD_SUPPORT
@@ -59,9 +57,6 @@ internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
 
 delve_SOURCES = delve.cc
 delve_LDADD = ../libomus.la
-## Note: the next variable is not understood by automake:
-## we supply our own rule in this file.
-delve_CXXFLAGS = $(DELVE_CXXFLAGS)
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
@@ -109,7 +104,7 @@ includetest.cc:
 	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
 	@echo 'int main() { return 0; }' >> $@
 
-## Compile internaltest and delve with the extra CXXFLAGS
+## Compile internaltest with the extra CXXFLAGS
 ## We have to provide our own rules, because automake doesn't
 ## actually understand _CXXFLAGS, and we know of no other way
 ## to pass special flags to the compilation of one target.
@@ -119,9 +114,3 @@ internaltest.o: internaltest.cc
 
 internaltest.lo: internaltest.cc
 	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c ${srcdir}/internaltest.cc
-
-delve.o: delve.cc
-	$(CXXCOMPILE) $(delve_CXXFLAGS) -c ${srcdir}/delve.cc
-
-delve.lo: delve.cc
-	$(LTCXXCOMPILE) $(delve_CXXFLAGS) -c ${srcdir}/delve.cc

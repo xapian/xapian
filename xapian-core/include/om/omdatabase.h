@@ -26,9 +26,10 @@
 #include <vector>
 #include "omindexdoc.h"
 #include "omsettings.h"
+#include "ompostlistiterator.h"
+#include "omtermlistiterator.h"
 
 class OmWritableDatabase;
-class OmPostListIterator;
 
 ///////////////////////////////////////////////////////////////////
 // OmDatabase class
@@ -145,6 +146,9 @@ class OmDatabase {
 
 	virtual OmPostListIterator postlist_begin(const om_termname &tname) const;
 	virtual OmPostListIterator postlist_end(const om_termname &tname) const;
+
+	OmTermListIterator termlist_begin(om_docid did) const;
+	OmTermListIterator termlist_end(om_docid did) const;
 };
 
 ///////////////////////////////////////////////////////////////////

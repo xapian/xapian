@@ -465,8 +465,8 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 }
 
 OmQueryInternal::OmQueryInternal(OmQuery::op op_,
-				 const OmQueryInternal &left,
-				 const OmQueryInternal &right)
+				 OmQueryInternal &left,
+				 OmQueryInternal &right)
 	: isdefined(true), isbool(false), op(op_),
 	  qlen(left.qlen + right.qlen)
 {
@@ -475,7 +475,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
     }
 
     if (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE) {
-	std::vector<const OmQueryInternal *> temp;
+	std::vector<OmQueryInternal *> temp;
 	temp.push_back(&left);
 	temp.push_back(&right);	
 	initialise_from_vector(temp.begin(), temp.end());
@@ -588,8 +588,8 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 }
 
 OmQueryInternal::OmQueryInternal(OmQuery::op op_,
-		 const std::vector<const OmQueryInternal *>::const_iterator qbegin,
-		 const std::vector<const OmQueryInternal *>::const_iterator qend,
+		 const std::vector<OmQueryInternal *>::const_iterator qbegin,
+		 const std::vector<OmQueryInternal *>::const_iterator qend,
 		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {
@@ -603,7 +603,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {
-    std::vector<const OmQueryInternal *> subqueries;
+    std::vector<OmQueryInternal *> subqueries;
     try {
 	std::vector<om_termname>::const_iterator i;
 	for (i = tbegin; i != tend; i++) {
@@ -614,7 +614,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
     } catch (...) {
 	// this code would be in a finally clause if there were one...
 	// could also go in a destructor.
-	std::vector<const OmQueryInternal *>::iterator i;
+	std::vector<OmQueryInternal *>::iterator i;
 	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    delete *i;
 	}
@@ -622,7 +622,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
     };
     // same code as above.
     // FIXME: use a destructor instead.
-    std::vector<const OmQueryInternal *>::iterator i;
+    std::vector<OmQueryInternal *>::iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	delete *i;
     }
@@ -630,7 +630,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 
 OmQueryInternal::~OmQueryInternal()
 {
-    std::vector<const OmQueryInternal *>::const_iterator i;
+    std::vector<OmQueryInternal *>::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); i++) {
 	delete *i;
     }
@@ -663,8 +663,8 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 
 void
 OmQueryInternal::initialise_from_vector(
-			const std::vector<const OmQueryInternal *>::const_iterator qbegin,
-			const std::vector<const OmQueryInternal *>::const_iterator qend,
+			const std::vector<OmQueryInternal *>::const_iterator qbegin,
+			const std::vector<OmQueryInternal *>::const_iterator qend,
                         om_termpos window_)
 {
     bool merge_ok = false; // set if merging with subqueries is valid

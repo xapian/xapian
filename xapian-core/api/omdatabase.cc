@@ -25,6 +25,8 @@
 #include "omdebug.h"
 #include "om/ompostlistiterator.h"
 #include "ompostlistiteratorinternal.h"
+#include "om/omtermlistiterator.h"
+#include "omtermlistiteratorinternal.h"
 #include "om/omoutput.h"
 
 OmDatabase::OmDatabase()
@@ -121,6 +123,18 @@ OmPostListIterator
 OmDatabase::postlist_end(const om_termname &tname) const
 {
     return OmPostListIterator(new OmPostListIterator::Internal(new EmptyPostList()));
+}
+
+OmTermListIterator
+OmDatabase::termlist_begin(om_docid did) const
+{
+    return OmTermListIterator(new OmTermListIterator::Internal(internal->get_multi_database()->open_term_list(did)));
+}
+
+OmTermListIterator
+OmDatabase::termlist_end(om_docid did) const
+{
+    return OmTermListIterator(NULL);
 }
 
 std::string

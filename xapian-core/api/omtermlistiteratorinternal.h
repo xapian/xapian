@@ -1,4 +1,4 @@
-/* om.h: Include all externally visible parts of om
+/* omtermlistiteratorinternal.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,32 +20,27 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OM_H
-#define OM_HGUARD_OM_H
+#ifndef OM_HGUARD_OMTERMLISTITERATORINTERNAL_H
+#define OM_HGUARD_OMTERMLISTITERATORINTERNAL_H
 
-/* Types and exceptions */
-#include "omtypes.h"
-#include "omerror.h"
+#include "om/omtermlistiterator.h"
+#include "termlist.h"
 
-/* Settings/Options */
-#include "omsettings.h"
+class OmTermListIterator::Internal {
+//    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
+    private:
+	friend class OmTermListIterator; // allow access to termlist
+        friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
 
-/* Data access */
-#include "omdocument.h"
-#include "omdatabase.h"
-#include "ompostlistiterator.h"
-#include "ompositionlistiterator.h"
-#include "omtermlistiterator.h"
+	/// Reference counted pointer to termlist
+	OmRefCntPtr<TermList> termlist;
+    
+    public:
+        Internal(TermList *termlist_) : termlist(termlist_)
+	{
+	    // A TermList starts before the start, iterators start at the start
+	    termlist->next();
+	}
+};
 
-/* Searching */
-#include "omenquire.h"
-
-/* Indexing */
-
-/* Stemming */
-#include "omstem.h"
-
-/* Output */
-#include "omoutput.h"
-
-#endif /* OM_HGUARD_OM_H */
+#endif /* OM_HGUARD_OMTERMLISTITERATOR_H */
