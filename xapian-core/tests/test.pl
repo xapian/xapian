@@ -4,7 +4,7 @@ use strict;
 
 my %tests = (
 'B financi compani AND report OR dolli OR' => 5772,
-'financi compani report dolli' => 26429
+'financi compani report dolli' => 26427
 );
 
 my $fail = 0;
