@@ -1,8 +1,6 @@
 /* irweight.cc: C++ class for weight calculation routines */
 
-#include <string.h>
 #include <stdio.h>
-#include <errno.h>
 #include <math.h>
 
 #include "database.h"
@@ -25,7 +23,6 @@ IRWeight::calc_termweight() const
 
     weight tw = 0;
     doccount rsize;
-    cout << "rset = " << (void*)rset << endl;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
 	doccount rtermfreq = rset->get_reltermfreq(tid);
 
@@ -54,21 +51,9 @@ IRWeight::get_weight(doccount wdf, doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
-    weight wt;
-
-
-    //printf("(wdf, len, termweight, k / avlength)  = (%4d, %4f, %4.2f, %4f)\n",
-    //	wdf, len, termweight, lenpart);
-
-    // FIXME - precalculate this freq score for several values of wdf - may
-    // remove much computation.
-    wt = (double) wdf / (len * lenpart + wdf);
-
-    //printf("(freq score %4.2f)", wt);
+    weight wt = (double) wdf / (len * lenpart + wdf);
 
     wt *= termweight;
-
-    //printf("\t=> weight = %f\n", wt);
 
     return wt;
 }
