@@ -165,7 +165,7 @@ sub decode{
 #----------------------------------------------
 sub findfile{
 	my($d, $id) = @_;
-	my $cache = "/tmp/cache";
+	my $cache = "cache";
 	my $dump = `cat $cache/$d`;
 	my $ctrlA = chr(01);
 	my @dump = split /$ctrlA/, $dump;
