@@ -9,7 +9,7 @@
 
 <P>This document is incomplete at present.  It lacks explanation of the min-heap
 used to keep the best N M-set items (Managing Gigabytes describes this
-technique well), and there's as yet no documentation of sort_bands.
+technique well).
 
 <h2>The PostList Tree</h2>
 
@@ -48,11 +48,7 @@ Once the tree is built, the matcher repeatedly asks
 the root of the tree for the next matching document and compares it to
 those in the proto-mset it maintains.  If the next matching document scores
 more highly (either by weight, or in sort order if sorting is used) then it
-adds it and discards the lowest scoring document (this is a bit more
-complicated if sort_bands are being used, but essentially it's the same
-idea; sort_bands are rather nasty to implement, and seem a rather arbitrary
-compromise between sorting and relevance - if a better scheme can be found,
-we should seriously consider removing sort_bands).
+adds it and discards the lowest scoring document.
 
 <P>
 When one of a sub-tree of AND operations runs out, it signals "end of list",

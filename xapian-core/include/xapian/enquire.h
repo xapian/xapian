@@ -757,7 +757,8 @@ class Enquire {
 	 * @param sort_bands sort results into this many bands of equal
 	 *	 percentage relevance.  Within each band, sort by the value
 	 *	 number specified by sort_key.  (default is 0 which means
-	 *	 no re-sorting).
+	 *	 no re-sorting).  NB Values other than 0 and 1 are no longer
+	 *	 supported.
 	 *
 	 * @param sort_by_relevance sort results with equal keys by relevance
 	 *	 rather than docid.  (default is false).

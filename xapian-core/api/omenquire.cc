@@ -948,6 +948,9 @@ void
 Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance)
 {
+    if (sort_bands > 1) {
+	throw Xapian::UnimplementedError("sort bands are no longer supported");
+    }
     internal->sort_key = sort_key;
     internal->sort_bands = sort_bands;
     internal->sort_by_relevance = sort_by_relevance;

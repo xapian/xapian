@@ -676,65 +676,28 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (pushback) {
 	    ++docs_matched;
 	    if (items.size() >= max_msize) {
-		if (sort_bands > 1) {
-		    if (!is_heap) {
-			is_heap = true;
-			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    }
+		items.push_back(new_item);
+		if (!is_heap) {
+		    is_heap = true;
+		    make_heap<vector<Xapian::Internal::MSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		} else {
+		    push_heap<vector<Xapian::Internal::MSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		}
+		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
+			 OmMSetCmp>(items.begin(), items.end(), mcmp);
+		items.pop_back(); 
+		if (sort_bands == 1) {
 		    Xapian::weight tmp = min_item.wt;
 		    min_item = items.front();
 		    min_item.wt = tmp;
-#if 0
-		    // FIXME: This optimisation gives incorrect results.
-		    // Disable for now, but check that the comparisons
-		    // are the correct way round.  We really should rework
-		    // to share code with MSetSortCmp anyway...
-		    if (new_item.sort_key.empty()) {
-			Xapian::Document doc = db.get_document(new_item.did);
-			new_item.sort_key = doc.get_value(sort_key);
-		    }
-		    if (min_item.wt > new_item.wt) {
-			if (min_item.sort_key >= new_item.sort_key)
-			    pushback = false;
-		    } else {
-			if (min_item.sort_key <= new_item.sort_key) {
-			    pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				     OmMSetCmp>(items.begin(), items.end(),
-						mcmp);
-			    items.pop_back();
-			}
-		    }
-#endif
-		    if (pushback) {
-			items.push_back(new_item);
-			push_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    }
 		} else {
-		    items.push_back(new_item);
-		    if (!is_heap) {
-			is_heap = true;
-			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    } else {
-			push_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    }
-		    pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			     OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    items.pop_back(); 
-		    if (sort_bands == 1) {
-			Xapian::weight tmp = min_item.wt;
-			min_item = items.front();
-			min_item.wt = tmp;
-		    } else {
-			min_item = items.front();
-		    }
-		    if (getorrecalc_maxweight(pl) < min_item.wt) {
-			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-			break;
-		    }
+		    min_item = items.front();
+		}
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		    break;
 		}
 	    } else {
 		items.push_back(new_item);
@@ -773,20 +736,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			Assert(i->wt >= min_item.wt);
 		    }
 #endif
-		}
-	    }
-	    if (sort_bands > 1) {
-		if (greatest_wt >= getorrecalc_maxweight(pl)) {
-		    if (!is_heap) {
-			is_heap = true;
-			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    }
-		    // greatest_wt cannot now rise any further, so we now know
-		    // exactly where the relevance bands are.
-		    Xapian::weight w = greatest_wt / sort_bands *
-			    floor(items.front().wt * sort_bands / greatest_wt);
-		    if (w > min_item.wt) min_item.wt = w;
 		}
 	    }
 	}
@@ -861,15 +810,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	percent_scale *= 100.0;
     }
 
-    if (sort_bands > 1) {
-	sort(items.begin(), items.end(),
-	     MSetSortCmp(db, sort_bands, percent_scale,
-			 sort_key, sort_forward));
-	if (items.size() > max_msize) {
-	    items.erase(items.begin() + max_msize, items.end());
-	}
-    }
-
     if (items.size() < max_msize) {
 	DEBUGLINE(MATCH, "items.size() = " << items.size() <<
 		  ", max_msize = " << max_msize << ", setting bounds equal");
@@ -942,11 +882,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (maxitems == 0) {
 	    items.clear();
 	} else if (items.size() > first + maxitems) {
-	    if (sort_bands <= 1)
-		nth_element(items.begin(),
-			    items.begin() + first + maxitems,
-			    items.end(),
-			    mcmp);
+	    nth_element(items.begin(),
+			items.begin() + first + maxitems,
+			items.end(),
+			mcmp);
 	    // Erase the unwanted trailing items.
 	    items.erase(items.begin() + first + maxitems);
 	}
@@ -957,9 +896,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    if (sort_bands <= 1)
-		nth_element(items.begin(), items.begin() + first, items.end(),
-			    mcmp);
+	    nth_element(items.begin(), items.begin() + first, items.end(),
+			mcmp);
 	    // Erase the leading ``first'' elements
 	    items.erase(items.begin(), items.begin() + first);
 	}
@@ -967,7 +905,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     DEBUGLINE(MATCH, "msize = " << items.size());
 
-    if (sort_bands <= 1 && !items.empty()) {
+    if (!items.empty()) {
 	DEBUGLINE(MATCH, "sorting");
 
 	// Need a stable sort, but this is provided by comparison operator
@@ -1007,8 +945,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// If weight of top collapsed item is not relevent enough
 		// then collapse count is bogus in every way
 		// FIXME: Should this be <=?
-		if (key->second.second < min_wt) i->collapse_count = 0;
-		else i->collapse_count = key->second.first.collapse_count;
+		if (key->second.second < min_wt)
+		    i->collapse_count = 0;
+		else
+		    i->collapse_count = key->second.first.collapse_count;
 		// When collapse_tab is finally empty we can finish this process
 		// without examining any further hits
 		collapse_tab.erase(key);

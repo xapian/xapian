@@ -1017,71 +1017,43 @@ static bool test_collfreq1()
     return true;
 }
 
-// Regression test for the "more than 100%" sort_bands bug
-static bool test_sortbands1()
-{
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    const char * terms[] = {"better", "place", "reader", "without", "would"};
-    for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
-	enquire.set_query(Xapian::Query(terms[j]));
-	enquire.set_sorting(Xapian::valueno(-1), 10);
-	Xapian::MSet mset = enquire.get_mset(0, 20);
-	Xapian::docid prev = 0;
-	int band = 9;
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	    int this_band = (i.get_percent() - 1) / 10;
-	    TEST(this_band <= band);
-	    if (this_band == band) {
-		TEST(prev < *i);
-	    } else {
-		this_band = band;
-	    }
-	    prev = *i;
-	}
-    }
-    return true;
-}
-
 // Regression test for split msets being incorrect when sorting
-static bool test_sortbands2()
+static bool test_sortvalue1()
 {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
     for (int pass = 1; pass <= 2; ++pass) { 
-	for (int bands = 1; bands <= 10; bands += 9) {
-	    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
-		tout << "Sorting on value " << value_no << endl;
-		enquire.set_sorting(value_no, bands);
-		Xapian::MSet allbset = enquire.get_mset(0, 100);
-		Xapian::MSet partbset1 = enquire.get_mset(0, 3);
-		Xapian::MSet partbset2 = enquire.get_mset(3, 97);
-		TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
+	for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
+	    tout << "Sorting on value " << value_no << endl;
+	    enquire.set_sorting(value_no, 1);
+	    Xapian::MSet allbset = enquire.get_mset(0, 100);
+	    Xapian::MSet partbset1 = enquire.get_mset(0, 3);
+	    Xapian::MSet partbset2 = enquire.get_mset(3, 97);
+	    TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
 
-		bool ok = true;
-		int n = 0;
-		Xapian::MSetIterator i, j;
-		j = allbset.begin();
-		for (i = partbset1.begin(); i != partbset1.end(); ++i) {
-		    tout << "Entry " << n << ": " << *i << " | " << *j << endl;
-		    TEST(j != allbset.end()); 	
-		    if (*i != *j) ok = false;
-		    ++j;
-		    ++n;
-		}
-		tout << "===\n";
-		for (i = partbset2.begin(); i != partbset2.end(); ++i) {
-		    tout << "Entry " << n << ": " << *i << " | " << *j << endl;
-		    TEST(j != allbset.end()); 	
-		    if (*i != *j) ok = false;
-		    ++j;
-		    ++n;
-		}
-		TEST(j == allbset.end()); 	
-		if (!ok)
-		    FAIL_TEST("Split msets aren't consistent with unsplit");
+	    bool ok = true;
+	    int n = 0;
+	    Xapian::MSetIterator i, j;
+	    j = allbset.begin();
+	    for (i = partbset1.begin(); i != partbset1.end(); ++i) {
+		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		TEST(j != allbset.end()); 	
+		if (*i != *j) ok = false;
+		++j;
+		++n;
 	    }
+	    tout << "===\n";
+	    for (i = partbset2.begin(); i != partbset2.end(); ++i) {
+		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		TEST(j != allbset.end()); 	
+		if (*i != *j) ok = false;
+		++j;
+		++n;
+	    }
+	    TEST(j == allbset.end()); 	
+	    if (!ok)
+		FAIL_TEST("Split msets aren't consistent with unsplit");
 	}
         enquire.set_sort_forward(false);
     }
@@ -1301,8 +1273,7 @@ test_desc localdb_tests[] = {
     {"postlist5",	   test_postlist5},
     {"postlist6",	   test_postlist6},
     {"termstats",	   test_termstats},
-    {"sortbands1",	   test_sortbands1},
-    {"sortbands2",	   test_sortbands2},
+    {"sortvalue1",	   test_sortvalue1},
     // consistency1 will run on the remote backend, but it's particularly slow
     // with that, and testing it there doesn't actually improve the test
     // coverage really.
