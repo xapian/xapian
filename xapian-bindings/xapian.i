@@ -263,7 +263,6 @@ class MSet {
     weight get_max_possible();
     weight get_max_attained();
     doccount size() const;
-    doccount max_size() const;
     bool empty() const;
     %extend {
 	bool is_empty() const { return self->empty(); }

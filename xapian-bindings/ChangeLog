@@ -1,4 +1,9 @@
-Tue Mar 29 11:55:26 2005  James Aylett  <james@tartarus.org>
+Tue Mar 29 13:29:47 BST 2005  James Aylett  <james@tartarus.org>
+
+	* don't wrap MSet::max_size() as it's there for STL
+	  compatibility rather than useful functionality.
+
+Tue Mar 29 11:55:26 BST 2005  James Aylett  <james@tartarus.org>
 
 	* when running PHP4 tests, use a blank config file so that if
 	  the xapian bindings are already installed as an extension and
