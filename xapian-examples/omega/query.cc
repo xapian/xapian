@@ -62,7 +62,6 @@ matchop op = OR; // default matching mode
 
 static map<termname, int> matching_map;
 
-static void do_adjustm(void);
 static void parse_prob(const string&);
 static char *find_format_string(char *pc);
 static void run_query(void);
@@ -106,52 +105,43 @@ static int is_old_query(const string &oldp) {
    string oldterm;
    const char *pend;
    const char *term;
-   int is_old;
-   char oldp_sep = '.';
    unsigned int n_old_terms = 0; // ?
 
    if (oldp.empty()) return 0;
 
    term = oldp.c_str();
-   is_old = 0;
-   /* note old format is "word1#word2#", with trailing # */
-   /* new format uses . instead of # as some old browsers don't quote #
-    * in form submissions */
-   
-   pend = strchr(term, oldp_sep);
-   if (!pend) oldp_sep = '#';
+   // We used to use "word1#word2#" (with trailing #) but some broken old
+   // browsers (versions of MSIE) don't quote # in form GET submissions
+   // and everything after the # gets taken as an anchor.
+   // So now we use "word1.word2." instead.
 
-#ifdef FERRET
    pend = term;
-   while ((pend = strchr(pend, oldp_sep)) != NULL) {
+   while ((pend = strchr(pend, '.')) != NULL) {
       pend++;
       n_old_terms++;
    }
    /* short-cut: if the new query has fewer terms, it must be a new one */
    if (new_terms.size() < n_old_terms) return 0;
-#endif
 
-   while ((pend = strchr(term, oldp_sep)) != NULL) {
+   vector<termname>::const_iterator i = new_terms.begin();
+   int is_old = 1;
+   while ((pend = strchr(term, '.')) != NULL) {
        oldterm = string(term, pend - term);
-       is_old = 0;
-       vector<termname>::const_iterator i;
-       for (i = new_terms.begin(); i != new_terms.end(); i++) {
-	   if (oldterm == *i) {
-	       is_old = 1;
+       while (oldterm != *i) {
+	   if (++i == new_terms.end()) {
+	       is_old = 0;
 	       break;
 	   }
        }
        if (!is_old) break;
        term = pend + 1;
    }
-#ifdef FERRET
    /* for the ferret, return:
     * 0 entirely new query
     * 1 unchanged query
     * -1 new query, but based on the old one
     */
    if (is_old && new_terms.size() > n_old_terms) return -1;
-#endif
    return is_old;
 }
 
@@ -367,37 +357,6 @@ static void run_query(void) {
     matcher->match();
 
     msize = matcher->mtotal;
-}
-
-/**************************************************************/
-static void do_adjustm ( void ) {
-#if 0
-    long int adjust;
-    char sortfield[64];
-    if (msize == 0)
-    	return; /* SA 13/6/97 -- no point reordering an empty M-set,
-                   * & the following adjustm would crash the compiled version */
-    if ((adjust = get_muscat_int ("reorder_phrase"))) {
-	Give_Muscatf("adjustm phrase %ld", adjust);
-	Ignore_Muscat();
-    }
-    else if ((adjust = get_muscat_int ("reorder_tight"))) {
-	Give_Muscatf("adjustm tight %ld", adjust);
-	Ignore_Muscat();
-    }
-    else if ((adjust = get_muscat_int ("reorder_loose"))) {
-	Give_Muscatf("adjustm loose %ld", adjust);
-	Ignore_Muscat();
-    }
-
-    /* reorder alphabetically within weighting bands on some given field */
-    if (get_muscat_string( "sort_field", sortfield )) {
-        /* only sort top 100 for efficiency -- user probably won't notice if
-	 * hits past 100 aren't "properly" sorted, but will a slow response */
-        Give_Muscatf("sortm 100 on *%s afterw", sortfield );
-        Ignore_Muscat();
-    }
-#endif
 }
 
 /**************************************************************/
@@ -845,7 +804,6 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   if (msize < 0) {
 		      matcher->set_max_msize(first + size);
 		      run_query();
-		      do_adjustm();
 		   }
 
 		   if (first > msize) first = 0;
