@@ -1,1 +1,3 @@
+usr/lib/libomqueryparser.so.*
 usr/lib/libxapian.so.*
+usr/lib/libxapianqueryparser.so.*

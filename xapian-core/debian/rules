@@ -1,15 +1,13 @@
 #!/usr/bin/make -f
 
-# These soversion numbers need to be updated whenever the version numbers
+# The soversion number needs to be updated whenever the version numbers
 # in Makefile.am and extra/Makefile.am are updated.
 libxapian_soversion=2
-libqueryparser_soversion=1
 
 # For now, we're only supporting installation of the latest development
 # files.  Xapian changes are likely to be almost completely API compatible,
 # so this seems reasonable.
 libxapian_dev_soversion=
-libqueryparser_dev_soversion=
 
 export DH_COMPAT=3
 export DH_OPTIONS
@@ -32,23 +30,24 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
+commonconfflags := \
+	$(confflags) \
+	--prefix=/usr \
+	--mandir=\$${prefix}/share/man \
+	--infodir=\$${prefix}/share/info \
+	--sysconfdir=/etc \
+
 maint: \
 	debian/control \
 	debian/libxapian$(libxapian_soversion).install \
 	debian/libxapian$(libxapian_dev_soversion)-dev.install \
-	debian/libxapian-queryparser$(libqueryparser_soversion).install \
-	debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 
-maintclean: debian/control clean
+maintclean: clean
 	rm -f debian/control
 	rm -f debian/libxapian$(libxapian_soversion).install
 	rm -f debian/libxapian$(libxapian_dev_soversion)-dev.install
-	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).install
-	rm -f debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 	rm -rf debian/libxapian$(libxapian_soversion)
 	rm -rf debian/libxapian$(libxapian_dev_soversion)-dev
-	rm -rf debian/libxapian-queryparser$(libqueryparser_soversion)
-	rm -rf debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev
 	rm -rf debian/xapian-doc
 	rm -rf debian/xapian-tools
 	rm -rf debian/tmp
@@ -57,8 +56,6 @@ debian/control: debian/rules debian/control.in
 	cat debian/control.in | \
 		sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' | \
 		sed 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' | \
-		sed 's/@LIBQUERYPARSER_SOVERSION@/$(libqueryparser_soversion)/g' | \
-		sed 's/@LIBQUERYPARSER_DEV_SOVERSION@/$(libqueryparser_dev_soversion)/g' \
 		> debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
@@ -66,20 +63,6 @@ debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVER
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
-
-debian/libxapian-queryparser$(libqueryparser_soversion).install: debian/rules debian/libxapian-queryparserVERSION.install
-	cp -f debian/libxapian-queryparserVERSION.install debian/libxapian-queryparser$(libqueryparser_soversion).install
-
-debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install: debian/rules debian/libxapian-queryparserVERSION-dev.install
-	cp -f debian/libxapian-queryparserVERSION-dev.install debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
-
-commonconfflags := \
-	$(confflags) \
-	--prefix=/usr \
-	--mandir=\$${prefix}/share/man \
-	--infodir=\$${prefix}/share/info \
-	--sysconfdir=/etc \
-	--enable-maintainer-mode
 
 # The autotools target adds forced build-time dependencies on
 # autotools-dev (for /usr/share/misc/config.*)
@@ -105,8 +88,6 @@ install: DH_OPTIONS=
 install: build \
 	 debian/libxapian$(libxapian_soversion).install \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install \
-	 debian/libxapian-queryparser$(libqueryparser_soversion).install \
-	 debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
 	dh_clean -k
@@ -151,12 +132,12 @@ binary-arch: build install
 	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps -L libxapian$(libxapian_soversion) -ldebian/libxapian$(libxapian_soversion)/usr/lib:debian/libxapian-queryparser$(libqueryparser_soversion)/usr/lib
+	dh_shlibdeps -L libxapian$(libxapian_soversion) -ldebian/libxapian$(libxapian_soversion)/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
 
-clean:
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	-$(MAKE) distclean
