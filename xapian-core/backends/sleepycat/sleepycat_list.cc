@@ -155,16 +155,17 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 	found = db->get(NULL, &key, &data, 0);
 
 	if(found == DB_NOTFOUND) {
-	    throw OmDatabaseError("Database error: item not found");
+	    // Item not found: we have an empty list.
+	} else {
+	    Assert(found == 0); // Any other errors should cause an exception.
+
+	    // Unpack list
+	    string packed(reinterpret_cast<char *>(data.get_data()),
+			  data.get_size());
+	    unpack(packed);
+
+	    free(data.get_data());
 	}
-	Assert(found == 0); // Any other errors should cause an exception.
-
-	// Unpack list
-	string packed(reinterpret_cast<char *>(data.get_data()),
-		      data.get_size());
-	unpack(packed);
-
-	free(data.get_data());
     } catch (DbException e) {
 	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
     }
@@ -310,16 +311,14 @@ SleepyList::do_flush()
 {
     if(modified_and_locked) {
 	// Pack list
-
 	string packed = pack();
 	Dbt data;
 
 	try {
 	    // Write list
 	    int err_num = db->put(NULL, &key, &data, 0);
-	    if(err_num)
-		throw OmDatabaseError(string("Database error:") +
-				      strerror(err_num));
+	    if(err_num) throw OmDatabaseError(string("Database error:") +
+					      strerror(err_num));
 	} catch (DbException e) {
 	    throw OmDatabaseError("Database error:" + string(e.what()));
 	}

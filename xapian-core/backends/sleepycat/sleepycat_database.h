@@ -54,6 +54,24 @@ class SleepyDatabase : public IRDatabase {
 	 */ 
 	SleepyDatabase(const DatabaseBuilderParams & params);
 
+	/** Make a new entry in a postlist.
+	 *
+	 *  This opens the specified postlist, and adds the information
+	 *  specified.  If the document ID supplied is already in the
+	 *  postlist, its entry is overwritten.
+	 *
+	 *  @param tid        The term ID of the postlist to be modified.
+	 *  @param did        The document ID for the entry.
+	 *  @param wdf        The WDF for the entry (number of occurrences
+	 *                    in the given document).
+	 *  @param positions  A list of positions at which the term occurs.
+	 *                    This list must be strictly increasing (ie, no
+	 *                    duplicates).
+	 */
+	void make_entry_in_postlist(om_termid tid,
+				    om_docid did,
+				    om_termcount wdf,
+				    const vector<om_termpos> & positions);
     public:
 	~SleepyDatabase();
 

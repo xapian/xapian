@@ -85,3 +85,35 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
     om_termname tname((char *)data.get_data(), data.get_size());
     return tname;
 }
+
+om_termid
+SleepyDatabaseTermCache::assign_new_termid(const om_termname & tname) const
+{
+    om_termid tid = term_name_to_id(tname);
+    if(tid) return tid;
+
+    try {
+	int err_num;
+	DebugMsg("TermID not in database: adding new id ...");
+
+	Dbt key(&tid, sizeof(tid));
+	Dbt data((void *)tname.data(), tname.size());
+	key.set_flags(DB_DBT_USERMEM);
+	data.set_flags(DB_DBT_USERMEM);
+
+	// Append to list of terms sorted by id - gets new id
+	err_num = internals->termname_db->put(NULL, &key, &data, DB_APPEND);
+	Assert(err_num == 0); // Any errors should cause an exception.
+
+	// Put in termname to id database
+	err_num = internals->termid_db->put(NULL, &data, &key, 0);
+	Assert(err_num == 0); // Any errors should cause an exception.
+
+	DebugMsg(" added (" << tname << ", " << tid << ")" << endl);
+    }
+    catch (DbException e) {
+	throw OmDatabaseError("TermidDb error: " + string(e.what()));
+    }
+
+    return tid;
+}

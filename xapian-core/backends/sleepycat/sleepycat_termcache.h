@@ -84,6 +84,20 @@ class SleepyDatabaseTermCache {
 	 *                             accessing the database.
 	 */
 	om_termid term_name_to_id(const om_termname & tname) const;
+
+	/** Make a new term ID, and store it in the database.
+	 *
+	 *  If the term already exists, the existing term ID is returned,
+	 *  and nothing is changed.
+	 * 
+	 *  @param tname   The termname to make an ID for.
+	 *
+	 *  @return A term ID which now corresponds to the specified termname.
+	 *
+	 *  @exception OmDatabaseError is thrown if a error occurs when
+	 *                             accessing the database.
+	 */
+	om_termid assign_new_termid(const om_termname & tname) const;
 };
 
 #endif /* OM_HGUARD_SLEEPY_TERMCACHE_H */

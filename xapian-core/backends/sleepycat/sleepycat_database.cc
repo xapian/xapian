@@ -149,116 +149,35 @@ SleepyDatabase::open_term_list(om_docid did) const
 }
 
 LeafDocument *
-SleepyDatabase::open_document(om_docid did) const {
+SleepyDatabase::open_document(om_docid did) const
+{
     throw OmUnimplementedError(
 	"SleepyDatabase.open_document() not implemented");
 }
 
-/*
-termid
-SleepyDatabase::add_term(const termname &tname)
-{
-    termid newid;
-    newid = term_name_to_id(tname);
-    if(newid) return newid;
-
-    try {
-	// FIXME - currently no transactions
-	Dbt key(&newid, sizeof(newid));
-	Dbt data((void *)tname.data(), tname.size());
-	int found;
-
-	key.set_flags(DB_DBT_USERMEM);
-
-	// Append to list of terms sorted by id - gets new id
-	found = internals->termname_db->put(NULL, &key, &data, DB_APPEND);
-	Assert(found == 0); // Any errors should cause an exception.
-	
-	// Put in termname to id database
-	found = internals->termid_db->put(NULL, &data, &key, 0);
-	Assert(found == 0); // Any errors should cause an exception.
-    }
-    catch (DbException e) {
-	throw OmError("SleepyDatabase::add_term(): " + string(e.what()));
-    }
-
-    return newid;
-}
 
 void
-SleepyDatabase::add(termid tid, docid did, termpos tpos)
+SleepyDatabase::add_document(const struct DocumentContents & document)
 {
-    SleepyList pl(internals->postlist_db);
-    pl.open(&tid, sizeof(tid));
-    pl.add(did, 1);
-    pl.close();
-    
-    // Add to Postlist
-    try {
-	// First see if appropriate postlist already exists
-	Dbt key(&tid, sizeof(tid));
-	Dbt data;
-	data.set_flags(DB_DBT_MALLOC);
-	docid * postlist = NULL;
-	size_t postlist_size = 0;
-	int found;
+    om_docid did = get_doccount() + 1;
 
-	found = internals->postlist_db->get(NULL, &key, &data, 0);
-	if(found != DB_NOTFOUND) {
-	    Assert(found == 0); // Any other errors should cause an exception.
-
-	    postlist = (docid *)data.get_data();
-	    postlist_size = data.get_size();
-	}
-
-	// Look through postlist for doc id
-	docid * pos = postlist;
-	docid * end = postlist + postlist_size / sizeof(docid);
-	while(pos != end && *pos < did) pos++;
-	if(pos != end && *pos == did) {
-	    // Already there
-	} else {
-	    // Add doc id to postlist
-	    postlist_size += sizeof(docid);
-	    docid * postlist_new;
-	    postlist_new = (docid *) realloc(postlist, postlist_size);
-	    if(postlist_new == NULL) {
-		free(postlist);
-		throw std::bad_alloc();
-	    }
-	    pos = pos - postlist + postlist_new;
-	    postlist = postlist_new;
-	    memmove(pos + 1, pos,
-		    postlist_size - (1 + (pos - postlist)) * sizeof(docid));
-	    *pos = did;
-	}
-
-	// Save new postlist
-	data.set_data(postlist);
-	data.set_size(postlist_size);
-	data.set_flags(0);
-	found = internals->postlist_db->put(NULL, &key, &data, 0);
-	Assert(found == 0); // Any errors should cause an exception.
-
-#if MUS_DEBUG_VERBOSE
-	DebugMsg("New postlist: (");
-	for(docid *pos = postlist;
-	    pos != postlist + postlist_size / sizeof(docid);
-	    pos++) {
-	    DebugMsg(*pos << " ");
-	}
-	DebugMsg(")" << endl);
-#endif
-
-	free(postlist);
+    DocumentContents::document_terms::const_iterator i;
+    for(i = document.terms.begin(); i != document.terms.end(); i++) {
+	om_termid tid = termcache->assign_new_termid(i->second.tname);
+	make_entry_in_postlist(tid, did, i->second.wdf, i->second.positions);
     }
-    catch (DbException e) {
-	throw OmError("PostlistDb error:" + string(e.what()));
-    }
-}
-*/
-
-void
-SleepyDatabase::add_document(const struct DocumentContents & document) {
     throw OmUnimplementedError("SleepyDatabase::add_document() not implemented");
+}
+
+void
+SleepyDatabase::make_entry_in_postlist(om_termid tid,
+				       om_docid did,
+				       om_termcount wdf,
+				       const vector<om_termpos> & positions)
+{
+    SleepyList mylist(internals->postlist_db,
+		      reinterpret_cast<void *>(&tid),
+		      sizeof(tid));
+    SleepyListItem myitem(did, 0, wdf, positions);
+    mylist.add_item(myitem);
 }

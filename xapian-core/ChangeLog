@@ -1,3 +1,9 @@
+Tue Apr 11 21:14:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* SleepyDatabase now knows how to allocate a new term ID for a new
+	  term, and does some of the needed actions to add a new document to
+	  the database.
+
 Tue Apr 11 19:18:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Backwards incompatible API CHANGE:
