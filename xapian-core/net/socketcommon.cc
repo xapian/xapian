@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 
 #ifdef HAVE_SSTREAM
 #include <sstream>

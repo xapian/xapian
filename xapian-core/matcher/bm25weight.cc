@@ -21,8 +21,9 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <math.h>
-#include "config.h"
 
 #include "omdebug.h"
 #include "bm25weight.h"

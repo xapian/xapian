@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "utils.h"
 #include "omdatabaseinternal.h"
 #include "alltermslist.h"

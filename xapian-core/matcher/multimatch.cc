@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "multimatch.h"
 #include "match.h"
 #include "localmatch.h"

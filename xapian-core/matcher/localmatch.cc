@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "localmatch.h"
 #include "omdebug.h"
 

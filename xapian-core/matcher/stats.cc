@@ -21,6 +21,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include "stats.h"
 #include "omdebug.h"
 
@@ -63,7 +65,6 @@ LocalStatsGatherer::get_stats() const
     RETURN((&total_stats));
 }
 
-#include "config.h"
 #ifdef MUS_BUILD_BACKEND_REMOTE
 
 #include "netserver.h"

@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include <fstream>
 #include <string>
 using std::string;

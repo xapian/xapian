@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,7 @@
 #ifndef OM_HGUARD_QUARTZ_POSITIONLIST_H
 #define OM_HGUARD_QUARTZ_POSITIONLIST_H
 
-#include "config.h"
+#include <config.h>
 #include "om/omtypes.h"
 #include "positionlist.h"
 #include <string>

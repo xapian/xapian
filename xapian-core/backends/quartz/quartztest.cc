@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "testsuite.h"
 #include "testutils.h"
 #include "om/omerror.h"

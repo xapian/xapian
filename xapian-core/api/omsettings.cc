@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "refcnt.h"
 #include "omdebug.h"
 #include "om/omsettings.h"

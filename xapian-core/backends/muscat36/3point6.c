@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 
 #include <stdio.h>     /* printf etc */
 #include <stdlib.h>    /* malloc, exit etc */
+#include <string.h>
 #include "dbdefs.h"    /* for DB_ constants */
 #include "io_system.h" /* for X_ functions */
 #include "3point6.h"

@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+using std::bad_alloc;
+using std::pair;
 
 #include "utils.h"
 #include "database.h"
@@ -375,9 +377,9 @@ DADatabase::term_lookup(const om_termname & tname) const
     RefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
-	if(len > 255) return 0;
+	if (len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw bad_alloc();
+	if (k == NULL) throw bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 

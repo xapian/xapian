@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 
 /** This so we can use snprintf */
 #ifndef _GNU_SOURCE

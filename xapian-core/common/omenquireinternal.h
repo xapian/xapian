@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_OMENQUIREINTERNAL_H
 #define OM_HGUARD_OMENQUIREINTERNAL_H
 
-#include "config.h"
+#include <config.h>
 
 #include "om/omenquire.h"
 #include "refcnt.h"

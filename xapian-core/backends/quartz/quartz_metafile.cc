@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include <string>
 #include "quartz_metafile.h"
 #include "btree_util.h"

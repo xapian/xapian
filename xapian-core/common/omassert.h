@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +28,7 @@
 #ifndef OM_HGUARD_OMASSERT_H
 #define OM_HGUARD_OMASSERT_H
 
-#include "config.h"
+#include <config.h>
 
 // Include the definitions of the exceptions we're going to throw
 #include "om/omerror.h"

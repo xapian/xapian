@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_QUARTZ_RECORD_H
 #define OM_HGUARD_QUARTZ_RECORD_H
 
-#include "config.h"
+#include <config.h>
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "om/omdocument.h"

@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 
 #ifdef MUS_DEBUG_VERBOSE
 

@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_SOCKETCOMMON_H
 #define OM_HGUARD_SOCKETCOMMON_H
 
-#include "config.h"
+#include <config.h>
 #include <string>
 #include <map>
 #include <sys/time.h>

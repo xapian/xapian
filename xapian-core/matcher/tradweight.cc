@@ -21,9 +21,9 @@
  * -----END-LICENCE-----
  */
 
-#include <math.h>
+#include <config.h>
 
-#include "config.h"
+#include <math.h>
 
 #include "stats.h"
 #include "tradweight.h"

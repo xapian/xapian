@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "socketclient.h"
 #include "om/omerror.h"
 #include "omerr_string.h"

@@ -1,11 +1,20 @@
+Tue May 14 11:50:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* When including config.h, always specify it as <config.h>, not
+	  "config.h", and always do it first.  Both are recommended by
+	  the autoconf documentation.
+
 Mon May 13 17:17:13 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* missing fallback rule all-local in docs/Makefile.am was failing
 	  the build on Solaris
 
-Mon May 13 15:50:31 BST 2002
+Mon May 13 15:50:31 BST 2002  Sam Liddicott <sam@ananova.com>
+
 	* Use new %extends notation for swig.
+
 	* Update for new omValue usage
+
 	* Add omqueryparser support
 
 Mon May 13 15:12:30 BST 2002  James Aylett  <tartarus@users.sourceforge.net>

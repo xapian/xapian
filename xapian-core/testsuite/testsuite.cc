@@ -21,12 +21,13 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #define COL_RED "\x1b[1m\x1b[31m"
 #define COL_GREEN "\x1b[1m\x1b[32m"
 #define COL_YELLOW "\x1b[1m\x1b[33m"
 #define COL_RESET "\x1b[0m"
 
-#include "config.h"
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF

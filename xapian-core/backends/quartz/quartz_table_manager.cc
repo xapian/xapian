@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 
 #include "quartz_table_manager.h"
 #include "quartz_record.h"

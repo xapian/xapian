@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include "socketserver.h"
 #include "database.h"
 #include "stats.h"

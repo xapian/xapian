@@ -22,7 +22,7 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 #include <algorithm>
 using std::min;
 #include <iostream>

@@ -1,4 +1,4 @@
-/* io_system.c: Martin / Ollys IO code for split files.
+/* io_system.c: Martin / Olly's IO code for split files.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -21,13 +21,15 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <stdio.h>   /* sprintf etc */
 #include <stdlib.h>  /* exit etc */
+#include <string.h>
 #include <fcntl.h>   /* O_RDONLY etc */
 #include <sys/types.h> /* lseek */
 #include <unistd.h> /* read, open, lseek */
 #include "io_system.h"
-#include "config.h"
 
 #if 0
 extern int X_findtoread(const char * s)

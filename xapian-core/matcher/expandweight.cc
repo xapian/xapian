@@ -21,11 +21,12 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <math.h>
 
 #include "expandweight.h"
 #include "omdebug.h"
-#include "config.h"
 
 OmExpandBits
 operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
