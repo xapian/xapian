@@ -40,12 +40,30 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
+dnl paranoid debugging switch
+AC_ARG_ENABLE(debug-paranoid, 
+[  --enable-debug-paranoid  Turn on full debugging (default=no)],
+[case "${enableval}" in
+  yes) use_debug_paranoid=yes ;;
+  no)  use_debug_paranoid=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug-paranoid) ;;
+esac], [use_debug_paranoid=no])
+
 dnl debugging switch
 AC_ARG_ENABLE(debug, 
-[  --enable-debug          enable debugging [default=no]],, enable_debug=no)
+[  --enable-debug           Turn on debugging (default=no)],
+[case "${enableval}" in
+  yes) use_debug=yes ;;
+  no)  use_debug=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac], [use_debug=${use_debug_paranoid}])
 
-if test "$enable_debug" = yes; then
+if test "$use_debug" = yes; then
 CFLAGS="$CFLAGS -g -DMUS_DEBUG"
+fi
+
+if test "$use_debug_paranoid" = yes; then
+CFLAGS="$CFLAGS -DMUS_DEBUG_PARANOID"
 fi
 
 dnl extra flags for building with gcc
