@@ -1,9 +1,10 @@
 ToDo items on the coding side.
 (Not a complete list)
 
-Near term (within a week)
+Near term (within a fortnight)
 =========================
 
+Split database definition files into database/postlist/termlist files.
 Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
 Remove old references to term_id_to_name() and term_name_to_id().
 Sanify introspection methods - get_database_path, etc.
@@ -14,7 +15,7 @@ Add tags to all files so can add licences easily.
 Expose positional information in postlists in a consistent way.
 Implement phrase searching.
 
-Middle term (within a month)
+Middle term (within a couple of months)
 ============================
 
 Make the sleepycat database function (at all).
