@@ -467,7 +467,12 @@ class OmMSetItem {
  *  This class represents (a portion of) the results of a query.
  */
 class OmMSet {
-    private:
+    public:
+	/** Interface used to the MSet class internally.
+	 */
+	class InternalInterface;
+    friend InternalInterface;
+
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
 	 */
@@ -476,9 +481,9 @@ class OmMSet {
 	    om_weight termweight;
 	};
 
+    private:
 	/** The term frequencies and weights returned by the match process.
-	 *  This map will contain information for each term which was in
-	 *  the query.
+	 *  This map will contain information for each term which was in                 *  the query.
 	 */
 	std::map<om_termname, TermFreqAndWeight> termfreqandwts;
 

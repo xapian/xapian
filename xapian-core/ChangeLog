@@ -1,3 +1,13 @@
+Mon Jul 10 18:19:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add an internal interface to OmMSet, to allow access to the
+	  term frequency and weight information internally for setting it.
+	  Add code so that LocalMatch is passed the map to store the
+	  information in.
+
+	* Fix tests so that internaltest compiles with CVS automake.
+	  Hopefully it will still work with old automake.
+
 Mon Jul 10 17:45:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added more code to RunTest.java

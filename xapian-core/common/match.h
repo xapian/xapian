@@ -145,14 +145,15 @@ class SingleMatch : public OmRefCntBase
 	 *  than how useful those at the top of the mset are, and is thus
 	 *  undesirable.
 	 *
-	 *  @param first       First item to return (start at 0)
-	 *  @param maxitems    Maximum number of items to return
-	 *  @param mset        Results will be put here
-	 *  @param mbound      Mbound will returned here
-	 *  @param greatest_wt Gets set to max weight attained
-	 *  @param mdecider    Optional decision functor
-	 *  @param nowait      If true, then work asynchronously -
-	 *                     see prepare_match()
+	 *  @param first          First item to return (start at 0)
+	 *  @param maxitems       Maximum number of items to return
+	 *  @param mset           Results will be put here
+	 *  @param mbound         Mbound will returned here
+	 *  @param greatest_wt    Gets set to max weight attained
+	 *  @param termfreqandwts 
+	 *  @param mdecider       Optional decision functor
+	 *  @param nowait         If true, then work asynchronously -
+	 *                        see prepare_match()
 	 *
 	 *  @return  If nowait is true, and the mset is being calculated
 	 *           over a network connection, and the result isn't
@@ -167,6 +168,7 @@ class SingleMatch : public OmRefCntBase
 			      std::vector<OmMSetItem> & mset,
 			      om_doccount * mbound,
 			      om_weight * greatest_wt,
+			      std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,   
 			      const OmMatchDecider *mdecider,
 			      bool nowait) = 0;
 };

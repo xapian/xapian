@@ -1,4 +1,4 @@
-/* omenquireinternal.cc: Internals of OmEnquire
+/* omenquireinternal.cc: Internals
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -19,6 +19,10 @@
  * USA
  * -----END-LICENCE-----
  */
+
+#ifndef OM_HGUARD_OMENQUIREINTERNAL_H
+#define OM_HGUARD_OMENQUIREINTERNAL_H
+
 #include "config.h"
 
 #include <om/omenquire.h>
@@ -28,10 +32,7 @@
 #include "omrefcnt.h"
 #include <algorithm>
 #include <math.h>
-
-/////////////////////////////////
-// Internals of enquire system //
-/////////////////////////////////
+#include <map>
 
 /** Internals of enquire system.
  *  This allows the implementation of OmEnquire to be hidden, allows
@@ -85,3 +86,16 @@ class OmEnquireInternal {
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 	std::string get_description() const;
 };
+
+
+class OmMSet::InternalInterface {
+    public:
+	/** Get a reference to the termfreqandwts member of an OmMSet.
+	 */
+	static std::map<om_termname, TermFreqAndWeight> &
+		get_termfreqandwts(OmMSet & mset) {
+		    return mset.termfreqandwts;
+		}
+};
+
+#endif // OM_HGUARD_OMENQUIREINTERNAL_H

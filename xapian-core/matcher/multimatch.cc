@@ -27,6 +27,7 @@
 #include "rset.h"
 #include "multi_database.h"
 #include "omdebug.h"
+#include "omenquireinternal.h"
 
 #ifdef MUS_BUILD_BACKEND_NET
 #include "networkmatch.h"
@@ -222,7 +223,9 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 
     // Get next mset
     if (leaf->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
-			  &(sub_mset.max_attained), mdecider, nowait)) {
+			  &(sub_mset.max_attained),
+			  OmMSet::InternalInterface::get_termfreqandwts(sub_mset),
+			  mdecider, nowait)) {
 	sub_mset.max_possible = leaf->get_max_weight();
 
 	// Merge stats
@@ -235,6 +238,32 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 	// Merge items
 	change_docids_to_global(sub_mset.items, leaf_number);
 	merge_msets(mset.items, sub_mset.items, lastitem);
+
+	// Merge term information
+	std::map<om_termname, OmMSet::TermFreqAndWeight> msettermfreqandwts =
+		OmMSet::InternalInterface::get_termfreqandwts(mset);
+	std::map<om_termname, OmMSet::TermFreqAndWeight> sub_msettermfreqandwts =
+		OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
+
+	if(msettermfreqandwts.size() == 0) {
+	    msettermfreqandwts = sub_msettermfreqandwts;
+	} else {
+#ifdef MUS_DEBUG_PARANOID
+	    AssertParanoid(msettermfreqandwts.size() ==
+			   sub_msettermfreqandwts.size());
+	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
+	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
+	    for (i = msettermfreqandwts.begin(),
+		 j = sub_msettermfreqandwts.begin();
+		 i != msettermfreqandwts.end() &&
+		 j != sub_msettermfreqandwts.end();
+		 i++, j++) {
+		AssertParanoid(i->first == j->first);
+		AssertParanoid(i->second.termfreq == j->second.termfreq);
+		AssertParanoid(i->second.termweight == j->second.termweight);
+	    }
+#endif /* MUS_DEBUG_PARANOID */
+	}
 
 	return true;
     }
@@ -336,6 +365,7 @@ MultiMatch::match(om_doccount first,
 	// Only one mset to get - so get it, and block.
 	leaves.front()->get_mset(first, maxitems, mset.items,
 				 &(mset.mbound), &(mset.max_attained),
+				 OmMSet::InternalInterface::get_termfreqandwts(mset),
 				 mdecider, false);
 	mset.firstitem = first;
 	mset.max_possible = leaves.front()->get_max_weight();

@@ -302,7 +302,7 @@ class OmDatabaseGroup {
 	 */
 	class Internal;
 
-	/** InternalInterface is a class used externally to interact
+	/** InternalInterface is a class used internally to interact
 	 *  with OmDatabaseGroup objects.
 	 */
 	class InternalInterface;

@@ -616,6 +616,7 @@ LocalMatch::get_mset(om_doccount first,
 		    std::vector<OmMSetItem> & mset,
 		    om_doccount * mbound,
 		    om_weight * greatest_wt,
+		    std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
 		    const OmMatchDecider *mdecider,
 		    bool nowait)
 {
