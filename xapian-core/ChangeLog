@@ -1,3 +1,15 @@
+Tue Jan 16 20:28:46 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix quartztest so that the tables / databases get created.
+	  Implement new test "create1" to check that creation of databases
+	  works as specified.
+
+	* Fix test for whether we are allowed to overwrite a database.
+
+	* Implement much better logging from quartz when making new databases.
+
+	* Clean up an error message from btree.cc
+
 Tue Jan 16 19:24:49 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Don't display messages about allocation failures in the first

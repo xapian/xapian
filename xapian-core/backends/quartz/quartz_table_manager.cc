@@ -56,6 +56,12 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
     log.reset(new QuartzLog(log_filename));
     if (readonly) {
 	log->make_entry("Opening database at `" + db_dir + "' readonly.");
+    } else if (create) {
+	log->make_entry("Creating database at `" + db_dir + "'" +
+			(allow_overwrite ?
+			 " (allowing overwrite of old database)" :
+			 " (overwriting not permitted)") +
+			".");
     } else {
 	log->make_entry("Opening database at `" + db_dir +
 			"' for modifications.");
@@ -70,7 +76,11 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
     } else if (create) {
-	if (allow_overwrite || database_exists()) {
+	bool dbexists = database_exists();
+	if (dbexists) {
+	    log->make_entry("Old database exists at `" + db_dir + "'");
+	}
+	if (!allow_overwrite && dbexists) {
 	    throw OmDatabaseCreateError("Can't create new database: a database already exists in place.  Move it, or set database_allow_overwrite parameter");
 	}
 	create_and_open_tables();
@@ -117,8 +127,11 @@ QuartzDiskTableManager::database_exists() {
 void
 QuartzDiskTableManager::create_and_open_tables()
 {
+    //FIXME - check that database directory exists.
+
     log->make_entry("Cleaning up database directory at `" + db_dir + "'.");
     //FIXME - delete any existing tables
+    log->make_entry("FIXME: cleaning of database directory not yet implemented.");
 
     log->make_entry("Creating new database at `" + db_dir + "'.");
     // Create postlist_table first, and record_table last.  Existence of

@@ -181,6 +181,7 @@ static bool test_disktable1()
 	TEST_EXCEPTION(OmOpeningError, table0.open(10));
     }
     QuartzDiskTable table2(tmpdir + "test_disktable1_", false, 8192);
+    table2.create();
     table2.open();
     QuartzDiskTable table1(tmpdir + "test_disktable1_", true, 0);
     table1.open();
@@ -318,6 +319,7 @@ static bool test_disktable2()
     unlink_table(tmpdir + "test_disktable2_");
 
     QuartzDiskTable table(tmpdir + "test_disktable2_", false, 8192);
+    table.create();
     table.open();
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
@@ -348,6 +350,7 @@ static bool test_disktable3()
     unlink_table(tmpdir + "test_disktable3_");
 
     QuartzDiskTable table(tmpdir + "test_disktable3_", false, 8192);
+    table.create();
     table.open();
 
     table.apply(table.get_latest_revision_number() + 1);
@@ -450,6 +453,7 @@ static bool test_bufftable1()
 {
     unlink_table(tmpdir + "test_bufftable1_");
     QuartzDiskTable disktable1(tmpdir + "test_bufftable1_", false, 8192);
+    disktable1.create();
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -514,6 +518,7 @@ static bool test_bufftable2()
     {
 	// Open table and add a few documents
 	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
+	disktable.create();
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -679,6 +684,7 @@ static bool test_bufftable3()
     {
 	// Open table and add a couple of documents
 	QuartzDiskTable disktable(tmpdir + "test_bufftable3_", false, 8192);
+	disktable.create();
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -743,6 +749,7 @@ static bool test_cursor3()
     {
 	// Open table and add a couple of documents
 	QuartzDiskTable disktable(tmpdir + "test_tableskipto1_", false, 8192);
+	disktable.create();
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -824,6 +831,7 @@ static bool test_cursor1()
 
     // Open table and put stuff in it.
     QuartzDiskTable disktable1(tmpdir + "test_cursor1_", false, 8192);
+    disktable1.create();
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -1012,6 +1020,7 @@ static bool test_cursor2()
 
     // Open table and put stuff in it.
     QuartzDiskTable disktable1(tmpdir + "test_cursor2_", false, 8192);
+    disktable1.create();
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -1047,6 +1056,7 @@ static bool test_open1()
     settings.set("quartz_dir", tmpdir + "testdb_open1");
     settings.set("quartz_logfile", tmpdir + "log_open1");
     settings.set("backend", "quartz");
+    settings.set("database_create", true);
 
     TEST_EXCEPTION(OmOpeningError,
 		   RefCntPtr<Database> database_0 =
@@ -1057,6 +1067,60 @@ static bool test_open1()
 	    DatabaseBuilder::create(settings, false);
     RefCntPtr<Database> database_r =
 	    DatabaseBuilder::create(settings, true);
+    return true;
+}
+
+/// Test creating and opening of quartz databases
+static bool test_create1()
+{
+    RefCntPtr<Database> database;
+
+    OmSettings settings;
+    deletedir(tmpdir + "testdb_create1");
+    settings.set("quartz_dir", tmpdir + "testdb_create1");
+    settings.set("quartz_logfile", tmpdir + "log_create1");
+    settings.set("backend", "quartz");
+
+    OmSettings settings1 = settings;
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, true));
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, false));
+
+    settings1.set("database_create", true);
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, true));
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, false));
+
+    makedir(tmpdir + "testdb_create1");
+
+    settings1 = settings;
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, true));
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, false));
+    settings1.set("database_create", true);
+
+    TEST_EXCEPTION(OmOpeningError,
+		   database = DatabaseBuilder::create(settings1, true));
+    database = DatabaseBuilder::create(settings1, false);
+    database = DatabaseBuilder::create(settings1, true);
+
+    database = DatabaseBuilder::create(settings1, true);
+    TEST_EXCEPTION(OmDatabaseCreateError,
+		   database = DatabaseBuilder::create(settings1, false));
+    database = DatabaseBuilder::create(settings1, true);
+
+    settings1.set("database_create", false);
+    database = DatabaseBuilder::create(settings1, false);
+
+    settings1.set("database_create", true);
+    settings1.set("database_allow_overwrite", true);
+    database = DatabaseBuilder::create(settings1, true);
+    database = DatabaseBuilder::create(settings1, false);
+    database = DatabaseBuilder::create(settings1, true);
+
     return true;
 }
 
@@ -1071,6 +1135,7 @@ static bool test_adddoc1()
     settings.set("quartz_dir", tmpdir + "testdb_adddoc1");
     settings.set("quartz_logfile", tmpdir + "log_adddoc1");
     settings.set("backend", "quartz");
+    settings.set("database_create", true);
 
     RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
 
@@ -1135,6 +1200,7 @@ static bool test_adddoc2()
     settings.set("quartz_dir", tmpdir + "testdb_adddoc2");
     settings.set("quartz_logfile", tmpdir + "log_adddoc2");
     settings.set("backend", "quartz");
+    settings.set("database_create", true);
 
     om_docid did;
     OmDocument document_in;
@@ -1463,6 +1529,7 @@ static bool test_postlist1()
     settings.set("quartz_dir", tmpdir + "testdb_postlist1");
     settings.set("quartz_logfile", tmpdir + "log_postlist1");
     settings.set("backend", "quartz");
+    settings.set("database_create", true);
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist1/postlist_", false, 8192);
@@ -1524,6 +1591,7 @@ static bool test_postlist2()
     settings.set("quartz_dir", tmpdir + "testdb_postlist2");
     settings.set("quartz_logfile", tmpdir + "log_postlist2");
     settings.set("backend", "quartz");
+    settings.set("database_create", true);
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
@@ -1658,6 +1726,7 @@ static bool test_positionlist1()
 {
     unlink_table(tmpdir + "testdb_positionlist1_");
     QuartzDiskTable disktable(tmpdir + "testdb_positionlist1_", false, 8192);
+    disktable.create();
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
@@ -1730,6 +1799,7 @@ static bool test_overwrite1()
 {
     unlink_table(tmpdir + "testdb_overwrite1_");
     QuartzDiskTable disktable(tmpdir + "testdb_overwrite1_", false, 2048);
+    disktable.create();
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
@@ -1782,6 +1852,7 @@ static bool test_overwrite2()
     OmSettings settings;
     settings.set("backend", "quartz");
     settings.set("quartz_dir", dbname);
+    settings.set("database_create", true);
     OmWritableDatabase writer(settings);
 
     OmDocument document_in;
@@ -1884,6 +1955,7 @@ static bool test_bitmap1()
     unlink_table(dbname);
     /* Use a small block size to make it easier to get a large bitmap */
     QuartzDiskTable disktable(dbname, false, 256);
+    disktable.create();
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
@@ -1913,7 +1985,10 @@ static bool test_writelock1()
     OmSettings settings;
     settings.set("backend", "quartz");
     settings.set("quartz_dir", dbname);
-    OmWritableDatabase writer(settings);
+
+    OmSettings settings1 = settings;
+    settings1.set("database_create", true);
+    OmWritableDatabase writer(settings1);
 
     TEST_EXCEPTION(OmDatabaseLockError, 
 		   OmWritableDatabase writer2(settings));
@@ -1999,6 +2074,7 @@ test_desc tests[] = {
     {"cursor1",		test_cursor1},
     {"cursor2",		test_cursor2},
     {"open1",		test_open1},
+    {"create1",		test_create1},
     {"adddoc1",		test_adddoc1},
     {"adddoc2",		test_adddoc2},
     {"packint1",	test_packint1},

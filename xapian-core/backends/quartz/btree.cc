@@ -1396,7 +1396,7 @@ Btree::basic_open(const char * name_,
         if (!base_ok[0] && !base_ok[1]) {
 	    std::string message = "Error opening table `"; 
 	    message += name_;
-	    message += "': ";
+	    message += "':\n";
 	    message += err_msg;
 	    throw OmOpeningError(message);
 	}
