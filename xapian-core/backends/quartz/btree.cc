@@ -397,8 +397,9 @@ Btree::set_overwritten() const
     DEBUGCALL(DB, void, "Btree::set_overwritten", "");
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
-    if (writable) throw Xapian::DatabaseCorruptError("Db block overwritten");
-    throw Xapian::DatabaseModifiedError("Db block overwritten");
+    if (writable)
+	throw Xapian::DatabaseCorruptError("Db block overwritten - are there multiple writers?");
+    throw Xapian::DatabaseModifiedError("The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation");
 }
 
 /* block_to_cursor(C, j, n) puts block n into position C[j] of cursor

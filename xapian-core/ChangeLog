@@ -1,3 +1,10 @@
+Mon Aug 23 23:03:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Improved the "Db block overwritten"
+	  message.  The DatabaseCorruptError version now suggests multiple
+	  writers may be the cause, while the DatabaseModifiedError version
+	  uses less alarming wording and says to call Database::reopen().
+
 Sun Aug 22 14:07:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* indexer/: Removed the old XML-based indexer framework.  It's not
