@@ -1,3 +1,7 @@
+Tue Nov 30 22:02:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.8.4 release.
+
 Wed Nov 24 04:50:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* templates/godmode: Finished off godmode template.
