@@ -100,7 +100,8 @@ class DATermList : public virtual TermList {
 	vector<DATermListItem> terms;
 	bool have_started;
 
-	DATermList(const IRDatabase *root, struct termvec *tv);
+	// Gets passed current database, for termid lookups, _NOT_ root
+	DATermList(const IRDatabase *database, struct termvec *tv);
     public:
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
