@@ -1,1 +1,45 @@
-FIXME: This file to contain help for getting started with hacking on the code.
+Instructions for Hacking on Muscat
+==================================
+
+This file is aimed to help developers get started with working on
+Muscat.
+
+Extra options to give to configure:
+=============================
+
+Note: Non-developer configure options are described in INSTALL
+
+--enable-debug=paranoid
+--enable-debug=full
+	You should use one of these if you're going to be developing muscat.
+	"paranoid" enables expensive consistency checks in various places in
+	the code.
+	"full" enables the compiling of code to generate verbose debugging
+	messages.
+
+Building from CVS:
+==================
+
+The CVS repository does not contain any automatically generated files
+(such as configure and Makefile.in's).  Because of this, you need to run
+several programs to build these files, before you can run the normal
+build process.
+
+At the time of writing, these programs are autoconf, libtool and automake.
+Some older versions of these programs may not work correctly: at the
+time of writing, the versions known to work are:
+	automake (GNU automake) 1.4
+	Autoconf version 2.13
+	ltmain.sh (GNU libtool) 1.3.3
+Please tell us if you find that older (or newer) versions work or fail to work.
+
+We have provided a simple standard script to run these programs for you:
+simply run ${source-directory}/buildall, in the same way you would normally
+run configure.
+Arguments passed to buildall are in turn passed on to configure.
+
+You may need to add extra macro directories to the path searched by aclocal
+(which is part of autoconf) - you may do this by specifying these in the
+ACLOCAL_FLAGS environment variable.
+
+See "buildall --help" for more information.

@@ -1,3 +1,6 @@
+Welcome to Muscat
+=================
+
 Muscat uses a standard automake / autoconf / libtool / etc setup.
 This means that all you need to do to compile a standard distribution
 should be:
@@ -13,8 +16,6 @@ installed...
 Options to give to configure:
 =============================
 
-Configure 
-
 Note: If you wish to perform your build in a separate directory from the
 source, change to the build directory, and run the configure script
 (in the source directory) from the build directory.
@@ -22,20 +23,12 @@ source, change to the build directory, and run the configure script
 ie: mkdir BUILD; cd BUILD; ../configure
 
 --enable-debug
-	Should use this to build a version of muscat with debugging symbols
-	and assertions to help with debugging.  Recommended for initial
-	development with muscat - this helps to ensure that you are using
-	the API correctly.
+	You should use this to build a version of muscat with debugging
+	symbols and assertions to help with debugging.  Recommended for
+	initial development with muscat - this helps to ensure that you
+	are using the API correctly.
 	(Note: This is currently the default option, due to the early
 	stage of development of this project.)
-
---enable-debug=paranoid
---enable-debug=full
-	Should use one of these if you're going to be developing muscat.
-	"paranoid" enables expensive consistency checks in various places in
-	the code.
-	"full" enables the compiling of code to generate verbose debugging
-	messages.
 
 --enable-backend-*
 	These options enable the compiling of each of the backends.  (Database
@@ -43,29 +36,11 @@ ie: mkdir BUILD; cd BUILD; ../configure
 	the backends.  By default, all backends for which the appropriate
 	libraries are available will be enabled.
 
-Building from CVS:
-==================
+Developers:
+===========
 
-The CVS repository does not contain any automatically generated files
-(such as configure and Makefile.in's).  Because of this, you need to run
-several programs to build these files, before you can run the normal
-build process.
+There are additional scripts and configure options to help developers and
+people who are building from CVS.  Read HACKING to find out about them.
 
-At the time of writing, these programs are autoconf, libtool and automake.
-Some older versions of these programs may not work correctly: at the
-time of writing, the versions known to work are:
-	automake (GNU automake) 1.4
-	Autoconf version 2.13
-	ltmain.sh (GNU libtool) 1.3.3
-Please tell us if you find that older (or newer) versions work or fail to work.
-
-We have provided a simple standard script to run these programs for you:
-simply run ${source-directory}/buildall, in the same way you would normally
-run configure.
-Arguments passed to buildall are in turn passed on to configure.
-
-You may need to add extra macro directories to the path searched by aclocal
-(which is part of autoconf) - you may do this by specifying these in the
-ACLOCAL_FLAGS environment variable.
-
-See "buildall --help" for more information.
+-- 
+Richard Boulton
