@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", positionaldb);
     RUNTESTS("inmemory", localpositionaldb);
     RUNTESTS("inmemory", doclendb);
+    RUNTESTS("inmemory", collfreq);
     RUNTESTS("inmemory", allterms);
     RUNTESTS("inmemory", multikey);
 #endif

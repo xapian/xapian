@@ -1,3 +1,13 @@
+Wed Mar 28 15:05:46 BST 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Fixes to InMemoryDatabase:
+	  do_open_post_list returns an EmptyPostList rather than an
+	  	assertion error if the term doesn't exist
+	  Fixed doccount(), which wasn't decrementing on delete_doc()
+	  Remove terms from the database when they have no more postings.
+	  Implement collection frequencies, and run collfreq tests for
+	  	inmemory.
+
 Wed Mar 28 14:24:38 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Set elite set size to max(10, sqrt(number of subqueries)) by

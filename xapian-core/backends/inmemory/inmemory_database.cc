@@ -94,7 +94,9 @@ InMemoryDatabase::~InMemoryDatabase()
 LeafPostList *
 InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 {
-    Assert(term_exists(tname));
+    if (!term_exists(tname)) {
+	return new EmptyPostList();
+    };
 
     std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
@@ -213,6 +215,7 @@ InMemoryDatabase::do_delete_document(om_docid did)
     keylists[did-1].clear();
     totlen -= doclengths[did-1];
     doclengths[did-1] = 0;
+    totdocs--;
 
     std::vector<InMemoryPosting>::const_iterator i;
     for (i = termlists[did-1].terms.begin();
@@ -221,6 +224,7 @@ InMemoryDatabase::do_delete_document(om_docid did)
 	std::map<om_termname, InMemoryTerm>::iterator t
 		= postlists.find(i->tname);
 	Assert(t != postlists.end());
+	t->second.collection_freq -= i->wdf;
 	std::vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
 	/* FIXME: inefficient on vectors... */
 	while (posting != t->second.docs.end()) {
@@ -229,6 +233,10 @@ InMemoryDatabase::do_delete_document(om_docid did)
 	    } else {
 		++posting;
 	    }
+	}
+	if (t->second.docs.empty()) {
+	    Assert(t->second.collection_freq == 0);
+	    postlists.erase(t);
 	}
     }
     termlists[did-1].terms.clear();
@@ -301,6 +309,7 @@ InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 	Assert(did > 0 && did <= doclengths.size());
 	doclengths[did - 1] += i.get_wdf();
 	totlen += i.get_wdf();
+	postlists[*i].collection_freq += i.get_wdf();
     }
 
     totdocs++;

@@ -80,6 +80,11 @@ class InMemoryPostingLessByTermName {
 class InMemoryTerm {
     public:
 	std::vector<InMemoryPosting> docs;// Sorted list of documents indexing term
+
+	om_termcount collection_freq;
+
+	InMemoryTerm() : collection_freq(0) {}
+
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
 	    std::vector<InMemoryPosting>::iterator p;
@@ -266,10 +271,7 @@ class InMemoryDatabase : public Database {
 	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const {
-	    throw OmUnimplementedError(
-		"InMemoryDatabase::get_collection_freq() not implemented: data not stored in database.");
-	}
+	om_termcount get_collection_freq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
@@ -488,6 +490,14 @@ InMemoryDatabase::get_termfreq(const om_termname & tname) const
     std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.docs.size();
+}
+
+inline om_termcount
+InMemoryDatabase::get_collection_freq(const om_termname &tname) const
+{
+    std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    if(i == postlists.end()) return 0;
+    return i->second.collection_freq;
 }
 
 inline om_doclength
