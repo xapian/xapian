@@ -260,8 +260,19 @@ p_notplusminus(unsigned int c)
     return c != '+' && c != '-';
 }
 
-int
+static int
 yylex()
+#ifdef DEBUG_YYLEX
+{
+    static int yylex2();
+    int r = yylex2();
+    printf("(%c) %d @%d\n", isprint(r) ? r : '?', r, qptr - q.begin() - 1);
+    return r;
+}
+
+static int
+yylex2()
+#endif
 {
     int c;
     if (pending_token) {
@@ -431,10 +442,15 @@ more_term:
 	// Ignore at end of query
 	if (qptr == q.end()) return 0;
 
-	if (!isalnum(*qptr)) break;
-	if (qptr - 1 != q.begin()) {
-	    int prevch = *(qptr - 2);
-	    if (!isalnum(prevch) && prevch != '+' && prevch != '-') break;
+	// Ignore if not preceded by alphanumerics
+	if (!isalnum(*(qptr - 2))) break;
+
+	while (!isalnum(*qptr)) {
+	    // Skip multiple phrase generaters
+	    if (!strchr("_/\\@'*", *qptr)) return yylex();
+	    ++qptr;
+	    // Ignore at end of query
+	    if (qptr == q.end()) return 0;
 	}
 	return HYPHEN;
      case '(':
@@ -489,7 +505,7 @@ more_term:
     return yylex();                                
 }
 
-int
+static int
 yyerror(const char *s)
 {
     throw s;

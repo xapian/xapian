@@ -1,3 +1,8 @@
+Thu Jul 03 22:55:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: Allow more than one
+	  adjacent phrase generating character.
+
 Thu Jul 03 22:12:18 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: Always ignore phrase
