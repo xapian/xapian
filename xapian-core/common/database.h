@@ -96,21 +96,29 @@ class IRDatabase : public OmRefCntBase {
 	/** Internal method providing implementation of end_session().
 	 *
 	 *  Derived class' destructors should call this method before
-	 *  destroying the database to ensure that no sessions are in
-	 *  progress at destruction time.
+	 *  destroying the database to ensure that no sessions or
+	 *  transactions are in progress at destruction time.
 	 *
 	 *  Note that it is not safe to throw exceptions from destructors,
-	 *  so this must be enclosed in a try - catch clause, and exceptions
-	 *  dealt with.
+	 *  so when called from destructors this must be enclosed in a
+	 *  try - catch clause; exceptions caught by this can be ignored,
+	 *  since the destructor shouldn't be called without having called
+	 *  end_session() first, unless an error is already happening.
 	 */
 	void internal_end_session();
 
     public:
-	/** Destroy the database.  This method must not be called until all
-	 *  objects using the database have been cleaned up.
+	/** Destroy the database.
+	 *  
+	 *  This method should not be called until all objects using the
+	 *  database have been cleaned up.
 	 *
-	 *  \todo ensure that the database is not destroyed while objects
-	 *  are still using it by employing reference counted internals.
+	 *  If any sessions or transactions are in progress, they should
+	 *  be finished by calling end_session(), cancel_transaction() or
+	 *  commit_transaction() - if this is not done, the destructor
+	 *  will attempt to clean things up by cancelling the transaction
+	 *  and ending the session, but errors produced by these operations
+	 *  will not be reported.
 	 */
         virtual ~IRDatabase();
 
