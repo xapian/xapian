@@ -1,3 +1,8 @@
+Fri Dec 08 14:53:24 GMT 2000 Olly Betts
+
+	* quartztest: removed OmDocumentTerm reference so that it'll
+	  compile (tests fail though).
+
 Fri Dec  8 14:42:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmIndexerMessage is now a class by itself, replacing OmIndexerData

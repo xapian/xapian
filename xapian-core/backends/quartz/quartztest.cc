@@ -1517,7 +1517,7 @@ static bool test_positionlist1()
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
-    OmDocumentTerm::term_positions positions;
+    std::vector<om_termpos> positions;
 
     OmDocument document;
     document.add_posting("foo", 5);
