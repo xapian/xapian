@@ -203,10 +203,10 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    if(Database *mdb = dynamic_cast<MultiDatabase *>(database)) {
 		message = (mdb->get_database_of_doc(q0))->get_database_path();
 	    } else {
-#endif
 		message = database->get_database_path();
-//	    }
+	    }
 	    message += " ";
+#endif
 	    message += data.value;
 	    message = data.value;
 	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].did,
