@@ -240,23 +240,23 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 	merge_msets(mset.items, sub_mset.items, lastitem);
 
 	// Merge term information
-	std::map<om_termname, OmMSet::TermFreqAndWeight> msettermfreqandwts =
-		OmMSet::InternalInterface::get_termfreqandwts(mset);
-	std::map<om_termname, OmMSet::TermFreqAndWeight> sub_msettermfreqandwts =
-		OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
+	std::map<om_termname, OmMSet::TermFreqAndWeight> *msettermfreqandwts =
+		&OmMSet::InternalInterface::get_termfreqandwts(mset);
+	std::map<om_termname, OmMSet::TermFreqAndWeight> *sub_msettermfreqandwts =
+		&OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
 
-	if(msettermfreqandwts.size() == 0) {
-	    msettermfreqandwts = sub_msettermfreqandwts;
+	if(msettermfreqandwts->size() == 0) {
+	    *msettermfreqandwts = *sub_msettermfreqandwts;
 	} else {
 #ifdef MUS_DEBUG_PARANOID
-	    AssertParanoid(msettermfreqandwts.size() ==
-			   sub_msettermfreqandwts.size());
+	    AssertParanoid(msettermfreqandwts->size() ==
+			   sub_msettermfreqandwts->size());
 	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
 	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
-	    for (i = msettermfreqandwts.begin(),
-		 j = sub_msettermfreqandwts.begin();
-		 i != msettermfreqandwts.end() &&
-		 j != sub_msettermfreqandwts.end();
+	    for (i = msettermfreqandwts->begin(),
+		 j = sub_msettermfreqandwts->begin();
+		 i != msettermfreqandwts->end() &&
+		 j != sub_msettermfreqandwts->end();
 		 i++, j++) {
 		AssertParanoid(i->first == j->first);
 		AssertParanoid(i->second.termfreq == j->second.termfreq);

@@ -222,17 +222,42 @@ LocalMatch::~LocalMatch()
     del_query_tree();
 }
 
-LeafPostList *
+PostList *
 LocalMatch::mk_postlist(const om_termname& tname)
 {
-    // FIXME - this should be centralised into a postlist factory
-    LeafPostList * pl = database->open_post_list(tname);
+    // Make a postlist
+    om_weight term_weight = 0;
+    om_doccount term_freq = 0;
+    PostList * pl;
 
-    // FIXME - query size is currently fixed as 1
-    // FIXME - want to use within query frequency here.
-    IRWeight * wt = mk_weight(1, tname);
+    DebugMsg("LocalMatch::mk_postlist(" << tname << ")");
 
-    pl->set_termweight(wt);
+    if (!database->term_exists(tname)) {
+	DebugMsg("(not in database)" << endl);
+	// Term doesn't exist in this database.  However, we create
+	// a (empty) postlist for it to help make distributed searching
+	// cleaner (term might exist in other databases).
+	// This is similar to using the muscat3.6 zerofreqs option.
+	pl = new EmptyPostList();
+    } else {
+	DebugMsg(endl);
+
+	LeafPostList * leaf_pl = database->open_post_list(tname);
+
+	// FIXME - query size is currently fixed as 1
+	// FIXME - want to use within query frequency here.
+	IRWeight * wt = mk_weight(1, tname);
+	leaf_pl->set_termweight(wt);
+	pl = leaf_pl;
+
+	term_weight = wt->get_maxpart();
+	term_freq = statssource.get_total_termfreq(tname);
+	DebugMsg(" weight = " << term_weight <<
+		 ", frequency = " << term_freq << endl);
+    }
+
+    term_weights.insert(std::make_pair(tname, term_weight));
+    term_frequencies.insert(std::make_pair(tname, term_freq));
     return pl;
 }
 
@@ -402,15 +427,6 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
 	    Assert(query_->subqs.size() == 0);
-	    if (!database->term_exists(query_->tname)) {
-		DebugMsg("Leaf: tname = " << query_->tname << " (not in database)" << endl);
-		// Term doesn't exist in this database.  However, we create
-		// a (empty) postlist for it to help make distributed searching
-		// cleaner (term might exist in other databases).
-		// This is similar to using the muscat3.6 zerofreqs option.
-		return new EmptyPostList();
-	    }
-	    DebugMsg("Leaf: tname = " << query_->tname << endl);
 	    return mk_postlist(query_->tname);
 	case OM_MOP_AND:
 	case OM_MOP_OR:
@@ -452,7 +468,11 @@ void
 LocalMatch::set_query(const OmQueryInternal *query_)
 {
     Assert(!is_prepared);
+
     // Clear existing query
+    term_weights.clear();
+    term_frequencies.clear();
+
     max_weight = 0;
     if(query) {
 	delete query;
@@ -505,7 +525,6 @@ LocalMatch::build_query_tree()
 void
 LocalMatch::select_query_terms()
 {
-    term_weights.clear();
     if(max_or_terms != 0) {
 	om_termname_list terms = users_query.get_terms();
 
@@ -630,6 +649,14 @@ LocalMatch::get_mset(om_doccount first,
     *mbound = 0;
     *greatest_wt = 0;
     mset.clear();
+    termfreqandwts.clear();
+
+    for (std::map<om_termname, om_weight>::const_iterator i = term_weights.begin(); i != term_weights.end(); i++) {
+	termfreqandwts[i->first].termweight = i->second;
+    }
+    for (std::map<om_termname, om_doccount>::const_iterator i = term_frequencies.begin(); i != term_frequencies.end(); i++) {
+	termfreqandwts[i->first].termweight = i->second;
+    }
 
     // Check that we have a valid query to run
     if(!(users_query.isdefined)) {

@@ -111,6 +111,10 @@ class LocalMatch : public SingleMatch
 	 */
 	std::map<om_termname, om_weight> term_weights;
 
+	/** The termfreqs of terms in the query.
+	 */
+	std::map<om_termname, om_doccount> term_frequencies;
+
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
@@ -139,7 +143,7 @@ class LocalMatch : public SingleMatch
 				om_termcount window);
 
 	/// Open a postlist
-	LeafPostList * mk_postlist(const om_termname& tname);
+	PostList * mk_postlist(const om_termname& tname);
 
 	/// Make the extra weight object if needed
 	void mk_extra_weight();

@@ -2166,9 +2166,17 @@ bool test_qterminfo1()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
+    OmStem stemmer("english");
+
+    string term1 = stemmer.stem_word("word");
+    string term2 = stemmer.stem_word("inmemory");
+    string term3 = stemmer.stem_word("flibble");
+    
     OmQuery myquery(OM_MOP_OR,
-		    OmQuery("inmemory"),
-		    OmQuery("word"));
+		    OmQuery(term1),
+		    OmQuery(OM_MOP_OR,
+			    OmQuery(term2),
+			    OmQuery(term3)));
     myquery.set_bool(true);
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -2177,22 +2185,33 @@ bool test_qterminfo1()
     OmMSet mymset1a = enquire1.get_mset(0, 0);
     OmMSet mymset2a = enquire2.get_mset(0, 0);
 
-    TEST_EQUAL(mymset1a.get_termfreq("inmemory"),
-	       mymset2a.get_termfreq("inmemory"));
-    TEST_EQUAL(mymset1a.get_termweight("inmemory"),
-	       mymset2a.get_termweight("inmemory"));
-    TEST_EQUAL(mymset1a.get_termfreq("word"),
-	       mymset2a.get_termfreq("word"));
-    TEST_EQUAL(mymset1a.get_termweight("word"),
-	       mymset2a.get_termweight("word"));
+    TEST_EQUAL(mymset1a.get_termfreq(term1),
+	       mymset2a.get_termfreq(term1));
+    TEST_EQUAL(mymset1a.get_termweight(term1),
+	       mymset2a.get_termweight(term1));
+    TEST_EQUAL(mymset1a.get_termfreq(term2),
+	       mymset2a.get_termfreq(term2));
+    TEST_EQUAL(mymset1a.get_termweight(term2),
+	       mymset2a.get_termweight(term2));
+    TEST_EQUAL(mymset1a.get_termfreq(term3),
+	       mymset2a.get_termfreq(term3));
+    TEST_EQUAL(mymset1a.get_termweight(term3),
+	       mymset2a.get_termweight(term3));
 
-    TEST_EQUAL(mymset1a.get_termfreq("inmemory"), 1);
-    TEST_EQUAL(mymset1a.get_termfreq("word"), 3);
+    TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
+    TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
+    TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
 
-    cout << "mymset1a.get_termweight(\"inmemory\")" <<
-	    mymset1a.get_termweight("inmemory") << endl;
-    cout << "mymset1a.get_termweight(\"word\")" <<
-	    mymset1a.get_termweight("word") << endl;
+    cout << "mymset1a.get_termweight(" << term1 << ")" <<
+	    mymset1a.get_termweight(term1) << endl;
+    cout << "mymset1a.get_termweight(" << term2 << ")" <<
+	    mymset1a.get_termweight(term2) << endl;
+    cout << "mymset1a.get_termweight(" << term3 << ")" <<
+	    mymset1a.get_termweight(term3) << endl;
+
+    TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
+    TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
+    TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   mymset1a.get_termfreq("sponge"));
