@@ -52,6 +52,56 @@ struct QuartzDbKey {
 	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
 };
 
+class QuartzDbTable;
+
+/** An object holding the revision number of a table.
+ *
+ *  A table's revision number increases monotonically, incrementing by
+ *  one each time a modification is applied to the table.
+ *
+ *  The revision numbers of all the tables comprising a database
+ *  should remain in step, and can be used to ensure that a user is
+ *  accessing a consistent view of the database.
+ *
+ *  The absolute value of a revision number should be considered
+ *  immaterial - all that matters is the difference between revision
+ *  numbers.  It may be assumed that revision numbers will not cycle
+ *  through all the available values during a database session, and
+ *  hence that if two revision numbers are the same they correspond to
+ *  the same revision.
+ *
+ *  Hence, the only operation which may be applied to revision numbers
+ *  is comparison.
+ */
+class QuartzRevisionNumber {
+    friend class QuartzDbTable;
+    private:
+	/// The actual value of the revision number.
+	quartz_revision_number_t value;
+
+	/// Private constructor, only QuartzDbTable calls this.
+	QuartzRevisionNumber(quartz_revision_number_t value_)
+		: value(value_) {}
+    public:
+
+	/// Compare two revision numbers
+	bool operator == (QuartzRevisionNumber other) const {
+	    return (value == other.value);
+	}
+
+	/** Introspection method.
+	 *  Note: don't try and use this to get at the actual revision
+	 *  number - that would be foolish.  (See the class
+	 *  documentation for why.)
+	 */
+	string get_description() const;
+};
+
+inline ostream &
+operator << (ostream &os, QuartzRevisionNumber obj) {
+    return os << (obj.get_description());
+}
+
 
 /** Class managing a table in a Quartz database.
  *
@@ -71,36 +121,33 @@ class QuartzDbTable {
 	 */
 	std::map<QuartzDbKey, QuartzDbTag> data;
 
-	/** The current revision number
+	/** The current revision number.
 	 */
 	quartz_revision_number_t revision;
+
+	/** Whether the database is readonly.
+	 */
+	bool readonly;
     public:
 	/** Open the table.
 	 *
 	 *  @param - whether to open the table for read only access.
 	 */
-	QuartzDbTable(bool readonly);
+	QuartzDbTable(bool readonly_);
 
 	/** Close the table.
 	 */
 	~QuartzDbTable();
 
-	/** Get the revision number of this table.  The revision number
-	 *  increases monotonically, incrementing by one each time a
-	 *  modification is applied to the database.
+	/** Get an object holding the revision number of this table.
 	 *
-	 *  The revision numbers of all the tables comprising a database
-	 *  should remain in step, and can be used to ensure that a user is
-	 *  accessing a consistent view of the database.
-	 *
-	 *  The absolute value of a revision number should be considered
-	 *  immaterial - all that matters is the difference between revision
-	 *  numbers.  Hence, the only operation which should be applied to
-	 *  revision numbers is comparision of differences.
+	 *  See the documentation for the QuartzRevisionNumber class for
+	 *  an explanation of why the actual revision number may not be
+	 *  accessed.
 	 *
 	 *  @return the current revision number.
 	 */
-	quartz_revision_number_t get_revision_number();
+	QuartzRevisionNumber get_revision_number() const;
 
 	/** Read an entry from the table.
 	 *
@@ -120,7 +167,7 @@ class QuartzDbTable {
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
-	bool read_entry(QuartzDbKey &key, QuartzDbTag & tag);
+	bool read_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
 
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
@@ -135,7 +182,7 @@ class QuartzDbTable {
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	bool read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag);
+	bool read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag) const;
 
 	/** Modify the entries in the table.
 	 *

@@ -34,6 +34,6 @@ typedef unsigned int quartz_blocksize_t;
  *  number to roll over after a few years.  It would be better to use 64 bits
  *  (and / or to ensure that rolling over causes no problem).
  */
-typedef long int quartz_revision_number_t;
+typedef unsigned long int quartz_revision_number_t;
 
 #endif /* OM_HGUARD_QUARTZ_TYPES_H */

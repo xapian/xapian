@@ -1,3 +1,10 @@
+Wed Sep 13 00:47:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Quartz:  database tables now have a class to store revision numbers
+	  in, which ensures that they are only compared for equality and
+	  thus avoids issues with eventual wrap-around.  Testsuite also now
+	  tests this class, and passes the test.
+
 Tue Sep 12 19:01:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More Quartz modifications.  Now has QuartzDbTable class reasonably

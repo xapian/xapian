@@ -106,7 +106,9 @@ QuartzDatabase::do_end_session()
     Assert(!readonly);
     Assert(modifications.get() != 0);
     modifications->apply();
-    modifications.reset();
+    QuartzModifications * ptr = modifications.get();
+    modifications.release();
+    delete ptr;
 }
 
 void

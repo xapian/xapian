@@ -20,17 +20,32 @@
  * -----END-LICENCE-----
  */
 
-#include "quartz_database.h"
-#include "om/omsettings.h"
 #include "testsuite.h"
+#include "testutils.h"
+#include "om/omerror.h"
 
+#include "quartz_database.h"
 #include "quartz_db_table.h"
 /// Test making and playing with a quartz_db_table
 static bool test_dbtable1()
 {
-    QuartzDbTable table(false);
+    QuartzDbTable table1(true);
+    QuartzDbTable table2(false);
 
-    TEST_EQUAL(table.get_revision_number(), 0);
+    QuartzRevisionNumber initialrev1 = table1.get_revision_number();
+    QuartzRevisionNumber initialrev2 = table2.get_revision_number();
+
+    TEST_EQUAL(initialrev1, table1.get_revision_number());
+    TEST_EQUAL(initialrev2, table2.get_revision_number());
+
+    std::map<QuartzDbKey, QuartzDbTag *> newentries;
+
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(initialrev1, table1.get_revision_number());
+    TEST_NOT_EQUAL(initialrev2, table2.get_revision_number());
+
     return true;
 }
 
@@ -38,7 +53,7 @@ static bool test_dbtable1()
 static bool test_open1()
 {
     OmSettings settings;
-    settings.set("quartz_db_dir", "foo");
+    settings.set("quartz_dir", "foo");
 
     QuartzDatabase database(settings, true);
     return true;

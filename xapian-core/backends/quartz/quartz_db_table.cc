@@ -23,8 +23,19 @@
 #include "config.h"
 
 #include "quartz_db_table.h"
+#include "om/omerror.h"
+#include "utils.h"
 
-QuartzDbTable::QuartzDbTable(bool readonly)
+string
+QuartzRevisionNumber::get_description() const
+{
+    return om_tostring(value);
+}
+
+
+QuartzDbTable::QuartzDbTable(bool readonly_)
+	: revision(-1),
+          readonly(readonly_)
 {
 }
 
@@ -32,23 +43,27 @@ QuartzDbTable::~QuartzDbTable()
 {
 }
 
-quartz_revision_number_t
-QuartzDbTable::get_revision_number()
+QuartzRevisionNumber
+QuartzDbTable::get_revision_number() const
+{
+    return QuartzRevisionNumber(revision);
+}
+
+bool
+QuartzDbTable::read_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 {
 }
 
 bool
-QuartzDbTable::read_entry(QuartzDbKey &key, QuartzDbTag & tag)
-{
-}
-
-bool
-QuartzDbTable::read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag)
+QuartzDbTable::read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
 }
 
 bool
 QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
 {
+    if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
+
+    revision++;
 }
 
