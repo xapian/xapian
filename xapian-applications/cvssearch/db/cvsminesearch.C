@@ -116,7 +116,10 @@ void generate_rules( Db& db, const string& ranking_system, set<string>& query_sy
 		     map<double, set<string> >& class_ranking,
 		     map<double, set<string> >& function_ranking ) {
 
-  assert( ranking_system != "" );
+  if( ranking_system == "" ) {
+    cerr << "*** Please supply ranking system:  either =>, <=, or <=>" << endl;
+    exit(-1);
+  }
   
   for( map<string, int>::iterator i = relative_item_count.begin(); i != relative_item_count.end(); i++ ) {
 
