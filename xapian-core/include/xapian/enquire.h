@@ -868,8 +868,9 @@ class Weight {
     friend class ::SocketServer; // So SocketServer can clone us - FIXME
     public:
 	class Internal;
-    private:
+    protected:
 	Weight(const Weight &);
+    private:
 	void operator=(Weight &);
 
 	/** Return a new weight object of this type.

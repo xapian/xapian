@@ -1,3 +1,9 @@
+Thu Apr 08 15:28:44 BST 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Make Xapian::Weight::Weight() protected
+	  rather than private as we want to be able to call it from derived
+	  classes (GCC 3.4 flags this, other compilers seem to miss it).
+
 Tue Apr 06 03:32:39 BST 2004  Olly Betts <olly@survex.com>
 
 	* net/omerr_string.cc,include/xapian/error.h,
