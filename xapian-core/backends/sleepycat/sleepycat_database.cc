@@ -157,6 +157,7 @@ void SleepyDatabase::open(const string &pathname, bool readonly) {
     catch (DbException e) {
 	throw (OmError(string("Database error on open: ") + e.what()));
     }
+    path = pathname;
     Assert((opened = true) == true);
 }
 

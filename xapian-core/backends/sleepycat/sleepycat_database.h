@@ -129,6 +129,7 @@ class SleepyDatabaseInternals;
 class SleepyDatabase : public virtual IRDatabase {
     private:
 	SleepyDatabaseInternals * internals;
+	string path;
 	bool opened;
     public:
 	SleepyDatabase();
@@ -149,8 +150,9 @@ class SleepyDatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
-
 	IRDocument * open_document(docid id) const;
+
+	const string & get_database_path() const;
 };
 
 inline doccount
@@ -165,6 +167,12 @@ SleepyDatabase::get_avlength() const
 {
     Assert(opened);
     return 1;
+}
+
+inline const string &
+SleepyDatabase::get_database_path() const {
+    Assert(opened);
+    return path;
 }
 
 #endif /* _sleepy_database_h_ */

@@ -249,3 +249,11 @@ MultiDatabase::term_name_to_id(const termname &tname) const {
     }
     return tid;
 }
+
+IRDatabase *
+MultiDatabase::get_database_of_doc(docid did) const
+{
+    Assert(opened);
+
+    return databases[(did - 1) % databases.size()];
+}

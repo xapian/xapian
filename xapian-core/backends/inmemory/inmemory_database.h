@@ -149,6 +149,8 @@ class TextfileTermList : public virtual TermList {
 class TextfileDatabase : public virtual IRDatabase,
 			 public virtual IndexerDestination {
     private:
+	string path;
+
 	map<termname, termid> termidmap;
 	vector<termname> termvec;
 
@@ -191,6 +193,8 @@ class TextfileDatabase : public virtual IRDatabase,
 	termid make_term(const termname &);
 	docid make_doc(const docname &);
 	void make_posting(termid, docid, termcount);
+
+	const string & get_database_path() const;
 };
 
 
@@ -347,6 +351,12 @@ TextfileDatabase::term_id_to_name(termid tid) const
     Assert(tid > 0 && tid <= termvec.size());
     //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
     return termvec[tid - 1];
+}
+
+inline const string &
+TextfileDatabase::get_database_path() const {
+    Assert(opened);
+    return path;
 }
 
 #endif /* _textfile_database_h_ */

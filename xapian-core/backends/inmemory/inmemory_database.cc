@@ -60,6 +60,7 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     if(postlists.size() <= 0)
 	throw OmError("Document was empty or nearly empty - nothing to search");
 
+    path = pathname;
     Assert((opened = true) == true);
 }
 

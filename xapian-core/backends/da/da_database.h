@@ -186,6 +186,7 @@ class DADatabase : public virtual IRDatabase {
 	bool   opened;
 	struct DAfile * DA_r;
 	struct DAfile * DA_t;
+	string path;
 
 	mutable map<termname, termid> termidmap;
 	mutable vector<DATerm> termvec;
@@ -220,8 +221,9 @@ class DADatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
-
 	IRDocument * open_document(docid id) const;
+
+	const string & get_database_path() const;
 };
 
 inline doccount
@@ -245,6 +247,12 @@ DADatabase::term_id_to_name(termid id) const
     Assert(id > 0 && id <= termvec.size());
     //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
     return termvec[id - 1].name;
+}
+
+inline const string &
+DADatabase::get_database_path() const {
+    Assert(opened);
+    return path;
 }
 
 #endif /* _da_database_h_ */

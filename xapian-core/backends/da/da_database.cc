@@ -120,6 +120,7 @@ DADatabase::open(const string &pathname, bool readonly)
 	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
+    path = pathname;
     opened = true;
 
     return;
