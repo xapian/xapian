@@ -143,7 +143,7 @@ static bool test_insertdelete1()
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
-    int count = do_update(btree_dir, datadir + "ord+");
+    unsigned int count = do_update(btree_dir, datadir + "ord+");
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
     {
 	Btree btree;

@@ -1,3 +1,7 @@
+Tue Nov 25 03:40:11 GMT 2003  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: Fixed 2 compiler warnings.
+
 Tue Nov 25 02:47:16 GMT 2003  Olly Betts <olly@survex.com>
 
 	* common/,include/xapian/: Fixed incorrect doxygen comments which
