@@ -1,3 +1,7 @@
+Tue Sep  5 10:49:18 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Re-added OmTypeError with slightly different comment.
+
 Tue Sep 05 08:29:04 BST 2000 Olly Betts
 
 	* Added missing class: OmTypeError.
