@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,11 +59,11 @@ static test tests[] = {
     { "'ipacsum'", "ipacsum:(pos=1)" },
     { "canal + ", "canal:(pos=1)" },
     { "/var/run/mysqld/mysqld.sock", "(var:(pos=1) PHRASE 5 run:(pos=2) PHRASE 5 mysqld:(pos=3) PHRASE 5 mysqld:(pos=4) PHRASE 5 sock:(pos=5))" },
-    { "\"QSI-161 drivers\"", "(Rqsi:(pos=1) PHRASE 3 R161:(pos=2) PHRASE 3 driver:(pos=3))" },
+    { "\"QSI-161 drivers\"", "(Rqsi:(pos=1) PHRASE 3 161:(pos=2) PHRASE 3 driver:(pos=3))" },
     { "\"e-cube\" barebone", "((e:(pos=1) PHRASE 2 cube:(pos=2)) OR barebon:(pos=3))" },
     { "\"./httpd: symbol not found: dlopen\"", "(httpd:(pos=1) PHRASE 5 symbol:(pos=2) PHRASE 5 not:(pos=3) PHRASE 5 found:(pos=4) PHRASE 5 dlopen:(pos=5))" },
     { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)",
-      "(Rerror:(pos=1) OR R2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR R10061:(pos=11))" },
+      "(Rerror:(pos=1) OR 2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR 10061:(pos=11))" },
     { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
     { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },

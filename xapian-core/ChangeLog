@@ -1,3 +1,8 @@
+Sun Apr 11 21:18:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: Don't use a raw term
+	  for a term which starts with a digit.
+
 Sat Apr 10 17:20:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* AUTHORS: "Open Muscat" not "OmSee"; Updated the list of contributors
