@@ -1,9 +1,6 @@
 /* sleepy_database.cc: interface to sleepycat database routines */
 
 
-#include "omassert.h"
-#include "sleepy_database.h"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -11,6 +8,11 @@
 
 // Sleepycat database stuff
 #include <db_cxx.h>
+
+#include "omassert.h"
+#include "sleepy_database.h"
+#include "sleepy_list.h"
+
 
 #define FILENAME_POSTLIST "postlist.db"
 #define FILENAME_TERMLIST "termlist.db"
@@ -266,6 +268,11 @@ void
 SleepyDatabase::add(termid tid, docid did, termpos tpos) {
     Assert(opened);
 
+    SleepyList pl(internals->postlist_db);
+    pl.open(&tid, sizeof(tid));
+    pl.add(did, 1);
+    pl.close();
+    
     // Add to Postlist
     try {
 	// First see if appropriate postlist already exists
