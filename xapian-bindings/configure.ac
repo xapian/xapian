@@ -160,7 +160,8 @@ if test no != "$with_swig" ; then
   if test no != "$with_csharp" ; then
     AC_PATH_PROG(CSC, mcs, [])
     AC_PATH_PROG(GACUTIL, gacutil, [])
-    if test -n "$CSC" -a -n "$GACUTIL" ; then
+    AC_PATH_PROG(SN, sn, [])
+    if test -n "$CSC" -a -n "$GACUTIL" -a -n "$SN" ; then
       BINDINGS="$BINDINGS csharp"
     fi
   fi

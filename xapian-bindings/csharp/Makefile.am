@@ -39,7 +39,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	$(ASSEMBLY).cs
 
 XapianSharp.snk:
-	sn -k $@
+	$(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	$(CSC) --unsafe --target library -o $(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
