@@ -432,6 +432,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	    subqs.push_back(new OmQueryInternal(left));
 	    subqs.push_back(new OmQueryInternal(right));
 	}
+	collapse_subqs();
 	DebugMsg(get_description() << endl);
     }
 }
@@ -442,6 +443,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	: isdefined(true), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
+    collapse_subqs();
 }
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
@@ -455,6 +457,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	subqueries.push_back(new OmQueryInternal(*i));
     }
     initialise_from_vector(subqueries.begin(), subqueries.end());
+    collapse_subqs();
 }
 
 OmQueryInternal::~OmQueryInternal()
@@ -527,6 +530,49 @@ OmQueryInternal::initialise_from_vector(
 	subqs.clear();
 	initialise_from_copy(*copyme);
 	delete copyme;
+    }
+}
+
+struct Collapse_PosNameLess {
+    bool operator()(const pair<om_termpos, om_termname> &left,
+		    const pair<om_termpos, om_termname> &right) {
+	if (left.first != right.first) {
+	    return left.first < right.first;
+	} else {
+	    return left.second < right.second;
+	}
+    }
+};
+
+void OmQueryInternal::collapse_subqs()
+{
+    // For the moment, anyway, the operation must be OR or AND.
+    if ((op == OM_MOP_OR) || (op == OM_MOP_AND)) {
+	typedef map<pair<om_termpos, om_termname>,
+	            OmQueryInternal *,
+		    Collapse_PosNameLess> subqtable;
+	subqtable sqtab;
+	subquery_list::iterator sq = subqs.begin();
+	while (sq != subqs.end()) {
+	    if ((*sq)->op == OM_MOP_LEAF) {
+		subqtable::key_type key(make_pair((*sq)->term_pos,
+						  (*sq)->tname));
+		subqtable::iterator s = sqtab.find(key);
+		if (s == sqtab.end()) {
+		    sqtab[key] = *sq;
+		    ++sq;
+		} else {
+		    s->second->wqf += (*sq)->wqf;
+		    // rather than incrementing, delete the current
+		    // element, as it has been merged into the other
+		    // equivalent term.
+		    delete (*sq);
+	 	    sq = subqs.erase(sq);
+		}
+	    } else {
+		++sq;
+	    }
+	}
     }
 }
 

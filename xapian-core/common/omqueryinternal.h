@@ -74,6 +74,10 @@ class OmQueryInternal {
 		const vector<OmQueryInternal *>::const_iterator qbegin,
 		const vector<OmQueryInternal *>::const_iterator qend);
 
+	/** Collapse lists of identical terms when possible
+	 */
+	void collapse_subqs();
+
 	/** Private function used to implement get_terms() */
         void accumulate_terms(
 	    vector<pair<om_termname, om_termpos> > &terms) const;

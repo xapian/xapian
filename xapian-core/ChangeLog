@@ -1,3 +1,8 @@
+Mon Feb 28 16:32:22 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Queries now combine identical terms into a single term
+	  with the sum of the wqfs in some cases.
+
 Mon Feb 28 13:09:18 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Query lengths are now automatically calculated
