@@ -1,3 +1,7 @@
+Sat Sep 14 10:00:35 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* configure.in: returned AC_CONDITIONAL for HAVE_PERL
+
 Sat Sep 14 09:29:08 BST 2002  Richard Boulton <richard.boulton@omsee.com>
 
 	* buildall: change to srcdir before testing for neccessary tools

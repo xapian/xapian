@@ -71,6 +71,7 @@ AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test yes = "$FNO_ACCESS_FLAG")
 
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL, perl, [$MISSING perl])
+AM_CONDITIONAL(HAVE_PERL, test x"$PERL" != x"$MISSING perl")
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
