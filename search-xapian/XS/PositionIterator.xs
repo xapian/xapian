@@ -20,21 +20,10 @@ new2(other);
 void
 PositionIterator::DESTROY()
   
-PositionIterator *
+void
 PositionIterator::inc()
     CODE:
-        RETVAL = new PositionIterator();
-        *RETVAL = ++(*THIS);
-    OUTPUT:
-        RETVAL
-
-PositionIterator *
-PositionIterator::add_to(number)
-    int		number
-    CODE:
-        THIS->operator++(number);
-    OUTPUT:
-        THIS
+        ++(*THIS);
 
 bool
 PositionIterator::equal(that)
@@ -60,7 +49,7 @@ PositionIterator::get_termpos()
         RETVAL
 
 void
-PositionIterator::skip_to(pos)
-    termpos	pos
-    CODE:
-        THIS->skip_to(pos);
+PositionIterator::skip_to(termpos pos)
+
+string
+PositionIterator::get_description()

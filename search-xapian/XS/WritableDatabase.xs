@@ -25,6 +25,19 @@ new2(database)
     OUTPUT:
         RETVAL
 
+WritableDatabase *
+new3()
+    CODE:
+        RETVAL = new WritableDatabase(); 
+        try {
+            *RETVAL = InMemory::open();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
 void
 WritableDatabase::flush()
    CODE:
@@ -90,12 +103,35 @@ WritableDatabase::delete_document(did)
         }
 
 void
+WritableDatabase::delete_document_by_term(unique_term)
+    string	unique_term
+    CODE:
+        try {
+	    THIS->delete_document(unique_term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+
+void
 WritableDatabase::replace_document(did, document)
     docid	did
     Document *	document
     CODE:
         try {
 	    THIS->replace_document(did, *document);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+
+void
+WritableDatabase::replace_document_by_term(unique_term, document)
+    string	unique_term
+    Document *	document
+    CODE:
+        try {
+	    THIS->replace_document(unique_term, *document);
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -144,6 +180,36 @@ WritableDatabase::termlist_end(did)
         RETVAL = new TermIterator();
 	try {
 	    *RETVAL = THIS->termlist_end(did);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+PositionIterator *
+WritableDatabase::positionlist_begin(did, term)
+    docid	did
+    string	term
+    CODE:
+        RETVAL = new PositionIterator();
+	try {
+	    *RETVAL = THIS->positionlist_begin(did, term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+PositionIterator *
+WritableDatabase::positionlist_end(did, term)
+    docid	did
+    string	term
+    CODE:
+        RETVAL = new PositionIterator();
+	try {
+	    *RETVAL = THIS->positionlist_end(did, term);
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -210,6 +276,18 @@ WritableDatabase::get_doccount()
     CODE:
 	try {
             RETVAL = THIS->get_doccount();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+docid
+WritableDatabase::get_lastdocid()
+    CODE:
+	try {
+            RETVAL = THIS->get_lastdocid();
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );

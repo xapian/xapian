@@ -35,13 +35,13 @@ MSet::fetch3()
     CODE:
         THIS->fetch();
 
-void
+percent
 MSet::convert_to_percent1(wt)
     weight	wt
     CODE:
         THIS->convert_to_percent(wt);
 
-void
+percent
 MSet::convert_to_percent2(it)
     MSetIterator *	it
     CODE:

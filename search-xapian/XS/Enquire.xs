@@ -48,11 +48,16 @@ Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
         }
 
 void
-Enquire::set_sorting(sort_key, sort_bands)
+Enquire::set_sorting(sort_key, sort_bands, sort_by_relevance = NO_INIT)
     valueno     sort_key
     int         sort_bands
+    bool	sort_by_relevance
     CODE:
-        THIS->set_sorting(sort_key, sort_bands);
+        if (items == 3) {
+	    THIS->set_sorting(sort_key, sort_bands, sort_by_relevance);
+        } else {
+	    THIS->set_sorting(sort_key, sort_bands);
+        }
 
 void
 Enquire::set_bias(bias_weight, bias_halflife)

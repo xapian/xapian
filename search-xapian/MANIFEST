@@ -20,6 +20,7 @@ Xapian/RSet.pm
 Xapian/PositionIterator.pm
 Xapian/PostingIterator.pm
 Xapian/TermIterator.pm
+Xapian/ValueIterator.pm
 
 Xapian.xs
 XS/MSetIterator.xs
@@ -37,6 +38,7 @@ XS/ESetIterator.xs
 XS/RSet.xs
 XS/PositionIterator.xs
 XS/PostingIterator.xs
+XS/ValueIterator.xs
 XS/Stem.xs
 
 perlobject.map
@@ -47,6 +49,7 @@ t/index.t
 t/parser.t
 t/search.t
 t/tied.t
+t/document.t
 
 examples/simplesearch.pl
 META.yml

@@ -47,11 +47,13 @@ sub new() {
     }
   } elsif( scalar(@_) == 2 ) {
     $database = new1( @_ );
+  } elsif( scalar(@_) == 0 ) {
+    $database = new3();
   } else {
     $invalid_args = 1;
   }
   if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(\$file, OM_DB_OPTS), $class->new(\$database)" );
+    Carp::carp( "USAGE: $class->new(\$file, DB_OPTS), $class->new(\$database), $class->new()" );
     exit;
   }
   bless $database, $class;

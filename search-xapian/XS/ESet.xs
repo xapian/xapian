@@ -43,6 +43,14 @@ ESet::end()
     OUTPUT:
         RETVAL
 
+ESetIterator *
+ESet::back()
+    CODE:
+        RETVAL = new ESetIterator();
+        *RETVAL = THIS->back();
+    OUTPUT:
+        RETVAL
+
 string
 ESet::get_description()
 

@@ -2,8 +2,9 @@ use ExtUtils::MakeMaker;
 
 my $CC = 'g++';
 
-my $libs = `xapian-config --libs`;
-my $inc  = `xapian-config --cxxflags`;
+my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
+my $libs = `$xapian_config --libs`;
+my $inc  = `$xapian_config --cxxflags`;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.

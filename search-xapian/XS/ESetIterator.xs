@@ -26,22 +26,22 @@ ESetIterator::inc()
         RETVAL
 
 ESetIterator *
-ESetIterator::add_to(number)
-    int		number
+ESetIterator::dec()
     CODE:
-        THIS->operator++(number);
+        RETVAL = new ESetIterator();
+        *RETVAL = --(*THIS);
     OUTPUT:
         THIS
 
 bool
-MSetIterator::equal(MSetIterator * that)
+ESetIterator::equal(ESetIterator * that)
     CODE:
         RETVAL = ((*THIS) == (*that));
     OUTPUT:
         RETVAL
 
 bool
-MSetIterator::nequal(MSetIterator * that)
+ESetIterator::nequal(ESetIterator * that)
     CODE:
         RETVAL = ((*THIS) != (*that));
     OUTPUT:

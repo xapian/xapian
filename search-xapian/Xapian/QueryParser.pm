@@ -43,7 +43,10 @@ Search::Xapian::QueryParser - Parse a query string into a Search::Xapian::Query 
 
 =head1 DESCRIPTION
 
-This module parses a sort-of human readable string into something Xapian can understand. You probably will want to do some preliminary parsing before you hand a string from a real user to this module.
+This module turns a human readable string into something Xapian can
+understand.  The syntax supported is designed to be similar to other web
+based search engines, so that users familiar with them don't have to learn
+a whole new syntax.
 
 =head1 SYNOPSIS
 

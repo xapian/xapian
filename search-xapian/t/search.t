@@ -7,7 +7,7 @@
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 68 };
+BEGIN { plan tests => 72 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -99,5 +99,15 @@ $enq->set_query( $noquery );
 ok( $nomatches = $enq->get_mset( 0, 10 ), "matchless query returns match set ok" );
 is( $nomatches->size(), 0, "matchless query's match set has zero size" );
 is( $nomatches->begin(), $nomatches->end(), "matchless query's match set's start point and endpoint are the same" );
+
+ok( $matches->convert_to_percent(100) > 0 );
+ok( $matches->convert_to_percent( $matches->begin() ) > 0 );
+
+$match = $matches->back();
+--$match;
+++$match;
+ok( $match eq $matches->back() );
+
+ok( $match->get_collapse_count() == 0 );
 
 1;

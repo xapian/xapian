@@ -1,5 +1,5 @@
-Search/Xapian version 0.05
-==========================
+Search/Xapian version 0.8.3.0
+=============================
 
 This is Search::Xapian, a Perl XS frontend to the Xapian C++ search 
 library.
@@ -12,6 +12,9 @@ To install this module type the following:
    make
    make test
    make install
+
+Makefile.PL looks for xapian-config on your PATH.  You can specify a path for
+xapian-config by setting the XAPIAN_CONFIG environmental variable.
 
 DEPENDENCIES
 

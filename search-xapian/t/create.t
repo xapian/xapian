@@ -7,7 +7,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 2 };
+BEGIN { plan tests => 3 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -32,5 +32,6 @@ closedir( DB_DIR );
 
 my $database;
 ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE ) );
+ok( $database = Search::Xapian::WritableDatabase->new() );
 
 1;

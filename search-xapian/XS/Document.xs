@@ -27,6 +27,12 @@ Document::add_value(valno, value)
     CODE:
         THIS->add_value(valno, value);
 
+void
+Document::remove_value(valueno valno)
+
+void
+Document::clear_values()
+
 string
 Document::get_data()
 

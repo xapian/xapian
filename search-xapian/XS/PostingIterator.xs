@@ -20,21 +20,10 @@ new2(other);
 void
 PostingIterator::DESTROY()
   
-PostingIterator *
+void
 PostingIterator::inc()
     CODE:
-        RETVAL = new PostingIterator();
-        *RETVAL = ++(*THIS);
-    OUTPUT:
-        RETVAL
-
-PostingIterator *
-PostingIterator::add_to(number)
-    int		number
-    CODE:
-        THIS->operator++(number);
-    OUTPUT:
-        THIS
+        ++(*THIS);
 
 bool
 PostingIterator::equal(that)
@@ -75,10 +64,6 @@ PostingIterator::get_wdf()
 
 string
 PostingIterator::get_description()
-    CODE:
-        RETVAL = THIS->get_description();
-    OUTPUT:
-        RETVAL
 
 PositionIterator *
 PostingIterator::positionlist_begin()
@@ -97,7 +82,4 @@ PostingIterator::positionlist_end()
         RETVAL
 
 void
-PostingIterator::skip_to(pos)
-    termpos	pos
-    CODE:
-        THIS->skip_to(pos);
+PostingIterator::skip_to(docid pos)
