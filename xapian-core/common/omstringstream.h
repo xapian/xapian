@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,9 +111,6 @@ OSTRINGSTREAMFUNC(OmPostListIterator)
 OSTRINGSTREAMFUNC(OmPositionListIterator)
 OSTRINGSTREAMFUNC(OmTermIterator)
 OSTRINGSTREAMFUNC(OmKeyListIterator)
-OSTRINGSTREAMFUNC(OmIndexerMessage)
-OSTRINGSTREAMFUNC(OmPadIterator)
-OSTRINGSTREAMFUNC(OmNodeInstanceIterator)
 
 inline om_ostringstream &
 operator<<(om_ostringstream & os, const std::vector<std::string> & v)

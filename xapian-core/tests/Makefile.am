@@ -117,10 +117,9 @@ includetest.cc: findheaders.pl
 	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
 	@echo 'int main() { return 0; }' >> $@
 
-includetest_CXXFLAGS = @LIBXML_CFLAGS@
-
+# FIXME: ought to check each header file is OK by itself ideally...
 includetest.o: includetest.cc
-	$(CXXCOMPILE) $(includetest_CXXFLAGS) -c includetest.cc
+	$(CXXCOMPILE) -c includetest.cc
 
 ## Compile internaltest with the extra CXXFLAGS
 ## We have to provide our own rules, because automake doesn't

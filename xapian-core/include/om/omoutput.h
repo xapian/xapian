@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,19 +67,10 @@ OUTPUT_FUNCTION(OmPostListIterator)
 #include "om/ompositionlistiterator.h"
 OUTPUT_FUNCTION(OmPositionListIterator)
 
-#include "om/ompaditerator.h"
-OUTPUT_FUNCTION(OmPadIterator)
-
-#include "om/omnodeinstanceiterator.h"
-OUTPUT_FUNCTION(OmNodeInstanceIterator)
-
 #include "om/omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermIterator)
 
 #include "om/omkeylistiterator.h"
 OUTPUT_FUNCTION(OmKeyListIterator)
-
-#include "om/omindexermessage.h"
-OUTPUT_FUNCTION(OmIndexerMessage)
 
 #endif /* OM_HGUARD_OMOUTPUT_H */
