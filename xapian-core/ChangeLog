@@ -1,3 +1,7 @@
+Tue Nov 28 13:42:41 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved the Btree's bitmap into a separate object.
+
 Tue Nov 28 13:06:36 GMT 2000 Olly Betts
 
 	* Eliminated OmDocumentParams.

@@ -131,21 +131,6 @@ Btree_base::~Btree_base()
 {
 }
 
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		sys_close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
-
 bool
 Btree_base::read(const std::string & name, char ch, std::string &err_msg)
 {

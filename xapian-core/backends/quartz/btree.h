@@ -26,6 +26,7 @@
 #include <string>
 #include "btree_types.h"
 #include "btree_base.h"
+#include "btree_bitmap.h"
 #include "bcursor.h"
 
 #define BTREE_CURSOR_LEVELS 10
@@ -139,10 +140,11 @@ class Btree {
 
 	bool find(Cursor *C_);
 	int delete_kt();
-	bool block_free_at_start(int4 n);
-	void free_block(int4 n);
-	void extend_bit_map();
-	int next_free_block();
+	// these four moved to btree_bitmap
+	//bool block_free_at_start(int4 n);
+	//void free_block(int4 n);
+	//void extend_bit_map();
+	//int next_free_block();
 	void read_block(int4 n, byte *p);
 	void write_block(int4 n, const byte *p);
 	void set_overwritten();
@@ -160,7 +162,6 @@ class Btree {
 	int write_base();
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);
-	int block_free_now(int4 n);
 	void block_check(Cursor *C, int j, int opts);
 
 	/** true if the root block is faked (not written to disk).
@@ -174,12 +175,7 @@ class Btree {
 	byte * kt;            /* buffer of size B->block_size for making up key-tag items */
 	byte * buffer;        /* buffer of size block_size for reforming blocks */
 	uint4 next_revision;  /* 1 + revision number of the opened B-tree */
-	int bit_map_size;     /* size of the bit map of blocks, in bytes */
-	int bit_map_low;      /* byte offset into the bit map below which there
-				 are no free blocks */
-	byte * bit_map0;      /* the initial state of the bit map of blocks: 1 means in
-				 use, 0 means free */
-	byte * bit_map;       /* the current state of the bit map of blocks */
+	Btree_bitmap bitmap;
 	Btree_base base;          /* for writing back as file baseA or baseB */
 	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
 
@@ -200,6 +196,8 @@ class Btree {
 				 BC->C for levels at or above B->shared_level */
 	char Btree_modified;  /* set to true the first time the B-tree is written to */
 	char full_compaction; /* set to true when full compaction is to be achieved */
+
+	bool writable; 	/* Set to true when the database is opened to write. */
 
 	int (* prev)(struct Btree *, struct Cursor *, int);
 	int (* next)(struct Btree *, struct Cursor *, int);

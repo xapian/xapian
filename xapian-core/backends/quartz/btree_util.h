@@ -145,9 +145,6 @@ inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 #define SET_TOTAL_FREE(b, x)    SETINT2(b, 7, x)
 #define SET_DIR_END(b, x)       SETINT2(b, 9, x)
 
-#define BIT_MAP_INC 1000
-    /* increase the bit map by this number of bytes if it overflows */
-
 #define SEQ_START_POINT (-10)
     /* Flip to sequential addition block-splitting after this number of observed
        sequential additions */
@@ -221,5 +218,20 @@ int sys_read_bytes(int h, int n, byte *p);
 std::string sys_read_all_bytes(int h, size_t max);
 int sys_write_bytes(int h, int n, const byte *p);
 int sys_flush(int h);
+
+/** A tiny class used to close a filehandle safely in the presence
+ *  of exceptions.
+ */
+class fdcloser {
+    public:
+	fdcloser(int fd_) : fd(fd_) {}
+	~fdcloser() {
+	    if (fd >= 0) {
+		sys_close(fd);
+	    }
+	}
+    private:
+	int fd;
+};
 
 #endif /* OM_HGUARD_BTREE_UTIL_H */

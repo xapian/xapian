@@ -161,7 +161,7 @@ int sys_read_bytes(int h, int n, byte * p)
 
 std::string sys_read_all_bytes(int h, size_t max)
 {
-    size_t bytes_read;
+    ssize_t bytes_read;
     size_t bytes_to_read = max;
     std::string retval;
     while (1) {
@@ -310,86 +310,7 @@ Btree_strerror(Btree_errors err)
 
 /* Nearly all the defined procedures have 'struct Btree * B' as first argument.
    This is defined in Btree.h, and is the handle for the whole B-tree structure.
-
-   block_free_at_start(B, n) is true iff (if and only if) block n was free at
-   the start of the transaction on the B-tree.
-*/
-
-bool
-Btree::block_free_at_start(int4 n)
-{   int i = n / CHAR_BIT;
-    int bit = 0x1 << n % CHAR_BIT;
-    return (bit_map0[i] & bit) == 0;
-}
-
-/* free_block(B, n) causes block n to be marked free in the bit map.
-   B->bit_map_low is the lowest byte in the bit map known to have a free bit
-   set. Searching starts from there when looking for a free block.
-*/
-
-void
-Btree::free_block(int4 n)
-{
-    int i = n / CHAR_BIT;
-    int bit = 0x1 << n % CHAR_BIT;
-    bit_map[i] &= ~ bit;
-
-    if (bit_map_low > i &&
-       (bit_map0[i] & bit) == 0) /* free at start */
-        bit_map_low = i;
-}
-
-/* extend_bit_map(B) increases the size of the two bit maps in an obvious way.
-   The bitmap file grows and shrinks as the DB file grows and shrinks in
-   internal usage. But the DB file itself does not reduce in size, no matter
-   how many blocks are freed.
-*/
-
-void
-Btree::extend_bit_map()
-{
-    int n = bit_map_size + BIT_MAP_INC;
-    bit_map0 = (byte *)realloc(bit_map0, n);   /*?*/
-    bit_map = (byte *)realloc(bit_map, n);     /*?*/
-    {   int i;
-        for (i = bit_map_size; i < n; i++)
-        {
-	    bit_map0[i] = 0;
-            bit_map[i] = 0;
-        }
-    }
-    bit_map_size = n;
-}
-
-/* next_free_block(B) returns the number of the next available free block in
-   the bitmap, marking it as 'in use' before returning. More precisely, we get
-   a block that is both free now (in bit_map) and was free at the beginning of
-   the transaction on the B-tree (in bit_map0).
-
-   Starting at bit_map_low we go up byte at a time until we find a byte with a
-   free (zero) bit, and then go up that byte bit at a time. If the bit map has
-   no free bits it is extended so that it will have.
-*/
-
-int
-Btree::next_free_block()
-{
-    int4 i;
-    int x;
-    for (i = bit_map_low;; i++)
-    {   if (i >= bit_map_size) extend_bit_map();
-        x = bit_map0[i] | bit_map[i];
-        if (x != UCHAR_MAX) break;
-    }
-    {
-	int4 n = i * CHAR_BIT;
-        int d = 0x1;
-        while ((x & d) != 0) { d <<= 1; n++; }
-        bit_map[i] |= d;   /* set as 'in use' */
-        bit_map_low = i;
-        return n;
-    }
-}
+   */
 
 /** read_block(B, n, p) reads block n to address p in the DB file.
  */
@@ -398,7 +319,10 @@ Btree::read_block(int4 n, byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
-    Assert(n / CHAR_BIT < bit_map_size);
+    /* Use the base bit_map_size not the bitmap's size, because
+     * the latter is uninitialised in readonly mode.
+     */
+    Assert(n / CHAR_BIT < base.get_bit_map_size());
 
     sys_read_block(handle, block_size, n, p);
     /** Previously, this would set B->error to BTREE_ERROR_DB_READ
@@ -420,10 +344,10 @@ Btree::write_block(int4 n, const byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
-    Assert(n / CHAR_BIT < bit_map_size);
+    Assert(n / CHAR_BIT < bitmap.get_size());
 
     /* don't write to non-free */;
-    AssertParanoid(block_free_at_start(n));
+    AssertParanoid(bitmap.block_free_at_start(n));
 
     /* write revision is okay */
     AssertParanoid(REVISION(p) == next_revision);
@@ -565,9 +489,9 @@ Btree::alter(Cursor * C)
 	C[j].rewrite = true;
 
 	int4 n = C[j].n;
-	if (block_free_at_start(n)) return;
-	free_block(n);
-	n = next_free_block();
+	if (bitmap.block_free_at_start(n)) return;
+	bitmap.free_block(n);
+	n = bitmap.next_free_block();
 	C[j].n = n;
 	SET_REVISION(p, next_revision);
 
@@ -729,7 +653,7 @@ Btree::enter_key(struct Cursor * C_, int j, byte * kq, byte * kp)
 	    throw std::bad_alloc();
 	}
 	C_[j].c = DIR_START;
-	C_[j].n = next_free_block();
+	C_[j].n = bitmap.next_free_block();
 	C_[j].rewrite = true;
 	SET_REVISION(q, next_revision);
 	SET_LEVEL(q, j);
@@ -795,7 +719,7 @@ Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
     /* p is C[j].p, q is C[j].split_p */
 
     C_[j].split_n = C_[j].n;
-    C_[j].n = next_free_block();
+    C_[j].n = bitmap.next_free_block();
 
     memmove(q, p, block_size);  /* replicate the whole block in q */
     SET_DIR_END(q, c);
@@ -949,7 +873,7 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
     if (j < level)
     {   if (dir_end == DIR_START)
         {
-            free_block(C[j].n);
+            bitmap.free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
             C[j + 1].rewrite = true;  /* *is* necessary */
@@ -961,7 +885,7 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
         {   /* single item in the root block, so lose a level */
             int new_root = block_given_by(p, DIR_START);
             free(p); C[j].p = 0;
-            free_block(C[j].n);
+            bitmap.free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
             free(C[j].split_p); C[j].split_p = 0;
@@ -1348,28 +1272,10 @@ Btree::set_full_compaction(int parity)
 
 /************ B-tree opening and closing ************/
 
-static byte * read_bit_map(const std::string & name, char ch, int size)
-{
-    byte * p = (byte *)malloc(size);
-    if (p != 0) {
-	int h = sys_open_to_read_no_except(name + "bitmap" + ch);
-	if (valid_handle(h) &&
-	    sys_read_bytes(h, size, p) &&
-	    sys_close(h)) {
-	    return p;
-	}
-    }
-    free(p); return 0;
-}
-
 int
 Btree::write_bit_map()
 {
-    int h = sys_open_to_write(name + "bitmap" + other_base_letter);
-    return valid_handle(h) &&
-	    sys_write_bytes(h, bit_map_size, bit_map) &&
-	    sys_flush(h) &&
-	    sys_close(h);
+    return bitmap.write_to_file(name + "bitmap" + other_base_letter);
 }
 
 int
@@ -1477,7 +1383,7 @@ Btree::basic_open(const char * name_,
         block_size =      basep->get_block_size();
         root =            basep->get_root();
         level =           basep->get_level();
-        bit_map_size =    basep->get_bit_map_size();
+        //bit_map_size =    basep->get_bit_map_size();
         item_count =      basep->get_item_count();
         last_block =      basep->get_last_block();
         faked_root_block = basep->get_have_fakeroot();
@@ -1541,7 +1447,7 @@ Btree::read_root()
         SET_TOTAL_FREE(p, o);
 	SET_LEVEL(p, 0);
 
-        if (bit_map0 == 0) {
+        if (!writable) {
 	    /* reading - revision number doesn't matter as long as it's 
 	     * not greater than the current one.*/
             SET_REVISION(p, 0);
@@ -1549,7 +1455,7 @@ Btree::read_root()
         } else {
 	    /* writing - */
             SET_REVISION(p, next_revision);
-            C[0].n = next_free_block();
+            C[0].n = bitmap.next_free_block();
         }
     } else {
 	/* using a root block stored on disk */
@@ -1586,22 +1492,11 @@ Btree::do_open_to_write(const char * name_,
 	}
     }
 
+    writable = true;
+
     handle = sys_open_for_readwrite(name + "DB");
 
-    bit_map0 = read_bit_map(name, base_letter, bit_map_size);
-    if (bit_map0 == 0) {
-	std::string message = "Failed to read bit map from table ";
-	message += name;
-
-	error = BTREE_ERROR_BITMAP_READ;
-	throw OmOpeningError(message);
-    }
-
-    bit_map = (byte *) malloc(bit_map_size);
-    if (bit_map == 0) {
-	throw std::bad_alloc();
-    }
-    memmove(bit_map, bit_map0, bit_map_size);
+    bitmap.read(name, base_letter, base.get_bit_map_size());
 
     {
         int j; for (j = 0; j <= level; j++)
@@ -1690,10 +1585,7 @@ Btree::Btree()
 	  kt(0),
 	  buffer(0),
 	  next_revision(0),
-	  bit_map_size(0),
-	  bit_map_low(0),
-	  bit_map0(0),
-	  bit_map(0),
+	  bitmap(this),
 	  base(),
 	  other_base_letter(0),
 	  seq_count(0),
@@ -1702,7 +1594,8 @@ Btree::Btree()
 	  max_item_size(0),
 	  shared_level(0),
 	  Btree_modified(false),
-	  full_compaction(false)
+	  full_compaction(false),
+	  writable(false)
 {
 }
 
@@ -1778,7 +1671,6 @@ Btree::~Btree() {
     }
 
     free(kt); free(buffer);
-    free(bit_map); free(bit_map0);
 }
 
 extern int Btree_close(struct Btree * B_, uint4 revision)
@@ -1826,20 +1718,12 @@ Btree::commit(uint4 revision)
     }
 
     errorval = BTREE_ERROR_BITMAP_WRITE;
-    {   int i = bit_map_size - 1;
-        while (bit_map[i] == 0 && i > 0) i--;
-        bit_map_size = i + 1;
-
-        {   int x = bit_map[i];
-            int4 n = (i + 1) * CHAR_BIT - 1;
-            int d = 0x1 << (CHAR_BIT - 1);
-            while ((x & d) == 0) { d >>= 1; n--; }
-            last_block = n;
-        }
-    }
+    last_block = bitmap.get_last_block();
 
     faked_root_block &= ! Btree_modified; /* still faked? */
-    if (faked_root_block) bit_map[0] = 0; /* if so, dummy bit map */
+    if (faked_root_block) {
+	bitmap.clear(); /* if so, dummy bit map */
+    }
 
     if (! write_bit_map()) {
 	return errorval;
@@ -1849,7 +1733,7 @@ Btree::commit(uint4 revision)
     base.set_revision(revision);
     base.set_root(C[level].n);
     base.set_level(level);
-    base.set_bit_map_size(bit_map_size);
+    base.set_bit_map_size(bitmap.get_size());
     base.set_item_count(item_count);
     base.set_last_block(last_block);
     base.set_have_fakeroot(faked_root_block);
@@ -2090,13 +1974,6 @@ extern int Btree_create(const char * name_, int block_size)
 
 /*********** B-tree checking ************/
 
-int
-Btree::block_free_now(int4 n)
-{   int4 i = n / CHAR_BIT;
-    int bit = 0x1 << n % CHAR_BIT;
-    return (bit_map[i] & bit) == 0;
-}
-
 static void print_bytes(int n, byte * p)
 {   int i;
     for (i = 0; i < n; i++) printf("%c", p[i]);
@@ -2205,9 +2082,9 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
     int dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
-    if (block_free_at_start(n)) failure(0);
-    if (block_free_now(n)) failure(1);
-    free_block(n);
+    if (bitmap.block_free_at_start(n)) failure(0);
+    if (bitmap.block_free_now(n)) failure(1);
+    bitmap.free_block(n);
 
     if (j != GET_LEVEL(p)) failure(10);
     if (dir_end <= DIR_START || dir_end > block_size) failure(20);
@@ -2295,7 +2172,7 @@ Btree::check(const char * name, const char * opt_string)
             B->last_block);
 
     {   int i;
-        int limit = B->bit_map_size - 1;
+        int limit = B->bitmap.get_size() - 1;
 
         limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
@@ -2303,7 +2180,7 @@ Btree::check(const char * name, const char * opt_string)
         {
 	    for (i = 0; i <= limit; i++)
             {
-		printf("%c", B->block_free_at_start(i) ? '.' : '*');
+		printf("%c", B->bitmap.block_free_at_start(i) ? '.' : '*');
                 if (i > 0) {
                     if ((i + 1) % 100 == 0) {
                         printf("\n");
@@ -2323,9 +2200,9 @@ Btree::check(const char * name, const char * opt_string)
 
         /* the bit map should now be entirely clear: */
 
-        {   int i; for (i = 0; i < B->bit_map_size; i++)
-                if (B->bit_map[i] != 0) failure(100);
-        }
+	if (!B->bitmap.is_empty()) {
+	    failure(100);
+	}
     }
     Btree_quit(B);
     printf("B-tree checked okay\n");
