@@ -2,9 +2,9 @@
 
 noinst_HEADERS = querygui.glade querygui.h
 
-INCLUDES = $(LIBOMUS_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS)
+INCLUDES = $(OMSEE_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS)
 
 bin_PROGRAMS = querygui
 
 querygui_SOURCES = querygui.cc
-querygui_LDADD = @LIBOMUS_LIBS@ @GTK_LIBS@ @LIBGLADE_LIBS@
+querygui_LDADD = @OMSEE_LIBS@ @GTK_LIBS@ @LIBGLADE_LIBS@

@@ -1,3 +1,7 @@
+Thu Jan 25 11:45:55 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Updated for project name change to Omsee.
+
 Wed Jan 24 12:42:41 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updated to comply with OmEnquire::get_doc() changing to

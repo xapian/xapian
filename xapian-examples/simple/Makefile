@@ -1,13 +1,13 @@
 all: simpleindex simplesearch simpleexpand
 
 simpleindex: simpleindex.cc
-	$(CXX) $< `libomus-config --libs --cflags` -o $@
+	$(CXX) $< `omsee-config --libs --cflags` -o $@
 
 simplesearch: simplesearch.cc
-	$(CXX) $< `libomus-config --libs --cflags` -o $@
+	$(CXX) $< `omsee-config --libs --cflags` -o $@
 
 simpleexpand: simpleexpand.cc
-	$(CXX) $< `libomus-config --libs --cflags` -o $@
+	$(CXX) $< `omsee-config --libs --cflags` -o $@
 
 html: simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
 

@@ -6,7 +6,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h parsequery.h symboltab.h\
 # include yacc/bison generated C++ source
 EXTRA_DIST = parsequery.cc templates/query templates/godmode
 
-INCLUDES = $(LIBOMUS_CFLAGS)
+INCLUDES = $(OMSEE_CFLAGS)
 
 bin_PROGRAMS = omega omindex
 
@@ -15,10 +15,10 @@ TESTS = parsequerytest
 check_PROGRAMS = parsequerytest
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy utils.cc
-omega_LDADD = @LIBOMUS_LIBS@
+omega_LDADD = @OMSEE_LIBS@
 
 omindex_SOURCES = omindex.cc htmlparse.cc
-omindex_LDADD = @LIBOMUS_LIBS@
+omindex_LDADD = @OMSEE_LIBS@
 
 parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
-parsequerytest_LDADD = @LIBOMUS_LIBS@
+parsequerytest_LDADD = @OMSEE_LIBS@
