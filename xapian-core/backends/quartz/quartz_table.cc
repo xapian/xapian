@@ -29,9 +29,6 @@
 #include <string.h>
 #include <errno.h>
 
-// FIXME: just temporary
-#include <stdio.h>
-
 bool
 QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 {
@@ -43,9 +40,11 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     // FIXME: check for errors
 
     Btree_item * item = Btree_item_create();
-    // FIXME: check for errors
+    if (item == 0) throw std::bad_alloc();
+
     int err = Bcursor_get_key(cursor, item);
     // FIXME: check for errors
+
     is_positioned = Bcursor_get_tag(cursor, item);
     // FIXME: check for errors
 
@@ -70,7 +69,8 @@ QuartzDiskCursor::next()
     }
 
     Btree_item * item = Btree_item_create();
-    // FIXME: check for errors
+    if (item == 0) throw std::bad_alloc();
+
     Bcursor_get_key(cursor, item);
     // FIXME: check for errors
     is_positioned = Bcursor_get_tag(cursor, item);
@@ -97,6 +97,7 @@ QuartzDiskCursor::prev()
 	int found = Bcursor_find_key(cursor,
 				     current_key.value.data(),
 				     current_key.value.size());
+	// FIXME: check for errors
 	Assert(found);
     } else {
 	Bcursor_prev(cursor);
@@ -104,7 +105,8 @@ QuartzDiskCursor::prev()
     }
 
     Btree_item * item = Btree_item_create();
-    // FIXME: check for errors
+    if (item == 0) throw std::bad_alloc();
+
     Bcursor_get_key(cursor, item);
     // FIXME: check for errors
 
@@ -172,13 +174,18 @@ QuartzDiskTable::open()
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
     if (!file_exists(path + "DB")) {
-	if (!Btree_create(path.c_str(), blocksize)) {
-	    // FIXME: explain why
+	int err_num = Btree_create(path.c_str(), blocksize);
+	if (err_num != 0) {
+	    // FIXME: check for errors
+
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
+	    // FIXME: explain why
 	}
     }
 
     btree_for_writing = Btree_open_to_write(path.c_str());
+    // FIXME: check for errors
+
     if (btree_for_writing == 0) {
 	// FIXME: explain why
 	throw OmOpeningError("Cannot open table `"+path+"' for writing.");
@@ -186,6 +193,7 @@ QuartzDiskTable::open()
 
     btree_for_reading = Btree_open_to_read_revision(path.c_str(),
 				btree_for_writing->revision_number);
+    // FIXME: check for errors
     if (btree_for_reading == 0) {
 	close();
 	// FIXME: explain why
@@ -203,6 +211,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     if (readonly) {
 	btree_for_reading = Btree_open_to_read_revision(path.c_str(), revision);
+	// FIXME: check for errors
 	if (btree_for_reading == 0) {
 	    // FIXME: throw an exception if it's not just this revision which
 	    // unopenable.
@@ -216,12 +225,14 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     // FIXME: use btree library to check if table exists yet.
     if (!file_exists(path + "/DB")) {
 	if (!Btree_create(path.c_str(), blocksize)) {
+	// FIXME: check for errors
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
 	}
     }
 
     btree_for_writing = Btree_open_to_write_revision(path.c_str(), revision);
+    // FIXME: check for errors
     if (btree_for_writing == 0) {
 	// FIXME: throw an exception if it's not just this revision which
 	// unopenable.
@@ -232,6 +243,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     btree_for_reading = Btree_open_to_read_revision(path.c_str(),
 				btree_for_writing->revision_number);
+    // FIXME: check for errors
     if (btree_for_reading == 0) {
 	close();
 	// FIXME: throw an exception if it's not just this revision which
@@ -282,7 +294,10 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
 
     // FIXME: avoid having to create a cursor here.
     struct Bcursor * cursor = Bcursor_create(btree_for_reading);
+    // FIXME: check for errors
+
     int found = Bcursor_find_key(cursor, key.value.data(), key.value.size());
+    // FIXME: check for errors
 
     if (!found) {
 	Bcursor_lose(cursor);
@@ -290,7 +305,11 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     }
     
     Btree_item * item = Btree_item_create();
+    if (item == 0) throw std::bad_alloc();
+
     Bcursor_get_tag(cursor, item);
+    // FIXME: check for errors
+
     // FIXME: unwanted copy
     tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
 
@@ -352,6 +371,9 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Reopen table
     open();
+    // FIXME: check for errors
+    // FIXME: want to indicate that the database closed successfully even
+    // if we now can't open it.  Or is this a panic situation?
 
     return true;
 }
