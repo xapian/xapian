@@ -35,7 +35,7 @@
 #include "unistd.h"
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
-static void check_table_values_hello(const QuartzDbTable & table,
+static void check_table_values_hello(const QuartzDiskTable & table,
 				     std::string world)
 {
     QuartzDbKey key;
@@ -93,7 +93,7 @@ static void check_table_values_hello(const QuartzDbTable & table,
 }
 
 /// Check the values returned by a table containing no key/tag pairs
-static void check_table_values_empty(const QuartzDbTable & table)
+static void check_table_values_empty(const QuartzDiskTable & table)
 {
     QuartzDbKey key;
     QuartzDbTag tag;
@@ -149,18 +149,18 @@ static void check_table_values_empty(const QuartzDbTable & table)
 #endif
 }
 
-/// Test making and playing with a QuartzDbTable
-static bool test_dbtable1()
+/// Test making and playing with a QuartzDiskTable
+static bool test_disktable1()
 {
     unlink("./test_dbtable1_data_1");
     unlink("./test_dbtable1_data_2");
     {
-	QuartzDbTable table0("./test_dbtable1_", true);
+	QuartzDiskTable table0("./test_dbtable1_", true);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
     }
-    QuartzDbTable table2("./test_dbtable1_", false);
+    QuartzDiskTable table2("./test_dbtable1_", false);
     table2.open();
-    QuartzDbTable table1("./test_dbtable1_", true);
+    QuartzDiskTable table1("./test_dbtable1_", true);
     table1.open();
 
 
@@ -567,7 +567,7 @@ static bool test_unpackint1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"quartzdbtable1",		test_dbtable1},
+    {"quartzdisktable1",	test_disktable1},
     {"quartztableentries1",	test_tableentries1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},

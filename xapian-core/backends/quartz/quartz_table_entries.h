@@ -120,7 +120,7 @@ class QuartzTableEntries {
 	/** Get all the entries in this object.
 	 *
 	 *  This returns a suitable object to be passed to
-	 *  QuartzDbTable::set_entries()
+	 *  QuartzDiskTable::set_entries()
 	 */
 	std::map<QuartzDbKey, QuartzDbTag *> & get_all_entries();
 };

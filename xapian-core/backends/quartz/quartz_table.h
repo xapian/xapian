@@ -67,7 +67,7 @@ struct QuartzDbKey {
 	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
 };
 
-class QuartzDbTable;
+class QuartzDiskTable;
 
 /** An object holding the revision number of a table.
  *
@@ -89,12 +89,12 @@ class QuartzDbTable;
  *  is comparison.
  */
 class QuartzRevisionNumber {
-    friend class QuartzDbTable;
+    friend class QuartzDiskTable;
     private:
 	/// The actual value of the revision number.
 	quartz_revision_number_t value;
 
-	/// Private constructor, only QuartzDbTable calls this.
+	/// Private constructor, only QuartzDiskTable calls this.
 	QuartzRevisionNumber(quartz_revision_number_t value_)
 		: value(value_) {}
     public:
@@ -131,19 +131,117 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
     return os << (obj.get_description());
 }
 
+
+/** Base class for quartz tables.
+ *
+ *  This specifies the interface that is shared between objects which
+ *  represent actual tables on disk, and objects which represent a modified
+ *  table, yet to be written to disk.
+ */
+class QuartzTable {
+    private:
+	/// Copying not allowed
+	QuartzTable(const QuartzTable &);
+
+	/// Assignment not allowed
+	void operator=(const QuartzTable &);
+    public:
+	/** Create new table.
+	 */
+	QuartzTable() {}
+
+	/** Close the table.
+	 */
+	virtual ~QuartzTable() {}
+
+	/** Return a count of the number of entries in the table.
+	 *
+	 *  @return THe number of entries in the table.
+	 */
+	virtual quartz_tablesize_t get_entry_count() const = 0;
+
+	/** Read an entry from the table.
+	 *
+	 *  If the key is found in the table, the tag will be filled with
+	 *  the data associated with the key.
+	 *
+	 *  If the key is not found, the key will be set to the value of
+	 *  the key preceding that asked for, and the tag will be filled
+	 *  with the data associated with that key.
+	 *
+	 *  If there is no key preceding that asked for, the key and tag
+	 *  will be set to a null value.  Note that, if you are testing
+	 *  for this condition, you should test whether the key has a null
+	 *  value, since null tag values are allowed to be stored in
+	 *  tables.
+	 *
+	 *  @param key  The key to look for in the table.
+	 *  @param tag  A tag object to fill with the value found.
+	 *
+	 *  @return true if the exact key was found in the table, false
+	 *          otherwise.
+	 */
+	virtual bool get_nearest_entry(QuartzDbKey &key,
+				       QuartzDbTag & tag) const = 0;
+
+	/** Read an entry from the table, if and only if it is exactly that
+	 *  being asked for.
+	 *
+	 *  If the key is found in the table, the tag will be filled with
+	 *  the data associated with the key.  If the key is not found,
+	 *  the tag will be unmodified.
+	 *
+	 *  @param key  The key to look for in the table
+	 *  @param tag  A tag object to fill with the value if found.
+	 *
+	 *  @return true if key is found in table,
+	 *          false if key is not found in table.
+	 */
+	virtual bool get_exact_entry(const QuartzDbKey &key,
+				     QuartzDbTag & tag) const = 0;
+
+	/** Modify the entries in the table.
+	 *
+	 *  Each key / tag pair is added to the table.
+	 *
+	 *  If the key already exists in the table, the existing tag
+	 *  is replaced by the supplied one.
+	 *
+	 *  If an entry is specified with a null pointer for the tag, then
+	 *  the entry will be removed from the table, if it exists.  If
+	 *  it does not exist, no action will be taken.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by a return value of false.  The table will be left in an
+	 *  unmodified state.
+	 *
+	 *  @param entries       The key / tag pairs to store in the table.
+	 *  @param new_revision  The new revision number to store.  This must
+	 *          be greater than the latest revision number (see
+	 *          get_latest_revision_number()), or undefined behaviour will
+	 *          result.  If not specified, the new revision number will be
+	 *          the current one plus 1.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
+	 */
+	virtual bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+				 QuartzRevisionNumber new_revision) = 0;
+};
+
 /** Class managing a table in a Quartz database.
  *
  *  A table is a store holding a set of key/tag pairs.  See the
  *  documentation for QuartzDbKey and QuartzDbTag for details of what
  *  comprises a valid key or tag.
  */
-class QuartzDbTable {
+class QuartzDiskTable : public QuartzTable {
     private:
 	/// Copying not allowed
-	QuartzDbTable(const QuartzDbTable &);
+	QuartzDiskTable(const QuartzDiskTable &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDbTable &);
+	void operator=(const QuartzDiskTable &);
 
 	/** Store the data in memory for now.  FIXME: this is only to assist
 	 *  the early development.
@@ -168,7 +266,7 @@ class QuartzDbTable {
 
 	/** The current revision number.
 	 */
-	QuartzRevisionNumber(revision);
+	QuartzRevisionNumber revision;
 
     public:
 	/** Create a new table.  This does not open the table - the open()
@@ -178,12 +276,11 @@ class QuartzDbTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	QuartzDbTable(string path_,
-		      bool readonly_);
+	QuartzDiskTable(string path_, bool readonly_);
 
 	/** Close the table.
 	 */
-	~QuartzDbTable();
+	~QuartzDiskTable();
 
 	/** Open the table at the specified revision.
 	 *
@@ -226,77 +323,54 @@ class QuartzDbTable {
 	 */
 	QuartzRevisionNumber get_latest_revision_number() const;
 
-	/** Return a count of the number of entries in the table.
-	 *
-	 *  @return THe number of entries in the table.
+	/** Virtual methods of QuartzTable.
 	 */
+	//@{
 	quartz_tablesize_t get_entry_count() const;
-
-	/** Read an entry from the table.
-	 *
-	 *  If the key is found in the table, the tag will be filled with
-	 *  the data associated with the key.
-	 *
-	 *  If the key is not found, the key will be set to the value of
-	 *  the key preceding that asked for, and the tag will be filled
-	 *  with the data associated with that key.
-	 *
-	 *  If there is no key preceding that asked for, the key and tag
-	 *  will be set to a null value.  Note that, if you are testing
-	 *  for this condition, you should test whether the key has a null
-	 *  value, since null tag values are allowed to be stored in
-	 *  tables.
-	 *
-	 *  @param key  The key to look for in the table.
-	 *  @param tag  A tag object to fill with the value found.
-	 *
-	 *  @return true if the exact key was found in the table, false
-	 *          otherwise.
-	 */
 	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
-
-	/** Read an entry from the table, if and only if it is exactly that
-	 *  being asked for.
-	 *
-	 *  If the key is found in the table, the tag will be filled with
-	 *  the data associated with the key.  If the key is not found,
-	 *  the tag will be unmodified.
-	 *
-	 *  @param key  The key to look for in the table
-	 *  @param tag  A tag object to fill with the value if found.
-	 *
-	 *  @return true if key is found in table,
-	 *          false if key is not found in table.
-	 */
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
-
-	/** Modify the entries in the table.
-	 *
-	 *  Each key / tag pair is added to the table.
-	 *
-	 *  If the key already exists in the table, the existing tag
-	 *  is replaced by the supplied one.
-	 *
-	 *  If an entry is specified with a null pointer for the tag, then
-	 *  the entry will be removed from the table, if it exists.  If
-	 *  it does not exist, no action will be taken.
-	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  The table will be left in an
-	 *  unmodified state.
-	 *
-	 *  @param entries       The key / tag pairs to store in the table.
-	 *  @param new_revision  The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.  If not specified, the new revision number will be
-	 *          the current one plus 1.
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
-	 */
 	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 			 QuartzRevisionNumber new_revision);
+	//@}
+};
+
+/** Class managing a table in a Quartz database.
+ *
+ *  A table is a store holding a set of key/tag pairs.  See the
+ *  documentation for QuartzDbKey and QuartzDbTag for details of what
+ *  comprises a valid key or tag.
+ */
+class QuartzModifiedTable : public QuartzTable {
+    private:
+	/// Copying not allowed
+	QuartzModifiedTable(const QuartzModifiedTable &);
+
+	/// Assignment not allowed
+	void operator=(const QuartzModifiedTable &);
+
+	/// The underlying table
+	QuartzDiskTable disktable;
+
+    public:
+	/** Create a new table.  This does not open the table - the open()
+	 *  method must be called before use is made of the table.
+	 *
+	 */
+	QuartzModifiedTable(QuartzDiskTable disktable_);
+
+	/** Close the table.
+	 */
+	~QuartzModifiedTable();
+
+	/** Virtual methods of QuartzTable.
+	 */
+	//@{
+	quartz_tablesize_t get_entry_count() const;
+	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+			 QuartzRevisionNumber new_revision);
+	//@}
 };
 
 #endif /* OM_HGUARD_QUARTZ_TABLE_H */

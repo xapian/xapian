@@ -1,3 +1,9 @@
+Tue Oct  3 14:28:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* QuartzDbTable becomes QuartzDiskTable, which inherits from
+	  QuartzTable, and is a sibling of QuartzModifiedTable, which will
+	  manage a modified table.
+
 Tue Oct  3 13:56:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a topological sort of the input nodes before building the

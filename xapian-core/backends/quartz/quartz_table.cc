@@ -128,8 +128,7 @@ readfile(string filename,
     fclose(fp);
 }
 
-QuartzDbTable::QuartzDbTable(string path_,
-			     bool readonly_)
+QuartzDiskTable::QuartzDiskTable(string path_, bool readonly_)
 	: path(path_),
           readonly(readonly_),
 	  revision(0)
@@ -137,7 +136,7 @@ QuartzDbTable::QuartzDbTable(string path_,
 }
 
 void
-QuartzDbTable::open()
+QuartzDiskTable::open()
 {
     // FIXME implement
     std::map<QuartzDbKey, QuartzDbTag> data1;
@@ -156,7 +155,7 @@ QuartzDbTable::open()
 }
 
 bool
-QuartzDbTable::open(QuartzRevisionNumber revision_)
+QuartzDiskTable::open(QuartzRevisionNumber revision_)
 {
     // FIXME implement
     std::map<QuartzDbKey, QuartzDbTag> data1;
@@ -177,18 +176,18 @@ QuartzDbTable::open(QuartzRevisionNumber revision_)
     return true;
 }
 
-QuartzDbTable::~QuartzDbTable()
+QuartzDiskTable::~QuartzDiskTable()
 {
 }
 
 QuartzRevisionNumber
-QuartzDbTable::get_open_revision_number() const
+QuartzDiskTable::get_open_revision_number() const
 {
     return revision;
 }
 
 QuartzRevisionNumber
-QuartzDbTable::get_latest_revision_number() const
+QuartzDiskTable::get_latest_revision_number() const
 {
     // FIXME: replace with a call to martin's code
     std::map<QuartzDbKey, QuartzDbTag> data1;
@@ -204,13 +203,13 @@ QuartzDbTable::get_latest_revision_number() const
 }
 
 quartz_tablesize_t
-QuartzDbTable::get_entry_count() const
+QuartzDiskTable::get_entry_count() const
 {
     return data.size();
 }
 
 bool
-QuartzDbTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
+QuartzDiskTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 {
     Assert(!(key.value.empty()));
 
@@ -240,7 +239,7 @@ QuartzDbTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 }
 
 bool
-QuartzDbTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
+QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
     Assert(!(key.value.empty()));
 
@@ -254,8 +253,8 @@ QuartzDbTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 }
 
 bool
-QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			   QuartzRevisionNumber new_revision)
+QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+			     QuartzRevisionNumber new_revision)
 {
     if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
 

@@ -94,23 +94,23 @@ class QuartzTableManager {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	QuartzDbTable postlist_table;
+	QuartzDiskTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	QuartzDbTable positionlist_table;
+	QuartzDiskTable positionlist_table;
 
 	/** Table storing term lists.
 	 */
-	QuartzDbTable termlist_table;
+	QuartzDiskTable termlist_table;
 
 	/** Table storing lexicon.
 	 */
-	QuartzDbTable lexicon_table;
+	QuartzDiskTable lexicon_table;
 
 	/** Table storing keys.
 	 */
-	QuartzDbTable attribute_table;
+	QuartzDiskTable attribute_table;
 
 	/** Table storing records.
 	 *
@@ -120,7 +120,7 @@ class QuartzTableManager {
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
-	QuartzDbTable record_table;
+	QuartzDiskTable record_table;
 
 
 	/** Pointer to object to log modifications.

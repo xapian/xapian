@@ -47,7 +47,7 @@ class QuartzDiffs {
 
 	/** Table which blocks come from / get written to.
 	 */
-	QuartzDbTable * table;
+	QuartzDiskTable * table;
 
 	/** Get a pointer to the tag for a given key.
 	 *
@@ -72,7 +72,7 @@ class QuartzDiffs {
     public:
 	/** Construct the diffs object.
 	 */
-	QuartzDiffs(QuartzDbTable * table_) : table(table_) {}
+	QuartzDiffs(QuartzDiskTable * table_) : table(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 *
@@ -119,7 +119,7 @@ class QuartzPostListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPostListDiffs(QuartzDbTable * table_)
+	QuartzPostListDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -146,7 +146,7 @@ class QuartzPositionListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPositionListDiffs(QuartzDbTable * table_)
+	QuartzPositionListDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -169,7 +169,7 @@ class QuartzTermListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzTermListDiffs(QuartzDbTable * table_)
+	QuartzTermListDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -186,7 +186,7 @@ class QuartzRecordDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzRecordDiffs(QuartzDbTable * table_)
+	QuartzRecordDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -207,7 +207,7 @@ class QuartzLexiconDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzLexiconDiffs(QuartzDbTable * table_)
+	QuartzLexiconDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -224,7 +224,7 @@ class QuartzAttributeDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzAttributeDiffs(QuartzDbTable * table_)
+	QuartzAttributeDiffs(QuartzDiskTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
