@@ -47,7 +47,14 @@ Priority | Area            | Task
  High    |CDistribution    | Make timeouts configurable with a sensible
          |                 | default.
 ---------+-----------------+--------------------------------------------------
- High    |CDistribution    | Add support for Expand
+ High    | Distribution    | Add support for Expand
+---------+-----------------+--------------------------------------------------
+ Medium  | LocalMatch      | Make query a local variable of get_mset(), rather
+         |                 | than a member of the class.
+---------+-----------------+--------------------------------------------------
+ Medium  | Matchers        | Make get_mset() (and MultiMatch::match()) return
+         |                 | msets rather than setting a call by reference
+	 |                 | parameter.  Change match() to get_mset().
 ---------+-----------------+--------------------------------------------------
  Medium  | MatchOptions    | Pass all options to matcher (sort order,
          |                 | weighting scheme, and max query terms) right
