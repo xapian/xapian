@@ -127,6 +127,10 @@ main(unsigned int argc, const char **argv)
         exit(1);
     }
 
+    scvs_log    = "cvs -l -f -d " + scvs_root + " log -b ";
+    scvs_diff   = "cvs -l -f -d " + scvs_root + " diff -b ";
+    scvs_update = "cvs -l -f -d " + scvs_root + " update -p ";
+
     ofstream cmt_fout   (scmt_db.c_str());
     ofstream offset_fout (soffset_db.c_str());
     ofstream stats_fout  (sstats_file.c_str());
