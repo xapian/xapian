@@ -13,10 +13,10 @@ install:
 	$(INSTALL) xapian.py $(PY_DESTDIR)
 
 omstem_wrap.cc: ../swig/omstem.i ../swig/om_util.i
-	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $(srcdir)/../swig/omstem.i
+	$(SWIG) $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $(srcdir)/../swig/omstem.i
 
 xapian_wrap.cc: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_python.i
-	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $(srcdir)/../swig/xapian.i
+	$(SWIG) $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $(srcdir)/../swig/xapian.i
 
 omstem.py: omstem_wrap.cc
 

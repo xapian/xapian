@@ -1,3 +1,7 @@
+Thu Jun 05 01:28:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/python/Makefile.am: Use $(SWIG) (as detected by configure).
+
 Thu Jun 05 00:46:16 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,bindings/Makefile.am,bindings/python/Makefile.am:
