@@ -174,6 +174,7 @@ Match::match()
             // an OR maybe have become and ANDMAYBE which needs its weights
             // initialising
 	    w_max = merger->recalc_maxweight();
+	    recalculate_maxweight = false;
 	    cout << "max possible doc weight = " << w_max << " (recalculated)" << endl;
 	    if (w_max < w_min) {
 		cout << "*** TERMINATING EARLY" << endl;
