@@ -1,6 +1,6 @@
 Xapian 0.7.3 (2003-08-08):
 
-API
+API:
 
 * MSetIterator: Fixed MSetIterator::get_document() to work when get_mset() was
   called with first != 0 (regression test msetiterator3).
@@ -95,7 +95,7 @@ documentation:
   These Terms to Your New Programs"
 
 * PLATFORMS: Updated some linux results: RH7.3 on x86, and Debian on alpha and
-  armr; Updated FreeBSD success report; Updated with results from the tinderbox.
+  arm; Updated FreeBSD success report; Updated with results from the tinderbox.
 
 * docs/mkdoc.pl: Don't choke on a comment at the end of the DIST_SUBDIRS line
   in a Makefile.am.
@@ -241,7 +241,7 @@ API:
 * Updated omega and xapian-examples to use Xapian namespace.
 
 queryparser:
-  
+
 * Xapian::QueryParser: Accent normalisation added; Improved error reporting;
   Fixed to handle the most common examples found in the wild which used to give
   "parse error".
@@ -250,7 +250,7 @@ bindings:
 
 * Python bindings brought up to date - use ./configure --enable-bindings to
   build them.  Requires Python >= 2.0 - may require Python >= 2.1.
-  
+
 * Enabled optional building of bindings as part of normal build process.  Old
   Perl and Java bindings dropped; for Perl, use Search::Xapian from CPAN; Java
   JNI bindings will be replaced with a SWIG-based implmentation.
@@ -355,7 +355,7 @@ Xapian 0.6.5 (2003-04-10):
 
 * OmEnquire: optimised the handling when sort_bands == 1 and fixed incorrect
   results in this and some other sorting cases; added some sorting testcases.
-  
+
 * OmMSetIterator: added get_collapse_count() which returns a lower bound on
   the number of items which were removed by collapsing onto the current item.
 
@@ -414,9 +414,9 @@ Xapian 0.6.5 (2003-04-10):
 
 * omega: Added $transform{} which does regexp manipulation (currently disabled
   until configure tests for regexp library are added)
-	  
+	
 * omega: Added $uniq{} to eliminate duplicates from a sorted list.
-	  
+	
 * omega: Don't force page 1 for a query with repeated terms!
 
 * omega: removed duplicates from terms listed in term frequencies.
@@ -514,7 +514,7 @@ Xapian 0.6.3 (2002-12-14):
 
 * No longer use OmSettings to pass matcher parameters.  This completes the
   removal of OmSettings.
-  
+
 * Added workaround for problem with cursors sharing levels in the btree.
   This should fix sporadic problems with large databases (small databases
   have fewer btree levels so aren't affected).
@@ -722,12 +722,12 @@ summarised the most notable changes and improvements:
         instructive examples which demonstrate how to use Xapian to implement
         particularly features.
       + Added "xapian-applications" which contains larger sample applications
-      
+    
   * Much improved build system - should now build "out of the box" on many Unix
     platforms. Can now VPATH build with vendor tools on most platforms. Builds
     as cleanly as we can achieve with GCC 2.95.* (some bogus warnings due to
     compiler bugs). Should build without warnings on GCC 3.0, 3.1, and 3.2.
-    
+  
   * If using GCC, om/om.h now contains a check that the compiler used to build
     Xapian and the compiler used to build the application have compatible C++
     ABIs. So you get a clear error message early from the first attempt to
@@ -761,7 +761,7 @@ summarised the most notable changes and improvements:
     a value is used as a key in some operation, e.g. "match_collapse_key".
 
   * Database backends:
-  
+
       + Auto backend: can now be used to create a new database.
       + Auto backend: added support for "stub" databases - a text file
         specifying the settings for the database to be opened (particularly
