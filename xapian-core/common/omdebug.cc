@@ -70,6 +70,9 @@ OmDebug::~OmDebug()
 bool
 OmDebug::want_type(enum om_debug_types type)
 {
+    if (unwanted_types.size() == 0) {
+	return true;
+    }
     if (unwanted_types.size() <= static_cast<unsigned int>(type) ||
 	unwanted_types[type] == true) {
 	return false;
