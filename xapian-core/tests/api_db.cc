@@ -1934,6 +1934,169 @@ static bool test_adddoc1()
     return true;    
 }
 
+// test that indexing a term more than once at the same position increases
+// the wdf
+static bool test_adddoc2()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("bar", 3);
+    doc1.add_posting("gone", 1);
+    om_docid did;
+
+    OmDocument doc2 = db.get_document(did = db.add_document(doc1));
+    TEST_EQUAL(did, 1);
+
+    OmTermIterator iter1 = doc1.termlist_begin();
+    OmTermIterator iter2 = doc2.termlist_begin();
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "bar");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 1);
+    TEST_EQUAL(iter2.get_wdf(), 1);
+    TEST_EQUAL(iter1.get_termfreq(), 0);
+    TEST_EQUAL(iter2.get_termfreq(), 1);
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "foo");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 4);
+    TEST_EQUAL(iter2.get_wdf(), 4);
+    TEST_EQUAL(iter1.get_termfreq(), 0);
+    TEST_EQUAL(iter2.get_termfreq(), 1);
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "gone");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 1);
+    TEST_EQUAL(iter2.get_wdf(), 1);
+    TEST_EQUAL(iter1.get_termfreq(), 0);
+    TEST_EQUAL(iter2.get_termfreq(), 1);
+
+    iter1++;
+    iter2++;
+    TEST(iter1 == doc1.termlist_end());
+    TEST(iter2 == doc2.termlist_end());
+
+
+
+    doc2.remove_posting("foo", 1, 5);
+    doc2.set_wdf("bar", 9);
+    doc2.set_wdf("bat", 0);
+    doc2.add_term("bar");
+    doc2.add_term("bag");
+    doc2.remove_term("gone");
+
+    // Should have (doc,wdf) pairs: (bag,0)(bar,9)(bat,0)(foo,0)
+    // positionlists (bag,none)(bar,3)(bat,none)(foo,2)
+
+    iter2 = doc2.termlist_begin();
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter2, "bag");
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    iter2++;
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter2, "bar");
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    iter2++;
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter2, "bat");
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    iter2++;
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter2, "foo");
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    iter2++;
+    TEST(iter2 == doc2.termlist_end());
+
+    doc1 = db.get_document(did = db.add_document(doc2));
+    TEST_EQUAL(did, 2);
+
+    iter1 = doc1.termlist_begin();
+    iter2 = doc2.termlist_begin();
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "bag");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 0);
+    TEST_EQUAL(iter2.get_wdf(), 0);
+    TEST_EQUAL(iter1.get_termfreq(), 1);
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    TEST(iter1.positionlist_begin() == iter1.positionlist_end());
+    TEST(iter2.positionlist_begin() == iter2.positionlist_end());
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "bar");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 9);
+    TEST_EQUAL(iter2.get_wdf(), 9);
+    TEST_EQUAL(iter1.get_termfreq(), 2);
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+
+    OmPositionListIterator pi1 = iter1.positionlist_begin();
+    OmPositionListIterator pi2 = iter2.positionlist_begin();
+    TEST_EQUAL(*pi1, 3); pi1++;
+    TEST_EQUAL(*pi2, 3); pi2++;
+    TEST(pi1 == iter1.positionlist_end());
+    TEST(pi2 == iter2.positionlist_end());
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "bat");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 0);
+    TEST_EQUAL(iter2.get_wdf(), 0);
+    TEST_EQUAL(iter1.get_termfreq(), 1);
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+    TEST(iter1.positionlist_begin() == iter1.positionlist_end());
+    TEST(iter2.positionlist_begin() == iter2.positionlist_end());
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "foo");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 0);
+    TEST_EQUAL(iter2.get_wdf(), 0);
+    TEST_EQUAL(iter1.get_termfreq(), 2);
+    TEST_EQUAL(iter2.get_termfreq(), 0);
+
+    OmPositionListIterator temp1 = iter1.positionlist_begin();
+    pi1 = temp1;
+    OmPositionListIterator temp2 = iter2.positionlist_begin();
+    pi2 = temp2;
+    TEST_EQUAL(*pi1, 2); pi1++;
+    TEST_EQUAL(*pi2, 2); pi2++;
+    TEST(pi1 == iter1.positionlist_end());
+    TEST(pi2 == iter2.positionlist_end());
+
+    iter1++;
+    iter2++;
+    TEST(iter1 == doc1.termlist_end());
+    TEST(iter2 == doc2.termlist_end());
+
+    return true;    
+}
+
 // tests that database destructors flush if it isn't done explicitly
 static bool test_implicitendsession1()
 {
@@ -2308,6 +2471,7 @@ test_desc collfreq_tests[] = {
 /// The tests which use a writable backend
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
+    {"adddoc2",		   test_adddoc2},
     {"implicitendsession1",test_implicitendsession1},
     {"databaseassign1",	   test_databaseassign1},
     {0, 0}

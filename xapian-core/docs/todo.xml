@@ -85,7 +85,13 @@ Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 Add query operator to filter on weight / percentage weight.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="General" release="0.9">
+<todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
+
+Allow setting of the document length in OmDocument.  (Currently defined to
+be the sum of the wdfs).
+
+</todoitem>
+<todoitem priority="M" difficulty="4" owner="" area="OmQuery" release="0.9">
 
 Rework OmQuery interface.
 
@@ -415,6 +421,13 @@ it makes sense (or note in documentation to use FILTER).
 Boolean filters result in collection statistics being for the wrong set of
 documents (should be appropriate subset).  Hard (impossible?) to implement
 efficiently.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="API" release="1.0">
+
+Make OmPositionListIterators and any other appropriate iterators (postlist,
+termlist) have a default constructor allowing them to be declared
+uninitialised.
 
 </todoitem>
 </todo>

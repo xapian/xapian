@@ -1,3 +1,8 @@
+Mon Feb  5 19:12:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Test behaviour of OmDocument methods add_term(), set_wdf(),
+	  remove_posting() and remove_term().  Fails for inmemory databases.
+
 Mon Feb  5 17:46:16 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Modified the behaviour of timeouts during a match.  Internally,
