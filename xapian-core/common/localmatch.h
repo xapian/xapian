@@ -138,8 +138,7 @@ class LocalMatch : public SingleMatch
 			      map<OmKey, OmMSetItem> &collapse_table,
 			      om_docid did,
 			      const OmMSetItem &new_item,
-			      const OmMSetItem &min_item,
-			      const LeafDocument *irdoc);
+			      const OmMSetItem &min_item);
 
 	// disallow copies
 	LocalMatch(const LocalMatch &);

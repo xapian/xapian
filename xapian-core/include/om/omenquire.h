@@ -384,6 +384,22 @@ class OmMSetItem {
 
 	/** Document id. */
 	om_docid did;
+
+	/** Key which was used to collapse upon.
+	 *
+	 *  If the collapse option is not being used, this will always
+	 *  have a null value.
+	 *
+	 *  If a key of collapsing upon is specified, this will contain
+	 *  the key for this particular item.  If the key is not present
+	 *  for this item, the value will be a null string.  Only one
+	 *  instance of each key value (apart from the null string) will
+	 *  be present in the items in the returned OmMSet.
+	 *
+	 *  See OmMatchOptions::set_collapse_key() for more information
+	 *  about setting a key to collapse upon.
+	 */
+	OmKey collapse_key;
 };
 
 /** A match set (MSet).

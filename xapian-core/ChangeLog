@@ -1,3 +1,10 @@
+Tue May  9 14:45:44 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* OmMSetItems now have a collapse_key member, which the key used
+	  for removal of duplicates is stored in.  This allows MultiMatch
+	  to see these keys, and thus to remove duplicates across several
+	  matchers, and also lets the user see the keys used.
+
 Tue May  9 13:12:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New exception: OmNetworkTimeoutError.

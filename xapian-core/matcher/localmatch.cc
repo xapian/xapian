@@ -430,25 +430,22 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
          		  map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
-			  const OmMSetItem &min_item,
-			  const LeafDocument *irdoc)
+			  const OmMSetItem &min_item)
 {
-    OmKey irkey = irdoc->get_key(collapse_key);
-
     // Don't collapse on null key
-    if(irkey.value.size() == 0) return true;
+    if(new_item.collapse_key.value.size() == 0) return true;
 
     bool add_item = true;
     map<OmKey, OmMSetItem>::iterator oldkey;
-    oldkey = collapse_table.find(irkey);
+    oldkey = collapse_table.find(new_item.collapse_key);
     if(oldkey == collapse_table.end()) {
-	DebugMsg("collapsem: new key: " << irkey.value << endl);
+	DebugMsg("collapsem: new key: " << new_item.collapse_key.value << endl);
 	// Key not been seen before
-	collapse_table.insert(pair<OmKey, OmMSetItem>(irkey, new_item));
+	collapse_table.insert(pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if(mcmp(olditem, new_item)) {
-	    DebugMsg("collapsem: better exists: " << irkey.value << endl);
+	    DebugMsg("collapsem: better exists: " << new_item.collapse_key.value << endl);
 	    // There's already a better match with this key
 	    add_item = false;
 	} else {
@@ -459,7 +456,7 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
 		// Scan through (unsorted) MSet looking for entry
 		// FIXME: more efficient way that just scanning?
 		om_weight olddid = olditem.did;
-		DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
+		DebugMsg("collapsem: removing " << olddid << ": " << new_item.collapse_key.value << endl);
 		vector<OmMSetItem>::iterator i = mset.begin();
 		for(;;) {
 		    if(i->did == olddid) {
@@ -629,9 +626,9 @@ LocalMatch::get_mset(om_doccount first,
 		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
+		new_item.collapse_key = irdoc.get()->get_key(collapse_key);
 		add_item = perform_collapse(mset, collapse_table, did,
-					    new_item, min_item,
-					    irdoc.get());
+					    new_item, min_item);
 	    }
 
 	    if(add_item) {
