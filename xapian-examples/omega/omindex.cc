@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string.h>
 
 #include <om/om.h>
 
@@ -256,6 +257,10 @@ index_file(const string &url, const string &mimetype)
 	    dump += line + '\n';
 	}
 	in.close();
+    } else {
+	// Don't know how to index this
+	cout << "unknown MIME type - skipping\n";
+	return;
     }
 
     OmStem stemmer("english");    
@@ -310,7 +315,7 @@ index_file(const string &url, const string &mimetype)
 }
 
 static void
-index_directory(const string &dir)
+index_directory(const string &dir, const map<string, string>& mime_map)
 {
     DIR *d;
     struct dirent *ent;
@@ -334,7 +339,7 @@ index_directory(const string &dir)
 	}
 	if (S_ISDIR(statbuf.st_mode)) {
 	    try {
-		index_directory(url);
+		index_directory(url, mime_map);
 	    }
 	    catch (...) {
 		cout << "Caught unknown exception in index_directory, rethrowing" << endl;
@@ -346,14 +351,12 @@ index_directory(const string &dir)
 	    string ext;
 	    string::size_type dot = url.find_last_of('.');
 	    if (dot != string::npos) ext = url.substr(dot + 1);
-	    if (ext == "html" || ext == "htm" || ext == "shtml")
-		index_file(url, "text/html");
-	    else if (ext == "txt" || ext == "text")
-		index_file(url, "text/plain");	    
-	    else if (ext == "pdf")
-		index_file(url, "application/pdf");
-	    else if (ext == "ps" || ext == "eps" || ext == "ai")
-		index_file(url, "application/postscript");	    
+
+	    map<string,string>::const_iterator mt;
+	    if ((mt = mime_map.find(ext))!=mime_map.end()) {
+	      // If it's in our MIME map, presumably we know how to index it
+	      index_file(url, mt->second);
+	    }
 	    continue;
 	}
 	cout << "Not a regular file \"" << file << "\" - skipping\n";
@@ -365,9 +368,10 @@ int
 main(int argc, char **argv)
 {
     // getopt
-    char* optstring = "hvd:D:U:";
-    struct option longopts[6];
+    char* optstring = "hvd:D:U:M:";
+    struct option longopts[7];
     int longindex, getopt_ret;
+
     longopts[0].name = "help";
     longopts[0].has_arg = 0;
     longopts[0].flag = NULL;
@@ -388,6 +392,21 @@ main(int argc, char **argv)
     longopts[4].has_arg = required_argument;
     longopts[4].flag = NULL;
     longopts[4].val = 'U';
+    longopts[5].name = "mime-map";
+    longopts[5].has_arg = required_argument;
+    longopts[5].flag = NULL;
+    longopts[5].val = 'M';
+
+    map<string, string> mime_map = map<string, string>();
+    mime_map["txt"] = "text/plain";
+    mime_map["text"] = "text/plain";
+    mime_map["html"] = "text/html";
+    mime_map["htm"] = "text/html";
+    mime_map["shtml"] = "text/html";
+    mime_map["pdf"] = "application/pdf";
+    mime_map["ps"] = "application/postscript";
+    mime_map["eps"] = "application/postscript";
+    mime_map["ai"] = "application/postscript";
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
 				     longopts, &longindex))!=EOF) {
@@ -401,6 +420,7 @@ main(int argc, char **argv)
 		 << "  \t\t\tone of `ignore', `replace', `duplicate'" << endl
 		 << "  -D, --db\t\tpath to database to use" << endl
 		 << "  -U, --url\t\tbase url DIRECTORY represents" << endl
+	         << "  -M, --mime-type\t\tadditional MIME mapping ext:type" << endl
 		 << "  -h, --help\t\tdisplay this help and exit" << endl
 		 << "  -v --version\t\toutput version and exit" << endl << endl
 		 << "Report bugs via the web interface at:" << endl
@@ -428,6 +448,18 @@ main(int argc, char **argv)
 		break;
 	    }
 	    break;
+	case 'M':
+	    {
+		char* s;
+		if ((s = strchr(optarg, ':'))!=NULL && s[1]!=0) {
+		mime_map[string(optarg, s - optarg)] = string(s+1);
+		} else {
+		    cerr << "Illegal MIME mapping '" << optarg << "'" << endl;
+		    cerr << "Should be of the form ext:type, eg txt:text/plain" << endl;
+		    return 1;
+		}
+	    }
+	    break;
 	case 'D':
 	    dbpath = optarg;
 	    break;
@@ -435,11 +467,8 @@ main(int argc, char **argv)
 	    baseurl = optarg;
 	    break;
 	case ':': // missing param
-	    cerr << OMINDEX << ": missing parameter for option '" <<
-		 longopts[longindex].name << "'.\n";
 	    return 1;
 	case '?': // unknown option: FIXME -> char
-	    cerr << OMINDEX << ": unknown option '" << optopt << "'.\n";
 	    return 1;
 	}
     }
@@ -477,7 +506,7 @@ main(int argc, char **argv)
 	    params.set("database_create", true);
 	    db = new OmWritableDatabase(params);
 	}
-	index_directory("/");
+	index_directory("/", mime_map);
 	//      db->reopen(); // Ensure we're up to date
 	//      cout << "\n\nNow we have " << db->get_doccount() << " documents.\n";
 	delete db;
