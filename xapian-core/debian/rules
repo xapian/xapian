@@ -1,0 +1,169 @@
+#!/usr/bin/make -f
+
+# These soversion numbers need to be updated whenever the version numbers
+# in Makefile.am and extra/Makefile.am are updated.
+libxapian_soversion=2
+libqueryparser_soversion=1
+
+# For now, we're only supporting installation of the latest development
+# files.  Xapian changes are likely to be almost completely API compatible,
+# so this seems reasonable.
+libxapian_dev_soversion=
+libqueryparser_dev_soversion=
+
+export DH_COMPAT=3
+export DH_OPTIONS
+
+export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	confflags += --build $(DEB_HOST_GNU_TYPE)
+else
+	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+maint: \
+	debian/control \
+	debian/libxapian$(libxapian_soversion).install \
+	debian/libxapian$(libxapian_soversion).postinst \
+	debian/libxapian$(libxapian_soversion).postrm \
+	debian/libxapian$(libxapian_dev_soversion)-dev.install \
+	debian/libxapian-queryparser$(libqueryparser_soversion).install \
+	debian/libxapian-queryparser$(libqueryparser_soversion).postinst \
+	debian/libxapian-queryparser$(libqueryparser_soversion).postrm \
+	debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
+
+maintclean:
+	rm -f debian/control
+	rm -f debian/libxapian$(libxapian_soversion).install
+	rm -f debian/libxapian$(libxapian_soversion).postinst
+	rm -f debian/libxapian$(libxapian_soversion).postrm
+	rm -f debian/libxapian$(libxapian_dev_soversion)-dev.install
+	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).install
+	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).postinst
+	rm -f debian/libxapian-queryparser$(libqueryparser_soversion).postrm
+	rm -f debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
+	rm -rf debian/libxapian$(libxapian_soversion)
+	rm -rf debian/libxapian$(libxapian_dev_soversion)-dev
+	rm -rf debian/libxapian-queryparser$(libqueryparser_soversion)
+	rm -rf debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev
+	rm -rf debian/xapian-doc
+	rm -rf debian/xapian-tools
+	rm -rf debian/tmp
+
+debian/control: debian/rules debian/control.in
+	cat debian/control.in | \
+		sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' | \
+		sed 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' | \
+		sed 's/@LIBQUERYPARSER_SOVERSION@/$(libqueryparser_soversion)/g' | \
+		sed 's/@LIBQUERYPARSER_DEV_SOVERSION@/$(libqueryparser_dev_soversion)/g' \
+		> debian/control
+
+debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
+	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
+debian/libxapian$(libxapian_soversion).postinst: debian/rules debian/libxapianVERSION.postinst
+	cp -f debian/libxapianVERSION.postinst debian/libxapian$(libxapian_soversion).postinst
+debian/libxapian$(libxapian_soversion).postrm: debian/rules debian/libxapianVERSION.postrm
+	cp -f debian/libxapianVERSION.postrm debian/libxapian$(libxapian_soversion).postrm
+
+debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
+	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
+
+debian/libxapian-queryparser$(libqueryparser_soversion).install: debian/rules debian/libxapian-queryparserVERSION.install
+	cp -f debian/libxapian-queryparserVERSION.install debian/libxapian-queryparser$(libqueryparser_soversion).install
+debian/libxapian-queryparser$(libqueryparser_soversion).postinst: debian/rules debian/libxapian-queryparserVERSION.postinst
+	cp -f debian/libxapian-queryparserVERSION.postinst debian/libxapian-queryparser$(libqueryparser_soversion).postinst
+debian/libxapian-queryparser$(libqueryparser_soversion).postrm: debian/rules debian/libxapian-queryparserVERSION.postrm
+	cp -f debian/libxapian-queryparserVERSION.postrm debian/libxapian-queryparser$(libqueryparser_soversion).postrm
+
+debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install: debian/rules debian/libxapian-queryparserVERSION-dev.install
+	cp -f debian/libxapian-queryparserVERSION-dev.install debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
+
+commonconfflags := \
+	$(confflags) \
+	--prefix=/usr \
+	--mandir=\$${prefix}/share/man \
+	--infodir=\$${prefix}/share/info \
+	--sysconfdir=/etc \
+	--enable-maintainer-mode
+
+configure: debian/control configure-stamp
+configure-stamp:
+	dh_testdir
+	./configure $(commonconfflags)
+	touch configure-stamp
+
+build: configure build-stamp
+build-stamp:
+	dh_testdir
+	$(MAKE)
+	touch build-stamp
+
+install: DH_OPTIONS=
+install: build \
+	 debian/libxapian$(libxapian_soversion).install \
+	 debian/libxapian$(libxapian_soversion).postinst \
+	 debian/libxapian$(libxapian_soversion).postrm \
+	 debian/libxapian$(libxapian_dev_soversion)-dev.install \
+	 debian/libxapian-queryparser$(libqueryparser_soversion).install \
+	 debian/libxapian-queryparser$(libqueryparser_soversion).postinst \
+	 debian/libxapian-queryparser$(libqueryparser_soversion).postrm \
+	 debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Install the files into debian/*
+	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Reads the *.install files to decide where to install everything
+	dh_install --sourcedir=debian/tmp --list-missing
+
+
+binary: binary-arch binary-indep
+binary-indep: DH_OPTIONS=-i
+binary-indep:
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps -L libxapian$(libxapian_soversion) -ldebian/libxapian$(libxapian_soversion)/usr/lib:debian/libxapian-queryparser$(libqueryparser_soversion)/usr/lib
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+clean:
+	dh_testdir
+	dh_testroot
+	-$(MAKE) distclean
+	dh_clean
+	rm -f build-stamp configure-stamp
+
+.PHONY: maint configure build install binary binary-arch binary-indep clean

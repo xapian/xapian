@@ -1,0 +1,5 @@
+xapian-core (0.8-1) unstable; urgency=low
+
+  * Initial release, from upstream source snapshot.
+
+ -- Richard Boulton <richard@tartarus.org>  Sun,  9 May 2004 16:28:37 +0100

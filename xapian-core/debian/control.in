@@ -1,0 +1,116 @@
+Source: xapian-core
+Section: libs
+Priority: optional
+Maintainer: Richard Boulton <richard@tartarus.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 2.0.40), automake (>= 1.6.3), autoconf (>= 2.54), libtool (>= 1.5), bison (>= 1.35, != 1.875), doxygen, dot, perl5, latex, dvips
+
+Package: libxapian@LIBXAPIAN_SOVERSION@
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}
+Suggests: xapian-tools
+Description: Search engine library
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ This package contains the core Xapian runtime library.
+
+Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
+Architecture: any
+Section: libdevel
+Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-dev
+Recommends: xapian-doc (= ${Source-Version})
+Description: Development files for Xapian search engine library
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ This package contains development libraries and headers for the core Xapian
+ library.
+
+Package: libxapian-queryparser@LIBQUERYPARSER_SOVERSION@
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, libxapian@LIBXAPIAN_SOVERSION@
+Suggests: xapian-tools
+Description: Query parser for Xapian search engine library
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ The Xapian query parser is a flexible query parser, accepting a syntax
+ similar to that of popular web search engines, and converting this to a query
+ object suitable for use in the Xapian search engine library.
+ .
+ This package contains the runtime library for the Xapian query parser.
+
+Package: libxapian-queryparser@LIBQUERYPARSER_DEV_SOVERSION@-dev
+Architecture: any
+Section: libdevel
+Depends: libxapian-queryparser@LIBQUERYPARSER_SOVERSION@ (= ${Source-Version}), libxapian@LIBXAPIAN_DEV_SOVERSION@-dev, libc6-dev | libc-dev
+Recommends: xapian-doc (= ${Source-Version})
+Description: Development files for Xapian query parser
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ The Xapian query parser is a flexible query parser, accepting a syntax
+ similar to that of popular web search engines, and converting this to a query
+ object suitable for use in the Xapian search engine library.
+ .
+ This package contains development libraries and headers for the Xapian
+ query parser.
+
+Package: xapian-tools
+Architecture: any
+Section: utils
+Depends: ${shlibs:Depends}
+Description: Basic tools for Xapian search engine library
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ This package contains several tools related to Xapian.
+  - omtcpsrv: A simple TCP based server, used for searching across remote
+    databases.
+  - quartzcheck: Check the validity of a Xapian database.
+  - quartzcompact: Remove unused space in a Xapian database.
+  - quartzdump: Dump (part of) a Xapian database.
+
+Package: xapian-doc
+Architecture: all
+Section: doc
+Recommends: libxapian@LIBXAPIAN_SOVERSION@-dev (= ${Source-Version}), libxapian-queryparser@LIBQUERYPARSER_SOVERSION@-dev (= ${Source-Version})
+Description: Core Xapian documentation
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching. It is highly scaleable, and is capable of
+ working with collections containing many millions of documents.
+ .
+ This package contains general documentation about Xapian, and more detailed
+ API documentation.

@@ -1,0 +1,3 @@
+Man pages.  All binaries installed should have section 1 man pages.  In
+addition, a section 3 man page should be written to describe libxapian. (See
+the xml-config and libxml manpages for examples.)
