@@ -3,7 +3,7 @@
 # Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 AUTOMAKE_OPTIONS = 1.6.3
 
-bin_PROGRAMS = quest delve createdatabase copydatabase\
+bin_PROGRAMS = quest delve copydatabase\
 	simpleindex simplesearch simpleexpand
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
@@ -19,9 +19,6 @@ delve_LDADD = $(XAPIAN_LIBS)
 
 copydatabase_SOURCES = copydatabase.cc
 copydatabase_LDADD = $(XAPIAN_LIBS)
-
-createdatabase_SOURCES = createdatabase.cc
-createdatabase_LDADD = $(XAPIAN_LIBS)
 
 simpleindex_SOURCES = simpleindex.cc
 simpleindex_LDADD = $(XAPIAN_LIBS)
