@@ -66,16 +66,16 @@ OmDebug::initialise()
 	initialised = true;
 	// We get this as soon as we can - possible race condition exists here
 	// if the initialise() method is not explicitly called.
-	char * typestring = getenv(OM_ENV_DEBUG_FLAGS);
+	const char * typestring = getenv(OM_ENV_DEBUG_FLAGS);
 	if (!typestring) typestring = getenv("OM_DEBUG_TYPES"); // Old name
 	if (typestring) wanted_types = atoi(typestring);
 
 	const char * filename = getenv(OM_ENV_DEBUG_LOG);
 	if (!filename) filename = getenv("OM_DEBUG_FILE"); // Old name
 	if (filename) {
-	    string s = filename;
+	    string s(filename);
 	    string::size_type token = s.find("%%");
-	    if (token) {
+	    if (token != string::npos) {
 		s.replace(token, 2, om_tostring(getpid()));
 	    }
 
@@ -88,7 +88,7 @@ OmDebug::initialise()
 	    }
 	}
 
-	display_message(OM_DEBUG_UNKNOWN, "Xapian:: debugging version, initialised\n");
+	display_message(OM_DEBUG_UNKNOWN, "Xapian debug build initialised\n");
     }
 }
 
