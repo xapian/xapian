@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,6 +108,28 @@ class CmpMaxOrTerms {
 	}
 };
 
+LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
+	const Xapian::Query::Internal * query,
+	const Xapian::RSet & omrset, StatsGatherer *gatherer,
+	const Xapian::Weight *wtscheme_)
+	: statssource(new LocalStatsSource(gatherer)),
+	  is_prepared(false), users_query(*query), db(db_),
+	  querysize(query->qlen), wtscheme(wtscheme_)
+{
+    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
+	      db << ", " << query << ", " << omrset << ", " <<
+	      gatherer << ", [wtscheme]");
+    AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
+    rset = new_rset;
+
+    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
+}
+
+LocalSubMatch::~LocalSubMatch()
+{
+    DEBUGCALL(MATCH, void, "LocalSubMatch::~LocalSubMatch", "");
+}
+
 PostList *
 LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
@@ -196,15 +218,14 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
     RETURN(pl);
 }
 
+// Build nice tree for OR-ed postlists
+// Want postlists with most entries to be at top of tree, to reduce
+// average number of nodes an entry gets "pulled" through.
 PostList *
 LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 			     MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_or_tree", "[postlists], " << matcher);
-    // Build nice tree for OR-ed postlists
-    // Want postlists with most entries to be at top of tree, to reduce
-    // average number of nodes an entry gets "pulled" through.
-    //
     // Put postlists into a priority queue, such that those with greatest
     // term frequency are returned first.
     // FIXME: try using a heap instead (C++ sect 18.8)?
@@ -250,22 +271,19 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
     }
 }
 
-// Make a postlist from a vector of query objects.
-// Operation must be either AND or OR.
+// Make a postlist from the subqueries of a query objects.
+// Operation must be either AND, OR, XOR, PHRASE, NEAR, or ELITE_SET.
 // Optimise query by building tree carefully.
 PostList *
 LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
-				const Xapian::Query::Internal::subquery_list &queries,
-				Xapian::termpos window,
-				Xapian::termcount elite_set_size,
-				MultiMatch *matcher,
-				bool is_bool)
+	const Xapian::Query::Internal *query, MultiMatch *matcher, bool is_bool)
 {
-    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_queries", op << ", [queries], " << window << ", " << elite_set_size << ", " << matcher << ", " << is_bool);
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_queries", op << ", " << query << ", " << matcher << ", " << is_bool);
     Assert(op == Xapian::Query::OP_OR || op == Xapian::Query::OP_AND ||
 	   op == Xapian::Query::OP_XOR ||
 	   op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE ||
 	   op == Xapian::Query::OP_ELITE_SET);
+    const Xapian::Query::Internal::subquery_list &queries = query->subqs;
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
@@ -297,7 +315,7 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	{
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    RETURN(new NearPostList(res, window, postlists));
+	    RETURN(new NearPostList(res, query->window, postlists));
 	}
 
 	case Xapian::Query::OP_PHRASE:
@@ -308,14 +326,15 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    RETURN(new PhrasePostList(res, window, postlists_orig));
+	    RETURN(new PhrasePostList(res, query->window, postlists_orig));
 	}
 
 	case Xapian::Query::OP_ELITE_SET:
 	{
 	    // Select top terms
+	    Xapian::termcount elite_set_size = query->elite_set_size;
 	    DEBUGLINE(API, "Selecting top " << elite_set_size <<
-		      " terms, out of " << postlists.size() << ".");
+		      " subqueries, out of " << postlists.size() << ".");
 
 	    if (elite_set_size <= 0) {
 		std::vector<PostList *>::iterator i;
@@ -329,7 +348,7 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 		// Call recalc_maxweight() as otherwise get_maxweight()
 		// may not be valid before next() or skip_to()
 		std::vector<PostList *>::iterator j;
-		for (j = postlists.begin(); j != postlists.end(); j++)
+		for (j = postlists.begin(); j != postlists.end(); ++j)
 		    (*j)->recalc_maxweight();
 		std::nth_element(postlists.begin(),
 				 postlists.begin() + elite_set_size - 1,
@@ -340,7 +359,7 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 
 		std::vector<PostList *>::const_iterator i;
 		for (i = postlists.begin() + elite_set_size;
-		     i != postlists.end(); i++) {
+		     i != postlists.end(); ++i) {
 		    delete *i;
 		}
 		postlists.erase(postlists.begin() + elite_set_size,
@@ -425,10 +444,8 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	case Xapian::Query::OP_XOR:
 	case Xapian::Query::OP_ELITE_SET:
 	    // Build a tree of postlists for AND, OR, XOR, PHRASE, NEAR, or
-	    // ELITE_SET
-	    return postlist_from_queries(op, query->subqs,
-					 query->window, query->elite_set_size,
-					 matcher, is_bool);
+	    // ELITE_SET.
+	    return postlist_from_queries(op, query, matcher, is_bool);
 	case Xapian::Query::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
 	    // FIXME:
@@ -508,4 +525,10 @@ LocalSubMatch::get_postlist(Xapian::doccount maxitems, MultiMatch *matcher)
 	RETURN(pl);
     }
     RETURN(new ExtraWeightPostList(pl, extra_wt.release(), matcher));
+}
+
+const map<string, Xapian::MSet::Internal::TermFreqAndWeight>
+LocalSubMatch::get_term_info() const
+{
+    return term_info;
 }

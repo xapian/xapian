@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -223,10 +223,8 @@ static bool test_singlesubq1()
     oneterm.push_back("solo");
     Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end());
     q_eliteset.set_elite_set_size(1);
-    Xapian::Query q_near(Xapian::Query::OP_NEAR, oneterm.begin(), oneterm.end());
-    q_near.set_window(1);
-    Xapian::Query q_phrase(Xapian::Query::OP_PHRASE, oneterm.begin(), oneterm.end());
-    q_phrase.set_window(1);
+    Xapian::Query q_near(Xapian::Query::OP_NEAR, oneterm.begin(), oneterm.end(), 1);
+    Xapian::Query q_phrase(Xapian::Query::OP_PHRASE, oneterm.begin(), oneterm.end(), 1);
     return true;
 }
 

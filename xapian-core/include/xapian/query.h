@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,8 +94,8 @@ class Query {
 	     */
 	    OP_PHRASE,
 
-	    /** Select an elite set of terms from the subqueries, and perform
-	     *  a query with all those terms combined as an OR query.
+	    /** Select an elite set from the subqueries, and perform
+	     *  a query with these combined as an OR query.
 	     */
 	    OP_ELITE_SET
 	} op;
@@ -146,25 +146,19 @@ class Query {
 	 * 
 	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
 	 *  WEIGHT_CUTOFF takes only one subquery.
-	 *  Other operators take exactly two
-	 *  subqueries.
+	 *  Other operators take exactly two subqueries.
 	 *
 	 *  The iterators may be to Xapian::Query objects, pointers to
 	 *  Xapian::Query objects, or termnames (std::string-s).
+	 *
+	 *  For NEAR and PHRASE, a window size can be specified.
 	 */
 	template <class Iterator>
-	Query(Query::op op_, Iterator qbegin, Iterator qend);
+	Query(Query::op op_, Iterator qbegin, Iterator qend,
+	      Xapian::termpos window = 0);
 
-	/** Apply the specified operator to a single Xapian::Query object.
-	 *
-	 *  The subquery may a Xapian::Query object, a pointer to a
-	 *  Xapian::Query object or std::string.
-	 */
-	template <class SubQ> Query(Query::op op_, SubQ q);
-
-	/** Set the window size, for a NEAR or PHRASE query.
-	 */
-	void set_window(Xapian::termpos window);
+	/** Apply the specified operator to a single Xapian::Query object. */
+	Query(Query::op op_, Xapian::Query q);
 
 	/** Set the elite set size, for ELITE_SET queries.  */
 	void set_elite_set_size(Xapian::termcount size);
@@ -211,16 +205,17 @@ class Query {
 	void add_subquery(const Query & subq);
 	void add_subquery(const Query * subq);
 	void add_subquery(const std::string & tname);
-	void start_construction(Query::op op_);
+	void start_construction(Query::op op_, Xapian::termpos window);
 	void end_construction();
 	void abort_construction();
 };
 
 template <class Iterator>
-Query::Query(Query::op op_, Iterator qbegin, Iterator qend) : internal(0)
+Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termpos window)
+    : internal(0)
 {
     try {
-	start_construction(op_);
+	start_construction(op_, window);
 
 	/* Add all the elements */
 	while (qbegin != qend) {
@@ -228,19 +223,6 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend) : internal(0)
 	    ++qbegin;
 	}
 
-	end_construction();
-    } catch (...) {
-	abort_construction();
-	throw;
-    }
-}
-
-template <class SubQ>
-Query::Query(Query::op op_, SubQ q) : internal(0)
-{
-    try {
-	start_construction(op_);
-	add_subquery(q);
 	end_construction();
     } catch (...) {
 	abort_construction();
@@ -350,8 +332,8 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
 		 Xapian::termpos term_pos_ = 0);
 
-	/** Create internals given only the operator. */
-	Internal(op_t op_);
+	/** Create internals given only the operator (and maybe window). */
+	Internal(op_t op_, Xapian::termpos window);
 
 	/** Destructor. */
 	~Internal();
@@ -375,9 +357,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 * Introspection method.
 	 */
 	std::string get_description() const;
-
-	/** Set window for NEAR or PHRASE queries */
-	void set_window(Xapian::termpos window);
 
 	/** Set elite set size */
 	void set_elite_set_size(Xapian::termcount size);

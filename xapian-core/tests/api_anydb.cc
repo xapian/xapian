@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -304,50 +304,6 @@ static bool test_multidb5()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
-    return true;
-}
-
-// tests that changing a query object after calling set_query()
-// doesn't make any difference to get_mset().
-static bool test_changequery1()
-{
-    SKIP_TEST("Enquire::set_query() is buggy"); // Need to fix Enquire::set_query()
-
-    // Open the database (in this case a simple text file
-    // we prepared earlier)
-    Xapian::Database db(get_database("apitest_simpledata"));
-
-    const char * phrase[] = { "this", "paragraph" };
-    Xapian::MSet mset1;
-    {
-	Xapian::Enquire enquire(db);
-
-	// make a simple query
-	Xapian::Query myquery(Xapian::Query::OP_NEAR, phrase, phrase + 2);
-	enquire.set_query(myquery);
-
-	// retrieve the top ten results
-	mset1 = enquire.get_mset(0, 10);
-    }
-
-    Xapian::MSet mset2;
-    {
-	Xapian::Enquire enquire(db);
-
-	// make a simple query
-	Xapian::Query myquery(Xapian::Query::OP_NEAR, phrase, phrase + 2);
-	enquire.set_query(myquery);
-
-	// Now change the query - this shouldn't affect the query enquire
-	// will run.
-	myquery.set_window(10);
-
-	// retrieve the top ten results
-	mset2 = enquire.get_mset(0, 10);
-    }
-
-    // verify that both msets are identical
-    TEST_EQUAL(mset1, mset2);
     return true;
 }
 
@@ -1661,7 +1617,6 @@ test_desc anydb_tests[] = {
     {"multidb3",           test_multidb3},
     {"multidb4",           test_multidb4},
     {"multidb5",           test_multidb5},
-    {"changequery1",	   test_changequery1},
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},

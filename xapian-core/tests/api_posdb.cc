@@ -47,8 +47,7 @@ static bool test_near1()
     Xapian::Query q;
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -58,8 +57,7 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -69,8 +67,7 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(3);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -80,8 +77,7 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(5);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -91,8 +87,7 @@ static bool test_near1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(6);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -103,8 +98,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(3);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -115,8 +109,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(4);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 4);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -127,8 +120,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(5);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -139,8 +131,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(6);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -151,8 +142,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(7);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 7);
     enquire.set_query(q);
 
     // retrieve the top twenty results
@@ -163,8 +153,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(8);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 8);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -176,8 +165,7 @@ static bool test_near1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     // test really large window size
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(999999999);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 999999999);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -202,8 +190,7 @@ static bool test_near2()
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
     subqs.push_back(Xapian::Query(stemmer.stem_word("and")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -215,8 +202,7 @@ static bool test_near2()
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
     subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -228,8 +214,7 @@ static bool test_near2()
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -252,8 +237,7 @@ static bool test_phrase1()
     Xapian::Query q;
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -263,8 +247,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -274,8 +257,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(3);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -285,8 +267,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(5);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -296,8 +277,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(6);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -308,8 +288,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(3);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -320,8 +299,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(4);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 4);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -332,8 +310,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(5);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -344,8 +321,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(6);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -356,8 +332,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(7);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 7);
     enquire.set_query(q);
 
     // retrieve the top twenty results
@@ -368,8 +343,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(8);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 8);
     enquire.set_query(q);
 
     // retrieve the top 20 results
@@ -381,8 +355,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(999999999);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 999999999);
     enquire.set_query(q);
 
     // retrieve the top 20 results
@@ -394,8 +367,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("first")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("second")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("third")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(9);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 9);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -407,8 +379,7 @@ static bool test_phrase1()
     subqs.push_back(Xapian::Query(stemmer.stem_word("first")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("second")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("third")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(10);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 10);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -420,8 +391,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("milk")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("rare")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -433,8 +403,7 @@ static bool test_phrase1()
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer.stem_word("rare")));
     subqs.push_back(Xapian::Query(stemmer.stem_word("milk")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -459,8 +428,7 @@ static bool test_phrase2()
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
     subqs.push_back(Xapian::Query(stemmer.stem_word("and")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -472,8 +440,7 @@ static bool test_phrase2()
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
     subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results
@@ -485,8 +452,7 @@ static bool test_phrase2()
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
 			    Xapian::Query(stemmer.stem_word("phrase")),
 			    Xapian::Query(stemmer.stem_word("near"))));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end());
-    q.set_window(2);
+    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
     // retrieve the top ten results

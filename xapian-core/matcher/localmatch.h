@@ -40,7 +40,6 @@ using std::vector;
 #include <map>
 using std::map;
 #include "autoptr.h"
-#include "omdebug.h"
 
 class LocalSubMatch : public SubMatch {
     private:
@@ -79,13 +78,14 @@ class LocalSubMatch : public SubMatch {
 	PostList * build_or_tree(vector<PostList *> &postlists,
 				 MultiMatch *matcher);
 
-	/// Make a postlist from a vector of query objects (AND or OR)
+	/** Make a postlist from the subqueries of a query objects.
+	 * 
+	 * Operation must be either AND, OR, XOR, PHRASE, NEAR, or ELITE_SET.
+	 * Optimise query by building tree carefully.
+	 */
 	PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
-				const Xapian::Query::Internal::subquery_list &queries,
-				Xapian::termpos window,
-				Xapian::termcount elite_set_size,
-				MultiMatch *matcher,
-				bool is_bool);
+		const Xapian::Query::Internal *query, MultiMatch *matcher,
+		bool is_bool);
 
 	/// Make a postlist from a query object
 	PostList *postlist_from_query(const Xapian::Query::Internal * query,
@@ -100,33 +100,16 @@ class LocalSubMatch : public SubMatch {
 	LocalSubMatch(const Xapian::Database::Internal *db_,
 		      const Xapian::Query::Internal * query,
 		      const Xapian::RSet & omrset, StatsGatherer *gatherer,
-		      const Xapian::Weight *wtscheme_)
-		: statssource(new LocalStatsSource(gatherer)),
-		  is_prepared(false), users_query(*query), db(db_),
-		  querysize(query->qlen), wtscheme(wtscheme_)
-	{
-	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
-		      db << ", " << query << ", " << omrset << ", " <<
-		      gatherer << ", [wtscheme]");
-	    AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
-	    rset = new_rset;
+		      const Xapian::Weight *wtscheme_);
 
-	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
-	}
-
-	~LocalSubMatch()
-	{
-	    DEBUGCALL(MATCH, void, "LocalSubMatch::~LocalSubMatch", "");
-	}
+	~LocalSubMatch();
 
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
 	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
 
-	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
-	    return term_info;
-	}
+	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const;
 };
 
 #endif /* OM_HGUARD_LOCALMATCH_H */

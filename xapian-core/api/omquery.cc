@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,11 +74,11 @@ Xapian::Query::add_subquery(const string & tname)
 
 /// Setup the internals for the query, with the appropriate operator.
 void
-Xapian::Query::start_construction(Xapian::Query::op op_)
+Xapian::Query::start_construction(Xapian::Query::op op_, Xapian::termpos window)
 {
     DEBUGAPICALL(void, "Xapian::Query::start_construction", op_);
     Assert(!internal.get());
-    internal = new Xapian::Query::Internal(op_);
+    internal = new Xapian::Query::Internal(op_, window);
 }
 
 /// Check that query has an appropriate number of arguments, etc,
@@ -107,13 +107,25 @@ Xapian::Query::Query(const string & tname_, Xapian::termcount wqf_, Xapian::term
 }
 
 Xapian::Query::Query(Xapian::Query::op op_, const Xapian::Query &left, const Xapian::Query &right)
-	: internal(new Xapian::Query::Internal(op_))
+	: internal(new Xapian::Query::Internal(op_, 0u))
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << left << ", " << right);
     try {
 	add_subquery(left);
 	add_subquery(right);
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
+}
+
+Xapian::Query::Query(Xapian::Query::op op_, Xapian::Query q) : internal(0)
+{
+    try {
+	start_construction(op_, 0);
+	add_subquery(q);
 	end_construction();
     } catch (...) {
 	abort_construction();
@@ -157,13 +169,6 @@ Xapian::Query::get_description() const
     if (internal.get()) res += internal->get_description();
     res += ")";
     RETURN(res);
-}
-
-void Xapian::Query::set_window(Xapian::termpos window)
-{
-    DEBUGAPICALL(void, "Xapian::Query::set_window", window);
-    Assert(internal.get());
-    internal->set_window(window);
 }
 
 void Xapian::Query::set_elite_set_size(Xapian::termcount size)
@@ -211,7 +216,7 @@ Xapian::Query::Query(Query::op op,
     : internal(0)
 {
     try {
-	start_construction(op);
+	start_construction(op, 0);
 	add_subquery(left);
 	add_subquery(right);
 	end_construction();

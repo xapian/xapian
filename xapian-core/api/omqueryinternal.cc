@@ -245,18 +245,19 @@ Xapian::Query::Internal::get_description() const
 	    opstr += "pos=" + om_tostring(term_pos);
 	}
 	if (wqf != 1) {
-	    if (opstr.size() != 0) opstr += ",";
+	    if (!opstr.empty()) opstr += ",";
 	    opstr += "wqf=" + om_tostring(wqf);
 	}
-	if (opstr.size() != 0) opstr = ":(" + opstr + ")";
+	if (!opstr.empty()) opstr = ":(" + opstr + ")";
 	return tname + opstr;
-    } else {
-	opstr = " " + get_op_name(op) + " ";
-	if (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE)
-	    opstr += om_tostring(window) + " ";
-	if (op == Xapian::Query::OP_ELITE_SET)
-	    opstr += om_tostring(elite_set_size) + " ";
     }
+
+    opstr = " " + get_op_name(op) + " ";
+    if (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE)
+	opstr += om_tostring(window) + " ";
+    if (op == Xapian::Query::OP_ELITE_SET)
+	opstr += om_tostring(elite_set_size) + " ";
+
     string description;
     subquery_list::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); i++) {
@@ -264,12 +265,6 @@ Xapian::Query::Internal::get_description() const
 	description += (**i).get_description();
     }
     return "(" + description + ")";
-}
-
-void
-Xapian::Query::Internal::set_window(Xapian::termpos window_)
-{
-    window = window_;
 }
 
 void
@@ -409,8 +404,11 @@ QUnserial::readquery() {
 }
 
 static Xapian::Query::Internal *
-qint_from_vector(Xapian::Query::op op, vector<Xapian::Query::Internal *> & vec) {
-    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op);
+qint_from_vector(Xapian::Query::op op,
+		 const vector<Xapian::Query::Internal *> & vec,
+		 Xapian::termpos window = 0)
+{
+    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, window);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++)
 	qint->add_subquery(**i);
@@ -450,20 +448,16 @@ QUnserial::readcompound() {
 	    case '-':
 		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
 	    case '~': {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window(Xapian::termpos(strtol(p, &tmp, 10)));
+		Xapian::termpos window(strtol(p, &tmp, 10));
 		p = tmp;
-		return qint;
+		return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
 	    }
 	    case '"': {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window(Xapian::termpos(strtol(p, &tmp, 10)));
+		Xapian::termpos window(strtol(p, &tmp, 10));
 		p = tmp;
-		return qint;
+		return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
 	    }
 	    case '*': {
 		Xapian::Query::Internal * qint;
@@ -547,16 +541,18 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
     }
 }
 
-Xapian::Query::Internal::Internal(op_t op_)
+Xapian::Query::Internal::Internal(op_t op_, Xapian::termpos window_)
 	: op(op_),
 	  subqs(),
 	  qlen(0),
-	  window(0),
+	  window(window_),
 	  elite_set_size(0),
 	  tname(),
 	  term_pos(0),
 	  wqf(0)
 {
+    if (window != 0 && op != OP_PHRASE && op != OP_NEAR)
+	throw Xapian::InvalidArgumentError("window is only meaningful for OP_NEAR and OP_PHRASE");
 }
 
 Xapian::Query::Internal::~Internal()
@@ -735,7 +731,7 @@ Xapian::Query::Internal::flatten_subqs()
 	*sq = 0;
 
 	// New query to build up.
-	Xapian::Query::Internal newq(flattenme->op);
+	Xapian::Query::Internal newq(flattenme->op, 0);
 
 	subquery_list::iterator j;
 	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
