@@ -66,6 +66,7 @@ using namespace std;
 
 static const char * DEFAULT_STEM_LANGUAGE = "english";
 
+static bool query_parsed = false;
 static bool done_query = false;
 static Xapian::docid last = 0;
 
@@ -1873,6 +1874,9 @@ parse_omegascript()
 static void
 ensure_query_parsed()
 {
+    if (query_parsed) return;
+    query_parsed = true;
+
     MCI val;
 #ifdef __SUNPRO_CC
     pair<multimap<string, string>::iterator,

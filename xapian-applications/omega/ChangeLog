@@ -1,3 +1,7 @@
+Tue Oct 21 21:13:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Only parse probabilistic query once!
+
 Tue Oct 21 20:03:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h,query.cc,query.h: Reworked so that the
