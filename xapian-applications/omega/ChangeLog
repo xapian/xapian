@@ -1,3 +1,7 @@
+Wed Apr 17 12:31:18 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed references to xapian-config uninst options. 
+
 Fri Apr 12 15:48:33 BST 2002  Olly Betts <olly@survex.com>
 
 	* Remove parsequery.cc on "make maintainer-clean".
