@@ -85,7 +85,7 @@ class QuartzRevisionNumber {
 	 *  number - that would be foolish.  (See the class
 	 *  documentation for why.)
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 inline ostream &
@@ -192,7 +192,7 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** The path at which the table is stored.
 	 */
-	string path;
+	std::string path;
 	
 	/** Whether the table is readonly.
 	 */
@@ -212,7 +212,9 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzDiskTable(string path_, bool readonly_, unsigned int blocksize_);
+	QuartzDiskTable(std::string path_,
+			bool readonly_,
+			unsigned int blocksize_);
 
 	/** Close the table.
 	 */

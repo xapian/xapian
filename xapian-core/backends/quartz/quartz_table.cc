@@ -29,7 +29,7 @@
 #include <string.h>
 #include <errno.h>
 
-string
+std::string
 QuartzRevisionNumber::get_description() const
 {
     return om_tostring(value);
@@ -39,41 +39,47 @@ QuartzRevisionNumber::get_description() const
 // FIXME: just temporary
 #include <stdio.h>
 
-static string
+static std::string
 readline(FILE *fp)
 {
-    string res;
+    std::string res;
 
     while(1) {
 	int ch = fgetc(fp);
 	if (ch == EOF) break;
-	if (ch == '\n') break;
-	if (ch == '\r') break;
-	res += string(&((char)ch), 1);
+	if (ch == '\0') break;
+	if (ch == '\1') {
+	    ch = fgetc(fp);
+	    if (ch == EOF) break;
+	}
+	res += std::string(&((char)ch), 1);
     }
 
     return res;
 }
 
 static void
-writeline(FILE *fp, string data)
+writeline(FILE *fp, std::string data)
 {
-    fwrite((const void *) data.data(),
-	   1,
-	   data.size(),
-	   fp);
-    fprintf(fp, "\n");
+    std::string::const_iterator i;
+    for (i = data.begin(); i != data.end(); i++) {
+	if (*i == '\0' || *i == '\1') {
+	    fputc('\1', fp);
+	}
+	fputc(*i, fp);
+    }
+    fputc('\0', fp);
 }
 
 static void
-writefile(string filename,
+writefile(std::string filename,
 	  std::map<QuartzDbKey, QuartzDbTag> & data,
 	  quartz_revision_number_t rev)
 {
     FILE * fp = fopen(filename.c_str(), "w+");
 
     if (fp == 0) {
-	throw OmDatabaseCorruptError(string("Can't access database: ") +
+	throw OmDatabaseCorruptError(std::string("Can't access database: ") +
 				     strerror(errno));
     }
 
@@ -97,7 +103,7 @@ writefile(string filename,
 }
 
 static void
-readfile(string filename,
+readfile(std::string filename,
 	 std::map<QuartzDbKey, QuartzDbTag> & data,
 	 quartz_revision_number_t * rev,
 	 bool readonly)
@@ -137,7 +143,7 @@ readfile(string filename,
     fclose(fp);
 }
 
-QuartzDiskTable::QuartzDiskTable(string path_,
+QuartzDiskTable::QuartzDiskTable(std::string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
 	: path(path_),

@@ -680,6 +680,11 @@ static bool test_unpackint1()
 // ================================
 // ========= END OF TESTS =========
 // ================================
+//
+// Tests to write:
+//
+// Check behaviour of attributes - write same attribute twice, test reading
+// single attributes which exist and don't exist / have been deleted.
 
 /// The lists of tests to perform
 test_desc tests[] = {

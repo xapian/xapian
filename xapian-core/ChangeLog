@@ -1,3 +1,8 @@
+Thu Oct 12 12:55:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Attributes are now readable.  Partially tested.  Bug fixed in
+	  temporary table implementation for quartz.
+
 Wed Oct 11 18:55:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added Attributes (ie, Keys) to quartz.  Can write them, and has

@@ -354,10 +354,9 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 
     om_doclength doclen = 0;
 
-    OmDocumentContents::document_terms::const_iterator i;
-    for (i = document.terms.begin(); i != document.terms.end(); i++) {
-	const OmDocumentTerm & t = i->second;
-	doclen += t.wdf;
+    OmDocumentContents::document_terms::const_iterator term;
+    for (term = document.terms.begin(); term != document.terms.end(); term++) {
+	doclen += term->second.wdf;
     }
 
     om_docid did = QuartzRecordManager::add_record(
@@ -365,17 +364,27 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 			document.data,
 			doclen);
 
-    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+    OmDocumentContents::document_keys::const_iterator key;
+    for (key = document.keys.begin(); key != document.keys.end(); key++) {
+	QuartzAttributesManager::add_attribute(
+			*(buffered_tables->get_attribute_table()),
+			key->second,
+			did,
+			key->first);
+    }
+
+
+    for (term = document.terms.begin(); term != document.terms.end(); term++) {
 #if 0
 	QuartzPostList::add_posting(*(buffered_tables.get_postlist_table()),
-				    i->second.tname,
+				    term->second.tname,
 				    did,
-				    i->second.wdf);
+				    term->second.wdf);
 	QuartzPositionList::add_positionlist(
 				    *(buffered_tables.get_positionlist_table()),
 				    did,
-				    i->second.tname,
-				    i->second.positions);
+				    term->second.tname,
+				    term->second.positions);
 #endif
     }
 
@@ -391,17 +400,17 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 #if 0
     OmDocumentContents document(database_ro.do_get_document_internal(did));
 
-    OmDocumentContents::document_terms::const_iterator i;
-    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+    OmDocumentContents::document_terms::const_iterator term;
+    for (term = document.terms.begin(); term != document.terms.end(); term++) {
 	QuartzPostList::delete_posting(*(buffered_tables.get_postlist_table()),
-				       i->second.tname,
+				       term->second.tname,
 				       did,
-				       i->second.wdf);
+				       term->second.wdf);
 	QuartzPositionList::delete_positionlist(
 				    *(buffered_tables.get_positionlist_table()),
 				    did,
-				    i->second.tname,
-				    i->second.positions);
+				    term->second.tname,
+				    term->second.positions);
     }
 #endif
 

@@ -35,6 +35,14 @@ class QuartzAttributesManager {
 	QuartzAttributesManager();
 	~QuartzAttributesManager();
 
+	/** Read an entry from position.  Throw appropriate exceptions if
+	 *  data runs out.
+	 */
+	static void unpack_entry(const char ** pos,
+				 const char * end,
+				 om_keyno * this_attrib_no,
+				 std::string & this_attribute);
+
 	/** Set key to value representing docid/keyno pair.
 	 */
 	static void make_key(QuartzDbKey & key, om_docid did, om_keyno keyno);

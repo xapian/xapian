@@ -25,12 +25,34 @@
 #include "utils.h"
 #include "om/omerror.h"
 
+#include "omdebug.h"
+
 void
 QuartzAttributesManager::make_key(QuartzDbKey & key,
 				  om_docid did,
 				  om_keyno keyno)
 {
     key.value = pack_uint(did);
+}
+
+void
+QuartzAttributesManager::unpack_entry(const char ** pos,
+				      const char * end,
+				      om_keyno * this_attrib_no,
+				      std::string & this_attribute)
+{
+    if (!unpack_uint(pos, end, this_attrib_no)) {
+	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table");
+	else throw OmRangeError("Key number in attribute table is too large");
+    }
+
+    if (!unpack_string(pos, end, this_attribute)) {
+	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table");
+	else throw OmRangeError("Item in attribute table is too large");
+    }
+
+    DEBUGLINE(DB, "QuartzAttributesManager::unpack_entry(): attrib no " <<
+	      this_attrib_no << " is `" << this_attribute << "'");
 }
 
 void
@@ -51,18 +73,15 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
     
     while (pos && pos != end) {
 	om_keyno this_attrib_no;
-	if (!unpack_uint(&pos, end, &this_attrib_no)) {
-	    if (pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table - document ID " + om_tostring(did));
-	    else throw OmRangeError("Key number in attribute table is too large - document ID " + om_tostring(did));
-	}
-
 	std::string this_attribute;
-	if (!unpack_string(&pos, end, this_attribute)) {
-	    if (pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table - document ID " + om_tostring(did));
-	    else throw OmRangeError("Item in attribute table is too large - document ID " + om_tostring(did));
-	}
+
+	DEBUGLINE(DB, "Pos, end " << (void *)pos << ", " << (void *)end);
+	unpack_entry(&pos, end, &this_attrib_no, this_attribute);
+	DEBUGLINE(DB, "EndPos, end " << (void *)pos << ", " << (void *)end);
 
 	if (this_attrib_no > keyno && !have_added) {
+	    DEBUGLINE(DB, "Adding attribute (number, value) = (" <<
+		      keyno << ", " << attribute.value << ")");
 	    have_added = true;
 	    newvalue += pack_uint(keyno);
 	    newvalue += pack_string(attribute.value);
@@ -72,11 +91,15 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
 	newvalue += pack_string(this_attribute);
     }
     if (!have_added) {
+	DEBUGLINE(DB, "Adding attribute (number, value) = (" <<
+		  keyno << ", " << attribute.value << ")");
 	have_added = true;
 	newvalue += pack_uint(keyno);
 	newvalue += pack_string(attribute.value);
     }
     tag->value = newvalue;
+    DEBUGLINE(DB, "Pos, end " << (void *)tag->value.data() <<
+	      ", " << (void *)(tag->value.data() + tag->value.size()));
 }
 
 void
@@ -90,12 +113,22 @@ QuartzAttributesManager::get_attribute(const QuartzTable & table,
     QuartzDbTag tag;
     bool found = table.get_exact_entry(key, tag);
 
+    if (found) {
+	const char * pos = tag.value.data();
+	const char * end = pos + tag.value.size();
+
+	while (pos && pos != end) {
+	    om_keyno this_attrib_no;
+	    std::string this_attribute;
+
+	    unpack_entry(&pos, end, &this_attrib_no, attribute.value);
+
+	    if (this_attrib_no == keyno) {
+		return;
+	    }
+	}
+    }
     attribute.value = "";
-    if (!found) return;
-
-    const char * pos = tag.value.data();
-    const char * end = pos + tag.value.size();
-
 }
 
 void
@@ -114,5 +147,14 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
     const char * pos = tag.value.data();
     const char * end = pos + tag.value.size();
 
+    while (pos && pos != end) {
+	om_keyno this_attrib_no;
+	std::string this_attribute;
+
+	DEBUGLINE(DB, "Pos, end " << (void *)pos << ", " << (void *)end);
+	unpack_entry(&pos, end, &this_attrib_no, this_attribute);
+	DEBUGLINE(DB, "NewPos, end " << (void *)pos << ", " << (void *)end);
+	attributes.insert(make_pair(this_attrib_no, OmKey(this_attribute)));
+    }
 }
 
