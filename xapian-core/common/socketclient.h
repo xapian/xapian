@@ -62,10 +62,10 @@ class SocketClient : public NetClient {
 	om_doclength avlength;
 
 	/// The weighting type to be used, as a string
-	string wt_string;
+	std::string wt_string;
 
 	/// The current query, as a string
-	string query_string;
+	std::string query_string;
 
 	/// The remote statistics
 	Stats remote_stats;
@@ -89,22 +89,22 @@ class SocketClient : public NetClient {
 	OmRSet omrset;
 
 	/// Read the initial data sent at the start of connection
-	void handle_hello(const string &s);
+	void handle_hello(const std::string &s);
 
 	/** Write the string and get an "OK" message back,
 	 *  or else throw an exception
 	 */
-	void do_simple_transaction(string msg);
+	void do_simple_transaction(std::string msg);
 
 	/** Write the string to the stream and return the
 	 *  reply.  Throw an exception if the reply is "ERROR".
 	 */
-	string do_transaction_with_result(string msg);
+	std::string do_transaction_with_result(std::string msg);
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_spawned_socket(string progname, string arg);
+	int get_spawned_socket(std::string progname, std::string arg);
 
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
@@ -122,8 +122,8 @@ class SocketClient : public NetClient {
 	SocketClient(int socketfd_, bool close_socket_ = true);
 
 	/// functions which actually do the work
-	string do_read();
-	void do_write(string data);
+	std::string do_read();
+	void do_write(std::string data);
 
 	/// Close the socket
 	void do_close();
@@ -134,7 +134,7 @@ class SocketClient : public NetClient {
 
 	/** Write some bytes to the process.
 	 */
-	void write_data(string msg);
+	void write_data(std::string msg);
 
 	/** Wait for input to be available */
 	void wait_for_input();
@@ -170,18 +170,18 @@ class SocketClient : public NetClient {
 	/** Do the actual MSet fetching */
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
-		      vector<OmMSetItem> &mset,
+		      std::vector<OmMSetItem> &mset,
 		      om_doccount *mbound,
 		      om_weight *greatest_wt);
 
 	/** get the remote termlist */
 	void get_tlist(om_docid did,
-		       vector<NetClient::TermListItem> &items);
+		       std::vector<NetClient::TermListItem> &items);
 
 	/** Retrieve a remote document */
 	void get_doc(om_docid did,
-		     string &doc,
-		     map<om_keyno, OmKey> &keys);
+		     std::string &doc,
+		     std::map<om_keyno, OmKey> &keys);
 
 	/** Find the max weight */
 	om_weight get_max_weight();
@@ -194,7 +194,7 @@ class SocketClient : public NetClient {
 
 	/** Read some data from the process.
 	 */
-	string read_data();
+	std::string read_data();
 
 	/** Determine if any data is waiting to be read.
 	 */

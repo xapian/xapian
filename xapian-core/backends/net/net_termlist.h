@@ -61,7 +61,7 @@ class NetworkTermListItem {
 	 *  should also be present (but need not neccessarily agree with
 	 *  the length of the position vector, for various reasons).
 	 */
-	vector<om_termpos> positions;
+	std::vector<om_termpos> positions;
 };
 
 /** A term list for a database on the other side of a network connection.
@@ -73,11 +73,11 @@ class NetworkTermList : public LeafTermList {
     private:
 	/** The list of items comprising the termlist.
 	 */
-	vector<NetworkTermListItem> items;
+	std::vector<NetworkTermListItem> items;
 
 	/** The current position in the list.
 	 */
-	vector<NetworkTermListItem>::const_iterator current_position;
+	std::vector<NetworkTermListItem>::const_iterator current_position;
 
 	/** Whether we have yet started iterating through the list.
 	 */
@@ -106,7 +106,7 @@ class NetworkTermList : public LeafTermList {
 	 */
 	NetworkTermList(om_doclength average_length_,
 			om_doccount  database_size_,
-			const vector<NetClient::TermListItem> &items_);
+			const std::vector<NetClient::TermListItem> &items_);
     public:
 
 	/** Get the number of terms in the termlist.

@@ -26,29 +26,29 @@
 
 // Convert a number to a string
 #include <strstream.h>
-string
+std::string
 om_inttostring(int a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
     ost << a << ends;
-    return string(buf);
+    return std::string(buf);
 }
 
-string
+std::string
 doubletostring(double a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
     ost << a << ends;
-    return string(buf);
+    return std::string(buf);
 }
 
 int
 map_string_to_value(const StringAndValue * haystack,
-		    const string needle)
+		    const std::string needle)
 {
     while(haystack->name[0] != '\0') {
 	if(haystack->name == needle) break;
@@ -60,7 +60,7 @@ map_string_to_value(const StringAndValue * haystack,
 /** Return true if the files fname exists.
  */
 bool
-file_exists(const string &fname)
+file_exists(const std::string &fname)
 {
     // create a directory for sleepy indexes if not present
     struct stat sbuf;
@@ -78,9 +78,9 @@ file_exists(const string &fname)
 /** Return true if all the files fnames exist.
  */
 bool
-files_exist(const vector<string> &fnames)
+files_exist(const std::vector<std::string> &fnames)
 {
-    for (vector<string>::const_iterator i = fnames.begin();
+    for (std::vector<std::string>::const_iterator i = fnames.begin();
 	 i != fnames.end();
 	 i++) {
 	if (!file_exists(*i)) return false;

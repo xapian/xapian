@@ -29,19 +29,19 @@
 class NetworkDocument : public LeafDocument {
     friend class NetworkDatabase;
     private:
-	string doc;
+	std::string doc;
 
-	map<om_keyno, OmKey> keys;
+	std::map<om_keyno, OmKey> keys;
 
-	NetworkDocument(const string & doc_,
-			const map<om_keyno, OmKey> &keys_);
+	NetworkDocument(const std::string & doc_,
+			const std::map<om_keyno, OmKey> &keys_);
 
 	// Stop copying
 	NetworkDocument(const NetworkDocument &);
 	NetworkDocument & operator = (const NetworkDocument &);
     public:
 	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
 

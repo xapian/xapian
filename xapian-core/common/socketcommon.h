@@ -46,7 +46,7 @@ class OmSocketLineBuf : public OmLineBuf {
 	int writefd;
 
 	/// The buffer used for input
-	string buffer;
+	std::string buffer;
 
 	/// disallow copies
 	OmSocketLineBuf(const OmSocketLineBuf &other);
@@ -54,11 +54,11 @@ class OmSocketLineBuf : public OmLineBuf {
 
 	/** Read one line from readfd
 	 */
-	string do_readline();
+	std::string do_readline();
 
 	/** Write one line to writefd
 	 */
-	void do_writeline(string s);
+	void do_writeline(std::string s);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
@@ -88,61 +88,61 @@ class OmSocketLineBuf : public OmLineBuf {
  *
  *  @param qs  The string from which to build the query.
  */
-OmQueryInternal query_from_string(string qs);
+OmQueryInternal query_from_string(std::string qs);
 
 /** Convert a Stats object into a string representation.
  *
  *  @param  stats	The stats object to serialise.
  */
-string stats_to_string(const Stats &stats);
+std::string stats_to_string(const Stats &stats);
 
 /** Convert a string representing a Stats object back into an
  *  object.
  *
  *  @param  s		The serialised Stats object.
  */
-Stats string_to_stats(const string &s);
+Stats string_to_stats(const std::string &s);
 
 /** Convert an OmMatchOptions object into a string representation.
  *
  *  @param moptions	The object to serialise.
  */
-string moptions_to_string(const OmMatchOptions &moptions);
+std::string moptions_to_string(const OmMatchOptions &moptions);
 
 /** Convert a serialised OmMatchOptions string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmMatchOptions string_to_moptions(const string &s);
+OmMatchOptions string_to_moptions(const std::string &s);
 
 /** Convert an OmRSet object into a string representation.
  *
  *  @param omrset		The object to serialise.
  */
-string omrset_to_string(const OmRSet &omrset);
+std::string omrset_to_string(const OmRSet &omrset);
 
 /** Convert a serialised OmRSet string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmRSet string_to_omrset(const string &s);
+OmRSet string_to_omrset(const std::string &s);
 
 /** Convert an OmKey object into a string representation.
  *
  *  @param omrset		The object to serialise.
  */
-string omkey_to_string(const OmKey &omkey);
+std::string omkey_to_string(const OmKey &omkey);
 
 /** Convert a serialised OmKey string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmKey string_to_omkey(const string &s);
+OmKey string_to_omkey(const std::string &s);
 
 OmQueryInternal qfs_readquery();
 
 /** returns true if the string s starts with prefix.
  */
-bool startswith(const string &s, const string &prefix);
+bool startswith(const std::string &s, const std::string &prefix);
 
 #endif /* OM_HGUARD_SOCKETCOMMON_H */

@@ -42,10 +42,10 @@ class Stats {
 	om_doclength average_length;
 
 	/** Map of term frequencies for the collection. */
-	map<om_termname, om_doccount> termfreq;
+	std::map<om_termname, om_doccount> termfreq;
 
 	/** Map of relevant term frequencies for the collection. */
-	map<om_termname, om_doccount> reltermfreq;
+	std::map<om_termname, om_doccount> reltermfreq;
 
 
 	Stats() : collection_size(0),
@@ -76,7 +76,7 @@ class StatsGatherer {
 	 *  The Gatherer uses this to make sure that each child
 	 *  has contributed before it will give out its statistics.
 	 */
-	mutable vector<StatsSource *> sources;
+	mutable std::vector<StatsSource *> sources;
 
 	/** The total statistics gathered for the whole collection.
 	 */
@@ -252,7 +252,7 @@ Stats::operator +=(const Stats & inc)
     Assert(inc.rset_size == 0);
 
     // Add termfreqs and reltermfreqs
-    map<om_termname, om_doccount>::const_iterator i;
+    std::map<om_termname, om_doccount>::const_iterator i;
     for(i = inc.termfreq.begin(); i != inc.termfreq.end(); i++) {
 	termfreq[i->first] += i->second;
     }
@@ -360,7 +360,7 @@ StatsSource::get_total_termfreq(const om_termname & tname) const
     // supplied our own ones first.
     Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
 
-    map<om_termname, om_doccount>::const_iterator tfreq;
+    std::map<om_termname, om_doccount>::const_iterator tfreq;
     tfreq = total_stats->termfreq.find(tname);
     Assert(tfreq != total_stats->termfreq.end());
     return tfreq->second;
@@ -370,7 +370,7 @@ inline om_doccount
 StatsSource::get_total_reltermfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
-    map<om_termname, om_doccount>::const_iterator rtfreq;
+    std::map<om_termname, om_doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);
     Assert(rtfreq != total_stats->reltermfreq.end());
     return rtfreq->second;

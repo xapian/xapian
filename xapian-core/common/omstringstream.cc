@@ -20,7 +20,10 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "omstringstream.h"
+
+#ifndef HAVE_SSTREAM
 
 template <class Ch, class Tr>
 om_stringbuf<Ch, Tr>::om_stringbuf()
@@ -54,3 +57,5 @@ om_ostringstream::str() const
 
     return ombuf->buffer;
 }
+
+#endif // HAVE_SSTREAM

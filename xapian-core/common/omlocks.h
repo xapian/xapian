@@ -29,6 +29,7 @@
 #ifdef MUS_USE_PTHREAD
 
 #include <pthread.h>
+#include <iostream>
 
 #include <errno.h>
 
@@ -125,7 +126,7 @@ class OmLockSentry {
 		// catch any assertion exceptions from unlock,
 		// since throwing exceptions from destructors
 		// is bad
-		cerr << err.get_msg() << endl;
+		std::cerr << err.get_msg() << std::endl;
 	    }
 	}
 };

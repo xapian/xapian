@@ -137,7 +137,7 @@ class PostList
 
 	// Returns a description of the term or terms from which the postlist
 	// derives.
-	virtual string intro_term_description() const = 0;
+	virtual std::string intro_term_description() const = 0;
 };
 
 inline om_termcount

@@ -48,7 +48,7 @@ class DADocument : public LeafDocument {
 	~DADocument();
 
 	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
 

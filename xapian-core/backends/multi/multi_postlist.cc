@@ -27,15 +27,13 @@
 #include "multi_database.h"
 #include "database_builder.h"
 
-#include <string>
-#include <vector>
 #include <list>
 
 //////////////
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(list<MultiPostListInternal> & pls,
+MultiPostList::MultiPostList(std::list<MultiPostListInternal> & pls,
 			     const MultiDatabase * this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
@@ -59,7 +57,7 @@ MultiPostList::~MultiPostList()
 om_weight
 MultiPostList::get_weight() const
 {
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
 	if((*i).currdoc == currdoc)
 	    return (*i).pl->get_weight();
@@ -77,7 +75,7 @@ MultiPostList::get_doclength() const
 om_termcount
 MultiPostList::get_wdf() const
 {
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while (i != postlists.end()) {
 	if ((*i).currdoc == currdoc)
 	    return (*i).pl->get_wdf();
@@ -97,7 +95,7 @@ MultiPostList::next(om_weight w_min)
 {
     Assert(!at_end());
 
-    list<MultiPostListInternal>::iterator i = postlists.begin();
+    std::list<MultiPostListInternal>::iterator i = postlists.begin();
     while(i != postlists.end()) {
 	// Check if it needs to be advanced
 	if(currdoc >= (*i).currdoc) {
@@ -105,7 +103,7 @@ MultiPostList::next(om_weight w_min)
 	    if((*i).pl->at_end()) {
 		// Close sub-postlist
 		delete (*i).pl;
-		list<MultiPostListInternal>::iterator erase_iter = i;
+		std::list<MultiPostListInternal>::iterator erase_iter = i;
 		i++;
 		postlists.erase(erase_iter);
 		// erase iter is now invalid, but i is still valid because

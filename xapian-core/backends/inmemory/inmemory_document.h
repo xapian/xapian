@@ -29,18 +29,18 @@
 class InMemoryDocument : public LeafDocument {
     friend class InMemoryDatabase;
     private:
-	string doc;
-	map<om_keyno, OmKey> keys;
+	std::string doc;
+	std::map<om_keyno, OmKey> keys;
 
-	InMemoryDocument(const string & doc_,
-			 const map<om_keyno, OmKey> &keys_);
+	InMemoryDocument(const std::string & doc_,
+			 const std::map<om_keyno, OmKey> &keys_);
 
 	// Stop copying
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
 	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
 

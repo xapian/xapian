@@ -28,7 +28,6 @@
 #include "multi_database.h"
 #include "database_builder.h"
 
-#include <string>
 #include <vector>
 #include <list>
 
@@ -57,7 +56,7 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
     // with the specified parameters.  Override some parameters though:
     // If params.readonly is set, everything should be opened readonly
 
-    vector<DatabaseBuilderParams>::const_iterator p;
+    std::vector<DatabaseBuilderParams>::const_iterator p;
     for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
 	DatabaseBuilderParams sub_params = *p;
 	if(params.readonly) sub_params.readonly = params.readonly;
@@ -66,7 +65,7 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
     }
 }
 
-MultiDatabase::MultiDatabase(vector<OmRefCntPtr<IRDatabase> > databases_)
+MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
 	: length_initialised(false)
 {
     if(databases_.size() <= 0) {
@@ -88,7 +87,7 @@ MultiDatabase::get_doccount() const
 {   
     om_doccount docs = 0;
 
-    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	docs += (*i)->get_doccount();
 	i++;
@@ -105,7 +104,7 @@ MultiDatabase::get_avlength() const
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
 
-	vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
+	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    om_doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
@@ -141,8 +140,8 @@ MultiDatabase::open_post_list(const om_termname & tname) const
     om_doccount offset = 1;
     om_doccount multiplier = databases.size();
 
-    list<MultiPostListInternal> pls;
-    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
+    std::list<MultiPostListInternal> pls;
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	if((*i)->term_exists(tname)) {
 	    MultiPostListInternal pl((*i)->open_post_list(tname),
@@ -198,12 +197,12 @@ bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
     DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
-    set<om_termname>::const_iterator p = terms.find(tname);
+    std::set<om_termname>::const_iterator p = terms.find(tname);
 
     bool found = false;
 
     if (p == terms.end()) {
-	vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
+	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    found = (*i)->term_exists(tname);
 	    if(found) break;

@@ -42,13 +42,13 @@ class OmLineBuf {
 
 	/** Read one line
 	 */
-	virtual string do_readline() = 0;
+	virtual std::string do_readline() = 0;
 
 	/** Write one line to writefd
 	 */
-	virtual void do_writeline(string s) = 0;
+	virtual void do_writeline(std::string s) = 0;
 
-	string line_buffer;
+	std::string line_buffer;
     public:
 	/** The main constructor.
 	 */
@@ -58,7 +58,7 @@ class OmLineBuf {
 
 	/** Read one line
 	 */
-	string readline();
+	std::string readline();
 
 	/** Return true if there is data available to be read 
 	 *  immediately.
@@ -67,11 +67,11 @@ class OmLineBuf {
 
 	/** Block until at least a line of data has been read.
 	 */
-	virtual void wait_for_data();
+	virtual void wait_for_data(int msecs = 0);
 
 	/** Write one line to writefd
 	 */
-	void writeline(string s);
+	void writeline(std::string s);
 };
 
 #endif // OM_HGUARD_OMLINEBUF_H

@@ -25,8 +25,8 @@
 
 #include "om/omtypes.h"
 void lowercase_term(om_termname &);
-void select_characters(om_termname &term, const string & keep);
-void get_paragraph(istream &input, string &para);
-void get_a_line(istream &input, string &line);
+void select_characters(om_termname &term, const std::string & keep);
+void get_paragraph(std::istream &input, std::string &para);
+void get_a_line(std::istream &input, std::string &line);
 
 #endif /* OM_HGUARD_INDEX_UTILS_H */

@@ -24,8 +24,8 @@
 #include <om/omdocument.h>
 #include "omdebug.h"
 
-NetworkDocument::NetworkDocument(const string & doc_,
-				 const map<om_keyno, OmKey> &keys_)
+NetworkDocument::NetworkDocument(const std::string & doc_,
+				 const std::map<om_keyno, OmKey> &keys_)
 	: doc(doc_), keys(keys_)
 {
 }
@@ -34,7 +34,7 @@ OmKey
 NetworkDocument::do_get_key(om_keyno keyid) const
 {
     DebugMsg("NetworkDocument::do_get_key(" << keyid << ")");
-    map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
+    std::map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
     if (k != keys.end()) {
 	DebugMsg(" = " << k->second.value << endl);
 	return k->second;
@@ -44,7 +44,7 @@ NetworkDocument::do_get_key(om_keyno keyid) const
     }
 }
 
-map<om_keyno, OmKey>
+std::map<om_keyno, OmKey>
 NetworkDocument::do_get_all_keys() const
 {
     return keys;

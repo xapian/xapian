@@ -34,10 +34,10 @@ class InMemoryPositionList : public PositionList
 {
     private:
 	/// The list of positions.
-	vector<om_termpos> positions;
+	std::vector<om_termpos> positions;
 
 	/// Position of iteration through positions
-	vector<om_termpos>::const_iterator mypos;
+	std::vector<om_termpos>::const_iterator mypos;
 
 	/// True if we have started iterating
 	bool iterating_in_progress;
@@ -55,7 +55,7 @@ class InMemoryPositionList : public PositionList
 	~InMemoryPositionList() { return; }
 
 	/// Fill list with data, and move the position to the start.
-	void set_data(const vector<om_termpos> & positions_);
+	void set_data(const std::vector<om_termpos> & positions_);
 	
 	/// Gets size of position list.
 	om_termcount get_size() const;

@@ -82,10 +82,10 @@ class LocalMatch : public SingleMatch
 	IRWeight * extra_weight;
 	
 	/// vector of weights.  This is just so that they can be deleted
-	vector<IRWeight *> weights;
+	std::vector<IRWeight *> weights;
 
 	/// RSet to be used (affects weightings)
-	auto_ptr<RSet> rset;
+	std::auto_ptr<RSet> rset;
 
 	/// Weighting scheme which has been requested.
 	IRWeight::weight_type requested_weighting;
@@ -109,7 +109,7 @@ class LocalMatch : public SingleMatch
 
 	/** The weights of terms in the query: used to select the top ones.
 	 */
-	map<om_termname, om_weight> term_weights;
+	std::map<om_termname, om_weight> term_weights;
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
@@ -135,7 +135,7 @@ class LocalMatch : public SingleMatch
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(
 				om_queryop op,
-				const vector<OmQueryInternal *> & queries,
+				const std::vector<OmQueryInternal *> & queries,
 				om_termcount window);
 
 	/// Open a postlist
@@ -152,8 +152,8 @@ class LocalMatch : public SingleMatch
 	void del_query_tree();
 
 	/// Internal method to perform the collapse operation
-	bool perform_collapse(vector<OmMSetItem> &mset,
-			      map<OmKey, OmMSetItem> &collapse_table,
+	bool perform_collapse(std::vector<OmMSetItem> &mset,
+			      std::map<OmKey, OmMSetItem> &collapse_table,
 			      om_docid did,
 			      const OmMSetItem &new_item,
 			      const OmMSetItem &min_item);
@@ -162,8 +162,8 @@ class LocalMatch : public SingleMatch
 	LocalMatch(const LocalMatch &);
 	void operator=(const LocalMatch &);
 
-	PostList * build_and_tree(vector<PostList *> &postlists);
-	PostList * build_or_tree(vector<PostList *> &postlists);
+	PostList * build_and_tree(std::vector<PostList *> &postlists);
+	PostList * build_or_tree(std::vector<PostList *> &postlists);
     public:
         LocalMatch(IRDatabase * database_);
         ~LocalMatch();
@@ -183,7 +183,7 @@ class LocalMatch : public SingleMatch
         om_weight get_max_weight();
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
-		      vector<OmMSetItem> & mset,
+		      std::vector<OmMSetItem> & mset,
 		      om_doccount * mbound,
 		      om_weight * greatest_wt,
 		      const OmMatchDecider *mdecider,

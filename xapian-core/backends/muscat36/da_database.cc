@@ -107,7 +107,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
-	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DATermListItem(std::string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -149,9 +149,9 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
     }
 
     // Work out file paths
-    string filename_r;
-    string filename_t;
-    string filename_k;
+    std::string filename_r;
+    std::string filename_t;
+    std::string filename_k;
 
     if(params.paths.size() == 1) {
 	filename_r = params.paths[0] + "/R";
@@ -169,13 +169,13 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if (DA_r == 0) {
-	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_r + ": " + strerror(errno));
     }
     DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
     if (DA_t == 0) {
 	DA_close(DA_r);
 	DA_r = 0;
-	throw OmOpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
     // Open keyfile, if we can
@@ -191,7 +191,7 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 	    DA_t = 0;
 	    DA_close(DA_r);
 	    DA_r = 0;
-	    throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
+	    throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
 	} else {
 	    input[8] = '\0';
 	    if(strcmp(input, "omrocks!")) {
@@ -201,11 +201,11 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 		DA_t = 0;
 		DA_close(DA_r);
 		DA_r = 0;
-		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
+		throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
 	    }
 	}
     } else if(params.paths.size() == 3) {
-	throw OmOpeningError(string("When opening ") + filename_k + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_k + ": " + strerror(errno));
     }
 
     return;
@@ -297,8 +297,8 @@ DADatabase::open_term_list(om_docid did) const
 
     if(found == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(string("Docid ") + om_inttostring(did) +
-				 string(" not found"));
+	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+				 std::string(" not found"));
     }
 
     M_open_terms(tv);
@@ -317,8 +317,8 @@ DADatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(string("Docid ") + om_inttostring(did) +
-				 string(" not found"));
+	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+				 std::string(" not found"));
     }
 
     return r;
@@ -345,7 +345,7 @@ DADatabase::get_key(om_docid did, om_keyno keyid) const
 	    if(bytes_read < 8) {
 		DEBUGMSG(DB, ": read off end of keyfile - using record" << endl);
 	    } else {
-		key.value = string(input, 8);
+		key.value = std::string(input, 8);
 		DEBUGMSG(DB, ": found - value is `" << key.value << "'" << endl);
 	    }
 	}
@@ -366,15 +366,15 @@ DADatabase::term_lookup(const om_termname & tname) const
 {
     DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, OmRefCntPtr<const DATerm> >::const_iterator p;
+    std::map<om_termname, OmRefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
 
     OmRefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
-	string::size_type len = tname.length();
+	std::string::size_type len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw bad_alloc();
+	if(k == NULL) throw std::bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
@@ -392,7 +392,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGMSG(DB, "found, adding to cache" << endl);
-	    pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
+	    std::pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

@@ -39,13 +39,13 @@ class MultiMatch
 {
     private:
 	/// Vector of the items 
-	vector<OmRefCntPtr<SingleMatch> > leaves;
+	std::vector<OmRefCntPtr<SingleMatch> > leaves;
 	
 	/// The database
 	const MultiDatabase * multi_database;
 
 	/// stats gatherer
-	auto_ptr<StatsGatherer> gatherer;
+	std::auto_ptr<StatsGatherer> gatherer;
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
@@ -60,7 +60,7 @@ class MultiMatch
 	 *  @param leaf_number       The sub-match which this mset comes from.
 	 *  			     (Starting at 1)
 	 */
-	void change_docids_to_global(vector<OmMSetItem> & mset,
+	void change_docids_to_global(std::vector<OmMSetItem> & mset,
 				     om_doccount leaf_number);
 
 	/** Return true if the specified key has not been seen before.
@@ -74,7 +74,7 @@ class MultiMatch
 	 *  @param collapse_entries  The set of keys which have been seen.
 	 *  @param new_key           The new key to look for.
 	 */
-	bool have_not_seen_key(set<OmKey> & collapse_entries,
+	bool have_not_seen_key(std::set<OmKey> & collapse_entries,
 			       const OmKey & new_key);
 	
 
@@ -87,8 +87,8 @@ class MultiMatch
 	 *  @param mset      The mset to put the results in.
 	 *  @param more_mset
 	 */
-	void merge_msets(vector<OmMSetItem> &mset,
-			 vector<OmMSetItem> &more_mset,
+	void merge_msets(std::vector<OmMSetItem> &mset,
+			 std::vector<OmMSetItem> &more_mset,
 			 om_doccount lastitem);
 
 	/** Add the next mset available to the current mset, if it is available.
@@ -175,8 +175,8 @@ class MultiMatch
 		   const OmRSet & omrset,
 		   IRWeight::weight_type wt_type,
 		   const OmMatchOptions & moptions,
-		   auto_ptr<StatsGatherer> gatherer_
-		       = auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
+		   std::auto_ptr<StatsGatherer> gatherer_
+		       = std::auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
 
 	void match(om_doccount first,

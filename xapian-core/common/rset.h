@@ -47,10 +47,10 @@ class RSet {
 
 	IRDatabase *root;
 
-	map<om_termname, om_doccount> reltermfreqs;
+	std::map<om_termname, om_doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
-	vector<RSetItem> documents; // FIXME - should be encapsulated
+	std::vector<RSetItem> documents; // FIXME - should be encapsulated
 
 	// FIXME: should take a OmRefCntPtr to an IRDatabase
 	RSet(IRDatabase *root_new);
@@ -81,7 +81,7 @@ inline
 RSet::RSet(IRDatabase *root_new, const OmRSet & omrset)
 	: root(root_new), calculated_reltermfreqs(false)
 {
-    set<om_docid>::const_iterator i;
+    std::set<om_docid>::const_iterator i;
     for(i = omrset.items.begin(); i != omrset.items.end(); i++) {
 	add_document(*i);
     }
@@ -112,7 +112,7 @@ RSet::get_reltermfreq(om_termname tname) const
 {
     Assert(calculated_reltermfreqs);
 
-    map<om_termname, om_doccount>::const_iterator rfreq;
+    std::map<om_termname, om_doccount>::const_iterator rfreq;
     rfreq = reltermfreqs.find(tname);
     Assert(rfreq != reltermfreqs.end());
 

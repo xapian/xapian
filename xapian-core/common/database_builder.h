@@ -32,15 +32,15 @@ class IRDatabase;
 /** Parameters used when opening a database*/
 class DatabaseBuilderParams {
     public:
-	DatabaseBuilderParams(string type_ = "", bool readonly_ = true)
+	DatabaseBuilderParams(std::string type_ = "", bool readonly_ = true)
 		: type(type_), readonly(readonly_)
 	{ return; }
 
-	string type;
+	std::string type;
 	bool readonly;
 
-	vector<string> paths;
-	vector<DatabaseBuilderParams> subdbs;
+	std::vector<std::string> paths;
+	std::vector<DatabaseBuilderParams> subdbs;
 };
 
 /** Class used to generate databases of a given type. */

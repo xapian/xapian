@@ -42,7 +42,7 @@ class OmDatabaseGroup::Internal {
     private:
 	/** The databases which this consists of.
 	 */
-	vector<OmRefCntPtr<IRDatabase> > databases;
+	std::vector<OmRefCntPtr<IRDatabase> > databases;
 
 	/** The multidatabase, if this has been created.
 	 */
@@ -59,8 +59,8 @@ class OmDatabaseGroup::Internal {
 
 	/** Add a database to the group, based on parameters.
 	 */
-	void add_database(const string & type,
-			  const vector<string> & paths);
+	void add_database(const std::string & type,
+			  const std::vector<std::string> & paths);
 
 	/** Add an opened database to the group.
 	 */

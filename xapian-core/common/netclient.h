@@ -56,7 +56,7 @@ class NetClient : public OmRefCntBase {
 	 *  FIXME: These will be specialised into content-specific
 	 *  writer and reader functions.
 	 */
-	virtual void write_data(string msg) = 0;
+	virtual void write_data(std::string msg) = 0;
 
 	/** Wait for some input to be available.
 	 *  wait_for_input() can be called to avoid having to loop
@@ -100,7 +100,7 @@ class NetClient : public OmRefCntBase {
 	/** Do the actual MSet fetching */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
-			      vector<OmMSetItem> &mset,
+			      std::vector<OmMSetItem> &mset,
 			      om_doccount *mbound,
 			      om_weight *greatest_wt) = 0;
 
@@ -110,17 +110,17 @@ class NetClient : public OmRefCntBase {
 	    om_doccount termfreq;
 	    om_termcount wdf;
 
-	    vector<om_termpos> positions;
+	    std::vector<om_termpos> positions;
 	};
 
 	/** Retrieve a remote termlist */
 	virtual void get_tlist(om_docid did,
-			       vector<TermListItem> &items) = 0;
+			       std::vector<TermListItem> &items) = 0;
 
 	/** Retrieve a remote document */
 	virtual void get_doc(om_docid did,
-			     string &doc,
-			     map<om_keyno, OmKey> &keys) = 0;
+			     std::string &doc,
+			     std::map<om_keyno, OmKey> &keys) = 0;
 
 	/** Find out the max_weight */
 	virtual om_weight get_max_weight() = 0;

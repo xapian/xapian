@@ -27,11 +27,11 @@ class BackendManager {
     private:
 	/// The type of a get_database member function
 	typedef OmDatabase (BackendManager::*getdb_func)
-				   (const vector<string> &dbnames);
+				   (const std::vector<std::string> &dbnames);
 
 	/// The type of a get_writable_database member function
 	typedef OmWritableDatabase (BackendManager::*getwritedb_func)
-				   (const vector<string> &dbnames);
+				   (const std::vector<std::string> &dbnames);
 
 	/// The current get_database member function
 	getdb_func do_getdb;
@@ -40,35 +40,35 @@ class BackendManager {
 	getwritedb_func do_getwritedb;
 
 	/// The current data directory
-	string datadir;
+	std::string datadir;
 
 	/// Change names of databases into paths to them, within the datadir
-	vector<string>
-		change_names_to_paths(const vector<string> &dbnames);
+	std::vector<std::string>
+		change_names_to_paths(const std::vector<std::string> &dbnames);
 
 	/// Throw an exception.
-	OmDatabase getdb_void(const vector<string> &dbnames);
+	OmDatabase getdb_void(const std::vector<std::string> &dbnames);
 
 	/// Throw an exception.
-	OmWritableDatabase getwritedb_void(const vector<string> &dbnames);
+	OmWritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
 
 	/// Get an inmemory database instance.
-	OmDatabase getdb_inmemory(const vector<string> &dbnames);
+	OmDatabase getdb_inmemory(const std::vector<std::string> &dbnames);
 
 	/// Get an writable inmemory database instance.
-	OmWritableDatabase getwritedb_inmemory(const vector<string> &dbnames);
+	OmWritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
 
 	/// Get a net database instance
-	OmDatabase getdb_net(const vector<string> &dbnames);
+	OmDatabase getdb_net(const std::vector<std::string> &dbnames);
 
 	/// Get a writable net database instance
-	OmWritableDatabase getwritedb_net(const vector<string> &dbnames);
+	OmWritableDatabase getwritedb_net(const std::vector<std::string> &dbnames);
 
 	/// Get a sleepy database instance.
-	OmDatabase getdb_sleepy(const vector<string> &dbnames);
+	OmDatabase getdb_sleepy(const std::vector<std::string> &dbnames);
 
 	/// Get a writable sleepy database instance.
-	OmWritableDatabase getwritedb_sleepy(const vector<string> &dbnames);
+	OmWritableDatabase getwritedb_sleepy(const std::vector<std::string> &dbnames);
     public:
 	/// Constructor - set up default state.
 	BackendManager() :
@@ -80,19 +80,19 @@ class BackendManager {
 	 *  Valid values for dbtype are "inmemory", "sleepycat",
 	 *  "void", and "net".
 	 */
-	void set_dbtype(const string &type);
+	void set_dbtype(const std::string &type);
 
 	/** Set the directory to store data in.
 	 */
-	void set_datadir(const string &datadir_);
+	void set_datadir(const std::string &datadir_);
 
 	/// Get a database instance of the current type
-	OmDatabase get_database(const vector<string> &dbnames);
+	OmDatabase get_database(const std::vector<std::string> &dbnames);
 
 	/// Get a database instance from individually named databases
-	OmDatabase get_database(const string &dbname1,
-				const string &dbname2 = "");
+	OmDatabase get_database(const std::string &dbname1,
+				const std::string &dbname2 = "");
 
 	/// Get a writable database instance
-	OmWritableDatabase get_writable_database(const string & dbname);
+	OmWritableDatabase get_writable_database(const std::string & dbname);
 };

@@ -67,7 +67,7 @@ DADocument::do_get_key(om_keyno keyid) const
 	    // Record not big enough.
 	    DebugMsg(": not found in record" << endl);
 	} else {
-	    key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
+	    key.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
 	    DebugMsg(": found in record - value is `" << key.value << "'" << endl);
 	}
     }
@@ -79,7 +79,7 @@ DADocument::do_get_key(om_keyno keyid) const
  *  If a key file is available, this will be used to provide extremely fast
  *  key lookup.
  */
-map<om_keyno, OmKey>
+std::map<om_keyno, OmKey>
 DADocument::do_get_all_keys() const
 {
     throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
@@ -97,7 +97,7 @@ DADocument::do_get_data() const
     OmData data;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-    data.value = string((char *)pos + LWIDTH(heavy_duty) + 3,
+    data.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3,
 			len - LWIDTH(heavy_duty) - 3);
     return data;
 }

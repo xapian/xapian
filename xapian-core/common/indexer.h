@@ -23,7 +23,6 @@
 #ifndef OM_HGUARD_INDEXER_H
 #define OM_HGUARD_INDEXER_H
 
-#include <string>
 #include <iostream>
 #include <memory>
 
@@ -39,7 +38,8 @@ class IndexerSource {
 	/// Assignment is not permitted
 	void operator=(const IndexerSource &);
     public:
-	virtual auto_ptr<istream> get_stream() const = 0;  // Get the stream of data
+	// Get the stream of data
+	virtual std::auto_ptr<std::istream> get_stream() const = 0;
 	IndexerSource() {}
 	virtual ~IndexerSource() {}
 };

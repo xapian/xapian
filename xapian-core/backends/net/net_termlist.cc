@@ -25,16 +25,13 @@
 #include "omdebug.h"
 #include "net_termlist.h"
 
-#include <string>
 #include <vector>
-#include <map>
-#include <list>
 
 #include "om/omerror.h"
 
 NetworkTermList::NetworkTermList(om_doclength average_length_,
 				 om_doccount database_size_,
-				 const vector<NetClient::TermListItem> &items_)
+				 const std::vector<NetClient::TermListItem> &items_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),
@@ -43,7 +40,7 @@ NetworkTermList::NetworkTermList(om_doclength average_length_,
     // FIXME: set length
     document_length = 1;
 
-    vector<NetClient::TermListItem>::const_iterator i = items_.begin();
+    std::vector<NetClient::TermListItem>::const_iterator i = items_.begin();
     while (i != items_.end()) {
 	NetworkTermListItem item;
 	item.tname = i->tname;

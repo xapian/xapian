@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <set>
 #include <vector>
-#include <list>
 
 /** A database which contains other databases.
  */
@@ -50,10 +49,10 @@ class MultiDatabase : public IRDatabase {
     friend class MultiMatch;
 
     private:
-	mutable set<om_termname> terms;
+	mutable std::set<om_termname> terms;
 
 	// List of subdatabases
-	vector<OmRefCntPtr<IRDatabase> > databases;
+	std::vector<OmRefCntPtr<IRDatabase> > databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
@@ -81,7 +80,7 @@ class MultiDatabase : public IRDatabase {
 	 *  @exception OmInvalidArgumentError if no databases are specified
 	 *             in the vector.
 	 */
-	MultiDatabase(vector<OmRefCntPtr<IRDatabase> > databases_);
+	MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_);
 	
     public:
 	~MultiDatabase();

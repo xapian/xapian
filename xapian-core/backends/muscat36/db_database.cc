@@ -107,7 +107,7 @@ DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_)
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
-	terms.push_back(DBTermListItem(string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DBTermListItem(std::string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -147,8 +147,8 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
     }
 
     // Open database with specified path
-    string filename = params.paths[0];
-    string filename_k;
+    std::string filename = params.paths[0];
+    std::string filename_k;
 
     if (params.paths.size() > 1) {
 	filename_k = params.paths[1];
@@ -165,7 +165,7 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
     // Actually open
     DB = DB_open(filename.c_str(), cache_size, heavy_duty);
     if(DB == 0) {
-	throw OmOpeningError(string("When opening ") + filename + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename + ": " + strerror(errno));
     }
 
     // Open keyfile, if we can
@@ -178,7 +178,7 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 	    fclose(keyfile);
 	    DB_close(DB);
 	    DB = 0;
-	    throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
+	    throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
 	} else {
 	    input[8] = '\0';
 	    if(strcmp(input, "omrocks!")) {
@@ -186,11 +186,11 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 		keyfile = 0;
 		DB_close(DB);
 		DB = 0;
-		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
+		throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
 	    }
 	}
     } else if (params.paths.size() > 1) {
-	throw OmOpeningError(string("When opening ") + filename_k + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_k + ": " + strerror(errno));
     }
 
     return;
@@ -232,8 +232,8 @@ DBDatabase::open_term_list(om_docid did) const
 
     if(found == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(string("Docid ") + om_inttostring(did) +
-				 string(" not found"));
+	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+				 std::string(" not found"));
     }
 
     M_open_terms(tv);
@@ -250,8 +250,8 @@ DBDatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(string("Docid ") + om_inttostring(did) +
-				 string(" not found"));
+	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+				 std::string(" not found"));
     }
 
     return r;
@@ -276,7 +276,7 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
 	    if(bytes_read < 8) {
 		DebugMsg(": read off end of keyfile - using record" << endl);
 	    } else {
-		key.value = string(input, 8);
+		key.value = std::string(input, 8);
 		DebugMsg(": found - value is `" << key.value << "'" << endl);
 	    }
 	}
@@ -295,15 +295,15 @@ DBDatabase::term_lookup(const om_termname & tname) const
 {
     //DebugMsg("DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, OmRefCntPtr<const DBTerm> >::const_iterator p;
+    std::map<om_termname, OmRefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
 
     OmRefCntPtr<const DBTerm> the_term;
     if (p == termmap.end()) {
-	string::size_type len = tname.length();
+	std::string::size_type len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw bad_alloc();
+	if(k == NULL) throw std::bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
@@ -319,7 +319,7 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    if(termmap.size() > 500) termmap.clear();
 
 	    DebugMsg("found, adding to cache" << endl);
-	    pair<om_termname, OmRefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
+	    std::pair<om_termname, OmRefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

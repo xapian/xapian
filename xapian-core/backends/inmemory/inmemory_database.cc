@@ -93,7 +93,7 @@ InMemoryDatabase::open_post_list(const om_termname & tname) const
 {
     Assert(term_exists(tname));
 
-    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
     return new InMemoryPostList(this, i->second);
@@ -106,8 +106,8 @@ InMemoryDatabase::open_term_list(om_docid did) const
     if(did > termlists.size()) {
 	// FIXME: the docid in this message will be local, not global, in
 	// the case of a multidatabase
-	throw OmDocNotFoundError(string("Docid ") + om_inttostring(did) +
-				 string(" not found"));
+	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+				 std::string(" not found"));
     }
 
     return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
@@ -195,7 +195,7 @@ bool
 InMemoryDatabase::term_exists(const om_termname & tname) const
 {
     //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
-    map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
+    std::map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
 	//DebugMsg("not found" << endl);

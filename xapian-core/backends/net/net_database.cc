@@ -49,7 +49,7 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 	if (params.paths.size() < 3) {
 	    throw OmInvalidArgumentError("NetworkDatabase(prog) requires at least three parameters.");
 	}
-	vector<string> progargs(params.paths.begin() + 2,
+	std::vector<std::string> progargs(params.paths.begin() + 2,
 				params.paths.end());
 	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1],
 						     progargs));
@@ -64,7 +64,7 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 					    params.paths[1],
 					    atoi(params.paths[2].c_str())));
     } else {
-	throw OmUnimplementedError(string("Network database type ") +
+	throw OmUnimplementedError(std::string("Network database type ") +
 				   params.paths[0]);
     }
 }
@@ -96,7 +96,7 @@ NetworkDatabase::open_post_list(const om_termname & tname) const
     om_doccount multiplier = databases.size();
 
     list<MultiPostListInternal> pls;
-    vector<IRDatabase *>::const_iterator i = databases.begin();
+    std::vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	if((*i)->term_exists(tname)) {
 	    MultiPostListInternal pl((*i)->open_post_list(tname),
@@ -115,7 +115,7 @@ NetworkDatabase::open_post_list(const om_termname & tname) const
 
 LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
-    vector<NetClient::TermListItem> items;
+    std::vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items);
 }
@@ -123,8 +123,8 @@ NetworkDatabase::open_term_list(om_docid did) const {
 LeafDocument *
 NetworkDatabase::open_document(om_docid did) const
 {
-    string doc;
-    map<om_keyno, OmKey> keys;
+    std::string doc;
+    std::map<om_keyno, OmKey> keys;
     link->get_doc(did, doc, keys);
     return new NetworkDocument(doc, keys);
 }
@@ -146,7 +146,7 @@ NetworkDatabase::term_exists(const om_termname & tname) const
     bool found = false;
 
     if (p == terms.end()) {
-	vector<IRDatabase *>::const_iterator i = databases.begin();
+	std::vector<IRDatabase *>::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    found = (*i)->term_exists(tname);
 	    if(found) break;

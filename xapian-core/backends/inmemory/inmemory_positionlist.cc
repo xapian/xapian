@@ -24,7 +24,7 @@
 #include "inmemory_positionlist.h"
 
 void
-InMemoryPositionList::set_data(const vector<om_termpos> & positions_)
+InMemoryPositionList::set_data(const std::vector<om_termpos> & positions_)
 {
     positions = positions_;
     mypos = positions.begin();

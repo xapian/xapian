@@ -67,7 +67,7 @@ class DAPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 };
 
 inline om_doccount
@@ -105,7 +105,7 @@ DAPostList::at_end() const
     return false;
 }
 
-inline string
+inline std::string
 DAPostList::intro_term_description() const
 {
     return tname + ":" + om_inttostring(termfreq);
@@ -132,8 +132,8 @@ class DATermListItem {
 class DATermList : public LeafTermList {
     friend class DADatabase;
     private:
-	vector<DATermListItem>::iterator pos;
-	vector<DATermListItem> terms;
+	std::vector<DATermListItem>::iterator pos;
+	std::vector<DATermListItem> terms;
 	bool have_started;
 	om_doccount dbsize;
 
@@ -233,10 +233,10 @@ DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
 	DebugMsg("Getting terminfo" << endl);
-	string::size_type len = tname.length();
+	std::string::size_type len = tname.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);
-	if(k == NULL) throw bad_alloc();
+	if(k == NULL) throw std::bad_alloc();
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
@@ -261,7 +261,7 @@ class DADatabase : public IRDatabase {
 
 	FILE * keyfile;
 
-	mutable map<om_termname, OmRefCntPtr<const DATerm> > termmap;
+	mutable std::map<om_termname, OmRefCntPtr<const DATerm> > termmap;
 
 	int heavy_duty;
 

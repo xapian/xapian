@@ -57,11 +57,11 @@ OmMatchOptions::OmMatchOptions()
 	  max_or_terms(0)
 {}
 
-string
+std::string
 OmMatchOptions::get_description() const
 {
     DEBUGAPICALL("OmMatchOptions::get_description", "");
-    string description;
+    std::string description;
     if (do_collapse) {
 	if (description != "") description += ", ";
 	description += "collapse on key " + om_inttostring(collapse_key);
@@ -151,11 +151,11 @@ OmExpandOptions::OmExpandOptions()
     DEBUGAPICALL("OmExpandOptions::OmExpandOptions", "");
 }
 
-string
+std::string
 OmExpandOptions::get_description() const
 {
     DEBUGAPICALL("OmExpandOptions::get_description", "");
-    string description;
+    std::string description;
 
     if (use_query_terms) {
 	if (description != "") description += ", ";
@@ -212,13 +212,13 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 // Methods for OmRSet //
 ////////////////////////
 
-string
+std::string
 OmRSet::get_description() const
 {
     DEBUGAPICALL("OmRSet::get_description", "");
-    string description;
+    std::string description;
 
-    for (set<om_docid>::const_iterator i = items.begin();
+    for (std::set<om_docid>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	if (description != "") description += ", ";
@@ -235,11 +235,11 @@ OmRSet::get_description() const
 // Methods for OmMSetItem //
 ////////////////////////////
 
-string
+std::string
 OmMSetItem::get_description() const
 {
     DEBUGAPICALL("OmMSetItem::get_description", "");
-    string description;
+    std::string description;
 
     description = om_inttostring(did) + ", " + doubletostring(wt) + ", " +
 	    collapse_key.get_description();
@@ -281,18 +281,18 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
     return pcent;
 }
 
-string
+std::string
 OmMSet::get_description() const
 {
     DEBUGAPICALL("OmMSet::get_description", "");
-    string description;
+    std::string description;
 
     description = "firstitem=" + om_inttostring(firstitem) + ", " +
 	    "mbound=" + om_inttostring(mbound) + ", " +
 	    "max_possible=" + doubletostring(max_possible) + ", " +
 	    "max_attained=" + doubletostring(max_attained);
 
-    for (vector<OmMSetItem>::const_iterator i = items.begin();
+    for (std::vector<OmMSetItem>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	if (description != "") description += ", ";
@@ -309,11 +309,11 @@ OmMSet::get_description() const
 // Methods for OmESetItem //
 ////////////////////////////
 
-string
+std::string
 OmESetItem::get_description() const
 {
     DEBUGAPICALL("OmESetItem::get_description", "");
-    string description;
+    std::string description;
 
     description = "OmESetItem(" + tname + ", " + doubletostring(wt) + ")";
 
@@ -325,15 +325,15 @@ OmESetItem::get_description() const
 // Methods for OmESet //
 ////////////////////////
 
-string
+std::string
 OmESet::get_description() const
 {
     DEBUGAPICALL("OmESet::get_description", "");
-    string description;
+    std::string description;
 
     description = "ebound=" + om_inttostring(ebound);
 
-    for (vector<OmESetItem>::const_iterator i = items.begin();
+    for (std::vector<OmESetItem>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	if (description != "") description += ", ";
@@ -460,15 +460,15 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     /* The auto_ptrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
-    auto_ptr<OmExpandDecider> decider_noquery;
-    auto_ptr<OmExpandDecider> decider_andnoquery;
+    std::auto_ptr<OmExpandDecider> decider_noquery;
+    std::auto_ptr<OmExpandDecider> decider_andnoquery;
     
     if (query != 0 && !eoptions->use_query_terms) {
-	auto_ptr<OmExpandDecider> temp1(
+	std::auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
 	
-	auto_ptr<OmExpandDecider> temp2(
+	std::auto_ptr<OmExpandDecider> temp2(
 	    new OmExpandDeciderAnd(decider_noquery.get(),
 				   edecider));
 	decider_andnoquery = temp2;
@@ -514,10 +514,10 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
     return calc_matching_terms(mitem.did);
 }
 
-string
+std::string
 OmEnquireInternal::get_description() const
 {
-    string description;
+    std::string description;
     /// \todo get description of the database
     //description = database->get_description();
     description = "Database()";
@@ -541,7 +541,7 @@ OmEnquireInternal::read_doc(om_docid did) const
 
 
 struct ByQueryIndexCmp {
-    typedef map<om_termname, unsigned int> tmap_t;
+    typedef std::map<om_termname, unsigned int> tmap_t;
     const tmap_t &tmap;
     ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
     bool operator()(const om_termname &left,
@@ -569,7 +569,7 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
-    map<om_termname, unsigned int> tmap;
+    std::map<om_termname, unsigned int> tmap;
     unsigned int index = 1;
     for (om_termname_list::const_iterator i = query_terms.begin();
 	 i != query_terms.end();
@@ -577,17 +577,17 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 	tmap[*i] = index++;
     }
     
-    auto_ptr<TermList> docterms(database->open_term_list(did));
+    std::auto_ptr<TermList> docterms(database->open_term_list(did));
     
     /* next() must be called on a TermList before you can
      * do anything else with it.
      */
     docterms->next();
 
-    vector<om_termname> matching_terms;
+    std::vector<om_termname> matching_terms;
 
     while (!docterms->at_end()) {
-        map<om_termname, unsigned int>::iterator t =
+        std::map<om_termname, unsigned int>::iterator t =
 		tmap.find(docterms->get_termname());
         if (t != tmap.end()) {
 	    matching_terms.push_back(docterms->get_termname());
@@ -713,11 +713,11 @@ OmEnquire::get_matching_terms(om_docid did) const
     return matching_terms;
 }
 
-string
+std::string
 OmEnquire::get_description() const
 {
     DEBUGAPICALL("OmEnquire::get_description", "");
-    string description;
+    std::string description;
 
     description = "OmEnquire(" + internal->get_description() + ")";
 

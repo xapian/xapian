@@ -26,8 +26,6 @@
 #include "multi_database.h"
 #include "omlocks.h"
 #include "omrefcnt.h"
-#include <vector>
-#include <memory>
 #include <algorithm>
 #include <math.h>
 
@@ -85,5 +83,5 @@ class OmEnquireInternal {
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
-	string get_description() const;
+	std::string get_description() const;
 };

@@ -297,14 +297,18 @@ class OmWritableDatabase : public OmDatabase {
  *  be opened (for example, a required file cannot be found).
  */
 class OmDatabaseGroup {
-    private:
+    public:
+	/** This class is used internally to hide implementation details.
+	 */
 	class Internal;
-	Internal *internal;
 
 	/** InternalInterface is a class used externally to interact
 	 *  with OmDatabaseGroup objects.
 	 */
 	class InternalInterface;
+    private:
+	Internal *internal;
+
 	friend class InternalInterface;
 
     public:

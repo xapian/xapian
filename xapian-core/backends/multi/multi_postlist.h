@@ -27,8 +27,6 @@
 #include "omdebug.h"
 #include "leafpostlist.h"
 #include <stdlib.h>
-#include <set>
-#include <vector>
 #include <list>
 
 class MultiPostListInternal {
@@ -48,7 +46,7 @@ class MultiPostListInternal {
 class MultiPostList : public LeafPostList {
     friend class MultiDatabase;
     private:
-	list<MultiPostListInternal> postlists;
+	std::list<MultiPostListInternal> postlists;
 
 	const MultiDatabase * this_db;
 
@@ -61,7 +59,7 @@ class MultiPostList : public LeafPostList {
 
 	om_weight termweight;
 
-	MultiPostList(list<MultiPostListInternal> & pls,
+	MultiPostList(std::list<MultiPostListInternal> & pls,
 		      const MultiDatabase * this_db_);
     public:
 	~MultiPostList();
@@ -79,7 +77,7 @@ class MultiPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 };
 
 inline void
@@ -87,7 +85,7 @@ MultiPostList::set_termweight(const IRWeight * wt)
 {
     // Set in base class, so that get_maxweight() works
     LeafPostList::set_termweight(wt);
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
 	(*i).pl->set_termweight(wt);
 	i++;
@@ -101,7 +99,7 @@ MultiPostList::get_termfreq() const
     DebugMsg("Calculating multiple term frequencies" << endl);
 
     // Calculate and remember the termfreq
-    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
     termfreq = 0;
     while(i != postlists.end()) {
 	termfreq += (*i).pl->get_termfreq();
@@ -127,13 +125,13 @@ MultiPostList::at_end() const
     return finished;
 }
 
-inline string
+inline std::string
 MultiPostList::intro_term_description() const
 {
-    string desc = "[";
+    std::string desc = "[";
 
     // Calculate and remember the termfreq
-    list<MultiPostListInternal>::const_iterator i;
+    std::list<MultiPostListInternal>::const_iterator i;
     for(i = postlists.begin(); i != postlists.end(); i++) {
 	if(desc != "[") desc += ",";
 	desc += (*i).pl->intro_term_description();

@@ -38,7 +38,7 @@ class TcpClient : public SocketClient {
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_remote_socket(string hostname, int port);
+	int get_remote_socket(std::string hostname, int port);
 
     public:
 	/** Constructor.
@@ -46,7 +46,7 @@ class TcpClient : public SocketClient {
 	 *  @param hostname The name of the remote host
 	 *  @param port	    The TCP port to connect to.
 	 */
-	TcpClient(string hostname, int port);
+	TcpClient(std::string hostname, int port);
 
 	/** Destructor. */
 	~TcpClient();

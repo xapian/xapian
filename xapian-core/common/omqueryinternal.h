@@ -27,7 +27,6 @@
 #include <om/omenquire.h>
 #include <string>
 #include <vector>
-#include <set>
 #include "omlocks.h"
 
 class LocalMatch;
@@ -49,7 +48,7 @@ class OmQueryInternal {
 	om_queryop op;
 
 	/// The container type for storing pointers to subqueries
-	typedef vector<OmQueryInternal *> subquery_list;
+	typedef std::vector<OmQueryInternal *> subquery_list;
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
@@ -87,8 +86,8 @@ class OmQueryInternal {
 	/** Set my vector of queries to be a memberwise copy of the
 	 *  supplied vector of OmQueryInternal pointers. */
 	void initialise_from_vector(
-		const vector<OmQueryInternal *>::const_iterator qbegin,
-		const vector<OmQueryInternal *>::const_iterator qend,
+		const std::vector<OmQueryInternal *>::const_iterator qbegin,
+		const std::vector<OmQueryInternal *>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** swap the contents of this with another OmQueryInternal,
@@ -106,7 +105,7 @@ class OmQueryInternal {
 
 	/** Private function used to implement get_terms() */
         void accumulate_terms(
-	    vector<pair<om_termname, om_termpos> > &terms) const;
+	    std::vector<std::pair<om_termname, om_termpos> > &terms) const;
 
 	
     public:
@@ -125,21 +124,21 @@ class OmQueryInternal {
 	 * The only operators allowed are AND, OR, NEAR, and PHRASE. */
 #if 0
 	OmQueryInternal(om_queryop op_,
-		const vector<OmQueryInternal>::const_iterator qbegin,
-		const vector<OmQueryInternal>::const_iterator qend,
+		const std::vector<OmQueryInternal>::const_iterator qbegin,
+		const std::vector<OmQueryInternal>::const_iterator qend,
 		om_termpos window = 0);
 #endif
 
 	/** As before, but uses a vector of OmQueryInternal pointers. */
 	OmQueryInternal(om_queryop op_,
-		const vector<OmQueryInternal*>::const_iterator qbegin,
-		const vector<OmQueryInternal*>::const_iterator qend,
+		const std::vector<OmQueryInternal*>::const_iterator qbegin,
+		const std::vector<OmQueryInternal*>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
 	OmQueryInternal(om_queryop op_,
-		const vector<om_termname>::const_iterator tbegin,
-		const vector<om_termname>::const_iterator tend,
+		const std::vector<om_termname>::const_iterator tbegin,
+		const std::vector<om_termname>::const_iterator tend,
 		om_termpos window = 0);
 
 	/** Copy constructor. */
@@ -164,12 +163,12 @@ class OmQueryInternal {
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
-	string serialise() const;
+	std::string serialise() const;
 
 	/** Returns a string representing the query.
 	 * Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 
 	/** Check whether the query is defined. */
 	bool is_defined() const { return isdefined; }

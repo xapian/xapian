@@ -28,10 +28,10 @@
 
 class TextfileIndexerSource : public IndexerSource {
     private:
-	string filename;
+	std::string filename;
     public:
-	TextfileIndexerSource(const string & fname);
-	auto_ptr<istream> get_stream() const;
+	TextfileIndexerSource(const std::string & fname);
+	std::auto_ptr<std::istream> get_stream() const;
 };
 
 class TextfileIndexer : public Indexer {

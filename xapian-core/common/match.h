@@ -29,9 +29,7 @@
 #include "irweight.h"
 #include "omrefcnt.h"
 
-#include <stack>
 #include <vector>
-#include <map>
 
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
@@ -166,7 +164,7 @@ class SingleMatch : public OmRefCntBase
 	 */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
-			      vector<OmMSetItem> & mset,
+			      std::vector<OmMSetItem> & mset,
 			      om_doccount * mbound,
 			      om_weight * greatest_wt,
 			      const OmMatchDecider *mdecider,
