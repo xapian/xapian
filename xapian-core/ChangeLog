@@ -1,3 +1,8 @@
+Fri Nov 17 11:09:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add test to quartz of applying new revision numbers multiple times
+	  and checking the filesize of the DB file.
+
 Thu Nov 16 19:27:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Working through btree.{h,cc}:

@@ -39,6 +39,18 @@
 #include <vector>
 #include <algorithm>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+/// Get the size of the given file in bytes.
+static int get_filesize(std::string filename)
+{
+    struct stat buf;
+    int result = stat(filename.c_str(), &buf);
+    if (result) return -1;
+    return buf.st_size;
+}
+
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(QuartzDiskTable & table,
 				     std::string world)
@@ -149,16 +161,16 @@ static void unlink_table(const string & path)
 /// Test making and playing with a QuartzDiskTable
 static bool test_disktable1()
 {
-    unlink_table("./test_dbtable1_");
+    unlink_table("./test_disktable1_");
     {
-	QuartzDiskTable table0("./test_dbtable1_", true, 0);
+	QuartzDiskTable table0("./test_disktable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
 	//TEST_EXCEPTION(OmOpeningError, table0.open(10));
 	TEST(!table0.open(10));
     }
-    QuartzDiskTable table2("./test_dbtable1_", false, 8192);
+    QuartzDiskTable table2("./test_disktable1_", false, 8192);
     table2.open();
-    QuartzDiskTable table1("./test_dbtable1_", true, 0);
+    QuartzDiskTable table1("./test_disktable1_", true, 0);
     table1.open();
 
 
@@ -285,6 +297,36 @@ static bool test_disktable1()
     check_table_values_empty(table1);
     check_table_values_hello(table2, "world");
     
+    return true;
+}
+
+/// Test making and playing with a QuartzDiskTable
+static bool test_disktable2()
+{
+    unlink_table("./test_disktable2_");
+
+    QuartzDiskTable table("./test_disktable2_", false, 8192);
+    table.open();
+    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+
+    table.apply(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+
+    table.apply(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+
+    table.apply(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+
+    QuartzDbKey key;
+    key.value = "foo";
+    QuartzDbTag tag;
+    tag.value = "bar";
+
+    table.set_entry(key, &tag);
+    table.apply(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 8192);
+
     return true;
 }
 
@@ -1447,6 +1489,7 @@ static bool test_positionlist1()
 /// The lists of tests to perform
 test_desc tests[] = {
     {"quartzdisktable1",	test_disktable1},
+    {"quartzdisktable2",	test_disktable2},
     {"quartztableentries1",	test_tableentries1},
     {"quartzbufftable1",	test_bufftable1},
     {"quartzbufftable2",	test_bufftable2},
