@@ -43,7 +43,8 @@ class SelectPostList : public PostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 
 	// pass all these through to the underlying source PostList
-	om_doccount get_termfreq() const { return source->get_termfreq(); }
+	om_doccount get_termfreq_max() const { return source->get_termfreq_max(); }
+	om_doccount get_termfreq_min() const { return 0; }
 	om_weight get_maxweight() const { return source->get_maxweight(); }
 	om_docid get_docid() const { return source->get_docid(); }
 	om_weight get_weight() const { return source->get_weight(); }

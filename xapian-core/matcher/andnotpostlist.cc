@@ -52,13 +52,13 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
     return NULL;
 }
 
-AndNotPostList::AndNotPostList(PostList *left, PostList *right,
-			       MultiMatch *matcher_)
+AndNotPostList::AndNotPostList(PostList *left_,
+			       PostList *right_,
+			       MultiMatch *matcher_,
+			       om_doccount dbsize_)
+	: BranchPostList(left_, right_, matcher_),
+	  lhead(0), rhead(0), dbsize(dbsize_)
 {
-    matcher = matcher_;
-    l = left;
-    r = right;
-    lhead = rhead = 0;
 }
 
 PostList *

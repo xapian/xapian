@@ -38,9 +38,13 @@ class AndPostList : public BranchPostList {
         om_docid head;
         om_weight lmax, rmax;
 
+	om_doccount dbsize;
+
         void process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const;
+	om_doccount get_termfreq_min() const;
+	om_doccount get_termfreq_est() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -68,15 +72,30 @@ class AndPostList : public BranchPostList {
         AndPostList(PostList *left,
 		    PostList *right,
 		    MultiMatch *matcher_,
+		    om_doccount dbsize_,
 		    bool replacement = false);
 };
 
 inline om_doccount
-AndPostList::get_termfreq() const
+AndPostList::get_termfreq_max() const
 {
-    // this is actually the maximum possible frequency for the intersection of
-    // the terms
-    return std::min(l->get_termfreq(), r->get_termfreq());
+    return std::min(l->get_termfreq_max(), r->get_termfreq_max());
+}
+
+inline om_doccount
+AndPostList::get_termfreq_min() const
+{
+    return 0u;
+}
+
+inline om_doccount
+AndPostList::get_termfreq_est() const
+{
+    // Estimate assuming independence:
+    // P(l and r) = P(l) . P(r)
+    double lest = static_cast<double>(l->get_termfreq_est());
+    double rest = static_cast<double>(r->get_termfreq_est());
+    return static_cast<om_doccount> (lest * rest / dbsize);
 }
 
 inline om_docid

@@ -47,8 +47,15 @@ class NearPostList : public SelectPostList {
     public:
 	std::string get_description() const;
 
+	om_doccount get_termfreq_est() const
+	{
+	    // No idea how to estimate this - FIXME
+	    return source->get_termfreq_est() / 2;
+	}
+
         NearPostList(PostList *source, om_termpos window_,
-		     std::vector<PostList *> terms_) : SelectPostList(source)
+		     std::vector<PostList *> terms_)
+		: SelectPostList(source)
         {
 	    window = window_;
 	    terms = terms_;
@@ -80,6 +87,12 @@ class PhrasePostList : public SelectPostList {
 		     om_termcount min, om_termcount max);
     public:
 	std::string get_description() const;
+
+	om_doccount get_termfreq_est() const
+	{
+	    // No idea how to estimate this - FIXME
+	    return source->get_termfreq_est() / 3;
+	}
 
         PhrasePostList(PostList *source, om_termpos window_,
 		       std::vector<PostList *> terms_) : SelectPostList(source)

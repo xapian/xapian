@@ -61,13 +61,12 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
     return;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right, MultiMatch *matcher_,
+AndPostList::AndPostList(PostList *left_, PostList *right_,
+			 MultiMatch *matcher_,
+			 om_doccount dbsize_,
 			 bool replacement)
+	: BranchPostList(left_, right_, matcher_), head(0), dbsize(dbsize_)
 {
-    matcher = matcher_;
-    l = left;
-    r = right;
-    head = 0;
     if (replacement) {
 	// Initialise the maxweights from the kids so we can avoid forcing
 	// a full maxweight recalc

@@ -47,8 +47,11 @@ class FilterPostList : public AndPostList {
 
 	std::string get_description() const;
 
-        FilterPostList(PostList *l, PostList *r, MultiMatch *matcher_) :
-            AndPostList(l, r, matcher_) {};
+        FilterPostList(PostList *left_,
+		       PostList *right_,
+		       MultiMatch *matcher_,
+		       om_doccount dbsize_)
+		: AndPostList(left_, right_, matcher_, dbsize_) {};
 };
 
 #endif /* OM_HGUARD_FILTERPOSTLIST_H */

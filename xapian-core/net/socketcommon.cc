@@ -555,9 +555,9 @@ ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 	result += ' ';
 
 	result += om_tostring(i->wt);
-	result += ' ';
+	result += " ";
 	result += om_tostring(i->did);
-	result += ' ';
+	result += " ";
 	result += omkey_to_string(i->collapse_key);
 
 	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
@@ -577,9 +577,9 @@ ommset_termfreqwts_to_string(const std::map<om_termname,
     std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
-	result += ' ';
+	result += " ";
 	result += om_tostring(i->second.termfreq);
-	result += ' ';
+	result += " ";
 	result += om_tostring(i->second.termweight);
 	if (i != terminfo.end()) result += ' ';
     }
@@ -595,7 +595,11 @@ ommset_to_string(const OmMSet &ommset)
     // items
     result += om_tostring(ommset.firstitem);
     result += " ";
-    result += om_tostring(ommset.docs_considered);
+    result += om_tostring(ommset.matches_lower_bound);
+    result += " ";
+    result += om_tostring(ommset.matches_estimated);
+    result += " ";
+    result += om_tostring(ommset.matches_upper_bound);
     result += " ";
     result += om_tostring(ommset.max_possible);
     result += " ";
@@ -612,6 +616,7 @@ std::vector<OmMSetItem>
 string_to_ommsetitems(const std::string &s_)
 {
     std::vector<OmMSetItem> result;
+
     std::string::size_type colon = s_.find_first_of(' ');
     std::string s = s_.substr(colon + 1);
 
@@ -653,13 +658,20 @@ string_to_ommset(const std::string &s)
     istrstream is(s.data(), s.length());
 
     om_doccount firstitem;
-    om_doccount docs_considered;
+    om_doccount matches_lower_bound;
+    om_doccount matches_estimated;
+    om_doccount matches_upper_bound;
     om_weight max_possible;
     om_weight max_attained;
     std::vector<OmMSetItem> items;
 
     // first the easy ones...
-    is >> firstitem >> docs_considered >> max_possible >> max_attained;
+    is >> firstitem >> 
+	    matches_lower_bound >>
+	    matches_estimated >>
+	    matches_upper_bound >>
+	    max_possible >>
+	    max_attained;
     int msize;
     is >> msize;
     while (msize > 0) {
@@ -672,7 +684,6 @@ string_to_ommset(const std::string &s)
     }
 
     std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
-
     om_termname term;
     while (is >> term) {
 	OmMSet::TermFreqAndWeight tfaw;
@@ -683,7 +694,10 @@ string_to_ommset(const std::string &s)
 	terminfo[term] = tfaw;
     }
 
-    return OmMSet(firstitem, docs_considered,
+    return OmMSet(firstitem,
+		  matches_upper_bound,
+		  matches_lower_bound,
+		  matches_estimated,
 		  max_possible, max_attained,
 		  items, terminfo);
 }

@@ -230,13 +230,22 @@ MultiMatch::get_mset_2(PostList *pl,
     // maximum weight a document could possibly have
     const om_weight max_weight = pl->recalc_maxweight();
 
+    DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
+
+    om_doccount matches_upper_bound = pl->get_termfreq_max();
+    om_doccount matches_lower_bound = pl->get_termfreq_min();
+    om_doccount matches_estimated   = pl->get_termfreq_est();
 
     // Check if any results have been asked for (might just be wanting
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	mset = OmMSet(first, docs_considered, max_weight, greatest_wt, items,
+	mset = OmMSet(first,
+		      matches_upper_bound,
+		      matches_lower_bound,
+		      matches_estimated,
+		      max_weight, greatest_wt, items,
 		      termfreqandwts);
 	return;
     }
@@ -516,8 +525,12 @@ MultiMatch::get_mset_2(PostList *pl,
     }
 
     DEBUGLINE(MATCH,
-	      "msize = " << items.size() <<
-	      ", docs_considered = " << docs_considered);
+	      "msize = " << items.size() << ", " <<
+	      "docs_considered = " << docs_considered << ", " <<
+	      "matches_lower_bound = " << matches_lower_bound << ", " <<
+	      "matches_estimated = " << matches_estimated << ", " <<
+	      "matches_upper_bound = " << matches_upper_bound);
+
     if (items.size()) {
 	DEBUGLINE(MATCH, "sorting");
 
@@ -528,7 +541,20 @@ MultiMatch::get_mset_2(PostList *pl,
 		  ", min weight in mset = " << items.back().wt);
     }
 
-    mset = OmMSet(first, docs_considered, max_weight, greatest_wt, items,
+    Assert(matches_estimated >= matches_lower_bound);
+    Assert(matches_estimated <= matches_upper_bound);
+
+    Assert(docs_considered <= matches_upper_bound);
+    if (docs_considered > matches_lower_bound)
+	matches_lower_bound = docs_considered;
+    if (docs_considered > matches_estimated)
+	matches_estimated = docs_considered;
+
+    mset = OmMSet(first,
+		  matches_upper_bound,
+		  matches_lower_bound,
+		  matches_estimated,
+		  max_weight, greatest_wt, items,
 		  termfreqandwts);
 }
 

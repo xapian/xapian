@@ -53,12 +53,15 @@ XorPostList::advance_to_next_match(om_weight w_min)
     return NULL;
 }
 
-XorPostList::XorPostList(PostList *left, PostList *right, MultiMatch *matcher_)
+XorPostList::XorPostList(PostList *left_,
+			 PostList *right_,
+			 MultiMatch *matcher_,
+			 om_doccount dbsize_)
+	: BranchPostList(left_, right_, matcher_),
+	  lhead(0),
+	  rhead(0),
+	  dbsize(dbsize_)
 {
-    matcher = matcher_;
-    l = left;
-    r = right;
-    lhead = rhead = 0;
 }
 
 PostList *
@@ -75,12 +78,12 @@ XorPostList::next(om_weight w_min)
 		return NULL;
 	    }
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (1)");
-	    ret = new AndNotPostList(r, l, matcher);
+	    ret = new AndNotPostList(r, l, matcher, dbsize);
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (2)");
-	    ret = new AndNotPostList(l, r, matcher);
+	    ret = new AndNotPostList(l, r, matcher, dbsize);
 	}
 
 	l = r = NULL;
@@ -134,7 +137,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 		return NULL;
 	    }
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (in skip_to) (1)");
-	    AndNotPostList *ret3 = new AndNotPostList(r, l, matcher);
+	    AndNotPostList *ret3 = new AndNotPostList(r, l, matcher, dbsize);
 	    did = std::max(did, rhead);
 	    ret2 = ret3->sync_and_skip_to(did, w_min, rhead, lhead);
 	    ret = ret3;
@@ -142,7 +145,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (in skip_to) (2)");
-	    AndNotPostList *ret3 = new AndNotPostList(l, r, matcher);
+	    AndNotPostList *ret3 = new AndNotPostList(l, r, matcher, dbsize);
 	    did = std::max(did, lhead);
 	    ret2 = ret3->sync_and_skip_to(did, w_min, lhead, rhead);
 	    ret = ret3;

@@ -27,8 +27,8 @@
 
 class EmptyPostList : public LeafPostList {
     public:
-	om_doccount get_termfreq() const;
-	om_termcount get_collection_freq() const;
+	om_doccount get_termfreq() const { return 0; }
+	om_termcount get_collection_freq() const { return 0; }
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -41,18 +41,6 @@ class EmptyPostList : public LeafPostList {
 
 	std::string get_description() const;
 };
-
-inline om_doccount
-EmptyPostList::get_termfreq() const
-{
-    return 0;
-}
-
-inline om_termcount
-EmptyPostList::get_collection_freq() const
-{
-    return 0;
-}
 
 inline om_docid
 EmptyPostList::get_docid() const

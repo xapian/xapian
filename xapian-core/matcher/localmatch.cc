@@ -63,7 +63,7 @@ class PLPCmpGt {
 	 *  postings than b.
 	 */
         bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq() > b->get_termfreq();
+            return a->get_termfreq_est() > b->get_termfreq_est();
         }
 };
 
@@ -76,27 +76,33 @@ class PLPCmpLt {
 	 *  postings than b.
 	 */
         bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq() < b->get_termfreq();
+            return a->get_termfreq_est() < b->get_termfreq_est();
         }
 };
 
-/** Class providing an operator which returns true if a has a (strictly)
- *  greater termweight than b.
+/** Class providing an operator which sorts postlists to select max or terms.
+ *  This returns true if a has a (strictly) greater termweight than b,
+ *  unless a or b contain no documents, in which case the other one is
+ *  selected.
  */
-class PlCmpGtTermWt {
+class CmpMaxOrTerms {
     public:
 	/** Return true if and only if a has a strictly greater termweight
-	 *  than b; with the proviso that if the estimated termfrequency
+	 *  than b; with the proviso that if the termfrequency
 	 *  of the a or b is 0, the termweight is considered to be 0.
+	 *
+	 *  We use termfreq_max() because we really don't want to exclude a
+	 *  postlist which has a low but non-zero termfrequency: the estimate
+	 *  is quite likely to be zero in this case.
 	 */
 	bool operator()(const PostList *a, const PostList *b) {
 	    om_weight amax, bmax;
-	    if (a->get_termfreq() == 0)
+	    if (a->get_termfreq_max() == 0)
 		amax = 0;
 	    else
 		amax = a->get_maxweight();
 
-	    if (b->get_termfreq() == 0)
+	    if (b->get_termfreq_max() == 0)
 		bmax = 0;
 	    else
 		bmax = b->get_maxweight();
@@ -123,7 +129,7 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
 #if 0
     std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
-	if ((*i)->get_termfreq() == 0) {
+	if ((*i)->get_termfreq_max() == 0) {
 	    // a zero freq term => the AND has zero freq
 	    for (i = postlists.begin(); i != postlists.end(); i++)
 		delete *i;
@@ -145,7 +151,7 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
     while (j > 0) {
 	j--;
 	// NB right is always <= left - we use this to optimise.
-	pl = new AndPostList(postlists[j], pl, matcher);
+	pl = new AndPostList(postlists[j], pl, matcher, db->get_doccount());
     }
     return pl;
 }
@@ -169,7 +175,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 // max_weight will come out lower...
 #if 0
 	// for an OR, we can just ignore zero freq terms
-	if ((*i)->get_termfreq() == 0) {
+	if ((*i)->get_termfreq_max() == 0) {
 	    delete *i;
 	} else {
 	    pq.push(*i);
@@ -197,7 +203,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 	pq.pop();
 	if (pq.empty()) return pl;
 	// NB right is always <= left - we can use this to optimise
-	pl = new OrPostList(pq.top(), pl, matcher);
+	pl = new OrPostList(pq.top(), pl, matcher, db->get_doccount());
 	pq.pop();
 	pq.push(pl);
     }
@@ -223,8 +229,11 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
     std::vector<OmQuery::Internal *>::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q, matcher));
-	DEBUGLINE(MATCH, "Made postlist: get_termfreq() = " <<
-		  postlists.back()->get_termfreq());
+	DEBUGLINE(MATCH, "Made postlist:"
+		  " termfreq is: (min, est, max) = (" <<
+		  postlists.back()->get_termfreq_min() << ", " <<
+		  postlists.back()->get_termfreq_est() << ", " <<
+		  postlists.back()->get_termfreq_max() << ")");
     }
 
     // Build tree
@@ -263,7 +272,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 			(*j)->recalc_maxweight();
 		    std::nth_element(postlists.begin(),
 				postlists.begin() + max_or_terms - 1,
-				postlists.end(), PlCmpGtTermWt());
+				postlists.end(), CmpMaxOrTerms());
 		    DEBUGLINE(MATCH, "Discarding " <<
 			      (postlists.size() - max_or_terms) <<
 			      " terms.");
@@ -332,12 +341,14 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    Assert(query->subqs.size() == 2);
 	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher),
 				      postlist_from_query(query->subqs[1], matcher),
-				      matcher);
+				      matcher,
+				      db->get_doccount());
 	case OmQuery::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
 	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher),
 				      postlist_from_query(query->subqs[1], matcher),
-				      matcher);
+				      matcher,
+				      db->get_doccount());
 	case OmQuery::OP_AND_MAYBE:
 	    Assert(query->subqs.size() == 2);
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher),
@@ -347,7 +358,8 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    Assert(query->subqs.size() == 2);
 	    return new XorPostList(postlist_from_query(query->subqs[0], matcher),
 				   postlist_from_query(query->subqs[1], matcher),
-				   matcher);
+				   matcher,
+				   db->get_doccount());
     }
     Assert(false);
     return NULL;

@@ -108,23 +108,32 @@ class OmMSet {
 	/// Internal method used for percentage conversion
 	int convert_to_percent_internal(om_weight wt) const;
     public:
-	OmMSet() : docs_considered(0) {}
+	OmMSet() : firstitem(0),
+		  matches_lower_bound(0),
+		  matches_estimated(0),
+		  matches_upper_bound(0),
+		  max_possible(0),
+		  max_attained(0) {}
 
 	/** Create an OmMSet from the constituent data.
 	 *  There should be no need to use this from user programs.
 	 */
 	OmMSet(om_doccount firstitem_,
-	       om_doccount docs_considered_,
+	       om_doccount matches_upper_bound_,
+	       om_doccount matches_lower_bound_,
+	       om_doccount matches_estimated_,
 	       om_weight max_possible_,
 	       om_weight max_attained_,
 	       const std::vector<OmMSetItem> &items_,
 	       const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
-	    : termfreqandwts(termfreqandwts_),
-	      items(items_),
-	      firstitem(firstitem_),
-	      docs_considered(docs_considered_),
-	      max_possible(max_possible_),
-	      max_attained(max_attained_) {}
+		: termfreqandwts(termfreqandwts_),
+		  items(items_),
+		  firstitem(firstitem_),
+		  matches_lower_bound(matches_lower_bound_),
+		  matches_estimated(matches_estimated_),
+		  matches_upper_bound(matches_upper_bound_),
+		  max_possible(max_possible_),
+		  max_attained(max_attained_) {}
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
@@ -171,14 +180,13 @@ class OmMSet {
 	/** A lower bound on the number of documents in the database which
 	 *  have a weight greater than zero.
 	 *
-	 *  This is currently equal to the number of such documents "seen"
-	 *  by the enquiry system while searching through the database,
-	 *  although it should not be relied upon as being such.  This
-	 *  number is usually considerably less than the total number of
-	 *  documents which match the query to any extent, due to certain
-	 *  optimisations applied in calculating the M set.  The exact
-	 *  value is not returned since it would be too expensive to calculate
-	 *  it.
+	 *  This number is usually considerably less than the actual number
+	 *  of documents which match the query.
+	 */
+	om_doccount matches_lower_bound;
+
+	/** An estimate for the number of documents in the database which
+	 *  have a weight greater than zero.
 	 *
 	 *  This value is returned because there is sometimes a request to
 	 *  display such information.  However, our experience is that
@@ -186,7 +194,15 @@ class OmMSet {
 	 *  large number of results, rather than how useful those at the top
 	 *  of the result set are, and is thus undesirable.
 	 */
-	om_doccount docs_considered;
+	om_doccount matches_estimated;
+
+	/** An upper bound on the number of documents in the database with
+	 *  a weight greater than zero.
+	 *
+	 *  This number is usually considerably greater than the actual
+	 *  number of documents which match the query.
+	 */
+	om_doccount matches_upper_bound;
 
 	/** The maximum possible weight in the mset.
 	 *  This weight is likely not to be obtained in the set of results,

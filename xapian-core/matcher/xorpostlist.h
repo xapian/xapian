@@ -41,9 +41,13 @@ class XorPostList : public BranchPostList {
         om_docid lhead, rhead;
         om_weight lmax, rmax, minmax;
 
+	om_doccount dbsize;
+
         PostList *advance_to_next_match(om_weight w_min);
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const;
+	om_doccount get_termfreq_min() const;
+	om_doccount get_termfreq_est() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -62,15 +66,39 @@ class XorPostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-        XorPostList(PostList * left, PostList * right, MultiMatch * matcher_);
+        XorPostList(PostList * left_,
+		    PostList * right_,
+		    MultiMatch * matcher_,
+		    om_doccount dbsize_);
 };
 
 inline om_doccount
-XorPostList::get_termfreq() const
+XorPostList::get_termfreq_max() const
 {
-    // this is actually the maximum possible frequency for the union of
-    // the terms
-    return l->get_termfreq() + r->get_termfreq();
+    return l->get_termfreq_max() + r->get_termfreq_max();
+}
+
+inline om_doccount
+XorPostList::get_termfreq_min() const
+{
+    // Min = freq_min(a or b) - freq_max(a and b)
+    //     = max(a_min, b_min) - min(a_max, b_max)
+    //     = min(b_min - a_max, a_min - b_max)
+    om_doccount termfreq_min =
+	    std::max(r->get_termfreq_min() - l->get_termfreq_max(),
+		     l->get_termfreq_min() - r->get_termfreq_max());
+
+    return std::max(termfreq_min, 0u);
+}
+
+inline om_doccount
+XorPostList::get_termfreq_est() const
+{
+    // Estimate assuming independence:
+    // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
+    double lest = static_cast<double>(l->get_termfreq_est());
+    double rest = static_cast<double>(r->get_termfreq_est());
+    return static_cast<om_doccount> (lest + rest - 2.0 * lest * rest / dbsize);
 }
 
 inline om_docid

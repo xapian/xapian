@@ -1082,9 +1082,10 @@ static bool test_maxorterms2()
     moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
-    // query lengths differ so mset weights not the same (at present)
-    // TEST_EQUAL(mymset1, mymset2);
-    test_mset_order_equal(mymset1, mymset2);
+    TEST_EQUAL(mymset1, mymset2);
+    // query lengths differ so mset weights not the same (with some weighting
+    // parameters)
+    //test_mset_order_equal(mymset1, mymset2);
 
     return true;
 }
@@ -1326,11 +1327,42 @@ static bool test_msetzeroitems1()
     return true;
 }
 
-// test that the docs_considered of a simple query is as expected
-static bool test_docs_considered1()
+// test that the matches_* of a simple query are as expected
+static bool test_matches1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
-    TEST_EQUAL(mymset.docs_considered, 2);
+    OmQuery myquery;
+    OmMSet mymset;
+
+    myquery = query("word");
+    mymset = do_get_simple_query_mset(myquery);
+    TEST_EQUAL(mymset.matches_lower_bound, 2);
+    TEST_EQUAL(mymset.matches_estimated, 2);
+    TEST_EQUAL(mymset.matches_upper_bound, 2);
+
+    myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    mymset = do_get_simple_query_mset(myquery);
+    TEST_EQUAL(mymset.matches_lower_bound, 2);
+    TEST_EQUAL(mymset.matches_estimated, 2);
+    TEST_EQUAL(mymset.matches_upper_bound, 2);
+
+    myquery = query(OmQuery::OP_AND, "inmemory", "word");
+    mymset = do_get_simple_query_mset(myquery);
+    TEST_EQUAL(mymset.matches_lower_bound, 0);
+    TEST_EQUAL(mymset.matches_estimated, 0);
+    TEST_EQUAL(mymset.matches_upper_bound, 0);
+
+    myquery = query(OmQuery::OP_AND, "simple", "word");
+    mymset = do_get_simple_query_mset(myquery);
+    TEST_EQUAL(mymset.matches_lower_bound, 2);
+    TEST_EQUAL(mymset.matches_estimated, 2);
+    TEST_EQUAL(mymset.matches_upper_bound, 2);
+
+    myquery = query(OmQuery::OP_AND, "simple", "word");
+    mymset = do_get_simple_query_mset(myquery, 0);
+    TEST_EQUAL(mymset.matches_lower_bound, 0);
+    TEST_EQUAL(mymset.matches_estimated, 1);
+    TEST_EQUAL(mymset.matches_upper_bound, 2);
+
     return true;
 }
 
@@ -1687,7 +1719,7 @@ test_desc db_tests[] = {
     {"termlisttermfreq1",  test_termlisttermfreq1},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
-    {"docs_considered1",   test_docs_considered1},
+    {"matches1",	   test_matches1},
     {"wqf1",		   test_wqf1},
     {"qlen1",		   test_qlen1},
     {"termlist1",	   test_termlist1},

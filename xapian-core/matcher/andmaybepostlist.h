@@ -57,7 +57,9 @@ class AndMaybePostList : public BranchPostList {
 
         PostList * process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const;
+	om_doccount get_termfreq_min() const;
+	om_doccount get_termfreq_est() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -77,20 +79,26 @@ class AndMaybePostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-        AndMaybePostList(PostList *left, PostList *right, MultiMatch *matcher_)
+        AndMaybePostList(PostList *left_,
+			 PostList *right_,
+			 MultiMatch *matcher_)
+		: BranchPostList(left_, right_, matcher_),
+		  lhead(0),
+		  rhead(0)
 	{
-	    l = left;
-	    r = right;
-	    matcher = matcher_;
+	    // lmax and rmax will get initialised by a recalc_maxweight
 	}
 
 	/// Constructor for use by decomposing OrPostList
-        AndMaybePostList(PostList *left, PostList *right, MultiMatch *matcher_,
-			 om_docid lh, om_docid rh) : lhead(lh), rhead(rh)
+        AndMaybePostList(PostList *left_,
+			 PostList *right_,
+			 MultiMatch *matcher_,
+			 om_docid lhead_,
+			 om_docid rhead_)
+		: BranchPostList(left_, right_, matcher_),
+		  lhead(lhead_),
+		  rhead(rhead_)
 	{
-	    l = left;
-	    r = right;
-	    matcher = matcher_;
 	    // Initialise the maxweights from the kids so we can avoid forcing
 	    // a full maxweight recalc
 	    lmax = l->get_maxweight();
@@ -99,10 +107,24 @@ class AndMaybePostList : public BranchPostList {
 };
 
 inline om_doccount
-AndMaybePostList::get_termfreq() const
+AndMaybePostList::get_termfreq_max() const
 {
-    // this is exactly correct
-    return l->get_termfreq();
+    // Termfreq is exactly that of left hand branch.
+    return l->get_termfreq_max();
+}
+
+inline om_doccount
+AndMaybePostList::get_termfreq_min() const
+{
+    // Termfreq is exactly that of left hand branch.
+    return l->get_termfreq_min();
+}
+
+inline om_doccount
+AndMaybePostList::get_termfreq_est() const
+{
+    // Termfreq is exactly that of left hand branch.
+    return l->get_termfreq_est();
 }
 
 inline om_docid

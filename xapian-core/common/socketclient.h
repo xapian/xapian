@@ -164,7 +164,10 @@ class SocketClient : public NetClient {
 	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
 
 	bool open_postlist(om_doccount first, om_doccount maxitems,
-			   om_doccount &termfreq, om_weight &maxw,
+			   om_doccount &termfreq_max,
+			   om_doccount &termfreq_min,
+			   om_doccount &termfreq_est,
+			   om_weight &maxw,
 			   std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info);
 
 	void next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key);

@@ -338,7 +338,10 @@ SocketClient::get_mset(om_doccount first,
 
 bool
 SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
-			    om_doccount &termfreq, om_weight &maxw,
+			    om_doccount &termfreq_max,
+			    om_doccount &termfreq_min,
+			    om_doccount &termfreq_est,
+			    om_weight &maxw,
 			    std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::open_postlist", first << ", " << maxitems);
@@ -366,7 +369,7 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	    {
 		// extract term frequency and max weight
 		istrstream is(message.c_str());
-		is >> termfreq >> maxw;
+		is >> termfreq_max >> termfreq_min >> termfreq_est >> maxw;
 		minw = maxw;
 	    }
 	    message = do_read();

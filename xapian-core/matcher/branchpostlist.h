@@ -53,6 +53,9 @@ class BranchPostList : public PostList {
 	 */
         MultiMatch *matcher;
     public:
+	BranchPostList(PostList *l_, PostList *r_, MultiMatch *matcher_)
+		: l(l_), r(r_), matcher(matcher_) {}
+
         virtual ~BranchPostList();
 
 	/** Most branch postlists won't be able to supply position lists.

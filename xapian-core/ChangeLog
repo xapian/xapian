@@ -1,3 +1,31 @@
+Tue Dec  5 15:41:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Replace OmMSet::docs_considered with
+	  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more
+	  useful information.
+
+	* PostLists now have get_termfreq_{min,est,max}(), instead of
+	  get_termfreq(), so the postlist tree can be used to calculate
+	  the matches_* values for the mset.  Implemented for all the
+	  postlist subclasses.
+
+	  LeafPostList's still has a virtual get_termfreq() method,
+	  and implements get_termfreq_* in terms of it, so database postlists
+	  don't need to be modified.
+
+	* Passing of MSets across network modified to pass the new
+	  information.
+
+	* PendingMSet uses the values from the mset to return the values
+	  of get_termfreq_*().  This assumes that recalc_maxweight has been
+	  called first, which is has been.
+
+	* Muscat36 databases get_termfreq() methods fixed to use a
+	  LeafPostList rather than a PostList.
+
+	* Renamed test docs_considered1 to matches1, and add several
+	  more cases to it.
+
 Tue Dec 05 15:38:27 GMT 2000 Olly Betts
 
 	* Added tests/testdata/apitest_punc.txt to distribution.

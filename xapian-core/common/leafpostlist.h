@@ -38,6 +38,11 @@ class LeafPostList : public PostList {
 
 	~LeafPostList() { delete ir_wt; }
 
+	virtual om_doccount get_termfreq() const = 0;
+	om_doccount get_termfreq_max() const { return get_termfreq(); }
+	om_doccount get_termfreq_min() const { return get_termfreq(); }
+	om_doccount get_termfreq_est() const { return get_termfreq(); }
+
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
 

@@ -52,7 +52,9 @@ class MergePostList : public PostList {
 
 	OmErrorHandler * errorhandler;
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const;
+	om_doccount get_termfreq_min() const;
+	om_doccount get_termfreq_est() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -82,13 +84,37 @@ class MergePostList : public PostList {
 };
 
 inline om_doccount
-MergePostList::get_termfreq() const
+MergePostList::get_termfreq_max() const
 {
     // sum of termfreqs for all children
     om_doccount total = 0;
     std::vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
-	total += (*i)->get_termfreq();
+	total += (*i)->get_termfreq_max();
+    }
+    return total;
+}
+
+inline om_doccount
+MergePostList::get_termfreq_min() const
+{
+    // sum of termfreqs for all children
+    om_doccount total = 0;
+    std::vector<PostList *>::const_iterator i;
+    for (i = plists.begin(); i != plists.end(); i++) {
+	total += (*i)->get_termfreq_min();
+    }
+    return total;
+}
+
+inline om_doccount
+MergePostList::get_termfreq_est() const
+{
+    // sum of termfreqs for all children
+    om_doccount total = 0;
+    std::vector<PostList *>::const_iterator i;
+    for (i = plists.begin(); i != plists.end(); i++) {
+	total += (*i)->get_termfreq_est();
     }
     return total;
 }

@@ -25,12 +25,15 @@
 #include "andmaybepostlist.h"
 #include "omdebug.h"
 
-OrPostList::OrPostList(PostList *left, PostList *right, MultiMatch *matcher_)
+OrPostList::OrPostList(PostList *left_,
+		       PostList *right_,
+		       MultiMatch *matcher_,
+		       om_doccount dbsize_)
+	: BranchPostList(left_, right_, matcher_),
+	  lhead(0),
+	  rhead(0),
+	  dbsize(dbsize_)
 {
-    matcher = matcher_;
-    l = left;
-    r = right;
-    lhead = rhead = 0;
 }
 
 PostList *

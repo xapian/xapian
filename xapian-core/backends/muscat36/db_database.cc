@@ -261,7 +261,7 @@ DBDatabase::get_termfreq(const om_termname & tname) const
     OmLockSentry sentry(mutex);
 
     if(!term_exists_internal(tname)) return 0;
-    PostList *pl = open_post_list_internal(tname);
+    LeafPostList *pl = open_post_list_internal(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;

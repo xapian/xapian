@@ -36,7 +36,9 @@ class MSetPostList : public PostList {
 	int current;
 
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const;
+	om_doccount get_termfreq_min() const;
+	om_doccount get_termfreq_est() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -64,17 +66,21 @@ class MSetPostList : public PostList {
 };
 
 inline om_doccount
-MSetPostList::get_termfreq() const
+MSetPostList::get_termfreq_max() const
 {
-    // sum of termfreqs for all terms in query which formed mset
-    om_doccount total = 0;
-    static const std::map<om_termname, OmMSet::TermFreqAndWeight> &m =
-	mset.get_all_terminfo();
-    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
-    for (i = m.begin(); i != m.end(); i++) {
-	total += i->second.termfreq;
-    }
-    return total;
+    return mset.matches_upper_bound;
+}
+
+inline om_doccount
+MSetPostList::get_termfreq_min() const
+{
+    return mset.matches_lower_bound;
+}
+
+inline om_doccount
+MSetPostList::get_termfreq_est() const
+{
+    return mset.matches_estimated;
 }
 
 inline om_docid
@@ -165,8 +171,20 @@ class PendingMSetPostList : public PostList {
 	}
 
     public:
-	// maxitems is an upper bound on the number of postings
-	om_doccount get_termfreq() const { return maxitems; }
+	om_doccount get_termfreq_max() const {
+	    Assert(pl);
+	    return pl->get_termfreq_max();
+	}
+
+	om_doccount get_termfreq_min() const {
+	    Assert(pl);
+	    return pl->get_termfreq_min();
+	}
+
+	om_doccount get_termfreq_est() const {
+	    Assert(pl);
+	    return pl->get_termfreq_est();
+	}
 
 	om_docid  get_docid() const { Assert(false); return 0; }
 	om_weight get_weight() const { Assert(false); return 0; }
@@ -195,7 +213,8 @@ class PendingMSetPostList : public PostList {
 	bool at_end() const { Assert(false); return true; }
 
 	std::string get_description() const {
-	    return "( PendingMSet )";
+	    if (pl) return "PendingMset(" + pl->get_description() + ")";
+	    return "PendingMSet()";
 	}
 
 	/** Return the document length of the document the current term
@@ -219,13 +238,17 @@ class RemotePostList : public PostList {
 	om_weight w;
 	OmKey key;
 	
-	om_doccount termfreq;
+	om_doccount termfreq_max;
+	om_doccount termfreq_min;
+	om_doccount termfreq_est;
 	om_weight maxw;
 
 	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
 
     public:
-	om_doccount get_termfreq() const;
+	om_doccount get_termfreq_max() const { return termfreq_max; }
+	om_doccount get_termfreq_min() const { return termfreq_min; }
+	om_doccount get_termfreq_est() const { return termfreq_est; }
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
@@ -260,7 +283,9 @@ inline RemotePostList::RemotePostList(const NetworkDatabase *db_, om_doccount ma
     : db(db_), did(0)
 {
     DEBUGCALL(MATCH, void, "RemotePostList::RemotePostList", db_ << ", " << maxitems);
-    db->link->open_postlist(0, maxitems, termfreq, maxw, term_info);
+    db->link->open_postlist(0, maxitems,
+			    termfreq_max, termfreq_min, termfreq_est,
+			    maxw, term_info);
 }
 
 inline RemotePostList::~RemotePostList()
@@ -286,12 +311,6 @@ RemotePostList::skip_to(om_docid new_did, om_weight w_min)
     DEBUGCALL(MATCH, PostList *, "RemotePostList::skip_to", new_did << ", " << w_min);
     if (new_did > did) db->link->skip_to(new_did, w_min, did, w, key);
     RETURN(NULL);
-}
-
-inline om_doccount
-RemotePostList::get_termfreq() const
-{
-    return termfreq;
 }
 
 inline om_docid

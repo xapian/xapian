@@ -31,7 +31,9 @@ class ExtraWeightPostList : public PostList {
 	om_weight max_weight;
 
     public:
-	om_doccount get_termfreq() const { return pl->get_termfreq(); }
+	om_doccount get_termfreq_max() const { return pl->get_termfreq_max(); }
+	om_doccount get_termfreq_min() const { return pl->get_termfreq_min(); }
+	om_doccount get_termfreq_est() const { return pl->get_termfreq_est(); }
 
 	om_docid  get_docid() const { return pl->get_docid(); }
 

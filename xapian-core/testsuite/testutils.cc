@@ -83,7 +83,9 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 
 bool operator==(const OmMSet &first, const OmMSet &second)
 {
-    if ((first.docs_considered != second.docs_considered) ||
+    if ((first.matches_lower_bound != second.matches_lower_bound) ||
+	(first.matches_upper_bound != second.matches_upper_bound) ||
+	(first.matches_estimated != second.matches_estimated) ||
 	(first.max_possible != second.max_possible) ||
 	(first.items.size() != second.items.size())) {
 	return false;

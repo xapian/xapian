@@ -29,7 +29,7 @@
 #include "om/omsettings.h"
 #include "om/omenquire.h"
 
-#define OM_SOCKET_PROTOCOL_VERSION 5
+#define OM_SOCKET_PROTOCOL_VERSION 6
 
 class OmQuery::Internal;
 class Stats;

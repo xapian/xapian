@@ -269,7 +269,9 @@ SocketServer::run_match(const std::string &firstmessage)
 	{
 	    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
-	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
+	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +
+			   om_tostring(pl->get_termfreq_min()) + " " +
+			   om_tostring(pl->get_termfreq_est()) + " " +
 			   om_tostring(pl->recalc_maxweight()));
 	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	    snooper_buf = buf.get();
@@ -285,8 +287,10 @@ SocketServer::run_match(const std::string &firstmessage)
 	    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
 	    // not sure we really need these numbers...
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
-	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
-			   om_tostring(pl->recalc_maxweight())));
+	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +
+			   om_tostring(pl->get_termfreq_min()) + " " +
+			   om_tostring(pl->get_termfreq_est()) + " " +
+			   om_tostring(pl->recalc_maxweight()));
 	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	}
 	om_docid did = 0;

@@ -48,10 +48,21 @@ class PostList : public RefCntBase
 	//
 	// These may be called at any point
 
-	/** Return an upper bound on the number of documents indexed by this
-	 *  term.  This should be as tight a bound as possible.
+	/** Return an upper bound on the number of documents in this postlist.
+	 *  This should be as tight a bound as possible.
 	 */
-	virtual om_doccount get_termfreq() const = 0;
+	virtual om_doccount get_termfreq_max() const = 0;
+
+	/** Return a lower bound on the number of documents in this postlist.
+	 *  This should be as tight a bound as possible.
+	 */
+	virtual om_doccount get_termfreq_min() const = 0;
+
+	/** Return an estimate of the number of documents in this postlist.
+	 *  This will be within the range specified by the lower and upper
+	 *  bounds.
+	 */
+	virtual om_doccount get_termfreq_est() const = 0;
 
 	/** Return an upper bound on the value of get_weight() for this
 	 *  postlist.  This is used for optimisation purposes, and should
