@@ -3,7 +3,7 @@
 set -e
 
 # directories to cvs tag
-released_dirs="xapian-core xapian-examples xapian-bindings xapian-applications/omega"
+released_dirs="xapian-core xapian-bindings xapian-applications/omega"
 
 version="$1"
 

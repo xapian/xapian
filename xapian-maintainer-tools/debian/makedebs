@@ -164,8 +164,6 @@ cd build
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_BIN_OPTS}
   cd ..
 
-# FIXME - Build packages from xapian-examples
-
 # Leave the build directory
 cd ..
 
