@@ -140,9 +140,9 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
     return OmMSet::convert_to_percent(item.wt);
 }
 
-//////////////////////////////////////////
+///////////////////////////////////
 // Methods for OmEnquireInternal //
-//////////////////////////////////////////
+///////////////////////////////////
 
 OmEnquireInternal::OmEnquireInternal(const OmDatabase &db)
 	: database(0), dbdesc(db), query(0)
@@ -161,26 +161,10 @@ OmEnquireInternal::~OmEnquireInternal()
     }
 }
 
-// Open the database(s), if not already open.
-void
-OmEnquireInternal::open_database() const
-{
-    if(database == 0) {
-	if(dbdesc.internal->params.size() == 0) {
-	    throw OmInvalidArgumentError("Must specify at least one database");
-	} else if(dbdesc.internal->params.size() == 1) {
-	    database = DatabaseBuilder::create(dbdesc.internal->params.front());
-	} else {
-	    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
-	    multiparams.subdbs = dbdesc.internal->params;
-	    database = DatabaseBuilder::create(multiparams);
-	}
-    }
-}
-
 void
 OmEnquireInternal::set_query(const OmQuery &query_)
 {
+    OmLockSentry locksentry(mutex);
     if(query) {
 	delete query;
 	query = 0;
@@ -198,6 +182,7 @@ OmEnquireInternal::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
+    OmLockSentry locksentry(mutex);
     if(query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
@@ -273,6 +258,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * edecider) const
 {
+    OmLockSentry locksentry(mutex);
     OmESet retval;
 
     OmExpandOptions defeoptions;
@@ -316,6 +302,59 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
 const OmDocument
 OmEnquireInternal::get_doc(om_docid did) const
 {
+    OmLockSentry locksentry(mutex);
+    return read_doc(did);
+}
+
+const OmDocument
+OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
+{
+    OmLockSentry locksentry(mutex);
+    // FIXME: take advantage of OmMSetItem to ensure that database
+    // doesn't change underneath us.
+    return read_doc(mitem.did);
+}
+
+om_termname_list
+OmEnquireInternal::get_matching_terms(om_docid did) const
+{
+    OmLockSentry locksentry(mutex);
+    return calc_matching_terms(did);
+}
+
+om_termname_list
+OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
+{
+    OmLockSentry locksentry(mutex);
+    // FIXME: take advantage of OmMSetItem to ensure that database
+    // doesn't change underneath us.
+    return calc_matching_terms(mitem.did);
+}
+
+///////////////////////////////////////////
+// Private methods for OmEnquireInternal //
+///////////////////////////////////////////
+
+/// Open the database(s), if not already open.
+void
+OmEnquireInternal::open_database() const
+{
+    if(database == 0) {
+	if(dbdesc.internal->params.size() == 0) {
+	    throw OmInvalidArgumentError("Must specify at least one database");
+	} else if(dbdesc.internal->params.size() == 1) {
+	    database = DatabaseBuilder::create(dbdesc.internal->params.front());
+	} else {
+	    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
+	    multiparams.subdbs = dbdesc.internal->params;
+	    database = DatabaseBuilder::create(multiparams);
+	}
+    }
+}
+
+const OmDocument
+OmEnquireInternal::read_doc(om_docid did) const
+{
     open_database();
     LeafDocument *doc = database->open_document(did);
     OmDocument::Internal docint(doc);
@@ -323,20 +362,6 @@ OmEnquireInternal::get_doc(om_docid did) const
     return OmDocument(&docint);
 }
 
-const OmDocument
-OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
-{
-    open_database();
-    return get_doc(mitem.did);
-}
-
-om_termname_list
-OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
-{
-    // FIXME: take advantage of OmMSetItem to ensure that database
-    // doesn't change underneath us.
-    return get_matching_terms(mitem.did);
-}
 
 struct ByQueryIndexCmp {
     typedef map<om_termname, unsigned int> tmap_t;
@@ -354,7 +379,7 @@ struct ByQueryIndexCmp {
 };
 
 om_termname_list
-OmEnquireInternal::get_matching_terms(om_docid did) const
+OmEnquireInternal::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
@@ -425,7 +450,6 @@ OmEnquire::~OmEnquire()
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
-    OmLockSentry locksentry(internal->mutex);
     internal->set_query(query_);
 }
 
@@ -436,7 +460,6 @@ OmEnquire::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_mset(first, maxitems, omrset, moptions, mdecider);
 }
 
@@ -446,34 +469,29 @@ OmEnquire::get_eset(om_termcount maxitems,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * edecider) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_eset(maxitems, omrset, eoptions, edecider);
 }
 
 const OmDocument
 OmEnquire::get_doc(om_docid did) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(did);
 }
 
 const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(mitem);
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_matching_terms(mitem);
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_matching_terms(did);
 }

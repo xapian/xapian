@@ -33,23 +33,55 @@
 // Internals of enquire system //
 /////////////////////////////////
 
+/** Internals of enquire system.
+ *  This allows the implementation of OmEnquire to be hidden, allows
+ *  cleaner pthread locking by separating the API calls from the internals,
+ *  and allows the implementation to be shared with
+ *  OmBatchEnquire::Internal.
+ */
 class OmEnquireInternal {
+    private:
+	/** The databases which this enquire object uses.
+	 *  These are specified in the constructor, and are opened lazily,
+	 *  by calling OmEnquireInternal::open_database();
+	 */
+	mutable vector<IRDatabase *> databases;
 	mutable IRDatabase * database;
+
+	/** A copy of the OmDatabase object used to specify the database
+	 *  or databases to be used.
+	 *
+	 *  This is set by the constructor.
+	 */
 	OmDatabase dbdesc;
 	
-	/* This may need to be mutable in future so that it can be
-	 * replaced by an optimised version.
+	/** The user's query.
+	 *  This may need to be mutable in future so that it can be
+	 *  replaced by an optimised version.
 	 */
 	OmQuery * query;
 
-    public:
-	// pthread mutexes, if available.
+	/// pthread mutexes, used if available.
 	OmLock mutex;
 
+	/** Read a document from the database.
+	 *  This method does the work for get_doc().
+	 */
+	const OmDocument read_doc(om_docid did) const;
+
+	/** Calculate the matching terms.
+	 *  This method does the work for get_matching_terms().
+	 */
+	om_termname_list calc_matching_terms(om_docid did) const;
+
+	/** Open the database, if it is not already open.
+	 *
+	 */
+	void open_database() const;
+    public:
 	OmEnquireInternal(const OmDatabase &db);
 	~OmEnquireInternal();
 
-	void open_database() const;
 	void set_query(const OmQuery & query_);
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
@@ -60,8 +92,8 @@ class OmEnquireInternal {
 			const OmRSet & omrset,
 			const OmExpandOptions * eoptions,
 			const OmExpandDecider * edecider) const;
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
 	const OmDocument get_doc(om_docid did) const;
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
+	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 };

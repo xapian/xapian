@@ -37,12 +37,12 @@ class OmBatchEnquire::Internal {
         mutable OmEnquireInternal enquire;
 
 	query_batch queries;
-    public:
-	// pthread mutexes, if available.
-	OmLock &mutex;
 
+	// pthread mutexes, if available.
+	OmLock mutex;
+    public:
 	Internal(const OmDatabase &db)
-		: enquire(db), mutex(enquire.mutex) {};
+		: enquire(db), mutex() {};
 	~Internal() {};
 
 	void set_queries(const query_batch &queries_);
@@ -72,42 +72,36 @@ OmBatchEnquire::~OmBatchEnquire()
 void
 OmBatchEnquire::set_queries(const query_batch &queries_)
 {
-    OmLockSentry locksentry(internal->mutex);
     internal->set_queries(queries_);
 }
 
 OmBatchEnquire::mset_batch
 OmBatchEnquire::get_msets() const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_msets();
 }
 
 const OmDocument
 OmBatchEnquire::get_doc(om_docid did) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(did);
 }
 
 const OmDocument
 OmBatchEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(mitem);
 }
 
 om_termname_list
 OmBatchEnquire::get_matching_terms(om_docid did) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_matching_terms(did);
 }
 
 om_termname_list
 OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
-    OmLockSentry locksentry(internal->mutex);
     return internal->get_matching_terms(mitem);
 }
 
@@ -118,12 +112,14 @@ OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
 void
 OmBatchEnquire::Internal::set_queries(const query_batch &queries_)
 {
+    OmLockSentry locksentry(mutex);
     queries = queries_;
 }
 
 OmBatchEnquire::mset_batch
 OmBatchEnquire::Internal::get_msets() const
 {
+    OmLockSentry locksentry(mutex);
     mset_batch result;
 
     query_batch::const_iterator q = queries.begin();
@@ -154,24 +150,28 @@ OmBatchEnquire::Internal::get_msets() const
 const OmDocument
 OmBatchEnquire::Internal::get_doc(om_docid did) const
 {
+    OmLockSentry locksentry(mutex);
     return enquire.get_doc(did);
 }
 
 const OmDocument
 OmBatchEnquire::Internal::get_doc(const OmMSetItem &mitem) const
 {
+    OmLockSentry locksentry(mutex);
     return enquire.get_doc(mitem);
 }
 
 om_termname_list
 OmBatchEnquire::Internal::get_matching_terms(om_docid did) const
 {
+    OmLockSentry locksentry(mutex);
     return enquire.get_matching_terms(did);
 }
 
 om_termname_list
 OmBatchEnquire::Internal::get_matching_terms(const OmMSetItem &mitem) const
 {
+    OmLockSentry locksentry(mutex);
     return enquire.get_matching_terms(mitem);
 }
 
