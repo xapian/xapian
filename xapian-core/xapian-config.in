@@ -86,11 +86,10 @@ while test 0 != "$#"; do
 	    *) inc="-I$includedir" ;;
 	    esac
 	fi
-	if test -n "@STLPORT_CXXFLAGS@" ; then
-	    echo "@STLPORT_CXXFLAGS@ $inc"
-	else
-	    echo "$inc"
-	fi
+	cxxflags=
+	test -n "@ANSI_CXXFLAGS@" && cxxflags="@ANSI_CXXFLAGS@ "
+	test -n "@STLPORT_CXXFLAGS@" && cxxflags="${cxxflags}@STLPORT_CXXFLAGS@ "
+	echo "${cxxflags}$inc"
 	;;
 
     --libs)

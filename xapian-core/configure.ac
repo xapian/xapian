@@ -103,9 +103,7 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
-dnl this early in configure so such settings are used for other tests, and
-dnl put them in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS are only used in
-dnl the Makefiles.
+dnl this early in configure so such settings are used for other tests.
 case "$CXX" in
   aCC|*/aCC)
     dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
@@ -116,13 +114,22 @@ case "$CXX" in
     dnl the default on Itanium, but not on PARISC:
     dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
     dnl )
-    CXXFLAGS="$CXXFLAGS -AA" ;;
+    ANSI_CXXFLAGS="-AA" ;;
   cxx|*/cxx)
     dnl Select ANSI mode (strict_ansi is needed for ANSI iostream, as -std ansi
     dnl gives a pre-standard AT&T-compatible version).
     dnl If this is a problem, try "-std ansi -D__USE_STD_IOSTREAM"
-    CXXFLAGS="$CXXFLAGS -std strict_ansi" ;;
+    ANSI_CXXFLAGS="-std strict_ansi" ;;
 esac
+
+dnl Put any flags for ANSI mode in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS
+dnl is only used in the Makefiles and we want to use such flags in configure
+dnl tests.
+test -n "$ANSI_CXXFLAGS" && CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+
+dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
+dnl with Xapian.
+AC_SUBST(ANSI_CXXFLAGS)
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
