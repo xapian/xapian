@@ -10,6 +10,7 @@ Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}
 Suggests: xapian-tools
+Conflicts: libxapian2
 Description: Search engine library
  This package contains the core Xapian runtime library, and the Xapian query
  parser library.
