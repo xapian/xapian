@@ -1,3 +1,7 @@
+Thu Nov 30 14:16:28 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a prototype bug introduced with the last commit.
+
 Thu Nov 30 13:23:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Bcursor::find_key now more const-correct.
