@@ -32,20 +32,15 @@ document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 <INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 
 SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
 <INPUT TYPE=hidden NAME=DB VALUE="$cgi{DB}">
-<!-- dump terms 
-	// for each term
-	      cout << "<tr><td>";
-	      if (isupper(*p)) {
-		  cout << "<input type=checkbox name=B value=\"" << p << "\">";
-	      } else if (strchr(p, ' ')) {
+${$terms should be all terms indexing the document}
+$map{${terms},
+<tr><td>
+${if (isupper(*p)<input type=checkbox name=B value=\"" << p << "\">";}
+${	       else if (strchr(p, ' ')) 
 		  cout << "<input type=checkbox name=X onclick=C(this) "
-		          "value=\"&quot;" << p << "&quot;\">";
-	      } else {
-		  cout << "<input type=checkbox name=X onclick=C(this) "
-		          "value=\"" << p << ".\">";
-	      }
-	      cout << " <A HREF=\"/?DB=" << db_name << "&";
-	      if (isupper(*p)) {
+		          "value=\"&quot;" << p << "&quot;\">";}
+<input type=checkbox name=X onclick=C(this) value=",.">}
+<A HREF="$env{SCRIPT_NAME}?$if{$cgi{DB},DB=$cgi{DB}}&${	      if (isupper(*p)) {
 		  cout << "B=" << p << "\">";
 	      } else if (strchr(p, ' ')) {
 		  char *q = p;
@@ -58,23 +53,7 @@ SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
 		      q++;
 		  }
 		  cout << "%22\">";
-	      } else {
-		  char *q = p;
-		  cout << "P=";
-		  while (*q) {
-		      if (*q == '+')
-			  cout << "%2b";
-		      else if (*q == '&')
-			  cout << "%26";
-		      else
-			  cout << *q;
-		      q++;
-		  }
-		  cout << ".\">";
-	      }
-
-	      cout << "</A></td><td>" << freq << "</td></tr>\n";	
--->
+	      }}P=$url{${termname}.}</A></td><td>${freq}</td></tr>
 <hr>
 Expand terms<br>
 <table><tr><th>Term</th><th>Freq</th></tr>

@@ -40,7 +40,6 @@
 #include "query.h"
 
 OmEnquire * enquire;
-OmMSet mset;
 OmRSet * rset;
 
 map<string, string> option;
@@ -54,8 +53,7 @@ static void make_query_log_entry(const string &buf);
 
 string db_name;
 string db_dir;
-string fmtname;
-string fmtfile = "t/fmt";
+string fmtname = "query";
 
 om_docid topdoc = 0;
 om_docid list_size = 0;
@@ -198,28 +196,27 @@ static int main2(int argc, char *argv[])
 	OmExpandOptions eoptions;
 	eoptions.set_use_query_terms(false);
 	ExpandDeciderOmega decider;
-	OmESet topterms =
-		enquire->get_eset(100, tmprset, &eoptions, &decider);
+	OmESet topterms = enquire->get_eset(6, tmprset, &eoptions, &decider);
 
-	int c = 0;
 	vector<OmESetItem>::const_iterator i;
 	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
 	    string term = i->tname;
-	    if (term.empty()) continue;
 	    if (more) big_buf += ' ';
 	    big_buf += term;
 	    more = true;
-	    if (++c >= 6) break;
 	}
 	if (more) goto got_query_from_morelike;
     }
 
-    val = cgi_params.find("IDSPISPOPD");
+    val = cgi_params.find("FMT");
     if (val != cgi_params.end()) {
-	int doc = atol(val->second.c_str());
-	// FIXME: use godmode template
+	string v = val->second;
+	if (!v.empty()) {
+	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
+	    if (i == string::npos) fmtname = v;
+	}
     }
-      
+
     // collect the prob fields
     g = cgi_params.equal_range("P");
     for (MCI i = g.first; i != g.second; i++) {
@@ -254,18 +251,6 @@ static int main2(int argc, char *argv[])
 	if (!v.empty() && isalnum(v[0])) add_bterm(v);
     }
 
-    val = cgi_params.find("FMT");
-    if (val != cgi_params.end()) {
-	string v = val->second;
-	if (!v.empty()) {
-	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
-	    if (i == string::npos) {
-		fmtname = v;
-		fmtfile = "t/fmt." + fmtname;
-	    }
-	}
-    }
-   
     /*** get old prob query (if any) ***/
     val = cgi_params.find("OLDP");
     if (val == cgi_params.end()) {

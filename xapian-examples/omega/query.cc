@@ -66,6 +66,8 @@ static vector<OmQuery *> pluses;
 static vector<OmQuery *> minuses;
 static vector<OmQuery *> normals;
 
+static OmMSet mset;
+
 // STATLINE -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
 
 // lookup in table (e.g. en -> English)
@@ -164,8 +166,7 @@ run_query()
 			  minuses.end()));
 
     if (!filter_map.empty()) {
-	// a vector is more convenient than a map for constructing
-	// queries.
+	// a vector is more convenient than a map for constructing queries.
 	vector<om_termname> filter_vec;
 	map<char,string>::const_iterator i;
 	for (i = filter_map.begin(); i != filter_map.end(); i++)
@@ -179,16 +180,17 @@ run_query()
     }
 
     if (!query.is_defined()) {
-	// FIXME: for now set a query which will match nothing (yuckity yuck)
-	query = OmQuery(OM_MOP_AND_NOT, OmQuery("xyzzy"), OmQuery("xyzzy"));
-    }
-    enquire->set_query(query);
+	// empty mset
+	mset = OmMSet();
+    } else {
+	enquire->set_query(query);
 
-    // We could use the value of topdoc as first parameter, but we
-    // need to know the first few items on the mset to fake a
-    // relevance set for topterms
-    mset = enquire->get_mset(0, topdoc + list_size, rset);
-    // FIXME - set msetcmp to reverse?
+	// We could use the value of topdoc as first parameter, but we
+	// need to know the first few items on the mset to fake a
+	// relevance set for topterms
+	mset = enquire->get_mset(0, topdoc + list_size, rset);
+	// FIXME - set msetcmp to reverse?
+    }
 }
 
 #if 0
@@ -257,49 +259,6 @@ do_picker(char prefix, const char **opts)
     cout << "</SELECT>\n";
 }
 #endif
-
-// FIXME: we can't easily do this in the macro language...
-static string
-print_page_links()
-{
-    int page;
-    string res;
-    /* suppress page links if there's only one page */
-    if (mset.mbound <= list_size) return res;
-
-    string g = option["gif_dir"];
-    option["gif_dir"] = "http://www.muscat.com/muscat/oval/";
-    int lastpage = (mset.mbound - 1) / list_size + 1;
-    if (lastpage > 10) lastpage = 10;
-
-    {
-	long int plh, plw, have_selected_page_gifs;
-	// If not specified, don't default plh and plw since the page
-	// gifs may not all be the same size
-	plh = string_to_int(option["pagelink_height"]);
-        plw = string_to_int(option["pagelink_width"]);
-        have_selected_page_gifs = string_to_int(option["selected_pages"]);
-
-        for (page = 1; page <= lastpage; page++) {
-	    string pagebuf = int_to_string(page);
-	    if (page - 1 == topdoc / list_size) {
-		res += "<IMG SRC=\"" + option["gif_dir"] + "/page-" + pagebuf;
-		if (have_selected_page_gifs) res += 's';
-		res += ".gif\"";
-	    } else {
-		res = res + "<INPUT TYPE=image NAME=\"[ " + pagebuf
-		    + " ]\" VALUE=" + pagebuf + " SRC=\"" + option["gif_dir"]
-		    + "/page-" + pagebuf + ".gif\" BORDER=0";
-	    }
-	    if (plh) res = res + " HEIGHT=" + option["pagelink_height"];
-	    if (plw) res = res + " WIDTH=" + option["pagelink_height"];
-	    res = res + " ALT=" + pagebuf + ">\n";
-	}
-    }
-
-    option["gif_dir"] = g;
-    return res;
-}
 
 static string
 percent_encode(const string &str)
@@ -448,8 +407,7 @@ eval(const string &fmt)
 	string var = fmt.substr(q, p - q);
 	vector<string> args;
 	if (fmt[p] == '{') {
-	    p++;
-	    q = p;
+	    q = p + 1;
 	    int nest = 1;
 	    while (1) {
 		p = fmt.find_first_of(",{}", p + 1);
@@ -649,7 +607,10 @@ eval(const string &fmt)
 	    }
 	    if (var == "if") {
 		ok = true;
-		if (eval(args[0]).size()) value = eval(args[1]);
+		if (eval(args[0]).size())
+		    value = eval(args[1]);
+		else if (args.size() > 2)
+		    value = eval(args[2]);
 		break;
 	    }
 	    break;
@@ -657,6 +618,11 @@ eval(const string &fmt)
 	    if (var == "last") {
 		ensure_match();
 		value = int_to_string(last);
+		break;
+	    }
+	    if (var == "lastpage") {
+		ensure_match();
+		value = int_to_string((mset.mbound - 1) / list_size + 1);
 		break;
 	    }
 	    if (var == "list") {
@@ -729,6 +695,29 @@ eval(const string &fmt)
 		}
 		break;
 	    }
+	    if (var == "min") {
+		ok = true;
+		vector<string>::const_iterator i = args.begin();
+		int val = string_to_int(eval(*i++));
+		for (; i != args.end(); i++) {
+		    int x = string_to_int(eval(*i));
+		    if (x < val) val = x;
+	        }
+		value = int_to_string(val);
+		break;
+	    }
+	    break;
+	    if (var == "max") {
+		ok = true;
+		vector<string>::const_iterator i = args.begin();
+		int val = string_to_int(eval(*i++));
+		for (; i != args.end(); i++) {
+		    int x = string_to_int(eval(*i));
+		    if (x > val) val = x;
+	        }
+		value = int_to_string(val);
+		break;
+	    }
 	    break;
 	 case 'n':
 	    if (var == "ne") {
@@ -762,11 +751,6 @@ eval(const string &fmt)
 	    if (var == "percentage") {
 		// percentage score
 		value = int_to_string(percent);
-		break;
-	    }
-	    if (var == "pages") {
-		ok = true;
-		value = print_page_links();
 		break;
 	    }
 	    if (var == "pagemax") {
@@ -877,6 +861,11 @@ eval(const string &fmt)
 	    if (var == "topdoc") {
 		// first document on current page of hit list (counting from 0)
 		value = int_to_string(topdoc);
+		break;
+	    }
+	    if (var == "thispage") {
+		ensure_match();
+		value = int_to_string(topdoc / list_size + 1);
 		break;
 	    }
 	    if (var == "topterms") {
@@ -1010,7 +999,7 @@ print_query_page(const string &page)
 om_doccount
 do_match()
 {
-    print_query_page("query");
+    print_query_page(fmtname);
     return mset.mbound;
 }
 

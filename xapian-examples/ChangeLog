@@ -1,3 +1,12 @@
+Mon Jul 09 15:05:00 BST 2000 Olly Betts
+
+	* omega: MORELIKE now works; godmode works to some extent; mset
+	  moved into query.cc; empty query handling now less icky; $pages
+	  replaced by macro language version; fixed bug which mishandled
+	  $xxx{} and $xxx{,...}; added $lastpage, $thispage, $min, $max;
+	  $if now takes optional 3rd argument (else clause); now use FMT
+	  to choose template
+
 Sun Jul 09 16:47:00 BST 2000 Olly Betts
 
 	* omindex: fixed double slash at start of pathnames

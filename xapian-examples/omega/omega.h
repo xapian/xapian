@@ -33,10 +33,9 @@
 extern FILE *page_fopen(const string &page);
 
 extern string db_name;
-extern string fmtname, fmtfile;
+extern string fmtname;
 
 extern OmEnquire * enquire;
-extern OmMSet mset;
 extern OmRSet * rset;
 
 extern om_docid topdoc;

@@ -38,11 +38,14 @@ $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
 </td></tr></table>
 ${$list{$freqs,<hr>,$. ,<hr>}}
 <hr>
-$if{$eq{$msize,0},$if{$queryterms,No documents match your query}}
-$if{$ne{$msize,0},$if{$eq{$last,$msize},$if{$eq{$topdoc,0},All $msize matches}}}
-$if{$ne{$msize,0},$if{$eq{$last,$msize},$if{$ne{$topdoc,0},$add{$topdoc,1}
-$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}}}
-$if{$ne{$msize,0},$if{$ne{$last,$msize},$add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches}}
+$if{$eq{$msize,0},
+ $if{$queryterms,No documents match your query},
+ $if{$ne{$last,$msize},
+  $add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches,
+  $if{$eq{$topdoc,0},
+   All $msize matches,
+   $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
+}}
 <hr>
 </center>
 <table>
@@ -66,13 +69,25 @@ $percentage% relevant, matching:
 </table>
 ${$map{$range{1,$pagemax},<INPUT TYPE=submit NAME="[" VALUE=,>}}
 <br>
-$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="<"
-SRC="http://www.euroferret.com/fx-gif/previous.gif" BORDER=0 HEIGHT=56 WIDTH=56>}
-${$if{$eq{$topdoc,0},<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/prevoff.gif" HEIGHT=56 WIDTH=56>}}
-$pages
-$if{$ne{$last,$msize},<INPUT TYPE=image NAME=">"
-SRC="http://www.euroferret.com/fx-gif/next.gif" BORDER=0 HEIGHT=56 WIDTH=56>}
-${$if{$eq{$last,$msize},<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH=56>}}
+$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;"
+SRC="http://www.euroferret.com/fx-gif/previous.gif" BORDER=0 HEIGHT=56
+WIDTH=56>,
+${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/prevoff.gif" HEIGHT=56 WIDTH=56>}}
+${suppress page links if there's only one page}
+$if{$ne{$lastpage,1},
+$set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
+$map{$range{1,$add{$thispage,-1}},
+<INPUT TYPE=image NAME="[ , ]" VALUE=,
+SRC="http://www.muscat.com/muscat/oval/page-,.gif" BORDER=0$opt{a} ALT=,>}
+<IMG SRC="http://www.muscat.com/muscat/oval/page-$thispage{}s.gif"$opt{a}
+ALT=$thispage>
+$map{$range{$add{$thispage,1},$min{$lastpage,$add{$thispage,9}}},
+<INPUT TYPE=image NAME="[ , ]" VALUE=,
+SRC="http://www.muscat.com/muscat/oval/page-,.gif" BORDER=0$opt{a} ALT=,>}
+}
+$if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;"
+SRC="http://www.euroferret.com/fx-gif/next.gif" BORDER=0 HEIGHT=56 WIDTH=56>,
+${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH=56>}}
 <br>
 $map{$html{$cgilist{DB}},<INPUT TYPE=hidden NAME=DB VALUE=",">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
