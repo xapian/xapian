@@ -43,7 +43,7 @@
 #undef MUS_BUILD_BACKEND_INMEMORY
 
 /* Define if you want to build net database backend */
-#undef MUS_BUILD_BACKEND_NET
+#undef MUS_BUILD_BACKEND_REMOTE
 
 /* Define if you want debugging to be enabled (will cause some slow down) */
 #undef MUS_DEBUG

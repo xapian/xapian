@@ -1,15 +1,15 @@
 ## Process this file with automake to produce Makefile.in
 
-if BUILD_BACKEND_NET
-BUILDSUBDIR_NET1 = net
-BUILDSUBDIR_NET2 = netprogs
+if BUILD_BACKEND_REMOTE
+BUILDSUBDIR_REMOTE1 = net
+BUILDSUBDIR_REMOTE2 = netprogs
 endif
 
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include testsuite autoconf common \
-          backends api matcher languages $(BUILDSUBDIR_NET1) indexer . m4 \
-	  docs $(BUILDSUBDIR_NET2) tests bindings
+          backends api matcher languages $(BUILDSUBDIR_REMOTE1) indexer . m4 \
+	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS \
              ar-wrapper-solaris

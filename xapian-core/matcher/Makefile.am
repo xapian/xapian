@@ -9,15 +9,14 @@ noinst_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
 
 noinst_LTLIBRARIES = libmatcher.la
 
-if BUILD_BACKEND_NET
-SOURCEFORNET = networkmatch.cc
+if BUILD_BACKEND_REMOTE
+SOURCEFORREMOTE = networkmatch.cc
 endif
 
-libmatcher_la_SOURCES = orpostlist.cc andpostlist.cc \
- andnotpostlist.cc andmaybepostlist.cc xorpostlist.cc phrasepostlist.cc \
+libmatcher_la_SOURCES = orpostlist.cc andpostlist.cc andnotpostlist.cc \
+ andmaybepostlist.cc xorpostlist.cc phrasepostlist.cc selectpostlist.cc \
+ filterpostlist.cc ortermlist.cc expandweight.cc rset.cc \
  irweight.cc boolweight.h bm25weight.h bm25weight.cc tradweight.h \
  tradweight.cc \
- filterpostlist.cc ortermlist.cc expandweight.cc rset.cc \
  localmatch.cc multimatch.cc expand.cc stats.cc \
- leafdocument.cc selectpostlist.cc \
- $(SOURCEFORNET)
+ leafdocument.cc $(SOURCEFORREMOTE)

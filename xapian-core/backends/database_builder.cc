@@ -37,7 +37,7 @@
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_NET
+#ifdef MUS_BUILD_BACKEND_REMOTE
 // net_database.h is in common/
 #include "net_database.h"
 #endif
@@ -50,7 +50,7 @@ enum om_database_type {
     DBTYPE_MUSCAT36_DA,
     DBTYPE_MUSCAT36_DB,
     DBTYPE_INMEMORY,
-    DBTYPE_NETWORK,
+    DBTYPE_REMOTE,
     DBTYPE_QUARTZ,
     DBTYPE_SLEEPYCAT
 };
@@ -64,7 +64,8 @@ static const StringAndValue database_strings[] = {
     { "da",			DBTYPE_MUSCAT36_DA	},
     { "db",			DBTYPE_MUSCAT36_DB	},
     { "inmemory",		DBTYPE_INMEMORY		},
-    { "network",		DBTYPE_NETWORK		},
+    { "network",		DBTYPE_REMOTE		}, // FIXME: old name
+    { "remote",			DBTYPE_REMOTE		},
     { "quartz",			DBTYPE_QUARTZ		},
     { "sleepycat",		DBTYPE_SLEEPYCAT	},
     { "",			DBTYPE_NULL		}  // End
@@ -158,8 +159,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	    database = new QuartzDatabase(params, readonly);
 #endif
 	    break;
-	case DBTYPE_NETWORK:
-#ifdef MUS_BUILD_BACKEND_NET
+	case DBTYPE_REMOTE:
+#ifdef MUS_BUILD_BACKEND_REMOTE
 	    database = new NetworkDatabase(params, readonly);
 #endif
 	    break;

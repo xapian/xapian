@@ -29,9 +29,9 @@
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
-#ifdef MUS_BUILD_BACKEND_NET
+#ifdef MUS_BUILD_BACKEND_REMOTE
 #include "networkmatch.h"
-#endif /* MUS_BUILD_BACKEND_NET */
+#endif /* MUS_BUILD_BACKEND_REMOTE */
 
 #include <algorithm>
 
@@ -71,11 +71,11 @@ MultiMatch::make_match_from_database(IRDatabase *db)
      * databases.
      */
     if (db->is_network()) {
-#ifdef MUS_BUILD_BACKEND_NET
+#ifdef MUS_BUILD_BACKEND_REMOTE
 	return OmRefCntPtr<SingleMatch>(new NetworkMatch(db));
-#else /* MUS_BUILD_BACKEND_NET */
+#else /* MUS_BUILD_BACKEND_REMOTE */
 	throw OmUnimplementedError("Network operation is not available");
-#endif /* MUS_BUILD_BACKEND_NET */
+#endif /* MUS_BUILD_BACKEND_REMOTE */
     } else {
 	return OmRefCntPtr<SingleMatch>(new LocalMatch(db));
     }

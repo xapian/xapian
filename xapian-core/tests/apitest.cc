@@ -2409,7 +2409,7 @@ bool test_badbackend2()
 #ifndef MUS_BUILD_BACKEND_SLEEPYCAT
     CHECK_BACKEND_UNAVAILABLE("sleepycat");
 #endif
-#ifndef MUS_BUILD_BACKEND_NET
+#ifndef MUS_BUILD_BACKEND_REMOTE
     CHECK_BACKEND_UNAVAILABLE("network");
 #endif
 #ifndef MUS_BUILD_BACKEND_MUSCAT36
@@ -2635,7 +2635,7 @@ int main(int argc, char *argv[])
     RUNTESTS("sleepycat", localdb);
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_NET)
+#if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
     RUNTESTS("network", db);
 #endif
 

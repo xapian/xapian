@@ -41,9 +41,9 @@ BUILDSUBDIR_MULTI = multi
 LIBADD_MULTI = multi/libmulti.la
 endif
 
-if BUILD_BACKEND_NET
-BUILDSUBDIR_NET = net
-LIBADD_NET = net/libnetdb.la
+if BUILD_BACKEND_REMOTE
+BUILDSUBDIR_REMOTE = net
+LIBADD_REMOTE = net/libnetdb.la
 endif
 
 SUBDIRS = \
@@ -52,11 +52,11 @@ SUBDIRS = \
           $(BUILDSUBDIR_QUARTZ) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_MULTI) \
-	  $(BUILDSUBDIR_NET) .
+	  $(BUILDSUBDIR_REMOTE) .
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
 	  $(LIBADD_SLEEPYCAT) \
 	  $(LIBADD_QUARTZ) \
           $(LIBADD_INMEMORY) \
 	  $(LIBADD_MULTI) \
-	  $(LIBADD_NET)
+	  $(LIBADD_REMOTE)

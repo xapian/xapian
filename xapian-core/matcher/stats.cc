@@ -52,7 +52,7 @@ LocalStatsGatherer::get_stats() const
 }
 
 #include "config.h"
-#ifdef MUS_BUILD_BACKEND_NET
+#ifdef MUS_BUILD_BACKEND_REMOTE
 
 #include "netserver.h"
 #include "netclient.h"
@@ -126,7 +126,7 @@ NetworkStatsSource::take_remote_stats(Stats stats)
     have_remote_stats = true;
 }
 
-#endif /* MUS_BUILD_BACKEND_NET */
+#endif /* MUS_BUILD_BACKEND_REMOTE */
 
 LocalStatsSource::LocalStatsSource()
 {
