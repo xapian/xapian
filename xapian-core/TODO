@@ -20,9 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | API             | Make OmDatabaseGroup store opened databases,
-         |                 | rather than their parameters.
----------+-----------------+--------------------------------------------------
  High    | API             | Make OmDatabase object, which OmWritableDatabase
          |                 | (and OmDatabaseGroup ?) inherit from.
 ---------+-----------------+--------------------------------------------------

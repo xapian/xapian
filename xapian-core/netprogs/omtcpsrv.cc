@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	OmRefCntPtr<MultiDatabase> mdb(
-	    OmDatabaseGroup::InternalInterface::make_multidatabase(mydbs));
+	    OmDatabaseGroup::InternalInterface::get_multidatabase(mydbs));
 
 	TcpServer server(mdb, port);
 

@@ -32,6 +32,7 @@
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"
+#include "omdatabaseinterface.h"
 #include "database_builder.h"
 #include <om/omdocument.h>
 #include "omdocumentparams.h"
@@ -163,16 +164,13 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 ///////////////////////////////////
 
 OmEnquireInternal::OmEnquireInternal(const OmDatabaseGroup &databases)
-	: database(0), dbdesc(databases), query(0)
+  : database(OmDatabaseGroup::InternalInterface::get_multidatabase(databases)),
+    query(0)
 {
 }
 
 OmEnquireInternal::~OmEnquireInternal()
 {
-    if(database != 0) {
-	delete database;
-	database = 0;
-    }
     if(query != 0) {
 	delete query;
 	query = 0;
@@ -206,21 +204,20 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
     Assert(query->is_defined());
 
-    open_database();
-    Assert(database != 0);
-
     // Use default options if none supplied
     OmMatchOptions defmoptions;
     if (moptions == 0) {
         moptions = &defmoptions;
     }
 
-    MultiMatch match(database);
+    // FIXME: make match take a refcntptr
+    MultiMatch match(database.get());
     match.set_options(*moptions);
 
     // Set Rset
     if((omrset != 0) && (omrset->items.size() != 0)) {
-	match.set_rset(auto_ptr<RSet>(new RSet(database, *omrset)));
+	// FIXME: make rset take a refcntptr
+	match.set_rset(auto_ptr<RSet>(new RSet(database.get(), *omrset)));
     }
 
     // Set weighting scheme
@@ -257,9 +254,9 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
         eoptions = &defeoptions;
     }
 
-    open_database();
-    OmExpand expand(database);
-    RSet rset(database, omrset);
+    // FIXME: make expand and rset take a refcntptr
+    OmExpand expand(database.get());
+    RSet rset(database.get(), omrset);
 
     DebugMsg("rset size is " << rset.get_rsize() << endl);
 
@@ -302,7 +299,7 @@ OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(mutex);
     // FIXME: take advantage of OmMSetItem to ensure that database
-    // doesn't change underneath us.
+    // doesn't get modified underneath us.
     return read_doc(mitem.did);
 }
 
@@ -318,7 +315,7 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(mutex);
     // FIXME: take advantage of OmMSetItem to ensure that database
-    // doesn't change underneath us.
+    // doesn't get modified underneath us.
     return calc_matching_terms(mitem.did);
 }
 
@@ -326,37 +323,9 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
 // Private methods for OmEnquireInternal //
 ///////////////////////////////////////////
 
-/// Open the database(s), if not already open.
-void
-OmEnquireInternal::open_database() const
-{
-    if(database == 0) {
-	if(dbdesc.internal->params.size() == 0) {
-	    throw OmInvalidArgumentError("Must specify at least one database");
-	} else {
-	    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
-	    multiparams.subdbs = dbdesc.internal->params;
-	    auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
-
-	    // FIXME: we probably need a better way of getting a
-	    // MultiDatabase to avoid the dynamic_cast.
-	    database = dynamic_cast<MultiDatabase *>(tempdb.get());
-	    
-	    if (database == 0) {
-		// it wasn't really a MultiDatabase...
-		Assert(false);
-	    } else {
-		// it was good - don't let the auto_ptr delete it.
-		tempdb.release();
-	    }
-	}
-    }
-}
-
 const OmDocument
 OmEnquireInternal::read_doc(om_docid did) const
 {
-    open_database();
     LeafDocument *doc = database->open_document(did);
 
     return OmDocument(OmDocumentParams(doc));
@@ -385,8 +354,6 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
     }
     Assert(query->is_defined());
-
-    open_database();  // will throw if database not set.
 
     // the ordered list of terms in the query.
     om_termname_list query_terms = query->get_terms();
@@ -428,9 +395,9 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
     return om_termname_list(matching_terms.begin(), matching_terms.end());
 }
 
-////////////////////////////////////////////
-// Initialise and delete OmEnquire object //
-////////////////////////////////////////////
+//////////////////////////
+// Methods of OmEnquire //
+//////////////////////////
 
 OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
 {
@@ -442,10 +409,6 @@ OmEnquire::~OmEnquire()
     delete internal;
     internal = NULL;
 }
-
-//////////////////
-// Set database //
-//////////////////
 
 void
 OmEnquire::set_query(const OmQuery & query_)

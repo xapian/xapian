@@ -519,7 +519,6 @@ class OmESet {
  */
 class OmDatabaseGroup {
     private:
-	friend class OmEnquireInternal;
 	class Internal;
 	Internal *internal;
 

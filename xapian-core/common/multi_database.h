@@ -26,6 +26,7 @@
 #include "omassert.h"
 #include "database.h"
 #include "leafpostlist.h"
+#include <om/omenquire.h>
 #include <stdlib.h>
 #include <set>
 #include <vector>
@@ -38,6 +39,11 @@ class MultiDatabase : public IRDatabase {
      *  the constructor.
      */
     friend class DatabaseBuilder;
+
+    /** OmDatabaseGroup::Internal is a friend of this class,
+     *  so that it can call the constructor, passing in IRDatabase pointers.
+     */
+    friend class OmDatabaseGroup::Internal;
 
     /** MultiMatch is a friend of this class so that it can access
      *  `databases'.  FIXME: this isn't very clean.
@@ -76,7 +82,7 @@ class MultiDatabase : public IRDatabase {
 	 *  @exception OmInvalidArgumentError if no databases are specified
 	 *             in the vector.
 	 */
-	MultiDatabase(vector<IRDatabase *> databases_);
+	MultiDatabase(vector<OmRefCntPtr<IRDatabase> > databases_);
 	
     public:
 	~MultiDatabase();

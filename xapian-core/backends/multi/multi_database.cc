@@ -66,18 +66,14 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
     }
 }
 
-MultiDatabase::MultiDatabase(vector<IRDatabase *> databases_)
+MultiDatabase::MultiDatabase(vector<OmRefCntPtr<IRDatabase> > databases_)
 	: length_initialised(false)
 {
     if(databases_.size() <= 0) {
 	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
     }
 
-    vector<IRDatabase *>::const_iterator i = databases_.begin();
-    while(i != databases_.end()) {
-	databases.push_back(*i);
-	i++;
-    }
+    databases = databases_;
 }
 
 

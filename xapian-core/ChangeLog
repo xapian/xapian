@@ -1,3 +1,13 @@
+Fri May 12 18:48:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make OmDatabaseGroup now stores opened databases, rather than
+	  their parameters.
+
+	* OmDatabaseGroup::InternalInterface now uses a method in
+	  OmDatabaseGroup::Internal to get_multidatabase.  Same MultiDatabase
+	  is returned after each call, unless a database has been added.
+	  Pthread locking is also sorted out.
+
 Fri May 12 18:29:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New class OmDatabaseGroup::InternalInterface, used to extend

@@ -43,29 +43,18 @@
  */
 class OmEnquireInternal {
     private:
-	/** The databases which this enquire object uses.
-	 *  These are specified in the constructor, and are opened lazily,
-	 *  by calling OmEnquireInternal::open_database();
+	/** The multidatabase which this enquire object uses.
+	 *  This is obtained from the database group set in the constructor.
 	 */
+	OmRefCntPtr<MultiDatabase> database;
 
-	// Will be this, when we get ref counting stuff sorted out.
-	//mutable OmRefCntPtr<MultiDatabase> database;
-	mutable MultiDatabase * database;
-
-	/** A copy of the OmDatabaseGroup object used to specify the database
-	 *  or databases to be used.
-	 *
-	 *  This is set by the constructor.
-	 */
-	OmDatabaseGroup dbdesc;
-	
 	/** The user's query.
 	 *  This may need to be mutable in future so that it can be
 	 *  replaced by an optimised version.
 	 */
 	OmQuery * query;
 
-	/// pthread mutexes, used if available.
+	/// pthread mutex, used if available.
 	OmLock mutex;
 
 	/** Read a document from the database.
@@ -77,11 +66,6 @@ class OmEnquireInternal {
 	 *  This method does the work for get_matching_terms().
 	 */
 	om_termname_list calc_matching_terms(om_docid did) const;
-
-	/** Open the database, if it is not already open.
-	 *
-	 */
-	void open_database() const;
     public:
 	OmEnquireInternal(const OmDatabaseGroup &databases);
 	~OmEnquireInternal();

@@ -38,16 +38,20 @@
 /** The implementation for OmDatabaseGroup.
  */
 class OmDatabaseGroup::Internal {
-    public:
-	friend class OmDatabaseGroup::InternalInterface;
+    friend class OmDatabaseGroup::InternalInterface;
+    private:
+	/** The databases which this consists of.
+	 */
+	vector<OmRefCntPtr<IRDatabase> > databases;
 
+	/** The multidatabase, if this has been created.
+	 */
+	OmRefCntPtr<MultiDatabase> multi_database;
+
+    public:
 	Internal() {}
 	Internal(const Internal &other)
-		: params(other.params), mutex() {}
-
-	/** The parameters to be used to create the database.
-	 */
-	vector<DatabaseBuilderParams> params;
+		: databases(other.databases), mutex() {}
 
 	/** Mutex to protect access to these internals.
 	 */
@@ -58,10 +62,16 @@ class OmDatabaseGroup::Internal {
 	void add_database(const string & type,
 			  const vector<string> & paths);
 
-	/** Get a reference counted pointer to a MultiDatabase
-	 *  containing all the entries in the group.
+	/** Create a MultiDatabase from an OmDatabaseGroup.
+	 *
+	 *  The MultiDatabase will be newly created if it hasn't been
+	 *  asked for previously (for example, a database has been added
+	 *  to the group since it was last requested).  Otherwise, the
+	 *  previously created MultiDatabase will be returned.
+	 *
+	 *  @return  A reference counted pointer to the MultiDatabase.
 	 */
-	OmRefCntPtr<MultiDatabase> get_multi_database();
+	OmRefCntPtr<MultiDatabase> get_multidatabase();
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

@@ -26,6 +26,7 @@
 #include "omdatabaseinternal.h"
 #include "omwritabledbinternal.h"
 #include "omdatabaseinterface.h"
+#include "multi_database.h"
 
 #include <vector>
 
@@ -98,8 +99,6 @@ void
 OmDatabaseGroup::add_database(const string &type,
 			      const vector<string> &params)
 {
-    OmLockSentry locksentry(internal->mutex);
-
     internal->add_database(type, params);
 }
 
@@ -112,6 +111,11 @@ void
 OmDatabaseGroup::Internal::add_database(const string & type,
 					const vector<string> & paths)
 {
+    OmLockSentry locksentry(mutex);
+
+    // Forget existing multidatabase
+    multi_database = 0;
+
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
@@ -120,32 +124,21 @@ OmDatabaseGroup::Internal::add_database(const string & type,
     DatabaseBuilderParams dbparam(dbtype, true);
     dbparam.paths = paths;
 
-    // Add dbparam to the vector of database parameters
-    params.push_back(dbparam);
+    // Open database and add it to the list
+    OmRefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(dbparam));
+    databases.push_back(newdb);
 }
 
 OmRefCntPtr<MultiDatabase>
-OmDatabaseGroup::Internal::get_multi_database()
+OmDatabaseGroup::Internal::get_multidatabase()
 {
-#if 0
-    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
-    multiparams.subdbs = dbdesc.internal->params;
-    auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
+    OmLockSentry locksentry(mutex);
 
-    // FIXME: we probably need a better way of getting a
-    // MultiDatabase to avoid the dynamic_cast.
-    database = dynamic_cast<MultiDatabase *>(tempdb.get());
-
-    if (database == 0) {
-	// it wasn't really a MultiDatabase...
-	Assert(false);
-    } else {
-	// it was good - don't let the auto_ptr delete it.
-	tempdb.release();
+    if (multi_database.get() == 0) {
+	multi_database = new MultiDatabase(databases);
     }
 
-    return multidb;
-#endif
+    return multi_database;
 }
 
 ///////////////////////////////////////////////////
@@ -153,31 +146,9 @@ OmDatabaseGroup::Internal::get_multi_database()
 ///////////////////////////////////////////////////
 
 OmRefCntPtr<MultiDatabase>
-OmDatabaseGroup::InternalInterface::make_multidatabase(
-					       const OmDatabaseGroup &dbg)
+OmDatabaseGroup::InternalInterface::get_multidatabase(
+						const OmDatabaseGroup &dbg)
 {
-    OmRefCntPtr<MultiDatabase> database;
-    if(dbg.internal->params.size() == 0) {
-	throw OmInvalidArgumentError("Must specify at least one database");
-    } else {
-	DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
-	multiparams.subdbs = dbg.internal->params;
-	auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
-
-	// FIXME: we probably need a better way of getting a
-	// MultiDatabase to avoid the dynamic_cast.
-	database =
-	    OmRefCntPtr<MultiDatabase>(
-			dynamic_cast<MultiDatabase *>(tempdb.get()));
-
-	if (database.get() == 0) {
-	    // it wasn't really a MultiDatabase...
-	    Assert(false);
-	} else {
-	    // it was good - don't let the auto_ptr delete it.
-	    tempdb.release();
-	}
-    }
-    return database;
+    return dbg.internal->get_multidatabase();
 }
 

@@ -37,10 +37,17 @@ class OmDatabaseGroup::InternalInterface {
     public:
 	/** Create a MultiDatabase from an OmDatabaseGroup.
 	 *
+	 *  The MultiDatabase will be newly created if it hasn't been
+	 *  asked for previously (for example, a database has been added
+	 *  to the group since it was last requested).  Otherwise, the
+	 *  previously created MultiDatabase will be returned.
+	 *
 	 *  @param dbg		The source OmDatabaseGroup object.
+	 *
+	 *  @return  A reference counted pointer to the MultiDatabase.
 	 */
 	static OmRefCntPtr<MultiDatabase>
-		make_multidatabase(const OmDatabaseGroup &dbg);
+		get_multidatabase(const OmDatabaseGroup &dbg);
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERFACE_H
