@@ -6,7 +6,7 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-
+ 
 
 #include <math.h>
 #include <algorithm>
@@ -520,12 +520,13 @@ int main(unsigned int argc, char *argv[]) {
       assert(0);
     }
 
-    map< int, set<string> > transaction_all_words;
+    //    map< int, set<string> > transaction_all_words;
     map< int, set<string> > transaction_code_words;
     map< pair<int, string>, int > transaction_code_word_count;
     map< int, set<string> > transaction_comment_words;
     map< pair<int, string>, int > transaction_comment_word_count;
 
+    cerr << "analyzing results from omseek" << endl;
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
       unsigned int sim = matches.convert_to_percent(i);
       OmDocument doc = i.get_document();
@@ -535,7 +536,7 @@ int main(unsigned int argc, char *argv[]) {
 
       list<string> symbols;
       split( data, " \n", symbols );
-      set<string> S_code, S_comment;
+      //      set<string> S_code, S_comment;
 
       // the commit number is also stored in data now, so we need to check for it below
       int commit_id = -1;
@@ -543,7 +544,7 @@ int main(unsigned int argc, char *argv[]) {
 	assert( s->length() >= 1 );
 	if ( isdigit((*s)[0]) ) {
 	  if( commit_id != -1 ) {
-	    cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
+	    //	    cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
 	    continue;
 	  }
 	  
@@ -555,7 +556,7 @@ int main(unsigned int argc, char *argv[]) {
 	if ( (*s)[0] == '+' ) {
 	  string s2( *s, 1, s->length()-1 );
 	  if ( isdigit(s2[0]) ) {
-	    cerr << "warning:  found " << s2 << " in code comment terms" << endl;
+	    //	    cerr << "warning:  found " << s2 << " in code comment terms" << endl;
 	    continue;
 	  }
 
@@ -565,7 +566,7 @@ int main(unsigned int argc, char *argv[]) {
 
 	  //	  cerr << "converted -" << (*s) << "- to " << "-" << s2 <<"-" << endl;
 	  transaction_comment_word_count[ make_pair( commit_id, s2 ) ] ++;
-	  S_comment.insert(s2);
+	  transaction_comment_words[commit_id].insert(s2);
 	  //	  cerr << "... comment word " << s2 << endl;
 	} else {
 
@@ -574,25 +575,14 @@ int main(unsigned int argc, char *argv[]) {
 	  }
 
 	  transaction_code_word_count[ make_pair( commit_id, *s ) ] ++;
-	  S_code.insert(*s);
+	  transaction_code_words[commit_id].insert(*s);
 	  //	  cerr << "... code word " << (*s) << endl;
 	}
       }
       assert( commit_id != -1 );
-
-
-      /////////////////////////////// here's the key part:  commit_id => transaction items (code terms)
-      transaction_code_words[commit_id] = S_code;
-      transaction_comment_words[commit_id] = S_comment;
-
-      set_union( S_code.begin(), S_code.end(),
-		 S_comment.begin(), S_comment.end(),
-		 inserter( transaction_all_words[commit_id],
-			   transaction_all_words[commit_id].begin() ) );
-
-      assert( transaction_all_words[commit_id].size() >= S_code.size() &&
-	      transaction_all_words[commit_id].size() >= S_comment.size() );
     }
+
+    cerr << "done" << endl;
 
     assert( total_commit_transactions > 0 );
 
@@ -606,20 +596,26 @@ int main(unsigned int argc, char *argv[]) {
       map< string, int > relative_item_count; // the count is relative to the transactions returned
 
 
-#warning "data mining using all words, not just code words"
       cerr << "counting single items" << endl;
-      count_single_items( transaction_all_words, relative_item_count );
+      count_single_items( transaction_code_words, relative_item_count );
 
       // at this point we can generate rules
       map< double, set<string> > code_term_ranking;
 
       cerr << "generating rules" << endl;
       generate_rules( db, ranking_system, query_symbols, relative_item_count,
-		      transaction_all_words.size(),
+		      transaction_code_words.size(),
 		      total_commit_transactions, code_term_ranking );
 
       cerr << "outputing items" << endl;
       output_items( code_term_ranking, max_results );
+
+
+
+
+
+
+
 
       // construct query vector
 
@@ -678,7 +674,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
 	if ( commit_id < FIRST_COMMIT || commit_id > LAST_COMMIT ) {
-	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
+	  //	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
 	  continue;
 	}
 
