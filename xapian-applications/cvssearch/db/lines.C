@@ -129,7 +129,6 @@ lines::getCodeSymbolTerms() {
             if ( ((*c) >= 'A' && (*c) <= 'Z') || (*c) == '_' || isdigit(*c) ) {
                 if ( w != "" ) {
                     lowercase_string(w);
-#warning "not stemming code words"
 		    //                    w = stemmer->stem_word(w);
                     //		  cerr << "........inserting " << w << endl;
                     code_terms.push_back(w);
@@ -143,12 +142,13 @@ lines::getCodeSymbolTerms() {
         }
         if ( w != "" ) {
             lowercase_string(w);
-#warning "not stemming code words"
             //w = stemmer->stem_word(w);
            // 	      cerr << "........inserting " << w << endl;
 	    code_terms.push_back(w);
         }
     }
-    return code_terms;
+    list<string> stemmed;
+    stemWords( code_terms, stemmed );
+    return stemmed;
 }
 

@@ -38,15 +38,16 @@
 */
 
 /* test kword */
+/*
 #define FIRST_COMMIT 41590
 #define LAST_COMMIT 42920
-
-
-/*
-// global
-#define FIRST_COMMIT 0
-#define LAST_COMMIT 9999999
 */
+
+
+// global
+#define FIRST_COMMIT 5550
+#define LAST_COMMIT 7593
+
 
 
 
@@ -318,7 +319,7 @@ void generate_rules( Db& db,
 
 
 
-#warning "don't double count here"
+
 void count_single_items(const map< int, set<string> >& transactions,
                         map<string, int >& item_count )
 {
@@ -519,9 +520,11 @@ int main(unsigned int argc, char *argv[]) {
       assert(0);
     }
 
-    map< int, set<string> > transactions_returned;
-    map< pair<int, string>, int > transaction_term_count;
-    map< int, int > transaction_comment_word_count;
+    map< int, set<string> > transaction_all_words;
+    map< int, set<string> > transaction_code_words;
+    map< pair<int, string>, int > transaction_code_word_count;
+    map< int, set<string> > transaction_comment_words;
+    map< pair<int, string>, int > transaction_comment_word_count;
 
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
       unsigned int sim = matches.convert_to_percent(i);
@@ -532,37 +535,63 @@ int main(unsigned int argc, char *argv[]) {
 
       list<string> symbols;
       split( data, " \n", symbols );
-      set<string> S;
+      set<string> S_code, S_comment;
 
       // the commit number is also stored in data now, so we need to check for it below
       int commit_id = -1;
-      int comment_word_count = -1;
       for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+	assert( s->length() >= 1 );
 	if ( isdigit((*s)[0]) ) {
 	  if( commit_id != -1 ) {
-	    if ( comment_word_count != -1 ) {
-	      cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
-	      continue;
-	    } else {
-	      comment_word_count = atoi( s->c_str() );
-	      continue;
-	    }
+	    cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
+	    continue;
 	  }
+	  
 	  commit_id = atoi( s->c_str() );
+	  //	  cerr << "** commit " << commit_id << endl;
 	  continue;
 	}
 	assert( commit_id != -1 );
-	transaction_term_count[ make_pair( commit_id, *s ) ] ++;
-	assert( comment_word_count != -1 );
-	transaction_comment_word_count[ commit_id ] = comment_word_count;
-	S.insert(*s);
-	//  cerr << "..." << (*s) << endl;
+	if ( (*s)[0] == '+' ) {
+	  string s2( *s, 1, s->length()-1 );
+	  if ( isdigit(s2[0]) ) {
+	    cerr << "warning:  found " << s2 << " in code comment terms" << endl;
+	    continue;
+	  }
+
+	  if ( s2.length() == 1 ) {
+	    continue;
+	  }
+
+	  //	  cerr << "converted -" << (*s) << "- to " << "-" << s2 <<"-" << endl;
+	  transaction_comment_word_count[ make_pair( commit_id, s2 ) ] ++;
+	  S_comment.insert(s2);
+	  //	  cerr << "... comment word " << s2 << endl;
+	} else {
+
+	  if ( s->length() == 1 ) {
+	    continue;
+	  }
+
+	  transaction_code_word_count[ make_pair( commit_id, *s ) ] ++;
+	  S_code.insert(*s);
+	  //	  cerr << "... code word " << (*s) << endl;
+	}
       }
       assert( commit_id != -1 );
 
 
       /////////////////////////////// here's the key part:  commit_id => transaction items (code terms)
-      transactions_returned[commit_id] = S;
+      transaction_code_words[commit_id] = S_code;
+      transaction_comment_words[commit_id] = S_comment;
+
+      set_union( S_code.begin(), S_code.end(),
+		 S_comment.begin(), S_comment.end(),
+		 inserter( transaction_all_words[commit_id],
+			   transaction_all_words[commit_id].begin() ) );
+
+      assert( transaction_all_words[commit_id].size() >= S_code.size() &&
+	      transaction_all_words[commit_id].size() >= S_comment.size() );
     }
 
     assert( total_commit_transactions > 0 );
@@ -575,15 +604,21 @@ int main(unsigned int argc, char *argv[]) {
       //////////////////////////////////// count single items
 
       map< string, int > relative_item_count; // the count is relative to the transactions returned
-      count_single_items( transactions_returned, relative_item_count );
+
+
+#warning "data mining using all words, not just code words"
+      cerr << "counting single items" << endl;
+      count_single_items( transaction_all_words, relative_item_count );
 
       // at this point we can generate rules
       map< double, set<string> > code_term_ranking;
 
+      cerr << "generating rules" << endl;
       generate_rules( db, ranking_system, query_symbols, relative_item_count,
-		      transactions_returned.size(),
+		      transaction_all_words.size(),
 		      total_commit_transactions, code_term_ranking );
 
+      cerr << "outputing items" << endl;
       output_items( code_term_ranking, max_results );
 
       // construct query vector
@@ -593,6 +628,8 @@ int main(unsigned int argc, char *argv[]) {
       set< string > query_expansion;
 
       //      int rank = 0;
+
+      cerr << "creating expanded vector" << endl;
       for( map< double, set<string> >::const_iterator i = code_term_ranking.begin(); i != code_term_ranking.end(); i++ ) {
 	set<string> W = i->second;
 	for( set<string>::const_iterator w = W.begin(); w != W.end(); w++ ) {
@@ -602,6 +639,7 @@ int main(unsigned int argc, char *argv[]) {
 	  expanded_query_vector[ *w ] = idf; //*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
 
 	  if ( query_term_set.find(*w) != query_term_set.end() ) {
+	    // this has infinite convinction
 	    expanded_query_vector[*w] *= 5.0; // 10 times as much for query words
 	  }
 
@@ -627,7 +665,7 @@ int main(unsigned int argc, char *argv[]) {
 
       map< double, set<int> > final_ranking;
 
-      for( map< int, set<string> >::iterator t = transactions_returned.begin(); t != transactions_returned.end(); t++ ) {
+      for( map< int, set<string> >::iterator t = transaction_code_words.begin(); t != transaction_code_words.end(); t++ ) {
 	// we construct a binary vector for the document
 
 	int commit_id = t->first;
@@ -640,7 +678,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
 	if ( commit_id < FIRST_COMMIT || commit_id > LAST_COMMIT ) {
-	  //	  cerr << "... skipping commit not in app range" << endl;
+	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
 	  continue;
 	}
 
@@ -648,17 +686,31 @@ int main(unsigned int argc, char *argv[]) {
 	// build code vector
 
 	map< string, double > code_vector;
+	cerr << ".. building code vector for commit " << commit_id << endl;
 
 	int total_commit_code_words = 0;
 	for( set<string>::iterator j = T.begin(); j != T.end(); j++ ) {
-	  int c = transaction_term_count[ make_pair(commit_id, *j) ];
-	  code_vector[ *j ] = c;
+	  int c = transaction_code_word_count[ make_pair(commit_id, *j) ];
+	  code_vector[ *j ] = (double)c*compute_idf( db, *j, total_commit_transactions );;
 	  total_commit_code_words += c;
+	}
+
+	// build comment vector
+	cerr << ".. building comment vector for commit " << commit_id << endl;
+	map< string, double > comment_vector;
+	set<string> C = transaction_comment_words[commit_id];
+	for( set<string>::iterator c = C.begin(); c != C.end(); c++ ) {
+	  comment_vector[ *c ] = (double)transaction_comment_word_count[ make_pair(commit_id, *c) ] * compute_idf( db, *c, total_commit_transactions );
 	}
 
 
 	cerr << "Transaction " << (t->first-FIRST_COMMIT) << " has # code terms = " << total_commit_code_words << endl;
 	cerr << "...query expansion size " << query_expansion.size() << endl;
+
+	// cosine similarity 1:  query words with comment vector
+	double cosine1 = compute_cosine_similarity( query_vector, comment_vector );	
+
+	cerr << "... comment cosine similarity = " << cosine1 << endl;
 
 	// cosine similarity 2:  query expansion words with code vector
 
@@ -667,11 +719,10 @@ int main(unsigned int argc, char *argv[]) {
 
 	cerr << ".... code cosine similarity = " << cosine2 << endl;
 
-	double final_score = cosine2;
+	// a low value (e.g., 0.01) makes each factor really important
+	double final_score = (0.01+cosine1)*(0.01+cosine2)*log((double)total_commit_code_words);
 
 
-	assert( transaction_comment_word_count[ commit_id ] > 0 );
-	
 	/***
 	cerr << "... multiplying by " << log((double)total_commit_code_words) << endl;
 	final_score = final_score * log((double)total_commit_code_words);
@@ -691,7 +742,7 @@ int main(unsigned int argc, char *argv[]) {
 	double score = i->first;
 	set<int> S = i->second;
 	for ( set<int>::iterator j = S.begin(); j != S.end(); j++ ) {
-	  cerr << "commit " << ((*j)-FIRST_COMMIT) << " of size " << transactions_returned[*j].size() << " has score " << -score << endl;
+	  cerr << "commit " << ((*j)-FIRST_COMMIT) << " of size " << transaction_code_words[*j].size() << " has score " << -score << endl;
 	}
       }
 
@@ -704,7 +755,7 @@ int main(unsigned int argc, char *argv[]) {
 
       int c = 0;
       // no ranking system specified, so return list of commit ids
-      for( map< int, set<string> >::iterator i = transactions_returned.begin(); i != transactions_returned.end(); i++ ) {
+      for( map< int, set<string> >::iterator i = transaction_code_words.begin(); i != transaction_code_words.end(); i++ ) {
 	cout << i->first << endl;
 	c++;
 	if ( c == max_results ) {

@@ -90,7 +90,8 @@ bool lines_db::readNextLine() {
         if (_db_file.get_comment(file_id, *itr, comment) == 0) 
         {
             list<string> words;
-            split( comment, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+	    // leaves apostraphe in
+            split( comment, " .,:;#%_*+&\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
             combined_comments += (" " + comment);
             revision_comment_string[*itr] = comment;
 
@@ -101,7 +102,8 @@ bool lines_db::readNextLine() {
     }
 
     list<string> words;
-    split( combined_comments, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+    // leaves apostraphe in
+    split( combined_comments, " .,:;#%_*+&\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
     stemWords( words, term_list );
         
     // build data string
