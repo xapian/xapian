@@ -144,8 +144,10 @@ SocketServer::run()
 	    match.set_query(&temp);
 	}
 
+#if 0
 	DebugMsg("Adding artificial delay for statistics" << endl);
 	sleep(1);
+#endif
 
 	// Message 4
 	send_local_stats(gatherer->get_local_stats());
@@ -168,8 +170,10 @@ SocketServer::run()
 	}
 	message = message.substr(8);
 
+#if 0
 	DebugMsg("Adding artificial delay..." << endl);
 	sleep(2);
+#endif
 
 	om_doccount first;
 	om_doccount maxitems;
