@@ -116,14 +116,18 @@ BackendManager::set_dbtype(const string &type)
 {
     if (type == "inmemory") {
 	do_getdb = &BackendManager::getdb_inmemory;
+	do_getwritedb = &BackendManager::getwritedb_inmemory;
     } else if (type == "sleepycat") {
 	do_getdb = &BackendManager::getdb_sleepy;
+	do_getwritedb = &BackendManager::getwritedb_sleepy;
 	DebugMsg("Removing .sleepy/..." << endl);
 	system("rm -fr .sleepy");
     } else if (type == "net") {
 	do_getdb = &BackendManager::getdb_net;
+	do_getwritedb = &BackendManager::getwritedb_net;
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError("Expected inmemory, sleepy, net or void");
     }
@@ -137,6 +141,12 @@ BackendManager::set_datadir(const string &datadir_)
 
 OmDatabase
 BackendManager::getdb_void(const vector<string> &)
+{
+    throw OmInvalidArgumentError("Attempted to open a disabled database");
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_void(const vector<string> &)
 {
     throw OmInvalidArgumentError("Attempted to open a disabled database");
 }
@@ -161,6 +171,12 @@ BackendManager::change_names_to_paths(const vector<string> &dbnames)
 
 OmDatabase
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
+{
+    return getwritedb_inmemory(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
     OmWritableDatabase db("inmemory", make_strvec());
     index_files_to_database(db, change_names_to_paths(dbnames));
@@ -197,6 +213,12 @@ bool create_dir_if_needed(const string &dirname)
 OmDatabase
 BackendManager::getdb_sleepy(const vector<string> &dbnames)
 {
+    return getwritedb_sleepy(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_sleepy(const vector<string> &dbnames)
+{
     string parent_dir = ".sleepy";
     create_dir_if_needed(parent_dir);
 
@@ -216,11 +238,11 @@ BackendManager::getdb_sleepy(const vector<string> &dbnames)
 	    return db;
 	} else {
 	    // else just return a read-only db.
-	    return OmDatabase("sleepycat", make_strvec(dbdir));
+	    return OmWritableDatabase("sleepycat", make_strvec(dbdir));
 	}
     } else {
 	// open a non-existant database
-	return OmDatabase("sleepycat", make_strvec(dbdir));
+	return OmWritableDatabase("sleepycat", make_strvec(dbdir));
     }
 }
 
@@ -233,9 +255,15 @@ BackendManager::getdb_net(const vector<string> &dbnames)
     args.push_back("../netprogs/omprogsrv");
     args.push_back(datadir);
     args.insert(args.end(), dbnames.begin(), dbnames.end());
-    OmDatabase db("net", args);
+    OmWritableDatabase db("net", args);
 
     return db;
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_net(const vector<string> &dbnames)
+{
+    throw OmInvalidArgumentError("Attempted to open writable network database");
 }
 
 OmDatabase
@@ -252,5 +280,13 @@ BackendManager::get_database(const string &dbname1,
     dbnames.push_back(dbname1);
     dbnames.push_back(dbname2);
     return (this->*do_getdb)(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::get_writable_database(const string &dbname)
+{
+    vector<string> dbnames;
+    dbnames.push_back(dbname);
+    return (this->*do_getwritedb)(dbnames);
 }
 

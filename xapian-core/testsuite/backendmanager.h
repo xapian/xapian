@@ -27,10 +27,17 @@ class BackendManager {
     private:
 	/// The type of a get_database member function
 	typedef OmDatabase (BackendManager::*getdb_func)
-			   (const vector<string> &dbnames);
+				   (const vector<string> &dbnames);
+
+	/// The type of a get_writable_database member function
+	typedef OmWritableDatabase (BackendManager::*getwritedb_func)
+				   (const vector<string> &dbnames);
 
 	/// The current get_database member function
 	getdb_func do_getdb;
+
+	/// The current get_writable_database member function
+	getwritedb_func do_getwritedb;
 
 	/// The current data directory
 	string datadir;
@@ -39,21 +46,34 @@ class BackendManager {
 	vector<string>
 		change_names_to_paths(const vector<string> &dbnames);
 
-
 	/// Throw an exception.
 	OmDatabase getdb_void(const vector<string> &dbnames);
 
-	/// Get a net database instance
-	OmDatabase getdb_net(const vector<string> &dbnames);
+	/// Throw an exception.
+	OmWritableDatabase getwritedb_void(const vector<string> &dbnames);
 
 	/// Get an inmemory database instance.
 	OmDatabase getdb_inmemory(const vector<string> &dbnames);
 
+	/// Get an writable inmemory database instance.
+	OmWritableDatabase getwritedb_inmemory(const vector<string> &dbnames);
+
+	/// Get a net database instance
+	OmDatabase getdb_net(const vector<string> &dbnames);
+
+	/// Get a writable net database instance
+	OmWritableDatabase getwritedb_net(const vector<string> &dbnames);
+
 	/// Get a sleepy database instance.
 	OmDatabase getdb_sleepy(const vector<string> &dbnames);
+
+	/// Get a writable sleepy database instance.
+	OmWritableDatabase getwritedb_sleepy(const vector<string> &dbnames);
     public:
 	/// Constructor - set up default state.
-	BackendManager() : do_getdb(&BackendManager::getdb_void) {};
+	BackendManager() :
+		do_getdb(&BackendManager::getdb_void),
+		do_getwritedb(&BackendManager::getwritedb_void) {};
 
 	/** Set the database type to use.
 	 *
@@ -72,4 +92,7 @@ class BackendManager {
 	/// Get a database instance from individually named databases
 	OmDatabase get_database(const string &dbname1,
 				const string &dbname2 = "");
+
+	/// Get a writable database instance
+	OmWritableDatabase get_writable_database(const string & dbname);
 };
