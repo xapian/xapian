@@ -36,6 +36,7 @@
 #include "omqueryinternal.h"
 #include "netutils.h"
 #include "progserver.h"
+#include "omerr_string.h"
 
 int main(int argc, char *argv[]) {
     string message;
@@ -76,8 +77,10 @@ int main(int argc, char *argv[]) {
     } catch (OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
+	cout << "ERROR " << omerror_to_string(e) << endl;
     } catch (...) {
 	cerr << "Caught exception" << endl;
+	cout << "ERROR UNKNOWN" << endl;
     }
 }
 

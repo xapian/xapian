@@ -28,6 +28,8 @@
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"
+#include "om/omerror.h"
+#include "omerr_string.h"
 #include <memory>
 #include <strstream.h>
 #include <signal.h>
@@ -80,154 +82,166 @@ SocketServer::get_global_stats()
 void
 SocketServer::run()
 {
-    while (1) {
-	MultiMatch match(db.get(),
-			 auto_ptr<StatsGatherer>(gatherer =
-				new NetworkStatsGatherer(this)));
+    try {
+	while (1) {
+	    MultiMatch match(db.get(),
+			     auto_ptr<StatsGatherer>(gatherer =
+						     new NetworkStatsGatherer(this)));
 
-	string message;
+	    string message;
 
-	// Message 3 (see README_progprotocol.txt)
-	message = buf.readline();
+	    // Message 3 (see README_progprotocol.txt)
+	    message = buf.readline();
 
-	if (message == "QUIT") {
-	    return;
-	};
+	    if (message == "QUIT") {
+		return;
+	    };
 
-	// extract the match options
-	if (message.substr(0, 8) != "MOPTIONS") {
-	    throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
-	}
-
-	{
-	    OmMatchOptions moptions = string_to_moptions(message.substr(9));
-
-	    match.set_options(moptions);
-	}
-
-	// extract the rset
-	message = buf.readline();
-	if (message.substr(0, 4) != "RSET") {
-	    DebugMsg("Expected RSET, got " << message << endl);
-	    throw OmNetworkError(string("Invalid message: ") + message);
-	}
-	{
-	    OmRSet omrset = string_to_omrset(message.substr(5));
-
-	    match.set_rset(omrset);
-	}
-
-
-	// extract the query
-	message = buf.readline();
-
-	if (message.substr(0, 8) != "SETQUERY") {
-	    DebugMsg("Expected SETQUERY, got " << message << endl);
-	    throw OmNetworkError("Invalid message");
-	}
-
-	message = message.substr(9, message.npos);
-
-	string wt_string;
-	// FIXME: use an iterator or something.
-	while (message.length() > 0 && isdigit(message[0])) {
-	    wt_string += message[0];
-	    message = message.substr(1);
-	}
-	message = message.substr(1);
-
-	{
-	    // extract the weighting type
-	    IRWeight::weight_type wt_type = 
-		    static_cast<IRWeight::weight_type>(
-				atol(wt_string.c_str()));
-	    match.set_weighting(wt_type);
-	}
-
-	{
-	    // Extract the query
-	    if (message[0] != '\"' || message[message.length()-1] != '\"') {
-		throw OmNetworkError("Invalid query specification");
-	    } else {
-		message = message.substr(1, message.length() - 2);
+	    // extract the match options
+	    if (message.substr(0, 8) != "MOPTIONS") {
+		throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
 	    }
-	    OmQueryInternal temp = query_from_string(message);
-	    match.set_query(&temp);
-	}
+
+	    {
+		OmMatchOptions moptions = string_to_moptions(message.substr(9));
+
+		match.set_options(moptions);
+	    }
+
+	    // extract the rset
+	    message = buf.readline();
+	    if (message.substr(0, 4) != "RSET") {
+		DebugMsg("Expected RSET, got " << message << endl);
+		throw OmNetworkError(string("Invalid message: ") + message);
+	    }
+	    {
+		OmRSet omrset = string_to_omrset(message.substr(5));
+
+		match.set_rset(omrset);
+	    }
+
+
+	    // extract the query
+	    message = buf.readline();
+
+	    if (message.substr(0, 8) != "SETQUERY") {
+		DebugMsg("Expected SETQUERY, got " << message << endl);
+		throw OmNetworkError("Invalid message");
+	    }
+
+	    message = message.substr(9, message.npos);
+
+	    string wt_string;
+	    // FIXME: use an iterator or something.
+	    while (message.length() > 0 && isdigit(message[0])) {
+		wt_string += message[0];
+		message = message.substr(1);
+	    }
+	    message = message.substr(1);
+
+	    {
+		// extract the weighting type
+		IRWeight::weight_type wt_type = 
+			static_cast<IRWeight::weight_type>(
+							   atol(wt_string.c_str()));
+		match.set_weighting(wt_type);
+	    }
+
+	    {
+		// Extract the query
+		if (message[0] != '\"' || message[message.length()-1] != '\"') {
+		    throw OmNetworkError("Invalid query specification");
+		} else {
+		    message = message.substr(1, message.length() - 2);
+		}
+		OmQueryInternal temp = query_from_string(message);
+		match.set_query(&temp);
+	    }
 
 #if 0
-	DebugMsg("Adding artificial delay for statistics" << endl);
-	sleep(1);
+	    DebugMsg("Adding artificial delay for statistics" << endl);
+	    sleep(1);
 #endif
 
-	// Message 4
-	send_local_stats(gatherer->get_local_stats());
+	    // Message 4
+	    send_local_stats(gatherer->get_local_stats());
 
-	// Message 5, part 1
-	message = buf.readline();
+	    // Message 5, part 1
+	    message = buf.readline();
 
-	if (message.substr(0, 9) != "GLOBSTATS") {
-	    throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
-	}
+	    if (message.substr(0, 9) != "GLOBSTATS") {
+		throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
+	    }
 
-	global_stats = string_to_stats(message.substr(10));
-	have_global_stats = true;
+	    global_stats = string_to_stats(message.substr(10));
+	    have_global_stats = true;
 
-	// Message 5, part 2
-	message = buf.readline();
+	    // Message 5, part 2
+	    message = buf.readline();
 
-	if (message.substr(0, 7) != "GETMSET") {
-	    throw OmNetworkError(string("Expected GETMSET, got ") + message);
-	}
-	message = message.substr(8);
+	    if (message.substr(0, 7) != "GETMSET") {
+		throw OmNetworkError(string("Expected GETMSET, got ") + message);
+	    }
+	    message = message.substr(8);
 
 #if 0
-	DebugMsg("Adding artificial delay..." << endl);
-	sleep(2);
+	    DebugMsg("Adding artificial delay..." << endl);
+	    sleep(2);
 #endif
 
-	om_doccount first;
-	om_doccount maxitems;
-	{
-	    // extract first,maxitems
-	    istrstream is(message.c_str());
-	    is >> first >> maxitems;
+	    om_doccount first;
+	    om_doccount maxitems;
+	    {
+		// extract first,maxitems
+		istrstream is(message.c_str());
+		is >> first >> maxitems;
+	    }
+
+	    OmMSet mset;
+
+	    DebugMsg("About to get_mset(" << first
+		     << ", " << maxitems << "..." << endl);
+
+	    match.match(first,
+			maxitems,
+			mset,
+			0);
+
+	    DebugMsg("done get_mset..." << endl);
+
+	    buf.writeline(string("MSETITEMS ") +
+			  inttostring(mset.items.size()) + " "
+			  + doubletostring(mset.max_possible)
+			  + doubletostring(mset.max_attained));
+
+	    DebugMsg("sent size, maxweight..." << endl);
+
+	    for (vector<OmMSetItem>::iterator i=mset.items.begin();
+		 i != mset.items.end();
+		 ++i) {
+		char charbuf[100];
+		ostrstream os(charbuf, 100);
+		os << "MSETITEM: " << i->wt << " " << i->did << ends;
+		buf.writeline(charbuf);
+
+		DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
+	    }
+	    //DebugMsg("sent items..." << endl);
+
+	    buf.writeline("OK");
+
+	    //DebugMsg("sent OK..." << endl);
 	}
-
-	OmMSet mset;
-
-	DebugMsg("About to get_mset(" << first
-		<< ", " << maxitems << "..." << endl);
-
-	match.match(first,
-		    maxitems,
-		    mset,
-		    0);
-
-	DebugMsg("done get_mset..." << endl);
-
-	buf.writeline(string("MSETITEMS ") +
-		      inttostring(mset.items.size()) + " "
-		      + doubletostring(mset.max_possible)
-		      + doubletostring(mset.max_attained));
-
-	DebugMsg("sent size, maxweight..." << endl);
-
-	for (vector<OmMSetItem>::iterator i=mset.items.begin();
-	     i != mset.items.end();
-	     ++i) {
-	    char charbuf[100];
-	    ostrstream os(charbuf, 100);
-	    os << "MSETITEM: " << i->wt << " " << i->did << ends;
-	    buf.writeline(charbuf);
-
-	    DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
-	}
-	//DebugMsg("sent items..." << endl);
-
-	buf.writeline("OK");
-
-	//DebugMsg("sent OK..." << endl);
+    } catch (OmNetworkError &e) {
+	// _Don't_ send network errors over, since they're likely to have
+	// been caused by an error talking to the other end.
+	throw;
+    } catch (OmError &e) {
+	buf.writeline(omerror_to_string(e));
+	throw;
+    } catch (...) {
+	buf.writeline(string("ERROR UNKNOWN"));
+	throw;
     }
 }
 

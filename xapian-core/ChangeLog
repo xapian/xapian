@@ -1,3 +1,9 @@
+Wed May 24 12:50:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Exceptions are now propagated over the net link.
+
+	* OmError's get_msg() method is now const.
+
 Tue May 23 17:51:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a LocalMatch::gather_query_statistics() method, to be called

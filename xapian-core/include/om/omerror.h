@@ -45,7 +45,7 @@ class OmError {
 	/** Return a message describing the error.
 	 *  This is in a human readable form.
 	 */
-        string get_msg()
+        string get_msg() const
         {
             return msg;
         }

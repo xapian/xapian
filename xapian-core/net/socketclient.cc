@@ -23,6 +23,7 @@
 #include "config.h"
 #include "socketclient.h"
 #include "om/omerror.h"
+#include "omerr_string.h"
 #include "utils.h"
 #include "netutils.h"
 
@@ -59,6 +60,10 @@ SocketClient::do_read()
     string retval = buf.readline();
 
     DebugMsg("do_read(): " << retval << endl);
+
+    if (retval.substr(0, 5) == "ERROR") {
+	string_to_omerror(retval.substr(6), "REMOTE:");
+    }
 
     return retval;
 }
