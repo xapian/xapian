@@ -1,3 +1,23 @@
+Fri Jan 11 15:40:50 GMT 2002  Sam Liddicott <sam@ananova.com>
+
+	* Added Large File Support in the same way it was added to GNU tar.
+	  (If it's good enough for them...)
+	  This is by means of autoconf/ac_sys_largefile which I'm told is
+	  built in to later versions of autoconf, and may possibly give us
+	  trouble redefining it for those versions...  But we'll see about
+	  that when/if it happens.
+
+	  It seems to work fine here on some DB's which I had to stop growing 
+	  cos they got too big; I'm now past the 2G boundry with no problems
+
+	  I guess we should still add overflow detection for 2^31 blocks.
+	  Ideas?
+
+	  I need some help on the btreetest.cc as I haven't yet worked out
+          what it does; so while I've added a test, it doesn't yet test
+	  what it says it does.  I have changed btreetest.cc so you can
+	  tell it where to dump the test DB
+
 Fri Dec 21 17:48:09 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed halflife calculation in OmBiasFunctor.

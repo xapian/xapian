@@ -6,7 +6,8 @@ m4_files = cme_find_hstrerror.m4 \
 	   rjb_find_gethostent.m4 \
 	   rjb_find_stlport.m4 \
 	   definedir.m4 \
-	   acx_pthread.m4
+	   acx_pthread.m4 \
+	   ac_sys_largefile.m4
 
 EXTRA_DIST = $(m4_files) acinclude.m4 genacinclude.sh
 

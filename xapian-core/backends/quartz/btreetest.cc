@@ -165,6 +165,32 @@ static bool test_insertdelete1()
     return true;
 }
 
+/// Test making and playing with a QuartzBufferedTable
+/// try to pass the 2G boundry.  Should succeed if LFS is enabled
+static bool test_LFSinsertdelete1()
+{
+    bool LFSunlikely=sizeof(off_t)==4;
+
+    std::string btree_dir = tmpdir + "/B/";
+    do_create(btree_dir);
+    do_check(btree_dir, "v");
+
+    if (!file_exists(datadir + "+ord") ||
+	!file_exists(datadir + "-ord")) SKIP_TEST("Data files not present");
+
+    do_update(btree_dir, datadir + "+ord");
+    do_check(btree_dir, "v");
+
+    do_update(btree_dir, datadir + "-ord");
+    do_check(btree_dir, "vt");
+
+    Btree btree;
+    btree.open_to_read(btree_dir.c_str());
+    TEST_EQUAL(btree.item_count, 0);
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -172,12 +198,18 @@ static bool test_insertdelete1()
 // The lists of tests to perform
 test_desc tests[] = {
     {"insertdelete1",         test_insertdelete1},
+    {"LFSinsertdelete1",      test_LFSinsertdelete1},
     {0, 0}
 };
 
 int main(int argc, char *argv[])
 {
-    tmpdir = ".btreetmp/";
+    char * e_tmpdir=getenv("BTREETMP");
+    if (e_tmpdir) {
+	tmpdir = e_tmpdir;
+    } else {
+	tmpdir = ".btreetmp/";
+    }
     delete_dir(tmpdir);
     make_dir(tmpdir);
     datadir = test_driver::get_srcdir(argv[0]) + "/z_data/";

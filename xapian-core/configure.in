@@ -38,6 +38,7 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(streambuf)
 AC_LANG_RESTORE
+AC_SYS_LARGEFILE
 
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
