@@ -27,13 +27,11 @@
 #include "positionlist.h"
 
 class OmPositionListIterator::Internal {
-//    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
     private:
 	friend class OmPositionListIterator; // allow access to positionlist
         friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 
-	/// Reference counted pointer to positionlist
-	OmRefCntPtr<PositionList> positionlist;
+	PositionList *positionlist;
     
     public:
         Internal(PositionList *positionlist_) : positionlist(positionlist_)

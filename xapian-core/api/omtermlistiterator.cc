@@ -25,7 +25,9 @@
 #include "termlist.h"
 #include "omdebug.h"
 
-OmTermListIterator::~OmTermListIterator() { }
+OmTermListIterator::~OmTermListIterator() {
+//    delete internal;
+}
 
 const om_termname
 OmTermListIterator::operator *() {

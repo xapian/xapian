@@ -27,13 +27,11 @@
 #include "termlist.h"
 
 class OmTermListIterator::Internal {
-//    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
     private:
 	friend class OmTermListIterator; // allow access to termlist
         friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
 
-	/// Reference counted pointer to termlist
-	OmRefCntPtr<TermList> termlist;
+	TermList *termlist;
     
     public:
         Internal(TermList *termlist_) : termlist(termlist_)
@@ -41,6 +39,8 @@ class OmTermListIterator::Internal {
 	    // A TermList starts before the start, iterators start at the start
 	    termlist->next();
 	}
+
+        ~Internal() { delete termlist; }
 };
 
 #endif /* OM_HGUARD_OMTERMLISTITERATOR_H */

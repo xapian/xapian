@@ -35,6 +35,7 @@ OmPostListIterator::OmPostListIterator(Internal *internal_)
 
 OmPostListIterator::~OmPostListIterator() {
     DEBUGAPICALL("OmPostListIterator::~OmPostListIterator", "");
+    delete internal;
 }
 
 const om_docid

@@ -61,6 +61,13 @@ class OmPositionListIterator {
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+	// Allow use as an STL iterator
+	typedef input_iterator_tag iterator_category;
+	typedef om_termpos value_type;
+	typedef om_termpos difference_type;
+	typedef om_termpos * pointer;
+	typedef om_termpos & reference;
 };
 
 #endif /* OM_HGUARD_OMPOSITIONLISTITERATOR_H */

@@ -27,13 +27,11 @@
 #include "postlist.h"
 
 class OmPostListIterator::Internal {
-//    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
     private:
 	friend class OmPostListIterator; // allow access to postlist
         friend bool operator==(const OmPostListIterator &a, const OmPostListIterator &b);
 
-	/// Reference counted pointer to postlist
-	OmRefCntPtr<PostList> postlist;
+	PostList *postlist;
     
     public:
         Internal(PostList *postlist_) : postlist(postlist_)
@@ -42,6 +40,8 @@ class OmPostListIterator::Internal {
 	    PostList *p = postlist->next();
 	    if (p) postlist = p; // handle prune
 	}
+
+	~Internal() { delete postlist; }
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

@@ -1,3 +1,11 @@
+Fri Sep 08 16:41:17 BST 2000 Olly Betts
+
+	* Om*Iterator ought to now work as STL iterators; added test termlist2
+	  for this - but it currently fails so is disabled.
+
+	* Martin has fixed problem in makeDA so termlist1 now passes with da
+	  backend.
+
 Fri Sep  8 16:34:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Delve can now display several termlists, several postlists, or

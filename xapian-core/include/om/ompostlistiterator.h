@@ -23,14 +23,13 @@
 #ifndef OM_HGUARD_OMPOSTLISTITERATOR_H
 #define OM_HGUARD_OMPOSTLISTITERATOR_H
 
-//#include <iterator>
+#include <iterator>
 #include "omtypes.h"
 
 class OmDatabase;
 class OmPositionListIterator;
 
 class OmPostListIterator {
-    //    : public iterator<input_iterator_tag, om_docid, om_docid, const om_docid *, om_docid> {
     private:
 	friend class OmDatabase; // So OmDatabase can construct us
 
@@ -65,6 +64,13 @@ class OmPostListIterator {
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+	// Allow use as an STL iterator
+	typedef input_iterator_tag iterator_category;
+	typedef om_docid value_type;
+	typedef om_docid difference_type;
+	typedef om_docid * pointer;
+	typedef om_docid & reference;
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

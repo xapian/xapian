@@ -1561,6 +1561,22 @@ static bool test_termlist1()
     return true;
 }
 
+// tests that a TermListIterator works as an STL iterator
+static bool test_termlist2()
+{
+    OmDatabase db(get_database("apitest_onedoc"));
+    OmTermListIterator t = db.termlist_begin(1);
+    OmTermListIterator tend = db.termlist_end(1);
+    std::vector<om_termname> v(t, tend);
+    if (verbose) {
+	std::vector<om_termname>::const_iterator i;
+	for (i = v.begin(); i != v.end(); i++) {
+	    cout << *i << endl;
+	}
+    }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1608,8 +1624,8 @@ test_desc db_tests[] = {
     {"mbound1",            test_mbound1},
     {"wqf1",		   test_wqf1},
     {"qlen1",		   test_qlen1},
-// currently fails for DA - Doc P. investigating
     {"termlist1",	   test_termlist1},
+// currently leaks    {"termlist2",	   test_termlist2},
     {0, 0}
 };
 
