@@ -45,10 +45,11 @@ sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
 sparc |*Solaris 8 GCC 2.95.3           | 0.7.3 |Passed| [2]
 ppc   | MacOS X 10.2                   |~0.7.2 |Passed| [2] Kees van Reeuwijk
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux cross to mingw GCC 2.95.3| 0.7.3 |Built | [4]
+x86   | Linux cross to mingw GCC 2.95.3| 0.7.3 |Built | [3]
+x86   | Linux cross to djgpp GCC 2.95.2| 0.7.3~|Built | [4]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.2 |Failed| [5] [6]
-sparc |*Solaris 8 Sun Workshop C++     | 0.7.3 |Failed| [3] Compilation fails
+sparc |*Solaris 8 Sun Workshop C++     | 0.7.3 |Failed| [7] Compilation fails
 ------+--------------------------------+-------+------+------------------------
 
 Older success reports lacking an update for a more recent Xapian version
@@ -75,21 +76,26 @@ x86   | Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| from Peter Marelas
 @ = handhelds.org (telnet/ssh ipaq[1-7].handhelds.org / user guest / no passwd)
 ! = thanks to Gavin Kelman for access to these platforms
 
-~ = Tested version from CVS shortly before this release
+~ = Tested version from CVS shortly before this release (or after for ~ suffix)
 
 [1] ./configure emits many warnings (we believe these are harmless):
 mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 
 [2] Must be compiled as a static library (--disable-shared).
 
-[3] libxapian fails to link with multiply defined symbol errors - it looks like
-libtool is getting it wrong.
-
-[4] "make check" won't work for a cross-compiled build, but once copied to a
+[3] "make check" won't work for a cross-compiled build, but once copied to a
 Windows box some tests fail; Remote backend is automatically disabled (the
 remote backend needs fork() and socketpair(), neither of which mingw provides).
+
+[4] "make check" won't work for a cross-compiled build.  Not tried to run the
+binaries yet; Remote backend is automatically disabled (the remote backend
+needs fork() and socketpair(), neither of which djgpp provides - it has a
+stub for fork(), but it will always fail).
 
 [5] Need to add '#include <stdio.h>' to bin/quartzcompact.cc.
 
 [6] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
 (SEGV).  Other tests pass.
+
+[7] libxapian fails to link with multiply defined symbol errors - it looks like
+libtool is getting it wrong.
