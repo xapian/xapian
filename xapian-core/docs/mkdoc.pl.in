@@ -172,13 +172,6 @@ EOF
 	print DESTFILE "\n\n\n";
     }
 
-    # Print class details
-    print DESTFILE "<H1>Class structure</H1>\n";
-    my $class;
-    foreach $class (sort keys(%classes)) {
-	print DESTFILE "$class<BR>\n";
-    }
-
     # Print footer
     my $date = `date`;
     $date =~ s/\n$//;

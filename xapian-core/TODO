@@ -24,9 +24,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- High    | Website         | Empty "Class structure" heading at the end of
-         |                 | "code structure" page.
----------+-----------------+--------------------------------------------------
  Medium  | Tests           | Test match decision functor
 ---------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Implement match decision functor
@@ -51,6 +48,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | Positional      | Pass within query frequency and query length
 	 |                 | information to matcher.
+---------+-----------------+--------------------------------------------------
+ Low     | Website         | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
  Low     | API             | Add query batch (as wrapper for now)
 ---------+-----------------+--------------------------------------------------
