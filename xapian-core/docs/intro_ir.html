@@ -1,0 +1,549 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Muscat: Introduction to information retrieval</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<H1>An introduction to information retrieval</H1>
+
+<H2>Documents and terms</H2>
+
+In IR (Information Retrieval), the items we are trying to retrieve are called
+<EM>documents</EM>, and the documents are described by collections of <EM>terms</EM>. These
+two words, 'document' and 'term', are now traditional in the vocabulary of IR,
+and reflect its Library Science origins. Usually a document is thought
+of as a piece of text, most possibly in a machine readable form, and a term as
+a word or phrase which helps to describe the document, and which may indeed
+occur in the document, one or several times. So a document might be about
+dental care, and could be described by corresponding terms 'tooth', 'teeth'
+'toothbrush' 'decay', 'cavity', 'plaque', 'diet' and so on.
+<P>
+More generally a document can be anything we want to retrieve, and a term any
+feature that helps describe the documents. So the documents could be a
+collection of fossils held in a big museum collection, and the terms could be
+morphological characteristics of the fossils. Or the documents could be tunes,
+and the terms could then be phrases of notes that occur in the tunes.
+<P>
+If, in an IR system, a document, D, is decribed by a term, t, t is said to
+<EM>index</EM> D, and we can write,
+<PRE>
+            t -&gt; D
+</PRE>
+In fact an IR system consists of a set of documents, D<sub>1</sub>, D<sub>2</sub>, D<sub>3</sub> ..., a set
+of terms t<sub>1</sub>, t<sub>2</sub>, t<sub>3</sub> ..., and set of relationships,
+<PRE>
+            t<sub>i</sub> -&gt; D<sub>j</sub>
+</PRE>
+i.e. instances of terms indexing documents. A single instance of a particular
+term indexing a particular document is called a <EM>posting</EM>.
+<P>
+For a document, D, there is a list of terms which index it. This is called the
+<EM>term list</EM> of D.
+<P>
+
+For a term, t, there is a list of documents which it indexes. This is called
+the <EM>posting list</EM> of t. ('Document list' would be more consistent, but sounds
+a little too vague for this very important concept.)
+<P>
+
+At a simple level a computerized IR system puts the terms in a direct access,
+or <EM>index</EM> file. A term can be looked up and its posting list found. But as
+we will see later, a term in Muscat can be constructed from other terms, and
+we should distinguish between an <EM>index entry</EM>, which is a term actually held
+in an index, and a <EM>term</EM>, which may be composed of index entries. A two word
+term, 'dental hygiene' for example, might be an index entry, or it might be
+constructed out of the two index entries 'dental' and 'hygiene'. In Muscat
+you can do it either way.
+<P>
+
+In an index a document, D, is of course a short identifier for a document, not
+the document itself. To keep things simple, a posting list can be thought
+of as a list of numbers, and term list as either a list of strings, or a list
+of numbers.
+
+<H2>Muscat's context within IR</H2>
+
+In the beginning IR was dominated by Boolean retrieval, described in the next
+section. This could be called the intediluvian period, or generation zero.
+The first generation of IR research dates from the early sixties, and was
+dominated by model building, experimentation, and heuristics. The big names
+were Gerry Salton and Karen Sparck Jones. The second period, which began in
+the mid-seventies, saw a big shift towards mathematics, and a rise
+of the IR model based upon probability theory - probabilistic IR. The big
+name here was, and continues to be, Stephen Robertson. More recently Keith
+van Rijsbergen has led a group that has developed underlying logical models
+of IR, but interesting as this new work is, it has not as yet led to results
+that offer improvements for the IR system builder.
+
+<P>
+Muscat is firmly placed as a system that implements, or tries to implement,
+the probabilistic IR model. (We say 'tries' because sometimes implementation
+efficiency and theoretical complexity demand certain short-cuts.)
+
+<P>
+The model has two striking advantages:
+
+<OL><LI>
+It leads to systems that give good retrieval performance. As the model has
+developed over the last 25 years, this has proved so consistently true that
+one is led to suspect that the probability theory model is, in some sense, the
+'correct' model for IR. The IR process would appear to function as the model
+suggests.
+</LI><LI>
+As new problems come up in IR, the probabilistic model can usually suggest
+a solution. This makes it a very practical mental tool for cutting through the
+jungle of possibilities when designing IR software.
+</LI></OL>
+
+In simple cases the model reduces to simple formulae in general use, so don't
+be alarmed by the apparent complexity of the equations below.
+We need them for a full undetanding of the general case.
+
+<H2>Boolean retrieval</H2>
+
+A Boolean construct of terms retrieves a corresponding set of documents. So,
+if:
+<PRE>
+     t<sub>1</sub>  indexes documents  1 2 3 5 8
+     t<sub>2</sub>  indexes documents  2 3 6
+</PRE>
+then
+<PRE>
+     t<sub>1</sub> and t<sub>2</sub>   retrieves   2 3
+     t<sub>1</sub> or t<sub>2</sub>    retrieves   1 2 3 5 6 8
+     t<sub>1</sub> - t<sub>2</sub>     retrieves   1 5 8
+     t<sub>2</sub> - t<sub>1</sub>     retrieves   6
+</PRE>
+
+This should be familiar. The posting list of a term is a set of documents. IR
+becomes a matter of constructing other sets by doing unions, intersections
+and differences on posting lists.
+<P>
+For example, in an IR system of works of literature, a Boolean query
+<PRE>
+    ('English' or 'French' or 'German') and ('novel' or 'play') and 'C19'
+</PRE>
+might be used to restrict the probabilistic retrieval to all English, French
+or German novels or plays of the 19th century.
+
+<P>
+Boolean retrieval is often useful, but is quite inadequate as a general IR
+tool, and when so used gives very bad retrieval. (One can say this with
+confidence, despite the continued survival of so many purely Boolean IR
+systems.)
+
+<P>
+Muscat provides Boolean retrieval, with expressions of arbitrary complexity,
+and they can either be used by themeselves, or, more usefully, to create a
+subset of the whole document collection within which the probabilistic query,
+described below, operates. In this style the Boolean query defines a window
+onto the document collection, and the probabilitstic query restricts what the
+user sees to documents inside that window.
+
+<H2>Relevance and the idea of a query</H2>
+
+Boolean IR is so simple that it is almost possible to dispense with the notion
+of <EM>relevance</EM> altogether. In the probabilistic model it is a central concept.
+We won't attempt a definition - indeed, perhaps it is undefinable. Essentially
+a document is relevant if it was what the user really wanted. Relevance is
+a separate business from what gets retrieved. Among documents retrieved there
+will be non-relevant ones; among those not retrieved, relevant ones. There
+are no degrees a relevance: at least not in theory. A document either is, or
+is not, relevant. In the probabilistic model there is however a probability
+of relevance, and it turns out that documents of low probability of relevance
+in theory will correspond to documents that, in practice, one would describe
+as having low relevance.
+<P>
+What the user actually wants has to be expressed in some form, and the
+expression of the user's need is the query. In the probabilistic model the
+query is, usually, a list of terms, but that is the end process of a chain of
+events. The user has a need; this is expressed in ordinary language; this is
+then turned into a written form that the user judges will yield good results
+in an IR system, and the IR system then turns this form into a set, <I>Q</I>, of
+terms for processing the query. Relevance must be judged against the user's
+original need, not against a later interpretation of what <I>Q</I>, the set of
+terms, ought to mean.
+
+<P>
+Below, a query is taken to be just a set of terms, but it is important to
+realise that this is a simplification. Each link in the chain that takes us
+from the information need to the abstraction in <I>Q</I> is liable to error, and
+these errors compound to affect IR performance. In fact the performance of IR
+systems as a whole is much worse than most people generally imagine.
+
+<H2>Evaluating IR performance</H2>
+
+It is possible to set up a test to evaluate an IR system. Suppose <I>Q</I> is a
+query, and out of the complete collection of documents in the IR system, a set
+of documents <I>R</I> of size R are relevant to the query. So if a document is in
+<I>R</I> it is relevant, and if not in <I>R</I> it is non-relevant. Suppose the IR system
+is able to give us back K documents, among which r are relevant. <EM>Precision</EM>
+and <EM>recall</EM> are defined as being,
+
+<PRE>
+                    r                    r
+        precision = -,          recall = -
+                    K                    R
+</PRE>
+
+Precision is the density of relevant documents among those retrieved. Recall
+is the proportion of relevant documents retrieved. In most IR systems K is a
+parameter that can be varied, and what you find is that when K is low you get
+high precision at the expense of low low recall, and when K is high, high
+recall at the expense of low precision. Retrieval effectiveness is often shown
+as a graph of precision against recall, plotted for different values of K.
+<P>
+Of course basing a test on just one query would be rather unfair. What happens
+in practice is that you have a collection of queries, <I>Q</I><sub>1</sub>, <I>Q</I><sub>2</sub>, <I>Q</I><sub>3</sub> ...,
+and associated relevance sets, <I>R</I><sub>1</sub>, <I>R</I><sub>2</sub>, <I>R</I><sub>3</sub> ..., and the precision/recall
+measures are got by an averaging process over all the queries.
+<P>
+A collection like this, consisting of a set of documents, a set of queries,
+and for each query, a complete set of relevance assessments, is called a
+<EM>test collection</EM>. With a test collection you can test out different IR
+ideas, and see how well one performs against another. The controversial part
+of establishing any test collection is the procedure employed for determining
+the sets <I>R</I><sub>i</sub>, of relevance assessments. Subjectivity of judgement comes in
+here, and people will differ about whether a particular document is relevant
+to a particular query. Even so, the averaging across queries reduces the
+errors that may occasionally arise through faulty relevance judgements, and
+averaging important tests across a number of test collections reduces the
+effects caused by accidental features of individual collections, and the
+results obtained by these tests in modern research are gerenally accepted as
+trustworthy.
+<P>
+Nowadays research with test collections is organised from
+<A HREF="http://trec.nist.gov/">http://trec.nist.gov/</A>
+
+<H2>Probabilistic term weights</H2>
+
+In this section we will try to present some of the thinking behind the
+formulae. This is really to give a feel for where the probabilistic model
+comes from. But feel free to skim through if you're not too interested.
+<P>
+Suppose we have an IR system with a total of N documents. And suppose <I>Q</I> is a
+query in this IR system, made up of terms t<sub>1</sub>, t<sub>2</sub> ... t<sub>Q</sub>. There is a set,
+<I>R</I>, of documents relevant to the query.
+<P>
+In 1976, Stephen Robertson derived a formula which gives an ideal numeric
+weight to a term t of Q. Just how this weight gets used we will see below,
+but essentially a high weight means an important term and a low weight means
+an unimportant term. The formula is,
+
+<PRE>
+                   p (1 - q)
+        w(t) = log ---------
+                   (1 - p) q
+</PRE>
+
+(The base of the logarithm doesn't matter, but we can suppose it is e.) p is
+the probability that t indexes a relevant document, and q the probablility
+that t indexes a non-relevant document. And of course, 1 - p is the
+probability that t does not index a relevant document, and 1 - q the
+probability that t does not index a non-relevant document. More mathematically,
+<PRE>
+        p = P(t -&gt; D | D in <I>R</I>)
+        q = P(t -&gt; D | D not in <I>R</I>)
+
+        1 - p = P(t not -&gt; D | D in <I>R</I>)
+        1 - q = P(t not -&gt; D | D not in <I>R</I>)
+</PRE>
+
+Suppose that t indexes n of the N documents in the IR system. Suppose also
+that there are R documents in <I>R</I>, and that there are r documents in <I>R</I> which
+are indexed by t.
+<P>
+p is easily estimated by r/R, the ratio of the number of relevant documents
+indexed by t to the total number of relevant documents.
+</P>
+The total number of non-relevant documents is N - R, and the number of those
+indexed by t is n - r, so we can estimate q as (n - r)/(N - R). This gives us
+the estimates,
+<PRE>
+                r              N - R - n + r
+            p = -,     1 - q = -------------
+                R                  N - R
+
+                R - r          n - r
+        1 - p = -----,     q = -----
+                  R            N - R
+</PRE>
+
+and so substituting in the formula for w(t) we get the estimate,
+
+<PRE>
+                   r (N - R - n + r)
+        w(t) = log -----------------
+                    (R - r)(n - r)
+</PRE>
+
+Unfortunaly, this formula is subject to violent behaviour when, say, n = r
+(infinity) or r = 0 (minus infinity), and so Robertson suggests the modified
+form
+<PRE>
+                   (r + h) (N - R - n + r + h)
+        w(t) = log ---------------------------, where h = 1/2
+                    (R - r + h) (n - r + h)
+</PRE>
+
+with the reassurance that this has "some theoretical justification". This is
+the form of the term weighting formula used in Muscat.
+<P>
+Note that n is dependent on the term, t, and R on the query, <I>Q</I>, while r
+depends both on t and <I>Q</I>. N is constant, at least until the IR system changes.
+<P>
+At first sight this formula may appear to be quite useless. After all, <I>R</I> is
+what we are trying to find. We can't evaluate w(t) until we have <I>R</I>, and if
+we have <I>R</I> the retrieval process is over, and term weights are no longer
+of any interest to us.
+<P>
+But the point is we can estimate p and q from a subset of <I>R</I>. As soon as some
+records are found relevant by the user they can be used as a working set for
+<I>R</I> from which the weights w(t) can be derived, and these new weights can be
+used to improve the processing of the query.
+<P>
+In fact in the Muscat software <I>R</I> tends to mean not the complete set of
+relevant documents, which indeed can rarely be discovered, but a small set of
+documents which have been judged as relevant.
+<P>
+Suppose we have no documents marked as relevant. Then R = r = 0, and w(t)
+becomes,
+<PRE>
+            N - n + h
+        log ---------
+              n + h
+</PRE>
+
+This is approximately log((N - n)/n). Or log(N/n), since n is usually small
+compared with N. This is called inverse logarithmic weighting, and has been
+used in IR for many decades, quite independently of the probabilistic theory
+which undepins it. Weights of this form are in fact the starting point in
+Muscat when no relevance information is present.
+<P>
+The number n incidentally is often called the <EM>frequency</EM> of a term. We prefer
+the phrase <EM>collection frequency</EM>, or cf, to distinguish it from wdf and wdq
+introduced below.
+<P>
+In extreme cases w(t) can be negative. In Muscat negative values are
+disallowed, and simply replaced by a small positive value.
+
+
+<H2>wdp, wdf, ndl and wqf</H2>
+
+Before we see how the weights are used there are a few more idea to introduce.
+<P>
+A term t is said to index a document D, or t -&gt; D. We have emphasised that D
+may not be a piece of text in machine readable form, and that, even when it
+is, t may not actually occur in the text of D. Nevertheless, it will often be
+the case that D is made up of a list of words,
+<PRE>
+        D = w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub> ... w<sub>k</sub>
+</PRE>
+
+and that many, if not all, of the terms which index D derive from these words.
+The relation between words and terms need not be a simple one. A single term
+'connect' might derive from a a number of words, 'connect', 'connects',
+'connection', 'connected' and so on. A single word might give rise to more
+than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>3</sub>8, w<sub>9</sub>7 and
+w<sub>2</sub>21 in the indexing process, we can say that the term 'occurs' in D at
+positions 9, 38, 97 and 211, and so for each term a document may have a
+vector of postional information. These are the <EM>within-document positions</EM> of
+t, or the <EM>wdp</EM> information of t.
+<P>
+The <EM>within-document frequency</EM>, or <EM>wdf</EM>, of a term t in D is the number of
+times it is pulled out of D in the indexing process. Usually this is the size
+of the wdp vector, but in Muscat it can exceed it, since we can take the
+liberty of passing over the same portion of text more than once and so,
+either deliberately or inadvertently, pulling out the same index term several
+times.
+<P>
+There are various ways in which we might measure the length of a document, but
+the easiest is to suppose it is made up of k words, w<sub>1</sub> to w<sub>k</sub>, and to define
+its length as k.
+<P>
+The <EM>normalised document length</EM>, or <EM>ndl</EM>, is then k divided by the average
+length of the documents in the IR system. So the average length document has
+ndl equal to 1, short documents are less than 1, long documents greater than
+1. We have found that very small ndl values create problems, so Muscat
+actually allows for a non-zero minimum value for the ndl.
+
+<P>
+In the probabilistic model the query, <I>Q</I>, is itself very much like another
+document. Frequently indeed <I>Q</I> will be created from a document, either one
+already in the IR system, or by an indexing process very similar to the one
+used to add documents into the whole IR system. This corresponds to a user
+saying "give me other documents like this one". One can therefore attach a
+similar meaning to within-query position information, within-query frequency,
+and normalised query length, or wqp, wqf and nql. Muscat does not however
+currently use the concept of wqp.
+
+
+<H2>Using the weights. The <I>M</I> set</H2>
+
+Now to pull everything together. From the probabilistic term weights we can
+assign a weight to any document, D, as follows,
+
+<PRE>
+                  ---     (K + 1) f<sub>t</sub>
+        W(D) =    \       -----------  w(t)
+                  /__      KL + f<sub>t</sub>
+            t -&gt; D, t in <I>Q</I>
+</PRE>
+
+The sum extends over the terms of <I>Q</I> which index D. f<sub>t</sub> is the wdf of t in D,
+L is the ndl of D, and K is some suitably chosen constant.
+<P>
+The factor K+1 is actually redundant, but helps with the interpretation of
+the equation. If K is set to zero the factor before w(t) is 1, and the wdfs
+are ignored. As K tends to infinity, the factor becomes f<sub>t</sub>/L, and the wdfs
+take on their greatest importance. Intermediate values scale the wdf
+contribution between these extremes.
+<P>
+The best K actually depends on the characteristics of the IR system as a
+whole, and unfortunately no rule can be given for choosing it. A low value of
+K may be recommended for 'safe' use. Then W(D) is merely tweaked a bit by the
+wdf values, and users observe a simple pattern of retrieval.
+<P>
+Any D in the IR system has a value W(D), but, if no term of the query indexes
+D, W(D) will be zero. In practice only Ds for which W(D) &gt; 0 will be of
+interest, and these are the documents indexed by at least one term of <I>Q</I>. If
+we now take these documents and arrange them by decreasing W(D) value, we get
+a ranked list called the <EM>match set</EM>, or <EM><I>M</I> set</EM>, of document and weight
+pairs:
+<PRE>
+     <I>M</I> set:       item 0:   D<sub>0</sub>  W(D<sub>0</sub>)
+                  item 1:   D<sub>1</sub>  W(D<sub>1</sub>)
+                  item 2:   D<sub>2</sub>  W(D<sub>2</sub>)
+                        ....
+                  item K:   D<sub>K</sub>  W(D<sub>K</sub>)
+</PRE>
+
+where W(D<sub>j</sub>) &gt;= W(D<sub>i</sub>) if j &gt; i.
+<P>
+And according to the probabilistic model, the documents D<sub>0</sub>, D<sub>1</sub>, D<sub>2</sub> ... are
+ranked by decreasing order of probability of relevance. So D<sub>0</sub> has highest
+probability of being relevant, then D<sub>1</sub> and so on.
+<P>
+Muscat creates the <I>M</I> set from the posting lists of the terms
+of the query. This is the central operation of any IR system, and will be
+familiar to anyone who has used one of the Internet's major search engines,
+where the query is what you type in the query box, and the resulting hit list
+corresponds to the top few items of the <I>M</I> set.
+<P>
+
+The cutoff point, K, is chosen when the <I>M</I> set is created. The candidates for
+inclusion in the <I>M</I> set are all documents indexed by at least one term of <I>Q</I>,
+and their number will usually exceed the choice for K. (K is typically set to
+be 1000 or less.) The <I>M</I> set is actually the best K documents found in the
+match process.
+<P>
+
+A modification of the weighting scheme can be employed that takes into
+account the query itself. This would be
+
+<PRE>
+                  ---     (K' + 1) f'<sub>t</sub> (K + 1) f<sub>t</sub>
+        W(D) =    \       ------------- -----------  w(t)
+                  /__      K'L' + f'<sub>t</sub>   KL + f<sub>t</sub>
+            t -&gt; D, t in <I>Q</I>
+</PRE>
+
+where f'<sub>t</sub> is the wqf of t in <I>Q</I>, L' is the nql, or normalised query length,
+and K' is a further constant. In computing W(D) across the document space,
+this extra factor may be viewed as just a modification to the basic term
+weights, w(t). Like K and K', we will need to make an inspired guess for L'.
+In fact the choices for K' and L' will depend on the broader context of the
+use of this formula, and more advice will be given as occasion arises. There
+is in any case no provision for this broader weighting in our initial open
+source release.
+
+
+<H2>Using the weights: the <I>E</I> set</H2>
+
+But as well as ranking documents, Muscat can rank terms, and this is most
+important. The higher up the ranking the term is, the more likely it is
+to act as a good differentiator between relevant and non-relevant documents.
+It is therefore a candidate for adding back into the query. Terms from this
+list can therefore be used to expand the size of the query, after which the
+query can be re-run to get a better <I>M</I> set. Because this list of terms is
+mainly used for query expansion, it is called the <EM>expand set</EM> or <EM><I>E</I> set</EM>.
+
+<P>
+The term expansion weighting formula is as follows,
+
+<PRE>
+        W(t) =  r w(t)
+</PRE>
+
+in other words we multiply the term weight by r.
+<P>
+The <I>E</I> set then has this form,
+
+<PRE>
+    <I>E</I> set:       item 0:   t<sub>0</sub>  W(t<sub>0</sub>)
+                  item 1:   t<sub>1</sub>  W(t<sub>1</sub>)
+                  item 2:   t<sub>2</sub>  W(t<sub>2</sub>)
+                        ....
+                  item K:   t<sub>K</sub>  W(t<sub>K</sub>)
+</PRE>
+
+where W(t<sub>j</sub>) &gt;= W(t<sub>i</sub>) if j &gt; i.
+<P>
+Since the main function of the <I>E</I> set is to find new terms to be added to <I>Q</I>,
+we usually omit from it terms already in <I>Q</I>.
+<P>
+The W(t) weight is applicable to any term in the IR system, but has a value
+zero when t does not index a relevant document. The <I>E</I> set is therefore
+confined to be a ranking of the best K terms which index relevant documents.
+<P>
+This simple form of W(t) is traditional in the probabilistic model, but
+seems less than optimal because it does not take into account wdf information.
+One can if fact try to generalise it to
+
+<PRE>
+                  ---     (K + 1) f<sub>t</sub>
+        W(t) =    \       -----------  w(t)
+                  /__       KL + f<sub>t</sub>
+            t -&gt; D, D in <I>R</I>
+</PRE>
+
+The K here being not necessaily th same as the one used in forming the <I>M</I> set.
+<P>
+This reduces to W(t) = r w(t) when K = 0. Certainly this form can be
+recommended in the very common case where r = 1, that is, we have a single
+document marked relevant.
+
+
+
+<H2>The progress of a query</H2>
+
+We want to stress than even without the fancy notions of a relevance set,
+query expansion, inproved term weights and reranking, Muscat is still a very
+useful IR tool. You do not need to use the full capabilities of the software
+to get benefit from it. But in the general case, the IR model it supports is
+as follows:
+<P>
+You enter a query. This is run by the IR system, which returns two lists, a
+list of captions, derived from the <I>M</I> set, and a list of terms, from the <I>E</I>
+set. If the <I>R</I> set is empty, the first few documents of the <I>M</I> set can be
+used as a stand-in. After all, they have a good chance of being relevant! You
+can read a document by clicking on the caption. (We assume the usual
+screen/mouse environment.) But you can also mark a document as relevant
+(change <I>R</I>) or cause a term to be added from the <I>E</I> set to the query (change
+<I>Q</I>). As soon as any change is made to the query environment the query can be
+rerun, although you might have a front-end where nothing happens until you
+click on some "Run Query" button.
+<P>
+
+In any case rerunning the query leads to a new <I>M</I> set and <I>E</I> set, and so to a
+new display. The IR process is then an iterative one. You can delete terms
+from the query or add them in; mark or unmark documents as being relevant.
+Eventually you converge on the answer to the query, or at least, the best
+answer the IR system can give you.
+<HR>
+Martin Porter, December 1999
+<BR>
+Edited (roughly) into HTML form by Richard Boulton
+</BODY>
+</HTML>

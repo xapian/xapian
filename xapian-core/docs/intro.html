@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Muscat: Introduction for developers</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<TABLE CELLPADDING=10 WIDTH=99%>
+<TR>
+<TD>
+</TD>
+<TD>
+<CENTER>
+<H1>Muscat - the open source search engine</H1>
+</CENTER>
+</TD>
+<TD WIDTH=151>
+<A HREF="http://www.dialog.com/"><IMG SRC="../../tdc.gif" WIDTH=151 HEIGHT=23 BORDER=0 ALT="The Dialog Corporation"></A>
+</TD>
+</TR>
+</TABLE>
+
+<H2>Introduction</H2>
+
+This document is intended to get you going with Muscat, taking you from the
+point of downloading the code, to getting an example application compiled
+and running.
+<p>
+Note that Muscat is currently only available in versions targeted for UNIX
+systems.
+
+<H3>Download</H3>
+The first step is to obtain a copy of the software.  Currently there are no
+stable releases of Muscat, so for your first explorations we recommend using
+one of the nightly snapshots.  These have been tested for consistency,
+and compiled on our test system (though they may not compile on your system,
+and may perform incorrectly even if they do).
+<p>
+Nightly snapshots are available via
+<a href="http://open.muscat.com/open/developer/download/index.html">http://open.muscat.com/open/developer/download/index.html</a>
+<p>
+Snapshots of two different pieces of code are available: one will be named
+<code>om-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz</code> and contains the
+core code for the Muscat search engine.  The other will be named
+<code>om-examples-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz</code> and
+contains various example applications using Muscat.
+<p>
+You should retrieve the latest snapshot pair available; note that
+if you wish to build the examples you should make sure that both snapshots
+have the same date.  The snapshots are only released if they compile: thus
+absence of an example snapshot probably means that recent changes in the
+core code have broken the example snapshots.
+
+<H3>Unpacking</H3>
+Use the usual tools to unpack the archives.  For example, on a Linux system:
+<blockquote> <code>
+tar zxvf om-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz
+<br>
+tar zxvf om-examples-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz
+</code> </blockquote>
+The archives should then be unpacked into subdirectories of their own.
+<P>
+
+<H3>Configuring and building Muscat</H3>
+Muscat uses the GNU automake and autoconf tools.  If you only wish to 
+
+<H3>Configuring and building the examples</H3>
+
+<H3>Building from CVS</H3>
+If you wish to help develop muscat, you may wish to build directly from the
+CVS repository.  Note that this is extremely likely periodically to contain
+severe bugs and code which will not compile.  Details on how to access
+the CVS repository are available at
+<a href="http://open.muscat.com/open/developer/download/cvs.html">http://open.muscat.com/open/developer/download/cvs.html</a>
+<p>
+The other drawback of CVS is that you will need to generate your own configure
+script and makefiles.  This can be done using the GNU autoconf and automake
+packages: you must have these installed if you wish to work from CVS.
+<p>
+We provide a useful script (<code>buildall</code>) to run all the necessary
+scripts to generate the project Makefiles.
+
+</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>
