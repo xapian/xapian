@@ -4,4 +4,4 @@ Makefile.in
 Makefile
 .deps
 .libs
-libtestfile.la
+libtextfile.la
