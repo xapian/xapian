@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,33 +38,31 @@ OrPostList::OrPostList(PostList *left_,
 PostList *
 OrPostList::next(om_weight w_min)
 {
-#ifdef MATCHER_PRUNE // FIXME - the bug is probably elsewhere
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND");
-		ret = new AndPostList(l, r, matcher, true);
+		ret = new AndPostList(l, r, matcher, dbsize, true);
 		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
 				       matcher);
 	    } else {
 		DEBUGLINE(MATCH, "OR -> AND MAYBE (1)");
-		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
+		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		next_handling_prune(ret, w_min, matcher);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "OR -> AND MAYBE (2)");
-	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
+	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    next_handling_prune(ret, w_min, matcher);
 	}
 
 	l = r = NULL;
 	return ret;
     }
-#endif
 
     bool ldry = false;
     bool rnext = false;
@@ -100,25 +98,24 @@ OrPostList::next(om_weight w_min)
 PostList *
 OrPostList::skip_to(om_docid did, om_weight w_min)
 {
-#ifdef MATCHER_PRUNE // FIXME - the bug is probably elsewhere
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND (in skip_to)");
-		ret = new AndPostList(l, r, matcher, true);
+		ret = new AndPostList(l, r, matcher, dbsize, true);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		DEBUGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
-		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
+		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (2)");
-	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
+	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    did = std::max(did, lhead);
 	}
 
@@ -126,7 +123,6 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	skip_to_handling_prune(ret, did, w_min, matcher);
 	return ret;
     }
-#endif
 
     bool ldry = false;
     if (lhead < did) {

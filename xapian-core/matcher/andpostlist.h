@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,10 +35,10 @@
  *  the sub-postings.
  */
 class AndPostList : public BranchPostList {
-    private:
+    protected:
         om_docid head;
         om_weight lmax, rmax;
-
+    private:
 	om_doccount dbsize;
 
         void process_next_or_skip_to(om_weight w_min, PostList *ret);
@@ -50,7 +51,6 @@ class AndPostList : public BranchPostList {
 	om_weight get_weight() const;
 	om_weight get_maxweight() const;
 
-        om_weight init_maxweight();
         om_weight recalc_maxweight();
 
 	PostList *next(om_weight w_min);

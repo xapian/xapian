@@ -5,6 +5,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +53,7 @@
  */
 class AndMaybePostList : public BranchPostList {
     private:
+	om_doccount dbsize; // only need in case we decay to an AndPostList
 	om_docid lhead, rhead;
 	om_weight lmax, rmax;
 
@@ -65,7 +67,6 @@ class AndMaybePostList : public BranchPostList {
 	om_weight get_weight() const;
 	om_weight get_maxweight() const;
 
-        om_weight init_maxweight();
         om_weight recalc_maxweight();
 
 	PostList *next(om_weight w_min);
@@ -81,10 +82,10 @@ class AndMaybePostList : public BranchPostList {
 
         AndMaybePostList(PostList *left_,
 			 PostList *right_,
-			 MultiMatch *matcher_)
+			 MultiMatch *matcher_,
+			 om_doccount dbsize_)
 		: BranchPostList(left_, right_, matcher_),
-		  lhead(0),
-		  rhead(0)
+		  dbsize(dbsize_), lhead(0), rhead(0)
 	{
 	    // lmax and rmax will get initialised by a recalc_maxweight
 	}
@@ -93,11 +94,11 @@ class AndMaybePostList : public BranchPostList {
         AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
+			 om_doccount dbsize_,
 			 om_docid lhead_,
 			 om_docid rhead_)
 		: BranchPostList(left_, right_, matcher_),
-		  lhead(lhead_),
-		  rhead(rhead_)
+		  dbsize(dbsize_), lhead(lhead_), rhead(rhead_)
 	{
 	    // Initialise the maxweights from the kids so we can avoid forcing
 	    // a full maxweight recalc

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -430,7 +431,8 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    Assert(query->subqs.size() == 2);
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 					postlist_from_query(query->subqs[1], matcher, is_bool),
-					matcher);
+					matcher,
+					db->get_doccount());
 
 	case OmQuery::OP_WEIGHT_CUTOFF:
 	    Assert(query->subqs.size() == 1);

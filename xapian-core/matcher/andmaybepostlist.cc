@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +55,7 @@ AndMaybePostList::next(om_weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DEBUGLINE(MATCH, "AND MAYBE -> AND");
-	ret = new AndPostList(l, r, matcher, true);
+	ret = new AndPostList(l, r, matcher, dbsize, true);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
 	return ret;
@@ -69,7 +70,7 @@ AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DEBUGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
-	ret = new AndPostList(l, r, matcher, true);
+	ret = new AndPostList(l, r, matcher, dbsize, true);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
