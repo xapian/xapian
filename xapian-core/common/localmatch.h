@@ -41,7 +41,7 @@ class PostList;
 
 class LocalSubMatch : public SubMatch {
     private:
-	StatsSource * statssource;
+	AutoPtr<StatsSource> statssource;
 	
 	bool is_prepared;
 
@@ -123,7 +123,6 @@ class LocalSubMatch : public SubMatch {
 
 	~LocalSubMatch()
 	{
-	    delete statssource;
 	}
 	
 	/// Calculate the statistics for the query

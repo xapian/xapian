@@ -1,3 +1,9 @@
+Thu Oct 12 16:55:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Convert statssource pointer in LocalSubMatch into an AutoPtr, to
+	  fix memory leak bug (exhibited if an exception is thrown in
+	  constructor).
+
 Thu Oct 12 16:49:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Changed the interface for creating indexer nodes.  

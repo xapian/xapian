@@ -374,7 +374,7 @@ LocalSubMatch::prepare_match(bool nowait)
 
 	if (rset.get() != 0) {
 	    rset->calculate_stats();
-	    rset->give_stats_to_statssource(statssource);
+	    rset->give_stats_to_statssource(statssource.get());
 	}
 	is_prepared = true;
     }
@@ -407,7 +407,7 @@ LocalSubMatch::mk_weight(const OmQueryInternal *query_)
 	wqf = query_->wqf;
     }
     IRWeight * wt = IRWeight::create(weighting_scheme, opts);
-    wt->set_stats(statssource, querysize, wqf, tname);
+    wt->set_stats(statssource.get(), querysize, wqf, tname);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname.empty()) {
 	AutoPtr<IRWeight> extra_weight(mk_weight());
