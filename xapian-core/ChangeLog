@@ -1,3 +1,7 @@
+Thu Sep 21 15:38:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More robust table opening for Quartz, and fixed testsuite.
+
 Thu Sep 21 15:06:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed Record to OmIndexerData and Message to OmIndexerMessage.

@@ -166,7 +166,7 @@ static bool test_dbtable1()
     table2.set_entries(newentries);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_EQUAL(rev2, table2.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
     rev1 = table1.get_open_revision_number();
     rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);
@@ -198,7 +198,7 @@ static bool test_dbtable1()
     table2.set_entries(newentries);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
-    TEST_EQUAL(rev2, table2.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
     rev1 = table1.get_open_revision_number();
     rev2 = table2.get_open_revision_number();
     TEST_EQUAL(table1.get_entry_count(), 0);

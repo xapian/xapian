@@ -103,9 +103,19 @@ QuartzDbManager::open_tables_newest()
 void
 QuartzDbManager::open_tables_consistent()
 {
+    // Open record_table first, since it's the last to be written to,
+    // and hence if a revision is available in it, it should be available
+    // in all the other tables (unless they've moved on already).
+    //
+    // FIXME: if we find that a table can't open the desired revision, we
+    // should go back and open record_table again, until record_table has
+    // the same revision as the last time we opened it.
     log->make_entry("Opening tables at latest consistent revision");
     record_table       = new QuartzDbTable(record_path(), readonly);
     QuartzRevisionNumber revision(record_table->get_open_revision_number());
+    log->make_entry("Trying revision " + revision.get_description() + ".");
+
+
     lexicon_table      = new QuartzDbTable(lexicon_path(), readonly, revision);
     termlist_table     = new QuartzDbTable(termlist_path(), readonly, revision);
     positionlist_table = new QuartzDbTable(positionlist_path(), readonly, revision);
@@ -158,13 +168,23 @@ QuartzDbManager::open_tables(QuartzRevisionNumber revision)
 QuartzRevisionNumber
 QuartzDbManager::get_revision_number() const
 {
-    // FIXME implement
+    // We could use any table here, theoretically.
+    Assert(postlist_table.get() != 0);
+    return postlist_table->get_open_revision_number();
 }
 
 QuartzRevisionNumber
 QuartzDbManager::get_next_revision_number() const
 {
-    // FIXME implement
+    /* We _must_ use postlist_table here, since it is always the first
+     * to be written, and hence will have the greatest available revision
+     * number.
+     */
+    Assert(postlist_table.get() != 0);
+    QuartzRevisionNumber new_revision(
+	postlist_table->get_latest_revision_number());
+    new_revision.increment();
+    return new_revision;
 }
 
 int
