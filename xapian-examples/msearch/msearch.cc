@@ -128,7 +128,7 @@ main(int argc, char *argv[])
     }
 
     try {
-        OmEnquire enquire;
+        OmDatabase mydb;
 
 	vector<string>::const_iterator p;
 	vector<vector<string> >::const_iterator q;
@@ -136,8 +136,10 @@ main(int argc, char *argv[])
 	    p != dbtypes.end();
 	    p++, q++) {
 
-	    enquire.add_database(*p, *q);
+	    mydb.add_database(*p, *q);
 	}
+
+	OmEnquire enquire(mydb);
 
 	OmStem stemmer("english");
 

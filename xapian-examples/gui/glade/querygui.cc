@@ -338,17 +338,16 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
-    // Start enquiry system
-    enquire = new OmEnquire();
-
     // Set Database(s)
     try {
+	OmDatabase mydb;
+
 	vector<string>::const_iterator p;
 	vector<vector<string> >::const_iterator q;
 	for(p = dbtypes.begin(), q = dbargs.begin();
 	    p != dbtypes.end();
 	    p++, q++) {
-	    enquire->add_database(*p, *q);
+	    mydb.add_database(*p, *q);
 	}
 
 	GladeXML *xml;
@@ -380,6 +379,10 @@ int main(int argc, char *argv[]) {
 
 	/* start the event loop */
 	gtk_main();
+
+	// Start enquiry system
+	enquire = new OmEnquire(mydb);
+
     } catch (OmError &e) {
 	cout << "OmError: " << e.get_msg() << endl;
     }
