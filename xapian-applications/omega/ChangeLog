@@ -1,3 +1,9 @@
+Mon Feb  4 14:57:36 GMT 2002
+
+	* Added support for repeated keys in document data.
+	  $field{key} may now return multiple tab separated values if more
+	  than one instance of key exists in the document data
+
 Tue Jan 15 16:29:39 GMT 2002
 
 	* Fixed date_range_filter for the case where DATE1 and DATE2 don't
