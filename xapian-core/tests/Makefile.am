@@ -6,7 +6,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsu
 
 # These are for internal test - should be removed, and internal test
 # split into bits among the sources.
-INCLUDES += @SLEEPYCAT_INCLUDES@
+INCLUDES += @BERKELEY_2_x_INCLUDES@
 
 if HAVE_PERL
 PERLTESTS = stemtest.pl
