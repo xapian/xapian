@@ -57,8 +57,8 @@ static string::const_iterator q_ptr;
 
 /* Grammar follows */
 %%
-input:	  { query = OmQuery(); }
-	| exp { query = $1.q; }
+input:	  /* nothing */	{ query = OmQuery(); }
+	| exp		{ query = $1.q; }
 ;
 
 exp:	  prob		{
@@ -103,12 +103,20 @@ term:	  TERM		{ $$ = $1; }
 	                  v.push_back($3.q);
 			  $$ = U(OmQuery(OM_MOP_NEAR, v.begin(), v.end(), 11)); }
 	| '"' phrase '"'{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
+/*	| dashphr       { $$ = U(OmQuery(OM_MOP_PLRASE, $2.v.begin(), $2.v.end(), $2.v.size())); } */
 	| '{' phrase '}'{ $$ = U(OmQuery(OM_MOP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
 ;
 
 phrase:	  TERM		{ $$.v.push_back($1.q); }
 	| phrase TERM	{ $$ = $1; $$.v.push_back($2.q); }
 ;
+
+/*
+dashphr:  TERM '-' TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
+	| dashphr '-' TERM
+			{ $$ = $1; $$.v.push_back($3.q); }
+;
+*/
 
 %%
 

@@ -451,6 +451,11 @@ eval(const string &fmt)
 		}
 		break;
 	    }
+	    if (var == "dbname") {
+		ok = true;
+		if (dbname != default_dbname) value = dbname;
+		break;
+	    }
 	    break;
 	 case 'e':
 	    if (var == "env") {
@@ -475,19 +480,24 @@ eval(const string &fmt)
 	    if (var == "freqs") {
 		ensure_match();
 		ok = true;
+		try { // FIXME: until get_termfreq works...
 		if (!new_terms_list.empty()) {
 		    static string val;
 		    if (val.size() == 0) {
 			list<om_termname>::const_iterator i;
 			for (i = new_terms_list.begin();
 			     i != new_terms_list.end(); i++) {
-			    int freq = 42; // FIXME: enquire->get_termfreq(*i);
+			    int freq = mset.get_termfreq(*i);
 			    val = val + *i + ":&nbsp;"
 				+ pretty_sprintf("%d", &freq) + '\t';
 			}		    
 			if (val.size()) val.erase(val.size() - 1);
 		    }
 		    value = val;
+		}
+		}
+		catch (...) {
+		    value = "";
 		}
 		break;
 	    }
@@ -527,7 +537,7 @@ eval(const string &fmt)
 		int ch;
 		
 		query_string = "?DB=";
-		query_string += db_name;
+		query_string += dbname;
 		query_string += "&P=";
 		q = raw_prob.c_str();
 		while ((ch = *q++) != '\0') {
@@ -957,12 +967,8 @@ print_caption(om_docid m, const string &fmt)
 static void
 print_query_page(const string &page)
 {
-    string fnm;
-
-    fnm = db_dir + "-html/"; // FIXME should be "/html/"
-    fnm += page;
-
-    cout << eval_file(fnm);
+    // FIXME - should be set-able and should be "/html/"
+    cout << eval_file("/usr/om/data/default-html/" + page);
 }
 
 om_doccount

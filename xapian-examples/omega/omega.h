@@ -32,7 +32,7 @@
 
 extern FILE *page_fopen(const string &page);
 
-extern string db_name;
+extern string dbname;
 extern string fmtname;
 
 extern OmEnquire * enquire;
@@ -43,7 +43,7 @@ extern om_docid list_size;
 
 extern map<string, string> option;
 
-extern const string default_db_name;
+extern const string default_dbname;
 
 class ExpandDeciderOmega : public OmExpandDecider {
     public:

@@ -1,3 +1,9 @@
+Wed Jul 12 13:27:00 BST 2000 Olly Betts
+
+	* omega: allow multiple DB parameters and DB parameters listing
+	  several databases (e.g. DB=one/two/three); merged logged
+	  information into one file; added $dbname; general tidying
+
 Tue Jul 11 18:17:00 BST 2000 Olly Betts
 
 	* omega: implemented `exampl.' in query parser to mean an already

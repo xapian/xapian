@@ -44,15 +44,15 @@ OmRSet * rset;
 
 map<string, string> option;
 
-const string default_db_name = "default";
+const string default_dbname = "default";
 
-static string map_dbname_to_dir(const string &db_name);
+static string map_dbname_to_dir(const string &dbname);
 
 static void make_log_entry(const string &action, long matches);
 static void make_query_log_entry(const string &buf);
 
-string db_name;
-string db_dir;
+string dbname;
+string log_dir = "/tmp";
 string fmtname = "query";
 
 om_docid topdoc = 0;
@@ -135,31 +135,47 @@ static int main2(int argc, char *argv[])
     topdoc = (topdoc / list_size) * list_size;
     if (topdoc < 0) topdoc = 0;
     
-    // get database name
-    // FIXME: allow multiple DB parameters?  Or A,B,C???
-    val = cgi_params.find("DB");
-    if (val != cgi_params.end()) {
-	db_name = val->second;
-    } else {
-	db_name = default_db_name;
+    // get database(s) to search
+    dbname = "";
+    g = cgi_params.equal_range("DB");
+    for (MCI i = g.first; i != g.second; i++) {
+	string v = i->second;
+	if (!v.empty()) {
+	    if (dbname.size()) dbname += '/';
+	    dbname += v;
+	}
     }
-
-    // Translate DB parameter to path of database directory
-    db_dir = map_dbname_to_dir(db_name);
+    if (dbname.size() == 0) dbname = default_dbname;
 
     // Open enquire system
     OmDatabaseGroup omdb;
 
     try {
-	vector<string> params;
-	params.push_back(db_dir);
-        omdb.add_database("auto", params);
+	size_t p, q;
+	q = 0;
+	string tmp = dbname;
+	dbname = "";
+	while (1) {
+	    p = tmp.find_first_of('/', q);
+	    // Translate DB parameter to path of database directory
+	    if (p != q && tmp[q] != '.') {
+		vector<string> params;		
+		string db = tmp.substr(q, p - q);
+		if (dbname.size()) dbname += '/';
+		dbname += db;
+		params.push_back(map_dbname_to_dir(db));
+		omdb.add_database("auto", params);
+	    }
+	    if (p == string::npos) break;
+	    q = p + 1;
+	}
     } catch (OmError &e) {
+	// FIXME: make this more helpful (and use a template?)
 	// odds are it's not a database
 	cout << "<HTML><HEAD>\n"
-	        "<TITLE>Database `" << db_name << "' not found</TITLE></HEAD>\n"
+	        "<TITLE>Database `" << dbname << "' not found</TITLE></HEAD>\n"
 	        "<BODY BGCOLOR=white>\n"
-	        "<H3>Database <i>" << db_name << "</i> not found "
+	        "<H3>Database <i>" << dbname << "</i> not found "
 	        "(or not readable)</H3>\n"
 	        "</BODY></HTML>\n";
         cout << "<!-- " << e.get_msg() << " -->\n";
@@ -169,7 +185,6 @@ static int main2(int argc, char *argv[])
     // read thousands and decimal separators: e.g. 16<thousand>729<decimal>8037
     option["decimal"] = ".";
     option["thousand"] = ",";
-    option["gif_dir"] = "http://www.euroferret.com/fx-gif";
 
     enquire = new OmEnquire(omdb);
    
@@ -288,15 +303,11 @@ static int main2(int argc, char *argv[])
     } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
     }
-    make_query_log_entry(big_buf + "\n");
-
     return 0;
 }
 
-static string map_dbname_to_dir(const string &db_name) {
-    size_t i = db_name.find("..");
-    if (i != string::npos) throw "naughty hacker"; // FIXME db_name has .. in
-    return muscat_dir + "/data/" + db_name;
+static string map_dbname_to_dir(const string &dbname) {    
+    return muscat_dir + "/data/" + dbname;
 }
 
 /**************************************************************/
@@ -306,51 +317,32 @@ static string map_dbname_to_dir(const string &db_name) {
 static void
 make_log_entry(const string &action, long matches)
 {
-    string log_buf = db_dir + "/omega.log";
+    string log_buf = log_dir + "/omega.log";
     int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
        
-    if (fd != -1) {
-	/* (remote host) (remote logname from identd) (remote user from auth) (time)  */
-	/* \"(first line of request)\" (last status of request) (bytes sent)  */
-	/* " - - [01/Jan/1997:09:07:22 +0000] \"GET /path HTTP/1.0\" 200 12345\n";*/
-	char *var;
-	string line;
-	time_t t;
+    if (fd == -1) return;
 
-	t = time(NULL);
-	var = getenv("REMOTE_HOST");
-	if (var == NULL) {
-	    var = getenv("REMOTE_ADDR");
-	    if (var == NULL) var = "-";
-	}
-	line = var;
-
-	char buf[80];
-	strftime(buf, 80, " - - [%d/%b/%Y:%H:%M:%S", gmtime(&t));
-	line += buf;
-	line += " +0000] \"GET /" + db_name + "/" + action + "\" 200 ";
-	sprintf(buf, "%li ", matches);
-	line += buf;
-	var = getenv("HTTP_REFERER");
-	if (var != NULL) {
-	    line += '"';
-	    line += var;
-	    line += "\"\n";
-	} else {
-	    line += "-\n";
-	}
-	write(fd, line.data(), line.length());
-	close(fd);
+    // (remote host)\t(date/time)\t(action)\t(db)\t(query)\t(referer)
+    // 193.131.74.35 [01/Jan/1997:09:07:22 +0000] query db1 test http://x.com/
+    char *var;
+    string line;
+    time_t t = time(NULL);
+    var = getenv("REMOTE_HOST");
+    if (var == NULL) {
+	var = getenv("REMOTE_ADDR");
+	if (var == NULL) var = "-";
     }
-}
-
-static void
-make_query_log_entry(const string &buf)
-{
-    string log_buf = db_dir + "/query.log";
-    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-    if (fd != -1) {
-	write(fd, buf.data(), buf.size());
-	close(fd);
-    }
+    line = var;    
+    char buf[80];
+    strftime(buf, 80, "\t[%d/%b/%Y:%H:%M:%S", gmtime(&t));
+    line += buf;
+    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob;
+    sprintf(buf, "%li ", matches);
+    line = line + buf + '\t';
+    var = getenv("HTTP_REFERER");
+    if (var == NULL) var = "-";
+    line += var;
+    line += '\n';
+    write(fd, line.data(), line.length());
+    close(fd);
 }

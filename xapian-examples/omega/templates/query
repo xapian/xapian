@@ -1,4 +1,4 @@
-$set{thousand,$.}$set{decimal,.}$set{selected_pages,1}<html>
+$set{thousand,$.}$set{decimal,.}<html>
 <script language=javascript><!--
 function C(c) {var i, o;
 o = document.P.P.value;
@@ -36,7 +36,7 @@ ${
 $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
 $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
 </td></tr></table>
-${$list{$freqs,<hr>,$. ,<hr>}}
+$list{$freqs,<hr>,$. ,<hr>}
 <hr>
 $if{$eq{$msize,0},
 
@@ -93,7 +93,7 @@ ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH
 <br>
 
 }
-$map{$html{$cgilist{DB}},<INPUT TYPE=hidden NAME=DB VALUE=",">}
+$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}

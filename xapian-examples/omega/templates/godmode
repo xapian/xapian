@@ -31,7 +31,7 @@ document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 </SCRIPT>
 <INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 
 SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
-<INPUT TYPE=hidden NAME=DB VALUE="$cgi{DB}">
+$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 ${$terms should be all terms indexing the document}
 $map{${terms},
 <tr><td>
@@ -40,7 +40,8 @@ ${	       else if (strchr(p, ' '))
 		  cout << "<input type=checkbox name=X onclick=C(this) "
 		          "value=\"&quot;" << p << "&quot;\">";}
 <input type=checkbox name=X onclick=C(this) value=",.">}
-<A HREF="$env{SCRIPT_NAME}?$if{$cgi{DB},DB=$cgi{DB}}&${	      if (isupper(*p)) {
+<A HREF="$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}${
+              if (isupper(*p)) {
 		  cout << "B=" << p << "\">";
 	      } else if (strchr(p, ' ')) {
 		  char *q = p;
