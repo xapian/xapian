@@ -293,9 +293,29 @@ class DADatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
+	/** DADatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
 	om_docid add_document(const struct OmDocumentContents & document) {
-	    throw OmUnimplementedError("DADatabase::add_document() not implemented");
-	}
+	    throw OmUnimplementedError(
+		"DADatabase::add_document() not implemented");
+	};
+
+	/** DADatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
+	void lock(om_timeout timeout) {
+	    throw OmUnimplementedError(
+		"DADatabase::lock() not implemented");
+	};
+
+	/** DADatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
+	void unlock() {
+	    throw OmUnimplementedError(
+		"DADatabase::unlock() not implemented");
+	};
 };
 
 inline om_doccount

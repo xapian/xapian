@@ -94,6 +94,28 @@ OmWritableDatabase::~OmWritableDatabase()
     internal = 0;
 }
 
+void
+OmWritableDatabase::lock(om_timeout timeout)
+{
+    // Get the pointer while locked, in case someone is assigning to it.
+    internal->mutex.lock();
+    IRDatabase * database = internal->mydb.get();
+    internal->mutex.unlock();
+
+    database->lock(timeout);
+}
+
+void
+OmWritableDatabase::unlock()
+{
+    // Get the pointer while locked, in case someone is assigning to it.
+    internal->mutex.lock();
+    IRDatabase * database = internal->mydb.get();
+    internal->mutex.unlock();
+
+    database->unlock();
+}
+
 om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document)
 {
@@ -113,3 +135,4 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
  
     return database->add_document(document);
 }
+

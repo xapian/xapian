@@ -101,8 +101,25 @@ class MultiDatabase : public IRDatabase {
 	 *  not supported: if called an exception will be thrown.
 	 */
 	om_docid add_document(const struct OmDocumentContents & document) {
-	    throw OmUnimplementedError("MultiDatabase::add_document() not implemented");
+	    throw OmUnimplementedError(
+		"MultiDatabase::add_document() not implemented");
 	}
+
+	/** MultiDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
+	void lock(om_timeout timeout) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::lock() not implemented");
+	};
+
+	/** MultiDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
+	void unlock() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::unlock() not implemented");
+	};
 };
 
 #endif /* OM_HGUARD_MULTI_DATABASE_H */

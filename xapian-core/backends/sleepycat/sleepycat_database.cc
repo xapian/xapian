@@ -157,57 +157,108 @@ SleepyDatabase::open_document(om_docid did) const
 			      did);
 }
 
+bool
+SleepyDatabase::is_locked()
+{
+    // FIXME: return whether database is locked
+    return false;
+}
+
+void
+SleepyDatabase::do_lock(om_timeout timeout)
+{
+    DEBUGMSG(LOCK, "SleepyDatabase::lock()");
+    // FIXME: lock database
+}
+
+void
+SleepyDatabase::do_unlock()
+{
+    DEBUGMSG(LOCK, "SleepyDatabase::unlock()");
+    // FIXME: unlock database
+}
+
+void
+SleepyDatabase::lock(om_timeout timeout)
+{
+    do_lock(timeout);
+}
+
+void
+SleepyDatabase::unlock()
+{
+    do_unlock();
+}
 
 om_docid
 SleepyDatabase::add_document(const struct OmDocumentContents & document)
 {
-    // FIXME - this method needs to be atomic
-    
-    // Make a new document to store the data, and use the document id returned
-    om_docid did = make_new_document(document);
-
-    om_doclength doclength = 0;
-
-    // Build list of terms, sorted by termID
-    map<om_termid, OmDocumentTerm> terms;
-    OmDocumentContents::document_terms::const_iterator i;
-    for(i = document.terms.begin(); i != document.terms.end(); i++) {
-	Assert(i->second.tname.size() != 0);
-	om_termid tid = termcache->assign_new_termid(i->second.tname);
-	terms.insert(make_pair(tid, i->second));
-	doclength += i->second.wdf;
+    // Remember whether database was already locked, so we can leave it
+    // in the lock state we found it in.
+    bool was_locked = is_locked();
+    if (!was_locked) {
+	// FIXME: timeout of 0: this may not be suitable.
+	do_lock(0);
     }
 
-    // Add this document to the postlist for each of its terms
-    map<om_termid, OmDocumentTerm>::iterator term;
-    for(term = terms.begin(); term != terms.end(); term++) {
-	om_doccount newtermfreq;
-	newtermfreq = add_entry_to_postlist(term->first,
-					    did,
-					    term->second.wdf,
-					    term->second.positions,
-					    doclength);
-	term->second.termfreq = newtermfreq;
+    om_docid did;
+    try {
+	// FIXME - this method needs to be atomic
+
+	// Make a new document to store the data, and use the document id
+	// returned
+	did = make_new_document(document);
+
+	om_doclength doclength = 0;
+
+	// Build list of terms, sorted by termID
+	map<om_termid, OmDocumentTerm> terms;
+	OmDocumentContents::document_terms::const_iterator i;
+	for(i = document.terms.begin(); i != document.terms.end(); i++) {
+	    Assert(i->second.tname.size() != 0);
+	    om_termid tid = termcache->assign_new_termid(i->second.tname);
+	    terms.insert(make_pair(tid, i->second));
+	    doclength += i->second.wdf;
+	}
+
+	// Add this document to the postlist for each of its terms
+	map<om_termid, OmDocumentTerm>::iterator term;
+	for(term = terms.begin(); term != terms.end(); term++) {
+	    om_doccount newtermfreq;
+	    newtermfreq = add_entry_to_postlist(term->first,
+						did,
+						term->second.wdf,
+						term->second.positions,
+						doclength);
+	    term->second.termfreq = newtermfreq;
+	}
+
+	// Make a new termlist for this document
+	make_new_termlist(did, terms);
+
+	// Now: to store the termfrequency in termlists we would need to go
+	// through each term in the termlist, open the appropriate postlist,
+	// and for each document in each of these postlists update the
+	// documents termlist to have the correct termfreq for this term.
+	//
+	// This can't be done efficiently, so we don't store the termfreq in
+	// the termlist for dynamically updatable databases such as these.
+
+	// Increase the document count and total length
+	internals->set_doccount(get_doccount() + 1);
+	internals->set_totlength(internals->get_totlength() + doclength);
+	DebugMsg("New doccount and total length is: " <<
+		 internals->get_doccount() << ", " <<
+		 internals->get_totlength() << endl);
+    } catch(...) {
+	if (!was_locked) {
+	    do_unlock();
+	}
+	throw;
     }
-
-    // Make a new termlist for this document
-    make_new_termlist(did, terms);
-
-    // Now: to store the termfrequency in termlists we would need to go
-    // through each term in the termlist, open the appropriate postlist,
-    // and for each document in each of these postlists update the
-    // documents termlist to have the correct termfreq for this term.
-    //
-    // This can't be done efficiently, so we don't store the termfreq in the
-    // termlist for dynamically updatable databases such as these.
-
-    // Increase the document count and total length
-    internals->set_doccount(get_doccount() + 1);
-    internals->set_totlength(internals->get_totlength() + doclength);
-    DebugMsg("New doccount and total length is: " <<
-	     internals->get_doccount() << ", " <<
-	     internals->get_totlength() << endl);
-
+    if (!was_locked) {
+	do_unlock();
+    }
     return did;
 }
 

@@ -38,8 +38,10 @@
 
 enum om_debug_types {
     OM_DEBUG_UNKNOWN,
+    OM_DEBUG_LOCK,
     OM_DEBUG_DB,
-    OM_DEBUG_WTCALC
+    OM_DEBUG_WTCALC,
+    OM_DEBUG_API
 };
 
 /** Class to manage verbose debugging output

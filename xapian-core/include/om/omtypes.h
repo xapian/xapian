@@ -55,6 +55,11 @@ typedef unsigned int om_keyno;
 /// A calculated weight, for a term or document
 typedef double       om_weight;
 
+/** Type for specifying a timeout.  This refers to a time in microseconds:
+ *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
+ */
+typedef unsigned int om_timeout;
+
 #ifdef __cplusplus
 #include <string>
 #include <list>

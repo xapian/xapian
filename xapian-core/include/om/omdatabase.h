@@ -168,7 +168,7 @@ class OmWritableDatabase : public OmDatabase {
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
-	 *  will be closed.
+	 *  will be closed, and if it is locked the lock will be released.
 	 */
 	virtual ~OmWritableDatabase();
 
@@ -184,11 +184,72 @@ class OmWritableDatabase : public OmDatabase {
 	 */
 	void operator=(const OmWritableDatabase &other);
 
+	/** Lock the database to protect against concurrent access.
+	 *
+	 *  Muscat databases allow only one database object to be updating
+	 *  a database at once: failure to observe this condition is likely
+	 *  to result in corruption of the database.  To prevent this
+	 *  occuring, a lock must be obtained before any modifications are
+	 *  made to the database.
+	 *
+	 *  Note that this is a object level lock: while it is recommended
+	 *  that only one thread attempts to modify a database, it is up to
+	 *  the user to enforce this.
+	 *
+	 *  Obtaining this lock prevents other processes from modifying the
+	 *  database, but does not prevent other threads within this
+	 *  process from modifying the database, via the same object.
+	 *  Appropriate concurrency controls exist such that inter-thread
+	 *  conflicts will not corrupt databases, but it is possible for
+	 *  race conditions to exist: for example, were two threads to be
+	 *  deleting the same document while another is adding a new one
+	 *  the new document could be added in place of the old document,
+	 *  and promptly deleted by the final thread.
+	 *
+	 *  A lock may either be obtained explicitly, by calling this method,
+	 *  or will be obtained implicitly whenever a method is called which
+	 *  requires the protection of a lock.
+	 *
+	 *  If multiple operations are to be performed, and no other
+	 *  processes require the ability to update the database, a lock
+	 *  should be acquired explicitly and held for the duration of
+	 *  updates.  If other processes require write access to the
+	 *  database, the lock should be held for as little time as needed,
+	 *  and in this situation the implicit locking mechanism may be
+	 *  a desirable simplification of the code's logic.
+	 *
+	 *  @param timeout  The time to wait for a lock.  (in microseconds)
+	 *                  The default of 0 means that failure to obtain a
+	 *                  lock immediately will result in an exception
+	 *                  being thrown: this is appropriate in cases
+	 *                  where other processes are not expected to be
+	 *                  writing to the database.
+	 *
+	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
+	 *             be acquired on the database.
+	 */
+	void lock(om_timeout timeout = 0);
+
+	/** Unlock the database.
+	 *
+	 *  This releases a lock held on the database.
+	 *
+	 *  @exception OmDatabaseLockError will be thrown if a lock wasn't
+	 *             currently held on the database.
+	 */
+	void unlock();
+
 	/** Add a new document to the database.
 	 *
 	 *  This method atomically adds the document: the result is either
 	 *  that the document is added, or that the document fails to be
 	 *  added and an exception is thrown.
+	 *
+	 *  If the database is not locked when this method is called, a lock
+	 *  will be obtained for the duration of the method.  This may result
+	 *  in an OmDatabaseLockError.
+	 *
+	 *  See lock() for more notes on database locks.
 	 *
 	 *  @param document The new document to be added.
 	 *
@@ -196,7 +257,18 @@ class OmWritableDatabase : public OmDatabase {
 	 *
 	 *  @exception OmDatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
+	 *
+	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
+	 *             be acquired or subsequently released on the database.
 	 */
+#if 0
+	 *  @param timeout  The time to wait for a lock.  (in microseconds)
+	 *                  The default of 0 means that failure to obtain a
+	 *                  lock immediately will result in an exception
+	 *                  being thrown: this is appropriate in cases
+	 *                  where other processes are not expected to be
+	 *                  writing to the database.
+#endif
 	om_docid add_document(const OmDocumentContents & document);
 };
 

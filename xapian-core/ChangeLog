@@ -1,3 +1,13 @@
+Fri Jun  9 17:51:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added lock() and unlock() methods to databases.
+
+	* Added LOCK and API debug types.
+
+	* Added new exception: OmDatabaseLockError.
+
+	* Added type for timeout times: om_timeout.
+
 Fri Jun  9 16:09:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stemming interface working with tcl8, and guile (but with some

@@ -95,6 +95,18 @@ class SleepyDatabase : public IRDatabase {
 	 */
 	void make_new_termlist(om_docid did,
 			       const map<om_termid, OmDocumentTerm> & terms);
+
+	/** return whether database is locked
+	 */
+	bool is_locked();
+
+	/** lock database
+	 */
+	void do_lock(om_timeout timeout);
+
+	/** unlock database
+	 */
+	void do_unlock();
     public:
 	~SleepyDatabase();
 
@@ -109,8 +121,9 @@ class SleepyDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	// virtual method of IndexerDestination
 	om_docid add_document(const struct OmDocumentContents & document);
+	void lock(om_timeout timeout);
+	void unlock();
 };
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_H */

@@ -234,6 +234,8 @@ class InMemoryDatabase : public IRDatabase {
 	LeafDocument * open_document(om_docid did) const;
 
 	om_docid add_document(const struct OmDocumentContents & document);
+	void lock(om_timeout timeout) {};
+	void unlock() {};
 };
 
 

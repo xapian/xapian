@@ -169,10 +169,24 @@ class IRDatabase : public IndexerDestination,
 	 *
 	 *  This is called by OmWritableDatabase.
 	 *
+	 *  If the database is not locked, this method must obtain a lock on
+	 *  the database for the duration of the operation.
+	 *
 	 *  @return The document ID of the newly created document.
 	 */
 	virtual om_docid add_document(const struct OmDocumentContents & document) = 0;
 
+	/** Obtain a write lock on the database.
+	 *
+	 *  See OmWritableDatabase::lock() for more information.
+	 */
+	virtual void lock(om_timeout timeout) = 0;
+
+	/** Release a write lock on the database.
+	 *
+	 *  See OmWritableDatabase::unlock() for more information.
+	 */
+	virtual void unlock() = 0;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

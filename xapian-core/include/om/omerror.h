@@ -145,6 +145,12 @@ class OmOpeningError : public OmDatabaseError {
         OmOpeningError(const string &msg) : OmDatabaseError(msg) {};
 };
 
+/** Thrown when gaining a lock on a database fails. */
+class OmDatabaseLockError : public OmDatabaseError {
+    public:
+        OmDatabaseLockError(const string &msg) : OmDatabaseError(msg) {};
+};
+
 /** Thrown when trying to access invalid data. */
 class OmInvalidResultError : public OmRuntimeError {
     public:
