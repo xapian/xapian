@@ -450,7 +450,8 @@ OmESetIterator::~OmESetIterator()
 }
 
 OmESetIterator::OmESetIterator(const OmESetIterator &other)
-    : internal(new OmESetIterator::Internal(*(other.internal)))
+    : internal((other.internal == 0) ? 0 :
+	       new OmESetIterator::Internal(*(other.internal)))
 {
 }
 
@@ -520,7 +521,8 @@ OmMSetIterator::~OmMSetIterator()
 }
 
 OmMSetIterator::OmMSetIterator(const OmMSetIterator &other)
-    : internal(new OmMSetIterator::Internal(*(other.internal)))
+    : internal((other.internal == 0) ? 0 :
+	       new OmMSetIterator::Internal(*(other.internal)))
 {
 }
 

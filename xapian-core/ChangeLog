@@ -1,3 +1,15 @@
+Wed Dec 13 02:37:14 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* ESet and MSet iterators now cope with being copied / assigned when
+	  the internals are null.
+
+	* Added copy method to OmPositionListIterator interface.  No
+	  implementation for this yet though, or for the already existing
+	  assignment method.
+
+	* Added a couple of easy items to the todo list to check regarding
+	  iterators.
+
 Wed Dec 13 02:19:50 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix small bug in mset_range_is_same{,_weights}()

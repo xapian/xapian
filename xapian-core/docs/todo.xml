@@ -31,6 +31,18 @@ Detect and deal with btree overwritten condition.  Write tests to ensure
 this works.
 
 </todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
+
+Write tests for copying iterators: in particular, those with internals which
+might be null (eg, OmESet::end())
+
+</todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
+
+Implement OmPositionListIterator copy and assignment methods (remembering
+that the internals might be null).
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">
 
 Add query operator to filter on weight / percentage weight.
