@@ -543,34 +543,24 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
 }
 
 void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
-    for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
+  for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
      
-      string word = *i;
+    string word = *i;
     
-      om_termname term = word;
-      lowercase_term(term);
-      term = stemmer->stem_word(term);
+    om_termname term = word;
+    lowercase_term(term);
+    term = stemmer->stem_word(term);
       
-      if ( termStopWords.find(term) == termStopWords.end() ) {
-	//      cerr << "inserting word " << term << endl;
-	terms.insert(term);
-	term_list.push_back(term);
-      }
+    if ( termStopWords.find(term) == termStopWords.end() ) {
+      //      cerr << "inserting word " << term << endl;
+      terms.insert(term);
+      term_list.push_back(term);
     }
+  }
 }
 
-#if SHOW_WARNINGS
-#warning "we should be able to specify granularity here:  line/file/app"
-#warning "perhaps we should rename this class"
-#warning "the default should work on a line by line basis"
-#endif
-
-Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, const string& gran, bool use_stop_words ) {
+Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, bool use_stop_words ) {
   
-  granularity = gran;
-
-  cerr << "... granularity " << granularity << endl;
-
   path = p;
   root = sroot;
   package = pkg;
@@ -609,7 +599,7 @@ Lines::Lines( const string& p, const string& sroot, const string& pkg, const str
     }
 
   } else {
-      cerr << "... [ no stop words ]" << endl;
+    cerr << "... [ no stop words ]" << endl;
   }
   
   in_code = 0;
@@ -631,7 +621,7 @@ string Lines::currentFile() {
 }
 
 void Lines::readVector( const string& line, const string& field, vector<string>& field_vector ) {
- // pick up revisions
+  // pick up revisions
   int i = -1;
   for(;;) {
     i = line.find( "\003"+field +" ", i+1);
@@ -661,13 +651,13 @@ void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
       rcw[ i->first ] = i->second;
     } else {
       /**
-#warning "should take out this assert"
-      if ( rcw[i->first] != i->second ) {
-	cerr << "Revision " << i->first << endl;
-	cerr << "rcw size " << rcw[i->first].size() << endl;
-	cerr << "new size " << (i->second).size() << endl;
-	assert(0);
-      }
+	 #warning "should take out this assert"
+	 if ( rcw[i->first] != i->second ) {
+	 cerr << "Revision " << i->first << endl;
+	 cerr << "rcw size " << rcw[i->first].size() << endl;
+	 cerr << "new size " << (i->second).size() << endl;
+	 assert(0);
+	 }
       **/
     }
   }
@@ -680,193 +670,154 @@ bool Lines::ReadNextLine() {
 
   revision_comment_words.clear();
 
-  do {
-
-    if ( granularity == "line" ) {
-      terms.clear();
-      term_list.clear();
-      symbols.clear();
-      data = "";
-      codelinedata = "";
-    }
+  terms.clear();
+  term_list.clear();
+  symbols.clear();
+  data = "";
+  codelinedata = "";
     
-    // if in file mode, this call returns okay, but the one after it should
-    // fail
-    if ( in_comments->eof() ) {
-      goto eof_found;
-    }
-  
-    line_no++;
+  assert( !in_comments->eof() );
+
+  line_no++;
     
-    string line;
-    string l;
-    for(;;) {
-      if ( getline( *in_comments, l, '\n' ).eof() ) {
-	assert( l == "" );
-	goto eof_found;
-      }
-
-      if ( line != "" ) {
-	line += "\n";
-      }
-      line += l;
-      if ( l.length() >=2 && l[l.length()-2] == '\003' && l[l.length()-1] == '\002' ) {
-	break;
-      }
+  string line;
+  string l;
+  for(;;) {
+    if ( getline( *in_comments, l, '\n' ).eof() ) {
+      assert( l == "" );
+      return false;
     }
 
-    //cerr << line << endl;
+    if ( line != "" ) {
+      line += "\n";
+    }
+    line += l;
+    if ( l.length() >=2 && l[l.length()-2] == '\003' && l[l.length()-1] == '\002' ) {
+      break;
+    }
+  }
 
-    // the line contains this information:
+  //cerr << line << endl;
 
-    // file #
-    // followed by a list of:
-    //  ^Crevision ...
-    //  ^Cdate ...
-    //  ^Cauthor...
-    //  ^Clines...
-    //  ^Ccomments...
+  // the line contains this information:
 
-    int file_no = 0;
-    vector<string> revisions;
-    vector<string> dates;
-    vector<string> authors;
-    vector<string> lines;
-    vector<string> comments;
-    string combined_comments;
+  // file #
+  // followed by a list of:
+  //  ^Crevision ...
+  //  ^Cdate ...
+  //  ^Cauthor...
+  //  ^Clines...
+  //  ^Ccomments...
+
+  int file_no = 0;
+  vector<string> revisions;
+  vector<string> dates;
+  vector<string> authors;
+  vector<string> lines;
+  vector<string> comments;
+  string combined_comments;
 
   
 
-    string idstr = string( line, 0, line.find(" ") );
-    file_no = atoi(idstr.c_str());
+  string idstr = string( line, 0, line.find(" ") );
+  file_no = atoi(idstr.c_str());
 
-    readVector(line, "revision", revisions);
-    readVector(line, "date", dates);
-    readVector(line, "author", authors);
-    readVector(line, "lines", lines);
-    readVector(line, "comments", comments);
+  readVector(line, "revision", revisions);
+  readVector(line, "date", dates);
+  readVector(line, "author", authors);
+  readVector(line, "lines", lines);
+  readVector(line, "comments", comments);
 
-    assert( revisions.size() == dates.size() );
-    assert( revisions.size() == authors.size() );
-    assert( revisions.size() == lines.size() );
-    assert( revisions.size() == comments.size() );
+  assert( revisions.size() == dates.size() );
+  assert( revisions.size() == authors.size() );
+  assert( revisions.size() == lines.size() );
+  assert( revisions.size() == comments.size() );
 
-    for(unsigned int i = 0; i < comments.size(); i++ ) {
-      combined_comments += (" "+comments[i]);
+  for(unsigned int i = 0; i < comments.size(); i++ ) {
+    combined_comments += (" "+comments[i]);
 
-      list<string> words;
-      split( comments[i], " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
-      list<string> term_list;
-      stemWords( words, term_list );
-      revision_comment_words[ revisions[i] ] = term_list;
-    }
-
-
-    // break up line into words
-  
     list<string> words;
-    split( combined_comments, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
-  
-    string fn = files[file_no-1];
-    if ( fn != current_fn ) {
-      changedFiles = true;
-
-
-      file_count++;
-
-      current_fn = fn;
-      cerr << "... processing " << current_fn << endl;
-
-      if ( granularity == "file" ) {
-	terms_return = terms;
-	symbols_return = symbols;
-	term_list_return = term_list;
-	terms.clear();
-	symbols.clear();
-	term_list.clear();
-      }
-
-      int offset = atoi(offsets[file_no-1].c_str());
-      if( line_no != offset ) {
-	cerr << "found line_no = " << line_no << endl;
-	cerr << "found offset = " << offset << endl;
-	assert( line_no == offset );
-      }
-      current_offset = offset;
-
-      if ( in_code != 0 ) {
-	delete in_code;
-      }
-      if ( path != "" ) {
-	//	cerr << "Opening " << path << "/" << current_fn << endl;
-	in_code = new ifstream( (path + "/"  + current_fn).c_str() );
-	if( ! *in_code ) {
-	  cerr << "** could not open " << path << "/" << current_fn << endl;
-	  assert(0);
-	}
-      }
-      
-    }
-
-    // build data string
-    ostrstream ost;
-    ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
-    data = ost.str(); 
-    codelinedata = data;
-  
-    for(int i = revisions.size()-1; i >=0; i-- ) {
-      data += revisions[i];
-      if ( i > 0 ) {
-	data += " ";
-      }
-    }
-    //cerr << "data = -" << data << "-" << endl;
-  
+    split( comments[i], " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+    list<string> term_list;
     stemWords( words, term_list );
+    revision_comment_words[ revisions[i] ] = term_list;
+  }
+
+
+  // break up line into words
   
+  list<string> words;
+  split( combined_comments, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
   
-  
-    if ( path != "" ) {
-      //////////////// now read code symbols
-      line = "";
-      getline( *in_code, line, '\n' );
-      //      cerr <<"Just read -" << line << "-" << endl;
-      code_line = line;
-      extractSymbols( line );
-      //      cerr << "...extracted # symbols = " << symbols.size() << endl;
+  string fn = files[file_no-1];
+  if ( fn != current_fn ) {
+    changedFiles = true;
+
+
+    file_count++;
+
+    current_fn = fn;
+    cerr << "... processing " << current_fn << endl;
+
+    int offset = atoi(offsets[file_no-1].c_str());
+    if( line_no != offset ) {
+      cerr << "found line_no = " << line_no << endl;
+      cerr << "found offset = " << offset << endl;
+      assert( line_no == offset );
     }
+    current_offset = offset;
 
-  } while (!changedFiles && granularity != "line" );
+    if ( in_code != 0 ) {
+      delete in_code;
+    }
+    if ( path != "" ) {
+      //	cerr << "Opening " << path << "/" << current_fn << endl;
+      in_code = new ifstream( (path + "/"  + current_fn).c_str() );
+      if( ! *in_code ) {
+	cerr << "** could not open " << path << "/" << current_fn << endl;
+	assert(0);
+      }
+    }
+      
+  }
 
-  if ( granularity == "line" ) {
-    terms_return = terms;
-    symbols_return = symbols;
-    term_list_return = term_list;
-  } 
+  // build data string
+  ostrstream ost;
+  ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
+  data = ost.str(); 
+  codelinedata = data;
+  
+  for(int i = revisions.size()-1; i >=0; i-- ) {
+    data += revisions[i];
+    if ( i > 0 ) {
+      data += " ";
+    }
+  }
+  //cerr << "data = -" << data << "-" << endl;
+  
+  stemWords( words, term_list );
+  
+  
+  
+  if ( path != "" ) {
+    //////////////// now read code symbols
+    line = "";
+    getline( *in_code, line, '\n' );
+    //      cerr <<"Just read -" << line << "-" << endl;
+    code_line = line;
+    extractSymbols( line );
+    //      cerr << "...extracted # symbols = " << symbols.size() << endl;
+  }
+
+  terms_return = terms;
+  symbols_return = symbols;
+  term_list_return = term_list;
 
   return true;
 
- eof_found: ;
-
-  if ( granularity == "line" ) {
-    return false;
-  }
-
-  // a bit tricker in file granularity
-  if ( !terms.empty() || !symbols.empty() || !term_list.empty() ) {
-    terms_return = terms;
-    symbols_return = symbols;
-    term_list_return = term_list;
-    terms.clear();
-    symbols.clear();
-    term_list.clear();
-    return true;
-  }
-  return false; // second time files
 }
 
 string Lines::getCodeLine() {
-  assert( granularity == "line" );
   return code_line;
 }
 
@@ -910,9 +861,9 @@ set<string> Lines::getCodeSymbolTerms() {
 	  w = "";
 	}
       }
-    if ( (*c) != '_' ) {
-      w += (*c);
-    }
+      if ( (*c) != '_' ) {
+	w += (*c);
+      }
     
     }
     if ( w != "" ) {
@@ -959,19 +910,19 @@ void readTags( const string& fn, set<string>& S ) {
 
 string get_cvsdata() 
 {
-    string cvsdata;
-    char *s = getenv("CVSDATA");
-    if ( s==0 ) {
-        cerr <<" Warning:  $CVSDATA not set!" << endl;
-        exit(1);
-    } else {
-        cvsdata = s;
-        // ----------------------------------------
-        // strip trailing / if any
-        // ----------------------------------------
-        if ( cvsdata[cvsdata.length()-1] == '/' ) {
-            cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
-        }
+  string cvsdata;
+  char *s = getenv("CVSDATA");
+  if ( s==0 ) {
+    cerr <<" Warning:  $CVSDATA not set!" << endl;
+    exit(1);
+  } else {
+    cvsdata = s;
+    // ----------------------------------------
+    // strip trailing / if any
+    // ----------------------------------------
+    if ( cvsdata[cvsdata.length()-1] == '/' ) {
+      cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
     }
-    return cvsdata;
+  }
+  return cvsdata;
 }

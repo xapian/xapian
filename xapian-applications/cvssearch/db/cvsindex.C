@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
       // ----------------------------------------
       // no stop words, line granularity
       // ----------------------------------------
-      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, "line", false ); 
+      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, false ); 
       string prev_file = "";
       while ( lines.ReadNextLine() ) {
 	if ( lines.currentFile() != prev_file ) {

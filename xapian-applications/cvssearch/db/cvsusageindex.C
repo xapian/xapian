@@ -45,7 +45,6 @@
 // --kind-long=yes (verbose tag descriptions)
 // from this, ignore all entries with access:private
 
-#define GRANULARITY "line"
 #define USE_STOP_LIST false
 
 // /tmp is small, so we use /home/amichail/temp
@@ -333,7 +332,7 @@ int main(int argc, char *argv[]) {
             map<string, int> app_symbol_count;
             map< string, int > contributed_terms;
 
-            Lines lines( cvsdata, "", package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+            Lines lines( cvsdata, "", package, file_cmt, file_offset, USE_STOP_LIST ); // file level granularity
 
             while ( lines.ReadNextLine() ) {
 

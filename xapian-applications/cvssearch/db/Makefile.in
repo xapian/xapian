@@ -69,7 +69,7 @@ noinst_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C  cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h  cvs_revision_line_db.C cvs_revision_line_db.h  cvs_revision_less.h  cvs_diff_db.C cvs_diff_db.h
 
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery # cvsusageindex 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsusageindex 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
 
 cvsquery_SOURCES = cvsquery.C
@@ -82,6 +82,20 @@ cvsindex_LDADD = -lomsee
 cvssearch_SOURCES = util.h util.C cvssearch.C
 cvssearch_LDFLAGS = -static
 cvssearch_LDADD = -lomsee
+
+#cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
+#cvsusagesearch_LDFLAGS = -static 
+#cvsusagesearch_LDADD = -lomsee
+
+#cvsclasses_SOURCES = util.h util.C cvspatterns.C
+#cvsclasses_LDADD = -ldb_cxx -lomsee
+
+#cvsfunctions_SOURCES = util.h util.C cvspatterns.C
+#cvsfunctions_LDADD = -ldb_cxx -lomsee
+
+cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
+cvsusageindex_LDADD = -ldb_cxx -lomsee
+cvsusageindex_LDFLAGS = -static
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -105,6 +119,8 @@ cvssearch_DEPENDENCIES =
 cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_db.a
 cvsquery_LDFLAGS = 
+cvsusageindex_OBJECTS =  util.o cvsusageindex.o
+cvsusageindex_DEPENDENCIES = 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -124,9 +140,9 @@ DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id_db.P \
 .deps/cvs_file_revision_db.P .deps/cvs_filename_db.P \
 .deps/cvs_line_db.P .deps/cvs_revision_db.P \
 .deps/cvs_revision_line_db.P .deps/cvsindex.P .deps/cvsquery.P \
-.deps/cvssearch.P .deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS)
+.deps/cvssearch.P .deps/cvsusageindex.P .deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsusageindex_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsusageindex_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -205,6 +221,10 @@ cvssearch: $(cvssearch_OBJECTS) $(cvssearch_DEPENDENCIES)
 cvsquery: $(cvsquery_OBJECTS) $(cvsquery_DEPENDENCIES)
 	@rm -f cvsquery
 	$(CXXLINK) $(cvsquery_LDFLAGS) $(cvsquery_OBJECTS) $(cvsquery_LDADD) $(LIBS)
+
+cvsusageindex: $(cvsusageindex_OBJECTS) $(cvsusageindex_DEPENDENCIES)
+	@rm -f cvsusageindex
+	$(CXXLINK) $(cvsusageindex_LDFLAGS) $(cvsusageindex_OBJECTS) $(cvsusageindex_LDADD) $(LIBS)
 .C.o:
 	$(CXXCOMPILE) -c $<
 
@@ -384,20 +404,6 @@ all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
-
-#cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-#cvsusagesearch_LDFLAGS = -static 
-#cvsusagesearch_LDADD = -lomsee
-
-#cvsclasses_SOURCES = util.h util.C cvspatterns.C
-#cvsclasses_LDADD = -ldb_cxx -lomsee
-
-#cvsfunctions_SOURCES = util.h util.C cvspatterns.C
-#cvsfunctions_LDADD = -ldb_cxx -lomsee
-
-#cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
-#cvsusageindex_LDADD = -ldb_cxx -lomsee
-#cvsusageindex_LDFLAGS = -static
 
 #cvscomments_SOURCES = cvscomments.C
 #cvscomments_LDADD = -ldb_cxx -lomsee

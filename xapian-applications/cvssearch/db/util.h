@@ -54,8 +54,6 @@ class Lines {
   set<string> termStopWords;
   set<string> symbolStopWords;
 
-  string granularity; // line/file/app
-
   bool blankChar(char c);
   bool okFirstChar(char c);
   bool okSubChar(char c);
@@ -68,7 +66,7 @@ class Lines {
     void stemWords( const list<string>& words, list<string>& term_list );
 
 public:
-  Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset, const string& granularity = "line", bool use_stop_words = true );
+  Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset, bool use_stop_words = true );
   ~Lines();
 
   void updateRevisionComments( map< string, list<string> >& revision_comment_words );
