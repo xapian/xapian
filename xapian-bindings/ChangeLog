@@ -1,3 +1,8 @@
+Mon Sep 20 15:10:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/.cvsignore,java/org/xapian/errors/.cvsignore:
+	  Updated to ignore .class files.
+
 Sun Sep 19 23:28:14 BST 2004  Olly Betts <olly@survex.com>
 
 	* .cvsignore,Makefile.am,configure.ac,xapian-bindings.spec.in: 
