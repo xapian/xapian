@@ -1,3 +1,8 @@
+Wed Sep 11 11:29:07 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/database_builder.cc: Quartz is fairly mature - change
+	  comment which suggests that the btree names will change.
+
 Wed Sep 11 11:13:43 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Don't double quote `$MISSING foo' as autoconf adds them

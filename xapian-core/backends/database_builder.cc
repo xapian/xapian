@@ -193,8 +193,8 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
             }
 #endif
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-	    // FIXME: Quartz has lots of files, and the names will change
-	    // during developement.  Make sure this stays up to date.
+	    // FIXME: Quartz has lots of files, and the names may change
+	    // during development.  Make sure this stays up to date.
 
 	    if (file_exists(path + "/record_DB")) {
 		myparams.set("quartz_dir", path);
