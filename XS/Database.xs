@@ -6,9 +6,8 @@ Database *
 new1(file)
     string	file
     CODE:
-        RETVAL = new Database(); 
         try {
-            *RETVAL = Auto::open(file);
+	    RETVAL = new Database(file);
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
