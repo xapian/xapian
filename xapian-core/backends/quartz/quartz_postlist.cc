@@ -217,6 +217,11 @@ static void read_start_of_first_chunk(const char ** posptr,
     QuartzPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
     read_first_docid(posptr, end, did_ptr);
+
+    DEBUGLINE(DB, "QuartzPostList: read start of first chunk: "
+	      "number_of_entries = " << *number_of_entries_ptr <<
+	      "collection_freq = " << *collection_freq_ptr <<
+	      "firstdid = " << *did_ptr);
 }
 
 static void read_did_increase(const char ** posptr,
@@ -254,6 +259,11 @@ static void read_start_of_chunk(const char ** posptr,
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
     *last_did_in_chunk_ptr = first_did_in_chunk + increase_to_last;
+
+    DEBUGLINE(DB, "QuartzPostList: read start of chunk: "
+	      "first_did_in_chunk = " << first_did_in_chunk <<
+	      "is_last_chunk = " << *is_last_chunk_ptr <<
+	      "last_did_in_chunk = " << *last_did_in_chunk_ptr);
 }
 
 /** The format of a postlist is:
