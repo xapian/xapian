@@ -185,6 +185,7 @@ bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 	    return false;
         }
     }
+    return true;
 }
 
 bool operator==(const OmMSet &first, const OmMSet &second)
