@@ -1,3 +1,7 @@
+Xapian 0.5.5 (2002-12-04):
+
+* Minor documentation updates.
+
 Xapian 0.5.4 (2002-10-16):
 
 * Fixed a compilation error with "make check" when using GCC 3.2.

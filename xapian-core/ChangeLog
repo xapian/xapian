@@ -1,3 +1,14 @@
+Wed Dec 04 22:05:53 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,NEWS: Version 0.5.5.
+	* docs/index.html: Link to annotated class lists in doxygen generated
+	  documentation rather than rather empty index page.
+	* AUTHORS,HACKING: Removed or replaced sourceforge.net URLs.
+	* docs/index.html: Fixed broken link.
+	* docs/overview.html: Corrected link to API docs on website.
+	* HACKING: Added note about use of various C++ features.  Also
+	  tidied up various odds and ends.
+
 Wed Oct 16 03:50:49 BST 2002  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: Version 0.5.4.
