@@ -17,7 +17,7 @@ protected:
     // classes and functions in that line
     // and insert them into the symbols set.
     // ----------------------------------------
-    static void extractSymbols(const string & s, set <string> & symbols, list<string>& symbol_list );
+    static void extractSymbols(const string & s, set <string> & symbols, list<string>& symbol_list, bool do_qualified_classes );
 
     // ----------------------------------------
     // takes a list of words, lower cases and 
@@ -32,6 +32,8 @@ protected:
     string codeline;
     list<string> term_list;
     set <string> symbols;
+    set <string> qualified_classes; // example: KParts::ReadOnlyPart
+    list <string> qualified_class_list;
     list<string> symbol_list;
     set <string> terms;
     unsigned int line_no;
@@ -98,6 +100,8 @@ public:
     // ----------------------------------------
     const set<string> & getCodeSymbols()     const { return symbols;}
 
+    const set<string> & getQualifiedClasses() const { return qualified_classes; }
+
     // ----------------------------------------
     // getTermList returns a *list* of all words
     // in the combined string  C1 & C2 & C3 
@@ -106,6 +110,8 @@ public:
     // Again, the words are lowercased and stemmed.
     // ----------------------------------------
     const list<string>& getTermList()        const { return term_list;}
+
+    const list<string>& getQualifiedClassList() const { return qualified_class_list; }
 
     // ----------------------------------------
     // Suppose a line is associated with revision

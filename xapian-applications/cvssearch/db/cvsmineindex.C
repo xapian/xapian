@@ -486,8 +486,11 @@ get_data(lines & lines,
     string filename = "";
     while ( lines.readNextLine() ) {
         string data = lines.getData();
-        set<string> symbols = lines.getCodeSymbols();
-	list<string> symbol_terms = lines.getCodeSymbolTerms();
+        const set<string>& symbols = lines.getCodeSymbols();
+	const list<string>& symbol_terms = lines.getCodeSymbolTerms();
+
+	const set<string>& qualified_classes = lines.getQualifiedClasses();
+
         
         if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
             filename = lines.getCurrentFile();
@@ -568,23 +571,18 @@ get_data(lines & lines,
                 for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
                     if ( lib_symbols.find(*s) != lib_symbols.end() ) {
 			commit_symbols[commitid+offset].insert(*s);
-                    } else {
-                                // ----------------------------------------
-                                // this symbol is not in the library, so
-                                // let's see if its parents are;
-                                // if so, we add every such parent
-                                // ----------------------------------------
-#warning "doesn't look at parents now"
-#if 0 // took it out as it messes up rankings; need special support in ranking function for parents/ancestors
-                        set<string> parents = app_symbol_parents[*s];
-                        for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
-                            if ( lib_symbols.find(*p) != lib_symbols.end() ) {
-                                commit_symbols[commitid+offset].insert(*p);
-                            }
-                        }
-#endif
+			// we no longer look at parents since that created problems
                     }
                 }
+
+		// also add qualified classes
+                for( set<string>::iterator s = qualified_classes.begin(); s != qualified_classes.end(); ++s ) {
+                    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
+			commit_symbols[commitid+offset].insert(*s);
+			cerr << "adding qualified class " << (*s) << " to transaction" << endl;
+			// we no longer look at parents since that created problems
+                    }
+                }		
             }
         }
     }

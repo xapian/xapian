@@ -26,7 +26,7 @@ lines::~lines()
 
 
 void
-lines::extractSymbols( const string& s, set <string> & symbols, list<string>& symbol_list) {
+lines::extractSymbols( const string& s, set <string> & symbols, list<string>& symbol_list, bool do_qualified_classes) {
     string current = "";
     bool foundBlank = false;
     for ( string::const_iterator i = s.begin(); i != s.end(); i++ ) {
@@ -45,29 +45,39 @@ lines::extractSymbols( const string& s, set <string> & symbols, list<string>& sy
             }
         } else {
             // already started something
-            if (! okSubChar(c) ) {
+            if (! okSubChar(c) && ( !do_qualified_classes || c != ':' ) ) {
                 if ( c == '(' ) {
                     assert( current != "" );
                     current += "()";
                     //cerr << "... found " << current << endl;
-                    symbols.insert(current);
-		    symbol_list.push_back(current);
+		    if ( !do_qualified_classes || (current.find("::") != -1 && current.find("()") == -1 )) {
+		      symbols.insert(current);
+		      symbol_list.push_back(current);
+		    }
                     current = "";
                     foundBlank = false;
                 } else {
                     // identifier ended
                     //cerr << "... found " << current << endl;
                     assert( current != "" );
-                    symbols.insert(current);
-		    symbol_list.push_back(current);
+
+		    if ( !do_qualified_classes || (current.find("::") != -1 && current.find("()") == -1 ) ) {
+		      symbols.insert(current);
+		      symbol_list.push_back(current);
+		    }
+
                     current = "";
                     foundBlank = false;
                 }
             } else { // okay subsequent character
                 if ( foundBlank ) {
                     assert( current != "" );
-                    symbols.insert(current);
-		    symbol_list.push_back(current);
+
+		    if ( !do_qualified_classes || (current.find("::") != -1 && current.find("()") == -1 ) ) {
+		      symbols.insert(current);
+		      symbol_list.push_back(current);
+		    }
+		    
                     current = "";	  
                     foundBlank = false;
                 }
@@ -77,8 +87,10 @@ lines::extractSymbols( const string& s, set <string> & symbols, list<string>& sy
     } 
     if ( current != "" ) {
         //    cerr << "...found " << current << endl;
+      if ( !do_qualified_classes || (current.find("::") != -1 && current.find("()") == -1) ) {
         symbols.insert(current);
 	symbol_list.push_back(current);
+      }
     }
 }
 

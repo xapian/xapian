@@ -40,6 +40,8 @@ bool lines_db::readNextLine() {
     term_list.clear();
     symbols.clear();
     symbol_list.clear();
+    qualified_classes.clear();
+    qualified_class_list.clear();
     data = "";
     codelinedata = "";
     
@@ -127,7 +129,8 @@ bool lines_db::readNextLine() {
         string line = "";
         getline( *in_code, line, '\n' );
         codeline = line;
-        extractSymbols( line, symbols, symbol_list );
+        extractSymbols( line, symbols, symbol_list, false );
+	extractSymbols( line, qualified_classes, qualified_class_list, true );
     }
     return true;
 }

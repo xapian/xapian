@@ -229,7 +229,7 @@ lines_cmt::readNextLine() {
         getline( *in_code, line, '\n' );
         //      cerr <<"Just read -" << line << "-" << endl;
         codeline = line;
-        extractSymbols( line, symbols, symbol_list );
+        extractSymbols( line, symbols, symbol_list, false );
         //      cerr << "...extracted # symbols = " << symbols.size() << endl;
     }
 
