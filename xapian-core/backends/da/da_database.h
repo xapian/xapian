@@ -157,7 +157,7 @@ class DATerm {
 	    name = name_new;
 	    DA_t = DA_t_new;
 	}
-        struct terminfo &get_ti() {
+        struct terminfo * get_ti() {
 	    if (ti.freq == 0) {
 		int len = name.length();
 		if(len > 255) abort();
@@ -171,7 +171,7 @@ class DATerm {
 
 		if(found == 0) abort();
 	    }
-	    return ti;
+	    return &ti;
 	}
         struct terminfo ti;
         struct DAfile * DA_t;

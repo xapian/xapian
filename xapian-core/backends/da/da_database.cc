@@ -148,10 +148,10 @@ DBPostList * DADatabase::open_post_list(termid id) const
     termname name = term_id_to_name(id);
 
     struct postings * postlist;
-    postlist = DAopenpostings((terminfo *)&(termvec[id - 1].get_ti()), DA_t);
+    postlist = DAopenpostings(termvec[id - 1].get_ti(), DA_t);
 
     DBPostList * pl = new DAPostList(root, postlist,
-				     termvec[id - 1].get_ti().freq);
+				     termvec[id - 1].get_ti()->freq);
     return pl;
 }
 
