@@ -18,7 +18,7 @@ if MAINTAINER_MODE
 lemon: lemon.c
 	$(CC_FOR_BUILD) -o lemon lemon.c
 
-queryparser_internal.cc: queryparser.lemony lempar.c lemon
+queryparser_internal.cc queryparser.h: queryparser.lemony lempar.c lemon
 	./lemon queryparser.lemony
 	mv -f queryparser.c queryparser_internal.cc
 
