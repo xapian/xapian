@@ -1,3 +1,7 @@
+Wed Mar 24 19:07:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/PatternBrowser-script.pl: Fixed some bad HTML.
+
 Wed Mar 24 18:58:12 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/Logo-script.pl: The content type header is `Content-Type:' not

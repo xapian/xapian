@@ -100,7 +100,7 @@ while (<ROOTS>) {
 close ROOTS;
 
 print <<_HTML_;
-</select>&nbsp;<td><input type=submit value="Browse"></form>
+</select>&nbsp;<input type=submit value="Browse"></form>
 _HTML_
 
 #-------------------------------
@@ -119,7 +119,7 @@ if($symbol||$query){
 	}
 	
 	if($query && $symbol){
-		print "& "
+		print "&amp; "
 	}
 	
 	if($symbol){
@@ -178,7 +178,6 @@ $end = $#mineResult - $#funcs - 1; #functions always appears after all the class
 
 print <<_HTML_;
 <table cellSpacing=0 cellPadding=2 width="100%" border=0>
-<TBODY>
 <tr><td colspan=2 class=s width="50%"><FONT face=arial,sans-serif size=-1>
 <b>Classes</b>&nbsp; </FONT></td>
 <td colspan=2 class=s width="50%"><FONT face=arial,sans-serif size=-1><b>Functions</b></td></tr>
