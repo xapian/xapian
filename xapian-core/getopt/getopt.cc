@@ -968,7 +968,7 @@ _getopt_internal (int argc, char *const *argv, const char *optstring, const stru
 }
 
 extern "C" int
-getopt (int argc, char *const *argv, const char *optstring)
+(getopt) (int argc, char *const *argv, const char *optstring)
 {
   return _getopt_internal (argc, argv, optstring,
 			   (const struct option *) 0,
