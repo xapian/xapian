@@ -1,3 +1,9 @@
+Fri Jun 23 18:56:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed use of a static object to do string to type conversion
+	  (for stemming algorithm language specification, and for database
+	  type specification).
+
 Fri Jun 23 14:08:00 BST 2000 Olly Betts
 
 	* Updated TODO

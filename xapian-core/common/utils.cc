@@ -26,7 +26,8 @@
 
 // Convert a number to a string
 #include <strstream.h>
-string om_inttostring(int a)
+string
+om_inttostring(int a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
@@ -35,18 +36,31 @@ string om_inttostring(int a)
     return string(buf);
 }
 
-string doubletostring(double a)
+string
+doubletostring(double a)
 {   
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
     ost << a << ends;
     return string(buf);
+}
+
+int
+map_string_to_value(const StringAndValue * haystack,
+		    const string needle)
+{
+    while(haystack->name[0] != '\0') {
+	if(haystack->name == needle) break;
+	haystack++;
+    }
+    return haystack->value;
 }
 
 /** Return true if the files fname exists.
  */
-bool file_exists(const string &fname)
+bool
+file_exists(const string &fname)
 {
     // create a directory for sleepy indexes if not present
     struct stat sbuf;

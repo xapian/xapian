@@ -61,7 +61,7 @@ enum om_database_type {
 // Translation of types as strings to types as enum om_database_type
 
 // Table of names of database types
-stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
+static const StringAndValue database_strings[] = {
     { "da_flimsy",		OM_DBTYPE_MUSCAT36_DA_F	},
     { "da_heavy",		OM_DBTYPE_MUSCAT36_DA_H	},
     { "db_flimsy",		OM_DBTYPE_MUSCAT36_DB_F	},
@@ -80,8 +80,8 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
     IRDatabase * database = NULL;
 
     // Convert type into an om_database_type
-    om_database_type dbtype =
-	stringToTypeMap<om_database_type>::get_type(params.type);
+    om_database_type dbtype = static_cast<om_database_type> (
+	map_string_to_value(database_strings, params.type));
 
     // Create database of correct type, and open it
     switch (dbtype) {

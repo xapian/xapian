@@ -52,8 +52,7 @@ enum stemmer_language {
 };
 
 /** The mapping from language strings to language codes. */
-stringToType<stemmer_language>
-stringToTypeMap<stemmer_language>::types[] = {
+static const StringAndValue language_strings[] = {
     {"de",		STEMLANG_GERMAN},
     {"dutch",		STEMLANG_DUTCH},
     {"en",		STEMLANG_ENGLISH},
@@ -72,13 +71,29 @@ stringToTypeMap<stemmer_language>::types[] = {
     {"",		STEMLANG_NULL}
 };
 
+
 ////////////////////////////////////////////////////////////
 // OmStemInternal class
 // ====================
 // Implementation of the OmStem interface
 
 class OmStem::Internal {
+    public:
+	/** Initialise the state based on the specified language.
+	 */
+	Internal(string language);
+
+	~Internal();
+
+	/** Protection against concurrent access.
+	 */
+	OmLock mutex;
+
+	/** Stem the given word.
+	 */
+	string stem_word(string word) const;
     private:
+
 	/** Function pointer to setup the stemmer.
 	 */
 	void * (* stemmer_setup)();
@@ -94,29 +109,15 @@ class OmStem::Internal {
 	/** Data used by the stemming algorithm.
 	 */
 	void * stemmer_data;
-	
-        /** Return a Stemmer object pointer given a language type.
+
+	/** Return a Stemmer object pointer given a language type.
 	 */
-        void set_language(stemmer_language lang);
-        
+	void set_language(stemmer_language lang);
+
 	/** Return a stemmer_language enum value from a language
 	 *  string.
 	 */
 	stemmer_language get_stemtype(string language);
-    public:
-    	/** Initialise the state based on the specified language.
-	 */
-	Internal(string language);
-
-	~Internal();
-
-	/** Protection against concurrent access.
-	 */
-	OmLock mutex;
-
-	/** Stem the given word.
-	 */
-	string stem_word(string word) const;
 };
 
 OmStem::Internal::Internal(string language)
@@ -196,7 +197,8 @@ OmStem::Internal::set_language(stemmer_language lang)
 stemmer_language
 OmStem::Internal::get_stemtype(string language)
 {
-    return stringToTypeMap<stemmer_language>::get_type(language);  
+    return static_cast<stemmer_language> (
+		map_string_to_value(language_strings, language));
 }
 
 string

@@ -4,3 +4,5 @@ Platform                  | Muscat Version | Result
 --------------------------+----------------+-------------------------
 Linux - Redhat 6.01       | v0.2.0         | All tests pass
 Linux - Debian (Potato)   | v0.2.0         | All tests pass
+
+Solaris                   | v0.2.0         | Tests FAIL

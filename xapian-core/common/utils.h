@@ -25,6 +25,8 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include "omdebug.h"
 
 // Convert an integer to a string
 string om_inttostring(int a);
@@ -36,29 +38,23 @@ string doubletostring(double a);
 // Mapping of types as strings to enums  //
 ///////////////////////////////////////////
 
-template<class X> struct stringToType {
-    string name;
-    X type;
+struct StringAndValue {
+    char * name;
+    int value;
 };
 
-// Note: this just uses a list of entrys, and searches linearly through
-// them.  Could at make this do a binary chop, but probably not worth
-// doing so, unless list gets large.
-template<class X> class stringToTypeMap {
-    public:
-	static stringToType<X> types[];
-	static X get_type(string needle) {
-	    stringToType<X>* haystack = types;
-	    while(haystack->name.size() != 0) {
-		if(haystack->name == needle) break;
-		haystack++;
-	    }
-	    return haystack->type;
-	}
-};
+/** Get the value associated with the given string.  If the string
+ *  isn't found, the value returned is the value in the terminating
+ *  object (which has a zero length string).
+ *
+ *  Note: this just uses a list of entrys, and searches linearly
+ *  through them.  Could at make this do a binary chop, but probably
+ *  not worth doing so, unless list gets large.
+ */
+int map_string_to_value(const StringAndValue * haystack,
+			const string needle);
 
-
-/** Return true if the files fname exists.
+/** Return true if the file fname exists.
  */
 bool file_exists(const string &fname);
 
