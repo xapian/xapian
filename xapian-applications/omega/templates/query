@@ -51,9 +51,9 @@ $if{$opt{topterms},
 }
 $if{$eq{$msize,0},
 $if{$query,$or{$html{$error},No documents match your query}},
-$if{$ne{$last,$msize},
+$if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
- $if{$eq{$topdoc,0},
+ $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
   All $nice{$msize} matches,
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$msize},-$nice{$msize}} of exactly $nice{$msize} matches}
 }

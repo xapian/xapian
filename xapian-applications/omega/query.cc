@@ -739,6 +739,7 @@ CMD_max,
 CMD_min,
 CMD_mod,
 CMD_msize,
+CMD_msizeexact,
 CMD_mul,
 CMD_ne,
 CMD_nice,
@@ -831,6 +832,7 @@ static struct func_desc func_tab[] = {
 {T(min),	1, N, N, 0, 0}}, // minimum of a list of values
 {T(mod),	2, 2, N, 0, 0}}, // integer modulus
 {T(msize),	0, 0, N, 1, 0}}, // number of matches
+{T(msizeexact),	0, 0, N, 1, 0}}, // is $msize exact?
 {T(mul),	2, N, N, 0, 0}}, // multiply a list of numbers
 {T(ne), 	2, 2, N, 0, 0}}, // test not equal
 {T(nice),	1, 1, N, 0, 0}}, // pretty print integer (with thousands sep)
@@ -1316,6 +1318,12 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_msize:
 		// number of matches
 		value = int_to_string(mset.get_matches_estimated());
+		break;
+	    case CMD_msizeexact:
+		// is msize exact?
+		if (mset.get_matches_lower_bound()
+		    == mset.get_matches_upper_bound())
+		    value = "true";
 		break;
 	    case CMD_mod: {
 		int denom = string_to_int(args[1]);

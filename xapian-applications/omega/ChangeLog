@@ -1,3 +1,11 @@
+Mon Dec 09 02:55:46 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt,templates/query: Added $msizeexact
+	  which returns "true" if $msize if exact (or "" if it is estimated).
+	  This means that you'll see "... of about N matches" less often -
+	  notably it's gone when searching for a single term, which is a
+	  pretty common case.
+ 
 Sun Dec 08 08:42:47 GMT 2002  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Replaced icky unportable code which set the filename

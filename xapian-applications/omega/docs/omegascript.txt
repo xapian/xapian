@@ -170,10 +170,13 @@ $map{LIST,STUFF)
 	to get rid of them.
 
 $msize
-	estimated number of matches
+	estimated number of matches.
+
+$msizeexact
+	return "true" if $msize if exact (or "" if it is estimated).
 
 $nice{number}
-	pretty print integer (with thousands separator)
+	pretty print integer (with thousands separator).
 
 $opt{OPT}
 	lookup an option value (as set by $set).
@@ -197,7 +200,7 @@ $querydescription
 	Mostly useful for debugging omega itself.
 
 $queryterms
-	list of probabilistic query terms
+	list of probabilistic query terms.
 
 $range{START,END}
 	return list of values between start and end
