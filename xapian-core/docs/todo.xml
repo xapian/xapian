@@ -110,6 +110,7 @@ moan if someone tries to set them.
 
 Patch doxygen, so that todo items in the body of methods get displayed.
 This note is ages old - see if doxygen can now do this without modification...
+(It seems not for 1.2.15 at least).
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
@@ -124,24 +125,7 @@ Ensure that API documentation covers entirety of API (i.e. that all methods and
 classes in the API have documentation comments) -- see doxygen generated file
 docs/doxygen_api_warnings for a list of undocumented methods.  Then read
 through generated API docs, and rewrite doc comments to improve clarity and
-make them more coherent.
-
-</todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
-
-Create a synonym postlist, which represents a set of postlists merged together,
-such that each document that occurs in any of the sublists occurs in the list,
-the term frequency is the number of documents that one or more of the terms
-occurs in, and the term weight corresponds.
-
-Will need approximation schemes for determining the term frequency.
-
-</todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Documentation" release="">
-
-Document backend API (database, postlist, termlist, document, etc) in same
-way as enquire API.  Eventually we want backends to be "user"-definable in
-the same way weighting objects are.
+make the collated version more coherent.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
@@ -231,12 +215,14 @@ Passage retrieval.
 Clustering algorithms.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="General" release="">
+<todoitem priority="M" difficulty="5" owner="" area="Documentation" release="">
 
-Allow user written backends?  Be good to allow them to register themselves
-automatically at runtime (or linktime perhaps) to replace current conditional
-compilation scheme.  Do this using sub-classing and factory classes?  A bit
-like the weighting schemes.
+Document backend API (database, postlist, termlist, document, etc) as user
+visible API.  Eventually we want backends to be "user"-definable in the same
+way weighting objects are.  User written backends should be able to register
+themselves automatically at runtime (or linktime perhaps) to replace current
+conditional compilation scheme.  Do this using sub-classing and factory
+classes?  A bit like the weighting schemes perhaps.
 
 </todoitem>
 <todoitem priority="V" difficulty="3" owner="" area="Backends" release="">
@@ -280,11 +266,14 @@ documents (should be appropriate subset).  Hard (impossible?) to implement
 efficiently.
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Matcher" release="">
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
 
-Add synonym postlists.  Need to be able to take underlying postlists which
-aren't necessarily just postlists for single terms, and to be able to
-estimate termfrequency of combined postlists.
+Add synonym postlists, which represents a set of postlists merged together such
+that each document that occurs in any of the sublists occurs in the synonym
+list.  The termfrequency should ideally be the number of documents that one or
+more of the terms occurs in, but that's too expensive to find, so we'll need to
+estimate.  Need to be able to take underlying postlists which aren't
+necessarily just postlists for single terms too.
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Postlists" release="">
@@ -312,11 +301,6 @@ share some techniques from implementing synonym postlists.
 "make install" on omega should install CGI binary somewhere more helpful
 (improved somewhat - now goes in /usr/lib/omega/bin/omega; RPMs install
 it in cgi-bin directory).
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="1.0">
-
-.deb built, control files via autoconf
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Bindings" release="">
@@ -351,11 +335,6 @@ of term generation (word breaks and stemming) across the index
 and query tools ... we may want the query parser to have a callback
 to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="*">
-
-Update the PLATFORMS file
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -545,7 +524,8 @@ min and max.
 
 Try to reduce unnecessary inclusion of headers - sometimes just saying
 "class Xapian::Foo;" is enough.  Look at using iosfwd instead of iostream
-where applicable (TC++PL 3ed 8.2.7).  Partly done.
+where applicable (TC++PL 3ed 8.2.7).  A lot has been done, but further
+improvements are possible.
 
 </todoitem>
 <todoitem priority="" difficulty="" owner="" area="tests" release="">

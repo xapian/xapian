@@ -1,8 +1,13 @@
+Fri May 14 00:59:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Thu May 13 17:14:18 BST 2004  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy: When stripping non-alphanums prior to
 	  reparsing, keep dots ('.').
-	* extra/queryparsertest.cc: Pruned near-duplicate queryparsertest testcases.
+	* extra/queryparsertest.cc: Pruned near-duplicate queryparsertest
+	  testcases.
 
 Thu May 13 12:09:19 BST 2004  Olly Betts <olly@survex.com>
 
