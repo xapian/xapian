@@ -1,5 +1,15 @@
 #include <om/om.h>
 
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+        *i = tolower(*i);
+        i++;
+    }
+}
+
 int main(int argc, char *argv[]) {
   
   if(argc < 4) {
@@ -19,9 +29,16 @@ int main(int argc, char *argv[]) {
     OmDocumentContents newdocument;
     newdocument.data = string(argv[2]); // data associated with document (e.g., title, etc.)
     
+    OmStem stemmer("english");
+
     // add document terms
     for(int i = 3; i < argc; i++) {
-      newdocument.add_posting(argv[i], i - 2); // term, position of term
+      om_termname term = argv[i];
+      cout << term << " -> ";
+      lowercase_term(term);
+      term = stemmer.stem_word(term);
+      cout << term << endl;
+      newdocument.add_posting(term, i - 2); // term, position of term
     }
 
     // adding one document at a time is not so efficient though

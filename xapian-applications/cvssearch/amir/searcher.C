@@ -1,5 +1,15 @@
 #include <om/om.h>
 
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+        *i = tolower(*i);
+        i++;
+    }
+}
+
 int main(int argc, char *argv[]) {
      if(argc < 3) {
         cout << "usage: " << argv[0] <<
@@ -19,8 +29,18 @@ int main(int argc, char *argv[]) {
        OmEnquire enquire(databases);
 
        vector<om_termname> queryterms;
+       
+       OmStem stemmer("english");
+
        for (int optpos = 2; optpos < argc; optpos++) {
-	 queryterms.push_back(argv[optpos]);
+
+	 om_termname term = argv[optpos];
+	 cout << term << " -> ";
+	 lowercase_term(term);
+	 term = stemmer.stem_word(term);
+	 cout << term << endl;
+	 
+	 queryterms.push_back(term);
        }
 
        // MOP stands for "Match OPeration"
