@@ -1,3 +1,8 @@
+Wed Aug  9 17:21:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed annoying exception messages from omprogsrv (which turned
+	  up in net->absentfile1 test)
+
 Wed Aug  9 17:05:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Apitest now runs with the network backend by default.  Two of the
