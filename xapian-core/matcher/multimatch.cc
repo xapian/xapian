@@ -624,14 +624,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
 					make_pair(new_item, Xapian::weight(0))));
 		} else {
-		    duplicates_found++;
-		    const Xapian::Internal::MSetItem &old_item = oldkey->second.first;
+		    ++duplicates_found;
+		    Xapian::Internal::MSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
 			// There's already a better match with this key
-			++oldkey->second.first.collapse_count;
+			++old_item.collapse_count;
 			// But maybe the weight is worth noting
 			if (new_item.wt > oldkey->second.second) {
 			    oldkey->second.second = new_item.wt;

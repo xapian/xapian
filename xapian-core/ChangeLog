@@ -1,3 +1,7 @@
+Tue Mar 08 16:57:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Minor code tidy.
+
 Tue Mar 08 15:48:38 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,docs/matcherdesign.html,include/xapian/enquire.h,
