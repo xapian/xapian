@@ -311,13 +311,14 @@ scope of atomicity to cover all the tables.  In detail:
 <li>
 When opening a database, we open each table in a specified order: lets call
 the tables <em>A</em>, <em>B</em>, <em>C</em>, <em>D</em>, <em>E</em>,
-<em>F</em>, and say we open them in alphabetical order.
+and say we open them in alphabetical order.
 </li><li>
 When opening a database, after opening the first table, <em>A</em>, at the
 newest available revision, we read its revision number.  We then open all
 the other tables at the same revision number.
 </li><li>
-When we commit changes to a database, we commit the tables in reverse order.
+When we commit changes to a database, we commit the tables in reverse order
+- <em>E</em> first, and <em>A</em> last.
 </li>
 </ul>
 

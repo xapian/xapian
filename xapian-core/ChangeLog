@@ -1,3 +1,8 @@
+Mon Oct 11 02:24:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Use 5 tables in the example for how we keep
+	  revisions in step, since we use 5 tables in quartz.
+
 Thu Oct 07 22:51:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: An interrupted update could cause any
