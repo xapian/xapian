@@ -97,7 +97,7 @@ include $(top_srcdir)/Makefile_common.am
 ALL_INCLUDES = `./findheaders.pl $(top_srcdir)`
 
 ## Extra rules:
-includetest.cc:
+includetest.cc: findheaders.pl
 	@echo "Generating includetest.cc - including all header files."
 	@depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
 	@for header in $(ALL_INCLUDES) ; do echo '#include "'$$header'"' ; done > $@

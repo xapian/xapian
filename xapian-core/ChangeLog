@@ -1,3 +1,10 @@
+Tue Sep 12 14:15:13 BST 2000 Olly Betts
+
+	* includetest.cc now depends on findheaders.pl.
+
+	* findheaders.pl now copes with wrapped lines in Makefile.in (cvs
+	  automake leaves them wrapped - last release version unwrapped them).
+	
 Tue Sep 12 12:35:49 BST 2000 Olly Betts
 
 	* *PostList and *TermList now keep a reference to their parent database

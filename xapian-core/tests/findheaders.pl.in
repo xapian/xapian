@@ -19,12 +19,11 @@ sub find_headers {
    my %h = ();
    my @subs = ();
    while (<F>) {
-       # automake helpfully unfolds lines in Makefile.in
-#       while (s/\\\n//) {
-#           my $l = <F>;
-#	   last unless defined $l;
-#	   $_ .= $l;
-#       }
+       while (s/\\\n//) {
+           my $l = <F>;
+	   last unless defined $l;
+	   $_ .= $l;
+       }
        if (s/^[A-Za-z0-9_]+_HEADERS\s*=\s*//) {
            foreach (map "$dir/$_", split /\s+/) {
                $h{$_}++;
