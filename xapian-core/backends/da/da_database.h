@@ -36,7 +36,6 @@ class DAPostList : public virtual PostList {
 inline doccount
 DAPostList::get_termfreq() const
 {
-    Assert(!at_end());
     return termfreq;
 }
 
