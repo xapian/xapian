@@ -35,9 +35,7 @@
 class QuartzTermList : public LeafTermList {
     private:
 	/** The database we are searching.  This pointer is held so that the
-	 *  database doesn't get deleted before us, and also so that we can
-	 *  look up term frequencies in the lexicon if they are not stored
-	 *  in termlists.
+	 *  database doesn't get deleted before us.
 	 */
 	RefCntPtr<const Database> this_db;
 
@@ -46,7 +44,7 @@ class QuartzTermList : public LeafTermList {
 	const QuartzTable * table;
 
 	/** The table holding the lexicon.
-	 *  (Used when we have to perform a term frequency lookup.
+	 *  (Used when we have to perform a term frequency lookup).
 	 */
 	const QuartzTable * lexicon_table;
 

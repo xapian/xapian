@@ -33,7 +33,7 @@
 class QuartzTable;
 class QuartzBufferedTable;
 
-/** A termlist in a quartz database.
+/** A position list in a quartz database.
  */
 class QuartzPositionList : public PositionList {
     private:
