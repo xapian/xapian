@@ -863,7 +863,7 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     // at start so there's no need to actually do anything.
     have_started = true;
 
-    // Don't skip back, and don't need to do anthing if already there.
+    // Don't skip back, and don't need to do anything if already there.
     if (desired_did <= did) RETURN(NULL);
 
     move_to(desired_did);
