@@ -142,6 +142,7 @@ MergePostList::get_weight() const
 inline const OmKey *
 MergePostList::get_collapse_key() const
 {
+    DEBUGCALL(MATCH, OmKey *, "MergePostList::get_collapse_key", "");
     Assert(current != -1);
     return plists[current]->get_collapse_key();
 }

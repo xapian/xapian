@@ -1,3 +1,7 @@
+Thu Apr 04 15:43:43 BST 2002 Olly Betts
+
+	* More debug tracing in the matcher.
+
 Thu Apr 04 14:17:10 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added debug tracing to most of the matcher.

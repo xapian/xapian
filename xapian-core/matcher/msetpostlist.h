@@ -107,6 +107,7 @@ MSetPostList::get_weight() const
 inline const OmKey *
 MSetPostList::get_collapse_key() const
 {
+    DEBUGCALL(MATCH, OmKey *, "MSetPostList::get_collapse_key", "");
     Assert(current != -1);
     return &(mset.internal->data->items[current].collapse_key);
 }

@@ -50,6 +50,7 @@ StatsGatherer::contrib_stats(const Stats & extra_stats)
 const Stats *
 LocalStatsGatherer::get_stats() const
 {
+    DEBUGCALL(MATCH, Stats *, "LocalStatsGatherer::get_stats", "");
     if(!have_gathered) {
 	for (std::set<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
@@ -77,6 +78,7 @@ NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
 const Stats *
 NetworkStatsGatherer::get_stats() const
 {
+    DEBUGCALL(MATCH, Stats *, "NetworkStatsGatherer::get_stats", "");
     fetch_local_stats();
     fetch_global_stats();
 
