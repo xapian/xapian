@@ -1,3 +1,7 @@
+Thu Apr 15 02:05:49 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: And another _POSIX_SOURCE attempt!
+
 Thu Apr 15 01:43:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Another stab at _POSIX_SOURCE...
