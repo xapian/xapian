@@ -1,3 +1,7 @@
+Mon Jul  3 16:04:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* testsuite.cc wasn't compiling with debug disabled.
+
 Mon Jul  3 15:18:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented InMemoryPostList::get_position_list()
