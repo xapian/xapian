@@ -38,7 +38,9 @@ class PostList;
 #include <map>
 #include "autoptr.h"
 
+class MultiMatch;
 class SubMatch {
+    friend class MultiMatch;
     public:
 	const Database *db;
 	LocalStatsSource statssource;
@@ -83,6 +85,7 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
  */
 class LocalMatch : public SingleMatch
 {
+    friend class MultiMatch;
     private:
 	SubMatch submatch;    
 

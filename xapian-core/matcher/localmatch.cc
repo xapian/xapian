@@ -692,11 +692,11 @@ LocalMatch::get_mset(om_doccount first,
         mbound++;
 
 	om_docid did = query->get_docid();
-// FIXME:	DEBUGLINE(MATCH, "submatch.db->get_doclength(" << did << ") == " <<
+// FIXME not with NetworkDatabase DEBUGLINE(MATCH, "submatch.db->get_doclength(" << did << ") == " <<
 //		  submatch.db->get_doclength(did));
 	DEBUGLINE(MATCH, "query->get_doclength() == " <<
 		  query->get_doclength());
-// FIXME: not true with MergePostList	AssertEqDouble(submatch.db->get_doclength(did), query->get_doclength());
+// FIXME not with NetworkDatabase	AssertEqDouble(submatch.db->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
 		extra_weight->get_sumextra(query->get_doclength());
 

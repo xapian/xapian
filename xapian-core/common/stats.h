@@ -130,8 +130,9 @@ class StatsSource {
 	/** The collection statistics, held by the StatsGatherer.
 	 *  0 before these have been retrieved.
 	 */
+    public: // FIXME bodge
 	mutable const Stats * total_stats;
-
+    protected: // FIXME bodge
 	/** Perform the request for the needed information.  This involves
 	 *  passing our information to the gatherer, and then getting the
 	 *  result back.

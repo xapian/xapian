@@ -160,11 +160,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     std::vector<PostList *> v;
     std::vector<RefCntPtr<SingleMatch> >::iterator i;
-    SingleMatch *lm = NULL;
+    SingleMatch *sm = NULL;
+    std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
     for (i = leaves.begin(); i != leaves.end(); i++) {
 	try {
 	    v.push_back((*i)->do_postlist_hack());
-	    if (!lm) lm = (*i).get();
+	    if (!sm) sm = (*i).get();
 	}
 	catch (const OmUnimplementedError &e) {
 	    // it's a NetworkMatch
@@ -172,20 +173,35 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    (*i)->get_mset(0, first + maxitems, mset_tmp, mdecider, false);
 	    NetworkMatch *m = dynamic_cast<NetworkMatch *>((*i).get());
 	    v.push_back(new MSetPostList(mset_tmp, m->database));
+	    static const std::map<om_termname, OmMSet::TermFreqAndWeight> &M =
+		OmMSet::InternalInterface::get_termfreqandwts(mset_tmp);
+	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
+	    for (i = M.begin(); i != M.end(); i++) {
+		std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator j;
+		j = term_info.find(i->first);
+		if (j == term_info.end()) term_info.insert(*i);
+	    }
 	}
     }
-    if (lm) {
+    if (sm) {
 	DEBUGLINE(MATCH, "Have a localmatch to abuse");
-	lm->do_postlist_hack2(new MergePostList(v));
-	lm->get_mset(first, maxitems, mset, mdecider, false);
+	sm->do_postlist_hack2(new MergePostList(v));
+	sm->get_mset(first, maxitems, mset, mdecider, false);
     } else {
 	DEBUGLINE(MATCH, "Don't have a localmatch to abuse");
 	NetworkMatch *m = dynamic_cast<NetworkMatch *>(leaves.front().get());
-	lm = new LocalMatch(m->database);
+	LocalMatch *lm = new LocalMatch(m->database);
+	Stats stats;
+	stats.collection_size = 1;
+	stats.rset_size = 1;
+	stats.average_length = 1;
 	LocalStatsSource s;
+	s.total_stats = &stats;
+	lm->submatch.statssource = s;
 	lm->set_query(&query_save_for_hack);
 	lm->set_options(moptions_save_for_hack);
 	lm->do_postlist_hack2(new MergePostList(v));
+	lm->term_info = term_info;
 	lm->get_mset(first, maxitems, mset, mdecider, false);
 	delete lm;
     }
