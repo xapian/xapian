@@ -5,7 +5,8 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 noinst_HEADERS = deleter_map.h omindexerinternal.h \
 		register_core.h node_reg.h regexcommon.h indexerxml.h \
 		toposort.h omnodedescriptorinternal.h \
-		ompaditeratorinternal.h omnodeinstanceiteratorinternal.h
+		ompaditeratorinternal.h omnodeinstanceiteratorinternal.h \
+		omindexerdescinternal.h
 
 data_DATA = omindexer.dtd
 

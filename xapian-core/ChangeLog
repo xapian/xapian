@@ -1,3 +1,7 @@
+Fri Jan 26 16:11:13 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Added omindexerdescinternal.h to the Makefile
+
 Fri Jan 26 15:50:32 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Move OmQuery definition into a separate header file.
