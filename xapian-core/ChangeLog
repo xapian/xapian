@@ -1,3 +1,9 @@
+Fri Nov 26 00:19:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* matcher/expandweight.cc,matcher/tradweight.cc: If we estimate the
+	  term frequency, ensure it has a sane value (>= r and <= N - R + r)
+	  rather than bodging around the problem later on.
+
 Thu Nov 25 01:29:36 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Fixed recent cygwin change to
