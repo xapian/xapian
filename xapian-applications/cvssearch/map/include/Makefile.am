@@ -1,1 +1,0 @@
-EXTRA_DIST = collection.h virtual_iostream.h virtual_istream.h virtual_ostream.h
