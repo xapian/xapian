@@ -12,7 +12,7 @@ in the bindings, so generally it should just work as expected.
 <h2>Exceptions</h2>
 
 <p>
-   Exceptions are throwns as SWIG exceptions instead of Xapian
+   Exceptions are thrown as SWIG exceptions instead of Xapian
    exceptions. This isn't done well at the moment; in future we will
    throw wrapped Xapian exceptions. For now, it's probably easier to
    catch all exceptions and try to take appropriate action based on
@@ -40,16 +40,16 @@ in the bindings, so generally it should just work as expected.
      m.next()
 </pre>
 
-<h2>Iterator deferencing</h2>
+<h2>Iterator dereferencing</h2>
 
 <p>
-   C++ iterators are often deferenced to get information, eg
+   C++ iterators are often dereferenced to get information, eg
    <code>(*it)</code>. With Python these are all mapped to named methods, as
    follows:
 </p>
 
 <table title='Iterator deferencing methods'>
-<thead><td>Iterator</td><td>Deferencing method</td></thead>
+<thead><td>Iterator</td><td>Dereferencing method</td></thead>
 <tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
 <tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
 <tr><td>TermIterator</td>		<td><code>get_term()</code></td></tr>
@@ -66,7 +66,7 @@ in the bindings, so generally it should just work as expected.
 
 <p>
    MSet objects have some additional methods to simplify access (these
-   work using the C++ array deferencing):
+   work using the C++ array dereferencing):
 </p>
 
 <table title='MSet additional methods'>
@@ -83,10 +83,10 @@ Additionally, the MSet has a property, <code>mset.items</code>, which returns a 
 
 <table title='MSet.items member members'>
 <thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.OMMSET_DID</code></td><td>Document id</td></tr>
-<tr><td><code>xapian.OMMSET_WT</code></td><td>Weight</td></tr>
-<tr><td><code>xapian.OMMSET_RANK</code></td><td>Rank</td></tr>
-<tr><td><code>xapian.OMMSET_PERCENT</code></td><td>Percentage weight</td></tr>
+<tr><td><code>xapian.MSET_DID</code></td><td>Document id</td></tr>
+<tr><td><code>xapian.MSET_WT</code></td><td>Weight</td></tr>
+<tr><td><code>xapian.MSET_RANK</code></td><td>Rank</td></tr>
+<tr><td><code>xapian.MSET_PERCENT</code></td><td>Percentage weight</td></tr>
 </table>
 
 <p>
@@ -101,8 +101,8 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
 
 <table title='ESet.items member members'>
 <thead><td>Index</td><td>Contents</td></thead>
-<tr><td><code>xapian.OMESET_TNAME</code></td><td>Term name</td></tr>
-<tr><td><code>xapian.OMESET_WT</code></td><td>Weight</td></tr>
+<tr><td><code>xapian.ESET_TNAME</code></td><td>Term name</td></tr>
+<tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>
 </table>
 
 <h2>Xapian::Auto</h2>

@@ -1,3 +1,9 @@
+Mon Jan 12 17:52:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: OMMSET_* and OMESET_* -> MSET_* and
+	  ESET_* (in line with recent change to python/util.i).  Also
+	  corrected a few typos.
+
 Mon Jan 12 17:49:30 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Check for jni.h before enabling java bindings.
