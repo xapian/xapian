@@ -62,7 +62,7 @@ class SleepyDocument : public LeafDocument {
 	 *  checked for it: if the key is not in the database, it will simply
 	 *  have an empty value.
 	 */
-	mutable map<om_keyno, OmKey> keys;
+	mutable std::map<om_keyno, OmKey> keys;
 
 	/** Constructor: called by SleepyDatabase to read a document
 	 *
@@ -102,7 +102,7 @@ class SleepyDocument : public LeafDocument {
 
 	// Virtual methods of Leaf Document
 	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	std::map<om_keyno, OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
 

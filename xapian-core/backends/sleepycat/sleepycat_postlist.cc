@@ -73,7 +73,7 @@ SleepyPostList::get_weight() const
 
     om_termcount wdf = mylist.get_current_item().wdf;
     if(wdf == 0) {
-	DebugMsg("WDF not present in postlist - using 1." << endl);
+	DEBUGLINE(DB, "WDF not present in postlist - using 1.");
 	wdf = 1;
     }
 
@@ -85,7 +85,7 @@ SleepyPostList::get_wdf() const
 {
     om_termcount wdf = mylist.get_current_item().wdf;
     if (wdf == 0) {
-	DebugMsg("WDF not present in postlist - using 1." << endl);
+	DEBUGLINE(DB, "WDF not present in postlist - using 1.");
 	wdf = 1;
     }
     return wdf;
@@ -118,7 +118,7 @@ SleepyPostList::at_end() const
     return mylist.at_end();
 }
 
-string
+std::string
 SleepyPostList::intro_term_description() const
 {
     return tname + ":" + om_tostring(get_termfreq());

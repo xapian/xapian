@@ -76,7 +76,7 @@ class SleepyPostList : public LeafPostList {
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 };
 
 #endif /* OM_HGUARD_SLEEPY_POSTLIST_H */

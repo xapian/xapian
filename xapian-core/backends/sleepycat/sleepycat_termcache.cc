@@ -59,10 +59,10 @@ SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 	}
     }
     catch (DbException e) {
-	throw OmDatabaseError("TermidDb error: " + string(e.what()));
+	throw OmDatabaseError("TermidDb error: " + std::string(e.what()));
     }
 
-    DebugMsg(" found (" << tid << ")" << endl);
+    DEBUGLINE(DB, " found (" << tid << ")");
     return tid;
 }
 
@@ -87,13 +87,13 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmDatabaseError("TermnameDb error :" + string(e.what()));
+	throw OmDatabaseError("TermnameDb error :" + std::string(e.what()));
     }
 
     om_termname tname((char *)data.get_data(), data.get_size());
     free(data.get_data());
 
-    DebugMsg(" found (`" << tname << "')" << endl);
+    DEBUGLINE(DB, " found (`" << tname << "')");
     return tname;
 }
 
@@ -120,10 +120,10 @@ SleepyDatabaseTermCache::assign_new_termid(const om_termname & tname) const
 	err_num = internals->termid_db->put(NULL, &data, &key, 0);
 	Assert(err_num == 0); // Any errors should cause an exception.
 
-	DebugMsg(" added (" << tname << ", " << tid << ")" << endl);
+	DEBUGLINE(DB, " added (" << tname << ", " << tid << ")");
     }
     catch (DbException e) {
-	throw OmDatabaseError("TermidDb error: " + string(e.what()));
+	throw OmDatabaseError("TermidDb error: " + std::string(e.what()));
     }
 
     return tid;

@@ -24,6 +24,7 @@
 #define OM_HGUARD_SLEEPY_DATABASE_H
 
 #include <stdlib.h>
+#include <memory>
 #include "database.h"
 #include "om/omerror.h"
 #include "om/omdocument.h"
@@ -40,9 +41,9 @@ class SleepyDatabaseInternals;
 class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
-	auto_ptr<SleepyDatabaseInternals> internals;
+	std::auto_ptr<SleepyDatabaseInternals> internals;
 
-	auto_ptr<SleepyDatabaseTermCache> termcache;
+	std::auto_ptr<SleepyDatabaseTermCache> termcache;
 
 	/** Create and open a sleepycat database.
 	 *
@@ -75,7 +76,7 @@ class SleepyDatabase : public IRDatabase {
 	om_doccount add_entry_to_postlist(om_termid tid,
 					  om_docid did,
 					  om_termcount wdf,
-					  const vector<om_termpos> & positions,
+					  const std::vector<om_termpos> & positions,
 					  om_doclength doclength);
 
 	/** Make a new document, and return the new document ID.
@@ -94,7 +95,7 @@ class SleepyDatabase : public IRDatabase {
 	 *  @param terms  The terms to make the termlist out of.
 	 */
 	void make_new_termlist(om_docid did,
-			       const map<om_termid, OmDocumentTerm> & terms);
+			       const std::map<om_termid, OmDocumentTerm> & terms);
 
 	/** return whether database is locked
 	 */

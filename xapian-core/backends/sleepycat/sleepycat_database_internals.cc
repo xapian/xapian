@@ -66,7 +66,7 @@ SleepyDatabaseInternals::~SleepyDatabaseInternals()
 }
 
 void
-SleepyDatabaseInternals::open(const string &pathname, bool readonly)
+SleepyDatabaseInternals::open(const std::string &pathname, bool readonly)
 {
     try {
 	// Set up environment
@@ -107,7 +107,7 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 		 &dbenv, 0, &stats_db);
     }
     catch (DbException e) {
-	throw (OmOpeningError(string("Database error on open: ") + e.what()));
+	throw (OmOpeningError(std::string("Database error on open: ") + e.what()));
     }
 }
 
@@ -134,7 +134,7 @@ SleepyDatabaseInternals::close()
 	opened = false;
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error on close: ") + e.what()));
     }
 }
 
@@ -168,7 +168,7 @@ SleepyDatabaseInternals::get_doccount() const
 	}
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error retrieving document count: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error retrieving document count: ") + e.what()));
     }
     return doccount;
 }
@@ -203,7 +203,7 @@ SleepyDatabaseInternals::get_totlength() const
 	}
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error retrieving document lengths: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error retrieving document lengths: ") + e.what()));
     }
     return totlength;
 }
@@ -230,7 +230,7 @@ SleepyDatabaseInternals::set_doccount(om_doccount doccount)
 	Assert(err_num == 0);
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error setting document count: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error setting document count: ") + e.what()));
     }
 }
 
@@ -255,7 +255,7 @@ SleepyDatabaseInternals::set_totlength(om_totlength totlength)
 	Assert(err_num == 0);
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error setting total document length: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error setting total document length: ") + e.what()));
     }
 }
 

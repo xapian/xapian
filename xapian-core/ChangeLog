@@ -1,3 +1,9 @@
+Tue Aug  1 17:07:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add explicit std:: to things in sleepycat backend, so that it will
+	  compile with stricter compilers.  Convert some DebugMsgs with endls
+	  into DEBUGLINEs.
+
 Tue Aug  1 16:08:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* stemtest and delve now compile under Solaris CC.

@@ -57,9 +57,9 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     }
 
     // FIXME: misuse of auto_ptr - should be refcnt
-    auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
+    std::auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
     internals = tempptr1;
-    auto_ptr<SleepyDatabaseTermCache>
+    std::auto_ptr<SleepyDatabaseTermCache>
 	tempptr2(new SleepyDatabaseTermCache(internals.get()));
     termcache = tempptr2;
 
@@ -67,12 +67,12 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     struct stat buf;
     int err_num = stat(params.paths[0].c_str(), &buf);
     if (err_num != 0) {
-	throw OmOpeningError(string("SleepyDatabase: can't stat `") +
+	throw OmOpeningError(std::string("SleepyDatabase: can't stat `") +
 			     params.paths[0] + "'");
     }
     if (!S_ISDIR(buf.st_mode)) {
-	throw OmOpeningError(string("SleepyDatabase: `") + params.paths[0] +
-			     "' is not a directory.");
+	throw OmOpeningError(std::string("SleepyDatabase: `") +
+			     params.paths[0] + "' is not a directory.");
     }
 
     // Open database with specified path
@@ -87,7 +87,8 @@ SleepyDatabase::~SleepyDatabase()
 	internals->close();
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
+	throw (OmDatabaseError(std::string("Database error on close: ") +
+			       e.what()));
     }
 }
 
@@ -108,7 +109,7 @@ SleepyDatabase::get_avlength() const
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    auto_ptr<SleepyTermList> tl(
+    std::auto_ptr<SleepyTermList> tl(
 	new SleepyTermList(did, this, internals.get(), termcache.get()));
     return tl->get_doclength();
 }
@@ -127,8 +128,8 @@ SleepyDatabase::get_termfreq(const om_termname &tname) const
 bool
 SleepyDatabase::term_exists(const om_termname &tname) const
 {
-    DebugMsg("termcache->term_name_to_id(tname) = " <<
-	     termcache->term_name_to_id(tname) << endl);
+    DEBUGLINE(DB, "termcache->term_name_to_id(tname) = " <<
+	      termcache->term_name_to_id(tname));
     if(termcache->term_name_to_id(tname) != 0) return true;
     return false;
 }
@@ -167,14 +168,14 @@ SleepyDatabase::is_locked()
 void
 SleepyDatabase::do_lock(om_timeout timeout)
 {
-    DEBUGMSG(DBLOCK, "SleepyDatabase::lock()" << endl);
+    DEBUGLINE(DBLOCK, "SleepyDatabase::lock()");
     // FIXME: lock database
 }
 
 void
 SleepyDatabase::do_unlock()
 {
-    DEBUGMSG(DBLOCK, "SleepyDatabase::unlock()" << endl);
+    DEBUGLINE(DBLOCK, "SleepyDatabase::unlock()");
     // FIXME: unlock database
 }
 
@@ -212,17 +213,17 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
 	om_doclength doclength = 0;
 
 	// Build list of terms, sorted by termID
-	map<om_termid, OmDocumentTerm> terms;
+	std::map<om_termid, OmDocumentTerm> terms;
 	OmDocumentContents::document_terms::const_iterator i;
 	for(i = document.terms.begin(); i != document.terms.end(); i++) {
 	    Assert(i->second.tname.size() != 0);
 	    om_termid tid = termcache->assign_new_termid(i->second.tname);
-	    terms.insert(make_pair(tid, i->second));
+	    terms.insert(std::make_pair(tid, i->second));
 	    doclength += i->second.wdf;
 	}
 
 	// Add this document to the postlist for each of its terms
-	map<om_termid, OmDocumentTerm>::iterator term;
+	std::map<om_termid, OmDocumentTerm>::iterator term;
 	for(term = terms.begin(); term != terms.end(); term++) {
 	    om_doccount newtermfreq;
 	    newtermfreq = add_entry_to_postlist(term->first,
@@ -247,9 +248,9 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
 	// Increase the document count and total length
 	internals->set_doccount(get_doccount() + 1);
 	internals->set_totlength(internals->get_totlength() + doclength);
-	DebugMsg("New doccount and total length is: " <<
-		 internals->get_doccount() << ", " <<
-		 internals->get_totlength() << endl);
+	DEBUGLINE(DB, "New doccount and total length is: " <<
+		  internals->get_doccount() << ", " <<
+		  internals->get_totlength());
     } catch(...) {
 	if (!was_locked) {
 	    do_unlock();
@@ -266,7 +267,7 @@ om_doccount
 SleepyDatabase::add_entry_to_postlist(om_termid tid,
 				      om_docid did,
 				      om_termcount wdf,
-				      const vector<om_termpos> & positions,
+				      const std::vector<om_termpos> & positions,
 				      om_doclength doclength)
 {
 // FIXME: suggest refactoring most of this method into a constructor of
@@ -293,7 +294,7 @@ SleepyDatabase::make_new_document(const OmDocumentContents & doccontents)
 
 void
 SleepyDatabase::make_new_termlist(om_docid did,
-				  const map<om_termid, OmDocumentTerm> & terms)
+				  const std::map<om_termid, OmDocumentTerm> & terms)
 {
 // FIXME: suggest refactoring this method into a constructor of SleepyTermList
     SleepyList mylist(internals->termlist_db,
@@ -303,7 +304,7 @@ SleepyDatabase::make_new_termlist(om_docid did,
 
     Assert(mylist.get_item_count() == 0);
 
-    map<om_termid, OmDocumentTerm>::const_iterator term;
+    std::map<om_termid, OmDocumentTerm>::const_iterator term;
     for(term = terms.begin(); term != terms.end(); term++) {
 	// Document length is not used in termlists: use 0.
 	SleepyListItem myitem(term->first,

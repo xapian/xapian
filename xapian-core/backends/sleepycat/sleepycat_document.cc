@@ -60,9 +60,9 @@ SleepyDocument::SleepyDocument(Db * document_db_,
 	Assert(err_num == 0); // Any errors should cause an exception.
 
 	// Store keys
-	map<om_keyno, OmKey>::const_iterator i;
+	std::map<om_keyno, OmKey>::const_iterator i;
 	for(i = keys.begin(); i != keys.end(); i++) {
-	    string keyno = om_tostring(did) + "_" + om_tostring(i->first);
+	    std::string keyno = om_tostring(did) + "_" + om_tostring(i->first);
 	    Dbt dbkey2(const_cast<char *>(keyno.data()), keyno.size());
 	    Dbt dbdata2(const_cast<char *>(i->second.value.data()),
 			i->second.value.size());
@@ -72,7 +72,7 @@ SleepyDocument::SleepyDocument(Db * document_db_,
 	    Assert(err_num == 0); // Any errors should cause an exception.
 	}
     } catch (DbException e) {
-	throw OmDatabaseError("DocumentDb Error: " + string(e.what()));
+	throw OmDatabaseError("DocumentDb Error: " + std::string(e.what()));
     }
 }
 
@@ -87,13 +87,13 @@ SleepyDocument::do_get_key(om_keyno keyid) const
 {
     DebugMsg("Looking up key " << keyid << "...");
     if(keys.find(keyid) != keys.end()) {
-	DebugMsg(" found (value == " << keys[keyid].value << ")" << endl);
+	DEBUGLINE(DB, " found (value == " << keys[keyid].value << ")");
 	return keys[keyid];
     }
     OmKey result;
     try {
 	int err_num;
-	string keyno = om_tostring(did) + "_" + om_tostring(keyid);
+	std::string keyno = om_tostring(did) + "_" + om_tostring(keyid);
 	DebugMsg(" looking in database (for `" << keyno << "') ...");
 
 	Dbt dbkey(const_cast<char *>(keyno.data()), keyno.size());
@@ -103,27 +103,27 @@ SleepyDocument::do_get_key(om_keyno keyid) const
 
 	err_num = key_db->get(0, &dbkey, &dbdata, 0);
 	if(err_num == DB_NOTFOUND) {
-	    DebugMsg(" not found" << endl);
+	    DEBUGLINE(DB, " not found");
 	    keys[keyid] = result;
 	    // Return a null key
 	    return result;
 	}
 
-	result.value = string(reinterpret_cast<char *>(dbdata.get_data()),
+	result.value = std::string(reinterpret_cast<char *>(dbdata.get_data()),
 			      dbdata.get_size());
 	free(dbdata.get_data());
 
 	keys[keyid] = result;
-	DebugMsg(" found (value == " << result.value << ")" << endl);
+	DEBUGLINE(DB, " found (value == " << result.value << ")");
     } catch (DbException e) {
 	throw OmDatabaseError("Sleepycat database error, when reading key " +
 			      om_tostring(keyid) + " from document " +
-			      om_tostring(did) + ": " + string(e.what()));
+			      om_tostring(did) + ": " + std::string(e.what()));
     }
     return result;
 }
 
-map<om_keyno, OmKey>
+std::map<om_keyno, OmKey>
 SleepyDocument::do_get_all_keys() const
 {
     DebugMsg("Looking up all keys for document " << did << "...");
@@ -132,7 +132,7 @@ SleepyDocument::do_get_all_keys() const
 	int err_num;
 
 	// Set initial key
-	string keystr = om_tostring(did) + "_";
+	std::string keystr = om_tostring(did) + "_";
 	char keyno[100];
 	Assert(keystr.size() < 100);
 	strncpy(keyno, keystr.data(), keystr.size());
@@ -145,10 +145,11 @@ SleepyDocument::do_get_all_keys() const
 	dbdata.set_flags(DB_DBT_MALLOC);
 
 	err_num = dbcurs->get(&dbkey, &dbdata, DB_SET_RANGE);
-	string this_value = string(reinterpret_cast<char *>(dbdata.get_data()),
-				   dbdata.get_size());
-	string this_keystr(reinterpret_cast<char *>(dbkey.get_data()),
-			   dbkey.get_size());
+	std::string this_value =
+		std::string(reinterpret_cast<char *>(dbdata.get_data()),
+			    dbdata.get_size());
+	std::string this_keystr(reinterpret_cast<char *>(dbkey.get_data()),
+				dbkey.get_size());
 	free(dbdata.get_data());
 	while(err_num == 0 &&
 	      dbkey.get_size() > keystr.size() &&
@@ -156,16 +157,16 @@ SleepyDocument::do_get_all_keys() const
 		      keystr.data(),
 		      keystr.size()) == 0) {
 
-	    DebugMsg(" found keys[" <<
-		     this_keystr.substr(keystr.size() + 1) <<
-		     "], value " << this_value << endl);
+	    DEBUGLINE(DB, " found keys[" <<
+		      this_keystr.substr(keystr.size() + 1) <<
+		      "], value " << this_value);
 	    keys[atoi(this_keystr.substr(keystr.size() + 1).data())] =
 		    OmKey(this_value);
 
 	    err_num = dbcurs->get(&dbkey, &dbdata, DB_NEXT);
-	    this_value = string(reinterpret_cast<char *>(dbdata.get_data()),
+	    this_value = std::string(reinterpret_cast<char *>(dbdata.get_data()),
 				dbdata.get_size());
-	    this_keystr = string(reinterpret_cast<char *>(dbkey.get_data()),
+	    this_keystr = std::string(reinterpret_cast<char *>(dbkey.get_data()),
 				 dbkey.get_size());
 	    free(dbdata.get_data());
 	}
@@ -186,7 +187,7 @@ SleepyDocument::do_get_all_keys() const
 	}
 	throw OmDatabaseError("Sleepycat database error, when reading keys "
 			      "from document " + om_tostring(did) + ": " +
-			      string(e.what()));
+			      std::string(e.what()));
     }
     return keys;
 }
@@ -208,13 +209,13 @@ SleepyDocument::do_get_data() const
 	    err_num = document_db->get(0, &dbkey, &dbdata, 0);
 	    if(err_num == DB_NOTFOUND) throw OmRangeError("Document not found");
 
-	    data.value = string(reinterpret_cast<char *>(dbdata.get_data()),
+	    data.value = std::string(reinterpret_cast<char *>(dbdata.get_data()),
 				dbdata.get_size());
 	    have_data = true;
 
 	    free(dbdata.get_data());
 	} catch (DbException e) {
-	    throw OmDatabaseError("DocumentDb error :" + string(e.what()));
+	    throw OmDatabaseError("DocumentDb error :" + std::string(e.what()));
 	}
     }
     return data;

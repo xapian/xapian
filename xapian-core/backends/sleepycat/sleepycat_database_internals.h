@@ -56,7 +56,7 @@ class SleepyDatabaseInternals {
 	~SleepyDatabaseInternals();
 
 	// open - FIXME - make this into the constructor.
-	void open(const string & pathname, bool readonly);
+	void open(const std::string & pathname, bool readonly);
 	void close();
 
 	om_doccount get_doccount() const;

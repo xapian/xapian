@@ -55,9 +55,10 @@ typedef om_doclength len_type;
  *  @param pos     The offset to start reading the type X at.
  */
 template<class X>
-static const X readentry(const string &packed, string::size_type & pos)
+static const X readentry(const std::string &packed,
+			 std::string::size_type & pos)
 {
-    string::size_type endpos = pos + sizeof(X) / sizeof(char);
+    std::string::size_type endpos = pos + sizeof(X) / sizeof(char);
 
     if(endpos > packed.length()) {
 	throw(OmDatabaseError("Database corrupt - unexpected end of item."));
@@ -72,7 +73,7 @@ static const X readentry(const string &packed, string::size_type & pos)
 
 SleepyListItem::SleepyListItem(id_type id_,
 			       om_termcount wdf_,
-			       const vector<om_termpos> & positions_,
+			       const std::vector<om_termpos> & positions_,
 			       om_doccount termfreq_,
 			       om_doclength doclength_)
 	: id(id_),
@@ -83,14 +84,14 @@ SleepyListItem::SleepyListItem(id_type id_,
 {
 }
 
-SleepyListItem::SleepyListItem(string packed,
+SleepyListItem::SleepyListItem(std::string packed,
 			       bool store_termfreq)
 	: id(0),
 	  wdf(0),
 	  termfreq(0),
 	  doclength(0)
 {
-    string::size_type pos = 0;
+    std::string::size_type pos = 0;
 
     id = readentry<id_type>(packed, pos);
     wdf = readentry<entry_type>(packed, pos);
@@ -99,7 +100,7 @@ SleepyListItem::SleepyListItem(string packed,
     }
     doclength = readentry<len_type>(packed, pos);
 
-    vector<om_termpos>::size_type positions_size;
+    std::vector<om_termpos>::size_type positions_size;
     positions_size = readentry<entry_type>(packed, pos);
 
     while(positions.size() < positions_size) {
@@ -108,10 +109,10 @@ SleepyListItem::SleepyListItem(string packed,
 }
 
 
-string
+std::string
 SleepyListItem::pack(bool store_termfreq) const
 {
-    string packed;
+    std::string packed;
     id_type idtemp;
     entry_type entrytemp;
     len_type lentemp;
@@ -133,7 +134,7 @@ SleepyListItem::pack(bool store_termfreq) const
     entrytemp = positions.size();
     packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
 
-    vector<om_termpos>::const_iterator i;
+    std::vector<om_termpos>::const_iterator i;
     for(i = positions.begin(); i != positions.end(); i++) {
 	entrytemp = *i;
 	packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
@@ -182,14 +183,14 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 	    Assert(found == 0); // Any other errors should cause an exception.
 
 	    // Unpack list
-	    string packed(reinterpret_cast<char *>(data.get_data()),
+	    std::string packed(reinterpret_cast<char *>(data.get_data()),
 			  data.get_size());
 	    unpack(packed);
 
 	    free(data.get_data());
 	}
     } catch (DbException e) {
-	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
+	throw OmDatabaseError("PostlistDb error:" + std::string(e.what()));
     }
 }
 
@@ -279,7 +280,7 @@ SleepyList::add_item(const SleepyListItem & newitem)
     // FIXME - actually get a lock
 
     make_entry(newitem);
-    DebugMsg("wdfsum(" << wdfsum << ") += newitem.wdf(" << newitem.wdf << ")" << endl);
+    DEBUGLINE(DB, "wdfsum(" << wdfsum << ") += newitem.wdf(" << newitem.wdf << ")");
     wdfsum += newitem.wdf;
 }
 
@@ -304,10 +305,10 @@ class SleepyListItemLess {
 void
 SleepyList::make_entry(const SleepyListItem & newitem)
 {
-    vector<SleepyListItem>::iterator p;
-    p = lower_bound(items.begin(), items.end(),
-		    newitem,
-		    SleepyListItemLess());
+    std::vector<SleepyListItem>::iterator p;
+    p = std::lower_bound(items.begin(), items.end(),
+			 newitem,
+			 SleepyListItemLess());
     if(p == items.end() || SleepyListItemLess()(newitem, *p)) {
         // An item with the specified ID is not in list yet - insert new one
 	items.insert(p, newitem);
@@ -318,9 +319,9 @@ SleepyList::make_entry(const SleepyListItem & newitem)
 }
 
 void
-SleepyList::unpack(string packed)
+SleepyList::unpack(std::string packed)
 {
-    string::size_type pos = 0;
+    std::string::size_type pos = 0;
     if(store_wdfsum) {
 	wdfsum = readentry<entry_type>(packed, pos);
     }
@@ -335,10 +336,10 @@ SleepyList::unpack(string packed)
     }
 }
 
-string
+std::string
 SleepyList::pack() const
 {
-    string packed;
+    std::string packed;
     entry_type temp;
 
     if(store_wdfsum) {
@@ -349,9 +350,9 @@ SleepyList::pack() const
     temp = items.size();
     packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
 
-    vector<SleepyListItem>::const_iterator i;
+    std::vector<SleepyListItem>::const_iterator i;
     for(i = items.begin(); i != items.end(); i++) {
-	string packeditem = i->pack(store_termfreq);
+	std::string packeditem = i->pack(store_termfreq);
 	temp = packeditem.size();
 	packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
 	packed.append(packeditem);
@@ -365,16 +366,16 @@ SleepyList::do_flush()
 {
     if(modified_and_locked) {
 	// Pack list
-	string packed = pack();
+	std::string packed = pack();
 	Dbt data(const_cast<char *>(packed.data()), packed.size());
 
 	try {
 	    // Write list
 	    int err_num = db->put(NULL, &key, &data, 0);
-	    if(err_num) throw OmDatabaseError(string("Database error:") +
+	    if(err_num) throw OmDatabaseError(std::string("Database error:") +
 					      strerror(err_num));
 	} catch (DbException e) {
-	    throw OmDatabaseError("Database error:" + string(e.what()));
+	    throw OmDatabaseError("Database error:" + std::string(e.what()));
 	}
 	modified_and_locked = false;
     }

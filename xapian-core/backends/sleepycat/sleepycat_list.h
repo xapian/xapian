@@ -72,7 +72,7 @@ class SleepyListItem {
 	 *  term might occur multiple times at a single position, but will
 	 *  only have one entry in the position list for each position.
 	 */
-	vector<om_termpos> positions;
+	std::vector<om_termpos> positions;
 
 	/** Term frequency of this item.
 	 *
@@ -103,7 +103,7 @@ class SleepyListItem {
 	 */
 	SleepyListItem(id_type id_,
 		       om_termcount wdf_,
-		       const vector<om_termpos> & positions_,
+		       const std::vector<om_termpos> & positions_,
 		       om_doccount termfreq_,
 		       om_doclength doclength_);
 
@@ -113,7 +113,7 @@ class SleepyListItem {
 	 *  @param store_termfreq  If true, term frequencies are assumed to
 	 *                         be stored in the packed list.
 	 */
-	SleepyListItem(string packed,
+	SleepyListItem(std::string packed,
 		       bool store_termfreq = true);
 
 	/** Return a packed representation of the item, for storing in
@@ -122,7 +122,7 @@ class SleepyListItem {
 	 *  @param store_termfreq  If true, term frequencies will be stored
 	 *                         in the packed list.
 	 */
-	string pack(bool store_termfreq) const;
+	std::string pack(bool store_termfreq) const;
 };
 
 /** A list of items which might comprise a termlist or a postlist,
@@ -154,11 +154,11 @@ class SleepyList {
 
 	/** Current position of iteration through the list.
 	 */
-	vector<SleepyListItem>::const_iterator iteration_position;
+	std::vector<SleepyListItem>::const_iterator iteration_position;
 
 	/** The items stored in the list.
 	 */
-	vector<SleepyListItem> items;
+	std::vector<SleepyListItem> items;
 
 	/** The sum of the wdfs of the items in the list.
 	 *
@@ -201,11 +201,11 @@ class SleepyList {
 
 	/** Unpack a string representation of this item into the item.
 	 */
-	void unpack(string packed);
+	void unpack(std::string packed);
 
 	/** Pack the contents of this item into a string.
 	 */
-	string pack() const;
+	std::string pack() const;
 
 	/// Copying is not allowed.
 	SleepyList(const SleepyList &);
