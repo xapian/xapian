@@ -100,9 +100,8 @@ print_alloc_differences(const struct allocation_snapshot &before,
 		allocation_data *allocdata = allocators[alloc].allocdata;
 		if (allocdata->allocations[i].p != 0) {
 		    out << std::hex;
-		    out << allocdata->allocations[i].p << "["
-			<< allocdata->allocations[i].size << "] "
-			<< "(" << allocdata->allocations[i].id << ") ";
+		    out << allocdata->allocations[i].p << "("
+			    << allocdata->allocations[i].size << ") ";
 		    out << std::dec;
 		}
 	    }
@@ -116,4 +115,22 @@ print_alloc_differences(const struct allocation_snapshot &before,
 		    << std::endl;
 	}
     }
+}
+
+/************ Functions for use of allocator functions **********/
+
+/** Register an allocator type to be used with leak detection. */
+void
+register_allocator(const char *name,
+		   struct allocation_data *allocdata)
+{
+    if (num_allocators >= max_allocators) {
+	std::cerr << "Tried to register allocator " << name
+		<< ", but there are no free slots." << std::endl;
+	return;
+    };
+//    std::cerr << "Registering allocator: " << name << std::endl;
+    allocators[num_allocators].name = name;
+    allocators[num_allocators].allocdata = allocdata;
+    num_allocators++;
 }

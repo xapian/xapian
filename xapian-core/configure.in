@@ -1,5 +1,4 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl AC_REQUIRE(...) ?
 AC_INIT(common/database.h)
 AC_CONFIG_AUX_DIR(autoconf)
 

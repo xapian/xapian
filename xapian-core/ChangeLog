@@ -1,3 +1,7 @@
+Thu Mar 15 17:06:51 GMT 2001 Olly Betts
+
+	* Oops, checked in too much - backing out the wrong stuff.
+
 Thu Mar 15 16:30:14 GMT 2001 Olly Betts
 
 	* Include autoconf/definedir.m4 in tarball.

@@ -141,23 +141,68 @@ test_driver::get_srcdir(const std::string & argv0)
     return srcdir;
 }
 
+/* Global data used by the overridden new and delete
+ * operators.
+ */
+/// true if we've registered this allocation data table
+static bool have_registered_allocator = false;
+
+/// The data about current allocations.
+static struct allocation_data allocdata = ALLOC_DATA_INIT;
+
+/* To help in tracking memory leaks, we can set a trap on a particular
+ * memory address being allocated (which would be from the leak reporting
+ * also provided by our operator new)
+ */
+/// The address to trap (or 0 for none)
+static void *new_trap_address = 0;
+/// Which one to trap (eg 1st, 2nd, etc.)
+static unsigned long new_trap_count = 0;
+
 /** Our overridden new and delete operators, which
  *  allow us to check for leaks.
+ *
+ *  FIXME: add handling of new[] and delete[]
  */
 void *operator new(size_t size) throw(std::bad_alloc) {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_lock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
+    if (!have_registered_allocator) {
+	register_allocator("new", &allocdata);
+	allocation_data *malloc_allocdata =
+		reinterpret_cast<allocation_data *>
+			(dlsym(RTLD_DEFAULT, "malloc_allocdata"));
+	if (malloc_allocdata) {
+	    register_allocator("malloc", malloc_allocdata);
+	}
+	have_registered_allocator = true;
+    }
     size_t real_size = (size > 0)? size : 1;
 
-    void *result = checked_malloc(real_size);
+    void *result = malloc(real_size);
+
+    if (new_trap_address != 0 &&
+        new_trap_address == result &&
+        new_trap_count != 0) {
+        --new_trap_count;
+	if (new_trap_count == 0) {
+            abort();
+        }
+    }
+
+    if (!result) {
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_unlock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
+	throw std::bad_alloc();
+    }
+
+    handle_allocation(&allocdata, result, real_size);
 
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
-
-    if (!result) throw std::bad_alloc();
-
     return result;
 }
 
@@ -174,7 +219,16 @@ void operator delete(void *p) throw() {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_lock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
-    if (p) checked_free(p, "deleting memory at %p which wasn't newed\n");
+    if (p) {
+	if (handle_deallocation(&allocdata, p) != alloc_ok) {
+	    fprintf(stderr,
+		    "deleting memory at %p which wasn't newed\n",
+		    p);
+	    abort();
+	}
+
+	free(p);
+    }
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
@@ -189,6 +243,19 @@ test_driver::test_driver(const test_desc *tests_)
 	  out(std::cout.rdbuf()),
 	  tests(tests_)
 {
+    // set up special handling to check for a particular allocation
+    const char *addr = getenv("OM_NEW_TRAP");
+    if (addr) {
+        new_trap_address = (void *)strtol(addr, 0, 16);
+        const char *count = getenv("OM_NEW_TRAP_COUNT");
+        if (count) {
+            new_trap_count = atol(count);
+	} else {
+  	    new_trap_count = 1;
+	}
+        DEBUGLINE(UNKNOWN, "new trap address set to " << new_trap_address);
+        DEBUGLINE(UNKNOWN, "new trap count set to " << new_trap_count);
+    }
 }
 
 //  A wrapper around the tests to trap exceptions,

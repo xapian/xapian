@@ -55,10 +55,14 @@ The testsuite library used in most of the test programs (apitest, internaltest,
 nettest) includes implementations of the C++ memory allocation operators
 (operator new/delete).  These help the testsuite to detect memory leaks.
 
-An environment variable can be used:
+Some environment variables can be used:
 
- o) set OM_ALLOC_TRAP to the allocation number of a memory block to
-    cause the program to dump core when that block is allocated.
+ o) set OM_NEW_TRAP to the hex value of an address to cause the program to
+    dump core when that address is allocated.
+ 
+ o) set OM_NEW_TRAP_COUNT to a number greater than 1 to cause the above
+    trap to happen at a later occurence of the allocation (ie 2nd, 3rd,
+    etc. time that address is allocated).
 
 These are most useful for tracking down memory leaks reported by the
 testsuite programs (use the "-v" command-line option) when gdb doesn't
@@ -109,10 +113,10 @@ before we can incorporate it: see the "legal" section of the website for
 details of this.  You are, of course, under no obligation to give a copyright
 assignment, but if you don't the patch will not be applied.
 
-We reserve the right to use only part of, or to modify, patches which have
+We reserve the right to use only part of, or to modify, patches which are
 submitted.  We will however do our best to give proper attribution to you.  In
 particular, if we have used patches from you, or received helpful reports or
-advice, we will add your name to the AUTHORS file - unless you specifically
+advice, we will add your name to the AUTHORS file; unless you specifically
 request us not to.  If you see we have forgotten to do this, please draw it to
 our attention so that we can sort it out.
 
