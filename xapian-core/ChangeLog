@@ -1,3 +1,7 @@
+Mon Dec 03 11:20:42 GMT 2001  Olly Betts <olly@survex.com>
+
+	* New BiasPostList - not yet enabled as it needs more work.
+
 Mon Dec 03 11:16:44 GMT 2001  Olly Betts <olly@survex.com>
 
 	* quartzdump: give syntax error if no tables specified.

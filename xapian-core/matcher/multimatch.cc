@@ -43,6 +43,7 @@
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "msetpostlist.h"
+#include "biaspostlist.h"
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
 #include "networkmatch.h"
@@ -300,6 +301,10 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     } else {
 	pl = new MergePostList(postlists, this, errorhandler);
     }
+
+#if 0 // FIXME : BiasPostList needs generalising and performance sorting out
+    pl = new BiasPostList(pl, db, new OmBiasFunctor(), this);
+#endif
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
