@@ -1,3 +1,8 @@
+Wed Nov 17 18:51:28 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index RTF documents with unrtf, if available.
+	* docs/overview.txt: Document this.
+
 Wed Nov 17 16:31:01 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If a filename to be passed to a filter program has a

@@ -491,6 +491,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "text/rtf") {
+	string cmd = "unrtf --nopict --text 2>/dev/null " +
+		     shell_protect(file) +
+		     "|sed '/^### .*/d'";
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else {
 	// Don't know how to index this
 	cout << "unknown MIME type - skipping\n";
@@ -674,6 +684,7 @@ main(int argc, char **argv)
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
     mime_map["doc"] = "application/msword";
     mime_map["wpd"] = "application/vnd.wordperfect";
+    mime_map["rtf"] = "text/rtf";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
