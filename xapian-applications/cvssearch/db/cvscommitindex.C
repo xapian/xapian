@@ -89,7 +89,7 @@ char *stopList[] = {
   "float",
   "for",
   "friend",
-  "goto",
+  //"goto", // want goto dialog to work
   "if",
   "inline",
   "int",
