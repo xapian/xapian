@@ -1,3 +1,8 @@
+Thu Oct 21 01:35:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Use more idiomatic (and less
+	  idiotic) Tcl thanks to contributions from Michael Schlenker.
+
 Wed Oct 20 05:29:57 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simplesearch.tcl: Sussed out what Query::OP_OR

@@ -1,6 +1,8 @@
+#!/usr/bin/env tclsh
 # Simple command-line search program
 #
 # Copyright (C) 2004 Olly Betts
+# Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,10 +19,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-# FIXME : path to xapian.so...
+# We need at least Tcl version 8
+package require Tcl 8
+
+# FIXME: sort out pkgIndex.tcl and then use something like:
+# lappend auto_path /path/to/xapian/lib/with/the/package
+# package require xapian 0.83
 load [file join "../../.libs" xapian.so]
 
-if {$argc < 2} {
+if {[llength $argv] < 2} {
     puts "usage: $argv0 <path to database> <search terms>"
     exit 1
 }
@@ -30,23 +37,24 @@ if {[catch {
 
     xapian::Enquire enquire $database
     xapian::Stem stemmer "english"
+
     xapian::Query firstterm [stemmer stem_word [lindex $argv 1]]
-    set query firstterm
-    for {set i 2} {$i < $argc} {incr i} {
-	xapian::Query nextterm [stemmer stem_word [lindex $argv $i]]
-	xapian::Query newquery $Query_OP_OR $query nextterm
-	set query newquery
+    set query firstterm 
+    foreach term [lrange $argv 2 end] {
+        xapian::Query nextterm [stemmer stem_word $term]
+        xapian::Query newquery $Query_OP_OR $query nextterm
+        set query newquery
     }
     puts "Performing query `[$query get_description]'"
 
     enquire set_query $query
     set matches [enquire get_mset 0 10]
     puts "[$matches get_matches_estimated] results found"
-    set i [$matches begin]
-    while { ! [$i equals [$matches end]] } {
-	xapian::Document document [$i get_document]
-	puts "ID [$i get_docid] [$i get_percent]% \[[document get_data]\]"
-	$i next
+
+    for {set i [$matches begin]} {![$i equals [$matches end]]} {$i next} {
+        xapian::Document document [$i get_document]
+        puts [format {ID %s %s%% [%s]} \
+            [$i get_docid] [$i get_percent] [document get_data]]
     }
 } exception]} {
     puts stderr "Exception: $exception"
