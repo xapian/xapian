@@ -31,13 +31,10 @@
 #include "rset.h"
 #include "omdebug.h"
 
-TradWeight::TradWeight(const OmSettings & opts)
+TradWeight::TradWeight(double param_k_) : param_k(param_k_)
 {
-    DEBUGCALL(MATCH, void, "TradWeight", opts);
-    param_k = opts.get_real("tradweight_k", 1);
-    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
+    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be >= 0");
 }
-
 
 // Calculate weights using statistics retrieved from databases
 void

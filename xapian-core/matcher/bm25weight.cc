@@ -106,7 +106,7 @@ om_weight
 BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
     DEBUGCALL(MATCH, om_weight, "BM25Weight::get_sumpart", wdf << ", " << len);
-    if(!weight_calculated) calc_termweight();
+    if (!weight_calculated) calc_termweight();
 
     om_doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;

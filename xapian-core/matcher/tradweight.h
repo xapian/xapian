@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,9 +43,9 @@ class TradWeight : public IRWeight {
 		{}
     public:
 	IRWeight * create(const OmSettings &opts) const	{
-	    return new TradWeight(opts);
+	    return new TradWeight(opts.get_real("param_k"));
 	}
-	TradWeight(const OmSettings & opts);
+	TradWeight(double param_k_);
 	~TradWeight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;

@@ -1,3 +1,8 @@
+Mon Dec 02 18:10:55 GMT 2002  Olly Betts <olly@survex.com>
+
+	* matcher/bm25weight.cc,matcher/irweight.cc,matcher/tradweight.cc,
+	  matcher/tradweight.h: Started to rework weighting scheme code.
+
 Mon Dec 02 17:36:21 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omdatabaseinternal.cc,backends/quartz/quartz_table_manager.cc:

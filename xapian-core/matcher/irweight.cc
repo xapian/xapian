@@ -30,7 +30,9 @@
 #include "bm25weight.h"
 #include "boolweight.h"
 
-std::map<std::string, const IRWeight *> IRWeight::custom_weights;
+using namespace std;
+
+map<string, const IRWeight *> IRWeight::custom_weights;
 
 IRWeight *
 IRWeight::create_new(const OmSettings & opts)
@@ -38,27 +40,26 @@ IRWeight::create_new(const OmSettings & opts)
     DEBUGCALL_STATIC(MATCH, IRWeight *, "IRWeight::create_new", opts);
     IRWeight * weight = NULL;
 
-    const std::string wt_type = opts.get("match_weighting_scheme", "bm25");
+    const string wt_type = opts.get("match_weighting_scheme", "bm25");
 
     if (wt_type.empty() || wt_type.at(0) != 'x') {
 	// Create weight of correct type
 	if (wt_type == "bm25") {
 	    weight = new BM25Weight(opts);
 	} else if (wt_type == "trad") {
-	    weight = new TradWeight(opts);	
+	    weight = new TradWeight(opts.get_real("param_k"));
 	} else if (wt_type == "bool") {
 	    weight = new BoolWeight();
 	} else {
 	    throw OmInvalidArgumentError("Unknown weighting scheme");
-	}	
+	}
     } else {
 	// handle custom weights
-	std::map<std::string, const IRWeight *>::iterator i;
+	map<string, const IRWeight *>::iterator i;
 	i = custom_weights.find(wt_type);
 	if (i == custom_weights.end()) {
-	    // FIXME: is this really the right error?
-	    throw OmOpeningError("Unknown custom weighting scheme `" +
-				 wt_type + "'");
+	    throw OmInvalidArgumentError("Unknown custom weighting scheme `" +
+					 wt_type + "'");
 	}
 	weight = i->second->create(opts);
     }
@@ -70,7 +71,7 @@ IRWeight::create_new(const OmSettings & opts)
 }
 
 void
-IRWeight::register_custom(const std::string &wt_type, const IRWeight *wt)
+IRWeight::register_custom(const string &wt_type, const IRWeight *wt)
 {
     DEBUGCALL_STATIC(MATCH, void, "IRWeight::register_custom", wt_type << ", " << wt);
     Assert(wt);
@@ -78,5 +79,5 @@ IRWeight::register_custom(const std::string &wt_type, const IRWeight *wt)
 	throw OmInvalidArgumentError("Custom weighting scheme names must start with `x'");
     }
 
-    custom_weights.insert(std::make_pair(wt_type, wt));
+    custom_weights.insert(make_pair(wt_type, wt));
 }
