@@ -56,7 +56,7 @@ class OmTermListIterator {
 	 */
 	void operator=(const OmTermListIterator &other);
 
-	const om_termname operator *() const;
+	om_termname operator *() const;
 
 	OmTermListIterator & operator++();
 

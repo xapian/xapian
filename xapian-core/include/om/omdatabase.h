@@ -170,6 +170,11 @@ class OmDatabase {
 
 	om_doclength get_doclength(om_docid did) const;
 
+	/** Get a document from the database.
+	 *  FIXME: document more.
+	 */
+	OmDocument get_document(om_docid did) const;
+
 	bool term_exists(const om_termname & tname) const;
 };
 
@@ -472,11 +477,6 @@ class OmWritableDatabase : public OmDatabase {
 	 */
 	void replace_document(om_docid did, const OmDocument & document,
 			      om_timeout timeout = 0);
-
-	/** Get a document from the database.
-	 *  FIXME: document more.
-	 */
-	OmDocument get_document(om_docid did) const;
 
 	/** Returns a string representing the database object.
 	 *  Introspection method.

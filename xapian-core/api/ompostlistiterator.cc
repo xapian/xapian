@@ -55,7 +55,7 @@ OmPostListIterator::operator=(const OmPostListIterator &other)
     delete newinternal;
 }
 
-const om_docid
+om_docid
 OmPostListIterator::operator *() const
 {
     DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");

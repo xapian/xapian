@@ -55,7 +55,10 @@ class OmKeyListIterator {
 	void operator++(int);
 
 	/// Get the OmKey for the current position
-	OmKey operator *() const;
+	const OmKey & operator *() const;
+
+	/// Get the OmKey for the current position
+	const OmKey * operator ->() const;
 
 	/// Get the number of the key at the current position
         om_keyno get_keyno() const;

@@ -30,8 +30,8 @@ OmPositionListIterator::~OmPositionListIterator()
     DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
 }
 
-const om_termpos
-OmPositionListIterator::operator *()
+om_termpos
+OmPositionListIterator::operator *() const
 {
     DEBUGAPICALL(om_termpos, "OmPositionListIterator::operator*", "");
     RETURN(internal->positionlist->get_position());

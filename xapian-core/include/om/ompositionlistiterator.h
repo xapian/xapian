@@ -52,7 +52,7 @@ class OmPositionListIterator {
 
 	OmPositionListIterator operator=(OmPositionListIterator &o);
 
-	const om_termpos operator *();
+	om_termpos operator *() const;
 
 	OmPositionListIterator & operator++();
 

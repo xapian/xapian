@@ -52,11 +52,18 @@ OmKeyListIterator::operator=(const OmKeyListIterator &other)
     delete newinternal;
 }
 
-OmKey
+const OmKey &
 OmKeyListIterator::operator *() const
 {
     DEBUGAPICALL(OmKey, "OmKeyListIterator::operator*", "");
     RETURN(internal->it->second);
+}
+
+const OmKey *
+OmKeyListIterator::operator ->() const
+{
+    DEBUGAPICALL(OmKey, "OmKeyListIterator::operator->", "");
+    RETURN(&(internal->it->second));
 }
 
 OmKeyListIterator &

@@ -1008,84 +1008,79 @@ static bool test_adddoc2()
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
+	OmWritableDatabase database(settings);
 
-	TEST_EQUAL(database->get_doccount(), 0);
-	TEST_EQUAL(database->get_avlength(), 0);
+	TEST_EQUAL(database.get_doccount(), 0);
+	TEST_EQUAL(database.get_avlength(), 0);
 
-	did = database->add_document(document_in);
-	TEST_EQUAL(database->get_doccount(), 1);
-	TEST_EQUAL(database->get_avlength(), 3);
+	did = database.add_document(document_in);
+	TEST_EQUAL(database.get_doccount(), 1);
+	TEST_EQUAL(database.get_avlength(), 3);
 
-	TEST_EQUAL(database->get_termfreq("foobar"), 1);
-	TEST_EQUAL(database->get_collection_freq("foobar"), 2);
-	TEST_EQUAL(database->get_termfreq("rising"), 1);
-	TEST_EQUAL(database->get_collection_freq("rising"), 1);
-	TEST_EQUAL(database->get_termfreq("falling"), 0);
-	TEST_EQUAL(database->get_collection_freq("falling"), 0);
+	TEST_EQUAL(database.get_termfreq("foobar"), 1);
+	TEST_EQUAL(database.get_collection_freq("foobar"), 2);
+	TEST_EQUAL(database.get_termfreq("rising"), 1);
+	TEST_EQUAL(database.get_collection_freq("rising"), 1);
+	TEST_EQUAL(database.get_termfreq("falling"), 0);
+	TEST_EQUAL(database.get_collection_freq("falling"), 0);
 
-	om_docid did2 = database->add_document(document_in2);
-	TEST_EQUAL(database->get_doccount(), 2);
+	om_docid did2 = database.add_document(document_in2);
+	TEST_EQUAL(database.get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
-	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
 
-	TEST_EQUAL(database->get_termfreq("foobar"), 2);
-	TEST_EQUAL(database->get_collection_freq("foobar"), 3);
-	TEST_EQUAL(database->get_termfreq("rising"), 1);
-	TEST_EQUAL(database->get_collection_freq("rising"), 1);
-	TEST_EQUAL(database->get_termfreq("falling"), 1);
-	TEST_EQUAL(database->get_collection_freq("falling"), 1);
+	TEST_EQUAL(database.get_termfreq("foobar"), 2);
+	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
+	TEST_EQUAL(database.get_termfreq("rising"), 1);
+	TEST_EQUAL(database.get_collection_freq("rising"), 1);
+	TEST_EQUAL(database.get_termfreq("falling"), 1);
+	TEST_EQUAL(database.get_collection_freq("falling"), 1);
 
-	database->delete_document(did);
-	TEST_EQUAL(database->get_doccount(), 1);
-	TEST_EQUAL(database->get_avlength(), 2);
+	database.delete_document(did);
+	TEST_EQUAL(database.get_doccount(), 1);
+	TEST_EQUAL(database.get_avlength(), 2);
 
-	TEST_EQUAL(database->get_termfreq("foobar"), 1);
-	TEST_EQUAL(database->get_collection_freq("foobar"), 1);
-	TEST_EQUAL(database->get_termfreq("rising"), 0);
-	TEST_EQUAL(database->get_collection_freq("rising"), 0);
-	TEST_EQUAL(database->get_termfreq("falling"), 1);
-	TEST_EQUAL(database->get_collection_freq("falling"), 1);
+	TEST_EQUAL(database.get_termfreq("foobar"), 1);
+	TEST_EQUAL(database.get_collection_freq("foobar"), 1);
+	TEST_EQUAL(database.get_termfreq("rising"), 0);
+	TEST_EQUAL(database.get_collection_freq("rising"), 0);
+	TEST_EQUAL(database.get_termfreq("falling"), 1);
+	TEST_EQUAL(database.get_collection_freq("falling"), 1);
 
-	did = database->add_document(document_in);
-	TEST_EQUAL(database->get_doccount(), 2);
-	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
+	did = database.add_document(document_in);
+	TEST_EQUAL(database.get_doccount(), 2);
+	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
 
-	TEST_EQUAL(database->get_termfreq("foobar"), 2);
-	TEST_EQUAL(database->get_collection_freq("foobar"), 3);
-	TEST_EQUAL(database->get_termfreq("rising"), 1);
-	TEST_EQUAL(database->get_collection_freq("rising"), 1);
-	TEST_EQUAL(database->get_termfreq("falling"), 1);
-	TEST_EQUAL(database->get_collection_freq("falling"), 1);
+	TEST_EQUAL(database.get_termfreq("foobar"), 2);
+	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
+	TEST_EQUAL(database.get_termfreq("rising"), 1);
+	TEST_EQUAL(database.get_collection_freq("rising"), 1);
+	TEST_EQUAL(database.get_termfreq("falling"), 1);
+	TEST_EQUAL(database.get_collection_freq("falling"), 1);
     }
 
-#if 0 // FIXME: get this working
     {
 	settings.set("quartz_logfile", tmpdir + "log_adddoc2_ro");
-	// FIXME: need to get_document from OmDatabase
-	RefCntPtr<Database> database = DatabaseBuilder::create(settings, true);
-	OmDocument document_out = database->get_document(did);
+	OmDatabase database(settings);
+	OmDocument document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.get_data().value, document_out.get_data().value);
-	// FIXME: recode these to use OmKeyListIterator and OmTermListIterator
-	TEST_EQUAL(document_in.keys.size(), document_out.keys.size());
-	TEST_EQUAL(document_in.terms.size(), document_out.terms.size());
 
 	{
-	    OmDocument::document_keys::const_iterator i,j;
-	    for (i = document_in.keys.begin(), j = document_out.keys.begin();
-		 i != document_in.keys.end();
-		 i++, j++) {
-		TEST_EQUAL(i->first, j->first);
-		TEST_EQUAL(i->second.value, j->second.value);
+	    OmKeyListIterator i(document_in.keylist_begin());
+	    OmKeyListIterator j(document_out.keylist_begin());
+	    for (; i != document_in.keylist_end(); i++, j++) {
+		TEST(j != document_out.keylist_end());
+		TEST_EQUAL(i->value, j->value);
+		TEST_EQUAL(i.get_keyno(), j.get_keyno());
 	    }
 	}
 	{
-	    std::map<om_termname, OmDocumentTerm>::const_iterator i,j;
-	    for (i = document_in.terms.begin(), j = document_out.terms.begin();
-		 i != document_in.terms.end();
-		 i++, j++) {
-		TEST_EQUAL(i->first, j->first);
+	    OmTermListIterator i(document_in.termlist_begin());
+	    OmTermListIterator j(document_out.termlist_begin());
+	    for (; i != document_in.termlist_end(); i++, j++) {
+		TEST(j != document_out.termlist_end());
+		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i->second.tname, j->second.tname);
 		TEST_EQUAL(i->second.wdf, j->second.wdf);
 		TEST_NOT_EQUAL(i->second.termfreq, j->second.termfreq);
@@ -1111,7 +1106,6 @@ static bool test_adddoc2()
 	    }
 	}
     }
-#endif
 
     return true;
 }

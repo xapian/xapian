@@ -1,3 +1,12 @@
+Thu Dec  7 17:27:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Moved get_document() from OmWritableDatabase to OmDatabase.
+
+	* Added -> operator to OmKeyListIterator.  Fixed return values
+	  and constness of Om*Iterator::operator *() methods.
+
+	* Some fixes to quartztest.cc, but not enough to get it compiling.
+
 Thu Dec 07 16:21:28 GMT 2000 Olly Betts
 
 	* Some work on getting quartztest working.

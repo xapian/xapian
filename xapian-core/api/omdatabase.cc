@@ -228,6 +228,23 @@ OmDatabase::get_doclength(om_docid did) const
     RETURN(internal->databases[dbnumber]->get_doclength(realdid));
 }
 
+OmDocument
+OmDatabase::get_document(om_docid did) const
+{
+    DEBUGAPICALL(OmDocument, "OmDatabase::get_document", did);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
+
+    unsigned int multiplier = internal->databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[dbnumber];
+
+    RETURN(OmDocument(new OmDocument::Internal(database->open_document(realdid),
+					       *this, did)));
+}
+
 bool
 OmDatabase::term_exists(const om_termname & tname) const
 {
@@ -362,16 +379,6 @@ OmWritableDatabase::replace_document(om_docid did, const OmDocument & document,
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Database> database = internal->databases[0];
     database->replace_document(did, document, timeout);
-}
-
-OmDocument
-OmWritableDatabase::get_document(om_docid did) const
-{
-    DEBUGAPICALL(OmDocument, "OmWritableDatabase::get_document", did);
-    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    RETURN(OmDocument(new OmDocument::Internal(database->open_document(did), *this, did)));
 }
 
 std::string

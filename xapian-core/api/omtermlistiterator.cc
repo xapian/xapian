@@ -53,7 +53,7 @@ OmTermListIterator::operator=(const OmTermListIterator &other)
     delete newinternal;
 }
 
-const om_termname
+om_termname
 OmTermListIterator::operator *() const
 {
     DEBUGAPICALL(om_termname, "OmTermListIterator::operator*", "");
