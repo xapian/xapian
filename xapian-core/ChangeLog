@@ -1,3 +1,7 @@
+Tue Oct 17 12:58:48 BST 2000 Olly Betts
+
+	* If OM_DEBUG_FILE contains %%, substitute the process id.
+
 Tue Oct 17 12:56:56 BST 2000 Olly Betts
 
 	* tests/.cvsignore: added indextest.

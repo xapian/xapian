@@ -34,6 +34,7 @@ OmDebug om_debug;
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string>
 #include <fstream>
 
@@ -64,8 +65,15 @@ OmDebug::~OmDebug()
 void
 OmDebug::open_output()
 {
-    char * filename = getenv(OM_ENV_DEBUG_FILE);
+    const char * filename = getenv(OM_ENV_DEBUG_FILE);
     if (filename != 0) {
+	std::string s;
+	const char *p = strstr(filename, "%%");
+	if (p) {
+	    s = std::string(filename, p) + om_tostring(getpid()) + std::string(p + 2);
+	    filename = s.c_str();
+	}
+	    
 	outfile = fopen(filename, "w");
 	if (outfile == 0) {
 	    fprintf(stderr, "Can't open requested debug file `%s' using stderr.\n",
