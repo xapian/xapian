@@ -20,18 +20,6 @@ AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
 AC_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
-dnl Checks for gtk / glib / glade
-build_gui=yes
-AM_PATH_GTK(1.2.0, , build_gui=no)
-AM_PATH_GLIB(1.2.0, , build_gui=no)
-AM_PATH_LIBGLADE(, build_gui=no)
-if test "X$build_gui" = Xyes; then
- GUI_SUBDIR=gui
-else
- GUI_SUBDIR=
-fi
-AC_SUBST(GUI_SUBDIR)
-
 dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
 AC_CHECK_LIB(db, db_open, :)
@@ -199,6 +187,4 @@ AC_OUTPUT(
  include/Makefile
  docs/Makefile
  docs/mkdoc.pl
- tests/Makefile
- gui/Makefile
- gui/glade/Makefile)
+ tests/Makefile)
