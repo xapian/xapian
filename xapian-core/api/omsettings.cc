@@ -23,9 +23,12 @@
 #include "config.h"
 #include "omlocks.h"
 #include "omrefcnt.h"
+#include "omdebug.h"
 #include "om/omsettings.h"
+#include "utils.h"
 #include <map>
 #include <string>
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////
 // OmSettings ref-counted data
@@ -130,17 +133,13 @@ OmSettings::set(const string &key, const char *value)
 void
 OmSettings::set(const string &key, int value)
 {
-    char buf[64];
-    sprintf(buf, "%d", value);
-    internal->set(key, string(buf));
+    internal->set(key, om_tostring(value));
 }
 
 void
 OmSettings::set(const string &key, double value)
 {
-    char buf[64];
-    sprintf(buf, "%20g", value);
-    internal->set(key, string(buf));
+    internal->set(key, om_tostring(value));
 }
 
 void

@@ -75,7 +75,7 @@ std::string
 om_tostring(double val)
 {
     char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%f", val);
+    int len = snprintf(buf, BUFSIZE, "%20g", val);
     if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
     return std::string(buf, len);
 }

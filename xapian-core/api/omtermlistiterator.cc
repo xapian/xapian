@@ -23,7 +23,7 @@
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "termlist.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 OmTermListIterator::~OmTermListIterator() { }
 

@@ -23,7 +23,7 @@
 #include "om/ompositionlistiterator.h"
 #include "ompositionlistiteratorinternal.h"
 #include "positionlist.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 OmPositionListIterator::~OmPositionListIterator() { }
 

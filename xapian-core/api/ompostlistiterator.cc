@@ -25,7 +25,7 @@
 #include "ompostlistiteratorinternal.h"
 #include "ompositionlistiteratorinternal.h"
 #include "postlist.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 OmPostListIterator::~OmPostListIterator() { }
 
