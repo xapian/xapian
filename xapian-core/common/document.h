@@ -48,7 +48,7 @@ class Document : public RefCntBase {
 
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;
-	/// The virtual implementation of get_key().
+	/// The virtual implementation of get_all_keys().
 	virtual std::map<om_keyno, OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
 	virtual OmData do_get_data() const = 0;
