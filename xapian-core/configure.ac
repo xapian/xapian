@@ -571,11 +571,12 @@ AC_OUTPUT
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
 [MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"]
 dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
-rm -f _xaptmp.cc
-ln -s $srcdir/include/xapian/version.h.in _xaptmp.cc
+tmpfile=_versionh.cc
+rm -f $tmpfile
+ln -s $srcdir/include/xapian/version.h.in $tmpfile
 test -d include/xapian || mkdir include/xapian
-$CXXCPP -DVERSION="$VERSION" -DMAJOR_VERSION="$MAJOR_VERSION" -DMINOR_VERSION="$MINOR_VERSION" _xaptmp.cc|sed '/^# /d;/^ *$/d;s/^%$//;s/  */ /g;s!^% !// !;s/^%/#/;s/%/__/g' > include/xapian/version.h.tmp
-rm -f _xaptmp.cc
+$CXXCPP -DVERSION="$VERSION" -DMAJOR_VERSION="$MAJOR_VERSION" -DMINOR_VERSION="$MINOR_VERSION" $tmpfile|sed 's/^ *//;/^#/d;/^$/d;s/^%$//;s/  */ /g;s!%%!//!;s/^%/#/;s/%/__/g' > include/xapian/version.h.tmp
+rm -f $tmpfile
 if cmp include/xapian/version.h.tmp include/xapian/version.h >/dev/null 2>&1
 then
   rm include/xapian/version.h.tmp

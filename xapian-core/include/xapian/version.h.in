@@ -1,27 +1,26 @@
-% version.h: check the compiler C++ ABI version is compatible with that used
-% to build the library, and also define preprocessor symbols for the library
-% version.
-% 
-% Copyright 2002,2004 Olly Betts
-% 
-% This program is free software; you can redistribute it and/or
-% modify it under the terms of the GNU General Public License as
-% published by the Free Software Foundation; either version 2 of the
-% License, or (at your option) any later version.
-% 
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with this program; if not, write to the Free Software
-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-% USA
+%% version.h: check the compiler C++ ABI version is compatible with that used
+%% to build the library, and also define preprocessor symbols for the library
+%% version.
+%% 
+%% Copyright 2002,2004 Olly Betts
+%% 
+%% This program is free software; you can redistribute it and/or
+%% modify it under the terms of the GNU General Public License as
+%% published by the Free Software Foundation; either version 2 of the
+%% License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with this program; if not, write to the Free Software
+%% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+%% USA
 %
 %ifndef XAPIAN_INCLUDED_VERSION_H
 %define XAPIAN_INCLUDED_VERSION_H 
-%
 #ifdef __GNUC__
 // When building the library with GCC, generate preprocessor code to check that
 // any version of GCC used to build applications has a matching C++ ABI. This
@@ -43,6 +42,7 @@
 #define J2(A,B) g++ A##.##B
 #define V3(A,B,C) J3(A,B,C)
 #define J3(A,B,C) g++ A##.##B##.##C
+%
 %ifdef %GNUC%
 #ifdef __GXX_ABI_VERSION
 // GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
