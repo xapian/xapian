@@ -6,6 +6,7 @@ TESTS_ENVIRONMENT = $(TCLSH)
 TESTS = smoketest.tcl
 
 EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
+SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@
 

@@ -1,3 +1,9 @@
+Wed Dec 01 16:11:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am,tcl8/docs/Makefile.am,
+	  tcl8/docs/examples/Makefile.am: Ship and install docs and examples
+	  for tcl8 bindings.
+
 Wed Dec 01 15:41:56 GMT 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Distribute xapian-bindings.spec.in.
