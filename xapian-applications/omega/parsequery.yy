@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,17 +103,12 @@ prob:	  term		{ $$ = $1; }
 ;
 
 term:	  TERM		{ $$ = $1; }
-	| TERM NEAR TERM{ vector<OmQuery> v;
-	                  v.push_back($1.q);
-	                  v.push_back($3.q);
-			  $$ = U(OmQuery(OmQuery::OP_NEAR, v.begin(), v.end()));
-			  $$.q.set_window(11); }
 	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
 	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| '{' phrase '}'{ $$ = U(OmQuery(OmQuery::OP_NEAR, $2.v.begin(), $2.v.end()));
-			  $$.q.set_window($2.v.size()); }
+	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size() + 9); }
 ;
 
 phrase:	  TERM		{ $$.v.push_back($1.q); }
@@ -121,6 +117,10 @@ phrase:	  TERM		{ $$.v.push_back($1.q); }
 
 hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 	| hypphr HYPHEN TERM	{ $$ = $1; $$.v.push_back($3.q); }
+;
+
+nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
+	| nearphr NEAR TERM	{ $$ = $1; $$.v.push_back($3.q); }
 ;
 
 %%
