@@ -1,3 +1,7 @@
+Tue Aug  1 19:05:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Testsuite displays addresses in hex.
+
 Tue Aug  1 18:16:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Hacked libtool (actually ltconfig) to support building under

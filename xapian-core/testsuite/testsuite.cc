@@ -261,8 +261,10 @@ test_driver::runtest(const test_desc *test)
 			<< " extra allocations not freed: ";
 		for (int i=old_bound; i<after_bound; ++i) {
 		    if (new_allocations[i].p != 0) {
+			out << hex << showbase;
 			out << new_allocations[i].p << "("
 				<< new_allocations[i].size << ") ";
+			out << dec << noshowbase;
 		    }
 		}
 		out << std::endl;
