@@ -742,7 +742,9 @@ bool Lines::ReadNextLine() {
 	delete in_code;
       }
       if ( path != "" ) {
+	//	cerr << "Opening " << path << "/" << current_fn << endl;
 	in_code = new ifstream( (path + "/"  + current_fn).c_str() );
+	assert( *in_code );
       }
       
     }
@@ -781,8 +783,10 @@ bool Lines::ReadNextLine() {
       //////////////// now read code symbols
       line = "";
       getline( *in_code, line, '\n' );
+      //      cerr <<"Just read -" << line << "-" << endl;
       code_line = line;
       extractSymbols( line );
+      //      cerr << "...extracted # symbols = " << symbols.size() << endl;
     }
 
   } while (!changedFiles && granularity != "line" );
