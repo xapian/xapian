@@ -506,7 +506,9 @@ string
 OmEnquireInternal::get_description() const
 {
     string description;
-    description = database->get_description();
+    /// \todo get description of the database
+    //description = database->get_description();
+    description = "Database()";
     if (query != 0) {
 	description += ", " + query->get_description();
     }
