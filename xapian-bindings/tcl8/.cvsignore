@@ -4,3 +4,4 @@ Makefile.in
 Makefile
 .deps
 .libs
+xapian_wrap.cc

@@ -1,3 +1,7 @@
+Wed Sep 08 04:49:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore: Ignore generated xapian_wrap.cc.
+
 Wed Sep 08 04:15:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,guile/Makefile.am,java/native/Makefile.am,
@@ -188,27 +192,27 @@ Thu May 13 10:41:29 BST 2004  Olly Betts <olly@survex.com>
 
 Wed May 12 01:52:44 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * configure.in: Revert "test -x" to "test -n", and change
-          previously extant "test -x" to "test -r": test -x isn't
-          portable.
+	* configure.in: Revert "test -x" to "test -n", and change
+	  previously extant "test -x" to "test -r": test -x isn't
+	  portable.
 
 Tue May 11 20:04:36 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * configure.in: Use $PYTHON instead of python when running python
-          to determine and library and include paths and version number.
-          Also, change tests for non-zeroness of interpreter paths to tests
-          for existence and executability of interpreter paths: this is
-          relevant if configure is passed an interpreter path by the user
-          which doesn't exist (as my debian packaging makefile just did).
+	* configure.in: Use $PYTHON instead of python when running python
+	  to determine and library and include paths and version number.
+	  Also, change tests for non-zeroness of interpreter paths to tests
+	  for existence and executability of interpreter paths: this is
+	  relevant if configure is passed an interpreter path by the user
+	  which doesn't exist (as my debian packaging makefile just did).
 
 Tue May 11 18:06:06 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * guile/Makefile.am,php4/Makefile.am,python/Makefile.am,
-          tcl8/Makefile.am: Add "-I/usr/include" to the swig line.  This is
-          needed when xapian is installed with a prefix of /usr, since
-          "xapian-config --cxxflags" assumes that it doesn't need to emit
-          -I/usr/include in this situation (presumably on the basis that
-          any sane C compiler will already have that on its path).
+	* guile/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Add "-I/usr/include" to the swig line.  This is
+	  needed when xapian is installed with a prefix of /usr, since
+	  "xapian-config --cxxflags" assumes that it doesn't need to emit
+	  -I/usr/include in this situation (presumably on the basis that
+	  any sane C compiler will already have that on its path).
 
 Tue Apr 20 03:20:22 BST 2004  Olly Betts <olly@survex.com>
 
