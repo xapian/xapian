@@ -21,33 +21,36 @@
  */
 
 #include "om/om.h"
+#include <vector>
 
 class BackendManager {
     private:
 	/// The type of a get_database member function
-	typedef OmDatabase (BackendManager::*getdb_func)(const string &dbname1,
-							 const string &dbname2);
+	typedef OmDatabase (BackendManager::*getdb_func)
+			   (const vector<string> &dbnames);
+
 	/// The current get_database member function
 	getdb_func do_getdb;
 
 	/// The current data directory
 	string datadir;
 
+	/// Change names of databases into paths to them, within the datadir
+	vector<string>
+		change_names_to_paths(const vector<string> &dbnames);
+
+
 	/// Throw an exception.
-	OmDatabase getdb_void(const string &dbname1,
-			      const string &dbname2);
+	OmDatabase getdb_void(const vector<string> &dbnames);
 
 	/// Get a net database instance
-	OmDatabase getdb_net(const string &dbname1,
-			     const string &dbname2);
+	OmDatabase getdb_net(const vector<string> &dbnames);
 
 	/// Get an inmemory database instance.
-	OmDatabase getdb_inmemory(const string &dbname1,
-				  const string &dbname2);
+	OmDatabase getdb_inmemory(const vector<string> &dbnames);
 
 	/// Get a sleepy database instance.
-	OmDatabase getdb_sleepy(const string &dbname1,
-				const string &dbname2);
+	OmDatabase getdb_sleepy(const vector<string> &dbnames);
     public:
 	/// Constructor - set up default state.
 	BackendManager() : do_getdb(&getdb_void) {};
@@ -64,6 +67,9 @@ class BackendManager {
 	void set_datadir(const string &datadir_);
 
 	/// Get a database instance of the current type
+	OmDatabase get_database(const vector<string> &dbnames);
+
+	/// Get a database instance from individually named databases
 	OmDatabase get_database(const string &dbname1,
-				const string &dbname2);
+				const string &dbname2 = "");
 };

@@ -135,20 +135,34 @@ BackendManager::set_datadir(const string &datadir_)
 }
 
 OmDatabase
-BackendManager::getdb_void(const string &, const string &)
+BackendManager::getdb_void(const vector<string> &)
 {
     throw OmInvalidArgumentError("Attempted to open a disabled database");
 }
 
+vector<string>
+BackendManager::change_names_to_paths(const vector<string> &dbnames)
+{
+    vector<string> paths;
+    for(vector<string>::const_iterator i = dbnames.begin();
+	i != dbnames.end();
+	i++) {
+	if (i->length() > 0) {
+	    if(datadir.size() == 0) {
+		paths.push_back(*i);
+	    } else {
+		paths.push_back(datadir + "/" + *i + ".txt");
+	    }
+	}
+    }
+    return paths;
+}
+
 OmDatabase
-BackendManager::getdb_inmemory(const string &dbname1,
-					  const string &dbname2)
+BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
     OmWritableDatabase db("inmemory", make_strvec());
-    index_file_to_database(db, datadir + "/" + dbname1 + ".txt");
-    if (dbname2.length() > 0) {
-	index_file_to_database(db, datadir + "/" + dbname2 + ".txt");
-    }
+    index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
@@ -179,7 +193,7 @@ bool create_dir_if_needed(const string &dirname)
     }
 }
 
-/** Return true if the file fname exists.
+/** Return true if the files fname exists.
  */
 bool file_exists(const string &fname)
 {
@@ -196,26 +210,38 @@ bool file_exists(const string &fname)
     }
 }
 
-OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
-					const string &dbname2)
+/** Return true if all the files fnames exist.
+ */
+bool
+files_exist(const vector<string> &fnames)
+{
+    for (vector<string>::const_iterator i = fnames.begin();
+	 i != fnames.end();
+	 i++) {
+	if (!file_exists(*i)) return false;
+    }
+    return true;
+}
+
+OmDatabase
+BackendManager::getdb_sleepy(const vector<string> &dbnames)
 {
     string parent_dir = ".sleepy";
     create_dir_if_needed(parent_dir);
 
-    string dbdir = parent_dir + "/" + dbname1 + "#" + dbname2;
-
-    if (file_exists(datadir + "/" + dbname1 + ".txt") &&
-	((dbname2.length() == 0) ||
-	 file_exists(datadir + "/" + dbname2 + ".txt"))) {
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if(files_exist(change_names_to_paths(dbnames))) {
 	bool created = create_dir_if_needed(dbdir);
 
 	if (created) {
 	    // directory was created, so do the indexing.
 	    OmWritableDatabase db("sleepycat", make_strvec(dbdir));
-	    index_file_to_database(db, datadir + "/" + dbname1 + ".txt");
-	    if (dbname2.length() > 0) {
-		index_file_to_database(db, datadir + "/" + dbname2 + ".txt");
-	    }
+	    index_files_to_database(db, change_names_to_paths(dbnames));
 	    return db;
 	} else {
 	    // else just return a read-only db.
@@ -227,24 +253,33 @@ OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
     }
 }
 
-OmDatabase BackendManager::getdb_net(const string &dbname1,
-				     const string &dbname2)
+OmDatabase
+BackendManager::getdb_net(const vector<string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     vector<string> args;
     args.push_back("prog");
     args.push_back("../netprogs/omprogsrv");
-    args.push_back(datadir + "/" + dbname1 + ".txt");
-    if (dbname2.length() > 0) {
-	args.push_back(datadir + "/" + dbname2 + ".txt");
-    }
+    vector<string> paths = change_names_to_paths(dbnames);
+    args.insert(args.end(), paths.begin(), paths.end());
     OmDatabase db("net", args);
 
     return db;
 }
 
-OmDatabase BackendManager::get_database(const string &dbname1,
-					const string &dbname2)
+OmDatabase
+BackendManager::get_database(const vector<string> &dbnames)
 {
-    return (this->*do_getdb)(dbname1, dbname2);
+    return (this->*do_getdb)(dbnames);
 }
+
+OmDatabase
+BackendManager::get_database(const string &dbname1,
+			     const string &dbname2)
+{
+    vector<string> dbnames;
+    dbnames.push_back(dbname1);
+    dbnames.push_back(dbname2);
+    return (this->*do_getdb)(dbnames);
+}
+
