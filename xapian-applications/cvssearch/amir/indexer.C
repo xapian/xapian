@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
       lowercase_term(term);
       term = stemmer.stem_word(term);
       cout << term << endl;
-      newdocument.add_posting(term, i - 2); // term, position of term
+      newdocument.add_term_nopos(term);
     }
 
     // adding one document at a time is not so efficient though

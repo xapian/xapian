@@ -157,12 +157,11 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     }
 
     OmDocument newdocument;
-    int pos = 1;
     for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
 	  
       string word = *i;
-      //	  cerr << "..." << pos << " " << word << endl;
-      newdocument.add_posting(word, pos++); // term, position of term
+      //	  cerr << "... " << word << endl;
+      newdocument.add_term_nopos(word);
     }
 
     assert( symbol.size() <= 1000 );
@@ -172,7 +171,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     newdocument.set_data( string(str) );
 
     if ( isFunction ) {
-      //      cerr << "Data -" << newdocument.data << "- with # words = " << pos << endl;
+      //      cerr << "Data -" << newdocument.data << endl;
       database_functions.add_document(newdocument);
     } else {
       database_classes.add_document(newdocument);

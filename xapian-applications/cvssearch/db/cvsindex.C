@@ -90,11 +90,10 @@ void writeFileDB(const string & prev_file,
         const string & revision = r->first;
         const list<string> & words = r->second;
         OmDocument newdocument;
-        unsigned int pos = 0;
         list<string>::const_iterator i;
         for(i = words.begin(); i != words.end(); ++i) {
             const string & word = *i;
-            newdocument.add_posting(word, pos++); // term, position of term
+            newdocument.add_term_nopos(word);
         }
         newdocument.set_data(revision);
         file_db.add_document(newdocument);
@@ -117,11 +116,10 @@ void writeFileComments(OmWritableDatabase& db,
     }
 
     OmDocument newdocument;
-    unsigned int pos = 0;
     list<string>::const_iterator itr;
     for(itr = all_words.begin(); itr != all_words.end(); ++itr) {
         const string & word = *itr;
-        newdocument.add_posting(word, ++pos); // term, position of term
+        newdocument.add_term_nopos(word);
     }
     ostrstream ost;
     ost << file_comments.size() << " " << all_words.size() << " " << fn << ends;
@@ -244,11 +242,10 @@ int main(int argc, char *argv[])
 
                 // add line comments
                 OmDocument newdocument;
-                unsigned int pos = 0;
                 list<string>::const_iterator i;
                 for(i = words.begin(); i != words.end(); ++i) {
                     string word = *i;
-                    newdocument.add_posting(word, ++pos); // term, position of term
+                    newdocument.add_term_nopos(word);
                 }
                 newdocument.set_data(data);
                 database.add_document(newdocument);

@@ -442,14 +442,13 @@ void write_OM_database( const string & database_dir,
 
 
         OmDocument newdocument;
-        int pos = 0;
 
         // ----------------------------------------
         // add terms for indexing
         // ----------------------------------------
         set<string>::const_iterator w;
         for (w = words.begin(); w != words.end(); ++w) {
-            newdocument.add_posting(*w, ++pos);
+            newdocument.add_term_nopos(*w);
 	    //                cerr << "... term " << (*w) << endl;
         }
 
@@ -458,7 +457,7 @@ void write_OM_database( const string & database_dir,
         // : prefix to distinguish them from terms)
         // ----------------------------------------
         for(j = symbols.begin(); j != symbols.end(); ++j) {
-            newdocument.add_posting(":"+(*j), ++pos);
+            newdocument.add_term_nopos(":"+(*j));
 	    //            cerr << "... symbol " << (":"+(*j)) << endl;
         }
 

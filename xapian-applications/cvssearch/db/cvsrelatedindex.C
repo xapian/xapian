@@ -312,7 +312,6 @@ void write_OM_database( const string & database_dir,
 
 
       OmDocument newdocument;
-      int pos = 0;
 
       // ----------------------------------------
       // add terms for indexing
@@ -326,7 +325,7 @@ void write_OM_database( const string & database_dir,
       //list<string>::const_iterator w;
       set<string>::const_iterator w;
       for (w = words.begin(); w != words.end(); ++w) {
-	newdocument.add_posting(*w, ++pos);
+	newdocument.add_term_nopos(*w);
 	   //cerr << "... index term " << (*w) << endl;
       }
 

@@ -386,7 +386,6 @@ void write_OM_database( const string & database_dir,
         const list<string> & words = f->second;
         
         OmDocument newdocument;
-        int pos = 0;
         
         // ----------------------------------------
         // add terms for indexing
@@ -397,7 +396,7 @@ void write_OM_database( const string & database_dir,
             if ( added.find(*w) != added.end() ) {
                 continue; // added already, save some space by skipping
             }
-            newdocument.add_posting(*w, ++pos); 
+            newdocument.add_term_nopos(*w); 
             added.insert(*w);
         }
         
@@ -406,7 +405,7 @@ void write_OM_database( const string & database_dir,
         // : prefix to distinguish them from terms)
         // ----------------------------------------
         for(j = symbols.begin(); j != symbols.end(); ++j) {
-            newdocument.add_posting(":"+(*j), ++pos); 
+            newdocument.add_term_nopos(":"+(*j)); 
         }
         
         // ----------------------------------------
