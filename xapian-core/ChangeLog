@@ -1,3 +1,8 @@
+Thu Dec 25 05:39:57 GMT 2003  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Check returned docids are the expected values in a
+	  couple more cases.  Improved wording of a comment.
+
 Thu Dec 25 05:38:43 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_utils.h: Updated explanation of string

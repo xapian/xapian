@@ -2335,7 +2335,7 @@ static bool test_adddoc2()
     doc1.add_posting("bar", 3);
     doc1.add_posting("gone", 1);
     // Quartz had a bug handling a term >= 128 characters longer than the
-    // previous term - this is "foo" + 130 "X"s
+    // preceding term in the sort order - this is "foo" + 130 "X"s
     doc1.add_posting("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 1);
     Xapian::docid did;
 
@@ -2658,12 +2658,14 @@ static bool test_deldoc2()
     doc1.remove_term("one");
     doc1.add_posting("three", 4);
 
-    db.add_document(doc1);
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 2);
 
     doc1.add_posting("one", 7);
     doc1.remove_term("two");
 
-    db.add_document(doc1);
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 3);
 
     db.flush();
 
