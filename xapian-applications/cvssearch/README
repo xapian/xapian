@@ -5,13 +5,14 @@ CVSSearch
 INSTALLATION
 ============
 
-* install ctags 5.0 or higher from http://ctags.sourceforge.net;
-  make sure this version of ctags is in your path *and* is executed
+* install ctags 5.0 or higher (warning: version 4.x won't work) from
+  http://ctags.sourceforge.net
+  
+  Make sure this version of ctags is in your path *and* is executed
   by default
-  (warning: version 4.x won't work)
 
 * install the latest release of the sleepycat database from
-  http://www.sleepycat.com/download.html  
+  http://www.sleepycat.com/download/index.shtml
  
   From the dist/ directory, type
 
@@ -20,7 +21,7 @@ INSTALLATION
   make install 
 
 * download Xapian 0.6 from
-     http://www.xapian.org/download.php
+  http://www.xapian.org/download.php
 
   From the main directory, type
 
@@ -81,7 +82,7 @@ You can index modules (may also be called packages) from a repository by
 
    [ this cgi-bin directory contains all the scripts/executables. this is
      necessary because the command building the database uses other 
-     programs/scripts that assumes to be in the same directory as 
+     programs/scripts that it assumes to be in the same directory as 
      cvsbuilddb ]
 
 2. Export CVSDATA environment variable to the path to CVSSearch databases.
@@ -98,7 +99,7 @@ You can index modules (may also be called packages) from a repository by
    setenv CVSDATA cvsdata
 
    for bash:
-   export CVSDATA="cvsdata"
+   export CVSDATA=cvsdata
 
 3. Export CVSROOT environment variable to the path to CVS repository.
    [ this step is usually already done. type "echo $CVSROOT" to find out]
@@ -191,9 +192,9 @@ Security & File Permissions
 ===========================
 
 * the user to build the database must have read and write access to the 
-  repository. a cache directory with world read/write access is created
-  to store temporary files duing query time. [ this file may be cleaned from 
-  time to time ]
+  repository. A cache directory with world read/write access is created
+  to store temporary files during query time. [ this directory may be
+  cleaned from time to time ]
 
 * the user the server uses to run the cgi-script 
   must have read/execute access to the scripts/executables,
@@ -299,8 +300,8 @@ properly?  Does it erase all existing databases before recreating them?
 A) It still works properly. Yes, it erases all existing databases
 before recreating them.
 
-Q) In that case, is the contentdb file updated properly?  Or does it contain duplicate
-entries?  Does it matter if it does?
+Q) In that case, is the contentdb file updated properly?  Or does it contain
+duplicate entries?  Does it matter if it does?
 A) Yes it is updated properly (in the above case): contentdb file contains
 no duplicate entries.
 (Note: If it does contain duplicate entries, the same database will be
