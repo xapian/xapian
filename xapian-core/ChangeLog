@@ -1,3 +1,8 @@
+Tue Jun 29 23:24:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Make emptyquery1 check that Query("") causes an
+	  InvalidArgumentError exception.
+
 Tue Jun 29 17:29:03 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* Makefile.am: Remove Debian files from distribution tarballs,

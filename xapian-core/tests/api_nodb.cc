@@ -85,6 +85,7 @@ static bool test_emptyquery1()
     vector<Xapian::Query> v;
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).is_empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query("").is_empty());
     return true;
 }
 
