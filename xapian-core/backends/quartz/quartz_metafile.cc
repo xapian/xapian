@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,10 +34,6 @@ using std::string;
 static const string metafile_magic = "OMMETA";
 static const unsigned int metafile_version = 1;
 
-#ifndef MUS_DEBUG  // FIXME: CompiletimeAssert is in an #ifndef MUS_DEBUG in omassert.h
-CompiletimeAssert(sizeof(metafile_version == 4))
-#endif
-
 static const size_t min_metafile_size = metafile_magic.length() +
 					sizeof(metafile_version);
 
@@ -56,8 +53,9 @@ QuartzMetaFile::~QuartzMetaFile()
 static string encode_version(unsigned int version)
 {
     string data;
+    CompileTimeAssert(sizeof(metafile_version) == 4);
 
-    for (size_t i=0; i<sizeof(metafile_version); ++i) {
+    for (size_t i = 0; i < sizeof(metafile_version); ++i) {
 	data += (char)(version & 0xff);
 	version >>= 8;
     }
@@ -69,9 +67,7 @@ static unsigned int decode_version(const string &s)
 {
     unsigned int version = 0;
 
-    for (size_t i = 1;
-	 i <= sizeof(metafile_version);
-	 ++i) {
+    for (size_t i = 1; i <= sizeof(metafile_version); ++i) {
 	version = (version << 8) + s[sizeof(metafile_version) - i];
     }
 

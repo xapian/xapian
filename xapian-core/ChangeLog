@@ -1,13 +1,19 @@
+Sun Jun 09 17:50:28 BST 2002  Olly Betts <olly@survex.com>
+
+	* btree_util.h: use inlines rather than macros.
+
+	* Fix CompileTimeAssert() to avoid potential clashes.
+
 Sun Jun 09 12:46:25 BST 2002  Olly Betts <olly@survex.com>
 
 	* btree.cc,btree.h: fixed bug caused by local variable masking member
 	  variable with same name.  Tidied up a lot.
 
-Wed Jun  5 12:22:57 BST 2002  Sam Liddicott <saml@ananova.net>
+Wed Jun  5 12:22:57 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Fix OmQuery::op enum handling.
 
-Mon May 27 14:28:06 BST 2002  Sam Liddicott <saml@ananova.net>
+Mon May 27 14:28:06 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Add crash-protected next() to OmMSetIterator
 
@@ -16,7 +22,7 @@ Mon May 27 14:28:06 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Added namespace fixes for latest cvs swig to be released next month
 
-Fri May 24 15:28:18 BST 2002  Sam Liddicott <saml@ananova.net>
+Fri May 24 15:28:18 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Took out the string typemaps as swig now has them in stl.i
 
@@ -25,7 +31,7 @@ Fri May 24 15:28:18 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Added OmMSetIterator and made changes to OmMSet
 
-Fri May 24 11:46:50 BST 2002  Sam Liddicott <saml@ananova.net>
+Fri May 24 11:46:50 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Now support get_matching_terms via swig
 	  I'm not sure how to generally map iterators to php but in
@@ -51,7 +57,7 @@ Tue May 21 15:27:37 BST 2002  Richard Boulton <richard@tartarus.org>
 	* quartz_values.cc: Small fixes to enable it to compile with debug
 	  turned on.
 
-Fri May 17 14:52:45 BST 2002  Olly Betts <ollybe@ananova.net>
+Fri May 17 14:52:45 BST 2002  Olly Betts <olly@survex.com>
 
 	* OmQueryParser::set_database() method added.
 
@@ -62,7 +68,7 @@ Fri May 17 14:52:45 BST 2002  Olly Betts <ollybe@ananova.net>
 	* To make a phrase, a phrase-maker must be followed by an alphanumeric
 	  rather than just a non-space.
 
-Fri May 17 14:49:54 BST 2002  Olly Betts <ollybe@ananova.net>
+Fri May 17 14:49:54 BST 2002  Olly Betts <olly@survex.com>
 
 	* INSTALL: GCC 3.1 release version works, so noted this.
 
@@ -71,7 +77,7 @@ Fri May 17 14:49:54 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* NEWS: Minor updates.
 
-Thu May 16 16:57:42 BST 2002  Olly Betts <ollybe@ananova.net>
+Thu May 16 16:57:42 BST 2002  Olly Betts <olly@survex.com>
 
 	* Minor tweaks to get a warning-less compile with GCC 3.1.
 

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,11 +44,9 @@ class RefCntBase {
 	 *  This is protected since it'll only be used by derived classes,
 	 *  which should only rarely need copying (this is, after all, a
 	 *  refcount implementation).  Sometimes it's needed, though,
-	 *  since OmLock objects can't be copied.
-	 *  -- Now OmLock has gone, what is the status of this comment?
+	 *  since we need to zero ref_count in the copy.
 	 */
-	RefCntBase(const RefCntBase &other)
-		: ref_count(0) { }
+	RefCntBase(const RefCntBase &) : ref_count(0) { }
 
     public:
 	/** Dummy class, used simply to make the private constructor

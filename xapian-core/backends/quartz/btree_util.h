@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,17 +37,50 @@
 /*
    If a signed int cannot hold the full range of two bytes replace 'int' by
    'long' throughout the code.
+
+   FIXME: surely if a signed int cannot hold the full range of two bytes,
+   then the compiler violate ANSI?  Or am I misunderstanding...
 */
 
+inline int
+GETINT1(const byte *p, int c)
+{
+    return p[c];
+}
 
-#define GETINT1(p, c)    ((p)[(c)])
-#define SETINT1(p, c, x) (p)[(c)] = (x);
+inline void
+SETINT1(byte *p, int c, int x)
+{
+    p[c] = x;
+}
 
-#define GETINT2(p, c)    ((p)[(c)]<<8 | (p)[(c)+1])
-#define SETINT2(p, c, x) (p)[(c)] = (x)>>8; (p)[(c)+1] = (x)
+inline int
+GETINT2(const byte *p, int c)
+{
+    return p[c] << 8 | p[c + 1];
+}
 
-#define GETINT4(p, c)    ((p)[(c)]<<24 | (p)[(c)+1]<<16 | (p)[(c)+2]<<8 | (p)[(c)+3])
-#define SETINT4(p, c, x) (p)[(c)] = (x)>>24; (p)[(c)+1] = (x)>>16; (p)[(c)+2] = (x)>>8; (p)[(c)+3] = (x)
+inline void
+SETINT2(byte *p, int c, int x)
+{
+    p[c] = x >> 8;
+    p[c + 1] = x;
+}
+
+inline int
+get_int4(const byte *p, int c)
+{
+    return p[c] << 24 | p[c + 1] << 16 | p[c + 2] << 8 | p[c + 3];
+}
+
+inline void
+set_int4(byte *p, int c, int x)
+{
+    p[c] = x >> 24;
+    p[c + 1] = x >> 16;
+    p[c + 2] = x >> 8;
+    p[c + 3] = x;
+}
 
 /*  The B-tree blocks have a number of internal lengths and offsets held in 1, 2
     or 4 bytes. To make the coding a little clearer,
@@ -77,16 +111,6 @@
 #define SETD(p, c, x) SETINT2(p, c, x)
 #define GETC(p, c)    GETINT2(p, c)
 #define SETC(p, c, x) SETINT2(p, c, x)
-
-/* or generating less code than SETINT4 etc.: */
-
-// FIXME: move implementation to a CC file?
-inline int get_int4(const byte * p, int c) { return GETINT4(p, c); }
-inline static unsigned int get_uint4(const byte * p, int c)
-{
-    return (unsigned int)GETINT4(p, c);
-}
-inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
    size, number of the B-tree root block etc), (b) a bitmap, the Nth bit of the
@@ -134,7 +158,7 @@ inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 
 */
 
-#define REVISION(b)      get_uint4(b, 0)
+#define REVISION(b)      (unsigned int)get_int4(b, 0)
 #define GET_LEVEL(b)     GETINT1(b, 4)
 #define MAX_FREE(b)      GETINT2(b, 5)
 #define TOTAL_FREE(b)    GETINT2(b, 7)
@@ -188,25 +212,28 @@ inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 */
 
 inline byte * item_of(byte * p, int c)
-{   c = GETD(p, c);
+{
+    c = GETD(p, c);
     return p + c;
 }
 
-inline int component_of(byte * p, int c)
+inline int component_of(const byte * p, int c)
 {
     p += GETD(p, c);
     p += GETK(p, I2) + I2 - C2;
     return GETC(p, 0);
 }
 
-inline int components_of(byte * p, int c)
-{   p += GETD(p, c);
+inline int components_of(const byte * p, int c)
+{
+    p += GETD(p, c);
     p += GETK(p, I2) + I2;
     return GETC(p, 0);
 }
 
 inline byte * key_of(byte * p, int c)
-{   c = GETD(p, c);
+{
+    c = GETD(p, c);
     return p + c + I2;
 }
 
@@ -226,7 +253,7 @@ int sys_flush(int h);
 inline byte *zeroed_new(size_t size)
 {
     byte *temp = new byte[size];
-    memset(temp, 0, size);
+    if (temp) memset(temp, 0, size);
 
     return temp;
 }

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,13 +78,14 @@
 #define AssertEq(a,b)
 #define AssertNe(a,b)
 
-// CompiletimeAssert(foo) takes a constant integral expression and causes
-// a compile-time error if false.  It must be used at the top-level, not
-// within a function definition.
-#define CompiletimeAssert(EXPR) \
-struct CompileTimeCheck ## __FILE__ ## __LINE__ {	\
-    int member[(EXPR)?1:-1];				\
-};
 #endif
+
+// CompiletimeAssert(foo); takes a constant integral expression and causes
+// a compile-time error if false.  Must be used within a function, not at
+// the top level (this is because we can't encode the filename, only
+// the linenumber, so we can't avoid the risk of collision at the top level)
+
+#define CompileTimeAssert(EXPR)\
+ do{int CompileTimeCheck[(EXPR)?1:-1];(void)CompileTimeCheck;}while(0)
 
 #endif /* OM_HGUARD_OMASSERT_H */
