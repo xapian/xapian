@@ -28,10 +28,13 @@
 #include "utils.h"
 #include <string.h>
 #include <errno.h>
+#include "omdebug.h"
 
 bool
 QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, bool, "QuartzDiskCursor::find_entry",
+	      "QuartzDbKey(" << key.value << ")");
     Assert(!(key.value.empty()));
 
     is_after_end = false;
@@ -54,14 +57,18 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     current_tag.value =
 	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
+    DEBUGLINE(DB, "Found entry: key=`" << current_key.value <<
+	      "', tag=`" << current_tag.value << "'");
+
     Btree_item_lose(item);
 
-    return found;
+    RETURN(found);
 }
 
 void
 QuartzDiskCursor::next()
 {
+    DEBUGCALL(DB, bool, "QuartzDiskCursor::next", "");
     Assert(!is_after_end);
     if (!is_positioned) {
 	is_after_end = true;
@@ -88,6 +95,7 @@ QuartzDiskCursor::next()
 void
 QuartzDiskCursor::prev()
 {
+    DEBUGCALL(DB, void, "QuartzDiskCursor::prev", "");
     Assert(!is_after_end);
     Assert(current_key.value.size() != 0);
 
@@ -140,11 +148,13 @@ QuartzDiskTable::QuartzDiskTable(std::string path_,
 	  btree_for_reading(0),
 	  btree_for_writing(0)
 {
+    DEBUGCALL(DB, void, "QuartzDiskTable::QuartzDiskTable", "");
 }
 
 void
 QuartzDiskTable::close()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTable::close", "");
     if (btree_for_reading != 0) {
 	Btree_quit(btree_for_reading);
 	btree_for_reading = 0;
@@ -159,6 +169,7 @@ QuartzDiskTable::close()
 void
 QuartzDiskTable::open()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTable::open", "");
     close();
 
     if (readonly) {
@@ -222,6 +233,7 @@ QuartzDiskTable::open()
 bool
 QuartzDiskTable::open(quartz_revision_number_t revision)
 {
+    DEBUGCALL(DB, bool, "QuartzDiskTable::open", revision);
     close();
 
     if (readonly) {
@@ -231,10 +243,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	    // FIXME: throw an exception if it's not just this revision which
 	    // is unopenable.
 	    close();
-	    return false;
+	    RETURN(false);
 	}
 	opened = true;
-	return true;
+	RETURN(true);
     }
 
     // Create database if needed
@@ -253,7 +265,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	// FIXME: throw an exception if it's not just this revision which
 	// is unopenable.
 	close();
-	return false;
+	RETURN(false);
     }
 
     AssertEq(btree_for_writing->revision_number, revision);
@@ -265,48 +277,58 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	// FIXME: throw an exception if it's not just this revision which
 	// is unopenable.
 	close();
-	return false;
+	RETURN(false);
     }
 
     AssertEq(btree_for_reading->revision_number, revision);
 
     opened = true;
-    return true;
+    RETURN(true);
 }
 
 QuartzDiskTable::~QuartzDiskTable()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTable::~QuartzDiskTable", "");
     close();
 }
 
 quartz_revision_number_t
 QuartzDiskTable::get_open_revision_number() const
 {
+    DEBUGCALL(DB, quartz_revision_number_t,
+	      "QuartzDiskTable::get_open_revision_number", "");
     Assert(opened);
-    return btree_for_reading->revision_number;
+    RETURN(btree_for_reading->revision_number);
 }
 
 quartz_revision_number_t
 QuartzDiskTable::get_latest_revision_number() const
 {
+    DEBUGCALL(DB, quartz_revision_number_t,
+	      "QuartzDiskTable::get_latest_revision_number", "");
     // FIXME: implement with a call to martin's code
     if (btree_for_reading->both_bases &&
 	btree_for_reading->other_revision_number > btree_for_reading->revision_number) {
-	return btree_for_reading->other_revision_number;
+	RETURN(btree_for_reading->other_revision_number);
     }
-    return btree_for_reading->revision_number;
+    RETURN(btree_for_reading->revision_number);
 }
 
 quartz_tablesize_t
 QuartzDiskTable::get_entry_count() const
 {
+    DEBUGCALL(DB, quartz_revision_number_t,
+	      "QuartzDiskTable::get_entry_count", "");
     Assert(opened);
-    return btree_for_reading->item_count;
+    RETURN(btree_for_reading->item_count);
 }
 
 bool
 QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
+    DEBUGCALL(DB, bool, "QuartzDiskTable::get_exact_entry",
+	      "QuartzDbKey(" << key.value << "), "
+	      "QuartzDbTag(" << tag.value << ")");
     Assert(opened);
     Assert(!(key.value.empty()));
 
@@ -319,7 +341,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
 
     if (!found) {
 	Bcursor_lose(cursor);
-	return false;
+	RETURN(false);
     }
     
     Btree_item * item = Btree_item_create();
@@ -335,19 +357,24 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Btree_item_lose(item);
     Bcursor_lose(cursor);
     
-    return true;
+    RETURN(true);
 }
 
 QuartzDiskCursor *
 QuartzDiskTable::cursor_get() const
 {
+    DEBUGCALL(DB, QuartzDiskCursor *, "QuartzDiskTable::cursor_get", "");
     Assert(opened);
-    return new QuartzDiskCursor(btree_for_reading);
+    RETURN(new QuartzDiskCursor(btree_for_reading));
 }
 
 bool
 QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 {
+    DEBUGCALL(DB, bool, "QuartzDiskTable::set_entry",
+	      "QuartzDbKey(" << key.value << "), "
+	      "QuartzDbTag*(" << (tag == 0 ? "<NULL>" : tag->value) << ")");
+
     Assert(key.value.size() != 0);
     Assert(opened);
     if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
@@ -368,12 +395,14 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 	// FIXME: Check result
     }
 
-    return true;
+    RETURN(true);
 }
 
 bool
 QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 {
+    DEBUGCALL(DB, bool, "QuartzDiskTable::apply", new_revision);
+
     Assert(opened);
     if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
@@ -394,7 +423,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     // FIXME: want to indicate that the database closed successfully even
     // if we now can't open it.  Or is this a panic situation?
 
-    return true;
+    RETURN(true);
 }
 
 
