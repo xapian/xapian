@@ -6,14 +6,18 @@
 #include "da_database.h"
 #include "daread.h"
 
-class DARecord {
+class DADocument : public virtual IRDocument {
     friend class DADatabase;
     private:
 	struct record * rec;
 	char *pos;
-	DARecord(struct record *);
+	DADocument(struct record *);
+
+	// Stop copying
+	DADocument(const DADocument &);
+	DADocument & operator = (const DADocument &);
     public:
-	~DARecord();
+	~DADocument();
 };
 
 #endif /* _da_record_h_ */

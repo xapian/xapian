@@ -227,6 +227,12 @@ SleepyDatabase::open_term_list(docid did) const {
 			      data.get_size() / sizeof(termid));
 }
 
+IRDocument *
+SleepyDatabase::open_document(docid id) const {
+    Assert(opened);
+    throw OmError("SleepyDatabase.open_document() not implemented");
+}
+
 termid
 SleepyDatabase::add_term(const termname &tname) {
     Assert(opened);

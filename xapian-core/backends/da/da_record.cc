@@ -4,13 +4,14 @@
 #include "da_record.h"
 #include "daread.h"
 
-DARecord::DARecord(struct record *rec_new) {
+DADocument::DADocument(struct record *rec_new) {
     rec = rec_new;
     printf("Record at %p, size %d\n", rec->p, rec->size);
 
     pos = rec->p;
 }
 
-DARecord::~DARecord() {
+DADocument::~DADocument() {
+    printf("Deleting\n");
     loserecord(rec);
 }

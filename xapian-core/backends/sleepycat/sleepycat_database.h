@@ -156,6 +156,8 @@ class SleepyDatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
+
+	IRDocument * open_document(docid id) const;
 };
 
 inline doccount

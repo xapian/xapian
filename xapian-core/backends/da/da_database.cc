@@ -59,6 +59,7 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
     if (currdoc && id <= docid(postlist->E)) {
 	// skip_to later in the current range
 	currdoc = id;
+	//cout << "Skip within range " << id << endl;
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
@@ -177,7 +178,7 @@ TermList * DADatabase::open_term_list(docid id) const
     return tl;
 }
 
-DARecord * DADatabase::get_document(docid id) const
+IRDocument * DADatabase::open_document(docid id) const
 {
     Assert(opened);
 
@@ -189,7 +190,7 @@ DARecord * DADatabase::get_document(docid id) const
 	throw RangeError("Docid not found");
     }
 
-    DARecord *rec = new DARecord(r);
+    DADocument *rec = new DADocument(r);
     return rec;
 }
 

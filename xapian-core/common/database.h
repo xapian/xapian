@@ -55,7 +55,7 @@ class DBPostList : public virtual PostList {
 	IRWeight own_wt;
 	const IRWeight * ir_wt;
     public:
-	DBPostList() : ir_wt(&own_wt) {}
+	DBPostList() : ir_wt(&own_wt) { return; }
 	void set_termweight(const IRWeight *); // Sets term weight
 };
 
@@ -86,13 +86,14 @@ class IRDocument {
     private:
     public:
 	// FIXME - holds keys and records
+	virtual ~IRDocument() { return; }
 };
 
 class IRDatabase {
     protected:
 	IRDatabase * root;
     public:
-	IRDatabase() : root(this) {}
+	IRDatabase() : root(this) { return; }
         virtual ~IRDatabase() { return; }
 
 	void set_root(IRDatabase *db) {root = db;}
@@ -117,6 +118,9 @@ class IRDatabase {
 
 	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;
+
+	// Throws RangeError if docid invalid
+	virtual IRDocument * open_document(docid id) const = 0;
 };
 
 #endif /* _database_h_ */
