@@ -46,6 +46,7 @@ struct french_stemmer
     int pos1;
     int pos2;
     struct pool * irregulars;
+    struct pool * irregulars2;
 
 };
 
@@ -634,6 +635,11 @@ extern const char * french_stem(struct french_stemmer * z, const char * q, int i
             i++;
         }
     }
+
+    {   const char * t = search_pool(z->irregulars2, k, p);
+        if (t != 0) return t;
+    }
+
     p[k] = 0; /* C string form for now */
     return p;
 }
@@ -682,10 +688,31 @@ static const char * irregular_forms[] = {
   0, 0  /* terminator */
 };
 
+/* And now a new idea: a list of irregulars to be applied
+   AFTER the stemming process has been completed. This can handle
+   stem changes in irregular verbs, among other things. Again, this
+   should be elaborated further.
+
+   Only in French at the moment (4 Feb 00) but it would be easy to
+   extend it to the other algorithms.
+*/
+
+static const char * irregular_stems[] = {
+
+    "vend" ,     "vendr/vendu/",
+    "prend" ,    "prendr/",
+    "comprend" , "comprendr/comprendu/compr/",
+
+    /* etcetera */
+
+    0, 0  /* terminator */
+};
+
 extern struct french_stemmer * setup_french_stemmer()
 {  struct french_stemmer * z = (struct french_stemmer *) malloc(sizeof(struct french_stemmer));
    z->p = 0; z->p_size = 0;
    z->irregulars = create_pool(irregular_forms);
+   z->irregulars2 = create_pool(irregular_stems);
    return z;
 }
 
