@@ -1,6 +1,7 @@
-/* omquery.h
- *
- * ----START-LICENCE----
+/** \file omquery.h
+ * \brief Classes for representing a query
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  *
@@ -30,11 +31,6 @@
 #ifndef OM_HGUARD_OMTERMLISTITERATOR_H
 #include "om/omtermlistiterator.h"
 #endif
-
-///////////////////////////////////////////////////////////////////
-// OmQuery class
-// =============
-// Representation of a query
 
 /** Class representing a query.
  *  Queries are represented as a hierarchy of classes.
@@ -264,4 +260,3 @@ OmQuery::OmQuery(OmQuery::op op_,
 }
 
 #endif /* OM_HGUARD_OMQUERY_H */
-

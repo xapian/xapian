@@ -1,6 +1,7 @@
-/* omsettings.h: "global" settings object
- *
- * ----START-LICENCE----
+/** \file omsettings.h
+ * \brief "global" settings object
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  *
@@ -26,11 +27,7 @@
 
 #include <string>
 
-//////////////////////////////////////////////////////////////////
-// OmSettings class
-// ================
-
-/** This class is used to pass various settings to other OM classes.
+/** This class is used to pass various settings to the matcher.
  *
  *  The settings available are listed in the documentation.
  */

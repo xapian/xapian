@@ -1,3 +1,10 @@
+Sun Dec 01 21:45:49 GMT 2002  Olly Betts <olly@survex.com>
+
+	* include/om: Added \file documentation comments so doxygen
+	  extracts documentation for functions too.
+	* docs/: Made a start on updating for the new database factory
+	  functions.
+
 Sun Dec 01 15:38:10 GMT 2002  Olly Betts <olly@survex.com>
 
         * api/,backends/,common/,docs/omsettings,docs/todo.xml,

@@ -1,6 +1,7 @@
-/* omerrortypes.h
- *
- * ----START-LICENCE----
+/** \file omerrortypes.h
+ *  \brief Exception subclasses
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  *
  * This program is free software; you can redistribute it and/or
@@ -111,4 +112,3 @@ DEFINE_ERROR_CLASS(OmInvalidDataError, OmRuntimeError);
 
 /** Thrown when the indexer detects a data flow error */
 DEFINE_ERROR_CLASS(OmDataFlowError, OmRuntimeError);
-

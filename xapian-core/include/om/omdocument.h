@@ -1,6 +1,7 @@
-/* omdocument.h: representation of a document
- *
- * ----START-LICENCE----
+/** \file omdocument.h
+ * \brief API for working with documents
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002 Olly Betts

@@ -1,6 +1,7 @@
-/* omvalueiterator.h
- *
- * ----START-LICENCE----
+/** \file omvalueiterator.h
+ * \brief classes for iterating through values
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002 Olly Betts

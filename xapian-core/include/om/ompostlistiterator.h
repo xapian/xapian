@@ -1,6 +1,7 @@
-/* ompostlistiterator.h
- *
- * ----START-LICENCE----
+/** \file ompostlistiterator.h
+ * \brief Classes for iterating through posting lists
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  *

@@ -1,5 +1,7 @@
-/* omtypes.h: Common types used
- *
+/** \file omtypes.h
+ * \brief Common types used
+ */
+/*
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

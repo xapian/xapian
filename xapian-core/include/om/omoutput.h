@@ -1,5 +1,7 @@
-/* omoutput.h: Functions for outputting strings describing OM objects.
- *
+/** \file omoutput.h
+ * \brief Functions for outputting strings describing OM objects.
+ */
+/*
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

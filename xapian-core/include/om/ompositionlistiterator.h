@@ -1,6 +1,7 @@
-/* ompositionlistiterator.h
- *
- * ----START-LICENCE----
+/** \file ompositionlistiterator.h
+ * \brief Classes for iterating through position lists
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  *

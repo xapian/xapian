@@ -1,6 +1,7 @@
-/* omerrorhandler.h
- *
- * ----START-LICENCE----
+/** \file omerrorhandler.h
+ *  \brief Classes for handling exceptions.
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +26,7 @@
 
 #include "om/omerror.h"
 
-/// Base class for all errors reported
+/// Error handling class
 class OmErrorHandler {
     private:
 	/// Assignment is not allowed

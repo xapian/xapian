@@ -1,8 +1,10 @@
-/* omstem.h: The stemming API
- *
- * ----START-LICENCE----
+/** \file omstem.h
+ * \brief The stemming API
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,11 +26,7 @@
 #ifndef OM_HGUARD_OMSTEM_H
 #define OM_HGUARD_OMSTEM_H
 
-#include "om/omerror.h"
-
-///////////////////////////////////////////////////////////////////
-// OmStem class
-// ============
+#include <string>
 
 /// This class provides an interface to the stemming algorithms.
 class OmStem {

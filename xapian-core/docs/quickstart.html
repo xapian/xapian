@@ -5,6 +5,9 @@
 </HEAD>
 <BODY BGCOLOR="white">
 
+<B>Warning: this document isn't up to date - you may be better off looking
+at the sample programs in xapian-examples for guidance.</B>
+
 <H1>Quickstart</H1>
 
 <P>
@@ -248,10 +251,7 @@ The code to open a database for writing is, then:
 </P>
 
 <PRE>
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", argv[1]);
-    OmWritableDatabase database(db_parameters);
+    OmWritableDatabase database(OmQuartz__open(argv[1], false));
 </PRE>
 
 <H3>Preparing the new document</H3>
@@ -419,6 +419,8 @@ Each database can be in its own format, so, for example, we might have a
 system searching across two DA databases and a quartz database.
 </P>
 <P>
+<!-- FIXME this talk of parameters needs rewording now that OmSettings
+isn't used.  Also, add_database() just takes an OmDatabase... -->
 This means that, when we are preparing to search, we create an
 OmDatabase object, and give it a set of parameters to specify
 databases by successively calling the
@@ -429,20 +431,14 @@ to the database.
 </P>
 <PRE>
     OmDatabase databases;
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", argv[1]);
-    databases.add_database(db_parameters);
+    databases.add_database(OmQuartz__open(argv[1]));
 </PRE>
 <P>
 You can also just pass the parameters to the <CODE>OmDatabase</CODE>
 constructor, which is a handy shortcut if you only want to search one database:
 </P>
 <PRE>
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", argv[1]);
-    OmDatabase db(db_parameters);
+    OmDatabase db(OmQuartz__open(argv[1]));
 </PRE>
 
 <H3>Starting an enquire session</H3>

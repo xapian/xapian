@@ -1,6 +1,7 @@
-/* omenquire.h
- *
- * ----START-LICENCE----
+/** \file omenquire.h
+ * \brief API for running queries
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Olly Betts
@@ -29,6 +30,7 @@
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
 #include "om/omerror.h"
+#include "om/omsettings.h"
 #include <string>
 
 class OmQuery;
@@ -423,7 +425,6 @@ class OmESet {
  *  This is the set of documents which are marked as relevant, for use
  *  in modifying the term weights, and in performing query expansion.
  */
-
 class OmRSet {
     public:
 	/// Class holding details of OmRSet

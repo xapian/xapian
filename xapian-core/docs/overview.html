@@ -171,24 +171,21 @@ may not: you should catch exceptions in both situations).
 
 <P>
 When creating an OmEnquire object, a database to search must be specified.
-Databases are specified by creating an OmDatabase object and calling
-<A HREF="apidoc/html/class_OmDatabase.html"><CODE>OmDatabase::add_database()</CODE></A>
-.  This takes an OmSettings object as its only parameter, which contains a
-list of settings used to describe the database.
+Databases are specified by creating an <A
+HREF="apidoc/html/class_OmDatabase.html"><CODE>OmDatabase</CODE> object</A>.
+This is done using a factory function such as <CODE>OmQuartz__open()</CODE>
+- there's one of these for each backend type.  The parameters the function
+takes depend on the backend type, and whether we are creating a read-only
+or a writable database.
 </P>
-The main setting is the "<CODE><B>backend</B></CODE>" setting, which descibes
-the type of database to open.  Which other settings are valid depend on which
-database type is selected.
-</P>
-<P>
-Instead of setting the settings directly, the "auto" backend can be used to
-detect the settings automatically.  This takes a single extra setting,
-"<CODE><B>auto_dir</B></CODE>" which points to the directory containing the
-database.
+There's also the "auto" backend which takes a filename and works out the
+database type and settings required automatically.  This is a good choice
+if you don't care what database type you are using.
 </P>
 <P>
+<B>stub databases aren't currently working.</B>
 An extra feature available using the auto backend is "stub databases".  If
-"<CODE><B>auto_dir</B></CODE>" points to a file rather than a directory, the
+the fiilename points to a file rather than a directory, the
 file will be assumed to contain a set of settings (one per line, in the format
 "name=value"), which will be used to open the database.  For example, a file
 might contain:
@@ -198,8 +195,6 @@ remote_type=tcp<br>
 remote_port=23876<br>
 remote_server=localhost<br>
 </CODE></BLOCKQUOTE>
-</P>
-<P>
 Note that these settings <EM>are</EM> case sensitive.
 
 <A NAME="database_types"><H3>Database types</H3></A>
@@ -213,8 +208,10 @@ The format allows progressive modifications, single-writer multiple-reader
 access to the database, and highly efficient and scalable access to data.
 </P>
 <P>
-This takes several parameters.
-<!-- FIXME: document the parameters. -->
+You access a Quartz database using OmDatabase and OmWritableDatabase objects
+constructed by the factory function <A
+HREF="apidoc/html/omdatabase_8h.html"><CODE>OmQuartz__open()</CODE></A>.
+<!-- FIXME: hard to link direct to functions, as the name ids may change... -->
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>

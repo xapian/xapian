@@ -1,6 +1,7 @@
-/* omtermlistiterator.h
- *
- * ----START-LICENCE----
+/** \file omtermlistiterator.h
+ * \brief Classes for iterating through term lists
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  *

@@ -1,6 +1,7 @@
-/* omdatabase.h
- *
- * ----START-LICENCE----
+/** \file omdatabase.h
+ * \brief API for working with Xapian databases
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002 Olly Betts
@@ -26,18 +27,13 @@
 #define OM_HGUARD_OMDATABASE_H
 
 #include "om/omdocument.h"
-#include "om/omsettings.h"
 #include "om/ompostlistiterator.h"
 #include "om/omtermlistiterator.h"
 #include "om/ompositionlistiterator.h"
 
 class OmWritableDatabase;
 
-///////////////////////////////////////////////////////////////////
-// OmDatabase class
-// ================
-
-/** This class is used to access a database, or a set of databases..
+/** This class is used to access a database, or a set of databases.
  *
  *  This class is used in conjunction with an OmEnquire object.
  *
@@ -189,14 +185,7 @@ class OmDatabase {
 	OmDocument get_document(om_docid did) const;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmWritableDatabase class
-// ========================
-
-/** This class provides writable access to a database.
- *
- *  NOTE: this class is still under heavy development, and the interface
- *  is liable to change in the near future.
+/** This class provides read/write access to a database.
  */
 class OmWritableDatabase : public OmDatabase {
     public:
@@ -393,21 +382,48 @@ class OmWritableDatabase : public OmDatabase {
 	std::string get_description() const;
 };
 
-OmDatabase OmAuto__open(const std::string &dir);
-OmWritableDatabase OmAuto__open(const std::string &dir, bool create,
+/** Open a database read-only, automatically determining the database
+ *  backend to use.
+ *
+ * @param path directory that the database is stored in.
+ */
+OmDatabase OmAuto__open(const std::string &path);
+
+/** Open a database for update, automatically determining the database
+ *  backend to use.
+ *
+ * @param path directory that the database is stored in.
+ * @param create create the database if it doesn't exist.
+ * @param overwrite if create is true, overwrite the database if it exists.
+ */
+OmWritableDatabase OmAuto__open(const std::string &path, bool create,
 	bool overwrite = false);
-// quartz_dir    - Directory that the database is stored in.  Must be a full
-//                 path (really? FIXME check)
+
+/** Open a Quartz database read-only.
+ *
+ * @param quartz_dir directory that the database is stored in.
+ */
 OmDatabase OmQuartz__open(const std::string &quartz_dir);
-// block_size - Integer.  This is the size of the blocks to use in
-//                 the tables, in bytes.  Acceptable values are powers of
-//                 two in the range 2048 to 65536.  The default is 8192.
-//                 This setting is only used when creating databases.  If
-//                 the database already exists, it is completely ignored.
+
+/** Open a Quartz database for update.
+ *
+ * @param quartz_dir directory that the database is stored in.
+ * @param create create the database if it doesn't exist.
+ * @param overwrite if create is true, overwrite the database if it exists.
+ * @param block_size the size of the blocks to use in
+ *                 the tables, in bytes.  Acceptable values are powers of
+ *                 two in the range 2048 to 65536.  The default is 8192.
+ *                 This setting is only used when creating databases.  If
+ *                 the database already exists, it is completely ignored.
+ */
 OmWritableDatabase
 OmQuartz__open(const std::string &quartz_dir, bool create,
 	       bool overwrite = false, int block_size = 8192);
+
+/** Open an InMemory database for update.
+ */
 OmWritableDatabase OmInMemory__open();
+
 #if 0
 OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, bool heavy_duty = true);
 OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const std::string &keys, bool heavy_duty = true);

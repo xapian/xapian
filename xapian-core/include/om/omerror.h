@@ -1,6 +1,7 @@
-/* omerror.h
- *
- * ----START-LICENCE----
+/** \file omerror.h
+ * \brief Classes for exception handling.
+ */
+/* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Olly Betts
  *
@@ -30,7 +31,7 @@
 
 class OmErrorHandler;
 
-/// Base class for all errors reported
+/// Base class for all Xapian-specific errors reported
 class OmError {
     friend class OmErrorHandler;
     private:
