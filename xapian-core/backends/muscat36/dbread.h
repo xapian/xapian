@@ -25,11 +25,6 @@
 #ifndef _dbread_h_
 #define _dbread_h_
 
-/* Make header file work when included from C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "3point6.h"
 #include "dbdefs.h"
 
@@ -152,9 +147,5 @@ extern void                 DB_close_postings(struct DB_postings * q);
 
 extern int                  DB_get_record(struct DB_file * p, int n, struct record * r);
 extern int                  DB_get_termvec(struct DB_file * p, int n, struct termvec * tv);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* dbread.h */

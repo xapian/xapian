@@ -10,7 +10,7 @@ noinst_HEADERS = io_system.h 3point6.h \
 
 noinst_LTLIBRARIES = libmuscat36.la
 
-libmuscat36_la_SOURCES = io_system.c 3point6.c \
-			 da_database.cc da_document.cc daread.c \
+libmuscat36_la_SOURCES = io_system.cc 3point6.cc \
+			 da_database.cc da_document.cc daread.cc \
 			 da_alltermslist.cc \
-			 db_database.cc db_document.cc dbread.c
+			 db_database.cc db_document.cc dbread.cc

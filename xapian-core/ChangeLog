@@ -1,3 +1,12 @@
+Tue Nov 02 04:43:08 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,HACKING,PLATFORMS,backends/muscat36/,
+	  getopt/Makefile.am,getopt/getopt.cc,getopt/getopt1.cc,languages/:
+	  Change the few C sources to be C++.  This way we don't need to
+	  worry about configure choosing a mismatching pair of compilers,
+	  or about whether configure tests with the C compiler don't apply
+	  to the C++ compiler, or vice versa.
+
 Tue Nov 02 04:31:49 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/: More C casts converted to C++ casts.

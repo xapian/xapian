@@ -24,11 +24,6 @@
 #ifndef _3point6_h_
 #define _3point6_h_
 
-/* Make header file work when included from C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "io_system.h"
 
 #define BYTERANGE   256
@@ -223,9 +218,5 @@ extern void M_open_terms(struct termvec * tv);
 extern void M_read_terms(struct termvec * tv);
 extern struct termvec * M_make_termvec();
 extern void M_lose_termvec(struct termvec * tv);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* 3point6.h */

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,8 +101,8 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     q = X_findtoread(s);
     if (q == -1) return NULL;
     bsize = M_get_block_size(q, s);
-    b = malloc(bsize+40);  /* ample */
-    p = (struct DA_file *) calloc(1, sizeof(struct DA_file));
+    b = reinterpret_cast<byte*>(malloc(bsize+40));  /* ample */
+    p = reinterpret_cast<struct DA_file *>(calloc(1, sizeof(struct DA_file)));
     p->locator = q;
     p->blocksize = bsize;
     readda(p, 0, b);
@@ -122,13 +123,14 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     }
     free(b);
     {   int bvecsize = p->levels;
-        byte * * bvec = (byte * *) calloc(1, (bvecsize+1) * sizeof(byte *));
-        int * buse = (int *) calloc(1, (bvecsize+1) * sizeof(int));
+        byte * * bvec;
+	bvec = reinterpret_cast<byte**>(calloc(1, (bvecsize+1)*sizeof(byte*)));
+        int * buse;
+        buse = reinterpret_cast<int *>(calloc(1, (bvecsize+1) * sizeof(int)));
 
-        {  int i; for (i = 0; i <= bvecsize; i++)
-           {   bvec[i] = (byte *) calloc(1, p->blocksize);
-               buse[i] = -1;
-           }
+        for (int i = 0; i <= bvecsize; i++)
+        {   bvec[i] = reinterpret_cast<byte *>(calloc(1, p->blocksize));
+            buse[i] = -1;
         }
         p->buffers = bvec;
         p->buffuse = buse;
@@ -273,10 +275,14 @@ static void next_posting(struct DA_postings * q, int Z)
 static byte * copybytes(int k, struct DA_file * p, int n, int o)
 /* copy k bytes from block n offset o in DA_ file p */
 {   int l = p->blocksize;
-    byte * b = (byte *) malloc(k);
+    byte * b = reinterpret_cast<byte *>(malloc(k));
     int i = 0;
     byte * r = p->next;
-    if (r == 0) { r = (byte *) malloc(l); p->next = r; p->pblockno = -1; }
+    if (r == 0) {
+	r = reinterpret_cast<byte *>(malloc(l));
+	p->next = r;
+	p->pblockno = -1;
+    }
     while (k != 0)
     {   int x = smaller(k, l-o);
         if (p->pblockno != n) { readda(p, n, r); p->pblockno = n; }
@@ -289,9 +295,9 @@ static byte * copybytes(int k, struct DA_file * p, int n, int o)
 static int * read_shortcut(struct DA_file * p, int n, int o, int shsize, int shcount)
 {   n = n+o/p->blocksize; o = o % p->blocksize;
     {   byte * b = copybytes(shsize, p, n, o);
-        int * v = (int *) malloc((shcount+1) * sizeof(int));
+        int * v = reinterpret_cast<int *>(malloc((shcount+1) * sizeof(int)));
         int c = unpackint(v+1, b, 0);
-        int i; for (i = 1; i < shcount; i++)
+        for (int i = 1; i < shcount; i++)
         {  c = unpackint(v+i+1, b, c); v[i+1] += v[i];  }
         v[0] = shcount;
         free(b);
@@ -302,20 +308,23 @@ static int * read_shortcut(struct DA_file * p, int n, int o, int shsize, int shc
 extern struct DA_postings *
 DA_open_postings(struct DA_term_info * v, struct DA_file * p)
 {
-    struct DA_postings * q =
-	    (struct DA_postings *) calloc(1, sizeof(struct DA_postings));
+    struct DA_postings * q;
+    q = reinterpret_cast<struct DA_postings *>(calloc(1, sizeof(struct DA_postings)));
     {
 	q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
 
 	if (v->freq == 0) {
-	    byte * b = (byte *) calloc(1, sizeof(byte));
+	    byte * b = reinterpret_cast<byte *>(calloc(1, sizeof(byte)));
 	    q->b = b; q->o = 0;
 	    b[0] = 0;  /* terminator */
 	} else {
 	    int l = p->blocksize;
 	    int size = v->psize;
 	    int blocknum = v->pn;
-	    if (p->next == 0) { p->next = (byte *) calloc(1, l); p->pblockno = -1; }
+	    if (p->next == 0) {
+		p->next = reinterpret_cast<byte *>(calloc(1, l));
+		p->pblockno = -1;
+	    }
 	    if (l > size)
 	    {   q->b = copybytes(size, p, blocknum, v->po);
 		q->blockinc = -1; q->o = 0;
@@ -425,7 +434,7 @@ static void DA_read_bytes(struct DA_file * p, int l, struct record * r, int nots
     int d = 0;
     if (notskipping && (r->p == 0 || l > r->size))
     {   free(r->p);
-        r->p = (byte *) malloc(l+100);
+        r->p = reinterpret_cast<byte *>(malloc(l+100));
         r->size = l+100;
     }
     while (l > bsize-o)
@@ -524,7 +533,7 @@ extern int DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
     DA_read_unit(p,
 		 2 * n + 1,
 		 2 * n + 1,
-		 (struct record *) tv);
+		 reinterpret_cast<struct record *>(tv));
     return (tv->number == n);
 }
 

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +53,7 @@ static struct DB_pool * find_block(struct DB_file * DB, int n)
         return P + j;
     }
     if (P[j].p == NULL) {
-        byte * b = malloc(DB->block_size);
+        byte * b = reinterpret_cast<byte*>(malloc(DB->block_size));
         readda(DB, n, b);
         P[j].p = b + HEADER;
         P[j].n = n;
@@ -211,7 +212,7 @@ static void copy_tag(struct DB_file * DB, struct DB_postings * q, int extra_bit)
     if (size > q->buffer_size)
     {   free(q->buffer);
         q->buffer_size = size + BUFFER_INC;
-        q->buffer = (byte *) malloc(q->buffer_size);
+        q->buffer = reinterpret_cast<byte *>(malloc(q->buffer_size));
     }
     memmove(q->buffer, DB->tag - extra_bit, size);
     q->lim = size;
@@ -221,7 +222,8 @@ static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
 {
     int n = 20; /* The number of levels in the B-tree can never approach 20 */
 
-    struct DB_cursor * C = (struct DB_cursor *) calloc(1, n * sizeof(struct DB_cursor));
+    struct DB_cursor * C;
+    C = reinterpret_cast<struct DB_cursor *>(calloc(1, n * sizeof(struct DB_cursor)));
     int i;
     for (i = 0; i < n; i++) C[i].pool = NULL;
     C[0].n = DB->root;
@@ -231,15 +233,15 @@ static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
 extern struct DB_postings *
 DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
 {
-    struct DB_postings * q =
-        (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
+    struct DB_postings * q;
+    q = reinterpret_cast<struct DB_postings *>(calloc(1, sizeof(struct DB_postings)));
     {
     q->DB = DB;
     q->cursor = DB_make_cursor(DB);
     q->buffer_size = 0;
     q->buffer = NULL;
     if (DB_find(DB, q->cursor, t->key))
-    {   q->key = (byte *) malloc(t->key[0] + ILEN);
+    {   q->key = reinterpret_cast<byte *>(malloc(t->key[0] + ILEN));
         memmove(q->key, t->key, t->key[0]);
         q->key[0] += ILEN;
         copy_tag(DB, q, 0);
@@ -252,7 +254,7 @@ DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
         }
     }
     else
-    {   q->buffer = (byte *) malloc(PWIDTH);
+    {   q->buffer = reinterpret_cast<byte *>(malloc(PWIDTH));
         q->i = 0;
         q->freq = 0;
         M_put_I(q->buffer, 0, MAXINT);
@@ -376,7 +378,8 @@ static int valid_base(const byte * p)
 
 static struct DB_pool * DB_make_pool(int n)
 {
-    struct DB_pool * P = (struct DB_pool *) calloc(1, n * sizeof(struct DB_pool));
+    struct DB_pool * P;
+    P = reinterpret_cast<struct DB_pool *>(calloc(1, n * sizeof(struct DB_pool)));
     int i;
     for (i = 0; i < n; i++) { P[i].p = NULL; P[i].n = -1; P[i].clock = 0; }
     return P;
@@ -391,12 +394,12 @@ extern struct DB_file * DB_open(const char * s, int pool_size)
     q = X_findtoread(s); if (q == -1) return NULL;
     block_size = M_get_block_size(q, s);
 
-    DB = (struct DB_file *) calloc(1, sizeof(struct DB_file));
+    DB = reinterpret_cast<struct DB_file *>(calloc(1, sizeof(struct DB_file)));
     DB->locator = q;
     DB->block_size = block_size;
 
-    {   byte * db0 = malloc(block_size);
-        byte * db1 = malloc(block_size);
+    {   byte * db0 = reinterpret_cast<byte*>(malloc(block_size));
+        byte * db1 = reinterpret_cast<byte*>(malloc(block_size));
         readda(DB, 0, db0);
         if (W(db0, DB_BASE) != 0 || W(db0, DB_BASE2) != 1)
         {   fprintf(stderr, "Not a proper DB file\n"); exit(1);   }
@@ -432,7 +435,7 @@ extern struct DB_file * DB_open(const char * s, int pool_size)
     DB->pool = DB_make_pool(pool_size);
     DB->clock = 0;
 
-    if (DB_find(DB, DB->cursor, (byte *) "\2" "C"))
+    if (DB_find(DB, DB->cursor, reinterpret_cast<const byte *>("\2" "C")))
     {
         DB->doc_count = I(DB->tag, 0);
         DB->term_count = I(DB->tag, 2 * ILEN);
@@ -490,7 +493,7 @@ static int DB_read_unit(struct DB_file * DB, int n, int r_ot_tv, struct record *
         if (r->size < len)
         {   free(r->p);
             r->size = len + BUFFER_INC;
-            r->p = (byte *) malloc(r->size);
+            r->p = reinterpret_cast<byte *>(malloc(r->size));
         }
 
         while(true)
@@ -519,6 +522,6 @@ extern int DB_get_record(struct DB_file * DB, int n, struct record * r)
 
 extern int DB_get_termvec(struct DB_file * DB, int n, struct termvec * tv)
 {
-    return DB_read_unit(DB, n, 1, (struct record *) tv);
+    return DB_read_unit(DB, n, 1, reinterpret_cast<struct record *>(tv));
 }
 

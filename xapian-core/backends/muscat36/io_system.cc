@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -141,7 +142,7 @@ static int init_bf( void ) {
    /* set up stdin, stdout and stderr */
    for ( i=0 ; i <= 2 ; i++ ) {
       bfd *p;
-      p = calloc(1, sizeof(struct bfd));
+      p = reinterpret_cast<bfd*>(calloc(1, sizeof(struct bfd)));
       if (!p) {
 	  /* do nothing on repeated calls */
 	  return 0;
@@ -162,14 +163,13 @@ extern int X_findtoread(const char *pathname) {
    char *fnm;
    bfd *p;
    int fd = -1;
-   int bfd;
    int flags = O_CREAT /*| O_TRUNC*/;
    BIG_STRUCT_STAT st;
 
    if (!bf_inited) init_bf();
 
-   fnm = malloc(strlen(pathname)+EXTRA_MAX+1);
-   p = calloc(1, sizeof(struct bfd));
+   fnm = reinterpret_cast<char*>(malloc(strlen(pathname)+EXTRA_MAX+1));
+   p = reinterpret_cast<bfd*>(calloc(1, sizeof(bfd)));
    if (!fnm || !p) goto err;
 
    strcpy(fnm, pathname);
@@ -181,6 +181,7 @@ extern int X_findtoread(const char *pathname) {
 
    if (fd < 0) goto err;
 
+   int bfd;
    /* look for unused bfd -- !HACK! start at random elt better? */
    for( bfd = LOWEST_BFD ; ; ++bfd ) {
       if (bfd > HIGHEST_BFD) goto err;
@@ -236,12 +237,12 @@ extern int X_point(filehandle fd, int n, int m)
            bfds[fd]->pos = n * m;
            DIAG(( " - don't fake\n" ));
         } else {
-           UINT64 bigpos = (UINT64)n*(UINT64)m;
+           UINT64 bigpos = static_cast<UINT64>(n)*static_cast<UINT64>(m);
            int fileno;
            BIG_OFF_T pos;
 
            fileno = bigpos >> 30;
-           pos = bigpos & (((UINT64)1<<30) - 1);
+           pos = bigpos & ((static_cast<UINT64>(1)<<30) - 1);
            DIAG((" -> file %d pos %d", fileno, pos));
            if (fileno != bfds[fd]->fileno) {
               char *endp;

@@ -122,4 +122,4 @@ socketpair.  Not tried to run the binaries yet.
 /usr/lib/libSystem.dylib(getopt.o) unused definition of _optarg
 
 [8] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
-./configure CFLAGS=-O0 CXXFLAGS=-O0
+./configure CXXFLAGS=-O0

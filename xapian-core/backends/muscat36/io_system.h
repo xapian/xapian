@@ -23,11 +23,6 @@
 #ifndef _io_system_h_
 #define _io_system_h_
 
-/* Make header file work when included from C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef  unsigned char  byte;
 typedef  int  filehandle;     /* would be 'FILE *' in ANSI C */
 
@@ -35,10 +30,6 @@ extern int X_findtoread(const char * s);
 extern int X_point(filehandle h, int n, int m);
 extern int X_close(filehandle h);
 extern int X_read(filehandle h, byte * b, int n);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* io_system.h */
 

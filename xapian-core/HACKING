@@ -101,15 +101,15 @@ Using various debugging, profiling, and leak-finding tools:
 
 To enable profiling for gprof:
 
-  ./configure CFLAGS=-pg CXXFLAGS=-pg LDFLAGS=-pg
+  ./configure CXXFLAGS=-pg LDFLAGS=-pg
 
 To use Purify:
 
-  ./configure CXXLD='purify c++' CCLD='purify cc' --disable-shared
+  ./configure CXXLD='purify c++' --disable-shared
 
 To use Insure:
 
-  ./configure CXX=insure CC=insure
+  ./configure CXX=insure
 
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
@@ -147,7 +147,7 @@ at the time of writing, the versions known to work are:
 
 	automake (GNU automake) 1.8.5
 		automake 1.4 has problems with "make dist" in a VPATH build,
-		and doesn't support AM_CFLAGS/AM_CXXFLAGS.
+		and doesn't support AM_CXXFLAGS.
 
 		automake 1.5 doesn't work with "make check" with Solaris make -
 		the problem is with the rules to build tests/internaltest
@@ -280,7 +280,7 @@ warnings (e.g. about not returning a value from a non-void function).
 
 If using GCC 3.0 or newer, you should consider configure-ing with:
 
-./configure CXXFLAGS=-Werror CFLAGS=-Werror
+./configure CXXFLAGS=-Werror
 
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.

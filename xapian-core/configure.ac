@@ -68,9 +68,11 @@ dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
 dnl Checks for programs.
-AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_YACC
+
+dnl Run tests using the C++ compiler.
+AC_LANG_CPLUSPLUS
 
 XAPIAN_LDFLAGS=
 AC_SUBST(XAPIAN_LDFLAGS)
@@ -132,7 +134,6 @@ dnl Compaq's C++ compiler doesn't know snprintf, yet their C compiler does.
 dnl Let's try running *all* the configure checks with the C++ compiler, since
 dnl that's what we compile most code with.
 dnl AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
 AC_CHECK_HEADERS(sstream)
@@ -434,7 +435,6 @@ if test yes = "$GCC" ; then
   dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
   dnl Xapian will build with any earlier version, so there's not much point
   dnl testing if -Wno-long-long is supported.
-  AM_CFLAGS="$AM_CFLAGS -Wall -W -Wno-long-long"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
   dnl Automatically add -Werror if maintainer mode is enabled and we're using
   dnl GCC3 or newer.  We don't do this for older GCCs as GCC 2.95 issues
@@ -442,7 +442,6 @@ if test yes = "$GCC" ; then
   if test x$USE_MAINTAINER_MODE = xyes; then
     case `$CC --version` in
     [3-9]*.*|[12][0-9]*.*) 
-      AM_CFLAGS="$AM_CFLAGS -Werror"
       AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
     esac
   fi
@@ -474,7 +473,6 @@ if test yes = "$use_stlport"; then
 fi
 AC_SUBST(STLPORT_CXXFLAGS)
 
-AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 
 dnl See if large file support is available

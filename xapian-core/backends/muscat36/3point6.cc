@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,7 @@
 #include "3point6.h"
 
 extern int M_wordat(const byte * p)
-{   return ((((signed char *)p)[0] << 8 | p[1]) << 8 | p[2]) << 8 | p[3];
+{   return ((reinterpret_cast<const signed char *>(p)[0] << 8 | p[1]) << 8 | p[2]) << 8 | p[3];
 }
 
 /* the 'signed char *' cast above is for machines with > 32 bit wordsize */
@@ -62,7 +63,8 @@ extern int M_get_block_size(filehandle f, const char * s)
 
 
 extern struct record * M_make_record()
-{  struct record * r = (struct record *) calloc(1, sizeof(struct record));
+{  struct record * r;
+   r = reinterpret_cast<struct record *>(calloc(1, sizeof(struct record)));
    r->size = 0;
    r->p = 0;
    r->number = -1;
@@ -117,7 +119,8 @@ extern void M_read_terms(struct termvec * tv)
 }
 
 extern struct termvec * M_make_termvec()
-{  struct termvec * tv = (struct termvec *) calloc(1, sizeof(struct termvec));
+{  struct termvec * tv;
+   tv = reinterpret_cast<struct termvec *>(calloc(1, sizeof(struct termvec)));
    tv->size = 0;
    tv->p = 0;
    tv->number = -1;

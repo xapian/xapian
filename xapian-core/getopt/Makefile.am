@@ -4,4 +4,4 @@ INCLUDES = -I$(top_srcdir)/common
 
 noinst_LTLIBRARIES = libgetopt.la
 
-libgetopt_la_SOURCES = getopt.c getopt1.c
+libgetopt_la_SOURCES = getopt.cc getopt1.cc

@@ -25,11 +25,6 @@
 #ifndef _daread_h_
 #define _daread_h_
 
-/* Make header file work when included from C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "3point6.h"
 
 /* DA files
@@ -260,9 +255,5 @@ extern int                  DA_prev_term(struct DA_term_info * v, struct DA_file
 extern int                  DA_get_record(struct DA_file * p, int n, struct record * r);
 
 extern int                  DA_get_termvec(struct DA_file * p, int n, struct termvec * tv);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* daread.h */
