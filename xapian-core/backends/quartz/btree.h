@@ -439,13 +439,6 @@ class Btree {
 
 	mutable Cursor C[BTREE_CURSOR_LEVELS];
 
-	/** Buffer used when splitting a block.
-	 *
-	 *  This buffer holds the split off part of the block.  It's only used
-	 *  when updating.
-	 */
-	byte * split_p;
-
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
 };
