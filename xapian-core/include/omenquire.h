@@ -273,6 +273,41 @@ class OmExpandDecider {
 	/** Decide whether we want this term to be in the expand set.
 	 */
 	virtual int operator()(const om_termname & tname) const = 0;
+
+	virtual ~OmExpandDecider() {};
+};
+
+/** One useful expand decision functor, which provides a way of
+ *  filtering out a fixed list of terms from the expand set.
+ */
+class OmExpandDeciderFilterTerms : public OmExpandDecider {
+    public:
+        /** Constructor, which takes a list of terms which
+	 *  will be filtered out.
+	 */
+        OmExpandDeciderFilterTerms(const om_termname_list &terms);
+
+        virtual int operator()(const om_termname &tname) const;
+    private:
+        set<om_termname> tset;
+};
+
+/** An expand decision functor which can be used to join two
+ *  functors with an AND operation.
+ */
+class OmExpandDeciderAnd : public OmExpandDecider {
+    public:
+    	/** Constructor, which takes as arguments the two
+	 *  decision functors to AND together.
+	 */
+	OmExpandDeciderAnd(const OmExpandDecider *left_,
+	                   const OmExpandDecider *right_);
+	
+	virtual int operator()(const om_termname &tname) const;
+
+    private:
+        const OmExpandDecider *left;
+	const OmExpandDecider *right;
 };
 
 ///////////////////////////////////////////////////////////////////

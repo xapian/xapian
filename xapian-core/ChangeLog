@@ -1,3 +1,9 @@
+Tue Feb 15 17:03:31 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented the "allow query terms" option for Expand Terms.
+
+	* Added some useful ExpandDeciders to omenquire.h
+
 Tue Feb 15 12:59:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The dvi documentation is now automatically built and added

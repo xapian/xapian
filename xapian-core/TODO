@@ -28,8 +28,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Tests           | Write tests for collapse M.
 ---------+-----------------+--------------------------------------------------
- High    | Expand          | Implement option to remove current query terms
----------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------

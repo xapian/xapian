@@ -444,6 +444,25 @@ OmExpandOptions::use_query_terms(bool allow_query_terms_)
     allow_query_terms = allow_query_terms_;
 }
 
+OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
+                               const om_termname_list &terms)
+	: tset(terms.begin(), terms.end()) {}
+
+int
+OmExpandDeciderFilterTerms::operator()(const om_termname &tname) const
+{
+    return (tset.find(tname) == tset.end());
+}
+
+OmExpandDeciderAnd::OmExpandDeciderAnd(const OmExpandDecider *left_,
+                                       const OmExpandDecider *right_)
+        : left(left_), right(right_) {}
+
+int
+OmExpandDeciderAnd::operator()(const om_termname &tname) const
+{
+    return ((*left)(tname)) && ((*right)(tname));
+}
 
 ////////////////////////
 // Methods for OmMSet //
@@ -676,6 +695,11 @@ OmEnquire::get_eset(om_termcount maxitems,
 {
     OmESet retval;
 
+    OmExpandOptions defeoptions;
+    if (eoptions == 0) {
+        eoptions = &defeoptions;
+    }
+
     internal->open_database();
     OmExpand expand(internal->database);
     RSet rset(internal->database, omrset);
@@ -683,9 +707,14 @@ OmEnquire::get_eset(om_termcount maxitems,
     DebugMsg("rset size is " << rset.get_rsize() << endl);
 
     OmExpandDeciderAlways decider_always;
-    if(edecider == 0) edecider = &decider_always;
+    if (edecider == 0) edecider = &decider_always;
+
+    OmExpandDeciderFilterTerms decider_noquery(internal->query->get_terms());
+    OmExpandDeciderAnd decider_andnoquery(&decider_noquery, edecider);
+    if (!eoptions->allow_query_terms) {
+        edecider = &decider_andnoquery;
+    }
     
-    // FIXME: also set whether or not to use query terms.
     expand.expand(maxitems, retval, &rset, edecider);
 
     return retval;
