@@ -15,7 +15,7 @@ my $cvsmap = "$pwd/cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
-my @class = ("class=\"e\"", "class=\"o\"");
+my @class = ('class="e"', 'class="o"');
 
 # prototypes
 sub compare_index();
@@ -45,16 +45,16 @@ if (0) {
     compare_file_index(param("root"), param("pkg"), param("fileid"));
 } else {
     my $short = param("short");
-    
+
     if ($short ne "1") {
         $short = "0";
     }
-    
+
     my $width = param("width");
     if ($width eq "") {
         $width = 40;
     }
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), 
+    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"),
                          $short, $width, param("latest"));
 }
 
@@ -93,14 +93,14 @@ sub compare_index() {
 # ------------------------------------------------------------
 sub compare_root_index {
     my ($root) = @_;
-    
+
     print "<html>\n";
     print "<head>\n";
     print_title("root index $root");
     Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
-    
+
     # ----------------------------------------
     # show a drop down menu
     # ----------------------------------------
@@ -115,11 +115,11 @@ sub compare_root_index {
             $cvsroot = $_;
             print "<option selected value=$roots{$_}>$_</option>\n";
         } else {
-            print "<option value=$roots{$_}>$_</option>\n";            
+            print "<option value=$roots{$_}>$_</option>\n";
         }
     }
     print "</select><input type=submit></form>\n";
-    
+
     # ----------------------------------------
     # didn't obtain a valid cvsroot entry
     # ----------------------------------------
@@ -131,7 +131,7 @@ sub compare_root_index {
         print end_html;
         exit(0);
     }
-    
+
     # ----------------------------------------
     # found a repository, list all the packages
     # ----------------------------------------
@@ -176,14 +176,14 @@ sub compare_pkg_index {
     my $comment;
     my @versions;
     my @comments;
-    
+
     print "<html>\n";
     print "<head>\n";
     print_title ($pkg);
     Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
-    
+
     # ----------------------------------------
     # dump all the links here
     # ----------------------------------------
@@ -200,7 +200,7 @@ sub compare_pkg_index {
         $i++;
     }
     close (OFFSET);
-    
+
     # ----------------------------------------
     # append to the query string
     # ----------------------------------------
@@ -208,7 +208,7 @@ sub compare_pkg_index {
     for ($i = 1; $i <= $#filenames + 1; $i++) {
         $command = $command . " -a $i";
     }
-    
+
     # ----------------------------------------
     # output, only interested in the last
     # revision number and comment
@@ -224,7 +224,7 @@ sub compare_pkg_index {
             if (/$ctrlC/) {
                 my @fieldss = split(/$ctrlC/, $fields[0]);
                 $version = $fieldss[0];
-                
+
                 if (0) {
                 } elsif ($#fieldss == 1) {
                     $comment= $fieldss[1];
@@ -251,23 +251,23 @@ sub compare_pkg_index {
         }
     }
     # ----------------------------------------
-    # at this point 
+    # at this point
     # @version == last version of all files (before indexing)
     # @comment == last comment of all files (before indexing)
     # ----------------------------------------
-    
+
     close(RESULT);
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
     print "<h1 align=center>$pkg</h1>\n";
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "</b><p>\n";
-    
-    print "Click on a file to display its revision history and see how lines from "; 
+
+    print "Click on a file to display its revision history and see how lines from ";
     print "early versions have been matched/aligned with lines in the latest version ";
     print "(so that commit comments are associated with the correct lines in the ";
     print "latest version).";
-    
+
     print "<hr noshade>\n";
     print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td class=\"s\">File</td><td class=\"s\">Last Rev</td><td class=\"s\">Last CVS Comment</td></tr>\n";
@@ -294,14 +294,14 @@ sub compare_file_index {
     # dump all the links here
     # ----------------------------------------
     my $pkg1 = $pkg;
-    $pkg1  =~tr/\//\_/;    
+    $pkg1  =~tr/\//\_/;
     open (FILE, "$cvsquery $root $pkg -f $fileid -a $fileid |");
     my $version;
     my $comment;
     my @versions;
     my @comments;
     my $filename;
-    
+
     # ------------------------------------------------------------
     # get the filename
     # ------------------------------------------------------------
@@ -320,17 +320,17 @@ sub compare_file_index {
             }
         }
     }
-    
+
     if ($filename eq "") {
         # ----------------------------------------
         # woops.. didn't get a filename
         # ----------------------------------------
         print start_html;
-        print "The specified parameters are not valid\n"; 
+        print "The specified parameters are not valid\n";
         print end_html;
         return;
     }
-    
+
     while (<FILE>) {
         chomp;
         if (0) {
@@ -341,7 +341,7 @@ sub compare_file_index {
             if (/$ctrlC/) {
                 my @fieldss = split(/$ctrlC/, $fields[0]);
                 $version = $fieldss[0];
-                
+
                 if (0) {
                 } elsif ($#fieldss == 1) {
                     $comment= $fieldss[1];
@@ -362,7 +362,7 @@ sub compare_file_index {
         }
     }
     close(FILE);
-    
+
     print "<html>\n";
     print "<head>\n";
     print_javascript($root, $pkg, $fileid);
@@ -370,7 +370,7 @@ sub compare_file_index {
     Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
-    
+
     if ($#versions >= 0) {
         my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
         print "<h1 align=\"center\">aligned diff outputs for <B>$filename</B></h1>\n";
@@ -378,7 +378,7 @@ sub compare_file_index {
         print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
         print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg]</a>\n";
         print "</b><p>\n";
-        
+
         print "<hr noshade>\n";
         print "Default branch: MAIN\n";
         print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", 40, $versions[0]);
@@ -411,13 +411,13 @@ sub compare_file_version {
     my $pkg1 = $pkg;
     $pkg1 =~tr/\//\_/;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
-    if ($fileid eq "" || 
+    if ($fileid eq "" ||
         $pkg eq "" ||
         $root eq "" ||
         $cvsdata eq "" ||
         $version eq "") {
         print start_html;
-        print "The specified parameters are not valid\n"; 
+        print "The specified parameters are not valid\n";
         print end_html;
     }
     my $file ="";
@@ -431,7 +431,7 @@ sub compare_file_version {
             $file = $_;
         }
     }
-    
+
     if ($latest_version eq "") {
         while (<FILE>) {
             chomp;
@@ -463,14 +463,14 @@ sub compare_file_version {
         }
     }
     close(FILE);
-    
+
     if (Cvssearch::cmp_cvs_version($latest_version,$version) < 0) {
         print start_html;
         print "the specified latest version $latest_version is older than the version $version\n";
         print end_html;
         return;
     }
-    
+
     my $short_flag = "";
     if ($short eq "1") {
         $short_flag = "-s";
@@ -482,7 +482,7 @@ sub compare_file_version {
     print "</head>\n";
     print "<body class=compare>\n";
     chdir ("$cvsdata/$root/src/$pkg");
-    
+
     my $filename = "";
     if ($pkg == substr($file, 0, length($pkg))) {
         # ----------------------------------------
@@ -490,13 +490,13 @@ sub compare_file_version {
         # ----------------------------------------
         $filename = substr($file, length($pkg)+1, length($file)-length($pkg)-1);
     }
-    
+
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg]</a>\n";
     print "<a href=\"$cvscompare?pkg=$pkg&root=$root&fileid=$fileid\">[$filename]</a>\n";
     print "</b><p>\n";
-    
+
     print "<h1 align=center>aligned diff for $filename\n(";
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version&width=$width\">full</a>,\n";
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version&width=$width\">short</a>)\n";
@@ -535,7 +535,7 @@ sub print_compare_form {
     my $selecteds= "";
     if (0) {
     } elsif ($short eq "0") {
-        $selectedl = " selected";      
+        $selectedl = " selected";
     } elsif ($short eq "1") {
         $selecteds = " selected";
     }
@@ -543,7 +543,7 @@ sub print_compare_form {
     print "<option $selecteds value=1>short</option></select>\n";
     print "column width should be <input type=text size=3 name=width value=\"$width\">\n";
     print "<input type=submit value=\"Get Aligned Diff\"><br>\n";
-    
+
     print "</form>\n";
 }
 
