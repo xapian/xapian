@@ -1,3 +1,7 @@
+Wed Oct 30 01:56:31 GMT 2002  Olly Betts <olly@survex.com>
+
+	* buildall: Removed in favour of bootstrap script.
+
 Tue Oct 29 02:01:58 GMT 2002  Olly Betts <olly@survex.com>
 
 	* omindex.cc,scriptindex.cc: Added MAX_PROB_TERM_LENGTH (set to
