@@ -36,5 +36,5 @@ bin_SCRIPTS = libomus-config
 libomus-config: libomus-config.nodep libomus.la
 	@echo "Creating $@"
 	@export dependency_libs; \
-	. libomus.la ; \
+	. $(top_builddir)/libomus.la ; \
 	cat $< | sed "s%@dependency_libs@%$${dependency_libs}%" > $@

@@ -43,7 +43,10 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 SAVED_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -fno-access-control"
-AC_TRY_COMPILE(,[return 0],
+dnl Use AC_TRY_LINK instead of AC_TRY_COMPILE, since some compilers
+dnl ignore options they don't understand and just pass them on to ld,
+dnl rather than giving an error.  (eg Solaris CC)
+AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes); [FNO_ACCESS_FLAG=yes],
 		AC_MSG_RESULT(no); [FNO_ACCESS_FLAG=no])
 CXXFLAGS="$SAVED_CXXFLAGS"
@@ -413,7 +416,7 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 SAVED_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -Wno-long-long"
-AC_TRY_COMPILE(,[return 0],
+AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes),
 		AC_MSG_RESULT(no); [CXXFLAGS="$SAVED_CXXFLAGS"])
 unset SAVED_CXXFLAGS
@@ -425,7 +428,7 @@ AC_LANG_SAVE
 AC_LANG_C
 SAVED_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -Wno-long-long"
-AC_TRY_COMPILE(,[return 0],
+AC_TRY_LINK(,[return 0],
 		AC_MSG_RESULT(yes),
 		AC_MSG_RESULT(no); [CFLAGS="$SAVED_CFLAGS"])
 unset SAVED_CFLAGS

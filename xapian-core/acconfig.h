@@ -79,7 +79,7 @@
 #endif // MUS_MUTEX_ERRCHECK
 
 #ifndef HAVE_GETOPT_H
-// needed for Solaris for getopt to be defined in stdlib.h
+/* needed for Solaris for getopt to be defined in stdlib.h */
 #define __EXTENSIONS__
 #endif // HAVE_GETOPT_H
 

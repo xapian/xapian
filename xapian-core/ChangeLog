@@ -1,3 +1,7 @@
+Thu Jul  6 18:01:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More portability fixes.
+
 Thu Jul  6 16:46:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix deadlock when calling get_matching_terms()

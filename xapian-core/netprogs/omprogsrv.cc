@@ -41,7 +41,7 @@
 #include "backendmanager.h"
 
 int main(int argc, char *argv[]) {
-    string message;
+    std::string message;
 #if 0
     getline(cin, message);
     cerr << "omnetclient: read " << message << endl;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 	backendmanager.set_datadir(argv[1]);
 	backendmanager.set_dbtype("inmemory");
 
-	vector<string> paths;
+	std::vector<std::string> paths;
 	for (int i=2; i<argc; ++i) {
 	    paths.push_back(argv[i]);
 	}

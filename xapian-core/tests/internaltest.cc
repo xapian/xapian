@@ -24,6 +24,8 @@
 #include <iostream>
 #include <string>
 #include <memory>
+using std::cout;
+using std::endl;
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
@@ -262,8 +264,8 @@ bool test_stringcomp1()
 {
     bool success = true;
 
-    string s1;
-    string s2;
+    std::string s1;
+    std::string s2;
 
     s1 = "foo";
     s2 = "foo";
@@ -339,9 +341,9 @@ bool test_sleepypack1()
     positions.push_back(16u);
 
     SleepyListItem item1(id, wdf, positions, termfreq, doclen);
-    string packed1 = item1.pack(true);
+    std::string packed1 = item1.pack(true);
     SleepyListItem item2(packed1, true);
-    string packed2 = item2.pack(true);
+    std::string packed2 = item2.pack(true);
 
     if(packed1 != packed2) {
 	success = false;
