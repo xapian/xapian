@@ -204,10 +204,6 @@ Priority | Area            | Task
  Dubious | Weighting       | Allow for a non-zero minimum value for the ndl
 	 |                 | (normalised doc len).
 ---------+-----------------+--------------------------------------------------
- Dubious | General         | Rename some methods to use consistent
-         |                 | nomenclature: eg get_termfreq -> get_cfreq
-	 |                 | (cf = collection frequency)
----------+-----------------+--------------------------------------------------
  Dubious | Matcher         | Boolean filters result in collection statistics
          |                 | being for the wrong set of documents (should be
   	 |                 | appropriate subset)
