@@ -27,6 +27,7 @@
 #include "config.h"
 
 IRDatabase *database;
+doccount max_msize;
 GtkCList *results_widget;
 GtkCList *topterms_widget;
 
@@ -190,7 +191,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    i++;
 	}
 
-	matcher.set_max_msize(10);
+	matcher.set_max_msize(max_msize);
 
 	matcher.match();
 	weight maxweight = matcher.get_max_weight();
@@ -253,7 +254,7 @@ IRDatabase *makenewdb(const string &type)
 
 int main(int argc, char *argv[]) {
     string gladefile = "querygui.glade";
-    int msize = 10;
+    max_msize = 10;
     list<string> dbnames;
     list<string> dbtypes;
 
@@ -266,8 +267,8 @@ int main(int argc, char *argv[]) {
     argv++;
     argc--;
     while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
-	    msize = atoi(argv[1]);
+	if (argc >= 2 && strcmp(argv[0], "--max-msize") == 0) {
+	    max_msize = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
@@ -292,7 +293,7 @@ int main(int argc, char *argv[]) {
 
     if (syntax_error || argc >= 1) {
 	cout << "Syntax: " << progname << " [options]" << endl;
-	cout << "\t--msize <initial msize>\n";
+	cout << "\t--max-msize <maximum msize>\n";
 	cout << "\t--da <DA directory>\n";
 	cout << "\t--tf <textfile>\n";
 	cout << "\t--glade <glade interface definition file>\n";
@@ -324,6 +325,7 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
+    // FIXME - debugging code - remove this
 	Match matcher(database); 
 	matcher.add_term("olli");
 	matcher.set_max_msize(10);
