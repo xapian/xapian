@@ -207,6 +207,12 @@ sub cmprelease {
     my $r2 = $$b{'release'};
     $r1 = "9999999" if $r1 eq "";
     $r2 = "9999999" if $r2 eq "";
+    if ($r1 eq '*') {
+	return ($r2 eq '*') ? 0 : -1;
+    }
+    if ($r2 eq '*') {
+	return 1;
+    }
     $r1 <=> $r2;
 }
 
