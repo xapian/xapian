@@ -3,6 +3,7 @@
 #include "irdocument.h"
 #include "da_record.h"
 #include "daread.h"
+#include "damuscat.h"
 
 DADocument::DADocument(struct record *rec_new) {
     rec = rec_new;
@@ -25,6 +26,8 @@ IRData
 DADocument::get_data() const
 {
     IRData data;
-    data.value = string((char *)rec->p, rec->size);
+    unsigned char *pos = (unsigned char *)rec->p;
+    unsigned int len = LOF(pos, 0);
+    data.value = string((char *)pos + LWIDTH + 3, len - LWIDTH - 3);
     return data;
 }
