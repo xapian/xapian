@@ -1,3 +1,7 @@
+Mon Feb 14 15:20:11 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/lemon.c: C, not C++.
+
 Mon Feb 14 05:49:50 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/: Tweak lemon so we can avoid generating files in builddir

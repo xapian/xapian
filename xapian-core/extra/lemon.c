@@ -3385,10 +3385,10 @@ int mhflag;     /* Output in makeheaders format if true */
   in = tplt_open(lemp);
   if( in==0 ) return;
   if( output_filename!=0 ){
-    char *ext = strrchr(output_filename, '.');
-    if( ext==0 ) ext = ".c";
     char *tmp = lemp->filename;
     lemp->filename = output_filename;
+    char *ext = strrchr(output_filename, '.');
+    if( ext==0 ) ext = ".c";
     out = file_open(lemp,ext,"wb");
     lemp->filename = tmp;
   }else{
@@ -3803,10 +3803,10 @@ struct lemon *lemp;
   if( lemp->tokenprefix ) prefix = lemp->tokenprefix;
   else                    prefix = "";
   if( output_header_filename!=0 ){
-    char *ext = strrchr(output_header_filename, '.');
-    if( ext==0 ) ext = ".h";
     char *tmp = lemp->filename;
     lemp->filename = output_header_filename;
+    char *ext = strrchr(output_header_filename, '.');
+    if( ext==0 ) ext = ".h";
     in = file_open(lemp,ext,"rb");
     lemp->filename = tmp;
   }else{
@@ -3824,10 +3824,10 @@ struct lemon *lemp;
     }
   }
   if( output_header_filename!=0 ){
-    char *ext = strrchr(output_header_filename, '.');
-    if( ext==0 ) ext = ".h";
     char *tmp = lemp->filename;
     lemp->filename = output_header_filename;
+    char *ext = strrchr(output_header_filename, '.');
+    if( ext==0 ) ext = ".h";
     out = file_open(lemp,ext,"wb");
     lemp->filename = tmp;
   }else{
