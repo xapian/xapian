@@ -1,3 +1,7 @@
+Thu Dec  7 17:49:50 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed omkeylistiterator return types.
+
 Thu Dec  7 17:27:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Moved get_document() from OmWritableDatabase to OmDatabase.
