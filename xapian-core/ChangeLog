@@ -1,3 +1,8 @@
+Thu Sep 21 16:25:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove unwanted set_entries() method from QuartzDbTable - must now
+	  specify new revision explicitly.  Updated testsuite accordingly.
+
 Thu Sep 21 15:53:30 BST 2000 Olly Betts
 
 	* Very minor changes to LocalMatch.

@@ -153,11 +153,3 @@ QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
     return true;
 }
 
-bool
-QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
-{
-    QuartzRevisionNumber new_revision(get_latest_revision_number());
-    new_revision.increment();
-    return set_entries(entries, new_revision);
-}
-

@@ -162,8 +162,10 @@ static bool test_dbtable1()
     std::map<QuartzDbKey, QuartzDbTag *> newentries;
 
     // Check adding no entries
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -179,8 +181,10 @@ static bool test_dbtable1()
     tag.value = "world";
     newentries[key] = &tag;
     
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -194,8 +198,10 @@ static bool test_dbtable1()
     check_table_values_hello(table2, "world");
 
     // Check adding the same entries
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -212,9 +218,11 @@ static bool test_dbtable1()
     // Check adding an entry with a null key
     key.value = "";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(OmAssertionError, table2.set_entries(newentries));
+    TEST_EXCEPTION(OmAssertionError, table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment()));
 #endif
 
     // Check changing an entry, to a null tag
@@ -222,8 +230,10 @@ static bool test_dbtable1()
     key.value = "hello";
     tag.value = "";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -240,8 +250,10 @@ static bool test_dbtable1()
     newentries.clear();
     key.value = "hello";
     newentries[key] = 0;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -262,8 +274,10 @@ static bool test_dbtable1()
     key.value = "whooo";
     tag.value = "world";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    table2.set_entries(newentries);
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
+			table1.get_latest_revision_number().increment()));
+    table2.set_entries(newentries,
+		       table2.get_latest_revision_number().increment());
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());

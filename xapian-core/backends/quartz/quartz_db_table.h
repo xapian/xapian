@@ -114,8 +114,9 @@ class QuartzRevisionNumber {
 	}
 
 	/// Increment a revision number
-	void increment() {
+	QuartzRevisionNumber increment() {
 	    ++value;
+	    return *this;
 	}
 
 	/** Introspection method.
@@ -254,7 +255,6 @@ class QuartzDbTable : public RefCntBase {
 	 */
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
 
-	//@{
 	/** Modify the entries in the table.
 	 *
 	 *  Each key / tag pair is added to the table.
@@ -271,19 +271,17 @@ class QuartzDbTable : public RefCntBase {
 	 *  unmodified state.
 	 *
 	 *  @param entries       The key / tag pairs to store in the table.
-	 *  @param new_revision  If specified, the new revision number to
-	 *          store.  This must be greater than the latest revision
-	 *          number (see get_latest_revision_number()), or undefined
-	 *          behaviour will result.  If not specified, the new
-	 *          revision number will be the current one plus 1.
+	 *  @param new_revision  The new revision number to store.  This must
+	 *          be greater than the latest revision number (see
+	 *          get_latest_revision_number()), or undefined behaviour will
+	 *          result.  If not specified, the new revision number will be
+	 *          the current one plus 1.
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries);
 	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 			 QuartzRevisionNumber new_revision);
-	//@}
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_TABLE_H */
