@@ -25,6 +25,19 @@ OmMSetIterator::inc()
     OUTPUT:
         RETVAL
 
+bool
+OmMSetIterator::equal(OmMSetIterator * that)
+    CODE:
+        RETVAL = ((*THIS) == (*that));
+    OUTPUT:
+        RETVAL
+
+bool
+OmMSetIterator::nequal(OmMSetIterator * that)
+    CODE:
+        RETVAL = ((*THIS) != (*that));
+    OUTPUT:
+        RETVAL
 
 om_docid
 OmMSetIterator::get_docid()

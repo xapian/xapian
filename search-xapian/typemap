@@ -16,6 +16,8 @@ OmESet                O_ESET
 OmESet *              O_ESET
 OmMSetIterator        O_MSET_I
 OmMSetIterator *      O_MSET_I
+OmESetIterator        O_ESET_I
+OmESetIterator *      O_ESET_I
 OmDocument            O_DOC
 OmDocument *          O_DOC
 OmMatchDecider        O_OBJECT
@@ -73,6 +75,14 @@ O_ESET
 	}
 
 O_MSET_I
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_ESET_I
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
 	else{
@@ -141,6 +151,8 @@ O_ESET
 	sv_setref_pv( $arg, "Search::Xapian::ESet", (void*)$var );
 O_MSET_I
 	sv_setref_pv( $arg, "Search::Xapian::MSetIterator", (void*)$var );
+O_ESET_I
+	sv_setref_pv( $arg, "Search::Xapian::ESetIterator", (void*)$var );
 O_DOC
 	sv_setref_pv( $arg, "Search::Xapian::Document", (void*)$var );
 O_QUERY

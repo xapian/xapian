@@ -1,5 +1,20 @@
 Revision history for Perl extension Search::Xapian.
 
+0.05 Tue Jan 14 01:43:45 2002
+        - OM_DB_CREATE_OR_* symbols wrapped
+        - Extra tests for argument validity for Search::Xapian::Query
+          constructor 
+        - Makefile.PL now prints where it has located om/om.h and
+          libxapian.so files
+        [Changes contributed by Olly Betts]
+	- Most methods wrapped for OmESet, OmESetIterator, OmRSet
+	- OmMSet::empty() returns bool, not om_weight
+	- Fixed eq and ne for Search::Xapian::MSetIterator
+	- Fixed Search::Xapian::MSet::convert_to_percent()
+	- Moved #include-s to top of Xapian.xs to fix compilation
+          problems 
+	- Added 14 new test cases
+
 0.04  Thu Dec 26 18:17:54 2002
         - Convenience method: $enq->set_query( $op, @terms ... );
           now autogenerates a query object with the arguments passed

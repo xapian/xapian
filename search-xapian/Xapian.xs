@@ -1,3 +1,6 @@
+#include <om/om.h>
+#include <string>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -7,9 +10,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#include <om/om.h>
-#include <string>
 
 using namespace std;
 
@@ -24,6 +24,9 @@ INCLUDE: XS/Document.xs
 INCLUDE: XS/Enquire.xs
 INCLUDE: XS/MSet.xs
 INCLUDE: XS/MSetIterator.xs
+INCLUDE: XS/ESet.xs
+INCLUDE: XS/ESetIterator.xs
+INCLUDE: XS/RSet.xs
 INCLUDE: XS/Query.xs
 INCLUDE: XS/TermIterator.xs
 INCLUDE: XS/WritableDatabase.xs
@@ -45,4 +48,6 @@ BOOT:
 
         newCONSTSUB( mHvStash, "OM_DB_OPEN", newSViv(OM_DB_OPEN) );
         newCONSTSUB( mHvStash, "OM_DB_CREATE", newSViv(OM_DB_CREATE) );
+        newCONSTSUB( mHvStash, "OM_DB_CREATE_OR_OPEN", newSViv(OM_DB_CREATE_OR_OPEN) );
+        newCONSTSUB( mHvStash, "OM_DB_CREATE_OR_OVERWRITE", newSViv(OM_DB_CREATE_OR_OVERWRITE) );
     }
