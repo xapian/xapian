@@ -1,7 +1,7 @@
-Wed Sep 11 11:37:41 BST 2002  Olly Betts <olly@survex.com>
+Sat Sep 14 01:56:44 BST 2002  Olly Betts <olly@survex.com>
 
-	* backends/quartz/btree.cc: rearranged Btree::del() so control flow
-	  is clearer.
+	* HACKING,docs/Makefile.am: added evil hack to allow VPATH builds to
+	  work with BSD make.
 
 Wed Sep 11 11:29:07 BST 2002  Olly Betts <olly@survex.com>
 
