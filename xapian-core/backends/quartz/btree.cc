@@ -738,8 +738,8 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
 	// Truncate the key to the minimal key which differs from prevkey,
 	// the preceding key in the block.
 	i = K1;
-	const int prevkey_len = GETK(prevkey, 0) - C2;
-	while (i < prevkey_len && prevkey[i] == newkey[i]) {
+	const int min_len = min(newkey_len, GETK(prevkey, 0) - C2);
+	while (i < min_len && prevkey[i] == newkey[i]) {
 	    i++;
 	}
 

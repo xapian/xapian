@@ -1,3 +1,13 @@
+Fri Oct 29 05:10:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Fixed ultra-obscure bug in the code which
+	  finds a key suitable to discriminating between two blocks in a
+	  B-tree branch (discovered by reading the code).  Comparing the keys
+	  didn't consider the length of the second, so it is possible the code
+	  would miscompare.  But in reality this is extremely unlikely to
+	  happen, and even then would probably just mean that the
+	  discriminating key wouldn't be as short as it could be.
+
 Fri Oct 29 04:12:09 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Simplified Btree::compare_keys() by
