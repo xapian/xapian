@@ -1,3 +1,7 @@
+Sun Aug 10 01:26:58 BST 2003  Olly Betts <olly@survex.com>
+
+	* acinclude.m4: Updated in line with previous change.
+
 Sun Aug 10 01:00:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: If fork is found, but socketpair isn't automatically
