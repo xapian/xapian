@@ -195,9 +195,8 @@ Btree_base::read(const string & name, char ch, string &err_msg)
     string basename = name + "base" + ch;
     int h = sys_open_to_read_no_except(basename);
     fdcloser closefd(h);
-    if ( ! valid_handle(h)) {
-	err_msg += "Couldn't open " + basename +
-		": " + strerror(errno) + "\n";
+    if (h == -1) {
+	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
     }
     string buf(sys_read_all_bytes(h, REASONABLE_BASE_SIZE));

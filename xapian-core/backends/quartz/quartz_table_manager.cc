@@ -26,6 +26,7 @@
 
 #include "quartz_table_manager.h"
 #include "quartz_record.h"
+#include "btree_util.h"
 
 #include "utils.h"
 #include "om/omerror.h"

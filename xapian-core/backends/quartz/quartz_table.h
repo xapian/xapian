@@ -27,13 +27,12 @@
 
 #include "quartz_types.h"
 #include "quartz_table_entries.h"
+#include "bcursor.h"
 #include "autoptr.h"
 #include <string>
 #include <map>
 using std::string;
 using std::map;
-
-#include "btree.h"
 
 class QuartzDiskTable;
 class QuartzBufferedTable;
@@ -133,10 +132,7 @@ class QuartzDiskCursor : public QuartzCursor {
 
     public:
 	/// Create the cursor
-	QuartzDiskCursor(struct Btree * btree)
-		: is_positioned(false),
-		  cursor(btree->Bcursor_create()),
-		  max_key_len(btree->max_key_len) {}
+	QuartzDiskCursor(Btree * btree);
 	
 	/// Destroy the cursor
 	~QuartzDiskCursor() { }
@@ -287,11 +283,11 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** The btree structure for reading.
 	 */
-	struct Btree * btree_for_reading;
+	Btree * btree_for_reading;
 
 	/** The btree structure for writing.
 	 */
-	struct Btree * btree_for_writing;
+	Btree * btree_for_writing;
 
 	/** Close the table.  This closes and frees any of the btree
 	 *  structures which have been created and opened.

@@ -1500,30 +1500,6 @@ static bool test_unpackint1()
     return true;
 }
 
-/// Test playing with a btree
-static bool test_btree1()
-{
-    string path = tmpdir + "test_btree1_";
-    Btree::create(path, 8192);
-    Btree btree;
-    if (!btree.open_to_read(path)) return false;
-
-    string key = "foo";
-    {
-	AutoPtr<Bcursor> cursor = btree.Bcursor_create();
-	int found = cursor->find_key(key);
-	TEST(!found);
-    }
-    {
-	AutoPtr<Bcursor> cursor = btree.Bcursor_create();
-	int found = cursor->find_key(key);
-	TEST(!found);
-    }
-
-    return true;
-}
-
-
 /// Test playing with a postlist
 static bool test_postlist1()
 {
@@ -2084,7 +2060,6 @@ test_desc tests[] = {
     {"packint2",	test_packint2},
     {"packint3",	test_packint3},
     {"unpackint1",	test_unpackint1},
-    {"btree1",		test_btree1},
     {"postlist1",	test_postlist1},
     {"postlist2",	test_postlist2},
     {"positionlist1",	test_positionlist1},

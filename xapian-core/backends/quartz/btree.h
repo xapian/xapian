@@ -27,7 +27,6 @@
 #include <string>
 using std::string;
 
-#include "autoptr.h"
 #include "btree_types.h"
 #include "btree_base.h"
 #include "bcursor.h"
@@ -51,22 +50,16 @@ class Btree {
 	~Btree();
 
 	/** Open the btree to read at the latest revision
-	 *
-	 * @return true if the open succeeded.
 	 */
-	bool open_to_read(const string &name_);
+	void open_to_read(const string &name_);
 
 	/** Open the btree to read at a given revision
-	 *
-	 * @return true if the open succeeded.
 	 */
-	bool open_to_read(const string &name_, uint4 revision_);
+	void open_to_read(const string &name_, uint4 revision_);
 
 	/** Open the btree to write at the latest revision
-	 *
-	 * @return true if the open succeeded.
 	 */
-	bool open_to_write(const string &name_);
+	void open_to_write(const string &name_);
 
 	/** Open the btree to write at a given revision
 	 *
@@ -92,11 +85,9 @@ class Btree {
 	/** Erase the btree structure from disk */
 	static void erase(const string & tablename);
 
-	void set_full_compaction(int parity);
+	void set_full_compaction(bool parity);
 
 	static void check(const string & name, const string & opt_string);
-
-	AutoPtr<Bcursor> Bcursor_create();
 
 	/** error number setting */
 	Btree_errors error;
@@ -134,16 +125,14 @@ class Btree {
     private:
 
 	/** Perform the opening operation to read.
-	 *
-	 * Return true if the open succeeded.
 	 */
-	bool do_open_to_read(const string &name_,
+	void do_open_to_read(const string &name_,
 			     bool revision_supplied,
 			     uint4 revision_);
 
 	/** Perform the opening operation to read.
 	 *
-	 * Return false if the open succeeded.
+	 *  Return true iff the open succeeded.
 	 */
 	bool do_open_to_write(const string &name_,
 			     bool revision_supplied,
@@ -236,10 +225,10 @@ class Btree {
 	int shared_level;
 
 	/// set to true the first time the B-tree is written to
-	char Btree_modified;
+	bool Btree_modified;
 
 	/// set to true when full compaction is to be achieved
-	char full_compaction;
+	bool full_compaction;
 
 
 	/// Set to true when the database is opened to write.

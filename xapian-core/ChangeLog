@@ -1,3 +1,17 @@
+Sun Nov 17 13:34:08 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,docs/quartzdesign.html: Quartz mini-overhaul:
+	  Removed Btree::Bcursor_create() and just made Bcursor's ctor
+	  public - now you can just create a Bcursor on the stack rather
+	  than being forced to use AutoPtr; removed valid_handle - the
+	  code is clearer without it; sys_close now inlined from header;
+	  changed int/char to bool where appropriate; changed some methods
+	  which now always throw on error to return void not bool; moved
+	  quartztest's test_btree1 to btreetest as test_simple1; changed
+	  a few remaining uses of "struct Btree" to just plain "Btree";
+	  brought the btree docs in quartzdesign.html up-to-date, apart
+	  from the error handling section.
+
 Sat Nov 16 01:45:28 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc,

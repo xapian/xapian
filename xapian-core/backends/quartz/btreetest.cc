@@ -105,6 +105,29 @@ static void do_create(const string & btree_dir, int block_size = 1024)
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 
+/// Test playing with a btree
+static bool test_simple1()
+{
+    string path = tmpdir + "test_simple1_";
+    Btree::create(path, 8192);
+    Btree btree;
+    btree.open_to_read(path);
+
+    string key = "foo";
+    {
+	Bcursor cursor(&btree);
+	int found = cursor.find_key(key);
+	TEST(!found);
+    }
+    {
+	Bcursor cursor(&btree);
+	int found = cursor.find_key(key);
+	TEST(!found);
+    }
+
+    return true;
+}
+
 #define BtreeCheck Btree
 #define VERBOSE(S) (verbose?(S):"")
 /// Test inserting and deleting items from a Btree
@@ -230,9 +253,10 @@ static bool test_emptykey1()
 //
 // The lists of tests to perform
 test_desc tests[] = {
-    {"insertdelete1",         test_insertdelete1},
-    {"sequent1",              test_sequent1},
-    {"emptykey1",             test_emptykey1},
+    {"simple1",		test_simple1},
+    {"insertdelete1",   test_insertdelete1},
+    {"sequent1",        test_sequent1},
+    {"emptykey1",       test_emptykey1},
     {0, 0}
 };
 

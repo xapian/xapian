@@ -26,6 +26,7 @@
 #include "omdebug.h"
 
 #include "quartz_table.h"
+#include "btree.h"
 #include "om/omerror.h"
 #include "utils.h"
 #include <string.h> // for strerror
@@ -49,6 +50,11 @@ hex_encode(const string & input)
     return result;
 }
 #endif
+
+QuartzDiskCursor::QuartzDiskCursor(Btree * btree)
+	: is_positioned(false),
+	  cursor(new Bcursor(btree)),
+	  max_key_len(btree->max_key_len) {}
 
 bool
 QuartzDiskCursor::find_entry(const string &key)
@@ -221,8 +227,8 @@ QuartzDiskTable::open()
 
     if (readonly) {
 	btree_for_reading = new Btree();
-	if (!btree_for_reading->open_to_read(path) ||
-	    btree_for_reading->error) {
+	btree_for_reading->open_to_read(path);
+	if (btree_for_reading->error) {
 	    // FIXME: explain why
 	    string errormsg = "Cannot open table `"+path+"' for reading: ";
 	    if (btree_for_reading->error)
@@ -237,11 +243,11 @@ QuartzDiskTable::open()
 
     btree_for_writing = new Btree();
     // FIXME: check for errors
-    if (!btree_for_writing->open_to_write(path) || btree_for_writing->error) {
+    btree_for_writing->open_to_write(path);
+    if (btree_for_writing->error) {
 	// FIXME: explain why
 	string errormsg = "Cannot open table `"+path+"' for writing: ";
-	if (btree_for_writing->error)
-	    errormsg += om_tostring(btree_for_writing->error) + ", ";
+	errormsg += om_tostring(btree_for_writing->error) + ", ";
 	errormsg += strerror(errno);
 	close();
 	throw OmOpeningError(errormsg);
@@ -249,9 +255,8 @@ QuartzDiskTable::open()
 
     btree_for_reading = new Btree();
     // FIXME: check for errors
-    if (!btree_for_reading->open_to_read(path,
-					 btree_for_writing->revision_number) ||
-        btree_for_reading->error) {
+    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
+    if (btree_for_reading->error) {
 	// FIXME: explain why
 	string errormsg = "Cannot open table `" + path +
 		"' for reading and writing: ";
@@ -274,8 +279,8 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     if (readonly) {
 	btree_for_reading = new Btree();
-	if (!btree_for_reading->open_to_read(path, revision) ||
-	    btree_for_reading->error) {
+	btree_for_reading->open_to_read(path, revision);
+	if (btree_for_reading->error) {
 	    Btree_errors errorcode = btree_for_reading->error;
 	    string errormsg = "Can't open database at '" + path +
 		    "' at revision number " + om_tostring(revision) +
@@ -317,9 +322,8 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     btree_for_reading = new Btree();
     // FIXME: check for errors
-    if (!btree_for_reading->open_to_read(path,
-					 btree_for_writing->revision_number) ||
-	btree_for_reading->error) {
+    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
+    if (btree_for_reading->error) {
 	Btree_errors errorcode = btree_for_reading->error;
 	string errormsg = "Can't open database at '" + path +
 		"' at revision number " + om_tostring(revision) +
@@ -387,19 +391,14 @@ QuartzDiskTable::get_exact_entry(const string &key, string & tag) const
     if (key.size() > btree_for_reading->max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
-    AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
+    Bcursor cursor(btree_for_reading);
     // FIXME: check for errors
 
-    int found = cursor->find_key(key);
-    // FIXME: check for errors
-
-    if (!found) {
-	RETURN(false);
-    }
+    if (!cursor.find_key(key)) RETURN(false);
     
     Btree_item item;
 
-    cursor->get_tag(&item);
+    cursor.get_tag(&item);
     // FIXME: check for errors
 
     // FIXME: unwanted copy
@@ -468,10 +467,10 @@ QuartzDiskTable::set_entry(const string & key)
     // deleted.
  
     // FIXME: avoid having to create a cursor here.
-    AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
+    Bcursor cursor(btree_for_reading);
     // FIXME: check for errors
 
-    if (cursor->find_key(key)) {
+    if (cursor.find_key(key)) {
 	int result = btree_for_writing->del(key);
 	DEBUGLINE(DB, "Result of delete: " << result);
 	(void)result; // FIXME: Check result

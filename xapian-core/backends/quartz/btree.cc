@@ -77,8 +77,6 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
-bool valid_handle(int h) { return h >= 0; }
-
 int sys_open_to_read_no_except(const string & name)
 {
     int fd = open(name, O_RDONLY, 0666);
@@ -200,10 +198,6 @@ int sys_flush(int h) {
 #endif
     return true;
 }
-
-int sys_close(int h) {
-    return close(h) == 0;
-}  /* 0 if success */
 
 static void sys_unlink(const string &filename)
 {
@@ -557,7 +551,6 @@ static int compare_keys(const byte * key1, const byte * key2)
    right ends of the search area. In sequential addition, c will often
    be the answer, so we test the keys round c and move i and j towards
    c if possible.
-
 */
 
 static int find_in_block(const byte * p, const byte * key, int offset, int c)
@@ -1316,7 +1309,7 @@ Btree::find_tag(const string &key, Btree_item * item)
 }
 
 void
-Btree::set_full_compaction(int parity)
+Btree::set_full_compaction(bool parity)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
@@ -1526,13 +1519,12 @@ Btree::do_open_to_write(const string & name_,
 		message += Btree_strerror(error);
 	    }
 	    throw OmOpeningError(message);
-	} else {
-	    /* When the revision is supplied, it's not an exceptional
-	     * case when open failed.  We should just return false
-	     * here instead.
-	     */
-	    return false;
 	}
+	/* When the revision is supplied, it's not an exceptional
+	 * case when open failed.  We should just return false
+	 * here instead.
+	 */
+	return false;
     }
 
     writable = true;
@@ -1568,10 +1560,11 @@ Btree::do_open_to_write(const string & name_,
     return true;
 }
 
-bool
+void
 Btree::open_to_write(const string & name)
 {
-    return do_open_to_write(name, false, 0);
+    // Any errors are thrown if revision_supplied is false
+    (void)do_open_to_write(name, false, 0);
 }
 
 bool
@@ -1661,8 +1654,7 @@ Btree::create(const string &name_, int block_size)
 	/* error = BTREE_ERROR_DB_CREATE; */
 	{
 	    int h = sys_open_to_write(name_ + "DB");      /* - null */
-	    if ( ! (valid_handle(h) &&
-		    sys_close(h))) {
+	    if (h == -1 || !sys_close(h)) {
 		string message = "Error creating DB file: ";
 		message += strerror(errno);
 		throw OmOpeningError(message);
@@ -1672,10 +1664,10 @@ Btree::create(const string &name_, int block_size)
 }
 
 Btree::~Btree() {
-    if (valid_handle(handle)) {
+    if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
-	sys_close(handle);
+	(void)sys_close(handle);
 	handle = -1;
     }
 
@@ -1717,7 +1709,7 @@ Btree::commit(uint4 revision)
     }
 
     errorval = BTREE_ERROR_DB_CLOSE;
-    if ( ! (sys_flush(handle) && sys_close(handle))) {
+    if (!sys_flush(handle) || !sys_close(handle)) {
 	handle = -1;
 	return errorval;
     }
@@ -1750,7 +1742,7 @@ Btree::commit(uint4 revision)
 
 /************ B-tree reading ************/
 
-bool
+void
 Btree::do_open_to_read(const string & name_,
 		       bool revision_supplied,
 		       uint4 revision_)
@@ -1787,25 +1779,18 @@ Btree::do_open_to_read(const string & name_,
 	}
     }
     read_root();
-
-    return true;
 }
 
-bool
+void
 Btree::open_to_read(const string & name)
 {
-    return do_open_to_read(name, false, 0);
+    do_open_to_read(name, false, 0);
 }
 
-bool
+void
 Btree::open_to_read(const string & name, uint4 n)
 {
-    return do_open_to_read(name, true, n);
-}
-
-AutoPtr<Bcursor> Btree::Bcursor_create()
-{
-    return AutoPtr<Bcursor>(new Bcursor(this));
+    do_open_to_read(name, true, n);
 }
 
 void
@@ -2102,11 +2087,7 @@ void
 Btree::check(const string & name, const string & opt_string)
 {
     Btree B;
-    if (!B.open_to_write(name) || B.error) {
-	printf("error %d (%s) in opening %s\n",
-	       B.error, Btree_strerror(B.error).c_str(), name.c_str());
-	exit(1);
-    }
+    B.open_to_write(name);
     Cursor * C = B.C;
 
     int opts = 0;

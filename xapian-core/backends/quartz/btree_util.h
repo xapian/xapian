@@ -257,12 +257,15 @@ inline const byte * key_of(const byte * p, int c)
     return p + c + I2;
 }
 
-bool valid_handle(int h);
 int sys_open_to_read(const string & name);
 int sys_open_to_read_no_except(const string & name);
 int sys_open_to_write(const string & name);
 void sys_unlink_if_exists(const string &filename);
-int sys_close(int h);
+// Return true on success
+inline bool sys_close(int h) {
+    return close(h) == 0;
+}
+
 string sys_read_all_bytes(int h, size_t max);
 void sys_write_string(int h, const string &s);
 int sys_flush(int h);

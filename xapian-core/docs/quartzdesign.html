@@ -551,14 +551,15 @@ conditions are described later. Meanwhile, the code examples given here ignore
 the possibility of errors. Bad practice, but it makes them more readable.
 
 <pre>
-int Btree::create(const string &amp; name, int block_size);
+<!--int-->void Btree::create(const string &amp; name, int block_size);
 </pre>
 
 <blockquote>
-    Creates a new B-tree with the given name and block size. The integer result
-    gives an error condition.
+    Creates a new B-tree with the given name and block size.
+    <!--The integer result gives an error condition.-->
+    On error, throws an exception.
 <pre>
-        error_condition = Btree::create("/home/martin/develop/btree/", 8192);
+        <!--error_condition = -->Btree::create("/home/martin/develop/btree/", 8192);
 
         Btree::create("X-", 6000); /* files will be X-bitmapA, X-DB etc */
 </pre>
@@ -574,23 +575,23 @@ Thereafter there are two modes for accessing the B-tree: update and retrieval.
 <H2>Update mode</H2>
 
 <pre>
-bool Btree::open_to_write(const string &amp; name);
+<!--bool-->void Btree::open_to_write(const string &amp; name);
 </pre>
 
 <blockquote>
-    The name is the same as the one used in creating. The result is a pointer
-    to a Btree structure, or 0 if the open fails, e.g.
+    The name is the same as the one used in creating.  Throws an exception
+    in case of error.  E.g:
 <pre>
-        Btree * B = Btree_open_to_write("/home/martin/develop/btree/");
+        Btree_open_to_write("/home/martin/develop/btree/");
 </pre>
 </blockquote>
 
 <pre>
-B-&gt;max_key_len
+string::size_type B-&gt;max_key_len;
 </pre>
 
 <blockquote>
-    This has type int and gives the upper limit of the size of a key that may
+    This gives the upper limit of the size of a key that may
     be presented to the B-tree. As mentioned above, it will be 252 if the
     B-tree block size exceeds 1086 bytes, otherwise less. But it is of course
     good practice to use B-&gt;max_key_len, rather than writing '252' into your
@@ -601,17 +602,16 @@ B-&gt;max_key_len
 </blockquote>
 
 <pre>
-B-&gt;revision_number
+uint4 B-&gt;revision_number;
 </pre>
 
 <blockquote>
     This gives the revision number of the B-tree.  
-    It has type unsigned long.  
-    ['unsigned long' to be properly typedeffed.]
+    (The type uint4 is an unsigned integral type at least 4 bytes in size).
 </blockquote>
 
 <pre>
-B-&gt;other_revision_number
+uint4 B-&gt;other_revision_number;
 </pre>
 
 <blockquote>
@@ -620,7 +620,7 @@ B-&gt;other_revision_number
 </blockquote>
 
 <pre>
-B-&gt;both_bases
+bool B-&gt;both_bases;
 </pre>
 
 <blockquote>
@@ -632,7 +632,8 @@ bool Btree::open_to_write(const string &amp; name, unsigned long revision);
 </pre>
 
 <blockquote>
-    Like Btree_open_to_write, but open at the given revision number.
+    Like Btree_open_to_write, but open at the given revision number, and returns
+    false if the database couldn't be opened at the requested revision.
 </blockquote>
 
 <pre>
@@ -643,16 +644,16 @@ bool Btree::add(const string &amp;key, const string &amp;tag);
     Adds the given key-tag pair to the B-tree. e.g.
 
 <pre>
-        n = B-&gt;add("TODAY", "Mon 9 Oct 2000");
+        ok = B-&gt;add("TODAY", "Mon 9 Oct 2000");
 
-        n = B-&gt;add(string(k + 1, k[0]), string(t + 1, t[0]));
+        ok = B-&gt;add(string(k + 1, k[0]), string(t + 1, t[0]));
 </pre>
 
     The key and tag are C++ strings.
 <p>
     If key and tag are empty, then the null item is replaced. If key.length()
     exceeds the the limit on key sizes an error condition occurs.  The result
-    is  false if a the key is already in the B-tree, otherwise true.  Treated
+    is false if the key is already in the B-tree, otherwise true.  Treated
     as an integer, the result also measures the increase in the total number of
     keys in the B-tree.
 </blockquote>
@@ -667,12 +668,12 @@ bool Btree::del(const string &amp;key);
     Otherwise this deletes the key and its tag from the B-tree, if found. e.g.
 
 <pre>
-        n = B-&gt;del("TODAY")
+        ok = B-&gt;del("TODAY")
 
-        n = B-&gt;del(string(k + 1, k[0]));
+        ok = B-&gt;del(string(k + 1, k[0]));
 </pre>
 
-    The result is then false if a the key is not in the B-tree, true
+    The result is then false if the key is not in the B-tree, true
     if it is.  Treated as an interger, the result also measures the decrease
     in the total number of keys in the B-tree.
 </blockquote>
@@ -688,26 +689,12 @@ Btree_item::Btree_item();
         t = new Btree_item();
 </pre>
 
-    We can make use of the following,
+    We can make use of the following:
 
 <pre>
-        t-&gt;tag_len    the length of the tag
-        t-&gt;tag        pointer to the tag
-        t-&gt;key_len    the length of the key
-        t-&gt;key        pointer to the key
+        t-&gt;key        C++ string containing the key
+        t-&gt;tag        C++ string containing the tag
 </pre>
-
-    Also accessible are
-
-<pre>
-        t-&gt;tag_size
-        t-&gt;key_size
-</pre>
-
-    These are the number of bytes allocated to the two buffers addressed by
-    t-&gt;tag and t_&gt;key. The first time a key or tag is extracted to a Btree_item
-    structure, the size of the buffer is just sufficient to accommodate it.
-    Subsequently the buffer grows as larger items are placed in it.
 </blockquote>
 
 <pre>
@@ -715,8 +702,7 @@ bool Btree::find_key(const string &amp;key);
 </pre>
 
 <blockquote>
-    The result is true or false according as the looked up key is found or not
-    found.
+    The result is true iff the specified key is found.
 </blockquote>
 
 <pre>
@@ -724,18 +710,17 @@ bool Btree::find_tag(const string &amp;key, Btree_item * t);
 </pre>
 
 <blockquote>
-    The same result, but when the key is found the tag is copied to t-&gt;tag and
-    its length put in t-&gt;tag_len. If the key is not found t-&gt;tag and t-&gt;tag_len
-    are left unchanged. e.g.
+    The same result, but when the key is found the tag is copied to t-&gt;tag
+    If the key is not found t-&gt;tag is left unchanged. e.g.
 
 <pre>
         Btree_item t = Btree_item_create();
         B-&gt;find_tag("TODAY", t); /* get today's date */
 </pre>
 </blockquote>
-
+<!--
 <pre>
-int Btree_close(Btree * B, unsigned long revision);
+int Btree::close(unsigned long revision);
 </pre>
 
 <blockquote>
@@ -756,14 +741,14 @@ int Btree_close(Btree * B, unsigned long revision);
     An error condition occurs if the revision number given for closing does not
     exceed the revision number of the B-tree found after opening it.
 </blockquote>
-
+-->
 <pre>
-B-&gt;item_count
+int4 B-&gt;item_count;
 </pre>
 
 <blockquote>
     This returns the number of items in the B-tree, not including the
-    ever-present item with null key.  It has type unsigned long.
+    ever-present item with null key.
 </blockquote>
 
 <h2>Retrieval mode</h2>
@@ -773,9 +758,9 @@ is considerably elaborated by the use of cursors.
 
 
 <pre>
-bool Btree_open_to_read(const string &amp; name);
-B-&gt;revision_number
-bool Btree_open_to_read(const string &amp; name, unsigned long revision);
+<!--bool-->void Btree_open_to_read(const string &amp; name);
+uint4 B-&gt;revision_number;
+<!--bool-->void Btree_open_to_read(const string &amp; name, uint4 revision);
 Btree_item::Btree_item();
 </pre>
 
@@ -785,14 +770,17 @@ Btree_item::Btree_item();
 </blockquote>
 
 <pre>
-Bcursor * BC = Bcursor_create(Btree * B);
+Bcursor::Bcursor(Btree *B);
 </pre>
 
 <blockquote>
-    This creates a cursor, which can be used to remember a position inside the
+    Creates a cursor, which can be used to remember a position inside the
     B-tree. The position is simply the item (key and tag) to which the cursor
     points. A cursor is either positioned or unpositioned, and is initially
     unpositioned.
+    <p>
+    NB: You must make sure that the Bcursor is destroyed before the Btree
+    it is attached to.
 </blockquote>
 
 <pre>
@@ -800,8 +788,7 @@ bool Bcursor::find_key(const string &amp; key);
 </pre>
 
 <blockquote>
-    The result is true or false according as the looked up key is found or not
-    found.
+    The result is true iff the specified key is found in the Btree.
 <p>
     If found, the cursor is made to point to the item with the given key, and
     if not found, it is made to point to the last item in the B-tree whose key
@@ -818,7 +805,8 @@ bool Bcursor::next();
 <blockquote>
     If cursor BC is unpositioned, the result is simply false.
 <p>
-    If cursor BC is positioned, and points to the very last item in the the
+    If cursor BC is positioned, and points to the very last item in the Btree
+    the
     cursor is made unpositioned, and the result is false. Otherwise the cursor
     BC is moved to the next item in the B-tree, and the result is true.
 <p>
@@ -834,7 +822,7 @@ bool Bcursor::next();
 </blockquote>
 
 <pre> 
-int Bcursor::prev();
+bool Bcursor::prev();
 </pre>
 
 <blockquote>
@@ -843,14 +831,14 @@ int Bcursor::prev();
 </blockquote>
 
 <pre> 
-int Bcursor::get_key(Btree_item * kt);
+bool Bcursor::get_key(Btree_item *item);
 </pre>
 
 <blockquote>
-    If cursor BC is unpositioned, the result is simply 0.
+    If cursor BC is unpositioned, the result is simply false.
 <p>
-    If BC is positioned, the key of the item is copied into kt-&gt;key and its
-    length into kt-&gt;key_len. The result is then 1.
+    If BC is positioned, the key of the item is copied into item-&gt;key
+    and the result is then true.
 <p>
     For example,
 
@@ -861,33 +849,33 @@ int Bcursor::get_key(Btree_item * kt);
         /* Now we'll print all the keys in the B-tree (assuming they
            have a simple form */
 
-        BC-&gt;find_key("", 0); /* must give result 1 */
+        BC-&gt;find_key("", 0); /* must give result true */
 
-        while(BC-&gt;next()) {    /* bypassing the null item */
+        while (BC-&gt;next()) {    /* bypassing the null item */
 	    BC-&gt;get_key(kt);
 	    for (int i = 0; i &lt; kt-&gt;key_len; i++)
-		printf("%c", kt-&gt;key[i];
-	    printf("\n");
+		putc(kt-&gt;key[i]);
+	    putc('\n');
         }
 </pre>
 </blockquote>
 
 <pre> 
-int Bcursor::get_tag(Btree_item * kt);
+bool Bcursor::get_tag(Btree_item * kt);
 </pre>
 
 <blockquote>
-    If cursor BC is unpositioned, the result is simply 0.
+    If cursor BC is unpositioned, the result is simply bool.
 <p>
     If BC is positioned, the tag of the item at cursor BC is copied into
-    kt-&gt;tag and its length into kt-&gt;tag_len. BC is then moved to the next item
-    as if Bcursor_next(BC) had been called - this may leave BC unpositioned.
-    The result is 1 if BC is left positioned, 0 otherwise.
+    kt-&gt;tag. BC is then moved to the next item
+    as if Bcursor::next() had been called - this may leave BC unpositioned.
+    The result is true iff BC is left positioned.
 <p>
     For example,
 
 <pre> 
-        Bcursor * BC = Bcursor_create(B);
+        Bcursor * BC = B-&gt;Bcursor_create();
         Btree_item * kt = Btree_item_create();
 
         /* Now do something to each key-tag pair in the Btree */
@@ -897,14 +885,14 @@ int Bcursor::get_tag(Btree_item * kt);
 
         while (BC-&gt;get_key(kt)) {
             BC-&gt;get_tag(kt);
-            do_something_to(kt-&gt;key, kt-&gt;key_len,
-                            kt-&gt;tag, kt-&gt;tag_len);
+            do_something_to(kt-&gt;key, kt-&gt;tag);
         }
 
         /* when BC is unpositioned by Bcursor::get_tag, Bcursor::get_key
-           gives result 1 the next time it called
+           gives result true the next time it called
         */
 </pre>
+<!--
 
     Tags (and keys) may be removed cheaply from a Btree_item structure kt by
     assigning kt-&gt;tag elsewhere, and the setting kt-&gt;tag to 0 and kt-&gt;tag_size
@@ -935,10 +923,11 @@ int Bcursor::get_tag(Btree_item * kt);
 
         for (year = 1; year &lt;= 2000; year++) free(calendar[year]);
 </pre>
+-->
 </blockquote>
 
 <pre> 
-void Bcursor_lose(Bcursor * BC);
+Bcursor::~Bcursor();
 </pre>
 
 <blockquote>
@@ -950,20 +939,21 @@ void Bcursor_lose(Bcursor * BC);
 Provisionally, the following is provided:
 
 <pre> 
-void Btree_check(const char * name, const char * opt_string);
+void Btree::check(const char * name, const char * opt_string);
 </pre> 
 
 <blockquote>
-    Btree_check(s, opts) is essentially equivalent to
+    Btree::check(s, opts) is essentially equivalent to
 
 <pre>
-        Btree * Btree_open_to_write(s);
+        Btree * B = new Btree();
+	B-&gt;Btree_open_to_write(s);
         {
             /* do a complete integrity check of the B-tree,
                reporting according to the option string
             */
         }
-        Btree_quit(B);
+        delete B;
 </pre>
 
     The option string, if non-null, causes information to go to stdout. The
@@ -1000,19 +990,19 @@ the procedure
 
 
 <pre> 
-void Btree_full_compaction(Btree * B, int parity);
+void Btree::full_compaction(bool parity);
 </pre>
 
 So
 
 <pre> 
-    Btree_full_compaction(B, true);    /* where true == 1 */
+    B-&gt;full_compaction(true);
 </pre>
 
 switches full compaction on, and
 
 <pre> 
-    Btree_full_compaction(B, false);    /* where false == 0 */
+    B-&gt;full_compaction(false);
 </pre>
 
 switches it off. Full compaction may be switched on or off at any time, but
@@ -1046,30 +1036,25 @@ compact B-tree with revision number 1.
 
 <pre> 
     {
-	Btree * B = Btree_open_to_read("B/");
-        Bcursor * BC = Bcursor_create(B);
-        Btree_item * item = Btree_item_create();
+	Btree B;
+	B.open_to_read("B/");
+        AutoPtr&lt;Bcursor&gt; BC = B.Bcursor_create();
+        Btree_item item;
 
-        Btree_create("Bnew/", 8192);
+	Btree::create("Bnew/", 8192);
 
-        {
-	    Btree * new_B = Btree_open_to_write("Bnew/");
-            Btree_full_compaction(new_B, 1);
+	Btree new_B;
+	new_B.open_to_write("Bnew/");
+	new_B.set_full_compaction(true);
 
-            BC-&gt;find_key("", 0);
+	BC-&gt;find_key("", 0);
 
-            while (1) {
-                if (! BC-&gt;get_key(item)) break;
-                BC-&gt;get_tag(item);
-                new_B-&gt;add(string(item-&gt;key, item-&gt;key_len),
-			   string(item-&gt;tag, item-&gt;tag_len));
-            }
-            Btree_close(new_B, 1);
-        }
-
-        Btree_item_lose(item);
-        Bcursor_lose(BC);
-        Btree_quit(B);
+	while (true) {
+	    if (!BC-&gt;get_key(&amp;item)) break;
+	    BC-&gt;get_tag(&amp;item);
+	    new_B.add(item.key, item.tag);
+	}
+	new_B.commit(1);
     }
 </pre>
 
@@ -1077,8 +1062,10 @@ compact B-tree with revision number 1.
 
 The level of the B-tree is the distance of the root block from a leaf block. At
 minimum this is zero. If a B-tree has level L and block size B, then update
-mode requires space for 2(LB + b1 + b2) bytes, where b1 and b2 are the size of
-the two bitmap files. Of course, L, b1 and b2 may grow during an update on the
+mode requires space for 2(LB + b<sub>1</sub> + b<sub>2</sub>) bytes,
+where b<sub>1</sub> and b<sub>2</sub> are the size of
+the two bitmap files. Of course, L, b<sub>1</sub> and b<sub>2</sub>
+may grow during an update on the
 B-tree. If the revision number is greater than one, then retrieval mode
 requires (L - 2 + 2c)B bytes, where c is the number of active cursors. If
 however the revision number is one, it only requires (L - 2 + c)B bytes.
@@ -1100,7 +1087,7 @@ updating process overwrites a part of the B-tree required by the retrieval
 process, the flag
 
 <pre> 
-    B-&gt;overwitten
+    bool B-&gt;overwitten;
 </pre>
 
 is set to true. This may be detected, and suitable action taken. Here is a model
@@ -1109,20 +1096,18 @@ scheme:
 <pre> 
 static Btree * reopen(Btree * B)
 {
-    unsigned long int revision = B-&gt;revision_number;
+    uint4 revision = B-&gt;revision_number;
 
-    /* get the revision number. This will return the correct value, even when
-       B-&gt;overwritten is detected during opening
-    */
+    // Get the revision number. This will return the correct value, even when
+    // B-&gt;overwritten is detected during opening
 
-    Btree_quit(B);  /* close the B-tree */
-    B = Btree_open_to_read(s); /* and reopen */
+    delete B;  /* close the B-tree */
+    B = new Btree;
+    B-&gt;open_to_read(s); /* and reopen */
 
     if (revision == B-&gt;revision_number) {
-
-        /* the revision number ought to have gone up from last time,
-           so if we arrive here, something has gone badly wrong ...
-        */
+        // The revision number ought to have gone up from last time,
+        // so if we arrive here, something has gone badly wrong ...
         printf("Possible database corruption - complain to Xapian\n");
         exit(1);
     }
@@ -1133,26 +1118,20 @@ static Btree * reopen(Btree * B)
     ....
 
     char * s = "database/";
-    Btree * B;
-    unsigned long int revision = 0;
+    Btree * B = new Btree;
+    uint4 revision = 0;
 
-    B = Btree_open_to_read(s);            /* open the B-tree */
+    B-&gt;open_to_read(s);            /* open the B-tree */
 
-retry:
+    Btree_item t;
+    do {
+	while (B-&gt;overwritten) {
+	    B = reopen(s);
+	}
+	...
 
-    if (B-&gt;overwritten) {
-        B = reopen(s); goto retry;
-    }
-    ...
-
-    Btree_item t = Btree_item_create();
-
-    B-&gt;find_tag("brunel", 6, t); /* look up some keyword */
-
-    if (B-&gt;overwitten) {
-        Btree_item_lose(t);
-        B = reopen(s); goto retry;
-    }
+	B-&gt;find_tag("brunel", &amp;t); /* look up some keyword */
+    } while (B-&gt;overwitten);
     ...
 </pre>
 
@@ -1165,24 +1144,20 @@ an error that cannot generally be trapped in this way.
 In retrieval mode B-&gt;overwitten should be tested after the following procedures,
 
 <pre>
-    B = Btree_open_to_read(name);
-    B = Btree_open_to_read(name, revision);
+    Btree::open_to_read(name);
+    Btree::open_to_read(name, revision);
     Bcursor::next();
     Bcursor::prev();
-    BC-&gt;find_key(key);
-    void Bcursor::get_tag(kt);
+    Bcursor::find_key(key);
+    Bcursor::get_tag(kt);
 </pre>
 
-The test is not required after any of the following,
+The test is not required after any of the following:
 
 <pre>
-   revision = B-&gt;revision_number;
-   Btree_quit(B);
-   kt = Btree_item_create();
-   Btree_item_lose(kt);
-   BC = Bcursor_create(B);
+   Btree_item::Btree_item();
+   Btree::Bcursor_create();
    Bcursor::get_key(kt);
-   Bcursor_lose(BC); - gone, probably ~Bcursor() now
 </pre>
 
 Note particularly that opening the B-tree can set B-&gt;overwritten, and that
@@ -1190,14 +1165,18 @@ Bcursor::get_key(..) will not set B-&gt;overwritten.
 
 <h2>Error conditions</h2>
 
+Note: this section is out of date - many methods now return errors in different
+ways to those this section indicates.
+
+<P>
 The procedures described above report errors in three ways. (A) A null result.
-If after
+If this:
 
 <pre>
-   Bcursor BC = Bcursor::create(B);
+   AutoPtr&lt;Bcursor&gt; Btree::Bcursor_create();
 </pre>
 
-BC == 0, the was not enough space left to create the Bcursor. (B) A non-zero
+returns NULL, there was not enough space left to create the Bcursor. (B) A non-zero
 result. Btree::close() returns an int result which is 0 if successful,
 otherwise an error number. (C) The error is placed in B-&gt;error, where B is the
 Btree structure used in the call, or the Btree structure from which the Bcursor

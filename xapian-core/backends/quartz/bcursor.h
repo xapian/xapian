@@ -31,7 +31,6 @@ class Btree;
 /************ B-tree reading ************/
 
 class Bcursor {
-    friend class Btree; // for AutoPtr<Bcursor> Btree::Bcursor_create();
     private:
         // Prevent copying
         Bcursor(const Bcursor &);
@@ -47,10 +46,10 @@ class Bcursor {
 	bool get_key(Btree_item *item);
 	bool get_tag(Btree_item *item);
 
-    private:
 	/** Create a bcursor attached to a Btree. */
 	Bcursor(Btree *B_);
 
+    private:
 	/** false initially, and after the cursor has dropped
 	 *  off either end of the list of items */
 	bool positioned;
