@@ -1,4 +1,5 @@
 .*.swp
+*.lo
 dbtest
 idxtest
 matchtest
@@ -6,3 +7,4 @@ stemtest
 Makefile.in
 Makefile
 .deps
+.libs

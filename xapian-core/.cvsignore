@@ -1,4 +1,5 @@
 .*.swp
+*.lo
 aclocal.m4
 Makefile.in
 Makefile
