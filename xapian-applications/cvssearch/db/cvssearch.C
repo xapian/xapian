@@ -70,10 +70,10 @@ int main(int argc, char *argv[]) {
        for (i = matches.items.begin(); i != matches.items.end(); i++) {
 	 //	 cout << "Document ID " << i->did << "\t";
 	 int sim = matches.convert_to_percent(*i);
-	 cout << endl << sim << "%" << endl;
+	 cout << sim << " ";
 	 OmDocument doc = enquire.get_doc(*i);
 	 string data = doc.get_data().value;
-	 cout << data; // data includes newline
+	 cout << data << endl; // data includes newline
        }
 
      }

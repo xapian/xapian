@@ -15,8 +15,21 @@
 //
 //  Generates package1.count package2.count ...
 
-#define MIN_SUPP 15
-#define MIN_SURPRISE 2.0
+
+// if in file mode, this is the minimum # files
+// 15 is reasonable but takes a while
+
+// for app, use 5
+#define MIN_SUPP 10
+
+// should be 2.0
+#define MIN_SURPRISE 0.0
+
+// if true, counts files.
+// however, still requires line pairing of comment term, code symbol
+
+// any change in subdirectory counts as app change
+#define COUNT_APPS true
 
 #include <om/om.h>
 #include <db_cxx.h>
@@ -28,623 +41,6 @@
 #include <map>
 
 #include "util.h"
-
-// http://www.dcs.gla.ac.uk/idom/ir_resources/linguistic_utils/stop_words
-static char *term_stoplist[] = {
-  "a",
-  "about",
-  "above",
-  "across",
-  "after",
-  "afterwards",
-  "again",
-  "against",
-  "all",
-  "almost",
-  "alone",
-  "along",
-  "already",
-  "also",
-  "although",
-  "always",
-  "am",
-  "among",
-  "amongst",
-  "amoungst",
-  "amount",
-  "an",
-  "and",
-  "another",
-  "any",
-  "anyhow",
-  "anyone",
-  "anything",
-  "anyway",
-  "anywhere",
-  "are",
-  "around",
-  "as",
-  "at",
-  "back",
-  "be",
-  "became",
-  "because",
-  "become",
-  "becomes",
-  "becoming",
-  "been",
-  "before",
-  "beforehand",
-  "behind",
-  "being",
-  "below",
-  "beside",
-  "besides",
-  "between",
-  "beyond",
-  "bill",
-  "both",
-  "bottom",
-  "but",
-  "by",
-  "call",
-  "can",
-  "cannot",
-  "cant",
-  "co",
-  "computer",
-  "con",
-  "could",
-  "couldnt",
-  "cry",
-  "de",
-  "describe",
-  "detail",
-  "do",
-  "done",
-  "down",
-  "due",
-  "during",
-  "each",
-  "eg",
-  "eight",
-  "either",
-  "eleven",
-  "else",
-  "elsewhere",
-  "empty",
-  "enough",
-  "etc",
-  "even",
-  "ever",
-  "every",
-  "everyone",
-  "everything",
-  "everywhere",
-  "except",
-  "few",
-  "fifteen",
-  "fify",
-  "fill",
-  "find",
-  "fire",
-  "first",
-  "five",
-  "for",
-  "former",
-  "formerly",
-  "forty",
-  "found",
-  "four",
-  "from",
-  "front",
-  "full",
-  "further",
-  "get",
-  "give",
-  "go",
-  "had",
-  "has",
-  "hasnt",
-  "have",
-  "he",
-  "hence",
-  "her",
-  "here",
-  "hereafter",
-  "hereby",
-  "herein",
-  "hereupon",
-  "hers",
-  "herself",
-  "him",
-  "himself",
-  "his",
-  "how",
-  "however",
-  "hundred",
-  "i",
-  "ie",
-  "if",
-  "in",
-  "inc",
-  "indeed",
-  "interest",
-  "into",
-  "is",
-  "it",
-  "its",
-  "itself",
-  "keep",
-  "last",
-  "latter",
-  "latterly",
-  "least",
-  "less",
-  "ltd",
-  "made",
-  "many",
-  "may",
-  "me",
-  "meanwhile",
-  "might",
-  "mill",
-  "mine",
-  "more",
-  "moreover",
-  "most",
-  "mostly",
-  "move",
-  "much",
-  "must",
-  "my",
-  "myself",
-  "name",
-  "namely",
-  "neither",
-  "never",
-  "nevertheless",
-  "next",
-  "nine",
-  "no",
-  "nobody",
-  "none",
-  "noone",
-  "nor",
-  "not",
-  "nothing",
-  "now",
-  "nowhere",
-  "of",
-  "off",
-  "often",
-  "on",
-  "once",
-  "one",
-  "only",
-  "onto",
-  "or",
-  "other",
-  "others",
-  "otherwise",
-  "our",
-  "ours",
-  "ourselves",
-  "out",
-  "over",
-  "own",
-  "part",
-  "per",
-  "perhaps",
-  "please",
-  "put",
-  "rather",
-  "re",
-  "same",
-  "see",
-  "seem",
-  "seemed",
-  "seeming",
-  "seems",
-  "serious",
-  "several",
-  "she",
-  "should",
-  "show",
-  "side",
-  "since",
-  "sincere",
-  "six",
-  "sixty",
-  "so",
-  "some",
-  "somehow",
-  "someone",
-  "something",
-  "sometime",
-  "sometimes",
-  "somewhere",
-  "still",
-  "such",
-  "system",
-  "take",
-  "ten",
-  "than",
-  "that",
-  "the",
-  "their",
-  "them",
-  "themselves",
-  "then",
-  "thence",
-  "there",
-  "thereafter",
-  "thereby",
-  "therefore",
-  "therein",
-  "thereupon",
-  "these",
-  "they",
-  "thick",
-  "thin",
-  "third",
-  "this",
-  "those",
-  "though",
-  "three",
-  "through",
-  "throughout",
-  "thru",
-  "thus",
-  "to",
-  "together",
-  "too",
-  "top",
-  "toward",
-  "towards",
-  "twelve",
-  "twenty",
-  "two",
-  "un",
-  "under",
-  "until",
-  "up",
-  "upon",
-  "us",
-  "very",
-  "via",
-  "was",
-  "we",
-  "well",
-  "were",
-  "what",
-  "whatever",
-  "when",
-  "whence",
-  "whenever",
-  "where",
-  "whereafter",
-  "whereas",
-  "whereby",
-  "wherein",
-  "whereupon",
-  "wherever",
-  "whether",
-  "which",
-  "while",
-  "whither",
-  "who",
-  "whoever",
-  "whole",
-  "whom",
-  "whose",
-  "why",
-  "will",
-  "with",
-  "within",
-  "without",
-  "would",
-  "yet",
-  "you",
-  "your",
-  "yours",
-  "yourself",
-  "yourselves"
-};
-
-// C++ keywords for now (uses () for functions?)
-// www.cs.pdx.edu/~annieg/cs145/handouts/reservedwords.html 
-// probably not necessary
-static char *symbol_stoplist[] = {
-  "asm",
-  "auto",
-  "bool",
-  "break       ",
-  "case",
-  "catch",
-  "char",
-  "class",
-  "const",
-  "continue",
-  "default",
-  "delete",
-  "do",
-  "double",
-  "else",
-  "enum",
-  "extern",
-  "false",
-  "float",
-  "for",
-  "friend",
-  "goto",
-  "if",
-  "inline",
-  "int",
-  "long",
-  "mutable",
-  "new",
-  "operator",
-  "private",
-  "protected",
-  "public",
-  "register",
-  "return",
-  "short",
-  "signed",
-  "sizeof",
-  "static",
-  "struct",
-  "switch",
-  "template",
-  "this",
-  "throw",
-  "true",
-  "try",
-  "typedef",
-  "union",
-  "unsigned",
-  "virtual",
-  "void",
-  "volatile",
-  "while"
-};
-
-
-class Lines {
-  ifstream *in_comments;
-  ifstream *in_code;
-  OmStem *stemmer;
-  set<string> terms;
-  set<string> symbols;
-
-  int line_no;
-  string current_fn;
-  string path;
-  int current_offset;
-  
-  int file_count;
-
-  vector<string> files;
-  vector<string> offsets;
-
-  set<string> termStopWords;
-  set<string> symbolStopWords;
-
-  bool blankChar(char c) {
-    return ( c == ' ' || c == '\t' );
-  }
-
-  bool okFirstChar(char c) {
-    return ((c >= 'a' && c <='z') || (c >='A' && c <= 'Z' ) || c == '_');
-  }
-
-  bool okSubChar(char c) {
-    return (okFirstChar(c) || (c >= '0' && c <= '9' ));
-  }
-
-
-  void extractSymbols( const string& s ) {
-    string current = "";
-    bool foundBlank = false;
-    for ( string::const_iterator i = s.begin(); i != s.end(); i++ ) {
-      char c = *i;
-    
-      if ( blankChar(c) ) {
-	if ( current != "" ) {
-	  foundBlank = true;
-	}
-	continue;
-      }
-
-      if ( current == "" ) {
-	if ( okFirstChar(c) ) {
-	  current = c;
-	}
-      } else {
-	// already started something
-	if (! okSubChar(c) ) {
-	  if ( c == '(' ) {
-	    assert( current != "" );
-	    if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	      current += "()";
-	      //cerr << "... found " << current << endl;
-	      symbols.insert(current);
-	    }
-	    current = "";
-	    foundBlank = false;
-	  } else {
-	    // identifier ended
-	    //cerr << "... found " << current << endl;
-	    assert( current != "" );
-	    if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	      symbols.insert(current);
-	    }
-	    current = "";
-	    foundBlank = false;
-	  }
-	} else { // okay subsequent character
-	  if ( foundBlank ) {
-	    assert( current != "" );
-	    if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	      symbols.insert(current);
-	    }
-	    current = "";	  
-	    foundBlank = false;
-	  }
-	  current += c;
-	}
-      }
-    } 
-    if ( current != "" ) {
-      //    cerr << "...found " << current << endl;
-      if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-      symbols.insert(current);
-      }
-    }
-  }
-
-  void load_offset_file(  const string& file_offset, vector<string>& files, vector<string>& offsets ) {
-    
-    cerr << "... reading " << file_offset << endl;
-    
-    ifstream in(file_offset.c_str());
-    assert(in);
-    
-    while (!in.eof()) {
-      string file;
-      string offset;
-      in >> file;
-      if ( file == "" ) {
-	break;
-      }
-      in >> offset;
-      files.push_back( file ); 
-      offsets.push_back( offset ); 
-    }
-    in.close();
-    
-  }
-
-public:
-  Lines( const string& p, const string& file_db, const string& file_offset ) {
-
-    path = p;
-
-    load_offset_file( file_offset, files, offsets );
-
-    in_comments = new ifstream(file_db.c_str());
-
-    stemmer = new OmStem("english");
-
-    line_no = 0;
-    current_fn = "";
-    current_offset = 1;
-    
-    file_count = 0;
-
-    for ( unsigned int i = 0; i < sizeof(term_stoplist)/sizeof(char*); i++ ) {
-      string word = term_stoplist[i];
-      lowercase_term(word);
-      word = stemmer->stem_word(word);
-      cerr << "adding " << word << endl;
-      termStopWords.insert( word );
-    }
-
-   for ( unsigned int i = 0; i < sizeof(symbol_stoplist)/sizeof(char*); i++ ) {
-      string word = symbol_stoplist[i];
-      lowercase_term(word);
-      cerr << "adding " << word << endl;
-      symbolStopWords.insert( word );
-    }
-
-    in_code = 0;
-
-  }
-
-  ~Lines() {
-    delete in_comments;
-    delete stemmer;
-    if ( in_code != 0 ) {
-      delete in_code;
-    }
-  }
-
-  // returns false when there is no next line
-  bool ReadNextLine() {
-
-    terms.clear();
-    symbols.clear();
-
-    if ( in_comments->eof() ) {
-      return false;
-    }
-
-    line_no++;
-    
-    string line;
-    if ( getline( *in_comments, line, '\n' ).eof() ) {
-      if ( line == "" ) {
-	return false;
-      }
-    }
-      
-    // break up line into words
-
-    list<string> words;
-    split( line, " .,:;!()[]<>?-\t\n\002", words ); // we get 002 sometimes if ".^B"
-      
-    int file_no = atoi(  words.front().c_str() );
-
-    string fn = files[file_no-1];
-    if ( fn != current_fn ) {
-      file_count++;
-      int offset = atoi(offsets[file_no-1].c_str());
-      assert( line_no == offset );
-      current_offset = offset;
-      current_fn = fn;
-      cerr << "... processing " << current_fn << endl;
-      if ( in_code != 0 ) {
-	delete in_code;
-      }
-      in_code = new ifstream( (path + "/"  + current_fn).c_str() );
-
-    }
-    for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
-      
-      // skip file # in .db file
-      if ( i == words.begin() ) {
-	continue;
-      }
-      
-      string word = *i;
-      
-      om_termname term = word;
-      lowercase_term(term);
-      term = stemmer->stem_word(term);
-      
-      if ( termStopWords.find(term) == termStopWords.end() ) {
-	terms.insert(term);
-      }
-    }
-
-    //////////////// now read code symbols
-    line = "";
-    getline( *in_code, line, '\n' );
-
-    extractSymbols( line );
-    
-    
-    return true;
-  }
-
-  set<string> getCommentTerms() {
-    return terms;
-  }
-  set<string> getCodeSymbols() {
-    return symbols;
-  }
-};
 
 
 void load_offset_file(  string& file_offset, vector<string>& files, vector<string>& offsets ) {
@@ -760,6 +156,52 @@ void processFile( string& path, string& fn, map<string, int>& symbol_count, map<
   in.close();
 }
 
+bool isSame( const string& s, const string& t ) {
+  //  cerr << "isSame " << s << " and " << t << endl;
+  if ( s == "" || t== "" ) {
+    assert( s != t );
+    return false;
+  }
+
+  string sub1 = string( s, 0, s.find("/") );
+  string sub2 = string( t, 0, s.find("/") );
+  
+  //  cerr << "sub1 " << sub1 << endl;
+  //  cerr << "sub2 " << sub2 << endl;
+
+  if ( sub1 != sub2 ) {
+    return false;
+  }
+
+  // main directories same, so perhaps check subdirectory
+  if ( sub1 == "kdenetwork" ||
+       sub1 == "kmusic" ||
+       sub1 == "koffice" ||
+       sub1 == "kdebase" ||
+       sub1 == "kdeutils" ||
+       sub1 == "kdegraphics" ||
+       sub1 == "kdemultimedia" ||
+       sub1 == "kdenonbeta" ||
+       sub1 == "kdepim" ||
+       sub1 == "kdesdk" ||
+       sub1 == "kdesupport" ||
+       sub1 == "kdetoys" ||
+       sub1 == "kdegames" ||
+       sub1 == "kdeutils" ||
+       sub1 == "kdelibs" || 
+       sub1 == "kdeadmin" ) {
+    //    cerr << "special case" << endl;
+    string x = string( s, s.find("/")+1, s.length() );
+    x = string( x, 0, x.find("/") );
+    string y = string( t, t.find("/")+1, t.length() );
+    y = string( y, 0, y.find("/") );
+    //    cerr << "x = " << x << endl;
+    //    cerr << "y = " << y << endl;
+    return x == y;
+  }
+  return sub1 == sub2;
+}
+
 int main(int argc, char *argv[]) {
 
   if(argc < 3) {
@@ -803,37 +245,76 @@ int main(int argc, char *argv[]) {
 
       { // pass 1
 	Lines lines( codepath, file_db, file_offset );
+	string prev_file = "";
+	map< string, bool > counted_term;
+	map< string, bool > counted_symbol;
 	while ( lines.ReadNextLine() ) {
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 
+	  if ( !isSame(lines.currentFile(), prev_file ) ) {
+	    //	    prev_file = lines.currentFile();
+	    cerr << "*** new app " << lines.currentFile() << endl;
+	    counted_term.clear();
+	    counted_symbol.clear();
+	  }
+
+	  prev_file = lines.currentFile();
+
 	  for( set<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-	    term_count[*i]++;
+	    if ( !COUNT_APPS || counted_term.find(*i) == counted_term.end() ) {
+	      term_count[*i]++;
+	      counted_term[*i] = true;
+	    }
 	  }
 
 	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-	    symbol_count[*i]++;
+	    if ( !COUNT_APPS || counted_symbol.find(*i) == counted_symbol.end() ) {
+	      symbol_count[*i]++;
+	      counted_symbol[*i] = true;
+	    }
+
 	  }
 	}
       }
 
       map< pair<string, string>, int > rule_support;
       int total_lines = 0;
-
+      int total_apps = 0;
       
       { // pass 2
 	Lines lines( codepath, file_db, file_offset );
+
+	string prev_file = "";
+	map< pair<string,string>, bool > counted_pair;
+
 	while ( lines.ReadNextLine() ) {
 	  total_lines++;
 
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 	  
+
+	  if ( ! isSame (lines.currentFile(), prev_file) ) {
+	    //	    prev_file = lines.currentFile();
+	    cerr << "*** new app " << lines.currentFile() << endl;
+	    total_apps++;
+	    counted_pair.clear();
+	  }
+
+	  prev_file = lines.currentFile();
+
 	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
 	    if ( term_count[*t] >= MIN_SUPP ) {
 	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 		if ( symbol_count[*s] >= MIN_SUPP ) {
-		  rule_support[ make_pair( *t, *s ) ] ++;
+
+		  if ( ! COUNT_APPS || counted_pair.find( make_pair(*t,*s) ) == counted_pair.end() ) {
+
+		    rule_support[ make_pair( *t, *s ) ] ++;
+		    counted_pair[ make_pair( *t, *s ) ] = true;
+		  }
+
 		}
 	      }
 	    }
@@ -842,22 +323,48 @@ int main(int argc, char *argv[]) {
 	}
       }
 
+      string prev_term = "";
+      map< double, set<string> > results;
       // print out rules
       for ( map< pair<string, string>, int >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
 	int supp = r->second;
+	string ant = (r->first).first;
+	string con = (r->first).second;
 
+	if ( ant != prev_term ) {
+	  // print out results in sorted order
+	  cerr << "********* " << prev_term << endl;
+	  for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
+	    set<string> S = i->second;
+	    for ( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	      cerr << *s << " product = " << -(i->first) << endl;
+	    }
+	  }
+	  prev_term = ant;
+	  results.clear();
+	}
+
+	
 	if ( supp >= MIN_SUPP ) {
-	  string ant = (r->first).first;
-	  string con = (r->first).second;
 
 	  double conf = 100.0*(double)supp / (double)term_count[ant];
-	  double con_usage = 100.0*(double)symbol_count[con]/(double)total_lines;
+	  double con_usage;
+	  if ( COUNT_APPS ) {
+	    con_usage = 100.0*(double)symbol_count[con]/(double)total_apps;
+	  } else {
+	    con_usage = 100.0*(double)symbol_count[con]/(double)total_lines;
+	  }
 	  double surprise = conf / con_usage;
 	  if ( surprise >= MIN_SURPRISE ) {
-	    cerr << ant << " => " << con << " with conf " << conf << "% and support " << supp << " and surprise = " << surprise << endl;
+	    cerr << ant << " [ " << (supp*surprise) << "] " << " => " << con << " with conf " << conf << "% and support " << supp << " and surprise = " << surprise << " ** product " << (supp*surprise) << endl;
+	    results[-supp*surprise].insert(ant + " => " + con);
 	  }
 	}
+
+
       }
+
+      
 
 
 #if 0

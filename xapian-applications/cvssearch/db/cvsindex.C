@@ -22,33 +22,8 @@
 
 #include "util.h"
 
-// flush every 25 files
-#define FLUSH_RATE 25 
+#define FLUSH_RATE 50
 
-// for profiling
-#define SKIP_SC_DATABASE_WRITE 0 
-#define SKIP_OM_DATABASE_WRITE 0 
-#define STORE_COMMENTS_IN_OM 1 
-#define STORE_INFO_IN_OM 1 
-
-void load_offset_file( string& file_offset, vector<string>& files, vector<string>& offsets ) {
-
-  cerr << "... reading " << file_offset << endl;
-  
-  ifstream in(file_offset.c_str());
-  assert(in);
-
-  while (!in.eof()) {
-    string file;
-    string offset;
-    in >> file;
-    in >> offset;
-    files.push_back( file ); 
-    offsets.push_back( offset ); 
-  }
-  in.close();
-  
-}
 
 int main(int argc, char *argv[]) {
 
@@ -60,179 +35,106 @@ int main(int argc, char *argv[]) {
 
   for (int i = 1; i < argc; i++ ) {
 
-  string package = argv[i];
+    string package = argv[i];
 
-  int p = package.find(".db");
-  if ( p == -1 ) {
-	cerr << "Must include .db extension in package(s)." << endl;
-	exit(1);
-  }
-
-  package = string(package, 0, p);
-
-  cerr << "package -" << package << "-" << endl;
-
-/**
-  if ( package[ package.length()-1] == '/' ) {
-    // get rid of trailing /
-    package = string( package, 0, package.length()-1 );
-  }
-**/
- 
-
-  // remove directory first if it already exists
-
-  assert( package != "." ); // safety checks
-  assert( package != ".." );
-
-  cerr << "... removing directory " << package << " (if it already exists)" << endl;
-  system( ("rm -rf " + package).c_str() );
-
-  string file_db = package + ".db";
-  string file_offset = package +".offset";
-
-  vector<string> files;
-  vector<string> offsets;
-
-  try {
-
-    load_offset_file( file_offset, files, offsets );
-
- 
-    // create database directory
-    system(("mkdir " + package).c_str());
-
-    // code which accesses Omsee
-
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", package);
-    OmWritableDatabase database(db_parameters); // open database 
-
-    database.begin_session();
-
-    // also write out file:line -> comments mapping using sleepy cat
-    Db db(0, 0);
-    db.open((package+"/comments.db").c_str(), 0, DB_HASH, DB_CREATE, 0 );
-
-
-    ////////////////////////////////// cycle through each document
-
-    cerr << "... reading " << file_db << endl;
-
-    ifstream in(file_db.c_str());
-    assert( in );
-
-    int line_no = 0;
-    string current_fn = "";
-    int current_offset = 1;
-
-    int file_count = 0;
-
-    OmStem stemmer("english");
-
-    while (!in.eof()) {
-      
-      line_no++;
-
-      string line;
-      if ( getline( in, line, '\n' ).eof() ) {
-	if ( line == "" ) {
-	  break;
-	}
-      }
-
-      // break up line into words
-      list<string> words;
-      split( line, " .,:;!()[]<>?-\t\n\002", words ); // we get 002 sometimes if ".^B"
-      
-      OmDocumentContents newdocument;
-      
-      int pos = 1;
-      
-      string message; // put file:line# first
-
-      int file_no = atoi(  words.front().c_str() );
-
-      string fn = files[file_no-1];
-      if ( fn != current_fn ) {
-        file_count++;
-	int offset = atoi(offsets[file_no-1].c_str());
-	assert( line_no == offset );
-	current_offset = offset;
-	current_fn = fn;
-        if ( file_count % FLUSH_RATE == 0 ) {
-	        cerr << "*** FLUSHING" << endl;
-		database.flush();
-        }
-	cerr << "... processing " << current_fn << endl;
-      }
-      static char str[4096];
-      sprintf(str,"%d", (line_no-current_offset+1));
-      string file_and_line = current_fn + ":" + str;
-      message = file_and_line + "\n";
-
-      int space = line.find(" ");
-      string comment = string( line, space+2, line.length() - (space+2) );
-#if STORE_COMMENTS_IN_OM
-      message += comment;
-#endif
-
-      // put comment in database
-      Dbt key( (void*) file_and_line.c_str(),
-	       file_and_line.length()+1 ); // include 0 at end
-      Dbt data( (void*) comment.c_str(),
-		comment.length()+1 ); // include 0 at end
-#if !SKIP_SC_DATABASE_WRITE
-      db.put( 0, &key, &data, DB_NOOVERWRITE );   
-#endif
-
-
-      for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
-
-	// skip file # in .db file
-	if ( i == words.begin() ) {
-	  continue;
-	}
-
-	string word = *i;
-
-	om_termname term = word;
-	lowercase_term(term);
-	term = stemmer.stem_word(term);
-
-	newdocument.add_posting(term, pos++); // term, position of term
-      }
-      
-      // add files to mesage
-      message += "\n";
-
-      //      cerr << endl << message;
-
-#if STORE_INFO_IN_OM
-      newdocument.data = message; // data associated with document (e.g., title, etc.)
-#else
-      newdocument.data = "";
-#endif
-#if !SKIP_OM_DATABASE_WRITE
-      database.add_document(newdocument);
-#endif
-      
+    int p = package.find(".db");
+    if ( p == -1 ) {
+      cerr << "Must include .db extension in package(s)." << endl;
+      exit(1);
     }
-    
-    in.close();
-    db.close(0);
-    database.end_session();
 
-    cerr << "Done!" << endl;
+    package = string(package, 0, p);
 
-  }
-  catch(OmError & error) {
-    cerr << "OMSEE Exception: " << error.get_msg() << endl;
-  } 
-  catch (DbException& e ) {
-    cerr << "SleepyCat Exception: " << e.what() << endl;
-  }
+    cerr << "package -" << package << "-" << endl;
+
+    // remove directory first if it already exists
+
+    assert( package != "." ); // safety checks
+    assert( package != ".." );
+
+    cerr << "... removing directory " << package << " (if it already exists)" << endl;
+    system( ("rm -rf " + package).c_str() );
+
+    string file_db = package + ".db";
+    string file_offset = package +".offset";
+
+    try {
+
+
+ 
+      // create database directory
+      system(("mkdir " + package).c_str());
+
+      // code which accesses Omsee
+
+      OmSettings db_parameters;
+      db_parameters.set("backend", "quartz");
+      db_parameters.set("quartz_dir", package);
+      OmWritableDatabase database(db_parameters); // open database 
+
+      database.begin_session();
+
+      // also write out file:line -> comments mapping using sleepy cat
+      //      Db db(0, 0);
+      //      db.open((package+"/comments.db").c_str(), 0, DB_HASH, DB_CREATE, 0 );
+
+
+      ////////////////////////////////// cycle through each document
+
+      cerr << "... reading " << file_db << endl;
+
+      int files = 0;
+      Lines lines( "", file_db, file_offset, false ); // no stop words
+      string prev_file = "";
+      while ( lines.ReadNextLine() ) {
+	if ( lines.currentFile() != prev_file ) {
+	  prev_file = lines.currentFile();
+	  files++;
+	  if ( files % FLUSH_RATE == 0 ) {
+	    cerr << "** FLUSHING" << endl;
+	    database.flush();
+	  }
+	}
+	
+
+	list<string> words = lines.getTermList();
+	string data = lines.getData();
+	// we want to output something like:
+	// 0.453 80 15:1.8 1.3 1.1
+	// 0.453 is the score
+	// 80 is the file number
+	// 15 is the line number
+
+	// so, along with each entry, we store the following associated string:
+	// 80 15:1.8 1.3 1.1
+	
+
+	OmDocumentContents newdocument;
+	int pos = 1;
+	for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
+	  
+	  string word = *i;
+	  newdocument.add_posting(word, pos++); // term, position of term
+	}
+	newdocument.data = data;
+	database.add_document(newdocument);
+
+      }
+      
+
+
+      //      db.close(0);
+      database.end_session();
+
+      cerr << "Done!" << endl;
+
+    }
+    catch(OmError & error) {
+      cerr << "OMSEE Exception: " << error.get_msg() << endl;
+    } 
+    catch (DbException& e ) {
+      cerr << "SleepyCat Exception: " << e.what() << endl;
+    }
 
   }
   
