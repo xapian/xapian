@@ -93,7 +93,33 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
     return os << (obj.get_description());
 }
 
+/** A cursor pointing to a position in a quartz table, for reading several
+ *  entries in order, or finding approximate matches.
+ */
 class QuartzCursor {
+    private:
+	/// Copying not allowed
+	QuartzCursor(const QuartzCursor &);
+
+	/// Assignment not allowed
+	void operator=(const QuartzCursor &);
+
+    public:
+	/// Initialise the cursor
+	QuartzCursor() : is_positioned(false) {}
+
+	/// Destroy the cursor
+	~QuartzCursor() {}
+
+	/** Current tag.
+	 *  FIXME: this is just a dummy implementation - replace with Martins
+	 *  Btree manager.
+	 */
+	QuartzDbTag tag;
+
+	/** Whether the cursor is positioned at a valid entry.
+	 */
+	bool is_positioned;
 };
 
 
@@ -143,7 +169,7 @@ class QuartzTable {
 	 *  @param key    The key to look for in the table.
 	 *  @param tag    A tag object to fill with the value found.
 	 *  @param cursor A cursor, which will be positioned to point to
-	 *                the item after that found.
+	 *                the item found.
 	 *
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
@@ -154,13 +180,13 @@ class QuartzTable {
 
 	/** Read the next entry from the table.
 	 *
-	 *  This reads an entry from the position pointed to by the cursor,
-	 *  and then moves the cursor forward to point to the subsequent item
-	 *  if there is such an item.  If there is no subsequent item, the
-	 *  cursor becomes invalid.
+	 *  This moves the cursor forward one position, and then
+	 *  reads an entry from the position pointed to by the cursor.
+	 *  If there is no such entry, the cursor becomes invalid, (and
+	 *  the method returns false).
 	 *
 	 *  @param key    Will be filled with the key of the item found.
-	 *  @param tag    Will be filled with the tag found.
+	 *  @param tag    Will be filled with the tag of the item found.
 	 *  @param cursor The cursor pointing to the entry.
 	 *
 	 *  @return true if an entry was read, false otherwise.

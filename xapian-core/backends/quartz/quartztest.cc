@@ -426,6 +426,113 @@ static bool test_bufftable2()
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
+    // FIXME - write test
+
+    return true;
+}
+
+/// Test QuartzCursors
+static bool test_cursor1()
+{
+    unlink("./test_cursor1_data_1");
+    unlink("./test_cursor1_data_2");
+
+    QuartzDiskTable disktable1("./test_cursor1_", false, 8192);
+    QuartzBufferedTable bufftable1(&disktable1);
+    disktable1.open();
+
+    QuartzDbKey key;
+    QuartzDbTag tag;
+
+    key.value = "foo1";
+    bufftable1.get_or_make_tag(key)->value = "bar1";
+    key.value = "foo2";
+    bufftable1.get_or_make_tag(key)->value = "bar2";
+    key.value = "foo3";
+    bufftable1.get_or_make_tag(key)->value = "bar3";
+    QuartzRevisionNumber new_revision = disktable1.get_latest_revision_number();
+    new_revision.increment();
+    TEST(bufftable1.apply(new_revision));
+
+    QuartzTable * table = &disktable1;
+    int count = 2;
+
+    QuartzCursor cursor;
+    while(count != 0) {
+	key.value = "foo25";
+	tag.value = "";
+	TEST(!table->get_nearest_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo2");
+	TEST_EQUAL(tag.value, "bar2");
+
+	TEST(table->get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+
+	TEST(!table->get_next_entry(key, tag, cursor));
+
+	key.value = "foo";
+	tag.value = "blank";
+	TEST(!table->get_nearest_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "");
+	TEST_EQUAL(tag.value, "");
+
+	TEST(table->get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo1");
+	TEST_EQUAL(tag.value, "bar1");
+
+	key.value = "foo2";
+	tag.value = "";
+	TEST(table->get_nearest_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo2");
+	TEST_EQUAL(tag.value, "bar2");
+
+	TEST(table->get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+
+	table = &bufftable1;
+	count -= 1;
+    }
+
+    // Test cursors when we have unapplied changes
+    key.value = "foo25";
+    bufftable1.get_or_make_tag(key)->value = "bar25";
+
+    key.value = "foo25";
+    tag.value = "";
+    TEST(!disktable1.get_nearest_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo2");
+    TEST_EQUAL(tag.value, "bar2");
+
+    TEST(disktable1.get_next_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
+    key.value = "foo25";
+    tag.value = "";
+    TEST(!bufftable1.get_nearest_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo25");
+    TEST_EQUAL(tag.value, "bar25");
+
+    TEST(bufftable1.get_next_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
+    key.value = "foo2";
+    tag.value = "";
+    TEST(!bufftable1.get_nearest_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo2");
+    TEST_EQUAL(tag.value, "bar2");
+
+    TEST(bufftable1.get_next_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo25");
+    TEST_EQUAL(tag.value, "bar25");
+
+    TEST(bufftable1.get_next_entry(key, tag, cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
     return true;
 }
 
@@ -746,6 +853,7 @@ test_desc tests[] = {
     {"quartztableentries1",	test_tableentries1},
     {"quartzbufftable1",	test_bufftable1},
     {"quartzbufftable2",	test_bufftable2},
+    {"quartzcursor1",		test_cursor1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
     {"quartzadddoc2",		test_adddoc2},
