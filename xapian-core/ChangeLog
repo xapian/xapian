@@ -1,3 +1,7 @@
+Wed Mar 21 12:39:13 GMT 2001 Olly Betts
+
+	* Tweak to docs/quickstart.html.
+
 Wed Mar 21 02:50:19 GMT 2001 Olly Betts
 
 	* Entirely removed sleepcat backend and all references to it.
