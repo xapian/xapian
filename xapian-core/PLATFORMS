@@ -6,40 +6,25 @@ we've not tested it ourselves and nobody has reported to us that it works.
 Arch  | Platform                 | Version | Status | Notes / requirements
 ------+--------------------------+---------+--------+------------------------
 x86   |   Linux 2.4 - Debian 3.0 | [+]     | Passed |
-x86   |   Linux 2.2 - Debian 2.2 | [+]     | Passed | [1]
+x86   |   Linux 2.2 - Debian 2.2 | [+]     | Passed |
 x86   | * Linux 2.4 - Debian 2.2 | [+]     | Passed |
-x86   | * FreeBSD 4.5            | [+]     | Passed | [2]
+x86   | * Linux 2.4 - RedHat 7.3 | [+]     | Passed | --disable-remote-backend
+x86   | * FreeBSD 4.5            | [+]     | Passed | [1]
 sparc | * Linux 2.2 - Debian 2.2 | [+]     | Passed |
-sparc | * Solaris 8              | [+]     | Passed | --disable-shared [3]
-ppc   | * Linux 2.4 - Debian 2.2 | [+]     | Passed | --disable-shared
+sparc | * Solaris 8              | [+]     | Passed | [2] [3]
+ppc   | * Linux 2.4 - Debian 2.2 | [+]     | Passed | [3]
 ------+--------------------------+---------+--------+------------------------
-alpha | * Linux 2.2 - Debian 2.2 | [+]     | Failed | Quartz test:
-      |                          |         |        | disktable3, postlist2,
-      |                          |         |        | overwrite1, bitmap1
-      |                          |         |        | (all OMEXCEPT)
-      |                          |         |        | Quartz apitest:
-      |                          |         |        | consistency1 (SIGFPE)
-      |                          |         |        | deldoc4 (OMEXCEPT)
-      |                          |         |        | postlist5 (FAILED)
-ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | Won't link unless
-      |                          |         |        | compiled as a static
-      |                          |         |        | library; fails all
-      |                          |         |        | test even then
+alpha | * Linux 2.2 - Debian 2.2 | [+]     | Failed | Quartz tests fail
+ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | [3] All tests fail
 ------+--------------------------+---------+--------+------------------------
 
 * = SourceForge CompileFarm machine
 
 [+] v0-5-0-release-candidate
 
-[1] The code is known to work, but quartztest sometimes fails due to a
-    bug in gcc's optimisation pass while compiling the tests themselves.
+[1] ./configure spits many warnings but apparently succeeds.
 
-[2] ./configure emits many warnings (caused by mv not being able to
-    preserve permissions) but does actually work.
+[2] GNU make must be used to run the tests (gmake check, not make check).
+    Building the library can be done using the native Solaris make.
 
-[3] internaltest.cc not found automatically - had to hack tests/Makefile
-    This is because it uses our own custom make rule due to deficiencies
-    in automake. The failure in this case is a portability problem to
-    Solaris make.  [Should now be fixed in CVS HEAD by removal of custom
-    make rule which isn't needed with newer versions of automake - not
-    tested yet]
+[3] Must be compiled as a static library (--disable-shared).
