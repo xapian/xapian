@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include "andpostlist.h"
+#include "omdebug.h"
 
 inline void
 AndPostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
@@ -106,4 +107,84 @@ AndPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     if (did > head)
 	process_next_or_skip_to(w_min, r->skip_to(did, w_min - lmax));
     RETURN(NULL);
+}
+
+Xapian::doccount
+AndPostList::get_termfreq_max() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_max", "");
+    RETURN(std::min(l->get_termfreq_max(), r->get_termfreq_max()));
+}
+
+Xapian::doccount
+AndPostList::get_termfreq_min() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_min", "");
+    RETURN(0u);
+}
+
+Xapian::doccount
+AndPostList::get_termfreq_est() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_est", "");
+    // Estimate assuming independence:
+    // P(l and r) = P(l) . P(r)
+    double lest = static_cast<double>(l->get_termfreq_est());
+    double rest = static_cast<double>(r->get_termfreq_est());
+    RETURN(static_cast<Xapian::doccount> (lest * rest / dbsize));
+}
+
+Xapian::docid
+AndPostList::get_docid() const
+{
+    DEBUGCALL(MATCH, Xapian::docid, "AndPostList::get_docid", "");
+    RETURN(head);
+}
+
+// only called if we are doing a probabilistic AND
+Xapian::weight
+AndPostList::get_weight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::get_weight", "");
+    RETURN(l->get_weight() + r->get_weight());
+}
+
+// only called if we are doing a probabilistic operation
+Xapian::weight
+AndPostList::get_maxweight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::get_maxweight", "");
+    RETURN(lmax + rmax);
+}
+
+Xapian::weight
+AndPostList::recalc_maxweight()
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::recalc_maxweight", "");
+    lmax = l->recalc_maxweight();
+    rmax = r->recalc_maxweight();
+    RETURN(AndPostList::get_maxweight());
+}
+
+bool
+AndPostList::at_end() const
+{
+    DEBUGCALL(MATCH, bool, "AndPostList::at_end", "");
+    RETURN(head == 0);
+}
+
+std::string
+AndPostList::get_description() const
+{
+    return "(" + l->get_description() + " And " + r->get_description() + ")";
+}
+
+Xapian::doclength
+AndPostList::get_doclength() const
+{
+    DEBUGCALL(MATCH, Xapian::doclength, "AndPostList::get_doclength", "");
+    Xapian::doclength doclength = l->get_doclength();
+    DEBUGLINE(MATCH, "docid=" << head);
+    AssertEqDouble(l->get_doclength(), r->get_doclength());
+    RETURN(doclength);
 }

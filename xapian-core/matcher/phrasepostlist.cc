@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include <config.h>
 #include "phrasepostlist.h"
 #include "positionlist.h"
+#include "omdebug.h"
 
 #include <algorithm>
 
@@ -91,6 +92,12 @@ NearPostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 	plists[i]->next();
     }
     RETURN(false);
+}
+
+std::string
+NearPostList::get_description() const
+{
+    return "(Near " + om_tostring(window) + " " + source->get_description() + ")";
 }
 
 
@@ -177,4 +184,11 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i
 	plists[i]->next();
     }
     RETURN(false);
+}
+
+std::string
+PhrasePostList::get_description() const
+{
+    return "(Phrase " + om_tostring(window) + " "
+	   + source->get_description() + ")";
 }

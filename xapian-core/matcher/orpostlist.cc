@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,8 @@
 #include "andpostlist.h"
 #include "andmaybepostlist.h"
 #include "omdebug.h"
+
+#include <algorithm>
 
 OrPostList::OrPostList(PostList *left_,
 		       PostList *right_,
@@ -154,4 +156,101 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     PostList *ret = r;
     r = NULL;
     RETURN(ret);
+}
+
+Xapian::doccount
+OrPostList::get_termfreq_max() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_max", "");
+    RETURN(std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize));
+}
+
+Xapian::doccount
+OrPostList::get_termfreq_min() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_min", "");
+    RETURN(std::max(l->get_termfreq_min(), r->get_termfreq_min()));
+}
+
+Xapian::doccount
+OrPostList::get_termfreq_est() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "OrPostList::get_termfreq_est", "");
+    // Estimate assuming independence:
+    // P(l or r) = P(l) + P(r) - P(l) . P(r)
+    double lest = static_cast<double>(l->get_termfreq_est());
+    double rest = static_cast<double>(r->get_termfreq_est());
+    RETURN(static_cast<Xapian::doccount> (lest + rest - lest * rest / dbsize));
+}
+
+Xapian::docid
+OrPostList::get_docid() const
+{
+    DEBUGCALL(MATCH, Xapian::docid, "OrPostList::get_docid", "");
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    RETURN(std::min(lhead, rhead));
+}
+
+// only called if we are doing a probabilistic OR
+Xapian::weight
+OrPostList::get_weight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_weight", "");
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead < rhead) RETURN(l->get_weight());
+    if (lhead > rhead) RETURN(r->get_weight());
+    RETURN(l->get_weight() + r->get_weight());
+}
+
+// only called if we are doing a probabilistic operation
+Xapian::weight
+OrPostList::get_maxweight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::get_maxweight", "");
+    RETURN(lmax + rmax);
+}
+
+Xapian::weight
+OrPostList::recalc_maxweight()
+{
+    DEBUGCALL(MATCH, Xapian::weight, "OrPostList::recalc_maxweight", "");
+    lmax = l->recalc_maxweight();
+    rmax = r->recalc_maxweight();
+    minmax = std::min(lmax, rmax);
+    RETURN(OrPostList::get_maxweight());
+}
+
+bool
+OrPostList::at_end() const
+{
+    DEBUGCALL(MATCH, bool, "OrPostList::at_end", "");
+    // Can never really happen - OrPostList next/skip_to autoprune
+    AssertParanoid(!(l->at_end()) && !(r->at_end()));
+    RETURN(false);
+}
+
+std::string
+OrPostList::get_description() const
+{
+    return "(" + l->get_description() + " Or " + r->get_description() + ")";
+}
+
+Xapian::doclength
+OrPostList::get_doclength() const
+{
+    DEBUGCALL(MATCH, Xapian::doclength, "OrPostList::get_doclength", "");
+    Xapian::doclength doclength;
+
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead > rhead) {
+	doclength = r->get_doclength();
+	DEBUGLINE(MATCH, "OrPostList::get_doclength() [right docid=" 
+		  << rhead << "] = " << doclength);
+    } else {
+	doclength = l->get_doclength();
+	DEBUGLINE(MATCH, "OrPostList::get_doclength() [left docid="
+		  << lhead << "] = " << doclength);
+    }
+
+    RETURN(doclength);
 }

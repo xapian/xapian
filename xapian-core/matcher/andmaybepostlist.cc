@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #include "andpostlist.h"
 #include "omdebug.h"
 
-inline PostList *
+PostList *
 AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 {
     DEBUGCALL(MATCH, PostList *, "AndMaybePostList::process_next_or_skip_to", w_min << ", " << ret);
@@ -86,4 +86,86 @@ AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     if (did <= lhead) RETURN(NULL);
 
     RETURN(process_next_or_skip_to(w_min, l->skip_to(did, w_min - rmax)));
+}
+
+Xapian::doccount
+AndMaybePostList::get_termfreq_max() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_max", "");
+    // Termfreq is exactly that of left hand branch.
+    RETURN(l->get_termfreq_max());
+}
+
+Xapian::doccount
+AndMaybePostList::get_termfreq_min() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_min", "");
+    // Termfreq is exactly that of left hand branch.
+    RETURN(l->get_termfreq_min());
+}
+
+Xapian::doccount
+AndMaybePostList::get_termfreq_est() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "AndMaybePostList::get_termfreq_est", "");
+    // Termfreq is exactly that of left hand branch.
+    RETURN(l->get_termfreq_est());
+}
+
+Xapian::docid
+AndMaybePostList::get_docid() const
+{
+    DEBUGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", "");
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    RETURN(lhead);
+}
+
+// only called if we are doing a probabilistic AND MAYBE
+Xapian::weight
+AndMaybePostList::get_weight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", "");
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
+    RETURN(l->get_weight());
+}
+
+// only called if we are doing a probabilistic operation
+Xapian::weight
+AndMaybePostList::get_maxweight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_maxweight", "");
+    RETURN(lmax + rmax);
+}
+
+Xapian::weight
+AndMaybePostList::recalc_maxweight()
+{
+    DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::recalc_maxweight", "");
+    lmax = l->recalc_maxweight();
+    rmax = r->recalc_maxweight();
+    RETURN(AndMaybePostList::get_maxweight());
+}
+
+bool
+AndMaybePostList::at_end() const
+{
+    DEBUGCALL(MATCH, bool, "AndMaybePostList::at_end", "");
+    RETURN(lhead == 0);
+}
+
+std::string
+AndMaybePostList::get_description() const
+{
+    return "(" + l->get_description() + " AndMaybe " + r->get_description() +
+	   ")";
+}
+
+Xapian::doclength
+AndMaybePostList::get_doclength() const
+{
+    DEBUGCALL(MATCH, Xapian::doclength, "AndMaybePostList::get_doclength", "");
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
+    RETURN(l->get_doclength());
 }

@@ -1,3 +1,10 @@
+Wed Sep 22 14:04:27 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/positionlist.h,matcher/: Moved all of the implementations
+	  of the XXXPostList classes from the .h files into the .cc files.
+	  All the methods are virtual, so we aren't going to gain anything
+	  from being able to inline them.
+
 Wed Sep 22 02:58:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Automatically add -Werror to CFLAGS and CXXFLAGS if

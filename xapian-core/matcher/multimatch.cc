@@ -33,6 +33,7 @@
 #include "omenquireinternal.h"
 
 #include "emptypostlist.h"
+#include "branchpostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "biaspostlist.h"
@@ -46,6 +47,8 @@
 
 #include "match.h"
 #include "stats.h"
+
+#include <xapian/errorhandler.h>
 
 #include <algorithm>
 #include "autoptr.h"

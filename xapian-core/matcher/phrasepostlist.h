@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,9 +24,7 @@
 #ifndef OM_HGUARD_PHRASEPOSTLIST_H
 #define OM_HGUARD_PHRASEPOSTLIST_H
 
-#include "database.h"
 #include "selectpostlist.h"
-#include "omdebug.h"
 
 class Xapian::PositionIterator::Internal;
 typedef Xapian::PositionIterator::Internal PositionList;
@@ -64,14 +62,6 @@ class NearPostList : public SelectPostList {
 	}
 };
 
-inline std::string
-NearPostList::get_description() const
-{
-    return "(Near " + om_tostring(window) + " "
-	   + source->get_description() + ")";
-}
-
-
 /** A postlist comprising several postlists PHRASEd together.
  *
  *  This postlist returns a posting if and only if it is in all of the
@@ -103,13 +93,6 @@ class PhrasePostList : public SelectPostList {
 	    terms = terms_;
 	}
 };
-
-inline std::string
-PhrasePostList::get_description() const
-{
-    return "(Phrase " + om_tostring(window) + " "
-	   + source->get_description() + ")";
-}
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */
 

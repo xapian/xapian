@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,9 +25,7 @@
 #ifndef OM_HGUARD_ANDPOSTLIST_H
 #define OM_HGUARD_ANDPOSTLIST_H
 
-#include "database.h"
 #include "branchpostlist.h"
-#include "omdebug.h"
 
 /** A postlist comprising two postlists ANDed together.
  *
@@ -76,85 +74,5 @@ class AndPostList : public BranchPostList {
 		    Xapian::doccount dbsize_,
 		    bool replacement = false);
 };
-
-inline Xapian::doccount
-AndPostList::get_termfreq_max() const
-{
-    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_max", "");
-    RETURN(std::min(l->get_termfreq_max(), r->get_termfreq_max()));
-}
-
-inline Xapian::doccount
-AndPostList::get_termfreq_min() const
-{
-    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_min", "");
-    RETURN(0u);
-}
-
-inline Xapian::doccount
-AndPostList::get_termfreq_est() const
-{
-    DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_est", "");
-    // Estimate assuming independence:
-    // P(l and r) = P(l) . P(r)
-    double lest = static_cast<double>(l->get_termfreq_est());
-    double rest = static_cast<double>(r->get_termfreq_est());
-    RETURN(static_cast<Xapian::doccount> (lest * rest / dbsize));
-}
-
-inline Xapian::docid
-AndPostList::get_docid() const
-{
-    DEBUGCALL(MATCH, Xapian::docid, "AndPostList::get_docid", "");
-    RETURN(head);
-}
-
-// only called if we are doing a probabilistic AND
-inline Xapian::weight
-AndPostList::get_weight() const
-{
-    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::get_weight", "");
-    RETURN(l->get_weight() + r->get_weight());
-}
-
-// only called if we are doing a probabilistic operation
-inline Xapian::weight
-AndPostList::get_maxweight() const
-{
-    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::get_maxweight", "");
-    RETURN(lmax + rmax);
-}
-
-inline Xapian::weight
-AndPostList::recalc_maxweight()
-{
-    DEBUGCALL(MATCH, Xapian::weight, "AndPostList::recalc_maxweight", "");
-    lmax = l->recalc_maxweight();
-    rmax = r->recalc_maxweight();
-    RETURN(AndPostList::get_maxweight());
-}
-
-inline bool
-AndPostList::at_end() const
-{
-    DEBUGCALL(MATCH, bool, "AndPostList::at_end", "");
-    RETURN(head == 0);
-}
-
-inline std::string
-AndPostList::get_description() const
-{
-    return "(" + l->get_description() + " And " + r->get_description() + ")";
-}
-
-inline Xapian::doclength
-AndPostList::get_doclength() const
-{
-    DEBUGCALL(MATCH, Xapian::doclength, "AndPostList::get_doclength", "");
-    Xapian::doclength doclength = l->get_doclength();
-    DEBUGLINE(MATCH, "docid=" << head);
-    AssertEqDouble(l->get_doclength(), r->get_doclength());
-    RETURN(doclength);
-}
 
 #endif /* OM_HGUARD_ANDPOSTLIST_H */

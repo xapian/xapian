@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,8 @@
 #include <config.h>
 #include "weightcutoffpostlist.h"
 #include "branchpostlist.h"
+#include "database.h"
+#include "utils.h"
 
 WeightCutoffPostList::WeightCutoffPostList(PostList * pl_,
 					   Xapian::weight cutoff_,
@@ -62,3 +64,108 @@ WeightCutoffPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     RETURN(NULL);
 }
 
+inline
+WeightCutoffPostList::~WeightCutoffPostList()
+{
+    if (pl) delete pl;
+}
+
+Xapian::doccount
+WeightCutoffPostList::get_termfreq_max() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_max", "");
+    if (cutoff > pl->get_maxweight()) return 0;
+    return pl->get_termfreq_max();
+}
+
+Xapian::doccount
+WeightCutoffPostList::get_termfreq_min() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_min", "");
+    if (cutoff == 0) return pl->get_termfreq_min();
+    return 0u;
+}
+
+Xapian::doccount
+WeightCutoffPostList::get_termfreq_est() const
+{
+    DEBUGCALL(MATCH, Xapian::doccount, "WeightCutoffPostList::get_termfreq_est", "");
+    // Estimate assuming independence:
+    // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
+    double est = static_cast<double>(pl->get_termfreq_est());
+    double maxwt = pl->get_maxweight();
+    if (maxwt == 0) {
+	if (cutoff > 0) est = 0;
+    } else {
+	double wtfrac = (maxwt - cutoff) / maxwt;
+	if (wtfrac < 0.0) wtfrac = 0.0;
+	if (wtfrac > 1.0) wtfrac = 1.0;
+	Assert(wtfrac <= 1.0);
+	est *= wtfrac;
+    }
+
+    return static_cast<Xapian::doccount> (est);
+}
+
+// only called if we are doing a probabilistic operation
+Xapian::weight
+WeightCutoffPostList::get_maxweight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::get_maxweight", "");
+    return pl->get_maxweight();
+}
+
+Xapian::docid
+WeightCutoffPostList::get_docid() const
+{
+    DEBUGCALL(MATCH, Xapian::docid, "WeightCutoffPostList::get_docid", "");
+    return pl->get_docid();
+}
+
+Xapian::weight
+WeightCutoffPostList::get_weight() const
+{
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::get_weight", "");
+    return pl->get_weight();
+}
+
+Xapian::weight
+WeightCutoffPostList::recalc_maxweight()
+{
+    DEBUGCALL(MATCH, Xapian::weight, "WeightCutoffPostList::recalc_maxweight", "");
+    return pl->recalc_maxweight();
+}
+
+bool
+WeightCutoffPostList::at_end() const
+{
+    DEBUGCALL(MATCH, bool, "WeightCutoffPostList::at_end", "");
+    return pl->at_end();
+}
+
+std::string
+WeightCutoffPostList::get_description() const
+{
+    return "(WeightCutoff " + om_tostring(cutoff) + " " +
+	    pl->get_description() + " )";
+}
+
+PositionList *
+WeightCutoffPostList::read_position_list()
+{
+    DEBUGCALL(MATCH, PositionList *, "WeightCutoffPostList::read_position_list", "");
+    return pl->read_position_list();
+}
+
+PositionList *
+WeightCutoffPostList::open_position_list() const
+{
+    return pl->open_position_list();
+}
+
+Xapian::doclength
+WeightCutoffPostList::get_doclength() const
+{
+    DEBUGCALL(MATCH, Xapian::doclength, "WeightCutoffPostList::get_doclength", "");
+    return pl->get_doclength();
+}
