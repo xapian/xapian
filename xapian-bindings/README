@@ -22,6 +22,8 @@ Mzscheme	Supported by SWIG 1.3.6 onwards
 Ocaml		Supported by SWIG 1.3.14 onwards
 Pike		Supported by SWIG 1.3.14 onwards
 C#		Supported by SWIG 1.3.18 onwards
+                richard@tartarus.org is working on putting some bindings
+                together using SWIG.
 Chicken		Supported by SWIG 1.3.18 onwards
 Allegro CL	Supported by SWIG 1.3.22 onwards
 Modula-3	Supported by SWIG 1.3.22 onwards

@@ -1,3 +1,8 @@
+Sun Sep 26 19:34:54 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * README: Mention that I'm working on C# bindings.
+        * csharp/.cvsignore: Ignore generated .cs and .dll files
+
 Sat Sep 25 02:51:22 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * configure.ac,Makefile.am,csharp/: Add C sharp bindings, created
