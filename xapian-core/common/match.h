@@ -32,11 +32,11 @@ class Match {
         bool recalculate_maxweight;
     public:
         Match(IRDatabase *);
-        bool add_term(const termname &);
-        bool add_term(termid);
+        void add_term(const termname &);
+        void add_term(termid);
 	bool add_op(matchop op);
-	bool add_oplist(matchop op, const vector<termname>&);
-	bool add_oplist(matchop op, const vector<termid>&);
+	void add_oplist(matchop op, const vector<termname>&);
+	void add_oplist(matchop op, const vector<termid>&);
 
         void match();
         void set_max_msize(doccount n);
@@ -49,10 +49,10 @@ class Match {
         doccount mtotal;
 };
 
-inline bool
+inline void
 Match::add_term(const string& termname)
 {
-    return Match::add_term(DB->term_name_to_id(termname));
+    Match::add_term(DB->term_name_to_id(termname));
 }
 
 inline void

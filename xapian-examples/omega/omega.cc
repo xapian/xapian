@@ -44,8 +44,6 @@ string fmtfile = "t/fmt";
 
 static const string muscat_dir = "/usr/muscat";
 
-bool have_query; /* use to trap the "no query" case more reliably */
-
 static int main2(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
@@ -73,8 +71,6 @@ static int main2(int argc, char *argv[])
     
     setvbuf(stdout, NULL, _IOLBF, 0);
       
-    have_query = false;
-
     /* 1997-01-23 added so you can find the version of a given FX easily */
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
@@ -222,10 +218,7 @@ static int main2(int argc, char *argv[])
        Give_Muscat("delrels r0-*");
        Ignore_Muscat();
 
-       if (more) {
-	  have_query = true;
-	  goto got_query_from_morelike;
-       }
+       if (more) goto got_query_from_morelike;
     }
 
     if ((val = GetEntry("IDSPISPOPD")) != NULL) {
@@ -394,10 +387,7 @@ static int main2(int argc, char *argv[])
        Give_Muscat("delrels r0-*");
        Ignore_Muscat();
 
-       if (more) {
-	  have_query = true;
-	  goto got_query_from_morelike;
-       }       
+       if (more) goto got_query_from_morelike;
 #endif
        cout << "<hr>\n";
        exit(0);
@@ -412,13 +402,11 @@ static int main2(int argc, char *argv[])
        more = strlen (val);
        to += more;
        val = NextEntry( "P", &n );
-       have_query = true;
     }
 
     /*** add expand terms ? **/
     if (GetEntry("ADD") != NULL) {
        val = FirstEntry( "X", &n );
-       if (val) have_query = true;
        while (val) {
 	  if (more) *to++ = ' ';
 	  strcpy (to, val);
@@ -437,7 +425,6 @@ static int main2(int argc, char *argv[])
     while (val != NULL) {
        /* we'll definitely get empty B fields from "-ALL-" options */
        if (isalnum(val[0])) add_bterm(val);
-       have_query = true;
        val = NextEntry( "B", &n );
     }
 

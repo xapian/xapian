@@ -14,7 +14,6 @@
 extern FILE *page_fopen(const string &page);
 
 extern string db_name;
-extern bool have_query;
 extern string fmt, fmtfile;
 
 extern DADatabase database;

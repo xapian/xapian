@@ -27,7 +27,7 @@ struct term {
     termid id;
     termtype type;
 };
-#define MAXTERMS 500
+static vector<struct term> new_terms;
 
 #ifdef META
 static char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
@@ -52,14 +52,12 @@ static double maxweight = -1;
 static string gif_dir = "/fx-gif";
 static long int r_displayed[200];
 static long int r_di;
-static struct term new_terms[MAXTERMS];
-static int n_new_terms;
 static long int score_height, score_width;
 
 char thou_sep = ',', dec_sep = '.';
 
 #ifdef FERRET
-static char ad_keywords[MAX_TERM_LEN * 4 + 4] = "";
+static string ad_keywords;
 int n_ad_keywords = 0;
 
 /* from main.c */
@@ -73,8 +71,8 @@ matchop op = OR; // default matching mode
 
 static map<termname, int> matching_map;
 
-static void do_adjustm ( void );
-static int parse_prob( const char *, struct term * );
+static void do_adjustm(void);
+static void parse_prob(const char *);
 static char *find_format_string( char *pc );
 static void run_query(void);
 static void print_query_page( const char *, long int, long int );
@@ -131,7 +129,7 @@ static int is_old_query( const char *oldp ) {
    const char *term;
    int is_old;
    char oldp_sep = '.';
-   int n_old_terms = 0; // ?
+   unsigned int n_old_terms = 0; // ?
 
    if (!oldp) return 0;
 
@@ -151,21 +149,21 @@ static int is_old_query( const char *oldp ) {
       n_old_terms++;
    }
    /* short-cut: if the new query has fewer terms, it must be a new one */
-   if (n_new_terms < n_old_terms) return 0;
+   if (new_terms.size() < n_old_terms) return 0;
 #endif
 
    while ((pend = strchr( term, oldp_sep )) != NULL) {
       size_t len = pend - term;
       /* ignore oversized terms */
       if (len < MAX_TERM_LEN) {
-	 int i;
 	 oldterm = string(term, len);
 	 is_old = 0;
-	 for (i = 0; i < n_new_terms; i++ ) {
-	    if (oldterm == new_terms[i].termname) {
-	       is_old = 1;
-	       break;
-	    }
+	 vector<struct term>::const_iterator i;
+	 for (i = new_terms.begin(); i != new_terms.end(); i++) {
+	     if (oldterm == i->termname) {
+		 is_old = 1;
+		 break;
+	     }
 	 }
 	 if (!is_old) break;
 	 term = pend + 1;
@@ -177,14 +175,13 @@ static int is_old_query( const char *oldp ) {
     * 1 unchanged query
     * -1 new query, but based on the old one
     */
-   if (is_old && n_new_terms > n_old_terms) return -1;
+   if (is_old && new_terms.size() > n_old_terms) return -1;
 #endif
    return is_old;
 }
 
 /**************************************************************/
 int set_probabilistic(const char *p, const char *oldp) {
-   int i;
    char *q;
    int is_old;
 
@@ -198,7 +195,7 @@ int set_probabilistic(const char *p, const char *oldp) {
    while (q > raw_prob && isspace(q[-1])) q--;
    *q = '\0';
 
-   n_new_terms = parse_prob(raw_prob, new_terms);
+   parse_prob(raw_prob);
 
    is_old = is_old_query(oldp);
 
@@ -207,27 +204,29 @@ int set_probabilistic(const char *p, const char *oldp) {
       // FIXME Give_Muscat("delrels r0-*");
    }
 
-    if (n_new_terms) {
+    if (!new_terms.empty()) {
 	vector<termid> pluses;
 	vector<termid> minuses;
 	vector<termid> normals;
       
-	for (i = 0; i < n_new_terms; i++) {	    
-	    switch (new_terms[i].type) {
+	vector<struct term>::const_iterator i;
+	int count = 1;
+	for (i = new_terms.begin(); i != new_terms.end(); i++) {
+	    switch (i->type) {
 	     case PLUS:
-		pluses.push_back(new_terms[i].id);
-		matching_map[new_terms[i].termname] = i;
+		pluses.push_back(i->id);
+		matching_map[i->termname] = count++;
 		break;
 	     case MINUS:
-		minuses.push_back(new_terms[i].id);
+		minuses.push_back(i->id);
 		// don't put MINUS terms in map - they won't match...
 		break;
 	     case NORMAL:
-		normals.push_back(new_terms[i].id);
-		matching_map[new_terms[i].termname] = i;
+		normals.push_back(i->id);
+		matching_map[i->termname] = count++;
 		break;
 	     default:
-		cout << "ignoring term " << new_terms[i].termname << endl; // FIXME
+		cout << "ignoring term " << i->termname << endl; // FIXME
 		break;
 	  }
 	}
@@ -255,17 +254,13 @@ int set_probabilistic(const char *p, const char *oldp) {
 
 /**************************************************************/
 
-static int checked_a_term = 0;
-
 /* if term is in the database, add it to the term list */
-static int check_term(struct term *pt, const char *buf, termtype type) {
-    checked_a_term = 1;
-    termid id = database.term_name_to_id(buf);
-    if (!id) return 0;
-    pt->id = id;
-    pt->termname = buf;
-    pt->type = type;
-    return 1;
+static void check_term(string name, termtype type) {
+    termid id = database.term_name_to_id(name);
+    new_terms.push_back(struct term());
+    new_terms.back().id = id;
+    new_terms.back().termname = name;
+    new_terms.back().type = type;
 }
 
 /**************************************************************/
@@ -285,18 +280,19 @@ static int get_next_char( const char **p ) {
    return ch;
 }
 
-static int parse_prob( const char *text, struct term *pTerm ) {
+static void
+parse_prob(const char *text)
+{
     const char *pC = text;
     char *pTo;
     int size;
     termtype type = NORMAL;
-    int got = 0;
     char buf[MAX_TERM_LEN];
     int stem, stem_all;
     int ch;
 #ifdef FERRET
     int in_quotes = 0;
-    char phrase_buf[MAX_TERM_LEN];
+    string phrase_buf;
 #endif
     StemEn stemmer;
 
@@ -304,9 +300,9 @@ static int parse_prob( const char *text, struct term *pTerm ) {
     stem = 1;
     stem_all = 1;
 #else
-    stem = !get_muscat_string ("no_stem", buf);
+    stem = !atoi(option["no_stem"].c_str());
     /* stem capitalised words too -- needed for EuroFerret - Olly 1997-03-19 */
-    stem_all = get_muscat_string ("all_stem", buf);
+    stem_all = atoi(option["all_stem"].c_str());
 #endif
 
     ch = get_next_char( &pC );
@@ -376,10 +372,9 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	    if (n_ad_keywords < 4) {
 	       /* FIXME: && type != ABSENT, or pick 4 top +ve weights later? */
 	       if (n_ad_keywords)
-		  strcat( ad_keywords, "+" );
-/*	       else *ad_keywords = '\0'; */
+		  ad_keywords += '+';
 
-	       strcat( ad_keywords, buf );
+	       ad_keywords += buf;
 	       n_ad_keywords++;
 	    }
 
@@ -397,81 +392,46 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	    }
 
 	    if (!in_quotes) {
-	       if (check_term(pTerm, buf, type)) {
-		  got++;
-		  if (got > MAXTERMS) break;
-		  pTerm++;
-	       }
-	       if (ch != '-') {
-		   /* Currently we index hyphenated words as multiple terms, so
-		    * we probably want to keep same +/- weighting for all
-		    * hyphenated */
-		   type = NORMAL;
-	       }
+		check_term(buf, type);
+		/* Currently we index hyphenated words as multiple terms, so
+		 * we probably want to keep same +/- weighting for all
+		 * hyphenated */
+		if (ch != '-') type = NORMAL;
 	    } else {
-	       if (in_quotes > 1) {
-		  char tmp_buf[MAX_TERM_LEN];
-		  int len, len2;
-	          len = strlen( phrase_buf );
-	          len2 = strlen( buf );
-		  if (len+len2+2 <= MAX_TERM_LEN) {
-		     strcpy( tmp_buf, phrase_buf );
-		     tmp_buf[len] = ' ';
-		     strcpy( tmp_buf + len + 1, buf);
-		     
-		     if (check_term(pTerm, tmp_buf, type)) {
-			got++;
-			if (got > MAXTERMS) break;
-			pTerm++;
-		     }
-		  }
-	       }
-	       strcpy( phrase_buf, buf );	       
+		if (in_quotes > 1) {
+		    string tmp_buf;
+		    tmp_buf = phrase_buf;
+		    tmp_buf += ' ';
+		    tmp_buf += buf;
+		    check_term(tmp_buf, type);
+		}
+		phrase_buf = buf;
 	    }
 
 	    if (ch == '\"') {
-	       if (in_quotes == 1) {
-		  /* had a single term in quotes, so add it */
-		  if (check_term(pTerm, phrase_buf, type)) {
-		     got++;
-		     if (got > MAXTERMS) break;
-		     pTerm++;
-		  }
-	       }
-	       in_quotes = ! in_quotes;
-	       if (!in_quotes) type = NORMAL; /* reset +/- */
+		/* had a single term in quotes, so add it */
+		if (in_quotes == 1) check_term(phrase_buf, type);
+		in_quotes = !in_quotes;
+		if (!in_quotes) type = NORMAL; /* reset +/- */
 	    } else {
-	       if (in_quotes) in_quotes++;
+		if (in_quotes) in_quotes++;
 	    }
 	    if (got_next) continue;
 	} else if (ch == '+') {
-	   type = PLUS;
+	    type = PLUS;
 	} else if (ch == '-') {
-	   type = MINUS;
+	    type = MINUS;
 	} else if (ch == '\"') {
-	   if (in_quotes == 2) {
-	      /* had a single term in quotes, so add it */
-	      if (check_term(pTerm, phrase_buf, type)) {
-		 got++;
-		 if (got > MAXTERMS) break;
-		 pTerm++;
-	      }
-	   }
-	   in_quotes = !in_quotes;
+	    /* had a single term in quotes, so add it */
+	    if (in_quotes == 2) check_term(phrase_buf, type);
+	    in_quotes = !in_quotes;
 	}
        
         if (ch) ch = get_next_char(&pC); /* skip unless it's a '\0' */
     }
 
-    if (in_quotes == 2) {
-       /* had a single term in unterminated quotes, so add it */
-       if (check_term(pTerm, phrase_buf, type)) {
-	  got++;
-/* pointless: if (got <= MAXTERMS) pTerm++; */ 
-       }
-    }
-
-    return got;
+    /* had a single term in unterminated quotes, so add it */
+    if (in_quotes == 2) check_term(phrase_buf, type);
 }
 
 // FIXME: multimap for general use?
@@ -493,15 +453,6 @@ static void run_query(void) {
 	if (bool_terms) matcher->add_op(AND);
     }
     if (bool_terms) matcher->add_op(FILTER);
-
-    /* Fix problem when there's a boolean and none of the probabilistic terms
-     * were in the term list.  Otherwise Muscat throws away all the pterms and
-     * then returns all records matching just the boolean query */
-    if (n_new_terms == 0 && checked_a_term) {
-       maxweight = 0;
-       msize = 0;
-       return;
-    }
 
     matcher->match();
 
@@ -610,7 +561,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
    }
 
    if (!strncmp (pc, "SAVE", 4)) {
-       long int r, i;
+       long int r;
        r = r; // FIXME
 
        /*** save DB name **/
@@ -631,10 +582,11 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 
       if (which == 'Q') {
 	 /*** save prob query ***/
-	 if (n_new_terms) {
+	 if (!new_terms.empty()) {
 	     cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-	     for (i = 0; i < n_new_terms; i++) {
-		 cout << new_terms[i].termname.c_str() << '.';
+	     vector<struct term>::const_iterator i;
+	     for (i = new_terms.begin(); i != new_terms.end(); i++) {
+		 cout << i->termname << '.';
 	     }
 	     cout << "\">\n";
 	 }
@@ -777,7 +729,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	  */
 	 switch (pc[4]) {
 	  case '0': /* followed by string */
-	    if ((msize == 0) && have_query)
+	    if (msize == 0 && new_terms.size())
 		cout << pc + 5;
 	    break;
 	  case '2':
@@ -944,10 +896,10 @@ static void print_query_page( const char* page, long int first, long int size) {
 		}
 
 		if (!strncmp (pc, "HITLINE", 7)) {
-		    if (!msize){
-			pc += strlen(pc); /* Ignore the rest of this line if no hits */
+		    if (!new_terms.size()) {
+			pc += strlen(pc); /* Ignore the rest of this line if no query */
 		    } else {
-			pc += 7; /* Just ignore this tag if there *are* hits. */
+			pc += 7; /* Just ignore this tag if there is a query */
 		    }
 		}
 
@@ -1155,16 +1107,19 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   pc += 6;
 		}
 	        else if (!strncmp(pc, "FREQS", 5)) {
-		   if (msize) {
-		       int i;
-		       for (i = 0; i < n_new_terms; i++) {
-			   const char *term = new_terms[i].termname.c_str();
+		   if (!new_terms.empty()) {
+		       vector<struct term>::const_iterator i;
+		       for (i = new_terms.begin(); i != new_terms.end(); i++) {
+			   const char *term = i->termname.c_str();
 
-			   PostList *pl = database.open_post_list(new_terms[i].id);
-			   int freq = pl->get_termfreq();
-			   delete pl;
+			   int freq = 0;
+			   if (i->id) {
+			       PostList *pl = database.open_post_list(i->id);
+			       freq = pl->get_termfreq();
+			       delete pl;
+			   }
 
-			   if (i == 0) {
+			   if (i == new_terms.begin()) {
 			       cout << "<B>Individual word frequencies:</B>\n";
 			   } else {
 			       cout << ", ";
@@ -1176,7 +1131,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   }
 			   pretty_printf("%d", &freq);
 		       }
-		       if (i != 0) cout << "<BR>";
+		       if (!new_terms.empty()) cout << "<BR>";
 		   }
 		   pc += 5;
 		}

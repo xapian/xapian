@@ -174,11 +174,7 @@ main(int argc, char *argv[])
 		term = stemmer.stem_word(term);
 
 		if (boolean) {
-		    if (match.add_term(term)) {
-			printf("Added term \"%s\" ok\n", term.c_str());
-		    } else {
-			printf("Failed to add term \"%s\"\n", term.c_str());
-		    }
+		    match.add_term(term);
 		} else {
 		    prob_terms.push_back(term);
 		}

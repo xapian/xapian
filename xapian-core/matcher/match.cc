@@ -5,6 +5,7 @@
 #include "andnotpostlist.h"
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
+#include "emptypostlist.h"
 #include "irdocument.h"
 
 #include <algorithm>
@@ -30,19 +31,21 @@ Match::Match(IRDatabase *database)
     min_weight_percent = -1;
 }
 
-bool
+void
 Match::add_term(termid id)
 {
-    // FIXME: we might want to push a null PostList in some situations...
-    // for similar reasons to using the muscat3.6 zerofreqs option
-    if (!id) return false;
-
-    q.push(DB->open_post_list(id));
-    return true;
+    // FIXME: we want to push a null PostList in most (all?) situations
+    // for similar reasons to using the muscat3.6 zerofreqs option -
+    // but what should the return value be?
+    if (id) {
+	q.push(DB->open_post_list(id));
+    } else {
+	q.push(new EmptyPostList());
+    }
 }
 
 // FIXME: sort out error handling in next 2 methods (e.g. term not found...)
-bool
+void
 Match::add_oplist(matchop op, const vector<termname> &terms)
 {
     Assert(op == OR || op == AND);
@@ -51,10 +54,10 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
     for (i = terms.begin(); i != terms.end(); i++) {
 	ids.push_back(DB->term_name_to_id(*i));
     }
-    return Match::add_oplist(op, ids);
+    Match::add_oplist(op, ids);
 }
 
-bool
+void
 Match::add_oplist(matchop op, const vector<termid> &ids)
 {
     Assert(op == OR || op == AND);
@@ -63,7 +66,9 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	priority_queue<PostList*, vector<PostList*>, PLPCmpGt> pq;
 	vector<termid>::const_iterator i;
 	for (i = ids.begin(); i != ids.end(); i++) {
-	    pq.push(DB->open_post_list(*i));
+	    // for an OR, we can just ignore zero freq terms
+	    termid id = *i;
+	    if (id) pq.push(DB->open_post_list(id));
 	}
 
 	// Build a tree balanced by the term frequencies
@@ -72,39 +77,49 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	// This scheme reduces the number of objects common terms
 	// get "pulled" through, reducing the amount of work done which
 	// speeds things up.
+	if (pq.empty()) {
+	    q.push(new EmptyPostList());
+	    return;
+	}
+
 	while (true) {
 	    PostList *p = pq.top();
 	    pq.pop();
 	    if (pq.empty()) {
 		q.push(p);		
-		break;
+		return;
 	    }
 	    // NB right is always <= left - we can use this to optimise
 	    p = new OrPostList(pq.top(), p, this);
 	    pq.pop();
 	    pq.push(p);
 	}
-    } else {
-	// Build nice tree for AND-ed terms
-	// SORT list into ascending freq order
-	// AND last two elements, then AND with each subsequent element
-	vector<PostList *> sorted;
-	vector<termid>::const_iterator i;
-	for (i = ids.begin(); i != ids.end(); i++) {
-	    sorted.push_back(DB->open_post_list(*i));
-	}
-	stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
-
-        PostList *p = sorted.back();
-        sorted.pop_back();
-	while (!sorted.empty()) {	    
-	    // NB right is always <= left - we can use this to optimise
-	    p = new AndPostList(sorted.back(), p, this);
-	    sorted.pop_back();
-	}
-        q.push(p);		
     }
-    return true;
+    
+    // Build nice tree for AND-ed terms
+    // SORT list into ascending freq order
+    // AND last two elements, then AND with each subsequent element
+    vector<PostList *> sorted;
+    vector<termid>::const_iterator i;
+    for (i = ids.begin(); i != ids.end(); i++) {
+	// for an AND, a zero frequency term means we can ignore the others
+	termid id = *i;
+	if (!id) {
+	    q.push(new EmptyPostList());
+	    return;
+	}
+	sorted.push_back(DB->open_post_list(id));
+    }
+    stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
+    
+    PostList *p = sorted.back();
+    sorted.pop_back();
+    while (!sorted.empty()) {	    
+	// NB right is always <= left - we can use this to optimise
+	p = new AndPostList(sorted.back(), p, this);
+	sorted.pop_back();
+    }
+    q.push(p);		
 }
 
 bool
@@ -180,7 +195,6 @@ void
 Match::match()
 {    
     weight w_min = 0;
-    int sorted_to = 0;
     
     msize = 0;
     mtotal = 0;
