@@ -1,3 +1,9 @@
+Sun Sep 07 22:17:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Fixed check for socketpair - we were automatically
+	  disabling the remote backend on platforms where socketpair is
+	  in libsocket (such as Solaris).
+
 Sun Sep 07 19:56:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success report for cygwin from Eric B. Ridge.

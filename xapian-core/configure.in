@@ -171,7 +171,8 @@ if test $ac_cv_func_fork = no ; then
   build_remote=false
 else
   dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
-  AC_CHECK_FUNC(socketpair, , AC_CHECK_LIB(socket, socketpair))
+  AC_CHECK_FUNC(socketpair, ,
+		AC_CHECK_LIB(socket, socketpair, [ac_cv_func_socketpair=yes]))
   if test $ac_cv_func_socketpair = no ; then
     build_remote=false
   else
