@@ -2,12 +2,17 @@
 
 doc_sources = xapian-queryserver.but \
 	      xapian-queryserver-manpage.but
-doc_targets = xapian-queryserver.txt \
-	      xapian-queryserver.html \
-	      xapian-queryserver.pdf \
-	      xapian-queryserver.info
-doc_extra   = xapian-queryserver.info-1
-doc_mans    = xapian-queryserver.1
+#Disable documentation build until we can expect to have halibut on developers
+#machines.
+doc_targets =
+doc_extra   =
+doc_mans    =
+#doc_targets = xapian-queryserver.txt \
+#	      xapian-queryserver.html \
+#	      xapian-queryserver.pdf \
+#	      xapian-queryserver.info
+#doc_extra   = xapian-queryserver.info-1
+#doc_mans    = xapian-queryserver.1
 
 EXTRA_DIST = $(doc_sources)
 

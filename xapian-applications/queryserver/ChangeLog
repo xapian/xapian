@@ -1,3 +1,8 @@
+Tue May 11 12:54:55 BST 2004  Richard Boulton <richard.boulton@omsee.com>
+
+	* Disable documentation build until we can expect to have halibut on
+	  developers machines.
+
 Tue May 11 11:52:26 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * clients/queryclient.php: Don't strip newlines out of the data
