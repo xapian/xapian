@@ -65,10 +65,10 @@ PERL = @PERL@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	    Compare.cgi     Matchfile.cgi Query.cgi Queryfile.cgi Source.cgi Top.cgi Logo.cgi fishlogo.gif     MatchComment.cgi QueryComment.cgi TopComment.cgi     cvs2cl     popup.js     Cvssearch.pm Entities.pm 
+bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	    Compare.cgi     MatchFile.cgi Query.cgi QueryFile.cgi Source.cgi Top.cgi Logo.cgi fishlogo.gif     MatchComment.cgi QueryComment.cgi TopComment.cgi SourceComment.cgi     cvs2cl     popup.js     Cvssearch.pm Entities.pm 
 
 
-EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl     Compare-script.pl     Matchfile-script.pl Query-script.pl QueryFile-script.pl Source-script.pl Top-script.pl Logo-script.pl     MatchComment-script.pl QueryComment-script.pl TopComment-script.pl     fishlogo.gif     cvs2cl.pl     popup.js     Cvssearch.pm Entities.pm
+EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl     Compare-script.pl     MatchFile-script.pl Query-script.pl QueryFile-script.pl Source-script.pl Top-script.pl Logo-script.pl     MatchComment-script.pl QueryComment-script.pl TopComment-script.pl SourceComment-script.pl     fishlogo.gif     cvs2cl.pl     popup.js     Cvssearch.pm Entities.pm
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -235,13 +235,16 @@ QueryComment.cgi:$(srcdir)/QueryComment-script.pl
 TopComment.cgi:$(srcdir)/TopComment-script.pl
 	$(build-perl-script)
 
-Matchfile.cgi:$(srcdir)/Matchfile-script.pl
+MatchFile.cgi:$(srcdir)/MatchFile-script.pl
 	$(build-perl-script)
 
 Query.cgi:$(srcdir)/Query-script.pl 
 	$(build-perl-script)
 
-Queryfile.cgi:$(srcdir)/QueryFile-script.pl 
+QueryFile.cgi:$(srcdir)/QueryFile-script.pl 
+	$(build-perl-script)
+
+SourceComment.cgi:$(srcdir)/SourceComment-script.pl
 	$(build-perl-script)
 
 Source.cgi:$(srcdir)/Source-script.pl 

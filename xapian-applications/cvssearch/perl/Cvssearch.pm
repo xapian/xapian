@@ -515,6 +515,7 @@ sub cmp_cvs_version {
 
 
 sub print_style_sheet {
+    my $color    = get_color(50, 100);
     print "<style type=\"text/css\">\n";
     print "body.compare  {background-color:#EEEEEE;}\n";
     print "body {background-color:white;}\n";
@@ -537,6 +538,7 @@ sub print_style_sheet {
     print ".lightcvs {color:#00ccff}\n";
     print ".blue {color:#0066cc}\n";
     print ".orange {color:#FF7A12}\n";
+    print ".t {background-color:$color;}\n";
     print "</style>\n";
 }
 

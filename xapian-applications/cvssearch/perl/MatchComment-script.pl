@@ -88,7 +88,7 @@ if(param()){
     # this file_name contains the pkg name
     # ----------------------------------------
 
-    print_javascript($root, $pkg);
+    print_javascript($root, $pkg, $symbol);
     print "</head>\n";
     print "<body>\n";
 
@@ -102,7 +102,6 @@ if(param()){
     }
 
     my $color     = shift @colors;
-    my $color1    = Cvssearch::get_color(50, 100);
     my $class     = toChar($file_id);
     my $i = 1;
     my $has_something = 1;
@@ -129,8 +128,9 @@ if(param()){
             }
         } else {
             my $line_index = $_;
-            while ($i++ < $line_index) {
+            while ($i < $line_index) {
                 my $temp = <FILE>;
+                $i++;
             }
             my $line = <FILE>;
             chomp $line;
@@ -145,6 +145,7 @@ if(param()){
                 my $old_line = $line;
                 $line = highlightquery($line, $symbol);
                 if ($line eq $old_line) {
+                    $i++;
                     next;
                 }
             }
@@ -156,8 +157,9 @@ if(param()){
             $printed_something = 1;
             print "<tr><td>$line_index</td><td>";
             print "<span class=$class><a href=# ";
-            print "onclick=\"return c($i, $file_id, \'$revision\');\">F</a></span> ";
-            print "</td><td bgcolor=\"$color1\"><pre><a href=# onclick=\"return o($file_id, $i);\">$line$space</a></td></tr>\n";
+            print "onclick=\"return c($line_index, $file_id, \'$revision\');\">F</a></span> ";
+            print "</td><td class=t><pre><a href=# onclick=\"return o($file_id, \'$revision\', $line_index);\">$line$space</a></td></tr>\n";
+            $i++;
         }
     }
     close (QUERY);
@@ -175,7 +177,7 @@ print "</body></html>";
 
 
 sub print_javascript {
-    my ($root, $pkg) = @_;
+    my ($root, $pkg, $symbol) = @_;
     # ----------------------------------------
     # print javascript for calling popups in
     # shorthand notation
@@ -213,8 +215,8 @@ function c(line, fileid, rev){
     return false;
 }
 
-function o(fileid, line) {
-    var link = "$source"+"#"+line;
+function o(fileid, revision, line) {
+    var link = "$source?root=$root&pkg=$pkg" + "&revision=" + revision + "&fileid="+ fileid + "&symbol=$symbol#"+line;
     if (parent.frames[2].location.href != link) {
         parent.s.location.href = link;
     }
