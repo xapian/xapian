@@ -102,7 +102,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
-Recommends: libxapian@LIBXAPIAN_SOVERSION@-dev (= ${Source-Version}), libxapian-queryparser@LIBQUERYPARSER_SOVERSION@-dev (= ${Source-Version})
+Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version}), libxapian-queryparser@LIBQUERYPARSER_DEV_SOVERSION@-dev (= ${Source-Version})
 Description: Core Xapian documentation
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
