@@ -1,3 +1,7 @@
+Mon Sep 16 19:40:02 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Mon Sep 16 18:09:29 BST 2002  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: don't run consistency1 test on the remote backend
