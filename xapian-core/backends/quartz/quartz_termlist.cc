@@ -46,12 +46,35 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
     *tag = pack_uint(doclen_);
 
     string v;
+    string prev_term;
     unsigned int size = 0;
     for ( ; t != t_end; ++t) {
+#ifdef OLD_TERMLIST_FORMAT
+	// If there was a previous term, how much to reuse (one byte for now)
+	if (!prev_term.empty()) {
+	    string::size_type end = min(prev_term.length(), (*t).length());
+	    string::size_type i;
+	    for (i = 0; i < len; ++i) {
+		if (prev_term[i] != (*t)[i]) break;
+	    }
+	    v += (char)i;
+	    v += (char)((*t).length() - i);
+	    v += t->substr(i);
+	} else {
+	    v += (char)(*t).length();
+	    v += *t;
+	}
+	prev_term = *t;
+
+	v += pack_uint(t.get_wdf());
+	if (store_termfreqs) v += pack_uint(t.get_termfreq());
+	++size;
+#else
 	v += pack_string(*t);
 	v += pack_uint(t.get_wdf());
 	if (store_termfreqs) v += pack_uint(t.get_termfreq());
 	++size;
+#endif
     }
     *tag += pack_uint(size);
     *tag += pack_bool(store_termfreqs);
@@ -150,7 +173,32 @@ QuartzTermList::next()
 	have_finished = true;
 	RETURN(0);
     }
+#ifdef OLD_TERMLIST_FORMAT
+    // If there was a previous term, how much to reuse (one byte for now)
+    if (!current_tname.empty()) {
+	current_tname.resize(*pos++);
+    }
+    // What to append (note len must be positive, since just truncating
+    // always takes us backwards in the sort order)
+    string::size_type len = *pos++;
+    current_tname.append(pos, len);
 
+    // Read wdf
+    if (!unpack_uint(&pos, end, &current_wdf)) {
+	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
+	throw OmRangeError("Size of wdf out of range, in termlist.");
+    }
+    
+    // Read termfreq, if stored
+    if (has_termfreqs) {
+	if (!unpack_uint(&pos, end, &current_termfreq)) {
+	    if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
+	    throw OmRangeError("Size of term frequency out of range, in termlist.");
+	}
+    } else {
+	current_termfreq = 0;
+    }
+#else
     // Read termname
     if (!unpack_string(&pos, end, current_tname)) {
 	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
@@ -172,6 +220,7 @@ QuartzTermList::next()
     } else {
 	current_termfreq = 0;
     }
+#endif
  
     DEBUGLINE(DB, "QuartzTermList::next() - " <<
 		  "current_tname=" << current_tname <<

@@ -1,3 +1,8 @@
+Mon Nov 18 00:47:54 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_termlist.cc: First cut of compressed term
+	  lists.
+
 Sun Nov 17 20:19:23 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_lexicon.cc,backends/quartz/quartz_values.cc:
