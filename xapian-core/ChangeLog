@@ -1,3 +1,7 @@
+Wed Nov 03 22:27:08 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Fixed typo.
+
 Wed Nov 03 21:58:53 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Added explicit cast to try to help Compaq C++

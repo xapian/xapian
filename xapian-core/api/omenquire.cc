@@ -727,7 +727,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     percent_cutoff, weight_cutoff,
 		     sort_forward, sort_key, sort_bands, sort_by_relevance,
 		     bias_halflife, bias_weight, errorhandler,
-		     AutoPtr<StatsGatherer>(static_cast<StatsGatherer>(new LocalStatsGatherer())), // Compaq C++ needs the cast
+		     AutoPtr<StatsGatherer>(static_cast<StatsGatherer*>(new LocalStatsGatherer())), // Compaq C++ needs the cast
 		     weight);
 
     // Run query and get results into supplied Xapian::MSet object
