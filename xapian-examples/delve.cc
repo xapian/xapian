@@ -61,20 +61,26 @@ show_db_stats(OmDatabase &db)
 }
 
 static void
+show_values(OmDatabase &db, om_docid docid, char sep)
+{
+	OmDocument doc = db.get_document(docid);
+	OmValueIterator v = doc.values_begin();
+	OmValueIterator vend = doc.values_end();
+	while (v != vend) {
+	    cout << sep << v.get_valueno() << ':' << *v;
+	    ++v;
+	}
+}
+
+static void
 show_values(OmDatabase &db,
 	    std::vector<om_docid>::const_iterator i,
 	    std::vector<om_docid>::const_iterator end)
 {
     // Display values
     while (i != end) {
-	OmDocument doc = db.get_document(*i);
-	OmValueIterator v = doc.values_begin();
-	OmValueIterator vend = doc.values_end();
 	cout << "Values for record #" << *i << ':';
-	while (v != vend) {
-	    cout << separator << v.get_valueno() << ':' << *v;
-	    ++v;
-	}
+	show_values(db, *i, separator);
 	cout << endl;
 	++i;
     }
@@ -190,6 +196,9 @@ main(int argc, char *argv[])
 		    if (verbose) {
 			cout << ' ' << p.get_wdf()
 			    << ' ' << p.get_doclength();
+		    }
+		    if (showvalues) {
+			show_values(db, *p, ' ');
 		    }
 		    p++;
 		}

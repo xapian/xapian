@@ -1,3 +1,9 @@
+Mon May 20 15:08:50 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Make -k parameter display values for all documents in a postlist.
+	  (Previously only worked for document ids specified on command
+	  line)
+
 Fri May 17 15:03:38 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* Add -k parameter to delve, to display the list of values for all
