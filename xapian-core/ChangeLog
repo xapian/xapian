@@ -1,3 +1,7 @@
+Tue Mar 09 21:02:08 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: string -> std::string.
+
 Tue Mar 09 19:04:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,common/document.h,include/xapian/document.h,

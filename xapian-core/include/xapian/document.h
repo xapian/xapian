@@ -124,7 +124,8 @@ class Document {
 	 *
 	 * Use add_term() instead.
 	 */
-	void add_term_nopos(const string & term, Xapian::termcount wdfinc = 1) {
+	void add_term_nopos(const std::string & term,
+			    Xapian::termcount wdfinc = 1) {
 	    add_term(term, wdfinc);
 	}
 
