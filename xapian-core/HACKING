@@ -109,6 +109,15 @@ To use Insure (was --enable-insure):
 Building from CVS:
 ==================
 
+If you're building code from CVS, you'll want to configure with:
+
+./configure --enable-maintainer-mode 
+
+This will be done for you if you use the top-level bootstrap and then run the
+top-level configure this produces (see below for more information about this).
+If you don't enable maintainer mode, then rules to build the documentation
+are disabled.
+
 The CVS repository does not contain any automatically generated files
 (such as configure, Makefile.in, Bison generated sources, etc) because
 experience shows it's best to keep these out of version control.  This
@@ -161,9 +170,9 @@ tools work or fail to work.
 We have provided a simple script (bootstrap) to run these programs for you
 on all the xapian modules you've checked out of CVS to produce a source tree
 like that you'd get from unpacking the result of "make dist".  bootstrap is
-in CVS in the level above xapian-core, etc.  There's also a configure script
-there which allows you to configure xapian-core and all the modules with one
-command.
+in CVS in the level above xapian-core, etc.  Running bootstrap generates
+a configure script in the top level which allows you to configure xapian-core
+and any other modules you've checked out with one command.
 
 When running bootstrap, you may need to add extra macro directories to the path
 searched by aclocal (which is part of autoconf) - you may do this by specifying
@@ -295,7 +304,9 @@ Here's an incomplete list of things to avoid:
 * It appears that BSD make only support VPATH for implicit rules (e.g. ".c.o:")
   - there's certainly a restriction there which is not present in GNU make.
   We used to try to work around this, but now we use AM_MAINTAINER_MODE to
-  disable sich rules and recommend that developers use GNU make.
+  disable rules which are only needed by those developing Xapian (these were
+  the rules which caused problems).  And we recommend those developing Xapian
+  use GNU make to avoid problems.
 
 * This is actually a robustness point, not portability per se.  Rules which
   generate files should be careful not to leave a partial file in place if
