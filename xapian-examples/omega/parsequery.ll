@@ -20,7 +20,6 @@
  * -----END-LICENCE-----
  */
 
-%option prefix="qlex"
 %option noyywrap
 
 %{
@@ -114,8 +113,8 @@ get_next_char(const char **p)
     // FIXME: termname with trailing dot at end of query?
     // termname with trailing dot, but not something like "muscat.com"    
     string termname;
-    yyless(qlexleng - 1); // push back whitespace
-    for (int i = 0; i < qlexleng - 1; i++) termname += tolower(qlextext[i]);
+    yyless(yyleng - 1); // push back whitespace
+    for (int i = 0; i < yyleng - 1; i++) termname += tolower(yytext[i]);
 
     check_term(termname, type);
     BEGIN(AFTERTERM);
@@ -123,9 +122,9 @@ get_next_char(const char **p)
 
 <INITIAL>[A-Za-z0-9][A-Za-z0-9+&]* {
     string termname;
-    for (int i = 0; i < qlexleng; i++) termname += tolower(qlextext[i]);
+    for (int i = 0; i < yyleng; i++) termname += tolower(yytext[i]);
 
-    if (stem && (stem_all || !isupper(qlextext[0])))
+    if (stem && (stem_all || !isupper(yytext[0])))
         termname = stemmer.stem_word(termname);
 
     check_term(termname, type);
@@ -168,7 +167,7 @@ get_next_char(const char **p)
 
 <INQUOTES>[A-Za-z0-9][A-Za-z0-9+&]* {
     string termname;
-    for (int i = 0; i < qlexleng; i++) termname += tolower(qlextext[i]);
+    for (int i = 0; i < yyleng; i++) termname += tolower(yytext[i]);
 
     quoted_terms.push_back(termname);
 }

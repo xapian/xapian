@@ -11,6 +11,3 @@ bin_PROGRAMS = omega
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.ll
 omega_LDADD = @LIBOMUS_LIBS@
-
-parsequery.cc: parsequery.ll
-	$(SHELL) $(YLWRAP) "$(LEX)" $< lex.qlex.c $@ -- $(AM_LFLAGS) $(LFLAGS)
