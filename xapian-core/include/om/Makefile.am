@@ -6,7 +6,7 @@ omstem.h \
 omerror.h omerrortypes.h omerrorhandler.h omtypes.h omenquire.h omdocument.h \
 omdatabase.h omsettings.h omoutput.h \
 ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
-omkeylistiterator.h omalltermsiterator.h \
+omkeylistiterator.h \
 omindexer.h omindexerbuilder.h omindexercommon.h omindexerdesc.h \
 omindexermessage.h omindexernode.h omnodedescriptor.h \
 omnodeconnection.h

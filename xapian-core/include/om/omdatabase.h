@@ -29,7 +29,6 @@
 #include "ompostlistiterator.h"
 #include "omtermlistiterator.h"
 #include "ompositionlistiterator.h"
-#include "omalltermsiterator.h"
 
 class OmWritableDatabase;
 

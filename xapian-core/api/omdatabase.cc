@@ -29,8 +29,6 @@
 #include "omtermlistiteratorinternal.h"
 #include "om/ompositionlistiterator.h"
 #include "ompositionlistiteratorinternal.h"
-#include "om/omalltermsiterator.h"
-#include "omalltermsiteratorinternal.h"
 #include "om/omoutput.h"
 
 OmDatabase::OmDatabase()
