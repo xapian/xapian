@@ -19,7 +19,7 @@ AM_CPPFLAGS = -I@PYTHON_INC@
 # swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
 AM_CXXFLAGS = -Wall -Wno-unused
 _xapian_la_LDFLAGS = -avoid-version -module
-_xapian_la_SOURCES = xapian_wrap.cc
+nodist__xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = ../../libxapian.la ../../extra/libomqueryparser.la
 
 BUILT_SOURCES = xapian_wrap.cc xapian.py
