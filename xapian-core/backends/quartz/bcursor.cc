@@ -103,7 +103,7 @@ Bcursor::find_key(const string &key)
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
-    form_key(B, B->kt, (const byte *)key.data(), key.size());
+    B->form_key(key);
     bool found = B->find(C);
 
     if (B->overwritten) return false;

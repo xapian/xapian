@@ -75,11 +75,11 @@ class Btree {
 	 */
 	Btree_errors commit(uint4 revision);
 
-	bool find_key(byte *key, int key_len);
-	int find_tag(byte * key, int key_len, struct Btree_item * t);
+	bool find_key(const string &key);
+	bool find_tag(const string &key, struct Btree_item * t);
 
-	int add(byte * key, int key_len, byte * tag, int tag_len);
-	int del(byte * key, int key_len);
+	bool add(const string &key, const string &tag);
+	bool del(const string &key);
 
 	/** Create an initial btree structure on disk */
 	static void create(const char *name_, int blocksize);
@@ -113,7 +113,7 @@ class Btree {
 	int4 item_count;
 
 	/** the largest possible value of a key_len. */
-	int max_key_len;
+	string::size_type max_key_len;
 
 	/* 'semi-public': the user might be allowed to read this */
 
@@ -167,10 +167,10 @@ class Btree {
 	void force_block_to_cursor(Cursor *C_, int j);
 	void block_check(Cursor *C, int j, int opts);
 	void split_root(struct Cursor * C_, int j);
-	void make_index_item(byte * result, int result_len,
+	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
 			     const int4 blocknumber, bool truncate) const;
-
+	void form_key(const string & key);
 
 	/** true if the root block is faked (not written to disk).  false
 	 * otherwise.  This is true when the btree hasn't been modified yet.
@@ -188,7 +188,7 @@ class Btree {
 	byte * kt;            /* buffer of size B->block_size for making up key-tag items */
 	byte * buffer;        /* buffer of size block_size for reforming blocks */
 	uint4 next_revision;  /* 1 + revision number of the opened B-tree */
-	Btree_base base;          /* for writing back as file baseA or baseB */
+	Btree_base base;      /* for writing back as file baseA or baseB */
 	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
 
 	string name;     /* The path name of the B tree */

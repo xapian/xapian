@@ -28,6 +28,9 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
+
+#include <algorithm>
+using std::min;
 #include <string>
 using std::string;
 
@@ -49,23 +52,18 @@ static void make_dir(string filename)
     mkdir(filename, 0700);
 }
 
-static int min(int i, int max)
-{
-    return i > max ? max : i;
-}
-
 static void process_lines(Btree & btree, FILE * f)
 {
     int line_count = 0;
-    unsigned char * s = (unsigned char *) malloc(10000);
+    char s[10000];
 
     while (true) {
-	int i = 0;
-        int j = 0;
+	string::size_type i = 0;
+	string::size_type j = 0;
         int mode = 0;
         while (true) {
 	    int ch = getc(f);
-            if (ch == EOF) { free(s); return; }
+            if (ch == EOF) { return; }
             if (ch == ' ') {
 		if (i == 0) continue;
                 if (j == 0) j = i;
@@ -81,21 +79,23 @@ static void process_lines(Btree & btree, FILE * f)
                 } else if (mode == 1) {
 		    /*if (i > 0)*/
                         if (j > 0) {
-			    btree.add(s, min(j, btree.max_key_len), s + j + 1, i - j - 1);
+			    btree.add(string(s, min(j, btree.max_key_len)),
+				      string(s + j + 1, i - j - 1));
 			} else {
-			    btree.add(s, min(i, btree.max_key_len), s, 0);
+			    btree.add(string(s, min(i, btree.max_key_len)), "");
 			}
                     break;
                 } else {
 		    /*if (i > 0)*/
                         if (j > 0) {
-			    btree.del(s, min(j, btree.max_key_len));
+			    btree.del(string(s, min(j, btree.max_key_len)));
 			} else {
-			    btree.del(s, min(i, btree.max_key_len));
+			    btree.del(string(s, min(i, btree.max_key_len)));
 			}
                     break;
                 }
             }
+	    if (i >= sizeof(s)) abort(); // FIXME
             s[i++] = ch;
         }
     }

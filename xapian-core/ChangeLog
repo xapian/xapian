@@ -1,3 +1,8 @@
+Wed Jun 12 00:48:52 BST 2002  Olly Betts <olly@survex.com>
+
+	* form_key is now a method of Btree; more passing of strings rather
+	  than pointer/length pairs); buffer overrun check added to btreetest.
+
 Tue Jun 11 18:04:08 BST 2002  Olly Betts <olly@survex.com>
 
 	* More C++ like interfaces (e.g. bool returns, strings rather than

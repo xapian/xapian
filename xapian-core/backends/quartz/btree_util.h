@@ -237,8 +237,6 @@ inline byte * key_of(byte * p, int c)
     return p + c + I2;
 }
 
-void form_key(struct Btree * B, byte * p, const byte * key, int key_len);
-
 bool valid_handle(int h);
 int sys_open_to_read(const std::string & name);
 int sys_open_to_read_no_except(const std::string & name);

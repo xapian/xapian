@@ -129,7 +129,7 @@ class QuartzDiskCursor : public QuartzCursor {
 
 	/** The maximum length of a key.
 	 */
-	unsigned int max_key_len;
+	string::size_type max_key_len;
 
     public:
 	/// Create the cursor

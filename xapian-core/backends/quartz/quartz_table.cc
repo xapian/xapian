@@ -58,11 +58,9 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     is_after_end = false;
 
-    string::size_type key_len = key.value.size();
-
     int found = false;
 
-    if (key_len > max_key_len) {
+    if (key.value.size() > max_key_len) {
 	// Can't find key - too long to possibly be present.
 	(void) cursor->find_key(key.value.substr(0, max_key_len));
 	// FIXME: check for errors
@@ -375,7 +373,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Assert(opened);
     Assert(!(key.value.empty()));
 
-    if (int(key.value.size()) > btree_for_reading->max_key_len) RETURN(false);
+    if (key.value.size() > btree_for_reading->max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
     AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
@@ -422,7 +420,7 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
     Assert(opened);
     if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    if (int(key.value.size()) > btree_for_writing->max_key_len) {
+    if (key.value.size() > btree_for_writing->max_key_len) {
 	throw OmInvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.value.size()) +
@@ -434,16 +432,12 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
     if (tag == 0) {
 	// delete entry
 	int result;
-	result = btree_for_writing->del((byte *)(key.value.data()),
-					key.value.size());
+	result = btree_for_writing->del(key.value);
 	(void)result; // FIXME: Check result
     } else {
 	// add entry
 	int result;
-	result = btree_for_writing->add((byte *)(key.value.data()),
-					key.value.size(),
-					(byte *)(tag->value.data()),
-					tag->value.size());
+	result = btree_for_writing->add(key.value, tag->value);
 	(void)result; // FIXME: Check result
     }
 }

@@ -590,10 +590,10 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
     return i;
 }
 
-/* find(B, C_) searches for the key of B->kt in the B-tree. Result is 1 if
-   found, 0 otherwise. When 0, the B_tree cursor is positioned at the last key
-   in the B-tree <= the search key. Goes to first (null) item in B-tree when
-   key length == 0.
+/* find(B, C_) searches for the key of B->kt in the B-tree.  Result is true if
+   found, false otherwise.  When false, the B_tree cursor is positioned at the
+   last key in the B-tree <= the search key.  Goes to first (null) item in
+   B-tree when key length == 0.
 
    (In this case, example debugging lines are shown commented. Debugging is easy
    with the help of the B-tree writing code included further down.)
@@ -626,7 +626,7 @@ Btree::find(struct Cursor * C_)
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) return false;
-    return compare_keys(kt + I2, key_of(p, c)) == 0;
+    return (compare_keys(kt + I2, key_of(p, c)) == 0);
 }
 
 /* compress(B, p) compresses the block at p by shuffling all the items up to
@@ -708,7 +708,7 @@ Btree::split_root(struct Cursor * C_, int j)
  *
  *  Store result in buffer "result".
  */
-void Btree::make_index_item(byte * result, int result_len,
+void Btree::make_index_item(byte * result, unsigned int result_len,
 			    const byte * prevkey, const byte * newkey,
 			    const int4 blocknumber, bool truncate) const
 {
@@ -1107,7 +1107,7 @@ Btree::delete_kt()
     return components;
 }
 
-/* form_key(B, p, key, key_len) treats address p as an item holder and fills in
+/* Btree::form_key(key) treats address kt as an item holder and fills in
 the key part:
 
 	   (I) K key c (C tag)
@@ -1116,22 +1116,24 @@ The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
 */
 
-void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
+void Btree::form_key(const string & key)
 {
-    Assert(key_len <= B->max_key_len);
+    Assert(key.length() <= max_key_len);
 
     // This just so it doesn't fall over horribly in non-debug builds.
-    if (key_len > B->max_key_len) key_len = B->max_key_len;
+    string::size_type key_len = min(key.length(), max_key_len);
 
     int c = I2;
-    SETK(p, c, key_len + K1 + C2); c += K1;
-    memmove(p + c, key, key_len); c += key_len;
-    SETC(p, c, 1);
+    SETK(kt, c, key_len + K1 + C2);
+    c += K1;
+    memmove(kt + c, key.data(), key_len);
+    c += key_len;
+    SETC(kt, c, 1);
 }
 
-/* Btree::add(key, key_len, tag, tag_len) adds the key/tag item to the
-   B-tree, replacing any existing item with the same key. The result is 1 for
-   an addition, 0 for a replacement.
+/* Btree::add(key, tag) adds the key/tag item to the
+   B-tree, replacing any existing item with the same key. The result is true
+   for an addition, false for a replacement.
 
    For a long tag, we end end up having to add m components, of the form
 
@@ -1153,83 +1155,80 @@ void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
    deletions.
 */
 
-int
-Btree::add(byte *key, int key_len, byte *tag, int tag_len)
+bool
+Btree::add(const string &key, const string &tag)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
 
-    form_key(this, kt, key, key_len);
+    form_key(key);
 
-    {
-	int ck = GETK(kt, I2) + I2 - C2;  /* offset to the counter in the key */
-	int ct = ck + C2;                 /* offset to the tag counter */
-	int cd = ct + C2;                 /* offset to the tag data */
-	int L = max_item_size - cd;    /* largest amount of tag data for any tagi */
-
-	int first_L = L;                  /* - amount for tag1 */
-	int found = find(C);
-	if (full_compaction && !found) {
-	    byte * p = C[0].p;
-	    int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
-	    if (n > 0) first_L = n;
-	}
-	{
-	    int m = tag_len == 0 ? 1 :        /* a null tag must be added in of course */
-		    (tag_len - first_L + L - 1) / L + 1;
-				              /* there are m items to add */
-	    int n = 0; /* initialise to shut off warning */
-					      /* - and there will be n to delete */
-	    int o = 0;                        /* offset into the tag */
-	    int residue = tag_len;            /* bytes of the tag remaining to add in */
-	    int replacement = false;          /* has there been a replacement ? */
-	    int i;
-	    /* FIXME: sort out this error higher up and turn this into
-	     * an assert.
-	     */
-	    if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return 0; }
-	    for (i = 1; i <= m; i++) {
-		int l = i == m ? residue :
-			i == 1 ? first_L : L;
-		memmove(kt + cd, tag + o, l);
-		o += l;
-		residue -= l;
-
-		SETC(kt, ck, i);
-		SETC(kt, ct, m);
-		SETI(kt, 0, cd + l);
-		if (i > 1) found = find(C);
-		n = add_kt(found, C);
-		if (n > 0) replacement = true;
-	    }
-	    /* o == tag_len here, and n may be zero */
-	    for (i = m + 1; i <= n; i++) {
-		SETC(kt, ck, i);
-		delete_kt();
-
-		if (overwritten) return 0;
-	    }
-	    if (replacement) return 0;
-	    item_count++;
-	    return 1;
-	}
+    int ck = GETK(kt, I2) + I2 - C2;  // offset to the counter in the key
+    int ct = ck + C2;                 // offset to the tag counter
+    int cd = ct + C2;                 // offset to the tag data
+    int L = max_item_size - cd;	      // largest amount of tag data for any tag
+    int first_L = L;                  // - amount for tag1
+    int found = find(C);
+    if (full_compaction && !found) {
+	byte * p = C[0].p;
+	int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
+	if (n > 0) first_L = n;
     }
+
+    // a null tag must be added in of course
+    int m = tag.empty() ? 1 : (tag.length() - first_L + L - 1) / L + 1;
+				      // there are m items to add
+    /* FIXME: sort out this error higher up and turn this into
+     * an assert.
+     */
+    if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return false; }
+
+    int n = 0; // initialise to shut off warning
+				      // - and there will be n to delete
+    int o = 0;                        // offset into the tag
+    int residue = tag.length();       // bytes of the tag remaining to add in
+    int replacement = false;          // has there been a replacement ?
+    int i;
+    for (i = 1; i <= m; i++) {
+	int l = i == m ? residue :
+		i == 1 ? first_L : L;
+	memmove(kt + cd, tag.data() + o, l);
+	o += l;
+	residue -= l;
+
+	SETC(kt, ck, i);
+	SETC(kt, ct, m);
+	SETI(kt, 0, cd + l);
+	if (i > 1) found = find(C);
+	n = add_kt(found, C);
+	if (n > 0) replacement = true;
+    }
+    /* o == tag.length() here, and n may be zero */
+    for (i = m + 1; i <= n; i++) {
+	SETC(kt, ck, i);
+	delete_kt();
+
+	if (overwritten) return false;
+    }
+    if (replacement) return false;
+    item_count++;
+    return true;
 }
 
-/* Btree::del(key, key_len) returns 0 if the key is not in the B-tree,
-   otherwise deletes it and returns 1.
+/* Btree::del(key) returns false if the key is not in the B-tree,
+   otherwise deletes it and returns true.
 
    Again, this is parallel to Btree::add, but simpler in form.
 */
 
-int
-Btree::del(byte * key, int key_len)
+bool
+Btree::del(const string &key)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
 
-    if (key_len == 0) return 0;
-    form_key(this, kt, key, key_len);
+    if (key.empty()) return false;
+    form_key(key);
 
     int n = delete_kt();  /* there are n items to delete */
     for (int i = 2; i <= n; i++) {
@@ -1238,22 +1237,22 @@ Btree::del(byte * key, int key_len)
 
 	delete_kt();
 
-	if (overwritten) return 0;
+	if (overwritten) return false;
     }
     if (n > 0) {
 	item_count--;
-	return 1;
+	return true;
     }
-    return 0;
+    return false;
 }
 
 bool
-Btree::find_key(byte * key, int key_len)
+Btree::find_key(const string &key)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
 
-    form_key(this, kt, key, key_len);
+    form_key(key);
     return find(C);
 }
 
@@ -1266,57 +1265,57 @@ extern struct Btree_item * Btree_item_create(void)
     return item;
 }
 
-int
-Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
+bool
+Btree::find_tag(const string &key, struct Btree_item * item)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
 
-    form_key(this, kt, key, key_len);
-    if (!find(C)) return 0;
-    {
-	int n = components_of(C[0].p, C[0].c);
-				        /* n components to join */
-	int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
-	int cd = ck + 2 * C2;           /* offset to the tag data */
-	int o = 0;                      /* cursor into item->tag */
-	int i = 1;                      /* see below */
-	byte * p;                       /* pointer to current component */
-	int l;                          /* number of bytes to extract from current component */
+    form_key(key);
+    if (!find(C)) return false;
+
+    int n = components_of(C[0].p, C[0].c);
+				    /* n components to join */
+    int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
+    int cd = ck + 2 * C2;           /* offset to the tag data */
+    int o = 0;                      /* cursor into item->tag */
+    int i = 1;                      /* see below */
+    byte * p;                       /* pointer to current component */
+    int l;                          /* number of bytes to extract from current component */
+
+    p = item_of(C[0].p, C[0].c);
+    l = GETI(p, 0) - cd;
+    
+    int4 space_for_tag = (int4) max_item_size * n;
+    if (item->tag_size < space_for_tag) {
+	delete [] item->tag;
+	item->tag = zeroed_new(space_for_tag + 5);
+	if (item->tag == 0) {
+	    error = BTREE_ERROR_SPACE;
+	    throw std::bad_alloc();
+	}
+	item->tag_size = space_for_tag + 5;
+    }
+
+    while (true) {
+	Assert(o + l <= item->tag_size);
+
+	memmove(item->tag + o, p + cd, l);
+	o += l;
+
+	if (i == n) break;
+	i++;
+	SETC(kt, ck, i);
+	find(C);
+
+	if (overwritten) return false;
 
 	p = item_of(C[0].p, C[0].c);
 	l = GETI(p, 0) - cd;
-	{
-	    int4 space_for_tag = (int4) max_item_size * n;
-	    if (item->tag_size < space_for_tag) {
-		delete [] item->tag;
-		item->tag = zeroed_new(space_for_tag + 5);
-		if (item->tag == 0) {
-		    error = BTREE_ERROR_SPACE;
-		    throw std::bad_alloc();
-		}
-		item->tag_size = space_for_tag + 5;
-	    }
-	}
-	while (true) {
-	    Assert(o + l <= item->tag_size);
-
-	    memmove(item->tag + o, p + cd, l);
-	    o += l;
-
-	    if (i == n) break;
-	    i++;
-	    SETC(kt, ck, i);
-	    find(C);
-
-	    if (overwritten) return 0;
-
-	    p = item_of(C[0].p, C[0].c);
-	    l = GETI(p, 0) - cd;
-	}
-	item->tag_len = o;
     }
-    return 1;
+    item->tag_len = o;
+ 
+    return true;
 }
 
 extern void Btree_item_lose(struct Btree_item * item)
@@ -1369,7 +1368,7 @@ Btree::basic_open(const char * name_,
 	vector<Btree_base> bases(basenames.size());
 	vector<bool> base_ok(basenames.size());
 
-	for (size_t i=0; i<basenames.size(); ++i) {
+	for (size_t i = 0; i < basenames.size(); ++i) {
 	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);
 	}
 
@@ -1468,15 +1467,10 @@ Btree::basic_open(const char * name_,
     /* This upper limit corresponds to K1 == 1 */
     max_key_len = UCHAR_MAX - K1 - C2;
 
-    {
-	int max = max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
-
-	/* This limit would come into effect with large keys in a B-tree with a
-	   small block size.
-	*/
-
-	if (max_key_len > max) max_key_len = max;
-    }
+    // This limit would come into effect with large keys in a B-tree with a
+    // small block size.
+    string::size_type max = max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
+    if (max_key_len > max) max_key_len = max;
 
     /* ready to open the main file */
 
@@ -1896,7 +1890,7 @@ Btree::force_block_to_cursor(struct Cursor * C_, int j)
 }
 
 int
-Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
+Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
 {
     byte * p = C[0].p;
     int c = C[0].c;
@@ -1922,7 +1916,7 @@ Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
 }
 
 int
-Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
+Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
 {
     byte * p = C[0].p;
     int c = C[0].c;
@@ -1952,6 +1946,8 @@ Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
+    Assert(c >= 0);
+    Assert(c < 65536);
     if (c == DIR_START) {
 	if (j == B->level) return false;
 
