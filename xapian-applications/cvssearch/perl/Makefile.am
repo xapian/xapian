@@ -32,19 +32,19 @@ cvs2cl: $(srcdir)/cvs2cl.pl
 # ----------------------------------------
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/cvsbuild-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/cvsbuild-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/cvsbuild-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 cvsupdatedb: $(srcdir)/cvsupdate-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/cvsupdate-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/cvsupdate-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/cvsupdate-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 cvsquerydb: $(srcdir)/cvsquery-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/cvsquery-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/cvsquery-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/cvsquery-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
@@ -53,84 +53,84 @@ cvsquerydb: $(srcdir)/cvsquery-script.pl
 # ----------------------------------------
 Compare.cgi: $(srcdir)/Compare-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/Compare-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/Compare-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/Compare-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 MatchComment.cgi:$(srcdir)/MatchComment-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/MatchComment-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/MatchComment-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/MatchComment-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 QueryComment.cgi:$(srcdir)/QueryComment-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/QueryComment-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/QueryComment-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/QueryComment-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 TopComment.cgi:$(srcdir)/TopComment-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/TopComment-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/TopComment-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/TopComment-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 MatchFile.cgi:$(srcdir)/MatchFile-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/MatchFile-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/MatchFile-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/MatchFile-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 Query.cgi:$(srcdir)/Query-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/Query-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/Query-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/Query-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 QueryFile.cgi:$(srcdir)/QueryFile-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/QueryFile-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/QueryFile-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/QueryFile-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 SourceComment.cgi:$(srcdir)/SourceComment-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/SourceComment-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/SourceComment-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/SourceComment-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 Source.cgi:$(srcdir)/Source-script.pl 
 	$(PERL) -I $(srcdir) -c $(srcdir)/Source-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/Source-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/Source-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 Top.cgi:$(srcdir)/Top-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/Top-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/Top-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/Top-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 Logo.cgi:$(srcdir)/Logo-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/Logo-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/Logo-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/Logo-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 PatternBrowser.cgi:$(srcdir)/PatternBrowser-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/PatternBrowser-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/PatternBrowser-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/PatternBrowser-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 QueryCommit.cgi:$(srcdir)/QueryCommit-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/QueryCommit-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/QueryCommit-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/QueryCommit-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
 
 CommitSearch.cgi:$(srcdir)/CommitSearch-script.pl
 	$(PERL) -I $(srcdir) -c $(srcdir)/CommitSearch-script.pl
-	echo "#!$(PERL) -w" | cat $(srcdir)/CommitSearch-script.pl > tmp-$@
+	echo "#!$(PERL) -w" | cat - $(srcdir)/CommitSearch-script.pl > tmp-$@
 	chmod ugo+rx tmp-$@
 	mv -f tmp-$@ $@
