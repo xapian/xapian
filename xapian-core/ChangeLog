@@ -1,3 +1,7 @@
+Tue Jun 20 18:27:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Stop compiling OmSettings in, at least for now.
+
 Tue Jun 20 15:51:00 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test for basic exception handling.
