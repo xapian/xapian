@@ -151,6 +151,7 @@ main(unsigned int argc, const char **argv)
             istream * pis = p.process_output();
             if (pis)
             {
+                cerr << "... mapping " << argv[i-1] << endl;
                 cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
                 if (pdb_file && !read_mode && i % ssync_rate == 0)
                 {
@@ -170,6 +171,7 @@ main(unsigned int argc, const char **argv)
             istream * pis = p.process_output();
             if (pis)
             {
+                cerr << "... mapping " << line << endl;
                 cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
                 if (pdb_file && !read_mode && i % ssync_rate == 0)
                 {
