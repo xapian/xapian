@@ -10,15 +10,15 @@ AC_CONFIG_SRCDIR(delve.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
+dnl Check for libxapian
+AC_PROG_LIBTOOL
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
 dnl Checks for programs.
 AC_PROG_CXX
 
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
-
-dnl Check for libxapian
-AC_PROG_LIBTOOL
-XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
 dnl this early in configure so such settings are used for other tests, and
