@@ -2142,21 +2142,47 @@ bool test_phrase1()
 	subqs.push_back(OmQuery(stemmer.stem_word("on")));
 	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 8));
 
-	// retrieve the top ten results
+	// retrieve the top 20 results
 	mymset = enquire.get_mset(0, 20);
     	if (!TEST_EXPECTED_DOCS(mymset, 4)) return false;
 	
+	// test really large window size
 	subqs.clear();
 	subqs.push_back(OmQuery(stemmer.stem_word("leave")));
 	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
 	subqs.push_back(OmQuery(stemmer.stem_word("on")));
-	// test really large window size
 	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(),
 				  999999999));
 
-	// retrieve the top ten results
+	// retrieve the top 20 results
 	mymset = enquire.get_mset(0, 20);
     	if (!TEST_EXPECTED_DOCS(mymset, 4)) return false;
+
+	cerr << "XXXXXXX\n";
+	// regression test (was matching doc 15, should fail)
+	subqs.clear();
+	subqs.push_back(OmQuery(stemmer.stem_word("first")));
+	subqs.push_back(OmQuery(stemmer.stem_word("second")));
+	subqs.push_back(OmQuery(stemmer.stem_word("third")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(),
+				  9));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+    	if (!TEST_EXPECTED_DOCS(mymset)) return false;
+
+	cerr << "YYYYYYY\n";
+	// regression test (should match doc 15, make sure still does with fix)
+	subqs.clear();
+	subqs.push_back(OmQuery(stemmer.stem_word("first")));
+	subqs.push_back(OmQuery(stemmer.stem_word("second")));
+	subqs.push_back(OmQuery(stemmer.stem_word("third")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(),
+				  10));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
+    	if (!TEST_EXPECTED_DOCS(mymset, 15)) return false;
     }
     catch (OmUnimplementedError &err) {
 	if (err.get_msg() !=
@@ -2254,6 +2280,7 @@ int main(int argc, char *argv[])
 	    // is involved
 	    srcdir = ".";
 	}
+        // FIXME: sanity check: look for srcdir + "/apitest.cc"
 	cerr << "srcdir not in environment - guessing at `" << srcdir << "'\n";
     }
 
@@ -2266,7 +2293,7 @@ int main(int argc, char *argv[])
     cout << "Running tests with no backend..." << endl;
     result = test_driver::main(argc, argv, nodb_tests, &summary);
 
-#if defined(MUS_BUILD_BACKEND_INMEMORY)
+#if 1 && defined(MUS_BUILD_BACKEND_INMEMORY)
     backendmanager.set_dbtype("inmemory");
     cout << "Running tests with inmemory backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

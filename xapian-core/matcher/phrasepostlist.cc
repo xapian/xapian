@@ -20,65 +20,20 @@
  * -----END-LICENCE-----
  */
 
-// #define NEW_PHRASE_STUFF // more efficient, but flawed at present
-
 #include "phrasepostlist.h"
+#include "positionlist.h"
 
 #include <algorithm>
-
-class PosListBuffer {
-    private:
-	PositionList *pl;
-	om_termpos cache;
-    public:
-	PosListBuffer(PositionList *poslist) : pl(poslist) {
-	    cache = 0;
-	}
-	om_termcount get_size() const { return pl->get_size(); }
-	om_termpos get_position() const {
-	    if (cache != 0) return cache;
-	    return pl->get_position();
-	}
-	void next() {
-	    if (cache != 0) {
-		cache = 0;
-		return;
-	    }
-	    pl->next();
-	}
-	void skip_to(om_termpos termpos) {
-	    if (termpos < 1) termpos = 1;
-	    if (cache != 0) {
-		if (termpos <= cache) return;
-		cache = 0;
-	    }
-	    pl->skip_to(termpos);
-	}
-	void pushback(om_termpos termpos) {
-	    Assert(cache == 0);
-	    cache = termpos;
-	}
-	bool at_end() const {
-	    return cache == 0 && pl->at_end();
-	}
-};
-
-class PosListBufferPhrase : public PosListBuffer {
-    public:
-	om_termpos index;
-	PosListBufferPhrase(PositionList *poslist, om_termpos index_)
-		: PosListBuffer(poslist) { index = index_; }
-};
 
 /** Class providing an operator which returns true if a has a (strictly)
  *  smaller number of postings than b.
  */
-class PosListBufferCmpLt {
+class PositionListCmpLt {
     public:
 	/** Return true if and only if a is strictly shorter than b.
 	 */
-        bool operator()(const PosListBuffer &a, const PosListBuffer &b) {
-            return a.get_size() < b.get_size();
+        bool operator()(const PositionList *a, const PositionList *b) {
+            return a->get_size() < b->get_size();
         }
 };
 
@@ -88,27 +43,27 @@ class PosListBufferCmpLt {
 bool
 NearPostList::test_doc()
 {
-    vector<PosListBuffer> plists;
+    vector<PositionList *> plists;
 
     vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	plists.push_back(PosListBuffer((*i)->get_position_list()));
+	plists.push_back((*i)->get_position_list());
     }
 
-    sort(plists.begin(), plists.end(), PosListBufferCmpLt());
-     
+    sort(plists.begin(), plists.end(), PositionListCmpLt());
+
     om_termpos pos;
     do {
-	plists[0].next();
-	if (plists[0].at_end()) return false;
-	pos = plists[0].get_position();
+	plists[0]->next();
+	if (plists[0]->at_end()) return false;
+	pos = plists[0]->get_position();
     } while (!do_test(plists, 1, pos, pos));
 
     return true;
 }
 
 bool
-NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
+NearPostList::do_test(vector<PositionList *> &plists, om_termcount i,
 		      om_termcount min, om_termcount max)
 {
     DebugMsg("NearPostList::do_test([...], " << i << ", " << min << ", "
@@ -117,20 +72,17 @@ NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
     om_termcount tmp = max + 1;
     // take care to avoid underflow
     if (window <= tmp) tmp -= window; else tmp = 0;
-    plists[i].skip_to(tmp);
-    while (!plists[i].at_end()) {
-	om_termpos pos = plists[i].get_position();
+    plists[i]->skip_to(tmp);
+    while (!plists[i]->at_end()) {
+	om_termpos pos = plists[i]->get_position();
 	DebugMsg("[" << i << "]: " << max - window + 1 << " " << min << " "
 		 << pos << " " << max << " " << min + window - 1 << endl);
-	if (pos > min + window - 1) {
-	    plists[i].pushback(pos);
-	    return false;
-	}
+	if (pos > min + window - 1) return false;
 	if (i + 1 == plists.size()) return true; 
 	if (pos < min) min = pos;
 	else if (pos > max) max = pos;
 	if (do_test(plists, i + 1, min, max)) return true;
-	plists[i].next();
+	plists[i]->next();
     }
     return false;
 }
@@ -142,93 +94,67 @@ NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
 bool
 PhrasePostList::test_doc()
 {
-    vector<PosListBufferPhrase> plists;
+    vector<PositionList *> plists;
 
     vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	plists.push_back(PosListBufferPhrase((*i)->get_position_list(),
-					     i - terms.begin()));
+	PositionList *p = (*i)->get_position_list();
+	p->index = i - terms.begin();
+	plists.push_back(p);				       
     }
 
-    sort(plists.begin(), plists.end(), PosListBufferCmpLt());
+    sort(plists.begin(), plists.end(), PositionListCmpLt());
      
     om_termpos pos;
-#ifdef NEW_PHRASE_STUFF
     om_termpos idx, min;
-#endif
     do {
-	plists[0].next();
-	if (plists[0].at_end()) return false;
-	pos = plists[0].get_position();
-#ifdef NEW_PHRASE_STUFF
-	idx = plists[0].index;
+	plists[0]->next();
+	if (plists[0]->at_end()) return false;
+	pos = plists[0]->get_position();
+	idx = plists[0]->index;
 	min = pos + plists.size() - idx;
 	if (min > window) min -= window; else min = 0;
     } while (!do_test(plists, 1, min, pos + window - idx));
-#else
-    } while (!do_test(plists, 1, pos, pos));
-#endif
     DebugMsg("**HIT**\n");
     return true;
 }
 
 bool
-PhrasePostList::do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
+PhrasePostList::do_test(vector<PositionList *> &plists, om_termcount i,
 			om_termcount min, om_termcount max)
 {
     DebugMsg("PhrasePostList::do_test([...], " << i << ", " << min << ", "
 	     << max << ")\ndocid = " << get_docid() << ", window = "
 	     << window << endl);
-#ifndef NEW_PHRASE_STUFF
-    // max passes pos, min unused as parameter
-#endif
-    om_termpos idxi = plists[i].index;
+    om_termpos idxi = plists[i]->index;
     DebugMsg("my idx in phrase is " << idxi << endl);
 
-#ifdef NEW_PHRASE_STUFF
     om_termpos mymin = min + idxi;
     om_termpos mymax = max - plists.size() + idxi;
     DebugMsg("MIN = " << mymin << " MAX = " << mymax << endl);
-    plists[i].skip_to(mymin);
-#else
-    min = max + 1;
-    // take care to avoid underflow
-    if (window <= min) min -= window; else min = 0;
-    max = max + window - 1;
-    DebugMsg("MIN = " << min << " MAX = " << max << endl);
     // FIXME: this is worst case O(n^2) where n = length of phrase
-    // We should be able to do better...
+    // Can we do better?
     for (om_termcount j = 0; j < i; j++) {
-	om_termpos idxj = plists[j].index;
+	om_termpos idxj = plists[j]->index;
 	if (idxj > idxi) {
-	    om_termpos tmp = plists[j].get_position() + idxj - idxi;
+	    om_termpos tmp = plists[j]->get_position() + idxj - idxi;
 	    DebugMsg("ABOVE " << tmp << endl);
-	    if (tmp < max) max = tmp;
+	    if (tmp < mymax) mymax = tmp;
 	} else {
 	    Assert(idxi != idxj);
-	    om_termpos tmp = plists[j].get_position() + idxi - idxj;
+	    om_termpos tmp = plists[j]->get_position() + idxi - idxj;
 	    DebugMsg("BELOW " << tmp << endl);
-	    if (tmp > min) min = tmp;
+	    if (tmp > mymin) mymin = tmp;
 	}
-	DebugMsg("min = " << min << " max = " << max << endl);
+	DebugMsg("min = " << mymin << " max = " << mymax << endl);
     }
-    plists[i].skip_to(min);
-#endif
+    plists[i]->skip_to(mymin);
 
-    while (!plists[i].at_end()) {
-	om_termpos pos = plists[i].get_position();
-#ifdef NEW_PHRASE_STUFF
+    while (!plists[i]->at_end()) {
+	om_termpos pos = plists[i]->get_position();
 	DebugMsg(" " << mymin << " " << pos << " " << mymax << endl);
-	if (pos > mymax) {
-#else
-	DebugMsg(" " << min << " " << pos << " " << max << endl);
-	if (pos > max) {	    
-#endif
-	    plists[i].pushback(pos);
-	    return false;
-	}
+	if (pos > mymax) return false;
 	if (i + 1 == plists.size()) return true;
-#ifdef NEW_PHRASE_STUFF
 	om_termpos tmp = pos + window - idxi;
 	if (tmp < max) max = tmp;
 	tmp = pos + plists.size() - idxi;
@@ -237,10 +163,7 @@ PhrasePostList::do_test(vector<PosListBufferPhrase> &plists, om_termcount i,
 	    if (tmp > min) min = tmp;
 	}
 	if (do_test(plists, i + 1, min, max)) return true;
-#else
-	if (do_test(plists, i + 1, 0, pos)) return true;
-#endif
-	plists[i].next();
+	plists[i]->next();
     }
     return false;
 }

@@ -62,8 +62,16 @@ class PositionList
 	 */
 	virtual void skip_to(om_termpos termpos) = 0;
 
-	/// True if we're off the end of the list
+	/** True if we're off the end of the list
+	 */
 	virtual bool at_end() const = 0;
+
+	/** For use by PhrasePostList - ignored by PostingList itself.
+	 *  This isn't the most elegant place to put this, but it greatly
+	 *  eases the implementation of PhrasePostList which can't subclass
+	 *  PositionList (since it gets it from PostList::get_position_list())
+	 */
+	om_termcount index;
 };
 
 #endif /* OM_HGUARD_POSITIONLIST_H */
