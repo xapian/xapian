@@ -227,7 +227,7 @@ static void write_start_of_chunk(string & chunk,
 				 Xapian::docid first_did_in_chunk,
 				 Xapian::docid last_did_in_chunk)
 {
-    Assert((size_t)(end_of_chunk_header - start_of_chunk_header) <= chunk->size());
+    Assert((size_t)(end_of_chunk_header - start_of_chunk_header) <= chunk.size());
     Assert(last_did_in_chunk >= first_did_in_chunk);
     Xapian::docid increase_to_last = last_did_in_chunk - first_did_in_chunk;
 
