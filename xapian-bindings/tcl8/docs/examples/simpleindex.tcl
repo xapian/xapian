@@ -19,10 +19,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-# We need at least Tcl version 8.1
-package require Tcl 8.1
-#package require xapian 0.8.3
-load [file join "../../.libs" xapian.so]
+# We need at least Tcl version 8.3
+# (8.3 is needed for regexp -start which this example uses; the Xapian bindings
+# themselves only require Tcl 8.1)
+package require Tcl 8.3
+package require xapian 0.8.4
 
 set MAX_PROB_TERM_LENGTH 64
 
@@ -32,8 +33,7 @@ if {[llength $argv] != 1} {
 }
 
 if {[catch {
-    xapian::WritableDatabase database \
-        [xapian::open [lindex $argv 0] $DB_CREATE_OR_OPEN]
+    xapian::WritableDatabase database [lindex $argv 0] $DB_CREATE_OR_OPEN
     xapian::Stem stemmer "english"
 
     set para ""
@@ -73,10 +73,9 @@ if {[catch {
             }
         }
     }
-    # Partial workaround for Tcl bindings not calling destructors.  However
-    # a stale db_lock will still be left.
-    # FIXME remove this once we work out what's going on there...
-    database flush
+    # We *must* delete the database so the the destructor gets called so
+    # pending changes are flushed and the lock file is removed.
+    database -delete
 } exception]} {
     puts stderr "Exception: $exception"
     exit 1

@@ -30,7 +30,7 @@ if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
     exit;
 }
 
-$database = open($_SERVER['argv'][1]);
+$database = new_Database($_SERVER['argv'][1]);
 if (!$database) {
     print "Died! :-(\n";
     exit;

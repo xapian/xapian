@@ -1,3 +1,14 @@
+Tue Dec 07 19:55:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i,php4/docs/examples/simpleindex.php,
+	  php4/docs/examples/simplesearch.php,python/docs/examples/,
+	  tcl8/docs/bindings.html,tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Wrap the new constructors
+	  for Database and WritableDatabase, use these in the examples,
+	  and removed mentions of Auto::open() from the documentation.
+	  Don't wrap the WritableDatabase forms of Auto::open() and
+	  Quartz::open() in tcl8 since the destructor never gets called.
+
 Tue Dec 07 19:53:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* README: Updated to list fully supported languages and improved

@@ -21,8 +21,7 @@
 
 # We need at least Tcl version 8.1
 package require Tcl 8.1
-#package require xapian 0.8.3
-load [file join "../../.libs" xapian.so]
+package require xapian 0.8.4
 
 if {[llength $argv] < 2} {
     puts "usage: $argv0 <path to database> <search terms>"
@@ -30,9 +29,9 @@ if {[llength $argv] < 2} {
 }
 
 if {[catch {
-    set database [xapian::open [lindex $argv 0]]
+    xapian::Database database [lindex $argv 0]
 
-    xapian::Enquire enquire $database
+    xapian::Enquire enquire database
     xapian::Stem stemmer "english"
 
     xapian::Query firstterm [stemmer stem_word [lindex $argv 1]]

@@ -39,7 +39,7 @@ class mymatcher(xapian.MatchDecider):
         return doc.get_value(0) != self.avoidvalue
 
 try:
-    database = xapian.open(sys.argv[1])
+    database = xapian.Database(sys.argv[1])
 
     enquire = xapian.Enquire(database)
     stemmer = xapian.Stem("english")

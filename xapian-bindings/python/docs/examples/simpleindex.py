@@ -48,7 +48,7 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 try:
-    database = xapian.open(sys.argv[1], xapian.DB_CREATE_OR_OPEN)
+    database = xapian.WritableDatabase(sys.argv[1], xapian.DB_CREATE_OR_OPEN)
 
     stemmer = xapian.Stem("english")
     para = ''

@@ -33,7 +33,7 @@ if len(sys.argv) < 3:
     sys.exit(1)
 
 try:
-    database = xapian.open(sys.argv[1])
+    database = xapian.Database(sys.argv[1])
 
     enquire = xapian.Enquire(database)
     stemmer = xapian.Stem("english")

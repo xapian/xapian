@@ -538,6 +538,7 @@ class Database {
     public:
 	void add_database(const Database & database);
 	Database();
+	Database(const string &path);
 	virtual ~Database();
 	Database(const Database & database);
 	void reopen();
@@ -566,6 +567,7 @@ class Database {
 class WritableDatabase : public Database {
     public:
 	virtual ~WritableDatabase();
+	WritableDatabase(const string &path, int action);
 	WritableDatabase(const WritableDatabase & database);
 
 	void flush();
@@ -593,20 +595,30 @@ class WritableDatabase : public Database {
 
 namespace Auto {
     Database open(const string & path);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead (that's the preferred method anyway). */
+#ifndef SWIGTCL
 #ifdef SWIGPHP4
     %rename(open_writable) open;
 #endif
     WritableDatabase open(const string & path, int action);
+#endif
     Database open_stub(const string & file);
 }
 
 namespace Quartz {
     %rename(quartz_open) open;
     Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
 #ifdef SWIGPHP4
     %rename(quartz_open_writable) open;
 #endif
     WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
 }
 
 namespace InMemory {

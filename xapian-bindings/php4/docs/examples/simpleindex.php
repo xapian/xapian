@@ -54,7 +54,7 @@ if (!isset($_SERVER['argv']) or count($_SERVER['argv']) != 2) {
     exit;
 }
 
-$database = open_writable($_SERVER['argv'][1], DB_CREATE_OR_OPEN);
+$database = new_WritableDatabase($_SERVER['argv'][1], DB_CREATE_OR_OPEN);
 if (!$database) {
     print "Died! :-(\n";
     exit;
