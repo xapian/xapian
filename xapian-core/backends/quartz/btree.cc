@@ -379,8 +379,12 @@ static void write_block(struct Btree * B, int4 n, byte * p)
 
         if (B->both_bases) {
 	    /* delete the old base */
-            if (unlink((B->name + "base" + B->other_base_letter).c_str()) < 0)
+	    // FIXME: should be abstracted to a separate function.
+            if (unlink((B->name + "base" + B->other_base_letter).c_str()) < 0) {
 		B->error = BTREE_ERROR_BASE_DELETE;
+		// FIXME: must exit, otherwise we could cause a corrupt
+		// database to be read.
+	    }
         }
     }
 
@@ -428,8 +432,8 @@ static void set_overwritten(struct Btree * B)
 static void block_to_cursor(struct Btree * B, struct Cursor * C, int j, int4 n)
 {   byte * p = C[j].p;
     if (n == C[j].n) return;
-    if (C[j].rewrite)
-    {   write_block(B, C[j].n, p);
+    if (C[j].rewrite) {
+	write_block(B, C[j].n, p);
         C[j].rewrite = false;
     }
     read_block(B, n, p);
