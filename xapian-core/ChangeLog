@@ -1,3 +1,8 @@
+Thu Jul 04 12:42:06 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in, docs/Makefile.am: use "missing" to give more helpful
+	  errors when we don't find tools we need.
+
 Wed Jul 03 12:39:15 BST 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: incorporated recent changes into provisional version.

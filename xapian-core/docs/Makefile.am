@@ -27,12 +27,8 @@ EXTRA_DIST = mkdoc.pl todo2html.pl todo.xml \
 	doxygen_full_footer.html_tmpl \
 	apidoc.ps
 
-# Things to do if have doxygen installed
-if HAVE_DOXYGEN
+# Build API docs with doxygen
 all-local: doxygen_api_docs
-else
-all-local:
-endif
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/xapian

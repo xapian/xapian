@@ -23,7 +23,7 @@ dnl is that LEX is set to use "missing" if neither flex nor lex is found, but we
 dnl need flex anyway since our scanner uses flex extensions.
 AM_PROG_LEX
 if test flex != "$LEX"; then
-  LEX="$SHELL $missing_dir/missing flex"
+  LEX="$MISSING flex"
   AC_SUBST(LEX_OUTPUT_ROOT, lex.yy)
   AC_SUBST(LEXLIB, '')
 fi
@@ -70,8 +70,8 @@ AC_LANG_RESTORE
 AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test yes = "$FNO_ACCESS_FLAG")
 
 dnl Checks for perl.  (Needed to make some of the documentation)
-AC_PATH_PROG(PERL, perl)
-AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
+AC_PATH_PROG(PERL, perl, "$MISSING perl")
+AM_CONDITIONAL(HAVE_PERL, test x"$PERL" != x"$MISSING perl")
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
@@ -116,20 +116,19 @@ AC_SUBST(DOXYGEN_HAVE_DOT)
 AC_SUBST(DOXYGEN_DOT_PATH)
 
 dnl Check for latex. (Needed to make some more of the documentation)
-AC_PATH_PROG(LATEX, latex)
-AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX")
+AC_PATH_PROG(LATEX, latex, "$MISSING latex")
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN, doxygen, missing)
-AM_CONDITIONAL(HAVE_DOXYGEN, test missing != "$DOXYGEN")
+AC_PATH_PROG(DOXYGEN, doxygen, "$MISSING doxygen")
 
 dnl Check for dvips. (Needed to make some more of the documentation)
-AC_PATH_PROG(DVIPS, dvips)
-AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS")
+AC_PATH_PROG(DVIPS, dvips, "$MISSING dvips")
 
 dnl dnl Check for swig. (For generating scripting language bindings)
-dnl AC_PATH_PROG(SWIG, swig)
-dnl AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG")
+dnl dnl set SWIG to swig if not found so we give a better error if someone
+dnl dnl tries to use it
+dnl AC_PATH_PROG(SWIG, swig, swig)
+dnl AM_CONDITIONAL(HAVE_SWIG, test swig != "$SWIG")
 
 dnl Check whether we need -ldl for dlsym() etc.
 AC_TRY_LINK_FUNC(dlsym, ,
