@@ -1,3 +1,8 @@
+Wed Sep 08 03:38:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Use a namespace as an extra step in the Sun fcntl
+	  open64 dance.
+
 Tue Sep 07 02:33:50 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/test.da: Another cruft file removed.

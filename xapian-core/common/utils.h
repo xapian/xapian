@@ -36,8 +36,6 @@ using std::vector;
 #include <unistd.h>
 #include <ctype.h>
 
-#include <fcntl.h>
-
 #ifdef __WIN32__
 #include <windows.h>
 #ifndef FOF_NOERRORUI
@@ -51,17 +49,17 @@ using std::vector;
 // largefile support is enabled (also creat to creat64 but that's not a problem
 // for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
 // have to rename all our open methods.
+
+namespace Fcntl {
+#include <fcntl.h>
+};
+
 inline int fcntl_open(const char *filename, int flags, mode_t mode) {
-#ifdef __SUNPRO_CC
-    // cast needed to resolve overload ambiguity
-    return open(filename, flags, (int)mode);
-#else
-    return open(filename, flags, mode);
-#endif
+    return Fcntl::open(filename, flags, mode);
 }
 
 inline int fcntl_open(const char *filename, int flags) {
-    return open(filename, flags);
+    return Fcntl::open(filename, flags);
 }
 
 #ifdef open
@@ -83,6 +81,23 @@ inline int open(const string &filename, int flags) {
     return fcntl_open(filename.c_str(), flags);
 }
 
+inline int fcntl(int fd, int cmd) {
+    return Fcntl::fcntl(fd, cmd);
+}
+
+inline int fcntl(int fd, int cmd, int arg) {
+    return Fcntl::fcntl(fd, cmd, (long)arg);
+}
+
+inline int fcntl(int fd, int cmd, long arg) {
+    return Fcntl::fcntl(fd, cmd, arg);
+}
+
+inline int fcntl(int fd, int cmd, struct flock *lock) {
+    return Fcntl::fcntl(fd, cmd, lock);
+}
+
+/// Convert a string to a string!
 inline string om_tostring(const string &s) { return s; }
 
 /// Convert an integer to a string
