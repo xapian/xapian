@@ -1,3 +1,9 @@
+Tue Nov 09 23:50:10 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Need to include sys/types.h to define
+	  ssize_t, size_t, and off_t before we prototype pread and pwrite
+	  for OSF.
+
 Tue Nov 09 22:39:00 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Tweaked the pread/pwrite mess to try to

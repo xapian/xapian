@@ -26,6 +26,7 @@
 
 #ifdef __osf__
 // GCC's fixincluded unistd seems to be missing pread and pwrite prototypes.
+#include <sys/types.h>
 extern ssize_t pread(int, void *, size_t, off_t);
 extern ssize_t pwrite(int, const void *, size_t, off_t);
 #elif defined(__SOLARIS__)
