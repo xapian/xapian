@@ -1,3 +1,8 @@
+Wed Jun 21 15:23:00 BST 2000 Olly Betts
+
+	* apitest: if srcdir not set, sanity check our guess by seeing if
+	  apitest.cc is there.
+
 Wed Jun 21 15:35:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In configure, actually try to link the test with the Dbt object

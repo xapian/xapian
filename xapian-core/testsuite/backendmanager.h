@@ -73,3 +73,11 @@ class BackendManager {
 	OmDatabase get_database(const string &dbname1,
 				const string &dbname2 = "");
 };
+
+/** Return true if the files fname exists.
+ */
+bool file_exists(const string &fname);
+
+/** Return true if all the files fnames exist.
+ */
+bool files_exist(const vector<string> &fnames);

@@ -2280,8 +2280,17 @@ int main(int argc, char *argv[])
 	    // is involved
 	    srcdir = ".";
 	}
-        // FIXME: sanity check: look for srcdir + "/apitest.cc"
-	cerr << "srcdir not in environment - guessing at `" << srcdir << "'\n";
+        // sanity check
+	if (!file_exists(srcdir + "/apitest.cc")) {	    
+	    if (file_exists("tests/apitest.cc")) {
+		srcdir = "tests";
+	    } else {
+		cout << argv[0]
+		     << ": srcdir not in the environment and I can't guess it!"
+		     << endl;
+		return(1);
+	    }
+	}
     }
 
     int result;
