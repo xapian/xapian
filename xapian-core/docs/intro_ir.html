@@ -11,13 +11,13 @@
 
 In IR (Information Retrieval), the items we are trying to retrieve are called
 <EM>documents</EM>, and the documents are described by collections of <EM>terms</EM>. These
-two words, 'document' and 'term', are now traditional in the vocabulary of IR,
+two words, `document' and `term', are now traditional in the vocabulary of IR,
 and reflect its Library Science origins. Usually a document is thought
 of as a piece of text, most possibly in a machine readable form, and a term as
 a word or phrase which helps to describe the document, and which may indeed
 occur in the document, one or several times. So a document might be about
-dental care, and could be described by corresponding terms 'tooth', 'teeth'
-'toothbrush' 'decay', 'cavity', 'plaque', 'diet' and so on.
+dental care, and could be described by corresponding terms `tooth', `teeth'
+`toothbrush' `decay', `cavity', `plaque', `diet' and so on.
 <P>
 More generally a document can be anything we want to retrieve, and a term any
 feature that helps describe the documents. So the documents could be a
@@ -43,7 +43,7 @@ For a document, D, there is a list of terms which index it. This is called the
 <P>
 
 For a term, t, there is a list of documents which it indexes. This is called
-the <EM>posting list</EM> of t. ('Document list' would be more consistent, but sounds
+the <EM>posting list</EM> of t. (`Document list' would be more consistent, but sounds
 a little too vague for this very important concept.)
 <P>
 
@@ -52,8 +52,8 @@ or <EM>index</EM> file. A term can be looked up and its posting list found. But 
 we will see later, a term in Muscat can be constructed from other terms, and
 we should distinguish between an <EM>index entry</EM>, which is a term actually held
 in an index, and a <EM>term</EM>, which may be composed of index entries. A two word
-term, 'dental hygiene' for example, might be an index entry, or it might be
-constructed out of the two index entries 'dental' and 'hygiene'. In Muscat
+term, `dental hygiene' for example, might be an index entry, or it might be
+constructed out of the two index entries `dental' and `hygiene'. In Muscat
 you can do it either way.
 <P>
 
@@ -78,7 +78,7 @@ that offer improvements for the IR system builder.
 
 <P>
 Muscat is firmly placed as a system that implements, or tries to implement,
-the probabilistic IR model. (We say 'tries' because sometimes implementation
+the probabilistic IR model. (We say `tries' because sometimes implementation
 efficiency and theoretical complexity demand certain short-cuts.)
 
 <P>
@@ -88,7 +88,7 @@ The model has two striking advantages:
 It leads to systems that give good retrieval performance. As the model has
 developed over the last 25 years, this has proved so consistently true that
 one is led to suspect that the probability theory model is, in some sense, the
-'correct' model for IR. The IR process would appear to function as the model
+`correct' model for IR. The IR process would appear to function as the model
 suggests.
 </LI><LI>
 As new problems come up in IR, the probabilistic model can usually suggest
@@ -343,10 +343,10 @@ the case that D is made up of a list of words,
 
 and that many, if not all, of the terms which index D derive from these words.
 The relation between words and terms need not be a simple one. A single term
-'connect' might derive from a a number of words, 'connect', 'connects',
-'connection', 'connected' and so on. A single word might give rise to more
+`connect' might derive from a a number of words, `connect', `connects',
+`connection', `connected' and so on. A single word might give rise to more
 than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
-w<sub>221</sub> in the indexing process, we can say that the term 'occurs' in D at
+w<sub>221</sub> in the indexing process, we can say that the term `occurs' in D at
 positions 9, 38, 97 and 221, and so for each term a document may have a
 vector of postional information. These are the <EM>within-document positions</EM> of
 t, or the <EM>wdp</EM> information of t.
@@ -402,7 +402,7 @@ contribution between these extremes.
 <P>
 The best K actually depends on the characteristics of the IR system as a
 whole, and unfortunately no rule can be given for choosing it. A low value of
-K may be recommended for 'safe' use. Then W(D) is merely tweaked a bit by the
+K may be recommended for `safe' use. Then W(D) is merely tweaked a bit by the
 wdf values, and users observe a simple pattern of retrieval.
 <P>
 Any D in the IR system has a value W(D), but, if no term of the query indexes
