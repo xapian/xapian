@@ -7,7 +7,7 @@ use cvssearch;
 my $cvsdata = &cvssearch::get_cvsdata();
 my $cvscompare = "./cvscompare.cgi";
 my $cvsquery = "./cvsquerydb";
-my $cvshuild = "./cvsbuilddb";
+my $cvsbuild = "./cvsbuilddb";
 my $cvsmap = "./cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
