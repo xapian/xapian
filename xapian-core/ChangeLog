@@ -1,3 +1,11 @@
+Thu Jul 24 23:20:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_alltermslist.cc,
+	  backends/quartz/quartz_alltermslist.h,tests/api_db.cc:
+	  Fixed allterms TermIterator to not give duplicate terms with a
+	  quartz database when a posting list is chunked; added regression
+	  test (allterms4).
+
 Mon Jul 21 15:06:59 BST 2003  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/enquire.h: Fix incorrect documentation comment

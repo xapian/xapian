@@ -1673,6 +1673,27 @@ static bool test_allterms3()
     return true;
 }
 
+// test that next ignores extra entries due to long posting lists being
+// chunked (regression test for quartz)
+static bool test_allterms4()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+    // 682 was the magic number which started to cause Quartz problems
+    for (int c = 0; c < 682; ++c) {
+	Xapian::Document doc;
+	doc.add_term_nopos("foo");
+	db.add_document(doc); 
+    }
+    db.flush();
+
+    Xapian::TermIterator i = db.allterms_begin();
+    TEST(*i == "foo");
+    ++i;
+    TEST(i == db.allterms_end());
+
+    return true;
+}
+
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
 {
@@ -3247,6 +3268,7 @@ test_desc allterms_tests[] = {
     {"allterms1",	   test_allterms1},
 //    {"allterms2",	   test_allterms2},
     {"allterms3",	   test_allterms3},
+    {"allterms4",	   test_allterms4},
     {0, 0}
 };
 

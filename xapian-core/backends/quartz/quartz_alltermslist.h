@@ -51,6 +51,9 @@ class QuartzAllTermsList : public AllTermsList
 
 	bool started;
 
+	/// Cached termname
+	string current_term;
+
 	/// Cached statistics
 	mutable bool have_stats;
 	mutable Xapian::termcount termfreq;

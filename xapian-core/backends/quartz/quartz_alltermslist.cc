@@ -42,6 +42,14 @@ QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian:
     }
 
     is_at_end = pl_cursor->after_end();
+    if (!is_at_end) {
+	const char *start = pl_cursor->current_key.data();
+	const char *end = start + pl_cursor->current_key.length();
+	if (!unpack_string_preserving_sort(&start, end, current_term)) {
+	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+	}
+    }
+
     have_stats = false;
 }
 
@@ -62,21 +70,7 @@ QuartzAllTermsList::get_termname() const
 {
     DEBUGCALL(DB, string, "QuartzAllTermsList::get_termname", "");
     Assert(started);
-    if (is_at_end) {
-	throw Xapian::InvalidArgumentError("Attempt to get termname after end");
-    }
-	    
-    const char *start = pl_cursor->current_key.data();
-    const char *end = start + pl_cursor->current_key.length();
-    string result;
-    if (unpack_string_preserving_sort(&start, end, result)) {
-	RETURN(result);
-    }
-
-    DEBUGLINE(DB, "QuartzAllTermsList[" << this
-	      << "]: Failed to read from key: `"
-	      << pl_cursor->current_key << "'");
-    throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+    RETURN(current_term);
 }
 
 void QuartzAllTermsList::get_stats() const
@@ -148,9 +142,21 @@ QuartzAllTermsList::next()
     if (!started) {
 	started = true;
     } else {
-	pl_cursor->next();
+	while (true) {
+	    pl_cursor->next();
 
-	is_at_end = pl_cursor->after_end();
+	    is_at_end = pl_cursor->after_end();
+
+	    if (is_at_end) break;
+
+	    const char *start = pl_cursor->current_key.data();
+	    const char *end = start + pl_cursor->current_key.length();
+	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
+		throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+	    }
+	    // Check if this is the first chunk of a postlist, skip otherwise
+	    if (start == end) break;
+	}
 
 	have_stats = false;
     }
