@@ -229,7 +229,7 @@ DB is the handle for both term and record/termvec accesses.
 The total number of documents (or terms) in the DB file is given
 by
 
-        DB->doccount       (DB->termcount)
+        DB->doc_count       (DB->term_count)
 
 A DB file is set up with a cache of blocks for reading. This is the second
 argument of DBopen, so in the example above 30 blocks are used. The cache

@@ -1,4 +1,4 @@
-/* da_database.h: C++ class definition for DA access routines
+/* db_database.h: C++ class definition for DB access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DA_DATABASE_H
-#define OM_HGUARD_DA_DATABASE_H
+#ifndef OM_HGUARD_DB_DATABASE_H
+#define OM_HGUARD_DB_DATABASE_H
 
 #include <map>
 #include <vector>
@@ -37,23 +37,23 @@
 
 
 // FIXME - try and sort it out so that we don't need to include this.
-#include "daread.h"
+#include "dbread.h"
 
-/** A posting list for a DA Database */
-class DAPostList : public LeafPostList {
-    friend class DADatabase;
+/** A posting list for a DB Database */
+class DBPostList : public LeafPostList {
+    friend class DBDatabase;
     private:
-	struct DA_postings * postlist;
+	struct DB_postings * postlist;
 	om_docid  currdoc;
 
 	om_termname tname;
 	om_doccount termfreq;
 
-	DAPostList(const om_termname & tname_,
-		   struct DA_postings * postlist_,
+	DBPostList(const om_termname & tname_,
+		   struct DB_postings * postlist_,
 		   om_doccount termfreq_);
     public:
-	~DAPostList();
+	~DBPostList();
 
 	om_doccount get_termfreq() const;
 
@@ -67,13 +67,13 @@ class DAPostList : public LeafPostList {
 };
 
 inline om_doccount
-DAPostList::get_termfreq() const
+DBPostList::get_termfreq() const
 {
     return termfreq;
 }
 
 inline om_docid
-DAPostList::get_docid() const
+DBPostList::get_docid() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
@@ -81,7 +81,7 @@ DAPostList::get_docid() const
 }
 
 inline bool
-DAPostList::at_end() const
+DBPostList::at_end() const
 {
     Assert(currdoc != 0);
     if (currdoc == MAXINT) return true;
@@ -89,20 +89,20 @@ DAPostList::at_end() const
 }
 
 inline string
-DAPostList::intro_term_description() const
+DBPostList::intro_term_description() const
 {
     return tname + ":" + inttostring(termfreq);
 }
 
 
 
-class DATermListItem {
+class DBTermListItem {
     public:
 	om_termname tname;
 	om_termcount wdf;
 	om_doccount termfreq;
 
-	DATermListItem(om_termname tname_,
+	DBTermListItem(om_termname tname_,
 		       om_termcount wdf_,
 		       om_doccount termfreq_)
 		: tname(tname_),
@@ -111,15 +111,15 @@ class DATermListItem {
 	{ return; }
 };
  
-class DATermList : public LeafTermList {
-    friend class DADatabase;
+class DBTermList : public LeafTermList {
+    friend class DBDatabase;
     private:
-	vector<DATermListItem>::iterator pos;
-	vector<DATermListItem> terms;
+	vector<DBTermListItem>::iterator pos;
+	vector<DBTermListItem> terms;
 	bool have_started;
 	om_doccount dbsize;
 
-	DATermList(struct termvec *tv, om_doccount dbsize_);
+	DBTermList(struct termvec *tv, om_doccount dbsize_);
     public:
 	om_termcount get_approx_size() const;
 
@@ -131,33 +131,33 @@ class DATermList : public LeafTermList {
 	bool   at_end() const;
 };
 
-inline om_termcount DATermList::get_approx_size() const
+inline om_termcount DBTermList::get_approx_size() const
 {
     return terms.size();
 }
 
-inline const om_termname DATermList::get_termname() const
+inline const om_termname DBTermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->tname;
 }
 
-inline om_termcount DATermList::get_wdf() const
+inline om_termcount DBTermList::get_wdf() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->wdf;
 }
 
-inline om_doccount DATermList::get_termfreq() const
+inline om_doccount DBTermList::get_termfreq() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->termfreq;
 }
 
-inline TermList * DATermList::next()
+inline TermList * DBTermList::next()
 {
     if(have_started) {
 	Assert(!at_end());
@@ -168,7 +168,7 @@ inline TermList * DATermList::next()
     return NULL;
 }
 
-inline bool DATermList::at_end() const
+inline bool DBTermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) {
@@ -181,25 +181,25 @@ inline bool DATermList::at_end() const
 
 
 
-class DATerm {
-    friend DADatabase;
+class DBTerm {
+    friend DBDatabase;
     private:
-	DATerm(struct DA_term_info * ti_,
+	DBTerm(struct DB_term_info * ti_,
 	       om_termname tname_,
-	       struct DA_file * DA_t_ = NULL);
-        struct DA_term_info * get_ti() const;
+	       struct DB_file * DB_ = NULL);
+        struct DB_term_info * get_ti() const;
 
 	mutable bool terminfo_initialised;
-        mutable struct DA_term_info ti;
-        mutable struct DA_file * DA_t;
+        mutable struct DB_term_info ti;
+        mutable struct DB_file * DB;
     public:
 	om_termname tname;
 };
 
 inline
-DATerm::DATerm(struct DA_term_info * ti_,
+DBTerm::DBTerm(struct DB_term_info * ti_,
 	       om_termname tname_,
-	       struct DA_file * DA_t_)
+	       struct DB_file * DB_)
 	: terminfo_initialised(false)
 {
     if (ti_) {
@@ -207,11 +207,11 @@ DATerm::DATerm(struct DA_term_info * ti_,
 	terminfo_initialised = true;
     }
     tname = tname_;
-    DA_t = DA_t_;
+    DB = DB_;
 }
 
-inline struct DA_term_info *
-DATerm::get_ti() const
+inline struct DB_term_info *
+DBTerm::get_ti() const
 {
     if (!terminfo_initialised) {
 	DebugMsg("Getting terminfo" << endl);
@@ -222,7 +222,7 @@ DATerm::get_ti() const
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
-	int found = DA_term(k, &ti, DA_t);
+	int found = DB_term(k, &ti, DB);
 	free(k);
 
 	if(found == 0) abort();
@@ -231,32 +231,31 @@ DATerm::get_ti() const
     return &ti;
 }
 
-class DADatabase : public IRDatabase {
+class DBDatabase : public IRDatabase {
     friend class DatabaseBuilder;
-    friend class DADocument;
+    friend class DBDocument;
     private:
 	bool   opened;
-	struct DA_file * DA_r;
-	struct DA_file * DA_t;
+	struct DB_file * DB;
 
-	mutable map<om_termname, DATerm> termmap;
+	mutable map<om_termname, DBTerm> termmap;
 
 	int heavy_duty;
 
 	// Stop copy / assignment being allowed
-	DADatabase& operator=(const DADatabase&);
-	DADatabase(const DADatabase&);
+	DBDatabase& operator=(const DBDatabase&);
+	DBDatabase(const DBDatabase&);
 
 	// Look up term in database
-	const DATerm * term_lookup(const om_termname & tname) const;
+	const DBTerm * term_lookup(const om_termname & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;
 
-	DADatabase(int heavy_duty_);
+	DBDatabase(int heavy_duty_);
 	void open(const DatabaseBuilderParams & params);
     public:
-	~DADatabase();
+	~DBDatabase();
 
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
@@ -270,39 +269,39 @@ class DADatabase : public IRDatabase {
 	OmDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname & tname) {
-	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
+	    throw OmUnimplementedError("DBDatabase::make_term() not implemented");
 	}
 	om_docid make_doc(const om_docname & ) {
-	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
+	    throw OmUnimplementedError("DBDatabase::make_doc() not implemented");
 	}
 	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+	    throw OmUnimplementedError("DBDatabase::make_posting() not implemented");
 	}
 };
 
 inline om_doccount
-DADatabase::get_doccount() const
+DBDatabase::get_doccount() const
 {
     Assert(opened);
-    return DA_r->itemcount;
+    return DB->doc_count;
 }
 
 inline om_doclength
-DADatabase::get_avlength() const
+DBDatabase::get_avlength() const
 {
     Assert(opened);
     return 1;
 }
 
 inline om_doclength
-DADatabase::get_doclength(om_docid did) const
+DBDatabase::get_doclength(om_docid did) const
 {
     Assert(opened);
     return 1;
 }
 
 inline om_doccount
-DADatabase::get_termfreq(const om_termname & tname) const
+DBDatabase::get_termfreq(const om_termname & tname) const
 {
     PostList *pl = open_post_list(tname, NULL);
     om_doccount freq = 0;
@@ -311,4 +310,4 @@ DADatabase::get_termfreq(const om_termname & tname) const
     return freq;
 }
 
-#endif /* OM_HGUARD_DA_DATABASE_H */
+#endif /* OM_HGUARD_DB_DATABASE_H */

@@ -39,28 +39,34 @@ static void readda(struct DB_file * DB, int n, byte * b)
 }
 
 static struct DB_pool * find_block(struct DB_file * DB, int n)
-{  struct DB_pool * P = DB->pool;
-   int pool_size = DB->pool_size;
-   long int oldest = -1; /* for the oldest read block */
-   int oldest_j;               /* - and its index in P */
-   int j;
-   for (j = 0; j < pool_size; j++)
-   {
-       if (P[j].n == n) return P + j;
-       if (P[j].p == NULL)
-       {   byte * b = malloc(DB->block_size);
-           readda(DB, n, b);
-           P[j].p = b + HEADER;
-           P[j].n = n;
-           return P + j;
-       }
-       {   long int age = DB->clock - P[j].clock;
-           if (age > oldest) { oldest = age; oldest_j = j; }
-       }
-   }
-   readda(DB, n, P[oldest_j].p - HEADER);
-   P[oldest_j].n = n;
-   return P + oldest_j;
+{
+    struct DB_pool * P = DB->pool;
+    int pool_size = DB->pool_size;
+    long int oldest = -1; /* for the oldest read block */
+    int oldest_j = 0;     /* - and its index in P */
+    int j;
+    for (j = 0; j < pool_size; j++) {
+	if (P[j].n == n) {
+	    return P + j;
+	}
+	if (P[j].p == NULL) {
+	    byte * b = malloc(DB->block_size);
+	    readda(DB, n, b);
+	    P[j].p = b + HEADER;
+	    P[j].n = n;
+	    return P + j;
+	}
+	{
+	    long int age = DB->clock - P[j].clock;
+	    if (age > oldest) {
+		oldest = age;
+		oldest_j = j;
+	    }
+	}
+    }
+    readda(DB, n, P[oldest_j].p - HEADER);
+    P[oldest_j].n = n;
+    return P + oldest_j;
 }
 
 /* C_block(DB, j) pulls into the cursor structure the block appropriate to

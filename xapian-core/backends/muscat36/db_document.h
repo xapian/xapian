@@ -1,4 +1,4 @@
-/* da_document.h: C++ class definition for DA access routines
+/* db_document.h: C++ class definition for DB access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,42 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DA_DOCUMENT_H
-#define OM_HGUARD_DA_DOCUMENT_H
+#ifndef OM_HGUARD_DB_DOCUMENT_H
+#define OM_HGUARD_DB_DOCUMENT_H
 
 #include "om/omdocument.h"
-#include "daread.h"
+#include "dbread.h"
 
-class DADatabase;
+class DBDatabase;
 
-class DADocument : public OmDocument {
-    friend class DADatabase;
+class DBDocument : public OmDocument {
+    friend class DBDatabase;
     private:
-	const DADatabase * database;
+	const DBDatabase * database;
 	om_docid did;
 	mutable struct record * rec;
 	int heavy_duty;
 
-	DADocument(const DADatabase * database_,
+	DBDocument(const DBDatabase * database_,
 		   om_docid did_,
 		   int heavy_duty_);
 
 	// Stop copying
-	DADocument(const DADocument &);
-	DADocument & operator = (const DADocument &);
+	DBDocument(const DBDocument &);
+	void operator = (const DBDocument &);
     public:
-	~DADocument();
+	~DBDocument();
 
 	OmKey get_key(om_keyno keyid) const;
 	OmData get_data() const;
 };
 
 inline
-DADocument::DADocument(const DADatabase * database_, om_docid did_,
+DBDocument::DBDocument(const DBDatabase * database_,
+		       om_docid did_,
 		       int heavy_duty_)
 	: database(database_), did(did_), rec(NULL), heavy_duty(heavy_duty_)
 {
 }
 
 
-#endif /* OM_HGUARD_DA_DOCUMENT_H */
+#endif /* OM_HGUARD_DB_DOCUMENT_H */

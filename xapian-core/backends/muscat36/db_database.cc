@@ -1,4 +1,4 @@
-/* da_database.cc: C++ class for datype access routines
+/* db_database.cc: C++ class for datype access routines
  * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,6 +20,7 @@
  * -----END-LICENCE----- */
 
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string>
@@ -30,45 +31,45 @@
 #include "database.h"
 #include "leafpostlist.h"
 #include "termlist.h"
-#include "da_database.h"
-#include "da_document.h"
-#include "daread.h"
+#include "db_database.h"
+#include "db_document.h"
+#include "dbread.h"
 
-DAPostList::DAPostList(const om_termname & tname_,
-		       struct DA_postings * postlist_,
+DBPostList::DBPostList(const om_termname & tname_,
+		       struct DB_postings * postlist_,
 		       om_doccount termfreq_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
 {
 }
 
-DAPostList::~DAPostList()
+DBPostList::~DBPostList()
 {
-    DA_close_postings(postlist);
+    DB_close_postings(postlist);
 }
 
-om_weight DAPostList::get_weight() const
+om_weight DBPostList::get_weight() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
     Assert(ir_wt != NULL);
 
-    // NB ranges from daread share the same wdf value
+    // NB ranges from dbread share the same wdf value
     return ir_wt->get_sumpart(postlist->wdf, 1.0);
 }
 
-PostList * DAPostList::next(om_weight w_min)
+PostList * DBPostList::next(om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
     if (currdoc && currdoc < om_docid(postlist->E)) {	
 	currdoc++;
 	return NULL;
     }
-    DA_read_postings(postlist, 1, 0);
+    DB_read_postings(postlist, 1, 0);
     currdoc = om_docid(postlist->Doc);
     return NULL;
 }
 
-PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
+PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
@@ -79,7 +80,7 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
-    DA_read_postings(postlist, 1, did);
+    DB_read_postings(postlist, 1, did);
     currdoc = om_docid(postlist->Doc);
     //printf("%d - get_id %d\n", did, currdoc);
     return NULL;
@@ -87,7 +88,7 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 
 
 
-DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
+DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_)
 	: have_started(false), dbsize(dbsize_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -96,7 +97,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
-	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DBTermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -106,7 +107,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
 }
 
 OmExpandBits
-DATermList::get_weighting() const
+DBTermList::get_weighting() const
 {
     Assert(!at_end());
     Assert(have_started);
@@ -118,50 +119,46 @@ DATermList::get_weighting() const
 
 
 
-DADatabase::DADatabase(int heavy_duty_)
+DBDatabase::DBDatabase(int heavy_duty_)
 	: heavy_duty(heavy_duty_)
 {
-    DA_r = NULL;
-    DA_t = NULL;
+    DB = NULL;
     opened = false;
 }
 
-DADatabase::~DADatabase()
+DBDatabase::~DBDatabase()
 {
-    if(DA_r != NULL) {
-	DA_close(DA_r);
-	DA_r = NULL;
-    }
-    if(DA_t != NULL) {
-	DA_close(DA_t);
-	DA_t = NULL;
+    if(DB != NULL) {
+	DB_close(DB);
+	DB = NULL;
     }
 }
 
 void
-DADatabase::open(const DatabaseBuilderParams & params)
+DBDatabase::open(const DatabaseBuilderParams & params)
 {
     Assert(!opened);
 
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() == 1);
+    Assert(params.paths.size() <= 1);
+    Assert(params.paths.size() >= 2);
 
     // Open database with specified path
     string filename_r = params.paths[0] + "/R";
     string filename_t = params.paths[0] + "/T";
 
-    DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
-    if(DA_r == NULL) {
-	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
+    // Get the cache_size
+    int cache_size = 30;
+    if (params.paths.size() == 2) {
+	cache_size = atoi(params.paths[1].c_str());
     }
 
-    DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
-    if(DA_t == NULL) {
-	DA_close(DA_r);
-	DA_r = NULL;
-	throw OmOpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
+    // Actually open
+    DB = DB_open(filename_r.c_str(), cache_size, heavy_duty);
+    if(DB == NULL) {
+	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
     }
 
     opened = true;
@@ -171,29 +168,29 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DADatabase::open_post_list(const om_termname & tname, RSet * rset) const
+DBDatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
 
     // Make sure the term has been looked up
-    const DATerm * the_term = term_lookup(tname);
+    const DBTerm * the_term = term_lookup(tname);
     Assert(the_term != NULL);
 
-    struct DA_postings * postlist;
-    postlist = DA_open_postings(the_term->get_ti(), DA_t);
+    struct DB_postings * postlist;
+    postlist = DB_open_postings(the_term->get_ti(), DB);
 
-    LeafPostList * pl = new DAPostList(tname, postlist, the_term->get_ti()->freq);
+    LeafPostList * pl = new DBPostList(tname, postlist, the_term->get_ti()->freq);
     return pl;
 }
 
 // Returns a new term list, for the terms in this database for given document
 LeafTermList *
-DADatabase::open_term_list(om_docid did) const
+DBDatabase::open_term_list(om_docid did) const
 {
     Assert(opened);
 
     struct termvec *tv = M_make_termvec();
-    int found = DA_get_termvec(DA_r, did, tv);
+    int found = DB_get_termvec(DB, did, tv);
 
     if(found == 0) {
 	M_lose_termvec(tv);
@@ -203,17 +200,17 @@ DADatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    DATermList *tl = new DATermList(tv, DADatabase::get_doccount());
+    DBTermList *tl = new DBTermList(tv, DBDatabase::get_doccount());
     return tl;
 }
 
 struct record *
-DADatabase::get_record(om_docid did) const
+DBDatabase::get_record(om_docid did) const
 {
     Assert(opened);
 
     struct record *r = M_make_record();
-    int found = DA_get_record(DA_r, did, r);
+    int found = DB_get_record(DB, did, r);
 
     if(found == 0) {
 	M_lose_record(r);
@@ -225,22 +222,22 @@ DADatabase::get_record(om_docid did) const
 }
 
 OmDocument *
-DADatabase::open_document(om_docid did) const
+DBDatabase::open_document(om_docid did) const
 {
     Assert(opened);
 
-    return new DADocument(this, did, heavy_duty);
+    return new DBDocument(this, did, heavy_duty);
 }
 
-const DATerm *
-DADatabase::term_lookup(const om_termname & tname) const
+const DBTerm *
+DBDatabase::term_lookup(const om_termname & tname) const
 {
     Assert(opened);
-    //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
+    //DebugMsg("DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, DATerm>::const_iterator p = termmap.find(tname);
+    map<om_termname, DBTerm>::const_iterator p = termmap.find(tname);
 
-    const DATerm * the_term = NULL;
+    const DBTerm * the_term = NULL;
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
 	if(len > 255) return 0;
@@ -249,15 +246,15 @@ DADatabase::term_lookup(const om_termname & tname) const
 	k[0] = len + 1;
 	tname.copy((char*)(k + 1), len, 0);
 
-	struct DA_term_info ti;
-	int found = DA_term(k, &ti, DA_t);
+	struct DB_term_info ti;
+	int found = DB_term(k, &ti, DB);
 	free(k);
 
 	if(found == 0) {
 	    DebugMsg("Not in collection" << endl);
 	} else {
 	    DebugMsg("found, adding to cache" << endl);
-	    pair<om_termname, DATerm> termpair(tname, DATerm(&ti, tname));
+	    pair<om_termname, DBTerm> termpair(tname, DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = &(termmap.find(tname)->second);
 	}
@@ -269,7 +266,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 }
 
 bool
-DADatabase::term_exists(const om_termname & tname) const
+DBDatabase::term_exists(const om_termname & tname) const
 {
     if(term_lookup(tname) != NULL) return true;
     return false;
