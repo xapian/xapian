@@ -186,7 +186,9 @@ Match::add_op(matchop op)
 class MSetCmp {
     public:
         bool operator()(const MSetItem &a, const MSetItem &b) {
-            return a.w > b.w;
+	    if(a.w > b.w) return true;
+	    if(a.w == b.w) return a.id > b.id;
+	    return false;
         }
 };
 
@@ -283,7 +285,9 @@ Match::match()
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
     cout << "sorting\n";
-    stable_sort(mset.begin(), mset.end(), MSetCmp());
+
+    // Need a stable sort, but this is provided by comparison operator
+    sort(mset.begin(), mset.end(), MSetCmp());
 
     msize = mset.size();
 

@@ -3,7 +3,6 @@
 #ifndef _branchpostlist_h_
 #define _branchpostlist_h_
 
-#include "database.h"
 #include "match.h"
 #include "postlist.h"
 

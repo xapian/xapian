@@ -1,39 +1,44 @@
 #include "ortermlist.h"
 
 OrTermList::OrTermList(TermList *left, TermList *right)
+	: lhead(0), rhead(0)
 {
     l = left;
     r = right;
-    lhead = rhead = 0;
 }
 
 TermList *
 OrTermList::next()
 {
-    bool lnext = false;
+    bool ldry = false;
     bool rnext = false;
 
-    if (!rhead) {
-	if (lhead) lnext = true;
-    } else if (!lhead) {
-	rnext = true;
-    } else if (lhead <= rhead) {
-	lnext = true;
+    if (lhead <= rhead) {
 	if (lhead == rhead) rnext = true;
+	//handle_prune(l, l->next(w_min - rmax));
+	handle_prune(l, l->next());
+	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
     }
-    
-    if (lnext) {
-	l->next();
-	lhead = 0;
-	if (!l->at_end()) lhead = l->get_termid();
-    }
-    
+
     if (rnext) {
-	r->next();
-	rhead = 0;
-	if (!r->at_end()) rhead = r->get_termid();
+	//handle_prune(r, r->next(w_min - lmax));
+	handle_prune(r, r->next());
+	if (r->at_end()) {
+	    TermList *ret = l;
+	    l = NULL;
+	    return ret;
+	}
+	rhead = r->get_termid();
     }
-    return NULL;
+
+    if (!ldry) {
+	lhead = l->get_termid();
+	return NULL;
+    }
+
+    TermList *ret = r;
+    r = NULL;
+    return ret;
 }

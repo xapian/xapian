@@ -150,7 +150,10 @@ inline TermList * DATermList::next()
 inline bool DATermList::at_end() const
 {
     Assert(have_started);
-    if(pos == terms.end()) return true;
+    if(pos == terms.end()) {
+	cout << "TERMLIST " << this << " ENDED " << endl;
+	return true;
+    }
     return false;
 }
 

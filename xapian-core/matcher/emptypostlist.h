@@ -3,7 +3,7 @@
 #ifndef _emptypostlist_h_
 #define _emptypostlist_h_
 
-#include "database.h"
+#include "postlist.h"
 
 class EmptyPostList : public virtual PostList {
     public:

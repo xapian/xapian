@@ -11,7 +11,9 @@
 class ESetCmp {
     public:
         bool operator()(const ESetItem &a, const ESetItem &b) {
-            return a.wt > b.wt;
+	    if(a.wt > b.wt) return true;
+	    if(a.wt != b.wt) return false;
+	    return a.tid > b.tid;
         }
 };
 
@@ -46,6 +48,7 @@ Expand::build_tree(const RSet *rset)
     }
 
     while (true) {
+	cout << "Expand: found termlist" << endl;
 	TermList *p = pq.top();
 	pq.pop();
 	if (pq.empty()) {
@@ -142,12 +145,14 @@ Expand::expand(const RSet *rset)
 	eset.erase(eset.begin() + max_esize, eset.end());
     }
     cout << "sorting\n";
-    stable_sort(eset.begin(), eset.end(), ESetCmp());
+
+    // Need a stable sort, but this is provided by comparison operator
+    sort(eset.begin(), eset.end(), ESetCmp());
 
     cout << "esize = " << eset.size() << ", etotal = " << etotal << endl;
     if (eset.size()) {
-	cout << "max weight in mset = " << eset.front().wt
-	     << ", min weight in mset = " << eset.back().wt << endl;
+	cout << "max weight in eset = " << eset.front().wt
+	     << ", min weight in eset = " << eset.back().wt << endl;
     }
     delete merger;
 }

@@ -9,7 +9,7 @@
 
 class BranchTermList : public virtual TermList {
     protected:
-//        void handle_prune(TermList *&kid, TermList *ret);
+        void handle_prune(TermList *&kid, TermList *ret);
         TermList *l, *r;
 //        Match *root;
     public:
@@ -23,17 +23,15 @@ BranchTermList::~BranchTermList()
     if (r) delete r;
 }
 
-#if 0
 inline void
-BranchtermList::handle_prune(termList *&kid, termList *ret)
+BranchTermList::handle_prune(TermList *&kid, TermList *ret)
 {
     if (ret) {
 	delete kid;
 	kid = ret;
 	// now get tree to recalculate max weights...
-	root->recalc_maxweight();
+	//root->recalc_maxweight(); FIXME
     }
 }
-#endif
 
 #endif /* _branchtermlist_h_ */
