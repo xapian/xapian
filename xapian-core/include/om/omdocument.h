@@ -30,8 +30,8 @@
 // ============
 // Representing the document data
 
-/** @memo The data in a document.
- *  @doc This contains the arbitrary chunk of data which is associated
+/** The data in a document.
+ *  This contains the arbitrary chunk of data which is associated
  *  with each document in the database: it is up to the user to define
  *  the format of this data, and to set it at indexing time.
  */

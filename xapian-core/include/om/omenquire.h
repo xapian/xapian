@@ -63,10 +63,10 @@ enum om_queryop {
 };
 
 
+class OmQueryInternal;
 /** Class representing a query.
  *  Queries are represented as a heirarchy of classes.
  */
-class OmQueryInternal;
 class OmQuery {
     private:
 	friend class OmEnquireInternal;
@@ -563,9 +563,9 @@ class OmEnquire {
 			const OmExpandDecider * edecider = 0) const;
 
 
-	/** @memo Get the document info by document id.
+	/** Get the document info by document id.
 	 *
-	 *  @doc This method returns an OmDocument object
+	 *  This method returns an OmDocument object
 	 *  which provides the information about a document.
 	 *
 	 *  It is possible for the document to have been removed from the
@@ -589,9 +589,9 @@ class OmEnquire {
 	 */
 	const OmDocument get_doc(om_docid did) const;
 
-	/** @memo Get the document info by match set item.
+	/** Get the document info by match set item.
 	 *
-	 *  @doc This method returns an OmDocument object
+	 *  This method returns an OmDocument object
 	 *  which provides the information about a document.
 	 *
 	 *  If the underlying database has suitable support, using this call
@@ -612,9 +612,8 @@ class OmEnquire {
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 
 
-	/** @memo Get terms which match a given document, by document id.
+	/** Get terms which match a given document, by document id.
 	 * 
-	 *  @doc
 	 *  This method returns the terms in the current query which match
 	 *  the given document.
 	 *
@@ -644,9 +643,8 @@ class OmEnquire {
 	 */
 	om_termname_list get_matching_terms(om_docid did) const;
 
-	/** @memo Get terms which match a given document, by match set item.
+	/** Get terms which match a given document, by match set item.
 	 *
-	 *  @doc
 	 *  This method returns the terms in the current query which match
 	 *  the given document.
 	 *
@@ -675,9 +673,13 @@ class OmEnquire {
 /** This class provides an interface to submit batches of queries.
  *  This will be no worse than using a plain OmEnquire object
  *  multiple times, and this is how it is currently implemented.
- *  In future it may be reimplemented in a way which would make
- *  running many queries significantly more effecient than would
- *  be possible with individual queries and OmEnquire.
+ *  In future it may be reimplemented such that significant performance
+ *  advantages result from running multiple queries using this class
+ *  rather than running them as individual queries using OmEnquire.
+ *
+ *  If you are producing a system which will run batches of queries
+ *  together (such as a nightly alerting system), we recommend use
+ *  of this class.
  *
  *  @exception OmInvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
@@ -699,6 +701,8 @@ class OmBatchEnquire {
         OmBatchEnquire(const OmDatabase &db);
         ~OmBatchEnquire();
 
+	/** This class stores a set of queries to be performed as a batch.
+	 */
 	struct query_desc {
 	    OmQuery query;
 	    om_doccount first;
@@ -708,8 +712,6 @@ class OmBatchEnquire {
 	    const OmMatchDecider * mdecider;
 	};
 	    
-	typedef vector<query_desc> query_batch;
-
 	/** Set up the queries to run.
 	 *
 	 *  @param queries_  A set of structures describing each query
@@ -722,6 +724,9 @@ class OmBatchEnquire {
 	 */
 	void set_queries(const query_batch &queries_);
 
+	/** This class stores the result of one of the queries in a
+	 *  batch of queries.
+	 */
 	class batch_result {
 	    private:
 		bool isvalid;
@@ -733,44 +738,44 @@ class OmBatchEnquire {
 
 		bool is_valid() const { return isvalid; }
 	};
+
+	/** Type used to store a batch of queries to be performed.
+	 */
+	typedef vector<query_desc> query_batch;
+
+	/** Type used to store the results of a query batch.
+	 */
 	typedef vector<batch_result> mset_batch;
 
 	/** Get (a portion of) the match sets for the current queries.
 	 *
-	 *  @return          An collection of type
-	 *  OmBatchEnquire::mset_batch.  Each element is a batch_result
-	 *  object.  The actual OmMSet result will be returned by
-	 *  batch_result::value().  If that query failed, then value()
-	 *  will throw an exception.  The validity can be checked with
-	 *  the is_valid() member.
+	 *  @return An collection of type OmBatchEnquire::mset_batch.
+	 *          Each element is a batch_result object.  The actual OmMSet
+	 *          result will be returned by batch_result::value().  If that
+	 *          query failed, then value() will throw an exception.  The
+	 *          validity can be checked with the is_valid() member.
 	 *
 	 *  @exception OmOpeningError          See class documentation.
 	 */
 	mset_batch get_msets() const;
 
-	/** @memo Get the document info by document id.
-	 *
-	 *  @doc See OmEnquire::get_doc for details.
+	/** Get the document info by document id.
+	 *  See OmEnquire::get_doc() for details.
 	 */
 	const OmDocument get_doc(om_docid did) const;
 
-	/** @memo Get the document info by match set item.
-	 *
-	 *  @doc See OmEnquire::get_doc for details
+	/** Get the document info by match set item.
+	 *  See OmEnquire::get_doc() for details
 	 */
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 
 
-	/** @memo Get terms which match a given document, by document id.
-	 * 
-	 *  @doc
+	/** Get terms which match a given document, by document id.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
 	om_termname_list get_matching_terms(om_docid did) const;
 
-	/** @memo Get terms which match a given document, by match set item.
-	 *
-	 *  @doc
+	/** Get terms which match a given document, by match set item.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;

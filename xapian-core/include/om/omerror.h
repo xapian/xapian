@@ -57,19 +57,19 @@ class OmError {
 
 inline OmError::~OmError() {}
 
-/** An exception derived from OmLogicError is thrown when a misuse
+/** Base class for errors due to programming errors.
+ *  An exception derived from OmLogicError is thrown when a misuse
  *  of the API is detected.
- *  @memo Base class for errors due to programming errors.
  */
 class OmLogicError : public OmError {
     protected:
         OmLogicError(const string &msg) : OmError(msg) {};
 };
 
-/** An exception derived from OmRuntimeError is thrown when an
+/** Base class for errors due to run time problems.
+ *  An exception derived from OmRuntimeError is thrown when an
  *  error is caused by problems with the data or environment rather
  *  than a programming mistake.
- *  @memo Base class for errors due to run time problems.
  */
 class OmRuntimeError : public OmError {
     protected:
