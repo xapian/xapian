@@ -22,6 +22,7 @@
 
 #include "net_document.h"
 #include <om/omdocument.h>
+#include "omassert.h"
 
 NetworkDocument::NetworkDocument(const string & doc_,
 				 const map<om_keyno, OmKey> &keys_)
@@ -32,10 +33,13 @@ NetworkDocument::NetworkDocument(const string & doc_,
 OmKey
 NetworkDocument::do_get_key(om_keyno keyid) const
 {
+    DebugMsg("NetworkDocument::do_get_key(" << keyid << ")");
     map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
     if (k != keys.end()) {
+	DebugMsg(" = " << k->second.value << endl);
 	return k->second;
     } else {
+	DebugMsg(" = not found" << endl);
 	return OmKey();
     }
 }
