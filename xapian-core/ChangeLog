@@ -1,3 +1,7 @@
+Tue Sep 30 18:29:31 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Quote arguments to test in a couple of places.
+
 Tue Sep 30 11:20:09 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Fixed test for -lsocket.
