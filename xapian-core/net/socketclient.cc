@@ -41,11 +41,11 @@ SocketClient::SocketClient(int socketfd_,
 			   int msecs_timeout_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
-	  msecs_timeout(msecs_timeout_),
 	  buf(socketfd),
 	  conv_state(state_getquery),
 	  remote_stats_valid(false),
-	  global_stats_valid(false)
+	  global_stats_valid(false),
+	  msecs_timeout(msecs_timeout_)
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.

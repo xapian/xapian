@@ -43,10 +43,6 @@ class SocketClient : public NetClient {
 	/// Whether or not to close the socket on destruction
 	bool close_socket;
 
-	/// The timeout value used in network communications,
-	/// in milliseconds
-	int msecs_timeout;
-
 	/// The line buffer which does the I/O
 	OmSocketLineBuf buf;
 
@@ -123,6 +119,10 @@ class SocketClient : public NetClient {
 	void do_close();
 
 	bool get_posting(om_docid &did, om_weight &w, OmKey &key);
+
+	/// The timeout value used in network communications,
+	/// in milliseconds
+	int msecs_timeout;
 
     public:
 	/** Destructor. */

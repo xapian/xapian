@@ -25,12 +25,14 @@
 #include "om/omerror.h"
 
 #include <errno.h>
-#include <string.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout)
 	: SocketClient(get_remote_socket(hostname, port), true, msecs_timeout)
@@ -41,6 +43,7 @@ TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout)
 int
 TcpClient::get_remote_socket(std::string hostname, int port)
 {
+    // FIXME: timeout on gethostbyname() ?
     struct hostent *host = gethostbyname(hostname.c_str());
 
     if (host == 0) {
@@ -59,14 +62,45 @@ TcpClient::get_remote_socket(std::string hostname, int port)
     remaddr.sin_port = htons(port);
     memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
 
-    int retval = connect(socketfd,
-			 reinterpret_cast<sockaddr *>(&remaddr),
+    fcntl(socketfd, F_SETFL, O_NDELAY);
+
+    int retval = connect(socketfd, reinterpret_cast<sockaddr *>(&remaddr),
 			 sizeof(remaddr));
 
     if (retval < 0) {
-	close(socketfd);
-	throw OmNetworkError(std::string("connect: ") + strerror(errno));
+	if (errno != EINPROGRESS) {
+	    close(socketfd);
+	    throw OmNetworkError(std::string("connect: ") + strerror(errno));
+	}
+
+	// wait for input to be available.
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(socketfd, &fdset);
+
+	struct timeval tv;
+	tv.tv_sec = SocketClient::msecs_timeout / 1000;
+	tv.tv_usec = SocketClient::msecs_timeout % 1000 * 1000;
+
+	retval = select(socketfd + 1, 0, &fdset, 0, &tv);
+	
+	if (retval == 0) {
+	    close(socketfd);
+	    throw OmNetworkError("connect: timed out");
+	}
+
+	int err = 0;
+	socklen_t len = sizeof(err);
+	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR, &err, &len);
+	
+	if (retval < 0 || err) {
+	    if (retval < 0) err = errno;
+	    close(socketfd);
+	    throw OmNetworkError(std::string("connect: ") + strerror(err));
+	}
     }
+
+    fcntl(socketfd, F_SETFL, 0);
 
     return socketfd;
 }

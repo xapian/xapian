@@ -1,6 +1,10 @@
+Thu Nov 23 16:26:09 GMT 2000 Olly Betts
+
+	* Remote backend timeout now applies to connect() attempt too.
+
 Wed Nov 22 19:01:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Don't return incorrect doccount if informational entries havn't
+	* Don't return incorrect doccount if informational entries haven't
 	  yet been created in the quartz record database.
 
 Wed Nov 22 18:53:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
