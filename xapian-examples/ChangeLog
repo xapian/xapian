@@ -1,3 +1,7 @@
+Sat Dec 07 21:25:59 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.6.2.
+
 Wed Dec 04 18:05:34 GMT 2002  Olly Betts <olly@survex.com>
 
 	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,
