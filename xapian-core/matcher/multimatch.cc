@@ -539,8 +539,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			std::pop_heap<std::vector<OmMSetItem>::iterator,
 				      OmMSetCmp>(items.begin(), items.end(),
 						 mcmp);
+			Assert(items.back().wt < min_item.wt);
 			items.pop_back();
 		    }
+#ifdef MUS_DEBUG_PARANOID
+		    std::vector<OmMSetItem>::const_iterator i;
+		    for (i = items.begin(); i != items.end(); ++i) {
+			Assert(i->wt >= min_item.wt);
+		    }
+#endif
 	        }
 	    }
 	}
@@ -551,8 +558,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     double percent_scale = 0;
     if (!items.empty() && greatest_wt > 0) {
-	// OK, work out weight corresponding to 100%, then trim the
-	// mset to the correct answer...
+	// OK, work out weight corresponding to 100%
 	double denom = 0;
 	std::map<om_termname,
 		 OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
@@ -573,7 +579,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
 	percent_scale /= denom;
 	Assert(percent_scale > 0);
-	if (percent_cutoff) {
+	if (false /*percent_cutoff*/) {
+	    // trim the mset to the correct answer...
 	    om_weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
@@ -583,8 +590,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    while (!items.empty() && items.front().wt < min_wt) {
 		std::pop_heap<std::vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		Assert(items.back().wt < min_item.wt);
 		items.pop_back();
 	    }
+#ifdef MUS_DEBUG_PARANOID
+	    std::vector<OmMSetItem>::const_iterator i;
+	    for (i = items.begin(); i != items.end(); ++i) {
+		Assert(i->wt >= min_item.wt);
+	    }
+#endif
 	}
 	percent_scale *= 100.0;
     }

@@ -1,3 +1,7 @@
+Thu Dec 20 17:41:04 GMT 2001  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: added more percent_cutoff assertions.
+
 Thu Dec 20 13:41:41 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed incorrectly classified debug message; fixed compiler warning;
