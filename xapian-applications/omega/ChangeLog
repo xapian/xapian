@@ -1,3 +1,8 @@
+Tue Mar 09 19:08:19 GMT 2004  Olly Betts <olly@survex.com>
+
+	* indextext.cc,omindex.cc,scriptindex.cc: Updated to use add_term()
+	  instead of add_term_nopos().
+
 Wed Mar 03 14:55:50 GMT 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Use true/false for assigning to booleans, not 1/0.

@@ -164,7 +164,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		   ) {
 		    doc.add_posting(rprefix + term, pos, wdfinc);
 		} else {
-		    doc.add_term_nopos(rprefix + term, wdfinc);
+		    doc.add_term(rprefix + term, wdfinc);
 		}
 	    }
 
@@ -174,7 +174,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	       ) {
 		doc.add_posting(prefix + term, pos++, wdfinc);
 	    } else {
-		doc.add_term_nopos(prefix + term, wdfinc);
+		doc.add_term(prefix + term, wdfinc);
 	    }
 	}
     }

@@ -421,36 +421,36 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
 
-    newdocument.add_term_nopos("T" + mimetype); // mimeType
+    newdocument.add_term("T" + mimetype); // mimeType
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
     	string::size_type k = baseurl.find('/', j);
 	if (k == string::npos) {
-	  newdocument.add_term_nopos("P/"); // Path
-	  newdocument.add_term_nopos("H" + baseurl.substr(j));
+	  newdocument.add_term("P/"); // Path
+	  newdocument.add_term("H" + baseurl.substr(j));
 	} else {
-	  newdocument.add_term_nopos("P" + baseurl.substr(k)); // Path
+	  newdocument.add_term("P" + baseurl.substr(k)); // Path
 	  string::const_iterator l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
-	  newdocument.add_term_nopos("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
+	  newdocument.add_term("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
 	}
     } else {
-	newdocument.add_term_nopos("P" + baseurl); // Path
+	newdocument.add_term("P" + baseurl); // Path
     }
 
     struct tm *tm = localtime(&last_mod);
     char buf[9];
     sprintf(buf, "%04d%02d%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-    newdocument.add_term_nopos("D" + string(buf)); // Date (YYYYMMDD)
+    newdocument.add_term("D" + string(buf)); // Date (YYYYMMDD)
     buf[7] = '\0';
     if (buf[6] == '3') buf[6] = '2';
-    newdocument.add_term_nopos("W" + string(buf)); // "Weak" - 10ish day interval
+    newdocument.add_term("W" + string(buf)); // "Weak" - 10ish day interval
     buf[6] = '\0';
-    newdocument.add_term_nopos("M" + string(buf)); // Month (YYYYMM)
+    newdocument.add_term("M" + string(buf)); // Month (YYYYMM)
     buf[4] = '\0';
-    newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
-    newdocument.add_term_nopos(urlterm); // Url
+    newdocument.add_term("Y" + string(buf)); // Year (YYYY)
+    newdocument.add_term(urlterm); // Url
 
     if (dupes == DUPE_replace) {
 	// This document has already been indexed - update!

@@ -374,7 +374,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 				   i->get_string_arg());	
 			break;
 		    case Action::BOOLEAN:
-			doc.add_term_nopos(i->get_string_arg() + value);
+			doc.add_term(i->get_string_arg() + value);
 			break;
 		    case Action::LOWER:
 			lowercase_string(value); 
@@ -464,19 +464,19 @@ again:
 			}
 			if (value.empty()) break;
 			// Date (YYYYMMDD)
-			doc.add_term_nopos("D" + value);
+			doc.add_term("D" + value);
 #if 0 // "Weak" terms aren't currently used by omega
 			value.resize(7);
 			if (value[6] == '3') value[6] = '2';
 			// "Weak" - 10ish day interval
-			newdocument.add_term_nopos("W" + value);
+			newdocument.add_term("W" + value);
 #endif
 			value.resize(6);
 			// Month (YYYYMM)
-			doc.add_term_nopos("M" + value);
+			doc.add_term("M" + value);
 			value.resize(4);
 			// Year (YYYY)
-			doc.add_term_nopos("Y" + value);
+			doc.add_term("Y" + value);
 			break;
 		    }
 		}
