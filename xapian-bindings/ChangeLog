@@ -1,3 +1,7 @@
+Wed Sep 08 04:52:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore: Ignore xapian.la.
+
 Wed Sep 08 04:49:50 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/.cvsignore: Ignore generated xapian_wrap.cc.

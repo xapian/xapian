@@ -5,3 +5,4 @@ Makefile
 .deps
 .libs
 xapian_wrap.cc
+xapian.la
