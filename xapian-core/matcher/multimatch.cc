@@ -34,21 +34,23 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch(MultiDatabase *database_,
+MultiMatch::MultiMatch(MultiDatabase *multi_database_,
 		       auto_ptr<StatsGatherer> gatherer_)
-	: database(database_),
+	: multi_database(multi_database_),
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
 #ifdef MUS_DEBUG
 	, allow_add_singlematch(true)
 #endif /* MUS_DEBUG */
 {
-    vector<IRDatabase *>::iterator db;
+    vector<OmRefCntPtr<IRDatabase> >::iterator db;
     try {
-	for (db = database->databases.begin();
-	     db != database->databases.end();
+	for (db = multi_database->databases.begin();
+	     db != multi_database->databases.end();
 	     ++db) {
-	    auto_ptr<SingleMatch> smatch(make_match_from_database(*db));
+	    // FIXME: this is for exception safety: tidy up by replacing
+	    // leaves with a vector of reference counted pointers.
+	    auto_ptr<SingleMatch> smatch(make_match_from_database(db->get()));
 	    SingleMatch *temp = smatch.get();
 	    leaves.push_back(temp);
 
@@ -65,6 +67,7 @@ MultiMatch::MultiMatch(MultiDatabase *database_,
 	     ++i) {
 	    delete *i;
 	}
+	throw;
     }
 }
 
@@ -75,7 +78,6 @@ MultiMatch::make_match_from_database(IRDatabase *db)
      * databases.
      */
     if (db->is_network()) {
-	// this is a NetworkDatabase.  Make a NetworkMatch.
 	return auto_ptr<SingleMatch>(new NetworkMatch(db));
     } else {
 	return auto_ptr<SingleMatch>(new LocalMatch(db));

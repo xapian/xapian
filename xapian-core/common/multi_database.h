@@ -49,14 +49,17 @@ class MultiDatabase : public IRDatabase {
 	mutable set<om_termname> terms;
 
 	// List of subdatabases
-	vector<IRDatabase *> databases;
+	vector<OmRefCntPtr<IRDatabase> > databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
 
-	/** Create and open a multi database.
+	/** Create and open a multi database from database parameters.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *
+	 *  @exception OmInvalidArgumentError if invalid arguments are
+	 *             supplied.
 	 *  
 	 *  @param params Parameters supplied by the user to specify the
 	 *                location of the database to open.  The meanings
@@ -66,6 +69,15 @@ class MultiDatabase : public IRDatabase {
 	 *                sub-databases will be opened readonly.
 	 */
 	MultiDatabase(const DatabaseBuilderParams & params);
+
+	/** Create a multi database from a set of existing databases.
+	 *
+	 *  @param databases_  A vector containing the existing databases.
+	 *
+	 *  @exception OmInvalidArgumentError if no databases are specified
+	 *             in the vector.
+	 */
+	MultiDatabase(vector<IRDatabase *> databases_);
 	
     public:
 	~MultiDatabase();

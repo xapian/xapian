@@ -67,13 +67,24 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
     }
 }
 
-
-MultiDatabase::~MultiDatabase() {
-    // Close all databases
-    while(databases.begin() != databases.end()) {
-	delete *(databases.begin());
-	databases.erase(databases.begin());
+MultiDatabase::MultiDatabase(vector<IRDatabase *> databases_)
+	: length_initialised(false)
+{
+    if(databases_.size() <= 0) {
+	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
     }
+
+    vector<IRDatabase *>::const_iterator i = databases_.begin();
+    while(i != databases_.end()) {
+	databases.push_back(*i);
+	i++;
+    }
+}
+
+
+MultiDatabase::~MultiDatabase()
+{
+    // Close all databases
 }
 
 
@@ -82,7 +93,7 @@ MultiDatabase::get_doccount() const
 {   
     om_doccount docs = 0;
 
-    vector<IRDatabase *>::const_iterator i = databases.begin();
+    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	docs += (*i)->get_doccount();
 	i++;
@@ -99,7 +110,7 @@ MultiDatabase::get_avlength() const
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
 
-	vector<IRDatabase *>::const_iterator i = databases.begin();
+	vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    om_doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
@@ -131,7 +142,7 @@ void
 MultiDatabase::set_root(IRDatabase * db) {
     root = db;
 
-    vector<IRDatabase *>::const_iterator i = databases.begin();
+    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	(*i)->set_root(db);
 	i++;
@@ -147,7 +158,7 @@ MultiDatabase::open_post_list(const om_termname & tname) const
     om_doccount multiplier = databases.size();
 
     list<MultiPostListInternal> pls;
-    vector<IRDatabase *>::const_iterator i = databases.begin();
+    vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	if((*i)->term_exists(tname)) {
 	    MultiPostListInternal pl((*i)->open_post_list(tname),
@@ -172,7 +183,9 @@ MultiDatabase::open_term_list(om_docid did) const {
 
     TermList *newtl;
     newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
-    return new MultiTermList(newtl, *(databases.begin() + dbnumber), this);
+    return new MultiTermList(newtl,
+			     (databases.begin() + dbnumber)->get(),
+			     this);
 }
 
 LeafDocument *
@@ -200,13 +213,13 @@ MultiDatabase::get_doclength(om_docid did) const
 bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
-    //DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
+    DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
     set<om_termname>::const_iterator p = terms.find(tname);
 
     bool found = false;
 
     if (p == terms.end()) {
-	vector<IRDatabase *>::const_iterator i = databases.begin();
+	vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    found = (*i)->term_exists(tname);
 	    if(found) break;
@@ -214,14 +227,14 @@ MultiDatabase::term_exists(const om_termname & tname) const
 	}
 
 	if(found) {
-	    //DebugMsg("found in sub-database" << endl);
+	    DebugMsg("found in sub-database" << endl);
 	    terms.insert(tname);
 	} else {
-	    //DebugMsg("not in collection" << endl);
+	    DebugMsg("not in collection" << endl);
 	}
     } else {
 	found = true;
-	//DebugMsg("found in cache" << endl);
+	DebugMsg("found in cache" << endl);
     }
     return found;
 }

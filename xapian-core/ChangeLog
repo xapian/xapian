@@ -1,3 +1,14 @@
+Thu May 11 18:51:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add constructor to MultiDatabase, taking a vector of IRDatabase
+	  pointers.
+
+	* Store subdatabases in MultiDatabase in a vector of reference
+	  counted pointers, rather than as pointers.  This has no actual
+	  effect yet, but will do when we extend the use of these pointers
+	  to the rest of the code (currently we pass them out as standard
+	  pointers)
+
 Thu May 11 17:05:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add rule so that internaltest will compile with special CFLAGS,

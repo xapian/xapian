@@ -41,7 +41,7 @@ class MultiMatch
 	vector<SingleMatch *> leaves;
 	
 	/// The database
-	MultiDatabase *database;
+	MultiDatabase *multi_database;
 
 	/// stats gatherer
 	auto_ptr<StatsGatherer> gatherer;
@@ -168,7 +168,7 @@ class MultiMatch
 	 *                   the default is to use a LocalStatsGatherer,
 	 *                   suitable for non-network use.
 	 */
-	MultiMatch(MultiDatabase *database_,
+	MultiMatch(MultiDatabase *multi_database_,
 		   auto_ptr<StatsGatherer> gatherer_
 		       = auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
