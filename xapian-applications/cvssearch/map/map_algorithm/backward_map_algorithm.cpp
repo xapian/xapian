@@ -3,6 +3,8 @@
 #include "process.h"
 #include "aligned_diff.h"
 
+extern bool output_html;
+
 static unsigned int get_length(const cvs_log & log, unsigned int j)
 {
     ostrstream ost;
@@ -27,7 +29,7 @@ backward_map_algorithm::parse_log(const cvs_log & log)
         if (j == 0)
         {
             unsigned int length = get_length(log, j);
-            init(length);
+            init(log[0], length);
         }
 
         if (j == log.size()-1)
@@ -43,7 +45,7 @@ backward_map_algorithm::parse_log(const cvs_log & log)
 
                 if (diff_output.read_status())
                 {
-                    parse_diff(log[j], diff_output);
+                    parse_diff(log[j], log[j], diff_output);
                 }
             }
         }
@@ -60,7 +62,8 @@ backward_map_algorithm::parse_log(const cvs_log & log)
             {    
                 aligned_diff diff_output;
                 *pis >> diff_output;
-                parse_diff(log[j], diff_output);
+                parse_diff(log[j], log[j+1], diff_output);
+
             }
         }
     }

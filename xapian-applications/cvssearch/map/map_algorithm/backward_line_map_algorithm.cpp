@@ -1,12 +1,62 @@
 #include "backward_line_map_algorithm.h"
+#include "html_comparer.h"
+#include <strstream>
+#include <fstream>
+extern bool output_html;
 
 void
-backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry, const diff & diff)
+backward_line_map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const cvs_log_entry & log_entry2, const diff & diff)
 {
     _current_index = 0;
+    _deletes.clear();
+    _changes.clear();
+    _adds.clear();
+
+//    cout << diff << endl;
+//     for (unsigned int index = 0; index < _contents.size(); ++index)
+//     {
+//         cout << "before _contents[" << index << "]" << _contents[index] << endl;
+//     }
+
     for (unsigned int index = 0; index < diff.size(); ++index)
     {
-        parse_diff_entry(log_entry, diff[index]);
+        parse_diff_entry(log_entry1, diff[index]);
+    }
+
+//     for (set<unsigned int>::iterator itr = _adds.begin(); 
+//          itr != _adds.end();
+//          ++itr)
+//     {
+//         cout << "add " << (*itr) << endl;
+//     }
+
+//     for (set<unsigned int>::iterator itr = _changes.begin(); 
+//          itr != _changes.end();
+//          ++itr)
+//     {
+//         cout << "change " << (*itr) << endl;
+//     }
+
+//     for (set<unsigned int>::iterator itr = _deletes.begin(); 
+//          itr != _deletes.end();
+//          ++itr)
+//     {
+//         cout << "delete " << (*itr) << endl;
+//     }
+
+//     for (unsigned int index = 0; index < _contents.size(); ++index)
+//     {
+//         cout << "after _contents[" << index << "]" << _contents[index] << endl;
+//     }
+
+    if (output_html && &log_entry1 != &log_entry2)
+    {
+        html_comparer h(_contents, _adds, _changes, _deletes, _filename, _pathname, _pcurrent_log_entry->revision(), 
+                        log_entry1.revision(), log_entry2.revision(), diff);
+        ostrstream ost;
+        ost << _filename << "-" << log_entry2.revision() << ".html" << ends;
+        ofstream fout(ost.str());
+        fout << h;
     }
 }
 
@@ -23,7 +73,7 @@ backward_line_map_algorithm::last(const cvs_log_entry & log_entry, unsigned int 
 }
 
 void
-backward_line_map_algorithm::init(unsigned int length)
+backward_line_map_algorithm::init(const cvs_log_entry & log_entry, unsigned int length)
 {
     _contents.push_back(0);
     _line_maps.push_back(line_map(0));
@@ -32,10 +82,14 @@ backward_line_map_algorithm::init(unsigned int length)
         _contents.push_back(i);
         _line_maps.push_back(line_map(i));
     }
+    _pcurrent_log_entry = &log_entry;
+    _pprevious_log_entry = &log_entry;
 }
 
 backward_line_map_algorithm::backward_line_map_algorithm(const cvs_log & log, unsigned int index)
-    :line_map_algorithm(index)
+    :line_map_algorithm(index),
+     _filename(log.file_name()),
+     _pathname(log.path_name())
 {
     parse_log(log);
 }
@@ -44,13 +98,12 @@ void
 backward_line_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, const diff_entry & diff_entry)
 {
     const range & diff_source = diff_entry.source();
-
+    const range & diff_dest = diff_entry.dest();
 #ifdef DEBUG
     cerr << diff_entry << " log " << log_entry.revision() << endl;
 #endif
 
     unsigned int index = _current_index;
-
     switch (diff_entry.type())
     {
     case e_add:
@@ -71,6 +124,10 @@ backward_line_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
         while (index < _contents.size() && _contents[index] < diff_source.begin())
         {
             ++index; ++_searches;
+        }
+        for (unsigned int i = diff_dest.begin(); i < diff_dest.end(); ++i)
+        {
+            _adds.insert(i);
         }
 
         // ----------------------------------------
@@ -106,7 +163,10 @@ backward_line_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
             if (_contents[index])
             {
                 _line_maps[index].add_log_entry(log_entry);
-                _contents[index] = 0; ++_updates;
+                // cout << "zeroing _contents[" << index << "]" << _contents[index] << endl;
+                _deletes.insert(index);
+                _contents[index] = 0;
+                ++_updates;
             }
             ++index; ++_searches;
         }
@@ -146,6 +206,7 @@ backward_line_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
             if (_contents[index])
             {
                 _line_maps[index].add_log_entry(log_entry);
+                _changes.insert(index);
             }
             ++index; ++_searches;
         }

@@ -1,6 +1,6 @@
 bin_PROGRAMS = 
 lib_LIBRARIES = libmap_algorithm.a
-INCLUDES = -I../ -I../range -I../diff -I../cvs_parser -I../aligned_diff -I../alignment -I../process
+INCLUDES = -I../ -I../range -I../diff -I../cvs_parser -I../aligned_diff -I../alignment -I../process -I../html_writer
 libmap_algorithm_a_SOURCES = \
 	backward_line_map_algorithm.cpp  \
 	forward_map_algorithm.cpp        \

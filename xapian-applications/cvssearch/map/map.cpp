@@ -13,6 +13,7 @@
 using std::vector;
 
 string scvs_root;
+bool output_html = false;
 
 static string scvs_log = "cvs log -b ";
 static string smax_version_file;
@@ -83,6 +84,7 @@ main(unsigned int argc, const char **argv)
     unsigned int i = 1;
     string line_db = "/tmp/line.db";
     string file_db = "/tmp/file.db";
+
     string input_file = "";
     bool use_line = true;
     char *cvsroot = getenv("CVSROOT");
@@ -113,6 +115,8 @@ main(unsigned int argc, const char **argv)
             file_db = argv[++i];
         } else if (!strcmp(argv[i], "-d")) {
             scvs_root = argv[++i];
+        } else if (!strcmp(argv[i], "-h")) {
+            output_html = true;
         } else {
             break;
         }

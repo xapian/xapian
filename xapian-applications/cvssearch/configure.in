@@ -13,4 +13,5 @@ AC_OUTPUT(Makefile              \
      map/map_algorithm/Makefile \
      map/process/Makefile       \
      map/range/Makefile         \
-     db/Makefile )
+     map/html_writer/Makefile   \
+     db/Makefile)

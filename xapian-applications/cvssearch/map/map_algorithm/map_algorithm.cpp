@@ -13,11 +13,11 @@ map_algorithm::read(istream & is)
 }
 
 void
-map_algorithm::parse_diff(const cvs_log_entry & log_entry, const diff & diff)
+map_algorithm::parse_diff(const cvs_log_entry & log_entry1, const cvs_log_entry & log_entry2, const diff & diff)
 {
     for (unsigned int j = 0; j < diff.size(); ++j)
     {
-        parse_diff_entry(log_entry, diff[j]);
+        parse_diff_entry(log_entry1, diff[j]);
     }
 }
 

@@ -25,7 +25,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
                 {    
                     aligned_diff diff_output;
                     *pis >> diff_output;
-                    parse_diff(log[j-1], diff_output);
+                    parse_diff(log[j-1], log[j], diff_output);
                 }
                 delete p;
             }
@@ -49,7 +49,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
                         diff diff_output;
                         istrstream ist(ost2.str());
                         ist >> diff_output;
-                        parse_diff(log[j-1], diff_output);
+                        parse_diff(log[j-1], log[j], diff_output);
                     }
                 }
                 delete p;

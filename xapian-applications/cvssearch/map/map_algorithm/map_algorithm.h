@@ -9,7 +9,7 @@ class map_algorithm : public virtual_iostream
 {
 protected:
     istream & read(istream &);
-    virtual void parse_diff(const cvs_log_entry & log_entry, const diff &);
+    virtual void parse_diff(const cvs_log_entry & log_entry1, const cvs_log_entry & log_entry2, const diff &);
     virtual void parse_log(const cvs_log &) = 0;
     virtual void parse_diff_entry(const cvs_log_entry &, const diff_entry &) = 0;
     
