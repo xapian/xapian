@@ -4,18 +4,17 @@ MANIFEST
 README
 
 Xapian.pm
-Xapian/Settings.pm
 Xapian/MSetIterator.pm
 Xapian/Document.pm
 Xapian/Database.pm
 Xapian/Query.pm
 Xapian/MSet.pm
+Xapian/MSet/Tied.pm
 Xapian/WritableDatabase.pm
 Xapian/Enquire.pm
 
 Xapian.xs
 XS/MSetIterator.xs
-XS/Settings.xs
 XS/Database.xs
 XS/Query.xs
 XS/MSet.xs
@@ -30,5 +29,6 @@ typemap
 t/create.t
 t/index.t
 t/search.t
+t/tied.t
 
 examples/simplesearch.pl

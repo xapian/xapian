@@ -3,11 +3,13 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::Database
 PROTOTYPES: ENABLE
 
 OmDatabase *
-new1(params)
-    OmSettings * params
+new1(file)
+    string * file
     CODE:
+        OmDatabase * database = new OmDatabase(); 
         try {
-            RETVAL = new OmDatabase(* params);
+            *database = OmAuto__open(* file);
+            RETVAL = database;                                    
         }
         catch (const OmError &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -24,13 +26,7 @@ new2(database)
         RETVAL
 
 void
-OmDatabase::add_database1(params)
-    OmSettings * params
-    CODE:
-        THIS->add_database(* params);
-
-void
-OmDatabase::add_database2(database)
+OmDatabase::add_database(database)
     OmDatabase * database
     CODE:
         THIS->add_database(* database);

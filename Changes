@@ -1,5 +1,16 @@
 Revision history for Perl extension Search::Xapian.
 
+0.04  Thu Dec 26 18:17:54 2002
+        - Convenience method: $enq->set_query( $op, @terms ... );
+          now autogenerates a query object with the arguments passed
+          if the first of them is not itself a query object
+        - Convenience method: $enq = $db->enquire( [$query] );
+          which autogenerates Enquire object, calling set_query() if
+          it is passed a query with which to do so
+        - Added tests for tied MSet class
+        - Added $enquire->matches() method returning tied MSet object
+        - Removed deprecated OmSettings class
+
 0.03  Fri Nov  8 16:53:22 2002
         - All methods wrapped for OmDatabase, OmWritableDatabase,
           OmDocument, OmEnquire, OmMSet, OmMSetIterator, OmQuery and

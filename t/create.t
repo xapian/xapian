@@ -7,8 +7,8 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 6 };
-use Search::Xapian;
+BEGIN { plan tests => 2 };
+use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 #########################
@@ -23,20 +23,14 @@ if( (! -e $db_dir) or (! -d $db_dir) ) {
   mkdir( $db_dir );
 }
 
-my $settings;
-ok( $settings = Search::Xapian::Settings->new() );
-
-$settings->set( 'backend', 'auto' );
-$settings->set( 'database_create', 'true' );
-$settings->set( 'database_allow_overwrite', 'true' );
-$settings->set( 'auto_dir', $db_dir );
-
-ok( $settings->get('auto_dir') );
-ok( $settings->get_description() );
-
-ok(1);
+opendir( DB_DIR, $db_dir );
+while( defined( my $file = readdir( DB_DIR ) ) ) {
+  next if $file =~ /^\.+$/;
+  unlink( "$db_dir/$file" ) or die "Could not delete '$db_dir/$file': $!";
+}
+closedir( DB_DIR );
 
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( $settings ) );
+ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, OM_DB_CREATE ) );
 
 1;

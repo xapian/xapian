@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::MSet::Tied;
+
 require Exporter;
 require DynaLoader;
 
@@ -20,17 +22,35 @@ our @EXPORT_OK = ( );
 our @EXPORT = qw( );
 
 # Preloaded methods go here.
+
+sub set_query {
+  my $self = shift;
+  my $query = shift;
+  if( ref( $query ) ne 'Search::Xapian::Query' ) {
+    $query = Search::Xapian::Query->new( $query, @_ );
+  }
+  $self->set_query_object( $query );
+}
+
+sub matches {
+  my ($self, $start, $size) = @_;
+  my @array;
+  tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size) );
+  return @array;
+}
+
 sub AUTOLOAD {
+  our $AUTOLOAD;
   if( $AUTOLOAD =~ /^get_matching_terms_(?:begin|end)$/ ) {
     my $self = shift;
     my $invalid_args;
     if( scalar(@_) == 1 ) {
       my $arg = shift;
-      my $arg_class = shift;
+      my $arg_class = ref( $arg );
       if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-        $self->"${AUTOLOAD}2"($arg);
+        eval( "\$self->${AUTOLOAD}2(\$arg)" );
       } else {
-        $self->"${AUTOLOAD}1"($arg);
+        eval( "\$self->${AUTOLOAD}1(\$arg)" );
       }
     } else {
       $invalid_args = 1;

@@ -25,6 +25,14 @@ our @EXPORT = qw( );
 use overload '='  => sub { $_[0]->clone() },
              'fallback' => 1;
 
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
 sub new() {
   my $class = shift;
   my $mset;
@@ -68,10 +76,12 @@ sub convert_to_percent() {
   if( scalar(@_) == 1 ) {
     my $arg = shift;
     my $arg_class = shift;
-    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-      $self->convert_to_percent2($key, $value);
+    if( !$arg_class ) {
+      $self->convert_to_percent1($arg);
+    } elsif( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      $self->convert_to_percent2($arg);
     } else {
-      $self->convert_to_percent{AUTOLOAD}1($key, $value);
+      $invalid_args = 1;
     }
   } else {
     $invalid_args = 1;

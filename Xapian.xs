@@ -25,13 +25,13 @@ INCLUDE: XS/Enquire.xs
 INCLUDE: XS/MSet.xs
 INCLUDE: XS/MSetIterator.xs
 INCLUDE: XS/Query.xs
-INCLUDE: XS/Settings.xs
 INCLUDE: XS/TermIterator.xs
 INCLUDE: XS/WritableDatabase.xs
 
 
 BOOT:
     { HV *mHvStash = gv_stashpv( "Search::Xapian", TRUE );
+
         newCONSTSUB( mHvStash, "OP_AND", newSViv(OmQuery::OP_AND) );
         newCONSTSUB( mHvStash, "OP_OR", newSViv(OmQuery::OP_OR) );
         newCONSTSUB( mHvStash, "OP_AND_NOT", newSViv(OmQuery::OP_AND_NOT) );
@@ -42,4 +42,7 @@ BOOT:
         newCONSTSUB( mHvStash, "OP_PHRASE", newSViv(OmQuery::OP_PHRASE) );
         newCONSTSUB( mHvStash, "OP_WEIGHT_CUTOFF", newSViv(OmQuery::OP_WEIGHT_CUTOFF) );
         newCONSTSUB( mHvStash, "OP_ELITE_SET", newSViv(OmQuery::OP_ELITE_SET) );
+
+        newCONSTSUB( mHvStash, "OM_DB_OPEN", newSViv(OM_DB_OPEN) );
+        newCONSTSUB( mHvStash, "OM_DB_CREATE", newSViv(OM_DB_CREATE) );
     }

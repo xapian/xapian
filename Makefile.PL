@@ -31,7 +31,7 @@ sub locate($) {
   my $file = shift;
   my @matches = `locate "*/$file"`;
   map { chomp } @matches;
-  @matches = sort { -M $a <=> -M $b } @matches;
+  @matches = sort { -M $a <=> -M $b } grep { -e $_ } @matches;
   my $result = $matches[0];
   $result =~ s|/\Q$file\E$||;
   return $result;

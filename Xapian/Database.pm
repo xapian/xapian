@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::Enquire;
+
 require Exporter;
 require DynaLoader;
 
@@ -25,6 +27,23 @@ our @EXPORT = qw( );
 use overload '='  => sub { $_[0]->clone() },
              'fallback' => 1;
 
+sub enquire {
+  my $self = shift;
+  my $enquire = Search::Xapian::Enquire->new( $self );
+  if( @_ ) {
+    $enquire->set_query( @_ );
+  }
+  return $enquire;
+}
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
 sub new() {
   my $class = shift;
   my $database;
@@ -32,7 +51,7 @@ sub new() {
   if( scalar(@_) == 1 ) {
     my $arg = shift;
     my $arg_class = ref( $arg );
-    if( $arg_class eq 'Search::Xapian::Settings' ) {
+    if( !$arg_class ) {
       $database = new1( $arg );
     } elsif( $arg_class eq $class ) {
       $database = new2( $arg );
@@ -43,33 +62,11 @@ sub new() {
     $invalid_args = 1;
   }
   if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(\$settings), $class->new(\$database)" );
+    Carp::carp( "USAGE: $class->new(\$file), $class->new(\$database)" );
     exit;
   }
   bless $database, $class;
   return $database;
-}
-
-sub add_database() {
-  my $self = shift;
-  my $invalid_args;
-  if( scalar(@_) == 1 ) {
-    my $arg = shift;
-    my $arg_class = ref( $arg );
-    if( $arg_class eq 'Search::Xapian::Settings' ) {
-      $self->add_database1( $arg );
-    } elsif( $arg_class eq ref( $self ) ) {
-      $self->add_database2( $arg );
-    } else {
-      $invalid_args = 1;
-    }
-  } else {
-    $invalid_args = 1;
-  }
-  if( $invalid_args ) {
-    Carp::carp( "USAGE: \$database->add_database(\$settings) or \$database->add_database(\$database2)" );
-    exit;
-  }
 }
 
 1;

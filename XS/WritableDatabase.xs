@@ -3,11 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::WritableDatabase
 PROTOTYPES: ENABLE
 
 OmWritableDatabase *
-new1(params)
-    OmSettings * params
+new1(file, opts)
+    string * file
+    int opts
     CODE:
+        OmWritableDatabase * database = new OmWritableDatabase(); 
         try {
-            RETVAL = new OmWritableDatabase(* params);
+            *database = OmAuto__open(* file, opts);               
+            RETVAL = database;                                    
         }
         catch (const OmError &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
