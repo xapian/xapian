@@ -374,12 +374,16 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 {
     std::string::size_type pos;
 
-    time_t start_time = time(NULL);
-    time_t curr_time;
+    time_t end_time = time(NULL) + msecs_timeout / 1000;    
+    int end_time_usecs = (msecs_timeout % 1000) * 1000;
 
-    while ((curr_time = time(NULL)) <= (start_time + (msecs_timeout/1000)) &&
-	   (pos = buffer.find_first_of('\n')) == buffer.npos) {
-	char buf[256];
+    while (1) {
+	time_t curr_time = time(NULL);
+	if (curr_time > end_time) {
+	    throw OmNetworkTimeoutError("No response from remote end");
+	}
+	pos = buffer.find_first_of('\n');
+	if (pos != buffer.npos) break;
 
 	// wait for input to be available.
 	fd_set fdset;
@@ -387,10 +391,10 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	FD_SET(readfd, &fdset);
 
 	struct timeval tv;
-	tv.tv_sec = start_time + (msecs_timeout / 1000) - curr_time;
-	tv.tv_usec = (msecs_timeout % 1000) * 1000;
+	tv.tv_sec = end_time - curr_time;
+	tv.tv_usec = end_time_usecs;
 
-	int retval = select(readfd+1, &fdset, 0, 0, &tv);
+	int retval = select(readfd + 1, &fdset, 0, 0, &tv);
 
 	if (retval < 0) {
 	    if (errno == EAGAIN) {
@@ -402,7 +406,8 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	    continue;
 	}
 
-	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
+	char buf[256];
+	ssize_t received = read(readfd, buf, sizeof(buf));
 
 	if (received < 0) {
 	    if (errno == EAGAIN) {
@@ -415,9 +420,6 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	}
 
 	buffer += std::string(buf, buf + received);
-    }
-    if (curr_time > (start_time + msecs_timeout)) {
-	throw OmNetworkTimeoutError("No response from remote end");
     }
 
     std::string retval(buffer.begin(), buffer.begin() + pos);
