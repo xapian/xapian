@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 SUBDIRS = include backends matcher languages indexer . \
           gui tests docs
 
-EXTRA_DIST = INSTALL
+EXTRA_DIST = AUTHORS INSTALL README COPYING ChangeLog buildall HACKING TODO
 
 lib_LTLIBRARIES = libom.la
 
