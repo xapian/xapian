@@ -56,6 +56,11 @@ class OmQueryInternal {
 	/// Length of query
 	om_termcount qlen;
 
+	/** How close terms must be for NEAR or PHRASE.
+	 *  To match, all terms must occur in a window of this size.
+	 */
+	om_termcount window;
+
 
 	// Fields used only for leaf nodes.
 
@@ -73,11 +78,6 @@ class OmQueryInternal {
 	 *  each term.
 	 */
 	om_weight max_weight;
-
-	/** How close terms must be for NEAR or PHRASE.
-	 *  To match, all terms must occur in a window of this size.
-	 */
-	om_termcount window;
 
 
 	/// Copy another OmQueryInternal into self.

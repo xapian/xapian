@@ -321,9 +321,9 @@ OmQueryInternal::get_description() const
 	    break;
     }
     std::string description;
-    std::vector<OmQueryInternal *>::const_iterator i;
-    for(i = subqs.begin(); i != subqs.end(); i++) {
-	if(description.size()) description += opstr;
+    std::vector<const OmQueryInternal *>::const_iterator i;
+    for (i = subqs.begin(); i != subqs.end(); i++) {
+	if (!description.empty()) description += opstr;
 	description += (**i).get_description();
     }
     return "(" + description + ")";
@@ -430,10 +430,10 @@ OmQueryInternal::operator=(const OmQueryInternal &copyme)
 
 OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
 	: mutex(), isdefined(copyme.isdefined),
-	isbool(copyme.isbool), op(copyme.op),
-	subqs(subquery_list()), qlen(copyme.qlen),
-	tname(copyme.tname), term_pos(copyme.term_pos),
-	wqf(copyme.wqf), max_weight(copyme.max_weight), window(copyme.window)
+	isbool(copyme.isbool), op(copyme.op), subqs(subquery_list()),
+        qlen(copyme.qlen), window(copyme.window), tname(copyme.tname),
+        term_pos(copyme.term_pos), wqf(copyme.wqf),
+        max_weight(copyme.max_weight)
 {
     try {
 	for (subquery_list::const_iterator i = copyme.subqs.begin();
@@ -556,8 +556,8 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 	    if(left.op == op && right.op == op) {
 		// Both queries have same operation as top
 		initialise_from_copy(left);
-		std::vector<OmQueryInternal *>::const_iterator i;
-		for(i = right.subqs.begin(); i != right.subqs.end(); i++) {
+		std::vector<const OmQueryInternal *>::const_iterator i;
+		for (i = right.subqs.begin(); i != right.subqs.end(); i++) {
 		    subqs.push_back(new OmQueryInternal(**i));
 		}
 	    } else if(left.op == op) {
@@ -604,9 +604,9 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 	: isdefined(true), isbool(false), op(op_)
 {
     std::vector<const OmQueryInternal *> subqueries;
-    std::vector<om_termname>::const_iterator i;
     try {
-	for(i = tbegin; i != tend; i++) {
+	std::vector<om_termname>::const_iterator i;
+	for (i = tbegin; i != tend; i++) {
 	    subqueries.push_back(new OmQueryInternal(*i));
 	}
 	initialise_from_vector(subqueries.begin(), subqueries.end(), window_);
@@ -614,26 +614,24 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
     } catch (...) {
 	// this code would be in a finally clause if there were one...
 	// could also go in a destructor.
-	for (std::vector<OmQueryInternal *>::iterator i=subqueries.begin();
-	     i!= subqueries.end();
-	     ++i) {
+	std::vector<const OmQueryInternal *>::iterator i;
+	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    delete *i;
 	}
 	throw;
     };
     // same code as above.
     // FIXME: use a destructor instead.
-    for (std::vector<OmQueryInternal *>::iterator i=subqueries.begin();
-	 i!= subqueries.end();
-	 ++i) {
+    std::vector<const OmQueryInternal *>::iterator i;
+    for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	delete *i;
     }
 }
 
 OmQueryInternal::~OmQueryInternal()
 {
-    std::vector<OmQueryInternal *>::const_iterator i;
-    for(i = subqs.begin(); i != subqs.end(); i++) {
+    std::vector<const OmQueryInternal *>::const_iterator i;
+    for (i = subqs.begin(); i != subqs.end(); i++) {
 	delete *i;
     }
     subqs.clear();
@@ -652,8 +650,8 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 	term_pos = copyme.term_pos;
 	wqf = copyme.wqf;
     } else {
-	std::vector<OmQueryInternal *>::const_iterator i;
-	for(i = subqs.begin(); i != subqs.end(); i++) {
+	std::vector<const OmQueryInternal *>::const_iterator i;
+	for (i = subqs.begin(); i != subqs.end(); i++) {
 	    delete *i;
 	}
 	subqs.clear();
@@ -670,6 +668,7 @@ OmQueryInternal::initialise_from_vector(
                         om_termpos window_)
 {
     bool merge_ok = false; // set if merging with subqueries is valid
+    bool distribute = false; // Should A OP (B AND C) -> (A OP B) AND (A OP C)?
     switch (op) {
 	case OmQuery::OP_AND:
 	case OmQuery::OP_OR:
@@ -681,6 +680,7 @@ OmQueryInternal::initialise_from_vector(
 	case OmQuery::OP_PHRASE:
 	    // if NEAR/PHRASE and window_ == 0 default to number of subqueries
 	    if (window_ == 0) window_ = (qend - qbegin);
+	    distribute = true;
 	    break;
 	case OmQuery::OP_AND_NOT:
 	case OmQuery::OP_XOR:
@@ -706,9 +706,30 @@ OmQueryInternal::initialise_from_vector(
 	}
     }
 
+    if (distribute) {
+	for (i = qbegin; i != qend; i++) {
+	    if ((*i)->isdefined && (*i)->op != OmQuery::OP_LEAF) break;
+	}
+	if (i != qend) {
+	    OmQuery::op newop = (*i)->op;
+	    if (newop == OmQuery::OP_NEAR || newop == OmQuery::OP_PHRASE) {
+		// FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
+		throw OmUnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
+	    }
+	    subquery_list copy(qbegin, qend);
+	    int offset = i - qbegin;	    
+	    subquery_list::const_iterator j;	    
+	    for (j = (*i)->subqs.begin(); j != (*i)->subqs.end(); j++) {
+		copy[offset] = *j;
+		subqs.push_back(new OmQueryInternal(op, copy.begin(), copy.end(), window));
+	    }	    
+	    op = newop;
+	}
+    }
+
     try {
 	for (i = qbegin; i != qend; i++) {
-	    if((*i)->isdefined) {
+	    if ((*i)->isdefined) {
 		/* if the subqueries have the same operator, then we
 		 * merge them in, rather than just adding the query.
 		 * There's no need to recurse any deeper, since the
@@ -716,9 +737,8 @@ OmQueryInternal::initialise_from_vector(
 		 * themselves already.
 		 */
 		if (merge_ok && (*i)->op == op) {
-		    for (subquery_list::const_iterator j = (*i)->subqs.begin();
-			 j != (*i)->subqs.end();
-			 ++j) {
+		    subquery_list::const_iterator j;
+		    for (j = (*i)->subqs.begin(); j != (*i)->subqs.end(); ++j) {
 			subqs.push_back(new OmQueryInternal(**j));
 		    }
 		} else {
@@ -736,7 +756,7 @@ OmQueryInternal::initialise_from_vector(
         throw;
     }
 
-    if(subqs.size() == 0) {
+    if (subqs.empty()) {
 	isdefined = false;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
