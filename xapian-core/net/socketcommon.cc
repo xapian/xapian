@@ -65,16 +65,12 @@ std::string stats_to_string(const Stats &stats)
 
     std::map<om_termname, om_doccount>::const_iterator i;
 
-    for (i=stats.termfreq.begin();
-	 i != stats.termfreq.end();
-	 ++i) {
-	os << "T" << encode_tname(i->first) << "=" << i->second << " ";
+    for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
+	os << "T" << encode_tname(i->first) << " " << i->second << " ";
     }
 
-    for (i = stats.reltermfreq.begin();
-	 i != stats.reltermfreq.end();
-	 ++i) {
-	os << "R" << encode_tname(i->first) << "=" << i->second << " ";
+    for (i = stats.reltermfreq.begin(); i != stats.reltermfreq.end(); ++i) {
+	os << "R" << encode_tname(i->first) << " " << i->second << " ";
     }
 
     // FIXME: should be eos.
@@ -99,14 +95,14 @@ std::string stats_to_string(const Stats &stats)
 	 i != stats.termfreq.end();
 	 ++i) {
 	result = result + "T" + encode_tname(i->first) +
-		"=" + om_tostring(i->second) + " ";
+		" " + om_tostring(i->second) + " ";
     }
 
     for (i=stats.reltermfreq.begin();
 	 i != stats.reltermfreq.end();
 	 ++i) {
 	result = result + "R" + encode_tname(i->first) +
-		"=" + om_tostring(i->second) + " ";
+		" " + om_tostring(i->second) + " ";
     }
 
     return result;
@@ -117,7 +113,7 @@ string_to_stats(const std::string &s)
 {
     Stats stat;
 
-    istrstream is(s.c_str(), s.length());
+    istrstream is(s.data(), s.length());
 
     is >> stat.collection_size;
     is >> stat.rset_size;
@@ -128,25 +124,9 @@ string_to_stats(const std::string &s)
 	if (word.length() == 0) continue;
 
 	if (word[0] == 'T') {
-            std::vector<std::string> parts;
-	    split_words(word.substr(1), parts, '=');
-
-	    if (parts.size() != 2) {
-		throw OmNetworkError(std::string("Invalid stats string word part: ")
-				     + word);
-	    }
-
-	    stat.termfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
+	    is >> stat.termfreq[word.substr(1)];
 	} else if (word[0] == 'R') {
-            std::vector<std::string> parts;
-	    split_words(word.substr(1), parts, '=');
-
-	    if (parts.size() != 2) {
-		throw OmNetworkError(std::string("Invalid stats string word part: ")
-				     + word);
-	    }
-
-	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
+	    is >> stat.reltermfreq[word.substr(1)];
 	} else {
 	    throw OmNetworkError(std::string("Invalid stats string word: ") + word);
 	}
@@ -160,9 +140,8 @@ string_to_stats(const std::string &s)
 std::vector<OmQuery::Internal *>
 convert_subqs(std::vector<OmQuery::Internal> &v) {
     std::vector<OmQuery::Internal *> result;
-    for (std::vector<OmQuery::Internal>::iterator i=v.begin();
-	 i != v.end();
-	 ++i) {
+    std::vector<OmQuery::Internal>::iterator i;
+    for (i = v.begin(); i != v.end(); ++i) {
 	result.push_back(&(*i));
     }
     return result;
@@ -204,10 +183,9 @@ OmQuery::Internal qfs_readquery()
 
 OmQuery::Internal qfs_readcompound()
 {
-    querytok qt;
     std::vector<OmQuery::Internal> subqs;
-    while(1) {
-	qt = qfs_gettok();
+    while (1) {
+	querytok qt = qfs_gettok();
 	switch (qt.type) {
 	    case querytok::OP_KET:
 		if (subqs.empty()) {
@@ -234,9 +212,8 @@ OmQuery::Internal qfs_readcompound()
 		}
 		break;
 	    case querytok::TERM:
-		subqs.push_back(OmQuery::Internal(qt.tname,
-						qt.wqf,
-						qt.term_pos));
+		subqs.push_back(OmQuery::Internal(qt.tname, qt.wqf,
+						  qt.term_pos));
 		break;
 	    case querytok::OP_BRA:
 		subqs.push_back(qfs_readcompound());
@@ -249,9 +226,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_AND,
-					   temp.begin(),
-					   temp.end());
+		    return OmQuery::Internal(OmQuery::OP_AND, temp.begin(),
+					     temp.end());
 		}
 		break;
 	    case querytok::OP_OR:
@@ -262,9 +238,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_OR,
-					   temp.begin(),
-					   temp.end());
+		    return OmQuery::Internal(OmQuery::OP_OR, temp.begin(),
+					     temp.end());
 		}
 		break;
 	    case querytok::OP_FILTER:
@@ -275,9 +250,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_FILTER,
-					   temp.begin(),
-					   temp.end());
+		    return OmQuery::Internal(OmQuery::OP_FILTER, temp.begin(),
+					     temp.end());
 		}
 		break;
 	    case querytok::OP_XOR:
@@ -288,9 +262,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_XOR,
-					   temp.begin(),
-					   temp.end());
+		    return OmQuery::Internal(OmQuery::OP_XOR, temp.begin(),
+					     temp.end());
 		}
 		break;
 	    case querytok::OP_ANDMAYBE:
@@ -302,8 +275,7 @@ OmQuery::Internal qfs_readcompound()
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
 		    return OmQuery::Internal(OmQuery::OP_AND_MAYBE,
-					   temp.begin(),
-					   temp.end());
+					     temp.begin(), temp.end());
 		}
 		break;
 	    case querytok::OP_ANDNOT:
@@ -314,9 +286,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_AND_NOT,
-					   temp.begin(),
-					   temp.end());
+		    return OmQuery::Internal(OmQuery::OP_AND_NOT, temp.begin(),
+					     temp.end());
 		}
 		break;
 	    case querytok::OP_NEAR:
@@ -327,9 +298,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_NEAR,
-					   temp.begin(),
-					   temp.end(), qt.window);
+		    return OmQuery::Internal(OmQuery::OP_NEAR, temp.begin(),
+					     temp.end(), qt.window);
 		}
 		break;
 	    case querytok::OP_PHRASE:
@@ -340,9 +310,8 @@ OmQuery::Internal qfs_readcompound()
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQuery::Internal(OmQuery::OP_PHRASE,
-					   temp.begin(),
-					   temp.end(), qt.window);
+		    return OmQuery::Internal(OmQuery::OP_PHRASE, temp.begin(),
+					     temp.end(), qt.window);
 		}
 		break;
 	    default:
@@ -539,7 +508,7 @@ moptions_to_string(const OmSettings &moptions)
 OmSettings
 string_to_moptions(const std::string &s)
 {
-    istrstream is(s.c_str());
+    istrstream is(s.data(), s.length());
 
     OmSettings mopt;
     bool sort_forward;
@@ -578,21 +547,18 @@ omrset_to_string(const OmRSet &omrset)
 std::string
 ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 {
-    // format: length:wt,did,key;wt,did,key;...
-    std::string result = om_tostring(ommsetitems.size()) + ":";
+    // format: length wt did key wt did key ...
+    std::string result = om_tostring(ommsetitems.size());
 
-    for (std::vector<OmMSetItem>::const_iterator i=ommsetitems.begin();
-	 i != ommsetitems.end();
-	 ++i) {
+    std::vector<OmMSetItem>::const_iterator i;
+    for (i = ommsetitems.begin(); i != ommsetitems.end(); ++i) {
+	result += ' ';
+
 	result += om_tostring(i->wt);
-	result += ",";
+	result += ' ';
 	result += om_tostring(i->did);
-	result += ",";
+	result += ' ';
 	result += omkey_to_string(i->collapse_key);
-
-	if (i != ommsetitems.end()) {
-	    result += ";";
-	}
 
 	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
     }
@@ -605,17 +571,17 @@ std::string
 ommset_termfreqwts_to_string(const std::map<om_termname,
 			                OmMSet::TermFreqAndWeight> &terminfo)
 {
-    // encode as term:freq,weight;term2:freq2,weight2;...
+    // encode as term freq,weight;term2 freq2,weight2;...
     std::string result;
 
     std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
-    for (i = terminfo.begin(); i!= terminfo.end(); ++i) {
+    for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
-	result += ":";
+	result += ' ';
 	result += om_tostring(i->second.termfreq);
-	result += ",";
+	result += ' ';
 	result += om_tostring(i->second.termweight);
-	result += ";";
+	if (i != terminfo.end()) result += ' ';
     }
     return result;
 }
@@ -646,27 +612,26 @@ std::vector<OmMSetItem>
 string_to_ommsetitems(const std::string &s_)
 {
     std::vector<OmMSetItem> result;
-
-    std::string::size_type colon = s_.find_first_of(':');
+    std::string::size_type colon = s_.find_first_of(' ');
     std::string s = s_.substr(colon + 1);
 
     while (s.length() > 0) {
 	std::string wt_s, did_s, key_s;
-	std::string::size_type pos = s.find_first_of(',');
+	std::string::size_type pos = s.find_first_of(' ');
 	if (pos == s.npos) {
-	    throw OmNetworkError("Invalid msetitem string");
+	    throw OmNetworkError("Invalid msetitem string `" + s + "'");
 	}
 	wt_s = s.substr(0, pos);
 	s = s.substr(pos + 1);
 
-	pos = s.find_first_of(',');
+	pos = s.find_first_of(' ');
 	if (pos == s.npos) {
-	    throw OmNetworkError("Invalid msetitem string");
+	    throw OmNetworkError("Invalid msetitem string `" + s + "'");
 	}
 	did_s = s.substr(0, pos);
 	s = s.substr(pos + 1);
 
-	pos = s.find_first_of(';');
+	pos = s.find_first_of(' ');
 	if (pos == s.npos) {
 	    key_s = s;
 	    s = "";
@@ -678,71 +643,68 @@ string_to_ommsetitems(const std::string &s_)
 				    atol(did_s.c_str()),
 				    string_to_omkey(key_s)));
     }
-    Assert((unsigned)atoi(s_.substr(0, colon).c_str()) == result.size());
-    return result;
-}
-
-std::map<om_termname, OmMSet::TermFreqAndWeight>
-string_to_ommset_termfreqwts(const std::string &s_)
-{
-    std::map<om_termname, OmMSet::TermFreqAndWeight> result;
-    std::string s = s_;
-
-    while (s.length() > 0) {
-	std::string::size_type pos = s.find_first_of(';');
-	std::string terminfo = s.substr(0, pos);
-	s = s.substr(pos + 1);
-
-	om_termname term;
-	om_doccount freq;
-	om_weight wt;
-
-	pos = terminfo.find_first_of(':');
-	if (pos == terminfo.npos) {
-	    throw OmNetworkError("Invalid term frequency info in string `" + s_ + "'");
-	}
-	term = decode_tname(terminfo.substr(0, pos));
-	terminfo = terminfo.substr(pos + 1);
-
-	pos = terminfo.find_first_of(',');
-	if (pos == terminfo.npos || (pos != terminfo.find_last_of(','))) {
-	    throw OmNetworkError("Invalid term weight info in string`" + s_ + "'");
-	}
-	freq = atoi(terminfo.substr(0, pos).c_str());
-	wt = atof(terminfo.substr(pos + 1).c_str());
-
-	OmMSet::TermFreqAndWeight tfaw;
-	tfaw.termfreq = freq;
-	tfaw.termweight = wt;
-	result[term] = tfaw;
-    }
-
+    AssertEq((unsigned)atoi(s_.substr(0, colon).c_str()), result.size());
     return result;
 }
 
 OmMSet
 string_to_ommset(const std::string &s)
 {
-    istrstream is(s.c_str());
+    istrstream is(s.data(), s.length());
 
     om_doccount firstitem;
     om_doccount docs_considered;
     om_weight max_possible;
     om_weight max_attained;
     std::vector<OmMSetItem> items;
-    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
 
     // first the easy ones...
     is >> firstitem >> docs_considered >> max_possible >> max_attained;
-    std::string items_s, terminfo_s;
-    is >> items_s >> terminfo_s;
+    int msize;
+    is >> msize;
+    while (msize > 0) {
+	std::string s;
+	om_weight wt;
+	om_docid did;
+	is >> wt >> did >> s;
+	items.push_back(OmMSetItem(wt, did, string_to_omkey(s)));
+	msize--;
+    }
 
-    items = string_to_ommsetitems(items_s);
-    terminfo = string_to_ommset_termfreqwts(terminfo_s);
+    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
+
+    om_termname term;
+    while (is >> term) {
+	OmMSet::TermFreqAndWeight tfaw;
+	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
+	    Assert(false); // FIXME
+	}
+	term = decode_tname(term);
+	terminfo[term] = tfaw;
+    }
 
     return OmMSet(firstitem, docs_considered,
 		  max_possible, max_attained,
 		  items, terminfo);
+}
+
+std::map<om_termname, OmMSet::TermFreqAndWeight>
+string_to_ommset_termfreqwts(const std::string &s)
+{
+    std::map<om_termname, OmMSet::TermFreqAndWeight> result;
+    istrstream is(s.data(), s.length());
+
+    om_termname term;
+    while (is >> term) {
+	OmMSet::TermFreqAndWeight tfaw;
+	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
+	    Assert(false); // FIXME
+	}
+	term = decode_tname(term);
+	result[term] = tfaw;
+    }
+
+    return result;
 }
 
 std::string
@@ -765,7 +727,7 @@ string_to_omrset(const std::string &s)
     om_docid did;
     int numitems;
 
-    istrstream is(s.c_str());
+    istrstream is(s.data(), s.length());
 
     is >> numitems;
 

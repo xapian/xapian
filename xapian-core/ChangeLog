@@ -1,3 +1,11 @@
+Tue Dec 05 14:34:04 GMT 2000 Olly Betts
+
+	* OmTermListIterator implemented for an OmDocument with terms stored
+	  in a map rather than coming from a Document.
+
+	* Fixes to remote protocol so solve problems with terms with
+	  punctuation in (regression test punc_terms1).
+
 Mon Dec  4 15:02:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Makefile tweak in docs/

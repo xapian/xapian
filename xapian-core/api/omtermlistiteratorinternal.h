@@ -26,6 +26,8 @@
 #include "om/omtermlistiterator.h"
 #include "termlist.h"
 
+#include "omdocumentinternal.h"
+
 class OmTermListIterator::Internal {
     private:
 	friend class OmTermListIterator; // allow access to termlist
@@ -47,6 +49,27 @@ class OmTermListIterator::Internal {
 	}
 
         Internal(const Internal &other) : termlist(other.termlist)
+	{ }
+};
+
+class OmTermListIteratorMap::Internal {
+    private:
+	friend class OmTermListIteratorMap;
+        friend bool operator==(const OmTermListIteratorMap &a, const OmTermListIteratorMap &b);
+
+	OmDocument::Internal::document_terms::const_iterator it;
+
+	OmDatabase database;
+
+	om_docid did;
+
+    public:
+        Internal(const OmDocument::Internal::document_terms::const_iterator &it_,
+		 const OmDatabase &database_, om_docid did_)
+	    : it(it_), database(database_), did(did_)
+	{ }
+
+        Internal(const Internal &other) : it(other.it)
 	{ }
 };
 

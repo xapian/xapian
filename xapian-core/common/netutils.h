@@ -48,6 +48,8 @@ encode_tname(const std::string &tname)
 	        result += *i;
 	}
     }
+    if (result.empty()) result = "\\x";
+    
     return result;
 }
 
@@ -55,6 +57,7 @@ inline std::string
 decode_tname(const std::string &tcode)
 {
     std::string result;
+    if (tcode == "\\x") return result;
 
     std::string::const_iterator i;
     for (i = tcode.begin(); i != tcode.end(); ++i) {

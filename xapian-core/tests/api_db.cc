@@ -154,6 +154,28 @@ static bool test_simplequery3()
     return true;
 }
 
+// tests punctuation is OK in terms in remote queries
+static bool test_punc_terms1()
+{
+    OmDatabase db(get_database("apitest_punc"));
+    OmEnquire enquire(db);
+
+    OmQuery q1("semi;colon");
+    enquire.set_query(q1);
+    OmMSet m1 = enquire.get_mset(0, 10);
+
+    OmQuery q2("col:on");
+    enquire.set_query(q2);
+    OmMSet m2 = enquire.get_mset(0, 10);
+
+    OmQuery q3("com,ma");
+    enquire.set_query(q3);
+    OmMSet m3 = enquire.get_mset(0, 10);
+
+    return true;
+}
+
+
 // tests a query accross multiple databases
 static bool test_multidb1()
 {
