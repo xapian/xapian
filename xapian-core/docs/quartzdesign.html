@@ -549,8 +549,8 @@ void BtreeCheck::check(const string &amp; name, int opts);
 
 <h2>Full compaction</h2>
 
-As the B-tree grows, items are added into blocks, and, when a block is full, it
-splits into two (amoeba-like) and one of the new blocks accommodated the new
+As the B-tree grows, items are added into blocks. When a block is full, it
+splits into two (amoeba-like) and one of the new blocks accommodates the new
 entry. Blocks are therefore between 50% and 100% full during growth, or 75% full
 on average.
 
@@ -601,10 +601,26 @@ to have more efficient forms.
 To make a really fast structure for retrieval therefore, create a new B-tree,
 open it for updating, set full compaction mode, and add all the items in a
 single transaction, sorted on keys. After closing, do not update further.
+<!--
 Further updates can be prevented quite easily by deleting (or moving) the bitmap
 files. These are required in update mode but ignored in retrieval mode.
-Refer to the <a href="http://www.xapian.org/docs/sourcedoc/html/quartzcompact_8cc-source.html">source code of the quartzcompact utility</a> to see how this
+-->
+
+<p>
+Xapian includes a utility which performs this process on all the Btrees
+in a quartz database - it's call quartzcompact. You can
+refer to the <a href="http://www.xapian.org/docs/sourcedoc/html/quartzcompact_8cc-source.html">source code of the quartzcompact utility</a> to see how this
 is implemented.
+
+<h2>quartzcompact</h2>
+
+quartzcompact takes two arguments - the path of the database to compact, and
+a path to write the compacted version to.
+
+<p>
+Only the Btree structure is changed - all the keys and tags are unaltered, so
+the database is the same as far as an application using Xapian is concerned.
+In particular, all the document ids are the same.
 
 <h2>Notes on space requirements</h2>
 
