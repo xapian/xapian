@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,22 +91,12 @@ Xapian::TermIterator::get_termfreq() const
 Xapian::TermIterator &
 Xapian::TermIterator::operator++()
 {
-    DEBUGAPICALL(Xapian::TermIterator &, "Xapian::TermIterator::operator++", "");
+    DEBUGAPICALL(void, "Xapian::TermIterator::operator++", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
     if (internal->at_end()) internal = 0;
-    RETURN(*this);
-}
-
-void
-Xapian::TermIterator::operator++(int)
-{
-    DEBUGAPICALL(void, "Xapian::TermIterator::operator++(int)", "");
-    Assert(internal.get());
-    Assert(!internal->at_end());
-    internal->next();
-    if (internal->at_end()) internal = 0;
+    return *this;
 }
 
 // extra method, not required to be an input_iterator

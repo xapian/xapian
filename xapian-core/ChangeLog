@@ -1,3 +1,12 @@
+Fri Jun 26 00:29:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING,api/ompositionlistiterator.cc,api/ompostlistiterator.cc,
+	  api/omtermlistiterator.cc,include/xapian/: MSetIterator and
+	  ESetIterator are now bidirectional iterators (rather than
+	  just input iterators);  Fixed post-increment forms of
+	  PostingIterator, TermIterator, PositionIterator, and ValueIterator
+	  so that *i++ works (as it must for them to be true input iterators).
+
 Thu Jun 24 18:03:46 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success report for Slackware Linux 9.1.

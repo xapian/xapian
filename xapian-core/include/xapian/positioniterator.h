@@ -38,6 +38,17 @@ class Database;
 class PostingIterator;
 class TermIterator;
 
+/** A wrapper class for a termpos which returns the termpos if dereferenced 
+ *  with *.  We need this to implement input_iterator semantics.
+ */
+class TermPosWrapper {
+    private:
+	termpos pos;
+    public:
+	TermPosWrapper(termpos pos_) : pos(pos_) { }
+	termpos operator*() const { return pos; }
+};
+
 /** An iterator pointing to items in a list of positions.
  */
 class PositionIterator {
@@ -77,7 +88,11 @@ class PositionIterator {
 
 	PositionIterator & operator++();
 
-	void operator++(int);
+	TermPosWrapper operator++(int) {
+	    Xapian::termpos tmp = **this;
+	    operator++();
+	    return TermPosWrapper(tmp);
+	}
 
 	// extra method, not required for an input_iterator
 	void skip_to(Xapian::termpos pos);

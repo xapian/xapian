@@ -265,14 +265,30 @@ class MSetIterator {
 	    mset = other.mset;
 	}
 
-	/// Advance the iterator
+	/// Advance the iterator.
 	MSetIterator & operator++() {
 	    ++index;
 	    return *this;
 	}
 
-	void operator++(int) {
+	/// Advance the iterator (postfix variant).
+	MSetIterator operator++(int) {
+	    MSetIterator tmp = *this;
 	    ++index;
+	    return tmp;
+	}
+
+	/// Decrement the iterator.
+	MSetIterator & operator--() {
+	    --index;
+	    return *this;
+	}
+
+	/// Decrement the iterator (postfix variant).
+	MSetIterator operator--(int) {
+	    MSetIterator tmp = *this;
+	    --index;
+	    return tmp;
 	}
 
 	/// Get the document ID for the current position.
@@ -343,7 +359,7 @@ class MSetIterator {
 
 	/// Allow use as an STL iterator
 	//@{	
-	typedef std::input_iterator_tag iterator_category; // FIXME: better than input_iterator!
+	typedef std::bidirectional_iterator_tag iterator_category; // FIXME: could enhance to be a randomaccess_iterator
 	typedef Xapian::docid value_type;
 	typedef Xapian::doccount_diff difference_type;
 	typedef Xapian::docid * pointer;
@@ -443,14 +459,30 @@ class ESetIterator {
 	    eset = other.eset;
 	}
 
-	/// Advance the iterator
+	/// Advance the iterator.
 	ESetIterator & operator++() {
 	    ++index;
 	    return *this;
 	}
 
-	void operator++(int) {
+	/// Advance the iterator (postfix variant).
+	ESetIterator operator++(int) {
+	    ESetIterator tmp = *this;
 	    ++index;
+	    return tmp;
+	}
+
+	/// Decrement the iterator.
+	ESetIterator & operator--() {
+	    --index;
+	    return *this;
+	}
+
+	/// Decrement the iterator (postfix variant).
+	ESetIterator operator--(int) {
+	    ESetIterator tmp = *this;
+	    --index;
+	    return tmp;
 	}
 
 	/// Get the term for the current position
@@ -466,7 +498,7 @@ class ESetIterator {
 
 	/// Allow use as an STL iterator
 	//@{	
-	typedef std::input_iterator_tag iterator_category; // FIXME: better than input_iterator!
+	typedef std::bidirectional_iterator_tag iterator_category; // FIXME: go for randomaccess_iterator!
 	typedef std::string value_type;
 	typedef Xapian::termcount_diff difference_type;
 	typedef std::string * pointer;

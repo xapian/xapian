@@ -37,6 +37,17 @@ namespace Xapian {
 class Database;
 class PositionIterator;
 
+/** A wrapper class for a docid which returns the docid if dereferenced 
+ *  with *.  We need this to implement input_iterator semantics.
+ */
+class DocIDWrapper {
+    private:
+	docid did;
+    public:
+	DocIDWrapper(docid did_) : did(did_) { }
+	docid operator*() const { return did; }
+};
+
 /** An iterator pointing to items in a list of postings.
  */
 class PostingIterator {
@@ -72,7 +83,11 @@ class PostingIterator {
 
 	PostingIterator & operator++();
 
-	void operator++(int);
+	DocIDWrapper operator++(int) {
+	    Xapian::docid tmp = **this;
+	    operator++();
+	    return DocIDWrapper(tmp);
+	}
 
 	// extra method, not required for an input_iterator
 	void skip_to(Xapian::docid did);
