@@ -1,3 +1,8 @@
+Wed Nov 27 05:02:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Updated version to 0.6.0; build with "-Wall -W" under
+	  GCC (rather than -Wall -Wunused, which is a subset).
+
 Tue Nov 12 00:41:42 GMT 2002  Olly Betts <olly@survex.com>
 
 	* simpleindex.cc: Added MAX_PROB_TERM_LENGTH as in the omega
