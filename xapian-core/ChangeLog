@@ -1,3 +1,7 @@
+Sun Nov 07 02:33:50 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Noted LIBRARY_VERSION_INFO which 0.8.4 will get.
+
 Sun Nov 07 02:28:38 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: BoolWeight::unserialise() returns

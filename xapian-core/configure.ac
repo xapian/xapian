@@ -49,6 +49,8 @@ dnl	       reparsing after stripping punctuation; several unused
 dnl	       Error subclasses removed; assorted Iterator changes)
 dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
 dnl 4:1:1 0.8.3 No API changes
+dnl and for the next release:
+dnl 5:0:0 0.8.4 Some BM25Weight inline methods made non-inline.
 LIBRARY_VERSION_INFO=4:1:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
