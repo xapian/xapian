@@ -2,18 +2,20 @@ SUFFIXES = .java .class
 
 EXTRA_DIST = AssertionError.java DatabaseCorruptError.java DatabaseError.java\
  DatabaseLockError.java DatabaseModifiedError.java DatabaseOpeningError.java\
- DocNotFoundError.java FeatureUnavailableError.java InternalError.java\
- InvalidArgumentError.java InvalidOperationError.java LogicError.java\
+ DataFlowError.java DocNotFoundError.java FeatureUnavailableError.java\
+ InternalError.java InvalidArgumentError.java InvalidDataError.java\
+ InvalidOperationError.java InvalidResultError.java LogicError.java\
  NetworkError.java NetworkTimeoutError.java RangeError.java RuntimeError.java\
- UnimplementedError.java XapianError.java
+ TypeError.java UnimplementedError.java XapianError.java XapianRuntimeError.java
 
 XAPIAN_CLASS_FILES = AssertionError.class DatabaseCorruptError.class\
  DatabaseError.class DatabaseLockError.class DatabaseModifiedError.class\
- DatabaseOpeningError.class DocNotFoundError.class\
+ DatabaseOpeningError.class DataFlowError.class DocNotFoundError.class\
  FeatureUnavailableError.class InternalError.class InvalidArgumentError.class\
- InvalidOperationError.class LogicError.class NetworkError.class\
- NetworkTimeoutError.class RangeError.class RuntimeError.class\
- UnimplementedError.class XapianError.class
+ InvalidDataError.class InvalidOperationError.class InvalidResultError.class\
+ LogicError.class NetworkError.class NetworkTimeoutError.class RangeError.class\
+ RuntimeError.class TypeError.class UnimplementedError.class XapianError.class\
+ XapianRuntimeError.class
 
 all: $(XAPIAN_CLASS_FILES)
 
