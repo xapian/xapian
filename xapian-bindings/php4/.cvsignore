@@ -1,4 +1,6 @@
 Makefile
 Makefile.in
-xapian
+xapian_wrap.cpp
+xapian.php
+php_xapian.h
 util.i

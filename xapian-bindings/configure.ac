@@ -24,10 +24,6 @@ AC_PROG_CXX
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
-if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
-    AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
-fi
-
 AC_ARG_WITH(swig,
   [  --without-swig          disable all bindings which depend on SWIG
                          (currently: Python PHP Tcl Guile)])
@@ -99,16 +95,11 @@ if test no != "$with_swig" ; then
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
-	    PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
-	    AC_SUBST(PHPIZE)
-	    dnl Try to run "phpize --help" - currently this command exits with
-	    dnl status 1 but allow for that changing to the more sensible
-	    dnl status 0.  If phpize doesn't exist, or isn't an executable
-	    dnl file, the exit status will be something like 126 or 127.
-	    $PHPIZE --help >/dev/null 2>&1
-	    if test "$?" = 1 -o "$?" = 0 ; then
-		BINDINGS="$BINDINGS php4"
-	    fi
+	    PHP_INC="`$PHP_CONFIG --includes`"
+	    AC_SUBST(PHP_INC)
+	    PHP_EXTENSION_DIR="`$PHP_CONFIG --extension-dir`"
+	    AC_SUBST(PHP_EXTENSION_DIR)
+	    BINDINGS="$BINDINGS php4"
 	    ;;
 	*) ;;
 	esac

@@ -1,29 +1,29 @@
 ## Process this file with automake to produce Makefile.in
 
 EXTRA_DIST = util.i extra.i
+DIST_SUBDIRS = docs
+SUBDIRS = docs
 
-BUILT_SOURCES = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian/xapian.php \
- xapian/Makefile.in xapian/config.m4 
+phpextdir = @PHP_EXTENSION_DIR@
 
-# For PHP4, SWIG generates a mini autoconf project in the xapian subdirectory.
-# We generate and build this for "make all", and install it for "make install".
-install-hook:
-	cd xapian && $(MAKE) install
+phpext_LTLIBRARIES = xapian.la
 
-all-local: xapian/php_xapian.la
+# Remove the .la file - xapian.la is never linked against (it's a module)
+# and PHP4 doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(phpextdir)/xapian.la
 
-xapian/php_xapian.la: xapian/configure
-	: # FIXME: this isn't going to work with an uninstalled libxapian
-	: # The whole "--with-xapian" concept is deeply flawed really
-	cd xapian &&\
-	 ./configure --with-xapian="`echo $(XAPIAN_CXXFLAGS)|sed 's!^-I!!;s!/include$$!!'`" &&\
-	 $(MAKE)
+AM_CPPFLAGS = -I@PHP_INC@
+# swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
+xapian_la_LDFLAGS = -avoid-version -module
+nodist_xapian_la_SOURCES = xapian_wrap.cc
+xapian_la_LIBADD = $(XAPIAN_LIBS)
 
-xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php
-	cd xapian && $(PHPIZE)
+BUILT_SOURCES = xapian_wrap.cc php_xapian.h
 
-xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../xapian.i util.i extra.i
-	test -d xapian || mkdir xapian
-	$(SWIG) -I/usr/include -I. -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -php4 -phpfull -withlibs "xapian xapianqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
+xapian_wrap.cpp php_xapian.h xapian.php: ../xapian.i util.i extra.i
+	$(SWIG) -I/usr/include -I. -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -php4 -noproxy -o xapian_wrap.cpp $(srcdir)/../xapian.i
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) xapian.php

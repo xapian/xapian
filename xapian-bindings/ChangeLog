@@ -1,3 +1,10 @@
+Tue Sep 07 22:20:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/.cvsignore,php4/Makefile.am: Don't use -phpfull
+	  option to swig.  It's actually as easy to build and install the
+	  shared library ourselves, and then we can link with an uninstalled
+	  xapian library.
+
 Tue Sep 07 22:18:20 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fixed to use xapian_wrap.cpp not $@ - otherwise
