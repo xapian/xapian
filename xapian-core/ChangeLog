@@ -1,3 +1,11 @@
+Mon Jan 12 00:32:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzdump.cc: Backslash escape space and backslash in output
+	  rather than hex encoding them; renamed start-term and end-term to
+	  start-key and end-key; removed rather pointless "Calling next"
+	  message; if there's an error, write it to stderr not stdout, and
+	  exit with return code 1.
+
 Sun Jan 11 03:23:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_termlist.cc: When possible, pack the wdf into

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,10 +38,10 @@ using namespace std;
 static string hex_encode(const string & input) {
     const char * table = "0123456789abcdef";
     string result;
-    string::const_iterator i;
-    for (i = input.begin(); i != input.end(); i++) {
+    for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
-	if (isprint(val) && !isspace(val) && val != '\\') {
+	if (isprint(val)) {
+	    if (val == ' ' || val == '\\') result += '\\';
 	    result += val;
 	} else {
 	    result += "\\x";
@@ -61,16 +61,16 @@ main(int argc, char *argv[])
     vector<string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
-    string startterm;
-    string endterm;
-    bool use_endterm = false;
+    string startkey;
+    string endkey;
+    bool use_endkey = false;
 
     bool syntax_error = false;
 
     struct option long_opts[] = {
 	{"revision",	required_argument, 0, 'r'},
-	{"start-term",	required_argument, 0, 's'},
-	{"end-term",	required_argument, 0, 'e'},
+	{"start-key",	required_argument, 0, 's'},
+	{"end-key",	required_argument, 0, 'e'},
     };
 
     int c;
@@ -81,11 +81,11 @@ main(int argc, char *argv[])
 		use_revno = true;
                 break;
             case 's':
-		startterm = optarg;
+		startkey = optarg;
                 break;
 	    case 'e':
-		endterm = optarg;
-		use_endterm = true;
+		endkey = optarg;
+		use_endkey = true;
 		break;
             default:
                 syntax_error = true;
@@ -99,9 +99,9 @@ main(int argc, char *argv[])
 
     if (syntax_error || tables.empty()) {
 	cout << "Syntax: " << progname << " [<options>] <table>...\n"
-		"  -r, --revision=REVNO    Specify revision number to open\n"
-		"  -s, --start-term=START  Start at term START\n"
-		"  -e, --end-term=END      End at term END" << endl;
+		"  -r, --revision=REVNO   Revision number to open (default: highest)\n"
+		"  -s, --start-key=START  Start at key START\n"
+		"  -e, --end-key=END      End at key END" << endl;
 	exit(1);
     }
 
@@ -131,22 +131,22 @@ main(int argc, char *argv[])
 	    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 
 	    string key;
-	    key = startterm;
+	    key = startkey;
 	    cursor->find_entry(key);
 
-	    if (startterm.empty() || cursor->current_key < startterm) {
-		cerr << "Calling next" << endl;
+	    if (startkey.empty() || cursor->current_key < startkey) {
 		cursor->next();
 	    }
 	    
-	    while (!cursor->after_end() &&
-		   (!use_endterm || cursor->current_key <= endterm)) {
+	    while (!cursor->after_end()) {
+		if (use_endkey && cursor->current_key > endkey) break;
 		cout << hex_encode(cursor->current_key) << " -> "
 		     << hex_encode(cursor->current_tag) << "\n";
 		cursor->next();
 	    }
 	} catch (const Xapian::Error &e) {
-	    cout << "Error: " << e.get_msg() << endl;
+	    cerr << "Error: " << e.get_msg() << endl;
+	    return 1;
 	}
     }
 }
