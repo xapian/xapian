@@ -1,3 +1,7 @@
+Thu Sep 21 13:05:58 BST 2000 Olly Betts
+
+	* Removed unused variable `weights' from LocalMatch class.
+ 
 Thu Sep 21 13:00:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* A fix for building on Solaris with gcc.

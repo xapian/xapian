@@ -88,9 +88,6 @@ class LocalMatch : public SingleMatch
 	/// Query to be run
 	OmQueryInternal users_query;
 
-	/// vector of weights.  This is just so that they can be deleted
-	std::vector<IRWeight *> weights;
-
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
 
