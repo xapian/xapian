@@ -142,28 +142,6 @@ MultiMatch::set_options(const OmMatchOptions & moptions)
 }
 
 
-om_weight
-MultiMatch::get_max_weight()
-{
-    // FIXME: DESTROY this method (put it as part of get_mset(), which we need
-    // to create)
-    Assert(leaves.size() > 0);
-
-    // FIXME: this always asks the first database; make it pick one in some
-    // way so that the load is fairly spread?
-    om_weight result = 0;
-
-    for (std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	 i != leaves.end();
-	 i++) {
-	om_weight this_max = (*i)->get_max_weight();
-	if(result < this_max) result = this_max;
-    }
-
-    return result;
-}
-
-
 void
 MultiMatch::change_docids_to_global(std::vector<OmMSetItem> & mset,
 				    om_doccount leaf_number)
@@ -245,10 +223,14 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
     // Get next mset
     if (leaf->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
 			  &(sub_mset.max_attained), mdecider, nowait)) {
+	sub_mset.max_possible = leaf->get_max_weight();
+
 	// Merge stats
 	mset.mbound += sub_mset.mbound;
 	if(sub_mset.max_attained > mset.max_attained)
 	    mset.max_attained = sub_mset.max_attained;
+	if(sub_mset.max_possible > mset.max_possible)
+	    mset.max_possible = sub_mset.max_possible;
 
 	// Merge items
 	change_docids_to_global(sub_mset.items, leaf_number);
@@ -287,6 +269,7 @@ MultiMatch::collect_msets(om_doccount lastitem,
     mset.items.clear();
     mset.mbound = 0;
     mset.max_attained = 0;
+    mset.max_possible = 0;
     mset.firstitem = 0;
 
     std::vector<bool> mset_received(leaves.size(), false);
@@ -355,13 +338,11 @@ MultiMatch::match(om_doccount first,
 				 &(mset.mbound), &(mset.max_attained),
 				 mdecider, false);
 	mset.firstitem = first;
-	mset.max_possible = get_max_weight();
+	mset.max_possible = leaves.front()->get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	collect_msets(first + maxitems, mdecider, mset);
 	remove_leading_elements(first, mset);
-
-	// FIXME: get from sub msets (need to make them set it correctly first)
-	mset.max_possible = get_max_weight();
     }
 }
+

@@ -77,11 +77,6 @@ class MultiMatch
 	bool have_not_seen_key(std::set<OmKey> & collapse_entries,
 			       const OmKey & new_key);
 	
-
-	/** Get the maximum possible weight.
-	 */
-	om_weight get_max_weight();
-
         /** Merge two msets together.
 	 *
 	 *  @param mset      The mset to put the results in.

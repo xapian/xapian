@@ -1,3 +1,7 @@
+Fri Jul  7 15:44:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove MultiMatch::get_max_weight()
+
 Thu Jul  6 19:01:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix concurrency problem ... in threadtest.  D'oh!
