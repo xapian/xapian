@@ -64,9 +64,16 @@ class SleepyPositionList : public PositionList
 	om_termpos get_position() const;
 
 	/** Move to the next item in the list.
-	 *  This must be called before any other methods.
+	 *  Either next() or skip_to() must be called before any other
+	 *  methods.
 	 */
 	void next();
+
+	/** Move to the next item in the list.
+	 *  Either next() or skip_to() must be called before any other
+	 *  methods.
+	 */
+	void skip_to(om_termpos termpos);
 
 	/// True if we're off the end of the list
 	bool at_end() const;

@@ -55,8 +55,15 @@ SleepyPositionList::next()
     }
 }
 
+void
+SleepyPositionList::skip_to(om_termpos termpos)
+{
+    if (!iterating_in_progress) iterating_in_progress = true;
+    while (!at_end() && *mypos < termpos) mypos++;
+}
+
 bool
 SleepyPositionList::at_end() const
 {
-    return(mypos != positions.begin());
+    return(mypos == positions.end());
 };

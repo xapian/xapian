@@ -49,10 +49,18 @@ class PositionList
 	virtual om_termpos get_position() const = 0;
 
 	/** Move to the next item in the list.
-	 *  This must be called before get_position() - the list initially
-	 *  points to before the beginning of the list.
+	 *  Either next() or skip_to() must be called before get_position()
+	 *  - the list initially points to before the beginning of the
+	 *  list.
 	 */
 	virtual void next() = 0;
+
+	/** Move to the next item in the list >= the specified item.
+	 *  Either next() or skip_to() must be called before get_position()
+	 *  - the list initially points to before the beginning of the
+	 *  list.
+	 */
+	virtual void skip_to(om_termpos termpos) = 0;
 
 	/// True if we're off the end of the list
 	virtual bool at_end() const = 0;
