@@ -87,28 +87,6 @@ LeafPostList *
 NetworkDatabase::do_open_post_list(const om_termname & tname) const
 {
     throw OmUnimplementedError("NetworkDatabase::do_open_post_list() not implemented");
-#if 0
-    Assert(term_exists(tname));
-
-    om_doccount offset = 1;
-    om_doccount multiplier = databases.size();
-
-    list<MultiPostListInternal> pls;
-    std::vector<IRDatabase *>::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	if((*i)->term_exists(tname)) {
-	    MultiPostListInternal pl((*i)->open_post_list(tname),
-				     offset, multiplier);
-	    pls.push_back(pl);
-	}
-	offset++;
-	i++;
-    }
-    Assert(pls.begin() != pls.end());
-
-    LeafPostList * newpl = new MultiPostList(pls);
-    return newpl;
-#endif
 }
 
 LeafTermList *
@@ -137,30 +115,4 @@ bool
 NetworkDatabase::term_exists(const om_termname & tname) const
 {
     throw OmUnimplementedError("NetworkDatabase::term_exists() not implemented");
-#if 0
-    //DebugMsg("NetworkDatabase::term_exists(`" << tname.c_str() << "'): ");
-    set<om_termname>::const_iterator p = terms.find(tname);
-
-    bool found = false;
-
-    if (p == terms.end()) {
-	std::vector<IRDatabase *>::const_iterator i = databases.begin();
-	while(i != databases.end()) {
-	    found = (*i)->term_exists(tname);
-	    if(found) break;
-	    i++;
-	}
-
-	if(found) {
-	    //DebugMsg("found in sub-database" << endl);
-	    terms.insert(tname);
-	} else {
-	    //DebugMsg("not in collection" << endl);
-	}
-    } else {
-	found = true;
-	//DebugMsg("found in cache" << endl);
-    }
-    return found;
-#endif
 }

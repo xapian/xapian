@@ -143,12 +143,7 @@ class IRDatabase : public OmRefCntBase {
 	 */
 	virtual om_doccount  get_doccount() const = 0;
 
-	/** Return the average length of a document.
-	 *
-	 *  As for get_doccount(), in a sub-database of a MultiDatabase,
-	 *  this should refer to the average length of documents in the
-	 *  sub-database, not the average length of documents in the whole
-	 *  collection.
+	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See IRDatabase::get_doclength() for the meaning of document
 	 *  length within Muscat.
@@ -324,11 +319,6 @@ class IRDatabase : public OmRefCntBase {
 	 *  The default implementation returns "false".
 	 */
 	virtual bool is_network() const;
-
-#if 0
-	virtual const DatabaseBuilderParams & get_database_params() const = 0;
-	virtual const IRDatabase * get_database_of_doc(om_docid) const = 0;
-#endif
 };
 
 inline bool IRDatabase::is_network() const

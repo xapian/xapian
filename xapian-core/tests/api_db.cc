@@ -185,7 +185,7 @@ static bool test_multidb2()
 
     // make a simple query
     OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemory"),
+		    OmQuery("inmemori"), // stemmed form
 		    OmQuery("word"));
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -224,7 +224,7 @@ static bool test_multidb3()
 
     // make a query
     OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemory"),
+		    OmQuery("inmemori"), // stemmed form
 		    OmQuery("word"));
     myquery.set_bool(true);
     enquire.set_query(myquery);
@@ -246,7 +246,7 @@ static bool test_multidb4()
 
     // make a query
     OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemory"),
+		    OmQuery("inmemori"), // stemmed form
 		    OmQuery("word"));
     myquery.set_bool(true);
     enquire.set_query(myquery);
@@ -267,7 +267,7 @@ static bool test_multidb5()
 
     // make a query
     OmQuery myquery(OmQuery::OP_AND,
-		    OmQuery("inmemory"),
+		    OmQuery("inmemori"), // stemmed form
 		    OmQuery("word"));
     myquery.set_bool(true);
     enquire.set_query(myquery);

@@ -112,7 +112,7 @@ LeafPostList *
 MultiDatabase::do_open_post_list(const om_termname & tname) const
 {
     Assert(term_exists(tname));
-
+    
     std::vector<LeafPostList *> pls;
     std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); i++) {
@@ -120,8 +120,7 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
     }
     Assert(pls.begin() != pls.end());
 
-    LeafPostList * newpl = new MultiPostList(pls, this);
-    return newpl;
+    return new MultiPostList(pls, this);
 }
 
 LeafTermList *
@@ -129,11 +128,8 @@ MultiDatabase::open_term_list(om_docid did) const {
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    TermList *newtl;
-    newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
-    return new MultiTermList(newtl,
-			     (databases.begin() + dbnumber)->get(),
-			     this);
+    TermList *newtl = databases[dbnumber]->open_term_list(realdid);
+    return new MultiTermList(newtl, databases[dbnumber].get(), this);
 }
 
 LeafDocument *
@@ -142,7 +138,7 @@ MultiDatabase::open_document(om_docid did) const
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    return (*(databases.begin() + dbnumber))->open_document(realdid);
+    return databases[dbnumber]->open_document(realdid);
 }
 
 om_doclength
@@ -151,7 +147,7 @@ MultiDatabase::get_doclength(om_docid did) const
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    return (*(databases.begin() + dbnumber))->get_doclength(realdid);
+    return databases[dbnumber]->get_doclength(realdid);
 }
 
 bool

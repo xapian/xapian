@@ -1,6 +1,23 @@
+Tue Sep 05 14:28:40 BST 2000 Olly Betts
+
+	* apitest: Added multidb5 - test of AND with multidatabase.
+
+	* multi backend tweaks.
+
+	* NetworkDatabase: pruned dead code.
+
+	* Minor doc comment corrections.
+
+	* apitest: multidb* tests were searching for "inmemory" unstemmed -
+	  corrected.
+
 Tue Sep  5 11:48:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a double-deleting bug in indexer
+
+Tue Sep 05 11:25:21 BST 2000 Olly Betts
+
+	* apitest: Added multidb5 - test of AND with multidatabase.
 
 Tue Sep  5 10:49:18 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 

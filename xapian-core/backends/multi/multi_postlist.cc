@@ -81,6 +81,7 @@ MultiPostList::get_position_list()
 PostList *
 MultiPostList::next(om_weight w_min)
 {
+    DEBUGCALL(DB, "MultiPostList::next", w_min);
     Assert(!at_end());
 
     om_docid newdoc = 0;
@@ -100,18 +101,19 @@ MultiPostList::next(om_weight w_min)
 	}
 	offset++;
     }
-    if (newdoc == 0) {
+    if (newdoc) {
+	currdoc = newdoc;
+    } else {
 	finished = true;
-	return NULL;
     }
-
-    currdoc = newdoc;
+    DEBUGRETURN("NULL");
     return NULL;
 }
 
 PostList *
 MultiPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(DB, "MultiPostList::skip_to", did << ", " << w_min);
     Assert(!at_end());
     om_docid newdoc = 0;
     om_docid offset = 1;
@@ -119,6 +121,8 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
     om_doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {	
+	Assert(realdid * multiplier + offset >= did);
+	Assert(realdid * multiplier + offset < did + multiplier);
 	if (!(*i)->at_end()) {
 	    (*i)->skip_to(realdid, w_min);
 	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
@@ -127,11 +131,11 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
 	offset++;
 	if (offset == dbnumber) realdid--;
     }
-    if (newdoc == 0) {
+    if (newdoc) {
+	currdoc = newdoc;
+    } else {
 	finished = true;
-	return NULL;
     }
-
-    currdoc = newdoc;
+    DEBUGRETURN("NULL");
     return NULL;
 }

@@ -99,10 +99,7 @@ class SocketServer : public NetServer {
 
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
-	 *  @param readfd_	The file descriptor for reading.
-	 *  @param writefd_	The file descriptor for writing.  If
-	 *                      missing or -1, then readfd_ will be used
-	 *                      instead.
+	 *  @param buffer	OmLineBuf already connected to remote end.
 	 */
 	SocketServer(OmRefCntPtr<MultiDatabase> db,
 		     std::auto_ptr<OmLineBuf> buffer);

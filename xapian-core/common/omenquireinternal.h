@@ -43,7 +43,7 @@
 class OmEnquireInternal {
     private:
 	/** The multidatabase which this enquire object uses.
-	 *  This is obtained from the OmDatabase set in the constructor.
+	 *  This is obtained from the OmDatabase passed to the constructor.
 	 */
 	OmRefCntPtr<MultiDatabase> database;
 

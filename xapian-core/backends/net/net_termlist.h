@@ -92,9 +92,8 @@ class NetworkTermList : public LeafTermList {
 	/** The number of documents in the database in which this
 	 *  document resides.
 	 *
-	 *  Note that this may not be the number of documents in the whole
-	 *  database which is being searched, when MultiDatabases are being
-	 *  searched.
+	 *  Note that this may not be the number of documents in the combined
+	 *  database when multiple databases are being searched.
 	 */
 	om_doccount database_size;
 
