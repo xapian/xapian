@@ -30,11 +30,10 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
-#include <xapian/termiterator.h>
-//#include <xapian/valueiterator.h>
 
 namespace Xapian {
 
+class TermIterator;
 class ValueIterator;
 
 /// A document in the database - holds data, values, terms, and postings

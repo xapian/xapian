@@ -1,3 +1,8 @@
+Wed May 28 17:32:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: Just declare "class TermIterator;" rather
+	  than including <xapian/termiterator.h>.
+
 Tue May 27 16:59:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/progserver.h,common/socketserver.h,net/socketserver.cc:
