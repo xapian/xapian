@@ -1,0 +1,7465 @@
+%!PS-Adobe-3.0
+%%Creator: psdit
+%%For: bobcat.CS.Arizona.EDU:gene (Gene Myers)
+%%Title: stdin (ditroff)
+%%CreationDate: Fri Jun 23 14:06:06 1995
+%%DocumentNeededResources: (atend)
+%%DocumentSuppliedResources: DIThacks
+%%Pages: (atend)
+%%EndComments
+% Start of psdit.pro -- prolog for ditroff translator
+% Copyright (c) 1985,1987 Adobe Systems Incorporated. All Rights Reserved. 
+% GOVERNMENT END USERS: See Notice file in TranScript library directory
+% -- probably /usr/lib/ps/Notice
+% RCS: $Header$
+% Psfig RCSID $Header$
+
+/$DITroff 180 dict def $DITroff begin
+
+/DocumentInitState [ matrix currentmatrix currentlinewidth currentlinecap
+currentlinejoin currentdash currentgray currentmiterlimit ] cvx def
+
+%% Psfig additions
+/startFig {
+        /SavedState save def
+        userdict maxlength dict begin
+        currentpoint transform
+
+        DocumentInitState setmiterlimit setgray setdash setlinejoin setlinecap
+                setlinewidth setmatrix
+
+        itransform moveto
+
+        /ury exch def
+        /urx exch def
+        /lly exch def
+        /llx exch def
+        /y exch 72 mul resolution div def
+        /x exch 72 mul resolution div def
+
+        currentpoint /cy exch def /cx exch def
+
+        /sx x urx llx sub div def       % scaling for x
+        /sy y ury lly sub div def       % scaling for y
+
+        sx sy scale                     % scale by (sx,sy)
+
+        cx sx div llx sub
+        cy sy div ury sub translate
+
+        /DefFigCTM matrix currentmatrix def
+
+        /initmatrix {
+                DefFigCTM setmatrix
+        } def
+        /defaultmatrix {
+                DefFigCTM exch copy
+        } def
+
+        /initgraphics {
+                DocumentInitState setmiterlimit setgray setdash
+                        setlinejoin setlinecap setlinewidth setmatrix
+                DefFigCTM setmatrix
+        } def
+
+        /showpage {
+                initgraphics
+        } def
+
+} def
+% Args are llx lly urx ury (in figure coordinates)
+/clipFig {
+        currentpoint 6 2 roll
+        newpath 4 copy
+        4 2 roll moveto
+        6 -1 roll exch lineto
+        exch lineto
+        exch lineto
+        closepath clip
+        newpath
+        moveto
+} def
+% doclip, if called, will always be just after a `startfig'
+/doclip { llx lly urx ury clipFig } def
+/endFig {
+        end SavedState restore
+} def
+/globalstart {
+        % Push details about the enviornment on the stack.
+        fontnum fontsize fontslant fontheight
+        % firstpage
+        mh my resolution slotno currentpoint
+        pagesave restore gsave
+} def
+/globalend {
+        grestore moveto
+        /slotno exch def /resolution exch def /my exch def
+        /mh exch def
+        % /firstpage exch def
+        /fontheight exch def
+        /fontslant exch def /fontsize exch def /fontnum exch def
+        F
+        /pagesave save def
+} def
+
+%% end XMOD additions
+
+/fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
+/xi {72 mul 0 exch translate 72 resolution div dup neg scale 0 0 moveto
+  /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def F
+  /pagesave save def}def
+/PB{save /psv exch def currentpoint translate
+  resolution 72 div dup neg scale 0 0 moveto}def
+/PE{psv restore}def
+/m1 matrix def /m2 matrix def /m3 matrix def /oldmat matrix def
+/tan{dup sin exch cos div}bind def
+/point{resolution 72 div mul}bind def
+/dround	{transform round exch round exch itransform}bind def
+/xT{/devname exch def}def
+/xr{/mh exch def /my exch def /resolution exch def}def
+/xp{}def
+/xs{docsave restore end}def
+/xt{}def
+/xf{/fontname exch def /slotno exch def fontnames slotno get fontname eq not
+ {fonts slotno fontname findfont put fontnames slotno fontname put}if}def
+/xH{/fontheight exch def F}bind def
+/xS{/fontslant exch def F}bind def
+/s{/fontsize exch def /fontheight fontsize def F}bind def
+/f{/fontnum exch def F}bind def
+/F{fontheight 0 le {/fontheight fontsize def}if
+   fonts fontnum get fontsize point 0 0 fontheight point neg 0 0 m1 astore
+   fontslant 0 ne{1 0 fontslant neg tan 1 0 0 m2 astore m3 concatmatrix}if
+   makefont setfont .04 fontsize point mul 0 dround pop setlinewidth}bind def
+/X{exch currentpoint exch pop moveto show}bind def
+/N{3 1 roll moveto show}bind def
+/Y{exch currentpoint pop exch moveto show}bind def
+/S /show load def
+/ditpush{}def/ditpop{}def
+/AX{3 -1 roll currentpoint exch pop moveto 0 exch ashow}bind def
+/AN{4 2 roll moveto 0 exch ashow}bind def
+/AY{3 -1 roll currentpoint pop exch moveto 0 exch ashow}bind def
+/AS{0 exch ashow}bind def
+/MX{currentpoint exch pop moveto}bind def
+/MY{currentpoint pop exch moveto}bind def
+/MXY /moveto load def
+/cb{pop}def	% action on unknown char -- nothing for now
+/n{}def/w{}def
+/p{pop showpage pagesave restore /pagesave save def}def
+/abspoint{currentpoint exch pop add exch currentpoint pop add exch}def
+/dstroke{currentpoint stroke moveto}bind def
+/Dl{2 copy gsave rlineto stroke grestore rmoveto}bind def
+/arcellipse{oldmat currentmatrix pop
+ currentpoint translate 1 diamv diamh div scale /rad diamh 2 div def
+ rad 0 rad -180 180 arc oldmat setmatrix}def
+/Dc{gsave dup /diamv exch def /diamh exch def arcellipse dstroke 
+    grestore diamh 0 rmoveto}def
+/De{gsave /diamv exch def /diamh exch def arcellipse dstroke
+    grestore diamh 0 rmoveto}def
+/Da{currentpoint /by exch def /bx exch def /fy exch def /fx exch def
+   /cy exch def /cx exch def /rad cx cx mul cy cy mul add sqrt def
+   /ang1 cy neg cx neg atan def /ang2 fy fx atan def cx bx add cy by add
+   2 copy rad ang1 ang2 arcn stroke exch fx add exch fy add moveto}def
+/Barray 200 array def % 200 values in a wiggle
+/D~{mark}def
+/D~~{counttomark Barray exch 0 exch getinterval astore /Bcontrol exch def pop
+ /Blen Bcontrol length def Blen 4 ge Blen 2 mod 0 eq and
+ {Bcontrol 0 get Bcontrol 1 get abspoint /Ycont exch def /Xcont exch def
+  Bcontrol 0 2 copy get 2 mul put Bcontrol 1 2 copy get 2 mul put
+  Bcontrol Blen 2 sub 2 copy get 2 mul put
+  Bcontrol Blen 1 sub 2 copy get 2 mul put
+  /Ybi /Xbi currentpoint 3 1 roll def def 0 2 Blen 4 sub
+  {/i exch def
+   Bcontrol i get 3 div Bcontrol i 1 add get 3 div
+   Bcontrol i get 3 mul Bcontrol i 2 add get add 6 div
+   Bcontrol i 1 add get 3 mul Bcontrol i 3 add get add 6 div
+   /Xbi Xcont Bcontrol i 2 add get 2 div add def
+   /Ybi Ycont Bcontrol i 3 add get 2 div add def
+   /Xcont Xcont Bcontrol i 2 add get add def
+   /Ycont Ycont Bcontrol i 3 add get add def
+   Xbi currentpoint pop sub Ybi currentpoint exch pop sub rcurveto
+  }for dstroke}if}def
+end
+/ditstart{$DITroff begin
+ /nfonts 60 def			% NFONTS makedev/ditroff dependent!
+ /fonts[nfonts{0}repeat]def
+ /fontnames[nfonts{()}repeat]def
+/docsave save def
+}def
+
+% character outcalls
+/oc {/pswid exch def /cc exch def /name exch def
+   /ditwid pswid fontsize mul resolution mul 72000 div def
+   /ditsiz fontsize resolution mul 72 div def
+   ocprocs name known{ocprocs name get exec}{name cb}
+   ifelse}def
+/fractm [.65 0 0 .6 0 0] def
+/fraction
+ {/fden exch def /fnum exch def gsave /cf currentfont def
+  cf fractm makefont setfont 0 .3 dm 2 copy neg rmoveto
+  fnum show rmoveto currentfont cf setfont(\244)show setfont fden show 
+  grestore ditwid 0 rmoveto} def
+/oce {grestore ditwid 0 rmoveto}def
+/dm {ditsiz mul}def
+/ocprocs 50 dict def ocprocs begin
+(14){(1)(4)fraction}def
+(12){(1)(2)fraction}def
+(34){(3)(4)fraction}def
+(13){(1)(3)fraction}def
+(23){(2)(3)fraction}def
+(18){(1)(8)fraction}def
+(38){(3)(8)fraction}def
+(58){(5)(8)fraction}def
+(78){(7)(8)fraction}def
+(sr){gsave .05 dm .16 dm rmoveto(\326)show oce}def
+(is){gsave 0 .15 dm rmoveto(\362)show oce}def
+(->){gsave 0 .02 dm rmoveto(\256)show oce}def
+(<-){gsave 0 .02 dm rmoveto(\254)show oce}def
+(==){gsave 0 .05 dm rmoveto(\272)show oce}def
+end
+%%BeginResource: font DIThacks
+% DIThacks fonts for some special chars
+50 dict dup begin
+/FontType 3 def
+/FontName /DIThacks def
+/FontMatrix [.001 0.0 0.0 .001 0.0 0.0] def
+/FontBBox [-220 -280 900 900] def% a lie but ...
+/Encoding 256 array def
+0 1 255{Encoding exch /.notdef put}for
+Encoding
+ dup 8#040/space put %space
+ dup 8#110/rc put %right ceil
+ dup 8#111/lt put %left  top curl
+ dup 8#112/bv put %bold vert
+ dup 8#113/lk put %left  mid curl
+ dup 8#114/lb put %left  bot curl
+ dup 8#115/rt put %right top curl
+ dup 8#116/rk put %right mid curl
+ dup 8#117/rb put %right bot curl
+ dup 8#120/rf put %right floor
+ dup 8#121/lf put %left  floor
+ dup 8#122/lc put %left  ceil
+ dup 8#140/sq put %square
+ dup 8#141/bx put %box
+ dup 8#142/ci put %circle
+ dup 8#143/br put %box rule
+ dup 8#144/rn put %root extender
+ dup 8#145/vr put %vertical rule
+ dup 8#146/ob put %outline bullet
+ dup 8#147/bu put %bullet
+ dup 8#150/ru put %rule
+ dup 8#151/ul put %underline
+ pop
+/DITfd 100 dict def
+/BuildChar{0 begin
+ /cc exch def /fd exch def
+ /charname fd /Encoding get cc get def
+ /charwid fd /Metrics get charname get def
+ /charproc fd /CharProcs get charname get def
+ charwid 0 fd /FontBBox get aload pop setcachedevice
+ 40 setlinewidth
+ newpath 0 0 moveto gsave charproc grestore
+ end}def
+/BuildChar load 0 DITfd put
+%/UniqueID 5 def
+/CharProcs 50 dict def
+CharProcs begin
+/space{}def
+/.notdef{}def
+/ru{500 0 rls}def
+/rn{0 750 moveto 500 0 rls}def
+/vr{20 800 moveto 0 -770 rls}def
+/bv{20 800 moveto 0 -1000 rls}def
+/br{20 770 moveto 0 -1040 rls}def
+/ul{0 -250 moveto 500 0 rls}def
+/ob{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath stroke}def
+/bu{200 250 rmoveto currentpoint newpath 200 0 360 arc closepath fill}def
+/sq{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath stroke}def
+/bx{80 0 rmoveto currentpoint dround newpath moveto
+    640 0 rlineto 0 640 rlineto -640 0 rlineto closepath fill}def
+/ci{355 333 rmoveto currentpoint newpath 333 0 360 arc
+    50 setlinewidth stroke}def
+
+/lt{20 -200 moveto 0 550 rlineto currx 800 2cx s4 add exch s4 a4p stroke}def
+/lb{20 800 moveto 0 -550 rlineto currx -200 2cx s4 add exch s4 a4p stroke}def
+/rt{20 -200 moveto 0 550 rlineto currx 800 2cx s4 sub exch s4 a4p stroke}def
+/rb{20 800 moveto 0 -500 rlineto currx -200 2cx s4 sub exch s4 a4p stroke}def
+/lk{20 800 moveto 20 300 -280 300 s4 arcto pop pop 1000 sub
+    currentpoint stroke moveto
+    20 300 4 2 roll s4 a4p 20 -200 lineto stroke}def
+/rk{20 800 moveto 20 300 320 300 s4 arcto pop pop 1000 sub
+    currentpoint stroke moveto
+    20 300 4 2 roll s4 a4p 20 -200 lineto stroke}def
+/lf{20 800 moveto 0 -1000 rlineto s4 0 rls}def
+/rf{20 800 moveto 0 -1000 rlineto s4 neg 0 rls}def
+/lc{20 -200 moveto 0 1000 rlineto s4 0 rls}def
+/rc{20 -200 moveto 0 1000 rlineto s4 neg 0 rls}def
+end
+
+/Metrics 50 dict def Metrics begin
+/.notdef 0 def
+/space 500 def
+/ru 500 def
+/br 0 def
+/lt 250 def
+/lb 250 def
+/rt 250 def
+/rb 250 def
+/lk 250 def
+/rk 250 def
+/rc 250 def
+/lc 250 def
+/rf 250 def
+/lf 250 def
+/bv 250 def
+/ob 350 def
+/bu 350 def
+/ci 750 def
+/bx 750 def
+/sq 750 def
+/rn 500 def
+/ul 500 def
+/vr 0 def
+end
+
+DITfd begin
+/s2 500 def /s4 250 def /s3 333 def
+/a4p{arcto pop pop pop pop}def
+/2cx{2 copy exch}def
+/rls{rlineto stroke}def
+/currx{currentpoint pop}def
+/dround{transform round exch round exch itransform} def
+end
+end
+/DIThacks exch definefont pop
+%%EndResource 
+%%EndProlog
+%%BeginSetup
+ditstart
+(psc)xT
+576 1 1 xr
+%%IncludeResource: font Times-Roman
+1(Times-Roman)xf 1 f
+%%IncludeResource: font Times-Italic
+2(Times-Italic)xf 2 f
+%%IncludeResource: font Times-Bold
+3(Times-Bold)xf 3 f
+%%IncludeResource: font Times-BoldItalic
+4(Times-BoldItalic)xf 4 f
+%%IncludeResource: font Helvetica
+5(Helvetica)xf 5 f
+%%IncludeResource: font Helvetica-Bold
+6(Helvetica-Bold)xf 6 f
+%%IncludeResource: font Courier
+7(Courier)xf 7 f
+%%IncludeResource: font Courier-Bold
+8(Courier-Bold)xf 8 f
+%%IncludeResource: font Symbol
+9(Symbol)xf 9 f
+10(DIThacks)xf 10 f
+10 s
+1 f
+11.00 xi
+%%EndSetup
+
+%%Page: 1 1
+10 s 10 xH 0 xS 1 f
+11 s
+3 f
+1071 1360(An)N
+1205(Overview)X
+1589(of)X
+1684(Sequence)X
+2058(Comparison)X
+2544(Algorithms)X
+2991(in)X
+3087(Molecular)X
+3496(Biology)X
+3781 1316(*)N
+2 f
+2137 1584(Eugene)N
+2423(W.)X
+2540(Myers)X
+1 f
+2278 1976(TR)N
+2413(91-29)X
+2 f
+2239 2368(ABSTRACT)N
+1 f
+880 2564(Molecular)N
+1273(biologists)X
+1649(frequently)X
+2043(compare)X
+2378(biosequences)X
+2879(to)X
+2980(see)X
+3124(if)X
+3210(any)X
+3369(similarities)X
+3795(can)X
+3949(be)X
+748 2676(found)N
+976(in)X
+1068(the)X
+1198(hope)X
+1391(that)X
+1546(what)X
+1739(is)X
+1820(true)X
+1979(of)X
+2074(one)X
+2223(sequence)X
+2567(either)X
+2790(physically)X
+3175(or)X
+3270(functionally)X
+3719(is)X
+3800(true)X
+3959(of)X
+748 2788(its)N
+869(analogue.)X
+1268(Such)X
+1481(comparisons)X
+1963(are)X
+2107(made)X
+2335(in)X
+2441(a)X
+2517(variety)X
+2799(of)X
+2910(ways,)X
+3150(some)X
+3374(via)X
+3520(rigorous)X
+3851(algo-)X
+748 2900(rithms,)N
+1027(others)X
+1273(by)X
+1392(manual)X
+1683(means,)X
+1961(and)X
+2119(others)X
+2365(by)X
+2484(a)X
+2554(combination)X
+3027(of)X
+3130(these)X
+3341(two)X
+3503(extremes.)X
+3895(The)X
+748 3012(topic)N
+952(of)X
+1052(sequence)X
+1401(comparison)X
+1839(now)X
+2017(has)X
+2161(a)X
+2228(rich)X
+2393(history)X
+2666(dating)X
+2915(back)X
+3109(over)X
+3293(two)X
+3453(decades.)X
+3803(In)X
+3904(this)X
+748 3124(survey)N
+1014(we)X
+1148(review)X
+1419(the)X
+1559(now)X
+1742(classic)X
+2009(and)X
+2168(most)X
+2372(established)X
+2796(technique:)X
+3195(dynamic)X
+3530(programming.)X
+748 3236(Then)N
+977(a)X
+1064(number)X
+1382(of)X
+1504(interesting)X
+1926(variations)X
+2323(of)X
+2445(this)X
+2622(basic)X
+2852(problem)X
+3195(are)X
+3351(examined)X
+3743(that)X
+3925(are)X
+748 3348(speci\256cally)N
+1173(motivated)X
+1550(by)X
+1661(applications)X
+2111(in)X
+2203(molecular)X
+2579(biology.)X
+2916(Finally,)X
+3212(we)X
+3337(close)X
+3541(with)X
+3721(a)X
+3783(discus-)X
+748 3460(sion)N
+917(of)X
+1012(some)X
+1220(of)X
+1315(the)X
+1445(most)X
+1639(recent)X
+1876(and)X
+2025(future)X
+2257(trends.)X
+2 f
+748 3639(Key)N
+924(words)X
+1 f
+1139(:)X
+1225(Approximate)X
+1729(Match,)X
+2015(Block)X
+2265(Indel,)X
+2507(Dynamic)X
+2869(Programming,)X
+3415(Local)X
+3655 0.3063(Similarity,)AX
+748 3751(Multiple)N
+1075(Sequence)X
+1434(Alignment,)X
+1856 0.3403(Similarity)AX
+2233(Search,)X
+2516(Sequence)X
+2875(Comparison)X
+2102 4688(December)N
+2485(20,)X
+2617(1991)X
+1857 4912(Department)N
+2295(of)X
+2390(Computer)X
+2765(Science)X
+1982 5080(The)N
+2141(University)X
+2535(of)X
+2630(Arizona)X
+2023 5248(Tucson,)N
+2326(Arizona)X
+2653(85721)X
+748 5640(*This)N
+971(work)X
+1173(was)X
+1331(supported)X
+1700(in)X
+1791(part)X
+1950(by)X
+2060(the)X
+2190(National)X
+2516(Institutes)X
+2862(of)X
+2957(Health)X
+3214(under)X
+3436(Grant)X
+3658(R01)X
+3827(LM04960-01)X
+748 5752(and)N
+897(the)X
+1027(Aspen)X
+1273(Center)X
+1530(for)X
+1654(Physics.)X
+
+2 p
+%%Page: 2 2
+11 s 11 xH 0 xS 1 f
+3 f
+1093 996(An)N
+1227(Overview)X
+1611(of)X
+1706(Sequence)X
+2080(Comparison)X
+2566(Algorithms)X
+3013(in)X
+3109(Molecular)X
+3518(Biology)X
+576 1332(1.)N
+664(The)X
+833(Basic)X
+1056(Problem)X
+1401(and)X
+1565(Dynamic)X
+1924(Programming)X
+2474(Algorithm.)X
+1 f
+696 1472(Molecular)N
+1089(biologists)X
+1464(frequently)X
+1857(compare)X
+2191(biosequences)X
+2691(to)X
+2791(see)X
+2934(if)X
+3020(any)X
+3179(similarities)X
+3605(can)X
+3759(be)X
+3874(found)X
+4111(in)X
+4212(the)X
+576 1584(hope)N
+771(that)X
+928(what)X
+1123(is)X
+1206(true)X
+1367(of)X
+1464(one)X
+1615(sequence)X
+1961(either)X
+2186(physically)X
+2573(or)X
+2670(functionally)X
+3121(is)X
+3203(true)X
+3363(of)X
+3459(its)X
+3566(analogue.)X
+3951(Generally,)X
+576 1696(such)N
+767(comparisons)X
+1242(involve)X
+1538(aligning)X
+1859(sections)X
+2174(of)X
+2278(the)X
+2417(two)X
+2580(sequences)X
+2967(in)X
+3067(a)X
+3137(way)X
+3314(that)X
+3478(exposes)X
+3787(the)X
+3926(similarities)X
+576 1808(between)N
+893(them.)X
+1138(For)X
+1284(example,)X
+1628(consider)X
+1949(the)X
+2080(following)X
+3 f
+2446(alignment)X
+1 f
+2846(between)X
+3162(a)X
+3224(portion)X
+3502(of)X
+3598(the)X
+3729(monkey)X
+4036(somato-)X
+576 1920(tropin)N
+809(protein)X
+1081(and)X
+1230(a)X
+1291(rainbow)X
+1601(trout)X
+1790(somatotropin)X
+2278(precurser)X
+2626(protein.)X
+930 2088(S)N
+988(e)X
+1038(q)X
+1091(u)X
+1147(e)X
+1197(n)X
+1253(c)X
+1306(e)X
+1400(A)X
+1472(:)X
+1676(LEPV)X
+1883 -2.2768(QFLRSVFA)AX
+2307(NSL)X
+2483(-)X
+2519(V)X
+2572(Y)X
+2625(G)X
+2683 -1.7292(TSYS)AX
+930 2200(S)N
+988(e)X
+1038(q)X
+1091(u)X
+1147(e)X
+1197(n)X
+1253(c)X
+1306(e)X
+1402(B)X
+1472(:)X
+1676(E)X
+1724(YPSQ)X
+1941(TL)X
+2059(-)X
+2112(-)X
+2165(I)X
+2218(I)X
+2261 -1.3958(SNSL)AX
+2459(M)X
+2519(V)X
+2589(-)X
+2627(R)X
+2678(N)X
+2731(A)X
+2801(-)X
+2837(N)X
+576 2396(In)N
+674(such)X
+860(alignments,)X
+3 f
+1295(aligned)X
+1596(pairs)X
+1 f
+1813(of)X
+1912(symbols)X
+2232(are)X
+2365(written)X
+2641(one)X
+2794(above)X
+3030(the)X
+3164(other.)X
+3415(Symbols)X
+3750(in)X
+3845(one)X
+3998(sequence)X
+576 2508(that)N
+734(are)X
+866(not)X
+1004(aligned)X
+1289(with)X
+1471(symbols)X
+1790(in)X
+1884(the)X
+2017(other)X
+2223(are)X
+2354(written)X
+2628(opposing)X
+2975(the)X
+3107(symbol)X
+3391('-'.)X
+3546(For)X
+3692(example,)X
+4037(the)X
+4169(sub-)X
+576 2620(string)N
+807('RS')X
+1003(in)X
+1102(sequence)X
+2 f
+1454(A)X
+1 f
+1538(constitutes)X
+1946(a)X
+3 f
+2015(gap)X
+1 f
+2182(of)X
+2286(two)X
+2449(symbols.)X
+2818(From)X
+3040(the)X
+3179(view)X
+3381(of)X
+3 f
+3485(maximizing)X
+3957(similarity)X
+1 f
+576 2732(one)N
+735(is)X
+826 0.3313(intuitively)AX
+1223(seeking)X
+1524(alignments)X
+1944(that)X
+2109(have)X
+2307(few)X
+2470(gaps)X
+2663(and)X
+2821(align)X
+3029(symbols)X
+3354(that)X
+3518(are)X
+3656(identical)X
+3992(or)X
+4096(whose)X
+576 2844(denoted)N
+893(function)X
+1226(is)X
+1324(highly)X
+1589(similar.)X
+1918(The)X
+2094(dual)X
+2285(perspective)X
+2725(is)X
+2823(to)X
+2931(consider)X
+3268(sequence)X
+2 f
+3629(A)X
+1 f
+3722(as)X
+3834(evolving)X
+4182(into)X
+576 2956(sequence)N
+2 f
+939(B)X
+1 f
+1034(and)X
+1202(here)X
+1394(one)X
+1562(seeks)X
+1793(alignments)X
+2222(that)X
+3 f
+2396(minimize)X
+2785(distance)X
+1 f
+3134(or)X
+3248 0.3313(intuitively)AX
+3654(require)X
+3944(a)X
+4024(minimal)X
+576 3068(number)N
+871(of)X
+970(``evolutionary'')X
+1558(operations)X
+1951(that)X
+2110(effect)X
+2336(the)X
+2470(conversion.)X
+2926(In)X
+3025(this)X
+3179(view,)X
+3398(an)X
+3507(aligned)X
+3793(symbol)X
+4080(of)X
+2 f
+4180(B)X
+1 f
+4261(is)X
+3 f
+576 3180(substituted)N
+1 f
+1014(for)X
+1139(its)X
+1246(counterpart)X
+1670(in)X
+2 f
+1762(A)X
+1 f
+1816(,)X
+1861(an)X
+1967(unaligned)X
+2338(symbol)X
+2621(in)X
+2 f
+2713(A)X
+1 f
+2790(is)X
+3 f
+2872(deleted)X
+1 f
+3141(,)X
+3186(and)X
+3336(an)X
+3442(unaligned)X
+3812(symbol)X
+4094(in)X
+2 f
+4185(B)X
+1 f
+4261(is)X
+3 f
+576 3292(inserted)N
+1 f
+879(.)X
+952(For)X
+1103(example)X
+1431('E')X
+1572(is)X
+1660(substituted)X
+2072(for)X
+2203('L')X
+2344(in)X
+2442(the)X
+2579(leftmost)X
+2899(position,)X
+3236(and)X
+3393(the)X
+3531(substring)X
+3884('RS')X
+4080(consti-)X
+576 3404(tutes)N
+766(a)X
+828(deletion)X
+1136(gap.)X
+1330(In)X
+1426(this)X
+1577(view)X
+2 f
+1771(A)X
+1 f
+1848(is)X
+1930(the)X
+2061(source)X
+2312(and)X
+2 f
+2461(B)X
+1 f
+2537(the)X
+2667(result)X
+2885(as)X
+2980(contrasts)X
+3315(the)X
+3445(symmetry)X
+3820(of)X
+3915(the)X
+4045(similar-)X
+576 3516(ity)N
+692(perspective.)X
+696 3656(The)N
+861(notion)X
+1115(of)X
+1216(a)X
+1283(best)X
+1453(alignment)X
+1835(requires)X
+2146(some)X
+2360(scoring)X
+2647(or)X
+2748 0.2955(optimization)AX
+3224(criterion.)X
+3595(Traditionally,)X
+4107(a)X
+4174(user)X
+576 3768(supplies)N
+893(a)X
+960(scoring)X
+1247(function)X
+9 f
+1569(d)X
+1 f
+1640(that)X
+1800(assigns)X
+2081(a)X
+2147(real-valued)X
+2570(cost)X
+2739(to)X
+2835(each)X
+3023(possible)X
+3339(aligned)X
+3626(pair.)X
+3834(That)X
+4023(is,)X
+4131(if)X
+4212(the)X
+576 3880(sequences)N
+956(are)X
+1087(over)X
+1267(alphabet)X
+9 f
+1590(S)X
+1 f
+1642(,)X
+1688(then)X
+9 f
+1864(d)X
+1 f
+1915(\()X
+2 f
+1951(a)X
+1 f
+2002(,)X
+2 f
+2052(b)X
+1 f
+2103(\))X
+2156(speci\256es)X
+2483(the)X
+2616(cost)X
+2783(of)X
+2881(substituting)X
+2 f
+3319(a)X
+1 f
+3388(for)X
+2 f
+3515(b)X
+1 f
+(,)S
+9 f
+3606(d)X
+1 f
+3657(\()X
+2 f
+3693(a)X
+1 f
+3744(,)X
+2 f
+3794(-)X
+1 f
+3830(\))X
+3884(speci\256es)X
+4212(the)X
+576 3992(cost)N
+741(of)X
+837(deleting)X
+2 f
+1145(a)X
+1 f
+(,)S
+1234(and)X
+9 f
+1384(d)X
+1 f
+1435(\()X
+2 f
+1471(-)X
+1 f
+1507(,)X
+2 f
+1557(b)X
+1 f
+1608(\))X
+1660(speci\256es)X
+1986(the)X
+2117(cost)X
+2282(of)X
+2378(inserting)X
+2 f
+2710(b)X
+1 f
+(.)S
+2821(If)X
+9 f
+2902(S)X
+1 f
+2977(is)X
+3059(a)X
+3121(small)X
+3336(\256nite)X
+3540(alphabet,)X
+3883(as)X
+3978(is)X
+4059(true)X
+4218(for)X
+576 4104(proteins)N
+890(and)X
+1047(nucleic)X
+1332(acids,)X
+1565(then)X
+1747(typically)X
+9 f
+2087(d)X
+1 f
+2161(is)X
+2250(given)X
+2476(by)X
+2594(a)X
+2 f
+9 f
+2663(|)X
+1 f
+9 f
+2705(S)X
+2 f
+9 f
+2757(|)X
+2799(+)X
+1 f
+2861(1)X
+2935(by)X
+2 f
+9 f
+3053(|)X
+1 f
+9 f
+3095(S)X
+2 f
+9 f
+3147(|)X
+3189(+)X
+1 f
+3251(1)X
+3325(table)X
+3527(or)X
+3630(matrix)X
+3891(of)X
+3995(numbers.)X
+576 4216(The)N
+737(score)X
+946(of)X
+1043(an)X
+1149(alignment)X
+1526(between)X
+1842(sequences)X
+2 f
+2221(A)X
+1 f
+2298(and)X
+2 f
+2448(B)X
+1 f
+2525(is)X
+2607(the)X
+2738(sum)X
+2908(of)X
+3004(the)X
+3135(costs)X
+3334(of)X
+3430(the)X
+3561(aligned)X
+3844(pairs)X
+4038(in)X
+4130(it.)X
+4247(In)X
+576 4328(the)N
+706(minimal)X
+1024(distance)X
+1335(version)X
+1616(of)X
+1711(the)X
+1841(problem)X
+2157(one)X
+2306(seeks)X
+2518(the)X
+2648(alignment)X
+3025(with)X
+3205(minimal)X
+3524(score;)X
+3757(in)X
+3849(the)X
+3980(similarity)X
+576 4440(version)N
+860(one)X
+1012(seeks)X
+1227(the)X
+1360(alignment)X
+1739(with)X
+1921(maximal)X
+2256(score.)X
+2510(As)X
+2632(we)X
+2759(shall)X
+2951(see)X
+3088(later,)X
+3292(these)X
+3498(two)X
+3655(views)X
+3885(are)X
+4016(formally)X
+576 4552(dual)N
+755(problems)X
+1110(for)X
+1239(the)X
+1374(basic)X
+1582(models)X
+1865(and)X
+2020(so)X
+2126(for)X
+2256(the)X
+2392(moment)X
+2710(we)X
+2840(proceed)X
+3146(with)X
+3331(the)X
+3467(evolutionary)X
+3941(view.)X
+4184(Our)X
+576 4664(problem)N
+906(is:)X
+1026(given)X
+1258(sequences)X
+2 f
+1650(A)X
+1 f
+1740(=)X
+2 f
+1826(a)X
+1 f
+8 s
+1880 4681(1)N
+2 f
+11 s
+1926 4664(a)N
+1 f
+8 s
+1980 4681(2)N
+11 s
+2048 4642(.)N
+2092(.)X
+2136(.)X
+2 f
+2187 4664(a)N
+8 s
+2241 4681(M)N
+1 f
+11 s
+2337 4664(and)N
+2 f
+2500(B)X
+1 f
+2590(=)X
+2 f
+2676(b)X
+1 f
+8 s
+2730 4681(1)N
+2 f
+11 s
+2776 4664(b)N
+1 f
+8 s
+2830 4681(2)N
+11 s
+2898 4642(.)N
+2942(.)X
+2986(.)X
+2 f
+3037 4664(b)N
+8 s
+3091 4681(N)N
+1 f
+11 s
+3177 4664(and)N
+3340(scoring)X
+3635(function)X
+9 f
+3964(d)X
+1 f
+4008(,)X
+4065(\256nd)X
+4237(an)X
+576 4776(alignment)N
+953(denoting)X
+1285(a)X
+1347(set)X
+1468(of)X
+1564(``evolutionary)X
+2091(operations'')X
+2540(that)X
+2697(converts)X
+2 f
+3019(A)X
+1 f
+3097(to)X
+2 f
+3190(B)X
+1 f
+3268(and)X
+3419(minimizes)X
+3812(the)X
+3944(sum)X
+4115(of)X
+4212(the)X
+576 4888(operations')N
+994(costs.)X
+696 5028(There)N
+926(is)X
+1011(an)X
+1120(intuitive)X
+1442(graph-theoretic)X
+2006(formulation)X
+2449(of)X
+2548(the)X
+2682(problem)X
+3002(that)X
+3161(is)X
+3246(particularly)X
+3679 0.3229(illuminating.)AX
+4183(The)X
+3 f
+576 5140(edit)N
+750(graph)X
+2 f
+1007(G)X
+8 s
+1080 5157(A)N
+1 f
+1124(,)X
+2 f
+1160(B)X
+1 f
+11 s
+1238 5140(for)N
+1372(comparing)X
+1781(sequences)X
+2 f
+2169(A)X
+1 f
+2255(and)X
+2 f
+2414(B)X
+1 f
+2499(is)X
+2589(an)X
+2703(edge-labeled)X
+3184(directed)X
+3499(graph.)X
+3774(The)X
+3942(vertices)X
+4247(of)X
+2 f
+576 5252(G)N
+8 s
+649 5269(A)N
+1 f
+693(,)X
+2 f
+729(B)X
+1 f
+11 s
+800 5252(are)N
+933(the)X
+1067(pairs)X
+1264(\()X
+2 f
+1300(i)X
+1 f
+1332(,)X
+2 f
+1389(j)X
+1 f
+1421(\))X
+1476(where)X
+2 f
+1716(i)X
+9 f
+1748(\316)X
+1 f
+1818([)X
+1854(0)X
+1905(,)X
+2 f
+1955(M)X
+1 f
+2035(])X
+2090(and)X
+2 f
+2243(j)X
+9 f
+2275(\316)X
+1 f
+2345([)X
+2381(0)X
+2432(,)X
+2 f
+2482(N)X
+1 f
+2548(].)X
+2647(Imagine)X
+2962(these)X
+3169(vertices)X
+3469(arranged)X
+3802(in)X
+3897(an)X
+2 f
+4006(M)X
+9 f
+4100(+)X
+1 f
+4162(1)X
+4232(by)X
+2 f
+576 5364(N)N
+9 f
+656(+)X
+1 f
+718(1)X
+788(grid.)X
+1000(Distinguish)X
+9 f
+1433(Q)X
+1 f
+1524(=)X
+1600(\()X
+1636(0)X
+1687(,)X
+1737(0)X
+1788(\))X
+1843(as)X
+2 f
+1942(G)X
+8 s
+2015 5381(A)N
+1 f
+2059(,)X
+2 f
+2095(B)X
+1 f
+11 s
+2141 5364('s)N
+2230(source)X
+2485(vertex,)X
+2753(and)X
+9 f
+2906(F)X
+1 f
+2999(=)X
+3075(\()X
+2 f
+3111(M)X
+1 f
+3191(,)X
+2 f
+3241(N)X
+1 f
+3307(\))X
+3362(as)X
+3461(its)X
+3570(sink)X
+3742(vertex.)X
+4031(The)X
+4193(fol-)X
+576 5476(lowing)N
+843(edges,)X
+1087(and)X
+1236(only)X
+1415(these)X
+1618(edges,)X
+1862(are)X
+1991(in)X
+2 f
+2082(G)X
+8 s
+2155 5493(A)N
+1 f
+2199(,)X
+2 f
+2235(B)X
+1 f
+11 s
+2281 5476(.)N
+2375 6160(-)N
+2426(2)X
+2492(-)X
+
+3 p
+%%Page: 3 3
+11 s 11 xH 0 xS 1 f
+796 732(1.)N
+928(If)X
+2 f
+1008(i)X
+9 f
+1040(\316)X
+1 f
+1110([)X
+1146(1)X
+1197(,)X
+2 f
+1247(M)X
+1 f
+1327(])X
+1378(and)X
+2 f
+1527(j)X
+9 f
+1559(\316)X
+1 f
+1629([)X
+1665(0)X
+1716(,)X
+2 f
+1766(N)X
+1 f
+1832(],)X
+1905(then)X
+2079(there)X
+2277(is)X
+2358(a)X
+2 f
+2419(deletion)X
+1 f
+2726(edge)X
+2914(\()X
+2 f
+2950(i)X
+9 f
+2996(-)X
+1 f
+3058(1)X
+3109(,)X
+2 f
+3166(j)X
+1 f
+3198(\))X
+9 f
+3241 MX
+(->)174 1768 oc
+1 f
+3335(\()X
+2 f
+3371(i)X
+1 f
+3403(,)X
+2 f
+3460(j)X
+1 f
+3492(\))X
+3543(labeled)X
+19 s
+3820 757([)N
+2 f
+11 s
+3896 776(-)N
+3871 671(a)N
+8 s
+3925 688(i)N
+1 f
+19 s
+3950 757(])N
+11 s
+4001 732(.)N
+796 896(2.)N
+928(If)X
+2 f
+1008(i)X
+9 f
+1040(\316)X
+1 f
+1110([)X
+1146(0)X
+1197(,)X
+2 f
+1247(M)X
+1 f
+1327(])X
+1378(and)X
+2 f
+1527(j)X
+9 f
+1559(\316)X
+1 f
+1629([)X
+1665(1)X
+1716(,)X
+2 f
+1766(N)X
+1 f
+1832(],)X
+1905(then)X
+2079(there)X
+2277(is)X
+2358(an)X
+2 f
+2463(insertion)X
+1 f
+2799(edge)X
+2987(\()X
+2 f
+3023(i)X
+1 f
+3055(,)X
+2 f
+3112(j)X
+9 f
+3151(-)X
+1 f
+3213(1)X
+3264(\))X
+9 f
+3307 MX
+(->)174 1768 oc
+1 f
+3401(\()X
+2 f
+3437(i)X
+1 f
+3469(,)X
+2 f
+3526(j)X
+1 f
+3558(\))X
+3609(labeled)X
+19 s
+3886 921([)N
+2 f
+11 s
+3937 940(b)N
+8 s
+3991 957(j)N
+11 s
+3962 852(-)N
+1 f
+19 s
+4016 921(])N
+11 s
+4067 896(.)N
+796 1064(3.)N
+928(If)X
+2 f
+1008(i)X
+9 f
+1040(\316)X
+1 f
+1110([)X
+1146(1)X
+1197(,)X
+2 f
+1247(M)X
+1 f
+1327(])X
+1378(and)X
+2 f
+1527(j)X
+9 f
+1559(\316)X
+1 f
+1629([)X
+1665(1)X
+1716(,)X
+2 f
+1766(N)X
+1 f
+1832(],)X
+1905(then)X
+2079(there)X
+2277(is)X
+2358(a)X
+2 f
+2419(substitution)X
+1 f
+2854(edge)X
+3042(\()X
+2 f
+3078(i)X
+9 f
+3124(-)X
+1 f
+3186(1)X
+3237(,)X
+2 f
+3294(j)X
+9 f
+3333(-)X
+1 f
+3395(1)X
+3446(\))X
+9 f
+3489 MX
+(->)174 1768 oc
+1 f
+3583(\()X
+2 f
+3619(i)X
+1 f
+3651(,)X
+2 f
+3708(j)X
+1 f
+3740(\))X
+3791(labeled)X
+19 s
+4068 1089([)N
+2 f
+11 s
+4119 1108(b)N
+8 s
+4173 1125(j)N
+11 s
+4119 1002(a)N
+8 s
+4173 1019(i)N
+1 f
+19 s
+4198 1089(])N
+11 s
+4249 1064(.)N
+576 1304(Figure)N
+828(1)X
+894(provides)X
+1219(an)X
+1324(example)X
+1645(of)X
+1740(the)X
+1870(construction.)X
+1448 1416 MXY
+2000 
+2016 
+181.00 
+270.00 
+431.00 
+522.00 
+startFig 
+%!
+%%%Title: /tmp/xfig-export008518
+%%%Creator: fig2dev
+%%%CreationDate: Fri Oct 29 13:29:50 1993
+%%%For: gene@cougar (Gene Myers)
+%%%Pages: 1
+%%%BoundingBox: 181 270 431 522
+%%%EndComments
+/$F2psDict 32 dict def 
+$F2psDict begin
+	$F2psDict /mtrx matrix put
+
+ /DrawEllipse {
+	/endangle exch def
+	/startangle exch def
+	/yrad exch def
+	/xrad exch def
+	/y exch def
+	/x exch def
+	/savematrix mtrx currentmatrix def
+	x y translate xrad yrad scale 0 0 1 startangle endangle arc
+	savematrix setmatrix
+	} def newpath 0 0 0 0 0 1 DrawEllipse stroke
+
+	end
+	/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+	/$F2psEnd {$F2psEnteredState restore end} def
+	%%EndProlog
+
+$F2psBegin
+1 setlinecap 1 setlinejoin
+152.000000 540.000000 translate 0.450 -0.450 scale
+1.000 setlinewidth
+%% Polyline
+newpath 357 261 moveto 423 327 lineto 415 327 lineto 432 335 lineto 435 332 lineto 427 315 lineto 427 322 lineto 427 323 lineto 361 257 lineto 357 260 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 518 502 moveto 584 568 lineto 576 568 lineto 593 576 lineto 596 573 lineto 588 556 lineto 588 563 lineto 588 564 lineto 522 498 lineto 518 501 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 436 344 moveto 436 403 lineto 431 397 lineto 436 412 lineto 443 412 lineto 447 397 lineto 442 403 lineto 442 343 lineto 436 342 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 363 422 moveto 424 422 lineto 417 427 lineto 432 422 lineto 432 416 lineto 417 411 lineto 424 416 lineto 362 416 lineto 363 422 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 278 342 moveto 344 408 lineto 336 408 lineto 353 416 lineto 356 413 lineto 348 396 lineto 348 403 lineto 348 404 lineto 282 338 lineto 278 341 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 438 422 moveto 504 488 lineto 496 488 lineto 513 496 lineto 516 493 lineto 508 476 lineto 508 483 lineto 508 484 lineto 442 418 lineto 438 421 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 276 265 moveto 276 324 lineto 271 318 lineto 276 333 lineto 283 333 lineto 287 318 lineto 282 324 lineto 282 264 lineto 276 263 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 118 102 moveto 184 168 lineto 176 168 lineto 193 176 lineto 196 173 lineto 188 156 lineto 188 163 lineto 188 164 lineto 122 98 lineto 118 101 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 203 182 moveto 264 182 lineto 257 187 lineto 272 182 lineto 272 176 lineto 257 171 lineto 264 176 lineto 202 176 lineto 203 182 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 278 182 moveto 344 248 lineto 336 248 lineto 353 256 lineto 356 253 lineto 348 236 lineto 348 243 lineto 348 244 lineto 282 178 lineto 278 181 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Polyline
+newpath 198 182 moveto 264 248 lineto 256 248 lineto 273 256 lineto 276 253 lineto 268 236 lineto 268 243 lineto 268 244 lineto 202 178 lineto 198 181 lineto closepath gsave  0.800 setgray fill grestore  stroke
+%% Ellipse
+newpath 439 339 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 599 579 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 519 499 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 439 419 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 119 99 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 359 419 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 279 339 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 279 179 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 359 259 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 199 179 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Ellipse
+newpath 279 259 7 7 0 360 DrawEllipse gsave  0.800 setgray fill grestore stroke
+%% Polyline
+newpath 199 99 moveto 199 176 lineto  stroke
+newpath 201.000 168.000 moveto 199.000 176.000 lineto 197.000 168.000 lineto stroke
+%% Polyline
+newpath 119 99 moveto 197 99 lineto  stroke
+newpath 189.000 97.000 moveto 197.000 99.000 lineto 189.000 101.000 lineto stroke
+%% Polyline
+newpath 599 99 moveto 599 176 lineto  stroke
+newpath 601.000 168.000 moveto 599.000 176.000 lineto 597.000 168.000 lineto stroke
+%% Polyline
+newpath 199 99 moveto 277 99 lineto  stroke
+newpath 269.000 97.000 moveto 277.000 99.000 lineto 269.000 101.000 lineto stroke
+%% Polyline
+newpath 199 99 moveto 277 177 lineto  stroke
+newpath 272.757 169.929 moveto 277.000 177.000 lineto 269.929 172.757 lineto stroke
+%% Polyline
+newpath 279 99 moveto 279 176 lineto  stroke
+newpath 281.000 168.000 moveto 279.000 176.000 lineto 277.000 168.000 lineto stroke
+%% Polyline
+newpath 119 99 moveto 197 177 lineto  stroke
+newpath 192.757 169.929 moveto 197.000 177.000 lineto 189.929 172.757 lineto stroke
+%% Polyline
+newpath 119 99 moveto 119 176 lineto  stroke
+newpath 121.000 168.000 moveto 119.000 176.000 lineto 117.000 168.000 lineto stroke
+%% Polyline
+newpath 279 99 moveto 357 99 lineto  stroke
+newpath 349.000 97.000 moveto 357.000 99.000 lineto 349.000 101.000 lineto stroke
+%% Polyline
+newpath 279 339 moveto 357 417 lineto  stroke
+newpath 352.757 409.929 moveto 357.000 417.000 lineto 349.929 412.757 lineto stroke
+%% Polyline
+newpath 279 99 moveto 357 177 lineto  stroke
+newpath 352.757 169.929 moveto 357.000 177.000 lineto 349.929 172.757 lineto stroke
+%% Polyline
+newpath 359 99 moveto 359 176 lineto  stroke
+newpath 361.000 168.000 moveto 359.000 176.000 lineto 357.000 168.000 lineto stroke
+%% Polyline
+newpath 439 339 moveto 439 416 lineto  stroke
+newpath 441.000 408.000 moveto 439.000 416.000 lineto 437.000 408.000 lineto stroke
+%% Polyline
+newpath 119 259 moveto 119 336 lineto  stroke
+newpath 121.000 328.000 moveto 119.000 336.000 lineto 117.000 328.000 lineto stroke
+%% Polyline
+newpath 359 99 moveto 437 99 lineto  stroke
+newpath 429.000 97.000 moveto 437.000 99.000 lineto 429.000 101.000 lineto stroke
+%% Polyline
+newpath 599 259 moveto 599 336 lineto  stroke
+newpath 601.000 328.000 moveto 599.000 336.000 lineto 597.000 328.000 lineto stroke
+%% Polyline
+newpath 359 99 moveto 437 177 lineto  stroke
+newpath 432.757 169.929 moveto 437.000 177.000 lineto 429.929 172.757 lineto stroke
+%% Polyline
+newpath 439 99 moveto 439 176 lineto  stroke
+newpath 441.000 168.000 moveto 439.000 176.000 lineto 437.000 168.000 lineto stroke
+%% Polyline
+newpath 199 179 moveto 277 179 lineto  stroke
+newpath 269.000 177.000 moveto 277.000 179.000 lineto 269.000 181.000 lineto stroke
+%% Polyline
+newpath 119 259 moveto 197 337 lineto  stroke
+newpath 192.757 329.929 moveto 197.000 337.000 lineto 189.929 332.757 lineto stroke
+%% Polyline
+newpath 439 99 moveto 517 99 lineto  stroke
+newpath 509.000 97.000 moveto 517.000 99.000 lineto 509.000 101.000 lineto stroke
+%% Polyline
+newpath 119 259 moveto 197 259 lineto  stroke
+newpath 189.000 257.000 moveto 197.000 259.000 lineto 189.000 261.000 lineto stroke
+%% Polyline
+newpath 439 99 moveto 517 177 lineto  stroke
+newpath 512.757 169.929 moveto 517.000 177.000 lineto 509.929 172.757 lineto stroke
+%% Polyline
+newpath 519 99 moveto 519 176 lineto  stroke
+newpath 521.000 168.000 moveto 519.000 176.000 lineto 517.000 168.000 lineto stroke
+%% Polyline
+newpath 199 179 moveto 277 257 lineto  stroke
+newpath 272.757 249.929 moveto 277.000 257.000 lineto 269.929 252.757 lineto stroke
+%% Polyline
+newpath 279 179 moveto 279 256 lineto  stroke
+newpath 281.000 248.000 moveto 279.000 256.000 lineto 277.000 248.000 lineto stroke
+%% Polyline
+newpath 519 99 moveto 597 99 lineto  stroke
+newpath 589.000 97.000 moveto 597.000 99.000 lineto 589.000 101.000 lineto stroke
+%% Polyline
+newpath 199 259 moveto 277 259 lineto  stroke
+newpath 269.000 257.000 moveto 277.000 259.000 lineto 269.000 261.000 lineto stroke
+%% Polyline
+newpath 519 99 moveto 597 177 lineto  stroke
+newpath 592.757 169.929 moveto 597.000 177.000 lineto 589.929 172.757 lineto stroke
+%% Polyline
+newpath 519 579 moveto 597 579 lineto  stroke
+newpath 589.000 577.000 moveto 597.000 579.000 lineto 589.000 581.000 lineto stroke
+%% Polyline
+newpath 439 579 moveto 517 579 lineto  stroke
+newpath 509.000 577.000 moveto 517.000 579.000 lineto 509.000 581.000 lineto stroke
+%% Polyline
+newpath 359 579 moveto 437 579 lineto  stroke
+newpath 429.000 577.000 moveto 437.000 579.000 lineto 429.000 581.000 lineto stroke
+%% Polyline
+newpath 279 579 moveto 357 579 lineto  stroke
+newpath 349.000 577.000 moveto 357.000 579.000 lineto 349.000 581.000 lineto stroke
+%% Polyline
+newpath 199 579 moveto 277 579 lineto  stroke
+newpath 269.000 577.000 moveto 277.000 579.000 lineto 269.000 581.000 lineto stroke
+%% Polyline
+newpath 119 579 moveto 197 579 lineto  stroke
+newpath 189.000 577.000 moveto 197.000 579.000 lineto 189.000 581.000 lineto stroke
+%% Polyline
+newpath 599 499 moveto 599 576 lineto  stroke
+newpath 601.000 568.000 moveto 599.000 576.000 lineto 597.000 568.000 lineto stroke
+%% Polyline
+newpath 519 499 moveto 597 577 lineto  stroke
+newpath 592.757 569.929 moveto 597.000 577.000 lineto 589.929 572.757 lineto stroke
+%% Polyline
+newpath 519 499 moveto 597 499 lineto  stroke
+newpath 589.000 497.000 moveto 597.000 499.000 lineto 589.000 501.000 lineto stroke
+%% Polyline
+newpath 519 499 moveto 519 576 lineto  stroke
+newpath 521.000 568.000 moveto 519.000 576.000 lineto 517.000 568.000 lineto stroke
+%% Polyline
+newpath 439 499 moveto 517 577 lineto  stroke
+newpath 512.757 569.929 moveto 517.000 577.000 lineto 509.929 572.757 lineto stroke
+%% Polyline
+newpath 439 499 moveto 517 499 lineto  stroke
+newpath 509.000 497.000 moveto 517.000 499.000 lineto 509.000 501.000 lineto stroke
+%% Polyline
+newpath 439 499 moveto 439 576 lineto  stroke
+newpath 441.000 568.000 moveto 439.000 576.000 lineto 437.000 568.000 lineto stroke
+%% Polyline
+newpath 359 499 moveto 437 577 lineto  stroke
+newpath 432.757 569.929 moveto 437.000 577.000 lineto 429.929 572.757 lineto stroke
+%% Polyline
+newpath 359 499 moveto 437 499 lineto  stroke
+newpath 429.000 497.000 moveto 437.000 499.000 lineto 429.000 501.000 lineto stroke
+%% Polyline
+newpath 359 499 moveto 359 576 lineto  stroke
+newpath 361.000 568.000 moveto 359.000 576.000 lineto 357.000 568.000 lineto stroke
+%% Polyline
+newpath 279 499 moveto 357 577 lineto  stroke
+newpath 352.757 569.929 moveto 357.000 577.000 lineto 349.929 572.757 lineto stroke
+%% Polyline
+newpath 279 499 moveto 357 499 lineto  stroke
+newpath 349.000 497.000 moveto 357.000 499.000 lineto 349.000 501.000 lineto stroke
+%% Polyline
+newpath 279 499 moveto 279 576 lineto  stroke
+newpath 281.000 568.000 moveto 279.000 576.000 lineto 277.000 568.000 lineto stroke
+%% Polyline
+newpath 199 499 moveto 277 577 lineto  stroke
+newpath 272.757 569.929 moveto 277.000 577.000 lineto 269.929 572.757 lineto stroke
+%% Polyline
+newpath 199 499 moveto 277 499 lineto  stroke
+newpath 269.000 497.000 moveto 277.000 499.000 lineto 269.000 501.000 lineto stroke
+%% Polyline
+newpath 199 499 moveto 199 576 lineto  stroke
+newpath 201.000 568.000 moveto 199.000 576.000 lineto 197.000 568.000 lineto stroke
+%% Polyline
+newpath 119 499 moveto 197 577 lineto  stroke
+newpath 192.757 569.929 moveto 197.000 577.000 lineto 189.929 572.757 lineto stroke
+%% Polyline
+newpath 119 499 moveto 197 499 lineto  stroke
+newpath 189.000 497.000 moveto 197.000 499.000 lineto 189.000 501.000 lineto stroke
+%% Polyline
+newpath 119 499 moveto 119 576 lineto  stroke
+newpath 121.000 568.000 moveto 119.000 576.000 lineto 117.000 568.000 lineto stroke
+%% Polyline
+newpath 599 419 moveto 599 496 lineto  stroke
+newpath 601.000 488.000 moveto 599.000 496.000 lineto 597.000 488.000 lineto stroke
+%% Polyline
+newpath 519 419 moveto 597 497 lineto  stroke
+newpath 592.757 489.929 moveto 597.000 497.000 lineto 589.929 492.757 lineto stroke
+%% Polyline
+newpath 519 419 moveto 597 419 lineto  stroke
+newpath 589.000 417.000 moveto 597.000 419.000 lineto 589.000 421.000 lineto stroke
+%% Polyline
+newpath 519 419 moveto 519 496 lineto  stroke
+newpath 521.000 488.000 moveto 519.000 496.000 lineto 517.000 488.000 lineto stroke
+%% Polyline
+newpath 439 419 moveto 517 497 lineto  stroke
+newpath 512.757 489.929 moveto 517.000 497.000 lineto 509.929 492.757 lineto stroke
+%% Polyline
+newpath 439 419 moveto 517 419 lineto  stroke
+newpath 509.000 417.000 moveto 517.000 419.000 lineto 509.000 421.000 lineto stroke
+%% Polyline
+newpath 439 419 moveto 439 496 lineto  stroke
+newpath 441.000 488.000 moveto 439.000 496.000 lineto 437.000 488.000 lineto stroke
+%% Polyline
+newpath 359 419 moveto 437 497 lineto  stroke
+newpath 432.757 489.929 moveto 437.000 497.000 lineto 429.929 492.757 lineto stroke
+%% Polyline
+newpath 359 419 moveto 437 419 lineto  stroke
+newpath 429.000 417.000 moveto 437.000 419.000 lineto 429.000 421.000 lineto stroke
+%% Polyline
+newpath 359 419 moveto 359 496 lineto  stroke
+newpath 361.000 488.000 moveto 359.000 496.000 lineto 357.000 488.000 lineto stroke
+%% Polyline
+newpath 279 419 moveto 357 497 lineto  stroke
+newpath 352.757 489.929 moveto 357.000 497.000 lineto 349.929 492.757 lineto stroke
+%% Polyline
+newpath 279 419 moveto 357 419 lineto  stroke
+newpath 349.000 417.000 moveto 357.000 419.000 lineto 349.000 421.000 lineto stroke
+%% Polyline
+newpath 279 419 moveto 279 496 lineto  stroke
+newpath 281.000 488.000 moveto 279.000 496.000 lineto 277.000 488.000 lineto stroke
+%% Polyline
+newpath 199 419 moveto 277 497 lineto  stroke
+newpath 272.757 489.929 moveto 277.000 497.000 lineto 269.929 492.757 lineto stroke
+%% Polyline
+newpath 199 419 moveto 277 419 lineto  stroke
+newpath 269.000 417.000 moveto 277.000 419.000 lineto 269.000 421.000 lineto stroke
+%% Polyline
+newpath 199 419 moveto 199 496 lineto  stroke
+newpath 201.000 488.000 moveto 199.000 496.000 lineto 197.000 488.000 lineto stroke
+%% Polyline
+newpath 119 419 moveto 197 497 lineto  stroke
+newpath 192.757 489.929 moveto 197.000 497.000 lineto 189.929 492.757 lineto stroke
+%% Polyline
+newpath 119 419 moveto 197 419 lineto  stroke
+newpath 189.000 417.000 moveto 197.000 419.000 lineto 189.000 421.000 lineto stroke
+%% Polyline
+newpath 119 179 moveto 119 256 lineto  stroke
+newpath 121.000 248.000 moveto 119.000 256.000 lineto 117.000 248.000 lineto stroke
+%% Polyline
+newpath 199 259 moveto 199 336 lineto  stroke
+newpath 201.000 328.000 moveto 199.000 336.000 lineto 197.000 328.000 lineto stroke
+%% Polyline
+newpath 519 179 moveto 597 257 lineto  stroke
+newpath 592.757 249.929 moveto 597.000 257.000 lineto 589.929 252.757 lineto stroke
+%% Polyline
+newpath 119 179 moveto 197 179 lineto  stroke
+newpath 189.000 177.000 moveto 197.000 179.000 lineto 189.000 181.000 lineto stroke
+%% Polyline
+newpath 599 179 moveto 599 256 lineto  stroke
+newpath 601.000 248.000 moveto 599.000 256.000 lineto 597.000 248.000 lineto stroke
+%% Polyline
+newpath 119 179 moveto 197 257 lineto  stroke
+newpath 192.757 249.929 moveto 197.000 257.000 lineto 189.929 252.757 lineto stroke
+%% Polyline
+newpath 199 179 moveto 199 256 lineto  stroke
+newpath 201.000 248.000 moveto 199.000 256.000 lineto 197.000 248.000 lineto stroke
+%% Polyline
+newpath 119 419 moveto 119 496 lineto  stroke
+newpath 121.000 488.000 moveto 119.000 496.000 lineto 117.000 488.000 lineto stroke
+%% Polyline
+newpath 199 259 moveto 277 337 lineto  stroke
+newpath 272.757 329.929 moveto 277.000 337.000 lineto 269.929 332.757 lineto stroke
+%% Polyline
+newpath 279 259 moveto 279 336 lineto  stroke
+newpath 281.000 328.000 moveto 279.000 336.000 lineto 277.000 328.000 lineto stroke
+%% Polyline
+newpath 279 259 moveto 357 259 lineto  stroke
+newpath 349.000 257.000 moveto 357.000 259.000 lineto 349.000 261.000 lineto stroke
+%% Polyline
+newpath 279 259 moveto 357 337 lineto  stroke
+newpath 352.757 329.929 moveto 357.000 337.000 lineto 349.929 332.757 lineto stroke
+%% Polyline
+newpath 359 259 moveto 359 336 lineto  stroke
+newpath 361.000 328.000 moveto 359.000 336.000 lineto 357.000 328.000 lineto stroke
+%% Polyline
+newpath 359 259 moveto 437 259 lineto  stroke
+newpath 429.000 257.000 moveto 437.000 259.000 lineto 429.000 261.000 lineto stroke
+%% Polyline
+newpath 359 259 moveto 437 337 lineto  stroke
+newpath 432.757 329.929 moveto 437.000 337.000 lineto 429.929 332.757 lineto stroke
+%% Polyline
+newpath 279 179 moveto 357 179 lineto  stroke
+newpath 349.000 177.000 moveto 357.000 179.000 lineto 349.000 181.000 lineto stroke
+%% Polyline
+newpath 599 339 moveto 599 416 lineto  stroke
+newpath 601.000 408.000 moveto 599.000 416.000 lineto 597.000 408.000 lineto stroke
+%% Polyline
+newpath 279 179 moveto 357 257 lineto  stroke
+newpath 352.757 249.929 moveto 357.000 257.000 lineto 349.929 252.757 lineto stroke
+%% Polyline
+newpath 359 179 moveto 359 256 lineto  stroke
+newpath 361.000 248.000 moveto 359.000 256.000 lineto 357.000 248.000 lineto stroke
+%% Polyline
+newpath 519 339 moveto 597 417 lineto  stroke
+newpath 592.757 409.929 moveto 597.000 417.000 lineto 589.929 412.757 lineto stroke
+%% Polyline
+newpath 519 339 moveto 597 339 lineto  stroke
+newpath 589.000 337.000 moveto 597.000 339.000 lineto 589.000 341.000 lineto stroke
+%% Polyline
+newpath 359 179 moveto 437 179 lineto  stroke
+newpath 429.000 177.000 moveto 437.000 179.000 lineto 429.000 181.000 lineto stroke
+%% Polyline
+newpath 519 339 moveto 519 416 lineto  stroke
+newpath 521.000 408.000 moveto 519.000 416.000 lineto 517.000 408.000 lineto stroke
+%% Polyline
+newpath 359 179 moveto 437 257 lineto  stroke
+newpath 432.757 249.929 moveto 437.000 257.000 lineto 429.929 252.757 lineto stroke
+%% Polyline
+newpath 439 179 moveto 439 256 lineto  stroke
+newpath 441.000 248.000 moveto 439.000 256.000 lineto 437.000 248.000 lineto stroke
+%% Polyline
+newpath 439 339 moveto 517 417 lineto  stroke
+newpath 512.757 409.929 moveto 517.000 417.000 lineto 509.929 412.757 lineto stroke
+%% Polyline
+newpath 439 339 moveto 517 339 lineto  stroke
+newpath 509.000 337.000 moveto 517.000 339.000 lineto 509.000 341.000 lineto stroke
+%% Polyline
+newpath 439 179 moveto 517 179 lineto  stroke
+newpath 509.000 177.000 moveto 517.000 179.000 lineto 509.000 181.000 lineto stroke
+%% Polyline
+newpath 359 339 moveto 437 417 lineto  stroke
+newpath 432.757 409.929 moveto 437.000 417.000 lineto 429.929 412.757 lineto stroke
+%% Polyline
+newpath 439 179 moveto 517 257 lineto  stroke
+newpath 512.757 249.929 moveto 517.000 257.000 lineto 509.929 252.757 lineto stroke
+%% Polyline
+newpath 519 179 moveto 519 256 lineto  stroke
+newpath 521.000 248.000 moveto 519.000 256.000 lineto 517.000 248.000 lineto stroke
+%% Polyline
+newpath 359 339 moveto 437 339 lineto  stroke
+newpath 429.000 337.000 moveto 437.000 339.000 lineto 429.000 341.000 lineto stroke
+%% Polyline
+newpath 359 339 moveto 359 416 lineto  stroke
+newpath 361.000 408.000 moveto 359.000 416.000 lineto 357.000 408.000 lineto stroke
+%% Polyline
+newpath 519 179 moveto 597 179 lineto  stroke
+newpath 589.000 177.000 moveto 597.000 179.000 lineto 589.000 181.000 lineto stroke
+%% Polyline
+newpath 279 339 moveto 357 339 lineto  stroke
+newpath 349.000 337.000 moveto 357.000 339.000 lineto 349.000 341.000 lineto stroke
+%% Polyline
+newpath 439 259 moveto 439 336 lineto  stroke
+newpath 441.000 328.000 moveto 439.000 336.000 lineto 437.000 328.000 lineto stroke
+%% Polyline
+newpath 439 259 moveto 517 259 lineto  stroke
+newpath 509.000 257.000 moveto 517.000 259.000 lineto 509.000 261.000 lineto stroke
+%% Polyline
+newpath 439 259 moveto 517 337 lineto  stroke
+newpath 512.757 329.929 moveto 517.000 337.000 lineto 509.929 332.757 lineto stroke
+%% Polyline
+newpath 519 259 moveto 519 336 lineto  stroke
+newpath 521.000 328.000 moveto 519.000 336.000 lineto 517.000 328.000 lineto stroke
+%% Polyline
+newpath 519 259 moveto 597 259 lineto  stroke
+newpath 589.000 257.000 moveto 597.000 259.000 lineto 589.000 261.000 lineto stroke
+%% Polyline
+newpath 519 259 moveto 597 337 lineto  stroke
+newpath 592.757 329.929 moveto 597.000 337.000 lineto 589.929 332.757 lineto stroke
+%% Polyline
+newpath 119 339 moveto 119 416 lineto  stroke
+newpath 121.000 408.000 moveto 119.000 416.000 lineto 117.000 408.000 lineto stroke
+%% Polyline
+newpath 119 339 moveto 197 339 lineto  stroke
+newpath 189.000 337.000 moveto 197.000 339.000 lineto 189.000 341.000 lineto stroke
+%% Polyline
+newpath 119 339 moveto 197 417 lineto  stroke
+newpath 192.757 409.929 moveto 197.000 417.000 lineto 189.929 412.757 lineto stroke
+%% Polyline
+newpath 199 339 moveto 199 416 lineto  stroke
+newpath 201.000 408.000 moveto 199.000 416.000 lineto 197.000 408.000 lineto stroke
+%% Polyline
+newpath 199 339 moveto 277 339 lineto  stroke
+newpath 269.000 337.000 moveto 277.000 339.000 lineto 269.000 341.000 lineto stroke
+%% Polyline
+newpath 199 339 moveto 277 417 lineto  stroke
+newpath 272.757 409.929 moveto 277.000 417.000 lineto 269.929 412.757 lineto stroke
+%% Polyline
+newpath 279 339 moveto 279 416 lineto  stroke
+newpath 281.000 408.000 moveto 279.000 416.000 lineto 277.000 408.000 lineto stroke
+0.000 setlinewidth
+%% Polyline
+newpath 531 201 moveto 531 224 lineto 508 224 lineto 508 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 201 moveto 565 224 lineto 542 224 lineto 542 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 166 moveto 565 189 lineto 542 189 lineto 542 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 166 moveto 485 189 lineto 462 189 lineto 462 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 201 moveto 451 224 lineto 428 224 lineto 428 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 201 moveto 485 224 lineto 462 224 lineto 462 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 166 moveto 405 189 lineto 382 189 lineto 382 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 201 moveto 371 224 lineto 348 224 lineto 348 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 201 moveto 405 224 lineto 382 224 lineto 382 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 166 moveto 325 189 lineto 302 189 lineto 302 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 201 moveto 245 224 lineto 222 224 lineto 222 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 201 moveto 611 224 lineto 588 224 lineto 588 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 166 moveto 165 189 lineto 142 189 lineto 142 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 201 moveto 131 224 lineto 108 224 lineto 108 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 201 moveto 291 224 lineto 268 224 lineto 268 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 201 moveto 165 224 lineto 142 224 lineto 142 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 531 121 moveto 531 144 lineto 508 144 lineto 508 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 121 moveto 565 144 lineto 542 144 lineto 542 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 86 moveto 485 109 lineto 462 109 lineto 462 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 121 moveto 485 144 lineto 462 144 lineto 462 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 86 moveto 405 109 lineto 382 109 lineto 382 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 201 moveto 325 224 lineto 302 224 lineto 302 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 86 moveto 565 109 lineto 542 109 lineto 542 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 166 moveto 245 189 lineto 222 189 lineto 222 166 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 121 moveto 451 144 lineto 428 144 lineto 428 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 201 moveto 211 224 lineto 188 224 lineto 188 201 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 121 moveto 371 144 lineto 348 144 lineto 348 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 326 moveto 565 349 lineto 542 349 lineto 542 326 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 441 moveto 405 464 lineto 382 464 lineto 382 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 406 moveto 325 429 lineto 302 429 lineto 302 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 281 moveto 611 304 lineto 588 304 lineto 588 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 441 moveto 325 464 lineto 302 464 lineto 302 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 441 moveto 291 464 lineto 268 464 lineto 268 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 121 moveto 131 144 lineto 108 144 lineto 108 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 86 moveto 165 109 lineto 142 109 lineto 142 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 121 moveto 245 144 lineto 222 144 lineto 222 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 121 moveto 211 144 lineto 188 144 lineto 188 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 86 moveto 245 109 lineto 222 109 lineto 222 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 121 moveto 325 144 lineto 302 144 lineto 302 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 121 moveto 291 144 lineto 268 144 lineto 268 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 281 moveto 165 304 lineto 142 304 lineto 142 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 281 moveto 131 304 lineto 108 304 lineto 108 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 441 moveto 245 464 lineto 222 464 lineto 222 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 246 moveto 165 269 lineto 142 269 lineto 142 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 441 moveto 211 464 lineto 188 464 lineto 188 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 566 moveto 485 589 lineto 462 589 lineto 462 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 281 moveto 245 304 lineto 222 304 lineto 222 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 281 moveto 211 304 lineto 188 304 lineto 188 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 531 521 moveto 531 544 lineto 508 544 lineto 508 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 246 moveto 245 269 lineto 222 269 lineto 222 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 486 moveto 565 509 lineto 542 509 lineto 542 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 521 moveto 565 544 lineto 542 544 lineto 542 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 281 moveto 325 304 lineto 302 304 lineto 302 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 281 moveto 291 304 lineto 268 304 lineto 268 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 521 moveto 451 544 lineto 428 544 lineto 428 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 246 moveto 325 269 lineto 302 269 lineto 302 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 486 moveto 485 509 lineto 462 509 lineto 462 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 521 moveto 485 544 lineto 462 544 lineto 462 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 281 moveto 405 304 lineto 382 304 lineto 382 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 281 moveto 371 304 lineto 348 304 lineto 348 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 521 moveto 371 544 lineto 348 544 lineto 348 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 246 moveto 405 269 lineto 382 269 lineto 382 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 486 moveto 405 509 lineto 382 509 lineto 382 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 521 moveto 405 544 lineto 382 544 lineto 382 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 281 moveto 485 304 lineto 462 304 lineto 462 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 281 moveto 451 304 lineto 428 304 lineto 428 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 521 moveto 291 544 lineto 268 544 lineto 268 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 246 moveto 485 269 lineto 462 269 lineto 462 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 486 moveto 325 509 lineto 302 509 lineto 302 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 521 moveto 325 544 lineto 302 544 lineto 302 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 281 moveto 565 304 lineto 542 304 lineto 542 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 531 281 moveto 531 304 lineto 508 304 lineto 508 281 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 521 moveto 211 544 lineto 188 544 lineto 188 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 246 moveto 565 269 lineto 542 269 lineto 542 246 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 486 moveto 245 509 lineto 222 509 lineto 222 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 521 moveto 245 544 lineto 222 544 lineto 222 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 521 moveto 131 544 lineto 108 544 lineto 108 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 521 moveto 165 544 lineto 142 544 lineto 142 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 361 moveto 611 384 lineto 588 384 lineto 588 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 531 441 moveto 531 464 lineto 508 464 lineto 508 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 441 moveto 565 464 lineto 542 464 lineto 542 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 441 moveto 451 464 lineto 428 464 lineto 428 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 441 moveto 485 464 lineto 462 464 lineto 462 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 441 moveto 371 464 lineto 348 464 lineto 348 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 121 moveto 611 144 lineto 588 144 lineto 588 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 361 moveto 565 384 lineto 542 384 lineto 542 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 531 361 moveto 531 384 lineto 508 384 lineto 508 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 566 moveto 325 589 lineto 302 589 lineto 302 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 566 moveto 245 589 lineto 222 589 lineto 222 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 566 moveto 165 589 lineto 142 589 lineto 142 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 521 moveto 611 544 lineto 588 544 lineto 588 521 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 406 moveto 165 429 lineto 142 429 lineto 142 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 441 moveto 165 464 lineto 142 464 lineto 142 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 361 moveto 405 384 lineto 382 384 lineto 382 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 371 361 moveto 371 384 lineto 348 384 lineto 348 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 361 moveto 245 384 lineto 222 384 lineto 222 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 211 361 moveto 211 384 lineto 188 384 lineto 188 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 566 moveto 565 589 lineto 542 589 lineto 542 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 406 moveto 245 429 lineto 222 429 lineto 222 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 566 moveto 405 589 lineto 382 589 lineto 382 566 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 441 moveto 131 464 lineto 108 464 lineto 108 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 486 moveto 165 509 lineto 142 509 lineto 142 486 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 326 moveto 485 349 lineto 462 349 lineto 462 326 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 361 moveto 485 384 lineto 462 384 lineto 462 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 86 moveto 325 109 lineto 302 109 lineto 302 86 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 326 moveto 165 349 lineto 142 349 lineto 142 326 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 326 moveto 405 349 lineto 382 349 lineto 382 326 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 565 406 moveto 565 429 lineto 542 429 lineto 542 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 326 moveto 325 349 lineto 302 349 lineto 302 326 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 131 361 moveto 131 384 lineto 108 384 lineto 108 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 291 361 moveto 291 384 lineto 268 384 lineto 268 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 325 361 moveto 325 384 lineto 302 384 lineto 302 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 361 moveto 165 384 lineto 142 384 lineto 142 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 485 406 moveto 485 429 lineto 462 429 lineto 462 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 406 moveto 405 429 lineto 382 429 lineto 382 406 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 165 121 moveto 165 144 lineto 142 144 lineto 142 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 451 361 moveto 451 384 lineto 428 384 lineto 428 361 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 611 441 moveto 611 464 lineto 588 464 lineto 588 441 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 405 121 moveto 405 144 lineto 382 144 lineto 382 121 lineto closepath gsave  1.000 setgray fill grestore % Polyline
+newpath 245 326 moveto 245 349 lineto 222 349 lineto 222 326 lineto closepath gsave  1.000 setgray fill grestore 1.000 setlinewidth
+%% Ellipse
+newpath 199 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+470 175 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 255 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 599 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 519 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+550 290 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 210 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 175 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 119 339 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+470 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 210 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 175 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 290 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 255 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 210 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 255 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 335 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 370 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 335 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 370 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 335 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 370 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 335 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 370 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 345 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 335 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 370 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 290 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 175 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 370 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 119 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 519 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 599 419 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+150 175 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 290 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 599 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+310 255 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 255 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 290 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 279 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+596 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 119 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+596 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 95 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 290 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 210 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 130 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 95 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 265 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 335 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 370 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 290 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 415 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 450 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 415 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 450 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 415 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 450 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 415 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 450 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 415 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 450 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 425 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 415 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 450 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 450 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 460 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 119 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 519 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 599 499 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+470 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 210 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 255 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 210 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 175 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 130 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 95 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 185 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 130 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 95 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 130 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 95 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 380 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 519 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+150 495 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 530 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 495 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 530 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 495 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 530 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 495 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 530 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 495 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 530 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 505 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 495 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 530 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 530 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+196 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+276 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+356 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+436 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 540 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 119 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 519 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 599 579 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+150 105 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 439 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+116 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+116 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+516 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 220 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 130 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 359 179 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+150 95 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 300 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 575 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+150 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+230 575 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+310 575 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 575 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+390 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+470 575 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 585 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+550 575 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 210 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 519 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 119 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+550 130 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 519 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 439 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 359 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 279 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 199 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 119 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 12.000 scalefont setfont
+596 140 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 12.000 scalefont setfont
+596 130 moveto 
+1 -1 scale
+(-) gsave  0.000 rotate show grestore 1 -1 scale
+%% Ellipse
+newpath 599 259 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+%% Ellipse
+newpath 599 99 3 3 0 360 DrawEllipse gsave  0.000 setgray fill grestore stroke
+/Courier findfont 22.000 scalefont setfont
+239 54 moveto 
+1 -1 scale
+(i) gsave  0.000 rotate show grestore 1 -1 scale
+2.000 setlinewidth
+%% Polyline
+newpath 259 44 moveto 379 44 lineto  stroke
+newpath 363.000 40.000 moveto 379.000 44.000 lineto 363.000 48.000 lineto stroke
+/Courier findfont 22.000 scalefont setfont
+64 199 moveto 
+1 -1 scale
+(j) gsave  0.000 rotate show grestore 1 -1 scale
+%% Polyline
+newpath 74 209 moveto 74 329 lineto  stroke
+newpath 78.000 313.000 moveto 74.000 329.000 lineto 70.000 313.000 lineto stroke
+/Courier findfont 22.000 scalefont setfont
+149 79 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+389 79 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+469 79 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+229 79 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+309 79 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 459 moveto 
+1 -1 scale
+(C) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 139 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 219 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 299 moveto 
+1 -1 scale
+(A) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 379 moveto 
+1 -1 scale
+(T) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+549 79 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Courier findfont 22.000 scalefont setfont
+89 539 moveto 
+1 -1 scale
+(G) gsave  0.000 rotate show grestore 1 -1 scale
+/Symbol findfont 24.000 scalefont setfont
+614 599 moveto 
+1 -1 scale
+(F) gsave  0.000 rotate show grestore 1 -1 scale
+/Symbol findfont 24.000 scalefont setfont
+94 84 moveto 
+1 -1 scale
+(Q) gsave  0.000 rotate show grestore 1 -1 scale
+showpage
+$F2psEnd
+endFig 
+3 f
+1739 3656(Figure)N
+2011(1)X
+1 f
+(:)S
+2 f
+2102(G)X
+8 s
+2175 3673(A)N
+1 f
+2219(,)X
+2 f
+2255(B)X
+1 f
+11 s
+2323 3656(for)N
+2 f
+2447(A)X
+1 f
+2523(=)X
+2 f
+2595(ab)X
+1 f
+2705(and)X
+2 f
+2854(B)X
+1 f
+2930(=)X
+2 f
+3002(baa)X
+1 f
+(.)S
+696 3852(Let)N
+2 f
+837(A)X
+8 s
+901 3869(i)N
+1 f
+11 s
+949 3852(denote)N
+1207(the)X
+2 f
+1338(i)X
+1 f
+1363(-symbol)X
+1675(pre\256x)X
+1903(of)X
+2 f
+1999(A)X
+1 f
+2053(,)X
+2098(i.e.,)X
+2 f
+2251(A)X
+1 f
+8 s
+2315 3869(0)N
+11 s
+2377 3852(=)N
+9 f
+2450(e)X
+1 f
+2512(and)X
+2 f
+2662(A)X
+8 s
+2726 3869(i)N
+1 f
+11 s
+2775 3852(=)N
+2 f
+2849(a)X
+1 f
+8 s
+2903 3869(1)N
+2 f
+11 s
+2949 3852(a)N
+1 f
+8 s
+3003 3869(2)N
+11 s
+3071 3830(.)N
+3115(.)X
+3159(.)X
+2 f
+3210 3852(a)N
+8 s
+3264 3869(i)N
+1 f
+11 s
+3313 3852(for)N
+2 f
+3439(i)X
+9 f
+3471(\316)X
+1 f
+3541([)X
+3577(1)X
+3628(,)X
+2 f
+3678(M)X
+1 f
+3758(].)X
+3855(Similarly,)X
+2 f
+4231(B)X
+8 s
+4295 3869(j)N
+1 f
+11 s
+576 3964(is)N
+664(the)X
+2 f
+801(j)X
+1 f
+826(-symbol)X
+1143(pre\256x)X
+1376(of)X
+2 f
+1477(B)X
+1 f
+1531(.)X
+1603(A)X
+1694(path)X
+1874(in)X
+2 f
+1971(G)X
+8 s
+2044 3981(A)N
+1 f
+2088(,)X
+2 f
+2124(B)X
+1 f
+11 s
+2198 3964(is)N
+2285(said)X
+2455(to)X
+3 f
+2552(spell)X
+1 f
+2752(the)X
+2888(alignment)X
+3270(obtained)X
+3602(by)X
+3718(concatenating)X
+4236(its)X
+576 4076(edge)N
+772(labels.)X
+1052(The)X
+1219(central)X
+1489(feature)X
+1763(of)X
+1866(the)X
+2004(construction)X
+2470(of)X
+2573(the)X
+2712(edit)X
+2876(graph)X
+3107(is)X
+3197(that)X
+3361(each)X
+3553(path)X
+3736(from)X
+9 f
+3938(Q)X
+1 f
+4034(to)X
+4134(\()X
+2 f
+4170(i)X
+1 f
+4202(,)X
+2 f
+4259(j)X
+1 f
+4291(\))X
+576 4188(spells)N
+805(an)X
+916(alignment)X
+1298(of)X
+2 f
+1399(A)X
+8 s
+1463 4205(i)N
+1 f
+11 s
+1516 4188(and)N
+2 f
+1671(B)X
+8 s
+1735 4205(j)N
+1 f
+11 s
+1760 4188(,)N
+1810(and)X
+1965(a)X
+2031(different)X
+2361(path)X
+2540(spells)X
+2768(a)X
+2834(different)X
+3164(alignment.)X
+3589(To)X
+3714(see)X
+3853(this)X
+4008(note)X
+4187(that)X
+576 4344(an)N
+684(alignment)X
+1063(between)X
+2 f
+1381(A)X
+8 s
+1445 4361(i)N
+1 f
+11 s
+1495 4344(and)N
+2 f
+1647(B)X
+8 s
+1711 4361(j)N
+1 f
+11 s
+1761 4344(must)N
+1958(end)X
+2110(with)X
+2292(one)X
+2444(of)X
+2542(the)X
+2675(aligned)X
+2960(pairs,)X
+19 s
+3195 4369([)N
+2 f
+11 s
+3271 4388(-)N
+3246 4283(a)N
+8 s
+3300 4300(i)N
+1 f
+19 s
+3325 4369(])N
+11 s
+3376 4344(,)N
+19 s
+3440 4369([)N
+2 f
+11 s
+3491 4388(b)N
+8 s
+3545 4405(j)N
+11 s
+3516 4300(-)N
+1 f
+19 s
+3570 4369(])N
+11 s
+3621 4344(,)N
+3669(or)X
+19 s
+3784 4369([)N
+2 f
+11 s
+3835 4388(b)N
+8 s
+3889 4405(j)N
+11 s
+3835 4282(a)N
+8 s
+3889 4299(i)N
+1 f
+19 s
+3914 4369(])N
+11 s
+3965 4344(.)N
+4035(Thus)X
+4237(an)X
+576 4500(alignment)N
+961(between)X
+2 f
+1285(A)X
+8 s
+1349 4517(i)N
+1 f
+11 s
+1405 4500(and)N
+2 f
+1563(B)X
+8 s
+1627 4517(j)N
+1 f
+11 s
+1683 4500(must)N
+1886(be)X
+2000(either)X
+2232(\(1\))X
+2365(an)X
+2479(alignment)X
+2863(between)X
+2 f
+3186(A)X
+8 s
+3250 4517(i)N
+9 f
+3283(-)X
+1 f
+3328(1)X
+11 s
+3397 4500(and)N
+2 f
+3554(B)X
+8 s
+3618 4517(j)N
+1 f
+11 s
+3673 4500(concatenated)N
+4163(with)X
+19 s
+576 4681([)N
+2 f
+11 s
+652 4700(-)N
+627 4595(a)N
+8 s
+681 4612(i)N
+1 f
+19 s
+706 4681(])N
+11 s
+757 4656(,)N
+803(\(2\))X
+929(an)X
+1036(alignment)X
+1414(between)X
+2 f
+1731(A)X
+8 s
+1795 4673(i)N
+1 f
+11 s
+1845 4656(and)N
+2 f
+1997(B)X
+8 s
+2061 4673(j)N
+9 f
+2089(-)X
+1 f
+2134(1)X
+11 s
+2198 4656(concatenated)N
+2683(with)X
+19 s
+2881 4681([)N
+2 f
+11 s
+2932 4700(b)N
+8 s
+2986 4717(j)N
+11 s
+2957 4612(-)N
+1 f
+19 s
+3011 4681(])N
+11 s
+3062 4656(,)N
+3109(or)X
+3207(\(3\))X
+3334(an)X
+3442(alignment)X
+3821(between)X
+2 f
+4139(A)X
+8 s
+4203 4673(i)N
+9 f
+4236(-)X
+1 f
+4281(1)X
+11 s
+576 4856(and)N
+2 f
+731(B)X
+8 s
+795 4873(j)N
+9 f
+823(-)X
+1 f
+868(1)X
+11 s
+935 4856(concatenated)N
+1423(with)X
+19 s
+1624 4881([)N
+2 f
+11 s
+1675 4900(b)N
+8 s
+1729 4917(j)N
+11 s
+1675 4794(a)N
+8 s
+1729 4811(i)N
+1 f
+19 s
+1754 4881(])N
+11 s
+1805 4856(.)N
+1877(This)X
+2062(property)X
+2388(of)X
+2489(the)X
+2625(construction)X
+3089(thus)X
+3263(implies)X
+3551(that)X
+3711(there)X
+3914(is)X
+4000(a)X
+4066(one-to-)X
+576 5012(one)N
+730(correspondence)X
+1308(between)X
+1628(paths)X
+1841(in)X
+2 f
+1938(G)X
+8 s
+2011 5029(A)N
+1 f
+2055(,)X
+2 f
+2091(B)X
+1 f
+11 s
+2165 5012(from)N
+9 f
+2364(Q)X
+1 f
+2457(to)X
+9 f
+2554(F)X
+1 f
+2649(and)X
+2804(alignments)X
+3220(of)X
+2 f
+3321(A)X
+1 f
+3403(and)X
+2 f
+3558(B)X
+1 f
+3612(.)X
+3684(In)X
+3785(the)X
+3921(parlance)X
+4247(of)X
+576 5124(computer)N
+936(science,)X
+2 f
+1244(G)X
+8 s
+1317 5141(A)N
+1 f
+1361(,)X
+2 f
+1397(B)X
+1 f
+11 s
+1470 5124(is)N
+1556(a)X
+3 f
+1622(\256nite)X
+1840(automaton)X
+1 f
+2272([HoU79])X
+2615(that)X
+2775(accepts)X
+3061(the)X
+3195(set)X
+3319(of)X
+3418(all)X
+3533(alignments)X
+3947(between)X
+2 f
+4266(A)X
+1 f
+576 5236(and)N
+2 f
+725(B)X
+1 f
+779(.)X
+696 5376(Our)N
+860(goal)X
+1040(is)X
+1127(an)X
+1238(algorithm)X
+1610(that)X
+1771(computes)X
+2137(an)X
+2248(optimal)X
+2547(alignment)X
+2929(of)X
+2 f
+3030(A)X
+1 f
+3112(and)X
+2 f
+3267(B)X
+1 f
+3321(.)X
+3393(Consider)X
+3739(weighting)X
+2 f
+4121(G)X
+8 s
+4194 5393(A)N
+1 f
+4238(,)X
+2 f
+4274(B)X
+1 f
+11 s
+576 5514(by)N
+688(assigning)X
+1045(cost)X
+9 f
+1211(d)X
+1 f
+1262(\()X
+2 f
+1298(a)X
+1 f
+1349(,)X
+2 f
+1399(b)X
+1 f
+1450(\))X
+1503(to)X
+1596(each)X
+1781(edge)X
+1971(labeled)X
+19 s
+2266 5539([)N
+2 f
+11 s
+2317 5558(b)N
+2317 5470(a)N
+1 f
+19 s
+5539(])Y
+11 s
+2412 5514(.)N
+2480(Notice)X
+2739(that)X
+2896(the)X
+3028(sum)X
+3199(of)X
+3296(the)X
+3427(weights)X
+3724(of)X
+3820(a)X
+3882(path's)X
+4120(edges)X
+576 5652(is)N
+666(exactly)X
+952(the)X
+1091(sum)X
+1269(of)X
+1373(the)X
+1512(scores)X
+1762(of)X
+1866(the)X
+2005(aligned)X
+2296(pairs)X
+2498(in)X
+2598(its)X
+2713(corresponding)X
+3248(alignment.)X
+3678(Thus)X
+3886(the)X
+4026(problem)X
+576 5764(reduces)N
+869(to)X
+963(computing)X
+1366(a)X
+1430(minimum-weight)X
+2068(path)X
+2244(from)X
+9 f
+2439(Q)X
+1 f
+2528(to)X
+9 f
+2621(F)X
+1 f
+2712(in)X
+2 f
+2805(G)X
+8 s
+2878 5781(A)N
+1 f
+2922(,)X
+2 f
+2958(B)X
+1 f
+11 s
+3028 5764(as)N
+3125(weighted)X
+3472(by)X
+9 f
+3584(d)X
+1 f
+3628(.)X
+3696(In)X
+3793(the)X
+3925(parlance)X
+4247(of)X
+2375 6160(-)N
+2426(3)X
+2492(-)X
+
+4 p
+%%Page: 4 4
+11 s 11 xH 0 xS 1 f
+576 688(computer)N
+936(science,)X
+1244(sequence)X
+1593(comparison)X
+2031(has)X
+2175(been)X
+2368(reduced)X
+2673(a)X
+2739(shortest)X
+3040(paths)X
+3253(problem)X
+3574([Joh77])X
+3869(over)X
+4053(a)X
+4120(graph)X
+576 800(with)N
+755(a)X
+816(highly)X
+1064(regular)X
+1335(structure.)X
+696 940(Because)N
+2 f
+1013(G)X
+8 s
+1086 957(A)N
+1 f
+1130(,)X
+2 f
+1166(B)X
+1 f
+11 s
+1236 940(is)N
+1319(acyclic,)X
+1615(a)X
+1678(minimum-weight)X
+2316(path)X
+2492(can)X
+2638(be)X
+2745(determined)X
+3166(in)X
+3259(a)X
+3322(single)X
+3558(pass)X
+3734(over)X
+3915(its)X
+4024(vertices,)X
+576 1052(so)N
+685(long)X
+873(as)X
+976(they)X
+1158(are)X
+1295(taken)X
+1516(in)X
+1615(a)X
+3 f
+1684(topological)X
+2126(order)X
+1 f
+2336(,)X
+2388(i.e.,)X
+2548(an)X
+2661(ordering)X
+2989(of)X
+3092(the)X
+3230(vertices)X
+3534(with)X
+3721(the)X
+3859(property)X
+4187(that)X
+576 1164(every)N
+793(edge)X
+982(is)X
+1064(directed)X
+1371(from)X
+1565(a)X
+1627(vertex)X
+1870(to)X
+1962(a)X
+2024(successor)X
+2383(in)X
+2475(the)X
+2606(ordering.)X
+2971(One)X
+3140(topological)X
+3561(order)X
+3769(for)X
+2 f
+3894(G)X
+8 s
+3967 1181(A)N
+1 f
+4011(,)X
+2 f
+4047(B)X
+1 f
+11 s
+4093 1164('s)N
+4179(ver-)X
+576 1276(tices)N
+763(is)X
+847(to)X
+941(treat)X
+1123(the)X
+1256(rows)X
+1451(in)X
+1545(order,)X
+1777(sweeping)X
+2134(left)X
+2277(to)X
+2371(right)X
+2563(within)X
+2814(a)X
+2878(row.)X
+3083(Using)X
+3318(this)X
+3471(vertex)X
+3716(ordering,)X
+4061(the)X
+4193(fol-)X
+576 1388(lowing)N
+852(procedure)X
+1234(computes)X
+1603(the)X
+1742(score,)X
+2 f
+1980(C)X
+1 f
+2046(\()X
+2 f
+2082(i)X
+1 f
+2114(,)X
+2 f
+2171(j)X
+1 f
+2203(\),)X
+2285(of)X
+2389(a)X
+2459(minimum-weight)X
+3104(path)X
+3288(from)X
+9 f
+3491(Q)X
+1 f
+3588(to)X
+3689(each)X
+3882(vertex)X
+4134(\()X
+2 f
+4170(i)X
+1 f
+4202(,)X
+2 f
+4259(j)X
+1 f
+4291(\))X
+576 1500(where)N
+2 f
+812(i)X
+9 f
+844(\316)X
+1 f
+914([)X
+950(0)X
+1001(,)X
+2 f
+1051(M)X
+1 f
+1131(])X
+1182(and)X
+2 f
+1331(j)X
+9 f
+1363(\316)X
+1 f
+1433([)X
+1469(0)X
+1520(,)X
+2 f
+1570(N)X
+1 f
+1636(].)X
+2 f
+796 1668(C)N
+1 f
+862(\()X
+898(0)X
+949(,)X
+999(0)X
+1050(\))X
+9 f
+1101 MX
+(<-)172 1768 oc
+1 f
+1210(0)X
+3 f
+796 1780(for)N
+2 f
+930(j)X
+1 f
+9 f
+977 MX
+(<-)172 1768 oc
+1 f
+1086(1)X
+3 f
+1152(to)X
+2 f
+1247(N)X
+3 f
+1328(do)X
+2 f
+972 1892(C)N
+1 f
+1038(\()X
+1074(0)X
+1125(,)X
+2 f
+1182(j)X
+1 f
+1214(\))X
+9 f
+1265 MX
+(<-)172 1768 oc
+2 f
+1374(C)X
+1 f
+1440(\()X
+1476(0)X
+1527(,)X
+2 f
+1584(j)X
+9 f
+1623(-)X
+1 f
+1685(1)X
+1736(\))X
+1787(+)X
+9 f
+1859(d)X
+1 f
+1910(\()X
+2 f
+1946(-)X
+1 f
+1982(,)X
+2 f
+2032(b)X
+8 s
+2086 1909(j)N
+1 f
+11 s
+2118 1892(\))N
+3 f
+796 2004(for)N
+2 f
+930(i)X
+1 f
+9 f
+977 MX
+(<-)172 1768 oc
+1 f
+1086(1)X
+3 f
+1152(to)X
+2 f
+1247(M)X
+3 f
+1342(do)X
+1 f
+862 2116({)N
+2 f
+972(C)X
+1 f
+1038(\()X
+2 f
+1074(i)X
+1 f
+1106(,)X
+1156(0)X
+1207(\))X
+9 f
+1258 MX
+(<-)172 1768 oc
+2 f
+1367(C)X
+1 f
+1433(\()X
+2 f
+1469(i)X
+9 f
+1515(-)X
+1 f
+1577(1)X
+1628(,)X
+1678(0)X
+1729(\))X
+2 f
+9 f
+1808(+)X
+1 f
+9 f
+1899(d)X
+1 f
+1950(\()X
+2 f
+1986(a)X
+8 s
+2040 2133(i)N
+1 f
+11 s
+2072 2116(,)N
+2 f
+2122(-)X
+1 f
+2158(\))X
+3 f
+972 2228(for)N
+2 f
+1106(j)X
+1 f
+9 f
+1153 MX
+(<-)172 1768 oc
+1 f
+1262(1)X
+3 f
+1328(to)X
+2 f
+1423(N)X
+3 f
+1504(do)X
+2 f
+1148 2340(C)N
+1 f
+1214(\()X
+2 f
+1250(i)X
+1 f
+1282(,)X
+2 f
+1339(j)X
+1 f
+1371(\))X
+9 f
+1443 MX
+(<-)172 1768 oc
+1 f
+1566(min)X
+2 f
+1711({)X
+1753(C)X
+1 f
+1819(\()X
+2 f
+1855(i)X
+9 f
+1901(-)X
+1 f
+1963(1)X
+2014(,)X
+2 f
+2071(j)X
+1 f
+2103(\))X
+2 f
+9 f
+2182(+)X
+1 f
+9 f
+2273(d)X
+1 f
+2324(\()X
+2 f
+2360(a)X
+8 s
+2414 2357(i)N
+1 f
+11 s
+2446 2340(,)N
+2 f
+2496(-)X
+1 f
+2532(\))X
+2575(,)X
+2 f
+2633(C)X
+1 f
+2699(\()X
+2 f
+2735(i)X
+1 f
+2767(,)X
+2 f
+2824(j)X
+9 f
+2863(-)X
+1 f
+2925(1)X
+2976(\))X
+2 f
+9 f
+3055(+)X
+1 f
+9 f
+3146(d)X
+1 f
+3197(\()X
+2 f
+3233(-)X
+1 f
+3269(,)X
+2 f
+3319(b)X
+8 s
+3373 2357(j)N
+1 f
+11 s
+3405 2340(\))N
+3448(,)X
+2 f
+3506(C)X
+1 f
+3572(\()X
+2 f
+3608(i)X
+9 f
+3654(-)X
+1 f
+3716(1)X
+3767(,)X
+2 f
+3824(j)X
+9 f
+3863(-)X
+1 f
+3925(1)X
+3976(\))X
+2 f
+9 f
+4055(+)X
+1 f
+9 f
+4146(d)X
+1 f
+4197(\()X
+2 f
+4233(a)X
+8 s
+4287 2357(i)N
+1 f
+11 s
+4319 2340(,)N
+2 f
+4369(b)X
+8 s
+4423 2357(j)N
+1 f
+11 s
+4455 2340(\))N
+2 f
+4498(})X
+1 f
+862 2452(})N
+3 f
+796 2564(write)N
+1 f
+1013("Difference)X
+1446(score)X
+1653(is")X
+2 f
+1770(C)X
+1 f
+1836(\()X
+2 f
+1872(M)X
+1 f
+1952(,)X
+2 f
+2002(N)X
+1 f
+2068(\))X
+3 f
+1397 2788(Figure)N
+1669(2)X
+1 f
+(:)S
+1760(The)X
+1919(traditional)X
+2305(dynamic)X
+2631(programming)X
+3133(algorithm.)X
+696 2984(Note)N
+893(that)X
+2 f
+1052(C)X
+1 f
+1118(\()X
+2 f
+1154(i)X
+1 f
+1186(,)X
+2 f
+1243(j)X
+1 f
+1275(\))X
+1330(is)X
+1415(the)X
+1549(cost)X
+1718(of)X
+1818(the)X
+1953(best)X
+2122(alignment)X
+2503(between)X
+2 f
+2823(A)X
+8 s
+2887 3001(i)N
+1 f
+11 s
+2939 2984(and)N
+2 f
+3093(B)X
+8 s
+3157 3001(j)N
+1 f
+11 s
+3182 2984(.)N
+3253(From)X
+3471(yet)X
+3606(another)X
+3897(perspective,)X
+576 3096(the)N
+706(matrix)X
+959(of)X
+2 f
+1054(C)X
+1 f
+1113(-values)X
+1389(are)X
+1518(de\256ned)X
+1799(by)X
+1909(the)X
+2039(recurrence:)X
+2 f
+752 3690(C)N
+1 f
+818(\()X
+2 f
+854(i)X
+1 f
+886(,)X
+2 f
+943(j)X
+1 f
+975(\))X
+1026(=)X
+10 f
+1105 3261(I)N
+1105 3349(J)N
+1105 3437(J)N
+1105 3525(J)N
+1105 3613(J)N
+1105 3701(K)N
+1105 3789(J)N
+1105 3877(J)N
+1105 3965(J)N
+1105 4053(J)N
+1105 4141(L)N
+1 f
+1185 4089(0)N
+2 f
+1185 3949(C)N
+1 f
+1251(\()X
+2 f
+1287(i)X
+9 f
+1333(-)X
+1 f
+1395(1)X
+1446(,)X
+2 f
+1503(j)X
+1 f
+1535(\))X
+2 f
+9 f
+1606(+)X
+1 f
+9 f
+1689(d)X
+1 f
+1740(\()X
+2 f
+1776(a)X
+8 s
+1830 3966(i)N
+1 f
+11 s
+1862 3949(,)N
+2 f
+1912(-)X
+1 f
+1948(\))X
+2 f
+1185 3808(C)N
+1 f
+1251(\()X
+2 f
+1287(i)X
+1 f
+1319(,)X
+2 f
+1376(j)X
+9 f
+1415(-)X
+1 f
+1477(1)X
+1528(\))X
+2 f
+9 f
+1599(+)X
+1 f
+9 f
+1682(d)X
+1 f
+1733(\()X
+2 f
+1769(-)X
+1 f
+1805(,)X
+2 f
+1855(b)X
+8 s
+1909 3825(j)N
+1 f
+11 s
+1941 3808(\))N
+1185 3487(min)N
+10 f
+1337 3322(I)N
+1337 3410(J)N
+1337 3498(K)N
+1337 3586(J)N
+1337 3674(L)N
+2 f
+3628(C)Y
+1 f
+1425(\()X
+2 f
+1461(i)X
+1 f
+1493(,)X
+2 f
+1550(j)X
+9 f
+1589(-)X
+1 f
+1651(1)X
+1702(\))X
+2 f
+9 f
+1773(+)X
+1 f
+9 f
+1856(d)X
+1 f
+1907(\()X
+2 f
+1943(-)X
+1 f
+1979(,)X
+2 f
+2029(b)X
+8 s
+2083 3645(j)N
+1 f
+11 s
+2115 3628(\))N
+2 f
+1359 3487(C)N
+1 f
+1425(\()X
+2 f
+1461(i)X
+9 f
+1507(-)X
+1 f
+1569(1)X
+1620(,)X
+2 f
+1677(j)X
+1 f
+1709(\))X
+2 f
+9 f
+1780(+)X
+1 f
+9 f
+1863(d)X
+1 f
+1914(\()X
+2 f
+1950(a)X
+8 s
+2004 3504(i)N
+1 f
+11 s
+2036 3487(,)N
+2 f
+2086(-)X
+1 f
+2122(\))X
+2 f
+1359 3346(C)N
+1 f
+1425(\()X
+2 f
+1461(i)X
+9 f
+1507(-)X
+1 f
+1569(1)X
+1620(,)X
+2 f
+1677(j)X
+9 f
+1716(-)X
+1 f
+1778(1)X
+1829(\))X
+2 f
+9 f
+1900(+)X
+1 f
+9 f
+1983(d)X
+1 f
+2034(\()X
+2 f
+2070(a)X
+8 s
+2124 3363(i)N
+1 f
+11 s
+2156 3346(,)N
+2 f
+2206(b)X
+8 s
+2260 3363(j)N
+1 f
+11 s
+2292 3346(\))N
+10 f
+2321 3322(M)N
+2321 3410(J)N
+2321 3498(N)N
+2321 3586(J)N
+2321 3674(O)N
+1 f
+2387 4089(if)N
+2 f
+2477(i)X
+9 f
+2537(=)X
+1 f
+2620(0)X
+2700(and)X
+2 f
+2870(j)X
+9 f
+2930(=)X
+1 f
+3013(0)X
+2387 3949(if)N
+2 f
+2477(i)X
+2537(>)X
+1 f
+2631(0)X
+2711(and)X
+2 f
+2881(j)X
+9 f
+2941(=)X
+1 f
+3024(0)X
+2387 3808(if)N
+2 f
+2477(i)X
+9 f
+2537(=)X
+1 f
+2620(0)X
+2700(and)X
+2 f
+2870(j)X
+2930(>)X
+1 f
+3024(0)X
+2387 3487(if)N
+2 f
+2477(i)X
+2537(>)X
+1 f
+2631(0)X
+2711(and)X
+2 f
+2881(j)X
+2941(>)X
+1 f
+3035(0)X
+576 4330(The)N
+742(algorithm)X
+1115(of)X
+1217(Figure)X
+1477(2)X
+1551(can)X
+1703(be)X
+1816(viewed)X
+2100(as)X
+2203(simply)X
+2474(evaluating)X
+2 f
+2872(C)X
+1 f
+2931(-values)X
+3215(in)X
+3314(an)X
+3427(order)X
+3642(consistent)X
+4025(with)X
+4212(the)X
+576 4442(data-dependencies)N
+1252(of)X
+1351(the)X
+1485(recurrence.)X
+1924(This)X
+2106(is)X
+2190(the)X
+2323(central)X
+3 f
+2588(dynamic)X
+2936(programming)X
+1 f
+3484(recurrence)X
+3879(for)X
+4006(the)X
+4139(basic)X
+576 4554(sequence)N
+922(comparison)X
+1357(problem.)X
+1719(Frequently)X
+2125(dynamic)X
+2453(programming)X
+2957(has)X
+3098(been)X
+3288(confused)X
+3629(in)X
+3722(this)X
+3875(areas')X
+4109(litera-)X
+576 4666(ture)N
+743(as)X
+846(referring)X
+1183(to)X
+1282(this)X
+1439(particular)X
+1806(recurrence)X
+2205(or)X
+2307(one)X
+2463(of)X
+2565(its)X
+2678(myriad)X
+2957(minor)X
+3197(variations.)X
+3618(Here)X
+3817(we)X
+3948(emphasize)X
+576 4778(that)N
+735(dynamic)X
+1065(programming)X
+1571(is)X
+1656(a)X
+1721(general)X
+2006(computational)X
+2539(paradigm)X
+2899(of)X
+2999(wide)X
+3197 0.2656(applicability)AX
+3667([HoS78].)X
+4040(A)X
+4130(prob-)X
+576 4890(lem)N
+748(is)X
+846(solved)X
+1115(by)X
+1242(dynamic)X
+1585(programming)X
+2103(if)X
+2195(the)X
+2341(answer)X
+2627(can)X
+2787(be)X
+2908(ef\256ciently)X
+3304(determined)X
+3739(by)X
+3865(computing)X
+4281(a)X
+576 5002(tableau)N
+858(of)X
+958(optimal)X
+1256(answers)X
+1565(to)X
+1661(progressively)X
+2162(larger)X
+2394(and)X
+2548(larger)X
+2780(subproblems.)X
+3301(The)X
+3 f
+3465(principle)X
+3832(of)X
+3933(optimality)X
+1 f
+576 5114(requires)N
+893(that)X
+1060(the)X
+1202(optimal)X
+1507(answer)X
+1789(to)X
+1892(a)X
+1965(given)X
+2195(subproblem)X
+2645(be)X
+2762(expressible)X
+3192(in)X
+3295(terms)X
+3525(of)X
+3632(optimal)X
+3936(answers)X
+4251(to)X
+576 5226(``smaller'')N
+997(subproblems.)X
+1536(Our)X
+1717(basic)X
+1943(sequence)X
+2311(comparison)X
+2768(problem)X
+3108(does)X
+3315(yield)X
+3538(to)X
+3653(this)X
+3827(principle:)X
+4212(the)X
+576 5338(optimal)N
+873(answer)X
+1146(for)X
+1273(the)X
+1406(problem)X
+1725(of)X
+2 f
+1823(A)X
+8 s
+1887 5355(i)N
+1 f
+11 s
+1937 5338(versus)N
+2 f
+2186(B)X
+8 s
+2250 5355(j)N
+1 f
+11 s
+2300 5338(can)N
+2447(be)X
+2555(expressed)X
+2926(in)X
+3020(terms)X
+3241(of)X
+3339(optimal)X
+3635(answers)X
+3942(to)X
+4036(the)X
+4169(sub-)X
+576 5450(problems)N
+2 f
+936(A)X
+8 s
+1000 5467(i)N
+9 f
+1033(-)X
+1 f
+1078(1)X
+11 s
+1149 5450(vs.)N
+2 f
+1281(B)X
+8 s
+1345 5467(j)N
+9 f
+1373(-)X
+1 f
+1418(1)X
+11 s
+1457 5450(,)N
+2 f
+1511(A)X
+8 s
+1575 5467(i)N
+1 f
+11 s
+1632 5450(vs.)N
+2 f
+1765(B)X
+8 s
+1829 5467(j)N
+9 f
+1857(-)X
+1 f
+1902(1)X
+11 s
+1941 5450(,)N
+1996(and)X
+2 f
+2156(A)X
+8 s
+2220 5467(i)N
+9 f
+2253(-)X
+1 f
+2298(1)X
+11 s
+2370 5450(vs.)N
+2 f
+2503(B)X
+8 s
+2567 5467(j)N
+1 f
+11 s
+2592 5450(.)N
+2669(The)X
+2839(recurrence)X
+3242(describes)X
+3602(the)X
+3743(relationship)X
+4193(and)X
+576 5562(gives)N
+791(rise)X
+947(to)X
+1045(the)X
+1181(procedure)X
+1560(above)X
+1798(for)X
+1928(\256lling)X
+2168(in)X
+2265(the)X
+2401(``tableau'')X
+2 f
+2800(C)X
+1 f
+2887(of)X
+2988(answers)X
+3298(to)X
+3395(progressively)X
+3897(larger)X
+4130(prob-)X
+576 5674(lems.)N
+2375 6160(-)N
+2426(4)X
+2492(-)X
+
+5 p
+%%Page: 5 5
+11 s 11 xH 0 xS 1 f
+696 688(The)N
+865(algorithm)X
+1241(of)X
+1346(Figure)X
+1608(2)X
+1684(only)X
+1873(computes)X
+2243(the)X
+2384(score)X
+2602(of)X
+2708(a)X
+2780(minimal)X
+3109(cost)X
+3284(alignment)X
+3671(between)X
+2 f
+3997(A)X
+1 f
+4084(and)X
+2 f
+4244(B)X
+1 f
+4298(.)X
+576 800(Note)N
+779(that)X
+944(the)X
+1084(use)X
+1233(of)X
+1338(the)X
+1477(article)X
+1729('a')X
+1857(is)X
+1947(important)X
+2322(as)X
+2426(there)X
+2633(can)X
+2786(be)X
+2900(more)X
+3112(than)X
+3295(one)X
+3453(alignment)X
+3838(achieving)X
+4212(the)X
+576 912(minimal)N
+902(score.)X
+1161(One)X
+1337(or)X
+1440(all)X
+1559(of)X
+1662(these)X
+1873(optimal)X
+2174(alignments)X
+2592(can)X
+2744(be)X
+2857(recovered)X
+3233(by)X
+3351(tracing)X
+3626(back)X
+3822(from)X
+4024(the)X
+4163(\256nal)X
+576 1024(value)N
+2 f
+794(C)X
+1 f
+860(\()X
+2 f
+896(M)X
+1 f
+976(,)X
+2 f
+1026(N)X
+1 f
+1092(\))X
+1148(to)X
+1244(a)X
+1310(term)X
+1499(in)X
+1595(its)X
+1706(3-way)X
+1951(minimum)X
+2322(that)X
+2481(yielded)X
+2767(it,)X
+2865(determining)X
+3318(which)X
+3559(term)X
+3747(gave)X
+3939(rise)X
+4092(to)X
+4187(that)X
+576 1136(term,)N
+782(and)X
+931(so)X
+1031(on)X
+1141(back)X
+1329(to)X
+1420(the)X
+1550(source.)X
+1845(Unfortunately)X
+2361(this)X
+2512(requires)X
+2818(saving)X
+3071(the)X
+3202(entire)X
+3426(matrix)X
+2 f
+3680(C)X
+1 f
+3739(,)X
+3784(giving)X
+4033(an)X
+4139(algo-)X
+576 1248(rithm)N
+791(that)X
+947(takes)X
+2 f
+1151(O)X
+1 f
+1221(\()X
+2 f
+1257(MN)X
+1 f
+1396(\))X
+1448(space)X
+1666(as)X
+1762(well)X
+1937(as)X
+2033(time.)X
+2258(Note)X
+2452(that)X
+2608(if)X
+2685(one)X
+2835(is)X
+2917(interested)X
+3283(only)X
+3463(in)X
+3555(the)X
+3685(cost)X
+3849(of)X
+3944(an)X
+4049(optimal)X
+576 1360(alignment)N
+956(then)X
+2 f
+1134(O)X
+1 f
+1204(\()X
+2 f
+1240(min)X
+1 f
+1379(\()X
+2 f
+1415(M)X
+1 f
+1495(,)X
+2 f
+1545(N)X
+1 f
+1611(\))X
+1647(\))X
+1703(space)X
+1925(suf\256ces)X
+2220(as)X
+2320(one)X
+2474(need)X
+2667(keep)X
+2860(only)X
+3044(the)X
+3179(previous)X
+3509(row)X
+3672(of)X
+3772(the)X
+3907(matrix)X
+2 f
+4165(C)X
+1 f
+4251(to)X
+576 1472(compute)N
+915(the)X
+1058(next)X
+1245(row,)X
+1438(thanks)X
+1703(to)X
+1807(the)X
+1950(nature)X
+2205(of)X
+2313(the)X
+2456(data-dependencies)X
+3141(of)X
+3249(the)X
+3392(recurrence.)X
+3841(Using)X
+4086(such)X
+4281(a)X
+576 1584(cost-only)N
+928(algorithm)X
+1296(as)X
+1394(a)X
+1458(sub-procedure,)X
+2007(Hirschberg)X
+2422([Hir75])X
+2710(gave)X
+2901(a)X
+2965(divide)X
+3211(and)X
+3363(conquer)X
+3671(algorithm)X
+4040(that)X
+4198(can)X
+576 1696(determine)N
+957(an)X
+1068(optimal)X
+1367(alignment)X
+1749(in)X
+2 f
+1846(O)X
+1 f
+1916(\()X
+2 f
+1952(M)X
+9 f
+2046(+)X
+2 f
+2108(N)X
+1 f
+2174(\))X
+2231(space.)X
+2498(The)X
+2663(divide)X
+2912(step)X
+3082(consists)X
+3388(of)X
+3488(\256nding)X
+3765(the)X
+3900(midpoint)X
+4247(of)X
+576 1808(an)N
+683(optimal)X
+978(source-to-sink)X
+1505(path)X
+1681(by)X
+1793(running)X
+2091(the)X
+2223(cost-only)X
+2575(algorithm)X
+2943(on)X
+3055(the)X
+3187(\256rst)X
+3348(half)X
+3509(of)X
+2 f
+3606(A)X
+1 f
+3684(and)X
+3836(the)X
+3969(reverse)X
+4247(of)X
+576 1920(its)N
+685(second)X
+954(half.)X
+1160(The)X
+1322(conquer)X
+1630(step)X
+1797(consists)X
+2101(of)X
+2199(determining)X
+2651(the)X
+2783(two)X
+2939(halves)X
+3188(of)X
+3285(this)X
+3437(path)X
+3613(by)X
+3725(recursively)X
+4140(reap-)X
+576 2032(plying)N
+834(the)X
+974(divide)X
+1227(step)X
+1401(to)X
+1502(the)X
+1642(two)X
+1806(halves.)X
+2107(Hirschberg)X
+2529(gave)X
+2727(this)X
+2888(procedure)X
+3272(in)X
+3374(the)X
+3515(context)X
+3808(of)X
+3914(the)X
+4055(simpler)X
+576 2144(longest)N
+854(common)X
+1186(subsequence)X
+1653(problem,)X
+1992(but)X
+2128(Myers)X
+2375(and)X
+2525(Miller)X
+2769([MyM88,MiM88])X
+3429(have)X
+3618(shown)X
+3870(it)X
+3942(to)X
+4033(apply)X
+4251(to)X
+576 2256(most)N
+774(comparison)X
+1211(algorithms)X
+1616(that)X
+1776(have)X
+1969(linear)X
+2197(space)X
+2419(cost-only)X
+2774(algorithms.)X
+3223(This)X
+3407(re\256nement)X
+3811(is)X
+3897(very)X
+4080(impor-)X
+576 2368(tant,)N
+756(since)X
+962(space,)X
+1204(not)X
+1342(time,)X
+1547(is)X
+1631(often)X
+1837(the)X
+1969 0.4821(limiting)AX
+2275(factor)X
+2504(when)X
+2718(computing)X
+3120(optimal)X
+3415(alignments)X
+3827(between)X
+4144(large)X
+576 2480(sequences.)N
+998(One)X
+1166(can)X
+1310(always)X
+1576(run)X
+1715(a)X
+1776(program)X
+2096(longer,)X
+2365(but)X
+2500(when)X
+2712(you're)X
+2963(out)X
+3098(of)X
+3193(memory)X
+3509(you're)X
+3760(out)X
+3895(of)X
+3990(business.)X
+696 2620(Let)N
+2 f
+848(D)X
+1 f
+918(\()X
+2 f
+954(A)X
+1 f
+1015(,)X
+2 f
+1065(B)X
+1 f
+1126(\))X
+1189(be)X
+1306(the)X
+1448(score)X
+1667(of)X
+1775(a)X
+1849(minimal)X
+2180(cost)X
+2357(alignment)X
+2746(between)X
+3074(sequences)X
+2 f
+3465(A)X
+1 f
+3554(and)X
+2 f
+3716(B)X
+1 f
+3770(.)X
+3849(This)X
+4041(score)X
+4261(is)X
+576 2732(termed)N
+859(the)X
+3 f
+1005(generalized-Levenshtein)X
+1958(distance)X
+1 f
+2304(between)X
+2635(sequence)X
+2 f
+2994(A)X
+1 f
+3085(and)X
+2 f
+3249(B)X
+1 f
+3340(and)X
+3504(indeed)X
+3776(forms)X
+4018(a)X
+4094(metric)X
+576 2844(space)N
+793(over)X
+971(sequences)X
+1349(if)X
+1426(the)X
+1557(underlying)X
+1962(scoring)X
+2244(function)X
+9 f
+2561(d)X
+1 f
+2628(forms)X
+2856(a)X
+2918(metric)X
+3167(space)X
+3385(over)X
+3564(the)X
+3695(underlying)X
+4100(alpha-)X
+576 2956(bet)N
+719([Sel74].)X
+1057(Thus)X
+1268(calling)X
+1544(this)X
+1706(optimal)X
+2011(score)X
+2230(a)X
+2303(distance)X
+2626(is)X
+2719(formally)X
+3057(correct)X
+3335(for)X
+3471(a)X
+3544(wide)X
+3749(class)X
+3954(of)X
+4061(scoring)X
+576 3068(schemes.)N
+696 3208(Another)N
+1012(interesting)X
+1413(and)X
+1568(important)X
+1941(property)X
+2268(of)X
+2370(all)X
+2488(alignments)X
+2905(between)X
+3227(sequences)X
+2 f
+3612(A)X
+1 f
+3695(and)X
+2 f
+3851(B)X
+1 f
+3934(is)X
+4022(the)X
+4159(rela-)X
+576 3320(tion)N
+741(2)X
+2 f
+792(S)X
+9 f
+857(+)X
+2 f
+919(I)X
+1 f
+975(=)X
+2 f
+1052(M)X
+9 f
+1146(+)X
+2 f
+1208(N)X
+1 f
+1267(,)X
+1316(where)X
+2 f
+1557(S)X
+1 f
+1628(is)X
+1714(the)X
+1849(number)X
+2145(of)X
+2245(substitutions)X
+2719(and)X
+2 f
+2873(I)X
+1 f
+2929(is)X
+3015(the)X
+3150(number)X
+3446(of)X
+3 f
+3546(indels)X
+1 f
+3794(\(insertions)X
+4193(and)X
+576 3432(deletions,)N
+948(or)X
+1052(unaligned)X
+1431(symbols\))X
+1785(in)X
+1885(the)X
+2024(alignment.)X
+2453(This)X
+2641(is)X
+2731(easily)X
+2968(seen)X
+3155(in)X
+3255(terms)X
+3483(of)X
+3588(the)X
+3728(edit)X
+3893(graph.)X
+4169(Any)X
+576 3544(source)N
+829(to)X
+922(sink)X
+1093(path)X
+1269(needs)X
+1493(to)X
+1586(move)X
+2 f
+1806(M)X
+1 f
+1903(grid)X
+2069(spaces)X
+2322(to)X
+2415(the)X
+2547(right,)X
+2760(and)X
+2 f
+2911(N)X
+1 f
+2994(spaces)X
+3246(down,)X
+3486(for)X
+3611(a)X
+3673(total)X
+3854(displacement)X
+576 3656(of)N
+2 f
+684(M)X
+9 f
+778(+)X
+2 f
+840(N)X
+1 f
+934(grid)X
+1111(units.)X
+1362(But)X
+1525(each)X
+1721(substitution)X
+2169(counts)X
+2434(for)X
+2571(2)X
+2650(units)X
+2857(\(one)X
+3048(left)X
+3201(and)X
+3363(one)X
+3525(down\))X
+3784(and)X
+3946(each)X
+4143(indel)X
+576 3768(counts)N
+834(for)X
+964(1)X
+1036(unit)X
+1202(\(either)X
+1460(left)X
+1606(or)X
+1707(down\).)X
+2003(Thus)X
+2207(a)X
+2274(path)X
+2454(with)X
+2 f
+2639(S)X
+1 f
+2711(substitutions)X
+3186(and)X
+2 f
+3341(I)X
+1 f
+3397(indels,)X
+3657(moves)X
+3914(2)X
+2 f
+3965(S)X
+9 f
+4030(+)X
+2 f
+4092(I)X
+1 f
+4148(units)X
+576 3880(and)N
+725(the)X
+855(identity)X
+1148(follows.)X
+696 4020(This)N
+882(identity)X
+1182(leads)X
+1392(to)X
+1490(a)X
+1559(simple)X
+1825(scaling)X
+2105(result)X
+2331(for)X
+2463(scoring)X
+2752(schemas.)X
+3124(Given)X
+3369(function)X
+9 f
+3693(d)X
+1 f
+3767(and)X
+3924(real-valued)X
+576 4132(parameters)N
+2 f
+984(X)X
+1 f
+1060(and)X
+2 f
+1209(Y)X
+1 f
+1258(,)X
+1302(let)X
+9 f
+1413(d)X
+14 s
+1464 4176(\242)N
+11 s
+1 f
+1513 4132(be)N
+1618(de\256ned)X
+1899(as)X
+1994(follows:)X
+9 f
+928 4374(d)N
+14 s
+979 4418(\242)N
+11 s
+1 f
+1013 4374(\()N
+2 f
+1049(a)X
+1 f
+1100(,)X
+2 f
+1150(b)X
+1 f
+1201(\))X
+1252(=)X
+10 f
+1331 4297(I)N
+1331 4385(K)N
+1331 4473(L)N
+2 f
+1411 4444(X)N
+1 f
+9 f
+1472(d)X
+1 f
+1523(\()X
+2 f
+1559(a)X
+1 f
+1610(,)X
+2 f
+1660(b)X
+1 f
+1711(\))X
+2 f
+9 f
+1782(+)X
+2 f
+1865(Y)X
+1411 4321(X)N
+1 f
+9 f
+1472(d)X
+1 f
+1523(\()X
+2 f
+1559(a)X
+1 f
+1610(,)X
+2 f
+1660(b)X
+1 f
+1711(\))X
+2 f
+9 f
+1782(+)X
+1 f
+1865(2)X
+2 f
+1916(Y)X
+1 f
+2009 4444(if)N
+2 f
+2099(a)X
+9 f
+2178(=)X
+2 f
+2261(-)X
+2326(or)X
+2440(b)X
+9 f
+2519(=)X
+2 f
+2602(-)X
+1 f
+2009 4321(if)N
+2 f
+2099(a)X
+1 f
+2150(,)X
+2 f
+2200(b)X
+9 f
+2272(\316)X
+1 f
+9 f
+2363(S)X
+1 f
+576 4662(If)N
+2 f
+656(C)X
+1 f
+722(\()X
+9 f
+758(p)X
+1 f
+813(\))X
+864(is)X
+945(the)X
+1075(score)X
+1282(of)X
+1377(alignment)X
+9 f
+1753(p)X
+1 f
+1823(under)X
+9 f
+2045(d)X
+1 f
+2111(and)X
+2 f
+2260(C)X
+1 f
+14 s
+9 f
+2326 4706(\242)N
+11 s
+1 f
+2360 4662(\()N
+9 f
+2396(p)X
+1 f
+2451(\))X
+2502(is)X
+2583(the)X
+2713(score)X
+2920(under)X
+9 f
+3142(d)X
+14 s
+3193 4706(\242)N
+11 s
+1 f
+3242 4662(then)N
+3416(we)X
+3540(see)X
+3674(that:)X
+2 f
+928 4856(C)N
+1 f
+14 s
+9 f
+994 4900(\242)N
+11 s
+1 f
+1028 4856(\()N
+9 f
+1064(p)X
+1 f
+1119(\))X
+1170(=)X
+9 f
+1242(S)X
+2 f
+1301({)X
+1 f
+9 f
+1364(d)X
+14 s
+1415 4900(\242)N
+11 s
+1 f
+1449 4856(\()N
+2 f
+1485(a)X
+1 f
+1536(,)X
+2 f
+1586(b)X
+1 f
+1637(\))X
+1701(:)X
+19 s
+1747 4881([)N
+2 f
+11 s
+1798 4900(b)N
+1798 4812(a)N
+1 f
+19 s
+4881(])Y
+2 f
+11 s
+9 f
+1914 4856(\316)N
+1 f
+9 f
+2005(p)X
+2 f
+2081(})X
+1 f
+1170 5020(=)N
+2 f
+1242(X)X
+1 f
+9 f
+1303(S)X
+2 f
+1362({)X
+1 f
+9 f
+1425(d)X
+1 f
+1476(\()X
+2 f
+1512(a)X
+1 f
+1563(,)X
+2 f
+1613(b)X
+1 f
+1664(\))X
+1728(:)X
+19 s
+1774 5045([)N
+2 f
+11 s
+1825 5064(b)N
+1825 4976(a)N
+1 f
+19 s
+5045(])Y
+2 f
+11 s
+9 f
+1941 5020(\316)N
+1 f
+9 f
+2032(p)X
+2 f
+2108(})X
+9 f
+2186(+)X
+1 f
+2277(\()X
+2313(2)X
+2 f
+2364(YS)X
+9 f
+2492(+)X
+2 f
+2575(YI)X
+1 f
+2660(\))X
+1170 5158(=)N
+2 f
+1242(XC)X
+1 f
+1362(\()X
+9 f
+1398(p)X
+1 f
+1453(\))X
+2 f
+9 f
+1524(+)X
+2 f
+1607(Y)X
+1 f
+1663(\()X
+2 f
+1699(M)X
+9 f
+1793(+)X
+2 f
+1855(N)X
+1 f
+1921(\).)X
+576 5354(Thus)N
+775(the)X
+906(transformation)X
+1448(scales)X
+1681(the)X
+1812(score)X
+2020(of)X
+2116(every)X
+2334(alignment)X
+2711(by)X
+2 f
+2822(X)X
+1 f
+2899(and)X
+3049(translates)X
+3405(it)X
+3479(by)X
+2 f
+3591(Y)X
+1 f
+3647(\()X
+2 f
+3683(M)X
+9 f
+3777(+)X
+2 f
+3839(N)X
+1 f
+3905(\).)X
+4002(So)X
+4119(it)X
+4193(fol-)X
+576 5466(lows)N
+779(that)X
+949(the)X
+1094(minimum)X
+1476(scoring)X
+1772(alignments)X
+2197(are)X
+2340(still)X
+2510(minimal)X
+2842(after)X
+3039(the)X
+3183(transform)X
+3561(and)X
+3724(that)X
+2 f
+3893(D)X
+1 f
+14 s
+9 f
+3963 5510(\242)N
+11 s
+1 f
+3997 5466(\()N
+2 f
+4033(A)X
+1 f
+4094(,)X
+2 f
+4144(B)X
+1 f
+4205(\))X
+4270(=)X
+2 f
+576 5578(XD)N
+1 f
+700(\()X
+2 f
+736(A)X
+1 f
+797(,)X
+2 f
+847(B)X
+1 f
+908(\))X
+2 f
+9 f
+979(+)X
+2 f
+1062(Y)X
+1 f
+1118(\()X
+2 f
+1154(M)X
+9 f
+1248(+)X
+2 f
+1310(N)X
+1 f
+1376(\))X
+1439(as)X
+1546(long)X
+1737(as)X
+2 f
+1845(X)X
+1 f
+1934(is)X
+2028(positive.)X
+2387(Thus)X
+2598(one)X
+2760(can)X
+2917(scale)X
+3128(and)X
+3290(translate)X
+3624(scoring)X
+3918(schemes)X
+4251(to)X
+576 5690(values)N
+831(that)X
+994(are)X
+1131(convenient)X
+1548(or)X
+1650(aesthetic)X
+1988(without)X
+2287(changing)X
+2639(which)X
+2883(alignments)X
+3300(are)X
+3436(optimal.)X
+3780(For)X
+3931(example,)X
+4281(a)X
+576 5802(\257oating)N
+868(point)X
+9 f
+1072(d)X
+1 f
+1138(can)X
+1283(be)X
+1389(scaled)X
+1632(so)X
+1733(that)X
+1889(its)X
+1996(embedding)X
+2411(into)X
+2572(the)X
+2703(integers)X
+3005(is)X
+3087(``reasonably)X
+3549(snug'',)X
+3818(the)X
+3949(goal)X
+4124(being)X
+2375 6160(-)N
+2426(5)X
+2492(-)X
+
+6 p
+%%Page: 6 6
+11 s 11 xH 0 xS 1 f
+576 688(an)N
+681(integer)X
+948(program)X
+1268(that)X
+1423(is)X
+1504(much)X
+1722(faster)X
+1939(than)X
+2113(its)X
+2219(\257oating)X
+2511(point)X
+2715(analogue)X
+3055(on)X
+3165(typical)X
+3428(computers.)X
+696 828(Reconsider)N
+1123(now)X
+1305(the)X
+1444(similarity)X
+1815(concept)X
+2120(of)X
+2224(comparison)X
+2666(and)X
+2824(suppose)X
+2 f
+3138(S)X
+1 f
+3189(\()X
+2 f
+3225(A)X
+1 f
+3286(,)X
+2 f
+3336(B)X
+1 f
+3397(\))X
+3457(is)X
+3547(the)X
+3686(score)X
+3902(of)X
+4006(the)X
+2 f
+4145(max-)X
+576 940(imum)N
+1 f
+801(scoring)X
+1090(alignment.)X
+1518(Observe)X
+1840(that)X
+2003(if)X
+2 f
+2087(X)X
+1 f
+2171(is)X
+2259(negative,)X
+2609(then)X
+2 f
+2790(D)X
+1 f
+14 s
+9 f
+2860 984(\242)N
+11 s
+1 f
+2894 940(\()N
+2 f
+2930(A)X
+1 f
+2991(,)X
+2 f
+3041(B)X
+1 f
+3102(\))X
+3160(=)X
+2 f
+3239(XS)X
+1 f
+3344(\()X
+2 f
+3380(A)X
+1 f
+3441(,)X
+2 f
+3491(B)X
+1 f
+3552(\))X
+2 f
+9 f
+3623(+)X
+2 f
+3706(Y)X
+1 f
+3762(\()X
+2 f
+3798(M)X
+9 f
+3892(+)X
+2 f
+3954(N)X
+1 f
+4020(\).)X
+4122(Thus,)X
+576 1052(one)N
+728(can)X
+875(map)X
+1052(a)X
+1116(similarity)X
+1481(problem)X
+1801(into)X
+1965(a)X
+2030(distance)X
+2345(problem)X
+2665(just)X
+2819(by)X
+2933(negatively)X
+3327(scaling)X
+3603(the)X
+3737(underlying)X
+4145(scor-)X
+576 1164(ing)N
+712(scheme.)X
+1043(For)X
+1187(example)X
+1508(in)X
+1599(the)X
+1729(simple)X
+1987(case)X
+2160(where)X
+2 f
+2396(X)X
+9 f
+2485(=)X
+2575(-)X
+1 f
+2637(1)X
+2703(and)X
+2 f
+2852(Y)X
+9 f
+2936(=)X
+1 f
+3019(0,)X
+3107(one)X
+3256(negates)X
+3542(the)X
+3672(scores)X
+3913(of)X
+4008(the)X
+4138(simi-)X
+576 1276(larity)N
+796(scheme,)X
+1115(computes)X
+1486(the)X
+1627(minimum)X
+2005(cost)X
+2180(alignment,)X
+2589(and)X
+2750(reports)X
+3028(that)X
+3195(its)X
+3313(negation)X
+3651(is)X
+3744(the)X
+3886(score)X
+4105(of)X
+4212(the)X
+576 1388(maximum)N
+961(cost)X
+1129(alignment)X
+1509(under)X
+1735(the)X
+1869(original)X
+2170(scheme.)X
+2504(If)X
+2588(one)X
+2740(wants)X
+2970(the)X
+9 f
+3103(d)X
+14 s
+3154 1432(\242)N
+11 s
+1 f
+3206 1388(to)N
+3300(be)X
+3408(positive)X
+3713(for)X
+3840(every)X
+4060(symbol)X
+576 1500(pair)N
+741(\(as)X
+871(required)X
+1192(by)X
+1308(some)X
+1522(specialized)X
+1942(algorithms\))X
+2378(then)X
+2559(just)X
+2716(pick)X
+2897(an)X
+3009(appropriately)X
+3508(large)X
+3713(translation)X
+4115(factor)X
+2 f
+576 1612(Y)N
+1 f
+625(.)X
+691(One)X
+859(may)X
+1033(thus)X
+1202(conclude)X
+1542(that)X
+1697(the)X
+1827(similarity)X
+2189(and)X
+2338(distance)X
+2649(problems)X
+2999(are)X
+3128(duals)X
+3336([SWF81].)X
+696 1752(Within)N
+973(the)X
+1112(\256eld)X
+1301(of)X
+1406(computer)X
+1771(science,)X
+2084(comparison)X
+2527(problems)X
+2887(arose)X
+3104(somewhat)X
+3493(later)X
+3682(than)X
+3866(in)X
+3967(molecular)X
+576 1864(biology)N
+869(and)X
+1019(in)X
+1111(a)X
+1173(somewhat)X
+1553(simpler)X
+1841(incarnation.)X
+2305(The)X
+3 f
+2465(longest)X
+2752(common)X
+3097(subsequence)X
+1 f
+3589(problem)X
+3906(is)X
+3987(to)X
+4078(\256nd)X
+4237(an)X
+576 1976(alignment)N
+952(that)X
+1107(maximizes)X
+1512(the)X
+1642(number)X
+1933(of)X
+2028(identical)X
+2355(aligned)X
+2637(pairs,)X
+2852(i.e.,)X
+9 f
+3004(d)X
+1 f
+3055(\()X
+2 f
+3091(a)X
+1 f
+3142(,)X
+2 f
+3192(b)X
+1 f
+3243(\))X
+3294(=)X
+3366(1)X
+3433(if)X
+2 f
+3510(a)X
+9 f
+3589(=)X
+2 f
+3672(b)X
+1 f
+3739(and)X
+3889(0)X
+3956(otherwise.)X
+576 2088(Its)N
+689(traditional)X
+1078(dual,)X
+1277(the)X
+3 f
+1410(shortest)X
+1731(edit)X
+1897(script)X
+1 f
+2136(problem)X
+2454(seeks)X
+2668(an)X
+2775(alignment)X
+3153(with)X
+3334(the)X
+3466(fewest)X
+3719(number)X
+4012(of)X
+4109(indels)X
+576 2200(and)N
+733(non-identical)X
+1230(substitutions,)X
+1730(i.e.)X
+9 f
+1869(d)X
+1 f
+1920(\()X
+2 f
+1956(a)X
+1 f
+2007(,)X
+2 f
+2057(b)X
+1 f
+2108(\))X
+2168(=)X
+2249(0)X
+2324(if)X
+2 f
+2409(a)X
+9 f
+2488(=)X
+2 f
+2571(b)X
+1 f
+2646(and)X
+2804(1)X
+2879(otherwise.)X
+3296(These)X
+3537(problems)X
+3896(arose)X
+4112(in)X
+4212(the)X
+576 2312(context)N
+868(of)X
+973(applications)X
+1432(such)X
+1625(as)X
+1730(comparing)X
+2139(the)X
+2279(contents)X
+2605(of)X
+2709(computer)X
+3073(\256les)X
+3251(and)X
+3409(correcting)X
+3797(the)X
+3936(spelling)X
+4247(of)X
+576 2424(words.)N
+856(What)X
+1069(is)X
+1150(of)X
+1245(particular)X
+1605(interest)X
+1887(here)X
+2060(is)X
+2141(that)X
+2296(the)X
+2426(unit-cost)X
+2757(and)X
+2906(discrete)X
+3202(integer)X
+3469(nature)X
+3711(of)X
+3807(the)X
+3938(underlying)X
+576 2536(cost)N
+741(functions)X
+1092(offers)X
+1319(algorithmic)X
+1750(leverage)X
+2071(not)X
+2207(obtainable)X
+2598(in)X
+2690(the)X
+2821(case)X
+2995(of)X
+3090(generalized)X
+3518(Levenshtein)X
+3971(measures.)X
+576 2648(In)N
+677(the)X
+813(next)X
+993(few)X
+1152(paragraphs)X
+1565(we)X
+1695(review)X
+1962(the)X
+2098(history)X
+2371(of)X
+2473(progress)X
+2799(by)X
+2916(computer)X
+3278(scientists)X
+3631(on)X
+3748(this)X
+3905(special)X
+4179(ver-)X
+576 2760(sion)N
+751(of)X
+852(the)X
+988(comparison)X
+1427(problem.)X
+1792(Describing)X
+2205(the)X
+2340(complexity)X
+2765(of)X
+2865(the)X
+3000(algorithms)X
+3405(is)X
+3491(simpli\256ed)X
+3872(by)X
+3987(assuming)X
+576 2872(that)N
+2 f
+731(M)X
+1 f
+9 f
+832(\243)X
+2 f
+908(N)X
+1 f
+989(without)X
+1281(loss)X
+1440(of)X
+1535(generality.)X
+696 3012(In)N
+810(1977)X
+1027(Hunt)X
+1244(and)X
+1413(Szymanski)X
+1842([HuS77])X
+2186(devised)X
+2497(a)X
+2578(comparison)X
+3031(algorithm)X
+3417(for)X
+3561(the)X
+3711(lcs)X
+3851(problem)X
+4187(that)X
+576 3124(required)N
+2 f
+895(O)X
+1 f
+965(\()X
+2 f
+1001(R)X
+1 f
+1083(log)X
+1224(log)X
+2 f
+1365(N)X
+1 f
+1431(\))X
+1485(time)X
+1668(where)X
+2 f
+1907(R)X
+1 f
+1986(is)X
+2070(the)X
+2203(number)X
+2497(of)X
+3 f
+2595(matchpoints)X
+1 f
+3084(or)X
+3182(pairs)X
+3378(of)X
+3476(matching)X
+3830(symbols)X
+4149(from)X
+576 3236(each)N
+763(sequence,)X
+1133(i.e.,)X
+2 f
+9 f
+1289(|)X
+2 f
+1352({)X
+1 f
+1415(\()X
+2 f
+1451(i)X
+1 f
+1483(,)X
+2 f
+1540(j)X
+1 f
+1572(\))X
+1636(:)X
+2 f
+1689(a)X
+8 s
+1743 3253(i)N
+11 s
+9 f
+1782 3236(=)N
+2 f
+1844(b)X
+8 s
+1898 3253(j)N
+11 s
+1951 3236(})N
+9 f
+1986(|)X
+1 f
+2000(.)X
+2070(While)X
+2312(the)X
+2446(parameter)X
+2 f
+2824(R)X
+1 f
+2904(is)X
+2989(potentially)X
+9 f
+3394(W)X
+1 f
+3469(\()X
+2 f
+3505(MN)X
+1 f
+3644(\),)X
+3721(it)X
+3797(is)X
+3883(signi\256cantly)X
+576 3348(smaller)N
+882(for)X
+1030(many)X
+1272(applications.)X
+1789(For)X
+1957(example,)X
+2324(when)X
+2560(comparing)X
+2983(computer)X
+3362(\256les)X
+3554(each)X
+3760(is)X
+3864(viewed)X
+4163(as)X
+4281(a)X
+576 3460(sequence)N
+924(of)X
+1023(lines)X
+1216(and)X
+2 f
+1369(R)X
+1 f
+1449(is)X
+1535(the)X
+1670(pairs)X
+1868(of)X
+1968(matching)X
+2324(lines.)X
+2562(Apart)X
+2789(from)X
+2987(blank)X
+3210(lines,)X
+3426(most)X
+3625(are)X
+3759(unique)X
+4026(and)X
+2 f
+4180(R)X
+1 f
+4261(is)X
+576 3572(usually)N
+860(on)X
+977(the)X
+1114(order)X
+1328(of)X
+2 f
+1430(O)X
+1 f
+1500(\()X
+2 f
+1536(M)X
+9 f
+1630(+)X
+2 f
+1692(N)X
+1 f
+1758(\).)X
+1860(On)X
+1996(the)X
+2133(other)X
+2343(hand)X
+2543(when)X
+2761(comparing)X
+3166(DNA)X
+3383(sequences)X
+3767(where)X
+4009(there)X
+4213(are)X
+576 3684(only)N
+760(four)X
+933(distinct)X
+1221(symbols,)X
+2 f
+1564(R)X
+1 f
+1645(is)X
+1731(at)X
+1822(least)X
+2 f
+2012(MN)X
+2151(/)X
+1 f
+2183(4.)X
+2299(Thus)X
+2503(while)X
+2727(the)X
+2863(algorithm)X
+3235(does)X
+3424(not)X
+3565(improve)X
+3887(on)X
+4003(the)X
+4139(com-)X
+576 3796(plexity)N
+847(of)X
+945(the)X
+1078(problem)X
+1397(in)X
+1491(terms)X
+1712(of)X
+1810(the)X
+1943(input)X
+2150(parameters)X
+2 f
+2561(M)X
+1 f
+2659(and)X
+2 f
+2811(N)X
+1 f
+2895(it)X
+2970(is)X
+3054(quite)X
+3256(effective)X
+3589(in)X
+3683(those)X
+3893(applications)X
+576 3908(that)N
+731(are)X
+860(sparse)X
+1101(in)X
+1192(terms)X
+1410(of)X
+1505(the)X
+1635(parameter)X
+2 f
+2009(R)X
+1 f
+2063(.)X
+696 4048(A)N
+781(few)X
+934(years)X
+1141(later,)X
+1342(in)X
+1434(1980,)X
+1655(Masek)X
+1912(and)X
+2062(Paterson)X
+2388([MaP80])X
+2723(devised)X
+3015(an)X
+3121(algorithm)X
+3488(using)X
+3702(what)X
+3896(is)X
+3978(called)X
+4212(the)X
+3 f
+576 4160(Four-Russian's)N
+1179(paradigm)X
+1 f
+1573(that)X
+1733(compares)X
+2097(two)X
+2256(sequences)X
+2638(over)X
+2820(a)X
+2885(\256nite)X
+3093(alphabet)X
+3418(in)X
+2 f
+3513(O)X
+1 f
+3583(\()X
+2 f
+3619(MN)X
+3758(/)X
+1 f
+3790(log)X
+8 s
+3908 4125(2)N
+2 f
+11 s
+3975 4160(N)N
+1 f
+4041(\))X
+4096(time.)X
+4276 4116(\262)N
+576 4272(This)N
+755(result)X
+973(is)X
+1054(very)X
+1232(interesting)X
+1627(for)X
+1752(it)X
+1825(takes)X
+2029(less)X
+2184(than)X
+2359(quadratic)X
+2710(worst-case)X
+3108(time)X
+3289(in)X
+3381(terms)X
+3600(of)X
+3696(the)X
+3827(input)X
+4032(parame-)X
+576 4384(ters)N
+2 f
+730(M)X
+1 f
+830(and)X
+2 f
+984(N)X
+1 f
+1043(,)X
+1092(and)X
+1246(to)X
+1342(date)X
+1515(it)X
+1591(is)X
+1676(the)X
+1810(only)X
+1993(algorithm)X
+2363(that)X
+2522(has)X
+2665(this)X
+2819(property.)X
+3187(Somewhat)X
+3585(earlier,)X
+3858(Aho,)X
+4057(Hirsch-)X
+576 4496(berg,)N
+782(and)X
+937(Ullman)X
+1230([AHU76])X
+1593(had)X
+1748(shown)X
+2005(that)X
+2166(any)X
+2321(algorithm)X
+2693(that)X
+2854(can)X
+3005(only)X
+3191(compare)X
+3523(symbols)X
+3846(to)X
+3944(see)X
+4085(if)X
+4168(they)X
+576 4608(are)N
+708(equal)X
+924(or)X
+1022(unequal)X
+1326(must)X
+1523(take)X
+1695(at)X
+1784(least)X
+2 f
+1971(O)X
+1 f
+2041(\()X
+2 f
+2077(MN)X
+1 f
+2216(\))X
+2270(time.)X
+2497(On)X
+2629(the)X
+2762(other)X
+2968(hand,)X
+3186(when)X
+3401(one)X
+3552(assumes)X
+3869(that)X
+4026(symbols)X
+576 4720(are)N
+712(ordered)X
+1010(and)X
+1167(can)X
+1319(be)X
+1432(compared)X
+1809(in)X
+1908(this)X
+2066(order,)X
+2303(the)X
+2441(best)X
+2613(lower)X
+2843(bound)X
+3093(is)X
+3182(only)X
+2 f
+3369(O)X
+1 f
+3439(\()X
+2 f
+3475(N)X
+1 f
+3541(log)X
+2 f
+3682(N)X
+1 f
+3748(\))X
+3807([Hir78].)X
+4144(Thus)X
+576 4832(better-than-quadratic)N
+1344(techniques)X
+1750(using)X
+1970(arithmetic)X
+2358(on)X
+2475(the)X
+2612(symbols)X
+2934(have)X
+3128(not)X
+3269(been)X
+3463(ruled)X
+3672(out)X
+3813(and)X
+3968(this)X
+4124(result)X
+576 4944(con\256rmed)N
+955(this)X
+1105(was)X
+1263(possible.)X
+1618(No)X
+1747(one)X
+1896(has)X
+2035(done)X
+2228(better)X
+2451(to)X
+2542(date.)X
+696 5084(More)N
+913(recently,)X
+1246(Ukkonen)X
+1595(and)X
+1750(Myers)X
+2002([Ukk85a,Mye86a])X
+2676(independently)X
+3204(arrived)X
+3481(at)X
+3573(an)X
+2 f
+3684(O)X
+1 f
+3754(\()X
+2 f
+3790(DN)X
+1 f
+3919(\))X
+3976(algorithm)X
+576 5196(for)N
+701(the)X
+832(shortest)X
+1129(edit)X
+1285(script)X
+1504(problem)X
+1821(where)X
+2 f
+2058(D)X
+1 f
+2144(is)X
+2226(the)X
+2357(number)X
+2649(of)X
+2745(indels)X
+2979(and)X
+3129(substitutions)X
+3599(in)X
+3691(the)X
+3821(optimal)X
+4114(align-)X
+576 5308(ment)N
+781(\(i.e.,)X
+2 f
+968(D)X
+1 f
+1059(=)X
+2 f
+1137(D)X
+1 f
+1207(\()X
+2 f
+1243(A)X
+1 f
+1304(,)X
+2 f
+1354(B)X
+1 f
+1415(\)\).)X
+1545(The)X
+1710(parameter)X
+2 f
+2091(D)X
+1 f
+2183(characterizes)X
+2671(the)X
+2808(size)X
+2974(of)X
+3076(the)X
+3213(output)X
+3468(and)X
+3624(so)X
+3731(this)X
+3888(algorithm)X
+4261(is)X
+576 5420(termed)N
+3 f
+846(output)X
+1120(sensitive)X
+1 f
+1438(.)X
+1507(The)X
+1669(more)X
+1875(similar)X
+2146(the)X
+2279(sequences,)X
+2682(the)X
+2815(more)X
+3021(ef\256cient)X
+3335(the)X
+3468(algorithm)X
+3837(becomes.)X
+4213(On)X
+8 s
+10 f
+576 5500(hhhhhhhhhhhhhhhhhh)N
+1 f
+576 5580(\262)N
+625(The)X
+741(knowledgeable)X
+1144(reader)X
+1319(may)X
+1446(recognize)X
+1710(that)X
+1823(the)X
+1918(result)X
+2077(as)X
+2147(stated)X
+2313(by)X
+2394(the)X
+2489(authors)X
+2694(was)X
+2810(a)X
+2855(log-factor)X
+3124(slower.)X
+3344(They)X
+3493(assumed)X
+3731(a)X
+3777(model)X
+3955(of)X
+576 5660(computation)N
+916(where)X
+1091(operations)X
+1377(take)X
+1503(time)X
+1637(proportional)X
+1973(to)X
+2043(their)X
+2179(bit-length.)X
+2479(To)X
+2569(be)X
+2648(consistent)X
+2923(with)X
+3056(the)X
+3153(rest)X
+3264(of)X
+3336(the)X
+3433(results)X
+3619(discussed)X
+3883(here,)X
+576 5740(we)N
+666(assume)X
+870(the)X
+964(uniform)X
+1186(cost)X
+1305(model)X
+1481(where)X
+1652(word-sized)X
+1951(operations)X
+2233(are)X
+2326(assumed)X
+2562(to)X
+2628(take)X
+2750(constant)X
+2979(time.)X
+11 s
+2375 6160(-)N
+2426(6)X
+2492(-)X
+
+7 p
+%%Page: 7 7
+11 s 11 xH 0 xS 1 f
+576 688(the)N
+709(other)X
+915(hand,)X
+2 f
+1133(D)X
+1 f
+1221(may)X
+1398(be)X
+1506(as)X
+1604(large)X
+1805(as)X
+2 f
+1903(O)X
+1 f
+1973(\()X
+2 f
+2009(M)X
+9 f
+2103(+)X
+2 f
+2165(N)X
+1 f
+2231(\))X
+2285(and)X
+2437(so)X
+2540(this)X
+2694(algorithm)X
+3064(also)X
+3232(does)X
+3419(not)X
+3558(improve)X
+3878(on)X
+3992(quadratic)X
+576 800(complexity)N
+1001(in)X
+1097(terms)X
+1320(of)X
+1420(the)X
+1555(input)X
+1764(parameters)X
+2 f
+2177(M)X
+1 f
+2277(and)X
+2 f
+2431(N)X
+1 f
+2490(.)X
+2561(Nonetheless,)X
+3040(it)X
+3117(is)X
+3203(very)X
+3386(simple)X
+3649(and)X
+3802(Myers)X
+4052(showed)X
+576 912(that)N
+743(it)X
+827(performs)X
+1178(in)X
+2 f
+1281(O)X
+1 f
+1351(\()X
+2 f
+1387(N)X
+9 f
+1467(+)X
+2 f
+1529(D)X
+1 f
+8 s
+1602 877(2)N
+11 s
+1648 912(\))N
+1711(time)X
+1904(in)X
+2008(expectation.)X
+2494(Moreover,)X
+2897(using)X
+3123(complex)X
+3462(suf\256x)X
+3697(tree)X
+3864(and)X
+4026(constant)X
+576 1024(time)N
+786(least)X
+1000(common)X
+1361(ancestor)X
+1706(algorithms)X
+2136(as)X
+2261(subprocedures,)X
+2842(Myers)X
+3118(produced)X
+3497(a)X
+3588(variation)X
+3954(that)X
+4139(takes)X
+2 f
+576 1136(O)N
+1 f
+646(\()X
+2 f
+682(NlgN)X
+9 f
+904(+)X
+2 f
+987(D)X
+1 f
+8 s
+1060 1101(2)N
+11 s
+1106 1136(\))N
+1157(worst-case)X
+1554(time.)X
+696 1276(Some)N
+929(very)X
+1117(recent)X
+1364(results)X
+1626(return)X
+1868(to)X
+1969(the)X
+2109(sparse)X
+2360(problem)X
+2686(concept)X
+2992(embodied)X
+3372(by)X
+3493(the)X
+3634(parameter)X
+2 f
+4019(R)X
+1 f
+4106(of)X
+4212(the)X
+576 1388(Hunt)N
+776(and)X
+927(Szymanski)X
+1338(algorithm.)X
+1750(Wilber)X
+2019(and)X
+2170(Lipman)X
+2469([WiL83])X
+2801(\256rst)X
+2962(posed)X
+3191(the)X
+3323(following)X
+3690(variation)X
+4027(but)X
+4163(only)X
+576 1500(gave)N
+776(an)X
+893(ef\256cient)X
+1216(heuristic)X
+1554(for)X
+1690(the)X
+1832(problem.)X
+2204(For)X
+2360(very)X
+2550(small)X
+2 f
+2776(k)X
+1 f
+2849(consider)X
+3181(the)X
+3324(set)X
+3457(of)X
+3565(all)X
+2 f
+3689(k)X
+1 f
+3728(-substrings)X
+4149(pairs)X
+576 1612(between)N
+898(the)X
+1035(two)X
+1196(sequences,)X
+1602(i.e.,)X
+2 f
+1760({)X
+1 f
+1823(\()X
+2 f
+1859(i)X
+1 f
+1891(,)X
+2 f
+1948(j)X
+1 f
+1980(\))X
+2044(:)X
+2 f
+2097(a)X
+8 s
+2151 1629(i)N
+11 s
+2183 1612(a)N
+8 s
+2237 1629(i)N
+9 f
+2270(+)X
+1 f
+2315(1)X
+11 s
+2383 1590(.)N
+2427(.)X
+2471(.)X
+2 f
+2522 1612(a)N
+8 s
+2576 1629(i)N
+9 f
+2609(+)X
+2 f
+2654(k)X
+9 f
+2697(-)X
+1 f
+2742(1)X
+2 f
+11 s
+9 f
+2816 1612(=)N
+2 f
+2899(b)X
+8 s
+2953 1629(j)N
+11 s
+2985 1612(b)N
+8 s
+3039 1629(j)N
+9 f
+3067(+)X
+1 f
+3112(1)X
+11 s
+3180 1590(.)N
+3224(.)X
+3268(.)X
+2 f
+3319 1612(b)N
+8 s
+3373 1629(j)N
+9 f
+3401(+)X
+2 f
+3446(k)X
+9 f
+3489(-)X
+1 f
+3534(1)X
+2 f
+11 s
+3601 1612(})N
+1 f
+3636(.)X
+3708(Let)X
+2 f
+3854(R)X
+1 f
+3936(be)X
+4047(the)X
+4183(size)X
+576 1724(of)N
+681(this)X
+841(set;)X
+996(we)X
+1130(seek)X
+1318(the)X
+1458(best)X
+1632(alignments)X
+2052(among)X
+2324(those)X
+2542(whose)X
+2798(aligned,)X
+3112(equal)X
+3335(symbols)X
+3661(come)X
+3884(from)X
+4087(one)X
+4247(of)X
+576 1836(these)N
+796(substring)X
+1158(pairs.)X
+1412(As)X
+2 f
+1548(k)X
+1 f
+1626(is)X
+1724(increased,)X
+2117(the
