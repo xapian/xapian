@@ -740,6 +740,24 @@ OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
     return get_matching_terms(mitem.did);
 }
 
+struct ByQueryIndexCmp {
+    typedef const map<om_termname, unsigned int> tmap_t;
+    tmap_t &tmap;
+    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
+    bool operator()(const om_termname &left,
+		    const om_termname &right) const {
+	tmap_t::const_iterator l, r;
+	l = tmap.find(left);
+	r = tmap.find(right);
+	if (l != tmap.end() && r != tmap.end()) {
+	    return l->second < r->second;
+	} else {
+	    // arbitrary, but might as well do alphabetical.
+	    return left < right;
+	}
+    }
+};
+
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
@@ -753,37 +771,44 @@ OmEnquire::get_matching_terms(om_docid did) const
     // the ordered list of terms in the query.
     om_termname_list query_terms = internal->query->get_terms();
 
-    // copy the list of query terms into a set for faster access.
-    // FIXME: a hash would be faster than a set, if this becomes
+    // copy the list of query terms into a map for faster access.
+    // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
-    set<om_termname> tset(query_terms.begin(), query_terms.end());
-    // matching_terms is the list of terms from the document actually
-    // matching the query.
-    om_termname_list matching_terms;
+    map<om_termname, unsigned int> tmap;
+    unsigned int index = 1;
+    for (om_termname_list::const_iterator i = query_terms.begin();
+	 i != query_terms.end();
+	 ++i) {
+	tmap[*i] = index++;
+    }
     
-    TermList *docterms = internal->database->open_term_list(did);
+    auto_ptr<TermList> docterms(internal->database->open_term_list(did));
     
     /* next() must be called on a TermList before you can
      * do anything else with it.
      */
     docterms->next();
 
-    /* For every entry in the termlist, add the term to the
-     * matching_terms set if it's a query term (ie is in tset).
-     */
+    vector<om_termname> matching_terms;
+
     while (!docterms->at_end()) {
-        set<om_termname>::iterator t = tset.find(docterms->get_termname());
-        if (t != tset.end()) {
+        map<om_termname, unsigned int>::iterator t =
+		tmap.find(docterms->get_termname());
+        if (t != tmap.end()) {
 	    matching_terms.push_back(docterms->get_termname());
-	    /* remove this term from the tset, so that our result
-             * list doesn't include duplicates.
+	    /* remove this term from the tmap
+	     * Shouldn't affect the result, but will in theory
+	     * make things slightly faster.
 	     */
-	    tset.erase(t);
+	    tmap.erase(t);
 	}
 	docterms->next();
     }
+    
+    // sort the resulting list by query position.
+    sort(matching_terms.begin(),
+	 matching_terms.end(),
+	 ByQueryIndexCmp(tmap));
 
-    delete docterms;
-
-    return matching_terms;
+    return om_termname_list(matching_terms.begin(), matching_terms.end());
 }
