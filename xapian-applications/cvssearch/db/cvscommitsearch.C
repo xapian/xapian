@@ -1,3 +1,4 @@
+#warning "DOES NOT HANDLE STOP WORDS IN QUERY"
 // cvsminesearch.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
