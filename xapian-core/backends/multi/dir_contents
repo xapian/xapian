@@ -16,6 +16,6 @@ implementation of distributed searching will render this largely
 obselete.
 
 There is also considerable scope for further optimisation of this
-backend, but this is not considered a priority since itis not expected
+backend, but this is not considered a priority since it is not expected
 to persist in its current form.
 </Description>

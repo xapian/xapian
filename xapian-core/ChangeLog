@@ -1,6 +1,11 @@
+Sun Aug 20 18:09:00 BST 2000 Olly Betts
+
+	* Corrected minor typos, etc in documentation.
+
 Sun Aug 20 17:35:00 BST 2000 Olly Betts
 
-	* All external visibility of net/network backend now calls it remote
+	* All externally visibile references to "net"/"network" backend now
+	  call it "remote".
 
 Sun Aug 20 17:12:00 BST 2000 Olly Betts
 

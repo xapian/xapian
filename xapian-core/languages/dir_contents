@@ -2,7 +2,7 @@
 
 <Description>
 Utilities for performing processing of text in various different languages
-live within this directory heirarchy.
+live within this directory hierarchy.
 
 These utilities include:  stemming algorithms, character set normalisation,
 etc.

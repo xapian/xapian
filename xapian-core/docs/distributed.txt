@@ -3,6 +3,7 @@ for distributed searches.
 
 OVERVIEW
 ========
+
 There are two sides to the distributed searching.  The client end is the
 program initiating the search on behalf of a user, and the server end is
 the program which provides a searching interface over a set of databases
@@ -15,12 +16,13 @@ but with different database arguments.  Instead of type, eg, "quartz",
 use "remote".  The extra parameters describe how to connect to the server.
 Once the database is opened, the query process is identical to any other.
 
-There are currently two network client/server methods: prog and tcp.  They
-both use the same protocol, although different means to contact the
-server.
+The remote backend currently support two client/server methods: prog and
+tcp.  They both use the same protocol, although different means to contact
+the server.
 
 THE PROG METHOD
 ===============
+
 The prog method spawns a program when the database is opened, and
 communicates with it over a Unix domain socket.  This isn't intended for
 production use, but is useful for debugging and testing.  The omprogsrv
@@ -41,8 +43,9 @@ From the client end, the following database parameters are used:
 
 THE TCP METHOD
 ==============
-The tcp method uses TCP/IP sockets to connect to a running server on a
-remote (or indeed local) machine.
+
+The tcp method uses TCP/IP sockets to connect to a running server on a remote
+(or indeed local) machine.
 
 The client's database parameters are:
 
@@ -64,7 +67,7 @@ The arguments omtcpsrv currently knows are:
 	then the server runs until it is killed manually.
 
 Options for specifying the database(s):
-    --da-flimsy <dir>, --da-heavy <dir>, --db <dir>, --db <dir>
+    --da-flimsy <dir>, --da-heavy <dir>, --db <dir>
         Add a da/db database to the database group served by this server.
     --im <filename>
         Add an inmemory (text file) database to the group.
@@ -77,7 +80,8 @@ change at some point).
 
 NOTES
 =====
-A network search should behave just like the equivalent local one,
-currently with the exception of match decision functors (which are not yet
-implemented for network usage).  Exceptions are propagated across the link
-and thrown again at the client end.
+
+A remote search should behave just like the equivalent local one, currently
+with the exception of match decision functors (which are not yet implemented
+for remote usage).  Exceptions are propagated across the link and thrown
+again at the client end. 

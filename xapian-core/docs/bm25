@@ -6,7 +6,7 @@ probabilistic weighting scheme as revealed in the TREC tests.
 
 ------------------
 
-The Muscat term weighting function is (in its most general form)
+The Muscat 3.6 term weighting function is (in its most general form)
 
  (A + 1)q   (B + 1)f                  (r+0.5)(N-n-R+r+0.5)
  -------- . -------- w, where w = log --------------------    ...(1)
@@ -17,7 +17,7 @@ where A, B are constants
 q is the wqf, the within query frequency,
 f is the wdf, the within document frequency,
 n,r,N,R you will know, and
-L = 1 in Muscat, because we don't keep document lengths, but in Stephen
+L = 1 in Muscat 3.6, because we don't keep document lengths, but in Stephen
 Robertson's formula is the normalised document length, i.e. the length
 of the document divided by the average length of a document.
 
@@ -59,7 +59,7 @@ Stephen has had so much recent success.
 
 This all seems so ad-hoc, and there are so many unknown constants in the
 formula, that my first response is one of some doubt. But note that with
-L = 1 and E = 1 we get the Muscat formula anyway. Our choice of L = 1 is
+L = 1 and E = 1 we get the Muscat 3.6 formula anyway. Our choice of L = 1 is
 rational given the successful approach of Euroferret style indexing (index
 every document with roughly the same number of terms), and Stephen
 remarks that values of E other than 1 were 'not helpful'.

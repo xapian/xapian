@@ -4,7 +4,7 @@ bug, although a relatively low priority one at this stage in
 development.
 
 ============================================================================
-An objects member functions should never call public methods on that object.
+An object's member functions should never call public methods on that object.
 ============================================================================
 Public methods present an interface to users of the class, and should not
 be called internally.  It is desirable to have a clear boundary between
