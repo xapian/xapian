@@ -2,101 +2,115 @@ MODULE = Search::Xapian 		PACKAGE = Search::Xapian::Document
 
 PROTOTYPES: ENABLE
 
-OmDocument *
+Document *
 new1();
     CODE:
-        RETVAL = new OmDocument();
+        RETVAL = new Document();
     OUTPUT:
         RETVAL
 
-OmDocument *
+Document *
 new2(other);
-    OmDocument * other
+    Document * other
     CODE:
-        RETVAL = new OmDocument(* other);
+        RETVAL = new Document(*other);
     OUTPUT:
         RETVAL
  
 string
-OmDocument::get_value(om_valueno value)
+Document::get_value(valueno valno)
 
 void
-OmDocument::add_value(valueno, value)
-    om_valueno  valueno
-    string *    value
+Document::add_value(valno, value)
+    valueno	valno
+    string	value
     CODE:
-        THIS->add_value(valueno, *value);
+        THIS->add_value(valno, value);
 
 string
-OmDocument::get_data()
+Document::get_data()
 
 void
-OmDocument::set_data(data)
-    string * data
+Document::set_data(data)
+    string	data
     CODE:
-        THIS->set_data(*data);
+        THIS->set_data(data);
 
 void
-OmDocument::add_posting(tname, tpos)
-    om_termname  tname
-    om_termpos   tpos
-
-void
-OmDocument::add_term_nopos(tname)
-    om_termname  tname
-
-void
-OmDocument::remove_posting(tname, tpos)
-    om_termname  tname
-    om_termpos   tpos
-
-void
-OmDocument::remove_term(tname)
-    om_termname  tname
-
-void
-OmDocument::clear_terms()
-
-om_termcount
-OmDocument::termlist_count()
-
-OmTermIterator *
-OmDocument::termlist_begin()
+Document::add_posting(tname, tpos)
+    string	tname
+    termpos	tpos
     CODE:
-        RETVAL = new OmTermIterator();
+        THIS->add_posting(tname, tpos);
+
+void
+Document::add_term(tname)
+    string	tname
+    CODE:
+        THIS->add_term(tname);
+
+void
+Document::add_term_nopos(tname)
+    string	tname
+    CODE:
+        THIS->add_term_nopos(tname);
+
+void
+Document::remove_posting(tname, tpos)
+    string	tname
+    termpos	tpos
+    CODE:
+        THIS->remove_posting(tname, tpos);
+
+void
+Document::remove_term(tname)
+    string	tname
+    CODE:
+        THIS->remove_term(tname);  
+
+void
+Document::clear_terms()
+
+termcount
+Document::termlist_count()
+
+TermIterator *
+Document::termlist_begin()
+    CODE:
+        RETVAL = new TermIterator();
         *RETVAL = THIS->termlist_begin();
     OUTPUT:
         RETVAL
 
-OmTermIterator *
-OmDocument::termlist_end()
+TermIterator *
+Document::termlist_end()
     CODE:
-        RETVAL = new OmTermIterator();
+        RETVAL = new TermIterator();
         *RETVAL = THIS->termlist_end();
     OUTPUT:
         RETVAL
 
-om_termcount
-OmDocument::values_count()
+termcount
+Document::values_count()
 
-OmValueIterator *
-OmDocument::values_begin()
+ValueIterator *
+Document::values_begin()
     CODE:
-        RETVAL = new OmValueIterator();
+        RETVAL = new ValueIterator();
         *RETVAL = THIS->values_begin();
     OUTPUT:
         RETVAL
 
-OmValueIterator *
-OmDocument::values_end()
+ValueIterator *
+Document::values_end()
     CODE:
-        RETVAL = new OmValueIterator();
+        RETVAL = new ValueIterator();
         *RETVAL = THIS->values_end();
     OUTPUT:
         RETVAL
 
 string
-OmDocument::get_description()
+Document::get_description()
 
 void
-OmDocument::DESTROY()
+Document::DESTROY()

@@ -1,54 +1,60 @@
 TYPEMAP
-OmDatabase            O_DATABASE
-OmDatabase *          O_DATABASE
-OmWritableDatabase    O_WDATABASE
-OmWritableDatabase *  O_WDATABASE
-OmEnquire *           O_OBJECT
-OmQuery               O_QUERY
-OmQuery *             O_QUERY
-OmStem                O_OBJECT
-OmStem *              O_OBJECT
-OmMSet                O_MSET
-OmMSet *              O_MSET
-OmRSet                O_RSET
-OmRSet *              O_RSET
-OmESet                O_ESET
-OmESet *              O_ESET
-OmMSetIterator        O_MSET_I
-OmMSetIterator *      O_MSET_I
-OmESetIterator        O_ESET_I
-OmESetIterator *      O_ESET_I
-OmDocument            O_DOC
-OmDocument *          O_DOC
-OmMatchDecider        O_OBJECT
-OmMatchDecider *      O_OBJECT
+Database		O_DATABASE
+Database *		O_DATABASE
+WritableDatabase	O_WDATABASE
+WritableDatabase *	O_WDATABASE
+Enquire *		O_OBJECT
+Query			O_QUERY
+Query *			O_QUERY
+Stem			O_OBJECT
+Stem *			O_OBJECT
+MSet			O_MSET
+MSet *			O_MSET
+RSet			O_RSET
+RSet *			O_RSET
+ESet			O_ESET
+ESet *			O_ESET
+MSetIterator		O_MSET_I
+MSetIterator *		O_MSET_I
+ESetIterator		O_ESET_I
+ESetIterator *		O_ESET_I
+Document		O_DOC
+Document *		O_DOC
+MatchDecider		O_OBJECT
+MatchDecider *		O_OBJECT
 
-OmTermIterator        O_TERM_I
-OmTermIterator *      O_TERM_I
-OmValueIterator       O_VALUE_I
-OmValueIterator *     O_VALUE_I
+TermIterator		O_TERM_I
+TermIterator *		O_TERM_I
+PostingIterator		O_POSTING_I
+PostingIterator *	O_POSTING_I
+PositionIterator	O_POSITION_I
+PositionIterator *  	O_POSITION_I
+ValueIterator		O_VALUE_I
+ValueIterator *		O_VALUE_I
 
-OmError               O_OBJECT
-OmError *             O_OBJECT
+Error			O_OBJECT
+Error *			O_OBJECT
 
-string                STRING
-string *              STRING
+string			STRING
 
-om_docid              T_IV
-om_doccount           T_IV
-om_doclength          T_IV
-om_percent            T_IV
-om_termcount          T_IV
-om_termname           T_PV
-om_termpos            T_IV
-om_valueno            T_IV
-om_weight             T_IV
+docid			T_IV
+doccount		T_IV
+doclength		T_IV
+percent			T_IV
+termcount		T_IV
+termpos			T_IV
+valueno			T_IV
+weight			T_IV
 
 
 
 INPUT
 STRING
-        $var = new string(SvPV($arg,PL_na))
+	{
+		STRLEN len;
+		const char * tmp = SvPV($arg, len);
+		$var = string(tmp, len);
+	}
 
 O_MSET
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
@@ -131,6 +137,22 @@ O_TERM_I
 		XSRETURN_UNDEF;
 	}
 
+O_POSTING_I
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_POSITION_I
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
 O_VALUE_I
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -142,7 +164,7 @@ O_VALUE_I
 
 OUTPUT
 STRING
-        sv_setpv((SV*)$arg, (char *) ($var.c_str()));
+	sv_setpvn((SV*)$arg, (char *) ($var.data()), ($var.size()));
 O_MSET
 	sv_setref_pv( $arg, "Search::Xapian::MSet", (void*)$var );
 O_RSET
@@ -162,6 +184,10 @@ O_DATABASE
 O_WDATABASE
 	sv_setref_pv( $arg, "Search::Xapian::WritableDatabase", (void*)$var );
 O_TERM_I
-	sv_setref_pv( $arg, "Search::Xapian::TermListIterator", (void*)$var );
+	sv_setref_pv( $arg, "Search::Xapian::TermIterator", (void*)$var );
+O_POSTING_I
+	sv_setref_pv( $arg, "Search::Xapian::PostingIterator", (void*)$var );
+O_POSITION_I
+	sv_setref_pv( $arg, "Search::Xapian::PositionIterator", (void*)$var );
 O_VALUE_I
-	sv_setref_pv( $arg, "Search::Xapian::ValueListIterator", (void*)$var );
+	sv_setref_pv( $arg, "Search::Xapian::ValueIterator", (void*)$var );

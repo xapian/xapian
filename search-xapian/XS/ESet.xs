@@ -2,49 +2,49 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::ESet
 
 PROTOTYPES: ENABLE
 
-OmESet *
+ESet *
 new1();
     CODE:
-        RETVAL = new OmESet();
+        RETVAL = new ESet();
     OUTPUT:
         RETVAL
 
-OmESet *
+ESet *
 new2(other);
-    OmESet * other
+    ESet *	other
     CODE:
-        RETVAL = new OmESet(* other);
+        RETVAL = new ESet(*other);
     OUTPUT:
         RETVAL
  
 
-om_termcount
-OmESet::get_ebound()
+termcount
+ESet::get_ebound()
 
-om_termcount
-OmESet::size()
+termcount
+ESet::size()
 
 bool
-OmESet::empty()
+ESet::empty()
 
-OmESetIterator *
-OmESet::begin()
+ESetIterator *
+ESet::begin()
     CODE:
-        RETVAL = new OmESetIterator();
+        RETVAL = new ESetIterator();
         *RETVAL = THIS->begin();
     OUTPUT:
         RETVAL
 
-OmESetIterator *
-OmESet::end()
+ESetIterator *
+ESet::end()
     CODE:
-        RETVAL = new OmESetIterator();
+        RETVAL = new ESetIterator();
         *RETVAL = THIS->end();
     OUTPUT:
         RETVAL
 
 string
-OmESet::get_description()
+ESet::get_description()
 
 void
-OmESet::DESTROY()
+ESet::DESTROY()

@@ -2,39 +2,39 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::RSet
 
 PROTOTYPES: ENABLE
 
-OmRSet *
+RSet *
 new1();
     CODE:
-        RETVAL = new OmRSet();
+        RETVAL = new RSet();
     OUTPUT:
         RETVAL
 
-OmRSet *
+RSet *
 new2(other);
-    OmRSet * other
+    RSet *	other
     CODE:
-        RETVAL = new OmRSet(* other);
+        RETVAL = new RSet(*other);
     OUTPUT:
         RETVAL
  
 
-om_termcount
-OmRSet::size()
+termcount
+RSet::size()
 
 bool
-OmRSet::empty()
+RSet::empty()
 
 void
-OmRSet::add_document(om_docid did)
+RSet::add_document(docid did)
 
 void
-OmRSet::remove_document(om_docid did)
+RSet::remove_document(docid did)
 
 bool
-OmRSet::contains(om_docid did)
+RSet::contains(docid did)
 
 string
-OmRSet::get_description()
+RSet::get_description()
 
 void
-OmRSet::DESTROY()
+RSet::DESTROY()

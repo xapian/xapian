@@ -31,6 +31,6 @@ while( defined( my $file = readdir( DB_DIR ) ) ) {
 closedir( DB_DIR );
 
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, OM_DB_CREATE ) );
+ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE ) );
 
 1;
