@@ -1,0 +1,4 @@
+usr/bin/omtcpsrv
+usr/bin/quartzcheck
+usr/bin/quartzcompact
+usr/bin/quartzdump

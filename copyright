@@ -1,0 +1,36 @@
+This package was Debianized by Richard Boulton <richard@tartarus.org> on
+Sun, 9 May 2004 16:30:30 +0100.
+
+It was checked out from the xapian CVS module at cvs.xapian.org:/home/cvs
+
+Upstream Authors:
+
+        Olly Betts <olly@survex.com>
+        Hein Ragas <hragas@users.sourceforge.net>
+        James Aylett <tartarus@users.sourceforge.net>
+        Sam Liddicott <samjam@users.sourceforge.net>
+        and others.
+
+Copyright:
+
+Xapian copyright is held by a number of parties, in particular much of the
+code is jointly owned by BrightStation PLC, Ananova Ltd and Olly Betts.
+
+See the header of each source file for detailed attributions.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+USA
+
+See /usr/share/common-licenses/GPL

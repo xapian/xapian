@@ -1,0 +1,8 @@
+usr/lib/libomqueryparser.a
+usr/lib/libomqueryparser.la
+usr/lib/libomqueryparser.so
+usr/lib/libxapianqueryparser.a
+usr/lib/libxapianqueryparser.la
+usr/lib/libxapianqueryparser.so
+usr/include/om/omparsequery.h
+usr/include/xapian/queryparser.h
