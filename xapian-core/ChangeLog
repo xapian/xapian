@@ -1,3 +1,9 @@
+Mon Jul 14 17:15:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/getopt.h: #include <stdlib.h> before defining getopt as a
+	  macro - hopefully that'll avoid problems with clobbering prototypes
+	  of getopt() in system headers.
+
 Sat Jul 12 09:15:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Need stdio.h for rename().
