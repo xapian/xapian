@@ -27,7 +27,6 @@ use overload '++' => sub { $_[0]->inc() },
              'fallback' => 1;
 
 sub clone() {
-  print "@_\n";
   my $self = shift;
   my $class = ref( $self );
   my $copy = new2( $self );

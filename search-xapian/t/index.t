@@ -7,22 +7,16 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 8 };
-use Search::Xapian;
+BEGIN { plan tests => 7 };
+use Search::Xapian qw(:standard);
 
 #########################
 
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
 
-my $settings;
-ok( $settings = Search::Xapian::Settings->new() );
-
-$settings->set( 'backend', 'auto' );
-$settings->set( 'auto_dir', 'testdb' );
-
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( $settings ) );
+ok( $database = Search::Xapian::WritableDatabase->new( 'testdb', OM_DB_OPEN ) );
 
 my $stemmer;
 ok( $stemmer = Search::Xapian::Stem->new( 'english' ) );
@@ -33,14 +27,14 @@ my $term = 'test';
 ok( $term = $stemmer->stem_word( $term ) );
 
 for my $num qw( one two ) {
-  ok( $doc{$num} = Search::Xapian::Document->new() );
+  ok( $docs{$num} = Search::Xapian::Document->new() );
 
-  $doc{$num}->set_data( "$term $num" );
+  $docs{$num}->set_data( "$term $num" );
 
-  $doc{$num}->add_posting( $term, 0 );
-  $doc{$num}->add_posting( $num, 1 );
+  $docs{$num}->add_posting( $term, 0 );
+  $docs{$num}->add_posting( $num, 1 );
 
-  ok( $database->add_document( $doc{$num} ) );
+  ok( $database->add_document( $docs{$num} ) );
 }
 
 1;

@@ -25,6 +25,14 @@ our @EXPORT = qw( );
 use overload '='  => sub { $_[0]->clone() },
              'fallback' => 1;
 
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
 sub new() {
   my $class = shift;
   my $database;
@@ -32,18 +40,18 @@ sub new() {
   if( scalar(@_) == 1 ) {
     my $arg = shift;
     my $arg_class = ref( $arg );
-    if( $arg_class eq 'Search::Xapian::Settings' ) {
-      $database = new1( $arg );
-    } elsif( $arg_class eq $class ) {
+    if( $arg_class eq $class ) {
       $database = new2( $arg );
     } else {
       $invalid_args = 1;
     }
+  } elsif( scalar(@_) == 2 ) {
+    $database = new1( @_ );
   } else {
     $invalid_args = 1;
   }
   if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(\$settings), $class->new(\$database)" );
+    Carp::carp( "USAGE: $class->new(\$file, OM_DB_OPTS), $class->new(\$database)" );
     exit;
   }
   bless $database, $class;

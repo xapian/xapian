@@ -1,6 +1,4 @@
 TYPEMAP
-OmSettings            O_SETTINGS
-OmSettings *          O_SETTINGS
 OmDatabase            O_DATABASE
 OmDatabase *          O_DATABASE
 OmWritableDatabase    O_WDATABASE
@@ -98,14 +96,6 @@ O_QUERY
 		XSRETURN_UNDEF;
 	}
        
-O_SETTINGS
-	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
-		$var = ($type)SvIV((SV*)SvRV( $arg ));
-	else{
-		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
-		XSRETURN_UNDEF;
-	}
-
 O_DATABASE
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -155,8 +145,6 @@ O_DOC
 	sv_setref_pv( $arg, "Search::Xapian::Document", (void*)$var );
 O_QUERY
 	sv_setref_pv( $arg, "Search::Xapian::Query", (void*)$var );
-O_SETTINGS
-	sv_setref_pv( $arg, "Search::Xapian::Settings", (void*)$var );
 O_DATABASE
 	sv_setref_pv( $arg, "Search::Xapian::Database", (void*)$var );
 O_WDATABASE

@@ -7,7 +7,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 16 };
+BEGIN { plan tests => 18 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -15,22 +15,14 @@ use Search::Xapian qw(:ops);
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
 
-my $settings;
-$settings = Search::Xapian::Settings->new();
-
-$settings->set( 'backend', 'auto' );
-$settings->set( 'auto_dir', 'testdb' );
-
 # None of the following tests can be expected to succeed without first
 # creating a test database in the directory testdb.
-# Feel free to remove the above 'exit' line, create your own database
-# using the xapian C++ examples and use the following tests on this module
 
 my $db;
-ok( $db = Search::Xapian::Database->new( $settings ) );
+ok( $db = Search::Xapian::Database->new( 'testdb' ) );
 
 my $enq;
-ok( $enq = Search::Xapian::Enquire->new( $db ) );
+ok( $enq = $db->enquire() );
 
 my ($query1, $query2, $query3, $query4);
 ok( $query1 = Search::Xapian::Query->new( 'test' ) );
@@ -39,7 +31,8 @@ ok( $query3 = Search::Xapian::Query->new( OP_OR, $query1, $query2 ) );
 ok( $query4 = Search::Xapian::Query->new( OP_OR, 'test', 'help', 'one', 'two', 'three' ) );
 ok( $query4->get_description() );
 
-$enq->set_query( $query2 );
+ok( $enq = $db->enquire( $query2 ) );
+ok( $enq = $db->enquire( OP_OR, 'test', 'help' ) );
 
 my $matches;
 ok( $matches = $enq->get_mset( 0, 10 ) );

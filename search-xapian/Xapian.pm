@@ -7,11 +7,11 @@ use Carp;
 
 use Search::Xapian::Database;
 use Search::Xapian::Document;
+use Search::Xapian::Enquire;
+use Search::Xapian::MSet;
 use Search::Xapian::MSetIterator;
 use Search::Xapian::Query;
-use Search::Xapian::Settings;
 use Search::Xapian::WritableDatabase;
-#use Search::Xapian::
 
 require Exporter;
 require DynaLoader;
@@ -38,8 +38,12 @@ our %EXPORT_TAGS = (
                                   OP_WEIGHT_CUTOFF
                                   OP_ELITE_SET
                                  ) ],
+                    'db' => [ qw(
+                                 OM_DB_OPEN
+                                 OM_DB_CREATE
+                                 ) ]
                    );
-$EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} } ];
+$EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} }, @{ $EXPORT_TAGS{'db'} } ];
 $EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} } ];
 
 
@@ -48,7 +52,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -67,37 +71,39 @@ Search::Xapian - Perl XS frontend to the Xapian C++ search library.
 
   use Search::Xapian;
 
-  my $settings = Search::Xapian::Settings->new();
+  my $db = Search::Xapian::Database->new( '[DATABASE DIR]' );
+  my $enq = $db->enquire( '[QUERY TERM]' );
 
-  $settings->set( 'backend', 'auto' );
-  $settings->set( 'auto_dir', '[DATABASE DIR]' );
+  printf "Parsing query '%s'\n", $enq->get_query()->get_description();
 
-  my $db = Search::Xapian::Database->new( $settings );
-  my $enq = Search::Xapian::Enquire->new( $db );
-  my $query = Search::Xapian::Query->new( '[QUERY TERM]' );
+  my @matches = $enq->matches(0, 10);
 
-  printf "Parsing query '%s'\n", $query->get_description();
+  print scalar(@matches) . " results found\n";
 
-  $enq->set_query( $query );
-
-  my $matches = $enq->get_mset( 0, 10 );
-
-  printf "%d results found\n", $matches->get_estimated();
-
-  my $match = $matches->begin();
-  my $size = $matches->size();
-
-  while( $size-- ){
-    printf "ID %d %d%% [ %s ]\n", $match->get_docid(), $match->get_percent(), $match->get_document()->get_data();
-    $match->inc();
+  foreach my $match ( @matches ) {
+    my $doc = $match->get_document();
+    printf "ID %d %d%% [ %s ]\n", $match->get_docid(), $match->get_percent(), $doc->get_data();
   }
 
 =head1 DESCRIPTION
 
-Currently this module only provides objects required for searching,
-not indexing. Expect this to change in the near future.
+This module provides access to most of the classes in the xapian
+library, as well as a more simplified, 'perlish' interface - as
+demonstrated above.
 
-More detailed documentation on xapian can be found at http://www.xapian.org/
+The xapian library is evolving very quickly at the time of writing,
+hence any documentation placed here would be likely to become out of
+date quite rapidly, and I do not have the patience to write some which
+could rapidly become redundant.
+
+Apologies to those of you considering using this module. For the time
+being, I would suggest garnering what you can from the tests and
+examples provided with this module, or reading through the xapian
+documentation on http://www.xapian.org/.
+
+If you encounter problems, email either me or preferably the
+xapian-discuss mailing list (which I am on - subscription details can
+be found on the xapian web site).
 
 =head2 EXPORT
 
@@ -114,10 +120,6 @@ Error handling for all method liable to generate them.
 =item Documentation
 
 Brief descriptions of classes, possibly just adapted for xapian docs.
-
-=item Search::Xapian::Simple
-
-To provide a simplified, more 'Perlish' interface.
 
 =head1 AUTHOR
 

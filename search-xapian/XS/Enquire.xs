@@ -11,7 +11,7 @@ OmEnquire::new(databases)
         RETVAL
 
 void
-OmEnquire::set_query(query)
+OmEnquire::set_query_object(query)
     OmQuery *    query
     CODE:
         THIS->set_query(* query);
