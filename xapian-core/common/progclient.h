@@ -36,6 +36,12 @@ class ProgClient : public SocketClient {
 	ProgClient(const ProgClient &);
 	void operator=(const ProgClient &);
 
+	/// The socket descriptor
+	int socketfd;
+
+	/// The process id of the child process.
+	int pid;
+
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */

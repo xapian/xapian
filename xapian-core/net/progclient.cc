@@ -28,13 +28,15 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <cstdio>
 #include <cerrno>
 #include <strstream.h>
 
 ProgClient::ProgClient(string progname, const vector<string> &args)
-	: SocketClient(get_spawned_socket(progname, args))
+	: SocketClient(get_spawned_socket(progname, args),
+		       false /* closing socket our responsibility */)
 {
 }
 
@@ -50,7 +52,7 @@ ProgClient::get_spawned_socket(string progname, const vector<string> &args)
 	throw OmNetworkError(string("socketpair:") + strerror(errno));
     }
     
-    pid_t pid = fork();
+    pid = fork();
 
     if (pid < 0) {
 	throw OmNetworkError(string("fork:") + strerror(errno));
@@ -103,4 +105,8 @@ ProgClient::get_spawned_socket(string progname, const vector<string> &args)
 
 ProgClient::~ProgClient()
 {
+    // close the socket and reap the child.
+    do_write("QUIT");
+    do_close();
+    waitpid(pid, 0, 0);
 }

@@ -35,8 +35,10 @@
 #include <cerrno>
 #include <strstream.h>
 
-SocketClient::SocketClient(int socketfd_)
+SocketClient::SocketClient(int socketfd_,
+			   bool close_socket_)
 	: socketfd(socketfd_),
+	  close_socket(close_socket_),
 	  buf(socketfd),
 	  conv_state(state_getquery),
 	  remote_stats_valid(false),
@@ -156,15 +158,23 @@ SocketClient::data_is_available()
     return buf.data_waiting();
 }
 
-SocketClient::~SocketClient()
+void
+SocketClient::do_close()
 {
     // musn't let any exception escape a destructor, or else we
-    // abort immediately.
+    // abort immediately if from a destructor.
     try {
 	buf.writeline("QUIT");
     } catch (...) {
     }
     close(socketfd);
+}
+
+SocketClient::~SocketClient()
+{
+    if (close_socket) {
+	do_close();
+    }
 }
 
 void

@@ -1,3 +1,7 @@
+Thu Jun  1 16:40:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* ProgClient now reaps its child, so no more zombie buildup.
+
 Thu Jun  1 15:33:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* TcpServer no longer inherits from SocketServer, but uses it.

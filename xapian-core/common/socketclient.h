@@ -40,6 +40,9 @@ class SocketClient : public NetClient {
 	/// The socket filedescriptor
 	int socketfd;
 
+	/// Whether or not to close the socket on destruction
+	bool close_socket;
+
 	/// The line buffer which does the I/O
 	OmLineBuf buf;
 
@@ -85,10 +88,6 @@ class SocketClient : public NetClient {
 	/// The current RSet.
 	OmRSet omrset;
 
-	/// functions which actually do the work
-	string do_read();
-	void do_write(string data);
-
 	/// Read the initial data sent at the start of connection
 	void handle_hello(const string &s);
 
@@ -112,9 +111,22 @@ class SocketClient : public NetClient {
 	 *  can't be created - a derived class must be instantiated which
 	 *  has code in the constructor to open the socket.
 	 *
-	 *  @param socketfd_  The socket used for the communications.
+	 *  @param socketfd_  	The socket used for the communications.
+	 *
+	 *  @param close_socket_ If true (the default), then the SocketClient
+	 *                      destructor will finish the session and close
+	 *                      the socket.  If false, the derived class is
+	 *                      responsible for the socket, which is assumed
+	 *                      to be closed in ~SocketClient.
 	 */
-	SocketClient(int socketfd_);
+	SocketClient(int socketfd_, bool close_socket_ = true);
+
+	/// functions which actually do the work
+	string do_read();
+	void do_write(string data);
+
+	/// Close the socket
+	void do_close();
 
     public:
 	/** Destructor. */
