@@ -208,13 +208,6 @@ SocketClient::~SocketClient()
 }
 
 void
-SocketClient::set_weighting(IRWeight::weight_type wt_type)
-{
-    Assert(conv_state == state_getquery);
-    wt_string = om_tostring(wt_type);
-}
-
-void
 SocketClient::set_query(const OmQueryInternal *query_)
 {
     Assert(conv_state == state_getquery);
@@ -241,9 +234,7 @@ SocketClient::finish_query()
 			moptions_to_string(moptions) + '\n';
 		message += "RSET " +
 			omrset_to_string(omrset) + '\n';
-		message += "SETQUERY " +
-		                 wt_string + " \"" +
-		       	         query_string + "\"" + '\n';
+		message += "SETQUERY \"" + query_string + "\"" + '\n';
 		do_write(message);
 	    }
 	    conv_state = state_sentquery;
@@ -403,7 +394,6 @@ SocketClient::get_mset(om_doccount first,
 
     // reset the state
     conv_state = state_getquery;
-    wt_string = "";
     query_string = "";
     remote_stats = Stats();
     remote_stats_valid = false;

@@ -42,8 +42,6 @@
 #include "match.h"
 #include "stats.h"
 #include "irweight.h"
-#include "bm25weight.h"
-//#include "tradweight.h"
 
 #include <algorithm>
 #include <memory>
@@ -201,7 +199,7 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  users_query(),
 	  extra_weight(0),
 	  rset(0),
-	  requested_weighting(IRWeight::WTTYPE_BM25),
+	  requested_weighting("bm25"),
 	  do_collapse(false),
 	  max_or_terms(0),
 	  mcmp(msetcmp_forward)
@@ -244,6 +242,8 @@ LocalMatch::mk_postlist(const om_termname& tname)
 
 	// FIXME - query size is currently fixed as 1
 	// FIXME - want to use within query frequency here.
+	// FIXME: pass the weight type and the info needed to create it to the
+	// postlist instead?
 	IRWeight * wt = mk_weight(1, tname);
 	term_weight = wt->get_maxpart();
 	DEBUGLINE(MATCH, "get_maxpart = " << term_weight);
@@ -277,7 +277,6 @@ LocalMatch::mk_weight(om_doclength querysize_,
 		      om_termname tname_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
-    weights.push_back(wt); // Remember it for deleting
     wt->set_stats(&statssource, querysize_, tname_);
     return wt;
 }
@@ -288,11 +287,8 @@ LocalMatch::del_query_tree()
     delete query;
     query = 0;
 
+    delete extra_weight;
     extra_weight = 0;
-    while (!weights.empty()) {
-	delete(weights.back());
-	weights.pop_back();
-    }
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -300,29 +296,31 @@ LocalMatch::del_query_tree()
 //
 
 void
-LocalMatch::set_options(const OmSettings & moptions_)
+LocalMatch::set_options(const OmSettings & mopts)
 {
     Assert(!is_prepared);
     Assert(query == NULL);
 
-    int val = moptions_.get_value_int("match_percent_cutoff", 0);
+    int val = mopts.get_value_int("match_percent_cutoff", 0);
     if (val > 0) {
 	min_weight_percent = val;
     }
 
-    val = moptions_.get_value_int("match_collapse_key", -1);
+    val = mopts.get_value_int("match_collapse_key", -1);
     if (val >= 0) {
 	do_collapse = true;
 	collapse_key = val;
     }
 
-    max_or_terms = moptions_.get_value_int("match_max_or_terms", 0);
+    max_or_terms = mopts.get_value_int("match_max_or_terms", 0);
 
-    if (moptions_.get_value_bool("match_sort_forward", true)) {
+    if (mopts.get_value_bool("match_sort_forward", true)) {
 	mcmp = OmMSetCmp(msetcmp_forward);
     } else {
 	mcmp = OmMSetCmp(msetcmp_reverse);
     }
+
+    requested_weighting = mopts.get_value("match_weighting_scheme", "bm25");
 }
 
 
@@ -333,16 +331,6 @@ LocalMatch::set_rset(const OmRSet & omrset)
     del_query_tree();
     std::auto_ptr<RSet> new_rset(new RSet(database, omrset));
     rset = new_rset;
-}
-
-void
-LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
-{
-    Assert(!is_prepared);
-    Assert(query == NULL);
-    requested_weighting = wt_type_;
-    max_weight_needs_calc = true;
-    del_query_tree();
 }
 
 // Make a postlist from a vector of query objects.
@@ -487,16 +475,12 @@ LocalMatch::set_query(const OmQueryInternal *query_)
     term_frequencies.clear();
 
     max_weight = 0;
-    if(query) {
-	delete query;
-	query = NULL;
-    }
     max_weight_needs_calc = true;
     del_query_tree();
 
     // If query is boolean, set weighting to boolean
     if(query_->is_bool()) {
-	actual_weighting = IRWeight::WTTYPE_BOOL;
+	actual_weighting = "bool";
     } else {
 	actual_weighting = requested_weighting;
     }
@@ -547,6 +531,7 @@ LocalMatch::select_query_terms()
 	    term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
 	    DEBUGLINE(MATCH, "TERM `" <<  *tname << "' get_maxpart = " <<
 		      wt->get_maxpart());
+	    delete wt;
 	}
     }
 }
@@ -695,7 +680,8 @@ LocalMatch::get_mset(om_doccount first,
     // Ensure that extra_weight is created
     mk_extra_weight();
 
-#ifdef MUS_DEBUG_PARANOID
+    // FIXME: may be able to loop through postlists to do this check now?
+#if 0 // def MUS_DEBUG_PARANOID
     // Check that max_extra weight is really right
     for(std::vector<IRWeight *>::const_iterator i = weights.begin();
 	i != weights.end(); i++) {
@@ -748,9 +734,6 @@ LocalMatch::get_mset(om_doccount first,
         mbound++;
 
 	om_docid did = query->get_docid();
-	// FIXME: next line is inefficient, due to design.  (Makes it hard /
-	// impossible to store document lengths in postlists, so they've
-	// already been retrieved)
 	DEBUGLINE(MATCH, "database->get_doclength(" << did << ") == " <<
 		  database->get_doclength(did));
 	DEBUGLINE(MATCH, "query->get_doclength() == " <<
@@ -758,7 +741,7 @@ LocalMatch::get_mset(om_doccount first,
 	AssertEqDouble(database->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
 		extra_weight->get_sumextra(query->get_doclength());
-//		extra_weight->get_sumextra(database->get_doclength(did));
+
 	OmMSetItem new_item(wt, did);
 
 	if(mcmp(new_item, min_item)) {

@@ -68,7 +68,7 @@ class NetworkMatch : public SingleMatch
 	void set_query(const OmQueryInternal * query_);
 
 	void set_rset(const OmRSet & omrset);
-	void set_weighting(IRWeight::weight_type wt_type_);
+
 	void set_options(const OmSettings & moptions_);
 
 	bool prepare_match(bool nowait);

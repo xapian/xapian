@@ -34,6 +34,10 @@ class TradWeight : public IRWeight {
 
 	void calc_termweight() const;
     public:
+	IRWeight * clone() const {
+	    // FIXME: should copy across settings
+	    return new TradWeight;
+	}
 	~TradWeight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;

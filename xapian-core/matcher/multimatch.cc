@@ -42,7 +42,6 @@
 MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
-		       IRWeight::weight_type wt_type,
 		       const OmSettings & moptions,
 		       std::auto_ptr<StatsGatherer> gatherer_)
 	: multi_database(multi_database_),
@@ -60,7 +59,6 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 
     set_query(query);
     set_rset(omrset);
-    set_weighting(wt_type);
     set_options(moptions);
 
     prepare_matchers();
@@ -122,16 +120,6 @@ MultiMatch::set_rset(const OmRSet & omrset)
 }
 
 void
-MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
-{
-    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_weighting(wt_type_);
-    }
-}
-
-
-void
 MultiMatch::set_options(const OmSettings & moptions)
 {
     for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
@@ -146,7 +134,6 @@ MultiMatch::set_options(const OmSettings & moptions)
 	mcmp = OmMSetCmp(msetcmp_reverse);
     }
 }
-
 
 void
 MultiMatch::change_docids_to_global(std::vector<OmMSetItem> & mset,

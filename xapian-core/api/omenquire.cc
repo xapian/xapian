@@ -325,15 +325,10 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // FIXME: make match take a refcntptr
-    // FIXME: incorporate weighting scheme into match options
     //
     // Notes: when accessing query, we don't need to lock mutex, since its our
     // own copy and we're locked ourselves
-    MultiMatch match(database.get(),
-		     query->internal,
-		     *omrset,
-		     IRWeight::WTTYPE_BM25,
-		     *moptions);
+    MultiMatch match(database.get(), query->internal, *omrset, *moptions);
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object

@@ -2,39 +2,42 @@
 
 #include "irweight.h"
 
-// Include headers for all the weight types
+// Include headers for all built-in weight types
 #include "tradweight.h"
 #include "bm25weight.h"
 #include "boolweight.h"
 
+map<string, IRWeight *> IRWeight::user_weights;
+
 IRWeight *
-IRWeight::create(IRWeight::weight_type wt_type)
+IRWeight::create(const string &wt_type)
 {
+    DEBUGLINE(UNKNOWN, "IRWeight::create(" << wt_type << ")");
     IRWeight * weight = NULL;
 
-    // Create weight of correct type
-    switch(wt_type) {
-	case WTTYPE_BOOL:
-	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_BOOL)");
-	    weight = new BoolWeight();
-	    break;
-	case WTTYPE_TRAD:
-	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_TRAD)");
-	    weight = new TradWeight();
-	    break;
-	case WTTYPE_BM25:
-	    DEBUGLINE(UNKNOWN, "IRWeight::create(WTTYPE_BM25)");
+    if (wt_type.at(0) != 'x') {
+	// Create weight of correct type
+	if (wt_type == "bm25") {
 	    weight = new BM25Weight();
-	    break;
-	default:
-	    DEBUGLINE(UNKNOWN, "IRWeight::create(Unknown)");
+	} else if (wt_type == "trad") {
+	    weight = new TradWeight();	
+	} else if (wt_type == "bool") {
+	    weight = new BoolWeight();
+	} else {
 	    throw OmInvalidArgumentError("Unknown weighting scheme");
+	}	
+    } else {
+	// handle user weights
+	map<string, IRWeight *>::iterator i;
+	i = user_weights.find(wt_type);
+	if (i == user_weights.end()) {
+	    throw OmOpeningError("Unknown user weighting scheme");
+	}
+	weight = i->second->clone();
     }
 
     // Check that we have a weighting object
-    if(weight == NULL) {
-	throw OmOpeningError("Couldn't create weighting object");
-    }
+    Assert(weight != NULL);
 
     return weight;
 }

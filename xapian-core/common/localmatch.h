@@ -88,13 +88,13 @@ class LocalMatch : public SingleMatch
 	std::auto_ptr<RSet> rset;
 
 	/// Weighting scheme which has been requested.
-	IRWeight::weight_type requested_weighting;
+	string requested_weighting;
 
 	/** Weighting scheme to use.
 	 *  This may differ from the requested_type if, for example,
 	 *  the query is pure boolean.
 	 */
-	IRWeight::weight_type actual_weighting;
+	string actual_weighting;
 
 	/// Whether to perform collapse operation
 	bool do_collapse;
@@ -179,8 +179,8 @@ class LocalMatch : public SingleMatch
 	void set_query(const OmQueryInternal * query_);
 
         void set_rset(const OmRSet & omrset);
-	void set_weighting(IRWeight::weight_type wt_type_);
-	void set_options(const OmSettings & moptions_);
+
+	void set_options(const OmSettings & mopts);
 
 	bool prepare_match(bool nowait);
 

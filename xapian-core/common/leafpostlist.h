@@ -1,4 +1,4 @@
-/* dbpostlist.h
+/* leafpostlist.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -36,7 +36,7 @@ class LeafPostList : public PostList
     public:
 	LeafPostList() : ir_wt(NULL) { return; }
 
-	~LeafPostList() { return; }
+	~LeafPostList() { delete ir_wt; return; }
 
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);

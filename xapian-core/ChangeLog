@@ -1,3 +1,9 @@
+Thu Aug 17 16:14:00 BST 2000 Olly Betts
+
+	* Weighting scheme now specified in OmSettings; termweights now
+	  deleted by LeafPostList rather than LocalMatch.  No changes to
+	  external APIs this time!
+
 Thu Aug 17 14:54:00 BST 2000 Olly Betts
 
 	* To speed things up with debug builds, DEBUG_CALL and

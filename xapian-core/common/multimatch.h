@@ -145,10 +145,8 @@ class MultiMatch
 	/// Assignment is not permitted.
 	void operator=(const MultiMatch &);
 
-
 	void set_query(const OmQueryInternal * query);
 	void set_rset(const OmRSet & omrset);
-	void set_weighting(IRWeight::weight_type wt_type);
 	void set_options(const OmSettings & moptions);
     public:
 	/** MultiMatch constructor.
@@ -168,7 +166,6 @@ class MultiMatch
 	MultiMatch(const MultiDatabase * multi_database_,
 		   const OmQueryInternal * query,
 		   const OmRSet & omrset,
-		   IRWeight::weight_type wt_type,
 		   const OmSettings & moptions,
 		   std::auto_ptr<StatsGatherer> gatherer_
 		       = std::auto_ptr<StatsGatherer>(new LocalStatsGatherer()));

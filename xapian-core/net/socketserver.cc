@@ -165,19 +165,6 @@ SocketServer::run_match(const std::string &firstmessage)
 
     message = message.substr(9, message.npos);
 
-    std::string wt_string;
-    // FIXME: use an iterator or something.
-    while (message.length() > 0 && isdigit(message[0])) {
-	wt_string += message[0];
-	message = message.substr(1);
-    }
-    message = message.substr(1);
-
-    // extract the weighting type
-    IRWeight::weight_type wt_type =
-	    static_cast<IRWeight::weight_type>(
-					       atol(wt_string.c_str()));
-
     // Extract the query
     if (message[0] != '\"' || message[message.length()-1] != '\"') {
 	throw OmNetworkError("Invalid query specification");
@@ -189,7 +176,6 @@ SocketServer::run_match(const std::string &firstmessage)
     MultiMatch match(db.get(),
 		     &query,
 		     omrset,
-		     wt_type,
 		     moptions,
 		     std::auto_ptr<StatsGatherer>(gatherer =
 					     new NetworkStatsGatherer(this)));

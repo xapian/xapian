@@ -43,18 +43,17 @@ class IRWeight {
 
 	bool initialised;
 	mutable bool weight_calculated;
+
+	static map<string, IRWeight *> user_weights;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; };
 
-	/* Type of a database */
-	enum weight_type {
-	    WTTYPE_BOOL,
-	    WTTYPE_TRAD,
-	    WTTYPE_BM25
-	};
-
-	static IRWeight * create(IRWeight::weight_type type);
+	static IRWeight *create(const string &wt_type);
+    
+	/** Return a clone of this weight object.
+	 */
+	virtual IRWeight * clone() const = 0;
 
 	/** Initialise the weight object with the neccessary stats, or
 	 *  places to get them from.

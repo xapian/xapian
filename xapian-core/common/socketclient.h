@@ -61,9 +61,6 @@ class SocketClient : public NetClient {
 	/// The remote document avlength, given at open.
 	om_doclength avlength;
 
-	/// The weighting type to be used, as a string
-	std::string wt_string;
-
 	/// The current query, as a string
 	std::string query_string;
 
@@ -82,7 +79,7 @@ class SocketClient : public NetClient {
 	/// The max weight from the remote match
 	om_weight remote_maxweight;
 
-	/// The match options structure
+	/// The match options object
 	OmSettings moptions;
 
 	/// The current RSet.
@@ -138,9 +135,6 @@ class SocketClient : public NetClient {
 
 	/** Wait for input to be available */
 	void wait_for_input();
-
-	/** Set the weighting type */
-	void set_weighting(IRWeight::weight_type wt_type);
 
 	/** Set the query */
 	void set_query(const OmQueryInternal *query_);

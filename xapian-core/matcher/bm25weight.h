@@ -34,6 +34,10 @@ class BM25Weight : public IRWeight {
 
 	void calc_termweight() const;
     public:
+	IRWeight * clone() const {
+	    // FIXME: should copy across settings
+	    return new BM25Weight;
+	}
 	~BM25Weight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;

@@ -39,9 +39,7 @@
 NetworkMatch::NetworkMatch(IRDatabase *database_)
 	: database(dynamic_cast<NetworkDatabase *>(database_)),
 	  statssource(database->link),
-	  max_weight_needs_fetch(true) /*,
-	  wt_type(IRWeight::WTTYPE_BM25),
-	  do_collapse(false) */
+	  max_weight_needs_fetch(true)
 {
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
@@ -118,13 +116,6 @@ void
 NetworkMatch::set_rset(const OmRSet & omrset)
 {
     database->link->set_rset(omrset);
-}
-
-void
-NetworkMatch::set_weighting(IRWeight::weight_type wt_type_)
-{
-    database->link->set_weighting(wt_type_);
-    max_weight_needs_fetch = true;
 }
 
 ////////////////////////

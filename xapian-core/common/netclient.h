@@ -65,9 +65,6 @@ class NetClient : public OmRefCntBase {
 	 */
 	virtual void wait_for_input() = 0;
 
-	/** Set the weighting type */
-	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
-
 	/** Set the query */
 	virtual void set_query(const OmQueryInternal *query_) = 0;
 

@@ -91,11 +91,6 @@ class SingleMatch : public OmRefCntBase
 	 */
         virtual void set_rset(const OmRSet & omrset) = 0;
 
-	/** Set weighting scheme.
-	 *  FIXME: fold this into set_options()
-	 */
-	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
-
 	/** Set the match options. */
 	virtual void set_options(const OmSettings & moptions_) = 0;
 
