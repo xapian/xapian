@@ -1,3 +1,8 @@
+Sat Feb 19 18:44:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added minimal testcase which fails to compile with
+	  Compaq's C++ compiler (cxx).
+
 Sat Feb 19 04:23:51 GMT 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: Change

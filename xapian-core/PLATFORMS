@@ -94,9 +94,17 @@ arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
 ------+--------------------------------+-------+------+------------------------
 
 Attempts to build Xapian with Compaq's C++ compiler (on Tru64, HPUX, and
-Linux) have so far failed.  Some progress has been made, but it's possible
-this compiler lacks sufficient support for various ANSI C++ features which we
-make use of.
+Linux) have so far failed.  Some progress has been made, but it appears
+that this compiler lacks sufficient support for C++ templates.  This minimal
+testcase fails to compile:
+
+  #include <xapian/base.h>
+
+  class Query {
+    class Internal;
+    Xapian::Internal::RefCntPtr<Internal> internal;
+    template <class SubQ> Query(SubQ q) : internal(0) { } 
+  };
 
 These are older success reports lacking an update for a more recent Xapian
 version (typically because the machine in question was upgraded, or we no
