@@ -40,7 +40,9 @@ static void query_revision_comment(cvs_db_file & db_file, unsigned int file_id);
 
 static string cvsroot_name;
 static string database_name;
-
+static char controlA = '\001';
+static char controlB = '\002';
+static char controlC = '\003';
 
 int
 main(unsigned int argc, char **argv) 
@@ -86,6 +88,7 @@ main(unsigned int argc, char **argv)
         } else if (!strcmp(argv[i],"-h")) {
             usage(argv[0]);
         }
+        cout << controlA << endl;
     }
     return 0;
 }
@@ -161,7 +164,7 @@ void query_revision_comment(cvs_db_file & db_file, unsigned int file_id)
              i < comments.size() && itr!= revisions.end();
              ++i, ++itr)
         {
-            cout << *itr << "^C" << comments[i] << "^B" << endl;
+            cout << *itr << controlC << comments[i] << controlB << endl;
         }
     }
 }
