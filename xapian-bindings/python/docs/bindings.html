@@ -23,9 +23,9 @@ in the bindings, so generally it should just work as expected.
 
 <p>
    All iterators support <code>next()</code> and <code>equals()</code> methods
-   to move through
-   and test iterators (as for all language bindings). Python-wrapped
-   iterators also support direct comparison, so something like:
+   to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev()</code>.
+   Python-wrapped iterators also support direct comparison, so something like:
 </p>
 
 <pre>
@@ -107,9 +107,17 @@ The ESet has a property, <code>eset.items</code>, which returns a list of tuples
    Functions in <code>Xapian::Auto</code> are mapped directly into the
    <code>xapian</code> module (so <code>Xapian::Auto::open()</code> becomes
    <code>xapian.open()</code>, for
-   instance). The <code>Xapian::Auto::DB_*</code> constants are available as
-   <code>xapian.DB_*</code>.
+   instance).
 </p>
+
+<h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
+
+<ul>
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>quartz_open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>inmemory_open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>remote_open()</code> (only
+the TCP version is currently wrapped, the "program" version isn't).
+</ul>
 
 <h2>Query</h2>
 

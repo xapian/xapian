@@ -29,3 +29,6 @@ Document_add_posting($doc, Stem_stem_word($stem, "there"), 2);
 Document_add_posting($doc, Stem_stem_word($stem, "anybody"), 3);
 Document_add_posting($doc, Stem_stem_word($stem, "out"), 4);
 Document_add_posting($doc, Stem_stem_word($stem, "there"), 5);
+$db = inmemory_open();
+WritableDatabase_add_document($db, $doc);
+if (Database_get_doccount($db) != 1) exit(1);

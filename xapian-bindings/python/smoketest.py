@@ -30,9 +30,9 @@ try:
     doc.add_posting(stem.stem_word("anybody"), 3)
     doc.add_posting(stem.stem_word("out"), 4)
     doc.add_posting(stem.stem_word("there"), 5)
-    # db = xapian.inmemory.open()
-    # db.add_document(doc)
-    # if db.get_doccount() != 1:
-    #     sys.exit(1)
+    db = xapian.inmemory_open()
+    db.add_document(doc)
+    if db.get_doccount() != 1:
+        sys.exit(1)
 except:
     sys.exit(1)

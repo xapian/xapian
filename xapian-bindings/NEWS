@@ -1,8 +1,25 @@
-Xapian-bindings 0.8.2 (2004-09-??):
-
-Up to: Thu Sep 09 03:07:43 BST 2004  Olly Betts <olly@survex.com>
+Xapian-bindings 0.8.2 (2004-09-13):
 
 General:
+
+* Added wrappers for recently added methods: ESet::back() and
+  Database::get_lastdocid(), and wrap the new optional third parameter
+  to Enquire::set_sorting().
+
+* No longer wrap MSet::MSet() - it's not of use in scripting languages.
+
+* Wrap operator-- as prev() for MSetIterator and ESetIterator.
+
+* Wrap Quartz, InMemory, and Remote database factory functions as
+  quartz_open(), inmemory_open(), and remote_open().
+
+* Added missing wrappers for static Stem::get_available_languages() and
+  Stem::get_description().
+
+* Wrap renamed method Query::empty() (was Query::is_empty()).
+
+* Remove renaming of other empty() methods to is_empty() (but keep is_empty()
+  as an alias for now).
 
 * Require autoconf 2.59 and automake 1.8.5.
 
@@ -15,12 +32,6 @@ General:
 * configure: When running with GCC, also pass -Wno-uninitialized so the
   SWIG glue builds without warnings.
 
-* xapian.i: Updated for Query->is_empty() -> Query->empty().
-
-* xapian.i: Remove renaming of empty() methods to is_empty().
-* php4/docs/bindings.html,python/docs/bindings.html: Removed
-  documentation of renaming of empty() methods.
-
 * README: Updated list of languages which SWIG supports.
 
 PHP4:
@@ -28,7 +39,7 @@ PHP4:
 * Document that the 2 argument form of Xapian::Auto::open() for opening a
   writable database is wrapped as open_writable() (bug #32).
 
-* Include xapian version in output from phpinfo().
+* Include Xapian version in output from phpinfo().
 
 * Build the SWIG glue library like we build the others rather than using
   SWIG's -phpfull option.  This avoids problems with newer automake versions
@@ -41,8 +52,10 @@ PHP4:
 
 * simplesearch.py now works with multi-term queries.
 
-* php4/docs/bindings.html: Added documentation on how to install the
-  PHP4 bindings.
+* Added documentation on how to install the PHP4 bindings.
+
+* Added a simple testcase to at least ensure the PHP4 bindings can be
+  initialised and some simple operations work.
 
 Python:
 
@@ -57,14 +70,13 @@ Python:
 
 * "make clean" no longer leaves "xapian_wrap.h" behind.
 
-* python/Makefile.am,python/smoketest.py: Added a simple testcase
-  to at least ensure the python bindings can be initialise and
-  some simple operations work.
+* Added a simple testcase to at least ensure the python bindings can be
+  initialised and some simple operations work.
 
 Tcl8:
 
-* configure: Disable building tcl8 bindings if the tcl8.X-dev package isn't
-  installed.
+* configure: Disable building tcl8 bindings if the headers are missing
+  (probably because the tcl8.X-dev package isn't installed).
 
 Xapian-bindings 0.8.1 (2004-06-30):
 

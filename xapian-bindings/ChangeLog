@@ -1,3 +1,15 @@
+Mon Sep 13 04:59:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,xapian.i,php4/docs/bindings.html,python/docs/bindings.html:
+	  Wrap ESet::back(), Database::get_lastdocid(), and the new optional
+	  third parameter to Enquire::set_sorting().  Don't wrap MSet::MSet().
+	  Wrap operator-- as prev() for MSetIterator and ESetIterator.  Wrap
+	  Quartz, InMemory, and Remote database factory functions as
+	  quartz_open(), inmemory_open(), and remote_open().  Wrap static
+	  Stem::get_available_languages() and Stem::get_description().
+	* php4/smoketest.php,python/smoketest.py: Open an InMemory database
+	  and add the document to it as an additional test.
+
 Sun Sep 12 14:31:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Add back is_empty() aliases for compatibility.

@@ -62,6 +62,7 @@ using <code>ClassName_method_name($object, ...)</code>.
 <p>
    All iterators support <code>next()</code> and <code>equals()</code> methods
    to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev()</code>.
 </p>
 
 <h2>Iterator dereferencing</h2>
@@ -107,9 +108,20 @@ using <code>ClassName_method_name($object, ...)</code>.
 <p>
    Functions in <code>Xapian::Auto</code> are mapped directly (so
    <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for
-   instance).  The 2 argument form of Auto::open() which opens a writable
+   instance).  The 2 argument form of <code>Auto::open()</code> which opens a writable
    database is wrapped as <code>open_writable</code>.
 </p>
+
+<h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
+
+<ul>
+<li> <code>Xapian::Quartz::open(<i>path</i>)</code> is wrapped as <code>quartz_open(<i>path</i>)</code>
+<li> The 2 or 3 argument form of <code>Xapian::Quartz::open()</code> which opens a writable database
+is wrapped as <code>quartz_open_writable</code>.
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>inmemory_open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>remote_open()</code> (only
+the TCP version is currently wrapped, the "program" version isn't).
+</ul>
 
 <h2>Constants</h2>
 
