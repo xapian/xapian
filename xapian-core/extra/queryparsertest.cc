@@ -66,6 +66,8 @@ static test tests[] = {
     // These are currently parse errors, but shouldn't be:
     { "behuizing 19\" inch", NULL },
     { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
+    { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
+    { "\"phrase one \"phrase two\"", NULL },
     { NULL, NULL }
 };
 

@@ -1,3 +1,8 @@
+Thu May 29 19:08:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml,extra/queryparsertest.cc: Extracted two more
+	  queryparser testcases which need fixing from the old todo list.
+
 Thu May 29 17:14:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: A phrasemaker isn't

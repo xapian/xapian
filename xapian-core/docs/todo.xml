@@ -594,12 +594,6 @@ and checking the results.  Already sanity check mset size and sorting.
 Add checks for %age cutoffs from 0 - 100%, bool filters.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-query parser - improve handling of slightly malformed queries.
-For example '"malformed phrase' or '"phrase one "phrase two"'...
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
 Round the estimated number of matches according to the min and max values.
