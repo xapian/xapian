@@ -1,3 +1,16 @@
+Wed Apr 12 14:03:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* IRDatabase now inherits from OmRefCntBase: we have multiple
+	  inheritance!  This means that we can now have refernce counted
+	  access to databases from the API.
+
+	* OmWritableDatabase is now implemented in the API, opens the
+	  database, and is well defined.  add_document() is the only method
+	  not yet implemented, and simply throws an exception.
+
+	* simpleindex example now compiles, links, runs, and reports an
+	  exception.
+
 Wed Apr 12 13:22:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Sorted out the mutex situation with Om/LeafDocument.

@@ -65,9 +65,11 @@ OmWritableDatabase::Internal::Internal(const string & type,
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
     // Prepare parameters to build database with (open it writable)
-    params.type = dbtype;
-    params.readonly = false;
+    DatabaseBuilderParams params(dbtype, false);
     params.paths = paths;
+
+    // Open database
+    mydb = DatabaseBuilder::create(params);
 }
 
 
