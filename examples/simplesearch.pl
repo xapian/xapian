@@ -48,6 +48,7 @@ my $match = $matches->begin();
 my $size = $matches->size();
 
 while( $size-- ){
-  printf "ID %d %d%% [ %s ]\n", $match->get_docid(), $match->get_percent(), $match->get_document()->get_data();
+  my $doc = $match->get_document();
+  printf "ID %d %d%% [ %s ]\n", $match->get_docid(), $match->get_percent(), $doc->get_data();
   $match->inc();
 }

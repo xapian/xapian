@@ -1,27 +1,34 @@
 TYPEMAP
-OmSettings           O_OBJECT
-OmSettings *         O_OBJECT
-OmDatabase           O_OBJECT
-OmDatabase *         O_OBJECT
-OmEnquire *          O_OBJECT
-OmQuery              O_OBJECT
-OmQuery *            O_OBJECT
-OmMSet               O_MSET
-OmMSet *             O_MSET
-OmMSetIterator       O_MSETI
-OmMSetIterator *     O_MSETI
-OmDocument           O_DOC
-OmDocument *         O_DOC
+OmSettings            O_OBJECT
+OmSettings *          O_OBJECT
+OmDatabase            O_OBJECT
+OmDatabase *          O_OBJECT
+OmWritableDatabase    O_OBJECT
+OmWritableDatabase *  O_OBJECT
+OmEnquire *           O_OBJECT
+OmQuery               O_OBJECT
+OmQuery *             O_OBJECT
+OmStem                O_OBJECT
+OmStem *              O_OBJECT
+OmMSet                O_MSET
+OmMSet *              O_MSET
+OmMSetIterator        O_MSETI
+OmMSetIterator *      O_MSETI
+OmDocument            O_DOC
+OmDocument *          O_DOC
+OmError               O_OBJECT
+OmError *             O_OBJECT
 
-string               STRING
-string *             STRING
+string                STRING
+string *              STRING
 
-om_docid             T_IV
-om_doccount          T_IV
-om_percent           T_IV
-om_termname          T_PV
+om_docid              T_IV
+om_doccount           T_IV
+om_percent            T_IV
+om_termname           T_PV
+om_termpos            T_IV
 
-OmQuery::op          T_IV
+OmQuery::op           T_IV
 
 
 INPUT
@@ -54,7 +61,7 @@ O_DOC
 
 OUTPUT
 STRING
-                     sv_setpv((SV*)$arg, * (char **) &$var);
+                     sv_setpv((SV*)$arg, (char *) ($var.c_str()));
 O_MSET
 	sv_setref_pv( $arg, "Search::Xapian::MatchSet", (void*)$var );
 O_MSETI

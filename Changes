@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+0.02  Sun Sep 15 19:48:32 2002
+        - Added bindings to create databases and index documents
+        - Added error handling for Database constructors
+        - 3 test scripts; create, index and search
+        - Fixed MatchSetIterator->get_docid returning wrong value
+        - Fixed string typemap
+
 0.01  Tue Sep 10 16:03:23 2002
 	- original version; created by h2xs 1.21 with options
 		-x -O -n Search::Xapian -A simplesearch.h
