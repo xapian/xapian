@@ -10,7 +10,8 @@
 <P>
 This document is a short introduction to the graph-based indexing facilities
 of Open Muscat.  For an introduction to the basic facilities of OM, see
-<a href="quickstart.html">quickstart.html</a>.
+<a href="quickstart.html">quickstart.html</a>.  This document assumes that
+you've read that first.
 </P>
 
 <HR>
@@ -18,14 +19,8 @@ of Open Muscat.  For an introduction to the basic facilities of OM, see
 
 <P>
 Before following the steps outlined in this document, you will need to have
-the Muscat library installed on your system.
-For instructions on obtaining and installing Muscat, read the
-<A HREF="intro.html">Introduction</A> document.
-</P>
-<P>
-You will also need a reasonably recent C++ compiler.  We currently use GCC
-version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
-a decent chance of successfully compiling the code.
+the Muscat library installed on your system.  See <a href="quickstart.html"
+>quickstart.html</a> for details.
 </P>
 <P>
 To build indexers using an XML description, you will need to have libxml
@@ -110,17 +105,11 @@ more than setting up the indexer based on this XML file and passing it
 the filename of the file to index.  We'll describe indexerfile.cc first.
 </P>
 
-<H3>Include header files</H3>
+<H3>The indexing program itself</H3>
 <P>
-The first requirement in any program using the Muscat library is to
-include the Muscat header file, &quot;<CODE>om.h</CODE>&quot;.
-This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
-a directory on the include path, so:
-<PRE>    #include &lt;om/om.h&gt;</PRE>
-</P>
-<P>
-Our example only has a single function, main(), so next we start that:
-<PRE>    int main(int argc, char *argv[])</PRE>
+Most of the content of indexfile.cc is similar to the examples from the
+Open Muscat <a href="quickstart.html">quickstart document</a>.  We'll
+only discuss the new parts here.
 </P>
 <H3>Options parsing</H3>
 <P>
@@ -145,73 +134,6 @@ name):
     }
 </PRE>
 </P>
-
-<H3>Catching exceptions</H3>
-<P>
-When an error occurs in Muscat it is reported by means of the C++ exception
-mechanism.  All errors in Muscat are derived classes of
-<CODE>OmError</CODE>, so simple error handling can be performed by
-enclosing all the code in a try-catch block to catch any
-<CODE>OmError</CODE> exceptions.  A (hopefully) helpful message can be
-extracted from the <CODE>OmError</CODE> object by calling its
-<CODE>get_msg()</CODE> method, which returns a human readable string.
-</P>
-<P>
-Note that all calls to the Muscat library should be performed inside a
-try-catch block, since otherwise errors will result in uncaught exceptions;
-this usually results in the execution aborting.
-</P>
-<P>
-Note also that OmError is a virtual base class, and thus can't be copied:
-you must therefore catch exceptions by reference, as in the following example
-code:
-</P>
-<PRE>
-    try {
-        <B>[code which accesses Muscat]</B>
-    }
-    catch(OmError &amp; error) {
-        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
-    }
-</PRE>
-
-<H3>Opening the database</H3>
-
-<P>
-In Muscat, a database is opened for writing by creating an OmWritableDatabase
-object.  The constructor for this object takes two arguments.
-<OL><LI>
-<B>type</B> - this is a string determining the type of the database to open.
-The possible values for this depend on which backends are compiled into the
-system: if the type is not known an <CODE>OmInvalidArgument</CODE> error will
-be thrown.  For this example, we use the &quot;<CODE>sleepycat</CODE>&quot;
-database type.
-</LI><LI>
-<B>parameters</B> - this is a set of parameters to be used to open the
-database, stored in an STL vector. The meaning of the parameters is
-dependent on the database type: for a sleepycat database there is expected
-to be one and only one argument, which is the path (possibly relative to
-the current directory) of a directory in which the database files reside.
-</LI></OL>
-</P>
-<P>
-If an attempt is made to open a database which doesn't exist, an attempt
-to create an empty database in the specified position will be made.
-</P>
-<P>
-If an error occurs when trying to open a database, or to create a new database,
-an exception, usually of type <CODE>OmOpeningError</CODE>, will be thrown.
-</P>
-<P>
-The code to open a database for writing is, then:
-</P>
-
-<PRE>
-    OmSettings db_parameters;
-    db_parameters.set("backend", "sleepycat");
-    db_parameters.set("sleepycat_dir", argv[1]);
-    OmWritableDatabase database(db_parameters);
-</PRE>
 
 <H3>Preparing the indexer</H3>
 
@@ -300,36 +222,6 @@ out the keys.
 	    cout &lt;&lt; &quot;\t&quot; &lt;&lt; i-&gt;first &lt;&lt; &quot;\t&quot; &lt;&lt; i-&gt;second &lt;&lt; endl;
 	}
 </PRE>
-
-<H3>Adding the document to the database</H3>
-
-<P>
-Finally, we can add the document to the database.  This simply involves
-calling <CODE>OmWritableDatabase::add_document()</CODE>, and passing it
-the <CODE>OmDocumentContents</CODE> object:
-</P>
-<PRE>
-    database.add_document(newdocument);
-</PRE>
-
-<P>
-The operation of adding a document is atomic: either the document will be
-added, or an exception will be thrown and the document will not be in the
-new database.
-</P>
-<P>
-<CODE>add_document()</CODE> returns a value of type <CODE>om_docid</CODE>.
-This is the document ID of the newly added document, which is simply a
-handle which can be used to access the document in future.
-</P>
-<P>
-Note that this use of <CODE>add_document()</CODE> is actually fairly
-inefficient: if we had a large database, it would be desirable to group
-as many document additions together as possible, by encapsulating
-them within a session.  For details of this, and of the transaction
-facility for performing sets of database modifications atomically, see
-the <A HREF="userman.html">user manual</A>.
-</P>
 
 <HR>
 <H2>The indexing script</H2>
@@ -521,163 +413,81 @@ the list at "right" to the list at "left".
 <P>
 Before it can be used with an <CODE>OmDocumentContents</CODE> object, the
 termlist must be in the right form.  Two nodes help with this:
-<CODE>omnewtermlist</CODE> and <CODE>omtermlistadd</CODE>
-<!--
+<CODE>omnewtermlist</CODE> and <CODE>omtermlistadd</CODE>.  The
+<CODE>omnewtermlist</CODE> node creates a new termlist structure from
+scratch, and <CODE>omtermlistadd</CODE> lets us add strings into the
+newly created termlist.
+</P><P>
+<CODE>omnewtermlist</CODE> has no inputs, and produced an empty termlist
+on output.  <CODE>omtermlistadd</CODE> has two inputs.  "termlist" is the
+termlist created by <CODE>omnewtermlist</CODE> and "words" is the list of
+words to add.  The output "out" is the new termlist with extra words.
+
+<PRE>
     &lt;!-- convert the terms into a termlist --&gt;
     &lt;node type=&quot;omnewtermlist&quot; id=&quot;maketermlist&quot;&gt;&lt;/node&gt;
     &lt;node type=&quot;omtermlistadd&quot; id=&quot;addtermlist&quot;&gt;
         &lt;input name=&quot;termlist&quot; node=&quot;maketermlist&quot; out_name=&quot;out&quot;/&gt;
 	&lt;input name=&quot;words&quot; node=&quot;terms&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
 
-    &lt;!-- Right branch from splitfname --&gt;
-    &lt;!-- Split the filename again --&gt;
-    &lt;node type=&quot;omsplitter&quot; id=&quot;splitfname2&quot;&gt;
-        &lt;input name=&quot;in&quot; node=&quot;splitfname&quot; out_name=&quot;right&quot;/&gt;&lt;/node&gt;
-    &lt;node type=&quot;omsplitter&quot; id=&quot;splitfname3&quot;&gt;
-        &lt;input name=&quot;in&quot; node=&quot;splitfname2&quot; out_name=&quot;right&quot;/&gt;&lt;/node&gt;
-    &lt;!-- extract the filename --&gt;
-    &lt;node type=&quot;omregexreplace&quot; id=&quot;filenameonly&quot;&gt;
-        &lt;param name=&quot;regex&quot; type=&quot;string&quot; value=&quot;^(.*/)?([^/]+)$&quot;/&gt;
-        &lt;param name=&quot;replace_expr&quot; type=&quot;string&quot; value=&quot;\2&quot;/&gt;
-	&lt;input name=&quot;in&quot; node=&quot;splitfname2&quot; out_name=&quot;left&quot;/&gt;&lt;/node&gt;
-    &lt;!-- prefix the filename with &quot;F&quot; --&gt;
-    &lt;node type=&quot;omprefix&quot; id=&quot;prefixF&quot;&gt;
-        &lt;param name=&quot;prefix&quot; type=&quot;string&quot; value=&quot;F&quot;/&gt;
-	&lt;input name=&quot;in&quot; node=&quot;filenameonly&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
-    &lt;!-- add into termlist --&gt;
-    &lt;node type=&quot;omtermlistaddone&quot; id=&quot;addfilename&quot;&gt;
-        &lt;input name=&quot;termlist&quot; node=&quot;addtermlist&quot; out_name=&quot;out&quot;/&gt;
-	&lt;input name=&quot;words&quot; node=&quot;prefixF&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+<H3>Combining the results into the document</H3>
 
-    &lt;!-- handle the keys: make a new keylist --&gt;
-    &lt;node type=&quot;omnewkeylist&quot; id=&quot;newkey&quot;&gt;&lt;/node&gt;
-    &lt;!-- split the filename into directory and name --&gt;
-    &lt;node type=&quot;omregexmatch&quot; id=&quot;splitdir&quot;&gt;
-        &lt;param name=&quot;regex&quot; type=&quot;string&quot;&gt;\(.*/\)\?\([^/]*\)$&lt;/param&gt;
-    	&lt;input name=&quot;in&quot; node=&quot;splitfname3&quot; out_name=&quot;left&quot;/&gt;&lt;/node&gt;
-    &lt;!-- Select the submatches, dropping the whole filename --&gt;
-    &lt;node type=&quot;omselectitems&quot; id=&quot;selectsubs&quot;&gt;
-        &lt;param name=&quot;items&quot; type=&quot;list&quot;&gt;
-	    &lt;item value=&quot;1&quot;/&gt;
-	    &lt;item value=&quot;2&quot;/&gt;&lt;/param&gt;
-	&lt;input name=&quot;in&quot; node=&quot;splitdir&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+<P>
+The last thing the indexer must do is combine all the parts of the
+document (terms, keys, and data) into one structure.  This work is
+done by <CODE>ommakedoc</CODE>.  It has three inputs, one for each
+component of the document.  The output will usually be connected
+to the indexer's output (see next section).
+</P>
 
-    &lt;!-- Generate the key numbers --&gt;
-    &lt;node type=&quot;ommakerange&quot; id=&quot;keyrange&quot;&gt;
-        &lt;param name=&quot;first&quot; type=&quot;string&quot; value=&quot;1&quot;/&gt;
-        &lt;param name=&quot;step&quot; type=&quot;string&quot; value=&quot;1&quot;/&gt;
-        &lt;param name=&quot;count&quot; type=&quot;string&quot; value=&quot;2&quot;/&gt;&lt;/node&gt;
-    &lt;!-- pair the key numbers with the key values --&gt;
-    &lt;node type=&quot;ommakepairs&quot; id=&quot;keypairs&quot;&gt;
-        &lt;input name=&quot;left&quot; node=&quot;keyrange&quot; out_name=&quot;out&quot;/&gt;
-        &lt;input name=&quot;right&quot; node=&quot;selectsubs&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
-
-    &lt;!-- add the key to the list --&gt;
-    &lt;node type=&quot;omkeylistadd&quot; id=&quot;addkeys&quot;&gt;
-    	&lt;input name=&quot;keylist&quot; node=&quot;newkey&quot; out_name=&quot;out&quot;/&gt;
-	&lt;input name=&quot;keys&quot; node=&quot;keypairs&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
-
+<PRE>
     &lt;!-- join everything into the final document --&gt;
     &lt;node type=&quot;ommakedoc&quot; id=&quot;doc&quot;&gt;
         &lt;input name=&quot;terms&quot; node=&quot;addfilename&quot; out_name=&quot;out&quot;/&gt;
 	&lt;input name=&quot;data&quot; node=&quot;splitfname3&quot; out_name=&quot;right&quot;/&gt;
 	&lt;input name=&quot;keys&quot; node=&quot;addkeys&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
 
+<H3>Specifying the network's output</H3>
+
+<P>
+The indexing system needs to know where to get the result of the indexing
+from.  The XML file has an &lt;output&gt; tag to specify this.  In our
+case it's the <CODE>ommakedoc</CODE> node from the previous section:
+</P>
+
+<PRE>
     &lt;!-- specify the output --&gt;
     &lt;output node=&quot;doc&quot; out_name=&quot;out&quot;/&gt;
 </PRE>
--->
 
 <!-- FIXME: below is still from the original quickstart.html -->
 
 <HR>
 <H2>Compiling</H2>
 
-Now that we have the code written, all we need to do is compile it!
-
-<H3>Finding the Muscat library</H3>
-
-<P>
-A small utility, &quot;libomus-config&quot;, is installed along with Muscat
-to assist you in finding the installed Muscat library, and in generating
-the flags to pass to the compiler and linker to compile.
-</P><P>
-After a successful compilation, this utility should be in your path, so
-you can simply run
-<BLOCKQUOTE><CODE>libomus-config --cflags</CODE></BLOCKQUOTE>
-to determine the flags to pass to the compiler, and
-<BLOCKQUOTE><CODE>libomus-config --libs</CODE></BLOCKQUOTE>
-to determine the flags to pass to the linker.
-
-These flags are returned on the utility's standard output (so you could use
-backtick notation to include them on your command line).
-</P><P>
-If your project uses the GNU autoconf tool, you may also use the
-<CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Muscat,
-and will check for an installation of Muscat and set (and
-<CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and
-<CODE>LIBOMUS_LIBS</CODE> variables to
-be the flags to pass to the compiler and linker, respectively.
-This macro will also allow you to use an uninstalled version of Muscat.
-</P><P>
-If you don't use GNU autoconf, don't worry about this.
-</P>
-
-<H3>Compiling the simple examples</H3>
-Once you know the compilation flags, compilation is a simple matter of
-invoking the compiler!  For our example, we could compile the two
-utilities (simpleindex and simplesearch) with the commands:
-<PRE>
-c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
-c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
-</PRE>
+Now that we have the code written, all we need to do is compile it.  The
+compilation is virtually identical to that for the simple examples
+described in <a href="quickstart.html">quickstart.html</a>.
 
 <HR>
 <H2>Running the examples</H2>
 
 <P>
-Once we have compiled the examples, we can build up a simple database as
+Once we have compiled the example indexer, we can build up a simple database as
 follows.  Note that we must first create a directory for the database files to
 live in; although Muscat will create new empty database files if they do not
 yet exist, it will not create a new directory for them.
 <PRE>
-$ mkdir proverbs
-$ ./simpleindex proverbs \
-&gt; "people who live in glass houses should not throw stones" \
-&gt; people live glass house stone
-$ ./simpleindex proverbs \
-&gt; "Don't look a gift horse in the mouth" \
-&gt; look gift horse mouth
+$ mkdir mydb
+$ ./indexfile mydb textfile.txt
 </PRE>
-</P>
-
-<P>
-Now, we should have a database with a couple of documents in it.  Looking
-in the database directory, you should see something like:
-<PRE>
-$ ls proverbs/
-document.db  postlist.db  termid.db  termlist.db  termname.db
-</PRE>
-</P>
-<P>
-Given the small amount of data in the database, you may be concerned that
-the total size of these files is somewhat over 50k.  Be reassured that the
-database is block structured, here consisting of largely empty
-blocks, and will behave much better for large databases.  It is worth
-noting, however, that the sleepycat backend is not currently very efficient
-(in either space or time), and that this will be improving greatly in the
-future.
 </P>
 
 <P>
 We can at last perform searches over the database using the simplesearch
-program.
-<PRE>
-$ ./simplesearch proverbs look
-Performing query `look'
-1 results found
-Document ID 2   50% [Don't look a gift horse in the mouth]
-</PRE>
+program described in <a href="quickstart.html">quickstart.html</a>.
 </P>
 
 <HR>

@@ -1,3 +1,8 @@
+Fri Nov  3 16:23:16 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* indexerquickstart again.  Added more, and removed redundant stuff
+	  which is in quickstart.html
+
 Fri Nov 03 16:08:20 GMT 2000 Olly Betts
 
 	* Corrected '#endif' to '#else'.
