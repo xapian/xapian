@@ -21,27 +21,19 @@
  * -----END-LICENCE-----
  */
 
-#include <stdio.h>
-
 #include <om/om.h>
-
-#ifdef MUS_DEBUG_VERBOSE
-// Verbose debugging output
-#define DebugMsg(a) std::cout << a ; std::cout.flush()
-#else
-#define DebugMsg(a)
-#endif
 
 #include <vector>
 #include <stack>
 #include <memory>
+
+#include "getopt.h"
 
 int
 main(int argc, char *argv[])
 {
     int msize = 10;
     int mfirst = 0;
-    const char *progname = argv[0];
     OmRSet rset;
     std::vector<OmSettings *> dbs;
     bool showmset = true;
@@ -50,75 +42,77 @@ main(int argc, char *argv[])
     int collapse_key = -1;
 
     bool syntax_error = false;
-    argv++;
-    argc--;
-    while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
-	    msize = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--mfirst") == 0) {
-	    mfirst = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--key") == 0) {
-	    collapse_key = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 4 && strcmp(argv[0], "--remote") == 0) {
-	    OmSettings *params = new OmSettings;
-	    params->set("backend", "remote");
-	    params->set("remote_type", "tcp");
-	    params->set("remote_server", argv[1]);
-	    params->set("remote_port", argv[2]);
-	    params->set("remote_timeout", argv[3]);
-	    dbs.push_back(params);
-	    argc -= 4;
-	    argv += 4;
-	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
-	    OmSettings *params = new OmSettings;
-	    params->set("backend", "auto");
-	    params->set("auto_dir", argv[1]);
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (strcmp(argv[0], "--stem") == 0) {
-	    applystem = true;
-	    argc--;
-	    argv++;
-	} else if (strcmp(argv[0], "--nostem") == 0) {
-	    applystem = false;
-	    argc--;
-	    argv++;
-	} else if (strcmp(argv[0], "--showmset") == 0) {
-	    showmset = true;
-	    argc--;
-	    argv++;
-	} else if (strcmp(argv[0], "--hidemset") == 0) {
-	    showmset = false;
-	    argc--;
-	    argv++;
-	} else if (strcmp(argv[0], "--matchall") == 0) {
-	    default_op = OmQuery::OP_AND;
-	    argc--;
-	    argv++;
-	} else if (strcmp(argv[0], "--rel") == 0) {
-	    rset.add_document(atoi(argv[1]));
-	    argc -= 2;
-	    argv += 2;
-	} else {
-	    syntax_error = true;
-	    break;
+
+    struct option opts[] = {
+	{"msize",		required_argument, &msize, 0},
+	{"mfirst",		required_argument, &mfirst, 0},
+	{"key",			required_argument, &collapse_key, 0},
+	{"remote",		required_argument, 0, 'r'},
+	{"dbdir",		required_argument, 0, 'd'},
+	{"stem",		no_argument, 0, 's'},
+	{"nostem",		no_argument, 0, 'S'},
+	{"showmset",		no_argument, 0, 'm'},
+	{"hidemset",		no_argument, 0, 'M'},
+	{"matchall",		no_argument, 0, 'a'},
+	{"rel",			required_argument, 0, 'R'},
+	{NULL,			0, 0, 0}
+    };
+
+    int c;
+    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+	switch (c) {
+	    case 'r': {
+		OmSettings *params = new OmSettings;
+		params->set("backend", "remote");
+		params->set("remote_type", "tcp");
+		char *p = strchr(argv[optind], ':');
+		if (p) {
+		    *p = '\0';
+		    params->set("remote_server", argv[optind]);
+		    params->set("remote_port", p + 1);
+		    dbs.push_back(params);
+		} else {
+		    syntax_error = true;
+		}
+		break;
+	    }
+	    case 'd': {
+		OmSettings *params = new OmSettings;
+		params->set("backend", "auto");
+		params->set("auto_dir", argv[optind]);
+		dbs.push_back(params);
+		break;
+	    }
+	    case 's':
+		applystem = true;
+		break;
+	    case 'S':
+		applystem = false;
+		break;
+	    case 'm':
+		showmset = true;
+		break;
+	    case 'M':
+		showmset = false;
+		break;
+	    case 'a':
+		default_op = OmQuery::OP_AND;
+		break;
+	    case 'R':
+		rset.add_document(atoi(argv[optind]));
+		break;
+	    default:
+		syntax_error = true;
 	}
     }
 	
-    if (syntax_error || argc < 1 || dbs.empty()) {
-	std::cout << "Syntax: " << progname << " [OPTIONS] TERM ...\n" <<
+    if (syntax_error || dbs.empty() || argv[optind] == NULL) {
+	std::cout << "Syntax: " << argv[0] << " [OPTIONS] TERM...\n" <<
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
 		"\t--dbdir DIRECTORY\n" <<
-		"\t--remote SERVER PORT TIMEOUT\n" <<
+		"\t--remote SERVER:PORT\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--showmset (default)\n" <<
 		"\t--hidemset\n" <<
@@ -147,7 +141,7 @@ main(int argc, char *argv[])
 	std::stack<OmQuery> boolquery;
 	// Parse query into OmQuery object
 	bool boolean = false;
-        for (char **p = argv; *p; p++) {
+        for (char **p = argv + optind; *p; p++) {
 	    std::string term = *p;
 	    if (term == "B") {
 		boolean = true;
@@ -204,14 +198,12 @@ main(int argc, char *argv[])
 		} else {
 		    if (applystem)
 			term = stemmer.stem_word(term);
-		    DebugMsg("oldquery: " << query.get_description() << std::endl);
 		    if (query_defined) {
 		        query = OmQuery(default_op, query, term);
 		    } else {
 		        query = OmQuery(term);
 			query_defined = true;
 		    }
-		    DebugMsg("newquery: " << query.get_description() << std::endl);
 		}
 	    }
         }
@@ -232,7 +224,6 @@ main(int argc, char *argv[])
 	}
 
 	enquire.set_query(query);
-	DebugMsg("Query is: " << query.get_description() << std::endl);
 
 	OmSettings opts;
 	if (collapse_key != -1)
