@@ -227,55 +227,70 @@ test_driver::runtest(const test_desc *test)
     int old_allocations = num_new_allocations;
     int old_bound = new_allocations_bound;
 
-    try {
-        success = test->run();
-        if (!success) {
-            out << " FAILED";
-        }
-    } catch (TestFailure &fail) {
-	success = false;
-        out << " FAILED";
-	if (verbose) {
-	    out << fail.message << std::endl;
-	}
-    } catch (OmError &err) {
-        out << " OMEXCEPT";
-	if (verbose) {
-	    out << err.get_type() << " exception: " << err.get_msg() << std::endl;
-	}
-	success = false;
-    } catch (...) {
-        out << " EXCEPT";
-	if (verbose) {
-	    out << "Unknown exception!" << std::endl;
-	}
-	success = false;
-    }
-    int after_allocations = num_new_allocations;
-    int after_bound = new_allocations_bound;
+    // This is used to make a note of how many times we've run the test
+    int runcount = 0;
+    bool repeat;
 
-    if (after_allocations != old_allocations) {
-	if (verbose) {
-	    if (after_allocations > old_allocations) {
-		out << after_allocations - old_allocations
-			<< " extra allocations not freed: ";
-		for (int i=old_bound; i<after_bound; ++i) {
-		    if (new_allocations[i].p != 0) {
-			out << hex;
-			out << "0x" << new_allocations[i].p << "(0x"
-				<< new_allocations[i].size << ") ";
-			out << dec;
+    do {
+	runcount++;
+	repeat = false;
+	try {
+	    success = test->run();
+	    if (!success) {
+		out << " FAILED";
+	    }
+	} catch (TestFailure &fail) {
+	    success = false;
+	    out << " FAILED";
+	    if (verbose) {
+		out << fail.message << std::endl;
+	    }
+	} catch (OmError &err) {
+	    out << " OMEXCEPT";
+	    if (verbose) {
+		out << err.get_type() << " exception: " << err.get_msg() << std::endl;
+	    }
+	    success = false;
+	} catch (...) {
+	    out << " EXCEPT";
+	    if (verbose) {
+		out << "Unknown exception!" << std::endl;
+	    }
+	    success = false;
+	}
+
+	int after_allocations = num_new_allocations;
+	int after_bound = new_allocations_bound;
+	if (after_allocations != old_allocations) {
+	    if (verbose) {
+		if (after_allocations > old_allocations) {
+		    out << after_allocations - old_allocations
+			    << " extra allocations not freed: ";
+		    for (int i=old_bound; i<after_bound; ++i) {
+			if (new_allocations[i].p != 0) {
+			    out << hex;
+			    out << "0x" << new_allocations[i].p << "(0x"
+				    << new_allocations[i].size << ") ";
+			    out << dec;
+			}
 		    }
+		    out << std::endl;
+		} else {
+		    out << old_allocations - after_allocations
+			    << " extra frees not allocated!" << std::endl;
 		}
-		out << std::endl;
+	    }
+	    if(runcount < 2) {
+		out << " repeating...";
+		repeat = true;
+		old_allocations = num_new_allocations;
+		old_bound = new_allocations_bound;
 	    } else {
-		out << old_allocations - after_allocations
-			<< " extra frees not allocated!" << std::endl;
+		out << " LEAK";
+		success = false;
 	    }
 	}
-        out << " LEAK";
-	success = false;
-    }
+    } while(repeat);
     return success;
 }
 
