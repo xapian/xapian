@@ -1,3 +1,24 @@
+/* stem_english.c: English stemming algorithm.
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
 
 /* The English stemming algorithm is essentially the Porter stemming
  * algorithm, and has been coded up by its author. It follows the algorithm
@@ -16,6 +37,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "pool.h"
@@ -30,7 +52,7 @@
    progresses. Zero termination is not in fact used in the algorithm.
 
    Note that only lower case sequences are stemmed. Forcing to lower case
-   should be done before stem(...) is called.
+   should be done before english_stem(...) is called.
 
    We will write p, k etc in place of z->p, z->k in the comments.
 */
@@ -38,7 +60,7 @@
 /* cons(z, i) is true <=> p[i] is a consonant.
 */
 
-int cons(struct stemmer * z, int i)
+int cons(struct english_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o': case 'u':
             return false;
@@ -59,7 +81,7 @@ int cons(struct stemmer * z, int i)
       ....
 */
 
-int m(struct stemmer * z)
+int m(struct english_stemmer * z)
 {   int n = 0;
     int i = 0;
     while(true)
@@ -87,7 +109,7 @@ int m(struct stemmer * z)
 /* vowelinstem(z) is true p[0], ... p[j] contains a vowel
 */
 
-int vowelinstem(struct stemmer * z)
+int vowelinstem(struct english_stemmer * z)
 {   int i;
     for (i = 0; i <= z->j; i++) if (! cons(z, i)) return true;
     return false;
@@ -96,7 +118,7 @@ int vowelinstem(struct stemmer * z)
 /* doublec(z, i) is true <=> p[i], p[i - 1] contain a double consonant.
 */
 
-int doublec(struct stemmer * z, int i)
+int doublec(struct english_stemmer * z, int i)
 {   if (i < 1) return false;
     if (z->p[i] != z->p[i - 1]) return false;
     return cons(z, i);
@@ -111,7 +133,7 @@ int doublec(struct stemmer * z, int i)
 
 */
 
-int cvc(struct stemmer * z, int i)
+int cvc(struct english_stemmer * z, int i)
 {   if (i < 2 || !cons(z, i) || cons(z, i - 1) || !cons(z, i - 2)) return false;
     {   int ch = z->p[i];
         if (ch == 'w' || ch == 'x' || ch == 'y') return false;
@@ -122,7 +144,7 @@ int cvc(struct stemmer * z, int i)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-int ends(struct stemmer * z, char * s, int length)
+int ends(struct english_stemmer * z, char * s, int length)
 {
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -134,7 +156,7 @@ int ends(struct stemmer * z, char * s, int length)
    readjusting k.
 */
 
-void setto(struct stemmer * z, char * s, int length)
+void setto(struct english_stemmer * z, char * s, int length)
 {
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
@@ -142,7 +164,7 @@ void setto(struct stemmer * z, char * s, int length)
 
 /* r(z, s, length) is used further down. */
 
-void r(struct stemmer * z, char * s, int length)
+void r(struct english_stemmer * z, char * s, int length)
 {
     if (m(z) > 0) setto(z, s, length);
 }
@@ -170,7 +192,7 @@ void r(struct stemmer * z, char * s, int length)
 
 */
 
-void step_1ab(struct stemmer * z)
+void step_1ab(struct english_stemmer * z)
 {   if (z->p[z->k] == 's')
     {   if (ends(z, "sses", 4)) z->k -= 2; else
         if (ends(z, "ies", 3))
@@ -225,7 +247,7 @@ void step_1ab(struct stemmer * z)
 
 */
 
-void step_1c(struct stemmer * z)
+void step_1c(struct english_stemmer * z)
 {
     if (ends(z, "y", 1) && z->j > 0 && cons(z, z->k - 1)) z->p[z->k] = 'i';
 }
@@ -236,7 +258,7 @@ void step_1c(struct stemmer * z)
    m(z) > 0.
 */
 
-void step_2(struct stemmer * z)
+void step_2(struct english_stemmer * z)
 {   switch (z->p[z->k - 1])
     {
         case 'a':
@@ -290,7 +312,7 @@ void step_2(struct stemmer * z)
 /* step_3(z) deals with -ic-, -full, -ness etc. Similar strategy to step_2.
 */
 
-void step_3(struct stemmer * z)
+void step_3(struct english_stemmer * z)
 {   switch (z->p[z->k])
     {
         case 'e':
@@ -314,7 +336,7 @@ void step_3(struct stemmer * z)
 /* step_4() takes off -ant, -ence etc., in context <c>vcvc<v>.
 */
 
-void step_4(struct stemmer * z)
+void step_4(struct english_stemmer * z)
 {   switch (z->p[z->k - 1])
     {   case 'a':
             if (ends(z, "al", 2)) break; return;
@@ -359,16 +381,16 @@ void step_4(struct stemmer * z)
    m(z) > 1.
 */
 
-void step_5(struct stemmer * z)
+void step_5(struct english_stemmer * z)
 {   z->j = z->k;
     if (z->p[z->k] == 'e')
     {   int a = m(z);
-        if (a > 1 || a == 1 && !cvc(z, z->k - 1)) z->k--;
+        if (a > 1 || (a == 1 && !cvc(z, z->k - 1))) z->k--;
     }
     if (z->p[z->k] == 'l' && doublec(z, z->k) && m(z) > 1) z->k--;
 }
 
-extern char * stem(struct stemmer * z, char * q, int i0, int i1)
+extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1)
 {
     int p_size = z->p_size;
 
@@ -439,14 +461,14 @@ static char * irregular_forms[] = {
 
 };
 
-extern struct stemmer * setup_stemmer()
-{   struct stemmer * z = (struct stemmer *) malloc(sizeof(struct stemmer));
+extern struct english_stemmer * setup_english_stemmer()
+{   struct english_stemmer * z = (struct english_stemmer *) malloc(sizeof(struct english_stemmer));
     z->p = 0; z->p_size = 0;
     z->irregulars = create_pool(irregular_forms);
     return z;
 }
 
-extern void closedown_stemmer(struct stemmer * z)
+extern void closedown_english_stemmer(struct english_stemmer * z)
 {   free_pool(z->irregulars);
     free(z->p);
     free(z);
