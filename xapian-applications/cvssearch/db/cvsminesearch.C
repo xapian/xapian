@@ -20,6 +20,9 @@
 //
 
 
+/////////// TODO:  output commit information along with every time you print
+
+
 /////////// usage
 
 // (1) no query words, no antecedent or consequent
