@@ -123,7 +123,6 @@ kdelibs/jscript
 kdelibs/kab
 kdelibs/kdecore
 kdelibs/kded
-kdelibs/kdedb
 kdelibs/kdesu
 kdelibs/kdetest
 kdelibs/kdeui
