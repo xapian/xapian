@@ -698,14 +698,14 @@ string_to_ommset_termfreqwts(const std::string &s_)
 
 	pos = terminfo.find_first_of(':');
 	if (pos == terminfo.npos) {
-	    throw OmNetworkError("Invalid term frequency/weight info string");
+	    throw OmNetworkError("Invalid term frequency info in string `" + s_ + "'");
 	}
 	term = decode_tname(terminfo.substr(0, pos));
 	terminfo = terminfo.substr(pos+1);
 
 	pos = terminfo.find_first_of(',');
 	if (pos == terminfo.npos || (pos != terminfo.find_last_of(','))) {
-	    throw OmNetworkError("Invalid term frequency/weight info string");
+	    throw OmNetworkError("Invalid term weight info in string`" + s_ + "'");
 	}
 	freq = atoi(terminfo.substr(0, pos).c_str());
 	wt = atof(terminfo.substr(pos+1).c_str());

@@ -1,3 +1,7 @@
+Thu Sep 07 17:44:24 BST 2000 Olly Betts
+
+	* net/socketcommon.cc: Improved a couple of exception messages.
+
 Thu Sep 07 16:15:17 BST 2000 Olly Betts
 
 	* Fixed a problem with distributing NEAR and PHRASE.
