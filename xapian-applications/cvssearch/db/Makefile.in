@@ -74,7 +74,7 @@ libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h l
 bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesearch cvsmine2search cvsfileindex cvsfilesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
 
-LIBS = $(noinst_LIBRARIES) -lomsee -ldb_cxx
+LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 @DYNAMIC_TRUE@FLAGS = 
 @DYNAMIC_FALSE@FLAGS = -static
 
@@ -174,7 +174,7 @@ DIST_COMMON =  README Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id2_db.P \
 .deps/cvs_comment_id_db.P .deps/cvs_db.P .deps/cvs_db_file.P \
@@ -338,7 +338,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

@@ -14,14 +14,22 @@ INSTALLATION
   make 
   make install 
 
-* install the latest version of omsee from 
-  ftp://ftp.omsee.com/pub/unstable/nightly/latest/
+* download omseek.tar.gz v0.4.1-beta from 
+     http://sourceforge.net/project/showfiles.php?group_id=26013
 
   From the main directory, type
 
-  ./configure [see Note 1 below]
-  make 
-  make install 
+  ./buildall 
+ 
+  or 
+
+  ./buildall -- [configure options]  if required
+
+  (for help, type ./buildall --help)
+
+  Finally, type:
+
+  make install
 
 * install the latest version of libxml from
   ftp://xmlsoft.org/

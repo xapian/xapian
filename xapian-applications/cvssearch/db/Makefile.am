@@ -14,7 +14,7 @@ bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesea
 	# cvssearch cvsusagesearch cvscomments \
 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
-LIBS = $(noinst_LIBRARIES) -lomsee -ldb_cxx
+LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 
 if DYNAMIC
 FLAGS = 
