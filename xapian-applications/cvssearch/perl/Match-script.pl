@@ -44,11 +44,11 @@ close (OUTPUT);
 #---------------
 # style sheet
 #---------------
-#td {white-space:pre;font-family:"fixed"}
 print <<_STYLE_;
 
 <STYLE TYPE=text/css>
 body {background-color:white}
+td {white-space:pre;font-family:fixed,courier;font-size:12pt}
 A:link, A:active, A:visited { text-decoration:none;color:black;}
 .popupLink { COLOR: blue; outline: none }
 .popup { POSITION:absolute; VISIBILITY:hidden; BACKGROUND-COLOR:white; LAYER-BACKGROUND-COLOR:white; BORDER:2px solid orange; PADDING: 3px; z-index: 10 }
@@ -182,13 +182,17 @@ if(param()){
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-			print "<a name=$i><td><pre>$i:</td>";
+#			print "<a name=$i><td><pre>$i:</td>";
+			print "<a name=$i><td>$i:</td>";
+
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
 			$weight = shift @info;
 			
 			#print revs, in the column it belongs to
-			print "<td><pre>";
+#			print "<td><pre>";
+			print "<td>";
+
 			#print "<td class=pre>";
 			$flag = 1;
 
@@ -232,7 +236,11 @@ if(param()){
 			
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
+			print "<td bgcolor=$color><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
+#			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
+		}
+		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
+			print "<tr><td style=\"font-size:2pt;\">a </td></tr>";
 		}
 		$i++;
 	}

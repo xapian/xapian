@@ -37,6 +37,7 @@ print "<header>\n";
 print <<_STYLE_;
 <STYLE TYPE=text/css>
 <!--
+td {white-space:pre; font-family:fixed,courier; font-size:12pt;}
 body {background-color:white}
 .red {color:red}
 -->
@@ -87,14 +88,14 @@ if(param()){
 		$line = $_;
 		$line = Entities::encode_entities($line);
 		print "<tr>";
-		print "<a name=$i><td><pre>$i:</td>";
+		print "<td><a name=$i>$i:</td>";
 		if($lineMAPweight{$i}){
 			$weight = $lineMAPweight{$i};
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre>$line</td>";
+			print "<td bgcolor=$color>$line </td>";
 		}else{
-			print "<td><pre>$line</td>";
+			print "<td>$line </td>";
 		}
 		print "</tr>\n";
 		$i++;
