@@ -1,3 +1,8 @@
+Wed Mar 26 01:04:30 GMT 2003  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fixed sort_bands == 1 bug which would
+	  incorrectly reject many documents with a low score.
+
 Thu Mar 06 13:04:06 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
 	* Add writeup about document collapsing to matcherdesign.html

@@ -510,6 +510,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	om_docid did = pl->get_docid();
 	om_weight wt = 0.0;
+	// Only calculate the weight if we need it for mcmp - otherwise
+	// we calculate it below only if we keep the item
 	if (min_item.wt > 0.0) wt = pl->get_weight();
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
@@ -519,8 +521,10 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    new_item.sort_key = doc.get_value(sort_key);
 	}
 
-	// test if item has high enough weight to get into proto-mset
-	if (min_item.wt > 0.0 && !mcmp(new_item, min_item)) continue;
+	// test if item has high enough weight (or sort key if sort_bands == 1)
+	// to get into proto-mset
+	if (sort_bands == 1 || min_item.wt > 0.0)
+	    if (!mcmp(new_item, min_item)) continue;
 
 	RefCntPtr<Document> doc;
 
@@ -557,27 +561,29 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			      new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
-					make_pair(new_item,0)));
+					make_pair(new_item, 0)));
 		} else {
 		    const OmMSetItem old_item = oldkey->second.first;
+		    // FIXME: what about sort_bands == 1 case here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
 			// There's already a better match with this key
-			oldkey->second.first.collapse_count++;
+			++oldkey->second.first.collapse_count;
 			// But maybe the weight is worth noting
 			if (new_item.wt > oldkey->second.second) {
-			    oldkey->second.second=new_item.wt;
+			    oldkey->second.second = new_item.wt;
 			}
 			continue;
 		    }
 		    // Make a note of the updated collapse count in the
 		    // replacement item
-		    new_item.collapse_count = old_item.collapse_count+1;
+		    new_item.collapse_count = old_item.collapse_count + 1;
 
 		    // This is best match with this key so far:
 		    // remove the old one from the MSet
 		    // 
+		    // FIXME: what about sort_bands == 1 case here?
 		    if (min_item.wt <= 0.0 || mcmp(old_item, min_item)) {
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry
@@ -599,7 +605,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			is_heap = false;
 		    }
 		    // Keep the old weight as it is now second best so far
-		    oldkey->second = make_pair(new_item,oldkey->second.first.wt);
+		    oldkey->second = make_pair(new_item,
+					       oldkey->second.first.wt);
 		}
 	    }
 	}
@@ -656,7 +663,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    pop_heap<vector<OmMSetItem>::iterator,
 			     OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    items.pop_back(); 
-		    min_item = items.front();
+		    if (sort_bands == 1) {
+			om_weight tmp = min_item.wt;
+			min_item = items.front();
+			min_item.wt = tmp;
+		    } else {
+		        min_item = items.front();
+		    }
 		    if (getorrecalc_maxweight(pl) < min_item.wt) {
 			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
 			break;
@@ -863,15 +876,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Do we need to qualify any collapse_count to see if the highest weight
     // collapsed item would have qualified percent_cutoff ?
-    if (collapse_key != om_valueno(-1) && percent_cutoff && !items.empty()
-		    && !collapse_tab.empty()) {
+    if (collapse_key != om_valueno(-1) && percent_cutoff && !items.empty() &&
+	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
 	om_weight min_wt = percent_factor / (percent_scale / 100);
 	vector<OmMSetItem>::iterator i;
-	for (i = items.begin(); i != items.end() && !collapse_tab.empty();++i) {
+	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?
-	    if (i->collapse_count>0 && ! i->collapse_key.empty()) {
+	    if (i->collapse_count > 0 && !i->collapse_key.empty()) {
 		map<string, pair<OmMSetItem, om_weight> >::iterator key;
 		key = collapse_tab.find(i->collapse_key);
 		// Because we collapse, each collapse key can only occur once
@@ -881,8 +894,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
                 assert(key != collapse_tab.end());
 		// If weight of top collapsed item is not relevent enough
 		// then collapse count is bogus in every way
-		// Should this be <=?
-		if (key->second.second<min_wt) i->collapse_count=0;
+		// FIXME: Should this be <=?
+		if (key->second.second < min_wt) i->collapse_count = 0;
 		// When collapse_tab is finally empty we can finish this process
 		// without examining any further hits
 		collapse_tab.erase(key);
