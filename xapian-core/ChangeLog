@@ -1,3 +1,8 @@
+Sat Dec 14 02:26:29 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/remote_protocol.html,net/socketclient.cc,net/socketserver.cc:
+	  Updated remote protocol description.
+
 Sat Dec 14 02:05:59 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/: Updated.

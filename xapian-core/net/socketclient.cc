@@ -414,7 +414,7 @@ SocketClient::finish_query()
     bool success = false;
     switch (conv_state) {
 	case state_getquery:
-	    // Message 3 (see README_progprotocol.txt)
+	    // Message 2 (see remote_protocol.html)
 	    do_write("Q" + query_string + '\n'
 		     + optstring + '\n'
 		     + wtstring + '\n'
@@ -423,7 +423,7 @@ SocketClient::finish_query()
 	    // fall through...
 	case state_sentquery:
 
-	    // Message 4
+	    // Message 3
 	    if (!buf.data_waiting()) {
 		break;
 	    }
@@ -503,7 +503,7 @@ SocketClient::get_mset(om_doccount first,
 	    break;
 	case state_getmset:
 
-	    // Message 5 (see README_progprotocol.txt)
+	    // Message 4 (see remote_protocol.html)
 	    do_write("G" + stats_to_string(global_stats) + '\n' +
 		     "M" + om_tostring(first) + " " + om_tostring(maxitems));
 	    conv_state = state_getresult;
@@ -516,7 +516,7 @@ SocketClient::get_mset(om_doccount first,
 		return false;
 	    }
 
-	    // Message 6
+	    // Message 5
 	    {
 		string response = do_read();
 		Assert(!response.empty() && response[0] == 'O');

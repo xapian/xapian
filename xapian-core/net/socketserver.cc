@@ -153,11 +153,11 @@ SocketServer::run()
     uint64_t totalidle = 0;
     int returnval = 0;
 #endif /* TIMING_PATCH */
-    while (1) {
+    while (true) {
 	try {
 	    string message;
 
-	    // Message 3 (see README_progprotocol.txt)
+	    // Message 2 (see remote_protocol.html)
 #ifdef TIMING_PATCH
 	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
@@ -316,10 +316,10 @@ SocketServer::run_match(const string &firstmessage)
     sleep(1);
 #endif
 
-    // Message 4
+    // Message 3
     send_local_stats(gatherer->get_local_stats());
 
-    // Message 5, part 1
+    // Message 4, part 1
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'G') {
@@ -329,7 +329,7 @@ SocketServer::run_match(const string &firstmessage)
     global_stats = string_to_stats(message.substr(1));
     have_global_stats = true;
 
-    // Message 5, part 2
+    // Message 4, part 2
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'M') {
