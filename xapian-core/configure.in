@@ -25,7 +25,7 @@ AC_CHECK_FUNCS(strerror)
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   CFLAGS="$CFLAGS -pedantic -Wall -Wunused -O6"
-  CXXFLAGS="$CFLAGS -pedantic -Wall -Wunused -fno-gnu-keywords -O6"
+  CXXFLAGS="$CXXFLAGS -pedantic -Wall -Wunused -fno-gnu-keywords -O6"
 fi
 
 AC_OUTPUT(Makefile)
