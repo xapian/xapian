@@ -133,7 +133,7 @@ OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
     vector<OMQuery *>::const_iterator q;
     for(q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
-	cout << "Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl;
+	DebugMsg("Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl);
     }
 
     // Build tree
@@ -222,17 +222,16 @@ PostList *
 OMMatch::postlist_from_query(const OMQuery *qu)
 {
     PostList *pl = NULL;
-    cout << "Op:" << qu->op << " Size:" << qu->subqs.size() << endl;
     Assert(!qu->isnull); // FIXME Throw exception, rather than assert
     switch (qu->op) {
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
 	    Assert(qu->subqs.size() == 0);
 	    if (database->term_exists(qu->tname)) {
-		cout << "Leaf: tname = " << qu->tname << endl;
+		DebugMsg("Leaf: tname = " << qu->tname << endl);
 		pl = mk_postlist(qu->tname, rset);
 	    } else {
-		cout << "Leaf: tname = " << qu->tname << " (not in database)" << endl;
+		DebugMsg("Leaf: tname = " << qu->tname << " (not in database)" << endl);
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching
 		// cleaner (term might exist in other databases).
