@@ -42,6 +42,27 @@ LocalStatsGatherer::get_stats() const
     return (&total_stats);
 }
 
+const Stats *
+NetworkStatsGatherer::get_stats() const
+{
+    if (!have_gathered) {
+	// FIXME: gather here (ie, wait for all subdatabases to contribute,
+	// or just check, or something along those lines)
+	have_gathered = true;
+    }
+    // FIXME: wait until the global stats have arrived
+    Assert(have_global_stats);
+
+    return &total_stats;
+}
+
+void
+NetworkStatsGatherer::set_global_stats(Stats stats)
+{
+    total_stats = stats;
+    have_global_stats = true;
+}
+
 void
 StatsSource::perform_request() const
 {

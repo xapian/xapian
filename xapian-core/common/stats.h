@@ -97,6 +97,19 @@ class LocalStatsGatherer : public StatsGatherer {
 	const Stats *get_stats() const;
 };
 
+/** A "slave" StatsGatherer used for the remote matcher
+ */
+class NetworkStatsGatherer : public StatsGatherer {
+    private:
+	bool have_global_stats;
+    public:
+	const Stats *get_stats() const;
+
+	// FIXME: NetworkStatsGatherer perhaps ought to somehow get this
+	// from get_stats()
+	void set_global_stats(Stats stats);
+};
+
 /** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk.  There is one of these for each
  *  LocalMatch.

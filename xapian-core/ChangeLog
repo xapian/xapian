@@ -1,3 +1,8 @@
+Tue Apr  4 14:49:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* A really hacked network multimatch gets the same results as
+	  the multidb1 test in apitest.  Much cleanup needed.
+
 Mon Apr  3 17:55:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed open() method from IRDatabase().  Use constructor to open

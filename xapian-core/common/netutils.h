@@ -34,6 +34,25 @@ tohex(char c)
     return string() + hexdigits[high] + hexdigits[low];
 }
 
+inline char hextochar(char high, char low)
+{
+    int h;
+    if (high >= '0' && high <= '9') {
+	h = high - '0';
+    } else {
+	high = toupper(high);
+	h = high - 'A' + 10;
+    }
+    int l;
+    if (low >= '0' && low <= '9') {
+	l = low - '0';
+    } else {
+	low = toupper(low);
+	l = low - 'A' + 10;
+    }
+    return l + (h << 4);
+}
+
 inline string
 encode_tname(string tname)
 {
@@ -45,6 +64,19 @@ encode_tname(string tname)
 	 ++i) {
 	result += tohex(*i);
     }
+    return result;
+}
+
+inline string
+decode_tname(string thex)
+{
+    Assert((thex.length() % 2) == 0);
+    string result;
+
+    for (string::size_type i=0; i<thex.length(); i+=2) {
+	result += hextochar(thex[i], thex[i+1]);
+    }
+
     return result;
 }
 

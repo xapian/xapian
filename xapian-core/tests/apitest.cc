@@ -249,6 +249,31 @@ bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
     return true;
 }
 
+bool mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
+				const OmMSet &mset2, unsigned int first2,
+				unsigned int count)
+{
+    if (mset1.items.size() < first1 + count - 1) {
+	if(verbose)
+	    cout << "mset1 is too small: expected at least " <<
+		    (first1 + count - 1) << " items." << endl;
+	return false;
+    }
+    if (mset2.items.size() < first2 + count - 1) {
+	if(verbose)
+	    cout << "mset2 is too small: expected at least " <<
+		    (first2 + count - 1) << " items." << endl;
+	return false;
+    }
+
+    for (unsigned int i=0; i<count; ++i) {
+	if (mset1.items[first1+i].wt != mset2.items[first2+i].wt) {
+	    return false;
+        }
+    }
+    return true;
+}
+
 bool operator==(const OmMSet &first, const OmMSet &second)
 {
     if ((first.mbound != second.mbound) ||
@@ -258,6 +283,21 @@ bool operator==(const OmMSet &first, const OmMSet &second)
     }
     if(first.items.size() == 0) return true;
     return mset_range_is_same(first, 0, second, 0, first.items.size());
+}
+
+ostream &
+operator<<(ostream &os, const OmMSetItem &mitem)
+{
+    os << mitem.wt << " " << mitem.did;
+    return os;
+}
+
+ostream &
+operator<<(ostream &os, const OmMSet &mset)
+{
+    copy(mset.items.begin(), mset.items.end(),
+	 ostream_iterator<OmMSetItem>(os, "\n"));
+    return os;
 }
 
 bool test_trivial()
@@ -436,6 +476,14 @@ bool test_multidb1()
 	    cout << "Match sets are of different size: "
 		    << mymset1.items.size() << "vs." << mymset2.items.size()
 		    << endl;
+	}
+	success = false;
+    } else if (!mset_range_is_same_weights(mymset1, 0,
+					   mymset2, 0,
+					   mymset1.items.size())) {
+	if (verbose) {
+	    cout << "Match sets don't compare equal:" << endl;
+	    cout << mymset1 << "vs." << endl << mymset2 << endl;
 	}
 	success = false;
     }

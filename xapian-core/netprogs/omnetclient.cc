@@ -225,6 +225,7 @@ OmQueryInternal query_from_string(string qs)
     return retval;
 }
 
+// FIXME: put in a sensible place
 string
 stats_to_string(const Stats &stats)
 {
@@ -257,13 +258,57 @@ stats_to_string(const Stats &stats)
     return result;
 }
 
+// FIXME: stolen from ProgClient.  Put in a sensible place.
+Stats
+string_to_stats(const string &s)
+{
+    Stats stat;
+
+    istrstream is(s.c_str(), s.length());
+
+    is >> stat.collection_size;
+    is >> stat.average_length;
+
+    string word;
+    while (is >> word) {
+	if (word.length() == 0) continue;
+
+	if (word[0] == 'T') {
+            vector<string> parts;
+	    split_words(word.substr(1), parts, '=');
+
+	    if (parts.size() != 2) {
+		throw OmNetworkError(string("Invalid stats string word part: ")
+				     + word);
+	    }
+
+	    stat.termfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
+	} else if (word[0] == 'R') {
+            vector<string> parts;
+	    split_words(word.substr(1), parts, '=');
+
+	    if (parts.size() != 2) {
+		throw OmNetworkError(string("Invalid stats string word part: ")
+				     + word);
+	    }
+	    
+	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
+	} else {
+	    throw OmNetworkError(string("Invalid stats string word: ") + word);
+	}
+    }
+
+    return stat;
+}
+
+
 void run_matcher(const char *filename) {
     // open the database to return results
     DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
     param.paths.push_back(filename);
     auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 
-    LocalStatsGatherer statgath;
+    NetworkStatsGatherer statgath;
 
     LocalMatch singlematch(db.get());
     singlematch.link_to_multi(&statgath);
@@ -303,6 +348,22 @@ void run_matcher(const char *filename) {
 
 	    cout << stats_to_string(*statgath.get_stats()) << endl;
 	    cout.flush();
+	} else if (words[0] == "SETSTATS") {
+
+	    string global_stats;
+	    if (words.size() < 2) {
+		cout << "ERROR" << endl;
+		cout.flush();
+	    } else {
+		// FIXME: this is a silly way of doing it
+		string global_stats = words[1];
+		for (vector<string>::size_type i=2; i<words.size(); ++i) {
+		    global_stats = global_stats + " " + words[i];
+		}
+		statgath.set_global_stats(string_to_stats(global_stats));
+		cout << "OK" << endl;
+		cout.flush();
+	    }
 	} else if (words[0] == "GET_MSET") {
 	    //cerr << "GET_MSET: " << words.size() << " words" << endl;
 	    if (words.size() != 3) {

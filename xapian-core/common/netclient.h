@@ -60,6 +60,9 @@ class NetClient : public OmRefCntBase {
 	/** Read the remote statistics */
 	virtual Stats get_remote_stats() = 0;
 
+	/** Send the global statistics down */
+	virtual void set_global_stats(const Stats &stats) = 0;
+
 	/** Do the actual MSet fetching */
 	virtual void get_mset(om_doccount first,
 			      om_doccount maxitems,

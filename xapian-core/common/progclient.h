@@ -83,6 +83,9 @@ class ProgClient : public NetClient {
 	/** Get the remote stats */
 	Stats get_remote_stats();
 
+	/** Send the global statistics */
+	void set_global_stats(const Stats &stats);
+
 	/** Do the actual MSet fetching */
 	void get_mset(om_doccount first,
 		      om_doccount maxitems,

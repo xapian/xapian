@@ -26,24 +26,7 @@ struct querytok {
 	    : type(static_cast<etype>(type_)) {}
 };
 
-inline char hextochar(char high, char low)
-{
-    int h;
-    if (high >= '0' && high <= '9') {
-	h = high - '0';
-    } else {
-	high = toupper(high);
-	h = high - 'A' + 10;
-    }
-    int l;
-    if (low >= '0' && low <= '9') {
-	l = low - '0';
-    } else {
-	low = toupper(low);
-	l = low - 'A' + 10;
-    }
-    return l + (h << 4);
-}
+char hextochar(char high, char low);
 
 void qfs_start(string text);
 querytok qfs_gettok();

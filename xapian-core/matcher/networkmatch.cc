@@ -478,5 +478,7 @@ NetworkMatch::get_mset(om_doccount first,
 	throw OmInvalidArgumentError("Can't use a match decider remotely");
     }
 
+    database->link->set_global_stats(*(mygatherer->get_stats()));
+
     database->link->get_mset(first, maxitems, mset, mbound, greatest_wt);
 }

@@ -179,7 +179,7 @@ ProgClient::string_to_stats(const string &s)
 				     + word);
 	    }
 
-	    stat.termfreq[parts[0]] = atoi(parts[1].c_str());
+	    stat.termfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
 	} else if (word[0] == 'R') {
             vector<string> parts;
 	    split_words(word.substr(1), parts, '=');
@@ -189,7 +189,7 @@ ProgClient::string_to_stats(const string &s)
 				     + word);
 	    }
 	    
-	    stat.reltermfreq[parts[0]] = atoi(parts[1].c_str());
+	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
 	} else {
 	    throw OmNetworkError(string("Invalid stats string word: ") + word);
 	}
@@ -241,6 +241,45 @@ string_to_msetitem(string s)
     is >> wt >> did;
 
     return OmMSetItem(wt, did);
+}
+
+// FIXME: put in a sensible place
+static string
+stats_to_string(const Stats &stats)
+{
+    ostrstream os;
+
+    os << stats.collection_size << " ";
+    os << stats.average_length << " ";
+
+    map<om_termname, om_doccount>::const_iterator i;
+
+    for (i=stats.termfreq.begin();
+	 i != stats.termfreq.end();
+	 ++i) {
+	os << "T" << encode_tname(i->first) << "=" << i->second << " ";
+    }
+
+    for (i = stats.reltermfreq.begin();
+	 i != stats.reltermfreq.end();
+	 ++i) {
+	os << "R" << encode_tname(i->first) << "=" << i->second << " ";
+    }
+
+    // FIXME: should be eos.
+    os << '\0';
+
+    string result(os.str());
+
+    os.freeze(0);
+
+    return result;
+}
+
+void
+ProgClient::set_global_stats(const Stats &stats)
+{
+    do_simple_transaction("SETSTATS " + stats_to_string(stats));
 }
 
 void
