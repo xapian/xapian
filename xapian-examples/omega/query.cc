@@ -521,12 +521,14 @@ print_caption(long int m)
     int size = -1;
     int dadate = -1;
 
+#if 0 // FIXME
     // get datestamp of DA file this record is in so we can handle
     // different versions of our record format
     if (q0 >= 0) {
 	int n = q0 / 10000000;
 	if (n < n_dlist) dadate = dlist[n];
     }
+#endif
 
     IRDocument *doc = database.open_document(q0);
     IRData data = doc->get_data();
