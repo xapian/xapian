@@ -34,13 +34,17 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch(MultiDatabase *multi_database_,
+MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
+		       const OmQueryInternal * query,
+		       const OmRSet & omrset,
+		       IRWeight::weight_type wt_type,
+		       const OmMatchOptions & moptions,
 		       auto_ptr<StatsGatherer> gatherer_)
 	: multi_database(multi_database_),
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
 {
-    vector<OmRefCntPtr<IRDatabase> >::iterator db;
+    vector<OmRefCntPtr<IRDatabase> >::const_iterator db;
     for (db = multi_database->databases.begin();
 	 db != multi_database->databases.end();
 	 ++db) {
@@ -48,6 +52,13 @@ MultiMatch::MultiMatch(MultiDatabase *multi_database_,
 	smatch->link_to_multi(gatherer.get());
 	leaves.push_back(smatch);
     }
+
+    set_query(query);
+    set_rset(omrset);
+    set_weighting(wt_type);
+    set_options(moptions);
+
+    prepare_matchers();
 }
 
 OmRefCntPtr<SingleMatch>
@@ -112,20 +123,22 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 
 
 void
-MultiMatch::set_options(const OmMatchOptions & moptions_)
+MultiMatch::set_options(const OmMatchOptions & moptions)
 {
     for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
-	(*i)->set_options(moptions_);
+	(*i)->set_options(moptions);
     }
 
-    mcmp = moptions_.get_sort_comparator();
+    mcmp = moptions.get_sort_comparator();
 }
 
 
 om_weight
 MultiMatch::get_max_weight()
 {
+    // FIXME: DESTROY this method (put it as part of get_mset(), which we need
+    // to create)
     Assert(leaves.size() > 0);
 
     // FIXME: this always asks the first database; make it pick one in some
@@ -135,8 +148,6 @@ MultiMatch::get_max_weight()
     for (vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	 i != leaves.end();
 	 i++) {
-	// FIXME: assume that prepare_match has been called.
-	(*i)->prepare_match(false);
 	om_weight this_max = (*i)->get_max_weight();
 	if(result < this_max) result = this_max;
     }
@@ -332,7 +343,6 @@ MultiMatch::match(om_doccount first,
 
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it, and block.
-	leaves.front()->prepare_match(false);
 	leaves.front()->get_mset(first, maxitems, mset.items,
 				 &(mset.mbound), &(mset.max_attained),
 				 mdecider, false);
@@ -340,8 +350,6 @@ MultiMatch::match(om_doccount first,
 	mset.max_possible = get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
-	prepare_matchers();
-
 	collect_msets(first + maxitems, mdecider, mset);
 	remove_leading_elements(first, mset);
 

@@ -42,7 +42,7 @@ class MultiMatch
 	vector<OmRefCntPtr<SingleMatch> > leaves;
 	
 	/// The database
-	MultiDatabase *multi_database;
+	const MultiDatabase * multi_database;
 
 	/// stats gatherer
 	auto_ptr<StatsGatherer> gatherer;
@@ -149,6 +149,12 @@ class MultiMatch
 
 	/// Assignment is not permitted.
 	void operator=(const MultiMatch &);
+
+
+	void set_query(const OmQueryInternal * query);
+	void set_rset(const OmRSet & omrset);
+	void set_weighting(IRWeight::weight_type wt_type);
+	void set_options(const OmMatchOptions & moptions);
     public:
 	/** MultiMatch constructor.
 	 *
@@ -164,15 +170,14 @@ class MultiMatch
 	 *                   the default is to use a LocalStatsGatherer,
 	 *                   suitable for non-network use.
 	 */
-	MultiMatch(MultiDatabase *multi_database_,
+	MultiMatch(const MultiDatabase * multi_database_,
+		   const OmQueryInternal * query,
+		   const OmRSet & omrset,
+		   IRWeight::weight_type wt_type,
+		   const OmMatchOptions & moptions,
 		   auto_ptr<StatsGatherer> gatherer_
 		       = auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
-
-	void set_query(const OmQueryInternal * query);
-	void set_rset(const OmRSet & omrset);
-	void set_weighting(IRWeight::weight_type wt_type);
-	void set_options(const OmMatchOptions & moptions_);
 
 	void match(om_doccount first,
 		   om_doccount maxitems,
