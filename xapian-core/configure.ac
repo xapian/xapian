@@ -180,7 +180,6 @@ dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
 dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
