@@ -1,3 +1,7 @@
+Tue Dec 12 15:09:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed an endless loop in QuartzWritableDatabase::do_delete_document.
+
 Tue Dec 12 15:07:39 GMT 2000 Olly Betts
 
 	* OmMSetItem replaced by OmMSetIterator.

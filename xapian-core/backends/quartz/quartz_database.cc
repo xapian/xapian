@@ -518,6 +518,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 	    QuartzLexicon::decrement_termfreq(
 		buffered_tables->get_lexicon_table(),
 		tname);
+	    termlist.next();
 	}
 
 	// Set the document length.
