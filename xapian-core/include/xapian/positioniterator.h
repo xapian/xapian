@@ -56,7 +56,7 @@ class PositionIterator {
 	PositionIterator(Internal *internal_);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	// PositionIterator();
+	PositionIterator();
 
 	/// Destructor
         ~PositionIterator();
@@ -69,7 +69,7 @@ class PositionIterator {
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(PositionIterator &o);
+	void operator=(const PositionIterator &o);
 
 	Xapian::termpos operator *() const;
 

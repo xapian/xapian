@@ -1,3 +1,10 @@
+Tue Nov 25 04:37:50 GMT 2003  Olly Betts <olly@survex.com>
+
+	* api/ompositionlistiterator.cc,api/ompostlistiterator.cc,
+	  include/xapian/positioniterator.h,include/xapian/postingiterator.h,
+	  tests/api_db.cc: Added missing default ctors for PostingIterator and
+	  PostionIterator classes; fixed PostionIterator assignment operator.
+
 Tue Nov 25 03:40:11 GMT 2003  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc: Fixed 2 compiler warnings.

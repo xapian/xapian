@@ -40,6 +40,10 @@ Xapian::PostingIterator::PostingIterator(Internal *internal_)
     }
 }
 
+Xapian::PostingIterator::PostingIterator() : internal(0) {
+    DEBUGAPICALL(void, "Xapian::PostingIterator::PostingIterator", "");
+}
+
 Xapian::PostingIterator::~PostingIterator() {
     DEBUGAPICALL(void, "Xapian::PostingIterator::~PostingIterator", "");
 }

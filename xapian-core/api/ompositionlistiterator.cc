@@ -35,6 +35,10 @@ Xapian::PositionIterator::PositionIterator(Internal *internal_)
     }
 }
 
+Xapian::PositionIterator::PositionIterator() : internal(0)
+{
+}
+
 Xapian::PositionIterator::PositionIterator(const Xapian::PositionIterator &o)
 	: internal(o.internal)
 {
@@ -45,7 +49,7 @@ Xapian::PositionIterator::~PositionIterator()
 }
 
 void
-Xapian::PositionIterator::operator=(Xapian::PositionIterator &o)
+Xapian::PositionIterator::operator=(const Xapian::PositionIterator &o)
 {
     internal = o.internal;
 }

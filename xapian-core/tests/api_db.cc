@@ -2447,7 +2447,8 @@ static bool test_adddoc2()
     TEST_EQUAL(iter1.get_termfreq(), 2);
     TEST_EQUAL(iter2.get_termfreq(), 0);
 
-    Xapian::PositionIterator pi1 = iter1.positionlist_begin();
+    Xapian::PositionIterator pi1;
+    pi1 = iter1.positionlist_begin();
     Xapian::PositionIterator pi2 = iter2.positionlist_begin();
     TEST_EQUAL(*pi1, 3); pi1++;
     TEST_EQUAL(*pi2, 3); pi2++;
@@ -2968,7 +2969,8 @@ static bool test_postlist1()
 static bool test_postlist2()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::PostingIterator p = db.postlist_begin("this");
+    Xapian::PostingIterator p;
+    p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");
 
     // test operator= creates a copy which compares equal

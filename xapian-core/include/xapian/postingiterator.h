@@ -53,7 +53,7 @@ class PostingIterator {
 			       const PostingIterator &b);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	//PostingIterator();
+	PostingIterator();
 
 	/// Destructor
         ~PostingIterator();
