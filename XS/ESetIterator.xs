@@ -2,55 +2,55 @@ MODULE = Search::Xapian 	PACKAGE = Search::Xapian::ESetIterator
 
 PROTOTYPES: ENABLE
 
-OmESetIterator *
+ESetIterator *
 new1();
     CODE:
-        RETVAL = new OmESetIterator();
+        RETVAL = new ESetIterator();
     OUTPUT:
         RETVAL
 
-OmESetIterator *
+ESetIterator *
 new2(other);
-    OmESetIterator * other
+    ESetIterator *	other
     CODE:
-        RETVAL = new OmESetIterator(* other);
+        RETVAL = new ESetIterator(* other);
     OUTPUT:
         RETVAL
 
-OmESetIterator *
-OmESetIterator::inc()
+ESetIterator *
+ESetIterator::inc()
     CODE:
-        RETVAL = new OmESetIterator();
+        RETVAL = new ESetIterator();
         *RETVAL = ++(*THIS);
     OUTPUT:
         RETVAL
 
 bool
-OmMSetIterator::equal(OmMSetIterator * that)
+MSetIterator::equal(MSetIterator * that)
     CODE:
         RETVAL = ((*THIS) == (*that));
     OUTPUT:
         RETVAL
 
 bool
-OmMSetIterator::nequal(OmMSetIterator * that)
+MSetIterator::nequal(MSetIterator * that)
     CODE:
         RETVAL = ((*THIS) != (*that));
     OUTPUT:
         RETVAL
 
 string
-OmESetIterator::get_termname()
+ESetIterator::get_termname()
     CODE:
         RETVAL = THIS->operator*();
     OUTPUT:
         RETVAL
 
-om_weight
-OmESetIterator::get_weight()
+weight
+ESetIterator::get_weight()
 
 string
-OmESetIterator::get_description()
+ESetIterator::get_description()
 
 void
-OmESetIterator::DESTROY()
+ESetIterator::DESTROY()

@@ -2,124 +2,134 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::MSet
 
 PROTOTYPES: ENABLE
 
-OmMSet *
+MSet *
 new1();
     CODE:
-        RETVAL = new OmMSet();
+        RETVAL = new MSet();
     OUTPUT:
         RETVAL
 
-OmMSet *
+MSet *
 new2(other);
-    OmMSet * other
+    MSet *	other
     CODE:
-        RETVAL = new OmMSet(* other);
+        RETVAL = new MSet(*other);
     OUTPUT:
         RETVAL
  
 void
-OmMSet::fetch1(begin, end)
-    OmMSetIterator *    begin
-    OmMSetIterator *    end
+MSet::fetch1(begin, end)
+    MSetIterator *	begin
+    MSetIterator *	end
     CODE:
-        THIS->fetch(* begin, * end);
+        THIS->fetch(*begin, *end);
 
 void
-OmMSet::fetch2(item)
-    OmMSetIterator *    item
+MSet::fetch2(item)
+    MSetIterator *	item
     CODE:
-        THIS->fetch(* item);
+        THIS->fetch(*item);
 
 void
-OmMSet::fetch3()
+MSet::fetch3()
     CODE:
         THIS->fetch();
 
 void
-OmMSet::convert_to_percent1(wt)
-    om_weight   wt
+MSet::convert_to_percent1(wt)
+    weight	wt
     CODE:
         THIS->convert_to_percent(wt);
 
 void
-OmMSet::convert_to_percent2(it)
-    OmMSetIterator *    it
+MSet::convert_to_percent2(it)
+    MSetIterator *	it
     CODE:
-        THIS->convert_to_percent(* it);
+        THIS->convert_to_percent(*it);
 
-om_doccount
-OmMSet::get_termfreq(om_termname tname)
+doccount
+MSet::get_termfreq(tname)
+    string	tname
+    CODE:
+        RETVAL = THIS->get_termfreq(tname);
+    OUTPUT:
+        RETVAL
 
-om_weight
-OmMSet::get_termweight(om_termname tname)
+weight
+MSet::get_termweight(tname)
+    string	tname
+    CODE:
+        RETVAL = THIS->get_termweight(tname);
+    OUTPUT:
+        RETVAL
 
-om_doccount
-OmMSet::get_firstitem()
+doccount
+MSet::get_firstitem()
 
-om_doccount
-OmMSet::get_matches_lower_bound()
+doccount
+MSet::get_matches_lower_bound()
 
-om_doccount
-OmMSet::get_matches_estimated()
+doccount
+MSet::get_matches_estimated()
 
-om_doccount
-OmMSet::get_matches_upper_bound()
+doccount
+MSet::get_matches_upper_bound()
 
-om_weight
-OmMSet::get_max_possible()
+weight
+MSet::get_max_possible()
 
-om_weight
-OmMSet::get_max_attained()
+weight
+MSet::get_max_attained()
 
-om_doccount
-OmMSet::size()
+doccount
+MSet::size()
 
-om_doccount
-OmMSet::max_size()
+doccount
+MSet::max_size()
 
 bool
-OmMSet::empty()
+MSet::empty()
 
 void
-OmMSet::swap(other)
-        OmMSet *    other
+MSet::swap(other)
+        MSet *    other
     CODE:
-        THIS->swap(* other);
+        THIS->swap(*other);
 
-OmMSetIterator *
-OmMSet::begin()
+MSetIterator *
+MSet::begin()
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
         *RETVAL = THIS->begin();
     OUTPUT:
         RETVAL
 
-OmMSetIterator *
-OmMSet::end()
+MSetIterator *
+MSet::end()
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
         *RETVAL = THIS->end();
     OUTPUT:
         RETVAL
 
-OmMSetIterator *
-OmMSet::back()
+MSetIterator *
+MSet::back()
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
         *RETVAL = THIS->back();
     OUTPUT:
         RETVAL
 
-OmMSetIterator *
-OmMSet::get_msetiterator(om_doccount i)
+MSetIterator *
+MSet::get_msetiterator(doccount i)
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
         *RETVAL = (*THIS)[i];
     OUTPUT:
         RETVAL
 
 string
-OmMSet::get_description()
+MSet::get_description()
 
 void
-OmMSet::DESTROY()
+MSet::DESTROY()

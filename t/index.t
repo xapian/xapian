@@ -16,7 +16,7 @@ use Search::Xapian qw(:standard);
 # its man page ( perldoc Test ) for help writing this test script.
 
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( 'testdb', OM_DB_OPEN ) );
+ok( $database = Search::Xapian::WritableDatabase->new( 'testdb', Search::Xapian::DB_OPEN ) );
 
 my $stemmer;
 ok( $stemmer = Search::Xapian::Stem->new( 'english' ) );

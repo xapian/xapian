@@ -1,102 +1,211 @@
-MODULE = Search::Xapian		PACKAGE = Search::Xapian::Database		
+MODULE = Search::Xapian		PACKAGE = Search::Xapian::Database
 
 PROTOTYPES: ENABLE
 
-OmDatabase *
+Database *
 new1(file)
-    string * file
+    string	file
     CODE:
-        OmDatabase * database = new OmDatabase(); 
+        RETVAL = new Database(); 
         try {
-            *database = OmAuto__open(* file);
-            RETVAL = database;                                    
+            *RETVAL = Auto::open(file);
         }
-        catch (const OmError &error) {
+        catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
     OUTPUT:
         RETVAL
 
-OmDatabase *
+Database *
 new2(database)
-    OmDatabase * database
+    Database *	database
     CODE:
-        RETVAL = new OmDatabase(* database);
+	try {
+	    RETVAL = new Database(*database);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
 void
-OmDatabase::add_database(database)
-    OmDatabase * database
+Database::add_database(database)
+    Database *	database
     CODE:
-        THIS->add_database(* database);
+	try {
+	    THIS->add_database(*database);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
-OmDatabase::reopen()
+Database::reopen()
+    CODE:
+	try {
+            THIS->reopen();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 string
-OmDatabase::get_description()
-
-OmTermIterator *
-OmDatabase::termlist_begin(om_docid did)
+Database::get_description()
     CODE:
-        RETVAL = new OmTermIterator();
-        *RETVAL = THIS->termlist_begin(did);
+	try {
+            RETVAL = THIS->get_description();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+
+TermIterator *
+Database::termlist_begin(did)
+    docid	did
+    CODE:
+        RETVAL = new TermIterator();
+	try {
+	    *RETVAL = THIS->termlist_begin(did);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
-OmTermIterator *
-OmDatabase::termlist_end(om_docid did)
+TermIterator *
+Database::termlist_end(did)
+    docid	did
     CODE:
-        RETVAL = new OmTermIterator();
-        *RETVAL = THIS->termlist_end(did);
+        RETVAL = new TermIterator();
+	try {
+	    *RETVAL = THIS->termlist_end(did);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
-OmTermIterator *
-OmDatabase::allterms_begin()
+TermIterator *
+Database::allterms_begin()
     CODE:
-        RETVAL = new OmTermIterator();
-        *RETVAL = THIS->allterms_begin();
+        RETVAL = new TermIterator();
+	try {
+	    *RETVAL = THIS->allterms_begin();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
-OmTermIterator *
-OmDatabase::allterms_end()
+TermIterator *
+Database::allterms_end()
     CODE:
-        RETVAL = new OmTermIterator();
-        *RETVAL = THIS->allterms_begin();
+        RETVAL = new TermIterator();
+	try {
+	    *RETVAL = THIS->allterms_end();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
-om_doccount
-OmDatabase::get_doccount()
+doccount
+Database::get_doccount()
+    CODE:
+	try {
+            RETVAL = THIS->get_doccount();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
-om_doclength
-OmDatabase::get_avlength()
+doclength
+Database::get_avlength()
+    CODE:
+	try {
+            RETVAL = THIS->get_avlength();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
-om_doccount
-OmDatabase::get_termfreq(om_termname tname)
+doccount
+Database::get_termfreq(tname)
+    string	tname
+    CODE:
+	try {
+            RETVAL = THIS->get_termfreq(tname);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
 
 bool
-OmDatabase::term_exists(om_termname tname)
+Database::term_exists(tname)
+    string	tname
+    CODE:
+	try {
+	    RETVAL = THIS->term_exists(tname);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
 
-om_termcount
-OmDatabase::get_collection_freq(om_termname tname)
+termcount
+Database::get_collection_freq(tname)
+    string	tname
+    CODE:
+	try {
+	    RETVAL = THIS->get_collection_freq(tname);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
 
-om_doclength
-OmDatabase::get_doclength(om_docid did)
+doclength
+Database::get_doclength(did)
+    docid	did
+    CODE:
+	try {
+	    RETVAL = THIS->get_doclength(did);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
-OmDatabase::keep_alive()
-
-OmDocument *
-OmDatabase::get_document(om_docid did)
+Database::keep_alive()
     CODE:
-        RETVAL = new OmDocument();
-        *RETVAL = THIS->get_document(did);
+	try {
+	    THIS->keep_alive();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+
+Document *
+Database::get_document(docid did)
+    CODE:
+        RETVAL = new Document();
+	try {
+	    *RETVAL = THIS->get_document(did);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
 void
-OmDatabase::DESTROY()
+Database::DESTROY()

@@ -2,62 +2,94 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::WritableDatabase
 
 PROTOTYPES: ENABLE
 
-OmWritableDatabase *
+WritableDatabase *
 new1(file, opts)
-    string * file
-    int opts
+    string	file
+    int		opts
     CODE:
-        OmWritableDatabase * database = new OmWritableDatabase(); 
+        RETVAL = new WritableDatabase();
         try {
-            *database = OmAuto__open(* file, opts);               
-            RETVAL = database;                                    
+            *RETVAL = Auto::open(file, opts);
         }
-        catch (const OmError &error) {
+        catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
     OUTPUT:
         RETVAL
 
-OmWritableDatabase *
+WritableDatabase *
 new2(database)
-    OmWritableDatabase * database
+    WritableDatabase *	database
     CODE:
-        RETVAL = new OmWritableDatabase(* database);
+        RETVAL = new WritableDatabase(*database);
     OUTPUT:
         RETVAL
 
 void
-OmWritableDatabase::flush()
+WritableDatabase::flush()
+   CODE:
+	try {
+            THIS->flush();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
-OmWritableDatabase::begin_transaction()
+WritableDatabase::begin_transaction()
+   CODE:
+	try {
+            THIS->begin_transaction();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
-OmWritableDatabase::commit_transaction()
+WritableDatabase::commit_transaction()
+   CODE:
+	try {
+            THIS->commit_transaction();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
-OmWritableDatabase::cancel_transaction()
+WritableDatabase::cancel_transaction()
+   CODE:
+	try {
+            THIS->cancel_transaction();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
-om_docid
-OmWritableDatabase::add_document(document)
-    OmDocument *        document
+docid
+WritableDatabase::add_document(document)
+    Document *	document
     CODE:
-        RETVAL = THIS->add_document(*document);
+        try {
+	    RETVAL = THIS->add_document(*document);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
 void
-OmWritableDatabase::delete_document(om_docid did)
+WritableDatabase::delete_document(docid did)
 
 void
-OmWritableDatabase::replace_document(did, document)
-    om_docid            did
-    OmDocument *        document
+WritableDatabase::replace_document(did, document)
+    docid	did
+    Document *	document
     CODE:
         THIS->replace_document(did, *document);
 
 string
-OmWritableDatabase::get_description()
+WritableDatabase::get_description()
 
 void
-OmWritableDatabase::DESTROY()
+WritableDatabase::DESTROY()

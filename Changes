@@ -1,6 +1,25 @@
 Revision history for Perl extension Search::Xapian.
 
-0.05 Tue Jan 14 01:43:45 2002
+0.8.0.0  Tue May  4 16:06:41 2004
+	- New version numbering scheme chases xapian version
+	- Added overloaded function for TermIterator class	
+	- Wrapped all methods for Xapian::Enquire (except 
+	  set_weighting_scheme, which is passed a Weight object - a
+	  class for which wrappers do not yet exist).
+	- Replaced AUTOLOAD method designed to reduce code redundancy
+	  in Enquire.pm with two separate methods (it was preventing
+	  attempts to call unwrapped methods from throwing errors).
+	[Changes contributed by Olly Betts]
+	- Converted to use xapian.h and Xapian:: classnames
+	- add_term is the new preferred name for add_term_nopos
+	- Added stubs for PostingIterator and PositionIterator
+	- String values are now passed in a zero-byte safe way
+	- OM_DB_* renamed to Search::Xapian::DB_*
+	- Now requires Xapian at least version 0.8.0
+	- Search::Xapian::Database::allterms_end() fixed (was returning
+	  the same as Search::Xapian::Database::allterms_begin()
+
+0.05  Tue Jan 14 01:43:45 2003
         - OM_DB_CREATE_OR_* symbols wrapped
         - Extra tests for argument validity for Search::Xapian::Query
           constructor 

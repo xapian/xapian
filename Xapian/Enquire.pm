@@ -39,26 +39,43 @@ sub matches {
   return @array;
 }
 
-sub AUTOLOAD {
-  our $AUTOLOAD;
-  if( $AUTOLOAD =~ /^get_matching_terms_(?:begin|end)$/ ) {
-    my $self = shift;
-    my $invalid_args;
-    if( scalar(@_) == 1 ) {
-      my $arg = shift;
-      my $arg_class = ref( $arg );
-      if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-        eval( "\$self->${AUTOLOAD}2(\$arg)" );
-      } else {
-        eval( "\$self->${AUTOLOAD}1(\$arg)" );
-      }
+sub get_matching_terms_begin {
+  my $self = shift;
+  my $invalid_args;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      $self->get_matching_terms_begin1($arg);
     } else {
-      $invalid_args = 1;
+      $self->get_matching_terms_begin2($arg);
     }
-    if( $invalid_args ) {
-      Carp::carp( "USAGE: \$enquire->$AUTOLOAD(\$docid) or \$enquire->$AUTOLOAD(\$msetiterator)" );
-      exit;
+  } else {
+    $invalid_args = 1;
+  }
+  if( $invalid_args ) {
+    Carp::carp( "USAGE: \$enquire->get_matching_terms_begin(\$docid) or \$enquire->get_matching_terms_begin(\$msetiterator)" );
+    exit;
+  }
+}
+
+sub get_matching_terms_end {
+  my $self = shift;
+  my $invalid_args;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      $self->get_matching_terms_end1($arg);
+    } else {
+      $self->get_matching_terms_end2($arg);
     }
+  } else {
+    $invalid_args = 1;
+  }
+  if( $invalid_args ) {
+    Carp::carp( "USAGE: \$enquire->get_matching_terms_end(\$docid) or \$enquire->get_matching_terms_end(\$msetiterator)" );
+    exit;
   }
 }
 

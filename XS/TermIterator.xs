@@ -2,32 +2,58 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::TermIterator
 
 PROTOTYPES: ENABLE
 
-OmTermIterator *
-OmTermIterator::new()
-
-void
-OmTermIterator::DESTROY()
-
-
-MODULE = Search::Xapian		PACKAGE = Search::Xapian::Stem		
-
-PROTOTYPES: ENABLE
-
-OmStem *
-OmStem::new(language)
-    string *     language
+TermIterator *
+new1();
     CODE:
-        RETVAL = new OmStem(*language);
+        RETVAL = new TermIterator();
+    OUTPUT:
+        RETVAL
+
+TermIterator *
+new2(other);
+    TermIterator *	other
+    CODE:
+        RETVAL = new TermIterator(*other);
+    OUTPUT:
+        RETVAL
+  
+void
+TermIterator::DESTROY()
+
+TermIterator *
+TermIterator::inc()
+    CODE:
+        RETVAL = new TermIterator();
+        *RETVAL = ++(*THIS);
+    OUTPUT:
+        RETVAL
+
+bool
+TermIterator::equal(that)
+    TermIterator *	that
+    CODE:
+        RETVAL = ((*THIS) == (*that));
+    OUTPUT:
+        RETVAL
+
+bool
+TermIterator::nequal(that)
+    TermIterator *	that
+    CODE:
+        RETVAL = ((*THIS) != (*that));
     OUTPUT:
         RETVAL
 
 string
-OmStem::stem_word(word)
-    string *     word
+TermIterator::get_termname()
     CODE:
-        RETVAL = THIS->stem_word(*word);
+        RETVAL = THIS->operator*();
     OUTPUT:
         RETVAL
 
-void
-OmStem::DESTROY()
+string
+TermIterator::get_description()
+    CODE:
+        RETVAL = THIS->get_description();
+    OUTPUT:
+        RETVAL

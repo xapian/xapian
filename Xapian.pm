@@ -14,6 +14,7 @@ use Search::Xapian::WritableDatabase;
 use Search::Xapian::ESet;
 use Search::Xapian::ESetIterator;
 use Search::Xapian::RSet;
+use Search::Xapian::TermIterator;
 
 require Exporter;
 require DynaLoader;
@@ -56,7 +57,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.05';
+our $VERSION = '0.8.0.0';
 
 bootstrap Search::Xapian $VERSION;
 

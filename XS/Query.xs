@@ -2,71 +2,71 @@ MODULE = Search::Xapian  		PACKAGE = Search::Xapian::Query
 
 PROTOTYPES: ENABLE
 
-OmQuery *
+Query *
 new1(term);
-    om_termname term
+    string	term
     CODE:
-        RETVAL = new OmQuery(term);
+        RETVAL = new Query(term);
     OUTPUT:
         RETVAL
 
-OmQuery *
+Query *
 new2(op, left, right);
-    int          op
-    om_termname left
-    om_termname right
+    int		op
+    string	left
+    string	right
     CODE:
-        RETVAL = new OmQuery( (OmQuery::op)op, left, right );
+        RETVAL = new Query( (Query::op) op, left, right );
     OUTPUT:
         RETVAL
 
-OmQuery *
+Query *
 new3(op, left, right);
-    int          op
-    OmQuery *   left
-    OmQuery *   right
+    int		op
+    Query *	left
+    Query *	right
     CODE:
-        RETVAL = new OmQuery( (OmQuery::op)op, *left, *right );
+        RETVAL = new Query( (Query::op) op, *left, *right );
     OUTPUT:
         RETVAL
 
 
 void
-OmQuery::set_window(om_termpos window)
+Query::set_window(termpos window)
 
 void
-OmQuery::set_cutoff(om_weight cutoff)
+Query::set_cutoff(weight cutoff)
 
 void
-OmQuery::set_elite_set_size(om_termcount size)
+Query::set_elite_set_size(termcount size)
 
-om_termcount
-OmQuery::get_length()
+termcount
+Query::get_length()
 
-om_termcount
-OmQuery::set_length(om_termcount qlen)
+termcount
+Query::set_length(termcount qlen)
 
-OmTermIterator *
-OmQuery::get_terms_begin()
+TermIterator *
+Query::get_terms_begin()
     CODE:
-        RETVAL = new OmTermIterator();
+        RETVAL = new TermIterator();
         *RETVAL = THIS->get_terms_begin();
     OUTPUT:
         RETVAL
 
-OmTermIterator *
-OmQuery::get_terms_end()
+TermIterator *
+Query::get_terms_end()
     CODE:
-        RETVAL = new OmTermIterator();
+        RETVAL = new TermIterator();
         *RETVAL = THIS->get_terms_begin();
     OUTPUT:
         RETVAL
 
 void
-OmQuery::is_empty()
+Query::is_empty()
 
 string
-OmQuery::get_description()
+Query::get_description()
 
 void
-OmQuery::DESTROY()
+Query::DESTROY()

@@ -2,69 +2,69 @@ MODULE = Search::Xapian 	PACKAGE = Search::Xapian::MSetIterator
 
 PROTOTYPES: ENABLE
 
-OmMSetIterator *
+MSetIterator *
 new1();
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
     OUTPUT:
         RETVAL
 
-OmMSetIterator *
+MSetIterator *
 new2(other);
-    OmMSetIterator * other
+    MSetIterator * other
     CODE:
-        RETVAL = new OmMSetIterator(* other);
+        RETVAL = new MSetIterator(* other);
     OUTPUT:
         RETVAL
 
-OmMSetIterator *
-OmMSetIterator::inc()
+MSetIterator *
+MSetIterator::inc()
     CODE:
-        RETVAL = new OmMSetIterator();
+        RETVAL = new MSetIterator();
         *RETVAL = ++(*THIS);
     OUTPUT:
         RETVAL
 
 bool
-OmMSetIterator::equal(OmMSetIterator * that)
+MSetIterator::equal(MSetIterator * that)
     CODE:
         RETVAL = ((*THIS) == (*that));
     OUTPUT:
         RETVAL
 
 bool
-OmMSetIterator::nequal(OmMSetIterator * that)
+MSetIterator::nequal(MSetIterator * that)
     CODE:
         RETVAL = ((*THIS) != (*that));
     OUTPUT:
         RETVAL
 
-om_docid
-OmMSetIterator::get_docid()
+docid
+MSetIterator::get_docid()
     CODE:
         RETVAL = THIS->operator*();
     OUTPUT:
         RETVAL
 
-OmDocument *
-OmMSetIterator::get_document()
+Document *
+MSetIterator::get_document()
     CODE:
-        RETVAL = new OmDocument();
+        RETVAL = new Document();
         *RETVAL = THIS->get_document();
     OUTPUT:
         RETVAL
 
-om_doccount
-OmMSetIterator::get_rank()
+doccount
+MSetIterator::get_rank()
 
-om_weight
-OmMSetIterator::get_weight()
+weight
+MSetIterator::get_weight()
 
-om_percent
-OmMSetIterator::get_percent()
+percent
+MSetIterator::get_percent()
 
 string
-OmMSetIterator::get_description()
+MSetIterator::get_description()
 
 void
-OmMSetIterator::DESTROY()
+MSetIterator::DESTROY()

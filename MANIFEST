@@ -15,6 +15,7 @@ Xapian/Enquire.pm
 Xapian/ESet.pm
 Xapian/ESetIterator.pm
 Xapian/RSet.pm
+Xapian/TermIterator.pm
 
 Xapian.xs
 XS/MSetIterator.xs
@@ -28,6 +29,9 @@ XS/TermIterator.xs
 XS/ESet.xs
 XS/ESetIterator.xs
 XS/RSet.xs
+XS/PositionIterator.xs
+XS/PostingIterator.xs
+XS/Stem.xs
 
 perlobject.map
 typemap

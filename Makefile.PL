@@ -6,7 +6,7 @@ $CC = 'g++';
 # using `locate` is decidedly ugly, but the best way I can think to do
 # so for the time being. 
 my $lib = locate( 'libxapian.so' );
-my $inc = locate( 'om/om.h' );
+my $inc = locate( 'xapian.h' );
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
