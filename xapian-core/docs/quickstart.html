@@ -225,7 +225,7 @@ code:
         <B>[code which accesses Muscat]</B>
     }
     catch(OmError &amp; error) {
-        cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
 
@@ -412,7 +412,7 @@ Again, this is performed just as it was for the simple indexer.
         <B>[code which accesses Muscat]</B>
     }
     catch(OmError &amp; error) {
-        cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
+        cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
 
@@ -454,7 +454,8 @@ method, which is mainly included for debugging purposes, and displays
 a string representation of the query.
 </P>
 <PRE>
-    cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+    cout &lt;&lt; "Performing query `" &lt;&lt;
+         query.get_description() &lt;&lt; "'" &lt;&lt; endl;
 </PRE>
 
 <H3>Performing the query</H3>
@@ -475,13 +476,14 @@ a string representation of the query.
     cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
 </PRE>
 <PRE>
-    for (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
+    vector&lt;OmMSetItem&gt;::const_iterator i;
+    for (i = matches.items.begin();
          i != matches.items.end();
          i++) {
         OmDocument doc = enquire.get_doc(*i);
-        cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t" &lt;&lt;
-                matches.convert_to_percent(*i) &lt;&lt; "% [" &lt;&lt;
-                doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
+        cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
+	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
+	cout &lt;&lt; "[" &lt;&lt; doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>
 
@@ -521,7 +523,7 @@ If you don't use GNU autoconf, don't worry about this.
 <H3>Compiling the simple examples</H3>
 Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler!  For our example, we could compile the two
-utilities (simpleindex and simplesearch) by the commands:
+utilities (simpleindex and simplesearch) with the commands:
 <PRE>
 c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
 c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
@@ -529,6 +531,51 @@ c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
 
 <HR>
 <H2>Running the examples</H2>
+
+<P>
+Once we have compiled the examples, we can build up a simple database as
+follows.  Note that we must first create a directory for the database files to
+live in; although Muscat will create new empty database files if they do not
+yet exist, it will not create a new directory for them.
+<PRE>
+$ mkdir proverbs
+$ ./simpleindex proverbs \
+&gt; "people who live in glass houses should not throw stones" \
+&gt; people live glass house stone
+$ ./simpleindex proverbs \
+&gt; "Don't look a gift horse in the mouth" \
+&gt; look gift horse mouth
+</PRE>
+</P>
+
+<P>
+Now, we should have a database with a couple of documents in it.  Looking
+in the database directory, you should see something like:
+<PRE>
+$ ls proverbs/
+document.db  postlist.db  termid.db  termlist.db  termname.db
+</PRE>
+</P>
+<P>
+Given the small amount of data in the database, you may be concerned that
+the total size of these files is somewhat over 50k.  Be reassured that the
+database is block structured, here consisting of largely empty
+blocks, and will behave much better for large databases.  It is worth
+noting, however, that the sleepycat backend is not currently very efficient
+(in either space or time), and that this will be improving greatly in the
+future.
+</P>
+
+<P>
+We can at last perform searches over the database using the simplesearch
+program.
+<PRE>
+$ ./simplesearch proverbs look
+Performing query `look'
+1 results found
+Document ID 2   50% [Don't look a gift horse in the mouth]
+</PRE>
+</P>
 
 <HR>
 <H2>Further documentation</H2>
@@ -540,14 +587,13 @@ The <A HREF="userman.html">user manual</A>, which is designed as an
 introduction to the API.
 </LI>
 <LI>
-An API reference, which is automatically extracted from the extensive
+An <A HREF="apidoc/html/index.html">API reference</A>, which is automatically extracted from the extensive
 comments in the source code by
 <EM><A HREF="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</A></EM>.
-This is <A HREF="apidoc/html/index.html">distributed</A> together with the
-source code packages, but in the event that you do not have a copy there is
-a copy 
-<A HREF="http://open.muscat.com/developer/docs/apidoc/html/index.html">available</A> 
-on our website.
+This is distributed together with the source code packages, but in the
+event that you do not have a this there is a 
+<A HREF="http://open.muscat.com/developer/docs/apidoc/html/index.html">copy</A> 
+available on our website.
 </LI></UL>
 
 For those interested in how Muscat works internally, there is also
