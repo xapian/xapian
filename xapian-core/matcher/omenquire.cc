@@ -73,8 +73,11 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 // Methods for OmQuery //
 /////////////////////////
 
-OmQuery::OmQuery(const om_termname & tname_)
-	: isnull(false), isbool(false), tname(tname_), op(OM_MOP_LEAF)
+OmQuery::OmQuery(const om_termname & tname_,
+		 om_termcount wqf_,
+		 om_termpos term_pos_)
+	: isnull(false), isbool(false), op(OM_MOP_LEAF),
+	  tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {
 }
 

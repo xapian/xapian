@@ -1,3 +1,8 @@
+Wed Feb  9 17:11:13 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented far enough for it to compile.
+	  (Doesn't calculate query length automatically)
+
 Wed Feb  9 16:45:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added calls to specify within query frequency, positional
