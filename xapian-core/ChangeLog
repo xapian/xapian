@@ -1,3 +1,7 @@
+Thu Apr 20 15:38:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.1.3
+
 Thu Apr 20 14:37:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed main part of bug with MSet docid merging in MultiMatch.
