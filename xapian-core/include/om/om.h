@@ -28,7 +28,7 @@
 #include "omerror.h"
 
 /* Data access */
-//#include "omdata.h"
+#include "omdocument.h"
 
 /* Searching */
 #include "omenquire.h"
