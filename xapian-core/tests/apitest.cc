@@ -1872,11 +1872,23 @@ bool test_near1()
 	vector<OmQuery> subqs;
 	vector<om_docid> expected_docs;
 	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2));
+
+	// retrieve the top ten results
+	OmMSet mymset = enquire.get_mset(0, 10);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
 	subqs.push_back(OmQuery(stemmer.stem_word("near")));
 	enquire.set_query(OmQuery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 2));
 
 	// retrieve the top ten results
-	OmMSet mymset = enquire.get_mset(0, 10);
+	mymset = enquire.get_mset(0, 10);
 	expected_docs.push_back(3);
     
 	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
@@ -2088,11 +2100,23 @@ bool test_phrase1()
 	vector<OmQuery> subqs;
 	vector<om_docid> expected_docs;
 	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
-	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
 	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2));
 
 	// retrieve the top ten results
 	OmMSet mymset = enquire.get_mset(0, 10);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+	subqs.clear();
+	expected_docs.clear();
+	
+	subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
+	subqs.push_back(OmQuery(stemmer.stem_word("near")));
+	enquire.set_query(OmQuery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2));
+
+	// retrieve the top ten results
+	mymset = enquire.get_mset(0, 10);
     
 	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
 

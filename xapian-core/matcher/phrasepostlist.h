@@ -54,8 +54,8 @@ class NearOrPhrasePostList : public SelectPostList {
 inline string
 NearOrPhrasePostList::intro_term_description() const
 {
-    // FIXME: include window in desc?
-    return "(NearOrPhrase " + source->intro_term_description() + ")";
+    return "(NearOrPhrase " + om_inttostring(window) + " "
+	   + source->intro_term_description() + ")";
 }
 
 
@@ -81,8 +81,8 @@ class NearPostList : public NearOrPhrasePostList {
 inline string
 NearPostList::intro_term_description() const
 {
-    // FIXME: include window in desc?
-    return "(Near " + source->intro_term_description() + ")";
+    return "(Near " + om_inttostring(window) + " "
+	   + source->intro_term_description() + ")";
 }
 
 
@@ -108,8 +108,8 @@ class PhrasePostList : public NearOrPhrasePostList {
 inline string
 PhrasePostList::intro_term_description() const
 {
-    // FIXME: include window in desc?
-    return "(Phrase " + source->intro_term_description() + ")";
+    return "(Phrase " + om_inttostring(window) + " "
+	   + source->intro_term_description() + ")";
 }
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */
