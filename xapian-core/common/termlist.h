@@ -29,7 +29,9 @@
 #include "om/omerror.h"
 #include "expandweight.h"
 
-class TermList {
+/** Abstract base class for termlists. */
+class TermList
+{
     private:
 	// disallow copy
 	TermList(const TermList &);
@@ -55,19 +57,19 @@ class TermList {
 	virtual ~TermList() { return; }
 };
 
-class LeafTermList : public TermList {
+/** Base class for termlists which are at the leaves of the termlist tree,
+ *  and thus generate weighting information, rather than merging weighting
+ *  information from sub termlists. */
+class LeafTermList : public TermList
+{
     protected:
 	const OmExpandWeight * wt;
     public:
 	LeafTermList() : wt(NULL) { return; }
 	~LeafTermList() { return; }
-	virtual void set_weighting(const OmExpandWeight * wt_); // Sets term weight
-};
 
-inline void
-LeafTermList::set_weighting(const OmExpandWeight * wt_)
-{
-    wt = wt_;
-}
+	// Sets term weight
+	virtual void set_weighting(const OmExpandWeight * wt_) { wt = wt_; }
+};
 
 #endif /* OM_HGUARD_TERMLIST_H */

@@ -29,7 +29,8 @@
 
 class LeafMatch;
 
-// Class which encapsulates best match operation
+/** Class for performing a match over multiple leafmatch objects.
+ */
 class MultiMatch : public Match
 {
     private:
@@ -74,9 +75,5 @@ class MultiMatch : public Match
 		   const OmMatchDecider *mdecider
 		  );
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
 
 #endif /* OM_HGUARD_MULTIMATCH_H */

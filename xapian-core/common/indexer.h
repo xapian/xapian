@@ -28,7 +28,8 @@
 
 #include "om/omtypes.h"
 
-// A source of data for indexing (eg, a file)
+/** A source of data for indexing (eg, a file)
+ */
 class IndexerSource {
     private:
 	// disallow copy
@@ -40,7 +41,8 @@ class IndexerSource {
 	virtual ~IndexerSource() {}
 };
 
-// Something which wants the indexed terms (eg, a database, or a query)
+/** Something which wants the indexed terms (eg, a database, or a query)
+ */
 class IndexerDestination {
     private:
 	// disallow copy
@@ -64,7 +66,8 @@ class IndexerDestination {
 	virtual ~IndexerDestination() {}
 };
 
-// A way to generate terms from sources
+/** A way to generate terms from sources
+ */
 class Indexer {
     private:
 	// disallow copy

@@ -43,7 +43,7 @@ typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 
-// Compare an OmMSetItem, using a custom function
+/// Compare an OmMSetItem, using a custom function
 class MSetCmp {
     public:
 	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
@@ -137,11 +137,5 @@ class Match
 			   const OmMatchDecider *mdecider
 			  ) = 0;
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
-
-inline Match::~Match() {}
 
 #endif /* OM_HGUARD_MATCH_H */

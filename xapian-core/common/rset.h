@@ -36,6 +36,8 @@ class RSetItem {
 	om_docid did;
 };
 
+/** A relevance set.  This is used internally, and performs the calculation
+ *  and caching of relevant term frequencies. */
 class RSet {
     private:
 	// disallow copy

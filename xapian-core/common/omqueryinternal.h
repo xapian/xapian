@@ -34,9 +34,9 @@ class LeafMatch;
 
 ///////////////////////////////////////////////////////////////////
 // OmQueryInternal class
-// =============
-// Class implementing most of OmQuery
+// =====================
 
+/// Internal class, implementing most of OmQuery
 class OmQueryInternal {
     friend class LeafMatch;
     public:

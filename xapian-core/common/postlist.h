@@ -28,11 +28,13 @@
 #include "om/omtypes.h"
 #include "om/omerror.h"
 
+/** Abstract base class for postlists. */
 class PostList
 {
     private:
-	// disallow copy
+	/// disallow copy
 	PostList(const PostList &);
+	/// disallow assignment
 	void operator=(const PostList &);
     public:
 	PostList() {}
@@ -43,9 +45,14 @@ class PostList
 	//
 	// These may be called at any point
 
-	// (Upper bound on) Number of docs indexed by term
+	/** Return an upper bound on the number of documents indexed by this
+	 *  term.  This should be as tight a bound as possible.
+	 */
 	virtual om_doccount get_termfreq() const = 0;
-	// Gets max weight
+
+	/** Return an upper bound on the value of get_weight() for this
+	 *  postlist.  This is used for optimisation purposes, and should
+	 *  be as tight as possible. */
         virtual om_weight get_maxweight() const = 0;
 
 	///////////////////////////////////////////////////////////////////

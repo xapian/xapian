@@ -31,11 +31,13 @@
 #include <stack>
 #include <vector>
 
+/** Expand decision functor which always decides to use the term. */
 class OmExpandDeciderAlways : public OmExpandDecider {
     public:
 	int operator()(const om_termname & tname) const { return true; }
 };
 
+/** Class for performing the expand operation. */
 class OmExpand {
     private:
 	// disallow copy

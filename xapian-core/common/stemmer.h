@@ -26,6 +26,7 @@
 #include "omassert.h"
 #include <string>
 
+/** The available languages for the stemming algorithms to use. */
 enum stemmer_language {
     STEMLANG_NULL,
     STEMLANG_DUTCH,
@@ -37,6 +38,7 @@ enum stemmer_language {
     STEMLANG_SPANISH
 };
 
+/** Abstract base class for stemming algorithms. */
 class Stemmer {
     private:
 	Stemmer(const Stemmer &);

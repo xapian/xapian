@@ -29,8 +29,9 @@
 
 class RSet;
 
-// Information which is passed up through tree of termlists to calculate
-// term weightings
+/** Information which is passed up through tree of termlists to calculate
+ *  term weightings.
+ */
 class OmExpandBits {
     friend class OmExpandWeight;
     private:
@@ -51,7 +52,8 @@ class OmExpandBits {
 	friend OmExpandBits operator+(const OmExpandBits &, const OmExpandBits &);
 };
 
-// Abstract base class for weighting schemes
+/** Abstract base class for expand weighting schemes
+ */
 class OmExpandWeight {
     protected:
 	const IRDatabase *root; // Root database

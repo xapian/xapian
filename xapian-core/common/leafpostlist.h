@@ -26,9 +26,9 @@
 #include "postlist.h"
 #include "irweight.h"
 
-// Postlist which generates termweights (rather than merely modifying them
-// and passing them on)
-// FIXME - choose a better name for this class
+/** A postlist which generates termweights (rather than merely modifying
+ *  them and passing them on)
+ */
 class LeafPostList : public PostList
 {
     protected:

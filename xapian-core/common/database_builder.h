@@ -29,7 +29,7 @@
 
 class IRDatabase;
 
-/* Type of a database */
+/** Type of a database */
 enum om_database_type {
     OM_DBTYPE_NULL,
     OM_DBTYPE_MUSCAT36_DA_F,
@@ -41,6 +41,7 @@ enum om_database_type {
     OM_DBTYPE_MULTI
 };
 
+/** Parameters used when opening a database*/
 class DatabaseBuilderParams {
     public:
 	DatabaseBuilderParams(om_database_type type_ = OM_DBTYPE_NULL,
@@ -57,6 +58,7 @@ class DatabaseBuilderParams {
 	vector<DatabaseBuilderParams> subdbs;
 };
 
+/** Class used to generate databases of a given type. */
 class DatabaseBuilder {
     public:
 	static IRDatabase * create(const DatabaseBuilderParams & params);
