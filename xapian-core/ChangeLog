@@ -1,3 +1,8 @@
+Thu Oct 10 16:12:29 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: return docids rather
+	  than passing in a pointer to fill in.
+
 Thu Oct 10 16:08:22 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartzcheck.cc: Fixed #include-d files;

@@ -176,28 +176,18 @@ skip_and_check_tname_in_key(const char **keypos, const char *keyend,
     return true;
 }
 
-/// Read the docid of the first entry in the posting list.
-static void read_first_docid(const char ** posptr,
-			     const char * end,
-			     om_docid * did_ptr)
-{
-    if (!unpack_uint(posptr, end, did_ptr))
-	report_read_error(*posptr);
-}
-
 /// Read the start of the first chunk in the posting list.
-static void read_start_of_first_chunk(const char ** posptr,
-				      const char * end,
-				      om_termcount * number_of_entries_ptr,
-				      om_termcount * collection_freq_ptr,
-				      om_docid * did_ptr)
+static om_docid
+read_start_of_first_chunk(const char ** posptr,
+			  const char * end,
+			  om_termcount * number_of_entries_ptr,
+			  om_termcount * collection_freq_ptr)
 {
-    DEBUGCALL_STATIC(DB, void, "read_start_of_first_chunk",
-		     (void *)posptr << ", " <<
-		     (void *)end << ", " <<
+    DEBUGCALL_STATIC(DB, om_docid, "read_start_of_first_chunk",
+		     (const void *)posptr << ", " <<
+		     (const void *)end << ", " <<
 		     (void *)number_of_entries_ptr << ", " <<
-		     (void *)collection_freq_ptr << ", " <<
-		     (void *)did_ptr);
+		     (void *)collection_freq_ptr);
 
     QuartzPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
@@ -206,9 +196,12 @@ static void read_start_of_first_chunk(const char ** posptr,
     if (collection_freq_ptr)
 	DEBUGLINE(DB, "collection_freq = " << *collection_freq_ptr);
 
-    read_first_docid(posptr, end, did_ptr);
-    if (did_ptr)
-	DEBUGLINE(DB, "did = " << *did_ptr);
+    om_docid did;
+    // Read the docid of the first entry in the posting list.
+    if (!unpack_uint(posptr, end, &did))
+	report_read_error(*posptr);
+    DEBUGLINE(DB, "doc_id = " << id);
+    RETURN(did);
 }
 
 static void read_did_increase(const char ** posptr,
@@ -231,18 +224,17 @@ static void read_wdf_and_length(const char ** posptr,
 }
 
 /// Read the start of a chunk, including the first item in it.
-static void read_start_of_chunk(const char ** posptr,
-				const char * end,
-				om_docid first_did_in_chunk,
-				bool * is_last_chunk_ptr,
-				om_docid * last_did_in_chunk_ptr)
+static om_docid
+read_start_of_chunk(const char ** posptr,
+		    const char * end,
+		    om_docid first_did_in_chunk,
+		    bool * is_last_chunk_ptr)
 {
-    DEBUGCALL_STATIC(DB, void, "read_start_of_chunk",
+    DEBUGCALL_STATIC(DB, om_docid, "read_start_of_chunk",
 		     (void *)posptr << ", " <<
 		     (void *)end << ", " <<
 		     first_did_in_chunk << ", " <<
-		     (void *)is_last_chunk_ptr << ", " <<
-		     (void *)last_did_in_chunk_ptr);
+		     (void *)is_last_chunk_ptr);
 
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
@@ -254,10 +246,9 @@ static void read_start_of_chunk(const char ** posptr,
     om_docid increase_to_last;
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
-    if (last_did_in_chunk_ptr) {
-	*last_did_in_chunk_ptr = first_did_in_chunk + increase_to_last;
-	DEBUGLINE(DB, "last_did_in_chunk = " << *last_did_in_chunk_ptr);
-    }
+    om_docid last_did_in_chunk = first_did_in_chunk + increase_to_last;
+    DEBUGLINE(DB, "last_did_in_chunk = " << last_did_in_chunk);
+    RETURN(last_did_in_chunk);
 }
 
 static string make_did_increase(om_docid new_did, om_docid last_did_in_chunk)
@@ -307,14 +298,14 @@ PostlistChunkReader::PostlistChunkReader(const char *keypos,
 
     /* Read the data for the first entry */
     if (is_first_chunk) {
-	read_start_of_first_chunk(&pos, end, &number_of_entries, &collectionfreq, &did);
+	did = read_start_of_first_chunk(&pos, end, &number_of_entries, &collectionfreq);
     } else {
 	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
 	    report_read_error(keypos);
 	}
     }
 
-    read_start_of_chunk(&pos, end, did, &is_last_chunk, &last_did_in_chunk);
+    last_did_in_chunk = read_start_of_chunk(&pos, end, did, &is_last_chunk);
 
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
@@ -459,11 +450,9 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 
 		/* Read the chunk header */
 		bool new_is_last_chunk;
-		om_docid new_last_did_in_chunk;
-		read_start_of_chunk(&tagpos, tagend,
-				    new_first_did,
-				    &new_is_last_chunk,
-				    &new_last_did_in_chunk);
+		om_docid new_last_did_in_chunk =
+		    read_start_of_chunk(&tagpos, tagend, new_first_did,
+			    		&new_is_last_chunk);
 
 		string chunk_data(tagpos, tagend);
 
@@ -531,20 +520,18 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		/* Skip first chunk header */
 		om_docid first_did_in_chunk;
 		if (is_first_chunk) {
-		    read_start_of_first_chunk(&tagpos, tagend,
-					      0, 0, &first_did_in_chunk);
+		    first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
+					      0, 0);
 		} else {
 		    if (!unpack_uint_preserving_sort(&keypos, keyend,
 						     &first_did_in_chunk))
 			report_read_error(keypos);
 		}
 		bool wrong_is_last_chunk;
-		om_docid last_did_in_chunk;
 		string::size_type start_of_chunk_header = tagpos - tag->data();
-		read_start_of_chunk(&tagpos, tagend,
-				    first_did_in_chunk,
-				    &wrong_is_last_chunk,
-				    &last_did_in_chunk);
+		om_docid last_did_in_chunk =
+		    read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
+					&wrong_is_last_chunk);
 		string::size_type end_of_chunk_header = tagpos - tag->data();
 
 		/* write new is_last flag */
@@ -768,11 +755,11 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
-    read_start_of_first_chunk(&pos, end,
-			      &number_of_entries, &collection_freq, &did);
+    did = read_start_of_first_chunk(&pos, end,
+			      &number_of_entries, &collection_freq);
     first_did_in_chunk = did;
-    read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk);
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+	    				    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
@@ -845,8 +832,8 @@ QuartzPostList::next_chunk()
     end = pos + cursor->current_tag.size();
 
     first_did_in_chunk = did;
-    read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk);
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+	    				    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
@@ -942,7 +929,7 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 	read_start_of_first_chunk(&pos, end,
 				  &number_of_entries, &collection_freq, &did);
 #else
-	read_start_of_first_chunk(&pos, end, 0, 0, &did);
+	did = read_start_of_first_chunk(&pos, end, 0, 0);
 #endif
 	Assert(old_number_of_entries == number_of_entries);
 	Assert(old_collection_freq == collection_freq);
@@ -954,8 +941,8 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
     }
 
     first_did_in_chunk = did;
-    read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk);
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+	    				    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
@@ -1089,19 +1076,18 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
 	om_docid first_did_in_chunk;
 	if (is_first_chunk) {
-	    read_start_of_first_chunk(&tagpos, tagend,
-				      0, 0, &first_did_in_chunk);
+	    first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend, 0, 0);
 	} else {
 	    if (!unpack_uint_preserving_sort(&keypos, keyend,
 					     &first_did_in_chunk))
 		report_read_error(keypos);
 	}
 	bool is_last_chunk;
-	om_docid last_did_in_chunk;
 
 	unsigned int start_of_chunk_header = tagpos - tag->data();
-	read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
-			    &is_last_chunk, &last_did_in_chunk);
+	om_docid last_did_in_chunk =
+	    read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
+		    		&is_last_chunk);
 	unsigned int end_of_chunk_header = tagpos - tag->data();
 
 	// Have read in data needed - now add item
