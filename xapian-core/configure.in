@@ -148,7 +148,7 @@ AC_ARG_ENABLE(debug,
   yes) use_debug=yes ;;
   no)  use_debug=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac], [use_debug=yes])
+esac], [use_debug=no])
 
 dnl Now set appropriate defines
 
