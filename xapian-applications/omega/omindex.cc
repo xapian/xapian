@@ -38,7 +38,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
-#define POSIX_SOURCE 200112 // for posix_fadvise
+#define _POSIX_SOURCE 200112 // for posix_fadvise
 #include <fcntl.h>
 #include <errno.h>
 
