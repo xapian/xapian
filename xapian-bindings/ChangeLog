@@ -1,3 +1,9 @@
+Wed Dec 01 15:39:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: No longer need "BuildRequires: swig";
+	  disable building of csharp bindings; package tcl8 documentation;
+	  updated to package the tcl8 bindings at their new location.
+
 Wed Dec 01 05:59:24 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: It's now tomorrow, so bump the 0.8.4 release date.
