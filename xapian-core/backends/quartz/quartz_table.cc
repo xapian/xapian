@@ -167,6 +167,11 @@ QuartzDiskTable::open()
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
 	}
+	if (btree_for_reading->error) {
+	    // FIXME: explain why
+	    close();
+	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
+	}
 	opened = true;
 	return;
     }
