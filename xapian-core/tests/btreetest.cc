@@ -59,6 +59,15 @@ static void make_dir(const string & filename)
     }
 }
 
+/// Get the size of the given file in bytes.
+static int get_filesize(const string &filename)
+{
+    struct stat buf;
+    int result = stat(filename, &buf);
+    if (result) return -1;
+    return buf.st_size;
+}
+
 static int process_lines(Btree & btree, ifstream &f)
 {
     int count = 0;
@@ -118,6 +127,96 @@ static void do_create(const string & btree_dir, int block_size = 2048)
     Btree dummy(btree_dir, false);
     dummy.create(block_size);
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
+}
+
+static void unlink_table(const string & path)
+{
+    unlink(path + "DB");
+    unlink(path + "baseA");
+    unlink(path + "baseB");
+}
+
+static void check_table_values_hello(Btree & table, const string &world)
+{
+    string tag;
+
+    // Check exact reads
+    tag = "foo";
+    TEST(table.get_exact_entry("hello", tag));
+    TEST_EQUAL(tag, world);
+
+    tag = "foo";
+    TEST(!table.get_exact_entry("jello", tag));
+    TEST_EQUAL(tag, "foo");
+
+    tag = "foo";
+    TEST(!table.get_exact_entry("bello", tag));
+    TEST_EQUAL(tag, "foo");
+    
+    Bcursor * cursor = table.cursor_get();
+
+    // Check normal reads
+    tag = "foo";
+    TEST(cursor->find_entry("hello"));
+    TEST_EQUAL(cursor->current_key, "hello");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, world);
+
+    tag = "foo";
+    TEST(!cursor->find_entry("jello"));
+    TEST_EQUAL(cursor->current_key, "hello");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, world);
+
+    tag = "foo";
+    TEST(!cursor->find_entry("bello"));
+    TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "");
+
+    delete cursor;
+}
+
+/// Check the values returned by a table containing no key/tag pairs
+static void check_table_values_empty(Btree & table)
+{
+    string tag;
+
+    // Check exact reads
+    tag = "foo";
+    TEST(!table.get_exact_entry("hello", tag));
+    TEST_EQUAL(tag, "foo");
+
+    tag = "foo";
+    TEST(!table.get_exact_entry("jello", tag));
+    TEST_EQUAL(tag, "foo");
+
+    tag = "foo";
+    TEST(!table.get_exact_entry("bello", tag));
+    TEST_EQUAL(tag, "foo");
+    
+    Bcursor * cursor = table.cursor_get();
+    
+    // Check normal reads
+    tag = "foo";
+    TEST(!cursor->find_entry("hello"));
+    TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "");
+
+    tag = "foo";
+    TEST(!cursor->find_entry("jello"));
+    TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "");
+
+    tag = "foo";
+    TEST(!cursor->find_entry("bello"));
+    TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "");
+
+    delete cursor;
 }
 
 /// Test playing with a btree
@@ -259,6 +358,848 @@ static bool test_emptykey1()
     return true;
 }
 
+/// Test making and playing with a Btree
+static bool test_table1()
+{
+    unlink_table(tmpdir + "test_table1_");
+    {
+	Btree table0(tmpdir + "test_table1_", true);
+	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open());
+	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open(10));
+    }
+    Btree rw_table(tmpdir + "test_table1_", false);
+    rw_table.create(8192);
+    rw_table.open();
+    Btree ro_table(tmpdir + "test_table1_", true);
+    ro_table.open();
+
+    quartz_revision_number_t rev1 = ro_table.get_open_revision_number();
+    quartz_revision_number_t rev2 = rw_table.get_open_revision_number();
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_EQUAL(rev2, rw_table.get_open_revision_number());
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
+
+    // Check adding no entries
+
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(Xapian::AssertionError,
+		   ro_table.commit(ro_table.get_latest_revision_number() + 1));
+#endif
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
+
+    // Check adding some entries
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
+#endif
+    rw_table.add("hello", "world");
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
+
+    // Check getting the entries out again
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
+
+    // Check adding the same entries
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
+#endif
+    rw_table.add("hello", "world");
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
+
+    // Check getting the entries out again
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
+
+#ifdef MUS_DEBUG
+    // Check adding an entry with a null key
+    // Can't add a key to a read-only table anyway, empty or not!
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("", "world"));
+    // Empty keys aren't allowed (we no longer enforce this so the
+    // magic empty key can be set).
+    //TEST_EXCEPTION(Xapian::AssertionError, rw_table.add("", "world"));
+#endif
+
+    // Check changing an entry, to a null tag
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", ""));
+#endif
+    rw_table.add("hello", "");
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 1);
+    
+    // Check getting the entries out again
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "");
+
+    // Check deleting an entry
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.del("hello"));
+#endif
+    rw_table.del("hello");
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 0);
+
+    // Check the entries in the table
+    check_table_values_empty(ro_table);
+    check_table_values_empty(rw_table);
+    
+    // Check find_entry when looking for something between two elements
+    rw_table.add("hello", "world");
+    rw_table.add("whooo", "world");
+
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
+
+    TEST_EQUAL(rev1, ro_table.get_open_revision_number());
+    TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
+    rev1 = ro_table.get_open_revision_number();
+    rev2 = rw_table.get_open_revision_number();
+    TEST_EQUAL(ro_table.get_entry_count(), 0);
+    TEST_EQUAL(rw_table.get_entry_count(), 2);
+
+    // Check the entries in the table
+    check_table_values_empty(ro_table);
+    check_table_values_hello(rw_table, "world");
+    
+    return true;
+}
+
+/// Test making and playing with a Btree
+static bool test_table2()
+{
+    unlink_table(tmpdir + "test_table2_");
+
+    Btree table(tmpdir + "test_table2_", false);
+    table.create(8192);
+    table.open();
+    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+
+    table.commit(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+
+    table.commit(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+
+    table.commit(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+
+    table.add("foo", "bar");
+    table.commit(table.get_latest_revision_number() + 1);
+    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 8192);
+
+    return true;
+}
+
+/// Test making and playing with a Btree
+static bool test_table3()
+{
+    unlink_table(tmpdir + "test_table3_");
+
+    Btree table(tmpdir + "test_table3_", false);
+    table.create(8192);
+    table.open();
+
+    table.commit(table.get_latest_revision_number() + 1);
+
+    table.add("trad", string(2200, 'a'));
+    table.add("trade", string(3800, 'b'));
+    table.add("tradea", string(2000, 'c'));
+
+    table.commit(table.get_latest_revision_number() + 1);
+
+    {
+	Bcursor * cursor = table.cursor_get();
+	TEST(cursor->find_entry("trade"));
+	TEST_EQUAL(cursor->current_key, "trade");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag.size(), 3800);
+
+	cursor->next();
+	TEST_EQUAL(cursor->current_key, "tradea");
+	delete cursor;
+    }
+
+    table.add("trade", string(4000, 'd'));
+    table.commit(table.get_latest_revision_number() + 1);
+
+    {
+	Bcursor * cursor = table.cursor_get();
+	TEST(cursor->find_entry("trade"));
+	TEST_EQUAL(cursor->current_key, "trade");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag.size(), 4000);
+
+	cursor->next();
+	TEST_EQUAL(cursor->current_key, "tradea");
+	delete cursor;
+    }
+
+    return true;
+}
+
+/// Test making and playing with a Btree
+static bool test_table4()
+{
+    unlink_table(tmpdir + "test_table4_");
+    Btree table_rw(tmpdir + "test_table4_", false);
+    table_rw.create(8192);
+    table_rw.open();
+    Btree table_ro(tmpdir + "test_table4_", true);
+    table_ro.open();
+
+    TEST_EQUAL(table_ro.get_entry_count(), 0);
+    TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+    table_rw.del("foo1");
+    TEST_EQUAL(table_ro.get_entry_count(), 0);
+    TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+    table_rw.add("foo1", "");
+    TEST_EQUAL(table_ro.get_entry_count(), 0);
+    TEST_EQUAL(table_rw.get_entry_count(), 1);
+
+    quartz_revision_number_t new_revision =
+	    table_ro.get_latest_revision_number() + 1;
+    table_rw.commit(new_revision);
+    table_ro.open();
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 1);
+
+    table_rw.add("foo1", "");
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 1);
+
+    table_rw.del("foo1");
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+    table_rw.del("foo1");
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+    table_rw.add("bar", "");
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 1);
+
+    table_rw.add("bar2", "");
+    TEST_EQUAL(table_ro.get_entry_count(), 1);
+    TEST_EQUAL(table_rw.get_entry_count(), 2);
+
+    new_revision += 1;
+    table_rw.commit(new_revision);
+    table_ro.open();
+
+    TEST_EQUAL(table_ro.get_entry_count(), 2);
+    TEST_EQUAL(table_rw.get_entry_count(), 2);
+
+    return true;
+}
+
+/// Test making and playing with a Btree
+static bool test_table5()
+{
+    unlink_table(tmpdir + "test_table5_");
+    quartz_revision_number_t new_revision;
+    quartz_revision_number_t old_revision;
+    {
+	// Open table and add a few documents
+	Btree table_rw(tmpdir + "test_table5_", false);
+	table_rw.create(8192);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_table5_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 0);
+	TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+	table_rw.add("foo1", "bar1");
+	table_rw.add("foo2", "bar2");
+	table_rw.add("foo3", "bar3");
+
+	new_revision = table_ro.get_latest_revision_number() + 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	Btree table_rw(tmpdir + "test_table5_", false);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_table5_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 3);
+	TEST_EQUAL(table_rw.get_entry_count(), 3);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+
+	Bcursor * cursor = table_rw.cursor_get();
+	TEST(!cursor->find_entry("foo"));
+	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar1");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar2");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+
+	// Add a new tag
+	table_rw.add("foo25", "bar25");
+	old_revision = new_revision;
+	new_revision += 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 4);
+	TEST_EQUAL(table_rw.get_entry_count(), 4);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+	delete cursor;
+    }
+    {
+	// Open old revision
+	Btree table_rw(tmpdir + "test_table5_", false);
+	TEST(table_rw.open(old_revision));
+	Btree table_ro(tmpdir + "test_table5_", true);
+	table_ro.open(old_revision);
+
+	TEST_EQUAL(table_ro.get_entry_count(), 3);
+	TEST_EQUAL(table_rw.get_entry_count(), 3);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(old_revision, table_ro.get_open_revision_number());
+
+	// Add a new tag
+	table_rw.add("foo26", "bar26");
+	new_revision += 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 4);
+	TEST_EQUAL(table_rw.get_entry_count(), 4);
+
+	// Add another new tag, but don't apply this one.
+	table_rw.add("foo37", "bar37");
+	TEST_EQUAL(table_ro.get_entry_count(), 4);
+	TEST_EQUAL(table_rw.get_entry_count(), 5);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	Btree table_rw(tmpdir + "test_table5_", false);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_table5_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 4);
+	TEST_EQUAL(table_rw.get_entry_count(), 4);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+
+	Bcursor * cursor = table_rw.cursor_get();
+	TEST(!cursor->find_entry("foo"));
+	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar1");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar2");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo26");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar26");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+	delete cursor;
+    }
+    {
+	// Check that opening a nonexistant revision returns false (and doesn't
+	// throw an exception).
+	Btree table_ro(tmpdir + "test_table5_", false);
+	TEST(!table_ro.open(new_revision + 10));
+    }
+
+    return true;
+}
+
+/// Test making and playing with a Btree
+static bool test_table6()
+{
+    unlink_table(tmpdir + "test_table6_");
+    quartz_revision_number_t new_revision;
+    {
+	// Open table and add a couple of documents
+	Btree table_rw(tmpdir + "test_table6_", false);
+	table_rw.create(8192);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_table6_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 0);
+	TEST_EQUAL(table_rw.get_entry_count(), 0);
+
+	table_rw.add("foo1", "bar1");
+
+	table_rw.add("foo2", "bar2");
+	table_rw.cancel();
+
+	table_rw.add("foo3", "bar3");
+
+	new_revision = table_ro.get_latest_revision_number() + 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	Btree table_rw(tmpdir + "test_table6_", false);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_table6_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 1);
+	TEST_EQUAL(table_rw.get_entry_count(), 1);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+
+	Bcursor * cursor = table_rw.cursor_get();
+	TEST(!cursor->find_entry("foo"));
+	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+	delete cursor;
+    }
+    return true;
+}
+
+/// Test Bcursors
+static bool test_cursor1()
+{
+    unlink_table(tmpdir + "test_cursor1_");
+
+    // Open table and put stuff in it.
+    Btree table_rw(tmpdir + "test_cursor1_", false);
+    table_rw.create(8192);
+    table_rw.open();
+    Btree table_ro(tmpdir + "test_cursor1_", true);
+    table_ro.open();
+
+    table_rw.add("foo1", "bar1");
+    table_rw.add("foo2", "bar2");
+    table_rw.add("foo3", "bar3");
+    quartz_revision_number_t new_revision = table_ro.get_latest_revision_number();
+    new_revision += 1;
+    table_rw.commit(new_revision);
+    table_ro.open();
+
+    Btree * table = &table_ro;
+    int count = 2;
+
+    while (count != 0) {
+	Bcursor * cursor = table->cursor_get();
+	TEST(!cursor->find_entry("foo25"));
+	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar2");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+
+	TEST(!cursor->find_entry("foo"));
+	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar1");
+
+	TEST(cursor->find_entry("foo2"));
+	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar2");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
+	TEST_EQUAL(cursor->current_tag, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+
+	table = &table_rw;
+	count -= 1;
+
+	delete cursor;
+    }
+
+    // Test cursors when we have unapplied changes
+    table_rw.add("foo25", "bar25");
+
+    table_rw.del("foo26");
+    table_rw.del("foo1");
+
+    Bcursor * cursor = table_ro.cursor_get();
+    TEST(!cursor->find_entry("foo25"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    cursor = table_rw.cursor_get();
+    TEST(cursor->find_entry("foo25"));
+    TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar25");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    cursor = table_rw.cursor_get();
+    TEST(!cursor->find_entry("foo26"));
+    TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar25");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    TEST(cursor->find_entry("foo2"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar25");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    cursor->next();
+    TEST(cursor->after_end());
+
+    TEST(!cursor->find_entry("foo1"));
+    TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar25");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    new_revision += 1;
+    table_rw.commit(new_revision);
+    table_ro.open();
+
+    cursor = table_rw.cursor_get();
+    TEST(cursor->find_entry("foo2"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    TEST(!cursor->find_entry("foo24"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    TEST(cursor->find_entry("foo25"));
+    TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar25");
+
+    TEST(!cursor->find_entry("foo24"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    table_rw.del("foo25");
+
+    cursor = table_rw.cursor_get();
+    TEST(!cursor->find_entry("foo25"));
+    TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar2");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, "bar3");
+
+    delete cursor;
+
+    return true;
+}
+
+/// Regression test for cursors
+static bool test_cursor2()
+{
+    unlink_table(tmpdir + "test_cursor2_");
+
+    // Open table and put stuff in it.
+    Btree table_rw(tmpdir + "test_cursor2_", false);
+    table_rw.create(8192);
+    table_rw.open();
+    Btree table_ro(tmpdir + "test_cursor2_", true);
+    table_ro.open();
+
+    table_rw.add("a", string(2036, '\x00'));
+    table_rw.add("c", "bar2");
+    quartz_revision_number_t new_revision = table_ro.get_latest_revision_number();
+    new_revision += 1;
+    table_rw.commit(new_revision);
+    table_ro.open();
+
+    Bcursor * cursor = table_ro.cursor_get();
+
+    TEST(!cursor->find_entry("b"));
+    TEST_EQUAL(cursor->current_key, "a");
+    cursor->read_tag();
+    TEST_EQUAL(cursor->current_tag, string(2036, '\x00'));
+
+    delete cursor;
+
+    return true;
+}
+
+/// Check the values returned by a table containing key/tag "hello"/"world"
+/// Test making and playing with a Btree
+static bool test_cursor3()
+{
+    unlink_table(tmpdir + "test_cursor3_");
+    quartz_revision_number_t new_revision;
+    {
+	// Open table and add a couple of documents
+	Btree table_rw(tmpdir + "test_cursor3_", false);
+	table_rw.create(8192);
+	table_rw.open();
+	Btree table_ro(tmpdir + "test_cursor3_", true);
+	table_ro.open();
+
+	TEST_EQUAL(table_ro.get_entry_count(), 0);
+	table_rw.add("A", "A");
+	table_rw.add("B", "B");
+
+	{
+	    Bcursor * cursor = table_rw.cursor_get();
+	    TEST(!cursor->find_entry("AA"));
+	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "B");
+
+	    delete cursor;
+	}
+
+	new_revision = table_ro.get_latest_revision_number() + 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+
+	{
+	    Bcursor * cursor = table_rw.cursor_get();
+	    TEST(!cursor->find_entry("AA"));
+	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "B");
+
+	    delete cursor;
+	}
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	Btree table_ro(tmpdir + "test_cursor3_", false);
+	table_ro.open();
+	TEST_EQUAL(table_ro.get_entry_count(), 2);
+
+	TEST_EQUAL(new_revision, table_ro.get_latest_revision_number());
+	TEST_EQUAL(new_revision, table_ro.get_open_revision_number());
+
+	{
+	    Bcursor * cursor = table_ro.cursor_get();
+	    TEST(!cursor->find_entry("AA"));
+	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "A");
+
+	    cursor->next();
+	    TEST(!cursor->after_end());
+	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
+	    TEST_EQUAL(cursor->current_tag, "B");
+
+	    delete cursor;
+	}
+    }
+    return true;
+}
+
+/// Test large bitmap files.
+static bool test_bitmap1()
+{
+    const string dbname = tmpdir + "test_bitmap1_";
+    unlink_table(dbname);
+    /* Use a small block size to make it easier to get a large bitmap */
+    Btree table_rw(dbname, false);
+    table_rw.create(2048);
+    table_rw.open();
+    Btree table_ro(dbname, true);
+    table_ro.open();
+
+    quartz_revision_number_t new_revision;
+
+    for (int j = 0; j < 100; ++j) {
+	for (int i = 1; i <= 1000; ++i) {
+	    string str_i = om_tostring(i);
+	    table_rw.add("foo" + om_tostring(j) + "_" + str_i, "bar" + str_i);
+	}
+	new_revision = table_ro.get_latest_revision_number() + 1;
+	table_rw.commit(new_revision);
+	table_ro.open();
+    }
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -269,6 +1210,16 @@ test_desc tests[] = {
     {"insertdelete1",   test_insertdelete1},
     {"sequent1",        test_sequent1},
     {"emptykey1",       test_emptykey1},
+    {"table1",		test_table1},
+    {"table2",		test_table2},
+    {"table3",		test_table3},
+    {"table4",		test_table4},
+    {"table5",		test_table5},
+    {"table6",		test_table6},
+    {"cursor1",		test_cursor1},
+    {"cursor2",		test_cursor2},
+    {"cursor3", 	test_cursor3},
+    {"bitmap1", 	test_bitmap1},
     {0, 0}
 };
 

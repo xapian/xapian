@@ -1,3 +1,12 @@
+Mon Sep 06 17:51:27 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc,tests/quartztest.cc: Now that QuartzTable,
+	  QuartzDiskTable, QuartzBufferedTable, QuartzCursor,
+	  QuartzDiskCursor, and QuartzBufferedCursor are gone, move
+	  quartztest tests which now just use Btree and Bcursor to btreetest.
+	  This is more logical and should help make quartztest less of a
+	  monster to compile.
+
 Mon Sep 06 12:47:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Ship testdata/apitest_allterms4.txt.
