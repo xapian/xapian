@@ -1,3 +1,8 @@
+Wed May 22 15:23:55 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* msearch.cc: Add --sortvalue and --sortbands options to allow
+	  results to be sorted within relevance bands by an arbitrary key.
+
 Mon May 20 17:58:56 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* createdatabase.cc: Use strerror instead of sys_nerr and 

@@ -40,6 +40,8 @@ main(int argc, char *argv[])
     bool applystem = false;
     OmQuery::op default_op = OmQuery::OP_OR;
     int collapse_key = -1;
+    int sort_value = -1;
+    int sort_bands = -1;
 
     bool syntax_error = false;
 
@@ -54,6 +56,8 @@ main(int argc, char *argv[])
 	{"showmset",		no_argument, 0, 'm'},
 	{"hidemset",		no_argument, 0, 'M'},
 	{"matchall",		no_argument, 0, 'a'},
+	{"sortvalue",		required_argument, 0, 'V'},
+	{"sortbands",		required_argument, 0, 'b'},
 	{"rel",			required_argument, 0, 'R'},
 	{NULL,			0, 0, 0}
     };
@@ -110,6 +114,12 @@ main(int argc, char *argv[])
 	    case 'R':
 		rset.add_document(atoi(optarg));
 		break;
+	    case 'V':
+		sort_value = atoi(optarg);
+		break;
+	    case 'b':
+		sort_bands = atoi(optarg);
+		break;
 	    default:
 		syntax_error = true;
 	}
@@ -127,6 +137,8 @@ main(int argc, char *argv[])
 		"\t--hidemset\n" <<
 		"\t--matchall\n" <<
 		"\t--stem\n" <<
+		"\t--sortvalue <value to sort by>\n" <<
+		"\t--sortbands <number of percentage bands to sort into>\n" <<
 		"\t--nostem (default)\n";
 	exit(1);
     }
@@ -237,6 +249,10 @@ main(int argc, char *argv[])
 	OmSettings opts;
 	if (collapse_key != -1)
 	    opts.set("match_collapse_key", collapse_key);
+	if (sort_bands != -1)
+	    opts.set("match_sort_bands", sort_bands);
+	if (sort_bands != -1)
+	    opts.set("match_sort_key", sort_bands);
 
 	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
 	
