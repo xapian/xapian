@@ -321,10 +321,11 @@ QuartzDatabase::open_position_list(om_docid did,
 	AutoPtr<LeafTermList> ltl;
 	RefCntBase::RefCntPtrToThis tmp;
 	RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+	// If the doc doesn't exist, this will throw OmDocNotFound:
 	ltl.reset(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
-	    throw OmDocNotFoundError("Can't open position list: requested term is not present in document.");
+	    throw OmRangeError("Can't open position list: requested term is not present in document.");
     }
 
     return AutoPtr<PositionList>(poslist.release());

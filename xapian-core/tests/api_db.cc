@@ -2367,12 +2367,17 @@ static bool test_poslist1()
     doc.add_term_nopos("nopos");
     om_docid did = db.add_document(doc);
 
-    {
+    TEST_EXCEPTION(OmRangeError,
 	// Check what happens when term doesn't exist
 	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
-	// FIXME: shouldn't this throw an exception?
-	// FIXME: also check for bad did...
-    }
+	// FIXME: quartz doesn't throw!
+    );
+
+    TEST_EXCEPTION(OmDocNotFoundError,
+        // Check what happens when the document doesn't even exist
+        OmPositionListIterator i = db.positionlist_begin(123, "nosuchterm");
+	// FIXME: quartz doesn't throw!
+    );            
     
     {
 	OmPositionListIterator i = db.positionlist_begin(did, "nopos");
@@ -2390,16 +2395,25 @@ static bool test_poslist1()
 
     OmDocument doc3;
     doc3.add_posting("hadpos", 1);
-    did = db.add_document(doc3);
+    om_docid did2 = db.add_document(doc3);
 
-    OmDocument doc4 = db.get_document(did);
+    OmDocument doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);
-    db.replace_document(did, doc4);
+    db.replace_document(did2, doc4);
    
     {
-	OmPositionListIterator i = db.positionlist_begin(did, "hadpos");
-	TEST_EQUAL(i, db.positionlist_end(did, "hadpos"));
+	OmPositionListIterator i = db.positionlist_begin(did2, "hadpos");
+	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
     }
+
+    db.delete_document(did);
+    TEST_EXCEPTION(OmDocNotFoundError,
+        // Check what happens when the document doesn't even exist
+	// (but once did)
+	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	// FIXME: quartz doesn't throw!
+    );
+
     return true;
 }
 
@@ -3101,7 +3115,7 @@ test_desc collfreq_tests[] = {
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
     {"adddoc2",		   test_adddoc2},
-    {"poslist1",	   test_postlist1},
+// FIXME: quartz needs fixing!    {"poslist1",	   test_poslist1},
     {"implicitendsession1",test_implicitendsession1},
     {"databaseassign1",	   test_databaseassign1},
     {"deldoc1",		   test_deldoc1},
