@@ -83,7 +83,6 @@ cd ../xapian-examples-%{version}
 %{_bindir}/quartzdump
 %{_bindir}/quest
 %{_bindir}/delve
-%{_bindir}/createdatabase
 %{_bindir}/copydatabase
 %{_bindir}/simpleindex
 %{_bindir}/simplesearch

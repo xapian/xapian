@@ -1,3 +1,8 @@
+Mon Sep 20 14:26:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Removed reference to xapian-examples' createdatabase
+	  (which is no longer in xapian-examples).
+
 Mon Sep 20 13:06:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Updated version from Fabrice Colin (incorporating
