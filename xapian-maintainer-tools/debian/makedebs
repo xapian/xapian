@@ -42,6 +42,9 @@ PUBDIR="/usr/data/www/xapian.org/debian"
 # Temporary directory to place a built copy of the core library in.
 TMPDIR="/tmp/xapian$$"
 
+# Host to get source tarballs from, and to upload them to.
+REMOTE_HOST="ixion.tartarus.org"
+
 ## BEGIN PROCESSING ##
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
 
@@ -110,7 +113,7 @@ else
   # Note: this will probably copy some out-of-date files too, but
   # they should be pretty small (just diff files), and therefore shouldn't
   # cause any problems.
-  rsync --partial --progress -e ssh -r "www.xapian.org:${PUBDIR}/${POOLDIR}/source/" src
+  rsync --partial --progress -e ssh -r "${REMOTE_HOST}:${PUBDIR}/${POOLDIR}/source/" src
   CONTROL_CORE="`pwd`/src/${FILEBASE_CORE}.dsc"
   CONTROL_BINDINGS="`pwd`/src/${FILEBASE_BINDINGS}.dsc"
   CONTROL_OMEGA="`pwd`/src/${FILEBASE_OMEGA}.dsc"
@@ -191,7 +194,7 @@ if [ $ONIXION == yes ] ; then
   mkdir -p ${PUBDIR}
   cp -af upload-packages/* ${PUBDIR}
 else
-  rsync --partial --perms --progress -e ssh -r upload-packages/* ixion.tartarus.org:${PUBDIR}
+  rsync --partial --perms --progress -e ssh -r upload-packages/* ${REMOTE_HOST}:${PUBDIR}
 fi
 
 trap EXIT
