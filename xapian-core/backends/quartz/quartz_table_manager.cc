@@ -41,7 +41,7 @@
 #endif
 #include <cerrno>
 
-#ifndef HAVE_GETPID
+#ifdef __WIN32__
 #include <windows.h>
 #define getpid() GetCurrentProcessId()
 #endif

@@ -48,9 +48,6 @@ dnl how to find the hostname
 AC_CHECK_HEADERS(sys/utsname.h) dnl uname function in here
 AC_CHECK_FUNCS(gethostname)
 
-dnl mingw doesn't have getpid (it has GetCurrentProcessId() instead)
-AC_CHECK_FUNC(getpid)
-
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, long)
 

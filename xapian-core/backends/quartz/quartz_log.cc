@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifndef HAVE_GETPID
+#ifdef __WIN32__
 #include <windows.h>
 #define getpid() GetCurrentProcessId()
 #endif
@@ -59,7 +59,7 @@ QuartzLog::make_entry(const string &entry) const
 {
     DEBUGCALL(DB, void, "QuartzLog::make_entry", entry);
     if (fd != -1) {
-	string line (om_tostring(getpid()));
+	string line(om_tostring(getpid()));
 	line += ':';
 	line += om_tostring(time(NULL));
 	line += ':';

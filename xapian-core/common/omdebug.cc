@@ -41,6 +41,11 @@ using namespace std;
 
 #define OM_ENV_DEBUG_LOG   "XAPIAN_DEBUG_LOG"
 #define OM_ENV_DEBUG_FLAGS "XAPIAN_DEBUG_FLAGS"
+  
+#ifdef __WIN32__
+#include <windows.h>
+#define getpid() GetCurrentProcessId()
+#endif
 
 OmDebug::OmDebug() : initialised(false), wanted_types(0), fd(2)
 {

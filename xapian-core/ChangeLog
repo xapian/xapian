@@ -1,3 +1,11 @@
+Wed Apr 09 01:16:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,backends/quartz/quartz_log.cc,
+	  backends/quartz/quartz_table_manager.cc,common/omdebug.cc,
+	  common/omdebug.h: Don't use HAVE_GETPID - if it's not set we assume
+	  GetCurrentProcessId() works, so it's cleaner to test with
+	  #ifdef WIN32 instead.
+
 Tue Apr 08 19:56:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with the results of many test builds.
