@@ -227,7 +227,7 @@ class InMemoryDatabase : public Database {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	void do_begin_session(om_timeout timeout);
+	void do_begin_session();
 	void do_end_session();
 	void do_flush();
 

@@ -302,24 +302,6 @@ OmWritableDatabase::~OmWritableDatabase()
 }
 
 void
-OmWritableDatabase::begin_session(om_timeout timeout)
-{
-    DEBUGAPICALL(void, "OmWritableDatabase::begin_session", timeout);
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->begin_session(timeout);
-}
-
-void
-OmWritableDatabase::end_session()
-{
-    DEBUGAPICALL(void, "OmWritableDatabase::end_session", "");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->end_session();
-}
-
-void
 OmWritableDatabase::flush()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::flush", "");
@@ -357,8 +339,7 @@ OmWritableDatabase::cancel_transaction()
 
 
 om_docid
-OmWritableDatabase::add_document(const OmDocument & document,
-				 om_timeout timeout)
+OmWritableDatabase::add_document(const OmDocument & document)
 {
     DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document",
 		 document << ", " << timeout);
@@ -368,7 +349,7 @@ OmWritableDatabase::add_document(const OmDocument & document,
 }
 
 void
-OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
+OmWritableDatabase::delete_document(om_docid did)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
 		 did << ", " << timeout);
@@ -379,8 +360,7 @@ OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
 }
 
 void
-OmWritableDatabase::replace_document(om_docid did, const OmDocument & document,
-				     om_timeout timeout)
+OmWritableDatabase::replace_document(om_docid did, const OmDocument & document)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
 		 did << ", " << document << ", " << timeout);

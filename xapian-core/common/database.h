@@ -49,7 +49,7 @@ class Database : public RefCntBase {
 	/// Assignment is not allowed.
 	void operator=(const Database &);
 
-	/// Flag recording whether an explicit session is in progress
+	/// Flag recording whether a session is in progress
 	bool session_in_progress;
 	
 	/// Flag recording whether a transaction is in progress
@@ -58,10 +58,10 @@ class Database : public RefCntBase {
 	/// Mutex protecting access to "*_in_progress" flags.
 	OmLock mutex;
 
-	/// Virtual method providing implementation of begin_session();
-	virtual void do_begin_session(om_timeout timeout) = 0;
+	/// Virtual method to begin a session.
+	virtual void do_begin_session() = 0;
 
-	/// Virtual method providing implementation of end_session();
+	/// Virtual method to end a session.
 	virtual void do_end_session() = 0;
 
 	/// Virtual method providing implementation of flush();
@@ -85,6 +85,9 @@ class Database : public RefCntBase {
 	/// Virtual method providing implementation of replace_document();
 	virtual void do_replace_document(om_docid did,
 					 const OmDocument & document) = 0;
+
+	/// Start a modification session if there isn't one already.
+	void ensure_session_in_progress();
 
     protected:
     	/** Create a database - called only by derived classes.
@@ -270,18 +273,6 @@ class Database : public RefCntBase {
 	// Modifying the database:
 	// =======================
 
-	/** Start a modification session on the database.
-	 *
-	 *  See OmWritableDatabase::begin_session() for more information.
-	 */
-	void begin_session(om_timeout timeout);
-
-	/** End a modification session on the database.
-	 *
-	 *  See OmWritableDatabase::end_session() for more information.
-	 */
-	void end_session();
-
 	/** Flush modifications to the database.
 	 *
 	 *  See OmWritableDatabase::flush() for more information.
@@ -310,21 +301,19 @@ class Database : public RefCntBase {
 	 *
 	 *  See OmWritableDatabase::add_document() for more information.
 	 */
-	om_docid add_document(const OmDocument & document,
-			      om_timeout timeout = 0);
+	om_docid add_document(const OmDocument & document);
 
 	/** Delete a document in the database.
 	 *
 	 *  See OmWritableDatabase::delete_document() for more information.
 	 */
-	void delete_document(om_docid did, om_timeout timeout = 0);
+	void delete_document(om_docid did);
 
 	/** Replace a given document in the database.
 	 *
 	 *  See OmWritableDatabase::replace_document() for more information.
 	 */
-	void replace_document(om_docid did, const OmDocument & document,
-			      om_timeout timeout = 0);
+	void replace_document(om_docid did, const OmDocument & document);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),

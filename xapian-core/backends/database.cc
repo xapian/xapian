@@ -40,22 +40,12 @@ Database::~Database()
 }
 
 void
-Database::begin_session(om_timeout timeout)
+Database::ensure_session_in_progress()
 {
-    OmLockSentry sentry(mutex);
-    if (session_in_progress)
-	throw OmInvalidOperationError("Cannot begin session - session already in progress");
-    do_begin_session(timeout);
-    session_in_progress = true;
-}
-
-void
-Database::end_session()
-{
-    if (!session_in_progress)
-	throw OmInvalidOperationError("Cannot end session - no session currently in progress");
-
-    internal_end_session();
+    if (!session_in_progress) {
+	do_begin_session();
+	session_in_progress = true;
+    }
 }
 
 void
@@ -88,17 +78,16 @@ void
 Database::flush()
 {
     OmLockSentry sentry(mutex);
-    if (!session_in_progress)
-	throw OmInvalidOperationError("Cannot flush modifications - no session in progress");
-    do_flush();
+    if (session_in_progress) {
+	do_flush();
+    }
 }
 
 void
 Database::begin_transaction()
 {
     OmLockSentry sentry(mutex);
-    if (!session_in_progress)
-	throw OmInvalidOperationError("Cannot begin transaction - no session currently in progress");
+    ensure_session_in_progress();
     if (transaction_in_progress)
 	throw OmInvalidOperationError("Cannot begin transaction - transaction already in progress");
     do_begin_transaction();
@@ -111,8 +100,8 @@ Database::commit_transaction()
     OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
 	throw OmInvalidOperationError("Cannot commit transaction - no transaction currently in progress");
-    Assert(session_in_progress);
     transaction_in_progress = false;
+    Assert(session_in_progress);
     do_commit_transaction();
 }
 
@@ -122,96 +111,31 @@ Database::cancel_transaction()
     OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
 	throw OmInvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
-    Assert(session_in_progress);
     transaction_in_progress = false;
+    Assert(session_in_progress);
     do_cancel_transaction();
 }
 
 om_docid
-Database::add_document(const OmDocument & document, om_timeout timeout)
+Database::add_document(const OmDocument & document)
 {
     OmLockSentry sentry(mutex);
-
-    bool implicit_session = !session_in_progress;
-    if (implicit_session) {
-	do_begin_session(timeout);
-    }
-
-    om_docid did = 0;
-
-    try {
-	did = do_add_document(document);
-    } catch(...) {
-	if(implicit_session) {
-	    try {
-		do_end_session();
-	    } catch (...) {
-		// Discard exception - we want to re-throw the first error
-		// which occured
-	    }
-	}
-	throw;
-    }
-    if (implicit_session) {
-	do_end_session();
-    }
-
-    return did;
+    ensure_session_in_progress();
+    return do_add_document(document);
 }
 
 void
-Database::delete_document(om_docid did, om_timeout timeout)
+Database::delete_document(om_docid did)
 {
     OmLockSentry sentry(mutex);
-
-    bool implicit_session = !session_in_progress;
-    if (implicit_session) {
-	do_begin_session(timeout);
-    }
-
-    try {
-	do_delete_document(did);
-    } catch(...) {
-	if(implicit_session) {
-	    try {
-		do_end_session();
-	    } catch (...) {
-		// Discard exception - we want to re-throw the first error
-		// which occured
-	    }
-	}
-	throw;
-    }
-    if (implicit_session) {
-	do_end_session();
-    }
+    ensure_session_in_progress();
+    do_delete_document(did);
 }
 
 void
-Database::replace_document(om_docid did, const OmDocument & document,
-			   om_timeout timeout)
+Database::replace_document(om_docid did, const OmDocument & document)
 {
     OmLockSentry sentry(mutex);
-
-    bool implicit_session = !session_in_progress;
-    if (implicit_session) {
-	do_begin_session(timeout);
-    }
-
-    try {
-	do_replace_document(did, document);
-    } catch(...) {
-	if(implicit_session) {
-	    try {
-		do_end_session();
-	    } catch (...) {
-		// Discard exception - we want to re-throw the first error
-		// which occured
-	    }
-	}
-	throw;
-    }
-    if (implicit_session) {
-	do_end_session();
-    }
+    ensure_session_in_progress();
+    do_replace_document(did, document);
 }

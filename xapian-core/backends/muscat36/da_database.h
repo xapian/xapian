@@ -327,7 +327,7 @@ class DADatabase : public Database {
 	/** DADatabase is a readonly database type, and thus this method is
 	 *  not supported: if called an exception will be thrown.
 	 */
-	void do_begin_session(om_timeout timeout) {
+	void do_begin_session() {
 	    throw OmUnimplementedError(
 		"DADatabase::begin_session() not implemented: readonly database type");
 	}

@@ -1,3 +1,10 @@
+Thu Dec 14 19:19:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Done todo item: For writable databases, make the behaviour currently
+	  obtained by calling begin_session() and later end_session() the
+	  default behaviour.  If users want the changes to be applied
+	  immediately following a change, they should call flush().
+
 Thu Dec 14 17:48:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix problem with recalc_maxweight() not being called before a

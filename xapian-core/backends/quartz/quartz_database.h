@@ -52,7 +52,7 @@ class QuartzDatabase : public Database {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void do_begin_session(om_timeout timeout);
+	virtual void do_begin_session();
 	virtual void do_end_session();
 	virtual void do_flush();
 
@@ -147,7 +147,7 @@ class QuartzWritableDatabase : public Database {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void do_begin_session(om_timeout timeout);
+	virtual void do_begin_session();
 	virtual void do_end_session();
 	virtual void do_flush();
 

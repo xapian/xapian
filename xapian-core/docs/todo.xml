@@ -85,13 +85,11 @@ OmIndexerBuilder::NodeType
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms()
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="R" area="API" release="1.0">
+<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
 
-For writable databases, make the behaviour currently obtained by calling
-begin_session() and later end_session() the default behaviour.  If users
-want the changes to be applied immediately following a change, they should
-call flush().  (Olly suggested an autoflush option, but this doesn't seem
-to gain much.)
+Make database autoflush when enough changes have been performed.  Could
+simply flush after, say, 1000 changes for now, but mustn't simply use up
+all memory available...
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">

@@ -154,7 +154,7 @@ SleepycatDatabase::open_position_list(om_docid did,
 }
 
 void
-SleepycatDatabase::do_begin_session(om_timeout timeout)
+SleepycatDatabase::do_begin_session()
 {
 }
 

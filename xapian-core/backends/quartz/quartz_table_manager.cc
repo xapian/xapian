@@ -346,6 +346,7 @@ QuartzBufferedTableManager::~QuartzBufferedTableManager()
 void
 QuartzBufferedTableManager::get_database_write_lock()
 {
+    // FIXME:: have a backoff strategy
     struct utsname host;
     if (!uname(&host)) {
 	host.nodename[0] = '\0';

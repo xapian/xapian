@@ -142,7 +142,7 @@ InMemoryDatabase::add_keys(om_docid did,
 }
 
 void
-InMemoryDatabase::do_begin_session(om_timeout timeout)
+InMemoryDatabase::do_begin_session()
 {
 }
 

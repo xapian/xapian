@@ -125,7 +125,7 @@ QuartzDatabase::get_block_size(const OmSettings & settings)
 }
 
 void
-QuartzDatabase::do_begin_session(om_timeout timeout)
+QuartzDatabase::do_begin_session()
 {
     throw OmInvalidOperationError(
 	"Cannot begin a modification session: database opened readonly.");
@@ -133,52 +133,36 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 
 void
 QuartzDatabase::do_end_session()
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_flush()
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_begin_transaction()
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_commit_transaction()
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_cancel_transaction()
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 om_docid
 QuartzDatabase::do_add_document(const OmDocument & document)
-{
-    throw OmInternalError("QuartzDatabase::do_add_document() called, but QuartzDatabase is not a modifiable database.");
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_delete_document(om_docid did)
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 void
 QuartzDatabase::do_replace_document(om_docid did,
 				    const OmDocument & document)
-{
-    Assert(false);
-}
+{ Assert(false); }
 
 om_doccount 
 QuartzDatabase::get_doccount() const
@@ -366,7 +350,7 @@ QuartzWritableDatabase::~QuartzWritableDatabase()
 }
 
 void
-QuartzWritableDatabase::do_begin_session(om_timeout timeout)
+QuartzWritableDatabase::do_begin_session()
 {
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
