@@ -31,7 +31,7 @@
 #include "om/omenquire.h"
 #include "om/omoutput.h"
 #include "om/omtermlistiterator.h"
-#include "om/omexpanddecider.h"
+#include "xapian/expanddecider.h"
 
 #include "omtermlistiteratorinternal.h"
 
@@ -50,7 +50,7 @@
 #include <algorithm>
 #include <math.h>
 
-OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
+Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(OmTermIterator terms,
 						       OmTermIterator termsend)
 #ifndef __SUNPRO_CC
     : tset(terms, termsend)
@@ -69,7 +69,7 @@ OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
 #endif
 
 int
-OmExpandDeciderFilterTerms::operator()(const string &tname) const
+Xapian::ExpandDeciderFilterTerms::operator()(const string &tname) const
 {
     /* Solaris CC returns an iterator from tset.find() const, and then
      * doesn't like comparing it to the const_iterator from end().
@@ -79,12 +79,12 @@ OmExpandDeciderFilterTerms::operator()(const string &tname) const
     return (i == tset.end());
 }
 
-OmExpandDeciderAnd::OmExpandDeciderAnd(const OmExpandDecider *left_,
-                                       const OmExpandDecider *right_)
+Xapian::ExpandDeciderAnd::ExpandDeciderAnd(const Xapian::ExpandDecider *left_,
+                                       const Xapian::ExpandDecider *right_)
         : left(left_), right(right_) {}
 
 int
-OmExpandDeciderAnd::operator()(const string &tname) const
+Xapian::ExpandDeciderAnd::operator()(const string &tname) const
 {
     return ((*left)(tname)) && ((*right)(tname));
 }
@@ -943,7 +943,7 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
 OmESet
 OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
                     const OmRSet & omrset, int flags, double k,
-		    const OmExpandDecider * edecider) const
+		    const Xapian::ExpandDecider * edecider) const
 {
     OmESet retval;
 
@@ -956,19 +956,19 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
-    AutoPtr<OmExpandDecider> decider_noquery;
-    AutoPtr<OmExpandDecider> decider_andnoquery;
-    OmExpandDeciderAlways decider_always;
+    AutoPtr<Xapian::ExpandDecider> decider_noquery;
+    AutoPtr<Xapian::ExpandDecider> decider_andnoquery;
+    Xapian::ExpandDeciderAlways decider_always;
 
     if (query != 0 && !(flags & OmEnquire::include_query_terms)) {
-	AutoPtr<OmExpandDecider> temp1(
-	    new OmExpandDeciderFilterTerms(query->get_terms_begin(),
+	AutoPtr<Xapian::ExpandDecider> temp1(
+	    new Xapian::ExpandDeciderFilterTerms(query->get_terms_begin(),
 					   query->get_terms_end()));
         decider_noquery = temp1;
 
 	if (edecider) {
-	    AutoPtr<OmExpandDecider> temp2(
-		new OmExpandDeciderAnd(decider_noquery.get(), edecider));
+	    AutoPtr<Xapian::ExpandDecider> temp2(
+		new Xapian::ExpandDeciderAnd(decider_noquery.get(), edecider));
 	    decider_andnoquery = temp2;
 	    edecider = decider_andnoquery.get();
 	} else {
@@ -1216,7 +1216,7 @@ OmEnquire::get_mset(om_doccount first,
 
 OmESet
 OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
-		    double k, const OmExpandDecider * edecider) const
+		    double k, const Xapian::ExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and omrset, if they're not
     // null.

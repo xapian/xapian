@@ -941,10 +941,10 @@ OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_ter
 			   bool exclude_query_terms = true,
 			   bool use_exact_termfreq = false,
 			   double k = 1.0,
-			   const OmExpandDecider * edecider = 0) const;
+			   const Xapian::ExpandDecider * edecider = 0) const;
 OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
                            const OmRSet &amp; omrset,
-                           const OmExpandDecider * edecider) const
+                           const Xapian::ExpandDecider * edecider) const
 </PRE>
 </P>
 <P>
@@ -980,7 +980,7 @@ It is often useful to allow only certain classes of term to be returned
 in the expand set.  For example, there may be special terms in the
 database with various prefixes, which should be removed from the expand
 set.  This is accomplished by providing a decision functor.  To do this,
-derive a class from <CODE>OmExpandDecider</CODE> and override the
+derive a class from <CODE>Xapian::ExpandDecider</CODE> and override the
 function operator, <CODE>operator()(const string &amp;)</CODE>.
 The functor is called with each term before it is added to the set,
 and it may accept (by returning <CODE>true</CODE>) or reject (by returning

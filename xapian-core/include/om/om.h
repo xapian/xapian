@@ -53,6 +53,9 @@ typedef std::string om_termname;
 #define OmTypeError Xapian::TypeError
 #define OmInvalidDataError Xapian::InvalidDataError
 #define OmDataFlowError Xapian::DataFlowError
+#define OmExpandDecider Xapian::ExpandDecider
+#define OmExpandDeciderAnd Xapian::ExpandDeciderAnd
+#define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms
 
 // Types and exceptions
 #include "om/omtypes.h"
@@ -70,7 +73,7 @@ typedef std::string om_termname;
 // Searching
 #include "om/omenquire.h"
 #include "om/omquery.h"
-#include "om/omexpanddecider.h"
+#include "xapian/expanddecider.h"
 
 // Stemming
 #include "xapian/stem.h"

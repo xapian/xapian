@@ -210,7 +210,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 			const OmRSet *omrset, 
 			const OmMatchDecider *mdecider) const;
 	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
-			double k, const OmExpandDecider *edecider) const;
+			double k, const Xapian::ExpandDecider *edecider) const;
 
 	OmTermIterator get_matching_terms(om_docid did) const;
 	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;

@@ -1,4 +1,4 @@
-/** \file omexpanddecider.h
+/** \file expanddecider.h
  * \brief Classes for filtering which terms returned by expand
  */
 /* ----START-LICENCE----
@@ -21,22 +21,24 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMEXPANDDECIDER_H
-#define OM_HGUARD_OMEXPANDDECIDER_H
+#ifndef OM_HGUARD_EXPANDDECIDER_H
+#define OM_HGUARD_EXPANDDECIDER_H
 
 #include "om/omenquire.h"
 #include <set>
 
+namespace Xapian {
+
 /** One useful expand decision functor, which provides a way of
  *  filtering out a fixed list of terms from the expand set.
  */
-class OmExpandDeciderFilterTerms : public OmExpandDecider {
+class ExpandDeciderFilterTerms : public ExpandDecider {
     public:
         /** Constructor, which takes a list of terms which
 	 *  will be filtered out.
 	 */
-        OmExpandDeciderFilterTerms(OmTermIterator terms,
-				   OmTermIterator termsend);
+        ExpandDeciderFilterTerms(OmTermIterator terms,
+				 OmTermIterator termsend);
 
         virtual int operator()(const std::string &tname) const;
     private:
@@ -46,21 +48,22 @@ class OmExpandDeciderFilterTerms : public OmExpandDecider {
 /** An expand decision functor which can be used to join two
  *  functors with an AND operation.
  */
-class OmExpandDeciderAnd : public OmExpandDecider {
+class ExpandDeciderAnd : public ExpandDecider {
     public:
     	/** Constructor, which takes as arguments the two
 	 *  decision functors to AND together.
-	 *  OmExpandDeciderAnd will not delete its sub-functors.
+	 *  ExpandDeciderAnd will not delete its sub-functors.
 	 */
-	OmExpandDeciderAnd(const OmExpandDecider *left_,
-	                   const OmExpandDecider *right_);
+	ExpandDeciderAnd(const ExpandDecider *left_,
+	                 const ExpandDecider *right_);
 
 	virtual int operator()(const std::string &tname) const;
 
     private:
-        const OmExpandDecider *left;
-	const OmExpandDecider *right;
+        const ExpandDecider *left;
+	const ExpandDecider *right;
 };
 
-#endif /* OM_HGUARD_OMEXPANDDECIDER_H */
+}
 
+#endif /* OM_HGUARD_EXPANDDECIDER_H */

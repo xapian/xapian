@@ -519,17 +519,21 @@ class OmMatchDecider {
 	virtual ~OmMatchDecider() {}
 };
 
+namespace Xapian {
+
 /** Base class for expand decision functor.
  */
-class OmExpandDecider {
+class ExpandDecider {
     public:
 	/** Decide whether we want this term to be in the expand set.
 	 */
 	virtual int operator()(const std::string & tname) const = 0;
 
 	/// Destructor.
-	virtual ~OmExpandDecider() {}
+	virtual ~ExpandDecider() {}
 };
+
+}
 
 /** This class provides an interface to the information retrieval
  *  system for the purpose of searching.
@@ -728,7 +732,7 @@ class OmEnquire {
 			const OmRSet & omrset,
 			int flags = 0,
 			double k = 1.0,
-			const OmExpandDecider * edecider = 0) const;
+			const Xapian::ExpandDecider * edecider = 0) const;
 
 	/** Get the expand set for the given rset.
 	 *
@@ -745,7 +749,7 @@ class OmEnquire {
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
-			       const OmExpandDecider * edecider) const {
+			       const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
 

@@ -119,7 +119,7 @@ void
 OmExpand::expand(om_termcount max_esize,
 		 OmESet & eset,
 		 const RSet * rset,
-		 const OmExpandDecider * decider,
+		 const Xapian::ExpandDecider * decider,
 		 bool use_exact_termfreq,
 		 double expand_k )
 {

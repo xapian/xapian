@@ -33,11 +33,15 @@
 #include <vector>
 #include "autoptr.h"
 
+namespace Xapian {
+
 /** Expand decision functor which always decides to use the term. */
-class OmExpandDeciderAlways : public OmExpandDecider {
+class ExpandDeciderAlways : public ExpandDecider {
     public:
 	int operator()(const string & /*tname*/) const { return true; }
 };
+
+}
 
 /** Class for performing the expand operation. */
 class OmExpand {
@@ -57,7 +61,7 @@ class OmExpand {
 	void expand(om_termcount max_esize,
 		    OmESet & eset,
 		    const RSet * rset,
-		    const OmExpandDecider * decider,
+		    const Xapian::ExpandDecider * decider,
 		    bool use_exact_termfreq,
 		    double expand_k );
 };

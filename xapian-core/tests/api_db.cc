@@ -581,7 +581,7 @@ static bool test_topercent1()
     return true;
 }
 
-class myExpandFunctor : public OmExpandDecider {
+class myExpandFunctor : public Xapian::ExpandDecider {
     public:
 	int operator()(const string & tname) const {
 	    unsigned long sum = 0;
