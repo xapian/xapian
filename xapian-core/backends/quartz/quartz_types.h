@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,6 @@
 #ifndef OM_HGUARD_QUARTZ_TYPES_H
 #define OM_HGUARD_QUARTZ_TYPES_H
 
-
 typedef unsigned int quartz_blocksize_t;
 
 /** A type used to store a revision number for a table.
@@ -37,18 +37,18 @@ typedef unsigned int quartz_blocksize_t;
  *  number to roll over after a few years.  It would be better to use 64 bits
  *  (and / or to ensure that rolling over causes no problem).
  */
-typedef unsigned long int quartz_revision_number_t;
+typedef unsigned int quartz_revision_number_t;
 
 /** A type used to store the number of entries in a table.
  *
  *  Again, this must be of suitable minimum size.
  */
-typedef unsigned long int quartz_tablesize_t;
+typedef unsigned int quartz_tablesize_t;
 
 /** An integer type for storing the length of a document - ie, the sum of the
  *  wdfs of the terms in the document.
  */
-typedef unsigned long int quartz_doclen_t;
+typedef unsigned int quartz_doclen_t;
 
 /** An integer type which can store the sum of the lengths of the documents
  *  in the database.
