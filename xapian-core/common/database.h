@@ -57,7 +57,7 @@ class IRDatabase : public virtual IndexerDestination {
 	// =========================
 
 	virtual DBPostList * open_post_list(const termname&, RSet *) const = 0;
-	virtual TermList * open_term_list(docid) const = 0;
+	virtual DBTermList * open_term_list(docid) const = 0;
 	virtual IRDocument * open_document(docid id) const = 0;
 
 #if 0

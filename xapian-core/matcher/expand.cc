@@ -26,7 +26,7 @@ class TLPCmpGt {
 };
 
 TermList *
-Expand::build_tree(const RSet *rset)
+Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
 {
     // FIXME: try using a heap instead (C++ sect 18.8)?
     priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
@@ -34,7 +34,9 @@ Expand::build_tree(const RSet *rset)
     for (i = rset->documents.begin();
 	 i != rset->documents.end();
 	 i++) {
-	pq.push(database->open_term_list((*i).did));
+	DBTermList *tl = database->open_term_list((*i).did);
+	tl->set_weighting(ewt);
+	pq.push(tl);
     }
 
     // Build a tree balanced by the term frequencies
@@ -55,7 +57,7 @@ Expand::build_tree(const RSet *rset)
 	TermList *p = pq.top();
 	pq.pop();
 	if (pq.empty()) {
-	    return p;              
+	    return p;
 	}
 	// NB right is always <= left - we can use this to optimise
 	p = new OrTermList(pq.top(), p);
@@ -75,7 +77,10 @@ Expand::expand(const RSet *rset)
 
     weight w_min = 0;
 
-    TermList *merger = Expand::build_tree(rset);
+    // Start weighting scheme
+    ExpandWeight ewt(database, rset->get_rsize());
+
+    TermList *merger = Expand::build_tree(rset, &ewt);
 
     bool recalculate_maxweight = false;
 
@@ -127,7 +132,8 @@ Expand::expand(const RSet *rset)
 
         etotal++;
 	
-        weight wt = merger->get_weight();
+	ExpandBits ebits = merger->get_weighting();
+	weight wt = ewt.get_weight(ebits);
         
         if (wt > w_min) {
 	    termname tname = merger->get_termname();

@@ -14,12 +14,12 @@ class OrTermList : public virtual BranchTermList {
     public:
 	termcount get_approx_size() const;
 
-	weight get_weight() const;
+	ExpandBits get_weighting() const;
 	termname get_termname() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
 
-//        weight recalc_maxweight();
+//	weight recalc_maxweight();
 
 	TermList *next();
 //	TermList *next(weight w_min);
@@ -30,13 +30,13 @@ class OrTermList : public virtual BranchTermList {
 //        OrTermList(TermList *, TermList *, Match *);
 };
 
-inline weight
-OrTermList::get_weight() const
+inline ExpandBits
+OrTermList::get_weighting() const
 {
     Assert(started); // check we've started
-    if (lhead < rhead) return l->get_weight();
-    if (lhead > rhead) return r->get_weight();
-    return l->get_weight() + r->get_weight();
+    if (lhead < rhead) return l->get_weighting();
+    if (lhead > rhead) return r->get_weighting();
+    return l->get_weighting() + r->get_weighting();
 }
 
 inline doccount

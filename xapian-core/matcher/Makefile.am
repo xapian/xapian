@@ -13,4 +13,4 @@ noinst_LTLIBRARIES = libmatcher.la
 libmatcher_la_SOURCES = match.cc orpostlist.cc andpostlist.cc \
  andnotpostlist.cc andmaybepostlist.cc xorpostlist.cc \
  bm25weight.h bm25weight.cc tradweight.h tradweight.cc \
- expand.cc ortermlist.cc
+ expand.cc ortermlist.cc expandweight.cc

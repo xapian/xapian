@@ -120,7 +120,7 @@ class InMemoryPostList : public virtual DBPostList {
 
 
 // Term List
-class InMemoryTermList : public virtual TermList {
+class InMemoryTermList : public virtual DBTermList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -134,7 +134,7 @@ class InMemoryTermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
-	weight get_weight() const;
+	ExpandBits get_weighting() const;
 	termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -176,7 +176,7 @@ class InMemoryDatabase : public virtual IRDatabase {
 	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
-	TermList * open_term_list(docid) const;
+	DBTermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
 
 	doclength get_doclength(docid) const;
@@ -269,18 +269,24 @@ inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase *db,
 	  terms(doc.terms.size()),
 	  started(false),
 	  this_db(db)
-{}
+{
+    return;
+}
 
 inline termcount InMemoryTermList::get_approx_size() const
 {
     return terms;
 }
 
-inline weight InMemoryTermList::get_weight() const
+inline ExpandBits InMemoryTermList::get_weighting() const
 {
     Assert(started);
     Assert(!at_end());
-    return 1.0;  // FIXME
+    doclength len = 1.0;
+    return wt->get_bits(InMemoryTermList::get_wdf(),
+			len,
+			InMemoryTermList::get_termfreq(),
+			InMemoryTermList::get_approx_size());
 }
 
 inline termname InMemoryTermList::get_termname() const

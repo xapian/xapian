@@ -84,7 +84,7 @@ InMemoryDatabase::open_post_list(const termname & tname, RSet *rset) const
     return new InMemoryPostList(this, i->second);
 }
 
-TermList *
+DBTermList *
 InMemoryDatabase::open_term_list(docid did) const
 {
     Assert(opened);

@@ -24,7 +24,7 @@ class Expand {
         termcount max_esize;
 
         bool recalculate_maxweight;
-	TermList * build_tree(const RSet *rset);
+	TermList * build_tree(const RSet *rset, const ExpandWeight *ewt);
     public:
         Expand(IRDatabase *);
 
