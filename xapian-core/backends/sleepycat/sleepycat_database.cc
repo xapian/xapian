@@ -259,16 +259,6 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos)
 */
 
 void
-SleepyDatabase::make_term(const om_termname &) {
-    throw OmUnimplementedError("DADatabase::make_term() not implemented");
-}
-
-om_docid
-SleepyDatabase::make_doc(const om_docname &) {
-    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
-}
-
-void
-SleepyDatabase::make_posting(const om_termname &, unsigned int, unsigned int) {
-    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+SleepyDatabase::add_document(const struct DocumentContents & document) {
+    throw OmUnimplementedError("SleepyDatabase::add_document() not implemented");
 }
