@@ -1,3 +1,8 @@
+Mon Feb 21 20:17:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* COPYING: This code is under the GPL (except the Java bindings which
+	  are MIT-style, but that's GPL compatible anyway).
+
 Mon Feb 21 20:11:36 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Run tests using the C++ compiler; Allow bindings
