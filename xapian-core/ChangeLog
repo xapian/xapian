@@ -1,3 +1,7 @@
+Wed Nov  1 18:26:53 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Wrote more of the indexer quickstart document.
+
 Wed Nov  1 13:00:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add header guards to btree.h - should fix includetest.
