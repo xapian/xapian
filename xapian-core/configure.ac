@@ -492,7 +492,7 @@ if test yes = "$GXX"; then
     dnl but somewhere in the 3.X series the output became more verbose.
     dnl So for simplicitly, we test for the earlier versions.
     case `$CXX --version 2>&1` in
-    [12].*) ;;
+    [[12]].*) ;;
     *) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
     esac
   fi
