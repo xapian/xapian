@@ -137,16 +137,6 @@ if test $ac_cv_func_ftime = yes ; then
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
 
-dnl See if the C library is glibc
-AC_MSG_CHECKING([if C library is glibc])
-AC_PREPROC_IFELSE([#include <stdlib.h>
-#ifndef __GLIBC__
-#error not_glibc
-#endif],
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIBC, 1, [Define if the C library is glibc]),
-  AC_MSG_RESULT(no))
-
 dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
 dnl Don't use default includes as inttypes.h is found by Compaq C but not C++
 dnl so it causes all header probes to fail.

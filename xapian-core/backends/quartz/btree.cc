@@ -24,11 +24,13 @@
 
 #include <config.h>
 
-#ifdef HAVE_GLIBC
+// Need this to get pread and pwrite with GNU libc and on OSF.
 #if !defined _XOPEN_SOURCE
-// Need this to get pread and pwrite with GNU libc
 #define _XOPEN_SOURCE 500
 #endif
+// Required by OpenBSD (tested on 3.4)
+#if !defined _XOPEN_VERSION
+#define _XOPEN_VERSION 500
 #endif
 
 #include <unistd.h>
