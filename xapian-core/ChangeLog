@@ -1,3 +1,8 @@
+Mon Jul 28 23:56:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fixed fix of --cxxflags for uninstalled VPATH
+	  builds.
+
 Mon Jul 28 23:37:15 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Increased default timeout used by
