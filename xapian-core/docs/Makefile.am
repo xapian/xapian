@@ -127,8 +127,7 @@ apidoc.ps: apidoc/html/index.html
 	   test -z "`find $(srcdir)/apidoc/html/index.html -newer $(srcdir)/apidoc.ps -print`" ; then \
 	    echo Not rebuilding apidoc.ps despite make with crude VPATH ;\
 	else \
-	    cd apidoc/latex && make refman.ps ;\
-	    mv apidoc/latex/refman.ps apidoc.ps ;\
+	    cd apidoc/latex && make refman.ps && mv refman.ps ../../apidoc.ps ;\
 	fi
 
 sourcedoc/html/index.html: $(top_srcdir)/configure.in \
@@ -151,8 +150,7 @@ sourcedoc.ps: sourcedoc/html/index.html
 	   test -z "`find $(srcdir)/sourcedoc/html/index.html -newer $(srcdir)/sourcedoc.ps -print`" ; then \
 	    echo Not rebuilding sourcedoc.ps despite make with crude VPATH ;\
 	else \
-	    cd sourcedoc/latex && make refman.ps ;\
-	    mv sourcedoc/latex/refman.ps sourcedoc.ps ;\
+	    cd sourcedoc/latex && make refman.ps && mv refman.ps ../../sourcedoc.ps ;\
 	fi
 
 # We used to do: $(LATEX) "\scrollmode\input" refman.tex
