@@ -5,6 +5,8 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include $(JDKINC)
 JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmDatabaseGroup			\
 	com.muscat.om.OmDatabase			\
+	com.muscat.om.OmWritableDatabase		\
+	com.muscat.om.OmDocumentContents		\
 	com.muscat.om.OmQuery				\
 	com.muscat.om.OmMSet				\
 	com.muscat.om.OmMSetItem			\
@@ -27,6 +29,8 @@ dummy_SOURCES = dummy.cc
 EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmDatabaseGroup.cc		\
 	nvOmDatabase.cc			\
+	nvOmWritableDatabase.cc		\
+	nvOmDocumentContents.cc		\
 	nvOmQuery.cc 			\
 	nvOmMSet.cc 			\
 	nvOmMSetItem.cc			\
@@ -44,6 +48,9 @@ EXTRA_DIST = nvOmEnquire.cc			\
 
 native_sources = nvOmEnquire.lo			\
 	nvOmDatabaseGroup.lo		\
+	nvOmDatabase.lo			\
+	nvOmWritableDatabase.lo		\
+	nvOmDocumentContents.lo		\
 	nvOmQuery.lo 			\
 	nvOmMSet.lo 			\
 	nvOmMSetItem.lo			\

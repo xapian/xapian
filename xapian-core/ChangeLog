@@ -1,3 +1,8 @@
+Thu Jul 13 19:13:15 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now well on the way to reimplementing BackendManager in java, so
+	  that we can run some real tests.
+
 Thu Jul 13 18:21:00 BST 2000 Olly Betts
 
 	* inmemory_positionlist.cc: removed suprious `;'.

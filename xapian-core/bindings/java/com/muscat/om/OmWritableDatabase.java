@@ -19,7 +19,7 @@ public class OmWritableDatabase extends OmDatabase {
     public native void lock(int timeout);
     public native void unlock();
 
-//    public native int add_document(OmDocumentContents document);
+    public native int add_document(OmDocumentContents document);
 
     public native String get_description();
 }

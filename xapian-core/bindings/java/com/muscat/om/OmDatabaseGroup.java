@@ -19,5 +19,8 @@ public class OmDatabaseGroup extends OmObject {
     }
 
     /** add a new database */
+    public native void add_database (OmDatabase db);
+
+    /** add a new database */
     public native void add_database (String type, String[] params);
 }

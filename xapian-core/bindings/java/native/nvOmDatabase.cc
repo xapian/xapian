@@ -28,6 +28,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabase_createNativeObject
 	return (jlong) new OmDatabase(type_n, params_n);
     } catch (OmError &err) {
 	handleNativeError (env, err);
+	return -1;
     }
 }
 
@@ -39,7 +40,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabase_createNativeObject
 JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabase_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (OmDatabaseGroup *) tryGetLongField (env, obj, "nativePtr");
+    delete (OmDatabase *) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
@@ -48,7 +49,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabase_deleteNativeObject
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_muscat_om_OmDatabase_get_1description
-  (JNIEnv *, jobject)
+  (JNIEnv *env, jobject obj)
 {
     OmDatabase *db = (OmDatabase *) tryGetLongField (env, obj, "nativePtr");
     try {
