@@ -266,30 +266,35 @@ shell_protect(const string & file)
 static string
 file_to_string(const string &file)
 {
-    string out;
+    string out = "";
     struct stat st;
     int fd = open(file.c_str(), O_RDONLY);
     if (fd >= 0) {
 	if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode)) {
 	    // Distinguish "empty file" from "failed to read file"
-	    if (st.st_size == 0) return " ";
-	    char *blk = (char*)malloc(st.st_size);
-	    if (blk) {
-		char *p = blk;
-		int len = st.st_size;
-		while (len) {
-		    int r = read(fd, p, len);
-		    if (r < 0) break;
-		    p += r;
-		    len -= r;
+	    if (st.st_size == 0) {
+		out = " ";
+	    } else {
+		char *blk = (char*)malloc(st.st_size);
+		if (blk) {
+		    char *p = blk;
+		    int len = st.st_size;
+		    while (len) {
+			int r = read(fd, p, len);
+			if (r < 0) break;
+			p += r;
+			len -= r;
+		    }
+		    if (len == 0) {
+			out = string(blk, st.st_size);
+		    }
+		    free(blk);
 		}
-		if (len == 0) out = string(blk, st.st_size);
-		free(blk);			
 	    }
 	}
 	close(fd);
     }
-    return "";
+    return out;
 }
 
 static string
@@ -331,7 +336,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 
     if (mimetype == "text/html") {
 	string text = file_to_string(file);
-	if (!text.empty()) {
+	if (text.empty()) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
@@ -352,7 +357,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	sample = p.sample;
     } else if (mimetype == "text/plain") {
 	dump = file_to_string(file);
-	if (!dump.empty()) {
+	if (dump.empty()) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
@@ -446,14 +451,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	    if (p != db.postlist_end(urlterm)) {
 		db.replace_document(*p, newdocument);
+		cout << "duplicate. Re-indexed." << endl;
 	    } else {
 		db.add_document(newdocument);
+		cout << "done." << endl;
 	    }
 	} catch (...) {
 	    db.add_document(newdocument);
-	    cout << "(failed re-seek) ";
+	    cout << "done (failed re-seek for duplicate)." << endl;
 	}
-	cout << "duplicate. Re-indexed." << endl;
     } else {
 	db.add_document(newdocument);
 	cout << "done." << endl;

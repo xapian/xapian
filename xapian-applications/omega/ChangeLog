@@ -1,3 +1,10 @@
+Tue Jul 15 15:18:32 BST 2003  James Aylett  <james@tartarus.org>
+
+	* omindex.cc: fix file_to_string() to return the file on
+	  success, and not leak memory on empty files. Fix callers
+	  to give up on unreadable files, not vice versa. Fix
+	  logging messages to distinguish re-indexed/added.
+
 Fri Jul 11 15:09:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.2.
