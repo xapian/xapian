@@ -49,6 +49,7 @@ Match::match(void)
 	merger = pq.top();
 	pq.pop();
 	if (pq.empty()) break;
+	// NB right is always <= left - we can use this to optimise
 	merger = new MergedPostList(pq.top(), merger);
 	pq.pop();
 	pq.push(merger);

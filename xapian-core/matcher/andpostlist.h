@@ -9,7 +9,6 @@ class AndPostList : public virtual OrPostList {
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
-	weight get_weight() const;
 
 	void   next();
 	void   skip_to(docid);
