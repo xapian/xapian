@@ -213,8 +213,7 @@ code:
 <PRE>
     try {
         <B>[code which accesses Xapian]</B>
-    }
-    catch (const OmError &amp; error) {
+    } catch (const OmError &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
@@ -372,7 +371,7 @@ So we include the Xapian header file, and begin:
 <PRE>
     #include &lt;om/om.h&gt;
 
-    int main(int argc, char *argv[])
+    int main(int argc, char **argv)
     {
 </PRE>
 
@@ -390,7 +389,7 @@ The validity of a command line can therefore be checked very simply by
 ensuring that there are at least 2 parameters:
 </P>
 <PRE>
-    if(argc &lt; 3) {
+    if (argc &lt; 3) {
         cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
                 " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
         exit(1);
@@ -405,8 +404,7 @@ Again, this is performed just as it was for the simple indexer.
 <PRE>
     try {
         <B>[code which accesses Xapian]</B>
-    }
-    catch(OmError &amp; error) {
+    } catch (const OmError &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
@@ -419,26 +417,21 @@ Each database can be in its own format, so, for example, we might have a
 system searching across two DA databases and a quartz database.
 </P>
 <P>
-<!-- FIXME this talk of parameters needs rewording now that OmSettings
-isn't used.  Also, add_database() just takes an OmDatabase... -->
 This means that, when we are preparing to search, we create an
-OmDatabase object, and give it a set of parameters to specify
-databases by successively calling the
-<CODE>OmDatabase::add_database()</CODE> method.
-The parameters given to this method are the same as those which would be
-used in the constructor of an <CODE>OmWritableDatabase</CODE> to write
-to the database.
+OmDatabase object with one of the database factory functions, passing
+parameters to specify which database to open.
+</P>
+<PRE>
+    OmDatabase db(OmQuartz__open(argv[1]));
+</PRE>
+<P>
+You can also search multiple database by adding them together using
+<CODE>OmDatabase::add_database</CODE>:
 </P>
 <PRE>
     OmDatabase databases;
     databases.add_database(OmQuartz__open(argv[1]));
-</PRE>
-<P>
-You can also just pass the parameters to the <CODE>OmDatabase</CODE>
-constructor, which is a handy shortcut if you only want to search one database:
-</P>
-<PRE>
-    OmDatabase db(OmQuartz__open(argv[1]));
+    databases.add_database(OmQuartz__open(argv[2]));
 </PRE>
 
 <H3>Starting an enquire session</H3>
@@ -569,10 +562,10 @@ access to the data stored in this document.
 </LI></UL>
 <PRE>
     vector&lt;OmMSetItem&gt;::const_iterator i;
-    for (i = matches.items.begin(); i != matches.items.end(); i++) {
-        cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
-	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
-        OmDocument doc = enquire.get_doc(*i);
+    for (i = matches.begin(); i != matches.end(); i++) {
+        cout &lt;&lt; "Document ID " &lt;&lt; *i &lt;&lt; "\t";
+	cout &lt;&lt; i-&gt;get_percent() &lt;&lt; "% ";
+        OmDocument doc = i-&gt;get_document();
 	cout &lt;&lt; "[" &lt;&lt; doc.get_data() &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>
@@ -592,7 +585,7 @@ the flags to pass to the compiler and linker to compile.
 </P><P>
 After a successful compilation, this utility should be in your path, so
 you can simply run
-<BLOCKQUOTE><CODE>xapian-config --cflags</CODE></BLOCKQUOTE>
+<BLOCKQUOTE><CODE>xapian-config --cxxflags</CODE></BLOCKQUOTE>
 to determine the flags to pass to the compiler, and
 <BLOCKQUOTE><CODE>xapian-config --libs</CODE></BLOCKQUOTE>
 to determine the flags to pass to the linker.
@@ -615,8 +608,8 @@ Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler!  For our example, we could compile the two
 utilities (quickstartindex and quickstartsearch) with the commands:
 <PRE>
-c++ quickstartindex.cc `xapian-config --libs --cflags` -o quickstartindex
-c++ quickstartsearch.cc `xapian-config --libs --cflags` -o quickstartsearch
+c++ quickstartindex.cc `xapian-config --libs --cxxflags` -o quickstartindex
+c++ quickstartsearch.cc `xapian-config --libs --cxxflags` -o quickstartsearch
 </PRE>
 
 <HR>

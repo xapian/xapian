@@ -42,14 +42,10 @@
     <FONT color=#0000ff>// Catch any OmError exceptions thrown</FONT>
     <B><FONT color=#a52a2a>try</FONT></B> {
         <FONT color=#0000ff>// Make the database group</FONT>
-        OmSettings settings;
-        settings.set(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
-        settings.set(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
-        OmDatabaseGroup databases;
-        databases.add_database(settings);
+        OmDatabase database(OmQuartz__open(argv[<FONT color=#ff00ff>1</FONT>]));
 
         <FONT color=#0000ff>// Start an enquire session</FONT>
-        OmEnquire enquire(databases);
+        OmEnquire enquire(database);
 
         <FONT color=#0000ff>// Prepare the query terms</FONT>
         vector&lt;om_termname&gt; queryterms;
@@ -88,23 +84,23 @@
             <FONT color=#0000ff>// Display the results</FONT>
             cout &lt;&lt; matches.items.size() &lt;&lt; <FONT color=#ff00ff>&quot; results found&quot;</FONT> &lt;&lt; endl;
 
-            <B><FONT color=#a52a2a>for</FONT></B> (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
-                 i != matches.items.end();
-                 i++) {
-                OmDocument doc = enquire.get_doc(*i);
-                cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; i-&gt;did &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
-                        matches.convert_to_percent(*i) &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
+            <B><FONT color=#a52a2a>for</FONT></B> (OmMSetIterator i = matches.begin();
+                 i != matches.end();
+                 ++i) {
+                OmDocument doc = i-&gt;get_document();
+                cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; *i &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
+                        i-&gt;get_percent() &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
                         doc.get_data() &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
             }
         }
 
         <FONT color=#0000ff>// Put the top 5 into the rset if rset is empty</FONT>
-        <B><FONT color=#a52a2a>if</FONT></B>(reldocs.items.size() == <FONT color=#ff00ff>0</FONT>) {
-            vector&lt;OmMSetItem&gt;::const_iterator i;
+        <B><FONT color=#a52a2a>if</FONT></B> (reldocs.empty()) {
+            OmMSetIterator i;
             <B><FONT color=#2e8b57>int</FONT></B> j;
-            <B><FONT color=#a52a2a>for</FONT></B> (i = matches.items.begin(),
+            <B><FONT color=#a52a2a>for</FONT></B> (i = matches.begin(),
                  j = <FONT color=#ff00ff>0</FONT>;
-                 (i != matches.items.end()) &amp;&amp; (j &lt; <FONT color=#ff00ff>5</FONT>);
+                 (i != matches.()) &amp;&amp; (j &lt; <FONT color=#ff00ff>5</FONT>);
                  i++, j++) {
                 reldocs.add_document(i-&gt;did);
             }
@@ -114,16 +110,15 @@
         OmESet eterms = enquire.get_eset(<FONT color=#ff00ff>10</FONT>, reldocs);
 
         <FONT color=#0000ff>// Display the expand terms</FONT>
-        cout &lt;&lt; eterms.items.size() &lt;&lt; <FONT color=#ff00ff>&quot; suggested additional terms&quot;</FONT> &lt;&lt; endl;
+        cout &lt;&lt; eterms.size() &lt;&lt; <FONT color=#ff00ff>&quot; suggested additional terms&quot;</FONT> &lt;&lt; endl;
 
-        <B><FONT color=#a52a2a>for</FONT></B> (vector&lt;OmESetItem&gt;::const_iterator k = eterms.items.begin();
-             k != eterms.items.end();
-             k++) {
-            cout &lt;&lt; <FONT color=#ff00ff>&quot;Term `&quot;</FONT> &lt;&lt; k-&gt;tname &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
-                    <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k-&gt;wt &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
+        <B><FONT color=#a52a2a>for</FONT></B> (vector&lt;OmESetItem&gt;::const_iterator k = eterms.begin();
+             k != eterms.end();
+             ++k) {
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Term `&quot;</FONT> &lt;&lt; *k &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
+                    <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k-&gt;get_weight() &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
         }
-    }
-    <B><FONT color=#a52a2a>catch</FONT></B>(OmError &amp;error) {
+    } <B><FONT color=#a52a2a>catch</FONT></B>(const OmError &amp;error) {
         cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 }

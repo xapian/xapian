@@ -41,10 +41,7 @@
     <FONT color=#0000ff>// Catch any OmError exceptions thrown</FONT>
     <B><FONT color=#a52a2a>try</FONT></B> {
         <FONT color=#0000ff>// Make the database</FONT>
-        OmSettings settings;
-        settings.set(<FONT color=#ff00ff>&quot;backend&quot;</FONT>, <FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>);
-        settings.set(<FONT color=#ff00ff>&quot;sleepy_dir&quot;</FONT>, argv[<FONT color=#ff00ff>1</FONT>]);
-        OmWritableDatabase database(settings);
+        OmWritableDatabase database(OmQuartz__open(argv[<FONT color=#ff00ff>1</FONT>], OM_DB_CREATE_OR_OPEN));
 
         <FONT color=#0000ff>// Make the document</FONT>
         OmDocument newdocument;
@@ -59,8 +56,7 @@
 
         <FONT color=#0000ff>// Add the document to the database</FONT>
         database.add_document(newdocument);
-    }
-    <B><FONT color=#a52a2a>catch</FONT></B>(OmError &amp;error) {
+    } <B><FONT color=#a52a2a>catch</FONT></B>(const OmError &amp;error) {
         cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 }
