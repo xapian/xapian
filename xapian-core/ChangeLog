@@ -1,3 +1,7 @@
+Mon Feb  5 17:21:52 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix a missing #include in socketcommon.h
+
 Mon Feb  5 17:15:46 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Sort generated todo lists.

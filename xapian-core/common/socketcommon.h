@@ -29,6 +29,7 @@
 #include "omlinebuf.h"
 #include "om/omsettings.h"
 #include "omenquireinternal.h"
+#include "om/omquery.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 8
 
