@@ -31,6 +31,7 @@ public class ApiTest {
 	                           "/../../tests/testdata/" );
 
         System.out.println("pctcutoff1: " + test_pctcutoff1());
+        System.out.println("collapsekey1: " + test_collapsekey1());
     }
 
     public static boolean test_pctcutoff1() throws Throwable
@@ -43,6 +44,7 @@ public class ApiTest {
 	OmMSet mymset1 = enquire.get_mset(0, 100);
 
 	if (verbose) {
+	    System.out.println("MSet: " + mymset1.get_description());
 	    System.out.println("Original mset pcts:");
 	    print_mset_percentages(mymset1);
 	    System.out.println("");
@@ -105,13 +107,73 @@ public class ApiTest {
 	return success;
     }
 
+    public static boolean test_collapsekey1() throws Throwable
+    {
+	boolean success = true;
+
+	OmEnquire enquire = new OmEnquire(get_simple_database());
+	init_simple_enquire(enquire);
+
+	OmMatchOptions mymopt = new OmMatchOptions();
+
+	OmMSet mymset1 = enquire.get_mset(0, 100, 0, mymopt);
+	mymset1_items = mymset1.get_items();
+	int mymsize1 = mymset1_items.size();
+
+	for (int key_no = 1; key_no<7; ++key_no) {
+	    mymopt.set_collapse_key(key_no);
+	    OmMSet mymset = enquire.get_mset(0, 100, 0, mymopt);
+	    mymset_items = mymset.get_items();
+
+	    if(mymsize1 <= mymset_items.size()) {
+		success = false;
+		if (verbose) {
+		    System.out.println("Had no fewer items when performing collapse: don't know whether it worked.");
+		}
+	    }
+
+	    map<string, om_docid> keys;
+	    for (vector<OmMSetItem>::const_iterator i=mymset.items.begin();
+		 i != mymset.items.end();
+		 ++i) {
+		OmKey key = enquire.get_doc(*i).get_key(key_no);
+		if (key.value != i->collapse_key.value) {
+		    success = false;
+		    if (verbose) {
+			cout << "Expected key value was not found in MSetItem: "
+				<< "expected `" << key.value
+				<< "' found `" << i->collapse_key.value
+				<< "'" << endl;
+
+		    }
+		}
+		if (keys[key.value] != 0 && key.value != "") {
+		    success = false;
+		    if (verbose) {
+			cout << "docids " << keys[key.value]
+				<< " and " << i->did
+				<< " both found in MSet with key `" << key.value
+				<< "'" << endl;
+		    }
+		    break;
+		} else {
+		    keys[key.value] = i->did;
+		}
+	    }
+	    // don't bother continuing if we've already failed.
+	    if (!success) break;
+	}
+
+	return success;
+    }
+
     public static OmDatabaseGroup get_simple_database() throws Throwable {
         OmDatabase mydb = get_database("apitest_simpledata");
 	return make_dbgrp(mydb);
     }
 
     public static void init_simple_enquire(OmEnquire enq) throws Throwable {
-        enq.set_query(new OmQuery("this"));
+        enq.set_query(new OmQuery("thi"));
     }
 
     public static void print_mset_percentages(OmMSet mset)

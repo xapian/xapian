@@ -56,6 +56,14 @@ public class BackendManager {
 	}
     }
 
+    public OmDatabase do_getdb_inmemory(String[] dbnames) throws Throwable {
+        OmWritableDatabase db = new OmWritableDatabase("inmemory",
+	                                               make_strvec());
+	index_files_to_database(db, change_names_to_paths(dbnames));
+
+	return db;
+    }
+
     public OmDatabase get_database(String dbname1) throws Throwable {
         String[] dbnames = new String[1];
 
@@ -68,6 +76,10 @@ public class BackendManager {
         String[] retval = new String[1];
 	retval[0] = s;
 	return retval;
+    }
+
+    public static String[] make_strvec() {
+        return new String[0];
     }
 
     public static boolean create_dir_if_needed(String dirname) throws Throwable {

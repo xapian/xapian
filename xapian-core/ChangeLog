@@ -1,3 +1,8 @@
+Wed Jul 19 17:35:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The Java apitest now correctly runs test_pctcutoff1, with either
+	  the sleepy or inmemory backend.
+
 Wed Jul 19 15:59:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added get_description to Java OmMSet wrapper.
