@@ -56,21 +56,21 @@ DA files
 Functions for handling DA record and DA term files are declared in
 daread.h:
 
-struct DAfile *     DAopen(const char * s, int type, int heavy_duty)
-void                DAclose(struct DAfile * p)
+struct DA_file *     DA_open(const char * s, int type, int heavy_duty)
+void                 DA_close(struct DAfile * p)
 
 To open DA record and/or DA term files for example:
 
-        struct DAfile * DA_r;
-        struct DAfile * DA_t;
-        DA_r = DAopen("/home/richard/test/d/R", DARECS, FLIMSY);
-        DA_t = DAopen("/home/richard/test/d/T", DATERMS, FLIMSY);
+        struct DA_file * DA_r;
+        struct DA_file * DA_t;
+        DA_r = DA_open("/home/richard/test/d/R", DA_RECS, FLIMSY);
+        DA_t = DA_open("/home/richard/test/d/T", DA_TERMS, FLIMSY);
 
 The 3rd argument is either FLIMSY or HEAVY_DUTY - values 0 and 1.
 
 And to close:
 
-        DAclose(DA_r); DAclose(DA_t);
+        DA_close(DA_r); DA_close(DA_t);
 
 The total number of documents (or terms) in the DA file is given
 by
@@ -81,17 +81,17 @@ DA term access:
 ---------------
 The procedures defined as extern are:
 
-int                 DAterm(byte * k, struct DAterminfo * t, struct DAfile * p)
-struct DApostings * DAopenpostings(struct DAterminfo * t, struct DAfile * p)
-void                DAreadpostings(struct DApostings * q, int style, int Z0)
-void                DAclosepostings(struct DApostings * q)
-int                 DAgetrecord(struct DAfile * p, int n, struct record * r)
-int                 DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
+int                  DA_term(byte * k, struct DA_term_info * t, struct DA_file * p)
+struct DA_postings * DA_open_postings(struct DA_terminfo * t, struct DA_file * p)
+void                 DA_read_postings(struct DA_postings * q, int style, int Z)
+void                 DA_close_postings(struct DA_postings * q)
+int                  DA_get_record(struct DA_file * p, int n, struct record * r)
+int                  DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
 
-To look up a term k in DA_t using a DAterminfo structure:
+To look up a term k in DA_t using a DA_term_info structure:
 
-       struct DAterminfo * t;
-       found = DAterm(k, &t, DA_t);   /* k is a k-sting of course */
+       struct DA_term_info * t;
+       found = DA_term(k, &t, DA_t);   /* k is a k-sting of course */
 
 'found' is 1 if found, 0 if not found.
 
@@ -101,12 +101,12 @@ term, but we won't be concerned with this case.]
 t->freq is the term frequency. Immediately following a DAterm call, t
 can be used to open a posting list:
 
-       string DApostings * q;
-       q = DAopenpostings(&t, DA_t);
+       string DA_postings * q;
+       q = DA_open_postings(&t, DA_t);
 
 (thereafter t can be reused to look for other terms), and read from with
 
-       DAreadpostings(q, style, Z);
+       DA_read_postings(q, style, Z);
 
 If style == 0 each call delivers a doc number in q->Doc and a wdf number in
 q->wdf. Termination occurs when q->Doc == MAXINT, after which MAXINT is
@@ -119,26 +119,26 @@ If style == 1, doc numbers are delivered back in ranges:
       q->Doc to q->E  (with a common q->wdf)
 
 Z is correctly interpreted, so if the next range was 100 to 200 and the call
-was DAreadpostings(q, 1, 137), q->Doc would be 137 and q->E 200.
+was DA_read_postings(q, 1, 137), q->Doc would be 137 and q->E 200.
 
 styles 0 and 1 can't be mixed in successive calls.
 
 Finally close with
 
-    DAclosepostings(q)
+    DA_close_postings(q)
 
 (you can close before hitting MAXINT.)
 
-    [This backeted section is coded but not compiled up. Once a term has
+    [This bracketed section is coded but not compiled up. Once a term has
      been found:
 
-           struct DAterminfo * t;
-           found = DAterm(k, d, &t, DA_t);
+           struct DA_term_info * t;
+           found = DA_term(k, d, &t, DA_t);
 
      The next/previous term can be put into t with the calls
 
-           found = DAnextterm(&t, DA_t);
-           found = DAprevterm(&t, DA_t);
+           found = DA_next_term(&t, DA_t);
+           found = DA_prev_term(&t, DA_t);
 
      found is 0 when we hit the end/beginning of the term list. t->term
      gives the term (as a k-string) and t->freq gives its frequency.]
@@ -148,54 +148,51 @@ DA record access:
 
 The procedures defines as extern are
 
-int DAgetrecord(struct DAfile * p, int n, struct record * r)
-int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
+int DA_get_record(struct DA_file * p, int n, struct record * r)
+int DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
 
 To get records 148, 241 in turn, do this:
 
-    record * r = makerecord();
-    found = DAgetrecord(DA_r, 148, r); // record is at r->p
+    record * r = M_make_record();
+    found = DA_get_record(DA_r, 148, r); // record is at r->p
     ...
-    found = DAgetrecord(DA_r, 241, r); // record is at r->p
+    found = DA_get_record(DA_r, 241, r); // record is at r->p
     ...
-    loserecord(r);
+    M_lose_record(r);
 
 found is true/false according as found/not found. r keeps a single buffer for
-the record read, so the second DAgetrecord overwrites the first.
+the record read, so the second DA_get_record overwrites the first.
 
 To get the records together:
 
-    record * r1 = makerecord();
-    record * r2 = makerecord();
-    found = DAgetrecord(DA_r, 148, r1); // record is at r1->p
+    record * r1 = M_make_record();
+    record * r2 = M_make_record();
+    found = DA_get_record(DA_r, 148, r1); // record is at r1->p
     ...
-    found = DAgetrecord(DA_r, 241, r2); // record is at r2->p
+    found = DA_get_record(DA_r, 241, r2); // record is at r2->p
     ...
-    loserecord(r1); loserecord(r2);
+    M_lose_record(r1); M_lose_record(r2);
 
 Exactly the same principle applies to termvecs:
 
-    termvec * tv = maketermvec();
-    found = DAgettermvec(DA_r, 148, tv);
+    termvec * tv = M_make_termvec();
+    found = DA_get_termvec(DA_r, 148, tv);
     ...
-    found = DAgettermvec(DA_r, 241, tv);
+    found = DA_get_termvec(DA_r, 241, tv);
     ...
-    losetermvec(tv);
+    M_lose_termvec(tv);
 
 or
 
-    termvec * tv1 = maketermvec();
-    termvec * tv2 = maketermvec();
-    found = DAgettermvec(DA_r, 148, tv1);
+    termvec * tv1 = M_make_termvec();
+    termvec * tv2 = M_make_termvec();
+    found = DA_get_termvec(DA_r, 148, tv1);
     ...
-    found = DAgettermvec(DA_r, 241, tv2);
+    found = DA_get_termvec(DA_r, 241, tv2);
     ...
-    losetermvec(tv1); losetermvec(tv2);
+    M_lose_termvec(tv1); M_lose_termvec(tv2);
 
 A termvec can be read sequentially with
-
-    openterms(tv);
-    readterms(tv); readterms(tv);
 
 DB files
 --------
@@ -203,27 +200,27 @@ DB file access is the same as DA record and term file access with 'DB'
 replacing 'DA' in the spec above. The corresponding declarations are in
 dbread.h:
 
-struct DBfile *     DBopen(const char * s, int n, int heavy_duty)
-void                DBclose(struct DBfile * p)
-int                 DBterm(const byte * k, struct DBterminfo * t, struct DBfile * p)
-struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile * p)
-void                DBreadpostings(struct DBpostings * q, int style, int Z0)
-void                DBclosepostings(struct DBpostings * q)
-int                 DBgetrecord(struct DBfile * p, int n, struct record * r)
-int                 DBgettermvec(struct DBfile * p, int n, struct termvec * tv)
+struct DB_file *     DB_open(const char * s, int n, int heavy_duty)
+void                 DB_close(struct DB_file * p)
+int                  DB_term(const byte * k, struct DB_term_info * t, struct DB_file * p)
+struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * p)
+void                 DB_read_postings(struct DB_postings * q, int style, int Z0)
+void                 DB_close_postings(struct DB_postings * q)
+int                  DB_get_record(struct DB_file * p, int n, struct record * r)
+int                  DB_get_termvec(struct DB_file * p, int n, struct termvec * tv)
 
-int DBgetrecord(struct DBfile * p, int n, struct record * r)
-int DBgettermvec(struct DBfile * p, int n, struct termvec * tv)
+int DB_get_record(struct DB_file * p, int n, struct record * r)
+int DB_get_termvec(struct DB_file * p, int n, struct termvec * tv)
 
 There is however the difference in setting the DB file up.
 
-        struct DBfile * DB;
-        DB = DBopen("/home/richard/test/d/DB", 30, FLIMSY);
-                   /* '30' is explained below */
+        struct DB_file * DB;
+        DB = DB_open("/home/richard/test/d/DB", 30, FLIMSY);
+                     /* '30' is explained below */
 
 and to close:
 
-        DAclose(DB);
+        DB_close(DB);
 
 DB is the handle for both term and record/termvec accesses.
 
@@ -237,7 +234,7 @@ by
 A DB file is set up with a cache of blocks for reading. This is the second
 argument of DBopen, so in the example above 30 blocks are used. The cache
 will in any case be given at least 8 blocks. It would be a bad error to use
-DARECS or DARECS in the second argument, since these are large positive
+DA_RECS or DA_RECS in the second argument, since these are large positive
 numbers.
 
 
@@ -308,6 +305,6 @@ Here is the definition of dump:
         printf("\n");
     }
 
-the various macros HEAD_LENGTH, INTEGER_AT etc are all defined in 3point6.h
+The various macros HEAD_LENGTH, INTEGER_AT etc are all defined in 3point6.h
 
 

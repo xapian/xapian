@@ -31,15 +31,15 @@
 #define false  0
 #define PWIDTH (ILEN + 1)
 
-static void readda(struct DBfile * DB, int n, byte * b)
+static void readda(struct DB_file * DB, int n, byte * b)
 {
     if (X_point(DB->locator, DB->block_size, n) >= 0)
        if (X_read(DB->locator, b, DB->block_size) == DB->block_size) return;
     fprintf(stderr, "Can't read block %d of DB file\n", n); exit(1);
 }
 
-static struct DBpool * find_block(struct DBfile * DB, int n)
-{  struct DBpool * P = DB->pool;
+static struct DB_pool * find_block(struct DB_file * DB, int n)
+{  struct DB_pool * P = DB->pool;
    int pool_size = DB->pool_size;
    long int oldest = -1; /* for the oldest read block */
    int oldest_j;               /* - and its index in P */
@@ -69,9 +69,9 @@ static struct DBpool * find_block(struct DBfile * DB, int n)
    Returns the data address for the block.
 */
 
-static byte * C_block(struct DBfile * DB, struct DBcursor * C, int j)
+static byte * C_block(struct DB_file * DB, struct DB_cursor * C, int j)
 {
-    struct DBpool * P = C[j].pool;
+    struct DB_pool * P = C[j].pool;
     int n = C[j].n;
     if (P == NULL || n != P->n)  /* W(P->p, BLOCKNUMBER) */
     {   P = find_block(DB, n);
@@ -106,7 +106,7 @@ static int findin(const byte * p, int keylength, const byte * q, int i)
     return i;
 }
 
-static void set_DBpositions(struct DBfile * DB, const byte * p, int o)
+static void set_DB_positions(struct DB_file * DB, const byte * p, int o)
 {   int item_size = L2(p, o);
     DB->p = p;
     DB->c = o; o += 2;
@@ -115,13 +115,13 @@ static void set_DBpositions(struct DBfile * DB, const byte * p, int o)
     DB->tag_size = item_size - p[o] - 2;
 }
 
-static int DBmove_forward_at_level(struct DBfile * DB, struct DBcursor * C, int j)
+static int DB_move_forward_at_level(struct DB_file * DB, struct DB_cursor * C, int j)
 {   byte * p = C_block(DB, C, j);
     int c = C[j].c;
     c += 2;
     if (c == W(p, DLEN))
     {   if (j == 0) return false;
-        if (! DBmove_forward_at_level(DB, C, j - 1)) return false;
+        if (! DB_move_forward_at_level(DB, C, j - 1)) return false;
         p = C_block(DB, C, j);
         c = 0;
     }
@@ -131,17 +131,17 @@ static int DBmove_forward_at_level(struct DBfile * DB, struct DBcursor * C, int 
         {   o += L2(p,o) - ILEN;
             C[j+1].n = I(p,o) + DB->block_offset;
         }
-        else set_DBpositions(DB, p, o);
+        else set_DB_positions(DB, p, o);
     }
     return true;
 }
 
-static int DBmove_back_at_level(struct DBfile * DB, struct DBcursor * C, int j)
+static int DB_move_back_at_level(struct DB_file * DB, struct DB_cursor * C, int j)
 {   byte * p = C_block(DB, C, j);
     int c = C[j].c;
     if (c == 0)
     {   if (j == 0) return false;
-        if (! DBmove_back_at_level(DB, C, j - 1)) return false;
+        if (! DB_move_back_at_level(DB, C, j - 1)) return false;
         p = C_block(DB, C, j);
         c = W(p, DLEN);
     }
@@ -152,23 +152,23 @@ static int DBmove_back_at_level(struct DBfile * DB, struct DBcursor * C, int j)
         {   o += L2(p,o) - ILEN;
             C[j+1].n = I(p,o) + DB->block_offset;
         }
-        else set_DBpositions(DB, p, o);
+        else set_DB_positions(DB, p, o);
     }
     return true;
 }
 
-static int DBmove_forward(struct DBfile * DB, struct DBcursor * C)
-{   return DBmove_forward_at_level(DB, C, DB->levels);   }
+static int DB_move_forward(struct DB_file * DB, struct DB_cursor * C)
+{   return DB_move_forward_at_level(DB, C, DB->levels);   }
 
-static int DBmove_back(struct DBfile * DB, struct DBcursor * C)
-{   return DBmove_back_at_level(DB, C, DB->levels);   }
+static int DB_move_back(struct DB_file * DB, struct DB_cursor * C)
+{   return DB_move_back_at_level(DB, C, DB->levels);   }
 
-/* DBfind(DB, C, q) searches for the key q in the B-tree of DB with
+/* DB_find(DB, C, q) searches for the key q in the B-tree of DB with
    C as cursor. Result is true if found, false otherwise.
    The cursor accesses the last item <= the key q.
 */
 
-static int DBfind(struct DBfile * DB, struct DBcursor * C, const byte * q)
+static int DB_find(struct DB_file * DB, struct DB_cursor * C, const byte * q)
 {
     byte * p; int c;
     int keylength = q[0] - 1;
@@ -188,17 +188,17 @@ static int DBfind(struct DBfile * DB, struct DBcursor * C, const byte * q)
 
     if (c < 0)
     {   C[levels].c = 0;
-        DBmove_back(DB, C);
+        DB_move_back(DB, C);
         c = C[levels].c;
     }
 
-    set_DBpositions(DB, p, L2(p, c));
+    set_DB_positions(DB, p, L2(p, c));
     return M_compare_bytes(keylength, q, 1, keylength, DB->key, 1) == 0;
 }
 
 #define BUFFER_INC 80  /* used in two places below */
 
-static void copy_tag(struct DBfile * DB, struct DBpostings * q, int extra_bit)
+static void copy_tag(struct DB_file * DB, struct DB_postings * q, int extra_bit)
 {   int size = DB->tag_size + extra_bit;
     if (size > q->buffer_size)
     {   free(q->buffer);
@@ -209,24 +209,24 @@ static void copy_tag(struct DBfile * DB, struct DBpostings * q, int extra_bit)
     q->lim = size;
 }
 
-static struct DBcursor * DBmake_cursor(struct DBfile * DB)
+static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
 {
     int n = 20; /* The number of levels in the B-tree can never approach 20 */
 
-    struct DBcursor * C = (struct DBcursor *) malloc(n * sizeof(struct DBcursor));
+    struct DB_cursor * C = (struct DB_cursor *) malloc(n * sizeof(struct DB_cursor));
     int i;
     for (i = 0; i < n; i++) C[i].pool = NULL;
     C[0].n = DB->root;
     return C;
 }
 
-extern struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile * DB)
-{   struct DBpostings * q = (struct DBpostings *) malloc(sizeof(struct DBpostings));
+extern struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
+{   struct DB_postings * q = (struct DB_postings *) malloc(sizeof(struct DB_postings));
     q->DB = DB;
-    q->cursor = DBmake_cursor(DB);
+    q->cursor = DB_make_cursor(DB);
     q->buffer_size = 0;
     q->buffer = NULL;
-    if (DBfind(DB, q->cursor, t->key))
+    if (DB_find(DB, q->cursor, t->key))
     {   q->key = (byte *) malloc(t->key[0] + ILEN);
         memmove(q->key, t->key, t->key[0]);
         q->key[0] += ILEN;
@@ -234,7 +234,7 @@ extern struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile *
         q->i = PWIDTH;
         q->freq = -I(q->buffer, 0);
         if (q->i == q->lim)            /* the famous bug [41] fix */
-        {   DBmove_forward(DB, q->cursor);
+        {   DB_move_forward(DB, q->cursor);
             copy_tag(DB, q, ILEN);
             q->i = 0;
         }
@@ -250,7 +250,7 @@ extern struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile *
     return q;
 }
 
-static void next_posting_set(struct DBpostings * q, int Z, int skippable)
+static void next_posting_set(struct DB_postings * q, int Z, int skippable)
 {
 
 #define LARGEGAP 1000
@@ -261,18 +261,18 @@ static void next_posting_set(struct DBpostings * q, int Z, int skippable)
         skippable)
     {
         M_put_I(q->key, q->key[0] - ILEN, Z);
-        DBfind(q->DB, q->cursor, q->key);
+        DB_find(q->DB, q->cursor, q->key);
     }
-    else DBmove_forward(q->DB, q->cursor);
+    else DB_move_forward(q->DB, q->cursor);
 
     copy_tag(q->DB, q, ILEN);
     q->i = 0;
 }
 
-static void next_posting(struct DBpostings * q, int Z)
+static void next_posting(struct DB_postings * q, int Z)
 {   int skippable = true;
 
-    /* The skippable feature is necessary. Without it, repeating DBfind
+    /* The skippable feature is necessary. Without it, repeating DB_find
        in 'next_posting_set' can sometimes cause an infinite loop.
     */
 
@@ -294,7 +294,7 @@ static void next_posting(struct DBpostings * q, int Z)
     }
 }
 
-extern void DBreadpostings(struct DBpostings * q, int style, int Z)
+extern void DB_read_postings(struct DB_postings * q, int style, int Z)
 {
     if (q->Doc == MAXINT) return;
 
@@ -311,14 +311,14 @@ extern void DBreadpostings(struct DBpostings * q, int style, int Z)
     return;
 }
 
-extern void DBclosepostings(struct DBpostings * q)
+extern void DB_close_postings(struct DB_postings * q)
 {   free(q->cursor);
     free(q->buffer);
     free(q->key);
     free(q);
 }
 
-int DBterm(const byte * k, struct DBterminfo * t, struct DBfile * DB)
+int DB_term(const byte * k, struct DB_term_info * t, struct DB_file * DB)
 {
     /* <set longjump label T1 for DB change detected>
        LABEL T0:
@@ -329,7 +329,7 @@ int DBterm(const byte * k, struct DBterminfo * t, struct DBfile * DB)
     t->key[k[0] + 1] = 0;                /* zero terminator */
     t->key[0] = k[0] + 2;
 
-    if (DBfind(DB, DB->cursor, t->key))
+    if (DB_find(DB, DB->cursor, t->key))
     {   t->freq = -I(DB->tag, 0);
         return true;
     }
@@ -353,24 +353,24 @@ static int valid_base(const byte * p)
     }
 }
 
-static struct DBpool * DBmake_pool(int n)
+static struct DB_pool * DB_make_pool(int n)
 {
-    struct DBpool * P = (struct DBpool *) malloc(n * sizeof(struct DBpool));
+    struct DB_pool * P = (struct DB_pool *) malloc(n * sizeof(struct DB_pool));
     int i;
     for (i = 0; i < n; i++) { P[i].p = NULL; P[i].n = -1; P[i].clock = 0; }
     return P;
 }
 
-extern struct DBfile * DBopen(const char * s, int pool_size, int heavy_duty)
+extern struct DB_file * DB_open(const char * s, int pool_size, int heavy_duty)
 {
-    struct DBfile * DB;
+    struct DB_file * DB;
     filehandle q;
     int block_size;
 
     q = X_findtoread(s); if (q == -1) return NULL;
     block_size = M_get_block_size(q, s);
 
-    DB = (struct DBfile *) malloc(sizeof(struct DBfile));
+    DB = (struct DB_file *) malloc(sizeof(struct DB_file));
     DB->locator = q;
     DB->block_size = block_size;
 
@@ -410,13 +410,13 @@ extern struct DBfile * DBopen(const char * s, int pool_size, int heavy_duty)
 
         free(db0); free(db1);
     }
-    DB->cursor = DBmake_cursor(DB);
+    DB->cursor = DB_make_cursor(DB);
     if (pool_size < 8) pool_size = 8;
     DB->pool_size = pool_size;
-    DB->pool = DBmake_pool(pool_size);
+    DB->pool = DB_make_pool(pool_size);
     DB->clock = 0;
 
-    if (DBfind(DB, DB->cursor, (byte *) "\2" "C"))
+    if (DB_find(DB, DB->cursor, (byte *) "\2" "C"))
     {
         DB->doc_count = I(DB->tag, 0);
         DB->term_count = I(DB->tag, 2 * ILEN);
@@ -430,7 +430,7 @@ extern struct DBfile * DBopen(const char * s, int pool_size, int heavy_duty)
     return DB;
 }
 
-extern void DBclose(struct DBfile * DB)
+extern void DB_close(struct DB_file * DB)
 {   X_close(DB->locator);
     {   int i;
         for (i = 0; i < DB->pool_size; i++)
@@ -443,7 +443,7 @@ extern void DBclose(struct DBfile * DB)
     free(DB);
 }
 
-static int DBreadunit(struct DBfile * DB, int n, int r_ot_tv, struct record * r)
+static int DB_read_unit(struct DB_file * DB, int n, int r_ot_tv, struct record * r)
 {
 
     /* <set longjump label R1 for DB change detected>
@@ -466,7 +466,7 @@ static int DBreadunit(struct DBfile * DB, int n, int r_ot_tv, struct record * r)
     {   M_put_I(key, ILEN + 3, 1);  /* held in 4 bytes in heavy-duty Muscat */
         key[0] = 11;                /* so 11 bytes for the key length */
     }
-    if (! DBfind(DB, DB->cursor, key)) return false;
+    if (! DB_find(DB, DB->cursor, key)) return false;
 
     {   int len = LENGTH_OF(DB->tag, 0, x);
         int d = 0;
@@ -485,7 +485,7 @@ static int DBreadunit(struct DBfile * DB, int n, int r_ot_tv, struct record * r)
             memmove(r->p + d, DB->tag, DB->tag_size);
             d = d_next;
             if (d == len) break;
-            DBmove_forward(DB, DB->cursor);
+            DB_move_forward(DB, DB->cursor);
         }
     }
     return true;
@@ -495,11 +495,11 @@ static int DBreadunit(struct DBfile * DB, int n, int r_ot_tv, struct record * r)
     */
 }
 
-extern int DBgetrecord(struct DBfile * DB, int n, struct record * r)
-{   return DBreadunit(DB, n, 0, r);
+extern int DB_get_record(struct DB_file * DB, int n, struct record * r)
+{   return DB_read_unit(DB, n, 0, r);
 }
 
-extern int DBgettermvec(struct DBfile * DB, int n, struct termvec * tv)
-{   return DBreadunit(DB, n, 1, (struct record *) tv);
+extern int DB_get_termvec(struct DB_file * DB, int n, struct termvec * tv)
+{   return DB_read_unit(DB, n, 1, (struct record *) tv);
 }
 

@@ -48,8 +48,8 @@ extern int M_compare_bytes(int n, const byte * p, int c, int m, const byte * q, 
 extern int M_get_block_size(filehandle f, const char * s)
 {   byte b[40];
     if (X_read(f, b, 40) == 40) switch (W(b, 1))
-    {   case DARECS:           /* DA record file */
-        case DATERMS:          /* DA term file */
+    {   case DA_RECS:           /* DA record file */
+        case DA_TERMS:          /* DA term file */
             return W(b, 2);
         default:               /* DB file */
             if (W(b, DB_BASE) + W(b, DB_BASE2) == 1) return W(b, DB_BLOCK_SIZE);

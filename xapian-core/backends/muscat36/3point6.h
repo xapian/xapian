@@ -20,6 +20,14 @@
  * -----END-LICENCE-----
  */
 
+#ifndef _3point6_h_
+#define _3point6_h_
+
+/* Make header file work when included from C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "io_system.h"
 
 #define BYTERANGE   256
@@ -47,8 +55,8 @@
 
 #define LWIDTH(x)   (2+(x))  /* bytes in a Muscat length */
 
-#define DATERMS    10101     /* word used to identify DA index files */
-#define DARECS     23232     /* word used to identify DA record files */
+#define DA_TERMS   10101     /* word used to identify DA index files */
+#define DA_RECS    23232     /* word used to identify DA record files */
 #define TVSTART(x) (LWIDTH(x)+1)
 #define TVSIZE(p,c,x) (LENGTH_OF(p,c,x)+1)
 #define ILEN 4
@@ -99,3 +107,8 @@ extern void M_read_terms(struct termvec * tv);
 extern struct termvec * M_make_termvec();
 extern void M_lose_termvec(struct termvec * tv);
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* 3point6.h */

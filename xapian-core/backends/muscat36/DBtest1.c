@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,15 +32,15 @@ void printkform(byte * k)
    printf("]"); fflush(stdout);
 }
 
-void checkterm(struct DBfile * DB, struct DBterminfo * t, int style)
+void checkterm(struct DB_file * DB, struct DB_term_info * t, int style)
 {     printf("[%s]", t->key + 1);
       printf("  term frequency %d\n", t->freq);
 
 #define ZED 5124
 
-      {  struct DBpostings * q = DBopenpostings(t, DB);
+      {  struct DB_postings * q = DB_open_postings(t, DB);
          int i; for(i = 1;; i++)
-         {  DBreadpostings(q, style, ZED);
+         {  DB_read_postings(q, style, ZED);
             /* style 0 for expanded, 1 for compact, ranges */
             if (q->Doc == MAXINT) break;
             if (q->Doc == q->E) printf("%d (%d) ", q->Doc, q->wdf);
@@ -49,13 +49,13 @@ void checkterm(struct DBfile * DB, struct DBterminfo * t, int style)
          fflush(stdout);
          }
          printf("\n");
-         DBclosepostings(q);
+         DB_close_postings(q);
       }
 
 }
 
-void findterm(struct DBfile * DB, struct DBterminfo * t, byte * k, int style)
-{  int found = DBterm(k, t, DB);
+void findterm(struct DB_file * DB, struct DB_term_info * t, byte * k, int style)
+{  int found = DB_term(k, t, DB);
    printkform(k);
    printf(" %d\n", found); fflush(stdout);
    if (!found) return;
@@ -71,10 +71,10 @@ int main(int argc, char * argv[])
 {  int x = HEAVY_DUTY;
    if (argc == 1) { printf("No argument\n"); exit(1); }
    printf("[%s]\n", argv[1]);
-   {  struct DBfile * DB;
-      struct DBterminfo t;
+   {  struct DB_file * DB;
+      struct DB_term_info t;
       byte * b = (byte *) malloc(1000);
-      DB = DBopen(argv[1], 20, x);
+      DB = DB_open(argv[1], 20, x);
       if (DB == NULL) { printf("Can't open %s\n", argv[1]); exit(1); }
       {   int style;
           for (style = 0; style <= 1; style++)
@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
           }
       }
       free(b);
-      DBclose(DB);
+      DB_close(DB);
    }
    return 0;
 }

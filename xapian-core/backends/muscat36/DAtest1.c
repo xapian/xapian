@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,8 +32,8 @@ void printkform(char * k)
     printf("]");
 }
 
-void findterm(struct DAfile * p, struct DAterminfo * t, byte * k, int compact)
-{   int found = DAterm(k, t, p);
+void findterm(struct DA_file * p, struct DA_term_info * t, byte * k, int compact)
+{   int found = DA_term(k, t, p);
     printkform(k);
     printf(" %d\n", found);
     if (!found) return;
@@ -50,9 +50,9 @@ void findterm(struct DAfile * p, struct DAterminfo * t, byte * k, int compact)
     printf("term-block number %d\n", t->n);
     printf("1 for first term %d\n", t->termno);
 
-    {   struct DApostings * q = DAopenpostings(t, p);
+    {   struct DA_postings * q = DA_open_postings(t, p);
         int i; for(i=1;;i++)
-        {   DAreadpostings(q, compact, 0);
+        {   DA_read_postings(q, compact, 0);
             /* (q, 1, 0) for compact ranges */
             /* (q, 0, 0) for expanded ranges */
             if (q->Doc == MAXINT) break;
@@ -61,7 +61,7 @@ void findterm(struct DAfile * p, struct DAterminfo * t, byte * k, int compact)
             if (i % 5 == 0) printf("\n");
         }
         printf("\n");
-        DAclosepostings(q);
+        DA_close_postings(q);
     }
 
 }
@@ -76,10 +76,10 @@ int main(int argc, byte * argv[])
     int x = HEAVY_DUTY;
     if (argc == 1) { printf("No argument\n"); exit(1); }
     printf("[%s]\n", argv[1]);
-    {   struct DAfile * p;
-        struct DAterminfo t;
+    {   struct DA_file * p;
+        struct DA_term_info t;
         byte * b = (byte *) malloc(1000);
-        p = DAopen(argv[1], DATERMS, x);
+        p = DA_open(argv[1], DA_TERMS, x);
         if (p == NULL) { printf("Can't open %s\n", argv[1]); exit(1); }
 
         makekform("p", 7, b); findterm(p, &t, b, 1);
@@ -90,7 +90,7 @@ int main(int argc, byte * argv[])
         makekform("s", 13, b); findterm(p, &t, b, 0);
 
         free(b);
-        DAclose(p);
+        DA_close(p);
     }
     return 0;
 }

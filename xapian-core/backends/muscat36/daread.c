@@ -79,17 +79,17 @@ static int packint(int n, byte * p, int o)
 /* All the stuff above is just a reworking of bits of my BCPL */
 
 
-static void readda(struct DAfile * q, int n, byte * b)
+static void readda(struct DA_file * q, int n, byte * b)
 {   filehandle q_locator = q->locator;
     int q_blocksize = q->blocksize;
     if (X_point(q_locator, q_blocksize, n) >= 0)
        if (X_read(q_locator, b, q_blocksize) == q_blocksize) return;
-    fprintf(stderr, "Can't read block %d of DA file\n", n); exit(1);
+    fprintf(stderr, "Can't read block %d of DA_ file\n", n); exit(1);
 }
 
-extern struct DAfile * DAopen(const char * s, int type, int heavy_duty)
+extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
 {
-    struct DAfile * p;
+    struct DA_file * p;
     filehandle q;
     int bsize;
     byte * b;
@@ -98,7 +98,7 @@ extern struct DAfile * DAopen(const char * s, int type, int heavy_duty)
     if (q == -1) return NULL;
     bsize = M_get_block_size(q, s);
     b = malloc(bsize+40);  /* ample */
-    p = (struct DAfile *) malloc(sizeof(struct DAfile));
+    p = (struct DA_file *) malloc(sizeof(struct DA_file));
     p->locator = q;
     p->blocksize = bsize;
     readda(p, 0, b);
@@ -113,7 +113,7 @@ extern struct DAfile * DAopen(const char * s, int type, int heavy_duty)
 
     if (p->codeword != type)
     {   fprintf(stderr, "You are not using a proper DA %s file\n",
-               (type == DATERMS) ? "term" : "record");
+               (type == DA_TERMS) ? "term" : "record");
         exit(1);
     }
     free(b);
@@ -132,14 +132,14 @@ extern struct DAfile * DAopen(const char * s, int type, int heavy_duty)
     p->pblockno = -1;
 
     if (heavy_duty != 0 && heavy_duty != 1)
-    {   fprintf(stderr, "3rd arg of DAopen should be 0 or 1\n");
+    {   fprintf(stderr, "3rd arg of DA_open should be 0 or 1\n");
         exit(1);
     }
     p->heavy_duty = heavy_duty;
     return p;
 }
 
-extern void DAclose(struct DAfile * p)
+extern void DA_close(struct DA_file * p)
 {   X_close(p->locator);
     free(p->buffuse);
     {   int i;
@@ -151,13 +151,13 @@ extern void DAclose(struct DAfile * p)
 }
 
 
-/* DAterm(k, v, p) looks up term k in DA term file p, putting the result in v.
+/* DA_term(k, v, p) looks up term k in DA_ term file p, putting the result in v.
    gives true/false if the term is found/not found.
    The last index term <= the search term (or the 1st term) has
    information placed in v as in "tihdr".
 */
 
-static void putin(struct DAterminfo * v, byte * b, int i, int o, int blockno, struct DAfile * p)
+static void putin(struct DA_term_info * v, byte * b, int i, int o, int blockno, struct DA_file * p)
 {   v->p = b; v->term = b+o; v->o = i; v->n = blockno;
     o += b[o];
     o = unpackint(& v->po, b, o);
@@ -179,7 +179,7 @@ static int fstring(const byte * k, int d, const byte * b, int o, int klen)
 {   return M_compare_bytes(klen-1, k, d+1, b[o]-1, b, o+1);
 }
 
-extern int DAterm(const byte * k, struct DAterminfo * v, struct DAfile * p)
+extern int DA_term(const byte * k, struct DA_term_info * v, struct DA_file * p)
 {   int klen = k[0];
     byte * * bvec = p->buffers;
     int * buse = p->buffuse;
@@ -209,7 +209,7 @@ extern int DAterm(const byte * k, struct DAterminfo * v, struct DAfile * p)
     return (fstring(k, 0, b, o, klen) == 0);
 }
 
-static void next_posting(struct DApostings * q, int Z)
+static void next_posting(struct DA_postings * q, int Z)
 {   byte * b = q->b;
     int o = q->o;
     while(true)
@@ -258,8 +258,8 @@ static void next_posting(struct DApostings * q, int Z)
     }
 }
 
-static byte * copybytes(int k, struct DAfile * p, int n, int o)
-/* copy k bytes from block n offset o in DA file p */
+static byte * copybytes(int k, struct DA_file * p, int n, int o)
+/* copy k bytes from block n offset o in DA_ file p */
 {   int l = p->blocksize;
     byte * b = (byte *) malloc(k);
     int i = 0;
@@ -274,7 +274,7 @@ static byte * copybytes(int k, struct DAfile * p, int n, int o)
 }
 
 
-static int * read_shortcut(struct DAfile * p, int n, int o, int shsize, int shcount)
+static int * read_shortcut(struct DA_file * p, int n, int o, int shsize, int shcount)
 {   n = n+o/p->blocksize; o = o % p->blocksize;
     {   byte * b = copybytes(shsize, p, n, o);
         int * v = (int *) malloc((shcount+1) * sizeof(int));
@@ -287,8 +287,8 @@ static int * read_shortcut(struct DAfile * p, int n, int o, int shsize, int shco
     }
 }
 
-extern struct DApostings * DAopenpostings(struct DAterminfo * v, struct DAfile * p)
-{   struct DApostings * q = (struct DApostings *) malloc(sizeof(struct DApostings));
+extern struct DA_postings * DA_open_postings(struct DA_term_info * v, struct DA_file * p)
+{   struct DA_postings * q = (struct DA_postings *) malloc(sizeof(struct DA_postings));
      q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
      if (v->freq == 0)
      {   byte * b = (byte *) malloc(1);
@@ -326,7 +326,7 @@ extern struct DApostings * DAopenpostings(struct DAterminfo * v, struct DAfile *
      return q;
 }
 
-extern void DAreadpostings(struct DApostings * q, int style, int Z)
+extern void DA_read_postings(struct DA_postings * q, int style, int Z)
 {
     if (style > 0)
     {
@@ -340,7 +340,7 @@ extern void DAreadpostings(struct DApostings * q, int style, int Z)
     q->D = q->Doc+1; return;
 }
 
-extern void DAclosepostings(struct DApostings * q)
+extern void DA_close_postings(struct DA_postings * q)
 {   free(q->b);
     free(q->shortcut);
     free(q);
@@ -348,7 +348,7 @@ extern void DAclosepostings(struct DApostings * q)
 
 /*********** The following works, but is not currently needed ****
 
-extern int DAnextterm(struct DAterminfo * v, struct DAfile * p)
+extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
 {   byte * b = v->p;
     int i = v->o + 2;
     int blockno = v->n;
@@ -365,7 +365,7 @@ extern int DAnextterm(struct DAterminfo * v, struct DAfile * p)
     return true;
 }
 
-extern int DAprevterm(struct DAterminfo * v, struct DAfile * p)
+extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
 {   byte * b = v->p;
     int i = v->o - 2;
     int blockno = v->n;
@@ -384,7 +384,7 @@ extern int DAprevterm(struct DAterminfo * v, struct DAfile * p)
 
 *****************************************************************/
 
-static void DAreadbytes(struct DAfile * p, int l, struct record * r, int notskipping)
+static void DA_read_bytes(struct DA_file * p, int l, struct record * r, int notskipping)
 {   int lev = p->levels;
     byte * b = p->buffers[lev];
     int blockno = p->buffuse[lev];
@@ -409,7 +409,7 @@ static void DAreadbytes(struct DAfile * p, int l, struct record * r, int notskip
     p->buffuse[lev] = blockno; p->o = o+l;
 }
 
-static void DAnextunit(struct DAfile * p, int m, int n, struct record * r)
+static void DA_next_unit(struct DA_file * p, int m, int n, struct record * r)
 {
 
     int x = p->heavy_duty;
@@ -423,28 +423,28 @@ static void DAnextunit(struct DAfile * p, int m, int n, struct record * r)
     r->heavy_duty = x;
     r->number = -1; /* error condition */
     while(true)
-    {   DAreadbytes(p, RECHEADSIZE, r, true); b = r->p;
+    {   DA_read_bytes(p, RECHEADSIZE, r, true); b = r->p;
         l = LENGTH_OF(b, 0, x) | b[ROFFSET] << SHIFTUP; /* old bug 9 */
         if (l == 0) return;
         l -= RECHEADSIZE;
         number = I(b, LWIDTH(x));  /* the record number */
         if (n < number) return;
-        if (m <= number) { DAreadbytes(p, l, r, true); break; }
-        DAreadbytes(p, l, r, false);
+        if (m <= number) { DA_read_bytes(p, l, r, true); break; }
+        DA_read_bytes(p, l, r, false);
     }
     r->number = number/2;
 }
 
-/* DAreadunit(p, key, range, r) reads one unit from the DA unit file
+/* DA_read_unit(p, key, range, r) reads one unit from the DA unit file
    p into r. The unit is specified by 'key, range', and the
    unit read will in fact be the first unit which has some overlap
    with this range. If there is no such unit r->number is set to -1,
    otherwise the number of the unit read.
-   Following a DAreadunit(...) sequential reading can be done with
-   DAnextunit(...).
+   Following a DA_read_unit(...) sequential reading can be done with
+   DA_next_unit(...).
 */
 
-static void DAreadunit(struct DAfile * p, int m, int n, struct record * r)
+static void DA_read_unit(struct DA_file * p, int m, int n, struct record * r)
 {
 
 #define KBLEN (2*ILEN)
@@ -472,16 +472,16 @@ static void DAreadunit(struct DAfile * p, int m, int n, struct record * r)
     }
     p->o = L2(b, 0);
     if (p->o == 0) { fprintf(stderr, "STRUCTURE ERROR\n"); exit(1); }
-    DAnextunit(p, m, n, r);
+    DA_next_unit(p, m, n, r);
 }
 
-extern int DAgetrecord(struct DAfile * p, int n, struct record * r)
-{   int u = 2*n; DAreadunit(p, u, u, r);
+extern int DA_get_record(struct DA_file * p, int n, struct record * r)
+{   int u = 2*n; DA_read_unit(p, u, u, r);
     return (r->number == n);
 }
 
-extern int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
-{   int u = 2*n+1; DAreadunit(p, u, u, (struct record *) tv);
+extern int DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
+{   int u = 2*n+1; DA_read_unit(p, u, u, (struct record *) tv);
     return (tv->number == n);
 }
 

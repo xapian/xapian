@@ -29,8 +29,8 @@ extern "C" {
 #endif
 
 #include "3point6.h"
-    
-struct DAfile
+
+struct DA_file
 {   filehandle locator;
                       /* DA file locator */
     int o;            /* is used internally in the "record" case */
@@ -53,7 +53,7 @@ struct DAfile
     int heavy_duty;     /* 1 or 0 according as heavy duty or flimsy */
 };
 
-struct DAterminfo
+struct DA_term_info
 {
 
     /* When a term is looked up in a DA index, a terminfo structure
@@ -74,7 +74,7 @@ struct DAterminfo
     int termno;   /* 1 for first term */
 };
 
-struct DApostings
+struct DA_postings
 {
     /* after q = DAopenpostings(t, p), members of q are */
 
@@ -82,7 +82,7 @@ struct DApostings
     int blocknum; /* the number of the first block */
     int blockinc; /* the current block is the first block plus blockinc
                      (blockinc is -1 when posting pre-read) */
-    struct DAfile * p;
+    struct DA_file * p;
     /* p, the DAfile struct */
     byte * b;     /* a buffer for the input */
     int D;        /* key, and */
@@ -97,21 +97,21 @@ struct DApostings
                      that don't need to be read */
 };
 
-extern struct DAfile *     DAopen(const char * s, int type, int heavy_duty);
-extern void                DAclose(struct DAfile * p);
-extern int                 DAterm(const byte * k, struct DAterminfo * t, struct DAfile * p);
-extern struct DApostings * DAopenpostings(struct DAterminfo * t, struct DAfile * p);
-extern void                DAreadpostings(struct DApostings * q, int style, int Z0);
-extern void                DAclosepostings(struct DApostings * q);
+extern struct DA_file *     DA_open(const char * s, int type, int heavy_duty);
+extern void                 DA_close(struct DA_file * p);
+extern int                  DA_term(const byte * k, struct DA_term_info * t, struct DA_file * p);
+extern struct DA_postings * DA_open_postings(struct DA_term_info * t, struct DA_file * p);
+extern void                 DA_read_postings(struct DA_postings * q, int style, int Z);
+extern void                 DA_close_postings(struct DA_postings * q);
 
 /* -- don't compile the next two until needed
-extern int                 DAnextterm(struct DAterminfo * v, struct DAfile * p);
-extern int                 DAprevterm(struct DAterminfo * v, struct DAfile * p);
+extern int                  DA_next_term(struct DA_term_info * v, struct DA_file * p);
+extern int                  DA_prev_term(struct DA_term_info * v, struct DA_file * p);
 */
 
-extern int                 DAgetrecord(struct DAfile * p, int n, struct record * r);
+extern int                  DA_get_record(struct DA_file * p, int n, struct record * r);
 
-extern int                 DAgettermvec(struct DAfile * p, int n, struct termvec * tv);
+extern int                  DA_get_termvec(struct DA_file * p, int n, struct termvec * tv);
 
 #ifdef __cplusplus
 }

@@ -32,22 +32,22 @@ extern "C" {
 #include "io_system.h"
 #include "dbdefs.h"
 
-struct DBpool /* block held in memory */
+struct DB_pool /* block held in memory */
 {
     byte * p;       /* block pointer */
     int n;          /* block number */
     long int clock; /* value of the DB->clock when last requested */
 };
 
-struct DBcursor /* pointer into a block */
+struct DB_cursor /* pointer into a block */
 {
-    struct DBpool * pool; /* pointer to a DBpool item */
-    int c;                /* block offset */
-    int n;                /* block number */
-    int version;          /* block version number */
+    struct DB_pool * pool; /* pointer to a DB_pool item */
+    int c;                 /* block offset */
+    int n;                 /* block number */
+    int version;           /* block version number */
 };
 
-struct DBfile
+struct DB_file
 {   filehandle locator;
 
     int block_size;
@@ -57,10 +57,10 @@ struct DBfile
     int root;
     int block_offset;
 
-    struct DBcursor * cursor;
+    struct DB_cursor * cursor;
 
     int pool_size;
-    struct DBpool * pool;
+    struct DB_pool * pool;
 
     const byte * p;    /* address of block of `current' item */
     int c;             /* and it's offset */
@@ -75,7 +75,7 @@ struct DBfile
     int heavy_duty;     /* 1 or 0 according as heavy duty or flimsy */
 };
 
-struct DBterminfo
+struct DB_term_info
 {
 
     /* When a term is looked up in a DB index, a terminfo structure
@@ -85,13 +85,13 @@ struct DBterminfo
     byte key[257]; /* 'A' + term + 0 key */
 };
 
-struct DBpostings
+struct DB_postings
 {
-    /* after q = DBopenpostings(...), members of q are */
+    /* after q = DB_open_postings(...), members of q are */
 
     int freq;
-    struct DBfile * DB;
-    struct DBcursor * cursor;
+    struct DB_file * DB;
+    struct DB_cursor * cursor;
     int buffer_size;
     byte * buffer;
     int i;
@@ -102,15 +102,15 @@ struct DBpostings
     int wdf;
 };
 
-extern struct DBfile *     DBopen(const char * s, int n, int heavy_duty);
-extern void                DBclose(struct DBfile * p);
-extern int                 DBterm(const byte * k, struct DBterminfo * t, struct DBfile * p);
-extern struct DBpostings * DBopenpostings(struct DBterminfo * t, struct DBfile * p);
-extern void                DBreadpostings(struct DBpostings * q, int style, int Z0);
-extern void                DBclosepostings(struct DBpostings * q);
+extern struct DB_file *     DB_open(const char * s, int n, int heavy_duty);
+extern void                 DB_close(struct DB_file * p);
+extern int                  DB_term(const byte * k, struct DB_term_info * t, struct DB_file * p);
+extern struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * p);
+extern void                 DB_read_postings(struct DB_postings * q, int style, int Z);
+extern void                 DB_close_postings(struct DB_postings * q);
 
-extern int                 DBgetrecord(struct DBfile * p, int n, struct record * r);
-extern int                 DBgettermvec(struct DBfile * p, int n, struct termvec * tv);
+extern int                  DB_get_record(struct DB_file * p, int n, struct record * r);
+extern int                  DB_get_termvec(struct DB_file * p, int n, struct termvec * tv);
 
 #ifdef __cplusplus
 }
