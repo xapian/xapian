@@ -414,6 +414,16 @@ void lowercase_term(om_termname &term)
   }
 }
 
+
+void lowercase_string(string &term)
+{
+  om_termname::iterator i = term.begin();
+  while(i != term.end()) {
+    *i = tolower(*i);
+    i++;
+  }
+}
+
 void split (const string & text, const string & separators, list<string> & words)
 {
   int n = text.length();
@@ -725,7 +735,7 @@ bool Lines::ReadNextLine() {
 
   // build data string
   static char str[4096];
-  sprintf(str, "%d %d", file_no, (line_no-current_offset+1) );
+  sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
   data = string(str) +" " + package + ":";
   
   for(int i = revisions.size()-1; i >=0; i-- ) {
@@ -757,11 +767,15 @@ bool Lines::ReadNextLine() {
     //////////////// now read code symbols
     line = "";
     getline( *in_code, line, '\n' );
-    
+    code_line = line;
     extractSymbols( line );
   }
 
   return true;
+}
+
+string Lines::getCodeLine() {
+  return code_line;
 }
 
 set<string> Lines::getCommentTerms() {

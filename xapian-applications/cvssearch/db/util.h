@@ -8,6 +8,7 @@
 // (at your option) any later version.
 
 extern void lowercase_term(om_termname &term);
+extern void lowercase_string(string &term);
 extern void split (const string & text, const string & separators, list<string> & words);
 
 #include <fstream.h>
@@ -22,6 +23,8 @@ class Lines {
   set<string> terms;
   list<string> term_list;
   set<string> symbols;
+  
+  string code_line;
 
   int line_no;
   string current_fn;
@@ -55,5 +58,6 @@ public:
   list<string> getTermList();
   set<string> getCodeSymbols();
   string getData();
+  string getCodeLine();
 };
 

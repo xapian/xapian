@@ -16,6 +16,9 @@
 //  Generates package1.count package2.count ...
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
+#warning "should use CVSDATA" 
+#warning "should generate unique file for tags"
+#warning "ctags contains inheritance information"
 
 // ctags options
 //  want classes
@@ -23,11 +26,12 @@
 //  ignore inheritance for now...
 
 // -R (recursive)
-// --c-types=cfmpsuAC 
-
+// --c-types=cfsuAC 
+// --kind-long=yes (verbose tag descriptions)
 // from this, ignore all entries with access:private
 
-
+// /tmp is small, so we use /home/amichail/temp
+#define CTAGS_FLAGS "-a -R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
 
 
 //
@@ -42,20 +46,22 @@
 // 15 is reasonable but takes a while
 
 
+#define MAX_LINES 500000000
 //#define MAX_LINES 500000
-#define MAX_LINES 50000000
+//#define MAX_LINES 50000000
 
-// for app, use 5
-#define MIN_SUPP 5 
+// should be 5 for local/global
+#define MIN_SUPP 3 
 
 // should be 2.0
 #define MIN_SURPRISE 0.0
 
+
+#define LOCAL_MODE 1
+
+
 // if true, counts files.
 // however, still requires line pairing of comment term, code symbol
-
-// any change in subdirectory counts as app change
-#define COUNT_APPS true
 
 // app count not exactly correct because files not handled
 // in order of app exactly but also by order of extension
@@ -63,7 +69,7 @@
 // 2 or 3 to the count
 
 #define COUNT_FUNCTION_SYMBOLS_ONLY 0
-#define COUNT_KDE_CLASSES_ONLY 1
+#define COUNT_KDE_CLASSES_ONLY 0
 
 #include <om/om.h>
 #include <db_cxx.h>
@@ -80,6 +86,10 @@
 
 // given a path, extract the application
 string extractApp( const string& s ) {
+
+#if LOCAL_MODE
+  return s; // returns file as is for local mode
+#endif
 
   if ( s == "" ) {
     return s;
@@ -114,6 +124,28 @@ string extractApp( const string& s ) {
 
 }
 
+void readTags( const string& fn, set<string>& S ) {
+  ifstream in(fn.c_str());
+  assert (in);
+  string s;
+  while ( getline( in, s ) ) {
+    if ( s == "" || s[0] == '!' ) {
+      continue;
+    }
+    //    cerr << "FOUND -" << s << "-" << endl;
+    bool function = (s.find("\tfunction\t") != -1);
+    string symbol = s.substr( 0, s.find("\t") );
+    if ( symbol.find("::") != -1 ) {
+      symbol = symbol.substr( symbol.find("::")+2 );
+    }
+    if ( function ) {
+      symbol += "()";
+    }
+    S.insert(symbol);
+    cerr << "** found symbol -" << symbol << "-" << endl;
+  } 
+  in.close();
+}
 
 int main(int argc, char *argv[]) {
 
@@ -128,6 +160,8 @@ int main(int argc, char *argv[]) {
     codepath = string(codepath,0, codepath.length()-1);
   }
   cerr << "Code path:  -" << codepath << "-" << endl;
+
+  system("rm -f /home/amichail/temp/tags"); 
 
   for (int i = 2; i < argc; i++ ) {
 
@@ -161,7 +195,16 @@ int main(int argc, char *argv[]) {
 	cerr << "PASS 1" << endl;
 	Lines lines( codepath, package, file_db, file_offset );
 	int lines_read = 0;
+	string prev_file = "";
 	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
+
+	  if ( lines.currentFile() != prev_file ) {
+	    // run ctags on file
+	    string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + codepath+"/"+lines.currentFile();
+	    //	    cerr << "** invoking " << cmd << endl;
+	    system(cmd.c_str());
+	    prev_file = lines.currentFile();
+	  }
 
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
@@ -194,6 +237,19 @@ int main(int argc, char *argv[]) {
 	} // while
       }
 
+
+
+
+
+      set<string> defined_symbols;
+      readTags( "/home/amichail/temp/tags", defined_symbols );
+
+
+
+
+
+
+
       map< pair<string, string>, set<string> > rule_support;
       
       { // pass 2
@@ -224,6 +280,10 @@ int main(int argc, char *argv[]) {
 		  continue;
 		}
 #endif
+
+		if ( defined_symbols.find(*s) == defined_symbols.end() ) {
+		  continue;
+		}
 
 		if ( symbol_count[*s].size() >= MIN_SUPP ) {
 
@@ -325,7 +385,7 @@ int main(int argc, char *argv[]) {
 
 #warning "penalty could be zero resulting in division by zero"
 	  double penalty = 100.0*(double)R.size() / (double)apps.size();
-	  penalty = log(1.1 + penalty); // penalty was too severe, also don't want zero
+	  //	  penalty = sqrt(1.1 + penalty); // penalty was too severe, also don't want zero
 	  
 	  double surprise = conf / penalty; // / con_usage;
 
