@@ -1,3 +1,8 @@
+Mon May 26 22:53:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* delve.cc: Corrected odd use of std::string::erase() (instead of
+	  `str = str.erase(n, m)' just use `str.erase(n,m)').
+
 Mon May 26 22:37:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
@@ -5,8 +10,8 @@ Mon May 26 22:37:12 BST 2003  Olly Betts <olly@survex.com>
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * Fix success message in bootstrap when building in non-src dir
-          as configure is written to the src dir
+	* Fix success message in bootstrap when building in non-src dir
+	  as configure is written to the src dir
 
 Sat Dec 14 13:30:17 GMT 2002  Olly Betts <olly@survex.com>
 
@@ -124,7 +129,7 @@ Wed May 22 15:23:55 BST 2002  Richard Boulton <richard@tartarus.org>
 
 Mon May 20 17:58:56 BST 2002  Richard Boulton <richard@tartarus.org>
 
-	* createdatabase.cc: Use strerror instead of sys_nerr and 
+	* createdatabase.cc: Use strerror instead of sys_nerr and
 	  sys_errlist[].  This is more portable (and actually compiles
 	  on my system).
 
@@ -171,9 +176,9 @@ Tue Apr 23 15:16:07 BST 2002  Olly Betts <olly@survex.com>
 
 Tue Apr 23 15:15:06 BST 2002  Olly Betts <olly@survex.com>
 
-        * Make buildall smart enough to generate aclocal.m4 properly and
-          remove acinclude.m4.  It now also extracts the package name from
-          configure.in so we can use the same buildall everywhere.
+	* Make buildall smart enough to generate aclocal.m4 properly and
+	  remove acinclude.m4.  It now also extracts the package name from
+	  configure.in so we can use the same buildall everywhere.
 
 Tue Apr 23 14:23:54 BST 2002  Olly Betts <olly@survex.com>
 
