@@ -1,3 +1,10 @@
+Wed Oct 06 15:42:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,include/xapian/database.h: Check that any
+	  user specified block size is a power of 2.  And if the block size
+	  passed is invalid, use the default of 8192 rather than throwing an
+	  exception.
+
 Wed Oct 06 12:19:39 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated from tinderbox.

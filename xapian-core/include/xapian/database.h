@@ -532,9 +532,10 @@ Database open(const std::string &dir);
  *  - Xapian::DB_CREATE create new database; fail if db exists
  *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
  *  - Xapian::DB_OPEN open for read/write; fail if no db exists
- * @param block_size the size of the blocks to use in
- *                 the tables, in bytes.  Acceptable values are powers of
- *                 two in the range 2048 to 65536.  The default is 8192.
+ * @param block_size the size in bytes of the blocks to use in
+ *                 the tables.  Acceptable values are powers of two in the
+ *                 range 2048 to 65536 (inclusive) - passing other values, or
+ *                 not specifying a value, will give a block size of 8192 bytes.
  *                 This setting is only used when creating databases.  If
  *                 the database already exists, it is completely ignored.
  */

@@ -1582,18 +1582,14 @@ Btree::create(unsigned int block_size_)
     DEBUGCALL(DB, void, "Btree::create", block_size_);
     close();
 
+    // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
+    if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
+	(block_size_ & (block_size_ - 1)) != 0) {
+	block_size_ = 8192;
+    }
+
     // FIXME: it would be good to arrange that this works such that there's
     // always a valid table in place...
-
-    if (block_size_ > BYTE_PAIR_RANGE) {
-	/* block size too large (64K maximum) */
-	throw Xapian::InvalidArgumentError("Btree block size too large");
-    }
-
-    if (block_size_ < 2048) {
-	/* block size far too small */
-	throw Xapian::InvalidArgumentError("Btree block size too small");
-    }
 
     /* write initial values to files */
 
