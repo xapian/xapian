@@ -1,10 +1,14 @@
 #!/usr/bin/make -f
 
-# The default python version
-PYTHON_VERSION_MAIN := `/usr/bin/python -c 'import sys;print sys.version[:3]'`
-
-# The python versions to build for
-PYTHON_VERSIONS := 2.1 2.2 2.3
+ifeq ($(COMPONENT),stable)
+  # The default python version
+  PYTHON_VERSION_MAIN := 2.1
+  # The python versions to build for
+  PYTHON_VERSIONS := 2.1 2.2
+else
+  PYTHON_VERSION_MAIN := 2.3
+  PYTHON_VERSIONS := 2.1 2.2 2.3
+endif
 
 export DH_COMPAT=3
 export DH_OPTIONS
@@ -55,7 +59,7 @@ debian/control: debian/rules debian/control.in debian/control-python.in
 			>> debian/control; \
 	done
 
-configure: debian/control debian/configure-stamp
+configure: debian/configure-stamp
 debian/configure-stamp:
 	dh_testdir
 
@@ -145,7 +149,7 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control
+clean:
 	dh_testdir
 	dh_testroot
 	for v in $(PYTHON_VERSIONS); do \

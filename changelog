@@ -1,3 +1,12 @@
+xapian-bindings (0.8.0-8) unstable; urgency=low
+
+  * debian/rules: Build appropriate python versions depending on enviornment
+    variable "$COMPONENT", set in my build script.  Remove dependencies on
+    debian/control, so that it is only generated when explicitly requested
+    by build script.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 13:28:43 +0100
+
 xapian-bindings (0.8.0-7) unstable; urgency=low
 
   * debian/rules: Change ' to " so that python versions get substituted
