@@ -1,3 +1,7 @@
+Mon May 19 13:17:16 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Disabled exported symbol regex for now.
+
 Tue May 13 05:08:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/database.cc,backends/dir_contents,backends/inmemory/,

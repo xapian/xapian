@@ -37,7 +37,7 @@ EXTRA_libxapian_la_SOURCES =
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols
-libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
+#libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 
 libxapian_la_LIBADD = \
  common/libcommon.la \
