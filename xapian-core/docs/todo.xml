@@ -20,21 +20,10 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="C" area="Indexer" release="1.0">
-
-Write indexer modules.
-
-</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
 
 Write tests for copying iterators: in particular, those with internals which
 might be null (eg, OmESet::end())
-
-</todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
-
-Implement OmPositionListIterator copy and assignment methods (remembering
-that the internals might be null).
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">
@@ -96,7 +85,7 @@ OmIndexerBuilder::NodeType
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms()
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+<todoitem priority="M" difficulty="3" owner="R" area="API" release="1.0">
 
 For writable databases, make the behaviour currently obtained by calling
 begin_session() and later end_session() the default behaviour.  If users
@@ -133,13 +122,22 @@ Produce NT version of OM.
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
-Implement methods to enable iteration through all the terms in the database,
-and possibly to iterate through all the documents in the database.
+Implement methods to enable iteration through all the terms in the database.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="">
+
+Possibly to iterate through all the documents in the database.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Quartz" release="1.0">
 
 Implement deletion and updating of documents.  Test.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
+
+Implement and test QuartzDatabase::get_doclength().
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="API" release="">
@@ -183,12 +181,6 @@ Make net/omerr_string.c include om/omerrortypes.h, and use its own
 be dealt with.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="1.0">
-
-Add error handlers to (at least) OmDatabase.  Implement more carefully in
-MergePostlist.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
 Check that negative term weights don't mess up matcher's optimisations - if
@@ -220,7 +212,7 @@ exceptions exist simultaneously.
 <todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Make exceptions work with shared libs on solaris / find an alternative. (gcc
-=> DISABLE_SHARED on Solaris)
+=&gt; DISABLE_SHARED on Solaris)
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="Options" release="">
@@ -263,12 +255,6 @@ Change all internal references to net/network backend to remote backend (in
 step with external naming)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases" release="1.0">
-
-Make references to muscat36/m36 consistent (may require externally visible
-changes)
-
-</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="DA backend" release="">
 
 Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
@@ -281,9 +267,10 @@ optimal AND trees.  Also add a variant on FilterPostList where the left
 branch is boolean and the right probabilistic.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="1.0">
+<todoitem priority="M" difficulty="4" owner="R" area="Matcher" release="1.0">
 
-max_or_terms should probably work in a more local way.
+max_or_terms should probably work in a more local way.  Should be a new
+query operator rather than a hack on OM_MOP_OR.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
@@ -387,6 +374,12 @@ Split database definition files into database/postlist/termlist files.
 A couple of classes get copied a lot - look into doing copy-on-write for
 them.  Notably ExpandBits and term names (currently strings so this happens,
 but may change)
+
+</todoitem>
+<todoitem priority="D" difficulty="3" owner="" area="Exceptions" release="">
+
+Add error handlers to (at least) OmDatabase.  Implement more carefully in
+MergePostlist.
 
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="Decision functors" release="">

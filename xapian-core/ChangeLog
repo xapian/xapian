@@ -1,3 +1,7 @@
+Thu Dec 14 17:11:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Adjusted todo.xml
+
 Thu Dec 14 16:21:27 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed handling of OmDatabaseModifiedError in the API - it's
