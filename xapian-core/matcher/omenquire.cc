@@ -164,7 +164,6 @@ OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 	// Copy into self
 	initialise_from_copy(*qbegin);
     } else {
-	// FIXME: keep in vector
 	vector<OMQuery>::const_iterator i;
 	for(i = qbegin; i != qend; i++) {
 	    subqs.push_back(new OMQuery(*i));
