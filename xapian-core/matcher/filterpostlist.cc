@@ -27,7 +27,7 @@
 inline void
 FilterPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
-    DEBUGLINE("ret = " << (void*)ret);
+    DEBUGLINE(MATCH, "ret = " << (void*)ret);
     head = 0;
     // Don't call handle_prune - since r contributes no weight, we don't
     // need to recalc_maxweight
@@ -35,38 +35,38 @@ FilterPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 	delete r;
 	r = ret;
     }
-    DEBUGLINE("r at_end = " << r->at_end());
+    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
     if (r->at_end()) return;
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
     om_docid rhead = r->get_docid();
-    DEBUGLINE("rhead " << rhead);
-    DEBUGLINE("w_min " << w_min);
+    DEBUGLINE(MATCH, "rhead " << rhead);
+    DEBUGLINE(MATCH, "w_min " << w_min);
     skip_to_handling_prune(l, rhead, w_min, matcher);
-    DEBUGLINE("l at_end = " << l->at_end());
+    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
     if (l->at_end()) return;
 
     om_docid lhead = l->get_docid();
-    DEBUGLINE("lhead " << lhead);
+    DEBUGLINE(MATCH, "lhead " << lhead);
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    skip_to_handling_prune(l, rhead, w_min, matcher);
-	    DEBUGLINE("l at_end = " << l->at_end());
+	    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
 	    if (l->at_end()) return;
 	    lhead = l->get_docid();
-	    DEBUGLINE("lhead " << lhead);
+	    DEBUGLINE(MATCH, "lhead " << lhead);
 	} else {
 	    PostList *p = r->skip_to(lhead, 0);
 	    if (p) {
 		delete r;
 		r = p;
 	    }
-	    DEBUGLINE("r at_end = " << r->at_end());
+	    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
 	    if (r->at_end()) return;
 	    rhead = r->get_docid();
-	    DEBUGLINE("rhead " << rhead);
+	    DEBUGLINE(MATCH, "rhead " << rhead);
 	}
     }
 

@@ -30,42 +30,42 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 	      w_min << ", " << ret);
     head = 0;
     handle_prune(r, ret);
-    DEBUGLINE("r at_end = " << r->at_end());
+    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
     if (r->at_end()) return;
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
     om_docid rhead = r->get_docid();
-    DEBUGLINE("rhead " << rhead);
-    DEBUGLINE("w_min " << w_min << " rmax " << rmax);
+    DEBUGLINE(MATCH, "rhead " << rhead);
+    DEBUGLINE(MATCH, "w_min " << w_min << " rmax " << rmax);
     skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
-    DEBUGLINE("l at_end = " << l->at_end());
+    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
     if (l->at_end()) return;
 
     om_docid lhead = l->get_docid();
-    DEBUGLINE("lhead " << lhead);
+    DEBUGLINE(MATCH, "lhead " << lhead);
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    // FIXME: CSE these w_min values?
 	    // But note that lmax and rmax may change on recalc_maxweight...
 	    skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
-	    DEBUGLINE("l at_end = " << l->at_end());
+	    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();
-	    DEBUGLINE("lhead " << lhead);
+	    DEBUGLINE(MATCH, "lhead " << lhead);
 	} else {
 	    skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
-	    DEBUGLINE("r at_end = " << r->at_end());
+	    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
 	    if (r->at_end()) {
 		head = 0;
 		return;
 	    }
 	    rhead = r->get_docid();
-	    DEBUGLINE("rhead " << rhead);
+	    DEBUGLINE(MATCH, "rhead " << rhead);
 	}
     }
 
