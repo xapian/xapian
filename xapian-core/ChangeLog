@@ -1,7 +1,17 @@
-Fri Jul 05 08:54:33 BST 2002  Sam Liddicott <saml@ananova.net>
+Fri Jul 05 16:37:12 BST 2002  Olly Betts <olly@survex.com>
 
-	* Previous commit was 100% band fix
-	* This removes some typemap hacks as swig has better typemaps now
+	* docs/Makefile.am: "make dist" now fails if dot (part of graphviz)
+	  isn't installed.
+
+Fri Jul 05 08:54:33 BST 2002  Sam Liddicott <sam@ananova.com>
+
+	* bindings/: removed some typemap hacks as swig has better typemaps now
+
+Fri Jul 05 08:46:06 BST 2002  Sam Liddicott <sam@ananova.com>
+
+	* matcher/multimatch.cc: Quick hack to stop 100% being in a band all on
+	  its own.  The real problem is that bands need to include the integer
+	  at the upper end of the range, rather than the lower end.
 
 Thu Jul 04 16:23:52 BST 2002  Olly Betts <olly@survex.com>
 

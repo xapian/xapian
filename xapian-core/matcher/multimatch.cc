@@ -109,6 +109,8 @@ class MSetSortCmp {
 	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
 		    bool have_key_, om_valueno sort_key_, bool forward_)
 	    : db(db_), factor(percent_scale * bands / 100.1),
+	    // FIXME: 100.1 above is a bodge fix for the problem of 100% being
+	    // in its own band
 	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
