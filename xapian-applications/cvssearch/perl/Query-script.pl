@@ -127,17 +127,17 @@ if($query && ($query ne "")){
 	# find projects
 	#--------------------------------------
 	@temp = split /in:/, $query;
-    print "temp: @temp<br>\n"; #DEBUG
+    #print "temp: @temp<br>\n"; #DEBUG
 	if($#temp>0){
 		$tempp = pop @temp;
 	}else{
 		$tempp = "";
 	}
-    print "tempp: $tempp<br>\n"; #DEBUG
+    #print "tempp: $tempp<br>\n"; #DEBUG
 	$querywords = join "in:", @temp;
-    print "querywords: $querywords<br>\n"; #DEBUG
+    #print "querywords: $querywords<br>\n"; #DEBUG
 	@rawproj = split /;| /, $tempp;
-    print "rawproj: @rawproj<br>\n"; #DEBUG
+    #print "rawproj: @rawproj<br>\n"; #DEBUG
 
 	$rootproj = ''; #root:project pairs to give to cvssearch
 	
