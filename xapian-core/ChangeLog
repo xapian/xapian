@@ -1,3 +1,8 @@
+Mon May 26 22:00:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table_manager.cc: Give a better error message
+	  if asked to open a pre-0.6 Quartz database.
+
 Mon May 26 20:43:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,backends/Makefile.am,docs/mkdoc.pl,

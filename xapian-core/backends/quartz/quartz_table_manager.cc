@@ -80,6 +80,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
     // open tables
     if (action == OM_DB_READONLY) {
 	if (!dbexists) {
+	    // Catch pre-0.6 Xapian databases and give a better error
+	    if (file_exists(db_dir + "/attribute_baseA"))
+		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 	    throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
@@ -100,6 +103,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	if (!dbexists) {
 	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 	    if (action == Xapian::DB_OPEN) {
+		// Catch pre-0.6 Xapian databases and give a better error
+		if (file_exists(db_dir + "/attribute_baseA"))
+		    throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 	    create_and_open_tables();
