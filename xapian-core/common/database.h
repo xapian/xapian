@@ -32,7 +32,7 @@ class IRDatabase {
 	virtual docid add_doc(IRDocument &) = 0;
 	virtual void add(termid, docid, termpos) = 0;
 
-        virtual void open(const string &pathname, bool readonly) = 0;
+	// Close the database
 	virtual void close() = 0;
 
 	// Number of docs in the database
@@ -51,6 +51,17 @@ class IRDatabase {
 
 	// Introspection methods
 	virtual const string get_database_path() const = 0;
+};
+
+class IRSingleDatabase : public virtual IRDatabase {
+    public:
+	virtual void open(const string &pathname, bool readonly) = 0;
+};
+
+class IRGroupDatabase : public virtual IRDatabase {
+    public:
+	virtual void open_subdatabase(IRDatabase *,
+				      const string &pathname, bool readonly);
 };
 
 inline bool

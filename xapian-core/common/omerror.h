@@ -5,6 +5,7 @@
 #define _error_h_
 
 #include <string>
+#include <stdexcept>
 
 #include "omtypes.h"
 

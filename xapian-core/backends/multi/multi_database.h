@@ -4,9 +4,9 @@
 #define _multi_database_h_
 
 #include "omassert.h"
-#include "database.h"
 #include "postlist.h"
 #include "termlist.h"
+#include "database.h"
 #include <stdlib.h>
 #include <map>
 #include <vector>
@@ -226,10 +226,6 @@ class MultiDatabase : public virtual IRDatabase {
 	termid add_term(const termname &);
 	docid add_doc(IRDocument &);
 	void add(termid, docid, termpos);
-
-	void open(const string &pathname, bool readonly) {
-	    throw OmError("open() not valid for MultiDatabase\n");
-	}
 
 	// MultiDatabase will take care of closing and deleting the
 	// database.  FIXME find appropriate structure to make this

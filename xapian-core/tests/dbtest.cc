@@ -1,10 +1,10 @@
 #include <stdio.h>
 
+#include "omerror.h"
 #include "database.h"
-#include "sleepy_database.h"
-#include "da_database.h"
-#include "multi_database.h"
-#include "textfile_database.h"
+#include "postlist.h"
+#include "termlist.h"
+#include "database_factory.h"
 
 int main(int argc, char *argv[]) {
     DBPostList * postlist;
@@ -12,9 +12,11 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
+	DatabaseFactory dbfactory;
+	IRDatabase * database;
 #if 1
-	TextfileDatabase database;
-	database.open("textfile", 1);
+	database = dbfactory.make(DBTYPE_TEXTFILE);
+	database->open("textfile", 1);
 #endif
 #if 0
 	MultiDatabase database;
@@ -32,12 +34,12 @@ int main(int argc, char *argv[]) {
 #endif
 
 	termname tname = "thou";
-	if(database.term_exists(tname) == 0) {
+	if(database->term_exists(tname) == 0) {
 	    printf("Term not found\n");
 	} else {
 	    printf("tname is `%s'\n", tname.c_str());
 	    // posting list 122 141 142 174 ...
-	    postlist = database.open_post_list(tname, NULL);
+	    postlist = database->open_post_list(tname, NULL);
 	    printf("Termfreq: %d\n", postlist->get_termfreq());
 	    postlist->next(0.0);
 	    while(!postlist->at_end()) {
@@ -56,16 +58,16 @@ int main(int argc, char *argv[]) {
 	    delete postlist;
 	}
 	/*
-	termlist = database.open_term_list(200);
+	termlist = database->open_term_list(200);
 	delete termlist;
-	termlist = database.open_term_list(201);
+	termlist = database->open_term_list(201);
 	delete termlist;
-	termlist = database.open_term_list(202);
+	termlist = database->open_term_list(202);
 	delete termlist;
 	*/
 	did = 1;
 	printf("\nTermlist for document %d:\n", did);
-	termlist = database.open_term_list(did);
+	termlist = database->open_term_list(did);
 	termlist->next();
 	while(!termlist->at_end()) {
 	    termname tname = termlist->get_termname();
@@ -79,7 +81,7 @@ int main(int argc, char *argv[]) {
 //	DARecord * rec = database.get_document(did);
 //
 //	delete rec;
-	database.close();
+	database->close();
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;

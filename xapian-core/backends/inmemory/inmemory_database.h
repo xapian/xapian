@@ -4,9 +4,9 @@
 #define _textfile_database_h_
 
 #include "omassert.h"
-#include "database.h"
 #include "postlist.h"
 #include "termlist.h"
+#include "database.h"
 #include "indexer.h"
 #include <stdlib.h>
 #include <map>

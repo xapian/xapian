@@ -4,6 +4,8 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include
 
+noinst_HEADERS = multi_database.h
+
 noinst_LTLIBRARIES = libmulti.la
 
 libmulti_la_SOURCES = multi_database.cc

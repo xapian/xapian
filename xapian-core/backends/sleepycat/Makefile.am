@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include -I/usr/local/BerkeleyDB/include
 
-noinst_HEADERS = sleepy_list.h
+noinst_HEADERS = sleepy_list.h sleepy_database.h
 
 noinst_LTLIBRARIES = libsleepy.la
 

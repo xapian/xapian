@@ -8,6 +8,8 @@
 
 #include "omassert.h"
 
+#include "postlist.h"
+#include "termlist.h"
 #include "database.h"
 
 #include "errno.h"
@@ -208,7 +210,7 @@ DATerm::get_ti()
     return &ti;
 }
 
-class DADatabase : public virtual IRDatabase {
+class DADatabase : public virtual IRSingleDatabase {
     friend class DATermList;
     private:
 	bool   opened;

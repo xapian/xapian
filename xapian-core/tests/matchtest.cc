@@ -1,29 +1,16 @@
 #include <stdio.h>
 
-#include "multi_database.h"
+#include "omerror.h"
+#include "database.h"
+#include "database_factory.h"
 #include "irdocument.h"
 
-#include "da_database.h"
-#include "textfile_database.h"
 #include "match.h"
 #include "expand.h"
 #include "stem.h"
 #include "rset.h"
 
-IRDatabase *makenewdb(const string &type)
-{
-    IRDatabase * database = NULL;
-
-    if(type == "da") database = new DADatabase;
-    else if(type == "textfile") database = new TextfileDatabase;
-
-    if(database == NULL) {
-	cout << "Couldn't open database (unknown type?)" << endl;
-	exit(1);
-    }
-
-    return database;
-}
+#include <list>
 
 int
 main(int argc, char *argv[])
@@ -32,7 +19,7 @@ main(int argc, char *argv[])
     const char *progname = argv[0];
     list<docid> reldocs;
     list<string> dbnames;
-    list<string> dbtypes;
+    list<enum database_type> dbtypes;
     bool multidb = false;
     bool showmset = false;
     matchop default_op = OR;
@@ -47,12 +34,12 @@ main(int argc, char *argv[])
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back("da");
+	    dbtypes.push_back(OM_DBTYPE_DA);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back("textfile");
+	    dbtypes.push_back(OM_DBTYPE_TEXTFILE);
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--multidb") == 0) {
@@ -91,24 +78,26 @@ main(int argc, char *argv[])
 
     if(!dbnames.size()) {
 	dbnames.push_back("testdir");
-	dbtypes.push_back("da");
+	dbtypes.push_back(OM_DBTYPE_DA);
     }
     
     try {
+	DatabaseFactory dbfactory;
 	IRDatabase *database;
 
 	if (multidb || dbnames.size() > 1) {
-	    MultiDatabase *multidb = new MultiDatabase;
+	    IRDatabaseGroup *multidb = dbfactory.makegroup(OM_DBGRPTYPE_MULTI);
 	    list<string>::const_iterator p;
 	    list<string>::const_iterator q;
 	    for(p = dbnames.begin(), q = dbtypes.begin();
 		p != dbnames.end();
 		p++, q++) {
-		multidb->open_subdatabase(makenewdb(*q), *p, true);
+		multidb->open_subdatabase(dbfactory.make(*q),
+					  *p, true);
 	    }
 	    database = multidb;
 	} else {
-	    database = makenewdb(*(dbtypes.begin()));
+	    database = dbfactory.make(*(dbtypes.begin())),
 	    database->open(*(dbnames.begin()), true);
 	}
        
