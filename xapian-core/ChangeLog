@@ -1,3 +1,168 @@
+Wed Apr 17 15:32:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* 
+
+
+? ChangeLog.32415.new
+? om-0.4.1-cvs
+Index: docs/Makefile.am
+===================================================================
+RCS file: /cvsroot/xapian/xapian/xapian-core/docs/Makefile.am,v
+retrieving revision 1.78
+diff -r1.78 Makefile.am
+2a3,4
+> SUFFIXES = .tex .dvi .ps .eps .dia .png
+> 
+64c66
+< 	@if [ -r apidoc/html/index.html ] ; then \
+---
+> 	@if test -f apidoc/html/index.html ; then \
+78c80
+< 	@if [ -r apidoc/html/index.html ] ; then \
+---
+> 	@if test -f apidoc/html/index.html ; then \
+82a85,89
+> 	elif test -f $(srcdir)/apidoc/html/index.html ; then \
+> 	  echo "Installing API HTML documentation" ; \
+> 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
+> 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
+> 	  $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
+84,91c91
+< 	  if [ -r $(srcdir)/apidoc/html/index.html ] ; then \
+< 	    echo "Installing API HTML documentation" ; \
+< 	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
+< 	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
+< 	    $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
+< 	  else \
+< 	    echo "NOT installing API HTML documentation: not present, and can't generate" ; \
+< 	  fi \
+---
+> 	  echo "NOT installing API HTML documentation: not present, and can't generate" ; \
+95c95
+< 	@if [ -r apidoc.dvi ] ; then \
+---
+> 	@if test -f apidoc.dvi ; then \
+97a98,100
+> 	elif test -f $(srcdir)/apidoc.dvi ; then \
+> 	  echo "Installing API DVI documentation" ; \
+> 	  $(INSTALL_DATA) $(srcdir)/apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
+99,104c102
+< 	  if [ -r $(srcdir)/apidoc.dvi ] ; then \
+< 	    echo "Installing API DVI documentation" ; \
+< 	    $(INSTALL_DATA) $(srcdir)/apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
+< 	  else \
+< 	    echo "NOT installing API DVI documentation: not present, and can't generate" ; \
+< 	  fi \
+---
+> 	  echo "NOT installing API DVI documentation: not present, and can't generate" ; \
+112,119c110,111
+< 	@if [ -d apidoc ]; then \
+< 	  echo "removing apidoc/"; \
+< 	  $(RM) -r apidoc/* ; rmdir apidoc ; \
+< 	fi
+< 	@if [ -d sourcedoc ]; then \
+< 	  echo "removing sourcedoc/"; \
+< 	  $(RM) -r sourcedoc/* ; rmdir sourcedoc ; \
+< 	fi
+---
+> 	test -d apidoc && $(RM) -r apidoc
+> 	test -d sourcedoc && $(RM) -r sourcedoc
+134c126
+< 	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
+---
+> 	@if test -d $(DESTDIR)$(docdatadir)/apidoc ; then \
+136c128
+< 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
+---
+> 	  $(RM) -r $(DESTDIR)$(docdatadir)/apidoc ; \
+138c130
+< 	@if [ -f $(DESTDIR)$(docdatadir)/apidoc.dvi ]; then \
+---
+> 	@if test -f $(DESTDIR)$(docdatadir)/apidoc.dvi ; then \
+140c132
+< 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.dvi ; \
+---
+> 	  $(RM) $(DESTDIR)$(docdatadir)/apidoc.dvi ; \
+163c155
+< %.dvi: %.tex docxx.sty
+---
+> .tex.dvi: docxx.sty
+165c157
+< 	@if [ ! -r docxx.sty ] ; then \
+---
+> 	@if test ! -f docxx.sty ; then \
+166a159
+> 	  rm -f docxx.sty ; \
+174c167
+< %.ps: %.dvi
+---
+> .dvi.ps:
+229c222
+< %.eps: %.dia
+---
+> .dia.eps:
+232c225
+< %.png: %.eps
+---
+> .eps.png:
+Index: netprogs/Makefile.am
+===================================================================
+RCS file: /cvsroot/xapian/xapian/xapian-core/netprogs/Makefile.am,v
+retrieving revision 1.13
+diff -r1.13 Makefile.am
+24,27c24
+< 	@if [ -d .quartz ]; then \
+< 	  echo "removing .quartz/"; \
+< 	  $(RM) -r .quartz/* ; rmdir .quartz ; \
+< 	fi
+---
+> 	$(RM) -rf .quartz
+Index: tests/Makefile.am
+===================================================================
+RCS file: /cvsroot/xapian/xapian/xapian-core/tests/Makefile.am,v
+retrieving revision 1.77
+diff -r1.77 Makefile.am
+73a74
+> CLEANFILES = includetest.cc stemtest.pl
+76,88c77,78
+< 	@if [ -f includetest.cc ] ; then \
+< 	  echo "removing includetest.cc"; $(RM) includetest.cc ; \
+< 	fi
+< 	@if [ -f stemtest.pl ] ; then \
+< 	  echo "removing stemtest.pl"; $(RM) stemtest.pl ; \
+< 	fi
+< 	@echo "removing random stemtest data"; \
+< 	$(RM) randjunk_seed_* ; \
+< 	$(RM) randtext_seed_* ;
+< 	@if [ -d .quartz ]; then \
+< 	  echo "removing .quartz/"; \
+< 	  $(RM) -r .quartz/* ; rmdir .quartz ; \
+<         fi
+---
+> 	rm -f randjunk_seed_* randtext_seed_*
+> 	rm -rf .quartz
+93,101c83,85
+< 	@if [ -f $(distdir)/includetest.cc ] ; then \
+< 	  echo "removing includetest.cc from distribution"; \
+< 	  $(RM) $(distdir)/includetest.cc ; \
+< 	fi
+< 
+< distclean-local: clean-local
+< 	@if [ -f .deps-includetest-cc ] ; then \
+< 	  echo "removing .deps-includetest-cc"; $(RM) .deps-includetest-cc ; \
+< 	fi
+---
+> 	rm -f $(distdir)/includetest.cc
+> 
+> DISTCLEANFILES = .deps-includetest-cc
+134c118
+< 	@rm -f run-apitest
+---
+> 	rm -f run-apitest
+138c122
+< 	@rm -f run-internaltest
+---
+> 	rm -f run-internaltest
 Wed Apr 17 14:29:21 BST 2002  Olly Betts <olly@survex.com>
 
 	* Replaced uses of GNU make specific features with more portable

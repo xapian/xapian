@@ -71,34 +71,18 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_poslist.txt \
 	     testdata/apitest_manydocs.txt
 
+CLEANFILES = includetest.cc stemtest.pl
 
 clean-local:
-	@if [ -f includetest.cc ] ; then \
-	  echo "removing includetest.cc"; $(RM) includetest.cc ; \
-	fi
-	@if [ -f stemtest.pl ] ; then \
-	  echo "removing stemtest.pl"; $(RM) stemtest.pl ; \
-	fi
-	@echo "removing random stemtest data"; \
-	$(RM) randjunk_seed_* ; \
-	$(RM) randtext_seed_* ;
-	@if [ -d .quartz ]; then \
-	  echo "removing .quartz/"; \
-	  $(RM) -r .quartz/* ; rmdir .quartz ; \
-        fi
+	rm -f randjunk_seed_* randtext_seed_*
+	rm -rf .quartz
 
 -include .deps-includetest-cc
 
 dist-hook:
-	@if [ -f $(distdir)/includetest.cc ] ; then \
-	  echo "removing includetest.cc from distribution"; \
-	  $(RM) $(distdir)/includetest.cc ; \
-	fi
+	rm -f $(distdir)/includetest.cc
 
-distclean-local: clean-local
-	@if [ -f .deps-includetest-cc ] ; then \
-	  echo "removing .deps-includetest-cc"; $(RM) .deps-includetest-cc ; \
-	fi
+DISTCLEANFILES = .deps-includetest-cc
 
 # Get GENDEPS macro
 include $(top_srcdir)/Makefile_common.am
@@ -131,9 +115,9 @@ internaltest.lo: internaltest.cc
 ## Make links to a wrapper script which adds the LD_PRELOAD for malloc
 ## checking
 run-apitest: apitest
-	@rm -f run-apitest
+	rm -f run-apitest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-apitest
 
 run-internaltest: internaltest
-	@rm -f run-internaltest
+	rm -f run-internaltest
 	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest

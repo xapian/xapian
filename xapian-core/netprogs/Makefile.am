@@ -21,7 +21,4 @@ omtcpsrv_LDADD = ../libxapian.la
 distclean-local: clean-local
 
 clean-local:
-	@if [ -d .quartz ]; then \
-	  echo "removing .quartz/"; \
-	  $(RM) -r .quartz/* ; rmdir .quartz ; \
-	fi
+	$(RM) -rf .quartz

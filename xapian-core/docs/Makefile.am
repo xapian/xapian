@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+SUFFIXES = .tex .dvi .ps .eps .dia .png
+
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html quickstart.html \
 	quartzdesign.html
@@ -61,7 +63,7 @@ docdata_DATA = $(CREATED_DOCUMENTS1) $(CREATED_DOCUMENTS2) $(HTMLFILES)
 doxygen_dist: doxygen_html_dist
 
 doxygen_html_dist:
-	@if [ -r apidoc/html/index.html ] ; then \
+	@if test -f apidoc/html/index.html ; then \
 	  echo "Adding API documentation to distribution" ; \
 	  $(mkinstalldirs) $(distdir)/apidoc ; \
 	  cp -a apidoc/* $(distdir)/apidoc/ ; \
@@ -75,33 +77,29 @@ doxygen_html_dist:
 doxygen_install: doxygen_html_install
 
 doxygen_html_install:
-	@if [ -r apidoc/html/index.html ] ; then \
+	@if test -f apidoc/html/index.html ; then \
 	  echo "Installing API HTML documentation" ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
 	  $(INSTALL_DATA) apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
+	elif test -f $(srcdir)/apidoc/html/index.html ; then \
+	  echo "Installing API HTML documentation" ; \
+	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
+	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
+	  $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
 	else \
-	  if [ -r $(srcdir)/apidoc/html/index.html ] ; then \
-	    echo "Installing API HTML documentation" ; \
-	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
-	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
-	    $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
-	  else \
-	    echo "NOT installing API HTML documentation: not present, and can't generate" ; \
-	  fi \
+	  echo "NOT installing API HTML documentation: not present, and can't generate" ; \
 	fi
 
 doxygen_dvi_install:
-	@if [ -r apidoc.dvi ] ; then \
+	@if test -f apidoc.dvi ; then \
 	  echo "Installing API DVI documentation" ; \
 	  $(INSTALL_DATA) apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
+	elif test -f $(srcdir)/apidoc.dvi ; then \
+	  echo "Installing API DVI documentation" ; \
+	  $(INSTALL_DATA) $(srcdir)/apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
 	else \
-	  if [ -r $(srcdir)/apidoc.dvi ] ; then \
-	    echo "Installing API DVI documentation" ; \
-	    $(INSTALL_DATA) $(srcdir)/apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
-	  else \
-	    echo "NOT installing API DVI documentation: not present, and can't generate" ; \
-	  fi \
+	  echo "NOT installing API DVI documentation: not present, and can't generate" ; \
 	fi
 
 ###############################
@@ -109,14 +107,7 @@ doxygen_dvi_install:
 ###############################
 
 clean-local:
-	@if [ -d apidoc ]; then \
-	  echo "removing apidoc/"; \
-	  $(RM) -r apidoc/* ; rmdir apidoc ; \
-	fi
-	@if [ -d sourcedoc ]; then \
-	  echo "removing sourcedoc/"; \
-	  $(RM) -r sourcedoc/* ; rmdir sourcedoc ; \
-	fi
+	rm -rf apidoc sourcedoc
 
 CLEANFILES=\
        doxygen_api_conf \
@@ -131,14 +122,8 @@ CLEANFILES=\
 # How to uninstall local files #
 ################################
 uninstall-local:
-	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
-	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc" ; \
-	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
-	fi
-	@if [ -f $(DESTDIR)$(docdatadir)/apidoc.dvi ]; then \
-	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc.dvi" ; \
-	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.dvi ; \
-	fi
+	rm -rf $(DESTDIR)$(docdatadir)/apidoc
+	rm -f $(DESTDIR)$(docdatadir)/apidoc.dvi
 
 ###############
 # Extra rules #
@@ -160,18 +145,19 @@ todo-release.html: todo2html.pl todo.xml
 	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
 	$${d2}/todo2html.pl --release \* $${d1}/todo.xml >$@
 
-%.dvi: %.tex docxx.sty
+.tex.dvi: docxx.sty
 	@#Make it as if docxx is there, for VPATH builds.
-	@if [ ! -r docxx.sty ] ; then \
+	@if test ! -f docxx.sty ; then \
 	  echo "Sym-linking docxx.sty" ; \
+	  rm -f docxx.sty ; \
 	  ln -s $(srcdir)/docxx.sty . ; \
 	fi
 	@echo "Generating $@"
-	@$(LATEX) "\scrollmode\input" "$(basename $@)" || :
-	@$(LATEX) "\scrollmode\input" "$(basename $@)" || \
-	  ( $(RM) $@ ; false )
+	@$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || :
+	@$(LATEX) "\scrollmode\input" `echo $@|sed 's!.*/!!'` || \
+	  ( rm -f $@ ; false )
 
-%.ps: %.dvi
+.dvi.ps:
 	$(DVIPS) -o $@ $<
 
 ##########################################
@@ -226,8 +212,8 @@ sourcedoc/html/index.html: doxygen_full_conf \
 # Generate images from dia files #
 ##################################
 
-%.eps: %.dia
+.dia.eps:
 	dia -e $@ $<
 
-%.png: %.eps
+.eps.png:
 	pstoimg -aaliastext -antialias -center 0 -density 40 -depth 1 $<
