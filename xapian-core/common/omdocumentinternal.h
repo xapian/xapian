@@ -163,6 +163,11 @@ class OmDocument::Internal {
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+        /* calls ptr->get_all_keys(); or whatever, as so many
+         * methods seem to be doing this independantly.
+         */
+        void need_keylist();
 };
 
 #endif  // OM_HGUARD_OMDOCUMENTINTERNAL_H

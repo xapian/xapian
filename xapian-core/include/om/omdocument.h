@@ -198,6 +198,7 @@ class OmDocument {
 	OmTermIterator termlist_begin() const;
 	OmTermIterator termlist_end() const;
 
+	om_termcount keylist_count();
 	OmKeyListIterator keylist_begin() const;
 	OmKeyListIterator keylist_end() const;
 

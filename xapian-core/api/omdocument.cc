@@ -130,10 +130,7 @@ OmDocument::add_key(om_keyno keyno, const OmKey &key)
 {
     DEBUGAPICALL(void, "OmDocument::add_key", keyno << ", " << key);
     // FIXME: need to lock here...
-    if (!internal->keys_here) {
-	internal->keys = internal->ptr->get_all_keys();
-	internal->keys_here = true;
-    }
+    internal->need_keylist();
     internal->keys.insert(std::make_pair(keyno, key));	
 }
 
@@ -142,10 +139,7 @@ OmDocument::remove_key(om_keyno keyno)
 {
     DEBUGAPICALL(void, "OmDocument::remove_key", keyno);
     // FIXME: need to lock here...
-    if (!internal->keys_here) {
-	internal->keys = internal->ptr->get_all_keys();
-	internal->keys_here = true;
-    }
+    internal->need_keylist();
     internal->keys.erase(keyno);
 }
 
@@ -314,15 +308,31 @@ OmDocument::termlist_end() const
     RETURN(OmTermIterator(NULL));
 }
 
+void
+OmDocument::Internal::need_keylist()
+{
+    DEBUGAPICALL(OmKeyList, "OmDocument::need_keylist", "");
+    // FIXME: need to lock here...
+    if (!keys_here) {
+        keys = ptr->get_all_keys();
+        keys_here = true;
+    }
+}
+
+om_termcount
+OmDocument::keylist_count() {
+    DEBUGAPICALL(OmKeyIterator, "OmDocument::keylist_count", "");
+    internal->need_keylist();
+    assert(internal->keys_here);
+    RETURN(internal->keys.size());
+}
+
 OmKeyListIterator
 OmDocument::keylist_begin() const
 {
     DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_begin", "");
     // FIXME: need to lock here...
-    if (!internal->keys_here) {
-	internal->keys = internal->ptr->get_all_keys();
-	internal->keys_here = true;
-    }
+    internal->need_keylist();
     RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.begin())));
 }
 
@@ -331,10 +341,7 @@ OmDocument::keylist_end() const
 {
     DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_end", "");
     // FIXME: need to lock here...
-    if (!internal->keys_here) {
-	internal->keys = internal->ptr->get_all_keys();
-	internal->keys_here = true;
-    }
+    internal->need_keylist();
     RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.end())));
 }
 
