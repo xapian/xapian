@@ -1,3 +1,8 @@
+Thu May 16 13:31:27 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Added loads more missing files like images and templates to the package
+	* Also fixed the templates to use the new images dir (if they used images, which they actaully don't)
+
 Thu May 16 12:56:55 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Fixes to spec file to add various missing files

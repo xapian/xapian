@@ -35,11 +35,11 @@ mkdir -p $RPM_BUILD_ROOT
 
 make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
 mkdir -p $RPM_BUILD_ROOT/var/www/cgi-bin
-mv $RPM_BUILD_ROOT%/usr/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
+mv $RPM_BUILD_ROOT/usr/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}
 
 # docs
-cp Copyright README NEWS TODO docs/* $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}/
+cp COPYING INSTALL README NEWS TODO docs/* $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}/
 mkdir -p $RPM_BUILD_ROOT/etc
 cp omega.conf $RPM_BUILD_ROOT/etc
 
@@ -50,7 +50,7 @@ cp templates/* $RPM_BUILD_ROOT/var/lib/omega/templates/
 mkdir -p $RPM_BUILD_ROOT/var/lib/omega/data
 
 # now images for templates
-mdir -p $RPM_BUILD_ROOT/var/www/html/images/omega
+mkdir -p $RPM_BUILD_ROOT/var/www/html/images/omega
 cp images/* $RPM_BUILD_ROOT/var/www/html/images/omega/
 
 %clean
