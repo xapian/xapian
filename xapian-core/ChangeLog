@@ -1,3 +1,8 @@
+Fri Apr 04 03:07:05 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Use "using namespace std;"; removed stray cout
+	  debug line.
+
 Wed Apr 02 16:54:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: More Sun C++ fixes.

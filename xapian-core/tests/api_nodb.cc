@@ -28,17 +28,15 @@
 #include <vector>
 #include "autoptr.h"
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
-
 #include "om/om.h"
 #include "testsuite.h"
 #include "testutils.h"
 
 #include <list>
-typedef std::list<om_termname> om_termname_list;
+
+using namespace std;
+
+typedef list<om_termname> om_termname_list;
 
 // always succeeds
 static bool test_trivial1()
@@ -120,7 +118,7 @@ static bool test_querylen2()
     OmQuery queries[3] = {
 	OmQuery("wibble"),
 	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, std::string("jelly"), std::string("belly"))
+	OmQuery(OmQuery::OP_OR, string("jelly"), string("belly"))
     };
 
     OmQuery myquery;
@@ -128,8 +126,8 @@ static bool test_querylen2()
     vector<OmQuery> v2(queries, queries + 3);
     vector<OmQuery *> v3;
     AutoPtr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
-					   std::string("ball"),
-					   std::string("club")));
+					   string("ball"),
+					   string("club")));
     AutoPtr<OmQuery> dynquery2(new OmQuery("ring"));
     v3.push_back(dynquery1.get());
     v3.push_back(dynquery2.get());
@@ -160,7 +158,6 @@ static bool test_querylen2()
 // tests that queries validate correctly
 static bool test_queryvalid1()
 {
-cout << "queryvalid1" << endl;
     vector<OmQuery> v1;
     // Need two arguments
     TEST_EXCEPTION(OmInvalidArgumentError,
@@ -187,11 +184,11 @@ static bool test_subqcollapse1()
     OmQuery queries1[3] = {
 	OmQuery("wibble"),
 	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, std::string("jelly"), std::string("belly"))
+	OmQuery(OmQuery::OP_OR, string("jelly"), string("belly"))
     };
 
     OmQuery queries2[3] = {
-	OmQuery(OmQuery::OP_AND, std::string("jelly"), std::string("belly")),
+	OmQuery(OmQuery::OP_AND, string("jelly"), string("belly")),
 	OmQuery("wibble"),
 	OmQuery("wobble")
     };
