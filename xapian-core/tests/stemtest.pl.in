@@ -59,7 +59,7 @@ srand $seed;
 print "Generating random junk... (seed $seed)\n";
 &make_randomjunk($randjunk);
 
-foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spanish") {
+foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spanish", "swedish") {
     my $language = $_;
     my $myretval = &dicttest($language);
     if ($myretval == $val_succeeded) {

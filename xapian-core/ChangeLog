@@ -1,3 +1,7 @@
+Mon Jun 26 15:04:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a swedish stemming algorithm.
+
 Mon Jun 26 14:12:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change debug class so that it has an operator<<, rather than

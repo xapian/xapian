@@ -48,10 +48,12 @@ enum stemmer_language {
     STEMLANG_ITALIAN,
     STEMLANG_PORTUGUESE,
     STEMLANG_SPANISH,
+    STEMLANG_SWEDISH,
     STEMLANG_PORTER
 };
 
-/** The mapping from language strings to language codes. */
+/** The mapping from language strings to language codes.
+ *  This list must be in alphabetic order. */
 static const StringAndValue language_strings[] = {
     {"de",		STEMLANG_GERMAN},
     {"dutch",		STEMLANG_DUTCH},
@@ -68,6 +70,8 @@ static const StringAndValue language_strings[] = {
     {"portuguese",	STEMLANG_PORTUGUESE},
     {"pt",		STEMLANG_PORTUGUESE},
     {"spanish",		STEMLANG_SPANISH},
+    {"sv",		STEMLANG_SWEDISH},
+    {"swedish",		STEMLANG_SWEDISH},
     {"",		STEMLANG_NULL}
 };
 
@@ -180,6 +184,11 @@ OmStem::Internal::set_language(stemmer_language lang)
 	    stemmer_setup = setup_spanish_stemmer;
 	    stemmer_stem = spanish_stem;
 	    stemmer_closedown = closedown_spanish_stemmer;
+	    break;
+	case STEMLANG_SWEDISH:
+	    stemmer_setup = setup_swedish_stemmer;
+	    stemmer_stem = swedish_stem;
+	    stemmer_closedown = closedown_swedish_stemmer;
 	    break;
 	case STEMLANG_PORTER:
 	    stemmer_setup = setup_porter_stemmer;
