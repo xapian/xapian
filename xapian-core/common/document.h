@@ -92,4 +92,4 @@ class LeafDocument : public OmRefCntBase {
 	virtual ~LeafDocument() {}
 };
 
-#endif  // OM_HGUARD_LeafDocument_H
+#endif  // OM_HGUARD_DOCUMENT_H
