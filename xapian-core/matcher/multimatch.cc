@@ -131,46 +131,83 @@ MultiMatch::match(om_doccount first,
     Assert((allow_add_leafmatch = false) == false);
     Assert(leaves.size() > 0);
 
-    om_doccount tot_mbound = 0;
-    om_weight   tot_greatest_wt = 0;
-    vector<OmMSetItem> tot_mset;
+    if(leaves.size() == 1) {
+	// Only one mset to get - so get it.
+	(*(leaves.begin()))->match(first, maxitems, mset, cmp,
+				   mbound, greatest_wt, mdecider);
+    } else if(leaves.size() > 1) {
+	// Need to merge msets.
+	MSetCmp mcmp(cmp);
 
-    (*(leaves.begin()))->match(0, first + maxitems, tot_mset,
-			       cmp, &tot_mbound, &tot_greatest_wt, mdecider);
+	om_doccount tot_mbound = 0;
+	om_weight   tot_greatest_wt = 0;
+	om_doccount lastitem = first + maxitems;
 
-    if(leaves.size() > 1) {
-	for(vector<LeafMatch *>::iterator i = leaves.begin() + 1;
-	    i != leaves.end(); i++) {
+	// Get the first mset
+	(*(leaves.begin()))->match(0, lastitem, mset, cmp,
+				   &tot_mbound, &tot_greatest_wt, mdecider);
 
-	    om_doccount sub_mbound;
-	    om_weight   sub_greatest_wt;
-	    vector<OmMSetItem> sub_mset;
+	if(leaves.size() > 1) {
+	    // Get subsequent msets, and merge each one with the current mset
+	    // FIXME: this approach may be very inefficient - needs attention.
+	    for(vector<LeafMatch *>::iterator leaf = leaves.begin() + 1;
+		leaf != leaves.end(); leaf++) {
 
-	    (*i)->match(0, first + maxitems, sub_mset,
-			cmp, &sub_mbound, &sub_greatest_wt, mdecider);
+		om_doccount sub_mbound;
+		om_weight   sub_greatest_wt;
+		vector<OmMSetItem> sub_mset;
 
-	    tot_mbound += sub_mbound;
-	    if(sub_greatest_wt > tot_greatest_wt) tot_greatest_wt = sub_greatest_wt;
+		// Get next mset
+		(*leaf)->match(0, lastitem, sub_mset,
+			       cmp, &sub_mbound, &sub_greatest_wt, mdecider);
 
-	    DebugMsg("Merging mset of size " << sub_mset.size() <<
-		     " to existing set of size " << tot_mset.size() << endl);
+		DebugMsg("Merging mset of size " << sub_mset.size() <<
+			 " to existing set of size " << mset.size() <<
+			 endl);
 
-	    tot_mset = sub_mset;
+		// Merge stats
+		tot_mbound += sub_mbound;
+		if(sub_greatest_wt > tot_greatest_wt)
+		    tot_greatest_wt = sub_greatest_wt;
+
+		// Merge msets: FIXME - this is likely to be very inefficient
+		vector<OmMSetItem> old_mset;
+		old_mset.swap(mset);
+
+		vector<OmMSetItem>::const_iterator i = old_mset.begin();
+		vector<OmMSetItem>::const_iterator j = sub_mset.begin();
+		while(mset.size() < lastitem &&
+		      i != old_mset.end() && j != sub_mset.end()) {
+		    if(mcmp(*i, *j)) {
+			mset.push_back(*i++);
+		    } else {
+			mset.push_back(*j++);
+		    }
+		}
+		while(mset.size() < lastitem &&
+		      i != old_mset.end()) {
+		    mset.push_back(*i++);
+		}
+		while(mset.size() < lastitem &&
+		      j != sub_mset.end()) {
+		    mset.push_back(*j++);
+		}
+	    }
 	}
-    }
 
-    *mbound      = tot_mbound;
-    *greatest_wt = tot_greatest_wt;
-
-    if(first != 0) {
-	if(tot_mset.size() < first) {
-	    tot_mset.clear();
-	} else if (first > 0) {
-	    tot_mset.erase(tot_mset.begin(), tot_mset.begin() + first);
+	// Clear unwanted leading elements.
+	if(first != 0) {
+	    if(mset.size() < first) {
+		mset.clear();
+	    } else if (first > 0) {
+		mset.erase(mset.begin(), mset.begin() + first);
+	    }
 	}
-    }
 
-    mset = tot_mset;
+	// Set the mbound and greatest_wt appropriately.
+	*mbound      = tot_mbound;
+	*greatest_wt = tot_greatest_wt;
+    }
 }
 
 
@@ -183,25 +220,65 @@ MultiMatch::boolmatch(om_doccount first,
     Assert((allow_add_leafmatch = false) == false);
     Assert(leaves.size() > 0);
 
-    vector<OmMSetItem> tot_mset;
+    if(leaves.size() == 1) {
+	// Only one mset to get - so get it.
+	(*(leaves.begin()))->boolmatch(first, maxitems, mset);
+    } else if(leaves.size() > 1) {
+	// Need to merge msets.
+	MSetCmp mcmp(cmp);
 
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
+	om_doccount lastitem = first + maxitems;
 
-	vector<OmMSetItem> sub_mset;
+	// Get the first mset
+	(*(leaves.begin()))->match(0, lastitem, mset);
 
-	(*i)->boolmatch(0, first + maxitems, sub_mset);
+	if(leaves.size() > 1) {
+	    // Get subsequent msets, and merge each one with the current mset
+	    // FIXME: this approach may be very inefficient - needs attention.
+	    for(vector<LeafMatch *>::iterator leaf = leaves.begin() + 1;
+		leaf != leaves.end(); leaf++) {
 
-	tot_mset = sub_mset;
-    }
+		vector<OmMSetItem> sub_mset;
 
-    if(first != 0) {
-	if(tot_mset.size() < first) {
-	    tot_mset.clear();
-	} else if (first > 0) {
-	    tot_mset.erase(tot_mset.begin(), tot_mset.begin() + first);
+		// Get next mset
+		(*leaf)->boolmatch(0, lastitem, sub_mset);
+
+		DebugMsg("Merging mset of size " << sub_mset.size() <<
+			 " to existing set of size " << mset.size() <<
+			 endl);
+
+		// Merge msets: FIXME - this is likely to be very inefficient
+		vector<OmMSetItem> old_mset;
+		old_mset.swap(mset);
+
+		vector<OmMSetItem>::const_iterator i = old_mset.begin();
+		vector<OmMSetItem>::const_iterator j = sub_mset.begin();
+		while(mset.size() < lastitem &&
+		      i != old_mset.end() && j != sub_mset.end()) {
+		    if(mcmp(*i, *j)) {
+			mset.push_back(*i++);
+		    } else {
+			mset.push_back(*j++);
+		    }
+		}
+		while(mset.size() < lastitem &&
+		      i != old_mset.end()) {
+		    mset.push_back(*i++);
+		}
+		while(mset.size() < lastitem &&
+		      j != sub_mset.end()) {
+		    mset.push_back(*j++);
+		}
+	    }
+	}
+
+	// Clear unwanted leading elements.
+	if(first != 0) {
+	    if(mset.size() < first) {
+		mset.clear();
+	    } else if (first > 0) {
+		mset.erase(mset.begin(), mset.begin() + first);
+	    }
 	}
     }
-
-    mset = tot_mset;
 }
