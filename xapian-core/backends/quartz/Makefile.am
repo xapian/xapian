@@ -44,11 +44,15 @@ noinst_LTLIBRARIES = libquartz.la
 
 TESTS = run-quartztest
 
-check_PROGRAMS = quartztest
+check_PROGRAMS = quartztest quartzdump
 
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
+		   ../../libomus.la
+
+quartzdump_SOURCES = quartzdump.cc
+quartzdump_LDADD = libquartz.la \
 		   ../../libomus.la
 
 run-quartztest:
