@@ -29,13 +29,6 @@
 #include <string.h>
 #include <errno.h>
 
-std::string
-QuartzRevisionNumber::get_description() const
-{
-    return om_tostring(value);
-}
-
-
 // FIXME: just temporary
 #include <stdio.h>
 
@@ -164,15 +157,15 @@ QuartzDiskTable::open()
 
     if(revision1 > revision2) {
 	data = data1;
-	revision.value = revision1;
+	revision = revision1;
     } else {
 	data = data2;
-	revision.value = revision2;
+	revision = revision2;
     }
 }
 
 bool
-QuartzDiskTable::open(QuartzRevisionNumber revision_)
+QuartzDiskTable::open(quartz_revision_number_t revision_)
 {
     // FIXME implement
     std::map<QuartzDbKey, QuartzDbTag> data1;
@@ -181,12 +174,12 @@ QuartzDiskTable::open(QuartzRevisionNumber revision_)
     std::map<QuartzDbKey, QuartzDbTag> data2;
     readfile(path + "data_2", data2, &revision2, readonly);
 
-    if (revision1 ==revision_.value) {
+    if (revision1 ==revision_) {
 	data = data1;
-	revision.value = revision1;
-    } else if (revision2 == revision_.value) {
+	revision = revision1;
+    } else if (revision2 == revision_) {
 	data = data2;
-	revision.value = revision2;
+	revision = revision2;
     } else {
 	return false;
     }
@@ -197,13 +190,13 @@ QuartzDiskTable::~QuartzDiskTable()
 {
 }
 
-QuartzRevisionNumber
+quartz_revision_number_t
 QuartzDiskTable::get_open_revision_number() const
 {
     return revision;
 }
 
-QuartzRevisionNumber
+quartz_revision_number_t
 QuartzDiskTable::get_latest_revision_number() const
 {
     // FIXME: replace with a call to martin's code
@@ -215,8 +208,8 @@ QuartzDiskTable::get_latest_revision_number() const
     quartz_revision_number_t rev2;
     readfile(path + "data_2", data2, &rev2, readonly);
 
-    if (rev1 > rev2) return QuartzRevisionNumber(rev1);
-    return QuartzRevisionNumber(rev2);
+    if (rev1 > rev2) return rev1;
+    return rev2;
 }
 
 quartz_tablesize_t
@@ -280,7 +273,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
 
 bool
 QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			     QuartzRevisionNumber new_revision)
+			     quartz_revision_number_t new_revision)
 {
     if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
 
@@ -323,13 +316,13 @@ QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 
 
     // Write data
-    if(revision.value == rev1) {
-	revision.value = new_revision.value;
-	writefile(path + "data_2", data, revision.value);
+    if(revision == rev1) {
+	revision = new_revision;
+	writefile(path + "data_2", data, revision);
     } else {
-	Assert(revision.value == rev2);
-	revision.value = new_revision.value;
-	writefile(path + "data_1", data, revision.value);
+	Assert(revision == rev2);
+	revision = new_revision;
+	writefile(path + "data_1", data, revision);
     }
 
     return true;
@@ -348,7 +341,7 @@ QuartzBufferedTable::~QuartzBufferedTable()
 }
 
 bool
-QuartzBufferedTable::apply(QuartzRevisionNumber new_revision)
+QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 {
     bool result;
     try {

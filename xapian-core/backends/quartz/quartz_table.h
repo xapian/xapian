@@ -31,68 +31,6 @@
 
 class QuartzDiskTable;
 
-/** An object holding the revision number of a table.
- *
- *  A table's revision number increases monotonically, incrementing by
- *  one each time a modification is applied to the table.
- *
- *  The revision numbers of all the tables comprising a database
- *  should remain in step, and can be used to ensure that a user is
- *  accessing a consistent view of the database.
- *
- *  The absolute value of a revision number should be considered
- *  immaterial - all that matters is the difference between revision
- *  numbers.  It may be assumed that revision numbers will not cycle
- *  through all the available values during a database session, and
- *  hence that if two revision numbers are the same they correspond to
- *  the same revision.
- *
- *  Hence, the only operation which may be applied to revision numbers
- *  is comparison.
- */
-class QuartzRevisionNumber {
-    friend class QuartzDiskTable;
-    private:
-	/// The actual value of the revision number.
-	quartz_revision_number_t value;
-
-	/// Private constructor, only QuartzDiskTable calls this.
-	QuartzRevisionNumber(quartz_revision_number_t value_)
-		: value(value_) {}
-    public:
-	// use standard destructor
-	// ~QuartzRevisionNumber();
-
-	// use standard copy constructor
-	// QuartzRevisionNumber(const QuartzRevisionNumber &);
-
-	// use standard assignment operator
-	// void operator = (const QuartzRevisionNumber &);
-
-	/// Compare two revision numbers
-	bool operator == (QuartzRevisionNumber other) const {
-	    return (value == other.value);
-	}
-
-	/// Increment a revision number
-	QuartzRevisionNumber increment() {
-	    ++value;
-	    return *this;
-	}
-
-	/** Introspection method.
-	 *  Note: don't try and use this to get at the actual revision
-	 *  number - that would be foolish.  (See the class
-	 *  documentation for why.)
-	 */
-	std::string get_description() const;
-};
-
-inline ostream &
-operator << (ostream &os, QuartzRevisionNumber obj) {
-    return os << (obj.get_description());
-}
-
 /** A cursor pointing to a position in a quartz table, for reading several
  *  entries in order, or finding approximate matches.
  */
@@ -249,7 +187,7 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** The current revision number.
 	 */
-	QuartzRevisionNumber revision;
+	quartz_revision_number_t revision;
 
     public:
 	/** Create a new table.  This does not open the table - the open()
@@ -279,7 +217,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @exception OmDatabaseCorruptError will be thrown if the table is
 	 *             in a corrupt state.
 	 */
-	bool open(QuartzRevisionNumber revision_);
+	bool open(quartz_revision_number_t revision_);
 
 	/** Open the latest revision of the table.
 	 *
@@ -288,19 +226,15 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	void open();
 
-	/** Get an object holding the revision number at which this table
+	/** Get the revision number at which this table
 	 *  is currently open.
 	 *
 	 *  It is possible that there are other, more recent or older
 	 *  revisions available.
 	 *
-	 *  See the documentation for the QuartzRevisionNumber class for
-	 *  an explanation of why the actual revision number may not be
-	 *  accessed.
-	 *
 	 *  @return the current revision number.
 	 */
-	QuartzRevisionNumber get_open_revision_number() const;
+	quartz_revision_number_t get_open_revision_number() const;
 
 	/** Get the latest revision number stored in this table.
 	 *
@@ -308,7 +242,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *  table available, and indeed that the revision currently open
 	 *  is one of these older revisions.
 	 */
-	QuartzRevisionNumber get_latest_revision_number() const;
+	quartz_revision_number_t get_latest_revision_number() const;
 
 	/** Modify the entries in the table.
 	 *
@@ -335,7 +269,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *          otherwise.
 	 */
 	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			 QuartzRevisionNumber new_revision);
+			 quartz_revision_number_t new_revision);
 
 	/** Virtual methods of QuartzTable.
 	 */
@@ -398,7 +332,7 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply(QuartzRevisionNumber new_revision);
+	bool apply(quartz_revision_number_t new_revision);
 
 	/** Cancel any outstanding changes.
 	 *

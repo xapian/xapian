@@ -86,7 +86,7 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 
 void
 QuartzRecordManager::initialise(QuartzDiskTable & table,
-				QuartzRevisionNumber new_revision)
+				quartz_revision_number_t new_revision)
 {
     std::map<QuartzDbKey, QuartzDbTag *> entries;
     QuartzDbKey key;

@@ -197,21 +197,21 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  @exception OmInvalidArgumentError is thrown if the specified
 	 *  revision is not available.
 	 */
-	void open_tables(QuartzRevisionNumber revision);
+	void open_tables(quartz_revision_number_t revision);
 
 	/** Get an object holding the revision number which the tables are
 	 *  opened at.
 	 *
 	 *  @return the current revision number.
 	 */
-	QuartzRevisionNumber get_revision_number() const;
+	quartz_revision_number_t get_revision_number() const;
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
 	 *
 	 *  @return the next revision number.
 	 */
-	QuartzRevisionNumber get_next_revision_number() const;
+	quartz_revision_number_t get_next_revision_number() const;
 
 	/** Set the revision number in the tables.
 	 *
@@ -223,7 +223,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *          get_latest_revision_number()), or undefined behaviour will
 	 *          result.
 	 */
-	bool set_revision_number(QuartzRevisionNumber new_revision);
+	bool set_revision_number(quartz_revision_number_t new_revision);
 	
 	/** Virtual methods of QuartzTableManager
 	 */

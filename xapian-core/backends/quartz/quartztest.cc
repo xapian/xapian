@@ -168,8 +168,8 @@ static bool test_disktable1()
     table1.open();
 
 
-    QuartzRevisionNumber rev1 = table1.get_open_revision_number();
-    QuartzRevisionNumber rev2 = table2.get_open_revision_number();
+    quartz_revision_number_t rev1 = table1.get_open_revision_number();
+    quartz_revision_number_t rev2 = table2.get_open_revision_number();
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_EQUAL(rev2, table2.get_open_revision_number());
@@ -179,10 +179,11 @@ static bool test_disktable1()
     std::map<QuartzDbKey, QuartzDbTag *> newentries;
 
     // Check adding no entries
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -198,10 +199,11 @@ static bool test_disktable1()
     tag.value = "world";
     newentries[key] = &tag;
     
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -215,10 +217,11 @@ static bool test_disktable1()
     check_table_values_hello(table2, "world");
 
     // Check adding the same entries
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -235,11 +238,13 @@ static bool test_disktable1()
     // Check adding an entry with a null key
     key.value = "";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(OmAssertionError, table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmAssertionError,
+		   table2.set_entries(newentries,
+				      table2.get_latest_revision_number() + 1));
 #endif
 
     // Check changing an entry, to a null tag
@@ -247,10 +252,11 @@ static bool test_disktable1()
     key.value = "hello";
     tag.value = "";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -267,10 +273,11 @@ static bool test_disktable1()
     newentries.clear();
     key.value = "hello";
     newentries[key] = 0;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -291,10 +298,11 @@ static bool test_disktable1()
     key.value = "whooo";
     tag.value = "world";
     newentries[key] = &tag;
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries,
-			table1.get_latest_revision_number().increment()));
+    TEST_EXCEPTION(OmInvalidOperationError,
+		   table1.set_entries(newentries,
+				      table1.get_latest_revision_number() + 1));
     table2.set_entries(newentries,
-		       table2.get_latest_revision_number().increment());
+		       table2.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, table1.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, table2.get_open_revision_number());
@@ -377,8 +385,8 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    QuartzRevisionNumber new_revision = disktable1.get_latest_revision_number();
-    new_revision.increment();
+    quartz_revision_number_t new_revision =
+	    disktable1.get_latest_revision_number() + 1;
     TEST(bufftable1.apply(new_revision));
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
@@ -405,7 +413,7 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
 
-    new_revision.increment();
+    new_revision += 1;
     TEST(bufftable1.apply(new_revision));
 
     TEST_EQUAL(disktable1.get_entry_count(), 2);
@@ -450,8 +458,8 @@ static bool test_cursor1()
     bufftable1.get_or_make_tag(key)->value = "bar2";
     key.value = "foo3";
     bufftable1.get_or_make_tag(key)->value = "bar3";
-    QuartzRevisionNumber new_revision = disktable1.get_latest_revision_number();
-    new_revision.increment();
+    quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
+    new_revision += 1;
     TEST(bufftable1.apply(new_revision));
 
     QuartzTable * table = &disktable1;

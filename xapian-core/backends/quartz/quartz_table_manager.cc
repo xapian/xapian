@@ -69,11 +69,11 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	// tables.
 	if (record_table.get_open_revision_number() != 
 	    postlist_table.get_latest_revision_number()) {
-	    QuartzRevisionNumber new_revision = get_next_revision_number();
+	    quartz_revision_number_t new_revision = get_next_revision_number();
 
 	    log->make_entry("Detected partially applied changes.  Updating "
 			    "all revision numbers to consistent state (" +
-			    new_revision.get_description() + ") to proceed.  "
+			    om_tostring(new_revision) + ") to proceed.  "
 			    "This will remove partial changes.");
 	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
 	    postlist_table    .set_entries(empty_entries, new_revision);
@@ -95,9 +95,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	    throw OmOpeningError("Database is empty and uninitialised");
 	} else {
 	    // initialise
-	    QuartzRevisionNumber new_revision = get_next_revision_number();
+	    quartz_revision_number_t new_revision = get_next_revision_number();
 	    log->make_entry("Initialising database - new revision is " +
-			    new_revision.get_description() + ".");   
+			    om_tostring(new_revision) + ".");   
 
 	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
 	    postlist_table    .set_entries(empty_entries,  new_revision);
@@ -128,22 +128,22 @@ QuartzDiskTableManager::open_tables_newest()
     postlist_table.open();
 
     // Check consistency
-    QuartzRevisionNumber revision(record_table.get_open_revision_number());
+    quartz_revision_number_t revision = record_table.get_open_revision_number();
     if (revision != attribute_table.get_open_revision_number() ||
 	revision != lexicon_table.get_open_revision_number() ||
 	revision != termlist_table.get_open_revision_number() ||
 	revision != positionlist_table.get_open_revision_number() ||
 	revision != postlist_table.get_open_revision_number()) {
 	log->make_entry("Revisions are not consistent: have " + 
-			revision.get_description() + ", " +
-			attribute_table.get_open_revision_number().get_description() + ", " +
-			lexicon_table.get_open_revision_number().get_description() + ", " +
-			termlist_table.get_open_revision_number().get_description() + ", " +
-			positionlist_table.get_open_revision_number().get_description() + " and " +
-			postlist_table.get_open_revision_number().get_description() + ".");
+			om_tostring(revision) + ", " +
+			om_tostring(attribute_table.get_open_revision_number()) + ", " +
+			om_tostring(lexicon_table.get_open_revision_number()) + ", " +
+			om_tostring(termlist_table.get_open_revision_number()) + ", " +
+			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
+			om_tostring(postlist_table.get_open_revision_number()) + ".");
 	throw OmNeedRecoveryError("Quartz - tables are not in consistent state.");
     }
-    log->make_entry("Opened tables at revision " + revision.get_description() + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
 void
@@ -159,13 +159,13 @@ QuartzDiskTableManager::open_tables_consistent()
 
     log->make_entry("Opening tables at latest consistent revision");
     record_table.open();
-    QuartzRevisionNumber revision(record_table.get_open_revision_number());
+    quartz_revision_number_t revision = record_table.get_open_revision_number();
 
     bool fully_opened = false;
     int tries = 100;
     int tries_left = tries;
     while (!fully_opened && (tries_left--) > 0) {
-	log->make_entry("Trying revision " + revision.get_description() + ".");
+	log->make_entry("Trying revision " + om_tostring(revision) + ".");
 	
 	bool opened;
 	opened = attribute_table.open(revision);
@@ -187,13 +187,13 @@ QuartzDiskTableManager::open_tables_consistent()
 	    // if it's changed we try the opening again, otherwise we give up.
 	    //
 	    record_table.open();
-	    QuartzRevisionNumber newrevision(
-		record_table.get_open_revision_number());
+	    quartz_revision_number_t newrevision =
+		    record_table.get_open_revision_number();
 	    if (revision == newrevision) {
 		// Revision number hasn't changed - therefore a second index
 		// sweep hasn't begun and the system must have failed.  Database
 		// is inconsistent.
-		log->make_entry("Cannot open all tables at revision in record table: " + revision.get_description() + ".");
+		log->make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision) + ".");
 		throw OmDatabaseCorruptError("Cannot open tables at consistent revisions.");
 	    }
 	}
@@ -204,7 +204,7 @@ QuartzDiskTableManager::open_tables_consistent()
 	throw OmOpeningError("Cannot open tables at stable revision - changing too fast.");
     }
 
-    log->make_entry("Opened tables at revision " + revision.get_description() + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
 string
@@ -244,40 +244,40 @@ QuartzDiskTableManager::postlist_path() const
 }
 
 void
-QuartzDiskTableManager::open_tables(QuartzRevisionNumber revision)
+QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 {
-    log->make_entry("Opening tables at revision " + revision.get_description() + ".");
+    log->make_entry("Opening tables at revision " + om_tostring(revision) + ".");
     record_table.open(revision);
     attribute_table.open(revision);
     lexicon_table.open(revision);
     termlist_table.open(revision);
     positionlist_table.open(revision);
     postlist_table.open(revision);
-    log->make_entry("Opened tables at revision " + revision.get_description() + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
-QuartzRevisionNumber
+quartz_revision_number_t
 QuartzDiskTableManager::get_revision_number() const
 {
     // We could use any table here, theoretically.
     return postlist_table.get_open_revision_number();
 }
 
-QuartzRevisionNumber
+quartz_revision_number_t
 QuartzDiskTableManager::get_next_revision_number() const
 {
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
      */
-    QuartzRevisionNumber new_revision(
-	postlist_table.get_latest_revision_number());
-    new_revision.increment();
+    quartz_revision_number_t new_revision =
+	    postlist_table.get_latest_revision_number();
+    new_revision += 1;
     return new_revision;
 }
 
 bool
-QuartzDiskTableManager::set_revision_number(QuartzRevisionNumber new_revision)
+QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revision)
 {
     std::map<QuartzDbKey, QuartzDbTag *> null_entries;
 
@@ -367,10 +367,10 @@ QuartzBufferedTableManager::apply()
     }
 
     bool success;
-    QuartzRevisionNumber old_revision(disktables.get_revision_number());
-    QuartzRevisionNumber new_revision(disktables.get_next_revision_number());
+    quartz_revision_number_t old_revision = disktables.get_revision_number();
+    quartz_revision_number_t new_revision = disktables.get_next_revision_number();
 
-    disktables.log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
+    disktables.log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision) + ".");
 
     success = postlist_buffered_table.apply(new_revision);
     if (success) { success = positionlist_buffered_table.apply(new_revision); }
@@ -390,13 +390,13 @@ QuartzBufferedTableManager::apply()
 	record_buffered_table.cancel();
 	
 	// Reopen tables with old revision number, 
-	disktables.log->make_entry("Reopening tables without modifications: old revision is " + old_revision.get_description() + ".");
+	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision) + ".");
 	disktables.open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
-	new_revision.increment();
-	disktables.log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
+	new_revision += 1;
+	disktables.log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision) + ".");
 
 	if (!disktables.set_revision_number(new_revision)) {
 	    disktables.log->make_entry("Setting revision number failed.  Need recovery.");

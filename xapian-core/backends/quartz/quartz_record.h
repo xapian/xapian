@@ -37,7 +37,7 @@ class QuartzRecordManager {
     public:
 	/** Initialise table for searching.
 	 */
-	static void initialise(QuartzDiskTable & table,                                                        QuartzRevisionNumber new_revision);
+	static void initialise(QuartzDiskTable & table,                                                        quartz_revision_number_t new_revision);
 
 	/** Retrieve a document from the table.
 	 */

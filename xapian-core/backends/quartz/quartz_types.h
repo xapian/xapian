@@ -27,7 +27,10 @@
 
 typedef unsigned int quartz_blocksize_t;
 
-/** A type used to store a revision number for a database.
+/** A type used to store a revision number for a table.
+ *
+ *  A table's revision number increases monotonically, incrementing by
+ *  one each time a modification is applied to the table.
  *
  *  FIXME: ensure that this is of a suitable minimum size - 32 bits is
  *  satisfactory in most cases, but in extreme cases could cause the revision
@@ -36,7 +39,7 @@ typedef unsigned int quartz_blocksize_t;
  */
 typedef unsigned long int quartz_revision_number_t;
 
-/** A type used to store the number of entries in a database.
+/** A type used to store the number of entries in a table.
  *
  *  Again, this must be of suitable minimum size.
  */

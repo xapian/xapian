@@ -1,3 +1,8 @@
+Tue Oct 31 13:12:15 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed QuartzRevisionNumber class - just use the revision number
+	  as an integer.  Unneccessary layer of abstraction.
+
 Tue Oct 31 11:05:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add Btree implementation to quartz directory.  Not yet used.
