@@ -1,3 +1,82 @@
+Announcing version 0.4.0 of Muscat.
+===================================
+
+The modifications in this release represent two months of solid work, and
+cover over 1300 lines of ChangeLog entries - in other words, there's quite
+a bit that's new.
+
+We have a new database backend (codename "quartz"), a simple, but powerful,
+graph-based indexing system, performance improvments to distributed
+searching, many bug fixes, and many minor enhancements.
+
+This release contains a few fairly significant API changes, but most of
+these changes are additions rather than modifications.  Applications should
+require only a few modifications and a recompile to work with this release.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+Binary packages will be made available shortly.
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+Main API modifications:
+
+ * Added indexing system to API.  User programs simply need to do
+   "#include <om/om.h>" as previously, and the indexing system will be
+   available.
+
+ * PostListIterators now have get_doclength() and get_wdf() methods.
+   OmTermListIterators now have get_wdf() and get_termfreq() methods.
+   Also, OmTermListIterator::operator* is now const.
+
+ * Added OmErrorHandler base class, and methods to allow an error handler
+   to be set in an OmEnquire object.  Error handlers allow a piece of code
+   to be run when an error occurs during the match, to decide whether to
+   continue with the match as well as possible, or to fail and throw an
+   exception.
+
+ * Added a "context" member to OmErrors - this is set to a null string
+   at the moment, but will be used to store the context which an error
+   occurred in at a later date - for example, the identity of the database
+   in which a remote error occurred.
+
+ * Added OmEnquire::get_docs(), to retrieve several documents at once.  In
+   networked situations, this can result in a significant performance
+   improvment.
+
+ * Added get_doccount(), get_avlength(), get_termfreq(), get_doclength()
+   and term_exists() methods to OmDatabase, to allow general information
+   about the contents of the database to be accessed.
+
+
+Several new features 
+
+ * Quartz: this is a database backend designed to replace "sleepycat".  It
+   uses its own btree routines, and provides a full atomic-update, multiple
+   reader / single writer environment.  Work is still proceeding to make
+   it thread-safe, fully tested, and higher performance.  The file formats
+   used by quartz will change frequently in the near future, and backwards
+   compatability will be in no way maintained - you have been warned. :)
+
+ * Indexing system.  This is a graph based system for describing and
+   performing arbitrary indexing methods.  See the indexerquickstart.html
+   document for more information.
+
+ * ErrorHandlers, to allow coping with errors occuring during the match
+   operation, instead of giving up.  These currently only function for
+   distributed searches.
+
+ * Internal performance enhancements to the matcher.
+
+See the ChangeLog for full details on all the changes, including the
+numerous bug fixes and internal reorganisations.
+
+
+
 Announcing version 0.3.1 of Muscat.
 ===================================
 
