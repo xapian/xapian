@@ -142,7 +142,9 @@ dnl Checks for perl (needed to regenerate some of the documentation)
 AC_PATH_PROG(PERL, perl, [$MISSING perl])
 
 dnl Make DATADIR available to the library
-AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
+dnl This isn't currently used.  If we reenable it, it needs to be renamed
+dnl to avoid a clash with a mingw header.
+dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
 
 dnl Checks for dot.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT, dot)

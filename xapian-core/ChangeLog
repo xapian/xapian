@@ -1,3 +1,8 @@
+Thu Aug 26 17:18:56 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't define DATADIR - we no longer use it and clashes
+	  with more recent mingw headers.
+
 Wed Aug 25 22:47:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Started section on quartzcompact.
