@@ -28,21 +28,21 @@
 #include "omdebug.h"
 
 OmPostListIterator::~OmPostListIterator() {
-    DEBUGAPICALL("OmPostListIterator::~OmPostListIterator", "");
+    DEBUGAPICALL(void, "OmPostListIterator::~OmPostListIterator", "");
     delete internal;
 }
 
 OmPostListIterator::OmPostListIterator(const OmPostListIterator &other)
     : internal(NULL)
 {
-    DEBUGAPICALL("OmPostListIterator::OmPostListIterator", other);
+    DEBUGAPICALL(void, "OmPostListIterator::OmPostListIterator", other);
     if (other.internal) internal = new Internal(*(other.internal));
 }
 
 void
 OmPostListIterator::operator=(const OmPostListIterator &other)
 {
-    DEBUGAPICALL("OmPostListIterator::operator=", other);
+    DEBUGAPICALL(void, "OmPostListIterator::operator=", other);
     if (this == &other) {
 	DEBUGLINE(API, "OmPostListIterator assigned to itself");
 	return;
@@ -57,24 +57,22 @@ OmPostListIterator::operator=(const OmPostListIterator &other)
 
 const om_docid
 OmPostListIterator::operator *() {
-    DEBUGAPICALL("OmPostListIterator::operator*", "");
+    DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");
     om_docid result = internal->postlist->get_docid();
-    DEBUGAPIRETURN(result);
-    return result;
+    RETURN(result);
 }
 
 OmPostListIterator &
 OmPostListIterator::operator++() { 
-    DEBUGAPICALL("OmPostListIterator::operator++", "");
+    DEBUGAPICALL(OmPostListIterator &, "OmPostListIterator::operator++", "");
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
-    DEBUGAPIRETURN(*this);
-    return *this;
+    RETURN(*this);
 }
 
 void
 OmPostListIterator::operator++(int) {
-    DEBUGAPICALL("OmPostListIterator::operator++", "int");
+    DEBUGAPICALL(void, "OmPostListIterator::operator++", "int");
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
 }
@@ -82,7 +80,7 @@ OmPostListIterator::operator++(int) {
 // extra method, not required to be an input_iterator
 void
 OmPostListIterator::skip_to(om_docid did) {
-    DEBUGAPICALL("OmPostListIterator::skip_to", did);
+    DEBUGAPICALL(void, "OmPostListIterator::skip_to", did);
     PostList *p = internal->postlist->skip_to(did, 0);
     if (p) internal->postlist = p; // handle prune
 }    
@@ -90,23 +88,21 @@ OmPostListIterator::skip_to(om_docid did) {
 OmPositionListIterator
 OmPostListIterator::positionlist_begin()
 {
-    DEBUGAPICALL("OmPostListIterator::positionlist_begin", "");
-    DEBUGAPIRETURN("OmPositionListIterator");
-    return OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list()));
+    DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_begin", "");
+    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list())));
 }
 
 OmPositionListIterator
 OmPostListIterator::positionlist_end()
 {
-    DEBUGAPICALL("OmPostListIterator::positionlist_end", "");
-    DEBUGAPIRETURN("OmPositionListIterator");
-    return OmPositionListIterator(NULL);
+    DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_end", "");
+    RETURN(OmPositionListIterator(NULL));
 }
 
 std::string
 OmPostListIterator::get_description() const
 {
-    DEBUGAPICALL("OmPostListIterator::get_description", "");
+    DEBUGAPICALL(std::string, "OmPostListIterator::get_description", "");
     /// \todo display contents of the object
     om_ostringstream desc;
     desc << "OmPostListIterator([pos=";
@@ -116,8 +112,7 @@ OmPostListIterator::get_description() const
 	desc << internal->postlist->get_docid();
     }
     desc << "])";
-    DEBUGAPIRETURN(desc.str());
-    return desc.str();
+    RETURN(desc.str());
 }
 
 bool

@@ -81,7 +81,7 @@ MultiPostList::get_position_list()
 PostList *
 MultiPostList::next(om_weight w_min)
 {
-    DEBUGCALL(DB, "MultiPostList::next", w_min);
+    DEBUGCALL(DB, PostList *, "MultiPostList::next", w_min);
     Assert(!at_end());
 
     om_docid newdoc = 0;
@@ -112,14 +112,13 @@ MultiPostList::next(om_weight w_min)
 		  " (olddoc=" << currdoc << ")");
 	finished = true;
     }
-    DEBUGRETURN("NULL");
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
 MultiPostList::skip_to(om_docid did, om_weight w_min)
 {
-    DEBUGCALL(DB, "MultiPostList::skip_to", did << ", " << w_min);
+    DEBUGCALL(DB, PostList *, "MultiPostList::skip_to", did << ", " << w_min);
     Assert(!at_end());
     om_docid newdoc = 0;
     om_docid offset = 1;
@@ -144,6 +143,5 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
     } else {
 	finished = true;
     }
-    DEBUGRETURN("NULL");
-    return NULL;
+    RETURN(NULL);
 }

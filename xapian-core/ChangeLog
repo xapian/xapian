@@ -1,3 +1,9 @@
+Thu Sep 14 18:38:46 BST 2000 Olly Betts
+
+	* Overhauled DEBUGCALL macros - now you can just use RETURN(...)
+	  instead of return(...) in a method and the return value is dealt
+	  with automatically.
+
 Thu Sep 14 18:15:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added new exception OmInvalidDataError for bad data which

@@ -107,14 +107,8 @@ OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
 std::string
 OmBatchEnquire::get_description() const
 {
-    DEBUGLINE(APICALL, "Calling OmBatchEnquire::get_description()");
-    std::string description;
-
-    description = "OmBatchEnquire(" + internal->get_description() + ")";
-
-    DEBUGLINE(APICALL, "OmBatchEnquire::get_description() returning " <<
-	      description);
-    return description;
+    DEBUGAPICALL(std::string, "Calling OmBatchEnquire::get_description()", "");
+    RETURN("OmBatchEnquire(" + internal->get_description() + ")");
 }
 
 /////////////////////////////////////////

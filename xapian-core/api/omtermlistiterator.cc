@@ -77,11 +77,9 @@ OmTermListIterator::skip_to(const om_termname & tname) {
 std::string
 OmTermListIterator::get_description() const
 {
-    DEBUGAPICALL("OmTermListIterator::get_description", "");
+    DEBUGAPICALL(std::string, "OmTermListIterator::get_description", "");
     /// \todo display contents of the object
-    std::string description = "OmTermListIterator()";
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN("OmTermListIterator()");
 }
 
 bool

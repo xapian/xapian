@@ -279,19 +279,19 @@ OmStem::Internal::stem_word(const std::string &word) const
 OmStem::OmStem(const std::string &language)
 	: internal(0)
 {
-    DEBUGAPICALL("OmStem::OmStem", language);
+    DEBUGAPICALL(void, "OmStem::OmStem", language);
     internal = new OmStem::Internal(language);
 }
 
 OmStem::~OmStem()
 {
-    DEBUGAPICALL("OmStem::~OmStem", "");
+    DEBUGAPICALL(void, "OmStem::~OmStem", "");
     delete internal;
 }
 
 OmStem::OmStem(const OmStem &other)
 {
-    DEBUGAPICALL("OmStem::OmStem", other);
+    DEBUGAPICALL(void, "OmStem::OmStem", other);
     // FIXME
     throw OmUnimplementedError("OmStem::OmStem(const OmStem &) unimplemented");
 }
@@ -299,7 +299,7 @@ OmStem::OmStem(const OmStem &other)
 void
 OmStem::operator=(const OmStem &other)
 {
-    DEBUGAPICALL("OmStem::operator=", other);
+    DEBUGAPICALL(void, "OmStem::operator=", other);
     // FIXME
     OmLockSentry locksentry(internal->mutex); // or some kind of lock, anyway
     throw OmUnimplementedError("OmStem::operator=() unimplemented");
@@ -308,16 +308,16 @@ OmStem::operator=(const OmStem &other)
 std::string
 OmStem::stem_word(const std::string &word) const
 {
-    DEBUGAPICALL("OmStem::stem_word", word);
+    DEBUGAPICALL(std::string, "OmStem::stem_word", word);
     OmLockSentry locksentry(internal->mutex);
-    DEBUGAPIRETURN(internal->stem_word(word));
-    return internal->stem_word(word);
+    RETURN(internal->stem_word(word));
 }
 
 std::vector<std::string>
 OmStem::get_available_languages()
 {
-    DEBUGAPICALL_STATIC("OmStem::get_available_languages", "");
+    DEBUGAPICALL_STATIC(std::vector<std::string>,
+			"OmStem::get_available_languages", "");
     std::vector<std::string> languages;
 
     const char ** pos;
@@ -326,18 +326,12 @@ OmStem::get_available_languages()
 	 pos++) {
 	languages.push_back(*pos);
     }
-
-    DEBUGAPIRETURN("vector of languages");
-    return languages;
+    RETURN(languages);
 }
 
 std::string
 OmStem::get_description() const
 {
-    DEBUGAPICALL("OmStem::get_description", "");
-    std::string description =
-	    "OmStem(" + std::string(language_names[internal->langcode]) + ")";
-    DEBUGAPIRETURN(description);
-    return description;
+    DEBUGAPICALL(std::string, "OmStem::get_description", "");
+    RETURN("OmStem(" + std::string(language_names[internal->langcode]) + ")");
 }
-

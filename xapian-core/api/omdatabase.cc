@@ -31,26 +31,26 @@
 
 OmDatabase::OmDatabase()
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase", "");
+    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "");
     internal = new OmDatabase::Internal();
 }
 
 OmDatabase::OmDatabase(const OmSettings & params, bool readonly)
 	: internal(new OmDatabase::Internal(params, readonly))
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase", params << ", " << readonly);
+    DEBUGAPICALL(void, "OmDatabase::OmDatabase", params << ", " << readonly);
 }
 
 OmDatabase::OmDatabase(const OmSettings & params)
 	: internal(new OmDatabase::Internal(params, true))
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase", params);
+    DEBUGAPICALL(void, "OmDatabase::OmDatabase", params);
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
 	: internal(0)
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase", "OmDatabase");
+    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "OmDatabase");
     OmLockSentry locksentry(other.internal->mutex);
 
     internal = new Internal(*(other.internal));
@@ -59,7 +59,7 @@ OmDatabase::OmDatabase(const OmDatabase &other)
 void
 OmDatabase::operator=(const OmDatabase &other)
 {
-    DEBUGAPICALL("OmDatabase::operator=", "OmDatabase");
+    DEBUGAPICALL(void, "OmDatabase::operator=", "OmDatabase");
     if (this == &other) {
 	DEBUGLINE(API, "OmDatabase assigned to itself");
 	return;
@@ -84,7 +84,7 @@ OmDatabase::operator=(const OmDatabase &other)
 
 OmDatabase::~OmDatabase()
 {
-    DEBUGAPICALL("OmDatabase::~OmDatabase", "");
+    DEBUGAPICALL(void, "OmDatabase::~OmDatabase", "");
     delete internal;
     internal = 0;
 }
@@ -92,14 +92,14 @@ OmDatabase::~OmDatabase()
 void
 OmDatabase::add_database(const OmSettings &params)
 {
-    DEBUGAPICALL("OmDatabase::add_database", params);
+    DEBUGAPICALL(void, "OmDatabase::add_database", params);
     internal->add_database(params);
 }
 
 void
 OmDatabase::add_database(const OmDatabase & database)
 {
-    DEBUGAPICALL("OmDatabase::add_database", "OmDatabase");
+    DEBUGAPICALL(void, "OmDatabase::add_database", "OmDatabase");
     if (this == &database) {
 	DEBUGLINE(API, "OmDatabase added to itself");
 	throw OmInvalidArgumentError("Can't add an OmDatabase to itself");
@@ -116,70 +116,64 @@ OmDatabase::add_database(const OmDatabase & database)
 OmPostListIterator
 OmDatabase::postlist_begin(const om_termname &tname) const
 {
-    DEBUGAPICALL("OmDatabase::postlist_begin", tname);
+    DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_begin", tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
-    DEBUGAPIRETURN("OmPostListIterator");    
-    return OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname)));
+    RETURN(OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname))));
 }
 
 OmPostListIterator
 OmDatabase::postlist_end(const om_termname &tname) const
 {
-    DEBUGAPICALL("OmDatabase::postlist_end", tname);
+    DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_end", tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
-    DEBUGAPIRETURN("OmPostListIterator");
-    return OmPostListIterator(NULL);
+    RETURN(OmPostListIterator(NULL));
 }
 
 OmTermListIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
-    DEBUGAPICALL("OmDatabase::termlist_begin", did);
-    DEBUGAPIRETURN("OmTermListIterator");
-    return OmTermListIterator(new OmTermListIterator::Internal(internal->get_multi_database()->open_term_list(did)));
+    DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->get_multi_database()->open_term_list(did))));
 }
 
 OmTermListIterator
 OmDatabase::termlist_end(om_docid did) const
 {
-    DEBUGAPICALL("OmDatabase::termlist_end", did);
-    DEBUGAPIRETURN("OmTermListIterator");
-    return OmTermListIterator(NULL);
+    DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_end", did);
+    RETURN(OmTermListIterator(NULL));
 }
 
 std::string
 OmDatabase::get_description() const
 {
-    DEBUGAPICALL("OmDatabase::get_description", "");
+    DEBUGAPICALL(std::string, "OmDatabase::get_description", "");
     /// \todo display contents of the database
-    std::string description = "OmDatabase()";
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN("OmDatabase()");
 }
 
 
 OmWritableDatabase::OmWritableDatabase(const OmSettings & params)
 	: OmDatabase(params, false)
 {
-    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase", params);
+    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", params);
 }
 
 OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
 	: OmDatabase(other)
 {
-    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase", "OmWritableDatabase");
+    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", "OmWritableDatabase");
 }
 
 void
 OmWritableDatabase::operator=(const OmWritableDatabase &other)
 {
-    DEBUGAPICALL("OmWritableDatabase::operator=", "OmWritableDatabase");
+    DEBUGAPICALL(void, "OmWritableDatabase::operator=", "OmWritableDatabase");
     OmDatabase::operator=(other);
 }
 
 OmWritableDatabase::~OmWritableDatabase()
 {
-    DEBUGAPICALL("OmWritableDatabase::~OmWritableDatabase", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::~OmWritableDatabase", "");
     delete internal;
     internal = 0;
 }
@@ -187,7 +181,7 @@ OmWritableDatabase::~OmWritableDatabase()
 void
 OmWritableDatabase::begin_session(om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::begin_session", timeout);
+    DEBUGAPICALL(void, "OmWritableDatabase::begin_session", timeout);
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -201,7 +195,7 @@ OmWritableDatabase::begin_session(om_timeout timeout)
 void
 OmWritableDatabase::end_session()
 {
-    DEBUGAPICALL("OmWritableDatabase::end_session", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::end_session", "");
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -215,7 +209,7 @@ OmWritableDatabase::end_session()
 void
 OmWritableDatabase::flush()
 {
-    DEBUGAPICALL("OmWritableDatabase::flush", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::flush", "");
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -229,7 +223,7 @@ OmWritableDatabase::flush()
 void
 OmWritableDatabase::begin_transaction()
 {
-    DEBUGAPICALL("OmWritableDatabase::begin_transaction", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::begin_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -243,7 +237,7 @@ OmWritableDatabase::begin_transaction()
 void
 OmWritableDatabase::commit_transaction()
 {
-    DEBUGAPICALL("OmWritableDatabase::commit_transaction", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::commit_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -257,7 +251,7 @@ OmWritableDatabase::commit_transaction()
 void
 OmWritableDatabase::cancel_transaction()
 {
-    DEBUGAPICALL("OmWritableDatabase::cancel_transaction", "");
+    DEBUGAPICALL(void, "OmWritableDatabase::cancel_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -273,8 +267,8 @@ om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document,
 				 om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::add_document",
-		 document << ", " << timeout);
+    DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document",
+	       document << ", " << timeout);
     // Check the validity of the document
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
@@ -291,15 +285,13 @@ OmWritableDatabase::add_document(const OmDocumentContents & document,
 	database = internal->databases[0].get();
     }
 
-    om_docid did = database->add_document(document, timeout);
-    DEBUGAPIRETURN(did);
-    return did;
+    RETURN(database->add_document(document, timeout));
 }
 
 void
 OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::delete_document",
+    DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
 		 did << ", " << timeout);
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
@@ -316,7 +308,7 @@ OmWritableDatabase::replace_document(om_docid did,
 				     const OmDocumentContents & document,
 				     om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::replace_document",
+    DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
 		 did << ", " << document << ", " << timeout);
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
@@ -331,7 +323,7 @@ OmWritableDatabase::replace_document(om_docid did,
 OmDocumentContents
 OmWritableDatabase::get_document(om_docid did) const
 {
-    DEBUGAPICALL("OmWritableDatabase::get_document", did);
+    DEBUGAPICALL(OmDocumentContents, "OmWritableDatabase::get_document", did);
     // Get the pointer while locked, in case someone is assigning to it.
     IRDatabase * database;
     {
@@ -339,14 +331,13 @@ OmWritableDatabase::get_document(om_docid did) const
 	database = internal->databases[0].get();
     }
 
-    return database->get_document(did);
+    RETURN(database->get_document(did));
 }
 
 std::string
 OmWritableDatabase::get_description() const
 {
+    DEBUGAPICALL(std::string, "OmWritableDatabase::get_description", "");
     /// \todo display contents of the writable database
-    std::string description = "OmWritableDatabase()";
-    DEBUGAPICALL("OmWritableDatabase::get_description", "");
-    return description;
+    RETURN("OmWritableDatabase()");
 }

@@ -86,7 +86,7 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 std::string
 OmRSet::get_description() const
 {
-    DEBUGAPICALL("OmRSet::get_description", "");
+    DEBUGAPICALL(std::string, "OmRSet::get_description", "");
     std::string description;
 
     for (std::set<om_docid>::const_iterator i = items.begin();
@@ -98,8 +98,7 @@ OmRSet::get_description() const
 
     description = "OmRSet(" + description + ")";
 
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN(description);
 }
 
 ////////////////////////////
@@ -109,7 +108,7 @@ OmRSet::get_description() const
 std::string
 OmMSetItem::get_description() const
 {
-    DEBUGAPICALL("OmMSetItem::get_description", "");
+    DEBUGAPICALL(std::string, "OmMSetItem::get_description", "");
     std::string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
@@ -117,8 +116,7 @@ OmMSetItem::get_description() const
 
     description = "OmMSetItem(" + description + ")";
 
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN(description);
 }
 
 ////////////////////////
@@ -128,8 +126,8 @@ OmMSetItem::get_description() const
 int
 OmMSet::convert_to_percent_internal(om_weight wt) const
 {
-    DEBUGAPICALL("OmMSet::convert_to_percent", wt);
-    if(max_possible == 0) return 100;
+    DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
+    if (max_possible == 0) RETURN(100);
 
     int pcent = (int) ceil(wt * 100 / max_possible);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = " << max_possible <<
@@ -138,54 +136,47 @@ OmMSet::convert_to_percent_internal(om_weight wt) const
     if(pcent < 0) pcent = 0;
     if(pcent == 0 && wt > 0) pcent = 1;
 
-    DEBUGAPIRETURN(pcent);
-    return pcent;
+    RETURN(pcent);
 }
 
 int
 OmMSet::convert_to_percent(om_weight wt) const
 {
-    DEBUGAPICALL("OmMSet::convert_to_percent", wt);
-    int pcent = convert_to_percent_internal(wt);
-    DEBUGAPIRETURN(pcent);
-    return pcent;
+    DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
+    RETURN(convert_to_percent_internal(wt));
 }
 
 int
 OmMSet::convert_to_percent(const OmMSetItem & item) const
 {
-    DEBUGAPICALL("OmMSet::convert_to_percent", item);
-    int pcent = convert_to_percent_internal(item.wt);
-    DEBUGAPIRETURN(pcent);
-    return pcent;
+    DEBUGAPICALL(int, "OmMSet::convert_to_percent", item);
+    RETURN(convert_to_percent_internal(item.wt));
 }
 
 om_doccount
 OmMSet::get_termfreq(const om_termname &tname) const
 {
-    DEBUGAPICALL("OmMSet::get_termfreq", tname);
+    DEBUGAPICALL(om_doccount, "OmMSet::get_termfreq", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;
     i = termfreqandwts.find(tname);
     if(i == termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term frequency of `" + tname +
 				     "' not available.");
     }
-    DEBUGAPIRETURN(i->second.termfreq);
-    return i->second.termfreq;
+    RETURN(i->second.termfreq);
 }
 
 om_weight
 OmMSet::get_termweight(const om_termname &tname) const
 {
-    DEBUGAPICALL("OmMSet::get_termweight", tname);
+    DEBUGAPICALL(om_weight, "OmMSet::get_termweight", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;
     i = termfreqandwts.find(tname);
     if(i == termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term weight of `" + tname +
 				     "' not available.");
     }
-    DEBUGAPIRETURN(i->second.termweight);
-    return i->second.termweight;
+    RETURN(i->second.termweight);
 }
 
 std::map<om_termname, OmMSet::TermFreqAndWeight>
@@ -197,7 +188,7 @@ OmMSet::get_all_terminfo() const
 std::string
 OmMSet::get_description() const
 {
-    DEBUGAPICALL("OmMSet::get_description", "");
+    DEBUGAPICALL(std::string, "OmMSet::get_description", "");
     std::string description;
 
     description = "firstitem=" + om_tostring(firstitem) + ", " +
@@ -214,8 +205,7 @@ OmMSet::get_description() const
 
     description = "OmMSet(" + description + ")";
 
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN(description);
 }
 
 ////////////////////////////
@@ -225,13 +215,8 @@ OmMSet::get_description() const
 std::string
 OmESetItem::get_description() const
 {
-    DEBUGAPICALL("OmESetItem::get_description", "");
-    std::string description;
-
-    description = "OmESetItem(" + tname + ", " + om_tostring(wt) + ")";
-
-    DEBUGAPIRETURN(description);
-    return description;
+    DEBUGAPICALL(std::string, "OmESetItem::get_description", "");
+    RETURN("OmESetItem(" + tname + ", " + om_tostring(wt) + ")");
 }
 
 ////////////////////////
@@ -241,7 +226,7 @@ OmESetItem::get_description() const
 std::string
 OmESet::get_description() const
 {
-    DEBUGAPICALL("OmESet::get_description", "");
+    DEBUGAPICALL(std::string, "OmESet::get_description", "");
     std::string description;
 
     description = "ebound=" + om_tostring(ebound);
@@ -254,8 +239,7 @@ OmESet::get_description() const
     }
 
     description = "OmESet(" + description + ")";
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN(description);
 }
 
 ///////////////////////////////////
@@ -519,13 +503,13 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 
 OmEnquire::OmEnquire(const OmDatabase &databases)
 {
-    DEBUGAPICALL("OmEnquire::OmEnquire", databases);
+    DEBUGAPICALL(void, "OmEnquire::OmEnquire", databases);
     internal = new OmEnquireInternal(databases);
 }
 
 OmEnquire::~OmEnquire()
 {
-    DEBUGAPICALL("OmEnquire::~OmEnquire", "");
+    DEBUGAPICALL(void, "OmEnquire::~OmEnquire", "");
     delete internal;
     internal = NULL;
 }
@@ -533,16 +517,15 @@ OmEnquire::~OmEnquire()
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
-    DEBUGAPICALL("OmEnquire::set_query", query_);
+    DEBUGAPICALL(void, "OmEnquire::set_query", query_);
     internal->set_query(query_);
 }
 
 const OmQuery &
 OmEnquire::get_query()
 {
-    DEBUGAPICALL("OmEnquire::get_query", "");
-    DEBUGAPIRETURN(internal->get_query());
-    return internal->get_query();
+    DEBUGAPICALL(const OmQuery &, "OmEnquire::get_query", "");
+    RETURN(internal->get_query());
 }
 
 OmMSet
@@ -553,7 +536,7 @@ OmEnquire::get_mset(om_doccount first,
 		    const OmMatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
-    DEBUGAPICALL("OmEnquire::get_mset",
+    DEBUGAPICALL(OmMSet, "OmEnquire::get_mset",
 		 first << ", " <<
 		 maxitems << ", " <<
 		 omrset << ", " <<
@@ -562,8 +545,7 @@ OmEnquire::get_mset(om_doccount first,
     // FIXME: this copies the mset too much: pass it in by reference?
     OmMSet mset(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
 
-    DEBUGAPIRETURN(mset);
-    return mset;
+    RETURN(mset);
 }
 
 OmESet
@@ -574,7 +556,7 @@ OmEnquire::get_eset(om_termcount maxitems,
 {
     // FIXME: display contents of pointer params and omrset, if they're not
     // null.
-    DEBUGAPICALL("OmEnquire::get_eset",
+    DEBUGAPICALL(OmESet, "OmEnquire::get_eset",
 		 maxitems << ", " <<
 		 omrset << ", " <<
 		 eoptions << ", " <<
@@ -582,56 +564,45 @@ OmEnquire::get_eset(om_termcount maxitems,
 
     // FIXME: this copies the eset too much: pass it in by reference?
     OmESet eset(internal->get_eset(maxitems, omrset, eoptions, edecider));
-
-    DEBUGAPIRETURN(eset);
-    return eset;
+    RETURN(eset);
 }
 
 const OmDocument
 OmEnquire::get_doc(om_docid did) const
 {
-    DEBUGAPICALL("OmEnquire::get_doc", did);
+    DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", did);
     OmDocument doc(internal->get_doc(did));
-    DEBUGAPIRETURN(doc);
-    return doc;
+    RETURN(doc);
 }
 
 const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    DEBUGAPICALL("OmEnquire::get_doc", mitem);
+    DEBUGAPICALL(const OmDocument, "OmEnquire::get_doc", mitem);
     OmDocument doc(internal->get_doc(mitem));
-    DEBUGAPIRETURN(doc);
-    return doc;
+    RETURN(doc);
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
-    DEBUGAPICALL("OmEnquire::get_matching_terms", mitem);
+    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", mitem);
     om_termname_list matching_terms(internal->get_matching_terms(mitem));
-    DEBUGAPIRETURN(matching_terms);
-    return matching_terms;
+    RETURN(matching_terms);
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
-    DEBUGAPICALL("OmEnquire::get_matching_terms", did);
+    DEBUGAPICALL(om_termname_list, "OmEnquire::get_matching_terms", did);
     om_termname_list matching_terms(internal->get_matching_terms(did));
-    DEBUGAPIRETURN(matching_terms);
-    return matching_terms;
+    RETURN(matching_terms);
 }
 
 std::string
 OmEnquire::get_description() const
 {
-    DEBUGAPICALL("OmEnquire::get_description", "");
-    std::string description;
-
-    description = "OmEnquire(" + internal->get_description() + ")";
-
-    DEBUGAPIRETURN(description);
-    return description;
+    DEBUGAPICALL(std::string, "OmEnquire::get_description", "");
+    std::string description = "OmEnquire(" + internal->get_description() + ")";
+    RETURN(description);
 }
-

@@ -99,11 +99,10 @@ MultiPostList::get_termfreq() const
 inline om_docid
 MultiPostList::get_docid() const
 {
-    DEBUGCALL(DB, "MultiPostList::get_docid", "");
+    DEBUGCALL(DB, om_docid, "MultiPostList::get_docid", "");
     Assert(!at_end());
     Assert(currdoc != 0);
-    DEBUGRETURN(currdoc);
-    return currdoc;
+    RETURN(currdoc);
 }
 
 inline bool

@@ -119,6 +119,19 @@ operator<<(om_ostringstream & os, const om_termname_list & obj) {
     return os;
 }
 
+inline om_ostringstream &
+operator<<(om_ostringstream & os, const std::vector<std::string> & v)
+{
+    os << "vector<string> {";
+    std::vector<std::string>::const_iterator i;
+    for (i = v.begin(); i != v.end(); i++) {
+	if (i != v.end()) os << ", ";
+	os << '"' << *i << '"';
+    }
+    os << "}";
+    return os;
+}
+
 #undef OSTRINGSTREAMFUNC
 
 #endif // HAVE_SSTREAM

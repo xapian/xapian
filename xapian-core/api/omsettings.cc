@@ -255,13 +255,9 @@ OmSettings::get_vector(const string &key) const
 std::string
 OmSettings::get_description() const
 {
-    DEBUGAPICALL("OmSettings::get_description", "");
+    DEBUGAPICALL(std::string, "OmSettings::get_description", "");
     /// \todo display all the settings
-    std::string description = "OmSettings(";
-    description += internal->get_description();
-    description += ')';
-    DEBUGAPIRETURN(description);
-    return description;
+    RETURN("OmSettings(" + internal->get_description() + ')');
 }
 
 ////////////////////////////////////////////////////////////////

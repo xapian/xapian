@@ -151,13 +151,13 @@ extern OmDebug om_debug;
 
 /** Display a debugging message, if it is of a desired type. */
 // Don't bracket b, because it may have <<'s in it
-#define DEBUGMSG2(a,b) { \
-    if(om_debug.want_type(a)) { \
+#define DEBUGMSG2(a,b) do { \
+    if (om_debug.want_type(a)) { \
 	om_ostringstream os; \
 	os << b; \
 	om_debug.display_message(a, os.str()); \
     } \
-}
+} while (0)
 
 #ifdef HAVE_LIBPTHREAD
 #define THREAD_INFO " (Thread " << pthread_self() << ")"
@@ -202,12 +202,13 @@ class OmDebugCall {
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.
  */
-#define DEBUGCALL(t,a,b) \
+#define DEBUGCALL(t,r,a,b) \
     std::string omdebugapicall_str; \
     std::string omdebugapicall_method; \
-    if(om_debug.want_type(OM_DEBUG_##t)) { \
+    typedef r omdebugapicallreturn_t; \
+    if (om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
-	os1 << "[" << ((void *)this) << "] " << a; \
+	os1 << "[" << ((void *)this) << "] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
 	om_ostringstream os2; \
 	os2 << b; \
@@ -217,12 +218,13 @@ class OmDebugCall {
 
 /** Equivalent of DEBUGCALL for static methods.
  */
-#define DEBUGCALL_STATIC(t,a,b) \
+#define DEBUGCALL_STATIC(t,r,a,b) \
     std::string omdebugapicall_str; \
     std::string omdebugapicall_method; \
-    if(om_debug.want_type(OM_DEBUG_##t)) { \
+    typedef r omdebugapicallreturn_t; \
+    if (om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
-	os1 << "[static   ] " << a; \
+	os1 << "[static   ] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
 	om_ostringstream os2; \
 	os2 << b; \
@@ -230,15 +232,13 @@ class OmDebugCall {
     } \
     OmDebugCall omdebugapicall(OM_DEBUG_##t, omdebugapicall_method, omdebugapicall_str);
 
-
-/** Use in conjunction with DEBUGCALL - specify the value that the method
- *  is going to return.
- */
-#define DEBUGRETURN(a) { \
+#define RETURN(A) do { \
+    omdebugapicallreturn_t omdebugapicallreturn = (A); \
     om_ostringstream os; \
-    os << a; \
+    os << omdebugapicallreturn; \
     omdebugapicall.setreturnval(os.str()); \
-}
+    return omdebugapicallreturn; \
+} while (0)
 
 #define DEBUGMSG(a,b) DEBUGMSG2(OM_DEBUG_##a, b)
 #define DEBUGLINE(a,b) DEBUGLINE2(OM_DEBUG_##a, b)
@@ -248,14 +248,14 @@ using std::endl;
 #else /* MUS_DEBUG_VERBOSE */
 #define DEBUGMSG(a,b)
 #define DEBUGLINE(a,b)
-#define DEBUGCALL(t,a,b)
-#define DEBUGCALL_STATIC(t,a,b)
-#define DEBUGRETURN(a)
+#define RETURN(A) return (A)
+
+#define DEBUGCALL(r,t,a,b)
+#define DEBUGCALL_STATIC(r,t,a,b)
 #endif /* MUS_DEBUG_VERBOSE */
 
-#define DEBUGAPICALL(a,b) DEBUGCALL(APICALL, a, b)
-#define DEBUGAPICALL_STATIC(a,b) DEBUGCALL_STATIC(APICALL, a, b)
-#define DEBUGAPIRETURN(a) DEBUGRETURN(a)
+#define DEBUGAPICALL(r,a,b) DEBUGCALL(APICALL,r,a,b)
+#define DEBUGAPICALL_STATIC(r,a,b) DEBUGCALL_STATIC(APICALL,r,a,b)
 #define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 
 #endif /* OM_HGUARD_OMDEBUG_H */
