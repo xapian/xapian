@@ -5,9 +5,6 @@
 </HEAD>
 <BODY BGCOLOR="white">
 
-<B>Warning: this document isn't up to date - you may be better off looking
-at the sample programs in xapian-examples for guidance.</B>
-
 <H1>Quickstart</H1>
 
 <P>
@@ -225,8 +222,9 @@ In Xapian, a database is opened for writing by creating a Xapian::WritableDataba
 object using a factory function such as Xapian::Quartz::open().
 </P>
 <P>
-If an attempt is made to open a database which doesn't exist, an attempt
-to create an empty database in the specified position will be made.
+If you pass Xapian::DB_CREATE_OR_OPEN and an attempt is made to open a database
+which doesn't exist, Xapian will try to create a new empty database in the
+specified location.
 </P>
 <P>
 If an error occurs when trying to open a database, or to create a new database,
@@ -238,7 +236,7 @@ The code to open a database for writing is, then:
 </P>
 
 <PRE>
-    Xapian::WritableDatabase database(Xapian::Quartz::open(argv[1], Xapian::DB_OPEN));
+    Xapian::WritableDatabase database(Xapian::Quartz::open(argv[1], Xapian::DB_CREATE_OR_OPEN));
 </PRE>
 
 <H3>Preparing the new document</H3>
@@ -297,7 +295,7 @@ We add postings for terms with the termname given as each of the remaining
 command line parameters:
 </P>
 <PRE>
-    for(int i = 3; i &lt; argc; i++) {
+    for (int i = 3; i &lt; argc; ++i) {
         newdocument.add_posting(argv[i], i - 2);
     }
 </PRE>
@@ -545,8 +543,8 @@ object representing the returned document; then we use the
 access to the data stored in this document.
 </LI></UL>
 <PRE>
-    vector&lt;Xapian::MSetItem&gt;::const_iterator i;
-    for (i = matches.begin(); i != matches.end(); i++) {
+    Xapian::MSetIterator i;
+    for (i = matches.begin(); i != matches.end(); ++i) {
         cout &lt;&lt; "Document ID " &lt;&lt; *i &lt;&lt; "\t";
 	cout &lt;&lt; i.get_percent() &lt;&lt; "% ";
         Xapian::Document doc = i.get_document();
@@ -578,9 +576,9 @@ These flags are returned on the utility's standard output (so you could use
 backtick notation to include them on your command line).
 </P><P>
 If your project uses the GNU autoconf tool, you may also use the
-<CODE>OM_PATH_XAPIAN</CODE> macro, which is included as part of Xapian,
+<CODE>XO_LIB_XAPIAN</CODE> macro, which is included as part of Xapian,
 and will check for an installation of Xapian and set (and
-<CODE>AC_SUBST</CODE>) the <CODE>XAPIAN_CFLAGS</CODE> and
+<CODE>AC_SUBST</CODE>) the <CODE>XAPIAN_CXXFLAGS</CODE> and
 <CODE>XAPIAN_LIBS</CODE> variables to
 be the flags to pass to the compiler and linker, respectively.
 </P><P>

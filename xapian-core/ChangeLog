@@ -1,3 +1,8 @@
+Sat Mar 06 02:32:58 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/: Updated the quickstart tutorial and removed the warning
+	  that "this document isn't up to date".
+
 Sat Mar 06 01:56:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Another tweak for Sun's C++ compiler.

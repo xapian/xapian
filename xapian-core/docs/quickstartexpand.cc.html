@@ -33,7 +33,7 @@
 {
     <FONT color=#0000ff>// Simplest possible options parsing: we just require two or more
     // parameters.</FONT>
-    <B><FONT color=#a52a2a>if</FONT></B>(argc &lt; <FONT color=#ff00ff>3</FONT>) {
+    <B><FONT color=#a52a2a>if</FONT></B> (argc &lt; <FONT color=#ff00ff>3</FONT>) {
         cout &lt;&lt; <FONT color=#ff00ff>&quot;usage: &quot;</FONT> &lt;&lt; argv[<FONT color=#ff00ff>0</FONT>] &lt;&lt;
                 <FONT color=#ff00ff>&quot; &lt;path to database&gt; &lt;search terms&gt; -- &lt;relevant docids&gt;&quot;</FONT> &lt;&lt;
                 endl;
@@ -61,9 +61,9 @@
 
         <FONT color=#0000ff>// Prepare the relevant document list</FONT>
         Xapian::RSet reldocs;
-        <B><FONT color=#a52a2a>for</FONT></B>(; optpos &lt; argc; optpos++) {
+        <B><FONT color=#a52a2a>for</FONT></B> (; optpos &lt; argc; optpos++) {
             Xapian::docid rdid = atoi(argv[optpos]);
-            <B><FONT color=#a52a2a>if</FONT></B>(rdid != <FONT color=#ff00ff>0</FONT>) {
+            <B><FONT color=#a52a2a>if</FONT></B> (rdid != <FONT color=#ff00ff>0</FONT>) {
                 reldocs.add_document(rdid);
             }
         }
@@ -72,7 +72,7 @@
         Xapian::Query query(Xapian::Query::OP_OR, queryterms.begin(), queryterms.end());
 
         Xapian::MSet matches;
-        <B><FONT color=#a52a2a>if</FONT></B>(query.is_defined()) {
+        <B><FONT color=#a52a2a>if</FONT></B> (query.is_defined()) {
             cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt;
                     <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
 

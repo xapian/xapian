@@ -51,7 +51,7 @@
         newdocument.set_data(string(argv[<FONT color=#ff00ff>2</FONT>]));
 
         <FONT color=#0000ff>// Put the terms into the document</FONT>
-        <B><FONT color=#a52a2a>for</FONT></B>(<B><FONT color=#2e8b57>int</FONT></B> i = <FONT color=#ff00ff>3</FONT>; i &lt; argc; i++) {
+        <B><FONT color=#a52a2a>for</FONT></B> (<B><FONT color=#2e8b57>int</FONT></B> i = <FONT color=#ff00ff>3</FONT>; i &lt; argc; ++i) {
             newdocument.add_posting(argv[i], i - <FONT color=#ff00ff>2</FONT>);
         }
 
