@@ -128,4 +128,7 @@ class a : public b { \
 
 #include "om/omerrortypes.h"
 
+#undef DEFINE_ERROR_BASECLASS
+#undef DEFINE_ERROR_CLASS
+
 #endif /* OM_HGUARD_OMERROR_H */

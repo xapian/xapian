@@ -246,7 +246,8 @@ class InMemoryDatabase : public Database {
 	/** Hack put in to cause an error when calling next, for testing
 	 *  purposes.
 	 */
-	bool die_in_next;
+	int error_in_next;
+	int abort_in_next;
 
 	~InMemoryDatabase();
 
@@ -309,8 +310,19 @@ InMemoryPostList::get_docid() const
 inline PostList *
 InMemoryPostList::next(om_weight w_min)
 {
-    if (this_db->die_in_next) throw OmDatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
-    //DebugMsg(tname << ".next()" << endl);
+    if (this_db->error_in_next) {
+	// Nasty cast, but this is only in testcase code anyway.
+	(const_cast<InMemoryDatabase *>(this_db.get()))->error_in_next--;
+	if (this_db->error_in_next == 0)
+	    throw OmDatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
+    }
+
+    if (this_db->abort_in_next) {
+	(const_cast<InMemoryDatabase *>(this_db.get()))->abort_in_next--;
+	if (this_db->abort_in_next == 0)
+	    abort();
+    }
+
     if(started) {
 	Assert(!at_end());
 	pos++;

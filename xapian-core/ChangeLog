@@ -1,3 +1,26 @@
+Tue Feb 27 18:40:33 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fixes to remote matcher code to cope better with failure of
+	  submatchers:
+	  - Timeout for all submatches now correctly start at same time.
+
+	* Added more extensive testing of above code, involving adding
+	  new parameters to inmemory to cause abort()s at various stages of
+	  the match.
+
+	* Remove obselete (and unused) method
+	  SocketServer::read_global_stats()
+
+	* Errors are now generated from strings by using omerrortypes.h with
+	  suitable #defines before including it.  Updated todo accordingly.
+
+	* Extend scope of try{} clause in socketserver, so that
+	  SocketServerFinished exception never escapes.
+
+	* Default timeout in progserver increased to 30000.
+
+	* Default timeout in tcpserver increased to 15000.
+
 Mon Feb 26 23:51:23 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Split query generation into stages: make new query, add subqueries,

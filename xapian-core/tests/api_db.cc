@@ -314,10 +314,13 @@ static bool test_multierrhandler1()
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
-    for (int testcount = 0; testcount < 6; testcount ++) {
+    int errcount = 1;
+    for (int testcount = 0; testcount < 13; testcount ++) {
 	tout << "testcount=" << testcount << "\n";
 	OmDatabase mydb4(get_database("-e", "apitest_termorder"));
 	OmDatabase mydb5(get_network_database("apitest_termorder", 1));
+	OmDatabase mydb6(get_database("-e2", "apitest_termorder"));
+	OmDatabase mydb7(get_database("-e3", "apitest_simpledata"));
 
 	OmDatabase dbgrp;
 	switch (testcount) {
@@ -342,6 +345,30 @@ static bool test_multierrhandler1()
 		dbgrp = make_dbgrp(&mydb3, &mydb5, &mydb2);
 		sleep(1);
 		break;
+	    case 6:
+		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb6);
+		break;
+	    case 7:
+		dbgrp = make_dbgrp(&mydb6, &mydb2, &mydb3);
+		break;
+	    case 8:
+		dbgrp = make_dbgrp(&mydb3, &mydb6, &mydb2);
+		break;
+	    case 9:
+		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb7);
+		break;
+	    case 10:
+		dbgrp = make_dbgrp(&mydb7, &mydb2, &mydb3);
+		break;
+	    case 11:
+		dbgrp = make_dbgrp(&mydb3, &mydb7, &mydb2);
+		break;
+	    case 12:
+		dbgrp = make_dbgrp(&mydb2, &mydb6, &mydb7);
+		break;
+	    case 13:
+		dbgrp = make_dbgrp(&mydb2, &mydb7, &mydb6);
+		break;
 	}
 	tout << "db=" << dbgrp << "\n";
 	OmEnquire enquire(dbgrp, &myhandler);
@@ -355,18 +382,24 @@ static bool test_multierrhandler1()
 	// retrieve the top ten results
 	OmMSet mymset = enquire.get_mset(0, 10);
 
-	switch (testcount % 3) {
-	    case 0:
+	switch (testcount) {
+	    case 0: case 3: case 6: case 9:
 		mset_expect_order(mymset, 2, 4, 10);
 		break;
-	    case 1:
+	    case 1: case 4: case 7: case 10:
 		mset_expect_order(mymset, 3, 5, 11);
 		break;
-	    case 2:
+	    case 2: case 5: case 8: case 11:
 		mset_expect_order(mymset, 1, 6, 12);
 		break;
+	    case 12:
+	    case 13:
+		mset_expect_order(mymset, 4, 10);
+		errcount += 1;
+		break;
 	}
-	TEST_EQUAL(myhandler.count, testcount + 1);
+	TEST_EQUAL(myhandler.count, errcount);
+	errcount += 1;
     }
 
     return true;

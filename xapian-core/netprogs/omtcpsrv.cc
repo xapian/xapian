@@ -40,8 +40,8 @@ char *progname = 0;
 int main(int argc, char *argv[]) {
     std::vector<OmSettings *> dbs;
     int port = 0;
-    int msecs_active_timeout = 10000;
-    int msecs_idle_timeout = 60000;
+    int msecs_active_timeout = 15000;
+    int msecs_idle_timeout   = 60000;
 
     progname = argv[0];
 

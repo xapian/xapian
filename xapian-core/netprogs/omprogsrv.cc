@@ -60,12 +60,16 @@ int main(int argc, char *argv[]) {
 
 	std::vector<std::string> paths;
 
-	unsigned int timeout = 10000;
+	unsigned int timeout = 30000;
 
 	for (int i=2; i<argc; ++i) {
 	    std::string arg = argv[i];
 	    if (arg == "-e") {
 		backendmanager.set_dbtype("inmemoryerr");
+	    } else if (arg == "-e2") {
+		backendmanager.set_dbtype("inmemoryerr2");
+	    } else if (arg == "-e3") {
+		backendmanager.set_dbtype("inmemoryerr3");
 	    } else if (arg.substr(0, 2) == "-t") {
 		timeout = atoi(arg.c_str() + 2);
 	    } else {

@@ -86,9 +86,6 @@ class SocketServer : public NetServer {
 	/// Flag indicating that we have the global statistics
 	bool have_global_stats;
 
-	/// Read the global statistics from the stream and cache them.
-	void read_global_stats();
-
 	/// Run the match conversation
 	void run_match(const std::string &firstmessage);
 

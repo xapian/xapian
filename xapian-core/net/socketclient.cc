@@ -92,12 +92,16 @@ SocketClient::init_end_time()
     end_time_usecs = (msecs_timeout % 1000) * 1000;
 
     end_time_set = true;
+    DEBUGLINE(UNKNOWN, "init_end_time() - set timer to " <<
+	      end_time << "." << end_time_usecs <<
+	      " (" << msecs_timeout << " msecs)");
 }
 
 void
 SocketClient::close_end_time()
 {
     end_time_set = false;
+    DEBUGLINE(UNKNOWN, "close_end_time()");
 }
 
 NetClient::TermListItem
@@ -334,11 +338,9 @@ void
 SocketClient::set_query(const OmQuery::Internal *query_,
 			const OmSettings &moptions_, const OmRSet &omrset_)
 {
-    /* avoid confusing the protocol if there are requested documents
-     * being returned.
-     */
-    get_requested_docs();
+    /* no actual communication performed in this method */
 
+    init_end_time();
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();
     moptions = moptions_;
@@ -417,7 +419,7 @@ SocketClient::send_global_stats(const Stats &stats)
 {
     Assert(conv_state >= state_sendglobal);
     if (conv_state == state_sendglobal) {
-	init_end_time();
+	Assert(end_time_set);
 	global_stats = stats;
 	global_stats_valid = true;
 	conv_state = state_getmset;

@@ -352,31 +352,54 @@ OmSocketLineBuf::do_readline(time_t end_time,
     std::string::size_type pos;
 
     while (1) {
-	time_t curr_time = time(NULL);
-	if (curr_time > end_time) {
-	    throw OmNetworkTimeoutError("No response from remote end", errcontext);
-	}
 	pos = buffer.find_first_of('\n');
 	if (pos != buffer.npos) break;
 
+	time_t curr_time = time(NULL);
+
 	// wait for input to be available.
-	fd_set fdset;
-	FD_ZERO(&fdset);
-	FD_SET(readfd, &fdset);
+	fd_set readfdset;
+	FD_ZERO(&readfdset);
+	FD_SET(readfd, &readfdset);
 
 	struct timeval tv;
-	tv.tv_sec = end_time - curr_time;
+	if (end_time > curr_time) 
+	    tv.tv_sec = end_time - curr_time;
+	else
+	    tv.tv_sec = 0;
 	tv.tv_usec = end_time_usecs;
 
-	int retval = select(readfd + 1, &fdset, 0, &fdset, &tv);
+	DEBUGLINE(UNKNOWN, "readfd=" << readfd << ", " <<
+		  "tv.tv_sec=" << tv.tv_sec << ", " <<
+		  "tv.tv_usec=" << tv.tv_usec);
+	int retval = select(readfd + 1, &readfdset, 0, &readfdset, &tv);
 
 	if (retval < 0) {
-	    if (errno == EAGAIN) {
+	    if (errno == EINTR) {
+		// select interrupted due to signal
+		// FIXME: adjust timeout for next time around to compensate
+		// for time used.  Need to use gettimeofday() or similar,
+		// since the contents of tv are now effectively undefined.
+		// (On Linux, it's the time not slept, but this isn't
+		// portable)
+		DEBUGLINE(UNKNOWN, "Got EINTR in select");
 		continue;
 	    } else {
-		throw OmNetworkError("select failed", errcontext, errno);
+		throw OmNetworkError(std::string("select failed (") +
+				     strerror(errno) + ")",
+				     errcontext, errno);
 	    }
 	} else if (retval == 0) {
+	    // Check timeout
+	    // FIXME: too much cut and pasting.
+	    if (curr_time > end_time) {
+		// Timeout has expired, and no data is waiting
+		// (especially if we've been waiting on a different node's
+		// timeout)
+		DEBUGLINE(UNKNOWN, "timeout reached, current time = " <<
+			  curr_time << ", end time = " << end_time);
+		throw OmNetworkTimeoutError("No response from remote end", errcontext);
+	    }
 	    continue;
 	}
 
@@ -384,12 +407,26 @@ OmSocketLineBuf::do_readline(time_t end_time,
 	ssize_t received = read(readfd, buf, sizeof(buf));
 
 	if (received < 0) {
-	    if (errno == EAGAIN) {
+	    if (errno == EINTR) {
+		DEBUGLINE(UNKNOWN, "Got EINTR in read");
+		continue;
+	    } else if (errno == EAGAIN) {
+		// Check timeout
+		// FIXME: too much cut and pasting.
+		if (curr_time > end_time) {
+		    // Timeout has expired, and no data is waiting
+		    // (especially if we've been waiting on a different node's
+		    // timeout)
+		    DEBUGLINE(UNKNOWN, "read: got EAGAIN, but timeout reached");
+		    throw OmNetworkTimeoutError("No response from remote end", errcontext);
+		}
 		continue;
 	    } else {
 		throw OmNetworkError("read failed", errcontext, errno);
 	    }
 	} else if (received == 0) {
+	    DEBUGLINE(UNKNOWN, "read: got 0 bytes");
+	    throw OmNetworkError("No response from remote end", errcontext);
 	    continue;
 	}
 
@@ -446,7 +483,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 	    if (received > 0) {
 		buffer += std::string(buf, buf + received);
 	    } else if (received < 0) {
-		if (errno != EAGAIN) {
+		if (errno != EAGAIN && errno != EINTR) {
 		    throw OmNetworkError("Network error", errcontext, errno);
 		}
 	    }

@@ -61,27 +61,9 @@ void string_to_omerror(const std::string &except,
 	    context = mycontext;
 	}
 
-	// FIXME: use a map or something instead.
-	// FIXME: update with new exceptions
-	if (type == "OmAssertionError") {
-	    throw OmAssertionError(msg, context);
-	} else if (type == "OmUnimplementedError") {
-	    throw OmUnimplementedError(msg, context);
-	} else if (type == "OmInvalidArgumentError") {
-	    throw OmInvalidArgumentError(msg, context);
-	} else if (type == "OmDocNotFoundError") {
-	    throw OmDocNotFoundError(msg, context);
-	} else if (type == "OmRangeError") {
-	    throw OmRangeError(msg, context);
-	} else if (type == "OmInternalError") {
-	    throw OmInternalError(msg, context);
-	} else if (type == "OmOpeningError") {
-	    throw OmOpeningError(msg, context);
-	} else if (type == "OmDatabaseError") {
-	    throw OmDatabaseError(msg, context);
-	} else if (type == "OmInvalidResultError") {
-	    throw OmInvalidResultError(msg, context);
-	}
+#define DEFINE_ERROR_BASECLASS(a,b)
+#define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw a(msg, context)
+#include "om/omerrortypes.h"
 
 	msg = "Unknown remote exception type `" + type + "', " + msg;
 	throw OmInternalError(msg, context);

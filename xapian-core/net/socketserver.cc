@@ -130,21 +130,21 @@ SocketServer::run()
 	int returnval = 0;
 #endif /* TIMING_PATCH */
 	while (1) {
-	    std::string message;
-
-	    // Message 3 (see README_progprotocol.txt)
-#ifdef TIMING_PATCH
-	    returnval = gettimeofday(&stp, NULL);
-#endif /* TIMING_PATCH */
-	    message = readline(msecs_idle_timeout);
-#ifndef TIMING_PATCH
-	    
-#else /* TIMING_PATCH */
-	    returnval = gettimeofday(&etp, NULL);
-	    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-	    totalidle += time;
-#endif /* TIMING_PATCH */
 	    try {
+		std::string message;
+
+		// Message 3 (see README_progprotocol.txt)
+#ifdef TIMING_PATCH
+		returnval = gettimeofday(&stp, NULL);
+#endif /* TIMING_PATCH */
+		message = readline(msecs_idle_timeout);
+#ifndef TIMING_PATCH
+
+#else /* TIMING_PATCH */
+		returnval = gettimeofday(&etp, NULL);
+		time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+		totalidle += time;
+#endif /* TIMING_PATCH */
 		switch (message.empty() ? '\0' : message[0]) {
 #ifndef TIMING_PATCH
 		    case 'Q': run_match(message.substr(1)); break;
@@ -490,14 +490,3 @@ SocketServer::run_keepalive(const std::string &message)
     writeline("OK");
 }
 
-void
-SocketServer::read_global_stats()
-{
-    Assert(conversation_state == conv_getglobal);
-
-    global_stats = string_to_stats(readline(msecs_active_timeout));
-
-    conversation_state = conv_sendresult;
-
-    have_global_stats = true;
-}

@@ -138,13 +138,6 @@ Implement collapse keys for duplicate removal - which only fire if the
 two documents have the same weight.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
-
-Make net/omerr_string.c include om/omerrortypes.h, and use its own
-#defines to process this file appropriately, so that all error types can
-be dealt with.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
 Check that negative term weights don't mess up matcher's optimisations - if

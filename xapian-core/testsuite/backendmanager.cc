@@ -181,6 +181,12 @@ BackendManager::set_dbtype(const std::string &type)
     } else if (type == "inmemoryerr") {
 	do_getdb = &BackendManager::getdb_inmemoryerr;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr;
+    } else if (type == "inmemoryerr2") {
+	do_getdb = &BackendManager::getdb_inmemoryerr2;
+	do_getwritedb = &BackendManager::getwritedb_inmemoryerr2;
+    } else if (type == "inmemoryerr3") {
+	do_getdb = &BackendManager::getdb_inmemoryerr3;
+	do_getwritedb = &BackendManager::getwritedb_inmemoryerr3;
     } else if (type == "sleepycat") {
 	do_getdb = &BackendManager::getdb_sleepycat;
 	do_getwritedb = &BackendManager::getwritedb_sleepycat;
@@ -283,7 +289,43 @@ BackendManager::getwritedb_inmemoryerr(const std::vector<std::string> &dbnames)
 {
     OmSettings params;
     params.set("backend", "inmemory");
-    params.set("inmemory_error", "next");
+    params.set("inmemory_errornext", 1);
+    OmWritableDatabase db(params);
+    index_files_to_database(db, change_names_to_paths(dbnames));
+
+    return db;
+}
+
+OmDatabase
+BackendManager::getdb_inmemoryerr2(const std::vector<std::string> &dbnames)
+{
+    return getwritedb_inmemoryerr2(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames)
+{
+    OmSettings params;
+    params.set("backend", "inmemory");
+    params.set("inmemory_abortnext", 1);
+    OmWritableDatabase db(params);
+    index_files_to_database(db, change_names_to_paths(dbnames));
+
+    return db;
+}
+
+OmDatabase
+BackendManager::getdb_inmemoryerr3(const std::vector<std::string> &dbnames)
+{
+    return getwritedb_inmemoryerr3(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames)
+{
+    OmSettings params;
+    params.set("backend", "inmemory");
+    params.set("inmemory_abortnext", 2);
     OmWritableDatabase db(params);
     index_files_to_database(db, change_names_to_paths(dbnames));
 

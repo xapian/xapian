@@ -68,11 +68,15 @@ class BackendManager {
 	 *  next is called.
 	 */
 	OmDatabase getdb_inmemoryerr(const std::vector<std::string> &dbnames);
+	OmDatabase getdb_inmemoryerr2(const std::vector<std::string> &dbnames);
+	OmDatabase getdb_inmemoryerr3(const std::vector<std::string> &dbnames);
 
 	/** Get a writable inmemory database instance, which will throw an
 	 *  error when next is called.
 	 */
 	OmWritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
+	OmWritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
+	OmWritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
 
 	/// Get a network database instance
 	OmDatabase getdb_network(const std::vector<std::string> &dbnames);

@@ -70,20 +70,14 @@ InMemoryPostList::get_wdf() const
 ///////////////////////////
 
 InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
-	: totlen(0), die_in_next(false)
+	: totlen(0), error_in_next(0), abort_in_next(0)
 {
     if (!readonly) {
 // FIXME:	throw OmInvalidArgumentError("InMemoryDatabase must be opened readonly.");
     }
 
-    std::string errpos = params.get("inmemory_error", "");
-    if (errpos == "") {
-    } else if (errpos == "next") {
-	die_in_next = true;
-    } else {
-	throw OmInvalidOperationError("Invalid position to cause error, "
-				      + errpos);
-    }
+    error_in_next = params.get_int("inmemory_errornext", 0);
+    abort_in_next = params.get_int("inmemory_abortnext", 0);
 }
 
 InMemoryDatabase::~InMemoryDatabase()
