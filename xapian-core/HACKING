@@ -117,14 +117,14 @@ at the time of writing, the versions known to work are:
 		with "make dist" in a VPATH build, and doesn't support
 		AM_CFLAGS/AM_CXXFLAGS.  Note that automake 1.6 has a bug which
 		causes it to emit spurious warnings: this is fixed in automake
-		1.6.1.  A quick check found no problems using automake 1.7.
+		1.6.1.  Automake 1.7 works too.
 		
-	Autoconf version 2.54 is required by automake 1.6.3; autoconf 2.50 is
+	Autoconf version 2.54
+		This version is required by automake 1.6.3; autoconf 2.50 is
 		needed for many reasons anyway.
 		
-	ltmain.sh (GNU libtool) 1.5 (libtool 1.4.2 doesn't seem to support
-		--mode=execute properly; libtool 1.3.3 used to work, and may
-		still, but we've not tried it recently).
+	GNU libtool 1.5
+		libtool 1.4.2 doesn't seem to support --mode=execute properly.
 
 	GNU Bison version 1.35
 		Bison versions 1.31 to 1.34 don't handle parsequery.yy - for
@@ -143,7 +143,8 @@ at the time of writing, the versions known to work are:
 		Bison 1.875 generates code which GNU C++ won't compile -
 		this problem has been fixed in 1.875a.
 
-Please tell us if you find that older (or newer) versions work or fail to work.
+Please tell us if you find that older or newer versions of any of these
+tools work or fail to work.
 
 We have provided a simple script (bootstrap) to run these programs for you
 and produce a source tree like that you'd get from unpacking the result of
@@ -205,7 +206,7 @@ warnings (e.g. about not returning a value from a non-void function).
 
 If using GCC 3.0 or newer, you should consider configure-ing with:
 
-./configure CXXFLAGS=-Werror
+./configure CXXFLAGS=-Werror CFLAGS=-Werror
 
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.  If you find out how to

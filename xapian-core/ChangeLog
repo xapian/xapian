@@ -1,3 +1,9 @@
+Mon Jun 23 21:08:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Automake 1.7 works reliably with Xapian; CFLAGS=-Werror can
+	  now be used as we suppress the warnings from the Snowball generated
+	  C code.
+
 Mon Jun 23 16:55:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/inmemory/inmemory_database.cc,
