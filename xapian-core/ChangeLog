@@ -1,3 +1,7 @@
+Tue Apr 05 22:15:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* examples/: Updated svn:ignore property.
+
 Tue Apr 05 21:34:13 BST 2005  Olly Betts <olly@survex.com>
 
 	* queryparser/Makefile.am,configure.ac,extra/xapian/queryparser.h,
