@@ -297,11 +297,13 @@ SocketServer::run_getdocument(const string &firstmessage)
 
     buf.writeline(string("DOC ") + encode_tname(doc->get_data().value));
 
-    vector<OmKey> keys = doc->get_all_keys();
+    map<om_keyno, OmKey> keys = doc->get_all_keys();
 
-    vector<OmKey>::const_iterator i = keys.begin();
+    map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
-	string item = string("KEY ") + omkey_to_string(*i);
+	string item = string("KEY ") +
+		inttostring(i->first) + " " +
+		omkey_to_string(i->second);
 	buf.writeline(item);
     }
 

@@ -1,3 +1,8 @@
+Tue Jun  6 13:11:15 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Stop using vectors of OmKeys, now use map<om_keyno, OmKey>
+	  everywhere.
+
 Tue Jun  6 13:08:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Beginnings of Perl5 bindings.

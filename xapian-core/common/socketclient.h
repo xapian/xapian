@@ -181,7 +181,7 @@ class SocketClient : public NetClient {
 	/** Retrieve a remote document */
 	void get_doc(om_docid did,
 		     string &doc,
-		     vector<OmKey> &keys);
+		     map<om_keyno, OmKey> &keys);
 
 	/** Find the max weight */
 	om_weight get_max_weight();

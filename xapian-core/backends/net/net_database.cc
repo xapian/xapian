@@ -124,7 +124,7 @@ LeafDocument *
 NetworkDatabase::open_document(om_docid did) const
 {
     string doc;
-    vector<OmKey> keys;
+    map<om_keyno, OmKey> keys;
     link->get_doc(did, doc, keys);
     return new NetworkDocument(doc, keys);
 }

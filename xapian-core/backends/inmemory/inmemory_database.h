@@ -186,7 +186,7 @@ class InMemoryDatabase : public IRDatabase {
 	map<om_termname, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<string> doclists;
-	vector<vector<OmKey> > keylists;
+	vector<map<om_keyno, OmKey> > keylists;
 
 	vector<om_doclength> doclengths;
 

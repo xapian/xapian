@@ -120,7 +120,7 @@ SleepyDocument::do_get_key(om_keyno keyid) const
     return result;
 }
 
-vector<OmKey>
+map<om_keyno, OmKey>
 SleepyDocument::do_get_all_keys() const
 {
     throw OmUnimplementedError("SleepyDocument::do_get_all_keys() unimplemented");

@@ -110,7 +110,7 @@ SocketClient::get_tlist(om_docid did,
 void
 SocketClient::get_doc(om_docid did,
 		      string &doc,
-		      vector<OmKey> &keys)
+		      map<om_keyno, OmKey> &keys)
 {
     string message;
     buf.writeline(string("GETDOC ") + inttostring(did));
@@ -123,7 +123,11 @@ SocketClient::get_doc(om_docid did,
     doc = decode_tname(message.substr(4));
 
     while (startswith(message = do_read(), "KEY ")) {
-	keys.push_back(string_to_omkey(message.substr(4)));
+	istrstream is(message.substr(4).c_str());
+	om_keyno keyno;
+	string omkey;
+	is >> keyno >> omkey;
+	keys[keyno] = string_to_omkey(omkey);
     }
 
     if (message != "END") {

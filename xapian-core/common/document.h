@@ -27,6 +27,7 @@
 #include "omrefcnt.h"
 #include "omlocks.h"
 #include <vector>
+#include <map>
 
 class OmKey;
 class OmData;
@@ -45,7 +46,7 @@ class LeafDocument : public OmRefCntBase {
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;
 	/// The virtual implementation of get_key().
-	virtual vector<OmKey> do_get_all_keys() const = 0;
+	virtual map<om_keyno, OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
 	virtual OmData do_get_data() const = 0;     
     public:
@@ -79,7 +80,7 @@ class LeafDocument : public OmRefCntBase {
 	 *  will be a zero length string.  The vector will be at least big
 	 *  enough to hold all the keys for the document.
 	 */
-	vector<OmKey> get_all_keys() const;
+	map<om_keyno, OmKey> get_all_keys() const;
 
 	/** Get data stored in document.
 	 *

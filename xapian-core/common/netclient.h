@@ -120,7 +120,7 @@ class NetClient : public OmRefCntBase {
 	/** Retrieve a remote document */
 	virtual void get_doc(om_docid did,
 			     string &doc,
-			     vector<OmKey> &keys) = 0;
+			     map<om_keyno, OmKey> &keys) = 0;
 
 	/** Find out the max_weight */
 	virtual om_weight get_max_weight() = 0;

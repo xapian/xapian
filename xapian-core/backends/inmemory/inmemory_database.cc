@@ -139,21 +139,8 @@ void
 InMemoryDatabase::add_keys(om_docid did,
 	      const OmDocumentContents::document_keys &keys_)
 {
-    vector<OmKey> keys;
-    OmDocumentContents::document_keys::const_iterator i;
-    i = keys_.begin();
-    om_keyno this_keyno = 0;
-    while (i != keys_.end()) {
-	while (this_keyno < i->first) {
-	    keys.push_back(OmKey());
-	    ++this_keyno;
-	}
-	keys.push_back(i->second);
-	++i, ++this_keyno;
-    }
-    Assert(keys.size() == this_keyno);
     Assert(keylists.size() == did-1);
-    keylists.push_back(keys);
+    keylists.push_back(keys_);
 }
 
 om_docid
