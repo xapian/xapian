@@ -1,3 +1,8 @@
+Thu Aug 15 11:42:20 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* buildall: Only add the directory derived from xapian-config
+	  to ACLOCAL_FLAGS if it actually exists.
+
 Mon Aug 12 01:13:55 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* quartz_table.cc: Check that a key exists before calling

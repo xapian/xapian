@@ -133,7 +133,10 @@ if test . != "${SRCDIR}" ; then
 fi
 
 if (exec >/dev/null 2>&1 ; xapian-config --prefix; exit $?) then
-  ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I `xapian-config --prefix`/share/aclocal"
+  EXTRA_DIR="`xapian-config --prefix`/share/aclocal"
+  if test -d "${EXTRA_DIR}" ; then
+    ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I $EXTRA_DIR"
+  fi
 fi
 
 # Build configure script and Makefile.in's
