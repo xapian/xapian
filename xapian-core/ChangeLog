@@ -1,3 +1,8 @@
+Sun Nov 07 02:28:38 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: BoolWeight::unserialise() returns
+	  BoolWeight*, etc.  BoolWeight::clone() returns BoolWeight *.
+
 Sun Nov 07 02:24:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Note that C++ style casts are preferable to C style casts;

@@ -1034,14 +1034,14 @@ class Weight {
 /// Boolean weighting scheme (everything gets 0)
 class BoolWeight : public Weight {
     public:
-	Weight * clone() const {
+	BoolWeight * clone() const {
 	    return new BoolWeight;
 	}
 	BoolWeight() { }
 	~BoolWeight() { }
 	std::string name() const { return "Bool"; }
 	std::string serialise() const { return ""; }
-	Weight * unserialise(const std::string & /*s*/) const {
+	BoolWeight * unserialise(const std::string & /*s*/) const {
 	    return new BoolWeight;
 	}
 	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 0; }
@@ -1114,7 +1114,7 @@ class BM25Weight : public Weight {
 	~BM25Weight() { }
 	std::string name() const;
 	std::string serialise() const;
-	Weight * unserialise(const std::string & s) const;
+	BM25Weight * unserialise(const std::string & s) const;
 	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
 	Xapian::weight get_maxpart() const;
 
@@ -1165,7 +1165,7 @@ class TradWeight : public Weight {
 	~TradWeight() { }
 	std::string name() const;
 	std::string serialise() const;
-	Weight * unserialise(const std::string & s) const;
+	TradWeight * unserialise(const std::string & s) const;
 
 	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
 	Xapian::weight get_maxpart() const;
