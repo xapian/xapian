@@ -26,18 +26,17 @@
 #include "quartz_document.h"
 #include "quartz_attributes.h"
 #include "quartz_record.h"
+#include "quartz_table_manager.h"
 
 /** Create a QuartzDocument: this is only called by
  *  QuartzDatabase::open_document().
  */
 QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
-			       QuartzTable *attribute_table_,
-			       QuartzTable *record_table_,
+			       QuartzTableManager *tables_,
 			       om_docid did_)
 	: Document(database_.get(), did_),
 	  database(database_),
-	  attribute_table(attribute_table_),
-	  record_table(record_table_)
+	  tables(tables_)
 {
 }
 
@@ -55,13 +54,24 @@ OmKey
 QuartzDocument::do_get_key(om_keyno keyid) const
 {
     OmKey retval;
-    QuartzAttributesManager::get_attribute(
-		*attribute_table,
-		retval,
-		did,
-		keyid);
+    int tries_left = 5;
+    while (1) {
+	try {
+	    QuartzAttributesManager::get_attribute(
+			*tables->get_attribute_table(),
+			retval,
+			did,
+			keyid);
 
-    return retval;
+	    return retval;
+	} catch (OmDatabaseModifiedError &e) {
+	    if (--tries_left == 0) {
+		throw;
+	    } else {
+		tables->reopen_tables_because_overwritten();
+	    }
+	}
+    }
 }
 
 /** Retrieve all key values from the database
@@ -70,10 +80,21 @@ std::map<om_keyno, OmKey>
 QuartzDocument::do_get_all_keys() const
 {
     std::map<om_keyno, OmKey> keys;
-    QuartzAttributesManager::get_all_attributes(
-		*attribute_table,
-		keys,
-		did);
+    int tries_left = 5;
+    while (tries_left > 0) {
+	try {
+	    QuartzAttributesManager::get_all_attributes(
+			*tables->get_attribute_table(),
+			keys,
+			did);
+	} catch (OmDatabaseModifiedError &e) {
+	    if (--tries_left == 0) {
+		throw;
+	    } else {
+		tables->reopen_tables_because_overwritten();
+	    }
+	}
+    }
 
     return keys;
 }
@@ -83,5 +104,17 @@ QuartzDocument::do_get_all_keys() const
 OmData
 QuartzDocument::do_get_data() const
 {
-    return QuartzRecordManager::get_record(*record_table, did);
+    int tries_left = 5;
+    while (1) {
+	try {
+	    OmData result = QuartzRecordManager::get_record(*tables->get_record_table(), did);
+	    return result;
+	} catch (OmDatabaseModifiedError &e) {
+	    if (--tries_left == 0) {
+		throw;
+	    } else {
+		tables->reopen_tables_because_overwritten();
+	    }
+	}
+    }
 }

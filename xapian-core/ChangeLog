@@ -1,3 +1,22 @@
+Tue Dec  5 17:13:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* QuartzDocument now has a QuartzTableManager pointer rather than
+	  two QuartzTable pointers.
+	
+	* QuartzDatabase::do_get_document_internal() copes with Btree
+	  overwritten conditions.
+	
+	* QuartzDocument methods cope with Btree overwritten conditions
+
+	* New method QuartzTableManager::reopen_tables_because_overwritten()
+	  for helping with the above.
+	
+	* New test in quartztest for testing overwritten problems from the
+	  API rather than just internally to Quartz.
+	
+	* Fixed a typo in omsettings.h comment (quartz_dir used to refer to
+	  a sleepycat database)
+
 Tue Dec  5 16:53:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update todo.

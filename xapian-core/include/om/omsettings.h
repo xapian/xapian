@@ -76,7 +76,7 @@
  *                       remote_timeout.
  *
  *  - quartz backend
- *    - quartz_dir : directory containing sleepycat database
+ *    - quartz_dir : directory containing quartz database
  *
  *  - match options
  *    - match_collapse_key : key number to collapse on - duplicates mset

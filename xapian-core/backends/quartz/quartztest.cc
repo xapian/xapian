@@ -1631,6 +1631,80 @@ static bool test_overwrite1()
     return true;
 }
 
+/// Test playing with a positionlist, testing skip_to in particular.
+static bool test_overwrite2()
+{
+    std::string dbname = tmpdir + "overwrite2";
+    deletedir(dbname);
+    makedir(dbname);
+
+    OmSettings settings;
+    settings.set("backend", "quartz");
+    settings.set("quartz_dir", dbname);
+    OmWritableDatabase writer(settings);
+
+    OmDocumentContents document_in;
+    document_in.data.value = "Foobar rising";
+    document_in.keys[7] = OmKey("Key7");
+    document_in.keys[13] = OmKey("Key13");
+    document_in.add_posting("foobar", 1);
+    document_in.add_posting("rising", 2);
+    document_in.add_posting("foobar", 3);
+
+    om_docid last_doc = 0;
+
+    writer.begin_session();
+    for (int i=0; i<1000; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    OmDatabase reader(settings);
+    // FIXME: use reader.get_document() when available.
+
+    OmEnquire enquire(reader);
+
+    OmData doc_out;
+    OmKey key_out;
+
+    doc_out = OmData();
+    doc_out = enquire.get_doc(last_doc).get_data();
+    TEST(doc_out.value == "Foobar rising");
+    key_out = enquire.get_doc(last_doc).get_key(7);
+    TEST(key_out.value == "Key7");
+
+    writer.begin_session();
+    for (int i=0; i<1000; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    doc_out = OmData();
+    doc_out = enquire.get_doc(last_doc).get_data();
+    TEST(doc_out.value == "Foobar rising");
+
+    writer.begin_session();
+    for (int i=0; i<1000; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    key_out = OmKey();
+    key_out = enquire.get_doc(last_doc).get_key(7);
+    TEST(key_out.value == "Key7");
+
+    return true;
+}
+
 /// Test large bitmap files.
 static bool test_bitmap1()
 {
@@ -1689,6 +1763,7 @@ test_desc tests[] = {
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {"quartzoverwrite1", 	test_overwrite1},
+    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
     {0, 0}
 };

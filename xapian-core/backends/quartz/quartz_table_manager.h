@@ -71,6 +71,10 @@ class QuartzTableManager {
 	/** Get table storing records.
 	 */
 	virtual QuartzTable * get_record_table() = 0;
+
+	/** Reopen the underlying tables.
+	 */
+	virtual void reopen_tables_because_overwritten() = 0;
 };
 
 /** Class managing the disk tables used by Quartz.
@@ -234,6 +238,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	QuartzDiskTable * get_lexicon_table();
 	QuartzDiskTable * get_attribute_table();
 	QuartzDiskTable * get_record_table();
+	void reopen_tables_because_overwritten();
 	//@}
 };
 
@@ -301,6 +306,7 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable * get_lexicon_table();
 	QuartzBufferedTable * get_attribute_table();
 	QuartzBufferedTable * get_record_table();
+	void reopen_tables_because_overwritten();
 	//@}
 };
 

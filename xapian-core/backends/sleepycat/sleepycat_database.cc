@@ -103,7 +103,7 @@ om_doccount
 SleepycatDatabase::get_termfreq(const om_termname &tname) const
 {
     if(!term_exists(tname)) return 0;
-    PostList *pl = do_open_post_list(tname);
+    LeafPostList *pl = do_open_post_list(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
