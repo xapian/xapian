@@ -1,3 +1,7 @@
+Tue Jan 04 03:05:26 GMT 2005  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Removed unnecessary class declaration.
+
 Tue Jan 04 03:02:02 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Automatically enable ANSI C++ mode for SGI's compiler

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  *
@@ -57,8 +57,6 @@
 #include <set>
 
 using namespace std;
-
-class Xapian::ErrorHandler;
 
 // Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
