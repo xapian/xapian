@@ -27,7 +27,7 @@
 #include "om/omerror.h"
 #include "register_core.h"
 #include "toposort.h"
-#include "omnodeconnection.h"
+#include "om/omnodeconnection.h"
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
 #include "omdebug.h"
@@ -62,19 +62,21 @@ class OmIndexerBuilder::Internal {
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor::Internal &nodedesc);
 
+	/** Return a sorted order suitable for instantiating nodes.  Uses
+	 *  a topological sort.
+	 *
+	 *  @param desc	The description of the nodes.
+	 */
+	static std::vector<int> sort_nodes(const OmIndexerDesc &desc);
+
+	/** Return information about a node type by name. */
+	OmIndexerBuilder::NodeType get_node_info(const std::string &type);
     private:
 	/** Build the node graph (with checking) and set up the final
 	 *  node pointer.
 	 */
 	void build_graph(OmIndexer::Internal *indexer,
 			 const OmIndexerDesc &desc);
-
-	/** Return a sorted order suitable for instantiating nodes.  Uses
-	 *  a topological sort.
-	 *
-	 *  @param desc	The description of the nodes.
-	 */
-	std::vector<int> sort_nodes(const OmIndexerDesc &desc);
 
 	/** Verify that all the node types are valid.
 	 *  Throw an OmInvalidDataError if any types in the desc are unknown.
@@ -135,6 +137,35 @@ class OmIndexerBuilder::Internal {
 	std::map<std::string, node_desc> nodetypes;
 };
 
+OmIndexerDesc
+OmIndexerBuilder::desc_from_file(const std::string &filename)
+{
+    return *desc_from_xml_file(filename);
+}
+
+OmIndexerDesc
+OmIndexerBuilder::desc_from_string(const std::string &xmldesc)
+{
+    return *desc_from_xml_string(xmldesc);
+}
+
+OmIndexerDesc
+OmIndexerBuilder::sort_desc(OmIndexerDesc &desc)
+{
+    vector<int> sorted = Internal::sort_nodes(desc);
+
+    OmIndexerDesc result;
+    result.output_node = desc.output_node;
+    result.output_conn = desc.output_conn;
+
+    vector<int>::const_iterator i = sorted.begin();
+    while (i != sorted.end()) {
+	result.nodes.push_back(desc.nodes[*i]);
+	++i;
+    }
+    return result;
+}
+
 AutoPtr<OmIndexer>
 OmIndexerBuilder::build_from_file(const std::string &filename)
 {
@@ -167,6 +198,30 @@ OmIndexerBuilder::Internal::build_from_string(const std::string &xmldesc,
     AutoPtr<OmIndexerDesc> doc = desc_from_xml_string(xmldesc);
 
     build_graph(indexer, *doc);
+}
+
+OmIndexerBuilder::NodeType
+OmIndexerBuilder::get_node_info(const std::string &type)
+{
+    return internal->get_node_info(type);
+}
+
+OmIndexerBuilder::NodeType
+OmIndexerBuilder::Internal::get_node_info(const std::string &type)
+{
+    OmIndexerBuilder::NodeType result;
+    result.type = type;
+
+    std::map<std::string, node_desc>::const_iterator i;
+    i = nodetypes.find(type);
+
+    if (i == nodetypes.end()) {
+	throw OmRangeError(std::string("Unknown node type ") + type);
+    }
+    result.inputs = i->second.inputs;
+    result.outputs = i->second.outputs;
+
+    return result;
 }
 
 OmIndexerNode *
@@ -221,7 +276,6 @@ OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
 void
 OmIndexerBuilder::Internal::verify_node_types(const OmIndexerDesc &desc)
 {
-    int count = 0;
     for (size_t i=0; i<desc.nodes.size(); ++i) {
 	std::map<std::string, node_desc>::const_iterator type;
 	type = nodetypes.find(desc.nodes[i].type);
@@ -253,7 +307,7 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
     /* sort the list of nodes so that nodes aren't referred to before
      * being instantiated.
      */
-    std::vector<int> sorted = sort_nodes(desc);
+    static std::vector<int> sorted = sort_nodes(desc);
     
     /* First check that all the node types are valid.
      * This must be called before any accidental use of

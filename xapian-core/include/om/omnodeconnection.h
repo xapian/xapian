@@ -23,7 +23,6 @@
 #ifndef OM_HGUARD_OMNODECONNECTION_H
 #define OM_HGUARD_OMNODECONNECTION_H
 
-#include "config.h"
 #include <string>
 #include "om/omindexercommon.h"
 

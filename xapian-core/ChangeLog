@@ -1,3 +1,12 @@
+Tue Nov 14 19:28:18 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved omnodeconnection.h from indexer/indexgraph to include/om
+
+	* Added new methods desc_from_file(), desc_from_string(), and
+	  sort_desc() to OmIndexerBuilder interface, and get_node_info().
+
+	* Fixed a few warnings in node source.
+
 Tue Nov 14 19:26:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed bug with skip_to in quartz position lists - quartz now

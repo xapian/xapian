@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "om/omnodedescriptor.h"
-#include "omnodeconnection.h"
+#include "om/omnodeconnection.h"
 
 /** A description of a new node type */
 class OmNodeDescriptor::Internal {

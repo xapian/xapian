@@ -85,7 +85,7 @@ class OmRegexFilterNode : public OmIndexerNode {
 	    OmIndexerMessage output(new OmIndexerData(
 				    std::vector<OmIndexerData>()));
 
-	    for (int i=0; i<input->get_vector_length(); ++i) {
+	    for (size_t i=0; i<input->get_vector_length(); ++i) {
 		std::string orig = input->get_element(i).get_string();
 		if (regex.matches(orig)) {
 		    output->append_element(OmIndexerData(orig));

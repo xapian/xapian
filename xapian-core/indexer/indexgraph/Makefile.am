@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS = deleter_map.h omindexerinternal.h omnodeconnection.h\
+noinst_HEADERS = deleter_map.h omindexerinternal.h \
 		register_core.h node_reg.h regexcommon.h indexerxml.h \
 		toposort.h omnodedescriptorinternal.h
 

@@ -85,7 +85,7 @@ class OmTranslateNode : public OmIndexerNode {
 	}
 	void setup_map()
 	{
-	    for (int i=0; i<sizeof(map); ++i) {
+	    for (size_t i=0; i<sizeof(map); ++i) {
 		map[i] = i;
 	    }
 	    if (from.length() != to.length()) {
@@ -97,7 +97,7 @@ class OmTranslateNode : public OmIndexerNode {
 		throw OmInvalidDataError(message);
 	    }
 
-	    for (int i=0; i<from.length(); ++i) {
+	    for (size_t i=0; i<from.length(); ++i) {
 		map[from[i]] = to[i];
 	    }
 	}
@@ -116,7 +116,7 @@ class OmTranslateNode : public OmIndexerNode {
 			OmIndexerMessage output(new OmIndexerData(
 				      std::vector<OmIndexerData>()));
 
-			for (int i=0; i<input->get_vector_length(); ++i) {
+			for (size_t i=0; i<input->get_vector_length(); ++i) {
 			    std::string orig = input->get_element(i).get_string();
 			    do_translate(orig);
 			    output->append_element(OmIndexerData(orig));
@@ -136,7 +136,7 @@ class OmTranslateNode : public OmIndexerNode {
 	    }
 	}
 	void do_translate(std::string &orig) {
-	    for (int i=0; i<orig.length(); ++i) {
+	    for (size_t i=0; i<orig.length(); ++i) {
 		orig[i] = map[orig[i]];
 	    }
 	}
