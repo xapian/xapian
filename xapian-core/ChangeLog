@@ -1,3 +1,7 @@
+Sun Mar 21 00:00:59 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table_manager.cc: Fix for building on mingw.
+
 Sat Mar 20 23:04:27 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/positioniterator.h,include/xapian/postingiterator.h:

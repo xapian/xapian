@@ -505,7 +505,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	/* also failed */
 #else
 	// win32 doesn't support link() so just rename()
-	if (rename(tempname, lock_name) == 0) {
+	if (rename(tempname.c_str(), lock_name.c_str()) == 0) {
 	    return;
 	}
 #endif
