@@ -79,5 +79,6 @@ omindex_SOURCES = omindex.cc htmlparse.cc indextext.cc\
  getopt.c getopt1.c
 omindex_LDADD = $(XAPIAN_LIBS)
 
-scriptindex_SOURCES = scriptindex.cc htmlparse.cc indextext.cc
+scriptindex_SOURCES = scriptindex.cc htmlparse.cc indextext.cc\
+ getopt.c getopt1.c
 scriptindex_LDADD = $(XAPIAN_LIBS)

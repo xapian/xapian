@@ -1,3 +1,8 @@
+Tue Mar 23 19:25:00 GMT 2004  Olly Betts <olly@survex.com>
+
+	* templates/xml: Remove unused OmegaScript code:
+	  `$set{topterms,$or{$ne{$msize,0},$query}}'.
+
 Tue Mar 23 19:20:19 GMT 2004  Olly Betts <olly@survex.com>
 
 	* templates/xml: Correct spelling of `relavence' to `relevance'.
