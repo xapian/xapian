@@ -112,8 +112,8 @@ static bool test_simplequery2()
     //these weights are for C=.5 in bm25weight
     //weights_are_equal_enough(mymset.items[0].wt, 0.661095);
     //weights_are_equal_enough(mymset.items[1].wt, 0.56982);
-    weights_are_equal_enough(mymset.items[0].wt, 0.523241);
-    weights_are_equal_enough(mymset.items[1].wt, 0.320494);
+    weights_are_equal_enough(mymset.items[0].wt, 1.046482);
+    weights_are_equal_enough(mymset.items[1].wt, 0.640988);
 
     return true;
 }

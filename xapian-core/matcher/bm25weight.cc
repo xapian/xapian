@@ -111,8 +111,8 @@ om_weight
 BM25Weight::get_maxpart() const
 {
     if(!weight_calculated) calc_termweight();
-    DEBUGLINE(WTCALC, "maxpart = " << termweight);
-    return termweight;
+    DEBUGLINE(WTCALC, "maxpart = " << ((param_B + 1) * termweight));
+    return (param_B + 1) * termweight;
 }
 
 /* Should return param_C * querysize * (1-len) / (1+len)

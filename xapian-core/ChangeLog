@@ -1,3 +1,8 @@
+Fri Sep 15 18:53:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix minor bug in newly altered weighting formula, and update tests
+	  to expect new values.
+
 Fri Sep 15 18:14:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Allow users to set the parameters used in the BM25 and traditional
