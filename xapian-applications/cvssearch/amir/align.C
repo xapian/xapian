@@ -260,6 +260,66 @@ public:
 
 };
 
+
+void outputDelta( string markerSequence, int blockStart1, int blockStart2 ) {
+  //  cerr << "outputDelta called with " << markerSequence << " at " << blockStart1 << " and " << blockStart2 << endl;
+
+  int lineno1 = blockStart1;
+  int lineno2 = blockStart2;
+
+  while ( markerSequence != "" ) {
+    char marker = markerSequence[0];
+    int count = 0;
+    while ( markerSequence != "" ) {
+      if ( markerSequence[0] == marker ) {
+	//	cout << markerSequence << endl;
+	markerSequence = string( markerSequence, 1, markerSequence.length()-1 );
+	count++;
+      } else {
+	break;
+      }
+    }
+
+    //    cout << "marker " << marker << " with count " << count << endl;
+    
+    if ( marker == '|' ) {
+      if ( count == 1 ) {
+	cout << lineno1 << "c" << lineno2 << endl;
+      } else {
+	cout << lineno1 << "," << (lineno1 + count-1) << "c" << lineno2 << "," << (lineno2+count-1) << endl;
+      }
+      lineno1 += count;
+      lineno2 += count;
+
+    } else if ( marker == '<' ) {
+      // file1 has extra lines, so delete them
+      if ( count == 1 ) {
+	cout << lineno1 << "d" << (lineno2-1) << endl;
+      } else {
+	cout << lineno1 << "," << (lineno1 + count-1) << "d" << (lineno2-1) << endl;
+      }
+
+    lineno1 += count;
+
+    } else if ( marker == '>' ) {
+      // file1 has is missing lines, so add them
+      if ( count == 1 ) {
+	cout << (lineno1-1) << "a" << lineno2 << endl;
+      } else {
+	cout << (lineno1-1) << "a" << lineno2 << "," << (lineno2+count-1) << endl;
+      }
+
+    lineno2 += count;
+
+    } else {
+      assert(0);
+    }
+
+
+
+  }
+}
+
 void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 
   ifstream in(f.c_str());
@@ -287,9 +347,9 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
     
     //    if ( DEBUG_MODE ) cerr << line << endl;
     char marker = 0;
-    if ( line != "" ) {
+    if ( line.length() > GNU_DIFF_MARKER_COL ) {
       marker = line[GNU_DIFF_MARKER_COL];
-    }
+    } 
     //    if ( DEBUG_MODE ) cerr << marker << endl;
         
     if ( marker == '|' ) {
@@ -312,7 +372,12 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 	blockStart2 = line_num_2;
       }
     } else { // didn't find |, <, or >
-      assert( marker == 0 || marker == ' ' );
+      if( marker != 0 && marker != ' ' ) {
+	cerr << "found marker '" << marker << "'" << endl;
+	cerr << "in line " << endl;
+	cerr << "-" << line << "-" << endl;
+	assert(0);
+      }
       if ( foundChangeMarker ) {
 	assert( blockSize1 > 0 );
 	assert( blockSize2 > 0 );
@@ -346,50 +411,14 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 	if ( DEBUG_MODE ) cerr << "*** optimal alignment value is " << alignment.optimalAlignmentValue() << endl;
 	string marker_seq = alignment.reconstruct();
 
-	cout << "marker sequence from alignment:  " << marker_seq << endl;
+	//	cout << "marker sequence from alignment:  " << marker_seq << endl;
+	outputDelta( marker_seq, blockStart1, blockStart2 );
 
       } else {
 	if ( !markerSequence.empty() ) {
 	  if ( DEBUG_MODE ) cerr << "\n\n******* Didn't find change marker in block" << endl;
 
-	  // right now we don't handle both < and >
-	  bool foundLess = false;
-	  bool foundGreater = false;
-	  for (int i = 0; i < markerSequence.length(); i++ ) {
-	    //	    cerr << "..." << markerSequence[i] << endl;
-	    if ( markerSequence[i] == '<' ) {
-	      foundLess = true;
-	    } else {
-	      foundGreater = true;
-	    }
-	  }
-
-	  assert( !foundLess || !foundGreater );
-	  assert( foundLess || foundGreater );
-
-	  int lineno1 = blockStart1;
-	  int lineno2 = blockStart2;
-
-	  if ( markerSequence[0] == '<' ) {
-	    // delete line from file 1
-	    if ( markerSequence.length() == 1 ) {
-	      cout << lineno1 << "d" << (lineno2-1) << endl;
-	    } else {
-	      cout << lineno1 << "," << (lineno1 + markerSequence.length()-1) << "d" << (lineno2-1) << endl;
-	    }
-	    //	    lineno1++;
-	  } else {
-	    // '>'
-	    // add line to file 1	    
-	    if ( markerSequence.length() == 1 ) {
-	      cout << (lineno1-1) << "a" << lineno2 << endl;
-	    } else {
-	      cout << (lineno1-1) << "a" << lineno2 << "," << (lineno2 + markerSequence.length()-1)  << endl;
-	    }
-	    
-	    //	    lineno2++;
-	  }
-	  
+	  outputDelta( markerSequence, blockStart1, blockStart2 );
 	}
       }
       blockStart1 = 0;
@@ -410,7 +439,7 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 	assert(0);
       }
     } else {
-      // blank line found in diff
+      // (may also have blank line here, not just `|')
       line_num_1++;
       line_num_2++;
     }
