@@ -1,3 +1,7 @@
+Mon Feb  7 12:53:33 GMT 2000  Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added tests to apitest for maxitems parameters and null queries
+
 Mon Jan 31 17:00:18 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* OMMatch stores query in a pointer rather than the historical
