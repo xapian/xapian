@@ -1,9 +1,3 @@
-KodeKnight
-
-canossa
-
-kciv
-
 kdeadmin/kcron
 kdeadmin/kdat
 kdeadmin/kpackage
@@ -378,8 +372,5 @@ koffice/kspread
 koffice/kword
 koffice/lib
 
-kpfa
 
-ksite
 
-ksm-database
