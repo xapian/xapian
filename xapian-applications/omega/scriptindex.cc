@@ -130,7 +130,7 @@ parse_index_script(const string &filename)
 		exit(1);
 	    }
 	    j = find_if(i, s.end(), p_notalnum);
-	    fields.push_back(string(i, j - i));
+	    fields.push_back(string(i, j));
 	    i = find_if(j, s.end(), p_notspace);
 	    if (i == s.end()) break;
 	    if (*i == ':') {
@@ -215,7 +215,7 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		actions.push_back(Action(code, string(j, i - j)));
+		actions.push_back(Action(code, string(j, i)));
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
 		if (arg == YES) {

@@ -1,3 +1,9 @@
+Fri Aug  9 13:57:32 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* scriptindex.cc: Fix compile errors, by changing string
+	  constructors to take begin and end iterators, instead of a begin
+	  and a length.
+
 Fri Jul 05 19:33:55 BST 2002  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Fixed wrt /usr/lib/omega/bin/omega.
