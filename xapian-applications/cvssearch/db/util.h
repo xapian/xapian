@@ -66,6 +66,7 @@ public:
   void updateRevisionComments( map< string, list<string> >& revision_comment_words );
 
   string currentFile();
+  int getLineNumber();
   // returns false when there is no next line
   bool ReadNextLine();
   set<string> getCommentTerms();
@@ -78,6 +79,6 @@ public:
   map< string, list<string> > getRevisionCommentWords();
 };
 
-void readTags( const string& fn, set<string>& S );
+void readTags( const string& fn, set<string>& S, map< string, string>& tag );
 
 string get_cvsdata();

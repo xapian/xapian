@@ -74,7 +74,7 @@
 
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
 //
-#define CTAGS_FLAGS "-R --file-scope=no --fields=aiK --extra=q --c-types=cfsu --java-types=cim --kind-long=yes -f" TEMP "/tags"
+#define CTAGS_FLAGS "-R -n --file-scope=no --fields=aiK --extra=q --c-types=cfsu --java-types=cim -f" TEMP "/tags"
 
 
 //
@@ -87,6 +87,7 @@
 
 #include <db_cxx.h>
 #include <fstream.h>
+#include <strstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -193,6 +194,8 @@ int main(int argc, char *argv[]) {
   // get list of packages to process from file
 
   set<string> lib_symbols;
+  map<string, string > lib_symbol_tag;
+
   set<string> packages;
 
   int qpos;
@@ -225,7 +228,8 @@ int main(int argc, char *argv[]) {
   }
   
   cerr << "...reading library tags" << endl;
-  readTags( TEMP "/tags", lib_symbols );
+#warning "not reading library tags"
+  //  readTags( TEMP "/tags", lib_symbols, lib_symbol_tag );
 
   // might be easier to just maintain something like:  file:revision
   // that we way do not duplicate comments
@@ -283,15 +287,15 @@ int main(int argc, char *argv[]) {
       cerr << "Done" << endl;
 
 
-
-
-
-
       set<string> app_symbols;
+      map< string, string > app_symbol_tag;
+
       map<string, int> lib_symbol_app_count;
-      readTags( TEMP "/tags", app_symbols );
+      readTags( TEMP "/tags", app_symbols, app_symbol_tag );
 
-
+      for( map<string, string>::iterator i = app_symbol_tag.begin(); i != app_symbol_tag.end(); i++ ) {
+	cerr << "Line " << i->first << " has " << i->second << endl;
+      }
 
 
       // change / to _ in package
@@ -348,6 +352,17 @@ int main(int argc, char *argv[]) {
 	map<string, list<string> > terms = lines.getRevisionCommentWords();
 	set<string> symbols = lines.getCodeSymbols();
           
+	string file = cvsdata+"/root0/src/"+lines.currentFile();
+	int line_no = lines.getLineNumber();
+	//	cerr << "Looking at line " << file << "\t" << line_no << endl;
+	ostrstream ost;
+	ost << file << "\t" << line_no << ends;
+	if ( app_symbol_tag.find( ost.str() ) != app_symbol_tag.end() ) {
+	  string f = app_symbol_tag[ost.str()];
+	  cerr << "FOUND FUNCTION " << f << " at line " << line_no << endl;
+	}
+	ost.freeze(0);
+
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
               
 	  if ( SKIP_FUNCTIONS && i->find("()") != -1 ) {

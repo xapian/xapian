@@ -350,6 +350,7 @@ bool Lines::ReadNextLine() {
   ostrstream ost;
   ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
   data = ost.str(); 
+  ost.freeze(0);
   codelinedata = data;
   
   for(int i = revisions.size()-1; i >=0; i-- ) {
@@ -376,6 +377,10 @@ bool Lines::ReadNextLine() {
 
   return true;
 
+}
+
+int Lines::getLineNumber() {
+  return line_no-current_offset+1;
 }
 
 string Lines::getCodeLine() {
@@ -443,7 +448,8 @@ set<string> Lines::getCodeSymbolTerms() {
   return code_terms;
 }
 
-void readTags( const string& fn, set<string>& S ) {
+void readTags( const string& fn, set<string>& S,
+	       map< string, string >& tag ) {
   cerr << "readTags " << fn << endl;
   ifstream in(fn.c_str());
   assert (in);
@@ -453,7 +459,9 @@ void readTags( const string& fn, set<string>& S ) {
       continue;
     }
     //    cerr << "FOUND -" << s << "-" << endl;
-    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos);
+    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos ) || (s.find("\tmember")+string("\tmember").length() == s.length() );
+#warning "should we look for member not method?"
+
     string symbol = s.substr( 0, s.find("\t") );
     if ( symbol.find("::") != string::npos ) {
       symbol = symbol.substr( symbol.find("::")+2 );
@@ -466,10 +474,38 @@ void readTags( const string& fn, set<string>& S ) {
 
     if ( function ) {
       symbol += "()";
+
+      // pick up line numbers for function
+
+      //      cerr << "-" << s << "-" << endl;
+
+
+      int j = s.find(";\"\t")-1;
+      assert(j>0);
+
+      int i = j;
+      while ( s[i] != '\t' ) {
+	i--;
+      }
+      i--; // skip \t
+      while ( s[i] != '\t' ) {
+	i--;
+      }
+
+      i++;
+
+      assert(i>0);
+
+      //      int l = atoi( s.substr(i,j-i+1).c_str() );
+
+      //      cerr << "-" << l << "-" << endl;
+      tag[ s.substr(i,j-i+1)] = symbol;
+      
+
     }
     S.insert(symbol);
     //      cerr << "** found symbol -" << symbol << "-" << endl;
-  } 
+  }
   in.close();
 }
 
