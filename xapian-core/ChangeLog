@@ -1,3 +1,8 @@
+Sat Oct 30 16:55:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* languages/header.h: Removed unused #define MAXINT and MININT which
+	  were clashing with some header on HP-UX.
+
 Sat Oct 30 07:09:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/bm25.html,docs/intro_ir.html: Reworked to talk about Xapian
