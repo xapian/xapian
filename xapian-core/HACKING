@@ -540,3 +540,32 @@ Currently incomplete, but these jobs are amongst those that need doing:
 * Announce the new version on xapian-discuss
 
 * Have a nice cup of tea!
+
+How to make Debian packages for a new release
+=============================================
+
+Debian control files are stored in the "debian" subdirectory of each module
+for which packages have been produced (currently xapian-core, xapian-bindings
+and xapian-applications/omega).  After each release, these should be
+updated as follows:
+
+* Update the debian/changelog file, being sure to keep it in the
+  standard Debian format.  The new version number should be the
+  version number of the release followed by "-1" (ie, a debian
+  patch number of 1).  The changelog message should indicate that
+  there is a new upstream release, and should mention any significant
+  changes in the new release.
+
+* If any patches are being applied when building the debian package
+  (ie, there is a patch file "debian/patch"), and these patches are
+  now incorporated into the release, remove or update the patch file.
+
+* Tag all the files in the debian control directory with the tag
+  "debianVERSION_1" - eg, for a new release of version 0.8.1, tag
+  with "debian0-8-1_1".
+
+* Use xapian-maintainer-tools/debian/makesources to make and upload
+  new source packages, for both the stable and unstable distributions.
+
+* Build new binary packages.  (Currently there isn't a script to do
+  this, so it has to be done manually.)
