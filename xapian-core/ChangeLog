@@ -1,3 +1,12 @@
+Thu Dec  7 17:56:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add OmDocument::set_data() method which takes a string, instead of
+	  an OmData object.  This allows, implicitly, use of const char *'s
+	  as well.
+
+	* Further fixes to quartztest.  It now compiles (though I've not
+	  tried linking it yet...)  :)
+
 Thu Dec  7 17:49:50 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed omkeylistiterator return types.

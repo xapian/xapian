@@ -196,6 +196,9 @@ class OmDocument {
 	/// Set data stored in a document.
 	void set_data(const OmData &data);
 
+	/// Set data stored in a document, from a string.
+	void set_data(const std::string &data);
+
 	/** Add an occurrence of a term to the document.
 	 *
 	 *  Multiple occurrences of the term at the same position are

@@ -79,6 +79,12 @@ OmDocument::set_data(const OmData &data)
 }
 
 void
+OmDocument::set_data(const std::string &data)
+{
+    set_data(OmData(data));
+}
+
+void
 OmDocument::operator=(const OmDocument &other)
 {
     // pointers are reference counted.

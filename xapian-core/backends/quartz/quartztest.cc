@@ -1070,7 +1070,7 @@ static bool test_adddoc2()
 	    OmKeyListIterator i(document_in.keylist_begin());
 	    OmKeyListIterator j(document_out.keylist_begin());
 	    for (; i != document_in.keylist_end(); i++, j++) {
-		TEST(j != document_out.keylist_end());
+		TEST_NOT_EQUAL(j, document_out.keylist_end());
 		TEST_EQUAL(i->value, j->value);
 		TEST_EQUAL(i.get_keyno(), j.get_keyno());
 	    }
@@ -1079,28 +1079,24 @@ static bool test_adddoc2()
 	    OmTermListIterator i(document_in.termlist_begin());
 	    OmTermListIterator j(document_out.termlist_begin());
 	    for (; i != document_in.termlist_end(); i++, j++) {
-		TEST(j != document_out.termlist_end());
+		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
-		TEST_EQUAL(i->second.tname, j->second.tname);
-		TEST_EQUAL(i->second.wdf, j->second.wdf);
-		TEST_NOT_EQUAL(i->second.termfreq, j->second.termfreq);
-		TEST_EQUAL(0, i->second.termfreq);
-		TEST_NOT_EQUAL(0, j->second.termfreq);
-		if (i->second.tname == "foobar") {
+		TEST_EQUAL(i.get_wdf(), j.get_wdf());
+		TEST_NOT_EQUAL(i.get_termfreq(), j.get_termfreq());
+		TEST_EQUAL(0, i.get_termfreq());
+		TEST_NOT_EQUAL(0, j.get_termfreq());
+		if (*i == "foobar") {
 		    // termfreq of foobar is 2
-		    TEST_EQUAL(2, j->second.termfreq);
+		    TEST_EQUAL(2, j.get_termfreq());
 		} else {
 		    // termfreq of rising is 1
-		    TEST_EQUAL(i->second.tname, "rising");
-		    TEST_EQUAL(1, j->second.termfreq);
+		    TEST_EQUAL(*i, "rising");
+		    TEST_EQUAL(1, j.get_termfreq());
 		}
-		TEST_EQUAL(i->second.positions.size(),
-			   j->second.positions.size());
-		OmDocumentTerm::term_positions::const_iterator k,l;
-		for (k = i->second.positions.begin(),
-		     l = j->second.positions.begin();
-		     k != i->second.positions.end();
-		     k++, l++) {
+		OmPositionListIterator k(i.positionlist_begin());
+		OmPositionListIterator l(j.positionlist_begin());
+		for (; k != i.positionlist_end(); k++, l++) {
+		    TEST_NOT_EQUAL(l, j.positionlist_end());
 		    TEST_EQUAL(*k, *l);
 		}
 	    }
@@ -1523,11 +1519,14 @@ static bool test_positionlist1()
 
     OmDocumentTerm::term_positions positions;
 
-    positions.push_back(5);
-    positions.push_back(8);
-    positions.push_back(10);
-    positions.push_back(12);
-    QuartzPositionList::set_positionlist(&bufftable, 1, "foo", positions);
+    OmDocument document;
+    document.add_posting("foo", 5);
+    document.add_posting("foo", 8);
+    document.add_posting("foo", 10);
+    document.add_posting("foo", 12);
+    QuartzPositionList::set_positionlist(&bufftable, 1, "foo",
+				 document.termlist_begin().positionlist_begin(),
+				 document.termlist_begin().positionlist_end());
 
     QuartzPositionList pl;
 
