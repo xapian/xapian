@@ -24,5 +24,5 @@ depcomp
 missing
 mkinstalldirs
 confdefs.h
-msearch delve createdatabase simpleindex copydatabase simpleexpand simplesearch
+quest delve createdatabase simpleindex copydatabase simpleexpand simplesearch
 xapian-examples-*.tar.gz

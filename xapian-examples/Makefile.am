@@ -3,15 +3,15 @@
 # Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 AUTOMAKE_OPTIONS = 1.6.3
 
-bin_PROGRAMS = msearch delve createdatabase copydatabase\
+bin_PROGRAMS = quest delve createdatabase copydatabase\
 	simpleindex simplesearch simpleexpand
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS = getopt.h
 
-msearch_SOURCES = msearch.cc getopt.c getopt1.c
-msearch_LDADD = $(XAPIAN_LIBS)
+quest_SOURCES = quest.cc getopt.c getopt1.c
+quest_LDADD = $(XAPIAN_LIBS)
 
 # delve doesn't use getopt_long so doesn't need getopt1.c
 delve_SOURCES = delve.cc getopt.c
