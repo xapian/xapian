@@ -24,6 +24,8 @@
 #define OM_HGUARD_DOCUMENT_CONTENTS_H
 
 #include <string>
+#include <map>
+#include <vector>
 #include "om/omtypes.h"
 
 /** A term in a document. */
@@ -50,7 +52,7 @@ struct DocumentTerm {
      *  occur multiple times at a single position, but will only have one
      *  entry in the position list for each position. 
      */
-    vector<om_termpos> positions
+    vector<om_termpos> positions;
 };
 
 /** The information which is stored in a document.
@@ -60,9 +62,13 @@ struct DocumentTerm {
  *  writable database.
  */
 struct DocumentContents {
-
+    /** The (user defined) data associated with this document. */
     string data;
+
+    /** The keys associated with this document. */
     map<om_keyno, string> keys;
+
+    /** The terms (and their frequencies and positions) in this document. */
     vector<DocumentTerm> terms;
 };
 
