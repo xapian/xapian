@@ -66,40 +66,24 @@ class QuartzRecordTable : public Btree {
 	 */
 	quartz_totlen_t get_total_length() const;
 
-	/** Get the next document ID to use.
-	 */
-	Xapian::docid get_newdocid();
-
 	/** Get the last document id used.
 	 */
 	Xapian::docid get_lastdocid() const;
 
-	/** Add a new record to the table.
-	 *
+	/** Set the total length and last document ID used.
 	 */
-	Xapian::docid add_record(const string & data);
+	void set_total_length_and_lastdocid(quartz_totlen_t totlen,
+					    Xapian::docid did);
 
-	/* Replace an existing record in the table
+	/* Add a new record to the table, or replace an existing record.
 	 *
-	 * @param did	The document ID to use.  If not specified, then
-	 * 		a new docid is generated.  Otherwise, this record
-	 * 		will be created (or replace) document did.
+	 * @param did	The document ID to use.
 	 */
 	void replace_record(const string & data, Xapian::docid did);
 
 	/** Delete a record from the table.
 	 */
 	void delete_record(Xapian::docid did);
-
-	/** Modify the stored total length of the records, by supplying an
-	 *  old length for a document, and the new length of the document
-	 *  replacing it.
-	 *
-	 *  @param old_doclen  The old length of the document.
-	 *  @param new_doclen  The new length of the document.
-	 */
-	void modify_total_length(quartz_doclen_t old_doclen,
-				 quartz_doclen_t new_doclen);
 };
 
 #endif /* OM_HGUARD_QUARTZ_RECORD_H */

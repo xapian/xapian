@@ -222,12 +222,6 @@ class QuartzDatabase : public Xapian::Database::Internal {
  */
 class QuartzWritableDatabase : public Xapian::Database::Internal {
     private:
-	/** Total length of added documents which haven't been flushed yet. */
-	mutable quartz_totlen_t totlen_added;
-
-	/** Total length of removed documents which haven't been flushed yet. */
-	mutable quartz_totlen_t totlen_removed;
-
 	/** Unflushed changes to term frequencies and collection frequencies. */
 	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
 		freq_deltas;
@@ -243,10 +237,20 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	 */
 	mutable QuartzDatabase database_ro;
 
+	/** Total length of all documents including unflushed modifications.
+	 */
+	mutable quartz_totlen_t total_length;
+
+	/** Highest document ID ever allocated by this database.
+	 */
+	mutable Xapian::docid lastdocid;
+
+	/** The number of documents added, deleted, or replaced since the last
+	 *  flush.
+	 */
 	mutable Xapian::doccount changes_made;
 
-	static size_t document_flush_threshold;
-	static size_t length_flush_threshold;
+	static size_t flush_threshold;
 
 	//@{
 	/** Implementation of virtual methods: see Database for details.

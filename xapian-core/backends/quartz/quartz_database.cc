@@ -634,37 +634,25 @@ QuartzDatabase::open_allterms() const
 				  pl_cursor, postlist_table.get_entry_count()));
 }
 
-size_t QuartzWritableDatabase::document_flush_threshold = 0;
-size_t QuartzWritableDatabase::length_flush_threshold = 0;
+size_t QuartzWritableDatabase::flush_threshold = 0;
 
 QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 					       int block_size)
-	: totlen_added(0),
-	  totlen_removed(0),
-	  freq_deltas(),
+	: freq_deltas(),
 	  doclens(),
 	  mod_plists(),
 	  database_ro(dir, action, block_size),
+	  total_length(database_ro.record_table.get_total_length()),
+	  lastdocid(database_ro.get_lastdocid()),
 	  changes_made(0)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
-    if (document_flush_threshold == 0) {
+    if (flush_threshold == 0) {
 	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
-	if (p) document_flush_threshold = atoi(p);
+	if (p) flush_threshold = atoi(p);
     }
-    if (length_flush_threshold == 0) {
-	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD_LENGTH");
-	if (p) length_flush_threshold = atoi(p);
-	if (length_flush_threshold == 0) {
-	    if (document_flush_threshold == 0)
-		document_flush_threshold = 1000;
-	    length_flush_threshold = (size_t)-1;
-	} else {
-	    if (document_flush_threshold == 0)
-		document_flush_threshold = (size_t)-1;
-	}
-    }
+    if (flush_threshold == 0) flush_threshold = 10000;
 }
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
@@ -686,12 +674,10 @@ QuartzWritableDatabase::do_flush_const() const
 
     database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
-    // Update the total document length.
-    database_ro.record_table.modify_total_length(totlen_removed, totlen_added);
-
+    // Update the total document length and last used docid.
+    database_ro.record_table.set_total_length_and_lastdocid(total_length,
+							    lastdocid);
     database_ro.apply();
-    totlen_added = 0;
-    totlen_removed = 0;
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
@@ -711,14 +697,11 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 				      const Xapian::Document & document)
 {
     try {
-	if (did == 0) {
-	    // Set the record, and get the document ID to use.
-	    did = database_ro.record_table.add_record(document.get_data());
-	    Assert(did != 0);
-	} else {
-	    // Set the record using the provided document ID.
-	    database_ro.record_table.replace_record(document.get_data(), did);
-	}
+	// Use the next unused document ID.
+	if (did == 0) did = ++lastdocid;
+	
+	// Add the record using that document ID.
+	database_ro.record_table.replace_record(document.get_data(), did);
 
 	// Set the values.
 	{
@@ -774,15 +757,15 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 
 	// Set the new document length
 	doclens.insert(make_pair(did, new_doclen));
-	totlen_added += new_doclen;
+	total_length += new_doclen;
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	totlen_added = 0;
-	totlen_removed = 0;
+	total_length = database_ro.record_table.get_total_length();
+	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
@@ -799,11 +782,8 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
     //
     // cout << "+++ mod_plists.size() " << mod_plists.size() <<
     //     ", doclens.size() " << doclens.size() <<
-    //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
-    //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
-	flush();
-    }
+    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
+    if (++changes_made >= flush_threshold) flush();
 
     return did;
 }
@@ -834,7 +814,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 				&database_ro.termlist_table,
 				did, get_doccount());
 
-	totlen_removed += termlist.get_doclength();
+	total_length -= termlist.get_doclength();
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -872,8 +852,8 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	totlen_added = 0;
-	totlen_removed = 0;
+	total_length = database_ro.record_table.get_total_length();
+	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
@@ -881,9 +861,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
-	flush();
-    }
+    if (++changes_made >= flush_threshold) flush();
 }
 
 void
@@ -934,7 +912,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	    termlist.next();
 	}
 
-	totlen_removed += termlist.get_doclength();
+	total_length -= termlist.get_doclength();
 
 	// Replace the record
 	database_ro.record_table.replace_record(document.get_data(), did);
@@ -1016,7 +994,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 
 	// Set the new document length
 	doclens.insert(make_pair(did, new_doclen));
-	totlen_added += new_doclen;
+	total_length += new_doclen;
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);
     } catch (...) {
@@ -1025,8 +1003,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	totlen_added = 0;
-	totlen_removed = 0;
+	total_length = database_ro.record_table.get_total_length();
+	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
@@ -1034,9 +1012,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
-	flush();
-    }
+    if (++changes_made >= flush_threshold) flush();
 }
 
 Xapian::doccount
@@ -1050,7 +1026,7 @@ Xapian::docid
 QuartzWritableDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "QuartzWritableDatabase::get_lastdocid", "");
-    RETURN(database_ro.get_lastdocid());
+    RETURN(lastdocid);
 }
 
 Xapian::doclength
@@ -1059,10 +1035,7 @@ QuartzWritableDatabase::get_avlength() const
     DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_avlength", "");
     Xapian::doccount docs = database_ro.get_doccount();
     if (docs == 0) RETURN(0);
-    quartz_doclen_t totlen = database_ro.record_table.get_total_length();
-    totlen -= totlen_removed;
-    totlen += totlen_added;
-    RETURN((double)totlen / docs);
+    RETURN((double)total_length / docs);
 }
 
 Xapian::doclength

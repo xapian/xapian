@@ -66,39 +66,6 @@ QuartzRecordTable::get_doccount() const
 }
 
 Xapian::docid
-QuartzRecordTable::get_newdocid()
-{
-    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::get_newdocid", "");
-    string tag;
-    (void)get_exact_entry(METAINFO_KEY, tag);
-
-    Xapian::docid did;
-    quartz_totlen_t totlen;
-    if (tag.empty()) {
-	did = 1u;
-	totlen = 0u;
-    } else {
-	const char * data = tag.data();
-	const char * end = data + tag.size();
-	if (!unpack_uint(&data, end, &did)) {
-	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-	if (!unpack_uint_last(&data, end, &totlen)) {
-	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-	++did;
-	if (did == 0) {
-	    throw Xapian::RangeError("Next document number is out of range.");
-	}
-    }
-    tag = pack_uint(did);
-    tag += pack_uint_last(totlen);
-    add(METAINFO_KEY, tag);
-
-    RETURN(did);
-}
-
-Xapian::docid
 QuartzRecordTable::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::get_lastdocid", "");
@@ -115,18 +82,6 @@ QuartzRecordTable::get_lastdocid() const
     RETURN(did);
 }
 
-Xapian::docid
-QuartzRecordTable::add_record(const string & data)
-{
-    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::add_record", data);
-    Xapian::docid did = get_newdocid();
-
-    string key(quartz_docid_to_key(did));
-    add(key, data);
-
-    RETURN(did);
-}
-
 void
 QuartzRecordTable::replace_record(const string & data, Xapian::docid did)
 {
@@ -136,40 +91,13 @@ QuartzRecordTable::replace_record(const string & data, Xapian::docid did)
 }
 
 void
-QuartzRecordTable::modify_total_length(quartz_doclen_t old_doclen,
-				       quartz_doclen_t new_doclen)
+QuartzRecordTable::set_total_length_and_lastdocid(quartz_totlen_t totlen,
+						  Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordTable::modify_total_length", old_doclen << ", " << new_doclen);
-    string tag;
-    (void)get_exact_entry(METAINFO_KEY, tag);
-
-    Xapian::docid did;
-    quartz_totlen_t totlen;
-    if (tag.empty()) {
-	did = 0u;
-	totlen = 0u;
-    } else {
- 	const char * data = tag.data();
- 	const char * end = data + tag.size();
-	if (!unpack_uint(&data, end, &did)) {
-	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-	if (!unpack_uint_last(&data, end, &totlen)) {
-	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-	}
-    }
-    
-    if (totlen < old_doclen)
-	throw Xapian::DatabaseCorruptError("Total document length is less than claimed old document length");
-
-    totlen -= old_doclen;
-    quartz_totlen_t newlen = totlen + new_doclen;
-
-    if (newlen < totlen)
-	throw Xapian::RangeError("New total document length is out of range.");
-
-    tag = pack_uint(did);
-    tag += pack_uint_last(newlen);
+    DEBUGCALL(DB, void, "QuartzRecordTable::set_total_length_and_lastdocid",
+			totlen << ", " << did);
+    string tag = pack_uint(did);
+    tag += pack_uint_last(totlen);
     add(METAINFO_KEY, tag);
 }
 
