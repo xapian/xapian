@@ -116,7 +116,7 @@ class OmIndexerBuilder {
 		    : name(other.name), type(other.type),
 	              phys_type(other.phys_type) {}
 	    NodeConnection()
-		    : name(""), type(""), phys_type() {}
+		    : name(""), type("") {}
 
 	    /** The name of this input or output */
 	    std::string name;

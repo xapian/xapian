@@ -48,7 +48,7 @@ class ReverseNode : public OmIndexerNode {
 
 	    Record out(*in);
 	    out.name = reverse_string(in->name);
-	    if (out.type == mt_string) {
+	    if (out.type == Record::rt_string) {
 		*out.u.string_val = reverse_string(*out.u.string_val);
 	    }
 	    //cout << "Turned " << in << " into " << out << endl;
@@ -69,12 +69,12 @@ class SplitNode : public OmIndexerNode {
 	    Message msg = get_input_record("in");
 	    Record temp1(*msg);
 	    temp1.name += "1";
-	    if (temp1.type == mt_string) {
+	    if (temp1.type == Record::rt_string) {
 		*temp1.u.string_val += "1";
 	    }
 	    Record temp2(*msg);
 	    temp2.name += "2";
-	    if (temp2.type == mt_string) {
+	    if (temp2.type == Record::rt_string) {
 		*temp2.u.string_val += "2";
 	    }
 	    set_output_record("out1", temp1);
@@ -95,8 +95,8 @@ class ConcatNode : public OmIndexerNode {
 
 	    Record out;
 	    out.name = in1->name + in2->name;
-	    out.type = mt_string;
-	    if (in1->type == mt_string && in2->type == mt_string) {
+	    out.type = Record::rt_string;
+	    if (in1->type == Record::rt_string && in2->type == Record::rt_string) {
 		out.u.string_val = new std::string(*in1->u.string_val +
 						   *in2->u.string_val);
 	    } else {

@@ -6,11 +6,11 @@ noinst_HEADERS = indexergraph.h omindexernode.h testnodes.h
 
 noinst_LTLIBRARIES = libindexgraph.la
 
-noinst_PROGRAMS = nodetest
+#noinst_PROGRAMS = nodetest
 
-nodetest_SOURCES = nodetest.cc
+#nodetest_SOURCES = nodetest.cc
 
-nodetest_LDADD = libindexgraph.la ../../libomus.la
+#nodetest_LDADD = libindexgraph.la ../../libomus.la
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc
 

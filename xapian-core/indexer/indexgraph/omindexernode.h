@@ -33,9 +33,7 @@ enum OmIndexerMessageType {
     mt_int,
     mt_double,
     mt_string,
-    mt_vector,
     mt_record // Invalid in an actual Record object.
-	    // FIXME: separate message types from Record content types?
 };
 
 /** BasicMessage is a basic message element.  More complex message may
@@ -47,8 +45,18 @@ class Record {
 	 *  (eg "language", "document data", etc.) */
 	std::string name;
 
+	/** The possible types of information stored in the record.
+	 */
+	enum record_type {
+	    rt_empty,
+	    rt_int,
+	    rt_double,
+	    rt_string,
+	    rt_vector
+	};
+
 	/** The type of this record */
-	OmIndexerMessageType type;
+	record_type type;
 
 	/** The union of possible values stored in this record */
 	union {

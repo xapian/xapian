@@ -3,6 +3,7 @@
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE1 = net
 BUILDSUBDIR_REMOTE2 = netprogs
+LIB_REMOTE1 = net/libnet.la
 endif
 
 # Order is relvant: when building, tests must be at end
@@ -28,7 +29,7 @@ libomus_la_LIBADD = \
  languages/liblanguages.la \
  indexer/libindexer.la \
  api/libapi.la \
- net/libnet.la
+ $(LIB_REMOTE1)
 
 bin_SCRIPTS = libomus-config
 

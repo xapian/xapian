@@ -74,7 +74,7 @@ OmIndexerNode::config_modified(const std::string &key)
 {
 }
 
-Record::Record() : name(), type(mt_int)
+Record::Record() : name(), type(rt_empty)
 {
     u.int_val = 0;
 }
@@ -83,16 +83,18 @@ Record::Record(const Record &other)
 	: name(other.name), type(other.type)
 {
     switch (type) {
-	case mt_int:
+	case rt_empty:
+	    break;
+	case rt_int:
 	    u.int_val = other.u.int_val;
 	    break;
-	case mt_double:
+	case rt_double:
 	    u.double_val = other.u.double_val;
 	    break;
-	case mt_string:
+	case rt_string:
 	    u.string_val = new string(*other.u.string_val);
 	    break;
-	case mt_vector:
+	case rt_vector:
 	    u.vector_val = new vector<Record>(*other.u.vector_val);
 	    break;
     }
@@ -114,46 +116,51 @@ Record::swap(Record &other) {
 	std::vector<Record> *vector_val;
     } tempu;
     switch (other.type) {
-	case mt_int:
+	case rt_empty:
+	    break;
+	case rt_int:
 	    tempu.int_val = other.u.int_val;
 	    break;
-	case mt_double:
+	case rt_double:
 	    tempu.double_val = other.u.double_val;
 	    break;
-	case mt_string:
+	case rt_string:
 	    tempu.string_val = other.u.string_val;
 	    break;
-	case mt_vector:
+	case rt_vector:
 	    tempu.vector_val = other.u.vector_val;
 	    break;
     }
     /* now copy this union across */
     switch (type) {
-	case mt_int:
+	case rt_empty:
+	    break;
+	case rt_int:
 	    other.u.int_val = u.int_val;
 	    break;
-	case mt_double:
+	case rt_double:
 	    other.u.double_val = u.double_val;
 	    break;
-	case mt_string:
+	case rt_string:
 	    other.u.string_val = u.string_val;
 	    break;
-	case mt_vector:
+	case rt_vector:
 	    other.u.vector_val = u.vector_val;
 	    break;
     }
     /* And now copy the temp union over ours */
     switch (other.type) {
-	case mt_int:
+	case rt_empty:
+	case rt_int:
 	    u.int_val = tempu.int_val;
 	    break;
-	case mt_double:
+	case rt_double:
 	    u.double_val = tempu.double_val;
 	    break;
-	case mt_string:
+	case rt_string:
 	    u.string_val = tempu.string_val;
 	    break;
-	case mt_vector:
+	case rt_vector:
 	    u.vector_val = tempu.vector_val;
 	    break;
     }
@@ -165,14 +172,15 @@ Record::swap(Record &other) {
 Record::~Record()
 {
     switch (type) {
-	case mt_int:
-	case mt_double:
+	case rt_empty:
+	case rt_int:
+	case rt_double:
 	    // nothing to be done
 	    break;
-	case mt_string:
+	case rt_string:
 	    delete u.string_val;
 	    break;
-	case mt_vector:
+	case rt_vector:
 	    delete u.vector_val;
 	    break;
     }
@@ -216,16 +224,19 @@ std::ostream &operator<<(std::ostream &os, const Record &record)
 {
     os << "Record{";
     switch (record.type) {
-	case mt_int:
+	case Record::rt_empty:
+	    os << "empty}" << record.name;
+	    break;
+	case Record::rt_int:
 	    os << "int}: " << record.name << "=" << record.u.int_val;
 	    break;
-	case mt_double:
+	case Record::rt_double:
 	    os << "double}: " << record.name << "=" << record.u.double_val;
 	    break;
-	case mt_string:
+	case Record::rt_string:
 	    os << "string}: " << record.name << "=" << *record.u.string_val;
 	    break;
-	case mt_vector:
+	case Record::rt_vector:
 	    os << "vector}: length " << record.name << "=" << record.u.vector_val->size();
 	    break;
     }

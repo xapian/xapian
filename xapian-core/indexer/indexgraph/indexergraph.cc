@@ -240,7 +240,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
     }
     std::vector<NodeConnection>::const_iterator i;
     for (i=type->second.outputs.begin(); i!= type->second.outputs.end(); ++i) {
-	// FIXME: probably ought to be a map rather than a vector.
+	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == output_name) {
 	    return *i;
 	}
@@ -261,7 +261,7 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
     }
     std::vector<NodeConnection>::const_iterator i;
     for (i=type->second.inputs.begin(); i!= type->second.inputs.end(); ++i) {
-	// FIXME: probably ought to be a map rather than a vector.
+	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == input_name) {
 	    return *i;
 	}
@@ -300,7 +300,13 @@ OmIndexerBuilder::register_node_type(const std::string &nodename,
 				     const std::vector<NodeConnection> &inputs,
 				     const std::vector<NodeConnection> &outputs)
 {
-    // FIXME: check for duplicate node type
+    std::map<std::string, node_desc>::const_iterator i;
+    i = nodetypes.find(nodename);
+    if (i != nodetypes.end()) {
+	throw OmInvalidArgumentError(string("Attempt to register node type ")
+				     + nodename + ", which already exists.");
+    }
+
     node_desc ndesc;
     ndesc.create = create;
     std::copy(inputs.begin(), inputs.end(),

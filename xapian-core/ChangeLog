@@ -1,3 +1,13 @@
+Thu Aug 31 15:43:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Sorted out some of the enum bits in OmIndexer
+
+	* Check that the same node type isn't registered more than once.
+
+	* Stop building of "nodetest" in indexer which depends on libomus
+
+	* Building without remote backend should now work.
+
 Thu Aug 31 15:36:00 BST 2000 Olly Betts
 
 	* Should now distribute NEAR/PHRASE over sub-expressions - untested.

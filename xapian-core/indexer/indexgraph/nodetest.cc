@@ -77,27 +77,27 @@ int main() {
 	auto_ptr<OmIndexer> indexer = builder.build_from_file("test.xml");
 	Message msg(new Record());
 	msg->name = "foo";
-	msg->type = mt_string;
+	msg->type = Record::rt_string;
 	msg->u.string_val = new std::string("bar");
 	indexer->set_input(msg);
 	Message result = indexer->get_output();
 
 	cout << "Name: " << result->name << endl;
 	switch (result->type) {
-	    case mt_int:
+	    case Record::rt_int:
 		cout << result->u.int_val;
 		break;
-	    case mt_double:
+	    case Record::rt_double:
 		cout << result->u.double_val;
 		break;
-	    case mt_string:
+	    case Record::rt_string:
 		cout << *result->u.string_val;
 		break;
-	    case mt_vector:
+	    case Record::rt_vector:
 		cout << "Vector";
 		break;
-	    case mt_record:
-		cout << "Invalid";
+	    case Record::rt_empty:
+		cout << "Empty";
 		break;
 	};
 	cout << endl;
