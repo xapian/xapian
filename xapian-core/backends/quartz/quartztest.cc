@@ -1147,12 +1147,12 @@ static bool test_postlist1()
     TEST_EQUAL(pl.get_termfreq(), 1);
 
     {
-	QuartzPostList pl2(database_w, 7, table, "foo");
+	QuartzPostList pl2(database_w, 8.0, table, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
-	TEST_EQUAL(pl2.get_doclength(), 3 / 8);
+	TEST_EQUAL(pl2.get_doclength(), 3.0 / 8.0);
 	TEST_EQUAL(pl2.get_wdf(), 7);
 	pl2.next(0);
 	TEST(pl2.at_end());
