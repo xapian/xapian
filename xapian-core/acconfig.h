@@ -61,6 +61,12 @@
 /* Define if getopt.h is available */
 #undef HAVE_GETOPT_H
 
+/* Define if <sstream> is available */
+#undef HAVE_SSTREAM
+
+/* Define if <streambuf> is available */
+#undef HAVE_STREAMBUF
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions

@@ -32,11 +32,11 @@
 class OmError {
     private:
 	/// A message explaining the error.
-        string msg;
+        std::string msg;
 
 	/** The type of the error.
 	 */
-	string type;
+	std::string type;
 
 	/// assignment operator private and unimplemented
 	void operator=(const OmError &copyme);
@@ -44,21 +44,21 @@ class OmError {
     	/** Constructors are protected, since they can only
 	 *  be used by derived classes anyway.
 	 */
-        OmError(const string &msg_, const string &type_)
+        OmError(const std::string &msg_, const std::string &type_)
 		: msg(msg_), type(type_) {}
 	OmError(const OmError &copyme) : msg(copyme.msg), type(copyme.type) {}
     public:
 	/** Return a message describing the error.
 	 *  This is in a human readable form.
 	 */
-        string get_msg() const
+        std::string get_msg() const
         {
             return msg;
         }
 
 	/** Return the type of the error.
 	 */
-	string get_type() const
+	std::string get_type() const
 	{
 	    return type;
 	}
@@ -73,17 +73,17 @@ inline OmError::~OmError() {}
 class a : public b { \
     protected: \
 	/** Constructor used by derived classes. */ \
-	a(const string &msg_, const string &type_) : b(msg_, type_) {}; \
+	a(const std::string &msg_, const std::string &type_) : b(msg_, type_) {}; \
 }
 
 #define DEFINE_ERROR_CLASS(a, b) \
 class a : public b { \
     public: \
 	/** Constructor used publically. */ \
-	a(const string &msg_) : b(msg_, #a) {}; \
+	a(const std::string &msg_) : b(msg_, #a) {}; \
     protected: \
 	/** Constructor used by derived classes. */ \
-	a(const string &msg_, const string &type_) : b(msg_, type_) {}; \
+	a(const std::string &msg_, const std::string &type_) : b(msg_, type_) {}; \
 }
 
 /** Base class for errors due to programming errors.

@@ -96,20 +96,20 @@ class OmQuery {
 	 * (Takes begin and end iterators).
 	 * The only operators allowed are AND, OR, NEAR, and PHRASE */
 	OmQuery(om_queryop op_,
-		const vector<OmQuery>::const_iterator qbegin,
-		const vector<OmQuery>::const_iterator qend,
+		const std::vector<OmQuery>::const_iterator qbegin,
+		const std::vector<OmQuery>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, but uses a vector of OmQuery pointers. */
 	OmQuery(om_queryop op_,
-		const vector<OmQuery *>::const_iterator qbegin,
-		const vector<OmQuery *>::const_iterator qend,
+		const std::vector<OmQuery *>::const_iterator qbegin,
+		const std::vector<OmQuery *>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
 	OmQuery(om_queryop op_,
-		const vector<om_termname>::const_iterator tbegin,
-		const vector<om_termname>::const_iterator tend,
+		const std::vector<om_termname>::const_iterator tbegin,
+		const std::vector<om_termname>::const_iterator tend,
 		om_termpos window = 0);
 
 	/** Copy constructor. */
@@ -165,7 +165,7 @@ class OmQuery {
 	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ class OmMatchOptions {
 	/** Returns a string representing the options.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 /** Base class for matcher decision functor.
@@ -326,7 +326,7 @@ class OmExpandOptions {
 	/** Returns a string representing the options.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 /** Base class for expand decision functor.
@@ -352,7 +352,7 @@ class OmExpandDeciderFilterTerms : public OmExpandDecider {
 
         virtual int operator()(const om_termname &tname) const;
     private:
-        set<om_termname> tset;
+        std::set<om_termname> tset;
 };
 
 /** An expand decision functor which can be used to join two
@@ -388,7 +388,7 @@ class OmRSet {
     public:
 	/** Items in the relevance set.
 	 *  These can be altered directly if desired. */
-	set<om_docid> items;
+	std::set<om_docid> items;
 
 	/** Add a document to the relevance set. */
 	void add_document(om_docid did);
@@ -399,7 +399,7 @@ class OmRSet {
 	/** Returns a string representing the rset.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 inline void
@@ -411,7 +411,7 @@ OmRSet::add_document(om_docid did)
 inline void
 OmRSet::remove_document(om_docid did)
 {
-    set<om_docid>::iterator i = items.find(did);
+    std::set<om_docid>::iterator i = items.find(did);
     if(i != items.end()) items.erase(i);
 }
 
@@ -457,7 +457,7 @@ class OmMSetItem {
 	/** Returns a string representing the mset item.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 /** A match set (MSet).
@@ -478,7 +478,7 @@ class OmMSet {
 	int convert_to_percent(const OmMSetItem & item) const;
 
 	/// A list of items comprising the (selected part of the) mset.
-	vector<OmMSetItem> items;
+	std::vector<OmMSetItem> items;
 
 	/** The index of the first item in the result which was put into the
 	 *  mset.
@@ -523,7 +523,7 @@ class OmMSet {
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -549,7 +549,7 @@ class OmESetItem {
 	/** Returns a string representing the eset item.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 /** Class representing an ESet.
@@ -562,7 +562,7 @@ class OmESet {
 	OmESet() : ebound(0) {}
 
 	/// A list of items comprising the (selected part of the) eset.
-	vector<OmESetItem> items;
+	std::vector<OmESetItem> items;
 
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
@@ -573,7 +573,7 @@ class OmESet {
 	/** Returns a string representing the eset.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 
@@ -797,7 +797,7 @@ class OmEnquire {
 	/** Returns a string representing the enquire object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -864,7 +864,7 @@ class OmBatchEnquire {
 	/** Type used to store a batch of queries to be performed.
 	 *  This is essentially an array of query_desc objects.
 	 */
-	typedef vector<query_desc> query_batch;
+	typedef std::vector<query_desc> query_batch;
 
 	/** Set up the queries to run.
 	 *
@@ -906,7 +906,7 @@ class OmBatchEnquire {
 
 	/** Type used to store the results of a query batch.
 	 */
-	typedef vector<batch_result> mset_batch;
+	typedef std::vector<batch_result> mset_batch;
 
 	/** Get (a portion of) the match sets for the current queries.
 	 *
@@ -944,7 +944,7 @@ class OmBatchEnquire {
 	/** Returns a string representing the batchenquire object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMENQUIRE_H */

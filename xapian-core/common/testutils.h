@@ -29,7 +29,8 @@
 // ######################################################################
 // Useful display operators
 
-ostream &operator<<(ostream &os, const vector<unsigned int> &ints);
+std::ostream &operator<<(std::ostream &os,
+                         const std::vector<unsigned int> &ints);
 
 
 // ######################################################################

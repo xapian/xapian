@@ -34,11 +34,11 @@
  */
 class TestFailure {
     public:
-	TestFailure(string message_ = "") : message(message_) {}
+	TestFailure(std::string message_ = "") : message(message_) {}
 	~TestFailure() {}
-	string message;
+	std::string message;
 
-//	ostream & operator<<(ostream &os, const OmMSetItem &mitem);
+//	std::ostream & operator<<(std::ostream &os, const OmMSetItem &mitem);
 };
 
 /** Macro used to build a TestFailure object and throw it.
@@ -110,7 +110,7 @@ class test_driver {
 	 *
 	 *  @param testname The name of the test(s) to run.
 	 */
-	result run_test(const string &testname);
+	result run_test(const std::string &testname);
 
 	/** If set, this will cause the testsuite to stop executing further
 	 *  tests if any fail.
@@ -136,13 +136,13 @@ class test_driver {
 	 *  @param name  If non-empty, the name of the test(s) to run.
 	 *               If empty, all tests will be run.
 	 */
-	result do_run_tests(const string &name);
+	result do_run_tests(const std::string &name);
 	
 	// abort tests at the first failure
 	bool abort_on_error;
 
 	// the default stream to output to
-	ostream out;
+	std::ostream out;
 
 	// the list of tests to run.
 	const test_desc *tests;

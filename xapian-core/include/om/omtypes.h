@@ -64,13 +64,13 @@ typedef unsigned int om_timeout;
 #include <string>
 #include <list>
 /// A term name.  This is a string representing the term, and will often be the actual text of the term.
-typedef string om_termname;
+typedef std::string om_termname;
 
 /// A list of terms.  This is a container of term names.
-typedef list<om_termname> om_termname_list;
+typedef std::list<om_termname> om_termname_list;
 
 /// A document name.  This is used when making a new document.
-typedef string om_docname;
+typedef std::string om_docname;
 #endif
 
 #endif /* OM_HGUARD_OMTYPES_H */

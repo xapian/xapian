@@ -80,8 +80,8 @@ class OmDatabase {
 	 *             be opened.
 	 *
 	 */
-	OmDatabase(const string & type,
-		   const vector<string> & params,
+	OmDatabase(const std::string & type,
+		   const std::vector<std::string> & params,
 		   bool readonly);
     public:
 	/** Open a database.
@@ -97,8 +97,8 @@ class OmDatabase {
 	 *  @exception OmOpeningError may be thrown if the database cannot
 	 *             be opened.
 	 */
-	OmDatabase(const string & type,
-		   const vector<string> & params);
+	OmDatabase(const std::string & type,
+		   const std::vector<std::string> & params);
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
@@ -119,7 +119,7 @@ class OmDatabase {
 	/** Returns a string representing the database object.
 	 *  Introspection method.
 	 */
-	virtual string get_description() const;
+	virtual std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -168,8 +168,8 @@ class OmWritableDatabase : public OmDatabase {
 	 *  @exception OmOpeningError may be thrown if the database cannot
 	 *             be opened.
 	 */
-	OmWritableDatabase(const string & type,
-			   const vector<string> & params);
+	OmWritableDatabase(const std::string & type,
+			   const std::vector<std::string> & params);
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
@@ -279,7 +279,7 @@ class OmWritableDatabase : public OmDatabase {
 	/** Returns a string representing the database object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -328,8 +328,8 @@ class OmDatabaseGroup {
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 */
-	void add_database(const string & type,
-			  const vector<string> & params);
+	void add_database(const std::string & type,
+			  const std::vector<std::string> & params);
 
 	/** Add an already opened database to the set of databases to be
 	 *  accessed by this database group.
@@ -344,7 +344,7 @@ class OmDatabaseGroup {
 	/** Returns a string representing the database group object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMDATABASE_H */

@@ -22,11 +22,14 @@
 
 #include "testutils.h"
 
-ostream &
-operator<<(ostream &os, const vector<unsigned int> &ints)
+using std::cout;
+using std::endl;
+
+std::ostream &
+operator<<(std::ostream &os, const std::vector<unsigned int> &ints)
 {
     copy(ints.begin(), ints.end(),
-	 ostream_iterator<unsigned int>(os, ", "));
+	 std::ostream_iterator<unsigned int>(os, ", "));
     return os;
 }
 

@@ -23,6 +23,12 @@
 #ifndef OM_HGUARD_OMSTRINGSTREAM_H
 #define OM_HGUARD_OMSTRINGSTREAM_H
 
+#ifdef HAVE_SSTREAM
+#include <sstream>
+typedef std::ostringstream om_stringstream;
+
+#else // HAVE_SSTREAM
+
 #include <string>
 #include <iostream>
 #include <streambuf.h>
@@ -57,5 +63,7 @@ class om_ostringstream : public ostream {
 	 */
 	auto_ptr<om_stringbuf<char> > ombuf;
 };
+
+#endif // HAVE_SSTREAM
 
 #endif /* OM_HGUARD_STRINGSTREAM_H */

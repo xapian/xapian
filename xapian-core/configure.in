@@ -19,6 +19,21 @@ dnl Check for getopt.h.  On some systems, it's in stdlib.h
 AC_CHECK_HEADERS(getopt.h)
 AC_SUBST(HAVE_GETOPT_H)
 
+dnl Check for a stringstream implementation.  (If not present, we roll
+dnl one ourselves).
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADERS(sstream)
+AC_SUBST(HAVE_SSTREAM)
+AC_LANG_RESTORE
+
+dnl Check for a new streams implementation.
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADERS(streambuf)
+AC_SUBST(HAVE_STREAMBUF)
+AC_LANG_RESTORE
+
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
 

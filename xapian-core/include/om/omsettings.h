@@ -73,7 +73,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const string &key, const string &value);
+	void set_value(const std::string &key, const std::string &value);
 
 	/** Get a setting value.
 	 *
@@ -81,7 +81,7 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	string get_value(const string &key) const;
+	std::string get_value(const std::string &key) const;
 };
 
 #endif // OM_HGUARD_OMSETTINGS_H

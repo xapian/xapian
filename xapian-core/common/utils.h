@@ -28,10 +28,10 @@
 #include <map>
 
 // Convert an integer to a string
-string om_inttostring(int a);
+std::string om_inttostring(int a);
 
 // Convert a double to a string
-string doubletostring(double a);
+std::string doubletostring(double a);
 
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //
@@ -51,14 +51,14 @@ struct StringAndValue {
  *  not worth doing so, unless list gets large.
  */
 int map_string_to_value(const StringAndValue * haystack,
-			const string needle);
+			const std::string needle);
 
 /** Return true if the file fname exists.
  */
-bool file_exists(const string &fname);
+bool file_exists(const std::string &fname);
 
 /** Return true if all the files fnames exist.
  */
-bool files_exist(const vector<string> &fnames);
+bool files_exist(const std::vector<std::string> &fnames);
 
 #endif /* OM_HGUARD_UTILS_H */

@@ -25,8 +25,8 @@
 
 
 #define OUTPUT_FUNCTION(a) \
-inline ostream & \
-operator<<(ostream & os, const a & obj) { \
+inline std::ostream & \
+operator<<(std::ostream & os, const a & obj) { \
     return os << obj.get_description(); \
 }
 
@@ -59,11 +59,11 @@ OUTPUT_FUNCTION(OmDocumentContents);
 #include "omstem.h"
 OUTPUT_FUNCTION(OmStem);
 
-inline ostream &
-operator<<(ostream & os, const om_termname_list & obj) {
+inline std::ostream &
+operator<<(std::ostream & os, const om_termname_list & obj) {
     os << "om_termname_list(";
     copy(obj.begin(), obj.end(),
-	 ostream_iterator<om_termname>(os, ", "));
+	 std::ostream_iterator<om_termname>(os, ", "));
     os << ")";
     return os;
 }

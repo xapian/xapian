@@ -47,7 +47,7 @@ class OmStem {
 	 *  @exception OmInvalidArgumentError will be thrown if an
 	 *  unknown language is supplied.
 	 */
-        explicit OmStem(string language);
+        explicit OmStem(std::string language);
 
 	/// Standard destructor
 	~OmStem();
@@ -63,17 +63,17 @@ class OmStem {
 	 *  @param word		the word to stem.
 	 *  @return		a stemmed version of the word.
 	 */
-	string stem_word(string word) const;
+	std::string stem_word(std::string word) const;
 
 	/** Return a list of available languages.  An OmStem object is
 	 *  not required for this operation.
 	 */  
-	static vector<string> get_available_languages();
+	static std::vector<std::string> get_available_languages();
 
 	/** Returns a string representing the omstem object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 #endif

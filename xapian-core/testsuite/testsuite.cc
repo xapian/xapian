@@ -22,7 +22,13 @@
 
 #include "config.h"
 #include <iostream>
+
+#ifdef HAVE_STREAMBUF
+#include <streambuf>
+#else // HAVE_STREAMBUF
 #include <streambuf.h>
+#endif // HAVE_STREAMBUF
+
 #include <string>
 #include <new>
 #include <cstdio>
@@ -32,6 +38,8 @@
 #else // HAVE_GETOPT_H
 #include <stdlib.h>
 #endif // HAVE_GETOPT_H
+
+#include <exception>
 
 #include "om/omerror.h"
 #include "testsuite.h"
@@ -43,8 +51,13 @@
 pthread_mutex_t test_driver_mutex;
 #endif // HAVE_LIBPTHREAD
 
+#ifdef HAVE_STREAMBUF
+class null_streambuf : public std::streambuf {
+};
+#else // HAVE_STREAMBUF
 class null_streambuf : public streambuf {
 };
+#endif // HAVE_STREAMBUF
 
 /// A null stream buffer which we can redirect output to.
 static null_streambuf nullsb;
@@ -54,7 +67,7 @@ bool verbose;
 
 test_driver::test_driver(const test_desc *tests_)
 	: abort_on_error(false),
-	  out(cout.rdbuf()),
+	  out(std::cout.rdbuf()),
 	  tests(tests_)
 {}
 
@@ -64,7 +77,7 @@ test_driver::set_quiet(bool quiet_)
     if (quiet_) {
 	out.rdbuf(&nullsb);
     } else {
-	out.rdbuf(cout.rdbuf());
+	out.rdbuf(std::cout.rdbuf());
     }
 }
 
@@ -93,7 +106,7 @@ static allocation_info new_allocations[max_allocations];
  *  FIXME: add malloc() handling (trickier, since can't use
  *  the built-in malloc so easily in implementation.)
  */
-void *operator new(size_t size) throw(bad_alloc) {
+void *operator new(size_t size) throw(std::bad_alloc) {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_lock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
@@ -105,7 +118,7 @@ void *operator new(size_t size) throw(bad_alloc) {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
-	throw bad_alloc();
+	throw std::bad_alloc();
     }
 
     if (new_allocations_bound >= max_allocations) {
@@ -187,16 +200,16 @@ test_driver::runtest(const test_desc *test)
     } catch (TestFailure &fail) {
 	success = false;
 	if (verbose) {
-	    cout << fail.message << endl;
+	    std::cout << fail.message << std::endl;
 	}
     } catch (OmError &err) {
 	if (verbose) {
-	    out << err.get_type() << " exception: " << err.get_msg() << endl;
+	    out << err.get_type() << " exception: " << err.get_msg() << std::endl;
 	}
 	success = false;
     } catch (...) {
 	if (verbose) {
-	    out << "Unknown exception!" << endl;
+	    out << "Unknown exception!" << std::endl;
 	}
 	success = false;
     }
@@ -214,10 +227,10 @@ test_driver::runtest(const test_desc *test)
 				<< new_allocations[i].size << ") ";
 		    }
 		}
-		out << endl;
+		out << std::endl;
 	    } else {
 		out << old_allocations - after_allocations
-			<< " extra frees not allocated!" << endl;
+			<< " extra frees not allocated!" << std::endl;
 	    }
 	}
 	success = false;
@@ -227,16 +240,16 @@ test_driver::runtest(const test_desc *test)
 
 test_driver::result test_driver::run_tests()
 {
-    const string blank;
+    const std::string blank;
     return do_run_tests(blank);
 }
 
-test_driver::result test_driver::run_test(const string &test_name)
+test_driver::result test_driver::run_test(const std::string &test_name)
 {
     return do_run_tests(test_name);
 }
 
-test_driver::result test_driver::do_run_tests(const string &testname)
+test_driver::result test_driver::do_run_tests(const std::string &testname)
 {
     const test_desc *test = tests;
     test_driver::result result = {0, 0};
@@ -249,12 +262,12 @@ test_driver::result test_driver::do_run_tests(const string &testname)
 	    bool succeeded = runtest(test);
 	    if (succeeded) {
 		++result.succeeded;
-		out << " ok." << endl;
+		out << " ok." << std::endl;
 	    } else {
 		++result.failed;
-		out << " FAILED" << endl;
+		out << " FAILED" << std::endl;
 		if (abort_on_error) {
-		    out << "Test failed - aborting further tests." << endl;
+		    out << "Test failed - aborting further tests." << std::endl;
 		    break;
 		}
 	    }
@@ -266,7 +279,8 @@ test_driver::result test_driver::do_run_tests(const string &testname)
 
 static void usage(char *progname)
 {
-    cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
+    std::cerr << "Usage: " << progname
+              << " [-v] [-o] [-f] [testname]" << std::endl;
 }
 
 int test_driver::main(int argc,
@@ -283,7 +297,7 @@ int test_driver::main(int argc,
 
     test_driver driver(tests);
 
-    string one_test_name;
+    std::string one_test_name;
     bool one_test = false;
 
     while ((c = getopt(argc, argv, "vof")) != EOF) {
@@ -330,10 +344,10 @@ int test_driver::main(int argc,
 	*summary = myresult;
     }
 
-    cout << argv[0] << " completed test run: "
+    std::cout << argv[0] << " completed test run: "
          << myresult.succeeded << " tests passed, "
 	 << myresult.failed << " failed."
-	 << endl;
+	 << std::endl;
 	
     if (fussy) {
 	return (bool)myresult.failed; // if 0, then everything passed

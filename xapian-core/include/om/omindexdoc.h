@@ -55,7 +55,7 @@ struct OmDocumentTerm {
     om_termcount wdf;
 
     /** Type to store positional information in. */
-    typedef vector<om_termpos> term_positions;
+    typedef std::vector<om_termpos> term_positions;
 
     /** Positional information. 
      *
@@ -95,7 +95,7 @@ struct OmDocumentTerm {
     /** Returns a string representing the OmDocumentTerm.
      *  Introspection method.
      */
-    string get_description() const;
+    std::string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -113,13 +113,13 @@ struct OmDocumentContents {
     OmData data;
 
     /** Type to store keys in. */
-    typedef map<om_keyno, OmKey> document_keys;
+    typedef std::map<om_keyno, OmKey> document_keys;
 
     /** The keys associated with this document. */
     document_keys keys;
 
     /** Type to store terms in. */
-    typedef map<om_termname, OmDocumentTerm> document_terms;
+    typedef std::map<om_termname, OmDocumentTerm> document_terms;
 
     /** The terms (and their frequencies and positions) in this document. */
     document_terms terms;
@@ -137,7 +137,7 @@ struct OmDocumentContents {
     /** Returns a string representing the OmDocumentContents.
      *  Introspection method.
      */
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMINDEXDOC_H */

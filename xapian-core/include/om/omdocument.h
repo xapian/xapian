@@ -38,10 +38,10 @@
 class OmData {
     public:
 	/// The data.
-	string value;
+	std::string value;
 
 	/// Construct from a string.
-	OmData(string data) : value(data) {}
+	OmData(std::string data) : value(data) {}
 
 	/// Default constructor.
 	OmData() {}
@@ -49,20 +49,20 @@ class OmData {
 	/** Returns a string representing the OmData.
 	 *  Introspection method.
 	 */
-	string get_description() const { return "OmData(" + value + ")"; }
+	std::string get_description() const { return "OmData(" + value + ")"; }
 };
 
 /// A key in a document.
 class OmKey {
     public:
 	/// The value of a key.
-	string value;
+	std::string value;
 
 	/// Ordering for keys, so they can be stored in STL containers.
 	bool operator < (const OmKey &k) const { return(value < k.value); }
 
 	/// Construct from a string.
-	OmKey(string data) : value(data) {}
+	OmKey(std::string data) : value(data) {}
 
 	/// Default constructor.
 	OmKey() {}
@@ -70,7 +70,7 @@ class OmKey {
 	/** Returns a string representing the OmKey.
 	 *  Introspection method.
 	 */
-	string get_description() const { return "OmKey(" + value + ")"; }
+	std::string get_description() const { return "OmKey(" + value + ")"; }
 };
 
 /// Opaque class containing parameters used to construct an OmDocument.
@@ -115,7 +115,7 @@ class OmDocument {
 	/** Returns a string representing the OmDocument.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	std::string get_description() const;
 };
 
 #endif  // OM_HGUARD_OMDOCUMENT_H
