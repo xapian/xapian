@@ -33,7 +33,7 @@
 extern FILE *page_fopen(const string &page);
 
 extern string db_name;
-extern string fmt, fmtfile;
+extern string fmtname, fmtfile;
 
 extern OmEnquire * enquire;
 extern OmMSet mset;

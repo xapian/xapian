@@ -54,7 +54,7 @@ static void make_query_log_entry(const string &buf);
 
 string db_name;
 static string db_dir;
-string fmt;
+string fmtname;
 string fmtfile = "t/fmt";
 
 om_docid topdoc = 0;
@@ -88,8 +88,7 @@ static int main2(int argc, char *argv[])
     bool more = false;
     int      is_old;
     char     *method;
-    multimap<string, string>::const_iterator val;
-    typedef multimap<string, string>::const_iterator MCI;
+    MCI val;
     pair<MCI, MCI> g;
 
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
@@ -167,37 +166,16 @@ static int main2(int argc, char *argv[])
 	exit(0);
     }
 
-    // read t/vars
-    string vars_file = db_dir + "/t/vars";
-    std::ifstream vars_in(vars_file.c_str());
-    if (vars_in) {
-	string line;
-	while (!vars_in.eof()) {
-	    getline(vars_in, line);
-	    if (line[0] != '\'') continue;
-	    size_t i = line.find('\'', 1);
-	    if (i == string::npos) continue;
-	    string key = line.substr(1, i - 1);
-	    i++;
-	    i = line.find('\'', i);
-	    if (i == string::npos) continue;
-	    i++;
-	    size_t j = line.find('\'', i + 1);
-	    if (j == string::npos) continue;
-	    option[key] = line.substr(i, j - i);
-	}
-	vars_in.close();
-    }
+    // read thousands and decimal separators: e.g. 16<thousand>729<decimal>8037
+    option["decimal"] = ".";
+    option["thousand"] = ",";
+    option["gif_dir"] = "/fx-gif";
 
     enquire = new OmEnquire(omdb);
    
     // Create rset to put relevant items in.
     rset = new OmRSet();
        
-    // read thousands and decimal separators: e.g. 16<thou>729<dec>8037
-    if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"];
-    if (!option["thou_sep"].empty()) thou_sep = option["thou_sep"];
-
     val = cgi_params.find("MATCHOP");
     if (val != cgi_params.end()) {
 	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
@@ -351,8 +329,8 @@ static int main2(int argc, char *argv[])
 	if (!v.empty()) {
 	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
 	    if (i == string::npos) {
-		fmt = v;
-		fmtfile = "t/fmt." + fmt;
+		fmtname = v;
+		fmtfile = "t/fmt." + fmtname;
 	    }
 	}
     }

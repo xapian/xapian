@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+typedef multimap<string, string>::const_iterator MCI;
+
 /* decode the query from stdin as "NAME=VALUE" pairs */
 extern void decode_test();
 

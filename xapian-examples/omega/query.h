@@ -47,14 +47,9 @@ void add_bterm(const string &);
 
 extern void do_picker(char prefix, const char **opts);
 
-extern string dec_sep, thou_sep;
-
 extern om_queryop op;
 
-extern string gif_dir;
-
 extern string raw_prob;
-extern om_docid msize;
 extern map<om_docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;
