@@ -114,6 +114,9 @@ at the time of writing, the versions known to work are:
 		There are apparently some bugs in earlier versions, which
 		might affect us, so we require at least 1.35.
 
+		Bison 1.50 is stricter than previous versions about certain
+		things - Xapian appears to work fine with Bison 1.50.
+
 	GNU Flex
 	
 Please tell us if you find that older (or newer) versions work or fail to work.

@@ -1,3 +1,8 @@
+Tue Dec 10 13:47:44 GMT 2002  Olly Betts <olly@survex.com>
+
+	* HACKING: Added note that Bison 1.50 seems to work with Xapian's
+	  .yy files.
+
 Mon Dec 09 20:13:00 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/omenquireinternal.h,docs/todo.xml,
