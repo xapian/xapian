@@ -1,3 +1,11 @@
+Fri Nov 17 18:24:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Bcursor is now closer to a proper class.  Bcursor_* functions
+	  are now just wrappers.  Implementation moved to bcursor.cc
+
+	* Some of the macros, helper functions, and types from btree.cc
+	  have moved into separate header files.
+	
 Fri Nov 17 16:43:50 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.0

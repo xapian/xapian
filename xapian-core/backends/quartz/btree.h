@@ -24,61 +24,8 @@
 #define OM_HGUARD_BTREE_H
 
 #include <string>
-
-typedef unsigned char byte;
-typedef long int4;
-typedef unsigned long uint4;
-
-enum Btree_errors {
-    BTREE_ERROR_NONE = 0,
-
-    BTREE_ERROR_BLOCKSIZE = 3,
-    BTREE_ERROR_SPACE,
-
-    BTREE_ERROR_BASE_CREATE,
-    BTREE_ERROR_BASE_DELETE,
-    BTREE_ERROR_BASE_READ,
-    BTREE_ERROR_BASE_WRITE,
-
-    BTREE_ERROR_BITMAP_CREATE,
-    BTREE_ERROR_BITMAP_READ,
-    BTREE_ERROR_BITMAP_WRITE,
-
-    BTREE_ERROR_DB_CREATE,
-    BTREE_ERROR_DB_OPEN,
-    BTREE_ERROR_DB_CLOSE,
-    BTREE_ERROR_DB_READ,
-    BTREE_ERROR_DB_WRITE,
-
-    BTREE_ERROR_KEYSIZE,
-    BTREE_ERROR_TAGSIZE,
-
-    BTREE_ERROR_REVISION
-};
-
-struct Cursor {
-    /** Constructor, to set important elements to 0.
-     */
-    Cursor() : p(0), c(-1), n(-1), rewrite(false), split_p(0), split_n(-1) {}
-
-    byte * p;         /* pointer to a block */
-    int c;            /* offset in the block's directory */
-    int4 n;           /* block number */
-    int rewrite;      /* true if the block is not the same as on disk, and so needs rewriting */
-    byte * split_p;   /* pointer to a block split off from main block */
-    int4 split_n;     /* - and its block number */
-
-};
-
-/* n is kept in tandem with p. The unassigned state is when member p == 0 and n == -1.
-   Similarly split.p == 0 corresponds to split.n == -1. Settings to -1 are not strictly
-   neccessary in the code below, so the lines
-
-        C[j].n = -1;
-        C[j].split_n = -1;
-
-   might sometimes be omitted, but they help keep the intention clear.
-*/
+#include "btree_types.h"
+#include "bcursor.h"
 
 #define BTREE_CURSOR_LEVELS 10
     /* allow for this many levels in the B-tree. Overflow practically impossible */
@@ -202,20 +149,6 @@ struct Btree {
     struct Cursor C[BTREE_CURSOR_LEVELS];
 
 };
-
-struct Btree_item {
-
-    int key_size;       /* capacity of item->key */
-    int key_len;        /* length of retrieved key */
-    byte * key;         /* pointer to the key */
-
-    int tag_size;       /* capacity of item->tag */
-    int tag_len;        /* length of retrieved tag */
-    byte * tag;         /* pointer to the tag */
-
-};
-
-extern std::string Btree_strerror(Btree_errors err);
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
 extern struct Btree_item * Btree_item_create();
