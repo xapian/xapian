@@ -40,6 +40,14 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
+dnl debugging switch
+AC_ARG_ENABLE(debug, 
+[  --enable-debug          enable debugging [default=no]],, enable_debug=no)
+
+if test "$enable_debug" = yes; then
+CFLAGS="$CFLAGS -g -DMUS_DEBUG"
+fi
+
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions
