@@ -20,11 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- Urgent  | General         | Probe for thread safety problems.
----------+-----------------+--------------------------------------------------
- High    | API             | Make all api calls produce APICALL messages, and
-         |                 | fully display their parameters, and return vals
----------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make the network server better (multithreaded
          |                 | etc.).
 ---------+-----------------+--------------------------------------------------
@@ -36,8 +31,8 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- Medium  | OmError         | Add a get_type method, which returns a string
-         |                 | describing the database type.
+ Medium  | API             | Make all api calls produce APICALL messages, and
+         |                 | fully display their parameters, and return vals
 ---------+-----------------+--------------------------------------------------
  Medium  | Introspection   | Add introspection (get_description()) methods to
          |                 | all API objects.
