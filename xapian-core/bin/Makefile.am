@@ -15,8 +15,8 @@ bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs)
 check_PROGRAMS = $(remote_check_programs)
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
-quartzcheck_SOURCES = quartzcheck.cc $(top_srcdir)/backends/quartz/btreecheck.cc
-quartzcheck_LDADD = ../libxapian.la
+quartzcheck_SOURCES = quartzcheck.cc
+quartzcheck_LDADD = ../backends/quartz/libbtreecheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc

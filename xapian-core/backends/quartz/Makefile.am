@@ -25,7 +25,7 @@ noinst_HEADERS =       quartz_types.h \
 		       btree_util.h \
 		       btree_base.h
 
-EXTRA_DIST = btreecheck.cc # used from bin/Makefile/am
+libbtreecheck_la_SOURCES = btreecheck.cc
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
@@ -45,4 +45,4 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       bcursor.cc \
 		       btree_base.cc
 
-noinst_LTLIBRARIES = libquartz.la
+noinst_LTLIBRARIES = libquartz.la libbtreecheck.la

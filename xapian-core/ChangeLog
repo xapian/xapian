@@ -1,3 +1,8 @@
+Sat Jul 26 23:36:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/Makefile.am,bin/Makefile.am,tests/Makefile.am:
+	  Hopefully fixed "make dist" in VPATH builds.
+
 Sat Jul 26 22:58:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/Makefile.am: Need to distribute btreecheck.cc.
