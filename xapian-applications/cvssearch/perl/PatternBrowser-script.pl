@@ -5,7 +5,7 @@
 # takes 3 parameters
 # 1. root
 # 2. symbol (optional, specify to get all related functions)
-# 3. mode [=>|<=>|<=] (if nothing given, default is =>)
+# 3. mode [=>|<=>] (if nothing given, default is <=>)
 #
 # Structure:
 # 1. Calls $cvsmine 
@@ -81,9 +81,9 @@ $symbol = param("symbol");
 $root = param("root");
 $mode = &Cvssearch::decode(param("mode"));
 
-# set default mode to =>
+# set default mode to <=>
 if(!$mode){
-	$mode = "=>";
+	$mode = "<=>";
 }
 	
 #-----------------------------------
