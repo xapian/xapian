@@ -1,3 +1,7 @@
+Tue Jan  9 10:27:35 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a missing \ in tests/Makefile.am
+
 Mon Jan  8 19:03:42 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Increment format number in quartz/btree_base.cc.  This isn't
