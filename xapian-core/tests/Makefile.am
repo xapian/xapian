@@ -30,7 +30,7 @@ endif
 TESTS = $(THREADTESTS) apitest internaltest includetest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = threadtest apitest internaltest includetest stemtest
+check_PROGRAMS  = $(THREADTESTS) apitest internaltest includetest stemtest
 
 ## Sources:
 
