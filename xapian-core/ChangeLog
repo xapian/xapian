@@ -1,3 +1,7 @@
+Thu Oct 25 18:00:54 BST 2001  Olly Betts <olly@survex.com>
+
+	* Fixed a couple of stray references to the old sleepycat backend.
+
 Tue Oct 23 18:19:32 BST 2001  Olly Betts <olly@survex.com>
 
 	* More cleaning up of MultiMatch.

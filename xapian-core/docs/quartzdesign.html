@@ -31,7 +31,10 @@ some of which are legacy formats which can be read by Xapian but not
 written to (for example, the Muscat 3.6 formats &quot;DA&quot; and
 &quot;DB&quot;), some of which are essentially testing formats (such as the
 InMemory format), and some which are experimental formats (such as the
-Sleepycat format, which is fully featured but doesn't scale).
+Sleepycat format, which is fully featured but doesn't scale - this has
+in fact now been removed from the source tree).
+
+<p>
 Each of these formats is comprised by a set of classes providing an interface
 to a Database object and several other related objects (PostList, TermList,
 etc...).
