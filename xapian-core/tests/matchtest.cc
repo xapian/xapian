@@ -9,11 +9,22 @@ int main(int argc, char *argv[]) {
 	database.open("testdir", 0);
        
         Match match(&database);
-        if (match.add_pterm("2")) {
-	    printf("Added term ok\n");
-	} else {
-	    printf("Failed to add term\n");
+        
+        char *terms[] = {
+	   "2",
+	   "3",
+//	   "elephant",
+	   NULL
+	};
+       
+        for (char **p = terms; *p; p++) {
+	    if (match.add_pterm(*p)) {
+	        printf("Added term \"%s\" ok\n", *p);
+	    } else {
+	        printf("Failed to add term \"%s\"\n", *p);
+	    }
         }
+
         match.match();
 	database.close();
     }

@@ -48,7 +48,7 @@ Match::match(void)
 	    docid id = merger->get_docid();
 	    docid i;
 	    for (i = 0; i < msize; i++) {
-	        if (mset[i].w <= w) break;
+	        if (mset[i].w < w) break;
 	    }
 
 	    if (i == msize) {
@@ -58,12 +58,14 @@ Match::match(void)
 	            msize++;
 		}
 	    } else {
-	        int len = msize - i;
-	        if (msize == MSIZE) len--;
+	        int len;
+	        if (msize < MSIZE) msize++;
+	        len = msize - i - 1;
 	        memmove(mset + i + 1, mset + i, len * sizeof(msetitem));
 	        mset[i].id = id;
-	        mset[i].w = w;
+	        mset[i].w = w;	        
 	    }
+	    if (msize == MSIZE) min = mset[MSIZE - 1].w;
 	}
         mtotal++;
         merger->next();
