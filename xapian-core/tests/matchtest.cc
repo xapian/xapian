@@ -22,15 +22,28 @@ int main(int argc, char *argv[]) {
         if (argc < 2) {
 	    cout << "Syntax: " << argv[0] << " TERM ..." << endl;
 	    exit(1);
-	}        
-       
+	}
+
+	bool boolean = false;
         for (char **p = argv + 1; *p; p++) {
 	    string term = *p;
-	    term = stemmer.stem_word(term);
-	    if (match.add_pterm(term)) {
-	        printf("Added term \"%s\" ok\n", term.c_str());
+	    if(term == "B") { boolean = true;}
+	    else if(term == "P") { boolean = false;}
+	    else if(boolean) {
+		if (term == "|") {
+		    match.add_bor();
+		} else if (term == "&") {
+		    match.add_band();
+		} else {
+		    match.add_bterm(term);
+		}
 	    } else {
-	        printf("Failed to add term \"%s\"\n", term.c_str());
+		term = stemmer.stem_word(term);
+		if (match.add_pterm(term)) {
+		    printf("Added term \"%s\" ok\n", term.c_str());
+		} else {
+		    printf("Failed to add term \"%s\"\n", term.c_str());
+		}
 	    }
         }
 

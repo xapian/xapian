@@ -2,6 +2,7 @@
 #include "mergedpostlist.h"
 
 #include <queue>
+#include <stack>
 
 class PLPCmp {
    public:
@@ -18,10 +19,13 @@ class Match {
 
         // FIXME: try using a heap instead (C++ sect 18.8)
         priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
-
+	stack<PostList *> bq;
     public:
         Match(IRDatabase *);
         bool add_pterm(const string &);
+	bool add_bterm(const string &);
+	bool add_band(void);
+	bool add_bor(void);
         void match(void);
         void set_max_msize(doccount n);
 };

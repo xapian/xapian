@@ -1,4 +1,7 @@
 #include "match.h"
+#include "mergedpostlist.h"
+#include "andpostlist.h"
+#include "orpostlist.h"
 
 #include <algorithm>
 
@@ -19,6 +22,49 @@ Match::add_pterm(const string& termname)
    
     pq.push(postlist);
    
+    return true;
+}
+
+bool
+Match::add_bterm(const string& termname)
+{
+    termid id = DB->term_name_to_id(termname);
+
+    if (!id) return false;
+
+    PostList *postlist = DB->open_post_list(id);
+    bq.push(postlist);
+
+    return true;
+}
+
+bool
+Match::add_band()
+{
+    if(bq.size() < 2) return false;
+    PostList *left, *right;
+
+    left = bq.top();
+    bq.pop();
+    right = bq.top();
+    bq.pop();
+    bq.push(new AndPostList(left, right));
+
+    return true;
+}
+
+bool
+Match::add_bor()
+{
+    if(bq.size() < 2) return false;
+    PostList *left, *right;
+
+    left = bq.top();
+    bq.pop();
+    right = bq.top();
+    bq.pop();
+    bq.push(new OrPostList(left, right));
+
     return true;
 }
 

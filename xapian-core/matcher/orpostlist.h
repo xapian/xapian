@@ -1,5 +1,8 @@
 // boolean OR of two posting lists
 
+#ifndef _orpostlist_h_
+#define _orpostlist_h_
+
 #include "database.h"
 
 class OrPostList : public virtual PostList {
@@ -51,3 +54,5 @@ OrPostList::at_end() const
 {
     return lhead == 0 && rhead == 0;
 }
+
+#endif /* _orpostlist_h_ */

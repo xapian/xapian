@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 INCLUDES = -I/usr/local/BerkeleyDB/include
 
 noinst_HEADERS = da_database.h daread.h database.h match.h mergedpostlist.h \
- orpostlist.h damuscat.h omtypes.h proto_database.h proto_db.h
+ orpostlist.h andpostlist.h damuscat.h omtypes.h proto_database.h proto_db.h
 
 bin_PROGRAMS = dbtest matchtest idxtest stemtest
 
@@ -17,7 +17,7 @@ STEMMER_SRC = stem.c stem_en.cc
 dbtest_SOURCES = dbtest.cc $(ACCESS_PROTO) $(ACCESS_DA)
 dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
-matchtest_SOURCES = match.cc orpostlist.cc matchtest.cc $(ACCESS_PROTO) $(ACCESS_DA) $(STEMMER_SRC)
+matchtest_SOURCES = match.cc orpostlist.cc andpostlist.cc matchtest.cc $(ACCESS_PROTO) $(ACCESS_DA) $(STEMMER_SRC)
 matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 idxtest_SOURCES = idxtest.c $(ACCESS_PROTO)

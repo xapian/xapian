@@ -1,6 +1,7 @@
 // boolean AND of two posting lists
 
 #include "database.h"
+#include "orpostlist.h"
 
 class AndPostList : public virtual OrPostList {
     private:
