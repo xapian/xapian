@@ -1,3 +1,7 @@
+Tue Nov 21 15:35:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Made the testsuite more colourful.
+
 Tue Nov 21 15:16:00 GMT 2000 Olly Betts
 
 	* OmEnquire::Internal now a public class so it can be a friend to

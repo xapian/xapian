@@ -280,17 +280,17 @@ test_driver::runtest(const test_desc *test)
 	    success = test->run();
 	    if (!success) {
 		out << tout.str();
-		out << " FAILED";
+		out << " " << COL_RED << "FAILED" << COL_RESET;
 	    }
 	} catch (TestFailure &fail) {
 	    success = false;
 	    out << tout.str();
-	    out << " FAILED";
+	    out << " " << COL_RED << "FAILED" << COL_RESET;
 	    if (verbose) {
 		out << fail.message << std::endl;
 	    }
 	} catch (TestSkip &skip) {
-	    out << " SKIPPED";
+	    out << " " << COL_YELLOW << "SKIPPED" << COL_RESET;
 	    if (verbose) {
 		out << skip.message << std::endl;
 	    }
@@ -299,14 +299,14 @@ test_driver::runtest(const test_desc *test)
 	    throw;
 	} catch (OmError &err) {
 	    out << tout.str();
-	    out << " OMEXCEPT";
+	    out << " " << COL_RED << "OMEXCEPT" << COL_RESET;
 	    if (verbose) {
 		out << err.get_type() << " exception: " << err.get_msg() << std::endl;
 	    }
 	    success = false;
 	} catch (...) {
 	    out << tout.str();
-	    out << " EXCEPT";
+	    out << " " << COL_RED << "EXCEPT" << COL_RESET;
 	    if (verbose) {
 		out << "Unknown exception!" << std::endl;
 	    }
@@ -324,7 +324,7 @@ test_driver::runtest(const test_desc *test)
 		repeat = true;
 		before = get_alloc_snapshot();
 	    } else {
-		out << " LEAK";
+		out << " " << COL_RED << "LEAK" << COL_RESET;
 		success = false;
 	    }
 	}
