@@ -39,6 +39,7 @@ class RSet {
 inline void
 RSet::add_document(docid did)
 {
+    // FIXME - check that document isn't already in rset
     Assert(!initialised_reltermfreqs);
     documents.push_back(RSetItem(did));
 }
@@ -58,6 +59,7 @@ RSet::will_want_termfreq(termid tid) const
 inline doccount
 RSet::get_reltermfreq(termid tid) const
 {
+    return 1;
     if(initialised_reltermfreqs) {
 	vector<RSetItem>::const_iterator doc = documents.begin();
 	while(doc != documents.end()) {
