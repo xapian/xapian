@@ -1,4 +1,4 @@
-// cvssearch.C
+// cvsusageindex.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -8,168 +8,354 @@
 // (at your option) any later version.
 
 //
-// Usage:  cvssearch package (# results) query_word1 query_word2 ... 
+// Usage:  cvsusageindex < PACKAGE_LIST
 //
-//               cvssearch (# results) query_word1 query_word2 ... takes list of packages from stdin
-//
-// Example:  cvssearch kdeutils_kfind 10 ftp nfs
-//
-//     Returns the top 10 lines with both ftp and nfs.
-//
-// (package is the directory with the quartz database inside)
+//     Generates omsee database.
 //
 
-#warning "sometimes have '(null)' in results"
 
-#include <om/om.h>
+#warning "requires ctags from http://ctags.sourceforge.net/"
+#warning "should generate unique file for tags"
+#warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
+
+// ctags options
+//  want classes
+//  want public/protected member *functions*
+//  ignore inheritance for now...
+
+// -R (recursive)
+// --c-types=cfsuAC
+// --kind-long=yes (verbose tag descriptions)
+// from this, ignore all entries with access:private
+
+#define GRANULARITY "line"
+#define USE_STOP_LIST false
+
+// /tmp is small, so we use /home/amichail/temp
+#define CTAGS_FLAGS "-R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
+
+
+//
+// Reasoning for looking at symbols in the most recent copy and
+// not on a commit by commit basis in previous versions:
+//
+//  code symbols change over time but not the domain concepts
+//  we describe them by in comments
+//
+
+// if in file mode, this is the minimum # files
+// 15 is reasonable but takes a while
+
+
+#define MIN_SUPP 1 
+#define MIN_SURPRISE 0.0
+
+// if true, counts files.
+// however, still requires line pairing of comment term, code symbol
+
+// app count not exactly correct because files not handled
+// in order of app exactly but also by order of extension
+// (e.g., .h, .cc, .C, .cpp, etc.), so some apps may contribute
+// 2 or 3 to the count
+
+
 #include <db_cxx.h>
+#include <fstream.h>
 #include <stdio.h>
+#include <string>
+#include <vector>
+#include <list>
+#include <map>
 #include <math.h>
+#include <algorithm>
+#include <om/om.h>
 
 #include "util.h"
 
 
-
 int main(int argc, char *argv[]) {
-     if(argc < 3) {
-        cout << "Usage: " << argv[0] <<
-                " <path to database> <search terms>" << endl;
-        exit(1);
+
+
+  // for each package, we process it seperately
+
+  string cvsdata;
+  char *s = getenv("CVSDATA");
+  if ( s==0 ) {
+    cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
+    cvsdata = ".";
+  } else {
+    cvsdata = s;
+    // strip trailing / if any
+    if ( cvsdata[cvsdata.length()-1] == '/' ) {
+      cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
+    }
+    //       cerr << "$CVSDATA = " << cvsdata << endl;
+  }
+
+
+  // get list of packages to process from file
+
+  set<string> packages;
+
+  int qpos;
+  int npos;
+
+  // get packages from cmd line or from file
+  if ( argc == 1 ) {
+    // get packages from file
+    string p;
+    while (!cin.eof()) {
+      cin >> p;
+      if ( cin.eof() && p == "" ) {
+	break;
+      }
+      cerr << "... will process " << p << endl;
+      packages.insert(p);
+    }
+    npos = 1;
+    qpos = 2;
+  } else {
+    // get package from cmd line
+    cerr << "... will process " << argv[1] << endl;
+    packages.insert( argv[1] );
+    npos = 2;
+    qpos = 3;
+  }
+
+
+
+
+  system("rm -f /home/amichail/temp/tags");
+
+  for ( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
+
+    string package = *i + ".cmt";
+
+    int p = package.find(".cmt");
+    if ( p == -1 ) {
+      cerr << "Must include .cmt extension in package(s)." << endl;
+      exit(1);
     }
 
-     string cvsdata;
-     char *s = getenv("CVSDATA");
-     if ( s==0 ) {
-       cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
-       cvsdata = ".";
-     } else {
-       cvsdata = s;
-       // strip trailing / if any
-       if ( cvsdata[cvsdata.length()-1] == '/' ) {
-	 cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
-       }
-       //       cerr << "$CVSDATA = " << cvsdata << endl;
-     }
+    package = string(package, 0, p);
+
+    cerr << "package -" << package << "-" << endl;
+
+    cerr << "Running ctags on " << package << endl;
+    string fullpath = cvsdata +"/" + package;
+    string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
+    cerr << "Invoking " << cmd << endl;
+    system(cmd.c_str());
+    cerr << "Done" << endl;
 
 
-     set<string> packages;
-
-     int qpos;
-     int npos;
-
-     // get packages from cmd line or from file
-     if ( isdigit(argv[1][0] )) {
-       // get packages from file
-       string p;
-       while (!cin.eof()) {
-	 cin >> p;
-	 packages.insert(p);
-       }
-       npos = 1;
-       qpos = 2;
-     } else {
-       // get package from cmd line
-       packages.insert( argv[1] );
-       npos = 2;
-       qpos = 3;
-     }
-
-     try {
-       OmStem stemmer("english");
-
-       assert( qpos == argc-1 );
-
-       om_termname term = argv[qpos];
-       lowercase_term(term);
-       term = stemmer.stem_word(term);
-       string queryterm = term;
-       cout << term << endl;
-
-       int num_results = atoi( argv[npos] );
-
-       bool doFunctions = ( string(argv[0]).find("functions") != -1 );
-
-       map< double, set<string> > results;
-       
-       // cycle over all packages
-       for( set<string>::iterator p = packages.begin(); p != packages.end(); p++ ) {
-
-	 string package = *p;
-
-	 //	 cerr << "*** looking at package " << (*p) << endl;
-
-	 // change / to _ in package
-	 for( int i = 0; i < package.length(); i++ ) {
-	   if ( package[i] == '/' ) {
-	     package[i] = '_';
-	   }
-	 }
 
 
-	 //	 cerr << "...processing " << package << endl;
-	 Db db(0,0);
-
-	 try {
-	   if ( doFunctions ) {
-	     db.open( (cvsdata+"/"+package+".functions").c_str(), 0, DB_HASH, DB_RDONLY, 0);
-	   } else {
-	     db.open( (cvsdata +"/"+package+".classes").c_str(), 0, DB_HASH, DB_RDONLY, 0);
-	   }
-	 } catch ( DbException& e ) {
-	   //	   cerr << "Exception:  " << e.what() << endl;     
-	   db.close(0);
-	   continue;
-	 }
 
 
-	 Dbt key((void*) queryterm.c_str(), queryterm.length()+1);
-	 Dbt data;
-
-	 if ( db.get(0, &key, &data, 0) == DB_NOTFOUND ) {
-	   //	   cerr << "Did not find key" << endl;
-	   db.close(0);
-	   continue;
-                 }
-
-	 //	 cerr << "Found key" << endl;
-
-	 //	 cout << (char*)data.get_data();
+    set<string> defined_symbols;
+    readTags( "/home/amichail/temp/tags", defined_symbols );
 
 
-	 string data_str = string((char*)data.get_data());
 
-	 list<string> lines;
 
-	 split( data_str, "\n", lines );
+    // change / to _ in package
+    for( int i = 0; i < package.length(); i++ ) {
+      if ( package[i] == '/' ) {
+	package[i] = '_';
+      }
+    }
 
-	 for( list<string>::iterator line = lines.begin(); line != lines.end(); line++ ) {
-	   string score_str = line->substr(0, line->find(" "));
-	   double score = atof(score_str.c_str());
-	   // cerr << "*** score = " << score << " " << (*line) << endl;
-	   results[-score].insert(*line);
-	 }
-	 db.close(0);
+    string file_cmt = cvsdata+"/database/"+package + ".cmt";
+    string file_offset = cvsdata +"/database/"+package +".offset";
 
-       }
+    // file may not exist (if it was deleted in repostory at some point)
+    {
+      ifstream in( file_cmt.c_str() );
+      if ( !in ) {
+	continue;
+      }
+    }
 
-       int c = 0;
-       for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
-	 double score = i->first;
-	 set<string> S = i->second;
-	 for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
 
-	   cout << (*s) << endl;
-	   c++;
-	   if ( c == num_results ) {
-	     goto done;
-	   }
-	 }
-       }
-     done: ;
-       
+    map<string, int> symbol_count;
+    //map<string, int> term_count;
+
+
+    int lines_read = 0;
+
+    try {
+
+      { // pass 1
+	cerr << "PASS 1" << endl;
+	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+	lines_read = 0;
+	string prev_file = "";
+	while ( lines.ReadNextLine() ) {
+
+	  if ( lines.currentFile() != prev_file ) {
+	    prev_file = lines.currentFile();
+	  }
+
+	  set<string> terms = lines.getCommentTerms();
+	  set<string> symbols = lines.getCodeSymbols();
+
+
+	 // for( set<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
+	 //   term_count[*i]++;
+	 // }
+
+	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+	    if ( defined_symbols.find(*i) != defined_symbols.end() ) {
+	      symbol_count[*i]++; // count number of lines that contain symbol
+	    }
+	  }
+	  lines_read++;
+	} // while
+      }
+
+#if 0
+      map< pair<string, string>, set<string> > rule_support;
+
+      { // pass 2
+	cerr << "PASS 2" << endl;
+	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST );
+
+	lines_read = 0;
+
+	while ( lines.ReadNextLine() ) {
+
+	  set<string> terms = lines.getCommentTerms();
+	  set<string> symbols = lines.getCodeSymbols();
+
+	  //	  string app = extractApp( lines.currentFile() );
+
+
+	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
+	    if ( term_count[*t] >= MIN_SUPP ) {
+	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+
+		if ( defined_symbols.find(*s) == defined_symbols.end() ) {
+		  continue;
+		}
+
+		if ( symbol_count[*s] >= MIN_SUPP ) {
+
+		  rule_support[ make_pair( *t, *s ) ].insert( lines.getData() );
+
+		}
+	      }
+	    }
+
+	  }
+	  lines_read++;
+	} // while
+      }
+
+      cerr << "*** lines read " << lines_read << endl;
+
+
+      // write results to two database files
+
+      Db dbclasses(0,0), dbfunctions(0,0);
+
+      dbclasses.open( (cvsdata+"/"+package+".classes").c_str() , 0 , DB_HASH, DB_CREATE, 0);
+      dbfunctions.open( (cvsdata+"/"+package+".functions").c_str() , 0 , DB_HASH, DB_CREATE, 0);
+
+
+      /////// we have term_count, symbol_count, rule_support (term=>symbol)
+
+      string prev_term = "";
+      string entryclasses;
+      string entryfunctions;
+      // print out rules
+      for ( map< pair<string, string>, set<string> >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
+	int supp = (r->second).size();
+	string ant = (r->first).first;
+	string con = (r->first).second;
+
+	if ( ant != prev_term ) { 
+
+	  // all rules with prev_term in antecedent
+	  //	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+
+	  if ( entryclasses != "" ) {
+	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	    Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
+	    dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );	  
+	  }
+	  if ( entryfunctions != "" ) {
+	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	    Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
+	    dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );	  
+	  }
+	    
+	  prev_term = ant;
+	  entryclasses = "";
+	  entryfunctions = "";
+	}
+
+
+	
+	if ( supp >= MIN_SUPP ) {
+
+	  double con_conf = 100.0*(double)symbol_count[con] / (double)lines_read;
+	  double conf = 100.0*(double)supp / (double)term_count[ant];
+	  double surprise = (conf / con_conf ) * (double)supp; // log(1.1+(double)supp);
+	  bool isFunction = ( con.find("()") != -1 );
+
+	  static char str[256];
+	  sprintf(str, "%f", surprise);
+	  
+	  if ( isFunction ) {
+	    entryfunctions += string(str) + " " + con;
+	  } else {
+	    entryclasses += string(str) + " " + con;
+	  }
+
+	  if ( surprise >= MIN_SURPRISE ) {
+	    //	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
+	    set<string> L = r->second;
+	    for( set<string>::iterator l = L.begin(); l != L.end(); l++ ) {
+	      //	      cerr << "..." << surprise << " " << (*l) << endl;
+	      if ( isFunction ) {
+		entryfunctions += " " + (*l);
+	      } else {
+		entryclasses += " " + (*l);
+	      }
+	    }
+	  }
+	  if ( isFunction ) {
+	    entryfunctions += "\n";
+	  } else {
+	    entryclasses += "\n";
+	  }
+	}
+      }
+
+      //      cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+      if ( entryclasses != "" ) {
+	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
+	dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );
+      }
+      if ( entryfunctions != "" ) {
+	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
+	dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );
+      }
+
+
+      dbclasses.close(0);
+      dbfunctions.close(0);
+
+#endif
+
+
     } catch( DbException& e ) {
-      cerr << "Exception:  " << e.what() << endl;     
-    } 
+      cerr << "Exception:  " << e.what() << endl;
+    }
 
-     
+  } // for packages
+
 }
