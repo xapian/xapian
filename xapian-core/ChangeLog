@@ -1,3 +1,7 @@
+Mon Dec 09 03:32:11 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Gratuitous layout fettling.
+
 Mon Dec 09 03:30:27 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Improved wording and punctuation in 3

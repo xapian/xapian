@@ -54,7 +54,7 @@ class PostlistChunkReader {
 	    return doclength;
 	}
 
-	/* Return global chunk data */
+	// Return global chunk data
 	bool get_is_last_chunk() const {
 	    return is_last_chunk;
 	}
@@ -107,7 +107,7 @@ class PostlistChunkWriter {
 			    bool is_last_chunk_,
 			    om_termcount number_of_entries_);
 
-	/** Append an entry to this chunk. */
+	/// Append an entry to this chunk.
 	void append(om_docid did, om_termcount wdf, quartz_doclen_t doclen);
 
 	/** Signal that an item being read is being skipped, so that
@@ -144,10 +144,9 @@ static void report_read_error(const char * position)
     if (position == 0) {
 	// data ran out
 	throw OmDatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
-    } else {
-	// overflow
-	throw OmRangeError("Value in posting list too large.");
     }
+    // overflow
+    throw OmRangeError("Value in posting list too large.");
 }
 
 static bool get_tname_from_key(const char **src, const char *end,
@@ -169,11 +168,8 @@ skip_and_check_tname_in_key(const char **keypos, const char *keyend,
 	}
     }
 
-    if (tname_in_key != tname) {
-	// This should only happen if the postlist doesn't exist at all.
-	return false;
-    }
-    return true;
+    // This should only fail if the postlist doesn't exist at all.
+    return tname_in_key == tname;
 }
 
 /// Read the start of the first chunk in the posting list.
@@ -298,7 +294,7 @@ PostlistChunkReader::PostlistChunkReader(const char *keypos,
 {
     bool is_first_chunk = (keypos == keyend);
 
-    /* Read the data for the first entry */
+    // Read the data for the first entry
     if (is_first_chunk) {
 	did = read_start_of_first_chunk(&pos, end, &number_of_entries, &collectionfreq);
     } else {
@@ -425,7 +421,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		 */
 		AutoPtr<QuartzCursor> cursor(table->cursor_get());
 
-		/* Seek to the next chunk. */
+		// Seek to the next chunk.
 		if (cursor->find_entry(orig_key) != true) {
 		    throw OmDatabaseCorruptError("The key we're working on has disappeared.");
 		}
@@ -440,7 +436,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		    throw OmDatabaseCorruptError("Expected another key with the same term name but found a different one.");
 		}
 
-		/* Read the new first docid */
+		// Read the new first docid
 		om_docid new_first_did;
 		if (!unpack_uint_preserving_sort(&kpos, kend,
 						 &new_first_did)) {
@@ -450,7 +446,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		const char *tagpos = cursor->current_tag.data();
 		const char *tagend = tagpos + cursor->current_tag.size();
 
-		/* Read the chunk header */
+		// Read the chunk header
 		bool new_is_last_chunk;
 		om_docid new_last_did_in_chunk =
 		    read_start_of_chunk(&tagpos, tagend, new_first_did,
@@ -458,10 +454,10 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 
 		string chunk_data(tagpos, tagend);
 
-		/* First remove the renamed tag */
+		// First remove the renamed tag
 		table->delete_tag(cursor->current_key);
 
-		/* And now write it as the first chunk */
+		// And now write it as the first chunk
 		string *tag = table->get_or_make_tag(orig_key);
 
 		*tag = make_start_of_first_chunk(number_of_entries,
@@ -478,12 +474,12 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	     * chunk.
 	     */
 
-	    /* Delete this chunk */
+	    // Delete this chunk
 	    table->delete_tag(orig_key);
 
 	    if (is_last_chunk) {
 		DEBUGLINE(DB, "PostlistChunkWriter::write_to_disk(): deleting secondary last chunk");
-		/* Update the previous chunk's is_last_chunk flag. */
+		// Update the previous chunk's is_last_chunk flag.
 		AutoPtr<QuartzCursor> cursor(table->cursor_get());
 
 		/* Should not find the key we just deleted, but should
@@ -491,7 +487,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		if (cursor->find_entry(orig_key) == true) {
 		    throw OmDatabaseCorruptError("Quartz key not deleted as we expected.");
 		}
-		/* Make sure this is a chunk with the right term attached. */
+		// Make sure this is a chunk with the right term attached.
 		const char * keypos = cursor->current_key.data();
 		const char * keyend = keypos + cursor->current_key.size();
 		string tname_in_key;
@@ -511,7 +507,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		// should be updating the member of the same name
 		is_first_chunk = (keypos == keyend);
 
-		/* Now update the last_chunk */
+		// Now update the last_chunk
 		string *tag = table->get_or_make_tag(cursor->current_key);
 
 		Assert(tag != 0);
@@ -519,7 +515,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		const char *tagpos = tag->data();
 		const char *tagend = tagpos + tag->size();
 
-		/* Skip first chunk header */
+		// Skip first chunk header
 		om_docid first_did_in_chunk;
 		if (is_first_chunk) {
 		    first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
@@ -536,11 +532,11 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 					&wrong_is_last_chunk);
 		string::size_type end_of_chunk_header = tagpos - tag->data();
 
-		/* write new is_last flag */
+		// write new is_last flag
 		write_start_of_chunk(*tag,
 				     start_of_chunk_header,
 				     end_of_chunk_header,
-				     true, /* is_last_chunk */
+				     true, // is_last_chunk
 				     first_did_in_chunk,
 				     last_did_in_chunk);
 	    }
@@ -583,7 +579,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	     *   we've got to do a switch.
 	     */
 	    
-	    /* First find out the initial docid */
+	    // First find out the initial docid
 	    const char *keypos = orig_key.data();
 	    const char *keyend = keypos + orig_key.size();
 	    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
@@ -605,10 +601,8 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		table->delete_tag(orig_key);
 	    }
 
-	    /* ...and write the start of this chunk. */
-	    *tag = make_start_of_chunk(is_last_chunk,
-					     first_did,
-					     current_did);
+	    // ...and write the start of this chunk.
+	    *tag = make_start_of_chunk(is_last_chunk, first_did, current_did);
 	}
 
 	*tag += chunk;
@@ -1098,7 +1092,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	    keypos = cursor->current_key.data();
 	    keyend = keypos + cursor->current_key.size();
             if (!skip_and_check_tname_in_key(&keypos, keyend, tname_)) {
-               /* Postlist for this termname doesn't exist. */
+               // Postlist for this termname doesn't exist.
 	       return;
             }
             PostlistChunkReader from(keypos, keyend, *tag);
@@ -1165,7 +1159,7 @@ QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
     string key;
     make_key(tname, did_to_delete, key);
 
-    /* Find the right chunk */
+    // Find the right chunk
     AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
 
     cursor->find_entry(key);
@@ -1175,7 +1169,7 @@ QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
     const char * keyend = keypos + cursor->current_key.size();
 
     if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
-	/* Postlist for this termname doesn't exist. */
+	// Postlist for this termname doesn't exist.
 	return;
     }
 
@@ -1192,9 +1186,7 @@ QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
 
     while (!from.is_at_end()) {
 	if (from.get_docid() != did_to_delete) {
-	    to.append(from.get_docid(),
-		      from.get_wdf(),
-		      from.get_doclength());
+	    to.append(from.get_docid(), from.get_wdf(), from.get_doclength());
 	} else {
 	    to.skip_item(from.get_wdf());
 	}
