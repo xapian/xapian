@@ -1,3 +1,8 @@
+Wed Sep 11 11:37:41 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: rearranged Btree::del() so control flow
+	  is clearer.
+
 Wed Sep 11 11:29:07 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/database_builder.cc: Quartz is fairly mature - change
@@ -3535,4 +3540,3 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
-
