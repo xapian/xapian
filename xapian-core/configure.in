@@ -29,21 +29,25 @@ AC_PROG_YACC
 XAPIAN_LDFLAGS=
 AC_SUBST(XAPIAN_LDFLAGS)
 
-case $host_os in
-  *mingw* | *cygwin*)
-    ldflags="-Wl,--enable-runtime-pseudo-reloc"
-    if $LD $ldflags 2>&1 >/dev/null|grep -e $ldflags >/dev/null 2>&1; then
+ldflags=
+if test yesyes = "$GCC$enable_shared" ; then
+  case $host_os in
+    *mingw* | *cygwin*)
+      ldflags="-Wl,--enable-runtime-pseudo-reloc"
+      if $CXX $ldflags 2>&1 >/dev/null|grep -e $ldflags >/dev/null 2>&1; then
 	dnl The error message contains the flag name - it must be a
 	dnl complaint that the option is unrecognized (doing it this
 	dnl way allows it to work regardless of the i18n in use):
 	dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
-	AC_MSG_ERROR([ld version too old (need 2.13.90-20030111-1 or later for --enable-runtime-pseudo-reloc)])
-    fi
+	dnl
+	dnl Can't use AC_DISABLE_SHARED after AC_PROG_LIBTOOL, but
+	dnl this test needs to be after AC_PROG_LIBTOOL, so we can't
+	dnl just disable the shared build automatically...
+	AC_MSG_ERROR([ld version too old to support a shared build - configure with --disable-shared, or install binutils 2.13.90-20030111-1 or later])
+      fi
     ;;
-  *)
-    ldflags=
-    ;;
-esac
+  esac
+fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
