@@ -1,3 +1,8 @@
+Mon Jul 10 18:35:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added Norwegian stemming algorithm, and linked it into the build
+	  system.
+
 Mon Jul 10 18:19:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add an internal interface to OmMSet, to allow access to the

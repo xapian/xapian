@@ -10,8 +10,18 @@ noinst_LTLIBRARIES = liblanguages.la
 
 liblanguages_la_SOURCES = pool.c
 
-SUBDIRS = danish dutch english french german italian portuguese spanish \
-	  swedish porter .
+SUBDIRS = danish \
+          dutch \
+	  english \
+	  french \
+	  german \
+	  italian \
+	  norwegian \
+          portuguese \
+	  spanish \
+	  swedish \
+	  porter \
+	  .
 
 liblanguages_la_LIBADD = \
 danish/libdanish.la \
@@ -20,6 +30,7 @@ english/libenglish.la \
 french/libfrench.la \
 german/libgerman.la \
 italian/libitalian.la \
+norwegian/libnorwegian.la \
 portuguese/libportuguese.la \
 spanish/libspanish.la \
 swedish/libswedish.la \

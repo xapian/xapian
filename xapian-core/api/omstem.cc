@@ -35,6 +35,7 @@
 #include "french/stem_french.h"
 #include "german/stem_german.h"
 #include "italian/stem_italian.h"
+#include "norwegian/stem_norwegian.h"
 #include "portuguese/stem_portuguese.h"
 #include "spanish/stem_spanish.h"
 #include "swedish/stem_swedish.h"
@@ -53,6 +54,7 @@ enum stemmer_language {
     STEMLANG_FRENCH,
     STEMLANG_GERMAN,
     STEMLANG_ITALIAN,
+    STEMLANG_NORWEGIAN,
     STEMLANG_PORTUGUESE,
     STEMLANG_SPANISH,
     STEMLANG_SWEDISH,
@@ -72,6 +74,7 @@ static const char * language_names[] = {
     "french",
     "german",
     "italian",
+    "norwegian",
     "portuguese",
     "spanish",
     "swedish",
@@ -98,6 +101,8 @@ static const StringAndValue language_strings[] = {
     {"it",		STEMLANG_ITALIAN},
     {"italian",		STEMLANG_ITALIAN},
     {"nl",		STEMLANG_DUTCH},
+    {"no",		STEMLANG_NORWEGIAN},
+    {"norwegian",	STEMLANG_NORWEGIAN},
     {"porter",		STEMLANG_PORTER},
     {"portuguese",	STEMLANG_PORTUGUESE},
     {"pt",		STEMLANG_PORTUGUESE},
@@ -218,6 +223,11 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 	    stemmer_setup = setup_italian_stemmer;
 	    stemmer_stem = italian_stem;
 	    stemmer_closedown = closedown_italian_stemmer;
+	    break;
+	case STEMLANG_NORWEGIAN:
+	    stemmer_setup = setup_norwegian_stemmer;
+	    stemmer_stem = norwegian_stem;
+	    stemmer_closedown = closedown_norwegian_stemmer;
 	    break;
 	case STEMLANG_PORTUGUESE:
 	    stemmer_setup = setup_portuguese_stemmer;

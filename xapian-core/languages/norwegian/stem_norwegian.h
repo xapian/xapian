@@ -21,8 +21,8 @@
  */
 /* Version 1: see http://open.muscat.com/ for further information */
 
-#ifndef OM_HGUARD_STEM_SWEDISH_H
-#define OM_HGUARD_STEM_SWEDISH_H
+#ifndef OM_HGUARD_STEM_NORWEGIAN_H
+#define OM_HGUARD_STEM_NORWEGIAN_H
 
 /* Make header file work when included from C++ */
 #ifdef __cplusplus
@@ -59,4 +59,4 @@ extern void closedown_norwegian_stemmer(void * z);
 }
 #endif
 
-#endif /* OM_HGUARD_STEM_SWEDISH_H */
+#endif /* OM_HGUARD_STEM_NORWEGIAN_H */

@@ -492,6 +492,7 @@ AC_OUTPUT(
  languages/french/Makefile
  languages/german/Makefile
  languages/italian/Makefile
+ languages/norwegian/Makefile
  languages/portuguese/Makefile
  languages/spanish/Makefile
  languages/swedish/Makefile
