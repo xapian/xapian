@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +33,7 @@ QuartzAttributesManager::make_key(QuartzDbKey & key,
 				  om_docid did,
 				  om_keyno keyno)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::make_key", key << ", " << did << ", " << keyno);
     key.value = pack_uint(did);
 }
 
@@ -41,6 +43,7 @@ QuartzAttributesManager::unpack_entry(const char ** pos,
 				      om_keyno * this_attrib_no,
 				      std::string & this_attribute)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::unpack_entry", pos << ", " << end << ", " << this_attrib_no << ", " << this_attribute);
     if (!unpack_uint(pos, end, this_attrib_no)) {
 	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in attribute table");
 	else throw OmRangeError("Key number in attribute table is too large");
@@ -61,6 +64,7 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
 				       om_docid did,
 				       om_keyno keyno)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::add_attribute", table << ", " << attribute << ", " << did << ", " << keyno);
     QuartzDbKey key;
     make_key(key, did, keyno);
     QuartzDbTag * tag = table.get_or_make_tag(key);
@@ -104,6 +108,7 @@ QuartzAttributesManager::get_attribute(const QuartzTable & table,
 				       om_docid did,
 				       om_keyno keyno)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::get_attribute", table << ", " << attribute << ", " << did << ", " << keyno);
     QuartzDbKey key;
     make_key(key, did, keyno);
     QuartzDbTag tag;
@@ -133,6 +138,7 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
 					    std::map<om_keyno, OmKey> & attributes,
 					    om_docid did)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::get_all_attributes", table << ", [om_keyno], " << attributes << ", " << did);
     QuartzDbKey key;
     make_key(key, did, 0);
     QuartzDbTag tag;
@@ -157,6 +163,7 @@ void
 QuartzAttributesManager::delete_all_attributes(QuartzBufferedTable & table,
 					       om_docid did)
 {
+    DEBUGCALL(DB, void, "QuartzAttributesManager::delete_all_attributes", table << ", " << did);
     QuartzDbKey key;
     make_key(key, did, 0);
     QuartzDbTag tag;

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +40,7 @@ QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
 	  attribute_table(attribute_table_),
 	  record_table(record_table_)
 {
+    DEBUGCALL(DB, void, "QuartzDocument", "[database_], " << attribute_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
     // FIXME: this should work but isn't great - in fact I wonder if
     // we should cache the results anyway...
     if (!lazy) (void)QuartzRecordManager::get_record(*record_table, did);
@@ -48,6 +50,7 @@ QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
  */
 QuartzDocument::~QuartzDocument()
 {
+    DEBUGCALL(DB, void, "~QuartzDocument", "");
 }
 
 /** Retrieve a key value from the database
@@ -57,6 +60,7 @@ QuartzDocument::~QuartzDocument()
 OmKey
 QuartzDocument::do_get_key(om_keyno keyid) const
 {
+    DEBUGCALL(DB, OmKey, "QuartzDocument::do_get_key", keyid);
     OmKey retval;
     QuartzAttributesManager::get_attribute(
 		*attribute_table,
@@ -64,7 +68,7 @@ QuartzDocument::do_get_key(om_keyno keyid) const
 		did,
 		keyid);
 
-    return retval;
+    RETURN(retval);
 }
 
 /** Retrieve all key values from the database
@@ -86,5 +90,6 @@ QuartzDocument::do_get_all_keys() const
 OmData
 QuartzDocument::do_get_data() const
 {
+    DEBUGCALL(DB, OmData, "QuartzDocument::do_get_data", "");
     return QuartzRecordManager::get_record(*record_table, did);
 }

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +24,13 @@
 #include "quartz_lexicon.h"
 #include "quartz_utils.h"
 #include "omassert.h"
+#include "omdebug.h"
 
 void
 QuartzLexicon::make_key(QuartzDbKey & key,
 			const om_termname & tname)
 {
+    DEBUGCALL(DB, void, "QuartzLexicon::make_key", key << ", " << tname);
     if (tname.size() == 0)
 	throw OmInvalidArgumentError("QuartzLexicon: Term names must not be null.");
     key.value = pack_string(tname);
@@ -37,6 +40,7 @@ void
 QuartzLexicon::parse_entry(const std::string & data,
 			   om_doccount * termfreq)
 {
+    DEBUGCALL(DB, void, "QuartzLexicon::parse_entry", data << ", " << termfreq);
     const char * pos = data.data();
     const char * end = pos + data.size();
 
@@ -50,6 +54,7 @@ void
 QuartzLexicon::make_entry(std::string & data,
 			  om_doccount termfreq)
 {
+    DEBUGCALL(DB, void, "QuartzLexicon::make_entry", data << ", " << termfreq);
     data = pack_uint(termfreq);
 }
 
@@ -57,6 +62,7 @@ void
 QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
+    DEBUGCALL(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
     QuartzDbKey key;
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
@@ -81,6 +87,7 @@ void
 QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
+    DEBUGCALL(DB, void, "QuartzLexicon::decrement_termfreq", table << ", " << tname);
     QuartzDbKey key;
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
@@ -113,15 +120,16 @@ QuartzLexicon::get_entry(const QuartzTable * table,
 			 const om_termname & tname,
 			 om_doccount * termfreq)
 {
+    DEBUGCALL(DB, bool, "QuartzLexicon::get_entry", table << ", " << tname << ", " << termfreq);
     // This may be called internally.
     QuartzDbTag tag;
     QuartzDbKey key;
     make_key(key, tname);
     bool found = table->get_exact_entry(key, tag);
-    if (!found) return false;
+    if (!found) RETURN(false);
 
     parse_entry(tag.value, termfreq);
 
-    return true;
+    RETURN(true);
 }
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 #include "quartz_metafile.h"
 #include "btree_util.h"
 #include "omassert.h"
+#include "omdebug.h"
 
 static const std::string metafile_magic = "OMMETA";
 static const unsigned int metafile_version = 1;
@@ -41,10 +43,12 @@ static const size_t max_metafile_size = min_metafile_size;
 QuartzMetaFile::QuartzMetaFile(const std::string &filename_)
 	: filename(filename_)
 {
+    DEBUGCALL(DB, void, "QuartzMetaFile", filename_);
 }
 
 QuartzMetaFile::~QuartzMetaFile()
 {
+    DEBUGCALL(DB, void, "~QuartzMetaFile", "");
 }
 
 static std::string encode_version(unsigned int version)

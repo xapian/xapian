@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +34,7 @@
 OmData
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 {
+    DEBUGCALL(DB, OmData, "QuartzRecordManager::get_record", table << ", " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag tag;
 
@@ -40,25 +42,27 @@ QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 	throw OmDocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
-    return OmData(tag.value);
+    RETURN(OmData(tag.value));
 }
 
 
 om_doccount
 QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
+    DEBUGCALL(DB, om_doccount, "QuartzRecordManager::get_doccount", table);
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
     om_doccount entries = table.get_entry_count();
 
     Assert(entries != 1);
-    if (entries < 2) return 0;
-    return entries - 2;
+    if (entries < 2) RETURN(0);
+    RETURN(entries - 2);
 }
 
 om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
+    DEBUGCALL(DB, om_docid, "QuartzRecordManager::get_newdocid", table);
     QuartzDbKey key;
     key.value = NEXTDOCID_TAG;
 
@@ -91,20 +95,21 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 
     tag->value = pack_uint(did + 1);
 
-    return did;
+    RETURN(did);
 }
 
 om_docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
 				const OmData & data)
 {
+    DEBUGCALL(DB, om_docid, "QuartzRecordManager::add_record", table << ", " << data);
     om_docid did = get_newdocid(table);
 
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag * tag = table.get_or_make_tag(key);
     tag->value = data.value;
 
-    return did;
+    RETURN(did);
 }
 
 void
@@ -112,6 +117,7 @@ QuartzRecordManager::replace_record(QuartzBufferedTable & table,
 				    const OmData & data,
 				    om_docid did)
 {
+    DEBUGCALL(DB, void, "QuartzRecordManager::replace_record", table << ", " << data << ", " << did);
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag * tag = table.get_or_make_tag(key);
     tag->value = data.value;
@@ -122,6 +128,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t old_doclen,
 					 quartz_doclen_t new_doclen)
 {
+    DEBUGCALL(DB, void, "QuartzRecordManager::modify_total_length", table << ", " << old_doclen << ", " << new_doclen);
     QuartzDbKey key;
     key.value = TOTLEN_TAG;
     QuartzDbTag * tag = table.get_or_make_tag(key);
@@ -191,6 +198,7 @@ void
 QuartzRecordManager::delete_record(QuartzBufferedTable & table,
 				   om_docid did)
 {
+    DEBUGCALL(DB, void, "QuartzRecordManager::delete_record", table << ", " << did);
     table.delete_tag(quartz_docid_to_key(did));
 }
 

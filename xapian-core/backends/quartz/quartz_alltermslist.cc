@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,7 @@ QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
 				       AutoPtr<QuartzCursor> pl_cursor_)
 	: database(database_), pl_cursor(pl_cursor_), started(false)
 {
+    DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
     /* Seek to the first term */
     QuartzDbKey key;
     key.value = std::string("\0", 1);
@@ -44,24 +46,27 @@ QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
 
 QuartzAllTermsList::~QuartzAllTermsList()
 {
+    DEBUGCALL(DB, void, "~QuartzAllTermsList", "");
 }
 
 om_termcount
 QuartzAllTermsList::get_approx_size() const
 {
+    DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_approx_size", "");
     return 1000000000; // FIXME
 }
 
 om_termname
 QuartzAllTermsList::get_termname() const
 {
+    DEBUGCALL(DB, om_termname, "QuartzAllTermsList::get_termname", "");
     Assert(started);
     if (!is_at_end) {
 	const char *start = pl_cursor->current_key.value.data();
 	const char *end = start + pl_cursor->current_key.value.length();
 	std::string result;
 	if (unpack_string_preserving_sort(&start, end, result)) {
-	    return result;
+	    RETURN(result);
 	} else {
 	    DEBUGLINE(DB, "QuartzAllTermsList[" << this
 		      << "]: Failed to read from key: `"
@@ -86,12 +91,13 @@ void QuartzAllTermsList::get_stats() const
 om_doccount
 QuartzAllTermsList::get_termfreq() const
 {
+    DEBUGCALL(DB, om_doccount, "QuartzAllTermsList::get_termfreq", "");
     Assert(started);
     if (have_stats) {
-	return termfreq;
+	RETURN(termfreq);
     } else if (!is_at_end) {
 	get_stats();
-	return termfreq;
+	RETURN(termfreq);
     } else {
 	throw OmInvalidArgumentError("Attempt to get termfreq after end");
     }
@@ -100,12 +106,13 @@ QuartzAllTermsList::get_termfreq() const
 om_termcount
 QuartzAllTermsList::get_collection_freq() const
 {
+    DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_collection_freq", "");
     Assert(started);
     if (have_stats) {
-	return collection_freq;
+	RETURN(collection_freq);
     } else if (!is_at_end) {
 	get_stats();
-	return collection_freq;
+	RETURN(collection_freq);
     } else {
 	throw OmInvalidArgumentError("Attempt to get collection_freq after end");
     }
@@ -114,6 +121,7 @@ QuartzAllTermsList::get_collection_freq() const
 TermList *
 QuartzAllTermsList::skip_to(const om_termname &tname)
 {
+    DEBUGCALL(DB, TermList *, "QuartzAllTermsList::skip_to", tname);
     DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");
     started = true;
     QuartzDbKey key;
@@ -133,12 +141,13 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
 	DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
 		  pl_cursor->current_key.value);
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 TermList *
 QuartzAllTermsList::next()
 {
+    DEBUGCALL(DB, TermList *, "QuartzAllTermsList::next", "");
     if (!started) {
 	started = true;
     } else {
@@ -148,11 +157,12 @@ QuartzAllTermsList::next()
 
 	have_stats = false;
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 bool
 QuartzAllTermsList::at_end() const
 {
+    DEBUGCALL(DB, bool, "QuartzAllTermsList::at_end", "");
     return is_at_end;
 }

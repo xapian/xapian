@@ -1,3 +1,7 @@
+Fri Apr 19 14:46:19 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added more DEBUGCALL tracing to quartz.
+
 Fri Apr 19 13:29:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* Minor tweaks to quartz_database.cc.

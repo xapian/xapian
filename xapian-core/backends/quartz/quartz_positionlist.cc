@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,6 +74,7 @@ QuartzPositionList::read_data(const QuartzTable * table,
 void
 QuartzPositionList::next_internal()
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::next_internal", "");
     if (pos == end) {
 	is_at_end = true;
 	return;
@@ -124,6 +126,7 @@ QuartzPositionList::make_key(om_docid did,
 			     const om_termname & tname,
 			     QuartzDbKey & key)
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
     key.value = pack_uint(did);
     key.value += pack_string(tname);
 }
@@ -137,6 +140,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			OmPositionListIterator pos,
 			const OmPositionListIterator &pos_end)
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
     QuartzDbKey key;
     QuartzDbTag * tag;
 
@@ -160,6 +164,7 @@ QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
 			om_docid did,
 			const om_termname & tname)
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
     QuartzDbKey key;
     make_key(did, tname, key);
     table->delete_tag(key);

@@ -64,6 +64,7 @@
 //
 QuartzDatabase::QuartzDatabase(const OmSettings & settings)
 {
+    DEBUGCALL(DB, void, "QuartzDatabase", settings);
     // Open database manager
     tables.reset(new QuartzDiskTableManager(get_db_dir(settings),
 					    get_log_filename(settings),
@@ -76,10 +77,12 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings)
 QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
 	: tables(tables_)
 {
+    DEBUGCALL(DB, void, "QuartzDatabase", "[tables_]");
 }
 
 QuartzDatabase::~QuartzDatabase()
 {
+    DEBUGCALL(DB, void, "~QuartzDatabase", "");
     try {
 	internal_end_session();
     } catch (...) {
@@ -111,18 +114,21 @@ QuartzDatabase::get_block_size(const OmSettings & settings)
 bool
 QuartzDatabase::get_create(const OmSettings & settings)
 {
+    DEBUGCALL(DB, bool, "QuartzDatabase::get_create", settings);
     return settings.get_bool("database_create", false);
 }
 
 bool
 QuartzDatabase::get_allow_overwrite(const OmSettings & settings)
 {
+    DEBUGCALL(DB, bool, "QuartzDatabase::get_allow_overwrite", settings);
     return settings.get_bool("database_allow_overwrite", false);
 }
 
 void
 QuartzDatabase::do_begin_session()
 {
+    DEBUGCALL(DB, void, "QuartzDatabase::do_begin_session", "");
     throw OmInvalidOperationError(
 	"Cannot begin a modification session: database opened readonly.");
 }
@@ -150,8 +156,9 @@ QuartzDatabase::do_cancel_transaction()
 om_docid
 QuartzDatabase::do_add_document(const OmDocument & document)
 {
+    DEBUGCALL(DB, void, "QuartzDatabase::do_end_session", "");
     Assert(false);
-    return 0;
+    RETURN(0);
 }
 
 void
@@ -166,39 +173,44 @@ QuartzDatabase::do_replace_document(om_docid did,
 om_doccount 
 QuartzDatabase::get_doccount() const
 {
+    DEBUGCALL(DB, void, "QuartzDatabase::do_delete_document", did);
     OmLockSentry sentry(quartz_mutex);
 
-    return get_doccount_internal();
+    RETURN(get_doccount_internal());
 }
 
 om_doccount
 QuartzDatabase::get_doccount_internal() const
 {
+    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount_internal", "");
     return QuartzRecordManager::get_doccount(*(tables->get_record_table()));
 }
 
 om_doclength
 QuartzDatabase::get_avlength() const
 {
+    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength", "");
     OmLockSentry sentry(quartz_mutex);
 
-    return get_avlength_internal();
+    RETURN(get_avlength_internal());
 }
 
 om_doclength
 QuartzDatabase::get_avlength_internal() const
 {
+    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_avlength_internal", "");
     // FIXME: probably want to cache this value (but not miss updates)
     om_doccount docs = get_doccount_internal();
-    if (docs == 0) return 0;
+    if (docs == 0) RETURN(0);
     om_totlength totlen = QuartzRecordManager::get_total_length(*(tables->get_record_table()));
 
-    return (double) totlen / docs;
+    RETURN((double) totlen / docs);
 }
 
 om_doclength
 QuartzDatabase::get_doclength(om_docid did) const
 {
+    DEBUGCALL(DB, om_doclength, "QuartzDatabase::get_doclength", did);
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
 
@@ -207,12 +219,13 @@ QuartzDatabase::get_doclength(om_docid did) const
 			    tables->get_lexicon_table(),
 			    did,
 			    0);
-    return termlist.get_doclength();
+    RETURN(termlist.get_doclength());
 }
 
 om_doccount
 QuartzDatabase::get_termfreq(const om_termname & tname) const
 {
+    DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
 
@@ -220,12 +233,13 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
     QuartzLexicon::get_entry(tables->get_lexicon_table(),
 			     tname,
 			     &termfreq);
-    return termfreq;
+    RETURN(termfreq);
 }
 
 om_termcount
 QuartzDatabase::get_collection_freq(const om_termname & tname) const
 {
+    DEBUGCALL(DB, om_termcount, "QuartzDatabase::get_collection_freq", tname);
     Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
 
@@ -235,12 +249,13 @@ QuartzDatabase::get_collection_freq(const om_termname & tname) const
 		      tables->get_positionlist_table(),
 		      tname);
     collfreq = pl.get_collection_freq();
-    return collfreq;
+    RETURN(collfreq);
 }
 
 bool
 QuartzDatabase::term_exists(const om_termname & tname) const
 {
+    DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
     return QuartzLexicon::get_entry(tables->get_lexicon_table(),
@@ -251,18 +266,20 @@ QuartzDatabase::term_exists(const om_termname & tname) const
 LeafPostList *
 QuartzDatabase::do_open_post_list(const om_termname& tname) const
 {
+    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
     OmLockSentry sentry(quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
 
-    return open_post_list_internal(tname, ptrtothis);
+    RETURN(open_post_list_internal(tname, ptrtothis));
 }
 
 LeafPostList *
 QuartzDatabase::open_post_list_internal(const om_termname& tname,
 				RefCntPtr<const Database> ptrtothis) const
 {
+    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::open_post_list_internal", tname << ", [ptrtothis]");
     Assert(tname.size() != 0);
     return(new QuartzPostList(ptrtothis,
 			      tables->get_postlist_table(),
@@ -274,6 +291,7 @@ LeafTermList *
 QuartzDatabase::open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const
 {
+    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal", did << ", [ptrtothis]");
     Assert(did != 0);
     return(new QuartzTermList(ptrtothis,
 			      tables->get_termlist_table(),
@@ -285,17 +303,19 @@ QuartzDatabase::open_term_list_internal(om_docid did,
 LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
+    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
     OmLockSentry sentry(quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
 
-    return open_term_list_internal(did, ptrtothis);
+    RETURN(open_term_list_internal(did, ptrtothis));
 }
 
 Document *
 QuartzDatabase::open_document(om_docid did, bool lazy) const
 {
+    DEBUGCALL(DB, Document *, "QuartzDatabase::open_document", did << ", " << lazy);
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
 
@@ -319,8 +339,8 @@ QuartzDatabase::open_position_list(om_docid did,
     poslist->read_data(tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	RefCntPtr<const QuartzDatabase> ptrtothis(RefCntBase::RefCntPtrToThis(),
-						  this);
+	RefCntBase::RefCntPtrToThis tmp;
+	RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
 	// If the doc doesn't exist, this will throw OmDocNotFound:
 	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
@@ -334,12 +354,14 @@ QuartzDatabase::open_position_list(om_docid did,
 void
 QuartzDatabase::do_reopen()
 {
+    DEBUGCALL(DB, void, "QuartzDatabase::do_reopen", "");
     tables->reopen();
 }
 
 TermList *
 QuartzDatabase::open_allterms() const
 {
+    DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
     AutoPtr<QuartzCursor> pl_cursor(tables->get_postlist_table()->cursor_get());
     return new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
 				  pl_cursor);
@@ -356,10 +378,12 @@ QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
 	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase", settings);
 }
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
 {
+    DEBUGCALL(DB, void, "~QuartzWritableDatabase", "");
     // FIXME - release write lock if held
     try {
 	internal_end_session();
@@ -374,6 +398,7 @@ QuartzWritableDatabase::~QuartzWritableDatabase()
 void
 QuartzWritableDatabase::do_begin_session()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_session", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
@@ -384,6 +409,7 @@ QuartzWritableDatabase::do_begin_session()
 void
 QuartzWritableDatabase::do_end_session()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_end_session", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
@@ -395,6 +421,7 @@ QuartzWritableDatabase::do_end_session()
 void
 QuartzWritableDatabase::do_flush()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
@@ -405,6 +432,7 @@ QuartzWritableDatabase::do_flush()
 void
 QuartzWritableDatabase::do_begin_transaction()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_transaction", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
 }
@@ -412,6 +440,7 @@ QuartzWritableDatabase::do_begin_transaction()
 void
 QuartzWritableDatabase::do_commit_transaction()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_commit_transaction", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
 }
@@ -419,6 +448,7 @@ QuartzWritableDatabase::do_commit_transaction()
 void
 QuartzWritableDatabase::do_cancel_transaction()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_cancel_transaction", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
 }
@@ -518,6 +548,7 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 void
 QuartzWritableDatabase::do_delete_document(om_docid did)
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_delete_document", did);
     Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
@@ -588,6 +619,7 @@ void
 QuartzWritableDatabase::do_replace_document(om_docid did,
 				    const OmDocument & document)
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_replace_document", did << ", " << document);
     Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
@@ -806,76 +838,85 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 om_doccount 
 QuartzWritableDatabase::get_doccount() const
 {
+    DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_doccount", "");
     OmLockSentry sentry(database_ro.quartz_mutex);
-    return database_ro.get_doccount_internal();
+    RETURN(database_ro.get_doccount_internal());
 }
 
 om_doclength
 QuartzWritableDatabase::get_avlength() const
 {
-    return database_ro.get_avlength();
+    DEBUGCALL(DB, om_doclength, "QuartzWritableDatabase::get_avlength", "");
+    RETURN(database_ro.get_avlength());
 }
 
 om_doclength
 QuartzWritableDatabase::get_doclength(om_docid did) const
 {
-    return database_ro.get_doclength(did);
+    DEBUGCALL(DB, om_doclength, "QuartzWritableDatabase::get_doclength", did);
+    RETURN(database_ro.get_doclength(did));
 }
 
 om_doccount
 QuartzWritableDatabase::get_termfreq(const om_termname & tname) const
 {
-    return database_ro.get_termfreq(tname);
+    DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_termfreq", tname);
+    RETURN(database_ro.get_termfreq(tname));
 }
 
 om_termcount
 QuartzWritableDatabase::get_collection_freq(const om_termname & tname) const
 {
-    return database_ro.get_collection_freq(tname);
+    DEBUGCALL(DB, om_termcount, "QuartzWritableDatabase::get_collection_freq", tname);
+    RETURN(database_ro.get_collection_freq(tname));
 }
 
 bool
 QuartzWritableDatabase::term_exists(const om_termname & tname) const
 {
-    return database_ro.term_exists(tname);
+    DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
+    RETURN(database_ro.term_exists(tname));
 }
 
 
 LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
 {
+    DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
-    return database_ro.open_post_list_internal(tname, ptrtothis);
+    RETURN(database_ro.open_post_list_internal(tname, ptrtothis));
 }
 
 LeafTermList *
 QuartzWritableDatabase::open_term_list(om_docid did) const
 {
+    DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list", did);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
-    return database_ro.open_term_list_internal(did, ptrtothis);
+    RETURN(database_ro.open_term_list_internal(did, ptrtothis));
 }
 
 Document *
 QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 {
+    DEBUGCALL(DB, Document *, "QuartzWritableDatabase::open_document", did << ", " << lazy);
     Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
-    return new QuartzDocument(ptrtothis,
+    RETURN(new QuartzDocument(ptrtothis,
 			      buffered_tables->get_attribute_table(),
 			      buffered_tables->get_record_table(),
-			      did, lazy);
+			      did, lazy));
 }
 
 AutoPtr<PositionList> 
@@ -894,13 +935,15 @@ QuartzWritableDatabase::open_position_list(om_docid did,
 void
 QuartzWritableDatabase::do_reopen()
 {
+    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_reopen", "");
     /* Do nothing - we're the only writer, and so must be up to date. */
 }
 
 TermList *
 QuartzWritableDatabase::open_allterms() const
 {
+    DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     AutoPtr<QuartzCursor> pl_cursor(buffered_tables->get_postlist_table()->cursor_get());
-    return new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(RefCntPtrToThis(), this),
-				  pl_cursor);
+    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(RefCntPtrToThis(), this),
+				  pl_cursor));
 }

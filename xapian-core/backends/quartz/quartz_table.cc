@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -207,6 +208,7 @@ QuartzDiskTable::close()
 
 bool
 QuartzDiskTable::exists() {
+    DEBUGCALL(DB, bool, "QuartzDiskTable::exists", "");
     // FIXME: use btree library to check if table exists yet.
     return (file_exists(path + "DB") &&
 	    (file_exists(path + "baseA") || file_exists(path + "baseB")));
@@ -226,6 +228,7 @@ QuartzDiskTable::create()
 void
 QuartzDiskTable::erase()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTable::erase", "");
     // FIXME: implement
     DEBUGCALL(DB, void, "QuartzDiskTable::erase", "");
     Assert(!readonly);
@@ -380,7 +383,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Assert(opened);
     Assert(!(key.value.empty()));
 
-    if (int(key.value.size()) > btree_for_reading->max_key_len) return false;
+    if (int(key.value.size()) > btree_for_reading->max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
     AutoPtr<Bcursor> cursor = Bcursor_create(btree_for_reading);
@@ -494,10 +497,12 @@ QuartzBufferedTable::QuartzBufferedTable(QuartzDiskTable * disktable_)
 	: disktable(disktable_),
 	  entry_count(disktable->get_entry_count())
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable", disktable_);
 }
 
 QuartzBufferedTable::~QuartzBufferedTable()
 {
+    DEBUGCALL(DB, void, "~QuartzBufferedTable", "");
 }
 
 void
@@ -528,6 +533,7 @@ QuartzBufferedTable::write_internal()
 void
 QuartzBufferedTable::write()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable::write", "");
     // FIXME: implement
     // write_internal();
 }
@@ -535,6 +541,7 @@ QuartzBufferedTable::write()
 void
 QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable::apply", new_revision);
     write_internal();
     disktable->apply(new_revision);
 
@@ -544,6 +551,7 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 void
 QuartzBufferedTable::cancel()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable::cancel", "");
     // FIXME: when write is implemented, ensure that this undoes any
     // changes which have been written (but not yet applied).
     changed_entries.clear();
@@ -553,25 +561,28 @@ QuartzBufferedTable::cancel()
 bool
 QuartzBufferedTable::is_modified()
 {
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::is_modified", "");
     return !changed_entries.empty();
 }
 
 bool
 QuartzBufferedTable::have_tag(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag", key);
     if (changed_entries.have_entry(key)) {
-	return (changed_entries.get_tag(key) != 0);
+	RETURN((changed_entries.get_tag(key) != 0));
     } else {
 	// FIXME: don't want to read tag here - just want to check if there
 	// is a tag.
 	QuartzDbTag tag;
-	return disktable->get_exact_entry(key, tag);
+	RETURN(disktable->get_exact_entry(key, tag));
     }
 }
 
 QuartzDbTag *
 QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzBufferedTable::get_or_make_tag", key);
     QuartzDbTag * tagptr;
 
     // Check cache first
@@ -587,9 +598,9 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 	    AssertEq(changed_entries.get_tag(key), tagptr);
 	    Assert(tag.get() == 0);
 
-	    return tagptr;
+	    RETURN(tagptr);
 	} else {
-	    return tagptr;
+	    RETURN(tagptr);
 	}
     }
 
@@ -609,12 +620,13 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
     AssertEq(changed_entries.get_tag(key), tagptr);
     Assert(tag.get() == 0);
 
-    return tagptr;
+    RETURN(tagptr);
 }
 
 void
 QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag", key);
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
     if (have_tag(key)) entry_count -= 1;
@@ -624,6 +636,7 @@ QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
 quartz_tablesize_t
 QuartzBufferedTable::get_entry_count() const
 {
+    DEBUGCALL(DB, quartz_tablesize_t, "QuartzBufferedTable::get_entry_count", "");
     return entry_count;
 }
 
@@ -631,19 +644,21 @@ bool
 QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
 				     QuartzDbTag & tag) const
 {
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::get_exact_entry", key << ", " << tag);
     if (changed_entries.have_entry(key)) {
 	const QuartzDbTag * tagptr = changed_entries.get_tag(key);
-	if (tagptr == 0) return false;
+	if (tagptr == 0) RETURN(false);
 	tag = *tagptr;
-	return true;
+	RETURN(true);
     }
 
-    return disktable->get_exact_entry(key, tag);
+    RETURN(disktable->get_exact_entry(key, tag));
 }
 
 QuartzBufferedCursor *
 QuartzBufferedTable::cursor_get() const
 {
+    DEBUGCALL(DB, QuartzBufferedCursor *, "QuartzBufferedTable::cursor_get", "");
     return new QuartzBufferedCursor(disktable->cursor_get(),
 				    &changed_entries);
 }
@@ -716,12 +731,14 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 bool
 QuartzBufferedCursor::after_end()
 {
+    DEBUGCALL(DB, bool, "QuartzBufferedCursor::after_end", "");
     return (diskcursor->after_end() && changed_entries->after_end(iter));
 }
 
 void
 QuartzBufferedCursor::next()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedCursor::next", "");
     const QuartzDbKey * keyptr;
     const QuartzDbTag * tagptr;
 
@@ -779,6 +796,7 @@ QuartzBufferedCursor::next()
 void
 QuartzBufferedCursor::prev()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedCursor::prev", "");
     throw OmUnimplementedError("QuartzBufferedCursor::prev() not yet implemented");
 }
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,36 +28,41 @@
 
 QuartzTableEntries::QuartzTableEntries()
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries", "");
     QuartzDbKey key;
     entries[key] = 0;
 }
 
 QuartzTableEntries::~QuartzTableEntries()
 {
+    DEBUGCALL(DB, void, "~QuartzTableEntries", "");
     clear();
 }
 
 QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key);
     Assert(key.value != "");
     items::iterator i = entries.find(key);
     Assert(i != entries.end());
-    return i->second;
+    RETURN(i->second);
 }
 
 const QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key) const
 {
+    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key);
     Assert(key.value != "");
-    return const_cast<QuartzTableEntries *>(this)->get_tag(key);
+    RETURN(const_cast<QuartzTableEntries *>(this)->get_tag(key));
 }
 
 bool
 QuartzTableEntries::have_entry(const QuartzDbKey &key) const
 {
+    DEBUGCALL(DB, bool, "QuartzTableEntries::have_entry", key);
     Assert(key.value != "");
-    return (entries.find(key) != entries.end());
+    RETURN((entries.find(key) != entries.end()));
 }
 
 QuartzTableEntries::items::const_iterator
@@ -84,6 +90,7 @@ QuartzTableEntries::get_item(items::const_iterator iter,
 			     const QuartzDbKey ** keyptr,
 			     const QuartzDbTag ** tagptr) const
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries::get_item", iter << ", " << keyptr << ", " << tagptr);
     Assert (iter != entries.end());
 
     *keyptr = &(iter->first);
@@ -93,6 +100,7 @@ QuartzTableEntries::get_item(items::const_iterator iter,
 void
 QuartzTableEntries::prev(items::const_iterator & iter) const
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries::prev", iter);
     Assert(iter != entries.begin());
     iter--;
 }
@@ -100,6 +108,7 @@ QuartzTableEntries::prev(items::const_iterator & iter) const
 void
 QuartzTableEntries::next(items::const_iterator & iter) const
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries::next", iter);
     Assert(iter != entries.end());
     iter++;
 }
@@ -107,18 +116,21 @@ QuartzTableEntries::next(items::const_iterator & iter) const
 bool
 QuartzTableEntries::after_end(items::const_iterator & iter) const
 {
+    DEBUGCALL(DB, bool, "QuartzTableEntries::after_end", iter);
     return (iter == entries.end());
 }
 
 bool
 QuartzTableEntries::empty() const
 {
+    DEBUGCALL(DB, bool, "QuartzTableEntries::empty", "");
     return (entries.empty());
 }
 
 void
 QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", key << ", [tag]");
     Assert(key.value != "");
     items::iterator i = entries.find(key);
 
@@ -134,6 +146,7 @@ QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 void
 QuartzTableEntries::clear()
 {
+    DEBUGCALL(DB, void, "QuartzTableEntries::clear", "");
     items::iterator i;
     for (i = entries.begin(); i != entries.end(); i++) {
 	delete (i->second);

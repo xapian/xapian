@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +22,7 @@
  */
 
 #include "quartz_log.h"
+#include "omdebug.h"
 
 #include <string.h>
 #include <errno.h>
@@ -28,6 +30,7 @@
 QuartzLog::QuartzLog(std::string filename)
 	: fp(0)
 {
+    DEBUGCALL(DB, void, "QuartzLog", filename);
     if (!filename.empty()) {
 	fp = fopen(filename.c_str(), "a");
 	if (fp == 0)
@@ -38,6 +41,7 @@ QuartzLog::QuartzLog(std::string filename)
 
 QuartzLog::~QuartzLog()
 {
+    DEBUGCALL(DB, void, "~QuartzLog", "");
     if (fp != 0) {
 	(void) fclose(fp);
 	// Would like to complain if there's an error, but mustn't because
@@ -48,6 +52,7 @@ QuartzLog::~QuartzLog()
 void
 QuartzLog::make_entry(std::string entry) const
 {
+    DEBUGCALL(DB, void, "QuartzLog::make_entry", entry);
     if (fp != 0) {
 	fprintf(fp, "%s\n", entry.c_str());
 	if (fflush(fp)) {

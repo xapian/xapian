@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +55,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	  attribute_table(attribute_path(), readonly, block_size),
 	  record_table(record_path(), readonly, block_size)
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << log_filename << ", " << readonly_ << ", " << block_size << ", " << create << ", " << allow_overwrite);
     // Open modification log
     log.reset(new QuartzLog(log_filename));
     if (readonly) {
@@ -121,11 +123,13 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 
 QuartzDiskTableManager::~QuartzDiskTableManager()
 {
+    DEBUGCALL(DB, void, "~QuartzDiskTableManager", "");
     log->make_entry("Closing database at `" + db_dir + "'.");
 }
 
 bool
 QuartzDiskTableManager::database_exists() {
+    DEBUGCALL(DB, bool, "QuartzDiskTableManager::database_exists", "");
     return  record_table.exists() &&
 	    postlist_table.exists() &&
 	    positionlist_table.exists() &&
@@ -137,6 +141,7 @@ QuartzDiskTableManager::database_exists() {
 void
 QuartzDiskTableManager::create_and_open_tables()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager::create_and_open_tables", "");
     //FIXME - check that database directory exists.
 
     // Delete any existing tables
@@ -193,6 +198,7 @@ QuartzDiskTableManager::create_and_open_tables()
 void
 QuartzDiskTableManager::open_tables_consistent()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager::open_tables_consistent", "");
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -297,6 +303,7 @@ QuartzDiskTableManager::postlist_path() const
 void
 QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager::open_tables", revision);
     log->make_entry("Opening tables at revision " + om_tostring(revision) + ".");
     metafile.open();
     record_table.open(revision);
@@ -311,13 +318,15 @@ QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 quartz_revision_number_t
 QuartzDiskTableManager::get_revision_number() const
 {
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDiskTableManager::get_revision_number", "");
     // We could use any table here, theoretically.
-    return postlist_table.get_open_revision_number();
+    RETURN(postlist_table.get_open_revision_number());
 }
 
 quartz_revision_number_t
 QuartzDiskTableManager::get_next_revision_number() const
 {
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDiskTableManager::get_next_revision_number", "");
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
@@ -325,12 +334,13 @@ QuartzDiskTableManager::get_next_revision_number() const
     quartz_revision_number_t new_revision =
 	    postlist_table.get_latest_revision_number();
     new_revision += 1;
-    return new_revision;
+    RETURN(new_revision);
 }
 
 void
 QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revision)
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager::set_revision_number", new_revision);
     postlist_table    .apply(new_revision);
     positionlist_table.apply(new_revision);
     termlist_table    .apply(new_revision);
@@ -342,42 +352,49 @@ QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revisio
 QuartzDiskTable *
 QuartzDiskTableManager::get_postlist_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_postlist_table", "");
     return &postlist_table;
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_positionlist_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_positionlist_table", "");
     return &positionlist_table;
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_termlist_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_termlist_table", "");
     return &termlist_table;
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_lexicon_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_lexicon_table", "");
     return &lexicon_table;
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_attribute_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_attribute_table", "");
     return &attribute_table;
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_record_table()
 {
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_record_table", "");
     return &record_table;
 }
 
 void
 QuartzDiskTableManager::reopen()
 {
+    DEBUGCALL(DB, void, "QuartzDiskTableManager::reopen", "");
     if (readonly) {
 	open_tables_consistent();
     }
@@ -403,17 +420,20 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 	  record_buffered_table(disktables.get_record_table()),
 	  lock_name(db_dir_ + "/db_lock")
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager", db_dir_ << ", " << log_filename << ", " << block_size << ", " << create << ", " << allow_overwrite);
     get_database_write_lock();
 }
 
 QuartzBufferedTableManager::~QuartzBufferedTableManager()
 {
+    DEBUGCALL(DB, void, "~QuartzBufferedTableManager", "");
     release_database_write_lock();
 }
 
 void
 QuartzBufferedTableManager::get_database_write_lock()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager::get_database_write_lock", "");
     // FIXME:: have a backoff strategy
     struct utsname host;
     if (!uname(&host)) {
@@ -483,12 +503,14 @@ QuartzBufferedTableManager::get_database_write_lock()
 void
 QuartzBufferedTableManager::release_database_write_lock()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager::release_database_write_lock", "");
     unlink(lock_name.c_str());
 }
 
 void
 QuartzBufferedTableManager::apply()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager::apply", "");
     if(!postlist_buffered_table.is_modified() &&
        !positionlist_buffered_table.is_modified() &&
        !termlist_buffered_table.is_modified() &&
@@ -543,6 +565,7 @@ QuartzBufferedTableManager::apply()
 void
 QuartzBufferedTableManager::cancel()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager::cancel", "");
     postlist_buffered_table.cancel();
     positionlist_buffered_table.cancel();
     termlist_buffered_table.cancel();
@@ -554,40 +577,47 @@ QuartzBufferedTableManager::cancel()
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_postlist_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_postlist_table", "");
     return &postlist_buffered_table;
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_positionlist_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_positionlist_table", "");
     return &positionlist_buffered_table;
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_termlist_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_termlist_table", "");
     return &termlist_buffered_table;
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_lexicon_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_lexicon_table", "");
     return &lexicon_buffered_table;
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_attribute_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_attribute_table", "");
     return &attribute_buffered_table;
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_record_table()
 {
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_record_table", "");
     return &record_buffered_table;
 }
 
 void
 QuartzBufferedTableManager::reopen()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager::reopen", "");
 }
