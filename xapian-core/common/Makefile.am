@@ -12,7 +12,8 @@ noinst_HEADERS = \
  indexer.h textfile_indexer.h query_parser.h \
  utils.h omlocks.h omqueryinternal.h omrefcnt.h \
  omdocumentparams.h document.h networkmatch.h \
- netclient.h progclient.h multi_database.h net_database.h
+ netclient.h progclient.h multi_database.h net_database.h \
+ netutils.h
 
 noinst_LTLIBRARIES = libcommon.la
 
