@@ -510,29 +510,23 @@ void
 LocalMatch::build_query_tree()
 {
     if (query == 0) {
-	select_query_terms();
+	if (max_or_terms != 0) {
+	    om_termname_list terms = users_query.get_terms();
+	    
+	    om_termname_list::const_iterator tname;
+	    for (tname = terms.begin(); tname != terms.end(); tname++) {
+		IRWeight * wt = mk_weight(1, *tname);
+		term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
+		DEBUGLINE(MATCH, "TERM `" <<  *tname << "' get_maxpart = " <<
+			  wt->get_maxpart());
+		delete wt;
+	    }
+	}
 
 	DEBUGLINE(MATCH, "LocalMatch::build_query_tree()");
 	query = postlist_from_query(&users_query);
 	DEBUGLINE(MATCH, "LocalMatch::query = (" <<
 		  query->intro_term_description() << ")");
-    }
-}
-
-void
-LocalMatch::select_query_terms()
-{
-    if(max_or_terms != 0) {
-	om_termname_list terms = users_query.get_terms();
-
-	om_termname_list::const_iterator tname;
-	for (tname = terms.begin(); tname != terms.end(); tname++) {
-	    IRWeight * wt = mk_weight(1, *tname);
-	    term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
-	    DEBUGLINE(MATCH, "TERM `" <<  *tname << "' get_maxpart = " <<
-		      wt->get_maxpart());
-	    delete wt;
-	}
     }
 }
 
