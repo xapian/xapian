@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-noinst_HEADERS = querygui.glade
+noinst_HEADERS = querygui.glade querygui.h
 
 INCLUDES = -I$(top_srcdir)/include $(GTK_CFLAGS) $(LIBGLADE_CFLAGS)
 
