@@ -19,12 +19,6 @@ Should OmWritableDatabase have a default ctor?  Consider for all API classes...
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
 
-Add private copy ctors and assignment operators to classes which can't
-be safely copied (have paper list).
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
-
 Should it be possible to specify an arbitrary docid for a document (perhaps to
 match numeric docids in another system?)  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
