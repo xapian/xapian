@@ -1,3 +1,7 @@
+Tue Aug  1 16:08:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* stemtest and delve now compile under Solaris CC.
+
 Tue Aug  1 15:41:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add autoconf support for compiling with STLport.

@@ -34,6 +34,10 @@
 #include <stack>
 #include <memory>
 
+using std::string;
+using std::cout;
+using std::endl;
+
 int
 main(int argc, char *argv[])
 {

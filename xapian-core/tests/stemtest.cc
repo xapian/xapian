@@ -26,6 +26,11 @@
 #include <ctype.h>  /* for isupper, islower, toupper, tolower */
 
 #include <string>
+#include <iostream>
+
+using std::string;
+using std::cout;
+using std::endl;
 
 #include "om/omstem.h"
 
