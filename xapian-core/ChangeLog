@@ -1,3 +1,8 @@
+Fri May 19 18:35:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Abstracted all database access in apitest to one function, so that
+	  it can easily be made to run with different backends.
+
 Fri May 19 16:30:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Changed raw uses of "cout" and "cerr" in net code to use

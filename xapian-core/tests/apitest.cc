@@ -36,9 +36,9 @@
 bool test_trivial();
 // always fails (for testing the framework)
 bool test_alwaysfail();
-// tests that the inmemory doesn't return zero docids
-bool test_zerodocid_inmemory();
-// tests the document count for a simple inmemory query
+// tests that the backend doesn't return zero docids
+bool test_zerodocid();
+// tests the document count for a simple query
 bool test_simplequery1();
 // tests for the right documents returned with simple query
 bool test_simplequery2();
@@ -121,9 +121,7 @@ bool test_rset2();
 // test that rsets behave correctly with multiDBs
 bool test_rsetmultidb1();
 
-string datadir;
-
-vector<OmDocumentContents> documentcontents;
+string datadir_;
 
 bool floats_are_equal_enough(double a, double b)
 {
@@ -239,6 +237,16 @@ make_dbgrp(OmDatabase * db1 = 0,
     return result;
 }
 
+OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
+    OmWritableDatabase db("inmemory", make_strvec());
+    index_file_to_database(db, datadir_ + "/" + dbname + ".txt");
+    if (dbname2.length() > 0) {
+	index_file_to_database(db, datadir_ + "/" + dbname2 + ".txt");
+    }
+
+    return db;
+}
+
 // #######################################################################
 // # Tests start here
 
@@ -252,14 +260,13 @@ bool test_alwaysfail()
     return false;
 }
 
-bool test_zerodocid_inmemory()
+bool test_zerodocid()
 {
     bool success = true;
     // open the database (in this case a simple text file
     // we prepared earlier)
 
-    OmWritableDatabase mydb("inmemory", make_strvec());
-    index_file_to_database(mydb, datadir + "/apitest_onedoc.txt");
+    OmDatabase mydb(get_database("apitest_onedoc"));
 
     OmEnquire enquire(make_dbgrp(&mydb));
 
@@ -284,8 +291,7 @@ bool test_zerodocid_inmemory()
 
 OmDatabaseGroup get_simple_database()
 {
-    OmWritableDatabase mydb("inmemory", make_strvec());
-    index_file_to_database(mydb, datadir + "/apitest_simpledata.txt");
+    OmDatabase mydb(get_database("apitest_simpledata"));
     return make_dbgrp(&mydb);
 }
 
@@ -384,15 +390,11 @@ bool test_multidb1()
 {
     bool success = true;
 
-    OmWritableDatabase mydb1("inmemory", make_strvec());
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata.txt");
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
 
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query, with one word in it - "word".
@@ -429,15 +431,12 @@ bool test_multidb2()
 {
     bool success = true;
 
-    OmWritableDatabase mydb1("inmemory", make_strvec());
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata.txt");
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb1(get_database("apitest_simpledata",
+				  "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
 
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query
@@ -1125,8 +1124,7 @@ bool test_getmterms1()
 	"four"
     };
 
-    OmWritableDatabase mydb("inmemory", make_strvec());
-    index_file_to_database(mydb, datadir + "/apitest_termorder.txt");
+    OmDatabase mydb(get_database("apitest_termorder"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
     OmQuery myquery(OM_MOP_OR,
@@ -1188,8 +1186,7 @@ bool test_absentfile1()
     bool success = false;
 
     try {
-	OmWritableDatabase mydb("inmemory", make_strvec());
-	index_file_to_database(mydb, "/this_does_not_exist");
+	OmDatabase mydb(get_database("/this_does_not_exist"));
 	OmEnquire enquire(make_dbgrp(&mydb));
 
 	OmQuery myquery("cheese");
@@ -1544,10 +1541,8 @@ bool test_multidb3()
 {
     bool success = true;
 
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
@@ -1597,12 +1592,9 @@ bool test_multidb4()
 {
     bool success = true;
 
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
-    OmWritableDatabase mydb4("inmemory", make_strvec());
-    index_file_to_database(mydb4, datadir + "/apitest_termorder.txt");
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmDatabase mydb4(get_database("apitest_termorder"));
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
 
     // make a query
@@ -1653,8 +1645,7 @@ bool test_rset1()
 {
     bool success = true;
 
-    OmWritableDatabase mydb("inmemory", make_strvec());
-    index_file_to_database(mydb, datadir + "/apitest_rset.txt");
+    OmDatabase mydb(get_database("apitest_rset"));
 
     OmEnquire enquire(make_dbgrp(&mydb));
 
@@ -1690,8 +1681,7 @@ bool test_rset2()
 {
     bool success = true;
 
-    OmWritableDatabase mydb("inmemory", make_strvec());
-    index_file_to_database(mydb, datadir + "/apitest_rset.txt");
+    OmDatabase mydb(get_database("apitest_rset"));
 
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
@@ -1723,13 +1713,9 @@ bool test_rset2()
 
 bool test_rsetmultidb1()
 {
-    OmWritableDatabase mydb1("inmemory", make_strvec());
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb1, datadir + "/apitest_rset.txt");
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
-    index_file_to_database(mydb2, datadir + "/apitest_rset.txt");
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
+    OmDatabase mydb2(get_database("apitest_rset"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
 
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
@@ -1777,13 +1763,9 @@ bool test_rsetmultidb1()
 
 bool test_rsetmultidb2()
 {
-    OmWritableDatabase mydb1("inmemory", make_strvec());
-    OmWritableDatabase mydb2("inmemory", make_strvec());
-    OmWritableDatabase mydb3("inmemory", make_strvec());
-    index_file_to_database(mydb1, datadir + "/apitest_rset.txt");
-    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
-    index_file_to_database(mydb2, datadir + "/apitest_rset.txt");
-    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
+    OmDatabase mydb2(get_database("apitest_rset"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
 
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
@@ -1838,7 +1820,7 @@ bool test_rsetmultidb2()
 test_desc tests[] = {
     {"trivial",            test_trivial},
     // {"alwaysfail",       test_alwaysfail},
-    {"zerodocid_inmemory", test_zerodocid_inmemory},
+    {"zerodocid", 	   test_zerodocid},
     {"simplequery1",       test_simplequery1},
     {"simplequery2",       test_simplequery2},
     {"simplequery3",       test_simplequery3},
@@ -1889,7 +1871,7 @@ int main(int argc, char *argv[])
         cout << "Error: $srcdir must be in the environment!" << endl;
 	return(1);
     }
-    datadir = std::string(srcdir) + "/testdata/";
+    datadir_ = std::string(srcdir) + "/testdata/";
 
     return test_driver::main(argc, argv, tests);
 }
