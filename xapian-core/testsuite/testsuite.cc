@@ -325,7 +325,7 @@ test_driver::runtest(const test_desc *test)
 			    << " extra frees not allocated!" << std::endl;
 		}
 	    }
-	    if(runcount < 2) {
+	    if(runcount < 2 && success) {
 		out << " repeating...";
 		repeat = true;
 		old_allocations = num_new_allocations;

@@ -1,3 +1,8 @@
+Mon Sep 11 12:28:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* If a test fails and leaks, then don't rerun it (ie, only rerun if
+	  it passes but leaks)
+
 Mon Sep 11 11:56:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmIndexerNode::invalidate_outputs()
