@@ -224,56 +224,6 @@ static void sys_unlink(const string &filename)
     }
 }
 
-/** Btree_strerror() converts Btree_errors values to more meaningful strings.
- */
-string
-Btree_strerror(Btree_errors err)
-{
-    switch (err) {
-	case BTREE_ERROR_NONE:
-	    return "no error";
-	case BTREE_ERROR_BLOCKSIZE:
-	    return "Bad block size";
-	case BTREE_ERROR_SPACE:
-	    return "Out of memory";
-	case BTREE_ERROR_BASE_CREATE:
-	    return "Error creating the base file";
-	case BTREE_ERROR_BASE_DELETE:
-	    return "Failed to delete the base file";
-	case BTREE_ERROR_BASE_READ:
-	    return "Failed to read the base file";
-	case BTREE_ERROR_BASE_WRITE:
-	    return "Failed to write to the base file";
-
-	case BTREE_ERROR_BITMAP_CREATE:
-	    return "Failed to create bitmap";
-	case BTREE_ERROR_BITMAP_READ:
-	    return "Failed to read bitmap";
-	case BTREE_ERROR_BITMAP_WRITE:
-	    return "Failed to write to bitmap";
-
-	case BTREE_ERROR_DB_CREATE:
-	    return "Failed to create database";
-	case BTREE_ERROR_DB_OPEN:
-	    return "Failed to open database";
-	case BTREE_ERROR_DB_CLOSE:
-	    return "Failed to close database";
-	case BTREE_ERROR_DB_READ:
-	    return "Failed to read database";
-	case BTREE_ERROR_DB_WRITE:
-	    return "Failed to write to database";
-
-	case BTREE_ERROR_KEYSIZE:
-	    return "Bad key size";
-	case BTREE_ERROR_TAGSIZE:
-	    return "Bad tag size";
-
-	case BTREE_ERROR_REVISION:
-	    return "Bad revision number";
-    }
-    return "Unknown error";
-}
-
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
    if the nth block is free, otherwise 1. bit_map0 is the initial state of
    bitmap at the start of the current transaction.
@@ -352,13 +302,6 @@ Btree::read_block(uint4 n, byte * p)
 	}
     }
 #endif
-    /** Previously, this would set B->error to BTREE_ERROR_DB_READ
-     *  when sys_read_block() failed.  However, it now throws an
-     *  exception, so we never get here.
-    {  / * failure to read a block * /
-       B->error = BTREE_ERROR_DB_READ;
-    }
-     */
 }
 
 /** write_block(n, p) writes block n in the DB file from address p.
@@ -388,12 +331,6 @@ Btree::write_block(uint4 n, const byte * p)
 	if (both_bases) {
 	    /* delete the old base */
 	    sys_unlink(name + "base" + other_base_letter);
-	    /* This used to set B->error as below, but will now throw
-	     * an exception if it fails.
-		B->error = BTREE_ERROR_BASE_DELETE;
-		// FIXME: must exit, otherwise we could cause a corrupt
-		// database to be read.
-	     */
 	}
     }
 
@@ -431,10 +368,6 @@ Btree::write_block(uint4 n, const byte * p)
 
     sys_write_bytes(handle, block_size, (const char *)p);
 #endif
-    /* This used to set B->error as below, but will now throw
-     * an exception if it fails.
-	B->error = BTREE_ERROR_DB_WRITE;
-     */
 }
 
 
@@ -732,13 +665,11 @@ Btree::split_root(Cursor * C_, int j)
 
     byte * q = zeroed_new(block_size);
     if (q == 0) {
-	error = BTREE_ERROR_SPACE;
 	throw std::bad_alloc();
     }
     C_[j].p = q;
     C_[j].split_p = zeroed_new(block_size);
     if (C_[j].split_p == 0) {
-	error = BTREE_ERROR_SPACE;
 	throw std::bad_alloc();
     }
     C_[j].c = DIR_START;
@@ -1229,7 +1160,6 @@ void Btree::form_key(const string & key)
 bool
 Btree::add(const string &key, const string &tag)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     form_key(key);
@@ -1252,7 +1182,7 @@ Btree::add(const string &key, const string &tag)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return false; }
+    if (m >= BYTE_PAIR_RANGE) return false;
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
@@ -1297,7 +1227,6 @@ Btree::add(const string &key, const string &tag)
 bool
 Btree::del(const string &key)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     if (key.empty()) return false;
@@ -1322,7 +1251,6 @@ Btree::del(const string &key)
 bool
 Btree::find_key(const string &key)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     form_key(key);
@@ -1332,7 +1260,6 @@ Btree::find_key(const string &key)
 bool
 Btree::find_tag(const string &key, string * tag)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     form_key(key);
@@ -1373,7 +1300,6 @@ Btree::find_tag(const string &key, string * tag)
 void
 Btree::set_full_compaction(bool parity)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     if (parity) seq_count = 0;
@@ -1382,11 +1308,10 @@ Btree::set_full_compaction(bool parity)
 
 /************ B-tree opening and closing ************/
 
-int
+void
 Btree::write_base()
 {
     base.write_to_file(name + "base" + other_base_letter);
-    return true;
 }
 
 bool
@@ -1468,10 +1393,7 @@ Btree::basic_open(const string & name_,
 		break;
 	    }
 	}
-	if (!basep) {
-	    Assert(false);
-	    error = BTREE_ERROR_BASE_READ;
-	}
+	Assert(basep);
 
 	/* basep now points to the most recent base block */
 
@@ -1565,12 +1487,7 @@ Btree::do_open_to_write(const string & name_,
      */
     if (!basic_open(name_, revision_supplied, revision_)) {
 	if (!revision_supplied) {
-	    string message = "Failed to open for writing";
-	    if (error != BTREE_ERROR_NONE) {
-		message += ": ";
-		message += Btree_strerror(error);
-	    }
-	    throw Xapian::DatabaseOpeningError(message);
+	    throw Xapian::DatabaseOpeningError("Failed to open for writing");
 	}
 	/* When the revision is supplied, it's not an exceptional
 	 * case when open failed, so we just return false here.
@@ -1625,8 +1542,7 @@ Btree::open_to_write(const string & name_, uint4 n)
 }
 
 Btree::Btree()
-	: error(BTREE_ERROR_NONE),
-	  revision_number(0),
+	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
 	  other_revision_number(0),
@@ -1693,7 +1609,6 @@ Btree::create(const string &name_, int block_size)
     /* write initial values of to files */
     {
 	/* create the base file */
-	/* error = BTREE_ERROR_BASE_CREATE; */
 	Btree_base base;
 	base.set_block_size(block_size);
 	base.set_have_fakeroot(true);
@@ -1701,7 +1616,6 @@ Btree::create(const string &name_, int block_size)
 	base.write_to_file(name_ + "baseA");
 
 	/* create the main file */
-	/* error = BTREE_ERROR_DB_CREATE; */
 	{
 	    int h = sys_open_to_write(name_ + "DB");      /* - null */
 	    if (h == -1 || !sys_close(h)) {
@@ -1730,44 +1644,31 @@ Btree::~Btree() {
     delete [] buffer;
 }
 
-Btree_errors
+void
 Btree::commit(uint4 revision)
 {
-    AssertEq(error, 0);
     Assert(!overwritten);
 
     int j;
-    Btree_errors errorval = BTREE_ERROR_REVISION;
     if (revision < next_revision) {
-	/* FIXME: should Btree::commit throw exceptions, as it's
-	 * likely to be called from destructors they'll need to catch
-	 * the exception), or return an error value?  (So we need to
-	 * trap errors here and convert them)
-	 * I think it should throw an exception, but need to discuss.
-	 *  -CME  2000-11-16
-	 */
-	return errorval; /* revision too low */
+	throw Xapian::DatabaseError("New revision too low");
     }
 
     for (j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
 	    write_block(C[j].n, C[j].p);
-	    if (error) {
-		return errorval;
-	    }
 	}
     }
 
-    errorval = BTREE_ERROR_DB_CLOSE;
     if (!sys_flush(handle)) {
 	if (!dont_close_handle) (void)sys_close(handle);
 	handle = -1;
-	return errorval;
+	throw Xapian::DatabaseError("Can't commit new revision - failed to close DB");
     }
     if (!dont_close_handle) {
 	if (!sys_close(handle)) {
 	    handle = -1;
-	    return errorval;
+	    throw Xapian::DatabaseError("Can't commit new revision - failed to close DB");
 	}
     }
     handle = -1;
@@ -1781,7 +1682,6 @@ Btree::commit(uint4 revision)
 	base.clear_bit_map();
     }
 
-    errorval = BTREE_ERROR_BASE_WRITE;
     base.set_revision(revision);
     base.set_root(C[level].n);
     base.set_level(level);
@@ -1789,13 +1689,7 @@ Btree::commit(uint4 revision)
     base.set_have_fakeroot(faked_root_block);
     base.set_sequential(sequential);
 
-    if (! write_base()) {
-	return errorval;
-    }
-
-    errorval = BTREE_ERROR_NONE;
-
-    return errorval;
+    write_base();
 }
 
 /************ B-tree reading ************/
@@ -1806,12 +1700,7 @@ Btree::do_open_to_read(const string & name_,
 		       uint4 revision_)
 {
     if (!basic_open(name_, revision_supplied, revision_)) {
-	string message = "Failed to open table for reading";
-	if (error != BTREE_ERROR_NONE) {
-	    message += ": ";
-	    message += Btree_strerror(error);
-	}
-	throw Xapian::DatabaseOpeningError(message);
+	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
     handle = sys_open_to_read(name + "DB");

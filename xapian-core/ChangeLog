@@ -1,3 +1,10 @@
+Thu Apr 22 00:54:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Stripped out the Btree_errors as it's almost
+	  totally unused now.  Fixed up the last few uses.
+	* backends/quartz/quartz_table.cc: Fixed another case where read
+	  and write Btrees should share fds.
+
 Wed Apr 21 02:51:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Check the return value of

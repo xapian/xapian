@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,41 +24,11 @@
 #ifndef OM_HGUARD_BTREE_TYPES_H
 #define OM_HGUARD_BTREE_TYPES_H
 
-#include <string>
-using std::string;
-
 typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
 
 #define BLK_UNUSED uint4(-1)
-
-enum Btree_errors {
-    BTREE_ERROR_NONE = 0,
-
-    BTREE_ERROR_BLOCKSIZE = 3,
-    BTREE_ERROR_SPACE,
-
-    BTREE_ERROR_BASE_CREATE,
-    BTREE_ERROR_BASE_DELETE,
-    BTREE_ERROR_BASE_READ,
-    BTREE_ERROR_BASE_WRITE,
-
-    BTREE_ERROR_BITMAP_CREATE,
-    BTREE_ERROR_BITMAP_READ,
-    BTREE_ERROR_BITMAP_WRITE,
-
-    BTREE_ERROR_DB_CREATE,
-    BTREE_ERROR_DB_OPEN,
-    BTREE_ERROR_DB_CLOSE,
-    BTREE_ERROR_DB_READ,
-    BTREE_ERROR_DB_WRITE,
-
-    BTREE_ERROR_KEYSIZE,
-    BTREE_ERROR_TAGSIZE,
-
-    BTREE_ERROR_REVISION
-};
 
 class Cursor {
     private:
@@ -67,7 +37,7 @@ class Cursor {
         Cursor & operator=(const Cursor &);
 
     public:
-	/// Constructor, to initiaise important elements.
+	/// Constructor, to initialise important elements.
 	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false), split_p(0), split_n(BLK_UNUSED)
 	{}
 
@@ -85,15 +55,12 @@ class Cursor {
 	uint4 split_n;
 };
 
-/* n is kept in tandem with p.
-   
-   The unassigned state is when member p == 0 and n == BLK_UNUSED.
-
-   Similarly split.p == 0 corresponds to split.n == BLK_UNUSED.
-
-   Setting n/split_n to BLK_UNUSED is necessary in at least some cases.
-*/
-
-extern string Btree_strerror(Btree_errors err);
+/* n is kept in tandem with p.  The unassigned state is when member p == 0 and
+ * n == BLK_UNUSED.
+ * 
+ * Similarly split.p == 0 corresponds to split.n == BLK_UNUSED.
+ * 
+ * Setting n/split_n to BLK_UNUSED is necessary in at least some cases.
+ */
 
 #endif /* OM_HGUARD_BTREE_TYPES_H */

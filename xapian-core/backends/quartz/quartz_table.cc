@@ -209,44 +209,15 @@ QuartzDiskTable::open()
     if (readonly) {
 	btree_for_reading = new Btree();
 	btree_for_reading->open_to_read(path);
-	if (btree_for_reading->error) {
-	    // FIXME: explain why
-	    string errormsg = "Cannot open table `"+path+"' for reading: ";
-	    if (btree_for_reading->error)
-		errormsg += om_tostring(btree_for_reading->error) + ", ";
-	    errormsg += strerror(errno);
-	    close();
-	    throw Xapian::DatabaseOpeningError(errormsg);
-	}
 	opened = true;
 	return;
     }
 
     btree_for_writing = new Btree();
-    // FIXME: check for errors
     btree_for_writing->open_to_write(path);
-    if (btree_for_writing->error) {
-	// FIXME: explain why
-	string errormsg = "Cannot open table `"+path+"' for writing: ";
-	errormsg += om_tostring(btree_for_writing->error) + ", ";
-	errormsg += strerror(errno);
-	close();
-	throw Xapian::DatabaseOpeningError(errormsg);
-    }
 
     btree_for_reading = new Btree();
-    // FIXME: check for errors
     btree_for_reading->open_to_read(*btree_for_writing);
-    if (btree_for_reading->error) {
-	// FIXME: explain why
-	string errormsg = "Cannot open table `" + path +
-		"' for reading and writing: ";
-	if (btree_for_reading->error)
-	    errormsg += om_tostring(btree_for_reading->error) + ", ";
-	errormsg += strerror(errno);
-	close();
-	throw Xapian::DatabaseOpeningError(errormsg);
-    }
 
     opened = true;
 }
@@ -261,37 +232,13 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     if (readonly) {
 	btree_for_reading = new Btree();
 	btree_for_reading->open_to_read(path, revision);
-	if (btree_for_reading->error) {
-	    Btree_errors errorcode = btree_for_reading->error;
-	    string errormsg = "Can't open database at '" + path +
-		    "' at revision number " + om_tostring(revision) +
-		    " for reading";
-	    close();
-	    if (errorcode) {
-		// Can't open at all - throw an exception
-		throw Xapian::DatabaseOpeningError(errormsg + ": " +
-				     Btree_strerror(errorcode));
-	    }
-	    // Can't open this revision - return an error
-	    DEBUGLINE(DB, errormsg);
-	    RETURN(false);
-	}
 	opened = true;
 	RETURN(true);
     }
 
     btree_for_writing = new Btree();
-    if (!btree_for_writing->open_to_write(path, revision) ||
-	btree_for_writing->error) {
-	Btree_errors errorcode = btree_for_writing->error;
-	string errormsg = "Can't open database at '" + path +
-		"' at revision number " + om_tostring(revision) +
-		" for writing";
+    if (!btree_for_writing->open_to_write(path, revision)) {
 	close();
-	if (errorcode) {
-	    // Can't open at all - throw an exception
-	    throw Xapian::DatabaseOpeningError(errormsg + ": " + Btree_strerror(errorcode));
-	}
 	// Can't open this revision - return an error
 	DEBUGLINE(DB, errormsg);
 	RETURN(false);
@@ -300,22 +247,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     AssertEq(btree_for_writing->revision_number, revision);
 
     btree_for_reading = new Btree();
-    // FIXME: check for errors
-    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
-    if (btree_for_reading->error) {
-	Btree_errors errorcode = btree_for_reading->error;
-	string errormsg = "Can't open database at '" + path +
-		"' at revision number " + om_tostring(revision) +
-		" for reading";
-	close();
-	if (errorcode == BTREE_ERROR_REVISION) {
-	    // Can't open at all - throw an exception
-	    throw Xapian::DatabaseOpeningError(errormsg + ": " + Btree_strerror(errorcode));
-	}
-	// Can't open this revision - return an error
-	DEBUGLINE(DB, errormsg);
-	RETURN(false);
-    }
+    btree_for_reading->open_to_read(*btree_for_writing);
 
     AssertEq(btree_for_reading->revision_number, revision);
 
@@ -404,7 +336,7 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
 
     // add entry
     DEBUGLINE(DB, "Adding entry to disk table");
-    int result = btree_for_writing->add(key, tag);
+    bool result = btree_for_writing->add(key, tag);
     (void)result; // FIXME: Check result
 }
 
@@ -441,7 +373,7 @@ QuartzDiskTable::set_entry(const string & key)
     // FIXME: check for errors
 
     if (cursor.find_key(key)) {
-	int result = btree_for_writing->del(key);
+	bool result = btree_for_writing->del(key);
 	DEBUGLINE(DB, "Result of delete: " << result);
 	(void)result; // FIXME: Check result
     } else {
@@ -464,13 +396,9 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Close writing table and write changes
     Assert(btree_for_writing != 0);
-    int errorval = btree_for_writing->commit(new_revision);
+    btree_for_writing->commit(new_revision);
     delete btree_for_writing; 
     btree_for_writing = 0;
-    if (errorval) {
-	throw Xapian::DatabaseError("Can't commit new revision: error code " +
-			      om_tostring(errorval));
-    }
 
     // Reopen table
     if (!open(new_revision)) {

@@ -73,11 +73,10 @@ class Btree {
 	 */
 	bool open_to_write(const string &name_, uint4 revision_);
 
-	/** Attempt to commit changes to disk.  Returns
-	 *  BTREE_ERRORS_NONE if successful, otherwise an error.
+	/** Attempt to commit changes to disk.
 	 *  The object should be deleted after this operation.
 	 */
-	Btree_errors commit(uint4 revision);
+	void commit(uint4 revision);
 
 	bool find_key(const string &key);
 	bool find_tag(const string &key, string * tag);
@@ -98,9 +97,6 @@ class Btree {
 		return other_revision_number;
 	    return revision_number;
 	}
-
-	/** error number setting */
-	Btree_errors error;
 
 	/** revision number of the opened B-tree. */
 	uint4 revision_number;
@@ -153,7 +149,7 @@ class Btree {
 	void add_item(Cursor *C_, byte *kt, int j);
 	void delete_item(Cursor *C_, int j, bool repeatedly);
 	int add_kt(int found);
-	int write_base();
+	void write_base();
 	void read_root();
 //	void block_check(Cursor *C_, int j, int opts);
 	void split_root(Cursor *C_, int j);
