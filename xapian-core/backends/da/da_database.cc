@@ -13,7 +13,11 @@
 DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size) {
     termfreq = tf;
     postlist = pl;
-    termweight = log((size - tf) / tf);
+
+    termweight = (size - tf + 0.5) / (tf + 0.5);
+    if(termweight < 1) termweight = 1;
+
+    termweight = log(termweight);
 
     printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
 	   size, tf, termweight);
