@@ -65,3 +65,9 @@ class DADatabase : public IRDatabase {
     public:
         DADatabase();
 };
+
+class ProtoDatabase : public IRDatabase {
+    private:
+    public:
+	ProtoDatabase();
+}
