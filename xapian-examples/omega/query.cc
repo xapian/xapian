@@ -1,5 +1,5 @@
-/* limit on mset size (as given in espec) */
-#define MLIMIT 1000 // FIXME: deeply broken
+// declared in parsepage.y
+extern void print_query_page(const char *, long int, long int);
 
 #include <vector>
 
@@ -20,15 +20,15 @@
 
 typedef enum { /*ABSENT = 0,*/ NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 
-static vector<termname> new_terms;
+vector<termname> new_terms;
 static vector<termname> pluses;
 static vector<termname> minuses;
 static vector<termname> normals;
 
 #ifdef META
-static char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
+char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
 #else
-static char *fmtstr =
+char *fmtstr =
 "<TR><TD VALIGN=top><IMG SRC=\"ÿG\" ALT=\"ÿP\" HEIGHT=35 WIDTH=35></TD>\n"
 "<TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR=\"#ccffcc\">ÿX</TD></TR></TABLE></TD>\n"
 "<TD>\n"
@@ -42,21 +42,20 @@ static char *fmtstr =
 "</TD></TR>\n";
 #endif
 
-static string raw_prob;
-static long int msize = -1;
-static map<docid, bool> r_displayed;
+string raw_prob;
+long int msize = -1;
+map<docid, bool> r_displayed;
 
-static string gif_dir = "/fx-gif";
-static long int score_height, score_width;
+string gif_dir = "/fx-gif";
 
 char thou_sep = ',', dec_sep = '.';
 
 #ifdef FERRET
-static string ad_keywords;
-int n_ad_keywords = 0;
+string ad_keywords;
+static int n_ad_keywords = 0;
 #endif
 
-static string query_string;
+string query_string;
 
 matchop op = OR; // default matching mode
 
@@ -64,25 +63,7 @@ static map<termname, int> matching_map;
 
 static void parse_prob(const string&);
 static char *find_format_string(char *pc);
-static void run_query(void);
-static void print_query_page(const char *, long int, long int);
-static int print_caption(long int, int);
-static void print_page_links(char, long int, long int);
 static int get_next_char(const char **p);
-
-/******************************************************************/
-// print string to stdout, with " replaced by &#34;
-// FIXME: tidy up?
-static void print_escaping_dquotes(const string &str) {
-    for (size_t i = 0; i < str.size(); i++) {
-	char ch = str[i];
-	if (ch == '"') {
-	    cout << "&#34;";
-	    continue;
-	}
-	cout << ch;
-    }
-}
 
 /**************************************************************/
 /* return a sane (1-100) percentage value for num/denom */
@@ -335,14 +316,16 @@ parse_prob(const string &text)
 }
 
 // FIXME: multimap for general use?
-static map<char, string> filter_map;
+map<char, string> filter_map;
 /**************************************************************/
 void add_bterm(const string &term) {
     filter_map[term[0]] = term;
 }
 
 /**************************************************************/
-static void run_query(void) {
+extern void
+run_query(void)
+{
     int bool_terms = 0;
     // add any boolean terms and AND them together
     // FIXME: should OR those with same prefix...
@@ -366,32 +349,6 @@ long do_match ( long int first_hit, long int list_size) {
     return msize; /* Ol 1997-01-31 return msize for logging code */
 }
 
-/* pretty print numbers with thousands separated */
-/* NB only handles %ld and %d with no width or flag specifiers... */
-static void pretty_printf(const char *p, int *a) {
-   char ch;
-   while ((ch = *p++)) {
-      if (ch == '%') {
-	 ch = *p++;
-	 if (ch == 'l') ch = *p++;
-	 if (ch == 'd') {
-	    char buf[16];
-	    char *q;
-	    int len;
-	    sprintf(buf, "%d", *a++);
-	    len = strlen(buf);
-	    q = buf;
-	    while ((ch = *q++)) {
-		cout << ch;
-		if (--len && len % 3 == 0) cout << thou_sep;
-	    }
-	    continue;
-	 }
-      }
-      cout << ch;
-   }
-}
-
 static int
 order(const void *a, const void *b)
 {
@@ -399,7 +356,7 @@ order(const void *a, const void *b)
 }
 
 /* generate a sorted picker */
-static void
+extern void
 do_picker(char prefix, const char **opts)
 {
     const char **p;
@@ -483,450 +440,10 @@ do_picker(char prefix, const char **opts)
    cout << "</SELECT>\n";
 }
 
-/*******************************************************************/
-static void print_query_page( const char* page, long int first, long int size) {
-    FILE *filep;
-    char line[512];
-    char *pc;
-    char *pre;
-    long int last = 0;
-    int expand_on = 1;
-
-    string tmp = option["gif_dir"];
-    if (tmp != "") gif_dir = tmp;
-    if (option["no_expand"] != "") expand_on = 0;
-    score_height = atoi(option["score_height"].c_str());
-    score_width = atoi(option["score_width"].c_str());
-    if ((filep = page_fopen(page)) == NULL) return;
-
-    r_displayed.clear();
-
-    /*** parse the page ***/
-    while (fgets (line, 511, filep)) {
-	if ((pc = strchr (line, '\\')) == NULL) {
-	   cout << line;
-	}
-	else {
-	    pre = line;
-	    do {
-		cout << string(pre, pc - pre);
-	        pc++;
-
-		if (!strncmp (pc, "GIF_DIR", 7)) {
-		    cout << gif_dir;
-		    pc += 7;
-		} else if (!strncmp (pc, "PROB", 4)) {
-		    print_escaping_dquotes(raw_prob);
-		    pc += 4;
-		} else if (!strncmp (pc, "SCRIPT_NAME", 11)) {
-		    // \SCRIPT_NAME is the pathname we were invoked with
-		    char *p = getenv("SCRIPT_NAME");
-		    // we're probably in test mode, or the server's crap
-		    if (p == NULL) p = "fx";
-		    cout << p;
-		    pc += 11;
-		} else if (!strncmp (pc, "TOPDOC", 6)) {
-		    cout << first;
-		    pc += 6;
-		} else if (!strncmp (pc, "VERSION", 7)) {
-		    cout << FX_VERSION_STRING << endl;
-		    pc += 7;
-		} else if (!strncmp (pc, "SAVE", 4)) {
-		    /*** save DB name **/
-		    if (db_name != default_db_name) {
-			cout << "<INPUT TYPE=hidden NAME=DB VALUE=\""
-			     << db_name << "\">\n";
-		    }
-
-		    /*** save top doc no. ***/
-		    if (first != 0) {
-			cout << "<INPUT TYPE=hidden NAME=TOPDOC VALUE="
-			     << first << "\n";
-		    }
-       
-		    /*** save maxhits ***/
-		    if (size != 10) {
-			cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE="
-			     << size << ">\n";
-		    }
-
-		    /*** save fmt ***/
-		    if (fmt.size()) {
-			cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\""
-			     << fmt << "\">\n";
-		    }
-
-		    /*** save prob query ***/
-		    if (!new_terms.empty()) {
-			cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-			vector<termname>::const_iterator i;
-			for (i = new_terms.begin(); i != new_terms.end(); i++)
-			    cout << *i << '.';
-			cout << "\">\n";
-		    }
-
-#if 0 // FIXME
-		    /*** save R-set (not in r_displayed) ***/
-		    docid r;
-		    Give_Muscat ("show docs r0-1000");
-		    while (!Getfrom_Muscat (&z)) {
-			if (sscanf(z.p, "I)%ld", &r)) {
-			    if (!r_displayed[r])
-				cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
-			}
-		    }
-#endif
-		    
-		    pc += 4;
-		} else if (!strncmp (pc, "PREVOFF", 7)) {
-		    char *format = pc + 7;
-		    pc = find_format_string(format);
-		    if (first == 0)
-			cout << "<img " << string(format, pc - format) << ">\n";
-		} else if (!strncmp (pc, "PREV", 4)) {
-		    char *format = pc + 4;
-		    pc = find_format_string(format);
-		    if (first > 0) {
-			long int new_first;
-			new_first = first - size;
-			if (new_first < 0) new_first = 0;
-			
-			cout << "<INPUT NAME=F" << new_first << ' '
-			     << string(format, pc - format) << ">\n";
-		    }
-		} else if (!strncmp (pc, "NEXTOFF", 7)) {
-		    char *format = pc + 7;
-		    pc = find_format_string(format);
-		    if (last >= msize - 1)
-			cout << "<img " << string(format, pc - format) << ">\n";
-		} else if (!strncmp (pc, "NEXT", 4)) {
-		    char *format = pc + 4;
-		    pc = find_format_string(format);
-		    if (last < msize - 1)
-			cout << "<INPUT NAME=F" << last + 1 << ' '
-			     << string(format, pc - format) << ">\n";
-		} else if (!strncmp (pc, "MSIZE", 5)) {
-		    cout << msize;
-		    pc += 5;
-		} else if (!strncmp (pc, "PAGES.", 6)) {
-		    print_page_links(pc[6], size, first);
-		    pc += 7;
-		} else if (!strncmp (pc, "STAT", 4)) {
-		    int arg[3];
-		    bool print = false;
-		    arg[0] = first + 1;
-		    arg[1] = last + 1;
-		    arg[2] = msize;
-		    /* We're doing:
-		     * \STAT0 none
-		     * \STAT2 returning some matches from over n
-		     * \STATa returning all matches from n
-		     * \STATs returning some (but not all) matches from n
-		     * \STATLINE like \HITLINE but enabled when any one of the
-		     *        \STATx codes fires
-		     */
-		    switch (pc[4]) {
-		     case '0': /* followed by string */
-			if (msize == 0 && !new_terms.empty()) cout << pc + 5;
-			break;
-		     case '2':
-			/* used to be >= - now use an exact compare since MTOTAL
-			 * may have given us the full figure.  If MTOTAL works and
-			 * we got exactly MLIMIT hits, this will misreport... */
-			if (msize == MLIMIT) print = true;
-			break;
-		     case 'a':
-			/* used to be < MLIMIT - now use an exact compare since MTOTAL
-			 * may have given us the full figure.  If MTOTAL works and
-			 * we got exactly MLIMIT hits, this will misreport... */
-			/* FIXME: could use Mike Gatford's "1001" trick */
-			if (0 < msize && msize != MLIMIT &&
-			    (first == 0 && last + 1 == msize)) {	       
-			    arg[0] = msize;
-			    print = true;
-			}
-			break;
-		     case 's':
-			/* used to be < MLIMIT - now use an exact compare since MTOTAL
-			 * may have given us the full figure.  If MTOTAL works and
-			 * we got exactly MLIMIT hits, this will misreport... */
-			/* FIXME: could use Mike Gatford's "1001" trick */
-			if (0 < msize && msize != MLIMIT &&
-			    !(first == 0 && last + 1 == msize)) print = true;
-			break;
-		     case 'L':	     
-			if (strncmp(pc + 5, "INE", 3) == 0) {
-			    // \STATLINE
-			    if (!(msize == 0 && new_terms.empty())) {
-				pc += 8;
-				goto ick;
-			    }
-			}
-			break;
-		    }
-		    if (print) pretty_printf(pc + 5, arg);
-		    pc += strlen(pc); /* skip rest of line */
-		    ick:;
-		} else if (!strncmp (pc, "HITLINE", 7)) {
-		    if (msize) {
-			pc += strlen(pc); /* Ignore the rest of this line if no hits */
-		    } else {
-			pc += 7; /* Just ignore the tag itself if there are hits */
-		    }
-		}
-		
-		else if (!strncmp (pc, "HITS", 4)) {
-		    long int m;
-#ifdef META
-		    cout << "# fields are tab separated, extra fields may be appended in future\n"
-			    "first\tlast\ttotal\n" << first + 1 << '\t'
-			 <<  last + 1 << '\t' msize << '\n'
-			 << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
-#endif
-		    {
-			const char *q;
-			int ch;
-			
-			query_string = "?DB=";
-			query_string += db_name;
-			query_string += "&P=";
-			q = raw_prob.c_str();
-			while ((ch = *q++) != '\0') {
-			   if (ch == '+') {
-			      query_string += "%2b";
-			   } else if (ch == '"') {
-			      query_string += "%22";
-			   } else {
-			      if (ch == ' ') ch = '+';
-			      query_string += ch;
-			   }
-			}
-			/* add any boolean terms */
-			map <char, string>::const_iterator i;			 
-			for (i = filter_map.begin(); i != filter_map.end(); i++) {
-			    query_string += "&B=";
-			    query_string += i->first;
-			    query_string += i->second;
-			}
-		     }
-
-#ifndef META
-		     {
-			struct stat st;
-			int fd = open(fmtfile.c_str(), O_RDONLY);
-			if (fd >= 0) {
-			   if (fstat(fd, &st) == 0 && st.st_size) {
-			      char *p;
-			      p = (char*)malloc(st.st_size + 1);
-			      if (p) {
-				 if (read(fd, p, st.st_size) == st.st_size) {
-				    p[st.st_size] = '\0';
-				    fmtstr = p;
-				 }
-			      }
-			   }
-			   close(fd);
-			}
-		     }
-#endif
-
-		    for (m = first; m <= last; m++) {
-		       if (print_caption(m, expand_on)) break;
-		    }
-		    pc += 4;
-		}
-
-
-	        /* SA 7/4/1997 - item in max hits selector box */
-                else if (!strncmp (pc, "MAXHITS", 7)) {
-		    if (size == atoi(pc + 7))
-		        cout << "SELECTED";
-		    pc += 10; /* 7 for MAXHITS + 3 for number */
-		}
-
-                else if (!strncmp (pc, "OSELECT", 7)) {
-		    if ((op == AND) ^! (pc[7] == 'A'))
-		        cout << "SELECTED";
-		    pc += 8; /* 7 for TSELECT + 1 for char */
-		}
-
-		else if (!strncmp (pc, "TOPTERMS", 8)) {
-		  if (msize) {
-		    /* Olly's expand on query page idea */
-		    // int c = 0;
-		    // int rel_hack = 0;
-#if 1 // FIXME
-		    cout << "Sorry, we've not implemented relevance feedback yet\n";
-#else
-		    /* see if we have any docs marked as relevant */
-		    Give_Muscat( "show docs style w r0" );
-		    if (!Getfrom_Muscat(&z) && z.p[0] != 'I') {
-		       Ignore_Muscat();
-		       Give_Muscat( "rels m0-4" );
-		       rel_hack = 1;
-		    }
-		    Ignore_Muscat();
-		    Give_Muscat("expand 20");
-		    /* Give_Muscatf("expand %ld", expand_size); */
-		    while (!Getfrom_Muscat (&z)) {
-		        check_error(&z);
-			if (z.p[0] == 'I') {
-			   int width = z.length - 2;
-			   /* only suggest 4 or more letter words for now to
-			    * avoid italian problems !HACK! */
-			   if (width > 3) {
-			      cout << "<INPUT TYPE=checkbox NAME=X "
-				      "VALUE=\"" << z.p+2
-				   << ".\" onClick=\"C(this)\">&nbsp;"
-				   << z.p + 2 << ". ";
-			      c++;
-			   }
-			}
-		    }
- 		    if (c) {
-			cout << "<BR><NOSCRIPT>"
-			        "<INPUT TYPE=hidden NAME=ADD VALUE=1>"
-			        "</NOSCRIPT>\n");
-		    }
-
-		    /* If we faked a relvance set, clear it again */
-		    if (rel_hack) {
-		       Give_Muscat("delrels r0-*");
-		       Ignore_Muscat();
-		    }
-#endif
-		  }
-		  pc += 8;
-		}
-#ifdef FERRET
-		else if (!strncmp (pc, "DOMATCH", 7)) {
-		   /* don't rerun query if we ran it earlier */
-		   if (msize < 0) {
-		      matcher->set_max_msize(first + size);
-		      run_query();
-		   }
-
-		   if (first > msize) first = 0;
-    
-		   if (first + size < msize)
-		      last = first + size - 1;
-		   else
-		      last = msize - 1;
-
-		   pc += 7;
-		}
-	       
-	        else if (!strncmp (pc, "FER-WHERE", 9)) {
-		   /* ferret countrycode picker */
-		   static const char *doms[] = {
-		      "ad", "al", "am", "at", "az", "ba", "be", "bg",
-		      "by", "ch", "cy", "cz", "de", "dk", "ee", "es",
-		      "fi", "fo", "fr", "ge", "gi", "gl",
-		      "gr", "hr", "hu", "ie", "is", "it",
-		      "li", "lt", "lu", "lv", "mc", "mk", "mt", "mo",
-		      "nl", "no", "pl", "pt", "ro", "ru", "se", "si",
-		      "sk", "sm", "su", "tr", "ua", "uk+", "va", "yu",
-		      NULL
-		      /* Now in uk+: "gb", "gg", "im", "je", "uk" */
-		   };
-		   do_picker('N', doms);
-		   pc += 9;
-		}
-	        else if (!strncmp(pc, "FER-LANG", 8)) {
-		   /* ferret language picker */
-		   static const char *langs[] = {
-		      "cs", /*"cy",*/ "da", "de", "en", "es", "fi", "fr",
-		      "is", "it", "nl", "no", "pl", "pt", "sv",
-		      NULL
-		   };
-		   do_picker('L', langs);
-		   pc += 8;
-		}
-	        else if (!strncmp(pc, "FER-AD", 6)) {
-		   /* ferret advert link (with keywords) */
-		   int pageid = time(NULL) - 894000000;
-		   int tag = 7533; /* english */
-		   if (db_name.size() >= 12) {
-		      switch (db_name[8]) {
-		       case 'r':
-			 if (db_name == "ferret.french") tag = 7542;
-			 break;
-		       case 'e':
-			 if (db_name == "ferret.german") tag = 7543;
-			 break;
-		       case 't':
-			 if (db_name == "ferret.italian") tag = 7584;
-			 break;
-		       case 'p':
-			 if (db_name == "ferret.spanish") tag = 7544;
-			 break;
-		       case 'w':
-			 if (db_name == "ferret.swedish") tag = 7545;
-			 break;
-		      }
-		   }
-		   cout << "<A HREF=\"http://adforce.imgis.com/"
-			   "?adlink|44|" << tag << '|' << pageid << "|1|key="
-			<< ad_keywords << "\" TARGET=_top><IMG\n"
-			   "SRC=\"http://adforce.imgis.com/"
-			   "?adserv|44|" << tag << '|' << pageid << "|1|key="
-			<< ad_keywords
-			<< "\" BORDER=0 HEIGHT=60 WIDTH=468 NATURALSIZEFLAG=0 "
-			   "ALIGN=BOTTOM "
-			   "ALT=\"Intelligent access to over 30 million web pages\""
-			   "></A>\n";
-		   pc += 6;
-		}
-	        else if (!strncmp(pc, "FREQS", 5)) {
-		   if (!new_terms.empty()) {
-		       vector<termname>::const_iterator i;
-		       for (i = new_terms.begin(); i != new_terms.end(); i++) {
-			   const char *term = i->c_str();
-
-			   // FIXME: is there a better way?
-			   int freq = 0;
-			   termid id = database.term_name_to_id(*i);
-			   if (id) {
-			       PostList *pl = database.open_post_list(id, NULL);
-			       freq = pl->get_termfreq();
-			       delete pl;
-			   }
-
-			   if (i == new_terms.begin()) {
-			       cout << "<B>Individual word frequencies:</B>\n";
-			   } else {
-			       cout << ", ";
-			   }
-			   if (strchr(term, ' ')) {
-			       cout << "\"" << term << "\":&nbsp;";
-			   } else {
-			       cout << term << ":&nbsp;";
-			   }
-			   pretty_printf("%d", &freq);
-		       }
-		       if (!new_terms.empty()) cout << "<BR>";
-		   }
-		   pc += 5;
-		}
-#endif
-
-		else {
-		    cout << *pc++;
-		}
-		pre = pc;
-
-	    } while ((pc = strchr (pre, '\\')) != NULL);
-
-	    cout << pre;
-	}
-    }
-
-    fclose (filep);
-}
-
 /******************************************************************/
-static void print_page_links( char type, long int hits_per_page,
-			      long int topdoc ) {
+extern void
+print_page_links(char type, long int hits_per_page, long int topdoc)
+{
    int page;
    long int new_first;
 
@@ -1072,7 +589,9 @@ static void display_date(time_t date) {
    }
 }
 /***********************************************************************/
-static int print_caption( long int m, int do_expand ) {
+extern int
+print_caption(long int m)
+{
     long int q0 = 0, r = 0;
     int percent;
     long int w = 0; 

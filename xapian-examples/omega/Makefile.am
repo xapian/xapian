@@ -8,5 +8,5 @@ INCLUDES = -I$(top_srcdir)/include
 
 bin_PROGRAMS = ompf
 
-ompf_SOURCES = main.cc query.cc cgiparam.cc
+ompf_SOURCES = main.cc query.cc cgiparam.cc parsepage.ll
 ompf_LDADD = ../libom.la

@@ -6,8 +6,24 @@ long do_match(long int, long int); /* Ol 1997-01-31 return msize */
 
 void add_bterm(const string &);
 
+extern void run_query(void);
+extern int print_caption(long int);
+extern void print_page_links(char, long int, long int);
+extern void do_picker(char prefix, const char **opts);
+
 extern char dec_sep, thou_sep;
 
 extern matchop op;
+
+extern string gif_dir;
+
+extern string raw_prob;
+extern long int msize;
+extern map<docid, bool> r_displayed;
+extern string query_string;
+extern map<char, string> filter_map;
+extern char *fmtstr;
+extern string ad_keywords;
+extern vector<termname> new_terms;
 
 #endif /* QUERY_H */

@@ -10,6 +10,7 @@ AM_PROG_LIBTOOL
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AM_PROG_LEX
 
 dnl Checks for gtk / glib / glade
 build_gui=yes
