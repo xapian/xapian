@@ -67,6 +67,9 @@ API modifications:
 There aren't many new features with this release.  Some of the tasks
 performed include:
 
+ * Within query frequency and query size are now used in the weighting
+   formula.
+
  * Work began on the new database type: this is codenamed "quartz".  In
    the absence of any better suggestions, future database types will be
    named after rocks.
