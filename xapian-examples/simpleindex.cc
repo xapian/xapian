@@ -64,7 +64,7 @@ lowercase_term(om_termname &term)
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     if (argc != 2) {
 	cout << "usage: " << argv[0] << " <path to database>" << endl;
@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
 
 		    // Add the document to the database
 		    database.add_document(doc);
-		}
-		catch (const OmError &error) {
+		} catch (const OmError &error) {
 		    cerr << "Exception: "  << error.get_msg() << endl;
+		    exit(1);
 		}
 
 		para = "";

@@ -67,5 +67,4 @@ main(int argc, char **argv)
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }
-    return 0;
 }

@@ -256,5 +256,4 @@ main(int argc, char *argv[])
 	cout << "Error: " << e.get_msg() << endl;
 	return 1;
     }
-    return 0;
 }

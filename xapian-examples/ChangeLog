@@ -1,3 +1,9 @@
+Sat Dec 14 01:00:56 GMT 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,simpleexpand.cc,
+	  simpleindex.cc,simplesearch.cc: Make examples code more consistent
+	  with each other.
+
 Sat Dec 14 00:18:01 GMT 2002  Olly Betts <olly@survex.com>
 
 	* indexer/indexfile.cc,msearch.cc: Updated in line with removal

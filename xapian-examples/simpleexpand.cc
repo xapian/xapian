@@ -26,7 +26,7 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     // Simplest possible options parsing: we just require two or more
     // parameters.
@@ -109,5 +109,6 @@ int main(int argc, char *argv[])
 	}
     } catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
+	exit(1);
     }
 }
