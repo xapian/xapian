@@ -31,7 +31,7 @@
 #include "stats.h"
 #include "rset.h"
 
-class IRWeight;
+class OmWeight;
 class Database;
 class Document;
 class PostList;
@@ -61,7 +61,7 @@ class LocalSubMatch : public SubMatch {
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
     
-	/// The size of the query (passed to IRWeight objects)
+	/// The size of the query (passed to OmWeight objects)
 	om_doclength querysize;
     
 	/// Stored match options object
@@ -98,7 +98,7 @@ class LocalSubMatch : public SubMatch {
 	}
 
 	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQuery::Internal *query = NULL);
+	OmWeight * mk_weight(const OmQuery::Internal *query = NULL);
 
     public:
 	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,

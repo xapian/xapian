@@ -28,7 +28,7 @@
 #include "om/omtypes.h"
 
 // Traditional weighting scheme
-class TradWeight : public IRWeight {
+class TradWeight : public OmWeight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
@@ -42,7 +42,7 @@ class TradWeight : public IRWeight {
 		: termweight(termweight_), lenpart(lenpart_), param_k(param_k_)
 		{}
     public:
-	IRWeight * create(const OmSettings &opts) const	{
+	OmWeight * create(const OmSettings &opts) const	{
 	    return new TradWeight(opts.get_real("param_k"));
 	}
 	TradWeight(double param_k_);

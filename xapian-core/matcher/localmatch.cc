@@ -385,7 +385,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	
 	    // FIXME: pass the weight type and the info needed to create it to the
 	    // postlist instead
-	    IRWeight * wt;
+	    OmWeight * wt;
 	    if (is_bool) {
 		wt = new BoolWeight();
 	    } else {
@@ -495,7 +495,7 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
     (void)maxitems; // Avoid warning in non-debug build
     PostList *pl = postlist_from_query(&users_query, matcher, false);
-    IRWeight *wt = mk_weight();
+    OmWeight *wt = mk_weight();
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.
     if (wt->get_maxextra() == 0) {
@@ -507,21 +507,21 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 
 
 
-IRWeight *
+OmWeight *
 LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
 {
-    DEBUGCALL(MATCH, IRWeight *, "LocalSubMatch::mk_weight", query_);
+    DEBUGCALL(MATCH, OmWeight *, "LocalSubMatch::mk_weight", query_);
     om_termname tname = "";
     om_termcount wqf = 1;
     if (query_) {
 	tname = query_->tname;
 	wqf = query_->wqf;
     }
-    IRWeight * wt = IRWeight::create_new(opts);
+    OmWeight * wt = OmWeight::create_new(opts);
     wt->set_stats(statssource.get(), querysize, wqf, tname);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname.empty()) {
-	AutoPtr<IRWeight> extra_weight(mk_weight());
+	AutoPtr<OmWeight> extra_weight(mk_weight());
 	// Check that max_extra weight is really right
 	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
     }

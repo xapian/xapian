@@ -32,13 +32,13 @@
 
 using namespace std;
 
-map<string, const IRWeight *> IRWeight::custom_weights;
+map<string, const OmWeight *> OmWeight::custom_weights;
 
-IRWeight *
-IRWeight::create_new(const OmSettings & opts)
+OmWeight *
+OmWeight::create_new(const OmSettings & opts)
 {
-    DEBUGCALL_STATIC(MATCH, IRWeight *, "IRWeight::create_new", opts);
-    IRWeight * weight = NULL;
+    DEBUGCALL_STATIC(MATCH, OmWeight *, "OmWeight::create_new", opts);
+    OmWeight * weight = NULL;
 
     const string wt_type = opts.get("match_weighting_scheme", "bm25");
 
@@ -55,7 +55,7 @@ IRWeight::create_new(const OmSettings & opts)
 	}
     } else {
 	// handle custom weights
-	map<string, const IRWeight *>::iterator i;
+	map<string, const OmWeight *>::iterator i;
 	i = custom_weights.find(wt_type);
 	if (i == custom_weights.end()) {
 	    throw OmInvalidArgumentError("Unknown custom weighting scheme `" +
@@ -71,9 +71,9 @@ IRWeight::create_new(const OmSettings & opts)
 }
 
 void
-IRWeight::register_custom(const string &wt_type, const IRWeight *wt)
+OmWeight::register_custom(const string &wt_type, const OmWeight *wt)
 {
-    DEBUGCALL_STATIC(MATCH, void, "IRWeight::register_custom", wt_type << ", " << wt);
+    DEBUGCALL_STATIC(MATCH, void, "OmWeight::register_custom", wt_type << ", " << wt);
     Assert(wt);
     if (wt_type.empty() || wt_type[0] != 'x') {
 	throw OmInvalidArgumentError("Custom weighting scheme names must start with `x'");

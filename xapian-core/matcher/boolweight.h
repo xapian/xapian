@@ -28,9 +28,9 @@
 #include "om/omtypes.h"
 
 // Boolean weighting scheme (everything gets 0)
-class BoolWeight : public IRWeight {
+class BoolWeight : public OmWeight {
     public:
-	IRWeight * create(const OmSettings &/*opts*/) const	{
+	OmWeight * create(const OmSettings &/*opts*/) const	{
 	    return new BoolWeight;
 	}
 	BoolWeight() { }

@@ -1,3 +1,10 @@
+Mon Dec 02 19:44:37 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc,backends/multi/multi_postlist.h,
+	  common/irweight.h,common/leafpostlist.h,matcher/: IRWeight
+	  renamed to OmWeight in preparation for making it externally
+	  visible.
+
 Mon Dec 02 18:10:55 GMT 2002  Olly Betts <olly@survex.com>
 
 	* matcher/bm25weight.cc,matcher/irweight.cc,matcher/tradweight.cc,

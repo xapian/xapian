@@ -124,7 +124,7 @@ OmPostListIterator::skip_to(om_docid did)
     }
 }    
 
-// need to set IRWeight object for this to work
+// need to set OmWeight object for this to work
 //om_weight
 //OmPostListIterator::get_weight() const
 //{

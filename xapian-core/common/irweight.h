@@ -38,13 +38,13 @@ class RSet;
 class StatsSource;
 
 /// Abstract base class for weighting schemes
-// FIXME: this should be split into an IRWeightFactory, and an IRWeight base
+// FIXME: this should be split into an OmWeightFactory, and an OmWeight base
 // class, with create_new being create on the factory, and the registry of
 // user weights being in the factory, not static.
-class IRWeight {
+class OmWeight {
     private:
-	IRWeight(const IRWeight &);
-	void operator=(IRWeight &);
+	OmWeight(const OmWeight &);
+	void operator=(OmWeight &);
 
     protected:
 	const StatsSource *stats;
@@ -56,18 +56,18 @@ class IRWeight {
 	bool initialised;
 	mutable bool weight_calculated;
 
-	static map<string, const IRWeight *> custom_weights;
+	static map<string, const OmWeight *> custom_weights;
     public:
-	IRWeight() : initialised(false), weight_calculated(false) { }
-	virtual ~IRWeight() { }
+	OmWeight() : initialised(false), weight_calculated(false) { }
+	virtual ~OmWeight() { }
 
-	static IRWeight * create_new(const OmSettings & opts);
+	static OmWeight * create_new(const OmSettings & opts);
 
 	/// Register a custom weight object
-	static void register_custom(const string &wt_type, const IRWeight *wt);
+	static void register_custom(const string &wt_type, const OmWeight *wt);
 
 	/// Return a new weight object of this type.
-	virtual IRWeight * create(const OmSettings &opts) const = 0;
+	virtual OmWeight * create(const OmSettings &opts) const = 0;
 
 	/** Initialise the weight object with the neccessary stats, or
 	 *  places to get them from.
@@ -123,7 +123,7 @@ class IRWeight {
 ///////////////////////////////
 
 inline void
-IRWeight::set_stats(const StatsSource * stats_, om_doclength querysize_,
+OmWeight::set_stats(const StatsSource * stats_, om_doclength querysize_,
 		    om_termcount wqf_, om_termname tname_) {
     // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);

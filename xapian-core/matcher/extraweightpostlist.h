@@ -28,7 +28,7 @@
 class ExtraWeightPostList : public PostList {
     private:
 	PostList * pl;
-	IRWeight * wt;
+	OmWeight * wt;
 	MultiMatch * matcher;
 	om_weight max_weight;
 
@@ -92,7 +92,7 @@ class ExtraWeightPostList : public PostList {
 	    return pl->open_position_list();
 	}
 
-        ExtraWeightPostList(PostList * pl_, IRWeight *wt_, MultiMatch *matcher_)
+        ExtraWeightPostList(PostList * pl_, OmWeight *wt_, MultiMatch *matcher_)
 	    : pl(pl_), wt(wt_), matcher(matcher_), max_weight(wt->get_maxextra())
 	{ }
 

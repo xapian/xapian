@@ -27,7 +27,7 @@
 #include "om/omtypes.h"
 
 // BM25 weighting scheme
-class BM25Weight : public IRWeight {
+class BM25Weight : public OmWeight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
@@ -54,7 +54,7 @@ class BM25Weight : public IRWeight {
 		  param_D(param_D_)
 		  {}
     public:
-	IRWeight * create(const OmSettings &opts) const	{
+	OmWeight * create(const OmSettings &opts) const	{
 	    return new BM25Weight(opts);
 	}
 	BM25Weight(const OmSettings & opts);

@@ -59,7 +59,7 @@ class RemoteSubMatch : public SubMatch {
 	void finish_query();
 
 	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQuery::Internal *query = NULL);
+	OmWeight * mk_weight(const OmQuery::Internal *query = NULL);
 
     public:
 	RemoteSubMatch(const NetworkDatabase *db_,
