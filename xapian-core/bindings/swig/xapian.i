@@ -28,7 +28,7 @@
 #undef list
 #include "om/om.h"
 #include <om/omtypes.h>
-#include <om/omparsequery.h>
+#include <omparsequery.h>
 #include <string>
 #include <vector>
 
@@ -38,19 +38,30 @@
 using namespace std;
 
 %include "om_util.i"
-%include "omstem.i"
 %include "omtypes.i"
 
 class OmDocument {
   public:
     ~OmDocument();
 
+    string get_description() const;
     string get_value(om_valueno value) const;
     string get_data() const;
 
-    void add_value(int valueno, string value);
-    void set_data(string data_);
+    void add_value(om_valueno value, string & value);
+    void set_data(string & data);
 
+    void remove_value(om_valueno value);
+    void clear_values();
+
+    // FIXME: values iterator
+    /** Type to store values in. */
+//    typedef map<om_valueno, string> document_values;
+
+    /** The values associated with this document. */
+//    document_values values;
+
+    // FIXME: termlist
     // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
 //    typedef map<string, OmDocumentTerm> document_terms;
@@ -66,8 +77,12 @@ class OmDocument {
      *  @param tname  The name of the term.
      *  @param tpos   The position of the term.
      */
-    void add_posting(const string & tname, om_termpos tpos = 0);
-    string get_description() const;
+    void add_posting(const string & tname, om_termpos tpos = 0, om_termcount wdfinc=1);
+
+    void add_term_nopos(const string & tname, om_termcount wdfinc = 1);
+    void remove_posting(const string & tname, om_termpos tpos, om_termcount wdfdec = 1);
+    void remove_term(const string & tname);
+    void clear_terms();
 };
 
 // This will want some hefty perl TIE magic to turn it into a hash of things
@@ -207,7 +222,7 @@ class OmQuery {
         %name(OmQuery) OmQuery(const string &tname,
 			       om_termcount wqf = 1,
 			       om_termpos term_pos = 0);
-	%addmethods {
+	%extend {
             /** Constructs a query from a set of queries merged with the specified operator */
 	    %name (OmQueryList) OmQuery(OmQuery::op op,
 	    	    const vector<OmQuery *> *subqs,
@@ -253,49 +268,6 @@ class OmQuery {
 
 // TODO: OmExpandDecider
 
-class OmDocument {
-  public:
-    ~OmDocument();
-
-    string get_description() const;
-
-    string get_value(om_valueno value) const;
-    string add_value(om_valueno value, string & value);
-    string remove_value(om_valueno value) const;
-    string clear_values();
-    string get_data() const;
-    void set_data(string & data);
-
-    // FIXME: add/remove/clear keys + iterator
-    /** Type to store keys in. */
-//    typedef map<om_keyno, string> document_keys;
-
-    /** The keys associated with this document. */
-//    document_keys keys;
-
-    // FIXME: termlist
-    // TODO: sort out access to the maps somehow.
-    /** Type to store terms in. */
-//    typedef map<string, OmDocumentTerm> document_terms;
-
-    /** The terms (and their frequencies and positions) in this document. */
-//    document_terms terms;
-
-    /** Add an occurrence of a term to the document.
-     *
-     *  Multiple occurrences of the term at the same position are represented
-     *  only once in the positional information, but do increase the wdf.
-     *
-     *  @param tname  The name of the term.
-     *  @param tpos   The position of the term.
-     */
-    void add_posting(const string & tname, om_termpos tpos = 0, om_termcount wdfinc=1);
-
-    void add_term_nopos(const string & tname, om_termcount wdfinc = 1);
-    void remove_posting(const string & tname, om_termpos tpos, om_termcount wdfdec = 1);
-    void remove_term(const string & tname);
-    void clear_terms();
-};
 
 #if defined(NOTDEFINED)
 struct OmDocumentTerm {
@@ -353,6 +325,15 @@ class OmWritableDatabase : public OmDatabase {
 	string get_description() const;
 };
 
+// New-style database constructors (FIXME: these will be renamed)
+extern OmDatabase OmAuto__open(const string & path);
+%name(OmAuto__open_writable) extern OmWritableDatabase OmAuto__open(const string & path, int action);
+
+const int OM_DB_CREATE_OR_OPEN = 1;
+const int OM_DB_CREATE = 2;
+const int OM_DB_CREATE_OR_OVERWRITE = 3;
+const int OM_DB_OPEN = 4;
+
 // so we can typemap this to arrays
 //typedef std::list<om_termname> om_termname_list;
 
@@ -403,3 +384,5 @@ class OmQueryParser {
   void set_default_op(OmQuery::op default_op_);
   OmQuery parse_query(const string &q);
 };
+
+%include "omstem.i"

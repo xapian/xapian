@@ -25,7 +25,8 @@
  */
 %}
 %include typemaps.i
-
+%include stl.i
+/*
 %typemap(python, out) string {
     $result = PyString_FromString($1.c_str());
     // typemap out string    delete $1;
@@ -42,7 +43,7 @@
 	return NULL;
     }
 }
-
+*/
 %{
     class OmPythonProblem {};
     OmQuery *get_py_omquery(PyObject *obj)
@@ -253,8 +254,8 @@ PyObject *OmESet_items_get(OmESet *eset)
 %}
 
 
-%addmethods OmMSet {
-    %readonly
+%extend OmMSet {
+    %immutable;
     // access to the items array
     PyObject *items;
 
@@ -275,7 +276,7 @@ PyObject *OmESet_items_get(OmESet *eset)
 	}
 	return 0;
     }
-    %readwrite
+    %mutable;
 }
 
 %apply LangSpecificListType items { PyObject *items }
@@ -286,8 +287,8 @@ PyObject *OmESet_items_get(OmESet *eset)
     //    $1 = 0;
 }
 
-%addmethods OmESet {
-    %readonly
+%extend OmESet {
+    %immutable;
     PyObject *items;
-    %readwrite
+    %mutable;
 }

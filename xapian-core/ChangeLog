@@ -1,3 +1,8 @@
+Fri Dec 20 15:39:51 GMT 2002  James Aylett  <james@tartarus.org>
+
+	* Bindings build using SWIG 1.3.14u-20020706-1222, with very
+	  basic functionality tested with the Python target.
+
 Fri Dec 20 12:38:26 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Tidied up some bindings-related issues, including changes to

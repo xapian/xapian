@@ -33,7 +33,7 @@
     SWIG_exception((type), const_cast<char *>((msg).c_str()))
 %}
 
-%except {
+%exception {
     try {
     	$function
     } catch (OmAssertionError &e) {

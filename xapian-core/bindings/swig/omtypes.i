@@ -46,8 +46,8 @@ typedef double       om_doclength;
 /// Type for sum of lengths of documents
 typedef double       om_totlength;
 
-/// Type for referring to key in document
-typedef unsigned int om_keyno;
+/// Type for referring to value in document
+typedef unsigned int om_valueno;
 
 /// A calculated weight, for a term or document
 typedef double       om_weight;
