@@ -50,7 +50,7 @@ Priority | Area            | Task
          |                 | than a member of the class.
 ---------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Make get_mset() (and MultiMatch::match()) return
-         |                 | msets rather than setting a call by reference
+         |                 | msets rather than setting a pass by reference
 	 |                 | parameter.  Change match() to get_mset().
 ---------+-----------------+--------------------------------------------------
  Medium  | MatchOptions    | Pass all options to matcher (sort order,
@@ -93,9 +93,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  |RPositional      | Add a get_positionlist() method to databases.
 ---------+-----------------+--------------------------------------------------
- Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
-	 |                 | through positionlist for sequential positions.
----------+-----------------+--------------------------------------------------
  Medium  | MultiMatch      | Check that weights returned by a multimatch over
          |                 | a set of multidatabases are same as those over
 	 |                 | the complete set as a single multidatabase.
@@ -136,10 +133,6 @@ Priority | Area            | Task
          |                 | returns correct value in case where some of the
 	 |                 | query terms are not present in some of the sub
 	 |                 | databases.
----------+-----------------+--------------------------------------------------
- Medium  | Matchers        | Deprecate get_max_weight() - not useful
-         |                 | independently of get_mset(), which now returns
-	 |                 | its value.
 ---------+-----------------+--------------------------------------------------
  Medium  | MultiDatabase   | Termcache currently clears itself when full: make
          |                 | more efficient.
