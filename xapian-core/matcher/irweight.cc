@@ -14,10 +14,8 @@ IRWeight::calc_termweight() const
     Assert(initialised);
 
     doccount dbsize = database->get_doccount();
-    doclength avlength = database->get_avlength();
 
-    printf("Statistics: N=%d L=%f n_t=%d ", 
-	   dbsize, avlength, termfreq);
+    //printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
 
     weight tw;
     tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5); 
@@ -29,7 +27,7 @@ IRWeight::calc_termweight() const
     }
     tw = log(tw);   
 
-    printf("\t=> termweight = %f\n", tw);
+    //printf("\t=> termweight = %f\n", tw);
     termweight = tw;
     weight_calculated = true;
 }
@@ -43,12 +41,14 @@ IRWeight::get_weight(doccount wdf) const
 
     weight wt;
 
+    doclength avlength = database->get_avlength();
 
-    //printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
+    //printf("(wdf, termweight, avlength)  = (%4d, %4.2f, %4f)\n",
+    //	   wdf, termweight, avlength);
 
     // FIXME - precalculate this freq score for several values of wdf - may
     // remove much computation.
-    wt = (double) wdf / (k + wdf);
+    wt = (double) wdf / (k * avlength + wdf);
 
     //printf("(freq score %4.2f)", wt);
 
