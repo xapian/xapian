@@ -1039,7 +1039,7 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    case CMD_dbname:
-		if (dbname != default_dbname) value = dbname;
+		value = dbname;
 		break;
 	    case CMD_def: {
 		func_attrib *fa = new func_attrib;

@@ -1,3 +1,11 @@
+Wed Dec 04 17:13:43 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc: Fixed $dbname to return "default" for
+	  the default database, rather than "" - this fixes paging in searches
+	  of the default database.
+	* templates/query: Removed xDEFAULTOP hidden field which is no longer
+	  used.
+
 Wed Dec 04 11:57:13 GMT 2002  Olly Betts <olly@survex.com>
 
 	* templates/query: Removed bogus unmatched '}'.
