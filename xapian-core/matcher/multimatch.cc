@@ -108,7 +108,7 @@ class MSetSortCmp {
     public:
 	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
 		    bool have_key_, om_valueno sort_key_, bool forward_)
-	    : db(db_), factor(percent_scale * bands / 100.0),
+	    : db(db_), factor(percent_scale * bands / 100.1),
 	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
