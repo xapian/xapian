@@ -112,13 +112,14 @@ AC_OUTPUT(
  stemmer/Makefile
  matcher/Makefile
  indexer/Makefile
- tests/Makefile
  backends/Makefile
  backends/da/Makefile
  backends/sleepy/Makefile
  backends/multi/Makefile
  backends/textfile/Makefile
  include/Makefile
+ docs/Makefile
+ tests/Makefile
  gui/Makefile
  gui/glade/Makefile
  ferretfx/Makefile)
