@@ -1,3 +1,7 @@
+Tue Nov 06 11:13:06 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Quick fix for problems with null OmQuery-s.
+
 Mon Nov 05 15:52:55 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added signal handling to testsuite - if a testcase generates a

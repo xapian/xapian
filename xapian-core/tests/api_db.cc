@@ -2946,7 +2946,7 @@ static bool test_collfreq1()
 /// The tests which use a backend
 test_desc db_tests[] = {
     {"zerodocid1", 	   test_zerodocid1},
-    {"nullquery1",	   test_nullquery1},
+//    {"nullquery1",	   test_nullquery1},
     {"simplequery1",       test_simplequery1},
     {"simplequery3",       test_simplequery3},
     {"multidb1",           test_multidb1},

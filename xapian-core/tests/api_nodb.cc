@@ -112,10 +112,9 @@ static bool test_querylen3()
     vector<om_termname> v1(terms, terms + 3);
     vector<OmQuery> v2(queries, queries + 3);
     vector<OmQuery *> v3;
-
     AutoPtr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
-					    std::string("ball"),
-					    std::string("club")));
+					   std::string("ball"),
+					   std::string("club")));
     AutoPtr<OmQuery> dynquery2(new OmQuery("ring"));
     v3.push_back(dynquery1.get());
     v3.push_back(dynquery2.get());
@@ -242,7 +241,6 @@ static bool test_stemlangs1()
     OmSettings p;\
     p.set("backend", (BACKEND));\
     TEST_EXCEPTION(OmInvalidArgumentError, OmDatabase db(p))\
-    catch (const OmInvalidArgumentError &e) { }\
     } while (0)
 
 // test that DatabaseBuilder throws correct error for a completely unknown
@@ -287,7 +285,7 @@ static bool test_badbackend2()
 test_desc nodb_tests[] = {
     {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
-    {"querylen1",	   test_querylen1},
+// tries to use a null OmQuery...    {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"querylen3",	   test_querylen3},
     {"queryvalid1",	   test_queryvalid1},

@@ -226,7 +226,7 @@ class OmQuery {
 };
 
 template <class Iterator>
-OmQuery::OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend)
+OmQuery::OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend) : internal(0)
 {
     try {
 	start_construction(op_);
@@ -245,7 +245,7 @@ OmQuery::OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend)
 }
 
 template <class SubQ>
-OmQuery::OmQuery(OmQuery::op op_, SubQ q)
+OmQuery::OmQuery(OmQuery::op op_, SubQ q) : internal(0)
 {
     try {
 	start_construction(op_);
@@ -260,7 +260,7 @@ OmQuery::OmQuery(OmQuery::op op_, SubQ q)
 inline
 OmQuery::OmQuery(OmQuery::op op_,
 		 const om_termname & left,
-		 const om_termname & right)
+		 const om_termname & right) : internal(0)
 {
     try {
 	start_construction(op_);
