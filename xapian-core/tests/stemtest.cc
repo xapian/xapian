@@ -29,29 +29,29 @@
 
 #include "stemmer.h"
 
-#define LETTER(ch)  (islower(ch) || (ch) == '^')
+#define IS_LETTER(ch)  (islower(ch) || (ch) == '^')
 
 void stemfile(Stemmer *stemmer, FILE * f)
-{   while(true)
-    {   int ch = getc(f);
+{
+    while(true) {
+	int ch = getc(f);
 	if (ch == EOF) return;
-	if (LETTER(ch))
-	{
+	if (IS_LETTER(ch)) {
 	    string word;
-	    while(true)
-	    {
+	    while(true) {
 		/* force lower case: */
-		if isupper(ch) ch = tolower(ch);
+		if (isupper(ch)) {
+		    ch = tolower(ch);
+		}
 
 		word += ch;
 
 		ch = getc(f);
-		if (!LETTER(ch)) { ungetc(ch, f); break; }
+		if (!IS_LETTER(ch)) { ungetc(ch, f); break; }
 	    }
 
 	    cout << stemmer->stem_word(word);
-	}
-	else putchar(ch);
+	} else putchar(ch);
     }
 }
 
