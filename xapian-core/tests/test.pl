@@ -3,9 +3,11 @@ require 5.003;
 use strict;
 
 my %tests = (
-'B financi compani AND report OR dolli OR' => 5773
+'B financi compani AND report OR dolli OR' => 5772,
+'financi compani report dolli' => 26429
 );
 
+my $fail = 0;
 for my $args (sort keys %tests) {
    open PIPE, "./matchtest $args|" or die $!;
    my $mtotal;
@@ -16,6 +18,14 @@ for my $args (sort keys %tests) {
    }
    close PIPE;
    if ($mtotal != $tests{$args}) {
-      print "Got $mtotal, expected $tests{$args} - $args";
+      print "Got $mtotal, expected $tests{$args} - $args\n";
+      $fail++;
    }
 }
+
+if ($fail) {
+   print "$fail test(s) failed\n";
+   exit 1;
+}
+
+print "All tests passed\n";
