@@ -30,7 +30,7 @@
 
 #include <xapian/error.h>
 
-/** Convert an Xapian::Error reference into a string which describes it.
+/** Convert a Xapian::Error reference into a string which describes it.
  *
  *  @param e		A reference to the exception to convert.
  */

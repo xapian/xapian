@@ -69,7 +69,7 @@ class RSetI {
 // Inline method definitions //
 ///////////////////////////////
 
-/// Initialise with an Xapian::RSet
+/// Initialise with a Xapian::Database and a Xapian::RSet
 inline
 RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
@@ -77,7 +77,7 @@ RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
 {
 }
 
-/// Initialise with an Xapian::RSet
+/// Initialise with a Xapian::Database::Internal and a Xapian::RSet
 inline
 RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false),

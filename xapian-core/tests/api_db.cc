@@ -2996,7 +2996,7 @@ static bool test_termlist1()
     return true;
 }
 
-// tests that an Xapian::TermIterator works as an STL iterator
+// tests that a Xapian::TermIterator works as an STL iterator
 static bool test_termlist2()
 {
     Xapian::Database db(get_database("apitest_onedoc"));
@@ -3040,7 +3040,7 @@ test_termlist3_helper()
     return db.termlist_begin(1);
 }
 
-// tests that an Xapian::TermIterator still works when the DB is deleted
+// tests that a Xapian::TermIterator still works when the DB is deleted
 static bool test_termlist3()
 {
     Xapian::TermIterator u = test_termlist3_helper();
@@ -3092,7 +3092,7 @@ static bool test_postlist1()
     return true;
 }
 
-// tests that an Xapian::PostingIterator works as an STL iterator
+// tests that a Xapian::PostingIterator works as an STL iterator
 static bool test_postlist2()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
@@ -3137,7 +3137,7 @@ test_postlist3_helper()
     return db.postlist_begin("this");
 }
 
-// tests that an Xapian::PostingIterator still works when the DB is deleted
+// tests that a Xapian::PostingIterator still works when the DB is deleted
 static bool test_postlist3()
 {
     Xapian::PostingIterator u = test_postlist3_helper();

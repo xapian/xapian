@@ -125,7 +125,7 @@ string omrset_to_string(const Xapian::RSet &omrset);
  */
 Xapian::RSet string_to_omrset(const string &s);
 
-/** Convert an Xapian::MSet object into a string representation.
+/** Convert a Xapian::MSet object into a string representation.
  *
  *  @param ommset		The object to serialise.
  */

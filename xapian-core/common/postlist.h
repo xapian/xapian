@@ -130,7 +130,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  This is currently only meaningful for a LeafPostList, although
 	 *  in future such things as a "SynonymPostList" may be created and
 	 *  implement this method.  If get_wdf() is called on a postlist
-	 *  which where wdf isn't meaningful then an Xapian::UnimplementedError
+	 *  which where wdf isn't meaningful then a Xapian::UnimplementedError
 	 *  exception will be thrown.
 	 */
         virtual Xapian::termcount get_wdf() const {

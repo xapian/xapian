@@ -1,3 +1,11 @@
+Fri Aug 20 20:03:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree_util.h,common/,docs/overview.html,
+	  docs/quickstart.html,include/xapian/enquire.h,
+	  matcher/branchpostlist.h,matcher/multimatch.cc,tests/api_db.cc:
+	  Corrected multiple occurences of "an Xapian::XXX" to "a Xapian::XXX"
+	  (presumably these all resulted from replacing "Om" with "Xapian::").
+
 Fri Aug 20 17:38:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,bin/quartzcheck.cc,bin/quartzcompact.cc,

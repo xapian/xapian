@@ -68,13 +68,13 @@ class BranchPostList : public PostList {
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If read_position_list() is called on such a branch postlist,
-	 *  an Xapian::UnimplementedError exception will be thrown.
+	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
 	virtual PositionList *read_position_list();
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If open_position_list() is called on such a branch postlist,
-	 *  an Xapian::UnimplementedError exception will be thrown.
+	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
 	virtual PositionList * open_position_list() const;
 };

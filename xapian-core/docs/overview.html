@@ -187,7 +187,7 @@ may not: you should catch exceptions in both situations).
 <H2>Specifying a database</H2>
 
 <P>
-When creating an Xapian::Enquire object, a database to search must be specified.
+When creating a Xapian::Enquire object, a database to search must be specified.
 Databases are specified by creating a <A
 HREF="apidoc/html/classXapian_1_1Database.html"><CODE>Xapian::Database</CODE> object</A>.
 This is done using a factory function such as <CODE>Xapian::Quartz::open()</CODE>
@@ -521,7 +521,7 @@ w<sub>D</sub>(t),
 up the tree.
 </P>
 <P>
-An Xapian::Query::OP_OR node transmits documents from both branches up the tree, summing the scores
+A Xapian::Query::OP_OR node transmits documents from both branches up the tree, summing the scores
 when a document is found in both the left and right branch. For example,
 
 <PRE>
@@ -538,7 +538,7 @@ when a document is found in both the left and right branch. For example,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An Xapian::Query::OP_AND node transmits only the documents found on both
+A Xapian::Query::OP_AND node transmits only the documents found on both
 branches up the tree, again summing the scores,
 
 <PRE>
@@ -555,7 +555,7 @@ branches up the tree, again summing the scores,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An Xapian::Query::OP_AND_NOT node transmits up the tree the documents on the
+A Xapian::Query::OP_AND_NOT node transmits up the tree the documents on the
 left branch which are not on the right branch. The scores are taken from the
 left branch. For example, again summing the scores,
 
@@ -573,7 +573,7 @@ left branch. For example, again summing the scores,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An Xapian::Query::OP_MAYBE node transmits the documents up the tree from the
+A Xapian::Query::OP_MAYBE node transmits the documents up the tree from the
 left branch only, but adds in the score from the right branch for documents
 which occur on both branches.  For example,
 

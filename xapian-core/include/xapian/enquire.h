@@ -59,7 +59,7 @@ class MSet {
 	/// Create an empty Xapian::MSet
 	MSet();
 
-	/// Destroy an Xapian::MSet
+	/// Destroy a Xapian::MSet
 	~MSet();
 
 	/// Copying is allowed (and is cheap).
@@ -621,7 +621,7 @@ class Enquire {
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-	/** Create an Xapian::Enquire object.
+	/** Create a Xapian::Enquire object.
 	 *
 	 *  This specification cannot be changed once the Xapian::Enquire is
 	 *  opened: you must create a new Xapian::Enquire object to access a
@@ -864,7 +864,7 @@ class Enquire {
 	 *  the given document.
 	 *
 	 *  If the underlying database has suitable support, using this call
-	 *  (rather than passing an Xapian::docid) will enable the system to
+	 *  (rather than passing a Xapian::docid) will enable the system to
 	 *  ensure that the correct data is returned, and that the document
 	 *  has not been deleted or changed since the query was performed.
 	 *

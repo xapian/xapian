@@ -185,21 +185,13 @@ set_int4(byte *p, int c, int x)
 #define SET_TOTAL_FREE(b, x)    SETINT2(b, 7, x)
 #define SET_DIR_END(b, x)       SETINT2(b, 9, x)
 
+/** Flip to sequential addition block-splitting after this number of observed
+ *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
-    /* Flip to sequential addition block-splitting after this number of observed
-       sequential additions */
 
+/** Even for items of at maximum size, it must be possible to get this number of
+ *  items in a block */
 #define BLOCK_CAPACITY 4
-    /* Even for items of at maximum size, it must be possible to get this number of
-       items in a block */
-
-#define TAG_CAPACITY 10
-    /* However small the block, and however large the key, it must be possible to
-       construct items with this number of bytes in the tag */
-
-#define KEY_CAPACITY 3
-    /* A small block size forces down the maximum size of key, but not below this
-       value */
 
 
 

@@ -62,7 +62,7 @@ class Xapian::ErrorHandler;
 // Return true if a should be listed before b
 typedef bool (* mset_cmp)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
 
-/// Compare an Xapian::Internal::MSetItem, using a custom function
+/// Compare a Xapian::Internal::MSetItem, using a custom function
 class OmMSetCmp {
     private:
 	bool (* fn)(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b);
