@@ -84,6 +84,7 @@ void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
 	"Full mset was: " << endl << (a))
 
 /// Check that a piece of code throws an expected exception
-#define TEST_EXCEPTION(a,b) try {b;FAIL_TEST("Expected "#a);}catch(const a &e){}
+#define TEST_EXCEPTION(a,b) try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));} \
+	catch(const a &e){}
 
 #endif  // OM_HGUARD_TESTUTILS_H
