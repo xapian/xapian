@@ -355,7 +355,7 @@ DBDatabase::open_position_list(Xapian::docid /*did*/,
 Xapian::Internal::RefCntPtr<const DBTerm>
 DBDatabase::term_lookup(const string & tname) const
 {
-    //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
+    DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname << "'): ");
 
     map<string, Xapian::Internal::RefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);

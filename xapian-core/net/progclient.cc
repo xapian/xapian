@@ -118,8 +118,7 @@ ProgClient::get_spawned_socket(string progname, const string &args)
 	new_argv[i + 1] = argvec[i].c_str();
     }
     new_argv[argvec.size() + 1] = 0;
-    execvp(progname.c_str(),
-	   const_cast<char *const *>(new_argv));
+    execvp(progname.c_str(), const_cast<char *const *>(new_argv));
 
     // if we get here, then execvp failed.
     /* throwing an exception is a bad idea, since we're

@@ -69,11 +69,7 @@ MergePostList::next(Xapian::weight w_min)
 		(*errorhandler)(e);
 		// Continue match without this sub-postlist.
 		delete plists[current];
-		AutoPtr<LeafPostList> lpl(new EmptyPostList);
-		// give it a weighting object
-		// FIXME: make it an EmptyWeight instead of BoolWeight
-		lpl->set_termweight(new Xapian::BoolWeight());
-		plists[current] = lpl.release();
+		plists[current] = new EmptyPostList;
 	    } else {
 		throw;
 	    }
@@ -187,11 +183,7 @@ MergePostList::recalc_maxweight()
 		} 
 		// Continue match without this sub-postlist.
 		delete (*i);
-		AutoPtr<LeafPostList> lpl(new EmptyPostList);
-		// give it a weighting object
-		// FIXME: make it an EmptyWeight instead of BoolWeight
-		lpl->set_termweight(new Xapian::BoolWeight());
-		*i = lpl.release();
+		*i = new EmptyPostList;
 	    } else {
 		throw;
 	    }

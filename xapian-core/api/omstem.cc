@@ -26,7 +26,6 @@
 #include <string>
 
 #include "omdebug.h"
-#include <xapian/output.h>
 #include <xapian/stem.h>
 #include "utils.h"
 

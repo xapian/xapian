@@ -27,13 +27,11 @@
 #include <string>
 #include <vector>
 
-#include "autoptr.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cerrno>
 
 #include <xapian.h>
-#include "textfile_indexer.h"
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
@@ -41,7 +39,7 @@
 
 using namespace std;
 
-Xapian::Document
+static Xapian::Document
 string_to_document(string paragraph)
 {
     Xapian::Stem stemmer("english");
@@ -91,41 +89,47 @@ string_to_document(string paragraph)
     return document;
 }
 
-void
+static void
 index_files_to_database(Xapian::WritableDatabase & database,
-                        vector<string> paths)
+                        const vector<string> & paths)
 {
     vector<string>::const_iterator p;
     for (p = paths.begin(); p != paths.end(); ++p) {
-	TextfileIndexerSource source(*p);
-	AutoPtr<istream> from(source.get_stream());
+	const string & filename = *p;
+	ifstream from(filename.c_str());
+	if (!from)
+	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
+		    " for indexing");
 
-	while (*from) {
+	while (from) {
 	    string para;
-	    get_paragraph(*from, para);
+	    get_paragraph(from, para);
 	    database.add_document(string_to_document(para));
 	}
     }
 }
 
-void
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+static void
 index_files_to_m36(const string &prog, const string &dbdir,
-		   vector<string> paths)
+		   const vector<string> & paths)
 {
     string dump = dbdir + "/DATA";
     ofstream out(dump.c_str());
     string valuefile = dbdir + "/keyfile";
     ofstream values(valuefile.c_str());
     values << "omrocks!"; // magic word
-    for (vector<string>::const_iterator p = paths.begin();
-	 p != paths.end();
-	 p++) {
-	TextfileIndexerSource source(*p);
-	AutoPtr<istream> from(source.get_stream());
+    vector<string>::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p) {
+	const string & filename = *p;
+	ifstream from(filename.c_str());
+	if (!from)
+	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
+		    " for indexing");
 
-	while (*from) {
+	while (from) {
 	    string para;
-	    get_paragraph(*from, para);
+	    get_paragraph(from, para);
 	    Xapian::Document doc = string_to_document(para);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
 	    {
@@ -149,25 +153,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
     system(cmd);
     unlink(dump);
 }
-
-vector<string>
-make_strvec(string s1 = "", string s2 = "", string s3 = "", string s4 = "")
-{
-    vector<string> result;
-
-    if (!s1.empty()) result.push_back(s1);
-    if (!s2.empty()) result.push_back(s2);
-    if (!s3.empty()) result.push_back(s3);
-    if (!s4.empty()) result.push_back(s4);
-
-    return result;
-}
-
-void
-index_file_to_database(Xapian::WritableDatabase & database, string path)
-{
-    index_files_to_database(database, make_strvec(path));
-}
+#endif
 
 void
 BackendManager::set_dbtype(const string &type)

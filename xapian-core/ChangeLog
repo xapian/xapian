@@ -1,3 +1,38 @@
+Tue Dec 07 15:57:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+	* api/omdatabase.cc,backends/database.cc,bin/omtcpsrv.cc,
+	  common/database.h,docs/,include/xapian/database.h,tests/api_db.cc:
+	  Added constructors to Database and WritableDatabase which fulfil the
+	  role that the Auto::open() factory functions currently do.
+	  Auto::open() is now deprecated.
+	* api/,backends/inmemory/inmemory_database.cc,
+	  backends/quartz/quartz_database.cc,backends/quartz/quartz_postlist.h,
+	  common/expandweight.h,common/stats.h,include/xapian.h:
+	  #include <xapian.h> no longer pulls in xapian/output.h - this
+	  removes the external ability to write a Xapian object to an
+	  ostream directly, as it's little used and potentially dangerous
+	  ('cout << mset[i];' will compile, but you almost certainly meant
+	  'cout << *mset[i];').  You can get the old effect by writing
+	  'cout << obj->get_description();' instead of 'cout << obj;'.
+	  Adjusted all the library sources which relied on xapian/output.h
+	  pulling in various other xapian/ headers.
+	* backends/muscat36/da_database.cc,backends/muscat36/db_database.cc:
+	  Debug output tweaks.
+	* common/emptypostlist.h,matcher/mergepostlist.cc,matcher/multimatch.cc:
+	  Added EmptyPostList::get_maxweight() which always returns 0, so you
+	  no longer need to explicitly set a weighting scheme on an
+	  EmptyPostList.
+	* common/omdebug.h: Only include omstringstream.h if
+	  XAPIAN_DEBUG_VERBOSE is in effect.
+	* extra/Makefile.am: queryparsertest needs to link to libxapian.la
+	  explicitly.
+	* net/progclient.cc: Whitespace tweak.
+	* testsuite/: Eliminated barely used sources indexer.h,
+	  textfile_indexer.h, and textfile_indexer.cc.
+	* testsuite/backendmanager.cc: Removed unused functions
+	  make_strvec() and index_file_to_database().
+
 Wed Dec 01 07:15:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: SF CF x86_64 machine no longer needs --disable-shared.

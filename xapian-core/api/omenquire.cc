@@ -27,7 +27,6 @@
 
 #include <xapian/error.h>
 #include <xapian/enquire.h>
-#include <xapian/output.h>
 #include <xapian/termiterator.h>
 #include <xapian/expanddecider.h>
 

@@ -130,14 +130,12 @@ Remote::open(const string &host, unsigned int port,
 }
 #endif
 
-Database
-Auto::open_stub(const string &file)
+static void
+open_stub(Database *db, const string &file)
 {
-    DEBUGAPICALL_STATIC(Database, "Auto::open_stub", file);
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     ifstream stub(file.c_str());
-    Database db;
     string line;
     int line_no = 1;
     bool ok = false;
@@ -147,11 +145,11 @@ Auto::open_stub(const string &file)
 	    string type = line.substr(0, space);
 	    line.erase(0, space + 1);
 	    if (type == "auto") {
-		db.add_database(Auto::open(line));
+		db->add_database(Database(line));
 		ok = true;
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	    } else if (type == "quartz") {
-		db.add_database(Quartz::open(line));
+		db->add_database(Quartz::open(line));
 		ok = true;
 #endif
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
@@ -170,14 +168,14 @@ Auto::open_stub(const string &file)
 		    } else {
 			line.erase(0, 1);
 		    }
-		    db.add_database(Remote::open(line, args));
+		    db->add_database(Remote::open(line, args));
 		    ok = true;
 		} else if (colon != string::npos) {
 		    // tcp
 		    // FIXME: timeouts
 		    unsigned int port = atoi(line.c_str() + colon + 1);
 		    line.erase(colon);
-		    db.add_database(Remote::open(line, port));
+		    db->add_database(Remote::open(line, port));
 		    ok = true;
 		}
 #endif
@@ -192,26 +190,38 @@ Auto::open_stub(const string &file)
     if (!ok) {
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
-	// arrange it to be read as a stub database.  The line number is
-	// enough information to identify the problem line.
+	// arrange it to be read as a stub database via infelicities in
+	// an application which uses Xapian.  The line number is enough
+	// information to identify the problem line.
 	throw DatabaseOpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
     }
-    return db;
 }
 
 Database
-Auto::open(const string &path)
+Auto::open_stub(const string &file)
 {
-    DEBUGAPICALL_STATIC(Database, "Auto::open", path);
+    DEBUGAPICALL_STATIC(Database, "Auto::open_stub", file);
+    Database db;
+    open_stub(&db, file);
+    return db;
+}
+
+namespace Internal {
+
+void
+open_database(Database * db, const string &path)
+{
     // Check for path actually being a file - if so, assume it to be
     // a stub database.
     if (file_exists(path)) {
-	return Auto::open_stub(path);
+	open_stub(db, path);
+	return;
     }
 
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     if (file_exists(path + "/record_DB")) {
-	return Quartz::open(path);
+	db->internal.push_back(new QuartzDatabase(path));
+	return;
     }
 #endif
 #ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
@@ -219,35 +229,39 @@ Auto::open(const string &path)
 	// can't easily tell flimsy from heavyduty so assume hd
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return Muscat36::open_da(path + "/R", path + "/T", keyfile, true);
+	db->internal.push_back(new DADatabase(path + "/R", path + "/T",
+					      keyfile, true));
+	return;
     }
-    if (file_exists(path + "/DB")) {
+    string dbfile = path + "/DB";
+    if (!file_exists(dbfile)) {
+	dbfile += ".da";
+	if (!file_exists(dbfile)) dbfile = "";
+    }
+    if (!dbfile.empty()) {
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return Muscat36::open_db(path + "/DB", keyfile);
-    }
-    if (file_exists(path + "/DB.da")) {
-	string keyfile = path + "/keyfile";
-	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return Muscat36::open_db(path + "/DB.da", keyfile);
+	db->internal.push_back(new DBDatabase(dbfile, keyfile));
+	return;
     }
 #endif
 
     throw FeatureUnavailableError("Couldn't detect type of database");
 }
 
-WritableDatabase
-Auto::open(const string &path, int action)
+void
+open_writable_database(Database *db, const string &path, int action)
 {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Auto::open", path << ", " << action);
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     // Only quartz currently supports disk-based writable databases - if other
     // writable backends are added then this code needs to look at action and
     // perhaps autodetect.
-    return Quartz::open(path, action);
+    db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
 #endif
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

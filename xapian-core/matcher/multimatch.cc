@@ -51,7 +51,6 @@
 #include <xapian/errorhandler.h>
 
 #include <algorithm>
-#include "autoptr.h"
 #include <queue>
 #include <vector>
 #include <map>
@@ -427,14 +426,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    (*errorhandler)(e);
 		    // Continue match without this sub-match.
 		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-
-		    AutoPtr<LeafPostList> lpl(new EmptyPostList);
-		    // give it a weighting object
-		    // FIXME: make it an EmptyWeight instead of BoolWeight
-		    lpl->set_termweight(new Xapian::BoolWeight());
-
 		    delete *pl_iter;
-		    *pl_iter = lpl.release();
+		    *pl_iter = new EmptyPostList;
 		}
 	    }
 	}

@@ -10,12 +10,10 @@ endif
 
 noinst_LTLIBRARIES = libtest.la $(backend_quartz_ltlibraries)
 
-noinst_HEADERS = backendmanager.h testsuite.h testutils.h \
-	indexer.h textfile_indexer.h index_utils.h \
+noinst_HEADERS = backendmanager.h testsuite.h testutils.h index_utils.h \
 	btreecheck.h
 
-libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
-	textfile_indexer.cc index_utils.cc
+libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc index_utils.cc
 
 libtest_la_LIBADD = ../getopt/libgetopt.la
 

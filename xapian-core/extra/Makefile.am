@@ -27,4 +27,4 @@ libxapianqueryparser_la_LIBADD = @ldflags@ ../libxapian.la
 libxapianqueryparser_la_SOURCES = $(YYSOURCES)
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = libxapianqueryparser.la
+queryparsertest_LDADD = libxapianqueryparser.la ../libxapian.la

@@ -340,7 +340,7 @@ DADatabase::open_position_list(Xapian::docid /*did*/, const string & /*tname*/) 
 Xapian::Internal::RefCntPtr<const DATerm>
 DADatabase::term_lookup(const string & tname) const
 {
-    DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
+    DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname << "'): ");
 
     map<string, Xapian::Internal::RefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);

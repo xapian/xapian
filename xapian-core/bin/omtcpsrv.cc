@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     try {
         Xapian::Database mydbs;
 	while (argv[optind]) {
-	    mydbs.add_database(Xapian::Auto::open(argv[optind++]));
+	    mydbs.add_database(Xapian::Database(argv[optind++]));
 	}
 
 	if (verbose) cout << "Opening server on port " << port << "..." << endl;

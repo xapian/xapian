@@ -36,6 +36,7 @@
 #include <list>
 
 #include <xapian/error.h>
+#include <xapian/valueiterator.h>
 
 using std::make_pair;
 

@@ -224,13 +224,14 @@ code:
 <H3>Opening the database</H3>
 
 <P>
-In Xapian, a database is opened for writing by creating a Xapian::WritableDatabase
-object using a factory function such as Xapian::Quartz::open().
+In Xapian, a database is opened for writing by creating a
+Xapian::WritableDatabase object.
 </P>
 <P>
 If you pass Xapian::DB_CREATE_OR_OPEN and there isn't an existing database
 in the specified directory, Xapian will try to create a new empty database
-there.
+there.  If there is already database in the specified directory, it will be
+opened.
 </P>
 <P>
 If an error occurs when trying to open a database, or to create a new database,
@@ -242,7 +243,7 @@ The code to open a database for writing is, then:
 </P>
 
 <PRE>
-    Xapian::WritableDatabase database(Xapian::Quartz::open(argv[1], Xapian::DB_CREATE_OR_OPEN));
+    Xapian::WritableDatabase database(argv[1], Xapian::DB_CREATE_OR_OPEN);
 </PRE>
 
 <H3>Preparing the new document</H3>
@@ -406,12 +407,11 @@ Each database can be in its own format, so, for example, we might have a
 system searching across two DA databases and a quartz database.
 </P>
 <P>
-This means that, when we are preparing to search, we create an
-Xapian::Database object with one of the database factory functions, passing
-parameters to specify which database to open.
+To open a single database, we create a Xapian::Database object, passing
+the path to the database we want to open:
 </P>
 <PRE>
-    Xapian::Database db(Xapian::Quartz::open(argv[1]));
+    Xapian::Database db(argv[1]);
 </PRE>
 <P>
 You can also search multiple database by adding them together using
@@ -419,8 +419,8 @@ You can also search multiple database by adding them together using
 </P>
 <PRE>
     Xapian::Database databases;
-    databases.add_database(Xapian::Quartz::open(argv[1]));
-    databases.add_database(Xapian::Quartz::open(argv[2]));
+    databases.add_database(Xapian::Database(argv[1]));
+    databases.add_database(Xapian::Database(argv[2]));
 </PRE>
 
 <H3>Starting an enquire session</H3>

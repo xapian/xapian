@@ -27,8 +27,11 @@
 
 #include <string>
 
+#include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/database.h>
 #include <xapian/document.h>
+#include <xapian/termiterator.h>
 #include "omdebug.h"
 #include "emptypostlist.h"
 
@@ -39,7 +42,6 @@ class LeafTermList;
 class NetworkDatabase;
 
 namespace Xapian {
-class TermIterator::Internal;
 class PositionIterator::Internal;
 }
 
@@ -357,6 +359,11 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	    return NULL;
 	}
 };
+
+namespace Internal {
+void open_database(Database *db, const string &path);
+void open_writable_database(Database *db, const string &path, int action);
+}
 
 }
 

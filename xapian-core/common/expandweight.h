@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include <xapian/types.h>
+#include <xapian/database.h>
 #include "database.h"
 
 using namespace std;

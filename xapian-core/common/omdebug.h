@@ -30,9 +30,11 @@
 #define OM_HGUARD_OMDEBUG_H
 
 #include "omassert.h"
-#include "omstringstream.h"
 
 #ifdef XAPIAN_DEBUG_VERBOSE
+
+#include "omstringstream.h"
+
 #include <vector>
 
 #include <unistd.h>

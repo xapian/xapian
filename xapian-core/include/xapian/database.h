@@ -70,6 +70,13 @@ class Database {
 	 */
 	Database();
 
+	/** Open a Database, automatically determining the database
+	 *  backend to use.
+	 *
+	 * @param path directory that the database is stored in.
+	 */
+	Database(const std::string &path);
+
 	/** @internal Create a Database from its internals.
 	 */
 	explicit Database(Internal *internal);
@@ -209,6 +216,24 @@ class WritableDatabase : public Database {
 	/** Create an empty WritableDatabase.
 	 */
 	WritableDatabase();
+
+	/** Open a database for update, automatically determining the database
+	 *  backend to use.
+	 *
+	 *  If the database is to be created, Xapian will try
+	 *  to create the directory indicated by path if it doesn't already
+	 *  exist (but only the leaf directory, not recursively).
+	 *
+	 * @param path directory that the database is stored in.
+	 * @param action one of:
+	 *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db
+	 *    exists
+	 *  - Xapian::DB_CREATE create new database; fail if db exists
+	 *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if
+	 *    none exists
+	 *  - Xapian::DB_OPEN open for read/write; fail if no db exists
+	 */
+	WritableDatabase(const std::string &path, int action);
 
 	/** @internal Create an WritableDatabase given its internals.
 	 */
@@ -488,23 +513,22 @@ namespace Auto {
 /** Open a database read-only, automatically determining the database
  *  backend to use.
  *
- * @param path directory that the database is stored in.
- */
-Database open(const std::string &path);
-
-/** Open a database for update, automatically determining the database
- *  backend to use.  If the database is to be created, Xapian will try
- *  to create the directory indicated by path if it doesn't already
- *  exist (but only the leaf directory).
+ *  This function is deprecated - use Xapian::Database(path) instead.
  *
  * @param path directory that the database is stored in.
- * @param action one of:
- *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db exists
- *  - Xapian::DB_CREATE create new database; fail if db exists
- *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
- *  - Xapian::DB_OPEN open for read/write; fail if no db exists
  */
-WritableDatabase open(const std::string &path, int action);
+inline Database open(const std::string &path) {
+    return Database(path);
+}
+
+/** Open a database for update, automatically determining the database
+ *  backend to use.
+ *
+ *  This function is deprecated - use Xapian::WritableDatabase(path) instead.
+ */
+inline WritableDatabase open(const std::string &path, int action) {
+    return WritableDatabase(path, action);
+}
 
 /** Open a stub database.
  *

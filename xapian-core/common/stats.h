@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include <xapian/types.h>
+#include <xapian/enquire.h> // for Xapian::Weight
 #include "omdebug.h"
 #include <map>
 #include <set>

@@ -85,6 +85,12 @@ static bool test_stubdb1()
 	enquire.get_mset(0, 10);
     }
     {
+	Xapian::Database db("stubdb1");
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query("word"));
+	enquire.get_mset(0, 10);
+    }
+    { // Now deprecated in favour of the previous form.
 	Xapian::Database db = Xapian::Auto::open("stubdb1");
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));

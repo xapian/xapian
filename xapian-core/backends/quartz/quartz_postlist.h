@@ -29,7 +29,7 @@
 #include <string>
 
 #include "leafpostlist.h"
-#include <xapian/types.h>
+#include <xapian/database.h>
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"

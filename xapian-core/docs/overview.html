@@ -190,20 +190,23 @@ may not: you should catch exceptions in both situations).
 When creating a Xapian::Enquire object, a database to search must be specified.
 Databases are specified by creating a <A
 HREF="apidoc/html/classXapian_1_1Database.html"><CODE>Xapian::Database</CODE> object</A>.
-This is done using a factory function such as <CODE>Xapian::Quartz::open()</CODE>
-- there's one of these for each backend type.  The parameters the function
+Generally, you can just construct the object, passing the pathname to the
+database.  Xapian looks at the path and autodetects the database type.
+</P>
+<P>
+In some cases (with the Remote backend, or if you want more control) you
+need to use a factory function such as <CODE>Xapian::Quartz::open()</CODE>
+- each backend type has one or more.  The parameters the function
 takes depend on the backend type, and whether we are creating a read-only
 or a writable database.
 </P>
-There's also the "auto" backend which takes a filename and works out the
-database type and settings required automatically.  This is a good choice
-if you don't care what database type you are using.
 </P>
-<P><!-- mention Xapian::Auto::open_stub() -->
-An extra feature available using the auto backend is "stub databases".  If
-the filename points to a file rather than a directory, the
-file will be assumed to contain a list of strings representing databases
-to search, one per line.  For example, a file might contain:
+<P>
+You can also create a "stub database" file which list one or more databases.
+These files are recognised by the autodetection in the Database constructor
+(if the pathname is file rather than a directory, it's treated as a stub
+database file) or you can open them explicitly using Xapian::Auto::open_stub().
+The stub database format specifies one database per line.  For example:
 
 <BLOCKQUOTE><CODE>
 remote localhost:23876<br>

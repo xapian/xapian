@@ -33,6 +33,7 @@ class EmptyPostList : public LeafPostList {
 
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;
+	Xapian::weight get_maxweight() const { return 0; }
 	Xapian::doclength get_doclength() const;
 	PositionList *read_position_list();
 	PositionList * open_position_list() const;

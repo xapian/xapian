@@ -28,6 +28,7 @@
 #include "document.h"
 #include "maptermlist.h"
 #include <xapian/error.h>
+#include <xapian/valueiterator.h>
 #include <algorithm>
 #include <string>
 

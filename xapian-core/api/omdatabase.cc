@@ -28,11 +28,11 @@
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/positioniterator.h>
-#include <xapian/output.h>
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
 #include "alltermslist.h"
 #include "multialltermslist.h"
+#include "database.h"
 
 #include <vector>
 
@@ -43,6 +43,12 @@ namespace Xapian {
 Database::Database()
 {
     DEBUGAPICALL(void, "Database::Database", "");
+}
+
+Database::Database(const string &path)
+{
+    DEBUGAPICALL(void, "Database::Database", path);
+    Xapian::Internal::open_database(this, path);
 }
 
 Database::Database(Database::Internal *internal_)
@@ -349,6 +355,14 @@ Database::get_description() const
 WritableDatabase::WritableDatabase() : Database()
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "");
+}
+
+WritableDatabase::WritableDatabase(const std::string &path, int action)
+    : Database()
+{
+    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
+		 path << ", " << action);
+    Xapian::Internal::open_writable_database(this, path, action);
 }
 
 WritableDatabase::WritableDatabase(Database::Internal *internal_)

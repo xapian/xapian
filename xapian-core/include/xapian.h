@@ -1,7 +1,7 @@
 // xapian.h: Public interfaces for core Xapian library
 //
 // ----START-LICENCE----
-// Copyright 2003 Olly Betts
+// Copyright 2003,2004 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,8 +47,5 @@
 
 // Stemming
 #include <xapian/stem.h>
-
-// Diagnostic output
-#include <xapian/output.h>
 
 #endif /* XAPIAN_INCLUDED_XAPIAN_H */
