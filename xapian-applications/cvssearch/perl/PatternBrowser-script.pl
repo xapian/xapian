@@ -38,10 +38,10 @@ $own = "./PatternBrowser.cgi"; # name of this script
 
 $modeMAPcommand{"=>"} = "=\\>";
 $modeMAPcommand{"<=>"} = "\\<=\\>";
-$modeMAPcommand{"<="} = "\\<=";
+##$modeMAPcommand{"<="} = "\\<=";
 $modeMAPhtml{"=>"} = "=&gt;";
 $modeMAPhtml{"<=>"} = "&lt;=&gt;";
-$modeMAPhtml{"<="} = "&lt;=";
+##$modeMAPhtml{"<="} = "&lt;=";
 
 #-------------
 # start html

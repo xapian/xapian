@@ -8,9 +8,60 @@
 // (at your option) any later version.
 
 // support of 1 is ok for =>, but probably not for <=>, <= !!!
+// however, might want to keep it at 1 for => so we can handle queries
+// with few transactions
 #define MIN_SUPPORT 10 
 
-#warning "DOES NOT USE STOP WORDS"
+// <= and <=> give identical rankings!!
+
+/**
+
+It turns out that both <= and <=> give the same rankings!!
+
+I changed the UI to only have => and <=>.
+
+Here's why they are the same:
+
+Let the query be Q.
+
+We are looking for rules like:
+
+ Q <=> symbol   Q <= symbol
+
+Ranking formulas:
+
+The first has formula P(A&B)/(P(A)*P(B)) where P(A) is the prob of finding Q 
+in a commit and P(B) is the probability of finding the symbol in a commit.
+
+The second has formula (P(~A)P(B))/P(~A&B).
+
+Now, since the query is fixed, these formulas reduce to:
+
+P(A&B)/P(B) *
+
+and
+
+P(B)/P(~A&B)
+
+But P(~A&B) = P(B)-P(A&B), so the second formula
+becomes 
+
+P(B) / ( P(B) - P(A&B))
+
+dividing by P(B) on top and bottom gives
+
+1 / (1 - P(A&B)/P(B))  **
+
+But * and ** give the same rankings (but different absolute numbers).
+
+To see this observe 0<=P(A&B)/P(B)<=1.
+
+Notice 1/(1-x1) < 1/(1-x2) <=> 1-x2 < 1-x1 <=> x1 < x2  for 0 <= x1 <=1 and 0 
+<= x2 <= 1, so the rankings are unchanged.
+**/
+
+
+#warning "DOES NOT USE S\TOP WORDS"
 
 #warning "test double buffering query; see if it still gives Button, box, etc."
 #warning "test if namespace stuff is working, e.g., try searching for plugin or part"
@@ -272,13 +323,13 @@ void generate_rules( Db& db,
       //      cerr << "symbol " << symbol << " has idf " << compute_idf( db, symbol, total_commit_transactions ) << endl;
 
 
-	string item = prefix + symbol;
+      string item = prefix + symbol;
 	
-	if ( item.find("()") != string::npos ) {
-	  function_ranking[ -score ].insert(item);
-	} else {
-	  class_ranking[ -score ].insert(item);
-	}
+      if ( item.find("()") != string::npos ) {
+	function_ranking[ -score ].insert(item);
+      } else {
+	class_ranking[ -score ].insert(item);
+      }
 
     }
 }
