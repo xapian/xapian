@@ -61,7 +61,8 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	get_paragraph(*from, para);
 	//get_a_line(*from, para);
 	
-	om_docid did = dest->make_doc(para);
+	DocumentContents document;
+	document.data = para;
 	om_termcount position = 1;
 
 	string::size_type spacepos;
@@ -73,10 +74,11 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    dest->make_term(word);
-	    dest->make_posting(word, did, position++);
+	    document.add_posting(word, position++);
 	    para = para.erase(0, spacepos);
 	}
+
+	dest->add_document(document);
     }
 
     delete from;

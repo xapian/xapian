@@ -86,22 +86,8 @@ class MultiDatabase : public IRDatabase {
 	/** MultiDatabase is a readonly database type, and thus this method is
 	 *  not supported: if called an exception will be thrown.
 	 */
-	void make_term(const om_termname &) {
-	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
-	}
-
-	/** MultiDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
-	 */
-	om_docid make_doc(const om_docname &) {
-	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
-	}
-
-	/** MultiDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
-	 */
-	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+	void add_document(const struct DocumentContents & document) {
+	    throw OmUnimplementedError("MultiDatabase::add_document() not implemented");
 	}
 };
 

@@ -281,14 +281,8 @@ class DBDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void make_term(const om_termname & tname) {
-	    throw OmUnimplementedError("DBDatabase::make_term() not implemented");
-	}
-	om_docid make_doc(const om_docname & ) {
-	    throw OmUnimplementedError("DBDatabase::make_doc() not implemented");
-	}
-	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("DBDatabase::make_posting() not implemented");
+	void add_document(const struct DocumentContents & document) {
+	    throw OmUnimplementedError("DBDatabase::add_document() not implemented");
 	}
 };
 

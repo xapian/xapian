@@ -284,14 +284,8 @@ class DADatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void make_term(const om_termname & tname) {
-	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
-	}
-	om_docid make_doc(const om_docname & ) {
-	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
-	}
-	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+	void add_document(const struct DocumentContents & document) {
+	    throw OmUnimplementedError("DADatabase::add_document() not implemented");
 	}
 };
 

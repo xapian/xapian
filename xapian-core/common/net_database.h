@@ -59,14 +59,11 @@ class NetworkDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void make_term(const om_termname &) {
-	    throw OmUnimplementedError("NetworkDatabase::make_term() not implemented");
-	}
-	om_docid make_doc(const om_docname &) {
-	    throw OmUnimplementedError("NetworkDatabase::make_doc() not implemented");
-	}
-	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("NetworkDatabase::make_posting() not implemented");
+	/** NetworkDatabase is a readonly database type, and thus this method
+	 *  is not supported: if called an exception will be thrown.
+	 */
+	void add_document(const struct DocumentContents & document) {
+	    throw OmUnimplementedError("NetworkDatabase::add_document() not implemented");
 	}
 
 	// Introspection methods...

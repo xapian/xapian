@@ -24,20 +24,34 @@
 #define OM_HGUARD_DOCUMENT_CONTENTS_H
 
 #include <string>
-#include <map>
 #include <vector>
+#include <map>
 #include "om/omtypes.h"
+#include "indexer.h"
 
 /** A term in a document. */
 struct DocumentTerm {
+    /** Make a new term.
+     *
+     *  This creates a new term, and adds one posting at the specified
+     *  position.
+     *
+     *  @param tname_ The name of the new term.
+     *  @param tpos   Optional positional information.
+     */
+    DocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
+
     /** The name of this term.
      */
     om_termname tname;
 
-    /** Term frequency of this item.  The term frequency is the number of
-     *  documents which contain the term. 
+    /** Within document frequency of the term.
+     *  This is the number of occurrences of the term in the document.
      */
     om_termcount wdf;
+
+    /** Type to store positional information in. */
+    typedef vector<om_termpos> term_positions;
 
     /** Positional information. 
      *
@@ -52,7 +66,19 @@ struct DocumentTerm {
      *  occur multiple times at a single position, but will only have one
      *  entry in the position list for each position. 
      */
-    vector<om_termpos> positions;
+    term_positions positions;
+
+    /** Add an entry to the posting list.
+     *
+     *  This method increments the wdf.  If positional information is
+     *  supplied, this also adds an entry to the list of positions, unless
+     *  there is already one for the specified position.
+     *  
+     *  @param tpos The position within the document at which the term
+     *              occurs.  If this information is not available, use
+     *              the default value of 0.
+     */
+    void add_posting(om_termpos tpos = 0);
 };
 
 /** The information which is stored in a document.
@@ -65,11 +91,27 @@ struct DocumentContents {
     /** The (user defined) data associated with this document. */
     string data;
 
+    /** Type to store keys in. */
+    typedef map<om_keyno, string> document_keys;
+
     /** The keys associated with this document. */
-    map<om_keyno, string> keys;
+    document_keys keys;
+
+    /** Type to store terms in. */
+    typedef map<om_termname, DocumentTerm> document_terms;
 
     /** The terms (and their frequencies and positions) in this document. */
-    vector<DocumentTerm> terms;
+    document_terms terms;
+
+    /** Add an occurrence of a term to the document.
+     *
+     *  Multiple occurrences of the term at the same position are represented
+     *  only once in the positional information, but do increase the wdf.
+     *
+     *  @param tname  The name of the term.
+     *  @param tpos   The position of the term.
+     */
+    void add_posting(const om_termname & tname, om_termpos tpos = 0);
 };
 
 #endif /* OM_HGUARD_DOCUMENT_CONTENTS_H */

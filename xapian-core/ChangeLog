@@ -1,3 +1,11 @@
+Tue Apr 11 18:05:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Rework of indexer classes.  The indexer destination interface now
+	  has only one method, which is add_document.  This gets passed
+	  a DocumentContents, so the whole document is added to the database
+	  at once.  Works for all backend types except sleepycat.  (Although
+	  all except InMemory throw an OmUnimplemented exception.)
+
 Tue Apr 11 13:59:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More detection stuff for sleepycat library: now works on all my

@@ -26,7 +26,7 @@
 #include "om/omtypes.h"
 
 #include "database_builder.h"
-#include "indexer.h"
+#include "document_contents.h"
 
 class LeafDocument;
 class LeafPostList;
@@ -178,6 +178,16 @@ class IRDatabase : public IndexerDestination {
 	 *                use.
 	 */
 	virtual LeafDocument * open_document(om_docid did) const = 0;
+
+
+	//////////////////////////////////////////////////////////////////
+	// Modifying the database:
+	// =======================
+
+	/** Add a new document to the database.
+	 */
+	virtual void add_document(const struct DocumentContents & document) = 0;
+
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

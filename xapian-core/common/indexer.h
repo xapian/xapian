@@ -27,13 +27,15 @@
 #include <iostream>
 
 #include "om/omtypes.h"
+#include "document_contents.h"
 
 /** A source of data for indexing (eg, a file)
  */
 class IndexerSource {
     private:
-	// disallow copy
+	/// Copying is not permitted
 	IndexerSource(const IndexerSource &);
+	/// Assignment is not permitted
 	void operator=(const IndexerSource &);
     public:
 	virtual istream * get_stream() const = 0;  // Get the stream of data
@@ -41,43 +43,37 @@ class IndexerSource {
 	virtual ~IndexerSource() {}
 };
 
-/** Something which wants the indexed terms (eg, a database, or a query)
+/** Somewhere to put the indexed terms. (eg, a document, or a query)
  */
 class IndexerDestination {
     private:
-	// disallow copy
+	/// Copying is not permitted
 	IndexerDestination(const IndexerDestination &);
+	/// Assignment is not permitted
 	void operator=(const IndexerDestination &);
     public:
-	/* Place term in database if not already there.
-	 * FIXME - merge into make_posting()?
-         */
-	virtual void make_term(const om_termname &) = 0;
-
-	/* Add a document to the database, before making the postings.  */
-	virtual om_docid make_doc(const om_docname &) = 0;
-
-	/* Post an occurrence of a term in a document to a database */
-	virtual void make_posting(const om_termname & tname,
-                                  om_docid did,
-				  om_termpos tpos) = 0;
-
 	IndexerDestination() {}
 	virtual ~IndexerDestination() {}
+
+	/** Add a new document to the destination.
+	 */
+	virtual void add_document(const struct DocumentContents & document) = 0;
 };
 
 /** A way to generate terms from sources
  */
 class Indexer {
     private:
-	// disallow copy
+	/// Copying is not permitted
 	Indexer(const Indexer &);
+	/// Assignment is not permitted
 	void operator=(const Indexer &);
     protected:
 	IndexerDestination * dest;
     public:
 	Indexer() : dest(NULL) { return; }
 	virtual ~Indexer() { return; }
+
 	// Set the destination
 	void set_destination(IndexerDestination *newdest) {dest = newdest;}
 

@@ -23,6 +23,40 @@
 #include "omassert.h"
 #include "om/omerror.h"
 #include "document_contents.h"
+#include <algorithm>
+
+DocumentTerm::DocumentTerm(const om_termname & tname_,
+			   om_termpos tpos)
+	: tname(tname_)
+{
+    add_posting(tpos);
+}
 
 
+void
+DocumentTerm::add_posting(om_termpos tpos)
+{
+    wdf++;
 
+    if(tpos != 0) {
+	vector<om_termpos>::iterator i;
+	i = lower_bound(positions.begin(), positions.end(), tpos);
+	if(i == positions.end() || *i != tpos) {
+	    positions.insert(i, tpos);
+	}
+    }
+}
+
+
+void
+DocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
+{
+    map<om_termname, DocumentTerm>::iterator documentterm;
+    documentterm = terms.find(tname);
+
+    if(documentterm == terms.end()) {
+	terms.insert(make_pair(tname, DocumentTerm(tname, tpos)));
+    } else {
+	documentterm->second.add_posting(tpos);
+    }
+}

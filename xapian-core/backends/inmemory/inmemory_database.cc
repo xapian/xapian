@@ -106,6 +106,27 @@ InMemoryDatabase::open_document(om_docid did) const
 }
 
 void
+InMemoryDatabase::add_document(const struct DocumentContents & document)
+{
+    om_docid did = make_doc(document.data);
+
+    // FIXME: add the keys
+    
+    DocumentContents::document_terms::const_iterator i;
+    for(i = document.terms.begin(); i != document.terms.end(); i++) {
+	make_term(i->second.tname);
+
+	DocumentTerm::term_positions::const_iterator j;
+	for(j = i->second.positions.begin();
+	    j != i->second.positions.end(); j++) {
+	    make_posting(i->second.tname, did, *j);
+	}
+
+	// FIXME: set the wdf
+    }
+}
+
+void
 InMemoryDatabase::make_term(const om_termname & tname)
 {
     postlists[tname];  // Initialise, if not already there.
