@@ -38,17 +38,6 @@ static const size_t min_metafile_size = metafile_magic.length() + 4;
 
 static const size_t max_metafile_size = min_metafile_size;
 
-QuartzMetaFile::QuartzMetaFile(const string &filename_)
-	: filename(filename_)
-{
-    DEBUGCALL(DB, void, "QuartzMetaFile", filename_);
-}
-
-QuartzMetaFile::~QuartzMetaFile()
-{
-    DEBUGCALL(DB, void, "~QuartzMetaFile", "");
-}
-
 static string encode_version(unsigned int version)
 {
     string data;
@@ -110,9 +99,4 @@ void QuartzMetaFile::create()
     int fd = sys_open_to_write(filename);
     sys_write_string(fd, data);
     sys_close(fd);
-}
-
-void QuartzMetaFile::erase()
-{
-    sys_unlink_if_exists(filename);
 }

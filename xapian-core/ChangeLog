@@ -1,3 +1,9 @@
+Sun Nov 14 05:20:34 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_metafile.cc,
+	  backends/quartz/quartz_metafile.h: Removed unused
+	  QuartzMetaFile::erase() method.
+
 Sun Nov 14 04:55:05 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: For cygwin, use the underlying
