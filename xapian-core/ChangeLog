@@ -1,3 +1,8 @@
+Thu Nov 25 01:29:36 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Fixed recent cygwin change to
+	  actually compile.
+
 Thu Nov 25 01:06:03 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Added --help and --version; Check that the

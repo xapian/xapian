@@ -48,11 +48,12 @@
 #endif
 #include <cerrno>
 
-#if defined __WIN32__ || defined __CYGWIN__
+#ifdef __CYGWIN__
 #include <windows.h>
-#ifdef __WIN32__
+#include <sys/cygwin.h>
+#elif defined __WIN32__
+#include <windows.h>
 #define getpid() GetCurrentProcessId()
-#endif
 #endif
 
 #include <list>
@@ -390,16 +391,7 @@ QuartzDatabase::get_database_write_lock()
 				      errno);
 	}
 
-#if defined __WIN32__
-	// MS Windows can't rename an open file, so make sure we close it
-	// first.
-	close(tempfd);
-	// MS Windows doesn't support link(), but rename() won't overwrite an
-	// existing file, which is exactly the semantics we want.
-	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
-	    return;
-	}
-#elif defined __CYGWIN__
+#if defined __CYGWIN__
 	close(tempfd);
 	// Cygwin carefully tries to recreate Unix semantics for rename(), so
 	// we can't use rename for locking.  And link() works on NTFS but not
@@ -407,7 +399,16 @@ QuartzDatabase::get_database_write_lock()
 	char fr[MAX_PATH], to[MAX_PATH];
 	cygwin_conv_to_win32_path(tempname.c_str(), fr);
 	cygwin_conv_to_win32_path((db_dir + "/db_lock").c_str(), to);
-	if (MoveFile(fr, ro)) {
+	if (MoveFile(fr, to)) {
+	    return;
+	}
+#elif defined __WIN32__
+	// MS Windows can't rename an open file, so make sure we close it
+	// first.
+	close(tempfd);
+	// MS Windows doesn't support link(), but rename() won't overwrite an
+	// existing file, which is exactly the semantics we want.
+	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
 	    return;
 	}
 #else
