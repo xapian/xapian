@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -60,20 +59,6 @@ matchop op = OR; // default matching mode
 
 static map<termname, int> matching_map;
 
-/**************************************************************/
-/* return a sane (1-100) percentage value for num/denom */
-static int percentage(double num, double denom) {
-   /* default to 100 so pure boolean queries give 100% not 0%) */
-   long int percent = 100;
-   if (denom) {
-      percent = (long)( (100.0 * num) / denom + 0.5 );
-      if (percent > 100) percent = 100;
-      else if (percent < 1) percent = 1;
-   }
-   return (int)percent;
-}
-
-/**************************************************************/
 int
 set_probabilistic(const string &newp, const string &oldp)
 {
@@ -132,8 +117,6 @@ set_probabilistic(const string &newp, const string &oldp)
     return is_old;
 }
 
-/**************************************************************/
-
 static int term_count = 1; // FIXME: ick
 
 /* if term is in the database, add it to the term list */
@@ -157,7 +140,7 @@ void check_term(const string &name, termtype type) {
 
 // FIXME: multimap for general use?
 map<char, string> filter_map;
-/**************************************************************/
+
 void add_bterm(const string &term) {
     filter_map[term[0]] = term;
 }
@@ -200,7 +183,6 @@ run_query(void)
     msize = matcher->mtotal;
 }
 
-/**************************************************************/
 long
 do_match(long int first_hit, long int list_size)
 {
@@ -273,7 +255,6 @@ do_picker(char prefix, const char **opts)
     cout << "</SELECT>\n";
 }
 
-/******************************************************************/
 extern void
 print_page_links(char type, long int hits_per_page, long int topdoc)
 {
@@ -416,7 +397,19 @@ static void display_date(time_t date) {
        cout << buf;
    }
 }
-/***********************************************************************/
+
+/* return a sane (1-100) percentage value for num/denom */
+static int percentage(double num, double denom) {
+    /* default to 100 so pure boolean queries give 100% not 0%) */
+    long int percent = 100;
+    if (denom) {
+	percent = (long)( (100.0 * num) / denom + 0.5 );
+	if (percent > 100) percent = 100;
+	else if (percent < 1) percent = 1;
+    }
+    return (int)percent;
+}
+
 extern void
 print_caption(long int m)
 {
