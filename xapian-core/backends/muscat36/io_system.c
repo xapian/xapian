@@ -26,6 +26,7 @@
 #include <sys/types.h> /* lseek */
 #include <unistd.h> /* read, open, lseek */
 #include "io_system.h"
+#include "config.h"
 
 #if 0
 extern int X_findtoread(const char * s)
@@ -117,19 +118,42 @@ static bfd *bfds[HIGHEST_BFD + 1];
 
 static int bf_inited = 0;
 
+#ifdef MUS_USE_PTHREAD
+#include <pthread.h>
+static pthread_mutex_t init_bf_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif /* MUS_USE_PTHREAD */
+
 static int init_bf( void ) {
+#ifdef MUS_USE_PTHREAD
+   pthread_mutex_lock(&init_bf_mutex);
+#endif /* MUS_USE_PTHREAD */
    int i;
-   if (bfds[0]) return 1; /* do nothing on repeated calls */
+   if (bfds[0]) {
+       /* do nothing on repeated calls */
+#ifdef MUS_USE_PTHREAD
+       pthread_mutex_unlock(&init_bf_mutex);
+#endif /* MUS_USE_PTHREAD */
+       return 1;
+   }
    /* set up stdin, stdout and stderr */
    for ( i=0 ; i <= 2 ; i++ ) {
       bfd *p;
       p = calloc(1, sizeof(struct bfd));
-      if (!p) return 0;
+      if (!p) {
+	  /* do nothing on repeated calls */
+#ifdef MUS_USE_PTHREAD
+	  pthread_mutex_unlock(&init_bf_mutex);
+#endif /* MUS_USE_PTHREAD */
+	  return 0;
+      }
       p->bfd_flags = BFD_DONTFAKE;
       p->fd = i;
       bfds[i] = p;
    }
    bf_inited = 1;
+#ifdef MUS_USE_PTHREAD
+   pthread_mutex_unlock(&init_bf_mutex);
+#endif /* MUS_USE_PTHREAD */
    return 1;
 }
 

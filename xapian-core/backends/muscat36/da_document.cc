@@ -75,13 +75,12 @@ DADocument::do_get_key(om_keyno keyid) const
     return key;
 }
 
-/** Get the key for a DA document.
- *  If a key file is available, this will be used to provide extremely fast
- *  key lookup.
+/** Get all the keys for a DA document.
  */
 std::map<om_keyno, OmKey>
 DADocument::do_get_all_keys() const
 {
+
     throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
 }
 

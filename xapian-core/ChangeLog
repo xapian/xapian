@@ -1,3 +1,8 @@
+Tue Aug  8 12:26:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix potential concurrency problem in big file descriptor stuff:
+	  although it was very unlikely to have actually caused a problem.
+
 Mon Aug  7 18:41:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Progress on apitest Python translation.  test_trivial runs.
