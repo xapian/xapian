@@ -31,8 +31,6 @@
 #include "autoptr.h"
 #include <xapian/error.h>
 
-#include "btree_util.h"
-
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
@@ -389,7 +387,6 @@ QuartzDatabase::get_database_write_lock()
 				      ": " + strerror(errno),
 				      errno);
 	}
-	fdcloser fdclose(tempfd);
 
 #ifdef HAVE_LINK
 	/* Now link(2) the temporary file to the lockfile name.
@@ -400,6 +397,7 @@ QuartzDatabase::get_database_write_lock()
 	/* FIXME: sort out all these unlinks */
 	int result = link(tempname, db_dir + "/db_lock");
 	if (result == 0) {
+	    close(tempfd);
 	    unlink(tempname);
 	    return;
 	}
@@ -409,6 +407,7 @@ QuartzDatabase::get_database_write_lock()
 	struct stat statbuf;
 	int statresult = fstat(tempfd, &statbuf);
 	int fstat_errno = errno;
+	close(tempfd);
 	unlink(tempname);
 	if (statresult != 0) {
 	    throw Xapian::DatabaseLockError("Unable to fstat() temporary file " +
@@ -424,6 +423,7 @@ QuartzDatabase::get_database_write_lock()
 	DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
 	/* also failed */
 #else
+	close(tempfd);
 	// win32 doesn't support link() so just rename()
 	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
 	    return;

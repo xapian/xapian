@@ -1,3 +1,8 @@
+Tue Nov 09 16:38:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Close the fd of the lock file
+	  before trying to rename it on Windows.
+
 Tue Nov 09 07:58:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,
