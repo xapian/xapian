@@ -1,5 +1,11 @@
 #!/usr/bin/make -f
 
+# The default python version
+PYTHON_VERSION_MAIN := 2.3
+
+# The python versions to build for
+PYTHON_VERSIONS := 2.1 2.2 2.3
+
 export DH_COMPAT=3
 export DH_OPTIONS
 
@@ -21,7 +27,8 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-PYTHONVERSIONS = 2.1 2.2 2.3
+# Build depends needed for python
+PYTHON_BUILD_DEPENDS=$(PYTHON_VERSIONS:%=python%-dev,)
 
 commonconfflags := \
 	$(confflags) \
@@ -29,18 +36,25 @@ commonconfflags := \
 	--mandir=\$${prefix}/share/man \
 	--infodir=\$${prefix}/share/info \
 	--sysconfdir=/etc \
-	--enable-maintainer-mode
 
-clean:
-	dh_testdir
-	dh_testroot
-	for v in $(PYTHONVERSIONS); do \
-	    set -e; \
-	    rm -rf build-python$$v; \
+
+maint: \
+	debian/control
+
+maintclean: clean
+	rm -f debian/control
+
+debian/control: debian/rules debian/control.in debian/control-python.in
+	cat debian/control.in | \
+		sed 's/@PYTHON_VERSION_MAIN@/$(PYTHON_VERSION_MAIN)/g' | \
+		sed 's/@PYTHON_BUILD_DEPENDS@/$(PYTHON_BUILD_DEPENDS)/g' \
+		> debian/control
+	for v in $(PYTHON_VERSIONS); do \
+		cat debian/control-python.in | \
+			sed "s/@PYTHON_VERSION@/$$v/g" \
+			>> debian/control; \
 	done
-	rm -f config.sub config.guess
-	dh_clean
-	rm -f build-stamp configure-stamp
+
 
 # The autotools target adds forced build-time dependencies on
 # autotools-dev (for /usr/share/misc/config.*)
@@ -54,7 +68,7 @@ configure: debian/control configure-stamp
 configure-stamp: autotools
 	dh_testdir
 
-	for v in $(PYTHONVERSIONS); do \
+	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
 	    mkdir -p build-python$$v; \
 	    cd build-python$$v; \
@@ -69,7 +83,7 @@ configure-stamp: autotools
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	for v in $(PYTHONVERSIONS); do \
+	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
 	    cd build-python$$v; \
 	    $(MAKE); \
@@ -85,7 +99,7 @@ install: build
 	dh_installdirs
 
 	# Install the files into debian/*
-	for v in $(PYTHONVERSIONS); do \
+	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
 	    cd build-python$$v; \
 	    $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install; \
@@ -107,6 +121,7 @@ binary-indep: build install
 	dh_installchangelogs ChangeLog
 	dh_compress
 	dh_fixperms
+	dh_python
 	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
@@ -133,4 +148,15 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-.PHONY: clean autotools configure build install binary binary-arch binary-indep
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	for v in $(PYTHON_VERSIONS); do \
+	    set -e; \
+	    rm -rf build-python$$v; \
+	done
+	rm -f config.sub config.guess
+	dh_clean
+	rm -f build-stamp configure-stamp
+
+.PHONY: maint maintclean autotools configure build install binary binary-arch binary-indep clean
