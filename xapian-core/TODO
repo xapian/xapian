@@ -51,9 +51,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
- High    |CTests           | Turn testsuite into a library which includes
- 	 |		   | main(), needing just a table of test functions.
----------+-----------------+--------------------------------------------------
  Medium  | MatchOptions    | Pass all options to matcher (sort order,
          |                 | weighting scheme, and max query terms) right
 	 |                 | down to LocalMatch object.  Implement max query
