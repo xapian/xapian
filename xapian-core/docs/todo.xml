@@ -53,7 +53,7 @@ Check for swig version.
 
 Try to find some way to write a thread identifier into the debug log, while
 not depending of pthreads.  Try dlsym() on pthread_self?
-(pthread_t pthread_self(void)).
+(pthread_t pthread_self(void)) (code in comment in todo.xml).
 
 <!--
 This works on all platforms I've tried except on MacOS X where it seems that
@@ -282,7 +282,9 @@ examples (eg, search engine example)
 </todoitem>
 <todoitem priority="L" difficulty="2" owner="" area="Website" release="">
 
-Put PS/PDF documentation on website.
+Find a way to autogenerate sourcedoc nicely for website (hard on sf as
+we can't run configure as there's no compilers!  apidoc.pdf is there, but
+needs linking to.  Best to wait until website is moved to ixion.
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="General" release="">
