@@ -1,3 +1,7 @@
+Fri Jan 12 11:18:34 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update acinclude.m4
+
 Thu Jan 11 13:59:18 GMT 2001 Olly Betts
 
 	* $date now takes an optional format argument.
