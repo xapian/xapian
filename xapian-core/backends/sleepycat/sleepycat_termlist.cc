@@ -23,8 +23,11 @@
 // Sleepycat database stuff
 #include <db_cxx.h>
 
+#include "utils.h"
 #include "omassert.h"
 #include "sleepy_termlist.h"
+#include "sleepy_termcache.h"
+#include <stdlib.h>
 
 SleepyTermList::SleepyTermList(const SleepyDatabaseTermCache *tc_new,
 			       om_termid *data_new,

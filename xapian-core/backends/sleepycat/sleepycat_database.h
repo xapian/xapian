@@ -23,14 +23,11 @@
 #ifndef OM_HGUARD_SLEEPY_DATABASE_H
 #define OM_HGUARD_SLEEPY_DATABASE_H
 
-#include "utils.h"
-#include "omassert.h"
-#include "leafpostlist.h"
-#include "termlist.h"
-#include "database.h"
-#include "sleepy_termcache.h"
 #include <stdlib.h>
+#include "database.h"
+#include "om/omerror.h"
 
+class SleepyDatabaseTermCache;
 class SleepyDatabaseInternals;
 
 /** A database using the sleepycat database library.

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include "om/omtypes.h"
 #include "omassert.h"
+#include "utils.h"
 #include "sleepy_postlist.h"
 
 ///////////////

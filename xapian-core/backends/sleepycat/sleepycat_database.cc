@@ -27,16 +27,18 @@
 #include <string>
 #include <algorithm>
 
-// Sleepycat database stuff
-#include <db_cxx.h>
-
-#include "omassert.h"
 #include "sleepy_postlist.h"
 #include "sleepy_termlist.h"
 #include "sleepy_database.h"
 #include "sleepy_database_internals.h"
 #include "sleepy_list.h"
 
+// Sleepycat database stuff
+#include <db_cxx.h>
+
+#include "utils.h"
+#include "omassert.h"
+#include "sleepy_termcache.h"
 
 SleepyDatabase::SleepyDatabase() {
     internals = new SleepyDatabaseInternals();

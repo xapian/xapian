@@ -23,7 +23,6 @@
 #ifndef OM_HGUARD_SLEEPY_LIST_H
 #define OM_HGUARD_SLEEPY_LIST_H
 
-#include "omassert.h"
 #include <db_cxx.h>
 
 #include <om/omtypes.h>

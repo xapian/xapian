@@ -23,12 +23,10 @@
 #ifndef OM_HGUARD_SLEEPY_POSTLIST_H
 #define OM_HGUARD_SLEEPY_POSTLIST_H
 
-#include "utils.h"
-#include "omassert.h"
 #include "leafpostlist.h"
-#include "termlist.h"
-#include "database.h"
 #include <stdlib.h>
+
+class SleepyDatabase;
 
 /** A poslist in a sleepycat database.
  */

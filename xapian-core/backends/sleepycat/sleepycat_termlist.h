@@ -23,15 +23,11 @@
 #ifndef OM_HGUARD_SLEEPY_TERMLIST_H
 #define OM_HGUARD_SLEEPY_TERMLIST_H
 
-#include "utils.h"
-#include "leafpostlist.h"
 #include "termlist.h"
-#include "database.h"
-#include <stdlib.h>
-
-#include "omassert.h"
 #include "om/omtypes.h"
-#include "sleepy_termcache.h"
+
+class SleepyDatabase;
+class SleepyDatabaseTermCache;
 
 /** A termlist in a sleepycat database.
  */
