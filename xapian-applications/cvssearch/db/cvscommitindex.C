@@ -22,7 +22,13 @@
  ********************************************************************************/
 
 
+// should be able to do comment profiles, code profiles, or both
+#define COMMENT_PROFILES 0
+
+#warning "*** USING COMMENT PROFILES"
+
 #warning "*** COMMIT OFFSET FILE SHARED BETWEEN MINE & COMMIT RIGHT NOW!"
+
 
 #warning "perhaps we should not stem words in symbols at all"
 #warning "but of course we should continue stemming in comment words"
@@ -796,16 +802,6 @@ void write_OM_database( const string & database_dir,
   for (i = commit_symbol_terms.begin(); i != commit_symbol_terms.end(); ++i)
     {
 
-      // find symbols associated with commit
-      const list<string> & symbols = i->second;
-      string symbol_string = convert(i->first) + " ";
-      list<string>::const_iterator j;
-      for (j = symbols.begin(); j != symbols.end(); ++j) {
-	symbol_string += (*j) + " ";
-      }
-
-      // cerr << "DATA = " << symbol_string << endl;
-
       // find comment words associated with that commit
       map<unsigned int, set<string> >::const_iterator f = commit_words.find(i->first);
       set<string> words;
@@ -815,6 +811,25 @@ void write_OM_database( const string & database_dir,
       } else {
 	words = f->second;
       }
+
+
+
+      // find symbols associated with commit
+      const list<string> & symbols = i->second;
+
+      string symbol_string = convert(i->first) + " "; // commit id
+
+#warning "should probably change to total # words"
+      symbol_string += convert(words.size()) + " "; // # of UNIQUE **comment** words (should change to total # words?)
+
+      list<string>::const_iterator j;
+      for (j = symbols.begin(); j != symbols.end(); ++j) {
+	symbol_string += (*j) + " ";
+	words.insert(*j);
+#warning "SHOULD PROBABLY STEM CODE WORDS!!!!!!"
+      }
+
+      // cerr << "DATA = " << symbol_string << endl;
 
 
       OmDocument newdocument;
@@ -848,6 +863,7 @@ void write_OM_database( const string & database_dir,
       database.add_document(newdocument);
       transactions_written++;
     }
+#warning "why is this number lower than largest offset?"
   cerr << "transactions written = " << transactions_written << endl;
 }
 
@@ -943,6 +959,11 @@ get_data(lines & lines,
 		const list<string>& words = itr->second;
 		for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
 		  commit_words[commitid+offset].insert(*i);
+#if COMMENT_PROFILES
+		  if ( stopSet.find(*i) == stopSet.end() ) {
+		    commit_symbol_terms[commitid+offset].push_back(*i);
+		  }
+#endif
 		}
 	      }
 	    }
@@ -950,13 +971,14 @@ get_data(lines & lines,
 	  // now go through each symbol,
 	  // and add it to the commit_symbol_terms mapping
 	  // ----------------------------------------
-
+#if !COMMENT_PROFILES
 	  // this is to be done for every line associated with the commit
 	  for( list<string>::iterator s = symbol_terms.begin(); s != symbol_terms.end(); ++s ) {
 	    if ( stopSet.find(*s) == stopSet.end() ) {
 	      commit_symbol_terms[commitid+offset].push_back(*s);
 	    }
 	  }
+#endif
 	}
     }
   }

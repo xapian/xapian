@@ -7,35 +7,38 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
+
 #include <math.h>
 #include <algorithm>
 
 
-/**
-
-koffice/kchart 0
-koffice/kformula 198
-koffice/killustrator 316
-koffice/kimageshop 778
-koffice/kivio 972
-koffice/koshell 1077
-koffice/kpresenter 1132
-koffice/kspread 1894
-koffice/kword 2999
-koffice/lib 4330
+// it is sufficient to consider search by commit
+// if our system works properly, because we can be assured that every line of code
+// is involved in at least one commit, so at least one commit will come up 
+// even if the query words show up only in the code
 
 
-**/
+
+
 
 /* test kword searches right now, get these numbers from offset file */
-#define FIRST_COMMIT 2999
-#define LAST_COMMIT 4329
+#define FIRST_COMMIT 0
+#define LAST_COMMIT 42920
+
+
+/*
+// global
+#define FIRST_COMMIT 0
+#define LAST_COMMIT 9999999
+*/
+
+#define COMMENT_PROFILE 0
 
 
 
 
 #define MIN_SUPPORT 1 
-#define MAX_QUERY_VECTOR_TERMS 50
+#define MAX_QUERY_VECTOR_TERMS 25
 
 
 // try convinction instead of interest measure (convinction is directional)
@@ -136,6 +139,10 @@ koffice/lib 4330
 
 #include "util.h"
 
+
+
+
+// determine # transactions in which we find this code symbol
 unsigned int find_symbol_count( Db& db, const string & k ) {
   Dbt key( (void*) k.c_str(), k.length()+1 );
   Dbt data;
@@ -145,6 +152,13 @@ unsigned int find_symbol_count( Db& db, const string & k ) {
   }
   cerr << "*** Not Found " << k << endl;
   assert(0);
+}
+
+double compute_idf( Db& db, const string& k, const int N ) {
+  unsigned int count = find_symbol_count( db, k );
+  //  cerr << "compute idf N=" << N << " and count = " << count << " for " << k << endl;
+  double idf = log( (double) N / (double) count - 1 );
+  return idf;
 }
 
 double compute_convinction( unsigned int a_count, 
@@ -421,6 +435,7 @@ int main(unsigned int argc, char *argv[]) {
 
     vector<om_termname> queryterms;
     set<string> query_symbols;
+    set<string> query_term_set;
 
     OmStem stemmer("english");
 
@@ -440,6 +455,7 @@ int main(unsigned int argc, char *argv[]) {
 	lowercase_term(term);
 	term = stemmer.stem_word(term);
 	queryterms.push_back(term);
+	query_term_set.insert(term);
 	cout << term << " ";
       }
     }
@@ -461,6 +477,7 @@ int main(unsigned int argc, char *argv[]) {
 
     map< int, set<string> > transactions_returned;
     map< pair<int, string>, int > transaction_term_count;
+    map< int, int > transaction_comment_word_count;
 
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
       unsigned int sim = matches.convert_to_percent(i);
@@ -475,17 +492,25 @@ int main(unsigned int argc, char *argv[]) {
 
       // the commit number is also stored in data now, so we need to check for it below
       int commit_id = -1;
+      int comment_word_count = -1;
       for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 	if ( isdigit((*s)[0]) ) {
 	  if( commit_id != -1 ) {
-	    cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
-	    continue;
+	    if ( comment_word_count != -1 ) {
+	      cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
+	      continue;
+	    } else {
+	      comment_word_count = atoi( s->c_str() );
+	      continue;
+	    }
 	  }
 	  commit_id = atoi( s->c_str() );
 	  continue;
 	}
 	assert( commit_id != -1 );
 	transaction_term_count[ make_pair( commit_id, *s ) ] ++;
+	assert( comment_word_count != -1 );
+	transaction_comment_word_count[ commit_id ] = comment_word_count;
 	S.insert(*s);
 	//  cerr << "..." << (*s) << endl;
       }
@@ -522,10 +547,22 @@ int main(unsigned int argc, char *argv[]) {
       map< string, double > query_vector;
       set< string > query_expansion;
 
+      //      int rank = 0;
       for( map< double, set<string> >::const_iterator i = code_term_ranking.begin(); i != code_term_ranking.end(); i++ ) {
 	set<string> W = i->second;
 	for( set<string>::const_iterator w = W.begin(); w != W.end(); w++ ) {
-	  query_vector[ *w ] = pow(2.0,pow(2.0, -(i->first)));
+
+#if COMMENT_PROFILE
+	  // no point of including query words here, also causes problems with inf in convinction
+	  if ( query_term_set.find(*w) != query_term_set.end() ) {
+	    cerr << "skipping query word " << (*w) << endl;
+	    continue;
+	  }
+#endif
+
+	  double idf = compute_idf( db, *w, total_commit_transactions ); 
+	  //	  rank++;
+	  query_vector[ *w ] = idf*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
 	  cerr << "word " << *w << " has score " << query_vector[*w] << endl;
 	  query_expansion.insert(*w);
 	  if ( query_vector.size() == MAX_QUERY_VECTOR_TERMS ) {
@@ -605,7 +642,20 @@ int main(unsigned int argc, char *argv[]) {
 	cerr << ".... cosine similarity = " << cosine << endl;
 
 #warning "score is a combination of similarity & size"
-	double final_score = cosine * log((double)total_commit_code_words);
+	double final_score = cosine; // * log((double)total_commit_code_words);
+
+
+	assert( transaction_comment_word_count[ commit_id ] > 0 );
+	
+#warning "we should be using cosine similarity on comment also and then multiply the two similarities together"
+
+	/****
+	cerr << "... multiplying by " << log((double)total_commit_code_words) << endl;
+	final_score = final_score * log((double)total_commit_code_words);
+
+	cerr << "... dividing by " <<  log(1.0+transaction_comment_word_count[ commit_id ]) << endl;
+	final_score = final_score / log(1.0+transaction_comment_word_count[ commit_id ]);
+	***/
 
 	final_ranking[-final_score].insert( t->first );
       }
