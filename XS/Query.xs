@@ -41,7 +41,12 @@ newXsv(op, ...);
 	        terms.push_back(term);
 	    }
         }
-        RETVAL = new Query( (Query::op) op, terms.begin(), terms.end() );
+	try {
+            RETVAL = new Query( (Query::op) op, terms.begin(), terms.end() );
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
@@ -58,24 +63,41 @@ newXobj(op, ...);
 	        queries.push_back(*query);
 	    }
         }
-        RETVAL = new Query( (Query::op) op, queries.begin(), queries.end() );
+	try {
+            RETVAL = new Query( (Query::op) op, queries.begin(), queries.end() );
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
     OUTPUT:
         RETVAL
 
 void
-Query::set_window(termpos window)
+Query::set_window(window)
+    termpos	window
+    CODE:
+	THIS->set_window(window);
 
 void
-Query::set_cutoff(weight cutoff)
+Query::set_cutoff(cutoff)
+    weight	cutoff
+    CODE:
+        THIS->set_cutoff(cutoff);
 
 void
-Query::set_elite_set_size(termcount size)
+Query::set_elite_set_size(size)
+    termcount	size
+    CODE:
+	THIS->set_elite_set_size(size);
 
 termcount
 Query::get_length()
 
 termcount
-Query::set_length(termcount qlen)
+Query::set_length(qlen)
+    termcount	qlen
+    CODE:
+        THIS->set_length(qlen);
 
 TermIterator *
 Query::get_terms_begin()
@@ -93,7 +115,7 @@ Query::get_terms_end()
     OUTPUT:
         RETVAL
 
-void
+bool
 Query::is_empty()
 
 string

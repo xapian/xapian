@@ -11,7 +11,7 @@ new1();
 
 MSetIterator *
 new2(other);
-    MSetIterator * other
+    MSetIterator *	other
     CODE:
         RETVAL = new MSetIterator(* other);
     OUTPUT:
@@ -25,15 +25,25 @@ MSetIterator::inc()
     OUTPUT:
         RETVAL
 
+MSetIterator *
+MSetIterator::add_to(number)
+    int		number
+    CODE:
+        THIS->operator++(number);
+    OUTPUT:
+        THIS
+
 bool
-MSetIterator::equal(MSetIterator * that)
+MSetIterator::equal(that)
+    MSetIterator *	that
     CODE:
         RETVAL = ((*THIS) == (*that));
     OUTPUT:
         RETVAL
 
 bool
-MSetIterator::nequal(MSetIterator * that)
+MSetIterator::nequal(that)
+    MSetIterator *	that
     CODE:
         RETVAL = ((*THIS) != (*that));
     OUTPUT:

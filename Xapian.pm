@@ -7,14 +7,16 @@ use Carp;
 
 use Search::Xapian::Database;
 use Search::Xapian::Document;
-use Search::Xapian::MSet;
-use Search::Xapian::MSetIterator;
-use Search::Xapian::Query;
-use Search::Xapian::WritableDatabase;
 use Search::Xapian::ESet;
 use Search::Xapian::ESetIterator;
+use Search::Xapian::MSet;
+use Search::Xapian::MSetIterator;
+use Search::Xapian::PositionIterator;
+use Search::Xapian::PostingIterator;
+use Search::Xapian::Query;
 use Search::Xapian::RSet;
 use Search::Xapian::TermIterator;
+use Search::Xapian::WritableDatabase;
 
 require Exporter;
 require DynaLoader;
@@ -57,7 +59,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.0.1';
+our $VERSION = '0.8.0.2';
 
 bootstrap Search::Xapian $VERSION;
 
