@@ -86,7 +86,10 @@ my $author = 'a script';
 print "<!-- FOOTER \$";
 print "Author: $author ";
 print "\$ \$";
-print "Date: $date \$";
+print "Date: $date ";
+print "\$ \$";
+print "Id:  ";
+print "\$";
 print " -->\n";
 print <<EOT;
 </BODY>
