@@ -59,10 +59,16 @@ class BranchPostList : public PostList {
         virtual ~BranchPostList();
 
 	/** Most branch postlists won't be able to supply position lists.
-	 *  If get_position_list() is called on such a branch postlist,
+	 *  If read_position_list() is called on such a branch postlist,
 	 *  an OmUnimplementedError exception will be thrown.
 	 */
-	virtual PositionList *get_position_list();
+	virtual PositionList *read_position_list();
+
+	/** Most branch postlists won't be able to supply position lists.
+	 *  If open_position_list() is called on such a branch postlist,
+	 *  an OmUnimplementedError exception will be thrown.
+	 */
+	virtual AutoPtr<PositionList> open_position_list() const;
 };
 
 inline
@@ -85,9 +91,15 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 }
 
 inline PositionList *
-BranchPostList::get_position_list()
+BranchPostList::read_position_list()
 {
-    throw OmUnimplementedError("BranchPostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("BranchPostList::read_position_list() unimplemented");
+}
+
+inline AutoPtr<PositionList>
+BranchPostList::open_position_list() const
+{
+    throw OmUnimplementedError("BranchPostList::open_position_list() unimplemented");
 }
 
 // Helper functions - call next/skip_to on a postlist and handle any

@@ -126,5 +126,5 @@ operator==(const OmPositionListIterator &a, const OmPositionListIterator &b)
 {
     if (a.internal == b.internal) return true;
     if (a.internal == 0 || b.internal == 0) return false;
-    return (a.internal->positionlist == b.internal->positionlist);
+    return (a.internal->positionlist.get() == b.internal->positionlist.get());
 }

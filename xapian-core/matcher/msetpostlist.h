@@ -59,7 +59,8 @@ class MSetPostList : public PostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-	virtual PositionList * get_position_list();
+	virtual PositionList * read_position_list();
+	virtual AutoPtr<PositionList> open_position_list() const;
 
         MSetPostList(const OmMSet mset_, const NetworkDatabase *db_);
         ~MSetPostList();
@@ -145,9 +146,15 @@ MSetPostList::get_doclength() const
 }
 
 inline PositionList *
-MSetPostList::get_position_list()
+MSetPostList::read_position_list()
 {
-    throw OmUnimplementedError("MSetPostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("MSetPostList::read_position_list() unimplemented");
+}
+
+inline AutoPtr<PositionList>
+MSetPostList::open_position_list() const
+{
+    throw OmUnimplementedError("MSetPostList::open_position_list() unimplemented");
 }
 
 class RemoteSubMatch;
@@ -222,7 +229,10 @@ class PendingMSetPostList : public PostList {
 	 */
 	virtual om_doclength get_doclength() const { Assert(false); return 1; }
 
-	virtual PositionList * get_position_list() { Assert(false); return 0; }
+	virtual PositionList * read_position_list() { Assert(false); return 0; }
+	virtual AutoPtr<PositionList> open_position_list() const {
+	    Assert(false); return AutoPtr<PositionList>(0);
+	}
 
         PendingMSetPostList(const NetworkDatabase *db_, om_doccount maxitems_)
 		: db(db_), pl(NULL), maxitems(maxitems_) { }
@@ -269,7 +279,8 @@ class RemotePostList : public PostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-	virtual PositionList * get_position_list();
+	virtual PositionList * read_position_list();
+	virtual AutoPtr<PositionList> open_position_list() const;
 
 	const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_terminfo() const {
 	    return term_info;
@@ -371,9 +382,15 @@ RemotePostList::get_doclength() const
 }
 
 inline PositionList *
-RemotePostList::get_position_list()
+RemotePostList::read_position_list()
 {
-    throw OmUnimplementedError("RemotePostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("RemotePostList::read_position_list() unimplemented");
+}
+
+inline AutoPtr<PositionList>
+RemotePostList::open_position_list() const
+{
+    throw OmUnimplementedError("RemotePostList::open_position_list() unimplemented");
 }
 
 #endif /* OM_HGUARD_MSETPOSTLIST_H */

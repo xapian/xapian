@@ -164,7 +164,7 @@ OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
 		 did << ", " << tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    RefCntPtr<PositionList> poslist = internal->open_position_list(did, tname);
+    AutoPtr<PositionList> poslist = internal->open_position_list(did, tname);
 
     RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(poslist)));
 }

@@ -90,9 +90,15 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
 }
 
 PositionList *
-DBPostList::get_position_list()
+DBPostList::read_position_list()
 {
-    throw OmUnimplementedError("DBPostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("DBPostList::read_position_list() unimplemented");
+}
+
+AutoPtr<PositionList>
+DBPostList::open_position_list() const
+{
+    throw OmUnimplementedError("DBPostList::open_position_list() unimplemented");
 }
 
 

@@ -102,7 +102,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	    pq.push(newtl.get());
 	    newtl.release();
 	}
-    } catch(...) {
+    } catch (...) {
 	while(!pq.empty()) {
 	    delete pq.top();
 	    pq.pop();

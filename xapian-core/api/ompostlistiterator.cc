@@ -150,7 +150,7 @@ OmPostListIterator::positionlist_begin()
     DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_begin", "");
     Assert(internal);
     Assert(!internal->postlist->at_end());
-    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list())));
+    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->open_position_list())));
 }
 
 OmPositionListIterator

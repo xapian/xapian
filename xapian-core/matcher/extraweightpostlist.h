@@ -77,8 +77,12 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_doclength();
 	}
 
-	virtual PositionList * get_position_list() {
-	    return pl->get_position_list();
+	virtual PositionList * read_position_list() {
+	    return pl->read_position_list();
+	}
+
+	virtual AutoPtr<PositionList> open_position_list() const {
+	    return pl->open_position_list();
 	}
 
         ExtraWeightPostList(PostList * pl_, IRWeight *wt_)

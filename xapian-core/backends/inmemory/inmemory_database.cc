@@ -44,10 +44,20 @@ InMemoryPostList::get_doclength() const
 }
 
 PositionList *
-InMemoryPostList::get_position_list()
+InMemoryPostList::read_position_list()
 {
     mypositions.set_data(pos->positions);
     return &mypositions;
+}
+
+AutoPtr<PositionList>
+InMemoryPostList::open_position_list() const
+{
+    InMemoryPositionList * poslist = new InMemoryPositionList();
+    try {
+	poslist->set_data(pos->positions);
+    } catch (...) { delete poslist; throw; }
+    return AutoPtr<PositionList>(poslist);
 }
 
 om_termcount

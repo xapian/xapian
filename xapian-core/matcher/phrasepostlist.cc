@@ -47,7 +47,7 @@ NearPostList::test_doc()
 
     std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	plists.push_back((*i)->get_position_list());
+	plists.push_back((*i)->read_position_list());
     }
 
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
@@ -98,7 +98,7 @@ PhrasePostList::test_doc()
 
     std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	PositionList *p = (*i)->get_position_list();
+	PositionList *p = (*i)->read_position_list();
 	p->index = i - terms.begin();
 	plists.push_back(p);
     }

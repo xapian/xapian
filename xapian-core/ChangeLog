@@ -1,3 +1,14 @@
+Fri Dec 15 14:59:41 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make OmPositionListIterators retrieved from OmPostListIterators
+	  valid indefinitely (were only valid until OmPostListIterator was
+	  moved).  This makes them consistent with OmPositionListIterators
+	  retrieved from OmDatabases.
+	  
+	* Renamed PostList::get_position_list() to read_position_list.
+	  Added PostList::open_position_list() which opens a new positionlist
+	  and returns it as an AutoPtr.
+
 Fri Dec 15 13:09:51 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make TODO.release file, containing TODO items for next release.

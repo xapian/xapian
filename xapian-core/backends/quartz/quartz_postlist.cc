@@ -378,13 +378,28 @@ QuartzPostList::next_chunk()
 }
 
 PositionList *
-QuartzPostList::get_position_list()
+QuartzPostList::read_position_list()
 {
-    DEBUGCALL(DB, PositionList *, "QuartzPostList::get_position_list", "");
+    DEBUGCALL(DB, PositionList *, "QuartzPostList::read_position_list", "");
 
     positionlist.read_data(positiontable, did, tname);
 
     RETURN(&positionlist);
+}
+
+AutoPtr<PositionList>
+QuartzPostList::open_position_list() const
+{
+    DEBUGCALL(DB, AutoPtr<PositionList>, "QuartzPostList::open_position_list", "");
+
+    QuartzPositionList * poslist = new QuartzPositionList();
+    try {
+	poslist->read_data(positiontable, did, tname);
+    } catch (...) { delete poslist; throw; }
+
+    // FIXME: can't use RETURN() here because autoptr doesn't know how to be
+    // displayed (and mightn't like being copied either).
+    return(AutoPtr<PositionList>(poslist));
 }
 
 PostList *

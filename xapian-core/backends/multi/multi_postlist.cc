@@ -67,9 +67,15 @@ MultiPostList::get_wdf() const
 }
 
 PositionList *
-MultiPostList::get_position_list()
+MultiPostList::read_position_list()
 {
-    return postlists[(currdoc - 1) % multiplier]->get_position_list();
+    return postlists[(currdoc - 1) % multiplier]->read_position_list();
+}
+
+AutoPtr<PositionList>
+MultiPostList::open_position_list() const
+{
+    return postlists[(currdoc - 1) % multiplier]->open_position_list();
 }
 
 PostList *

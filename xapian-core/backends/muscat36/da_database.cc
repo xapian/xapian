@@ -86,9 +86,15 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 }
 
 PositionList *
-DAPostList::get_position_list()
+DAPostList::read_position_list()
 {
-    throw OmUnimplementedError("DAPostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("DAPostList::read_position_list() unimplemented");
+}
+
+AutoPtr<PositionList>
+DAPostList::open_position_list() const
+{
+    throw OmUnimplementedError("DAPostList::open_position_list() unimplemented");
 }
 
 

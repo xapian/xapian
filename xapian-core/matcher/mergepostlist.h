@@ -75,7 +75,8 @@ class MergePostList : public PostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-	virtual PositionList * get_position_list();
+	virtual PositionList * read_position_list();
+	virtual AutoPtr<PositionList> open_position_list() const;
 
         MergePostList(std::vector<PostList *> plists_,
 		      MultiMatch *matcher,
@@ -202,9 +203,15 @@ MergePostList::get_doclength() const
 }
 
 inline PositionList *
-MergePostList::get_position_list()
+MergePostList::read_position_list()
 {
-    throw OmUnimplementedError("MergePostList::get_position_list() unimplemented");
+    throw OmUnimplementedError("MergePostList::read_position_list() unimplemented");
+}
+
+inline AutoPtr<PositionList>
+MergePostList::open_position_list() const
+{
+    throw OmUnimplementedError("MergePostList::open_position_list() unimplemented");
 }
 
 #endif /* OM_HGUARD_MERGEPOSTLIST_H */

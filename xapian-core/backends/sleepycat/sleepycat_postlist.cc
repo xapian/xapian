@@ -80,10 +80,21 @@ SleepycatPostList::get_wdf() const
 }
 
 PositionList *
-SleepycatPostList::get_position_list()
+SleepycatPostList::read_position_list()
 {
     mypositions.set_data(mylist.get_current_item().positions);
     return &mypositions;
+}
+
+AutoPtr<PositionList>
+SleepycatPostList::open_position_list() const
+{
+    SleepycatPositionList * poslist = new SleepycatPositionList();
+    try {
+	poslist->set_data(mylist.get_current_item().positions);
+    } catch (...) { delete poslist; throw; }
+
+    return AutoPtr<PositionList>(poslist);
 }
 
 PostList *

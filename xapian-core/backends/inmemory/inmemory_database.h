@@ -127,7 +127,7 @@ class InMemoryPostList : public LeafPostList {
 	bool started;
 
 	/** List of positions of the current term.
-	 *  This list is populated when get_position_list() is called.
+	 *  This list is populated when read_position_list() is called.
 	 */
 	InMemoryPositionList mypositions;
 
@@ -141,7 +141,8 @@ class InMemoryPostList : public LeafPostList {
 	om_docid       get_docid() const;     // Gets current docid
 	om_doclength   get_doclength() const; // Length of current document
         om_termcount   get_wdf() const;	      // Within Document Frequency
-	PositionList *get_position_list();
+	PositionList *read_position_list();
+	AutoPtr<PositionList> open_position_list() const;
 
 	PostList *next(om_weight w_min); // Moves to next docid
 

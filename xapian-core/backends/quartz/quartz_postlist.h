@@ -194,7 +194,11 @@ class QuartzPostList : public LeafPostList {
 
 	/** Get the list of positions of the term in the current document.
 	 */
-	PositionList *get_position_list();
+	PositionList *read_position_list();
+
+	/** Get the list of positions of the term in the current document.
+	 */
+	AutoPtr<PositionList> open_position_list() const;
 
 	/// Move to the next document.
 	PostList * next(om_weight w_min);
