@@ -24,13 +24,14 @@
 #define OM_HGUARD_TEXTFILE_INDEXER_H
 
 #include "indexer.h"
+#include <memory>
 
 class TextfileIndexerSource : public IndexerSource {
     private:
 	string filename;
     public:
 	TextfileIndexerSource(const string & fname);
-	istream * get_stream() const;
+	auto_ptr<istream> get_stream() const;
 };
 
 class TextfileIndexer : public Indexer {

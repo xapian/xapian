@@ -1,3 +1,7 @@
+Thu Apr 20 13:20:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed some memory leaks.
+
 Thu Apr 20 13:06:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a test for multimatch's document ID merging to apitest

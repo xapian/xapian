@@ -25,6 +25,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
@@ -38,7 +39,7 @@ class IndexerSource {
 	/// Assignment is not permitted
 	void operator=(const IndexerSource &);
     public:
-	virtual istream * get_stream() const = 0;  // Get the stream of data
+	virtual auto_ptr<istream> get_stream() const = 0;  // Get the stream of data
 	IndexerSource() {}
 	virtual ~IndexerSource() {}
 };

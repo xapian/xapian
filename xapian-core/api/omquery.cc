@@ -533,11 +533,29 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 {
     vector<OmQueryInternal *> subqueries;
     vector<om_termname>::const_iterator i;
-    for(i = tbegin; i != tend; i++) {
-	subqueries.push_back(new OmQueryInternal(*i));
+    try {
+	for(i = tbegin; i != tend; i++) {
+	    subqueries.push_back(new OmQueryInternal(*i));
+	}
+	initialise_from_vector(subqueries.begin(), subqueries.end());
+	collapse_subqs();
+    } catch (...) {
+	// this code would be in a finally clause if there were one...
+	// could also go in a destructor.
+	for (vector<OmQueryInternal *>::iterator i=subqueries.begin();
+	     i!= subqueries.end();
+	     ++i) {
+	    delete *i;
+	}
+	throw;
+    };
+    // same code as above.
+    // FIXME: use a destructor instead.
+    for (vector<OmQueryInternal *>::iterator i=subqueries.begin();
+	 i!= subqueries.end();
+	 ++i) {
+	delete *i;
     }
-    initialise_from_vector(subqueries.begin(), subqueries.end());
-    collapse_subqs();
 }
 
 OmQueryInternal::~OmQueryInternal()
