@@ -135,13 +135,6 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	/// Assignment not allowed
 	void operator=(const QuartzDiskTableManager &);
 
-	/** Open all tables at most recent revision.
-	 *
-	 *  @exception OmNeedRecoveryError is thrown if versions are not
-	 *             consistent.
-	 */
-	void open_tables_newest();
-
 	/** Open all tables at most recent consistent revision.
 	 *
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
@@ -181,15 +174,12 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *                    created.  (ie, opened writable for the first
 	 *                    time).
 	 *
-	 *  @exception OmNeedRecoveryError is thrown if versions are not
-	 *             consistent, and perform_recovery is not specified.
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
 	QuartzDiskTableManager(std::string db_dir_,
 			       std::string log_filename_,
 			       bool readonly_,
-			       bool perform_recovery,
 			       unsigned int block_size);
 
 	/** Delete the manager.
@@ -285,7 +275,6 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 */
 	QuartzBufferedTableManager(std::string db_dir_,
 				   std::string log_filename_,
-				   bool perform_recovery,
 				   unsigned int block_size);
 	
 	/** Destroy the manager.  Any anapplied modifications will

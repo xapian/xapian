@@ -54,20 +54,6 @@
 //                 If this is a relative path, it is taken to be relative
 //                 to the quartz_dir directory.
 //
-// quartz_perform_recovery - Boolean.  If true, and the database needs a
-//                 recovery step to be performed, and the database is not
-//                 being opened readonly, a recovery step will be performed
-//                 before opening the database.  If false, and the database
-//                 is not being opened readonly, and a recovery step needs to
-//                 be performed, an OmNeedRecoveryError exception will be
-//                 thrown.  If this is true, partially applied modifications
-//                 will be thrown away silently - a typical usage would be
-//                 to open the database with this false, catch any
-//                 OmNeedRecoveryError exceptions, and give a warning message
-//                 before reopening with this true.  A recovery step does
-//                 not need to be performed before readonly access to the
-//                 database is allowed.
-//
 // quartz_block_size - Integer.  This is the size of the blocks to use in
 //                 the tables, in bytes.  Acceptable values are powers of
 //                 two in the range 2048 to 65536.  The default is 8192.
@@ -80,7 +66,6 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings)
     tables.reset(new QuartzDiskTableManager(get_db_dir(settings),
 					    get_log_filename(settings),
 					    true,
-					    false,
 					    0u));
 }
 
@@ -111,12 +96,6 @@ std::string
 QuartzDatabase::get_log_filename(const OmSettings & settings)
 {
     return settings.get("quartz_logfile", "");
-}
-
-bool
-QuartzDatabase::get_perform_recovery(const OmSettings & settings)
-{
-    return settings.get_bool("quartz_perform_recovery", false);
 }
 
 unsigned int
@@ -342,7 +321,6 @@ QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
 	: buffered_tables(new QuartzBufferedTableManager(
 				QuartzDatabase::get_db_dir(settings),
 				QuartzDatabase::get_log_filename(settings),
-				QuartzDatabase::get_perform_recovery(settings),
 				QuartzDatabase::get_block_size(settings))),
 	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))

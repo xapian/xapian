@@ -40,7 +40,6 @@
 QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 					       std::string log_filename,
 					       bool readonly_,
-					       bool perform_recovery,
 					       unsigned int block_size)
 	: db_dir(db_dir_),
 	  readonly(readonly_),
@@ -68,7 +67,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
     if (readonly) {
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
-    } else if (perform_recovery) {
+    } else {
 	// Get latest consistent version
 	open_tables_consistent();
 
@@ -90,46 +89,12 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	    attribute_table   .apply(new_revision);
 	    record_table      .apply(new_revision);
 	}
-    } else {
-	// Get the most recent versions, failing with an OmNeedRecoveryError
-	// if this is not a consistent version.
-	open_tables_newest();
     }
 }
 
 QuartzDiskTableManager::~QuartzDiskTableManager()
 {
     log->make_entry("Closing database at `" + db_dir + "'.");
-}
-
-void
-QuartzDiskTableManager::open_tables_newest()
-{
-    log->make_entry("Opening tables at newest available revision");
-    record_table.open();
-    attribute_table.open();
-    lexicon_table.open();
-    termlist_table.open();
-    positionlist_table.open();
-    postlist_table.open();
-
-    // Check consistency
-    quartz_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != attribute_table.get_open_revision_number() ||
-	revision != lexicon_table.get_open_revision_number() ||
-	revision != termlist_table.get_open_revision_number() ||
-	revision != positionlist_table.get_open_revision_number() ||
-	revision != postlist_table.get_open_revision_number()) {
-	log->make_entry("Revisions are not consistent: have " + 
-			om_tostring(revision) + ", " +
-			om_tostring(attribute_table.get_open_revision_number()) + ", " +
-			om_tostring(lexicon_table.get_open_revision_number()) + ", " +
-			om_tostring(termlist_table.get_open_revision_number()) + ", " +
-			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
-			om_tostring(postlist_table.get_open_revision_number()) + ".");
-	throw OmNeedRecoveryError("Quartz - tables are not in consistent state.");
-    }
-    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
 void
@@ -320,12 +285,10 @@ QuartzDiskTableManager::reopen()
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 						       std::string log_filename,
-						       bool perform_recovery,
 						       unsigned int block_size)
 	: disktables(db_dir_,
 		     log_filename,
 		     false,
-		     perform_recovery,
 		     block_size),
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
@@ -463,8 +426,8 @@ QuartzBufferedTableManager::apply()
 	    disktables.log->make_entry("Setting revision number failed: " +
 				       e.get_type() + ": " +
 				       e.get_msg() + " " +
-				       e.get_context() + ".  Need recovery.");
-	    throw OmNeedRecoveryError("Quartz - cannot set revision numbers to consistent state.");
+				       e.get_context() + ".");
+	    throw OmDatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state.");
 	}
 	throw;
     }

@@ -1,3 +1,11 @@
+Tue Jan 16 15:15:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove OmNeedRecoveryError, and quartz's quartz_perform_recovery
+	  parameter.  Quartz now always performs recovery if needed: there
+	  is no need for this added complication.
+
+	* Update TODO
+
 Tue Jan 16 14:25:03 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Changed references to SIGCLD to SIGCHLD as it's more portable.

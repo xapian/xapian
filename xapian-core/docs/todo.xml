@@ -109,11 +109,6 @@ Possibly via a special term which indexes all documents.
 Implement deletion and updating of documents.  Test.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="0.9">
-
-Implement and test QuartzDatabase::get_doclength().
-
-</todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="API" release="">
 
 Test that optimisations are not causing wrong results to be returned.  Have a

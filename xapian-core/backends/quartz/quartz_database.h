@@ -105,9 +105,6 @@ class QuartzDatabase : public Database {
 	/// Get the file to use as a logfile.
 	static std::string get_log_filename(const OmSettings & settings);
 
-	/// Get whether recovery should be performed.
-	static bool get_perform_recovery(const OmSettings & settings);
-
 	/// Get the block size to use.
 	static unsigned int get_block_size(const OmSettings & settings);
 

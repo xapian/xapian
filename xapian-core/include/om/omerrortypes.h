@@ -87,16 +87,13 @@ DEFINE_ERROR_CLASS(OmNetworkTimeoutError, OmNetworkError);
 /** thrown if the database is corrupt. */
 DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmDatabaseError);
 
-/** Thrown when a database needs recovery to be performed. */
-DEFINE_ERROR_CLASS(OmNeedRecoveryError, OmDatabaseError);
-
 /** Thrown when opening a database fails. */
 DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
 
 /** Thrown when gaining a lock on a database fails. */
 DEFINE_ERROR_CLASS(OmDatabaseLockError, OmDatabaseError);
 
-/** Thrown when gaining a lock on a database fails. */
+/** Thrown when a database has been modified whilst being read. */
 DEFINE_ERROR_CLASS(OmDatabaseModifiedError, OmDatabaseError);
 
 /** Thrown when trying to access invalid data. */
