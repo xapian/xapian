@@ -435,24 +435,29 @@ system searching across two DA databases and a sleepycat database.
 </P>
 <P>
 This means that, when we are preparing to search, we create an
-OmDatabaseGroup object, and give it a set of parameters to specify
+OmDatabase object, and give it a set of parameters to specify
 databases by successively calling the
-<CODE>OmDatabaseGroup::add_database()</CODE> method.
+<CODE>OmDatabase::add_database()</CODE> method.
 The parameters given to this method are the same as those which would be
 used in the constructor of an <CODE>OmWritableDatabase</CODE> to write
 to the database.
 </P>
-<P>
-Note that we still use an <CODE>OmDatabaseGroup</CODE> even when we are
-going to use only a single database - there is no special case for a single
-database.  This keeps everything nice and consistent.
-</P>
 <PRE>
-    OmDatabaseGroup databases;
+    OmDatabase databases;
     OmSettings db_parameters;
     db_parameters.set("backend", "sleepycat");
     db_parameters.set("sleepycat_dir", argv[1]);
     databases.add_database(db_parameters);
+</PRE>
+<P>
+You can also just pass the parameters to the <CODE>OmDatabase</CODE>
+constructor, which is a handy shortcut if you only want to search one database:
+</P>
+<PRE>
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    OmDatabase db(db_parameters);
 </PRE>
 
 <H3>Starting an enquire session</H3>
