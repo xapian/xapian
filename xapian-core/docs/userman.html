@@ -184,6 +184,17 @@ Note that these parameters <EM>are</EM> case sensitive.
 The current types understood by Omsee are:
 </P>
 <TABLE>
+<TR><TD VALIGN="top"><B>quartz</B></TD><TD>
+<P>
+This is the main database type, which should be used in almost all cases.
+The format allows progressive modifications, single-writer multiple-reader
+access to the database, and highly efficient and scalable access to data.
+</P>
+<P>
+This takes several parameters.
+<!-- FIXME: document the parameters. -->
+</P>
+</TD></TR>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
 <P>
 This is a proprietory, legacy format, holding a database in a
@@ -240,17 +251,11 @@ It takes the same parameters as db_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is a database held entirely in memory.
-It is really designed to be used as a cache while building databases
-(ie, build up your records into one of these, and periodically
-flush into the main database).
+It is really intended to be used for testing purposes only, but may
+occassionally prove useful for building up temporary small databases.
 <BR>
-However, for the moment a simple indexing routine is grafted
-onto it, which indexes a file of text into records (roughly on a
-paragraph by paragraph basis).
-<BR>
-It will eventually take no parameters at all, but for now takes an
-arbitrary number of filenames: each one will be opened and indexed into the
-database when the database is first used.
+It takes no parameters at all, except for some undocumented parameters
+which cause special effects for testing.
 </TD></TR>
 </TABLE>
 
