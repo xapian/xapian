@@ -1,11 +1,11 @@
 #include <stdio.h>
 
 #include "proto_database.h"
-#include "match.h"
+//#include "match.h"
 
 int main(int argc, char *argv[]) {
     ProtoDatabase database;
-    ProtoPostListIterator * postlist;
+    PostListIterator * postlist;
 
     try {
 	database.open("testdir", 0);
