@@ -1,3 +1,8 @@
+Thu Mar  9 16:00:18 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Don't use -O6 when debugging is turned on.  Debug compiles
+	  are much faster now.
+
 Thu Mar  9 15:46:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stemtest.pl now cleans up after itself a bit better.

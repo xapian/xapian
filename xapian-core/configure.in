@@ -198,19 +198,25 @@ AC_TRY_COMPILE(,[return 0],
 unset SAVED_CXXFLAGS
 AC_LANG_RESTORE
 
+if test "$use_debug" = yes; then
+  OPT_LEVEL=""
+else
+  OPT_LEVEL="-O6"
+fi
+
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused " | sed 's/-O[0-9]*/-O6/'`
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused " | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CFLAGS" in
-    *-O6*) ;;
-    *) CFLAGS="$CFLAGS -O6"
+    *${OPT_LEVEL}*) ;;
+    *) CFLAGS="$CFLAGS $OPT_LEVEL"
   esac
 
-  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CXXFLAGS" in
     *-O6*) ;;
-    *) CXXFLAGS="$CXXFLAGS -O6"
+    *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
   esac
   changequote([, ])
 fi
