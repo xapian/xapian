@@ -24,8 +24,6 @@
 #define OM_HGUARD_QUARTZ_DATABASE_H
 
 #include "config.h"
-#ifdef MUS_BUILD_BACKEND_QUARTZ
-
 #include "database.h"
 
 class QuartzDbManager;
@@ -106,7 +104,5 @@ class QuartzDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 };
-
-#endif /* MUS_BUILD_BACKEND_QUARTZ */
 
 #endif /* OM_HGUARD_QUARTZ_DATABASE_H */

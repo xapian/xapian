@@ -24,10 +24,16 @@
 #define OM_HGUARD_QUARTZ_TYPES_H
 
 #include "config.h"
-#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 typedef unsigned int quartz_blocksize_t;
 
-#endif /* MUS_BUILD_BACKEND_QUARTZ */
+/** A type used to store a revision number for a database.
+ *
+ *  FIXME: ensure that this is of a suitable minimum size - 32 bits is
+ *  satisfactory in most cases, but in extreme cases could cause the revision
+ *  number to roll over after a few years.  It would be better to use 64 bits
+ *  (and / or to ensure that rolling over causes no problem).
+ */
+typedef long int quartz_revision_number_t;
 
 #endif /* OM_HGUARD_QUARTZ_TYPES_H */

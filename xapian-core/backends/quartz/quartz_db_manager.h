@@ -24,8 +24,6 @@
 #define OM_HGUARD_QUARTZ_DB_MANAGER_H
 
 #include "config.h"
-#ifdef MUS_BUILD_BACKEND_QUARTZ
-
 #include <om/omsettings.h>
 
 /** Class managing the databases used by Quartz.
@@ -55,7 +53,5 @@ class QuartzDbManager {
 	 */
 	~QuartzDbManager();
 };
-
-#endif /* MUS_BUILD_BACKEND_QUARTZ */
 
 #endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */

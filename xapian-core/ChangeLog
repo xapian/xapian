@@ -1,3 +1,10 @@
+Tue Sep 12 16:36:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed final bits of Berkeley DB from Quartz, and conditional
+	  compile around header files (which was for includetest's benefit).
+
+	* Added yet more classes to Quartz.  Still doesn't do anything.
+
 Tue Sep 12 16:32:30 BST 2000 Olly Betts
 
 	* Added reference counting to an instantiation of SleepycatTermList
