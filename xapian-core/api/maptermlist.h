@@ -78,7 +78,8 @@ class MapTermList : public TermList {
 	Xapian::doccount get_termfreq() const {
 	    Assert(started);
 	    Assert(!at_end());
-	    return it->second.termfreq;
+	    Assert(false);
+	    return 0;
 	}
 
 	Xapian::PositionIterator positionlist_begin() const {

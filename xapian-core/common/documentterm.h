@@ -39,7 +39,7 @@ class OmDocumentTerm {
      *  @param wdf_   Initial wdf.
      */
     OmDocumentTerm(const string & tname_, Xapian::termcount wdf_)
-	: tname(tname_), wdf(wdf_), termfreq(0)
+	: tname(tname_), wdf(wdf_)
     {
 	DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm",
 		     tname_ << ", " << wdf_);
@@ -70,14 +70,6 @@ class OmDocumentTerm {
      *  entry in the position list for each position.
      */
     term_positions positions;
-
-    /** Term frequency information.
-     *
-     *  This is the number of documents indexed by the term.
-     *
-     *  If the information is not available, the value will be 0.
-     */
-    Xapian::doccount termfreq;
 
     /** Add a position to the posting list.
      *

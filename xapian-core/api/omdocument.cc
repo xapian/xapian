@@ -251,7 +251,6 @@ OmDocumentTerm::get_description() const
 
     description = "OmDocumentTerm(" + tname +
 	    ", wdf = " + om_tostring(wdf) +
-	    ", termfreq = " + om_tostring(termfreq) +
 	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
     RETURN(description);
