@@ -206,4 +206,8 @@ AC_OUTPUT(
  m4/Makefile
  libomus-config
  docs/mkdoc.pl
+ tests/stemtest.pl
 )
+
+AC_OUTPUT_COMMANDS([chmod +x tests/stemtest.pl], [])
+

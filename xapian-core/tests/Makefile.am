@@ -15,7 +15,13 @@ noinst_PROGRAMS = matchtest stemtest
 
 check_PROGRAMS  = apitest
 
-TESTS = apitest
+if HAVE_PERL
+PERLTESTS = stemtest.pl
+else
+PERLTESTS = 
+endif
+
+TESTS = apitest $(PERLTESTS)
 
 ## Sources:
 
