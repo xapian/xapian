@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
         if ( cvsdata[cvsdata.length()-1] == '/' ) {
             cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
         }
+	cvsdata = cvsdata + "/database/";
         cerr << "$CVSDATA = " << cvsdata << endl;
     }
 
@@ -67,25 +68,26 @@ int main(int argc, char *argv[]) {
         assert( package != "." ); // safety checks
         assert( package != ".." );
 
-        cerr << "... removing directory " << (cvsdata+"/"+package) << " (if it already exists)" << endl;
-        system( ("rm -rf " + cvsdata +"/" + package).c_str() );
+        cerr << "... removing directory " << (cvsdata + package) << " (if it already exists)" << endl;
+        system( ("rm -rf " + cvsdata + package).c_str() );
 
-        string file_cmt = cvsdata+"/"+package + ".cmt";
-        string file_offset = cvsdata+"/"+package +".offset";
+        string file_cmt = cvsdata+ package + ".cmt";
+        string file_offset = cvsdata + package +".offset";
 
-
+        system (("mv " + cvsdata + package + ".db* " + cvsdata + package).c_str());
+        
         try {
 
 
  
             // create database directory
-            system(("mkdir " + cvsdata +"/"+ package).c_str());
+            system(("mkdir " + cvsdata + package).c_str());
 
             // code which accesses Omsee
 
             OmSettings db_parameters;
             db_parameters.set("backend", "quartz");
-            db_parameters.set("quartz_dir", cvsdata+"/"+package);
+            db_parameters.set("quartz_dir", cvsdata+package);
             OmWritableDatabase database(db_parameters); // open database 
 
             database.begin_session();

@@ -54,19 +54,19 @@ unlink $time_file;
 unlink $list_file;
 
 open(TIME, ">$time_file");
-    
+
 foreach (@modules) {
     $app_path = $_;
     $app_name = $app_path;
     $app_name =~ tr/\//\_/;
-    $app_name = "$CVSDATA/$app_name";
+    $app_name = "$CVSDATA/database/$app_name";
 
     if ($app_path ne "" ) {
-        system ("cvs checkout -d $CVSDATA -N $app_path 2>/dev/null");
+        system ("cvs checkout -d $CVSDATA/src -N $app_path 2>/dev/null");
         $found_files = 0;
         open(LIST, ">$list_file") || die "cannot create temporary file list\n";
         for ($i = 0; $i <= $#file_types; ++$i) {
-            open(FIND_RESULT, "find $CVSDATA/$app_path -name \"*.$file_types[$i]\"|");
+            open(FIND_RESULT, "find $CVSDATA/src/$app_path -name \"*.$file_types[$i]\"|");
             while (<FIND_RESULT>) {
                 $found_files = 1;
                 print LIST $_;
@@ -80,12 +80,11 @@ foreach (@modules) {
             print TIME "Started  @ ", `date`;
             $start_date = time;
             system ("rm -rf $app_name.db*");
-            system ("cvsmap -i $list_file -db $app_name.db -f1 $app_name.cmt -f2 $app_name.offset");
+            system ("cvsmap -i $list_file -st $app_name.st -db $app_name.db -f1 $app_name.cmt -f2 $app_name.offset");
             print TIME "Finished @ ", `date`;
             $delta_time += time - $start_date;
             print TIME "\n";
         }
-        system ("rm -rf $CVSDATA/$app_path");
     }
 }
 print TIME "Operation Time: $delta_time Seconds \n";
@@ -98,12 +97,12 @@ cvsbuild 0.1 (2001-2-22)
 Usage $0 [Options]
         
 Options:
-    -t file_types   specify file types of interest. e.g. -t html java
+    -t "file_types" specify file types of interest. e.g. -t "html java"
                     will only do the line mapping for files with extension
                     .html and .java; default types include: c cc cpp C h.
-    modules       a list of modules to built, e.g. koffice/kword  kdebase/konqueror
-    -f app.list   a file containing a list of modules
-    -h            print out this message
+    modules         a list of modules to built, e.g. koffice/kword  kdebase/konqueror
+    -f app.list     a file containing a list of modules
+    -h              print out this message
 EOF
 exit 0;
 }

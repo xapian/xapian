@@ -70,6 +70,8 @@ system ("cvsmap-script @ARGV");
 # ------------------------------------------------------------
 # call cvsindex will all the outputs there
 # ------------------------------------------------------------
+system ("mkdir $CVSDATA/database");
+
 foreach (@modules) {
     $_ =~ tr/\//\_/;    
     system ("cvsindex $_.cmt");
