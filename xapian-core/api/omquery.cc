@@ -196,8 +196,11 @@ OmQueryInternal::serialise() const
 
     string result;
 
+    if (isbool) {
+	result = "%B";
+    }
     if (op == OM_MOP_LEAF) {
-	result = "%T" + encode_tname(tname) +
+	result += "%T" + encode_tname(tname) +
 		"," + inttostring(wqf) +
 		"," + inttostring(term_pos);
     } else {

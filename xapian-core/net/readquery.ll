@@ -29,6 +29,8 @@ TERM		%T{TCHAR}*,{DIGIT}*,{DIGIT}*
 
 NULL_QUERY	%N
 
+BOOL_FLAG	%B
+
 OP_BRA		%\(
 OP_KET		%\)
 %%
@@ -121,6 +123,11 @@ OP_KET		%\)
 
 {NULL_QUERY}	{
 		    qt.type = querytok::NULL_QUERY;
+		    return qt;
+		}
+
+{BOOL_FLAG}	{
+		    qt.type = querytok::BOOL_FLAG;
 		    return qt;
 		}
 

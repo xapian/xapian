@@ -177,6 +177,13 @@ OmQueryInternal qfs_readquery()
 	case querytok::OP_BRA:
 	    return qfs_readcompound();
 	    break;
+	case querytok::BOOL_FLAG:
+	    {
+		OmQueryInternal temp(qfs_readquery());
+		temp.set_bool(true);
+		return temp;
+	    }
+	    break;
 	default:
 	    cout << "Got type " << int(qt.type) << endl;
 	    Assert(false);
@@ -200,6 +207,13 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::NULL_QUERY:
 		subqs.push_back(OmQueryInternal());
+		break;
+	    case querytok::BOOL_FLAG:
+		{
+		    OmQueryInternal temp(qfs_readquery());
+		    temp.set_bool(true);
+		    subqs.push_back(temp);
+		}
 		break;
 	    case querytok::TERM:
 		subqs.push_back(OmQueryInternal(qt.tname,
