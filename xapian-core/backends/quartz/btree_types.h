@@ -48,7 +48,7 @@ class Cursor {
 	/// block number
 	uint4 n;
 	/// true if the block is not the same as on disk, and so needs rewriting
-	int rewrite;
+	bool rewrite;
 };
 
 /* n is kept in tandem with p.  The unassigned state is when member p == 0 and
