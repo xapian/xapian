@@ -263,7 +263,7 @@ OmESet::get_description() const
 ///////////////////////////////////
 
 OmEnquireInternal::OmEnquireInternal(const OmDatabase &databases)
-  : database(OmDatabase::InternalInterface::get_irdatabase(databases)),
+  : database(OmDatabase::InternalInterface::get_multi_database(databases)),
     query(0)
 {
 }
