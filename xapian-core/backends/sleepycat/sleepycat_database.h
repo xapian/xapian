@@ -68,13 +68,15 @@ class SleepyDatabase : public IRDatabase {
 	 *  @param positions  A list of positions at which the term occurs.
 	 *                    This list must be strictly increasing (ie, no
 	 *                    duplicates).
+	 *  @param doclength  The length of the document (ie, sum of wdfs).
 	 *
 	 *  @return The new size of the postlist - ie, the new termfrequency.
 	 */
 	om_doccount add_entry_to_postlist(om_termid tid,
 					  om_docid did,
 					  om_termcount wdf,
-					  const vector<om_termpos> & positions);
+					  const vector<om_termpos> & positions,
+					  om_doclength doclength);
 
 	/** Make a new document, and return the new document ID.
 	 *

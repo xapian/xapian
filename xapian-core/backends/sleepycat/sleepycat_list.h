@@ -43,13 +43,6 @@ class SleepyListItem {
 	 */
 	id_type id;
 
-	/** Term frequency of this item.
-	 *
-	 *  The term frequency is the number of documents which contain the
-	 *  term.
-	 */
-	om_doccount termfreq;
-
 	/** The WDF of this item.
 	 *
 	 *  The WDF of a term in a given document is the number of
@@ -81,21 +74,38 @@ class SleepyListItem {
 	 */
 	vector<om_termpos> positions;
 
+	/** Term frequency of this item.
+	 *
+	 *  The term frequency is the number of documents which contain the
+	 *  term.  If this information is not present, the value is 0.
+	 */
+	om_doccount termfreq;
+
+	/** The length of this document.
+	 *
+	 *  This is the sum of the wdfs of the terms in the document.  If
+	 *  this information is not present, the value is 0.
+	 */
+	om_doclength doclength;
+
 	/** Create a new SleepyListItem, based on given values.
 	 *
 	 *  @param id_        The ID for the entry.
-	 *  @param termfreq_  The term frequency (number of documents
-	 *                    containing the term).
 	 *  @param wdf_       The WDF for the entry (number of occurrences
 	 *                    in the given document).
 	 *  @param positions_ A list of positions at which the term
 	 *                    occurs.  This list must be strictly
 	 *                    increasing (ie, no duplicates).
+	 *  @param termfreq_  The term frequency (number of documents
+	 *                    containing the term).
+	 *  @param doclength_ The length of this document (which is the
+	 *                    sum of the wdfs of the terms in the document).
 	 */
 	SleepyListItem(id_type id_,
-		       om_doccount termfreq_,
 		       om_termcount wdf_,
-		       const vector<om_termpos> & positions_);
+		       const vector<om_termpos> & positions_,
+		       om_doccount termfreq_,
+		       om_doclength doclength_);
 
 	/** Create a new SleepyListItem, based on a packed version.
 	 *

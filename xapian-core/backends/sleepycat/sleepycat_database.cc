@@ -180,7 +180,8 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
 	newtermfreq = add_entry_to_postlist(term->first,
 					    did,
 					    term->second.wdf,
-					    term->second.positions);
+					    term->second.positions,
+					    doclength);
 	term->second.termfreq = newtermfreq;
     }
 
@@ -206,7 +207,8 @@ om_doccount
 SleepyDatabase::add_entry_to_postlist(om_termid tid,
 				      om_docid did,
 				      om_termcount wdf,
-				      const vector<om_termpos> & positions)
+				      const vector<om_termpos> & positions,
+				      om_doclength doclength)
 {
 // FIXME: suggest refactoring most of this method into a constructor of
 // SleepyPostList, followed by adding an item to the postlist
@@ -214,8 +216,8 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 		      reinterpret_cast<void *>(&tid),
 		      sizeof(tid));
 
-    // Term frequency isn't used for postlists: give 0
-    SleepyListItem myitem(did, 0, wdf, positions);
+    // Term frequency isn't used for postlists: give 0.
+    SleepyListItem myitem(did, wdf, positions, 0, doclength);
     mylist.add_item(myitem);
 
     return mylist.get_item_count();
@@ -243,10 +245,12 @@ SleepyDatabase::make_new_termlist(om_docid did,
 
     map<om_termid, OmDocumentTerm>::const_iterator term;
     for(term = terms.begin(); term != terms.end(); term++) {
+	// Document length is not used in termlists: use 0.
 	SleepyListItem myitem(term->first,
-			      term->second.termfreq,
 			      term->second.wdf,
-			      term->second.positions);
+			      term->second.positions,
+			      term->second.termfreq,
+			      0);
 	mylist.add_item(myitem);
     }
 }

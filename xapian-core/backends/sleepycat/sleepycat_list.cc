@@ -43,14 +43,16 @@
 
 /// A type which can hold any entry.  FIXME: specialise this.
 typedef SleepyListItem::id_type entry_type;
+/// A type which can hold a document length.  FIXME: make this portable.
+typedef om_doclength len_type;
 
-/** Read an id_type from the specified position in the string,
+/** Read an type X from the specified position in the string,
  *  and update the position.
  *
  *  @exception OmDatabaseError thrown if string is not long enough.
  *
- *  @param packed  The string to read the id_type from.
- *  @param pos     The offset to start reading the id_type at.
+ *  @param packed  The string to read the type X from.
+ *  @param pos     The offset to start reading the type X at.
  */
 template<class X>
 static const X readentry(const string &packed, string::size_type & pos)
@@ -69,13 +71,15 @@ static const X readentry(const string &packed, string::size_type & pos)
 
 
 SleepyListItem::SleepyListItem(id_type id_,
-			       om_doccount termfreq_,
 			       om_termcount wdf_,
-			       const vector<om_termpos> & positions_)
+			       const vector<om_termpos> & positions_,
+			       om_doccount termfreq_,
+			       om_doclength doclength_)
 	: id(id_),
-	  termfreq(termfreq_),
 	  wdf(wdf_),
-	  positions(positions_)
+	  positions(positions_),
+	  termfreq(termfreq_),
+	  doclength(doclength_)
 {
 }
 
@@ -84,8 +88,9 @@ SleepyListItem::SleepyListItem(string packed)
     string::size_type pos = 0;
 
     id = readentry<id_type>(packed, pos);
-    termfreq = readentry<entry_type>(packed, pos);
     wdf = readentry<entry_type>(packed, pos);
+    termfreq = readentry<entry_type>(packed, pos);
+    doclength = readentry<len_type>(packed, pos);
 
     vector<om_termpos>::size_type positions_size;
     positions_size = readentry<entry_type>(packed, pos);
@@ -102,15 +107,19 @@ SleepyListItem::pack() const
     string packed;
     id_type idtemp;
     entry_type entrytemp;
+    len_type lentemp;
 
     idtemp = id;
-    packed.append(reinterpret_cast<char *>(&idtemp), sizeof(id_type));
-
-    entrytemp = termfreq;
-    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+    packed.append(reinterpret_cast<char *>(&idtemp), sizeof(idtemp));
 
     entrytemp = wdf;
-    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
+    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entrytemp));
+
+    entrytemp = termfreq;
+    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entrytemp));
+
+    lentemp = doclength;
+    packed.append(reinterpret_cast<char *>(&lentemp), sizeof(lentemp));
 
     entrytemp = positions.size();
     packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entry_type));
