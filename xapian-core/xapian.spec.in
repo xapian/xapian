@@ -57,7 +57,7 @@ make
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cd %{name}-%{version}
-# %makeinstall doesn't work properly with libtool built libraries
+# makeinstall doesn't work properly with libtool built libraries
 make DESTDIR=%{buildroot} install
 # Move the docs to the right place
 mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-devel-%{version}
