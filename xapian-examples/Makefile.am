@@ -13,7 +13,8 @@ noinst_HEADERS = getopt.h
 msearch_SOURCES = msearch.cc getopt.c getopt1.c
 msearch_LDADD = $(XAPIAN_LIBS)
 
-delve_SOURCES = delve.cc getopt.c getopt1.c
+# delve doesn't use getopt_long so doesn't need getopt1.c
+delve_SOURCES = delve.cc getopt.c
 delve_LDADD = $(XAPIAN_LIBS)
 
 copydatabase_SOURCES = copydatabase.cc
