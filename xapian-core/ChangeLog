@@ -1,3 +1,7 @@
+Fri Nov 17 16:43:50 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.4.0
+
 Fri Nov 17 16:26:52 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Annihilated a small memory leak.
