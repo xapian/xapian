@@ -1,3 +1,7 @@
+Thu Feb 24 14:36:45 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added locking to OmStem
+
 Thu Feb 24 14:18:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Cleaned up the public/private separation in OmEnquire{Internal}

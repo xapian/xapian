@@ -23,8 +23,9 @@
 #include <string>
 
 #include "stemmer.h"
-#include "om/omstem.h"
+#include <om/omstem.h>
 #include "utils.h"
+#include "omlocks.h"
 
 #include "dutch/stemmer_dutch.h"
 #include "english/stemmer_english.h"
@@ -67,6 +68,8 @@ class OmStemInternal {
 	 */
 	stemmer_language get_stemtype(string language);
     public:
+	OmLock mutex;
+
     	/** Initialise the state based on the specified language
 	 */
     	OmStemInternal(string language);
@@ -152,5 +155,6 @@ OmStem::~OmStem()
 
 string
 OmStem::stem_word(string word) const {
+    OmLockSentry locksentry(internal->mutex);
     return internal->stem_word(word);
 }
