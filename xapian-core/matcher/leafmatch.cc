@@ -465,11 +465,11 @@ void
 LeafMatch::prepare_match()
 {
     if(!is_prepared) {
-	DebugMsg("LeafMatch::prepare_match() - Building query tree" << cout);
+	DebugMsg("LeafMatch::prepare_match() - Building query tree" << endl);
 	build_query_tree();
 	Assert(query != 0);
 
-	DebugMsg("LeafMatch::prepare_match() - Giving my stats to gatherer" << cout);
+	DebugMsg("LeafMatch::prepare_match() - Giving my stats to gatherer" << endl);
 	statsleaf.contrib_my_stats();
 
 	is_prepared = true;
