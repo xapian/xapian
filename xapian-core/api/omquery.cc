@@ -580,11 +580,13 @@ struct Collapse_PosNameLess {
 
 void OmQueryInternal::collapse_subqs()
 {
-    // For the moment, anyway, the operation must be OR or AND.
-    if ((op == OM_MOP_OR) || (op == OM_MOP_AND)) {
+    // We must have more than one query item for collapsing to make sense
+    // For the moment, we only collapse ORs and ANDs.
+    if ((subqs.size() > 1) && ((op == OM_MOP_OR) || (op == OM_MOP_AND))) {
 	typedef map<pair<om_termpos, om_termname>,
 	            OmQueryInternal *,
 		    Collapse_PosNameLess> subqtable;
+
 	subqtable sqtab;
 	subquery_list::iterator sq = subqs.begin();
 	while (sq != subqs.end()) {
@@ -608,11 +610,10 @@ void OmQueryInternal::collapse_subqs()
 	    }
 	}
 
-	// a lone subquery should never disappear...
+	// We should never lose all the subqueries
 	Assert(subqs.size() > 0);
 
-	// ...however, we might end up with just one, which
-	// we gobble up.
+	// If we have only one subquery, move it into ourself
 	if (subqs.size() == 1) {
 	    OmQueryInternal *only_child = *subqs.begin();
 	    subqs.clear();

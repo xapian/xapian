@@ -101,6 +101,8 @@ bool test_repeatquery1();
 bool test_absentterm1();
 // as absentterm1, but setting query from a vector of terms
 bool test_absentterm2();
+// test behaviour when creating a query from an empty vector
+bool test_emptyquerypart1();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -138,6 +140,7 @@ test_desc tests[] = {
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
     {"absentterm2",	   test_absentterm2},
+    {"emptyquerypart1",    test_emptyquerypart1},
     {0, 0}
 };
 
@@ -1499,4 +1502,12 @@ bool test_absentterm2()
     }
 
     return success;
+}
+
+bool test_emptyquerypart1()
+{
+    vector<om_termname> emptyterms;
+    OmQuery query(OM_MOP_OR, emptyterms.begin(), emptyterms.end());
+
+    return true;
 }

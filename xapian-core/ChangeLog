@@ -1,3 +1,9 @@
+Tue Mar 28 14:07:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix for a bug with setting query from vector.
+
+	* Added test case for the bug.
+
 Tue Mar 28 11:17:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Now builds query tree when prepare_match() is called, so correct
