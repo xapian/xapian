@@ -42,7 +42,7 @@ RSet::calculate_stats()
 	tl->next();
 	while(!(tl->at_end())) {
 	    // FIXME - can this lookup be done faster?
-	    // Store termnamess in a hash for each document, rather than
+	    // Store termnames in a hash for each document, rather than
 	    // a list?
 	    om_termname tname = tl->get_termname();
 	    DebugMsg(tname << ", ");

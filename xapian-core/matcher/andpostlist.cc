@@ -40,6 +40,7 @@ AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    // FIXME: CSE these w_min values?
+	    // But note that lmax and rmax may change on recalc_maxweight...
 	    handle_prune(l, l->skip_to(rhead, w_min - rmax));
 	    if (l->at_end()) {
 		head = 0;

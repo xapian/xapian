@@ -359,8 +359,8 @@ LocalMatch::postlist_from_queries(om_queryop op,
 		DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
 			 postlists.size() << "." << endl);
 		if (postlists.size() > max_or_terms) {
-		    // FIXME: this doesn't work correctly for non-LeafPostList-s
-		    // since get_maxweight() isn't valid before next() or skip_to()
+		    // Call recalc_maxweight() as otherwise get_maxweight()
+		    // may not be valid before next() or skip_to()
 		    vector<PostList *>::iterator j;
 		    for (j = postlists.begin(); j != postlists.end(); j++)
 			(*j)->recalc_maxweight();
