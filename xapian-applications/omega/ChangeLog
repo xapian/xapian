@@ -1,3 +1,7 @@
+Thu Dec 20 14:46:33 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Document xDB, xDAYSMINUS, xDATE1, xDATE2, xB.
+
 Thu Dec 20 12:55:29 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Use double quotes on parameters to <BODY>.

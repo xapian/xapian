@@ -14,7 +14,12 @@ Main query parameters
 DB
 	database name (give multiple values to search over several
 	databases) each DB value may be a list of database names
-	separated by "/"
+	separated by "/".
+
+xDB
+	database(s) used for last query (separated by / if appropriate).
+	If the database(s) used change then relevance judgements are
+	discarded and the first page of matches is shown.
 
 DEFAULTOP
 	default operator - values recognised "AND", "and", "OR", "or".
@@ -23,7 +28,7 @@ DEFAULTOP
 P
 	probabilistic query (may occur multiple times).
 
-OLDP
+xP
 	terms from previous probabilistic query - used to decide if
 	this is a fresh query (in which case relevance judgements are
 	discarded and the first page of matches is shown), an extended query
@@ -39,7 +44,7 @@ X
 	topterms to add to query.
 
 R
-	relevant document (multiple values separated by ".")
+	relevant document(s) (multiple values separated by ".")
 
 MORELIKE
 	value is a document id to return similar pages to.
@@ -60,6 +65,14 @@ DATE1
 
 DATE2
 	end of date range if DAYSMINUS not set (defaults to now)
+
+xDAYSMINUS, xDATE1, xDATE2
+	values of DAYSMINUS/DATE1/DATE2 from previous search - used to detect
+	when a filter has changed so we can show the first page of matches.
+
+xB
+	similarly for B - NB the code currently doesn't cope with tracking
+	multiple values of B.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
