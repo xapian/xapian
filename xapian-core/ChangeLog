@@ -1,3 +1,7 @@
+Thu Jun 19 14:40:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparsertest.cc: Added test for control characters.
+
 Thu Jun 19 14:31:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparsertest.cc: Added checks for weird whitespace in

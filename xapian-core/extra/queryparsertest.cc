@@ -69,6 +69,7 @@ static test tests[] = {
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "hard\xa0space", "(hard:(pos=1) OR space:(pos=2))" },
     { " white\r\nspace\ttest ", "(white:(pos=1) OR space:(pos=2) OR test:(pos=3))" },
+    { "!!!MAGIC!!!", "(weird:(pos=1) OR stuff:(pos=2))" }, // !!!MAGIC!!! replaced below
     // These are currently parse errors, but many shouldn't be:
     { "behuizing 19\" inch", NULL },
     { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
@@ -426,10 +427,9 @@ static test tests[] = {
     { "document.write(ssg(\" html", NULL },
     { "superstack \"mac+adressen\"", NULL },
     { "IIS getenv(REMOTE_HOST)_", NULL },
-    { "IIS en getenv(REMOTE_HOST)_", NULL },
     { "IIS en getenv(REMOTE_HOST)", NULL },
-    { "nec+-1300", NULL },
     { "php getenv(\"HTTP_REFERER\")", NULL },
+    { "nec+-1300", NULL },
     { "smbpasswd script \"-s\"", NULL },
     { "leestekens \" Ö ë", NULL },
     { "freesco and (all seeing eye)", NULL },
@@ -446,7 +446,7 @@ static test tests[] = {
     { "voeding passief gekoeld\"", NULL },
     { "if (mysql_num_rows($resultaat)==1)", NULL },
     { "Server.CreateObject(\"Persits.Upload.1\")", NULL },
-    { "f(cod>9999999)cod=parseInt(cod/64)", NULL },
+    { "if(cod>9999999)cod=parseInt(cod/64)", NULL },
     { "if (cod>9999999", NULL },
     { "\"rm -rf /bin/laden\"", NULL },
     { "\">>> 0) & 0xFF\"", NULL },
@@ -494,7 +494,10 @@ main(void)
 	else
 	    expect = "parse error";
 	try {
-	    parsed = qp.parse_query(p->query).get_description();
+	    string query(p->query);
+	    // Need special handling to get a zero byte in here (yuck)
+	    if (query == "!!!MAGIC!!!") query = string("\x01weird\x00stuff\x7f", 13);
+	    parsed = qp.parse_query(query).get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
