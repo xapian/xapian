@@ -1,13 +1,17 @@
-Fri May 17 14:09:25 BST 2002  Olly Betts <ollybe@ananova.net>
+Wed Jun 12 23:39:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* omindex.cc: removed OLD_PREFIXES code - shout if you were using it.
+
+Fri May 17 14:09:25 BST 2002  Olly Betts <olly@survex.com>
 
 	* Pass the database to the query parser (not used there at present,
 	  but will allow wildcarded searches, etc to be implemented).
 
-Thu May 16 17:57:34 BST 2002  Olly Betts <ollybe@ananova.net>
+Thu May 16 17:57:34 BST 2002  Olly Betts <olly@survex.com>
 
 	* <algo.h> -> <algorithm>.
 
-Thu May 16 15:41:14 BST 2002  Sam Liddicott <saml@ananova.net>
+Thu May 16 15:41:14 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Removed extra package again!
 
@@ -15,7 +19,7 @@ Thu May 16 15:41:14 BST 2002  Sam Liddicott <saml@ananova.net>
 	  better.  Should be the most harmless solution that still works
 	  without requireing too much brains on the part of the installer
 
-Thu May 16 14:53:54 BST 2002  Sam Liddicott <saml@ananova.net>
+Thu May 16 14:53:54 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Moved images to a seperate optional package to stop touching 
 	  user's web tree until we work out what to do.  sysadmin can
@@ -23,7 +27,7 @@ Thu May 16 14:53:54 BST 2002  Sam Liddicott <saml@ananova.net>
 	  end up in the right place. This will no doubt get revisted later,
 	  that's fine by me.
 
-Thu May 16 13:31:27 BST 2002  Sam Liddicott <saml@ananova.net>
+Thu May 16 13:31:27 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Added loads more missing files like images and templates to the
 	  package
@@ -31,7 +35,7 @@ Thu May 16 13:31:27 BST 2002  Sam Liddicott <saml@ananova.net>
 	* Also fixed the templates to use the new images dir (if they used
 	  images, which they actually don't)
 
-Thu May 16 12:56:55 BST 2002  Sam Liddicott <saml@ananova.net>
+Thu May 16 12:56:55 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Fixes to spec file to add various missing files
 

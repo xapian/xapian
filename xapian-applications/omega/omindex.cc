@@ -22,11 +22,6 @@
  * -----END-LICENCE-----
  */
 
-// Uncomment this if you rely on the M prefix on the mimetype or the S prefix on the
-// "subsite" - these are now a T prefix on the mimetype and a H prefix for host/P prefix
-// for path
-//#define OLD_PREFIXES
-
 #include <algorithm>
 #include <string>
 #include <map>
@@ -350,10 +345,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
-#ifdef OLD_PREFIXES
-    newdocument.add_term_nopos("M" + mimetype); // Mimetype
-    newdocument.add_term_nopos("S" + baseurl); // Subsite
-#else
     newdocument.add_term_nopos("T" + mimetype); // mimeType
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
@@ -377,7 +368,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term_nopos("M" + string(buf)); // Month (YYYYMM)
     buf[4] = '\0';
     newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
-#endif
     newdocument.add_term_nopos("U" + baseurl + url); // Url
 
     if (dupes==DUPE_replace && db->term_exists("U" + baseurl + url)) {
