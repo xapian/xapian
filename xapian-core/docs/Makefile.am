@@ -11,13 +11,14 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
 EXTRA_DIST = mkdoc.pl.in todo2html.pl.in \
         doxygen_api_conf.in doxygen_full_conf.in \
         $(HTMLFILES) \
-        MatcherDesign Notes stemming.txt \
+        MatcherDesign Notes \
 	docxx.sty \
 	doxygen_api_header.html_tmpl \
 	doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl \
 	doxygen_full_footer.html_tmpl \
-	distributed.txt
+	distributed.txt \
+	coding_policy.txt
 
 # Things to do if have perl installed
 if HAVE_PERL
