@@ -126,7 +126,6 @@ class OMMatch
 		   doccount *);            // Mbound will returned here
 
 	// Do a boolean only match
-	// FIXME: implement
 	void boolmatch(doccount first,     // First item to return (start at 0)
 		       doccount maxitems,  // Maximum number of items to return
 		       vector<OMMSetItem> &); // Results

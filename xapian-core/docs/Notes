@@ -11,14 +11,27 @@ in the inmemory databse.
 
 Table for result of operations when one of the operands is null:
 
-            | a,b                    | a,0 | 0,b | 0,0 |
- -----------+------------------------+-----+-----+-----+
-  OR        | a or b                 |  a  |  b  |  0  | 
-  AND       | a and b                |  a  |  b  |  0  |
-  FILTER    | a and b                |  a  |  b  |  0  |
-  AND_MAYBE | a (weights from b)     |  a  |  0  |  0  |
-  AND_NOT   | a but not b            |  a  | n/a | n/a |
-  XOR       | (a or b) not (a and b) | n/a | n/a | n/a |
- -----------+------------------------+-----+-----+-----+
+            | a,b                           | a,0 | 0,b | 0,0 |
+ -----------+-------------------------------+-----+-----+-----+
+  OR        | a or b                        |  a  |  b  |  0  | 
+  AND       | a and b                       |  a  |  b  |  0  |
+  FILTER    | a and b (just weights from a) |  a  |  b* |  0  |
+  AND_MAYBE | a (extra weights from b)      |  a  |  0  |  0  |
+  AND_NOT   | a but not b                   |  a  | n/a | n/a |
+  XOR       | (a or b) not (a and b)        | n/a | n/a | n/a |
+ -----------+-------------------------------+-----+-----+-----+
+
+* - this represents a pure boolean query - all weights will be 1
 
 =====================
+PostList::next()
+
+In the normal case this returns a NULL PostList pointer.  This is actually
+used by the branch post lists to simplify the PostList trees.  Sometimes a
+branch postlist P will return a pointer to a different postlist to replace
+it.  P's parent will notice, and replace its pointer to P with the
+returned pointer, which can be either one of P's children, or another
+branch.  P will be deleted.
+=====================
+Document ids (docid) start from 1 - a zero docid is invalid.  This is relied
+on by some operations.
