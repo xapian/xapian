@@ -53,6 +53,18 @@ sub mk_root_dir {
     mkdir ("$cvsdata/$root_dir/src",0777)|| die " cannot create directory $cvsdata/$root_dir/src";
 }
 
+sub read_cvsroots {
+    my ($cvsdata) = @_;
+    my %result;
+    open(CVSROOTS, "<$cvsdata/CVSROOTS");
+    while(<CVSROOTS>) {
+        chomp;
+        my @fields = split(/\s/);
+        $result{$fields[0]} = $fields[1];
+    }
+    return %result;
+}
+
 sub read_cvsroot_dir {
     my ($root_dir, $cvsdata) = @_;
     my $cvsroot;
@@ -504,6 +516,30 @@ sub cmp_cvs_version
 }
 
 
+sub print_style_sheet {
+    print "<style type=\"text/css\">\n";
+    print "body.compare  {background-color:#EEEEEE;}\n";
+    print "body {background-color:white;}\n";
+    print "h1 {color:#0066cc; font-size:x-large}\n";
+    print "table {background-color:#FFFFFF;}\n";
+    print "td    {white-space:pre; overflow:hidden; text-decoration:none;color:black;}\n";
+    print ".e {background-color:#ffffff;}\n";
+    print ".a {background-color:#CCCCFF;}\n";
+    print ".o {background-color:#ccccee;}\n";
+    print ".c {background-color:#99FF99;}\n";
+    print ".s {background-color:#3366CC; color:#FFFFFF;}\n";
+    print ".d {background-color:#FF9999;}\n";
+    print ".n {background-color:#EEEEEE;}\n";
+    print ".g {background-color:#dddddd;}\n";
+    print ".popupLink { color: blue; outline: none;}\n";
+    print ".popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc;";
+    print "layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}\n";
+    print ".red {color:red}\n";
+    print ".lightgreen {color:#49C96B}\n";
+    print ".lightcvs {color:#00ccff}\n";
+    print ".blue {color:#0066cc}\n";
+    print ".orange {color:#FF7A12}\n";
+    print "</style>\n";
+}
+
 return 1;
-    
-    

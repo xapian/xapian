@@ -40,8 +40,10 @@ if (0) {
     compare_pkg_index(param("root"), param("pkg"));
 } elsif (param("version") eq "") {
     compare_file_index(param("root"), param("pkg"), param("fileid"));
+} elsif (param("short") eq "1") {
+    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), "1", param("latest"));
 } else {
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), param("latest"));
+    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), "0", param("latest"));
 }
 
 # ------------------------------------------------------------
@@ -83,7 +85,7 @@ sub compare_root_index() {
     print "<html>\n";
     print "<head>\n";
     print_title("root index $root");
-    print_style_sheet();
+    Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
 
@@ -156,7 +158,7 @@ sub compare_pkg_index {
     print "<html>\n";
     print "<head>\n";
     print_title ($pkg1);
-    print_style_sheet();
+    Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
 
@@ -236,7 +238,7 @@ sub compare_pkg_index {
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
     print "<h1 align=center>$pkg1</h1>\n";
     print "<b>Up to ";
-    print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
+    print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "</b><p>\n";
 
     print "Click on a file to display its revision history and see how lines from "; 
@@ -342,8 +344,9 @@ sub compare_file_index {
     
     print "<html>\n";
     print "<head>\n";
+    print_javascript($root, $pkg, $fileid);
     print_title("aligned diff outputs for $filename");
-    print_style_sheet();
+    Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
     
@@ -351,7 +354,7 @@ sub compare_file_index {
         my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
         print "<h1 align=\"center\">aligned diff outputs for <B>$filename</B></h1>\n";
         print "<b>Up to ";
-        print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
+        print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
         print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
         print "</b><p>\n";
         
@@ -361,12 +364,10 @@ sub compare_file_index {
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
             print "<hr size=1 noshade>\n";
-            print "<a href=\"$cvscompare?";
-            print "fileid=$fileid&";
-            print "pkg=$pkg&";
-            print "root=$root&";
-            print "version=$versions[$i]\"><b>$filename</b>: inserted/modified lines in commit ";
-            print "$versions[$i+1] => $versions[$i] matched with corresponding lines in latest version</a><br>\n";
+            print "<b>$filename</b>: inserted/modified lines in commit of version ";
+            print "$versions[$i+1] => $versions[$i] matched with corresponding lines in latest version\n";
+            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]\">full</a>,\n";
+            print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]\">short</a>\n";
             print "<pre>$comments[$i]</pre>\n";
         }
         $i = $#versions;
@@ -387,7 +388,7 @@ sub compare_file_index {
 }
 
 sub compare_file_version {
-    my ($root, $pkg, $fileid, $version, $latest_version) = @_;
+    my ($root, $pkg, $fileid, $version, $short, $latest_version) = @_;
     $pkg=~tr/\//\_/;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
     if ($fileid eq "" || 
@@ -425,15 +426,40 @@ sub compare_file_version {
        print end_html;
        return;
     }
-
+    
+    my $short_flag = "";
+    if ($short eq "1") {
+        $short_flag = "-s";
+    }
     print "<html>\n";
     print "<head>\n";
     print_title("aligned diff output for $file:version $version");
-    print_style_sheet();
+    Cvssearch::print_style_sheet();
     print "</head>\n";
-    print "<body>\n";
+    print "<body class=compare>\n";
     chdir ("$cvsdata/$root/src");
-    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version -r $latest_version $file |");
+
+    my $pkg1 = $pkg;
+    my $filename = "";
+    $pkg1 =~tr/\_/\//;
+    if ($pkg1 == substr($file, 0, length($pkg1))) {
+      # ----------------------------------------
+      # throw away the package name part.
+      # ----------------------------------------
+      $filename = substr($file, length($pkg1)+1, length($file)-length($pkg1)-1);
+    }
+
+    print "<b>Up to ";
+    print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
+    print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
+    print "<a href=\"$cvscompare?pkg=$pkg&root=$root&fileid=$fileid\">[$filename]</a>\n";
+
+    print "<h1 align=center>aligned diff for $filename\n(";
+    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$version\">full</a>,\n";
+    print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version\">short</a>)\n";
+    print "in commit of version $version</h1>\n";
+
+    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $short_flag -r $latest_version $file |");
     while (<OUTPUT>) {
       print $_;
     }
@@ -455,15 +481,17 @@ exit 0;
 sub print_compare_form {
     my ($root, $pkg, $fileid, $version, $latest_version) = @_;
     print "<form action=./Compare.cgi>\n";
+    print "This form allows you to see the differences (aligned) occurred during commit $version ";
+    print "and the propagation of the affected lines to a later version.<br>\n";
     print "<input type=hidden name=root value=$root>\n";
     print "<input type=hidden name=pkg value=$pkg>\n";
     print "<input type=hidden name=fileid value=$fileid>\n";
-    print "This form allows you to see the differences occurred during commit ";
-    print "<input type=text size=5 name=version value=\"$version\">,<br>\n";
-    print "and the propagation of the affected lines to version ";
-    print "<input type=text size=5 name=latest  value=\"$latest_version\">\n";
-    print "<input type=submit value=\"Compare\"><br>\n";
-    print "<font size=-1>(the latest version prior to build database will be used if this field is empty).</font><br>\n";
+    print "Aligned diff in the commit of version <input type=text size=5 name=version value=\"$version\">,";
+    print "propagated to version <input type=text size=5 name=latest  value=\"$latest_version\">";
+    print "<font size=-1> (if this field is empty, the latest version when database is built will be used).</font><br>\n";
+    print "output should be <select name=short><option value=0>long</option><option value=1>short</option></select>\n";
+    print "<input type=submit value=\"Get Aligned Diff\"><br>\n";
+
     print "</form>\n";
 }
 
@@ -472,18 +500,19 @@ sub  print_title {
     print "<title>$title</title>\n";
 }
 
-sub print_style_sheet {
-    print "<style type=\"text/css\">\n";
-    print "body  {background-color:#EEEEEE;}\n";
-    print "table {background-color:#FFFFFF;}\n";
-#    print "td    {white-space:pre; overflow:hidden;font-family:'sans serif',courier;}\n";
-    print "td    {white-space:pre; overflow:hidden;}\n";
-    print ".e {background-color:#ffffff;}\n";
-    print ".a {background-color:#CCCCFF;}\n";
-    print ".o {background-color:#ccccee;}\n";
-    print ".c {background-color:#99FF99;}\n";
-    print ".s {background-color:#3366CC; color:#FFFFFF;}\n";
-    print ".d {background-color:#FF9999;}\n";
-    print ".n {background-color:#EEEEEE;}\n";
-    print "</style>\n";
+sub print_javascript {
+  my ($root, $pkg, $fileid) = @_;
+  # ----------------------------------------
+  # print javascript for calling popups in
+  # shorthand notation
+  # ----------------------------------------
+  print <<_SCRIPT_;
+<script language="JavaScript">
+function c(rev, short){
+    var link = "$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short="+short +"&version="+ rev + "#" + line;
+    this.location.href = link;
+    return false;
+}
+</script>
+_SCRIPT_
 }

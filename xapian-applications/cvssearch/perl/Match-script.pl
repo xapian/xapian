@@ -68,7 +68,7 @@ function h() {
 }
 
 function c(line, rev){
-    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&version="+ rev + "#" + line;
+    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&short=1&version="+ rev + "#" + line;
     if (parent.frames[2].location.href != link) {
        parent.frames[2].location.href=link;
     }
@@ -165,22 +165,18 @@ if(param()){
     # ----------------------------------------
     # style sheet
     # ----------------------------------------
+    Cvssearch::print_style_sheet();
+
     print "<style type=text/css>\n";
-    print "body {background-color:white;}\n";
-    print ".g {background-color:#dddddd;}\n";
     print "A:link, A:active, A:visited { text-decoration:none;color:black;}\n";
-    print ".popupLink { color: blue; outline: none;}\n";
-    print ".popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc;";
-    print "layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}\n";
-    print ".red {color:red;}\n";
 	foreach ($i=0;$i<$#revs+1;$i++){
 		$revMAPcolor{$revs[$i]} = $colors[$i];
 		$ch = toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
         $ch =~ tr/\./-/;
 		print ".$ch {background-color:$colors[$i];}\n";
 	}
-    
     print "</style>\n";
+
     print "</head>\n";
     print "<body>\n";
 	

@@ -34,16 +34,8 @@ print "<header>\n";
 #---------------
 # style sheet
 #---------------
-print <<_STYLE_;
-<STYLE TYPE=text/css>
-<!--
-body {background-color:white}
-.red {color:red}
--->
-</STYLE>
-</header>
-<body>
-_STYLE_
+Cvssearch::print_style_sheet();
+print "</header>\n<body>\n";
 
 #----------------------------------------
 # Parse Parameters

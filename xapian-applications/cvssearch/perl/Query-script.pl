@@ -67,21 +67,8 @@ print "<header>\n";
 #---------------
 # style sheet
 #---------------
-print <<_STYLE_;
-<STYLE TYPE=text/css>
-<!--
-body {background-color:white}
-h1 {color:#0066cc; font-size:x-large}
-.red {color:red}
-.lightgreen {color:#49C96B}
-.lightcvs {color:#00ccff}
-.blue {color:#0066cc}
-.orange {color:#FF7A12}
--->
-</STYLE>
-</header>
-_STYLE_
-
+Cvssearch::print_style_sheet();
+print "</header>\n";
 
 #----------------------------------------
 # first pass on input
