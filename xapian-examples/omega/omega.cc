@@ -4,6 +4,9 @@ int dlist[64];
 int n_dlist = 0;
 
 #include <stdio.h>
+
+#include <fstream>
+
 #define EXIT(x) exit((x))
 
 #include <stdarg.h>
@@ -28,13 +31,13 @@ int n_dlist = 0;
 #endif
 #endif
 
-#define MAXBQ 255
-
 #include "cgiparam.h"
 #include "query.h"
 
 DADatabase database;
 Match *matcher;
+
+map<string, string> option;
 
 #ifdef FERRET
 static int ssi=0;
@@ -57,9 +60,6 @@ static const string muscat_dir = "/usr/muscat";
 
 int have_query; /* use to trap the "no query" case more reliably */
 
-/* defined in query.c */
-extern char str_scoreline[];
-
 int main(int argc, char *argv[]) {
     int n;
     char     big_buf[4048];
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     char     *method;
     char     *val;
     int	boolean_present = 0;
-
+    
     /* log query details */
      {
 	extern char **environ;
@@ -276,6 +276,30 @@ int main(int argc, char *argv[]) {
        exit(0);
     }
 
+    // read t/vars
+    string vars_file = db_dir + "/t/vars";
+    std::ifstream in(vars_file.c_str());
+    if (!in) {
+	cout << "bogus\n";
+	exit(0);
+    }    
+    string line;
+    while (!in.eof()) {
+	getline(in, line);
+	if (line[0] != '\'') continue;
+	size_t i = line.find('\'', 1);
+	if (i == string::npos) continue;
+	string key = line.substr(1, i - 1);
+	i++;
+	i = line.find('\'', i);
+	if (i == string::npos) continue;
+	i++;
+	size_t j = line.find('\'', i + 1);
+	if (j == string::npos) continue;
+	option[key] = line.substr(i, j - i);
+    }
+    in.close();
+	
     database.open(db_dir, 0);
     matcher = new Match(&database);       
        
@@ -294,40 +318,17 @@ int main(int argc, char *argv[]) {
 		 /* printf("<!-- %s %d -->\n", dlistbuf, dlist[n_dlist-1]); */
 	      }
 	   }
-	   fclose( f );
+	   fclose(f);
 	}
      }
 #endif
    
-    // FIXME
-#if 0
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
     
-    if (0) {
-	char buf[16];
-	if (get_muscat_string("dec_sep", buf)) dec_sep = buf[0];
-	if (get_muscat_string("thou_sep", buf)) thou_sep = buf[0];
-    }
+    if (option["dec_sep"].size()) dec_sep = option["dec_sep"][0];
+    if (option["thou_sep"].size()) thou_sep = option["thou_sep"][0];
    
-    /* allow score line below each match to be translated */
-    if (!get_muscat_string( "translate_scoreline", str_scoreline )) {
-       /* check for old style translate_score and translate_matching */
-       char *p = str_scoreline;
-       if (!get_muscat_string( "translate_score", p ))
-	  strcpy( p, "Score" );
-       p += strlen(p);
-       strcpy( p, ": %d%%, " );
-       p += strlen(p);
-       if (!get_muscat_string( "translate_matching", p ))
-	  strcpy( p, "Matching" );
-       strcat(p, ":");
-    }
-
-    /* allow use of '_' instead of '-' since ISO-9660 CDROMs don't allow '-' */
-    dash_chr = ( get_muscat_int("cdrom_friendly") ? '_' : '-' );
-#else
     dash_chr = '-';
-#endif
 
     list_size = 0;
     if ((val = GetEntry ("MAXHITS")) != NULL) list_size = atol( val );
@@ -708,12 +709,11 @@ extern FILE *page_fopen(const string &page) {
 static void make_log_entry( const char *action, long matches ) {
 #ifdef LOGGING
    int fd;
-   char log_buf[512];
-
-   sprintf( log_buf, "%s/fx.log", db_dir );
-   fd = open( log_buf, O_CREAT|O_APPEND|O_WRONLY, 0644 );
+   string log_buf = db_dir + "/fx.log";
+   fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
        
    if (fd != -1) {
+      char log_buf[512];
       /* (remote host) (remote logname from identd) (remote user from auth) (time)  */
       /* \"(first line of request)\" (last status of request) (bytes sent)  */
       /* " - - [01/Jan/1997:09:07:22 +0000] \"GET /path HTTP/1.0\" 200 12345\n";*/
@@ -749,9 +749,8 @@ static void make_log_entry( const char *action, long matches ) {
 static void make_query_log_entry( const char *buf, size_t length ) {
 #ifdef LOGGING
    int fd;
-   char log_buf[512];
-   sprintf( log_buf, "%s/query.log", db_dir );
-   fd = open( log_buf, O_CREAT|O_APPEND|O_WRONLY, 0644 );
+   string log_buf = db_dir + "/query.log";
+   fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
    if (fd != -1) {
       write( fd, buf, length );
       close( fd );

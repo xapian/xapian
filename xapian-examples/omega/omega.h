@@ -20,3 +20,5 @@ extern char *fmt, *fmtfile;
 
 extern DADatabase database;
 extern Match *matcher;
+
+extern map<string, string> option;

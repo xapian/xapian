@@ -14,4 +14,5 @@ void muscat_stem( char * );
 extern int dec_sep, thou_sep;
 
 extern int percent_min;
+
 #endif /* QUERY_H */

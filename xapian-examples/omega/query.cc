@@ -69,9 +69,6 @@ extern int dlist[];
 extern int n_dlist;
 #endif
 
-/* Used for translations in EuroFerret */
-char str_scoreline[64];
-
 static string query_string;
 
 int percent_min = 0; /* default to old behaviour */
@@ -928,41 +925,51 @@ order(const void *a, const void *b)
 static void
 do_picker(char prefix, const char **opts)
 {
-   const char **p;
-   char **q;
-   char buf[16] = "BOOL-X";
-   int do_current = 0;
-   char current[256];
-   char txtbuf[16384];
-   char *t;
-   int len;
-   char *picker[256];
+    const char **p;
+    char **q;
+    char buf[16] = "BOOL-X";
+    int do_current = 0;
+    char current[256];
+    char txtbuf[16384];
+    char *t;
+    int len;
+    char *picker[256];
+    
+    map <char, string>::const_iterator i = filter_map.find(prefix);
+    if (i != filter_map.end() && i->second.length() > 1) {
+	i->second.copy(current, 256, 1);
+	current[i->second.length() - 1] = '\0';
+	do_current = 1;
+    }
 
-   map <char, string>::const_iterator i = filter_map.find(prefix);
-   if (i != filter_map.end() && i->second.length() > 1) {
-       i->second.copy(current, 256, 1);
-       current[i->second.length() - 1] = '\0';
-       do_current = 1;
-   }
+    cout << "<SELECT NAME=B>\n<OPTION VALUE=\"\"";
 
-   fputs("<SELECT NAME=B>\n"
-	 "<OPTION VALUE=\"\"", stdout);
-   if (!do_current) fputs(" SELECTED", stdout);
-   putchar('>');
- /* FIXME   if (!print_muscat_string(buf)) */ fputs("-Any-", stdout);
+    if (!do_current) cout << " SELECTED";
+
+    cout << '>';
+
+    buf[5] = prefix;
+
+    string tmp = option[buf];
+    if (tmp.size())
+	cout << tmp;
+    else
+	cout << "-Any-";
 
    t = txtbuf;
    q = picker;
-   for (p = opts; *p ; p++) {
+   for (p = opts; *p; p++) {
       strcpy(buf+6, *p);
-      // FIXME len = get_muscat_string(buf, t);
-      len = 0;
-      if (!len) {
-	 if (prefix == 'N')
-	    sprintf(t, ".%s", *p);
-	 else 
-	    sprintf(t, "[%s]", *p);
-	 len = strlen(t);
+      string trans = option[buf];
+      len = trans.size();
+      if (len) {
+	  trans.copy(t, 16384); // FIXME
+      } else {
+	  if (prefix == 'N')
+	      sprintf(t, ".%s", *p);
+	  else 
+	      sprintf(t, "[%s]", *p);
+	  len = strlen(t);
       }
       *q++ = t;
       t += len;
@@ -1478,9 +1485,9 @@ static int print_caption( long int m, int do_expand ) {
     long int w = 0; 
     time_t lastmod = -1;
     char hostname[256] = "localhost"; /* erk */
-    char country[256] = "x";
+    string country = "x";
     char country_code[8] = "x";
-    char language[32] = "x";
+    string language = "x";
     char language_code[3] = "x";
 
     w = (int)matcher->mset[m].w;
@@ -1518,23 +1525,21 @@ static int print_caption( long int m, int do_expand ) {
 	delete terms;
      }
     
-#if 0 // FIXME
     {
 	char buf[16] = "BOOL-N";
 	strcpy(buf + 6, country_code);
-	if (!get_muscat_string(buf, country)) strcpy(country, country_code);
+	string tmp = buf;
+	country = option[tmp];
+	if (!country.size()) country = country_code;
     }
     {
 	char buf[16] = "BOOL-L";
-	buf[6] = language_code[1];
-	buf[7] = language_code[2];
+	buf[6] = language_code[0];
+	buf[7] = language_code[1];
 	buf[8] = '\0';
-	if (!get_muscat_string(buf, language)) strcpy(language, buf + 6);
+	language = option[buf];
+	if (!language.size()) language = language_code;
     }
-#else
-    strcpy(country, country_code);
-    strcpy(language, language_code);
-#endif
    
     percent = percentage((double)w, maxweight);
 
@@ -1641,26 +1646,27 @@ static int print_caption( long int m, int do_expand ) {
 		}
 		break;
 	      case 'I': /* document id */
-		printf("%ld", q0);
-		break;
+		 cout << q0;
+		 break;
 	      case 'L': /* language */
-		fputs(language, stdout);
-		break;
+		 cout << language;
+		 break;
 	      case 'l': /* language (with link unless "unknown") */
-		if (strcmp(language_code, "x") == 0) {
-		   fputs(language, stdout);
-		} else {
-		   fputs("<A HREF=\"/", stdout);
-		   print_query_string("&B=L");
-		   printf("&B=L%s\">%s</A>", language_code, language);
-		}
-		break;
+		 if (strcmp(language_code, "x") == 0) {
+		     cout << language;
+		 } else {
+		     cout << "<A HREF=\"/";
+		     print_query_string("&B=L");
+		     cout << "&B=L" << language_code << "\">" << language
+			  << "</A>";
+		 }
+		 break;
 	      case 'W': /* country */
-		fputs(country, stdout);
-		break;
+		 cout << country;
+		 break;
 	      case 'w': /* country code */
-		fputs(country_code, stdout);
-		break;
+		 cout << country_code;
+		 break;
 	      case 'M': /* last modified */
 		display_date(lastmod);
 		break;
