@@ -23,7 +23,8 @@
  ************************************************************/
 
 #include "backward_map_algorithm.h"
-#include <strstream>
+#include <strstream> // FIXME: deprecated
+#include <unistd.h>
 #include "process.h"
 #include "aligned_diff.h"
 
