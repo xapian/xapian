@@ -25,6 +25,7 @@
 
 #include "om/omtypes.h"
 #include "om/omenquire.h"
+#include "om/omquery.h"
 #include <string>
 #include <vector>
 #include "omlocks.h"

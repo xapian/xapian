@@ -1,3 +1,7 @@
+Thu Feb  1 15:59:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a missed #include to omqueryinternal.h
+
 Thu Feb  1 14:44:04 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Add some error handler code, with a "#if 0"ed out comment,
