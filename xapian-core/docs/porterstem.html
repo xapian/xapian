@@ -173,13 +173,13 @@ this form. The case m = 0 covers the null word. Here are some examples:
 </pre>
 The <i>rules</i> for removing a suffix will be given in the form
 <pre>
-    (condition) S1 -> S2
+    (condition) S1 -&gt; S2
 </pre>
 This means that if a word ends with the suffix S1, and the stem before S1
 satisfies the given condition, S1 is replaced by S2. The condition is
 usually given in terms of m, e.g.
 <pre>
-    (m > 1) EMENT ->
+    (m &gt; 1) EMENT -&gt;
 </pre>
 Here S1 is `EMENT' and S2 is null. This would map REPLACEMENT to REPLAC,
 since REPLAC is a word part for which m = 2.<p>
@@ -198,9 +198,9 @@ The `condition' part may also contain the following:<p>
 And the condition part may also contain expressions with <i>and</i>, <i>or</i> and
 <i>not</i>, so that
 <pre>
-    (m>1 and (*S or *T))
+    (m&gt;1 and (*S or *T))
 </pre>
-tests for a stem with m>1 ending in S or T, while
+tests for a stem with m&gt;1 ending in S or T, while
 <pre>
     (*d and not (*L or *S or *Z))
 </pre>
@@ -211,10 +211,10 @@ In a set of rules written beneath each other, only one is obeyed, and this
 will be the one with the longest matching S1 for the given word. For
 example, with
 <pre>
-    SSES -> SS
-    IES  -> I
-    SS   -> SS
-    S    ->
+    SSES -&gt; SS
+    IES  -&gt; I
+    SS   -&gt; SS
+    S    -&gt;
 </pre>
 (here the conditions are all null) CARESSES maps to CARESS since SSES is
 the longest match for S1. Equally CARESS maps to CARESS (S1=`SS') and CARES
@@ -225,36 +225,36 @@ are given on the right in lower case. The algorithm now follows:<p>
 
 <h3>Step 1a</h3>
 <pre>
-    SSES -> SS                         caresses  ->  caress
-    IES  -> I                          ponies    ->  poni
-                                       ties      ->  ti
-    SS   -> SS                         caress    ->  caress
-    S    ->                            cats      ->  cat
+    SSES -&gt; SS                         caresses  -&gt;  caress
+    IES  -&gt; I                          ponies    -&gt;  poni
+                                       ties      -&gt;  ti
+    SS   -&gt; SS                         caress    -&gt;  caress
+    S    -&gt;                            cats      -&gt;  cat
 </pre>
 <h3>Step 1b</h3>
 <pre>
-    (m>0) EED -> EE                    feed      ->  feed
-                                       agreed    ->  agree
-    (*v*) ED  ->                       plastered ->  plaster
-                                       bled      ->  bled
-    (*v*) ING ->                       motoring  ->  motor
-                                       sing      ->  sing
+    (m&gt;0) EED -&gt; EE                    feed      -&gt;  feed
+                                       agreed    -&gt;  agree
+    (*v*) ED  -&gt;                       plastered -&gt;  plaster
+                                       bled      -&gt;  bled
+    (*v*) ING -&gt;                       motoring  -&gt;  motor
+                                       sing      -&gt;  sing
 </pre>
 If the second or third of the rules in Step 1b is successful, the following
 is done:
 <pre>
-    AT -> ATE                       conflat(ed)  ->  conflate
-    BL -> BLE                       troubl(ed)   ->  trouble
-    IZ -> IZE                       siz(ed)      ->  size
+    AT -&gt; ATE                       conflat(ed)  -&gt;  conflate
+    BL -&gt; BLE                       troubl(ed)   -&gt;  trouble
+    IZ -&gt; IZE                       siz(ed)      -&gt;  size
     (*d and not (*L or *S or *Z))
-       -> single letter
-                                    hopp(ing)    ->  hop
-                                    tann(ed)     ->  tan
-                                    fall(ing)    ->  fall
-                                    hiss(ing)    ->  hiss
-                                    fizz(ed)     ->  fizz
-    (m=1 and *o) -> E               fail(ing)    ->  fail
-                                    fil(ing)     ->  file
+       -&gt; single letter
+                                    hopp(ing)    -&gt;  hop
+                                    tann(ed)     -&gt;  tan
+                                    fall(ing)    -&gt;  fall
+                                    hiss(ing)    -&gt;  hiss
+                                    fizz(ed)     -&gt;  fizz
+    (m=1 and *o) -&gt; E               fail(ing)    -&gt;  fail
+                                    fil(ing)     -&gt;  file
 </pre>
 The rule to map to a single letter causes the removal of one of the double
 letter pair. The -E is put back on -AT, -BL and -IZ, so that the suffixes
@@ -263,8 +263,8 @@ letter pair. The -E is put back on -AT, -BL and -IZ, so that the suffixes
 
 <h3>Step 1c</h3>
 <pre>
-    (*v*) Y -> I                    happy        ->  happi
-                                    sky          ->  sky
+    (*v*) Y -&gt; I                    happy        -&gt;  happi
+                                    sky          -&gt;  sky
 </pre>
 Step 1 deals with plurals and past participles. The subsequent steps
 are
@@ -272,27 +272,27 @@ much more straightforward.<p>
 
 <h3>Step 2</h3>
 <pre>
-    (m>0) ATIONAL ->  ATE           relational     ->  relate
-    (m>0) TIONAL  ->  TION          conditional    ->  condition
-                                    rational       ->  rational
-    (m>0) ENCI    ->  ENCE          valenci        ->  valence
-    (m>0) ANCI    ->  ANCE          hesitanci      ->  hesitance
-    (m>0) IZER    ->  IZE           digitizer      ->  digitize
-    (m>0) ABLI    ->  ABLE          conformabli    ->  conformable
-    (m>0) ALLI    ->  AL            radicalli      ->  radical
-    (m>0) ENTLI   ->  ENT           differentli    ->  different
-    (m>0) ELI     ->  E             vileli        - >  vile
-    (m>0) OUSLI   ->  OUS           analogousli    ->  analogous
-    (m>0) IZATION ->  IZE           vietnamization ->  vietnamize
-    (m>0) ATION   ->  ATE           predication    ->  predicate
-    (m>0) ATOR    ->  ATE           operator       ->  operate
-    (m>0) ALISM   ->  AL            feudalism      ->  feudal
-    (m>0) IVENESS ->  IVE           decisiveness   ->  decisive
-    (m>0) FULNESS ->  FUL           hopefulness    ->  hopeful
-    (m>0) OUSNESS ->  OUS           callousness    ->  callous
-    (m>0) ALITI   ->  AL            formaliti      ->  formal
-    (m>0) IVITI   ->  IVE           sensitiviti    ->  sensitive
-    (m>0) BILITI  ->  BLE           sensibiliti    ->  sensible
+    (m&gt;0) ATIONAL -&gt;  ATE           relational     -&gt;  relate
+    (m&gt;0) TIONAL  -&gt;  TION          conditional    -&gt;  condition
+                                    rational       -&gt;  rational
+    (m&gt;0) ENCI    -&gt;  ENCE          valenci        -&gt;  valence
+    (m&gt;0) ANCI    -&gt;  ANCE          hesitanci      -&gt;  hesitance
+    (m&gt;0) IZER    -&gt;  IZE           digitizer      -&gt;  digitize
+    (m&gt;0) ABLI    -&gt;  ABLE          conformabli    -&gt;  conformable
+    (m&gt;0) ALLI    -&gt;  AL            radicalli      -&gt;  radical
+    (m&gt;0) ENTLI   -&gt;  ENT           differentli    -&gt;  different
+    (m&gt;0) ELI     -&gt;  E             vileli        - &gt;  vile
+    (m&gt;0) OUSLI   -&gt;  OUS           analogousli    -&gt;  analogous
+    (m&gt;0) IZATION -&gt;  IZE           vietnamization -&gt;  vietnamize
+    (m&gt;0) ATION   -&gt;  ATE           predication    -&gt;  predicate
+    (m&gt;0) ATOR    -&gt;  ATE           operator       -&gt;  operate
+    (m&gt;0) ALISM   -&gt;  AL            feudalism      -&gt;  feudal
+    (m&gt;0) IVENESS -&gt;  IVE           decisiveness   -&gt;  decisive
+    (m&gt;0) FULNESS -&gt;  FUL           hopefulness    -&gt;  hopeful
+    (m&gt;0) OUSNESS -&gt;  OUS           callousness    -&gt;  callous
+    (m&gt;0) ALITI   -&gt;  AL            formaliti      -&gt;  formal
+    (m&gt;0) IVITI   -&gt;  IVE           sensitiviti    -&gt;  sensitive
+    (m&gt;0) BILITI  -&gt;  BLE           sensibiliti    -&gt;  sensible
 </pre>
 The test for the string S1 can be made fast by doing a program switch on
 the penultimate letter of the word being tested. This gives a fairly even
@@ -303,49 +303,49 @@ steps.<p>
 
 <h3>Step 3</h3>
 <pre>
-    (m>0) ICATE ->  IC              triplicate     ->  triplic
-    (m>0) ATIVE ->                  formative      ->  form
-    (m>0) ALIZE ->  AL              formalize      ->  formal
-    (m>0) ICITI ->  IC              electriciti    ->  electric
-    (m>0) ICAL  ->  IC              electrical     ->  electric
-    (m>0) FUL   ->                  hopeful        ->  hope
-    (m>0) NESS  ->                  goodness       ->  good
+    (m&gt;0) ICATE -&gt;  IC              triplicate     -&gt;  triplic
+    (m&gt;0) ATIVE -&gt;                  formative      -&gt;  form
+    (m&gt;0) ALIZE -&gt;  AL              formalize      -&gt;  formal
+    (m&gt;0) ICITI -&gt;  IC              electriciti    -&gt;  electric
+    (m&gt;0) ICAL  -&gt;  IC              electrical     -&gt;  electric
+    (m&gt;0) FUL   -&gt;                  hopeful        -&gt;  hope
+    (m&gt;0) NESS  -&gt;                  goodness       -&gt;  good
 </pre>
 <h3>Step 4</h3>
 <pre>
-    (m>1) AL    ->                  revival        ->  reviv
-    (m>1) ANCE  ->                  allowance      ->  allow
-    (m>1) ENCE  ->                  inference      ->  infer
-    (m>1) ER    ->                  airliner       ->  airlin
-    (m>1) IC    ->                  gyroscopic     ->  gyroscop
-    (m>1) ABLE  ->                  adjustable     ->  adjust
-    (m>1) IBLE  ->                  defensible     ->  defens
-    (m>1) ANT   ->                  irritant       ->  irrit
-    (m>1) EMENT ->                  replacement    ->  replac
-    (m>1) MENT  ->                  adjustment     ->  adjust
-    (m>1) ENT   ->                  dependent      ->  depend
-    (m>1 and (*S or *T)) ION ->     adoption       ->  adopt
-    (m>1) OU    ->                  homologou      ->  homolog
-    (m>1) ISM   ->                  communism      ->  commun
-    (m>1) ATE   ->                  activate       ->  activ
-    (m>1) ITI   ->                  angulariti     ->  angular
-    (m>1) OUS   ->                  homologous     ->  homolog
-    (m>1) IVE   ->                  effective      ->  effect
-    (m>1) IZE   ->                  bowdlerize     ->  bowdler
+    (m&gt;1) AL    -&gt;                  revival        -&gt;  reviv
+    (m&gt;1) ANCE  -&gt;                  allowance      -&gt;  allow
+    (m&gt;1) ENCE  -&gt;                  inference      -&gt;  infer
+    (m&gt;1) ER    -&gt;                  airliner       -&gt;  airlin
+    (m&gt;1) IC    -&gt;                  gyroscopic     -&gt;  gyroscop
+    (m&gt;1) ABLE  -&gt;                  adjustable     -&gt;  adjust
+    (m&gt;1) IBLE  -&gt;                  defensible     -&gt;  defens
+    (m&gt;1) ANT   -&gt;                  irritant       -&gt;  irrit
+    (m&gt;1) EMENT -&gt;                  replacement    -&gt;  replac
+    (m&gt;1) MENT  -&gt;                  adjustment     -&gt;  adjust
+    (m&gt;1) ENT   -&gt;                  dependent      -&gt;  depend
+    (m&gt;1 and (*S or *T)) ION -&gt;     adoption       -&gt;  adopt
+    (m&gt;1) OU    -&gt;                  homologou      -&gt;  homolog
+    (m&gt;1) ISM   -&gt;                  communism      -&gt;  commun
+    (m&gt;1) ATE   -&gt;                  activate       -&gt;  activ
+    (m&gt;1) ITI   -&gt;                  angulariti     -&gt;  angular
+    (m&gt;1) OUS   -&gt;                  homologous     -&gt;  homolog
+    (m&gt;1) IVE   -&gt;                  effective      -&gt;  effect
+    (m&gt;1) IZE   -&gt;                  bowdlerize     -&gt;  bowdler
 </pre>
 The suffixes are now removed. All that remains is a little tidying up.<p>
 
 <h3>Step 5a</h3>
 <pre>
-    (m>1) E     ->                  probate        ->  probat
-                                    rate           ->  rate
-    (m=1 and not *o) E ->           cease          ->  ceas
+    (m&gt;1) E     -&gt;                  probate        -&gt;  probat
+                                    rate           -&gt;  rate
+    (m=1 and not *o) E -&gt;           cease          -&gt;  ceas
 </pre>
 <h3>Step 5b</h3>
 <pre>
-    (m > 1 and *d and *L) -> single letter
-                                    controll       ->  control
-                                    roll           ->  roll
+    (m &gt; 1 and *d and *L) -&gt; single letter
+                                    controll       -&gt;  control
+                                    roll           -&gt;  roll
 </pre><p>
 The algorithm is careful not to remove a suffix when the stem is too short,
 the length of the stem being given by its measure, m. There is no linguistic

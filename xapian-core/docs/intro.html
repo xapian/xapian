@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Xapian: Introduction for developers</TITLE>
+<TITLE>Xapian: Installation</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
@@ -17,7 +17,7 @@ Note that Xapian is currently only available in versions targeted for UNIX
 systems.
 
 <H3>Download</H3>
-The first step is to obtain a copy of the software from <a href="http://www.xapian.org/">the Xapian website</a>.
+The first step is to obtain a copy of the software from <a href="http://www.xapian.org/download.php">the Xapian website</a>.
 <!--
 Currently there are no
 stable releases of Xapian, so for your first explorations we recommend using
@@ -54,12 +54,13 @@ A typical build would be done using the commands:
     make install
 </pre>
 
-Various options may be given to the configure script: see the installation
-documentation within the archive for more details.
+Various options may be given to the configure script:
+<code>./configure&nbsp;--help</code> summarises these.
+<!-- see the installation documentation within the archive for more details. -->
 <p>
 By default, Xapian will be installed in directories under
 <CODE>/usr/local</CODE>.  This can be altered using the --prefix option
-to configure.
+to configure (e.g. <code>./configure --prefix=/opt</code>).
 </p>
 
 <H3>Configuring and building the examples</H3>
@@ -70,8 +71,9 @@ Simply run:
     ./configure
     make
 </pre>
+<!--
 Note that we do not currently recommend attempting to install the
-examples.
+examples.-->
 <p>
 <CODE>configure</CODE> should automatically find the installed Xapian
 library: if it doesn't you may need to specify the path to the
@@ -101,25 +103,10 @@ Check the documentation within the xapian-examples archive for more details on
 building and running the examples.
 
 <H3>Building from CVS</H3>
-If you wish to help develop Xapian, you may wish to build directly from the
-CVS repository.  Note that this is likely to periodically to contain
-severe bugs and/or code which will not compile.  Details on how to access
-the CVS repository are available at
-<a href="http://sourceforge.net/cvs/?group_id=26013">http://sourceforge.net/cvs/?group_id=26013</a>
-<p>
-The other drawback of CVS is that you will need to generate your own configure
-script and makefiles.  This can be done using the GNU autoconf, automake, and
-libtool packages: you must have these installed if you wish to work from CVS.
-<p>
-We provide a useful script (<code>buildall</code>) to run all the necessary
-scripts to generate the project Makefiles.  Simply run <code>./buildall</code>
-to run all the necessary scripts.  This will produce a source tree like the
-ones in the distribution tarballs, which you can run configure and make on
-in the usual way.
 
-</TD>
-</TR>
-</TABLE>
+If you wish to help develop Xapian, you may wish to
+<A HREF="http://www.xapian.org/cvs.php">build from the CVS repository</A>.
+
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>

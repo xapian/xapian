@@ -1,11 +1,12 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>How to make stemming algorithms</TITLE>
+<TITLE>Xapian: Stemming Algorithms</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
 <center><h1>
-               How to make stemming algorithms
+Stemming Algorithms
 </h1></center>
 
 At present, Xapian has stemming algorithms for English, French,
@@ -16,7 +17,7 @@ We intend to move from using these to using the
 <A HREF="http://snowball.tartarus.org/">Snowball Stemmers</A> which are
 written and maintained by Martin Porter (who originally wrote the Xapian
 stemmers).  Snowball supports all the languages Xapian already does and
-additionally has a Russian stemmer.<p>
+additionally has Russian and Finnish stemmers.<p>
 
 We'd like to add stemmers for other languages too - see the Snowball site for
 information on how to contribute.<p>
@@ -87,6 +88,11 @@ is a professional teacher or translator. You certainly don't need to have
 a world authority on the grammar of the language. In fact too much
 expertise can get in the way when it comes to the very practical matter of
 writing the stemming algorithm.<p>
+
+<H2>Vocabularies</H2>
+
+Each stemmer is issued with a vocabulary in data/voc.txt, and its stemmed
+form in data/voc.st. You can use these for testing and evaluation purposes.
 
 <h2>Raw materials</h2>
 
@@ -331,6 +337,8 @@ the file <code>stopsource</code>, is carefully annotated, and the derived
 file, <code>stopwords</code>, contains an equivalent list of sorted, stemmed,
 stopwords.<p>
 
+For background on the English stemmer, see Porter's paper of 1980,
+<A HREF="porterstem.html">An algorithm for suffix stripping</A>.
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>

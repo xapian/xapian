@@ -1,3 +1,11 @@
+Mon Sep 30 20:25:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/: Pruned .cvsignore; removed cvs.html (link to CVS info
+	  on website directly); removed using_stemmers.html - those
+	  wishing to use the C API to the stemmers ought to look at
+	  Snowball instead; include HTML versions of quickstart*.cc
+	  in tarballs; improved wording in various places.
+
 Mon Sep 23 19:33:31 BST 2002  Olly Betts <olly@survex.com>
 
 	* net/Makefile.am: Fixed building of readquery.cc from readquery.ll.

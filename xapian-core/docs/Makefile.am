@@ -10,9 +10,9 @@
 SUFFIXES = .eps .dia .png
 
 HTMLDOCS = index.html intro.html intro_ir.html userman.html \
-	stemming.html porterstem.html using_stemmers.html quickstart.html \
-	quartzdesign.html \
-	code_structure.html todo.html todo-release.html
+ stemming.html porterstem.html quickstart.html quartzdesign.html \
+ code_structure.html todo.html todo-release.html \
+ quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
 # docs for developers
 TEXTDOCS = MatcherDesign OMAims distributed.txt omsettings bm25 tests.txt
