@@ -33,8 +33,8 @@ the size of the database.  It also produces a database with revision 1 which is
 inherently faster to search.  The penalty is that updates will be slow for a
 while, as they'll result in a lot of block splitting when all blocks are full.
 
-<P>In general, I'd suggest a strategy of splitting the data over several
-databases.  Once each has finished being updated, run it through quartzcompact
+<P>Splitting the data over several databases is generally a good strategy.
+Once each has finished being updated, run it through quartzcompact
 to make it small and faster to search.
 
 <P>A multiple-database scheme works particularly well if you want a rolling web
@@ -115,7 +115,7 @@ The current limits are:
   Quartz stores the total length (i.e. number of terms) of all the documents in
   a database so it can calculate the average document length.  This is
   currently stored as an unsigned 64-bit quantity so it's not likely to be a
-  limit you'll hit.  I've listed it for completeness.
+  limit you'll hit.  It's listed for completeness.
 </ul>
 
 If you've further questions about scalability, ask on the mailing lists - people

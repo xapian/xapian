@@ -1,3 +1,7 @@
+Wed May 05 13:59:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/scalability.html: Reworded to remove use of first person.
+
 Mon May 03 21:42:05 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Improved wording of a FIXME comment.
