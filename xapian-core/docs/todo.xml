@@ -408,12 +408,4 @@ from database: if two nodes fail, the total timeout should still be that
 specified, not twice it.
 
 </todoitem>
-<todoitem priority="H" difficulty="2" owner="" area="Distributed" release="1.0">
-
-Make OmMSet::fetch() fetch only items which havn't already been requested.
-Also, just call request document for those items, and only call collect
-document when actually desiring to access the data.  (Collect document _must_
-be called in same order as request document though.)
-
-</todoitem>
 </todo>
