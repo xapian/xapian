@@ -1,6 +1,0 @@
-<Directory>include/om</Directory>
-
-<Description>
-This directory contains om.h, which provides backward compatibility and allows
-older programs written to use Xapian to be built using Xapian 0.7 or later.
-</Description>
