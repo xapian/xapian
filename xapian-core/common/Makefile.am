@@ -14,4 +14,4 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cpp
+libcommon_la_SOURCES = utils.cc

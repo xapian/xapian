@@ -1,4 +1,4 @@
-/* utils.cpp: Various useful utilities
+/* utils.cc: Various useful utilities
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
