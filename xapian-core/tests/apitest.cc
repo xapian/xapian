@@ -42,6 +42,9 @@ bool test_simplequery2();
 bool test_simplequery3();
 // tests a query accross multiple databases
 bool test_multidb1();
+// tests a query accross multiple databases with terms only
+// in one of the two databases
+bool test_multidb2();
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
 bool test_changequery1();
@@ -112,6 +115,7 @@ test_desc tests[] = {
     {"simplequery2",       test_simplequery2},
     {"simplequery3",       test_simplequery3},
     {"multidb1",           test_multidb1},
+    {"multidb2",           test_multidb2},
     {"changequery1",	   test_changequery1},
     {"nullquery1",	   test_nullquery1},
     {"msetmaxitems1",      test_msetmaxitems1},
@@ -462,6 +466,56 @@ bool test_multidb1()
 
     // make a simple query, with one word in it - "word".
     OmQuery myquery("word");
+    enquire1.set_query(myquery);
+    enquire2.set_query(myquery);
+
+    // retrieve the top ten results from each method of accessing
+    // multiple text files
+    OmMSet mymset1 = enquire1.get_mset(0, 10);
+
+    OmMSet mymset2 = enquire2.get_mset(0, 10);
+
+    if (mymset1.items.size() != mymset2.items.size()) {
+	if (verbose) {
+	    cout << "Match sets are of different size: "
+		    << mymset1.items.size() << "vs." << mymset2.items.size()
+		    << endl;
+	}
+	success = false;
+    } else if (!mset_range_is_same_weights(mymset1, 0,
+					   mymset2, 0,
+					   mymset1.items.size())) {
+	if (verbose) {
+	    cout << "Match sets don't compare equal:" << endl;
+	    cout << mymset1 << "vs." << endl << mymset2 << endl;
+	}
+	success = false;
+    }
+    return success;
+}
+
+bool test_multidb2()
+{
+    bool success = true;
+    OmDatabase mydb1;
+    vector<string> dbargs1;
+    dbargs1.push_back(datadir + "/apitest_simpledata.txt");
+    dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
+    mydb1.add_database("inmemory", dbargs1);
+    OmEnquire enquire1(mydb1);
+
+    OmDatabase mydb2;
+    vector<string> dbargs2;
+    dbargs2.push_back(datadir + "/apitest_simpledata.txt");
+    mydb2.add_database("inmemory", dbargs2);
+    dbargs2[0] = datadir + "/apitest_simpledata2.txt";
+    mydb2.add_database("inmemory", dbargs2);
+    OmEnquire enquire2(mydb2);
+
+    // make a simple query, with one word in it - "word".
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
