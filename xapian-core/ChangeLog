@@ -1,3 +1,8 @@
+Wed Nov 03 21:58:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Added explicit cast to try to help Compaq C++
+	  build.
+
 Wed Nov 03 21:38:29 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Probe for C++ compiler switches for ANSI mode as early
