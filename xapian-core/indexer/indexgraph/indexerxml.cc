@@ -199,10 +199,6 @@ doc_is_valid(xmlDocPtr doc)
 
     xmlFreeProp(attr);
     attr = 0;
-    // add the internal subset Dtd if it's not there
-    if (doc->intSubset == 0) {
-	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
-    }
 
     /*
     // validate against a known DTD
@@ -379,6 +375,11 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 static AutoPtr<OmIndexerDesc>
 desc_from_tree(xmlDocPtr doc)
 {
+    // add the internal subset Dtd if it's not there
+    if (doc->intSubset == 0) {
+	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
+    }
+
     xmlNodePtr root = doc->root;
     //cerr << "intSubset = " << doc->intSubset << endl;
     //cerr << "extSubset = " << doc->extSubset << endl;
