@@ -7,18 +7,82 @@
 
 <H1>Quickstart</H1>
 
+<P>
 This document contains sufficient information to enable you to build your
 first application using Muscat.  It does not attempt to provide complete
 coverage of all the features of Muscat: for that, see the accompanying
 user manual and reference document.
+</P><P>
+The document consists of a walk-through development of a simple
+application using the Muscat library, together with commentary on how
+the application could be taken further.
+</P>
 
-<H2>Obtaining and installing Muscat</H2>
+<HR>
+<H2>Requirements</H2>
 
-For instructions on obtaining and installing muscat, read the
+<P>
+Before following the steps outlined in this document, you will need to have
+the Muscat library installed on your system.
+For instructions on obtaining and installing Muscat, read the
 <A HREF="intro.html">Introduction</A> document.
+</P>
+<P>
+You will also need a reasonably recent C++ compiler.  We currently use GCC
+version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
+a decent chance of successfully compiling the code.
+</P>
 
-<H2>a</H2>
+<HR>
+<H2>The index</H2>
 
+<P>
+An information retrieval system using Muscat typically has two parts.  The
+first part is the indexer, which takes documents in various formats,
+processes them so that they can be efficiently searched, and stores the
+processed documents in an appropriate data structure.  The second part
+is the searcher, which takes queries and reads the index to return a list
+of the documents relevant to each query.
+</P>
+
+<H3>The contents of an index</H3>
+
+[This isn't required knowledge, but it is helpful to understand roughly what
+the information which Muscat stores in an index consists of.]
+<H3>Building the index</H3>
+
+<HR>
+<H2>Compiling</H2>
+
+<H3>Finding the Muscat library</H3>
+
+<P>
+A small utility, &quot;libomus-config&quot;, is installed along with Muscat
+to assist you in finding the installed Muscat library, and in generating
+the flags to pass to the compiler and linker to compile.  
+</P><P>
+After a successful compilation, this utility should be in your path, so
+you can simply run
+<BLOCKQUOTE><CODE>libomus-config --cflags</CODE></BLOCKQUOTE>
+to determine the flags to pass to the compiler, and
+<BLOCKQUOTE><CODE>libomus-config --libs</CODE></BLOCKQUOTE>
+to determine the flags to pass to the linker.
+
+These flags are returned on the utility's standard output (so you could use
+backtick notation to include them on your command line).
+</P><P>
+If your project uses the GNU autoconf tool, you may also use the
+<CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Muscat,
+and will check for an installation of Muscat and set (and
+<CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and <CODE>LIBOMUS_LIBS</CODE> variables to
+be the flags to pass to the compiler and linker, respectively.
+
+If you don't use GNU autoconf, don't worry about this.
+</P>
+
+<H3>Compiling the simple example</H3>
+Once you know the compilation flags, compilation is a simple matter of
+invoking the compiler!  For our example, we would
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
