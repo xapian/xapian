@@ -38,7 +38,7 @@ encode_tname(const std::string &tname)
 	    result += "\\";
 	    result += (char)(*i + 64);
 	} else if (*i == '\\') {
-	    result += "\\\\";
+	    result += "\\!";
 	} else {
 	    result += *i;
 	}
@@ -60,7 +60,7 @@ decode_tname(const std::string &tcode)
 	    case '\\':
 	        i++;
 	        Assert(i != tcode.end());
-		if (*i == '\\') {
+		if (*i == '!') {
 		    result += "\\";
 		} else {
 		    result += (char)(*i - 64);
