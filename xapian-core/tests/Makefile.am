@@ -24,9 +24,11 @@ check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
     
 ## Sources:
 
-noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
+noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
+ api_anydb.h
 
-apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
+apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
+ api_anydb.cc
 apitest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc

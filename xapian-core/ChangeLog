@@ -1,3 +1,12 @@
+Mon Sep 06 02:40:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/,tests/testdata/apitest_allterms4.txt: Split off tests which
+	  require a writable database backend and tests which should work with
+	  any database backend from api_db.cc as it was getting rather large.
+	  Fixed simplequery2 to work with backends which don't return the
+	  document length (such as the muscat36 backends).  Fixed allterms4
+	  to work with muscat36 backends.
+
 Mon Sep 06 02:39:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/da_database.cc,backends/muscat36/db_database.cc:

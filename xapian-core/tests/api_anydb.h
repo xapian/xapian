@@ -1,4 +1,4 @@
-/* api_db.h: tests which need a backend
+/* api_anydb.cc: tests which work with any backend
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,23 +22,11 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_API_DB_H
-#define OM_HGUARD_API_DB_H
+#ifndef XAPIAN_HGUARD_API_ANYDB_H
+#define XAPIAN_HGUARD_API_ANYDB_H
 
 #include "testsuite.h"
 
-extern test_desc db_tests[];
-extern test_desc mus36_tests[];
-extern test_desc specchar_tests[];
-extern test_desc doclendb_tests[];
-extern test_desc collfreq_tests[];
-extern test_desc localdb_tests[];
-extern test_desc remotedb_tests[];
-extern test_desc multivalue_tests[];
+extern test_desc anydb_tests[];
 
-// FIXME: should implement for other backends.
-extern test_desc allterms_tests[];
-
-extern test_desc quartz_tests[];
-
-#endif /* OM_HGUARD_API_DB_H */
+#endif /* XAPIAN_HGUARD_API_ANYDB_H */

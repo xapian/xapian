@@ -23,12 +23,8 @@
  */
 
 #include <config.h>
-#include <iostream>
+#include <stdlib.h>
 #include <string>
-#include <map>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <cerrno>
 #include <vector>
 
 using namespace std;
@@ -44,6 +40,8 @@ using namespace std;
 #include "api_nodb.h"
 #include "api_posdb.h"
 #include "api_db.h"
+#include "api_wrdb.h"
+#include "api_anydb.h"
 
 BackendManager backendmanager;
 
@@ -104,7 +102,7 @@ int main(int argc, char **argv)
     RUNTESTS("void", nodb);
 
 #ifdef MUS_BUILD_BACKEND_INMEMORY
-    RUNTESTS("inmemory", db);
+    RUNTESTS("inmemory", anydb);
     RUNTESTS("inmemory", specchar);
     RUNTESTS("inmemory", writabledb);
     RUNTESTS("inmemory", localdb);
@@ -117,7 +115,7 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-    RUNTESTS("quartz", db);
+    RUNTESTS("quartz", anydb);
     RUNTESTS("quartz", specchar);
     RUNTESTS("quartz", writabledb);
     RUNTESTS("quartz", localdb);
@@ -127,10 +125,11 @@ int main(int argc, char **argv)
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);
     RUNTESTS("quartz", multivalue);
+    RUNTESTS("quartz", quartz);
 #endif
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
-    RUNTESTS("remote", db);
+    RUNTESTS("remote", anydb);
     RUNTESTS("remote", specchar);
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
@@ -141,24 +140,24 @@ int main(int argc, char **argv)
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
     // need makeDA, etc tools to build da and db databases
     if (file_exists("../../makeda/makeDA")) {
-	RUNTESTS("da", db);
+	RUNTESTS("da", anydb);
 	RUNTESTS("da", localdb);
 	RUNTESTS("da", allterms);
 	RUNTESTS("da", mus36);
     }
     if (file_exists("../../makeda/makeDAflimsy")) {
-	RUNTESTS("daflimsy", db);
+	RUNTESTS("daflimsy", anydb);
 	RUNTESTS("daflimsy", localdb);
 	RUNTESTS("daflimsy", allterms);
 	RUNTESTS("daflimsy", mus36);
     }
     if (file_exists("../../makeda/makeDB")) {
-	RUNTESTS("db", db);
+	RUNTESTS("db", anydb);
 	RUNTESTS("db", localdb);
 	RUNTESTS("db", mus36);
     }
     if (file_exists("../../makeda/makeDBflimsy")) {
-	RUNTESTS("dbflimsy", db);
+	RUNTESTS("dbflimsy", anydb);
 	RUNTESTS("dbflimsy", localdb);
 	RUNTESTS("dbflimsy", mus36);
     }
