@@ -163,6 +163,24 @@ class OmDocument {
 	 */
 	void set_wdf(const om_termname & tname, om_termcount wdf);
 
+	/** Add a term to the document.
+	 *
+	 *  If the term is already in the document, no changes occur.
+	 *  If the term is not in the document, it is added with a wdf of 0.
+	 *
+	 *  It is not neccessary to call this before calling add_posting()
+	 *  or set_wdf().  Indeed, if the term is not already in the
+	 *  document, the effect of this method is identical to that of
+	 *  set_wdf(tname, 0)
+	 *
+	 *  This method's main use is for adding terms to the document
+	 *  which represent categories that the document falls into, for
+	 *  use in boolean retrieval.
+	 *
+	 *  @param tname     The name of the term.
+	 */
+	void add_term(const om_termname & tname);
+
 	/** Remove a posting of a term from the document.
 	 *
 	 *  Note that the term will still index the document even if all

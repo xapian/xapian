@@ -1,3 +1,10 @@
+Fri Feb  2 17:44:54 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Add an OmDocument::add_term() method.
+
+	* Remove an unwanted check that wdf's are greater than 0: wdf of 0
+	  _is_ allowed.
+
 Fri Feb  2 15:04:08 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Hopefully, a fix for segfaults/assertions when network errors

@@ -209,9 +209,6 @@ OmDocument::set_wdf(const om_termname & tname, om_termcount wdf)
     if (tname.empty()) {
 	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
     }
-    if (wdf == 0) {
-	throw OmInvalidArgumentError("wdf must be at least 1.");
-    }
     internal->read_termlist(termlist_begin(), termlist_end());
 
     std::map<om_termname, OmDocumentTerm>::iterator i;
@@ -222,6 +219,23 @@ OmDocument::set_wdf(const om_termname & tname, om_termcount wdf)
 	internal->terms.insert(std::make_pair(tname, newterm));
     } else {
 	i->second.set_wdf(wdf);
+    }
+}
+
+void
+OmDocument::add_term(const om_termname & tname)
+{
+    DEBUGAPICALL(void, "OmDocument::add_term", tname);
+    if (tname.empty()) {
+	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+    }
+    internal->read_termlist(termlist_begin(), termlist_end());
+
+    std::map<om_termname, OmDocumentTerm>::iterator i;
+    i = internal->terms.find(tname);
+    if (i == internal->terms.end()) {
+	OmDocumentTerm newterm(tname);
+	internal->terms.insert(std::make_pair(tname, newterm));
     }
 }
 
