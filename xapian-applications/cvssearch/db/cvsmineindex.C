@@ -21,6 +21,7 @@
  * 
  ********************************************************************************/
 
+#warning "DOES NOT USE STOP WORDS"
 #warning "SHOULD SPECIFY INCLUDE DIRECTORIES OF HEADER FILES ONLY"
 #warning "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"
 #warning "EXAMPLE: qt/include and kde/include"

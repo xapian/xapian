@@ -9,6 +9,8 @@
 
 #define MIN_SUPPORT 1 
 
+#warning "DOES NOT USE STOP WORDS"
+
 #warning "test double buffering query; see if it still gives Button, box, etc."
 #warning "test if namespace stuff is working, e.g., try searching for plugin or part"
 
