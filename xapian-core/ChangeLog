@@ -1,3 +1,7 @@
+Tue May 30 16:41:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented OmSettings and added some tests (one still fails.)
+
 Tue May 30 14:05:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New class OmSettings for "global" options.  Not yet implemented

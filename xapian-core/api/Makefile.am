@@ -12,4 +12,4 @@ noinst_LTLIBRARIES = libapi.la
 
 libapi_la_SOURCES = omenquire.cc omquery.cc omdatabase.cc \
 		    omstem.cc ombatchenquire.cc omdocument.cc \
-		    omindexdoc.cc omwritabledb.cc
+		    omindexdoc.cc omwritabledb.cc omsettings.cc

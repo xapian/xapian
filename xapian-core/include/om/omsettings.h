@@ -69,7 +69,7 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	string get_value(const string &key);
+	string get_value(const string &key) const;
 };
 
 #endif // OM_HGUARD_OMSETTINGS_H

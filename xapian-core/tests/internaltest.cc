@@ -53,6 +53,12 @@ bool test_refcnt1();
 bool test_stringcomp1();
 // test whether a SleepyList packs and unpacks correctly
 bool test_sleepypack1();
+// test the behaviour of OmSettings
+bool test_omsettings1();
+// test the behaviour of OmSettings
+bool test_omsettings2();
+// test the behaviour of OmSettings
+bool test_omsettings3();
 
 test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
@@ -64,6 +70,9 @@ test_desc tests[] = {
 #ifdef MUS_BUILD_BACKEND_SLEEPY
     {"sleepypack1",		test_sleepypack1},
 #endif
+    {"omsettings1",		test_omsettings1},
+    {"omsettings2",		test_omsettings2},
+    {"omsettings3",		test_omsettings3},
     {0, 0}
 };
 
@@ -371,4 +380,97 @@ bool test_sleepypack1()
 
     return success;
 }
+
+bool
+test_omsettings1()
+{
+    bool success = true;
+
+    OmSettings settings;
+
+    settings.set_value("K1", "V1");
+    settings.set_value("K2", "V2");
+    settings.set_value("K1", "V3");
+
+    if (settings.get_value("K1") != "V3" ||
+	settings.get_value("K2") != "V2") {
+	success = false;
+    }
+    return success;
+}
+
+bool
+test_omsettings2()
+{
+    bool success = false;
+
+    OmSettings settings;
+    try {
+	settings.get_value("nonexistant");
+
+	if (verbose) {
+	    cout << "get_value() didn't throw with invalid key" << endl;
+	}
+    } catch (OmRangeError &e) {
+	success = true;
+    }
+
+    return success;
+}
+
+bool
+test_omsettings3()
+{
+    bool success = true;
+
+    // test copy-on-write behaviour.
+    OmSettings settings1;
+
+    settings1.set_value("FOO", "BAR");
+    settings1.set_value("MOO", "COW");
+
+    OmSettings settings2(settings1);
+
+    if (settings2.get_value("FOO") != "BAR" ||
+	settings2.get_value("MOO") != "COW") {
+	success = false;
+	if (verbose) {
+	    cout << "settings weren't copied properly." << endl;
+	}
+    }
+
+    if (settings1.get_value("FOO") != "BAR" ||
+	settings1.get_value("MOO") != "COW") {
+	success = false;
+	if (verbose) {
+	    cout << "settings destroyed when copied." << endl;
+	}
+    }
+
+    settings2.set_value("BOO", "AAH");
+
+    try {
+	settings1.get_value("BOO");
+	// should throw
+
+	success = false;
+	if (verbose) {
+	    cout << "Changes leaked to original" << endl;
+	}
+    } catch (OmRangeError &) {
+    }
+
+    settings1.set_value("FOO", "RAB");
+
+    if (settings2.get_value("FOO") != "BAR") {
+	success = false;
+
+	if (verbose) {
+	    cout << "Changes leaked to copy" << endl;
+	}
+    }
+
+    return success;
+}
+
 #endif
