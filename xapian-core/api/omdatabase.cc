@@ -116,24 +116,32 @@ OmDatabase::add_database(const OmDatabase & database)
 OmPostListIterator
 OmDatabase::postlist_begin(const om_termname &tname) const
 {
+    DEBUGAPICALL("OmDatabase::postlist_begin", tname);
+    DEBUGAPIRETURN("OmPostListIterator");
     return OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname)));
 }
 
 OmPostListIterator
 OmDatabase::postlist_end(const om_termname &tname) const
 {
+    DEBUGAPICALL("OmDatabase::postlist_end", tname);
+    DEBUGAPIRETURN("OmPostListIterator");
     return OmPostListIterator(new OmPostListIterator::Internal(new EmptyPostList()));
 }
 
 OmTermListIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
+    DEBUGAPICALL("OmDatabase::termlist_begin", did);
+    DEBUGAPIRETURN("OmTermListIterator");
     return OmTermListIterator(new OmTermListIterator::Internal(internal->get_multi_database()->open_term_list(did)));
 }
 
 OmTermListIterator
 OmDatabase::termlist_end(om_docid did) const
 {
+    DEBUGAPICALL("OmDatabase::termlist_end", did);
+    DEBUGAPIRETURN("OmTermListIterator");
     return OmTermListIterator(NULL);
 }
 

@@ -103,7 +103,6 @@ DBPostList::get_wdf() const
 inline bool
 DBPostList::at_end() const
 {
-    Assert(currdoc != 0);
     if (currdoc == MAXINT) {
 	DEBUGLINE(DB, "DAPostList::at_end() = true");
 	return true;
@@ -194,7 +193,6 @@ inline TermList * DBTermList::next()
 
 inline bool DBTermList::at_end() const
 {
-    Assert(have_started);
     if(pos == terms.end()) {
 	DEBUGLINE(DB, "TERMLIST " << this << " ENDED ");
 	return true;

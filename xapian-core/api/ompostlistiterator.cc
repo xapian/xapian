@@ -27,44 +27,59 @@
 #include "postlist.h"
 #include "omdebug.h"
 
-OmPostListIterator::~OmPostListIterator() { }
+OmPostListIterator::~OmPostListIterator() {
+    DEBUGAPICALL("OmPostListIterator::~OmPostListIterator", "");
+}
 
 const om_docid
 OmPostListIterator::operator *() {
-    return internal->postlist->get_docid();
+    DEBUGAPICALL("OmPostListIterator::operator*", "");
+    om_docid result = internal->postlist->get_docid();
+    DEBUGAPIRETURN(result);
+    return result;
 }
 
 OmPostListIterator &
 OmPostListIterator::operator++() { 
+    DEBUGAPICALL("OmPostListIterator::operator++", "");
     PostList *p = internal->postlist->next(0);
     if (p) internal->postlist = p; // handle prune
+    DEBUGAPIRETURN(*this);
     return *this;
 }
 
 OmPostListIterator
 OmPostListIterator::operator++(int) {
+    DEBUGAPICALL("OmPostListIterator::operator++", "int");
     PostList *p = internal->postlist->next(0);
     if (p) internal->postlist = p; // handle prune
+    DEBUGAPIRETURN(*this);
     return *this;
 }
 
 // extra method, not required to be an input_iterator
 OmPostListIterator
 OmPostListIterator::skip_to(om_docid did) {
+    DEBUGAPICALL("OmPostListIterator::skip_to", did);
     PostList *p = internal->postlist->skip_to(did, 0);
     if (p) internal->postlist = p; // handle prune
+    DEBUGAPIRETURN(*this);
     return *this;
 }    
 
 OmPositionListIterator
 OmPostListIterator::positionlist_begin()
 {
+    DEBUGAPICALL("OmPostListIterator::positionlist_begin", "");
+    DEBUGAPIRETURN("OmPositionListIterator");
     return OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list()));
 }
 
 OmPositionListIterator
 OmPostListIterator::positionlist_end()
 {
+    DEBUGAPICALL("OmPostListIterator::positionlist_end", "");
+    DEBUGAPIRETURN("OmPositionListIterator");
     return OmPositionListIterator(NULL);
 }
 
@@ -81,7 +96,11 @@ OmPostListIterator::get_description() const
 bool
 operator==(const OmPostListIterator &a, const OmPostListIterator &b)
 {
-    return (a.internal == b.internal ||
-	    a.internal->postlist->at_end() && b.internal->postlist->at_end());
+    DEBUGAPICALL_STATIC("OmPostListIterator::operator==", a << ", " << b);
+    bool result = (a.internal == b.internal ||
+		   a.internal->postlist->at_end() &&
+		   b.internal->postlist->at_end());
+    DEBUGAPIRETURN(result);
+    return result;
 }
 

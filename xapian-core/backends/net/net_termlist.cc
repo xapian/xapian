@@ -116,7 +116,6 @@ NetworkTermList::next()
 bool
 NetworkTermList::at_end() const
 {
-    Assert(started);
     if(current_position != items.end()) return false;
     return true;
 }

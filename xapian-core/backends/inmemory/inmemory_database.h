@@ -420,7 +420,6 @@ InMemoryTermList::next()
 inline bool
 InMemoryTermList::at_end() const
 {
-    Assert(started);
     if(pos != end) return false;
     return true;
 }

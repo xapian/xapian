@@ -1,3 +1,12 @@
+Thu Sep  7 23:05:54 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Extra debugging stuff added to OmPostListIterators.
+
+	* Remove assertions in termlist, positionlist and postlist at_end()
+	  methods which check that list is not at beginning.  Calling at_end()
+	  at the beginning of such lists is now valid, (and returns false, even
+	  if the list is empty).
+
 Thu Sep  7 18:44:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added debug information to DB database reading code.
