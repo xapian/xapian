@@ -1857,7 +1857,7 @@ test_desc db_tests[] = {
 
 /// The tests which need a backend which supports terms with newlines / zeros
 test_desc specchar_tests[] = {
-    {"specialterms", 	   test_specialterms1},
+    {"specialterms1", 	   test_specialterms1},
     {0, 0}
 };
 
