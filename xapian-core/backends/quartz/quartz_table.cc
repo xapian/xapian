@@ -56,6 +56,16 @@ readline(FILE *fp)
 }
 
 static void
+writeline(FILE *fp, string data)
+{
+    fwrite((const void *) data.data(),
+	   1,
+	   data.size(),
+	   fp);
+    fprintf(fp, "\n");
+}
+
+static void
 writefile(string filename,
 	  std::map<QuartzDbKey, QuartzDbTag> & data,
 	  quartz_revision_number_t rev)
@@ -79,9 +89,8 @@ writefile(string filename,
 
     std::map<QuartzDbKey, QuartzDbTag>::const_iterator i;
     for (i = data.begin(); i != data.end(); i++) {
-	fprintf(fp, "%s\n%s\n",
-		i->first.value.c_str(),
-		i->second.value.c_str());
+	writeline(fp, i->first.value);
+	writeline(fp, i->second.value);
     }
 
     fclose(fp);

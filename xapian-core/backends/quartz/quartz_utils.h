@@ -39,7 +39,8 @@ typedef long long           om_int64;
  *
  *  @param source_ptr   A pointer to a pointer to the data to read.  The
  *                      character pointer will be updated to point to the
- *                      next character to read, or source_end if sooner.
+ *                      next character to read, or 0 if no more data is to be
+ *                      read.
  *  @param source_end   A pointer to the byte after the end of the data to
  *                      read the integer from.
  *  @param result       A pointer to a place to store the result.  If an
@@ -48,7 +49,7 @@ typedef long long           om_int64;
  *
  *  @result True if an integer was successfully read.  False if the read
  *          failed.  Failure may either be due to the data running out (in
- *          which case *source_ptr will equal source_end), or due to the value
+ *          which case *source_ptr will equal 0), or due to the value
  *          read overflowing the size of result (in which case *source_ptr
  *          will point to wherever the value ends, despite the overflow).
  */

@@ -60,7 +60,28 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	throw OmDatabaseCorruptError("Record containing next free docid not present.");
     }
 
-    return 1;
+    om_docid did;
+    const char * data = tag->value.data();
+    const char * end = data + tag->value.size();
+    bool success = unpack_uint(&data, end, &did);
+
+    if (!success) {
+	if (data == end) {
+	    // Overflow
+	    throw OmRangeError("Next document number is out of range.");
+	} else {
+	    // Number ran out
+	    throw OmDatabaseCorruptError("Record containing next free docid is corrupt.");
+	}
+    }
+    if (data != end) {
+	// Junk data at end of record
+	throw OmDatabaseCorruptError("Junk data at end of record containing next free docid.");
+    }
+
+    tag->value = pack_uint(did + 1);
+
+    return did;
 }
 
 void
@@ -75,10 +96,10 @@ QuartzRecordManager::initialise(QuartzDiskTable & table,
     tag_nextdoc.value = pack_uint(1u);
     tag_totallen.value = pack_uint(0u);
     
-    key.value = string("\000\000", 2);
+    key.value = std::string("\000\000", 2);
     entries[key] = &tag_nextdoc;
 
-    key.value = string("\000\001", 2);
+    key.value = std::string("\000\001", 2);
     entries[key] = &tag_totallen;
 
     table.set_entries(entries, new_revision);

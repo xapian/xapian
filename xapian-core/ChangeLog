@@ -1,3 +1,8 @@
+Tue Oct 10 17:03:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug in temporary implementation of quartz_table - now stores
+	  records with weird characters correctly.
+
 Tue Oct 10 14:41:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix documentation comment in database.h
