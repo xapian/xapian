@@ -1,3 +1,8 @@
+Thu Dec 02 13:45:46 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Query-script.pl: Fix generated HTML; comment out link to the old
+	  bug address.
+
 Wed Dec 01 19:57:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/cvscommitsearch.C: Commenting improvements.
