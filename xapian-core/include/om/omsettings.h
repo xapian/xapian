@@ -34,7 +34,8 @@
  *
  *  The settings available are:
  *
- *  - backend : database backend type
+ *  - backend : database backend type - current backends are: auto, da, db,
+ *    inmemory, remote, quartz, and sleepycat
  *
  *  auto pseudo-backend:
  *
