@@ -59,7 +59,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
         else
         {
             ost << scvs_update << "-r" << log[j-1].revision() 
-                << " " << log.file_name() << " 2>/dev/null|wc -l" << ends;
+                << " " << log.file_name() << " |wc -l" << ends;
             process * p;
             if ((p = new process(ost.str())) != 0)
             {
