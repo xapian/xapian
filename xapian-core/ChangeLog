@@ -1,3 +1,8 @@
+Tue Nov 18 17:53:29 GMT 2003  Olly Betts <olly@survex.com>
+
+	* extra/Makefile.am: Tweaked workaround for FreeBSD make in VPATH
+	  builds.
+
 Tue Nov 18 17:53:01 GMT 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparsertest.cc: Added another testcase.
