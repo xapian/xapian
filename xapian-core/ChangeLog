@@ -1,3 +1,11 @@
+Mon Sep 20 13:06:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Updated version from Fabrice Colin (incorporating
+	  changes from Alan Cox's RPM spec files): split off libs into a
+	  separate package to allow 32 and 64 bit versions to be installed
+	  concurrently; include binaries from xapian-examples; updated source
+	  URLs. 
+
 Mon Sep 20 03:25:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Added regression test for previous bug (test
