@@ -71,9 +71,14 @@ if test no != "$with_swig" ; then
   if test no != "$with_python" ; then
     AC_PATH_PROG(PYTHON, python, [])
     if test -n "$PYTHON" ; then
-      dnl SWIG needs Python 1.5 or newer.
+      dnl Require Python 2.1 or newer.  James says:
+      dnl  2.0 as a minimum. I'm using __cmp__ / __eq__ tricks to get the
+      dnl  iterators to behave like Python iterators, so not all aspects will
+      dnl  work without 2.1; I'd be happy to require 2.1 though, because it's
+      dnl  been out for a long time, and 2.0 wasn't around for all that long as
+      dnl  I remember.
       case "`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
-      [1.[56789]*|[2-9].*])
+      [2.[1-9]*|[3-9].*])
 	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
 	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"

@@ -1,3 +1,7 @@
+Wed Sep 01 12:07:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Require Python >= 2.1 for __cmp__ and __eq__.
+
 Thu Aug 19 17:20:45 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/bindings.html: Document that the 2 argument form of
