@@ -33,6 +33,7 @@ QueryParser::parse_query(const string &query)
 
     QueryParserSource source(query);
 
+    idx->set_destination(this);
     idx->add_source(source);
 
     return termvec;
@@ -63,5 +64,5 @@ void
 QueryParser::make_posting(termid tid, docid did, termcount tpos)
 {
     Assert(tid > 0 && tid <= termvec.size());
-    termvec[tid].add_posting(tpos);
+    termvec[tid - 1].add_posting(tpos);
 }
