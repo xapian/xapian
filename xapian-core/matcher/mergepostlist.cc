@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +83,7 @@ MergePostList::next(om_weight w_min)
 PostList *
 MergePostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "MergePostList::skip_to", did << ", " << w_min);
     // MergePostList doesn't return documents in docid order, so skip_to
     // isn't a meaningful operation.
     throw OmInvalidOperationError("MergePostList doesn't support skip_to");

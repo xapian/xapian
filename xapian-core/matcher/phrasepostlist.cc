@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +44,7 @@ class PositionListCmpLt {
 bool
 NearPostList::test_doc()
 {
+    DEBUGCALL(MATCH, bool, "NearPostList::test_doc", "");
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -66,9 +68,8 @@ bool
 NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 		      om_termcount min, om_termcount max)
 {
-    DEBUGLINE(MATCH, "NearPostList::do_test([...], " << i << ", " << min <<
-	      ", " << max << ")\ndocid = " << get_docid() << ", window = "
-	      << window);
+    DEBUGCALL(MATCH, bool, "NearPostList::do_test", "[plists], " << i << ", " << min << ", " << max);
+    DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     om_termcount tmp = max + 1;
     // take care to avoid underflow
     if (window <= tmp) tmp -= window; else tmp = 0;
@@ -94,6 +95,7 @@ NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 bool
 PhrasePostList::test_doc()
 {
+    DEBUGCALL(MATCH, bool, "PhrasePostList::test_doc", "");
     std::vector<PositionList *> plists;
 
     std::vector<PostList *>::iterator i;
@@ -126,10 +128,8 @@ bool
 PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 			om_termcount min, om_termcount max)
 {
-    DEBUGLINE(MATCH, "PhrasePostList::do_test([...], " << i << ", "
-	      << min << ", "
-	      << max << ")\ndocid = " << get_docid() << ", window = "
-	      << window);
+    DEBUGCALL(MATCH, bool, "PhrasePostList::do_test", "[plists],  " << i << ", " << min << ", " << max);
+    DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     om_termpos idxi = plists[i]->index;
     DEBUGLINE(MATCH, "my idx in phrase is " << idxi);
 

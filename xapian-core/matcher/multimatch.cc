@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,6 +94,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
 	  mcmp(msetcmp_forward), errorhandler(errorhandler_)
 {
+    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " << omrset << ", " << opts_ << ", " << errorhandler_ << ", [gatherer_]");
     query->validate_query();
 
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
@@ -152,12 +153,13 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 
 MultiMatch::~MultiMatch()
 {
+    DEBUGCALL(MATCH, void, "~MultiMatch", "");
 }
 
 void
 MultiMatch::prepare_matchers()
 {
-    DEBUGCALL(EXCEPTION, void, "MultiMatch::prepare_matchers", "");
+    DEBUGCALL(MATCH, void, "MultiMatch::prepare_matchers", "");
     bool prepared;
     bool nowait = true;
     do {
@@ -188,6 +190,7 @@ inline OmKey
 MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
 			     om_keyno keyno, RefCntPtr<Document> &doc)
 {		      
+    DEBUGCALL(MATCH, OmKey, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
     const OmKey *key = pl->get_collapse_key();
     if (key) return *key;
     if (doc.get() == 0) {
@@ -200,6 +203,7 @@ MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
 om_weight
 MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
+    DEBUGCALL(MATCH, om_weight, "MultiMatch::getorrecalc_maxweight", pl);
     om_weight wt;
     if (recalculate_w_max) {
 	DEBUGLINE(MATCH, "recalculating max weight");
@@ -690,5 +694,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 void
 MultiMatch::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, void, "MultiMatch::recalc_maxweight", "");
     recalculate_w_max = true;
 }

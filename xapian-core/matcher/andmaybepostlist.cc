@@ -28,6 +28,7 @@
 inline PostList *
 AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
+    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::process_next_or_skip_to", w_min << ", " << ret);
     handle_prune(l, ret);
     if (l->at_end()) {
 	// once l is over, so is the AND MAYBE
@@ -51,6 +52,7 @@ AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 PostList *
 AndMaybePostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::next", w_min);
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
@@ -66,6 +68,7 @@ AndMaybePostList::next(om_weight w_min)
 PostList *
 AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndMaybePostList::skip_to", did << ", " << w_min);
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;

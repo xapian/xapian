@@ -122,6 +122,7 @@ PostList *
 LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_xor_tree", "[postlists], " << matcher);
     // Build nice tree for XOR-ed postlists
     // Want postlists with most entries to be at top of tree, to reduce
     // average number of nodes an entry gets "pulled" through.
@@ -168,6 +169,7 @@ PostList *
 LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_and_tree", "[postlists], " << matcher);
     // Build nice tree for AND-ed terms
     // SORT list into ascending freq order
     // AND last two elements, then AND with each subsequent element
@@ -208,6 +210,7 @@ PostList *
 LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 			     MultiMatch *matcher)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_or_tree", "[postlists], " << matcher);
     // Build nice tree for OR-ed postlists
     // Want postlists with most entries to be at top of tree, to reduce
     // average number of nodes an entry gets "pulled" through.
@@ -268,6 +271,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 				MultiMatch *matcher,
 				bool is_bool)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_queries", op << ", [queries], " << window << ", " << elite_set_size << ", " << matcher << ", " << is_bool);
     Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
 	   op == OmQuery::OP_XOR ||
 	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE ||
@@ -369,6 +373,7 @@ PostList *
 LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 				   MultiMatch *matcher, bool is_bool)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_query", query << ", " << matcher << ", " << is_bool);
     switch (query->op) {
 	case OmQuery::Internal::OP_UNDEF: {
 	    LeafPostList *pl = new EmptyPostList();
@@ -455,6 +460,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 bool
 LocalSubMatch::prepare_match(bool nowait)
 {
+    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait);
     if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
 	OmTermIterator terms = users_query.get_terms();
@@ -477,6 +483,7 @@ LocalSubMatch::prepare_match(bool nowait)
 PostList *
 LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
     PostList *pl = postlist_from_query(&users_query, matcher, false);
     IRWeight *wt = mk_weight();
     // don't bother with an ExtraWeightPostList if there's no extra weight
@@ -493,6 +500,7 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 IRWeight *
 LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
 {
+    DEBUGCALL(MATCH, IRWeight *, "LocalSubMatch::mk_weight", query_);
     om_termname tname = "";
     om_termcount wqf = 1;
     if (query_) {

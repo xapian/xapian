@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +42,7 @@ StatsGatherer::remove_child(StatsSource *source) {
 void
 StatsGatherer::contrib_stats(const Stats & extra_stats)
 {
+    DEBUGCALL(MATCH, void, "StatsGatherer::contrib_stats", "[extra_stats]");
     Assert(have_gathered == false);
     total_stats += extra_stats;
 }
@@ -69,6 +71,7 @@ LocalStatsGatherer::get_stats() const
 NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
 	: have_global_stats(false), nserv(nserv_)
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsGatherer", nserv_);
 }
 
 const Stats *
@@ -83,6 +86,7 @@ NetworkStatsGatherer::get_stats() const
 void
 NetworkStatsGatherer::fetch_local_stats() const
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsGatherer::fetch_local_stats", "");
     if (!have_gathered) {
 	for (std::set<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
@@ -96,6 +100,7 @@ NetworkStatsGatherer::fetch_local_stats() const
 Stats
 NetworkStatsGatherer::get_local_stats() const
 {
+    DEBUGCALL(MATCH, Stats, "NetworkStatsGatherer::get_local_stats", "");
     fetch_local_stats();
     return total_stats;
 }
@@ -103,6 +108,7 @@ NetworkStatsGatherer::get_local_stats() const
 void
 NetworkStatsGatherer::fetch_global_stats() const
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsGatherer::fetch_global_stats", "");
     Assert(have_gathered);
 
     //nserv->send_local_stats(total_stats);
@@ -116,15 +122,18 @@ NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
 	: StatsSource(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsSource", "[gatherer_], [nclient_]");
 }
 
 NetworkStatsSource::~NetworkStatsSource()
 {
+    DEBUGCALL(MATCH, void, "~NetworkStatsSource", "");
 }
 
 void
 NetworkStatsSource::contrib_my_stats()
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsSource::contrib_my_stats", "");
     Assert(have_remote_stats);
     gatherer->contrib_stats(my_stats);
 }
@@ -132,6 +141,7 @@ NetworkStatsSource::contrib_my_stats()
 void
 NetworkStatsSource::take_remote_stats(Stats stats)
 {
+    DEBUGCALL(MATCH, void, "NetworkStatsSource::take_remote_stats", "[stats]");
     my_stats = stats;
     have_remote_stats = true;
 }
@@ -141,15 +151,18 @@ NetworkStatsSource::take_remote_stats(Stats stats)
 LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
 	: StatsSource(gatherer_)
 {
+    DEBUGCALL(MATCH, void, "LocalStatsSource", gatherer_);
 }
 
 LocalStatsSource::~LocalStatsSource()
 {
+    DEBUGCALL(MATCH, void, "~LocalStatsSource", "");
 }
 
 void
 StatsSource::perform_request() const
 {
+    DEBUGCALL(MATCH, void, "StatsSource::perform_request", "");
     Assert(total_stats == 0);
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);

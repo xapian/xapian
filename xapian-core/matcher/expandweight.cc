@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +60,7 @@ OmExpandWeight::OmExpandWeight(const OmDatabase &root_,
 	  use_exact_termfreq(use_exact_termfreq_),
 	  expand_k(expand_k_)
 {
+    DEBUGCALL(MATCH, void, "OmExpandWeight", root_ << ", " << rsetsize_ << ", " << use_exact_termfreq_ << ", " << expand_k_);
     dbsize = root.get_doccount();
     average_length = root.get_avlength();
     return;
@@ -70,6 +72,7 @@ OmExpandWeight::get_bits(om_termcount wdf,
 			 om_doccount termfreq,
 			 om_doccount dbsize) const
 {
+    DEBUGCALL(MATCH, OmExpandBits, "OmExpandWeight::get_bits", wdf << ", " << document_length << ", " << termfreq << ", " << dbsize);
     om_weight multiplier = 1.0;
 
     om_doclength normalised_length = document_length / average_length;
@@ -97,6 +100,7 @@ om_weight
 OmExpandWeight::get_weight(const OmExpandBits &bits,
 			   const om_termname &tname) const
 {
+    DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_weight", "[bits], " << tname);
     double termfreq = (double)bits.termfreq;
     if(bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
@@ -148,6 +152,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 om_weight
 OmExpandWeight::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_maxweight", "");
     // FIXME - check the maths behind this.
     return(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);
 }

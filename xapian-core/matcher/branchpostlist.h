@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,6 +82,7 @@ BranchPostList::~BranchPostList()
 inline void
 BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 {
+    DEBUGCALL(MATCH, void, "BranchPostList::handle_prune", kid << ", " << ret);
     if (ret) {
 	delete kid;
 	kid = ret;
@@ -93,6 +95,7 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 inline PositionList *
 BranchPostList::read_position_list()
 {
+    DEBUGCALL(MATCH, PositionList *, "BranchPostList::read_position_list", "");
     throw OmUnimplementedError("BranchPostList::read_position_list() unimplemented");
 }
 

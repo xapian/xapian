@@ -33,11 +33,13 @@ OrPostList::OrPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
+    DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
 }
 
 PostList *
 OrPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "OrPostList::next", w_min);
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -98,6 +100,7 @@ OrPostList::next(om_weight w_min)
 PostList *
 OrPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "OrPostList::skip_to", did << ", " << w_min);
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;

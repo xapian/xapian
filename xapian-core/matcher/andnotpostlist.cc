@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 inline PostList *
 AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 {
+    DEBUGCALL(MATCH, PostList *, "AndNotPostList::advance_to_next_match", w_min << ", " << ret);
     handle_prune(l, ret);
     if (l->at_end()) {
 	lhead = 0;
@@ -59,11 +61,13 @@ AndNotPostList::AndNotPostList(PostList *left_,
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), dbsize(dbsize_)
 {
+    DEBUGCALL(MATCH, void, "AndNotPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
 }
 
 PostList *
 AndNotPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
     return advance_to_next_match(w_min, l->next(w_min));
 }
 
@@ -73,6 +77,7 @@ AndNotPostList::sync_and_skip_to(om_docid id,
 				 om_docid lh,
 				 om_docid rh)
 {
+    DEBUGCALL(MATCH, PostList *, "AndNotPostList::sync_and_skip_to", id << ", " << w_min << ", " << lh << ", " << rh);
     lhead = lh;
     rhead = rh;
     return skip_to(id, w_min);
@@ -81,6 +86,7 @@ AndNotPostList::sync_and_skip_to(om_docid id,
 PostList *
 AndNotPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did << ", " << w_min);
     if (did <= lhead) return NULL;
     return advance_to_next_match(w_min, l->skip_to(did, w_min));
 }

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,11 +29,13 @@ WeightCutoffPostList::WeightCutoffPostList(PostList * pl_,
 					   MultiMatch * matcher_)
 	: pl(pl_), cutoff(cutoff_), matcher(matcher_)
 {
+    DEBUGCALL(MATCH, void, "WeightCutoffPostList", pl_ << ", " << cutoff_ << ", " << matcher_);
 }
 
 PostList *
 WeightCutoffPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "WeightCutoffPostList::next", w_min);
     if (w_min < cutoff) w_min = cutoff;
     do {
 	(void) next_handling_prune(pl, w_min, matcher);
@@ -43,6 +46,7 @@ WeightCutoffPostList::next(om_weight w_min)
 PostList *
 WeightCutoffPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "WeightCutoffPostList::skip_to", did << ", " << w_min);
     if (w_min < cutoff) w_min = cutoff;
     do {
 	// skip to guarantees skipping to at least docid did, but not that

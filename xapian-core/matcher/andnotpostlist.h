@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,6 +77,7 @@ class AndNotPostList : public BranchPostList {
 inline om_doccount
 AndNotPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_max", "");
     // Max is when as many docs as possible on left, and none excluded.
     return l->get_termfreq_max();
 }
@@ -83,6 +85,7 @@ AndNotPostList::get_termfreq_max() const
 inline om_doccount
 AndNotPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_min", "");
     // Min is when as few docs as possible on left, and maximum are excluded.
     om_doccount l_min = l->get_termfreq_min();
     om_doccount r_max = r->get_termfreq_max();
@@ -93,6 +96,7 @@ AndNotPostList::get_termfreq_min() const
 inline om_doccount
 AndNotPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
@@ -106,6 +110,7 @@ AndNotPostList::get_termfreq_est() const
 inline om_docid
 AndNotPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "AndNotPostList::get_docid", "");
     return lhead;
 }
 
@@ -113,6 +118,7 @@ AndNotPostList::get_docid() const
 inline om_weight
 AndNotPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_weight", "");
     return l->get_weight();
 }
 
@@ -120,18 +126,21 @@ AndNotPostList::get_weight() const
 inline om_weight
 AndNotPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_maxweight", "");
     return l->get_maxweight();
 }
 
 inline om_weight
 AndNotPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "AndNotPostList::recalc_maxweight", "");
     return l->recalc_maxweight();
 }
 
 inline bool
 AndNotPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "AndNotPostList::at_end", "");
     return lhead == 0;
 }
 
@@ -144,6 +153,7 @@ AndNotPostList::get_description() const
 inline om_doclength
 AndNotPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "AndNotPostList::get_doclength", "");
     return l->get_doclength();
 }
 

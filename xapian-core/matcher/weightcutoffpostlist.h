@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,6 +85,7 @@ WeightCutoffPostList::~WeightCutoffPostList()
 inline om_doccount
 WeightCutoffPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_max", "");
     if (cutoff > pl->get_maxweight()) return 0;
     return pl->get_termfreq_max();
 }
@@ -91,6 +93,7 @@ WeightCutoffPostList::get_termfreq_max() const
 inline om_doccount
 WeightCutoffPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_min", "");
     if (cutoff == 0) return pl->get_termfreq_min();
     return 0u;
 }
@@ -98,6 +101,7 @@ WeightCutoffPostList::get_termfreq_min() const
 inline om_doccount
 WeightCutoffPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "WeightCutoffPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double est = static_cast<double>(pl->get_termfreq_est());
@@ -119,30 +123,35 @@ WeightCutoffPostList::get_termfreq_est() const
 inline om_weight
 WeightCutoffPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::get_maxweight", "");
     return pl->get_maxweight();
 }
 
 inline om_docid
 WeightCutoffPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "WeightCutoffPostList::get_docid", "");
     return pl->get_docid();
 }
 
 inline om_weight
 WeightCutoffPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::get_weight", "");
     return pl->get_weight();
 }
 
 inline om_weight
 WeightCutoffPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "WeightCutoffPostList::recalc_maxweight", "");
     return pl->recalc_maxweight();
 }
 
 inline bool
 WeightCutoffPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "WeightCutoffPostList::at_end", "");
     return pl->at_end();
 }
 
@@ -156,6 +165,7 @@ WeightCutoffPostList::get_description() const
 inline PositionList *
 WeightCutoffPostList::read_position_list()
 {
+    DEBUGCALL(MATCH, PositionList *, "WeightCutoffPostList::read_position_list", "");
     return pl->read_position_list();
 }
 
@@ -168,6 +178,7 @@ WeightCutoffPostList::open_position_list() const
 inline om_doclength
 WeightCutoffPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "WeightCutoffPostList::get_doclength", "");
     return pl->get_doclength();
 }
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +32,7 @@
 
 TradWeight::TradWeight(const OmSettings & opts)
 {
+    DEBUGCALL(MATCH, void, "TradWeight", opts);
     param_k = opts.get_real("tradweight_k", 1);
     if(param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
 }
@@ -40,6 +42,7 @@ TradWeight::TradWeight(const OmSettings & opts)
 void
 TradWeight::calc_termweight() const
 {
+    DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
     Assert(initialised);
 
     om_doccount dbsize = stats->get_total_collection_size();
@@ -81,6 +84,7 @@ TradWeight::calc_termweight() const
 om_weight
 TradWeight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumpart", wdf << ", " << len);
     if(!weight_calculated) calc_termweight();
 
     om_weight wt = (double) wdf / (len * lenpart + wdf);
@@ -93,6 +97,7 @@ TradWeight::get_sumpart(om_termcount wdf, om_doclength len) const
 om_weight
 TradWeight::get_maxpart() const
 {
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxpart", "");
     if(!weight_calculated) calc_termweight();
 
     return termweight;
@@ -101,11 +106,13 @@ TradWeight::get_maxpart() const
 om_weight
 TradWeight::get_sumextra(om_doclength len) const
 {
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", len);
     return 0;
 }
 
 om_weight
 TradWeight::get_maxextra() const
 {
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxextra", "");
     return 0;
 }

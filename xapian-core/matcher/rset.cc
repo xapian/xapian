@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 void
 RSet::calculate_stats()
 {
+    DEBUGCALL(MATCH, void, "RSet::calculate_stats", "");
     Assert(!calculated_reltermfreqs);
     DEBUGLINE(WTCALC, "RSet::calculate_stats(): ");
     std::vector<RSetItem>::const_iterator doc;
@@ -71,6 +73,7 @@ RSet::calculate_stats()
 void
 RSet::give_stats_to_statssource(StatsSource *statssource)
 {
+    DEBUGCALL(MATCH, void, "RSet::give_stats_to_statssource", statssource);
     Assert(calculated_reltermfreqs);
 
     std::map<om_termname, om_doccount>::const_iterator i;

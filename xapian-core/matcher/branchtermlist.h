@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +44,7 @@ BranchTermList::~BranchTermList()
 inline void
 BranchTermList::handle_prune(TermList *&kid, TermList *ret)
 {
+    DEBUGCALL(MATCH, void, "BranchTermList::handle_prune", kid << ", " << ret);
     if (ret) {
 	delete kid;
 	kid = ret;

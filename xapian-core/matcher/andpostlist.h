@@ -79,18 +79,21 @@ class AndPostList : public BranchPostList {
 inline om_doccount
 AndPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndPostList::get_termfreq_max", "");
     return std::min(l->get_termfreq_max(), r->get_termfreq_max());
 }
 
 inline om_doccount
 AndPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndPostList::get_termfreq_min", "");
     return 0u;
 }
 
 inline om_doccount
 AndPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -101,6 +104,7 @@ AndPostList::get_termfreq_est() const
 inline om_docid
 AndPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "AndPostList::get_docid", "");
     return head;
 }
 
@@ -108,6 +112,7 @@ AndPostList::get_docid() const
 inline om_weight
 AndPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndPostList::get_weight", "");
     return l->get_weight() + r->get_weight();
 }
 
@@ -115,12 +120,14 @@ AndPostList::get_weight() const
 inline om_weight
 AndPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndPostList::get_maxweight", "");
     return lmax + rmax;
 }
 
 inline om_weight
 AndPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "AndPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     return AndPostList::get_maxweight();
@@ -129,6 +136,7 @@ AndPostList::recalc_maxweight()
 inline bool
 AndPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "AndPostList::at_end", "");
     return head == 0;
 }
 
@@ -141,9 +149,9 @@ AndPostList::get_description() const
 inline om_doclength
 AndPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "AndPostList::get_doclength", "");
     om_doclength doclength = l->get_doclength();
-    DEBUGLINE(MATCH, "AndPostList::get_doclength() [docid=" << head <<
-	      "] = " << doclength);
+    DEBUGLINE(MATCH, "docid=" << head);
     AssertEqDouble(l->get_doclength(), r->get_doclength());
     return doclength;
 }

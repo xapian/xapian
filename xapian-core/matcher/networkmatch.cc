@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +42,7 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 	: is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
 	  gatherer(gatherer_)
 {	    
+    DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " << omrset << ", " << opts << ", " << gatherer_);
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
     Assert(db);
@@ -55,6 +57,7 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 
 RemoteSubMatch::~RemoteSubMatch()
 {
+    DEBUGCALL(MATCH, void, "~RemoteSubMatch", "");
     db->link->close_end_time();
     delete statssource;
 }
@@ -62,6 +65,7 @@ RemoteSubMatch::~RemoteSubMatch()
 PostList *
 RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
+    DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", maxitems << ", " << matcher);
     postlist = new PendingMSetPostList(db, maxitems);
     return postlist;
 }
@@ -69,6 +73,7 @@ RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 bool
 RemoteSubMatch::prepare_match(bool nowait)
 {
+    DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
     if (!is_prepared) {
 	bool finished_query = db->link->finish_query();
 
@@ -102,6 +107,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 void
 RemoteSubMatch::start_match(om_doccount maxitems)
 {
+    DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match", maxitems);
     Assert(is_prepared);
     db->link->send_global_stats(*(gatherer->get_stats()));
     OmMSet mset;

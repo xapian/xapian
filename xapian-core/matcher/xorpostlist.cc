@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 inline PostList *
 XorPostList::advance_to_next_match(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "XorPostList::advance_to_next_match", w_min);
     while (rhead == lhead) {
 	next_handling_prune(l, w_min, matcher);
 	next_handling_prune(r, w_min, matcher);
@@ -62,11 +64,13 @@ XorPostList::XorPostList(PostList *left_,
 	  rhead(0),
 	  dbsize(dbsize_)
 {
+    DEBUGCALL(MATCH, void, "XorPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
 }
 
 PostList *
 XorPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "XorPostList::next", w_min);
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
 	PostList *ret;
@@ -126,6 +130,7 @@ XorPostList::next(om_weight w_min)
 PostList *
 XorPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "XorPostList::skip_to", did << ", " << w_min);
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
 	PostList *ret, *ret2;

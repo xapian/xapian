@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +48,7 @@ class OrTermList : public BranchTermList {
 inline OmExpandBits
 OrTermList::get_weighting() const
 {
+    DEBUGCALL(MATCH, OmExpandBits, "OrTermList::get_weighting", "");
     Assert(started);
     if (lhead < rhead) return l->get_weighting();
     if (lhead > rhead) return r->get_weighting();
@@ -56,6 +58,7 @@ OrTermList::get_weighting() const
 inline om_doccount
 OrTermList::get_termfreq() const
 {
+    DEBUGCALL(MATCH, om_doccount, "OrTermList::get_termfreq", "");
     Assert(started);
     if (lhead < rhead) return l->get_termfreq();
     return r->get_termfreq();
@@ -64,6 +67,7 @@ OrTermList::get_termfreq() const
 inline om_termname
 OrTermList::get_termname() const
 {
+    DEBUGCALL(MATCH, om_termname, "OrTermList::get_termname", "");
     Assert(started);
     if (lhead < rhead) return l->get_termname();
     return r->get_termname();
@@ -72,6 +76,7 @@ OrTermList::get_termname() const
 inline om_termcount
 OrTermList::get_wdf() const
 {
+    DEBUGCALL(MATCH, om_termcount, "OrTermList::get_wdf", "");
     Assert(started);
     if (lhead < rhead) return l->get_wdf();
     if (lhead > rhead) return r->get_wdf();
@@ -81,6 +86,7 @@ OrTermList::get_wdf() const
 inline bool
 OrTermList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "OrTermList::at_end", "");
     AssertParanoid(!(l->at_end()) && !(r->at_end()));
     return false; // Should have thrown a sub-tree, rather than got to end
 }
@@ -88,6 +94,7 @@ OrTermList::at_end() const
 inline om_termcount
 OrTermList::get_approx_size() const
 {
+    DEBUGCALL(MATCH, om_termcount, "OrTermList::get_approx_size", "");
     return l->get_approx_size() + r->get_approx_size();
 }
 

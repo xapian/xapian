@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 inline void
 AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
+    DEBUGCALL(MATCH, void, "AndPostList::process_next_or_skip_to", w_min << ", " << ret);
     head = 0;
     handle_prune(r, ret);
     if (r->at_end()) return;
@@ -67,6 +69,7 @@ AndPostList::AndPostList(PostList *left_, PostList *right_,
 			 bool replacement)
 	: BranchPostList(left_, right_, matcher_), head(0), dbsize(dbsize_)
 {
+    DEBUGCALL(MATCH, void, "AndPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_ << ", " << replacement);
     if (replacement) {
 	// Initialise the maxweights from the kids so we can avoid forcing
 	// a full maxweight recalc
@@ -78,6 +81,7 @@ AndPostList::AndPostList(PostList *left_, PostList *right_,
 PostList *
 AndPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndPostList::next", w_min);
     process_next_or_skip_to(w_min, r->next(w_min - lmax));
     return NULL;
 }
@@ -85,6 +89,7 @@ AndPostList::next(om_weight w_min)
 PostList *
 AndPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "AndPostList::skip_to", did << ", " << w_min);
     if (did > head) process_next_or_skip_to(w_min, r->skip_to(did, w_min - lmax));
     return NULL;
 }

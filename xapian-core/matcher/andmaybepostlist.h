@@ -110,6 +110,7 @@ class AndMaybePostList : public BranchPostList {
 inline om_doccount
 AndMaybePostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_max", "");
     // Termfreq is exactly that of left hand branch.
     return l->get_termfreq_max();
 }
@@ -117,6 +118,7 @@ AndMaybePostList::get_termfreq_max() const
 inline om_doccount
 AndMaybePostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_min", "");
     // Termfreq is exactly that of left hand branch.
     return l->get_termfreq_min();
 }
@@ -124,6 +126,7 @@ AndMaybePostList::get_termfreq_min() const
 inline om_doccount
 AndMaybePostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "AndMaybePostList::get_termfreq_est", "");
     // Termfreq is exactly that of left hand branch.
     return l->get_termfreq_est();
 }
@@ -131,6 +134,7 @@ AndMaybePostList::get_termfreq_est() const
 inline om_docid
 AndMaybePostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "AndMaybePostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     return lhead;
 }
@@ -139,6 +143,7 @@ AndMaybePostList::get_docid() const
 inline om_weight
 AndMaybePostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead == rhead) return l->get_weight() + r->get_weight();
     return l->get_weight();
@@ -148,12 +153,14 @@ AndMaybePostList::get_weight() const
 inline om_weight
 AndMaybePostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::get_maxweight", "");
     return lmax + rmax;
 }
 
 inline om_weight
 AndMaybePostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "AndMaybePostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     return AndMaybePostList::get_maxweight();
@@ -162,6 +169,7 @@ AndMaybePostList::recalc_maxweight()
 inline bool
 AndMaybePostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "AndMaybePostList::at_end", "");
     return lhead == 0;
 }
 
@@ -175,6 +183,7 @@ AndMaybePostList::get_description() const
 inline om_doclength
 AndMaybePostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "AndMaybePostList::get_doclength", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
     return l->get_doclength();

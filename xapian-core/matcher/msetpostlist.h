@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,18 +70,21 @@ class MSetPostList : public PostList {
 inline om_doccount
 MSetPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_max", "");
     return mset.get_matches_upper_bound();
 }
 
 inline om_doccount
 MSetPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_min", "");
     return mset.get_matches_lower_bound();
 }
 
 inline om_doccount
 MSetPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MSetPostList::get_termfreq_est", "");
     return mset.get_matches_estimated();
 }
 
@@ -95,6 +99,7 @@ MSetPostList::get_docid() const
 inline om_weight
 MSetPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "MSetPostList::get_weight", "");
     Assert(current != -1);
     return mset.internal->data->items[current].wt;
 }
@@ -109,6 +114,7 @@ MSetPostList::get_collapse_key() const
 inline om_weight
 MSetPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "MSetPostList::get_maxweight", "");
     // Before we've started, return max_possible...
     // FIXME: when current advances from -1 to 0, we should probably call
     // recalc_maxweight on the matcher...
@@ -121,12 +127,14 @@ MSetPostList::get_maxweight() const
 inline om_weight
 MSetPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "MSetPostList::recalc_maxweight", "");
     return get_maxweight();
 }
 
 inline bool
 MSetPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "MSetPostList::at_end", "");
     Assert(current != -1);
     return (unsigned int)current >= mset.size();
 }
@@ -140,6 +148,7 @@ MSetPostList::get_description() const
 inline om_doclength
 MSetPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "MSetPostList::get_doclength", "");
     Assert(current != -1);
     return 1; // FIXME: this info is unused with present weights
 //    return db->get_doclength(mset.internal->data->items[current].did);
@@ -148,6 +157,7 @@ MSetPostList::get_doclength() const
 inline PositionList *
 MSetPostList::read_position_list()
 {
+    DEBUGCALL(MATCH, PositionList *, "MSetPostList::read_position_list", "");
     throw OmUnimplementedError("MSetPostList::read_position_list() unimplemented");
 }
 

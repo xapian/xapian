@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,6 +120,7 @@ OmExpand::expand(om_termcount max_esize,
 		 bool use_exact_termfreq,
 		 double expand_k )
 {
+    DEBUGCALL(MATCH, void, "OmExpand::expand", max_esize << ", " << eset << ", " << rset << ", " << decider << ", " << use_exact_termfreq << ", " << expand_k);
     eset.internal->items.clear();
     eset.internal->ebound = 0;
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +33,7 @@ std::map<std::string, const IRWeight *> IRWeight::custom_weights;
 IRWeight *
 IRWeight::create_new(const OmSettings & opts)
 {
-    DEBUGLINE(UNKNOWN, "IRWeight::create_new(" << opts << ")");
+    DEBUGCALL_STATIC(MATCH, IRWeight *, "IRWeight::create_new", opts);
     IRWeight * weight = NULL;
 
     const std::string wt_type = opts.get("match_weighting_scheme", "bm25");
@@ -69,9 +70,10 @@ IRWeight::create_new(const OmSettings & opts)
 void
 IRWeight::register_custom(const std::string &wt_type, const IRWeight *wt)
 {
+    DEBUGCALL_STATIC(MATCH, void, "IRWeight::register_custom", wt_type << ", " << wt);
     // FIXME threadlock
     Assert(wt);
-    if (wt_type.size() == 0 || wt_type.at(0) != 'x') {
+    if (wt_type.empty() || wt_type[0] != 'x') {
 	throw OmInvalidArgumentError("Custom weighting scheme names must start with `x'");
     }
 

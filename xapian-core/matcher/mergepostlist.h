@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,6 +85,7 @@ class MergePostList : public PostList {
 inline om_doccount
 MergePostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_max", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
     std::vector<PostList *>::const_iterator i;
@@ -96,6 +98,7 @@ MergePostList::get_termfreq_max() const
 inline om_doccount
 MergePostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_min", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
     std::vector<PostList *>::const_iterator i;
@@ -108,6 +111,7 @@ MergePostList::get_termfreq_min() const
 inline om_doccount
 MergePostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_est", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
     std::vector<PostList *>::const_iterator i;
@@ -130,6 +134,7 @@ MergePostList::get_docid() const
 inline om_weight
 MergePostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "MergePostList::get_weight", "");
     Assert(current != -1);
     return plists[current]->get_weight();
 }
@@ -144,12 +149,14 @@ MergePostList::get_collapse_key() const
 inline om_weight
 MergePostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "MergePostList::get_maxweight", "");
     return w_max;
 }
 
 inline om_weight
 MergePostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "MergePostList::recalc_maxweight", "");
     w_max = 0;
     std::vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
@@ -184,6 +191,7 @@ MergePostList::recalc_maxweight()
 inline bool
 MergePostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "MergePostList::at_end", "");
     Assert(current != -1);
     return (unsigned int)current >= plists.size();    
 }
@@ -202,6 +210,7 @@ MergePostList::get_description() const
 inline om_doclength
 MergePostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "MergePostList::get_doclength", "");
     Assert(current != -1);
     return plists[current]->get_doclength();
 }
@@ -209,6 +218,7 @@ MergePostList::get_doclength() const
 inline PositionList *
 MergePostList::read_position_list()
 {
+    DEBUGCALL(MATCH, PositionList *, "MergePostList::read_position_list", "");
     throw OmUnimplementedError("MergePostList::read_position_list() unimplemented");
 }
 

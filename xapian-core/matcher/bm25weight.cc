@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +39,7 @@
 
 BM25Weight::BM25Weight(const OmSettings & opts)
 {
+    DEBUGCALL(MATCH, void, "BM25Weight", opts);
     param_A = opts.get_real("bm25weight_A", 1);
     param_B = opts.get_real("bm25weight_B", 1);
     param_C = opts.get_real("bm25weight_C", 0);
@@ -55,6 +57,7 @@ BM25Weight::BM25Weight(const OmSettings & opts)
 void
 BM25Weight::calc_termweight() const
 {
+    DEBUGCALL(MATCH, void, "BM25Weight::calc_termweight", "");
     Assert(initialised);
 
     om_doccount dbsize = stats->get_total_collection_size();
@@ -101,6 +104,7 @@ BM25Weight::calc_termweight() const
 om_weight
 BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
+    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_sumpart", wdf << ", " << len);
     if(!weight_calculated) calc_termweight();
 
     om_doclength normlen = len * lenpart;
@@ -126,6 +130,7 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 om_weight
 BM25Weight::get_maxpart() const
 {
+    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_maxpart", "");
     if(!weight_calculated) calc_termweight();
     DEBUGLINE(WTCALC, "maxpart = " << ((param_B + 1) * termweight));
     return (param_B + 1) * termweight;
@@ -139,6 +144,7 @@ BM25Weight::get_maxpart() const
 om_weight
 BM25Weight::get_sumextra(om_doclength len) const
 {
+    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_sumextra", len);
     om_doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
     om_weight extra = param_C * querysize / (1 + normlen);
@@ -152,6 +158,7 @@ BM25Weight::get_sumextra(om_doclength len) const
 om_weight
 BM25Weight::get_maxextra() const
 {
+    DEBUGCALL(MATCH, om_weight, "BM25Weight::get_maxextra", "");
     om_weight maxextra = param_C * querysize;
     DEBUGLINE(WTCALC, "querysize = " << querysize <<
 	      " =>  maxextra = " << maxextra);

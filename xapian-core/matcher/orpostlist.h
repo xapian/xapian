@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,18 +76,21 @@ class OrPostList : public BranchPostList {
 inline om_doccount
 OrPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_max", "");
     return std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize);
 }
 
 inline om_doccount
 OrPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_min", "");
     return std::max(l->get_termfreq_min(), r->get_termfreq_min());
 }
 
 inline om_doccount
 OrPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -97,6 +101,7 @@ OrPostList::get_termfreq_est() const
 inline om_docid
 OrPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "OrPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     return std::min(lhead, rhead);
 }
@@ -105,6 +110,7 @@ OrPostList::get_docid() const
 inline om_weight
 OrPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "OrPostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_weight();
     if (lhead > rhead) return r->get_weight();
@@ -115,12 +121,14 @@ OrPostList::get_weight() const
 inline om_weight
 OrPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "OrPostList::get_maxweight", "");
     return lmax + rmax;
 }
 
 inline om_weight
 OrPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "OrPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
@@ -130,6 +138,7 @@ OrPostList::recalc_maxweight()
 inline bool
 OrPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "OrPostList::at_end", "");
     // Can never really happen - OrPostList next/skip_to autoprune
     AssertParanoid(!(l->at_end()) && !(r->at_end()));
     return false;
@@ -144,6 +153,7 @@ OrPostList::get_description() const
 inline om_doclength
 OrPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "OrPostList::get_doclength", "");
     om_doclength doclength;
 
     Assert(lhead != 0 && rhead != 0); // check we've started

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,12 +76,14 @@ class XorPostList : public BranchPostList {
 inline om_doccount
 XorPostList::get_termfreq_max() const
 {
+    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_max", "");
     return l->get_termfreq_max() + r->get_termfreq_max();
 }
 
 inline om_doccount
 XorPostList::get_termfreq_min() const
 {
+    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_min", "");
     // Min = freq_min(a or b) - freq_max(a and b)
     //     = max(a_min, b_min) - min(a_max, b_max)
     //     = min(b_min - a_max, a_min - b_max)
@@ -100,6 +103,7 @@ XorPostList::get_termfreq_min() const
 inline om_doccount
 XorPostList::get_termfreq_est() const
 {
+    DEBUGCALL(MATCH, om_doccount, "XorPostList::get_termfreq_est", "");
     // Estimate assuming independence:
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
@@ -110,6 +114,7 @@ XorPostList::get_termfreq_est() const
 inline om_docid
 XorPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "XorPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     return std::min(lhead, rhead);
 }
@@ -118,6 +123,7 @@ XorPostList::get_docid() const
 inline om_weight
 XorPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, om_weight, "XorPostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_weight();
     Assert(lhead > rhead);
@@ -128,12 +134,14 @@ XorPostList::get_weight() const
 inline om_weight
 XorPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, om_weight, "XorPostList::get_maxweight", "");
     return std::max(lmax, rmax);
 }
 
 inline om_weight
 XorPostList::recalc_maxweight()
 {
+    DEBUGCALL(MATCH, om_weight, "XorPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
@@ -143,6 +151,7 @@ XorPostList::recalc_maxweight()
 inline bool
 XorPostList::at_end() const
 {
+    DEBUGCALL(MATCH, bool, "XorPostList::at_end", "");
     return lhead == 0;
 }
 
@@ -155,6 +164,7 @@ XorPostList::get_description() const
 inline om_doclength
 XorPostList::get_doclength() const
 {
+    DEBUGCALL(MATCH, om_doclength, "XorPostList::get_doclength", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_doclength();
     Assert(lhead > rhead);

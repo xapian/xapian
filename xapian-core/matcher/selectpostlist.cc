@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 PostList *
 SelectPostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
         PostList *p = source->next(w_min);
 	Assert(p == NULL); // AND should never prune
@@ -35,6 +37,7 @@ SelectPostList::next(om_weight w_min)
 PostList *
 SelectPostList::skip_to(om_docid did, om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "SelectPostList::skip_to", did << ", " << w_min);
     if (did > get_docid()) {
 	PostList *p = source->skip_to(did, w_min);
 	Assert(p == NULL); // AND should never prune
