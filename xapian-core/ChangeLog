@@ -1,3 +1,10 @@
+Thu Jun  1 15:33:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* TcpServer no longer inherits from SocketServer, but uses it.
+
+	* omtcpsrv now handles more than one connection by default
+	  (sequentially).
+
 Wed May 31 16:05:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added support for default settings.

@@ -117,13 +117,13 @@ bool test_netexpand1()
 bool test_tcpclient1()
 {
     string command =
-	    string("./omtcpsrv --im ") +
+	    string("./omtcpsrv --one-shot --im ") +
 	    datadir +
 	    "apitest_simpledata.txt --port 1235 &";
 
     system(command.c_str());
 
-    sleep(3);
+    sleep(1);
     TcpClient tc("localhost", 1235);
 
     return true;
@@ -133,11 +133,11 @@ bool test_tcpclient1()
 bool test_tcpmatch1()
 {
     string command =
-	    string("./omtcpsrv --im ") +
+	    string("./omtcpsrv --one-shot --im ") +
 	    datadir +
 	    "apitest_simpledata.txt --port 1236 &";
     system(command.c_str());
-    sleep(3);
+    sleep(1);
 
     OmDatabaseGroup databases;
     vector<string> params;

@@ -44,6 +44,8 @@ int main(int argc, char *argv[]) {
 
     progname = argv[0];
 
+    bool one_shot = false;
+
     bool syntax_error = false;
     argv++;
     argc--;
@@ -95,6 +97,10 @@ int main(int argc, char *argv[]) {
 	    port = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
+	} else if (strcmp(argv[0], "--one-shot") == 0) {
+	    one_shot = true;
+	    argc -= 1;
+	    argv += 1;
 	} else {
 	    syntax_error = true;
 	    break;
@@ -133,7 +139,11 @@ int main(int argc, char *argv[]) {
 
 	TcpServer server(mdb, port);
 
-	server.run();
+	if (one_shot) {
+	    server.run_once();
+	} else {
+	    server.run();
+	}
     } catch (OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;

@@ -38,8 +38,8 @@
 
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(OmRefCntPtr<MultiDatabase> db_,
-		       int port)
-	: SocketServer(db_, get_listening_socket(port))
+		       int port_)
+	: port(port_), db(db_), listen_socket(get_listening_socket(port_))
 {
 
 }
@@ -90,20 +90,23 @@ TcpServer::get_listening_socket(int port)
 	close(socketfd);
 	throw OmNetworkError(string("listen: ") + strerror(errno));
     }
+    return socketfd;
+}
 
+int
+TcpServer::get_connected_socket()
+{
     struct sockaddr_in remote_address;
     socklen_t remote_address_size = sizeof(remote_address);
-    int con_socket = accept(socketfd,
+    int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),
 			    &remote_address_size);
 
     if (con_socket < 0) {
-	close(socketfd);
 	throw OmNetworkError(string("accept: ") + strerror(errno));
     }
 
     if (remote_address_size != sizeof(remote_address)) {
-	close(socketfd);
 	throw OmNetworkError("accept: unexpected remote address size");
     }
 
@@ -126,12 +129,31 @@ TcpServer::get_listening_socket(int port)
 
 #endif
 
-    // FIXME: use a destructor for closing socketfd?
-    close(socketfd);
-
     return con_socket;
 }
 
 TcpServer::~TcpServer()
 {
+    close(listen_socket);
+}
+
+void
+TcpServer::run_once()
+{
+    SocketServer sserv(db, get_connected_socket());
+
+    sserv.run();
+}
+
+void
+TcpServer::run()
+{
+    while (1) {
+	try {
+	    run_once();
+	} catch (...) {
+	    // FIXME: better error handling.
+	    cerr << "Caught exception." << endl;
+	}
+    }
 }

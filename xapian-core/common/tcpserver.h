@@ -29,28 +29,51 @@
 #include "socketcommon.h"
 #include <memory>
 
-/** The base class of the network server object.
- *  A NetServer object is used by server programs to take care
- *  of a connection to a NetClient.
+/** A TCP server class, which uses SocketServer.
  */
-class TcpServer : public SocketServer {
+class TcpServer {
     private:
 	// disallow copies
 	TcpServer(const TcpServer &);
 	void operator=(const TcpServer &);
 
+	/// The listening port number.
+	int port;
+
+	/// The database we're using.
+	OmRefCntPtr<MultiDatabase> db;
+
+	/// The listening socket
+	int listen_socket;
+
 	/** Open the listening socket and return a filedescriptor to
 	 *  it.
 	 *  
-	 *  @param port		The local port to bind to.
+	 *  @param port	The port to bind the listening socket to.
 	 */
 	static int get_listening_socket(int port);
+
+	/** Open the listening socket and return a filedescriptor to
+	 *  it.
+	 */
+	int get_connected_socket();
     public:
 	/** Default constructor. */
-	TcpServer(OmRefCntPtr<MultiDatabase> db, int port);
+	TcpServer(OmRefCntPtr<MultiDatabase> db_, int port_);
 
 	/** Destructor. */
 	~TcpServer();
+
+	/** Start the serving session.
+	 *
+	 *  Continues to accept connections and serve them.
+	 *  Currently this is done sequentially.
+	 */
+	void run();
+
+	/** Handle one incoming connection and stop.
+	 */
+	void run_once();
 };
 
 #endif  /* OM_HGUARD_TCPGSERVER_H */
