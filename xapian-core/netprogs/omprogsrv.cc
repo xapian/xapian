@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,26 +24,21 @@
 
 #include <config.h>
 #include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
 #include <iomanip>
 #include <string>
-#include <typeinfo>
-#include "autoptr.h"
 #include <algorithm>
 #include "database_builder.h"
 #include "om/omerror.h"
-#include "om/omenquire.h"
-#include "omqueryinternal.h"
 #include "netutils.h"
 #include "progserver.h"
 #include "omerr_string.h"
 #include "backendmanager.h"
 
-int main(int argc, char *argv[]) {
+using namespace std;
+
+int main(int argc, char **argv) {
 #if 0
-    std::string message;
+    string message;
     getline(cin, message);
     cerr << "omnetclient: read " << message << endl;
     cout << "BOO!" << endl;
@@ -66,35 +62,40 @@ int main(int argc, char *argv[]) {
 	backendmanager.set_datadir(argv[1]);
 	backendmanager.set_dbtype("inmemory");
 
-	std::vector<std::string> paths;
+	vector<string> paths;
 
-	for (int i=2; i<argc; ++i) {
-	    std::string arg = argv[i];
-	    if (arg == "-e") {
-		backendmanager.set_dbtype("inmemoryerr");
-	    } else if (arg == "-e2") {
-		backendmanager.set_dbtype("inmemoryerr2");
-	    } else if (arg == "-e3") {
-		backendmanager.set_dbtype("inmemoryerr3");
-	    } else if (arg.substr(0, 2) == "-t") {
-		timeout = atoi(arg.c_str() + 2);
-	    } else {
-		paths.push_back(argv[i]);
+	for (int i = 2; i < argc; ++i) {
+	    string arg = argv[i];
+	    if (arg.length() >= 2 && arg[0] == '-') {
+		if (arg[1] == 't') {
+		    timeout = atoi(arg.c_str() + 2);
+		    continue;
+		}
+		if (arg[1] == 'e') {
+		    if (arg == "-e") {
+			backendmanager.set_dbtype("inmemoryerr");
+			continue;
+		    }
+		    if (arg == "-e2") {
+			backendmanager.set_dbtype("inmemoryerr2");
+			continue;
+		    }
+		    if (arg == "-e3") {
+			backendmanager.set_dbtype("inmemoryerr3");
+			continue;
+		    }
+		}
+		// FIXME: better to complain about unknown options that to
+		// treat them as paths?
 	    }
+	    paths.push_back(argv[i]);
 	}
 
 	OmDatabase db = backendmanager.get_database(paths);
 	dbgrp.add_database(db);
-    } catch (OmError &e) {
-	/*
-	cerr << "OmError exception (" << typeid(e).name()
-	     << "): " << e.get_msg() << endl;
-	 */
+    } catch (const OmError &e) {
 	cout << 'E' << omerror_to_string(e) << endl;
     } catch (...) {
-	/*
-	cerr << "Caught exception" << endl;
-	 */
 	cout << "EUNKNOWN" << endl;
     }
 
@@ -105,15 +106,6 @@ int main(int argc, char *argv[]) {
 	ProgServer server(dbgrp, 0, 1, timeout, timeout);
 
 	server.run();
-    } catch (OmError &e) {
-	/*
-	cerr << "OmError exception (" << typeid(e).name()
-	     << "): " << e.get_msg() << endl;
-	 */
     } catch (...) {
-	/*
-	cerr << "Caught unknown exception" << endl;
-	 */
     }
 }
-

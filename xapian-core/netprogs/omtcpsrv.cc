@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +26,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <typeinfo>
-#include <algorithm>
 
 #include "getopt.h"
 
@@ -36,29 +35,20 @@
 #include "om/omenquire.h"
 #include "tcpserver.h"
 
-using std::vector;
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::exception;
+using namespace std;
 
-char *progname = 0;
-
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
     vector<OmSettings *> dbs;
     int port = 0;
     int msecs_active_timeout = 15000;
     int msecs_idle_timeout   = 60000;
 
-    progname = argv[0];
+    string progname = argv[0];
 
     bool one_shot = false;
-
     bool verbose = true;
-
 #ifdef TIMING_PATCH
     bool timing = false;
-    
 #endif /* TIMING_PATCH */
     bool syntax_error = false;
 
@@ -119,7 +109,7 @@ int main(int argc, char *argv[]) {
     
     if (port <= 0 || port >= 65536) {
 	cerr << "Error: must specify a valid port number (between 1 and 65535)."
-		" We actually got " << (port) << endl;
+		" We actually got " << port << endl;
 	exit(1);
     }
     
@@ -155,11 +145,10 @@ int main(int argc, char *argv[]) {
 	    server.run();
 	}
     } catch (const OmError &e) {
-	cerr << "OmError exception (" << typeid(e).name()
-	     << "): " << e.get_msg() << endl;
+	cerr << e.get_type() << ": " << e.get_msg() << endl;
 	exit(1);
     } catch (const exception &e) {
-	cerr << "Caught standard exception: " << typeid(e).name();
+	cerr << "Caught standard exception" << endl;
 	exit(1);
     } catch (...) {
 	cerr << "Caught unknown exception" << endl;

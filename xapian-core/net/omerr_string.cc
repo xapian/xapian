@@ -4,6 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,6 @@ using std::istringstream;
 #else
 #include <strstream.h>
 #endif
-#include <typeinfo>
 #include <string>
 using std::string;
 #include <map>
@@ -56,30 +56,28 @@ void string_to_omerror(const string &except,
     istrstream is(except.data(), except.length());
 #endif
 
-    string type;
-    string context;
-    string msg;
+    string type, context;
 
     is >> type;
     if (type == "UNKNOWN") {
 	throw OmInternalError("UNKNOWN", context);
-    } else {
-	is >> context;
-	is >> msg;
-	type = decode_tname(type);
-	context = decode_tname(context);
-	msg = prefix + decode_tname(msg);
-	if (context.size() != 0 && mycontext.size() != 0) {
-	    msg += ": context was `" + context + "'";
-	    context = mycontext;
-	}
+    }
+    
+    string msg;
+    is >> context;
+    is >> msg;
+    type = decode_tname(type);
+    context = decode_tname(context);
+    msg = prefix + decode_tname(msg);
+    if (!context.empty() && !mycontext.empty()) {
+	msg += ": context was `" + context + "'";
+	context = mycontext;
+    }
 
 #define DEFINE_ERROR_BASECLASS(a,b)
 #define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw a(msg, context)
 #include "om/omerrortypes.h"
 
-	msg = "Unknown remote exception type `" + type + "', " + msg;
-	throw OmInternalError(msg, context);
-    }
-    Assert(false);
+    msg = "Unknown remote exception type `" + type + "', " + msg;
+    throw OmInternalError(msg, context);
 }

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +35,7 @@ class OmError {
     friend class OmErrorHandler;
     private:
 	/// A message explaining the error.
-        std::string msg;
+	std::string msg;
 
 	/// A message giving the context in which the error occurred.
 	std::string context;
@@ -51,10 +52,10 @@ class OmError {
 	/// assignment operator private and unimplemented
 	void operator=(const OmError &copyme);
     protected:
-    	/** Constructors are protected, since they can only
+	/** Constructors are protected, since they can only
 	 *  be used by derived classes anyway.
 	 */
-        OmError(const std::string &msg_,
+	OmError(const std::string &msg_,
 		const std::string &context_,
 		const std::string &type_,
 		int errno_value_);
@@ -69,10 +70,10 @@ class OmError {
 	/** Return a message describing the error.
 	 *  This is in a human readable form.
 	 */
-        std::string get_msg() const
-        {
-            return msg;
-        }
+	std::string get_msg() const
+	{
+	    return msg;
+	}
 
 	/// Return the type of the error.
 	std::string get_type() const
@@ -92,8 +93,8 @@ class OmError {
 	    return errno_value;
 	}
 
-        /// Instantiations of OmError (as opposed to subclasses) are forbidden
-        // FIXME: no longer pure virtual as that stops us throwing OmError
+	/// Instantiations of OmError (as opposed to subclasses) are forbidden
+	// FIXME: no longer pure virtual as that stops us throwing OmError
 	// objects
 	virtual ~OmError();
 };

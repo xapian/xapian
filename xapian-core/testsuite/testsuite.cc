@@ -43,7 +43,6 @@
 #include <unistd.h> // for chdir
 
 #include <exception>
-#include <typeinfo>
 
 #include "om/omerror.h"
 #include "testsuite.h"
@@ -223,9 +222,7 @@ test_driver::runtest(const test_desc *test)
 		// (caught in do_run_tests())
 		throw;
 	    } catch (const OmError &err) {
-		const char * errclass = typeid(err).name();
-		if (!errclass) errclass = "<unknown>";
-		while (isdigit(*errclass)) errclass++;
+		string errclass = err.get_type();
 		out << tout.str();
 		if (expected_exception == errclass) {
 		    out << " " << col_yellow << "FAILED TO CATCH " << errclass << col_reset;
