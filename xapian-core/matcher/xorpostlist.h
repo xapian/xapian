@@ -26,6 +26,16 @@
 #include "database.h"
 #include "branchpostlist.h"
 
+/** A postlist comprising two postlists XORed together.
+ *
+ *  This postlist returns a posting if and only if it is in one, and only
+ *  one, of the sub-postlists.  The weight for a posting is the weight of
+ *  the sub-posting.
+ *
+ *  This postlist is only known to be useful as a "decay product" of
+ *  other postlists.  If you find an independent meaningful use, let us
+ *  know...
+ */
 class XorPostList : public BranchPostList {
     private:
         om_docid lhead, rhead;

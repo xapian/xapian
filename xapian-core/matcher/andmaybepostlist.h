@@ -39,9 +39,21 @@
  *  posting is simply that in the left postlist.  If the posting occurs in
  *  both postlists, the weight for the posting is the sum of the weights in
  *  the sub-postlists.
+ *
+ *  This type of postlist is useful for specifying a set of terms which
+ *  must appear in the query result: these terms can be specified as the
+ *  left hand argument, with the rest of the query being on the right hand
+ *  side, and having the effect of modifying the weights.
+ *
+ *  The postlist is also used as a "decay product" of other postlist types
+ *  during the match process: when a postlist can no longer cause a
+ *  document to enter the mset on its own, but can influence relative
+ *  rankings, it may be combined using one of these.
  */
-class AndMaybePostList : public BranchPostList { private: om_docid lhead,
-    rhead; om_weight lmax, rmax;
+class AndMaybePostList : public BranchPostList {
+    private:
+	om_docid lhead, rhead;
+	om_weight lmax, rmax;
 
         PostList * process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:

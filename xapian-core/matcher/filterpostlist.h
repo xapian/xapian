@@ -30,6 +30,16 @@
 // FilterPostList(probabilistic, boolean)
 // AntiFilterPostList(probabilistic, boolean)
 
+/** A postlist comprising two postlists ANDed together, but
+ *
+ *  This postlist returns a posting if and only if it is in both of the
+ *  sub-postlists.  The weight for a posting is the weight of the left-hand
+ *  sub-postings.  The weight of the right-hand posting is ignored (and
+ *  indeed, should never get calculated).
+ *
+ *  This is useful for restricting the search to a subdomain of the
+ *  database.
+ */
 class FilterPostList : public AndPostList {
     public:
 	om_weight get_weight() const;

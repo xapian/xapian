@@ -27,6 +27,13 @@
 
 class PostList;
 
+/** A postlist comprising two postlists ORed together.
+ *
+ *  This postlist returns a posting if it is in either of the sub-postlists.
+ *  The weight for a posting is the sum of the weights of the sub-postings,
+ *  if both exist, or the sum of the single sub-posting which exists
+ *  otherwise.
+ */
 class OrPostList : public BranchPostList {
     private:
         om_docid lhead, rhead;
