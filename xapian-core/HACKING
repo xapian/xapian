@@ -473,3 +473,32 @@ all.
 There are a few exceptions, such as MSetIterator and ESetIterator which have an
 exposed implementation.  Tests show this makes a substantial difference to
 speed (it's ~20% faster) in typical cases of iterator use.
+
+How to make a release
+=====================
+
+Currently incomplete, but these jobs are amongst those that need doing:
+
+* Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
+  http://www.oligarchy.co.uk/tinderbox/xapian/status.html
+
+* Update the version in configure.in for each module
+
+* Update the library version info in xapian-core/Makefile.am and
+  xapian-core/extra/Makefile.am
+
+* Add the new version to the list of versions in Bugzilla:
+  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian
+
+* Update the NEWS files using information from the ChangeLog files
+
+* Copy the tarballs over - take them from the autobuilder to ensure consistent
+  bootstrapping: http://www.oligarchy.co.uk/xapian/HEAD/
+
+* Update the website - download.php and news.php
+
+* Run the website building script
+
+* Announce the new version on xapian-discuss
+
+* Have a nice cup of tea!

@@ -1,3 +1,9 @@
+Fri May 14 00:59:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Added the start of a list of subtasks when doing a release.
+	  Currently it's always me that does this, but it may not always be
+	  and anyhow it'll help me to have a list to run through.
+
 Fri May 14 00:59:21 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.
