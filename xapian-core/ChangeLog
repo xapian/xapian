@@ -1,3 +1,10 @@
+Thu Sep 11 03:35:29 BST 2003  Olly Betts <olly@survex.com>
+
+	* dummy.c,dummy.cc,Makefile.am: Change the default file to be C++ so
+	  that automake tells libtool that this is a C++ library.
+	* Makefile.am: Pass -no-undefined to libtool so that it will build
+	  a DLL on MS Windows.
+
 Wed Sep 10 02:53:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Fixed oops (32GB should be 32TB);  Added

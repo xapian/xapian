@@ -29,7 +29,7 @@ lib_LTLIBRARIES = libxapian.la
 
 # This line is present because libtool requires at least one source file in
 # a library (due to limitations on some operating systems).
-libxapian_la_SOURCES = dummy.c
+libxapian_la_SOURCES = dummy.cc
 EXTRA_libxapian_la_SOURCES =
 
 # Extract from the libtool info manual:
@@ -58,7 +58,7 @@ EXTRA_libxapian_la_SOURCES =
 # 0:0:0 0.7.2 (and anything before) 
 # 0:1:0 0.7.3
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
-libxapian_la_LDFLAGS = -version-info 1:0:0
+libxapian_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols
