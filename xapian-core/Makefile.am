@@ -2,6 +2,8 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
+INCLUDES = -I/usr/local/BerkeleyDB/include
+
 noinst_HEADERS = da_database.h daread.h database.h match.h mergedpostlist.h \
  muscat.h omtypes.h proto_database.h proto_db.h
 
