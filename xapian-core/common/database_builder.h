@@ -29,14 +29,21 @@
 
 class IRDatabase;
 
+/* Type of a database */
+typedef enum _om_database_type {
+    OM_DBTYPE_NULL,
+    OM_DBTYPE_DA,
+    OM_DBTYPE_INMEMORY,
+    OM_DBTYPE_SLEEPY,
+    OM_DBTYPE_MULTI
+} om_database_type;
+
 class DatabaseBuilderParams {
     public:
-	DatabaseBuilderParams(om_database_type type_new = OM_DBTYPE_NULL,
-			      bool readonly_new = true,
-			      IRDatabase * root_new = NULL)
-		: type(type_new),
-		  readonly(readonly_new),
-		  root(root_new)
+	DatabaseBuilderParams(om_database_type _type = OM_DBTYPE_NULL,
+			      bool _readonly = true,
+			      IRDatabase * _root = NULL)
+		: type(_type), readonly(_readonly), root(_root)
 	{ return; }
 
 	om_database_type type;

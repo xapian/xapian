@@ -29,17 +29,30 @@
 #include "stemmer.h"
 #include "rset.h"
 
+// Internal state
+class EnquireState;
+
 // This class provides an interface to the information retrieval
 // system for the purpose of searching.
 
 class Enquire {
     private:
+	EnquireState *state;
     public:
         Enquire();
         ~Enquire();
 
-	// Methods to:
-	// Open a database
+	// Set the database to use.
+	//
+	// First parameter is a string describing the database:
+	// the start of the string is a case sensitive name followed by a :,
+	// specifying the type of the database.  The subsequent string is a
+	// set of / separated entries, whose meaning is dependent on the type
+	// of the database.
+	//
+	// Second parameter is a flag: if set, the database will be opened
+	// read-only.
+	void set_database(string, bool = true);
 };
 
 #endif /* _omenquire_h_ */

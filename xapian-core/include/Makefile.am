@@ -3,4 +3,4 @@
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 include_HEADERS = om.h \
-                  omerror.h omtypes.h omdata.h omenquire.h
+                  omerror.h omtypes.h omenquire.h

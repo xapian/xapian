@@ -1,4 +1,4 @@
-/* omdata.h
+/* enquiretest.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,12 +20,25 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omdata_h_
-#define _omdata_h_
+#include <stdio.h>
 
-// Include these for now, but later they will be hidden.
-#include "database.h"
-#include "database_builder.h"
-#include "irdocument.h"
+#include "om.h"
 
-#endif /* _omdata_h_ */
+int
+main(int argc, char *argv[])
+{
+    Enquire enquire;
+
+    string spec;
+    if(argc >= 2) {
+	spec = argv[1];
+	argv++;
+	argc--;
+    }
+
+    try {
+	enquire.set_database(spec);
+    } catch (OmError e) {
+	cout << e.get_msg() << endl;
+    }
+}

@@ -37,17 +37,6 @@ typedef unsigned int keyno;    // Type for referring to key in document
 
 typedef double weight;
 
-/* Type of a database */
-enum _om_database_type {
-    OM_DBTYPE_NULL,
-    OM_DBTYPE_DA,
-    OM_DBTYPE_INMEMORY,
-    OM_DBTYPE_SLEEPY,
-    OM_DBTYPE_MULTI
-};
-
-typedef enum _om_database_type om_database_type;
-
 #ifdef __cplusplus
 #include <string>
 typedef string termname;
