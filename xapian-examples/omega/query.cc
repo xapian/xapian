@@ -41,7 +41,9 @@ extern void print_query_page(const string &, long int, long int);
 // declared in parsequery.ll
 extern void parse_prob(const string&);
 
-vector<om_termname> new_terms;
+list<om_termname> new_terms_list;
+static set<om_termname> new_terms;
+
 static vector<om_termname> pluses;
 static vector<om_termname> minuses;
 static vector<om_termname> normals;
@@ -75,9 +77,7 @@ string query_string;
 
 om_queryop op = OM_MOP_OR; // default matching mode
 
-map<om_termname, int> matching_map;
-
-int
+querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
     int first_nonspace = 0;
@@ -86,72 +86,51 @@ set_probabilistic(const string &newp, const string &oldp)
     int len = newp.length();
     /* and strip trailing whitespace */
     while (len > first_nonspace && isspace(newp[len - 1])) len--;
-   
     raw_prob = newp.substr(first_nonspace, len - first_nonspace);
     parse_prob(raw_prob);
 
     // Check new query against the previous one
-    // Heuristic: If any words have been removed, it's a "fresh query"
-    // which means we discard any relevance judgements
-    string oldterm;
     const char *pend;
     const char *term;
-    unsigned int n_old_terms = 0; // ?
+    unsigned int n_old_terms = 0;
 
-    if (oldp.empty()) return 0;
+    if (oldp.empty()) return NEW_QUERY;
 
-    term = oldp.c_str();
     // We used to use "word1#word2#" (with trailing #) but some broken old
     // browsers (versions of MSIE) don't quote # in form GET submissions
-    // and everything after the # gets taken as an anchor.
+    // and everything after the # gets interpreted as an anchor.
     // So now we use "word1.word2." instead.
-    
+    term = oldp.c_str();
     pend = term;
     while ((pend = strchr(pend, '.')) != NULL) {
 	pend++;
 	n_old_terms++;
     }
     // short-cut: if the new query has fewer terms, it must be a new one
-    if (new_terms.size() < n_old_terms) return 0;
+    if (new_terms.size() < n_old_terms) return NEW_QUERY;
     
-    vector<om_termname>::const_iterator i = new_terms.begin();
-    int is_old = 1;
     while ((pend = strchr(term, '.')) != NULL) {
-	oldterm = string(term, pend - term);
-	while (oldterm != *i) {
-	    if (++i == new_terms.end()) {
-		is_old = 0;
-		break;
-	    }
-	}
-	if (!is_old) break;
+	if (new_terms.find(string(term, pend - term)) == new_terms.end())
+	    return NEW_QUERY;
 	term = pend + 1;
     }
-    // return:
-    // 0 entirely new query
-    // 1 unchanged query
-    // -1 new query, but based on the old one
-    if (is_old && new_terms.size() > n_old_terms) return -1;
-    return is_old;
+    if (new_terms.size() > n_old_terms) return EXTENDED_QUERY;
+    return SAME_QUERY;
 }
-
-static int term_count = 1; // FIXME: ick
 
 /* if term is in the database, add it to the term list */
 void check_term(const string &name, termtype type) {
-    new_terms.push_back(name);
+    new_terms_list.push_back(name);
+    new_terms.insert(name);
     switch (type) {
      case PLUS:
 	pluses.push_back(name);
-	matching_map[name] = term_count++;
 	break;
      case MINUS:
 	minuses.push_back(name);
-	// don't put MINUS terms in map - they won't match...
 	break;
      case NORMAL:
 	normals.push_back(name);
-	matching_map[name] = term_count++;
 	break;
     }
 }
@@ -199,9 +178,9 @@ run_query(om_doccount first, om_doccount maxhits)
     enquire->set_query(query);
 
     cout << "Running query: maxmsize = " << first + maxhits << "; " << endl;
-    // FIXME: use the value of first as first parameter: don't bother sorting
-    // first ``first'' items (but don't get given them either, so need to
-    // alter code elsewhere to understand this)
+    // We could use the value of first as first parameter, but we
+    // might need to know the first few items on the mset to fake
+    // a relevance set for topterms
     mset = enquire->get_mset(0, first + maxhits, rset); // FIXME - set msetcmp to reverse
     msize = mset.mbound;
     cout << "Ran query: msize = " << msize << "; " << endl;
@@ -434,17 +413,6 @@ static int percentage(double num, double denom) {
     return (int)percent;
 }
 
-class MatchingTermCmp {
-    public:
-	bool operator()(const om_termname &a, const om_termname &b) {
-	    if(matching_map.find(a) != matching_map.end() &&
-	       matching_map.find(b) != matching_map.end()) {
-		return matching_map[a] < matching_map[b];
-	    }
-	    return a < b;
-	}
-};
-
 extern void
 print_caption(long int m)
 {
@@ -623,9 +591,6 @@ print_caption(long int m)
 	    cout << percent << '%';
 	    break;
 	 case 'T': {
-	     // Store the matching terms in a vector and then sort by the
-	     // value of matching_map[] so that they come back in the same
-	     // order as in the query.
 	     om_termname_list matching_terms = enquire->get_matching_terms(q0);
 	     list<om_termname>::const_iterator term = matching_terms.begin();
 	     bool comma = false;

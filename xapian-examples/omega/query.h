@@ -23,8 +23,23 @@
 #ifndef QUERY_H
 #define QUERY_H
 
-int set_probabilistic(const string&, const string&);
-long do_match(long int, long int); /* Ol 1997-01-31 return msize */
+#include <list>
+#include <map>
+#include <string>
+
+// Heuristics:
+// * If any terms have been removed, it's a "fresh query" so we discard any
+//   relevance judgements
+// * If all previous terms are there but more have been added then we keep
+//   the relevance judgements, but return the first page of hits
+//
+// NEW_QUERY entirely new query
+// SAME_QUERY unchanged query
+// EXTENDED_QUERY new query, but based on the old one
+typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY } querytype;
+
+querytype set_probabilistic(const string&, const string&);
+long do_match(long int, long int);
 
 void add_bterm(const string &);
 
@@ -46,8 +61,7 @@ extern string query_string;
 extern map<char, string> filter_map;
 extern char *fmtstr;
 extern string ad_keywords;
-extern vector<om_termname> new_terms;
-extern map<om_termname, int> matching_map;
+extern list<om_termname> new_terms_list;
 
 typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 

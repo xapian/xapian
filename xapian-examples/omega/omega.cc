@@ -92,9 +92,9 @@ static int main2(int argc, char *argv[])
     typedef multimap<string, string>::const_iterator MCI;
     pair<MCI, MCI> g;
 
-    // FIXME: set cout to linebuffered not stdout
+    // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
     setvbuf(stdout, NULL, _IOLBF, 0);
-      
+
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
 	// Seems we're running from the command line so print a version number
@@ -495,10 +495,7 @@ static int main2(int argc, char *argv[])
     } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
     }
-    // Stick a newline on so we can add the line to the logfile with
-    // one call to write (which should be atomic)
-    big_buf += '\n';
-    make_query_log_entry(big_buf);
+    make_query_log_entry(big_buf + "\n");
 
     return 0;
 }

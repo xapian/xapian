@@ -55,9 +55,6 @@ class ExpandDeciderFerret : public OmExpandDecider {
 	    if (isupper(tname[0]) || tname.find(' ') != string::npos)
 		return false;
 
-	    // and terms in the query already
-	    // FIXME - implement this
-	    //return ExpandDeciderNotQuery::want_term(tname);
 	    return true;
 	}
 };

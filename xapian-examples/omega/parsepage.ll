@@ -133,10 +133,10 @@ pretty_printf(const char *p, int *a)
 	cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\"" << fmt << "\">\n";
     
     /*** save prob query ***/
-    if (!new_terms.empty()) {
+    if (!new_terms_list.empty()) {
 	cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-	vector<om_termname>::const_iterator i;
-	for (i = new_terms.begin(); i != new_terms.end(); i++)
+	list<om_termname>::const_iterator i;
+	for (i = new_terms_list.begin(); i != new_terms_list.end(); i++)
 	    cout << *i << '.';
 	cout << "\">\n";
     }
@@ -178,7 +178,7 @@ pretty_printf(const char *p, int *a)
     print_page_links(yytext[7], size, first);
 }
 \\STATLINE {
-    if (msize == 0 && new_terms.empty()) {
+    if (msize == 0 && new_terms_list.empty()) {
 	// eat to next newline (or EOF)
 	int c;
 	do c = yyinput(); while (c != '\n' && c != EOF);
@@ -201,7 +201,7 @@ pretty_printf(const char *p, int *a)
      */
     switch (yytext[5]) {
      case '0': /* followed by string */
-	if (msize == 0 && !new_terms.empty()) cout << text;
+	if (msize == 0 && !new_terms_list.empty()) cout << text;
 	break;
      case '2':
 	/* used to be >= - now use an exact compare since MTOTAL
@@ -303,44 +303,25 @@ pretty_printf(const char *p, int *a)
 	ExpandDeciderFerret decider;
 
 	if (rset->items.size()) {
-#ifdef DEBUG
-	    cout << "Expanding with " << rset->get_rsize() << " ids" << endl;
-#endif
-	    eset = enquire->get_eset(30, *rset, 0, &decider);
+	    eset = enquire->get_eset(20, *rset, 0, &decider);
 	} else {
 	    // invent an rset
 	    OmRSet tmp;
 	    
 	    for (int m = min(4, int(msize) - 1); m >= 0; m--) {
-#ifdef DEBUG
-		cout << "Autotopterm id: " << mset.items[m].did << endl;
-#endif
 		tmp.add_document(mset.items[m].did);
 	    }
 		
-	    eset = enquire->get_eset(30, tmp, 0, &decider);
+	    eset = enquire->get_eset(20, tmp, 0, &decider);
 	}
 
-	int c = 0;
 	vector<OmESetItem>::const_iterator i;
-#ifdef DEBUG
-	for (i = eset.items.begin(); i != eset.items.end(); i++) {
-	    cout << i->tname << ":" << i->wt << " " << endl;
-	}
-#endif
 	for (i = eset.items.begin(); i != eset.items.end(); i++) {
 	    string tname = i->tname;
-
-	    // Ignore terms in the query already
-	    // FIXME - make this part of the decision function - then we
-	    // can set the size of the eset to be calculated to 20.
-	    if (matching_map.find(tname) != matching_map.end()) continue;
-
 	    cout << "<INPUT TYPE=checkbox NAME=X VALUE=\"" << tname
 		 << ".\" onClick=\"C(this)\">&nbsp;" << tname << ". ";
-	    if (++c >= 20) break;
 	}
-	if (c)
+	if (!eset.items.empty())
 	    cout << "<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1>"
 	            "</NOSCRIPT>\n";
     }
@@ -417,14 +398,14 @@ pretty_printf(const char *p, int *a)
 }
 \\FREQS {
 #if 0 // FIXME:
-    if (!new_terms.empty()) {
-	vector<om_termname>::const_iterator i;
-	for (i = new_terms.begin(); i != new_terms.end(); i++) {
+    if (!new_terms_list.empty()) {
+	list<om_termname>::const_iterator i;
+	for (i = new_terms_list.begin(); i != new_terms_list.end(); i++) {
 	    const char *term = i->c_str();
 
 	    int freq = enquire->get_termfreq(*i);
 	    
-	    if (i == new_terms.begin()) {
+	    if (i == new_terms_list.begin()) {
 		cout << "<B>Individual word frequencies:</B>\n";
 	    } else {
 		cout << ", ";
@@ -436,7 +417,7 @@ pretty_printf(const char *p, int *a)
 	    }
 	    pretty_printf("%d", &freq);
 	}
-	if (!new_terms.empty()) cout << "<BR>";
+	cout << "<BR>";
     }
 #endif
 }
