@@ -120,6 +120,11 @@ Match::recalc_maxweight()
 void
 Match::match()
 {    
+    msize = 0;
+    mtotal = 0;
+    weight w_min = 0;
+    int sorted_to = 0;
+
     merger = NULL;
     PostList *boolmerger = NULL;
 
@@ -153,11 +158,6 @@ Match::match()
     } else if (!merger)	{
     	return;
     }
-
-    msize = 0;
-    mtotal = 0;
-    weight w_min = 0;
-    int sorted_to = 0;
 
     recalculate_maxweight = true;
     weight w_max;
