@@ -1,3 +1,17 @@
+xapian-omega (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * omega: Avoid causing "500 Internal Server Error" when exceptions are
+    thrown.
+  * scriptindex: Fix when calling "unhtml" on text containing "</body>"
+  * omindex/scriptindex: Fix indexing of <h1> - <h6> to leave a space in the
+    dumped HTML.
+  * omindex: Only delete removed documents in "replace duplicates" mode.
+  * omindex: Change crawler so that it doesn't follow symbolic links, unless
+    "--follow" is specified.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:55:46 +0000
+
 xapian-omega (0.8.4-3) unstable; urgency=low
 
   * Move dbi2omega to /usr/share/doc/xapian-omega/examples/, and remove

@@ -32,12 +32,12 @@ set -e
 # Otherwise, we are building a snapshot package, and will build directly
 # from CVS code.  (FIXME - currently generates from a cached tarball if there
 # is one.  Not sure this is a bad thing.)
-CVSTAG='v0-8-4'
+CVSTAG='v0-8-5'
 
 # CVS tags to use to check out Debian control files
-DEBTAG_CORE='debian0-8-4_1'
-DEBTAG_BINDINGS='debian0-8-4_4'
-DEBTAG_OMEGA='debian0-8-4_1'
+DEBTAG_CORE='debian0-8-5_1'
+DEBTAG_BINDINGS='debian0-8-5_1'
+DEBTAG_OMEGA='debian0-8-5_1'
 
 #CVSTAG=HEAD
 #DEBTAG_CORE=HEAD

@@ -25,9 +25,9 @@
 set -e
 
 COMPONENT=unstable
-VERSION='0.8.4'
+VERSION='0.8.5'
 DEBVER_CORE='1'
-DEBVER_BINDINGS='4'
+DEBVER_BINDINGS='1'
 DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
