@@ -1,3 +1,7 @@
+Wed May 01 11:34:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tweaks to get queryparser building cleanly.
+
 Tue Apr 30 17:44:48 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated query parser in extra from the updated one in omega,

@@ -333,7 +333,7 @@ OmQueryParser::parse_query(const string &q_)
     }
     OmQuery res = query;
     query = OmQuery();
-    q.clear();
+    q = "";
     return res;
 }
 
