@@ -24,9 +24,6 @@ class IRDatabase {
 
 	void set_root(IRDatabase *db) {root = db;}
 
-	virtual termid term_name_to_id(const termname &) const = 0;
-	virtual termname term_id_to_name(termid) const = 0;
-    
 	// Close the database
 	virtual void close() = 0;
 
