@@ -147,26 +147,24 @@ static int main2(int argc, char *argv[])
     // read t/vars
     string vars_file = db_dir + "/t/vars";
     std::ifstream in(vars_file.c_str());
-    if (!in) {
-	cout << "bogus\n";
-	exit(0);
-    }    
-    string line;
-    while (!in.eof()) {
-	getline(in, line);
-	if (line[0] != '\'') continue;
-	size_t i = line.find('\'', 1);
-	if (i == string::npos) continue;
-	string key = line.substr(1, i - 1);
-	i++;
-	i = line.find('\'', i);
-	if (i == string::npos) continue;
-	i++;
-	size_t j = line.find('\'', i + 1);
-	if (j == string::npos) continue;
-	option[key] = line.substr(i, j - i);
+    if (in) {
+	string line;
+	while (!in.eof()) {
+	    getline(in, line);
+	    if (line[0] != '\'') continue;
+	    size_t i = line.find('\'', 1);
+	    if (i == string::npos) continue;
+	    string key = line.substr(1, i - 1);
+	    i++;
+	    i = line.find('\'', i);
+	    if (i == string::npos) continue;
+	    i++;
+	    size_t j = line.find('\'', i + 1);
+	    if (j == string::npos) continue;
+	    option[key] = line.substr(i, j - i);
+	}
+	in.close();
     }
-    in.close();
 	
     database.open(db_dir, 0);
     matcher = new Match(&database);
