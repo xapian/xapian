@@ -1,3 +1,8 @@
+Tue Oct 01 12:37:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* bootstrap: fixed adding of directory with xapian.m4 in to
+	  ACLOCAL_FLAGS; added trap to tell user if bootstrapping failed.
+
 Tue Oct 01 12:33:38 BST 2002  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,bootstrap,buildall,xapian.spec.in,

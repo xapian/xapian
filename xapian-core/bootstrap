@@ -19,6 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
+trap 'echo "Bootstrap failed"' EXIT
 bison_version="`bison --version|sed 's/.* //;q' 2>/dev/null`"
 case "$bison_version" in
 1.3[5-9]|1.3[5-9][^0-9]*|1.[4-9][0-9]*|1.[1-9][0-9][0-9]*|[2-9]*|[1-9][0-9]*)
@@ -28,18 +29,21 @@ case "$bison_version" in
   exit 1
 esac
 
-srcdir="`echo $0|sed 's![^/]*$!!'`"
-
 # change to srcdir to give Debian's hybrid autoconf 2.13/2.50 more to work with
+srcdir="`echo $0|sed 's![^/]*$!!'`"
 cd "$srcdir"
-
 # useful for building with xapian rather than for building xapian-core itself
 aclocal_dir="`xapian-config --prefix 2>/dev/null`/share/aclocal"
-case "$aclocal_dir" in
-/share/aclocal) ;; # xapian-config not found
-"`aclocal --print-ac-dir`") ;; # xapian.m4 is where aclocal looks by default
-*) test -d "$aclocal_dir" && ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I$aclocal_dir" ;;
-esac
+# check xapian-config was found
+if test /share/aclocal != "$aclocal_dir" ; then
+  # check that xapian.m4 is in that directory
+  if test -f "$aclocal_dir/xapian.m4" ; then
+    # check if aclocal looks in this directory by default anyway
+    if test x"$aclocal_dir" != x"`aclocal --print-ac-dir`" ; then
+      ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I $aclocal_dir"
+    fi
+  fi
+fi
 
 set -e
 
@@ -49,4 +53,5 @@ autoheader
 autoconf
 automake --add-missing
 
+trap EXIT
 echo "Bootstrapped successfully - now run ./configure and make as usual"
