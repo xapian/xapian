@@ -2,8 +2,8 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
  * Copyright 2001 Lemur Consulting Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,23 +22,29 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <cstdio>
-#include <string>
-#include <algorithm>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <string.h>
 #include <errno.h>
 
 #include <om/om.h>
 
+#include <algorithm>
+using std::min;
+#include <iostream>
+using std::cerr;
+using std::cout;
+using std::endl;
 #include <list>
 #include <memory>
+#include <string>
+using std::string;
 #include <vector>
+using std::vector;
 
 // C prototypes for callback functions which have to have C style naming.
 extern "C" {
@@ -62,19 +68,18 @@ lowercase_term(om_termname &term)
 static void
 select_characters(om_termname &term)
 {
-    std::string chars(
+    string chars(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-    std::string::size_type pos;
-    while((pos = term.find_first_not_of(chars)) != std::string::npos)
-    {
-	std::string::size_type endpos = term.find_first_of(chars, pos);
+    string::size_type pos;
+    while ((pos = term.find_first_not_of(chars)) != string::npos) {
+	string::size_type endpos = term.find_first_of(chars, pos);
 	term.erase(pos, endpos - pos);
     }
 }
 
 OmEnquire * enquire;
 OmMSet mset;
-std::string querystring;
+string querystring;
 
 om_doccount max_msize;
 GtkCList *results_widget;
@@ -85,32 +90,32 @@ GtkLabel *result_docid;
 GtkText *result_text;
 
 gchar *
-c_string(const std::string & s)
+c_string(const string & s)
 {
     gchar * p = new gchar[s.length() + 1];
-    s.copy(p, std::string::npos);
+    s.copy(p, string::npos);
     p[s.length()] = '\0';
     return p;
 }
 
 // Convert an integer to a string
 #include <strstream.h>
-std::string inttostring(int a)
+string inttostring(int a)
 {
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
-    ost << a << std::ends;
-    return std::string(buf);
+    ost << a << ends;
+    return string(buf);
 }
 
-std::string floattostring(double a)
+string floattostring(double a)
 {
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
-    ost << a << std::ends;
-    return std::string(buf);
+    ost << a << ends;
+    return string(buf);
 }
 
 class TopTermItemGTK {
@@ -170,9 +175,9 @@ static void do_resultdisplay(gint row) {
 	OmMSetIterator i = mset[row];
 	
 	OmDocument doc = i.get_document();
-	std::string fulltext = doc.get_data();
+	string fulltext = doc.get_data();
 	
-	std::string score = inttostring(mset.convert_to_percent(i));
+	string score = inttostring(mset.convert_to_percent(i));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -182,7 +187,7 @@ static void do_resultdisplay(gint row) {
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(*i).c_str());
     } catch (OmError &e) {
-	std::cout << e.get_msg() << std::endl;
+	cout << e.get_msg() << endl;
     }
 }
 
@@ -203,7 +208,7 @@ static void do_topterms() {
 	if (!rset.size()) {
 	    // invent an rset
 	    gint msize = results_widget->rows;
-	    for (index = std::min(4, msize - 1); index >= 0; index--) {
+	    for (index = min(4, msize - 1); index >= 0; index--) {
 		gpointer rowdata = gtk_clist_get_row_data(results_widget, index);
 		ResultItemGTK * item = (ResultItemGTK *) rowdata;
 		rset.add_document(item->did);
@@ -217,7 +222,7 @@ static void do_topterms() {
 	gtk_clist_clear(topterms_widget);
 	
 	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
-	    std::string tname = *i;
+	    string tname = *i;
 //#ifdef DEBUG
 	    tname = tname + " (" + floattostring(i.get_weight()) + ")";
 //#endif
@@ -230,7 +235,7 @@ static void do_topterms() {
 					topterm_destroy_notify);
 	}
     } catch (OmError &e) {
-	std::cout << e.get_msg() << std::endl;
+	cout << e.get_msg() << endl;
     }
     gtk_clist_thaw(topterms_widget);
 }
@@ -251,7 +256,7 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 {
     GtkEditable *textbox = editable;
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
-    querystring = std::string(tmp);
+    querystring = string(tmp);
     g_free(tmp);
 
     try {
@@ -259,10 +264,10 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	OmQuery omquery;
 	OmStem stemmer("english");
 	om_termname word;
-	std::string::size_type spacepos;
+	string::size_type spacepos;
 	om_termcount position = 1;
-	std::string unparsed_query = querystring;
-	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != std::string::npos) {
+	string unparsed_query = querystring;
+	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != string::npos) {
 	    if(spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
 	    spacepos = unparsed_query.find_first_of(" \t\n");
 	    word = unparsed_query.substr(0, spacepos);
@@ -283,18 +288,18 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
-	std::cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
+	cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
 		" matches_estimated: " << mset.get_matches_estimated() <<
 		" matches_upper_bound: " << mset.get_matches_upper_bound() <<
 	        " max_possible: " << mset.get_max_possible() <<
-	        " max_attained: " << mset.get_max_attained() << std::endl;
+	        " max_attained: " << mset.get_max_attained() << endl;
 
 	for (OmMSetIterator j = mset.begin(); j != mset.end(); j++) {
-	    std::vector<std::string> sorted_mterms(
+	    vector<string> sorted_mterms(
 	    	enquire->get_matching_terms_begin(j),
 		enquire->get_matching_terms_end(j));
-	    std::string message;
-	    for (std::vector<std::string>::const_iterator i = sorted_mterms.begin();
+	    string message;
+	    for (vector<string>::const_iterator i = sorted_mterms.begin();
 		 i != sorted_mterms.end(); ++i) {
 		if (message.size() > 0) message += " ";
 
@@ -313,7 +318,7 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	do_topterms();
     } catch (OmError &e) {
 	gtk_clist_thaw(results_widget);
-	std::cout << e.get_msg() << std::endl;
+	cout << e.get_msg() << endl;
     }
 }
 
@@ -326,10 +331,10 @@ on_mainwindow_destroy(GtkWidget *widget,
 }
 
 int main(int argc, char *argv[]) {
-    std::string gladefile = "querygui.glade";
+    string gladefile = "querygui.glade";
     enquire = NULL;
     max_msize = 10;
-    std::vector<OmSettings *> dbs;
+    vector<OmSettings *> dbs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -362,10 +367,10 @@ int main(int argc, char *argv[]) {
     }
 
     if (dbs.empty() || syntax_error || argc >= 1) {
-	std::cout << "Syntax: " << progname << " [options]" << std::endl;
-	std::cout << "\t--msize <maximum msize>\n";
-	std::cout << "\t--dbdir <directory>\n";
-	std::cout << "\t--glade <glade interface definition file>\n";
+	cout << "Syntax: " << progname << " [options]\n"
+	     << "\t--msize <maximum msize>\n"
+	     << "\t--dbdir <directory>\n"
+	     << "\t--glade <glade interface definition file>" << endl;
 	exit(1);
     }
 
@@ -373,7 +378,7 @@ int main(int argc, char *argv[]) {
     try {
 	OmDatabase mydbs;
 
-	std::vector<OmSettings *>::const_iterator p;
+	vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
 	    mydbs.add_database(**p);
 	    delete *p;
@@ -385,14 +390,14 @@ int main(int argc, char *argv[]) {
 	struct stat statbuf;
 	int err = stat(gladefile.c_str(), &statbuf);
 	if (err) {
-	    std::cerr << "Unable to open " << gladefile <<
-		    " (" << strerror(errno) << ")" << std::endl;
+	    cerr << "Unable to open " << gladefile <<
+		    " (" << strerror(errno) << ")" << endl;
 	    return 1;
 	}
 
 	xml = glade_xml_new(gladefile.c_str(), NULL);
-	if(xml == NULL) {
-	    std::cerr << "Unable to open " << gladefile << std::endl;
+	if (xml == NULL) {
+	    cerr << "Unable to open " << gladefile << endl;
 	    return 1;
 	}
 
@@ -413,7 +418,7 @@ int main(int argc, char *argv[]) {
 	gtk_main();
 
     } catch (OmError &e) {
-	std::cout << "OmError: " << e.get_msg() << std::endl;
+	cout << "OmError: " << e.get_msg() << endl;
     }
     delete enquire;
     enquire = NULL;
