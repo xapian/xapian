@@ -24,6 +24,20 @@
 #include "node_reg.h"
 #include "om/omerror.h"
 
+/** Node which adds a prefix to strings.
+ *
+ *  The omprefix node prefixes an input string by a constant string.
+ *  The omprefixlist node does the same for each string in a list.
+ *
+ *  Inputs:
+ *  	in: The input string (for omprefix) or list (for omprefixlist)
+ *
+ *  Outputs:
+ *  	out: The output string (for omprefix) or list (for omprefixlist)
+ *
+ *  Parameters:
+ *  	prefix: The string to prefix input strings with.
+ */
 class OmPrefixNode : public OmIndexerNode {
     public:
 	OmPrefixNode(const OmSettings &config)

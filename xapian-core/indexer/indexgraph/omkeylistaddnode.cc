@@ -26,6 +26,24 @@
 #include <cctype>
 #include "om/omerror.h"
 
+/** Node which adds items to a keylist structure.
+ *
+ *  The omkeylistadd node adds a list of strings to a keylist as new
+ *  keys.
+ *
+ *  Inputs:
+ *  	keylist: The keylist to act on.  A keylist can be created by
+ *  		an omnewkeylist node.
+ *	keys: The new keys to add to the keylist.  If invokes as an
+ *		omkeylistadd node, then this is a vector of strings.
+ *		If invoked as omkeylistaddone, then this is a single
+ *		string.
+ *
+ *  Outputs:
+ *  	out: The new keylist with added elements.
+ *
+ *  Parameters: none
+ */
 class OmKeylistAddNode : public OmIndexerNode {
     public:
 	OmKeylistAddNode(const OmSettings &config)

@@ -25,6 +25,18 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node which creates a new termlist structure.
+ *
+ *  The omnewtermlist node creates a new blank termlist object which can be
+ *  used with omtermlistadd and ommakedoc nodes.
+ *
+ *  Inputs: none
+ *
+ *  Outputs:
+ *  	out: The empty termlist.
+ *
+ *  Parameters: none
+ */
 class OmNewTermlistNode : public OmIndexerNode {
     public:
 	OmNewTermlistNode(const OmSettings &config)

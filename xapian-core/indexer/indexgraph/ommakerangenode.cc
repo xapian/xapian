@@ -24,6 +24,22 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which generates a range of integers.
+ *
+ *  The ommakerange node returns a list of integers in an arithmetic
+ *  sequence of length "count", starting at "first" and going up by
+ *  "step" each time.
+ *
+ *  Inputs: none
+ *
+ *  Outputs:
+ *  	out: The sequence [ first, first+step, ..., first + (count-1)*step ]
+ *
+ *  Parameters:
+ *  	first: The first number in the sequence (default 1)
+ *  	step: The difference between each successive element (default 1)
+ *  	count: The number of elements to produce (default 1)
+ */
 class OmMakeRangeNode : public OmIndexerNode {
     public:
 	OmMakeRangeNode(const OmSettings &config)

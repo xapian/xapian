@@ -1,3 +1,7 @@
+Mon Nov  6 18:59:33 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added documentation to about half of the indexer nodes.
+
 Mon Nov 06 18:25:22 GMT 2000 Olly Betts
 
 	* Backed out changes to allow remote streamed mset to listen to

@@ -23,6 +23,22 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which combines two lists into a list of pairs.
+ *
+ *  The ommakepairs node takes two equal-length lists as input.  It combines
+ *  them into a new list of the same length, each element l[i] being a list
+ *  of each corresponding input element, ie (left[i], right[i]).  (Compare
+ *  to ommakepair)
+ *
+ *  Inputs:
+ *  	left: The first input list
+ *  	right: The second input list
+ *
+ *  Outputs:
+ *  	out: The list of pairs built from left and right.
+ *
+ *  Parameters: none
+ */
 class OmMakePairsNode : public OmIndexerNode {
     public:
 	OmMakePairsNode(const OmSettings &config)

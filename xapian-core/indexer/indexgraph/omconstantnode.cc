@@ -25,6 +25,21 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node used to provide a constant value.
+ *
+ *  The omconstant node is configured with a constant
+ *  value (currently string only) which can be used
+ *  to supply another node's input with a particular
+ *  value.
+ *
+ *  Inputs: none
+ *
+ *  Outputs:
+ *  	out: the constant value
+ *
+ *  Parameters:
+ *  	value: the string constant used for output.
+ */
 class OmConstantNode : public OmIndexerNode {
     public:
 	OmConstantNode(const OmSettings &config)

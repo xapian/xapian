@@ -27,6 +27,24 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node which makes the final document representation.
+ *
+ *  The ommakedoc node combines a key list, term list, and document
+ *  data into the form expected by the indexer output.
+ *
+ *  Inputs:
+ *  	terms: A term list, in the form used by omnewtermlist and
+ *  		omtermlistadd.
+ *  	keys: A key list, in the form used by omnewkeylist and
+ *  		omkeylistadd.
+ *  	data: Arbitrary document data, as a string.
+ *
+ *  Outputs:
+ *  	out: The document structure.  This is normally connected to
+ *  		the indexer's output, rather than to any node.
+ *
+ *  Parameters: none
+ *  	
 class OmMakeDocNode : public OmIndexerNode {
     public:
 	OmMakeDocNode(const OmSettings &config)

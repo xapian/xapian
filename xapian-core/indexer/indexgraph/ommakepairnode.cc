@@ -23,6 +23,20 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which pairs two messages into a pair.
+ *
+ *  The ommakepair node takes any messages as input and produces one
+ *  vector of two elements from the inputs.
+ *
+ *  Inputs:
+ *  	left: The first item to add to the pair
+ *  	right: The second item to add to the pair
+ *
+ *  Outputs:
+ *  	out: The pair containing left and right.
+ *
+ *  Parameters: none
+ */
 class OmMakePairNode : public OmIndexerNode {
     public:
 	OmMakePairNode(const OmSettings &config)

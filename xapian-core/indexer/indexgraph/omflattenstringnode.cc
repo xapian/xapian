@@ -26,6 +26,20 @@
 #include "om/omerror.h"
 #include "node_reg.h"
 
+/** Node which turns a list containing strings into a single string.
+ *
+ *  The omflattenstring node takes as input any structure built of
+ *  vectors and strings (but not numerical types) and concatenates the
+ *  strings together into one.
+ *
+ *  Inputs:
+ *  	in: The structure with strings.
+ *
+ *  Outputs:
+ *  	out: The string consisting of all input strings concatenated.
+ *
+ *  Parameters: none
+ *
 class OmFlattenStringNode : public OmIndexerNode {
     public:
 	OmFlattenStringNode(const OmSettings &config)

@@ -27,6 +27,22 @@
 #include <iostream>
 #include <fstream>
 
+/** Node which reads a file.
+ *
+ *  The omfilereader node reads the contents of a file into one
+ *  string which can be used by other nodes.
+ *
+ *  Inputs:
+ *  	filename: A string containing the filename to read from.
+ *  		  Overridden by the filename parameter if present.
+ *
+ *  Outputs:
+ *  	out: The contents of the file as one string.
+ *
+ *  Parameters:
+ *  	filename: The name of the file.  This is checked before the
+ *  		filename input, and takes precedence.
+ */
 class OmFileReaderNode : public OmIndexerNode {
     public:
 	OmFileReaderNode(const OmSettings &config)

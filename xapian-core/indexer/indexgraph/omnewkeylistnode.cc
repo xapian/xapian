@@ -25,6 +25,18 @@
 #include "node_reg.h"
 #include <cctype>
 
+/** Node which creates a new keylist structure.
+ *
+ *  The omnewkeylist node creates a new blank keylist object which can be
+ *  used with omkeylistadd and ommakedoc nodes.
+ *
+ *  Inputs: none
+ *
+ *  Outputs:
+ *  	out: The empty keylist.
+ *
+ *  Parameters: none
+ */
 class OmNewKeylistNode : public OmIndexerNode {
     public:
 	OmNewKeylistNode(const OmSettings &config)

@@ -23,6 +23,21 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which concatenates two lists.
+ *
+ *  The omlistconcat node takes two lists as inputs (left and right),
+ *  and produces a new list consisting of the elements of left followed
+ *  by the elements of right.
+ *
+ *  Inputs:
+ *  	left: The first input list
+ *  	right: The second input list
+ *
+ *  Outputs:
+ *  	out: The concatenated list.
+ *
+ *  Parameters: none
+ */
 class OmListConcatNode : public OmIndexerNode {
     public:
 	OmListConcatNode(const OmSettings &config)
