@@ -55,7 +55,7 @@ OmQuery::op default_op = OmQuery::OP_OR; // default matching mode
 
 static QueryParser qp;
 
-static void print_query_page(const string &page);
+static string eval_file(const string &fmtfile);
 
 querytype
 set_probabilistic(const string &newp, const string &oldp)
@@ -346,7 +346,7 @@ static map<string, string> field;
 static om_docid q0;
 static int percent;
 
-static string print_caption(om_docid m, const string &fmt);
+static string print_caption(om_docid m, const string &fmt, const string &loopvar);
 
 enum tagval {
 CMD_,
@@ -469,7 +469,7 @@ static struct func_desc func_tab[] = {
 };
 
 static string
-eval(const string &fmt)
+eval(const string &fmt, const string &loopvar)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
@@ -498,6 +498,9 @@ eval(const string &fmt)
 	    res += lit;
 	    p = q + 1;
 	    continue;
+	}
+	if (fmt[q] == '_') {
+	    res += loopvar;
 	}
 	if (fmt[q] != '{' && !isalpha(fmt[q])) {
 	    string msg = "Unknown $ code in: $" + fmt.substr(q);
@@ -556,7 +559,7 @@ eval(const string &fmt)
 		n = args.size();
 	    
 	    for (std::vector<string>::size_type j = 0; j < n; j++)
-		args[j] = eval(args[j]);
+		args[j] = eval(args[j], loopvar);
 	}
 	if (i->second->ensure_match) ensure_match();
 	string value;
@@ -574,7 +577,7 @@ eval(const string &fmt)
 	    case CMD_and:
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
-		    if (eval(*i).empty()) {
+		    if (eval(*i, loopvar).empty()) {
 			value = "true";
 			break;
 		    }
@@ -602,7 +605,7 @@ eval(const string &fmt)
 			struct tm *then;
 			then = gmtime(&date);
 			string fmt = "%Y-%m-%d";
-			if (args.size() > 1) fmt = eval(args[1]);
+			if (args.size() > 1) fmt = eval(args[1], loopvar);
 			strftime(buf, sizeof buf, fmt.c_str(), then);
 		    }
 		    value = buf;
@@ -692,7 +695,7 @@ eval(const string &fmt)
 		}
 #endif
 		for (om_docid m = topdoc; m < last; m++)
-		    value += print_caption(m, args[0]);
+		    value += print_caption(m, args[0], loopvar);
 		break;
 	    case CMD_hitsperpage:
 		value = int_to_string(hits_per_page);
@@ -706,13 +709,13 @@ eval(const string &fmt)
 		break;
 	    case CMD_if:
 		if (!args[0].empty())
-		    value = eval(args[1]);
+		    value = eval(args[1], loopvar);
 		else if (args.size() > 2)
-		    value = eval(args[2]);
+		    value = eval(args[2], loopvar);
 		break;
 	    case CMD_include:
-		print_query_page(args[0]);
-		break;
+	        value = eval_file(args[0]);
+	        break;
 	    case CMD_last:
 		value = int_to_string(last);
 		break;
@@ -759,19 +762,13 @@ eval(const string &fmt)
 	    }
 	    case CMD_map:
 		if (!args[0].empty()) {
-		    std::vector<string>::size_type i = 0;
-		    while (++i < args.size()) args[i] = eval(args[i]);
-		    string list = args[0];
-		    std::string::size_type split = 0, split2;
+		    string l = args[0], pat = args[1];
+		    std::string::size_type i = 0, j;
 		    while (1) {
-			split2 = list.find('\t', split);
-			string item = list.substr(split, split2 - split);
-			std::string::size_type i = 0;
-			while (++i < args.size() - 1)
-			    value = value + args[i] + item;
-			value += args.back();
-			if (split2 == string::npos) break;
-			split = split2 + 1;
+			j = l.find('\t', i);
+			value += eval(pat, eval(l.substr(i, j - i), loopvar));
+			if (j == string::npos) break;
+			i = j + 1;
 		    }
 		}
 	        break;
@@ -811,7 +808,7 @@ eval(const string &fmt)
 	    case CMD_or:
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
-		    value = eval(*i);
+		    value = eval(*i, loopvar);
 		    if (!value.empty()) break;
 	        }
 		break;
@@ -949,12 +946,13 @@ eval(const string &fmt)
 static string
 eval_file(const string &fmtfile)
 {    
+    // FIXME: worry about ".." etc in fmt
+    string file = "/usr/omega/data/default-html/" + fmtfile;
     string fmt;
     struct stat st;
-    int fd = open(fmtfile.c_str(), O_RDONLY);
+    int fd = open(file.c_str(), O_RDONLY);
     if (fd < 0) {
-	string err = string("Couldn't open format template `") + fmtfile
-	    + '\'';
+	string err = string("Couldn't open format template `") + file + '\'';
 	throw err;
     }
     if (fstat(fd, &st) == 0 && st.st_size) {
@@ -967,7 +965,9 @@ eval_file(const string &fmtfile)
 	}
     }
     close(fd);
-    return eval(fmt);
+
+    string empty;
+    return eval(fmt, empty);
 }
 
 /* return a sane (1-100) percentage value for num/denom */
@@ -983,7 +983,7 @@ percentage(double ratio)
 }
 
 static string
-print_caption(om_docid m, const string &fmt)
+print_caption(om_docid m, const string &fmt, const string &loopvar)
 {
     q0 = *(mset[m]);
 
@@ -1026,20 +1026,13 @@ print_caption(om_docid m, const string &fmt)
 	i++;
     }
 
-    return eval(fmt);
-}
-
-static void
-print_query_page(const string &page)
-{
-    // FIXME - should be set-able and should be "/html/"
-    cout << eval_file("/usr/omega/data/default-html/" + page);
+    return eval(fmt, loopvar);
 }
 
 om_doccount
 do_match()
 {
-    print_query_page(fmtname);
+    cout << eval_file(fmtname);
     return mset.get_matches_estimated();
 }
 
