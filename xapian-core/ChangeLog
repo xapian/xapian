@@ -1,3 +1,9 @@
+Mon Nov  6 19:01:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Various modifications to quartz.  Martin's library is now C++ in
+	  name, slowly becoming that in style and organisation.  Quartz
+	  now uses martin's library, and some of the tests even pass.
+
 Mon Nov  6 18:59:33 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added documentation to about half of the indexer nodes.

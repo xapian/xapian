@@ -123,7 +123,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	    // FIXME: Quartz has lots of files, and the names will change
 	    // during developement.  Make sure this stays up to date.
 
-	    if (file_exists(path + "/record_data_1")) {
+	    if (file_exists(path + "/record_DB")) {
 		myparams.set("quartz_dir", path);
 		if (readonly) {
 		    database = new QuartzDatabase(myparams);
