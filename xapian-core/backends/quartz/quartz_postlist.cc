@@ -436,8 +436,10 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 	// In first chunk
 #ifdef MUS_DEBUG
 	om_termcount old_number_of_entries = number_of_entries;
-#endif
 	read_start_of_first_chunk(&pos, end, &number_of_entries, &did);
+#else
+	read_start_of_first_chunk(&pos, end, 0, &did);
+#endif
 	Assert(old_number_of_entries == number_of_entries);
     } else {
 	// In normal chunk
