@@ -260,8 +260,6 @@ OmEnquireInternal::get_mset(om_doccount first,
 	match.set_rset(rset);
     }
 
-    cout << "FOO: " << database->get_doccount() << endl;
-
     // FIXME: should be done by top match object.
     if(rset == 0) {
 	gatherer.set_global_stats(database->get_doccount(), 0);
