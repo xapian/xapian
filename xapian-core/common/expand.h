@@ -33,31 +33,31 @@
 
 class OMExpandDecider {
     public:
-	virtual bool want_term(const termname&) const = 0;
+	virtual bool want_term(const termname & tname) const = 0;
 };
 
 class OMExpandDeciderAlways : public virtual OMExpandDecider {
     public:
-	bool want_term(const termname&) const { return true; }
+	bool want_term(const termname & tname) const { return true; }
 };
 
 class OMExpand {
     private:
         IRDatabase *database;
    
-        termcount max_esize;
-
         bool recalculate_maxweight;
 	TermList * build_tree(const RSet *rset, const OMExpandWeight *ewt);
     public:
-        OMExpand(IRDatabase *);
+        OMExpand(IRDatabase * database_);
 
-	void expand(OMESet &, const RSet *, const OMExpandDecider *);
+	void expand(termcount max_esize,
+		    OMESet & eset,
+		    const RSet * rset,
+		    const OMExpandDecider * decider);
 };
 
-inline OMExpand::OMExpand(IRDatabase *database_new)
-	: database(database_new),
-	  max_esize(1000)
+inline OMExpand::OMExpand(IRDatabase * database_)
+	: database(database_)
 { return; }
 
 #endif /* _expand_h_ */

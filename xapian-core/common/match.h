@@ -56,7 +56,7 @@ class OMMatch
 
 	RSet *rset;         // RSet to be used (affects weightings)
 
-	bool do_collapse;   // Whether to perform collapsem operation
+	bool do_collapse;   // Whether to perform collapse operation
 	keyno collapse_key; // Key to collapse on, if desired
 
 	bool have_added_terms;

@@ -54,6 +54,7 @@ class OMQuery {
     friend class OMMatch;
     private:
 	bool isnull;
+	bool isbool;
 	vector<OMQuery *> subqs;
 	termname tname;
 	om_queryop op;

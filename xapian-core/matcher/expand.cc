@@ -88,9 +88,10 @@ OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
 }
 
 void
-OMExpand::expand(class OMESet &eset,
-		 const RSet *rset,
-		 const OMExpandDecider *decider)
+OMExpand::expand(termcount max_esize,
+		 class OMESet & eset,
+		 const RSet * rset,
+		 const OMExpandDecider * decider)
 {
     eset.items.clear();
     eset.etotal = 0;

@@ -1,3 +1,12 @@
+Mon Feb  7 12:57:12 GMT 2000 Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make get_eset()'s max_items parameter work.
+          (Changed max_esize in OMExpand from a member to a parameter of
+	  expand() )
+
+	* Implemented add_database() correctly in OMEnquire: can now do
+	  multi database stuff.
+
 Mon Feb  7 12:53:33 GMT 2000  Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added tests to apitest for maxitems parameters and null queries
