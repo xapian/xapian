@@ -44,7 +44,7 @@ You will need this if you develop any packages that require xapian.
 
 %build
 
-test -f ./configure || ./buildall
+test -f ./configure --prefix=/usr || ./buildall
 ./configure
 make -j4
 echo $RPM_BUILD_ROOT
