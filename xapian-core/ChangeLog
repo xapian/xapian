@@ -1,3 +1,8 @@
+Tue May 14 16:48:07 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed multiple-include protection from config.h - if it's
+	  included more than once it's now a bug and we want to know!
+
 Tue May 14 15:25:05 BST 2002  Olly Betts <olly@survex.com>
 
 	* OmQueryParser: parse acronyms as a single term (so "E.T." -> "ET"
