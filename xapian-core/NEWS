@@ -1,3 +1,22 @@
+Xapian 0.5.1:
+
+This release fixes features improved documentation and some build system
+portability fixes.
+
+* PLATFORMS: updated with more test results.
+
+* docs/: tidied up layout of HTML documentation; converted the notes about
+  BM25 into HTML; updated stemmer docs to reflect intention to use Snowball
+  instead; included HTML versions of quickstart*.cc.
+
+* automake 1.6.3 and autoconf 2.54 are now required for those working             from CVS to fix a problem with the generated Makefiles and Solaris
+  make.
+
+* net/Makefile.am: Fixed building of readquery.cc from readquery.ll.
+
+* buildall script is now deprecated - use the new streamlined bootstrap script
+  in preference.
+
 Xapian 0.5.0:
 
 The last release of the software that is now known as Xapian was OmSee 0.4.1 on
