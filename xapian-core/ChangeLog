@@ -1,3 +1,7 @@
+Tue Apr 05 16:17:31 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix m4 quoting.
+
 Tue Apr 05 15:16:38 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: #define VERSION in version.h shouldn't include any

@@ -756,7 +756,7 @@ AC_OUTPUT
 
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
 [MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"]
-REVISION="`echo \"$VERSION\"|sed 's/.*\.//;s/_svn[0-9]*$//'`"
+[REVISION="`echo \"$VERSION\"|sed 's/.*\.//;s/_svn[0-9]*$//'`"]
 dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
 tmpfile=_versionh.cc
 rm -f $tmpfile
