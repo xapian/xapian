@@ -1,4 +1,4 @@
-$httpheader{Content-Type,text/xml}
+$httpheader{Content-Type,application/xml}
 <results Query="$html{$query}" TopDoc="$topdoc" Matches="$msize" Last="$last" 
 ThisPage="$thispage" LastPage="$lastpage" xP="$html{$list{$queryterms,,.,.}}"
 $if{$cgi{DAYSMINUS},xDAYSMINUS="$html{$cgi{DAYSMINUS}}" }

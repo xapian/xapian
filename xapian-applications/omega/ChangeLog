@@ -1,3 +1,8 @@
+Fri Mar 12 02:11:28 GMT 2004  Olly Betts <olly@survex.com>
+
+	* templates/xml: "Content-Type: application/html" is more appropriate
+	  than text/xml.
+
 Fri Mar 12 02:09:33 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Added --overwrite option which forces an existing
