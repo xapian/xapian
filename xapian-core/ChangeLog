@@ -1,3 +1,7 @@
+Wed Jan 10 14:28:10 GMT 2001 Olly Betts
+
+	* Updated various .cvsignore files.
+
 Tue Jan 09 19:03:12 GMT 2001 Olly Betts
 
 	* Tidied up dead code from OmAllTermIterator.

@@ -6,4 +6,5 @@ Makefile
 .libs
 libquartz.la
 quartztest
+quartzdump
 .quartztmp
