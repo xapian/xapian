@@ -31,6 +31,7 @@
 #include "om/omdatabase.h"
 #include "om/omerror.h"
 #include <string>
+#include <time.h> // for time_t
 
 class OmQuery;
 class OmErrorHandler;

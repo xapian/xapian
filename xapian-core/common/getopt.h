@@ -1,5 +1,6 @@
 /* Declarations for getopt.
    Copyright (C) 1989,90,91,92,93,94,96,97,98,99 Free Software Foundation, Inc.
+   Copyright (C) 2003 Olly Betts (modified for better C++ compatibility)
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -93,7 +94,7 @@ extern int optopt;
 
 struct option
 {
-# if defined __STDC__ && __STDC__
+# if (defined __STDC__ && __STDC__) || defined(__cplusplus)
   const char *name;
 # else
   char *name;
@@ -137,14 +138,14 @@ struct option
    arguments to the option '\0'.  This behavior is specific to the GNU
    `getopt'.  */
 
-#if defined __STDC__ && __STDC__
+#if (defined __STDC__ && __STDC__) || defined(__cplusplus)
 # ifdef __GNU_LIBRARY__
 /* Many other libraries have conflicting prototypes for getopt, with
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
 # else /* not __GNU_LIBRARY__ */
-extern int getopt ();
+/*extern int getopt ();*/
 # endif /* __GNU_LIBRARY__ */
 
 # ifndef __need_getopt

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,10 +52,7 @@
 
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
 						       OmTermIterator termsend)
-#if 1
-    // the comment below suggests this may not work on Solaris CC -
-    // but perhaps the issue is with the STL list iterator so let's
-    // give it a go... [FIXME check and fix or remove these comments]
+#ifndef __SUNPRO_CC
     : tset(terms, termsend)
 {
 }
@@ -63,10 +60,10 @@ OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
 {
     // I'd prefer using an initialiser list for this, but it seems
     // that Solaris' CC doesn't like initialising a set with list
-    // iterators.
+    // iterators or OmTermIterators.
     while (terms != termsend) {
         tset.insert(*terms);
-	terms++;
+	++terms;
     }
 }
 #endif

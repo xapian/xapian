@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -279,7 +280,7 @@ OmDocument::termlist_count() {
     if (! internal->terms_here) {
 	internal->read_termlist(termlist_begin(), termlist_end()); 
     }
-    assert(internal->terms_here);
+    Assert(internal->terms_here);
     RETURN(internal->terms.size());
 }
 
@@ -320,7 +321,7 @@ om_termcount
 OmDocument::values_count() {
     DEBUGAPICALL(om_termcount, "OmDocument::values_count", "");
     internal->need_values();
-    assert(internal->values_here);
+    Assert(internal->values_here);
     RETURN(internal->values.size());
 }
 

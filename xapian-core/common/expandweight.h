@@ -87,7 +87,7 @@ class OmExpandWeight {
 	OmExpandBits get_bits(om_termcount wdf,
 			      om_doclength len,
 			      om_doccount termfreq,
-			      om_doccount dbsize) const;
+			      om_doccount dbsize_) const;
 
 	om_weight get_weight(const OmExpandBits & bits,
 			     const om_termname & tname) const;

@@ -561,7 +561,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			      new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
-					make_pair(new_item, 0)));
+					make_pair(new_item, om_weight(0))));
 		} else {
 		    const OmMSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
@@ -890,7 +890,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		// in the items, we remove from collapse_tab here as processed
 		// so we can quit early.  Therefore each time we find an item
 		// with a collapse_key the collapse_key must be in collapse_tab
-                assert(key != collapse_tab.end());
+                Assert(key != collapse_tab.end());
 		// If weight of top collapsed item is not relevent enough
 		// then collapse count is bogus in every way
 		// FIXME: Should this be <=?

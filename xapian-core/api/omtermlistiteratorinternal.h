@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -184,6 +184,10 @@ class MapTermList : public TermList {
 	OmExpandBits get_weighting() const {
 	    Assert(false); // should never get called
 	    abort();
+#ifdef __SUNPRO_CC
+	    // For compilers which worry abort() might return...
+            return OmExpandBits(0, 0, 0);
+#endif
 	}
 	    
 	// Gets current termname

@@ -1,3 +1,14 @@
+Wed Apr 02 03:45:42 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,api/omenquire.cc,api/omtermlistiteratorinternal.h,
+	  backends/inmemory/inmemory_database.h,backends/quartz/btree.cc,
+	  backends/quartz/btree.h,common/alltermslist.h,common/expandweight.h,
+	  common/getopt.h,common/utils.h,include/om/omenquire.h,
+	  matcher/expandweight.cc,matcher/multimatch.cc,
+	  testsuite/backendmanager.h: Resolved various issues so that
+	  libxapian now builds with Sun's C++ compiler.  However
+	  libomqueryparser and the test programs don't yet.
+
 Tue Apr 01 02:52:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_types.h: use "unsigned int" rather than

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,9 +72,9 @@ OmExpandBits
 OmExpandWeight::get_bits(om_termcount wdf,
 			 om_doclength document_length,
 			 om_doccount termfreq,
-			 om_doccount dbsize) const
+			 om_doccount dbsize_) const
 {
-    DEBUGCALL(MATCH, OmExpandBits, "OmExpandWeight::get_bits", wdf << ", " << document_length << ", " << termfreq << ", " << dbsize);
+    DEBUGCALL(MATCH, OmExpandBits, "OmExpandWeight::get_bits", wdf << ", " << document_length << ", " << termfreq << ", " << dbsize_);
     om_weight multiplier = 1.0;
 
     om_doclength normalised_length = document_length / average_length;
@@ -94,7 +95,7 @@ OmExpandWeight::get_bits(om_termcount wdf,
     } else {
 	DEBUGLINE(WTCALC, "No wdf information => multiplier = " << multiplier);
     }
-    return OmExpandBits(multiplier, termfreq, dbsize);
+    return OmExpandBits(multiplier, termfreq, dbsize_);
 }
 
 om_weight

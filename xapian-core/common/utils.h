@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +42,12 @@ using std::vector;
 // for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
 // have to rename all our open methods.
 inline int fcntl_open(const char *filename, int flags, mode_t mode) {
+#ifdef __SUNPRO_CC
+    // cast needed to resolve overload ambiguity
+    return open(filename, flags, (int)mode);
+#else
     return open(filename, flags, mode);
+#endif
 }
 
 inline int fcntl_open(const char *filename, int flags) {

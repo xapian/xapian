@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -835,7 +835,7 @@ Btree::mid_point(byte * p)
     return 0; /* Stop compiler complaining about end of method. */
 }
 
-/** add_item_to_block(p, kt, c) adds item kt to the block at p.
+/** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
  
    c is the offset in the directory that needs to be expanded to
    accommodate the new entry for the item. We know before this is
@@ -844,10 +844,10 @@ Btree::mid_point(byte * p)
 */
 
 void
-Btree::add_item_to_block(byte * p, byte * kt, int c)
+Btree::add_item_to_block(byte * p, byte * kt_, int c)
 {
     int dir_end = DIR_END(p);
-    int kt_len = GETI(kt, 0);
+    int kt_len = GETI(kt_, 0);
     int needed = kt_len + D2;
     int new_total = TOTAL_FREE(p) - needed;
     int new_max = MAX_FREE(p) - needed;
@@ -867,26 +867,26 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
 
     int o = dir_end + new_max;
     SETD(p, c, o);
-    memmove(p + o, kt, kt_len);
+    memmove(p + o, kt_, kt_len);
 
     SET_MAX_FREE(p, new_max);
 
     SET_TOTAL_FREE(p, new_total);
 }
 
-/** Btree::add_item(C_, kt, j) adds item kt to the block at cursor level C_[j].
+/** Btree::add_item(C_, kt_, j) adds item kt_ to the block at cursor level C_[j].
  *
  *  If there is not enough room the block splits and the item is then
  *  added to the appropriate half.
  */
 void
-Btree::add_item(Cursor * C_, byte * kt, int j)
+Btree::add_item(Cursor * C_, byte * kt_, int j)
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
     int4 n;
 
-    int kt_len = GETI(kt, 0);
+    int kt_len = GETI(kt_, 0);
     int needed = kt_len + D2;
     if (TOTAL_FREE(p) < needed) {
 	int m;
@@ -916,12 +916,12 @@ Btree::add_item(Cursor * C_, byte * kt, int j)
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
-	    add_item_to_block(p, kt, c);
+	    add_item_to_block(p, kt_, c);
 	    n = C_[j].n;
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(q));
-	    add_item_to_block(q, kt, c);
+	    add_item_to_block(q, kt_, c);
 	    n = C_[j].split_n;
 	}
 	write_block(C_[j].split_n, q);
@@ -930,7 +930,7 @@ Btree::add_item(Cursor * C_, byte * kt, int j)
 		  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
 		  key_of(p, DIR_START));      /* - and the first key of block p */
     } else {
-	add_item_to_block(p, kt, c);
+	add_item_to_block(p, kt_, c);
 	n = C_[j].n;
     }
     if (j == 0) {
@@ -1549,16 +1549,16 @@ Btree::do_open_to_write(const string & name_,
 }
 
 void
-Btree::open_to_write(const string & name)
+Btree::open_to_write(const string & name_)
 {
     // Any errors are thrown if revision_supplied is false
-    (void)do_open_to_write(name, false, 0);
+    (void)do_open_to_write(name_, false, 0);
 }
 
 bool
-Btree::open_to_write(const string & name, uint4 n)
+Btree::open_to_write(const string & name_, uint4 n)
 {
-    return do_open_to_write(name, true, n);
+    return do_open_to_write(name_, true, n);
 }
 
 Btree::Btree()
@@ -1775,15 +1775,15 @@ Btree::do_open_to_read(const string & name_,
 }
 
 void
-Btree::open_to_read(const string & name)
+Btree::open_to_read(const string & name_)
 {
-    do_open_to_read(name, false, 0);
+    do_open_to_read(name_, false, 0);
 }
 
 void
-Btree::open_to_read(const string & name, uint4 n)
+Btree::open_to_read(const string & name_, uint4 n)
 {
-    do_open_to_read(name, true, n);
+    do_open_to_read(name_, true, n);
 }
 
 void
