@@ -16,6 +16,7 @@ doxygen_full_conf
 sourcedoc
 apidoc
 doxygen_api_warnings
+doxygen_full_warnings
 *.tex
 *.log
 *.dvi

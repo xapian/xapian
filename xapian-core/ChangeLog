@@ -1,3 +1,8 @@
+Wed Sep 18 13:16:14 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* docs/.cvsignore: Add docs/doxygen_full_warnings.
+	* include/om/.cvsignore: Add include/om/om.h.
+
 Wed Sep 18 11:06:12 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* include/om/Makefile.am: We really should install om/om.h, or
