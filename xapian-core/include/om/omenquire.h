@@ -212,6 +212,8 @@ class OmMSet {
 
 	OmMSetIterator end() const;
 
+	OmMSetIterator operator[](om_doccount i) const;
+
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
@@ -398,8 +400,7 @@ class OmExpandDeciderAnd : public OmExpandDecider {
     public:
     	/** Constructor, which takes as arguments the two
 	 *  decision functors to AND together.
-	 *  OmExpandDeciderAnd will not delete its sub-
-	 *  functors.
+	 *  OmExpandDeciderAnd will not delete its sub-functors.
 	 */
 	OmExpandDeciderAnd(const OmExpandDecider *left_,
 	                   const OmExpandDecider *right_);

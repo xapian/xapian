@@ -1,3 +1,7 @@
+Wed Dec 13 14:44:46 GMT 2000 Olly Betts
+
+	* Implemented OmMSet::operator[]().
+
 Wed Dec 13 14:30:57 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added support for handling overwritten database conditions.

@@ -301,6 +301,13 @@ OmMSet::end() const
     return OmMSetIterator(NULL);
 }
 
+OmMSetIterator
+OmMSet::operator[](om_doccount i) const
+{
+    return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin() + i,
+						       internal->items.end()));
+}
+
 std::string
 OmMSet::get_description() const
 {
