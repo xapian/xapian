@@ -1,3 +1,7 @@
+Wed Sep 13 15:23:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added the native part of the OmSettings Java wrappers.  (Oops!)
+
 Wed Sep 13 15:13:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmPostListIterator::get_description() doesn't dump core when
