@@ -74,10 +74,16 @@ class DATerm {
     private:
 	DATerm(struct terminfo *, termname);
     public:
-	struct terminfo *ti;
-	~DATerm();
+	struct terminfo ti;
 	termname name;
 };
+
+inline DATerm::DATerm(struct terminfo *ti_new, termname name_new)
+{
+    ti = *ti_new;
+    name = name_new;
+}
+
 
 
 class DADatabase : public virtual IRDatabase {
@@ -92,6 +98,7 @@ class DADatabase : public virtual IRDatabase {
 	vector<DATerm> termvec;
     public:
 	DADatabase();
+	~DADatabase();
 
 	void open(string pathname, bool readonly);
 	void close();

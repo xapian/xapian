@@ -104,25 +104,17 @@ bool   DATermList::at_end()
 
 
 
-DATerm::DATerm(struct terminfo *ti_new, termname name_new)
-{
-    ti = ti_new;
-    name = name_new;
-}
-
-DATerm::~DATerm()
-{
-    ;
-}
-
-
-
 DADatabase::DADatabase()
 {
     DA_r = NULL;
     DA_t = NULL;
     max_termid = 0;
     opened = false;
+}
+
+DADatabase::~DADatabase()
+{
+    close();
 }
 
 void
@@ -168,26 +160,14 @@ DADatabase::close()
 PostList * DADatabase::open_post_list(termid id)
 {
     Assert(opened);
+    Assert(id > 0 && id <= termvec.size());
 
     termname name = term_id_to_name(id);
 
-    int len = name.length();
-    if(len > 255) throw RangeError("Termid not found");
-    byte * k = (byte *) malloc(len + 1);
-    if(k == NULL) throw OmError(strerror(ENOMEM));
-    k[0] = len + 1;
-    name.copy((char*)(k + 1), len);
-
-    struct terminfo ti;
-    int found = DAterm(k, &ti, DA_t);
-
-    if(found == 0) throw RangeError("Termid not found");
-
     struct postings * postlist;
-    //Assert(id > 0 && id <= termvec.size())
-    postlist = DAopenpostings(termvec[id - 1].ti, DA_t);
+    postlist = DAopenpostings(&(termvec[id - 1].ti), DA_t);
 
-    DAPostList * pl = new DAPostList(postlist, termvec[id - 1].ti->freq, dbsize);
+    DAPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq, dbsize);
     return pl;
 }
 
@@ -210,34 +190,34 @@ termid
 DADatabase::term_name_to_id(termname name)
 {
     Assert(opened);
-    printf("Looking up term `%s': ", name.c_str());
+    //printf("Looking up term `%s': ", name.c_str());
 
     map<termname,termid>::iterator p = termidmap.find(name);
 
     termid id = 0;
     if (p == termidmap.end()) {
 	int len = name.length();
-	if(len > 126) throw OmError("Term too long for DA implementation.");
+	if(len > 255) throw RangeError("Termid not found");
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw OmError(strerror(ENOMEM));
 	k[0] = len + 1;
 	name.copy((char*)(k + 1), len);
 
-	struct terminfo *ti = new struct terminfo;
-	int found = DAterm(k, ti, DA_t);
+	struct terminfo ti;
+	int found = DAterm(k, &ti, DA_t);
 	free(k);
 
 	if(found == 0) {
-	    delete ti;
+	    //printf("Not in collection\n");
 	} else {
 	    id = termvec.size() + 1;
-	    printf("Adding as ID %d\n", id);
-	    termvec.push_back(DATerm(ti, name));
+	    //printf("Adding as ID %d\n", id);
+	    termvec.push_back(DATerm(&ti, name));
 	    termidmap[name] = id;
 	}
     } else {
 	id = (*p).second;
-	printf("found, ID %d\n", id);
+	//printf("found, ID %d\n", id);
     }
     return id;
 }
@@ -246,7 +226,7 @@ termname
 DADatabase::term_id_to_name(termid id)
 {
     Assert(opened);
-    if (id <= 0 || id > termvec.size()) throw RangeError("invalid termid");
-    printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
+    Assert(id > 0 && id <= termvec.size());
+    //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
     return termvec[id - 1].name;
 }

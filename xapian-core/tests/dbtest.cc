@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     try {
 	database.open("testdir", 0);
-	tid = database.term_name_to_id("abhor");
+	tid = database.term_name_to_id("true");
 	// posting list 122 141 142 174 ...
 	postlist = database.open_post_list(tid);
 	while(!postlist->at_end()) {
