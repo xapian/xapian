@@ -9,10 +9,13 @@ int main(int argc, char *argv[]) {
 	database.open("testdir", 0);
 	postlist = database.open_post_list(1);
 	while(!postlist->at_end()) {
-	    docid id;
-	    id = postlist->get_docid();
-	    printf("DocId: %d\n", id);
-	    if(id == 2) postlist->skip_to(5);
+	    docid did;
+	    termid tid;
+
+	    tid = database.term_name_to_id("1");
+	    did = postlist->get_docid();
+	    printf("TermId: %d  DocId: %d\n", tid, did);
+	    if(did == 2) postlist->skip_to(5);
 	    else postlist->next();
 	}
 	delete postlist;
