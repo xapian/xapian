@@ -30,7 +30,11 @@
 
 #include "util.h"
 
+#define SHOW_WARNINGS 0 
+
+#if SHOW_WARNINGS
 #warning "should use omsee-0.4.1 or later"
+#endif
 
 void usage(char * prog_name);
 const string database = "db";
@@ -61,7 +65,9 @@ void writeFileDB( const string& prev_file, const string& package_path, const map
 
   for( int i = 0; i < filedb_dir.length(); i++ ) {
     if ( filedb_dir[i] == '/' ) {
+#if SHOW_WARNINGS
 #warning "potential file conflict with _"
+#endif
       filedb_dir[i] = '_';
     }
   }
