@@ -24,6 +24,8 @@
 #include "termlist.h"
 #include "stats.h"
 
+#include <memory>
+
 void
 RSet::calculate_stats()
 {
@@ -33,7 +35,8 @@ RSet::calculate_stats()
     for (doc = documents.begin();
 	 doc != documents.end();
 	 doc++) {
-	TermList * tl = root->open_term_list(doc->did);
+	auto_ptr<TermList> tl;
+	tl = auto_ptr<TermList>(root->open_term_list(doc->did));
 	tl->next();
 	while(!(tl->at_end())) {
 	    DebugMsg("document " << doc->did << ", ");

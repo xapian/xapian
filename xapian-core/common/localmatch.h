@@ -35,6 +35,7 @@ class PostList;
 
 #include <vector>
 #include <map>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet

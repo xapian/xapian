@@ -1,3 +1,7 @@
+Wed May 17 17:52:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix memory leak.
+
 Wed May 17 17:26:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* BM25Weight and TradWeight now ask their statssource for information
