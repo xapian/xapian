@@ -41,6 +41,8 @@ sub usage {
     die "Usage: $0 [-v] [--seed <seed>] [--no-random] [language(s)]";
 }
 
+defined $ENV{"srcdir"} or die "srcdir needs to be set\n";
+
 while ($_ = shift @ARGV) {
   if ($_ =~ /^-v$/) {
       $verbose = 1;
@@ -207,7 +209,7 @@ sub randtest {
     $did_something = 1;
 
     print "Testing $language with file $filename...";
-    $system_retval = system("./stemtest --language $language $filename > $outputfname 2>&1");
+    $system_retval = system("./stemtest --language $language $filename > $outputfname");
     if ($system_retval) {
         if ($verbose) {
 	    print "stemtest returned $system_retval\n";
