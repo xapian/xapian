@@ -1,0 +1,5 @@
+Mon Nov  5 12:42:26 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Omega moved to new home, from om-examples/omega.
+	  Standalone build system added.
+
