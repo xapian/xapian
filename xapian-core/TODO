@@ -46,9 +46,12 @@ Priority | Area            | Task
          |                 | OmQuery(OM_MOP_OR, OmQuery(tname),
          |                 | OmQuery(tname)) are exactly equivalent. 
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Make OmEnquire::get_matching_terms and
+ Medium  | API             | Test that OmEnquire::get_matching_terms and
          |                 | OmQuery::get_terms return terms in sorted order
 	 |                 | of termpos.
+---------+-----------------+--------------------------------------------------
+ Medium  | API		   | Don't allow a boolean query in any Query
+         |                 | constructors, except for copy constructors.
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
