@@ -25,7 +25,7 @@ DIST_SUBDIRS = include testsuite autoconf common \
 
 bin_SCRIPTS = xapian-config
 
-CLEANFILES = TODO xapian-config
+CLEANFILES = TODO TODO.release xapian-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
              ar-wrapper-solaris TODO TODO.release

@@ -1,3 +1,8 @@
+Mon May  6 16:04:37 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Distribution fixes: make clean should now clear up all
+	  required files.
+
 Mon May  6 14:42:46 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Don't include dlfcn.h since we don't use it (and doesn't exist

@@ -50,6 +50,9 @@ TESTS = quartztest btreetest
 
 check_PROGRAMS = btreetest quartztest quartzdump
 
+clean-local:
+	rm -rf .quartztmp .btreetmp
+
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
