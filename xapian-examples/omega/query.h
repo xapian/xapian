@@ -25,6 +25,7 @@ extern map<char, string> filter_map;
 extern char *fmtstr;
 extern string ad_keywords;
 extern vector<termname> new_terms;
+extern map<termname, int> matching_map;
 
 typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 

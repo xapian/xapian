@@ -308,6 +308,10 @@ pretty_printf(const char *p, int *a)
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (term.length() <= 3) continue;
+	    // also avoid terms with a prefix and with a space in
+	    if (isupper(term[0]) || term.find(' ') != string::npos) continue;
+	    // and terms in the query already
+	    if (matching_map.find(term) != matching_map.end()) continue;
 	    cout << "<INPUT TYPE=checkbox NAME=X VALUE=\"" << term
 		 << ".\" onClick=\"C(this)\">&nbsp;" << term << ". ";
 	    if (++c >= 20) break;

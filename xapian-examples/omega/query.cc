@@ -57,7 +57,7 @@ string query_string;
 
 matchop op = OR; // default matching mode
 
-static map<termname, int> matching_map;
+map<termname, int> matching_map;
 
 int
 set_probabilistic(const string &newp, const string &oldp)

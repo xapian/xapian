@@ -67,24 +67,24 @@ static int main2(int argc, char *argv[])
     char     *method;
     multimap<string, string>::const_iterator val;
     multimap<string, string>::const_iterator notfound = cgi_params.end();
-    
+    typedef multimap<string, string>::const_iterator MCI;
+    pair<MCI, MCI> g;
+
+    // FIXME: set cout to linebuffered not stdout
     setvbuf(stdout, NULL, _IOLBF, 0);
       
-    /* 1997-01-23 added so you can find the version of a given FX easily */
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
-	/* Seems we're running from the command line so print a version number and stop */
+	// Seems we're running from the command line so print a version number
+	// and allow a query to be entered for testing
 	cout << "ompf "FX_VERSION_STRING" (compiled "__DATE__" "__TIME__")\n"
 	        "Enter NAME=VALUE lines, end with blank line\n";
     }
 
-    /* Was for XITAMI (used on WebCD), but newer versions behave better */
-#ifndef NO_CONTENTTYPE
 #ifdef META
     cout << "Content-type: text/plain\n\n";
 #else
     cout << "Content-type: text/html\n\n";
-#endif
 #endif
     
     if (method == NULL)
@@ -206,29 +206,30 @@ static int main2(int argc, char *argv[])
 
     big_buf = "";
 
-#if 0 // FIXME def FERRET
     val = cgi_params.find("MORELIKE");
     if (val != notfound) {
        int doc = atol(val->second.c_str());
        
-       Give_Muscatf("rel %ld", doc);
-       Ignore_Muscat();
-       Give_Muscat("expand 6");
-       while (!Getfrom_Muscat (&z)) {
-	  check_error(&z);
-	  if (z.p[0] == 'I') {
-	     if (more) big_buf += ' ';
-	     big_buf += (z.p + 2);
-	     big_buf += '.';
-	     more = true;
-	  }
-       }
-       Give_Muscat("delrels r0-*");
-       Ignore_Muscat();
+	Expand topterms(&database);
 
-       if (more) goto got_query_from_morelike;
+	RSet tmp(&database);
+	tmp.add_document(doc);		
+	topterms.expand(&tmp);
+
+	int c = 0;
+	vector<ESetItem>::const_iterator i;
+	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	    string term = database.term_id_to_name(i->tid);
+	    if (term.empty()) continue;
+	    if (more) big_buf += ' ';
+	    big_buf += term;
+	    more = true;
+	    if (++c >= 6) break;
+	}
+	if (more) goto got_query_from_morelike;
     }
 
+#if 0 // FIXME def FERRET
     val = cgi_params.find("IDSPISPOPD");
     if (val != notfound) {
        int doc = atol(val->second.c_str());
@@ -402,8 +403,7 @@ static int main2(int argc, char *argv[])
 #endif
       
     // collect the prob fields
-    typedef multimap<string, string>::const_iterator MCI;
-    pair<MCI, MCI> g = cgi_params.equal_range("P");
+    g = cgi_params.equal_range("P");
     for (MCI i = g.first; i != g.second; i++) {
 	string v = i->second;
 	if (!v.empty()) {
@@ -426,9 +426,7 @@ static int main2(int argc, char *argv[])
 	}
     }
    
-#if 0 // FIXME def FERRET
     got_query_from_morelike:
-#endif
 
     /*** set Boolean ***/
     g = cgi_params.equal_range("B");
