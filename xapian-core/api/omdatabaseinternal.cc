@@ -47,8 +47,6 @@ OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
     OmLockSentry locksentry(mutex);
     // Open database (readonly) and add it to the list
     RefCntPtr<Database> newdb(DatabaseBuilder::create(params, readonly));
-    // forget cached average length
-    avlength = 0;
     databases.push_back(newdb);
 }
 
@@ -62,31 +60,24 @@ void
 OmDatabase::Internal::add_database(RefCntPtr<Database> newdb)
 {
     OmLockSentry locksentry(mutex);
-    // forget cached average length
-    avlength = 0;
     databases.push_back(newdb);
 }
 
 om_doclength
 OmDatabase::Internal::get_avlength() const
 {
-    if (avlength == 0) {
-	om_doccount docs = 0;
-	om_doclength totlen = 0;
+    om_doccount docs = 0;
+    om_doclength totlen = 0;
 
-	// FIXME: why not calculate totlen and docs as databases are added
-	// and simply do the division when we're asked for avlength?
-	std::vector<RefCntPtr<Database> >::const_iterator i;
-	for (i = databases.begin(); i != databases.end(); i++) {
-	    om_doccount db_doccount = (*i)->get_doccount();
-	    docs += db_doccount;
-	    totlen += (*i)->get_avlength() * db_doccount;
-	}
-	if (docs != 0)
-	    avlength = totlen / docs;
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = databases.begin(); i != databases.end(); i++) {
+	om_doccount db_doccount = (*i)->get_doccount();
+	docs += db_doccount;
+	totlen += (*i)->get_avlength() * db_doccount;
     }
+    if (docs == 0) return 0.0;
 
-    return avlength;
+    return totlen / docs;
 }
 
 LeafPostList *

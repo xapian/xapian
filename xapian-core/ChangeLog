@@ -1,3 +1,9 @@
+Mon Dec 11 16:32:07 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove caching of average length in OmDatabaseInternal, was breaking
+	  asking for the average length of a database which was being
+	  modified.
+
 Mon Dec 11 16:03:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* If no documents in database, don't divide by zero in

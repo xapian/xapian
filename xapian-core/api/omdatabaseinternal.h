@@ -53,9 +53,6 @@ class OmDatabase::Internal {
 	 */
 	OmLock mutex;
 
-	/// average document length - 0 means "not yet calculated"
-	mutable om_doclength avlength;
-
 	/** Make a new internal object, with the user supplied parameters.
 	 *
 	 *  This opens the database and stores it in the ref count pointer.
@@ -70,11 +67,10 @@ class OmDatabase::Internal {
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */
-        Internal(const Internal &other)	: databases(other.databases), mutex(),
-		avlength(other.avlength)
+        Internal(const Internal &other)	: databases(other.databases), mutex()
 	{ }
 
-	Internal() : avlength(0) { }
+	Internal() { }
 
 	/// Add a database, based on parameters.
 	void add_database(const OmSettings &params);
