@@ -353,7 +353,20 @@ LIBS="$SAVE_LIBS"
 
 AC_CHECK_FUNCS(fsync)
 
-AC_CHECK_FUNCS(pread pwrite)
+# HP-UX has pread and pwrite, but they don't work!  Apparently this problem
+# manifests when largefile support is enabled, and we definitely want that
+# so don't use pread or pwrite on HP-UX.
+case "$host_os" in
+  hpux*)
+    AC_MSG_CHECKING([for pread])
+    AC_MSG_RESULT([present but broken on $host_os])
+    AC_MSG_CHECKING([for pwrite])
+    AC_MSG_RESULT([present but broken on $host_os])
+    ;;
+  *)
+    AC_CHECK_FUNCS(pread pwrite)
+    ;;
+esac
 
 AC_CHECK_FUNCS(link)
 

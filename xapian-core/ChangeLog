@@ -1,3 +1,8 @@
+Sat Oct 30 19:15:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable pread/pwrite on HP-UX as they don't work when
+	  LFS in enabled, and we definitely want LFS.
+
 Sat Oct 30 16:42:24 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc: Fix Bcusor::del() which didn't always
