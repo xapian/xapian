@@ -219,7 +219,7 @@ sub cvsbuild {
                             " -comp");
                 } else {
                     $map_start_date = time;
-                    system ("$cvsupdatedb $root -r $app_name");
+                    Cvssearch::cvsupdatedb ($root, "-r". $app_name);
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -db $prefix_path.db".
@@ -230,7 +230,7 @@ sub cvsbuild {
                     $index_start_date =time;
                     system ("$cvsindex $root:$app_name");
                     $index_end_date =time;
-                    system ("$cvsupdatedb $root $app_name");
+                    Cvssearch::cvsupdatedb ($root, $app_name);
                     # ----------------------------------------
                     # clear db directory
                     # ----------------------------------------
@@ -282,13 +282,14 @@ sub cvsbuild {
 
                     my $pwd = `pwd`;
                     chomp $pwd;
-                    my ($entries, $authors, $cvs_words) = &Cvssearch::cvs_stat ($pwd, "$cvsdata/$root/src", $app_path);
+                    my ($entries, $authors, $cvs_words) = 
+                      Cvssearch::cvs_stat ($pwd, "$cvsdata/$root/src", $app_path);
                     
                     open(LIST, "<$list_file") || die "cannot read from  $list_file: $!\n";
                     while (<LIST>) {
                           chomp;
                           $code_words += Cvssearch::code_comment_counter ($_);
-                    }
+                      }
                     close(LIST);
 
                     open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
@@ -297,14 +298,21 @@ sub cvsbuild {
                     print STAT "total   # of revision commits   :\t$entries\n";
                     print STAT "total   # of authors            :\t$authors\n";
                     print STAT "\n";
-                    print STAT "total build time               :\t". (time - $checkout_start_date) . " seconds\n";
-                    print STAT "   checkout time               :\t". ($checkout_end_date - $checkout_start_date) . " seconds\n";
-                    print STAT "   map      time               :\t". ($map_end_date      - $map_start_date). " seconds\n";
-                    print STAT "   index    time               :\t". ($index_end_date    - $index_start_date). " seconds\n";
+                    print STAT "total build time               :\t"
+                        . (time - $checkout_start_date) . " seconds\n";
+                    print STAT "   checkout time               :\t"
+                        . ($checkout_end_date - $checkout_start_date) . " seconds\n";
+                    print STAT "   map      time               :\t"
+                        . ($map_end_date      - $map_start_date). " seconds\n";
+                    print STAT "   index    time               :\t"
+                        . ($index_end_date    - $index_start_date). " seconds\n";
                     print STAT "\n";
-                    print STAT "berkeley database size         :\t". $berkeley_size. "\tkb at $prefix_path.db\n";
-                    print STAT "omsee    database size         :\t". $omsee_size  . "\tkb at $prefix_path.om\n";
-                    print STAT "cmt      file     size         :\t". $cmt_size . "\tkb at $prefix_path.cmt\n";
+                    print STAT "berkeley database size         :\t"
+                        . $berkeley_size. "\tkb at $prefix_path.db\n";
+                    print STAT "omsee    database size         :\t"
+                        . $omsee_size  . "\tkb at $prefix_path.om\n";
+                    print STAT "cmt      file     size         :\t"
+                        . $cmt_size . "\tkb at $prefix_path.cmt\n";
                     close(STAT);
                 }
 

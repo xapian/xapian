@@ -286,5 +286,112 @@ sub code_comment_counter {
     return $word_count;
 }
 
-return 1;
+#-----------------------------------------------------------------------
+# A script to update a database content file which contains all 
+# the database that has been built.
+# This is used to keep track of which database has been built
+# Usage:
+# 1. cvsupdatedb root filepath
+#    inserts a database stored in the filepath under root if the database 
+#    is not already stored.
+#    e.g. cvsupdatedb kdebase/konqueror
+# 2. cvsupdatedb root -r filepath
+#    remove a database stored in the filepath
+# 3. cvsupdatedb root -f filepath
+#    finds if the database for this filepath is built, if not, 
+#    returns all the database built under that filepath if any.
+# 
+# Author: Annie Chen - anniec@cse.unsw.edu.au
+# Date: Feb 17 2001
+#------------------------------------------------------------------------
 
+sub cvsupdatedb {
+    my ($root, $flag, $filepath) = @_;
+    my $cvsdata = get_cvsdata(); # path where database content file is stored
+    my $filename = "dbcontent"; # file containing database built
+    my $root = shift @ARGV;
+    my $path;
+    if ($cvsdata eq ""){
+        print STDERR "Warning: \$CVSDATA is not set and cvssearch.conf cannot be read.";
+        $path = "$cvsdata/$root/$filename";
+    }
+    
+    if(-d "$cvsdata/$root") {
+        if($flag eq "-r"){ # remove database
+            my @files;
+            if (-e $path) {
+                # ----------------------------------------
+                # read current content
+                # ----------------------------------------
+                open FILE, "<$path";
+                @files = <FILE>;
+                close FILE;
+                chomp @files;
+            }
+            open FILE, ">$path";
+            foreach (@files){
+                if($filepath eq $_){
+                    print "... $filepath found and deleted.\n";
+                } else {
+                    print FILE "$_\n";
+                }
+            }
+            close FILE;
+        } elsif($flag eq "-f"){ # find database
+            my @bestmatches;
+            
+            if (-e $path) {
+                @bestmatches = `grep $filepath\$ $path`; # match filepath from the end
+            }
+            
+            if(@bestmatches){
+                print @bestmatches;
+            }else{ #find everything below it
+                if ($filepath eq ".") {
+                    # ----------------------------------------
+                    # whole repository
+                    # ----------------------------------------
+                    if (-e $path) {
+                        open (FILE, "<$path");
+                        while (<FILE>) {
+                            print $_;
+                        }
+                        close FILE;
+                    }
+                }else {
+                    my @secmatches;
+                    if (-e $path) {
+                        @secmatches = `grep $filepath $path`;
+                    }
+                    print @secmatches;
+                }
+            }
+        }else{
+            # ----------------------------------------
+            # insert database
+            # ----------------------------------------
+            if(-e $path) {
+                if(!`grep ^"$filepath"\$ $path`){
+                    print "... $filepath inserted.\n";
+                    open (PATH, ">>$path");
+                    print PATH "$filepath\n";
+                    close PATH;
+                } else {
+                    print "... $filepath already exists!\n";
+                }
+            } else {
+                open (PATH, ">$path");
+                print PATH "$filepath\n";
+                close PATH;
+                system ("chmod o+r $path");
+            }
+        }
+    }
+    else {
+        print STDERR "Warning: \$root $root does not exist.\n";
+        exit(1);
+    }
+}
+return 1;
+    
+    
