@@ -1,6 +1,14 @@
+Sat Apr 10 16:41:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: Make XO_LIB_XAPIAN with no arguments do what most
+	  users will want: check for Xapian and fail if it's not found,
+	  or AC_SUBST XAPIAN_CXXFLAGS and XAPIAN_LIBS if it is.  Those
+	  will unusual needs can supply one or both arguments as at
+	  present.
+
 Sat Apr 10 15:00:28 BST 2004  Olly Betts <olly@survex.com>
 
-	* docs/todo.xml:Updated.
+	* docs/todo.xml: Updated.
 
 Sat Apr 10 00:32:07 BST 2004  Olly Betts <olly@survex.com>
 

@@ -13,15 +13,22 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 # XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 # --------------------------------------------------------
 # AC_SUBST-s XAPIAN_CXXFLAGS and XAPIAN_LIBS for use in Makefile.am
+#
+# If ACTION-IF-FOUND and ACTION-IF-NOT-FOUND are both unset, then an
+# appropriate AC_MSG_ERROR is used as a default ACTION-IF-NOT-FOUND.
+# This allows XO_LIB_XAPIAN to be used without any arguments in the
+# common case where Xapian is a requirement (rather than optional).
 AC_DEFUN([XO_LIB_XAPIAN],
 [
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config])
   AC_PATH_PROG(XAPIAN_CONFIG, xapian-config, [])
   if test -z "$XAPIAN_CONFIG"; then
-    ifelse([$2], , :, [$2])
+    ifelse([$2], ,
+	   ifelse([$1], , AC_MSG_ERROR([Can't find Xapian library]), :),
+	   [$2])
   else
     AC_MSG_CHECKING([$XAPIAN_CONFIG works])
-    dnl check for --ltlibs but not --libs as xapian-config --libs will
+    dnl check for --ltlibs but not --libs as "xapian-config --libs" will
     dnl fail if xapian isn't installed...
 
     dnl run with exec to avoid leaking output on "real" bourne shells
