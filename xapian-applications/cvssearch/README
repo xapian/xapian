@@ -156,7 +156,8 @@ other repositories then
    ./cvsbuilddb -d ANOTHER_CVSROOT module1 module2 ...   
 
    [-d ANOTHER_CVSROOT is used to overide the current $CVSROOT 
-    environment variable or if $CVSROOT is not set]
+    environment variable or if $CVSROOT is not set, this can be an 
+    anonymous CVS server but not a secured CVS server.]
 
 
 ===========================================================================
@@ -273,12 +274,12 @@ FAQ
 Q) What do I do if I need to move my CVS repository?
 A) Modify the file $CVSDATA/CVSROOTS and change the old CVSROOT value to the new CVSROOT value
 
-Q) What do I do if the cgi shows an error?
+Q) What do I do if the cgi script shows an error?
 A) Permission is usually the culprit.
    
    Check the following:
    1. the user id that runs the cgi-script from your local web adminstrator.
    2. check Security & File Permissions.
 
-   (a package called cgi-wrap may be used to execute the script with the
-    user id of the scripts/executables)
+   [ a package called cgi-wrap may be used to execute the script with the
+    user id of the scripts/executables ]
