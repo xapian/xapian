@@ -134,6 +134,7 @@ ProgClient::data_is_available()
 
 ProgClient::~ProgClient()
 {
+    buf.writeline("QUIT");
     close(socketfd);
 }
 

@@ -76,6 +76,10 @@ ProgServer::run()
 	// Message 3 (see README_progprotocol.txt)
 	message = buf.readline();
 
+	if (message == "QUIT") {
+	    return;
+	};
+
 	if (message.substr(0, 8) != "SETQUERY") {
 	    cerr << "Expected SETQUERY, got " << message << endl;
 	    throw OmNetworkError("Invalid message");

@@ -1,3 +1,9 @@
+Fri Apr 28 10:27:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* ProgServer exits when it receives "QUIT"
+
+	* ProgClient sends "QUIT" before exiting.
+
 Thu Apr 20 18:00:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* StatsSource now has two varients - LocalStatsSource and
