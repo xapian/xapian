@@ -34,15 +34,15 @@ int main(int argc, char *argv[])
     
     // Catch any OmError exceptions thrown
     try {
-	// Make the indexer
-	OmIndexerBuilder builder;
-	AutoPtr<OmIndexer> indexer = builder.build_from_file("indexfile.xml");
-
 	// Make the database
-	OmSettings settings;
+	OmSettings db_parameters;
 	settings.set("backend", "sleepycat");
 	settings.set("sleepycat_dir", argv[1]);
 	OmWritableDatabase database(settings);
+
+	// Make the indexer
+	OmIndexerBuilder builder;
+	AutoPtr<OmIndexer> indexer = builder.build_from_file("indexfile.xml");
 
 	// Make the document by invoking the indexer
 	OmIndexerMessage filename(new OmIndexerData(argv[2]));
