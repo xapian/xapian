@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,12 +31,22 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+
 using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+
+#ifdef HAVE_SSTREAM
+# define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, OPTS, tout)
+#else
+// FIXME: If we don't have <sstream> and hence ostringstream, we roll our own
+// which can't be passed as an ostream so we just turn off the options and send
+// the output (only a one line report of any error) to cout
+# define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, 0, cout)
+#endif
 
 static string tmpdir;
 static string datadir;
@@ -133,13 +143,13 @@ static bool test_insertdelete1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
     int count = do_update(btree_dir, datadir + "ord+");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
     {
 	Btree btree;
 	btree.open_to_read(btree_dir.c_str());
@@ -147,7 +157,7 @@ static bool test_insertdelete1()
     }
 
     count += do_update(btree_dir, datadir + "ord-");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE);
     {
 	Btree btree;
 	btree.open_to_read(btree_dir.c_str());
@@ -163,22 +173,22 @@ static bool test_sequent1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     if (!file_exists(datadir + "ordnum+") || !file_exists(datadir + "ordnum-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     do_update(btree_dir, datadir + "ordnum+");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     do_update(btree_dir, datadir + "ord-");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE);
 
     do_update(btree_dir, datadir + "ordnum-");
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE);
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());
@@ -191,7 +201,7 @@ static bool test_emptykey1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree;
@@ -201,7 +211,7 @@ static bool test_emptykey1()
 	btree.add("", "jam");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree;
@@ -212,7 +222,7 @@ static bool test_emptykey1()
 	btree.add("", "marmite");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree;
@@ -223,7 +233,7 @@ static bool test_emptykey1()
 	btree.del("");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree;
@@ -235,7 +245,7 @@ static bool test_emptykey1()
 	btree.add("test", "me");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, OPT_SHOW_STATS, tout);
+    BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());

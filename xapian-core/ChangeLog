@@ -1,3 +1,12 @@
+Tue Apr 08 02:26:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btreetest.cc: If we don't have <sstream> and so are
+	  using our own stringstream implementation, we can't pass it as an
+	  ostream reference so BtreeCheck::check() can't be run in btreetest.
+	  This is only an issue on old compilers (for GCC <= 2.95.2 it seems)
+	  so just disable the checking inthat case - it's probably not worth
+	  the effort of trying to make our stringstream a subclass of ostream.
+
 Tue Apr 08 01:20:36 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Updated unfinished hooks to use valgrind in
