@@ -139,7 +139,7 @@ print <<_HTML_;
 </select><p>
 <b>Search for: </b><select name=searchmode>
 <option value=m>Commits</option>
-<option value=c>Library Class/Function Usage</option>
+<option value=c>Library Classes/Functions (do not use 'in:')</option>
 <option value=f>Files (slow for global searches)</option>
 </select>&nbsp;<input type=submit value="Search"></form>
 </td></tr></table>
