@@ -120,6 +120,7 @@ SleepycatDatabase::term_exists(const om_termname &tname) const
 {
     DEBUGLINE(DB, "termcache->term_name_to_id(tname) = " <<
 	      termcache->term_name_to_id(tname));
+    Assert(tname.size() != 0);
     if (termcache->term_name_to_id(tname) != 0) return true;
     return false;
 }

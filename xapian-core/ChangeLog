@@ -1,3 +1,14 @@
+Tue Sep 12 17:48:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Quartztest compiles and works.  (Passing is not yet likely, though)
+
+Tue Sep 12 17:45:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* term_exists() methods in each backend now assert that the termname
+	  passed in is not of zero length.  The API should throw exceptions
+	  before a null term gets down to this level (though currently the
+	  post and position iterators don't do this...).
+
 Tue Sep 12 17:33:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmIndexerNode::set_config_string() and added

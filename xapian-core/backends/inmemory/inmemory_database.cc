@@ -256,6 +256,7 @@ bool
 InMemoryDatabase::term_exists(const om_termname & tname) const
 {
     //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
+    Assert(tname.size() != 0);
     std::map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {

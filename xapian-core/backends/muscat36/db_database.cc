@@ -273,6 +273,7 @@ DBDatabase::term_exists_internal(const om_termname & tname) const
 bool
 DBDatabase::term_exists(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     OmLockSentry sentry(mutex);
 
     return term_exists_internal(tname);

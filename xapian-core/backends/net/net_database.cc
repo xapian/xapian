@@ -118,5 +118,6 @@ NetworkDatabase::get_doclength(om_docid did) const
 bool
 NetworkDatabase::term_exists(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     throw OmUnimplementedError("NetworkDatabase::term_exists() not implemented");
 }

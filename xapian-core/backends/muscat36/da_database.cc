@@ -421,6 +421,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 bool
 DADatabase::term_exists(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     OmLockSentry sentry(mutex);
     if(term_lookup(tname).get() != 0) return true;
     return false;

@@ -165,6 +165,7 @@ MultiDatabase::get_doclength(om_docid did) const
 bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); i++) {
 	if ((*i)->term_exists(tname)) return true;
