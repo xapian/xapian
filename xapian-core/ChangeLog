@@ -1,4 +1,9 @@
-Tue May 11 09:29:51 BST 2004  Richard Boulton <richard.boulton@omsee.com>
+Tue May 11 13:42:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/bcursor.cc,backends/quartz/btree.cc: Added lots
+	  of assertions.
+
+Tue May 11 09:29:51 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* debian/: Added basic Debian packaging.
 

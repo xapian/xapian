@@ -313,6 +313,7 @@ Btree::read_block(uint4 n, byte * p)
 void
 Btree::write_block(uint4 n, const byte * p)
 {
+    Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
@@ -488,6 +489,7 @@ Btree::block_given_by(const byte * p, int c)
 void
 Btree::alter()
 {
+    Assert(writable);
     int j = 0;
     byte * p = C[j].p;
     while (true) {
@@ -624,6 +626,7 @@ Btree::find(Cursor * C_)
 void
 Btree::compress(byte * p)
 {
+    Assert(writable);
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
@@ -698,6 +701,7 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
 			    const byte * prevkey, const byte * newkey,
 			    const uint4 blocknumber, bool truncate) const
 {
+    Assert(writable);
     Assert(compare_keys(prevkey, newkey) < 0);
 
     int prevkey_len = GETK(prevkey, 0) - C2;
@@ -746,6 +750,7 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
 void
 Btree::enter_key(Cursor * C_, int j, byte * prevkey, byte * newkey)
 {
+    Assert(writable);
     Assert(compare_keys(prevkey, newkey) < 0);
     Assert(j >= 1);
     if (j > level) split_root(C_, j);
@@ -790,6 +795,7 @@ here:
 void
 Btree::split_off(Cursor * C_, int j, int c, byte * p, byte * q)
 {
+    Assert(writable);
     /* p is C[j].p, q is C[j].split_p */
 
     C_[j].split_n = C_[j].n;
@@ -843,6 +849,7 @@ Btree::mid_point(byte * p)
 void
 Btree::add_item_to_block(byte * p, byte * kt_, int c)
 {
+    Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = GETI(kt_, 0);
     int needed = kt_len + D2;
@@ -879,6 +886,7 @@ Btree::add_item_to_block(byte * p, byte * kt_, int c)
 void
 Btree::add_item(Cursor * C_, byte * kt_, int j)
 {
+    Assert(writable);
     byte * p = C_[j].p;
     int c = C_[j].c;
     uint4 n;
@@ -946,6 +954,7 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
 void
 Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 {
+    Assert(writable);
     byte * p = C_[j].p;
     int c = C_[j].c;
     int o = GETD(p, c);              /* offset of item to be deleted */
@@ -1023,6 +1032,7 @@ static addcount = 0;
 int
 Btree::add_kt(int found)
 {
+    Assert(writable);
     int components = 0;
 
     if (overwritten) return 0;
@@ -1088,6 +1098,7 @@ Btree::add_kt(int found)
 int
 Btree::delete_kt()
 {
+    Assert(writable);
     int found = find(C);
     if (overwritten) return 0;
 
@@ -1160,6 +1171,7 @@ void Btree::form_key(const string & key)
 bool
 Btree::add(const string &key, const string &tag)
 {
+    Assert(writable);
     Assert(!overwritten);
 
     form_key(key);
@@ -1227,6 +1239,7 @@ Btree::add(const string &key, const string &tag)
 bool
 Btree::del(const string &key)
 {
+    Assert(writable);
     Assert(!overwritten);
 
     if (key.empty()) return false;
@@ -1300,6 +1313,7 @@ Btree::find_tag(const string &key, string * tag)
 void
 Btree::set_full_compaction(bool parity)
 {
+    Assert(writable);
     Assert(!overwritten);
 
     if (parity) seq_count = 0;
@@ -1643,6 +1657,7 @@ Btree::~Btree() {
 void
 Btree::commit(uint4 revision)
 {
+    Assert(writable);
     Assert(!overwritten);
 
     int j;

@@ -61,6 +61,7 @@ bool
 Bcursor::prev()
 {
     Assert(!B->overwritten);
+    Assert(level == B->level);
 
     if (!positioned) return false;
 
@@ -79,6 +80,7 @@ bool
 Bcursor::next()
 {
     Assert(!B->overwritten);
+    Assert(level == B->level);
 
     if (!positioned) return false;
 
@@ -97,6 +99,7 @@ bool
 Bcursor::find_key(const string &key)
 {
     Assert(!B->overwritten);
+    Assert(level == B->level);
 
     B->form_key(key);
     bool found = B->find(C);
@@ -120,6 +123,7 @@ bool
 Bcursor::get_key(string * key) const
 {
     Assert(!B->overwritten);
+    Assert(level == B->level);
 
     if (! positioned) return false;
 
@@ -133,6 +137,7 @@ bool
 Bcursor::get_tag(string * tag)
 {
     Assert(!B->overwritten);
+    Assert(level == B->level);
 
     if (!positioned) return false;
 
