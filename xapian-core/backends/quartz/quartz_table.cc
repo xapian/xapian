@@ -652,7 +652,8 @@ bool
 QuartzBufferedCursor::find_entry(const string &key)
 {
     DEBUGCALL(DB, bool, "QuartzBufferedCursor::find_entry", key);
-    Assert(!key.empty());
+    // FIXME: think we now allow empty keys in find (to mean find first entry)
+    // Assert(!key.empty());
 
     // Whether we have an exact match.
     bool have_exact;

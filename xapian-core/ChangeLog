@@ -1,3 +1,8 @@
+Wed Jun 26 22:09:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* apitest: deldoc2 and deldoc3 now pass when the library is compiled
+	  with --enable-debug.
+
 Wed Jun 26 19:35:56 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed code which causes quartztest to fail with an --enable-debug

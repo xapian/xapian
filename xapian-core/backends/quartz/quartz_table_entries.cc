@@ -71,8 +71,10 @@ QuartzTableEntries::get_iterator(const string & key) const
 {
     DEBUGCALL(DB, QuartzTableEntries::items::const_iterator,
 	      "QuartzTableEntries::get_iterator", key);
-    Assert(!key.empty());
+    // FIXME: think we now allow empty keys (to mean first entry)
+    // Assert(!key.empty());
     items::const_iterator result = entries.lower_bound(key);
+    if (key.empty()) ++result;
 
     if (result != entries.end() && result->first == key) {
 	// Exact match
@@ -80,7 +82,7 @@ QuartzTableEntries::get_iterator(const string & key) const
     }
 
     // There should always be at least the null entry before this match.
-    Assert (result != entries.begin());
+    Assert(result != entries.begin());
 
     // Point to match _before_ that searched for.
     result--;
