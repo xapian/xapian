@@ -8,7 +8,7 @@ extern bool output_html;
 static unsigned int get_length(const cvs_log & log, unsigned int j)
 {
     ostrstream ost;
-    ost << "cvs update -p -r" << log[j].revision() 
+    ost << "cvs -f update -p -r" << log[j].revision() 
         << " " << log.file_name() << " 2>/dev/null|wc -l" << ends;
     process p(ost.str());
     istream *pis = p.process_output();
@@ -51,7 +51,7 @@ backward_map_algorithm::parse_log(const cvs_log & log)
         }
         else
         {
-            ost << "cvs diff -b " 
+            ost << "cvs -f diff -b " 
                 << "-r" << log[j].revision()   << " " 
                 << "-r" << log[j+1].revision() << " "
                 << log.file_name() << ends;

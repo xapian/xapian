@@ -12,7 +12,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
         ostrstream ost;
         if (j <= log.size() -1)
         {
-            ost << "cvs diff -b " 
+            ost << "cvs -f diff -b " 
                 << "-r" << log[j].revision()   << " " 
                 << "-r" << log[j-1].revision() << " "
                 << log.file_name() << ends;
@@ -32,7 +32,7 @@ forward_map_algorithm::parse_log(const cvs_log & log)
         }
         else
         {
-            ost << "cvs update -p -r" << log[j-1].revision() 
+            ost << "cvs -f update -p -r" << log[j-1].revision() 
                 << " " << log.file_name() << " 2>/dev/null|wc -l" << ends;
             process * p;
             if ((p = new process(ost.str())) != 0)
