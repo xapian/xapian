@@ -333,31 +333,7 @@ QuartzWritableDatabase::do_flush_const() const
     Assert(buffered_tables != 0);
 
     QuartzBufferedTable * pl_table = buffered_tables->get_postlist_table();
-
-    map<string, map<docid, pair<char, termcount> > >::const_iterator i;
-    for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
-	string term = i->first;
-	map<docid, pair<char, termcount> >::const_iterator j;
-	for (j = i->second.begin(); j != i->second.end(); ++j) {
-	    docid did = j->first;
-	    switch (j->second.first) {
-		case 'M':
-		    QuartzPostList::delete_entry(pl_table, term, did);
-		    /* FALL THRU */
-		case 'A': {
-		    map<docid, termcount>::const_iterator k = doclens.find(did);
-		    Assert(k != doclens.end());
-		    termcount doclen = k->second;
-		    termcount wdf = j->second.second;
-		    QuartzPostList::add_entry(pl_table, term, did, wdf, doclen);
-		    break;
-		}
-		case 'D':
-		    QuartzPostList::delete_entry(pl_table, term, did);
-		    break;
-	    }
-	}
-    }
+    QuartzPostList::merge_changes(pl_table, mod_plists, doclens);
 
     // Update the total document length.
     QuartzRecordManager::modify_total_length(

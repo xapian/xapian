@@ -1188,3 +1188,35 @@ QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
     }
     to.write_to_disk(bufftable);
 }
+
+void
+QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
+    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
+    const map<Xapian::docid, Xapian::termcount> & doclens)
+{
+    map<string, map<Xapian::docid, pair<char, Xapian::termcount> > >::const_iterator i;
+    for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
+	string term = i->first;
+	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;
+	for (j = i->second.begin(); j != i->second.end(); ++j) {
+	    Xapian::docid did = j->first;
+	    switch (j->second.first) {
+		case 'M':
+		    QuartzPostList::delete_entry(bufftable, term, did);
+		    /* FALL THRU */
+		case 'A': {
+		    map<Xapian::docid, Xapian::termcount>::const_iterator k = doclens.find(did);
+		    Assert(k != doclens.end());
+		    Xapian::termcount doclen = k->second;
+		    Xapian::termcount wdf = j->second.second;
+		    QuartzPostList::add_entry(bufftable, term, did, wdf, doclen);
+		    break;
+		}
+		case 'D':
+		    QuartzPostList::delete_entry(bufftable, term, did);
+		    break;
+	    }
+	}
+    }
+}
+

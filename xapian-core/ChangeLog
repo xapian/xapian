@@ -1,3 +1,11 @@
+Sun Dec 21 03:21:42 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_postlist.cc,
+	  backends/quartz/quartz_postlist.h: Move merging on postlist changes
+	  into QuartzPostList in preparation for an efficient
+	  reimplementation.
+
 Sun Dec 21 01:47:07 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.h,

@@ -25,6 +25,7 @@
 #ifndef OM_HGUARD_QUARTZ_POSTLIST_H
 #define OM_HGUARD_QUARTZ_POSTLIST_H
 
+#include <map>
 #include <string>
 
 #include "leafpostlist.h"
@@ -230,6 +231,11 @@ class QuartzPostList : public LeafPostList {
 					   const char * end,
 					   Xapian::termcount * number_of_entries_ptr,
 					   Xapian::termcount * collection_freq_ptr);
+
+	/// Merge added, removed, and changed entries.
+	static void merge_changes(QuartzBufferedTable * bufftable,
+	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
+	    const map<Xapian::docid, Xapian::termcount> & doclens);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSTLIST_H */
