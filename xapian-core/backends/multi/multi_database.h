@@ -64,6 +64,7 @@ inline doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
+    printf("Calcualting mulitple termfrequencies\n");
 
     // Calculate and remember the termfreq
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
@@ -125,6 +126,8 @@ class MultiDatabase : public virtual IRDatabase {
     public:
 	MultiDatabase();
 	~MultiDatabase();
+
+	void set_root(IRDatabase *);
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;

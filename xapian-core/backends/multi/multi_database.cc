@@ -35,8 +35,6 @@ weight MultiPostList::get_weight() const
 {
     Assert(freq_initialised);
 
-
-
     // FIXME - incorrect formula
     weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
@@ -114,11 +112,24 @@ MultiDatabase::~MultiDatabase() {
 }
 
 void
+MultiDatabase::set_root(IRDatabase *db) {
+    Assert(!used);
+    root = db;
+
+    list<IRDatabase *>::const_iterator i = databases.begin();
+    while(i != databases.end()) {
+	(*i)->set_root(db);
+	i++;
+    }
+}
+
+void
 MultiDatabase::open_subdatabase(IRDatabase * db,
 				const string &pathname, bool readonly) {
     Assert(!used);
     db->open(pathname, readonly);
     databases.push_back(db);
+    db->set_root(root);
     opened = true;
 }
 
