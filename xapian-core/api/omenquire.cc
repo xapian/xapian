@@ -217,14 +217,10 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set weighting scheme
-    // FIXME: incorporate into setting options
-    if(query->is_bool()) {
-	match.set_weighting(IRWeight::WTTYPE_BOOL);
-    } else {
-	match.set_weighting(IRWeight::WTTYPE_BM25);
-    }
+    match.set_weighting(IRWeight::WTTYPE_BM25);
 
-    // Set Query
+    // Set Query (no need to lock mutex, since its our own copy and
+    // we're locked ourselves)
     match.set_query(query->internal);
 
     OmMSet retval;

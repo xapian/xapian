@@ -94,7 +94,7 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  users_query(),
 	  extra_weight(0),
 	  rset(0),
-	  wt_type(IRWeight::WTTYPE_BM25),
+	  requested_weighting(IRWeight::WTTYPE_BM25),
 	  do_collapse(false)
 {
 }
@@ -141,8 +141,7 @@ LocalMatch::mk_weight(om_doclength querysize_,
 		     om_termname tname_,
 		     const RSet * rset_)
 {
-    IRWeight * wt = IRWeight::create(wt_type);
-    //IRWeight * wt = new TradWeight();
+    IRWeight * wt = IRWeight::create(actual_weighting);
     weights.push_back(wt); // Remember it for deleting
     wt->set_stats(&statssource, querysize_, tname_, rset_);
     return wt;
@@ -169,6 +168,7 @@ void
 LocalMatch::set_options(const OmMatchOptions & moptions_)
 {
     Assert(!is_prepared);
+    Assert(query == NULL);
 
     if(moptions_.percent_cutoff > 0) {
 	min_weight_percent = moptions_.percent_cutoff;
@@ -195,7 +195,7 @@ LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
     Assert(!is_prepared);
     Assert(query == NULL);
-    wt_type = wt_type_;
+    requested_weighting = wt_type_;
     max_weight_needs_calc = true;
     del_query_tree();
 }
@@ -374,6 +374,15 @@ LocalMatch::set_query(const OmQueryInternal *query_)
     if(query) {
 	delete query;
 	query = NULL;
+    }
+    max_weight_needs_calc = true;
+    del_query_tree();
+
+    // If query is boolean, set weighting to boolean
+    if(query_->is_bool()) {
+	actual_weighting = IRWeight::WTTYPE_BOOL;
+    } else {
+	actual_weighting = requested_weighting;
     }
 
     // Remember query

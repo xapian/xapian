@@ -86,8 +86,14 @@ class LocalMatch : public SingleMatch
 	/// RSet to be used (affects weightings)
 	RSet *rset;
 
-	/// Weighting scheme to use
-	IRWeight::weight_type wt_type;
+	/// Weighting scheme which has been requested.
+	IRWeight::weight_type requested_weighting;
+
+	/** Weighting scheme to use.
+	 *  This may differ from the requested_type if, for example,
+	 *  the query is pure boolean.
+	 */
+	IRWeight::weight_type actual_weighting;
 
 	/// Whether to perform collapse operation
 	bool do_collapse;
