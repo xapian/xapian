@@ -1,3 +1,8 @@
+Tue Mar 08 03:30:06 GMT 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/btreecheck.cc: Make default check output fit on a single
+	  line (at least for many databases).
+
 Tue Mar 08 02:34:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix warning from newer versions of GCC.

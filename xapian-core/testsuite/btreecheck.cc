@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004 Olly Betts
+ * Copyright 2002,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,13 +74,12 @@ void BtreeCheck::report_block_full(int m, int n, const byte * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
-    int c;
     out << '\n';
     print_spaces(m);
     out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
 	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
 	 << block_usage(p) << "%:\n";
-    for (c = DIR_START; c < dir_end; c += D2) {
+    for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
 	print_key(p, c, j);
 	out << ' ';
@@ -115,7 +114,7 @@ void BtreeCheck::report_block(int m, int n, const byte * p) const
 	print_key(p, c, j);
 	out << ' ';
     }
-    out << '\n';
+    out << endl;
 }
 
 void BtreeCheck::failure(int n) const
@@ -205,12 +204,20 @@ BtreeCheck::check(const string & name, int opts, ostream &out)
     B.open(); // throws exception if open fails
     Cursor * C = B.C;
 
-    if (opts & OPT_SHOW_STATS)
-	out << "base" << B.base_letter << "  Revision *" << B.revision_number
-	    << "  levels " << B.level << "  root [" << C[B.level].n << "]"
-	    << (B.faked_root_block ? "(faked)" : "") << "  blocksize "
-	    << B.block_size << "  items " << B.item_count << "  lastblock "
-	    << B.base.get_last_block() << endl;
+    if (opts & OPT_SHOW_STATS) {
+	out << "base" << (char)B.base_letter
+	    << " blocksize=" << B.block_size / 1024 << "K"
+	       " items=" << B.item_count
+	    << " lastblock=" << B.base.get_last_block()
+	    << " revision=" << B.revision_number
+	    << " levels=" << B.level
+	    << " root=";
+	if (B.faked_root_block)
+	    out << "(faked)";
+	else
+	    out << C[B.level].n;
+	out << endl;
+    }
 
     int limit = B.base.get_bit_map_size() - 1;
 
@@ -227,7 +234,7 @@ BtreeCheck::check(const string & name, int opts, ostream &out)
 		}
 	    }
 	}
-	out << "\n\n";
+	out << '\n' << endl;
     }
 
     if (B.faked_root_block) {
@@ -241,14 +248,13 @@ BtreeCheck::check(const string & name, int opts, ostream &out)
 	    B.failure(100);
 	}
     }
-    if (opts) out << "B-tree checked okay\n";
+    if (opts) out << "B-tree checked okay" << endl;
 }
 
 void BtreeCheck::report_cursor(int N, const Cursor * C_) const
 {
-    int i;
     out << N << ")\n";
-    for (i = 0; i <= level; i++)
+    for (int i = 0; i <= level; i++)
 	out << "p=" << C_[i].p << ", c=" << C_[i].c << ", n=[" << C_[i].n
 	    << "], rewrite=" << C_[i].rewrite << endl;
 }
