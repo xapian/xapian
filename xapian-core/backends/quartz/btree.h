@@ -36,6 +36,8 @@ using std::string;
 // FIXME: but we want it to be completely impossible...
 #define BTREE_CURSOR_LEVELS 10
 
+class BtreeCheck;
+
 class Btree {
     friend class Bcursor; /* Should probably fix this. */
     private:
@@ -87,8 +89,6 @@ class Btree {
 
 	void set_full_compaction(bool parity);
 
-	static void check(const string & name, const string & opt_string);
-
 	/** error number setting */
 	Btree_errors error;
 
@@ -122,7 +122,7 @@ class Btree {
 	/** the last used block of B->bit_map0 */
 	/*int4 last_block; */
 
-    private:
+    public: //private:
 
 	/** Perform the opening operation to read.
 	 */
@@ -159,7 +159,7 @@ class Btree {
 	int write_base();
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);
-	void block_check(Cursor *C_, int j, int opts);
+//	void block_check(Cursor *C_, int j, int opts);
 	void split_root(Cursor *C_, int j);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
@@ -250,7 +250,7 @@ class Btree {
 	Cursor C[BTREE_CURSOR_LEVELS];
 
 	/* Debugging methods */
-	void report_block_full(int m, int n, const byte * p);
+//	void report_block_full(int m, int n, const byte * p);
 };
 
 #endif /* OM_HGUARD_BTREE_H */

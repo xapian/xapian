@@ -1,3 +1,8 @@
+Tue Nov 26 19:47:24 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Split the btree checking code out into a separate
+	  file, so it's not linked in when we don't need it.
+
 Tue Nov 26 05:47:32 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Suppress all output from a successful

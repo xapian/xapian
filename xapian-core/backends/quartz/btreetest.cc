@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include "btree.h"
+#include "btreecheck.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -128,20 +129,20 @@ static bool test_simple1()
     return true;
 }
 
-#define BtreeCheck Btree
-#define VERBOSE(S) (verbose?(S):"")
+//#define BtreeCheck Btree
+#define VERBOSE(OPTS) (verbose?(OPTS):0)
 /// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
     int count = do_update(btree_dir, datadir + "ord+");
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
     {
 	Btree btree;
 	btree.open_to_read(btree_dir.c_str());
@@ -149,7 +150,7 @@ static bool test_insertdelete1()
     }
 
     count += do_update(btree_dir, datadir + "ord-");
-    BtreeCheck::check(btree_dir, VERBOSE("vt"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS | OPT_SHORT_TREE));
     {
 	Btree btree;
 	btree.open_to_read(btree_dir.c_str());
@@ -165,22 +166,22 @@ static bool test_sequent1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     if (!file_exists(datadir + "ordnum+") || !file_exists(datadir + "ordnum-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     do_update(btree_dir, datadir + "ordnum+");
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     do_update(btree_dir, datadir + "ord-");
-    BtreeCheck::check(btree_dir, VERBOSE("vt"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS | OPT_SHORT_TREE));
 
     do_update(btree_dir, datadir + "ordnum-");
-    BtreeCheck::check(btree_dir, VERBOSE("vt"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS | OPT_SHORT_TREE));
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());
@@ -193,7 +194,7 @@ static bool test_emptykey1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     {
 	Btree btree;
@@ -203,7 +204,7 @@ static bool test_emptykey1()
 	btree.add("", "jam");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     {
 	Btree btree;
@@ -214,7 +215,7 @@ static bool test_emptykey1()
 	btree.add("", "marmite");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     {
 	Btree btree;
@@ -225,7 +226,7 @@ static bool test_emptykey1()
 	btree.del("");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     {
 	Btree btree;
@@ -237,8 +238,7 @@ static bool test_emptykey1()
 	btree.add("test", "me");
 	btree.commit(btree.revision_number + 1);
     }
-    BtreeCheck::check(btree_dir, VERBOSE("v"));
-
+    BtreeCheck::check(btree_dir, VERBOSE(OPT_SHOW_STATS));
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());

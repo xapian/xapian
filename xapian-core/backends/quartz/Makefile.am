@@ -19,6 +19,7 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_alltermslist.h \
 		       quartz_metafile.h \
 		       btree.h \
+		       btreecheck.h \
 		       bcursor.h \
 		       btree_types.h \
 		       btree_util.h \
@@ -53,7 +54,7 @@ check_PROGRAMS = btreetest quartztest quartzdump quartzcheck
 clean-local:
 	rm -rf .quartztmp .btreetmp
 
-btreetest_SOURCES = btreetest.cc
+btreetest_SOURCES = btreetest.cc btreecheck.cc
 btreetest_LDADD = ../../testsuite/libtest.la \
 		  ../../libxapian.la
 
@@ -65,6 +66,6 @@ quartztest_LDADD = ../../getopt/libgetopt.la \
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = ../../libxapian.la
 
-quartzcheck_SOURCES = quartzcheck.cc
+quartzcheck_SOURCES = quartzcheck.cc btreecheck.cc
 quartzcheck_LDADD = ../../libxapian.la
 

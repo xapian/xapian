@@ -27,7 +27,7 @@
 
 using namespace std;
 
-#include "btree.h"
+#include "btreecheck.h"
 
 int
 main(int argc, char **argv)
@@ -46,11 +46,29 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    const char *opts = argv[2];
-    if (!opts) opts = "+";
+    int opts = 0;
+    const char * opt_string = argv[2];
+    if (!opt_string) opt_string = "+";
+    for (const char *p = opt_string; *p; ++p) {
+	switch (*p) {
+	    case 't': opts |= OPT_SHORT_TREE; break;
+	    case 'f': opts |= OPT_FULL_TREE; break;
+	    case 'b': opts |= OPT_SHOW_BITMAP; break;
+	    case 'v': opts |= OPT_SHOW_STATS; break;
+	    case '+':
+		opts |= OPT_SHORT_TREE | OPT_SHOW_BITMAP | OPT_SHOW_STATS;
+		break;
+	    case '?':
+		cerr << "use t,f,b,v or + in the option string\n";
+		exit(0);
+	    default:
+		cerr << "option " << opt_string << " unknown\n";
+		exit(1);
+	}
+    }
 
     try {
-	Btree::check(argv[1], opts);
+	BtreeCheck::check(argv[1], opts);
     }
     catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
