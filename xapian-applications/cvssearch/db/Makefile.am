@@ -24,7 +24,7 @@ cvssearch_LDADD = -lomsee
 
 cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
-cvsminesearch_LDADD = -lomsee
+cvsminesearch_LDADD = -ldb_cxx -lomsee
 
 #cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
 #cvsusagesearch_LDFLAGS = -static 

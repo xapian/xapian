@@ -7,7 +7,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define SUPP_FRAC 0.05
+#define SUPP_FRAC 0.01
 
 //
 // Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...

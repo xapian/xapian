@@ -20,15 +20,20 @@
 //
 
 #define SUPP_FRAC 0.05
+#define MIN_SURPRISE 2.0
 
+double compute_surprise( double conf, double conf2 ) {
+  return conf / conf2;
+}
 
+#include <db_cxx.h>
 #include <om/om.h>
 #include <stdio.h>
 #include <math.h>
 
 #include "util.h"
 
-void considerRule( map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
+void considerRule( Db& dbrules, map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
   //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
   //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
 
@@ -38,16 +43,62 @@ void considerRule( map< double, set< pair<string, string> > >& rules, const stri
 
   double con_conf = 100.0*(double)con_count / (double) total_transactions;
 
-  double surprise1 = conf / con_conf;
-
-  double surprise2 = conf - con_conf;
-
   //  cerr << "... conf " << conf << endl;
   //  cerr << "... con_conf " << con_conf << endl;
   //  cerr << "... surprise1 " << surprise1 << endl;
   //  cerr << "... surprise2 " << surprise2 << endl;
 
-  double score = surprise2 * importance; // * importance; // surprise2 * importance;
+  double surprise1=0.0;
+  double surprise2=0.0;
+  double surprise3=0.0;
+
+  surprise1 = compute_surprise( conf, con_conf ); // compare Q=>b with Q^a=>b
+  if ( surprise1 < MIN_SURPRISE ) {
+    return; // skip rule
+  }
+
+
+  {
+    string rule_string = ant + "=>" + con;
+    Dbt key( (void*) rule_string.c_str(), rule_string.length()+1 );
+    Dbt data;
+    int rc = dbrules.get( 0, &key, &data, 0 );
+    if ( rc != DB_NOTFOUND ) {
+      cerr << "Found " << rule_string << endl;
+      double conf_a = atof( (char*) data.get_data() );
+      surprise2 = compute_surprise( conf, conf_a ); // compare a=>b with Q^a=>b
+      cerr << "... surprise2 " << surprise2 << endl;
+      if ( surprise2 < MIN_SURPRISE ) {
+	return; // skip rule
+      }
+    } else {
+      cerr << "Could not find confidence for " << rule_string << endl;
+      return; // skip it
+    }
+  }
+
+  {
+    string rule_string = "=>"+con;
+    Dbt key( (void*) rule_string.c_str(), rule_string.length()+1 );
+    Dbt data;
+    int rc = dbrules.get( 0, &key, &data, 0 );
+    if ( rc != DB_NOTFOUND ) {
+      cerr << "Found " << rule_string << endl;
+
+      double conf_a = atof( (char*) data.get_data() );
+      surprise3 = compute_surprise( conf, conf_a );  // compare b with Q^a=>b
+      cerr << "... surprise3 " << surprise3 << endl;
+      if ( surprise3 < MIN_SURPRISE ) {
+	return; // skip rule
+      }
+    } else {
+      cerr << "Could not find confidence for " << rule_string << endl;
+      return; // skip it
+    }
+  }
+
+  double score = surprise1*surprise2*surprise3*importance; // surprise * importance; // * importance; // surprise2 * importance;
+
 
   rules[ -score ].insert( make_pair( ant, con ) );
 
@@ -98,6 +149,13 @@ int main(int argc, char *argv[]) {
   }
 
   try {
+
+
+    Db dbrules(0,0);
+    dbrules.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+    
+
+
     // ----------------------------------------
     // code which accesses Omsee
     // ----------------------------------------
@@ -209,23 +267,28 @@ int main(int argc, char *argv[]) {
 
     // okay, now generate rules
     for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
-      considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
-      considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
+      considerRule( dbrules, rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
+      considerRule( dbrules, rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
     }
 
     for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
       double score = -(i->first);
-      cerr << "*** Score " << score << endl;
+      //      cerr << "*** Score " << score << endl;
       set< pair< string, string> > S = i->second;
       for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
 	pair<string, string> pair = *p;
-	cerr << pair.first << " => " << pair.second << endl;
+	cerr << score << ":  " << pair.first << " => " << pair.second << endl;
       }
     }
+
+    dbrules.close(0);
     
          
   }
   catch(OmError & error) {
     cout << "Exception: " << error.get_msg() << endl;
+  }  catch( DbException& e ) {
+    cerr << "Exception:  " << e.what() << endl;
   }
+
 }
