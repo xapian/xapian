@@ -118,7 +118,7 @@ static bool test_netexpand1()
 	tout << mset;
     }
 
-    Assert(mset.size() > 0);
+    TEST(mset.size() > 0);
 
     Xapian::RSet rset;
     rset.add_document(*mset.begin());

@@ -1,3 +1,8 @@
+Thu Jun 05 17:53:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/remotetest.cc: In test netexpand1, use TEST() rather than
+	  Assert() so that the check is made in non-debug builds too.
+
 Thu Jun 05 17:52:17 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,common/socketcommon.h,docs/todo.xml,
