@@ -1,0 +1,24 @@
+This file is intended to document the coding policy when working on
+Open Muscat code.  A failure to follow the policy is considered a
+bug, although a relatively low priority one at this stage in
+development.
+
+============================================================================
+An objects member functions should never call public methods on that object.
+============================================================================
+Public methods present an interface to users of the class, and should not
+be called internally.  It is desirable to have a clear boundary between
+code called from the outside and code only used internally.
+
+An example of the problems with breaking this rule is a class which has an
+internal mutex which needs to be locked to prevent two threads working on
+the same object concurrently.
+
+If the above rule is followed, then each public method can take the lock on
+entry.  There is no danger of deadlock (from the same thread locking the
+mutex twice), and every thread using the object must lock it first.
+
+If the rule is not followed, it becomes much more difficult to work out
+where to put the locks to avoid the possibility of deadlocks or unlocked
+access, and it is easy for problems to appear when unrelated changes are
+made.
