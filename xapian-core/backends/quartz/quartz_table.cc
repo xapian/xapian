@@ -587,6 +587,7 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 	if (keyptr->value.size() == 0) {
 	    // diskcursor must also point to a null key - we're done.
 	    current_key.value = "";
+	    current_tag.value = "";
 	    return false;
 	}
 	if (keyptr->value == diskcursor->current_key.value) {
