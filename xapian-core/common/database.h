@@ -9,6 +9,7 @@
 #include "omtypes.h"
 
 class IRDocument;
+class PostList;
 class DBPostList;
 class TermList;
 class RSet;

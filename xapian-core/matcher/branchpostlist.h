@@ -5,6 +5,7 @@
 
 #include "database.h"
 #include "match.h"
+#include "postlist.h"
 
 class BranchPostList : public virtual PostList {
     protected:

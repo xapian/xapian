@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include "termlist.h"
+#include "omassert.h"
 
 class RSetItem {
     public:
