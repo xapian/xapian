@@ -171,9 +171,6 @@ class OmQuery {
 	template <class SubQ>
 	OmQuery(OmQuery::op op_, SubQ q);
 
-	/** Check whether the query is defined. */
-	bool is_defined() const;
-
 	/** Set the window size, for a NEAR or PHRASE query.
 	 */
 	void set_window(om_termpos window);
@@ -197,7 +194,7 @@ class OmQuery {
 	 *  be desirable in some situations.
 	 *  Returns the old value of the query length.
 	 */
-	om_termcount set_length(om_termcount qlen_);
+	om_termcount set_length(om_termcount qlen);
 
 	/** Return an OmTermIterator returning all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term

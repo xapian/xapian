@@ -1,3 +1,8 @@
+Wed Nov 14 12:05:44 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Empty OmQuery() now matches no documents (rather than causing an
+	  exception).
+
 Thu Nov 08 18:23:21 GMT 2001  Olly Betts <olly@survex.com>
 
 	* SIGSTKFLT isn't portable, so added #ifdef checks for it.

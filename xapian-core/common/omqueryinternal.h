@@ -186,9 +186,6 @@ class OmQuery::Internal {
 	 */
 	std::string get_description() const;
 
-	/** Check whether the query is defined. */
-	bool is_defined() const;
-
 	/** Set window for NEAR or PHRASE queries */
 	void set_window(om_termpos window);
 

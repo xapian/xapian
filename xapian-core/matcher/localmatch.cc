@@ -367,11 +367,13 @@ PostList *
 LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 				   MultiMatch *matcher)
 {
-    // This should never fail, because queries should only be undefined
-    // at the root of a query tree
-    Assert(query->op != OmQuery::Internal::OP_UNDEF);
-
     switch (query->op) {
+	case OmQuery::Internal::OP_UNDEF: {
+	    LeafPostList *pl = new EmptyPostList();
+	    pl->set_termweight(new BoolWeight(opts));
+	    return pl;
+	}
+
 	case OmQuery::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);

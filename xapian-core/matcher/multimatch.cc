@@ -93,11 +93,6 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
 	  mcmp(msetcmp_forward), errorhandler(errorhandler_)
 {
-    // FIXME: has this check been done already?
-    // Check that we have a valid query to run
-    if (query->op == OmQuery::Internal::OP_UNDEF) {
-	throw OmInvalidArgumentError("Query is not defined.");
-    }
     query->validate_query();
 
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);

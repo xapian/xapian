@@ -146,20 +146,14 @@ static bool test_querylen3()
 static bool test_queryvalid1()
 {
     vector<OmQuery> v1;
-    // Need two arguments, which may not be null
+    // Need two arguments
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     v1.push_back(OmQuery("bad"));
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
-    v1.push_back(OmQuery());
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     v1.clear();
     v1.push_back(OmQuery());
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
-    v1.push_back(OmQuery("bad"));
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
 

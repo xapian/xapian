@@ -282,13 +282,6 @@ OmQuery::Internal::get_description() const
     return "(" + description + ")";
 }
 
-bool
-OmQuery::Internal::is_defined() const
-{
-    if (op == OP_UNDEF) return false;
-    return true;
-}
-
 void
 OmQuery::Internal::set_window(om_termpos window_)
 {
@@ -390,7 +383,15 @@ OmQuery::Internal::get_terms() const
 
 // Make an uninitialised query
 OmQuery::Internal::Internal()
-	: mutex(), op(OmQuery::Internal::OP_UNDEF), qlen(0)
+	: mutex(), op(OmQuery::Internal::OP_UNDEF),
+	  subqs(),
+	  qlen(0),
+	  window(0),
+	  cutoff(0),
+	  elite_set_size(0),
+	  tname(),
+	  term_pos(0),
+	  wqf(0)
 {}
 
 /** swap the contents of this with another OmQuery::Internal,
@@ -464,7 +465,7 @@ OmQuery::Internal::Internal(const om_termname & tname_,
 	  term_pos(term_pos_),
 	  wqf(wqf_)
 {
-    if(tname.size() == 0) {
+    if (tname.empty()) {
 	throw OmInvalidArgumentError("Termnames may not have zero length.");
     }
 }
@@ -506,7 +507,6 @@ void
 OmQuery::Internal::prevalidate_query() const
 {
     DEBUGCALL(API, void, "OmQuery::Internal::prevalidate_query", "");
-    if (op == OmQuery::Internal::OP_UNDEF) return;
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
@@ -519,20 +519,9 @@ OmQuery::Internal::prevalidate_query() const
     }
 
     // Check that the termname is not null in a leaf query
-    if (is_leaf(op)) {
-	if (tname.size() == 0)
-	    throw OmInvalidArgumentError("OmQuery: term names cannot be empty.");
-    } else {
-	AssertEq(tname.size(), 0);
-    }
-
-    // Check that all subqueries are defined.
-    for (subquery_list::const_iterator i = subqs.begin();
-	 i != subqs.end();
-	 ++i) {
-	if ((**i).op == OmQuery::Internal::OP_UNDEF)
-	    throw OmInvalidArgumentError("OmQuery: subqueries must not be undefined.");
-    }
+    Assert(!is_leaf(op) || !tname.empty());
+    // Check that the termname is null in a branch query
+    Assert(is_leaf(op) || tname.empty());
 }
 
 void

@@ -880,12 +880,9 @@ void
 OmEnquire::Internal::Data::set_query(const OmQuery &query_)
 {
     OmLockSentry locksentry(mutex);
-    if(query) {
+    if (query) {
 	delete query;
 	query = 0;
-    }
-    if (!query_.is_defined()) {
-        throw OmInvalidArgumentError("Query must not be undefined");
     }
     query = new OmQuery(query_);
 }
@@ -910,10 +907,9 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
 	      first << ", " << maxitems << ", " << omrset << ", " <<
 	      moptions << ", " << mdecider << ", ");
     OmLockSentry locksentry(mutex);
-    if(query == 0) {
+    if (query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
-    Assert(query->is_defined());
 
     // Use default options if none supplied
     OmSettings default_settings;
@@ -1093,7 +1089,6 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
     if (query == 0) {
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
     }
-    Assert(query->is_defined());
 
     // the ordered list of terms in the query.
     OmTermIterator qt = query->get_terms_begin();

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,9 +49,7 @@ OmQuery::add_subquery(const OmQuery & subq)
 {
     DEBUGAPICALL(void, "OmQuery::add_subquery", subq);
     Assert(internal);
-    if (subq.internal == 0) {
-	throw OmInvalidArgumentError("Can't add empty subquery");
-    }
+    Assert(subq.internal);
     internal->add_subquery(*(subq.internal));
 }
 
@@ -63,9 +62,7 @@ OmQuery::add_subquery(const OmQuery * subq)
 	throw OmInvalidArgumentError("Pointer to subquery may not be null");
     }
     Assert(internal);
-    if (subq->internal == 0) {
-	throw OmInvalidArgumentError("Can't add empty subquery");
-    }
+    Assert(subq->internal);
     internal->add_subquery(*(subq->internal));
 }
 
@@ -110,27 +107,20 @@ OmQuery::abort_construction()
 OmQuery::OmQuery(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
-	: internal(0)
+	: internal(new OmQuery::Internal(tname_, wqf_, term_pos_))
 {
     DEBUGAPICALL(void, "OmQuery::OmQuery",
 		 tname_ << ", " << wqf_ << ", " << term_pos_);
-    internal = new OmQuery::Internal(tname_, wqf_, term_pos_);
 }
 
 OmQuery::OmQuery(OmQuery::op op_, const OmQuery &left, const OmQuery &right)
-	: internal(0)
+	: internal(new OmQuery::Internal(op_))
 {
     DEBUGAPICALL(void, "OmQuery::OmQuery",
 		 op_ << ", " << left << ", " << right);
-    try {
-	start_construction(op_);
-	internal->add_subquery(*(left.internal));
-	internal->add_subquery(*(right.internal));
-	end_construction();
-    } catch (...) {
-	abort_construction();
-	throw;
-    }
+    internal->add_subquery(*(left.internal));
+    internal->add_subquery(*(right.internal));
+    end_construction();
 }
 
 // Copy constructor
@@ -138,7 +128,8 @@ OmQuery::OmQuery(const OmQuery & copyme)
 	: internal(0)
 {
     DEBUGAPICALL(void, "OmQuery::OmQuery", copyme);
-    if (copyme.internal) internal = new OmQuery::Internal(*(copyme.internal));
+    Assert(copyme.internal);
+    internal = new OmQuery::Internal(*(copyme.internal));
 }
 
 // Assignment
@@ -146,11 +137,10 @@ OmQuery &
 OmQuery::operator=(const OmQuery & copyme)
 {
     DEBUGAPICALL(OmQuery &, "OmQuery::operator=", copyme);
-    if (copyme.internal) {
-	OmQuery::Internal *temp = new OmQuery::Internal(*(copyme.internal));
-    	std::swap(temp, this->internal);
-	delete temp;
-    }
+    Assert(copyme.internal);
+    OmQuery::Internal *temp = new OmQuery::Internal(*(copyme.internal));
+    std::swap(temp, this->internal);
+    delete temp;
 
     RETURN(*this);
 }
@@ -160,6 +150,7 @@ OmQuery::OmQuery()
 	: internal(0)
 {
     DEBUGAPICALL(void, "OmQuery::OmQuery", "");
+    internal = new OmQuery::Internal();
 }
 
 // Destructor
@@ -173,19 +164,8 @@ std::string
 OmQuery::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmQuery::get_description", "");
-    // FIXME internal may be NULL - OmLockSentry locksentry(internal->mutex);
-    std::string res = "OmQuery(";
-    if (internal) res += internal->get_description();
-    res += ')';
-    RETURN(res);
-}
-
-bool OmQuery::is_defined() const
-{
-    DEBUGAPICALL(bool, "OmQuery::is_defined", "");
-    Assert(internal);
     OmLockSentry locksentry(internal->mutex);
-    RETURN(internal->is_defined());
+    RETURN("OmQuery(" + internal->get_description() + ')');
 }
 
 void OmQuery::set_window(om_termpos window)
@@ -204,12 +184,12 @@ void OmQuery::set_cutoff(om_weight cutoff)
     internal->set_cutoff(cutoff);
 }
 
-void OmQuery::set_elite_set_size(om_termcount size_)
+void OmQuery::set_elite_set_size(om_termcount size)
 {
-    DEBUGAPICALL(void, "OmQuery::set_elite_set_size", size_);
+    DEBUGAPICALL(void, "OmQuery::set_elite_set_size", size);
     Assert(internal);
     OmLockSentry locksentry(internal->mutex);
-    internal->set_elite_set_size(size_);
+    internal->set_elite_set_size(size);
 }
 
 om_termcount OmQuery::get_length() const
@@ -220,12 +200,12 @@ om_termcount OmQuery::get_length() const
     RETURN(internal->get_length());
 }
 
-om_termcount OmQuery::set_length(om_termcount qlen_)
+om_termcount OmQuery::set_length(om_termcount qlen)
 {
-    DEBUGAPICALL(om_termcount, "OmQuery::set_length", qlen_);
+    DEBUGAPICALL(om_termcount, "OmQuery::set_length", qlen);
     Assert(internal);
     OmLockSentry locksentry(internal->mutex);
-    RETURN(internal->set_length(qlen_));
+    RETURN(internal->set_length(qlen));
 }
 
 OmTermIterator OmQuery::get_terms_begin() const

@@ -435,11 +435,11 @@ static bool test_changequery1()
     return true;
 }
 
-// tests that a null query throws an exception
+// tests that a null query returns no matches
 static bool test_nullquery1()
 {
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmMSet mymset = do_get_simple_query_mset(OmQuery()));
+    OmMSet mymset = do_get_simple_query_mset(OmQuery());
+    TEST_MSET_SIZE(mymset, 0);
     return true;
 }
 
@@ -1429,7 +1429,7 @@ static bool test_getdoc1()
     return true;
 }
 
-// test whether operators with no elements work()
+// test whether operators with no elements work as a null query
 static bool test_emptyop1()
 {
     OmEnquire enquire(get_simple_database());
@@ -1437,11 +1437,9 @@ static bool test_emptyop1()
     
     OmQuery query1(OmQuery::OP_XOR, nullvec.begin(), nullvec.end());
 
-    TEST_EXCEPTION(OmInvalidArgumentError, enquire.set_query(query1));
-    TEST_EXCEPTION(OmInvalidArgumentError, enquire.get_mset(0, 10));
+    OmMSet mymset = do_get_simple_query_mset(query1);
+    TEST_MSET_SIZE(mymset, 0);
     TEST_EXCEPTION(OmInvalidArgumentError, enquire.get_matching_terms_begin(1));
-    // The following possibly shouldn't work, but it's not really important.
-    enquire.get_matching_terms_end(1);
 
     return true;
 }
