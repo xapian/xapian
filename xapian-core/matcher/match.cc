@@ -4,6 +4,7 @@
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
 #include "filterpostlist.h"
+#include "irdocument.h"
 
 #include <algorithm>
 
@@ -247,6 +248,9 @@ Match::match()
 #if 0
     for (docid i = 0; i < msize; i++) {
         cout << mset[i].id << "\t" << mset[i].w << endl;
+	IRDocument *doc = DB->open_document(mset[i].id);
+        //cout << doc << endl;
+	delete doc;
     }
 #endif
     delete merger;
