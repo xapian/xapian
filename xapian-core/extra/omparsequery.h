@@ -27,8 +27,9 @@
 
 #include <om/om.h>
 
-#include <string>
 #include <list>
+#include <map>
+#include <string>
 
 class OmStopper {
     public:
@@ -66,6 +67,8 @@ class OmQueryParser {
 	
 	std::list<om_termname> termlist;
 	std::list<om_termname> stoplist;
+
+	std::multimap<om_termname, om_termname> unstem;
 
 	// don't touch these - FIXME: make private and use friend...
 	OmQuery::op default_op;

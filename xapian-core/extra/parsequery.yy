@@ -340,6 +340,7 @@ more_term:
 	    return NEAR;
         }
 	bool raw_term = (!already_stemmed && !qp->stem_all && !islower(term[0]));
+	string original_term = term;
 	lowercase_term(term);
 	if (raw_term)
 	    term = 'R' + term;
@@ -347,6 +348,7 @@ more_term:
 	    term = qp->stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
 	qp->termlist.push_back(term);
+	qp->unstem.insert(make_pair(term, original_term));
 	return TERM;
     }
     c = *qptr++;
