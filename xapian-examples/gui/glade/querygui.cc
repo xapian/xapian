@@ -12,6 +12,7 @@
 #include "irdocument.h"
 #include "match.h"
 #include "stem.h"
+#include "da_database.h"
 #include "textfile_database.h"
 #include "textfile_indexer.h"
 #include "query_parser.h"
@@ -127,19 +128,73 @@ on_mainwindow_destroy(GtkWidget *widget,
     return FALSE;
 }
 
-int main(int argc, char *argv[]) {
-    try {
-	database = new TextfileDatabase();
-	database->open("/mnt/ivory/disk1/home/richard/textfile", true);
-    } catch (OmError e) {
-	cout << e.get_msg() << endl;
+IRDatabase *makenewdb(const string &type)
+{
+    IRDatabase * database = NULL;
+
+    if(type == "da") database = new DADatabase;
+    else if(type == "textfile") database = new TextfileDatabase;
+
+    if(database == NULL) {
+	cout << "Couldn't open database (unknown type?)" << endl;
+	exit(1);
     }
 
-    GladeXML *xml;
+    return database;
+}
+
+int main(int argc, char *argv[]) {
+    string datafile = "/mnt/ivory/disk1/home/richard/textfile";
     string gladefile = "querygui.glade";
+    int msize = 10;
+    list<string> dbnames;
+    list<string> dbtypes;
+    const char *progname = argv[0];
 
     gtk_init(&argc, &argv);
     glade_init();
+
+    bool syntax_error = false;
+    argv++;
+    argc--;
+    while (argc && argv[0][0] == '-') {
+	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
+	    msize = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
+	    dbnames.push_back(argv[1]);
+	    dbtypes.push_back("da");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
+	    dbnames.push_back(argv[1]);
+	    dbtypes.push_back("textfile");
+	    argc -= 2;
+	    argv += 2;
+	} else {
+	    syntax_error = true;
+	    break;
+	}
+    }
+
+    if (syntax_error || argc >= 1) {
+	cout << "Syntax: " << progname << " [options]" << endl;
+	cout << "\t--msize <initial msize>\n";
+	cout << "\t--db <DA directory>\n";
+	cout << "\t--tf <textfile>\n";
+	exit(1);
+    }
+
+    try {
+	database = new TextfileDatabase();
+	database->open(datafile, true);
+    } catch (OmError e) {
+	cout << e.get_msg() << endl;
+	return 1;
+    }
+
+    GladeXML *xml;
 
     /* load the interface */
     xml = glade_xml_new(gladefile.c_str(), NULL);
