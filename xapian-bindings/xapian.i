@@ -235,20 +235,23 @@ class MSet {
     ~MSet();
 
 #ifdef SWIGPHP4
-    %name(fetch_single) void fetch(MSetIterator& item) const;
-    %name(fetch_range) void fetch(MSetIterator& begin, MSetIterator& end) const;
-#else
+    %rename(fetch_range) fetch;
+#endif
     void fetch(MSetIterator& begin, MSetIterator& end) const;
+#ifdef SWIGPHP4
+    %rename(fetch_single) fetch;
+#endif
     void fetch(MSetIterator& item) const;
+#ifdef SWIGPHP4
+    %rename(fetch) fetch;
 #endif
     void fetch() const;
 
     percent convert_to_percent(weight wt) const;
 #ifdef SWIGPHP4
-    %name(convert_msetiterator_to_percent) percent convert_to_percent(const MSetIterator & item) const;
-#else
-    percent convert_to_percent(const MSetIterator & item) const;
+    %rename(convert_msetiterator_to_percent) convert_to_percent;
 #endif
+    percent convert_to_percent(const MSetIterator & item) const;
 
     doccount get_termfreq(std::string tname) const;
     weight get_termweight(std::string tname) const;
@@ -360,22 +363,19 @@ class RSet {
     }
     void add_document(docid did);
 #ifdef SWIGPHP4
-    %name(add_document_from_mset_iterator) void add_document(MSetIterator& i);
-#else
-    void add_document(MSetIterator& i);
+    %rename(add_document_from_mset_iterator) add_document;
 #endif
+    void add_document(MSetIterator& i);
     void remove_document(docid did);
 #ifdef SWIGPHP4
-    %name(remove_document_from_mset_iterator) void remove_document(MSetIterator& i);
-#else
-    void remove_document(MSetIterator& i);
+    %rename(remove_document_from_mset_iterator) remove_document;
 #endif
+    void remove_document(MSetIterator& i);
     bool contains(docid did);
 #ifdef SWIGPHP4
-    %name(contains_from_mset_iterator) bool contains(MSetIterator& i);
-#else
-    bool contains(MSetIterator& i);
+    %rename(contains_from_mset_iterator) contains;
 #endif
+    bool contains(MSetIterator& i);
     string get_description() const;
 };
 
@@ -417,12 +417,11 @@ class Enquire {
     TermIterator get_matching_terms_begin(docid did) const;
     TermIterator get_matching_terms_end(docid did) const;
 #ifdef SWIGPHP4
-    %name(get_matching_terms_from_mset_iterator_begin) TermIterator get_matching_terms_begin(const MSetIterator& i) const;
-    %name(get_matching_terms_from_mset_iterator_end) TermIterator get_matching_terms_end(const MSetIterator& i) const;
-#else
+    %rename(get_matching_terms_from_mset_iterator_begin) get_matching_terms_begin;
+    %rename(get_matching_terms_from_mset_iterator_end) get_matching_terms_end;
+#endif
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
-#endif
 
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
@@ -508,32 +507,34 @@ class WritableDatabase : public Database {
 namespace Auto {
     Database open(const string & path);
 #ifdef SWIGPHP4
-    %name(open_writable) WritableDatabase open(const string & path, int action);
-#else
-    WritableDatabase open(const string & path, int action);
+    %rename(open_writable) open;
 #endif
+    WritableDatabase open(const string & path, int action);
     Database open_stub(const string & file);
 }
 
 namespace Quartz {
-    %name(quartz_open) Database open(const std::string &dir);
+    %rename(quartz_open) open;
+    Database open(const std::string &dir);
 #ifdef SWIGPHP4
-    %name(quartz_open_writable) WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-#else
-    %name(quartz_open) WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+    %rename(quartz_open_writable) open;
 #endif
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 }
 
 namespace InMemory {
-    %name(inmemory_open) WritableDatabase open();
+    %rename(inmemory_open) open;
+    WritableDatabase open();
 }
 
-// If we wrap Muscat36, people will have to compile it in.  I doubt it's used
-// by anyone these days anyway...
+// If we wrap Muscat36, people will have to compile it in.  I doubt anyone
+// uses it these days anyway, except perhaps to migrate to Xapian (you can
+// convert a database using copydatabase).
 
 namespace Remote {
-// prog factory function not currently wrapped - is it useful?
-    %name(remote_open) Database open(const std::string &host, unsigned int port,
+    // FIXME: prog factory function not currently wrapped - is it useful?
+    %rename(remote_open) open;
+    Database open(const std::string &host, unsigned int port,
 	timeout timeout = 10000, timeout connect_timeout = 0);
 }
 
@@ -557,13 +558,15 @@ class Query {
 		termcount wqf = 1,
 		termpos term_pos = 0);
 #ifdef SWIGPHP4
-	%name(Query_from_query_pair) Query(Query::op op_, const Query & left, const Query & right);
-	%name(Query_from_term_pair) Query(Query::op op_, const std::string & left, const std::string & right);
-	%name(Query_empty) Query();
-#else
-	Query(const Query& copyme);
+	%rename(Query_from_query_pair) Query;
+#endif
 	Query(Query::op op_, const Query & left, const Query & right);
+#ifdef SWIGPHP4
+	%rename(Query_from_term_pair) Query;
+#endif
 	Query(Query::op op_, const std::string & left, const std::string & right);
+#ifndef SWIGPHP4
+	Query(const Query& copyme);
         %extend {
            /** Constructs a query from a vector of terms merged with the specified operator */
 	    Query(Query::op op,
@@ -574,10 +577,13 @@ class Query {
 		    return query;
 	    }
 	}
+#endif
 
 	/** Constructs a new empty query object */
-	Query();
+#ifdef SWIGPHP4
+	%rename(Query_empty) Query;
 #endif
+	Query();
 
 	~Query();
 
