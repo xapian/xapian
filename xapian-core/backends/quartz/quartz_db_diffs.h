@@ -25,9 +25,10 @@
 
 #include "config.h"
 
-#include "om/omtypes.h"
 #include "quartz_db_manager.h"
 #include "quartz_db_blocks.h"
+#include "om/omtypes.h"
+#include "om/omindexdoc.h"
 
 /** Base class managing a set of diffs to a Quartz database.
  */
@@ -59,7 +60,7 @@ class QuartzDbDiffs {
 	virtual void apply() = 0;
 };
 
-/** Class managing a set of diffs to a Quartz Postlist database.
+/** Class managing a set of diffs to a Quartz PostList database.
  */
 class QuartzPostListDbDiffs : public QuartzDbDiffs {
     private:
@@ -69,6 +70,9 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
 
     public:
 	/** Construct the diffs object.
+	 *
+	 *  @param db_manager_  The object managing access to databases on
+	 *                      disk.
 	 */
 	QuartzPostListDbDiffs(QuartzDbManager * db_manager_)
 		: db_manager(db_manager_) {}
@@ -76,8 +80,44 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
 	~QuartzPostListDbDiffs() {}
 
 	/** Add a posting to the diffs.
+	 *
+	 *  @param tname  The name of the term whose posting list an entry
+	 *                should be added to.
+	 *  @param did    The document ID to add to the posting list.
+	 *  @param wdf    The within document frequency to store in the
+	 *                posting list.
 	 */
-	void add_posting(om_docid did, om_termname tname, om_termcount wdf);
+	void add_posting(om_termname tname, om_docid did, om_termcount wdf);
+
+	/** Apply the diffs.
+	 */
+	void apply();
+};
+
+/** Class managing a set of diffs to a Quartz PositionList database.
+ */
+class QuartzPositionListDbDiffs : public QuartzDbDiffs {
+    private:
+	/** Pointer to the database manager.
+	 */
+	QuartzDbManager * db_manager;
+
+    public:
+	/** Construct the diffs object.
+	 *
+	 *  @param db_manager_  The object managing access to databases on
+	 *                      disk.
+	 */
+	QuartzPositionListDbDiffs(QuartzDbManager * db_manager_)
+		: db_manager(db_manager_) {}
+
+	~QuartzPositionListDbDiffs() {}
+
+	/** Add a posting to the diffs.
+	 */
+	void add_positionlist(om_docid did,
+			      om_termname tname,
+			      OmDocumentTerm::term_positions positions);
 
 	/** Apply the diffs.
 	 */

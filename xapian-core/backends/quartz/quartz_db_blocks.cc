@@ -30,7 +30,7 @@ QuartzDbBlocks::QuartzDbBlocks()
 
 QuartzDbBlocks::~QuartzDbBlocks()
 {
-    map<QuartzDbKey, QuartzDbBlock *>::iterator i;
+    std::map<QuartzDbKey, QuartzDbBlock *>::iterator i;
     for (i = blocks.begin(); i != blocks.end(); i++) {
 	delete (i->second);
 	i->second = 0;
@@ -40,7 +40,7 @@ QuartzDbBlocks::~QuartzDbBlocks()
 QuartzDbBlock *
 QuartzDbBlocks::get_block(const QuartzDbKey &key)
 {
-    map<QuartzDbKey, QuartzDbBlock *>::iterator i = blocks.find(key);
+    std::map<QuartzDbKey, QuartzDbBlock *>::iterator i = blocks.find(key);
     if (i == blocks.end()) return 0;
     return i->second;
 }
@@ -49,7 +49,7 @@ void
 QuartzDbBlocks::set_block(const QuartzDbKey &key,
 			  auto_ptr<QuartzDbBlock> data)
 {
-    map<QuartzDbKey, QuartzDbBlock *>::iterator i = blocks.find(key);
+    std::map<QuartzDbKey, QuartzDbBlock *>::iterator i = blocks.find(key);
 
     if (data.get() == 0) {
 	// Don't allow null pointers, for convenience.  (Makes get_block()

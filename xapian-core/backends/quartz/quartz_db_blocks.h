@@ -54,7 +54,7 @@ class QuartzDbBlocks {
 	void operator=(const QuartzDbBlocks &);
 
 	/// The blocks stored in this object
-	map<QuartzDbKey, QuartzDbBlock *> blocks;
+	std::map<QuartzDbKey, QuartzDbBlock *> blocks;
     public:
 
 	/** Initialise the cache of blocks.

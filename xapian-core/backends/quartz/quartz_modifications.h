@@ -51,6 +51,10 @@ class QuartzModifications {
 	/** Diffs made to the PostList database.
 	 */
 	QuartzPostListDbDiffs postlist_diffs;
+
+	/** Diffs made to the PositionList database.
+	 */
+	QuartzPositionListDbDiffs positionlist_diffs;
     public:
 
 	/** Construct the modifications object.

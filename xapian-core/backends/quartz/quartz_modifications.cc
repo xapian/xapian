@@ -24,13 +24,17 @@
 
 #include "quartz_modifications.h"
 
-#include <om/omsettings.h>
+#include "om/omindexdoc.h"
+#include "om/omsettings.h"
+
+#include <map>
 
 QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_,
 					 string logfile_)
 	: db_manager(db_manager_),
 	  logfile(logfile_),
-	  postlist_diffs(db_manager_)
+	  postlist_diffs(db_manager_),
+	  positionlist_diffs(db_manager_)
 {
 }
 
@@ -46,5 +50,22 @@ QuartzModifications::apply()
 void
 QuartzModifications::apply_atomic()
 {
+}
+
+om_docid
+QuartzModifications::add_document(const OmDocumentContents & document)
+{
+    om_docid did = 1; //get_newdocid();
+
+    OmDocumentContents::document_terms::const_iterator i;
+
+    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+	postlist_diffs.add_posting(i->second.tname, did, i->second.wdf);
+	positionlist_diffs.add_positionlist(did,
+					    i->second.tname,
+					    i->second.positions);
+    }
+
+    return did;
 }
 

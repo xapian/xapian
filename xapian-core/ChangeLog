@@ -1,3 +1,9 @@
+Thu Aug 24 19:16:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More modifications to Quartz - now passes modifications made to
+	  PostLists and PositionLists into an object designed to store and
+	  manage them - nothing written to databases still, though.
+
 Thu Aug 24 16:55:59 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a documentation comment, a fixme and a todo.

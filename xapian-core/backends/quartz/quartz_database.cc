@@ -158,7 +158,7 @@ QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    throw OmUnimplementedError("QuartzDatabase::do_add_document() not yet implemented");
+    return modifications->add_document(document);
 }
 
 void
