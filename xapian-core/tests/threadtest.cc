@@ -26,21 +26,45 @@
 #include "om/om.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "utils.h"
 
 #include <vector>
 #include <pthread.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
+static string database_path;
+static string queryfile;
+static num_threads = 1;
 
 struct some_searches
 {
+    string database_type;
+    string database_path;
     vector<OmQuery> queries;
     vector<OmMSet> expected_results;
     vector<OmMSet> inthread_results;
 };
 
 void
-search_stuff(vector<OmQuery> & queries, vector<OmMSet> & results)
+search_stuff(string database_type,
+	     string database_path,
+	     vector<OmQuery> & queries,
+	     vector<OmMSet> & results)
 {
+    vector<string> params;
+    params.push_back(database_path);
+    OmDatabase db(database_type, params);
+    OmDatabaseGroup dbgrp;
+    dbgrp.add_database(db);
+    OmEnquire enq(dbgrp);
 
+    vector<OmQuery>::const_iterator i;
+    for (i = queries.begin(); i != queries.end(); i++) {
+	enq.set_query(*i);
+	results.push_back(enq.get_mset(0, 10));
+    }
 }
 
 void *
@@ -49,52 +73,101 @@ search_thread(void * data)
     struct some_searches * searches =
 	reinterpret_cast<struct some_searches *>(data);
 
-    search_stuff(searches->queries, searches->inthread_results);
+    search_stuff(searches->database_type,
+		 searches->database_path,
+		 searches->queries,
+		 searches->inthread_results);
     return 0;
+}
+
+void
+read_queries(string filename, vector<OmQuery> & queries)
+{
+    FILE * fp = fopen (filename.c_str(), "r");
+    TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << filename << "' - " <<
+		     strerror(errno))
+    while(!feof(fp)) {
+	vector<string> terms;
+	string thisterm;
+	while(1) {
+	    char c;
+	    fread(&c, sizeof(char), 1, fp);
+	    if (feof (fp) || c == '\n') {
+		break;
+	    }
+	    if (c == ';') {
+		if(thisterm.size() != 0) {
+		    terms.push_back(thisterm);
+		    thisterm = "";
+		}
+	    } else {
+		thisterm += string(&c, 1);
+	    }
+	}
+
+	OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
+	//cout << new_query.get_description() << endl;
+	queries.push_back(new_query);
+    }
+    fclose (fp);
 }
 
 bool test_twothreads1()
 {
-    pthread_t thread1;
-    pthread_t thread2;
-    struct some_searches searches1;
-    struct some_searches searches2;
+    vector<pthread_t> threads;
+    vector<struct some_searches> searches;
 
-    //TEST_NOT_EQUAL(searches1.queries.size(), 0);
-    //TEST_NOT_EQUAL(searches2.queries.size(), 0);
+    cout << "Performing test with " << num_threads << " threads." << endl;
 
-    search_stuff(searches1.queries, searches1.expected_results);
-    search_stuff(searches2.queries, searches2.expected_results);
-
-    TEST_EQUAL(searches1.expected_results.size(),
-               searches1.queries.size());
-    TEST_EQUAL(searches2.expected_results.size(),
-               searches2.queries.size());
-
-    int err;
-    err = pthread_create(&thread1, 0, search_thread, &searches1);
-    TEST_EQUAL(err, 0);
-    err = pthread_create(&thread2, 0, search_thread, &searches2);
-    TEST_EQUAL(err, 0);
-
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-
-    TEST_EQUAL(searches1.expected_results.size(),
-               searches1.inthread_results.size());
-    TEST_EQUAL(searches2.expected_results.size(),
-               searches2.inthread_results.size());
-
-    for (vector<OmMSet>::size_type i = 0;
-         i != searches1.expected_results.size(); i++) {
-	TEST_EQUAL(searches1.expected_results[i],
-		   searches1.inthread_results[i]);
+    for (int i = 0; i < num_threads; i++) {
+	struct some_searches newsearch;
+	newsearch.database_type = "da_heavy";
+	newsearch.database_path = database_path;
+	read_queries(queryfile + om_inttostring(i + 1), newsearch.queries);
+	cout << "search " << (i + 1) << " has " <<
+		newsearch.queries.size() << " items" << endl;
+	TEST_NOT_EQUAL(newsearch.queries.size(), 0);
+	searches.push_back(newsearch);
     }
 
-    for (vector<OmMSet>::size_type i = 0;
-         i != searches2.expected_results.size(); i++) {
-	TEST_EQUAL(searches2.expected_results[i],
-		   searches2.inthread_results[i]);
+    for (int i = 0; i < num_threads; i++) {
+	cout << "Performing single threaded search for search " <<
+		(i + 1) << endl;
+	search_stuff(searches[i].database_type,
+		     searches[i].database_path,
+		     searches[i].queries,
+		     searches[i].expected_results);
+	TEST_EQUAL(searches[i].expected_results.size(),
+		   searches[i].queries.size());
+	cout << "done." << endl;
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+	int err;
+	pthread_t newthread;
+	threads.push_back(newthread);
+	cout << "starting thread search " << (i + 1) << endl;
+	err = pthread_create(&threads[threads.size() - 1],
+			     0,
+			     search_thread,
+			     &searches[threads.size() - 1]);
+	TEST_EQUAL(err, 0);
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+	cout << "waiting for end of thread search " << (i + 1) << endl;
+	pthread_join(threads[i], NULL);
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+	TEST_EQUAL(searches[i].expected_results.size(),
+		   searches[i].inthread_results.size());
+
+	for (vector<OmMSet>::size_type i = 0;
+	     i != searches[i].expected_results.size(); i++) {
+	    TEST_EQUAL(searches[i].expected_results[i],
+		       searches[i].inthread_results[i]);
+	}
     }
 
     return true;
@@ -114,5 +187,15 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
+    if (argc < 4) {
+	cerr << "Usage: " << argv[0] <<
+		" <database path> <queryfile> <threadcount> <options>" << endl;
+	exit (1);
+    }
+    database_path = argv[1];
+    queryfile = argv[2];
+    num_threads = atoi(argv[3]);
+    argc -= 3;
+    argv += 3;
     return test_driver::main(argc, argv, tests);
 }
