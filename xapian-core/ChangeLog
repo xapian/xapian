@@ -1,3 +1,7 @@
+Tue Nov 02 03:22:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/: Removed unused test harness sources.
+
 Tue Nov 02 02:44:34 GMT 2004  Olly Betts <olly@survex.com>
 
 	* languages/pool.c,languages/pool.h: Removed unused sources.
