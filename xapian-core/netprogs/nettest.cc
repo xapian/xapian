@@ -127,14 +127,14 @@ static bool test_netexpand1()
 static bool test_tcpclient1()
 {
     BackendManager backendmanager;
-    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --sleepycat "
-	                  ".sleepycat/db=apitest_simpledata "
+    std::string command = "./omtcpsrv --one-shot --quiet --quartz "
+	                  ".quartz/db=apitest_simpledata "
 	                  "--port 1235 &";
     system(command.c_str());
 
@@ -148,14 +148,14 @@ static bool test_tcpclient1()
 static bool test_tcpmatch1()
 {
     BackendManager backendmanager;
-    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --sleepycat "
-	                  ".sleepycat/db=apitest_simpledata"
+    std::string command = "./omtcpsrv --one-shot --quiet --quartz "
+	                  ".quartz/db=apitest_simpledata"
 	                  " --port 1236 &";
     system(command.c_str());
     sleep(1);
@@ -184,7 +184,7 @@ static bool test_tcpmatch1()
 static bool test_tcpdead1()
 {
     BackendManager backendmanager;
-    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
@@ -197,8 +197,8 @@ static bool test_tcpdead1()
 	    "./omtcpsrv",
 	    "--one-shot",
 	    "--quiet",
-	    "--sleepycat",
-	    ".sleepycat/db=apitest_simpledata",
+	    "--quartz",
+	    ".quartz/db=apitest_simpledata",
 	    "--port",
 	    "1237",
 	    NULL
@@ -261,12 +261,10 @@ test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
 // disable until we can work out how to kill the right process cleanly
-//    {"tcpdead1",	test_tcpdead1},
-#endif
+    //{"tcpdead1",	test_tcpdead1},
     {0,			0},
 };
 

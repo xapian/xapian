@@ -1,3 +1,8 @@
+Thu Nov 30 13:23:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* nettest now uses quartz backend: should always run all tests now
+	  (apart from tcpdead1, which doesn't work).
+
 Wed Nov 29 19:46:22 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In testsuite, report the context of Om exceptions as well as their
