@@ -101,8 +101,7 @@ ALL_INCLUDES = `find $(top_srcdir) -name bindings -prune -o -name \*.h -not -nam
 includetest.cc:
 	@echo "Generating includetest.cc - including all header files."
 	@depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
-	@for header in $(ALL_INCLUDES) ; do echo $$header ; done | \
-	grep -v sleepycat | sed 's/\(.*\)/#include "\1"/' > $@
+	@for header in $(ALL_INCLUDES) ; do echo '#include "'$$header'"' ; done > $@
 	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
 	@echo 'int main() { return 0; }' >> $@
 
@@ -112,13 +111,13 @@ includetest.cc:
 ## to pass special flags to the compilation of one target.
 
 internaltest.o: internaltest.cc
-	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c internaltest.cc
+	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c ${srcdir}/internaltest.cc
 
 internaltest.lo: internaltest.cc
-	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c internaltest.cc
+	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c ${srcdir}/internaltest.cc
 
 delve.o: delve.cc
-	$(CXXCOMPILE) $(delve_CXXFLAGS) -c delve.cc
+	$(CXXCOMPILE) $(delve_CXXFLAGS) -c ${srcdir}/delve.cc
 
 delve.lo: delve.cc
-	$(LTCXXCOMPILE) $(delve_CXXFLAGS) -c delve.cc
+	$(LTCXXCOMPILE) $(delve_CXXFLAGS) -c ${srcdir}/delve.cc
