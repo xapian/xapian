@@ -1,3 +1,7 @@
+Thu Mar 04 23:58:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with results from the tinderbox.
+
 Thu Mar 04 23:29:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc,tests/quartztest.cc: NetBSD mkdir() doesn't cope

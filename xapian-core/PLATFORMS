@@ -23,27 +23,26 @@ Two notes about GCC 2.95:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.2 Debian 3.0 GCC 2.95.4| 0.7.5 |Passed| ixion (James' colo box)
-x86   | Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.7.5 |Passed| ixion (James' colo box)
+x86   | Linux 2.2 Debian 3.0 GCC 2.95.4|~0.8.0 |Passed| ixion (James' colo box)
+x86   | Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.0 |Passed| ixion (James' colo box)
 x86   | Linux 2.2 Debian 3.0 GCC 3.3   | 0.7.2 |Passed| ixion (James' colo box)
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
-x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2| 0.7.5 |Passed|
-x86   |!Linux 2.4 RedHat 7.1 GCC 3.2.2 | 0.6.5 |Passed| with CXXFLAGS=-Werror
+x86   |#Linux 2.4 Debian 2.2 GCC 2.95.2| 0.7.5 |Passed|
 x86   |*Linux 2.4 RedHat 7.2 GCC 2.96  | 0.7.3 |Passed| SF CF WebSphere box #2
-x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.7.5 |Passed| from Chris Good
+x86   | Linux 2.4 RedHat 7.3 GCC 2.96  |~0.8.0 |Passed| from Chris Good
 x86   | Linux 2.4 RedHat 8.0 GCC 2.96  | 0.7.3 |Passed| from Chris Good
+x86   |*Linux 2.4 RedHat 9.0 GCC 3.2.2 |~0.8.0 |Passed|
 x86   |!FreeBSD 4.7 GCC 2.95.4         | 0.7.3 |Passed| [1]
-x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.7.5 |Passed| [1]
-x86   |!OpenBSD 3.2 GCC 2.95.3         |~0.6.5 |Passed|
+x86   |!FreeBSD 4.8 GCC 2.95.4         |~0.8.0 |Passed| [1]
+x86   |*NetBSD 1.6.1                   |~0.8.0 |Passed|
 x86   | Cygwin v1.5.3-1                | 0.7.3 |Passed| from Eric B. Ridge
-x86_64|*Linux 2.4 SuSE 8 GCC 3.2.2     | 0.7.5 |Passed| [2]
-alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.7.5 |Passed|
+x86_64|*Linux 2.4 SuSE 8 GCC 3.2.2     |~0.8.0 |Passed| [2]
+alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4|~0.8.0 |Passed|
 alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed|
-sparc |*Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.3 |Passed| [2]
-sparc |*Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed| [2]
-sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
+sparc |#Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.3 |Passed| [2]
+sparc |#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed| [2]
 sparc |*Solaris 8 GCC 2.95.3           | 0.7.3 |Passed| [2]
 ppc   | MacOS X 10.2                   |~0.7.2 |Passed| [2] Kees van Reeuwijk
 ------+--------------------------------+-------+------+------------------------
@@ -59,6 +58,10 @@ Older success reports lacking an update for a more recent Xapian version
 have access to it, or the report was from a third party):
 
 Arch  | Platform                       |Version|Status| Notes / requirements
+------+--------------------------------+-------+------+------------------------
+x86   |!Linux 2.4 RedHat 7.1 GCC 3.2.2 | 0.6.5 |Passed| with CXXFLAGS=-Werror
+x86   |!OpenBSD 3.2 GCC 2.95.3         |~0.6.5 |Passed|
+sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
 ------+--------------------------------+-------+------+------------------------
 x86   |!OpenBSD 3.0 GCC 2.95.3         | 0.5.3 |Passed|
 ------+--------------------------------+-------+------+------------------------
@@ -97,7 +100,7 @@ binaries yet; Remote backend is automatically disabled (the remote backend
 needs fork() and socketpair(), neither of which djgpp provides - it has a
 stub for fork(), but it will always fail).
 
-[5] Need to add '#include <stdio.h>' to bin/quartzcompact.cc.
+[5] Need to add '#include <stdio.h>' to bin/quartzcompact.cc (fixed in 0.7.3).
 
 [6] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
 (SEGV).  Other tests pass.
