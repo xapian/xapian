@@ -35,41 +35,6 @@
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
 
-// always succeeds
-bool test_trivial();
-// always fails (for testing the framework)
-bool test_alwaysfail();
-// tests that the backend doesn't return zero docids
-bool test_zerodocid();
-// tests the document count for a simple query
-bool test_simplequery1();
-// tests for the right documents returned with simple query
-bool test_simplequery2();
-// tests for the right document count for another simple query
-bool test_simplequery3();
-// tests that changing a query object after calling set_query()
-// doesn't make any difference to get_mset().
-bool test_changequery1();
-// tests that a null query throws an exception
-bool test_nullquery1();
-// tests that when specifiying maxitems to get_mset, no more than
-// that are returned.
-bool test_msetmaxitems1();
-// tests that when specifiying maxitems to get_eset, no more than
-// that are returned.
-bool test_expandmaxitems1();
-// tests that a pure boolean query has all weights set to 1
-bool test_boolquery1();
-// tests that get_mset() specifying "first" works as expected
-bool test_msetfirst1();
-// tests the converting-to-percent functions
-bool test_topercent1();
-// tests the expand decision functor
-bool test_expandfunctor1();
-// tests the match decision functor
-bool test_matchfunctor1();
-// tests the percent cutoff option
-bool test_pctcutoff1();
 // tests the allow query terms expand option
 bool test_allowqterms1();
 // tests that the MSet max_attained works
@@ -112,12 +77,6 @@ bool test_emptyquerypart1();
 bool test_multidb3();
 // test that a multidb with 3 dbs query returns correct docids
 bool test_multidb4();
-// test that rsets do sensible things
-bool test_rset1();
-// test that rsets do more sensible things
-bool test_rset2();
-// test that rsets behave correctly with multiDBs
-bool test_rsetmultidb1();
 
 string datadir_;
 
@@ -424,16 +383,19 @@ OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
 // #######################################################################
 // # Tests start here
 
+// always succeeds
 bool test_trivial()
 {
     return true;
 }
 
+// always fails (for testing the framework)
 bool test_alwaysfail()
 {
     return false;
 }
 
+// tests that the backend doesn't return zero docids
 bool test_zerodocid()
 {
     bool success = true;
@@ -485,6 +447,7 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
     return enquire.get_mset(first, maxitems);
 }
 
+// tests the document count for a simple query
 bool test_simplequery1()
 {
     bool success = true;
@@ -502,6 +465,7 @@ bool test_simplequery1()
     return success;
 }
 
+// tests for the right documents and weights returned with simple query
 bool test_simplequery2()
 {
     bool success = true;
@@ -526,14 +490,15 @@ bool test_simplequery2()
 
     // Check the weights
     if (success &&
-	(!weights_are_equal_enough(mymset.items[0].wt, 0.662011) ||
-	 !weights_are_equal_enough(mymset.items[1].wt, 0.570927))) {
+	(!weights_are_equal_enough(mymset.items[0].wt, 0.661095) ||
+	 !weights_are_equal_enough(mymset.items[1].wt, 0.56982))) {
 	success = false;
     }
 
     return success;
 }
 
+// tests for the right document count for another simple query
 bool test_simplequery3()
 {
     bool success = true;
@@ -647,6 +612,8 @@ bool test_multidb2()
     return success;
 }
 
+// tests that changing a query object after calling set_query()
+// doesn't make any difference to get_mset().
 bool test_changequery1()
 {
     bool success = true;
@@ -673,6 +640,7 @@ bool test_changequery1()
     return success;
 }
 
+// tests that a null query throws an exception
 bool test_nullquery1()
 {
     bool success = false;
@@ -684,12 +652,16 @@ bool test_nullquery1()
     return success;
 }
 
+// tests that when specifiying maxitems to get_mset, no more than
+// that are returned.
 bool test_msetmaxitems1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
     return (mymset.items.size() == 1);
 }
 
+// tests that when specifiying maxitems to get_eset, no more than
+// that are returned.
 bool test_expandmaxitems1()
 {
     OmEnquire enquire(get_simple_database());
@@ -708,6 +680,7 @@ bool test_expandmaxitems1()
     return (myeset.items.size() == 1);
 }
 
+// tests that a pure boolean query has all weights set to 1
 bool test_boolquery1()
 {
     bool success = true;
@@ -746,6 +719,7 @@ bool test_boolquery1()
     return success;
 }
 
+// tests that get_mset() specifying "first" works as expected
 bool test_msetfirst1()
 {
     bool success = true;
@@ -759,6 +733,7 @@ bool test_msetfirst1()
     return success;
 }
 
+// tests the converting-to-percent functions
 bool test_topercent1()
 {
     bool success = true;
@@ -802,6 +777,7 @@ class myExpandFunctor : public OmExpandDecider {
 	}
 };
 
+// tests the expand decision functor
 bool test_expandfunctor1()
 {
     bool success = true;
@@ -891,6 +867,7 @@ class myMatchDecider : public OmMatchDecider {
 	}
 };
 
+// tests the match decision functor
 bool test_matchfunctor1()
 {
     // FIXME: check that the functor works both ways.
@@ -922,6 +899,7 @@ void print_mset_percentages(const OmMSet &mset)
     }
 }
 
+// tests the percent cutoff option
 bool test_pctcutoff1()
 {
     bool success = true;
@@ -1817,6 +1795,7 @@ bool test_multidb4()
     return success;
 }
 
+// test that rsets do sensible things
 bool test_rset1()
 {
     bool success = true;
@@ -1853,6 +1832,7 @@ bool test_rset1()
     return success;
 }
 
+// test that rsets do more sensible things
 bool test_rset2()
 {
     bool success = true;
@@ -1887,6 +1867,7 @@ bool test_rset2()
     return success;
 }
 
+// test that rsets behave correctly with multiDBs
 bool test_rsetmultidb1()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
@@ -1937,6 +1918,7 @@ bool test_rsetmultidb1()
     return true;
 }
 
+// test that rsets behave correctly with multiDBs
 bool test_rsetmultidb2()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
@@ -2011,6 +1993,45 @@ bool test_maxorterms1()
     return true;
 }
 
+/// Test that the wdf in the termlists is correct.
+bool test_termlistwdf()
+{
+    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+    OmStem stemmer("english");
+    OmRSet rset1;
+    OmRSet rset2;
+    rset1.add_document(5);
+    rset2.add_document(6);
+
+    OmESet eset1 = enquire.get_eset(1000, rset1);
+    OmESet eset2 = enquire.get_eset(1000, rset2);
+
+    // search for weight of term 'another'
+    string theterm = stemmer.stem_word("another");
+
+    vector<OmESetItem>::const_iterator i;
+    om_weight wt1 = 0;
+    om_weight wt2 = 0;
+    for(i = eset1.items.begin(); i != eset1.items.end(); i++) {
+	if(i->tname == theterm) {
+	    wt1 = i->wt;
+	    break;
+	}
+    }
+    for(i = eset2.items.begin(); i != eset2.items.end(); i++) {
+	if(i->tname == theterm) {
+	    wt2 = i->wt;
+	    break;
+	}
+    }
+    
+    TEST_NOT_EQUAL(wt1, 0);
+    TEST_NOT_EQUAL(wt2, 0);
+    TEST_EQUAL(wt1, wt2);
+
+    return true;
+}
 
 
 
@@ -2055,6 +2076,7 @@ test_desc db_tests[] = {
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
+    {"termlistwdf",        test_termlistwdf},
     {0, 0}
 };
 
@@ -2098,7 +2120,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
+#if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

@@ -15,7 +15,7 @@ This is the other paragraph with the word in the simple query in it.  For
 simplicity, all paragraphs are at least two lines, due to how the hacked up
 indexer works.
 
-This is another paragraph which won't be returned.  Well, not with the normal
+This is another paragraph which won't be returned.  Well, not with the
 simple query, anyway.
 
 And yet another.  This one does mention banana splits, though, so can't be

@@ -1,3 +1,10 @@
+Mon Jun  5 16:35:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added apitest for correct wdf values in termlists (indirectly,
+	  by performing an expand on two different relevant documents of
+	  the same length, and comparing the weights for a common term).
+	  Fails for sleepycat, as expected.
+
 Mon Jun  5 16:12:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Updated apitest's indexing to include keys, so the inmemory
