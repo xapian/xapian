@@ -1,3 +1,9 @@
+Sun Nov 23 03:28:21 GMT 2003  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt: Added note that $setmap{prefix,...}
+	  needs be used before any commands which require the query to be
+	  parsed.
+
 Thu Nov 20 02:44:55 GMT 2003  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Expanded documentation of $set and $setmap to

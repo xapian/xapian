@@ -789,6 +789,8 @@ struct func_desc {
 #define N -1
 #define M 'M'
 #define Q 'Q'
+// NB when adding a new command which ensures M or Q, update the list in
+// docs/omegascript.txt
 static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code

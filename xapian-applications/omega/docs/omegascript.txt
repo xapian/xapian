@@ -269,6 +269,14 @@ $setmap{MAP,NAME1,VALUE1,...}
 
 	$setmap{prefix,author,A,title,XT}
 
+	Note: you must set the prefix map before the query is parsed.  This
+	is done as late as possible - the following commands require the
+	query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
+	$relevant, $relevants, $setrelevant, $unstem, and also these commands
+	require the match to be run which requires the query to be parsed:
+	$freqs, $hitlist, $last, $lastpage, $msize, $msizeexact, $terms,
+	$thispage, $time, $topdoc, $topterms.
+
 $slice{LIST,POSITIONS}
 	returns the elements from "LIST" at the positions listed in the
 	second list "POSITIONS".  The first item is at position 0.
