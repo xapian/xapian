@@ -63,6 +63,13 @@ Priority | Area            | Task
 	 |                 | efficient, or might avoid resource conflicts and
 	 |                 | be better.
 ---------+-----------------+--------------------------------------------------
+ Medium  | General / API   | Put Om into its own namespace, to ensure lack of
+         |                 | symbol conflicts.
+---------+-----------------+--------------------------------------------------
+ Medium  | General         | Make om_queryop a member of OmQuery, as far as
+	 |                 | the API is concerned.  Have an internal typedef
+	 |                 | so that this isn't inappropriate internally.
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
