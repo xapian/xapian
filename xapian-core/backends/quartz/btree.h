@@ -98,9 +98,6 @@ class Btree {
 	/** error number setting */
 	Btree_errors error;
 
-	/** set to true if a parallel overwrite is detected. */
-	bool overwritten;
-
 	/** revision number of the opened B-tree. */
 	uint4 revision_number;
 
@@ -206,6 +203,8 @@ class Btree {
 	/// - and the value 'B' or 'A' of the next base
 	char other_base_letter;
 
+	/** set to true if a parallel overwrite is detected. */
+	bool overwritten;
 
 	/// The path name of the B tree
 	string name;
