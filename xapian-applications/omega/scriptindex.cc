@@ -56,10 +56,6 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-// Put a limit on the size of terms to help prevent the index being bloated
-// by useless junk terms
-static const unsigned int MAX_PROB_TERM_LENGTH = 64;
-
 class MyHtmlParser : public HtmlParser {
     public:
     	string dump;
@@ -290,26 +286,6 @@ parse_index_script(const string &filename)
     }
 }
 
-static void
-lowercase_term(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-        *i = tolower(*i);
-        i++;
-    }
-} 
-
-static void
-lowercase_string(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-        *i = tolower(*i);
-        i++;
-    }
-} 
-
 static bool
 index_file(istream &stream, Xapian::WritableDatabase &database,
 	   Xapian::Stem &stemmer)
@@ -378,7 +354,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 			doc.add_term(i->get_string_arg() + value);
 			break;
 		    case Action::LOWER:
-			lowercase_string(value); 
+			lowercase_term(value); 
 			break;
 		    case Action::TRUNCATE: {
 			string::size_type l = i->get_num_arg();

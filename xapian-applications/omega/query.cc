@@ -59,6 +59,7 @@
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
+#include "indextext.h"
 
 #include <xapian/queryparser.h>
 
@@ -558,17 +559,6 @@ static bool word_in_list(const string& test_word, const string& list)
     return (test_word == list.substr(split, split2 - split));
 }
 
-// FIXME: this copied from om/indexer/index_utils.cc
-static void
-lowercase_term(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-	*i = tolower(*i);
-	i++;
-    }
-}
-
 inline static bool
 p_alnum(unsigned int c)
 {
@@ -596,12 +586,12 @@ p_nottag(unsigned int c)
 }
 
 inline static bool
-p_notplusminus(unsigned int c)
+p_plusminus(unsigned int c)
 {
-    return c != '+' && c != '-';
+    return c == '+' || c == '-';
 }
 
-// FIXME: shares algorithm with omindex.cc!
+// FIXME: shares algorithm with indextext.cc!
 static string
 html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
@@ -609,55 +599,79 @@ html_highlight(const string &s, const string &list,
     if (!stemmer) {
 	stemmer = new Xapian::Stem(option["stemmer"]);
     }
-    string::const_iterator i, j = s.begin(), k, l;
+
     string res;
-    while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	string term, word;
-	l = j;
-	if (isupper(*i)) {
-	    j = i;
+
+    AccentNormalisingItor j(s.begin());
+    const AccentNormalisingItor s_end(s.end());
+    while (true) {
+	AccentNormalisingItor first = j;
+	while (first != s_end && !isalnum(*first)) ++first;
+	if (first == s_end) break;
+	AccentNormalisingItor last;
+	string term;
+	string word;
+	string::const_iterator l = j.raw();
+	if (isupper(*first)) {
+	    j = first;
 	    term = *j;
-	    while (++j != s.end() && *j == '.' &&
-		   ++j != s.end() && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end && isupper(*j)) {
 		term += *j;
 	    } 
-	    if (term.length() < 2 || (j != s.end() && isalnum(*j))) {
+	    if (term.length() < 2 || (j != s_end && isalnum(*j))) {
 		term = "";
-	    } else {
-		word = s.substr(i - s.begin(), j - i);
 	    }
+	    last = j;
 	}
 	if (term.empty()) {
-	    k = i;
-moreterm:
-	    j = find_if(k, s.end(), p_notalnum);
-	    if (j != s.end() && *j == '&') {
-		if (j + 1 != s.end() && isalnum(j[1])) {
-		    k = j + 1;
-		    goto moreterm;
+	    j = first;
+	    while (isalnum(*j)) {
+		term += *j;
+		++j;
+		if (j == s_end) break;
+		if (*j == '&') {
+		    AccentNormalisingItor next = j;
+		    ++next;
+		    if (next == s_end || !isalnum(*next)) break;
+		    term += '&';
+		    j = next;
 		}
 	    }
-	    k = find_if(j, s.end(), p_notplusminus);
-	    if (k == s.end() || !isalnum(*k)) j = k;
-	    term = s.substr(i - s.begin(), j - i);
-	    word = term;
+	    string::size_type len = term.length();
+	    last = j;
+	    while (j != s_end && p_plusminus(*j)) {
+		term += *j;
+		++j;
+	    }
+	    if (j != s_end && isalnum(*j)) {
+		term.resize(len);
+	    } else {
+		last = j;
+	    }
 	}
-        lowercase_term(term);
-
-	res += html_escape(s.substr(l - s.begin(), i - l));
+	j = last;
+	lowercase_term(term);
 	bool match = false;
 	// As of 0.8.0, raw terms won't start with a digit.  But we may
 	// be searching an older database where it does, so keep the
 	// isdigit check for now...
-        if (isupper(*i) || isdigit(*i)) {
+	if (isupper(term[0]) || isdigit(term[0])) {
 	    if (word_in_list('R' + term, list)) match = true;
-        }
-	if (!match && word_in_list(stemmer->stem_word(term), list)) match = true;
-	if (match) res += bra;
-	res += html_escape(word);
-	if (match) res += ket;
+	}
+	if (!match && word_in_list(stemmer->stem_word(term), list))
+	    match = true;
+
+	if (match) {
+	    res += html_escape(s.substr(l - s.begin(), first.raw() - l));
+	    res += bra;
+	    word = s.substr(first.raw() - s.begin(), j.raw() - first.raw());
+	    res += html_escape(word);
+	    res += ket;
+	} else {
+	    res += html_escape(s.substr(l - s.begin(), j.raw() - l));
+	}
     }
-    if (j != s.end()) res += html_escape(s.substr(j - s.begin()));
+    if (j != s_end) res += html_escape(s.substr(j.raw() - s.begin()));
     return res;
 }
 

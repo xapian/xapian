@@ -76,16 +76,6 @@ static Xapian::WritableDatabase db;
 
 static const unsigned int MAX_URL_LENGTH = 240;
 
-static void
-lowercase_term(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-	*i = tolower(*i);
-	i++;
-    }
-}
-
 class MyHtmlParser : public HtmlParser {
     public:
 	bool in_script_tag;

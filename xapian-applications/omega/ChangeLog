@@ -1,3 +1,9 @@
+Sun Aug 15 01:48:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* indextext.cc,indextext.h,omindex.cc,query.cc,scriptindex.cc,
+	  symboltab.h: Fixed $highlight to understand accented characters
+	  (bug#9).
+
 Wed Jun 30 14:58:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: Version 0.8.1.
@@ -1018,8 +1024,7 @@ Wed May 15 12:59:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* omindex now understand acronyms (N.A.T.O. E.T ...).
 
-	* $html_highlight{} now understands "&" (AT&T M&S ...) and
-	  acronyms.
+	* $highlight{} now understands "&" (AT&T M&S ...) and acronyms.
 
 Tue May 14 13:08:41 BST 2002  Olly Betts <olly@survex.com>
 

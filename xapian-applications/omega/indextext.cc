@@ -24,73 +24,11 @@
 
 #include "indextext.h"
 
+#include "symboltab.h"
+
 #include <ctype.h>
 
 using namespace std;
-
-// Put a limit on the size of terms to help prevent the index being bloated
-// by useless junk terms
-static const unsigned int MAX_PROB_TERM_LENGTH = 64;
-
-static void
-lowercase_term(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-	*i = tolower(*i);
-	i++;
-    }
-}
-
-class AccentNormalisingItor {
-  private:
-    string::const_iterator itor;
-    char queued;
-
-  public:
-    AccentNormalisingItor()
-	: itor(), queued(0) {}
-    AccentNormalisingItor(string::const_iterator itor_)
-	: itor(itor_), queued(0) {}
-    void operator=(string::const_iterator itor_)
-    {
-	itor = itor_;
-	queued = 0;
-    }
-    bool operator==(const AccentNormalisingItor &o) const {
-	return queued == o.queued && itor == o.itor;
-    }
-    bool operator!=(const AccentNormalisingItor &o) const {
-	return !(*this == o);
-    }
-    char operator*() const {
-	if (queued) return queued;
-	char ch = *itor;
-	char cache; // dummy - don't want the value
-	switch ((unsigned char)ch) {
-#include "symboltab.h" // FIXME: rework symboltab into arrays ch[] and cache[]
-	}
-	return ch;
-    }
-    AccentNormalisingItor & operator++() {
-	this->operator++(0);
-	return *this;
-    }
-    void operator++(int) {
-	if (queued) {
-	    queued = 0;
-	    ++itor;
-	} else {
-	    char ch; // dummy - don't want the value
-	    char cache = 0;
-	    switch ((unsigned char)*itor) {
-#include "symboltab.h" // FIXME: rework symboltab into arrays ch[] and cache[]
-	    }
-	    queued = cache;
-	    if (!queued) ++itor;
-	}
-    }
-};
 
 inline static bool
 p_plusminus(unsigned int c)
