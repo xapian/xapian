@@ -73,8 +73,7 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items." << endl);
 
-
-    for (unsigned int i=0; i<count; ++i) {
+    for (unsigned int i = 0; i < count; ++i) {
 	if (mset1.items[first1+i].wt != mset2.items[first2+i].wt) {
 	    return false;
 	}

@@ -1,3 +1,7 @@
+Mon Sep 18 18:35:32 BST 2000 Olly Betts
+
+	* Many tests in apitest changed to use TEST_* macros.
+
 Mon Sep 18 18:23:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Can now add checking for memory leaks in testsuite via

@@ -134,8 +134,6 @@ static bool test_simplequery3()
 // tests a query accross multiple databases
 static bool test_multidb1()
 {
-    bool success = true;
-
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
 
@@ -153,31 +151,17 @@ static bool test_multidb1()
     OmMSet mymset1 = enquire1.get_mset(0, 10);
     OmMSet mymset2 = enquire2.get_mset(0, 10);
 
-    if (mymset1.items.size() != mymset2.items.size()) {
-	if (verbose) {
-	    cout << "Match sets are of different size: "
-		    << mymset1.items.size() << "vs." << mymset2.items.size()
-		    << endl;
-	}
-	success = false;
-    } else if (!mset_range_is_same_weights(mymset1, 0,
-					   mymset2, 0,
-					   mymset1.items.size())) {
-	if (verbose) {
-	    cout << "Match sets don't compare equal:" << endl;
-	    cout << mymset1 << "vs." << endl << mymset2 << endl;
-	}
-	success = false;
-    }
-    return success;
+    TEST_EQUAL(mymset1.items.size(), mymset2.items.size());
+    TEST(mset_range_is_same_weights(mymset1, 0,
+				    mymset2, 0,
+				    mymset1.items.size()));
+    return true;
 }
 
 // tests a query accross multiple databases with terms only
 // in one of the two databases
 static bool test_multidb2()
 {
-    bool success = true;
-
     OmDatabase mydb1(get_database("apitest_simpledata",
 				  "apitest_simpledata2"));
     OmEnquire enquire1(make_dbgrp(&mydb1));
@@ -199,23 +183,11 @@ static bool test_multidb2()
 
     OmMSet mymset2 = enquire2.get_mset(0, 10);
 
-    if (mymset1.items.size() != mymset2.items.size()) {
-	if (verbose) {
-	    cout << "Match sets are of different size: "
-		    << mymset1.items.size() << "vs." << mymset2.items.size()
-		    << endl;
-	}
-	success = false;
-    } else if (!mset_range_is_same_weights(mymset1, 0,
-					   mymset2, 0,
-					   mymset1.items.size())) {
-	if (verbose) {
-	    cout << "Match sets don't compare equal:" << endl;
-	    cout << mymset1 << "vs." << endl << mymset2 << endl;
-	}
-	success = false;
-    }
-    return success;
+    TEST_EQUAL(mymset1.items.size(), mymset2.items.size());
+    TEST(mset_range_is_same_weights(mymset1, 0,
+				    mymset2, 0,
+				    mymset1.items.size()));
+    return true;
 }
 
 // test that a multidb with 2 dbs query returns correct docids
@@ -406,13 +378,11 @@ class myExpandFunctor : public OmExpandDecider {
 // tests the expand decision functor
 static bool test_expandfunctor1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
-    if (mymset.items.size() < 2) return false;
+    TEST(mymset.items.size() >= 2);
 
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
@@ -457,21 +427,10 @@ static bool test_expandfunctor1()
 	++orig;
     }
 
-    if (orig != myeset_orig.items.end()) {
-	success = false;
-	if (verbose) {
-	    cout << "Extra items in the non-filtered eset:";
-            copy(orig,
-		 const_cast<const OmESet &>(myeset_orig).items.end(),
-		 ostream_iterator<OmESetItem>(cout, " "));
-	    cout << endl;
-	}
-    } else {
-	TEST_AND_EXPLAIN(filt == myeset.items.end(),
-			 "Extra items in the filtered eset.");
-    }
-
-    return success;
+    TEST_EQUAL(orig, myeset_orig.items.end());
+    TEST_AND_EXPLAIN(filt == myeset.items.end(),
+		     "Extra items in the filtered eset.");
+    return true;
 }
 
 class myMatchDecider : public OmMatchDecider {
@@ -486,8 +445,6 @@ class myMatchDecider : public OmMatchDecider {
 static bool test_matchfunctor1()
 {
     // FIXME: check that the functor works both ways.
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
@@ -497,13 +454,10 @@ static bool test_matchfunctor1()
 
     for (unsigned int i=0; i<mymset.items.size(); ++i) {
 	const OmDocument doc(enquire.get_doc(mymset.items[i]));
-        if (!myfunctor(doc)) {
-	    success = false;
-	    break;
-	}
+        TEST(myfunctor(doc));
     }
 
-    return success;
+    return true;
 }
 
 void print_mset_percentages(const OmMSet &mset)
@@ -574,13 +528,11 @@ static bool test_pctcutoff1()
 // tests the allow query terms expand option
 static bool test_allowqterms1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
-    if (mymset.items.size() < 2) return false;
+    TEST(mymset.items.size() >= 2);
 
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
@@ -591,19 +543,11 @@ static bool test_allowqterms1()
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
 
-    for (unsigned i=0; i<myeset.items.size(); ++i) {
-        if (myeset.items[i].tname == "thi") {
-	    success = false;
-	    if (verbose) {
-	        cout << "Found query term `"
-		     << myeset.items[i].tname
-		     << "' in expand set" << endl;
-	    }
-	    break;
-	}
+    for (unsigned i = 0; i < myeset.items.size(); ++i) {
+        TEST_NOT_EQUAL(myeset.items[i].tname, "thi");
     }
 
-    return success;
+    return true;
 }
 
 // tests that the MSet max_attained works
@@ -627,8 +571,6 @@ static bool test_maxattain1()
 // tests the collapse-on-key
 static bool test_collapsekey1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
@@ -641,46 +583,20 @@ static bool test_collapsekey1()
 	mymopt.set("match_collapse_key", key_no);
 	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
-	if(mymsize1 <= mymset.items.size()) {
-	    success = false;
-	    if (verbose) {
-		cout << "Had no fewer items when performing collapse: don't know whether it worked." << endl;
-	    }
-	}
+	TEST_AND_EXPLAIN(mymsize1 > mymset.items.size(),
+			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
         map<string, om_docid> keys;
-	for (vector<OmMSetItem>::const_iterator i=mymset.items.begin();
-	     i != mymset.items.end();
-	     ++i) {
+	vector<OmMSetItem>::const_iterator i;
+	for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
 	    OmKey key = enquire.get_doc(*i).get_key(key_no);
-	    if (key.value != i->collapse_key.value) {
-		success = false;
-		if (verbose) {
-		    cout << "Expected key value was not found in MSetItem: "
-			 << "expected `" << key.value
-			 << "' found `" << i->collapse_key.value
-			 << "'" << endl;
-
-		}
-	    }
-	    if (keys[key.value] != 0 && key.value != "") {
-	        success = false;
-		if (verbose) {
-		    cout << "docids " << keys[key.value]
-		         << " and " << i->did
-			 << " both found in MSet with key `" << key.value
-			 << "'" << endl;
-		}
-		break;
-	    } else {
-	        keys[key.value] = i->did;
-	    }
+	    TEST_EQUAL(key.value, i->collapse_key.value);
+	    TEST(keys[key.value] == 0 || key.value == "");
+	    keys[key.value] = i->did;
 	}
-	// don't bother continuing if we've already failed.
-	if (!success) break;
     }
 
-    return success;
+    return true;
 }
 
 // tests a reversed boolean query
@@ -836,14 +752,11 @@ static bool test_reversebool2()
 // tests that get_matching_terms() returns the terms in the right order
 static bool test_getmterms1()
 {
-    bool success = true;
-
-    static const char *answers[4] = {
-	"one",
-	"two",
-	"three",
-	"four"
-    };
+    om_termname_list answers_list;
+    answers_list.push_back("one");
+    answers_list.push_back("two");
+    answers_list.push_back("three");
+    answers_list.push_back("four");
 
     OmDatabase mydb(get_database("apitest_termorder"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -860,32 +773,10 @@ static bool test_getmterms1()
 
     OmMSet mymset = enquire.get_mset(0, 10);
 
-    if (mymset.items.size() != 1) {
-	success = false;
-	if (verbose) {
-	    cout << "Expected one match, but got " << mymset.items.size()
-		 << "!" << endl;
-	}
-    } else {
-	om_termname_list mterms = enquire.get_matching_terms(mymset.items[0]);
-        om_termname_list answers_list;
-	for (unsigned int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
-		answers_list.push_back(answers[i]);
-	}
-	if (mterms != answers_list) {
-	    success = false;
-	    if (verbose) {
-		cout << "Terms returned in incorrect order: ";
-		copy(mterms.begin(),
-		     mterms.end(),
-		     ostream_iterator<om_termname>(cout, " "));
-		cout << endl << "Expected: one two three four" << endl;
-	    }
-	}
+    TEST_EQUAL(mymset.items.size(), 1);
+    TEST_EQUAL(enquire.get_matching_terms(mymset.items[0]), answers_list);
 
-    }
-
-    return success;
+    return true;
 }
 
 // tests that specifying a nonexistent input file throws an exception.
@@ -1007,8 +898,6 @@ static bool test_absentterm2()
 // test that rsets do sensible things
 static bool test_rset1()
 {
-    bool success = true;
-
     OmDatabase mydb(get_database("apitest_rset"));
 
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1028,17 +917,10 @@ static bool test_rset1()
 
     // We should have the same documents turn up, but 1 and 3 should
     // have higher weights with the RSet.
-    if (mymset1.items.size() != 3 ||
-	mymset2.items.size() != 3) {
-	if (verbose) {
-	    cout << "MSets are of different size: " << endl;
-	    cout << "mset1: " << mymset1 << endl;
-	    cout << "mset2: " << mymset2 << endl;
-	}
-	success = false;
-    }
+    TEST_EQUAL(mymset1.items.size(), 3);
+    TEST_EQUAL(mymset2.items.size(), 3);
 
-    return success;
+    return true;
 }
 
 // test that rsets do more sensible things

@@ -46,14 +46,11 @@ static bool test_trivial1()
 // tests that get_query_terms() returns the terms in the right order
 static bool test_getqterms1()
 {
-    bool success;
-
-    static const char *answers[4] = {
-	"one",
-	"two",
-	"three",
-	"four"
-    };
+    om_termname_list answers_list;
+    answers_list.push_back("one");
+    answers_list.push_back("two");
+    answers_list.push_back("three");
+    answers_list.push_back("four");
 
     OmQuery myquery(OmQuery::OP_OR,
 	    OmQuery(OmQuery::OP_AND,
@@ -64,21 +61,8 @@ static bool test_getqterms1()
 		    OmQuery("two", 1, 2)));
 
     om_termname_list terms = myquery.get_terms();
-
-    om_termname_list answers_list;
-    for (unsigned int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
-        answers_list.push_back(answers[i]);
-    }
-    success = (terms == answers_list);
-    if (verbose && !success) {
-	cout << "Terms returned in incorrect order: ";
-	copy(terms.begin(),
-	     terms.end(),
-	     ostream_iterator<om_termname>(cout, " "));
-	cout << endl << "Expected: one two three four" << endl;
-    }
-
-    return success;
+    TEST_EQUAL(terms, answers_list);
+    return true;
 }
 
 // tests that building a query with boolean sub-queries throws an exception.
@@ -96,19 +80,15 @@ static bool test_boolsubq1()
 static bool test_querylen1()
 {
     // test that a null query has length 0
-    bool success = (OmQuery().get_length()) == 0;
-
-    return success;
+    TEST(OmQuery().get_length() == 0);
+    return true;
 }
 
 // tests that query lengths are calculated correctly
 static bool test_querylen2()
 {
     // test that a simple query has the right length
-    bool success = true;
-
     OmQuery myquery;
-
     myquery = OmQuery(OmQuery::OP_OR,
 		      OmQuery("foo"),
 		      OmQuery("bar"));
@@ -118,23 +98,13 @@ static bool test_querylen2()
 			      OmQuery("wibble"),
 			      OmQuery("spoon")));
 
-    if (myquery.get_length() != 4) {
-	success = false;
-	if (verbose) {
-	    cout << "Query had length "
-		 << myquery.get_length()
-		 << ", expected 4" << endl;
-	}
-    }
-
-    return success;
+    TEST_EQUAL(myquery.get_length(), 4);
+    return true;
 }
 
 // tests that query lengths are calculated correctly
 static bool test_querylen3()
 {
-    bool success = true;
-
     // test with an even bigger and strange query
 
     om_termname terms[3] = {
@@ -161,71 +131,26 @@ static bool test_querylen3()
     v3.push_back(dynquery2.get());
 
     OmQuery myq1 = OmQuery(OmQuery::OP_AND, v1.begin(), v1.end());
-    if (myq1.get_length() != 3) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq1 length is "
-		    << myq1.get_length()
-		    << ", expected 3.  Description: "
-		    << myq1.get_description() << endl;
-	}
-    }
+    TEST_EQUAL(myq1.get_length(), 3);
 
     OmQuery myq2_1 = OmQuery(OmQuery::OP_OR, v2.begin(), v2.end());
-    if (myq2_1.get_length() != 4) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2_1 length is "
-		    << myq2_1.get_length()
-		    << ", expected 4.  Description: "
-		    << myq2_1.get_description() << endl;
-	}
-    }
+    TEST_EQUAL(myq2_1.get_length(), 4);
 
     OmQuery myq2_2 = OmQuery(OmQuery::OP_AND, v3.begin(), v3.end());
-    if (myq2_2.get_length() != 3) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2_2 length is "
-		    << myq2_2.get_length()
-		    << ", expected 3.  Description: "
-		    << myq2_2.get_description() << endl;
-	}
-    }
+    TEST_EQUAL(myq2_2.get_length(), 3);
 
     OmQuery myq2 = OmQuery(OmQuery::OP_OR, myq2_1, myq2_2);
-    if (myq2.get_length() != 7) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2 length is "
-		    << myq2.get_length()
-		    << ", expected 7.  Description: "
-		    << myq2.get_description() << endl;
-	}
-    }
+    TEST_EQUAL(myq2.get_length(), 7);
 
     myquery = OmQuery(OmQuery::OP_OR, myq1, myq2);
-    if (myquery.get_length() != 10) {
-	success = false;
-	if (verbose) {
-	    cout << "Query length is "
-		 << myquery.get_length()
-		 << ", expected 9"
-		 << endl;
-	    cout << "Query is: "
-		 << myquery.get_description()
-		 << endl;
-	}
-    }
+    TEST_EQUAL(myquery.get_length(), 10);
 
-    return success;
+    return true;
 }
 
 // tests that collapsing of queries includes subqueries
 static bool test_subqcollapse1()
 {
-    bool success = true;
-
     OmQuery queries1[3] = {
 	OmQuery("wibble"),
 	OmQuery("wobble"),
@@ -238,31 +163,17 @@ static bool test_subqcollapse1()
 	OmQuery("wobble")
     };
 
-    vector<OmQuery> vec1(queries1, queries1+3);
+    vector<OmQuery> vec1(queries1, queries1 + 3);
     OmQuery myquery1(OmQuery::OP_OR, vec1.begin(), vec1.end());
-    string desc1 = myquery1.get_description();
+    TEST_EQUAL(myquery1.get_description(),
+	       "OmQuery((wibble OR wobble OR jelly OR belly))");
 
-    vector<OmQuery> vec2(queries2, queries2+3);
+    vector<OmQuery> vec2(queries2, queries2 + 3);
     OmQuery myquery2(OmQuery::OP_AND, vec2.begin(), vec2.end());
-    string desc2 = myquery2.get_description();
+    TEST_EQUAL(myquery2.get_description(),
+	       "OmQuery((jelly AND belly AND wibble AND wobble))");
 
-    if(desc1 != "OmQuery((wibble OR wobble OR jelly OR belly))") {
-	success = false;
-	if(verbose) {
-	    cout << "Failed to correctly collapse query: got `" <<
-		    desc1 << "'" << endl;
-	}
-    }
-
-    if(desc2 != "OmQuery((jelly AND belly AND wibble AND wobble))") {
-	success = false;
-	if(verbose) {
-	    cout << "Failed to correctly collapse query: got `" <<
-		    desc2 << "'" << endl;
-	}
-    }
-
-    return success;
+    return true;
 }
 
 // test behaviour when creating a query from an empty vector
