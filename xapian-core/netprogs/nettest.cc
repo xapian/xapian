@@ -131,9 +131,8 @@ static bool test_tcpclient1()
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet "
-	                  ".quartz/db=apitest_simpledata "
-	                  "--port 1236 &";
+    std::string command = "./omtcpsrv --one-shot --quiet --port 1236 "
+	                  ".quartz/db=apitest_simpledata &";
     system(command.c_str());
 
     sleep(3);
@@ -152,9 +151,8 @@ static bool test_tcpmatch1()
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet "
-	                  ".quartz/db=apitest_simpledata"
-	                  " --port 1235 &";
+    std::string command = "./omtcpsrv --one-shot --quiet --port 1235 "
+	                  ".quartz/db=apitest_simpledata &";
     system(command.c_str());
     sleep(3);
 
@@ -195,9 +193,9 @@ static bool test_tcpdead1()
 	    "./omtcpsrv",
 	    "--one-shot",
 	    "--quiet",
-	    ".quartz/db=apitest_simpledata",
 	    "--port",
 	    "1237",
+	    ".quartz/db=apitest_simpledata",
 	    NULL
 	};
 	// FIXME: we run this directly so we know the pid of the omtcpsrv

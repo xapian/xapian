@@ -1,3 +1,7 @@
+Thu Dec 20 12:42:55 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed assorted problems with omtcpsrv and co from recent change.
+
 Thu Dec 20 10:41:57 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* In ./configure --help, correctly report muscat36 backend as

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,11 +107,17 @@ int main(int argc, char *argv[]) {
 	        "DATABASE_DIRECTORY..." << endl;
 	exit(1);
     }
-  
+    
+    if (port <= 0 || port >= 65536) {
+	cerr << "Error: must specify a valid port number (between 1 and 65535)."
+	     << endl;
+	exit(1);
+    }
+    
     while (*argv) {
 	OmSettings *params = new OmSettings();
 	params->set("backend", "auto");
-	params->set("auto_dir", argv[1]);
+	params->set("auto_dir", *argv);
 	dbs.push_back(params);
 	++argv;
     }
@@ -142,9 +149,12 @@ int main(int argc, char *argv[]) {
     } catch (OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
+	exit(1);
     } catch (std::exception &e) {
 	cerr << "Caught standard exception: " << typeid(e).name();
+	exit(1);
     } catch (...) {
 	cerr << "Caught unknown exception" << endl;
+	exit(1);
     }
 }

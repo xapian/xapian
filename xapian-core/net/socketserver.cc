@@ -52,12 +52,11 @@ struct SocketServerFinished { };
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
-			   int msecs_active_timeout_,
-#ifndef TIMING_PATCH
-			   int msecs_idle_timeout_)
-#else /* TIMING_PATCH */
-			   int msecs_idle_timeout_, bool timing_)
+			   int msecs_active_timeout_, int msecs_idle_timeout_
+#ifdef TIMING_PATCH
+			   , bool timing_
 #endif /* TIMING_PATCH */
+			   )
 	: db(db_),
 	  readfd(readfd_),
 	  writefd((writefd_ == -1) ? readfd_ : writefd_),
@@ -84,7 +83,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
-			   bool timing_
+			   , bool timing_
 			   
 #endif /* TIMING_PATCH */
 			   )
@@ -266,7 +265,7 @@ SocketServer::run_match(const std::string &firstmessage)
     // Message 5, part 1
     message = readline(msecs_active_timeout);
 
-    if (!message.empty() && message[0] == 'G') {
+    if (message.empty() || message[0] != 'G') {
 	throw OmNetworkError(std::string("Expected 'G', got ") + message);
     }
 
@@ -314,7 +313,7 @@ SocketServer::readline(int msecs_timeout)
 {
     std::string result = buf->readline(OmTime::now() + OmTime(msecs_timeout));
     // intercept 'X' messages.
-    if (result.length() > 0 && result[0] == 'X') {
+    if (!result.empty() && result[0] == 'X') {
 	throw SocketServerFinished();
     }
     return result;
