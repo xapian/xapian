@@ -1,4 +1,32 @@
-Xapian-bindings 0.8.1 (2004-04-30):
+Xapian-bindings 0.8.2 (2004-09-??):
+
+Up to: Fri Sep 03 18:34:21 BST 2004  Olly Betts <olly@survex.com>
+
+General:
+
+* Require autoconf 2.59 and automake 1.8.5.
+
+* configure: Added check that the bindings version matches the version of
+  the xapian library.
+
+PHP4:
+
+* Document that the 2 argument form of Xapian::Auto::open() for opening a
+  writable database is wrapped as open_writable() (bug #32).
+
+* Include xapian version in output from phpinfo().
+
+* Corrected documentation to refer to Xapian::DB_* not Xapian::Auto::DB_*.
+
+Python:
+
+* configure: Now checks for Python >= 2.1 which we need for __cmp__ and __eq__.
+
+* Don't install _xapian.la and _xapian.a.
+
+* Byte compile xapian.py to xapian.pyc and install it.
+
+Xapian-bindings 0.8.1 (2004-06-30):
 
 General:
 

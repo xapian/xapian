@@ -1,3 +1,7 @@
+Fri Sep 03 18:41:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Fri Sep 03 18:34:21 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,configure.in: Renamed configure.in to configure.ac.
