@@ -171,6 +171,16 @@ Ensure that API documentation covers entirety of API.  Then rewrite it for
 clarity.
 
 </todoitem>
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
+
+Create a synonym postlist, which represents a set of postlists merged together,
+such that each document that occurs in any of the sublists occurs in the list,
+the term freqency is the number of documents that one or more of the terms
+occurs in, and the term weight corresponds.
+
+Will need approximation schemes for determining the term frequency.
+
+</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Documentation" release="">
 
 Document backend API (database, postlist, termlist, document, etc) in same
