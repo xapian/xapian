@@ -508,7 +508,7 @@ bool test_topercent1()
 
 class myExpandFunctor : public OmExpandDecider {
     public:
-	bool want_term(const om_termname & tname) const {
+	int operator()(const om_termname & tname) const {
 	    unsigned long sum = 0;
 	    for (om_termname::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
 		sum += *i;
@@ -534,7 +534,7 @@ bool test_expandfunctor1()
     OmESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
     for (unsigned int i=0; i<myeset_orig.items.size(); ++i) {
-        if (myfunctor.want_term(myeset_orig.items[i].tname)) neweset_size++;
+        if (myfunctor(myeset_orig.items[i].tname)) neweset_size++;
     }
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
@@ -544,7 +544,7 @@ bool test_expandfunctor1()
          orig!=myeset_orig.items.end() && filt!=myeset.items.end();
 	 ++orig, ++filt) {
 	// skip over items that shouldn't be in myeset
-	while (orig != myeset_orig.items.end() && !myfunctor.want_term(orig->tname)) {
+	while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
 	    ++orig;
 	}
 
@@ -558,7 +558,7 @@ bool test_expandfunctor1()
 	}
     }
     
-    while (orig != myeset_orig.items.end() && !myfunctor.want_term(orig->tname)) {
+    while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
 	++orig;
     }
 
@@ -579,7 +579,7 @@ bool test_expandfunctor1()
 
 class myMatchDecider : public OmMatchDecider {
     public:
-        bool want_doc(om_docid did) const {
+        int operator()(om_docid did) const {
 	    return (did % 2) == 1;
 	}
 };
@@ -597,7 +597,7 @@ bool test_matchfunctor1()
     OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
 
     for (unsigned int i=0; i<mymset.items.size(); ++i) {
-        if (!myfunctor.want_doc(mymset.items[i].did)) {
+        if (!myfunctor(mymset.items[i].did)) {
 	    success = false;
 	    break;
 	}

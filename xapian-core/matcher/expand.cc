@@ -120,7 +120,7 @@ OmExpand::expand(om_termcount max_esize,
 	if (merger->at_end()) break;
 
 	om_termname tname = merger->get_termname();
-	if(decider->want_term(tname)) {
+	if((*decider)(tname)) {
 	    eset.ebound++;
 
 	    OmExpandBits ebits = merger->get_weighting();

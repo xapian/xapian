@@ -33,7 +33,7 @@
 
 class OmExpandDeciderAlways : public virtual OmExpandDecider {
     public:
-	bool want_term(const om_termname & tname) const { return true; }
+	int operator()(const om_termname & tname) const { return true; }
 };
 
 class OmExpand {
