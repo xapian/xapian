@@ -1,5 +1,27 @@
+/* stem_french.c: French stemming algorithm.
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>  /* for isupper, islower, toupper, tolower */
 
@@ -399,6 +421,11 @@ int stem_ATIV(struct french_stemmer * z) { return chop2(z, "ativ"); }
 int stem_IQU(struct french_stemmer * z) { return chop2(z, "iqu"); }
 int stem_IV(struct french_stemmer * z) { return chop2(z, "iv"); }
 
+int stem_IC(struct french_stemmer * z)
+{   if (ends(z, "ic")) { if (after_pos2(z)) return true; setto(z, "iqu"); }
+    return false;
+}
+
 int stem_AT(struct french_stemmer * z)
 {   if (chop2(z, "at")) { stem_IC(z); return true; }
     return false;
@@ -407,11 +434,6 @@ int stem_AT(struct french_stemmer * z)
 int stem_ABIL(struct french_stemmer * z)
 {   if (ends(z, "abil")) setto(z, "abl");
     return stem_ABLE(z);
-}
-
-int stem_IC(struct french_stemmer * z)
-{   if (ends(z, "ic")) { if (after_pos2(z)) return true; setto(z, "iqu"); }
-    return false;
 }
 
 int stem_EUSE(struct french_stemmer * z)
