@@ -56,6 +56,6 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();
     internal->mutex.unlock();
-    
-    throw OmUnimplementedError("OmWritableDatabase::add_document() not yet implemented.");
+ 
+    database->add_document(document);
 }

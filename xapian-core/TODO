@@ -33,6 +33,10 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make Stats gathering etc. work asynchronously
 ---------+-----------------+--------------------------------------------------
+ Medium  | WritableDbs     | Make add_document() atomic.
+---------+-----------------+--------------------------------------------------
+ Medium  | WritableDbs     | Add pthread locking to all database classes.
+---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Ensure that API documentation covers entirity of
          |                 | API.  Then rewrite it for clarity.
 ---------+-----------------+--------------------------------------------------
