@@ -1,3 +1,7 @@
+Fri Jan 16 02:06:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fixed bug flagged up by deldoc4.
+
 Thu Jan 15 01:00:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_termlist.cc: Use Xapian::doccount instead of

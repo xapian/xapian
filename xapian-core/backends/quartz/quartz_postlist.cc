@@ -48,64 +48,6 @@ make_key(const string & tname, string & key)
 // maximise how well blocks are used.
 const unsigned int CHUNKSIZE = 2048;
 
-/** PostlistChunkReader is essentially an iterator wrapper
- *  around a postlist chunk.  It simply iterates through the
- *  entries in a postlist.
- */
-class PostlistChunkReader {
-    public:
-	/** Initialise the postlist chunk reader.
-	 *
-	 *  @param keypos A pointer to the key string just after the termname.
-	 *  @param keyend A pointer to one-past-the-end of the key value.
-	 *  @param chunk  The string value of this chunk.
-	 */
-	PostlistChunkReader(const char *keypos,
-			    const char *keyend,
-			    const string &chunk);
-
-	Xapian::docid get_docid() const {
-	    return did;
-	}
-	Xapian::termcount get_wdf() const {
-	    return wdf;
-	}
-	quartz_doclen_t get_doclength() const {
-	    return doclength;
-	}
-
-	// Return global chunk data
-	bool get_is_last_chunk() const {
-	    return is_last_chunk;
-	}
-
-	Xapian::docid get_last_did_in_chunk() const {
-	    return last_did_in_chunk;
-	}
-
-	bool is_at_end() const {
-	    return at_end;
-	}
-
-	/** Advance to the next entry.  Set at_end if we run off the end.
-	 */
-	void next();
-
-    private:
-	string chunk;
-	const char *pos;
-	const char *end;
-
-	bool at_end;
-
-	Xapian::docid did;
-	Xapian::termcount wdf;
-	quartz_doclen_t doclength;
-
-	bool is_last_chunk;
-	Xapian::docid last_did_in_chunk;
-};
-
 /** PostlistChunkWriter is a wrapper which acts roughly as an
  *  output iterator on a postlist chunk, taking care of the
  *  messy details.  It's intended to be used with deletion and
@@ -295,32 +237,53 @@ static void write_start_of_chunk(string & chunk,
     // works despite this, but it's ugly.
 }
 
-PostlistChunkReader::PostlistChunkReader(const char *keypos,
-					 const char *keyend,
-					 const string &chunk_)
-	: chunk(chunk_),
-	  pos(chunk.data()), end(pos + chunk.size()),
-	  at_end(false)
-{
-    bool is_first_chunk = (keypos == keyend);
-
-    // Read the data for the first entry
-    if (is_first_chunk) {
-	did = read_start_of_first_chunk(&pos, end, NULL, NULL);
-    } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
-	    report_read_error(keypos);
+/** PostlistChunkReader is essentially an iterator wrapper
+ *  around a postlist chunk.  It simply iterates through the
+ *  entries in a postlist.
+ */
+class PostlistChunkReader {
+    public:
+	/** Initialise the postlist chunk reader.
+	 *
+	 *  @param first_did  First document id in this chunk.
+	 *  @param pos        A pointer to the tag string just after the header.
+	 *  @param end        A pointer to one-past-the-end of the tag value.
+	 */
+	PostlistChunkReader(Xapian::docid first_did,
+			    const char *pos_, const char *end_)
+	    : pos(pos_), end(end_), at_end(pos == end), did(first_did)
+	{
+	    if (!at_end) read_wdf_and_length(&pos, end, &wdf, &doclength);
 	}
-    }
 
-    last_did_in_chunk = read_start_of_chunk(&pos, end, did, &is_last_chunk);
+	Xapian::docid get_docid() const {
+	    return did;
+	}
+	Xapian::termcount get_wdf() const {
+	    return wdf;
+	}
+	quartz_doclen_t get_doclength() const {
+	    return doclength;
+	}
 
-    if (pos == end) {
-	at_end = true;
-    } else {
-	read_wdf_and_length(&pos, end, &wdf, &doclength);
-    }
-}
+	bool is_at_end() const {
+	    return at_end;
+	}
+
+	/** Advance to the next entry.  Set at_end if we run off the end.
+	 */
+	void next();
+
+    private:
+	const char *pos;
+	const char *end;
+
+	bool at_end;
+
+	Xapian::docid did;
+	Xapian::termcount wdf;
+	quartz_doclen_t doclength;
+};
 
 void
 PostlistChunkReader::next()
@@ -1003,26 +966,19 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
     bool is_last_chunk;
     Xapian::docid last_did_in_chunk;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
+    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
+				  is_last_chunk);
     if (did > last_did_in_chunk) {
 	// This is the shortcut.  Not very pretty, but I'll leave refactoring
 	// until I've a clearer picture of everything which needs to be done.
 	// (FIXME)
 	*from = NULL;
-	*to = new PostlistChunkWriter(cursor->current_key,
-			is_first_chunk,
-			tname,
-			is_last_chunk);
 	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
 			  string(pos, end)); 
-	if (is_last_chunk) return Xapian::docid(-1);
     } else {
-	*from = new PostlistChunkReader(keypos, keyend, *tag);
-	*to = new PostlistChunkWriter(cursor->current_key,
-		is_first_chunk,
-		tname,
-		(*from)->get_is_last_chunk());
-	if ((*from)->get_is_last_chunk()) return Xapian::docid(-1);
+	*from = new PostlistChunkReader(first_did_in_chunk, pos, end);
     }
+    if (is_last_chunk) return Xapian::docid(-1);
 
     // Find first did of next tag.
     cursor->next();
