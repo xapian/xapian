@@ -154,6 +154,14 @@ AC_ARG_ENABLE(purify,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-purify) ;;
 esac], [use_purify=false])
 
+AC_ARG_ENABLE(insure,
+[  --enable-insure         Enable insure support (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_insure=true ;;
+  no)  use_insure=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-insure) ;;
+esac], [use_insure=false])
+
 dnl Check whether we have pthreads, but only if we want it
 if test x$use_pthread = xtrue; then
   AC_CHECK_LIB(pthread, pthread_create)
@@ -265,18 +273,25 @@ dnl *********************
 dnl * Profiling options *
 dnl *********************
 
-if test "$use_profiling" = true; then
+if test "x$use_profiling" = xtrue; then
 CFLAGS="$CFLAGS -pg";
 CXXFLAGS="$CXXFLAGS -pg";
 LDFLAGS="$LDFLAGS -pg";
 fi
 
-if test "$use_purify" = true; then
+if test "x$use_purify" = xtrue; then
 CXXLD='purify $(CXX)'
 CCLD='purify $(CC)'
 AC_SUBST(CXXLD)
 AC_SUBST(CCLD)
 enable_static=no
+fi
+
+if test "x$use_insure" = xtrue; then
+CXX='insure'
+CC='insure'
+AC_SUBST(CXX)
+AC_SUBST(CC)
 fi
 
 dnl ******************************
