@@ -1,3 +1,7 @@
+Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Forgot to actually add the quartzcheck.cc file last time
+
 Mon Jul 22 13:28:09 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Add buildprereq to package
