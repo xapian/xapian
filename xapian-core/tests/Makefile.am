@@ -17,9 +17,9 @@ PERLTESTS =
 endif
 
 if HAVE_CPP_ACCESS_BYPASS
-INTERNALTEST_CFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+INTERNALTEST_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
 else
-INTERNALTEST_CFLAGS =
+INTERNALTEST_CXXFLAGS =
 endif
 
 ## Test programs to be run
@@ -38,11 +38,12 @@ apitest_LDADD = ../libomus.la ../testsuite/libtest.la
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la
 
-internaltest_SOURCES = internaltest.cc
+EXTRA_internaltest_SOURCES = internaltest.cc
+internaltest_SOURCES = internaltest_dummy.cc
 internaltest_LDADD = ../libomus.la ../testsuite/libtest.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
-internaltest_CFLAGS = $(INTERNALTEST_CFLAGS)
+internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
@@ -69,6 +70,10 @@ dist-hook:
 	  echo "removing includetest.cc from distribution"; \
 	  $(RM) $(distdir)/includetest.cc ; \
 	fi
+	@if [ -e $(distdir)/internaltest_dummy.cc ] ; then \
+	  echo "removing internaltest_dummy.cc from distribution"; \
+	  $(RM) $(distdir)/internaltest_dummy.cc ; \
+	fi
 
 distclean-local: clean-local
 	@if [ -e .deps-includetest-cc ] ; then \
@@ -88,26 +93,20 @@ includetest.cc:
 	grep -v sleepy | sed 's/\(.*\)/#include "\1"/' > $@
 	@echo 'int main() { return 0; }' >> $@
 
-## Compile internaltest with the extra CFLAGS
-## We have to provide our own rule, because automake doesn't
-## actually understand CFLAGS, and we know of no other way
+## Compile internaltest with the extra CXXFLAGS
+## We have to provide our own rules, because automake doesn't
+## actually understand _CXXFLAGS, and we know of no other way
 ## to pass special flags to the compilation of one target.
-internaltest.o: internaltest.cc
-	@echo 'Compiling $<'; \
-	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp $(internaltest_CFLAGS) -c $<
-	@-cp .deps/$(*F).pp .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm .deps/$(*F).pp
 
+# Make an empty file: this is so "make dist" doesn't choke
+# We remove this from the actual distribution in dist-hook
+internaltest_dummy.cc:
+	@touch $@
 
-internaltest.lo: internaltest.cc
-	@echo 'Compiling $<'; \
-	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp $(internaltest_CFLAGS) -c $<
-	@-sed -e 's/^\([^:]*\)\.o[      ]*:/\1.lo \1.o :/' \
-	  < .deps/$(*F).pp > .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm -f .deps/$(*F).pp
+# Build from the file without the _dummy, with the extra flags
+internaltest_dummy.o:
+	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest.o
+	@mv internaltest.o $@
+internaltest_dummy.lo: internaltest.cc
+	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest.lo
+	@mv internaltest.lo $@
