@@ -1,4 +1,4 @@
-/* match.cc
+/* leafmatch.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -88,7 +88,7 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-OmMatch::OmMatch(IRDatabase *database_)
+LeafMatch::LeafMatch(IRDatabase *database_)
 	: query(NULL),
 	  do_collapse(false),
 	  have_added_terms(false)
@@ -98,7 +98,7 @@ OmMatch::OmMatch(IRDatabase *database_)
     rset = NULL;
 }
 
-OmMatch::~OmMatch()
+LeafMatch::~LeafMatch()
 {
     while (!weights.empty()) {
 	delete(weights.back());
@@ -107,7 +107,7 @@ OmMatch::~OmMatch()
 }
 
 LeafPostList *
-OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
+LeafMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     LeafPostList * pl = database->open_post_list(tname, rset);
@@ -121,11 +121,11 @@ OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
 }
 
 IRWeight *
-OmMatch::mk_weight(const IRDatabase * root_,
-		   om_doclength querysize_,
-		   om_doccount termfreq_,
-		   om_termname tname_,
-		   const RSet * rset_)
+LeafMatch::mk_weight(const IRDatabase * root_,
+		     om_doclength querysize_,
+		     om_doccount termfreq_,
+		     om_termname tname_,
+		     const RSet * rset_)
 {
     IRWeight * wt = new BM25Weight();
     wt->set_stats(root_, querysize_, termfreq_, tname_, rset_);
@@ -136,7 +136,7 @@ OmMatch::mk_weight(const IRDatabase * root_,
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-OmMatch::postlist_from_queries(om_queryop op,
+LeafMatch::postlist_from_queries(om_queryop op,
 			       const vector<OmQueryInternal *> &queries)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
@@ -235,7 +235,7 @@ OmMatch::postlist_from_queries(om_queryop op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-OmMatch::postlist_from_query(const OmQueryInternal *query_)
+LeafMatch::postlist_from_query(const OmQueryInternal *query_)
 {
     PostList *pl = NULL;
 
@@ -298,7 +298,7 @@ OmMatch::postlist_from_query(const OmQueryInternal *query_)
 ////////////////////////
 
 void
-OmMatch::set_query(const OmQueryInternal *query_)
+LeafMatch::set_query(const OmQueryInternal *query_)
 {
     // Clear existing query
     max_weight = 0;
@@ -321,14 +321,14 @@ OmMatch::set_query(const OmQueryInternal *query_)
 // This method is called by branch postlists when they rebalance
 // in order to recalculate the weights in the tree
 void
-OmMatch::recalc_maxweight()
+LeafMatch::recalc_maxweight()
 {
     recalculate_maxweight = true;
 }
 
 // Internal method to perform the collapse operation
 inline bool
-OmMatch::perform_collapse(vector<OmMSetItem> &mset,
+LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
          		  map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
@@ -377,7 +377,7 @@ OmMatch::perform_collapse(vector<OmMSetItem> &mset,
 
 // This is the method which runs the query, generating the M set
 void
-OmMatch::match(om_doccount first, om_doccount maxitems,
+LeafMatch::match(om_doccount first, om_doccount maxitems,
 	       vector<OmMSetItem> & mset, mset_cmp cmp,
 	       om_doccount * mbound, om_weight * greatest_wt,
 	       const OmMatchDecider *mdecider)
@@ -539,7 +539,7 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 // This method runs the query, generating the M set, but doesn't calcualate
 // any weights (all weights in result are set to 1)
 void
-OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
+LeafMatch::boolmatch(om_doccount first, om_doccount maxitems,
 		   vector<OmMSetItem> &mset)
 {
     // Prepare query

@@ -30,13 +30,15 @@
 #include <set>
 #include "omlocks.h"
 
+class LeafMatch;
+
 ///////////////////////////////////////////////////////////////////
 // OmQueryInternal class
 // =============
 // Class implementing most of OmQuery
 
 class OmQueryInternal {
-    friend class OmMatch;
+    friend class LeafMatch;
     public:
     	OmLock mutex;
     private:

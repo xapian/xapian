@@ -35,7 +35,7 @@
 //////////////////////////////////////////////////
 // OmLock class
 // ============
-/** Representation of a mutex
+/** Representation of a mutex.
  *  The OmLock class encapsulates the basic operations on
  *  a pthread mutex (when available).  Most code wishing
  *  to take advantage of locks should use the OmLockSentry
@@ -85,7 +85,7 @@ class OmLock {
 //////////////////////////////////////////////////////
 // OmLockSentry class
 // ==================
-/** Convenient automatic handling of OmLock objects
+/** Convenient automatic handling of OmLock objects.
  *  An OmLockSentry object acquires a lock (via an OmLock
  *  object) at construction and releases it at destruction.
  *  This means that the lock will be held during the object's

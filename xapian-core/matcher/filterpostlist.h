@@ -39,8 +39,8 @@ class FilterPostList : public virtual AndPostList {
 
 	string intro_term_description() const;
 
-        FilterPostList(PostList *l, PostList *r, OmMatch *root) :
-            AndPostList(l, r, root) {};
+        FilterPostList(PostList *l, PostList *r, LeafMatch *matcher_) :
+            AndPostList(l, r, matcher_) {};
 };
 
 inline om_weight

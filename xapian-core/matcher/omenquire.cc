@@ -29,7 +29,8 @@
 #include <om/omenquire.h>
 
 #include "rset.h"
-#include "match.h"
+//#include "match.h"
+#include "leafmatch.h"
 #include "expand.h"
 #include "database.h"
 #include "database_builder.h"
@@ -824,7 +825,7 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set Database
-    OmMatch match(database);
+    LeafMatch match(database);
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {

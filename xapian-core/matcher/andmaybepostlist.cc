@@ -1,4 +1,4 @@
-/* andmaybepostlist.cc: Merged postlist: items from one list, weights from both
+/* andmaybepostlist.cc: Merged postlist; items from one list, weights from both
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -48,9 +48,10 @@ AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 }
 
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   OmMatch *root_, om_docid lh, om_docid rh)
+				   LeafMatch *matcher_,
+				   om_docid lh, om_docid rh)
 {
-    root = root_;
+    matcher = matcher_;
     l = left;
     r = right;
     lhead = lh;
@@ -70,7 +71,7 @@ AndMaybePostList::next(om_weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DebugMsg("AND MAYBE -> AND" << endl);
-	ret = new AndPostList(l, r, root, true);
+	ret = new AndPostList(l, r, matcher, true);
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
 	if (ret2) {
@@ -89,7 +90,7 @@ AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DebugMsg("AND MAYBE -> AND (in skip_to)" << endl);
-	ret = new AndPostList(l, r, root, true);
+	ret = new AndPostList(l, r, matcher, true);
 	did = max(did, max(lhead, rhead));
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(did, w_min);

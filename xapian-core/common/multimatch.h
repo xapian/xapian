@@ -1,4 +1,4 @@
-/* match.h: base class for matchers
+/* multimatch.h: class for performing a match
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,33 +20,17 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_MATCH_H
-#define OM_HGUARD_MATCH_H
+#ifndef OM_HGUARD_MULTIMATCH_H
+#define OM_HGUARD_MULTIMATCH_H
 
-#include "database.h"
-#include "omassert.h"
-#include "om/omdocument.h"
-#include "om/omenquire.h"
-
-class IRWeight;
+#include "match.h"
 
 #include <stack>
 #include <vector>
 #include <map>
 
-////////////////////////////////////////////////////////////////////////////
-// Comparison functions to determine the order of elements in the MSet
-// Return true if a should be listed before b
-// (By default, equally weighted items will be returned in reverse
-// document id number.)
-
-typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
-bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
-bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
-class MSetCmp;
-
-/// Class which encapsulates best match operation
-class Match
+// Class which encapsulates best match operation
+class MultiMatch : public Match
 {
 };
 
@@ -54,4 +38,4 @@ class Match
 // Inline method definitions //
 ///////////////////////////////
 
-#endif /* OM_HGUARD_MATCH_H */
+#endif /* OM_HGUARD_MULTIMATCH_H */

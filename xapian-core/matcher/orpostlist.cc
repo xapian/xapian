@@ -24,9 +24,9 @@
 #include "andpostlist.h"
 #include "andmaybepostlist.h"
 
-OrPostList::OrPostList(PostList *left, PostList *right, OmMatch *root_)
+OrPostList::OrPostList(PostList *left, PostList *right, LeafMatch *matcher_)
 {
-    root = root_;
+    matcher = matcher_;
     l = left;
     r = right;
     lhead = rhead = 0;
@@ -41,18 +41,18 @@ OrPostList::next(om_weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DebugMsg("OR -> AND" << endl);
-		ret = new AndPostList(l, r, root, true);
+		ret = new AndPostList(l, r, matcher, true);
 		ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
 	    } else {
 		DebugMsg("OR -> AND MAYBE (1)" << endl);
-		ret = new AndMaybePostList(r, l, root, rhead, lhead);
+		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
 		ret2 = ret->next(w_min);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DebugMsg("OR -> AND MAYBE (2)" << endl);
-	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
+	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
 	    ret2 = ret->next(w_min);
 	}
 		
@@ -104,18 +104,18 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DebugMsg("OR -> AND (in skip_to)" << endl);
-		ret = new AndPostList(l, r, root, true);
+		ret = new AndPostList(l, r, matcher, true);
 		did = max(did, max(lhead, rhead));
 	    } else {
 		DebugMsg("OR -> AND MAYBE (in skip_to) (1)" << endl);
-		ret = new AndMaybePostList(r, l, root, rhead, lhead);
+		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
 		did = max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DebugMsg("OR -> AND MAYBE (in skip_to) (2)" << endl);
-	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
+	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
 	    did = max(did, lhead);
 	}
 

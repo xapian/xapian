@@ -1,3 +1,9 @@
+Tue Feb 29 17:41:32 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change OmMatch to LeafMatch.  Make LeafMatch inherit from Match,
+	  which is currently an empty class, but will be a base class for
+	  all match objects.
+
 Tue Feb 29 10:49:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed apitest following the stemming changes

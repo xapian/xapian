@@ -48,7 +48,7 @@ class AndNotPostList : public virtual BranchPostList {
 
         AndNotPostList(PostList *left,
 		       PostList *right,
-		       OmMatch *root_);
+		       LeafMatch *matcher_);
 
         PostList *sync_and_skip_to(om_docid id,
 				   om_weight w_min,

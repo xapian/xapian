@@ -31,7 +31,6 @@
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
-class OmMatch;           // Class which performs queries
 
 ///////////////////////////////////////////////////////////////////
 // OmQuery class
@@ -320,12 +319,15 @@ OmRSet::remove_document(om_docid did)
  *  the document.
  */
 class OmMSetItem {
-    friend class OmMatch;
     private:
-	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
     public:
-	om_weight wt; /// Weight calculated
-	om_docid did; /// Document id
+	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
+
+	/** Weight calculated. */
+	om_weight wt;
+
+	/** Document id. */
+	om_docid did;
 };
 
 /** A match set (MSet).

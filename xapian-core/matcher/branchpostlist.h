@@ -23,14 +23,29 @@
 #ifndef OM_HGUARD_BRANCHPOSTLIST_H
 #define OM_HGUARD_BRANCHPOSTLIST_H
 
-#include "match.h"
+#include "leafmatch.h"
 #include "postlist.h"
 
 class BranchPostList : public virtual PostList {
     protected:
+	/** Utility method, to call recalc_maxweight() and
+	 *  do the pruning if a next() or skip_to() returns
+	 *  non-NULL result.
+	 */
         void handle_prune(PostList *&kid, PostList *ret);
-        PostList *l, *r;
-        OmMatch *root;
+
+	/// Left subpostlist
+        PostList *l;
+
+	/// Right subpostlist
+	PostList *r;
+
+	/** The object which is using this postlist to perform
+	 *  a match.  This object needs to be notified when the
+	 *  tree changes such that the maximum weights need to be
+	 *  recalculated.
+	 */
+        LeafMatch *matcher;
     public:
         virtual ~BranchPostList();
 };
@@ -48,8 +63,9 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
     if (ret) {
 	delete kid;
 	kid = ret;
-	// now get tree to recalculate max weights...
-	root->recalc_maxweight();
+
+	// now tell matcher that maximum weights need recalculation.
+	matcher->recalc_maxweight();
     }
 }
 
