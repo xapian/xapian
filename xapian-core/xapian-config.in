@@ -99,7 +99,7 @@ while test 0 != "$#"; do
 	    if test no = "$xo_lib_xapian" ; then
 		echo "$0: Use libtool and \`xapian-config --ltlibs' to link with an uninstalled libxapian." 1>&2
 	    else
-		echo "$0: Add AC_PROG_LIBTOOL to your configure.in to link with an uninstalled libxapian." 1>&2
+		echo "$0: Add AC_PROG_LIBTOOL to your configure.in (or configure.ac) to link with an uninstalled libxapian." 1>&2
 	    fi
 	    exit 1
 	fi
