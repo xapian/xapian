@@ -585,12 +585,36 @@ html_highlight(const string &s, const string &list,
     string::const_iterator i, j = s.begin(), k, l;
     string res;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
+	om_termname term, word;
 	l = j;
-        j = find_if(i, s.end(), p_notalnum);
-        k = find_if(j, s.end(), p_notplusminus);
-        if (k == s.end() || !isalnum(*k)) j = k;
-        string word = s.substr(i - s.begin(), j - i);
-	string term = word;
+	if (isupper(*i)) {
+	    j = i;
+	    term = *j;
+	    while (++j != s.end() && *j == '.' &&
+		   ++j != s.end() && isupper(*j)) {
+		term += *j;
+	    } 
+	    if (term.length() < 2 || (j != s.end() && isalnum(*j))) {
+		term = "";
+	    } else {
+		word = s.substr(i - s.begin(), j - i);
+	    }
+	}
+	if (term.empty()) {
+	    k = i;
+moreterm:
+	    j = find_if(k, s.end(), p_notalnum);
+	    if (j != s.end() && *j == '&') {
+		if (j + 1 != s.end() && isalnum(j[1])) {
+		    k = j + 1;
+		    goto moreterm;
+		}
+	    }
+	    k = find_if(j, s.end(), p_notplusminus);
+	    if (k == s.end() || !isalnum(*k)) j = k;
+	    term = s.substr(i - s.begin(), j - i);
+	    word = term;
+	}
         lowercase_term(term);
 
 	res += html_escape(s.substr(l - s.begin(), i - l));

@@ -181,18 +181,32 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {
     string::const_iterator i, j = s.begin(), k;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
+	om_termname term;
 	k = i;
-moreterm:
-        j = find_if(k, s.end(), p_notalnum);
-	if (j != s.end() && *j == '&') {
-	    if (j + 1 != s.end() && isalnum(j[1])) {
-		k = j + 1;
-		goto moreterm;
+	if (isupper(*k)) {
+	    j = k;
+	    term = *j;
+	    while (++j != s.end() && *j == '.' &&
+		   ++j != s.end() && isupper(*j)) {
+		term += *j;
+	    } 
+	    if (term.length() < 2 || (j != s.end() && isalnum(*j))) {
+		term = "";
 	    }
 	}
-        k = find_if(j, s.end(), p_notplusminus);
-        if (k == s.end() || !isalnum(*k)) j = k;
-        om_termname term = s.substr(i - s.begin(), j - i);
+	if (term.empty()) {
+moreterm:
+	    j = find_if(k, s.end(), p_notalnum);
+	    if (j != s.end() && *j == '&') {
+		if (j + 1 != s.end() && isalnum(j[1])) {
+		    k = j + 1;
+		    goto moreterm;
+		}
+	    }
+	    k = find_if(j, s.end(), p_notplusminus);
+	    if (k == s.end() || !isalnum(*k)) j = k;
+	    term = s.substr(i - s.begin(), j - i);
+	}
         lowercase_term(term);
         if (isupper(*i) || isdigit(*i)) {
 	    doc.add_posting('R' + term, pos);

@@ -1,3 +1,10 @@
+Wed May 15 12:59:37 BST 2002  Olly Betts <olly@survex.com>
+
+	* omindex now understand acronyms (N.A.T.O. E.T ...).
+
+	* $html_highlight{} now understands "&" (AT&T M&S ...) and
+	  acronyms.
+
 Tue May 14 13:08:41 BST 2002  Olly Betts <olly@survex.com>
 
 	* Index <word>&<word> as a single term (e.g. AT&T, M&S, A&P).
