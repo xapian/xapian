@@ -4,4 +4,4 @@ DIST_SUBDIRS = examples
 SUBDIRS = examples
 
 docdatadir = $(datadir)/doc/@PACKAGE@/php
-docdata_DATA = bindings.html
+dist_docdata_DATA = bindings.html

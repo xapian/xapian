@@ -1,3 +1,8 @@
+Fri Sep 17 10:00:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/Makefile.am: Inlcude php4/docs/bindings.html in the
+	  tarball.
+
 Fri Sep 17 00:54:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/Makefile.am,python/Makefile.am: DIST_SUBDIRS is superfluous
