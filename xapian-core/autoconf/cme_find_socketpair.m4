@@ -12,5 +12,5 @@ AC_TRY_LINK(,[socketpair()],
 			 AC_MSG_ERROR(Library containing socketpair() not found)
 			)
 	   )
-)
+])
 
