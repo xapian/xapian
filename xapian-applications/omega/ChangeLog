@@ -1,3 +1,9 @@
+Mon Aug 23 22:29:53 BST 2004  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Report index file name and line number when
+	  reporting errors in it.  Added warning for redundant actions,
+	  such as "truncate" as the last action in a rule.
+
 Mon Aug 23 22:03:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use the new replace_document(term, doc) method.

@@ -113,6 +113,12 @@ p_notfieldnamechar(unsigned int c)
     return !isalnum(c) && c != '_';
 }
 
+const char * action_names[] = {
+    "bad", "new",
+    "boolean", "date", "field", "index", "indexnopos", "lower",
+    "truncate", "unhtml", "unique", "value", "weight"
+};
+
 class Action {
 public:
     typedef enum {
@@ -140,7 +146,9 @@ parse_index_script(const string &filename)
 {
     ifstream script(filename.c_str());
     string line;
+    size_t line_no = 0;
     while (getline(script, line)) {
+	++line_no;
 	vector<string> fields;
 	vector<Action> actions;
 	string::const_iterator i, j;
@@ -149,8 +157,8 @@ parse_index_script(const string &filename)
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
 	    if (!isalnum(*i)) {
-		cout << argv0 << ": field name must start with alphanumeric"
-		     << endl;
+		cout << filename << ':' << line_no
+		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
 	    }
 	    j = find_if(i, s.end(), p_notfieldnamechar);
@@ -163,8 +171,8 @@ parse_index_script(const string &filename)
 		break;
 	    }
 	    if (i == j) {
-		cout << argv0 << ": bad character '" << *j << "' in fieldname"
-		     << endl;
+		cout << filename << ':' << line_no
+		     << ": bad character '" << *j << "' in fieldname" << endl;
 		exit(1);
 	    }
 	}
@@ -237,15 +245,16 @@ parse_index_script(const string &filename)
 		}
 	    }
 	    if (code == Action::BAD) {
-		cout << argv0 << ": unknown index action `" << action
-		     << "'" << endl;
+		cout << filename << ':' << line_no
+		     << ": unknown index action `" << action << "'" << endl;
 		exit(1);
 	    }
 	    i = find_if(i, s.end(), p_notspace);
 
 	    if (i != s.end() && *i == '=') {
 		if (arg == NO) {
-		    cout << argv0 << ": index action `" << action
+		    cout << filename << ':' << line_no
+			 << ": index action `" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
 		}
@@ -265,13 +274,33 @@ parse_index_script(const string &filename)
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
 		if (arg == YES) {
-		    cout << argv0 << ": index action `" << action
+		    cout << filename << ':' << line_no
+			 << ": index action `" << action
 			 << "' must have an argument" << endl;
 		    exit(1);
 		}
 		actions.push_back(Action(code));
 	    }
 	    j = i;
+	}
+	while (!actions.empty()) {
+	    bool done = true;
+	    Action::type action = actions.back().get_action();
+	    switch (action) {
+		case Action::LOWER:
+		case Action::TRUNCATE:
+		case Action::UNHTML:
+		case Action::WEIGHT:
+		    done = false;
+		    cout << filename << ':' << line_no
+			 << ": Warning: Action " << action_names[action]
+			 << " has no effect" << endl;
+		    actions.pop_back();
+		    break;
+		default:
+		    break;
+	    }
+	    if (done) break;
 	}
 	vector<string>::const_iterator field;
 	for (field = fields.begin(); field != fields.end(); ++field) {
