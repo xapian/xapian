@@ -1,9 +1,7 @@
 This file contains items which need to be worked on.
-It tends to be a huge list, partially incomplete and partially out of date.
 
 
-ToDo items on the coding side.
-(Not a complete list)
+ToDo items on the coding side.  (Not a complete list)
 
 Near term
 =========
@@ -52,14 +50,11 @@ Passage retrieval.
 
 Other search functions (collapse, sort, cluster).
 
-Extend introspection methods to cover all objects.
-
-Make gui demo display text being searched.
-
 Write (speed) performance test suite.
 
 Sanify and implement introspection methods - get_database_path, etc.
 Should be able to get entire state of database by introspection.
+Extend introspection methods to cover all objects.
 
 Long term
 =========
