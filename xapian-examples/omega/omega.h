@@ -11,7 +11,7 @@
 #include "config.h"
 #define FX_VERSION_STRING "1.4 24/02/1998 (" PACKAGE "-" VERSION ")"
 
-extern FILE *page_fopen( const char *page ); /* Olly 1997-02-11 used by query.c */
+extern FILE *page_fopen(const string &page);
 
 extern char *db_name;
 extern char dash_chr;

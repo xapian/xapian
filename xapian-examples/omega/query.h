@@ -9,8 +9,6 @@ long do_match( long int, long int ); /* Ol 1997-01-31 return msize */
 void add_bterm( const char * );
 void do_showdoc( long int, long int, long int );
 
-void print_error_page(char *, char *);
-
 void muscat_stem( char * );
 
 extern int dec_sep, thou_sep;

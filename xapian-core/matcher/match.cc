@@ -60,9 +60,9 @@ Match::add_op(matchop op)
     if (q.size() < 2) return false;
     PostList *left, *right;
 
-    left = q.top();
-    q.pop();
     right = q.top();
+    q.pop();
+    left = q.top();
     q.pop();
     switch (op) {
      case AND:

@@ -635,7 +635,6 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
       return 6;
    }
 
-   /* KJM 1/10/1996 - add the version number output */
    else if (!strncmp (pc, "VERSION", 7)) {
       puts(FX_VERSION_STRING);
       return 7;
@@ -743,7 +742,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	    printf("<INPUT TYPE=hidden NAME=DATE1 VALUE=\"%s\">\n", date);
 	 if (get_muscat_string("Date2", date))
 	    printf("<INPUT TYPE=hidden NAME=DATE2 VALUE=\"%s\">\n", date);
-	 if (get_muscat_string("DaysMinus", date)) /* KJM 19/5/1997. */
+	 if (get_muscat_string("DaysMinus", date))
 	    printf("<INPUT TYPE=hidden NAME=DAYSMINUS VALUE=\"%s\">\n", date);
       }
 #endif
@@ -761,7 +760,6 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
       char *format;
       char *pc_end;
 
-      /* KJM 14/1/1997 - LABS addition, useful generally */
       if (!strncmp (pc, "PREVOFF", 7)) {
 	 format = pc + 7;
 	 pc_end = find_format_string( format );
@@ -796,7 +794,6 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 return pc_end - pc;
       }
       
-      /* KJM 14/1/1997 - LABS addition, useful generally */
       if (!strncmp (pc, "NEXTOFF", 7)) {
 	 format = pc + 7;
 	 pc_end = find_format_string( format );
@@ -829,7 +826,6 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
    }
 
    if (which != 'E') {
-      /* KJM 14/1/1997 - LABS addition, useful generally. */
       /* Olly: was only on D, but useful (at least for debugging) on Q */
       if (!strncmp (pc, "MSIZE", 5)) {
 	 printf ("%ld", msize);
@@ -1049,7 +1045,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   continue;
 		}
 
-		if (!strncmp (pc, "HITLINE", 7)) {/* 14/1/1997 KJM LABS addition - useful generally. */
+		if (!strncmp (pc, "HITLINE", 7)) {
 		    if (!msize){
 			pc += strlen(pc); /* Ignore the rest of this line if no hits */
 		    } else {
@@ -1375,71 +1371,6 @@ static void print_page_links( char type, long int hits_per_page,
       }
       putchar ('\n');
    }
-}
-
-/******************************************************************/
-void print_error_html( char *description, char *message ) {
-   /* This is what we display if there is no muscat_error file as a wrapper
-    * for our error message. */
-   puts("<HTML><HEAD><TITLE>Muscat Search Error</TITLE></HEAD>\n"
-	"<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n"
-	"<CENTER><hr><hr>\n"
-	"<h2>A Muscat Error has occurred</h2>\n"
-	"Description:");
-   puts(description);
-   puts("<p>\n"
-	"Muscat Error Message:");
-   puts(message);
-   puts("<p>\n"
-	"<hr><hr></CENTER></BODY></HTML>");
-}
-
-/******************************************************************/
-void print_error_page( char *description, char *message ) {
-    FILE* filep;
-    char line[256];
-    char* pc;
-    char* pre;
-
-    if ((filep = page_fopen("muscat_error")) == NULL) {
-      print_error_html(description, message);
-      return;
-    }
-		       
-    /*** parse the page ***/
-    while (fgets (line, 255, filep)) {
-	if ((pc = strchr (line, '\\')) == NULL)
-	    fputs (line, stdout);
-	else {
-	    pre = line;
-	    do {
-		fwrite (pre, 1, pc - pre, stdout);
-	        pc++;
-
-		/* only one is GIF_DIR??? */
-		if (!strncmp (pc, "GIF_DIR", 7)) {
- 		  fputs( gif_dir, stdout );
-		  pc += 7;
-		}
-		else if (!strncmp (pc, "DESC", 4)) {
-		  fputs( description, stdout );
-		  pc += 4;
-		}
-		else if (!strncmp (pc, "MUSCAT_MSG", 10)) {
-		  fputs( message, stdout );
-		  pc += 10;
-		}
-		else {
-		    putchar (*pc++);
-		}
-		pre = pc;
-
-	    } while ((pc = strchr (pre, '\\')) != NULL);
-
-	    fputs (pre, stdout);
-	}
-    }
-    fclose (filep);
 }
 
 #ifdef FERRET

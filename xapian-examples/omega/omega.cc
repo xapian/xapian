@@ -12,13 +12,6 @@ int n_dlist = 0;
 #include <ctype.h>
 #include <errno.h>
 
-#ifdef SYSTEM5
-extern char *sys_errlist[];
-#endif
-#ifdef SUNOS
-extern char *sys_errlist[];
-#endif
-
 #include <time.h>
 
 #ifdef FERRET
@@ -28,7 +21,7 @@ extern char *sys_errlist[];
 
 #ifdef LOGGING
 #include <fcntl.h>
-#ifdef WIN32 /* KJM 30/7/1997 - added <io.h> for use in LOGGING on NT (read, write and open) */
+#ifdef WIN32
 #include <io.h>
 #else
 #include <unistd.h>
@@ -47,7 +40,7 @@ Match *matcher;
 static int ssi=0;
 #endif
 
-static int map_dbname_to_dir( char *db_dir, size_t len, const char *db_name );
+static string map_dbname_to_dir(const string &db_name);
 
 static void make_log_entry( const char *action, long matches );
 static void make_query_log_entry( const char *buf, size_t length );
@@ -55,19 +48,14 @@ static void make_query_log_entry( const char *buf, size_t length );
 static void do_easter_egg( void );
 
 char *db_name;
-static char db_dir[256];
+static string db_dir;
 char dash_chr = '-'; /* renamed from dash_char to avoid odd BCPL problem -- Olly 1997-03-19 */
 char *fmt = NULL;
 char *fmtfile = "t/fmt";
 
-static char muscat_dir[256] = "/usr/muscat";
+static const string muscat_dir = "/usr/muscat";
 
 int have_query; /* use to trap the "no query" case more reliably */
-
-#ifdef WEBCD
-#include <direct.h> /* KJM 17/7/1997 _getdrive */
-static char CDDriveLetter; /* KJM 17/7/1997 */
-#endif
 
 /* defined in query.c */
 extern char str_scoreline[];
@@ -278,17 +266,14 @@ int main(int argc, char *argv[]) {
 #endif
 
     /* Translate DB parameter to path to database directory */
-    if (!map_dbname_to_dir( db_dir, sizeof(db_dir), db_name )) {
-       /* no such database */
-       EXIT(0); /* was EXIT(1); but that makes some servers swallow our output -- Olly 1997-03-19 */
-    }
+    db_dir = map_dbname_to_dir(db_name);
 
-    if (chdir(db_dir) == -1) {
+    if (chdir(db_dir.c_str()) == -1) {
        /* if we can't cd there, odds are it's not a database */
        printf( "<HTML><HEAD><TITLE>Database '%s' not found</TITLE></HEAD>"
 	       "<BODY BGCOLOR=white><H3>Database '%s' not found (or not readable)</H3>\n"
 	       "</BODY></HTML>", db_name, db_name );
-       goto muscat_error;
+       exit(0);
     }
 
     database.open(db_dir, 0);
@@ -666,9 +651,6 @@ int main(int argc, char *argv[]) {
     *to = '\0';
    
     return 0;
-
-muscat_error:
-    return 0; /* was exit(1); but that makes some servers swallow our output -- Olly 1997-03-19 */
 }
 
 /**************************************************************/
@@ -684,46 +666,39 @@ static void do_easter_egg( void ) {
 	"</FONT></CENTER>" );
 }
 
-static int map_dbname_to_dir( char *db_dir, size_t len, const char *db_name ) {
-   const char *p;
-   if (strlen(muscat_dir) + strlen(db_name) + 7 >= len)
-      return 0; /* db_name too long */
-
-   p = db_name;
-   while ((p = strchr( p, '.' )) != NULL) {
-      if (p[1] == '.') return 0; /* db_name has .. in */
+static string map_dbname_to_dir(const string &db_name) {
+   const char *p = db_name.c_str();
+   while ((p = strchr(p, '.')) != NULL) {
+      if (p[1] == '.') throw "naughty hacker"; /* FIXME db_name has .. in */
       p += 2;
    }
-   sprintf( db_dir, "%s/data/%s", muscat_dir, db_name );
-   return 1; /* OK */
+   string dir = muscat_dir + "/data/";
+   dir += db_name;
+   return dir;
 }
 
 /**************************************************************/
 
 /* support function for opening the template html pages */
-extern FILE *page_fopen( const char *page ) {
-   FILE *fp;
-   char fnm[256];
+extern FILE *page_fopen(const string &page) {
+    FILE *fp;
+    string fnm;
 
-   sprintf( fnm, "%s/html/%s", db_dir, page );
+    fnm = db_dir + "/html/";
+    fnm += page;
 
-   if (ssi) strcat(fnm, "-ssi" );
+    if (ssi) fnm += "-ssi";
 
-   fp = fopen( fnm, "r" );
-   if (fp) return fp;
+    fp = fopen(fnm.c_str(), "r");
+    if (fp) return fp;
 
-   /* Perhaps the filename was truncated to 8.3 by DOS or ISO-9660 */
-   /* No real need to be too clever about this right now ... */
-   if (strcmp( page, "expand_error" ) == 0)
-      return page_fopen( "expand_e" );
-   if (strcmp( page, "muscat_error") == 0)
-      return page_fopen( "muscat_e" );
-   if (strcmp( page, "muscat_e") != 0) {
-      /* Don't print the next line if we're trying to report a muscat error
-       * - just use some default html so old database work nicely */
-      printf ("error (%s) opening file (%s)\n", sys_errlist[errno], fnm);
-   }
-   return NULL;
+    /* Perhaps the filename was truncated to 8.3 by DOS or ISO-9660 */
+    /* No real need to be too clever about this right now ... */
+    if (page == "expand_error")
+	return page_fopen("expand_e");
+
+    cout << "Couldn't open file \"" << fnm << "\"\n";
+    return NULL;
 }
 
 /****************************************************************************/
