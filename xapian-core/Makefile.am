@@ -1,7 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
 # Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
-AUTOMAKE_OPTIONS = 1.5
+# Need 1.6.3 for tests/internaltest to build with Solaris make
+AUTOMAKE_OPTIONS = 1.6.3
 
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE1 = net

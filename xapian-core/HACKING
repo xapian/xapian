@@ -89,14 +89,17 @@ At the time of writing, these programs are autoconf, automake, libtool,
 and GNU bison.  Some older versions of these programs may not work correctly:
 at the time of writing, the versions known to work are:
 
-	automake (GNU automake) 1.5
-		This is required as automake 1.4 has problems with "make dist"
-		in a VPATH build, and doesn't support AM_CFLAGS/AM_CXXFLAGS.
-		Note that automake 1.6 has a bug which causes it to emit
-		spurious warnings: this is fixed in automake 1.6.1.
+	automake (GNU automake) 1.6.3
+		This is required as automake 1.5 doesn't work with "make check"
+		with Solaris make - the problem is with the rules to build
+		tests/internaltest.  Other than this, automake 1.4 has problems
+		with "make dist" in a VPATH build, and doesn't support
+		AM_CFLAGS/AM_CXXFLAGS.  Note that automake 1.6 has a bug which
+		causes it to emit spurious warnings: this is fixed in automake
+		1.6.1.  A quick check found no problems using automake 1.7.
 		
-	Autoconf version 2.50
-		Needed for many things.
+	Autoconf version 2.54 needed for automake 1.6.3.  2.50 Needed for many
+		things.
 		
 	ltmain.sh (GNU libtool) 1.3.3
 
