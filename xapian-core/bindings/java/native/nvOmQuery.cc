@@ -43,9 +43,15 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
   (JNIEnv *env, jobject obj, jstring term, jint count, jint pos)
 {
     string thing = getStringValue (env, term);
-    return (jlong) new OmQuery (thing,
-				(om_termcount) count,
-				(om_termpos) pos);
+    try {
+	return (jlong) new OmQuery (thing,
+				    (om_termcount) count,
+				    (om_termpos) pos);
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return 0;
 }
 
 /* helper function */
@@ -91,7 +97,13 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
     OmQuery* right_n = (OmQuery*) tryGetLongField (env, right, "nativePtr");
     om_queryop op_n = transOp (env, op);
 
-    return (jlong) new OmQuery (op_n, *left_n, *right_n);
+    try {
+	return (jlong) new OmQuery (op_n, *left_n, *right_n);
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return 0;
 }
 
 /*
@@ -181,7 +193,7 @@ JNIEXPORT jint JNICALL Java_com_muscat_om_OmQuery_get_1length
     catch (OmError& err) {
 	handleNativeError (env, err);
     }
-    return NULL;
+    return 0;
 }
 
 /*
@@ -199,7 +211,7 @@ JNIEXPORT jboolean JNICALL Java_com_muscat_om_OmQuery_set_1bool
     catch (OmError& err) {
 	handleNativeError (env, err);
     }
-    return NULL;
+    return 0;
 }
 
 

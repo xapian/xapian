@@ -111,3 +111,39 @@ JNIEXPORT jstring JNICALL Java_com_muscat_om_OmMSet_get_1description
     return NULL;
 }
 
+/*
+ * Class:     com_muscat_om_OmMSet
+ * Method:    get_termfreq
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_get_1termfreq
+  (JNIEnv *env, jobject obj, jstring tname)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return (jint)(mset->get_termfreq(getStringValue(env, tname)));
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}
+
+/*
+ * Class:     com_muscat_om_OmMSet
+ * Method:    get_termweight
+ * Signature: (Ljava/lang/String;)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_muscat_om_OmMSet_get_1termweight
+  (JNIEnv *env, jobject obj, jstring tname)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return (jdouble)(mset->get_termweight(getStringValue(env, tname)));
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}
+

@@ -19,13 +19,13 @@ public class OmQuery extends OmObject {
     public OmQuery (String term, int wqf, int pos) throws OmError {
 	nativePtr = createNativeObject (term, wqf, pos);
     }
-    protected native long createNativeObject (String term, int termcount, int termpos);
+    protected native long createNativeObject (String term, int termcount, int termpos) throws OmError;
 
     /** A query consiting of two subqueries op'd together */
-    public OmQuery (String op, OmQuery left, OmQuery right) {
+    public OmQuery (String op, OmQuery left, OmQuery right) throws OmError {
 	nativePtr = createNativeObject (op, left, right);
     }
-    protected native long createNativeObject (String op, OmQuery left, OmQuery right);
+    protected native long createNativeObject (String op, OmQuery left, OmQuery right) throws OmError;
 
     /** A query consisting of individual terms op'd together (with window
      *  parameter defaulted)

@@ -33,6 +33,12 @@ public class OmMSet extends OmReturnObject {
     /** This converts the weight supplied to a percentage score. */
     public native int convert_to_percent (double weight);
 
+    /** Return the term frequency of the given query term. */
+    public native int get_termfreq(String tname) throws OmError;
+
+    /** Return the term weight of the given query term. */
+    public native double get_termweight(String tname) throws OmError;
+
     /** return a description of the mset as a string. */
     public native String get_description();
 }

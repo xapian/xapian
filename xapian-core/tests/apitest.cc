@@ -1355,16 +1355,18 @@ bool test_subqcollapse1()
 
     if(desc1 != "OmQuery((wibble OR wobble OR jelly OR belly))") {
 	success = false;
-	if(verbose)
+	if(verbose) {
 	    cout << "Failed to correctly collapse query: got `" <<
 		    desc1 << "'" << endl;
+	}
     }
 
     if(desc2 != "OmQuery((jelly AND belly AND wibble AND wobble))") {
 	success = false;
-	if(verbose)
+	if(verbose) {
 	    cout << "Failed to correctly collapse query: got `" <<
 		    desc2 << "'" << endl;
+	}
     }
 
     return success;

@@ -35,6 +35,8 @@ BEGIN {
                          "unsigned int" => "int",
                          "unsigned" => "int",
                          "size_t" => "int",
+                         "string" => "String",
+                         "std::string" => "String",
 			 "om_weight" => "double");
     %ToJava::basic_types = ("boolean" => 1,
                             "int" => 1,
@@ -141,6 +143,11 @@ class ApiTestFuncs {
     private static void TEST_EQUAL(double d1, double d2) throws Throwable {
         TEST_AND_EXPLAIN(d1 == d2,
 	                 "Expected doubles to be equal: were " +
+			 d1 + " and " + d2 + "\n");
+    }
+    private static void TEST_NOT_EQUAL(double d1, double d2) throws Throwable {
+        TEST_AND_EXPLAIN(d1 != d2,
+	                 "Expected doubles to be different: were " +
 			 d1 + " and " + d2 + "\n");
     }
     private static boolean TEST_EXPECTED_DOCS(OmMSet A,
@@ -358,6 +365,16 @@ sub addtext($) {
     $text =~ s/\b([a-z_]*mset[a-zA-Z0-9_]*) == ([a-z_]*mset[a-zA-Z0-9_]*)\b/mset_equal($1,$2)/g;
     # similarly for mset1 != mset2
     $text =~ s/\b([a-z_]*mset[a-zA-Z0-9_]*) != ([a-z_]*mset[a-zA-Z0-9_]*)\b/!mset_equal($1,$2)/g;
+    # handle TEST_EXCEPTION here, as Java has no preprocessor
+    if ($text =~ /^TEST_EXCEPTION\((Om[a-zA-Z]*Error), *(.*)\);$/) {
+        my ($except, $code) = ($1, $2);
+        $text = <<EOINLINE
+try {
+    $code;
+    return false;
+} catch ($except unused) { }
+EOINLINE
+    }
 
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
@@ -453,7 +470,7 @@ sub do_catch($) {
     my ($self, $expt) = @_;
 
     # give a parameter name if not present
-    if ($expt =~ /$main::type (?\&)?$/) {
+    if ($expt =~ s/(?:const )?($main::type )(?:\&)?$/$1/) {
         $expt .= "unused_exception_type";
     }
     my $text = "} catch ($expt) {\n";
@@ -574,7 +591,7 @@ sub getline() {
 }
 
 $main::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
-$main::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+)";
+$main::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+|(?:std::)?string)";
 $main::identifier = "(?:[a-zA-Z_0-9]+)";
 $main::func = "(?:(?:$main::identifier\.)?$main::identifier)";
 $main::commentstart = '(?:\/\/|\/\*)';
@@ -631,8 +648,8 @@ while (<STDIN>) {
 }
 
 print OUTPUT $parser->prologue();
-print "Successful translations: ", join(' ', @succeeded), "\n\n";
-print "Failed translations: ", join(' ', @failed), "\n";
+print $#succeeded, " successful translations: ", join(' ', @succeeded), "\n\n";
+print $#failed, " failed translations: ", join(' ', @failed), "\n";
 
 package apitest_parser;
 
@@ -699,12 +716,12 @@ sub parse_line($) {
     } elsif ($line =~ /^($main::func)\((.*)\);/) {
 	my ($func, $args) = ($1, $2);
 	$newline = $interp->func_call($func, $args);
-    } elsif ($line =~ /^if \((.*)\) {$/) {
+    } elsif ($line =~ /^if *\((.*)\) {$/) {
 	my $cond = $1;
 	$newline = $interp->do_if($cond);
 	$self->{indent} += 4;
-    } elsif ($line =~ /^if \(.*/) {
-	while ($line !~ /^if \(.*\) .*[;{]/s) {
+    } elsif ($line =~ /^if *\(.*/) {
+	while ($line !~ /^if *\(.*\) .*[;{]/s) {
 	    my $extra = getline();
 	    if (!defined $extra) {
 	        print "-=>$line";
@@ -712,11 +729,11 @@ sub parse_line($) {
 	    }
 	    $line .= $extra;
 	}
-	if ($line =~ /if \((.*)\) {$/s) {
+	if ($line =~ /if *\((.*)\) {$/s) {
 	    my $cond = $1;
 	    $newline = $interp->do_if($cond);
 	    $self->{indent} += 4;
-	} elsif ($line =~ /if \((.*)\) ([^;]*);$/s) {
+	} elsif ($line =~ /if *\((.*)\) ([^;]*);$/s) {
 	    my ($cond, $statement) = ($1, $2);
 	    #print "cond = \"$cond\", statement = \"$statement\"\n";
 	    $newline = $interp->do_if($cond);

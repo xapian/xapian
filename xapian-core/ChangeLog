@@ -1,3 +1,7 @@
+Fri Aug  4 15:32:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More tests work from Java.  (31 pass)
+
 Fri Aug  4 12:38:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now 25 tests pass in Java, and test_alwaysfail has been disabled.
