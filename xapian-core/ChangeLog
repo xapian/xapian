@@ -1,3 +1,8 @@
+Wed Jun 04 02:52:38 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Added start of "Design Principles" section.
+	* docs/todo.xml: Added a couple more items.
+
 Wed Jun 04 02:51:56 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Build testsuite later - it now doesn't need to be built

@@ -48,6 +48,18 @@ in our distributions, and also keep the
 <A HREF="http://xapian.org/docs/apidoc/html/index.html">latest version</A> on our website.
 </P>
 
+<H2>Design Priciples</H2>
+
+<P>
+API objects keep a reference to other objects they rely on so the user
+doesn't need to worry about whether an object is still valid or not.
+</P>
+
+<P>
+Most API classes are handles - copying is like copying a pointer.  The
+exception is the iterator classes, which act like STL iterators. 
+</P>
+
 <H2>Errors and exceptions</H2>
 
 <P>

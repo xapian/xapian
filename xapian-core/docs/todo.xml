@@ -612,7 +612,19 @@ where applicable (TC++PL 3ed 8.2.7).
 </todoitem>
 <todoitem priority="" difficulty="" owner="" area="tests" release="">
 
+Move testsuite to under tests?  Or maybe it'll be used elsewhere...
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="tests" release="">
+
 Sort out tests of test harness again.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="matcher" release="">
+
+msetitems are getting heavyweight, and we copy them a lot - restore msetitem to
+pair&lt;docid, weight&gt; or just docid and use map&lt;docid, OTHERINFO&gt;?
+Or keep pointers to MSetItem so sorting only copies pointers...
 
 </todoitem>
 </todo>
