@@ -56,6 +56,61 @@ enum om_queryop {
     OM_MOP_PHRASE
 };
 
+class OmMSet {
+    public:
+	OmMSet();
+	~OmMSet();
+
+	int convert_to_percent(om_weight wt) const;
+//	int convert_to_percent(const OmMSetItem & item) const;
+	om_weight get_termfreq(string tname) const;
+	om_doccount get_termweight(string tname) const;
+//	om_doccount get_firstitem();
+	om_weight get_max_possible();
+	om_weight get_max_attained();
+
+	string get_description();
+
+	%readonly
+	/* Each language-specific part should include something like:
+	 * %addmethods OmMSet {
+	 *     %readonly
+	 *     LangListType items;
+	 * }
+	 * and define LangListType OmMSet_items_get(OmMSet *)
+	 */
+
+	%readwrite
+};
+
+class OmRSet {
+    public:
+	OmRSet();
+
+	// TODO: set<om_docid> items;
+	void add_document(om_docid did);
+	void remove_document(om_docid did);
+        string get_description() const;
+};
+
+class OmESet {
+    public:
+	~OmESet();
+	%readonly
+        string get_description() const;
+	om_termcount get_ebound() const;
+	om_termcount size() const;
+	%name(is_empty) om_termcount empty() const;
+	/* Each language-specific part should include something like:
+	 * %addmethods OmESet {
+	 *     %readonly
+	 *     LangListType items;
+	 * }
+	 * and define LangListType OmMSet_items_get(OmMSet *)
+	 */
+	%readwrite
+};
+
 class OmQuery {
     public:
         /** Constructs a new query object */
@@ -99,34 +154,6 @@ class OmQuery {
 // TODO: OmMatchDecider
 
 // TODO: OmExpandDecider
-
-class OmRSet {
-    public:
-	OmRSet();
-
-	// TODO: set<om_docid> items;
-	void add_document(om_docid did);
-	void remove_document(om_docid did);
-        string get_description() const;
-};
-
-class OmESet {
-    public:
-	~OmESet();
-	%readonly
-        string get_description() const;
-	om_termcount get_ebound() const;
-	om_termcount size() const;
-	%name(is_empty) om_termcount empty() const;
-	/* Each language-specific part should include something like:
-	 * %addmethods OmESet {
-	 *     %readonly
-	 *     LangListType items;
-	 * }
-	 * and define LangListType OmMSet_items_get(OmMSet *)
-	 */
-	%readwrite
-};
 
 #if defined(NOTDEFINED)
 %typedef OmBatchEnquire::batch_result batch_result;
@@ -275,44 +302,21 @@ class OmEnquire {
 
 	void set_query(const OmQuery &query);
 
-	OmMSet get_mset(om_doccount first,
-			om_doccount maxitems,
-			const OmRSet *omrset = 0,
-			const OmSettings *moptions = 0,
-			const OmMatchDecider *mdecider = 0);
-
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet &omrset,
 			const OmSettings *eoptions = 0,
 			const OmExpandDecider *edecider = 0) const;
 
+	OmMSet get_mset(om_doccount first,
+			om_doccount maxitems,
+			const OmRSet *omrset = 0,
+			const OmSettings *moptions = 0,
+			const OmMatchDecider *mdecider = 0) const;
+
 //	om_termname_list get_matching_terms(om_docid did);
+
+	string get_description() const;
 };
 
-class OmMSet {
-    public:
-	OmMSet();
-	~OmMSet();
-
-	int convert_to_percent(om_weight wt) const;
-//	int convert_to_percent(const OmMSetItem & item) const;
-	om_weight get_termfreq(string tname) const;
-	om_doccount get_termweight(string tname) const;
-//	om_doccount get_firstitem();
-	om_weight get_max_possible();
-	om_weight get_max_attained();
-
-	string get_description();
-
-	%readonly
-	/* Each language-specific part should include something like:
-	 * %addmethods OmMSet {
-	 *     %readonly
-	 *     LangListType items;
-	 * }
-	 * and define LangListType OmMSet_items_get(OmMSet *)
-	 */
 
 
-	%readwrite
-};
