@@ -67,15 +67,14 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(const IRDatabase *db, struct termvec *tv)
+DATermList::DATermList(const DADatabase *db, struct termvec *tv)
 	: have_started(false)
 {
     readterms(tv);
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
 	termid id;
-	// FIXME - Next line is inefficient - checks for term in term list
-	id = db->term_name_to_id(string(term + 1, (unsigned)term[0] - 1));
+	id = db->term_name_to_id_lazy(string(term + 1, (unsigned)term[0] - 1));
 
 	doccount freq = tv->freq;
 	terms.push_back(DATermListItem(id, tv->wdf, freq));
@@ -149,9 +148,10 @@ DBPostList * DADatabase::open_post_list(termid id) const
     termname name = term_id_to_name(id);
 
     struct postings * postlist;
-    postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
+    postlist = DAopenpostings((terminfo *)&(termvec[id - 1].get_ti()), DA_t);
 
-    DBPostList * pl = new DAPostList(root, postlist, termvec[id - 1].ti.freq);
+    DBPostList * pl = new DAPostList(root, postlist,
+				     termvec[id - 1].get_ti().freq);
     return pl;
 }
 
@@ -219,6 +219,30 @@ DADatabase::term_name_to_id(const termname &name) const
 	    termvec.push_back(DATerm(&ti, name));
 	    termidmap[name] = id;
 	}
+    } else {
+	id = (*p).second;
+	//printf("found, ID %d\n", id);
+    }
+    return id;
+}
+
+// Assumes the term is in the database and doesn't open the posting list
+// unless and until it's asked for.  Useful when you *know* the term is
+// there (e.g. you just got it from a TermList)
+termid
+DADatabase::term_name_to_id_lazy(const termname &name) const
+{
+    Assert(opened);
+    //printf("Looking up term `%s': ", name.c_str());
+
+    map<termname,termid>::const_iterator p = termidmap.find(name);
+
+    termid id;
+    if (p == termidmap.end()) {
+	id = termvec.size() + 1;
+	//printf("Adding as ID %d\n", id);
+	termvec.push_back(DATerm(NULL, name, DA_t));
+	termidmap[name] = id;
     } else {
 	id = (*p).second;
 	//printf("found, ID %d\n", id);

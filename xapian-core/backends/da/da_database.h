@@ -10,6 +10,8 @@
 
 #include "database.h"
 
+#include "errno.h"
+
 // Anonymous declarations (definitions in daread.h)
 struct postings;
 struct DAfile;
@@ -92,7 +94,7 @@ class DATermList : public virtual TermList {
 	bool have_started;
 
 	// Gets passed current database, for termid lookups, _NOT_ root
-	DATermList(const IRDatabase *database, struct termvec *tv);
+	DATermList(const DADatabase *database, struct termvec *tv);
     public:
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
@@ -133,7 +135,7 @@ inline TermList * DATermList::next()
     return NULL;
 }
 
-inline bool   DATermList::at_end() const
+inline bool DATermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) return true;
@@ -146,17 +148,40 @@ inline bool   DATermList::at_end() const
 class DATerm {
     friend class DADatabase;
     private:
-	DATerm(struct terminfo *ti_new, termname name_new) {
-	    ti = *ti_new;
+	DATerm(struct terminfo *ti_new, termname name_new, struct DAfile * DA_t_new = NULL) {
+	    if (ti_new) {
+		ti = *ti_new;
+	    } else {
+		ti.freq = 0;
+	    }
 	    name = name_new;
+	    DA_t = DA_t_new;
 	}
+        struct terminfo &get_ti() {
+	    if (ti.freq == 0) {
+		int len = name.length();
+		if(len > 255) abort();
+		byte * k = (byte *) malloc(len + 1);
+		if(k == NULL) throw OmError(strerror(ENOMEM));
+		k[0] = len + 1;
+		name.copy((char*)(k + 1), len);
+
+		int found = DAterm(k, &ti, DA_t);
+		free(k);
+
+		if(found == 0) abort();
+	    }
+	    return ti;
+	}
+        struct terminfo ti;
+        struct DAfile * DA_t;
     public:
-	struct terminfo ti;
 	termname name;
 };
 
 
 class DADatabase : public virtual IRDatabase {
+    friend class DATermList;
     private:
 	bool   opened;
 	struct DAfile * DA_r;
@@ -168,6 +193,8 @@ class DADatabase : public virtual IRDatabase {
 	// Stop copy / assignment being allowed
 	DADatabase& operator=(const DADatabase&);
 	DADatabase(const DADatabase&);
+
+        termid term_name_to_id_lazy(const termname &name) const;
     public:
 	DADatabase();
 	~DADatabase();
