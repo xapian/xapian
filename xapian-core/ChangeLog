@@ -1,3 +1,7 @@
+Wed Sep 29 18:52:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS,docs/Makefile.am: Workaround odd latex problem.
+
 Wed Sep 29 17:10:00 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,docs/doxygen_api_conf.in,docs/doxygen_full_conf.in:

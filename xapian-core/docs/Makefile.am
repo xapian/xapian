@@ -90,9 +90,13 @@ apidoc/html/index.html: $(top_srcdir)/configure.ac \
 	rm -rf apidoc
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
 
+# make refman.ps sometimes fails for no obvious reason on the first attempt.
+# Repeating the command works, so just do that!
 apidoc.ps: apidoc/html/index.html
-	cd apidoc/latex && make refman.ps && mv refman.ps ../../apidoc.ps
+	cd apidoc/latex && (make refman.ps;make refman.ps) && mv refman.ps ../../apidoc.ps
 
+# make refman.ps sometimes fails for no obvious reason on the first attempt.
+# Repeating the command works, so just do that!
 sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
@@ -103,7 +107,7 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf
 
 sourcedoc.ps: sourcedoc/html/index.html
-	cd sourcedoc/latex && make refman.ps && mv refman.ps ../../sourcedoc.ps
+	cd sourcedoc/latex && (make refman.ps;make refman.ps) && mv refman.ps ../../sourcedoc.ps
 endif
 
 # We used to do: $(LATEX) "\scrollmode\input" refman.tex
