@@ -7,6 +7,45 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
+#define MIN_SUPPORT 5
+
+// try convinction instead of interest measure (convinction is directional)
+//
+// See:
+//
+// http://citeseer.nj.nec.com/brin97dynamic.html
+//
+
+// confidence: P(A&B)/P(A)
+
+// interest: P(A&B)/(P(A)*P(B) [completely symmetric]
+
+// convinction: P(A)P(not B) / P(A, not B)
+//
+// Intuition:  logically, A=>B can be rewritten as ~(A & ~B), so we can see
+//                 how far A&~B deviates from independence, and invert the ratio
+//                 to take care of the outside negation.
+//
+//                 Unlike confidence, convinction factors in both P(A) and P(B) and 
+//                 always has a value of 1 when the relvant items are completely unrelated
+//
+//                 Unlike interest, rules which hold 100% of the time have the highest possible
+//                 convinction value of infinity.  (While confidence has this property, interest does
+//                 not.)
+
+// Basically, we proceed as before finding frequent item sets.
+//
+// Say we are considering A=>B.  We want to know:
+//
+// * % of transactions without B 
+//
+// * % of transactions with A 
+//
+// * % of transactions with A but not B (count of transactions with A - (A,B) count )
+//
+// 
+
+
 //
 // Usage:  cvsminesearch package (# results) query_word1 query_word2 ... 
 //
@@ -80,79 +119,89 @@
 
 
 
-// For rules, you need to supply something like:  double buffering QPixmap=>
-//
-// This will look for rules starting with QPixmap.  
-// 
-
-#define ONLY_Q_AND_K_CLASSES 1
-
-
 void rank_single_items(        map< string, int>& item_count,
-			list< set<string > >& transactions,
+			       list< set<string > >& transactions,
 			       int total_commit_transactions,
-			 Db& db,
-			map< double, set<string> >& class_ranking,
-			map< double, set<string> >& function_ranking ) {
+			       Db& db,
+			       map< double, set<string> >& class_ranking,
+			       map< double, set<string> >& function_ranking ) {
   for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
-      string k = i->first;
+    string k = i->first;
 
-      /// compute confidence of Q => c/f for each class/function
-      /// observe though that the number of transactions with Q is fixed
-      /// across these rules..., so strictly speaking, it's not really required
+    /// compute confidence of Q => c/f for each class/function
+    /// observe though that the number of transactions with Q is fixed
+    /// across these rules..., so strictly speaking, it's not really required
 
-      double c = 100.0*(double) i->second / (double) transactions.size();
+    int q_and_b_count = i->second; // # transactions with Q & B
 
-      //      cerr << k << endl;
-      //      cerr << "...conf " << c << endl;
-
-      // divide by confidence of consequent alone
-      Dbt key( (void*) k.c_str(), k.length()+1 );
-      Dbt data;
-      int rc = db.get( 0, &key, &data, 0 );
-      bool significant = false;
-
-      if ( rc != DB_NOTFOUND ) {
-	int con_count = atoi( (char*) data.get_data() );
-	double conf_a = 100.0*(double) con_count / (double) total_commit_transactions;
-	//	cerr << "...conf of consequent " << conf_a << endl;
-	c = log(c / conf_a);
-	//	cerr << "...conf imp " << c << endl;
-	
-	/////// compute statistical significance
-	//
-	// n is total_commit_transactions
-	// k is supp (i->second), that is # transactions containing Q & b
-	// 
-	// px = % of transactions containing Q
-	// py = % of transactions containing b
-	//
-      } else {
-	cerr << "*** NOT FOUND " << k << endl;
-	assert(0);
-      }
-
-
-
-      c = c * (i->second); // multiply by support of (Q, con)
-	
-      if ( k.find("()") != -1 ) {
-	function_ranking[-c].insert(k);
-      } else {
-	class_ranking[-c].insert(k);
-      }
-      //      } else {
-      //      cerr << "SKIPPING " << k << "; not statistically significant" << endl;
-      //      }
-
+    if ( q_and_b_count < MIN_SUPPORT ) {
+      continue;
     }
 
-}
-void considerRule( int total_commit_transactions, Db& db, const string& rule_antecedent, const string& rule_consequent, map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
-  //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
-  //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
+    int q_count = transactions.size();
+    int q_and_not_b_count = q_count - q_and_b_count;
+    assert( q_and_not_b_count >= 0 );
 
-  //  cerr << "... rule antecedent " << rule_antecedent << endl;
+    double q_and_not_b_prob = (double)q_and_not_b_count / (double)total_commit_transactions;
+    double q_prob = (double)q_count / (double)total_commit_transactions;
+
+    Dbt key( (void*) k.c_str(), k.length()+1 );
+    Dbt data;
+    int rc = db.get( 0, &key, &data, 0 );
+
+    double convinction = 0.0;
+
+    if ( rc != DB_NOTFOUND ) {
+      int b_count = atoi( (char*) data.get_data() );
+      int not_b_count = total_commit_transactions - b_count;
+      double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
+
+      /**
+      cerr << k << "-----------" << endl;
+      cerr << "...q_prob = " << q_prob << endl;
+      cerr << "...not_b_prob = " << not_b_prob << endl;
+      cerr << "...q_prob*not_b_prob = " << (q_prob*not_b_prob) << endl;
+      cerr << "...q_and_not_b_prob = " << q_and_not_b_prob << endl;
+      **/
+
+      convinction =  q_and_not_b_prob / ( q_prob * not_b_prob );
+
+    } else {
+      cerr << "*** NOT FOUND " << k << endl;
+      assert(0);
+    }
+
+    if ( k.find("()") != -1 ) {
+      function_ranking[convinction].insert(k);
+    } else {
+      class_ranking[convinction ].insert(k);
+    }
+
+  } // for
+
+}
+
+
+
+
+
+
+//
+// The antecedent and consequent counts are not computed properly.
+//
+// For a forward implication, the antecedent count and the consequent count is ok.
+// (The antecedent count should be relative to # results from omsee,
+//  The consequent count comes from db.)
+//
+// For a reverse implication, both counts are wrong.
+// (In this case, the antecedent count should really come from db, while the 
+//  consequent count should be relative to # results from omsee.)
+//
+void considerRule( int total_commit_transactions, Db& db, const string& rule_antecedent, const string& rule_consequent, map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
+  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
+  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
+
+  // cerr << "... rule antecedent " << rule_antecedent << endl;
   //  cerr << "... rule consequent " << rule_consequent << endl;
 
 
@@ -174,58 +223,46 @@ void considerRule( int total_commit_transactions, Db& db, const string& rule_ant
   }
 
 
-  int importance = pair_supp;
+  int a_and_b_count = pair_supp;
 
-  double conf = 100.0*(double)pair_supp / (double)ant_count;
-
-  double surprise = 0.0;
-
-  //  cerr << "Considering rule Query ^ " << ant << "=>" << con << " with conf " << conf << endl;
-
-  //  cerr << "... importance " << importance << endl;
-
-
-  // computing statistical significance of rule
-  
-  // we need to estimate probability of finding consequent b in a transaction
-  // (this we can get from our database)
-  // 
-  // we also need to estimate the probability of finding Q^a in a transcation
-  // (this one actually requires us to know the total number of transactions, which
-  // we do not know!)
-  // 
+  if ( a_and_b_count < MIN_SUPPORT ) {
+    return;
+  }
 
   
+  int a_count = ant_count;
 
+  int a_and_not_b_count = a_count - a_and_b_count;
+  
+  double a_and_not_b_prob = (double)a_and_not_b_count / (double)total_commit_transactions;
+  double a_prob = (double)a_count / (double)total_commit_transactions;
 
+  double convinction = 0.0;
 
   Dbt key( (void*) con.c_str(), con.length()+1 );
   Dbt data;
   int rc = db.get( 0, &key, &data, 0 );
   if ( rc != DB_NOTFOUND ) {
-    int count = atoi( (char*) data.get_data() );
-    double conf_a = 100.0* (double) count / (double) total_commit_transactions;
-    //    cerr << "read conf_a = " << conf_a << endl;
-    surprise = log(conf / conf_a);
-    //    cerr << "... surprise " << surprise << endl;
-    //      if ( surprise3 < MIN_SURPRISE ) {
-    //	return; // skip rule
-    //      }
+
+    int b_count = atoi( (char*) data.get_data() );
+    int not_b_count = total_commit_transactions - b_count;
+    double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
+
+    cerr << ant << "=>" << con << "-----------" << endl;
+    cerr << "...a_prob = " << a_prob << endl;
+    cerr << "...not_b_prob = " << not_b_prob << endl;
+    cerr << "...a_prob*not_b_prob = " << (a_prob*not_b_prob) << endl;
+    cerr << "...a_and_not_b_prob = " << a_and_not_b_prob << endl;
+
+    
+    convinction = a_and_not_b_prob / ( a_prob * not_b_prob );
+
   } else {
     cerr << "Could not find confidence for " << con << endl;
     assert(0);
   }
 
-
-
-
-  //  double score = (1.0+surprise1)*(1.0+surprise2)*(1.0+surprise3); //*importance; // surprise * importance; // * importance; // surprise2 * importance;
-
-  double score = surprise * importance;
-
-  //  cerr << "... resulting score = " << score << endl;
-
-  rules[ -score ].insert( make_pair( ant, con ) );
+  rules[ convinction ].insert( make_pair( ant, con ) );
 
 }
 
@@ -235,7 +272,9 @@ void generate_and_rank_rules( const string& rule_antecedent, const string& rule_
       for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
 	string item1 = p->first.first;
 	string item2 = p->first.second;
-	int count1 = item_count[item1];
+
+#warning "these counts are with respect to results returned by omsee only!!!"
+	int count1 = item_count[item1];  
 	int count2 = item_count[item2];
 
 	if ( rule_antecedent != "" ) {
@@ -326,69 +365,59 @@ void count_single_items( list< set<string> >& transactions, map<string, int>& it
     for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
       set<string> S = *t;
       for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	if ( ONLY_Q_AND_K_CLASSES && s->find("()") == -1 ) {
-	  if ( s->find("Q") != 0 && s->find("K") != 0 ) {
-	    continue;
-	  }
-	}
 	item_count[*s]++;
       }
     }
 }
 
-void count_item_pairs( list< set<string> >& transactions, const string& rule_antecedent, const string& rule_consequent,  map<pair<string,string>, int>& pair_count ) {
+void count_item_pairs( list< set<string> >& transactions, const string& rule_antecedent, const string& rule_consequent,  map<pair<string,string>, int>& pair_count, map<string,int>& item_count ) {
 
-      cerr << "... counting pairs" << endl;
+  cerr << "... counting pairs" << endl;
 
+  string required;
+  if ( rule_antecedent != "" ) {
+    required = rule_antecedent;
+  }
 
-      for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
-	set<string> S = *t;
+  if ( rule_consequent != "" ) {
+    required = rule_consequent;
+  }
 
-	for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
+  assert( required != "" );
 
-	  if ( ONLY_Q_AND_K_CLASSES ) {
-	    if ( i1->find("()") == -1 && i1->find("K") != 0 && i1->find("Q") != 0 ) {
-	      continue;
-	    }
-	  }
+  if ( item_count[required] < MIN_SUPPORT ) {
+    return;
+  }
 
+  for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
+    set<string> S = *t;
 
+    //    cerr << "... transaction with " << S.size() << " items" << endl;
 
-	  for( set<string>::iterator i2 = i1; i2 != S.end(); i2++ ) {
-	    if ( i1 == i2 ) {
-	      continue;
-	    }
+    assert( S.find(required) != S.end() );
 
-	    if ( ONLY_Q_AND_K_CLASSES ) {
-	      if ( i2->find("()") == -1 && i2->find("K") != 0 && i2->find("Q") != 0 ) {
-		continue;
-	      }
-	    }
+    for( set<string>::iterator i = S.begin(); i != S.end(); i++) {
 
-
-	    if ( rule_antecedent != "" ) {
-	      if  ( (*i1) != rule_antecedent && (*i2) != rule_antecedent ) {
-		continue;
-	      }
-	    }
-
-	    if ( rule_consequent != "" ) {
-	      if  ( (*i1) != rule_consequent && (*i2) != rule_consequent ) {
-		continue;
-	      }
-	    }
-
-	    assert( (*i1) < (*i2) );
-	    pair_count[ make_pair(*i1, *i2) ] ++;
-	  }
-	}
+      if ( item_count[*i] < MIN_SUPPORT ) {
+	continue;
       }
+      
+      if ( required == (*i) ) {
+	continue;
+      }
+      
+      pair_count[ make_pair(required, *i) ] ++;
+	
+    }
+
+  }
+
 }
 
 void output_items( map< double, set<string> >& class_ranking, int max_results ) {
   int count = 0;
   for( map< double, set<string> >::iterator i = class_ranking.begin(); i != class_ranking.end(); i++ ) {
-    double score = - (i->first);
+    double score =  1.0/(i->first);
     set<string> S = i->second;
     for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
       cout << score << " " << (*s) << endl;
@@ -403,7 +432,7 @@ void output_items( map< double, set<string> >& class_ranking, int max_results ) 
 void output_rules( map< double, set<pair< string, string > > >& rule_ranking, int max_results ) {
   int count = 0;
   for ( map< double, set< pair< string, string > > >::iterator i = rule_ranking.begin(); i != rule_ranking .end(); i++ ) {
-    double score = -(i->first);
+    double score = 1.0/(i->first);
     set< pair< string, string> > S = i->second;
     for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
       pair<string, string> pair = *p;
@@ -635,7 +664,7 @@ int main(int argc, char *argv[]) {
       ///////////////////////////////// count item pairs
       map< pair<string, string>, int> pair_count;      
       
-      count_item_pairs( transactions, rule_antecedent, rule_consequent, pair_count );
+      count_item_pairs( transactions, rule_antecedent, rule_consequent, pair_count, item_count );
 
       map< double, set<pair<string,string> > > class_rule_ranking;
       map< double, set<pair<string,string> > > function_rule_ranking;
@@ -689,147 +718,5 @@ int main(int argc, char *argv[]) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-// stuff that was taken out
-
-// importance of statistical significance:
-//  key problem here is that np and nq may be too small for binomial approximation
-// to work well and it is to expensive to compute the binomial coefficients
-//
-// right now, we compute surprise as c / c_0 
-// however, if a pattern occurs only one transaction, and the consequent
-// is very rare, then the surprise is very high
-//
-// two ways to get around this:
-//
-// (1) we require minimum support 
-// 
-// (2) we compute statistical significance of the rule
-//
-// The advantage of (2) is we require no arbitrary minimum support and
-// we can be sure of statistical significance.
-//
-
-// To compute, statistical significance, we need to compute binomial
-// coefficients.  
-//
-// See:  http://www.pads.uwaterloo.ca/Bruno.Preiss/books/opus5/html/page460.html
-// Or search google for computing binomial coefficients
-// 
-
-// It is possible to use dynamic programming to compute (n choose m) in O(n^2) time
-
-map< pair<int, int>, double > binom_cache;
-
-double compute_binom(int n, int m) {
-  pair<int, int> p(n, m);
-
-  if ( binom_cache.find( p ) != binom_cache.end() ) {
-    return binom_cache[p];
-  }
-
-  // not in cache, so compute it
-
-  double *b = new double [n+1];
-
-  b[0] = 1.0;
-
-  for( int i = 1; i <= n; i++ ) {
-    b[i] = 1.0;
-    for ( int j = i-1; j > 0; j-- ) {
-      b[j] += b[j-1];
-    }
-  }
-  double ans = b[m];
-  delete [] b;
-  binom_cache[p] = ans;
-  return ans;
-}
-
-
-// computing the cumulative normal distribution function
-//
-// http://www.math.nyu.edu/fellows_fin_math/laud/fall2000/ex0/ex0.html
-//
-// 
-
-
-bool statistically_significant (int n, int k, double px, double py ) {
-  //x  cerr << "compute significance called with n = " << n << " k = " << k << " px = " << px << " py = " << py << endl;
-
-  // Let's try using the normal approximation.  We don't need the table, just
-  // the cutoff value for the significance we want.
-
-  double p = px*py;
-
-  double mean = n*p; // Expected number of times for finding both items
-
-  cerr << "np = " << n*p << " and nq = " << n*(1-p) << endl;
-
-  if ( n*p <= 5 || (n*(1-p)) <= 5 ) {
-    cerr << "WARNING:  normal not good here" << endl;
-
-
-#if 0
-    // if n*p <= 5, then we assume that the items do not cooccur sufficiently
-    // often to be of interest, so we skip it...
-
-    assert( n*(1-p) > 5 );
-
-    return false;
-#endif
-
-  } else {
-    cerr << "SUCCESS:  normal is good here" << endl;
-  }
-
-  double standard_deviation = sqrt( (double)n*p*(1-p) );
-  
-  //  cerr << "... mean " << mean << endl;
-  //  cerr <<" ... standard deviation " << standard_deviation << endl;
-
-  // let's calculate the area under the curve from 
-
-  // P( X >= k-0.5 )
-
-  double kc = (double)k-0.5;
-
-  double skc = ( kc - mean ) / standard_deviation;
-  
-  //  cerr << "... skc = " << skc << endl;
-
-  // compute area under the curve from skc nowards...
-  // this probability is 0.5 - area from 0 .. skc
-
-  // since we want the final results to be <= 0.05
-  // this means that we want the area from 0..skc to be at least 0.45
-
-  // to get that area, z must be at least 1.65
-
-  if ( skc < 1.65 ) {
-    //    cerr << "not statistically significant, skc < 1.65" << endl;
-    return false;
-  }
-  
-  //  cerr << "statistically significant, k >= 1.65" << endl;
-  return true;
-}
 
 
