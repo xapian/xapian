@@ -161,7 +161,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump = dump + line + '\n';
+	    dump += line + '\n';
 	}
 	in.close();	
     } else if (mimetype == "application/pdf") {
@@ -187,7 +187,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump = dump + line + '\n';
+	    dump += line + '\n';
 	}
 	in.close();
     } else if (mimetype == "application/postscript") {
@@ -213,7 +213,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump = dump + line + '\n';
+	    dump += line + '\n';
 	}
 	in.close();
     }
