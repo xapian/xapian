@@ -28,6 +28,7 @@
 #include <algorithm>
 #include "autoptr.h"
 
+#include "omdatabaseinterface.h"
 #include "../api/omdatabaseinternal.h"
 
 class OmESetCmp {
@@ -49,6 +50,7 @@ class TLPCmpGt {
 AutoPtr<TermList>
 OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 {
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     // Put items in priority queue, such that items with greatest size
     // are returned first.
     // This is the same idea as for a set of postlists ORed together in
@@ -61,11 +63,11 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	for (i = rset->documents.begin();
 	     i != rset->documents.end();
 	     i++) {
-	    unsigned int multiplier = db.internal->databases.size();
+	    unsigned int multiplier = internal->databases.size();
 	    om_docid realdid = ((*i).did - 1) / multiplier + 1;
 	    om_doccount dbnumber = ((*i).did - 1) % multiplier;
 
-	    AutoPtr<LeafTermList> tl(db.internal->databases[dbnumber]->open_term_list(realdid));
+	    AutoPtr<LeafTermList> tl(internal->databases[dbnumber]->open_term_list(realdid));
 	    tl->set_weighting(ewt);
 	    pq.push(tl.get());
 	    tl.release();

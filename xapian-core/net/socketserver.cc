@@ -34,6 +34,7 @@
 #include "document.h"
 #include "omdebug.h"
 #include "../api/omdatabaseinternal.h"
+#include "omdatabaseinterface.h"
 #include "autoptr.h"
 #include <strstream.h>
 #include <signal.h>
@@ -280,7 +281,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str() + 7);
 
-    AutoPtr<LeafDocument> doc(db.internal->open_document(did));
+    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
     buf->writeline(std::string("DOC ") + encode_tname(doc->get_data().value));
 

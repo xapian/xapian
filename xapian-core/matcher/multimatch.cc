@@ -28,6 +28,7 @@
 #include "omdebug.h"
 #include "omenquireinternal.h"
 #include "../api/omdatabaseinternal.h"
+#include "omdatabaseinterface.h"
 
 #include "andpostlist.h"
 #include "orpostlist.h"
@@ -85,7 +86,8 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 		       AutoPtr<StatsGatherer> gatherer_)
 	: gatherer(gatherer_), db(db_), mopts(mopts_), mcmp(msetcmp_forward)
 {
-    om_doccount number_of_leaves = db.internal->databases.size();
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
+    om_doccount number_of_leaves = internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
 
     for (std::set<om_docid>::const_iterator reldoc = omrset.items.begin();
@@ -98,8 +100,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     std::vector<OmRSet>::const_iterator subrset = subrsets.begin();
 
     std::vector<RefCntPtr<Database> >::iterator i;
-    for (i = db.internal->databases.begin();
-	 i != db.internal->databases.end(); ++i) {
+    for (i = internal->databases.begin(); i != internal->databases.end(); ++i) {
 	Assert(subrset != subrsets.end());
 	Database *db = (*i).get();
 	Assert(db);
@@ -286,7 +287,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// Use the decision functor if any.
 	if (mdecider != NULL) {
 	    if (irdoc.get() == 0) {
-		RefCntPtr<LeafDocument> temp(db.internal->open_document(did));
+		RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		irdoc = temp;
 	    }
 	    OmDocument mydoc(irdoc);
@@ -296,7 +297,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (do_collapse) {
 	    if (irdoc.get() == 0) {
-		RefCntPtr<LeafDocument> temp(db.internal->open_document(did));
+		RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		irdoc = temp;
 	    }
 	    new_item.collapse_key = irdoc.get()->get_key(collapse_key);

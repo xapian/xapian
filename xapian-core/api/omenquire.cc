@@ -23,6 +23,7 @@
 #include "omdebug.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
+#include "omdatabaseinterface.h"
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -418,11 +419,12 @@ OmEnquireInternal::get_description() const
 const OmDocument
 OmEnquireInternal::read_doc(om_docid did) const
 {
-    unsigned int multiplier = db.internal->databases.size();
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
+    unsigned int multiplier = internal->databases.size();
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    LeafDocument *doc = db.internal->databases[dbnumber]->open_document(realdid);
+    LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
 
     return OmDocument(OmDocumentParams(doc));
 }

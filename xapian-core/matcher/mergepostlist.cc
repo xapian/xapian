@@ -54,7 +54,7 @@ MergePostList::next(om_weight w_min)
 	}
 	if (!plists[current]->at_end()) break;
 	current++;
-    } while (current < plists.size());
+    } while ((unsigned)current < plists.size());
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
 }

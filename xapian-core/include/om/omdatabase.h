@@ -30,11 +30,6 @@
 #include "omtermlistiterator.h"
 #include "ompositionlistiterator.h"
 
-class OmEnquireInternal;
-class OmExpand;
-class MultiMatch;
-class SocketServer;
-
 class OmWritableDatabase;
 
 ///////////////////////////////////////////////////////////////////
@@ -91,10 +86,6 @@ class OmDatabase {
 	class InternalInterface;
 
 	friend class InternalInterface;
-	friend class OmEnquireInternal; // to allow access to my internals
-	friend class OmExpand; // ditto
-	friend class MultiMatch; // ditto
-	friend class SocketServer;
 
 	/** Open a database, possibly readonly.
 	 *
