@@ -348,7 +348,7 @@ run_query()
 	    // leads to an empty page
 	    mset = enquire->get_mset(0,
 				     topdoc + max(hits_per_page + 1, min_hits),
-				     rset);
+				     &rset);
 	}
 	if (usec != -1) {
 #ifdef HAVE_GETTIMEOFDAY
@@ -1499,7 +1499,7 @@ eval(const string &fmt, const vector<string> &param)
 		    j = args[0].find_first_not_of("0123456789", i);
 	    	    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
 		    if (id) {
-			rset->add_document(id);
+			rset.add_document(id);
 			ticked[id] = true;
 		    }
 	    	    if (j == string::npos) break;
@@ -1575,8 +1575,8 @@ eval(const string &fmt, const vector<string> &param)
 		    Xapian::ESet eset;
 		    ExpandDeciderOmega decider(db);
 
-		    if (!rset->empty()) {
-			eset = enquire->get_eset(howmany * 2, *rset, &decider);
+		    if (!rset.empty()) {
+			eset = enquire->get_eset(howmany * 2, rset, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;

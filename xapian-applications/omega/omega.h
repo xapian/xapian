@@ -42,7 +42,7 @@ extern string filters;
 
 extern Xapian::Database db;
 extern Xapian::Enquire * enquire;
-extern Xapian::RSet * rset;
+extern Xapian::RSet rset;
 
 extern Xapian::docid topdoc;
 extern Xapian::docid hits_per_page;

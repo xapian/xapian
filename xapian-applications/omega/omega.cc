@@ -46,7 +46,7 @@ using namespace std;
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
-Xapian::RSet * rset;
+Xapian::RSet rset;
 
 map<string, string> option;
 
@@ -425,7 +425,6 @@ try {
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
-    rset = new Xapian::RSet();
     if (!discard_rset) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
@@ -437,7 +436,7 @@ try {
 		for (i = r.begin(); i != r.end(); i++) {
 		    Xapian::docid d = string_to_int(*i);
 		    if (d) {
-			rset->add_document(d);
+			rset.add_document(d);
 			ticked[d] = true;
 		    }
 		}
