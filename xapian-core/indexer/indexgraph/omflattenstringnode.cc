@@ -39,7 +39,7 @@
  *  	out: The string consisting of all input strings concatenated.
  *
  *  Parameters: none
- *
+ */
 class OmFlattenStringNode : public OmIndexerNode {
     public:
 	OmFlattenStringNode(const OmSettings &config)

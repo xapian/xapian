@@ -1,3 +1,7 @@
+Tue Nov  7 10:25:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed an unterminated comment in omflattenstringnode.cc
+
 Mon Nov  6 19:01:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various modifications to quartz.  Martin's library is now C++ in
