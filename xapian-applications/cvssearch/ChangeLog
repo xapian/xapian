@@ -1,3 +1,8 @@
+Wed May 12 20:41:44 BST 2004  Olly Betts <olly@survex.com>
+
+	* map/process/Makefile.am: Add pstream.h to list of files to
+	  distribute.
+
 Sat Mar 27 17:44:41 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/CommitSearch-script.pl: Added "use strict" and fixed code to
