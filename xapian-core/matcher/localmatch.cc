@@ -374,7 +374,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
     switch (query->op) {
 	case OmQuery::Internal::OP_UNDEF: {
 	    LeafPostList *pl = new EmptyPostList();
-	    pl->set_termweight(new BoolWeight(opts));
+	    pl->set_termweight(new BoolWeight());
 	    RETURN(pl);
 	}
 
@@ -387,7 +387,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    // postlist instead
 	    IRWeight * wt;
 	    if (is_bool) {
-		wt = new BoolWeight(opts);
+		wt = new BoolWeight();
 	    } else {
 		wt = mk_weight(query);
 	    }

@@ -341,8 +341,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			AutoPtr<LeafPostList> lpl(new EmptyPostList);
 			// give it a weighting object
 			// FIXME: make it an EmptyWeight instead of BoolWeight
-			OmSettings unused;
-			lpl->set_termweight(new BoolWeight(unused));
+			lpl->set_termweight(new BoolWeight());
 
 			delete *pl_iter;
 			*pl_iter = lpl.release();

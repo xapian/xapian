@@ -70,8 +70,7 @@ MergePostList::next(om_weight w_min)
 		AutoPtr<LeafPostList> lpl(new EmptyPostList);
 		// give it a weighting object
 		// FIXME: make it an EmptyWeight instead of BoolWeight
-		OmSettings unused;
-		lpl->set_termweight(new BoolWeight(unused));
+		lpl->set_termweight(new BoolWeight());
 		plists[current] = lpl.release();
 	    } else {
 		throw;

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,14 +40,14 @@ IRWeight::create_new(const OmSettings & opts)
 
     const std::string wt_type = opts.get("match_weighting_scheme", "bm25");
 
-    if (wt_type.size() == 0 || wt_type.at(0) != 'x') {
+    if (wt_type.empty() || wt_type.at(0) != 'x') {
 	// Create weight of correct type
 	if (wt_type == "bm25") {
 	    weight = new BM25Weight(opts);
 	} else if (wt_type == "trad") {
 	    weight = new TradWeight(opts);	
 	} else if (wt_type == "bool") {
-	    weight = new BoolWeight(opts);
+	    weight = new BoolWeight();
 	} else {
 	    throw OmInvalidArgumentError("Unknown weighting scheme");
 	}	
@@ -72,7 +73,6 @@ void
 IRWeight::register_custom(const std::string &wt_type, const IRWeight *wt)
 {
     DEBUGCALL_STATIC(MATCH, void, "IRWeight::register_custom", wt_type << ", " << wt);
-    // FIXME threadlock
     Assert(wt);
     if (wt_type.empty() || wt_type[0] != 'x') {
 	throw OmInvalidArgumentError("Custom weighting scheme names must start with `x'");
