@@ -1,3 +1,8 @@
+Thu Nov 29 15:24:53 GMT 2001  Olly Betts <olly@survex.com>
+
+	* topdoc is unsigned so subtracting and then checking if it's < 0 doesn't
+	  work...
+
 Wed Nov 28 15:45:39 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed clipping of hit page in case when there are a multiple of HITSPERPAGE

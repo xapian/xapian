@@ -282,7 +282,7 @@ main2(int argc, char *argv[])
 	if (cgi_params.find(">") != cgi_params.end()) {
 	    topdoc += hits_per_page;
 	} else if (cgi_params.find("<") != cgi_params.end()) {
-	    topdoc -= hits_per_page;
+	    if (topdoc >= hits_per_page) topdoc -= hits_per_page;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
 	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
@@ -290,7 +290,6 @@ main2(int argc, char *argv[])
 
 	// snap topdoc to page boundary
 	topdoc = (topdoc / hits_per_page) * hits_per_page;
-	if (topdoc < 0) topdoc = 0;
     }
     if (result != NEW_QUERY) {
 	// put documents marked as relevant into the rset
