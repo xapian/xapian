@@ -413,8 +413,8 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 		omrset = OmRSet();
 	    } else {
 		did = atoi(message.c_str());
-		int i = message.find(';');
-		int j = message.find(' ');
+		std::string::size_type i = message.find(';');
+		std::string::size_type j = message.find(' ');
 		if (j != message.npos && (i == message.npos || j < i)) {
 		    istrstream is(message.substr(j + 1, i - j - 1).c_str());
 		    is >> w;
