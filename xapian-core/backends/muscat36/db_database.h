@@ -252,6 +252,8 @@ class DBDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class DBDocument;
     private:
+	OmLock mutex;
+
 	struct DB_file * DB;
 
 	FILE * keyfile;
@@ -274,6 +276,14 @@ class DBDatabase : public IRDatabase {
 	 *  not open).
 	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
+
+	/** Internal method for opening postlists.
+	 */
+	LeafPostList * open_post_list_internal(const om_termname & tname) const;
+
+	/** Internal method for checking term existence.
+	 */
+	bool term_exists_internal(const om_termname & tname) const;
 
 	/** Create and open a DB database.
 	 *
@@ -321,35 +331,5 @@ class DBDatabase : public IRDatabase {
                 "DBDatabase::unlock() not implemented");
         };
 };
-
-inline om_doccount
-DBDatabase::get_doccount() const
-{
-    return DB->doc_count;
-}
-
-inline om_doclength
-DBDatabase::get_avlength() const
-{
-    // FIXME - actually return average length
-    return 1;
-}
-
-inline om_doclength
-DBDatabase::get_doclength(om_docid did) const
-{
-    return get_avlength();
-}
-
-inline om_doccount
-DBDatabase::get_termfreq(const om_termname & tname) const
-{
-    if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname);
-    om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
-    delete pl;
-    return freq;
-}
 
 #endif /* OM_HGUARD_DB_DATABASE_H */

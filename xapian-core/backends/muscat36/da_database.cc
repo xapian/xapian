@@ -255,7 +255,8 @@ DADatabase::get_termfreq(const om_termname & tname) const
 {
     OmLockSentry sentry(mutex);
 
-    if(!term_exists(tname)) return 0;
+    if(term_lookup(tname).get() == 0) return 0;
+
     PostList *pl = open_post_list_internal(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
@@ -406,6 +407,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 bool
 DADatabase::term_exists(const om_termname & tname) const
 {
+    OmLockSentry sentry(mutex);
     if(term_lookup(tname).get() != 0) return true;
     return false;
 }

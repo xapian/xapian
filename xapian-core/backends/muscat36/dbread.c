@@ -226,33 +226,40 @@ static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
     return C;
 }
 
-extern struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
-{   struct DB_postings * q = (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
-    q->DB = DB;
-    q->cursor = DB_make_cursor(DB);
-    q->buffer_size = 0;
-    q->buffer = NULL;
-    if (DB_find(DB, q->cursor, t->key))
-    {   q->key = (byte *) malloc(t->key[0] + ILEN);
-        memmove(q->key, t->key, t->key[0]);
-        q->key[0] += ILEN;
-        copy_tag(DB, q, 0);
-        q->i = PWIDTH;
-        q->freq = -I(q->buffer, 0);
-        if (q->i == q->lim)            /* the famous bug [41] fix */
-        {   DB_move_forward(DB, q->cursor);
-            copy_tag(DB, q, ILEN);
-            q->i = 0;
-        }
+extern struct DB_postings *
+DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
+{
+    struct DB_postings * q =
+	    (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
+    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
+    {
+	q->DB = DB;
+	q->cursor = DB_make_cursor(DB);
+	q->buffer_size = 0;
+	q->buffer = NULL;
+	if (DB_find(DB, q->cursor, t->key))
+	{   q->key = (byte *) malloc(t->key[0] + ILEN);
+	    memmove(q->key, t->key, t->key[0]);
+	    q->key[0] += ILEN;
+	    copy_tag(DB, q, 0);
+	    q->i = PWIDTH;
+	    q->freq = -I(q->buffer, 0);
+	    if (q->i == q->lim)            /* the famous bug [41] fix */
+	    {   DB_move_forward(DB, q->cursor);
+		copy_tag(DB, q, ILEN);
+		q->i = 0;
+	    }
+	}
+	else
+	{   q->buffer = (byte *) malloc(PWIDTH);
+	    q->i = 0;
+	    q->freq = 0;
+	    M_put_I(q->buffer, 0, MAXINT);
+	}
+	q->Doc = 0;
+	q->E = 0;
     }
-    else
-    {   q->buffer = (byte *) malloc(PWIDTH);
-        q->i = 0;
-        q->freq = 0;
-        M_put_I(q->buffer, 0, MAXINT);
-    }
-    q->Doc = 0;
-    q->E = 0;
+    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
     return q;
 }
 
@@ -302,23 +309,26 @@ static void next_posting(struct DB_postings * q, int Z)
 
 extern void DB_read_postings(struct DB_postings * q, int style, int Z)
 {
+    MUS_PTHREAD_MUTEX_LOCK(q->DB->mutex);
+
     if (q->Doc == MAXINT) return;
 
-    if (style > 0)
-    {   next_posting(q, Z);
+    if (style > 0) {
+	next_posting(q, Z);
         if (q->Doc < Z) q->Doc = Z;
-    }
-    else /* interpret ranges */
-    {
+    } else {
+	/* interpret ranges */
         q->Doc++;
         if (q->Doc > q->E || q->E < Z) next_posting(q, Z);
     }
     if (q->Doc < Z) q->Doc = Z;
+    MUS_PTHREAD_MUTEX_UNLOCK(q->DB->mutex);
     return;
 }
 
 extern void DB_close_postings(struct DB_postings * q)
-{   free(q->cursor);
+{
+    free(q->cursor);
     free(q->buffer);
     free(q->key);
     free(q);
@@ -433,11 +443,14 @@ extern struct DB_file * DB_open(const char * s, int pool_size, int heavy_duty)
         DB->term_count = 0;
     }
 
+    MUS_PTHREAD_MUTEX_INIT(DB->mutex);
+
     return DB;
 }
 
 extern void DB_close(struct DB_file * DB)
-{   X_close(DB->locator);
+{
+    X_close(DB->locator);
     {   int i;
         for (i = 0; i < DB->pool_size; i++)
         {   byte * b = DB->pool[i].p;
@@ -446,6 +459,7 @@ extern void DB_close(struct DB_file * DB)
     }
     free(DB->cursor);
     free(DB->pool);
+    MUS_PTHREAD_MUTEX_DESTROY(DB->mutex);
     free(DB);
 }
 
@@ -502,10 +516,20 @@ static int DB_read_unit(struct DB_file * DB, int n, int r_ot_tv, struct record *
 }
 
 extern int DB_get_record(struct DB_file * DB, int n, struct record * r)
-{   return DB_read_unit(DB, n, 0, r);
+{
+    int retval;
+    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
+    retval = DB_read_unit(DB, n, 0, r);
+    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
+    return retval;
 }
 
 extern int DB_get_termvec(struct DB_file * DB, int n, struct termvec * tv)
-{   return DB_read_unit(DB, n, 1, (struct record *) tv);
+{
+    int retval;
+    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
+    retval = DB_read_unit(DB, n, 1, (struct record *) tv);
+    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
+    return retval;
 }
 

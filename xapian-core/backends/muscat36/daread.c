@@ -80,7 +80,8 @@ static int packint(int n, byte * p, int o)
 
 
 static void readda(struct DA_file * q, int n, byte * b)
-{   filehandle q_locator = q->locator;
+{
+    filehandle q_locator = q->locator;
     int q_blocksize = q->blocksize;
     if (X_point(q_locator, q_blocksize, n) >= 0)
        if (X_read(q_locator, b, q_blocksize) == q_blocksize) return;
@@ -112,7 +113,8 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     p->lasttermblock = W(b, 9);
 
     if (p->codeword != type)
-    {   fprintf(stderr, "You are not using a proper DA %s file\n",
+    {
+	fprintf(stderr, "You are not using a proper DA %s file\n",
                (type == DA_TERMS) ? "term" : "record");
         exit(1);
     }
@@ -132,21 +134,25 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     p->pblockno = -1;
 
     if (heavy_duty != 0 && heavy_duty != 1)
-    {   fprintf(stderr, "3rd arg of DA_open should be 0 or 1\n");
+    {
+	fprintf(stderr, "3rd arg of DA_open should be 0 or 1\n");
         exit(1);
     }
     p->heavy_duty = heavy_duty;
+    MUS_PTHREAD_MUTEX_INIT(p->mutex);
     return p;
 }
 
 extern void DA_close(struct DA_file * p)
-{   X_close(p->locator);
+{
+    X_close(p->locator);
     free(p->buffuse);
     {   int i;
         for (i = 0; i <= p->levels; i++) free(p->buffers[i]);
     }
     free(p->buffers);
     free(p->next);
+    MUS_PTHREAD_MUTEX_DESTROY(p->mutex);
     free(p);
 }
 
@@ -158,7 +164,8 @@ extern void DA_close(struct DA_file * p)
 */
 
 static void putin(struct DA_term_info * v, byte * b, int i, int o, int blockno, struct DA_file * p)
-{   v->p = b; v->term = b+o; v->o = i; v->n = blockno;
+{
+    v->p = b; v->term = b+o; v->o = i; v->n = blockno;
     o += b[o];
     o = unpackint(& v->po, b, o);
     o = unpackint(& v->psize, b, o);
@@ -180,33 +187,40 @@ static int fstring(const byte * k, int d, const byte * b, int o, int klen)
 }
 
 extern int DA_term(const byte * k, struct DA_term_info * v, struct DA_file * p)
-{   int klen = k[0];
-    byte * * bvec = p->buffers;
-    int * buse = p->buffuse;
-    int blockno = p->blockcount;  /* root block of index */
-    byte * b;
-    int i, j, o;
-    int lev = 0;
-    while(true)
-    {   b = bvec[lev];
-        if (blockno != buse[lev])
-        {   readda(p, blockno, b);
-            buse[lev] = blockno;
-        }
-        i = 2; j = L2(b, 0);   /* i indexes an index entry */
-        while (j-i > 2)
-        {   int h = (i+j)/4*2;
-            int o = L2(b, h);
-            if (fstring(k, 0, b, o, klen) < 0) j = h; else i = h;
-        }
-        o = L2(b, i);
-        if (lev == p->levels) break;
-        unpackint(& blockno, b, o+b[o]);
-        blockno += I(b, p->blocksize-ILEN-1);
-        lev++;
+{
+    int retval;
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    {
+	int klen = k[0];
+	byte * * bvec = p->buffers;
+	int * buse = p->buffuse;
+	int blockno = p->blockcount;  /* root block of index */
+	byte * b;
+	int i, j, o;
+	int lev = 0;
+	while(true)
+	{   b = bvec[lev];
+	    if (blockno != buse[lev])
+	    {   readda(p, blockno, b);
+		buse[lev] = blockno;
+	    }
+	    i = 2; j = L2(b, 0);   /* i indexes an index entry */
+	    while (j-i > 2)
+	    {   int h = (i+j)/4*2;
+		int o = L2(b, h);
+		if (fstring(k, 0, b, o, klen) < 0) j = h; else i = h;
+	    }
+	    o = L2(b, i);
+	    if (lev == p->levels) break;
+	    unpackint(& blockno, b, o+b[o]);
+	    blockno += I(b, p->blocksize-ILEN-1);
+	    lev++;
+	}
+	putin(v, b, i, o, blockno, p);
+	retval = (fstring(k, 0, b, o, klen) == 0);
     }
-    putin(v, b, i, o, blockno, p);
-    return (fstring(k, 0, b, o, klen) == 0);
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
+    return retval;
 }
 
 static void next_posting(struct DA_postings * q, int Z)
@@ -287,102 +301,134 @@ static int * read_shortcut(struct DA_file * p, int n, int o, int shsize, int shc
     }
 }
 
-extern struct DA_postings * DA_open_postings(struct DA_term_info * v, struct DA_file * p)
-{   struct DA_postings * q = (struct DA_postings *) calloc(1, sizeof(struct DA_postings));
-     q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
-     if (v->freq == 0)
-     {   byte * b = (byte *) calloc(1, sizeof(byte));
-         q->b = b; q->o = 0;
-         b[0] = 0;  /* terminator */
-         return q;
-     }
-     {   int l = p->blocksize;
-         int size = v->psize;
-         int blocknum = v->pn;
-         if (p->next == 0) { p->next = (byte *) calloc(1, l); p->pblockno = -1; }
-         if (l > size)
-         {   q->b = copybytes(size, p, blocknum, v->po);
-             q->blockinc = -1; q->o = 0;
-         }
-         else
-         {   q->b = p->next;
-             p->next = 0;
-             q->blockinc = 0;
-             q->blocknum = blocknum; q->o = v->po;
+extern struct DA_postings *
+DA_open_postings(struct DA_term_info * v, struct DA_file * p)
+{
+    struct DA_postings * q =
+	    (struct DA_postings *) calloc(1, sizeof(struct DA_postings));
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    {
+	q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
 
-             if (v->shsize > 0)
-             {   q->shortcut = read_shortcut(p, blocknum, q->o+size,
-                                             v->shsize, v->shcount);
-                 packint(3, q->b, q->o); /* startoff */
-             }
-             else
-             {   if (p->pblockno != blocknum)
-                 {   readda(p, blocknum, q->b);
-                     p->pblockno = blocknum;
-                 }
-             }
-         }
-     }
-     return q;
+	if (v->freq == 0) {
+	    byte * b = (byte *) calloc(1, sizeof(byte));
+	    q->b = b; q->o = 0;
+	    b[0] = 0;  /* terminator */
+	} else {
+	    int l = p->blocksize;
+	    int size = v->psize;
+	    int blocknum = v->pn;
+	    if (p->next == 0) { p->next = (byte *) calloc(1, l); p->pblockno = -1; }
+	    if (l > size)
+	    {   q->b = copybytes(size, p, blocknum, v->po);
+		q->blockinc = -1; q->o = 0;
+	    }
+	    else
+	    {   q->b = p->next;
+		p->next = 0;
+		q->blockinc = 0;
+		q->blocknum = blocknum; q->o = v->po;
+
+		if (v->shsize > 0)
+		{   q->shortcut = read_shortcut(p, blocknum, q->o+size,
+						v->shsize, v->shcount);
+		packint(3, q->b, q->o); /* startoff */
+		}
+		else
+		{   if (p->pblockno != blocknum)
+		    {   readda(p, blocknum, q->b);
+			p->pblockno = blocknum;
+		    }
+		}
+	    }
+	}
+    }
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
+    return q;
 }
 
 extern void DA_read_postings(struct DA_postings * q, int style, int Z)
 {
-    if (style > 0)
-    {
-        do { next_posting(q, Z); q->E = q->F; } while (q->F < Z);
-        return;
+    MUS_PTHREAD_MUTEX_LOCK(q->p->mutex);
+    if (style > 0) {
+        do {
+	    next_posting(q, Z); q->E = q->F;
+	} while (q->F < Z);
+    } else {
+	/* interpret ranges if style == 0 */
+	q->Doc = q->D; q->F = q->E;
+	while (q->F < Z || q->F < q->Doc) {
+	    next_posting(q, Z);
+	    q->E = q->F;
+	}
+
+	if (q->Doc < Z) q->Doc = Z;
+	q->D = q->Doc+1;
     }
-    /* interpret ranges if style == 0 */
-    q->Doc = q->D; q->F = q->E;
-    while (q->F < Z || q->F < q->Doc) { next_posting(q, Z); q->E = q->F; }
-    if (q->Doc < Z) q->Doc = Z;
-    q->D = q->Doc+1; return;
+    MUS_PTHREAD_MUTEX_UNLOCK(q->p->mutex);
+    return;
 }
 
 extern void DA_close_postings(struct DA_postings * q)
-{   free(q->b);
+{
+    free(q->b);
     free(q->shortcut);
     free(q);
 }
 
-/*********** The following works, but is not currently needed ****
+#if 0
+/* The following works, but is not currently needed */
 
 extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
-{   byte * b = v->p;
-    int i = v->o + 2;
-    int blockno = v->n;
-    if (i == L2(b, 0))
-    {   do
-        {   blockno++;
-            if (blockno > p->lasttermblock) return false;
-            readda(p, blockno, b);
-        } while (b[p->blocksize-1] != 0);
-        i = 2;
-        (p->buffuse)[p->levels] = blockno;
+{
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    {
+	byte * b = v->p;
+	int i = v->o + 2;
+	int blockno = v->n;
+	if (i == L2(b, 0)) {
+	    do {
+		blockno++;
+		if (blockno > p->lasttermblock) {
+		    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
+		    return false;
+		}
+		readda(p, blockno, b);
+	    } while (b[p->blocksize-1] != 0);
+	    i = 2;
+	    (p->buffuse)[p->levels] = blockno;
+	}
+	putin(v, b, i, L2(b, i), blockno, p);
     }
-    putin(v, b, i, L2(b, i), blockno, p);
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return true;
 }
 
 extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
-{   byte * b = v->p;
-    int i = v->o - 2;
-    int blockno = v->n;
-    if (i == 0)
-    {   do
-        {   blockno--;
-            if (blockno < p->firsttermblock) return false;
-            readda(p, blockno, b);
-        } while (b[p->blocksize-1] != 0);
-        i = L2(b, 0)-2;
-        (p->buffuse)[p->levels] = blockno;
+{
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    {
+	byte * b = v->p;
+	int i = v->o - 2;
+	int blockno = v->n;
+	if (i == 0) {
+	    do {
+		blockno--;
+		if (blockno < p->firsttermblock) {
+		    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
+		    return false;
+		}
+		readda(p, blockno, b);
+	    } while (b[p->blocksize-1] != 0);
+	    i = L2(b, 0)-2;
+	    (p->buffuse)[p->levels] = blockno;
+	}
+	putin(v, b, i, L2(b, i), blockno, p);
     }
-    putin(v, b, i, L2(b, i), blockno, p);
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return true;
 }
-
-*****************************************************************/
+#endif
 
 static void DA_read_bytes(struct DA_file * p, int l, struct record * r, int notskipping)
 {   int lev = p->levels;
@@ -471,17 +517,32 @@ static void DA_read_unit(struct DA_file * p, int m, int n, struct record * r)
         lev++;
     }
     p->o = L2(b, 0);
-    if (p->o == 0) { fprintf(stderr, "STRUCTURE ERROR\n"); exit(1); }
+    if (p->o == 0) {
+	fprintf(stderr, "STRUCTURE ERROR\n");
+	exit(1);
+    }
     DA_next_unit(p, m, n, r);
 }
 
 extern int DA_get_record(struct DA_file * p, int n, struct record * r)
-{   int u = 2*n; DA_read_unit(p, u, u, r);
+{
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    DA_read_unit(p,
+		 2 * n,
+		 2 * n,
+		 r);
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return (r->number == n);
 }
 
 extern int DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
-{   int u = 2*n+1; DA_read_unit(p, u, u, (struct record *) tv);
+{
+    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
+    DA_read_unit(p,
+		 2 * n + 1,
+		 2 * n + 1,
+		 (struct record *) tv);
+    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return (tv->number == n);
 }
 

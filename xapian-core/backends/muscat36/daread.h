@@ -29,9 +29,11 @@ extern "C" {
 #endif
 
 #include "3point6.h"
+#include "musmutex.h"
 
 struct DA_file
-{   filehandle locator;
+{
+    filehandle locator;
                       /* DA file locator */
     int o;            /* is used internally in the "record" case */
                       /* vector giving D -> b map for recent Ds I've removed */
@@ -51,6 +53,9 @@ struct DA_file
 
     byte * next;        /* 0, or block of postings */
     int heavy_duty;     /* 1 or 0 according as heavy duty or flimsy */
+
+    /** Mutex for protecting concurrent access to the file. */
+    MUS_PTHREAD_MUTEX(mutex);
 };
 
 struct DA_term_info

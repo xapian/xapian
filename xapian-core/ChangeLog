@@ -1,3 +1,11 @@
+Thu Jul  6 13:49:20 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct concurrency problems in Muscat 3.6 databases.  Should now
+	  be threadsafe (ie, multiple threads may safely access the same
+	  database object - only one thread should access each derived
+	  postlist object, however these are really iterators and this
+	  can never happen when using the API, anyway.)
+
 Thu Jul  6 13:18:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* A few more OmQuery uses added to RunTest.java

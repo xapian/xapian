@@ -192,7 +192,8 @@ bool check_query_threads(void * (* search_thread)(void *))
 	newsearch.database_path = mainsearch.database_path;
 	newsearch.dbgrp = mainsearch.dbgrp;
 
-	read_queries(queryfile + om_inttostring(i + 1), newsearch.queries);
+	read_queries(queryfile + om_inttostring((i % 2) + 1),
+		     newsearch.queries);
 	cout << "search " << (i + 1) << " has " <<
 		newsearch.queries.size() << " items" << endl;
 	TEST_NOT_EQUAL(newsearch.queries.size(), 0);

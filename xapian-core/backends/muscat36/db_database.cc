@@ -208,9 +208,62 @@ DBDatabase::~DBDatabase()
     }
 }
 
+om_doccount
+DBDatabase::get_doccount() const
+{
+    OmLockSentry sentry(mutex);
+
+    return DB->doc_count;
+}
+
+om_doclength
+DBDatabase::get_avlength() const
+{
+    // FIXME - actually want to return real avlength.
+    //OmLockSentry sentry(mutex);
+    return 1;
+}
+
+om_doclength
+DBDatabase::get_doclength(om_docid did) const
+{
+    // FIXME: should return actual length.
+    // FIXME: shouldn't call a public method
+    //OmLockSentry sentry(mutex);
+    return get_avlength();
+}
+
+om_doccount
+DBDatabase::get_termfreq(const om_termname & tname) const
+{
+    OmLockSentry sentry(mutex);
+
+    if(!term_exists_internal(tname)) return 0;
+    PostList *pl = open_post_list_internal(tname);
+    om_doccount freq = 0;
+    if(pl) freq = pl->get_termfreq();
+    delete pl;
+    return freq;
+}
+
+bool
+DBDatabase::term_exists_internal(const om_termname & tname) const
+{
+    if(term_lookup(tname).get() != 0) return true;
+    return false;
+}
+
+bool
+DBDatabase::term_exists(const om_termname & tname) const
+{
+    OmLockSentry sentry(mutex);
+
+    return term_exists_internal(tname);
+}
+
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DBDatabase::open_post_list(const om_termname & tname) const
+DBDatabase::open_post_list_internal(const om_termname & tname) const
 {
     // Make sure the term has been looked up
     OmRefCntPtr<const DBTerm> the_term = term_lookup(tname);
@@ -223,10 +276,20 @@ DBDatabase::open_post_list(const om_termname & tname) const
     return pl;
 }
 
+LeafPostList *
+DBDatabase::open_post_list(const om_termname & tname) const
+{
+    OmLockSentry sentry(mutex);
+
+    return open_post_list_internal(tname);
+}
+
 // Returns a new term list, for the terms in this database for given document
 LeafTermList *
 DBDatabase::open_term_list(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     struct termvec *tv = M_make_termvec();
     int found = DB_get_termvec(DB, did, tv);
 
@@ -245,6 +308,8 @@ DBDatabase::open_term_list(om_docid did) const
 struct record *
 DBDatabase::get_record(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     struct record *r = M_make_record();
     int found = DB_get_record(DB, did, r);
 
@@ -261,6 +326,8 @@ DBDatabase::get_record(om_docid did) const
 OmKey
 DBDatabase::get_key(om_docid did, om_keyno keyid) const
 {
+    OmLockSentry sentry(mutex);
+
     OmKey key;
     DebugMsg("Looking in keyfile for keyno " << keyid << " in document " << did);
 
@@ -287,6 +354,8 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
 LeafDocument *
 DBDatabase::open_document(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     return new DBDocument(this, did, heavy_duty);
 }
 
@@ -315,8 +384,10 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    DebugMsg("Not in collection" << endl);
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
-	    DebugMsg("cache full, wiping");
-	    if(termmap.size() > 500) termmap.clear();
+	    if(termmap.size() > 500) {
+		DebugMsg("cache full, wiping");
+		termmap.clear();
+	    }
 
 	    DebugMsg("found, adding to cache" << endl);
 	    std::pair<om_termname, OmRefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
@@ -330,9 +401,3 @@ DBDatabase::term_lookup(const om_termname & tname) const
     return the_term;
 }
 
-bool
-DBDatabase::term_exists(const om_termname & tname) const
-{
-    if(term_lookup(tname).get() != 0) return true;
-    return false;
-}
