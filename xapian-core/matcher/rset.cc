@@ -35,19 +35,21 @@ RSet::calculate_stats()
     for (doc = documents.begin();
 	 doc != documents.end();
 	 doc++) {
+	DebugMsg("document " << doc->did << " [ ");
 	auto_ptr<TermList> tl;
 	tl = auto_ptr<TermList>(root->open_term_list(doc->did));
 	tl->next();
 	while(!(tl->at_end())) {
-	    DebugMsg("document " << doc->did << ", ");
 	    // FIXME - can this lookup be done faster?
 	    // Store termnamess in a hash for each document, rather than
 	    // a list?
 	    om_termname tname = tl->get_termname();
+	    cout << tname << ", ";
 	    if(reltermfreqs.find(tname) != reltermfreqs.end())
 		reltermfreqs[tname] ++;
 	    tl->next();
 	}
+	cout << tname << "] ";
     }
     DebugMsg("done" << endl);
     calculated_reltermfreqs = true;
