@@ -1,3 +1,8 @@
+Mon Feb 28 02:57:29 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Note that + and - work on phrases and
+	  bracketed expressions.
+
 Fri Feb 25 17:06:23 GMT 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_alltermslist.cc: Fix skip_to on an allterms
