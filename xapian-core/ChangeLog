@@ -1,3 +1,7 @@
+Fri Dec  8 17:14:09 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Oops - removed one too many #include "autoptr.h"
+
 Fri Dec 08 16:50:42 GMT 2000 Olly Betts
 
 	* Updated TODO.

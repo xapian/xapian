@@ -24,6 +24,7 @@
 #include "om/omerror.h"
 #include "omstringstream.h"
 #include "refcnt.h"
+#include "autoptr.h"
 #include <algorithm>
 
 /*  FIXME: perhaps make a custom (efficient) allocator for these
