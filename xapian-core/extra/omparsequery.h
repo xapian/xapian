@@ -38,6 +38,11 @@ class OmStopper {
 };
 
 class OmQueryParser {
+    private:
+	// Prevent copying
+	OmQueryParser(const OmQueryParser &);
+	OmQueryParser & operator=(const OmQueryParser &);
+    
     public:
 	OmQueryParser() : default_op(OmQuery::OP_OR), stop(NULL), stemmer(NULL),
 		stem(true), stem_all(false)

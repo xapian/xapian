@@ -35,6 +35,10 @@
  */
 class MergePostList : public PostList {
     private:
+        // Prevent copying
+        MergePostList(const MergePostList &);
+        MergePostList & operator=(const MergePostList &);
+
         om_weight w_max;
 
 	vector<PostList *> plists;

@@ -103,6 +103,10 @@ SocketClient::keep_alive()
 // gets unset even if an exception occurs.
 class TimerSentry {
     private:
+        // Prevent copying
+        TimerSentry(const TimerSentry &);
+        TimerSentry & operator=(const TimerSentry &);
+
 	SocketClient *client;
     public:
 	TimerSentry(SocketClient *client_) : client(client_) {

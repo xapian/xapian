@@ -58,18 +58,29 @@ enum Btree_errors {
     BTREE_ERROR_REVISION
 };
 
-struct Cursor {
-    /** Constructor, to set important elements to 0.
-     */
-    Cursor() : p(0), c(-1), n(-1), rewrite(false), split_p(0), split_n(-1) {}
+class Cursor {
+    private:
+        // Prevent copying
+        Cursor(const Cursor &);
+        Cursor & operator=(const Cursor &);
 
-    byte * p;         /* pointer to a block */
-    int c;            /* offset in the block's directory */
-    int4 n;           /* block number */
-    int rewrite;      /* true if the block is not the same as on disk,
-			 and so needs rewriting */
-    byte * split_p;   /* pointer to a block split off from main block */
-    int4 split_n;     /* - and its block number */
+    public:
+	/// Constructor, to initiaise important elements.
+	Cursor() : p(0), c(-1), n(-1), rewrite(false), split_p(0), split_n(-1)
+	{}
+
+	/// pointer to a block
+	byte * p;
+	/// offset in the block's directory
+	int c;
+	/// block number
+	int4 n;
+	/// true if the block is not the same as on disk, and so needs rewriting
+	int rewrite;
+	/// pointer to a block split off from main block
+	byte * split_p;
+	/// block number of a block split off from main block
+	int4 split_n;
 };
 
 /* n is kept in tandem with p.

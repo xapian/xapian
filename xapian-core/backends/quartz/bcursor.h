@@ -32,6 +32,11 @@ class Btree;
 
 class Bcursor {
     friend class Btree; // for AutoPtr<Bcursor> Btree::Bcursor_create();
+    private:
+        // Prevent copying
+        Bcursor(const Bcursor &);
+        Bcursor & operator=(const Bcursor &);
+
     public:
 	/** Destroy a Bcursor */
 	~Bcursor();
@@ -50,8 +55,8 @@ class Bcursor {
 	 *  off either end of the list of items */
 	bool positioned;
 		       
-	struct Btree * B;
-	struct Cursor * C;
+	Btree * B;
+	Cursor * C;
 
 	/** The value of shared_level in the Btree structure. */
 	int shared_level;

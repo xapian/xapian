@@ -35,6 +35,11 @@
  *  for that document.
  */
 class BranchPostList : public PostList {
+    private:
+        // Prevent copying
+        BranchPostList(const BranchPostList &);
+        BranchPostList & operator=(const BranchPostList &);
+
     protected:
 	/** Utility method, to call recalc_maxweight() and do the pruning
 	 *  if a next() or skip_to() returns non-NULL result.
@@ -53,6 +58,7 @@ class BranchPostList : public PostList {
 	 *  recalculated.
 	 */
         MultiMatch *matcher;
+
     public:
 	BranchPostList(PostList *l_, PostList *r_, MultiMatch *matcher_)
 		: l(l_), r(r_), matcher(matcher_) {}

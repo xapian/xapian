@@ -33,6 +33,10 @@
 class MSetPostList : public PostList {
     friend class RemoteSubMatch;
     private:
+        // Prevent copying
+        MSetPostList(const MSetPostList &);
+        MSetPostList & operator=(const MSetPostList &);
+
 	OmMSet mset;    
 	const NetworkDatabase *db;
 	int current;

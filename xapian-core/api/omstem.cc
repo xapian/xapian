@@ -174,6 +174,11 @@ static const StringAndValue language_strings[] = {
 // OmStem::Internal class
 
 class OmStem::Internal {
+    private:
+        // Prevent copying
+        Internal(const OmStem::Internal &);
+        Internal & operator=(const OmStem::Internal &);
+
     public:
 	/** Initialise the state based on the specified language name.
 	 */
@@ -194,8 +199,8 @@ class OmStem::Internal {
 	/** Stem the given word.
 	 */
 	string stem_word(const string &word) const;
-    private:
 
+    private:
 	/** Data used by the stemming algorithm.
 	 */
 	struct SN_env * stemmer_data;

@@ -37,11 +37,9 @@ class Database;
 /// A document in the database - holds values, terms, postings, etc
 class Document : public RefCntBase {
     private:
-	/// Copies are not allowed.
-	Document(const Document &, om_docid did);
-
-	/// Assignment is not allowed.
-	void operator=(const Document &);
+        // Prevent copying
+        Document(const Document &);
+        Document & operator=(const Document &);
 
 	const Database *database;
 

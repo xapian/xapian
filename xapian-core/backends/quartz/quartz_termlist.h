@@ -34,6 +34,10 @@
  */
 class QuartzTermList : public LeafTermList {
     private:
+        // Prevent copying
+        QuartzTermList(const QuartzTermList &);
+        QuartzTermList & operator=(const QuartzTermList &);
+
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
 	 */

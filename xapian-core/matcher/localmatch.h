@@ -37,12 +37,18 @@ class Document;
 class PostList;
 
 #include <vector>
+using std::vector;
 #include <map>
+using std::map;
 #include "autoptr.h"
 #include "omdebug.h"
 
 class LocalSubMatch : public SubMatch {
     private:
+        // Prevent copying
+        LocalSubMatch(const LocalSubMatch &);
+        LocalSubMatch & operator=(const LocalSubMatch &);
+
 	AutoPtr<StatsSource> statssource;
 	
 	bool is_prepared;
@@ -62,16 +68,16 @@ class LocalSubMatch : public SubMatch {
 	OmSettings opts;
 
 	/// The weights and termfreqs of terms in the query.
-	std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
+	map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
 
 
-	PostList * build_xor_tree(std::vector<PostList *> &postlists,
+	PostList * build_xor_tree(vector<PostList *> &postlists,
 				  MultiMatch *matcher);
 
-	PostList * build_and_tree(std::vector<PostList *> &postlists,
+	PostList * build_and_tree(vector<PostList *> &postlists,
 				  MultiMatch *matcher);
 
-	PostList * build_or_tree(std::vector<PostList *> &postlists,
+	PostList * build_or_tree(vector<PostList *> &postlists,
 				 MultiMatch *matcher);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
@@ -125,7 +131,7 @@ class LocalSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
+	const map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}
 };   

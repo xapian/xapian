@@ -123,6 +123,11 @@ class LocalStatsGatherer : public StatsGatherer {
  *  needed, and passes them on in bulk to a StatsGatherer.
  */
 class StatsSource {
+    private:
+        // Prevent copying
+        StatsSource(const StatsSource &);
+        StatsSource & operator=(const StatsSource &);
+
     protected:
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.

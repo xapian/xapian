@@ -39,6 +39,11 @@ using std::string;
 
 class Btree {
     friend class Bcursor; /* Should probably fix this. */
+    private:
+        // Prevent copying
+        Btree(const Btree &);
+        Btree & operator=(const Btree &);
+
     public:
 	/** Constructor */
 	Btree();

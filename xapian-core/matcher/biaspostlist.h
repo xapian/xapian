@@ -81,6 +81,10 @@ class OmBiasFunctor {
 /// A postlist which adds on an extra weight contribution from a functor
 class BiasPostList : public PostList {
     private:
+        // Prevent copying
+        BiasPostList(const BiasPostList &);
+        BiasPostList & operator=(const BiasPostList &);
+
 	PostList *pl;
 	OmDatabase db;
 	OmBiasFunctor *bias;

@@ -108,6 +108,10 @@ class TermList : public RefCntBase
  */
 class LeafTermList : public TermList
 {
+    private:
+        // Prevent copying
+        LeafTermList(const LeafTermList &);
+        LeafTermList & operator=(const LeafTermList &);
     protected:
 	const OmExpandWeight * wt;
     public:

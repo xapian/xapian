@@ -31,6 +31,11 @@
  *  from a source postlist (e.g. NEAR and PHRASE)
  */
 class SelectPostList : public PostList {
+    private:
+        // Prevent copying
+        SelectPostList(const SelectPostList &);
+        SelectPostList & operator=(const SelectPostList &);
+
     protected:
 	PostList *source;
 
