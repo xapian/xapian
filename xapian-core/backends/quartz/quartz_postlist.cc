@@ -28,6 +28,20 @@
 #include "quartz_table.h"
 #include "database.h"
 
+/// Make a key for accessing the postlist.
+static void
+make_key(const string & tname, Xapian::docid did, string & key)
+{
+    key = pack_string_preserving_sort(tname);
+    key += pack_uint_preserving_sort(did);
+}
+
+static void
+make_key(const string & tname, string & key)
+{
+    key = pack_string_preserving_sort(tname);
+}
+
 // How big should chunks in the posting list be?  (They
 // will grow slightly bigger than this, but not more than a
 // few bytes extra) - FIXME: tune this value to try to
@@ -106,7 +120,8 @@ class PostlistChunkWriter {
 			    bool is_last_chunk_);
 
 	/// Append an entry to this chunk.
-	void append(Xapian::docid did, Xapian::termcount wdf, quartz_doclen_t doclen);
+	void append(QuartzBufferedTable * table, Xapian::docid did,
+		    Xapian::termcount wdf, quartz_doclen_t doclen);
 
 	/// Append a block of raw entries to this chunk.
 	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
@@ -333,20 +348,27 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 }
 
 void
-PostlistChunkWriter::append(Xapian::docid did, Xapian::termcount wdf,
-			    quartz_doclen_t doclen)
+PostlistChunkWriter::append(QuartzBufferedTable * table, Xapian::docid did,
+			    Xapian::termcount wdf, quartz_doclen_t doclen)
 {
     if (!started) {
 	started = true;
 	first_did = did;
     } else {
-	if (chunk.size() >= CHUNKSIZE) {
-	    // Start a new chunk!
-	    // FIXME: actually do this!
-	}
-
 	Assert(did > current_did);
-	chunk.append(pack_uint(did - current_did - 1));
+	// Start a new chunk if this one has grown to the threshold.
+	if (chunk.size() >= CHUNKSIZE) {
+	    bool save_is_last_chunk = is_last_chunk;
+	    is_last_chunk = false;
+	    flush(table);
+	    is_last_chunk = save_is_last_chunk;
+	    is_first_chunk = false;
+	    first_did = did;
+	    chunk = "";
+	    make_key(tname, first_did, orig_key);
+	} else {
+	    chunk.append(pack_uint(did - current_did - 1));
+	}
     }
     current_did = did;
     chunk.append(make_wdf_and_length(wdf, doclen));
@@ -372,20 +394,6 @@ make_start_of_chunk(bool new_is_last_chunk,
     Assert(new_final_did >= new_first_did);
     return pack_bool(new_is_last_chunk) +
 	    pack_uint(new_final_did - new_first_did - 1);
-}
-
-/// Make a key for accessing the postlist.
-static void
-make_key(const string & tname, Xapian::docid did, string & key)
-{
-    key = pack_string_preserving_sort(tname);
-    key += pack_uint_preserving_sort(did);
-}
-
-static void
-make_key(const string & tname, string & key)
-{
-    key = pack_string_preserving_sort(tname);
 }
 
 void
@@ -1121,7 +1129,8 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    if (copy_did == did) from->next();
 		    break;
 		}
-		to->append(copy_did, from->get_wdf(), from->get_doclength());
+		to->append(bufftable, copy_did,
+			   from->get_wdf(), from->get_doclength());
 		from->next();
 	    }
 	    if (from && from->is_at_end() && did > max_did) {
@@ -1138,13 +1147,14 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		Xapian::termcount new_doclen = k->second;
 		Xapian::termcount new_wdf = j->second.second;
 
-		to->append(did, new_wdf, new_doclen);
+		to->append(bufftable, did, new_wdf, new_doclen);
 	    }
 	}
 
 	if (from) {
 	    while (!from->is_at_end()) {
-		to->append(from->get_docid(), from->get_wdf(), from->get_doclength());
+		to->append(bufftable, from->get_docid(),
+			   from->get_wdf(), from->get_doclength());
 		from->next();
 	    }
 	    delete from;
