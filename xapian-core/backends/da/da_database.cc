@@ -10,7 +10,7 @@
 
 DAPostList::DAPostList(struct postings *pl) {
     postlist = pl;
-    //currdoc  = da_postlist_nextitem(pl);
+    DAreadpostings(postlist, 0, 0);
 }
 
 DAPostList::~DAPostList() {
@@ -19,28 +19,26 @@ DAPostList::~DAPostList() {
 
 docid DAPostList::get_docid() {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    return currdoc;
+    return postlist->Doc;
 }
 
 weight DAPostList::get_weight() {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    return 1;
+    return postlist->wdf;
 }
 
 void DAPostList::next() {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    //currdoc = da_postlist_nextitem(postlist);
+    DAreadpostings(postlist, 0, 0);
 }
 
 void DAPostList::skip_to(docid id) {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    while (!at_end() && get_docid() < id) {
-	next();
-    }
+    DAreadpostings(postlist, 0, id);
 }
 
 bool DAPostList::at_end() {
-    if(currdoc == 0) return true;
+    if(postlist->Doc == MAXINT) return true;
     return false;
 }
 
