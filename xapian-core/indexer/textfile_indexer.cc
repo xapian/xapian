@@ -40,7 +40,8 @@ TextfileIndexer::add_source(const IndexerSource &source)
 
     while(*from) {
 	string para;
-	get_paragraph(*from, para);
+	//get_paragraph(*from, para);
+	get_a_line(*from, para);
 	
 	docid did = dest->make_doc(para);
 	termcount position = 1;

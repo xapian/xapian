@@ -8,5 +8,6 @@
 void lowercase_term(termname &);
 void select_characters(termname &term, const string & keep);
 void get_paragraph(istream &input, string &para);
+void get_a_line(istream &input, string &line);
 
 #endif /* _index_utils_h_ */

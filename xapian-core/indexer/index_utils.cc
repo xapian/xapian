@@ -46,3 +46,11 @@ void get_paragraph(istream &input, string &para) {
 	para += " ";
     } while(line.find_first_not_of(" \t") != string::npos || linecount < 3);
 }
+
+// Read a line from stream.
+void get_a_line(istream &input, string &line) {
+    while(input) {
+	getline(input, line);
+	if(line.find_first_not_of(" \t") != string::npos) break;
+    }
+}
