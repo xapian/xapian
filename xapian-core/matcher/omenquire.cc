@@ -164,8 +164,6 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 		// Query1 has different operation (or is a leaf)
 		initialise_from_copy(right);
 		subqs.push_back(new OmQuery(left));
-		// FIXME: this puts the
-		// query in an different order from that entered.
 	    } else {
 		subqs.push_back(new OmQuery(left));
 		subqs.push_back(new OmQuery(right));
@@ -647,7 +645,11 @@ OmEnquire::get_mset(om_doccount first,
 	match.boolmatch(first, maxitems, retval.items);
 	retval.mbound = retval.items.size();
 	retval.max_possible = 1;
-	retval.max_attained = 1;
+	if(retval.items.size() > 0) {
+	    retval.max_attained = 1;
+	} else {
+	    retval.max_attained = 0;
+	}
     } else {
 	match.match(first, maxitems, retval.items,
 		    msetcmp_forward, &(retval.mbound), &(retval.max_attained));
