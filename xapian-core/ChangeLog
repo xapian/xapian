@@ -1,3 +1,8 @@
+Thu Dec 30 00:50:58 GMT 2004  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: QueryParser::parse_query() was failing to
+	  clear termlist and unstem.
+
 Fri Dec 24 00:07:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated from tinderbox.

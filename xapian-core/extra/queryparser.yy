@@ -522,6 +522,8 @@ yyerror(const char *s)
 Query
 QueryParser::parse_query(const string &q_)
 {
+    termlist.clear();
+    unstem.clear();
     qp = this;
 
     q.erase();
