@@ -1,3 +1,8 @@
+Thu Apr 15 00:48:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Defined POSIX_SOURCE to a suitable value to get
+	  posix_fadvise on some versions of redhat.
+
 Mon Apr 12 01:06:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: Version 0.8.0.
