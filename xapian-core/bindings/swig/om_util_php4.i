@@ -25,11 +25,17 @@
 %include typemaps.i
 
 %typemap(php4, out) string {
-    RETURN_STRINGL((char*)$1.data(), $1.length(),1);
+//$result blah
+//    RETVAL_STRINGL((char*)$1.data(), $1.length(),1);
+  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
+
+
 }
 
 %typemap(php4, out) std::string {
-    RETURN_STRINGL((char*)$1.data(), $1.length(),1);
+//$result blah
+//    RETVAL_STRINGL((char*)$1.data(), $1.length(),1);
+  ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
 }
 
 %typemap(php4, in) const OmSettings & {
@@ -58,7 +64,7 @@
     $1 = new string(Z_STRVAL_PP($input));
 }
 
-%typemap(php4, out) om_termname_list {
+%typemap(php4, out) std::list<om_termname > {
     array_init($result);
 
     for(om_termname_list::const_iterator tn = $1->begin();
