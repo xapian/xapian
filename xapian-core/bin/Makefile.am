@@ -16,7 +16,7 @@ check_PROGRAMS = $(remote_check_programs)
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc
-quartzcheck_LDADD = ../backends/quartz/libbtreecheck.la ../libxapian.la
+quartzcheck_LDADD = ../libxapian.la ../backends/quartz/libbtreecheck.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc

@@ -1,3 +1,9 @@
+Fri Sep 26 09:39:29 BST 2003  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am: Swap order of libbtreecheck.la and libxapian.la
+	  when linking quartzcheck to see if that gets it to work with
+	  Sun's CC.
+
 Thu Sep 25 17:25:17 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fixed stupid mistake in previous check-in.
