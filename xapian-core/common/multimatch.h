@@ -25,6 +25,7 @@
 
 #include "match.h"
 #include "stats.h"
+#include "omrefcnt.h"
 
 #include <vector>
 #include <memory>  // auto_ptr
@@ -38,7 +39,7 @@ class MultiMatch
 {
     private:
 	/// Vector of the items 
-	vector<SingleMatch *> leaves;
+	vector<OmRefCntPtr<SingleMatch> > leaves;
 	
 	/// The database
 	MultiDatabase *multi_database;
@@ -52,12 +53,8 @@ class MultiMatch
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
-#ifdef MUS_DEBUG
-	bool allow_add_singlematch;
-#endif /* MUS_DEBUG */
-
 	/// Construct a SingleMatch object from an IRDatabase
-	auto_ptr<SingleMatch> make_match_from_database(IRDatabase *db);
+	OmRefCntPtr<SingleMatch> make_match_from_database(IRDatabase *db);
 
 	/** Change all the document IDs in the given mset to be valid
 	 *  globally, rather than within the sub-match which produced them.
@@ -85,6 +82,11 @@ class MultiMatch
 	bool have_not_seen_key(set<OmKey> & collapse_entries,
 			       const OmKey & new_key);
 	
+
+	/** Get the maximum possible weight.
+	 */
+	om_weight get_max_weight();
+
         /** Merge two msets together.
 	 *
 	 *  @param mset      The mset to put the results in.
@@ -99,7 +101,7 @@ class MultiMatch
 	 *  FIXME: this method should be refactored to reduce the number
 	 *  of parameters.
 	 */
-	bool add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
+	bool add_next_sub_mset(SingleMatch * leaf,
 			       om_doccount number_of_leaves,
 			       om_doccount leaf_number,
 			       om_doccount lastitem,
@@ -177,8 +179,6 @@ class MultiMatch
 	void set_rset(auto_ptr<RSet> rset_);
 	void set_weighting(IRWeight::weight_type wt_type);
 	void set_options(const OmMatchOptions & moptions_);
-
-	om_weight get_max_weight();
 
 	void match(om_doccount first,
 		   om_doccount maxitems,

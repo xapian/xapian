@@ -211,6 +211,10 @@ MultiDatabase::term_exists(const om_termname & tname) const
 	}
 
 	if(found) {
+	    if (terms.size() > 500) {
+		DebugMsg("(term cache full - clearing) " << endl);
+		terms.clear();
+	    }
 	    DebugMsg("found in sub-database" << endl);
 	    terms.insert(tname);
 	} else {

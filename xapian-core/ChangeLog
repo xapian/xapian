@@ -1,3 +1,13 @@
+Mon May 15 12:23:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Bugfix: MultiDatabases term existence cache no longer grows
+	  arbitrarily.  (But not an efficient implementation)
+
+	* SingleMatch now inherits from OmRefCntBase, so we can use
+	  reference counted pointers to it.
+	
+	* More work tidying up structure of MultiDatabase and MultiMatch.
+
 Mon May 15 11:34:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now use SO_REUSEADDR in TCP server

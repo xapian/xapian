@@ -20,9 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | MultiDatabase   | Has an infinitely growing "cache": will use
-         |                 | arbitrary amounts of memory.
----------+-----------------+--------------------------------------------------
  High    | API             | Make OmDatabase object, which OmWritableDatabase
          |                 | (and OmDatabaseGroup ?) inherit from.
 ---------+-----------------+--------------------------------------------------
@@ -130,6 +127,9 @@ Priority | Area            | Task
  Medium  | Matchers        | Deprecate get_max_weight() - not useful
          |                 | independently of get_mset(), which now returns
 	 |                 | its value.
+---------+-----------------+--------------------------------------------------
+ Medium  | MultiDatabase   | Termcache currently clears itself when full: make
+         |                 | more efficient.
 ---------+-----------------+--------------------------------------------------
  Medium  | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)

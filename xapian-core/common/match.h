@@ -28,6 +28,7 @@
 #include "om/omdocument.h"
 #include "om/omenquire.h"
 #include "irweight.h"
+#include "omrefcnt.h"
 
 #include <stack>
 #include <vector>
@@ -57,7 +58,7 @@ class OmMSetCmp {
 class StatsGatherer;
 
 /// Base class for single matchers
-class SingleMatch
+class SingleMatch : public OmRefCntBase
 {
     friend class MultiMatch;
     private:
@@ -98,22 +99,6 @@ class SingleMatch
 	 *  FIXME: fold this into set_options()
 	 */
 	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
-
-#if 0
-	/** Set cutoff at min percentage - defaults to -1, which means no
-	 *  cutoff.
-	 */
-	virtual void set_min_weight_percent(int pcent) = 0;
-
-	/** Add a key number to collapse by.  Each key value will appear only
-	 *  once in the result set.  Collapsing can only be done on one key
-	 *  number.
-	 */
-	virtual void set_collapse_key(om_keyno key) = 0;
-
-	/** Remove the collapse key. */
-	virtual void set_no_collapse() = 0;
-#endif
 
 	/** Set the match options. */
 	virtual void set_options(const OmMatchOptions & moptions_) = 0;

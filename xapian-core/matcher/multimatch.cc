@@ -39,66 +39,38 @@ MultiMatch::MultiMatch(MultiDatabase *multi_database_,
 	: multi_database(multi_database_),
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
-#ifdef MUS_DEBUG
-	, allow_add_singlematch(true)
-#endif /* MUS_DEBUG */
 {
     vector<OmRefCntPtr<IRDatabase> >::iterator db;
-    try {
-	for (db = multi_database->databases.begin();
-	     db != multi_database->databases.end();
-	     ++db) {
-	    // FIXME: this is for exception safety: tidy up by replacing
-	    // leaves with a vector of reference counted pointers.
-	    auto_ptr<SingleMatch> smatch(make_match_from_database(db->get()));
-	    SingleMatch *temp = smatch.get();
-	    leaves.push_back(temp);
-
-	    // smatch no longer owns the pointer
-	    smatch.release();
-
-	    // Link the SingleMatch object to the StatsGatherer
-	    temp->link_to_multi(gatherer.get());
-	}
-    } catch (...) {
-	// clean up in case an exception happens above
-        for (vector<SingleMatch *>::iterator i = leaves.begin();
-	     i != leaves.end();
-	     ++i) {
-	    delete *i;
-	}
-	throw;
+    for (db = multi_database->databases.begin();
+	 db != multi_database->databases.end();
+	 ++db) {
+	OmRefCntPtr<SingleMatch> smatch(make_match_from_database(db->get()));
+	smatch->link_to_multi(gatherer.get());
+	leaves.push_back(smatch);
     }
 }
 
-auto_ptr<SingleMatch>
+OmRefCntPtr<SingleMatch>
 MultiMatch::make_match_from_database(IRDatabase *db)
 {
     /* There is currently only one special case, for network
      * databases.
      */
     if (db->is_network()) {
-	return auto_ptr<SingleMatch>(new NetworkMatch(db));
+	return OmRefCntPtr<SingleMatch>(new NetworkMatch(db));
     } else {
-	return auto_ptr<SingleMatch>(new LocalMatch(db));
+	return OmRefCntPtr<SingleMatch>(new LocalMatch(db));
     }
 }
 
 MultiMatch::~MultiMatch()
 {
-    // delete the singlematches in the container.
-    for (vector<SingleMatch *>::iterator i = leaves.begin();
-	 i != leaves.end();
-	 ++i) {
-	delete *i;
-    }
 }
 
 void
 MultiMatch::set_query(const OmQueryInternal * query)
 {
-    Assert((allow_add_singlematch = false) == false);
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
+    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_query(query);
     }
@@ -107,10 +79,8 @@ MultiMatch::set_query(const OmQueryInternal * query)
 void
 MultiMatch::set_rset(auto_ptr<RSet> rset_)
 {
-    Assert((allow_add_singlematch = false) == false);
-
     rset = rset_;
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
+    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_rset(rset.get());
     }
@@ -121,8 +91,7 @@ MultiMatch::set_rset(auto_ptr<RSet> rset_)
 void
 MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
-    Assert((allow_add_singlematch = false) == false);
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
+    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_weighting(wt_type_);
     }
@@ -132,10 +101,7 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 void
 MultiMatch::set_options(const OmMatchOptions & moptions_)
 {
-#ifdef MUS_DEBUG
-    allow_add_singlematch = false;
-#endif
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
+    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions_);
     }
@@ -147,16 +113,16 @@ MultiMatch::set_options(const OmMatchOptions & moptions_)
 om_weight
 MultiMatch::get_max_weight()
 {
-    Assert((allow_add_singlematch = false) == false);
     Assert(leaves.size() > 0);
 
     // FIXME: this always asks the first database; make it pick one in some
     // way so that the load is fairly spread?
+    // FIXME: assume that prepare_match has been called.
     leaves.front()->prepare_match(false);
     om_weight result = leaves.front()->get_max_weight();
 
 #ifdef MUS_DEBUG
-    for(vector<SingleMatch *>::iterator i = leaves.begin();
+    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->prepare_match(false);
 	Assert((*i)->get_max_weight() == result);
@@ -236,7 +202,7 @@ MultiMatch::merge_msets(vector<OmMSetItem> &mset,
 }
 
 bool
-MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
+MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 			      om_doccount number_of_leaves,
 			      om_doccount leaf_number,
 			      om_doccount lastitem,
@@ -247,7 +213,7 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
     OmMSet sub_mset;
 
     // Get next mset
-    if ((*leaf)->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
+    if (leaf->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
 			  &(sub_mset.max_attained), mdecider, nowait)) {
 	// Merge stats
 	mset.mbound += sub_mset.mbound;
@@ -270,7 +236,7 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	for(vector<SingleMatch *>::iterator leaf = leaves.begin();
+	for(vector<OmRefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
 	    leaf != leaves.end(); leaf++) {
 	    if (!(*leaf)->prepare_match(nowait)) {
 		prepared = false;
@@ -294,10 +260,10 @@ MultiMatch::collect_msets(om_doccount lastitem,
     mset.firstitem = 0;
 
     vector<bool> mset_received(leaves.size(), false);
-    vector<SingleMatch *>::size_type msets_received = 0;
+    vector<OmRefCntPtr<SingleMatch> >::size_type msets_received = 0;
 
     om_doccount leaf_number;
-    vector<SingleMatch *>::iterator leaf;
+    vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
 
     // Get msets one by one, and merge each one with the current mset.
     // FIXME: this approach may be very inefficient - needs attention.
@@ -312,7 +278,7 @@ MultiMatch::collect_msets(om_doccount lastitem,
 		continue;
 	    }
 
-	    if (add_next_sub_mset(leaf,
+	    if (add_next_sub_mset((*leaf).get(),
 				  leaves.size(),
 				  leaf_number,
 				  lastitem,
@@ -352,7 +318,6 @@ MultiMatch::match(om_doccount first,
 		  OmMSet & mset,
 		  const OmMatchDecider *mdecider)
 {
-    Assert((allow_add_singlematch = false) == false);
     Assert(leaves.size() > 0);
 
     if(leaves.size() == 1) {
