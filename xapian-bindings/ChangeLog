@@ -1,3 +1,9 @@
+Wed Sep 15 18:22:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am: Removed the recently added
+	  SWIG_PHP_LDFLAGS machinery.  We only need to pass those if
+	  we use swig's -noruntime option (which we don't do).
+
 Wed Sep 15 17:38:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am: Use swig's -modern switch for

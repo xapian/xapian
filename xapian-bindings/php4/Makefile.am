@@ -23,7 +23,7 @@ AM_CPPFLAGS = @PHP_INC@
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapian_la_LDFLAGS = -avoid-version -module
 nodist_xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS) @SWIG_PHP_LDFLAGS@
+xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc php_xapian.h
 
