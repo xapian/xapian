@@ -1108,7 +1108,7 @@ Btree::add(const string &key, string tag)
 	    //
 	    // n >= first_L Fully filling this block won't produce an extra item
 	    // n > cd We save more space than the extra item's space overhead
-	    if (n >= first_L || n > cd + D2) first_L = n;
+	    if (size_t(n) >= first_L || size_t(n) > cd + D2) first_L = n;
 	}
     }
 
