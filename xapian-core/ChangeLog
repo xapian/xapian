@@ -1,3 +1,8 @@
+Tue Aug  8 16:04:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Patch to log where connections are from in tcpserver.cc, by
+	  Jonathan Fielder of Webtop.
+
 Tue Aug  8 15:58:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented some more of the support code for Pythong apitest

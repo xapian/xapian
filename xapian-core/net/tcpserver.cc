@@ -100,6 +100,7 @@ TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
     // socklen_t not supported everywhere...
+    // FIXME: sort out using autoconf for such systems
     /* socklen_t */ int remote_address_size = sizeof(remote_address);
     int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),
@@ -113,24 +114,20 @@ TcpServer::get_connected_socket()
 	throw OmNetworkError("accept: unexpected remote address size");
     }
 
-    // FIXME: get this bit working, probably
-#if 0
-    struct hostent *hent =
-	    gethostbyaddr(reinterpret_cast<char *>(&remote_address),
-			  sizeof(remote_address),
-			  AF_INET);
+    // Note: this bit is probably not threadsafe.
+    struct in_addr address = remote_address.sin_addr;
+    struct hostent *hent = gethostbyaddr(reinterpret_cast<char *>(&address),
+					 sizeof(address),
+					 AF_INET);
 
     if (hent == 0) {
-	close(socketfd);
 	close(con_socket);
 	throw OmNetworkError(std::string("gethostbyaddr: ") +
 			     hstrerror(h_errno));
     }
 
-    std::cerr << "Connection from " << hent->h_name
-	 << ", port " << remote_address.sin_port << "\n";
-
-#endif
+    cout << "Connection from " << hent->h_name << ", port " <<
+	    remote_address.sin_port << "\n";
 
     return con_socket;
 }
