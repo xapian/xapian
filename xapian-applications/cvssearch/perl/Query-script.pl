@@ -571,7 +571,7 @@ if($query && ($query ne "")){
 #--------------
 print <<_HTML_;
 <p>
-<b class=orange>Please send all bugs/comments to <a mailto="cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>
+<b class=orange>Please send all bugs/comments to <a href="mailto:cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>
 _HTML_
 
 #--------------------------
