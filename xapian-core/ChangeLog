@@ -1,3 +1,7 @@
+Mon Jun  5 18:54:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added proof-of-concept Python bindings for OmStem (using SWIG).
+
 Mon Jun  5 17:41:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make sleepylist optionally store termfreqency information in

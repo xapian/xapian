@@ -1,0 +1,1 @@
+cp ../../../../om/bindings/swig/omstem.i ./ ; swig -c++ -python -shadow -module omstem omstem.i ; c++ ./omstem_wrap.c -I/usr/include/python1.5/ -I../../../../om/include/ -c -o omstem_wrap.o ; c++ -shared omstem_wrap.o ../../.libs/libomus.a -o omstem.so

@@ -1,0 +1,6 @@
+<Directory>bindings</Directory>
+
+<Description>
+This directory contains everything needed to create libomus bindings
+for languages other than C++.
+</Description>

@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = testsuite autoconf include common \
           backends api matcher languages net indexer . m4 \
-	  docs netprogs tests
+	  docs netprogs tests bindings
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS
 
