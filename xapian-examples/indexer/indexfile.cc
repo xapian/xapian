@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 {
     // Simplest possible options parsing: we just require two parameters.
     if(argc != 3) {
-	cout << "usage: " << argv[0] <<
-		" <path to database> <file to index>" << endl;
+	std::cout << "usage: " << argv[0] <<
+		" <path to database> <file to index>" << std::endl;
 	exit(1);
     }
     
@@ -48,27 +48,27 @@ int main(int argc, char *argv[])
 	indexer->set_input(filename);
 	OmDocumentContents newdocument = indexer->get_output();
 
-	cout << "Document data: " << newdocument.data.value << endl;
-	cout << "Document keys: " << endl;
+	std::cout << "Document data: " << newdocument.data.value << std::endl;
+	std::cout << "Document keys: " << std::endl;
 	for (OmDocumentContents::document_keys::const_iterator i =
 	     newdocument.keys.begin();
 	     i != newdocument.keys.end();
 	     ++i) {
-	    cout << "\t" << i->first << "\t" << i->second << endl;
+	    std::cout << "\t" << i->first << "\t" << i->second << std::endl;
 	}
 
-	cout << "Document terms: " << endl;
+	std::cout << "Document terms: " << std::endl;
 	for (OmDocumentContents::document_terms::const_iterator i =
 	     newdocument.terms.begin();
 	     i != newdocument.terms.end();
 	     ++i) {
-	    cout << "\t" << i->first << "\t" << i->second << endl;
+	    std::cout << "\t" << i->first << "\t" << i->second << std::endl;
 	}
 
 	// Add the document to the database
 	database.add_document(newdocument);
     }
     catch(OmError &error) {
-	cout << "Exception: "  << error.get_msg() << endl;
+	std::cout << "Exception: "  << error.get_msg() << std::endl;
     }
 }

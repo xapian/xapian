@@ -1,4 +1,4 @@
-/* simplesearch.cc: Simplest possible searcher
+/* simplecreate.cc: Simplest possible database creation
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -21,57 +21,29 @@
  */
 
 #include <om/om.h>
-#include <vector>
+#include <sys/stat.h> // For mkdir
 
 int main(int argc, char *argv[])
 {
-    // Simplest possible options parsing: we just require two or more
-    // parameters.
-    if(argc < 3) {
+    // Simplest possible options parsing: we just require one parameter.
+    if(argc != 2) {
 	std::cout << "usage: " << argv[0] <<
-		" <path to database> <search terms>" << std::endl;
+		" <path to database>" <<
+		std::endl;
 	exit(1);
     }
     
     // Catch any OmError exceptions thrown
     try {
-	// Make the database
+	// Create the directory for the database
+	mkdir(argv[1], 0755);
+
+	// Create the database
 	OmSettings settings;
 	settings.set("backend", "quartz");
+	settings.set("database_create", true);
 	settings.set("quartz_dir", argv[1]);
-	OmDatabase db(settings);
-
-	// Start an enquire session
-	OmEnquire enquire(db);
-
-	// Prepare the query terms
-	std::vector<om_termname> queryterms;
-	for (int optpos = 2; optpos < argc; optpos++) {
-	    queryterms.push_back(argv[optpos]);
-	}
-
-	// Build the query object
-	OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
-	std::cout << "Performing query `" << query.get_description() << "'" <<
-		std::endl;
-
-	// Give the query object to the enquire session
-	enquire.set_query(query);
-
-	// Get the top 10 results of the query
-	OmMSet matches = enquire.get_mset(0, 10);
-
-	// Display the results
-	std::cout << matches.get_matches_estimated() <<
-		" results found" << std::endl;
-
-	for (OmMSetIterator i = matches.begin();
-	     i != matches.end();
-	     i++) {
-	    std::cout << "Document ID " << *i << "\t" <<
-		    i.get_percent() << "% [" <<
-		    i.get_document().get_data().value << "]" << std::endl;
-	}
+	OmWritableDatabase database(settings);
     }
     catch(OmError &error) {
 	std::cout << "Exception: "  << error.get_msg() << std::endl;

@@ -27,8 +27,9 @@ int main(int argc, char *argv[])
     // Simplest possible options parsing: we just require three or more
     // parameters.
     if(argc < 4) {
-	cout << "usage: " << argv[0] <<
-		" <path to database> <document data> <document terms>" << endl;
+	std::cout << "usage: " << argv[0] <<
+		" <path to database> <document data> <document terms>" <<
+		std::endl;
 	exit(1);
     }
     
@@ -41,10 +42,10 @@ int main(int argc, char *argv[])
 	OmWritableDatabase database(settings);
 
 	// Make the document
-	OmDocumentContents newdocument;
+	OmDocument newdocument;
 
 	// Put the data in the document
-	newdocument.data = string(argv[2]);
+	newdocument.set_data(std::string(argv[2]));
 
 	// Put the terms into the document
 	for(int i = 3; i < argc; i++) {
@@ -55,6 +56,6 @@ int main(int argc, char *argv[])
 	database.add_document(newdocument);
     }
     catch(OmError &error) {
-	cout << "Exception: "  << error.get_msg() << endl;
+	std::cout << "Exception: "  << error.get_msg() << std::endl;
     }
 }

@@ -1,4 +1,7 @@
-all: simpleindex simplesearch simpleexpand
+all: simplecreate simpleindex simplesearch simpleexpand
+
+simplecreate: simplecreate.cc
+	$(CXX) $< `omsee-config --libs --cflags` -o $@
 
 simpleindex: simpleindex.cc
 	$(CXX) $< `omsee-config --libs --cflags` -o $@
@@ -9,7 +12,8 @@ simplesearch: simplesearch.cc
 simpleexpand: simpleexpand.cc
 	$(CXX) $< `omsee-config --libs --cflags` -o $@
 
-html: simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
+html: simplecreate.cc.html simpleindex.cc.html \
+      simplesearch.cc.html simpleexpand.cc.html
 
 # This is the best way I've found to generate the html versions of the code
 # on my system.  It's not very portable, but the result of its execution is
@@ -24,5 +28,6 @@ html: simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
 		+"q" $<
 
 clean:
-	rm -f simpleindex simplesearch simpleexpand \
-	      simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
+	rm -f simplecreate simpleindex simplesearch simpleexpand \
+	      simplecreate.cc.html simpleindex.cc.html \
+	      simplesearch.cc.html simpleexpand.cc.html

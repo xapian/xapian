@@ -21,15 +21,16 @@
  */
 
 #include <om/om.h>
+#include <vector>
 
 int main(int argc, char *argv[])
 {
     // Simplest possible options parsing: we just require two or more
     // parameters.
     if(argc < 3) {
-	cout << "usage: " << argv[0] <<
+	std::cout << "usage: " << argv[0] <<
 		" <path to database> <search terms> -- <relevant docids>" <<
-		endl;
+		std::endl;
 	exit(1);
     }
     
@@ -45,10 +46,10 @@ int main(int argc, char *argv[])
 	OmEnquire enquire(db);
 
 	// Prepare the query terms
-	vector<om_termname> queryterms;
+	std::vector<om_termname> queryterms;
 	int optpos;
 	for (optpos = 2; optpos < argc; optpos++) {
-	    if(string(argv[optpos]) == "--") {
+	    if(std::string(argv[optpos]) == "--") {
 		optpos++;
 		break;
 	    }
@@ -69,37 +70,36 @@ int main(int argc, char *argv[])
 
 	OmMSet matches;
 	if(query.is_defined()) {
-	    cout << "Performing query `" << query.get_description() <<
-		    "'" << endl;
+	    std::cout << "Performing query `" << query.get_description() <<
+		    "'" << std::endl;
 
 	    // Give the query object to the enquire session
 	    enquire.set_query(query);
 
 	    // Get the top 10 results of the query
-	    matches = enquire.get_mset(0, 10);
+	    matches = enquire.get_mset(0, 10, &reldocs);
 
 	    // Display the results
-	    cout << matches.items.size() << " results found" << endl;
+	    std::cout << matches.get_matches_estimated() <<
+		    " results found" << std::endl;
 
-	    for (vector<OmMSetItem>::const_iterator i = matches.items.begin();
-		 i != matches.items.end();
+	    for (OmMSetIterator i = matches.begin();
+		 i != matches.end();
 		 i++) {
-		OmDocument doc = enquire.get_doc(*i);
-		cout << "Document ID " << i->did << "\t" <<
-			matches.convert_to_percent(*i) << "% [" <<
-			doc.get_data().value << "]" << endl;
+		std::cout << "Document ID " << *i << "\t" <<
+			i.get_percent() << "% [" <<
+			i.get_document().get_data().value << "]" << std::endl;
 	    }
 	}
 
 	// Put the top 5 into the rset if rset is empty
-	if(reldocs.items.size() == 0) {
-	    vector<OmMSetItem>::const_iterator i;
+	if(reldocs.size() == 0) {
+	    OmMSetIterator i;
 	    int j;
-	    for (i = matches.items.begin(),
-		 j = 0;
-		 (i != matches.items.end()) && (j < 5);
+	    for (i = matches.begin(), j = 0;
+		 (i != matches.end()) && (j < 5);
 		 i++, j++) {
-		reldocs.add_document(i->did);
+		reldocs.add_document(*i);
 	    }
 	}
 	
@@ -107,14 +107,15 @@ int main(int argc, char *argv[])
 	OmESet eterms = enquire.get_eset(10, reldocs);
 
 	// Display the expand terms
-	cout << eterms.size() << " suggested additional terms" << endl;
+	std::cout << eterms.size() << " suggested additional terms" << std::endl;
 
-	for (OmESetIterator k = eterms.begin(); k != eterms.end(); k++) {
-	    cout << "Term `" << *k << "'\t " <<
-		    "(weight " << k.get_weight() << ")" << endl;
+	OmESetIterator k;
+	for (k = eterms.begin(); k != eterms.end(); k++) {
+	    std::cout << "Term `" << *k << "'\t " <<
+		    "(weight " << k.get_weight() << ")" << std::endl;
 	}
     }
     catch (const OmError &error) {
-	cout << "Exception: "  << error.get_msg() << endl;
+	std::cout << "Exception: "  << error.get_msg() << std::endl;
     }
 }
