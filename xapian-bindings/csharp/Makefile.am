@@ -1,7 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
 EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in
-CLEANFILES = AssemblyInfo.cs $(ASSEMBLY).dll $(BUILT_SOURCES)
+CLEANFILES = \
+  XapianSharp.snk \
+  XapianSharp.loT \
+  AssemblyInfo.cs \
+  $(ASSEMBLY).dll \
+  $(BUILT_SOURCES)
 
 ASSEMBLY=XapianSharp
 
@@ -11,32 +16,32 @@ XAPIAN_SWIG_SRCS=\
 	$(srcdir)/extra.i
 
 XAPIAN_SWIG_CS_SRCS=\
-	SWIGTYPE_p_Xapian__Database.cs \
-	SWIGTYPE_p_Xapian__Document.cs \
-	SWIGTYPE_p_Xapian__ESet.cs \
-	SWIGTYPE_p_Xapian__ESetIterator.cs \
-	SWIGTYPE_p_Xapian__Enquire.cs \
+	Database.cs \
+	Document.cs \
+	ESet.cs \
+	ESetIterator.cs \
+	Enquire.cs \
+	MSet.cs \
+	MSetIterator.cs \
+	PositionIterator.cs \
+	PostingIterator.cs \
+	Query.cs \
+	QueryParser.cs \
+	RSet.cs \
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
-	SWIGTYPE_p_Xapian__MSet.cs \
-	SWIGTYPE_p_Xapian__MSetIterator.cs \
 	SWIGTYPE_p_Xapian__MatchDecider.cs \
-	SWIGTYPE_p_Xapian__PositionIterator.cs \
-	SWIGTYPE_p_Xapian__PostingIterator.cs \
-	SWIGTYPE_p_Xapian__Query.cs \
-	SWIGTYPE_p_Xapian__QueryParser.cs \
-	SWIGTYPE_p_Xapian__RSet.cs \
-	SWIGTYPE_p_Xapian__Stem.cs \
 	SWIGTYPE_p_Xapian__Stopper.cs \
-	SWIGTYPE_p_Xapian__TermIterator.cs \
-	SWIGTYPE_p_Xapian__ValueIterator.cs \
 	SWIGTYPE_p_Xapian__Weight.cs \
-	SWIGTYPE_p_Xapian__WritableDatabase.cs \
 	SWIGTYPE_p_std__listTstd__string_t.cs \
 	SWIGTYPE_p_time_t.cs \
 	SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
-	op.cs \
-	$(ASSEMBLY)PINVOKE.cs \
-	$(ASSEMBLY).cs
+	Stem.cs \
+	TermIterator.cs \
+	ValueIterator.cs \
+	WritableDatabase.cs \
+	Xapian.cs \
+	XapianPINVOKE.cs \
+	op.cs
 
 XapianSharp.snk:
 	$(SN) -k $@
@@ -50,7 +55,7 @@ BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 # so we just touch it to avoid complicated contortions in the build system.
 # Once we require SWIG 1.3.22 or newer, the touch can be removed.
 $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
-	$(SWIG) -noproxy -module $(ASSEMBLY) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -csharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
+	$(SWIG) -namespace Xapian -module Xapian -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -csharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 	touch op.cs
 
 lib_LTLIBRARIES = XapianSharp.la
