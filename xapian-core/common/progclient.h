@@ -39,14 +39,14 @@ class ProgClient : public SocketClient {
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_spawned_socket(string progname, string arg);
+	int get_spawned_socket(string progname, const vector<string> &args);
 
     public:
 	/** Constructor.
 	 *
 	 *  @param progname The name of the program to run.
 	 */
-	ProgClient(string progname, string arg);
+	ProgClient(string progname, const vector<string> &arg);
 
 	/** Destructor. */
 	~ProgClient();

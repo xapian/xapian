@@ -43,16 +43,21 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
     if(params.subdbs.size() != 0) {
 	throw OmInvalidArgumentError("NetworkDatabase cannot have sub databases.");
     }
-    if (params.paths.size() != 3) {
-	throw OmInvalidArgumentError("NewworkDatabase requires three path parameters.");
-    }
-
     if (params.paths[0] == "prog") {
+	if (params.paths.size() < 3) {
+	    throw OmInvalidArgumentError("NetworkDatabase(prog) requires at least three parameters.");
+	}
+	vector<string> progargs(params.paths.begin() + 2,
+				params.paths.end());
 	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1],
-						     params.paths[2]));
+						     progargs));
 	Assert(link.get() != 0);
 	//initialise_link();
     } else if (params.paths[0] == "tcp") {
+	if (params.paths.size() != 3) {
+	    throw OmInvalidArgumentError("NetworkDatabase(tcp) requires three path parameters.");
+	}
+
 	link = OmRefCntPtr<NetClient>(new TcpClient(
 					    params.paths[1],
 					    atoi(params.paths[2].c_str())));

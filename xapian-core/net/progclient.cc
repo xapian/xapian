@@ -33,13 +33,13 @@
 #include <cerrno>
 #include <strstream.h>
 
-ProgClient::ProgClient(string progname, string arg)
-	: SocketClient(get_spawned_socket(progname, arg))
+ProgClient::ProgClient(string progname, const vector<string> &args)
+	: SocketClient(get_spawned_socket(progname, args))
 {
 }
 
 int
-ProgClient::get_spawned_socket(string progname, string arg)
+ProgClient::get_spawned_socket(string progname, const vector<string> &args)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -74,7 +74,19 @@ ProgClient::get_spawned_socket(string progname, string arg)
 	    close(i);
 	}
 
-	execlp(progname.c_str(), progname.c_str(), arg.c_str(), 0);
+	// In theory, a potential memory leak here.
+	// In practice, we either execvp() or exit().
+	const char **new_argv = new const char *[args.size() + 2];
+
+	new_argv[0] = progname.c_str();
+	for (vector<string>::size_type i=0;
+	     i<args.size();
+	     ++i) {
+	    new_argv[i+1] = args[i].c_str();
+	}
+	new_argv[args.size() + 1] = 0;
+	execvp(progname.c_str(),
+	       const_cast<char *const *>(new_argv));
 
 	// if we get here, then execlp failed.
 	/* throwing an exception is a bad idea, since we're

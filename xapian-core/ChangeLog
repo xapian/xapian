@@ -1,3 +1,14 @@
+Mon May 22 18:36:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* ProgClient and omprogsrv can both now take more than one database
+	  argument.
+
+	* Net stuff now doesn't bomb out from SIGPIPE.
+
+	* Miscellaneous bug fixes
+
+	* apitest has code to run tests on the net backend.
+
 Mon May 22 15:31:12 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Moved inline functions from testutils.h to testutils.cc

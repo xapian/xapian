@@ -482,6 +482,8 @@ string_to_moptions(const string &s)
        >> mopt.percent_cutoff
        >> mopt.max_or_terms;
 
+    DebugMsg("string_to_moptions: mopt " << s << "->"
+	     << moptions_to_string(mopt) << endl);
     return mopt;
 }
 

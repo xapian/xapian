@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "socketserver.h"
 #include "database.h"
 #include "stats.h"
@@ -27,9 +28,10 @@
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"
-#include <unistd.h>
 #include <memory>
 #include <strstream.h>
+#include <signal.h>
+#include <unistd.h>
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
@@ -44,6 +46,12 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 		auto_ptr<StatsGatherer>(gatherer = new NetworkStatsGatherer(this))),
 	  have_global_stats(0)
 {
+    // ignore SIGPIPE - we check return values instead, and that
+    // way we can easily throw an exception.
+    DebugMsg("Ignoring SIGPIPE..." << endl);
+    if (signal(SIGPIPE, SIG_IGN) < 0) {
+	throw OmNetworkError(string("sigaction: ") + strerror(errno));
+    }
     buf.readline();
     buf.writeline("Hello!");
 }
@@ -89,7 +97,7 @@ SocketServer::run()
 	}
 
 	{
-	    OmMatchOptions moptions = string_to_moptions(message.substr(10));
+	    OmMatchOptions moptions = string_to_moptions(message.substr(9));
 
 	    match.set_options(moptions);
 	}
@@ -101,7 +109,7 @@ SocketServer::run()
 	    throw OmNetworkError(string("Invalid message: ") + message);
 	}
 	{
-	    OmRSet omrset = string_to_omrset(message.substr(6));
+	    OmRSet omrset = string_to_omrset(message.substr(5));
 
 	    match.set_rset(omrset);
 	}

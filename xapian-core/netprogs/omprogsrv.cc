@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     cout.flush();
 #endif
 
-    if (argc != 2) {
+    if (argc < 2) {
 	cerr << "Wrong number of arguments" << endl;
 	cout << "ERROR" << endl;
 	exit(-1);
@@ -55,7 +55,9 @@ int main(int argc, char *argv[]) {
     try {
 	// open the database to return results
 	DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
-	param.paths.push_back(argv[1]);
+	for (int i=1; i<argc; ++i) {
+	    param.paths.push_back(argv[i]);
+	}
 
 	DatabaseBuilderParams mparam(OM_DBTYPE_MULTI);
 	mparam.subdbs.push_back(param);

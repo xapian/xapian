@@ -390,10 +390,14 @@ OmDatabase BackendManager::getdb_net(const string &dbname1,
 				     const string &dbname2)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
-    OmDatabase db("net",
-		  make_strvec("prog",
-			      "../netprogs/omprogsrv",
-			      datadir_ + dbname1 + ".txt"));
+    vector<string> args;
+    args.push_back("prog");
+    args.push_back("../netprogs/omprogsrv");
+    args.push_back(datadir_ + "/" + dbname1 + ".txt");
+    if (dbname2.length() > 0) {
+	args.push_back(datadir_ + "/" + dbname2 + ".txt");
+    }
+    OmDatabase db("net", args);
 
     return db;
 }

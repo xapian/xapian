@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <signal.h>
 #include <cstdio>
 #include <cerrno>
 #include <strstream.h>
@@ -40,10 +41,17 @@ SocketClient::SocketClient(int socketfd_)
 	  remote_stats_valid(false),
 	  global_stats_valid(false)
 {
-	do_write("HELLO!\n");
+    // ignore SIGPIPE - we check return values instead, and that
+    // way we can easily throw an exception.
+    DebugMsg("Ignoring SIGPIPE..." << endl);
+    if (signal(SIGPIPE, SIG_IGN) < 0) {
+	throw OmNetworkError(string("sigaction: ") + strerror(errno));
+    }
 
-	string received = do_read();
-	DebugMsg("Read back " << received << endl);
+    do_write("HELLO!\n");
+
+    string received = do_read();
+    DebugMsg("Read back " << received << endl);
 }
 
 string
@@ -83,7 +91,12 @@ SocketClient::data_is_available()
 
 SocketClient::~SocketClient()
 {
-    buf.writeline("QUIT");
+    // musn't let any exception escape a destructor, or else we
+    // abort immediately.
+    try {
+	buf.writeline("QUIT");
+    } catch (...) {
+    }
     close(socketfd);
 }
 
