@@ -1309,11 +1309,6 @@ Btree::find_tag(const string &key, struct Btree_item * item)
     return true;
 }
 
-extern void Btree_full_compaction(struct Btree * B, int parity)
-{
-    B->set_full_compaction(parity);
-}
-
 void
 Btree::set_full_compaction(int parity)
 {
@@ -1686,13 +1681,6 @@ Btree::~Btree() {
     delete [] buffer;
 }
 
-extern int Btree_close(struct Btree * B_, uint4 revision)
-{
-    int retval = B_->commit(revision);
-    delete B_;
-    return retval;
-}
-
 Btree_errors
 Btree::commit(uint4 revision)
 {
@@ -1702,7 +1690,7 @@ Btree::commit(uint4 revision)
     int j;
     Btree_errors errorval = BTREE_ERROR_REVISION;
     if (revision < next_revision) {
-	/* FIXME: should Btree_close() throw exceptions, as it's
+	/* FIXME: should Btree::commit throw exceptions, as it's
 	 * likely to be called from destructors they'll need to catch
 	 * the exception), or return an error value?  (So we need to
 	 * trap errors here and convert them)

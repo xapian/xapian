@@ -448,12 +448,13 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Close writing table and write changes
     Assert(btree_for_writing != 0);
-    int errorval = Btree_close(btree_for_writing, new_revision);
+    int errorval = btree_for_writing->commit(new_revision);
+    delete btree_for_writing; 
+    btree_for_writing = 0;
     if (errorval) {
 	throw OmDatabaseError("Can't commit new revision: error code " +
 			      om_tostring(errorval));
     }
-    btree_for_writing = 0;
 
     // Reopen table
     if (!open(new_revision)) {

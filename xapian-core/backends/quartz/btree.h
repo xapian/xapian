@@ -229,7 +229,4 @@ class Btree {
 	void report_block_full(int m, int n, byte * p);
 };
 
-extern int Btree_close(struct Btree * B, unsigned long revision);
-extern void Btree_full_compaction(struct Btree * B, int parity);
-
 #endif /* OM_HGUARD_BTREE_H */
