@@ -51,35 +51,13 @@ lib_LTLIBRARIES = libxapian.la
 libxapian_la_SOURCES = dummy.cc
 EXTRA_libxapian_la_SOURCES =
 
-# Extract from the libtool info manual:
-#
-# Here are a set of rules to help you update your library version information:
-#
-# 1. Start with version information of `0:0:0' for each libtool library.
-#
-# 2. Update the version information only immediately before a public
-#    release of your software.  More frequent updates are unnecessary,
-#    and only guarantee that the current interface number gets larger
-#    faster.
-#
-# 3. If the library source code has changed at all since the last
-#    update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
-#
-# 4. If any interfaces have been added, removed, or changed since the
-#    last update, increment CURRENT, and set REVISION to 0.
-#
-# 5. If any interfaces have been added since the last public release,
-#    then increment AGE.
-#
-# 6. If any interfaces have been removed since the last public release
-#    then set AGE to 0.
-#
 # 0:0:0 0.7.2 (and anything before)
 # 0:1:0 0.7.3
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
 # 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
 # 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
-libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 2:0:0
+# LIBRARY_VERSION_INFO 0.8.1 and up
+libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols

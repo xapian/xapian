@@ -1,3 +1,10 @@
+Tue Jun 15 15:24:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in,extra/Makefile.am: Unify the shlib version
+	  numbers (the benefit of tracking them individually makes it hard
+	  to justify the extra work required, and have one version simplifies
+	  debian packaging too).
+
 Tue Jun 15 14:52:36 BST 2004  Robert Pollak <robert.pollak@fabasoft.com>
 
 	* extra/xapian/queryparser.h: Fixed memory leaked upon QueryParser
