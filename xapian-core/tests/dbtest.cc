@@ -31,10 +31,13 @@ int main(int argc, char *argv[]) {
 	    while(!postlist->at_end()) {
 		docid did;
 		weight wt;
+		weight maxwt;
 
 		did = postlist->get_docid();
 		wt = postlist->get_weight();
-		printf("TermId: %d  DocId: %d  Weight: %f\n", tid, did, wt);
+		maxwt = postlist->get_maxweight();
+		printf("TermId: %d  DocId: %d  Weight: %f  Maxweight: %f\n",
+		       tid, did, wt, maxwt);
 		if(did == 120) postlist->skip_to(144, 0.0);
 		else postlist->next(0.0);
 	    }
