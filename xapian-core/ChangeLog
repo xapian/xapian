@@ -1,3 +1,7 @@
+Wed Dec 13 02:19:50 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix small bug in mset_range_is_same{,_weights}()
+
 Wed Dec 13 02:07:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* And add copy and assignment for OmESet, similarly.

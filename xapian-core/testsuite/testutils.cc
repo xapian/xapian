@@ -52,12 +52,15 @@ mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 		     (first2 + count - 1) << " items.");
 
     OmMSetIterator i = mset1.begin();
-    OmMSetIterator j = mset2.begin();
     for (unsigned int k = 0; k < first1; ++k) {
 	++i;
+    }
+
+    OmMSetIterator j = mset2.begin();
+    for (unsigned int k = 0; k < first2; ++k) {
 	++j;
     }
-	
+
     for (unsigned int l = 0; l < count; ++l) {
 	if (*i != *j || i.get_weight() != j.get_weight()) {
 	    return false;
@@ -80,9 +83,12 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
 		     (first2 + count - 1) << " items." << endl);
 
     OmMSetIterator i = mset1.begin();
-    OmMSetIterator j = mset2.begin();
     for (unsigned int k = 0; k < first1; ++k) {
 	++i;
+    }
+
+    OmMSetIterator j = mset2.begin();
+    for (unsigned int k = 0; k < first2; ++k) {
 	++j;
     }
 	
