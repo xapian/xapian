@@ -1,3 +1,7 @@
+Wed Jun  7 15:40:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.2.0
+
 Wed Jun  7 15:10:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Rename inttostring() to om_inttostring() to avoid conflicts.
