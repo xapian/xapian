@@ -449,6 +449,7 @@ int main(unsigned int argc, char *argv[]) {
       if ( s.find(":") == 0 ) {
 	queryterms.push_back(s); // symbol, put as is
 	query_symbols.insert(s); // no stemming, no lc
+        cerr << "QUERY TERM " << s << endl;
       } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
 	ranking_system.insert(s);
       } else {
@@ -457,6 +458,7 @@ int main(unsigned int argc, char *argv[]) {
 	term = stemmer.stem_word(term);
 	queryterms.push_back(term);
 	cout << term << " ";
+        cerr << "QUERY TERM " << term << endl;
       }
     }
     cout << endl; // empty line if no query words

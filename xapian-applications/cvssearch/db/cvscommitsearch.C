@@ -588,6 +588,7 @@ int main(unsigned int argc, char *argv[]) {
 	query_term_set.insert(term);
 	query_vector[ term ] = 1.0;
 	cout << term << " ";
+        cerr << "QUERY TERM " << term << endl;
       }
     }
     cout << endl; // empty line if no query words
