@@ -1,0 +1,87 @@
+/* sleepy_termcache.cc: Term cache for sleepycat database
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+
+#include "omassert.h"
+#include "om/omerror.h"
+#include "om/omtypes.h"
+#include "sleepy_database_internals.h"
+#include "sleepy_termcache.h"
+
+// Sleepycat database stuff
+#include <db_cxx.h>
+
+om_termid
+SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
+{
+    Dbt key((void *)tname.c_str(), tname.size());
+    Dbt data;
+    om_termid tid;
+
+    data.set_flags(DB_DBT_USERMEM);
+    data.set_ulen(sizeof(tid));
+    data.set_data(&tid);
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->termid_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) {
+	    tid = 0;
+	} else {
+	    // Any other errors should cause an exception.
+	    Assert(found == 0);
+
+	    if(data.get_size() != sizeof(om_termid)) {
+		throw OmDatabaseError("TermidDb: found termname, but data is not a termid.");
+	    }
+	}
+    }
+    catch (DbException e) {
+	throw OmDatabaseError("TermidDb error: " + string(e.what()));
+    }
+
+    return tid;
+}
+
+om_termname
+SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
+{
+    if(tid == 0) throw OmRangeError("Termid 0 not valid");
+
+    Dbt key(&tid, sizeof(tid));
+    Dbt data;
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->termname_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) throw OmRangeError("Termid not found");
+
+	// Any other errors should cause an exception.
+	Assert(found == 0);
+    }
+    catch (DbException e) {
+	throw OmDatabaseError("TermnameDb error:" + string(e.what()));
+    }
+
+    om_termname tname((char *)data.get_data(), data.get_size());
+    return tname;
+}

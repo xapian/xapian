@@ -34,6 +34,7 @@
 #include "sleepy_postlist.h"
 #include "sleepy_termlist.h"
 #include "sleepy_database.h"
+#include "sleepy_database_internals.h"
 #include "sleepy_list.h"
 
 
@@ -41,119 +42,6 @@
 #define FILENAME_TERMLIST "termlist.db"
 #define FILENAME_TERMTOID "termid.db"
 #define FILENAME_IDTOTERM "termname.db"
-
-/////////////////////////////
-// Internal database state //
-/////////////////////////////
-
-class SleepyDatabaseInternals {
-    private:
-	DbEnv dbenv;
-	bool opened;
-    public:
-	Db *postlist_db;
-	Db *termlist_db;
-	Db *termid_db;
-	Db *termname_db;
-
-	SleepyDatabaseInternals();
-	~SleepyDatabaseInternals();
-	void open(const string & pathname, bool readonly);
-	void close();
-};
-
-inline
-SleepyDatabaseInternals::SleepyDatabaseInternals() {
-    postlist_db = NULL;
-    termlist_db = NULL;
-    termid_db = NULL;
-    termname_db = NULL;
-    opened = false;
-}
-
-inline
-SleepyDatabaseInternals::~SleepyDatabaseInternals(){
-    close();
-}
-
-inline void
-SleepyDatabaseInternals::open(const string &pathname, bool readonly)
-{
-    try {
-	// Set up environment
-	u_int32_t flags = DB_INIT_CDB;
-	int mode = 0;
-
-	if(readonly) {
-	    flags = DB_RDONLY;
-	} else {
-	    flags = DB_CREATE;
-	    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	}
-	dbenv.appinit(pathname.c_str(), NULL, flags);
-	opened = true;
-
-	Db::open(FILENAME_POSTLIST, DB_BTREE, flags, mode,
-		 &dbenv, NULL, &postlist_db);
-
-	Db::open(FILENAME_TERMLIST, DB_BTREE, flags, mode,
-		 &dbenv, NULL, &termlist_db);
-
-	Db::open(FILENAME_TERMTOID, DB_HASH, flags, mode,
-		 &dbenv, NULL, &termid_db);
-
-	Db::open(FILENAME_IDTOTERM, DB_RECNO, flags, mode,
-		 &dbenv, NULL, &termname_db);
-    }
-    catch (DbException e) {
-	throw (OmOpeningError(string("Database error on open: ") + e.what()));
-    }
-}
-
-inline void
-SleepyDatabaseInternals::close()
-{
-    try {
-	if(postlist_db) postlist_db->close(0);
-	postlist_db = NULL;
-	if(termlist_db) termlist_db->close(0);
-	termlist_db = NULL;
-	if(termid_db) termid_db->close(0);
-	termid_db = NULL;
-	if(termname_db) termname_db->close(0);
-	termname_db = NULL;
-
-	if(opened) dbenv.appexit();
-	opened = false;
-    }
-    catch (DbException e) {
-	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
-    }
-}
-
-///////////////
-// Postlists //
-///////////////
-
-SleepyPostList::SleepyPostList(const om_termname &tn,
-			       om_docid *data_new,
-			       om_doccount tf)
-	: pos(0), data(data_new), tname(tn), termfreq(tf)
-{
-}
-
-SleepyPostList::~SleepyPostList() {
-    free(data);
-}
-
-om_weight SleepyPostList::get_weight() const {
-    Assert(!at_end());
-    Assert(ir_wt != NULL);
-    
-    om_doccount wdf = 1;
-
-    return ir_wt->get_sumpart(wdf, 1.0);
-}
 
 ///////////////
 // Termlists //
@@ -384,61 +272,3 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
     }
 }
 */
-
-/////////////////
-// Term  cache //
-/////////////////
-
-om_termid
-SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const {
-    Dbt key((void *)tname.c_str(), tname.size());
-    Dbt data;
-    om_termid tid;
-
-    data.set_flags(DB_DBT_USERMEM);
-    data.set_ulen(sizeof(tid));
-    data.set_data(&tid);
-
-    // Get, no transactions, no flags
-    try {
-	int found = internals->termid_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) {
-	    tid = 0;
-	} else {
-	    // Any other errors should cause an exception.
-	    Assert(found == 0);
-
-	    if(data.get_size() != sizeof(om_termid)) {
-		throw OmDatabaseError("TermidDb: found termname, but data is not a termid.");
-	    }
-	}
-    }
-    catch (DbException e) {
-	throw OmDatabaseError("TermidDb error: " + string(e.what()));
-    }
-
-    return tid;
-}
-
-om_termname
-SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const {
-    if(tid == 0) throw OmRangeError("Termid 0 not valid");
-
-    Dbt key(&tid, sizeof(tid));
-    Dbt data;
-
-    // Get, no transactions, no flags
-    try {
-	int found = internals->termname_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw OmRangeError("Termid not found");
-
-	// Any other errors should cause an exception.
-	Assert(found == 0);
-    }
-    catch (DbException e) {
-	throw OmDatabaseError("TermnameDb error:" + string(e.what()));
-    }
-
-    om_termname tname((char *)data.get_data(), data.get_size());
-    return tname;
-}
