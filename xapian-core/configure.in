@@ -192,14 +192,14 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 if test x$have_sleepycat = xno; then
   if test ! "x$build_sleepy" = "xfalse"; then
-    AC_MSG_WARN(Sleepycat database library not available: not building support) ;;
+    AC_MSG_WARN(Sleepycat database library not available: not building support);
   fi
   build_sleepy=false;
 fi
 
 if test x$HAVE_LIBPTHREAD = xno; then
   if test ! "x$use_pthread" = "xfalse"; then
-    AC_MSG_WARN(pthread not available: not building support) ;;
+    AC_MSG_WARN(pthread not available: not building support);
   fi
   use_pthread=false
 fi
