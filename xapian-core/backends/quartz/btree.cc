@@ -200,22 +200,34 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 
 static int valid_handle(int h) { return h >= 0; }
 
-static int sys_open_to_read(const std::string & name)
+static int sys_open_to_read_no_except(const std::string & name)
 {
     int fd = open(name.c_str(), O_RDONLY, 0666);
+    return fd;
+}
+
+static int sys_open_to_read(const std::string & name)
+{
+    int fd = sys_open_to_read_no_except(name);
     if (fd < 0) {
-	std::string message = std::string("Coudn't open ")
+	std::string message = std::string("Couldn't open ")
 		+ name + " to read: " + strerror(errno);
 	throw OmOpeningError(message);
     }
     return fd;
 }
 
-static int sys_open_to_write(const std::string & name)
+static int sys_open_to_write_no_except(const std::string & name)
 {
     int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    return fd;
+}
+
+static int sys_open_to_write(const std::string & name)
+{
+    int fd = sys_open_to_write_no_except(name);
     if (fd < 0) {
-	std::string message = std::string("Coudn't open ")
+	std::string message = std::string("Couldn't open ")
 		+ name + " to write: " + strerror(errno);
 	throw OmOpeningError(message);
     }
@@ -226,7 +238,7 @@ static int sys_open_for_readwrite(const std::string & name)
 {
     int fd = open(name.c_str(), O_RDWR, 0666);
     if (fd < 0) {
-	std::string message = std::string("Coudn't open ")
+	std::string message = std::string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);
 	throw OmOpeningError(message);
     }
@@ -1447,14 +1459,21 @@ extern void Btree_full_compaction(struct Btree * B, int parity)
 
 #define B_REVISION2     (B_SIZE - 4)
 
-static byte * read_base(const std::string & name, char ch)
+static byte * read_base(const std::string & name, char ch,
+			std::string &err_msg)
 {
-    int h = sys_open_to_read(name + "base" + ch);
+    int h = sys_open_to_read_no_except(name + "base" + ch);
     byte w[2];
     byte * p;
     int size;
-    if ( ! valid_handle(h)) return 0;
+    if ( ! valid_handle(h)) {
+	err_msg += "Couldn't open " + name + "base" +
+		ch + ": " + strerror(errno) + "\n";
+	return 0;
+    }
     if (! sys_read_bytes(h, 2, w)) {
+	err_msg += "Couldn't read from " + name + "base" + ch +
+		": " + strerror(errno) + "\n";
 	sys_close(h);
 	return 0;
     }
@@ -1466,7 +1485,13 @@ static byte * read_base(const std::string & name, char ch)
 	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) {
 	    sys_close(h);
 	    return p;
+	} else {
+	    err_msg += "Couldn't read revision number from " +
+		    name + "base" + ch + ": " + strerror(errno) + "\n";
 	}
+    } else {
+	sys_close(h);
+	throw std::bad_alloc();
     }
 
     free(p);
@@ -1478,7 +1503,7 @@ static byte * read_bit_map(const std::string & name, char ch, int size)
 {
     byte * p = (byte *)malloc(size);
     if (p != 0) {
-	int h = sys_open_to_read(name + "bitmap" + ch);
+	int h = sys_open_to_read_no_except(name + "bitmap" + ch);
 	if (valid_handle(h) &&
 	    sys_read_bytes(h, size, p) &&
 	    sys_close(h)) {
@@ -1518,8 +1543,9 @@ static struct Btree * basic_open(const char * name_,
     B->name = name_;
 
     {
-	byte * baseA = read_base(B->name, 'A');
-        byte * baseB = read_base(B->name, 'B');
+	std::string err_msg;
+	byte * baseA = read_base(B->name, 'A', err_msg);
+        byte * baseB = read_base(B->name, 'B', err_msg);
         byte * base;
         byte * other_base;
 
@@ -1528,7 +1554,7 @@ static struct Btree * basic_open(const char * name_,
 	    std::string message = "Error opening table `"; 
 	    message += name_;
 	    message += "': ";
-	    message += strerror(errno);
+	    message += err_msg;
 	    /*  FIXME: use a smart pointer, or turn this into a
 	     *  constructor. */
 	    delete B;
@@ -1536,8 +1562,21 @@ static struct Btree * basic_open(const char * name_,
 	}
 
         if (revision_supplied) {
-	    if (baseA != 0 && get_uint4(baseA, B_REVISION) == revision) ch = 'A';
-            if (baseB != 0 && get_uint4(baseB, B_REVISION) == revision) ch = 'B';
+	    if (baseA != 0 && get_uint4(baseA, B_REVISION) == revision) {
+		ch = 'A';
+	    } else if (baseB != 0 &&
+		       get_uint4(baseB, B_REVISION) == revision) {
+		ch = 'B';
+	    } else {
+		/* Couldn't open the revision that was asked for.
+		 * This shouldn't throw an exception, but should just return
+		 * 0 to upper levels.
+		 */
+		free(baseA);
+		free(baseB);
+		delete B;
+		return 0;
+	    }
         } else {
 	    if (baseA == 0) ch = 'B'; else
             if (baseB == 0) ch = 'A'; else
@@ -1552,16 +1591,11 @@ static struct Btree * basic_open(const char * name_,
 	    base = baseB;
 	    other_base = baseA;
 	} else {
-	    //B->error = BTREE_ERROR_BASE_READ;
+	    Assert(false);
+	    B->error = BTREE_ERROR_BASE_READ;
 	    free (baseA);
 	    free (baseB);
 	    delete B;
-
-	    std::string message = "Error opening table `"; 
-	    message += name_;
-	    message += "': ";
-	    message += strerror(errno);
-	    throw OmOpeningError(message);
 	}
 
         /* base now points to the most recent base block */
@@ -1663,12 +1697,20 @@ static struct Btree * open_to_write(const char * name, int revision_supplied, ui
      */
     AutoPtr<Btree> B(basic_open(name, revision_supplied, revision));
     if (B.get() == 0 || B->error) {
-	std::string message = "Failed to open to write";
-	if (B.get()) {
-	    message += std::string(": ");
-	    message += Btree_strerror(B->error);
+	if (!revision_supplied) {
+	    std::string message = "Failed to open for writing";
+	    if (B.get()) {
+		message += std::string(": ");
+		message += Btree_strerror(B->error);
+	    }
+	    throw OmOpeningError(message);
+	} else {
+	    /* When the revision is supplied, it's not an exceptional
+	     * case when open failed.  We should just return 0 here
+	     * instead.
+	     */
+	    return 0;
 	}
-	throw OmOpeningError(message);
     }
 
     B->handle = sys_open_for_readwrite(B->name + "DB");

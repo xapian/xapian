@@ -165,8 +165,7 @@ static bool test_disktable1()
     {
 	QuartzDiskTable table0("./test_disktable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
-	//TEST_EXCEPTION(OmOpeningError, table0.open(10));
-	TEST(!table0.open(10));
+	TEST_EXCEPTION(OmOpeningError, table0.open(10));
     }
     QuartzDiskTable table2("./test_disktable1_", false, 8192);
     table2.open();
