@@ -34,7 +34,7 @@ AC_ARG_WITH(stlport,
   no)  use_stlport=no ;;
   *)   use_stlport=yes ;
        STLPORT_INCLUDE="-I${withval}/stlport/" ;
-       STLPORT_LIBS="-L${withval}/libs/" ;;
+       STLPORT_LIBS="-L${withval}/lib/" ;;
 esac], [])
 
 if test "x$use_stlport" = "xno" ; then
