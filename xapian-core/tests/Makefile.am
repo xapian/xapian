@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 # The including of /common should be removed ultimately.
 # ie: when we have an API
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite
 
 # These are for internal test - should be removed, and internal test
 # split into bits among the sources.
@@ -33,7 +33,7 @@ check_PROGRAMS  = apitest internaltest includetest stemtest
 includetest_SOURCES = includetest.cc
 
 apitest_SOURCES = apitest.cc
-apitest_LDADD = ../libomus.la ../testsuite/libtest.la
+apitest_LDADD = ../testsuite/libtest.la ../libomus.la
 
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la

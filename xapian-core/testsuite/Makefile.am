@@ -6,4 +6,6 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_LTLIBRARIES = libtest.la
 
-libtest_la_SOURCES = testsuite.cc testutils.cc
+noinst_HEADERS = backendmanager.h
+
+libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc

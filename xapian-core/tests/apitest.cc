@@ -34,6 +34,7 @@
 #include "testutils.h"
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
+#include "backendmanager.h"
 
 // tests the allow query terms expand option
 bool test_allowqterms1();
@@ -78,8 +79,6 @@ bool test_multidb3();
 // test that a multidb with 3 dbs query returns correct docids
 bool test_multidb4();
 
-string datadir_;
-
 bool floats_are_equal_enough(double a, double b)
 {
     if (fabs(a - b) > 1E-5) return false;
@@ -113,82 +112,6 @@ void expect_mset_order(OmMSet mset, om_docid *order,
 }
 
 
-OmDocumentContents
-string_to_document(string paragraph)
-{
-    OmStem stemmer("english");
-
-    OmDocumentContents document;
-    document.data = OmData(paragraph);
-    om_termcount position = 1;
-
-    for (om_keyno i=1; i<=10; ++i) {
-	if (i >= paragraph.length()) {
-	    break;
-	} else {
-	    OmKey key;
-	    key.value = paragraph.substr(i, 1);
-	    document.keys[i] = key;
-	}
-    }
-
-    string::size_type spacepos;
-    om_termname word;
-    while((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
-	if(spacepos) paragraph = paragraph.erase(0, spacepos);
-	spacepos = paragraph.find_first_of(" \t\n");
-	word = paragraph.substr(0, spacepos);
-	select_characters(word, "");
-	lowercase_term(word);
-	word = stemmer.stem_word(word);
-	if(word.size() != 0) {
-	    document.add_posting(word, position++);
-	}
-	paragraph = paragraph.erase(0, spacepos);
-    }
-
-    return document;
-}
-
-void
-index_files_to_database(OmWritableDatabase & database, vector<string> paths)
-{
-    for (vector<string>::const_iterator p = paths.begin();
-	 p != paths.end();
-	 p++) {
-	TextfileIndexerSource source(*p);
-	auto_ptr<istream> from(source.get_stream());
-
-	while(*from) {
-	    string para;
-	    get_paragraph(*from, para);
-	    database.add_document(string_to_document(para));
-	}
-    }
-}
-
-vector<string>
-make_strvec(string s1 = "",
-	    string s2 = "",
-	    string s3 = "",
-	    string s4 = "")
-{
-    vector<string> result;
-
-    if(s1 != "") result.push_back(s1);
-    if(s2 != "") result.push_back(s2);
-    if(s3 != "") result.push_back(s3);
-    if(s4 != "") result.push_back(s4);
-
-    return result;
-}
-
-void
-index_file_to_database(OmWritableDatabase & database, string path)
-{
-    index_files_to_database(database, make_strvec(path));
-}
-
 OmDatabaseGroup
 make_dbgrp(OmDatabase * db1 = 0,
 	   OmDatabase * db2 = 0,
@@ -205,176 +128,7 @@ make_dbgrp(OmDatabase * db1 = 0,
     return result;
 }
 
-class BackendManager {
-    private:
-	/// The type of a get_database member function
-	typedef OmDatabase (BackendManager::*getdb_func)(const string &dbname1,
-							 const string &dbname2);
-	/// The current get_database member function
-	getdb_func do_getdb;
-
-	/// Throw an exception.
-	OmDatabase getdb_void(const string &dbname1,
-			      const string &dbname2);
-
-	/// Get a net database instance
-	OmDatabase getdb_net(const string &dbname1,
-			     const string &dbname2);
-
-	/// Get an inmemory database instance.
-	OmDatabase getdb_inmemory(const string &dbname1,
-				  const string &dbname2);
-
-	/// Get a sleepy database instance.
-	OmDatabase getdb_sleepy(const string &dbname1,
-				const string &dbname2);
-    public:
-	/// Constructor - set up default state.
-	BackendManager() : do_getdb(&getdb_void) {};
-
-	/** Set the database type to use.
-	 *
-	 *  Valid values for dbtype are "inmemory", "sleepycat",
-	 *  "void", and "net".
-	 */
-	void set_dbtype(const string &type);
-
-	/// Get a database instance of the current type
-	OmDatabase get_database(const string &dbname1,
-				const string &dbname2);
-};
-
 static BackendManager backendmanager;
-
-void BackendManager::set_dbtype(const string &type)
-{
-    if (type == "inmemory") {
-	do_getdb = &getdb_inmemory;
-    } else if (type == "sleepycat") {
-	do_getdb = &getdb_sleepy;
-	cout << "Removing .sleepy/..." << endl;
-	system("rm -fr .sleepy");
-    } else if (type == "net") {
-	do_getdb = &getdb_net;
-    } else if (type == "void") {
-	do_getdb = &getdb_void;
-    } else {
-	throw OmInvalidArgumentError("Expected inmemory or sleepy");
-    }
-}
-
-OmDatabase BackendManager::getdb_void(const string &, const string &)
-{
-    throw OmInvalidArgumentError("Attempted to open a disabled database");
-}
-
-OmDatabase BackendManager::getdb_inmemory(const string &dbname1,
-					  const string &dbname2)
-{
-    OmWritableDatabase db("inmemory", make_strvec());
-    index_file_to_database(db, datadir_ + "/" + dbname1 + ".txt");
-    if (dbname2.length() > 0) {
-	index_file_to_database(db, datadir_ + "/" + dbname2 + ".txt");
-    }
-
-    return db;
-}
-
-/** Create the directory dirname if needed.  Returns true if the
- *  directory was created and false if it was already there.  Throws
- *  an exception if there was an error (eg not a directory).
- */
-bool create_dir_if_needed(const string &dirname)
-{
-    // create a directory for sleepy indexes if not present
-    struct stat sbuf;
-    int result = stat(dirname.c_str(), &sbuf);
-    if (result < 0) {
-	if (errno == ENOENT) {
-	    if (mkdir(dirname.c_str(), 0700) < 0) {
-		throw OmOpeningError("Can't create directory");
-	    }
-	} else {
-	    throw OmOpeningError("Can't stat directory");
-	}
-	return true; // either threw an exception, or created a directory.
-    } else {
-	if (!S_ISDIR(sbuf.st_mode)) {
-	    throw OmOpeningError("Is not a directory.");
-	}
-	return false; // Already a directory.
-    }
-}
-
-/** Return true if the file fname exists.
- */
-bool file_exists(const string &fname)
-{
-    // create a directory for sleepy indexes if not present
-    struct stat sbuf;
-    int result = stat(fname.c_str(), &sbuf);
-    if (result < 0) {
-	return false;
-    } else {
-	if (!S_ISREG(sbuf.st_mode)) {
-	    return false;
-	}
-	return true;
-    }
-}
-
-OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
-					const string &dbname2)
-{
-    string parent_dir = ".sleepy";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/" + dbname1 + "#" + dbname2;
-
-    if (file_exists(datadir_ + "/" + dbname1 + ".txt") &&
-	((dbname2.length() == 0) ||
-	 file_exists(datadir_ + "/" + dbname2 + ".txt"))) {
-	bool created = create_dir_if_needed(dbdir);
-
-	if (created) {
-	    // directory was created, so do the indexing.
-	    OmWritableDatabase db("sleepycat", make_strvec(dbdir));
-	    index_file_to_database(db, datadir_ + "/" + dbname1 + ".txt");
-	    if (dbname2.length() > 0) {
-		index_file_to_database(db, datadir_ + "/" + dbname2 + ".txt");
-	    }
-	    return db;
-	} else {
-	    // else just return a read-only db.
-	    return OmDatabase("sleepycat", make_strvec(dbdir));
-	}
-    } else {
-	// open a non-existant database
-	return OmDatabase("sleepycat", make_strvec(dbdir));
-    }
-}
-
-OmDatabase BackendManager::getdb_net(const string &dbname1,
-				     const string &dbname2)
-{
-    // run an omprogsrv for now.  Later we should also use omtcpsrv
-    vector<string> args;
-    args.push_back("prog");
-    args.push_back("../netprogs/omprogsrv");
-    args.push_back(datadir_ + "/" + dbname1 + ".txt");
-    if (dbname2.length() > 0) {
-	args.push_back(datadir_ + "/" + dbname2 + ".txt");
-    }
-    OmDatabase db("net", args);
-
-    return db;
-}
-
-OmDatabase BackendManager::get_database(const string &dbname1,
-					const string &dbname2)
-{
-    return (this->*do_getdb)(dbname1, dbname2);
-}
 
 OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
     return backendmanager.get_database(dbname, dbname2);
@@ -2150,12 +1904,12 @@ int main(int argc, char *argv[])
         cout << "Error: $srcdir must be in the environment!" << endl;
 	return(1);
     }
-    datadir_ = std::string(srcdir) + "/testdata/";
 
     int result;
     test_driver::result summary = {0, 0};
     test_driver::result sum_temp;
     
+    backendmanager.set_datadir(std::string(srcdir) + "/testdata/");
     backendmanager.set_dbtype("void");
     cout << "Running tests with no backend..." << endl;
     result = test_driver::main(argc, argv, nodb_tests, &summary);
@@ -2176,7 +1930,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 0 && defined(MUS_BUILD_BACKEND_NET)
+#if 1 && defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

@@ -1,3 +1,8 @@
+Tue Jun  6 16:59:57 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Separate BackendManager from rest of code in apitest, and put it
+	  into testsuite, ready for use in other tests.
+
 Tue Jun  6 15:38:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented a version of SleepyDatabase::do_get_all_keys().
