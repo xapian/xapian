@@ -1,3 +1,13 @@
+Mon May 13 12:20:22 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated to use autoconf 2.50; tidied up configure.in a little.
+
+	* source/Makefile.am: Fixed typo in last change.
+
+	* More tweaks to getopt usage.
+
+	* add_key() -> add_value().
+
 Mon May 13 11:20:25 BST 2002  Olly Betts <olly@survex.com>
 
 	* Link GNU getopt to those programs which need it.

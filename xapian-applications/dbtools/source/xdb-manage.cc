@@ -20,6 +20,8 @@
  * USA
  */
 
+#include <config.h>
+
 #include <om/om.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -32,12 +34,18 @@
 #include <xmlmemory.h>
 #include <parser.h>
 
-#include "config.h"
-
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+
+// This clump of defines is for compatibility across libxml1 and 2.
+// libxml2 and later versions of libxml1 should have these already.
+// These should work for earlier libxml1 versions.
+#ifndef xmlChildrenNode
+#define xmlChildrenNode childs
+#define xmlRootNode root
+#endif
 
 static string default_generator="";
 static string default_generator_string="";
@@ -243,7 +251,7 @@ doc_status add_document(OmWritableDatabase* database,xmlNodePtr document,
 	}
 	element = element->next;    
     }
-    // take document and add keys, literal terms and data
+    // take document and add values (keys), literal terms and data
     // as we find it
     element =document->xmlChildrenNode;
     while(element) {
@@ -252,8 +260,8 @@ doc_status add_document(OmWritableDatabase* database,xmlNodePtr document,
 		if (xmlGetProp(element, (const xmlChar*) "number") &&
 		    xmlGetProp(element, (const xmlChar*) "value")) {
 		    xmlChar*number = xmlGetProp(element,(const xmlChar*) "number");
-		    om_keyno key = strtol((char*) number,NULL, 0);
-		    new_document.add_key (key, string ((char*)xmlGetProp (element,(const xmlChar*) "value")));
+		    om_valueno key = strtol((char*) number,NULL, 0);
+		    new_document.add_value(key, string ((char*)xmlGetProp (element,(const xmlChar*) "value")));
 		} else {
 		    throw string("key element missing required attribute");
 		}
@@ -638,60 +646,34 @@ int main(int argc, char** argv)
     int longindex, getopt_ret;
     bool auto_create = false;
 
-#ifdef HAVE_GETOPT_LONG
-    struct option longopts[5];
-    longopts[0].name = "help";
-    longopts[0].has_arg = 0;
-    longopts[0].flag = NULL;
-    longopts[0].val = 'h';
-    longopts[1].name = "version";
-    longopts[1].has_arg = 0;
-    longopts[1].flag = NULL;
-    longopts[1].val = 'v';
-    longopts[2].name = "auto-create";
-    longopts[2].has_arg = 0;
-    longopts[2].flag = NULL;
-    longopts[2].val = 'c';
-    longopts[3].name = "generator";
-    longopts[3].has_arg = required_argument;
-    longopts[3].flag = 0;
-    longopts[3].val = 'g';
-    longopts[4].name = 0;
-    longopts[4].has_arg = 0;
-    longopts[4].flag = 0;
-    longopts[4].val = 0;
+    struct option longopts[5] = {
+	{ "help",		0,			NULL, 'h' },
+	{ "version",		0,			NULL, 'v' },
+	{ "auto-create",	0,			NULL, 'c' },
+	{ "generator",		required_argument,	NULL, 'g' },
+	{ NULL, 0, NULL, 0 }
+    };
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {
-#else
-    while ((getopt_ret = getopt(argc, argv, optstring))!=EOF) {
-#endif
         switch (getopt_ret) {
         case 'h':
-            cout << "Usage: " << argv[0] << " [OPTION] FILE" << endl
-	         << endl << "Manage an Xapian database via XML files." << endl
-#ifdef HAVE_GETOPT_LONG
-                 << "  -c, --auto-create\tcreate database if necessary" << endl
-                 << "  -g, --generator\tdefault indexgraph generator file" << endl
-                 << "  -h, --help\t\tdisplay this help and exit" << endl
-                 << "  -v --version\t\toutput version and exit" << endl << endl
-#else
-                 << "  -c\t\tcreate database if necessary" << endl
-                 << "  -g\t\tdefault indexgraph generator file" << endl
-                 << "  -h\t\tdisplay this help and exit" << endl
-                 << "  -v\t\toutput version and exit" << endl << endl
-#endif
-                 << "Report bugs via the web interface at:" << endl
+            cout << "Usage: " << argv[0] << " [OPTION] FILE\n\n"
+	         << "Manage an Xapian database via XML files.\n"
+                 << "  -c, --auto-create\tcreate database if necessary\n"
+                 << "  -g, --generator\tdefault indexgraph generator file\n"
+                 << "  -h, --help\t\tdisplay this help and exit\n"
+                 << "  -v, --version\t\toutput version and exit\n\n"
+                 << "Report bugs via the web interface at:\n"
                  << "<http://xapian.org/bugs/>" << endl;
             return 0;
-            break;
         case 'v':
-            cout << PACKAGE << " " << VERSION << endl;
-            cout << "Copyright 2001 tangozebra ltd" << endl << endl;
-            cout << "This is free software, and may be redistributed under" << endl;
-            cout << "the terms of the GNU Public License." << endl;
+            cout << PACKAGE << " " << VERSION << "\n"
+		 << "Copyright 2001 tangozebra ltd\n"
+		 << "Copyright 2002 Ananova Ltd\n\n"
+		 << "This is free software, and may be redistributed under\n"
+		 << "the terms of the GNU Public License." << endl;
             return 0;
-            break;
 	case 'c':
 	    auto_create = true;
 	    break;

@@ -21,6 +21,8 @@
  * USA
  */
 
+#include <config.h>
+
 #include <om/om.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -31,12 +33,18 @@
 #include <xmlmemory.h>
 #include <parser.h>
 
-#include "config.h"
-
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
+
+// This clump of defines is for compatibility across libxml1 and 2.
+// libxml2 and later versions of libxml1 should have these already.
+// These should work for earlier libxml1 versions.
+#ifndef xmlChildrenNode
+#define xmlChildrenNode childs
+#define xmlRootNode root
+#endif
 
 OmSettings read_db_options(xmlDocPtr, xmlNodePtr); // xdb-options.cc
 
@@ -46,48 +54,30 @@ int main(int argc, char** argv)
     char* optstring = "hv";
     int longindex, getopt_ret;
 
-#ifdef HAVE_GETOPT_LONG
-    struct option longopts[3];
-    longopts[0].name = "help";
-    longopts[0].has_arg = 0;
-    longopts[0].flag = NULL;
-    longopts[0].val = 'h';
-    longopts[1].name = "version";
-    longopts[1].has_arg = 0;
-    longopts[1].flag = NULL;
-    longopts[1].val = 'v';
-    longopts[2].name = 0;
-    longopts[2].has_arg = 0;
-    longopts[2].flag = 0;
-    longopts[2].val = 0;
+    struct option longopts[3] = {
+	{ "help",		0,			NULL, 'h' },
+	{ "version",		0,			NULL, 'v' },
+	{ NULL, 0, NULL, 0 }
+    };
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {
-#else
-    while ((getopt_ret = getopt(argc, argv, optstring))!=EOF) {
-#endif
         switch (getopt_ret) {
         case 'h':
-            cout << "Usage: " << argv[0] << " [OPTION] FILE" << endl
-	         << endl << "Dump an Xapian database to an XML file." << endl
-#ifdef HAVE_GETOPT_LONG
-                 << "  -h, --help\t\tdisplay this help and exit" << endl
-                 << "  -v --version\t\toutput version and exit" << endl << endl
-#else
-                 << "  -h\t\tdisplay this help and exit" << endl
-                 << "  -v\t\toutput version and exit" << endl << endl
-#endif
-                 << "Report bugs via the web interface at:" << endl
+            cout << "Usage: " << argv[0] << " [OPTION] FILE\n\n"
+	         << "Dump an Xapian database to an XML file.\n"
+                 << "  -h, --help\t\tdisplay this help and exit\n"
+                 << "  -v, --version\t\toutput version and exit\n\n"
+                 << "Report bugs via the web interface at:\n"
                  << "<http://xapian.org/bugs/>" << endl;
             return 0;
-            break;
         case 'v':
-            cout << PACKAGE << " " << VERSION << endl;
-            cout << "Copyright 2001 tangozebra ltd" << endl << endl;
-            cout << "This is free software, and may be redistributed under" << endl;
-            cout << "the terms of the GNU Public License." << endl;
+	    cout << PACKAGE << " " << VERSION << "\n"
+		 << "Copyright 2001 tangozebra ltd\n"
+		 << "Copyright 2002 Ananova Ltd\n\n"
+		 << "This is free software, and may be redistributed under\n"
+		 << "the terms of the GNU Public License." << endl;
             return 0;
-            break;
         case ':': // missing param
             return 1;
         case '?': // unknown option

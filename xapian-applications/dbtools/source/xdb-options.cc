@@ -3,6 +3,7 @@
  *
  * Dump a Xapian database to an XML representation that xdb-manage can use
  * Copyright 2001 tangozebra ltd
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,14 +21,22 @@
  * USA
  */
 
+#include <config.h>
+
 #include <om/om.h>
 #include <string>
 #include <xmlmemory.h>
 #include <parser.h>
 
-#include "config.h"
-
 using std::string;
+
+// This clump of defines is for compatibility across libxml1 and 2.
+// libxml2 and later versions of libxml1 should have these already.
+// These should work for earlier libxml1 versions.
+#ifndef xmlChildrenNode
+#define xmlChildrenNode childs
+#define xmlRootNode root
+#endif
 
 OmSettings read_db_options(xmlDocPtr doc, xmlNodePtr current)
 {
