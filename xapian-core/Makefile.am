@@ -12,19 +12,26 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include getopt autoconf common \
+SUBDIRS = include getopt common \
           api backends matcher languages $(remote_subdirs) \
-	  . testsuite bin m4 docs tests extra
+	  . testsuite bin docs tests extra
 
-DIST_SUBDIRS = include getopt autoconf common \
+DIST_SUBDIRS = include getopt common \
                api backends matcher languages net \
-	       . bin m4 docs testsuite tests extra
+	       . bin docs testsuite tests extra
 
 bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config
 
-EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec
+EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec m4/xapian.m4 \
+ autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4
+
+EXTRA_DIST = $(m4_files)
+
+# xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
+m4datadir = $(datadir)/aclocal
+m4data_DATA = m4/xapian.m4
 
 lib_LTLIBRARIES = libxapian.la
 

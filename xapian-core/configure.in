@@ -439,8 +439,6 @@ AC_CONFIG_FILES([
  api/Makefile
  tests/Makefile
  docs/Makefile
- m4/Makefile
- autoconf/Makefile
  net/Makefile
  bin/Makefile
  getopt/Makefile

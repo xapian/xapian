@@ -1,3 +1,11 @@
+Thu May 13 11:11:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,Makefile.am,autoconf/.cvsignore,autoconf/Makefile.am,
+	  m4/.cvsignore,m4/Makefile.am: Removed trivial m4/Makefile.am and
+	  and autoconf/Makefile.am and do the work from the top level
+	  Makefile.am instead.  It's easy to see the structure this way, and
+	  it also removes a couple of recursive make invocations.
+
 Thu May 13 09:32:22 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: Added DEBUGCALL
