@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         if (argc >= 3 && strcmp(argv[1], "--msize") == 0) {
 	    match.set_max_msize(atoi(argv[2]));
 	    argc -= 2;
-	    memmove(argv + 1, argv + 3, argc);
+	    memmove(argv + 1, argv + 3, argc * sizeof(char*));
 	}
 
         if (argc < 2) {
