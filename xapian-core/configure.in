@@ -3,14 +3,14 @@ AC_INIT(include/database.h)
 AM_INIT_AUTOMAKE(om, 0.0.1)
 AM_CONFIG_HEADER(config.h)
 
-# Turn off shared libraries for now as the make the build take longer
-AC_DISABLE_SHARED
-AM_PROG_LIBTOOL
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
+
+# Turn off shared libraries for now as the make the build take longer
+AC_DISABLE_SHARED
+AM_PROG_LIBTOOL
 
 dnl Checks for gtk / glib / glade
 build_gui=yes
