@@ -5,7 +5,7 @@ bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	\
     MatchComment.cgi QueryComment.cgi TopComment.cgi SourceComment.cgi\
     cvs2cl \
     popup.js \
-    Cvssearch.pm Entities.pm 
+    Cvssearch.pm Entities.pm CommitSearch.cgi 
 
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
     Compare-script.pl \
@@ -15,7 +15,7 @@ EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
     fishlogo.gif\
     cvs2cl.pl \
     popup.js \
-    Cvssearch.pm Entities.pm
+    Cvssearch.pm Entities.pm CommitSearch-script.pl
 
 define build-perl-script
 $(PERL) -I $(srcdir) -c $(firstword $^)
@@ -84,3 +84,5 @@ PatternBrowser.cgi:$(srcdir)/PatternBrowser-script.pl
 QueryCommit.cgi:$(srcdir)/QueryCommit-script.pl
 	$(build-perl-script)
 
+CommitSearch.cgi:$(srcdir)/CommitSearch-script.pl
+	$(build-perl-script)
