@@ -205,7 +205,7 @@ class OmDebugCall {
 #define DEBUGCALL(t,a,b) \
     std::string omdebugapicall_str; \
     std::string omdebugapicall_method; \
-    {\
+    if(om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
 	os1 << "[" << ((void *)this) << "] " << a; \
 	omdebugapicall_method = os1.str(); \
@@ -220,7 +220,7 @@ class OmDebugCall {
 #define DEBUGCALL_STATIC(t,a,b) \
     std::string omdebugapicall_str; \
     std::string omdebugapicall_method; \
-    {\
+    if(om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
 	os1 << "[static   ] " << a; \
 	omdebugapicall_method = os1.str(); \
