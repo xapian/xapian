@@ -1,3 +1,10 @@
+Thu Jun 05 17:52:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,common/socketcommon.h,docs/todo.xml,
+	  include/xapian/query.h,net/: Reworked query serialisation so that
+	  the code is now all in api/omqueryinternal.cc.  Serialisation is
+	  now rather more compact and no longer relies of flex for parsing.
+
 Thu Jun 05 17:45:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: omprogsrv depends on libtest.la, so it need to be

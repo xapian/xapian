@@ -82,10 +82,11 @@ SocketClient::SocketClient(int socketfd_,
     int version;
     is >> version >> doccount >> avlength;
 
-    if (version != OM_SOCKET_PROTOCOL_VERSION) {
+    if (version != XAPIAN_SOCKET_PROTOCOL_VERSION) {
 	throw Xapian::NetworkError(string("Mismatched protocol version: found ") +
 			     om_tostring(version) + " expected " +
-			     om_tostring(OM_SOCKET_PROTOCOL_VERSION), context);
+			     om_tostring(XAPIAN_SOCKET_PROTOCOL_VERSION),
+			     context);
     }
 }
 

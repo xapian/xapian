@@ -127,13 +127,6 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 + Solaris =&gt; DISABLE_SHARED)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Xapian::Query" release="1.0">
-
-Move all serialisation of Xapian::Query into Xapian::Query (out of
-socketcommon.cc and localmatch): modification of omquery requires
-changes in 3 separate parts of the code, at present.
-
-</todoitem>
 <todoitem priority="M" difficulty="5" owner="Olly" area="Documentation" release="1.0">
 
 Ensure that API documentation covers entirety of API (i.e. that all methods and

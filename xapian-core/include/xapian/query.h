@@ -368,6 +368,8 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/** Destructor. */
 	~Internal();
 
+	static Xapian::Query::Internal * unserialise(const std::string &s);
+
 	/** Add a subquery.
 	 */
 	void add_subquery(const Query::Internal & subq);

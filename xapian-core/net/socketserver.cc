@@ -81,7 +81,7 @@ SocketServer::SocketServer(Xapian::Database db_, int readfd_, int writefd_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw Xapian::NetworkError("Couldn't install SIGPIPE handler", errno);
     }
-    writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
+    writeline("OM "STRINGIZE(XAPIAN_SOCKET_PROTOCOL_VERSION)" " +
 	      om_tostring(db.get_doccount()) + ' ' +
 	      om_tostring(db.get_avlength()));
     // FIXME: these registrations duplicated below - refactor into method
@@ -276,7 +276,8 @@ SocketServer::run_match(const string &firstmessage)
     
     gatherer = new NetworkStatsGatherer(this);
     
-    Xapian::Query::Internal * query = query_from_string(message);
+    Xapian::Query::Internal * query;
+    query = Xapian::Query::Internal::unserialise(message);
 
     // extract the match options
     message = readline(msecs_active_timeout);

@@ -41,6 +41,9 @@
 #include <math.h>
 #include <limits.h>
 
+ #include <iostream>
+ using namespace std;
+
 // Properties for query operations.
 
 static unsigned int
@@ -139,81 +142,85 @@ can_flatten(Xapian::Query::Internal::op_t op)
     return (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 }
 
-///////////////////////////////////
-// Methods for Xapian::Query::Internal //
-///////////////////////////////////
+// Methods for Xapian::Query::Internal
 
 /** serialising method, for network matches.
  *
  *  The format is designed to be relatively easy
  *  to parse, as well as encodable in one line of text.
  *
- *  A null query is represented as `%N'.
- *
- *  A single-term query becomes `%T<tname> <termpos>,<wqf>'
- *                           or `%T<tname> <termpos>'
+ *  A single-term query becomes `[<encodedtname> @<termpos>#<wqf>'
  *  where:
- *  	<tname> is the encoded term name
- *  	<wqf> is the decimal within query frequency (default 1),
- *  	<termpos> is the decimal term position.
+ *  	<wqf> is the decimal within query frequency (1 if omitted),
+ *  	<termpos> is the decimal term position (index of term if omitted).
  *
- *  A compound query becomes `%(<subqueries> <op>%)', where:
- *  	<subqueries> is the space-separated list of subqueries
- *  	<op> is one of: %and, %or, %filter, %andmaybe, %andnot, %xor
+ *  A compound query becomes `(<subqueries><op>', where:
+ *  	<subqueries> is the list of subqueries
+ *  	<op> is one of: &|%+-^
+ *  also ~N "N >F *N (N unsigned int; F floating point)
+ * 
+ *  If querylen != sum(wqf) we append `=len' (at present we always do this
+ *  for compound queries as it's simpler than working out what sum(wqf) would
+ *  be - FIXME).
  */
 std::string
 Xapian::Query::Internal::serialise() const
 {
+    Xapian::termpos curpos = 1;
+    Xapian::termcount len = 0;
     std::string result;
 
-    std::string qlens = std::string("%L") + om_tostring(qlen);
-    result += qlens;
     if (op == Xapian::Query::Internal::OP_LEAF) {
-	result += "%T" + encode_tname(tname) + ' ' + om_tostring(term_pos);
-	if (wqf != 1) result += ',' + om_tostring(wqf);
+	result += "[" + encode_tname(tname);
+	result += ' ';
+       	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
+	if (wqf != 1) result += '#' + om_tostring(wqf);
+	++curpos;
+	len += wqf;
+	if (qlen != len) result += '=' + om_tostring(qlen);
     } else {
-	result += "%(";
-	for (subquery_list::const_iterator i=subqs.begin();
+	result += "(";
+	for (subquery_list::const_iterator i = subqs.begin();
 	     i != subqs.end();
 	     ++i) {
-	    result += (*i)->serialise() + " ";
+	    result += (*i)->serialise();
 	}
 	switch (op) {
 	    case Xapian::Query::Internal::OP_LEAF:
 		Assert(false);
 		break;
 	    case Xapian::Query::OP_AND:
-		result += "%and";
+		result += "&";
 		break;
 	    case Xapian::Query::OP_OR:
-		result += "%or";
+		result += "|";
 		break;
 	    case Xapian::Query::OP_FILTER:
-		result += "%filter";
+		result += "%";
 		break;
 	    case Xapian::Query::OP_AND_MAYBE:
-		result += "%andmaybe";
+		result += "+";
 		break;
 	    case Xapian::Query::OP_AND_NOT:
-		result += "%andnot";
+		result += "-";
 		break;
 	    case Xapian::Query::OP_XOR:
-		result += "%xor";
+		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "%near" + om_tostring(window);
+		result += "~" + om_tostring(window);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "%phrase" + om_tostring(window);
+		result += "\"" + om_tostring(window);
 		break;
 	    case Xapian::Query::OP_WEIGHT_CUTOFF:
-		result += "%wtcutoff" + om_tostring(cutoff);
+		result += ">" + om_tostring(cutoff);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "%eliteset" + om_tostring(elite_set_size);
+		result += "*" + om_tostring(elite_set_size);
 		break;
-	} // switch(op)
-	result += "%)";
+	}
+	/*if (qlen != len)*/ result += '=' + om_tostring(qlen);
     }
     return result;
 }
@@ -359,19 +366,152 @@ Xapian::Query::Internal::get_terms() const
 
 // Methods 
 
-#if 0 // FIXME
-// Make an uninitialised query
-Xapian::Query::Internal::Internal()
-       : subqs(),
-         qlen(0),
-         window(0),
-         cutoff(0),
-         elite_set_size(0),
-         tname(),
-         term_pos(0),
-         wqf(0)
-{ }
-#endif
+class QUnserial {
+  private:
+    const char *p;
+    Xapian::termpos curpos;
+    Xapian::termpos len;
+ 
+    Xapian::Query::Internal * readquery();
+    Xapian::Query::Internal * readcompound();
+    
+  public:
+    QUnserial(const char *p_) : p(p_), curpos(1), len(0) { }
+    Xapian::Query::Internal * decode();
+};
+
+Xapian::Query::Internal *
+QUnserial::decode() {
+    Xapian::Query::Internal * qint = readquery();
+    if (*p == '=') {
+	char *tmp; // avoid compiler warning
+	qint->set_length((Xapian::termcount)strtol(p + 1, &tmp, 10));
+	p = tmp;
+    } else {
+	qint->set_length(len);
+    }
+    Assert(*p == '\0');
+    return qint;
+}
+
+Xapian::Query::Internal *
+QUnserial::readquery() {
+    switch (*p) {
+	case '[': {
+	    ++p;
+	    const char *q = strchr(p, ' ');
+	    if (!q) q = p + strlen(p);
+	    string tname = decode_tname(string(p, q - p));
+	    Xapian::termpos term_pos = curpos;
+	    Xapian::termcount wqf = 1;
+	    p = q;
+	    if (*p == ' ') ++p;
+	    if (*p == '@') {
+		char *tmp; // avoid compiler warning
+		term_pos = strtol(p + 1, &tmp, 10);
+		p = tmp;
+	    }
+	    if (*p == '#') {
+		char *tmp; // avoid compiler warning
+		wqf = strtol(p + 1, &tmp, 10);
+		p = tmp;
+	    }
+	    ++curpos;
+	    len += wqf;
+	    return new Xapian::Query::Internal(tname, wqf, term_pos);
+	}
+	case '(':
+	    ++p;
+	    return readcompound();
+	default:
+	    throw Xapian::InvalidArgumentError("Invalid query string");
+    }
+}
+
+static Xapian::Query::Internal *
+qint_from_vector(Xapian::Query::op op, vector<Xapian::Query::Internal *> & vec) {
+    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op);
+    vector<Xapian::Query::Internal *>::const_iterator i;
+    for (i = vec.begin(); i != vec.end(); i++)
+	qint->add_subquery(**i);
+    qint->end_construction();
+    return qint;
+}
+
+Xapian::Query::Internal *
+QUnserial::readcompound() {
+    vector<Xapian::Query::Internal *> subqs;
+    while (true) {
+	switch (*p) {
+	    case '[':
+		subqs.push_back(readquery());
+		break;
+	    case '(':
+		++p;
+		subqs.push_back(readcompound());
+		break;
+	    case '&':
+		return qint_from_vector(Xapian::Query::OP_AND, subqs);
+	    case '|':
+		return qint_from_vector(Xapian::Query::OP_OR, subqs);
+	    case '%':
+		return qint_from_vector(Xapian::Query::OP_FILTER, subqs);
+	    case '^':
+		return qint_from_vector(Xapian::Query::OP_XOR, subqs);
+	    case '+':
+		return qint_from_vector(Xapian::Query::OP_AND_MAYBE, subqs);
+	    case '-':
+		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
+	    case '~': {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
+		char *tmp; // avoid compiler warning
+		qint->set_window((Xapian::termpos)strtol(p + 1, &tmp, 10));
+		p = tmp;
+		return qint;
+	    }
+	    case '"': {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
+		char *tmp; // avoid compiler warning
+		qint->set_window((Xapian::termpos)strtol(p + 1, &tmp, 10));
+		p = tmp;
+		return qint;
+	    }
+	    case '>': {
+		Xapian::Query::Internal * qint;
+		qint = new Xapian::Query::Internal(Xapian::Query::OP_WEIGHT_CUTOFF);
+		Assert(subqs.size() == 1);
+		qint->add_subquery(*subqs[0]);
+		qint->end_construction();
+		char *tmp; // avoid compiler warning
+		qint->set_cutoff(strtod(p + 1, &tmp));
+		p = tmp;
+		return qint;
+	    }
+	    case '*': {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
+		char *tmp; // avoid compiler warning
+		qint->set_elite_set_size((Xapian::termcount)strtol(p + 1, &tmp, 10));
+		p = tmp;
+		return qint;
+	    }
+	    default:
+		throw Xapian::InvalidArgumentError("Invalid query string");
+	}
+    }
+}
+
+Xapian::Query::Internal *
+Xapian::Query::Internal::unserialise(const string &s)
+{
+    Assert(s.length() > 1);
+    QUnserial u(s.c_str());
+    Xapian::Query::Internal * qint = u.decode();
+    AssertEq(s, qint->serialise());
+    return qint;
+}
 
 /** swap the contents of this with another Xapian::Query::Internal,
  *  in a way which is guaranteed not to throw.  This is

@@ -26,14 +26,11 @@
 
 #ifdef HAVE_SSTREAM
 #include <sstream>
-using std::istringstream;
 #else
 #include <strstream.h>
 #endif
 #include <map>
-using std::map;
 #include <set>
-using std::set;
 #include <string>
 #include <vector>
 #include <sys/time.h>
@@ -43,29 +40,15 @@ using std::set;
 #include "socketcommon.h"
 #include "omdebug.h"
 #include "omqueryinternal.h"
-#include "readquery.h"
 #include "stats.h"
 #include "utils.h"
 #include <xapian/enquire.h>
 #include <xapian/document.h>
 #include "omlinebuf.h"
 #include "omenquireinternal.h"
+#include "netutils.h"
 
-Xapian::Query::Internal * qfs_readcompound();
-
-Xapian::Query::Internal * query_from_string(string qs)
-{
-    Assert(qs.length() > 1);
-
-    qfs_start(qs);
-
-    Xapian::Query::Internal * retval = qfs_readquery();
-    AssertEq(qs, retval->serialise());
-
-    qfs_end();
-
-    return retval;
-}
+using namespace std;
 
 string stats_to_string(const Stats &stats)
 {
@@ -150,100 +133,6 @@ string_to_stats(const string &s)
     }
 
     return stat;
-}
-
-Xapian::Query::Internal * qfs_readquery()
-{
-    querytok qt = qfs_gettok();
-    switch (qt.type) {
-	case querytok::TERM:
-	    return new Xapian::Query::Internal(qt.tname, qt.wqf, qt.term_pos);
-	case querytok::OP_BRA:
-	    return qfs_readcompound();
-	case querytok::QUERY_LEN: {
-	    Xapian::Query::Internal * temp = qfs_readquery();
-	    temp->set_length(qt.qlen);
-	    return temp;
-	}
-	default:
-	    Assert(false);
-    }
-    throw Xapian::InvalidArgumentError("Invalid query string: type was `" +
-				 om_tostring(qt.type) + '\'');
-}
-
-static Xapian::Query::Internal *
-qint_from_vector(Xapian::Query::op op, vector<Xapian::Query::Internal *> & vec) {
-    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op);
-    vector<Xapian::Query::Internal *>::const_iterator i;
-    for (i = vec.begin(); i != vec.end(); i++)
-	qint->add_subquery(**i);
-    qint->end_construction();
-    return qint;
-}
-
-Xapian::Query::Internal * qfs_readcompound()
-{
-    vector<Xapian::Query::Internal *> subqs;
-    while (true) {
-	querytok qt = qfs_gettok();
-	switch (qt.type) {
-	    case querytok::QUERY_LEN: {
-		Xapian::Query::Internal * temp = qfs_readquery();
-		temp->set_length(qt.qlen);
-		subqs.push_back(temp);
-		break;
-	    }
-	    case querytok::TERM:
-		subqs.push_back(new Xapian::Query::Internal(qt.tname, qt.wqf,
-							    qt.term_pos));
-		break;
-	    case querytok::OP_BRA:
-		subqs.push_back(qfs_readcompound());
-		break;
-	    case querytok::OP_AND:
-		return qint_from_vector(Xapian::Query::OP_AND, subqs);
-	    case querytok::OP_OR:
-		return qint_from_vector(Xapian::Query::OP_OR, subqs);
-	    case querytok::OP_FILTER:
-		return qint_from_vector(Xapian::Query::OP_FILTER, subqs);
-	    case querytok::OP_XOR:
-		return qint_from_vector(Xapian::Query::OP_XOR, subqs);
-	    case querytok::OP_ANDMAYBE:
-		return qint_from_vector(Xapian::Query::OP_AND_MAYBE, subqs);
-	    case querytok::OP_ANDNOT:
-		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
-	    case querytok::OP_NEAR: {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
-		qint->set_window(qt.window);
-		return qint;
-	    }
-	    case querytok::OP_PHRASE: {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
-		qint->set_window(qt.window);
-		return qint;
-	    }
-	    case querytok::OP_WEIGHT_CUTOFF: {
-		Xapian::Query::Internal * qint;
-		qint = new Xapian::Query::Internal(Xapian::Query::OP_WEIGHT_CUTOFF);
-		Assert(subqs.size() == 1);
-		qint->add_subquery(*subqs[0]);
-		qint->end_construction();
-		qint->set_cutoff(qt.cutoff);
-		return qint;
-	    }
-	    case querytok::OP_ELITE_SET: {
-		Xapian::Query::Internal * qint;
-		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
-		qint->set_elite_set_size(qt.elite_set_size);
-		return qint;
-	    }
-	    default:
-		throw Xapian::InvalidArgumentError("Invalid query string");
-	} // switch(qt.type)
-    }
 }
 
 OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const string & errcontext_)
