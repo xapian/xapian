@@ -69,7 +69,7 @@ noinst_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C  cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h  cvs_revision_line_db.C cvs_revision_line_db.h  cvs_revision_less.h  cvs_diff_db.C cvs_diff_db.h
 
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsusageindex cvsusagesearch cvsmineindex 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsusageindex cvsusagesearch cvsmineindex cvsminesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
 
 cvsquery_SOURCES = cvsquery.C
@@ -82,6 +82,10 @@ cvsindex_LDADD = -lomsee
 cvssearch_SOURCES = util.h util.C cvssearch.C
 cvssearch_LDFLAGS = -static
 cvssearch_LDADD = -lomsee
+
+cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
+cvsminesearch_LDFLAGS = -static
+cvsminesearch_LDADD = -lomsee
 
 cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
 cvsusagesearch_LDFLAGS = -static 
@@ -129,6 +133,8 @@ cvsusagesearch_OBJECTS =  util.o cvsusagesearch.o
 cvsusagesearch_DEPENDENCIES = 
 cvsmineindex_OBJECTS =  util.o cvsmineindex.o
 cvsmineindex_DEPENDENCIES = 
+cvsminesearch_OBJECTS =  util.o cvsminesearch.o
+cvsminesearch_DEPENDENCIES = 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -148,10 +154,10 @@ DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id_db.P \
 .deps/cvs_file_revision_db.P .deps/cvs_filename_db.P \
 .deps/cvs_line_db.P .deps/cvs_revision_db.P \
 .deps/cvs_revision_line_db.P .deps/cvsindex.P .deps/cvsmineindex.P \
-.deps/cvsquery.P .deps/cvssearch.P .deps/cvsusageindex.P \
-.deps/cvsusagesearch.P .deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsusageindex_SOURCES) $(cvsusagesearch_SOURCES) $(cvsmineindex_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsusageindex_OBJECTS) $(cvsusagesearch_OBJECTS) $(cvsmineindex_OBJECTS)
+.deps/cvsminesearch.P .deps/cvsquery.P .deps/cvssearch.P \
+.deps/cvsusageindex.P .deps/cvsusagesearch.P .deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsusageindex_SOURCES) $(cvsusagesearch_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsusageindex_OBJECTS) $(cvsusagesearch_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -242,6 +248,10 @@ cvsusagesearch: $(cvsusagesearch_OBJECTS) $(cvsusagesearch_DEPENDENCIES)
 cvsmineindex: $(cvsmineindex_OBJECTS) $(cvsmineindex_DEPENDENCIES)
 	@rm -f cvsmineindex
 	$(CXXLINK) $(cvsmineindex_LDFLAGS) $(cvsmineindex_OBJECTS) $(cvsmineindex_LDADD) $(LIBS)
+
+cvsminesearch: $(cvsminesearch_OBJECTS) $(cvsminesearch_DEPENDENCIES)
+	@rm -f cvsminesearch
+	$(CXXLINK) $(cvsminesearch_LDFLAGS) $(cvsminesearch_OBJECTS) $(cvsminesearch_LDADD) $(LIBS)
 .C.o:
 	$(CXXCOMPILE) -c $<
 

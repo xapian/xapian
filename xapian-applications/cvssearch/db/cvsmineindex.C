@@ -12,7 +12,7 @@
 //
 //     Generates omsee databases each page.
 //
-//     If library directories given, also generates a "global" omsee database
+//     If library directories given, also generates a "mining" omsee database
 //     for library usage
 //
 
@@ -36,19 +36,6 @@
 
 
 
-
-
-// should have another command for classes/functions that look
-// at their contents 
-
-#define SKIP_FUNCTIONS 0
-
-#define MAX_FROM_APP 9999999
-
-// makes things to limit things in this way because symbols
-// could occur in many places.
-
-#define MAX_COMMENT_WORDS 40
 
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
@@ -103,7 +90,51 @@
 void usage(char * prog_name);
 const string database = "db";
 
+void writeOMDatabase( const string& database_dir,
+		        map< string, set<string> >& comment_symbols, 
+		        map< string, list<string> >& comment_words ) {
+  
+    system( ("rm -rf " + database_dir).c_str() );
+    system(("mkdir " + database_dir).c_str());
 
+    OmSettings db_parameters;
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", database_dir);
+    db_parameters.set("database_create", true);
+    OmWritableDatabase database(db_parameters); // open database 
+    
+    for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
+      string cmt = i->first;
+
+      set<string> symbols = i->second;
+      string symbol_string;
+      for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
+	symbol_string = symbol_string + (*j) + " ";
+      }
+
+      //      cerr << "Looking at comment " << cmt << endl;
+      list<string> W = comment_words[cmt];
+      
+      OmDocument newdocument;
+      int pos = 1;
+
+      for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
+	//	cerr << "..." << (*w) << endl;
+	
+	newdocument.add_posting(*w, pos++); 
+      }
+
+      //      cerr << "Symbol string is:  " << symbol_string << endl;
+
+      // put transaction contents in data
+      newdocument.set_data(  symbol_string );
+
+      database.add_document(newdocument);
+
+    }
+    
+    
+}
 
 int main(int argc, char *argv[]) {
 
@@ -142,10 +173,10 @@ int main(int argc, char *argv[]) {
 
   for( int i = 1; i < argc; i++ ) {
     string dir = argv[i];
-    cerr << "...running ctags on library " << dir << endl;
-    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-    cerr << "...invoking " << cmd << endl;
-    system(cmd.c_str());
+    //    cerr << "...running ctags on library " << dir << endl;
+    //    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
+    //    cerr << "...invoking " << cmd << endl;
+    //    system(cmd.c_str());
   }
   
   cerr << "...reading library tags" << endl;
@@ -159,12 +190,6 @@ int main(int argc, char *argv[]) {
   //
   // cvsquery -c file_id revision to get the comment
   //
-
-  // we consider each comment only once
-  map< string, set<list<string> > > lib_symbol_terms; // accumulated from all its points of usage
-
-  map<string, int> lib_symbol_count;
-
 
 
   ///////// This is the key map:  It takes a commit comment to all the symbols under that comment
@@ -208,18 +233,17 @@ int main(int argc, char *argv[]) {
       cerr << "package -" << package_name << "-" << endl;
       system("rm -f " TEMP "/tags" );
 
-      cerr << "Running ctags on " << package_path << endl;
+      //      cerr << "Running ctags on " << package_path << endl;
       string fullpath = cvsdata +"/root0/src/" + package_path;
       string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
-      cerr << "Invoking " << cmd << endl;
-      system(cmd.c_str());
-      cerr << "Done" << endl;
+      //cerr << "Invoking " << cmd << endl;
+      //      system(cmd.c_str());
+      //      cerr << "Done" << endl;
 
 
       set<string> app_symbols;
       map< string, string > app_symbol_tag;
 
-      map<string, int> lib_symbol_app_count;
       //      readTags( TEMP "/tags", app_symbols, app_symbol_tag );
 
       // change / to _ in package
@@ -306,49 +330,26 @@ int main(int argc, char *argv[]) {
     // 
     // index by comment terms, the info field should contain all the symbols
 
-    string package_path = cvsdata +"/root0/db/global";
 
-    string database_dir2= package_path + ".om2";
-    system( ("rm -rf " + database_dir2).c_str() );
-    system(("mkdir " + database_dir2 ).c_str());
+    // we also want to generate sleepy cat databases with the following
+    // information
+    //
+    // a=>b -> confidence (irrespective of query)
+    // b -> confidence (irrespective of query)
+    // this can all be put in one database
 
-    OmSettings db_parameters2;
-    db_parameters2.set("backend", "quartz");
-    db_parameters2.set("quartz_dir", database_dir2);
-    db_parameters2.set("database_create", true);
-    OmWritableDatabase database2(db_parameters2); // open database 
+    /////// data mining step
+    /////// transactions are in comment_symbols
     
-    for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
-      string cmt = i->first;
-
-      set<string> symbols = i->second;
-      string symbol_string;
-      for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-	symbol_string = symbol_string + (*j) + " ";
-      }
-
-      //      cerr << "Looking at comment " << cmt << endl;
-      list<string> W = comment_words[cmt];
+    for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
       
-      OmDocument newdocument;
-      int pos = 1;
-
-      for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
-	//	cerr << "..." << (*w) << endl;
-	
-	newdocument.add_posting(*w, pos++); 
-      }
-
-      //      cerr << "Symbol string is:  " << symbol_string << endl;
-
-      // put transaction contents in data
-      newdocument.set_data(  symbol_string );
-
-      database2.add_document(newdocument);
-
     }
-    
-    
+
+    /////// write out OM database
+    writeOMDatabase( cvsdata + "/root0/db/mining.om", 
+		    comment_symbols,
+		    comment_words );
+  
     
   } catch(OmError & error) {
     cerr << "OMSEE Exception: " << error.get_msg() << endl;
