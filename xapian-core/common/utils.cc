@@ -39,59 +39,56 @@ using namespace std;
 
 #define BUFSIZE 100
 
+#ifdef HAVE_SNPRINTF
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    int len = snprintf(buf, BUFSIZE, (FMT), val);\
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);\
+    return string(buf, len);
+#else
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    buf[BUFSIZE - 1] = '\0';\
+    sprintf(buf, (FMT), val);\
+    if (buf[BUFSIZE - 1]) abort(); /* Uh-oh, buffer overrun */ \
+    return string(buf);
+#endif
+
 // Convert a number to a string
 string
 om_tostring(int val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%d", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%d")
 }
 
 string
 om_tostring(unsigned int val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%u", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%u")
 }
 
 string
 om_tostring(long int val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%ld", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%ld")
 }
 
 string
 om_tostring(unsigned long int val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%lu", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%lu")
 }
 
 string
 om_tostring(double val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%.20g", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%.20g")
 }
 
 string
 om_tostring(const void * val)
 {
-    char buf[BUFSIZE];
-    int len = snprintf(buf, BUFSIZE, "%p", val);
-    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
-    return string(buf, len);
+    CONVERT_TO_STRING("%p")
 }
 
 string
