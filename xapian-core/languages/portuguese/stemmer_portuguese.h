@@ -1,5 +1,5 @@
-/* omenquire.h
- *
+/* stemmer_portuguese.h: C++ wrapper for portuguese stemming class.
+ * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
  * 
@@ -20,26 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef _stemmer_portuguese_h_
+#define _stemmer_portuguese_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
 #include "stemmer.h"
-#include "rset.h"
+#include "stem_portuguese.h"
 
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
-
-class Enquire {
+class StemmerPortuguese : public virtual Stemmer {
     private:
+	struct portuguese_stemmer * stemmer_data;
     public:
-        Enquire();
-        ~Enquire();
-
-	// Methods to:
-	// Open a database
+	StemmerPortuguese();
+	~StemmerPortuguese();
+	string stem_word(const string &);
+	const char * get_lang() { return "Portuguese"; }
 };
 
-#endif /* _omenquire_h_ */
+inline
+StemmerPortuguese::StemmerPortuguese()
+{   
+    stemmer_data = setup_portuguese_stemmer();
+}
+
+inline
+StemmerPortuguese::~StemmerPortuguese()
+{   
+    closedown_portuguese_stemmer(stemmer_data);
+}
+
+inline string
+StemmerPortuguese::stem_word(const string &word)
+{   
+    int len = word.length();
+    Assert(len != 0);
+
+    char *p = portuguese_stem(stemmer_data, word.data(), 0, len - 1);
+
+    return string(p);
+}
+
+#endif /* _stemmer_portuguese_h_ */

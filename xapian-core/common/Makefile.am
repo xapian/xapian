@@ -8,7 +8,7 @@ noinst_HEADERS = \
  dbpostlist.h \
  irweight.h expandweight.h \
  match.h expand.h rset.h \
- stem.h \
+ stemmer.h \
  indexer.h textfile_indexer.h query_parser.h \
  utils.h
 

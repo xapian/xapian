@@ -1,4 +1,4 @@
-/* omenquire.h
+/* stemmer.h: C++ interface to stemming algorithms
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,26 +20,34 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef _stemmer_h_
+#define _stemmer_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
-#include "stemmer.h"
-#include "rset.h"
+#include "omassert.h"
+#include <string>
 
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
+typedef enum {
+    STEMLANG_DUTCH,
+    STEMLANG_ENGLISH,
+    STEMLANG_FRENCH,
+    STEMLANG_GERMAN,
+    STEMLANG_ITALIAN,
+    STEMLANG_PORTUGUESE,
+    STEMLANG_SPANISH
+} stemmer_language;
 
-class Enquire {
+class Stemmer {
     private:
     public:
-        Enquire();
-        ~Enquire();
-
-	// Methods to:
-	// Open a database
+	Stemmer() {};
+	virtual ~Stemmer() {};
+        virtual string stem_word(const string &) = 0;
+	virtual const char * get_lang() = 0;
 };
 
-#endif /* _omenquire_h_ */
+class StemmerBuilder {
+    public:
+	static Stemmer * create(stemmer_language);
+};
+
+#endif /* _stemmer_h_ */

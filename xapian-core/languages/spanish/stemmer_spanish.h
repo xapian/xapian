@@ -1,5 +1,5 @@
-/* omenquire.h
- *
+/* stemmer_spanish.h: C++ wrapper for spanish stemming class.
+ * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
  * 
@@ -20,26 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef _stemmer_spanish_h_
+#define _stemmer_spanish_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
 #include "stemmer.h"
-#include "rset.h"
+#include "stem_spanish.h"
 
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
-
-class Enquire {
+class StemmerSpanish : public virtual Stemmer {
     private:
+	struct spanish_stemmer * stemmer_data;
     public:
-        Enquire();
-        ~Enquire();
-
-	// Methods to:
-	// Open a database
+	StemmerSpanish();
+	~StemmerSpanish();
+	string stem_word(const string &);
+	const char * get_lang() { return "Spanish"; }
 };
 
-#endif /* _omenquire_h_ */
+inline
+StemmerSpanish::StemmerSpanish()
+{   
+    stemmer_data = setup_spanish_stemmer();
+}
+
+inline
+StemmerSpanish::~StemmerSpanish()
+{   
+    closedown_spanish_stemmer(stemmer_data);
+}
+
+inline string
+StemmerSpanish::stem_word(const string &word)
+{   
+    int len = word.length();
+    Assert(len != 0);
+
+    char *p = spanish_stem(stemmer_data, word.data(), 0, len - 1);
+
+    return string(p);
+}
+
+#endif /* _stemmer_spanish_h_ */

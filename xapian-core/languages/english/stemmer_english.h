@@ -1,5 +1,5 @@
-/* omenquire.h
- *
+/* stemmer_english.h: C++ wrapper for english stemming class.
+ * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
  * 
@@ -20,26 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef _stemmer_english_h_
+#define _stemmer_english_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
 #include "stemmer.h"
-#include "rset.h"
+#include "stem_english.h"
 
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
-
-class Enquire {
+class StemmerEnglish : public virtual Stemmer {
     private:
+	struct english_stemmer * stemmer_data;
     public:
-        Enquire();
-        ~Enquire();
-
-	// Methods to:
-	// Open a database
+	StemmerEnglish();
+	~StemmerEnglish();
+	string stem_word(const string &);
+	const char * get_lang() { return "English"; }
 };
 
-#endif /* _omenquire_h_ */
+inline
+StemmerEnglish::StemmerEnglish()
+{   
+    stemmer_data = setup_english_stemmer();
+}
+
+inline
+StemmerEnglish::~StemmerEnglish()
+{   
+    closedown_english_stemmer(stemmer_data);
+}
+
+inline string
+StemmerEnglish::stem_word(const string &word)
+{   
+    int len = word.length();
+    Assert(len != 0);
+
+    char *p = english_stem(stemmer_data, word.data(), 0, len - 1);
+
+    return string(p);
+}
+
+#endif /* _stemmer_english_h_ */

@@ -23,7 +23,7 @@
 #include "omassert.h"
 #include "omerror.h"
 #include "textfile_indexer.h"
-#include "stem.h"
+#include "stemmer.h"
 #include "index_utils.h"
 #include <fstream>
 #include <cstdlib>
@@ -54,7 +54,7 @@ TextfileIndexer::add_source(const IndexerSource &source)
     // of indexing "bits" and allow the user to specify how to put them
     // together.
 
-    StemEn stemmer;
+    Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
 
     while(*from) {
 	string para;
@@ -72,7 +72,7 @@ TextfileIndexer::add_source(const IndexerSource &source)
 	    word = para.substr(0, spacepos);
 	    select_characters(word, "");
 	    lowercase_term(word);
-	    word = stemmer.stem_word(word);
+	    word = stemmer->stem_word(word);
 	    dest->make_term(word);
 	    dest->make_posting(word, did, position++);
 	    para = para.erase(0, spacepos);

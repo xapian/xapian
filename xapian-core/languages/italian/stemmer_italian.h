@@ -1,5 +1,5 @@
-/* omenquire.h
- *
+/* stemmer_italian.h: C++ wrapper for italian stemming class.
+ * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
  * 
@@ -20,26 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef _stemmer_italian_h_
+#define _stemmer_italian_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
 #include "stemmer.h"
-#include "rset.h"
+#include "stem_italian.h"
 
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
-
-class Enquire {
+class StemmerItalian : public virtual Stemmer {
     private:
+	struct italian_stemmer * stemmer_data;
     public:
-        Enquire();
-        ~Enquire();
-
-	// Methods to:
-	// Open a database
+	StemmerItalian();
+	~StemmerItalian();
+	string stem_word(const string &);
+	const char * get_lang() { return "Italian"; }
 };
 
-#endif /* _omenquire_h_ */
+inline
+StemmerItalian::StemmerItalian()
+{   
+    stemmer_data = setup_italian_stemmer();
+}
+
+inline
+StemmerItalian::~StemmerItalian()
+{   
+    closedown_italian_stemmer(stemmer_data);
+}
+
+inline string
+StemmerItalian::stem_word(const string &word)
+{   
+    int len = word.length();
+    Assert(len != 0);
+
+    char *p = italian_stem(stemmer_data, word.data(), 0, len - 1);
+
+    return string(p);
+}
+
+#endif /* _stemmer_italian_h_ */

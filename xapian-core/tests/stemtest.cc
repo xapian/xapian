@@ -20,18 +20,82 @@
  * -----END-LICENCE-----
  */
 
+// Quick test for the stemming algorithms: bit of a hacked rush job this...
+
+#include <stdio.h>
+#include <ctype.h>  /* for isupper, islower, toupper, tolower */
+
 #include <string>
 
-#include "stem.h"
+#include "stemmer.h"
+
+#define LETTER(ch)  (islower(ch) || (ch) == '^')
+
+void stemfile(Stemmer *stemmer, FILE * f)
+{   while(true)
+    {   int ch = getc(f);
+	if (ch == EOF) return;
+	if (LETTER(ch))
+	{
+	    string word;
+	    while(true)
+	    {
+		/* force lower case: */
+		if isupper(ch) ch = tolower(ch);
+
+		word += ch;
+
+		ch = getc(f);
+		if (!LETTER(ch)) { ungetc(ch, f); break; }
+	    }
+
+	    cout << stemmer->stem_word(word);
+	}
+	else putchar(ch);
+    }
+}
+
 
 int main(int argc, char **argv)
 {
-    StemEn st;
-    while (*argv) {
-        string in = *argv;
-	string out = st.stem_word(in);
-        cout << "\"" << in << "\" -> \"" << out << "\"" << endl;
-	argv++;
+    stemmer_language lang = STEMLANG_ENGLISH;
+    if(argc > 1) {
+	bool noarg = false;
+	if(!strcmp(argv[1], "--dutch")) {
+	    lang = STEMLANG_DUTCH;
+	} else if(!strcmp(argv[1], "--english")) {
+	    lang = STEMLANG_ENGLISH;
+	} else if(!strcmp(argv[1], "--french")) {
+	    lang = STEMLANG_FRENCH;
+	} else if(!strcmp(argv[1], "--german")) {
+	    lang = STEMLANG_GERMAN;
+	} else if(!strcmp(argv[1], "--italian")) {
+	    lang = STEMLANG_ITALIAN;
+	} else if(!strcmp(argv[1], "--portuguese")) {
+	    lang = STEMLANG_PORTUGUESE;
+	} else if(!strcmp(argv[1], "--spanish")) {
+	    lang = STEMLANG_SPANISH;
+	} else {
+	    noarg = true;
+	}
+	if(!noarg) {
+	    argc--;
+	    argv++;
+	}
     }
+    Stemmer * stemmer = StemmerBuilder::create(lang);
+
+    cout << "stemtest version 1: stemming in " << stemmer->get_lang() << endl;
+
+    for (int i = 1; i < argc; i++)
+    {
+	FILE * f = fopen(argv[i], "r");
+	if (f == 0) {
+	    fprintf(stderr, "File %s not found\n", argv[i]);
+	    exit(1);
+	}
+	stemfile(stemmer, f);
+    }
+
     return 0;
 }

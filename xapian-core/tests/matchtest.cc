@@ -138,7 +138,7 @@ main(int argc, char *argv[])
         Match match(database);
 	match.set_rset(&rset);
        
-        StemEn stemmer;
+	Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
 
 	bool boolean = false;
 	vector<termname> prob_terms;
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 		    }
 		}
 
-		term = stemmer.stem_word(term);
+		term = stemmer->stem_word(term);
 
 		if (boolean) {
 		    match.add_term(term);

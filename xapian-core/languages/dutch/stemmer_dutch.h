@@ -1,5 +1,5 @@
-/* stem.h: C++ interface to stemming algorithms
- *
+/* stemmer_dutch.h: C++ wrapper for dutch stemming class.
+ * 
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
  * 
@@ -20,21 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stem_h_
-#define _stem_h_
+#ifndef _stemmer_dutch_h_
+#define _stemmer_dutch_h_
 
-#include <string>
+#include "stemmer.h"
+#include "stem_dutch.h"
 
-class Stem {
+class StemmerDutch : public virtual Stemmer {
     private:
+	struct dutch_stemmer * stemmer_data;
     public:
-        virtual string stem_word(const string &) = 0;
+	StemmerDutch();
+	~StemmerDutch();
+	string stem_word(const string &);
+	const char * get_lang() { return "Dutch"; }
 };
 
-class StemEn : public virtual Stem {
-    private:
-    public:
-        string stem_word(const string &);
-};
+inline
+StemmerDutch::StemmerDutch()
+{
+    stemmer_data = setup_dutch_stemmer();
+}
 
-#endif /* _stem_h_ */
+inline
+StemmerDutch::~StemmerDutch()
+{   
+    closedown_dutch_stemmer(stemmer_data);
+}
+
+inline string
+StemmerDutch::stem_word(const string &word)
+{   
+    int len = word.length();
+    Assert(len != 0);
+
+    char *p = dutch_stem(stemmer_data, word.data(), 0, len - 1);
+
+    return string(p);
+}
+
+#endif /* _stemmer_dutch_h_ */
