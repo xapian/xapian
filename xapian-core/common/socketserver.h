@@ -87,6 +87,9 @@ class SocketServer : public NetServer {
 	/// Flag indicating that we have the global statistics
 	bool have_global_stats;
 
+	/// Registered weighting schemes
+	map<string, OmWeight *> wtschemes;
+
 	/// Run the match conversation
 	void run_match(const std::string &firstmessage);
 
@@ -170,6 +173,12 @@ class SocketServer : public NetServer {
 	 *  is closed.
 	 */
 	void run();
+
+	/** Register a custom weighting scheme
+	 */
+	void register_weighting_scheme(const OmWeight &wt) {
+	    wtschemes[wt.name()] = wt.clone();
+	}
 };
 
 #endif  /* OM_HGUARD_SOCKETSERVER_H */

@@ -61,7 +61,7 @@ class MultiMatch
 	OmErrorHandler * errorhandler;
 
 	/// Weighting scheme
-	OmWeight * weight;
+	const OmWeight * weight;
 
 	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
@@ -103,7 +103,7 @@ class MultiMatch
 	 *  @param gatherer_ An auto_ptr to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
 	 *                   StatsGatherer.
-	 *  @param weight_   Weighting scheme
+	 *  @param wtischeme Weighting scheme
 	 */
 	MultiMatch(const OmDatabase &db_,
 		   const OmQuery::Internal * query,
@@ -111,7 +111,7 @@ class MultiMatch
 		   const OmSettings & opts_,
 		   OmErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_,
-		   OmWeight * weight_);
+		   const OmWeight *wtscheme);
 	~MultiMatch();
 
 	void get_mset(om_doccount first,

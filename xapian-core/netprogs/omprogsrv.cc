@@ -36,14 +36,6 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-#if 0
-    string message;
-    getline(cin, message);
-    cerr << "omnetclient: read " << message << endl;
-    cout << "BOO!" << endl;
-    cout.flush();
-#endif
-
     if (argc < 3) {
 	cerr << "Wrong number of arguments" << endl;
 	cout << "ERROR" << endl;
@@ -103,6 +95,9 @@ int main(int argc, char **argv) {
      */
     try {
 	ProgServer server(dbgrp, 0, 1, timeout, timeout);
+	// If you have defined your own weighting scheme, register it here
+	// like so:
+	// server.register_weighting_scheme(FooWeight());
 
 	server.run();
     } catch (...) {

@@ -68,7 +68,7 @@ class LocalSubMatch : public SubMatch {
 	OmSettings opts;
 
 	/// Weighting scheme object
-	OmWeight * wtscheme;
+	const OmWeight * wtscheme;
 
 	/// The weights and termfreqs of terms in the query.
 	map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
@@ -103,7 +103,7 @@ class LocalSubMatch : public SubMatch {
     public:
 	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,
 		      const OmRSet & omrset, const OmSettings &opts_,
-		      StatsGatherer *gatherer, OmWeight *wtscheme_)
+		      StatsGatherer *gatherer, const OmWeight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),
 		  querysize(query->qlen), opts(opts_), wtscheme(wtscheme_)

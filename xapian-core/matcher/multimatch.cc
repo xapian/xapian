@@ -136,7 +136,8 @@ class MSetSortCmp {
 MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 		       const OmRSet & omrset, const OmSettings & opts_,
 		       OmErrorHandler * errorhandler_,
-		       AutoPtr<StatsGatherer> gatherer_, OmWeight * weight_)
+		       AutoPtr<StatsGatherer> gatherer_,
+		       const OmWeight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
 	  mcmp(msetcmp_forward), errorhandler(errorhandler_), weight(weight_)
 {
@@ -170,7 +171,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    const NetworkDatabase *netdb = db->as_networkdatabase();
 	    if (netdb) {
-		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(netdb, query, *subrset, opts, gatherer.get()));
+		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(netdb, query, *subrset, opts, gatherer.get(), weight));
 	    } else {
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get(), weight));

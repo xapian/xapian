@@ -65,7 +65,7 @@ class RemoteSubMatch : public SubMatch {
 	RemoteSubMatch(const NetworkDatabase *db_,
 		       const OmQuery::Internal * query,
 		       const OmRSet & omrset, const OmSettings &opts,
-		       StatsGatherer *gatherer_);
+		       StatsGatherer *gatherer_, const OmWeight *wtscheme);
 
 	~RemoteSubMatch();
 

@@ -30,6 +30,25 @@
 #include "om/omenquire.h"
 #include "stats.h"
 
+string BM25Weight::serialise() const {
+    return om_tostring(A) + ' ' + om_tostring(B) + ' ' +
+	   om_tostring(C) + ' ' + om_tostring(D) + ' ' +
+	   om_tostring(min_normlen);
+}
+
+OmWeight * BM25Weight::unserialise(const string & s) const {
+    // We never actually modify through p, but strtod takes a char **
+    // as the second parameter and we can't pass &p if p is const char *
+    // (sigh)
+    char *p = (char *)s.c_str();
+    double A, B, C, D;
+    A = strtod(p, &p);
+    B = strtod(p, &p);
+    C = strtod(p, &p);
+    D = strtod(p, &p);
+    return new BM25Weight(A, B, C, D, strtod(p, NULL));
+}
+
 // Calculate weights using statistics retrieved from databases
 void
 BM25Weight::calc_termweight() const

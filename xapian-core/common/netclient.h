@@ -69,10 +69,12 @@ class NetClient : public RefCntBase {
 	 *
 	 * @param query_ The query.
 	 * @param moptions_ The match options.
+	 * @param wtscheme Weighting scheme.
 	 * @param omrset_ The rset.
 	 */
 	virtual void set_query(const OmQuery::Internal *query_,
 			       const OmSettings &moptions_,
+			       const OmWeight *wtscheme,
 			       const OmRSet &omrset_) = 0;
 
 	/** Read the remote statistics.

@@ -735,9 +735,12 @@ class OmEnquire {
 	std::string get_description() const;
 };
 
+class SocketServer;
+
 /// Abstract base class for weighting schemes
 class OmWeight {
     friend class OmEnquire; // So OmEnquire can clone us
+    friend class SocketServer; // So SocketServer can clone us - FIXME
     public:
 	class Internal;
     private:
@@ -762,9 +765,10 @@ class OmWeight {
 	OmWeight() { }
 	virtual ~OmWeight() { }
 
-	/** Initialise the weight object with the neccessary stats, or
-	 *  places to get them from.  You shouldn't call this method yourself
-	 *  - it is called by OmEnquire.
+	/** Create a new weight object of the same type as this and initialise
+	 *  it with the specified statistics.
+	 *
+	 *  You shouldn't call this method yourself - it's called by OmEnquire.
 	 *
 	 *  @param internal_  Object to ask for collection statistics.
 	 *  @param querysize_ Query size.
@@ -773,7 +777,7 @@ class OmWeight {
 	 *  @param tname_     Term which this object is associated with.
 	 */
 	OmWeight * create(const Internal * internal_, om_doclength querysize_,
-			  om_termcount wqf_, om_termname tname_) {
+			  om_termcount wqf_, om_termname tname_) const {
 	    OmWeight * wt = clone();
 	    wt->internal = internal_;
 	    wt->querysize = querysize_;
@@ -781,6 +785,17 @@ class OmWeight {
 	    wt->tname = tname_;
 	    return wt;
 	}
+
+	/// Name of the weighting scheme.
+	//
+	//  If the subclass is called FooWeight, this should return "Foo".
+	virtual std::string name() const = 0;
+
+	/// Serialise object parameters into a string.
+	virtual std::string serialise() const = 0;
+
+	/// Create object given string serialisation returned by serialise().
+	virtual OmWeight * OmWeight::unserialise(const std::string &s) const = 0;
 
 	/** Get a weight which is part of the sum over terms being performed.
 	 *  This returns a weight for a given term and document.  These
@@ -826,6 +841,11 @@ class BoolWeight : public OmWeight {
 	}
 	BoolWeight() { }
 	~BoolWeight() { }
+	std::string name() const { return "Bool"; }
+	std::string serialise() const { return ""; }
+	OmWeight * unserialise(const std::string & /*s*/) const {
+	    return new BoolWeight;
+	}
 	om_weight get_sumpart(om_termcount /*wdf*/, om_doclength /*len*/) const { return 0; }
 	om_weight get_maxpart() const { return 0; }
 
@@ -883,10 +903,10 @@ class BM25Weight : public OmWeight {
 		: A(A_), B(B_), C(C_), D(D_), min_normlen(min_normlen_),
 		  weight_calculated(false)
 	{
-	    if (A < 0) throw OmInvalidArgumentError("Parameter A in BM25 weighting formula must be >= 0");
-	    if (B < 0) throw OmInvalidArgumentError("Parameter B in BM25 weighting formula must be >= 0");
-	    if (C < 0) throw OmInvalidArgumentError("Parameter C in BM25 weighting formula must be >= 0");
-	    if (D < 0 || D > 1) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be >= 0 and <= 1");
+	    if (A < 0) A = 0;
+	    if (B < 0) B = 0;
+	    if (C < 0) C = 0;
+	    if (D < 0) D = 0; else if (D > 1) D = 1;
 	}
 	BM25Weight() : A(1), B(1), C(0), D(0.5), min_normlen(0.5),
 		       weight_calculated(false) { }
@@ -895,6 +915,9 @@ class BM25Weight : public OmWeight {
 	    return new BM25Weight(A, B, C, D, min_normlen);
 	}
 	~BM25Weight() { }
+	std::string name() const { return "BM25"; }
+	std::string serialise() const;
+	OmWeight * unserialise(const std::string & s) const;
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;
 
@@ -926,6 +949,7 @@ class TradWeight : public OmWeight {
 
 	void calc_termweight() const;
 
+    public:
 	/// Construct a TradWeight
 	//
 	// @param k  parameter governing the importance of within
@@ -933,13 +957,16 @@ class TradWeight : public OmWeight {
         //           number, 0 being wdf and doc length not used.  Default
         //           is 1.
 	TradWeight(double k = 1) : param_k(k), weight_calculated(false) {
-	    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be >= 0");
+	    if (param_k < 0) param_k = 0;
 	}
-    public:
 	OmWeight * clone() const {
 	    return new TradWeight(param_k);
 	}
 	~TradWeight() { }
+	std::string name() const { return "Trad"; }
+	std::string serialise() const;
+	OmWeight * unserialise(const std::string & s) const;
+	
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;
 

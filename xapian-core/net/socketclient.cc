@@ -385,7 +385,8 @@ SocketClient::~SocketClient()
 
 void
 SocketClient::set_query(const OmQuery::Internal *query_,
-			const OmSettings &moptions_, const OmRSet &omrset_)
+			const OmSettings &moptions_, const OmWeight *wtscheme,
+			const OmRSet &omrset_)
 {
     /* no actual communication performed in this method */
 
@@ -395,6 +396,7 @@ SocketClient::set_query(const OmQuery::Internal *query_,
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();
     moptions = moptions_;
+    wtstring = wtscheme->name() + '\n' + wtscheme->serialise();
     omrset = omrset_;
 }
 
@@ -412,6 +414,7 @@ SocketClient::finish_query()
 	    // Message 3 (see README_progprotocol.txt)
 	    do_write("Q" + query_string + '\n'
 		     + moptions_to_string(moptions) + '\n'
+		     + wtstring + '\n'
 		     + omrset_to_string(omrset));		
 	    conv_state = state_sentquery;
 	    // fall through...

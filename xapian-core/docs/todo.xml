@@ -274,8 +274,8 @@ Improve performance using SIMD instructions
 </todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
 
-Finish off loose ends from OmSettings removal.  These are: weighting schemes
-not working with remote backend; stub databases; machinery in InMemory backend
+Finish off loose ends from OmSettings removal.  These are:
+stub databases not working; machinery in InMemory backend
 to allow multierrhandler1 to work; sort out final names for factory functions;
 maybe replace boolean flags for expand with bit flags |-ed together
 (so they are named in calls and code is clearer).
@@ -291,12 +291,12 @@ sort out a bug which is just a typo in an OmSettings value.  Also remove
 docs/omsettings.
 
 </todoitem>
-<todoitem priority="H" difficulty="4" owner="" area="General" release="0.7">
+<todoitem priority="L" difficulty="4" owner="" area="General" release="1.0">
 
-Make backends / weighting schemes / indexer modules register themselves
-automatically.  At runtime / linktime? (ie, replace current conditional
-compilation scheme) - actually, we can use sub-classing
-and factory classes to do this more cleanly.
+Allow user written backends?  Be good to allow them to register themselves
+automatically at runtime (or linktime perhaps) to replace current conditional
+compilation scheme.  Do this using sub-classing and factory classes?  A bit
+like the weighting schemes.
 
 </todoitem>
 <todoitem priority="V" difficulty="3" owner="" area="Backends" release="">

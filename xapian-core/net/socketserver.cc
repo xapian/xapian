@@ -84,6 +84,13 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
 	      om_tostring(db.get_doccount()) + ' ' +
 	      om_tostring(db.get_avlength()));
+    // FIXME: these registrations duplicated below - refactor into method
+    OmWeight *wt = new BoolWeight();
+    wtschemes[wt->name()] = wt;
+    wt = new TradWeight();
+    wtschemes[wt->name()] = wt;
+    wt = new BM25Weight();
+    wtschemes[wt->name()] = wt;
 }
 
 SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
@@ -103,11 +110,23 @@ SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
 	  have_global_stats(0)
 {
     Assert(buf.get() != 0);
+    // FIXME: these registrations duplicated above - refactor into method
+    OmWeight *wt = new BoolWeight();
+    wtschemes[wt->name()] = wt;
+    wt = new TradWeight();
+    wtschemes[wt->name()] = wt;
+    wt = new BM25Weight();
+    wtschemes[wt->name()] = wt;
 }
 
 /// The SocketServer destructor
 SocketServer::~SocketServer()
 {
+    map<string, OmWeight *>::const_iterator i;
+    for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
+	delete i->second;
+    }
+    wtschemes.clear();
 }
 
 void
@@ -263,13 +282,21 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     OmSettings moptions = string_to_moptions(message);
 
+    // extract the weight object
+    message = readline(msecs_active_timeout);
+    map<string, OmWeight *>::const_iterator i = wtschemes.find(message);
+    if (i == wtschemes.end()) {
+	throw OmInvalidArgumentError("Weighting scheme " + message + " not registered");
+    }
+    message = readline(msecs_active_timeout);
+    AutoPtr<OmWeight> wt(i->second->unserialise(message));
+
     // extract the rset
     message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
-    BM25Weight wt;
     MultiMatch match(db, &query, omrset, moptions, 0,
-		     AutoPtr<StatsGatherer>(gatherer), &wt);
+		     AutoPtr<StatsGatherer>(gatherer), wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

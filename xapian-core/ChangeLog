@@ -1,3 +1,12 @@
+Mon Dec 09 03:25:09 GMT 2002  Olly Betts <olly@survex.com>
+
+	* common/,docs/todo.xml,include/om/omenquire.h,matcher/,
+	  net/socketclient.cc,net/socketserver.cc,netprogs/omprogsrv.cc,
+	  netprogs/omtcpsrv.cc: Fixed the remote backend to handle non-default
+	  weighting schemes.  You can now even implement your own weighting
+	  scheme and use it with the remote backend provided you register it
+	  with SocketServer at runtime.
+
 Sat Dec 07 21:18:39 GMT 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.

@@ -126,6 +126,9 @@ int main(int argc, char **argv) {
 	TcpServer server(mydbs, port, msecs_active_timeout,
 			 msecs_idle_timeout, verbose, timing);
 #endif /* TIMING_PATCH */
+	// If you have defined your own weighting scheme, register it here
+	// like so:
+	// server.register_weighting_scheme(FooWeight());
 
 	if (one_shot) {
 	    server.run_once();

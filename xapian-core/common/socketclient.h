@@ -84,6 +84,9 @@ class SocketClient : public NetClient {
 	/// The match options object
 	OmSettings moptions;
 
+	/// A string serialisation of the weighting scheme
+	std::string wtstring;
+
 	/// The current RSet.
 	OmRSet omrset;
 
@@ -122,7 +125,7 @@ class SocketClient : public NetClient {
 	map<om_docid, cached_doc> collected_docs;
 
 	void get_requested_docs();
-	
+
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
 	 *  can't be created - a derived class must be instantiated which
@@ -140,9 +143,7 @@ class SocketClient : public NetClient {
 	 *                      responsible for the socket, which is assumed
 	 *                      to be closed in ~SocketClient.
 	 */
-	SocketClient(int socketfd_,
-		     int msecs_timeout_,
-		     string context_,
+	SocketClient(int socketfd_, int msecs_timeout_, string context_,
 		     bool close_socket_ = true);
 
 	/// functions which actually do the work
@@ -185,10 +186,12 @@ class SocketClient : public NetClient {
 	 *
 	 * @param query_ The query.
 	 * @param moptions_ The match options.
+	 * @param wtscheme Weighting scheme.
 	 * @param omrset_ The rset.
 	 */
 	void set_query(const OmQuery::Internal *query_,
-		       const OmSettings &moptions_, const OmRSet &omrset_);
+		       const OmSettings &moptions_, const OmWeight *wtscheme,
+		       const OmRSet &omrset_);
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);
