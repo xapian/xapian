@@ -1,3 +1,8 @@
+Thu Mar 15 16:06:02 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Updated network protocol number to reflect change adding
+	  OP_ELITE_SET.
+
 Thu Mar 15 15:31:35 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* QuartzPositionList should no longer complain if positional
