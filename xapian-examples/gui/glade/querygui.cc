@@ -91,7 +91,6 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
-	    cout << "`" << (*i).tname << "'" << endl;
 	    matcher.add_term((*i).tname);
 	    i++;
 	}
