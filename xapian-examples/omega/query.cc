@@ -726,10 +726,11 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	  * \STAT2 returning some matches from over n
 	  * \STATa returning all matches from n
 	  * \STATs returning some (but not all) matches from n
+	  * \STATLINE like hitline but enabled when one of the STATx codes fires
 	  */
 	 switch (pc[4]) {
 	  case '0': /* followed by string */
-	    if (msize == 0 && new_terms.size())
+	    if (msize == 0 && !new_terms.empty())
 		cout << pc + 5;
 	    break;
 	  case '2':
@@ -756,6 +757,13 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	    /* FIXME: could use Mike Gatford's "1001" trick */
 	    if (0 < msize && msize != MLIMIT &&
 		!(topdoc == 0 && last + 1 == msize)) print = 1;
+	    break;
+	  case 'L':	     
+	    if (strncmp(pc + 5, "INE", 3) == 0) {
+		// \STATLINE
+		if (msize == 0 && new_terms.empty()) return strlen(pc);
+		return 8;
+	    }
 	    break;
 	 }
 	 if (print) pretty_printf(pc + 5, arg);
@@ -896,10 +904,10 @@ static void print_query_page( const char* page, long int first, long int size) {
 		}
 
 		if (!strncmp (pc, "HITLINE", 7)) {
-		    if (!new_terms.size()) {
-			pc += strlen(pc); /* Ignore the rest of this line if no query */
+		    if (msize) {
+			pc += strlen(pc); /* Ignore the rest of this line if no hits */
 		    } else {
-			pc += 7; /* Just ignore this tag if there is a query */
+			pc += 7; /* Just ignore the tag itself if there are hits */
 		    }
 		}
 
