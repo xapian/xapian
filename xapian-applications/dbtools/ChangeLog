@@ -1,3 +1,7 @@
+Fri Jul 04 22:12:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: add missing ';;' as case pattern delimiter
+
 Mon Jun 23 21:13:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.

@@ -1,3 +1,7 @@
+Fri Jul 04 22:11:13 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: add missing ';;' as case pattern delimiter
+
 Thu Jul 03 23:48:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.0.
