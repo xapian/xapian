@@ -1,3 +1,8 @@
+Thu Oct 19 09:59:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added quartz_lexicon.{cc,h}.  Appropriate interface - not yet
+	  implemented though.
+
 Thu Oct 19 09:08:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzTermLists now implemented, and roughly tested.  Quartz test

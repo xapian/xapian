@@ -32,6 +32,7 @@
 #include "refcnt.h"
 
 #include "quartz_termlist.h"
+#include "quartz_lexicon.h"
 #include "quartz_record.h"
 #include "quartz_attributes.h"
 
