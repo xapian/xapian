@@ -1,3 +1,7 @@
+Wed Sep 20 10:36:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added malloc-wrapper.sh to the distribution.
+
 Tue Sep 19 20:47:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various modifications to Quartz.  Work towards making sure that

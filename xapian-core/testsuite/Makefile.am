@@ -7,7 +7,7 @@ noinst_LTLIBRARIES = libtest.la
 noinst_HEADERS = backendmanager.h testsuite.h testutils.h \
 	allocdata.h alloccommon.h
 
-EXTRA_DIST = malloccheck.c
+EXTRA_DIST = malloccheck.c malloc_wrapper.sh
 
 libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
 		allocdata.cc alloccommon.c
