@@ -22,4 +22,7 @@ randtext_seed_*
 randjunk_seed_*
 .sleepycat
 .da
+.daflimsy
+.db
+.daflimsy
 .quartz

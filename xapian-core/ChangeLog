@@ -1,3 +1,7 @@
+Mon Sep 11 14:00:04 BST 2000 Olly Betts
+
+	* Added .daflimsy, .db, and .dbflimsy to .cvsignore.
+
 Mon Sep 11 13:31:38 BST 2000 Olly Betts
 
 	* Fixed OmTermListIterator so termlist2 test passes.
