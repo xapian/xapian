@@ -1,3 +1,12 @@
+xapian-examples 0.8.4 (2004-11-30):
+
+* configure: Removed unused code which probes for stlport.  We need to use
+  stlport for everything or nothing anyway.
+
+* Updated to use the reworked GNU getopt from xapian-core.
+
+* Compile everything as C++.
+
 xapian-examples 0.8.3 (2004-09-20):
 
 * createdatabase: Removed this example - it's rather pointless now that Quartz

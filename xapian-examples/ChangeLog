@@ -1,3 +1,7 @@
+Tue Nov 30 22:43:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.8.4 release.
+
 Tue Nov 09 03:03:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,Makefile.am: We now get -AA or -std strict_ansi from

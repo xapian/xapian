@@ -1,3 +1,7 @@
+Tue Nov 30 22:42:14 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.8.4 release.
+
 Mon Nov 29 04:17:42 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,guile/Makefile.am,php4/Makefile.am,

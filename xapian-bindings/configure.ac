@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 0.8.3)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 0.8.4)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(xapian.i)
 
@@ -26,6 +26,7 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
+    dnl 0.8.2 was the first version which set XAPIAN_VERSION
     AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
 fi
 
@@ -65,7 +66,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.22
+  dnl Check for swig >= 1.3.23
   dnl We need 1.3.14 for overloaded functions.
   dnl 1.3.19 was missing std_common.i - it was empty at the time so you
   dnl can just touch it into existence, but it's cleaner to just require
@@ -74,13 +75,14 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl 1.3.21 fixes a few minor issues which don't look to be relevant to
   dnl us currently.
   dnl 1.3.22 fixes a problem with wrapping classes in namespaces with guile.
+  dnl 1.3.23 adds support for optional arguments in C#.
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
   v="`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`"
   case "$v" in
-   [1.3.2[2-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+   [1.3.2[3-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.22 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.23 required (you have $v)]) ;;
   esac
 fi
 

@@ -1,3 +1,126 @@
+Xapian-bindings 0.8.4 (2004-11-30):
+
+General:
+
+* README: Improved a bit.
+
+* Instead of requiring the user to have a really recent SWIG installed, ship
+  the files SWIG generates.  Disable all the SWIG rules unless configure is run
+  with --enable-maintainer-mode to make sure they aren't triggered accidentally
+  by make with dodgy VPATH or anything else.
+
+* configure: Require SWIG 1.3.23 or higher (for optional arguments in C#),
+  but note that SWIG is no longer needed if you just want to installing the
+  bindings.
+
+* It turns out that we do need to wrap MSet::MSet() (wrapping removed in 0.8.2)
+  (for example, simpleexpand.py needs it).
+
+* In the Query constructor which takes a vector of terms, only call set_window
+  if window is non-zero.  Otherwise things go wrong if we're passed an empty
+  vector.
+
+* Second argument to Document::add_posting() isn't optional, but xapian.i
+  indicated that it was.
+
+* xapian.i: Wrapped Xapian::Weight and standard subclasses.  The class is
+  marked as needing a director for Python, so you should be able to create your
+  own Weight subclass in Python, but we've not managed to get this to work
+  yet...
+
+* xapian.i: %name is deprecated, so use %rename instead.  This also works
+  around a bug in SWIG 1.3.23.
+
+* configure: Removed pointless probe for a C compiler - everything we compile
+  is C++.
+
+* configure: Reinstated the check that the bindings version matches the version
+  of the xapian library.  It was added in 0.8.2, but accidentally removed in
+  0.8.3.
+
+* Use newly added option `xapian-config --swigflags` which (a) avoids always
+  passing -I/usr/include which could cause problems if we're using a Xapian
+  install not in /usr and there's another one in /usr and (b) avoids problems
+  if `xapian-config --cxxflags` contains flags other than -I<something>.
+
+CSharp:
+
+* Richard Boulton has put together bindings for C#.  These build successfully
+  with the Mono tools, but the smoketest currently fails.  Unclear if the
+  problem is the bindings or the smoketest code.
+
+Guile:
+
+* The guile bindings now build successfully, so we've enabled the guile
+  detection machinery in configure.  They're untested though (we don't
+  know guile!) so success or failure reports are encouraged!
+
+PHP4:
+
+* Mention the example scripts near the start of the documentation, not right at
+  the end.
+
+* Remove documentation explicitly saying how we wrap Xapian::QueryParser and
+  Xapian::Stem since we wrap them exactly as we wrap everything else we don't
+  mention! 
+
+Python:
+
+* Make overloaded Query(Query::op, vector<string>*, termpos) constructor
+  work in Python.
+
+* Changed examples to use the newly wrapped Query from list of terms ctor.
+
+* Mention the example scripts near the start of the documentation, not right at
+  the end.
+
+* python/Makefile.am: Added xapian_wrap.h as a target for the rule which runs
+  SWIG.
+
+* Remove documentation explicitly saying how we wrap Xapian::QueryParser and
+  Xapian::Stem since we wrap them exactly as we wrap everything else we don't
+  mention! 
+
+* Mention simpleexpand example in documentation.
+
+* Examples now report messages for Xapian exceptions.
+
+* Removed MAX_PROB_TERM_LENGTH from example scripts which don't use it.
+
+* Make the example MatchDecider exclude documents matching a value, rather than
+  a term.  The latter is a very inefficient way to do what AND_NOT does, and we
+  don't want examples to mislead like that.
+
+* python/docs/bindings.html: Note that you can construct a query
+  from a list of terms, even if you can't from a list of queries.
+  Add HTML links to the examples.
+
+* simpleindex.py: Trim spaces from the start as well as from the end of each
+  line.  Simplify the loop slightly.
+
+Tcl:
+
+* Wrap in a tcl8 namespace "Xapian".
+
+* Added a smoketest.
+
+* Translated simpleindex and simplesearch into Tcl.
+
+* Set the Tcl package version.
+
+* Create pkgIndex.tcl so the package can be loaded in the usual Tcl way.
+
+* Install in "xapian<VERSION>" directory in the conventional Tcl way.
+
+* Added documentation for tcl8 bindings.
+
+* Use the TCL_STUBS mechanism so that compiled extensions are portable between
+  different versions of Tcl.  This needs Tcl 8.1, so bump the required Tcl
+  version (was 8.0).
+
+* configure.ac: Noted that the bindings can easily be compiled for use with
+  Tcl 8.0, in case anybody needs that for some reason.
+
 Xapian-bindings 0.8.3 (2004-09-20):
 
 General:
