@@ -1,3 +1,9 @@
+Sat Sep 11 16:39:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/version.h.in: GCC 3.1 reported the wrong value for
+	  __GXX_ABI_VERSION (100 not 101) so check 3.0 and 3.1 by version
+	  number, keeping the __GXX_ABI_VERSION check for newer versions.
+
 Sat Sep 11 02:57:48 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc: Fixed and reenabled Bcursor::prev()

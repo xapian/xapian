@@ -2,7 +2,7 @@
 % to build the library, and also define preprocessor symbols for the library
 % version.
 % 
-% Copyright 2002 Olly Betts
+% Copyright 2002,2004 Olly Betts
 % 
 % This program is free software; you can redistribute it and/or
 % modify it under the terms of the GNU General Public License as
@@ -45,9 +45,17 @@
 #define J3(A,B,C) g++ A##.##B##.##C
 %ifdef %GNUC%
 #ifdef __GXX_ABI_VERSION
+// GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
+// been 101!  So use hard-coded version number checks for 3.0 and 3.1.
+#if __GNUC__ == 3 && __GNUC_MINOR__ == 0
+%if !(__GNUC__ == 3 && __GNUC_MINOR__ == 0)
+#elif __GNUC__ == 3 && __GNUC_MINOR__ == 1
+%if !(__GNUC__ == 3 && __GNUC_MINOR__ == 1)
+#else
 %if !defined(%GXX_ABI_VERSION) || %GXX_ABI_VERSION != __GXX_ABI_VERSION
-#elif (__GNUC__ == 2) && (__GNUC_MINOR__ == 96)
-%if %GNUC% != 2 || %GNUC_MINOR% != 96
+#endif
+#elif __GNUC__ == 2 && __GNUC_MINOR__ == 96
+%if !(%GNUC% == 2 && %GNUC_MINOR% == 96)
 #else
 %if %GNUC% > 2 || (%GNUC% == 2 && %GNUC_MINOR% >= 96)
 #endif
