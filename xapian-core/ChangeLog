@@ -1,3 +1,7 @@
+Tue Sep 14 02:49:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Updated the "how to do a release" tasklist.
+
 Mon Sep 13 03:19:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Version 0.8.2.
