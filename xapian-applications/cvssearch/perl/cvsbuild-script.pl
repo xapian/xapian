@@ -1,4 +1,4 @@
-MSuse strict;
+use strict;
 use Cvssearch;
 
 sub usage() {
