@@ -39,6 +39,16 @@ class OmLineBuf {
 	/// disallow copies
 	OmLineBuf(const OmLineBuf &other);
 	void operator=(const OmLineBuf &other);
+
+	/** Read one line
+	 */
+	virtual string do_readline() = 0;
+
+	/** Write one line to writefd
+	 */
+	virtual void do_writeline(string s) = 0;
+
+	string line_buffer;
     public:
 	/** The main constructor.
 	 */
@@ -48,7 +58,7 @@ class OmLineBuf {
 
 	/** Read one line
 	 */
-	virtual string readline() = 0;
+	string readline();
 
 	/** Return true if there is data available to be read 
 	 *  immediately.
@@ -61,11 +71,11 @@ class OmLineBuf {
 	 *                if zero).  An exception will be thrown if
 	 *                the timeout is exceeded.
 	 */
-	virtual void wait_for_data(int msecs = 0) = 0;
+	virtual void wait_for_data();
 
 	/** Write one line to writefd
 	 */
-	virtual void writeline(string s) = 0;
+	void writeline(string s);
 };
 
 #endif // OM_HGUARD_OMLINEBUF_H

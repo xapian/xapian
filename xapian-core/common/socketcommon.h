@@ -51,6 +51,14 @@ class OmSocketLineBuf : public OmLineBuf {
 	/// disallow copies
 	OmSocketLineBuf(const OmSocketLineBuf &other);
 	void operator=(const OmSocketLineBuf &other);
+
+	/** Read one line from readfd
+	 */
+	string do_readline();
+
+	/** Write one line to writefd
+	 */
+	void do_writeline(string s);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
@@ -61,10 +69,6 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *  fd, which can be both read from and written to.
 	 */
 	OmSocketLineBuf(int fd_);
-
-	/** Read one line from readfd
-	 */
-	string readline();
 
 	/** Return true if there is data available to be read.
 	 */
@@ -77,10 +81,6 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *                the timeout is exceeded.
 	 */
 	void wait_for_data(int msecs = 0);
-
-	/** Write one line to writefd
-	 */
-	void writeline(string s);
 };
 
 /** Build a query from a serialised string.

@@ -1,3 +1,7 @@
+Thu Jun 15 18:43:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmLineBuf subclasses no longer need to implement wait_for_data()
+
 Thu Jun 15 14:44:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmLineBuf now an abstract base class, with the functionality

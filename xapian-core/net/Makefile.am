@@ -8,4 +8,5 @@ noinst_LTLIBRARIES = libnet.la
 
 libnet_la_SOURCES = socketclient.cc progclient.cc progserver.cc \
 		    socketcommon.cc tcpclient.cc readquery.ll \
-		    socketserver.cc tcpserver.cc omerr_string.cc
+		    socketserver.cc tcpserver.cc omerr_string.cc \
+		    omlinebuf.cc

@@ -331,7 +331,7 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_)
 }
 
 string
-OmSocketLineBuf::readline()
+OmSocketLineBuf::do_readline()
 {
     string::size_type pos;
 
@@ -458,7 +458,7 @@ OmSocketLineBuf::data_waiting()
 }
 
 void
-OmSocketLineBuf::writeline(string s)
+OmSocketLineBuf::do_writeline(string s)
 {
     if (s.length() == 0 || s[s.length()-1] != '\n') {
 	s += '\n';
