@@ -96,13 +96,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  |RPositional      | Add a get_positionlist() method to databases.
 ---------+-----------------+--------------------------------------------------
- Medium  | MultiMatch      | Check that weights returned by a multimatch over
-         |                 | a set of multidatabases are same as those over
-	 |                 | the complete set as a single multidatabase.
-	 |                 | May need to turn approximation for termfrequency
-	 |                 | off.  Also, make sure that each subdatabase
-	 |                 | has the appropriate value in its "root" field.
----------+-----------------+--------------------------------------------------
  Medium  | General / API   | Put Om into its own namespace, to ensure lack of
          |                 | symbol conflicts.
 ---------+-----------------+--------------------------------------------------
