@@ -1352,7 +1352,6 @@ static struct Btree * basic_open(char * name, int revision_supplied, uint4 revis
         {   B->other_revision_number = get_int4(other_base, B_REVISION);
             free(other_base);
         }
-printf("*%d *%d [%d]\n", B->revision_number, B->other_revision_number, B->both_bases);
     }
     B->kt = calloc(1, B->block_size); /* k holds contructed items as well as keys */
     B->max_item_size = (B->block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
@@ -1393,8 +1392,15 @@ static void read_root(struct Btree * B, struct Cursor * C)
         o -= (DIR_START + D2);
         SET_MAX_FREE(p, o);
         SET_TOTAL_FREE(p, o);
-        SET_REVISION(p, 1);
-        C[0].n = next_free_block(B);
+        if (B->bit_map0 == 0)
+        {   /* reading */
+            SET_REVISION(p, 0);
+            C[0].n = 0;
+        } else
+        {   /* writing */
+            SET_REVISION(p, 1);
+            C[0].n = next_free_block(B);
+        }
     }
     else
     {  block_to_cursor(B, C, B->level, B->root);
