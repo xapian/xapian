@@ -5,7 +5,6 @@
 #
 # stemtest.pl.in - automatic test of the stemming functions.
 #
-#
 # ----START-LICENCE----
 # Copyright 1999,2000 Dialog Corporation
 # 
@@ -24,8 +23,85 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 # -----END-LICENCE-----
- 
-foreach ( "english", "french", "german", "italian", "portugese", "spanish") {
-    $language = $_;
-    print "Testing $language...\n";
+
+use strict;
+
+$main::did_something = 0;
+$main::retval = 0;
+$main::verbose = 0;
+
+while ($_ = shift @ARGV) {
+  if ($_ =~ /^-v$/) {
+      $main::verbose = 1;
+  } else {
+      print "Usage: $0 [-v]\n";
+      exit 1;
+  };
+};
+
+foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spanish") {
+    my $language = $_;
+    my $datadir = $ENV{"srcdir"} . "/../../data/stemming/$language/data";
+    my $wordcount = 0;
+    my $myretval = 0;
+
+    print "Testing $language...";
+    if (-r "$datadir/voc.txt" &&
+        -r "$datadir/voc.st") {
+	$main::did_something = 1;
+
+	if ($main::verbose) {
+	    print "Running \`./stemtest --$language $datadir/voc.txt'...\n";
+	};
+	open(STEMMER_OUTPUT, "./stemtest --$language $datadir/voc.txt|")
+	    or die "Failed to run stemtest";
+	open(STEMMED_ANSWERS, "<$datadir/voc.st")
+	    or die "Failed to open stemmed data";
+	
+	while (1) {
+	    my $stemmed = <STEMMER_OUTPUT>;
+	    my $answer = <STEMMED_ANSWERS>;
+
+	    # if both are undefined, then we've finished
+	    if (!defined $stemmed and !defined $answer) {
+	        last;
+	    };
+
+	    if (defined $stemmed and defined $answer) {
+		$wordcount++;
+
+		# we don't want those pesky newlines!
+		chomp $stemmed;
+		chomp $answer;
+
+	        if ($stemmed ne $answer) {
+		    $myretval = 1;
+		    if ($main::verbose) {
+		    	print "Got $stemmed, expected $answer\n";
+		    };
+		    last;
+		};
+	    } else {
+	        $myretval = 1;
+		if ($main::verbose) {
+		    print "Got an unexpected EOF\n";
+		};
+		last;
+	    };
+		    
+	};
+	print "$wordcount words checked... " . ($myretval? "FAILED" : "ok") . "\n";
+    } else {
+        print "stemming test data not available in $datadir\n";
+	print "(skipping language $language)\n";
+    };
+    if ($myretval) {
+        $main::retval = $myretval;
+    };
+};
+
+if ($main::did_something) {
+    exit $main::retval;
+} else {
+    exit 77;  # magic value meaning "ignore test"
 };

@@ -55,7 +55,6 @@ void stemfile(Stemmer *stemmer, FILE * f)
     }
 }
 
-
 int main(int argc, char **argv)
 {
     stemmer_language lang = STEMLANG_ENGLISH;
@@ -84,8 +83,6 @@ int main(int argc, char **argv)
 	}
     }
     Stemmer * stemmer = StemmerBuilder::create(lang);
-
-    cout << "stemtest version 1: stemming in " << stemmer->get_lang() << endl;
 
     for (int i = 1; i < argc; i++)
     {

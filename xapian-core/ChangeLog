@@ -1,3 +1,7 @@
+Tue Feb  8 16:28:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added the stemmer test script, stemtest.pl
+
 Mon Feb  7 19:17:25 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Prefix all the types in omtypes.h with "om_".
