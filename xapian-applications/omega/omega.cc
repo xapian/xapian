@@ -59,6 +59,11 @@ om_docid min_hits = 0;
 // percentage cut-off
 int threshold = 0;
 
+// Whether or not we want the rset
+bool want_rset = false;
+// raw_search means ignore paging, use topdoc and rset
+bool raw_search = false; 
+
 static void
 make_log_entry(const string &action, long matches)
 {
@@ -265,6 +270,11 @@ main2(int argc, char *argv[])
     } else {
         min_hits=0;
     }
+    // raw_search means ignore paging, use topdoc and rset
+    val = cgi_params.find("RAW_SEARCH");
+    if (val != cgi_params.end()) {
+	raw_search = bool(atol(val->second.c_str()));
+    }
     rset = new OmRSet();
     string v;
     // get list of terms from previous iteration of query
@@ -282,6 +292,7 @@ main2(int argc, char *argv[])
 	    break;
 	case SAME_QUERY:
         case EXTENDED_QUERY:
+            if (raw_search) break;
 	    // If we've changed database, force the first page of hits
 	    // and discard the R-set (since the docids will have changed)
 	    val = cgi_params.find("xDB");
@@ -319,25 +330,40 @@ main2(int argc, char *argv[])
 			    (val = cgi_params.find("#")) != cgi_params.end()) {
 			topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
 		    }
+
+		    // snap topdoc to page boundry
+		    topdoc = (topdoc / hits_per_page) * hits_per_page;
 		}
 	    }
-	    // put documents marked as relevant into the rset
-	    g = cgi_params.equal_range("R");
-	    for (MCI i = g.first; i != g.second; i++) {
-		string v = i->second;
-		if (!v.empty()) {
-		    vector<string> r = split(v, '.');
-		    vector<string>::const_iterator i;
-		    for (i = r.begin(); i != r.end(); i++) {
-			om_docid d = string_to_int(*i);
-			if (d) {
-			    rset->add_document(d);
-			    ticked[d] = true;
-			}
+	    want_rset = true;
+	    break;
+    }
+
+    // if it's RAW_SEARCH
+    if (raw_search) {
+	val = cgi_params.find("TOPDOC");
+	if (val != cgi_params.end())
+	    topdoc = atol(val->second.c_str());
+	want_rset = true;
+    }
+
+    if (want_rset) {
+	// put documents marked as relevant into the rset
+	g = cgi_params.equal_range("R");
+	for (MCI i = g.first; i != g.second; i++) {
+	    string v = i->second;
+	    if (!v.empty()) {
+		vector<string> r = split(v, '.');
+		vector<string>::const_iterator i;
+		for (i = r.begin(); i != r.end(); i++) {
+		    om_docid d = string_to_int(*i);
+		    if (d) {
+			rset->add_document(d);
+			ticked[d] = true;
 		    }
 		}
 	    }
-	    break;
+	}
     }
 
     // Percentage relevance cut-off
