@@ -98,7 +98,7 @@ static void print_escaping_dquotes( char *str, int spaces ) {
    }
    while ( (p_end = strchr( p, '\"' )) != NULL ) {
       len = p_end - p;
-      if (len) fwrite( p, 1, len, stdout );
+      if (len) cout << string(p, len);
       cout << "&#34;";
       p = p_end + 1;
    }
@@ -478,12 +478,6 @@ void add_bterm(const char *term) {
 
 /**************************************************************/
 static void run_query(void) {
-    while (matcher->add_op(OR)) {
-	// OR all the probabilistic terms together
-	// FIXME: use AND for "matching all"
-	cout << "<B>EEK</B>" << endl;
-    }
-
     int bool_terms = 0;
     // add any boolean terms and AND them together
     // FIXME: should OR those with same prefix...
@@ -647,15 +641,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 print_escaping_dquotes(raw_prob, 0);
 	 cout << "\">\n";
 
-#if 0
-	 /*** save bool query ***/
-	 Give_Muscat ("show q style q");
-	 while (!Getfrom_Muscat (&z)) {
-	    check_error(&z);
-	    if (z.p[0] == 'I' && z.p[3] == 'b')
-	       printf ("<INPUT TYPE=hidden NAME=B VALUE=\"%s\">\n", z.p + 5);
-	 }
-#endif
+	 // FIXME: save bool query
       }
 
       if (which == 'Q') {
@@ -672,7 +658,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 		  }
 	       }
 	       if (print_it)
-		  printf ("<INPUT TYPE=hidden NAME=R%ld VALUE=1>\n", r );
+		    cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
 	    }
 	 }
 #endif
@@ -684,7 +670,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 Give_Muscat ("show docs r0-1000");
 	 while (!Getfrom_Muscat (&z)) {
 	    if (sscanf (z.p, "I)%ld", &r))
-	       printf ("<INPUT TYPE=hidden NAME=R%ld VALUE=1>\n", r);
+		 cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
 	 }
       }
 
@@ -695,20 +681,9 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 while (!Getfrom_Muscat (&z)) {
 	    if (sscanf (z.p, "I)%ld", &r)) {
 	       if (r != docid)
-		  printf ("<INPUT TYPE=hidden NAME=R%ld VALUE=1>\n", r);
+		    cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
 	    }
 	 }
-      }
-
-      /*** save date range ***/
-      if (which != 'Q') {
-	 char date[256];
-	 if (get_muscat_string("Date1", date))
-	    printf("<INPUT TYPE=hidden NAME=DATE1 VALUE=\"%s\">\n", date);
-	 if (get_muscat_string("Date2", date))
-	    printf("<INPUT TYPE=hidden NAME=DATE2 VALUE=\"%s\">\n", date);
-	 if (get_muscat_string("DaysMinus", date))
-	    printf("<INPUT TYPE=hidden NAME=DAYSMINUS VALUE=\"%s\">\n", date);
       }
 #endif
 
@@ -729,10 +704,8 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
       if (!strncmp (pc, "PREVOFF", 7)) {
 	 format = pc + 7;
 	 pc_end = find_format_string( format );
-	 if ( which == 'Q' ? (topdoc == 0) : (showdoc == 0) ) {
-	    cout << "<img ";
-	    fwrite( format, 1, pc_end - format, stdout );
-	    cout << ">\n";
+	 if (topdoc == 0) {
+	    cout << "<img " << string(format, pc_end - format) << ">\n";
 	 }
 	 return pc_end - pc;
       }
@@ -745,9 +718,8 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	      new_first = topdoc - maxhits;
 	      if (new_first < 0) new_first = 0;
 	      
-	      cout << "<INPUT NAME=F" << new_first << ' ';
-	      fwrite( format, 1, pc_end - format, stdout );
-	      cout << ">\n";
+	      cout << "<INPUT NAME=F" << new_first << ' '
+		   << string(format, pc_end - format) << ">\n";
 	  }
 	  return pc_end - pc;
       }
@@ -756,9 +728,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	  format = pc + 7;
 	  pc_end = find_format_string( format );
 	  if (last >= msize - 1) {
-	      cout << "<img ";
-	      fwrite( format, 1, pc_end - format, stdout );
-	      cout << ">\n";
+	      cout << "<img " << string(format, pc_end - format) << ">\n";
 	  }
 	  return pc_end - pc;
       }
@@ -767,9 +737,8 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	  format = pc + 4;
 	  pc_end = find_format_string( format );
 	  if (last < msize - 1) {
-	      cout << "<INPUT NAME=F" << last + 1 << ' ';
-	      fwrite( format, 1, pc_end - format, stdout );
-	      cout << ">\n";
+	      cout << "<INPUT NAME=F" << last + 1 << ' '
+		   << string(format, pc_end - format) << ">\n";
 	  }
 	  return pc_end - pc;
       }
@@ -778,8 +747,8 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
    if (which != 'E') {
       /* Olly: was only on D, but useful (at least for debugging) on Q */
       if (!strncmp (pc, "MSIZE", 5)) {
-	 printf ("%ld", msize);
-	 return 5;
+	  cout << msize;
+	  return 5;
       }
    }
 
@@ -796,43 +765,15 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 arg[1] = last + 1;
 	 arg[2] = msize;
 	 /* We're doing:
-	  * \STATS for compatibility
 	  * \STAT0 none
-	  * \STAT1 returning some matches from n
 	  * \STAT2 returning some matches from over n
-	  * 
-	  * instead of \STAT1, there's also:
 	  * \STATa returning all matches from n
 	  * \STATs returning some (but not all) matches from n
 	  */
 	 switch (pc[4]) {
-	  case 'S': /* old style \STATS */
-	    if (msize) {
-	       /* used to be >= - now use an exact compare since MTOTAL
-		* may have given us the full figure.  If MTOTAL works and
-		* we got exactly MLIMIT hits, this will misreport... */
-	       if (msize == MLIMIT) {
-		  printf("%ld-%ld of over %ld documents matching one or "
-			 "more words", topdoc + 1, last + 1, msize);
-	       } else {
-		  printf("%ld-%ld of %ld documents matching one or more words",
-			 topdoc + 1, last + 1, msize);
-	       }
-	    } else if (have_query) {
-	       cout << "No documents found matching these words";
-	    }
-	    return 5;
-	    break;
 	  case '0': /* followed by string */
 	    if ((msize == 0) && have_query)
 		cout << pc + 5;
-	    break;
-	  case '1':
-	    /* used to be < MLIMIT - now use an exact compare since MTOTAL
-	     * may have given us the full figure.  If MTOTAL works and
-	     * we got exactly MLIMIT hits, this will misreport... */
-	    /* FIXME: could use Mike Gatford's "1001" trick */
-	    if (0 < msize && msize != MLIMIT) print = 1;
 	    break;
 	  case '2':
 	    /* used to be >= - now use an exact compare since MTOTAL
@@ -993,7 +934,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 	    pre = line;
 	    do {
 	        size_t skip;
-		fwrite (pre, 1, pc - pre, stdout);
+		cout << string(pre, pc - pre);
 	        pc++;
 
 		skip = process_common_codes( 'Q', pc, first, size, last, 0, 0 );
@@ -1015,10 +956,10 @@ static void print_query_page( const char* page, long int first, long int size) {
 		else if (!strncmp (pc, "HITS", 4)) {
 		    long int m;
 #ifdef META
-		    printf("# fields are tab separated, extra fields may be appended in future\n"
-			   "first\tlast\ttotal\n"
-			   "%ld\t%ld\t%ld\n", first + 1, last + 1, msize);		    
-		    cout << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
+		    cout << "# fields are tab separated, extra fields may be appended in future\n"
+			    "first\tlast\ttotal\n" << first + 1 << '\t'
+			 <<  last + 1 << '\t' msize << '\n'
+			 << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
 #endif
 		    {
 			char *q;
@@ -1093,7 +1034,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 		    // int c = 0;
 		    // int rel_hack = 0;
 #if 1 // FIXME
-		      printf("Sorry, we've not implemented relevance feedback yet\n");
+		    cout << "Sorry, we've not implemented relevance feedback yet\n";
 #else
 		    /* see if we have any docs marked as relevant */
 		    Give_Muscat( "show docs style w r0" );
@@ -1112,17 +1053,18 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   /* only suggest 4 or more letter words for now to
 			    * avoid italian problems !HACK! */
 			   if (width > 3) {
-			      printf("<INPUT TYPE=checkbox NAME=X "
-				     "VALUE=\"%s.\" onClick=\"C(this)\">&nbsp;%s. ",
-				     z.p + 2, z.p + 2);
+			      cout << "<INPUT TYPE=checkbox NAME=X "
+				      "VALUE=\"" << z.p+2
+				   << ".\" onClick=\"C(this)\">&nbsp;"
+				   << z.p + 2 << ". ";
 			      c++;
 			   }
 			}
 		    }
  		    if (c) {
-		       puts("<BR><NOSCRIPT>"
-			    "<INPUT TYPE=hidden NAME=ADD VALUE=1>"
-			    "</NOSCRIPT>");
+			cout << "<BR><NOSCRIPT>"
+			        "<INPUT TYPE=hidden NAME=ADD VALUE=1>"
+			        "</NOSCRIPT>\n");
 		    }
 
 		    /* If we faked a relvance set, clear it again */
@@ -1202,17 +1144,16 @@ static void print_query_page( const char* page, long int first, long int size) {
 			 break;
 		      }
 		   }
-		   printf("<A HREF=\"http://adforce.imgis.com/"
-			  "?adlink|44|%d|%d|1|key=", tag, pageid );
-		   fputs( ad_keywords, stdout );
-		   printf("\" TARGET=_top><IMG\n"
-			  "SRC=\"http://adforce.imgis.com/"
-			  "?adserv|44|%d|%d|1|key=", tag, pageid );
-		   fputs( ad_keywords, stdout );
-		   printf("\" BORDER=0 HEIGHT=60 WIDTH=468 NATURALSIZEFLAG=0 "
-			  "ALIGN=BOTTOM "
-			  "ALT=\"Intelligent access to over 30 million web pages\""
-			  "></A>\n");
+		   cout << "<A HREF=\"http://adforce.imgis.com/"
+			   "?adlink|44|" << tag << '|' << pageid << "|1|key="
+			<< ad_keywords << "\" TARGET=_top><IMG\n"
+			   "SRC=\"http://adforce.imgis.com/"
+			   "?adserv|44|" << tag << '|' << pageid << "|1|key="
+			<< ad_keywords
+			<< "\" BORDER=0 HEIGHT=60 WIDTH=468 NATURALSIZEFLAG=0 "
+			   "ALIGN=BOTTOM "
+			   "ALT=\"Intelligent access to over 30 million web pages\""
+			   "></A>\n";
 		   pc += 6;
 		}
 	        else if (!strncmp(pc, "FREQS", 5)) {
@@ -1226,31 +1167,31 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   delete pl;
 
 			   if (i == 0) {
-			       puts( "<B>Individual word frequencies:</B>" );
+			       cout << "<B>Individual word frequencies:</B>";
 			   } else {
-			       puts( ", " );
+			       cout << ", ";
 			   }
 			   if (strchr(term, ' ')) {
-			       printf("\"%s\":&nbsp;", term);
+			       cout << "\"" << term << "\":&nbsp;";
 			   } else {
-			       printf("%s:&nbsp;", term);			       
+			       cout << term << ":&nbsp;";
 			   }
 			   pretty_printf("%d", &freq);
 		       }
-		       if (i != 0) puts("<BR>");
+		       if (i != 0) cout << "<BR>";
 		   }
 		   pc += 5;
 		}
 #endif
 
 		else {
-		    putchar (*pc++);
+		    cout << *pc++;
 		}
 		pre = pc;
 
 	    } while ((pc = strchr (pre, '\\')) != NULL);
 
-	    fputs (pre, stdout);
+	    cout << pre;
 	}
     }
 
@@ -1268,11 +1209,11 @@ static void print_page_links( char type, long int hits_per_page,
 
    if (type == 'T') {
       for ( page = 0; page < 10; page++ ) {
-	 new_first = page * hits_per_page;
+	  new_first = page * hits_per_page;
 
-	 if (new_first > msize - 1) break;
-	 printf( "<INPUT TYPE=submit NAME=F%ld VALUE=%d>\n", new_first,
-		 page + 1 );
+	  if (new_first > msize - 1) break;
+	  cout << "<INPUT TYPE=submit NAME=F" << new_first << " VALUE="
+	       << page + 1 << ">\n";
       }
    } else {
       long int plh, plw, have_selected_page_gifs;
@@ -1294,21 +1235,21 @@ static void print_page_links( char type, long int hits_per_page,
 
 	 if (new_first > msize - 1) break;
 
-	 if ((new_first == topdoc) && have_selected_page_gifs) {
-	     printf( "<INPUT TYPE=image NAME=F%ld VALUE=%d "
-		     "SRC=\"%s/page%c%ds.gif\"",
-		     new_first, page + 1, gif_dir, dash_chr, page + 1 );
+	 if (new_first == topdoc) {
+	     cout << "<IMG SRC=\"" << gif_dir << "/page" << dash_chr
+		  << page + 1;
+	     if (have_selected_page_gifs) cout << 's';
+	     cout << ".gif\"";
+	 } else {
+	     cout << "<INPUT TYPE=image NAME=F" << new_first << " VALUE="
+		  << page + 1 << " SRC=\"" << gif_dir << "/page" << dash_chr
+		  << page + 1 << ".gif\" BORDER=0";
 	 }
-	 else {
-	     printf( "<INPUT TYPE=image NAME=F%ld VALUE=%d "
-		     "SRC=\"%s/page%c%d.gif\"",
-		     new_first, page + 1, gif_dir, dash_chr, page + 1 );
-	 }
-	 if (plh) printf( " HEIGHT=%ld", plh );
-	 if (plw) printf( " WIDTH=%ld", plw );
-	 fputs( " BORDER=0>", stdout );
+	 if (plh) cout << " HEIGHT=" << plh;
+	 if (plw) cout << " WIDTH=" << plw;
+	 cout << '>';
       }
-      putchar ('\n');
+      cout << endl;
    }
 }
 
@@ -1322,22 +1263,22 @@ static void utf8_to_html(const char *str) {
       /* this is extra magic, not part of utf-8 */
       switch (ch) {
        case '\b': /* was \r but core muscat swallows that... */
-	 fputs(" / ", stdout); /* line break in original */
+	 cout << " / "; /* line break in original */
 	 continue;
        case '\t':
-	 fputs(" * ", stdout); /* bullet point in original */
+	 cout << " * "; /* bullet point in original */
 	 continue;
        case '\f':
-	 fputs("&nbsp;", stdout); /* hardspace in original */
+	 cout << "&nbsp;"; /* hardspace in original */
 	 continue;
        case '<':
-	 fputs("&lt;", stdout);
+	 cout << "&lt;";
 	 continue;
        case '>':
-	 fputs("&gt;", stdout);
+	 cout << "&gt;";
 	 continue;
        case '&':
-	 fputs("&amp;", stdout);
+	 cout << "&amp;";
 	 continue;
       }
 
@@ -1362,12 +1303,12 @@ static void utf8_to_html(const char *str) {
 	    p += 2;
 	 }
 	 if (ch > 255) {
-	    printf("&#%d;",ch);
+	    cout << "&#" << ch << ";";
 	    continue;
 	 }
       }
       resync:
-      putchar(ch);
+      cout << char(ch);
    }
 }
 
@@ -1382,32 +1323,32 @@ static void print_query_string(const char *after) {
       while (qs) {
 	 amp = strchr(amp, '&');
 	 if (!amp) {
-	    fputs(qs, stdout);
-	    break;
+	     cout << qs;
+	     break;
 	 }
 	 amp++;
 	 while (amp[0] == 'B' && amp[1] == '=' && amp[2] == prefix) {
-	    fwrite(qs, amp - qs - 1, 1, stdout);
+	    cout << string(qs, amp - qs - 1);
 	    qs = strchr(amp + 3, '&');
 	    if (!qs) break;
 	    amp = qs + 1;
 	 }
       }
    } else {
-      fputs(query_string.c_str(), stdout);
+       cout << query_string;
    }
 }
 #endif
 
 static void display_date(time_t date) {
    if (date == (time_t)-1) {
-      fputs("Unknown", stdout);
+       cout << "Unknown";
    } else {
-      char buf[64];
-      struct tm *then;
-      then = gmtime(&date);
-      strftime(buf, sizeof buf, "%Y-%m-%d", then);
-      fputs(buf, stdout);
+       char buf[64];
+       struct tm *then;
+       then = gmtime(&date);
+       strftime(buf, sizeof buf, "%Y-%m-%d", then);
+       cout << buf;
    }
 }
 /***********************************************************************/
@@ -1527,7 +1468,7 @@ static int print_caption( long int m, int do_expand ) {
 	  char *p, *q;
 	  p = fmtstr;
 	  while ((q = strchr(p, '\xff')) != NULL) {
-	     fwrite(p, 1, q - p, stdout);
+	     cout << string(p, q - p);
 	     switch (q[1]) {
 	      case 'C': /* caption */
 		if (caption) {
@@ -1536,44 +1477,42 @@ static int print_caption( long int m, int do_expand ) {
 		}
 		/* otherwise fall through... */
 	      case 'U': /* url */
-		fputs("http://", stdout);
-		fputs(hostname, stdout);
-		if (port >= 0) printf(":%d", port);
-		putchar('/');
-		fputs(path, stdout);
-		break;
+		 cout << "http://" << hostname;
+		 if (port >= 0) cout << ':' << port;
+		 cout << '/' << path;
+		 break;
 	      case 'H': /* host */
-		fputs(hostname, stdout);
-		break;
+		 cout << hostname;
+		 break;
 	      case 'd': /* DB name */
-		fputs(db_name, stdout);
-		break;
+		 cout << db_name;
+		 break;
 	      case 'Q': /* query url */
-		print_query_string(q + 2);
-		break;
+		 print_query_string(q + 2);
+		 break;
 	      case 'S': /* sample */
-		if (sample) {
-		   utf8_to_html(sample);
-		   fputs("...", stdout);
-		}
-		break;
+		 if (sample) {
+		     utf8_to_html(sample);
+		     cout << "...";
+		 }
+		 break;
 	      case 's': /* size */
 		/* decode packed file size */
 		if (size < 33) {
-		   fputs("Unknown", stdout);
+		   cout << "Unknown";
 		} else if (size < 132) {
 		   size -= 32;
-		   printf("%d%c%dK", size / 10, dec_sep, size % 10);
+		   cout << size / 10 << dec_sep << size % 10 << 'K';
 		} else if (size < 222) {
-		   printf("%dK", size - 132 + 10);
+		   cout << size - 132 + 10 << 'K';
 		} else if (size < 243) {
-		   printf("%d0K", size - 222 + 10);
+		   cout << size - 222 + 10 << "0K";
 		} else if (size < 250) {
-		   printf("0%c%dM", dec_sep, size - 243 + 3);
+		   cout << '0' << dec_sep << size - 243 + 3 << 'K';
 		} else if (size < 255) {
-		   printf("%dM", size - 249);
+		   cout << size - 249 << 'M';
 		} else {
-		   fputs(">5M", stdout);
+		   cout << ">5M";
 		}
 		break;
 	      case 'I': /* document id */
@@ -1599,14 +1538,14 @@ static int print_caption( long int m, int do_expand ) {
 		 cout << country_code;
 		 break;
 	      case 'M': /* last modified */
-		display_date(lastmod);
-		break;
+		 display_date(lastmod);
+		 break;
 	      case 'V': /* date last visited */
-		display_date(dadate);
-		break;
+		 display_date(dadate);
+		 break;
 	      case 'P':
-		printf("%d%%", percent);
-		break;
+		 cout << percent << '%';
+		 break;
 	      case 'T': {
 #if 0 // FIXME:
 		 int comma = 0;		  
@@ -1615,39 +1554,38 @@ static int print_caption( long int m, int do_expand ) {
 		    if (z.length > 6 && z.p[2] == '+' && z.p[3] == 'p') {
 		       char *p = z.p + 6;
 #ifdef META
-		       if (comma) putchar(','); else comma = 1;
+		       if (comma) cout << ','; else comma = 1;
 #else
-		       if (comma) putchar(' '); else comma = 1;
+		       if (comma) cout << ' '; else comma = 1;
 #endif
 		       /* quote terms with spaces in */
 		       if (strchr(p, ' '))
-			  printf("\"%s\"", p);
+			    cout << '"' << p << '"';
 		       else
-			  fputs(p, stdout);
+			    cout << p;
 		    }
 		 }
 #endif
 		 break;
 	      }
 	      case 'G': /* score Gif */
-		printf("/fx-gif/score-%d.gif", percent / 10);
-		break;
+		 cout << "/fx-gif/score-" << percent / 10 << ".gif";
+		 break;
 	      case 'X': /* relevance checkboX */
-		if (r) {
-		   r_displayed[r_di++] = q0;
-		   printf("<INPUT TYPE=checkbox NAME=R%ld CHECKED>\n", q0);
-		} else {
-		   printf("<INPUT TYPE=checkbox NAME=R%ld>\n", q0);
-		}
-		break;
+		 if (r) {
+		     r_displayed[r_di++] = q0;
+		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
+		 } else {
+		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";
+		 }
+		 break;
 	      default:
-		putchar('\xff');
-		putchar(q[1]);
-		break;
+		 cout << '\xff' << q[1];
+		 break;
 	     }
 	     p = q + 2;
 	  }
-	  fputs(p, stdout);
+	  cout << p;
        }
        free(path);
     }
