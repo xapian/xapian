@@ -1,12 +1,3 @@
-/* NB at present rubber's /cgi-bin/fx needs to be a 1.4 with FERRET defined
- * otherwise the ferret will try to generate a boolean filter greater
- * than the size of the known universe
- */
-/* #define FERRET 1 now set in makefile - use "make ferret" to build ferret */
-/* NB defining ferret should be non-intrusive *unless* you are using a
- * database matching /^ferret/
- */
-
 /* limit on mset size (as given in espec) */
 #define MLIMIT 1000 // FIXME: deeply broken
 
@@ -79,7 +70,7 @@ extern int n_dlist;
 /* Used for translations in EuroFerret */
 char str_scoreline[64];
 
-static char query_string[2048];
+static string query_string;
 
 int percent_min = 0; /* default to old behaviour */
 
@@ -1154,34 +1145,30 @@ static void print_query_page( const char* page, long int first, long int size) {
 		    fputs("relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n", stdout);
 #endif
 		    {
-			char *p, *q;
+			char *q;
 			int ch;
 			
-			sprintf(query_string, "?DB=%s&P=", db_name);
-			p = query_string + strlen(query_string);
+			query_string = "?DB=";
+			query_string += db_name;
+			query_string += "&P=";
 			q = raw_prob;
 			while ((ch = *q++) != '\0') {
 			   if (ch == '+') {
-			      strcpy(p, "%2b");
-			      p += 3;
+			      query_string += "%2b";
 			   } else if (ch == '"') {
-			      strcpy(p, "%22");
-			      p += 3;
+			      query_string += "%22";
 			   } else {
 			      if (ch == ' ') ch = '+';
-			      *p++ = ch;
+			      query_string += ch;
 			   }
 			}
 			/* add any boolean terms */
 			map <char, string>::const_iterator i;			 
 			for (i = filter_map.begin(); i != filter_map.end(); i++) {
-			    strcpy(p, "&B=");
-			    p[3] = i->first;
-			    p += 4;
-			    i->second.copy(p, 256);
-			    p += i->second.length();			    
+			    query_string += "&B=";
+			    query_string += i->first;
+			    query_string += i->second;
 			}
-			*p = '\0';
 		     }
 
 #ifndef META
@@ -1596,8 +1583,8 @@ static void utf8_to_html(const char *str) {
 static void print_query_string(const char *after) {		      
    if (after && strncmp(after, "&B=", 3) == 0) {
       int prefix = 0;
-      char *amp, *qs;
-      qs = query_string;
+      const char *amp, *qs;
+      qs = query_string.c_str(); // FIXME: use string methods
 			 
       prefix = after[3];
       amp = qs;
@@ -1616,7 +1603,7 @@ static void print_query_string(const char *after) {
 	 }
       }
    } else {
-      fputs(query_string, stdout);
+      fputs(query_string.c_str(), stdout);
    }
 }
 #endif
