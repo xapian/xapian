@@ -1,3 +1,7 @@
+Mon Jul 21 01:18:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
 Thu Jul 17 00:52:13 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Removed bootstrap in favour of top-level bootstrap.

@@ -1,3 +1,7 @@
+Mon Jul 21 01:16:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
 Sat Jul 19 19:26:03 BST 2003  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Added missing `#include <errno.h>'.

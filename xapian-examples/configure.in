@@ -9,16 +9,13 @@ AC_CONFIG_SRCDIR(delve.cc)
 
 AM_CONFIG_HEADER(config.h)
 
-dnl Add parameters for aclocal
-dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
-ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for libxapian
-OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+AC_PROG_LIBTOOL
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl ******************************
 dnl * Set special compiler flags *

@@ -8,16 +8,13 @@ AC_CONFIG_SRCDIR(source/xdb-manage.cc)
 
 AM_CONFIG_HEADER(config.h)
 
-dnl Add parameters for aclocal
-dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
-ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for xapian bits
-OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+AC_PROG_LIBTOOL
+XO_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Check for libxml or libxml2.  We do this by looking for xml-config.
 AC_PATH_PROG(XML_CONFIG_PATH, xml2-config)
@@ -37,7 +34,7 @@ if test -n "$XML_CONFIG_PATH" ; then
   LIBXML_LIBS="`$XML_CONFIG_PATH --libs`"
   AC_MSG_RESULT("$LIBXML_CFLAGS")
 else
-  AC_MSG_ERROR(can't build dbtool without xml)
+  AC_MSG_ERROR([Can't build dbtool without libxml])
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)

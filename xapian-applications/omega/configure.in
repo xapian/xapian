@@ -9,10 +9,6 @@ AC_CONFIG_SRCDIR(omega.cc)
 
 AM_CONFIG_HEADER(config.h)
 
-dnl Add parameters for aclocal
-dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
-ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
@@ -29,7 +25,8 @@ if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
 fi
 
 dnl Check for libxapian
-OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+AC_PROG_LIBTOOL
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Disabled XML stuff as we don't currently build omindex-config
 dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.

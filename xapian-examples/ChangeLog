@@ -1,3 +1,7 @@
+Mon Jul 21 01:15:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
 Sun Jul 20 18:32:20 BST 2003  Olly Betts <olly@survex.com>
 
 	* indexergui/: Removed indexergui directory - it was moved to
