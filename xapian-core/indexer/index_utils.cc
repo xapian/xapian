@@ -63,13 +63,13 @@ void get_paragraph(istream &input, string &para) {
 	para += "\n";
 	linecount ++;
 	if(linecount > 30) break;;
-    } while(line.find_first_not_of(" \t") != string::npos || linecount < 3);
+    } while(line.find_first_not_of(" \t\f") != string::npos || linecount < 3);
 }
 
 // Read a line from stream.
 void get_a_line(istream &input, string &line) {
     while(input) {
 	getline(input, line);
-	if(line.find_first_not_of(" \t") != string::npos) break;
+	if(line.find_first_not_of(" \t\f") != string::npos) break;
     }
 }
