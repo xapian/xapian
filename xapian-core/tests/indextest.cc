@@ -29,6 +29,7 @@ using std::endl;
 #include "om/om.h"
 #include "om/omindexerbuilder.h"
 #include "testsuite.h"
+#include "om/omstem.h"
 
 bool test_basic1()
 {
@@ -41,9 +42,41 @@ bool test_basic2()
 {
     OmIndexerBuilder builder;
 
-    builder.build_from_string("<?xml version=\"1.0\"?><!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'><omindexer><output node='START' out_name='out'/></omindexer>");
+    builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
+      "<omindexer>\n"
+         "<output node='START' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
 
     return true;
+}
+
+bool test_basic3()
+{
+    bool success = false;
+
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
+      "<omindexer>\n"
+         "<output node='START' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    OmIndexerMessage result = indexer->get_raw_output();
+    if (result->get_string() == "garbage") {
+        // garbage in, garbage out
+	success = true;
+    }
+
+    return success;
 }
 
 class readtwice : public OmIndexerNode {
@@ -128,7 +161,7 @@ bool test_flowcheck1()
 		      "<input name='right' node='rtwo' out_name='out'/>"
 		 "</node>"
 	         "<output node='concat' out_name='out'/>"
-             "</omindexer>"));
+             "</omindexer>\n"));
 
 	indexer->set_input(OmIndexerMessage(new OmIndexerData(vector<OmIndexerData>())));
 	OmIndexerMessage result = indexer->get_raw_output();
@@ -141,6 +174,91 @@ bool test_flowcheck1()
     return success;
 }
 
+bool test_omsplitter1()
+{
+    bool success = false;
+
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
+      "<omindexer>\n"
+         "<node type='omsplitter' id='only'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='right'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    OmIndexerMessage result = indexer->get_raw_output();
+    if (result->get_string() == "garbage") {
+        // garbage in, garbage out
+	success = true;
+    }
+
+    return success;
+}
+
+bool test_omstemmer1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>\n"
+      "<omindexer>\n"
+         "<node type='omstemmer' id='only'>\n"
+	     "<param type='string' name='language' value='english'/>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+    OmStem stemmer("english");
+
+#if 0
+    // FIXME: should OmStemmerNode work with scalars as well as vectors?
+    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    OmIndexerMessage result = indexer->get_raw_output();
+    if (result->get_string() == stemmer.stem_word("garbage")) {
+        // garbage in, garbage out
+	return false;
+    }
+#endif
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("word"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("sponge"));
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("elephants"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+        cout << "Non-vector result: " << result << endl;
+    }
+    if (result->get_vector_length() != v.size()) {
+        return false;
+    }
+
+    for (int i=0; i<v.size(); ++i) {
+        if (result->get_element(i).get_string() !=
+			stemmer.stem_word(v[i].get_string())) {
+	    return false;
+	}
+    }
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -149,7 +267,10 @@ bool test_flowcheck1()
 test_desc tests[] = {
     {"basic1",		&test_basic1},
     {"basic2",		&test_basic2},
+    {"basic3",		&test_basic3},
     {"flowcheck1",	&test_flowcheck1},
+    {"omsplitter1",	&test_omsplitter1},
+    {"omstemmer1",	&test_omstemmer1},
     {0, 0}
 };
 

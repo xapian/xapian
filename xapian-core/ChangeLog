@@ -1,3 +1,9 @@
+Thu Oct 19 16:47:18 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a few indexer tests.
+
+	* Made the START node's output be a wildcard type.
+
 Thu Oct 19 16:03:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* quartz_lexicons allocate new term IDs (untested).

@@ -450,7 +450,7 @@ OmIndexerBuilder::OmIndexerBuilder()
 {
     try {
 	OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
-	ndesc.add_output("out", "mystr", mt_record);
+	ndesc.add_output("out", "*", mt_record);
 	register_node_type(ndesc);
 
 	register_core_nodes(*this);
