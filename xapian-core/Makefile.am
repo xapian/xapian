@@ -61,6 +61,7 @@ EXTRA_libxapian_la_SOURCES =
 # 0:1:0 0.7.3
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
 # 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
+# 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
 libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 1:1:1
 
 # FIXME:

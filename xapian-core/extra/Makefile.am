@@ -25,7 +25,7 @@ endif
 
 # 0:0:0 0.7.2 (and anything before) 
 # 0:1:0 0.7.3 and 0.7.4
-# 0:2:0 0.7.5
+# 0:2:0 0.7.5 and 0.8.0
 libxapianqueryparser_la_LDFLAGS = -version-info 0:2:0
 
 libxapianqueryparser_la_SOURCES = $(YYSOURCES)
@@ -33,7 +33,7 @@ libxapianqueryparser_la_SOURCES = $(YYSOURCES)
 # For backward compatibility
 # 0:0:0 0.7.3 (and anything before) 
 # 0:1:0 0.7.4
-# 0:2:0 0.7.5
+# 0:2:0 0.7.5 and 0.8.0
 libomqueryparser_la_LDFLAGS = -version-info 0:2:0
 
 libomqueryparser_la_SOURCES = $(YYSOURCES)
