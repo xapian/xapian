@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 // Postlist - a list of documents indexed by a given term
-class SleepyPostList : public virtual DBPostList {
+class SleepyPostList : public virtual LeafPostList {
     friend class SleepyDatabase;
     private:
 	doccount pos;
@@ -59,7 +59,7 @@ class SleepyPostList : public virtual DBPostList {
 
 class SleepyDatabaseTermCache;
 // Termlist - a list of terms indexing a given document
-class SleepyTermList : public virtual DBTermList {
+class SleepyTermList : public virtual LeafTermList {
     friend class SleepyDatabase;
     private:
 	termcount pos;
@@ -118,8 +118,8 @@ class SleepyDatabase : public virtual IRDatabase {
 	doccount get_termfreq(const termname & tname) const;
 	bool term_exists(const termname & tname) const;
 
-	DBPostList * open_post_list(const termname& tname, RSet * rset) const;
-	DBTermList * open_term_list(docid did) const;
+	LeafPostList * open_post_list(const termname& tname, RSet * rset) const;
+	LeafTermList * open_term_list(docid did) const;
 	IRDocument * open_document(docid did) const;
 
 	void make_term(const termname &) {

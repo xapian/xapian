@@ -212,7 +212,7 @@ SleepyDatabase::open(const DatabaseBuilderParams &params)
     Assert((opened = true) == true);
 }
 
-DBPostList *
+LeafPostList *
 SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
@@ -241,7 +241,7 @@ SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 			      data.get_size() / sizeof(docid));
 }
 
-DBTermList *
+LeafTermList *
 SleepyDatabase::open_term_list(docid did) const {
     Assert(opened);
     Dbt key(&did, sizeof(did));
