@@ -24,7 +24,9 @@ boolean[=PREFIX]
 
 field[=FIELDNAME]
 	add as a field to the Xapian record.  FIELDNAME defaults to the field
-	name in the dumpfile.
+	name in the dumpfile.  It is valid to have more than one instance of
+	a given field: all instances will be processed and stored in the
+	Xapian record.
 
 index[=nopos]
 	split text into words and index probabilistically (if "nopos" is

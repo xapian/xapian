@@ -31,6 +31,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <list>
 
 #include <unistd.h>
 
@@ -356,7 +357,7 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 	OmDocument doc;
 	om_docid docid = 0;
 	om_termpos wordcount = 0;
-	map<string, string> fields;
+	map<string, list<string> > fields;
 	bool seen_content = 0;
 	while (true) {
 	    om_termcount weight = 1;
@@ -392,7 +393,7 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 			    string::size_type i = 0;
 			    while ((i = s.find('\n', i)) != string::npos)
 				s[i] = ' ';
-			    fields[f] = s;
+			    fields[f].push_back(s);
 			}
 			break;
 		    case Action::INDEX:
@@ -501,12 +502,15 @@ again:
 	    }
 	} else {
 	    string data;
-	    map<string, string>::const_iterator i;
+	    map<string, list<string> >::const_iterator i;
 	    for (i = fields.begin(); i != fields.end(); ++i) {
-		data += i->first;
-		data += '=';
-		data += i->second;
-		data += '\n';
+		list<string>::const_iterator j;
+		for (j = i->second.begin(); j != i->second.end(); j++) {
+		    data += i->first;
+		    data += '=';
+		    data += *j;
+		    data += '\n';
+		}
 	    }
 
 	    // Put the data in the document
