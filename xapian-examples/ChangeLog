@@ -1,3 +1,7 @@
+Mon Apr 12 00:53:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.0.
+
 Thu Apr 01 01:10:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* delve.cc: `delve -v DATABASE' now reports the number of terms.
