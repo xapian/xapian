@@ -36,6 +36,8 @@ class TermList;
 class DBTermList;
 class RSet;
 
+/** Base class for databases.
+ */
 class IRDatabase : public virtual IndexerDestination {
     // Class which can create IRDatabases.
     // All classes derived from IRDatabase must also have DatabaseBuilder as

@@ -47,6 +47,7 @@ struct termvec;
 // FIXME - try and sort this out sometime.
 #include "daread.h"
 
+/** A posting list for a DA Database */
 class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:

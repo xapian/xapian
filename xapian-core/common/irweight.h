@@ -29,7 +29,7 @@
 class IRDatabase;
 class RSet;
 
-// Abstract base class for weighting schemes
+/// Abstract base class for weighting schemes
 class IRWeight {
     protected:
 	const IRDatabase *root;

@@ -75,6 +75,14 @@ AC_ARG_ENABLE(backend_da,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-da) ;;
 esac],[build_da=true])
 
+AC_ARG_ENABLE(backend_muscat36,
+[  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=no)],
+[case "${enableval}" in
+  yes) build_muscat36=true ;;
+  no)  build_muscat36=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-muscat36) ;;
+esac],[build_muscat36=false])
+
 AC_ARG_ENABLE(backend_sleepy,
 [  --enable-backend-sleepy Enable the sleepycat database backend (default=yes)],
 [case "${enableval}" in
@@ -108,6 +116,7 @@ fi
 dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_DA, test x$build_da = xtrue)
+AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test x$build_muscat36 = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
@@ -117,6 +126,11 @@ dnl Set defines to specify what we compile
 if test x$build_da = xtrue; then
 AC_DEFINE(MUS_BUILD_BACKEND_DA,,
   [Define if you want to build DA backend])
+fi
+
+if test x$build_muscat36 = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_MUSCAT36,,
+  [Define if you want to build the (old) Muscat 3.6 backend])
 fi
 
 if test x$build_sleepy = xtrue; then
@@ -129,7 +143,7 @@ AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
   [Define if you want to build inmemory backend])
 fi
 
-if test x$build_da = xtrue; then
+if test x$build_multi = xtrue; then
 AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
   [Define if you want to build multi database backend])
 fi
@@ -201,6 +215,7 @@ AC_OUTPUT(
  common/Makefile
  backends/Makefile
  backends/da/Makefile
+ backends/muscat36/Makefile
  backends/sleepy/Makefile
  backends/multi/Makefile
  backends/inmemory/Makefile

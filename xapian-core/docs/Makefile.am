@@ -221,10 +221,10 @@ apidoc.tex:
 sourcedoc/index.html:
 	@echo "Generating HTML documentation for full source"
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
-	@doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRC)
+	@doc++ $(DOCPPFLAGS) --all --private --dir sourcedoc $(SOURCEDOC_SRC)
 
 sourcedoc.tex:
 	@echo "Generating LaTeX documentation for full source"
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
-	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
+	@doc++ -t $(DOCPPFLAGS) --all --private --output $@ $(SOURCEDOC_SRC)
 

@@ -91,16 +91,16 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
 	: have_started(false), dbsize(dbsize_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
-    readterms(tv);
+    M_read_terms(tv);
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
 
 	om_doccount freq = tv->freq;
 	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
-	readterms(tv);
+	M_read_terms(tv);
     }
-    losetermvec(tv);
+    M_lose_termvec(tv);
 
     pos = terms.begin();
 }

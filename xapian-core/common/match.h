@@ -145,7 +145,7 @@ class OmMatch
 		   mset_cmp cmp,           // Comparison operator to sort by
 		   om_doccount * mbound,   // Mbound will returned here
 		   om_weight * greatest_wt,// Gets set to max weight attained
-		   const OmMatchDecider *decider // Optional decider functor
+		   const OmMatchDecider *mdecider // Optional decider functor
 		   );
 
 	// Do a boolean only match
