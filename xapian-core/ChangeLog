@@ -1,3 +1,9 @@
+Thu Mar 06 11:32:05 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* Add collapse_count threshold checking to ensure that most
+	  relevant collapsed-away hit is more relevant than threshold
+	  (if specified)
+
 Mon Mar 03 14:04:56 GMT 2003  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Corrected 2kB to 2KB.

@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003 Olly Betts
+ * Copyright 2003 Orange PCS Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -459,7 +460,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     om_weight percent_factor = percent_cutoff / 100.0;
  
     // Table of keys which have been seen already, for collapsing.
-    map<string, OmMSetItem> collapse_tab;
+    map<string, pair<OmMSetItem,om_weight> > collapse_tab;
 
     /// Comparison functor for sorting MSet
     // The sort_bands == 1 case is special - then we only need to compare
@@ -549,21 +550,25 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.empty()) {
-		map<string, OmMSetItem>::iterator oldkey;
+		map<string, pair<OmMSetItem, om_weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<
 			      new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
-						  new_item));
+					make_pair(new_item,0)));
 		} else {
-		    const OmMSetItem old_item = oldkey->second;
+		    const OmMSetItem old_item = oldkey->second.first;
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
 			// There's already a better match with this key
-			oldkey->second.collapse_count++;
+			oldkey->second.first.collapse_count++;
+			// But maybe the weight is worth noting
+			if (new_item.wt > oldkey->second.second) {
+			    oldkey->second.second=new_item.wt;
+			}
 			continue;
 		    }
 		    // Make a note of the updated collapse count in the
@@ -593,7 +598,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			// handling
 			is_heap = false;
 		    }
-		    oldkey->second = new_item;
+		    // Keep the old weight as it is now second best so far
+		    oldkey->second = make_pair(new_item,oldkey->second.first.wt);
 		}
 	    }
 	}
@@ -855,6 +861,35 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    matches_estimated = docs_matched;
     }
 
+    // Do we need to qualify any collapse_count to see if the highest weight
+    // collapsed item would have qualified percent_cutoff ?
+    if (collapse_key != om_valueno(-1) && percent_cutoff && !items.empty()
+		    && !collapse_tab.empty()) {
+	// Nicked this formula from above, but for some reason percent_scale
+	// has since been multiplied by 100 so we take that into account
+	om_weight min_wt = percent_factor / (percent_scale / 100);
+	vector<OmMSetItem>::iterator i;
+	for (i = items.begin(); i != items.end() && !collapse_tab.empty();++i) {
+	    // Is this a collapsed hit?
+	    if (i->collapse_count>0 && ! i->collapse_key.empty()) {
+		map<string, pair<OmMSetItem, om_weight> >::iterator key;
+		key = collapse_tab.find(i->collapse_key);
+		// Because we collapse, each collapse key can only occur once
+		// in the items, we remove from collapse_tab here as processed
+		// so we can quit early.  Therefore each time we find an item
+		// with a collapse_key the collapse_key must be in collapse_tab
+                assert(key != collapse_tab.end());
+		// If weight of top collapsed item is not relevent enough
+		// then collapse count is bogus in every way
+		// Should this be <=?
+		if (key->second.second<min_wt) i->collapse_count=0;
+		// When collapse_tab is finally empty we can finish this process
+		// without examining any further hits
+		collapse_tab.erase(key);
+	    }
+	}
+    }
+    
     mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
 				       first,
 				       matches_upper_bound,
