@@ -16,6 +16,22 @@
 //     for library usage
 //
 
+//
+// General approach:
+//
+//   For each symbol, we identify all comments that were associated
+//   with lines containing that symbol.
+//
+//   Query => classes/functions related to the task at hand, both at a
+//                    local & global level.
+//
+//     
+
+
+
+
+
+
 // should have another command for classes/functions that look
 // at their contents 
 
@@ -192,11 +208,18 @@ int main(int argc, char *argv[]) {
   
   cerr << "...reading library tags" << endl;
   readTags( TEMP "/tags", lib_symbols );
-  
-  exit(-1);
 
+  // might be easier to just maintain something like:  file:revision
+  // that we way do not duplicate comments
+  //
+  // in fact, we can use:
+  //
+  // cvsquery -c file_id revision to get the comment
+  //
 
+  // we consider each comment only once
   map< string, list<string> > lib_symbol_terms; // accumulated from all its points of usage
+
   map<string, int> lib_symbol_count;
 
   try {
@@ -260,7 +283,7 @@ int main(int argc, char *argv[]) {
 	}
       }
       
-      package_path = "database/"+package_path;
+      package_path = "cvsdata/root0/db/"+package_path;
 
       //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
       //    string file_offset = cvsdata +"/database/"+package +".offset";
@@ -312,13 +335,17 @@ int main(int argc, char *argv[]) {
 	  if ( SKIP_FUNCTIONS && i->find("()") != -1 ) {
 	    continue;
 	  }
-              
+
 	  if ( app_symbols.find(*i) != app_symbols.end() ) {
 	    app_symbol_count[*i]++; // count number of lines that contain symbol
+
+	    cerr << "*** SYMBOL " << (*i) << endl;
                   
 	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
+	      cerr << (*t);
 	      app_symbol_terms[*i].push_back(*t);
 	    }
+	    cerr << endl;
 	  }
               
 	  if ( terms.size() < MIN_WORDS ) {
