@@ -78,6 +78,8 @@ bool test_maxattain1();
 bool test_collapsekey1();
 // tests a reversed boolean query
 bool test_reversebool1();
+// tests a reversed boolean query, where the full mset isn't returned
+bool test_reversebool2();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -101,6 +103,7 @@ om_test tests[] = {
     {"maxattain1",         test_maxattain1},
     {"collapsekey1",	   test_collapsekey1},
     {"reversebool1",	   test_reversebool1},
+    {"reversebool2",	   test_reversebool2},
     {0, 0}
 };
 
@@ -826,6 +829,63 @@ bool test_reversebool1()
 
     // mymset1 and mymset3 should be same but reversed
     if(mymset1.items.size() != mymset3.items.size()) return false;
+    {
+	vector<OmMSetItem>::const_iterator i;
+	vector<OmMSetItem>::reverse_iterator j;
+	for (i = mymset1.items.begin(),
+	     j = mymset3.items.rbegin();
+	     i != mymset1.items.end();
+	     ++i, j++) {
+	    if(i->did != j->did) {
+		if (verbose) {
+		    cout << "Calling OmMatchOptions::set_sort_forward(false) "
+			    "did not reverse results." << endl;
+		    cout << "docids " << i->did << " and " << j->did <<
+			    " should have been the same" << endl;
+		}
+		return false;
+	    }
+	}
+    }
+
+    return true;
+}
+
+bool test_reversebool2()
+{
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    OmMatchOptions mymopt;
+    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    mymopt.set_sort_forward();
+    om_doccount msize = mymset.items.size() / 2;
+    OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
+    mymopt.set_sort_forward(false);
+    OmMSet mymset3 = enquire.get_mset(0, msize, 0, &mymopt);
+
+    // mymset2 should be first msize items of mymset1
+    if(msize != mymset2.items.size()) return false;
+    {
+	vector<OmMSetItem>::const_iterator i;
+	vector<OmMSetItem>::const_iterator j;
+	for (i = mymset1.items.begin(), j = mymset2.items.begin();
+	     i != mymset1.items.end(), j != mymset2.items.end();
+	     ++i, j++) {
+	    if(i->did != j->did) {
+		if (verbose) {
+		    cout << "Calling OmMatchOptions::set_sort_forward() was not"
+			    "same as default." << endl;
+		    cout << "docids " << i->did << " and " << j->did <<
+			    " should have been the same" << endl;
+		}
+		return false;
+	    }
+	}
+    }
+
+    // mymset3 should be last msize items of mymset1, in reverse order
+    if(msize != mymset3.items.size()) return false;
     {
 	vector<OmMSetItem>::const_iterator i;
 	vector<OmMSetItem>::reverse_iterator j;

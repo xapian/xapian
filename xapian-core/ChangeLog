@@ -1,3 +1,8 @@
+Fri Feb 18 13:53:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Added second test for reversed boolean queries.
+	  (When the full mset is not returned.)
+
 Fri Feb 18 13:54:37 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented match functors
