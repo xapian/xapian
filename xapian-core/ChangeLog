@@ -1,3 +1,8 @@
+Mon Apr 15 2002  Sam Liddicott <sam@ananova.com>
+
+	* Hacked around bindings and bindings/php to remove some SWIG 
+	  workarounds.  SWIG cvs + some new non-comitted patches is need still.
+
 Mon Apr 15 12:12:05 BST 2002  Olly Betts <olly@survex.com>
 
 	* stemtest: getopt fix.
