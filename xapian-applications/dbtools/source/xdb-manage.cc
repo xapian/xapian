@@ -95,18 +95,18 @@ om_docid find_document (OmDatabase*database, xmlNodePtr document)
 	       ! xmlStrcmp(xmlGetProp(element,(const xmlChar*) "unique"),
 			   (const xmlChar*) "yes")) {
 		// add to query object
-		//		if(query.is_defined ()) {
+		if(!query.is_empty ()) {
 		    query =OmQuery (OmQuery::OP_AND, query,OmQuery (string ((char*) xmlGetProp (element,(const xmlChar*) "value"))));
-		    //		}else {
-		    //		    query =OmQuery(string ((char*) xmlGetProp (element,(const xmlChar*) "value")));
-		    //		}
+		}else {
+		    query =OmQuery(string ((char*) xmlGetProp (element,(const xmlChar*) "value")));
+		}
 	    }
 	}
 	element = element->next;
     }
-    //    if(!query.is_defined ()) {
-    //	return 0;
-    //    }
+    if(query.is_empty ()) {
+    	return 0;
+    }
     OmEnquire *enquire = new OmEnquire(*database);
     enquire->set_query (query);
     OmMSet set = enquire->get_mset (0,2);
@@ -322,7 +322,7 @@ doc_status add_document(OmWritableDatabase* database,xmlNodePtr document,
 		      throw string("field element missing required attribute 'name'");
 		    }
 		    data +=  (char*) field_name;
-		    data +=":";
+		    data +="=";
 		    xmlChar*field_value = xmlGetProp (pointer,(const xmlChar*) "value");
 		    if (!field_value) {
 		      throw string("field element missing required attribute 'value'");

@@ -1,3 +1,10 @@
+Wed Nov 28 12:32:59 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* works again with very latest OmQuery
+
+	* fields-based data now actually stores in the same way as
+	  people will expect (oops)
+
 Tue Nov 27 18:12:09 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* default generator can be specified (using indexgraph from
