@@ -695,7 +695,6 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
     // saving in disk use.  Other redundant keys will still creep in though.
     if (j > 1) {
 	byte * p = C[j - 1].p;
-	int newkey_len = newkey.length();
 	uint4 n = get_int4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...

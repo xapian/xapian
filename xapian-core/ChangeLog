@@ -1,3 +1,7 @@
+Thu Nov 11 06:58:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Removed superfluous statement.
+
 Tue Nov 09 23:50:10 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Need to include sys/types.h to define
