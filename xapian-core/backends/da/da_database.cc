@@ -135,7 +135,7 @@ DADatabase::open(string pathname, bool readonly)
 	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
-    dbsize = 1000;  /* FIXME - read from database */
+    dbsize = DA_r->itemcount;
 
     opened = true;
 
