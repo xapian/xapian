@@ -314,7 +314,7 @@ int main(int argc, char *argv[]) {
 
     // FIXME - debugging code - remove this
     Match matcher(database); 
-    matcher.add_term("olli");
+    matcher.add_term("love");
     matcher.set_max_msize(10);
     matcher.match();
     weight maxweight = matcher.get_max_weight();
