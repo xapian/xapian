@@ -1,3 +1,15 @@
+Tue Jun 13 12:44:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* API change: renamed OmExpandOptions::use_query_terms() to
+	  OmExpandOptions::set_use_query_terms().  This is to be consistent
+	  with OmMatchOptions' naming scheme.
+
+	* API addition: added OmExpandOptions::use_exact_termfreq() to
+	  allow disabling of termfreq approximation in ExpandWeight.
+
+	* Update apitest to test API addition - enabled "multiexpand1": now
+	  passes (but isn't as rigourous as I'd like).
+
 Tue Jun 13 12:04:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change ExpandWeight::get_bits() to take a document length, rather

@@ -271,21 +271,43 @@ class OmMatchDecider {
 ///////////////////////////////////////////////////////////////////
 // OmExpandOptions class
 // =====================
-/// Used to specify options for performing expand
 
+/// A class holding options to be used when performing an expand operation.
 class OmExpandOptions {
     friend OmEnquireInternal;
     private:
-	bool  allow_query_terms;
+        /// See use_query_terms()
+	bool use_query_terms;
+
+	/// See use_exact_termfreq()
+	bool use_exact_termfreq;
     public:
+	/** Create an OmExpandOptions object.  This object is passed to
+	 *  the OmEnquire::get_eset() method.
+	 */
 	OmExpandOptions();
 
 	/** This sets whether terms which are already in the query will
 	 *  be returned by the match.  By default, such terms will not
 	 *  be returned.  A value of true will allow query terms to be
 	 *  placed in the ESet.
+	 *
+	 *  @param use_query_terms_     The value to use for the option.
+	 *                              The default is false.
 	 */
-	void use_query_terms(bool allow_query_terms_);
+	void set_use_query_terms(bool use_query_terms_);
+
+	/** This sets whether term frequencies are to be calculated
+	 *  exactly, or whether it is okay to use an approximation.
+	 *  This approximation only comes into effect when multiple
+	 *  databases are being used, and in many cases will serve to
+	 *  improve efficiency greatly.  By default, exact term frequencies
+	 *  will not be calculated and the approximation will be used.
+	 *
+	 *  @param use_exact_termfreq_  The value to use for the option.
+	 *                              The default is false.
+	 */
+	void set_use_exact_termfreq(bool use_exact_termfreq_);
 };
 
 /** Base class for expand decision functor.

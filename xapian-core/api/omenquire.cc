@@ -106,14 +106,22 @@ OmMatchOptions::get_sort_comparator() const
 /////////////////////////////////
 
 OmExpandOptions::OmExpandOptions()
-	: allow_query_terms(false)
+	: use_query_terms(false),
+	  use_exact_termfreq(false)
 {}
 
 void
-OmExpandOptions::use_query_terms(bool allow_query_terms_)
+OmExpandOptions::set_use_query_terms(bool use_query_terms_)
 {
-    allow_query_terms = allow_query_terms_;
+    use_query_terms = use_query_terms_;
 }
+
+void
+OmExpandOptions::set_use_exact_termfreq(bool use_exact_termfreq_)
+{   
+    use_exact_termfreq = use_exact_termfreq_;
+}
+
 
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
                                const om_termname_list &terms)
@@ -269,7 +277,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     auto_ptr<OmExpandDecider> decider_noquery;
     auto_ptr<OmExpandDecider> decider_andnoquery;
     
-    if (query != 0 && !eoptions->allow_query_terms) {
+    if (query != 0 && !eoptions->use_query_terms) {
 	auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
@@ -282,7 +290,8 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
         edecider = decider_andnoquery.get();
     }
     
-    expand.expand(maxitems, retval, &rset, edecider);
+    expand.expand(maxitems, retval, &rset, edecider,
+		  eoptions->use_exact_termfreq);
 
     return retval;
 }

@@ -735,7 +735,7 @@ bool test_allowqterms1()
     myrset.add_document(mymset.items[1].did);
 
     OmExpandOptions eopt;
-    eopt.use_query_terms(false);
+    eopt.set_use_query_terms(false);
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
 
@@ -1805,18 +1805,31 @@ bool test_multiexpand1()
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
+
+    // This is the single database one.
     OmESet eset1 = enquire1.get_eset(1000, rset1);
+
+    // This is the multi database with approximation
     OmESet eset2 = enquire2.get_eset(1000, rset2);
 
+    OmExpandOptions eopts;
+    eopts.set_use_exact_termfreq(true);
+    // This is the multi database without approximation
+    OmESet eset3 = enquire2.get_eset(1000, rset2, &eopts);
+
     TEST_EQUAL(eset1.items.size(), eset2.items.size());
+    TEST_EQUAL(eset1.items.size(), eset3.items.size());
 
     vector<OmESetItem>::const_iterator i;
     vector<OmESetItem>::const_iterator j;
-    for(i = eset1.items.begin(), j = eset2.items.begin();
-	i != eset1.items.end(), j != eset2.items.end();
-	i++, j++) {
-	TEST_EQUAL(i->wt, j->wt);
-	TEST_EQUAL(i->tname, j->tname);
+    vector<OmESetItem>::const_iterator k;
+    for(i = eset1.items.begin(), j = eset2.items.begin(),
+	k = eset3.items.begin();
+	i != eset1.items.end(), j != eset2.items.end(), k != eset3.items.end();
+	i++, j++, k++) {
+	//TEST_NOT_EQUAL(i->wt, j->wt);
+	TEST_EQUAL(i->wt, k->wt);
+	TEST_EQUAL(i->tname, k->tname);
     }
     return true;
 }
@@ -1918,7 +1931,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_NET)
+#if 0 && defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));

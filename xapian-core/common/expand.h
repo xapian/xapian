@@ -54,7 +54,8 @@ class OmExpand {
 	void expand(om_termcount max_esize,
 		    OmESet & eset,
 		    const RSet * rset,
-		    const OmExpandDecider * decider);
+		    const OmExpandDecider * decider,
+		    bool use_exact_termfreq);
 };
 
 inline OmExpand::OmExpand(IRDatabase * database_)

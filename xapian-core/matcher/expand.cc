@@ -91,7 +91,8 @@ void
 OmExpand::expand(om_termcount max_esize,
 		 OmESet & eset,
 		 const RSet * rset,
-		 const OmExpandDecider * decider)
+		 const OmExpandDecider * decider,
+		 bool use_exact_termfreq)
 {
     eset.items.clear();
     eset.ebound = 0;
@@ -103,7 +104,7 @@ OmExpand::expand(om_termcount max_esize,
     om_weight w_min = 0;
 
     // Start weighting scheme
-    OmExpandWeight ewt(database, rset->get_rsize(), false);
+    OmExpandWeight ewt(database, rset->get_rsize(), use_exact_termfreq);
 
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
