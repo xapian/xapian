@@ -17,13 +17,13 @@ if HAVE_DOCPP
 
 DOCPPFLAGS = -j -A -c -q -u --no-define
 
-CREATED_DOCUMENTS2=apidoc/index.html source/index.html
+CREATED_DOCUMENTS2=apidoc/index.html sourcedoc/index.html
 
 apidoc/index.html:
 	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
-source/index.html:
-	doc++ ${DOCPPFLAGS} -p --dir source `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+sourcedoc/index.html:
+	doc++ ${DOCPPFLAGS} -p --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 endif
 
