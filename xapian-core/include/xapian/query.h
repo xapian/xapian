@@ -206,8 +206,9 @@ class Query {
 	 */
 	TermIterator get_terms_end() const;
 
-	/// Test is the query is empty (i.e. was constructed using
-	//  the default ctor or with an empty iterator ctor).
+	/** Test is the query is empty (i.e. was constructed using
+	 *  the default ctor or with an empty iterator ctor).
+	 */
 	bool is_empty() const;
 		
 	/** Returns a string representing the query.

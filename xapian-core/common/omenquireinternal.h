@@ -195,8 +195,9 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	/// Factor to multiply weights by to convert them to percentages.
 	double percent_factor;
 
-	/// The set of documents which have been requested but not yet
-	/// collected.
+	/** The set of documents which have been requested but not yet
+	 *  collected.
+	 */
 	mutable set<Xapian::doccount> requested_docs;
 
 	/// Cache of documents, indexed by MSet index.

@@ -152,34 +152,34 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 
 	///////////////////////////////////////////////////////////////////
 	// Movement around the postlist
-	//
-	// w_min in next() and skip_to() is simply a hint -
-	// documents with a weight less than w_min will be ignored.
-	// However, it may be best to return them anyway, if the weight
-	// calculation is expensive, since many documents will be thrown
-	// away anyway without calculating the weight.
 
 	/// Move to the next docid
-	/// FIXME: do this more neatly
-	Internal *next() { return next(-9e20); }
+	Internal *next() { return next(-9e20); } // FIXME: do this more neatly
 	
-	/// Move to next docid with weight greater than w_min
-	//
-	// In many cases, next() returns a NULL PostList pointer.  A non-NULL
-	// return is used by BranchPostList to simplify the PostList
-	// tree.  Sometimes a BranchPostList P will return a pointer to a
-	// different PostList to replace it.  P's parent will notice, and
-	// replace its pointer to P with the returned pointer, which can be
-	// either one of P's children, or another branch.  P will be deleted
-	// by the parent after it replaces P.
-
+	/** Move to next docid with weight greater than w_min
+	 *
+	 * w_min in next() and skip_to() is simply a hint - documents with
+	 * a weight less than w_min will be ignored by the caller.
+	 * However, it may be best to return them anyway if the weight
+	 * calculation is expensive, since many documents will be thrown
+	 * away anyway without calculating the weight.
+	 *
+	 * In many cases, next() returns a NULL PostList pointer.  A non-NULL
+	 * return is used by BranchPostList to simplify the PostList
+	 * tree.  Sometimes a BranchPostList P will return a pointer to a
+	 * different PostList to replace it.  P's parent will notice, and
+	 * replace its pointer to P with the returned pointer, which can be
+	 * either one of P's children, or another branch.  P will be deleted
+	 * by the parent after it replaces P.
+	 */
 	virtual Internal *next(Xapian::weight w_min) = 0;
 
 	/// Moves to next docid >= specified docid
 	Internal *skip_to(Xapian::docid did) { return skip_to(did, -9e20); }
 
-	/// Moves to next docid >= specified docid, and weight greater than
-	/// w_min
+	/** Moves to next docid >= specified docid, and weight greater than
+	 *  w_min (but see note about w_min under next(Xapian::weight w_min)
+	 */
 	virtual Internal *skip_to(Xapian::docid, Xapian::weight w_min) = 0;
 
 	/// Returns true if we're off the end of the list
@@ -190,8 +190,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 	//
 	// These are mainly useful for debugging.
 
-	// Returns a description of the term or terms from which the postlist
-	// derives.
+	/** Returns a description of the term or terms from which the postlist
+	 *  derives.
+	 */
 	virtual string get_description() const = 0;
 };
 

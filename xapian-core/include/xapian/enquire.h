@@ -872,12 +872,13 @@ class Weight {
 	Weight(const Weight &);
 	void operator=(Weight &);
 
-	/// Return a new weight object of this type.
-	//
-	// Each subclass should implement this as:
-	// virtual OmFooWeight * clone() const {
-	//     return new OmFooWeight(param1, param2);
-	// }
+	/** Return a new weight object of this type.
+	 *
+	 * Each subclass should implement this as:
+	 * virtual OmFooWeight * clone() const {
+	 *     return new OmFooWeight(param1, param2);
+	 * }
+	 */
 	virtual Weight * clone() const = 0;
 
     protected:
@@ -912,9 +913,10 @@ class Weight {
 	    return wt;
 	}
 
-	/// Name of the weighting scheme.
-	//
-	//  If the subclass is called FooWeight, this should return "Foo".
+	/** Name of the weighting scheme.
+	 *
+	 *  If the subclass is called FooWeight, this should return "Foo".
+	 */
 	virtual std::string name() const = 0;
 
 	/// Serialise object parameters into a string.
@@ -981,17 +983,18 @@ class BoolWeight : public Weight {
 	bool get_sumpart_needs_doclength() const { return false; }	
 };
 
-/// BM25 weighting scheme
-//
-// BM25 weighting options : The BM25 formula is \f[
-//      \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
-// \f] where
-//   - \f$w_{t}\f$ is the termweight of term t
-//   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
-//   - \f$q_{t}\f$ is the within query frequency of term t
-//   - \f$L_{d}\f$ is the normalised length of document d
-//   - \f$s_{q}\f$ is the size of the query
-//   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
+/** BM25 weighting scheme
+ *
+ * BM25 weighting options : The BM25 formula is \f[
+ *      \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
+ * \f] where
+ *   - \f$w_{t}\f$ is the termweight of term t
+ *   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
+ *   - \f$q_{t}\f$ is the within query frequency of term t
+ *   - \f$L_{d}\f$ is the normalised length of document d
+ *   - \f$s_{q}\f$ is the size of the query
+ *   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
+ */
 class BM25Weight : public Weight {
     private:
 	mutable Xapian::weight termweight;
@@ -1053,17 +1056,18 @@ class BM25Weight : public Weight {
 	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
 
-/// Traditional probabilistic weighting scheme (as used by Muscat 3.6)
-//
-// The Traditional weighting scheme formula is \f[
-//      \sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
-// \f] where
-//   - \f$w_{t}\f$ is the termweight of term t
-//   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
-//   - \f$L_{d}\f$ is the normalised length of document d
-//   - \f$k\f$ is a user specifiable parameter
-//
-// TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
+/** Traditional probabilistic weighting scheme (as used by Muscat 3.6)
+ *
+ * The Traditional weighting scheme formula is \f[
+ *      \sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
+ * \f] where
+ *   - \f$w_{t}\f$ is the termweight of term t
+ *   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
+ *   - \f$L_{d}\f$ is the normalised length of document d
+ *   - \f$k\f$ is a user specifiable parameter
+ *
+ * TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
+ */
 class TradWeight : public Weight {
     private:
 	mutable Xapian::weight termweight;
@@ -1076,12 +1080,13 @@ class TradWeight : public Weight {
 	void calc_termweight() const;
 
     public:
-	/// Construct a TradWeight
-	//
-	// @param k  parameter governing the importance of within
-        //           document frequency and document length - any positive
-        //           number, 0 being wdf and doc length not used.  Default
-        //           is 1.
+	/** Construct a TradWeight
+	 *
+	 * @param k  parameter governing the importance of within
+         *           document frequency and document length - any positive
+         *           number, 0 being wdf and doc length not used.  Default
+         *           is 1.
+	 */
 	TradWeight(double k = 1) : param_k(k), weight_calculated(false) {
 	    if (param_k < 0) param_k = 0;
 	}

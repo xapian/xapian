@@ -120,8 +120,9 @@ class SocketClient : public NetClient {
 	    map<Xapian::valueno, string> values;
 	    int users;  // number of clients wanting to retrieve this document
 	};
-	/// A store of the undecoded documents we've collected from the
-	/// other end
+	/** A store of the undecoded documents we've collected from the
+	 *  other end
+	 */
 	map<Xapian::docid, cached_doc> collected_docs;
 
 	void get_requested_docs();
@@ -155,12 +156,12 @@ class SocketClient : public NetClient {
 
 	bool get_posting(Xapian::docid &did, Xapian::weight &w, string &value);
 
-	/// The timeout value used in network communications,
-	/// in milliseconds
+	/// The timeout value used in network communications, in milliseconds
 	int msecs_timeout;
 
-	/// The time at which the current operation will (eg a full
-	/// match) will time out.
+	/** The time at which the current operation will (eg a full
+	 *  match) will time out.
+	 */
 	OmTime end_time;
 
 	/// Whether the timeout is valid

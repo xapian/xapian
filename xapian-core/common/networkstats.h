@@ -58,12 +58,14 @@ class NetworkStatsGatherer : public StatsGatherer {
 	/// See StatsGatherer::get_stats()
 	const Stats *get_stats() const;
 
-	/// Gather and return the local statistics (ready to send
-	/// to the remote end)
+	/** Gather and return the local statistics (ready to send
+	 *  to the remote end)
+	 */
 	Stats get_local_stats() const;
 
-	/// Ignore the rset size - we need to get it from the
-	/// remote end.
+	/** Ignore the rset size - we need to get it from the
+	 *  remote end.
+	 */
 	virtual void set_global_stats(Xapian::doccount /*rset_size*/) {}
 };
 
@@ -77,8 +79,9 @@ class NetworkStatsSource : public Xapian::Weight::Internal {
 	/// The NetClient object used for communications.
 	Xapian::Internal::RefCntPtr<NetClient> nclient;
 
-	/// A flag indicating whether or not we have the remote
-	/// statistics yet.
+	/** A flag indicating whether or not we have the remote
+	 *  statistics yet.
+	 */
 	bool have_remote_stats;
     public:
 	/// Constructor
@@ -88,8 +91,9 @@ class NetworkStatsSource : public Xapian::Weight::Internal {
 	/// Destructor
 	~NetworkStatsSource();
 
-	/// Contribute all the statistics that don't depend on global
-	/// stats.  Used by StatsGatherer.
+	/** Contribute all the statistics that don't depend on global
+	 *  stats.  Used by StatsGatherer.
+	 */
 	void contrib_my_stats();
 
 	void take_remote_stats(Stats stats);

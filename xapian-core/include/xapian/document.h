@@ -69,8 +69,9 @@ class Document {
 	/// Get value by number (>= 0)
 	std::string get_value(Xapian::valueno value) const;
 
-	/// Add a new value.  It will replace any existing value with the
-	//  same number.
+	/** Add a new value.  It will replace any existing value with the
+	 *  same number.
+	 */
 	void add_value(Xapian::valueno valueno, const std::string &value);
 
 	/// Remove any value with the given number.

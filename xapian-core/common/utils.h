@@ -106,8 +106,9 @@ string om_tostring(bool a);
 /// Convert a pointer to a string
 string om_tostring(const void * a);
 
-/// Split a string into a vector of strings, using a given separator
-/// character (default space)
+/** Split a string into a vector of strings, using a given separator
+ *  character (default space)
+ */
 void split_words(string text,
 		 vector<string> &words,
 		 char wspace = ' ');

@@ -164,15 +164,14 @@ class Xapian::Weight::Internal {
 	    gatherer->remove_child(this);
 	}
 
-	/// Contribute all the statistics that don't depend on global
-	/// stats.  Used by StatsGatherer.
+	/** Contribute all the statistics that don't depend on global
+	 *  stats.  Used by StatsGatherer.
+	 */
 	virtual void contrib_my_stats() = 0;
 
-	/* ################################################################
-	 * # Give statistics about yourself.  These are used to generate, #
-	 * # or check, the global information.                            #
-	 * ################################################################
-	 */
+	///////////////////////////////////////////////////////////////////
+	// Give statistics about yourself.  These are used to generate,
+	// or check, the global information.
 
 	/** Set stats about this sub-database: the number of documents and
 	 *  average length of a document.
@@ -193,11 +192,9 @@ class Xapian::Weight::Internal {
 
 
 
-	/* #################################################################
-	 * # Get the statistics back.  The result of each of the following #
-	 * # methods may be an approximation.                              #
-	 * #################################################################
-	 */
+	// /////////////////////////////////////////////////////////////////
+	// Get the statistics back.  The result of each of the following
+	// methods may be an approximation.
 
 	/** Get the number of documents in the whole collection.
 	 */
@@ -238,8 +235,7 @@ class LocalStatsSource : public Xapian::Weight::Internal {
 	/// Destructor
 	~LocalStatsSource();
 
-	/// Contribute all the statistics that don't depend on global
-	/// stats.
+	/// Contribute all the statistics that don't depend on global stats.
 	void contrib_my_stats();
 };
 
@@ -252,7 +248,7 @@ Stats::operator +=(const Stats & inc)
 {
     // Set the new collection size and average length.
     Xapian::doccount new_collection_size = collection_size + inc.collection_size;
-    if(new_collection_size != 0) {
+    if (new_collection_size != 0) {
 	// Cope with adding in a collection of zero size at the beginning:
 	// perhaps we have multiple databases, but some are not yet populated
 	average_length = (average_length * collection_size +
@@ -267,10 +263,10 @@ Stats::operator +=(const Stats & inc)
 
     // Add termfreqs and reltermfreqs
     std::map<string, Xapian::doccount>::const_iterator i;
-    for(i = inc.termfreq.begin(); i != inc.termfreq.end(); i++) {
+    for (i = inc.termfreq.begin(); i != inc.termfreq.end(); ++i) {
 	termfreq[i->first] += i->second;
     }
-    for(i = inc.reltermfreq.begin(); i != inc.reltermfreq.end(); i++) {
+    for (i = inc.reltermfreq.begin(); i != inc.reltermfreq.end(); ++i) {
 	reltermfreq[i->first] += i->second;
     }
     return *this;
@@ -291,18 +287,16 @@ StatsGatherer::set_global_stats(Xapian::doccount rset_size)
     total_stats.rset_size = rset_size;
 }
 
-///////////////////////////////////////////////
-// Inline method definitions for Xapian::Weight::Internal //
-///////////////////////////////////////////////
-
-
-    
 inline void
 LocalStatsSource::contrib_my_stats()
 {
     gatherer->contrib_stats(my_stats);
 }
 
+///////////////////////////////////////////////
+// Inline method definitions for Xapian::Weight::Internal
+///////////////////////////////////////////////
+ 
 inline void
 Xapian::Weight::Internal::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
 {
@@ -336,28 +330,28 @@ Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccou
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_collection_size() const
 {
-    if(total_stats == 0) perform_request();
+    if (total_stats == 0) perform_request();
     return total_stats->collection_size;
 }
 
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_rset_size() const
 {
-    if(total_stats == 0) perform_request();
+    if (total_stats == 0) perform_request();
     return total_stats->rset_size;
 }
 
 inline Xapian::doclength
 Xapian::Weight::Internal::get_total_average_length() const
 {
-    if(total_stats == 0) perform_request();
+    if (total_stats == 0) perform_request();
     return total_stats->average_length;
 }
 
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 {
-    if(total_stats == 0) perform_request();
+    if (total_stats == 0) perform_request();
 
     // To get the statistics about a given term, we have to have
     // supplied our own ones first.
@@ -372,7 +366,7 @@ Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
 {
-    if(total_stats == 0) perform_request();
+    if (total_stats == 0) perform_request();
     std::map<string, Xapian::doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);
     Assert(rtfreq != total_stats->reltermfreq.end());

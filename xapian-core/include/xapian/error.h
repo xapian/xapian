@@ -31,9 +31,10 @@ namespace Xapian {
 
 class ErrorHandler;
 
-/// Base class for all Xapian-specific errors reported.
-//
-// Instantiations of Xapian::Error (as opposed to subclasses) are forbidden.
+/** Base class for all Xapian-specific errors reported.
+ *
+ * Instantiations of Xapian::Error (as opposed to subclasses) are forbidden.
+ */
 class Error {
     friend class ErrorHandler;
     private:

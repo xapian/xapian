@@ -51,12 +51,14 @@ class SocketServer : public NetServer {
 	int readfd;
 	int writefd;
 
-	/// The timeout before read/write operations give up and throw
-	/// and exception during a running transaction
+	/** The timeout before read/write operations give up and throw
+	 *  and exception during a running transaction
+	 */
 	int msecs_active_timeout;
 
-	/// The timeout before read/write operations give up and throw
-	/// and exception while waiting for a request from the client.
+	/** The timeout before read/write operations give up and throw
+	 *  and exception while waiting for a request from the client.
+	 */
 	int msecs_idle_timeout;
 
 #ifdef TIMING_PATCH
@@ -103,8 +105,9 @@ class SocketServer : public NetServer {
 	/// Handle a keepalive message
 	void run_keepalive();
 
-	/// Read a line of input from the buffer, and process
-	/// any special messages (eg 'X')
+	/** Read a line of input from the buffer, and process
+	 *  any special messages (eg 'X')
+	 */
 	std::string readline(int msecs_delay = 0);
 
 	/// Write a line of output to the buffer

@@ -71,10 +71,11 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	mutable document_terms terms;
 
     protected:
-	/// The document ID of the document in that database.
-	//
-	//  If we're using multiple databases together this may not be the
-	//  same as the docid in the combined database.
+	/** The document ID of the document in that database.
+	 *
+	 *  If we're using multiple databases together this may not be the
+	 *  same as the docid in the combined database.
+	 */
 	Xapian::docid did;
 
     private:
