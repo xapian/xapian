@@ -301,24 +301,14 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     OmMSet & mset, const OmMatchDecider *mdecider,
-		     void (*snooper)(const OmMSetItem &))
+		     OmMSet & mset, const OmMatchDecider *mdecider)
 {
     DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
 	      first << ", " << maxitems << ", ...");
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
-    PostList *pl = get_postlist(first, maxitems, termfreqandwts);
-    get_mset_2(pl, termfreqandwts,
-	       first, maxitems, mset, mdecider, snooper);
-}
 
-void
-MultiMatch::get_mset_2(PostList *pl, 
-		       std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts,
-		       om_doccount first, om_doccount maxitems,
-		       OmMSet & mset, const OmMatchDecider *mdecider,
-		       void (*snooper)(const OmMSetItem &))
-{
+    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+
+    PostList *pl = get_postlist(first, maxitems, termfreqandwts);
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
@@ -469,8 +459,6 @@ MultiMatch::get_mset_2(PostList *pl,
 	    
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
-
-	    if (snooper) snooper(new_item);
 	}
     }
     
@@ -582,8 +570,6 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
-	    if (snooper) snooper(new_item);
-	    
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better minimum weight
 	    // optimisations

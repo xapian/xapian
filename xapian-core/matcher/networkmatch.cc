@@ -62,11 +62,7 @@ RemoteSubMatch::~RemoteSubMatch()
 PostList *
 RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
-#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
     postlist = new PendingMSetPostList(db, maxitems);
-#else
-    postlist = new RemotePostList(db, maxitems);
-#endif
     return postlist;
 }
 
@@ -108,11 +104,9 @@ RemoteSubMatch::start_match(om_doccount maxitems)
 {
     Assert(is_prepared);
     db->link->send_global_stats(*(gatherer->get_stats()));
-#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
     OmMSet mset;
     bool res = db->link->get_mset(0, maxitems, mset);
     // FIXME: improve this
     // link should always return false for first call to get_mset
     Assert(res == false);
-#endif
 }

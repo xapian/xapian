@@ -31,7 +31,6 @@
 
 class RemoteSubMatch;
 class PendingMSetPostList;
-class RemotePostList;
 
 /** A network database.  This is a reference to a remote database, and is
  *  mainly used by a RemoteSubMatch object.
@@ -40,7 +39,6 @@ class NetworkDatabase : public Database {
     friend class DatabaseBuilder;
     friend class RemoteSubMatch;
     friend class PendingMSetPostList;
-    friend class RemotePostList;
     private:
         /// Reference to the network link object
     	RefCntPtr<NetClient> link;

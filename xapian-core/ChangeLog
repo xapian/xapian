@@ -1,4 +1,10 @@
-Tue Oct 23 13:27:12 2001    <tartarus@users.sourceforge.net>
+Tue Oct 23 16:14:27 BST 2001  Olly Betts <olly@survex.com>
+
+	* Removed RemotePostList - it was an experimental idea which proved
+	  to be too slow even on a fast network.  Cleaned up code where hooks
+	  were bodged in for it.
+
+Tue Oct 23 13:27:12 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Added documentation of the test system (albeit brief). Also
 	  mentioned the autotools book in HACKING.

@@ -34,9 +34,6 @@ MergePostList::MergePostList(std::vector<PostList *> plists_,
 	  errorhandler(errorhandler_)
 {
     DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
-#ifndef USE_MSETPOSTLIST
-    for (int i = 0; i < plists.size(); i++) done.push_back(false);
-#endif
 }
 
 MergePostList::~MergePostList()
@@ -53,27 +50,14 @@ MergePostList::next(om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     DEBUGLINE(MATCH, "current = " << current);
-#ifdef USE_MSETPOSTLIST
     if (current == -1) current = 0;
-#else
-    current = (current + 1) % plists.size();
-    int old_current = current;
-#endif
     do {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
 	try {
-#ifdef USE_MSETPOSTLIST
 	    next_handling_prune(plists[current], w_min, matcher);
 	    if (!plists[current]->at_end()) break;
 	    current++;
-#else
-	    if (!done[current]) {
-		next_handling_prune(plists[current], w_min, matcher);
-		if (!plists[current]->at_end()) break;
-		done[current] = true;
-	    }
-#endif
 	} catch (OmError & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
@@ -90,12 +74,7 @@ MergePostList::next(om_weight w_min)
 		throw;
 	    }
 	}
-#ifdef USE_MSETPOSTLIST
     } while ((unsigned)current < plists.size());
-#else
-	current = (current + 1) % plists.size();
-    } while (current != old_current);
-#endif
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
 }

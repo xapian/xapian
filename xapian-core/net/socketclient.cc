@@ -495,59 +495,6 @@ SocketClient::get_mset(om_doccount first,
 }
 
 bool
-SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
-			    om_doccount &termfreq_max,
-			    om_doccount &termfreq_min,
-			    om_doccount &termfreq_est,
-			    om_weight &maxw,
-			    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> &term_info)
-{
-    /* avoid confusing the protocol if there are requested documents
-     * being returned.
-     */
-    get_requested_docs();
-
-    DEBUGCALL(MATCH, bool, "SocketClient::open_postlist", first << ", " << maxitems);
-    Assert(global_stats_valid);
-    Assert(conv_state >= state_getmset);
-    switch (conv_state) {
-	case state_getquery:
-	case state_sentquery:
-	case state_sendglobal:
-	    throw OmInvalidArgumentError("open_postlist called before global stats given", context);
-	    break;
-	case state_getmset: {
-
-	    // Message 5 (see README_progprotocol.txt)
-	    do_write("G" + stats_to_string(global_stats) + '\n' +
-		     "P" + om_tostring(first) + " " + om_tostring(maxitems));
-
-	    // FIXME: new state here...
-
-	    while (!buf.data_waiting()) {
-		wait_for_input();
-	    }
-	
-	    std::string message = do_read();
-	    {
-		// extract term frequency and max weight
-		istrstream is(message.c_str());
-		is >> termfreq_max >> termfreq_min >> termfreq_est >> maxw;
-		minw = maxw;
-	    }
-	    message = do_read();
-	    DEBUGLINE(UNKNOWN, "term_info = `" << message << "'");
-	    Assert(!message.empty() && message[0] == 'O');
-	    term_info = string_to_ommset_termfreqwts(message.substr(1));
-	    conv_state = state_getresult;
-	}
-	case state_getresult: // avoid compiler warning
-	    break;
-    } // switch (conv_state)
-    RETURN(false);
-}
-
-bool
 SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::get_posting", "");

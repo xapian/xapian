@@ -28,7 +28,7 @@
 #include "om/omerrorhandler.h"
 #include "boolweight.h"
 
-#include "networkmatch.h" // only for USE_MSETPOSTLIST
+#include "networkmatch.h"
 
 /** A postlist comprising postlists from different databases mergeed together.
  */
@@ -38,10 +38,6 @@ class MergePostList : public PostList {
 
 	std::vector<PostList *> plists;
 
-#ifndef USE_MSETPOSTLIST
-	std::vector<bool> done;
-#endif
-	
 	int current;
 
 	/** The object which is using this postlist to perform
@@ -189,11 +185,7 @@ inline bool
 MergePostList::at_end() const
 {
     Assert(current != -1);
-#ifdef USE_MSETPOSTLIST
     return (unsigned int)current >= plists.size();    
-#else
-    return plists[current]->at_end();
-#endif
 }
 
 inline std::string

@@ -29,8 +29,6 @@
 
 #include "msetpostlist.h"
 
-#define USE_MSETPOSTLIST
-
 /// Class for performing match calculations remotely
 class RemoteSubMatch : public SubMatch {
     private:
@@ -38,11 +36,7 @@ class RemoteSubMatch : public SubMatch {
 
 	const NetworkDatabase *db;
 
-#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
 	PendingMSetPostList *postlist; // FIXME used in get_term_info() - do this better
-#else
-	RemotePostList *postlist; // FIXME used in get_term_info() - do this better
-#endif
 
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
@@ -87,12 +81,8 @@ class RemoteSubMatch : public SubMatch {
 
 	const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
 	    Assert(postlist);
-#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
 	    postlist->make_pl();
 	    return postlist->pl->mset.internal->data->termfreqandwts;
-#else
-	    return postlist->get_terminfo();
-#endif
 	}
 };   
 

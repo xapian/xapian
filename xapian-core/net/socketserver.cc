@@ -222,19 +222,6 @@ SocketServer::run()
     }
 }
 
-static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
-const int snooper_timeout = 300; // FIXME FIXME FIXME
-static bool snooper_do_collapse;
-
-void
-match_snooper(const OmMSetItem &i)
-{
-    std::string msg = om_tostring(i.did);
-    if (i.wt != 0) msg += " " + om_tostring(i.wt);
-    if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
-    snooper_buf->writeline(msg, OmTime::now() + OmTime(snooper_timeout, 0));
-}
-
 void
 SocketServer::run_match(const std::string &firstmessage)
 {
@@ -277,114 +264,9 @@ SocketServer::run_match(const std::string &firstmessage)
     message = readline(msecs_active_timeout);
 
     if (message.substr(0, 1) != "M") {
-	if (message.substr(0, 1) != "P") {
-	    throw OmNetworkError(std::string("Expected M or P, got ") + message);
-	}
-	message = message.substr(1);
-	om_doccount first;
-	om_doccount maxitems;
-	{
-	    // extract first,maxitems
-	    istrstream is(message.c_str());
-	    is >> first >> maxitems;
-	}
-#if 1
-	snooper_do_collapse = (moptions.get_int("match_collapse_key", -1) >= 0);
-	PostList *pl;
-	{
-	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
-	    pl = match.get_postlist(first, maxitems, terminfo);
-	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
-			   om_tostring(pl->get_termfreq_min()) + " " +
-			   om_tostring(pl->get_termfreq_est()) + " " +
-			   om_tostring(pl->recalc_maxweight()));
-	    writeline("O" + ommset_termfreqwts_to_string(terminfo));
-	    snooper_buf = buf.get();
-	    OmMSet mset;
-	    match.get_mset_2(pl, terminfo, first, maxitems, mset, 0,
-			     match_snooper);
-	}
-	writeline("Z");
-	return;
-#else
-	PostList *pl;
-	{
-	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
-	    // not sure we really need these numbers...
-	    pl = match.get_postlist(first, maxitems, terminfo);
-	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
-			   om_tostring(pl->get_termfreq_min()) + " " +
-			   om_tostring(pl->get_termfreq_est()) + " " +
-			   om_tostring(pl->recalc_maxweight()));
-	    writeline("O" + ommset_termfreqwts_to_string(terminfo));
-	}
-	om_docid did = 0;
-	om_weight w_min = 0;
-	om_keyno collapse_key;
-	bool do_collapse = true;
-	{
-	    int val = moptions.get_int("match_collapse_key", -1);
-	    if (val >= 0) {
-		do_collapse = true;
-		collapse_key = val;
-	    }
-	}
-	while (1) {
-	    om_docid new_did = 0;
-	    while (buf->data_waiting()) {
-		std::string m = readline(0);
-		switch (m.empty() ? 0 : m[0]) {
-		    case 'm': {
-			// min weight has dropped
-			istrstream is(message.c_str() + 1);
-			is >> w_min;
-			DEBUGLINE(UNKNOWN, "w_min now " << w_min);
-			break;
-		    }
-		    case 'S': {
-			// skip to
-			istrstream is(message.c_str() + 1);
-			is >> new_did;
-			DEBUGLINE(UNKNOWN, "skip_to now " << new_did);
-			break;
-		    }
-		default:
-		    Assert(false);
-		}
-	    }
-	    PostList *p;
-	    if (new_did > did + 1) {
-		DEBUGLINE(UNKNOWN, "skip_to(" << new_did << ", " << w_min << ")");
-		p = pl->skip_to(new_did, w_min);
-	    } else {
-		DEBUGLINE(UNKNOWN, "next(" << w_min << ")");
-		p = pl->next(w_min);
-	    }
-	    if (p) {
-		delete pl;
-		pl = p;
-	    }
-	    if (pl->at_end()) break;
-	    did = pl->get_docid();
-	    om_weight w = pl->get_weight();
-	    if (w >= w_min) {
-		DEBUGLINE(UNKNOWN, "Returning did " << did << " wt " << w);
-		std::string msg = om_tostring(did);
-		if (w != 0) msg += " " + om_tostring(w);
-		if (do_collapse) {
-		    AutoPtr<Document> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
-		    msg += ";" + omkey_to_string(doc->get_key(collapse_key));		    
-		}
-		writeline(msg);
-	    } else {
-		DEBUGLINE(UNKNOWN, "Ignoring did " << did << " wt " << w << " (since wt < " << w_min << ")");
-	    }
-	}
-	delete pl;
-	writeline("Z");
-	return;
-#endif
+	throw OmNetworkError(std::string("Expected 'M', got ") + message);
     }
+
     message = message.substr(1);
 
 #if 0
@@ -405,7 +287,7 @@ SocketServer::run_match(const std::string &firstmessage)
     DEBUGLINE(UNKNOWN, "About to get_mset(" << first
 	      << ", " << maxitems << "...");
 
-    match.get_mset(first, maxitems, mset, 0, 0);
+    match.get_mset(first, maxitems, mset, 0);
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
@@ -487,4 +369,3 @@ SocketServer::run_keepalive(const std::string &message)
     db.keep_alive();
     writeline("OK");
 }
-
