@@ -31,7 +31,6 @@
 #include "database_builder.h"
 #include <om/omerror.h>
 #include <om/omenquire.h>
-#include "localmatch.h"
 #include "omqueryinternal.h"
 #include "netutils.h"
 #include "progserver.h"

@@ -25,7 +25,6 @@
 #define _POSIX_SOURCE 1
 #include "tcpserver.h"
 #include "stats.h"
-#include "localmatch.h"
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"

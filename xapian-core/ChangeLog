@@ -1,3 +1,7 @@
+Tue Oct 17 12:40:07 BST 2000 Olly Betts
+
+	* localmatch.h: moved from common to matcher.
+
 Mon Oct 16 19:09:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OM_MAX_POSS_DOCID macro to om/om_types.h, to represent the

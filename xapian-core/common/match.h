@@ -39,8 +39,6 @@
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
-// (By default, equally weighted items will be returned in reverse
-// document id number.)
 
 typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);

@@ -7,7 +7,7 @@ noinst_HEADERS = \
  database_builder.h database.h termlist.h postlist.h \
  leafpostlist.h \
  irweight.h expandweight.h stats.h networkstats.h \
- match.h localmatch.h multimatch.h expand.h rset.h \
+ match.h multimatch.h expand.h rset.h \
  indexer.h textfile_indexer.h \
  utils.h omlocks.h omqueryinternal.h refcnt.h \
  omdocumentparams.h document.h \
