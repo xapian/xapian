@@ -257,7 +257,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     OmExpand expand(database.get());
     RSet rset(database.get(), omrset);
 
-    DebugMsg("rset size is " << rset.get_rsize() << endl);
+    DebugMsg("rset size is " << omrset.items.size() << endl);
 
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;
