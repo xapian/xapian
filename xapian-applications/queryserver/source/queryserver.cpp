@@ -212,7 +212,7 @@ read_request(int sock,
                         break;
                     }
                     if (process_line(keyvals, curline)) return -1;
-                    curline.clear();
+                    curline.erase();
                     linestart = pos + 1;
                 }
             }

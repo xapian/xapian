@@ -1,3 +1,7 @@
+Fri Apr 23 18:18:04 BST 2004  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix to compile with gcc-2.95
+
 Thu Apr 22 10:27:37 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * Initial import.  Basically works, but not yet documented or

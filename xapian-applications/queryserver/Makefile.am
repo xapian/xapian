@@ -14,4 +14,4 @@ EXTRA_DIST = $(docdata_DATA)
 
 noinst_HEADERS = source/base64.h
 xapian_queryserver_SOURCES = source/queryserver.cpp source/base64.c
-xapian_queryserver_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser
+xapian_queryserver_LDADD = $(XAPIAN_LIBS)

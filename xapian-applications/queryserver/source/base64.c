@@ -177,6 +177,7 @@ base64_decode(const char * in, int inlen, char *out)
     int outlen = 0;
 
     for (inpos = 0; inpos + 4 <= inlen; inpos += 4) {
+        int decoded;
         /* Move past any invalid characters. */
         while (!base64_is_base64_char(in[inpos]) && inpos < inlen) {
             inpos += 1;
@@ -187,8 +188,8 @@ base64_decode(const char * in, int inlen, char *out)
             /* If there isn't a whole atom left, return an error. */
             return -1;
         }
-        int decoded = base64_decode_atom(in + inpos,
-                                         (unsigned char *)out + outlen);
+        decoded = base64_decode_atom(in + inpos,
+                                     (unsigned char *)out + outlen);
         if (!decoded) {
             return -1;
         }
