@@ -25,6 +25,12 @@ variable OM_TEST_BACKEND, apitest will only run with that backend.
 "./apitest deldoc" runs deldoc1, deldoc2, ...).  You can also pass "-v" to a
 test to get more verbose output from some tests.
 
+<P>By default, the testsuite catches signals and handles them gracefully -
+the current test is failed, and the testsuite moves onto the next test.
+If you want to suppress this (some debugging tools may work better if the
+signal is not caught) set the environment variable XAPIAN_SIG_DFL to any value
+to prevent the testsuite from installing its own signal handling.
+
 <H2><A NAME="writing">A Brief Guide to Writing Tests</A></H2>
 
 <P>Almost all tests live in tests/.  Some low-level tests are in the source

@@ -201,9 +201,9 @@ test_driver::runtest(const test_desc *test)
 	//runcount++;
 	tout.str("");
 	// FIXME get snapshot with valgrind
-	SignalRedirector sig; // use object so signal handler are reset
+	SignalRedirector sig; // use object so signal handlers are reset
 	if (!setjmp(jb)) {
-	    sig.activate();
+	    if (getenv("XAPIAN_SIG_DFL") == NULL) sig.activate();
 	    try {
 		expected_exception = NULL;
 		success = test->run();

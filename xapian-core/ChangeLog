@@ -1,3 +1,8 @@
+Sat Dec 07 16:41:25 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/tests.html,testsuite/testsuite.cc: The testsuite won't install
+	  its signal handler if XAPIAN_SIG_DFL is set.
+
 Sat Dec 07 16:39:01 GMT 2002  Olly Betts <olly@survex.com>
 
 	* HACKING: OM_DEBUG_XXX -> XAPIAN_DEBUG_YYY.
