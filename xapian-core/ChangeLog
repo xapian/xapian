@@ -1,3 +1,9 @@
+Thu Apr 10 02:29:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_footer.html_tmpl,docs/doxygen_full_footer.html_tmpl,
+	  docs/overview.html: Use http://www.doxygen.org/ as URL for doxygen.
+	* docs/overview.html: Fixed bad link to our own website!
+
 Thu Apr 10 02:12:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,backends/Makefile.am,backends/net/.cvsignore,
@@ -4993,6 +4999,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 
