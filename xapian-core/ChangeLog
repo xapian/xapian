@@ -1,3 +1,13 @@
+Sun Aug 20 16:17:00 BST 2000 Olly Betts
+
+	* Overhaul of LocalMatch: get_max_weight deprecated and now just
+	  throws OmUnimplementedError; various class members now just local
+	  to get_mset; renamed recalculate_maxweight to recalculate_w_max
+	  since it forces recalculation of w_max and not max_weight
+
+	* includetest now checks that found headers are actually files
+	  and ignores any headers in bindings (not just java related ones)
+
 Sun Aug 20 14:19:00 BST 2000 Olly Betts
 
 	* Added support for muscat36 da backend to backendmanager (uses
@@ -9,8 +19,6 @@ Sun Aug 20 14:19:00 BST 2000 Olly Betts
 
 	* Can now restrict apitest to use one backend like so:
 	  OM_TEST_BACKEND=inmemory ./apitest
-
-	* includetest now checks that found headers are actually files.
 
 Sat Aug 19 19:24:00 BST 2000 Olly Betts
 

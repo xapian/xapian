@@ -202,10 +202,7 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	: database(database_),
 	  statssource(),
 	  min_weight_percent(-1),
-	  max_weight_needs_calc(true),
-	  query(0),
 	  users_query(),
-	  extra_weight(0),
 	  rset(0),
 	  requested_weighting("bm25"),
 	  do_collapse(false),
@@ -221,11 +218,6 @@ LocalMatch::link_to_multi(StatsGatherer *gatherer)
 {
     Assert(!is_prepared);
     statssource.connect_to_gatherer(gatherer);
-}
-
-LocalMatch::~LocalMatch()
-{
-    del_query_tree();
 }
 
 PostList *
@@ -255,31 +247,12 @@ LocalMatch::mk_postlist(const om_termname & tname)
     return pl;
 }
 
-void
-LocalMatch::mk_extra_weight()
-{
-    if(extra_weight == 0) {
-	extra_weight = mk_weight(1, "");
-    }
-}
-
 IRWeight *
-LocalMatch::mk_weight(om_doclength querysize_,
-		      om_termname tname_)
+LocalMatch::mk_weight(om_doclength querysize_, om_termname tname_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
     wt->set_stats(&statssource, querysize_, tname_);
     return wt;
-}
-
-void
-LocalMatch::del_query_tree()
-{
-    delete query;
-    query = 0;
-
-    delete extra_weight;
-    extra_weight = 0;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -290,7 +263,6 @@ void
 LocalMatch::set_options(const OmSettings & mopts)
 {
     Assert(!is_prepared);
-    Assert(query == NULL);
 
     int val = mopts.get_int("match_percent_cutoff", 0);
     if (val > 0) {
@@ -319,7 +291,6 @@ void
 LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
-    del_query_tree();
     std::auto_ptr<RSet> new_rset(new RSet(database, omrset));
     rset = new_rset;
 }
@@ -408,45 +379,45 @@ LocalMatch::postlist_from_queries(om_queryop op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-LocalMatch::postlist_from_query(const OmQueryInternal *query_)
+LocalMatch::postlist_from_query(const OmQueryInternal *query)
 {
     // This should be true happen, because we check the
     // top level of the query, and !isdefined should only
     // ever occur there.
-    Assert(query_->isdefined);
+    Assert(query->isdefined);
 
-    switch (query_->op) {
+    switch (query->op) {
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
-	    Assert(query_->subqs.size() == 0);
-	    return mk_postlist(query_->tname);
+	    Assert(query->subqs.size() == 0);
+	    return mk_postlist(query->tname);
 	case OM_MOP_AND:
 	case OM_MOP_OR:
 	case OM_MOP_PHRASE:
 	case OM_MOP_NEAR:
 	    // Build a tree of postlists for AND, OR, PHRASE, or NEAR
-	    return postlist_from_queries(query_->op, query_->subqs,
-					 query_->window);
+	    return postlist_from_queries(query->op, query->subqs,
+					 query->window);
 	case OM_MOP_FILTER:
-	    Assert(query_->subqs.size() == 2);
-	    return new FilterPostList(postlist_from_query(query_->subqs[0]),
-				      postlist_from_query(query_->subqs[1]),
+	    Assert(query->subqs.size() == 2);
+	    return new FilterPostList(postlist_from_query(query->subqs[0]),
+				      postlist_from_query(query->subqs[1]),
 				      this);
 	case OM_MOP_AND_NOT:
-	    Assert(query_->subqs.size() == 2);
-	    return new AndNotPostList(postlist_from_query(query_->subqs[0]),
-				      postlist_from_query(query_->subqs[1]),
+	    Assert(query->subqs.size() == 2);
+	    return new AndNotPostList(postlist_from_query(query->subqs[0]),
+				      postlist_from_query(query->subqs[1]),
 				      this);
 	case OM_MOP_AND_MAYBE:
-	    Assert(query_->subqs.size() == 2);
-	    return new AndMaybePostList(postlist_from_query(query_->subqs[0]),
-					postlist_from_query(query_->subqs[1]),
+	    Assert(query->subqs.size() == 2);
+	    return new AndMaybePostList(postlist_from_query(query->subqs[0]),
+					postlist_from_query(query->subqs[1]),
 					this);
 	    break;
 	case OM_MOP_XOR:
-	    Assert(query_->subqs.size() == 2);
-	    return new XorPostList(postlist_from_query(query_->subqs[0]),
-				   postlist_from_query(query_->subqs[1]),
+	    Assert(query->subqs.size() == 2);
+	    return new XorPostList(postlist_from_query(query->subqs[0]),
+				   postlist_from_query(query->subqs[1]),
 				   this);
     }
     Assert(false);
@@ -457,7 +428,7 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 ////////////////////////
 
 void
-LocalMatch::set_query(const OmQueryInternal *query_)
+LocalMatch::set_query(const OmQueryInternal *query)
 {
     Assert(!is_prepared);
 
@@ -465,19 +436,15 @@ LocalMatch::set_query(const OmQueryInternal *query_)
     term_weights.clear();
     term_frequencies.clear();
 
-    max_weight = 0;
-    max_weight_needs_calc = true;
-    del_query_tree();
-
     // If query is boolean, set weighting to boolean
-    if(query_->is_bool()) {
+    if (query->is_bool()) {
 	actual_weighting = "bool";
     } else {
 	actual_weighting = requested_weighting;
     }
 
     // Remember query
-    users_query = *query_;
+    users_query = *query;
 }
 
 void
@@ -497,17 +464,6 @@ LocalMatch::gather_query_statistics()
     }
 }
 
-void
-LocalMatch::build_query_tree()
-{
-    if (query == 0) {
-	DEBUGLINE(MATCH, "LocalMatch::build_query_tree()");
-	query = postlist_from_query(&users_query);
-	DEBUGLINE(MATCH, "LocalMatch::query = (" <<
-		  query->intro_term_description() << ")");
-    }
-}
-
 ///////////////////
 // Run the query //
 ///////////////////
@@ -517,7 +473,7 @@ LocalMatch::build_query_tree()
 void
 LocalMatch::recalc_maxweight()
 {
-    recalculate_maxweight = true;
+    recalculate_w_max = true;
 }
 
 // Internal method to perform the collapse operation
@@ -585,34 +541,32 @@ LocalMatch::prepare_match(bool nowait)
 om_weight
 LocalMatch::get_max_weight()
 {
-    // Check that we have prepared to run the query
-    Assert(is_prepared);
-    if (max_weight_needs_calc) {
-	Assert(query != 0);
-
-	mk_extra_weight();
-	max_extra_weight = extra_weight->get_maxextra();
-
-	max_weight = query->recalc_maxweight() + max_extra_weight;
-	max_weight_needs_calc = false;
-    }
-
-    return max_weight;
+    throw OmUnimplementedError("LocalMatch::get_max_weight() is deprecated and "
+			       "no longer supported - use LocalMatch::get_mset "
+			       "and read the mbound member of the mset.");
 }
 
 // This is the method which runs the query, generating the M set
 bool
 LocalMatch::get_mset(om_doccount first,
-		    om_doccount maxitems,
-		    OmMSet & mset,
-		    const OmMatchDecider *mdecider,
-		    bool nowait)
+		     om_doccount maxitems,
+		     OmMSet & mset,
+		     const OmMatchDecider *mdecider,
+		     bool nowait)
 {
     // Check that we have prepared to run the query
     Assert(is_prepared);
 
-    build_query_tree();
-    Assert(query != 0);
+    // Check that we have a valid query to run
+    if (!(users_query.isdefined)) {
+	throw OmInvalidArgumentError("Query is not defined.");
+    }
+
+    // Root postlist of query tree.
+    PostList * query = postlist_from_query(&users_query);
+
+    Assert(query != NULL);
+    DEBUGLINE(MATCH, "query = (" << query->intro_term_description() << ")");
 
     // Empty result set
     om_doccount mbound = 0;
@@ -627,30 +581,32 @@ LocalMatch::get_mset(om_doccount first,
 	termfreqandwts[i->first].termfreq = i->second;
     }
 
-    // Check that we have a valid query to run
-    if(!(users_query.isdefined)) {
-	throw OmInvalidArgumentError("Query is not defined.");
-    }
+    // Extra weight object - used to calculate part of doc weight which
+    // doesn't come from the sum.
+    IRWeight * extra_weight = mk_weight(1, "");
+
+    // Max "extra weight" that an item can get (ie, not from the postlist tree).
+    om_weight max_extra_weight = extra_weight->get_maxextra();
+    // Calculate max_weight a document could possibly have
+    om_weight max_weight = query->recalc_maxweight() + max_extra_weight;
+
+    om_weight w_max = max_weight; // w_max may decrease as tree is pruned
+    recalculate_w_max = false;
 
     // Check that any results have been asked for (might just be wanting
     // maxweight)
-    if(maxitems == 0) {
-	mset = OmMSet(first, mbound,
-		      get_max_weight(), greatest_wt,
-		      items, termfreqandwts);
+    if (maxitems == 0) {
+	delete query;
+	delete extra_weight;
+
+	mset = OmMSet(first, mbound, max_weight, greatest_wt, items, termfreqandwts);
+
 	return true;
     }
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
     om_doccount max_msize = first + maxitems;
-
-    // Get initial max weight and the maximum extra weight contribution
-    om_weight w_max = get_max_weight();
-    recalculate_maxweight = false;
-
-    // Ensure that extra_weight is created
-    mk_extra_weight();
 
     // FIXME: may be able to loop through postlists to do this check now?
 #if 0 // def MUS_DEBUG_PARANOID
@@ -673,8 +629,8 @@ LocalMatch::get_mset(om_doccount first,
 
     // Perform query
     while (1) {
-	if (recalculate_maxweight) {
-	    recalculate_maxweight = false;
+	if (recalculate_w_max) {
+	    recalculate_w_max = false;
 	    w_max = query->recalc_maxweight() + max_extra_weight;
 	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
 	    if (w_max < min_item.wt) {
@@ -693,7 +649,7 @@ LocalMatch::get_mset(om_doccount first,
 	    // of a prune elsewhere) - we're just switching to a subtree
 	    w_max = query->get_maxweight() + max_extra_weight;
 	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-            AssertParanoid(recalculate_maxweight || fabs(w_max - max_extra_weight - query->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_w_max || fabs(w_max - max_extra_weight - query->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
@@ -765,6 +721,10 @@ LocalMatch::get_mset(om_doccount first,
 	}
     }
 
+    // done with posting list tree
+    delete query;
+    delete extra_weight;
+
     if (items.size() > max_msize) {
 	// find last element we care about
 	DEBUGLINE(MATCH, "finding nth");
@@ -772,6 +732,7 @@ LocalMatch::get_mset(om_doccount first,
 	// erase elements which don't make the grade
 	items.erase(items.begin() + max_msize, items.end());
     }
+
     DEBUGLINE(MATCH, "sorting");
 
     if(first > 0) {
@@ -795,13 +756,8 @@ LocalMatch::get_mset(om_doccount first,
 		  ", min weight in mset = " << items[items.size() - 1].wt);
     }
 
-    // Query now needs to be recalculated if it is needed again.
-    delete query;
-    query = 0;
-
-    mset = OmMSet(first, mbound,
-		  get_max_weight(), greatest_wt,
-		  items, termfreqandwts);
+    // Get initial max weight and the maximum extra weight contribution
+    mset = OmMSet(first, mbound, max_weight, greatest_wt, items, termfreqandwts);
 
     return true;
 }

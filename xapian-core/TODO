@@ -23,8 +23,8 @@ Priority | Area            | Task
          |                 | default.
 ---------+-----------------+--------------------------------------------------
  High    | Tests	   | Make apitest's tests use da/db backends as well
-         |                 | [Now use da.  No program to write dbs so that's
-         |                 | hard].
+         |                 | [Now test da.  No program to write dbs so that's
+         |                 | not doable yet].
 ---------+-----------------+--------------------------------------------------
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
@@ -54,12 +54,11 @@ Priority | Area            | Task
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
 ---------+-----------------+--------------------------------------------------
- Medium  | LocalMatch      | Make query a local variable of get_mset(), rather
-         |                 | than a member of the class.
----------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Make get_mset() (and MultiMatch::match()) return
          |                 | msets rather than setting a pass by reference
-	 |                 | parameter.  Change match() to get_mset().
+	 |                 | parameter.
+	 |                 | [And what do we do with the current bool return?]
+	 |                 | Change match() to get_mset().
 ---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make OmDatabaseGroup::Internal return same
          |                 | multidatabase object if get_multi_database() is
@@ -83,7 +82,7 @@ Priority | Area            | Task
          |                 | whenever a task can't be performed because
 	 |                 | something isn't compiled in.
 ---------+-----------------+--------------------------------------------------
- Medium  | Exceptions      | Make them work with shared libs on solaris /
+ Medium  | Exceptions      | Make exceptions work with shared libs on solaris /
          |                 | find an alternative.
 ---------+-----------------+--------------------------------------------------
  Medium  | Options         | Use OmSettings for specifying what debugging info
@@ -126,10 +125,7 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Test OmMSet::get_termfreq() and
          |                 | OmMSet::get_termweight().
----------+-----------------+--------------------------------------------------
- Medium  | Matchers        | Deprecate get_max_weight() - not useful
-         |                 | independently of get_mset(), which now returns
-	 |                 | its value.
+         |                 | [Seem to be tested in apitest now?]
 ---------+-----------------+--------------------------------------------------
  Medium  | MultiDatabase   | Termcache currently clears itself when full: make
          |                 | more efficient.

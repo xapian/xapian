@@ -59,27 +59,8 @@ class LocalMatch : public SingleMatch
 
         int min_weight_percent;
 
-	/// Whether max weights have been calculated
-	bool max_weight_needs_calc;
-
-	/// Max weight that an item could have
-        om_weight max_weight;
-
-	/** Max "extra weight" that an item can get (ie, not from the
-	 *  postlist tree.
-	 */
-	om_weight max_extra_weight;
-
-	/// Root postlist of query tree.  0 if not built yet.
-	PostList * query;
-
 	/// Query to be run
 	OmQueryInternal users_query;
-
-	/** Extra weight object - used to calculate part of doc weight which
-	 *  doesn't come from the sum.
-	 */
-	IRWeight * extra_weight;
 
 	/// vector of weights.  This is just so that they can be deleted
 	std::vector<IRWeight *> weights;
@@ -118,20 +99,16 @@ class LocalMatch : public SingleMatch
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
-	/** Internal flag to note that maxweight needs to be recalculated
+	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
 	 */
-        bool recalculate_maxweight;
-
-	/// Build the query tree, if it isn't already built.
-	void build_query_tree();
+        bool recalculate_w_max;
 
 	/// Calculate the statistics for the query
 	void gather_query_statistics();
 
 	/// Make a postlist from a query object
-	PostList *postlist_from_query(
-				const OmQueryInternal * query_);
+	PostList *postlist_from_query(const OmQueryInternal * query);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(
@@ -140,17 +117,10 @@ class LocalMatch : public SingleMatch
 				om_termcount window);
 
 	/// Open a postlist
-	PostList * mk_postlist(const om_termname& tname);
-
-	/// Make the extra weight object if needed
-	void mk_extra_weight();
+	PostList * mk_postlist(const om_termname & tname);
 
 	/// Make a weight
-	IRWeight * mk_weight(om_doclength querysize_,
-			     om_termname tname_);
-
-	/// Clear the query tree (and the associated weights)
-	void del_query_tree();
+	IRWeight * mk_weight(om_doclength querysize_, om_termname tname_);
 
 	/// Internal method to perform the collapse operation
 	bool perform_collapse(std::vector<OmMSetItem> &mset,
@@ -167,13 +137,12 @@ class LocalMatch : public SingleMatch
 	PostList * build_or_tree(std::vector<PostList *> &postlists);
     public:
         LocalMatch(IRDatabase * database_);
-        ~LocalMatch();
 
 	///////////////////////////////////////////////////////////////////
 	// Implement these virtual methods
 	void link_to_multi(StatsGatherer *gatherer);
 
-	void set_query(const OmQueryInternal * query_);
+	void set_query(const OmQueryInternal * query);
 
         void set_rset(const OmRSet & omrset);
 
