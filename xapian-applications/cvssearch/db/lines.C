@@ -114,6 +114,7 @@ lines::getCodeSymbolTerms() {
     set<string> code_terms;
     
     for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+        //cerr << "** symbol " << (*s) << endl;
         string w = "";
         for( string::const_iterator c = s->begin(); c != s->end(); c++ ) {
             
@@ -121,7 +122,7 @@ lines::getCodeSymbolTerms() {
                 continue;
             }
             
-            if ( ((*c) >= 'A' && (*c) <= 'Z') || (*c) == '_' ) {
+            if ( ((*c) >= 'A' && (*c) <= 'Z') || (*c) == '_' || isdigit(*c) ) {
                 if ( w != "" ) {
                     lowercase_string(w);
 #warning "not stemming code words"
@@ -131,7 +132,7 @@ lines::getCodeSymbolTerms() {
                     w = "";
                 }
             }
-            if ( (*c) != '_' ) {
+            if ( (*c) != '_' && !isdigit(*c) ) {
                 w += (*c);
             }
       
@@ -140,7 +141,7 @@ lines::getCodeSymbolTerms() {
             lowercase_string(w);
 #warning "not stemming code words"
             //w = stemmer->stem_word(w);
-            //	      cerr << "........inserting " << w << endl;
+           // 	      cerr << "........inserting " << w << endl;
 	    code_terms.insert(w);
         }
     }
