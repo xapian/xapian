@@ -86,6 +86,8 @@ bool test_getqterms1();
 bool test_getmterms1();
 // tests that building a query with boolean sub-queries throws an exception.
 bool test_boolsubq1();
+// tests that specifying a nonexistent input file throws an exception.
+bool test_absentfile1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -113,6 +115,7 @@ om_test tests[] = {
     {"getqterms1",	   test_getqterms1},
     {"getmterms1",	   test_getmterms1},
     {"boolsubq1",	   test_boolsubq1},
+    {"absentfile1",	   test_absentfile1},
     {0, 0}
 };
 
@@ -1016,6 +1019,26 @@ bool test_boolsubq1() {
 		      OmQuery("bar"),
 		      mybool);
     } catch (OmInvalidArgumentError &) {
+	success = true;
+    }
+
+    return success;
+}
+
+bool test_absentfile1() {
+    bool success = false;
+
+    try {
+	OmEnquire enquire;
+	vector<string> dbargs;
+	dbargs.push_back("/this_does_not_exist");
+	enquire.add_database("inmemory", dbargs);
+
+	OmQuery myquery("cheese");
+	enquire.set_query(myquery);
+
+	OmMSet mymset = enquire.get_mset(0, 10);
+    } catch (OmOpeningError &) {
 	success = true;
     }
 

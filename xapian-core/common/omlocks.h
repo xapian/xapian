@@ -30,6 +30,8 @@
 
 #include <pthread.h>
 
+#include <errno.h>
+
 class OmLock {
     mutable pthread_mutex_t mutex;
 
@@ -49,6 +51,8 @@ class OmLock {
 	}
 	void unlock() const {
 	    int retval = pthread_mutex_unlock(&mutex);
+	    if(retval != 0) cout << "retval:" << retval << endl;
+		    
 	    Assert(retval == 0);
 	}
 };
