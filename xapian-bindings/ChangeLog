@@ -1,3 +1,8 @@
+Fri Jul 02 14:27:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Reference to Xapian::Auto::DB_* should be
+	  Xapian::DB_*.
+
 Wed Jun 30 14:54:48 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.8.1; Corrected --without-tcl help to say

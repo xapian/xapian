@@ -74,10 +74,14 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
 <h2>Xapian::Auto</h2>
 
 <p>
-   Functions in <code>Xapian::Auto</code> are mapped directly (so <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for instance). The <code>Xapian::Auto::DB_*</code> constants are available as <code>DB_*</code>.
+   Functions in <code>Xapian::Auto</code> are mapped directly (so <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for instance).
 </p>
 
 <h2>Constants</h2>
+
+<p>
+   The <code>Xapian::DB_*</code> constants are available as <code>DB_*</code>.
+</p>
 
 <p>
    With the exception of the <code>Xapian::Auto::DB_*</code> constants, all constants from Xapian are available using a helper function; so for instance <code>Xapian::Query::OP_OR</code> becomes <code>OP_OR_get()</code>.
