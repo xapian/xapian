@@ -594,7 +594,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 
   {
     char c = *nextchar++;
-    char *temp = strchr (optstring, c);
+    const char *temp = strchr (optstring, c);
 
     /* Increment `optind' when we start to process its last character.  */
     if (*nextchar == '\0')
