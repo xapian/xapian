@@ -277,3 +277,15 @@ A) Permission is usually the culprit.
 
    [ a package called cgi-wrap may be used to execute the script with the
     user id of the scripts/executables ]
+
+Q) What happens if you run cvsbuilddb twice on the same input? Does it work
+properly?  Does it erase all existing databases before recreating them?
+A) It still works properly. Yes, it erases all existing databases
+before recreating them.
+
+Q) In that case, is the contentdb file updated properly?  Or does it contain duplicate
+entries?  Does it matter if it does?
+A) Yes it is updated properly (in the above case): contentdb file contains
+no duplicate entries.
+(Note: If it does contain duplicate entries, the same database will be
+searched multiple times)
