@@ -1,3 +1,8 @@
+Wed Nov 03 23:58:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,
+	  net/socketserver.cc: Tweaked to compile with Compaq C++.
+
 Wed Nov 03 22:55:04 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Need to put flags to select ANSI C++ mode in CXXFLAGS

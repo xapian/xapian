@@ -724,11 +724,10 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // FIXME: make match take a refcntptr
     ::MultiMatch match(db, query->internal.get(), *rset, collapse_key,
-		     percent_cutoff, weight_cutoff,
-		     sort_forward, sort_key, sort_bands, sort_by_relevance,
-		     bias_halflife, bias_weight, errorhandler,
-		     AutoPtr<StatsGatherer>(static_cast<StatsGatherer*>(new LocalStatsGatherer())), // Compaq C++ needs the cast
-		     weight);
+		       percent_cutoff, weight_cutoff,
+		       sort_forward, sort_key, sort_bands, sort_by_relevance,
+		       bias_halflife, bias_weight, errorhandler,
+		       new LocalStatsGatherer(), weight);
 
     // Run query and get results into supplied Xapian::MSet object
     MSet retval;

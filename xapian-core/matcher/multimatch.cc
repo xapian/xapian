@@ -205,7 +205,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		       int sort_bands_, bool sort_by_relevance_,
 		       time_t bias_halflife_,
 		       Xapian::weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
-		       AutoPtr<StatsGatherer> gatherer_,
+		       StatsGatherer * gatherer_,
 		       const Xapian::Weight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_),
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),

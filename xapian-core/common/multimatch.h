@@ -111,7 +111,7 @@ class MultiMatch
 	 *  @param query     The query
 	 *  @param omrset    The relevance set
 	 *  @param errorhandler Errorhandler object
-	 *  @param gatherer_ An auto_ptr to a StatsGatherer instance.
+	 *  @param gatherer_ A pointer to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
 	 *                   StatsGatherer.
 	 *  @param wtischeme Weighting scheme
@@ -129,7 +129,7 @@ class MultiMatch
 		   time_t bias_halflife_,
 		   Xapian::weight bias_weight_,
 		   Xapian::ErrorHandler * errorhandler,
-		   AutoPtr<StatsGatherer> gatherer_,
+		   StatsGatherer * gatherer_,
 		   const Xapian::Weight *wtscheme);
 	~MultiMatch();
 
