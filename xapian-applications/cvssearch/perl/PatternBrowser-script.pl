@@ -50,26 +50,14 @@ $modeMAPhtml{"<=>"} = "&lt;=&gt;";
 print "Content-type:text/html\n\n";
 print "<html>\n";
 print "<head>\n";
+print "<title>CVSSearch : Library Classes/Functions Search</title>\n";
 
 #---------------
 # style sheet
 #---------------
-print <<_HTML_;
-<style type=\"text/css\">
-A:link, A:active, A:visited {color:#666666}
-body {background-color:white;}
-h1 {color:#0066cc; font-size:x-large}
-.s {background-color:#3366CC; color:#FFFFFF;}
-.o {background-color:#ccccee;}
-.ref {color:#666666;font-size:12;font-family:"Arial, Helvetica, sans-serif"}
-
-.popupLink { color: blue; outline: none;}
-.popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc}
-layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}
-</style>
-</head>
-<body>
-_HTML_
+Cvssearch::print_style_sheet();
+print "</head>\n";
+print "<body>\n";
 
 #----------------------------------------
 # get parameters

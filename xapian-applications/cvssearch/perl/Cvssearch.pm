@@ -519,6 +519,7 @@ sub print_style_sheet {
     print "<style type=\"text/css\">\n";
     print "body.compare  {background-color:#EEEEEE;}\n";
     print "body {background-color:white;}\n";
+# was large not x-lage in CommitSearch
     print "h1 {color:#0066cc; font-size:x-large}\n";
     print "table {background-color:#FFFFFF;}\n";
     print "td    {white-space:pre; overflow:hidden; text-decoration:none;color:black;}\n";
@@ -526,11 +527,13 @@ sub print_style_sheet {
     print ".a {background-color:#CCCCFF;}\n";
     print ".o {background-color:#ccccee;}\n";
     print ".c {background-color:#99FF99;}\n";
+# wasn't bold in CommitSearch and PatternMatch
     print ".s {background-color:#3366CC; color:#FFFFFF; font-weight:bold;}\n";
     print ".d {background-color:#FF9999;}\n";
     print ".n {background-color:#EEEEEE;}\n";
     print ".g {background-color:#dddddd;}\n";
 
+    print ".ref {color:#666666;font-size:12;font-family:\"Arial, Helvetica, sans-serif\"}\n";
     print ".popupLink { color: blue; outline: none;}\n";
     print ".popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc;";
     print "layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}\n";
