@@ -34,15 +34,14 @@ int main(int argc, char *argv[])
     
     // Catch any OmError exceptions thrown
     try {
-	// Make the database group
+	// Make the database
 	OmSettings settings;
 	settings.set("backend", "sleepycat");
 	settings.set("sleepy_dir", argv[1]);
-	OmDatabaseGroup databases;
-	databases.add_database(settings);
+	OmDatabase db(settings);
 
 	// Start an enquire session
-	OmEnquire enquire(databases);
+	OmEnquire enquire(db);
 
 	// Prepare the query terms
 	vector<om_termname> queryterms;

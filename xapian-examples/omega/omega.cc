@@ -132,7 +132,7 @@ main2(int argc, char *argv[])
 	list_size = 1000;
     }
 
-    OmDatabaseGroup omdb;
+    OmDatabase omdb;
     try {
 	// get database(s) to search
 	dbname = "";

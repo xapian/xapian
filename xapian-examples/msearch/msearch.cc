@@ -116,7 +116,7 @@ main(int argc, char *argv[])
     }
 
     try {
-        OmDatabaseGroup mydbs;
+        OmDatabase mydbs;
 
 	vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
