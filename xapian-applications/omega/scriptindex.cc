@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "htmlparse.h"
+#include "myhtmlparse.h"
 #include "indextext.h"
 
 #include "gnu_getopt.h"
@@ -58,20 +58,6 @@ static bool verbose;
 static int addcount;
 static int repcount;
 static int delcount;
-
-class MyHtmlParser : public HtmlParser {
-    public:
-    	string dump;
-	void process_text(const string &text) {
-	    // some tags are meaningful mid-word so this is a little
-	    // simplistic
-	    if (!dump.empty()) dump += ' ';
-	    dump += text;
-	}
-	void closing_tag(const string &tag) {
-	    if (tag == "title") dump = "";
-	}
-};
 
 inline static bool 
 p_space(unsigned int c)

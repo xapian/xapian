@@ -1,3 +1,10 @@
+Wed Nov 24 03:29:36 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,myhtmlparse.cc,myhtmlparse.h,omindex.cc,scriptindex.cc:
+	  Factored out MyHtmlParser into a separate file so it can be used
+	  in scriptindex too to give scriptindex the same improved HTML
+	  parsing which omindex just got.
+
 Wed Nov 24 02:22:49 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Removed bogus extra line from code which was meant to
