@@ -35,4 +35,5 @@ OrTermList::next()
 	rhead = 0;
 	if (!r->at_end()) rhead = r->get_termid();
     }
+    return NULL;
 }
