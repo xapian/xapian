@@ -1,3 +1,9 @@
+Wed Nov 22 18:53:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* A couple of missed bits of the previous change - we no longer need
+	  to do an initialisation step to databases, and we no longer need
+	  to subtract 2 from the item count in recordtable to get the doccount.
+
 Wed Nov 22 18:44:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove QuartzRecord::initialise() - replace by assuming initial

@@ -48,7 +48,7 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
-    return table.get_entry_count() - 2;
+    return table.get_entry_count();
 }
 
 om_docid

@@ -87,25 +87,6 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	// if this is not a consistent version.
 	open_tables_newest();
     }
-
-    if (record_table.get_entry_count() == 0) {
-	// database never previously opened
-	if (readonly) {
-	    throw OmOpeningError("Database is empty and uninitialised");
-	} else {
-	    // initialise
-	    quartz_revision_number_t new_revision = get_next_revision_number();
-	    log->make_entry("Initialising database - new revision is " +
-			    om_tostring(new_revision) + ".");   
-
-	    postlist_table    .apply(new_revision);
-	    positionlist_table.apply(new_revision);
-	    termlist_table    .apply(new_revision);
-	    lexicon_table     .apply(new_revision);
-	    attribute_table   .apply(new_revision);
-	    record_table      .apply(new_revision);
-	}
-    }
 }
 
 QuartzDiskTableManager::~QuartzDiskTableManager()
