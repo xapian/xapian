@@ -2,4 +2,5 @@
 .*.d
 .*.swp
 dbtest
+matchtest
 testdir
