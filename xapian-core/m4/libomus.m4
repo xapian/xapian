@@ -10,20 +10,54 @@ AC_DEFUN(AM_PATH_LIBOMUS,
 dnl Get the cflags and libraries from the libomus-config script
 dnl
 AC_ARG_WITH(libomus-config,
-[  --with-libomus-config=LIBOMUS_CONFIG   Location of libomus-config],
+[  --with-libomus-config   Location of libomus-config],
 LIBOMUS_CONFIG="$withval")
 
-AC_PATH_PROG(LIBOMUS_CONFIG, libomus-config, no)
-AC_MSG_CHECKING(for libomus)
-if test "$LIBOMUS_CONFIG" = "no"; then
-  AC_MSG_RESULT(no)
-  ifelse([$2], , :, [$2])
-else
-  AC_MSG_RESULT(yes)
-  LIBOMUS_CFLAGS=`$LIBOMUS_CONFIG --cflags $module_args`
-  LIBOMUS_LIBS=`$LIBOMUS_CONFIG --libs $module_args`
-  ifelse([$1], , :, [$1])
+AC_ARG_WITH(libomus-uninst,
+[  --with-libomus-uninst   Location of top dir of uninstalled libomus],
+LIBOMUS_UNINST="$withval")
+
+AC_ARG_WITH(libomus-uninst_exec,
+[  --with-libomus-uninst-exec  Location of built libomus, if srcdir not builddir],
+LIBOMUS_UNINST_EXEC="$withval")
+
+
+if test "x$LIBOMUS_UNINST" = "xyes"; then
+  AC_MSG_ERROR(--with-libomus-uninst needs path of top dir of libomus build)
 fi
+
+AC_MSG_CHECKING(for libomus)
+
+if test "x$LIBOMUS_UNINST" = "x"; then
+  if test "x$LIBOMUS_UNINST_EXEC" != "xno"; then
+    AC_MSG_ERROR(must specify --with-libomus-uninst if using --with-libomus-uninst-exec)
+  fi
+  if test "x$LIBOMUS_CONFIG" = "x"; then
+    AC_PATH_PROG(LIBOMUS_CONFIG, libomus-config, no)
+  fi
+  
+  if test "x$LIBOMUS_CONFIG" = "xno"; then
+    AC_MSG_RESULT(not found)
+    ifelse([$2], , :, [$2])
+  else
+    if $LIBGLADE_CONFIG --check; then
+      AC_MSG_RESULT(yes)
+      LIBOMUS_CFLAGS=`$LIBOMUS_CONFIG --cflags $module_args`
+      LIBOMUS_LIBS=`$LIBOMUS_CONFIG --libs $module_args`
+      ifelse([$1], , :, [$1])
+    else
+      AC_MSG_RESULT(bad installation)
+    fi
+  fi
+else
+  AC_MSG_RESULT(using uninstalled version)
+  if test "x$LIBOMUS_UNINST_EXEC" = "xno"; then
+    LIBOMUS_UNIST_EXEC=$LIBOMUS_UNINST
+  fi
+  LIBOMUS_CFLAGS="-I$LIBOMUS_UNINST/include -I$LIBOMUS_UNINST/common"
+  LIBOMUS_LIBS="-L$LIBOMUS_UNINST_EXEC libomus.la"
+fi
+
 AC_SUBST(LIBOMUS_CFLAGS)
 AC_SUBST(LIBOMUS_LIBS)
 ])
