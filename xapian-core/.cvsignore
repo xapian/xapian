@@ -16,3 +16,4 @@ stamp-h.in
 config.cache
 .deps
 config.status
+om-*.tar.gz
