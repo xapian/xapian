@@ -1,3 +1,7 @@
+Mon Jan 17 03:32:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Updated to use the new QueryParser API.
+
 Wed Jan 05 03:15:43 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/scriptindex.txt: Note that actions are applied in the specified

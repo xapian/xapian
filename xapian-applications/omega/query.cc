@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,7 +105,7 @@ static bool set_content_type = false;
 
 class MyStopper : public Xapian::Stopper {
   public:
-    bool operator()(const string &t) {
+    bool operator()(const string &t) const {
 	switch (t[0]) {
 	    case 'a':
 		return (t == "a" || t == "about" || t == "an" || t == "and" ||
@@ -160,14 +160,15 @@ typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 static querytype
 set_probabilistic(const string &oldp)
 {
-    // call YACC generated parser
-    qp.set_stemming_options(option["stemmer"], option["stem_all"] == "true",
-			    new MyStopper()); 
+    // Parse the query string.
+    qp.set_stemmer(Xapian::Stem(option["stemmer"]));
+    qp.set_stemming_options(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
+    qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
-    qp.set_database(db);
+//    qp.set_database(db);
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && pfx->first.substr(0, 7) == "prefix,"; ++pfx) {
-	qp.prefixes.insert(make_pair(pfx->first.substr(7), pfx->second));
+	qp.add_prefix(pfx->first.substr(7), pfx->second);
     }
     try {
 	query = qp.parse_query(query_string);
@@ -177,8 +178,8 @@ set_probabilistic(const string &oldp)
     }
 
     Xapian::termcount n_new_terms = 0;
-    for (list<string>::const_iterator i = qp.termlist.begin();
-	 i != qp.termlist.end(); ++i) {
+    for (Xapian::TermIterator i = qp.termlist_begin();
+	 i != qp.termlist_end(); ++i) {
 	if (termset.find(*i) == termset.end()) {
 	    termset.insert(*i);
 	    if (!queryterms.empty()) queryterms += '\t';
@@ -1727,11 +1728,11 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_unstem: {
 		const string &term = args[0];
-		multimap<string, string>::const_iterator i;
-		i = qp.unstem.find(term);
-		while (i != qp.unstem.end() && i->first == term) {
+		Xapian::TermIterator i = qp.unstem_begin(term);
+		Xapian::TermIterator end = qp.unstem_end(term);
+		while (i != end) {
 		    if (!value.empty()) value += '\t';
-		    value += i->second;
+		    value += *i;
 		    ++i;
 		}
 		break;
@@ -1823,8 +1824,8 @@ pretty_term(const string & term)
     // If there's an unstemmed version in the query, use that
     // (FIXME currently uses the first of multiple forms - might be
     // "better" to pick the one with the highest termfreq)
-    multimap<string, string>::const_iterator i = qp.unstem.find(term);
-    if (i != qp.unstem.end()) return i->second;
+    Xapian::TermIterator i = qp.unstem_begin(term);
+    if (i != qp.unstem_end(term)) return *i;
 
     // If the term wasn't indexed unstemmed, it's probably a non-term
     // e.g. "litr" - the stem of "litre"
