@@ -220,8 +220,23 @@ Use of C++ Features:
   externally visible header files).  With this in mind, please don't complicate
   the internal handling of exceptions...
 
+* "using namespace std;" and "using std::XXX;" - it's OK to use these in
+  applications, library code, and internal library headers.  But in externally
+  visible headers (such as anything included by "#include <xapian.h>") you MUST
+  use explicit "std::" qualifiers - it's not acceptable to pull things from
+  namespace std into the namespace of an application which uses Xapian.
+
 Miscellaneous Portability Issues:
 =================================
+
+Web Resources:
+--------------
+
+The "C++ FAQ Lite" covers many frequently asked C++ questions:
+http://www.parashift.com/c++-faq-lite/
+
+The libstdc++-porting-howto discusses various C++ portability issues:
+http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 
 open() and <fcntl.h>:
 ---------------------

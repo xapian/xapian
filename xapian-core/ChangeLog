@@ -1,3 +1,8 @@
+Sat Apr 17 00:13:26 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Added notes about using "using", and pointers to a couple
+	  of useful C++ web resources.
+
 Mon Apr 12 00:56:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,NEWS,configure.in,extra/Makefile.am: Version 0.8.0.
