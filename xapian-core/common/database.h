@@ -38,7 +38,7 @@ class OpeningError : public OmError {
 class PostList {
     private:
     public:
-	virtual doccount get_termfreq() = 0;// Gets number of docs indexed by this term
+	virtual doccount get_termfreq() const = 0;// Gets number of docs indexed by this term
 
 	virtual docid  get_docid() = 0;     // Gets current docid
 	virtual weight get_weight() = 0;    // Gets current weight
@@ -48,6 +48,11 @@ class PostList {
 	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
+
+        virtual bool operator < (const PostList *x) const
+        {
+	    return get_termfreq() > x->get_termfreq();
+        }
 };
 
 class TermList {

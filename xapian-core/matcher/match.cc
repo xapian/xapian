@@ -14,13 +14,9 @@ Match::add_pterm(const string& termname)
     if (!id) return false;
 
     PostList *postlist = DB->open_post_list(id);
-    if (merger) {
-        // FIXME: want to build a tree balanced by the term frequencies
-        // (similar to a huffman encoding tree)
-        merger = new MergedPostList(merger, postlist);
-    } else {
-        merger = postlist;
-    }
+   
+    pq.push(postlist);
+   
     return true;
 }
 
@@ -33,8 +29,25 @@ typedef struct {
 
 void
 Match::match(void)
-{
-    if (!merger) return;
+{    
+    if (!merger) {
+        if (pq.empty()) return; // No terms in query
+
+        PostList *tmp;
+       
+        // build a tree balanced by the term frequencies
+        // (similar to a huffman encoding tree)
+        while (true) {
+	    tmp = pq.top();
+	    pq.pop();
+	    if (pq.empty()) break;
+	    tmp = new MergedPostList(pq.top(), tmp);
+	    pq.pop();
+	    pq.push(tmp);
+	}
+       
+        merger = tmp;
+    }
 
     docid msize = 0, mtotal = 0;
     weight min = 0;

@@ -25,7 +25,7 @@ DAPostList::~DAPostList() {
     DAclosepostings(postlist);
 }
 
-doccount DAPostList::get_termfreq() {
+doccount DAPostList::get_termfreq() const {
     return termfreq;
 }
 

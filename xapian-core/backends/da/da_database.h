@@ -18,7 +18,7 @@ class DAPostList : public virtual PostList {
     public:
 	~DAPostList();
 
-	doccount get_termfreq(); 
+	doccount get_termfreq() const;
 
 	docid  get_docid();     // Gets current docid
 	weight get_weight();    // Gets current weight
