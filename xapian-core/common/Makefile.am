@@ -15,7 +15,8 @@ noinst_HEADERS = \
  netclient.h progclient.h multi_database.h net_database.h \
  omdatabaseinterface.h \
  netutils.h netserver.h progserver.h socketclient.h socketserver.h \
- socketcommon.h positionlist.h testsuite.h tcpclient.h tcpserver.h
+ socketcommon.h positionlist.h testsuite.h testutils.h tcpclient.h \
+ tcpserver.h
 
 noinst_LTLIBRARIES = libcommon.la
 
