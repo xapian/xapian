@@ -15,11 +15,11 @@ endif
 # xapian.m4 last, in case of failure (disk full for example)?
 SUBDIRS = include getopt common \
           api backends matcher languages $(remote_subdirs) \
-	  extra . testsuite bin examples docs tests
+	  queryparser . testsuite bin examples docs tests
 
 DIST_SUBDIRS = include getopt common \
                api backends matcher languages net \
-	       extra . bin examples docs testsuite tests
+	       queryparser . bin examples docs testsuite tests
 
 bin_SCRIPTS = xapian-config
 
@@ -50,4 +50,4 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 
 libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
  matcher/libmatcher.la languages/liblanguages.la api/libapi.la $(LIBNET_LA) \
- extra/libqueryparser.la
+ queryparser/libqueryparser.la

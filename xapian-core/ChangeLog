@@ -1,3 +1,9 @@
+Tue Apr 05 21:34:13 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/Makefile.am,configure.ac,extra/xapian/queryparser.h,
+	  extra/,include/Makefile.am,Makefile.am: Move extra/ to queryparser/;
+	  Merge extra/xapian/ into include/xapian/.
+
 Tue Apr 05 16:37:32 BST 2005  Olly Betts <olly@survex.com>
 
 	* m4/xapian.m4: Fix m4 quoting (argh!)

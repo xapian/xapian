@@ -5,10 +5,6 @@ INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/com
 noinst_HEADERS = accentnormalisingitor.h symboltab.h queryparser_internal.h \
 	queryparser_token.h
 
-xapianincludedir = $(includedir)/xapian
-
-xapianinclude_HEADERS = xapian/queryparser.h
-
 noinst_LTLIBRARIES = libqueryparser.la
 
 check_PROGRAMS = queryparsertest
