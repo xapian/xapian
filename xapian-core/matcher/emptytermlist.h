@@ -9,7 +9,7 @@ class EmptyTermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 	weight get_weight() const;
-	termid get_termid() const;
+	termname get_termname() const;
 	termcount get_wdf() const;
 	doccount get_termfreq() const;
 
@@ -30,11 +30,11 @@ EmptyTermList::get_weight() const
     return 0;
 }
 
-inline termid
-EmptyTermList::get_termid() const
+inline termname
+EmptyTermList::get_termname() const
 {
     Assert(0); // no terms
-    return 0;
+    return "";
 }
 
 inline termcount
