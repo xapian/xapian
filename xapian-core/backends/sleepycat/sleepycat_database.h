@@ -33,6 +33,10 @@
 
 class SleepyDatabaseInternals;
 
+/** A database using the sleepycat database library.
+ *  This currently uses the C++ interface, version 2.2.6, but may work
+ *  with other versions.
+ */
 class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
@@ -46,9 +50,9 @@ class SleepyDatabase : public IRDatabase {
     public:
 	~SleepyDatabase();
 
+	// Virtual methods of IRDatabase
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
-
 	om_doclength get_doclength(om_docid did) const;
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;

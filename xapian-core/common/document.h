@@ -38,16 +38,37 @@ class LeafDocument : public OmRefCntBase {
 	/// Assignment is not allowed.
 	void operator=(const LeafDocument &);
     public:
-	/** Get key by number (>= 0).
-	 *  Keys are designed to be quickly accessible, for use during the
-	 *  match operation.
+	/** Get key by key number.
+	 *
+	 *  Keys are quickly accessible fields, for use during the match
+	 *  operation.  Each document may have a set of keys, each of which
+	 *  having a different keyid.  Duplicate keys with the same keyid are
+	 *  not supported in a single document.
+	 *
+	 *  Key numbers are any integer >= 0, but particular database types may
+	 *  impose a more restrictive range than that.
+	 *
+	 *  @param keyid  The key number requested.
+	 *
+	 *  @return       An OmKey object containing the specified key.  If the
+	 *  key is not present in this document, the key's value will be a zero
+	 *  length string
 	 */
-	virtual OmKey get_key(om_keyno) const = 0;
+	virtual OmKey get_key(om_keyno keyid) const = 0;
 	
 	/** Get data stored in document.
-	 *  This can be expensive, and shouldn't normally be used
+	 *
+	 *  This is a general piece of data associated with a document, and
+	 *  will typically be used to store such information as text to be
+	 *  displayed in the result list, and a pointer in some form
+	 *  (eg, URL) to the full text of the document.
+	 *
+	 *  This operation can be expensive, and shouldn't normally be used
 	 *  during the match operation (such as in a match decider functor):
 	 *  use a key instead, if at all possible.
+	 *
+	 *  @return       An OmData object containing the data for this
+	 *  document.
 	 */
 	virtual OmData get_data() const = 0;     
 

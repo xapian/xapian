@@ -23,18 +23,14 @@
 #ifndef OM_HGUARD_DATABASE_H
 #define OM_HGUARD_DATABASE_H
 
-#include <string>
 #include "om/omtypes.h"
 
 #include "database_builder.h"
 #include "indexer.h"
 
 class LeafDocument;
-class PostList;
 class LeafPostList;
-class TermList;
 class LeafTermList;
-class RSet;
 
 /** Base class for databases.
  */
@@ -163,6 +159,8 @@ class IRDatabase : public IndexerDestination {
 
 	/** Open a posting list.
 	 *
+	 *  This is a list of all the documents which contain a given term.
+	 *
 	 *  @param tname  The term whose posting list is being requested.
 	 *
 	 *  @return       A pointer to the newly created posting list.
@@ -171,8 +169,31 @@ class IRDatabase : public IndexerDestination {
 	 */
 	virtual LeafPostList * open_post_list(const om_termname & tname) const = 0;
 
+	/** Open a term list.
+	 *
+	 *  This is a list of all the terms contained by a given document.
+	 *
+	 *  @param did    The document id whose term list is being requested.
+	 *
+	 *  @return       A pointer to the newly created posting list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
 
+
+	/** Open a document.
+	 *
+	 *  This is used to access the keys and data associated with a
+	 *  document.  See class LeafDocument for details of accessing
+	 *  the keys and data.
+	 *  
+	 *  @param did    The document id which is being requested.
+	 *
+	 *  @return       A pointer to the newly created document object.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
 	virtual LeafDocument * open_document(om_docid did) const = 0;
 
 	//////////////////////////////////////////////////////////////////
