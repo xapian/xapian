@@ -1,3 +1,7 @@
+Thu Nov 23 15:16:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* For some reason indexfile.cc was broken.
+
 Thu Nov 23 12:44:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Append to string, rather than replace it.  Tiny change to
