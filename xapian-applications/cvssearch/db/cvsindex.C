@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 	    // writeFileDB( prev_file, package_path, revision_comment_words );
 
 	    // write out entry for file comments
-	    writeFileComments( database2, prev_file, file_comments );
+	    //writeFileComments( database2, prev_file, file_comments );
 	  }
 	  revision_comment_words.clear();
 	  file_comments.clear();
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 	// writeFileDB( prev_file, package_path, revision_comment_words );
 
 	// write out entry for file comments
-	writeFileComments( database2, prev_file, file_comments );
+	//writeFileComments( database2, prev_file, file_comments );
       }
       cerr << "... done!" << endl;
     }
