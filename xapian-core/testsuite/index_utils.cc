@@ -32,6 +32,19 @@ void lowercase_term(om_termname &term)
 	*i = tolower(*i);
 	i++;
     }
+    std::string::size_type a;
+    while (a = term.find("^s")) {
+	term.replace(a, 2, " ");
+    }
+    while (a = term.find("^n")) {
+	term.replace(a, 2, "\n");
+    }
+    while (a = term.find("^b")) {
+	term.replace(a, 2, "\\");
+    }
+    while (a = term.find("^0")) {
+	term.replace(a, 2, std::string("\0", 1));
+    }
 }
 
 // Keep only the characters in keep

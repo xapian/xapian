@@ -878,6 +878,26 @@ static bool test_repeatquery1()
     return true;
 }
 
+// test that searching for a term with a space in it works
+static bool test_spaceterm1()
+{
+    OmEnquire enquire(OmDatabase(get_database("apitest_space")));
+
+    init_simple_enquire(enquire, OmQuery("space man"));
+    TEST(enquire.get_mset(0, 10).items.size(), 1);
+
+    init_simple_enquire(enquire, OmQuery("new\nline"));
+    TEST(enquire.get_mset(0, 10).items.size(), 1);
+
+    init_simple_enquire(enquire, OmQuery("back\\slash"));
+    TEST(enquire.get_mset(0, 10).items.size(), 1);
+
+    init_simple_enquire(enquire, OmQuery(std::string("big\0zero", 8)));
+    TEST(enquire.get_mset(0, 10).items.size(), 1);
+
+    return true;
+}
+
 // test that searching for a term not in the database fails nicely
 static bool test_absentterm1()
 {

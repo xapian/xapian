@@ -43,6 +43,11 @@ Detect and deal with btree overwritten condition.  Write tests to ensure
 this works.
 
 </todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">
+
+Add query operator to filter on weight / percentage weight.
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="API" release="1.0">
 
 Test getting positionlists from databases.
@@ -236,6 +241,12 @@ way as enquire API.
 Ensure that (Java in particular) bindings throw correct exception types.
 
 </todoitem>
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
+
+Allow negative relevance judgements.  Will need to check that this doesn't
+cause assumptions to be violated. (eg, unsigned integers going negative.)
+
+</todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Stemming" release="">
 
 Make a separate package to contain stemming algorithm stuff (docs, code,
@@ -271,13 +282,19 @@ branch is boolean and the right probabilistic.
 max_or_terms should probably work in a more local way.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Matcher" release="1.0">
+<todoitem priority="L" difficulty="4" owner="" area="API" release="">
 
-max_or_terms should not select groups of terms which don't match any
-documents.
+Provide explicit support for range searches.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="Matcher" release="1.0">
+<todoitem priority="L" difficulty="5" owner="" area="Matcher" release="">
+
+max_or_terms should never select groups of terms which don't match any
+documents.  (Currently, will exclude those for which termfreq_max() is 0,
+but this may still result in a bad choice)
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="Matcher" release="">
 
 max_or_terms should probably reduce the querysize by the number of terms
 removed - hard to do because max_or_terms necessarily happens after some
