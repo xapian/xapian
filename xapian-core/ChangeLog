@@ -1,3 +1,7 @@
+Thu Nov 30 16:41:11 GMT 2000 Olly Betts
+
+	* OmDocument::Internal now knows its OmDatabase.
+ 	    
 Thu Nov 30 16:40:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add context to network errors thrown from OmSocketLineBuf.

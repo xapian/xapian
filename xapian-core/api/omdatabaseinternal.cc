@@ -147,4 +147,3 @@ OmDatabase::Internal::open_position_list(om_docid did,
 
     return databases[dbnumber]->open_position_list(realdid, tname);
 }
-

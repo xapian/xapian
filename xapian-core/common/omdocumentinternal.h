@@ -35,15 +35,7 @@ class OmDocument::Internal {
 	/// The reference counted pointer to a Document instance
 	RefCntPtr<Document> ptr;
 
-	explicit Internal(Document *ld) : ptr(ld),
-		data_here(false), keys_here(false), terms_here(false) {}
-
-	explicit Internal(RefCntPtr<Document> ptr_) : ptr(ptr_),
-		data_here(false), keys_here(false), terms_here(false) {}
-
-	Internal(const Internal &other)
-		: ptr(other.ptr), data_here(other.data_here),
-		  keys_here(other.keys_here), terms_here(other.terms_here) {}
+	OmDatabase database;
 
 	bool data_here, keys_here, terms_here;
 
@@ -61,6 +53,18 @@ class OmDocument::Internal {
 
 	/// The terms (and their frequencies and positions) in this document.
 	document_terms terms;
+
+	explicit Internal(Document *ld, const OmDatabase &database_)
+		: ptr(ld), database(database_), data_here(false),
+		  keys_here(false), terms_here(false) {}
+
+	explicit Internal(RefCntPtr<Document> ptr_, const OmDatabase &database_)
+	        : ptr(ptr_), database(database_), data_here(false),
+		  keys_here(false), terms_here(false) {}
+
+	Internal(const Internal &other)
+		: ptr(other.ptr), data_here(other.data_here),
+		  keys_here(other.keys_here), terms_here(other.terms_here) {}
 
 	/** Add an occurrence of a term to the document.
 	 *

@@ -298,7 +298,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		    RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
-		OmDocument mydoc(new OmDocument::Internal(doc));
+		OmDocument mydoc(new OmDocument::Internal(doc, db));
 		if (!mdecider->operator()(mydoc)) continue;
 	    }
 	    
@@ -415,7 +415,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		    RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
-		OmDocument mydoc(new OmDocument::Internal(doc));
+		OmDocument mydoc(new OmDocument::Internal(doc, db));
 		if (!mdecider->operator()(mydoc)) continue;
 	    }
 	    
