@@ -713,7 +713,6 @@ eval(const string &fmt)
 	    break;
 	 case 'q':
 	    if (var == "query") {
-		// query
 		value = raw_prob;
 		ok = true;
 		break;
@@ -968,7 +967,7 @@ static void
 print_query_page(const string &page)
 {
     // FIXME - should be set-able and should be "/html/"
-    cout << eval_file("/usr/om/data/default-html/" + page);
+    cout << eval_file("/usr/omega/data/default-html/" + page);
 }
 
 om_doccount

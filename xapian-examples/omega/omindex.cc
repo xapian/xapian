@@ -329,7 +329,7 @@ main(int argc, char **argv)
     if (argc != 4) {
 	cout << "Syntax: " << argv[0] << " DBDIRECTORY DOCROOT STARTURL\n";
 	cout << "e.g. " << argv[0]
-	     << " /usr/om/data/default /home/httpd/html /\n";
+	     << " /usr/omega/data/default /home/httpd/html /\n";
 	exit(1);
     }
     params.set("backend", "sleepycat");
