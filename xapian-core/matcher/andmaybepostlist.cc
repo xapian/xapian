@@ -25,17 +25,18 @@ AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
 }
 
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   Match *root_, bool replacement)
+				   Match *root_, docid lh, docid rh)
 {
     root = root_;
     l = left;
     r = right;
-    lhead = rhead = 0;
-    if (replacement) {
+    lhead = lh;
+    rhead = rh;
+    if (lh || rh) {
 	// Initialise the maxweights from the kids so we can avoid forcing
 	// a full maxweight recalc
 	lmax = l->get_maxweight();
-	rmax = r->get_maxweight();
+	rmax = r->get_maxweight();	
     }
 }
 
@@ -56,14 +57,6 @@ AndMaybePostList::next(weight w_min)
 	return ret;
     }
     return process_next_or_skip_to(w_min, l->next(w_min - rmax));
-}
-
-PostList *
-AndMaybePostList::sync_and_skip_to(docid id, weight w_min, docid lh, docid rh)
-{
-    lhead = lh;
-    rhead = rh;
-    return skip_to(id, w_min);
 }
 
 PostList *

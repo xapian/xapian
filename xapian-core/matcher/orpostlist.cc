@@ -22,13 +22,13 @@ OrPostList::next(weight w_min)
 		ret = new AndPostList(l, r, root, true);
 	    } else {
 		cout << "OR -> AND MAYBE (1)\n";
-		ret = new AndMaybePostList(r, l, root, true);
+		ret = new AndMaybePostList(r, l, root, rhead, lhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    cout << "OR -> AND MAYBE (2)\n";
-	    ret = new AndMaybePostList(l, r, root, true);
+	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
 	}
 		
 	PostList *ret2 = ret->next(w_min);
@@ -76,30 +76,26 @@ OrPostList::skip_to(docid id, weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the OR with another operator
-	PostList *ret, *ret2;
+	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		cout << "OR -> AND (in skip_to)\n";
 		ret = new AndPostList(l, r, root, true);
 		id = max(id, max(lhead, rhead));
-		ret2 = ret->skip_to(id, w_min);
 	    } else {
 		cout << "OR -> AND MAYBE (in skip_to) (1)\n";
-		AndMaybePostList *ret3 = new AndMaybePostList(r, l, root, true);
+		ret = new AndMaybePostList(r, l, root, rhead, lhead);
 		id = max(id, rhead);
-		ret2 = ret3->sync_and_skip_to(id, w_min, rhead, lhead);
-		ret = ret3;
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    cout << "OR -> AND MAYBE (in skip_to) (2)\n";
-	    AndMaybePostList *ret3 = new AndMaybePostList(l, r, root, true);
+	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
 	    id = max(id, lhead);
-	    ret2 = ret3->sync_and_skip_to(id, w_min, lhead, rhead);
-	    ret = ret3;
 	}
-		
+
+	PostList *ret2 = ret->skip_to(id, w_min);	
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;

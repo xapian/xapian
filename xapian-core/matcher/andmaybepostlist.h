@@ -28,9 +28,7 @@ class AndMaybePostList : public virtual BranchPostList {
 	bool   at_end() const;
 
         AndMaybePostList(PostList *, PostList *, Match *root_,
-			 bool replacement = false);
-
-        PostList *sync_and_skip_to(docid id, weight w_min, docid lh, docid rh);
+			 docid lh = 0, docid rh = 0);
 };
 
 inline doccount

@@ -17,7 +17,7 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    // FIXME: CSE these values?
+	    // FIXME: CSE these w_min values?
 	    handle_prune(l, l->skip_to(rhead, w_min - rmax));
 	    if (l->at_end()) {
 		head = 0;
