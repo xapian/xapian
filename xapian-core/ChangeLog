@@ -1,3 +1,8 @@
+Fri Mar  3 11:25:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmQuery now does a better job of collapsing sub-queries
+	  with the same operator.  Yet another test now passes.
+
 Thu Mar  2 17:47:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Moved omenquire and omstem into new directory api

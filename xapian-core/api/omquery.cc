@@ -483,7 +483,7 @@ OmQueryInternal::initialise_from_vector(
     }
     qlen = 0;
 
-    vector<OmQueryInternal *>::const_iterator i;
+    subquery_list::const_iterator i;
     // reject any attempt to make up a composite query when any sub-query
     // is a pure boolean query.  FIXME: ought to handle the different
     // operators specially.
@@ -496,7 +496,23 @@ OmQueryInternal::initialise_from_vector(
     for(i = qbegin; i != qend; i++) {
 	// FIXME: see other initialise_from_vector comment re exceptions.
 	if((*i)->isdefined) {
-	    subqs.push_back(new OmQueryInternal(**i));
+	    /* if the subqueries have the same operator, then we
+	     * merge them in, rather than just adding the query.
+	     * There's no need to recurse any deeper, since the
+	     * sub-queries will all have gone through this process
+	     * themselves already.
+	     */
+	    if ((*i)->op == op) {
+		for (subquery_list::const_iterator j = (*i)->subqs.begin();
+		     j != (*i)->subqs.end();
+		     ++j) {
+		    subqs.push_back(new OmQueryInternal(**j));
+		}
+	    } else {
+		// sub-sub query has different op, just add
+		// it in.
+		subqs.push_back(new OmQueryInternal(**i));
+	    }
 	    qlen += (*i)->qlen;
 	}
     }
