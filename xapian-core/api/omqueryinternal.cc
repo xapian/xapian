@@ -22,7 +22,6 @@
  */
 
 #include "omdebug.h"
-#include "omlocks.h"
 #include "omqueryinternal.h"
 #include "utils.h"
 #include "netutils.h"
@@ -380,7 +379,7 @@ OmQuery::Internal::get_terms() const
 
 // Make an uninitialised query
 OmQuery::Internal::Internal()
-	: mutex(), op(OmQuery::Internal::OP_UNDEF),
+	: op(OmQuery::Internal::OP_UNDEF),
 	  subqs(),
 	  qlen(0),
 	  window(0),
@@ -427,8 +426,7 @@ OmQuery::Internal::initialise_from_copy(const OmQuery::Internal &copyme)
 }
 
 OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
-	: mutex(),
-	  op(copyme.op),
+	: op(copyme.op),
 	  subqs(),
 	  qlen(copyme.qlen),
 	  window(copyme.window),
@@ -451,8 +449,7 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
 OmQuery::Internal::Internal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
-	: mutex(),
-	  op(OmQuery::Internal::OP_LEAF),
+	: op(OmQuery::Internal::OP_LEAF),
 	  subqs(),
 	  qlen(wqf_),
 	  window(0),
@@ -468,8 +465,7 @@ OmQuery::Internal::Internal(const om_termname & tname_,
 }
 
 OmQuery::Internal::Internal(op_t op_)
-	: mutex(),
-	  op(op_),
+	: op(op_),
 	  subqs(),
 	  qlen(0),
 	  window(0),

@@ -25,7 +25,6 @@
 
 #include "om/omtypes.h"
 #include "refcnt.h"
-#include "omlocks.h"
 #include "termlist.h"
 #include <map>
 
@@ -43,8 +42,6 @@ class Document : public RefCntBase {
 	void operator=(const Document &);
 
 	const Database *database;
-
-	OmLock mutex;
 
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;

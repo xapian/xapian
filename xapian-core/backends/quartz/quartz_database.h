@@ -32,7 +32,6 @@ class QuartzModifications;
 class QuartzTermList;
 
 #include "autoptr.h"
-#include "omlocks.h"
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
@@ -41,10 +40,6 @@ class QuartzDatabase : public Database {
     friend class QuartzWritableDatabase;
     friend class QuartzTermList;
     private:
-	/** Mutex to protect this object against concurrent access.
-	 */
-	OmLock quartz_mutex;
-
 	/** Pointer to table manager.
 	 */
 	AutoPtr<QuartzTableManager> tables;

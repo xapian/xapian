@@ -35,10 +35,6 @@
 #include <vector>
 #include <stdio.h>
 
-#ifdef MUS_USE_PTHREAD
-#include <pthread.h>
-#endif /* MUS_USE_PTHREAD */
-
 #include <unistd.h>
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
@@ -50,9 +46,8 @@ enum om_debug_types {
      */
     OM_DEBUG_UNKNOWN,
 
-    /** A debug message involved with locking or unlocking something.
-     */
-    OM_DEBUG_LOCK,
+    /// @internal Was OM_DEBUG_LOCK - insert DUMMY to preserve numbers for now
+    OM_DEBUG_DUMMY,
 
     /** A debug message to do with a database backend.
      */
@@ -126,9 +121,6 @@ class OmDebug {
 	/// Initialise the list of types wanted
 	void select_types();
 
-	/// Initialised the mutex
-	void initialise_mutex();
-
 	/// Whether the object has been initialised
 	bool initialised;
 
@@ -136,10 +128,6 @@ class OmDebug {
 	 */
 	FILE * outfile;
 
-#ifdef MUS_USE_PTHREAD
-	/// Mutex
-	pthread_mutex_t * mutex;
-#endif /* MUS_USE_PTHREAD */
     public:
 	/// Method for outputting something
 	void display_message(enum om_debug_types type, std::string msg);
@@ -169,13 +157,7 @@ extern OmDebug om_debug;
     } \
 } while (0)
 
-#ifdef HAVE_LIBPTHREAD
-#define THREAD_INFO " (pid/thr " << getpid() << " " << pthread_self() << ")"
-#else // HAVE_LIBPTHREAD
-#define THREAD_INFO " (pid " << getpid() << ")"
-#endif // HAVE_LIBPTHREAD
-
-#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om" THREAD_INFO ": " << b << '\n')
+#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om " << getpid() << ": " << b << '\n')
 
 /** Class to manage printing a message at the start and end of a method call.
  */

@@ -257,8 +257,6 @@ class DADatabase : public Database {
     friend class DatabaseBuilder;
     friend class DADocument;
     private:
-	OmLock mutex;
-
 	struct DA_file * DA_r;
 	struct DA_file * DA_t;
 

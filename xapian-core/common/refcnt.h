@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_REFCNT_H
 #define OM_HGUARD_REFCNT_H
 
-#include "omlocks.h"
+#include "omdebug.h"
 
 /** Reference counted objects should inherit from
  *  RefCntBase.  This gives the object a reference count
@@ -36,9 +36,6 @@ class RefCntBase {
 	/// The actual reference count
 	mutable ref_count_t ref_count;
 
-	/// the lock used for synchronising increment and decrement
-	OmLock ref_count_mutex;
-
     protected:
 	/** The copy constructor.
 	 *
@@ -46,9 +43,10 @@ class RefCntBase {
 	 *  which should only rarely need copying (this is, after all, a
 	 *  refcount implementation).  Sometimes it's needed, though,
 	 *  since OmLock objects can't be copied.
+	 *  -- Now OmLock has gone, what is the status of this comment?
 	 */
 	RefCntBase(const RefCntBase &other)
-		: ref_count(0), ref_count_mutex() { }
+		: ref_count(0) { }
 
     public:
 	/** Dummy class, used simply to make the private constructor
@@ -118,20 +116,17 @@ class RefCntPtr {
 
 inline void RefCntBase::ref_start() const
 {
-    OmLockSentry locksentry(ref_count_mutex);
     Assert(ref_count == 0);
     ref_count += 1;
 }
 
 inline void RefCntBase::ref_increment() const
 {
-    OmLockSentry locksentry(ref_count_mutex);
     ref_count += 1;
 }
 
 inline bool RefCntBase::ref_decrement() const
 {
-    OmLockSentry locksentry(ref_count_mutex);
     ref_count -= 1;
     return (ref_count == 0);
 }

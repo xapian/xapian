@@ -26,10 +26,6 @@
 
 #include "omdebug.h"
 
-#ifdef MUS_USE_PTHREAD
-#include <pthread.h>
-#endif /* MUS_USE_PTHREAD */
-
 OmDebug om_debug;
 
 #include <stdlib.h>
@@ -45,21 +41,15 @@ OmDebug::OmDebug()
 	: initialised(false),
 	  outfile(0)
 {
-    // Can't do much in this constructor, because on Solaris the contents get wiped
-    // just before the start of main().
+    // Can't do much in this constructor, because on Solaris the contents get
+    // wiped just before the start of main().
 }
 
 OmDebug::~OmDebug()
 {
     display_message(OM_DEBUG_UNKNOWN,
 		    std::string("Om debugging version, closing down\n"));
-    if(initialised) {
-#ifdef MUS_USE_PTHREAD
-	delete mutex;
-	mutex = 0;
-#endif /* MUS_USE_PTHREAD */
-	initialised = false;
-    }
+    initialised = false;
 }
 
 void
@@ -101,30 +91,12 @@ OmDebug::select_types()
 }
 
 void
-OmDebug::initialise_mutex()
-{
-#ifdef MUS_USE_PTHREAD
-    mutex = new pthread_mutex_t;
-    pthread_mutex_init(mutex, 0);
-#endif /* MUS_USE_PTHREAD */
-}
-
-void
 OmDebug::initialise()
 {
-    if(!initialised) {
-	initialise_mutex();
-	// We get this as soon as we can - possible race condition exists here if the
-	// initialise() method is not explicitly called.
-#ifdef MUS_USE_PTHREAD
-	pthread_mutex_lock(mutex);
-#endif
-	select_types();
-	open_output();
-	initialised = true;
-#ifdef MUS_USE_PTHREAD
-	pthread_mutex_unlock(mutex);
-#endif
+    if (!initialised) {
+	// We get this as soon as we can - possible race condition exists here
+	// if the initialise() method is not explicitly called.
+	select_types(); open_output(); initialised = true;
 
 	display_message(OM_DEBUG_UNKNOWN,
 			std::string("Om debugging version, initialised\n"));
@@ -152,9 +124,6 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
     initialise();
     if(!want_type(type)) return;
 
-#ifdef MUS_USE_PTHREAD
-    pthread_mutex_lock(mutex);
-#endif
     if (outfile) {
 	fprintf(outfile, "{%d}", type);
 	fwrite(msg.data(), 1, msg.size(), outfile);
@@ -164,9 +133,6 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
 	fwrite(msg.data(), 1, msg.size(), stderr);
 	fflush(stderr);
     }
-#ifdef MUS_USE_PTHREAD
-	pthread_mutex_unlock(mutex);
-#endif
 }
 
 #endif /* MUS_DEBUG_VERBOSE */

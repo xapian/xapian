@@ -139,7 +139,6 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
         exit(1);
     }
     p->heavy_duty = heavy_duty;
-    MUS_PTHREAD_MUTEX_INIT(p->mutex);
     return p;
 }
 
@@ -152,7 +151,6 @@ extern void DA_close(struct DA_file * p)
     }
     free(p->buffers);
     free(p->next);
-    MUS_PTHREAD_MUTEX_DESTROY(p->mutex);
     free(p);
 }
 
@@ -189,7 +187,6 @@ static int fstring(const byte * k, int d, const byte * b, int o, int klen)
 extern int DA_term(const byte * k, struct DA_term_info * v, struct DA_file * p)
 {
     int retval;
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     {
 	int klen = k[0];
 	byte * * bvec = p->buffers;
@@ -219,7 +216,6 @@ extern int DA_term(const byte * k, struct DA_term_info * v, struct DA_file * p)
 	putin(v, b, i, o, blockno, p);
 	retval = (fstring(k, 0, b, o, klen) == 0);
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return retval;
 }
 
@@ -306,7 +302,6 @@ DA_open_postings(struct DA_term_info * v, struct DA_file * p)
 {
     struct DA_postings * q =
 	    (struct DA_postings *) calloc(1, sizeof(struct DA_postings));
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     {
 	q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
 
@@ -343,13 +338,11 @@ DA_open_postings(struct DA_term_info * v, struct DA_file * p)
 	    }
 	}
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return q;
 }
 
 extern void DA_read_postings(struct DA_postings * q, int style, int Z)
 {
-    MUS_PTHREAD_MUTEX_LOCK(q->p->mutex);
     if (style > 0) {
         do {
 	    next_posting(q, Z); q->E = q->F;
@@ -365,7 +358,6 @@ extern void DA_read_postings(struct DA_postings * q, int style, int Z)
 	if (q->Doc < Z) q->Doc = Z;
 	q->D = q->Doc+1;
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(q->p->mutex);
     return;
 }
 
@@ -380,7 +372,6 @@ extern void DA_close_postings(struct DA_postings * q)
 
 extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
 {
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     {
 	byte * b = v->p;
 	int i = v->o + 2;
@@ -389,7 +380,6 @@ extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
 	    do {
 		blockno++;
 		if (blockno > p->lasttermblock) {
-		    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
 		    return false;
 		}
 		readda(p, blockno, b);
@@ -399,13 +389,11 @@ extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
 	}
 	putin(v, b, i, L2(b, i), blockno, p);
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return true;
 }
 
 extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
 {
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     {
 	byte * b = v->p;
 	int i = v->o - 2;
@@ -414,7 +402,6 @@ extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
 	    do {
 		blockno--;
 		if (blockno < p->firsttermblock) {
-		    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
 		    return false;
 		}
 		readda(p, blockno, b);
@@ -424,7 +411,6 @@ extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
 	}
 	putin(v, b, i, L2(b, i), blockno, p);
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return true;
 }
 
@@ -524,23 +510,19 @@ static void DA_read_unit(struct DA_file * p, int m, int n, struct record * r)
 
 extern int DA_get_record(struct DA_file * p, int n, struct record * r)
 {
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     DA_read_unit(p,
 		 2 * n,
 		 2 * n,
 		 r);
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return (r->number == n);
 }
 
 extern int DA_get_termvec(struct DA_file * p, int n, struct termvec * tv)
 {
-    MUS_PTHREAD_MUTEX_LOCK(p->mutex);
     DA_read_unit(p,
 		 2 * n + 1,
 		 2 * n + 1,
 		 (struct record *) tv);
-    MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return (tv->number == n);
 }
 

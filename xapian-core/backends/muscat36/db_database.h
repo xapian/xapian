@@ -247,8 +247,6 @@ class DBDatabase : public Database {
     friend class DatabaseBuilder;
     friend class DBDocument;
     private:
-	OmLock mutex;
-
 	struct DB_file * DB;
 
 	FILE * keyfile;

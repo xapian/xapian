@@ -231,7 +231,6 @@ DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
 {
     struct DB_postings * q =
         (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
-    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
     {
     q->DB = DB;
     q->cursor = DB_make_cursor(DB);
@@ -259,7 +258,6 @@ DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
     q->Doc = 0;
     q->E = 0;
     }
-    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
     return q;
 }
 
@@ -317,8 +315,6 @@ static void next_posting(struct DB_postings * q, int Z)
 
 extern void DB_read_postings(struct DB_postings * q, int style, int Z)
 {
-    MUS_PTHREAD_MUTEX_LOCK(q->DB->mutex);
-
     if (q->Doc == MAXINT) return;
 
     if (style > 0) {
@@ -330,7 +326,6 @@ extern void DB_read_postings(struct DB_postings * q, int style, int Z)
         if (q->Doc > q->E || q->E < Z) next_posting(q, Z);
     }
     if (q->Doc < Z) q->Doc = Z;
-    MUS_PTHREAD_MUTEX_UNLOCK(q->DB->mutex);
     return;
 }
 
@@ -446,8 +441,6 @@ extern struct DB_file * DB_open(const char * s, int pool_size)
         DB->term_count = 0;
     }
 
-    MUS_PTHREAD_MUTEX_INIT(DB->mutex);
-
     return DB;
 }
 
@@ -462,7 +455,6 @@ extern void DB_close(struct DB_file * DB)
     }
     free(DB->cursor);
     free(DB->pool);
-    MUS_PTHREAD_MUTEX_DESTROY(DB->mutex);
     free(DB);
 }
 
@@ -520,19 +512,11 @@ static int DB_read_unit(struct DB_file * DB, int n, int r_ot_tv, struct record *
 
 extern int DB_get_record(struct DB_file * DB, int n, struct record * r)
 {
-    int retval;
-    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
-    retval = DB_read_unit(DB, n, 0, r);
-    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
-    return retval;
+    return DB_read_unit(DB, n, 0, r);
 }
 
 extern int DB_get_termvec(struct DB_file * DB, int n, struct termvec * tv)
 {
-    int retval;
-    MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
-    retval = DB_read_unit(DB, n, 1, (struct record *) tv);
-    MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
-    return retval;
+    return DB_read_unit(DB, n, 1, (struct record *) tv);
 }
 

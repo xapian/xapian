@@ -28,7 +28,6 @@
 #include "om/omquery.h"
 #include <string>
 #include <vector>
-#include "omlocks.h"
 
 #ifdef USE_DELETER_VECTOR
 #include "deleter_vector.h"
@@ -49,7 +48,6 @@ class OmQuery::Internal {
     public:
         static const int OP_LEAF = -1;
         static const int OP_UNDEF = -2;
-    	OmLock mutex;
 
 	/// The container type for storing pointers to subqueries
 #ifdef USE_DELETER_VECTOR

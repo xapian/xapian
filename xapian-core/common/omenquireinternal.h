@@ -27,7 +27,6 @@
 #include "config.h"
 
 #include "om/omenquire.h"
-#include "omlocks.h"
 #include "refcnt.h"
 #include <algorithm>
 #include <math.h>
@@ -151,9 +150,6 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 *  replaced by an optimised version.
 	 */
 	OmQuery * query;
-
-	/// pthread mutex, used if available.
-	OmLock mutex;
 
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().

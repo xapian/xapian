@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS = musmutex.h io_system.h 3point6.h \
+noinst_HEADERS = io_system.h 3point6.h \
 		 da_document.h da_database.h \
 		 db_document.h db_database.h \
 		 daread.h dbread.h dbdefs.h \

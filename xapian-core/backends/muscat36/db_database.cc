@@ -228,7 +228,6 @@ DBDatabase::~DBDatabase()
 om_doccount
 DBDatabase::get_doccount() const
 {
-    OmLockSentry sentry(mutex);
     return get_doccount_internal();
 }
 
@@ -241,8 +240,6 @@ DBDatabase::get_doccount_internal() const
 om_doclength
 DBDatabase::get_avlength() const
 {
-    // FIXME - want this mutex back if implement get_avlength_internal()
-    //OmLockSentry sentry(mutex);
     return get_avlength_internal();
 }
 
@@ -257,19 +254,16 @@ om_doclength
 DBDatabase::get_doclength(om_docid did) const
 {
     // FIXME: should return actual length.
-    //OmLockSentry sentry(mutex);
     return get_avlength_internal();
 }
 
 om_doccount
 DBDatabase::get_termfreq(const om_termname & tname) const
 {
-    OmLockSentry sentry(mutex);
-
-    if(!term_exists_internal(tname)) return 0;
+    if (!term_exists_internal(tname)) return 0;
     LeafPostList *pl = open_post_list_internal(tname);
     om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
+    if (pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
 }
@@ -277,16 +271,13 @@ DBDatabase::get_termfreq(const om_termname & tname) const
 bool
 DBDatabase::term_exists_internal(const om_termname & tname) const
 {
-    if(term_lookup(tname).get() != 0) return true;
-    return false;
+    return (term_lookup(tname).get() != 0);
 }
 
 bool
 DBDatabase::term_exists(const om_termname & tname) const
 {
     Assert(tname.size() != 0);
-    OmLockSentry sentry(mutex);
-
     return term_exists_internal(tname);
 }
 
@@ -308,8 +299,6 @@ DBDatabase::open_post_list_internal(const om_termname & tname) const
 LeafPostList *
 DBDatabase::do_open_post_list(const om_termname & tname) const
 {
-    OmLockSentry sentry(mutex);
-
     return open_post_list_internal(tname);
 }
 
@@ -318,7 +307,6 @@ LeafTermList *
 DBDatabase::open_term_list(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    OmLockSentry sentry(mutex);
 
     struct termvec *tv = M_make_termvec();
 
@@ -338,7 +326,6 @@ struct record *
 DBDatabase::get_record(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    OmLockSentry sentry(mutex);
 
     struct record *r = M_make_record();
     int found = DB_get_record(DB, did, r);
@@ -356,8 +343,6 @@ DBDatabase::get_record(om_docid did) const
 OmKey
 DBDatabase::get_key(om_docid did, om_keyno keyid) const
 {
-    OmLockSentry sentry(mutex);
-
     OmKey key;
     DEBUGLINE(DB, "Looking in keyfile for keyno " << keyid << " in document " << did);
 
@@ -384,7 +369,6 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
 Document *
 DBDatabase::open_document(om_docid did, bool lazy) const
 {
-    OmLockSentry sentry(mutex);
     return new DBDocument(this, did, DB->heavy_duty, lazy);
 }
 

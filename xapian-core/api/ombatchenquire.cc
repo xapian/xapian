@@ -37,12 +37,10 @@ class OmBatchEnquire::Internal {
 
 	query_batch queries;
 
-	// pthread mutexes, if available.
-	OmLock mutex;
     public:
 	Internal(const OmDatabase &databases,
 		 OmErrorHandler * errorhandler_ = 0)
-		: enquire(databases, errorhandler_), mutex() {};
+		: enquire(databases, errorhandler_) {};
 	~Internal() {};
 
 	void set_queries(const query_batch &queries_);
@@ -120,14 +118,12 @@ OmBatchEnquire::get_description() const
 void
 OmBatchEnquire::Internal::set_queries(const query_batch &queries_)
 {
-    OmLockSentry locksentry(mutex);
     queries = queries_;
 }
 
 OmBatchEnquire::mset_batch
 OmBatchEnquire::Internal::get_msets() const
 {
-    OmLockSentry locksentry(mutex);
     mset_batch result;
 
     query_batch::const_iterator q = queries.begin();
@@ -158,28 +154,24 @@ OmBatchEnquire::Internal::get_msets() const
 const OmDocument
 OmBatchEnquire::Internal::get_doc(om_docid did) const
 {
-    OmLockSentry locksentry(mutex);
     return enquire.get_doc(did);
 }
 
 const OmDocument
 OmBatchEnquire::Internal::get_doc(const OmMSetIterator &it) const
 {
-    OmLockSentry locksentry(mutex);
     return enquire.get_doc(it);
 }
 
 OmTermIterator
 OmBatchEnquire::Internal::get_matching_terms(om_docid did) const
 {
-    OmLockSentry locksentry(mutex);
     return enquire.get_matching_terms(did);
 }
 
 OmTermIterator
 OmBatchEnquire::Internal::get_matching_terms(const OmMSetIterator &it) const
 {
-    OmLockSentry locksentry(mutex);
     return enquire.get_matching_terms(it);
 }
 

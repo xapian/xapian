@@ -16,23 +16,11 @@ else
 INTERNALTEST_CXXFLAGS =
 endif
 
-if BUILD_PTHREAD_SUPPORT
-THREADTESTS = threadtest
-else
-THREADTESTS =
-endif
-
 ## Test programs to be run
-TESTS = $(THREADTESTS) \
-        run-apitest \
-        run-internaltest \
-	$(PERLTESTS)
+TESTS = run-apitest run-internaltest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS = $(THREADTESTS) \
-                 apitest \
-		 internaltest \
-		 stemtest
+check_PROGRAMS = apitest internaltest stemtest
 
 if HAVE_PERL
 check-local: includetest.o
@@ -41,9 +29,6 @@ endif
 ## Sources:
 
 noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
-
-threadtest_SOURCES = threadtest.cc
-threadtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
 apitest_LDADD = ../testsuite/libtest.la ../libxapian.la

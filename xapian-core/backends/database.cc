@@ -58,7 +58,6 @@ Database::ensure_session_in_progress()
 void
 Database::internal_end_session()
 {
-    OmLockSentry sentry(mutex);
     if (!session_in_progress) return;
 
     if (transaction_in_progress) {
@@ -84,7 +83,6 @@ Database::internal_end_session()
 void
 Database::flush()
 {
-    OmLockSentry sentry(mutex);
     if (session_in_progress) {
 	do_flush();
     }
@@ -93,7 +91,6 @@ Database::flush()
 void
 Database::begin_transaction()
 {
-    OmLockSentry sentry(mutex);
     ensure_session_in_progress();
     if (transaction_in_progress)
 	throw OmInvalidOperationError("Cannot begin transaction - transaction already in progress");
@@ -104,7 +101,6 @@ Database::begin_transaction()
 void
 Database::commit_transaction()
 {
-    OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
 	throw OmInvalidOperationError("Cannot commit transaction - no transaction currently in progress");
     transaction_in_progress = false;
@@ -115,7 +111,6 @@ Database::commit_transaction()
 void
 Database::cancel_transaction()
 {
-    OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
 	throw OmInvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
@@ -126,7 +121,6 @@ Database::cancel_transaction()
 om_docid
 Database::add_document(const OmDocument & document)
 {
-    OmLockSentry sentry(mutex);
     ensure_session_in_progress();
     return do_add_document(document);
 }
@@ -134,7 +128,6 @@ Database::add_document(const OmDocument & document)
 void
 Database::delete_document(om_docid did)
 {
-    OmLockSentry sentry(mutex);
     ensure_session_in_progress();
     do_delete_document(did);
 }
@@ -142,7 +135,6 @@ Database::delete_document(om_docid did)
 void
 Database::replace_document(om_docid did, const OmDocument & document)
 {
-    OmLockSentry sentry(mutex);
     ensure_session_in_progress();
     do_replace_document(did, document);
 }

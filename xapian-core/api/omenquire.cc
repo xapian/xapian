@@ -22,7 +22,6 @@
  */
 
 #include "omdebug.h"
-#include "omlocks.h"
 #include "omdatabaseinternal.h"
 #include "omdocumentinternal.h"
 
@@ -879,7 +878,6 @@ OmEnquire::Internal::Data::~Data()
 void
 OmEnquire::Internal::Data::set_query(const OmQuery &query_)
 {
-    OmLockSentry locksentry(mutex);
     if (query) {
 	delete query;
 	query = 0;
@@ -906,7 +904,6 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
     DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset",
 	      first << ", " << maxitems << ", " << omrset << ", " <<
 	      moptions << ", " << mdecider << ", ");
-    OmLockSentry locksentry(mutex);
     if (query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
@@ -919,14 +916,11 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
 
     // Set Rset
     OmRSet emptyrset;
-    if(omrset == 0) {
+    if (omrset == 0) {
 	omrset = &emptyrset;
     }
 
     // FIXME: make match take a refcntptr
-    //
-    // Notes: when accessing query, we don't need to lock mutex, since it's
-    // our own copy and we're locked ourselves
     MultiMatch match(db, query->internal, *omrset, *moptions, errorhandler);
 
     // Run query and get results into supplied OmMSet object
@@ -953,7 +947,6 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 	            const OmSettings * eoptions,
 		    const OmExpandDecider * edecider) const
 {
-    OmLockSentry locksentry(mutex);
     OmESet retval;
 
     OmSettings defeoptions;
@@ -1000,14 +993,12 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 OmTermIterator
 OmEnquire::Internal::Data::get_matching_terms(om_docid did) const
 {
-    OmLockSentry locksentry(mutex);
     return calc_matching_terms(did);
 }
 
 OmTermIterator
 OmEnquire::Internal::Data::get_matching_terms(const OmMSetIterator &it) const
 {
-    OmLockSentry locksentry(mutex);
     // FIXME: take advantage of OmMSetIterator to ensure that database
     // doesn't get modified underneath us.
     return calc_matching_terms(*it);
@@ -1028,7 +1019,6 @@ OmEnquire::Internal::Data::get_description() const
 void
 OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
 {
-    OmLockSentry locksentry(mutex);
     try {
 	unsigned int multiplier = db.internal->databases.size();
 
@@ -1045,7 +1035,6 @@ OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
 OmDocument
 OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 {
-    OmLockSentry locksentry(mutex);
     try {
 	unsigned int multiplier = db.internal->databases.size();
 

@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "om/omenquire.h"
-#include "omlocks.h"
 #include "refcnt.h"
 #include "database_builder.h"
 #include "document.h"
@@ -50,11 +49,6 @@ class OmDatabase::Internal {
 	/// databases which this consists of.
 	std::vector<RefCntPtr<Database> > databases;
 
-	/** A lock to control concurrent access to this object.
-	 *  This is not intended to control access to the Database objects.
-	 */
-	OmLock mutex;
-
 	/** Make a new internal object, with the user supplied parameters.
 	 *
 	 *  This opens the database and stores it in the ref count pointer.
@@ -69,7 +63,7 @@ class OmDatabase::Internal {
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */
-        Internal(const Internal &other)	: databases(other.databases), mutex()
+        Internal(const Internal &other)	: databases(other.databases)
 	{ }
 
 	Internal() { }

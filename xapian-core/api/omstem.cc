@@ -27,7 +27,6 @@
 #include "om/omoutput.h"
 #include "om/omstem.h"
 #include "utils.h"
-#include "omlocks.h"
 
 #include "danish/stem_danish.h"
 #include "dutch/stem_dutch.h"
@@ -127,10 +126,6 @@ class OmStem::Internal {
 	/** Destructor.
 	 */
 	~Internal();
-
-	/** Protection against concurrent access.
-	 */
-	OmLock mutex;
 
 	/** The code representing the language being stemmed.
 	 */
@@ -301,7 +296,6 @@ OmStem::operator=(const OmStem &other)
 {
     DEBUGAPICALL(void, "OmStem::operator=", other);
     // FIXME
-    OmLockSentry locksentry(internal->mutex); // or some kind of lock, anyway
     throw OmUnimplementedError("OmStem::operator=() unimplemented");
 }
 
@@ -309,7 +303,6 @@ std::string
 OmStem::stem_word(const std::string &word) const
 {
     DEBUGAPICALL(std::string, "OmStem::stem_word", word);
-    OmLockSentry locksentry(internal->mutex);
     RETURN(internal->stem_word(word));
 }
 

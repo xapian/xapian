@@ -53,8 +53,6 @@ OmDatabase::OmDatabase(const OmDatabase &other)
 	: internal(0)
 {
     DEBUGAPICALL(void, "OmDatabase::OmDatabase", "OmDatabase");
-    OmLockSentry locksentry(other.internal->mutex);
-
     internal = new Internal(*(other.internal));
 }
 
@@ -67,20 +65,8 @@ OmDatabase::operator=(const OmDatabase &other)
 	return;
     }
 
-    // we get these locks in a defined order to avoid deadlock
-    // should two threads try to assign two databases to each
-    // other at the same time.
-    Internal * newinternal;
-
-    {
-	OmLockSentry locksentry1(std::min(internal, other.internal)->mutex);
-	OmLockSentry locksentry2(std::max(internal, other.internal)->mutex);
-
-	newinternal = new Internal(*(other.internal));
-
-	std::swap(internal, newinternal);
-    }
-
+    Internal * newinternal = new Internal(*(other.internal));
+    std::swap(internal, newinternal);
     delete newinternal;
 }
 
@@ -117,7 +103,6 @@ OmDatabase::add_database(const OmDatabase & database)
 	return;
     }
     std::vector<RefCntPtr<Database> >::iterator i;
-    OmLockSentry locksentry(database.internal->mutex);
     for (i = database.internal->databases.begin();
 	 i != database.internal->databases.end(); i++) {
 	internal->add_database(*i);

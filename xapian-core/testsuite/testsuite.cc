@@ -63,12 +63,6 @@
 #include "testsuite.h"
 #include "omdebug.h"
 
-#ifdef HAVE_LIBPTHREAD
-#include <pthread.h>
-
-pthread_mutex_t test_driver_mutex;
-#endif // HAVE_LIBPTHREAD
-
 #ifdef HAVE_STREAMBUF
 class null_streambuf : public std::streambuf {
 };
@@ -149,13 +143,7 @@ test_driver::get_srcdir(const std::string & argv0)
 void *operator new(size_t size) throw(std::bad_alloc) {
     size_t real_size = (size > 0) ? size : 1;
 
-#ifdef HAVE_LIBPTHREAD
-    pthread_mutex_lock(&test_driver_mutex);
-#endif // HAVE_LIBPTHREAD
     void *result = checked_malloc(real_size);
-#ifdef HAVE_LIBPTHREAD
-    pthread_mutex_unlock(&test_driver_mutex);
-#endif // HAVE_LIBPTHREAD
 
     if (!result) throw std::bad_alloc();
 
@@ -176,13 +164,7 @@ void memory_weirdness() {
 
 void operator delete(void *p) throw() {
     if (p) {
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_lock(&test_driver_mutex);
-#endif // HAVE_LIBPTHREAD
 	checked_free(p, "deleting memory at %p which wasn't newed\n");
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_unlock(&test_driver_mutex);
-#endif // HAVE_LIBPTHREAD
     }
 }
 
@@ -422,10 +404,6 @@ report_totals()
 int
 test_driver::main(int argc, char *argv[], const test_desc *tests)
 {
-#ifdef HAVE_LIBPTHREAD
-    pthread_mutex_init(&test_driver_mutex, 0);
-#endif // HAVE_LIBPTHREAD
-
     if (runs == 0) argv0 = argv[0];
     if (runs == 1) atexit(report_totals);
     runs++;

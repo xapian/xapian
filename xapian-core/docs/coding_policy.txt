@@ -22,3 +22,6 @@ If the rule is not followed, it becomes much more difficult to work out
 where to put the locks to avoid the possibility of deadlocks or unlocked
 access, and it is easy for problems to appear when unrelated changes are
 made.
+
+FIXME -- This policy is probably irrelevant with mutex locking gone - having
+the wrapper methods just makes the code less clear now.

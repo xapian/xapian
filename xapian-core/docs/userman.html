@@ -1016,15 +1016,19 @@ associated with the relevant query.  If that query failed, however,
 
 <H2>Thread safety</H2>
 <P>
-All of the main Xapian API classes (<CODE>OmEnquire</CODE>,
-<CODE>OmQuery</CODE>, <CODE>OmDatabase</CODE>,
-<CODE>OmBatchEnquire</CODE>) are protected by
-pthread mutexes when available and not disabled.  This means that
-the objects will not get into an inconsistent state as a result
-of concurrent accesses by different threads.  Note that changing
-the query from one thread while retrieving results with another
-will still lead to unexpected results which depend on which
-thread gets there first.
+There's no pthread specific code in Xapian.  If you want to use the same
+object concurrently from different threads, it's up to you to police access
+(with a mutex or in some other way) to ensure only one method is being
+executed at once.  The reason for this is to avoid adding the overhead
+of locking and unlocking mutexes when they aren't required.  It also makes
+the Xapian code easier to maintain, and simplifies building it.
+
+<P>
+For most applications, this is unlikely to be an issue - generally the
+calls to Xapian are likely to be from a single thread.  And if they aren't,
+you can just create an entirely separate OmDatabase object in each thread
+- this is no different to accessing the same database from two different
+processes.
 </P>
 
 <H2>Examples</H2>

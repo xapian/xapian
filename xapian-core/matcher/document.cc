@@ -23,7 +23,6 @@
 
 #include "om/omtypes.h"
 #include "refcnt.h"
-#include "omlocks.h"
 #include "document.h"
 #include "om/omdocument.h"
 
@@ -31,14 +30,12 @@ OmKey
 Document::get_key(om_keyno keyid) const
 {
     DEBUGCALL(MATCH, OmKey, "Document::get_key", keyid);
-    OmLockSentry locksentry(mutex);
     RETURN(do_get_key(keyid));
 }
 
 std::map<om_keyno, OmKey>
 Document::get_all_keys() const
 {
-    OmLockSentry locksentry(mutex);
     return do_get_all_keys();
 }
 
@@ -46,7 +43,6 @@ OmData
 Document::get_data() const
 {
     DEBUGCALL(MATCH, OmData, "Document::get_data", "");
-    OmLockSentry locksentry(mutex);
     RETURN(do_get_data());
 }
 
@@ -54,6 +50,5 @@ LeafTermList *
 Document::open_term_list() const
 {
     DEBUGCALL(MATCH, LeafTermList *, "Document::open_term_list", "");
-    OmLockSentry locksentry(mutex);
     RETURN(database->open_term_list(did));
 }

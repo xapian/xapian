@@ -22,7 +22,6 @@
 
 #include "config.h"
 #include "utils.h"
-#include "omlocks.h"
 #include "omdatabaseinternal.h"
 #include "alltermslist.h"
 #include "emptyalltermslist.h"
@@ -47,7 +46,6 @@ OmDatabase::Internal::Internal(const OmSettings &params, bool readonly)
 void
 OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
 {
-    OmLockSentry locksentry(mutex);
     // Open database (readonly) and add it to the list
     RefCntPtr<Database> newdb(DatabaseBuilder::create(params, readonly));
     databases.push_back(newdb);
@@ -62,7 +60,6 @@ OmDatabase::Internal::add_database(const OmSettings & params)
 void
 OmDatabase::Internal::add_database(RefCntPtr<Database> newdb)
 {
-    OmLockSentry locksentry(mutex);
     databases.push_back(newdb);
 }
 

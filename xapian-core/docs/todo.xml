@@ -1,4 +1,17 @@
 <todo>
+<todoitem priority="H" difficulty="3" owner="" area="Debug" release="">
+
+OmDebug should open the log file with O_APPEND and write debug lines in one
+go to try to ensure threaded use of Xapian doesn't mangle the debug log.
+
+</todoitem>
+<todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
+
+Try to find some way to write a thread identifier into the debug log, while
+not depending of pthreads.  Try dlsym() on pthread_self?
+(pthread_t pthread_self(void)).
+
+</todoitem>
 <todoitem priority="H" difficulty="2" owner="" area="Matcher" release="">
 
 Pass around partially created postlist as an auto_ptr, for exception safety.
@@ -370,19 +383,6 @@ once I've cleaned up the build system, sorted out the examples, etc.
 
 Propose: move to require autoconf >= 2.50 in the medium term as it includes
 better largefile checks, and should resolve this.
-
- * propagate pthreads flags to xapian-config if needed (otherwise
-   linking will fail to pull in relevant pthreads-related symbols)
- * I had a problem last time I tried to build on CF FreeBSD with
-   pthreads not linking properly. Olly has disabled this support by
-   default (we had a long discussion about the merits of threaded
-   support), but the build system should be able to cope with this if
-   enabled. These sorts of issues (with non-default options) _won't_
-   be caught easily by the automated testing, unless I get carried
-   away and rotate default testing with specific non-default options.
-
-Propose: remove mutex locking and hence dependency of pthreads, which removes
-all these issues.
 
 Code
 ====

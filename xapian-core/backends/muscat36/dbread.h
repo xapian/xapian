@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 #include "3point6.h"
-#include "musmutex.h"
 #include "io_system.h"
 #include "dbdefs.h"
 
@@ -75,7 +74,6 @@ struct DB_file
     int term_count;
 
     int heavy_duty;     /* 1 or 0 according as heavy duty or flimsy */
-    MUS_PTHREAD_MUTEX(mutex);
 };
 
 struct DB_term_info

@@ -28,7 +28,6 @@
 #include "database_builder.h"
 #include "om/omdocument.h"
 #include "refcnt.h"
-#include "omlocks.h"
 #include "emptypostlist.h"
 
 class Document;
@@ -56,9 +55,6 @@ class Database : public RefCntBase {
 	/// Flag recording whether a transaction is in progress
 	bool transaction_in_progress;
 	
-	/// Mutex protecting access to "*_in_progress" flags.
-	OmLock mutex;
-
 	/// Virtual method to begin a session.
 	virtual void do_begin_session() = 0;
 

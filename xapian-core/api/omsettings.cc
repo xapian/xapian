@@ -21,7 +21,6 @@
  */
 
 #include "config.h"
-#include "omlocks.h"
 #include "refcnt.h"
 #include "omdebug.h"
 #include "om/omsettings.h"
@@ -49,9 +48,6 @@ class SettingsData : public RefCntBase {
 // ================
 class OmSettings::Internal {
     private:
-	/// Mutex used for controlling access to data.
-	OmLock mutex;
-
 	/// The actual data (or ref-counted pointer to it)
 	RefCntPtr<SettingsData> data;
     public:
@@ -300,20 +296,18 @@ OmSettings::get_description() const
 // OmSettings::Internal methods
 
 OmSettings::Internal::Internal()
-	: mutex()
 {
     data = new SettingsData;
 }
 
 OmSettings::Internal::Internal(const OmSettings::Internal &other)
-	: mutex(), data(other.data)
+	: data(other.data)
 {
 }
 
 void
 OmSettings::Internal::operator=(const OmSettings::Internal &other)
 {
-    OmLockSentry sentry(mutex);
     OmSettings::Internal temp(other);
     std::swap(data, temp.data);
 }
@@ -325,7 +319,6 @@ OmSettings::Internal::~Internal()
 void
 OmSettings::Internal::set(const std::string &key, const std::string &value)
 {
-    OmLockSentry sentry(mutex);
     // copy on write...
     if (data->ref_count_get() > 1) {
 	data = RefCntPtr<SettingsData>(new SettingsData(*data));
@@ -336,8 +329,6 @@ OmSettings::Internal::set(const std::string &key, const std::string &value)
 bool
 OmSettings::Internal::find(const std::string &key, std::string & result, bool throw_exception) const
 {
-    OmLockSentry sentry(mutex);
-
     SettingsData::map_type::const_iterator i;
     i = data->values.find(key);
 

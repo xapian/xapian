@@ -22,7 +22,6 @@
  */
 
 #include "omdebug.h"
-#include "omlocks.h"
 #include "omqueryinternal.h"
 #include "utils.h"
 #include "netutils.h"
@@ -164,7 +163,6 @@ std::string
 OmQuery::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmQuery::get_description", "");
-    OmLockSentry locksentry(internal->mutex);
     RETURN("OmQuery(" + internal->get_description() + ')');
 }
 
@@ -172,7 +170,6 @@ void OmQuery::set_window(om_termpos window)
 {
     DEBUGAPICALL(void, "OmQuery::set_window", window);
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     internal->set_window(window);
 }
 
@@ -180,7 +177,6 @@ void OmQuery::set_cutoff(om_weight cutoff)
 {
     DEBUGAPICALL(void, "OmQuery::set_cutoff", cutoff);
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     internal->set_cutoff(cutoff);
 }
 
@@ -188,7 +184,6 @@ void OmQuery::set_elite_set_size(om_termcount size)
 {
     DEBUGAPICALL(void, "OmQuery::set_elite_set_size", size);
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     internal->set_elite_set_size(size);
 }
 
@@ -196,7 +191,6 @@ om_termcount OmQuery::get_length() const
 {
     DEBUGAPICALL(om_termcount, "OmQuery::get_length", "");
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     RETURN(internal->get_length());
 }
 
@@ -204,7 +198,6 @@ om_termcount OmQuery::set_length(om_termcount qlen)
 {
     DEBUGAPICALL(om_termcount, "OmQuery::set_length", qlen);
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     RETURN(internal->set_length(qlen));
 }
 
@@ -212,7 +205,6 @@ OmTermIterator OmQuery::get_terms_begin() const
 {
     DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms_begin", "");
     Assert(internal);
-    OmLockSentry locksentry(internal->mutex);
     RETURN(internal->get_terms());
 }
 
