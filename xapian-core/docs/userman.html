@@ -789,11 +789,12 @@ The greatest weight which is attained in the full results of the search.
 </TD><TD VALIGN="top">
 The maximum possible weight in the mset.
 </TD></TR><TR><TD VALIGN="top">
-<CODE>mbound</CODE>
+<CODE>docs_considered</CODE>
 </TD><TD VALIGN="top">
-A lower bound on the number of documents in the database which have a weight
-greater than zero.  Note that this value may change if the search is
-recalculated with different values for <CODE>first</CODE> or
+The number of documents matching the query considered for the mset.
+This provides a lower bound on the number of documents in the database
+which have a weight greater than zero.  Note that this value may change
+if the search is recalculated with different values for <CODE>first</CODE> or
 <CODE>max_items<CODE>.
 </TD><TR>
 </TABLE>

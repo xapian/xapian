@@ -223,7 +223,7 @@ MultiMatch::get_mset_2(PostList *pl,
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
-    om_doccount mbound = 0;
+    om_doccount docs_considered = 0;
     om_weight greatest_wt = 0;
     std::vector<OmMSetItem> items;
 
@@ -236,7 +236,7 @@ MultiMatch::get_mset_2(PostList *pl,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
+	mset = OmMSet(first, docs_considered, max_weight, greatest_wt, items,
 		      termfreqandwts);
 	return;
     }
@@ -284,7 +284,7 @@ MultiMatch::get_mset_2(PostList *pl,
 
 	    if (pl->at_end()) break;
 	    
-	    mbound++;
+	    docs_considered++;
 	    
 	    om_docid did = pl->get_docid();
 	    
@@ -394,7 +394,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		break;
 	    }
 	    
-	    mbound++;
+	    docs_considered++;
 	    
 	    om_docid did = pl->get_docid();
 	    om_weight wt = pl->get_weight();
@@ -515,7 +515,9 @@ MultiMatch::get_mset_2(PostList *pl,
 	}
     }
 
-    DEBUGLINE(MATCH, "msize = " << items.size() << ", mbound = " << mbound);
+    DEBUGLINE(MATCH,
+	      "msize = " << items.size() <<
+	      ", docs_considered = " << docs_considered);
     if (items.size()) {
 	DEBUGLINE(MATCH, "sorting");
 
@@ -526,7 +528,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		  ", min weight in mset = " << items.back().wt);
     }
 
-    mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
+    mset = OmMSet(first, docs_considered, max_weight, greatest_wt, items,
 		  termfreqandwts);
 }
 

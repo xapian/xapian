@@ -108,13 +108,13 @@ class OmMSet {
 	/// Internal method used for percentage conversion
 	int convert_to_percent_internal(om_weight wt) const;
     public:
-	OmMSet() : mbound(0) {}
+	OmMSet() : docs_considered(0) {}
 
 	/** Create an OmMSet from the constituent data.
 	 *  There should be no need to use this from user programs.
 	 */
 	OmMSet(om_doccount firstitem_,
-	       om_doccount mbound_,
+	       om_doccount docs_considered_,
 	       om_weight max_possible_,
 	       om_weight max_attained_,
 	       const std::vector<OmMSetItem> &items_,
@@ -122,7 +122,7 @@ class OmMSet {
 	    : termfreqandwts(termfreqandwts_),
 	      items(items_),
 	      firstitem(firstitem_),
-	      mbound(mbound_),
+	      docs_considered(docs_considered_),
 	      max_possible(max_possible_),
 	      max_attained(max_attained_) {}
 
@@ -186,7 +186,7 @@ class OmMSet {
 	 *  large number of results, rather than how useful those at the top
 	 *  of the result set are, and is thus undesirable.
 	 */
-	om_doccount mbound;
+	om_doccount docs_considered;
 
 	/** The maximum possible weight in the mset.
 	 *  This weight is likely not to be obtained in the set of results,

@@ -192,7 +192,7 @@ OmMSet::get_description() const
     std::string description;
 
     description = "firstitem=" + om_tostring(firstitem) + ", " +
-	    "mbound=" + om_tostring(mbound) + ", " +
+	    "docs_considered=" + om_tostring(docs_considered) + ", " +
 	    "max_possible=" + om_tostring(max_possible) + ", " +
 	    "max_attained=" + om_tostring(max_attained);
 

@@ -1304,11 +1304,11 @@ static bool test_msetzeroitems1()
     return true;
 }
 
-// test that the mbound of a simple query is as expected
-static bool test_mbound1()
+// test that the docs_considered of a simple query is as expected
+static bool test_docs_considered1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
-    TEST_EQUAL(mymset.mbound, 2);
+    TEST_EQUAL(mymset.docs_considered, 2);
     return true;
 }
 
@@ -1665,7 +1665,7 @@ test_desc db_tests[] = {
     {"termlisttermfreq1",  test_termlisttermfreq1},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
-    {"mbound1",            test_mbound1},
+    {"docs_considered1",   test_docs_considered1},
     {"wqf1",		   test_wqf1},
     {"qlen1",		   test_qlen1},
     {"termlist1",	   test_termlist1},

@@ -1,3 +1,7 @@
+Mon Dec  4 11:43:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Renamed OmMSet::mbound to docs_considered.
+
 Mon Dec  4 10:11:11 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added some more std:: prefixes for STLport.

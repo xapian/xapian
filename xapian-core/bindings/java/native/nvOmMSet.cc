@@ -71,14 +71,14 @@ JNIEXPORT jdouble JNICALL Java_com_muscat_om_OmMSet_get_1max_1possible
 
 /*
  * Class:     com_muscat_om_OmMSet
- * Method:    get_mbound
+ * Method:    get_docs_considered
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_get_1mbound
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_get_1docs_considered
   (JNIEnv *env, jobject obj)
 {
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
-    return (jint) mset->mbound;
+    return (jint) mset->docs_considered;
 }
 
 /*

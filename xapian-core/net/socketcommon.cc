@@ -629,7 +629,7 @@ ommset_to_string(const OmMSet &ommset)
     // items
     result += om_tostring(ommset.firstitem);
     result += " ";
-    result += om_tostring(ommset.mbound);
+    result += om_tostring(ommset.docs_considered);
     result += " ";
     result += om_tostring(ommset.max_possible);
     result += " ";
@@ -726,21 +726,21 @@ string_to_ommset(const std::string &s)
     istrstream is(s.c_str());
 
     om_doccount firstitem;
-    om_doccount mbound;
+    om_doccount docs_considered;
     om_weight max_possible;
     om_weight max_attained;
     std::vector<OmMSetItem> items;
     std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
 
     // first the easy ones...
-    is >> firstitem >> mbound >> max_possible >> max_attained;
+    is >> firstitem >> docs_considered >> max_possible >> max_attained;
     std::string items_s, terminfo_s;
     is >> items_s >> terminfo_s;
 
     items = string_to_ommsetitems(items_s);
     terminfo = string_to_ommset_termfreqwts(terminfo_s);
 
-    return OmMSet(firstitem, mbound,
+    return OmMSet(firstitem, docs_considered,
 		  max_possible, max_attained,
 		  items, terminfo);
 }

@@ -304,7 +304,7 @@ class OmMSet {
 	 * and define LangListType OmMSet_items_get(OmMSet *)
 	 */
 	om_doccount firstitem;
-	om_doccount mbound;
+	om_doccount docs_considered;
 	om_weight max_possible;
 	om_weight max_attained;
 	%readwrite

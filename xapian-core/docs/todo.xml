@@ -69,8 +69,7 @@ Make all errors return a context if appropriate.
 
 Return more information about number of documents in database which match
 query. Perhaps an estimate based on the termfreqs of the terms in the query
-(and overridden by mbound if mbound is greater).
-Rename mbound to (something like) "docs_considered".
+(and overridden by docs_considered if docs_considered is greater).
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">

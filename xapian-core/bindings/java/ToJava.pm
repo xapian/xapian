@@ -113,7 +113,7 @@ class ApiTestFuncs {
 	return false;
     }
     private static boolean mset_equal(OmMSet first, OmMSet second) throws Throwable {
-        if ((first.get_mbound() != second.get_mbound()) ||
+        if ((first.get_docs_considered() != second.get_docs_considered()) ||
 	    (first.get_max_possible() != second.get_max_possible()) ||
 	    (first.get_items().size() != second.get_items().size())) {
 	    return false;

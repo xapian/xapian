@@ -326,8 +326,8 @@ PyObject *OmESet_items_get(OmESet *eset)
 
     // for comparison
     int __cmp__(const OmMSet &other) {
-	if (self->mbound != other.mbound) {
-	    return (self->mbound < other.mbound)? -1 : 1;
+	if (self->docs_considered != other.docs_considered) {
+	    return (self->docs_considered < other.docs_considered)? -1 : 1;
 	} else if (self->max_possible != other.max_possible) {
 	    return (self->max_possible < other.max_possible)? -1 : 1;
 	} else if (self->items.size() != other.items.size()) {

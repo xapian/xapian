@@ -23,7 +23,7 @@ public class OmMSet extends OmReturnObject {
         
     /** A lower bound on the number of documents in the database which have a 
 	weight greater than zero. */
-    public native int get_mbound();
+    public native int get_docs_considered();
 
     /** Return the percentage score for the given item. */
     public int convert_to_percent (OmMSetItem item) {
