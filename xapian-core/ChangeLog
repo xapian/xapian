@@ -1,3 +1,7 @@
+Tue Nov 02 04:31:49 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/: More C casts converted to C++ casts.
+
 Tue Nov 02 04:28:07 GMT 2004  Olly Betts <olly@survex.com>
 
 	* matcher/bm25weight.cc,matcher/tradweight.cc: More C casts converted

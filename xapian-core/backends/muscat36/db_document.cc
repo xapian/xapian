@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,14 +51,14 @@ DBDocument::do_get_value(Xapian::valueno valueid) const
     if (rec == 0) rec = database->get_record(did);
 
     string value;
-    unsigned char *pos = (unsigned char *)rec->p;
+    unsigned char *pos = reinterpret_cast<unsigned char *>(rec->p);
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
     unsigned int valuepos = valueid;
     if (valuepos + 8 > len) {
 	// Record not big enough.
 	DEBUGLINE(DB, ": not found in record");
     } else {
-	value = string((char *)pos + LWIDTH(heavy_duty) + 3 + valuepos, 8);
+	value = string(reinterpret_cast<char *>(pos) + LWIDTH(heavy_duty) + 3 + valuepos, 8);
 	DEBUGLINE(DB, ": found in record - value is `" << value << "'");
     }
     return value;
@@ -86,8 +86,8 @@ string
 DBDocument::do_get_data() const
 {
     if (rec == NULL) rec = database->get_record(did);
-    unsigned char *pos = (unsigned char *)rec->p;
+    unsigned char *pos = reinterpret_cast<unsigned char *>(rec->p);
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-    return string((char *)pos + LWIDTH(heavy_duty) + 3,
+    return string(reinterpret_cast<char *>(pos) + LWIDTH(heavy_duty) + 3,
 		  len - LWIDTH(heavy_duty) - 3);
 }

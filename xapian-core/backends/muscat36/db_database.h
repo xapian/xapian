@@ -231,10 +231,10 @@ DBTerm::get_ti() const
 	DEBUGLINE(DB, "Getting terminfo");
 	std::string::size_type len = tname.length();
 	if(len > 255) abort();
-	byte * k = (byte *) malloc(len + 1);
+	byte * k = reinterpret_cast<byte *>(malloc(len + 1));
 	if(k == NULL) throw std::bad_alloc();
 	k[0] = len + 1;
-	tname.copy((char*)(k + 1), len, 0);
+	tname.copy(reinterpret_cast<char*>(k + 1), len, 0);
 
 	int found = DB_term(k, &ti, DB);
 	free(k);

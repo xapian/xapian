@@ -112,10 +112,10 @@ DATermList::DATermList(struct termvec *tv, Xapian::doccount dbsize_,
     // FIXME - read terms as we require them, rather than all at beginning?
     M_read_terms(tv);
     while(tv->term != 0) {
-	char *term = (char *)tv->term;
+	char *term = reinterpret_cast<char *>(tv->term);
 
 	Xapian::doccount freq = tv->freq;
-	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
+	terms.push_back(DATermListItem(string(term + 1, unsigned(term[0]) - 1),
 				       tv->wdf, freq));
 	M_read_terms(tv);
     }
@@ -307,7 +307,7 @@ DADatabase::get_value(Xapian::docid did, Xapian::valueno valueid) const
     if (valuefile == 0) {
 	DEBUGLINE(DB, ": don't have valuefile");
     } else {
-	int seekok = fseek(valuefile, (long)did * 8, SEEK_SET);
+	int seekok = fseek(valuefile, long(did) * 8, SEEK_SET);
 	if (seekok == -1) {
 	    DEBUGLINE(DB, ": seek off end of valuefile");
 	} else {
@@ -349,10 +349,10 @@ DADatabase::term_lookup(const string & tname) const
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
 	if (len > 255) return 0;
-	byte * k = (byte *) malloc(len + 1);
+	byte * k = reinterpret_cast<byte *>(malloc(len + 1));
 	if (k == NULL) throw bad_alloc();
 	k[0] = len + 1;
-	tname.copy((char*)(k + 1), len, 0);
+	tname.copy(reinterpret_cast<char*>(k + 1), len, 0);
 
 	struct DA_term_info ti;
 	int found = DA_term(k, &ti, DA_t);
