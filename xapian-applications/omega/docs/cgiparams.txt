@@ -47,7 +47,10 @@ R
 	relevant document(s) (multiple values separated by ".")
 
 MORELIKE
-	value is a document id to return similar pages to.
+	value is a document id to return similar pages to, or a term name
+	(which will be looked up and the document id of the first document it
+	indexes will be used - this allows a MORELIKE query based on the
+	unique id from an external database)
 
 RAW_SEARCH
 	when set to a true-ish value turns off search-change detection

@@ -217,23 +217,30 @@ main2(int argc, char *argv[])
 
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
-	int doc = atol(val->second.c_str());
-       
-	OmRSet tmprset;
-
-	tmprset.add_document(doc);
-
-	OmSettings eoptions;
-	eoptions.set("expand_use_query_terms", false);
-	ExpandDeciderOmega decider;
-	OmESet topterms = enquire->get_eset(6, tmprset, &eoptions, &decider);
-
-	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
-	    if (more) big_buf += ' ';
-	    big_buf += *i;
-	    more = true;
+	om_docid docid = atol(val->second.c_str());
+	if (docid == 0) {
+	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
+	    // from an external source - we just find the correspond docid
+	    OmPostListIterator p = omdb->postlist_begin(val->second);
+	    if (p != omdb->postlist_end(val->second)) docid = *p;
 	}
-	if (more) goto got_query_from_morelike;
+	
+	if (docid != 0) {
+	    OmRSet tmprset;
+	    tmprset.add_document(docid);
+
+	    OmSettings eoptions;
+	    eoptions.set("expand_use_query_terms", false);
+	    ExpandDeciderOmega decider(*omdb);
+	    OmESet eset(enquire->get_eset(6, tmprset, &eoptions, &decider));
+	    for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
+		if ((*i).empty()) continue;
+		if (more) big_buf += ' ';
+		big_buf += pretty_term(*i);
+		more = true;
+	    }
+	    if (more) goto got_query_from_morelike;
+	}
     }
 
     // collect the prob fields

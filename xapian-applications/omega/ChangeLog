@@ -1,3 +1,9 @@
+Fri Jun 14 00:02:16 BST 2002  Olly Betts <olly@survex.com>
+
+	* MORELIKE can now take a termname - this allows MORELIKE to be used
+	  with a unique id from an external database if it has been indexed
+	  as a boolean term.
+
 Thu Jun 13 00:01:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* omega.conf: removed trailing slashes from directory names.
