@@ -713,7 +713,7 @@ Here is a summary:
                   Btree_quit(B)
         *     n = Btree_close(B, rev)
         *     n = Btree_create(s, block_size)
-     *        B = Btree_open_to_read(s)
+     *     *  B = Btree_open_to_read(s)
      *     *  B = Btree_open_to_read_revision(s, rev)
      *     *  BC= Bcursor_create(B)
            *  n = Bcursor_find_key(BC, key, key_len)
