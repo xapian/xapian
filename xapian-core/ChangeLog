@@ -1,3 +1,13 @@
+Thu Jul 13 18:21:00 BST 2000 Olly Betts
+
+	* inmemory_positionlist.cc: removed suprious `;'.
+
+	* localmatch.cc: fixed problem with phrase being passed vector of
+	  PostList-s in wrong order.
+
+	* Created delve utility to inspect posting lists, term lists, and
+	  position lists.
+
 Wed Jul 12 18:48:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Work on java bindings - OmWritableDatabase added.

@@ -67,4 +67,4 @@ bool
 InMemoryPositionList::at_end() const
 {
     return(mypos == positions.end());
-};
+}

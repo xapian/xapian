@@ -378,9 +378,13 @@ LocalMatch::postlist_from_queries(om_queryop op,
 
 	case OM_MOP_PHRASE:
 	{
+	    // build_and_tree reorders postlists, but the order is
+	    // important for phrase, so we need to keep a copy
+	    // FIXME: there must be a cleaner way for this to work...
+	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists);
 	    // FIXME: handle EmptyPostList return specially?
-	    return new PhrasePostList(res, window, postlists);
+	    return new PhrasePostList(res, window, postlists_orig);
 	}
     
 	case OM_MOP_OR:

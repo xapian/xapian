@@ -12,6 +12,7 @@ Makefile
 .deps-includetest-cc
 .libs
 apitest
+delve
 internaltest
 includetest
 includetest.cc

@@ -16,8 +16,10 @@ endif
 
 if HAVE_CPP_ACCESS_BYPASS
 INTERNALTEST_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+DELVE_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
 else
 INTERNALTEST_CXXFLAGS =
+DELVE_CXXFLAGS =
 endif
 
 if BUILD_PTHREAD_SUPPORT
@@ -30,7 +32,7 @@ endif
 TESTS = $(THREADTESTS) apitest internaltest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = $(THREADTESTS) apitest internaltest stemtest
+check_PROGRAMS  = $(THREADTESTS) apitest internaltest stemtest delve
 
 check-local: includetest.o
 
@@ -50,6 +52,12 @@ internaltest_LDADD = ../testsuite/libtest.la ../libomus.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
+
+delve_SOURCES = delve.cc
+delve_LDADD = ../libomus.la
+## Note: the next variable is not understood by automake:
+## we supply our own rule in this file.
+delve_CXXFLAGS = $(DELVE_CXXFLAGS)
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
@@ -112,3 +120,11 @@ internaltest.lo: internaltest.cc
 	@cp $< internaltest_temp.cc
 	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest_temp.lo
 	@mv internaltest_temp.lo $@
+delve.o: delve.cc
+	@cp $< delve_temp.cc
+	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(delve_CXXFLAGS)" delve_temp.o
+	@mv delve_temp.o $@
+delve.lo: delve.cc
+	@cp $< delve_temp.cc
+	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(delve_CXXFLAGS)" delve_temp.lo
+	@mv delve_temp.lo $@
