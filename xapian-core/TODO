@@ -103,6 +103,21 @@ M|1| |CVS          | CVS tag last snapshot that built OK (so people can cvs
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |Website      | Consider changing from cvsweb to viewcvs
 -+-+-+-------------+-----------------------------------------------------------
+M|4| |Matcher      | Treat FILTER and AND as equivalent from the point of view
+ | | |             | of building optimal AND trees.  Also add a variant on
+ | | |             | FilterPostList where the left branch is boolean and the
+ | | |             | right probabilistic.
+-+-+-+-------------+-----------------------------------------------------------
+M|4| |Matcher      | max_or_terms should probably work in a more local way.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |Backends     | multi backend is unused, except that MultiDatabase class
+ | | |             | is abused as a smart IRDatabase container.
+-+-+-+-------------+-----------------------------------------------------------
+M|3| |API          | Om*Iterator ought to be STL iterators so they can be used
+ | | |             | whereever the STL allows an input_iterator.
+-+-+-+-------------+-----------------------------------------------------------
+M|2| |API          | Add tests for Om*Iterator.
+-+-+-+-------------+-----------------------------------------------------------
 L|4| |Matcher      | max_or_terms should probably reduce the querysize by the
  | | |             | number of terms removed - hard to do because max_or_terms
  | | |             | necessarily happens after some term weights have been
