@@ -55,18 +55,15 @@ debian/control: debian/rules debian/control.in debian/control-python.in
 			>> debian/control; \
 	done
 
+configure: debian/control configure-stamp
+configure-stamp:
+	dh_testdir
 
-# The autotools target adds forced build-time dependencies on
-# autotools-dev (for /usr/share/misc/config.*)
-# It's also a .PHONY make target.
-autotools:
+	# Use the latest config.sub and config.guess from the autotools-dev
+	# package.
 	rm -f config.sub config.guess
 	ln -s /usr/share/misc/config.sub config.sub
 	ln -s /usr/share/misc/config.guess config.guess
-
-configure: debian/control configure-stamp
-configure-stamp: autotools
-	dh_testdir
 
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
@@ -78,7 +75,7 @@ configure-stamp: autotools
 	    cd ..; \
 	done
 
-	touch configure-stamp
+	touch $@
 
 build: configure build-stamp
 build-stamp:
@@ -89,7 +86,7 @@ build-stamp:
 	    $(MAKE); \
 	    cd ..; \
 	done
-	touch build-stamp
+	touch $@
 
 install: DH_OPTIONS=
 install: build
@@ -159,4 +156,4 @@ clean: debian/control
 	dh_clean
 	rm -f build-stamp configure-stamp
 
-.PHONY: maint maintclean autotools configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
