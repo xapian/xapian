@@ -167,7 +167,7 @@ test_desc tests[] = {
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
     {"tcpclient1",	test_tcpclient1},
-    {"tcpmatch",	test_tcpmatch1},
+    {"tcpmatch1",	test_tcpmatch1},
     {0,			0},
 };
 
