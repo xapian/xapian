@@ -41,6 +41,9 @@ Priority | Area            | Task
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Purify          | Write autoconf macro to turn on purify support.
+         |                 | Submit to http://peti.cys.de/autoconf-archive/
+---------+-----------------+--------------------------------------------------
  Medium  | Options         | Make an OmOptions object, storing a map of
          |                 | option strings to their values.  Use for things
 	 |                 | such as, what debugging to output, what size
