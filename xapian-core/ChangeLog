@@ -1,3 +1,8 @@
+Sun Nov 07 18:18:19 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version.h.in: Another tweak to hopefully
+	  get version.h generation to work everywhere.
+
 Sun Nov 07 15:01:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,include/xapian/version.h.in: Terminating lines with 'N'
