@@ -51,21 +51,23 @@ StatsLeaf::perform_request() const
     Assert(total_stats != 0);
 
 #ifdef MUS_DEBUG_VERBOSE
-    cout << "StatsLeaf::perform_request(): stats are:" << endl;
-    cout << "  collection_size = " << total_stats->collection_size << endl;
-    cout << "  rset_size = "       << total_stats->rset_size << endl;
-    cout << "  average_length = "  << total_stats->average_length << endl;
+    DebugMsg("StatsLeaf::perform_request(): stats are:" << endl);
+    DebugMsg("  collection_size = " << total_stats->collection_size << endl);
+    DebugMsg("  rset_size = "       << total_stats->rset_size << endl);
+    DebugMsg("  average_length = "  << total_stats->average_length << endl);
 
     map<om_termname, om_doccount>::const_iterator i;
     for(i = total_stats->termfreq.begin();
 	i != total_stats->termfreq.end(); i++)
     {
-	cout << "  termfreq of `" << i->first << "'\tis " << i->second << endl;
+	DebugMsg("  termfreq of `" << i->first <<
+		 "'\tis " << i->second << endl);
     }
     for(i = total_stats->reltermfreq.begin();
 	i != total_stats->reltermfreq.end(); i++)
     {
-	cout << "  reltermfreq of `" << i->first << "'\tis " << i->second << endl;
+	DebugMsg("  reltermfreq of `" << i->first <<
+		 "'\tis " << i->second << endl);
     }
 #endif /* MUS_DEBUG_VERBOSE */
 }

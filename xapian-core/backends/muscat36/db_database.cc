@@ -76,7 +76,7 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
     if (currdoc && did <= om_docid(postlist->E)) {
 	// skip_to later in the current range
 	currdoc = did;
-	//cout << "Skip within range " << did << endl;
+	//DebugMsg("Skip within range " << did << endl);
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);

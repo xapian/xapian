@@ -365,14 +365,14 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 	found = internals->postlist_db->put(NULL, &key, &data, 0);
 	Assert(found == 0); // Any errors should cause an exception.
 
-#if 1
-	cout << "New postlist: (";
+#if MUS_DEBUG_VERBOSE
+	DebugMsg("New postlist: (");
 	for(docid *pos = postlist;
 	    pos != postlist + postlist_size / sizeof(docid);
 	    pos++) {
-	    cout << *pos << " ";
+	    DebugMsg(*pos << " ");
 	}
-	cout << ")" << endl;
+	DebugMsg(")" << endl);
 #endif
 
 	free(postlist);

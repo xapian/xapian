@@ -64,10 +64,8 @@ inline MultiTermList::MultiTermList(TermList * tl_,
 {
     termfreq_factor = ((double)(rootdb->get_doccount())) /
 		      (termdb->get_doccount());
-#ifdef DEBUG
-    cout << "Approximation factor for termfrequency: " <<
-	    termfreq_factor << endl;
-#endif /* DEBUG */
+    DebugMsg("Approximation factor for termfrequency: " <<
+	     termfreq_factor << endl);
 }
 
 inline MultiTermList::~MultiTermList()

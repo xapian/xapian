@@ -33,10 +33,10 @@ DBDocument::~DBDocument()
 OmKey
 DBDocument::get_key(om_keyno keyid) const
 {
-    cout << "Asked for keyno " << keyid;
+    DebugMsg("Asked for keyno " << keyid);
     OmKey key;
     key.value = did % (keyid + 1);
-    cout << ": saying " << key.value << endl;
+    DebugMsg(": saying " << key.value << endl);
     return key;
 }
 

@@ -88,13 +88,12 @@ class OmLock {
 	    islocked = false;
 	    int retval = pthread_mutex_unlock(&mutex);
 
-	    // FIXME - remove next line
+#ifdef MUS_DEBUG_VERBOSE
 	    if(retval != 0) {
-		cout << "retval:"
-		     << strerror(retval)
-		     << " (" << retval
-		     << ")" << endl;
+		DebugMsg("retval:" << strerror(retval)
+			 << " (" << retval << ")" << endl);
 	    }
+#endif /* MUS_DEBUG_VERBOSE */
 		    
 	    Assert(retval == 0);
 	}
