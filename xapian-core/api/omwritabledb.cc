@@ -117,21 +117,22 @@ OmWritableDatabase::~OmWritableDatabase()
 }
 
 void
-OmWritableDatabase::lock(om_timeout timeout)
+OmWritableDatabase::begin_session(om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::lock", timeout);
+    DEBUGAPICALL("OmWritableDatabase::begin_session", timeout);
     // Get the pointer while locked, in case someone is assigning to it.
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();
     internal->mutex.unlock();
 
+    // FIXME - begin a session here
     database->lock(timeout);
 }
 
 void
-OmWritableDatabase::unlock()
+OmWritableDatabase::end_session()
 {
-    DEBUGAPICALL("OmWritableDatabase::unlock", "");
+    DEBUGAPICALL("OmWritableDatabase::end_session", "");
     // Get the pointer while locked, in case someone is assigning to it.
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();
@@ -141,7 +142,8 @@ OmWritableDatabase::unlock()
 }
 
 om_docid
-OmWritableDatabase::add_document(const OmDocumentContents & document)
+OmWritableDatabase::add_document(const OmDocumentContents & document,
+				 om_timeout timeout)
 {
     DEBUGAPICALL("OmWritableDatabase::add_document", document);
     // Check the validity of the document
@@ -158,6 +160,8 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     IRDatabase * database = internal->mydb.get();
     internal->mutex.unlock();
 
+    // FIXME - have an implicit session here if not already in one,
+    // and make sure we're exception safe.
     om_docid did = database->add_document(document);
     DEBUGAPIRETURN(did);
     return did;

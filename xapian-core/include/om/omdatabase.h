@@ -189,39 +189,47 @@ class OmWritableDatabase : public OmDatabase {
 	 */
 	void operator=(const OmWritableDatabase &other);
 
-	/** Lock the database to protect against concurrent access.
+	/** This call tells Muscat to begin a session for modifying a
+	 *  database.
 	 *
-	 *  Muscat databases allow only one database object to be updating
-	 *  a database at once: failure to observe this condition is likely
-	 *  to result in corruption of the database.  To prevent this
-	 *  occuring, a lock must be obtained before any modifications are
-	 *  made to the database.
+	 *  For efficiency reasons, when performing multiple updates to a
+	 *  database it is best (indeed, almost essential) to make as many
+	 *  modifications as memory will permit in a single pass through
+	 *  the database.  To allow this, Muscat provides sessions for
+	 *  database modifications:  before starting a set of modifications
+	 *  you should begin a session, and at the end of a set of
+	 *  modifications you should end the session (with end_session()).
 	 *
-	 *  Note that this is a object level lock: while it is recommended
-	 *  that only one thread attempts to modify a database, it is up to
-	 *  the user to enforce this.
+	 *  The precise effect of begin_session() depends upon the type of
+	 *  the database.  One common result is to lock the database to
+	 *  protect against concurrent access: current Muscat databases
+	 *  allow only one database object to be updating a database at
+	 *  once: failure to observe this condition would be likely to
+	 *  result in corruption of the database.  To prevent this
+	 *  occuring, a lock is obtained before any modifications are made
+	 *  to the database.
 	 *
-	 *  Obtaining this lock prevents other processes from modifying the
-	 *  database, but does not prevent other threads within this
-	 *  process from modifying the database, via the same object.
-	 *  Appropriate concurrency controls exist such that inter-thread
-	 *  conflicts will not corrupt databases, but it is possible for
-	 *  race conditions to exist: for example, were two threads to be
-	 *  deleting the same document while another is adding a new one
-	 *  the new document could be added in place of the old document,
-	 *  and promptly deleted by the final thread.
+	 *  It is not essential to begin a session explicitly; if a session
+	 *  is not in progress when an operation (such as adding a
+	 *  document) is performed, one will be implicitly created for the
+	 *  duration of the operation.
 	 *
-	 *  A lock may either be obtained explicitly, by calling this method,
-	 *  or will be obtained implicitly whenever a method is called which
-	 *  requires the protection of a lock.
+	 *  If multiple processes require simultaneous write access to the
+	 *  database, sessions should be as short as possible to prevent
+	 *  blocking other processes.  Note that this will cause severe
+	 *  performance degradation.  A possible future addition is to
+	 *  produce database types which allow for multiple processes to
+	 *  efficiently write to a database simultaneously.
 	 *
-	 *  If multiple operations are to be performed, and no other
-	 *  processes require the ability to update the database, a lock
-	 *  should be acquired explicitly and held for the duration of
-	 *  updates.  If other processes require write access to the
-	 *  database, the lock should be held for as little time as needed,
-	 *  and in this situation the implicit locking mechanism may be
-	 *  a desirable simplification of the code's logic.
+	 *  Note that Muscat's locking prevents other processes and
+	 *  objects from modifying the database, but does not prevent other
+	 *  threads within this process from modifying the database, via
+	 *  the same object.  Appropriate concurrency controls exist such
+	 *  that inter-thread conflicts will not corrupt databases, but it
+	 *  is the responsibility of the application to ensure that race
+	 *  conditions (such as two threads simultaneously attempting to
+	 *  replace the same document) are avoided.
+	 *
 	 *
 	 *  @param timeout  The time to wait for a lock.  (in microseconds)
 	 *                  The default of 0 means that failure to obtain a
@@ -230,51 +238,181 @@ class OmWritableDatabase : public OmDatabase {
 	 *                  where other processes are not expected to be
 	 *                  writing to the database.
 	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
 	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
 	 *             be acquired on the database.
 	 */
-	void lock(om_timeout timeout = 0);
+	void begin_session(om_timeout timeout = 0);
 
-	/** Unlock the database.
+	/** End a session of modifications to the database.
 	 *
-	 *  This releases a lock held on the database.
+	 *  This flushes any modifications made to the database, ends any
+	 *  transactions in progress, and releases any locks held on the
+	 *  database.
+	 *
+	 *  If an error occurs, each separate addition, replacement or
+	 *  deletion operation will either be fully performed or not
+	 *  performed at all: it is then up to the application to work
+	 *  out which operations need to be repeated.
+	 *
+	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *             while modifying the database.
+	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
+	 *  @exception OmInvalidOperationError will be thrown if a session
+	 *             is not currently in progress.
 	 *
 	 *  @exception OmDatabaseLockError will be thrown if a lock wasn't
-	 *             currently held on the database.
+	 *             currently held on the database, and locks were in
+	 *             use.
 	 */
-	void unlock();
+	void end_session();
+
+	/** Flush any modifications made to the database within the current
+	 *  session.
+	 *
+	 *  This may be called at any time during a session to ensure that
+	 *  the modifications which have been made are written to disk.  If
+	 *  any of the modifications fail, an exception will be thrown and
+	 *  the database will be left in a state in which each modification
+	 *  has either been performed fully or not at all.
+	 *
+	 *  If the flush succeeds, all the preceding modifications will
+	 *  have been written to disk.
+	 *
+	 *  If called within a transaction, this will flush database
+	 *  modifications made before the transaction was begun, but will
+	 *  not flush modifications made since begin_transaction() was
+	 *  called.
+	 *
+	 *  Beware of calling flush too frequently: this will have a severe
+	 *  performance cost.
+	 *
+	 *  Note that flush need not be called explicitly: it will be called
+	 *  automatically when the session is ended, or when a sufficient
+	 *  number of modifications have been made.
+	 *
+	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *             while modifying the database.
+	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if this is
+	 *             called when a modification session is not in progress.
+	 *
+	 *  @exception OmInvalidOperationError will be thrown if this is
+	 *             called at an invalid time, such as when a session is
+	 *             not in progress.
+	 */
+	void flush();
+
+	/** Begin a transaction.
+	 *
+	 *  For the purposes of Muscat, a transaction is a group of
+	 *  modifications to the database which are grouped together such
+	 *  that either all or none of them will succeed.  Even in the case
+	 *  of a power failure, this characteristic should be preserved (as
+	 *  long as the filesystem isn't corrupted, etc).
+	 *
+	 *  Transactions are only available with certain access methods,
+	 *  and as you might expect are likely to have a fairly high
+	 *  performance cost.
+	 *
+	 *  A transaction may only be begun within a session.  However,
+	 *  if you do not explicitly begin a session, one will be created
+	 *  for the duration of the transaction.
+	 * 
+	 *  @param timeout  The timeout parameter to pass to begin_session()
+	 *                  if a session is not already in progress.  This
+	 *                  parameter will only be used if a session has
+	 *                  not already been started (see begin_session()).
+	 *
+	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *             are not available for this database type.
+	 */
+	void begin_transaction(om_timeout timeout = 0);
+
+	/** This ends the transaction currently in progress.
+	 *
+	 *  If this completes successfully, all the database modifications
+	 *  made during the transaction will have been committed to the
+	 *  database.  If the transaction fails, an exception will be
+	 *  thrown, and none of the modifications made to the database
+	 *  during the transaction will have been applied to the database.
+	 * 
+	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *             while modifying the database.
+	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
+	 *  @exception OmInvalidOperationError will be thrown if a transaction
+	 *             is not currently in progress.
+	 *
+	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *             are not available for this database type.
+	 */
+	void end_transaction();
 
 	/** Add a new document to the database.
 	 *
-	 *  This method atomically adds the document: the result is either
-	 *  that the document is added, or that the document fails to be
-	 *  added and an exception is thrown.
+	 *  This method adds the specified document to the database,
+	 *  returning a newly allocated document ID.
 	 *
-	 *  If the database is not locked when this method is called, a lock
-	 *  will be obtained for the duration of the method.  This may result
-	 *  in an OmDatabaseLockError.
+	 *  Note that this does not mean the document will immediately
+	 *  appear in the database; see begin_session() for more details.
 	 *
-	 *  See lock() for more notes on database locks.
+	 *  As with all database modification operations, the effect is
+	 *  atomic: the document will either be fully added, or the document
+	 *  fails to be added and an exception is thrown (possibly at a
+	 *  later time when the session is ended or flushed).
+	 *
+	 *  If a session is not in progress when this method is called, a
+	 *  session will be created for the duration of the method.
+	 *  Again, see begin_session() for more notes on sessions.
 	 *
 	 *  @param document The new document to be added.
+	 *
+	 *  @param timeout  The timeout parameter to pass to begin_session()
+	 *                  if a session is not already in progress.  This
+	 *                  parameter will only be used if a session has
+	 *                  not already been started (see begin_session()).
 	 *
 	 *  @return         The document ID of the newly added document.
 	 *
 	 *  @exception OmDatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
 	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
 	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
 	 *             be acquired or subsequently released on the database.
 	 */
-#if 0
-	 *  @param timeout  The time to wait for a lock.  (in microseconds)
-	 *                  The default of 0 means that failure to obtain a
-	 *                  lock immediately will result in an exception
-	 *                  being thrown: this is appropriate in cases
-	 *                  where other processes are not expected to be
-	 *                  writing to the database.
-#endif
-	om_docid add_document(const OmDocumentContents & document);
+	om_docid add_document(const OmDocumentContents & document,
+			      om_timeout timeout = 0);
+
+	/** Delete a document in the database.
+	 *  FIXME: document more.
+	 */
+	void delete_document(om_docid did, om_timeout timeout = 0);
+
+	/** Replace a given document in the database.
+	 *  FIXME: document more.
+	 */
+	void replace_document(om_docid did,
+			      const OmDocumentContents & document,
+			      om_timeout timeout = 0);
+
+	/** Get a document from the database.
+	 *  FIXME: document more.
+	 */
+	OmDocumentContents get_document(om_docid did);
 
 	/** Returns a string representing the database object.
 	 *  Introspection method.

@@ -1,3 +1,13 @@
+Mon Aug  7 18:03:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* API addition: added OmInvalidOperationError to report invalid
+	  API usage, for example, ending a session when one hasn't been
+	  begun.
+
+	* API Change: changed OmWritableDatabase considerably, so that it
+	  has begin_session() and end_session() methods instead of lock()
+	  and unlock() methods, amongst other things.
+
 Fri Aug  4 18:52:56 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Split apitest_to_java into the separate packages it contained

@@ -108,6 +108,9 @@ DEFINE_ERROR_CLASS(OmUnimplementedError, OmLogicError);
 /** Thrown when an invalid argument is supplied to the API. */
 DEFINE_ERROR_CLASS(OmInvalidArgumentError, OmLogicError);
 
+/** Thrown when API calls are made in an invalid way. */
+DEFINE_ERROR_CLASS(OmInvalidOperationError, OmLogicError);
+
 /** Thrown when an attempt is made to access a document which is not in the
  *  database.  This could occur either due to a programming error, or
  *  because the database has changed since running the query. */
