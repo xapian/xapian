@@ -32,23 +32,46 @@
 
 #include <errno.h>
 
+//////////////////////////////////////////////////
+// OmLock class
+// ============
+/** Representation of a mutex
+ *  The OmLock class encapsulates the basic operations on
+ *  a pthread mutex (when available).  Most code wishing
+ *  to take advantage of locks should use the OmLockSentry
+ *  class.
+ *  OmLock can be used even if it is const - const methods
+ *  may need to get locks too.
+ */
 class OmLock {
-    mutable pthread_mutex_t mutex;
+    private:
+	/// The physical pthread mutex.
+	mutable pthread_mutex_t mutex;
 
-    // disallow copies
-    OmLock(const OmLock &);
-    void operator=(const OmLock &);
+	// disallow copies
+	OmLock(const OmLock &);
+	void operator=(const OmLock &);
 
     public:
+	/// The constructor, which initialises the mutex
     	OmLock() {
 	    pthread_mutex_init(&mutex, NULL);
 	}
+
+	/// The destructor, which destroys the mutex.
 	~OmLock() { pthread_mutex_destroy(&mutex); }
 
+	/** Acquire an exclusive lock on the mutex.  This
+	 *  will not return until the mutex is locked.
+	 */
 	void lock() const {
 	    int retval = pthread_mutex_lock(&mutex);
 	    Assert(retval == 0);
 	}
+
+	/** Release the lock.  The lock should be currently
+	 *  owned by the thread calling unlock.
+	 */
 	void unlock() const {
 	    int retval = pthread_mutex_unlock(&mutex);
 
@@ -59,18 +82,33 @@ class OmLock {
 	}
 };
 
+//////////////////////////////////////////////////////
+// OmLockSentry class
+// ==================
+/** Convenient automatic handling of OmLock objects
+ *  An OmLockSentry object acquires a lock (via an OmLock
+ *  object) at construction and releases it at destruction.
+ *  This means that the lock will be held during the object's
+ *  scope, guaranteeing that the lock will be released when
+ *  no longer needed.
+ */
 class OmLockSentry {
-    const OmLock &mut;
+    private:
+	/// A reference to the OmLock object.
+	const OmLock &mut;
 
-    // disallow copies
-    OmLockSentry(const OmLockSentry &);
-    void operator=(const OmLockSentry &);
+	// disallow copies
+	OmLockSentry(const OmLockSentry &);
+	void operator=(const OmLockSentry &);
 
     public:
+	/// The constructor, which locks the passed in OmLock
+	/// object.
     	OmLockSentry(const OmLock &mut_) : mut(mut_) {
 	    mut.lock();
 	}
 
+	/// The destructor, which releases the lock.
 	~OmLockSentry() {
 	    try {
 		mut.unlock();
