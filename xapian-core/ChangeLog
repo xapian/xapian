@@ -1,3 +1,7 @@
+Thu Aug 10 12:01:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.2.1
+
 Wed Aug  9 17:21:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed annoying exception messages from omprogsrv (which turned
