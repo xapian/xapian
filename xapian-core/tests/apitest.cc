@@ -185,7 +185,6 @@ index_files_to_database(OmWritableDatabase & database, vector<string> paths)
     for (vector<string>::const_iterator p = paths.begin();
 	 p != paths.end();
 	 p++) {
-	if (verbose) cout << "apitest: Indexing `" << *p << "'" << endl;
 	TextfileIndexerSource source(*p);
 	auto_ptr<istream> from(source.get_stream());
 
