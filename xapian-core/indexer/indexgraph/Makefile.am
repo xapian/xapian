@@ -3,7 +3,8 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = indexergraph.h omindexernode.h deleter_map.h \
-		register_core.h node_reg.h regexcommon.h indexerxml.h
+		register_core.h node_reg.h regexcommon.h indexerxml.h \
+		toposort.h
 
 noinst_LTLIBRARIES = libindexgraph.la
 
@@ -26,7 +27,8 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 		omflattenstringnode.cc omtranslatenode.cc
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc \
-	do_registration.cc $(INDEXERNODES) indexerxml.cc
+	do_registration.cc $(INDEXERNODES) indexerxml.cc \
+	toposort.cc
 
 indexerxml.lo: indexerxml.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<

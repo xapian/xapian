@@ -1,3 +1,9 @@
+Tue Oct  3 13:56:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a topological sort of the input nodes before building the
+	  graph, so the graph description no longer needs the nodes in
+	  the right order.
+
 Tue Oct  3 12:20:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartz tables and table managers are no longer reference counted -

@@ -220,6 +220,13 @@ class OmIndexerBuilder {
 	 */
 	void build_graph(OmIndexer *indexer,
 			 const OmIndexerDesc &desc);
+
+	/** Return a sorted order suitable for instantiating nodes.  Uses
+	 *  a topological sort.
+	 *
+	 *  @param desc	The description of the nodes.
+	 */
+	std::vector<int> sort_nodes(const OmIndexerDesc &desc);
 	
 	/** Data kept with each node as the graph is being built */
 	struct type_data {

@@ -25,6 +25,7 @@
 #include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
+#include "toposort.h"
 #include <algorithm>
 
 class OmIndexerStartNode : public OmIndexerNode
@@ -91,21 +92,63 @@ OmIndexerBuilder::make_node(const std::string &type,
     }
 }
 
+std::vector<int>
+OmIndexerBuilder::sort_nodes(const OmIndexerDesc &desc)
+{
+    /* First build up a mapping from node ids to positions in the desc.
+     */
+    std::map<std::string, int> node_num;
+    for (size_t i = 0; i < desc.nodes.size(); ++i) {
+	node_num[desc.nodes[i].id] = i;
+    }
+    /* temporarily add the START node in.  We'll remove it before returning
+     * the result.  (The START node is special, and is not mentioned in
+     * desc.)
+     */
+    int num_elements = desc.nodes.size();
+    node_num["START"] = num_elements;
+    ++num_elements;
+
+    TopoSort tsort(num_elements);
+
+    for (size_t i=0; i<desc.nodes.size(); ++i) {
+	const OmIndexerDesc::NodeInstance &node = desc.nodes[i];
+	std::vector<OmIndexerDesc::Connect>::const_iterator j;
+	for (j = node.input.begin();
+	     j != node.input.end();
+	     ++j) {
+	    tsort.add_pair(node_num[j->feeder_node], i);
+	}
+    }
+    TopoSort::result_type result = tsort.get_result();
+
+    /* now remove the entry for START from the list */
+    result.erase(std::find(result.begin(), result.end(), num_elements-1));
+
+    return result;
+}
+
 void
 OmIndexerBuilder::build_graph(OmIndexer *indexer,
 			      const OmIndexerDesc &desc)
 {
     typemap types;
+
+    /* sort the list of nodes so that nodes aren't referred to before
+     * being instantiated.
+     */
+    std::vector<int> sorted = sort_nodes(desc);
     
     indexer->nodemap["START"] = make_node("START", OmSettings());
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
     types["START"].outputs = nodetypes["START"].outputs;
     types["START"].node_name = "START";
 
-    std::vector<OmIndexerDesc::NodeInstance>::const_iterator node;
-    for (node = desc.nodes.begin();
-	 node != desc.nodes.end();
-	 ++node) {
+    for (int nodeind = 0;
+	 nodeind < sorted.size();
+	 ++nodeind) {
+	const OmIndexerDesc::NodeInstance *node =
+		&desc.nodes[sorted[nodeind]];
 
 	if (indexer->nodemap.find(node->id) != indexer->nodemap.end()) {
 		throw OmInvalidDataError(std::string("Duplicate node id ")
