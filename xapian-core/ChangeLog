@@ -1,3 +1,7 @@
+Fri Aug 11 14:14:28 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More python updates - 9 out of the 20 tests now pass.
+
 Thu Aug 10 18:05:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Updates the Python/SWIG bindings.  3 tests (out of 20 which are

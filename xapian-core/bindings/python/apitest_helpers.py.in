@@ -42,7 +42,8 @@ class BackendManager:
 
 	    if (created):
 	        db = OmWritableDatabase("sleepycat", make_strvec(dbdir))
-		sys.stderr.write("Indexing to " + dbdir)
+		if verbose:
+		    sys.stderr.write("Indexing to " + dbdir)
 		index_files_to_database(db, self.change_names_to_paths(dbnames))
 		# let databases be written as database closed...
 		db = None
@@ -99,10 +100,13 @@ def make_strvec(*strs):
     return retval
 
 def do_get_simple_query_mset(query, maxitems = 10, first = 0):
-    enquire = OmEnquire(get_simple_database())
+    enquire = get_simple_database()
     init_simple_enquire(enquire, query)
 
     return enquire.get_mset(first, maxitems)
+
+def init_simple_enquire(enquire, query = OmQuery("thi")):
+    enquire.set_query(query)
 
 def get_simple_database():
     mydb = get_database("apitest_simpledata")
@@ -168,3 +172,12 @@ def string_to_document(paragraph):
 	paragraph = paragraph[spacepos:]
 
     return document
+
+def TEST_AND_EXPLAIN(a, b):
+    if (not a):
+        raise TestFail()
+
+def TEST_EQUAL(a,b):
+    TEST_AND_EXPLAIN(a == b,
+      "Expected `" + repr(a) + "' and `" + repr(b) + "' to be equal:" +
+      " were " + str(a) + " and " + str(b))

@@ -46,7 +46,9 @@ sub get_value {
 sub preamble {
     return <<PREAMBLE
 import sys
+import os
 from omuscat import *
+import apitest_helpers
 from apitest_helpers import *
 
 TestFail = 'TestFail'
@@ -57,12 +59,21 @@ sub prologue{
     my $self = shift;
     my $result = <<MAINSTART;
 verbose = 0
+abort_on_error = 0
 tests = []
 for arg in sys.argv[1:]:
     if arg == "-v":
 	verbose = 1
+    elif arg == "-a":
+        abort_on_error = 1
     else:
 	tests.append(arg)
+	tests.append("test_" + arg)
+
+# a hack...
+apitest_helpers.verbose = verbose
+
+os.system("rm -fr .sleepy/")
 
 succeeded = 0;
 failed = 0;
@@ -73,7 +84,8 @@ MAINSTART
         $result .= <<TESTEND;
 if (len(tests) == 0) or ("$name" in tests):
     print "${name}... ",
-    try:
+    # another hack - should use a wrapper function or something
+    if abort_on_error:
         result = ${name}()
 	if result:
 	    print "ok."
@@ -81,10 +93,19 @@ if (len(tests) == 0) or ("$name" in tests):
 	else:
 	    print "FAIL"
 	    failed = failed+1
-    except (TestFail):
+    else:  # !abort_on_error
+      try:
+        result = ${name}()
+	if result:
+	    print "ok."
+	    succeeded = succeeded+1
+	else:
+	    print "FAIL"
+	    failed = failed+1
+      except (TestFail):
         print "FAIL"
 	failed = failed+1
-    except:
+      except:
         print "EXCEPT"
 	failed = failed+1
 TESTEND
