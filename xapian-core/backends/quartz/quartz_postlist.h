@@ -57,6 +57,9 @@ class QuartzPostList : public LeafPostList {
 	/// Cursor pointing to current chunk of postlist. 
 	QuartzCursor * cursor;
 
+	/// True if this is the last chunk.
+	bool is_last_chunk;
+
 	/// The last document id in this chunk;
 	om_docid last_did_in_chunk;
 
@@ -118,16 +121,16 @@ class QuartzPostList : public LeafPostList {
 	 */
 	void read_number_of_entries();
 
-	/** Read the docid of the first entry in the posting list.
-	 */
+	/// Read the docid of the first entry in the posting list.
 	void read_first_docid();
 
-	/** Read the start of a chunk, including the first item in it.
-	 */
+	/// Read the start of a chunk, including the first item in it.
 	void read_start_of_chunk();
 
-	/** Report an error when reading the posting list.
-	 */
+	/// Read the wdf and the length of an item.
+	void read_wdf_and_length();
+
+	/// Report an error when reading the posting list.
 	void report_read_error(const char * position);
     public:
 

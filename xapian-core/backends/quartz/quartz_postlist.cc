@@ -36,12 +36,14 @@
  *  A chunk (except for the first chunk) contains:
  *
  *  1)  difference between final docid in chunk and first docid.
- *  2)  wdf, then doclength of first item.
- *  3)  increment in docid to next item, followed by wdf and doclength of item
- *  4)  (3) repeatedly.
+ *
+ *  2)  bool - true if this is the last chunk.
+ *  3)  wdf, then doclength of first item.
+ *  4)  increment in docid to next item, followed by wdf and doclength of item
+ *  5)  (4) repeatedly.
  * 
  *  The first chunk begins with the number of entries, then the docid of the
- *  first document, then continues as other chunks.
+ *  first document, then continues from (2) as other chunks.
  */
 QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 			       om_doclength avlength_,
@@ -70,6 +72,7 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     read_number_of_entries();
     read_first_docid();
     read_start_of_chunk();
+    read_wdf_and_length();
 }
 
 void
@@ -114,10 +117,19 @@ QuartzPostList::read_first_docid()
 void
 QuartzPostList::read_start_of_chunk()
 {
+    // Read whether this is the last chunk
+    if (!unpack_bool(&pos, end, &is_last_chunk)) report_read_error(pos);
+
+    // Read what the final document ID in this chunk is.
     om_docid increase_to_last;
     if (!unpack_uint(&pos, end, &increase_to_last)) report_read_error(pos);
     last_did_in_chunk = did + increase_to_last;
+}
 
+void
+QuartzPostList::read_wdf_and_length()
+{
+    // Read the wdf and length of an item
     if (!unpack_uint(&pos, end, &wdf)) report_read_error(pos);
     if (!unpack_uint(&pos, end, &doclength)) report_read_error(pos);
 }
@@ -131,8 +143,7 @@ QuartzPostList::next_in_chunk()
     did += did_increase;
     Assert(did <= last_did_in_chunk);
 
-    if (!unpack_uint(&pos, end, &wdf)) report_read_error(pos);
-    if (!unpack_uint(&pos, end, &doclength)) report_read_error(pos);
+    read_wdf_and_length();
 
     // Either not at last doc in chunk, or pos == end, but not both.
     Assert(did < last_did_in_chunk || pos == end);
@@ -144,10 +155,16 @@ QuartzPostList::next_in_chunk()
 void
 QuartzPostList::next_chunk()
 {
+    if (is_last_chunk) {
+	is_at_end = true;
+	return;
+    }
+
     cursor->next();
     if (cursor->after_end()) {
 	is_at_end = true;
-	return;
+	throw OmDatabaseCorruptError("Unexpected end of posting list (for `" +
+				     tname + "'.");
     }
     const char * keypos = cursor->current_key.value.data();
     const char * keyend = keypos + cursor->current_key.value.size();
@@ -159,7 +176,8 @@ QuartzPostList::next_chunk()
     }
     if (tname_in_key != tname) {
 	is_at_end = true;
-	return;
+	throw OmDatabaseCorruptError("Unexpected end of posting list (for `" +
+				     tname + "'.");
     }
 
     om_docid newdid;
@@ -176,7 +194,9 @@ QuartzPostList::next_chunk()
 
     pos = cursor->current_tag.value.data();
     end = pos + cursor->current_tag.value.size();
+
     read_start_of_chunk();
+    read_wdf_and_length();
 }
 
 PositionList *
