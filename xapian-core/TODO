@@ -134,6 +134,10 @@ Priority | Area            | Task
 	 |                 | query terms are not present in some of the sub
 	 |                 | databases.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matchers        | Deprecate get_max_weight() - not useful
+         |                 | independently of get_mset(), which now returns
+	 |                 | its value.
+---------+-----------------+--------------------------------------------------
  Medium  | MultiDatabase   | Termcache currently clears itself when full: make
          |                 | more efficient.
 ---------+-----------------+--------------------------------------------------
