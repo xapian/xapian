@@ -1,3 +1,7 @@
+Sun Aug 22 14:02:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: Convert from Om and om_ to Xapian::.
+
 Mon Jul 21 01:18:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
@@ -16,8 +20,8 @@ Mon Jun 23 21:11:56 BST 2003  Olly Betts <olly@survex.com>
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * bootstrap: Fix success message when building in non-src dir
-          as configure is written to the src dir.
+	* bootstrap: Fix success message when building in non-src dir
+	  as configure is written to the src dir.
 
 Sat Dec 14 01:49:02 GMT 2002  Olly Betts <olly@survex.com>
 

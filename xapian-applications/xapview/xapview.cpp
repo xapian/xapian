@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <algorithm>
 #include <iostream>
@@ -50,18 +50,17 @@ extern "C" {
 }
 
 
-// FIXME: these 2 copied from om/indexer/index_utils.cc
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    for (om_termname::iterator i = term.begin(); i != term.end(); ++i) {
+    for (string::iterator i = term.begin(); i != term.end(); ++i) {
 	*i = tolower(*i);
     }
 }
 
 // Keep only the characters in keep
 static void
-select_characters(om_termname &term)
+select_characters(string &term)
 {
     const string chars(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
@@ -72,11 +71,11 @@ select_characters(om_termname &term)
     }
 }
 
-OmEnquire * enquire;
-OmMSet mset;
+Xapian::Enquire * enquire;
+Xapian::MSet mset;
 string querystring;
 
-om_doccount max_msize;
+Xapian::doccount max_msize;
 GtkCList *results_widget;
 GtkCList *topterms_widget;
 GtkLabel *result_query;
@@ -115,7 +114,7 @@ string floattostring(double a)
 
 class TopTermItemGTK {
     public:
-	TopTermItemGTK(om_termname &tname_new) : tname(tname_new)
+	TopTermItemGTK(const string &tname_new) : tname(tname_new)
 	{
 	    data = new gchar *[1];
 	    data[0] = c_string(tname);
@@ -124,14 +123,14 @@ class TopTermItemGTK {
 	    delete data[0];
 	    delete data;
 	}
-	om_termname tname;
+	string tname;
 	
 	gchar **data;
 };
 
 class ResultItemGTK {
     public:
-	ResultItemGTK(om_docid did_, int percent, string dname) : did(did_)
+	ResultItemGTK(Xapian::docid did_, int percent, string dname) : did(did_)
 	{
 	    data = new gchar *[3];
 	    data[0] = c_string(inttostring(percent));
@@ -144,7 +143,7 @@ class ResultItemGTK {
 	    delete data[2];
 	    delete data;
 	}
-	om_docid did;
+	Xapian::docid did;
 	
 	gchar **data;
 };
@@ -165,9 +164,9 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	OmMSetIterator i = mset[row];
+	Xapian::MSetIterator i = mset[row];
 	
-	OmDocument doc = i.get_document();
+	Xapian::Document doc = i.get_document();
 	string fulltext = doc.get_data();
 	
 	string score = inttostring(mset.convert_to_percent(i));
@@ -179,14 +178,14 @@ static void do_resultdisplay(gint row) {
 	gtk_label_set_text(result_query, querystring.c_str());
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(*i).c_str());
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	cout << e.get_msg() << endl;
     }
 }
 
 static void do_topterms() {
     try {
-	OmRSet rset;
+	Xapian::RSet rset;
 	GList *next = results_widget->selection;
 	gint index;
 
@@ -209,13 +208,13 @@ static void do_topterms() {
 	    }
 	}
 
-	OmESet topterms = enquire->get_eset(50, rset);
+	Xapian::ESet topterms = enquire->get_eset(50, rset);
 	//topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);
 	
-	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
+	for (Xapian::ESetIterator i = topterms.begin(); i != topterms.end(); i++) {
 	    string tname = *i;
 	    tname = tname + " (" + floattostring(i.get_weight()) + ")";
 
@@ -226,7 +225,7 @@ static void do_topterms() {
 	    gtk_clist_set_row_data_full(topterms_widget, index, item,
 					topterm_destroy_notify);
 	}
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	cout << e.get_msg() << endl;
     }
     gtk_clist_thaw(topterms_widget);
@@ -253,10 +252,10 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 
     try {
 	// split into terms
-	OmQuery omquery;
-	OmStem stemmer("english");
-	om_termname word;
-	om_termcount position = 1;
+	Xapian::Query query;
+	Xapian::Stem stemmer("english");
+	string word;
+	Xapian::termcount position = 1;
 	string unparsed_query = querystring;
 	while (true) {
 	    string::size_type spacepos;
@@ -268,17 +267,17 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	    select_characters(word);
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    if (!omquery.is_empty()) {
-		omquery = OmQuery(OmQuery::OP_OR, omquery,
-				                  OmQuery(word, 1, position++));
+	    if (!query.is_empty()) {
+		query = Xapian::Query(Xapian::Query::OP_OR, query,
+				      Xapian::Query(word, 1, position++));
 	    } else {
-		omquery = OmQuery(word, 1, position++);
+		query = Xapian::Query(word, 1, position++);
 	    }
 	    unparsed_query = unparsed_query.erase(0, spacepos);
 	}
 
 	// Perform match
-	enquire->set_query(omquery);
+	enquire->set_query(query);
         mset = enquire->get_mset(0, max_msize);
 
 	gtk_clist_freeze(results_widget);
@@ -291,7 +290,7 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	        " max_attained: " << mset.get_max_attained() << endl;
 #endif
 
-	for (OmMSetIterator j = mset.begin(); j != mset.end(); ++j) {
+	for (Xapian::MSetIterator j = mset.begin(); j != mset.end(); ++j) {
 	    vector<string> sorted_mterms(
 	    	enquire->get_matching_terms_begin(j),
 		enquire->get_matching_terms_end(j));
@@ -312,7 +311,7 @@ on_query_changed(GtkEditable *editable, gpointer user_data)
 	}
 	gtk_clist_thaw(results_widget);
 	do_topterms();
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	gtk_clist_thaw(results_widget);
 	cout << e.get_msg() << endl;
     }
@@ -336,7 +335,7 @@ int main(int argc, char **argv) {
 
     // Set Database(s)
     try {
-	OmDatabase mydbs;
+	Xapian::Database mydbs;
 	int n_dbs = 0;
 	const char *progname = argv[0];
 
@@ -350,7 +349,7 @@ int main(int argc, char **argv) {
 		argc -= 2;
 		argv += 2;
 	    } else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
-		mydbs.add_database(OmAuto__open(argv[1]));
+		mydbs.add_database(Xapian::Auto::open(argv[1]));
 		++n_dbs;
 		argc -= 2;
 		argv += 2;
@@ -400,12 +399,12 @@ int main(int argc, char **argv) {
 	result_text = GTK_TEXT(glade_xml_get_widget(xml, "result_text"));
 
 	// Start enquiry system
-	enquire = new OmEnquire(mydbs);
+	enquire = new Xapian::Enquire(mydbs);
 
 	/* start the event loop */
 	gtk_main();
-    } catch (const OmError &e) {
-	cout << "OmError: " << e.get_msg() << endl;
+    } catch (const Xapian::Error &e) {
+	cout << "Xapian::Error: " << e.get_msg() << endl;
 	exit(1);
     }
     delete enquire;
