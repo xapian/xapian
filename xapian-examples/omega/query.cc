@@ -49,17 +49,28 @@ static vector<om_termname> minuses;
 static vector<om_termname> normals;
 
 char *fmtstr =
-"<TR><TD VALIGN=top><IMG SRC=\"ÿG\" ALT=\"ÿP\" HEIGHT=35 WIDTH=35></TD>\n"
-"<TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR=\"#ccffcc\">ÿX</TD></TR></TABLE></TD>\n"
+"<TR><TD VALIGN=top><IMG SRC=\"%G\" ALT=\"%P\" HEIGHT=35 WIDTH=35></TD>\n"
+"<TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR=\"#ccffcc\">%X</TD></TR></TABLE></TD>\n"
 "<TD>\n"
-"<B><A HREF=\"ÿU\">ÿC</A></B><BR>\n"
-"ÿS<BR>\n"
-"<A HREF=\"ÿU\">ÿU</A><BR>\n"
-"<small>Language: <b>ÿL</b>\n"
-"Size: <b>ÿs</b>\n"		       
-"Last modified: <b>ÿM</b>\n"
-"<br>ÿP relevant, matching: <i>ÿT</i></small>\n"
+"<B><A HREF=\"%{url}\">"
+"%{caption}" // html escape (& -> &amp; also < > etc
+             // if no caption, deafult to URL
+"</A></B><BR>\n"
+"%{sample}..." // no "..." if sample empty... ; html escape
+"<BR>\n"
+"<A HREF=\"%{url}\">%{url}</A><BR>\n"
+"<small>Language: <b>%{language}</b>\n"
+"Size: <b>"
+"%{size}" // pretty print
+"</b>\n"		       
+"Last modified: <b>%M</b>\n"
+"<br>%P relevant, matching: <i>%T</i></small>\n"
 "</TD></TR>\n";
+
+// lookup in table (e.g. en -> English)
+// & escape
+// % escape?
+// pretty print size / date / number
 
 string raw_prob;
 long int msize = -1;
@@ -67,7 +78,7 @@ map<om_docid, bool> ticked;
 
 string gif_dir = "/fx-gif";
 
-char thou_sep = ',', dec_sep = '.';
+string thou_sep = ",", dec_sep = ".";
 
 string query_string;
 
@@ -173,13 +184,11 @@ run_query(om_doccount first, om_doccount maxhits)
 
     enquire->set_query(query);
 
-    cout << "Running query: maxmsize = " << first + maxhits << "; " << endl;
     // We could use the value of first as first parameter, but we
     // might need to know the first few items on the mset to fake
     // a relevance set for topterms
     mset = enquire->get_mset(0, first + maxhits, rset); // FIXME - set msetcmp to reverse
     msize = mset.mbound;
-    cout << "Ran query: msize = " << msize << "; " << endl;
 }
 
 long
@@ -273,8 +282,8 @@ print_page_links(char type, long int hits_per_page, long int topdoc)
       }
    } else {
       long int plh, plw, have_selected_page_gifs;
-      // If not specified, plh and plw no longer default to 15
-      // since that prevents the user having different sized page gifs
+      // If not specified, don't default plh and plw since the page
+      // gifs may not all be the same size
       plh = atoi(option["pagelink_height"].c_str());
       plw = atoi(option["pagelink_width"].c_str());
       have_selected_page_gifs = atoi(option["pagelink_width"].c_str());
@@ -376,153 +385,73 @@ static int percentage(double num, double denom) {
 extern void
 print_caption(long int m)
 {
-    long int q0 = 0;
-    int percent;
-    long int wt = 0; 
-    time_t lastmod = -1;
-    string hostname = "localhost"; /* erk */
-    string country;
-    string country_code = "x";
-    string language;
-    string language_code = "x";
+    long int q0 = mset.items[m].did;
 
-    wt = static_cast<long int>(mset.items[m].wt);
-    q0 = mset.items[m].did;
-
-#if 0 // FIXME: need access to TermList...
-    /* get hostname from longest N tag
-     * and country from shortest (allowing for uk+) */
-    int len = -1, got_plus = 0;
-    TermList *terms = database->open_term_list(q0);
-    terms->next();
-    while (!terms->at_end()) {
-	string term = terms->get_termname();
-	int length = term.length();
-	switch (term[0]) {
-	 case 'N':
-	    if (length > len && term[length - 1] != '+') {
-		hostname = term.substr(1);
-		len = length;
-	    }
-	    if (!got_plus && length - 1 <= 3) {
-		country_code = term.substr(1);
-		if (term[length - 1] == '+') {
-		    got_plus = 1;
-		    country_code = term.substr(1, length - 2) + "%2b";
-		}
-	    }
-	    break;
-	 case 'L':
-	    language_code = term.substr(1);
-	    break;
-	}
-	terms->next();
-    }
-    delete terms;
-#endif
-
-    country = option["BOOL-N" + country_code];
-    if (country.empty()) country = country_code;
-    language = option["BOOL-L" + language_code];
-    if (language.empty()) language = language_code;
-   
-    percent = percentage((double)wt, mset.max_possible);
+    int percent = percentage((double)mset.items[m].wt, mset.max_possible);
     
-    string path, sample, caption;
-    int port = -1;
-    const char *pp;
-    unsigned const char *u;
-    int size = -1;
-
     OmDocument doc = enquire->get_doc(q0);
     OmData data = doc.get_data();
-    pp = data.value.c_str() + 14;
 
-    u = (const unsigned char *)pp;
-    lastmod = (((unsigned char)(u[0] - 33) * 223) + (u[1] - 33)) * 86400;
-    pp += 2;
-    size = u[2];
-    pp++;
-       
-    if (*pp == '/') {
-	char *q;
-	/* / means we have a port number like so "/8080/index.html" */
-	port = strtol(pp + 1, &q, 10);
-	if (q) pp = q;
-	pp++;
-    }
+    string text;
+    unsigned int size = 0;
+    time_t lastmod = -1;
+    time_t lastvisit = -1;
 
-    const char *find_fe = strchr(pp, '\xfe');
-    if (find_fe) {
-	path = string(pp, find_fe - pp);
-	find_fe++;
-	if (*find_fe != '\xfe' && *find_fe != '\0') {
-	    const char *q = strchr(find_fe, '\xfe');
-	    if (!q) {
-		caption = string(find_fe);
-	    } else {
-		caption = string(find_fe, q - find_fe);
-		sample = string(q + 1);
-	    }
+    lastmod = 0;
+    size = 200;
+    text = data.value;
+
+    map<string, string> field;
+    size_t i = 0;
+    while (1) {
+	size_t old_i = i;
+	i = text.find('\n', i);
+	string line = text.substr(old_i, i);
+	size_t j = line.find('=');
+	if (j != string::npos) {
+	    field[line.substr(0, j)] = line.substr(j + 1);
+	} else if (line != "" && line != "\n") {
+	    // FIXME
+	    field["caption"] = line;
 	}
+	if (i == string::npos) break;
+	i++;
     }
 
     char *p, *q;
     p = fmtstr;
-    while ((q = strchr(p, '\xff')) != NULL) {
+    while ((q = strchr(p, '%')) != NULL) {
 	cout << string(p, q - p);
 	switch (q[1]) {
-	 case 'C': /* caption */
-	    if (!caption.empty()) {
-		html_escape(caption);
-		break;
-	    }
-	    /* otherwise fall through... */
-	 case 'U': /* url */
-	    cout << "http://" << hostname;
-	    if (port >= 0) cout << ':' << port;
-	    cout << '/' << path;
-	    break;
-	 case 'H': /* host */
-	    cout << hostname;
-	    break;
-	 case 'd': /* DB name */
-	    cout << db_name;
-	    break;
-	 case 'Q': /* query url */
-	    print_query_string(q + 2);
-	    break;
-	 case 'S': /* sample */
-	    if (!sample.empty()) {
-		html_escape(sample);
-		cout << "...";
-	    }
-	    break;
-	 case 's': /* size */
-	    /* decode packed file size */
-	    if (size < 33) {
+	 case '{': { /* named field */
+	    char *x = strchr(q + 2, '}');
+	    if (x == NULL) break; // FIXME
+	    cout << field[string(q + 2, x)];
+	    p = x + 1;
+	    continue;
+	 }
+#if 0
+	  case 's': /* size */
+	    // FIXME: rounding?
+	    // FIXME: for smaller sizes give decimal fractions, e.g. "1.4K"
+	    if (size == 0) {
 		cout << "Unknown";
-	    } else if (size < 132) {
-		size -= 32;
-		cout << size / 10 << dec_sep << size % 10 << 'K';
-	    } else if (size < 222) {
-		cout << size - 132 + 10 << 'K';
-	    } else if (size < 243) {
-		cout << size - 222 + 10 << "0K";
-	    } else if (size < 250) {
-		cout << '0' << dec_sep << size - 243 + 3 << 'K';
-	    } else if (size < 255) {
-		cout << size - 249 << 'M';
+	    } else if (size < 1024) {
+		cout << size << " bytes";
+	    } else if (size < 1024*1024) {
+		cout << int(size/1024) << "K";
+	    } else if (size < 1024*1024*1024) {
+		cout << int(size/1024/1024) << "M";
 	    } else {
-		cout << ">5M";
+		cout << int(size/1024/1024/1024) << "G";
 	    }
 	    break;
-	 case 'I': /* document id */
-	    cout << q0;
-	    break;
-	 case 'L': /* language */
-	    cout << language;
-	    break;
+	  case 'Q': /* query url */
+	     print_query_string(q + 2);
+	     break;
+	  case 'I': /* document id */
+	     cout << q0;
+	     break;
 	 case 'l': /* language (with link unless "unknown") */
 	    if (language_code == "x") {
 		cout << language;
@@ -533,20 +462,13 @@ print_caption(long int m)
 		    << "</A>";
 	    }
 	    break;
-	 case 'W': /* country */
-	    cout << country;
-	    break;
-	 case 'w': /* country code */
-	    cout << country_code;
-	    break;
+#endif
 	 case 'M': /* last modified */
 	    display_date(lastmod);
 	    break;
-#if 0 // FIXME:
 	 case 'V': /* date last visited */
-	    display_date(dadate);
+	    display_date(lastvisit);
 	    break;
-#endif
 	 case 'P':
 	    cout << percent << '%';
 	    break;
@@ -566,7 +488,7 @@ print_caption(long int m)
 	     break;
 	  }
 	  case 'G': /* score Gif */
-	     cout << "/fx-gif/score-" << percent / 10 << ".gif";
+	     cout << "http://www.euroferret.com/fx-gif/score-" << percent / 10 << ".gif";
 	     break;
 	  case 'X': /* relevance checkboX */
 	     if (ticked[q0]) {
@@ -576,9 +498,13 @@ print_caption(long int m)
 		 cout << "<INPUT TYPE=checkbox NAME=R VALUE=" << q0 << ">\n";
 	     }
 	     break;
-	  default:
-	     cout << '\xff' << q[1];
+	  case '%':
+	     cout << '%';
 	     break;
+	  default:	     
+	     string msg = "Unknown percent code: %";
+	     msg = msg + q[1];
+	     throw msg;
 	 }
 	 p = q + 2;
      }

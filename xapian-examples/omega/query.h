@@ -50,7 +50,7 @@ extern void print_caption(long int);
 extern void print_page_links(char, long int, long int);
 extern void do_picker(char prefix, const char **opts);
 
-extern char dec_sep, thou_sep;
+extern string dec_sep, thou_sep;
 
 extern om_queryop op;
 
@@ -62,7 +62,6 @@ extern map<om_docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;
 extern char *fmtstr;
-extern string ad_keywords;
 extern list<om_termname> new_terms_list;
 
 typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;

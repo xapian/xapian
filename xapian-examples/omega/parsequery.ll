@@ -81,7 +81,7 @@ get_next_char(const char **p)
     query = prob_query;
     query_index = 0;
     vector<string> quoted_terms;
-    OmStem stemmer("English");
+    OmStem stemmer("english");
     termtype type = NORMAL;
     int stem, stem_all;
 

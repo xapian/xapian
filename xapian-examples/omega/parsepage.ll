@@ -106,14 +106,14 @@ pretty_printf(const char *p, int *a)
     // \SCRIPT_NAME is the pathname we were invoked with
     char *p = getenv("SCRIPT_NAME");
     // we're probably in test mode, or the server's crap
-    if (p == NULL) p = "fx";
+    if (p == NULL) p = PROGRAM_NAME;
     cout << p;
 }
 \\TOPDOC {
     cout << first;
 }
 \\VERSION {
-    cout << FX_VERSION_STRING << endl;
+    cout << PROGRAM_NAME" - "PACKAGE" "VERSION << endl;
 }
 \\SAVE {
     /*** save DB name **/

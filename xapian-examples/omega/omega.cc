@@ -45,9 +45,7 @@ OmRSet * rset;
 
 map<string, string> option;
 
-static bool ssi = false;
-
-const string default_db_name = "ompf";
+const string default_db_name = "default";
 
 static string map_dbname_to_dir(const string &db_name);
 
@@ -59,7 +57,7 @@ static string db_dir;
 string fmt;
 string fmtfile = "t/fmt";
 
-static const string muscat_dir = "/usr/muscat";
+static const string muscat_dir = "/usr/om";
 
 static int main2(int argc, char *argv[]);
 
@@ -86,7 +84,6 @@ static int main2(int argc, char *argv[])
     om_docid topdoc = 0;
     char     *method;
     multimap<string, string>::const_iterator val;
-    multimap<string, string>::const_iterator notfound = cgi_params.end();
     typedef multimap<string, string>::const_iterator MCI;
     pair<MCI, MCI> g;
 
@@ -97,7 +94,7 @@ static int main2(int argc, char *argv[])
     if (method == NULL) {
 	// Seems we're running from the command line so print a version number
 	// and allow a query to be entered for testing
-	cout << "ompf "FX_VERSION_STRING" (compiled "__DATE__" "__TIME__")\n"
+	cout << PROGRAM_NAME" - "PACKAGE" "VERSION" (compiled "__DATE__" "__TIME__")\n"
 	        "Enter NAME=VALUE lines, end with blank line\n";
     }
 
@@ -112,7 +109,7 @@ static int main2(int argc, char *argv[])
 
     list_size = 0;
     val = cgi_params.find("MAXHITS");
-    if (val != notfound) list_size = atol(val->second.c_str());
+    if (val != cgi_params.end()) list_size = atol(val->second.c_str());
     if (list_size <= 10) {
 	list_size = 10;
     } else if (list_size >= 1000) {
@@ -120,14 +117,14 @@ static int main2(int argc, char *argv[])
     }
 
     val = cgi_params.find("TOPDOC");
-    if (val != notfound) topdoc = atol(val->second.c_str());
+    if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
 
     // Handle NEXT and PREVIOUS page
-    if (cgi_params.find(">") != notfound) {
+    if (cgi_params.find(">") != cgi_params.end()) {
 	topdoc += list_size;
-    } else if (cgi_params.find("<") != notfound) {
+    } else if (cgi_params.find("<") != cgi_params.end()) {
 	topdoc -= list_size;
-    } else if ((val = cgi_params.find("F")) != notfound) {
+    } else if ((val = cgi_params.find("F")) != cgi_params.end()) {
 	topdoc = atol(val->second.c_str());
     }
 
@@ -137,15 +134,13 @@ static int main2(int argc, char *argv[])
     // get database name
     // FIXME: allow multiple DB parameters?  Or A,B,C???
     val = cgi_params.find("DB");
-    if (val != notfound) {
+    if (val != cgi_params.end()) {
 	db_name = val->second;
     } else {
 	db_name = default_db_name;
     }
-    /* if we're called from a SSI page, set flag to use query-ssi, etc */
-    if (getenv("REDIRECT_QUERY_STRING")) ssi = true;
 
-    /* Translate DB parameter to path to database directory */
+    // Translate DB parameter to path of database directory
     db_dir = map_dbname_to_dir(db_name);
 
     // Open enquire system
@@ -157,13 +152,13 @@ static int main2(int argc, char *argv[])
         omdb.add_database("auto", params);
     } catch (OmError &e) {
 	// odds are it's not a database
-	cout << "<HTML><HEAD>"
-	        "<TITLE>Database '" << db_name << "' not found</TITLE></HEAD>"
-	        "<BODY BGCOLOR=white>"
-	        "<H3>Database '" << db_name << "' not found "
+	cout << "<HTML><HEAD>\n"
+	        "<TITLE>Database `" << db_name << "' not found</TITLE></HEAD>\n"
+	        "<BODY BGCOLOR=white>\n"
+	        "<H3>Database <i>" << db_name << "</i> not found "
 	        "(or not readable)</H3>\n"
-	        "</BODY></HTML>";
-	// cout << e.get_msg() << endl;
+	        "</BODY></HTML>\n";
+        cout << "<!-- " << e.get_msg() << " -->\n";
 	exit(0);
     }
 
@@ -194,22 +189,21 @@ static int main2(int argc, char *argv[])
     // Create rset to put relevant items in.
     rset = new OmRSet();
        
-    /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
-    
-    if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"][0];
-    if (!option["thou_sep"].empty()) thou_sep = option["thou_sep"][0];
+    // read thousands and decimal separators: e.g. 16<thou>729<dec>8037
+    if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"];
+    if (!option["thou_sep"].empty()) thou_sep = option["thou_sep"];
 
     val = cgi_params.find("MATCHOP");
-    if (val != notfound) {
+    if (val != cgi_params.end()) {
 	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
-    } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
+    } else if ((val = cgi_params.find("THRESHOLD")) != cgi_params.end()) {
 	if (atoi(val->second.c_str()) == 100) op = OM_MOP_AND;
     }
 
     big_buf = "";
 
     val = cgi_params.find("MORELIKE");
-    if (val != notfound) {
+    if (val != cgi_params.end()) {
 	int doc = atol(val->second.c_str());
        
 	OmRSet tmprset;
@@ -324,7 +318,7 @@ static int main2(int argc, char *argv[])
     }
 
     // add expand/topterms terms if appropriate
-    if (cgi_params.find("ADD") != notfound) {
+    if (cgi_params.find("ADD") != cgi_params.end()) {
 	g = cgi_params.equal_range("X");
 	for (MCI i = g.first; i != g.second; i++) {
 	    string v = i->second;
@@ -347,7 +341,7 @@ static int main2(int argc, char *argv[])
     }
 
     val = cgi_params.find("FMT");
-    if (val != notfound) {
+    if (val != cgi_params.end()) {
 	string v = val->second;
 	if (!v.empty()) {
 	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
@@ -360,7 +354,7 @@ static int main2(int argc, char *argv[])
    
     /*** get old prob query (if any) ***/
     val = cgi_params.find("OLDP");
-    if (val == notfound) {
+    if (val == cgi_params.end()) {
 	set_probabilistic(big_buf, "");
 	is_old = 1; // not really, but it should work
     } else {
@@ -388,9 +382,9 @@ static int main2(int argc, char *argv[])
 
     /*** process commands ***/
     long matches = do_match(topdoc, list_size);
-    if (cgi_params.find("X") != notfound) {
+    if (cgi_params.find("X") != cgi_params.end()) {
 	make_log_entry("add", matches);
-    } else if (cgi_params.find("MORELIKE") != notfound) {
+    } else if (cgi_params.find("MORELIKE") != cgi_params.end()) {
 	make_log_entry("morelike", matches);
     } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
@@ -413,10 +407,8 @@ extern FILE *page_fopen(const string &page) {
     FILE *fp;
     string fnm;
 
-    fnm = db_dir + "/html/";
+    fnm = db_dir + "-html/"; // FIXME should be "/html/"
     fnm += page;
-
-    if (ssi) fnm += "-ssi";
 
     fp = fopen(fnm.c_str(), "r");
     if (fp) return fp;

@@ -20,12 +20,11 @@
  * -----END-LICENCE-----
  */
 
-#define FERRET 1
-
 #include "om/om.h"
 
 #include "config.h"
-#define FX_VERSION_STRING "1.4+ (" PACKAGE "-" VERSION ")"
+
+#define PROGRAM_NAME "ompf"
 
 #include <map>
 #include <vector>
