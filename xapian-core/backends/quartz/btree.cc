@@ -1307,12 +1307,6 @@ Btree::set_full_compaction(bool parity)
 
 /************ B-tree opening and closing ************/
 
-void
-Btree::write_base()
-{
-    base.write_to_file(name + "base" + other_base_letter);
-}
-
 bool
 Btree::basic_open(const string & name_,
 		  bool revision_supplied,
@@ -1681,8 +1675,6 @@ Btree::commit(uint4 revision)
     base.set_have_fakeroot(faked_root_block);
     base.set_sequential(sequential);
 
-    write_base();
-
     {
 	int tmp = base_letter;
 	base_letter = other_base_letter;
@@ -1706,19 +1698,8 @@ Btree::commit(uint4 revision)
 	C[i].rewrite = false;
     }
  
-    {
-	Btree_base new_base;
-	base.swap(new_base);
-
-	string err_msg;
-	if (!base.read(name, base_letter, err_msg)) {
-	    string message = "Error opening table `";
-	    message += name;
-	    message += "':\n";
-	    message += err_msg;
-	    throw Xapian::DatabaseOpeningError(message);
-	}
-    }
+    base.write_to_file(name + "base" + (char)base_letter);
+    base.commit();
 
     next_revision = revision_number + 1;
 

@@ -149,9 +149,7 @@ class Btree {
 	void add_item(Cursor *C_, byte *kt, int j);
 	void delete_item(Cursor *C_, int j, bool repeatedly);
 	int add_kt(int found);
-	void write_base();
 	void read_root();
-//	void block_check(Cursor *C_, int j, int opts);
 	void split_root(Cursor *C_, int j);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,

@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -95,6 +95,8 @@ class Btree_base {
 
 	/* Only used with fake root blocks */
 	void clear_bit_map();
+
+	void commit();
 
 	/* Used by Btree::check() */
 	bool is_empty() const;

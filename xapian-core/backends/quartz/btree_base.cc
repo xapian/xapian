@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,7 +85,8 @@ Btree_base::Btree_base(const string &name_, char ch)
 	  item_count(0),
 	  last_block(0),
 	  have_fakeroot(false),
-	  sequential(false)
+	  sequential(false),
+	  bit_map_low(0)
 {
     string err_msg;
     if (!read(name_, ch, err_msg)) {
@@ -550,4 +551,12 @@ void
 Btree_base::clear_bit_map()
 {
     memset(bit_map, 0, bit_map_size);
+}
+
+// We've commited, so "bitmap at start" needs to be reset to the current bitmap.
+void
+Btree_base::commit()
+{
+    memcpy(bit_map0, bit_map, bit_map_size);
+    bit_map_low = 0;
 }
