@@ -59,13 +59,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
-MAKEINFO = @MAKEINFO@
-PACKAGE = @PACKAGE@
 PERL = @PERL@
 RANLIB = @RANLIB@
-VERSION = @VERSION@
 
-bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb 	cvscompare.cgi 	Match.cgi Query.cgi Queryfile.cgi Source.cgi 	comment_extractor_c comment_extractor_c++ 	popup.js utility.js 	cvssearch.pm Entities.pm
+bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb 	cvscompare.cgi 	Match.cgi Query.cgi Queryfile.cgi Source.cgi         cvs_comment_extractor code_comment_extractor 	popup.js utility.js 	cvssearch.pm Entities.pm
 
 
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl 	cvscompare-script.pl 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl         comment_extractor_c.pl comment_extractor_c++.pl 	popup.js utility.js         cvssearch.pm Entities.pm
@@ -76,6 +73,9 @@ SCRIPTS =  $(bin_SCRIPTS)
 
 DIST_COMMON =  Makefile.am Makefile.in
 
+
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
@@ -203,12 +203,6 @@ cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef
 
-cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
-	$(build-perl-script)
-
-code_comment_extractor: $(srcdir)/code_comment_extractor.pl
-	$(build-perl-script)
-
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)
 
@@ -233,10 +227,10 @@ Queryfile.cgi:$(srcdir)/Queryfile-script.pl $(srcdir)/Entities.pm $(srcdir)/cvss
 Source.cgi:$(srcdir)/Source-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)
 
-comment_extractor_c: $(srcdir)/comment_extractor_c.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
 	$(build-perl-script)
 
-comment_extractor_c++:$(srcdir)/comment_extractor_c++.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+code_comment_extractor: $(srcdir)/code_comment_extractor.pl
 	$(build-perl-script)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -267,7 +267,7 @@ sub cvsbuild {
                     open(LIST, "<$list_file") || die "cannot create temporary file list\n";
                     while (<LIST>) {
                           chomp;
-                          $code_words += `./code_comment_extractor $_|wc -c|");
+                          $code_words += `./code_comment_extractor $_|wc -c|`;
                     }
                     close(LIST);
 

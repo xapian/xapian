@@ -186,17 +186,13 @@ main(unsigned int argc, const char **argv)
     if (!use_html && file_index != 0 && num_lines != 0)
     {
         stats_fout
-//                    << "total number of updates  " << num_updates << endl
-//                    << "total number of deletes  " << num_deletes << endl
-//                    << "total number of searches " << num_searches << endl
-//                    << "total number of versions: " << num_version << endl
             << "total   # of files             :\t" << file_index << endl
             << "total   # of lines of code     :\t" << num_lines << endl
             << "maximum # versions / file      :\t" << max_version << endl
             << "              the file is      :\t" << smax_version_file << endl
             << "average # versions / file      :\t" << num_version / file_index << endl
             << "average # cvs comments / line  :\t" << (double) num_mappings / (double) num_lines << endl
-            << "total   # (cvs comment, line)  :\t" << num_mappings << endl
+//            << "total   # (cvs comment, line)  :\t" << num_mappings << endl
             ;
     }
     if (pdb_file)

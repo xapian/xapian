@@ -1,7 +1,7 @@
 bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb \
 	cvscompare.cgi \
 	Match.cgi Query.cgi Queryfile.cgi Source.cgi \
-	comment_extractor_c comment_extractor_c++ \
+        cvs_comment_extractor code_comment_extractor \
 	popup.js utility.js \
 	cvssearch.pm Entities.pm
 
@@ -20,12 +20,6 @@ echo "#!" $(PERL) > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef
-
-cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
-	$(build-perl-script)
-
-code_comment_extractor: $(srcdir)/code_comment_extractor.pl
-	$(build-perl-script)
 
 cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)
@@ -51,8 +45,10 @@ Queryfile.cgi:$(srcdir)/Queryfile-script.pl $(srcdir)/Entities.pm $(srcdir)/cvss
 Source.cgi:$(srcdir)/Source-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
 	$(build-perl-script)
 
-comment_extractor_c: $(srcdir)/comment_extractor_c.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
 	$(build-perl-script)
 
-comment_extractor_c++:$(srcdir)/comment_extractor_c++.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+code_comment_extractor: $(srcdir)/code_comment_extractor.pl
 	$(build-perl-script)
+
+
