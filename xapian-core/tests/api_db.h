@@ -1,4 +1,4 @@
-/* apitest.h: tests the OpenMuscat API
+/* api_db.h: tests which need a backend
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,18 +20,14 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_APITEST_H
-#define OM_HGUARD_APITEST_H
+#ifndef OM_HGUARD_API_DB_H
+#define OM_HGUARD_API_DB_H
 
-#include "om/om.h"
+#include "testsuite.h"
 
-OmDatabase make_dbgrp(OmDatabase * db1 = 0,
-		      OmDatabase * db2 = 0,
-		      OmDatabase * db3 = 0,
-		      OmDatabase * db4 = 0);
+extern test_desc db_tests[];
+extern test_desc doclendb_tests[];
+extern test_desc writabledb_tests[];
+extern test_desc localdb_tests[];
 
-OmDatabase get_database(const string &dbname, const string &dbname2 = "");
-
-OmWritableDatabase get_writable_database(const string &dbname);
-
-#endif /* OM_HGUARD_APITEST_H */
+#endif /* OM_HGUARD_API_DB_H */

@@ -40,12 +40,12 @@ endif
 
 ## Sources:
 
-noinst_HEADERS = apitest.h api_nodb.h api_posdb.h
+noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
 
 threadtest_SOURCES = threadtest.cc
 threadtest_LDADD = ../testsuite/libtest.la ../libomus.la
 
-apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc
+apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
 apitest_LDADD = ../testsuite/libtest.la ../libomus.la
 
 stemtest_SOURCES = stemtest.cc

@@ -1,3 +1,7 @@
+Fri Sep 01 18:36:09 BST 2000 Olly Betts
+
+	* apitest: Split off api_db.cc - test requiring a database.
+
 Fri Sep 01 18:18:08 BST 2000 Olly Betts
 
 	* apitest: Split off api_posdb.cc - tests requiring positional info.
