@@ -6,7 +6,7 @@ xapian-core (0.8.3-1) unstable; urgency=low
     used and there weren't many matches (regression test checkatleast1).
   * omtcpsrv renamed to xapian-tcpsrv.
 
- -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 19:37:47 +0100
+ -- Richard Boulton <richard@tartarus.org>  Tue, 21 Sep 2004 13:30:17 +0100
 
 xapian-core (0.8.2-3) unstable; urgency=low
 
