@@ -87,9 +87,9 @@ bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
 ////////////////////////////////////
 
 OMMatch::OMMatch(IRDatabase *_database)
-	: do_collapse(false),
-	  have_added_terms(false),
-	  query(NULL)
+	: query(NULL),
+	  do_collapse(false),
+	  have_added_terms(false)
 {
     database = _database;
     min_weight_percent = -1;
