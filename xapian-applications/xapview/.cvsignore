@@ -16,3 +16,4 @@ stamp-h.in
 stamp-h
 libtool
 config.cache
+autom4te-*.cache
