@@ -22,19 +22,19 @@ $webroot = $ARGV[2] if($#ARGV == 2);
 $dirs   = `find $srcdir -type d`;
 @dirs   = split(/\n/, $dirs);
 
-# Read the contents of any README's we find.
+# Read the contents of any dir_contents's we find.
 foreach $dir (@dirs) {
   next if $dir =~ m/CVS$/;
-  $readmefile = "$dir/README";
-  next if ! -r $readmefile;
-  open(READMEFILE, $readmefile);
+  $contentsfile = "$dir/dir_contents";
+  next if ! -r $contentsfile;
+  open(CONTENTSFILE, $contentsfile);
 
   $contents = "";
-  while(<READMEFILE>) { $contents .= $_; }
+  while(<CONTENTSFILE>) { $contents .= $_; }
 
   # Get directory tag
   if($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
-      print stderr "Skipping $readmefile: didn't contain a directory tag\n";
+      print stderr "Skipping $contentsfile: didn't contain a directory tag\n";
       next;
   }
   $directory = "$1";
@@ -44,20 +44,20 @@ foreach $dir (@dirs) {
     $tagdir = "$srcdir/";
   }
   if("$tagdir" ne $dir . "/") {
-    print stderr "Skipping $readmefile: incorrect directory tag\n";
+    print stderr "Skipping $contentsfile: incorrect directory tag\n";
     next;
   }
 
   # Get description tag
   if($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
-      print stderr "Skipping $readmefile: didn't contain a description tag\n";
+      print stderr "Skipping $contentsfile: didn't contain a description tag\n";
       next;
   }
   $description = "$1";
 
   $descriptions{$directory} = $description;
 }
-close(READMEFILE);
+close(CONTENTSFILE);
 
 sub tohtml() {
   $html = $_[0];
