@@ -1,3 +1,9 @@
+Mon Sep 18 11:55:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* malloccheck now includes a naive memory allocation function to
+	  use before malloc() and friends are found.  This removes the
+	  gross dependency on glibc2 internals.
+
 Mon Sep 18 10:57:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added malloccheck.c to the distribution.

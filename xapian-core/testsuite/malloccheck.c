@@ -24,6 +24,11 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 static struct allocation_data allocdata = ALLOC_DATA_INIT;
 
@@ -70,10 +75,30 @@ get_symbols()
 
 #define CHECK_SYMBOLS if (have_symbols) ; else get_symbols()
 
+/** naive_allocator is used to handle memory requests from anything that
+ *  dlsym() calls, since we won't yet have access to the real malloc() etc.
+ *  by then.
+ */
+static void *
+naive_allocator(size_t size)
+{
+    void *result;
+    int fd = open("/dev/zero", 0);
+    if (fd < 0) return 0;
+    result = mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
+		  fd, 0);
+
+    close(fd);
+    return result;
+}
+
 void *
 malloc(size_t size)
 {
     void *result;
+    if (in_get_symbols) {
+	return naive_allocator(size);;
+    }
     CHECK_SYMBOLS;
 
     result = real_malloc(size);
@@ -86,8 +111,7 @@ calloc(size_t nmemb, size_t size)
 {
     void *result;
     if (in_get_symbols) {
-	/* ugly hack to make dlsym() use a static buffer... */
-	return 0;
+	return naive_allocator(size * nmemb);;
     }
     CHECK_SYMBOLS;
 
