@@ -3,10 +3,6 @@
 #ifndef _daread_h_
 #define _daread_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>   /* main etc */
 #include "muscat.h"
 
@@ -46,7 +42,8 @@ struct terminfo
     int shcount;  /* number of items in shortcut vector */
 
     byte *p;      /* term-block pointer (transitory) */
-    int c;        /* term-block offset */
+    byte *term;   /* term pointer (transitory) */
+    /*int c;        -- term-block offset */
     int o;        /* term-block index offset */
     int n;        /* term-block number */
     int termno;   /* 1 for first term */
@@ -69,15 +66,50 @@ struct postings
     int wdf;      /* within-doc-frequency */
 };
 
-struct DAfile * DAopen(byte * s, int type);
-void   DAclose(struct DAfile * p);
-int    DAterm(byte * k, int d, struct terminfo * t, struct DAfile * p);
-struct postings * DAopenpostings(struct terminfo * t, struct DAfile * p);
-void   DAreadpostings(struct postings * q, int style, int Z0);
-void   DAclosepostings(struct postings * q);
+struct record
+{   byte * p;     /* the record */
+    int size;     /* size of malloc-ed space */
+    int number;   /* its number */
+};
 
-#ifdef __cplusplus
-}
-#endif
+
+struct termvec
+{   byte * p;     /* the termvec */
+    int size;     /* size of malloc-ed space */
+    int number;   /* its number */
+
+    /* termvec inherits record, and is cast to (record) at one
+       significant point */
+
+    byte * l;     /* its end point */
+    byte * term;  /* current term is tv->term */
+    byte * nextterm;
+                  /* next term is tv->nextterm */
+    int rel;      /* marked for relevance feedback? */
+    int wdf;      /* its wdf (or 0) */
+    int freq;     /* its frequency (or -1) */
+    byte * termp; /* pointer to position info (or 0) */
+};
+
+extern struct DAfile * DAopen(byte * s, int type);
+extern void   DAclose(struct DAfile * p);
+extern int    DAterm(byte * k, struct terminfo * t, struct DAfile * p);
+extern struct postings * DAopenpostings(struct terminfo * t, struct DAfile * p);
+extern void   DAreadpostings(struct postings * q, int style, int Z0);
+extern void   DAclosepostings(struct postings * q);
+
+extern int    DAnextterm(struct terminfo * v, struct DAfile * p);
+extern int    DAprevterm(struct terminfo * v, struct DAfile * p);
+
+extern struct record * makerecord();
+extern void   loserecord(struct record * r);
+extern int    DAgetrecord(struct DAfile * p, int n, struct record * r);
+
+extern struct termvec * maketermvec();
+extern void   losetermvec(struct termvec * tv);
+extern int    DAgettermvec(struct DAfile * p, int n, struct termvec * tv);
+
+extern struct terms * openterms(struct termvec * tv);
+extern void   readterms(struct termvec * tv);
 
 #endif /* daread.h */
