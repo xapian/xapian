@@ -1,3 +1,9 @@
+Fri Sep 03 18:28:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Require automake 1.8.5.
+	* configure.in: Require autoconf 2.59.  Note that SWIG 1.3.22 doesn't
+	  seem to have any changes relevant to us.
+
 Fri Sep 03 18:14:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fixed to remove _xapian.la after it is installed
