@@ -48,6 +48,25 @@ environment variables.  You can:
 Of course, if you didn't compile with --enable-debug=full, these environment
 variables will have no effect.
 
+Debuging memory allocations
+===========================
+
+The testsuite library used in most of the test programs (apitest, internaltest,
+nettest) includes implementations of the C++ memory allocation operators
+(operator new/delete).  These help the testsuite to detect memory leaks.
+
+Some environment variables can be used:
+
+ o) set OM_NEW_TRAP to the hex value of an address to cause the program to
+    dump core when that address is allocated.
+ 
+ o) set OM_NEW_TRAP_COUNT to a number greater than 1 to cause the above
+    trap to happen at a later occurence of the allocation (ie 2nd, 3rd,
+    etc. time that address is allocated).
+
+These are most useful for tracking down memory leaks reported by the
+testsuite programs (use the "-v" command-line option) when gdb doesn't
+help as much as it could.
 
 Building from CVS:
 ==================
