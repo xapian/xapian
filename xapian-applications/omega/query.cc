@@ -24,6 +24,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <algorithm>
 #include <vector>
 #include <map>
@@ -38,6 +40,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#ifdef HAVE_GETTIMEOFDAY
+#include <sys/time.h>
+#include <unistd.h>
+#elif defined HAVE_FTIME
+#include <sys/timeb.h>
+#else
+#include <time.h>
+#endif
 
 #include "utils.h"
 #include "omega.h"
@@ -69,6 +80,8 @@ static string eval_file(const string &fmtfile);
 static set<om_termname> termset;
 
 static string error_msg;
+
+static long int sec = 0, usec = -1;
 
 class MyStopper : public OmStopper {
   public:
@@ -265,29 +278,28 @@ run_query()
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
 	vector<OmQuery> filter_vec;
-	vector<om_termname> and_vec;
+	vector<om_termname> or_vec;
 	string current;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
-		switch (and_vec.size()) {
+		switch (or_vec.size()) {
 		    case 0:
 		        break;
 		    case 1:
-			filter_vec.push_back(OmQuery(and_vec[0]));
+			filter_vec.push_back(OmQuery(or_vec[0]));
 		        break;
 		    default:
 			filter_vec.push_back(OmQuery(OmQuery::OP_OR,
-						     and_vec.begin(),
-						     and_vec.end()));
+						     or_vec.begin(),
+						     or_vec.end()));
 		        break;
 		}
-		if (over)
-		    break;
-		and_vec.clear();
+		or_vec.clear();
+		if (over) break;
 		current = i->first;
 	    }
-	    and_vec.push_back(i->second);
+	    or_vec.push_back(i->second);
 	}
 	
 	// if only boolean query is provided then promote that
@@ -358,8 +370,6 @@ run_query()
     }
 
     if (enquire) {
-	enquire->set_query(query);
-
 	OmSettings opt;
 	opt.set("match_percent_cutoff", threshold);
         // match_min_hits will be moved into matcher soon
@@ -383,7 +393,24 @@ run_query()
 	}
 				
 	// FIXME - set msetcmp to reverse?
-	//
+
+#ifdef HAVE_GETTIMEOFDAY
+	struct timeval tv;
+	if (gettimeofday(&tv, 0) == 0) {
+	    sec = tv.tv_sec;
+	    usec = tv.tv_usec;
+	}
+#elif defined(HAVE_FTIME)
+	struct timeb tp;
+	if (ftime(&tp) == 0) {
+	    sec = tp.time;
+	    usec = tp.millitm * 1000;
+	}
+#else
+	sec = time(NULL);
+	if (sec != (time_t)-1) usec = 0;
+#endif
+	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we
 	// need to know the first few items on the mset to fake a
 	// relevance set for topterms.
@@ -393,6 +420,38 @@ run_query()
 	// leads to an empty page
 	mset = enquire->get_mset(0, topdoc + max(hits_per_page + 1,min_hits),
 				 rset, &opt);
+	if (usec != -1) {
+#ifdef HAVE_GETTIMEOFDAY
+	    if (gettimeofday(&tv, 0) == 0) {
+		sec = tv.tv_sec - sec;
+		usec = tv.tv_usec - usec;
+		if (usec < 0) {
+		    --sec;
+		    usec += 1000000;
+		}
+	    } else {
+		usec = -1;
+	    }
+#elif defined(HAVE_FTIME)
+	    struct timeb tp;
+	    if (ftime(&tp) == 0) {
+		sec = tp.time - sec;
+		usec = tp.millitm * 1000 - usec;
+		if (usec < 0) {
+		    --sec;
+		    usec += 1000000;
+		}
+	    } else {
+		usec = -1;
+	    }
+#else
+	    usec = time(NULL);
+	    if (usec != -1) {
+		sec = sec - usec;
+		usec = 0;
+	    }
+#endif
+	}
     }
 }
 
@@ -764,6 +823,7 @@ CMD_slice,
 CMD_sub,
 CMD_terms,
 CMD_thispage,
+CMD_time,
 CMD_topdoc,
 CMD_topterms,
 CMD_url,
@@ -858,6 +918,7 @@ static struct func_desc func_tab[] = {
 {T(sub),	2, 2, N, 0, 0}}, // subtract
 {T(terms),	0, 0, N, 1, 0}}, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
+{T(time),	0, 0, N, 1, 0}}, // how long the match took (in seconds)
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
 {T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 16)
@@ -1510,6 +1571,13 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_thispage:
 		value = int_to_string(topdoc / hits_per_page + 1);
+		break;
+	    case CMD_time:
+		if (usec != -1) {
+		    char buf[64];
+		    sprintf(buf, "%d.%06d", sec, usec);
+		    value = buf;
+		}
 		break;
 	    case CMD_topdoc:
 		// first document on current page of hit list (counting from 0)

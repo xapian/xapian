@@ -57,11 +57,12 @@ $if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
  $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
   All $nice{$msize} matches,
-  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$msize},-$nice{$msize}} of exactly $nice{$msize} matches}
+  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$msize},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <hr>
 </center>
 $list{$map{$queryterms,$prettyterm{$_}:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
+<br><small>Search took $time seconds</small>
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
 SRC="/icons/omega/score-$div{$percentage,10}.png"

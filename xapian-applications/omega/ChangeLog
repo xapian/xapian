@@ -1,3 +1,11 @@
+Wed Dec 11 00:58:49 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,query.cc,docs/omegascript.txt,templates/query:
+	  Added $time which reports how long the match took - when searching
+	  on a remote website, it's hard to gauge how much time is taken by
+	  the search, and how much by the web server and browser; renamed
+	  and_vec to or_vec which better describes its purpose.
+
 Mon Dec 09 17:11:26 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt,templates/query: Added $dbsize

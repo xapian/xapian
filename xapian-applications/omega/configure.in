@@ -18,6 +18,9 @@ AC_PROG_CC
 AC_PROG_CXX
 dnl AC_PROG_LIBTOOL
 
+dnl Check for time functions.
+AC_CHECK_FUNCS(gettimeofday ftime)
+
 dnl Check for libxapian
 OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 

@@ -245,10 +245,14 @@ $slice{LIST,POSITIONS}
 	"$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
 $terms
-	list of matching terms for current hit
+	list of matching terms for current hit.
 
 $thispage
-	page number of current page
+	page number of current page.
+
+$time
+	how long the match took (in seconds) e.g. "0.078534".  If no timing
+	information was available, returns an empty value.
 
 $topdoc
 	first document on current page of hit list (counting from 0)
