@@ -1,0 +1,65 @@
+BM25
+====
+
+This is a technical note about the BM25 weighting scheme.  BM25 is the best
+probabilistic weighting scheme as revealed in the TREC tests.
+
+------------------
+
+The Muscat term weighting function is (in its most general form)
+
+ (A + 1)q   (B + 1)f                     (r+0.5)(R-r+0.5)
+ -------- . -------- w, where w = log ----------------------    ...(1)
+  (A + q)    BL + f                   (n-r+0.5)(N-n-R+r+0.5)
+
+where A, B are constants
+
+q is the wqf, the within query frequency,
+f is the wdf, the within document frequency,
+n,r,N,R you will know, and
+L = 1 in Muscat, because we don't keep document lengths, but in Stephen
+Robertson's formula is the normalised document length, i.e. the length
+of the document divided by the average length of a document.
+
+(The factors (A + 1), (B + 1) are unnecessary here, but help scale the
+weights, so ((A+1)q)/(A+q) = 1 when q = 1 etc. But they are critical below.)
+
+
+Stephen's BM11 is this formula for the term weights, but then he adds
+an extra item to the sum of term weights to give the overall document
+score. It is
+
+        (1-L)
+    C s -----                                               ...(2)
+        (1+L)
+
+where s is the size of the query (the number of terms in the query) and
+C is yet another constant. Of course, this is zero when L = 1.
+
+BM15 is BM11 with the B+f in place of BL+f in (1)
+
+BM25 combines the two with a scaling factor, D, which turns BM15 into BM25 as
+it moves from 0 to 1 :
+
+ (A + 1)q   (B + 1)f
+ -------- . -------- w                              ...(3)
+  (A + q)     K + f
+
+where K = B((1 - D ) + DL)
+
+and instroduces another constant E, as a power to which f and K are raised,
+i.e.
+
+ (A + 1)q    (B + 1)f!E
+ -------- . ----------- w                          ...(4)
+  (A + q)    K!E + f!E
+
+where a!b means a to the power b. (2) and (4) make up BM25, with which
+Stephen has had so much recent success.
+
+This all seems so ad-hoc, and there are so many unknown constants in the
+formula, that my first response is one of some doubt. But note that with
+L = 1 and E = 1 we get the Muscat formula anyway. Our choice of L = 1 is
+rational given the successful approach of Euroferret style indexing (index
+every document with roughly the same number of terms), and Stephen
+remarks that values of E other than 1 were 'not helpful'.
