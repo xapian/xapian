@@ -46,10 +46,6 @@ class QuartzModifications {
 	 */
 	QuartzDbManager * db_manager;
 
-	/** Revision number to store modifications under.
-	 */
-	QuartzRevisionNumber new_revision;
-
 
 	/** Diffs made to the PostList database.
 	 */
@@ -70,6 +66,14 @@ class QuartzModifications {
 	/** Diffs made to the Record database.
 	 */
 	auto_ptr<QuartzRecordDiffs> record_diffs;
+
+	/** Open the diffs objects.
+	 */
+	void open_diffs();
+
+	/** Close the diffs objects.
+	 */
+	void close_diffs();
     public:
 
 	/** Construct the modifications object.

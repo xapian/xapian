@@ -39,11 +39,9 @@ QuartzLog::QuartzLog(string filename)
 QuartzLog::~QuartzLog()
 {
     if (fp != 0) {
-	int retval = fclose(fp);
-	if (retval) {
-	    throw OmOpeningError("Error when closing logfile: " +
-				 string(strerror(errno)));
-	}
+	(void) fclose(fp);
+	// Would like to complain if there's an error, but mustn't because
+	// we're in a destructor
     }
 }
  

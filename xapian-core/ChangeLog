@@ -1,3 +1,11 @@
+Wed Sep 20 15:56:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More fettling to Quartz - databases now have logic to ensure that
+	  correct revisions get opened, and that recovery gets performed
+	  if needed.  Tables can now return the currently opened revision
+	  number and the latest available.  A log object is always created,
+	  but throws away messages if readonly or no path specified.
+
 Wed Sep 20 15:48:22 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Changed std::auto_ptr to AutoPtr everywhere except Quartz

@@ -43,27 +43,29 @@ QuartzModifications::~QuartzModifications()
 void
 QuartzModifications::open_diffs()
 {
-    postlist_diffs = new QuartzPostListDiffs(db_manager->postlist_table);
-    positionlist_diffs = new QuartzPositionListDiffs(db_manager->positionlist_table);
-    termlist_diffs = new QuartzTermListDiffs(db_manager->termlist_table);
-    lexicon_diffs = new QuartzLexiconDiffs(db_manager->lexicon_table);
-    record_diffs = new QuartzRecordDiffs(db_manager->record_table);
+    postlist_diffs.reset(new QuartzPostListDiffs(db_manager->postlist_table.get()));
+    positionlist_diffs.reset(new QuartzPositionListDiffs(db_manager->positionlist_table.get()));
+    termlist_diffs.reset(new QuartzTermListDiffs(db_manager->termlist_table.get()));
+    lexicon_diffs.reset(new QuartzLexiconDiffs(db_manager->lexicon_table.get()));
+    record_diffs.reset(new QuartzRecordDiffs(db_manager->record_table.get()));
 }
 
 void
 QuartzModifications::close_diffs()
 {
-    postlist_diffs = 0;
-    positionlist_diffs = 0;
-    termlist_diffs = 0;
-    lexicon_diffs = 0;
-    record_diffs = 0;
+    postlist_diffs.reset();
+    positionlist_diffs.reset();
+    termlist_diffs.reset();
+    lexicon_diffs.reset();
+    record_diffs.reset();
 }
 
 void
 QuartzModifications::apply()
 {
     bool success;
+    QuartzRevisionNumber old_revision(db_manager->get_revision_number());
+    QuartzRevisionNumber new_revision(db_manager->get_next_revision_number());
 
     db_manager->log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
 
@@ -75,24 +77,26 @@ QuartzModifications::apply()
 
     if (!success) {
 	// Modifications failed.  Wipe all the modifications from memory.
-	log->make_entry("Attempted modifications failed.  Wiping partial modifications");
+	db_manager->log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
 	close_diffs();
 	
 	// Reopen tables with old revision number, 
-	db_manager->reopen();
+	db_manager->log->make_entry("Reopening tables without modifications: old revision is " + old_revision.get_description() + ".");
+	db_manager->open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	new_revision.increment();
-	log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
+	db_manager->log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
 
 	std::map<QuartzDbKey, QuartzDbTag *> null_entries;
-	db_manager->postlist_table.set_entries(null_entries, new_revision);
-	db_manager->positionlist_table.set_entries(null_entries, new_revision);
-	db_manager->termlist_table.set_entries(null_entries, new_revision);
-	db_manager->lexicon_table.set_entries(null_entries, new_revision);
-	db_manager->record_table.set_entries(null_entries, new_revision);
+	db_manager->postlist_table->set_entries(null_entries, new_revision);
+	db_manager->positionlist_table->set_entries(null_entries, new_revision);
+	db_manager->termlist_table->set_entries(null_entries, new_revision);
+	db_manager->lexicon_table->set_entries(null_entries, new_revision);
+	db_manager->record_table->set_entries(null_entries, new_revision);
 
+	// Prepare for further modifications.
 	open_diffs();
     }
 }
@@ -105,10 +109,10 @@ QuartzModifications::add_document(const OmDocumentContents & document)
     OmDocumentContents::document_terms::const_iterator i;
 
     for (i = document.terms.begin(); i != document.terms.end(); i++) {
-	postlist_diffs.add_posting(i->second.tname, did, i->second.wdf);
-	positionlist_diffs.add_positionlist(did,
-					    i->second.tname,
-					    i->second.positions);
+	postlist_diffs->add_posting(i->second.tname, did, i->second.wdf);
+	positionlist_diffs->add_positionlist(did,
+					     i->second.tname,
+					     i->second.positions);
     }
 
     return did;

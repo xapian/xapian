@@ -151,13 +151,18 @@ class QuartzDbTable : public RefCntBase {
 	 */
 	std::map<QuartzDbKey, QuartzDbTag> data;
 
+	/** The path at which the table is stored.
+	 */
+	string path;
+	
+	/** Whether the table is readonly.
+	 */
+	bool readonly;
+
 	/** The current revision number.
 	 */
 	QuartzRevisionNumber(revision);
 
-	/** Whether the table is readonly.
-	 */
-	bool readonly;
     public:
 	/** Open the table.
 	 *
@@ -183,11 +188,11 @@ class QuartzDbTable : public RefCntBase {
 	 */
 	~QuartzDbTable();
 
-	/** Get an object holding the revision number of this table.
+	/** Get an object holding the revision number at which this table
+	 *  is currently open.
 	 *
-	 *  This returns the revision number that this table is currently
-	 *  opened with (it is possible that there are other, more recent or
-	 *  older revisions available).
+	 *  It is possible that there are other, more recent or older
+	 *  revisions available.
 	 *
 	 *  See the documentation for the QuartzRevisionNumber class for
 	 *  an explanation of why the actual revision number may not be
@@ -195,7 +200,15 @@ class QuartzDbTable : public RefCntBase {
 	 *
 	 *  @return the current revision number.
 	 */
-	QuartzRevisionNumber get_revision_number() const;
+	QuartzRevisionNumber get_open_revision_number() const;
+
+	/** Get the latest revision number stored in this table.
+	 *
+	 *  It is possible that there are other, older, revisions of this
+	 *  table available, and indeed that the revision currently open
+	 *  is one of these older revisions.
+	 */
+	QuartzRevisionNumber get_latest_revision_number() const;
 
 	/** Return a count of the number of entries in the table.
 	 *
@@ -259,10 +272,10 @@ class QuartzDbTable : public RefCntBase {
 	 *
 	 *  @param entries       The key / tag pairs to store in the table.
 	 *  @param new_revision  If specified, the new revision number to
-	 *          store.  This must be greater than the current revision
-	 *          number, or undefined behaviour will result.  If not
-	 *          specified, the new revision number will be the current
-	 *          one plus 1.
+	 *          store.  This must be greater than the latest revision
+	 *          number (see get_latest_revision_number()), or undefined
+	 *          behaviour will result.  If not specified, the new
+	 *          revision number will be the current one plus 1.
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.

@@ -35,10 +35,6 @@
  */
 class QuartzDbManager : public RefCntBase {
     private:
-	/** Whether the tables have been opened: true if opened, false if not.
-	 */
-	bool tables_open;
-
 	/** Directory to store databases in.
 	 */
 	string db_dir;
@@ -47,17 +43,9 @@ class QuartzDbManager : public RefCntBase {
 	 */
 	string tmp_dir;
 
-	/** Pointer to object to log modifications.
-	 */
-	auto_ptr<QuartzLog> log;
-
 	/** Whether the database is readonly.
 	 */
 	bool readonly;
-
-	/** Whether to perform recovery, if it is needed.
-	 */
-	bool perform_recovery;
 
 
 	/// Copying not allowed
@@ -70,6 +58,34 @@ class QuartzDbManager : public RefCntBase {
 	 */
 	static int       calc_mode();
 
+	/** Open all tables at most recent revision.
+	 *
+	 *  @exception OmNeedRecoveryError is thrown if versions are not
+	 *             consistent.
+	 */
+	void open_tables_newest();
+
+	/** Open all tables at most recent consistent revision.
+	 *
+	 *  @exception OmDatabaseCorruptError is thrown if there is no
+	 *  consistent revision available.
+	 */
+	void open_tables_consistent();
+
+	/// Return the path that the record table is stored at.
+	string record_path() const;
+
+	/// Return the path that the lexicon table is stored at.
+	string lexicon_path() const;
+
+	/// Return the path that the termlist table is stored at.
+	string termlist_path() const;
+
+	/// Return the path that the positionlist table is stored at.
+	string positionlist_path() const;
+
+	/// Return the path that the postlist table is stored at.
+	string postlist_path() const;
     public:
 	/** Table storing posting lists.
 	 *
@@ -95,37 +111,35 @@ class QuartzDbManager : public RefCntBase {
 	 *
 	 *  Whenever an update is performed, this table is the last to be
 	 *  updated: therefore, its most recent revision number is the most
-	 *  recent consistent revision available.
+	 *  recent consistent revision available.  If this tables most
+	 *  recent revision number is not available for all tables, there
+	 *  is no consistent revision available, and the database is corrupt.
 	 */
 	RefCntPtr<QuartzDbTable> record_table;
 
 
+	/** Pointer to object to log modifications.
+	 */
+	auto_ptr<QuartzLog> log;
+
+
 	/** Construct the manager.
+	 *
+	 *  @exception OmNeedRecoveryError is thrown if versions are not
+	 *             consistent, and perform_recovery is not specified.
+	 *  @exception OmDatabaseCorruptError is thrown if there is no
+	 *             consistent revision available.
 	 */
 	QuartzDbManager(string db_dir_,
 			string tmp_dir_,
 			string log_filename_,
 			bool readonly_,
-			bool perform_recovery_);
+			bool perform_recovery);
 
 	/** Delete the manager.
 	 */
 	~QuartzDbManager();
 
-
-	/** Open all tables at most recent revision.
-	 *
-	 *  @exception OmNeedRecoveryError is thrown if versions are not
-	 *             consistent.
-	 */
-	void open_tables_newest();
-
-	/** Open all tables at most recent consistent revision.
-	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is no
-	 *  consistent revision available.
-	 */
-	void open_tables_consistent();
 
 	/** Open tables at specified revision number.
 	 *
@@ -137,13 +151,16 @@ class QuartzDbManager : public RefCntBase {
 	/** Get an object holding the revision number which the tables are
 	 *  opened at.
 	 *
-	 *  See the documentation for the QuartzRevisionNumber class for
-	 *  an explanation of why the actual revision number may not be
-	 *  accessed.
-	 *
 	 *  @return the current revision number.
 	 */
 	QuartzRevisionNumber get_revision_number() const;
+
+	/** Get an object holding the next revision number which should be
+	 *  used in the tables.
+	 *
+	 *  @return the next revision number.
+	 */
+	QuartzRevisionNumber get_next_revision_number() const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */

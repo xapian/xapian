@@ -47,7 +47,7 @@ class QuartzDiffs {
 
 	/** Table which blocks come from / get written to.
 	 */
-	RefCntPtr<QuartzDbTable> table;
+	QuartzDbTable * table;
 
 	/** Get a pointer to the tag for a given key.
 	 *
@@ -62,7 +62,7 @@ class QuartzDiffs {
     public:
 	/** Construct the diffs object.
 	 */
-	QuartzDiffs(RefCntPtr<QuartzDbTable> table_) : table(table_) {}
+	QuartzDiffs(QuartzDbTable * table_) : table(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 *
@@ -102,7 +102,7 @@ class QuartzPostListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPostListDiffs(RefCntPtr<QuartzDbTable> table_)
+	QuartzPostListDiffs(QuartzDbTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -129,7 +129,7 @@ class QuartzPositionListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPositionListDiffs(RefCntPtr<QuartzDbTable> table_)
+	QuartzPositionListDiffs(QuartzDbTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -152,7 +152,7 @@ class QuartzTermListDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzTermListDiffs(RefCntPtr<QuartzDbTable> table_)
+	QuartzTermListDiffs(QuartzDbTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -169,7 +169,7 @@ class QuartzRecordDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzRecordDiffs(RefCntPtr<QuartzDbTable> table_)
+	QuartzRecordDiffs(QuartzDbTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
@@ -186,7 +186,7 @@ class QuartzLexiconDiffs : public QuartzDiffs {
 	 *
 	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzLexiconDiffs(RefCntPtr<QuartzDbTable> table_)
+	QuartzLexiconDiffs(QuartzDbTable * table_)
 		: QuartzDiffs(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.

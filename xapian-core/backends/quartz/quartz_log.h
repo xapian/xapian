@@ -44,7 +44,9 @@ class QuartzLog {
     public:
 	/** Open the log.
 	 *
-	 *  @param filename  The full filename of the logfile.
+	 *  @param filename  The full filename of the logfile.  If this is
+	 *                   null, no logfile is opened, and messages are
+	 *                   discarded.
 	 */
 	QuartzLog(string filename);
 

@@ -34,9 +34,20 @@ QuartzRevisionNumber::get_description() const
 }
 
 
-QuartzDbTable::QuartzDbTable(bool readonly_)
-	: revision(0),
-          readonly(readonly_)
+QuartzDbTable::QuartzDbTable(string path_,
+			     bool readonly_,
+			     QuartzRevisionNumber revision_)
+	: path(path_),
+          readonly(readonly_),
+	  revision(revision_)
+{
+}
+
+QuartzDbTable::QuartzDbTable(string path_,
+			     bool readonly_)
+	: path(path_),
+          readonly(readonly_),
+	  revision(0)
 {
 }
 
@@ -45,8 +56,15 @@ QuartzDbTable::~QuartzDbTable()
 }
 
 QuartzRevisionNumber
-QuartzDbTable::get_revision_number() const
+QuartzDbTable::get_open_revision_number() const
 {
+    return revision;
+}
+
+QuartzRevisionNumber
+QuartzDbTable::get_latest_revision_number() const
+{
+    // FIXME: replace with a call to martin's code
     return revision;
 }
 
@@ -138,8 +156,8 @@ QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 bool
 QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
 {
-    QuartzRevisionNumber new_revision(revision);
+    QuartzRevisionNumber new_revision(get_latest_revision_number());
     new_revision.increment();
-    set_entries(entries, new_revision);
+    return set_entries(entries, new_revision);
 }
 
