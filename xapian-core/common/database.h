@@ -53,9 +53,6 @@ class IRDatabase {
     public:
 	termid term_name_to_id(termname);
 	termname term_id_to_name(termid);
-
-	list<PostListIterator*> postlist;
-	list<TermListIterator*> termlist;
     
 	void open(string);
 	void close();
@@ -63,13 +60,13 @@ class IRDatabase {
 
 class DADatabase : public IRDatabase {
     private:
-	termid term_name_to_id(termname);
-	termname term_id_to_name(termid);
-
         termid max_termid;
         map<termname, termid> termidmap;
         vector<termname> termidvec;
     public:
+	termid term_name_to_id(termname);
+	termname term_id_to_name(termid);
+
         DADatabase();
 };
 
