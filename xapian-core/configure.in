@@ -207,7 +207,7 @@ AC_OUTPUT(
  libomus-config
  docs/mkdoc.pl
  tests/stemtest.pl
+,
+ chmod +x docs/mkdoc.pl
+ chmod +x tests/stemtest.pl
 )
-
-AC_OUTPUT_COMMANDS([chmod +x tests/stemtest.pl], [])
-
