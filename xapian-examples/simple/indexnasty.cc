@@ -138,7 +138,10 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 
 om_docid
 IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
+  if (! Filepath.length()) Filepath="/dev/fd/0";
+
   std::ifstream stream(Filepath.c_str());
+
   if (! stream) {
     std::cout << "Can't open file " << Filepath << std::endl;
     return 0;
@@ -170,7 +173,6 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
         int hcursor;
         header=line.substr(index,cursor-index);
         if (! header.length()) docid=atoi(line.substr(cursor+1).c_str());
-  std::cout << "Docid " << docid << " " << line.substr(cursor+1).c_str() << std::endl;
         // if header has no : but has ~ then stem no prefix no store
         // if header has no : but has not ~ then just store 
 
