@@ -85,45 +85,38 @@ static void unlink_table(const string & path)
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(Btree & table, const string &world)
 {
-    string key;
     string tag;
 
     // Check exact reads
-    key = "hello";
     tag = "foo";
-    TEST(table.get_exact_entry(key, tag));
+    TEST(table.get_exact_entry("hello", tag));
     TEST_EQUAL(tag, world);
 
-    key = "jello";
     tag = "foo";
-    TEST(!table.get_exact_entry(key, tag));
+    TEST(!table.get_exact_entry("jello", tag));
     TEST_EQUAL(tag, "foo");
 
-    key = "bello";
     tag = "foo";
-    TEST(!table.get_exact_entry(key, tag));
+    TEST(!table.get_exact_entry("bello", tag));
     TEST_EQUAL(tag, "foo");
     
     AutoPtr<Bcursor> cursor(table.cursor_get());
 
     // Check normal reads
-    key = "hello";
     tag = "foo";
-    TEST(cursor->find_entry(key));
+    TEST(cursor->find_entry("hello"));
     TEST_EQUAL(cursor->current_key, "hello");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, world);
 
-    key = "jello";
     tag = "foo";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("jello"));
     TEST_EQUAL(cursor->current_key, "hello");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, world);
 
-    key = "bello";
     tag = "foo";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("bello"));
     TEST_EQUAL(cursor->current_key, "");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
@@ -132,45 +125,38 @@ static void check_table_values_hello(Btree & table, const string &world)
 /// Check the values returned by a table containing no key/tag pairs
 static void check_table_values_empty(Btree & table)
 {
-    string key;
     string tag;
 
     // Check exact reads
-    key = "hello";
     tag = "foo";
-    TEST(!table.get_exact_entry(key, tag));
+    TEST(!table.get_exact_entry("hello", tag));
     TEST_EQUAL(tag, "foo");
 
-    key = "jello";
     tag = "foo";
-    TEST(!table.get_exact_entry(key, tag));
+    TEST(!table.get_exact_entry("jello", tag));
     TEST_EQUAL(tag, "foo");
 
-    key = "bello";
     tag = "foo";
-    TEST(!table.get_exact_entry(key, tag));
+    TEST(!table.get_exact_entry("bello", tag));
     TEST_EQUAL(tag, "foo");
     
     AutoPtr<Bcursor> cursor(table.cursor_get());
     
     // Check normal reads
-    key = "hello";
     tag = "foo";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("hello"));
     TEST_EQUAL(cursor->current_key, "");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 
-    key = "jello";
     tag = "foo";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("jello"));
     TEST_EQUAL(cursor->current_key, "");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 
-    key = "bello";
     tag = "foo";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("bello"));
     TEST_EQUAL(cursor->current_key, "");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
@@ -215,15 +201,10 @@ static bool test_disktable1()
     TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding some entries
-    string key;
-    string tag;
-    key = "hello";
-    tag = "world";
-    
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
 #endif
-    rw_table.add(key, tag);
+    rw_table.add("hello", "world");
     rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -239,9 +220,9 @@ static bool test_disktable1()
 
     // Check adding the same entries
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
 #endif
-    rw_table.add(key, tag);
+    rw_table.add("hello", "world");
     rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -258,19 +239,17 @@ static bool test_disktable1()
 #ifdef MUS_DEBUG
     // Check adding an entry with a null key
     // Can't add a key to a read-only table anyway, empty or not!
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("", tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("", "world"));
     // Empty keys aren't allowed (we no longer enforce this so the
     // magic empty key can be set).
-    //TEST_EXCEPTION(Xapian::AssertionError, rw_table.add("", tag));
+    //TEST_EXCEPTION(Xapian::AssertionError, rw_table.add("", "world"));
 #endif
 
     // Check changing an entry, to a null tag
-    key = "hello";
-    tag = "";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", ""));
 #endif
-    rw_table.add(key, tag);
+    rw_table.add("hello", "");
     rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -285,11 +264,10 @@ static bool test_disktable1()
     check_table_values_hello(rw_table, "");
 
     // Check deleting an entry
-    key = "hello";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.del(key));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.del("hello"));
 #endif
-    rw_table.del(key);
+    rw_table.del("hello");
     rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -304,12 +282,8 @@ static bool test_disktable1()
     check_table_values_empty(rw_table);
     
     // Check find_entry when looking for something between two elements
-    key = "hello";
-    tag = "world";
-    rw_table.add(key, tag);
-    key = "whooo";
-    tag = "world";
-    rw_table.add(key, tag);
+    rw_table.add("hello", "world");
+    rw_table.add("whooo", "world");
 
     rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
@@ -346,10 +320,7 @@ static bool test_disktable2()
     table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
-    string key = "foo";
-    string tag = "bar";
-
-    table.add(key, tag);
+    table.add("foo", "bar");
     table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 8192);
 
@@ -367,53 +338,35 @@ static bool test_disktable3()
 
     table.commit(table.get_latest_revision_number() + 1);
 
-    string tradeakey;
-    string tradekey;
-    string tradkey;
+    table.add("trad", string(2200, 'a'));
+    table.add("trade", string(3800, 'b'));
+    table.add("tradea", string(2000, 'c'));
 
-    tradkey = "trad";
-    tradekey = "trade";
-    tradeakey = "tradea";
-
-    string tag;
-
-    {
-	tag = string(2200, 'a');
-	table.add(tradkey, tag);
-	tag = string(3800, 'b');
-	table.add(tradekey, tag);
-	tag = string(2000, 'c');
-	table.add(tradeakey, tag);
-
-	table.commit(table.get_latest_revision_number() + 1);
-    }
+    table.commit(table.get_latest_revision_number() + 1);
 
     {
 	AutoPtr<Bcursor> cursor(table.cursor_get());
-	TEST(cursor->find_entry(tradekey));
-	TEST_EQUAL(cursor->current_key, tradekey);
+	TEST(cursor->find_entry("trade"));
+	TEST_EQUAL(cursor->current_key, "trade");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag.size(), 3800);
 
 	cursor->next();
-	TEST_EQUAL(cursor->current_key, tradeakey);
+	TEST_EQUAL(cursor->current_key, "tradea");
     }
 
-    {
-	tag = string(4000, 'd');
-	table.add(tradekey, tag);
-	table.commit(table.get_latest_revision_number() + 1);
-    }
+    table.add("trade", string(4000, 'd'));
+    table.commit(table.get_latest_revision_number() + 1);
 
     {
 	AutoPtr<Bcursor> cursor(table.cursor_get());
-	TEST(cursor->find_entry(tradekey));
-	TEST_EQUAL(cursor->current_key, tradekey);
+	TEST(cursor->find_entry("trade"));
+	TEST_EQUAL(cursor->current_key, "trade");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag.size(), 4000);
 
 	cursor->next();
-	TEST_EQUAL(cursor->current_key, tradeakey);
+	TEST_EQUAL(cursor->current_key, "tradea");
     }
 
     return true;
@@ -432,13 +385,11 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    string key = "foo1";
-
-    bufftable1.del(key);
+    bufftable1.del("foo1");
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    bufftable1.add(key, "");
+    bufftable1.add("foo1", "");
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
@@ -449,25 +400,23 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    bufftable1.add(key, "");
+    bufftable1.add("foo1", "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    bufftable1.del(key);
+    bufftable1.del("foo1");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    bufftable1.del(key);
+    bufftable1.del("foo1");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    key = "bar";
-    bufftable1.add(key, "");
+    bufftable1.add("bar", "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    key = "bar2";
-    bufftable1.add(key, "");
+    bufftable1.add("bar2", "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
 
@@ -498,14 +447,9 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 0);
 	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
-	string key;
-
-	key = "foo1";
-	bufftable.add(key, "bar1");
-	key = "foo2";
-	bufftable.add(key, "bar2");
-	key = "foo3";
-	bufftable.add(key, "bar3");
+	bufftable.add("foo1", "bar1");
+	bufftable.add("foo2", "bar2");
+	bufftable.add("foo3", "bar3");
 
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.commit(new_revision);
@@ -524,14 +468,11 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 3);
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
-	string key;
-
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key = "foo";
 	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
-	TEST(!cursor->find_entry(key));
+	TEST(!cursor->find_entry("foo"));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
@@ -558,8 +499,7 @@ static bool test_bufftable2()
 	TEST(cursor->after_end());
 
 	// Add a new tag
-	key = "foo25";
-	bufftable.add(key, "bar25");
+	bufftable.add("foo25", "bar25");
 	old_revision = new_revision;
 	new_revision += 1;
 	bufftable.commit(new_revision);
@@ -581,14 +521,11 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 3);
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
-	string key;
-
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(old_revision, disktable.get_open_revision_number());
 
 	// Add a new tag
-	key = "foo26";
-	bufftable.add(key, "bar26");
+	bufftable.add("foo26", "bar26");
 	new_revision += 1;
 	bufftable.commit(new_revision);
 	disktable.open();
@@ -597,8 +534,7 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
 	// Add another new tag, but don't apply this one.
-	key = "foo37";
-	bufftable.add(key, "bar37");
+	bufftable.add("foo37", "bar37");
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 5);
 
@@ -615,14 +551,11 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
-	string key;
-
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key = "foo";
 	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
-	TEST(!cursor->find_entry(key));
+	TEST(!cursor->find_entry("foo"));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
@@ -680,17 +613,12 @@ static bool test_bufftable3()
 	TEST_EQUAL(disktable.get_entry_count(), 0);
 	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
-	string key;
+	bufftable.add("foo1", "bar1");
 
-	key = "foo1";
-	bufftable.add(key, "bar1");
-
-	key = "foo2";
-	bufftable.add(key, "bar2");
+	bufftable.add("foo2", "bar2");
 	bufftable.cancel();
 
-	key = "foo3";
-	bufftable.add(key, "bar3");
+	bufftable.add("foo3", "bar3");
 
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.commit(new_revision);
@@ -709,14 +637,11 @@ static bool test_bufftable3()
 	TEST_EQUAL(disktable.get_entry_count(), 1);
 	TEST_EQUAL(bufftable.get_entry_count(), 1);
 
-	string key;
-
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key = "foo";
 	AutoPtr<Bcursor> cursor(bufftable.cursor_get());
-	TEST(!cursor->find_entry(key));
+	TEST(!cursor->find_entry("foo"));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
@@ -747,21 +672,12 @@ static bool test_cursor3()
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
-	{
-	    string key;
-
-	    key = "A";
-	    bufftable.add(key, "A");
-
-	    key = "B";
-	    bufftable.add(key, "B");
-	}
+	bufftable.add("A", "A");
+	bufftable.add("B", "B");
 
 	{
-	    string key;
-	    key = "AA";
 	    AutoPtr<Bcursor> cursor(bufftable.cursor_get());
-	    TEST(!cursor->find_entry(key));
+	    TEST(!cursor->find_entry("AA"));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
@@ -778,10 +694,8 @@ static bool test_cursor3()
 	disktable.open();
 
 	{
-	    string key;
-	    key = "AA";
 	    AutoPtr<Bcursor> cursor(bufftable.cursor_get());
-	    TEST(!cursor->find_entry(key));
+	    TEST(!cursor->find_entry("AA"));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
@@ -806,10 +720,8 @@ static bool test_cursor3()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	{
-	    string key;
-	    key = "AA";
 	    AutoPtr<Bcursor> cursor(disktable.cursor_get());
-	    TEST(!cursor->find_entry(key));
+	    TEST(!cursor->find_entry("AA"));
 	    TEST_EQUAL(cursor->current_key, "A");
 	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
@@ -829,8 +741,6 @@ static bool test_cursor1()
 {
     unlink_table(tmpdir + "test_cursor1_");
 
-    string key;
-
     // Open table and put stuff in it.
     Btree bufftable1(tmpdir + "test_cursor1_", false);
     bufftable1.create(8192);
@@ -838,12 +748,9 @@ static bool test_cursor1()
     Btree disktable1(tmpdir + "test_cursor1_", true);
     disktable1.open();
 
-    key = "foo1";
-    bufftable1.add(key, "bar1");
-    key = "foo2";
-    bufftable1.add(key, "bar2");
-    key = "foo3";
-    bufftable1.add(key, "bar3");
+    bufftable1.add("foo1", "bar1");
+    bufftable1.add("foo2", "bar2");
+    bufftable1.add("foo3", "bar3");
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
     bufftable1.commit(new_revision);
@@ -853,9 +760,8 @@ static bool test_cursor1()
     int count = 2;
 
     while (count != 0) {
-	key = "foo25";
 	AutoPtr<Bcursor> cursor(table->cursor_get());
-	TEST(!cursor->find_entry(key));
+	TEST(!cursor->find_entry("foo25"));
 	TEST_EQUAL(cursor->current_key, "foo2");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
@@ -869,8 +775,7 @@ static bool test_cursor1()
 	cursor->next();
 	TEST(cursor->after_end());
 
-	key = "foo";
-	TEST(!cursor->find_entry(key));
+	TEST(!cursor->find_entry("foo"));
 	TEST_EQUAL(cursor->current_key, "");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
@@ -881,8 +786,7 @@ static bool test_cursor1()
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar1");
 
-	key = "foo2";
-	TEST(cursor->find_entry(key));
+	TEST(cursor->find_entry("foo2"));
 	TEST_EQUAL(cursor->current_key, "foo2");
 	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
@@ -901,17 +805,13 @@ static bool test_cursor1()
     }
 
     // Test cursors when we have unapplied changes
-    key = "foo25";
-    bufftable1.add(key, "bar25");
+    bufftable1.add("foo25", "bar25");
 
-    key = "foo26";
-    bufftable1.del(key);
-    key = "foo1";
-    bufftable1.del(key);
+    bufftable1.del("foo26");
+    bufftable1.del("foo1");
 
-    key = "foo25";
     AutoPtr<Bcursor> cursor(disktable1.cursor_get());
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo25"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
@@ -922,9 +822,8 @@ static bool test_cursor1()
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key = "foo25";
     cursor.reset(bufftable1.cursor_get());
-    TEST(cursor->find_entry(key));
+    TEST(cursor->find_entry("foo25"));
     TEST_EQUAL(cursor->current_key, "foo25");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
@@ -935,9 +834,8 @@ static bool test_cursor1()
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key = "foo26";
     cursor.reset(bufftable1.cursor_get());
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo26"));
     TEST_EQUAL(cursor->current_key, "foo25");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
@@ -948,8 +846,7 @@ static bool test_cursor1()
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key = "foo2";
-    TEST(cursor->find_entry(key));
+    TEST(cursor->find_entry("foo2"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
@@ -969,8 +866,7 @@ static bool test_cursor1()
     cursor->next();
     TEST(cursor->after_end());
 
-    key = "foo1";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo1"));
     TEST_EQUAL(cursor->current_key, "");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
@@ -998,36 +894,30 @@ static bool test_cursor1()
     disktable1.open();
 
     cursor.reset(bufftable1.cursor_get());
-    key = "foo2";
-    TEST(cursor->find_entry(key));
+    TEST(cursor->find_entry("foo2"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key = "foo24";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo24"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key = "foo25";
-    TEST(cursor->find_entry(key));
+    TEST(cursor->find_entry("foo25"));
     TEST_EQUAL(cursor->current_key, "foo25");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
-    key = "foo24";
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo24"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key = "foo25";
-    bufftable1.del(key);
+    bufftable1.del("foo25");
 
-    key = "foo25";
     cursor.reset(bufftable1.cursor_get());
-    TEST(!cursor->find_entry(key));
+    TEST(!cursor->find_entry("foo25"));
     TEST_EQUAL(cursor->current_key, "foo2");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
@@ -1053,14 +943,8 @@ static bool test_cursor2()
     Btree disktable1(tmpdir + "test_cursor2_", true);
     disktable1.open();
 
-    string key1 = "a";
-    string tag1 = string(2036, '\x00');
-    string key2 = "c";
-    string tag2 = "bar2";
-    string searchkey = "b";
-
-    bufftable1.add(key1, tag1);
-    bufftable1.add(key2, tag2);
+    bufftable1.add("a", string(2036, '\x00'));
+    bufftable1.add("c", "bar2");
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
     bufftable1.commit(new_revision);
@@ -1068,10 +952,10 @@ static bool test_cursor2()
 
     AutoPtr<Bcursor> cursor(disktable1.cursor_get());
 
-    TEST(!cursor->find_entry(searchkey));
-    TEST_EQUAL(cursor->current_key, key1);
+    TEST(!cursor->find_entry("b"));
+    TEST_EQUAL(cursor->current_key, "a");
     cursor->read_tag();
-    TEST_EQUAL(cursor->current_tag, tag1);
+    TEST_EQUAL(cursor->current_tag, string(2036, '\x00'));
 
     return true;
 }
@@ -1775,42 +1659,32 @@ static bool test_overwrite1()
     Btree disktable(tmpdir + "testdb_overwrite1_", true);
     disktable.open();
 
-    quartz_revision_number_t new_revision;
-    string key;
-    string tag;
-
-    for (int i=1; i<=1000; ++i) {
-	key = "foo" + om_tostring(i);
-
-	bufftable.add(key, "bar" + om_tostring(i));
+    for (int i = 1; i <= 1000; ++i) {
+	bufftable.add("foo" + om_tostring(i), "bar" + om_tostring(i));
     }
-    new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.commit(new_revision);
-    disktable.open();
 
-    key = "foo1";
-    string key2;
-    key2 = "foo999";
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
+    disktable.open();
 
     Btree disktable_ro(tmpdir + "testdb_overwrite1_", true);
     disktable_ro.open();
-    TEST(disktable_ro.get_exact_entry(key, tag));
+    string tag;
+    TEST(disktable_ro.get_exact_entry("foo1", tag));
     TEST_EQUAL(tag, "bar1");
 
-    bufftable.add(key, "bar2");
-    new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.commit(new_revision);
+    bufftable.add("foo1", "bar2");
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
     disktable.open();
-    TEST(disktable_ro.get_exact_entry(key2, tag));
-    TEST(disktable_ro.get_exact_entry(key, tag));
+    TEST(disktable_ro.get_exact_entry("foo999", tag));
+    TEST(disktable_ro.get_exact_entry("foo1", tag));
     TEST_EQUAL(tag, "bar1");
 
-    bufftable.add(key, "bar3");
-    new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.commit(new_revision);
+    bufftable.add("foo1", "bar3");
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
     disktable.open();
-    TEST(disktable_ro.get_exact_entry(key2, tag));
-    TEST_EXCEPTION(Xapian::DatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
+    TEST(disktable_ro.get_exact_entry("foo999", tag));
+    TEST_EXCEPTION(Xapian::DatabaseModifiedError,
+		   disktable_ro.get_exact_entry("foo1", tag));
     //TEST_EQUAL(tag, "bar1");
 
     return true;
@@ -1933,8 +1807,8 @@ static bool test_bitmap1()
 
     for (int j = 0; j < 100; ++j) {
 	for (int i = 1; i <= 1000; ++i) {
-	    string key = "foo" + om_tostring(j) + "_" + om_tostring(i);
-	    bufftable.add(key, "bar" + om_tostring(i));
+	    string str_i = om_tostring(i);
+	    bufftable.add("foo" + om_tostring(j) + "_" + str_i, "bar" + str_i);
 	}
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.commit(new_revision);
