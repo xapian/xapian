@@ -1,3 +1,9 @@
+Mon Nov 20 14:22:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* postlist.h now declares class OmKey - was failing to declare before
+	  use, causing a compiler error (but only with
+	  --disable-pthread-support)
+
 Mon Nov 20 14:20:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove a compiler warning in quartz_database.cc

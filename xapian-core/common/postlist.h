@@ -29,6 +29,8 @@
 
 #include "positionlist.h"
 
+class OmKey;
+
 /** Abstract base class for postlists. */
 class PostList : public RefCntBase
 {
