@@ -1,3 +1,10 @@
+Sat Mar 27 15:19:16 GMT 2004  Olly Betts <olly@survex.com>
+
+	* amir/align.C,db/cvsrelatedindex.C,
+	  map/map_algorithm/backward_map_algorithm.cpp: Cleaned up another
+	  insecure temporary file creation, and flagged the last remaining
+	  one (which is less easy to remove).
+
 Sat Mar 27 15:10:18 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/cvscommitindex.C,db/cvsfileindex.C,db/cvsmineindex.C: Removed

@@ -1,6 +1,7 @@
 // align.C (for executables align and search)
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
+// Copyright (C) 2004 Olly Betts
 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -37,7 +38,6 @@
 // in delta format, line numbers refer to original
 // line numbers in file1 and file2 
 
-#define DIFF_OUTPUT "/tmp/diff_output" 
 #define DEBUG_MODE 0 
 
 static bool search_mode = false;
@@ -48,6 +48,7 @@ static bool search_mode = false;
 #include <iostream.h>
 #include <fstream.h>
 
+#include "pstream.h"
 
 template<class type>
 class LocalAlignment {
@@ -552,14 +553,7 @@ void outputDelta( string markerSequence, int blockStart1, int blockStart2 ) {
   }
 }
 
-void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
-
-  ifstream in(f.c_str());
-  if ( ! in ) {
-    if ( DEBUG_MODE ) cerr << "Couldn't open " << f << endl;
-    abort();
-  }
-
+void processDiffOutput(ifstream & in, LineSequence& l1, LineSequence& l2) {
   int blockSize1 = 0;
   int blockSize2 = 0;
 
@@ -689,9 +683,6 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
       line_num_2++;
     }
   }
-  
-  in.close();
-  
 }
 
 int main( int argc, char *argv[] ) {
@@ -721,17 +712,17 @@ int main( int argc, char *argv[] ) {
     // alignment
     
     if ( ! search_mode ) {
+	vector<string> diff_args;
+	diff_args.push_back("--width=1");
+	diff_args.push_back("-tby"); // --expand-tabs --ignore-space-change --side-by-side
+	diff_args.push_back(f1);
+	diff_args.push_back(f2);
+	redi::ipstream diff("diff", diff_args);
       
-      string diff_cmd = "diff --width 1 --expand-tabs --ignore-space-change --side-by-side " + f1 + "  " + f2 + "> " + DIFF_OUTPUT;
-      int rc = system(diff_cmd.c_str());
-      
-      if ( DEBUG_MODE ) cerr << "GNU diff returned " << rc << endl;
-      
-      LineSequence l1(f1);
-      LineSequence l2(f2);
-      
-      processDiffOutput( DIFF_OUTPUT, l1, l2 );
-      
+	LineSequence l1(f1);
+	LineSequence l2(f2);
+
+	processDiffOutput(diff, l1, l2);
     } else {
       
       // find block in file

@@ -222,6 +222,8 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
             diff * pdiff2 = new diff(false);
             if (pdiff2) 
             {
+		// FIXME: insecure temporary file creation (allows symlink attacks
+		// against files owned by the userid running this program)
                 ostrstream ost0;
                 ost0 << scvs_update << "-r" << log[j].revision()
                      << " " << log.file_name() << " 2>/dev/null >/tmp/a0" << ends;
@@ -244,8 +246,8 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
                     pdiff2->align_top();
                 }
 
-                system ("rm -rf /tmp/a0");
-                system ("rm -rf /tmp/a1");
+                unlink("/tmp/a0");
+                unlink("/tmp/a1");
             
                 if (pdiff && *pdiff2 == *pdiff) {
                 } else {

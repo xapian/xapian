@@ -35,16 +35,8 @@
 #warning "but of course we should continue stemming in comment words"
 
 
-
-
-
-
 // ??????????? is this info still correct below?
 //     Generates Xapian databases each page.
-//
-//     If library directories given, also generates a "commit" Xapian database
-//     for library usage
-//
 
 // ------------------------------------------------------------
 // General approach:
@@ -67,10 +59,6 @@
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "should generate unique file for tags"
-#warning "ctags contains inheritance information; this can help"
-#warning "if (t,S) does not occur in class declaration say or where member variable is declared"
-
 #include <xapian.h>
 #include <unistd.h>
 #include <db_cxx.h>
@@ -85,22 +73,6 @@
 
 #include "cvs_db_file.h"
 #include "util.h"
-
-// ----------------------------------------
-// ctags options
-//  want classes
-//  want public/protected member *functions*
-//  ignore inheritance for now...
-
-// -R (recursive)
-// --c-types=cfsuAC
-// --kind-long=yes (verbose tag descriptions)
-// from this, ignore all entries with access:private
-
-// /tmp is small, so we use /tmp
-// ----------------------------------------
-
-
 
 // ----------------------------------------
 // function declarations.
@@ -326,9 +298,9 @@ void write_OM_database( const string & database_dir,
       database.add_document(newdocument);
       transactions_written++;
     }
-#warning "why is this number lower than largest offset?"
-#warning "possibly because some lines where deleted and it doesn't reach the most current version?"
-#warning "since we build up transactions on a line by line basis from the most current version"
+#warning "why is this number lower than largest offset?"\
+ "possibly because some lines where deleted and it doesn't reach the most current version?"\
+ "since we build up transactions on a line by line basis from the most current version"
   cerr << "transactions written = " << transactions_written << endl;
 }
 
