@@ -7,6 +7,9 @@ general
 	* make installable, and make install and build instructions
 	  consistent with those in the main library introduction.
 
+	* remove "common" from include search path, and make things still
+	  work.
+
 querygui
 
 	* give a nice message if can't find .glade file, explaining that it
