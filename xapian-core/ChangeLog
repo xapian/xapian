@@ -1,3 +1,7 @@
+Tue Dec 12 15:40:28 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Nettest compiles with new OmMSet interface.
+
 Tue Dec 12 15:09:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed an endless loop in QuartzWritableDatabase::do_delete_document.

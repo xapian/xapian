@@ -116,10 +116,10 @@ static bool test_netexpand1()
 	std::cout << mset;
     }
 
-    Assert(mset.items.size() > 0);
+    Assert(mset.size() > 0);
 
     OmRSet rset;
-    rset.add_document(mset.items[0].did);
+    rset.add_document(*mset.begin());
 
     OmESet eset(enq.get_eset(10, rset));
 
