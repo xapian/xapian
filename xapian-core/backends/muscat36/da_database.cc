@@ -369,7 +369,7 @@ DADatabase::open_document(om_docid did) const
     return new DADocument(this, did, heavy_duty);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 DADatabase::open_position_list(om_docid did,
 			       const om_termname & tname) const
 {

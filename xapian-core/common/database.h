@@ -246,7 +246,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual PositionList * open_position_list(om_docid did,
+	virtual AutoPtr<PositionList> open_position_list(om_docid did,
 					const om_termname & tname) const = 0;
 
 	/** Open a document.

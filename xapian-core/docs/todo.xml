@@ -33,19 +33,7 @@ Add query operator to filter on weight / percentage weight.
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="API" release="1.0">
 
-Test getting positionlists from databases.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
-
-Make OmPositionListIterators retrieved from OmPostListIterators valid
-indefinitely (currently only valid until OmPostListIterator is moved).  This
-will make them consistent with OmPositionListIterators retrieved from
-OmDatabases.  The discrepancy exists because postlists return a positionlist
-object which is a member of the postlist, to avoid excessive allocation of
-positionlists when doing a near / phrase search: perhaps two methods to
-get a positionlist from a postlist are required: read_postlist() and
-make_postlist() or something along those lines?
+Test getting positionlists from databases.  Implement for InMemory databases.
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="general" release="">
@@ -269,6 +257,12 @@ branch is boolean and the right probabilistic.
 
 max_or_terms should probably work in a more local way.  Should be a new
 query operator rather than a hack on OM_MOP_OR.
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="API" release="">
+
+Databases should return postlists and termlists as AutoPtrs, rather than
+pointers.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">

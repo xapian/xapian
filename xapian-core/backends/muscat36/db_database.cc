@@ -389,7 +389,7 @@ DBDatabase::open_document(om_docid did) const
     return new DBDocument(this, did, DB->heavy_duty);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 DBDatabase::open_position_list(om_docid did,
 			       const om_termname & tname) const
 {

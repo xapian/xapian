@@ -392,14 +392,12 @@ QuartzPostList::open_position_list() const
 {
     DEBUGCALL(DB, AutoPtr<PositionList>, "QuartzPostList::open_position_list", "");
 
-    QuartzPositionList * poslist = new QuartzPositionList();
-    try {
-	poslist->read_data(positiontable, did, tname);
-    } catch (...) { delete poslist; throw; }
+    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    poslist->read_data(positiontable, did, tname);
 
     // FIXME: can't use RETURN() here because autoptr doesn't know how to be
     // displayed (and mightn't like being copied either).
-    return(AutoPtr<PositionList>(poslist));
+    return(AutoPtr<PositionList>(poslist.release()));
 }
 
 PostList *

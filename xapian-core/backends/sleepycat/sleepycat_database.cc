@@ -146,7 +146,7 @@ SleepycatDatabase::open_document(om_docid did) const
 				 internals->key_db, did);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 SleepycatDatabase::open_position_list(om_docid did,
 				      const om_termname & tname) const
 {

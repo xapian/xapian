@@ -121,7 +121,7 @@ NetworkDatabase::open_document(om_docid did) const
     return new NetworkDocument(this, did, doc, keys);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 NetworkDatabase::open_position_list(om_docid did,
 				    const om_termname & tname) const
 {

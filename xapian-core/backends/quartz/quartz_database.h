@@ -124,7 +124,7 @@ class QuartzDatabase : public Database {
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did) const;
-	PositionList * open_position_list(om_docid did,
+	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
 	//@}
 };
@@ -195,7 +195,7 @@ class QuartzWritableDatabase : public Database {
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did) const;
-	PositionList * open_position_list(om_docid did,
+	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
 	//@}
 };

@@ -53,11 +53,9 @@ InMemoryPostList::read_position_list()
 AutoPtr<PositionList>
 InMemoryPostList::open_position_list() const
 {
-    InMemoryPositionList * poslist = new InMemoryPositionList();
-    try {
-	poslist->set_data(pos->positions);
-    } catch (...) { delete poslist; throw; }
-    return AutoPtr<PositionList>(poslist);
+    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
+    poslist->set_data(pos->positions);
+    return AutoPtr<PositionList>(poslist.release());
 }
 
 om_termcount
@@ -136,7 +134,7 @@ InMemoryDatabase::open_document(om_docid did) const
 				keylists[did - 1]);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 InMemoryDatabase::open_position_list(om_docid did,
 				     const om_termname & tname) const
 {

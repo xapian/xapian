@@ -1,3 +1,12 @@
+Fri Dec 15 15:47:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updated TODO.
+
+	* database returns positionlists as AutoPtrs; this neatens some of
+	  the code from the previous changelog entry, and makes explicit the
+	  ownership of the pointer.  postlists and termlists should be
+	  AutoPtrs, likewise.
+
 Fri Dec 15 14:59:41 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make OmPositionListIterators retrieved from OmPostListIterators

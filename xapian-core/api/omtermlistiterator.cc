@@ -151,12 +151,10 @@ OmTermListIterator::positionlist_begin()
 	RETURN(internal->database.positionlist_begin(internal->did,
 						     internal->termlist->get_termname()));
     } else {
-	InMemoryPositionList * pl = new InMemoryPositionList();
-	try {
-	    pl->set_data(internal->it->second.positions);
-	} catch (...) { delete pl; throw; }
-	RETURN(OmPositionListIterator(
-		new OmPositionListIterator::Internal(AutoPtr<PositionList>(pl))));
+	AutoPtr<InMemoryPositionList> pl(new InMemoryPositionList());
+	pl->set_data(internal->it->second.positions);
+	RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(
+			AutoPtr<PositionList>(pl.release()))));
     }
 }
 

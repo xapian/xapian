@@ -303,7 +303,7 @@ QuartzDatabase::open_document(om_docid did) const
 			      did);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 QuartzDatabase::open_position_list(om_docid did,
 				   const om_termname & tname) const
 {
@@ -313,9 +313,7 @@ QuartzDatabase::open_position_list(om_docid did,
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
     poslist->read_data(tables->get_positionlist_table(), did, tname);
 
-    PositionList * result = poslist.get();
-    poslist.release();
-    return result;
+    return AutoPtr<PositionList>(poslist.release());
 }
 
 void
@@ -659,7 +657,7 @@ QuartzWritableDatabase::open_document(om_docid did) const
 			      did);
 }
 
-PositionList *
+AutoPtr<PositionList> 
 QuartzWritableDatabase::open_position_list(om_docid did,
 				   const om_termname & tname) const
 {
@@ -669,9 +667,7 @@ QuartzWritableDatabase::open_position_list(om_docid did,
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
     poslist->read_data(buffered_tables->get_positionlist_table(), did, tname);
 
-    PositionList * result = poslist.get();
-    poslist.release();
-    return result;
+    return AutoPtr<PositionList>(poslist.release());
 }
 
 void
