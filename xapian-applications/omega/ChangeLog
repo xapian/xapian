@@ -1,3 +1,7 @@
+Thu Oct 03 16:42:06 BST 2002  Olly Betts <olly@survex.com>
+
+	* query.cc: Added CMD_hit to enumeration.
+
 Wed Oct 02 17:02:25 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.1.
