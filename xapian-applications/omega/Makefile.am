@@ -55,7 +55,14 @@ EXTRA_DIST = templates/query \
 	docs/overview.txt \
 	docs/quickstart.txt \
 	docs/scriptindex.txt \
-	dbi2omega
+	dbi2omega \
+	debian/TODO \
+	debian/changelog \
+	debian/control \
+	debian/copyright \
+	debian/rules \
+	debian/xapian-omega.install \
+	debian/xapian-scriptindex.install
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
