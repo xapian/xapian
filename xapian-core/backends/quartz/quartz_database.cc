@@ -650,6 +650,8 @@ QuartzDatabase::open_allterms() const
 				  pl_cursor, postlist_table.get_entry_count()));
 }
 
+size_t QuartzWritableDatabase::document_flush_threshold = 0;
+size_t QuartzWritableDatabase::length_flush_threshold = 0;
 
 QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 					       int block_size)
@@ -663,6 +665,22 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
+    if (document_flush_threshold == 0) {
+	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
+	if (p) document_flush_threshold = atoi(p);
+    }
+    if (length_flush_threshold == 0) {
+	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD_LENGTH");
+	if (p) length_flush_threshold = atoi(p);
+	if (length_flush_threshold == 0) {
+	    if (document_flush_threshold == 0)
+		document_flush_threshold = 1000;
+	    length_flush_threshold = (size_t)-1;
+	} else {
+	    if (document_flush_threshold == 0)
+		document_flush_threshold = (size_t)-1;
+	}
+    }
 }
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
@@ -788,7 +806,6 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be configurable
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     // We could also look at:
@@ -800,7 +817,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
     //     ", doclens.size() " << doclens.size() <<
     //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
     //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++changes_made >= 1000) {
+    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
 	flush();
     }
 
@@ -880,8 +897,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    // FIXME: this should be configurable and/or different - see above.
-    if (++changes_made >= 1000) {
+    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
 	flush();
     }
 }
@@ -1034,8 +1050,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be configurable and/or different - see above.
-    if (++changes_made >= 1000) {
+    if (++changes_made >= document_flush_threshold || totlen_added + totlen_removed >= length_flush_threshold) {
 	flush();
     }
 }

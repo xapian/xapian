@@ -254,6 +254,9 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 
 	mutable Xapian::doccount changes_made;
 
+	static size_t document_flush_threshold;
+	static size_t length_flush_threshold;
+
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
