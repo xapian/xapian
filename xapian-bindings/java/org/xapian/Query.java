@@ -51,6 +51,9 @@ public class Query {
     private String _nativeOperator;
 
     public static Query parse(String query) throws ParseException, XapianError {
+        if (query == null || query.trim().length() == 0)
+            throw new ParseException("Empty Queries are not allowed");
+
         QueryParser parser = new QueryParser(new StringReader(query));
         Query q = parser.parse();
         if (q == null)
@@ -70,6 +73,8 @@ public class Query {
     }
 
     public Query(String term) throws XapianError {
+        if (term == null)
+            throw new XapianError("Empty Queries are not allowed");
         id = XapianJNI.query_new(term);
     }
 
@@ -81,12 +86,21 @@ public class Query {
         _left = left;
         _right = right;
 
-        if (right == null)
+        if (right == null) {
+            if (left.getLength() == 0)
+                throw new XapianError ("Left side of query is empty");
             id = XapianJNI.query_new(operator, left.id);
-        else if (left == null)
+        } else if (left == null) {
+            if (right.getLength() == 0)
+                throw new XapianError ("Right side of query is empty");
             id = XapianJNI.query_new(operator, right.id);
-        else
+        } else {
+            if (left.getLength() == 0)
+                throw new XapianError ("Left side of query is empty");
+            else if (right.getLength() == 0)
+                throw new XapianError ("Right side of query is empty");
             id = XapianJNI.query_new(operator, left.id, right.id);
+        }
     }
 
     public Query(int operator, String left, String right) throws XapianError {

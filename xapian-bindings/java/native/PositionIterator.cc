@@ -34,34 +34,34 @@ using namespace Xapian;
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_positioniterator_1getvalue (JNIEnv *env, jclass clazz, jlong positioniteratorid) {
     TRY
-        PositionIterator *itr = _positioniterator.get(positioniteratorid);
+        PositionIterator *itr = _positioniterator->get(positioniteratorid);
         return *(*itr);
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_positioniterator_1next (JNIEnv *env, jclass clazz, jlong positioniteratorid) {
     TRY
-        PositionIterator *itr = _positioniterator.get(positioniteratorid);
+        PositionIterator *itr = _positioniterator->get(positioniteratorid);
         (*itr)++;
     CATCH(;)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_positioniterator_1equals (JNIEnv *env, jclass clazz, jlong aid, jlong bid) {
     TRY
-        PositionIterator *a = _positioniterator.get(aid);
-        PositionIterator *b = _positioniterator.get(bid);
+        PositionIterator *a = _positioniterator->get(aid);
+        PositionIterator *b = _positioniterator->get(bid);
         return (*a) == (*b);
     CATCH(false)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_positioniterator_1get_1description (JNIEnv *env, jclass clazz, jlong positioniteratorid) {
     TRY
-        PositionIterator *itr = _positioniterator.get(positioniteratorid);
+        PositionIterator *itr = _positioniterator->get(positioniteratorid);
         return env->NewStringUTF(itr->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_positioniterator_1finalize (JNIEnv *env, jclass clazz, jlong positioniteratorid) {
-    PositionIterator *itr = _positioniterator.remove(positioniteratorid);
+    PositionIterator *itr = _positioniterator->remove(positioniteratorid);
     if (itr) delete itr;
 }

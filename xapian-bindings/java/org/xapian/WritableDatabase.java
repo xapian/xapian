@@ -75,8 +75,15 @@ public class WritableDatabase extends Database {
         }
     }
 
-    protected void finalize() throws Throwable {
-        XapianJNI.writabledatabase_finalize(id);
+    /**
+     * explicitly close this WritableDatabase right now
+     */
+    public void finalize() throws Throwable {
+        if (id > -1) {
+            XapianJNI.writabledatabase_finalize(id);
+            id = -1;
+        }
+
         super.finalize();
     }
 }

@@ -123,9 +123,15 @@ public class Database {
                 XapianJNI.database_positionlist_end(id, dbdocid, term));
     }
 
-    protected void finalize() throws Throwable {
+    /**
+     * explicitly close this Database right now
+     */
+    public void finalize() throws Throwable {
         if (_children != null) _children.clear();
-        XapianJNI.database_finalize(id);
+        if (id > -1) {
+            XapianJNI.database_finalize(id);
+        }
+        id = -1;
         super.finalize();
     }
 }

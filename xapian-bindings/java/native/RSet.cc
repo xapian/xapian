@@ -35,67 +35,67 @@ using namespace Xapian;
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_rset_1new (JNIEnv *env, jclass clazz) {
     TRY
         RSet *rset = new RSet();
-        return _rset.put(rset);
+        return _rset->put(rset);
     CATCH(-1)
 }
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_rset_1size (JNIEnv *env, jclass clazz, jlong rsetid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         return rset->size();
     CATCH(-1)
 }
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_rset_1empty (JNIEnv *env, jclass clazz, jlong rsetid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         return rset->empty();
     CATCH(false)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_rset_1add_1document (JNIEnv *env, jclass clazz, jlong rsetid, jlong dbdocid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         rset->add_document(dbdocid);
     CATCH(;)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_rset_1add_1document_1via_1msetiterator (JNIEnv *env, jclass clazz, jlong rsetid, jlong msetiteratorid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
-        MSetIterator *itr = _msetiterator.get(msetiteratorid);
+        RSet *rset = _rset->get(rsetid);
+        MSetIterator *itr = _msetiterator->get(msetiteratorid);
         rset->add_document(*itr);
     CATCH(;)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_rset_1remove_1document (JNIEnv *env, jclass clazz, jlong rsetid, jlong dbdocid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         rset->remove_document(dbdocid);
     CATCH(;)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_rset_1remove_1document_1via_1msetiterator (JNIEnv *env, jclass clazz, jlong rsetid, jlong msetiteratorid) {
     TRY
-        RSet *rset = _rset.get(rsetid);
-        MSetIterator *itr = _msetiterator.get(msetiteratorid);
+        RSet *rset = _rset->get(rsetid);
+        MSetIterator *itr = _msetiterator->get(msetiteratorid);
         rset->remove_document(*itr);
     CATCH(;)
 }
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_rset_1contains (JNIEnv *env, jclass clazz, jlong rsetid, jlong dbdocid) {
     TRY    
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         return rset->contains(dbdocid);
     CATCH(false)
 }
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_rset_1contains_1via_1msetiterator (JNIEnv *env, jclass clazz, jlong rsetid, jlong msetiteratorid) {
     TRY    
-        RSet *rset = _rset.get(rsetid);
-        MSetIterator *itr = _msetiterator.get(msetiteratorid);
+        RSet *rset = _rset->get(rsetid);
+        MSetIterator *itr = _msetiterator->get(msetiteratorid);
         return rset->contains(*itr);
     CATCH(false)
 }
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_rset_1get_1description (JNIEnv *env, jclass clazz, jlong rsetid) {
     TRY    
-        RSet *rset = _rset.get(rsetid);
+        RSet *rset = _rset->get(rsetid);
         return env->NewStringUTF(rset->get_description().c_str());
     CATCH(NULL)
 }
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_rset_1finalize (JNIEnv *env, jclass clazz, jlong rsetid) {
-    RSet *rset = _rset.remove(rsetid);
+    RSet *rset = _rset->remove(rsetid);
     if (rset) delete rset;
 }

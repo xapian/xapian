@@ -59,10 +59,6 @@ void setup_errormap() {
     _errormap[typeid(Xapian::DatabaseOpeningError).name()] = "org/xapian/errors/DatabaseOpeningError";
     _errormap[typeid(Xapian::DatabaseLockError).name()] = "org/xapian/errors/DatabaseLockError";
     _errormap[typeid(Xapian::DatabaseModifiedError).name()] = "org/xapian/errors/DatabaseModifiedError";
-    _errormap[typeid(Xapian::InvalidResultError).name()] = "org/xapian/errors/InvalidResultError";
-    _errormap[typeid(Xapian::TypeError).name()] = "org/xapian/errors/TypeError";
-    _errormap[typeid(Xapian::InvalidDataError).name()] = "org/xapian/errors/InvalidDataError";
-    _errormap[typeid(Xapian::DataFlowError).name()] = "org/xapian/errors/DataFlowError";
 }
 
 string *toArray(JNIEnv *env, jobjectArray j_array, int len) {

@@ -84,25 +84,22 @@ struct streq {
 extern hash_map<const char *, string, hash<char *>, streq> _errormap;
 
 /** holder objects for each Xapian type.  */
-extern XapianObjectHolder<void *> _database;    // for Xapian::Database *and* Xapian::WritableDatabase
-extern XapianObjectHolder<Document *> _document;
-extern XapianObjectHolder<Enquire *> _enquire;
-extern XapianObjectHolder<ESet *> _eset;
-extern XapianObjectHolder<ESetIterator *> _esetiterator;
-extern XapianObjectHolder<MSet *> _mset;
-extern XapianObjectHolder<MSetIterator *> _msetiterator;
-extern XapianObjectHolder<PositionIterator *> _positioniterator;
-extern XapianObjectHolder<Query *> _query;
-extern XapianObjectHolder<RSet *> _rset;
-extern XapianObjectHolder<Stem *> _stem;
-extern XapianObjectHolder<TermIterator *> _termiterator;
+extern XapianObjectHolder<void *> *_database;    // for Xapian::Database *and* Xapian::WritableDatabase
+extern XapianObjectHolder<Document *> *_document;
+extern XapianObjectHolder<Enquire *> *_enquire;
+extern XapianObjectHolder<ESet *> *_eset;
+extern XapianObjectHolder<ESetIterator *> *_esetiterator;
+extern XapianObjectHolder<MSet *> *_mset;
+extern XapianObjectHolder<MSetIterator *> *_msetiterator;
+extern XapianObjectHolder<PositionIterator *> *_positioniterator;
+extern XapianObjectHolder<Query *> *_query;
+extern XapianObjectHolder<RSet *> *_rset;
+extern XapianObjectHolder<Stem *> *_stem;
+extern XapianObjectHolder<TermIterator *> *_termiterator;
 
 //
 // function declarations
 //
-
-/** function version of our PUT_OBJECT macro */
-extern long put_object(void *obj);
 
 /**
  * Checks to see if we have a pending Java exception to deal with.

@@ -205,8 +205,13 @@ public class XapianJNI {
 
     public static native void document_add_term(long docid, String term) throws XapianError, InvalidArgumentError;
 
-    // For compatibility with older code.
-    public static native void document_add_term_nopos(long docid, String term) throws XapianError, InvalidArgumentError;
+    /*
+     * For compatibility with older code.
+     * @deprecated use document_add_term instead
+     */
+    public static void document_add_term_nopos(long docid, String term) throws XapianError, InvalidArgumentError {
+        document_add_term(docid, term);
+    }
 
     public static native void document_remove_posting(long docid, String term, int position) throws XapianError, InvalidArgumentError;
 

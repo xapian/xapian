@@ -457,14 +457,6 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    document_add_term_nopos
- * Signature: (JLjava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term_1nopos
-  (JNIEnv *, jclass, jlong, jstring);
-
-/*
- * Class:     org_xapian_XapianJNI
  * Method:    document_remove_posting
  * Signature: (JLjava/lang/String;I)V
  */

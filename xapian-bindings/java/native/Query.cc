@@ -49,7 +49,7 @@ static Xapian::Query::op op_table[] = {
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ (JNIEnv *env, jclass clazz) {
     TRY
         Query *q = new Query();
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
@@ -58,16 +58,16 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
         const char *c_term = env->GetStringUTFChars(term, 0);
         Query *q = new Query(c_term);
         env->ReleaseStringUTFChars(term, c_term);
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJJ (JNIEnv *env, jclass clazz, jint op, jlong leftid, jlong rightid) {
     TRY
-        Query *left = _query.get(leftid);
-        Query *right = _query.get(rightid);
+        Query *left = _query->get(leftid);
+        Query *right = _query->get(rightid);
         Query *q = new Query(op_table[op-1], *left, *right);
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
@@ -78,15 +78,15 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ILjava_lang_String
         Query *q = new Query(op_table[op-1], string(c_left), string(c_right));
         env->ReleaseStringUTFChars(strleft, c_left);
         env->ReleaseStringUTFChars(strright, c_right);
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJ (JNIEnv *env, jclass clazz, jint op, jlong qid) {
     TRY
-        Query *existing = _query.get(qid);
+        Query *existing = _query->get(qid);
         Query *q = new Query(op_table[op-1], *existing);
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
@@ -95,76 +95,76 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3Ljava_lang_Stri
         jsize size = env->GetArrayLength(terms);
         string *array = toArray(env, terms, size);
         Query *q = new Query(op_table[op-1], array, array+size);
-        return _query.put(q);
+        return _query->put(q);
     CATCH(-1)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         return env->NewStringUTF(q->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1is_1empty (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         return q->is_empty();
     CATCH(false)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1begin (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         TermIterator *itr = new TermIterator(q->get_terms_begin());
-        return _termiterator.put(itr);
+        return _termiterator->put(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1end (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         TermIterator *itr = new TermIterator(q->get_terms_end());
-        return _termiterator.put(itr);
+        return _termiterator->put(itr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1set_1length (JNIEnv *env, jclass clazz, jlong qid, jlong size) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         return q->set_length(size);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1get_1length (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         return q->get_length();
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1elite_1set_1size (JNIEnv *env, jclass clazz, jlong qid, jlong size) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         q->set_elite_set_size(size);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1cutoff (JNIEnv *env, jclass clazz, jlong qid, jdouble cutoff) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         q->set_cutoff(cutoff);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1window (JNIEnv *env, jclass clazz, jlong qid, jlong window) {
     TRY
-        Query *q = _query.get(qid);
+        Query *q = _query->get(qid);
         q->set_window(window);
     CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1finalize (JNIEnv *env, jclass clazz, jlong qid) {
-    Query *q = _query.remove(qid);
+    Query *q = _query->remove(qid);
     if (q) delete q;
 }

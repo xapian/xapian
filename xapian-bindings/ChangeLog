@@ -1,3 +1,14 @@
+Tue Jun 29 23:26:36 BST 2004  Eric B. Ridge <ebr@tcdi.com>
+
+	* java/native/,java/org/xapian/: Updates to java bindings:
+	  - cleanup usages of XapianObjectHolder to be  explicitly created
+	    during library initialization
+	  - make finalize() methods of Database and WritableDatabase public so
+	    they can be called from the outside world (should probably have
+	    added explicit close() methods instead).
+	  - deprecate document_add_term_nopos(); completely remove from C++
+	    wrapper
+
 Tue Jun 29 17:30:17 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* Makefile.am: Remove Debian files from distribution tarballs,
@@ -5,7 +16,7 @@ Tue Jun 29 17:30:17 BST 2004  Richard Boulton <richard@tartarus.org>
 	  release.  Debian files will be available from an apt repository
 	  in future.
 
-Tue Jun 29 01:20:22 BST 2004  Olly Betts <olly@survex.com>
+Tue Jun 29 01:20:22 BST 2004  Eric B. Ridge <ebr@tcdi.com>
 
 	* java/org/xapian/errors/: Removed wrappers for unused error classes
 	  which have been pruned from C++.
