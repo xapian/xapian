@@ -1,3 +1,8 @@
+Fri Dec 06 04:41:05 GMT 2002  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index .php files by default; non-zero return code if
+	  an exception is caught.
+
 Fri Dec 06 04:30:17 GMT 2002  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Ignore PHP tags and their contents; fixed tag

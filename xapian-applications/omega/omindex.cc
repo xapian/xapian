@@ -481,6 +481,7 @@ main(int argc, char **argv)
     mime_map["html"] = "text/html";
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
+    mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP
     mime_map["pdf"] = "application/pdf";
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
@@ -529,19 +530,18 @@ main(int argc, char **argv)
 	case 'l': // Turn off recursion
 	    recurse = 0;
 	    break;
-	case 'M':
-	    {
-		char* s;
-		if ((s = strchr(optarg, ':')) != NULL && s[1] != '\0') {
-		    mime_map[string(optarg, s - optarg)] = string(s + 1);
-		} else {
-		    cerr << "Illegal MIME mapping '" << optarg << "'\n"
-			 << "Should be of the form ext:type, eg txt:text/plain"
-			 << endl;
-		    return 1;
-		}
+	case 'M': {
+	    const char * s = strchr(optarg, ':');
+	    if (s != NULL && s[1] != '\0') {
+		mime_map[string(optarg, s - optarg)] = string(s + 1);
+	    } else {
+		cerr << "Illegal MIME mapping '" << optarg << "'\n"
+		     << "Should be of the form ext:type, eg txt:text/plain"
+		     << endl;
+		return 1;
 	    }
 	    break;
+	}
 	case 'D':
 	    dbpath = optarg;
 	    break;
@@ -589,16 +589,20 @@ main(int argc, char **argv)
     try {
 	db = OmWritableDatabase(OmAuto__open(dbpath, OM_DB_CREATE_OR_OPEN));
 	index_directory("/", mime_map);
-	//      db.reopen(); // Ensure we're up to date
-	//      cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	// db.reopen(); // Ensure we're up to date
+	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	db.flush();
     } catch (const OmError &e) {
 	cout << "Exception: " << e.get_msg() << endl;
+	return 1;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
+	return 1;
     } catch (const char *s) {
 	cout << "Exception: " << s << endl;
+	return 1;
     } catch (...) {
 	cout << "Caught unknown exception" << endl;
+	return 1;
     }
 }
