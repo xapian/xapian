@@ -36,4 +36,10 @@ typedef unsigned int quartz_blocksize_t;
  */
 typedef unsigned long int quartz_revision_number_t;
 
+/** A type used to store the number of entries in a database.
+ *
+ *  Again, this must be of suitable minimum size.
+ */
+typedef unsigned long int quartz_tablesize_t;
+
 #endif /* OM_HGUARD_QUARTZ_TYPES_H */

@@ -165,6 +165,12 @@ class QuartzDbTable {
 	 */
 	QuartzRevisionNumber get_revision_number() const;
 
+	/** Return a count of the number of entries in the table.
+	 *
+	 *  @return THe number of entries in the table.
+	 */
+	quartz_tablesize_t get_entry_count() const;
+
 	/** Read an entry from the table.
 	 *
 	 *  If the key is found in the table, the tag will be filled with
@@ -186,7 +192,7 @@ class QuartzDbTable {
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
-	bool read_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
 
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
@@ -201,7 +207,7 @@ class QuartzDbTable {
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	bool read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
 
 	/** Modify the entries in the table.
 	 *

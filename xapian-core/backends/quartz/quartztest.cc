@@ -36,46 +36,46 @@ static void check_table_values_hello(const QuartzDbTable & table, string world)
     // Check exact reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(table.read_entry_exact(key, tag));
+    TEST(table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, world);
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.read_entry_exact(key, tag));
+    TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.read_entry_exact(key, tag));
+    TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(table.read_entry(key, tag));
+    TEST(table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "hello");
     TEST_EQUAL(tag.value, world);
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.read_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "hello");
     TEST_EQUAL(tag.value, world);
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.read_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
 }
@@ -89,46 +89,46 @@ static void check_table_values_empty(const QuartzDbTable & table)
     // Check exact reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(!table.read_entry_exact(key, tag));
+    TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.read_entry_exact(key, tag));
+    TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.read_entry_exact(key, tag));
+    TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(!table.read_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.read_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.read_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.read_entry(key, tag));
+    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
 }
@@ -144,6 +144,8 @@ static bool test_dbtable1()
 
     TEST_EQUAL(rev1, table1.get_revision_number());
     TEST_EQUAL(rev2, table2.get_revision_number());
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 0);
 
     std::map<QuartzDbKey, QuartzDbTag *> newentries;
 
@@ -155,6 +157,8 @@ static bool test_dbtable1()
     TEST_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 0);
 
     // Check adding some entries
     QuartzDbKey key;
@@ -170,6 +174,8 @@ static bool test_dbtable1()
     TEST_NOT_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 1);
 
     // Check getting the entries out again
     check_table_values_empty(table1);
@@ -183,6 +189,8 @@ static bool test_dbtable1()
     TEST_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 1);
 
     // Check getting the entries out again
     check_table_values_empty(table1);
@@ -207,6 +215,8 @@ static bool test_dbtable1()
     TEST_NOT_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 1);
     
     // Check getting the entries out again
     check_table_values_empty(table1);
@@ -223,12 +233,14 @@ static bool test_dbtable1()
     TEST_NOT_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 0);
 
     // Check the entries in the table
     check_table_values_empty(table1);
     check_table_values_empty(table2);
     
-    // Check read_entry when looking for something between two elements
+    // Check get_nearest_entry when looking for something between two elements
     newentries.clear();
     key.value = "hello";
     tag.value = "world";
@@ -243,6 +255,8 @@ static bool test_dbtable1()
     TEST_NOT_EQUAL(rev2, table2.get_revision_number());
     rev1 = table1.get_revision_number();
     rev2 = table2.get_revision_number();
+    TEST_EQUAL(table1.get_entry_count(), 0);
+    TEST_EQUAL(table2.get_entry_count(), 2);
 
     // Check the entries in the table
     check_table_values_empty(table1);

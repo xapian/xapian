@@ -49,8 +49,14 @@ QuartzDbTable::get_revision_number() const
     return QuartzRevisionNumber(revision);
 }
 
+quartz_tablesize_t
+QuartzDbTable::get_entry_count() const
+{
+    return data.size();
+}
+
 bool
-QuartzDbTable::read_entry(QuartzDbKey &key, QuartzDbTag & tag) const
+QuartzDbTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 {
     if (key.value.empty()) throw OmInvalidArgumentError("Keys may not be null, in QuartzDbTable::read_entry_exact()");
 
@@ -80,7 +86,7 @@ QuartzDbTable::read_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 }
 
 bool
-QuartzDbTable::read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag) const
+QuartzDbTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
     if (key.value.empty()) throw OmInvalidArgumentError("Keys may not be null, in QuartzDbTable::read_entry_exact()");
 

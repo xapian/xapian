@@ -1,3 +1,8 @@
+Wed Sep 13 18:05:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* QuartzDbTable now has a get_entry_count() method to ... count its
+	  entries.  Also added a test for this.
+
 Wed Sep 13 18:02:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* includetest.o now compiled with LIBXML_CFLAGS
