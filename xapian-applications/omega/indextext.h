@@ -24,6 +24,8 @@
 
 #include <xapian.h>
 
+#include <limits.h>
+
 #include "symboltab.h"
 
 using std::string;
@@ -66,7 +68,11 @@ class AccentNormalisingItor {
     char operator*() const {
 	if (queued) return queued;
 	unsigned char ch = (unsigned char)*itor;
-	if (ch >= 160 && ch < 256) return TRANSLIT1[ch - 160];
+	if (ch >= 160
+#if CHAR_BIT > 8
+		      && ch < 256
+#endif
+				 ) return TRANSLIT1[ch - 160];
 	return (char)ch;
     }
     AccentNormalisingItor & operator++() {
@@ -78,7 +84,11 @@ class AccentNormalisingItor {
 	    queued = 0;
 	} else {
 	    unsigned char ch = (unsigned char)*itor;
-	    if (ch >= 160 && ch < 256) {
+	    if (ch >= 160
+#if CHAR_BIT > 8
+			  && ch < 256
+#endif
+				     ) {
 		ch = TRANSLIT2[(unsigned char)ch - 160];
 		if (ch != ' ') {
 		    queued = ch;
