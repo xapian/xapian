@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from CVS to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004 Olly Betts
+# Copyright (C) 2002,2003,2004,2005 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,21 +21,6 @@
 
 trap 'echo "Bootstrap failed"' EXIT
 set -e
-bison_version="`${BISON-bison} --version|sed 's/.* //;q' 2>/dev/null`"
-case "$bison_version" in
-1.875)
-  echo "Bison 1.875 won't work with Xapian.  Please upgrade to 1.875a or newer,"
-  echo "or downgrade to an older version."
-  exit 1
-  ;;
-1.3[5-9]|1.3[5-9][^0-9]*|1.[4-9][0-9]*|1.[1-9][0-9][0-9]*|[2-9]*|1[0-9]*)
-  ;; # marvellous - 1.35 or newer
-*)
-  echo "You must have Bison 1.35 or newer (you appear to have $bison_version)"
-  echo "Also avoid Bison 1.875 (1.875a is OK)"
-  exit 1
-  ;;
-esac
 
 srcdir="`echo $0|sed 's![^/]*$!!'`"
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
