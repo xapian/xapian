@@ -1,3 +1,8 @@
+Wed Sep 08 04:06:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/util.i: Suppress SWIG warning about MatchDecider::operator()
+	  director discarding const.
+
 Wed Sep 08 02:37:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/.cvsignore: Updated.
