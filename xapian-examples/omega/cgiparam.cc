@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* !HACK quick fix for now - FASTCGI version should preferably keep running */
-#define EXIT(N) exit(N)
-
 /****************************************************************************/
 
 static int nEntries = 0;
@@ -28,12 +25,12 @@ static void sort( void ) {
       /* Trim off .x or .y (since GIF button X gives X.x and X.y */
       /* We only actually need to keep one of these... */
       if (p) {
-      	if (!((p[1] == 'x' || p[1] == 'y') && p[2] == '\0') && entries[i].val[0] != '\0') {
-	 	char newval[1000];
-	 	strcpy (newval, p);
-	 	strcat (newval, ".");
-	 	strcat (newval, entries[i].val);
-	 	strcpy (entries[i].val, newval);
+	 if (!((p[1] == 'x' || p[1] == 'y') && p[2] == '\0') && entries[i].val[0] != '\0') {
+	    char newval[1000];
+	    strcpy (newval, p);
+	    strcat (newval, ".");
+	    strcat (newval, entries[i].val);
+	    strcpy (entries[i].val, newval);
 	 }
 	 *p = '\0';
       }
@@ -229,7 +226,7 @@ void decode_post( void ) {
       cl = atoi(content_length);
       if (cl > MAX_CONTENT_LENGTH) {
          printf("<h3>query is too long - please try again with fewer words</h3>\n");
-         EXIT(0);
+	 exit(0);
       }
    }
 
@@ -244,7 +241,7 @@ void decode_post( void ) {
 
    if (content_length == NULL && (!feof(stdin))) {
       printf("<h3>query is too long - please try again with fewer words</h3>\n");
-      EXIT(0);
+      exit(0);
    }
 
    sort();
@@ -255,12 +252,12 @@ void decode_get( void ) {
    q_str = getenv("QUERY_STRING");
    if (q_str == NULL) {
       printf("<h3>No query information to decode.</h3>\n");
-      EXIT(0); /* was EXIT(1); but that makes some servers swallow our output -- Olly 1997-03-19 */
+      exit(0);
    }
 
    if (strlen(q_str) > 900) {
       printf("<h3>query string is too long - please try again with fewer words and/or filters</h3>\n");
-      EXIT(0);
+      exit(0);
    }
 
    nEntries = 0;
@@ -323,33 +320,4 @@ char *NextEntry( char *pName, int *p_which ) {
       return entries[*p_which].val;
    /* no more... */
    return NULL;
-}
-
-
-/* Safe malloc() */
-void *xmalloc(size_t size)
-{
-    void *p;
-
-    p = malloc(size);
-    if (p == NULL) {
-        printf("<p><b>Fatal error: malloc() returned NULL!</b>\n");
-        exit(0);
-    }
-
-    return(p);
-}
-
-/* Safe strdup() */
-char *xstrdup(const char *string)
-{
-    char *p;
-
-    p = strdup(string);
-    if (p == NULL) {
-        printf("<p><b>Fatal error: strdup() returned NULL!</b>\n");
-        exit(0);
-    }
-
-    return(p);
 }
