@@ -26,11 +26,10 @@
 #include <config.h>
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <map>
-#include <memory>
-
-#include <fstream>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -40,16 +39,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include "htmlparse.h"
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::find;
-using std::ifstream;
-using std::auto_ptr;
+using namespace std;
 
 #define OMINDEX "omindex"
 
@@ -62,7 +56,7 @@ static string dbpath;
 static string root;
 static string indexroot;
 static string baseurl;
-static OmWritableDatabase db;
+static Xapian::WritableDatabase db;
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
@@ -70,9 +64,9 @@ static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 static const unsigned int MAX_URL_LENGTH = 240;
 
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
@@ -160,9 +154,6 @@ MyHtmlParser::closing_tag(const string &text)
     string x = text;
     if (x == "title") {
 	title = dump;
-	// replace newlines with spaces
-	size_t i = 0;    
-	while ((i = title.find("\n", i)) != string::npos) title[i] = ' ';
 	dump = "";
     } else if (x == "script") {
 	in_script_tag = false;
@@ -197,12 +188,12 @@ p_notplusminus(unsigned int c)
     return c != '+' && c != '-';
 }
 
-static om_termpos
-index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
+static Xapian::termpos
+index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer, Xapian::termpos pos)
 {
     string::const_iterator i, j = s.begin(), k;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	om_termname term;
+	string term;
 	k = i;
 	if (isupper(*k)) {
 	    j = k;
@@ -276,14 +267,13 @@ hash(const string &s)
 static string
 make_url_term(const string &url)
 {
-    if (1 + baseurl.length() + url.length() > MAX_URL_LENGTH) {
-	string result = "U" + baseurl + url;
+    string result = "U" + baseurl + url;
+    if (result.length() > MAX_URL_LENGTH) {
 	result = result.substr(0, MAX_URL_LENGTH - HASH_LEN) +
 		hash(result.substr(MAX_URL_LENGTH - HASH_LEN));
 	//printf("Using '%s' as the url term\n", result.c_str());
-	return result;
     }
-    return "U" + baseurl + url;
+    return result;
 }
 
 /* Truncate a string to a given maxlength, avoiding cutting off midword
@@ -426,7 +416,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	cout << "unknown MIME type - skipping\n";
 	return;
     }
-    OmStem stemmer("english");    
+    Xapian::Stem stemmer("english");    
 
     // Produce a sample
     if (sample.empty()) {
@@ -436,16 +426,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     }
 
     // Put the data in the document
-    OmDocument newdocument;
+    Xapian::Document newdocument;
     string record = "url=" + baseurl + url + "\nsample=" + sample;
     if (!title.empty()) {
-	record = record + "\ncaption=" + truncate_to_word(title, 100);
+	record += "\ncaption=" + truncate_to_word(title, 100);
     }
-    record = record + "\ntype=" + mimetype;
+    record += "\ntype=" + mimetype;
     newdocument.set_data(record);
 
     // Add postings for terms to the document
-    om_termpos pos = 1;
+    Xapian::termpos pos = 1;
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
@@ -481,15 +471,14 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
     newdocument.add_term_nopos(urlterm); // Url
 
-    if (dupes == DUPE_replace && db.term_exists(urlterm)) {
+    if (dupes == DUPE_replace) {
 	// This document has already been indexed - update!
 	try {
-	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(db));
-	    enq->set_query(OmQuery(urlterm));
-	    OmMSet mset = enq->get_mset(0, 1);
-	    try {
-		db.replace_document(*mset[0], newdocument);
-	    } catch (...) {
+	    Xapian::PostListIterator p = db.postlist_begin(urlterm);
+	    if (p != db.postlist_end(urlterm)) {
+		db.replace_document(*p, newdocument);
+	    } else {
+		db.add_document(newdocument);
 	    }
 	} catch (...) {
 	    db.add_document(newdocument);
@@ -672,8 +661,11 @@ main(int argc, char **argv)
 	baseurl = baseurl.substr(0, baseurl.length()-1);
     }
 
-    if (optind >= argc || optind+2 < argc) {
-	cerr << OMINDEX << ": you must specify a directory to index.\nDo this either as a single directory (taken to be the store of the base URL)\nor two, one the store of the base URL and one a dir within that to index.";
+    if (optind >= argc || optind + 2 < argc) {
+	cerr << OMINDEX << ": you must specify a directory to index.\n"
+"Do this either as a single directory (corresponding to the base URL)\n"
+"or two directories - the first corresponding to the base URL and the second\n"
+"a subdirectory of that to index." << endl;
 	return 1;
     }
     root = argv[optind];
@@ -687,12 +679,11 @@ main(int argc, char **argv)
     }
 
     try {
-	db = OmWritableDatabase(OmAuto__open(dbpath, OM_DB_CREATE_OR_OPEN));
+	db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OPEN);
 	index_directory("/", mime_map);
-	// db.reopen(); // Ensure we're up to date
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	db.flush();
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;
 	return 1;
     } catch (const string &s) {

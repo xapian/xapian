@@ -48,10 +48,10 @@ void do_match();
 
 void add_bterm(const string &);
 
-extern OmQuery::op default_op;
+extern Xapian::Query::op default_op;
 
 extern string raw_prob;
-extern map<om_docid, bool> ticked;
+extern map<Xapian::docid, bool> ticked;
 
 extern void report_error(const string &title, const string &msg);
 

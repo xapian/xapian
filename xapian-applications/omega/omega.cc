@@ -25,7 +25,9 @@
 
 #include <stdio.h>
 #include <time.h>
+
 #include <algorithm>
+#include <iostream>
 
 #include <fcntl.h>
 #ifdef WIN32
@@ -41,9 +43,9 @@
 
 using namespace std;
 
-OmEnquire * enquire;
-OmDatabase omdb;
-OmRSet * rset;
+Xapian::Enquire * enquire;
+Xapian::Database db;
+Xapian::RSet * rset;
 
 map<string, string> option;
 
@@ -55,17 +57,17 @@ string dbname;
 string fmtname = "query";
 string filters;
 
-om_docid topdoc = 0;
-om_docid hits_per_page = 0;
-om_docid min_hits = 0;
+Xapian::docid topdoc = 0;
+Xapian::docid hits_per_page = 0;
+Xapian::docid min_hits = 0;
 
 // percentage cut-off
 int threshold = 0;
 
 bool sort_numeric = true;
-om_valueno sort_key = 0;
+Xapian::valueno sort_key = 0;
 int sort_bands = 0; // Don't sort
-om_valueno collapse_key = 0;
+Xapian::valueno collapse_key = 0;
 bool collapse = false;
 
 const static char filter_sep = '-';
@@ -144,25 +146,25 @@ try {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
 			dbname += *i;
-			omdb.add_database(OmAuto__open(map_dbname_to_dir(*i)));
+			db.add_database(Xapian::Auto::open(map_dbname_to_dir(*i)));
 		    }
 		}
 	    }
 	}
 	if (dbname.empty()) {
 	    dbname = default_dbname;
-	    omdb.add_database(OmAuto__open(map_dbname_to_dir(dbname)));
+	    db.add_database(Xapian::Auto::open(map_dbname_to_dir(dbname)));
 	}
-	enquire = new OmEnquire(omdb);
+	enquire = new Xapian::Enquire(db);
     }
-    catch (const OmError &e) {
+    catch (const Xapian::Error &e) {
 	enquire = NULL;
     }
 
     val = cgi_params.find("DEFAULTOP");
     if (val != cgi_params.end()) {
 	if (val->second == "AND" || val->second == "and")
-	    default_op = OmQuery::OP_AND;
+	    default_op = Xapian::Query::OP_AND;
     }
 
     big_buf = "";
@@ -175,21 +177,21 @@ try {
 
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
-	om_docid docid = atol(val->second.c_str());
+	Xapian::docid docid = atol(val->second.c_str());
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
-	    OmPostListIterator p = omdb.postlist_begin(val->second);
-	    if (p != omdb.postlist_end(val->second)) docid = *p;
+	    Xapian::PostListIterator p = db.postlist_begin(val->second);
+	    if (p != db.postlist_end(val->second)) docid = *p;
 	}
 	
 	if (docid != 0) {
-	    OmRSet tmprset;
+	    Xapian::RSet tmprset;
 	    tmprset.add_document(docid);
 
-	    ExpandDeciderOmega decider(omdb);
-	    OmESet eset(enquire->get_eset(6, tmprset, &decider));
-	    for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
+	    ExpandDeciderOmega decider(db);
+	    Xapian::ESet eset(enquire->get_eset(6, tmprset, &decider));
+	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;
 		if (more) big_buf += ' ';
 		big_buf += pretty_term(*i);
@@ -268,7 +270,7 @@ try {
     if (val != cgi_params.end()) date_span = val->second;
 
     filters += date_start + filter_sep + date_end + filter_sep + date_span
-	+ (default_op == OmQuery::OP_AND ? 'A' : 'O');
+	+ (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
 
     // collapsing
     val = cgi_params.find("COLLAPSE");
@@ -415,7 +417,7 @@ try {
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
-    rset = new OmRSet();
+    rset = new Xapian::RSet();
     if (!discard_rset) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
@@ -425,7 +427,7 @@ try {
 		vector<string> r = split(v, '.');
 		vector<string>::const_iterator i;
 		for (i = r.begin(); i != r.end(); i++) {
-		    om_docid d = string_to_int(*i);
+		    Xapian::docid d = string_to_int(*i);
 		    if (d) {
 			rset->add_document(d);
 			ticked[d] = true;
@@ -445,7 +447,7 @@ try {
 
     // process commands
     do_match();
-} catch (const OmError &e) {
+} catch (const Xapian::Error &e) {
     cout << "Exception: " << e.get_msg() << endl;
 } catch (const string &s) {
     cout << "Exception: " << s << endl;

@@ -1,3 +1,8 @@
+Wed Jun 11 02:32:25 BST 2003  Olly Betts <olly@survex.com>
+
+	* date.cc,date.h,omega.cc,omega.h,omindex.cc,query.cc,query.h,
+	  scriptindex.cc: Om -> Xapian::, etc.
+
 Fri Jun  6 01:04:12 BST 2003  Richard Boulton <richard@tartarus.org>
 
 	* omindex.cc: Implement an upper limit on the length of URL

@@ -27,9 +27,10 @@
 #include <config.h>
 
 #include <algorithm>
-#include <vector>
+#include <iostream>
 #include <map>
 #include <set>
+#include <vector>
 
 #include <assert.h>
 #include <ctype.h>
@@ -58,7 +59,8 @@
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
-#include "om/omparsequery.h"
+
+#include <xapian/queryparser.h>
 
 using namespace std;
 
@@ -68,25 +70,25 @@ using namespace std;
 static const char * STEM_LANGUAGE = "english";
 
 static bool done_query = false;
-static om_docid last = 0;
+static Xapian::docid last = 0;
 
-static OmMSet mset;
+static Xapian::MSet mset;
 
 static void ensure_match();
 
 string raw_prob;
-map<om_docid, bool> ticked;
+map<Xapian::docid, bool> ticked;
 
-static OmQuery query;
+static Xapian::Query query;
 static string query_string;
-OmQuery::op default_op = OmQuery::OP_OR; // default matching mode
+Xapian::Query::op default_op = Xapian::Query::OP_OR; // default matching mode
 
-static OmQueryParser qp;
-static OmStem *stemmer = NULL;
+static Xapian::QueryParser qp;
+static Xapian::Stem *stemmer = NULL;
 
 static string eval_file(const string &fmtfile);
 
-static set<om_termname> termset;
+static set<string> termset;
 
 static string queryterms;
 
@@ -102,9 +104,9 @@ static const char * DEFAULT_LOG_ENTRY =
 	"$query\t"
 	"$msize$if{$env{HTTP_REFERER},\t$env{HTTP_REFERER}}";
 
-class MyStopper : public OmStopper {
+class MyStopper : public Xapian::Stopper {
   public:
-    bool operator()(const om_termname &t) {
+    bool operator()(const string &t) {
 	switch (t[0]) {
 	    case 'a':
 		return (t == "a" || t == "about" || t == "an" || t == "and" ||
@@ -161,7 +163,7 @@ set_probabilistic(const string &newp, const string &oldp)
 			    option["all_stem"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
-    qp.set_database(omdb);
+    qp.set_database(db);
     try {
 	query = qp.parse_query(raw_prob);
     } catch (const char *s) {
@@ -169,8 +171,8 @@ set_probabilistic(const string &newp, const string &oldp)
 	return BAD_QUERY;
     }
 
-    om_termcount n_new_terms = 0;
-    for (list<om_termname>::const_iterator i = qp.termlist.begin();
+    Xapian::termcount n_new_terms = 0;
+    for (list<string>::const_iterator i = qp.termlist.begin();
 	 i != qp.termlist.end(); ++i) {
 	if (termset.find(*i) == termset.end()) {
 	    termset.insert(*i);
@@ -238,8 +240,8 @@ run_query()
 {
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
-	vector<OmQuery> filter_vec;
-	vector<om_termname> or_vec;
+	vector<Xapian::Query> filter_vec;
+	vector<string> or_vec;
 	string current;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
@@ -248,10 +250,10 @@ run_query()
 		    case 0:
 		        break;
 		    case 1:
-			filter_vec.push_back(OmQuery(or_vec[0]));
+			filter_vec.push_back(Xapian::Query(or_vec[0]));
 		        break;
 		    default:
-			filter_vec.push_back(OmQuery(OmQuery::OP_OR,
+			filter_vec.push_back(Xapian::Query(Xapian::Query::OP_OR,
 						     or_vec.begin(),
 						     or_vec.end()));
 		        break;
@@ -267,24 +269,24 @@ run_query()
 	// to be THE query instead of filtering an empty query
 	// So we can have pure boolean queries this way
 	if (query.is_empty()) {
-	    query = OmQuery(OmQuery::OP_AND,
+	    query = Xapian::Query(Xapian::Query::OP_AND,
 			    filter_vec.begin(),
 			    filter_vec.end());
 	} else {
-	    query = OmQuery(OmQuery::OP_FILTER,
+	    query = Xapian::Query(Xapian::Query::OP_FILTER,
 		    query,
-		    OmQuery(OmQuery::OP_AND,
+		    Xapian::Query(Xapian::Query::OP_AND,
 			    filter_vec.begin(),
 			    filter_vec.end()));
 	}
     }
 
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
-	query = OmQuery(OmQuery::OP_FILTER,
+	query = Xapian::Query(Xapian::Query::OP_FILTER,
 		       	query,
-			OmQuery(OmQuery::OP_OR,
+			Xapian::Query(Xapian::Query::OP_OR,
 			date_range_filter(date_start, date_end, date_span),
-			OmQuery("Dlatest")));
+			Xapian::Query("Dlatest")));
     }
 
     if (enquire) {
@@ -292,11 +294,11 @@ run_query()
         // match_min_hits will be moved into matcher soon
 	// enquire->set_min_hits(min_hits); or similar...
 
-	// Temporary bodge to allow experimentation with OmBiasFunctor
+	// Temporary bodge to allow experimentation with Xapian::BiasFunctor
 	MCI i;
 	i = cgi_params.find("bias_weight");
 	if (i != cgi_params.end()) {
-	    om_weight bias_weight = atof(i->second.c_str());
+	    Xapian::weight bias_weight = atof(i->second.c_str());
 	    int half_life = 2 * 24 * 60 * 60; // 2 days
 	    i = cgi_params.find("bias_halflife");
 	    if (i != cgi_params.end()) {
@@ -534,9 +536,9 @@ static bool word_in_list(const string& test_word, const string& list)
 
 // FIXME: this copied from om/indexer/index_utils.cc
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
@@ -581,12 +583,12 @@ html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
 {
     if (!stemmer) {
-	stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+	stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
     }
     string::const_iterator i, j = s.begin(), k, l;
     string res;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	om_termname term, word;
+	string term, word;
 	l = j;
 	if (isupper(*i)) {
 	    j = i;
@@ -661,10 +663,10 @@ print_query_string(const char *after)
 #endif
 
 static map<string, string> field;
-static om_docid q0;
-static om_doccount hit_no;
+static Xapian::docid q0;
+static Xapian::doccount hit_no;
 static int percent;
-static om_doccount collapsed;
+static Xapian::doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
 
@@ -988,8 +990,8 @@ eval(const string &fmt, const vector<string> &param)
 		// list of all terms indexing document
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
-		OmTermIterator term = omdb.termlist_begin(id);
-		for ( ; term != omdb.termlist_end(id); term++)
+		Xapian::TermIterator term = db.termlist_begin(id);
+		for ( ; term != db.termlist_end(id); term++)
 		    value = value + *term + '\t';
 
 		if (!value.empty()) value.erase(value.size() - 1);
@@ -1042,7 +1044,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = dbname;
 		break;
 	    case CMD_dbsize:
-		value = int_to_string(omdb.get_doccount());
+		value = int_to_string(db.get_doccount());
 		break;
 	    case CMD_def: {
 		func_attrib *fa = new func_attrib;
@@ -1057,7 +1059,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_defaultop:
-		if (default_op == OmQuery::OP_AND) {
+		if (default_op == Xapian::Query::OP_AND) {
 		    value = "and";
 		} else {
 		    value = "or";
@@ -1117,7 +1119,7 @@ eval(const string &fmt, const vector<string> &param)
 		try {
 		    value = int_to_string(mset.get_termfreq(args[0]));
 		} catch (...) {
-		    value = int_to_string(omdb.get_termfreq(args[0]));
+		    value = int_to_string(db.get_termfreq(args[0]));
 		}
 		break;
 	    case CMD_freqs:
@@ -1424,14 +1426,14 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_record: {
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
-		value = omdb.get_document(id).get_data();
+		value = db.get_document(id).get_data();
 		break;
 	    }
 	    case CMD_relevant: {
 		// document id if relevant; empty otherwise
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
-		map<om_docid, bool>::iterator i = ticked.find(id);
+		map<Xapian::docid, bool>::iterator i = ticked.find(id);
 		if (i != ticked.end()) {
 		    i->second = false; // icky side-effect
 		    value = int_to_string(id);
@@ -1439,7 +1441,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_relevants:	{
-		for (map <om_docid, bool>::const_iterator i = ticked.begin();
+		for (map <Xapian::docid, bool>::const_iterator i = ticked.begin();
 		     i != ticked.end(); i++) {
 		    if (i->second) value += int_to_string(i->first) + '\t';
 		}
@@ -1464,7 +1466,7 @@ eval(const string &fmt, const vector<string> &param)
 		string::size_type i = 0, j;
 	    	while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-	    	    om_docid id = atoi(args[0].substr(i, j - i).c_str());
+	    	    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
 		    if (id) {
 			rset->add_document(id);
 			ticked[id] = true;
@@ -1506,7 +1508,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_terms:
 		if (enquire) {
 		    // list of matching terms
-		    OmTermIterator term = enquire->get_matching_terms_begin(q0);
+		    Xapian::TermIterator term = enquire->get_matching_terms_begin(q0);
 		    while (term != enquire->get_matching_terms_end(q0)) {
 			// check term was in the typed query so we ignore
 			// boolean filter terms
@@ -1539,18 +1541,18 @@ eval(const string &fmt, const vector<string> &param)
 		    if (howmany < 0) howmany = 0;
 
 		    // List of expand terms
-		    OmESet eset;
-		    ExpandDeciderOmega decider(omdb);
+		    Xapian::ESet eset;
+		    ExpandDeciderOmega decider(db);
 
 		    if (!rset->empty()) {
 			eset = enquire->get_eset(howmany * 2, *rset, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
-			OmRSet tmp;
+			Xapian::RSet tmp;
 
 			int c = 5;
 			// FIXME: what if mset does not start at first match?
-			OmMSetIterator m = mset.begin();
+			Xapian::MSetIterator m = mset.begin();
 			for ( ; m != mset.end(); ++m) {
 			    tmp.add_document(*m);
 			    if (--c == 0) break;
@@ -1559,14 +1561,14 @@ eval(const string &fmt, const vector<string> &param)
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
 		    }
 
-		    OmESetIterator i;
-		    set<om_termname> seen;
+		    Xapian::ESetIterator i;
+		    set<string> seen;
 		    {
 			if (!stemmer)
-			    stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+			    stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
 			// Exclude terms "similar" to those already in
 			// the query
-			set<om_termname>::const_iterator t;
+			set<string>::const_iterator t;
 			for (t = termset.begin(); t != termset.end(); ++t) {
 			    string term = *t;
 			    if (term[0] == 'R') {
@@ -1663,10 +1665,10 @@ eval(const string &fmt, const vector<string> &param)
 	        value = percent_encode(args[0]);
 		break;
 	    case CMD_value: {
-		om_docid id = q0;
-		om_valueno value_no = string_to_int(args[0]);
+		Xapian::docid id = q0;
+		Xapian::valueno value_no = string_to_int(args[0]);
 		if (args.size() > 1) id = string_to_int(args[1]);
-		value = omdb.get_document(id).get_value(value_no);
+		value = db.get_document(id).get_value(value_no);
 		break;
 	    }
 	    case CMD_version:
@@ -1752,11 +1754,11 @@ pretty_term(const string & term)
     // If the term wasn't indexed unstemmed, it's probably a non-term
     // e.g. "litr" - the stem of "litre"
     // FIXME: perhaps ought to check termfreq > some threshold
-    if (!omdb.term_exists('R' + term))
+    if (!db.term_exists('R' + term))
 	return term + '.';
 
     if (!stemmer)
-	stemmer = new OmStem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+	stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
 
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting
@@ -1786,7 +1788,7 @@ print_caption(const string &fmt, const vector<string> &param)
     percent = mset.convert_to_percent(mset[hit_no]);
     collapsed = mset[hit_no].get_collapse_count();
 
-    OmDocument doc = omdb.get_document(q0);
+    Xapian::Document doc = db.get_document(q0);
     string text = doc.get_data();
 
     // parse record

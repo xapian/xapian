@@ -20,9 +20,9 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 #include <string>
 
-OmQuery date_range_filter(const std::string & date_start,
+Xapian::Query date_range_filter(const std::string & date_start,
 			  const std::string & date_end,
 			  const std::string & date_span);

@@ -23,10 +23,11 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <xapian.h>
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 // Not in GCC 2.95.2: #include <limits>
 #include <map>
 #include <string>
@@ -281,9 +282,9 @@ parse_index_script(const string &filename)
 }
 
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while (i != term.end()) {
         *i = tolower(*i);
         i++;
@@ -301,16 +302,16 @@ lowercase_string(string &term)
 } 
 
 // FIXME: this function is almost identical to one in omindex.cc...
-static om_termpos
-index_text(const string &s, OmDocument &doc, OmStem &stemmer,
-	   om_termcount wdfinc, const string &prefix,
-	   om_termpos pos = static_cast<om_termpos>(-1)
-	   // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
+static Xapian::termpos
+index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
+	   Xapian::termcount wdfinc, const string &prefix,
+	   Xapian::termpos pos = static_cast<Xapian::termpos>(-1)
+	   // Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 	   )
 {
     string::const_iterator i, j = s.begin(), k;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	om_termname term;
+	string term;
 	k = i;
 	if (isupper(*k)) {
 	    j = k;
@@ -340,8 +341,8 @@ moreterm:
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
 	    lowercase_term(term);
 	    if (isupper(*i) || isdigit(*i)) {
-		if (pos != static_cast<om_termpos>(-1)
-			// Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
+		if (pos != static_cast<Xapian::termpos>(-1)
+			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 		   ) {
 		    doc.add_posting(prefix + 'R' + term, pos, wdfinc);
 		} else {
@@ -350,8 +351,8 @@ moreterm:
 	    }
 
 	    term = stemmer.stem_word(term);
-	    if (pos != static_cast<om_termpos>(-1)
-		    // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
+	    if (pos != static_cast<Xapian::termpos>(-1)
+		    // Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 	       ) {
 		doc.add_posting(prefix + term, pos++, wdfinc);
 	    } else {
@@ -375,7 +376,8 @@ hash(const string &s)
 #endif
 
 static bool
-index_file(istream &stream, OmWritableDatabase &database, OmStem &stemmer)
+index_file(istream &stream, Xapian::WritableDatabase &database,
+	   Xapian::Stem &stemmer)
 {
     string line;
     if (!getline(stream, line)) {
@@ -384,13 +386,13 @@ index_file(istream &stream, OmWritableDatabase &database, OmStem &stemmer)
     }
     
     while (true) {
-	OmDocument doc;
-	om_docid docid = 0;
-	om_termpos wordcount = 0;
+	Xapian::Document doc;
+	Xapian::docid docid = 0;
+	Xapian::termpos wordcount = 0;
 	map<string, list<string> > fields;
 	bool seen_content = 0;
 	while (true) {
-	    om_termcount weight = 1;
+	    Xapian::termcount weight = 1;
 	    // Cope with files from MS Windows (\r\n end of lines)
 	    if (line[line.size() - 1] == '\r') line.resize(line.size() - 1);
 
@@ -494,12 +496,11 @@ index_file(istream &stream, OmWritableDatabase &database, OmStem &stemmer)
 			t += value;
 again:
 			try {
-			    // FIXME: seems to tickle a quartz problem
-			    OmPostListIterator p = database.postlist_begin(t);
-			    if (!(p == database.postlist_end(t))) {
+			    Xapian::PostListIterator p = database.postlist_begin(t);
+			    if (p != database.postlist_end(t)) {
 				docid = *p;
 			    }
-			} catch (const OmError &e) {
+			} catch (const Xapian::Error &e) {
 			    // Hmm, what happened?
 			    cout << "Caught exception in UNIQUE!" << endl;
 			    cout << "E: " << e.get_msg() << endl;
@@ -596,7 +597,7 @@ again:
 		    database.replace_document(docid, doc);
 		    if (verbose) cout << "Replace: " << docid << endl;
 		    repcount ++;
-		} catch (const OmError &e) {
+		} catch (const Xapian::Error &e) {
 		    cout << "E: " << e.get_msg() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
@@ -673,26 +674,28 @@ main(int argc, char **argv)
     
     parse_index_script(argv[2]);
     
-    // Catch any OmError exceptions thrown
+    // Catch any Xapian::Error exceptions thrown
     try {
 	// Make the database
-	// Sleep and retry if we get an OmDatabaseLockError - this just means
-	// that another process is updating the database
-	OmWritableDatabase database;
+	// Sleep and retry if we get an Xapian::DatabaseLockError - this just
+	// means that another process is updating the database
+	Xapian::WritableDatabase database;
 	while (true) {
 	    try {
 		if (update_db) {
-		    database = OmAuto__open(argv[1], OM_DB_CREATE_OR_OPEN);
+		    database = Xapian::Auto::open(argv[1],
+						  Xapian::DB_CREATE_OR_OPEN);
 		} else {
-		    database = OmAuto__open(argv[1], OM_DB_CREATE_OR_OVERWRITE);
+		    database = Xapian::Auto::open(argv[1],
+						  Xapian::DB_CREATE_OR_OVERWRITE);
 		}
 		break;
-	    } catch (const OmDatabaseLockError &error) {
+	    } catch (const Xapian::DatabaseLockError &error) {
 		cout << "Database locked ... retrying" << endl;
 		sleep(1);
 	    }
 	}
-	OmStem stemmer("english"); 
+	Xapian::Stem stemmer("english"); 
 
 	addcount = 0;
 	repcount = 0;
@@ -718,7 +721,7 @@ main(int argc, char **argv)
 
 	cout << "records (added, replaced, deleted) = (" << addcount <<
 		", " << repcount << ", " << delcount << ")" << endl;
-    } catch (const OmError &error) {
+    } catch (const Xapian::Error &error) {
 	cout << "Exception: " << error.get_msg() << endl;
 	exit(1);
     } catch (...) {

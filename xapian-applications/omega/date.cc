@@ -45,12 +45,12 @@ last_day(int y, int m)
     return 28 + (y % 4 == 0); // good until 2100
 }
 
-static OmQuery
+static Xapian::Query
 date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
     char buf[9];
     sprintf(buf, "%04d%02d", y1, m1);
-    vector<OmQuery> v;
+    vector<Xapian::Query> v;
 
     int d_last = last_day(y1, m1);
     int d_end = d_last;
@@ -61,31 +61,31 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     if (d1 > 1 || d_end < d_last) {
     	for ( ; d1 <= d_end ; d1++) {
 	    sprintf(buf + 6, "%02d", d1);
-	    v.push_back(OmQuery('D' + string(buf)));
+	    v.push_back(Xapian::Query('D' + string(buf)));
 	}
     } else {
-	v.push_back(OmQuery('M' + string(buf)));
+	v.push_back(Xapian::Query('M' + string(buf)));
     }
     
     if (y1 == y2 && m1 == m2) {
-	return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
+	return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
     }
 
     int m_last = (y1 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
 	sprintf(buf + 4, "%02d", m1);
-	v.push_back(OmQuery('M' + string(buf)));
+	v.push_back(Xapian::Query('M' + string(buf)));
     }
 	
     if (y1 < y2) {
 	while (++y1 < y2) {
 	    sprintf(buf, "%04d", y1);
-	    v.push_back(OmQuery('Y' + string(buf)));
+	    v.push_back(Xapian::Query('Y' + string(buf)));
 	}
 	sprintf(buf, "%04d", y2);
 	for (m1 = 1; m1 < m2; m1++) {
 	    sprintf(buf + 4, "%02d", m1);
-	    v.push_back(OmQuery('M' + string(buf)));
+	    v.push_back(Xapian::Query('M' + string(buf)));
 	}
     }
 	
@@ -95,13 +95,13 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     if (d2 < last_day(y2, m2)) {
     	for (d1 = 1 ; d1 <= d2; d1++) {
 	    sprintf(buf + 6, "%02d", d1);
-	    v.push_back(OmQuery('D' + string(buf)));
+	    v.push_back(Xapian::Query('D' + string(buf)));
 	}
     } else {
-	v.push_back(OmQuery('M' + string(buf)));
+	v.push_back(Xapian::Query('M' + string(buf)));
     }
 
-    return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
+    return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
 }
 
 static void
@@ -114,7 +114,7 @@ parse_date(string date, int *y, int *m, int *d)
     *d = atoi(date.substr(6, 2).c_str());
 }
 
-OmQuery
+Xapian::Query
 date_range_filter(const string & date_start, const string & date_end,
 		  const string & date_span)
 {
