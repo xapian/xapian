@@ -153,8 +153,16 @@ TcpServer::run_once()
     if (pid==0) {
 	// child code
 	close(listen_socket);
-	SocketServer sserv(db, connected_socket);
-	sserv.run();
+	try {
+	    SocketServer sserv(db, connected_socket);
+	    sserv.run();
+	} catch (OmError &err) {
+	    cerr << "Got exception " << err.get_type()
+		 << ": " << err.get_msg() << endl;
+	} catch (...) {
+	    // ignore other exceptions
+	}
+
 	cout << "Closing connection.\n";
 	close(connected_socket);
 	exit(0);

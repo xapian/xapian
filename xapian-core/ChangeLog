@@ -1,3 +1,8 @@
+Wed Aug 16 17:05:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a bug which could cause a TCP server to loop nastily if
+	  an exception were thrown.
+
 Wed Aug 16 13:53:00 BST 2000 Olly Betts
 
 	* Fixed up a few mismatched OmSettings parameter names.
