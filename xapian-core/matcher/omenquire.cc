@@ -104,10 +104,11 @@ OMQuery::OMQuery(om_queryop op_, const OMQuery &left, const OMQuery &right)
 		} else {
 		    if (!right.isnull) {
 			// Pure boolean
-			isbool = true;
 			initialise_from_copy(right);
+			isbool = true;
+		    } else {
+			isnull = true;
 		    }
-		    else isnull = true;
 		}
 		break;
 	    case OM_MOP_AND_MAYBE:
@@ -529,13 +530,14 @@ OMEnquire::get_mset(OMMSet &mset,
     if(internal->query->is_bool()) {
 	match.boolmatch(first, maxitems, mset.items);
 	mset.mbound = mset.items.size();
+	mset.max_weight = 1;
     } else {
 	match.match(first, maxitems, mset.items,
 		    msetcmp_forward, &(mset.mbound));
-    }
 
-    // Get max weight for an item in the MSet
-    mset.max_weight = match.get_max_weight();
+	// Get max weight for an item in the MSet
+	mset.max_weight = match.get_max_weight();
+    }
 
     // Clear up
     delete rset;

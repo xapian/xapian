@@ -1,3 +1,12 @@
+Tue Feb  8 16:51:22 GMT 2000 Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed boolean only querying.
+
+	  o) Made isbool get set correctly (was being unset by
+	    initialise_from_copy)
+
+	  o) Set max_weight correctly.
+
 Tue Feb  8 16:28:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added the stemmer test script, stemtest.pl
