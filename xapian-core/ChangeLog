@@ -1,3 +1,8 @@
+Thu Dec 12 23:52:32 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Tidied my desk and converted lots of scraps of paper
+	  to todo entries.
+
 Thu Dec 12 16:43:22 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Added workaround for shared_level problem;

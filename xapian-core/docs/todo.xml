@@ -26,7 +26,10 @@ info in the target since that can be created atomically) and check the details
 - that way we can spot a stale lock from a process on the same machine.
 Or touch the lock periodically to keep it?  Or use fcntl(), except that
 doesn't handle locking within a process, so it needs to be combined with
-another locking scheme.
+another locking scheme, which I think boils down to needing thread locks
+to work in a multi-threaded process...
+
+<!-- map<pair<dev_t, inode_t>, bool> locks; lock.find(make_pair(dev, ino)); -->
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
@@ -536,6 +539,128 @@ Sort out some sort of framework for stopwording (OmStopper class?)  Should
 it use static lists (compiled in, perhaps using gperf) or dynamically load
 lists?  Stopword lists should be fine tunable in general, so probably the
 latter...
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Weight functor decreasing with age to model improved relevance of newer docs.
+Prototype is in the code, but a theoretical model to back up the idea would
+be good to have.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+"RangePostList" - combine a sequence of adjacent terms...
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Quartz compression using a bitstream.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Ability to run a postlist backwards - it's chunked, so this is feasible
+(some encodings can even be decoded backwards).  This is useful as we
+can add articles in date order and search backwards to do "sort by date".
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Date -&gt; terms in scriptindex
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Rename DATE1/DATE2/DAYSMINUS to better names?  START/END/SPAN?
+Allow other date formats in DATE1 and DATE2.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Enhance $def: $def{NAME, [min, max, eval, ensure, cache], ...} ?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Use AC_ARG_VAR in configure if there are any precious env vars not saved by
+default.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+sort_bands vs. remote backend?  Think this doesn't currently work.  Fix,
+or at least stop people trying it and getting bogus results.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Rejig OmExpandDecider?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+match bias functors: adjust weights back for display? cutoff?
+no weighting? params for bias? abuse term wdf instead of keys?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Stopwording?  Improve?  Support in Xapian itself?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Make test suite more uniform in structure.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Code size and performance profiling.  Track over time.
+
+Code size is important.  The embedded market and palmtops are a
+potential area of application, but we need to be as lean as possible for that.
+Better modularisation would help - so you can link retrieval bits, indexer
+bits, general bits (such as stemmers), etc separately, and they don't pull
+each other in unnecessarily.  Not a problem with shared libs, but static
+linking on small devices it is.
+
+Performance: try to base it on real world situations. 
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Near/phrase implementation is hard to follow, and so it's hard to be confident
+it's correct.  Perhaps reimplement.  Or write a naive implementation and
+compare the results of the two on a large test set.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Tidy up internal class naming...
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+omega - $field -> $fields; add new $field to just return first?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+delve: show_docdata: different layout for showing several docs
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Change expand to use inverse min heap, rather than nth element,
+just like matcher was changed a while ago.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Build test harness to check consistency by composing random queries
+and checking the results.  Already sanity check mset size.
+Add cheks for %age cutoffs from 0 - 100%, bool filters.
 
 </todoitem>
 </todo>
