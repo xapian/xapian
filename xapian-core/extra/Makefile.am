@@ -14,6 +14,9 @@ lib_LTLIBRARIES = libomqueryparser.la
 check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
+# 0:0:0 0.7.2 (and anything before) 
+libomqueryparser_la_LDFLAGS = -version-info 0:0:0
+
 libomqueryparser_la_SOURCES = queryparser.yy
 queryparsertest_SOURCES = queryparsertest.cc
 queryparsertest_LDADD = libomqueryparser.la ../libxapian.la

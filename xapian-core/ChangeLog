@@ -1,3 +1,8 @@
+Mon Jul 14 23:33:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,Makefile.am,extra/Makefile.am: Added versioning
+	  information to libxapian and libomqueryparser.
+
 Mon Jul 14 23:32:15 BST 2003  Olly Betts <olly@survex.com>
 
 	* bin/quartzdump.cc,testsuite/testsuite.cc: Added long option support
