@@ -23,6 +23,9 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_YACC
 
+XAPIAN_LDFLAGS=
+AC_SUBST(XAPIAN_LDFLAGS)
+
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
@@ -83,9 +86,10 @@ dnl Check for dvips. (Needed to make some more of the documentation)
 AC_PATH_PROG(DVIPS, dvips, [$MISSING dvips])
 
 dnl Check whether we need -ldl for dlsym() etc.
-AC_TRY_LINK_FUNC(dlsym, ,
-	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
-AC_SUBST(DL_LIBS)
+dnl No longer used...
+dnl AC_TRY_LINK_FUNC(dlsym, ,
+dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
+dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -170,15 +174,32 @@ AC_CHECK_FUNCS(fork)
 if test $ac_cv_func_fork = no ; then
   build_remote=false
 else
+  REMOTE_LDFLAGS=
   dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
   AC_CHECK_FUNC(socketpair, ,
-		AC_CHECK_LIB(socket, socketpair, [ac_cv_func_socketpair=yes]))
+		AC_CHECK_LIB(socket, socketpair,
+		    [ac_cv_func_socketpair=yes
+		     REMOTE_LDFLAGS=-lsocket]))
   if test $ac_cv_func_socketpair = no ; then
     build_remote=false
   else
     dnl Add -lnsl to LDFLAGS if needed (eg Solaris)
-    AC_SEARCH_LIBS(gethostbyname, nsl, [], build_remote=false)
-    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], build_remote=false)
+    AC_SEARCH_LIBS(gethostbyname, nsl,
+	    [REMOTE_LDFLAGS="-lnsl $REMOTE_LDFLAGS"],
+	    build_remote=false)
+    if test false != "$build_remote" ; then
+      AC_SEARCH_LIBS(gethostbyaddr, nsl,
+	      [
+	      case " $REMOTE_LDFLAGS " in
+	      "* -lnsl *") ;;
+	      *) REMOTE_LDFLAGS="-lnsl $REMOTE_LDFLAGS" ;;
+	      esac
+	      ],
+	      build_remote=false)
+    fi
+  fi
+  if test false != "$build_remote" ; then
+    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $REMOTE_LDFLAGS"
   fi
 fi
 
@@ -229,7 +250,9 @@ if test true = "$build_remote"; then
 fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-AC_CHECK_FUNC(fdatasync, , AC_CHECK_LIB(rt, fdatasync))
+AC_CHECK_FUNC(fdatasync, ,
+	AC_CHECK_LIB(rt, fdatasync,
+	    [XAPIAN_LDFLAGS="-lrt $XAPIAN_LDFLAGS"]))
 dnl unset the cached value since linking with "-lrt" may change the answer
 unset ac_cv_func_fdatasync
 AC_CHECK_FUNCS(fdatasync fsync)
