@@ -4,6 +4,9 @@ ToDo items on the coding side.
 Near term (within a week)
 =========================
 
+Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
+Remove old references to term_id_to_name() and term_name_to_id().
+Sanify introspection methods - get_database_path, etc.
 Write proper weighting formula for termlists, so expand works correctly.
 Write an Enquire object to make a consistent exported searching interface.
 Make all databases inherit from IndexerDestination.
@@ -18,7 +21,8 @@ Make the sleepycat database function (at all).
 Passage retrieval.
 Other search functions (collapse, sort, cluster).
 
-Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
+Extend introspection methods to cover all objects.
+
 Make gui demo display text being searched.
 
 Write (speed) performance test suite.
