@@ -1,3 +1,8 @@
+Fri Jun 22 13:24:59 2001  Sam Liddicott <sam@ananova.com>
+
+        * Added some explicit type casts in xmlindexer and quartze backend
+          to help gcc2.96 compile. 
+
 Thu Jun 21 11:05:31 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* HACKING updated to (a) remove inaccurate statements about
