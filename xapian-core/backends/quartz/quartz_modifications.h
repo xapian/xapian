@@ -24,6 +24,7 @@
 #define OM_HGUARD_QUARTZ_MODIFICATIONS_H
 
 #include "config.h"
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 #include "quartz_db_manager.h"
 #include "quartz_db_diffs.h"
@@ -99,5 +100,7 @@ class QuartzModifications {
 	 */
 	OmDocumentContents get_document(om_docid did);
 };
-	
+
+#endif /* MUS_BUILD_BACKEND_QUARTZ */
+
 #endif /* OM_HGUARD_QUARTZ_MODIFICATIONS_H */

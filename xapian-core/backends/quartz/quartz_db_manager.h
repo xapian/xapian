@@ -24,6 +24,7 @@
 #define OM_HGUARD_QUARTZ_DB_MANAGER_H
 
 #include "config.h"
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 // This is needed so that u_long gets defined, despite our specifying -ansi;
 // otherwise db_cxx.h is broken.
@@ -79,5 +80,7 @@ class QuartzDbManager {
 	 */
 	~QuartzDbManager();
 };
-	
+
+#endif /* MUS_BUILD_BACKEND_QUARTZ */
+
 #endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */

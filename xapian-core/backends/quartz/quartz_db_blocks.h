@@ -24,6 +24,7 @@
 #define OM_HGUARD_QUARTZ_DB_BLOCKS_H
 
 #include "config.h"
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 #include <map>
 #include <memory>
@@ -94,5 +95,7 @@ class QuartzDbBlocks {
 	void set_block(const QuartzDbKey &key,
 		       auto_ptr<QuartzDbBlock> data);
 };
+
+#endif /* MUS_BUILD_BACKEND_QUARTZ */
 
 #endif /* OM_HGUARD_QUARTZ_DB_BLOCKS_H */

@@ -24,6 +24,7 @@
 #define OM_HGUARD_QUARTZ_DB_DIFFS_H
 
 #include "config.h"
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 #include "quartz_db_manager.h"
 #include "quartz_db_blocks.h"
@@ -123,5 +124,7 @@ class QuartzPositionListDbDiffs : public QuartzDbDiffs {
 	 */
 	void apply();
 };
+
+#endif /* MUS_BUILD_BACKEND_QUARTZ */
 
 #endif /* OM_HGUARD_QUARTZ_DB_DIFFS_H */

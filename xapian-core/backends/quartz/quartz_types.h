@@ -24,7 +24,10 @@
 #define OM_HGUARD_QUARTZ_TYPES_H
 
 #include "config.h"
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 
 typedef unsigned int quartz_blocksize_t;
+
+#endif /* MUS_BUILD_BACKEND_QUARTZ */
 
 #endif /* OM_HGUARD_QUARTZ_TYPES_H */

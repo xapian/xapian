@@ -1,3 +1,9 @@
+Wed Aug 30 14:34:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Put in guards to headerfiles in quartz so that the files are
+	  empty if quartz isn't configured on - this is to make includetest
+	  pass.
+
 Wed Aug 30 14:13:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a quartztest testsuite in the Quartz database directory.  That
