@@ -96,6 +96,8 @@ bool test_querylen2();
 bool test_querylen3();
 // tests that the collapsing on termpos optimisation works
 bool test_poscollapse1();
+// tests that collapsing of queries includes subqueries
+bool test_subqcollapse1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -128,6 +130,7 @@ om_test tests[] = {
     {"querylen2",	   test_querylen2},
     {"querylen3",	   test_querylen3},
     {"poscollapse1",	   test_poscollapse1},
+    {"subqcollapse1",	   test_subqcollapse1},
     {0, 0}
 };
 
@@ -1242,6 +1245,47 @@ bool test_poscollapse1()
 	if (verbose) {
 	    cout << "MSets different" << endl;
 	}
+    }
+
+    return success;
+}
+
+bool test_subqcollapse1()
+{
+    bool success = true;
+
+    OmQuery queries1[3] = {
+	OmQuery("wibble"),
+	OmQuery("wobble"),
+	OmQuery(OM_MOP_OR, std::string("jelly"), std::string("belly"))
+    };  
+
+    OmQuery queries2[3] = {
+	OmQuery(OM_MOP_AND, std::string("jelly"), std::string("belly")),
+	OmQuery("wibble"),
+	OmQuery("wobble")
+    };  
+
+    vector<OmQuery> vec1(queries1, queries1+3);
+    OmQuery myquery1(OM_MOP_OR, vec1.begin(), vec1.end());
+    string desc1 = myquery1.get_description();
+
+    vector<OmQuery> vec2(queries2, queries2+3);
+    OmQuery myquery2(OM_MOP_AND, vec2.begin(), vec2.end());
+    string desc2 = myquery2.get_description();
+
+    if(desc1 != "(wibble OR wobble OR jelly OR belly)") {
+	success = false;
+	if(verbose)
+	    cout << "Failed to correctly collapse query: got `" <<
+		    desc1 << "'" << endl;
+    }
+
+    if(desc2 != "(jelly AND belly AND wibble AND wobble)") {
+	success = false;
+	if(verbose)
+	    cout << "Failed to correctly collapse query: got `" <<
+		    desc2 << "'" << endl;
     }
 
     return success;
