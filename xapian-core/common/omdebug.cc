@@ -24,7 +24,7 @@
 
 #include <config.h>
 
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
 
 #include "omdebug.h"
 #include "utils.h"
@@ -112,9 +112,9 @@ OmDebug::display_message(enum om_debug_types type, string msg)
     write(fd, msg.data(), msg.size());
 }
 
-#endif /* MUS_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_VERBOSE */
 
-#ifdef MUS_DEBUG_PROFILE
+#ifdef XAPIAN_DEBUG_PROFILE
 
 #include "omdebug.h"
 

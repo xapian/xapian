@@ -38,9 +38,9 @@
 #include "mergepostlist.h"
 #include "biaspostlist.h"
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 #include "networkmatch.h"
-#endif /* MUS_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
 
 #include "document.h"
 #include "omqueryinternal.h"
@@ -248,7 +248,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
 		if (sort_key != Xapian::valueno(-1) || sort_bands) {
@@ -262,11 +262,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 			    sort_forward, percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
-#endif /* MUS_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, *subrset, gatherer.get(), weight));
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    }
-#endif /* MUS_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
@@ -766,7 +766,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			Assert(items.back().wt < min_item.wt);
 			items.pop_back();
 		    }
-#ifdef MUS_DEBUG_PARANOID
+#ifdef XAPIAN_DEBUG_PARANOID
 		    vector<Xapian::Internal::MSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_item.wt);
@@ -850,7 +850,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }
-#ifdef MUS_DEBUG_PARANOID
+#ifdef XAPIAN_DEBUG_PARANOID
 	    vector<Xapian::Internal::MSetItem>::const_iterator i;
 	    for (i = items.begin(); i != items.end(); ++i) {
 		Assert(i->wt >= min_wt);

@@ -175,7 +175,7 @@ BackendManager::set_dbtype(const string &type)
     if (type == current_type) {
 	// leave it as it is.
     } else if (type == "inmemory") {
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
 #else
@@ -183,7 +183,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
 #if 0
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
     } else if (type == "inmemoryerr") {
 	do_getdb = &BackendManager::getdb_inmemoryerr;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr;
@@ -201,7 +201,7 @@ BackendManager::set_dbtype(const string &type)
 #endif
 #endif
     } else if (type == "quartz") {
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	rmdir(".quartz");
@@ -210,14 +210,14 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
     } else if (type == "remote") {
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	do_getdb = &BackendManager::getdb_remote;
 	do_getwritedb = &BackendManager::getwritedb_remote;
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
@@ -292,7 +292,7 @@ BackendManager::change_names_to_paths(const vector<string> &dbnames)
     return paths;
 }
 
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
 Xapian::Database
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
@@ -379,7 +379,7 @@ bool create_dir_if_needed(const string &dirname)
     return false; // Already a directory.
 }
 
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 Xapian::Database
 BackendManager::getdb_quartz(const vector<string> &dbnames)
 {
@@ -424,7 +424,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 }
 #endif
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 Xapian::Database
 BackendManager::getdb_remote(const vector<string> &dbnames)
 {
@@ -458,7 +458,7 @@ BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 }
 #endif
 
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
 Xapian::Database
 BackendManager::getdb_da(const vector<string> &dbnames)
 {

@@ -824,7 +824,7 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
 
     if (keypos == keyend) {
 	// In first chunk
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
 	Xapian::termcount old_number_of_entries = number_of_entries;
 	Xapian::termcount old_collection_freq = collection_freq;
 	did = read_start_of_first_chunk(&pos, end, &number_of_entries,
@@ -891,7 +891,7 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 
     // Move to correct position in chunk
     if (!is_at_end) {
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
 	bool have_document =
 #else
 		(void)

@@ -424,7 +424,7 @@ QuartzDatabase::get_database_write_lock()
 	    unlink(tempname);
 	    return;
 	}
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
 	int link_errno = errno;
 #endif
 	struct stat statbuf;

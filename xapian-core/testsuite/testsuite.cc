@@ -588,9 +588,9 @@ test_driver::parse_command_line(int argc, char **argv)
     // made when the first debug message is displayed is (wrongly) picked
     // up on as a memory leak.
     DEBUGLINE(UNKNOWN, "Starting testsuite run.");
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
     om_debug.initialise();
-#endif /* MUS_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_VERBOSE */
 }
 
 int

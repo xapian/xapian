@@ -384,7 +384,7 @@ static bool test_table1()
 
     // Check adding no entries
 
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError,
 		   ro_table.commit(ro_table.get_latest_revision_number() + 1));
 #endif
@@ -398,7 +398,7 @@ static bool test_table1()
     TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding some entries
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
 #endif
     rw_table.add("hello", "world");
@@ -416,7 +416,7 @@ static bool test_table1()
     check_table_values_hello(rw_table, "world");
 
     // Check adding the same entries
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", "world"));
 #endif
     rw_table.add("hello", "world");
@@ -433,7 +433,7 @@ static bool test_table1()
     check_table_values_empty(ro_table);
     check_table_values_hello(rw_table, "world");
 
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     // Check adding an entry with a null key
     // Can't add a key to a read-only table anyway, empty or not!
     TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("", "world"));
@@ -443,7 +443,7 @@ static bool test_table1()
 #endif
 
     // Check changing an entry, to a null tag
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("hello", ""));
 #endif
     rw_table.add("hello", "");
@@ -461,7 +461,7 @@ static bool test_table1()
     check_table_values_hello(rw_table, "");
 
     // Check deleting an entry
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError, ro_table.del("hello"));
 #endif
     rw_table.del("hello");

@@ -1,3 +1,14 @@
+Tue Nov 30 03:07:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,backends/database.cc,backends/quartz/bcursor.cc,
+	  backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_postlist.cc,common/omassert.h,
+	  common/omdebug.cc,common/omdebug.h,docs/doxygen_full_conf.in,
+	  matcher/localmatch.cc,matcher/multimatch.cc,matcher/stats.cc,
+	  tests/apitest.cc,tests/btreetest.cc,testsuite/backendmanager.cc,
+	  testsuite/backendmanager.h,testsuite/testsuite.cc: Rename all the
+	  MUS_xxx defines to XAPIAN_xxx.
+
 Tue Nov 30 02:36:33 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,backends/quartz/btree.cc: Get configure to probe for

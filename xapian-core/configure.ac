@@ -374,22 +374,22 @@ dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 dnl Set defines to specify what we compile
 
 if test true = "$build_muscat36"; then
-AC_DEFINE(MUS_BUILD_BACKEND_MUSCAT36,,
+AC_DEFINE(XAPIAN_BUILD_BACKEND_MUSCAT36,,
   [Define if you want to build the (old) Muscat 3.6 database backend])
 fi
 
 if test true = "$build_quartz"; then
-AC_DEFINE(MUS_BUILD_BACKEND_QUARTZ,,
+AC_DEFINE(XAPIAN_BUILD_BACKEND_QUARTZ,,
   [Define if you want to build the quartz database backend])
 fi
 
 if test true = "$build_inmemory"; then
-AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
+AC_DEFINE(XAPIAN_BUILD_BACKEND_INMEMORY,,
   [Define if you want to build the inmemory database backend])
 fi
 
 if test true = "$build_remote"; then
-  AC_DEFINE(MUS_BUILD_BACKEND_REMOTE,,
+  AC_DEFINE(XAPIAN_BUILD_BACKEND_REMOTE,,
     [Define if you want to build the remote database backend])
 fi
 
@@ -517,23 +517,23 @@ esac])
 dnl Now set appropriate defines
 
 if test yes = "$use_debug"; then
-AC_DEFINE(MUS_DEBUG,,
+AC_DEFINE(XAPIAN_DEBUG,,
   [Define if you want debugging to be enabled (will cause some slow down)])
 fi
 
 if test yes = "$use_debug_paranoid"; then
-AC_DEFINE(MUS_DEBUG_PARANOID,,
+AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
   [Define if you want paranoid debugging to be enabled (will cause
   significant slow-down)])
 fi
 
 if test yes = "$use_debug_verbose"; then
-AC_DEFINE(MUS_DEBUG_VERBOSE,,
+AC_DEFINE(XAPIAN_DEBUG_VERBOSE,,
   [Define if you want lots of debugging messages])
 fi
 
 if test yes = "$use_debug_profile"; then
-AC_DEFINE(MUS_DEBUG_PROFILE,,
+AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
   [Define if you want code profiling messages])
 fi
 

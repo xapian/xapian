@@ -385,7 +385,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    } else {
 		wt = wtscheme->create(statssource.get(), querysize, query->wqf,
 				      query->tname);
-#ifdef MUS_DEBUG_PARANOID
+#ifdef XAPIAN_DEBUG_PARANOID
 		// Check that max_extra weight is really right
 		AutoPtr<Xapian::Weight> temp_wt(wtscheme->create(statssource.get(),
 					  querysize, 1, ""));

@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
     RUNTESTS("void", nodb);
 
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
     RUNTESTS("inmemory", anydb);
     RUNTESTS("inmemory", specchar);
     RUNTESTS("inmemory", writabledb);
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     RUNTESTS("inmemory", multivalue);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     RUNTESTS("quartz", anydb);
     RUNTESTS("quartz", specchar);
     RUNTESTS("quartz", writabledb);
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     RUNTESTS("quartz", quartz);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
     RUNTESTS("remote", anydb);
     RUNTESTS("remote", specchar);
     RUNTESTS("remote", remotedb);
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
     RUNTESTS("remote", multivalue);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
     // need makeDA, etc tools to build da and db databases
     if (file_exists("../../makeda/makeDA")) {
 	RUNTESTS("da", anydb);

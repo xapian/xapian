@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +66,7 @@ LocalStatsGatherer::get_stats() const
     RETURN((&total_stats));
 }
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 
 #include "netserver.h"
 #include "netclient.h"
@@ -150,7 +150,7 @@ NetworkStatsSource::take_remote_stats(Stats stats)
     have_remote_stats = true;
 }
 
-#endif /* MUS_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
 
 LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
 	: Xapian::Weight::Internal(gatherer_)
@@ -171,7 +171,7 @@ Xapian::Weight::Internal::perform_request() const
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);
 
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
     DEBUGLINE(WTCALC, "Xapian::Weight::Internal::perform_request(): stats are:");
     DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
@@ -188,6 +188,6 @@ Xapian::Weight::Internal::perform_request() const
 	DEBUGLINE(WTCALC, "  reltermfreq of `" << i->first <<
 		 "'\tis " << i->second);
     }
-#endif /* MUS_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_VERBOSE */
 }
 

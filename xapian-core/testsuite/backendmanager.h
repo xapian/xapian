@@ -63,7 +63,7 @@ class BackendManager {
 	/// Throw an exception.
 	Xapian::WritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
 
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
 	/// Get an inmemory database instance.
 	Xapian::Database getdb_inmemory(const std::vector<std::string> &dbnames);
 
@@ -85,7 +85,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	/// Get a remote database instance
 	Xapian::Database getdb_remote(const std::vector<std::string> &dbnames);
 
@@ -93,7 +93,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	/// Get a quartz database instance.
 	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
 
@@ -101,7 +101,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
 	/// Get a da database instance.
 	Xapian::Database getdb_da(const std::vector<std::string> &dbnames);
 

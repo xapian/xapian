@@ -33,17 +33,17 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
 #include "muscat36/da_database.h"
 #include "muscat36/db_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
 #include "inmemory/inmemory_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 // These headers are all in common
 #include "net_database.h"
 #include "progclient.h"
@@ -52,7 +52,7 @@ using namespace std;
 
 namespace Xapian {
 
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 Database
 Quartz::open(const string &dir) {
     DEBUGAPICALL_STATIC(Database, "Quartz::open", dir);
@@ -68,7 +68,7 @@ Quartz::open(const string &dir, int action, int block_size) {
 }
 #endif
 
-#ifdef MUS_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
 // Note: a read-only inmemory database will always be empty, and so there's
 // not much use in allowing one to be created.
 WritableDatabase
@@ -78,7 +78,7 @@ InMemory::open() {
 }
 #endif
 
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
 Database
 Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
     DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
@@ -109,7 +109,7 @@ Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
 }
 #endif
 
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 Database
 Remote::open(const string &program, const string &args, unsigned int timeout)
 {
@@ -149,12 +149,12 @@ Auto::open_stub(const string &file)
 	    if (type == "auto") {
 		db.add_database(Auto::open(line));
 		ok = true;
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	    } else if (type == "quartz") {
 		db.add_database(Quartz::open(line));
 		ok = true;
 #endif
-#ifdef MUS_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    } else if (type == "remote") {
 		string::size_type colon = line.find(':');
 		if (colon == 0) {
@@ -182,7 +182,7 @@ Auto::open_stub(const string &file)
 		}
 #endif
 	    }
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
 	    // FIXME: da and db too, but I'm too slack to do those right now!
 #endif
 	}
@@ -209,12 +209,12 @@ Auto::open(const string &path)
 	return Auto::open_stub(path);
     }
 
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     if (file_exists(path + "/record_DB")) {
 	return Quartz::open(path);
     }
 #endif
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
     if (file_exists(path + "/R") && file_exists(path + "/T")) {
 	// can't easily tell flimsy from heavyduty so assume hd
 	string keyfile = path + "/keyfile";
@@ -240,7 +240,7 @@ WritableDatabase
 Auto::open(const string &path, int action)
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Auto::open", path << ", " << action);
-#ifdef MUS_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     // Only quartz currently supports disk-based writable databases - if other
     // writable backends are added then this code needs to look at action and
     // perhaps autodetect.

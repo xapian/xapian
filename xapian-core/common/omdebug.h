@@ -32,7 +32,7 @@
 #include "omassert.h"
 #include "omstringstream.h"
 
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
 #include <vector>
 
 #include <unistd.h>
@@ -233,7 +233,7 @@ class OmDebugCall {
 
 using std::endl;
 
-#elif defined(MUS_DEBUG_PROFILE)
+#elif defined(XAPIAN_DEBUG_PROFILE)
 
 #define DEBUGMSG(a,b)
 #define DEBUGLINE(a,b)
@@ -378,7 +378,7 @@ class Xapian::Internal::Timer {
 
 #define DEBUGCALL(r,t,a,b)
 #define DEBUGCALL_STATIC(r,t,a,b)
-#endif /* MUS_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_VERBOSE */
 
 #define DEBUGAPICALL(r,a,b) DEBUGCALL(APICALL,r,a,b)
 #define DEBUGAPICALL_STATIC(r,a,b) DEBUGCALL_STATIC(APICALL,r,a,b)

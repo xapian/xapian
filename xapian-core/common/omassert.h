@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,14 +29,11 @@
 #ifndef OM_HGUARD_OMASSERT_H
 #define OM_HGUARD_OMASSERT_H
 
-
 // Include the definitions of the exceptions we're going to throw
 #include <xapian/error.h>
 
 // Include utility functions
 #include "utils.h"
-
-#include <float.h> // for DBL_EPSILON
 
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but
@@ -48,23 +45,25 @@
 // all cases easily
 #define ASSERT_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "#a
 
-#ifdef MUS_DEBUG_PARANOID
+#ifdef XAPIAN_DEBUG_PARANOID
 // Paranoid checks, typically too expensive to include in debug versions
 // for use by developers but useful to turn on when debugging OM itself
 
 // If we want the paranoid checks, want other checks too
-#ifndef MUS_DEBUG
-#define MUS_DEBUG
-#endif /* !MUS_DEBUG */
+#ifndef XAPIAN_DEBUG
+#define XAPIAN_DEBUG
+#endif /* !XAPIAN_DEBUG */
 
 // NB use an else clause to avoid dangling else damage
 #define AssertParanoid(a) if (a) { } else throw Xapian::AssertionError(ASSERT_LOCN(a))
-#else /* MUS_DEBUG_PARANOID */
+#else /* XAPIAN_DEBUG_PARANOID */
 #define AssertParanoid(a)
-#endif /* MUS_DEBUG_PARANOID */
+#endif /* XAPIAN_DEBUG_PARANOID */
 
-#ifdef MUS_DEBUG
+#ifdef XAPIAN_DEBUG
 #include <math.h> // for fabs() for AssertEqDouble
+#include <float.h> // for DBL_EPSILON for AssertEqDouble
+
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
 #define Assert(a) if (a) { } else throw Xapian::AssertionError(ASSERT_LOCN(a))
@@ -77,7 +76,6 @@
 #define AssertEqDouble(a,b)
 #define AssertEq(a,b)
 #define AssertNe(a,b)
-
 #endif
 
 // CompileTimeAssert(expr); takes a constant expression, expr, and causes

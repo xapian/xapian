@@ -30,7 +30,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 
-#ifdef MUS_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_VERBOSE
 static string
 hex_encode(const string & input)
 {
