@@ -8,7 +8,7 @@ SUBDIRS = include common \
           backends matcher languages indexer . m4 \
 	  docs tests
 
-EXTRA_DIST = ChangeLog buildall HACKING TODO
+EXTRA_DIST = ChangeLog buildall HACKING TODO PLATFORMS
 
 lib_LTLIBRARIES = libomus.la
 

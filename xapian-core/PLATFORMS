@@ -1,0 +1,5 @@
+This is a list of platforms which Muscat has been tested on:
+
+Platform                  | Muscat Version | Result
+--------------------------+----------------+-------------------------
+Linux - Redhat 6.01       | CVS            | No test suite yet!
