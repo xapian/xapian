@@ -246,8 +246,6 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<OmMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
-	    om_docid did = j->did;
-	    
 	    OmData data = enquire->get_doc_data(*j);
 	    string message = data.value;
 
