@@ -217,5 +217,6 @@ AC_CONFIG_FILES([Makefile
  guile/Makefile
  tcl8/Makefile
  csharp/Makefile
+ csharp/AssemblyInfo.cs
  xapian-bindings.spec])
 AC_OUTPUT

@@ -1,3 +1,14 @@
+Tue Sep 28 16:22:47 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * csharp/AssemblyInfo.cs.in: New file - includes strong name
+          in the assembly.
+        * csharp/Makefile.am: Build assembly with a strong name, to
+          make gacutil happy.  Use gacutil to install the assembly.
+          Change xapian_wrap.cc to XapianSharp.cc
+        * csharp/XapianSharp.snk: New file - strong name for XapianSharp.
+        * csharp/.cvsignore: Ignore XapianSharp.{cc,loT}
+        * configure.ac: Generate csharp/AssemblyInfo.cs
+
 Sun Sep 26 19:34:54 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * README: Mention that I'm working on C# bindings.

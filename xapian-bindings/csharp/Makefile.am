@@ -1,9 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i
+EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in
+CLEANFILES = AssemblyInfo.cs $(ASSEMBLY).dll $(BUILT_SOURCES)
 
 GACUTIL=gacutil
 CSC=mcs
+
+ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_SRCS=\
 	$(srcdir)/../xapian.i \
@@ -34,26 +37,25 @@ XAPIAN_SWIG_CS_SRCS=\
 	$(srcdir)/SWIGTYPE_p_std__listTstd__string_t.cs \
 	$(srcdir)/SWIGTYPE_p_time_t.cs \
 	$(srcdir)/SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
-	$(srcdir)/XapianPINVOKE.cs \
-	$(srcdir)/Xapian.cs
+	$(srcdir)/$(ASSEMBLY)PINVOKE.cs \
+	$(srcdir)/$(ASSEMBLY).cs
 
-Xapian.dll: $(XAPIAN_SWIG_CS_SRCS)
-	$(CSC) --unsafe --target library -o Xapian.dll $(XAPIAN_SWIG_CS_SRCS)
+$(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
+	$(CSC) --unsafe --target library -o $(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
 
-BUILT_SOURCES = xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS)
-xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
-	$(SWIG) -noproxy -module Xapian -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -csharp -o $@ $(srcdir)/../xapian.i
+BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
+$(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
+	$(SWIG) -noproxy -module $(ASSEMBLY) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -csharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 
-lib_LTLIBRARIES = Xapian.la
+lib_LTLIBRARIES = XapianSharp.la
 
-Xapian_la_LDFLAGS = -avoid-version -module
-nodist_Xapian_la_SOURCES = xapian_wrap.cc
-Xapian_la_LIBADD = $(XAPIAN_LIBS)
+XapianSharp_la_LDFLAGS = -avoid-version -module
+nodist_XapianSharp_la_SOURCES = XapianSharp.cc
+XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
-install-data-local: Xapian.dll
-	$(GACUTIL) /i Xapian.dll /f /package Xapian /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+install-data-local: $(ASSEMBLY).dll
+	$(GACUTIL) /i $(ASSEMBLY).dll /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 uninstall-local:
-	$(GACUTIL) /u Xapian /f /package Xapian /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+	$(GACUTIL) /u $(ASSEMBLY) /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
-CLEANFILES = Xapian.dll $(BUILT_SOURCES)
-all-am: Xapian.dll
+all-am: $(ASSEMBLY).dll

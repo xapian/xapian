@@ -7,4 +7,5 @@ Makefile
 .libs
 *.cs
 *.dll
-xapian_wrap.cc
+XapianSharp.cc
+XapianSharp.loT
