@@ -1,8 +1,10 @@
 .*.swp
 *.lo
+*.la
 Makefile.in
 Makefile
 .deps
 .libs
 *.cs
 *.dll
+xapian_wrap.cc
