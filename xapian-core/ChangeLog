@@ -1,3 +1,8 @@
+Mon Sep 06 00:59:36 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Added support for running gdb on a test program,
+	  automatically sorting out srcdir and libtool.
+
 Mon Sep 06 00:49:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/apitest_parser.pm: Removed long unused file.

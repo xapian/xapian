@@ -23,12 +23,22 @@
 
 if test 0 = "$#"; then
    echo "syntax: $0 <test program> [<arguments>]"
+   echo "syntax: $0 gdb <test program> [<arguments>]"
    exit 1
 fi
 
 # Set srcdir if it isn't already.
 : ${srcdir="@srcdir@"}
 export srcdir
+
+if test "x$1" = "xgdb" ; then
+   shift
+   : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+   export top_builddir
+   LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+   echo "Running test '$@' under gdb"
+   exec $LIBTOOL --mode=execute gdb --args "$@"
+fi
 
 # If valgrind isn't involved, just run the test program.
 if test -z "@VALGRIND@" ; then
