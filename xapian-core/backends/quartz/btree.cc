@@ -572,7 +572,7 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
     }
 
     while (j - i > D2)
-    {   int k = i + (j - i)/D4*D2; /* mid way */
+    {   int k = i + ((j - i)/D4)*D2; /* mid way */
         int t = compare_keys(key, p + GETD(p, k) + I2);
         if (t < 0) j = k; else i = k;
     }
@@ -644,10 +644,90 @@ static void form_null_key(byte * b, int4 n)
 }
 
 
-/* enter_key(B, C, j, kq, kp) is called after a block split. It enters in the
+/** Btree needs to gain a new level to insert more items: so split root block
+ *  and construct a new one.
+ */
+void
+Btree::split_root(struct Cursor * C_, int j)
+{
+    /* gain a level */
+    level ++;
+
+    /* check level overflow */
+    AssertNe(level, BTREE_CURSOR_LEVELS);
+
+    byte * q = (byte *)calloc(block_size, 1);      /*?*/
+    if (q == 0) {
+	error = BTREE_ERROR_SPACE;
+	throw std::bad_alloc();
+    }
+    C_[j].p = q;
+    C_[j].split_p = (byte *)calloc(block_size, 1);  /*?*/
+    if (C_[j].split_p == 0) {
+	error = BTREE_ERROR_SPACE;
+	throw std::bad_alloc();
+    }
+    C_[j].c = DIR_START;
+    C_[j].n = base.next_free_block();
+    C_[j].rewrite = true;
+    SET_REVISION(q, next_revision);
+    SET_LEVEL(q, j);
+    SET_DIR_END(q, DIR_START);
+    compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
+
+    /* form a null key in b with a pointer to the old root */
+
+    int4 old_root = C_[j - 1].split_n;
+    byte b[10]; /* 7 is exact */
+    form_null_key(b, old_root);
+    add_item(C_, b, j);
+}
+
+/** Make an item with key newkey.  Key is optionally truncated to minimal key
+ *  that differs from prevkey, the preceding key in a block, and tag containing
+ *  a block number.  Must preserve counts at end of the keys, however.
+ *
+ *  Store result in buffer "result".
+ */
+void Btree::make_index_item(byte * result, int result_len,
+			    const byte * prevkey, const byte * newkey,
+			    const int4 blocknumber, bool truncate) const
+{
+    // FIXME: check we don't overrun result_len
+    Assert(compare_keys(prevkey, newkey) < 0);
+
+    int prevkey_len = GETK(prevkey, 0);
+    int newkey_len = GETK(newkey, 0);
+    int i;
+
+    if (truncate) {
+	i = K1;
+	while (i < prevkey_len - C2 &&
+	       i < newkey_len - C2 &&
+	       prevkey[i] == newkey[i]) {
+	    i++;
+	}
+
+	// Want one byte of difference.
+	i++;
+    } else {
+	i = GETK(newkey, 0);
+    }
+    SETI(result, 0, I2 + i + C2 + sizeof(blocknumber)); // Set item length
+    SETK(result, I2, i + C2);    // Set key length
+    memmove(result + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
+    memmove(result + I2 + i, newkey + newkey_len - C2, C2); // copy count part
+
+    // Set tag contents to block number
+    set_int4(result, I2 + i + C2, blocknumber);
+}
+
+/* enter_key(B, C, j, prevkey, newkey) is called after a block split. It enters
+   in the
    block at level C[j] a separating key for the block at level C[j - 1]. The
-   key itself is kp. kq is the preceding key, and at level 1 kq can be trimmed
-   down to the first point of difference to kp for entry in C[j].
+   key itself is newkey. prevkey is the preceding key, and at level 1 newkey
+   can be trimmed down to the first point of difference to prevkey for entry in
+   C[j].
 
    This code looks longer than it really is. If j exceeds the number of B-tree
    levels the root block has split and we have to construct a new one, but this
@@ -657,79 +737,40 @@ static void form_null_key(byte * b, int4 n)
    is added in with add_item. add_item may itself cause a block split, with a
    further call to enter_key. Hence the recursion.
 */
-
 void
-Btree::enter_key(struct Cursor * C_, int j, byte * kq, byte * kp)
+Btree::enter_key(struct Cursor * C_, int j, byte * prevkey, byte * newkey)
 {
-    if (j > level) {
-	/* gain a level */
-	level ++;
+    Assert(compare_keys(prevkey, newkey) < 0);
+    Assert(j >= 1);
+    if (j > level) split_root(C_, j);
 
-	/* check level overflow */
-	AssertNe(level, BTREE_CURSOR_LEVELS);
+    /*  byte * p = C_[j - 1].p;  -- see below */
 
-	byte * q = (byte *)calloc(block_size, 1);      /*?*/
-	if (q == 0) {
-	    error = BTREE_ERROR_SPACE;
-	    throw std::bad_alloc();
-	}
-	C_[j].p = q;
-	C_[j].split_p = (byte *)calloc(block_size, 1);  /*?*/
-	if (C_[j].split_p == 0) {
-	    error = BTREE_ERROR_SPACE;
-	    throw std::bad_alloc();
-	}
-	C_[j].c = DIR_START;
-	C_[j].n = base.next_free_block();
-	C_[j].rewrite = true;
-	SET_REVISION(q, next_revision);
-	SET_LEVEL(q, j);
-	SET_DIR_END(q, DIR_START);
-	compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
+    int4 blocknumber = C_[j - 1].n;
 
-	/* form a null key in b with a pointer to the old root */
+    // Keys are truncated here: but don't truncate the count at the end away.
+    // FIXME: check that b is big enough.  Dynamically allocate.
+    byte b[UCHAR_MAX + 1];
+    make_index_item(b, UCHAR_MAX + 1, prevkey, newkey, blocknumber, j == 1);
 
-	int4 old_root = C_[j - 1].split_n;
-	byte b[10]; /* 7 is exact */
-	form_null_key(b, old_root);
-	add_item(C_, b, j);
-    }
-    {   /*  byte * p = C_[j - 1].p;  -- see below */
+    /* when j > 1 we can make the first key of block p null, but is it worth it?
+       Other redundant keys still creep in. The code to do it is commented out
+here:
+     */
+    /*
+       if (j > 1)
+       {
+	   int newkey_len = GETK(newkey, 0);
+	   int n = get_int4(newkey, newkey_len);
+	   int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
+	   form_null_key(newkey - I2, n);
+	   SET_TOTAL_FREE(p, new_total_free);
+       }
+     */
 
-        int4 n = C_[j - 1].n;
-
-        int kq_len = GETK(kq, 0);
-        int i;
-        byte b[UCHAR_MAX + 1];
-
-        if (j > 1) i = GETK(kp, 0); else
-        {   i = K1;
-            while (i < kq_len && kq[i] == kp[i]) i++;
-            i++;
-        }
-        memmove(b + I2, kp, i);
-        SETK(b, I2, i);
-        set_int4(b, i + I2, n);
-        SETI(b, 0, i + I2 + 4);
-
-        /* when j > 1 we can make the first key of block p null, but is it worth it?
-           Other redundant keys still creep in. The code to do it is commented out
-           here:
-        */
-        /*
-        if (j > 1)
-        {   int kp_len = GETK(kp, 0);
-            int n = get_int4(kp, kp_len);
-            int new_total_free = TOTAL_FREE(p) + (kp_len - K1);
-            form_null_key(kp - I2, n);
-            SET_TOTAL_FREE(p, new_total_free);
-        }
-        */
-
-        C_[j].c = find_in_block(C_[j].p, b + I2, 0, 0) + D2;
-        C_[j].rewrite = true; /* a subtle point: this *is* required. */
-        add_item(C_, b, j);
-    }
+    C_[j].c = find_in_block(C_[j].p, b + I2, 0, 0) + D2;
+    C_[j].rewrite = true; /* a subtle point: this *is* required. */
+    add_item(C_, b, j);
 }
 
 /* split_off(B, C, j, c, p, q) splits the block at p at directory offset c.

@@ -1,3 +1,7 @@
+Tue Dec 12 20:05:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug with truncation of intermediate keys in btrees.
+
 Tue Dec 12 18:33:12 GMT 2000 Olly Betts
 
 	* OmMSet::get_docs() now takes sane parameters.

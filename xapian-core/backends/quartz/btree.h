@@ -156,6 +156,11 @@ class Btree {
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);
 	void block_check(Cursor *C, int j, int opts);
+	void split_root(struct Cursor * C_, int j);
+	void make_index_item(byte * result, int result_len,
+			     const byte * prevkey, const byte * newkey,
+			     const int4 blocknumber, bool truncate) const;
+
 
 	/** true if the root block is faked (not written to disk).
 	 *  false otherwise.  This is true when the btree hasn't been modified yet.
