@@ -1,3 +1,7 @@
+Mon Apr  9 21:48:18 BST 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Added #include <cmath> to testutils.cc
+
 Fri Mar 30 17:37:24 BST 2001 Olly Betts
 
 	* Added extra/.cvsignore

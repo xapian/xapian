@@ -23,6 +23,7 @@
 #include "testutils.h"
 
 #include <vector>
+#include <cmath>
 
 using std::cout;
 using std::endl;
