@@ -27,7 +27,7 @@
  */
 #undef list
 #include <om/om.h>
-#include <omparsequery.h>
+#include <queryparser.h>
 #include <string>
 #include <vector>
 
@@ -376,11 +376,15 @@ class OmEnquire {
 	string get_description() const;
 };
 
-class OmQueryParser {
+%{
+using namespace Xapian;
+%}
+
+class QueryParser {
   public:
-  OmQueryParser();
+  QueryParser();
   void set_stemming_options(const string &lang, bool stem_all_ = false,
-                                  OmStopper *stop_ = NULL);
+                                  Stopper *stop_ = NULL);
 
   void set_default_op(OmQuery::op default_op_);
   OmQuery parse_query(const string &q);

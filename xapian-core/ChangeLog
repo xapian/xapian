@@ -1,3 +1,10 @@
+Mon Jun  2 15:22:30 2003  James Aylett  <james@tartarus.org>
+
+	* bindings/swig/xapian.i: move QueryParser wrapping to use
+	  the new namespace location, and fix include so it can work
+	  out of the build directory rather than just the installed
+	  library
+
 Mon Jun 02 14:15:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in,bindings/Makefile.am,docs/todo.xml:
