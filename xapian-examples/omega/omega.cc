@@ -7,7 +7,6 @@ int n_dlist = 0;
 
 #include <fstream>
 
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
