@@ -583,8 +583,7 @@ default.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-sort_bands vs. remote backend?  Think this doesn't currently work.  Fix,
-or at least stop people trying it and getting bogus results.
+sort_bands vs. remote backend doesn't currently work.  Can we get it to?
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">

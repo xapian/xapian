@@ -1,3 +1,7 @@
+Sat Dec 14 02:37:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Sat Dec 14 02:26:29 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/remote_protocol.html,net/socketclient.cc,net/socketserver.cc:
