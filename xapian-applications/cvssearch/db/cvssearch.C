@@ -35,6 +35,21 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+     string cvsdata;
+     char *s = getenv("CVSDATA");
+     if ( s==0 ) {
+       cerr <<" Warning:  $CVSDATA not set, using current directory." << endl;
+       cvsdata = ".";
+     } else {
+       cvsdata = s;
+       // strip trailing / if any
+       if ( cvsdata[cvsdata.length()-1] == '/' ) {
+	 cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
+       }
+       //       cerr << "$CVSDATA = " << cvsdata << endl;
+     }
+
+
      set<string> packages;
 
      int qpos;
@@ -64,7 +79,7 @@ int main(int argc, char *argv[]) {
        for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
 	 OmSettings db_parameters;
 	 db_parameters.set("backend", "quartz");
-	 db_parameters.set("quartz_dir", *i);
+	 db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
 	 databases.add_database(db_parameters); // can search multiple databases at once
        }
 
