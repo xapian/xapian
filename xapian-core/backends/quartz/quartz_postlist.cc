@@ -63,7 +63,7 @@ class PostlistChunkWriter {
 			    bool is_last_chunk_);
 
 	/// Append an entry to this chunk.
-	void append(QuartzBufferedTable * table, Xapian::docid did,
+	void append(QuartzTable * table, Xapian::docid did,
 		    Xapian::termcount wdf, quartz_doclen_t doclen);
 
 	/// Append a block of raw entries to this chunk.
@@ -82,7 +82,7 @@ class PostlistChunkWriter {
 	 *  with a different key to the original one, if for example the first
 	 *  entry has changed.
 	 */
-	void flush(QuartzBufferedTable *table);
+	void flush(QuartzTable *table);
 
     private:
 	string orig_key;
@@ -313,7 +313,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 }
 
 void
-PostlistChunkWriter::append(QuartzBufferedTable * table, Xapian::docid did,
+PostlistChunkWriter::append(QuartzTable * table, Xapian::docid did,
 			    Xapian::termcount wdf, quartz_doclen_t doclen)
 {
     if (!started) {
@@ -362,7 +362,7 @@ make_start_of_chunk(bool new_is_last_chunk,
 }
 
 void
-PostlistChunkWriter::flush(QuartzBufferedTable *table)
+PostlistChunkWriter::flush(QuartzTable *table)
 {
     DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
 
@@ -391,7 +391,7 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
 		 */
-		table->delete_tag(orig_key);
+		table->set_entry(orig_key);
 		return;
 	    }
 
@@ -447,16 +447,16 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	    string chunk_data(tagpos, tagend);
 
 	    // First remove the renamed tag
-	    table->delete_tag(cursor->current_key);
+	    table->set_entry(cursor->current_key);
 
 	    // And now write it as the first chunk
-	    string *tag = table->get_or_make_tag(orig_key);
-
-	    *tag = make_start_of_first_chunk(num_ent, coll_freq, new_first_did);
-	    *tag += make_start_of_chunk(new_is_last_chunk,
+	    string tag;
+	    tag = make_start_of_first_chunk(num_ent, coll_freq, new_first_did);
+	    tag += make_start_of_chunk(new_is_last_chunk,
 					      new_first_did,
 					      new_last_did_in_chunk);
-	    *tag += chunk_data;
+	    tag += chunk_data;
+	    table->set_entry(orig_key, tag);
 	    return;
 	}
 
@@ -466,7 +466,7 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	 */
 
 	// Delete this chunk
-	table->delete_tag(orig_key);
+	table->set_entry(orig_key);
 
 	if (is_last_chunk) {
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
@@ -488,12 +488,10 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	    bool is_prev_first_chunk = (keypos == keyend);
 
 	    // Now update the last_chunk
-	    string *tag = table->get_or_make_tag(cursor->current_key);
+	    string tag = cursor->current_tag;
 
-	    Assert(tag != 0);
-	    Assert(tag->size() != 0);
-	    const char *tagpos = tag->data();
-	    const char *tagend = tagpos + tag->size();
+	    const char *tagpos = tag.data();
+	    const char *tagend = tagpos + tag.size();
 
 	    // Skip first chunk header
 	    Xapian::docid first_did_in_chunk;
@@ -506,19 +504,20 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
-	    string::size_type start_of_chunk_header = tagpos - tag->data();
+	    string::size_type start_of_chunk_header = tagpos - tag.data();
 	    Xapian::docid last_did_in_chunk =
 		read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
 				    &wrong_is_last_chunk);
-	    string::size_type end_of_chunk_header = tagpos - tag->data();
+	    string::size_type end_of_chunk_header = tagpos - tag.data();
 
 	    // write new is_last flag
-	    write_start_of_chunk(*tag,
+	    write_start_of_chunk(tag,
 				 start_of_chunk_header,
 				 end_of_chunk_header,
 				 true, // is_last_chunk
 				 first_did_in_chunk,
 				 last_did_in_chunk);
+	    table->set_entry(cursor->current_key, tag);
 	}
     } else {
 	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
@@ -528,7 +527,7 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	 *
 	 * The subcases just affect the chunk header.
 	 */
-	string *tag;
+	string tag;
 
 	/* First write the header, which depends on whether this is the
 	 * first chunk.
@@ -540,21 +539,24 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key;
 	    make_key(tname, key);
-	    tag = table->get_or_make_tag(key);
-	    Assert(!tag->empty());
+	    bool ok = table->get_exact_entry(key, tag);
+	    (void)ok;
+	    Assert(ok);
+	    Assert(!tag.empty());
 
 	    Xapian::termcount num_ent, coll_freq;
 	    {
-		const char * tagpos = tag->data();
-		const char * tagend = tagpos + tag->size();
+		const char * tagpos = tag.data();
+		const char * tagend = tagpos + tag.size();
 		(void)read_start_of_first_chunk(&tagpos, tagend,
 						&num_ent, &coll_freq);
 	    }
 
-	    *tag = make_start_of_first_chunk(num_ent, coll_freq, first_did);
+	    tag = make_start_of_first_chunk(num_ent, coll_freq, first_did);
 
-	    *tag += make_start_of_chunk(is_last_chunk, first_did, current_did);
-	    *tag += chunk;
+	    tag += make_start_of_chunk(is_last_chunk, first_did, current_did);
+	    tag += chunk;
+	    table->set_entry(key, tag);
 	    return;
 	}
 
@@ -579,24 +581,23 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
 	    report_read_error(keypos);
 	}
+	string new_key;
 	if (initial_did != first_did) {
 	    /* The fiddlier case:
 	     * Create a new tag with the correct key, and replace
 	     * the old one.
 	     */
-	    string new_key;
 	    make_key(tname, first_did, new_key);
-	    tag = table->get_or_make_tag(new_key);
-
-	    table->delete_tag(orig_key);
+	    table->set_entry(orig_key);
 	} else {
-	    tag = table->get_or_make_tag(orig_key);
+	    new_key = orig_key;
 	}
 
 	// ...and write the start of this chunk.
-	*tag = make_start_of_chunk(is_last_chunk, first_did, current_did);
+	tag = make_start_of_chunk(is_last_chunk, first_did, current_did);
 
-	*tag += chunk;
+	tag += chunk;
+	table->set_entry(new_key, tag);
     }
 }
 
@@ -909,7 +910,7 @@ QuartzPostList::get_description() const
 
 // Returns the last did to allow in this chunk.
 static Xapian::docid
-get_chunk(QuartzBufferedTable * bufftable, const string &tname,
+get_chunk(QuartzTable * bufftable, const string &tname,
 	  Xapian::docid did, bool adding,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
@@ -989,7 +990,7 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
 }
 
 void
-QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
+QuartzPostList::merge_changes(QuartzTable * bufftable,
     const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
@@ -1006,11 +1007,12 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 
 	    string current_key;
 	    make_key(tname, current_key);
-	    string * tag = bufftable->get_or_make_tag(current_key);
+	    string tag;
+	    (void)bufftable->get_exact_entry(current_key, tag);
 
 	    // Rewrite start of first chunk to update termfreq and collfreq.
-	    const char *pos = tag->data();
-	    const char *end = pos + tag->size();
+	    const char *pos = tag.data();
+	    const char *end = pos + tag.size();
 	    Xapian::termcount termfreq, collfreq;
 	    Xapian::docid firstdid, lastdid;
 	    bool islast;
@@ -1035,7 +1037,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
-		bufftable->delete_tag(cursor->current_key);
+		bufftable->set_entry(current_key);
 		if (islast) continue;
 		while (true) {
 		    // FIXME: faster to always check is_last flag?  it would
@@ -1045,7 +1047,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		    bufftable->delete_tag(cursor->current_key);
+		    bufftable->set_entry(cursor->current_key);
 		}
 		continue;
 	    }
@@ -1054,10 +1056,11 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	    string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
 	    newhdr += make_start_of_chunk(islast, firstdid, lastdid);
 	    if (pos == end) {
-		*tag = newhdr;
+		bufftable->set_entry(current_key, newhdr);
 	    } else {
-		Assert((size_t)(pos - tag->data()) <= tag->size());
-		tag->replace(0, pos - tag->data(), newhdr);
+		Assert((size_t)(pos - tag.data()) <= tag.size());
+		tag.replace(0, pos - tag.data(), newhdr);
+		bufftable->set_entry(current_key, tag);
 	    }
 	}
 	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;

@@ -38,7 +38,6 @@ using namespace std;
 
 class QuartzTable;
 class QuartzCursor;
-class QuartzBufferedTable;
 class QuartzDatabase;
 class Xapian::Database::Internal;
 
@@ -216,7 +215,7 @@ class QuartzPostList : public LeafPostList {
 					   Xapian::termcount * collection_freq_ptr);
 
 	/// Merge added, removed, and changed entries.
-	static void merge_changes(QuartzBufferedTable * bufftable,
+	static void merge_changes(QuartzTable * bufftable,
 	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
 	    const map<Xapian::docid, Xapian::termcount> & doclens,
 	    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas);

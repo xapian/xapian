@@ -32,7 +32,7 @@
 using namespace std;
 
 void
-QuartzTermList::set_entries(QuartzBufferedTable * table_,
+QuartzTermList::set_entries(QuartzTable * table_,
 			    Xapian::docid did,
 			    Xapian::TermIterator t,
 			    const Xapian::TermIterator &t_end,
@@ -40,8 +40,7 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 			    bool store_termfreqs)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzTermList::set_entries", table_ << ", " << did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
-    string * tag = table_->get_or_make_tag(quartz_docid_to_key(did));
-    *tag = pack_uint(doclen_);
+    string tag = pack_uint(doclen_);
 
     string v;
     string prev_term;
@@ -77,18 +76,19 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 	if (store_termfreqs) v += pack_uint(t.get_termfreq());
 	++size;
     }
-    *tag += pack_uint(size);
-    *tag += pack_bool(store_termfreqs);
-    *tag += v;
+    tag += pack_uint(size);
+    tag += pack_bool(store_termfreqs);
+    tag += v;
+    table_->set_entry(quartz_docid_to_key(did), tag);
 
-    DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + *tag + "'");
+    DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + tag + "'");
 }
 
 void
-QuartzTermList::delete_termlist(QuartzBufferedTable * table_, Xapian::docid did)
+QuartzTermList::delete_termlist(QuartzTable * table_, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", table_ << ", " << did);
-    table_->delete_tag(quartz_docid_to_key(did));
+    table_->set_entry(quartz_docid_to_key(did));
 }
 
 

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ QuartzValueManager::unpack_entry(const char ** pos,
 }
 
 void
-QuartzValueManager::add_value(QuartzBufferedTable & table,
+QuartzValueManager::add_value(QuartzTable & table,
 			      const string & value,
 			      Xapian::docid did,
 			      Xapian::valueno valueno)
@@ -72,11 +72,12 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::add_value", "[table], " << value << ", " << did << ", " << valueno);
     string key;
     make_key(key, did, valueno);
-    string * tag = table.get_or_make_tag(key);
+    string tag;
+    (void)table.get_exact_entry(key, tag);
     string newvalue;
 
-    const char * pos = tag->data();
-    const char * end = pos + tag->size();
+    const char * pos = tag.data();
+    const char * end = pos + tag.size();
 
     bool have_added = false;
     
@@ -104,7 +105,8 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 	newvalue += pack_uint(valueno);
 	newvalue += pack_string(value);
     }
-    *tag = newvalue;
+
+    table.set_entry(key, newvalue);
 }
 
 void
@@ -165,15 +167,10 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
 }
 
 void
-QuartzValueManager::delete_all_values(QuartzBufferedTable & table, Xapian::docid did)
+QuartzValueManager::delete_all_values(QuartzTable & table, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::delete_all_values", "[table], " << did);
     string key;
     make_key(key, did, 0);
-    string tag;
-    bool found = table.get_exact_entry(key, tag);
-
-    if (found) {
-	table.delete_tag(key);
-    }
+    table.set_entry(key);
 }

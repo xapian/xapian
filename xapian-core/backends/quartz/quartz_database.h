@@ -28,8 +28,6 @@
 #include "database.h"
 
 class QuartzTableManager;
-class QuartzBufferedTableManager;
-class QuartzModifications;
 class QuartzTermList;
 
 #include "autoptr.h"
@@ -105,7 +103,7 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	 *  This points to the same object as tables, but is used for
 	 *  modification access.
 	 */
-	QuartzBufferedTableManager * buffered_tables;
+	QuartzTableManager * buffered_tables;
 
 	/** Total length of added documents which haven't been flushed yet. */
 	mutable quartz_totlen_t totlen_added;

@@ -26,21 +26,18 @@
 #define OM_HGUARD_QUARTZ_TABLE_H
 
 #include "quartz_types.h"
-#include "quartz_table_entries.h"
 #include "bcursor.h"
 #include "autoptr.h"
 #include <string>
-#include <map>
 using std::string;
-using std::map;
 
-class QuartzDiskTable;
-class QuartzBufferedTable;
+class QuartzTable;
 
 /** A cursor pointing to a position in a quartz table, for reading several
  *  entries in order, or finding approximate matches.
  */
 class QuartzCursor {
+    friend class QuartzTable;
     private:
 	/// Copying not allowed
 	QuartzCursor(const QuartzCursor &);
@@ -48,12 +45,25 @@ class QuartzCursor {
 	/// Assignment not allowed
 	void operator=(const QuartzCursor &);
 
+	/** Whether the cursor is positioned at a valid entry.
+	 */
+	bool is_positioned;
+
+	/** Whether the cursor is off the end of the table.
+	 */
+	bool is_after_end;
+
+	/** The btree cursor.  This points to the next item, not the current
+	 *  item.
+	 */
+	AutoPtr<Bcursor> cursor;
+
     public:
 	/// Initialise the cursor 
-	QuartzCursor() {}
+	QuartzCursor(Btree * btree);
 
 	/// Destroy the cursor
-	virtual ~QuartzCursor() {}
+	~QuartzCursor() {}
 
 	/** Current key pointed to by cursor.
 	 */
@@ -83,14 +93,14 @@ class QuartzCursor {
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
-	virtual bool find_entry(const string &key) = 0;
+	bool find_entry(const string &key);
 
 	/** Move the cursor forward in the table.
 	 *
 	 *  Unless there are no more entries in the table, this method moves
 	 *  the cursor forward one position.
 	 */
-	virtual void next() = 0;
+	void next();
 
 	/** Move the cursor back in the table.
 	 *
@@ -98,139 +108,16 @@ class QuartzCursor {
 	 *  will point to a null key.  Otherwise, this method moves the
 	 *  cursor back one position.
 	 */
-	virtual void prev() = 0;
+	void prev();
 
 	/** Determine whether cursor is off the end of table.
 	 *
 	 *  @return true if the cursor has been moved off the end of the
 	 *          table, past the last entry in it, and false otherwise.
 	 */
-	virtual bool after_end() = 0;
-};
-
-/** A cursor in a disktable.
- */
-class QuartzDiskCursor : public QuartzCursor {
-    friend class QuartzDiskTable;
-    private:
-	/** Whether the cursor is positioned at a valid entry.
-	 */
-	bool is_positioned;
-
-	/** Whether the cursor is off the end of the table.
-	 */
-	bool is_after_end;
-
-	/** The btree cursor.  This points to the next item, not the current
-	 *  item.
-	 */
-	AutoPtr<Bcursor> cursor;
-
-    public:
-	/// Create the cursor
-	QuartzDiskCursor(Btree * btree);
-	
-	/// Destroy the cursor
-	~QuartzDiskCursor() { }
-
-	/** Virtual methods of QuartzCursor.
-	 */
-	//@{
-	bool find_entry(const string &key);
-	void next();
-	void prev();
 	bool after_end() { return is_after_end; }
-	//@}
 };
 
-/** A cursor in a bufftable.
- */
-class QuartzBufferedCursor : public QuartzCursor {
-    friend class QuartzBufferedTable;
-    private:
-	/** The cursor on disk.
-	 */
-	QuartzDiskCursor * diskcursor;
-
-	/** Pointer to changes stored in the buffer.
-	 */
-	const QuartzTableEntries * changed_entries;
-
-	/** Iterator in changed entries.
-	 */
-	QuartzTableEntries::items::const_iterator iter;
-    public:
-	/// Standard constructor
-	QuartzBufferedCursor(QuartzDiskCursor * diskcursor_,
-			     const QuartzTableEntries * changed_entries_)
-		: diskcursor(diskcursor_),
-		  changed_entries(changed_entries_)
-		{}
-
-	/// Destroy the cursor
-	~QuartzBufferedCursor() { delete(diskcursor);}
-
-	/** Virtual methods of QuartzCursor.
-	 */
-	//@{
-	bool find_entry(const string &key);
-	void next();
-	void prev();
-	bool after_end();
-	//@}
-};
-
-
-/** Base class for quartz tables.
- *
- *  This specifies the interface that is shared between objects which
- *  represent actual tables on disk, and objects which represent a modified
- *  table, yet to be written to disk.
- */
-class QuartzTable {
-    private:
-	/// Copying not allowed
-	QuartzTable(const QuartzTable &);
-
-	/// Assignment not allowed
-	void operator=(const QuartzTable &);
-    public:
-	/** Create new table.
-	 */
-	QuartzTable() {}
-
-	/** Close the table.
-	 */
-	virtual ~QuartzTable() {}
-
-	/** Return a count of the number of entries in the table.
-	 *
-	 *  @return The number of entries in the table.
-	 */
-	virtual quartz_tablesize_t get_entry_count() const = 0;
-
-	/** Read an entry from the table, if and only if it is exactly that
-	 *  being asked for.
-	 *
-	 *  If the key is found in the table, the tag will be filled with
-	 *  the data associated with the key.  If the key is not found,
-	 *  the tag will be unmodified.
-	 *
-	 *  @param key  The key to look for in the table.
-	 *  @param tag  A tag object to fill with the value if found.
-	 *
-	 *  @return true if key is found in table,
-	 *          false if key is not found in table.
-	 */
-	virtual bool get_exact_entry(const string & key,
-				     string & tag) const = 0;
-
-	/** Get a cursor for reading from the table.
-	 *  The cursor is owned by the caller - it is the caller's
-	 *  responsibility to ensure that it is deleted.
-	 */
-	virtual QuartzCursor * cursor_get() const = 0;
-};
 
 /** Class managing a table in a Quartz database.
  *
@@ -252,13 +139,13 @@ class QuartzTable {
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class QuartzDiskTable : public QuartzTable {
+class QuartzTable {
     private:
 	/// Copying not allowed
-	QuartzDiskTable(const QuartzDiskTable &);
+	QuartzTable(const QuartzTable &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDiskTable &);
+	void operator=(const QuartzTable &);
 
 	/** The path at which the table is stored.
 	 */
@@ -268,28 +155,24 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	unsigned int blocksize;
 
-	/** Whether the table has been opened.
-	 */
-	bool opened;
-	
 	/** Whether the table is readonly.
 	 */
 	bool readonly;
 
-	/** The btree structure for reading.
+	/** Has this table been modified?
 	 */
-	Btree * btree_for_reading;
+	bool is_modified_flag;
 
-	/** The btree structure for writing.
+	/** The btree object.
 	 */
-	Btree * btree_for_writing;
+	Btree * btree;
 
 	/** Close the table.  This closes and frees any of the btree
 	 *  structures which have been created and opened.
 	 */
 	void close();
-    public:
 
+    public:
 	/** Create a new table object.
 	 *
 	 *  This does not create the table on disk - the create() method must
@@ -304,11 +187,14 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzDiskTable(string path_, bool readonly_, unsigned int blocksize_);
+	QuartzTable(string path_, bool readonly_, unsigned int blocksize_);
 
 	/** Close the table.
+	 *
+	 *  Any outstanding changes (ie, changes made without apply() having
+	 *  subsequently been called) will be lost.
 	 */
-	~QuartzDiskTable();
+	~QuartzTable();
 
 	/** Determine whether the table exists on disk.
 	 */
@@ -393,87 +279,19 @@ class QuartzDiskTable : public QuartzTable {
 	void set_entry(const string & key, const string & tag);
 	void set_entry(const string & key);
 
-	/** Apply changes to the table.
+	/** Apply any outstanding changes to the table.
 	 *
-	 *  Changes made to the table by calling set_entry() are applied to
-	 *  disk.  In the event of failure, the changes may be discarded.
+	 *  Changes made to the table by calling set_entry() are committed
+	 *  to the Btree.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by an exception.  Changes made will not be committed to the Btree
+	 *  - they will be discarded.
 	 *
 	 *  @param new_revision  The new revision number to store.  This must
 	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise. [FIXME: actually returns void]
-	 */
-	void apply(quartz_revision_number_t new_revision);
-
-	/** Virtual methods of QuartzTable.
-	 */
-	//@{
-	quartz_tablesize_t get_entry_count() const;
-	bool get_exact_entry(const string & key, string & tag) const;
-	QuartzDiskCursor * cursor_get() const;
-	//@}
-};
-
-/** A buffered table in a Quartz database.
- *
- *  This class provides buffered access to a quartz database.  This allows
- *  a set of modifications to be built up in memory, and flushed to disk
- *  only when it grows sufficiently large.
- */
-class QuartzBufferedTable : public QuartzTable {
-    private:
-	/// Copying not allowed
-	QuartzBufferedTable(const QuartzBufferedTable &);
-
-	/// Assignment not allowed
-	void operator=(const QuartzBufferedTable &);
-
-	/// The underlying table
-	QuartzDiskTable * disktable;
-
-	/** Entries which have been changed.
-	 */
-	QuartzTableEntries changed_entries;
-
-	/** Number of entries in the table, including the changed entries.
-	 */
-	quartz_tablesize_t entry_count;
-
-	/** Return whether a tag is present in the table.
-	 *
-	 *  @return false if the tag is not present in the table, or is
-	 *          currently marked for deletion, true otherwise.
-	 */
-	bool have_tag(const string &key);
-
-    public:
-	/** Create a new table.  This does not open the table - the open()
-	 *  method must be called before use is made of the table.
-	 *
-	 */
-	QuartzBufferedTable(QuartzDiskTable * disktable_);
-
-	/** Close the table.
-	 *
-	 *  Any outstanding changes (ie, changes made without apply() having
-	 *  subsequently been called) will be lost.
-	 */
-	~QuartzBufferedTable();
-
-	/** Apply any outstanding changes.
-	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by an exception.  The table on disk will be left in an
-	 *  unmodified state, and the changes made to it will be lost.
-	 *
-	 *  @param new_revision  The new revision number to store the
-	 *                       modifications under.
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *          get_latest_revision_number()), or an exception will be
+	 *          thrown.
 	 */
 	void apply(quartz_revision_number_t new_revision);
 
@@ -484,39 +302,39 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	void cancel();
 
-	/** Determine whether the object contains modifications.
+	/** Determine whether the object contains uncommitted modifications.
 	 *
-	 *  @return true if the changed_entries object contains
-	 *          modifications to the database, false if no changes have
-	 *          been made.
+	 *  @return true if there have been modifications since the last
+	 *          the last call to apply().
 	 */
-	bool is_modified();
+	bool is_modified() const { return is_modified_flag; }
 
-	/** Get a pointer to the tag for a given key, creating a new tag if
-	 *  not present.
+	/** Return a count of the number of entries in the table.
 	 *
-	 *  This will never return a null pointer.
-	 *
-	 *  The pointer is owned by the QuartzBufferedTable (actually, by
-	 *  its changed_entries object) - it may be modified, but must not
-	 *  be deleted.
+	 *  @return The number of entries in the table.
 	 */
-	string * get_or_make_tag(const string &key);
-
-	/** Remove the tag for a given key.
-	 *
-	 *  This removes the tag for a given key.  If the tag doesn't exist,
-	 *  no action is taken.
-	 */
-	void delete_tag(const string &key);
-
-	/** Virtual methods of QuartzTable.
-	 */
-	//@{
 	quartz_tablesize_t get_entry_count() const;
+
+	/** Read an entry from the table, if and only if it is exactly that
+	 *  being asked for.
+	 *
+	 *  If the key is found in the table, the tag will be filled with
+	 *  the data associated with the key.  If the key is not found,
+	 *  the tag will be unmodified.
+	 *
+	 *  @param key  The key to look for in the table.
+	 *  @param tag  A tag object to fill with the value if found.
+	 *
+	 *  @return true if key is found in table,
+	 *          false if key is not found in table.
+	 */
 	bool get_exact_entry(const string & key, string & tag) const;
-	QuartzBufferedCursor * cursor_get() const;
-	//@}
+
+	/** Get a cursor for reading from the table.
+	 *  The cursor is owned by the caller - it is the caller's
+	 *  responsibility to ensure that it is deleted.
+	 */
+	QuartzCursor * cursor_get() const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_TABLE_H */

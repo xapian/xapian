@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,19 +67,20 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 }
 
 Xapian::docid
-QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
+QuartzRecordManager::get_newdocid(QuartzTable & table)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_newdocid", "[table]");
-    string * tag = table.get_or_make_tag(METAINFO_KEY);
+    string tag;
+    (void)table.get_exact_entry(METAINFO_KEY, tag);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
-    if (tag->empty()) {
+    if (tag.empty()) {
 	did = 1u;
 	totlen = 0u;
     } else {
-	const char * data = tag->data();
-	const char * end = data + tag->size();
+	const char * data = tag.data();
+	const char * end = data + tag.size();
 	if (!unpack_uint(&data, end, &did)) {
 	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
@@ -91,8 +92,9 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	    throw Xapian::RangeError("Next document number is out of range.");
 	}
     }
-    *tag = pack_uint(did);
-    *tag += pack_uint_last(totlen);
+    tag = pack_uint(did);
+    tag += pack_uint_last(totlen);
+    table.set_entry(METAINFO_KEY, tag);
 
     RETURN(did);
 }
@@ -115,46 +117,45 @@ QuartzRecordManager::get_lastdocid(QuartzTable & table)
 }
 
 Xapian::docid
-QuartzRecordManager::add_record(QuartzBufferedTable & table,
+QuartzRecordManager::add_record(QuartzTable & table,
 				const string & data)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::add_record", "[table], " << data);
     Xapian::docid did = get_newdocid(table);
 
     string key(quartz_docid_to_key(did));
-    string * tag = table.get_or_make_tag(key);
-    *tag = data;
+    table.set_entry(key, data);
 
     RETURN(did);
 }
 
 void
-QuartzRecordManager::replace_record(QuartzBufferedTable & table,
+QuartzRecordManager::replace_record(QuartzTable & table,
 				    const string & data,
 				    Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
     string key(quartz_docid_to_key(did));
-    string * tag = table.get_or_make_tag(key);
-    *tag = data;
+    table.set_entry(key, data);
 }
 
 void
-QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
+QuartzRecordManager::modify_total_length(QuartzTable & table,
 					 quartz_doclen_t old_doclen,
 					 quartz_doclen_t new_doclen)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
-    string * tag = table.get_or_make_tag(METAINFO_KEY);
+    string tag;
+    (void)table.get_exact_entry(METAINFO_KEY, tag);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
-    if (tag->empty()) {
+    if (tag.empty()) {
 	did = 0u;
 	totlen = 0u;
     } else {
-	const char * data = tag->data();
-	const char * end = data + tag->size();
+ 	const char * data = tag.data();
+ 	const char * end = data + tag.size();
 	if (!unpack_uint(&data, end, &did)) {
 	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
@@ -172,8 +173,9 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     if (newlen < totlen)
 	throw Xapian::RangeError("New total document length is out of range.");
 
-    *tag = pack_uint(did);
-    *tag += pack_uint_last(newlen);
+    tag = pack_uint(did);
+    tag += pack_uint_last(newlen);
+    table.set_entry(METAINFO_KEY, tag);
 }
 
 // FIXME: probably want to cache the average length (but not miss updates)
@@ -201,9 +203,9 @@ QuartzRecordManager::get_avlength(QuartzTable & table)
 }
 
 void
-QuartzRecordManager::delete_record(QuartzBufferedTable & table,
+QuartzRecordManager::delete_record(QuartzTable & table,
 				   Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::delete_record", "[table], " << did);
-    table.delete_tag(quartz_docid_to_key(did));
+    table.set_entry(quartz_docid_to_key(did));
 }

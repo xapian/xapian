@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,6 @@
 using namespace std;
 
 class QuartzTable;
-class QuartzBufferedTable;
 
 /** A position list in a quartz database.
  */
@@ -121,14 +120,14 @@ class QuartzPositionList : public PositionList {
 	}
 
 	/// Set the position list for the given docid and termname
-	static void set_positionlist(QuartzBufferedTable * table,
+	static void set_positionlist(QuartzTable * table,
 			Xapian::docid did,
 			const string & tname,
 			Xapian::PositionIterator pos,
 			const Xapian::PositionIterator &pos_end);
 
 	/// Delete the position list for the given docid and termname
-	static void delete_positionlist(QuartzBufferedTable * table,
+	static void delete_positionlist(QuartzTable * table,
 					Xapian::docid did,
 					const string & tname);
 	/// Return the current position

@@ -52,7 +52,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir)
 {
     DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir);
     // Open database manager
-    tables.reset(new QuartzDiskTableManager(quartz_dir, OM_DB_READONLY, 0u));
+    tables.reset(new QuartzTableManager(quartz_dir, OM_DB_READONLY, 0u));
 }
 
 QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
@@ -228,8 +228,7 @@ QuartzDatabase::open_allterms() const
 
 QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 					       int block_size)
-	: buffered_tables(new QuartzBufferedTableManager(dir, action,
-							 block_size)),
+	: buffered_tables(new QuartzTableManager(dir, action, block_size)),
 	  totlen_added(0),
 	  totlen_removed(0),
 	  freq_deltas(),
@@ -260,7 +259,7 @@ QuartzWritableDatabase::do_flush_const() const
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
     Assert(buffered_tables != 0);
 
-    QuartzBufferedTable * pl_table = buffered_tables->get_postlist_table();
+    QuartzTable * pl_table = buffered_tables->get_postlist_table();
     QuartzPostList::merge_changes(pl_table, mod_plists, doclens, freq_deltas);
 
     // Update the total document length.

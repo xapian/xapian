@@ -429,7 +429,13 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 	write_block(C_[j].n, p);
 	C_[j].rewrite = false;
     }
-    read_block(n, p);
+    // Check if the block is in the built-in cursor (potentially in
+    // modified form).
+    if (writable && n == C[j].n) {
+	memcpy(p, C[j].p, block_size);
+    } else {
+	read_block(n, p);
+    }
 
     C_[j].n = n;
     if (j < level) {
@@ -555,7 +561,7 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
 
-   offset is D2 for a data block, and 0 for and index block, when the
+   offset is D2 for a data block, and 0 for an index block, when the
    first key is dummy and never needs to be tested. What we get is the
    directory entry to the last key <= the key being searched for.
 
@@ -1752,101 +1758,6 @@ Btree::open_to_read(const string & name_, uint4 n)
     do_open_to_read(name_, true, n);
 }
 
-void
-Btree::open_to_read(const Btree &btree)
-{
-    name = btree.name;
-
-    both_bases = btree.both_bases;
-    {
-	Btree_base tmp(btree.base);
-	base.swap(tmp);
-    }
-
-    revision_number = btree.revision_number;
-    block_size = btree.block_size;
-    root = btree.root;
-    level = btree.level;
-    //bit_map_size = btree.bit_map_size;
-    item_count = btree.item_count;
-    faked_root_block = btree.faked_root_block;
-    sequential = btree.sequential;
-    other_revision_number = btree.other_revision_number;
-
-    /* k holds constructed items as well as keys */
-    kt = zeroed_new(block_size);
-    if (kt == 0) {
-	throw std::bad_alloc();
-    }
-
-    max_item_size = btree.max_item_size;
-
-    base_letter = btree.base_letter;
-    next_revision = revision_number + 1;
-
-    dont_close_handle = true;
-    handle = btree.handle;
-
-    if (sequential) {
-	prev_ptr = &Btree::prev_for_sequential;
-	next_ptr = &Btree::next_for_sequential;
-    } else {
-	prev_ptr = &Btree::prev_default;
-	next_ptr = &Btree::next_default;
-    }
-
-    C[level].n = BLK_UNUSED;
-    C[level].p = new byte[block_size];
-    if (C[level].p == 0) {
-	throw std::bad_alloc();
-    }
-
-    C[level].n = btree.C[level].n;
-    memcpy(C[level].p, btree.C[level].p, block_size);
-}
-
-void
-Btree::reopen_to_read(const Btree &btree)
-{
-    Assert(!writable);
-    Assert(name == btree.name);
-    Assert(dont_close_handle);
-    Assert(handle == btree.handle);
-
-    both_bases = btree.both_bases;
-    {
-	Btree_base tmp(btree.base);
-	base.swap(tmp);
-    }
-
-    revision_number = btree.revision_number;
-    root = btree.root;
-    if (level != btree.level) {
-	C[btree.level].p = C[level].p;
-	C[level].n = BLK_UNUSED;
-	C[level].p = 0;
-	level = btree.level;
-    }
-    item_count = btree.item_count;
-    faked_root_block = btree.faked_root_block;
-    sequential = btree.sequential;
-    other_revision_number = btree.other_revision_number;
-
-    base_letter = btree.base_letter;
-    next_revision = revision_number + 1;
-
-    if (sequential) {
-	prev_ptr = &Btree::prev_for_sequential;
-	next_ptr = &Btree::next_for_sequential;
-    } else {
-	prev_ptr = &Btree::prev_default;
-	next_ptr = &Btree::next_default;
-    }
-
-    C[level].n = btree.C[level].n;
-    memcpy(C[level].p, btree.C[level].p, block_size);
-}
-
 bool
 Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 {
@@ -1858,7 +1769,13 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 	while (true) {
 	    if (n == 0) return false;
 	    n--;
-	    read_block(n, p);
+	    // Check if the block is in the built-in cursor (potentially in
+	    // modified form).
+	    if (writable && n == C[0].n) {
+		memcpy(p, C[0].p, block_size);
+	    } else {
+		read_block(n, p);
+	    }
 	    if (REVISION(p) > 1) {
 		set_overwritten();
 		return false;
@@ -1885,7 +1802,13 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) return false;
-	    read_block(n, p);
+	    // Check if the block is in the built-in cursor (potentially in
+	    // modified form).
+	    if (writable && n == C[0].n) {
+		memcpy(p, C[0].p, block_size);
+	    } else {
+		read_block(n, p);
+	    }
 	    if (REVISION(p) > 1) {
 		set_overwritten();
 		return false;
@@ -1904,8 +1827,9 @@ Btree::prev_default(Cursor * C_, int j)
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= 0);
+    Assert(c >= DIR_START);
     Assert(c < 65536);
+    Assert(c <= DIR_END(p));
     if (c == DIR_START) {
 	if (j == level) return false;
 	if (!prev_default(C_, j + 1)) return false;
@@ -1924,9 +1848,12 @@ Btree::next_default(Cursor * C_, int j)
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
+    Assert(c >= DIR_START);
     c += D2;
-    Assert(c >= 0);
     Assert(c < 65536);
+    // Sometimes c can be DIR_END(p) + 2 here it appears...
+    if (c > DIR_END(p)) c = DIR_END(p);
+    Assert(c <= DIR_END(p));
     if (c == DIR_END(p)) {
 	if (j == level) return false;
 	if (!next_default(C_, j + 1)) return false;

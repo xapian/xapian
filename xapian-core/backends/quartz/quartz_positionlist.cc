@@ -141,7 +141,7 @@ QuartzPositionList::make_key(Xapian::docid did,
 // Methods modifying position lists
 
 void
-QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
+QuartzPositionList::set_positionlist(QuartzTable * table,
 			Xapian::docid did,
 			const string & tname,
 			Xapian::PositionIterator pos,
@@ -151,27 +151,26 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
     string key;
 
     make_key(did, tname, key);
-    string * tag = table->get_or_make_tag(key);
-
-    *tag = "";
+    string tag;
 
     Xapian::termpos prevpos = 0;
     unsigned int size = 0;
     for ( ; pos != pos_end; ++pos) {
-	*tag += pack_uint(*pos - prevpos - 1);
+	tag += pack_uint(*pos - prevpos - 1);
 	prevpos = *pos;
 	size++;
     }
-    *tag = pack_uint(size) + *tag;
+    tag = pack_uint(size) + tag;
+    table->set_entry(key, tag);
 }
 
 void
-QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
+QuartzPositionList::delete_positionlist(QuartzTable * table,
 			Xapian::docid did,
 			const string & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
     string key;
     make_key(did, tname, key);
-    table->delete_tag(key);
+    table->set_entry(key);
 }

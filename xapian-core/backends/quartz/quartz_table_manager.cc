@@ -48,8 +48,8 @@
 
 using std::string;
 
-QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
-					       unsigned int block_size)
+QuartzTableManager::QuartzTableManager(string db_dir_, int action,
+				       unsigned int block_size)
 	: db_dir(db_dir_),
 	  readonly(action == OM_DB_READONLY),
 	  metafile(metafile_path()),
@@ -59,7 +59,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	  value_table(value_path(), readonly, block_size),
 	  record_table(record_path(), readonly, block_size)
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << action <<
+    DEBUGCALL(DB, void, "QuartzTableManager", db_dir_ << ", " << action <<
 	      ", " << block_size);
     // Open modification log if there
     log.reset(new QuartzLog(db_dir + "/log"));
@@ -78,30 +78,18 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
     if (action == OM_DB_READONLY) {
 	if (!dbexists) {
 	    // Catch pre-0.6 Xapian databases and give a better error
-	    if (file_exists(db_dir + "/attribute_baseA"))
+	    if (file_exists(db_dir + "/attribute_DB"))
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
     } else {
-	if (dbexists) {
-	    log->make_entry("Old database exists");
-	    if (action == Xapian::DB_CREATE) {
-		throw Xapian::DatabaseCreateError("Can't create new database at `" +
-			db_dir + "': a database already exists and I was told "
-			"not to overwrite it");
-	    }
-	    // if we're overwriting, pretend the db doesn't exists
-	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
-	    if (action == Xapian::DB_CREATE_OR_OVERWRITE) dbexists = false;
-	}
-	
 	if (!dbexists) {
 	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 	    if (action == Xapian::DB_OPEN) {
 		// Catch pre-0.6 Xapian databases and give a better error
-		if (file_exists(db_dir + "/attribute_baseA"))
+		if (file_exists(db_dir + "/attribute_DB"))
 		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
@@ -119,7 +107,23 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 		throw Xapian::DatabaseOpeningError("Cannot create directory `"
 						   + db_dir + "'", errno);
 	    }
+	    get_database_write_lock();
 
+	    create_and_open_tables();
+	    return;
+	}
+	
+	log->make_entry("Old database exists");
+	if (action == Xapian::DB_CREATE) {
+	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
+		    db_dir + "': a database already exists and I was told "
+		    "not to overwrite it");
+	}
+
+	get_database_write_lock();
+	// if we're overwriting, pretend the db doesn't exists
+	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
 	    create_and_open_tables();
 	    return;
 	}
@@ -147,15 +151,16 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
     }
 }
 
-QuartzDiskTableManager::~QuartzDiskTableManager()
+QuartzTableManager::~QuartzTableManager()
 {
-    DEBUGCALL(DB, void, "~QuartzDiskTableManager", "");
+    DEBUGCALL(DB, void, "~QuartzTableManager", "");
     log->make_entry("Closing database");
+    if (!readonly) release_database_write_lock();
 }
 
 bool
-QuartzDiskTableManager::database_exists() {
-    DEBUGCALL(DB, bool, "QuartzDiskTableManager::database_exists", "");
+QuartzTableManager::database_exists() {
+    DEBUGCALL(DB, bool, "QuartzTableManager::database_exists", "");
     return record_table.exists() &&
 	   postlist_table.exists() &&
 	   positionlist_table.exists() &&
@@ -164,9 +169,9 @@ QuartzDiskTableManager::database_exists() {
 }
 
 void
-QuartzDiskTableManager::create_and_open_tables()
+QuartzTableManager::create_and_open_tables()
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager::create_and_open_tables", "");
+    DEBUGCALL(DB, void, "QuartzTableManager::create_and_open_tables", "");
     //FIXME - check that database directory exists.
 
     // Delete any existing tables
@@ -219,9 +224,9 @@ QuartzDiskTableManager::create_and_open_tables()
 }
 
 void
-QuartzDiskTableManager::open_tables_consistent()
+QuartzTableManager::open_tables_consistent()
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager::open_tables_consistent", "");
+    DEBUGCALL(DB, void, "QuartzTableManager::open_tables_consistent", "");
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -281,45 +286,45 @@ QuartzDiskTableManager::open_tables_consistent()
 }
 
 string
-QuartzDiskTableManager::metafile_path() const
+QuartzTableManager::metafile_path() const
 {
     return db_dir + "/meta";
 }
 
 string
-QuartzDiskTableManager::record_path() const
+QuartzTableManager::record_path() const
 {
     return db_dir + "/record_";
 }
 
 string
-QuartzDiskTableManager::value_path() const
+QuartzTableManager::value_path() const
 {
     return db_dir + "/value_";
 }
 
 string
-QuartzDiskTableManager::termlist_path() const
+QuartzTableManager::termlist_path() const
 {
     return db_dir + "/termlist_";
 }
 
 string
-QuartzDiskTableManager::positionlist_path() const
+QuartzTableManager::positionlist_path() const
 {
     return db_dir + "/position_";
 }
 
 string
-QuartzDiskTableManager::postlist_path() const
+QuartzTableManager::postlist_path() const
 {
     return db_dir + "/postlist_";
 }
 
 void
-QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
+QuartzTableManager::open_tables(quartz_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager::open_tables", revision);
+    DEBUGCALL(DB, void, "QuartzTableManager::open_tables", revision);
     log->make_entry("Opening tables at revision " + om_tostring(revision));
     metafile.open();
     record_table.open(revision);
@@ -331,17 +336,17 @@ QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 }
 
 quartz_revision_number_t
-QuartzDiskTableManager::get_revision_number() const
+QuartzTableManager::get_revision_number() const
 {
-    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDiskTableManager::get_revision_number", "");
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzTableManager::get_revision_number", "");
     // We could use any table here, theoretically.
     RETURN(postlist_table.get_open_revision_number());
 }
 
 quartz_revision_number_t
-QuartzDiskTableManager::get_next_revision_number() const
+QuartzTableManager::get_next_revision_number() const
 {
-    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDiskTableManager::get_next_revision_number", "");
+    DEBUGCALL(DB, quartz_revision_number_t, "QuartzTableManager::get_next_revision_number", "");
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
@@ -353,9 +358,9 @@ QuartzDiskTableManager::get_next_revision_number() const
 }
 
 void
-QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revision)
+QuartzTableManager::set_revision_number(quartz_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager::set_revision_number", new_revision);
+    DEBUGCALL(DB, void, "QuartzTableManager::set_revision_number", new_revision);
     postlist_table    .apply(new_revision);
     positionlist_table.apply(new_revision);
     termlist_table    .apply(new_revision);
@@ -363,77 +368,54 @@ QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revisio
     record_table      .apply(new_revision);
 }
 
-QuartzDiskTable *
-QuartzDiskTableManager::get_postlist_table()
+QuartzTable *
+QuartzTableManager::get_postlist_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_postlist_table", "");
+    DEBUGCALL(DB, QuartzTable *, "QuartzTableManager::get_postlist_table", "");
     RETURN(&postlist_table);
 }
 
-QuartzDiskTable *
-QuartzDiskTableManager::get_positionlist_table()
+QuartzTable *
+QuartzTableManager::get_positionlist_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_positionlist_table", "");
+    DEBUGCALL(DB, QuartzTable *, "QuartzTableManager::get_positionlist_table", "");
     RETURN(&positionlist_table);
 }
 
-QuartzDiskTable *
-QuartzDiskTableManager::get_termlist_table()
+QuartzTable *
+QuartzTableManager::get_termlist_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_termlist_table", "");
+    DEBUGCALL(DB, QuartzTable *, "QuartzTableManager::get_termlist_table", "");
     RETURN(&termlist_table);
 }
 
-QuartzDiskTable *
-QuartzDiskTableManager::get_value_table()
+QuartzTable *
+QuartzTableManager::get_value_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_value_table", "");
+    DEBUGCALL(DB, QuartzTable *, "QuartzTableManager::get_value_table", "");
     RETURN(&value_table);
 }
 
-QuartzDiskTable *
-QuartzDiskTableManager::get_record_table()
+QuartzTable *
+QuartzTableManager::get_record_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_record_table", "");
+    DEBUGCALL(DB, QuartzTable *, "QuartzTableManager::get_record_table", "");
     RETURN(&record_table);
 }
 
 void
-QuartzDiskTableManager::reopen()
+QuartzTableManager::reopen()
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager::reopen", "");
+    DEBUGCALL(DB, void, "QuartzTableManager::reopen", "");
     if (readonly) {
 	open_tables_consistent();
     }
 }
 
-
-QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
-						       int action,
-						       unsigned int block_size)
-	: disktables(db_dir_, action, block_size),
-	  postlist_buffered_table(disktables.get_postlist_table()),
-	  positionlist_buffered_table(disktables.get_positionlist_table()),
-	  termlist_buffered_table(disktables.get_termlist_table()),
-	  value_buffered_table(disktables.get_value_table()),
-	  record_buffered_table(disktables.get_record_table()),
-	  lock_name(db_dir_ + "/db_lock")
-{
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager", db_dir_ << ", " <<
-	      action << ", " << block_size);
-    get_database_write_lock();
-}
-
-QuartzBufferedTableManager::~QuartzBufferedTableManager()
-{
-    DEBUGCALL(DB, void, "~QuartzBufferedTableManager", "");
-    release_database_write_lock();
-}
-
 void
-QuartzBufferedTableManager::get_database_write_lock()
+QuartzTableManager::get_database_write_lock()
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager::get_database_write_lock", "");
+    DEBUGCALL(DB, void, "QuartzTableManager::get_database_write_lock", "");
     // FIXME:: have a backoff strategy to avoid stalling on a stale lockfile
 #ifdef HAVE_SYS_UTSNAME_H
     const char *hostname;
@@ -450,7 +432,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 #else
     const char *hostname = "";
 #endif
-    string tempname = lock_name + ".tmp." + om_tostring(getpid()) + "." +
+    string tempname = db_dir + "/db_lock.tmp." + om_tostring(getpid()) + "." +
 	    hostname + "." +
 	    om_tostring(reinterpret_cast<long>(this)); /* should work within
 							  one process too! */
@@ -460,7 +442,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	num_tries--;
 	if (num_tries < 0) {
 	    throw Xapian::DatabaseLockError("Unable to acquire database write lock "
-				      + lock_name);
+				      + db_dir + "/db_lock");
 	}
 
 	int tempfd = open(tempname, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
@@ -478,7 +460,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	 * Otherwise, it failed.  (Reference: Linux open() manpage)
 	 */
 	/* FIXME: sort out all these unlinks */
-	int result = link(tempname, lock_name);
+	int result = link(tempname, db_dir + "/db_lock");
 	if (result == 0) {
 	    unlink(tempname);
 	    return;
@@ -505,7 +487,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	/* also failed */
 #else
 	// win32 doesn't support link() so just rename()
-	if (rename(tempname.c_str(), lock_name.c_str()) == 0) {
+	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
 	    return;
 	}
 #endif
@@ -513,59 +495,59 @@ QuartzBufferedTableManager::get_database_write_lock()
 }
 
 void
-QuartzBufferedTableManager::release_database_write_lock()
+QuartzTableManager::release_database_write_lock()
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager::release_database_write_lock", "");
-    unlink(lock_name);
+    DEBUGCALL(DB, void, "QuartzTableManager::release_database_write_lock", "");
+    unlink(db_dir + "/db_lock");
 }
 
 void
-QuartzBufferedTableManager::apply()
+QuartzTableManager::apply()
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager::apply", "");
-    if (!postlist_buffered_table.is_modified() &&
-       !positionlist_buffered_table.is_modified() &&
-       !termlist_buffered_table.is_modified() &&
-       !value_buffered_table.is_modified() &&
-       !record_buffered_table.is_modified()) {
-	disktables.log->make_entry("No modifications to apply");
+    DEBUGCALL(DB, void, "QuartzTableManager::apply", "");
+    if (!postlist_table.is_modified() &&
+	!positionlist_table.is_modified() &&
+	!termlist_table.is_modified() &&
+	!value_table.is_modified() &&
+	!record_table.is_modified()) {
+	log->make_entry("No modifications to apply");
 	return;
     }
 
-    quartz_revision_number_t old_revision = disktables.get_revision_number();
-    quartz_revision_number_t new_revision = disktables.get_next_revision_number();
+    quartz_revision_number_t old_revision = get_revision_number();
+    quartz_revision_number_t new_revision = get_next_revision_number();
 
-    disktables.log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision));
+    log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision));
 
     try {
-	postlist_buffered_table.apply(new_revision);
-	positionlist_buffered_table.apply(new_revision);
-	termlist_buffered_table.apply(new_revision);
-	value_buffered_table.apply(new_revision);
-	record_buffered_table.apply(new_revision);
+	postlist_table.apply(new_revision);
+	positionlist_table.apply(new_revision);
+	termlist_table.apply(new_revision);
+	value_table.apply(new_revision);
+	record_table.apply(new_revision);
 
-	disktables.log->make_entry("Modifications succeeded");
+	log->make_entry("Modifications succeeded");
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
-	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications");
+	log->make_entry("Attempted modifications failed.  Wiping partial modifications");
 	
 	// Reopen tables with old revision number, 
-	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision));
-	disktables.open_tables(old_revision);
+	log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision));
+	open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	new_revision += 1;
-	disktables.log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision));
+	log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision));
 
 	try {
-	    disktables.set_revision_number(new_revision);
+	    set_revision_number(new_revision);
 
 	    // This cancel() causes any buffered changes to be thrown away,
 	    // and the buffer to be reinitialised with the old entry count.
 	    cancel();
 	} catch (const Xapian::Error & e) {
-	    disktables.log->make_entry("Setting revision number failed: " +
+	    log->make_entry("Setting revision number failed: " +
 				       e.get_type() + ": " + e.get_msg() + " " +
 				       e.get_context());
 	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
@@ -575,53 +557,12 @@ QuartzBufferedTableManager::apply()
 }
 
 void
-QuartzBufferedTableManager::cancel()
+QuartzTableManager::cancel()
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager::cancel", "");
-    postlist_buffered_table.cancel();
-    positionlist_buffered_table.cancel();
-    termlist_buffered_table.cancel();
-    value_buffered_table.cancel();
-    record_buffered_table.cancel();
-}
-
-QuartzBufferedTable *
-QuartzBufferedTableManager::get_postlist_table()
-{
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_postlist_table", "");
-    RETURN(&postlist_buffered_table);
-}
-
-QuartzBufferedTable *
-QuartzBufferedTableManager::get_positionlist_table()
-{
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_positionlist_table", "");
-    RETURN(&positionlist_buffered_table);
-}
-
-QuartzBufferedTable *
-QuartzBufferedTableManager::get_termlist_table()
-{
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_termlist_table", "");
-    RETURN(&termlist_buffered_table);
-}
-
-QuartzBufferedTable *
-QuartzBufferedTableManager::get_value_table()
-{
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_value_table", "");
-    RETURN(&value_buffered_table);
-}
-
-QuartzBufferedTable *
-QuartzBufferedTableManager::get_record_table()
-{
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_record_table", "");
-    RETURN(&record_buffered_table);
-}
-
-void
-QuartzBufferedTableManager::reopen()
-{
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager::reopen", "");
+    DEBUGCALL(DB, void, "QuartzTableManager::cancel", "");
+    postlist_table.cancel();
+    positionlist_table.cancel();
+    termlist_table.cancel();
+    value_table.cancel();
+    record_table.cancel();
 }

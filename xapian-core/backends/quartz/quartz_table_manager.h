@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,57 +33,12 @@
 const int OM_DB_READONLY = 0;
 
 /** Class managing the tables used by a Quartz database.
- */
-class QuartzTableManager {
-    private:
-	/// Copying not allowed
-	QuartzTableManager(const QuartzTableManager &);
-
-	/// Assignment not allowed
-	void operator=(const QuartzTableManager &);
-
-    public:
-	/** 
-	 */
-	QuartzTableManager() {}
-	
-	/** Delete the manager.
-	 */
-	virtual ~QuartzTableManager() {}
-
-	/** Get table storing posting lists.
-	 */
-	virtual QuartzTable * get_postlist_table() = 0;
-
-	/** Get table storing position lists.
-	 */
-	virtual QuartzTable * get_positionlist_table() = 0;
-
-	/** Get table storing term lists.
-	 */
-	virtual QuartzTable * get_termlist_table() = 0;
-
-	/** Get table storing values.
-	 */
-	virtual QuartzTable * get_value_table() = 0;
-
-	/** Get table storing records.
-	 */
-	virtual QuartzTable * get_record_table() = 0;
-
-	/** Re-open tables to recover from an overwritten condition,
-	 *  or just get most up-to-date version.
-	 */
-	virtual void reopen() = 0;
-};
-
-/** Class managing the disk tables used by Quartz.
  *
  *  This finds the tables, opens them at consistent revisions, manages
  *  determining the current and next revision numbers, and stores handles
  *  to the tables.
  */
-class QuartzDiskTableManager : public QuartzTableManager {
+class QuartzTableManager {
     private:
 	/** Directory to store databases in.
 	 */
@@ -105,19 +60,19 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	QuartzDiskTable postlist_table;
+	QuartzTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	QuartzDiskTable positionlist_table;
+	QuartzTable positionlist_table;
 
 	/** Table storing term lists.
 	 */
-	QuartzDiskTable termlist_table;
+	QuartzTable termlist_table;
 
 	/** Table storing values.
 	 */
-	QuartzDiskTable value_table;
+	QuartzTable value_table;
 
 	/** Table storing records.
 	 *
@@ -127,14 +82,13 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
-	QuartzDiskTable record_table;
-
+	QuartzTable record_table;
 
 	/// Copying not allowed
-	QuartzDiskTableManager(const QuartzDiskTableManager &);
+	QuartzTableManager(const QuartzTableManager &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDiskTableManager &);
+	void operator=(const QuartzTableManager &);
 
 	/** Return true if a database exists at the path specified for this
 	 *  database.
@@ -152,6 +106,15 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  consistent revision available.
 	 */
 	void open_tables_consistent();
+
+	/** Get a write lock on the database, or throw an
+	 *  Xapian::DatabaseLockError if failure.
+	 */
+	void get_database_write_lock();
+
+	/** Release the database write lock.
+	 */
+	void release_database_write_lock();
 
 	/// Return the path that the metafile is stored at.
 	std::string metafile_path() const;
@@ -188,13 +151,13 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
-	QuartzDiskTableManager(std::string db_dir_, int action,
-			       unsigned int block_size);
+	QuartzTableManager(std::string db_dir_, int action,
+			   unsigned int block_size);
 
-	/** Delete the manager.
+	/** Destroy the manager.  Any unapplied modifications will
+	 *  be lost.
 	 */
-	~QuartzDiskTableManager();
-
+	~QuartzTableManager();
 
 	/** Open tables at specified revision number.
 	 *
@@ -229,65 +192,31 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 */
 	void set_revision_number(quartz_revision_number_t new_revision);
 	
-	/** Virtual methods of QuartzTableManager
+	/** Get table storing posting lists.
 	 */
-	//@{
-	QuartzDiskTable * get_postlist_table();
-	QuartzDiskTable * get_positionlist_table();
-	QuartzDiskTable * get_termlist_table();
-	QuartzDiskTable * get_value_table();
-	QuartzDiskTable * get_record_table();
+	QuartzTable * get_postlist_table();
+
+	/** Get table storing position lists.
+	 */
+	QuartzTable * get_positionlist_table();
+
+	/** Get table storing term lists.
+	 */
+	QuartzTable * get_termlist_table();
+
+	/** Get table storing values.
+	 */
+	QuartzTable * get_value_table();
+
+	/** Get table storing records.
+	 */
+	QuartzTable * get_record_table();
+
+	/** Re-open tables to recover from an overwritten condition,
+	 *  or just get most up-to-date version.
+	 */
 	void reopen();
-	//@}
-};
 
-class QuartzBufferedTableManager : public QuartzTableManager {
-    private:
-	/// Copying not allowed
-	QuartzBufferedTableManager(const QuartzBufferedTableManager &);
-
-	/// Assignment not allowed
-	void operator=(const QuartzBufferedTableManager &);
-
-	/** The tables stored on disk.
-	 */
-	QuartzDiskTableManager disktables;
- 
-	/** Buffered tables encapsulating tables on disk.
-	 */
-	//@{
-	QuartzBufferedTable postlist_buffered_table;
-	QuartzBufferedTable positionlist_buffered_table;
-	QuartzBufferedTable termlist_buffered_table;
-	QuartzBufferedTable value_buffered_table;
-	QuartzBufferedTable record_buffered_table;
-	//@}
-	
-	std::string lock_name;
-
-	/** Get a write lock on the database, or throw an
-	 *  Xapian::DatabaseLockError if failure.
-	 */
-	void get_database_write_lock();
-
-	/** Release the database write lock.
-	 */
-	void release_database_write_lock();
-
-    public:
-	/** Construct the manager.
-	 *
-	 *  This may throw any exceptions which are thrown by
-	 *  QuartzDiskTableManager's constructor.
-	 */
-	QuartzBufferedTableManager(std::string db_dir_, int action,
-				   unsigned int block_size);
-
-	/** Destroy the manager.  Any anapplied modifications will
-	 *  be lost.
-	 */
-	~QuartzBufferedTableManager();
-	
 	/** Apply any outstanding changes to the tables.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
@@ -303,17 +232,6 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	/** Cancel any outstanding changes to the tables.
 	 */
 	void cancel();
-
-	/** Virtual methods of QuartzTableManager
-	 */
-	//@{
-	QuartzBufferedTable * get_postlist_table();
-	QuartzBufferedTable * get_positionlist_table();
-	QuartzBufferedTable * get_termlist_table();
-	QuartzBufferedTable * get_value_table();
-	QuartzBufferedTable * get_record_table();
-	void reopen();
-	//@}
 };
 
 #endif /* OM_HGUARD_QUARTZ_TABLE_MANAGER_H */

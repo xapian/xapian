@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #ifndef OM_HGUARD_QUARTZ_VALUES_H
 #define OM_HGUARD_QUARTZ_VALUES_H
 
+#include <map>
 #include <string>
 
 #include "quartz_table.h"
@@ -53,7 +54,7 @@ class QuartzValueManager {
 	/** Store a value.  If a value of the same document ID and
 	 *  value number already exists, it is overwritten by this.
 	 */
-	static void add_value(QuartzBufferedTable & table,
+	static void add_value(QuartzTable & table,
 				  const string & value,
 				  Xapian::docid did,
 				  Xapian::valueno valueno);
@@ -82,7 +83,7 @@ class QuartzValueManager {
 	 *  @param did	The document id for which to remove the values.
 	 *
 	 */
-	static void delete_all_values(QuartzBufferedTable &table,
+	static void delete_all_values(QuartzTable &table,
 					  Xapian::docid did);
 };
 

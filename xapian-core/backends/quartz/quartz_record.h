@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@
 #include <xapian/types.h>
 #include "quartz_types.h"
 
-class QuartzBufferedTable;
 class QuartzTable;
 
 using namespace std;
@@ -57,7 +56,7 @@ class QuartzRecordManager {
 
 	/** Get the next document ID to use.
 	 */
-	static Xapian::docid get_newdocid(QuartzBufferedTable & table);
+	static Xapian::docid get_newdocid(QuartzTable & table);
 
 	/** Get the last document id used.
 	 */
@@ -66,7 +65,7 @@ class QuartzRecordManager {
 	/** Add a new record to the table.
 	 *
 	 */
-	static Xapian::docid add_record(QuartzBufferedTable & table,
+	static Xapian::docid add_record(QuartzTable & table,
 				   const string & data);
 	/* Replace an existing record in the table
 	 *
@@ -74,13 +73,13 @@ class QuartzRecordManager {
 	 * 		a new docid is generated.  Otherwise, this record
 	 * 		will be created (or replace) document did.
 	 */
-	static void replace_record(QuartzBufferedTable &table,
+	static void replace_record(QuartzTable &table,
 				   const string & data,
 				   Xapian::docid did);
 
 	/** Delete a record from the table.
 	 */
-	static void delete_record(QuartzBufferedTable & table,
+	static void delete_record(QuartzTable & table,
 				  Xapian::docid did);
 
 	/** Modify the stored total length of the records, by supplying an
@@ -90,7 +89,7 @@ class QuartzRecordManager {
 	 *  @param old_doclen  The old length of the document.
 	 *  @param new_doclen  The new length of the document.
 	 */
-	static void modify_total_length(QuartzBufferedTable & table,
+	static void modify_total_length(QuartzTable & table,
 					quartz_doclen_t old_doclen,
 					quartz_doclen_t new_doclen);
 };

@@ -108,7 +108,7 @@ main(int argc, char *argv[])
     vector<string>::const_iterator i;
     for (i = tables.begin(); i != tables.end(); i++) {
 	try {
-	    QuartzDiskTable table(*i, true, 0);
+	    QuartzTable table(*i, true, 0);
 	    if (use_revno) {
 		table.open(revnum);
 	    } else {

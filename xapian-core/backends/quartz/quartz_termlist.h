@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,14 +118,14 @@ class QuartzTermList : public LeafTermList {
 	 *         while storing term frequencies.
 	 */
 	static void
-	set_entries(QuartzBufferedTable * table_, Xapian::docid did,
+	set_entries(QuartzTable * table_, Xapian::docid did,
 		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
 	 *  specified document ID will not exist.
 	 */
-	static void delete_termlist(QuartzBufferedTable * table, Xapian::docid did);
+	static void delete_termlist(QuartzTable * table, Xapian::docid did);
 
 	/** Open the termlist for the specified document, for reading.
 	 */
