@@ -507,20 +507,21 @@ bool test_boolquery1()
 	    cout << "bool query returned no items" << endl;
 	}
     }
-    if (mymset.max_possible != 1) {
+    if (mymset.max_possible != 0) {
         success = false;
 	if (verbose) {
-	    cout << "Max weight in mset is " << mymset.max_possible << endl;
+	    cout << "Max weight in mset is " << mymset.max_possible <<
+		    ", should be 0." << endl;
 	}
     } else {
         for (unsigned int i = 0; i<mymset.items.size(); ++i) {
-	   if (mymset.items[i].wt != 1) {
+	   if (mymset.items[i].wt != 0) {
 	       success = false;
 	       if (verbose) {
 	           cout << "Item " << i
 		        << " in mset has weight "
 			<< mymset.items[i].wt
-			<< ", should be 1." << endl;
+			<< ", should be 0." << endl;
 	       }
 	       break;
 	   }
@@ -879,7 +880,9 @@ bool test_collapsekey1()
 bool test_reversebool1()
 {
     OmEnquire enquire(get_simple_database());
-    init_simple_enquire(enquire);
+    OmQuery query("thi");
+    query.set_bool(true);
+    init_simple_enquire(enquire, query);
 
     OmMatchOptions mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
@@ -956,7 +959,9 @@ bool test_reversebool1()
 bool test_reversebool2()
 {
     OmEnquire enquire(get_simple_database());
-    init_simple_enquire(enquire);
+    OmQuery query("thi");
+    query.set_bool(true);
+    init_simple_enquire(enquire, query);
 
     OmMatchOptions mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);

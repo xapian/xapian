@@ -121,6 +121,8 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 int
 OmMSet::convert_to_percent(om_weight wt) const
 {
+    if(max_possible == 0) return 100;
+
     int pcent = (int) ceil(wt * 100 / max_possible);
     DebugMsg("wt = " << wt << ", max_possible = " << max_possible <<
 	     " =>  pcent = " << pcent << endl);
@@ -286,38 +288,33 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set weighting scheme
-    match.set_weighting(IRWeight::WTTYPE_BM25);
+    if(query->is_bool()) {
+	match.set_weighting(IRWeight::WTTYPE_BOOL);
+    } else {
+	match.set_weighting(IRWeight::WTTYPE_BM25);
+    }
 
     // Set Query
     match.set_query(query->internal);
 
     OmMSet retval;
 
-    // Run query and get results into supplied OmMSet object
-    if(query->is_bool()) {
-	match.boolmatch(first, maxitems, retval.items);
-	retval.mbound = retval.items.size();
-	retval.max_possible = 1;
-	if(retval.items.size() > 0) {
-	    retval.max_attained = 1;
-	} else {
-	    retval.max_attained = 0;
-	}
-    } else {
-	match.match(first, maxitems, retval.items, msetcmp_forward,
-		    &(retval.mbound), &(retval.max_attained),
-		    mdecider);
 
-	// Get max weight for an item in the MSet
-	retval.max_possible = match.get_max_weight();
-    }
+    // Run query and get results into supplied OmMSet object
+    match.match(first, maxitems, retval.items, msetcmp_forward,
+		&(retval.mbound), &(retval.max_attained),
+		mdecider);
+
+    // Get max weight for an item in the MSet
+    retval.max_possible = match.get_max_weight();
+    Assert(!(query->is_bool()) || retval.max_possible == 0);
 
     // Store what the first item requested was, so that this information is
     // kept with the mset.
     retval.firstitem = first;
 
     // Do checks that the statistics got shared correctly.
-    AssertParanoid(gatherer.get_stats()->collection_size ==
+    AssertParanoid(query->is_bool() || gatherer.get_stats()->collection_size ==
 		   database->get_doccount());
     AssertParanoid((rset == 0 && gatherer.get_stats()->rset_size == 0) ||
 		   (rset != 0 && gatherer.get_stats()->rset_size == rset->get_rsize()));

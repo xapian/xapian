@@ -1,3 +1,8 @@
+Mon Mar 20 12:23:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made OmEnquire use BoolWeight to get result for boolean queries.
+	  Doesn't yet pass correctness tests.
+
 Mon Mar 20 12:21:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added an internaltest test for the refcounted pointers

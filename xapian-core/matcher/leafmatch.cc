@@ -396,8 +396,8 @@ LeafMatch::match(om_doccount first,
 
     DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
 
-    OmMSetItem min_item(0, 0);
-    if (min_weight_percent >= 0) min_item.wt = min_weight_percent * max_weight / 100;
+    OmMSetItem min_item(-1, 0);
+    if (min_weight_percent > 0) min_item.wt = min_weight_percent * max_weight / 100;
 
     om_doccount max_msize = first + maxitems;
 
