@@ -20,6 +20,22 @@ BuildRoot: %{_tmppath}/%{name}-root
 @PACKAGE@ is a CGI application which uses the Xapian search library to
 search a collection of documents
 
+%package images
+Group: Applications/Internet
+Summary: Images optionally used by the omega templates
+Requires: omega
+Prefix: /var/www/html/images
+
+%description images
+The omega templates can make use of images as form submit elements when
+displaying results, instead of using submit buttons.  This package contaings
+such images.  By default it installs in /var/www/html/images/omega as the
+templates will use /images/omega as the URI prefix, but as this package
+is RELOCATABLE you could install it some where else.  The relocate prefix
+is /var/www/html/images so you should have little trouble installing it
+where you like, or even LEAVING IT OUT ALTOGETHER, or making sneaky use
+if rpm2cpio to STEAL THE CONTENTS
+
 %prep
 %setup -q -n %{name}-%{version}
 
@@ -49,7 +65,6 @@ cp templates/* $RPM_BUILD_ROOT/var/lib/omega/templates/
 # data dir
 mkdir -p $RPM_BUILD_ROOT/var/lib/omega/data
 
-# now images for templates
 mkdir -p $RPM_BUILD_ROOT/var/www/html/images/omega
 cp images/* $RPM_BUILD_ROOT/var/www/html/images/omega/
 
@@ -60,10 +75,12 @@ cp images/* $RPM_BUILD_ROOT/var/www/html/images/omega/
 %defattr(-,root,root)
 /usr/bin/*
 /var/lib/omega/
-/var/www/html/images/omega
 %docdir /usr/share/doc/%{name}
 /usr/share/doc/%{name}
 %config /etc/omega.conf
+
+%files images
+/var/www/html/images/omega
 
 %post -p /sbin/ldconfig
 

@@ -1,3 +1,11 @@
+Thu May 16 14:53:54 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Moved images to a seperate optional package to stop touching 
+	  users web tree until we work out what to do.  sysadmin can
+	  still install images if he wants and on a redhat box they will
+	  end up in the right place.
+	* THIS will no doubt get revisted later, thats fine by me.
+
 Thu May 16 13:31:27 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Added loads more missing files like images and templates to the package
