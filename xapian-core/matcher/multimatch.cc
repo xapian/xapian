@@ -219,7 +219,8 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 			      vector<bool> & mset_received,
 			      vector<SingleMatch *>::size_type *msets_received,
 			      OmMSet & mset,
-			      bool nowait) {
+			      bool nowait)
+{
     OmMSet sub_mset;
 
     // Get next mset
@@ -243,7 +244,8 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 }
 
 void
-MultiMatch::prepare_matchers() {
+MultiMatch::prepare_matchers()
+{
     bool prepared;
     bool nowait = true;
     do {
