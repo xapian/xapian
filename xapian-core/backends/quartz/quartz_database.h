@@ -71,6 +71,13 @@ class QuartzDatabase : public Database {
 	OmDocumentContents do_get_document_internal(om_docid did,
 					 RefCntPtr<const Database> ptrtothis);
 
+	/// Implementation of get_avlength()
+	om_doclength get_avlength_internal() const;
+
+	/// Implementation of open_post_list()
+	LeafPostList * open_post_list_internal(const om_termname & tname,
+				RefCntPtr<const Database> ptrtothis) const;
+
 	/// Implementation of open_term_list()
 	LeafTermList * open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const;

@@ -247,12 +247,18 @@ om_doclength
 QuartzDatabase::get_avlength() const
 {
     OmLockSentry sentry(quartz_mutex);
-    // FIXME: probably want to cache this value (but not miss updates)
 
+    return get_avlength_internal();
+}
+
+om_doclength
+QuartzDatabase::get_avlength_internal() const
+{
+    // FIXME: probably want to cache this value (but not miss updates)
     om_doccount docs =
 	    QuartzRecordManager::get_doccount(*(tables->get_record_table()));
-
     if (docs == 0) return 0;
+
     return QuartzRecordManager::get_total_length(*(tables->get_record_table()))
 	    / docs;
 }
@@ -292,7 +298,22 @@ LeafPostList *
 QuartzDatabase::do_open_post_list(const om_termname& tname) const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::do_open_post_list() not yet implemented");
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+
+    return open_post_list_internal(tname, ptrtothis);
+}
+
+LeafPostList *
+QuartzDatabase::open_post_list_internal(const om_termname& tname,
+				RefCntPtr<const Database> ptrtothis) const
+{
+    Assert(tname.size() != 0);
+    return(new QuartzPostList(ptrtothis,
+			      get_avlength_internal(),
+			      tables->get_postlist_table(),
+			      tname));
 }
 
 LeafTermList *
@@ -309,7 +330,6 @@ QuartzDatabase::open_term_list_internal(om_docid did,
 LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
-    Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
@@ -595,7 +615,12 @@ QuartzWritableDatabase::term_exists(const om_termname & tname) const
 LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
 {
-    return database_ro.do_open_post_list(tname);
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    return database_ro.open_post_list_internal(tname, ptrtothis);
 }
 
 LeafTermList *
