@@ -194,7 +194,7 @@ sub query {
 sub get_colors {
     my @revs = @_;
     if (@revs){
-    	@colors = Cvssearch::getSpectrum($#revs+1);
+    	return Cvssearch::getSpectrum($#revs+1);
     }
 }
 

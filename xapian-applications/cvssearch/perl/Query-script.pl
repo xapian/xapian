@@ -27,7 +27,7 @@ $num_matches = 1500;
 $cvsquery = "./cvsquerydb";
 $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
-$queryfile = "Queryfile.cgi";
+$queryfile = "QueryFile.cgi";
 $cache = "cache"; #where dump is written to
 $querywords = "";
 

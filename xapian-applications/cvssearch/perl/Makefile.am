@@ -1,13 +1,15 @@
 bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	\
     Compare.cgi \
-    Matchfile.cgi Query.cgi Queryfile.cgi Source.cgi Top.cgi Logo.cgi fishlogo.gif\
+    MatchFile.cgi Query.cgi QueryFile.cgi Source.cgi Top.cgi Logo.cgi fishlogo.gif\
+    MatchComment.cgi QueryComment.cgi TopComment.cgi \
     cvs2cl \
     popup.js \
     Cvssearch.pm Entities.pm 
 
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
     Compare-script.pl \
-    Matchfile-script.pl Query-script.pl Queryfile-script.pl Source-script.pl Top-script.pl Logo-script.pl \
+    MatchFile-script.pl Query-script.pl QueryFile-script.pl Source-script.pl Top-script.pl Logo-script.pl \
+    MatchComment-script.pl QueryComment-script.pl TopComment-script.pl \
     fishlogo.gif\
     cvs2cl.pl \
     popup.js \
@@ -44,13 +46,22 @@ cvsquerydb: $(srcdir)/cvsquery-script.pl
 Compare.cgi: $(srcdir)/Compare-script.pl 
 	$(build-perl-script)
 
-Matchfile.cgi:$(srcdir)/Matchfile-script.pl
+MatchComment.cgi:$(srcdir)/MatchComment-script.pl
+	$(build-perl-script)
+
+QueryComment.cgi:$(srcdir)/QueryComment-script.pl
+	$(build-perl-script)
+
+TopComment.cgi:$(srcdir)/TopComment-script.pl
+	$(build-perl-script)
+
+MatchFile.cgi:$(srcdir)/MatchFile-script.pl
 	$(build-perl-script)
 
 Query.cgi:$(srcdir)/Query-script.pl 
 	$(build-perl-script)
 
-Queryfile.cgi:$(srcdir)/Queryfile-script.pl 
+QueryFile.cgi:$(srcdir)/QueryFile-script.pl 
 	$(build-perl-script)
 
 Source.cgi:$(srcdir)/Source-script.pl 
