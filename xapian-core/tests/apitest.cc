@@ -2033,6 +2033,53 @@ bool test_termlisttermfreq()
     return true;
 }
 
+// tests an expand accross multiple databases
+bool test_multiexpand1()
+{
+    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+
+    // make simple equivalent rsets, with a document from each database in each.
+    OmRSet rset1;
+    OmRSet rset2;
+    rset1.add_document(1);
+    rset1.add_document(7);
+    rset2.add_document(1);
+    rset2.add_document(2);
+
+    // retrieve the top ten results from each method of accessing
+    // multiple text files
+    OmESet eset1 = enquire1.get_eset(1000, rset1);
+    OmESet eset2 = enquire2.get_eset(1000, rset2);
+
+    if (eset1.items.size() != eset2.items.size()) {
+	if (verbose) {
+	    cout << "Expand sets are of different size: "
+		    << eset1.items.size() << "vs." << eset1.items.size()
+		    << endl;
+	}
+	return false;
+    }
+    vector<OmESetItem>::const_iterator i;
+    vector<OmESetItem>::const_iterator j;
+    for(i = eset1.items.begin(), j = eset2.items.begin();
+	i != eset1.items.end(), j != eset2.items.end();
+	i++, j++) {
+	if (verbose) {
+	    cout << "(" << i->tname << ", " << i->wt << ") vs. " <<
+		    "(" << j->tname << ", " << j->wt << ")" << endl;
+	}
+	TEST_EQUAL(i->wt, j->wt);
+	TEST_EQUAL(i->tname, j->tname);
+    }
+    return true;
+}
+
+
 
 
 
@@ -2077,6 +2124,7 @@ test_desc db_tests[] = {
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
     {"termlisttermfreq",   test_termlisttermfreq},
+    //{"multiexpand1",       test_multiexpand1},
     {0, 0}
 };
 
