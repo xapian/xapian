@@ -1,3 +1,10 @@
+Sat Mar 20 23:04:27 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/positioniterator.h,include/xapian/postingiterator.h:
+	  Add doxygen comments in front of PostingIterator and
+	  PositionListIterator classes so that doxygen pulls out the
+	  existing documentation for their methods.
+
 Sat Mar 20 16:23:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in,backends/quartz/quartz_table_manager.cc,common/utils.h:

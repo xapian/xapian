@@ -37,6 +37,8 @@ namespace Xapian {
 class Database;
 class PositionIterator;
 
+/** An iterator pointing to items in a list of postings.
+ */
 class PostingIterator {
     public:
 	class Internal;

@@ -38,6 +38,8 @@ class Database;
 class PostingIterator;
 class TermIterator;
 
+/** An iterator pointing to items in a list of positions.
+ */
 class PositionIterator {
     private:
 	// friend classes which need to be able to construct us
