@@ -3,35 +3,49 @@ have reported back to us about.  It will probably work on many more platforms
 - lack of an entry here shouldn't be assumed to mean it won't work, just that
 nobody has reported to us that it works.
 
-Arch  | Platform                 | Xapian Version | Result
-------+--------------------------+----------------+--------------------------
-x86   |   Linux     - Debian 3.0 | 0.5.0 pre      | All tests pass
-x86   |   Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | All tests pass
-x86   | * Linux 2.4 - Debian 2.2 | 2002-05-14 cvs | All tests pass
-sparc | * Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | All tests pass
-x86   | * FreeBSD 4.5            | 2002-05-14 cvs | All tests pass [1] [2]
-sparc | * Solaris 8              | 2002-05-14 cvs | Tests pass if compiled
-      |                          |                | as a static library [1]
-      |                          |                |
-alpha | * Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | Quartz test failures:
-      |                          |                | disktable3, postlist2,
-      |                          |                | overwrite1, bitmap1,
-      |                          |                | consistency1 (SIGFPE)
-      |                          |                | deldoc4 (OMEXCEPT)
-      |                          |                | postlist5 (FAILED)
-ppc   | * Linux 2.4 - Debian 2.2 | 2002-05-14 cvs | Quartz test failures:
-      |                          |                | disktable1 (aborted)
-      |                          |                | Other parts of the
-      |                          |                | test framework fail
-      |                          |                | similarly
-      |                          |                |
-ppc   | * Darwin 5.4 - OS X 10.1 | 2002-05-14 cvs | Link fails [3]
-------+--------------------------+----------------+--------------------------
+Note that currently you should NOT attempt to compile Xapian as a
+VPATH build (ie you must build in the same directory as the source
+code), unless you have all the tools required to rebuild the
+documentation, because the dependency system will try to rebuild the
+documentation on VPATH without any regard to whether it's up to date
+or even possible.
+
+TODO: fix internaltest.cc finding (Solaris, VPATH only)
+
+Arch  | Platform                 | Version | Status | Notes / requirements
+------+--------------------------+---------+--------+------------------------
+x86   |   Linux 2.4 - Debian 3.0 | [+]     | Passed |
+x86   |   Linux 2.2 - Debian 2.2 | [+]     | Passed | [1]
+x86   | * Linux 2.4 - Debian 2.2 | [+]     | Passed |
+x86   | * FreeBSD 4.5            | [+]     | Passed | [2]
+sparc | * Linux 2.2 - Debian 2.2 | [+]     | Passed |
+sparc | * Solaris 8              | [+]     | Passed | --disable-shared [3]
+ppc   | * Linux 2.4 - Debian 2.2 | [+]     | Passed | --disable-shared
+------+--------------------------+---------+--------+------------------------
+alpha | * Linux 2.2 - Debian 2.2 | [+]     | Failed | Quartz test:
+      |                          |         |        | disktable3, postlist2,
+      |                          |         |        | overwrite1, bitmap1
+      |                          |         |        | (all OMEXCEPT)
+      |                          |         |        | Quartz apitest:
+      |                          |         |        | consistency1 (SIGFPE)
+      |                          |         |        | deldoc4 (OMEXCEPT)
+      |                          |         |        | postlist5 (FAILED)
+ppc   | * Darwin 5.4 - OS X 10.1 | [+]     | Failed | Won't link unless
+      |                          |         |        | compiled as a static
+      |                          |         |        | library; fails all
+      |                          |         |        | test even then
+------+--------------------------+---------+--------+------------------------
 
 * = SourceForge CompileFarm machine
 
-[1] Native make cannot cope with all generated Makefiles; use gmake for now
+[+] v0-5-0-release-candidate
+
+[1] The code is known to work, but quartztest sometimes fails due to a
+    bug in gcc's optimisation pass while compiling the tests themselves.
 
 [2] ./configure spits many warnings but apparently succeeds
 
-[3] Seems to fail to link in some required C++ IO library?
+[3] internaltest.cc not found automatically - had to hack tests/Makefile
+    This is because it uses our own custom make rule due to deficiencies
+    in automake. The failure in this case is a portability problem to
+    Solaris make.
