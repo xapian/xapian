@@ -27,7 +27,7 @@ output_html();
 sub get_descriptions() {
     # Assume we have find.  Get all the possible directories.
     my $subdirs;
-    open M, "$srcdir/Makefile" or die $!;
+    open M, "$srcdir/Makefile.am" or die $!;
     while (<M>) {
 	while (s/\\\n$//) { $_ .= <M>; }
 	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
@@ -37,7 +37,7 @@ sub get_descriptions() {
         }
     }
     close M;
-    die "DIST_SUBDIRS not found in Makefile" unless defined $subdirs;
+    die "DIST_SUBDIRS not found in Makefile.am" unless defined $subdirs;
 
     my @dirs = split(/\n/, `find $subdirs -type d`);
 
