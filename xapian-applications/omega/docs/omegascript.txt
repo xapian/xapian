@@ -242,14 +242,32 @@ $score
 	score (0-10) of current hit (equivalent to $div{$percentage,10})
 
 $set{OPT,VALUE}
-	set option value which may be looked up using $opt
+	set option value which may be looked up using $opt.  You can use
+	options as variables (for example, to store values you want to reuse
+	without recomputing).  There are also several which Omega looks at
+	and which you can set or use:
+
+	* decimal - the decimal separator ("." by default - localised query
+	  templates may want to set this to ",").
+	* thousand - the thousands separator ("," by default - localised query
+	  templates may want to set this to ".", " ", or "").
+	* stemmer - which stemming language to use ("english" by default, other
+	  values are as understood by Xapian::Stem, so "none" means no
+	  stemming).
+	* stem_all - if "true", then tell the query parser to stem all words,
+	  even capitalised ones.
 
 $setrelevant{docids}
 	add documents into the rset
 
-$setmap{PREFIX,NAME1,VALUE1,...}
+$setmap{MAP,NAME1,VALUE1,...}
 	set a map of option values which may be looked up against using
-	$opt
+	$opt{MAP,NAME} (maps with the same name are merged rather than
+	overwritten).  Omega uses the "prefix" map to set the prefixes
+	understood by the query parser.  So if you wish to translate
+	a prefix of "author:" to A and "title:" to "XT" you would use:
+
+	$setmap{prefix,author,A,title,XT}
 
 $slice{LIST,POSITIONS}
 	returns the elements from "LIST" at the positions listed in the

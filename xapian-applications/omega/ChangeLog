@@ -1,3 +1,8 @@
+Thu Nov 20 02:44:55 GMT 2003  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Expanded documentation of $set and $setmap to
+	  include values which Omega itself makes use of.
+
 Thu Nov 20 02:43:03 GMT 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc,query.cc: Set default value for $opt{stemmer} to "english"
