@@ -47,6 +47,11 @@ class XorPostList : public BranchPostList {
 
 	string intro_term_description() const;
 
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const;
+
         XorPostList(PostList * left, PostList * right, LocalMatch * matcher_);
 };
 
@@ -102,6 +107,15 @@ XorPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " Xor " +
 	    r->intro_term_description() + ")";
+}
+
+inline om_doclength
+XorPostList::get_doclength() const
+{
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead < rhead) return l->get_doclength();
+    Assert(lhead > rhead);
+    return r->get_doclength();
 }
 
 #endif /* OM_HGUARD_XORPOSTLIST_H */

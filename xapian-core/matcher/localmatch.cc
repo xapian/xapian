@@ -354,7 +354,7 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	PostList *pl = postlists.back().postlist;
 	postlists.pop_back();
 	while (!postlists.empty()) {
-	    // NB right is always <= left - we use this to optimise
+	    // NB right is always <= left - we use this to optimise.
 	    pl = new AndPostList(postlists.back().postlist, pl, this);
 	    postlists.pop_back();
 	}
@@ -694,9 +694,14 @@ LocalMatch::get_mset(om_doccount first,
 	// FIXME: next line is inefficient, due to design.  (Makes it hard /
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
+	DebugMsg("database->get_doclength(" << did << ") == " <<
+		 database->get_doclength(did) << endl);
+	DebugMsg("query->get_doclength() == " <<
+		 query->get_doclength() << endl);
+	AssertEqDouble(database->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
-//		extra_weight->get_sumextra(query->get_doclength());
-		extra_weight->get_sumextra(database->get_doclength(did));
+		extra_weight->get_sumextra(query->get_doclength());
+//		extra_weight->get_sumextra(database->get_doclength(did));
 	OmMSetItem new_item(wt, did);
         
 	if(mcmp(new_item, min_item)) {

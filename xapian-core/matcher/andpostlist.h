@@ -54,6 +54,16 @@ class AndPostList : public BranchPostList {
 
 	string intro_term_description() const;
 
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 *
+	 *  The doclength returned by each branch should be the same.
+	 *  The default implementation is simply to return the result
+	 *  returned by the left branch: the left branch is preferable
+	 *  because this should be the fastest way to get to a leaf node.
+	 */
+	virtual om_doclength get_doclength() const;
+
         AndPostList(PostList *left,
 		    PostList *right,
 		    LocalMatch *matcher_,
@@ -107,6 +117,15 @@ AndPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " And " +
 	    r->intro_term_description() + ")";
+}
+
+inline om_doclength
+AndPostList::get_doclength() const
+{
+    om_doclength doclength = l->get_doclength();
+    DebugMsg("AndPostList::get_doclength() = " << doclength << endl);
+    AssertEqDouble(l->get_doclength(), r->get_doclength());
+    return doclength;
 }
 
 #endif /* OM_HGUARD_ANDPOSTLIST_H */

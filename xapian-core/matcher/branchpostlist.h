@@ -56,15 +56,6 @@ class BranchPostList : public PostList {
     public:
         virtual ~BranchPostList();
 
-	/** The doclength returned by each branch should be the same.
-	 *  The default implementation is simply to return the result
-	 *  returned by the left branch.
-	 *
-	 *  FIXME, and quiz for the knowledgeable: why should we prefer
-	 *  the left to the right?
-	 */
-	virtual om_doclength get_doclength() const;
-
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If get_position_list() is called on such a branch postlist,
 	 *  an OmUnimplementedError exception will be thrown.
@@ -89,13 +80,6 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 	// now tell matcher that maximum weights need recalculation.
 	matcher->recalc_maxweight();
     }
-}
-
-inline om_doclength
-BranchPostList::get_doclength() const
-{
-    AssertEqDouble(l->get_doclength(), r->get_doclength());
-    return l->get_doclength();
 }
 
 inline PositionList &

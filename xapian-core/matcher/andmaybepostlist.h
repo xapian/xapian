@@ -60,6 +60,11 @@ class AndMaybePostList : public BranchPostList { private: om_docid lhead,
 
 	string intro_term_description() const;
 
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const;
+
         AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_,
 			 om_docid lh = 0, om_docid rh = 0);
 };
@@ -113,6 +118,14 @@ AndMaybePostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " AndMaybe " +
 	    r->intro_term_description() + ")";
+}
+
+inline om_doclength
+AndMaybePostList::get_doclength() const
+{
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
+    return l->get_doclength();
 }
 
 #endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

@@ -46,6 +46,15 @@ class OrPostList : public BranchPostList {
 
 	string intro_term_description() const;
 
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 *
+	 *  This is obtained by asking the subpostlist which contains the
+	 *  current document for the document length.  If both subpostlists
+	 *  are valid, the left one is asked.
+	 */
+	virtual om_doclength get_doclength() const;
+
         OrPostList(PostList * left, PostList * right, LocalMatch * matcher_);
 };
 
@@ -103,6 +112,14 @@ OrPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " Or " +
 	    r->intro_term_description() + ")";
+}
+
+inline om_doclength
+OrPostList::get_doclength() const
+{
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead > rhead) return r->get_doclength();
+    return l->get_doclength();
 }
 
 #endif /* _orpostlist_h_ */

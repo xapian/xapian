@@ -46,6 +46,11 @@ class AndNotPostList : public BranchPostList {
 
 	string intro_term_description() const;
 
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const;
+
         AndNotPostList(PostList *left,
 		       PostList *right,
 		       LocalMatch *matcher_);
@@ -100,6 +105,12 @@ AndNotPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " AndNot " +
 	    r->intro_term_description() + ")";
+}
+
+inline om_doclength
+AndNotPostList::get_doclength() const
+{   
+    return l->get_doclength();
 }
 
 #endif /* OM_HGUARD_ANDNOTPOSTLIST_H */

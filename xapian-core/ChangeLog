@@ -1,3 +1,13 @@
+Mon Jun  5 14:22:33 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement PostList::get_doclength() in each branchpostlist rather
+	  than actually in the BranchPostList base class, since each
+	  implementation needs to be different (both sub-postlists are
+	  not always valid)
+
+	* Use PostList::get_doclength() rather than the database version, to
+	  get the document length in the matcher.
+
 Sat Jun  3 00:31:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Attempt to make LocalMatch asks the query for the document length,
