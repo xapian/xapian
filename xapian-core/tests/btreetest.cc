@@ -113,7 +113,7 @@ static void do_create(const string & btree_dir, int block_size = 2048)
 /// Test playing with a btree
 static bool test_simple1()
 {
-    string path = tmpdir + "test_simple1_";
+    string path = tmpdir + "/test_simple1_";
     Btree::create(path, 8192);
     Btree btree;
     btree.open_to_read(path);
@@ -136,7 +136,7 @@ static bool test_simple1()
 /// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
-    string btree_dir = tmpdir + "/B/";
+    string btree_dir = tmpdir + "/B";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -166,7 +166,7 @@ static bool test_insertdelete1()
 /// Test sequential addition in a Btree
 static bool test_sequent1()
 {
-    string btree_dir = tmpdir + "/B/";
+    string btree_dir = tmpdir + "/B";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -194,7 +194,7 @@ static bool test_sequent1()
 
 static bool test_emptykey1()
 {
-    string btree_dir = tmpdir + "/B/";
+    string btree_dir = tmpdir + "/B";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -268,7 +268,7 @@ int main(int argc, char **argv)
     if (e_tmpdir) {
 	tmpdir = e_tmpdir;
     } else {
-	tmpdir = ".btreetmp/";
+	tmpdir = ".btreetmp";
     }
     rmdir(tmpdir);
     make_dir(tmpdir);

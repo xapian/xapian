@@ -1,3 +1,7 @@
+Thu Aug 28 00:01:22 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: Removed superfluous `/'s from constructed paths.
+
 Fri Aug 15 15:12:24 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with current testsuite results for mingw build.
