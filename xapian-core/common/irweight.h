@@ -9,8 +9,9 @@ class RSet;
 
 class IRWeight {
     private:
-	const IRDatabase *database;
+	const IRDatabase *root;
 	doccount termfreq;
+	termid tid;
 	const RSet * rset;
 
 	bool initialised;
@@ -20,11 +21,13 @@ class IRWeight {
 	mutable doclength lenpart;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	void set_stats(const IRDatabase *db,
-		       doccount tf,
+	void set_stats(const IRDatabase *root_new,
+		       doccount termfreq_new,
+		       termid tid_new,
 		       const RSet *rset_new = NULL) {
-	    database = db;
-	    termfreq = tf;
+	    root = root_new;
+	    termfreq = termfreq_new;
+	    tid = tid_new;
 	    rset = rset_new;
 	    initialised = true;
 	}

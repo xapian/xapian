@@ -14,11 +14,13 @@
 //////////////
 
 MultiPostList::MultiPostList(const IRDatabase *root,
-			     list<MultiPostListInternal> &pls)
+			     list<MultiPostListInternal> &pls,
+			     termid tid, 
+			     const RSet *rset)
 	: postlists(pls), finished(false), currdoc(0),
 	  freq_initialised(false)
 {
-    own_wt.set_stats(root, get_termfreq());
+    own_wt.set_stats(root, get_termfreq(), tid, rset);
 
     // Make all the sub-postlists use the same (our) termweight
     set_termweight(&own_wt);
@@ -165,7 +167,7 @@ MultiDatabase::open_post_list(termid tid) const {
     }
     Assert(pls.begin() != pls.end());
     
-    DBPostList * newpl = new MultiPostList(root, pls);
+    DBPostList * newpl = new MultiPostList(root, pls, tid);
     return newpl;
 }
 

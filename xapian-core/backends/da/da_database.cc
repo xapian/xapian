@@ -15,10 +15,14 @@
 #include "daread.h"
 #include "damuscat.h"
 
-DAPostList::DAPostList(const IRDatabase *root, struct postings *pl, doccount tf)
+DAPostList::DAPostList(const IRDatabase *root,
+		       struct postings *pl,
+		       doccount tf,
+		       termid tid,
+		       const RSet *rset)
 	: postlist(pl), currdoc(0), termfreq(tf)
 {
-    own_wt.set_stats(root, tf);
+    own_wt.set_stats(root, tf, tid, rset);
 }
 
 DAPostList::~DAPostList()
@@ -152,7 +156,8 @@ DBPostList * DADatabase::open_post_list(termid id) const
     postlist = DAopenpostings(termvec[id - 1].get_ti(), DA_t);
 
     DBPostList * pl = new DAPostList(root, postlist,
-				     termvec[id - 1].get_ti()->freq);
+				     termvec[id - 1].get_ti()->freq,
+				     id);
     return pl;
 }
 

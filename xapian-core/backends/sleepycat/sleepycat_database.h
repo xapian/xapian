@@ -18,7 +18,11 @@ class SleepyPostList : public virtual DBPostList {
 
 	doccount termfreq;
 
-	SleepyPostList(IRDatabase *, docid *, doccount);
+	SleepyPostList(const IRDatabase *,
+		       docid *,
+		       doccount,
+		       termid tid,
+		       const RSet *rset = NULL);
     public:
 	~SleepyPostList();
 

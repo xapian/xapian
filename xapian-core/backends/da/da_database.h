@@ -30,7 +30,11 @@ class DAPostList : public virtual DBPostList {
 
 	doccount termfreq;
 
-	DAPostList(const IRDatabase *, struct postings *, doccount);
+	DAPostList(const IRDatabase *,
+		   struct postings *,
+		   doccount,
+		   termid,
+		   const RSet * = NULL);
     public:
 	~DAPostList();
 
