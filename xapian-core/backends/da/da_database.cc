@@ -106,7 +106,7 @@ PostList * DADatabase::open_post_list(termid id)
     byte * k = (byte *) malloc(len + 1);
     if(k == NULL) throw OmError(strerror(ENOMEM));
     k[0] = len + 1;
-    memcpy(k + 1, name.c_str(), len);
+    name.copy((char*)(k + 1), len);
 
     struct terminfo ti;
     int found = DAterm(k, 0, &ti, DA_t);
