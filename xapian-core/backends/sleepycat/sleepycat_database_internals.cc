@@ -41,10 +41,10 @@
 #define FILENAME_IDTOTERM "termname.db"
 
 SleepyDatabaseInternals::SleepyDatabaseInternals() {
-    postlist_db = NULL;
-    termlist_db = NULL;
-    termid_db = NULL;
-    termname_db = NULL;
+    postlist_db = 0;
+    termlist_db = 0;
+    termid_db = 0;
+    termname_db = 0;
     opened = false;
 }
 
@@ -57,29 +57,32 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 {
     try {
 	// Set up environment
-	u_int32_t flags = DB_INIT_CDB;
+	u_int32_t envflags = 0;
+	u_int32_t dbflags = 0;
 	int mode = 0;
 
 	if(readonly) {
-	    flags = DB_RDONLY;
+	    dbflags = DB_RDONLY;
+	    envflags = 0;
 	} else {
-	    flags = DB_CREATE;
+	    envflags = DB_CREATE;
+	    dbflags = DB_CREATE;
 	    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	}
-	dbenv.appinit(pathname.c_str(), NULL, flags);
+	dbenv.appinit(pathname.c_str(), 0, envflags);
 	opened = true;
 
-	Db::open(FILENAME_POSTLIST, DB_BTREE, flags, mode,
-		 &dbenv, NULL, &postlist_db);
+	Db::open(FILENAME_POSTLIST, DB_BTREE, dbflags, mode,
+		 &dbenv, 0, &postlist_db);
 
-	Db::open(FILENAME_TERMLIST, DB_BTREE, flags, mode,
-		 &dbenv, NULL, &termlist_db);
+	Db::open(FILENAME_TERMLIST, DB_BTREE, dbflags, mode,
+		 &dbenv, 0, &termlist_db);
 
-	Db::open(FILENAME_TERMTOID, DB_HASH, flags, mode,
-		 &dbenv, NULL, &termid_db);
+	Db::open(FILENAME_TERMTOID, DB_HASH, dbflags, mode,
+		 &dbenv, 0, &termid_db);
 
-	Db::open(FILENAME_IDTOTERM, DB_RECNO, flags, mode,
-		 &dbenv, NULL, &termname_db);
+	Db::open(FILENAME_IDTOTERM, DB_RECNO, dbflags, mode,
+		 &dbenv, 0, &termname_db);
     }
     catch (DbException e) {
 	throw (OmOpeningError(string("Database error on open: ") + e.what()));
@@ -91,13 +94,13 @@ SleepyDatabaseInternals::close()
 {
     try {
 	if(postlist_db) postlist_db->close(0);
-	postlist_db = NULL;
+	postlist_db = 0;
 	if(termlist_db) termlist_db->close(0);
-	termlist_db = NULL;
+	termlist_db = 0;
 	if(termid_db) termid_db->close(0);
-	termid_db = NULL;
+	termid_db = 0;
 	if(termname_db) termname_db->close(0);
-	termname_db = NULL;
+	termname_db = 0;
 
 	if(opened) dbenv.appexit();
 	opened = false;

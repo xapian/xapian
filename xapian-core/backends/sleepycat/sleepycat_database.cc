@@ -50,12 +50,8 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     termcache = new SleepyDatabaseTermCache(internals);
 
     // Open database with specified path
-    try {
-	internals->open(params.paths[0], params.readonly);
-    }
-    catch (DbException e) {
-	throw (OmOpeningError(string("Database error on open: ") + e.what()));
-    }
+    // May throw an OmOpeningError exception
+    internals->open(params.paths[0], params.readonly);
 }
 
 SleepyDatabase::~SleepyDatabase() {

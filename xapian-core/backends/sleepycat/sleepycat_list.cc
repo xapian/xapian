@@ -312,7 +312,7 @@ SleepyList::do_flush()
     if(modified_and_locked) {
 	// Pack list
 	string packed = pack();
-	Dbt data;
+	Dbt data(const_cast<char *>(packed.data()), packed.size());
 
 	try {
 	    // Write list
