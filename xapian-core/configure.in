@@ -176,6 +176,18 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
+dnl Add -Wno-long-long to $CXXFLAGS if it's supported
+echo -n "checking whether -Wno-long-long works... "
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+SAVED_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -Wno-long-long"
+AC_TRY_COMPILE(,[return 0],
+		[echo yes],
+		[echo no; CXXFLAGS="$SAVED_CXXFLAGS"])
+unset SAVED_CXXFLAGS
+AC_LANG_RESTORE
+
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions

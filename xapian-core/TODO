@@ -28,8 +28,6 @@ Priority | Area            | Task
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
 ---------+-----------------+--------------------------------------------------
- Medium  |CGeneral         | Only use -Wno-long-long if available.
----------+-----------------+--------------------------------------------------
  Medium  |CPositional      | Calculate query length automatically.
 ---------+-----------------+--------------------------------------------------
  Medium  | Positional      | Pass within-query-frequency and query length

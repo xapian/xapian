@@ -1,3 +1,7 @@
+Fri Feb 25 16:38:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test for -Wno-long-long in configure.in
+
 Fri Feb 25 14:29:00 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Separated most of OmQuery into an OmQueryInternal class.
