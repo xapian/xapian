@@ -318,7 +318,7 @@ sub cvsbuild {
                     }
                     close (SIZE);
 
-                    unlink "$prefix_path.cmt";
+                    # unlink "$prefix_path.cmt";
 
                     my $code_words = 0;
 

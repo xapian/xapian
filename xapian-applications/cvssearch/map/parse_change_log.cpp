@@ -18,7 +18,7 @@ static void parse_file (const CXmlNode & rNode, const CXmlNode & rMsgNode, unsig
 void parse_change_log (const string & module, const string & cvs2cl_path, cvs_db_file & rdb_file) 
 {
     
-    string command = cvs2cl_path + " --xml -f " + slogfile;
+    string command = cvs2cl_path + " -P --xml -f " + slogfile;
     system(command.c_str());
     
     FILE *fin = fopen(slogfile.c_str(), "r");
