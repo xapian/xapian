@@ -1,7 +1,7 @@
 /* nettest.cc: tests for the network matching code.
  *
  * ----START-LICENCE----
- * Copyright 1999,2000 Dialog Corporation
+ * Copyright 1999,2000 BrightStation PLC
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 

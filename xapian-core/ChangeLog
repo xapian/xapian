@@ -1,3 +1,9 @@
+Wed Jun  7 12:26:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update licences.  Copyright is now held by BrightStation, which
+	  is the new name for the part of what used to be Dialog which is
+	  running this project.
+
 Wed Jun  7 11:32:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Alter testsuite so that the nettests can work with sleepycat
