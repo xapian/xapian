@@ -256,7 +256,7 @@ DADatabase::get_termfreq(const om_termname & tname) const
     OmLockSentry sentry(mutex);
 
     if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname);
+    PostList *pl = open_post_list_internal(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
@@ -268,7 +268,13 @@ LeafPostList *
 DADatabase::open_post_list(const om_termname & tname) const
 {
     OmLockSentry sentry(mutex);
+    return open_post_list_internal(tname);
+}
 
+// Returns a new posting list, for the postings in this database for given term
+LeafPostList *
+DADatabase::open_post_list_internal(const om_termname & tname) const
+{
     // Make sure the term has been looked up
     OmRefCntPtr<const DATerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
@@ -380,8 +386,10 @@ DADatabase::term_lookup(const om_termname & tname) const
 	    DEBUGMSG(DB, "Not in collection" << endl);
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
-	    DEBUGMSG(DB, "cache full, wiping");
-	    if(termmap.size() > 500) termmap.clear();
+	    if(termmap.size() > 500) {
+		DEBUGMSG(DB, "cache full, wiping");
+		termmap.clear();
+	    }
 
 	    DEBUGMSG(DB, "found, adding to cache" << endl);
 	    pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));

@@ -1,3 +1,7 @@
+Wed Jun 28 16:24:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix deadlock in da_database.cc.
+
 Wed Jun 28 15:23:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed configure so that --enable-debug=full actually _does_ select

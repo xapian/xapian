@@ -280,6 +280,10 @@ class DADatabase : public IRDatabase {
 	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
 
+	/** Internal method for opening postlists.
+	 */
+	LeafPostList * open_post_list_internal(const om_termname & tname) const;
+
 	/** Create and open a DA database.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
