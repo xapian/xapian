@@ -1,3 +1,7 @@
+Tue Jun 13 17:24:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added script to generate an HTML version of the TODO list.
+
 Tue Jun 13 16:49:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The scripting wrappers can now make queries with operations

@@ -1,0 +1,75 @@
+#! @PERL_PATH@ -w
+# @configure_input@
+# mkdoc.pl is automatically generated from mkdoc.pl.in
+# *** Do not edit the generated file ***
+
+# todo2html.pl.in: generate documentation from source code and associated files.
+use strict;
+
+print <<EOT;
+<HTML>
+<HEAD>
+<TITLE>Muscat: ToDo</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+EOT
+
+my $line;
+my $lastline=' ';
+my $priority='';
+my $area='';
+my $task='';
+my $owner='';
+my $isitem=0;
+my $tableopen=0;
+while($line = <>) {
+    chomp $line;
+    my $lastlinelen = length($lastline);
+    if($lastlinelen != 0 && $line =~ m/={$lastlinelen}/) {
+        print "</TABLE>\n" if $tableopen;
+	$tableopen = 0;
+        print "<H2>" . $lastline . "</H2>\n";
+    } else {
+        if(($line =~ m/---------\+-----------------\+--------------------------------------------------/)) {
+	    if($priority ne '') {
+		print "<TABLE>\n" if !$tableopen;
+		$tableopen = 1;
+		print <<EOT;
+<TR><TD>
+$priority
+</TD><TD>
+$area
+</TD><TD>
+$task
+</TD></TR>
+EOT
+		$priority = '';
+		$owner = '';
+		$area = '';
+		$task = '';
+	    }
+	    $isitem=1;
+	} else {
+	    if($isitem &&
+	       $line =~ m/^\s*([^|]*?)\s*\|(.)([^|]*?)\s*\|\s*([^|]*?)\s*$/) {
+		$priority .= $1;
+		$owner .= $2;
+		$area .= $3 . " ";
+		$task .= $4 . " ";
+	    } else {
+		$priority = '';
+		$owner = '';
+		$area = '';
+		$task = '';
+	    }
+	}
+    }
+    $lastline = $line;
+}
+
+print "</TABLE>\n" if $tableopen;
+$tableopen = 0;
+print <<EOT;
+</BODY>
+</HTML>
+EOT

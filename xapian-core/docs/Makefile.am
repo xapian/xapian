@@ -8,7 +8,8 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html quickstart.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
+EXTRA_DIST = mkdoc.pl.in todo2html.pl.in \
+        doxygen_api_conf.in doxygen_full_conf.in \
         $(HTMLFILES) \
         MatcherDesign Notes stemming.txt \
 	docxx.sty \
@@ -19,7 +20,7 @@ EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
 
 # Things to do if have perl installed
 if HAVE_PERL
-CREATED_DOCUMENTS1=code_structure.html
+CREATED_DOCUMENTS1=code_structure.html todo.html
 endif
 
 # Things to do if have LaTeX installed
@@ -126,6 +127,13 @@ clean-local:
 	  echo "removing mkdoc.pl"; $(RM) mkdoc.pl ; \
 	fi
 
+	@if [ -r todo.html ]; then \
+	  echo "removing todo.html"; $(RM) todo.html ; \
+	fi
+	@if [ -r todo2html.pl ]; then \
+	  echo "removing todo2html.pl"; $(RM) todo2html.pl ; \
+	fi
+
 ################################
 # How to uninstall local files #
 ################################
@@ -146,6 +154,10 @@ uninstall-local:
 code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
 	@./mkdoc.pl $(top_srcdir) $@
+
+todo.html: todo2html.pl
+	@echo "Generating todo list"
+	@./todo2html.pl $(top_srcdir)/TODO
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
