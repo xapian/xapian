@@ -88,7 +88,14 @@ class OmMatchOptions {
 };
 
 // TODO: OmMatchDecider
-// TODO: OmExpandOptions
+
+class OmExpandOptions {
+    public:
+	OmExpandOptions();
+	void set_use_query_terms(bool use_query_terms_);
+	void set_use_exact_termfreq(bool use_exact_termfreq_);
+};
+
 // TODO: OmExpandDecider
 
 class OmRSet {
@@ -115,10 +122,55 @@ class OmESet {
 	%readwrite
 };
 
+// TODO: OmDocumentContents
 // TODO: OmBatchEnquire
 // TODO: OmSettings
-// TODO: OmDatabase
-// TODO: OmWritableDatabase
+
+struct OmDocumentContents {
+    /** The (user defined) data associated with this document. */
+    OmData data;
+
+    /** Type to store keys in. */
+    typedef map<om_keyno, OmKey> document_keys;
+
+    /** The keys associated with this document. */
+    document_keys keys;
+
+    /** Type to store terms in. */
+    typedef map<om_termname, OmDocumentTerm> document_terms;
+
+    /** The terms (and their frequencies and positions) in this document. */
+    document_terms terms;
+
+    /** Add an occurrence of a term to the document.
+     *
+     *  Multiple occurrences of the term at the same position are represented
+     *  only once in the positional information, but do increase the wdf.
+     *
+     *  @param tname  The name of the term.
+     *  @param tpos   The position of the term.
+     */
+    void add_posting(const om_termname & tname, om_termpos tpos = 0);
+};
+
+class OmDatabase {
+    public:
+	OmDatabase(const string & type,
+		   const vector<string> & params);
+	virtual ~OmDatabase();
+};
+
+class OmWritableDatabase : public OmDatabase {
+    public:
+	OmWritableDatabase(const string & type,
+			   const vector<string> & params);
+	virtual ~OmWritableDatabase();
+
+	void lock(om_timeout timeout = 0);
+	void unlock();
+
+	om_docid add_document(const OmDocumentContents & document);
+};
 
 class OmDocument {
     public:
