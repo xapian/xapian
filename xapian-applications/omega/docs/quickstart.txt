@@ -9,11 +9,16 @@ Where DBPATH is where you want the database, such as
 /var/lib/omega/data/default and WEBPATH is the directory containing
 all your web documents - e.g. /var/www.
 
+To start off with, it is advisable to have the final directory of the
+database be called 'default'. This is what Omega expects, although it
+can be changed once you've got things going.
+
 2.      Edit omega.conf:
 
 database_dir should point to the directory containing your database,
-such as /var/lib/omega/data, and template_dir to where the templates
-are - e.g. /var/lib/omega/templates.
+such as /var/lib/omega/data (it should contain the 'default' directory
+that is the actual database you indexed to above), and template_dir to
+where the templates are - e.g. /var/lib/omega/templates.
 
 3.      Test omega from the command line:
 

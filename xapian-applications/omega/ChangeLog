@@ -1,3 +1,8 @@
+Fri Aug 23 13:27:02 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* docs/quickstart.txt: encourage people to call their first
+	  database 'default' since this will work straight off.
+
 Wed Aug 21 17:52:36 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* query.cc: Add $slice{} command, to slice a list at a set of
