@@ -58,6 +58,9 @@
 /* Define if you want pthreads support built in */
 #undef MUS_USE_PTHREAD
 
+/* Define if getopt.h is available */
+#undef HAVE_GETOPT_H
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions

@@ -15,6 +15,10 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
 
+dnl Check for getopt.h.  On some systems, it's in stdlib.h
+AC_CHECK_HEADERS(getopt.h)
+AC_SUBST(HAVE_GETOPT_H)
+
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")

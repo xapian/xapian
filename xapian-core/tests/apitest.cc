@@ -20,11 +20,18 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include <iostream>
 #include <string>
 #include <memory>
 #include <map>
+
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#else // HAVE_GETOPT_H
+#include <stdlib.h>
+#endif // HAVE_GETOPT_H
+
 #include "om/om.h"
 #include "testsuite.h"
 
