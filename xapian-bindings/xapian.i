@@ -6,7 +6,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 James Aylett
+ * Copyright 2002,2003,2005 James Aylett
  * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@
 #include <xapian/queryparser.h>
 #include <string>
 #include <vector>
+#include <list>
 
 using namespace std;
 %}
@@ -444,11 +445,22 @@ class Enquire {
 };
 
 /* Generated code won't compile if directors are enabled.  Disable for now
-   while we investigate.
+ * while we investigate.
+ *
+ * The problem comes from having a private pure virtual clone() function in
+ * the Weight class. Directors work by multiple inheritance from both
+ * SWIG_Director and the class their directing; constructors in the target
+ * language are then redirected to the director class. However the director
+ * mechanism doesn't generate a wrapper for the clone() function (presumably
+ * because it's private). This is wrong, because the director is then
+ * abstract, which the SWIG generated code can't cope with.
+ */
+/*
 #ifdef SWIGPYTHON
 %feature("director") Weight;
 #endif
 */
+
 class Weight {
     public:
 	virtual ~Weight();
@@ -459,13 +471,9 @@ class Weight {
 
 	virtual Xapian::weight get_sumpart(Xapian::termcount wdf,
 				      Xapian::doclength len) const = 0;
-
 	virtual Xapian::weight get_maxpart() const = 0;
-
 	virtual Xapian::weight get_sumextra(Xapian::doclength len) const = 0;
-
 	virtual Xapian::weight get_maxextra() const = 0;
-
 	virtual bool get_sumpart_needs_doclength() const;
 };
 
@@ -538,7 +546,9 @@ class Database {
     public:
 	void add_database(const Database & database);
 	Database();
+#ifndef SWIGPHP4
 	Database(const string &path);
+#endif
 	virtual ~Database();
 	Database(const Database & database);
 	void reopen();
@@ -650,7 +660,6 @@ class Query {
 	    OP_FILTER,
 	    OP_NEAR,
 	    OP_PHRASE,
-	    OP_WEIGHT_CUTOFF,
 	    OP_ELITE_SET
 	};
 	Query(const string &tname,
@@ -669,13 +678,14 @@ class Query {
         %extend {
            /** Constructs a query from a vector of terms merged with the specified operator */
 	    Query(Query::op op,
-		  const std::vector<std::string>* subqs,
-		  termpos window = 0) {
-		    Xapian::Query * query=new Xapian::Query(op, subqs->begin(),subqs->end());
-		    if (window) query->set_window(window);
+		  std::vector<std::string>* subqs,
+		  termpos parameter = 0) {
+		    Xapian::Query * query=new Xapian::Query(op, subqs->begin(),subqs->end(), parameter);
 		    return query;
 	    }
 	}
+	/** Apply the specified operator to a single Xapian::Query object. */
+	Query(Query::op op_, Xapian::Query q);
 #endif
 
 	/** Constructs a new empty query object */
@@ -686,11 +696,7 @@ class Query {
 
 	~Query();
 
-	void set_window(termpos window);
-	void set_cutoff(weight cutoff);
-	void set_elite_set_size(termcount size);
 	termcount get_length() const;
-	termcount set_length(termcount qlen);
 	TermIterator get_terms_begin() const;
 	TermIterator get_terms_end() const;
 	bool empty() const;
@@ -701,40 +707,59 @@ class Query {
 
 // xapian/queryparser.h
 
-// FIXME: wrap class Stopper;
-
-class QueryParser {
-  public:
-  QueryParser();
-  ~QueryParser();
-  void set_stemming_options(const string &lang, bool stem_all_ = false,
-			    Stopper *stop_ = NULL);
-
-  void set_default_op(Query::op default_op_);
-  void set_database(const Database &db_);
-  Query parse_query(const string &q);
-
-  %extend {
-      void set_prefix(const std::string &name, std::string value) {
-	  self->prefixes[name] = value;
-      }
-
-      std::string get_prefix(const std::string &name) {
-	  return self->prefixes[name];
-      }
-  };
-
-  /* FIXME: the following need full accessors:
-   *  std::list<std::string> termlist;
-   * std::list<std::string> stoplist;
-   * std::multimap<std::string, std::string> unstem;
-   * std::map<std::string, std::string> prefixes;
-   */
+#ifdef SWIGPYTHON
+%feature("director") Stopper;
+#endif
+class Stopper {
+public:
+    virtual bool operator()(const std::string & term) const = 0;
+    virtual ~Stopper() { }
 };
 
+class QueryParser {
+public:
+    typedef enum {
+	FLAG_BOOLEAN = 1,
+	FLAG_PHRASE = 2,
+	FLAG_LOVEHATE = 3
+    } feature_flag;
+
+    typedef enum {
+	STEM_NONE,
+	STEM_SOME,
+	STEM_ALL
+    } stem_strategy;
+
+    QueryParser();
+    ~QueryParser();
+#ifndef SWIGPHP4
+    QueryParser(const QueryParser & o);
+#endif
+    void set_stemmer(const Xapian::Stem & stemmer);
+    void set_stemming_options(stem_strategy strategy);
+    void set_stopper(Stopper *stop = NULL);
+    void set_default_op(Query::op default_op_);
+    Query::op get_default_op() const;
+    void set_database(const Database &db_);
+    Query parse_query(const string &q);
+
+    void add_prefix(const std::string &field, const std::string &prefix);
+    void add_boolean_prefix(const std::string & field, const std::string &prefix);
+
+    TermIterator termlist_begin() const;
+    TermIterator termlist_end() const;
+
+    TermIterator stoplist_begin() const;
+    TermIterator stoplist_end() const;
+
+    TermIterator unstem_begin(const std::string &term) const;
+    TermIterator unstem_end(const std::string &term) const;
+};
+
+// xapian/stem.h
 class Stem {
 public:
-    Stem(const string &language);
+    explicit Stem(const string &language);
     ~Stem();
 
     string stem_word(const string &word);
