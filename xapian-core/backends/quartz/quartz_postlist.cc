@@ -45,7 +45,8 @@ make_key(const string & tname, string & key)
 // How big should chunks in the posting list be?  (They
 // will grow slightly bigger than this, but not more than a
 // few bytes extra) - FIXME: tune this value to try to
-// maximise how well blocks are used.
+// maximise how well blocks are used.  Or performance.
+// Or indexing speed.  Or something...
 const unsigned int CHUNKSIZE = 2048;
 
 /** PostlistChunkWriter is a wrapper which acts roughly as an

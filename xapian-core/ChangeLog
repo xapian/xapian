@@ -1,3 +1,7 @@
+Thu May 06 02:23:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Improved a FIXME comment.
+
 Thu May 06 00:32:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* extra/queryparsertest.cc: Added test case for `term NOT "a phrase'.
