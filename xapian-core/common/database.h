@@ -39,7 +39,7 @@ class PostListIterator {
     private:
     public:
 	virtual docid  get_docid() = 0;     // Gets current docid
-	virtual docid  get_weight() = 0;    // Gets current weight
+	virtual weight get_weight() = 0;    // Gets current weight
 
 	virtual void   next() = 0;          // Moves to next docid
 	virtual void   skip_to(docid) = 0;  // Moves to next docid >= specified docid
@@ -69,10 +69,10 @@ class IRDatabase {
 	virtual void close() = 0;
 
 	// Throws RangeError if termid invalid
-//	virtual PostListIterator open_post_list(termid) = 0;
+	virtual PostListIterator * open_post_list(termid) = 0;
 
 	// Throws RangeError if docid invalid
-//	virtual TermListIterator open_term_list(docid) = 0;
+	virtual TermListIterator * open_term_list(docid) = 0;
 
         virtual ~IRDatabase() { return; }
 };
