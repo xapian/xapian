@@ -1,3 +1,15 @@
+Fri Aug 18 15:39:00 BST 2000 Olly Betts
+
+	* WARNING: Incompatible (minor) changes to API!
+
+	* OmMatchDecider::operator() now takes a const reference rather than
+	  a const pointer.  Removed warning that arguments to this method
+	  are highly likely to change.
+
+	* Changed a few methods to take const references to avoid
+	  unnecessary object copying (changes API, but code using API won't
+	  need changing).
+
 Fri Aug 18 14:31:00 BST 2000 Olly Betts
 
 	* OmBatchEnquire::batch_result no longer public - instead

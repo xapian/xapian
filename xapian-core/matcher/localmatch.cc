@@ -728,7 +728,7 @@ LocalMatch::get_mset(om_doccount first,
 		    irdoc = temp;
 		}
 		OmDocument mydoc(irdoc);
-		add_item = mdecider->operator()(&mydoc);
+		add_item = mdecider->operator()(mydoc);
 	    }
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted

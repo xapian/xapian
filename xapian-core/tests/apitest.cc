@@ -650,9 +650,9 @@ bool test_expandfunctor1()
 
 class myMatchDecider : public OmMatchDecider {
     public:
-        int operator()(const OmDocument *doc) const {
+        int operator()(const OmDocument &doc) const {
 	    // Note that this is not recommended usage of get_data()
-	    return strncmp(doc->get_data().value.c_str(), "This is", 7) == 0;
+	    return strncmp(doc.get_data().value.c_str(), "This is", 7) == 0;
 	}
 };
 
@@ -671,7 +671,7 @@ bool test_matchfunctor1()
 
     for (unsigned int i=0; i<mymset.items.size(); ++i) {
 	const OmDocument doc(enquire.get_doc(mymset.items[i]));
-        if (!myfunctor(&doc)) {
+        if (!myfunctor(doc)) {
 	    success = false;
 	    break;
 	}

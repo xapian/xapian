@@ -161,7 +161,7 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 }
 
 om_doccount
-OmMSet::get_termfreq(om_termname tname) const
+OmMSet::get_termfreq(const om_termname &tname) const
 {
     DEBUGAPICALL("OmMSet::get_termfreq", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;
@@ -175,7 +175,7 @@ OmMSet::get_termfreq(om_termname tname) const
 }
 
 om_weight
-OmMSet::get_termweight(om_termname tname) const
+OmMSet::get_termweight(const om_termname &tname) const
 {
     DEBUGAPICALL("OmMSet::get_termweight", tname);
     std::map<om_termname, TermFreqAndWeight>::const_iterator i;

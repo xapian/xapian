@@ -176,11 +176,8 @@ class OmQuery {
 class OmMatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
-	 *
-	 *  Note: The parameters of this method are extremely likely to change
-	 *  in the near future.
 	 */
-	virtual int operator()(const OmDocument *doc) const = 0;
+	virtual int operator()(const OmDocument &doc) const = 0;
 
 	virtual ~OmMatchDecider() {}
 };
@@ -285,7 +282,7 @@ class OmMSetItem {
     public:
 	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
 
-	OmMSetItem(om_weight wt_, om_docid did_, OmKey key_)
+	OmMSetItem(om_weight wt_, om_docid did_, const OmKey &key_)
 		: wt(wt_), did(did_), collapse_key(key_) {}
 
 	/** Weight calculated. */
@@ -377,7 +374,7 @@ class OmMSet {
 	 *  @exception OmInvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
-	om_doccount get_termfreq(om_termname tname) const;
+	om_doccount get_termfreq(const om_termname &tname) const;
 
 	/** Return the term weight of the given query term.
 	 *
@@ -386,7 +383,7 @@ class OmMSet {
 	 *  @exception OmInvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
-	om_weight get_termweight(om_termname tname) const;
+	om_weight get_termweight(const om_termname &tname) const;
 
 	/** Return all the available term weights and frequencies
 	 */

@@ -41,7 +41,7 @@ class OmData {
 	std::string value;
 
 	/// Construct from a string.
-	OmData(std::string data) : value(data) {}
+	OmData(const std::string &data) : value(data) {}
 
 	/// Default constructor.
 	OmData() {}
@@ -62,7 +62,7 @@ class OmKey {
 	bool operator < (const OmKey &k) const { return(value < k.value); }
 
 	/// Construct from a string.
-	OmKey(std::string data) : value(data) {}
+	OmKey(const std::string &data) : value(data) {}
 
 	/// Default constructor.
 	OmKey() {}
