@@ -17,7 +17,7 @@ AndPostList::advance_to_next_match()
     }    
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right)
+AndPostList::AndPostList(PostList *left, PostList *right) : OrPostList(left, right)
 {    
     l = left;
     r = right;
