@@ -53,6 +53,7 @@ main(int argc, char *argv[])
     OmRSet rset;
     vector<OmSettings *> dbs;
     bool showmset = true;
+    bool applystem = false;
     OmQuery::op default_op = OmQuery::OP_OR;
     int collapse_key = -1;
 
@@ -79,6 +80,14 @@ main(int argc, char *argv[])
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
+	} else if (strcmp(argv[0], "--stem") == 0) {
+	    applystem = true;
+	    argc--;
+	    argv++;
+	} else if (strcmp(argv[0], "--nostem") == 0) {
+	    applystem = false;
+	    argc--;
+	    argv++;
 	} else if (strcmp(argv[0], "--showmset") == 0) {
 	    showmset = true;
 	    argc--;
@@ -110,7 +119,9 @@ main(int argc, char *argv[])
 		"\t--rel DOCID\n" <<
 		"\t--showmset (default)\n" <<
 		"\t--hidemset\n" <<
-		"\t--matchall\n";
+		"\t--matchall\n" <<
+		"\t--stem\n" <<
+		"\t--nostem (default)\n";
 	exit(1);
     }
 
@@ -181,10 +192,13 @@ main(int argc, char *argv[])
 			boolquery.pop();
 			boolquery.push(newtop);
 		    } else {
-			boolquery.push(OmQuery(stemmer.stem_word(term)));
+			if (applystem)
+			    term = stemmer.stem_word(term);
+			boolquery.push(OmQuery(term));
 		    }
 		} else {
-		    term = stemmer.stem_word(term);
+		    if (applystem)
+			term = stemmer.stem_word(term);
 		    DebugMsg("oldquery: " << query.get_description() << endl);
 		    query = OmQuery(default_op, query, term);
 		    DebugMsg("newquery: " << query.get_description() << endl);

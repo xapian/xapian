@@ -1,3 +1,7 @@
+Fri Sep  8 11:59:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add option to msearch to turn off stemming of terms.
+
 Thu Sep  7 08:33:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Correct spelling in Makefile.am: simplexpand -> simpleexpand.cc
