@@ -261,8 +261,8 @@ BackendManager::getdb_net(const vector<string> &dbnames)
     vector<string> args;
     args.push_back("prog");
     args.push_back("../netprogs/omprogsrv");
-    vector<string> paths = change_names_to_paths(dbnames);
-    args.insert(args.end(), paths.begin(), paths.end());
+    args.push_back(datadir);
+    args.insert(args.end(), dbnames.begin(), dbnames.end());
     OmDatabase db("net", args);
 
     return db;

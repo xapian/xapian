@@ -38,11 +38,13 @@ string datadir;
 bool test_netmatch1()
 {
     OmDatabaseGroup databases;
-    vector<string> params;
-    params.push_back("prog");
-    params.push_back("./omprogsrv");
-    params.push_back(datadir + "apitest_simpledata.txt");
-    databases.add_database("net", params);
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("net");
+    backendmanager.set_datadir(datadir);
+    vector<string> paths;
+    paths.push_back("apitest_simpledata");
+    OmDatabase db = backendmanager.get_database(paths);
+    databases.add_database(db);
 
     OmEnquire enq(databases);
 
@@ -61,15 +63,18 @@ bool test_netmatch1()
 bool test_netmatch2()
 {
     OmDatabaseGroup databases;
-    vector<string> params;
-    params.push_back("prog");
-    params.push_back("./omprogsrv");
-    params.push_back(datadir + "apitest_simpledata.txt");
-    databases.add_database("net", params);
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("net");
+    backendmanager.set_datadir(datadir);
+    vector<string> paths;
 
-    params.pop_back();
-    params.push_back(datadir + "apitest_simpledata2.txt");
-    databases.add_database("net", params);
+    paths.push_back("apitest_simpledata");
+    OmDatabase db = backendmanager.get_database(paths);
+    databases.add_database(db);
+
+    paths[0] = "apitest_simpledata2";
+    db = backendmanager.get_database(paths);
+    databases.add_database(db);
 
     OmEnquire enq(databases);
 
@@ -87,12 +92,15 @@ bool test_netmatch2()
 // test a simple network expand
 bool test_netexpand1()
 {
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("net");
+    backendmanager.set_datadir(datadir);
+    vector<string> paths;
+    paths.push_back("apitest_simpledata");
+    OmDatabase db = backendmanager.get_database(paths);
+
     OmDatabaseGroup databases;
-    vector<string> params;
-    params.push_back("prog");
-    params.push_back("./omprogsrv");
-    params.push_back(datadir + "apitest_simpledata.txt");
-    databases.add_database("net", params);
+    databases.add_database(db);
 
     OmEnquire enq(databases);
 
@@ -180,7 +188,7 @@ bool test_tcpmatch1()
 test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
-    //{"netexpand1",      test_netexpand1},
+    {"netexpand1",      test_netexpand1},
 #ifdef MUS_BUILD_BACKEND_SLEEPY
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},

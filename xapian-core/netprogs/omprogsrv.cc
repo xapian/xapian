@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     cout.flush();
 #endif
 
-    if (argc < 2) {
+    if (argc < 3) {
 	cerr << "Wrong number of arguments" << endl;
 	cout << "ERROR" << endl;
 	exit(-1);
@@ -58,10 +58,11 @@ int main(int argc, char *argv[]) {
     try {
 	// open the database to return results
 	BackendManager backendmanager;
+	backendmanager.set_datadir(argv[1]);
 	backendmanager.set_dbtype("inmemory");
 
 	vector<string> paths;
-	for (int i=1; i<argc; ++i) {
+	for (int i=2; i<argc; ++i) {
 	    paths.push_back(argv[i]);
 	}
 

@@ -1,3 +1,8 @@
+Wed Jun  7 11:32:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Alter testsuite so that the nettests can work with sleepycat
+	  databases if desired.
+
 Tue Jun  6 19:10:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix nettest to use backend managers rather than inmemory's indexing.
