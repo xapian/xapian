@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #include "htmlparse.h"
+#include "indextext.h"
 
 using namespace std;
 
@@ -301,75 +302,13 @@ lowercase_string(string &term)
     }
 } 
 
-// FIXME: this function is almost identical to one in omindex.cc...
-static Xapian::termpos
-index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
-	   Xapian::termcount wdfinc, const string &prefix,
-	   Xapian::termpos pos = static_cast<Xapian::termpos>(-1)
-	   // Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
-	   )
-{
-    string::const_iterator i, j = s.begin(), k;
-    while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	string term;
-	k = i;
-	if (isupper(*k)) {
-	    j = k;
-	    term = *j;
-	    while (++j != s.end() && *j == '.' &&
-		   ++j != s.end() && isupper(*j)) {
-		term += *j;
-	    } 
-	    if (term.length() < 2 || (j != s.end() && isalnum(*j))) {
-		term = "";
-	    }
-	}
-	if (term.empty()) {
-moreterm:
-	    j = find_if(k, s.end(), p_notalnum);
-	    if (j != s.end() && *j == '&') {
-		if (j + 1 != s.end() && isalnum(j[1])) {
-		    k = j + 1;
-		    goto moreterm;
-		}
-	    }
-	    k = find_if(j, s.end(), p_notplusminus);
-	    if (k == s.end() || !isalnum(*k)) j = k;
-	    term = s.substr(i - s.begin(), j - i);
-	}
-
-	if (term.length() <= MAX_PROB_TERM_LENGTH) {
-	    lowercase_term(term);
-	    if (isupper(*i) || isdigit(*i)) {
-		if (pos != static_cast<Xapian::termpos>(-1)
-			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
-		   ) {
-		    doc.add_posting(prefix + 'R' + term, pos, wdfinc);
-		} else {
-		    doc.add_term_nopos(prefix + 'R' + term, wdfinc);
-		}
-	    }
-
-	    term = stemmer.stem_word(term);
-	    if (pos != static_cast<Xapian::termpos>(-1)
-		    // Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
-	       ) {
-		doc.add_posting(prefix + term, pos++, wdfinc);
-	    } else {
-		doc.add_term_nopos(prefix + term, wdfinc);
-	    }
-	}
-    }
-    return pos;
-}                           
-
 #if 0
 static unsigned int
 hash(const string &s)
 {
     unsigned int h = 1;
     for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
-	h += (h << 5) + static_cast<unsigned int>(*i);
+	h += (h << 5) + static_cast<unsigned char>(*i);
     }
     return h;
 }

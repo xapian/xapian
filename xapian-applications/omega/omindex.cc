@@ -43,6 +43,7 @@
 #include <xapian.h>
 
 #include "htmlparse.h"
+#include "indextext.h"
 
 using namespace std;
 
@@ -59,9 +60,6 @@ static string indexroot;
 static string baseurl;
 static Xapian::WritableDatabase db;
 
-// Put a limit on the size of terms to help prevent the index being bloated
-// by useless junk terms
-static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 static const unsigned int MAX_URL_LENGTH = 240;
 
 static void
@@ -163,74 +161,10 @@ MyHtmlParser::closing_tag(const string &text)
     }
 }
 
-#if 0
-inline static bool
-p_alpha(unsigned int c)
-{
-    return ((c | 32) - 'a') <= ('z' - 'a');
-}
-#endif
-
-inline static bool
-p_alnum(unsigned int c)
-{
-    return isalnum(c);
-}
-
 inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(c);
-}
-
-inline static bool
-p_notplusminus(unsigned int c)
-{
-    return c != '+' && c != '-';
-}
-
-static Xapian::termpos
-index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer, Xapian::termpos pos)
-{
-    string::const_iterator i, j = s.begin(), k;
-    while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
-	string term;
-	k = i;
-	if (isupper(*k)) {
-	    j = k;
-	    term = *j;
-	    while (++j != s.end() && *j == '.' &&
-		   ++j != s.end() && isupper(*j)) {
-		term += *j;
-	    } 
-	    if (term.length() < 2 || (j != s.end() && isalnum(*j))) {
-		term = "";
-	    }
-	}
-	if (term.empty()) {
-moreterm:
-	    j = find_if(k, s.end(), p_notalnum);
-	    if (j != s.end() && *j == '&') {
-		if (j + 1 != s.end() && isalnum(j[1])) {
-		    k = j + 1;
-		    goto moreterm;
-		}
-	    }
-	    k = find_if(j, s.end(), p_notplusminus);
-	    if (k == s.end() || !isalnum(*k)) j = k;
-	    term = s.substr(i - s.begin(), j - i);
-	}
-	if (term.length() <= MAX_PROB_TERM_LENGTH) {
-	    lowercase_term(term);
-	    if (isupper(*i) || isdigit(*i)) {
-		doc.add_posting('R' + term, pos);
-	    }
-
-	    term = stemmer.stem_word(term);
-	    doc.add_posting(term, pos++);
-	}
-    }
-    return pos;
 }
 
 /* Hash is computed as an unsigned long, and then converted to a

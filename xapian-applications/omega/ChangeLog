@@ -1,3 +1,8 @@
+Wed Jun 18 16:28:33 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,indextext.cc,indextext.h,omindex.cc,scriptindex.cc:
+	  Normalise accents in probabilistic terms.
+
 Tue Jun 17 17:54:32 BST 2003  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Read output from pstotext and pdftotext via pipes rather
