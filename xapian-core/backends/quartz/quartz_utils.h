@@ -35,7 +35,7 @@ typedef unsigned long long  om_uint64;
 typedef int                 om_int32;
 typedef long long           om_int64;
 
-/** Reads an integer from a string starting at a given position.
+/** Reads an unsigned integer from a string starting at a given position.
  *
  *  @param src       A pointer to a pointer to the data to read.  The
  *                   character pointer will be updated to point to the
@@ -45,7 +45,8 @@ typedef long long           om_int64;
  *                   read the integer from.
  *  @param result    A pointer to a place to store the result.  If an
  *                   error occurs, the value stored in this location is
- *                   undefined.
+ *                   undefined.  If this pointer is 0, the result is not
+ *                   stored, and the method simply skips over the result.
  *
  *  @result True if an integer was successfully read.  False if the read
  *          failed.  Failure may either be due to the data running out (in
@@ -53,12 +54,11 @@ typedef long long           om_int64;
  *          overflowing the size of result (in which case *src will point
  *          to wherever the value ends, despite the overflow).
  */
-
 template<class T>
 bool
 unpack_uint(const char ** src,
 	    const char * src_end,
-	    T * result)
+	    T * resultptr)
 {
     // Check unsigned
     CASSERT((T)(-1) > 0);
@@ -67,7 +67,7 @@ unpack_uint(const char ** src,
     CASSERT(sizeof(om_byte) == 1);
 
     unsigned int shift = 0;
-    *result = 0;
+    T result = 0;
 
     while(1) {
 	if ((*src) == src_end) {
@@ -79,9 +79,9 @@ unpack_uint(const char ** src,
 	(*src)++;
 
 	// if new byte might cause overflow, and it does
-	if (((shift > (sizeof(*result) - 1) * 8 + 1) &&
+	if (((shift > (sizeof(T) - 1) * 8 + 1) &&
 	     ((part & 0x7f) << (shift % 8)) >= 0x100) ||
-	    (shift >= sizeof(*result) * 8))  {
+	    (shift >= sizeof(T) * 8))  {
 	    // Overflowed - move to end of this integer
 	    while(1) {
 		if ((part & 0x80) == 0) return false;
@@ -94,10 +94,11 @@ unpack_uint(const char ** src,
 	    }
 	}
 
-	*result += (part & 0x7f) << shift;
+	result += (part & 0x7f) << shift;
 	shift += 7;
 
 	if ((part & 0x80) == 0) {
+	    if (resultptr) *resultptr = result;
 	    return true;;
 	}
     }
@@ -160,15 +161,15 @@ pack_string(std::string value)
 inline bool
 unpack_bool(const char ** src,
 	    const char * src_end,
-	    bool * result)
+	    bool * resultptr)
 {
     if (*src == src_end) {
 	*src = 0;
 	return false;
     }
     switch (*((*src)++)) {
-	case '0': *result = false; return true;
-	case '1': *result = true; return true;
+	case '0': if(resultptr) *resultptr = false; return true;
+	case '1': if(resultptr) *resultptr = true; return true;
     }
     *src = 0;
     return false;

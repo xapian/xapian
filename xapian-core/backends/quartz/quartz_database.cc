@@ -250,7 +250,12 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
 om_doccount
 QuartzDatabase::get_termfreq_internal(const om_termname & tname) const
 {
-    throw OmUnimplementedError("QuartzDatabase::get_termfreq_internal() not yet implemented");
+    om_doccount termfreq = 0; // If not found, this value will be unchanged.
+    QuartzLexicon::get_entry(tables->get_lexicon_table(),
+			     tname,
+			     0,
+			     &termfreq);
+    return termfreq;
 }
 
 bool
@@ -258,7 +263,8 @@ QuartzDatabase::term_exists(const om_termname & tname) const
 {
     Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::term_exists() not yet implemented");
+    return QuartzLexicon::get_entry(tables->get_lexicon_table(),
+				    tname, 0, 0);
 }
 
 
@@ -273,7 +279,11 @@ LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::open_term_list() not yet implemented");
+
+    return(new QuartzTermList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(),
+							      this),
+			      tables->get_termlist_table(),
+			      did));
 }
 
 LeafDocument *
@@ -411,6 +421,10 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 				false);
 
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
+	om_termid tid;
+	QuartzLexicon::increment_termfreq(buffered_tables->get_lexicon_table(),
+					  term->second.tname,
+					  &tid);
 #if 0
 	QuartzPostList::add_posting(*(buffered_tables.get_postlist_table()),
 				    term->second.tname,
@@ -433,11 +447,11 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
-#if 0
     OmDocumentContents document(database_ro.do_get_document_internal(did));
 
     OmDocumentContents::document_terms::const_iterator term;
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
+#if 0
 	QuartzPostList::delete_posting(*(buffered_tables.get_postlist_table()),
 				       term->second.tname,
 				       did,
@@ -447,8 +461,10 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 				    did,
 				    term->second.tname,
 				    term->second.positions);
-    }
 #endif
+	QuartzLexicon::decrement_termfreq(buffered_tables->get_lexicon_table(),
+					  term->second.tname);
+    }
 
     // Remove the termlist.
     QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),

@@ -42,7 +42,19 @@ class QuartzLexicon {
 	static void make_key(QuartzDbKey & key,
 			     const om_termname & tname);
 
+	/** Allocate a new term ID.
+	 */
+	static om_termid allocate_termid(QuartzBufferedTable * table);
+
 	/** Parse an entry from the lexicon.
+	 *
+	 *  @param data     The data stored in the tag in the lexicon table.
+	 *  @param tid      A pointer to a value which is filled with the
+	 *                  term ID of the term looked up, if found.  If the
+	 *                  pointer is 0, the termID read is discarded.
+	 *  @param termfreq A pointer to a value which is filled with the
+	 *                  term frequency, if the term is found.  If the
+	 *                  pointer is 0, the termfreq read is discarded
 	 */
 	static void parse_entry(const std::string & data,
 				om_termid * tid,
@@ -55,18 +67,28 @@ class QuartzLexicon {
 			       om_doccount termfreq);
 
     public:
-	/** Add an entry to the lexicon.
+	/** Add an occurrence of a term within a document to the lexicon.
+	 *
+	 *  If the term already exists, this merely increases the term
+	 *  frequency for that term - if the term doesn't exist yet a new
+	 *  entry is created for it
+	 *
+	 *  @param table   The table which the lexicon is stored in.
+	 *  @param tname   The term to add.
+	 *  @param tidptr  A pointer to a termid, which is used to return the
+	 *                 termid associated with this term.  The initial
+	 *                 value of this termid is ignored.  If the pointer
+	 *                 is 0, this entry is ignored.
 	 */
-	static void add_entry(QuartzBufferedTable * table,
-			      const om_termname & tname,
-			      om_termid tid,
-			      om_doccount termfreq);
+	static void increment_termfreq(QuartzBufferedTable * table,
+				       const om_termname & tname,
+				       om_termid * tidptr = 0);
 
 	/** Remove an entry from the lexicon.  If the entry
 	 *  doesn't already exist, no action is taken.
 	 */
-	static void delete_entry(QuartzBufferedTable * table,
-				 const om_termname & tname);
+	static void decrement_termfreq(QuartzBufferedTable * table,
+				       const om_termname & tname);
 
 
 	/** Get an entry from the lexicon.
@@ -74,9 +96,11 @@ class QuartzLexicon {
 	 *  @param table    The table which the lexicon is stored in.
 	 *  @param tname    The term being looked up in the lexicon.
 	 *  @param tid      A pointer to a value which is filled with the
-	 *                  term ID of the term looked up, if found.
+	 *                  term ID of the term looked up, if found.  If the
+	 *                  pointer is 0, the termID read is discarded.
 	 *  @param termfreq A pointer to a value which is filled with the
-	 *                  term frequency.
+	 *                  term frequency, if the term is found.  If the
+	 *                  pointer is 0, the termfreq read is discarded
 	 *
 	 *  @return       true if term was found in lexicon, false
 	 *                otherwise.

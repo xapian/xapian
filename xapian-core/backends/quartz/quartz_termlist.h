@@ -34,7 +34,7 @@ class QuartzTermListIterator;
 
 /** A termlist in a quartz database.
  */
-class QuartzTermList {
+class QuartzTermList : public LeafTermList {
     private:
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us, and also so that we can

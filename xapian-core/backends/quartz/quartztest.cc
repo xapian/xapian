@@ -572,7 +572,8 @@ static bool test_adddoc2()
 		TEST_EQUAL(i->second.tname, j->second.tname);
 		TEST_EQUAL(i->second.wdf, j->second.wdf);
 		TEST_NOT_EQUAL(i->second.termfreq, j->second.termfreq);
-		TEST_EQUAL(0, j->second.termfreq);
+		TEST_EQUAL(0, i->second.termfreq);
+		TEST_EQUAL(2, j->second.termfreq);
 		TEST_EQUAL(i->second.positions.size(),
 			   j->second.positions.size());
 		OmDocumentTerm::term_positions::const_iterator k,l;
