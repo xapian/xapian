@@ -1,3 +1,10 @@
+Tue Jul 18 17:12:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Debug system now prints out the (currently numeric) debug type
+	  before the output, to make it easier to tune OM_DEBUG_TYPES
+
+	* OM_DEBUG_TYPES=0 now means no debugging output, instead of all.
+
 Mon Jul 17 19:35:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The testsuite now has improved reporting of test failures.  It

@@ -87,7 +87,11 @@ enum om_debug_types {
 
     /** A debug message involved with locking or unlocking something in a database.
      */
-    OM_DEBUG_DBLOCK
+    OM_DEBUG_DBLOCK,
+
+    /** A value equal to the number of known types.
+     */
+    OM_DEBUG_NUMTYPES
 };
 
 /** Class to manage verbose debugging output

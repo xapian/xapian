@@ -79,7 +79,7 @@ OmDebug::select_types()
     char * typestring = getenv(OM_ENV_DEBUG_TYPES);
     if (typestring != 0) {
 	unsigned int types = atoi(typestring);
-	while (types != 0) {
+	for (int i=0; i<OM_DEBUG_NUMTYPES; ++i) {
 	    if(types & 1) {
 		unwanted_types.push_back(false);
 	    } else {
@@ -146,10 +146,10 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
     pthread_mutex_lock(mutex);
 #endif
     if (outfile) {
-	fprintf(outfile, "%s", msg.c_str());
+	fprintf(outfile, "{%d}%s", type, msg.c_str());
 	fflush(outfile);
     } else {
-	fprintf(stderr, "%s", msg.c_str());
+	fprintf(stderr, "{%d}%s", type, msg.c_str());
 	fflush(stderr);
     }
 #ifdef MUS_USE_PTHREAD
