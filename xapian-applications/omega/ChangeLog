@@ -1,3 +1,8 @@
+Mon Dec 20 12:18:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix the "ignore symlinks" code to actually compile on
+	  certain Linux boxes.
+
 Mon Dec 20 11:33:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: If an exception is thrown, make sure that the HTTP headers

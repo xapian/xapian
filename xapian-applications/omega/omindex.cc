@@ -25,8 +25,10 @@
 
 #include <config.h>
 
-#ifdef __linux__
-# define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
+#ifdef HAVE_POSIX_FADVISE
+# ifdef __linux__
+#  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
+# endif
 #endif
 #include <algorithm>
 #include <fstream>
