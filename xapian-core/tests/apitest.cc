@@ -609,6 +609,14 @@ bool test_matchfunctor1()
     return success;
 }
 
+void print_mset_percentages(const OmMSet &mset)
+{
+    for (unsigned i=0; i<mset.items.size(); ++i) {
+        cout << " ";
+	cout << mset.convert_to_percent(mset.items[i]);
+    }
+}
+
 bool test_pctcutoff1()
 {
     bool success = true;
@@ -618,21 +626,52 @@ bool test_pctcutoff1()
 
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
-    bool ready = false;
-    int last_item = mymset1.items.size() / 2;
-    int my_pct = mymset1.convert_to_percent(mymset1.items[last_item]);
+    if (verbose) {
+      cout << "Original mset pcts:";
+      print_mset_percentages(mymset1);
+      cout << endl;
+    }
+
+    unsigned int num_items = 0;
+    int my_pct = 100;
+    int changes = 0;
+    for (unsigned int i=0; i<mymset1.items.size(); ++i) {
+        int new_pct = mymset1.convert_to_percent(mymset1.items[i]);
+        if (new_pct != my_pct) {
+	    changes++;
+	    if (changes <= 3) {
+	        num_items = i;
+		my_pct = new_pct;
+	    }
+	}
+    }
+
+    if (changes <= 3) {
+        if (verbose) {
+	    cout << "MSet not varied enough to test" << endl;
+	}
+    }
+    if (verbose) {
+        cout << "Cutoff percent: " << my_pct << endl;
+    }
     
     OmMatchOptions mymopt;
     mymopt.set_percentage_cutoff(my_pct);
     OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
+
+    if (verbose) {
+        cout << "Percentages after cutoff:";
+	print_mset_percentages(mymset2);
+        cout << endl;
+    }
     
-    if (mymset2.items.size() < (last_item+1)) {
+    if (mymset2.items.size() < num_items) {
         success = false;
 	if (verbose) {
 	    cout << "Match with % cutoff lost too many items" << endl;
 	}
-    } else if (mymset2.items.size() > (last_item+1)) {
-        for (unsigned int i=last_item+1; i<mymset2.items.size(); ++i) {
+    } else if (mymset2.items.size() > num_items) {
+        for (unsigned int i=num_items; i<mymset2.items.size(); ++i) {
 	    if (mymset2.convert_to_percent(mymset2.items[i]) != my_pct) {
 	        success = false;
 		if (verbose) {
