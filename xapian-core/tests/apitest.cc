@@ -63,12 +63,11 @@ string datadir;
 bool verbose = false;
 
 void usage(char *progname) {
-    cerr << "Usage: " << progname << " <datadir>" << endl;
+    cerr << "Usage: " << progname << " [-v] [-o]" << endl;
 }
 
 int main(int argc, char *argv[])
 {
-    // FIXME: want to be able to specify abort_on_error on the command line.
     bool abort_on_error = false;
 
     om_test *test = &tests[0];
@@ -90,11 +89,16 @@ int main(int argc, char *argv[])
 	}
     }
 
-    if (optind != (argc-1)) {
+    if (optind != (argc)) {
     	usage(argv[0]);
 	return 1;
     }
-    datadir = argv[optind];
+    char *srcdir = getenv("srcdir");
+    if (srcdir == NULL) {
+        cout << "Error: $srcdir must be in the environment!" << endl;
+	return(1);
+    }
+    datadir = std::string(srcdir) + "/testdata/";
 
     while ((test->name) != 0) {
     	cout << "Running test: " << test->name << "...";
