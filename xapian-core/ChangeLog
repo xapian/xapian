@@ -1,3 +1,8 @@
+Fri May 07 14:38:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Slight efficiency tweak to the
+	  "deleting the whole posting list" case.
+
 Fri May 07 03:16:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Removed another unnecessary use
