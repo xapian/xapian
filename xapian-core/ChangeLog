@@ -1,3 +1,7 @@
+Thu Apr 08 17:22:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* net/.cvsignore: No longer need to ignore readquery.cc.
+
 Thu Apr 08 17:19:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/base.h: Note in doxygen comment why the ref_count
