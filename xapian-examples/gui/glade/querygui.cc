@@ -39,6 +39,7 @@
 
 IRDatabase *database;
 Match * matcher;
+vector<MSetItem> mset;
 string query;
 
 doccount max_msize;
@@ -130,12 +131,12 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	docid did = matcher->mset[row].did;
+	docid did = mset[row].did;
 	IRDocument *doc = database->open_document(did);
 	IRData data = doc->get_data();
 	string fulltext = data.value;
 	weight maxweight = matcher->get_max_weight();
-	string score = inttostring((int)(100 * matcher->mset[row].wt / maxweight));
+	string score = inttostring((int)(100 * mset[row].wt / maxweight));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -236,18 +237,17 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    i++;
 	}
 
-	matcher->set_max_msize(max_msize);
-
-	matcher->match();
+	// Perform match
+	doccount mtotal;
+	matcher->match(0, max_msize, mset, &mtotal);
 	weight maxweight = matcher->get_max_weight();
-	doccount mtotal = matcher->mtotal;
-	doccount msize = matcher->msize;
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
 	cout << "MTotal: " << mtotal << " Maxweight: " << maxweight << endl;
-	for (docid i = 0; i < msize; i++) {
-	    docid did = matcher->mset[i].did;
+	vector<MSetItem>::const_iterator j;
+	for (j = mset.begin(); j != mset.end(); j++) {
+	    docid did = j->did;
 	    IRDocument *doc = database->open_document(did);
 	    IRData data = doc->get_data();
 	    string message;
@@ -261,8 +261,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 #endif
 	    message += data.value;
 	    message = data.value;
-	    ResultItemGTK * item = new ResultItemGTK(matcher->mset[i].did,
-		100 * matcher->mset[i].wt / maxweight, message);
+	    ResultItemGTK * item = new ResultItemGTK(j->did,
+		100 * j->wt / maxweight, message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
@@ -368,12 +368,10 @@ int main(int argc, char *argv[]) {
 
     // FIXME - debugging code - remove this
     matcher->add_term("love");
-    matcher->set_max_msize(10);
-    matcher->match();
+    doccount mtotal;
+    matcher->match(0, 10, mset, &mtotal);
     weight maxweight = matcher->get_max_weight();
-    doccount mtotal = matcher->mtotal;
-    doccount mressize = matcher->msize;
-    cout << maxweight << " " << mtotal << " " << mressize << endl;
+    cout << maxweight << " " << mtotal << " " << mset.size() << endl;
 
     delete matcher;
     matcher = NULL;
