@@ -37,6 +37,7 @@
 
 #include <list>
 #include <memory>
+#include <vector>
 
 // FIXME: these 2 copied from om/indexer/index_utils.cc
 static void
