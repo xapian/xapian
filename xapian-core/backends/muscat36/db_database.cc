@@ -141,13 +141,11 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), keyfil
 
     std::string filename_k = params.get("m36_key_file", "");
 
-    heavy_duty = params.get_bool("m36_heavyduty", true);
-
     // Get the cache_size
     int cache_size = params.get_int("m36_db_cache_size", 30);
 
     // Actually open
-    DB = DB_open(filename.c_str(), cache_size, heavy_duty);
+    DB = DB_open(filename.c_str(), cache_size);
     if (DB == 0) {
 	throw OmOpeningError(std::string("When opening ") + filename + ": " + strerror(errno));
     }
@@ -365,7 +363,7 @@ DBDatabase::open_document(om_docid did) const
 {
     OmLockSentry sentry(mutex);
 
-    return new DBDocument(this, did, heavy_duty);
+    return new DBDocument(this, did, DB->heavy_duty);
 }
 
 OmRefCntPtr<const DBTerm>

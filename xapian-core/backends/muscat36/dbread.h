@@ -105,7 +105,7 @@ struct DB_postings
     int wdf;
 };
 
-extern struct DB_file *     DB_open(const char * s, int n, int heavy_duty);
+extern struct DB_file *     DB_open(const char * s, int n);
 extern void                 DB_close(struct DB_file * p);
 extern int                  DB_term(const byte * k, struct DB_term_info * t, struct DB_file * p);
 extern struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * p);

@@ -377,7 +377,7 @@ static struct DB_pool * DB_make_pool(int n)
     return P;
 }
 
-extern struct DB_file * DB_open(const char * s, int pool_size, int heavy_duty)
+extern struct DB_file * DB_open(const char * s, int pool_size)
 {
     struct DB_file * DB;
     filehandle q;
@@ -417,12 +417,7 @@ extern struct DB_file * DB_open(const char * s, int pool_size, int heavy_duty)
             exit(1);
         }
 
-        if (W(db1, DB_KEYPART) != heavy_duty)
-        {   fprintf(stderr, "heavy duty/flimsy confusion\n");
-            exit(1);
-        }
-
-        DB->heavy_duty = heavy_duty;
+        DB->heavy_duty = W(db1, DB_KEYPART);
 
         free(db0); free(db1);
     }

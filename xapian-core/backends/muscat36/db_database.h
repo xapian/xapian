@@ -260,8 +260,6 @@ class DBDatabase : public IRDatabase {
 
 	mutable std::map<om_termname, OmRefCntPtr<const DBTerm> > termmap;
 
-	int heavy_duty;
-
 	// Stop copy / assignment being allowed
 	DBDatabase& operator=(const DBDatabase&);
 	DBDatabase(const DBDatabase&);

@@ -51,8 +51,8 @@
  *  - m36_term_file : DA term file
  *  - m36_db_file : DB file
  *  - m36_db_cache_size : size of DB file cache in blocks (default 30)
- *  - m36_heavyduty : true for 3 byte offset form, false for older 2 byte form
- *    (default true)
+ *  - m36_heavyduty : true for 3 byte offset form, false for older 2 byte form.
+ *    Only used by da backend - db backend autodetects. (default true)
  *
  *  network backend:
  *
