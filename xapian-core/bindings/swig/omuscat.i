@@ -90,15 +90,46 @@ class OmMatchOptions {
 // TODO: OmMatchDecider
 // TODO: OmExpandOptions
 // TODO: OmExpandDecider
-// TODO: OmRSet
-// TODO: OmESet
+
+class OmRSet {
+    public:
+	OmRSet();
+
+	// TODO: set<om_docid> items;
+	void add_document(om_docid did);
+	void remove_document(om_docid did);
+};
+
+class OmESet {
+    public:
+	~OmESet();
+	%readonly
+	om_termcount ebound;
+	/* Each language-specific part should include something like:
+	 * %addmethods OmMSet {
+	 *     %readonly
+	 *     LangListType items;
+	 * }
+	 * and define LangListType OmMSet_items_get(OmMSet *)
+	 */
+	%readwrite
+};
+
 // TODO: OmBatchEnquire
 // TODO: OmSettings
-// TODO: OmData?
-// TODO: OmKey?
-// TODO: OmDocument
 // TODO: OmDatabase
 // TODO: OmWritableDatabase
+
+class OmDocument {
+    public:
+	~OmDocument();
+
+	// OmKey and OmData are both strings as far as scripting languages
+	// see them.
+	OmKey get_key(om_keyno key) const;
+	OmData get_data() const;     
+};
+
 
 class OmDatabaseGroup {
     public:
@@ -122,8 +153,12 @@ class OmEnquire {
 			const OmMatchOptions *moptions = 0,
 			const OmMatchDecider *mdecider = 0);
 
-	// TODO: get_eset()
-	// TODO: get_doc()
+	OmESet get_eset(om_termcount maxitems,
+			const OmRSet &omrset,
+			const OmExpandOptions *eoptions = 0,
+			const OmExpandDecider *edecider = 0) const;
+
+	OmDocument get_doc(om_docid did);
 	
 	om_termname_list get_matching_terms(om_docid did);
 }

@@ -1,3 +1,9 @@
+Wed Jun 14 12:14:42 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmDocument, OmRSet, OmESet, OmEnquire::get_eset(), and
+	  OmEnquire::get_doc() to SWIG bindings, and implemented bits
+	  needed for Python.
+
 Tue Jun 13 18:04:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmEnquire::get_matching_terms() and OmMatchOptions to

@@ -132,6 +132,26 @@ PyObject *OmMSet_items_get(OmMSet *mset)
     }
     return retval;
 }
+
+PyObject *OmESet_items_get(OmESet *eset)
+{
+    PyObject *retval = PyList_New(0);
+    if (retval == 0) {
+	return NULL;
+    }
+
+    vector<OmESetItem>::const_iterator i = eset->items.begin();
+    while (i != eset->items.end()) {
+        PyObject *t = PyTuple_New(2);
+
+	PyTuple_SetItem(t, 0, PyString_FromString((i->tname).c_str()));
+	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
+
+	PyList_Append(retval, t);
+        ++i;
+    }
+    return retval;
+}
 %}
 
 %typemap(python, memberout) PyObject *items {
@@ -160,3 +180,21 @@ PyObject *OmMSet_items_get(OmMSet *mset)
 }
 
 %apply LangSpecificListType items { PyObject *items }
+
+%typemap(python, out) OmKey {
+    $target = PyString_FromString(($source)->value.c_str());
+    delete $source;
+    $source = 0;
+}
+
+%typemap(python, out) OmData {
+    $target = PyString_FromString(($source)->value.c_str());
+    delete $source;
+    $source = 0;
+}
+
+%addmethods OmESet {
+    %readonly
+    PyObject *items;
+    %readwrite
+}
