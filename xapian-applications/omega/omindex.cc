@@ -136,6 +136,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 		    if (val.find("none") != string::npos ||
 			val.find("noindex") != string::npos) {
 			indexing_allowed = false;
+			throw true;
 		    }
 		}
 	    }
@@ -144,6 +145,8 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 	in_script_tag = true;
     } else if (tag == "style") {
 	in_style_tag = true;
+    } else if (tag == "body") {
+	dump = "";
     }
 }
 
@@ -158,6 +161,8 @@ MyHtmlParser::closing_tag(const string &text)
 	in_script_tag = false;
     } else if (x == "style") {
 	in_style_tag = false;
+    } else if (tag == "body") {
+	throw true;
     }
 }
 
@@ -332,7 +337,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    return;
 	}
 	MyHtmlParser p;
-	p.parse_html(text);
+	try {
+	    p.parse_html(text);
+	} catch (bool) {
+	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
+	    // indexing is disallowed
+	}
 	if (!p.indexing_allowed) {
 	    cout << "indexing disallowed by meta tag - skipping\n";
 	    return;
