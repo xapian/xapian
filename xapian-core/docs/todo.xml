@@ -358,8 +358,11 @@ MergePostlist.
 <todoitem priority="D" difficulty="3" owner="" area="Decision functors" release="">
 
 Return a sensible value for OmMSet::matches_lower_bound when a decision
-functor is present: perhaps this should be matches_considered, but then again
-perhaps not.
+functor is present.  This has to be the number of documents that the decision
+functor tested and approved, as we know there are at least that many and
+can't know if there are more.  matches_upper_bound can be reduced by the
+number of documents that the functor rejected, and matches_estimated
+can be adjusted somehow - perhaps look at the reject rate of the functor?
 
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="API" release="">
