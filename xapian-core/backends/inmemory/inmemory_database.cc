@@ -105,7 +105,7 @@ InMemoryDatabase::open_document(om_docid did) const
     return new InMemoryDocument(doclists[did - 1]);
 }
 
-void
+om_docid
 InMemoryDatabase::add_document(const struct OmDocumentContents & document)
 {
     om_docid did = make_doc(document.data);
@@ -124,6 +124,8 @@ InMemoryDatabase::add_document(const struct OmDocumentContents & document)
 
 	// FIXME: set the wdf
     }
+
+    return did;
 }
 
 void

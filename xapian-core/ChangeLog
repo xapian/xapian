@@ -1,3 +1,8 @@
+Wed Apr 12 15:50:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* add_document methods now all return a om_docid value (rather than
+	  void)
+
 Wed Apr 12 15:49:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* MultiMatch now takes an optional StatsGatherer argument to

@@ -226,7 +226,7 @@ class InMemoryDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void add_document(const struct OmDocumentContents & document);
+	om_docid add_document(const struct OmDocumentContents & document);
 };
 
 

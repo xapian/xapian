@@ -188,8 +188,12 @@ class IRDatabase : public IndexerDestination,
 	// =======================
 
 	/** Add a new document to the database.
+	 *
+	 *  This is called by OmWritableDatabase.
+	 *
+	 *  @return The document ID of the newly created document.
 	 */
-	virtual void add_document(const struct OmDocumentContents & document) = 0;
+	virtual om_docid add_document(const struct OmDocumentContents & document) = 0;
 
 
 	//////////////////////////////////////////////////////////////////

@@ -57,5 +57,5 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     IRDatabase * database = internal->mydb.get();
     internal->mutex.unlock();
  
-    database->add_document(document);
+    return database->add_document(document);
 }

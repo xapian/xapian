@@ -86,7 +86,7 @@ class MultiDatabase : public IRDatabase {
 	/** MultiDatabase is a readonly database type, and thus this method is
 	 *  not supported: if called an exception will be thrown.
 	 */
-	void add_document(const struct OmDocumentContents & document) {
+	om_docid add_document(const struct OmDocumentContents & document) {
 	    throw OmUnimplementedError("MultiDatabase::add_document() not implemented");
 	}
 };

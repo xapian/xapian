@@ -56,8 +56,10 @@ class IndexerDestination {
 	virtual ~IndexerDestination() {}
 
 	/** Add a new document to the destination.
+	 *  The destination may return a document ID, but this will be ignored
+	 *  by the indexer.
 	 */
-	virtual void add_document(const struct OmDocumentContents & document) = 0;
+	virtual om_docid add_document(const struct OmDocumentContents & document) = 0;
 };
 
 /** A way to generate terms from sources

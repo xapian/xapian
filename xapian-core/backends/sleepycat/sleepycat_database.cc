@@ -156,9 +156,10 @@ SleepyDatabase::open_document(om_docid did) const
 }
 
 
-void
+om_docid
 SleepyDatabase::add_document(const struct OmDocumentContents & document)
 {
+    // FIXME - this method is incomplete
     om_docid did = get_doccount() + 1;
 
     OmDocumentContents::document_terms::const_iterator i;
@@ -166,7 +167,8 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
 	om_termid tid = termcache->assign_new_termid(i->second.tname);
 	make_entry_in_postlist(tid, did, i->second.wdf, i->second.positions);
     }
-    throw OmUnimplementedError("SleepyDatabase::add_document() not implemented");
+
+    return did;
 }
 
 void
