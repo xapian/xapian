@@ -1,3 +1,11 @@
+Fri Jan 12 14:04:37 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed buglet in configure.in which produced a bogus warning
+	  about regex libraries.
+	
+	* Added an AC_MSG_RESULT corresponding to an AC_MSG_CHECKING
+	  for the libxml flags
+
 Fri Jan 12 13:18:07 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed skip_to() in QuartzAllTermsList

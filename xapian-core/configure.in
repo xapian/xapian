@@ -151,6 +151,7 @@ then
      ], [have_libxml_valid=yes], [have_libxml_valid=no])
     CFLAGS="$SAVE_CFLAGS"
     AC_LANG_RESTORE
+    AC_MSG_RESULT("$LIBXML_CFLAGS")
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
@@ -176,7 +177,7 @@ AC_DEFINE(HAVE_RX_RXPOSIX_H,,
 	[ Define if <rx/rxposix.h> is available ])
 fi
 AC_SUBST(REGEX_LIB)
-if test -z "$REGEX_HEADER" -o -z "$REGEX_LIB"; then
+if test -z "$HAVE_REGEX_HEADER" -o -z "$REGEX_LIB"; then
 	AC_MSG_WARN(No POSIX regular expression library: some indexer nodes unavailable)
 fi
 
