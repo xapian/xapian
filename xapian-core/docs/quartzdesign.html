@@ -137,25 +137,8 @@ the values will be read.
 Documents will usually have very few values, so the current
 implementation may actually be the most suitable.
 <p>
-</li><!--<li>
-<b>Lexicon</b>.
-This stores some information about each term in the database in a fast
-access form.  <b>At present the Lexicon is disabled to see if this
-has a negative impact on performance</b>.
-<p>
-For each term in the database, this has an entry whose key is the term, and
-whose contents are the term frequency for that term.  This is intended to be a
-fast access table, so that processes can determine the term frequency (and
-hence weight) of a term quickly, whether for the purpose of doing an
-expand or for the purpose of selecting important terms.
-<p>
-Speed of access to this table is likely to be critical - attempting to
-ensure that the most frequently used part of the lexicon is always cached
-in memory to a large extent is likely to give high rewards.  Alternatively
-it might be possible to optimise the PostList table in such a way that the
-Lexicon can be removed and the PostList table used instead...
-<p>
-</li>--><li>
+</li>
+<li>
 <b>TermList</b>.
 This stores the list of terms which appear in a document.
 <p>
@@ -259,11 +242,9 @@ position lists) would benefit from being split into chunks in this way.
 
 The tables are currently all implemented as B-trees (actually a form of
 B-tree sometimes known as a B+ tree).
-<p>
-In some situations, the use of a different structure could be appropriate - in
-particular for the lexicon where key ordering is irrelevant, and a hashing
-scheme might provide more space and time efficient access.  This
-is an area for future investigation.
+(For some tables, the use of a different structure could be more appropriate -
+perhaps a hashing scheme might provide more space and time efficient access.
+This is an area for future investigation).
 <p>
 A B-tree is a fairly standard structure for storing this kind of data, so I
 will not describe it in detail - see a reference book on database design and

@@ -36,11 +36,7 @@
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
-#ifdef USE_LEXICON
-#include "quartz_lexicon.h"
-#else
 #include "quartz_utils.h"
-#endif
 #include "quartz_record.h"
 #include "quartz_values.h"
 #include "quartz_document.h"
@@ -153,15 +149,8 @@ QuartzDatabase::get_termfreq(const string & tname) const
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-#ifdef USE_LEXICON
-    Xapian::doccount termfreq = 0;
-    // If not found, termfreq's value will be unchanged.
-    QuartzLexicon::get_entry(tables->get_lexicon_table(), tname, &termfreq);
-    RETURN(termfreq);
-#else
     QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
     RETURN(pl.get_termfreq());
-#endif
 }
 
 Xapian::termcount
@@ -181,15 +170,11 @@ QuartzDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
-#ifdef USE_LEXICON
-    return QuartzLexicon::get_entry(tables->get_lexicon_table(), tname, 0);
-#else
     const QuartzTable * table = tables->get_postlist_table();
     AutoPtr<QuartzCursor> cursor(table->cursor_get());
     // FIXME: nasty C&P from backends/quartz/quartz_postlist.cc
     string key = pack_string_preserving_sort(tname);
     return cursor->find_entry(key);
-#endif
 }
 
 
@@ -442,11 +427,6 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	    for ( ; term != term_end; ++term) {
 		// Calculate the new document length
 		new_doclen += term.get_wdf();
-#ifdef USE_LEXICON
-		QuartzLexicon::increment_termfreq(
-		    buffered_tables->get_lexicon_table(),
-		    *term);
-#endif
 		string tname = *term;
 		termcount wdf = term.get_wdf();
 
@@ -563,11 +543,6 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 	    QuartzPositionList::delete_positionlist(
 		buffered_tables->get_positionlist_table(),
 		did, tname);
-#ifdef USE_LEXICON
-	    QuartzLexicon::decrement_termfreq(
-		buffered_tables->get_lexicon_table(),
-		tname);
-#endif
 	    termcount wdf = termlist.get_wdf();
 
 	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
@@ -726,11 +701,6 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	    for ( ; term != term_end; ++term) {
 		// Calculate the new document length
 		new_doclen += term.get_wdf();
-#ifdef USE_LEXICON
-		QuartzLexicon::increment_termfreq(
-		    buffered_tables->get_lexicon_table(),
-		    *term);
-#endif
 		string tname = *term;
 		termcount wdf = term.get_wdf();
 
@@ -832,15 +802,11 @@ Xapian::doccount
 QuartzWritableDatabase::get_termfreq(const string & tname) const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_termfreq", tname);
-#ifdef USE_LEXICON
-    RETURN(database_ro.get_termfreq(tname));
-#else
     Xapian::doccount termfreq = database_ro.get_termfreq(tname);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
     if (i != freq_deltas.end()) termfreq += i->second.first;
     RETURN(termfreq);
-#endif
 }
 
 Xapian::termcount
@@ -860,11 +826,7 @@ bool
 QuartzWritableDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
-#ifdef USE_LEXICON
-    RETURN(database_ro.term_exists(tname));
-#else
     RETURN(get_termfreq(tname) != 0);
-#endif
 }
 
 

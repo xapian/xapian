@@ -1,3 +1,9 @@
+Sat Dec 20 16:31:46 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,docs/quartzdesign.html: Removed all the quartz
+	  lexicon code and docs.  It's been disabled for ages, and we've
+	  not missed it.
+
 Sat Dec 20 01:21:47 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.h: Added doxygen comments for the

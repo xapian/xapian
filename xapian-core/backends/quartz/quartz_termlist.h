@@ -172,7 +172,7 @@ class QuartzTermList : public LeafTermList {
 	/** Get the term frequency of the current term - the number of
 	 *  documents containing this term.  For an updateable database, this
 	 *  cannot be stored in the termlist, so involves a relatively expensive
-	 *  lookup in the lexicon.
+	 *  lookup in the postlist table.
 	 */
 	Xapian::doccount get_termfreq() const;
 
