@@ -386,7 +386,9 @@ BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames,
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(params);
+	    OmSettings params1 = params;
+	    params1.set("database_create", true);
+	    OmWritableDatabase db(params1);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
@@ -421,7 +423,9 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(params);
+	    OmSettings params1 = params;
+	    params1.set("database_create", true);
+	    OmWritableDatabase db(params1);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }

@@ -1,3 +1,8 @@
+Tue Jan 16 20:35:18 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix creation of quartz databases in backendmanager: all tests should
+	  now pass.
+
 Tue Jan 16 20:28:46 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix quartztest so that the tables / databases get created.
