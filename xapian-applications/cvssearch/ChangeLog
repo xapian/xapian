@@ -1,3 +1,7 @@
+Tue Mar 23 18:43:01 GMT 2004  Olly Betts <olly@localnet>
+
+	* configure.in: AM_PROG_LIBTOOL -> AC_PROG_LIBTOOL.
+
 Tue Mar 23 18:38:51 GMT 2004  Olly Betts <olly@survex.com>
 
 	* ChangeLog: Created from CVS checkin comments.
