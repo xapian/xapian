@@ -36,6 +36,24 @@
  *
  */
 
+/* Later additions:
+
+   February 2000
+
+   the cvc test for not dropping final -e now looks after vc at the
+   beginning of a word, so are, eve, ice, ore, use keep final -e. In this
+   test c is any consonant, including w, x and y. This extension was
+   suggested by Chris Emerson.
+
+   -fully    -> -ful   treated like  -fulness -> -ful, and
+   -tionally -> -tion  treated like  -tional  -> -tion
+
+   both in Step 2. These were suggested by Hiranmay Ghosh, of New Delhi.
+
+   Invariants proceed, succeed, exceed. Also suggested by Hiranmay Ghosh.
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -133,17 +151,26 @@ static int doublec(struct english_stemmer * z, int i)
     return cons(z, i);
 }
 
-/* cvc(z, i) is true <=> p[i - 2], p[i - 1], p[i] has the form consonant -
-   vowel - consonant and also if the second c is not w, x or y. this is used
-   when trying to restore an e at the end of a short word. e.g.
+/* cvc(z, i) is true <=>
 
-      cav(e), lov(e), hop(e), crim(e), but
-      snow, box, tray.
+   a) ( -NEW- ) i == 1, and p[0] p[1] is vowel consonant, or
+
+   b) p[i - 2], p[i - 1], p[i] has the form consonant -
+      vowel - consonant and also if the second c is not w, x or y. this is used
+      when trying to restore an e at the end of a short word. e.g.
+
+         cav(e), lov(e), hop(e), crim(e), but
+         snow, box, tray.
 
 */
 
 static int cvc(struct english_stemmer * z, int i)
-{   if (i < 2 || !cons(z, i) || cons(z, i - 1) || !cons(z, i - 2)) return false;
+{
+    if (i == 0) return false;   /* i == 0 never happens perhaps */
+
+    if (i == 1) return !cons(z, 0) && cons(z, 1);
+
+    if (!cons(z, i) || cons(z, i - 1) || !cons(z, i - 2)) return false;
     {   int ch = z->p[i];
         if (ch == 'w' || ch == 'x' || ch == 'y') return false;
     }
@@ -288,8 +315,13 @@ static void step_2(struct english_stemmer * z)
         case 'l':
             if (ends(z, "abli", 4)) { r(z, "able", 4); break; }
      */
+            if (ends(z, "alli", 4))
+            {
+                if (m(z) > 0) { setto(z, "al", 2); step_2(z); } /*-NEW-*/
+                break;
+            }
 
-            if (ends(z, "alli", 4)) { r(z, "al", 2); break; }
+            if (ends(z, "fulli", 5)) { r(z, "ful", 3); break; } /*-NEW-*/
             if (ends(z, "entli", 5)) { r(z, "ent", 3); break; }
             if (ends(z, "eli", 3)) { r(z, "e", 1); break; }
             if (ends(z, "ousli", 5)) { r(z, "ous", 3); break; }
@@ -466,6 +498,12 @@ static const char * irregular_forms[] = {
     "outing",  "outings/outing/",
     "canning", "cannings/canning/",
     "howe",    "howe/",
+
+    /*-NEW-*/
+    "proceed", "proceed/",
+    "exceed",  "exceed/",
+    "succeed", "succeed/",  /* Hiranmay Ghosh */
+
     0, 0  /* terminator */
 
 };
