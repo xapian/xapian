@@ -1,7 +1,24 @@
+Mon Jun 12 14:04:00 BST 2000  Olly Betts
+
+	* Added a NEWS file and removed "foreign" from Makefile.am-s
+
+Mon Jun 12 13:00:00 BST 2000  Olly Betts
+
+	* configure.in: Changed explicit use of echo to AC_MSG_xxx()
+
+Mon Jun 12 12:32:00 BST 2000  Olly Betts
+
+	* tests/stemtest.pl.in: Use -s instead of stat to find filesize
+	(more readable)
+
 Mon Jun 12 12:20:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Document the intended purpose of the debug message types, and
 	  make the expand code emit typed debug messages.
+
+Mon Jun 12 12:10:00 BST 2000  Olly Betts
+	
+	* Probe for -Wno-long-long with C compiler as well as C++ compiler
 
 Fri Jun  9 17:51:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
