@@ -109,6 +109,9 @@ Priority | Area            | Task
  Medium  | General / API   | Put Om into its own namespace, to ensure lack of
          |                 | symbol conflicts.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Bindings        | Ensure that (Java in particular) bindings throw
+         |                 | correct exception types.
+---------+-----------------+--------------------------------------------------
  Medium  | General         | Make om_queryop a member of OmQuery, as far as
 	 |                 | the API is concerned.  Have an internal typedef
 	 |                 | so that this isn't inappropriate internally.
