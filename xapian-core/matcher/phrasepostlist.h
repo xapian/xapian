@@ -26,6 +26,8 @@
 #include "database.h"
 #include "andpostlist.h"
 
+#if 0
+
 /** A postlist comprising all the documents in which the two items occur as
  *  a phrase.
  * 
@@ -38,8 +40,9 @@
  *  The weight for a posting is the sum of the weights of
  *  the sub-postings.
  */
-class PhrasePostList : public AndPostList {
+class PhrasePostList : public LeafPostList {
     private:
+	vector<PostList *> sub_postlists;
     public:
 	om_doccount get_termfreq() const;
 
@@ -55,14 +58,14 @@ class PhrasePostList : public AndPostList {
 
 	string intro_term_description() const;
 
-        AndPostList(PostList *left,
-		    PostList *right,
-		    LocalMatch *matcher_,
-		    bool replacement = false);
+        PhrasePostList(PostList *left,
+		       PostList *right,
+		       LocalMatch *matcher_,
+		       bool replacement = false);
 };
 
 inline om_doccount
-AndPostList::get_termfreq() const
+PhrasePostList::get_termfreq() const
 {
     // this is actually the maximum possible frequency for the intersection of
     // the terms
@@ -70,44 +73,46 @@ AndPostList::get_termfreq() const
 }
 
 inline om_docid
-AndPostList::get_docid() const
+PhrasePostList::get_docid() const
 {
     return head;
 }
 
 // only called if we are doing a probabilistic AND
 inline om_weight
-AndPostList::get_weight() const
+PhrasePostList::get_weight() const
 {
     return l->get_weight() + r->get_weight();
 }
 
 // only called if we are doing a probabilistic operation
 inline om_weight
-AndPostList::get_maxweight() const
+PhrasePostList::get_maxweight() const
 {
     return lmax + rmax;
 }
 
 inline om_weight
-AndPostList::recalc_maxweight()
+PhrasePostList::recalc_maxweight()
 {
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
-    return AndPostList::get_maxweight();
+    return PhrasePostList::get_maxweight();
 }
 
 inline bool
-AndPostList::at_end() const
+PhrasePostList::at_end() const
 {
     return head == 0;
 }
 
 inline string
-AndPostList::intro_term_description() const
+PhrasePostList::intro_term_description() const
 {
-    return "(" + l->intro_term_description() + " And " +
+    return "(" + l->intro_term_description() + " Phrase " +
 	    r->intro_term_description() + ")";
 }
+
+#endif
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */

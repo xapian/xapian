@@ -63,6 +63,7 @@ class SleepyPostList : public LeafPostList {
 
 	om_docid      get_docid() const;   // Current docid
 	om_weight     get_weight() const;  // Current weight
+	PositionList & get_position_list() const; // Get positions
         PostList * next(om_weight w_min);  // Move to next docid
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list

@@ -28,6 +28,8 @@
 #include "om/omtypes.h"
 #include "om/omerror.h"
 
+#include "positionlist.h"
+
 /** Abstract base class for postlists. */
 class PostList
 {
@@ -67,6 +69,12 @@ class PostList
 	// recalculate weights (used when tree has been autopruned)
         virtual om_weight recalc_maxweight() = 0;
 
+	/** Get the list of positions at which the current term appears.
+	 *  This method returns a reference to a PositionList, which is valid
+	 *  until next() or skip_to() is called on this PostList, or until
+	 *  the PostList is destroyed.
+	 */
+	virtual PositionList & get_position_list() const = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Movement around the postlist

@@ -1,3 +1,11 @@
+Wed Apr 19 16:47:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a PositionList base class, and methods to return position
+	  lists from postlists.  No actual PositionLists yet implemented.
+
+	* Fixed a resource (memory and file descriptor) leak in Muscat36
+	  backends.
+
 Tue Apr 18 16:42:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made OmDocumentContents contain OmDatas and OmKeys rather than

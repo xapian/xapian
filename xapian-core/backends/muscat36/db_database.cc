@@ -87,6 +87,12 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
     return NULL;
 }
 
+PositionList &
+DBPostList::get_position_list() const
+{
+    throw OmUnimplementedError("DBPostList::get_position_list() unimplemented");
+}
+
 
 
 DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_)
@@ -181,6 +187,10 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 
 DBDatabase::~DBDatabase()
 {
+    if(keyfile != 0) {
+	fclose(keyfile);
+	keyfile = 0;
+    }
     if(DB != 0) {
 	DB_close(DB);
 	DB = 0;

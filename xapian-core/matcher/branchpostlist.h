@@ -54,6 +54,12 @@ class BranchPostList : public PostList {
         LocalMatch *matcher;
     public:
         virtual ~BranchPostList();
+
+	/** Most branch postlists won't be able to supply position lists.
+	 *  If get_position_list() is called on such a branch postlist,
+	 *  an OmUnimplementedError exception will be thrown.
+	 */
+	virtual PositionList & get_position_list() const;
 };
 
 inline
@@ -73,6 +79,12 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 	// now tell matcher that maximum weights need recalculation.
 	matcher->recalc_maxweight();
     }
+}
+
+inline PositionList &
+BranchPostList::get_position_list() const
+{
+    throw OmUnimplementedError("BranchPostList::get_position_list() unimplemented");
 }
 
 #endif /* OM_HGUARD_BRANCHPOSTLIST_H */

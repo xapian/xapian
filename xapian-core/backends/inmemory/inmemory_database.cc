@@ -47,6 +47,12 @@ InMemoryPostList::get_weight() const
 			      this_db->get_doclength(get_docid()));
 }
 
+PositionList &
+InMemoryPostList::get_position_list() const
+{
+    throw OmUnimplementedError("InMemoryPostList::get_position_list() unimplemented");
+}
+
 ///////////////////////////
 // Actual database class //
 ///////////////////////////

@@ -60,7 +60,8 @@ SleepyPostList::get_docid() const
     return mylist.get_current_item().id;
 }
 
-om_weight SleepyPostList::get_weight() const
+om_weight
+SleepyPostList::get_weight() const
 {
     Assert(ir_wt != NULL);
     
@@ -68,6 +69,12 @@ om_weight SleepyPostList::get_weight() const
     if(wdf == 0) wdf = 1;
 
     return ir_wt->get_sumpart(wdf, 1.0);
+}
+
+PositionList &
+SleepyPostList::get_position_list() const
+{
+    throw OmUnimplementedError("SleepyPostList::get_position_list() unimplemented");
 }
 
 PostList *

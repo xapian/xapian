@@ -86,6 +86,13 @@ PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
     return NULL;
 }
 
+PositionList &
+DAPostList::get_position_list() const
+{
+    throw OmUnimplementedError("DAPostList::get_position_list() unimplemented");
+}
+
+
 
 
 DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
@@ -194,6 +201,10 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 
 DADatabase::~DADatabase()
 {
+    if(keyfile != 0) {
+	fclose(keyfile);
+	keyfile = 0;
+    }
     if(DA_r != NULL) {
 	DA_close(DA_r);
 	DA_r = NULL;

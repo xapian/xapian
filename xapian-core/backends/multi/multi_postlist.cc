@@ -65,6 +65,12 @@ om_weight MultiPostList::get_weight() const
     return wt;
 }
 
+PositionList &
+MultiPostList::get_position_list() const
+{
+    throw OmUnimplementedError("MultiPostList::get_position_list() unimplemented");
+}
+
 PostList * MultiPostList::next(om_weight w_min)
 {
     Assert(!at_end());
