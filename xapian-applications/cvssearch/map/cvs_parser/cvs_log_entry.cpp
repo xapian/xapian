@@ -38,13 +38,13 @@ cvs_log_entry::read(istream & is)
     getline(is,line);
     unsigned int old_pos = 0;
     unsigned int new_pos = 0;
-    if ((new_pos = line.find(cvs_output::cvs_log_date_tag, old_pos)) != -1) 
+    if ((new_pos = line.find(cvs_output::cvs_log_date_tag, old_pos)) != line.npos) 
     {
         new_pos = cvs_output::cvs_log_date_tag.length();
         old_pos = new_pos;
     }
 
-    if ((new_pos = line.find(cvs_output::cvs_log_author_tag, old_pos)) != -1) 
+    if ((new_pos = line.find(cvs_output::cvs_log_author_tag, old_pos)) != line.npos) 
     {
         _date = line.substr(old_pos, new_pos-old_pos);
         cout << "DATE|" << _date << "|" << endl;
@@ -52,7 +52,7 @@ cvs_log_entry::read(istream & is)
         old_pos = new_pos;
     }
 
-    if ((new_pos = line.find(cvs_output::cvs_log_state_tag, old_pos)) != -1) 
+    if ((new_pos = line.find(cvs_output::cvs_log_state_tag, old_pos)) != line.npos) 
     {
         _author = line.substr(old_pos, new_pos-old_pos);
         cout << "AUTH|" << _author << "|" << endl;
@@ -60,7 +60,7 @@ cvs_log_entry::read(istream & is)
         old_pos = new_pos;
     }
 
-    if ((new_pos = line.find(cvs_output::cvs_log_lines_tag, old_pos)) != -1) 
+    if ((new_pos = line.find(cvs_output::cvs_log_lines_tag, old_pos)) != line.npos) 
     {
         _state = line.substr(old_pos, new_pos-old_pos);
         cout << "STAT|" << _state << "|" << endl;
