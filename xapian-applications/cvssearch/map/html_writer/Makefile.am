@@ -1,4 +1,0 @@
-noinst_LIBRARIES = libhtml_writer.a
-INCDIRS = cvs_parser process diff range include
-INCLUDES = $(foreach dir, $(INCDIRS), -I$(srcdir)/../$(dir))
-libhtml_writer_a_SOURCES = html_writer.h html_writer.cpp html_comparer.h html_comparer.cpp code_to_html.h code_to_html.cpp
