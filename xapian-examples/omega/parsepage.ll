@@ -288,12 +288,13 @@ pretty_printf(const char *p, int *a)
     // Olly's expand on query page idea
     if (msize) {
 	Expand topterms(database);
+	ExpandDeciderFerret decider;
 
 	if (rset->get_rsize()) {
 #ifdef DEBUG
 	    cout << "Expanding with " << rset->get_rsize() << " ids" << endl;
 #endif
-	    topterms.expand(rset);
+	    topterms.expand(rset, &decider);
 	} else {
 	    // invent an rset
 	    RSet tmp(database);
@@ -305,7 +306,7 @@ pretty_printf(const char *p, int *a)
 		tmp.add_document(matcher->mset[m].did);
 	    }
 		
-	    topterms.expand(&tmp);
+	    topterms.expand(&tmp, &decider);
 	}
 
 	int c = 0;
@@ -316,16 +317,15 @@ pretty_printf(const char *p, int *a)
 	}
 #endif
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
-	    string term = i->tname;
-	    // only suggest 4 or more letter words for now to
-	    // avoid italian problems FIXME: fix this at index time
-	    if (term.length() <= 3) continue;
-	    // also avoid terms with a prefix and with a space in
-	    if (isupper(term[0]) || term.find(' ') != string::npos) continue;
-	    // and terms in the query already
-	    if (matching_map.find(term) != matching_map.end()) continue;
-	    cout << "<INPUT TYPE=checkbox NAME=X VALUE=\"" << term
-		 << ".\" onClick=\"C(this)\">&nbsp;" << term << ". ";
+	    string tname = i->tname;
+
+	    // Ignore terms in the query already
+	    // FIXME - make this part of the decision function - then we
+	    // can set the size of the eset to be calculated to 20.
+	    if (matching_map.find(tname) != matching_map.end()) continue;
+
+	    cout << "<INPUT TYPE=checkbox NAME=X VALUE=\"" << tname
+		 << ".\" onClick=\"C(this)\">&nbsp;" << tname << ". ";
 	    if (++c >= 20) break;
 	}
 	if (c)

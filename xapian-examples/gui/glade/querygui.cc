@@ -126,7 +126,8 @@ static void do_topterms() {
 	}
 
 	Expand topterms(database);
-	topterms.expand(&rset);
+	ExpandDeciderAlways decider;
+	topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);

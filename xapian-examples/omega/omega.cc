@@ -245,8 +245,9 @@ static int main2(int argc, char *argv[])
 	Expand topterms(database);
 
 	RSet tmp(database);
-	tmp.add_document(doc);		
-	topterms.expand(&tmp);
+	tmp.add_document(doc);
+	ExpandDeciderFerret decider;
+	topterms.expand(&tmp, &decider);
 
 	int c = 0;
 	vector<ESetItem>::const_iterator i;
