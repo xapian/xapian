@@ -70,11 +70,10 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 [3] libxapian builds; libomqueryparser fails to compile; linking with libxapian
 fails.
 
-[4] "make check" won't work for a cross-compiled build; Remote backend must be
-disabled (socketpair and Unix domain sockets aren't supported) - configure with
---disable-backend-remote ; need to run ranlib over convenience libraries before
-you can link libxapian - use something like this when make dies, then run make
-again:
+[4] "make check" won't work for a cross-compiled build; Remote backend is
+automatically disabled (no fork() - also no socketpair()); need to run ranlib
+over convenience libraries before you can link libxapian - use something like
+this when make dies, then run make again:
 
 find . -name \*.al -exec /usr/i586-mingw32msvc/bin/ranlib {} \;
 
