@@ -35,6 +35,12 @@ sub get_cvsdata {
         }
         close (CVSSEARCHCONF);
     }
+    if (substr($cvsdata, 0, 1) ne "/") {
+        # relative path
+        my $pwd = `pwd`;
+        chomp $pwd;
+        $cvsdata = $pwd.$cvsdata;
+    }
     return $cvsdata;
 }
 

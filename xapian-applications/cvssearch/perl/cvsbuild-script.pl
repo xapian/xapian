@@ -222,7 +222,7 @@ sub cvsbuild {
             # do cvsmap and cvsindex
             # ----------------------------------------
             if ($found_files) {
-                my $prefix_path = "$cvsdata/$root/db/$app_name";
+                my $prefix_path = "$pwd/$cvsdata/$root/db/$app_name";
                 if ($comp_mode) {
                     chdir ("$cvsdata/$root/src");
                     system ("$cvsmap -d $cvsroot".
