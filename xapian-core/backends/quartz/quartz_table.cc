@@ -51,21 +51,20 @@ hex_encode(const string & input)
 #endif
 
 bool
-QuartzDiskCursor::find_entry(const QuartzDbKey &key)
+QuartzDiskCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "QuartzDiskCursor::find_entry",
-	      "QuartzDbKey(" << key.value << ")");
+    DEBUGCALL(DB, bool, "QuartzDiskCursor::find_entry", key);
 
     is_after_end = false;
 
     int found = false;
 
-    if (key.value.size() > max_key_len) {
+    if (key.size() > max_key_len) {
 	// Can't find key - too long to possibly be present.
-	(void) cursor->find_key(key.value.substr(0, max_key_len));
+	(void) cursor->find_key(key.substr(0, max_key_len));
 	// FIXME: check for errors
     } else {
-	found = cursor->find_key(key.value);
+	found = cursor->find_key(key);
 	// FIXME: check for errors
     }
 
@@ -78,11 +77,11 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value = item.key;
-    current_tag.value = item.tag;
+    current_key = item.key;
+    current_tag = item.tag;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
-	      "', tag=`" << hex_encode(current_tag.value) << "'");
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) <<
+	      "', tag=`" << hex_encode(current_tag) << "'");
 
     RETURN(found);
 }
@@ -105,11 +104,11 @@ QuartzDiskCursor::next()
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value = item.key;
-    current_tag.value = item.tag;
+    current_key = item.key;
+    current_tag = item.tag;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
-	      "', tag=`" << hex_encode(current_tag.value) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
+	      "', tag=`" << hex_encode(current_tag) << "'");
 }
 
 void
@@ -117,12 +116,12 @@ QuartzDiskCursor::prev()
 {
     DEBUGCALL(DB, void, "QuartzDiskCursor::prev", "");
     Assert(!is_after_end);
-    Assert(current_key.value.size() != 0);
+    Assert(current_key.size() != 0);
 
     if (!is_positioned) {
 	// FIXME: want to go to last item in table - this method
 	// should work, but isn't going to be of great efficiency.
-	int found = cursor->find_key(current_key.value);
+	int found = cursor->find_key(current_key);
 	(void)found; // FIXME: check for errors
 	Assert(found);
     } else {
@@ -146,11 +145,11 @@ QuartzDiskCursor::prev()
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    current_key.value = item.key;
-    current_tag.value = item.tag;
+    current_key = item.key;
+    current_tag = item.tag;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
-	      "', tag=`" << hex_encode(current_tag.value) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
+	      "', tag=`" << hex_encode(current_tag) << "'");
 }
 
 
@@ -354,21 +353,19 @@ QuartzDiskTable::get_entry_count() const
 }
 
 bool
-QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
+QuartzDiskTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "QuartzDiskTable::get_exact_entry",
-	      "QuartzDbKey(" << key.value << "), "
-	      "QuartzDbTag(" << tag.value << ")");
+    DEBUGCALL(DB, bool, "QuartzDiskTable::get_exact_entry", key << ", " << tag);
     Assert(opened);
-    Assert(!(key.value.empty()));
+    Assert(!(key.empty()));
 
-    if (key.value.size() > btree_for_reading->max_key_len) RETURN(false);
+    if (key.size() > btree_for_reading->max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
     AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
     // FIXME: check for errors
 
-    int found = cursor->find_key(key.value);
+    int found = cursor->find_key(key);
     // FIXME: check for errors
 
     if (!found) {
@@ -381,7 +378,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     // FIXME: check for errors
 
     // FIXME: unwanted copy
-    tag.value = item.tag;
+    tag = item.tag;
 
     RETURN(true);
 }
@@ -395,36 +392,49 @@ QuartzDiskTable::cursor_get() const
 }
 
 void
-QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
+QuartzDiskTable::set_entry(const string & key, const string & tag)
 {
-    DEBUGCALL(DB, void, "QuartzDiskTable::set_entry",
-	      "QuartzDbKey(" << key.value << "), "
-	      "QuartzDbTag*(" << (tag == 0 ? "<NULL>" : tag->value) << ")");
+    DEBUGCALL(DB, void, "QuartzDiskTable::set_entry", key << ", " << tag);
 
-    Assert(!key.value.empty());
+    Assert(!key.empty());
     Assert(opened);
     if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    if (key.value.size() > btree_for_writing->max_key_len) {
+    if (key.size() > btree_for_writing->max_key_len) {
 	throw OmInvalidArgumentError(
 		"Key too long: length was " +
-		om_tostring(key.value.size()) +
+		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
 		om_tostring(btree_for_writing->max_key_len) +
 		" bytes.");
     }
 
-    if (tag == 0) {
-	// delete entry
-	int result;
-	result = btree_for_writing->del(key.value);
-	(void)result; // FIXME: Check result
-    } else {
-	// add entry
-	int result;
-	result = btree_for_writing->add(key.value, tag->value);
-	(void)result; // FIXME: Check result
+    // add entry
+    int result = btree_for_writing->add(key, tag);
+    (void)result; // FIXME: Check result
+}
+
+void
+QuartzDiskTable::set_entry(const string & key)
+{
+    DEBUGCALL(DB, void, "QuartzDiskTable::set_entry", key);
+
+    Assert(!key.empty());
+    Assert(opened);
+    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+
+    if (key.size() > btree_for_writing->max_key_len) {
+	throw OmInvalidArgumentError(
+		"Key too long: length was " +
+		om_tostring(key.size()) +
+		" bytes, maximum length of a key is " + 
+		om_tostring(btree_for_writing->max_key_len) +
+		" bytes.");
     }
+
+    // delete entry
+    int result = btree_for_writing->del(key);
+    (void)result; // FIXME: Check result
 }
 
 void
@@ -482,17 +492,21 @@ QuartzBufferedTable::write_internal()
     DEBUGCALL(DB, void, "QuartzBufferedTable::write_internal", "");
     try {
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
-	map<QuartzDbKey, QuartzDbTag *>::iterator entry;
+	map<string, string *>::iterator entry;
 	entry = entries.begin();
 	Assert(entry != entries.end());
 	// Don't set the null entry.
 	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
-	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first.value) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : string("<NULL>")));
-	    disktable->set_entry(entry->first, entry->second);
-	    delete entry->second;
-	    entry->second = 0;
+	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : string("<NULL>")));
+	    if (entry->second) {
+		disktable->set_entry(entry->first, *(entry->second));
+		delete entry->second;
+		entry->second = 0;
+	    } else {
+		disktable->set_entry(entry->first);
+	    }
 	}
     } catch (...) {
 	changed_entries.clear();
@@ -537,33 +551,31 @@ QuartzBufferedTable::is_modified()
 }
 
 bool
-QuartzBufferedTable::have_tag(const QuartzDbKey &key)
+QuartzBufferedTable::have_tag(const string &key)
 {
-    DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag",
-	      "QuartzDbKey(" << key.value << ")");
+    DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag", key);
     if (changed_entries.have_entry(key)) {
 	RETURN((changed_entries.get_tag(key) != 0));
     } else {
 	// FIXME: don't want to read tag here - just want to check if there
 	// is a tag.
-	QuartzDbTag tag;
+	string tag;
 	RETURN(disktable->get_exact_entry(key, tag));
     }
 }
 
-QuartzDbTag *
-QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
+string *
+QuartzBufferedTable::get_or_make_tag(const string &key)
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzBufferedTable::get_or_make_tag",
-	      "QuartzDbKey(" << key.value << ")");
-    QuartzDbTag * tagptr;
+    DEBUGCALL(DB, string *, "QuartzBufferedTable::get_or_make_tag", key);
+    string * tagptr;
 
     // Check cache first
     if (changed_entries.have_entry(key)) {
 	tagptr = changed_entries.get_tag(key);
 	if (tagptr == 0) {
 	    // make new empty tag
-	    AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+	    AutoPtr<string> tag(new string);
 	    tagptr = tag.get();
 	    changed_entries.set_tag(key, tag);
 	    entry_count += 1;
@@ -577,7 +589,7 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 	}
     }
 
-    AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+    AutoPtr<string> tag(new string);
     tagptr = tag.get();
 
     bool found = disktable->get_exact_entry(key, *tag);
@@ -597,14 +609,13 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 }
 
 void
-QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
+QuartzBufferedTable::delete_tag(const string &key)
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag",
-	      "QuartzDbKey(" << key.value << ")");
+    DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag", key);
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
     if (have_tag(key)) entry_count -= 1;
-    changed_entries.set_tag(key, AutoPtr<QuartzDbTag>(0));
+    changed_entries.set_tag(key, AutoPtr<string>(0));
 }
 
 quartz_tablesize_t
@@ -615,14 +626,12 @@ QuartzBufferedTable::get_entry_count() const
 }
 
 bool
-QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
-				     QuartzDbTag & tag) const
+QuartzBufferedTable::get_exact_entry(const string &key, string & tag) const
 {
     DEBUGCALL(DB, bool, "QuartzBufferedTable::get_exact_entry",
-	      "QuartzDbKey(" << key.value << "), " <<
-	      "QuartzDbTag(" << tag.value << ")");
+	      key << ", " << tag);
     if (changed_entries.have_entry(key)) {
-	const QuartzDbTag * tagptr = changed_entries.get_tag(key);
+	const string * tagptr = changed_entries.get_tag(key);
 	if (tagptr == 0) RETURN(false);
 	tag = *tagptr;
 	RETURN(true);
@@ -640,50 +649,49 @@ QuartzBufferedTable::cursor_get() const
 }
 
 bool
-QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
+QuartzBufferedCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "QuartzBufferedCursor::find_entry",
-	      "QuartzDbKey(" << key.value << ")");
-    Assert(key.value != "");
+    DEBUGCALL(DB, bool, "QuartzBufferedCursor::find_entry", key);
+    Assert(!key.empty());
 
     // Whether we have an exact match.
     bool have_exact;
 
     // Set diskcursor.
     have_exact = diskcursor->find_entry(key);
-    Assert(have_exact || key.value != diskcursor->current_key.value);
+    Assert(have_exact || key != diskcursor->current_key);
 
     // Set changed_entries part of cursor.
     iter = changed_entries->get_iterator(key);
 
-    const QuartzDbKey * keyptr;
-    const QuartzDbTag * tagptr;
+    const string * keyptr;
+    const string * tagptr;
     changed_entries->get_item(iter, &keyptr, &tagptr);
 
     // Check for exact matches
-    if (keyptr->value == key.value) {
+    if (*keyptr == key) {
 	if (tagptr != 0) {
 	    // Have an exact match in the cache, and it's not a deletion.
-	    current_key.value = keyptr->value;
-	    current_tag.value = tagptr->value;
+	    current_key = *keyptr;
+	    current_tag = *tagptr;
 	    RETURN(true);
 	}
-    } else if (diskcursor->current_key.value == key.value) {
+    } else if (diskcursor->current_key == key) {
 	// Have an exact match on disk, and it's not shadowed by the cache.
-	current_key.value = diskcursor->current_key.value;
-	current_tag.value = diskcursor->current_tag.value;
+	current_key = diskcursor->current_key;
+	current_tag = diskcursor->current_tag;
 	RETURN(true);
     }
 
     // No exact match.  Move backwards until match isn't a deletion.
     while (*keyptr >= diskcursor->current_key && tagptr == 0) {
-	if (keyptr->value.size() == 0) {
+	if (keyptr->size() == 0) {
 	    // diskcursor must also point to a null key - we're done.
-	    current_key.value = "";
-	    current_tag.value = "";
+	    current_key = "";
+	    current_tag = "";
 	    RETURN(false);
 	}
-	if (keyptr->value == diskcursor->current_key.value) {
+	if (*keyptr == diskcursor->current_key) {
 	    diskcursor->prev();
 	}
 	changed_entries->prev(iter);
@@ -693,12 +701,12 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
     // Have found a match which isn't a deletion.
     if (*keyptr >= diskcursor->current_key) {
 	// Match is in cache
-	current_key.value = keyptr->value;
-	current_tag.value = tagptr->value;
+	current_key = *keyptr;
+	current_tag = *tagptr;
     } else {
 	// Match is on disk
-	current_key.value = diskcursor->current_key.value;
-	current_tag.value = diskcursor->current_tag.value;
+	current_key = diskcursor->current_key;
+	current_tag = diskcursor->current_tag;
     }
 
     RETURN(false);
@@ -715,8 +723,8 @@ void
 QuartzBufferedCursor::next()
 {
     DEBUGCALL(DB, void, "QuartzBufferedCursor::next", "");
-    const QuartzDbKey * keyptr;
-    const QuartzDbTag * tagptr;
+    const string * keyptr;
+    const string * tagptr;
 
     // Ensure that both cursors are after current position, or ended.
     while (!changed_entries->after_end(iter)) {
@@ -736,7 +744,7 @@ QuartzBufferedCursor::next()
 	       (diskcursor->after_end() || *keyptr <= diskcursor->current_key)) {
 
 	    if (!diskcursor->after_end() &&
-		keyptr->value == diskcursor->current_key.value) {
+		*keyptr == diskcursor->current_key) {
 		diskcursor->next();
 	    }
 
@@ -754,17 +762,17 @@ QuartzBufferedCursor::next()
 	    // Have reached end.
 	} else {
 	    // Only have diskcursor left.
-	    current_key.value = diskcursor->current_key.value;
-	    current_tag.value = diskcursor->current_tag.value;
+	    current_key = diskcursor->current_key;
+	    current_tag = diskcursor->current_tag;
 	}
     } else {
 	if (diskcursor->after_end() || *keyptr < diskcursor->current_key) {
 	    Assert(tagptr != 0);
-	    current_key.value = keyptr->value;
-	    current_tag.value = tagptr->value;
+	    current_key = *keyptr;
+	    current_tag = *tagptr;
 	} else {
-	    current_key.value = diskcursor->current_key.value;
-	    current_tag.value = diskcursor->current_tag.value;
+	    current_key = diskcursor->current_key;
+	    current_tag = diskcursor->current_tag;
 	}
     }
 }

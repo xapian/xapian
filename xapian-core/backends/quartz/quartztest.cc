@@ -79,98 +79,98 @@ static void unlink_table(const string & path)
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(QuartzDiskTable & table, string world)
 {
-    QuartzDbKey key;
-    QuartzDbTag tag;
+    string key;
+    string tag;
 
     // Check exact reads
-    key.value = "hello";
-    tag.value = "foo";
+    key = "hello";
+    tag = "foo";
     TEST(table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, world);
+    TEST_EQUAL(tag, world);
 
-    key.value = "jello";
-    tag.value = "foo";
+    key = "jello";
+    tag = "foo";
     TEST(!table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EQUAL(tag, "foo");
 
-    key.value = "bello";
-    tag.value = "foo";
+    key = "bello";
+    tag = "foo";
     TEST(!table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EQUAL(tag, "foo");
     
     AutoPtr<QuartzCursor> cursor(table.cursor_get());
 #ifdef MUS_DEBUG
-    key.value = "";
+    key = "";
     TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
 #endif
     
     // Check normal reads
-    key.value = "hello";
-    tag.value = "foo";
+    key = "hello";
+    tag = "foo";
     TEST(cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "hello");
-    TEST_EQUAL(cursor->current_tag.value, world);
+    TEST_EQUAL(cursor->current_key, "hello");
+    TEST_EQUAL(cursor->current_tag, world);
 
-    key.value = "jello";
-    tag.value = "foo";
+    key = "jello";
+    tag = "foo";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "hello");
-    TEST_EQUAL(cursor->current_tag.value, world);
+    TEST_EQUAL(cursor->current_key, "hello");
+    TEST_EQUAL(cursor->current_tag, world);
 
-    key.value = "bello";
-    tag.value = "foo";
+    key = "bello";
+    tag = "foo";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "");
-    TEST_EQUAL(cursor->current_tag.value, "");
+    TEST_EQUAL(cursor->current_key, "");
+    TEST_EQUAL(cursor->current_tag, "");
 }
 
 /// Check the values returned by a table containing no key/tag pairs
 static void check_table_values_empty(QuartzDiskTable & table)
 {
-    QuartzDbKey key;
-    QuartzDbTag tag;
+    string key;
+    string tag;
 
     // Check exact reads
-    key.value = "hello";
-    tag.value = "foo";
+    key = "hello";
+    tag = "foo";
     TEST(!table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EQUAL(tag, "foo");
 
-    key.value = "jello";
-    tag.value = "foo";
+    key = "jello";
+    tag = "foo";
     TEST(!table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EQUAL(tag, "foo");
 
-    key.value = "bello";
-    tag.value = "foo";
+    key = "bello";
+    tag = "foo";
     TEST(!table.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EQUAL(tag, "foo");
     
     AutoPtr<QuartzCursor> cursor(table.cursor_get());
 #ifdef MUS_DEBUG
-    key.value = "";
-    tag.value = "foo";
+    key = "";
+    tag = "foo";
     TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
 #endif
     
     // Check normal reads
-    key.value = "hello";
-    tag.value = "foo";
+    key = "hello";
+    tag = "foo";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "");
-    TEST_EQUAL(cursor->current_tag.value, "");
+    TEST_EQUAL(cursor->current_key, "");
+    TEST_EQUAL(cursor->current_tag, "");
 
-    key.value = "jello";
-    tag.value = "foo";
+    key = "jello";
+    tag = "foo";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "");
-    TEST_EQUAL(cursor->current_tag.value, "");
+    TEST_EQUAL(cursor->current_key, "");
+    TEST_EQUAL(cursor->current_tag, "");
 
-    key.value = "bello";
-    tag.value = "foo";
+    key = "bello";
+    tag = "foo";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "");
-    TEST_EQUAL(cursor->current_tag.value, "");
+    TEST_EQUAL(cursor->current_key, "");
+    TEST_EQUAL(cursor->current_tag, "");
 }
 
 /// Test making and playing with a QuartzDiskTable
@@ -209,13 +209,13 @@ static bool test_disktable1()
     TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding some entries
-    QuartzDbKey key;
-    QuartzDbTag tag;
-    key.value = "hello";
-    tag.value = "world";
+    string key;
+    string tag;
+    key = "hello";
+    tag = "world";
     
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
-    rw_table.set_entry(key, &tag);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -230,8 +230,8 @@ static bool test_disktable1()
     check_table_values_hello(rw_table, "world");
 
     // Check adding the same entries
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
-    rw_table.set_entry(key, &tag);
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -246,21 +246,21 @@ static bool test_disktable1()
     check_table_values_hello(rw_table, "world");
 
     // Check adding an entry with a null key
-    key.value = "";
+    key = "";
 #ifdef MUS_DEBUG
     // Empty keys aren't allowed
-    TEST_EXCEPTION(OmAssertionError, ro_table.set_entry(key, &tag));
-    TEST_EXCEPTION(OmAssertionError, rw_table.set_entry(key, &tag));
+    TEST_EXCEPTION(OmAssertionError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, rw_table.set_entry(key, tag));
 #else
     // Can't add a key to a read-only table anyway
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
 #endif
 
     // Check changing an entry, to a null tag
-    key.value = "hello";
-    tag.value = "";
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, &tag));
-    rw_table.set_entry(key, &tag);
+    key = "hello";
+    tag = "";
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -275,9 +275,9 @@ static bool test_disktable1()
     check_table_values_hello(rw_table, "");
 
     // Check deleting an entry
-    key.value = "hello";
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, 0));
-    rw_table.set_entry(key, 0);
+    key = "hello";
+    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key));
+    rw_table.set_entry(key);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
@@ -292,12 +292,12 @@ static bool test_disktable1()
     check_table_values_empty(rw_table);
     
     // Check find_entry when looking for something between two elements
-    key.value = "hello";
-    tag.value = "world";
-    rw_table.set_entry(key, &tag);
-    key.value = "whooo";
-    tag.value = "world";
-    rw_table.set_entry(key, &tag);
+    key = "hello";
+    tag = "world";
+    rw_table.set_entry(key, tag);
+    key = "whooo";
+    tag = "world";
+    rw_table.set_entry(key, tag);
 
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -334,12 +334,10 @@ static bool test_disktable2()
     table.apply(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
-    QuartzDbKey key;
-    key.value = "foo";
-    QuartzDbTag tag;
-    tag.value = "bar";
+    string key = "foo";
+    string tag = "bar";
 
-    table.set_entry(key, &tag);
+    table.set_entry(key, tag);
     table.apply(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 8192);
 
@@ -357,23 +355,23 @@ static bool test_disktable3()
 
     table.apply(table.get_latest_revision_number() + 1);
 
-    QuartzDbKey tradeakey;
-    QuartzDbKey tradekey;
-    QuartzDbKey tradkey;
+    string tradeakey;
+    string tradekey;
+    string tradkey;
 
-    tradkey.value = "trad";
-    tradekey.value = "trade";
-    tradeakey.value = "tradea";
+    tradkey = "trad";
+    tradekey = "trade";
+    tradeakey = "tradea";
 
-    QuartzDbTag tag;
+    string tag;
 
     {
-	tag.value = string(2200, 'a');
-	table.set_entry(tradkey, &tag);
-	tag.value = string(3800, 'b');
-	table.set_entry(tradekey, &tag);
-	tag.value = string(2000, 'c');
-	table.set_entry(tradeakey, &tag);
+	tag = string(2200, 'a');
+	table.set_entry(tradkey, tag);
+	tag = string(3800, 'b');
+	table.set_entry(tradekey, tag);
+	tag = string(2000, 'c');
+	table.set_entry(tradeakey, tag);
 
 	table.apply(table.get_latest_revision_number() + 1);
     }
@@ -381,27 +379,27 @@ static bool test_disktable3()
     {
 	AutoPtr<QuartzCursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
-	TEST_EQUAL(cursor->current_key.value, tradekey.value);
-	TEST_EQUAL(cursor->current_tag.value.size(), 3800);
+	TEST_EQUAL(cursor->current_key, tradekey);
+	TEST_EQUAL(cursor->current_tag.size(), 3800);
 
 	cursor->next();
-	TEST_EQUAL(cursor->current_key.value, tradeakey.value);
+	TEST_EQUAL(cursor->current_key, tradeakey);
     }
 
     {
-	tag.value = string(4000, 'd');
-	table.set_entry(tradekey, &tag);
+	tag = string(4000, 'd');
+	table.set_entry(tradekey, tag);
 	table.apply(table.get_latest_revision_number() + 1);
     }
 
     {
 	AutoPtr<QuartzCursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
-	TEST_EQUAL(cursor->current_key.value, tradekey.value);
-	TEST_EQUAL(cursor->current_tag.value.size(), 4000);
+	TEST_EQUAL(cursor->current_key, tradekey);
+	TEST_EQUAL(cursor->current_tag.size(), 4000);
 
 	cursor->next();
-	TEST_EQUAL(cursor->current_key.value, tradeakey.value);
+	TEST_EQUAL(cursor->current_key, tradeakey);
     }
 
     return true;
@@ -412,32 +410,33 @@ static bool test_tableentries1()
 {
     QuartzTableEntries entries;
 
-    QuartzDbKey key1;
+    string key1;
+    string tag = "bar";
 
 #ifdef MUS_DEBUG
-    key1.value = "";
+    key1 = "";
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     {
-	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);
-	tagptr->value = "bar";
+	AutoPtr<string> tagptr(new string);
+	*tagptr = "bar";
 	TEST_EXCEPTION(OmAssertionError, entries.set_tag(key1, tagptr));
     }
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
 #endif
 
-    key1.value = "foo";
+    key1 = "foo";
     TEST(!entries.have_entry(key1));
     {
-	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);
-	tagptr->value = "bar";
+	AutoPtr<string> tagptr(new string);
+	*tagptr = "bar";
 	entries.set_tag(key1, tagptr);
     }
     TEST(entries.have_entry(key1));
     TEST_NOT_EQUAL(entries.get_tag(key1), 0);
-    TEST_EQUAL(entries.get_tag(key1)->value, "bar");
+    TEST_EQUAL(*(entries.get_tag(key1)), "bar");
     {
-	AutoPtr<QuartzDbTag> tagptr(0);
+	AutoPtr<string> tagptr(0);
 	entries.set_tag(key1, tagptr);
     }
     TEST(entries.have_entry(key1));
@@ -458,14 +457,13 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    QuartzDbKey key;
-    key.value = "foo1";
+    string key = "foo1";
 
     bufftable1.delete_tag(key);
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    QuartzDbTag * tag = bufftable1.get_or_make_tag(key);
+    string * tag = bufftable1.get_or_make_tag(key);
     TEST_NOT_EQUAL(tag, 0);
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
@@ -488,12 +486,12 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    key.value = "bar";
+    key = "bar";
     tag = bufftable1.get_or_make_tag(key);
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    key.value = "bar2";
+    key = "bar2";
     tag = bufftable1.get_or_make_tag(key);
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
@@ -523,14 +521,14 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 0);
 	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
-	QuartzDbKey key;
+	string key;
 
-	key.value = "foo1";
-	bufftable.get_or_make_tag(key)->value = "bar1";
-	key.value = "foo2";
-	bufftable.get_or_make_tag(key)->value = "bar2";
-	key.value = "foo3";
-	bufftable.get_or_make_tag(key)->value = "bar3";
+	key = "foo1";
+	*(bufftable.get_or_make_tag(key)) = "bar1";
+	key = "foo2";
+	*(bufftable.get_or_make_tag(key)) = "bar2";
+	key = "foo3";
+	*(bufftable.get_or_make_tag(key)) = "bar3";
 
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.apply(new_revision);
@@ -547,38 +545,38 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 3);
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
-	QuartzDbKey key;
+	string key;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key.value = "foo";
+	key = "foo";
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "");
-	TEST_EQUAL(cursor->current_tag.value, "");
+	TEST_EQUAL(cursor->current_key, "");
+	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo1");
-	TEST_EQUAL(cursor->current_tag.value, "bar1");
+	TEST_EQUAL(cursor->current_key, "foo1");
+	TEST_EQUAL(cursor->current_tag, "bar1");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo2");
-	TEST_EQUAL(cursor->current_tag.value, "bar2");
+	TEST_EQUAL(cursor->current_key, "foo2");
+	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key, "foo3");
+	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
 
 	// Add a new tag
-	key.value = "foo25";
-	bufftable.get_or_make_tag(key)->value = "bar25";
+	key = "foo25";
+	*(bufftable.get_or_make_tag(key)) = "bar25";
 	old_revision = new_revision;
 	new_revision += 1;
 	bufftable.apply(new_revision);
@@ -598,14 +596,14 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 3);
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
-	QuartzDbKey key;
+	string key;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(old_revision, disktable.get_open_revision_number());
 
 	// Add a new tag
-	key.value = "foo26";
-	bufftable.get_or_make_tag(key)->value = "bar26";
+	key = "foo26";
+	*(bufftable.get_or_make_tag(key)) = "bar26";
 	new_revision += 1;
 	bufftable.apply(new_revision);
 
@@ -613,8 +611,8 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
 	// Add another new tag, but don't apply this one.
-	key.value = "foo37";
-	bufftable.get_or_make_tag(key)->value = "bar37";
+	key = "foo37";
+	*(bufftable.get_or_make_tag(key)) = "bar37";
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 5);
 
@@ -630,36 +628,36 @@ static bool test_bufftable2()
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
-	QuartzDbKey key;
+	string key;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key.value = "foo";
+	key = "foo";
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "");
-	TEST_EQUAL(cursor->current_tag.value, "");
+	TEST_EQUAL(cursor->current_key, "");
+	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo1");
-	TEST_EQUAL(cursor->current_tag.value, "bar1");
+	TEST_EQUAL(cursor->current_key, "foo1");
+	TEST_EQUAL(cursor->current_tag, "bar1");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo2");
-	TEST_EQUAL(cursor->current_tag.value, "bar2");
+	TEST_EQUAL(cursor->current_key, "foo2");
+	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo26");
-	TEST_EQUAL(cursor->current_tag.value, "bar26");
+	TEST_EQUAL(cursor->current_key, "foo26");
+	TEST_EQUAL(cursor->current_tag, "bar26");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key, "foo3");
+	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
@@ -689,18 +687,18 @@ static bool test_bufftable3()
 	TEST_EQUAL(disktable.get_entry_count(), 0);
 	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
-	QuartzDbKey key;
+	string key;
 
-	key.value = "foo1";
-	bufftable.get_or_make_tag(key)->value = "bar1";
+	key = "foo1";
+	*(bufftable.get_or_make_tag(key)) = "bar1";
 	bufftable.write();
 
-	key.value = "foo2";
-	bufftable.get_or_make_tag(key)->value = "bar2";
+	key = "foo2";
+	*(bufftable.get_or_make_tag(key)) = "bar2";
 	bufftable.cancel();
 
-	key.value = "foo3";
-	bufftable.get_or_make_tag(key)->value = "bar3";
+	key = "foo3";
+	*(bufftable.get_or_make_tag(key)) = "bar3";
 
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.apply(new_revision);
@@ -717,21 +715,21 @@ static bool test_bufftable3()
 	TEST_EQUAL(disktable.get_entry_count(), 1);
 	TEST_EQUAL(bufftable.get_entry_count(), 1);
 
-	QuartzDbKey key;
+	string key;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
-	key.value = "foo";
+	key = "foo";
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "");
-	TEST_EQUAL(cursor->current_tag.value, "");
+	TEST_EQUAL(cursor->current_key, "");
+	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key, "foo3");
+	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
@@ -753,44 +751,44 @@ static bool test_cursor3()
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
 	{
-	    QuartzDbKey key;
+	    string key;
 
-	    key.value = "A";
-	    bufftable.get_or_make_tag(key)->value = "A";
+	    key = "A";
+	    *(bufftable.get_or_make_tag(key)) = "A";
 
-	    key.value = "B";
-	    bufftable.get_or_make_tag(key)->value = "B";
+	    key = "B";
+	    *(bufftable.get_or_make_tag(key)) = "B";
 	}
 
 	{
-	    QuartzDbKey key;
-	    key.value = "AA";
+	    string key;
+	    key = "AA";
 	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
-	    TEST_EQUAL(cursor->current_key.value, "A");
-	    TEST_EQUAL(cursor->current_tag.value, "A");
+	    TEST_EQUAL(cursor->current_key, "A");
+	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
-	    TEST_EQUAL(cursor->current_key.value, "B");
-	    TEST_EQUAL(cursor->current_tag.value, "B");
+	    TEST_EQUAL(cursor->current_key, "B");
+	    TEST_EQUAL(cursor->current_tag, "B");
 	}
 
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.apply(new_revision);
 
 	{
-	    QuartzDbKey key;
-	    key.value = "AA";
+	    string key;
+	    key = "AA";
 	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
-	    TEST_EQUAL(cursor->current_key.value, "A");
-	    TEST_EQUAL(cursor->current_tag.value, "A");
+	    TEST_EQUAL(cursor->current_key, "A");
+	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
-	    TEST_EQUAL(cursor->current_key.value, "B");
-	    TEST_EQUAL(cursor->current_tag.value, "B");
+	    TEST_EQUAL(cursor->current_key, "B");
+	    TEST_EQUAL(cursor->current_tag, "B");
 	}
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
@@ -806,17 +804,17 @@ static bool test_cursor3()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	{
-	    QuartzDbKey key;
-	    key.value = "AA";
+	    string key;
+	    key = "AA";
 	    AutoPtr<QuartzCursor> cursor(disktable.cursor_get());
 	    TEST(!cursor->find_entry(key));
-	    TEST_EQUAL(cursor->current_key.value, "A");
-	    TEST_EQUAL(cursor->current_tag.value, "A");
+	    TEST_EQUAL(cursor->current_key, "A");
+	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
-	    TEST_EQUAL(cursor->current_key.value, "B");
-	    TEST_EQUAL(cursor->current_tag.value, "B");
+	    TEST_EQUAL(cursor->current_key, "B");
+	    TEST_EQUAL(cursor->current_tag, "B");
 	}
     }
     return true;
@@ -827,7 +825,7 @@ static bool test_cursor1()
 {
     unlink_table(tmpdir + "test_cursor1_");
 
-    QuartzDbKey key;
+    string key;
 
     // Open table and put stuff in it.
     QuartzDiskTable disktable1(tmpdir + "test_cursor1_", false, 8192);
@@ -835,12 +833,12 @@ static bool test_cursor1()
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
-    key.value = "foo1";
-    bufftable1.get_or_make_tag(key)->value = "bar1";
-    key.value = "foo2";
-    bufftable1.get_or_make_tag(key)->value = "bar2";
-    key.value = "foo3";
-    bufftable1.get_or_make_tag(key)->value = "bar3";
+    key = "foo1";
+    *(bufftable1.get_or_make_tag(key)) = "bar1";
+    key = "foo2";
+    *(bufftable1.get_or_make_tag(key)) = "bar2";
+    key = "foo3";
+    *(bufftable1.get_or_make_tag(key)) = "bar3";
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
     bufftable1.apply(new_revision);
@@ -849,39 +847,39 @@ static bool test_cursor1()
     int count = 2;
 
     while (count != 0) {
-	key.value = "foo25";
+	key = "foo25";
 	AutoPtr<QuartzCursor> cursor(table->cursor_get());
 	TEST(!cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "foo2");
-	TEST_EQUAL(cursor->current_tag.value, "bar2");
+	TEST_EQUAL(cursor->current_key, "foo2");
+	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key, "foo3");
+	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
 
-	key.value = "foo";
+	key = "foo";
 	TEST(!cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "");
-	TEST_EQUAL(cursor->current_tag.value, "");
+	TEST_EQUAL(cursor->current_key, "");
+	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo1");
-	TEST_EQUAL(cursor->current_tag.value, "bar1");
+	TEST_EQUAL(cursor->current_key, "foo1");
+	TEST_EQUAL(cursor->current_tag, "bar1");
 
-	key.value = "foo2";
+	key = "foo2";
 	TEST(cursor->find_entry(key));
-	TEST_EQUAL(cursor->current_key.value, "foo2");
-	TEST_EQUAL(cursor->current_tag.value, "bar2");
+	TEST_EQUAL(cursor->current_key, "foo2");
+	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
-	TEST_EQUAL(cursor->current_key.value, "foo3");
-	TEST_EQUAL(cursor->current_tag.value, "bar3");
+	TEST_EQUAL(cursor->current_key, "foo3");
+	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
 	TEST(cursor->after_end());
@@ -891,122 +889,122 @@ static bool test_cursor1()
     }
 
     // Test cursors when we have unapplied changes
-    key.value = "foo25";
-    bufftable1.get_or_make_tag(key)->value = "bar25";
+    key = "foo25";
+    *(bufftable1.get_or_make_tag(key)) = "bar25";
 
-    key.value = "foo26";
+    key = "foo26";
     bufftable1.delete_tag(key);
-    key.value = "foo1";
+    key = "foo1";
     bufftable1.delete_tag(key);
 
-    key.value = "foo25";
+    key = "foo25";
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key.value = "foo25";
+    key = "foo25";
     cursor.reset(bufftable1.cursor_get());
     TEST(cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo25");
-    TEST_EQUAL(cursor->current_tag.value, "bar25");
+    TEST_EQUAL(cursor->current_key, "foo25");
+    TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key.value = "foo26";
+    key = "foo26";
     cursor.reset(bufftable1.cursor_get());
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo25");
-    TEST_EQUAL(cursor->current_tag.value, "bar25");
+    TEST_EQUAL(cursor->current_key, "foo25");
+    TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
-    key.value = "foo2";
+    key = "foo2";
     TEST(cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo25");
-    TEST_EQUAL(cursor->current_tag.value, "bar25");
+    TEST_EQUAL(cursor->current_key, "foo25");
+    TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
     cursor->next();
     TEST(cursor->after_end());
 
-    key.value = "foo1";
+    key = "foo1";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "");
-    TEST_EQUAL(cursor->current_tag.value, "");
+    TEST_EQUAL(cursor->current_key, "");
+    TEST_EQUAL(cursor->current_tag, "");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo25");
-    TEST_EQUAL(cursor->current_tag.value, "bar25");
+    TEST_EQUAL(cursor->current_key, "foo25");
+    TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
     new_revision += 1;
     bufftable1.apply(new_revision);
 
     cursor.reset(bufftable1.cursor_get());
-    key.value = "foo2";
+    key = "foo2";
     TEST(cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key.value = "foo24";
+    key = "foo24";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key.value = "foo25";
+    key = "foo25";
     TEST(cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo25");
-    TEST_EQUAL(cursor->current_tag.value, "bar25");
+    TEST_EQUAL(cursor->current_key, "foo25");
+    TEST_EQUAL(cursor->current_tag, "bar25");
 
-    key.value = "foo24";
+    key = "foo24";
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
-    key.value = "foo25";
+    key = "foo25";
     bufftable1.delete_tag(key);
 
-    key.value = "foo25";
+    key = "foo25";
     cursor.reset(bufftable1.cursor_get());
     TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, "foo2");
-    TEST_EQUAL(cursor->current_tag.value, "bar2");
+    TEST_EQUAL(cursor->current_key, "foo2");
+    TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
-    TEST_EQUAL(cursor->current_key.value, "foo3");
-    TEST_EQUAL(cursor->current_tag.value, "bar3");
+    TEST_EQUAL(cursor->current_key, "foo3");
+    TEST_EQUAL(cursor->current_tag, "bar3");
 
     return true;
 }
@@ -1015,8 +1013,6 @@ static bool test_cursor1()
 static bool test_cursor2()
 {
     unlink_table(tmpdir + "test_cursor2_");
-
-    QuartzDbKey key;
 
     // Open table and put stuff in it.
     QuartzDiskTable disktable1(tmpdir + "test_cursor2_", false, 8192);
@@ -1030,20 +1026,17 @@ static bool test_cursor2()
     string tag2 = "bar2";
     string searchkey = "b";
 
-    key.value = key1;
-    bufftable1.get_or_make_tag(key)->value = tag1;
-    key.value = key2;
-    bufftable1.get_or_make_tag(key)->value = tag2;
+    *(bufftable1.get_or_make_tag(key1)) = tag1;
+    *(bufftable1.get_or_make_tag(key2)) = tag2;
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
     bufftable1.apply(new_revision);
 
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
 
-    key.value = searchkey;
-    TEST(!cursor->find_entry(key));
-    TEST_EQUAL(cursor->current_key.value, key1);
-    TEST_EQUAL(cursor->current_tag.value, tag1);
+    TEST(!cursor->find_entry(searchkey));
+    TEST_EQUAL(cursor->current_key, key1);
+    TEST_EQUAL(cursor->current_tag, tag1);
 
     return true;
 }
@@ -1817,39 +1810,39 @@ static bool test_overwrite1()
 
 
     quartz_revision_number_t new_revision;
-    QuartzDbKey key;
-    QuartzDbTag tag;
+    string key;
+    string tag;
 
     for (int i=1; i<=1000; ++i) {
-	key.value = "foo" + om_tostring(i);
+	key = "foo" + om_tostring(i);
 
-	bufftable.get_or_make_tag(key)->value = "bar" + om_tostring(i);
+	*(bufftable.get_or_make_tag(key)) = "bar" + om_tostring(i);
     }
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
 
-    key.value = "foo1";
-    QuartzDbKey key2;
-    key2.value = "foo999";
+    key = "foo1";
+    string key2;
+    key2 = "foo999";
 
     QuartzDiskTable disktable_ro(tmpdir + "testdb_overwrite1_", true, 2048);
     disktable_ro.open();
     TEST(disktable_ro.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "bar1");
+    TEST_EQUAL(tag, "bar1");
 
-    bufftable.get_or_make_tag(key)->value = "bar2";
+    *(bufftable.get_or_make_tag(key)) = "bar2";
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
     TEST(disktable_ro.get_exact_entry(key2, tag));
     TEST(disktable_ro.get_exact_entry(key, tag));
-    TEST_EQUAL(tag.value, "bar1");
+    TEST_EQUAL(tag, "bar1");
 
-    bufftable.get_or_make_tag(key)->value = "bar3";
+    *(bufftable.get_or_make_tag(key)) = "bar3";
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
     TEST(disktable_ro.get_exact_entry(key2, tag));
     TEST_EXCEPTION(OmDatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
-    //TEST_EQUAL(tag.value, "bar1");
+    //TEST_EQUAL(tag, "bar1");
 
     return true;
 }
@@ -1897,7 +1890,7 @@ static bool test_overwrite2()
     doc_out = writer.get_document(last_doc).get_data();
     TEST(doc_out == "Foobar rising");
     value_out = writer.get_document(last_doc).get_value(7);
-    TEST(value_out.value == "Value7");
+    TEST(value_out == "Value7");
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
@@ -1920,7 +1913,7 @@ static bool test_overwrite2()
     writer.flush();
 
     value_out = writer.get_document(last_doc).get_value(7);
-    TEST(value_out.value == "Value7");
+    TEST(value_out == "Value7");
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
@@ -1971,15 +1964,12 @@ static bool test_bitmap1()
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
-
     quartz_revision_number_t new_revision;
-    QuartzDbKey key;
-    QuartzDbTag tag;
 
-    for (int j=0; j<100; ++j) {
-	for (int i=1; i<=1000; ++i) {
-	    key.value = "foo" + om_tostring(j) + "_" + om_tostring(i);
-	    bufftable.get_or_make_tag(key)->value = "bar" + om_tostring(i);
+    for (int j = 0; j < 100; ++j) {
+	for (int i = 1; i <= 1000; ++i) {
+	    string key = "foo" + om_tostring(j) + "_" + om_tostring(i);
+	    *(bufftable.get_or_make_tag(key)) = "bar" + om_tostring(i);
 	}
 	new_revision = disktable.get_latest_revision_number() + 1;
 	bufftable.apply(new_revision);

@@ -34,7 +34,6 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_lexicon.cc \
 		       quartz_record.cc \
 		       quartz_values.cc \
-		       quartz_utils.cc \
 		       quartz_log.cc \
 		       quartz_document.cc \
 		       quartz_alltermslist.cc \

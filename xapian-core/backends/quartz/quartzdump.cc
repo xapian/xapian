@@ -123,19 +123,19 @@ main(int argc, char *argv[])
 	    
 	    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 
-	    QuartzDbKey key;
-	    key.value = startterm;
+	    string key;
+	    key = startterm;
 	    cursor->find_entry(key);
 
-	    if (startterm.empty() || cursor->current_key.value < startterm) {
+	    if (startterm.empty() || cursor->current_key < startterm) {
 		cerr << "Calling next" << endl;
 		cursor->next();
 	    }
 	    
 	    while (!cursor->after_end() &&
-		   (!use_endterm || cursor->current_key.value <= endterm)) {
-		cout << hex_encode(cursor->current_key.value) << " -> "
-		     << hex_encode(cursor->current_tag.value) << "\n";
+		   (!use_endterm || cursor->current_key <= endterm)) {
+		cout << hex_encode(cursor->current_key) << " -> "
+		     << hex_encode(cursor->current_tag) << "\n";
 		cursor->next();
 	    }
 	}

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,14 +38,14 @@ string
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 {
     DEBUGCALL_STATIC(DB, string, "QuartzRecordManager::get_record", "[table], " << did);
-    QuartzDbKey key(quartz_docid_to_key(did));
-    QuartzDbTag tag;
+    string key(quartz_docid_to_key(did));
+    string tag;
 
     if (!table.get_exact_entry(key, tag)) {
 	throw OmDocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
-    RETURN(tag.value);
+    RETURN(tag);
 }
 
 
@@ -65,22 +66,22 @@ om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
     DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::get_newdocid", "[table]");
-    QuartzDbKey key;
-    key.value = NEXTDOCID_TAG;
+    string key;
+    key = NEXTDOCID_TAG;
 
-    QuartzDbTag * tag = table.get_or_make_tag(key);
+    string * tag = table.get_or_make_tag(key);
 
     om_docid did;
-    if (tag->value.size() == 0) {
+    if (tag->empty()) {
 	did = 1u;
 
 	// Ensure that other informational tag is present.
-	QuartzDbKey key2;
-	key2.value = TOTLEN_TAG;
+	string key2;
+	key2 = TOTLEN_TAG;
 	(void) table.get_or_make_tag(key2);
     } else {
-	const char * data = tag->value.data();
-	const char * end = data + tag->value.size();
+	const char * data = tag->data();
+	const char * end = data + tag->size();
 	bool success = unpack_uint(&data, end, &did);
 	if (!success) {
 	    if (data == end) { // Overflow
@@ -95,7 +96,7 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	}
     }
 
-    tag->value = pack_uint(did + 1);
+    *tag = pack_uint(did + 1);
 
     RETURN(did);
 }
@@ -107,9 +108,9 @@ QuartzRecordManager::add_record(QuartzBufferedTable & table,
     DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::add_record", "[table], " << data);
     om_docid did = get_newdocid(table);
 
-    QuartzDbKey key(quartz_docid_to_key(did));
-    QuartzDbTag * tag = table.get_or_make_tag(key);
-    tag->value = data;
+    string key(quartz_docid_to_key(did));
+    string * tag = table.get_or_make_tag(key);
+    *tag = data;
 
     RETURN(did);
 }
@@ -120,9 +121,9 @@ QuartzRecordManager::replace_record(QuartzBufferedTable & table,
 				    om_docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
-    QuartzDbKey key(quartz_docid_to_key(did));
-    QuartzDbTag * tag = table.get_or_make_tag(key);
-    tag->value = data;
+    string key(quartz_docid_to_key(did));
+    string * tag = table.get_or_make_tag(key);
+    *tag = data;
 }
 
 void
@@ -131,21 +132,21 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t new_doclen)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
-    QuartzDbKey key;
-    key.value = TOTLEN_TAG;
-    QuartzDbTag * tag = table.get_or_make_tag(key);
+    string key;
+    key = TOTLEN_TAG;
+    string * tag = table.get_or_make_tag(key);
 
     quartz_totlen_t totlen;
-    if (tag->value.size() == 0) {
+    if (tag->empty()) {
 	totlen = 0u;
 
 	// Ensure that other informational tag is present.
-	QuartzDbKey key2;
-	key2.value = NEXTDOCID_TAG;
+	string key2;
+	key2 = NEXTDOCID_TAG;
 	(void) table.get_or_make_tag(key2);
     } else {
-	const char * data = tag->value.data();
-	const char * end = data + tag->value.size();
+	const char * data = tag->data();
+	const char * end = data + tag->size();
 	bool success = unpack_uint(&data, end, &totlen);
 	if (!success) {
 	    if (data == end) { // Overflow
@@ -166,24 +167,24 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     if (newlen < old_doclen)
 	throw OmDatabaseCorruptError("Total document length is less than claimed old document length");
     newlen -= old_doclen;
-    tag->value = pack_uint(newlen);
+    *tag = pack_uint(newlen);
 }
 
 om_totlength
 QuartzRecordManager::get_total_length(QuartzTable & table)
 {
     DEBUGCALL_STATIC(DB, om_totlength, "QuartzRecordManager::get_total_length", "QuartzTable &");
-    QuartzDbKey key;
-    key.value = TOTLEN_TAG;
-    QuartzDbTag tag;
+    string key;
+    key = TOTLEN_TAG;
+    string tag;
 
     if (!table.get_exact_entry(key, tag)) {
 	RETURN(0u);
     }
 
     quartz_totlen_t totlen;
-    const char * data = tag.value.data();
-    const char * end = data + tag.value.size();
+    const char * data = tag.data();
+    const char * end = data + tag.size();
     bool success = unpack_uint(&data, end, &totlen);
     if (!success) {
 	if (data == end) { // Overflow

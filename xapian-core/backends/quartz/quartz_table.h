@@ -58,11 +58,11 @@ class QuartzCursor {
 
 	/** Current key pointed to by cursor.
 	 */
-	QuartzDbKey current_key;
+	string current_key;
 
 	/** Current tag pointed to by cursor.
 	 */
-	QuartzDbTag current_tag;
+	string current_tag;
 
 	/** Find an entry, or a near match, in the table.
 	 *
@@ -84,7 +84,7 @@ class QuartzCursor {
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
-	virtual bool find_entry(const QuartzDbKey &key) = 0;
+	virtual bool find_entry(const string &key) = 0;
 
 	/** Move the cursor forward in the table.
 	 *
@@ -144,7 +144,7 @@ class QuartzDiskCursor : public QuartzCursor {
 	/** Virtual methods of QuartzCursor.
 	 */
 	//@{
-	bool find_entry(const QuartzDbKey &key);
+	bool find_entry(const string &key);
 	void next();
 	void prev();
 	bool after_end() { return is_after_end; }
@@ -181,7 +181,7 @@ class QuartzBufferedCursor : public QuartzCursor {
 	/** Virtual methods of QuartzCursor.
 	 */
 	//@{
-	bool find_entry(const QuartzDbKey &key);
+	bool find_entry(const string &key);
 	void next();
 	void prev();
 	bool after_end();
@@ -230,8 +230,8 @@ class QuartzTable {
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	virtual bool get_exact_entry(const QuartzDbKey & key,
-				     QuartzDbTag & tag) const = 0;
+	virtual bool get_exact_entry(const string & key,
+				     string & tag) const = 0;
 
 	/** Get a cursor for reading from the table.
 	 *  The cursor is owned by the caller - it is the caller's
@@ -242,9 +242,24 @@ class QuartzTable {
 
 /** Class managing a table in a Quartz database.
  *
- *  A table is a store holding a set of key/tag pairs.  See the
- *  documentation for QuartzDbKey and QuartzDbTag for details of what
- *  comprises a valid key or tag.
+ *  A table is a store holding a set of key/tag pairs.
+ *
+ *  A key is used to access a block of data in a quartz table.
+ * 
+ *  Keys may be of arbitrary length.  Note though that they will be
+ *  loaded into memory in their entirety, so should not be permitted
+ *  to grow without bound in normal usage.
+ *
+ *  Keys may not have null contents.
+ *
+ *  A tag is a piece of data associated with a given key.
+ *
+ *  Tags may be of arbitrary length.  Note though that they will be
+ *  loaded into memory in their entirety, so should not be permitted
+ *  to grow without bound in normal usage.
+ *
+ *  Tags which are null strings _are_ valid, and are different from a
+ *  tag simply not being in the table.
  */
 class QuartzDiskTable : public QuartzTable {
     private:
@@ -380,14 +395,15 @@ class QuartzDiskTable : public QuartzTable {
 	 *  called.
 	 *
 	 *  @param key   The key to store in the table.
-	 *  @param tag   A pointer to the tag to store in the table, or 0
+	 *  @param tag   The tag to store in the table, or omit
 	 *               to delete the entry in the table.
 	 *
 	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *          otherwise. [FIXME: erm, it returns void...]
 	 *
 	 */
-	void set_entry(const QuartzDbKey & key, const QuartzDbTag * tag);
+	void set_entry(const string & key, const string & tag);
+	void set_entry(const string & key);
 
 	/** Apply changes to the table.
 	 *
@@ -400,7 +416,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *          result.
 	 *
 	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *          otherwise. [FIXME: actually returns void]
 	 */
 	void apply(quartz_revision_number_t new_revision);
 
@@ -408,7 +424,7 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_exact_entry(const QuartzDbKey & key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const string & key, string & tag) const;
 	QuartzDiskCursor * cursor_get() const;
 	//@}
 };
@@ -443,7 +459,7 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  @return false if the tag is not present in the table, or is
 	 *          currently marked for deletion, true otherwise.
 	 */
-	bool have_tag(const QuartzDbKey &key);
+	bool have_tag(const string &key);
 
 	/** Perform the writing of changes.
 	 */
@@ -506,20 +522,20 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  its changed_entries object) - it may be modified, but must not
 	 *  be deleted.
 	 */
-	QuartzDbTag * get_or_make_tag(const QuartzDbKey &key);
+	string * get_or_make_tag(const string &key);
 
 	/** Remove the tag for a given key.
 	 *
 	 *  This removes the tag for a given key.  If the tag doesn't exist,
 	 *  no action is taken.
 	 */
-	void delete_tag(const QuartzDbKey &key);
+	void delete_tag(const string &key);
 
 	/** Virtual methods of QuartzTable.
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_exact_entry(const QuartzDbKey & key, QuartzDbTag & tag) const;
+	bool get_exact_entry(const string & key, string & tag) const;
 	QuartzBufferedCursor * cursor_get() const;
 	//@}
 };

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,7 @@
 QuartzTableEntries::QuartzTableEntries()
 {
     DEBUGCALL(DB, void, "QuartzTableEntries", "");
-    QuartzDbKey key;
+    string key;
     entries[key] = 0;
 }
 
@@ -39,41 +40,41 @@ QuartzTableEntries::~QuartzTableEntries()
     clear();
 }
 
-QuartzDbTag *
-QuartzTableEntries::get_tag(const QuartzDbKey &key)
+string *
+QuartzTableEntries::get_tag(const string &key)
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key.value);
-    Assert(key.value != "");
+    DEBUGCALL(DB, string *, "QuartzTableEntries::get_tag", key);
+    Assert(!key.empty());
     items::iterator i = entries.find(key);
     Assert(i != entries.end());
     return i->second; // FIXME can't use RETURN for now
 }
 
-const QuartzDbTag *
-QuartzTableEntries::get_tag(const QuartzDbKey &key) const
+const string *
+QuartzTableEntries::get_tag(const string &key) const
 {
-    DEBUGCALL(DB, QuartzDbTag *, "QuartzTableEntries::get_tag", key.value);
-    Assert(key.value != "");
+    DEBUGCALL(DB, string *, "QuartzTableEntries::get_tag", key);
+    Assert(!key.empty());
     return const_cast<QuartzTableEntries *>(this)->get_tag(key); // FIXME RETURN
 }
 
 bool
-QuartzTableEntries::have_entry(const QuartzDbKey &key) const
+QuartzTableEntries::have_entry(const string &key) const
 {
-    DEBUGCALL(DB, bool, "QuartzTableEntries::have_entry", key.value);
-    Assert(key.value != "");
+    DEBUGCALL(DB, bool, "QuartzTableEntries::have_entry", key);
+    Assert(!key.empty());
     RETURN((entries.find(key) != entries.end()));
 }
 
 QuartzTableEntries::items::const_iterator
-QuartzTableEntries::get_iterator(const QuartzDbKey & key) const
+QuartzTableEntries::get_iterator(const string & key) const
 {
     DEBUGCALL(DB, QuartzTableEntries::items::const_iterator,
-	      "QuartzTableEntries::get_iterator", key.value);
-    Assert(key.value != "");
+	      "QuartzTableEntries::get_iterator", key);
+    Assert(!key.empty());
     items::const_iterator result = entries.lower_bound(key);
 
-    if (result != entries.end() && result->first.value == key.value) {
+    if (result != entries.end() && result->first == key) {
 	// Exact match
 	return result;
     }
@@ -89,8 +90,8 @@ QuartzTableEntries::get_iterator(const QuartzDbKey & key) const
 
 void
 QuartzTableEntries::get_item(items::const_iterator iter,
-			     const QuartzDbKey ** keyptr,
-			     const QuartzDbTag ** tagptr) const
+			     const string ** keyptr,
+			     const string ** tagptr) const
 {
     DEBUGCALL(DB, void, "QuartzTableEntries::get_item", "[iter], " << keyptr << ", " << tagptr);
     Assert (iter != entries.end());
@@ -104,7 +105,7 @@ QuartzTableEntries::prev(items::const_iterator & iter) const
 {
     DEBUGCALL(DB, void, "QuartzTableEntries::prev", "[iter]");
     Assert(iter != entries.begin());
-    iter--;
+    --iter;
 }
 
 void
@@ -112,7 +113,7 @@ QuartzTableEntries::next(items::const_iterator & iter) const
 {
     DEBUGCALL(DB, void, "QuartzTableEntries::next", "[iter]");
     Assert(iter != entries.end());
-    iter++;
+    ++iter;
 }
 
 bool
@@ -130,10 +131,10 @@ QuartzTableEntries::empty() const
 }
 
 void
-QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
+QuartzTableEntries::set_tag(const string &key, AutoPtr<string> tag)
 {
     DEBUGCALL(DB, void, "QuartzTableEntries::set_tag", "[key], [tag]");
-    Assert(key.value != "");
+    Assert(!key.empty());
     items::iterator i = entries.find(key);
 
     if (i == entries.end()) {
@@ -155,7 +156,7 @@ QuartzTableEntries::clear()
 	i->second = 0;
     }
     entries.clear();
-    QuartzDbKey key;
+    string key;
     entries[key] = 0;
 }
 

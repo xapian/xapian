@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,12 +29,12 @@
 #include "omdebug.h"
 
 void
-QuartzLexicon::make_key(QuartzDbKey & key, const om_termname & tname)
+QuartzLexicon::make_key(string & key, const om_termname & tname)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_key", "QuartzDbKey( " << key.value << "), " << tname);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_key", "string( " << key << "), " << tname);
     if (tname.empty())
 	throw OmInvalidArgumentError("QuartzLexicon: Term names must not be null.");
-    key.value = pack_string(tname);
+    key = pack_string(tname);
 }
 
 void
@@ -61,24 +62,24 @@ QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
-    QuartzDbKey key;
+    string key;
     make_key(key, tname);
-    QuartzDbTag * tag = table->get_or_make_tag(key);
+    string * tag = table->get_or_make_tag(key);
 
     om_doccount termfreq;
 
-    if (tag->value.size() == 0) {
+    if (tag->empty()) {
 	termfreq = 1;
     } else {
 	// Read tag
-	parse_entry(tag->value, &termfreq);
+	parse_entry(*tag, &termfreq);
 
 	// Do the increment
 	termfreq += 1;
     }
 
     // Store modified tag
-    make_entry(tag->value, termfreq);
+    make_entry(*tag, termfreq);
 }
 
 void
@@ -86,20 +87,20 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::decrement_termfreq", table << ", " << tname);
-    QuartzDbKey key;
+    string key;
     make_key(key, tname);
-    QuartzDbTag * tag = table->get_or_make_tag(key);
+    string * tag = table->get_or_make_tag(key);
 
     om_doccount termfreq;
-    if (tag->value.size() == 0) {
+    if (tag->empty()) {
 	// Have no tag - this shouldn't really happen - in a production
 	// build its probably okay to ignore it though.
-	Assert(tag->value.size() != 0);
+	Assert(!tag->empty());
 	return;
     }
 
     // Read tag
-    parse_entry(tag->value, &termfreq);
+    parse_entry(*tag, &termfreq);
 
     // Do the decrement
     termfreq -= 1;
@@ -109,7 +110,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 	table->delete_tag(key);
     } else {
 	// Store modified tag
-	make_entry(tag->value, termfreq);
+	make_entry(*tag, termfreq);
     }
 }
 
@@ -120,13 +121,13 @@ QuartzLexicon::get_entry(const QuartzTable * table,
 {
     DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry", table << ", " << tname << ", " << termfreq);
     // This may be called internally.
-    QuartzDbTag tag;
-    QuartzDbKey key;
+    string tag;
+    string key;
     make_key(key, tname);
     bool found = table->get_exact_entry(key, tag);
     if (!found) RETURN(false);
 
-    parse_entry(tag.value, termfreq);
+    parse_entry(tag, termfreq);
 
     RETURN(true);
 }

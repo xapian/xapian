@@ -1,3 +1,9 @@
+Wed Jun 12 16:31:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* QuartzDbKey, QuartzDbTag: just use a string instead of a string
+	  wrapped in a structure.  We've stopped inflicting this on external
+	  developers (OmData, OmKey/OmValue) so why inflict it on ourselves?
+
 Wed Jun 12 12:26:04 BST 2002  Olly Betts <olly@survex.com>
 
 	* Btree_item: use C++ strings rather than trying to reimplement them.

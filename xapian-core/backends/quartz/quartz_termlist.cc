@@ -38,22 +38,22 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 			    bool store_termfreqs)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzTermList::set_entries", table_ << ", " << did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
-    QuartzDbTag * tag = table_->get_or_make_tag(quartz_docid_to_key(did));
+    string * tag = table_->get_or_make_tag(quartz_docid_to_key(did));
+    *tag = pack_uint(doclen_);
 
-    tag->value = "";
+    string v;
     unsigned int size = 0;
     for ( ; t != t_end; ++t) {
-	tag->value += pack_string(*t);
-	tag->value += pack_uint(t.get_wdf());
-	if (store_termfreqs) tag->value += pack_uint(t.get_termfreq());
+	v += pack_string(*t);
+	v += pack_uint(t.get_wdf());
+	if (store_termfreqs) v += pack_uint(t.get_termfreq());
 	++size;
     }
-    string v = pack_uint(doclen_);
-    v += pack_uint(size);
-    v += pack_bool(store_termfreqs);
-    tag->value = v + tag->value;
+    *tag += pack_uint(size);
+    *tag += pack_bool(store_termfreqs);
+    *tag += v;
 
-    DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + tag->value + "'");
+    DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + *tag + "'");
 }
 
 void
@@ -79,16 +79,16 @@ QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
 	  doccount(doccount_)
 {
     DEBUGCALL(DB, void, "QuartzTermList", "[this_db_], " << table_ << ", " << lexicon_table_ << ", " << did << ", " << doccount_);
-    QuartzDbKey key(quartz_docid_to_key(did));
+    string key(quartz_docid_to_key(did));
 
     if (!table->get_exact_entry(key, termlist_part))
 	throw OmDocNotFoundError("Can't read termlist for document "
 				 + om_tostring(did) + ": Not found");
 
-    DEBUGLINE(DB, "QuartzTermList::QuartzTermList() - data is `" + termlist_part.value + "'");
+    DEBUGLINE(DB, "QuartzTermList::QuartzTermList() - data is `" + termlist_part + "'");
 
-    pos = termlist_part.value.data();
-    end = pos + termlist_part.value.size();
+    pos = termlist_part.data();
+    end = pos + termlist_part.size();
 
     // Read doclen
     if (!unpack_uint(&pos, end, &doclen)) {

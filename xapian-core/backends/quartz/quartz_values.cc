@@ -33,13 +33,14 @@ using std::make_pair;
 #include "omdebug.h"
 
 void
-QuartzValueManager::make_key(QuartzDbKey & key,
+QuartzValueManager::make_key(string & key,
 				om_docid did,
 				om_valueno valueno)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key", "QuartzDbKey(" << key.value << "), " << did << ", " << valueno);
+    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key",
+		     key << ", " << did << ", " << valueno);
     (void)valueno; // no warning
-    key.value = pack_uint(did);
+    key = pack_uint(did);
 }
 
 void
@@ -65,18 +66,18 @@ QuartzValueManager::unpack_entry(const char ** pos,
 
 void
 QuartzValueManager::add_value(QuartzBufferedTable & table,
-			       const string & value,
-			       om_docid did,
-			       om_valueno valueno)
+			      const string & value,
+			      om_docid did,
+			      om_valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::add_value", "[table], " << value << ", " << did << ", " << valueno);
-    QuartzDbKey key;
+    string key;
     make_key(key, did, valueno);
-    QuartzDbTag * tag = table.get_or_make_tag(key);
+    string * tag = table.get_or_make_tag(key);
     string newvalue;
 
-    const char * pos = tag->value.data();
-    const char * end = pos + tag->value.size();
+    const char * pos = tag->data();
+    const char * end = pos + tag->size();
 
     bool have_added = false;
     
@@ -104,7 +105,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 	newvalue += pack_uint(valueno);
 	newvalue += pack_string(value);
     }
-    tag->value = newvalue;
+    *tag = newvalue;
 }
 
 void
@@ -114,14 +115,14 @@ QuartzValueManager::get_value(const QuartzTable & table,
 				       om_valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_value", "[table], " << value << ", " << did << ", " << valueno);
-    QuartzDbKey key;
+    string key;
     make_key(key, did, valueno);
-    QuartzDbTag tag;
+    string tag;
     bool found = table.get_exact_entry(key, tag);
 
     if (found) {
-	const char * pos = tag.value.data();
-	const char * end = pos + tag.value.size();
+	const char * pos = tag.data();
+	const char * end = pos + tag.size();
 
 	while (pos && pos != end) {
 	    om_valueno this_value_no;
@@ -144,16 +145,16 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
 				om_docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_all_values", "[table], [values], " << did);
-    QuartzDbKey key;
+    string key;
     make_key(key, did, 0);
-    QuartzDbTag tag;
+    string tag;
     bool found = table.get_exact_entry(key, tag);
 
     values.clear();
     if (!found) return;
 
-    const char * pos = tag.value.data();
-    const char * end = pos + tag.value.size();
+    const char * pos = tag.data();
+    const char * end = pos + tag.size();
 
     while (pos && pos != end) {
 	om_valueno this_value_no;
@@ -168,9 +169,9 @@ void
 QuartzValueManager::delete_all_values(QuartzBufferedTable & table, om_docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::delete_all_values", "[table], " << did);
-    QuartzDbKey key;
+    string key;
     make_key(key, did, 0);
-    QuartzDbTag tag;
+    string tag;
     bool found = table.get_exact_entry(key, tag);
 
     if (found) {

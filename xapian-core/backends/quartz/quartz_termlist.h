@@ -53,7 +53,7 @@ class QuartzTermList : public LeafTermList {
 	 *
 	 *  FIXME: currently, we read the whole termlist as one chunk.
 	 */
-	QuartzDbTag termlist_part;
+	string termlist_part;
 	
 	/** Position within tag that we're reading from.
 	 */

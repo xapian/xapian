@@ -33,9 +33,9 @@ QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
 {
     DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
     /* Seek to the first term */
-    pl_cursor->find_entry(QuartzDbKey());
+    pl_cursor->find_entry(string());
 
-    if (pl_cursor->current_key.value.empty()) {
+    if (pl_cursor->current_key.empty()) {
 	pl_cursor->next();
     }
 
@@ -64,8 +64,8 @@ QuartzAllTermsList::get_termname() const
 	throw OmInvalidArgumentError("Attempt to get termname after end");
     }
 	    
-    const char *start = pl_cursor->current_key.value.data();
-    const char *end = start + pl_cursor->current_key.value.length();
+    const char *start = pl_cursor->current_key.data();
+    const char *end = start + pl_cursor->current_key.length();
     string result;
     if (unpack_string_preserving_sort(&start, end, result)) {
 	RETURN(result);
@@ -73,14 +73,14 @@ QuartzAllTermsList::get_termname() const
 
     DEBUGLINE(DB, "QuartzAllTermsList[" << this
 	      << "]: Failed to read from key: `"
-	      << pl_cursor->current_key.value << "'");
+	      << pl_cursor->current_key << "'");
     throw OmDatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
 }
 
 void QuartzAllTermsList::get_stats() const
 {
-    const char *start = pl_cursor->current_tag.value.data();
-    const char *end = start + pl_cursor->current_tag.value.length();
+    const char *start = pl_cursor->current_tag.data();
+    const char *end = start + pl_cursor->current_tag.length();
     QuartzPostList::read_number_of_entries(&start, end,
 					   &termfreq, &collection_freq);
 
@@ -121,8 +121,8 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
     DEBUGCALL(DB, TermList *, "QuartzAllTermsList::skip_to", tname);
     DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");
     started = true;
-    QuartzDbKey key;
-    key.value = pack_string_preserving_sort(tname);
+    string key;
+    key = pack_string_preserving_sort(tname);
 
     have_stats = false;
 
@@ -134,7 +134,7 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
 	}
     } else {
 	DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
-		  pl_cursor->current_key.value);
+		  pl_cursor->current_key);
     }
     RETURN(NULL);
 }

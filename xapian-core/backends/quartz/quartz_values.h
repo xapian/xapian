@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,11 +41,11 @@ class QuartzValueManager {
 	static void unpack_entry(const char ** pos,
 				 const char * end,
 				 om_valueno * this_value_no,
-				 std::string & this_value);
+				 string & this_value);
 
 	/** Generate key representing docid/valueno pair.
 	 */
-	static void make_key(QuartzDbKey & key, om_docid did, om_valueno valueno);
+	static void make_key(string & key, om_docid did, om_valueno valueno);
     public:
 
 	/** Store a value.  If a value of the same document ID and

@@ -328,8 +328,12 @@ pack_bool(bool value)
 #include "quartz_table_entries.h"
 #include "om/omtypes.h"
 
-/** Convert a document id to a QuartzDBKey.
+/** Convert a document id to a key.
  */
-QuartzDbKey quartz_docid_to_key(om_docid did);
+inline string
+quartz_docid_to_key(om_docid did)
+{
+    return pack_uint(did);
+}
 
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */

@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,9 +28,11 @@
 
 #include "om/omtypes.h"
 #include "positionlist.h"
-#include <string>
 #include "om/omdocument.h"
 #include "quartz_table_entries.h"
+
+#include <string>
+using std::string;
 
 class QuartzTable;
 class QuartzBufferedTable;
@@ -39,7 +42,7 @@ class QuartzBufferedTable;
 class QuartzPositionList : public PositionList {
     private:
         /// The data.
-        std::string data;
+        string data;
 
         /** Position of iteration through data.
 	 */
@@ -73,7 +76,7 @@ class QuartzPositionList : public PositionList {
 	/// Make a key for accessing the positionlist.
 	static void make_key(om_docid did,
 			     const om_termname & tname,
-			     QuartzDbKey & key);
+			     string & key);
 
     public:
         /// Default constructor.

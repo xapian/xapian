@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,8 +38,8 @@ QuartzPositionList::read_data(const QuartzTable * table,
     DEBUGCALL(DB, void, "QuartzPositionList::read_data",
 	      table << ", " << did << ", " << tname);
 
-    QuartzDbKey key;
-    QuartzDbTag tag;
+    string key;
+    string tag;
     make_key(did, tname, key);
     if (!table->get_exact_entry(key, tag)) {
 	// This isn't an error, since position list not be present simply
@@ -54,7 +55,7 @@ QuartzPositionList::read_data(const QuartzTable * table,
     }
 
     // FIXME: Unwanted copy
-    data = tag.value;
+    data = tag;
 
     pos = data.data();
     end = pos + data.size();
@@ -127,11 +128,10 @@ QuartzPositionList::skip_to(om_termpos termpos)
 void
 QuartzPositionList::make_key(om_docid did,
 			     const om_termname & tname,
-			     QuartzDbKey & key)
+			     string & key)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", QuartzDbKey(" << key.value << ")");
-    key.value = pack_uint(did);
-    key.value += pack_string(tname);
+    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
+    key = pack_uint(did) + pack_string(tname);
 }
 
 // Methods modifying position lists
@@ -144,22 +144,21 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			const OmPositionListIterator &pos_end)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
-    QuartzDbKey key;
-    QuartzDbTag * tag;
+    string key;
 
     make_key(did, tname, key);
-    tag = table->get_or_make_tag(key);
+    string * tag = table->get_or_make_tag(key);
 
-    tag->value = "";
+    *tag = "";
 
     om_termpos prevpos = 0;
     unsigned int size = 0;
     for ( ; pos != pos_end; ++pos) {
-	tag->value += pack_uint(*pos - prevpos);
+	*tag += pack_uint(*pos - prevpos);
 	prevpos = *pos;
 	size++;
     }
-    tag->value = pack_uint(size) + tag->value;
+    *tag = pack_uint(size) + *tag;
 }
 
 void
@@ -168,7 +167,7 @@ QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
 			const om_termname & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
-    QuartzDbKey key;
+    string key;
     make_key(did, tname, key);
     table->delete_tag(key);
 }

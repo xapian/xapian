@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,51 +25,13 @@
 #ifndef OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 #define OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 
-#include <map>
 #include "autoptr.h"
 #include "quartz_types.h"
+
+#include <map>
 #include <string>
-
-/** A tag in a quartz table.
- *
- *  A tag is a piece of data associated with a given key.
- */
-struct QuartzDbTag {
-    public:
-	/** The contents of the tag.
-	 *
-	 *  Tags may be of arbitrary length.  Note though that they will be
-	 *  loaded into memory in their entirety, so should not be permitted
-	 *  to grow without bound in normal usage.
-	 *
-	 *  Tags which are null strings _are_ valid, and are different from a
-	 *  tag simply not being in the table.
-	 */
-	std::string value;
-};
-
-/** The key used to access a block of data in a quartz table.
- */
-struct QuartzDbKey {
-    public:
-	/** The contents of the key.
-	 *
-	 *  Keys may be of arbitrary length.  Note though that they will be
-	 *  loaded into memory in their entirety, so should not be permitted
-	 *  to grow without bound in normal usage.
-	 *
-	 *  Keys may not have null contents.
-	 */
-	std::string value;
-
-	/** Comparison operator, so that keys may be used in standard
-	 *  containers.
-	 */
-	bool operator <(const QuartzDbKey & a) const {return (value<a.value);}
-	bool operator <=(const QuartzDbKey & a) const {return (value<=a.value);}
-	bool operator >(const QuartzDbKey & a) const {return (value>a.value);}
-	bool operator >=(const QuartzDbKey & a) const {return (value>=a.value);}
-};
+using std::map;
+using std::string;
 
 /** This class stores a set of entries from a quartz database table.
  *
@@ -77,7 +40,7 @@ struct QuartzDbKey {
  */
 class QuartzTableEntries {
     public:
-	typedef std::map<QuartzDbKey, QuartzDbTag *> items;
+	typedef map<string, string *> items;
     private:
 	/// Copying not allowed
 	QuartzTableEntries(const QuartzTableEntries &);
@@ -113,8 +76,8 @@ class QuartzTableEntries {
 	 *          is marked for deletion.
 	 */
 	//@{
-	QuartzDbTag * get_tag(const QuartzDbKey &key);
-	const QuartzDbTag * get_tag(const QuartzDbKey &key) const;
+	string * get_tag(const string &key);
+	const string * get_tag(const string &key) const;
 	//@}
 
 	/** Return whether the given entry is stored in this object.
@@ -123,7 +86,7 @@ class QuartzTableEntries {
 	 *          is stored as being marked for deletion), false if it is
 	 *          not stored.
 	 */
-	bool have_entry(const QuartzDbKey &key) const;
+	bool have_entry(const string &key) const;
 
 	/** Get an iterator to the item specified if it exists.
 	 *  If it doesn't exist, the iterator points to the first item
@@ -135,7 +98,7 @@ class QuartzTableEntries {
 	 *
 	 *  @return  The iterator.
 	 */
-	items::const_iterator get_iterator(const QuartzDbKey & key) const;
+	items::const_iterator get_iterator(const string & key) const;
 
 	/** Get the item pointed to by the iterator.
 	 *
@@ -152,8 +115,8 @@ class QuartzTableEntries {
 	 *                   and must not be deleted.
 	 */
 	void get_item(items::const_iterator iter,
-		      const QuartzDbKey ** keyptr,
-		      const QuartzDbTag ** tagptr) const;
+		      const string ** keyptr,
+		      const string ** tagptr) const;
 
 	/** Decrease the iterator.
 	 */
@@ -189,7 +152,7 @@ class QuartzTableEntries {
 	 *
 	 *  @param block The block to store.
 	 */
-	void set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag);
+	void set_tag(const string &key, AutoPtr<string> tag);
 
 	/** Removes all the entries from the QuartzTableEntries object.
 	 *
