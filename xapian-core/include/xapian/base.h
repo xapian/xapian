@@ -25,12 +25,13 @@
 #ifndef XAPIAN_INCLUDED_BASE_H
 #define XAPIAN_INCLUDED_BASE_H
 
+namespace Xapian {
+namespace Internal {
+
 /** Reference counted internal classes should inherit from RefCntBase.
  *
  * This gives the object a reference count used by RefCntPtr.
  */
-namespace Xapian {
-namespace Internal {
 class RefCntBase {
     protected:
 	/** The copy constructor.
@@ -52,7 +53,7 @@ class RefCntBase {
 	mutable ref_count_t ref_count;
 };
 
-/** The actual reference-counted pointer.  Can be used with any
+/** A reference-counted pointer.  Can be used with any
  *  class derived from RefCntBase, as long as it is allocated
  *  on the heap by new (not new[]!).
  */

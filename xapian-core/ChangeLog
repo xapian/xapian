@@ -1,3 +1,8 @@
+Wed Jul 09 01:25:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/overview.html,include/xapian/base.h,include/xapian/database.h:
+	  Improvements to doxygen-generated documentation.
+
 Wed Jul 09 01:23:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,docs/todo.xml: Added check for SWIG version (require

@@ -32,6 +32,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 
+/// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
     
 class Document;
@@ -40,9 +41,9 @@ class PostingIterator;
 class TermIterator;
 class WritableDatabase;
 
-/** This class is used to access a database, or a set of databases.
+/** This class is used to access a database, or a group of databases.
  *
- *  This class is used in conjunction with an Enquire object.
+ *  For searching, this class is used in conjunction with an Enquire object.
  *
  *  @exception InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
@@ -219,8 +220,8 @@ class WritableDatabase : public Database {
 	 *  so assignment is cheap.
 	 *
 	 *  Note that only an WritableDatabase may be assigned to an
-	 *  WritableDatabase: an attempt to assign a Database will throw
-	 *  an exception (FIXME: is this actually possible to do?)
+	 *  WritableDatabase: an attempt to assign a Database is caught
+	 *  at compile-time.
 	 */
 	void operator=(const WritableDatabase &other);
 
