@@ -1,3 +1,8 @@
+Wed Sep 18 11:06:12 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* include/om/Makefile.am: We really should install om/om.h, or
+	  applications can't build against us.
+
 Wed Sep 18 05:10:24 BST 2002  Richard Boulton <richard.boulton@omsee.com>
 
 	* docs/doxygen_{api,full}_header.html_tmpl: Remove meta robots tag -

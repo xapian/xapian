@@ -5,6 +5,6 @@ libxapianinclude_HEADERS = omstem.h \
  omerror.h omerrortypes.h omerrorhandler.h omtypes.h omenquire.h omquery.h \
  omdocument.h omdatabase.h omsettings.h omoutput.h \
  ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
- omvalueiterator.h omexpanddecider.h
+ omvalueiterator.h omexpanddecider.h om.h
 EXTRA_DIST = om.h.in
 CLEANFILES = om.h
