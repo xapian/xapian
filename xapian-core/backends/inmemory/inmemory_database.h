@@ -205,8 +205,6 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	Xapian::doclength totlen;
 
-	bool indexing; // Whether we have started to index to the database
-
 	// Stop copy / assignment being allowed
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
