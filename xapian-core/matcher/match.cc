@@ -12,6 +12,7 @@ Match::Match(IRDatabase *database)
 {
     DB = database;
     max_msize = 1000;
+    min_weight_percent = -1;
 }
 
 bool
@@ -120,9 +121,9 @@ Match::recalc_maxweight()
 void
 Match::match()
 {    
+    weight w_min = 0;
     msize = 0;
     mtotal = 0;
-    weight w_min = 0;
     int sorted_to = 0;
 
     merger = NULL;
@@ -159,8 +160,10 @@ Match::match()
     	return;
     }
 
-    recalculate_maxweight = true;
-    weight w_max;
+    weight w_max = max_weight = merger->recalc_maxweight();
+    recalculate_maxweight = false;
+
+    if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight;
 
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?

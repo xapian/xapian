@@ -616,26 +616,6 @@ static void run_query(void) {
 	// AND together all filters
     }
 
-    matcher->match();
-
-#if 0
-    Give_Muscat ("maxweight");
-    Getfrom_Muscat (&z);
-    check_error(&z);
-    if (z.p[0] == 'I') {
-       maxweight = atol(z.p + 2);
-    } else {
-       print_error_page( "Muscat error in maxweight", z.p );
-       Close_Muscat();
-       exit(0);
-    }
-    Ignore_Muscat();
-#else
-    maxweight = 2000; // FIXME
-#endif
-
-    msize = matcher->mtotal;
-
     percent_min = (percent_min > 100) ? 100 : ((percent_min < 0) ? 0 : percent_min);
 
     /* Trim the M-set to remove matches with negative weights, or those below
@@ -646,13 +626,20 @@ static void run_query(void) {
      * removed
      */
     if (have_negative_weights || weight_threshold || percent_min) {
-       if (msize && maxweight > 0) {
-	  int t = maxweight * percent_min / 100;
-	  if (t > weight_threshold) weight_threshold = t;
-	  msize = trim_msize(msize, weight_threshold);
-       }
+#if 1 // FIXME
+	matcher->set_min_weight_percent(percent_min);
+#else
+	int t = maxweight * percent_min / 100;
+	if (t > weight_threshold) weight_threshold = t;
+	msize = trim_msize(msize, weight_threshold);
+#endif
     }
 
+    matcher->match();
+
+    maxweight = matcher->get_max_weight();
+
+    msize = matcher->mtotal;
 }
 
 /**************************************************************/
