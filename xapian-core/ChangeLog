@@ -1,3 +1,8 @@
+Fri Jan 09 14:40:00 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Tidied the initial call to
+	  get_chunk() out of the merge loop (gives ~4% speedup!)
+
 Fri Jan 09 01:31:05 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Implement chunking of postlists

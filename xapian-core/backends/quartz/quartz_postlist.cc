@@ -1112,16 +1112,16 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	    }
 	}
 	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;
-	PostlistChunkReader *from = NULL;
-	PostlistChunkWriter *to = NULL;
-	Xapian::docid max_did = Xapian::docid(-1);
-	for (j = i->second.begin(); j != i->second.end(); ++j) {
-	    Xapian::docid did = j->first;
+	j = i->second.begin();
+	Assert(j != i->second.end()); // This case is caught above.
 
-	    if (!to) {
-		max_did = get_chunk(bufftable, tname, did,
-				    j->second.first == 'A', &from, &to);
-	    }
+	Xapian::docid max_did;
+	PostlistChunkReader *from;
+	PostlistChunkWriter *to;
+	max_did = get_chunk(bufftable, tname, j->first, j->second.first == 'A',
+			    &from, &to);
+	for ( ; j != i->second.end(); ++j) {
+	    Xapian::docid did = j->first;
 
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
@@ -1159,9 +1159,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	    }
 	    delete from;
 	}
-	if (to) {
-	    to->flush(bufftable);
-	    delete to;
-	}
+	to->flush(bufftable);
+	delete to;
     }
 }
