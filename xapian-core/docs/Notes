@@ -32,6 +32,7 @@ branch postlist P will return a pointer to a different postlist to replace
 it.  P's parent will notice, and replace its pointer to P with the
 returned pointer, which can be either one of P's children, or another
 branch.  P will be deleted.
+
 =====================
 Document ids (docid) start from 1 - a zero docid is invalid.  This is relied
 on by some operations.

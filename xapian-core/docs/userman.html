@@ -5,6 +5,147 @@
 </HEAD>
 <BODY BGCOLOR="white">
 
+<B>Note: This document is still in the early stages of being written.<BR>
+Richard Boulton - 7 Feb 2000</B>
+
+<H1>Overview</H1>
+
+<P>
+This document provides an introduction to, and detailed documentation of,
+the native C++ Muscat API.  This API allows programmers quickly to add the
+ability to search through (potentially very large) bodies of data using
+probabalistic methods.
+</P>
+
+<P>
+<EM>Note:</EM>
+The API currently implemented covers only the part of muscat concerned with
+searching through existing indices.  The process of creating indexes is thus
+not covered by this document.
+</P>
+
+<P>
+It is probably a good idea to read the
+<A HREF="intro_ir.html">Introduction to Information Retrieval</A> and the
+<A HREF="intro.html">Introduction to Muscat</A> before reading this document,
+or at least before attempting to use the API.
+</P>
+
+<H2>Errors and exceptions</H2>
+
+<P>
+Error reporting is often relegated to the back of manuals such as this.
+However, it is extremely important to understand the errors which may be
+caused by the operations which you are trying to perform.
+
+This becomes particularly relevant when using a large system, with such
+possibilities as databases which are being updated while you search
+through them, and distributed enquiry systems.
+</P>
+
+<P>
+Errors in Muscat are all reported by means of exceptions.  All exceptions
+thrown by muscat will be subclasses of OmError.  Note that OmError is an
+abstract class; thus you should catch exceptions by reference rather than
+by value.
+</P>
+
+<P>
+There are two flavours of error: <CODE>OmLogicError</CODE> and
+<CODE>OmRuntimeError</CODE>.  
+</P>
+
+<H2>The enquire class</H2>
+
+<H2>Opening a database</H2>
+
+The first step in any 
+
+<H3>Opening more databases</H3>
+
+<H2>Specifying a query</H2>
+
+<P>
+Muscat implements both boolean and probabalistic searching.  Traditionally,
+these have been combined either by:
+<OL><LI>
+Performing a boolean search and then a probabalistic search over the
+resulting documents, or
+</LI><LI>
+by performing a probabalistic search and filtering the resulting documents
+with a boolean query.
+</LI></OL>
+The difference between these two is that the collection statistics for the
+former will represent the space of documents being searched by probabalistic
+methods, rather than some abstract larger set. If the boolean query is
+being used to restrict to, say, documents in English (where the database
+contains English and French documents), the latter would result in a word such
+as &quot;<EM>chose</EM>&quot;, which has different usage in both langauges,
+being allocated an incorrect weight.
+</P>
+<P>
+In summary, the former is likely to produce a better result, but the
+latter can be more efficiently implemented.
+</P>
+<P>
+Muscat uses a third approach, which is to perform both queries
+simultaneously.  This allows us to
+</P>
+
+<H3>Null queries</H3>
+<P>
+These are an added complication, although they make it possible to write
+much neater code, and to perform some extra types of query. (See
+<A HREF="#purebool">"Specifying a pure boolean query"</A>).
+</P>
+
+<P>
+Null queries are not empty queries, or queries which match nothing: rather,
+they should be thought of as placeholders.  A null query is created by
+calling the default constructor for OmQuery(), and can then be used in
+many places in construction of a query.
+</P>
+
+<H3><A NAME="purebool">Specifying a pure boolean query</A></H3>
+Occasionally it may be desirable to perform a purely boolean query, and not
+to calculate weights for each document.  This can be performed within Muscat
+as follows:
+<UL><LI>
+Make the desired boolean query, as described above.
+For example, putting it in <CODE>query</CODE>:
+example:<PRE>
+OmQuery query(OM_MOP_NOT, OmQuery("cheese"), OmQuery("bread"));
+</PRE>
+</LI><LI>
+Make a boolean only query, by filtering a null query with the boolean query.
+For example:
+<PRE>
+OmQuery boolquery(OM_MOP_FILTER, OmQuery(), query);
+</PRE>
+</LI></UL>
+
+The boolquery will return a set of documents matching the criteria supplied:
+each document in the result set will have a weight of 1.
+<P>
+Why does this work?  Well, 
+
+<H2>Retrieving the results of a query</H2>
+
+<H3>The MSet</H3>
+
+<H2>Specifying a relevance set</H2>
+
+<H2>Suggesting new terms for the query</H2>
+
+
+<H2>A simple example</H2>
+<P>
+A simple example of usage of the Muscat API is given 
+</P>
+
+<HR>
+
+Last modified: 7 Feb 2000 by Richard Boulton
 
 </BODY>
 </HTML>
