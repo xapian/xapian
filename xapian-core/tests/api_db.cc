@@ -527,6 +527,7 @@ static bool test_matchfunctor1()
     OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
 
     OmMSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
     for ( ; i != mymset.end(); ++i) {
 	const OmDocument doc(enquire.get_doc(i));
         TEST(myfunctor(doc));

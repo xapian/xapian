@@ -303,8 +303,12 @@ OmMSet::swap(OmMSet & other)
 OmMSetIterator
 OmMSet::begin() const
 {
-    return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin(),
-						       internal->items.end()));
+    if (internal->items.begin() == internal->items.end()) {
+	return OmMSetIterator(NULL);
+    } else {
+	return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin(),
+							   internal->items.end()));
+    }
 }
 
 OmMSetIterator
@@ -430,8 +434,12 @@ OmESet::empty() const
 OmESetIterator
 OmESet::begin() const
 {
-    return OmESetIterator(new OmESetIterator::Internal(internal->items.begin(),
-						       internal->items.end()));
+    if (internal->items.begin() == internal->items.end()) {
+	return OmESetIterator(NULL);
+    } else {
+	return OmESetIterator(new OmESetIterator::Internal(internal->items.begin(),
+							   internal->items.end()));
+    }
 }
 
 OmESetIterator
@@ -486,8 +494,14 @@ OmESetIterator::OmESetIterator(const OmESetIterator &other)
 void
 OmESetIterator::operator=(const OmESetIterator &other)
 {
-    internal->it = other.internal->it;
-    internal->end = other.internal->end;
+    if (other.internal == 0) {
+	delete internal;
+	internal = 0;
+    } else {
+	OmESetIterator::Internal temp(other.internal->it,
+				      other.internal->end);
+	std::swap(*internal, temp);
+    }
 }
 
 OmESetIterator &
@@ -557,8 +571,14 @@ OmMSetIterator::OmMSetIterator(const OmMSetIterator &other)
 void
 OmMSetIterator::operator=(const OmMSetIterator &other)
 {
-    internal->it = other.internal->it;
-    internal->end = other.internal->end;
+    if (other.internal == 0) {
+	delete internal;
+	internal = 0;
+    } else {
+	OmMSetIterator::Internal temp(other.internal->it,
+				      other.internal->end);
+	std::swap(*internal, temp);
+    }
 }
 
 OmMSetIterator &

@@ -1,3 +1,12 @@
+Wed Dec 13 18:35:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed bugs in OmMSet and OmESet iterators: begin() when the set
+	  was empty produced an invalid iterator, and the assignment
+	  operators would have failed when end iterators were involved.
+
+	* Added a check in test_matchfunctor1() that the mset returned is
+	  not empty.
+
 Wed Dec 13 18:18:09 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Turn off tests involving terms with newlines or zero bytes in terms
