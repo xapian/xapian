@@ -984,10 +984,11 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    case CMD_and: {
+		value = "true";
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
 		    if (eval(*i, param).empty()) {
-			value = "true";
+			value = "";
 			break;
 		    }
 	        }

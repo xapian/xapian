@@ -276,8 +276,8 @@ Logical Operators:
 
 $and{...}
 	logical shortcutting and of its arguments - evaluates
-	arguments until it finds an empty one (and returns "true") or
-	has evaluated them all (returns "")
+	arguments until it finds an empty one (and returns "") or
+	has evaluated them all (returns "true")
 
 $eq{A,B}
 	returns "true" if A and B are the same, "" otherwise.

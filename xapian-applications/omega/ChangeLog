@@ -1,3 +1,9 @@
+Thu Sep  5 14:11:51 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* query.cc: Change $and to return true iff all its arguments are
+	  not false, rather than if one or more of the arguments is false.
+	* docs/omegascript.txt: Update documentation of $and{}
+
 Fri Aug 23 13:27:02 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* docs/quickstart.txt: encourage people to call their first
