@@ -1,3 +1,12 @@
+Sun Nov 14 04:55:05 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: For cygwin, use the underlying
+	  MoveFile API call for locking, as link() doesn't work on FAT
+	  partitions.  And don't rely on HAVE_LINK to control whether we
+	  use link() otherwise - if the configure test somehow misfires, a
+	  compilation error is better than using rename() on Unix as that
+	  would cause a second writer to smash the lock of the first.
+
 Thu Nov 11 06:58:41 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Removed superfluous statement.
