@@ -143,7 +143,8 @@ public:
   }
 
   int score( const char c1, const char c2 ) {
-    if ( c1 != space() && c1 == c2 ) {
+    assert( c1 != space() || c2 != space() );
+    if ( c1 == c2 ) {
       return +2;
     }
     return -1;
@@ -176,7 +177,7 @@ class LineSequence {
 public:
   string space() {
     string s;
-    s = "\001";
+    s = "\002";
     return s;
   }
 
@@ -226,17 +227,6 @@ public:
     //    cerr << "optimal alignment of " << l1 << " and " << l2 << " is " << alignment.optimalAlignmentValue() << endl;
     //    alignment.dump();
     return alignment.optimalAlignmentValue();
-
-    /***
-
-    if ( l1 == l2 ) {
-    return +2;
-    }
-
-    return -1;
-
-    **/
-
 
   }
 
