@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ main(void)
 {
     OmQueryParser qp;
     qp.set_stemming_options("english");
-    qp.prefixes.insert(make_pair("author", "A"));
+    qp.prefixes.insert(pair<string, string>("author", "A"));
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {

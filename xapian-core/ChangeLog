@@ -1,3 +1,7 @@
+Sun Jan 05 22:18:57 GMT 2003  Olly Betts <olly@survex.com>
+
+	* extra/parsequerytest.cc: Fixed to build with GCC 2.95.
+
 Tue Dec 24 20:21:03 GMT 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Added omega 0.6.4 changes.
