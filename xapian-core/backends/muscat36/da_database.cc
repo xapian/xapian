@@ -311,6 +311,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 	} else {
 	    DebugMsg("found, adding to cache" << endl);
 	    pair<om_termname, DATerm> termpair(tname, DATerm(&ti, tname));
+	    if(termmap.size() > 100) termmap.clear();
 	    termmap.insert(termpair);
 	    the_term = &(termmap.find(tname)->second);
 	}
