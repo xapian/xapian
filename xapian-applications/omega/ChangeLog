@@ -1,3 +1,12 @@
+Wed Apr 06 02:47:14 BST 2005  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Tweak the hashing of URLs so that it works the same
+	  way on all platforms (previously it would depend on sizeof(long)).
+	  This means an incompatibility with any existing database built on
+	  a platform where sizeof(long) > 4 where URLs were hashed (i.e.
+	  URLs were > 228 bytes if sizeof(long) == 8), but we really want
+	  databases to be portable between platforms.
+
 Wed Apr 06 02:44:58 BST 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc,docs/overview.txt: Removed useless "DUPE_duplicate"
