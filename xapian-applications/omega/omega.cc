@@ -272,7 +272,8 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) {
 	v = val->second;
     }
-    if (set_probabilistic(big_buf, v) != NEW_QUERY) {
+    int result = set_probabilistic(big_buf, v);
+    if (result == SAME_QUERY) {
 	// work out which mset element is at top of the new page of hits
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
@@ -290,7 +291,8 @@ main2(int argc, char *argv[])
 	// snap topdoc to page boundary
 	topdoc = (topdoc / hits_per_page) * hits_per_page;
 	if (topdoc < 0) topdoc = 0;
-    
+    }
+    if (result != NEW_QUERY) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {

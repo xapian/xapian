@@ -1,3 +1,7 @@
+Wed Nov 28 13:02:31 GMT 2001  Olly Betts <olly@survex.com>
+
+	* For an EXTENDED_QUERY, force the first page of hits.
+
 Wed Nov 28 12:56:56 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Lower case terms when constructing the query (otherwise why
