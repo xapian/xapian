@@ -98,6 +98,15 @@ OmWritableDatabase::~OmWritableDatabase()
 om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document)
 {
+    // Check the validity of the document
+    OmDocumentContents::document_terms::const_iterator i;
+    for(i = document.terms.begin(); i != document.terms.end(); i++) {
+	if(i->second.tname.size() == 0) {
+	    throw OmInvalidArgumentError(
+		"Cannot add termnames of zero length to the database.");
+	}
+    }
+
     // Get the pointer while locked, in case someone is assigning to it.
     internal->mutex.lock();
     IRDatabase * database = internal->mydb.get();

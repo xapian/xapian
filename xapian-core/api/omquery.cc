@@ -406,7 +406,11 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 		 om_termpos term_pos_)
 	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
 	qlen(wqf_), tname(tname_), term_pos(term_pos_), wqf(wqf_)
-{}
+{
+    if(tname.size() == 0) {
+	throw OmInvalidArgumentError("Termnames may not have zero length.");
+    }
+}
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 				 const OmQueryInternal &left,
