@@ -5,6 +5,7 @@
 
 typedef unsigned int termid;
 typedef unsigned int docid;
+typedef unsigned int omcount;
 typedef char *termname;
 
 #endif /* _omtypes_h_ */

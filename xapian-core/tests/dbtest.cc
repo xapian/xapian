@@ -7,15 +7,15 @@ int main(int argc, char *argv[]) {
 
     try {
 	database.open("testdir", 0);
-	postlist = database.open_post_list(0);
+	postlist = database.open_post_list(1);
 	while(!postlist->at_end()) {
 	    docid id;
 	    id = postlist->get_docid();
 	    printf("DocId: %d\n", id);
-
-	    postlist->next();
+	    if(id == 2) postlist->skip_to(5);
+	    else postlist->next();
 	}
-	postlist->close();
+	delete postlist;
 	database.close();
     }
     catch (OmError e) {
