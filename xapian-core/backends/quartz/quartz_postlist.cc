@@ -450,6 +450,10 @@ QuartzPostList::move_forward_in_chunk_to_at_least(om_docid desired_did)
 PostList *
 QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 {
+    // We've started now - if we hadn't already, we're already positioned
+    // at start so there's no need to actually do anything.
+    have_started = true;
+
     // Don't skip back, and don't need to do anthing if already there.
     if (desired_did <= did) return NULL;
 
@@ -460,10 +464,6 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 void
 QuartzPostList::move_to(om_docid desired_did)
 {
-    // We've started now - if we hadn't already, we're already positioned
-    // at start so there's no need to actually do anything.
-    have_started = true;
-
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
 	move_to_chunk_containing(desired_did);
