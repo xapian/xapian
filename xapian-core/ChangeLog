@@ -1,3 +1,8 @@
+Thu Apr 18 14:16:18 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapian-config.nodep is a generated file, so don't look for it in
+	  srcdir.
+
 Thu Apr 18 12:45:04 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added bindings/php4/xapian/.cvsignore.
