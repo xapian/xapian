@@ -1,3 +1,8 @@
+Sun Jul 27 17:16:48 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: delve now needs getopt1.c thanks to our C++ tweaks to
+	  getopt.h.
+
 Sun Jul 27 16:36:49 BST 2003  Olly Betts <olly@survex.com>
 
 	* getopt.c,getopt.h: Copied getopt tweaks over from xapian-core.
