@@ -35,6 +35,9 @@ Priority | Area            | Task
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
+ High	 | Test suite	   | Check for memory leaks and fail the test if
+ 	 |		   | any are found.
+---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
 ---------+-----------------+--------------------------------------------------
