@@ -38,6 +38,11 @@ M|5| |Exceptions   | Make exceptions threadsafe: see
  | | |             | be protected by a mutex - will need to cope with
  | | |             | exception being copied.
 -+-+-+-------------+-----------------------------------------------------------
+M|3| |Matcher	   | Check that negative term weights don't mess up matcher's
+ | | |             | optimisations - if they do we need to either disallow
+ | | |             | negative term weights, or fix/disable the optimisations
+ | | |             | for the case of negative term weights.
+-+-+-+-------------+-----------------------------------------------------------
 M|3| |OmDocument   | Remove termfreq element from OmDocumentContents - not
  | | |             | meaningful in some places where this is used (for example
  | | |             | OmDatabase::add_document()).  Perhaps we need two

@@ -1,3 +1,9 @@
+Wed Sep 13 14:42:03 BST 2000 Olly Betts
+
+	* Updated TODO.
+
+	* Fettled localmatch.cc in preparation for major rework.
+
 Wed Sep 13 14:28:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fix reversed test bug in OmIndexer::set_node_config()

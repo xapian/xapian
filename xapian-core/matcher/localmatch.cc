@@ -210,6 +210,7 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  mcmp(msetcmp_forward),
 	  querysize(1)
 {
+    // MULTI
     statssource.my_collection_size_is(database->get_doccount());
     statssource.my_average_length_is(database->get_avlength());
 }
@@ -226,6 +227,7 @@ LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
 {
     DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ", " << wqf << ")");
 
+    // MULTI
     LeafPostList * pl = database->open_post_list(tname);
 
     // FIXME: pass the weight type and the info needed to create it to the
@@ -251,6 +253,14 @@ LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
     wt->set_stats(&statssource, querysize, wqf_, tname_);
+#ifdef MUS_DEBUG_PARANOID
+    if (!tname_.empty()) {
+	IRWeight * extra_weight = mk_weight();
+	// Check that max_extra weight is really right
+	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
+	delete extra_weight;
+    }
+#endif /* MUS_DEBUG_PARANOID */
     return wt;
 }
 
@@ -290,6 +300,7 @@ void
 LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
+    // database
     std::auto_ptr<RSet> new_rset(new RSet(database, omrset));
     rset = new_rset;
 }
@@ -302,8 +313,8 @@ LocalMatch::postlist_from_queries(OmQuery::op op,
 				  const std::vector<OmQueryInternal *> &queries,
 				  om_termcount window)
 {
-    Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND || op == OmQuery::OP_NEAR ||
-	   op == OmQuery::OP_PHRASE);
+    Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
+	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
@@ -454,6 +465,7 @@ LocalMatch::gather_query_statistics()
 
     om_termname_list::const_iterator tname;
     for (tname = terms.begin(); tname != terms.end(); tname++) {
+	// MULTI
 	statssource.my_termfreq_is(*tname, database->get_termfreq(*tname));
 	if(rset.get() != 0) rset->will_want_reltermfreq(*tname);
     }
@@ -479,21 +491,22 @@ LocalMatch::recalc_maxweight()
 // Internal method to perform the collapse operation
 inline bool
 LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
-         		  std::map<OmKey, OmMSetItem> &collapse_table,
-			  om_docid did,
-			  const OmMSetItem &new_item,
-			  const OmMSetItem &min_item)
+			     std::map<OmKey, OmMSetItem> &collapse_tab,
+			     om_docid did,
+			     const OmMSetItem &new_item,
+			     const OmMSetItem &min_item)
 {
+    // MULTI a lot
     // Don't collapse on null key
     if(new_item.collapse_key.value.size() == 0) return true;
 
     bool add_item = true;
     std::map<OmKey, OmMSetItem>::iterator oldkey;
-    oldkey = collapse_table.find(new_item.collapse_key);
-    if(oldkey == collapse_table.end()) {
+    oldkey = collapse_tab.find(new_item.collapse_key);
+    if (oldkey == collapse_tab.end()) {
 	DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
 	// Key not been seen before
-	collapse_table.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
+	collapse_tab.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if(mcmp(olditem, new_item)) {
@@ -600,15 +613,6 @@ LocalMatch::get_mset(om_doccount first,
     // when to throw away unwanted items.
     om_doccount max_msize = first + maxitems;
 
-    // FIXME: may be able to loop through postlists to do this check now?
-#if 0 // def MUS_DEBUG_PARANOID
-    // Check that max_extra weight is really right
-    for(std::vector<IRWeight *>::const_iterator i = weights.begin();
-	i != weights.end(); i++) {
-	Assert(max_extra_weight == (*i)->get_maxextra());
-    }
-#endif /* MUS_DEBUG_PARANOID */
-
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
     OmMSetItem min_item(-1, 0);
@@ -617,7 +621,7 @@ LocalMatch::get_mset(om_doccount first,
     }
 
     // Table of keys which have been seen already, for collapsing.
-    std::map<OmKey, OmMSetItem> collapse_table;
+    std::map<OmKey, OmMSetItem> collapse_tab;
 
     // Perform query
     while (1) {
@@ -664,52 +668,50 @@ LocalMatch::get_mset(om_doccount first,
 
 	OmMSetItem new_item(wt, did);
 
-	if(mcmp(new_item, min_item)) {
-	    bool add_item = true;
+	// test if item has high enough weight to get into proto-mset
+	if (!mcmp(new_item, min_item)) continue;
 
-	    RefCntPtr<LeafDocument> irdoc;
+	RefCntPtr<LeafDocument> irdoc;
 
-	    // Use the decision functor if any.
-	    if (mdecider != 0) {
-		if (irdoc.get() == 0) {
-		    RefCntPtr<LeafDocument> temp(database->open_document(did));
-		    irdoc = temp;
-		}
-		OmDocument mydoc(irdoc);
-		add_item = mdecider->operator()(mydoc);
+	// Use the decision functor if any.
+	if (mdecider != NULL) {
+	    if (irdoc.get() == 0) {
+		RefCntPtr<LeafDocument> temp(database->open_document(did));
+		irdoc = temp;
 	    }
+	    OmDocument mydoc(irdoc);
+	    if (!mdecider->operator()(mydoc)) continue;
+	}
 
-	    // Item has high enough weight to go in MSet: do collapse if wanted
-	    if(add_item && do_collapse) {
-		if (irdoc.get() == 0) {
-		    RefCntPtr<LeafDocument> temp(database->open_document(did));
-		    irdoc = temp;
-		}
-		new_item.collapse_key = irdoc.get()->get_key(collapse_key);
-		add_item = perform_collapse(items, collapse_table, did,
-					    new_item, min_item);
+	// Perform collapsing on key if requested.
+	if (do_collapse) {
+	    if (irdoc.get() == 0) {
+		RefCntPtr<LeafDocument> temp(database->open_document(did));
+		irdoc = temp;
 	    }
+	    new_item.collapse_key = irdoc.get()->get_key(collapse_key);
+	    if (!perform_collapse(items, collapse_tab, did, new_item, min_item))
+		continue;
+	}
 
-	    if(add_item) {
-		items.push_back(new_item);
+	// OK, actually add the item to the mset.
+	items.push_back(new_item);
 
-		// Keep a track of the greatest weight we've seen.
-		if(wt > greatest_wt) greatest_wt = wt;
+	// Keep a track of the greatest weight we've seen.
+	if (wt > greatest_wt) greatest_wt = wt;
 
-		// FIXME: find balance between larger size for more efficient
-		// nth_element and smaller size for better minimum weight
-		// optimisations
-		if (items.size() == max_msize * 2) {
-		    // find last element we care about
-		    DEBUGLINE(MATCH, "finding nth");
-		    std::nth_element(items.begin(), items.begin() + max_msize,
-				items.end(), mcmp);
-		    // erase elements which don't make the grade
-		    items.erase(items.begin() + max_msize, items.end());
-		    min_item = items.back();
-		    DEBUGLINE(MATCH, "mset size = " << items.size());
-		}
-	    }
+	// FIXME: find balance between larger size for more efficient
+	// nth_element and smaller size for better minimum weight
+	// optimisations
+	if (items.size() == max_msize * 2) {
+	    // find last element we care about
+	    DEBUGLINE(MATCH, "finding nth");
+	    std::nth_element(items.begin(), items.begin() + max_msize,
+			     items.end(), mcmp);
+	    // erase elements which don't make the grade
+	    items.erase(items.begin() + max_msize, items.end());
+	    min_item = items.back();
+	    DEBUGLINE(MATCH, "mset size = " << items.size());
 	}
     }
 
@@ -725,11 +727,9 @@ LocalMatch::get_mset(om_doccount first,
 	items.erase(items.begin() + max_msize, items.end());
     }
 
-    DEBUGLINE(MATCH, "sorting");
-
-    if(first > 0) {
+    if (first > 0) {
 	// Remove unwanted leading entries
-	if(items.size() <= first) {
+	if (items.size() <= first) {
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
@@ -738,6 +738,8 @@ LocalMatch::get_mset(om_doccount first,
 	    items.erase(items.begin(), items.begin() + first);
 	}
     }
+
+    DEBUGLINE(MATCH, "sorting");
 
     // Need a stable sort, but this is provided by comparison operator
     std::sort(items.begin(), items.end(), mcmp);
