@@ -1,3 +1,7 @@
+Mon Oct 14 15:07:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* api/omstem.cc: French and Finnish stemmers were switched!
+	
 Mon Oct 14 02:49:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_utils.h: change sort preserving packing for
