@@ -625,3 +625,9 @@ QuartzBufferedCursor::next()
     }
 }
 
+void
+QuartzBufferedCursor::prev()
+{
+    throw OmUnimplementedError("QuartzBufferedCursor::prev() not yet implemented");
+}
+

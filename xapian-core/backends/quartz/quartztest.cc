@@ -59,40 +59,30 @@ static void check_table_values_hello(QuartzDiskTable & table,
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
-    AutoPtr<QuartzCursor> cursor(table.make_cursor());
+    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 #ifdef MUS_DEBUG
     key.value = "";
-    tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
 #endif
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "hello");
-    TEST_EQUAL(tag.value, world);
+    TEST(cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "hello");
+    TEST_EQUAL(cursor->current_tag.value, world);
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "hello");
-    TEST_EQUAL(tag.value, world);
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "hello");
+    TEST_EQUAL(cursor->current_tag.value, world);
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "");
-    
-#ifdef MUS_DEBUG
-    key.value = "";
-    tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "foo");
-#endif
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "");
+    TEST_EQUAL(cursor->current_tag.value, "");
 }
 
 /// Check the values returned by a table containing no key/tag pairs
@@ -117,7 +107,7 @@ static void check_table_values_empty(QuartzDiskTable & table)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
-    AutoPtr<QuartzCursor> cursor(table.make_cursor());
+    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";

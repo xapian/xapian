@@ -48,10 +48,10 @@ class QuartzCursor {
 
     public:
 	/// Initialise the cursor 
-	QuartzCursor();
+	QuartzCursor() {}
 
 	/// Destroy the cursor
-	virtual ~QuartzCursor();
+	virtual ~QuartzCursor() {}
 
 	/** Current key pointed to by cursor.
 	 */
