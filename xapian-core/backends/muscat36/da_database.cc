@@ -227,10 +227,48 @@ DADatabase::~DADatabase()
     }
 }
 
+om_doccount
+DADatabase::get_doccount() const
+{
+    OmLockSentry sentry(mutex);
+    return DA_r->itemcount;
+}
+
+om_doclength
+DADatabase::get_avlength() const
+{
+    // FIXME - actually want to return real avlength.
+    //OmLockSentry sentry(mutex);
+    return 1;
+}
+
+om_doclength
+DADatabase::get_doclength(om_docid did) const
+{
+    // FIXME: should return actual length.
+    // FIXME: shouldn't call a public method
+    return get_avlength();
+}
+
+om_doccount
+DADatabase::get_termfreq(const om_termname & tname) const
+{
+    OmLockSentry sentry(mutex);
+
+    if(!term_exists(tname)) return 0;
+    PostList *pl = open_post_list(tname);
+    om_doccount freq = 0;
+    if(pl) freq = pl->get_termfreq();
+    delete pl;
+    return freq;
+}
+
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
 DADatabase::open_post_list(const om_termname & tname) const
 {
+    OmLockSentry sentry(mutex);
+
     // Make sure the term has been looked up
     OmRefCntPtr<const DATerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
@@ -246,6 +284,8 @@ DADatabase::open_post_list(const om_termname & tname) const
 LeafTermList *
 DADatabase::open_term_list(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     struct termvec *tv = M_make_termvec();
     int found = DA_get_termvec(DA_r, did, tv);
 
@@ -264,6 +304,8 @@ DADatabase::open_term_list(om_docid did) const
 struct record *
 DADatabase::get_record(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     struct record *r = M_make_record();
     int found = DA_get_record(DA_r, did, r);
 
@@ -280,6 +322,8 @@ DADatabase::get_record(om_docid did) const
 OmKey
 DADatabase::get_key(om_docid did, om_keyno keyid) const
 {
+    OmLockSentry sentry(mutex);
+
     OmKey key;
     DEBUGMSG(DB, "Looking in keyfile for keyno " << keyid << " in document " << did);
 
@@ -306,6 +350,8 @@ DADatabase::get_key(om_docid did, om_keyno keyid) const
 LeafDocument *
 DADatabase::open_document(om_docid did) const
 {
+    OmLockSentry sentry(mutex);
+
     return new DADocument(this, did, heavy_duty);
 }
 

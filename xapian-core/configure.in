@@ -228,7 +228,7 @@ if test x$have_sleepycat = xno; then
 fi
 
 if test x$HAVE_LIBPTHREAD = xno; then
-  if test ! "x$use_pthread" = "xfalse"; then
+  if test "x$use_pthread" = "xtrue"; then
     AC_MSG_WARN(pthread not available: not building support);
   fi
   use_pthread=false
@@ -241,6 +241,7 @@ AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_NET, test x$build_net = xtrue)
+AM_CONDITIONAL(BUILD_PTHREAD_SUPPORT, test x$use_pthread = xtrue)
 
 dnl Set defines to specify what we compile
 

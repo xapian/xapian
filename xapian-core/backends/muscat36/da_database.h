@@ -254,6 +254,8 @@ class DADatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class DADocument;
     private:
+	OmLock mutex;
+
 	struct DA_file * DA_r;
 	struct DA_file * DA_t;
 
@@ -324,35 +326,5 @@ class DADatabase : public IRDatabase {
 		"DADatabase::unlock() not implemented");
 	};
 };
-
-inline om_doccount
-DADatabase::get_doccount() const
-{
-    return DA_r->itemcount;
-}
-
-inline om_doclength
-DADatabase::get_avlength() const
-{
-    // FIXME - actually want to return real avlength.
-    return 1;
-}
-
-inline om_doclength
-DADatabase::get_doclength(om_docid did) const
-{
-    return get_avlength();
-}
-
-inline om_doccount
-DADatabase::get_termfreq(const om_termname & tname) const
-{
-    if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname);
-    om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
-    delete pl;
-    return freq;
-}
 
 #endif /* OM_HGUARD_DA_DATABASE_H */

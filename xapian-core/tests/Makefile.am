@@ -20,15 +20,24 @@ else
 INTERNALTEST_CXXFLAGS =
 endif
 
+if BUILD_PTHREAD_SUPPORT
+THREADTESTS = threadtest
+else
+THREADTESTS = 
+endif
+
 ## Test programs to be run
-TESTS = apitest internaltest includetest $(PERLTESTS)
+TESTS = $(THREADTESTS) apitest internaltest includetest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = apitest internaltest includetest stemtest
+check_PROGRAMS  = threadtest apitest internaltest includetest stemtest
 
 ## Sources:
 
 includetest_SOURCES = includetest.cc
+
+threadtest_SOURCES = threadtest.cc
+threadtest_LDADD = ../testsuite/libtest.la ../libomus.la
 
 apitest_SOURCES = apitest.cc
 apitest_LDADD = ../testsuite/libtest.la ../libomus.la

@@ -1,3 +1,13 @@
+Wed Jun 28 09:13:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add an OmLock, and sentries to the public methods in DADatabase.
+
+	* Add "threadtest", a testsuite for checking thread safety.
+          Currently has no (completed) tests.
+
+	* Compile various things only if network databases are compiled in.
+	  (currently doesn't work correctly).
+
 Wed Jun 28 03:58:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Don't compile network stuff if it's configured off.
