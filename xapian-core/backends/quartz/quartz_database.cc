@@ -362,6 +362,7 @@ QuartzWritableDatabase::do_begin_session()
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
+    changecount = 0;
     // FIXME - get a write lock on the database
 }
 
@@ -383,6 +384,7 @@ QuartzWritableDatabase::do_flush()
     Assert(buffered_tables != 0);
 
     buffered_tables->apply();
+    changecount = 0;
 }
 
 void
