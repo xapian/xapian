@@ -64,7 +64,8 @@ int main(int argc, char * argv[])
     unsigned long revision = b->revision_number;
     max = b->max_key_len;
 
-    if (argc == 1) { fprintf(stderr, "No file supplied\n"); exit(1); }
+    // FIXME: any value works as the second argument...
+    if (argc == 1 || argc > 3) { printf("Syntax: %s BTREE_FILE [--compact-mode]\n", argv[0]); exit(1); }
     if (argc == 3) { printf("Compact mode\n"); Btree_full_compaction(b, true); }
     {   FILE * f = fopen(argv[1], "r");
         if (f == 0) { fprintf(stderr, "File %s not found\n", argv[1]); exit(1); }

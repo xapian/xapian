@@ -72,7 +72,7 @@ void makekform(char * s, byte * b)
 
 int main(int argc, byte * argv[])
 {  int x = FLIMSY;
-   if (argc == 1) { printf("No argument\n"); exit(1); }
+   if (argc != 2) { printf("Syntax: %s DA_TERM_FILE\n", argv[0]); exit(1); }
    printf("[%s]\n",argv[1]);
    {  struct DA_file * p;
       struct DA_term_info t;

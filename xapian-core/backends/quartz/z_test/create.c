@@ -13,6 +13,7 @@ static int readn(char * s)
 
 int main(int argc, char * argv[])
 {
+    if (argc > 2) { printf("Syntax: %s [BLOCK_SIZE]\n", argv[0]); exit(1); }
     int n = argc > 1 ? readn(argv[1]) : 1024;
     int res = Btree_create("B/", n);
     if (res == 0)

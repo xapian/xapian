@@ -43,7 +43,7 @@ static test tests[] = {
 };
 
 int
-main(int argc, char **argv)
+main(void)
 {
     std::string parsed;
     OmQueryParser qp;

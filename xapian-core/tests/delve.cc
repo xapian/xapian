@@ -51,6 +51,7 @@ main(int argc, char *argv[])
 
     bool verbose = false;
 
+    // FIXME: use getopt
     bool syntax_error = false;
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "-r") == 0) {

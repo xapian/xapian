@@ -1,3 +1,8 @@
+Thu Apr 11 18:09:35 BST 2002  Olly Betts <olly@survex.com>
+
+	* Command line argument improvements - added FIXMEs where getopt
+	  should be used.
+
 Thu Apr 11 17:01:44 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* Fixes to work with automake 1.6.1.

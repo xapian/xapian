@@ -3,7 +3,7 @@
 #include "btree.h"
 #include "om/omerror.h"
 
-int main(int argc, char * argv[])
+int main(void)
 {
     try {
 	Btree btree;

@@ -70,7 +70,7 @@ static void dump(byte * p, int c, int x, int margin)
 
 int main(int argc, byte * argv[])
 {  int x = FLIMSY;
-   if (argc == 1) { printf("No argument\n"); exit(1); }
+   if (argc != 2) { printf("Syntax: %s DB_FILE\n", argv[0]); exit(1); }
    {
       struct DB_file * p;
       struct record * r;

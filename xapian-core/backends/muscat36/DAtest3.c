@@ -34,7 +34,7 @@ void printkform(char * k)
 
 int main(int argc, byte * argv[])
 {   int x = HEAVY_DUTY;
-    if (argc == 1) { printf("No argument\n"); exit(1); }
+    if (argc != 2) { printf("Syntax: %s DA_RECORD_FILE\n", argv[0]); exit(1); }
     {   struct DA_file * p;
         struct termvec * tv;
         p = DA_open(argv[1], DA_RECS, x);

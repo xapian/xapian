@@ -64,6 +64,7 @@ void stemfile(const OmStem &stemmer, FILE * f)
 int main(int argc, char **argv)
 {
     std::string lang = "english";
+    // FIXME: use getopt
     if(argc > 2) {
 	if(!strcmp(argv[1], "--language")) {
 	    lang = argv[2];

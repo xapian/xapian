@@ -62,6 +62,7 @@ main(int argc, char *argv[])
     bool use_endterm = false;
 
     bool syntax_error = false;
+    // FIXME: use getopt()
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "-r") == 0) {
 	    revnum = atoi(argv[1]);

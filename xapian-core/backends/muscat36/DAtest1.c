@@ -74,7 +74,7 @@ void makekform(char * s, int n, byte * b)
 int main(int argc, byte * argv[])
 {
     int x = HEAVY_DUTY;
-    if (argc == 1) { printf("No argument\n"); exit(1); }
+    if (argc != 2) { printf("Syntax: %s DA_TERM_FILE\n", argv[0]); exit(1); }
     printf("[%s]\n", argv[1]);
     {   struct DA_file * p;
         struct DA_term_info t;

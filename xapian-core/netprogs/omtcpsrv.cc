@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
     argv++;
     argc--;
 
+    // FIXME: use getopt
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
 	    port = atoi(argv[1]);

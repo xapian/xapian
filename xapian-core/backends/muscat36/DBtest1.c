@@ -69,7 +69,7 @@ void makekform(char * s, byte * b)
 
 int main(int argc, char * argv[])
 {  int x = HEAVY_DUTY;
-   if (argc == 1) { printf("No argument\n"); exit(1); }
+   if (argc != 2) { printf("Syntax: %s DB_FILE\n", argv[0]); exit(1); }
    printf("[%s]\n", argv[1]);
    {  struct DB_file * DB;
       struct DB_term_info t;
