@@ -25,13 +25,19 @@
 
 InMemoryDocument::InMemoryDocument(const string & doc_)
 	: doc(doc_)
-{ return; }
+{
+    return;
+}
 
 OmKey
 InMemoryDocument::get_key(om_keyno keyid) const
 {
     OmKey key;
-    key.value = "";
+    if(doc.size() <= keyid) {
+	key.value = "";
+    } else {
+        key.value = doc[keyid];
+    }
     return key;
 }
 
