@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <time.h>
-#include <algo.h>
+#include <algorithm>
 
 #include <fcntl.h>
 #ifdef WIN32

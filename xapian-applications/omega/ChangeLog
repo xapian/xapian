@@ -1,6 +1,11 @@
+Thu May 16 17:57:34 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* <algo.h> -> <algorithm>.
+
 Thu May 16 15:41:14 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Removed extra package again!
+
 	* Moved images to /var/www/icons/omega till we think of something
 	  better.  Should be the most harmless solution that still works
 	  without requireing too much brains on the part of the installer
@@ -8,15 +13,18 @@ Thu May 16 15:41:14 BST 2002  Sam Liddicott <saml@ananova.net>
 Thu May 16 14:53:54 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Moved images to a seperate optional package to stop touching 
-	  users web tree until we work out what to do.  sysadmin can
+	  user's web tree until we work out what to do.  sysadmin can
 	  still install images if he wants and on a redhat box they will
-	  end up in the right place.
-	* THIS will no doubt get revisted later, thats fine by me.
+	  end up in the right place. This will no doubt get revisted later,
+	  that's fine by me.
 
 Thu May 16 13:31:27 BST 2002  Sam Liddicott <saml@ananova.net>
 
-	* Added loads more missing files like images and templates to the package
-	* Also fixed the templates to use the new images dir (if they used images, which they actaully don't)
+	* Added loads more missing files like images and templates to the
+	  package
+
+	* Also fixed the templates to use the new images dir (if they used
+	  images, which they actually don't)
 
 Thu May 16 12:56:55 BST 2002  Sam Liddicott <saml@ananova.net>
 
