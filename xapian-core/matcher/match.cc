@@ -312,17 +312,16 @@ OMMatch::recalc_maxweight()
 // This is the method which runs the query, generating the M set
 void
 OMMatch::match(doccount first, doccount maxitems,
-	     vector<OMMSetItem> &mset, mset_cmp cmp,  doccount *mbound)
+	       vector<OMMSetItem> &mset, mset_cmp cmp,  doccount *mbound)
 {
-    Assert(maxitems > 0);
-
-    MSetCmp mcmp(cmp);
-
     // Prepare query
     *mbound = 0;
     mset.clear();
 
+    MSetCmp mcmp(cmp);
+
     if(query == NULL) return;
+    if(maxitems == 0) return;
 
     DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
 
@@ -464,6 +463,79 @@ OMMatch::match(doccount first, doccount maxitems,
 	DebugMsg("max weight in mset = " << mset[0].wt <<
 		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
+    delete query;
+    query = NULL;
+}
+
+// This method runs the query, generating the M set, but doesn't calcualate
+// any weights (all weights in result are set to 1)
+void
+OMMatch::boolmatch(doccount first, doccount maxitems,
+		   vector<OMMSetItem> &mset)
+{
+    // Prepare query
+    mset.clear();
+
+    if(query == NULL) return;
+    if(maxitems == 0) return;
+
+    DebugMsg("match.boolmatch(" << query->intro_term_description() << ")" << endl);
+
+    doccount max_msize = first + maxitems;
+
+    map<IRKey, OMMSetItem> collapse_table;
+
+    // Perform query
+    while(mset.size() < max_msize) {
+	PostList *ret = query->next(0);
+	if (ret) {
+	    delete query;
+	    query = ret;
+
+	    DebugMsg("*** REPLACING ROOT" << endl);
+	}
+
+	if (query->at_end()) break;
+
+	docid did = query->get_docid();
+	bool add_item = true;
+	OMMSetItem mitem(1.0, did);
+
+	// Item has high enough weight to go in MSet: do collapse if wanted
+	if(do_collapse) {
+	    IRDocument * irdoc = database->open_document(did);
+	    IRKey irkey = irdoc->get_key(collapse_key);
+	    map<IRKey, OMMSetItem>::iterator oldkey;
+	    oldkey = collapse_table.find(irkey);
+	    if(oldkey == collapse_table.end()) {
+		DebugMsg("collapsem: new key: " << irkey.value << endl);
+		// Key not been seen before
+		collapse_table.insert(pair<IRKey, OMMSetItem>(irkey, mitem));
+	    } else {
+		DebugMsg("collapsem: already exists: " << irkey.value << endl);
+		// There's already a better match with this key
+		add_item = false;
+	    }
+	}
+
+	if(add_item) {
+	    mset.push_back(mitem);
+	}
+    }
+
+    Assert (mset.size() <= max_msize);
+
+    if(first > 0) {
+	// Remove unwanted leading entries
+	if(mset.size() <= first) {
+	    mset.clear();
+	} else {
+	    // erase the leading ``first'' elements
+	    mset.erase(mset.begin(), mset.begin() + first);
+	}
+    }
+
+    DebugMsg("msize = " << mset.size() << endl);
     delete query;
     query = NULL;
 }
