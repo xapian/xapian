@@ -20,11 +20,12 @@
 
 #define MAX_TERM_LEN 128
 
-typedef enum { ABSENT = 0, NORMAL, PLUS, MINUS, BOOL_FILTER } termtype;
+typedef enum { /*ABSENT = 0,*/ NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 
+// FIXME: remove struct term and just put term straight into the
+// PLUS/MINUS/NORMAL vectors
 struct term {
     string termname;
-    termid id;
     termtype type;
 };
 static vector<struct term> new_terms;
@@ -205,24 +206,24 @@ int set_probabilistic(const char *p, const char *oldp) {
    }
 
     if (!new_terms.empty()) {
-	vector<termid> pluses;
-	vector<termid> minuses;
-	vector<termid> normals;
+	vector<termname> pluses;
+	vector<termname> minuses;
+	vector<termname> normals;
       
 	vector<struct term>::const_iterator i;
 	int count = 1;
 	for (i = new_terms.begin(); i != new_terms.end(); i++) {
 	    switch (i->type) {
 	     case PLUS:
-		pluses.push_back(i->id);
+		pluses.push_back(i->termname);
 		matching_map[i->termname] = count++;
 		break;
 	     case MINUS:
-		minuses.push_back(i->id);
+		minuses.push_back(i->termname);
 		// don't put MINUS terms in map - they won't match...
 		break;
 	     case NORMAL:
-		normals.push_back(i->id);
+		normals.push_back(i->termname);
 		matching_map[i->termname] = count++;
 		break;
 	     default:
@@ -256,9 +257,7 @@ int set_probabilistic(const char *p, const char *oldp) {
 
 /* if term is in the database, add it to the term list */
 static void check_term(string name, termtype type) {
-    termid id = database.term_name_to_id(name);
     new_terms.push_back(struct term());
-    new_terms.back().id = id;
     new_terms.back().termname = name;
     new_terms.back().type = type;
 }
@@ -1121,8 +1120,9 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   const char *term = i->termname.c_str();
 
 			   int freq = 0;
-			   if (i->id) {
-			       PostList *pl = database.open_post_list(i->id);
+			   termid id = database.term_name_to_id(i->termname);
+			   if (id) {
+			       PostList *pl = database.open_post_list(id);
 			       freq = pl->get_termfreq();
 			       delete pl;
 			   }
