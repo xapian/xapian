@@ -372,12 +372,9 @@ QuartzDiskTable::get_latest_revision_number() const
 quartz_tablesize_t
 QuartzDiskTable::get_entry_count() const
 {
-    DEBUGCALL(DB, quartz_revision_number_t,
-	      "QuartzDiskTable::get_entry_count", "");
-    if (opened) 
-	RETURN(btree_for_reading->item_count);
-    else
-	RETURN(0);
+    DEBUGCALL(DB, quartz_tablesize_t, "QuartzDiskTable::get_entry_count", "");
+    if (!opened) RETURN(0);
+    RETURN(btree_for_reading->item_count);
 }
 
 bool
@@ -647,8 +644,8 @@ QuartzBufferedTable::delete_tag(const string &key)
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
     if (have_tag(key)) {
-	DEBUGLINE(DB, "");
-	entry_count -= 1;
+	DEBUGLINE(DB, "decrementing entry_count - '" << key << "' deleted");
+	--entry_count;
     }
     changed_entries.set_tag(key, AutoPtr<string>(0));
 }

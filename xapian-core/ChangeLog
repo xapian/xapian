@@ -1,3 +1,9 @@
+Sat Nov 16 01:45:28 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/quartz/quartz_table.cc: Tidying up odds and ends.
+
 Fri Nov 15 17:46:38 GMT 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated ready for 0.6.0 with changes made so far.

@@ -77,10 +77,6 @@ InMemoryPostList::get_wdf() const
 InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
 	: totdocs(0), totlen(0), error_in_next(0), abort_in_next(0)
 {
-    if (!readonly) {
-// FIXME:	throw OmInvalidArgumentError("InMemoryDatabase must be opened readonly.");
-    }
-
     error_in_next = params.get_int("inmemory_errornext", 0);
     abort_in_next = params.get_int("inmemory_abortnext", 0);
 }
@@ -113,8 +109,7 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 bool
 InMemoryDatabase::doc_exists(om_docid did) const
 {
-    return (did > 0 && did <= termlists.size() &&
-	    termlists[did-1].is_valid);
+    return (did > 0 && did <= termlists.size() && termlists[did - 1].is_valid);
 }
 
 LeafTermList *
@@ -364,16 +359,8 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
 bool
 InMemoryDatabase::term_exists(const om_termname & tname) const
 {
-    //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
     Assert(tname.size() != 0);
-    map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
-
-    if (p == postlists.end()) {
-	//DebugMsg("not found" << endl);
-	return false;
-    }
-    //DebugMsg("found" << endl);
-    return true;
+    return postlists.find(tname) != postlists.end();
 }
 
 TermList *

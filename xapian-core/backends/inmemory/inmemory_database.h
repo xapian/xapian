@@ -93,7 +93,7 @@ class InMemoryTerm {
 	    p = lower_bound(docs.begin(), docs.end(),
 			    post,
 			    InMemoryPostingLessByDocId());
-	    if(p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
+	    if (p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
 		docs.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -115,7 +115,7 @@ class InMemoryDoc {
 	    p = lower_bound(terms.begin(), terms.end(),
 			    post,
 			    InMemoryPostingLessByTermName());
-	    if(p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
+	    if (p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
 		terms.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -367,8 +367,7 @@ InMemoryPostList::skip_to(om_docid did, om_weight w_min)
 inline bool
 InMemoryPostList::at_end() const
 {
-    if(pos != end) return false;
-    return true;
+    return (pos == end);
 }
 
 
