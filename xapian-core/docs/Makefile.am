@@ -150,27 +150,57 @@ uninstall-local:
 
 code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
-	@./mkdoc.pl ${top_srcdir} $@
+	@./mkdoc.pl $(top_srcdir) $@
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
 
 %.dvi: %.tex docxx.sty
-	if [ ! -r docxx.sty ] ; then ln -s ${srcdir}/docxx.sty . ; fi
+	if [ ! -r docxx.sty ] ; then ln -s $(srcdir)/docxx.sty . ; fi
 	$(LATEX) "$(basename $@)" || :
 	$(LATEX) "$(basename $@)" || ( $(RM) $@ ; false )
 
 %.ps: %.dvi
 	$(DVIPS) -o $@ $<
 
+##########################################
+# Automatic dependencies for doc++ stuff #
+##########################################
+
+-include .deps-apidoc
+-include .deps-sourcedoc
+
+distclean-local: clean-local
+	@if [ -e .deps-apidoc ] ; then \
+	  echo "removing .deps-apidoc"; $(RM) .deps-apidoc ; \
+	fi
+	@if [ -e .deps-sourcedoc ] ; then \
+	  echo "removing .deps-sourcedoc"; $(RM) .deps-sourcedoc ; \
+	fi
+
+
+#########################
+# Rules for doc++ stuff #
+#########################
+
+APIDOC_SRCFILES    = `find $(top_srcdir)/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+SOURCEDOC_SRCFILES = `find $(top_srcdir) -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+
 apidoc/index.html:
-	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	echo "apidoc/index.html apidoc.tex: " $(APIDOC_SRCFILES) > .deps-apidoc
+	doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRCFILES)
 
 apidoc.tex:
-	doc++ -t ${DOCPPFLAGS} --output $@ `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	echo "apidoc/index.html apidoc.tex: " $(APIDOC_SRCFILES) > .deps-apidoc
+	doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRCFILES)
 
 sourcedoc/index.html:
-	doc++ ${DOCPPFLAGS} --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	echo "sourcedoc/index.html sourcedoc.tex: " \
+	     $(SOURCEDOC_SRCFILES) > .deps-sourcedoc
+	doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRCFILES)
 
 sourcedoc.tex:
-	doc++ -t ${DOCPPFLAGS} --private --output $@ `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	echo "sourcedoc/index.html sourcedoc.tex: " \
+	     $(SOURCEDOC_SRCFILES) > .deps-sourcedoc
+	doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRCFILES)
+
