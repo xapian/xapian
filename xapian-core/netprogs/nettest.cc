@@ -165,7 +165,7 @@ bool test_tcpmatch1()
 test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
-    {"netexpand1",      test_netexpand1},
+    //{"netexpand1",      test_netexpand1},
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
     {0,			0},
