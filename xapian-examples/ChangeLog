@@ -1,3 +1,8 @@
+Thu Nov 23 15:31:08 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Chris is slightly sleepy, so I changed indexfile back from using
+	  sleepycat to quartz.
+
 Thu Nov 23 15:16:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* For some reason indexfile.cc was broken.

@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
     try {
 	// Make the database
 	OmSettings db_parameters;
-	db_parameters.set("backend", "sleepycat");
-	db_parameters.set("sleepycat_dir", argv[1]);
+	db_parameters.set("backend", "quartz");
+	db_parameters.set("quartz_dir", argv[1]);
 	OmWritableDatabase database(db_parameters);
 
 	// Make the indexer
