@@ -1,3 +1,7 @@
+Tue Sep 19 15:33:24 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now run apitest and internaltest with malloccheck if possible
+
 Tue Sep 19 13:42:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a memory leak in the Sleepycat backend.
