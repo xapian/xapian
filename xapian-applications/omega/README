@@ -1,13 +1,14 @@
-This directory contains an index building utility and a CGI application
-which uses the Xapian search library to search a collection of documents.
+Omega
+=====
 
-Configure using "./configure", then run "make" to build the programs.
+This directory contains two index building utilities (omindex and scriptindex)
+and a CGI search application (omega).  These use the Xapian search library to
+provide a search over a collection of documents.
+
+See INSTALL for installation instructions.
 
 Developers
 ==========
 
-If you are trying to build from CVS, you will need the GNU autoconf, automake,
-and libtool packages.  You will also need some other packages installed in
-order to provide the macros needed to build the configuration scripts.
-
-<More details to follow>
+If you are trying to build from CVS, see the HACKING documentation in the
+xapian-core tarball for details.

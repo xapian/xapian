@@ -1,3 +1,7 @@
+Thu Dec 23 19:09:01 GMT 2004  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: Added better installation instructions.
+
 Mon Dec 20 17:26:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,omindex.cc: Fixed "ignore symlinks" code to compile on
