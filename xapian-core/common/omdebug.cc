@@ -167,10 +167,12 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
 
 #include <sys/time.h>
 
-static struct timeval OmTimer::paused;
+struct timeval OmTimer::paused;
 
-static struct timeval * OmTimer::pstart = NULL;
+struct timeval * OmTimer::pstart = NULL;
 
-static list<OmTimer *> OmTimer::stack;
+list<OmTimer *> OmTimer::stack;
+
+int OmTimer::depth = 0;
 
 #endif
