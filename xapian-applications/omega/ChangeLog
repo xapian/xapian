@@ -1,3 +1,7 @@
+Sun Sep 22 15:47:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* configfile.cc: Corrected use of string.data() to string.c_str().
+
 Sun Sep 22 03:53:35 BST 2002  Olly Betts <olly@survex.com>
 
 	* templates/query: Updated xapian url to http://www.xapian.org/

@@ -51,7 +51,7 @@ try_read_config_file(string cfile)
 {
     if (!file_readable(cfile)) return false;
 
-    ifstream in(cfile.data());
+    ifstream in(cfile.c_str());
     if (!in) {
 	throw string("Can't open configuration file `") + cfile + "'";
 	return false;
