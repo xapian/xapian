@@ -7,7 +7,7 @@ TESTS = smoketest.tcl
 
 EXTRA_DIST = util.i extra.i $(TESTS)
 
-tcllibdir = @TCL_LIB@/xapian@VERSION@
+tcllibdir = @TCL_LIB@/../xapian@VERSION@
 
 tcllib_LTLIBRARIES = xapian.la
 tcllib_DATA = pkgIndex.tcl
@@ -18,7 +18,7 @@ tcllib_DATA = pkgIndex.tcl
 install-data-hook:
 	rm -f $(DESTDIR)$(tcllibdir)/xapian.la
 
-AM_CPPFLAGS = @TCL_CPPFLAGS@
+AM_CPPFLAGS = @TCL_CPPFLAGS@ -DUSE_TCL_STUBS
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapian_la_LDFLAGS = -avoid-version -module
 nodist_xapian_la_SOURCES = xapian_wrap.cc

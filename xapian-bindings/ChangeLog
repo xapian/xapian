@@ -1,3 +1,11 @@
+Sat Oct 23 15:57:00 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: Use the TCL_STUBS mechanism so that
+	  compiled extensions are portable between different versions of Tcl.
+	  This needs Tcl 8.1, so bump the required Tcl version (was 8.0).
+	  Also install in the directory above $tcl_library so the built
+	  extension can be found by other Tcl versions.
+
 Fri Oct 22 03:24:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/bindings.html,python/docs/bindings.html,

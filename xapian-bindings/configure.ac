@@ -126,13 +126,14 @@ if test no != "$with_swig" ; then
   if test no != "$with_tcl" ; then
     AC_PATH_PROG(TCLSH, tclsh, [])
     if test -n "$TCLSH" ;  then
-	if `echo 'if {$tcl_version < 8.0 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
+	# We need Tcl 8.1 or later for TCL_STUBS
+	if `echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
 	    TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
 	    AC_SUBST(TCL_LIB)
-	    dnl There's no obvious way to get "/usr/include/tcl8.2" directly...
+	    dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
 	    dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
 	    TCL_INC="`echo \"$TCL_LIB\"|sed 's!/\(share\|lib\)/!/include/!'`"
-	    dnl Check that the headers are there (the tcl8.2-dev package
+	    dnl Check that the headers are there (the tcl8.N-dev package
 	    dnl may not be installed).
 	    TCL_CPPFLAGS=
 	    if test -f "$TCL_INC/tcl.h" ; then
