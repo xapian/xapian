@@ -43,18 +43,18 @@ if(param()){
 	$id = Cvssearch::encode($id);
 	$tempdisplay = $displayname;
 	$displayname = Cvssearch::encode($displayname);
-
-	$passparam = "?id=$id&dump=$dump&displayname=$displayname";
+	$passparam1 = "?id=$id&dump=$dump";
+	$passparam2 = "?id=$id&dump=$dump&displayname=$displayname";
 
 print <<_HTML_;	
 <head>
 <title>$tempdisplay</title>
 </head>
 <frameset rows=\"45,*\">
-	<frame name=top src=$top$passparam>
+	<frame name=top src=$top$passparam2>
 	<frameset rows=\"50%,50%\">
-		<frame name=match src=$match$passparam>
-		<frame name=source src=$source$passparam>
+		<frame name=match src=$match$passparam1>
+		<frame name=source src=$source$passparam1>
 	</frameset>
 </frameset>
 <noframes>

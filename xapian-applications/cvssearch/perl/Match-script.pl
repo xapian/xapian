@@ -64,13 +64,10 @@ _STYLE_
 if(param()){
 	$dump = param("dump");
 	$id = param("id");
-	$displayname = param("displayname");
 	$did = Cvssearch::encode($id);
-	$ddisplayname = Cvssearch::encode($displayname);
-	$passparam = "?id=$did&dump=$dump&displayname=$ddisplayname";
+	$passparam = "?id=$did&dump=$dump";
 	
 	$id = Cvssearch::decode($id);
-	$displayname = Cvssearch::decode($displayname);
 	
 	
 	$found = Cvssearch::findfile($dump,$id);

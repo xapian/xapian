@@ -51,9 +51,7 @@ _STYLE_
 if(param()){
 	$dump = param("dump");
 	$id = param("id");
-	$displayname = param("displayname");
 	$id = Cvssearch::decode($id);
-	$displayname = Cvssearch::decode($displayname);
 	
 	$found = Cvssearch::findfile($dump,$id);
 	if (!$found){

@@ -35,6 +35,9 @@ _STYLE_
 # Parse Parameters
 #----------------------------------------
 if(param()){
+	$dump = param("dump");
+	$id = param("id");
+	$did = Cvssearch::encode($id);
 	$displayname = param("displayname");
 	$displayname = Cvssearch::decode($displayname);
 
