@@ -1,3 +1,7 @@
+Mon Jan 15 17:46:13 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix initialisation of Btree_base::sequential when creating database.
+
 Mon Jan 15 15:43:46 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed some uses of XML node structure for libxml2 compatibility.

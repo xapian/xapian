@@ -236,8 +236,10 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     sequential = sequential_;
 
     if (have_fakeroot && !sequential) {
-	err_msg += "Corrupt base file, `" + basename + "': "
-		"`sequential' must be set whenever `have_fakeroot' is set.\n";
+	err_msg += "Corrupt base file, `" + basename + "':\n"
+		"sequential must be set whenever have_fakeroot is set.\n" +
+		"sequential=" + (sequential?"true":"false") +
+		", have_fakeroot=" + (have_fakeroot?"true":"false") + "\n";
 	return false;
     }
 

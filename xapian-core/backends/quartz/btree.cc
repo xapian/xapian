@@ -1027,6 +1027,7 @@ Btree::add_kt(int found, struct Cursor * C)
     if (found)  /* replacement */
     {   seq_count = SEQ_START_POINT;
 	sequential = false;
+
         {   byte * p = C[0].p;
             int c = C[0].c;
             int o = GETD(p, c);
@@ -1468,7 +1469,7 @@ Btree::basic_open(const char * name_,
         //bit_map_size =     basep->get_bit_map_size();
         item_count =       base.get_item_count();
         faked_root_block = base.get_have_fakeroot();
-        sequential =       base.get_sequential();
+	sequential =       base.get_sequential();
 
         if (other_base != 0) {
 	    other_revision_number = other_base->get_revision();
@@ -1703,6 +1704,7 @@ Btree::create(const char *name_, int block_size)
 	Btree_base base;
 	base.set_block_size(block_size);
 	base.set_have_fakeroot(true);
+	base.set_sequential(true);
 	base.write_to_file(name + "baseA");
 
 	/* create the main file */
@@ -1780,7 +1782,9 @@ Btree::commit(uint4 revision)
 	return errorval;
     }
 
-    faked_root_block &= ! Btree_modified; /* still faked? */
+    if (Btree_modified) {
+	faked_root_block = false;
+    }
 
     if (faked_root_block) {
 	/* We will use a dummy bitmap. */
