@@ -1,3 +1,7 @@
+Thu Dec 09 16:56:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* README: Fixed a few inaccuracies.
+
 Thu Dec 02 13:45:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/Query-script.pl: Fix generated HTML; comment out link to the old
