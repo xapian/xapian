@@ -114,7 +114,10 @@ if test -n "$VALGRIND" ; then
     [VALGRIND=])
 fi
 
-AC_DEFINE(HAVE_VALGRIND, [test -n "$VALGRIND"], [Define if valgrind is installed and it supports VALGRIND_COUNT_LEAKS])
+if test -n "$VALGRIND" ; then
+  AC_DEFINE(HAVE_VALGRIND, 1,
+	    [Define if valgrind is installed and it supports VALGRIND_COUNT_LEAKS])
+fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
