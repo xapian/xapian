@@ -68,8 +68,8 @@ input:	  /* nothing */	{ query = OmQuery(); }
 exp:	  prob		{
 			    OmQuery q = $1.q;
 			    if ($1.love.size()) {
-				q = OmQuery(OM_MOP_AND_MAYBE,
-					    OmQuery(OM_MOP_AND,
+				q = OmQuery(OmQuery::OP_AND_MAYBE,
+					    OmQuery(OmQuery::OP_AND,
 						    $1.love.begin(),
 						    $1.love.end()),
 					    q);
@@ -78,23 +78,23 @@ exp:	  prob		{
 				if (!q.is_defined()) {
 				    // FIXME: barf
 				}
-				q = OmQuery(OM_MOP_AND_NOT,
+				q = OmQuery(OmQuery::OP_AND_NOT,
 					    q,
-					    OmQuery(OM_MOP_OR,
+					    OmQuery(OmQuery::OP_OR,
 						    $1.hate.begin(),
 						    $1.hate.end()));
 			    }
 			    $$ = q;
 			}
-	| exp AND exp	{ $$ = U(OmQuery(OM_MOP_AND, $1.q, $3.q)); }
-	| exp OR exp	{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $3.q)); }
-	| exp NOT exp	{ $$ = U(OmQuery(OM_MOP_AND_NOT, $1.q, $3.q)); }
-	| exp XOR exp	{ $$ = U(OmQuery(OM_MOP_XOR, $1.q, $3.q)); }
+	| exp AND exp	{ $$ = U(OmQuery(OmQuery::OP_AND, $1.q, $3.q)); }
+	| exp OR exp	{ $$ = U(OmQuery(OmQuery::OP_OR, $1.q, $3.q)); }
+	| exp NOT exp	{ $$ = U(OmQuery(OmQuery::OP_AND_NOT, $1.q, $3.q)); }
+	| exp XOR exp	{ $$ = U(OmQuery(OmQuery::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
 ;
 
 prob:	  term		{ $$ = $1; }
-	| prob term	{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $2.q));
+	| prob term	{ $$ = U(OmQuery(OmQuery::OP_OR, $1.q, $2.q));
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
 	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }
@@ -105,10 +105,10 @@ term:	  TERM		{ $$ = $1; }
 	| TERM NEAR TERM{ vector<OmQuery> v;
 	                  v.push_back($1.q);
 	                  v.push_back($3.q);
-			  $$ = U(OmQuery(OM_MOP_NEAR, v.begin(), v.end(), 11)); }
-	| '"' phrase '"'{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
-	| hypphr        { $$ = U(OmQuery(OM_MOP_PHRASE, $1.v.begin(), $1.v.end(), $1.v.size())); }
-	| '{' phrase '}'{ $$ = U(OmQuery(OM_MOP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
+			  $$ = U(OmQuery(OmQuery::OP_NEAR, v.begin(), v.end(), 11)); }
+	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
+	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end(), $1.v.size())); }
+	| '{' phrase '}'{ $$ = U(OmQuery(OmQuery::OP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
 ;
 
 phrase:	  TERM		{ $$.v.push_back($1.q); }
