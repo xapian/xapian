@@ -1,3 +1,8 @@
+Wed Sep 18 04:52:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Merged two sed invocations into one - we don't want
+	  configure to run any slower than it has to.
+
 Wed Sep 18 04:17:58 BST 2002  Richard Boulton <richard.boulton@omsee.com>
 
 	* configure.in: Don't put confdefs.h into SOURCEDOC_H_SRC - this

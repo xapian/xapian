@@ -359,7 +359,7 @@ SOURCEDOC_CC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.cc -prin
 ' ' '`"
 SOURCEDOC_C_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.c -print|sed 's!^\.!$T!'|tr '
 ' ' '`"
-SOURCEDOC_H_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name include -prune -o -name \*.h -print|sed 's!^\.!$T!'|sed 's!$T/confdefs.h!!'|tr '
+SOURCEDOC_H_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name include -prune -o -name \*.h -print|sed '/^\.\/confdefs\.h$/d;s!^\.!$T!'|tr '
 ' ' '`"
 AC_SUBST(APIDOC_SRC)
 AC_SUBST(SOURCEDOC_CC_SRC)
