@@ -1,3 +1,8 @@
+Sun Sep 05 22:53:27 BST 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Tweaked documentation comment to stop
+	  doxygen parsing a hyphen as a single entry bullet point list.
+
 Sun Sep 05 20:20:01 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.h: Added missing "std::" so code will

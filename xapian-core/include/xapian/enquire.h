@@ -738,8 +738,8 @@ class Enquire {
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  Higher is better.  If match_sort_key is set,
 	 *	but match_sort_bands isn't, sort the whole mset my the key.
-	 *	(default is Xapian::valueno(-1) which means re-sort by doc id
-	 *	- ascending or descending as controlled by sort_forward).
+	 *	(default is Xapian::valueno(-1) which means re-sort by doc id:
+	 *	ascending or descending as controlled by sort_forward).
 	 * 
 	 * @param sort_bands sort results into this many bands of equal
 	 *	 percentage relevance.  Within each band, sort by the value
