@@ -1,3 +1,15 @@
+Tue Aug  1 17:37:57 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed even more DebugMsgs with endls into DEBUGLINEs: now
+	  compiles library.
+
+	* Disable support for adding endl() and flush() to a om_ostringstream.
+	  This was very hackily done, and broke with different compilers or
+	  STL port.
+
+	* Fix typo in RJB_FIND_STLPORT macro, so that the correct path is
+	  given for finding the library.
+
 Tue Aug  1 17:12:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed more DebugMsgs with endls into DEBUGLINEs: backends now
