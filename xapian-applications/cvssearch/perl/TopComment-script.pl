@@ -45,7 +45,7 @@ if(param()){
 
     print "<td align=left>";
     print "<b>Up to <a href=\"$cvscompare?root=$root\" target=_top>[$cvsroot]</a> ";
-    print "<a href=\"$querycomment?root=$root&pkg=$pkg\" target=\"s\">[$pkg]</a></b></td>\n";
+    print "<a href=\"$cvscompare?root=$root&pkg=$pkg\" target=\"s\">[$pkg]</a></b></td>\n";
     print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
     print "</tr></table>\n";
 
