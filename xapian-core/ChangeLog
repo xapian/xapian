@@ -1,3 +1,8 @@
+Wed Nov 22 12:25:38 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add missing dependency, so that todo.html gets rebuilt when
+	  todo.xml is changed.
+
 Wed Nov 22 11:50:21 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add --prefix and --exec-prefix parameters to libomus-config script.

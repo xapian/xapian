@@ -151,9 +151,11 @@ code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
 	@./mkdoc.pl $(top_srcdir) $@
 
-todo.html: todo2html.pl
+todo.html: todo2html.pl todo.xml
 	@echo "Generating todo list"
-	@./todo2html.pl $(srcdir)/todo.xml >todo.html
+	@if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
+	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
+	$${d2}/todo2html.pl $${d1}/todo.xml >$@
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
