@@ -1,9 +1,3 @@
-xapian-bindings (0.8.4-4) unstable; urgency=low
-
-  * Fixes to patch.
-
- -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 18:16:38 +0000
-
 xapian-bindings (0.8.4-3) unstable; urgency=low
 
   * Add patch needed to get python install to work.  This is backported

@@ -1,5 +1,0 @@
-This directory contains test data for the Snowball stemming algorithms
-which Xapian uses.  There are 2 files for each language:
-
- <language>.voc -- A list of words, one per line.
- <language>.st  -- The result of stemming each word.

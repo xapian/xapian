@@ -1,3 +1,9 @@
+Index: python/Makefile.am
+===================================================================
+RCS file: /home/cvs/xapian/xapian-bindings/python/Makefile.am,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -u -r1.22 -r1.23
 --- python/Makefile.am	2 Dec 2004 13:31:33 -0000	1.22
 +++ python/Makefile.am	10 Dec 2004 17:16:56 -0000	1.23
 @@ -19,7 +19,7 @@
@@ -42,47 +48,3 @@
 -CLEANFILES = xapian.pyc
 +CLEANFILES = @PYTHON_MODERN_OR_OLDE@/xapian.pyc
  endif
---- python/Makefile.in	Thu Dec  2 13:35:35 2004
-+++ python/Makefile.in	Fri Dec 10 18:07:17 2004
-@@ -226,7 +226,7 @@
- EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
- SUBDIRS = docs
- pylibdir = @PYTHON_LIB@/site-packages
--pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
-+pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py @PYTHON_MODERN_OR_OLDE@/xapian.pyc
- pylib_LTLIBRARIES = _xapian.la
- AM_CPPFLAGS = -I@PYTHON_INC@
- AM_CXXFLAGS = @SWIG_CXXFLAGS@
-@@ -235,8 +235,8 @@
- 	@PYTHON_MODERN_OR_OLDE@/xapian_wrap.h
- 
- _xapian_la_LIBADD = $(XAPIAN_LIBS)
--@MAINTAINER_MODE_FALSE@CLEANFILES = xapian.pyc
--@MAINTAINER_MODE_TRUE@CLEANFILES = $(BUILT_SOURCES) xapian.pyc
-+@MAINTAINER_MODE_FALSE@CLEANFILES = @PYTHON_MODERN_OR_OLDE@/xapian.pyc
-+@MAINTAINER_MODE_TRUE@CLEANFILES = $(BUILT_SOURCES) @PYTHON_MODERN_OR_OLDE@/xapian.pyc
- @MAINTAINER_MODE_FALSE@MAINTAINERCLEANFILES = $(BUILT_SOURCES)
- all: $(BUILT_SOURCES)
- 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
-@@ -739,8 +739,19 @@
- install-data-hook:
- 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
- 
--xapian.pyc: @PYTHON_MODERN_OR_OLDE@/xapian.py
--	PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON) -c "import xapian"
-+# In a distribution, xapian.py is in $(srcdir), and python will always
-+# generate the .pyc file in the same directory as the .py file.  However,
-+# we can't expect to be allowed to write to $(srcdir), so we copy the
-+# .py file to the build directory instead.
-+@PYTHON_MODERN_OR_OLDE@/xapian.pyc: @PYTHON_MODERN_OR_OLDE@/xapian.py
-+	if test -f "@PYTHON_MODERN_OR_OLDE@/xapian.py"; then \
-+	  PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON) -c "import xapian" || exit 1; \
-+	else \
-+	  test -d @PYTHON_MODERN_OR_OLDE@ || mkdir @PYTHON_MODERN_OR_OLDE@; \
-+	  cp "$(srcdir)/@PYTHON_MODERN_OR_OLDE@/xapian.py" "@PYTHON_MODERN_OR_OLDE@/xapian.py" || exit 1; \
-+	  PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON) -c "import xapian" || exit 1; \
-+	  rm "@PYTHON_MODERN_OR_OLDE@/xapian.py" || exit 1; \
-+	fi
- 
- # "modern" versions are for Python 2.2 and up;  "olde" versions are for earlier
- # Python versions (which in our case means 2.1).

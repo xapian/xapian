@@ -1,6 +1,0 @@
-Makefile
-Makefile.in
-.deps
-.libs
-*.lo
-libmap_algorithm.la
