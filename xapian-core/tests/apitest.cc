@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 
 #if 1 && defined(MUS_BUILD_BACKEND_INMEMORY)
     RUNTESTS("inmemory", db);
+    RUNTESTS("inmemory", specchar);
     RUNTESTS("inmemory", writabledb);
     RUNTESTS("inmemory", localdb);
     RUNTESTS("inmemory", positionaldb);
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
     RUNTESTS("quartz", db);
+    RUNTESTS("quartz", specchar);
     RUNTESTS("quartz", writabledb);
     RUNTESTS("quartz", localdb);
     RUNTESTS("quartz", positionaldb);
@@ -116,6 +118,7 @@ int main(int argc, char *argv[])
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
     RUNTESTS("sleepycat", db);
+    RUNTESTS("sleepycat", specchar);
     RUNTESTS("sleepycat", writabledb);
     RUNTESTS("sleepycat", localdb);
     RUNTESTS("sleepycat", positionaldb);
@@ -124,6 +127,7 @@ int main(int argc, char *argv[])
 
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
     RUNTESTS("remote", db);
+    RUNTESTS("remote", specchar);
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);

@@ -1,3 +1,8 @@
+Wed Dec 13 18:18:09 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Turn off tests involving terms with newlines or zero bytes in terms
+	  with Muscat3.6 backends; these can't be expected to work.
+
 Wed Dec 13 18:06:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Uncommented the code in pctcutoff1 - test now passes.

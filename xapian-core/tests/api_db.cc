@@ -881,14 +881,14 @@ static bool test_repeatquery1()
     return true;
 }
 
-// test that searching for a term with a space in it works
+// test that searching for a term with a space or backslash in it works
 static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
     std::vector<OmDocument> docs;
-
     OmStem stemmer("english");
+
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
@@ -900,13 +900,24 @@ static bool test_spaceterms1()
 	TEST_NOT_EQUAL(key.value, "");
     }
     
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
+    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
+    return true;
+}
+    
+// test that searching for a term with a special characters in it works
+static bool test_specialterms1()
+{
+    OmEnquire enquire(get_database("apitest_space"));
+    OmMSet mymset;
+    std::vector<OmDocument> docs;
+    OmStem stemmer("english");
+
+    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
@@ -1775,6 +1786,12 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
+    {0, 0}
+};
+
+/// The tests which need a backend which supports terms with newlines / zeros
+test_desc specchar_tests[] = {
+    {"specialterms", 	   test_specialterms1},
     {0, 0}
 };
 
