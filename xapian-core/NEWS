@@ -1169,7 +1169,8 @@ portability fixes.
   BM25 into HTML; updated stemmer docs to reflect intention to use Snowball
   instead; included HTML versions of quickstart*.cc.
 
-* automake 1.6.3 and autoconf 2.54 are now required for those working             from CVS to fix a problem with the generated Makefiles and Solaris
+* automake 1.6.3 and autoconf 2.54 are now required for those working
+  from CVS to fix a problem with the generated Makefiles and Solaris
   make.
 
 * net/Makefile.am: Fixed building of readquery.cc from readquery.ll.

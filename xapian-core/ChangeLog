@@ -1,3 +1,7 @@
+Wed Jun 30 20:34:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Fixed an unwrapped line.
+
 Wed Jun 30 20:32:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note about the cvs-tag-release script.
