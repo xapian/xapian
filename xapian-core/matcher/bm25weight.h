@@ -31,11 +31,13 @@ class BM25Weight : public IRWeight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
+	mutable double param_BD;
 
 	double param_A;
 	double param_B;
 	double param_C;
 	double param_D;
+	om_doclength min_normlen;
 
 	void calc_termweight() const;
 	BM25Weight(om_weight termweight_,

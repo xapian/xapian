@@ -1,3 +1,15 @@
+Tue Jan  2 15:05:53 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Move documentation of parameters for OmSettings out of omsettings.h
+	  and into docs/.  Not in distribution at the moment: it is awaiting
+	  placement into a permanent home (I think the user manual is the
+	  correct place).
+
+	* Add a bm25weight_min_normlen parameter: this specifies a cutoff
+	  on the minimum value that can be used for a normalised document
+	  length: smaller values will be forced up to this cutoff.  This
+	  prevents very small documents getting a huge bonus weight.
+
 Wed Dec 20 16:54:41 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix warning in QuartzTable

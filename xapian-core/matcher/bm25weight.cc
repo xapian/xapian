@@ -42,6 +42,7 @@ BM25Weight::BM25Weight(const OmSettings & opts)
     param_B = opts.get_real("bm25weight_B", 1);
     param_C = opts.get_real("bm25weight_C", 0);
     param_D = opts.get_real("bm25weight_D", 0.5);
+    min_normlen = opts.get_real("bm25weight_min_normlen", 0.5);
 
     if(param_A < 0) throw OmInvalidArgumentError("Parameter A in BM25 weighting formula must be at least 0.");
     if(param_B < 0) throw OmInvalidArgumentError("Parameter B in BM25 weighting formula must be at least 0.");
@@ -55,10 +56,16 @@ void
 BM25Weight::calc_termweight() const
 {
     Assert(initialised);
-    Assert(stats->get_total_average_length() != 0);
 
     om_doccount dbsize = stats->get_total_collection_size();
-    lenpart = param_B * param_D / stats->get_total_average_length();
+    param_BD = param_B * param_D;
+    lenpart = stats->get_total_average_length();
+
+    // Just to ensure okay behaviour: should only happen if no data
+    // (though there could be empty documents).
+    if (lenpart == 0) lenpart = 1;
+
+    lenpart = 1 / lenpart;
 
     om_doccount termfreq = stats->get_total_termfreq(tname);
 
@@ -96,7 +103,10 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
-    om_weight wt = (double) wdf * (param_B + 1) / (len * lenpart + param_B * (1 - param_D) + wdf);
+    om_doclength normlen = len * lenpart;
+    if (normlen < min_normlen) normlen = min_normlen;
+
+    om_weight wt = (double) wdf * (param_B + 1) / (normlen * param_BD + param_B * (1 - param_D) + wdf);
     DEBUGMSG(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
 	     lenpart << ") =>  wtadj = " << wt);
 
@@ -123,7 +133,8 @@ BM25Weight::get_maxpart() const
 om_weight
 BM25Weight::get_sumextra(om_doclength len) const
 {
-    om_doclength normlen = len / stats->get_total_average_length();
+    om_doclength normlen = len * lenpart;
+    if (normlen < min_normlen) normlen = min_normlen;
     om_weight extra = param_C * querysize / (1 + normlen);
     DEBUGLINE(WTCALC, "len = " << len <<
 	      " querysize = " << querysize <<
