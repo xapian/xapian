@@ -1,4 +1,4 @@
-/* indexnasty.cc based on simpleindex.cc and omindex.cc
+/* indexnasty.cc based on simpleindex.cc and omindex.cc by Sam Liddicott
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -38,13 +38,16 @@ i.e.
   [[!|~|*][-][prefix:]][fieldname]=
 
 Prefix and fieldname may be null.
-If ~ is specified then the data is stemmed for terms.
-If a * is specified then the prefixed data must be unique and if a record
-already exists with this it is overwritten
-If a ! is specified
-If a prefix is specified then terms are prefixed.
-If neither * or ~ or a prefix or a : are specified the field is not used for terms
-If - is specified (must be after ! ~ *) then the term is lowercased before having
+  If ~ is specified then the data is stemmed for terms.
+  If a * is specified then the prefixed data must be unique and if a record
+already exists with this it is overwritten. NOTE: if just: *Q=blah is the 
+only item of a record then if it exists it is deleted but no new record is 
+created.  If *Q:id=blah is specified, or other terms given, then a new 
+recordsIS created
+  If a ! is specified
+  If a prefix is specified then terms are prefixed.
+  If neither * or ~ or a prefix or a : are specified the field is not used for terms
+  If - is specified (must be after ! ~ *) then the term is lowercased before having
 the prefix attached.  The term is not lowercased for storage in the field
 
 Note: ~ lowercases terms as part of stemming, - just lowercases
@@ -74,6 +77,8 @@ X=No terms, but still store
 #include <fstream>
 #include <om/om.h>
 #include <string>
+#include <unistd.h>
+
 using std::string;
 
 static bool IndexNastyFile(string Filepath, OmWritableDatabase &database,
@@ -92,11 +97,19 @@ int main(int argc, char *argv[])
     // Catch any OmError exceptions thrown
     try {
 	// Make the database
+	OmWritableDatabase *_database=NULL;
 	OmSettings settings;
 	settings.set("backend", "quartz");
 	settings.set("quartz_dir", argv[1]);
-	OmWritableDatabase database(settings);
-
+	while (! _database) try {
+	  _database = new OmWritableDatabase(settings);
+          break;
+	} catch (const OmDatabaseLockError &error) {
+	  sleep(1);
+	  continue;
+	}
+        OmWritableDatabase database(*_database);
+        delete _database;
 	OmStem stemmer("english"); 
 
 	// Read file/s
@@ -107,7 +120,7 @@ int main(int argc, char *argv[])
         }
 
     }
-    catch (OmError &error) {
+    catch (const OmError &error) {
 	std::cout << "Exception: "  << error.get_msg() << std::endl;
     }
 }
@@ -269,29 +282,38 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
       } else std::cout << "Bad line: " << cursor << " " << line << std::endl;
     }
 
-    if (!data.empty()) {
+    if (!uniqueterm.empty() && (database.term_exists(uniqueterm))) {
+      try { // nicked from omindex.cc
+        OmEnquire enq(database);
+ 	enq.set_query(OmQuery(uniqueterm));
+	OmMSet mset = enq.get_mset(0, 1);
+	docid=*mset[0];
+      } catch (...) {
+        docid=0;
+      }
+    }
+
+    // shurely we should be checking for other terms not just data being empty
+    // (and by OTHER terms I mean as well as uniqueterm)
+    if (data.empty()) {
+      if (docid) database.delete_document(docid);
+      std::cout << "Del: " << docid << " " << uniqueterm << std::endl;
+    } else {
       // Put the data in the document
       newdocument.set_data(data);
 
       // Add the document to the database
-      if (!uniqueterm.empty() && (database.term_exists(uniqueterm))) {
-        try { // nicked from omindex.cc
-          OmEnquire enq(database);
-	  enq.set_query(OmQuery(uniqueterm));
-	  OmMSet mset = enq.get_mset(0, 1);
-	  try {
-	    database.replace_document(*mset[0], newdocument);
-	    docid=*mset[0];
-	  } catch (...) {
-            docid=database.add_document(newdocument);
-	  }
-        } catch (...) {
+      if (docid) {
+	try {
+	  database.replace_document(docid, newdocument);
+	} catch (...) {
           docid=database.add_document(newdocument);
-        }
+	}
       } else {
         docid=database.add_document(newdocument);
       }
-    } // end of if !data.empty()
+      std::cout << "Add: " << docid << " " << uniqueterm << std::endl;
+    } // end of if data.empty()
 
 //    if (docid) {
 //      try {
@@ -308,7 +330,6 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
 //      std::cout << "Flushed" << std::endl;
 //    }
 
-    std::cout << docid << " " << uniqueterm << std::endl;
   }
 
   return true;
