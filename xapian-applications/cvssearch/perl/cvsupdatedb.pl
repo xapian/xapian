@@ -56,11 +56,20 @@ if(-d "$cvsdata/$root") {
             }
         }
     }else{ # insert database
-        if(!`grep ^"$ARGV[0]"\$ $path`){
-            print "$ARGV[0] inserted.";
-            `echo "$ARGV[0]" >> $path`;
-        }else{
-            print "$ARGV[0] already exists!\n";
+        if(-e $path) {
+            if(!`grep ^"$ARGV[0]"\$ $path`){
+                print "... $ARGV[0] inserted.";
+                open (PATH, ">>$path");
+                print PATH "$ARGV[0]\n";
+                close PATH;
+            }else{
+                print "$ARGV[0] already exists!\n";
+            }
+        } else {
+            open (PATH, ">$path");
+            print PATH "$ARGV[0]\n";
+            close PATH;
+            system ("chmod o+r $path");
         }
     }
 } else {

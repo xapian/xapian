@@ -16,7 +16,7 @@ my $file_types_string;
 my @modules;
 
 my $cvsindex = "./cvsindex";
-my $cvsupdatedb = "./cvsupdate";
+my $cvsupdatedb = "./cvsupdatedb";
 my $cvsmap = "./cvsmap";
 
 # ------------------------------------------------------------
@@ -32,6 +32,11 @@ if ($#ARGV < 0) {
 }
 
 my $i = 0;
+
+if (-d $cvsdata) {
+} else {
+   mkdir ("$cvsdata",0777) || die " cannot mkdir $cvsdata.db: $!";
+}
 
 # ----------------------------------------
 # parse command line arguments
@@ -189,8 +194,12 @@ sub cvsbuild {
                     } else {
                         mkdir ("$prefix_path.db",0777) || die " cannot mkdir $prefix_path.db: $!";
                     }
-                    system ("chmod o+r $prefix_path.db?");
                     system ("mv $prefix_path.db? $prefix_path.db");
+                    system ("chmod o+r $prefix_path.offset");
+                    system ("chmod o+rx $prefix_path.db");
+                    system ("chmod o+rx $prefix_path.om");
+                    system ("chmod o+r $prefix_path.db/*");
+                    system ("chmod o+r $prefix_path.om/*");
 
                     my $berkeley_size = 0;
                     my $omsee_size = 0;
@@ -223,15 +232,42 @@ sub cvsbuild {
                     }
                     close(SIZE);
 
+                    open(LIST, "<$list_file") || die "cannot create temporary file list\n";
+                    my $line2 = 0;
+                    my $line1 = 0;
+
+                    while (<LIST>) {
+                          chomp;
+                          my $filename = $_;
+                          open (LINES, "cat $filename |./comment_extractor_c++|./comment_extractor_c|wc -l|");
+                          while (<LINES>) {
+                             chomp;
+                             $line2 += $_;
+                             last;
+                          }
+                          close(LINES);
+
+                          open (LINES, "cat $filename|wc -l|");
+                          while (<LINES>) {
+                             chomp;
+                             $line1 += $_;
+                             last;
+                          }
+                          close(LINES);
+                    }
+                    close(LIST);
+
                     open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
+                    print STAT "total   # line of code comment :\t". ($line1 - $line2) ." comments\n";
                     print STAT "\n";
-                    print STAT "total build time :        \t". (time - $checkout_start_date) . " seconds\n";
-                    print STAT "   checkout time :        \t". ($checkout_end_date - $checkout_start_date) . " seconds\n";
-                    print STAT "   map      time :        \t". ($map_end_date      - $map_start_date). " seconds\n";
-                    print STAT "   index    time :        \t". ($index_end_date    - $index_start_date). " seconds\n";
-                    print STAT "berkeley database size:   \t". $berkeley_size. " KB at $prefix_path.db\n";
-                    print STAT "omsee    database size:   \t". $omsee_size  . " KB at $prefix_path.om\n";
-                    print STAT "cmt      file     size:   \t". $cmt_size . " KB at $prefix_path.cmt\n";
+                    print STAT "total build time               :\t". (time - $checkout_start_date) . " seconds\n";
+                    print STAT "   checkout time               :\t". ($checkout_end_date - $checkout_start_date) . " seconds\n";
+                    print STAT "   map      time               :\t". ($map_end_date      - $map_start_date). " seconds\n";
+                    print STAT "   index    time               :\t". ($index_end_date    - $index_start_date). " seconds\n";
+                    print STAT "\n";
+                    print STAT "berkeley database size         :\t". $berkeley_size. "\tkb at $prefix_path.db\n";
+                    print STAT "omsee    database size         :\t". $omsee_size  . "\tkb at $prefix_path.om\n";
+                    print STAT "cmt      file     size         :\t". $cmt_size . "\tkb at $prefix_path.cmt\n";
                     close(STAT);
                 }
 

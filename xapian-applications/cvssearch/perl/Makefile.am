@@ -1,4 +1,4 @@
-bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script cvssearch.pm cvscompare.cgi
+bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script cvssearch.conf cvscompare.cgi comment_extractor_c comment_extractor_c++ #cvssearch.pm
 EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl cvsquery-script.pl cvscompare-script.pl cvssearch.pm cvssearch.conf
 
 define build-perl-script
@@ -20,3 +20,10 @@ cvsquery-script: $(srcdir)/cvsquery-script.pl
 
 cvscompare.cgi: $(srcdir)/cvscompare-script.pl
 	$(build-perl-script)
+
+comment_extractor_c: $(srcdir)/comment_extractor_c.pl
+	$(build-perl-script)
+
+comment_extractor_c++:$(srcdir)/comment_extractor_c++.pl
+	$(build-perl-script)
+

@@ -65,7 +65,7 @@ PERL = @PERL@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script cvssearch.pm cvscompare.cgi
+bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script cvssearch.conf cvscompare.cgi comment_extractor_c comment_extractor_c++ #cvssearch.pm
 EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl cvsquery-script.pl cvscompare-script.pl cvssearch.pm cvssearch.conf
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -210,6 +210,12 @@ cvsquery-script: $(srcdir)/cvsquery-script.pl
 	$(build-perl-script)
 
 cvscompare.cgi: $(srcdir)/cvscompare-script.pl
+	$(build-perl-script)
+
+comment_extractor_c: $(srcdir)/comment_extractor_c.pl
+	$(build-perl-script)
+
+comment_extractor_c++:$(srcdir)/comment_extractor_c++.pl
 	$(build-perl-script)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

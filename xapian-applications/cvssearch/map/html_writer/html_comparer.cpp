@@ -244,7 +244,7 @@ html_comparer::write(ostream & os) const
     string select0 = " class=\"s\"";
     string select1 = " class=\"s\"";
     string select2 = " class=\"s\"";
-    
+
     os << "<H3 align=center>aligned diff for " << _pathname 
        << " between "
        << " version " << _revision2
@@ -257,7 +257,7 @@ html_comparer::write(ostream & os) const
        << " " << _revision1
        << ", and the propagation of the affected lines to version " << _revision0
        << endl;
-
+    os << "<HR NOSHADE>" << endl;
     os << "<TABLE align=center border=0 cellspacing=0 cellpadding=1>" << endl;
     os << "<TR>";
     os << "<TD" << select2 << "> </TD>";
@@ -554,7 +554,7 @@ html_comparer::style(ostream & os) const
     os << "<STYLE TYPE-\"type/css\">" << endl;
     os << "BODY  {background-color:#EEEEEE;}" << endl;
     os << "TABLE {background-color:#FFFFFF;}" << endl;
-    os << "TD    {font-family:fixed;white-space:pre; overflow:hidden;}" << endl;
+    os << "TD    {white-space:pre; overflow:hidden;font-family:courier;}" << endl;
     os << ".s {background-color:#3366CC; color:#FFFFFF;}" << endl;
     os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;

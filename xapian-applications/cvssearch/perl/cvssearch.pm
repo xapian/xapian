@@ -187,9 +187,9 @@ sub get_color {
     # ----------------------------------------
     # change color here.. darkest color
     # ----------------------------------------
-    my $max_color_red   = 128;
-    my $max_color_blue  = 128;
-    my $max_color_green = 128;
+    my $max_color_red   = 255;
+    my $max_color_blue  = 0;
+    my $max_color_green = 232;
 
     # ----------------------------------------
     # change color here.. lightest color
