@@ -238,7 +238,7 @@ sub cvsbuild {
             }
             my @sorted_files = sort @files;
             open(LIST, ">$list_file") || die "cannot create temporary file list\n";
-            foreach (@sort_files) {
+            foreach (@sorted_files) {
                 print LIST "$_\n";
             }
             close(LIST);
