@@ -319,9 +319,6 @@ main2(int argc, char *argv[])
 			    (val = cgi_params.find("#")) != cgi_params.end()) {
 			topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
 		    }
-
-		    // snap topdoc to page boundary
-		    topdoc = (topdoc / hits_per_page) * hits_per_page;
 		}
 	    }
 	    // put documents marked as relevant into the rset
