@@ -26,7 +26,7 @@
 #include "omassert.h"
 #include <string>
 
-typedef enum {
+enum stemmer_language {
     STEMLANG_DUTCH,
     STEMLANG_ENGLISH,
     STEMLANG_FRENCH,
@@ -34,7 +34,7 @@ typedef enum {
     STEMLANG_ITALIAN,
     STEMLANG_PORTUGUESE,
     STEMLANG_SPANISH
-} stemmer_language;
+};
 
 class Stemmer {
     private:
