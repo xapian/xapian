@@ -124,7 +124,7 @@ static void sys_read_block(int h, int m, int4 n, byte * p)
     sys_read_bytes(h, m, p);
 }
 
-static void sys_write_block(int h, int m, int4 n, byte * p)
+static void sys_write_block(int h, int m, int4 n, const byte * p)
 {
     sys_lseek(h, (off_t)m * n);
     sys_write_bytes(h, m, p);
@@ -156,7 +156,7 @@ int sys_read_bytes(int h, int n, byte * p)
     return true;
 }
 
-int sys_write_bytes(int h, int n, byte * p)
+int sys_write_bytes(int h, int n, const byte * p)
 {
     ssize_t bytes_written;
     while (1) {
@@ -278,10 +278,11 @@ Btree_strerror(Btree_errors err)
    the start of the transaction on the B-tree.
 */
 
-static int block_free_at_start(struct Btree * B, int4 n)
+bool
+Btree::block_free_at_start(int4 n)
 {   int i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
-    return (B->bit_map0[i] & bit) == 0;
+    return (bit_map0[i] & bit) == 0;
 }
 
 /* free_block(B, n) causes block n to be marked free in the bit map.
@@ -289,14 +290,16 @@ static int block_free_at_start(struct Btree * B, int4 n)
    set. Searching starts from there when looking for a free block.
 */
 
-static void free_block(struct Btree * B, int4 n)
-{   int i = n / CHAR_BIT;
+void
+Btree::free_block(int4 n)
+{
+    int i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
-    B->bit_map[i] &= ~ bit;
+    bit_map[i] &= ~ bit;
 
-    if (B->bit_map_low > i &&
-       (B->bit_map0[i] & bit) == 0) /* free at start */
-        B->bit_map_low = i;
+    if (bit_map_low > i &&
+       (bit_map0[i] & bit) == 0) /* free at start */
+        bit_map_low = i;
 }
 
 /* extend_bit_map(B) increases the size of the two bit maps in an obvious way.
@@ -305,17 +308,20 @@ static void free_block(struct Btree * B, int4 n)
    how many blocks are freed.
 */
 
-static void extend_bit_map(struct Btree * B)
-{   int n = B->bit_map_size + BIT_MAP_INC;
-    B->bit_map0 = (byte *)realloc(B->bit_map0, n);   /*?*/
-    B->bit_map = (byte *)realloc(B->bit_map, n);     /*?*/
+void
+Btree::extend_bit_map()
+{
+    int n = bit_map_size + BIT_MAP_INC;
+    bit_map0 = (byte *)realloc(bit_map0, n);   /*?*/
+    bit_map = (byte *)realloc(bit_map, n);     /*?*/
     {   int i;
-        for (i = B->bit_map_size; i < n; i++)
-        {   B->bit_map0[i] = 0;
-            B->bit_map[i] = 0;
+        for (i = bit_map_size; i < n; i++)
+        {
+	    bit_map0[i] = 0;
+            bit_map[i] = 0;
         }
     }
-    B->bit_map_size = n;
+    bit_map_size = n;
 }
 
 /* next_free_block(B) returns the number of the next available free block in
@@ -328,32 +334,36 @@ static void extend_bit_map(struct Btree * B)
    no free bits it is extended so that it will have.
 */
 
-static int next_free_block(struct Btree * B)
-{   int4 i;
+int
+Btree::next_free_block()
+{
+    int4 i;
     int x;
-    for (i = B->bit_map_low;; i++)
-    {   if (i >= B->bit_map_size) extend_bit_map(B);
-        x = B->bit_map0[i] | B->bit_map[i];
+    for (i = bit_map_low;; i++)
+    {   if (i >= bit_map_size) extend_bit_map();
+        x = bit_map0[i] | bit_map[i];
         if (x != UCHAR_MAX) break;
     }
-    {   int4 n = i * CHAR_BIT;
+    {
+	int4 n = i * CHAR_BIT;
         int d = 0x1;
         while ((x & d) != 0) { d <<= 1; n++; }
-        B->bit_map[i] |= d;   /* set as 'in use' */
-        B->bit_map_low = i;
+        bit_map[i] |= d;   /* set as 'in use' */
+        bit_map_low = i;
         return n;
     }
 }
 
 /** read_block(B, n, p) reads block n to address p in the DB file.
  */
-static void read_block(struct Btree * B, int4 n, byte * p)
+void
+Btree::read_block(int4 n, byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
-    Assert(n / CHAR_BIT < B->bit_map_size);
+    Assert(n / CHAR_BIT < bit_map_size);
 
-    sys_read_block(B->handle, B->block_size, n, p);
+    sys_read_block(handle, block_size, n, p);
     /** Previously, this would set B->error to BTREE_ERROR_DB_READ
      *  when sys_read_block() failed.  However, it now throws an
      *  exception, so we never get here.
@@ -368,26 +378,27 @@ static void read_block(struct Btree * B, int4 n, byte * p)
  *  (so this is the first write) the old base is deleted. This prevents the
  *  possibility of it being openend subsequently as an invalid base.
  */
-static void write_block(struct Btree * B, int4 n, byte * p)
+void
+Btree::write_block(int4 n, const byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
-    Assert(n / CHAR_BIT < B->bit_map_size);
+    Assert(n / CHAR_BIT < bit_map_size);
 
     /* don't write to non-free */;
-    AssertParanoid(block_free_at_start(B, n));
+    AssertParanoid(block_free_at_start(n));
 
     /* write revision is okay */
-    AssertParanoid(REVISION(p) == B->next_revision);
+    AssertParanoid(REVISION(p) == next_revision);
 
-    if (! B->Btree_modified) {
+    if (! Btree_modified) {
 	// Things to do when we start a modification session.
 
-        B->Btree_modified = true;
+        Btree_modified = true;
 
-        if (B->both_bases) {
+        if (both_bases) {
 	    /* delete the old base */
-            sys_unlink(B->name + "base" + B->other_base_letter);
+            sys_unlink(name + "base" + other_base_letter);
 	    /* This used to set B->error as below, but will now throw
 	     * an exception if it fails.
 		B->error = BTREE_ERROR_BASE_DELETE;
@@ -397,7 +408,7 @@ static void write_block(struct Btree * B, int4 n, byte * p)
         }
     }
 
-    sys_write_block(B->handle, B->block_size, n, p);
+    sys_write_block(handle, block_size, n, p);
     /* This used to set B->error as below, but will now throw
      * an exception if it fails.
         B->error = BTREE_ERROR_DB_WRITE;
@@ -426,10 +437,11 @@ static void write_block(struct Btree * B, int4 n, byte * p)
 */
 
 
-static void set_overwritten(struct Btree * B)
+void
+Btree::set_overwritten()
 {
     printf("overwritten set to true\n");  /* initial debbugging line */
-    B->overwritten = true;
+    overwritten = true;
 }
 
 /* block_to_cursor(B, C, j, n) puts block n into position C[j] of cursor C,
@@ -441,21 +453,23 @@ static void set_overwritten(struct Btree * B)
    rewriting is necessary.
 */
 
-static void block_to_cursor(struct Btree * B, struct Cursor * C, int j, int4 n)
-{   byte * p = C[j].p;
-    if (n == C[j].n) return;
-    if (C[j].rewrite) {
-	write_block(B, C[j].n, p);
-        C[j].rewrite = false;
+void
+Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
+{
+    byte * p = C_[j].p;
+    if (n == C_[j].n) return;
+    if (C_[j].rewrite) {
+	write_block(C_[j].n, p);
+        C_[j].rewrite = false;
     }
-    read_block(B, n, p);
-    if (B->overwritten == true) return;
+    read_block(n, p);
+    if (overwritten == true) return;
 
-    C[j].n = n;
-    B->C[j].n = n; /* not necessarily the same (in B-tree read mode) */
-    if (j < B->level) {
-	if (REVISION(p) > REVISION(C[j + 1].p)) { /* unsigned comparison */
-            set_overwritten(B);
+    C_[j].n = n;
+    C[j].n = n; /* not necessarily the same (in B-tree read mode) */
+    if (j < level) {
+	if (REVISION(p) > REVISION(C_[j + 1].p)) { /* unsigned comparison */
+            set_overwritten();
             return;
         }
     }
@@ -504,7 +518,8 @@ static int block_given_by(byte * p, int c)
    be true or false in that case.
 */
 
-static void Btree_alter(struct Btree * B, struct Cursor * C)
+void
+Btree::alter(Cursor * C)
 {
     int j = 0;
     byte * p = C[j].p;
@@ -513,13 +528,13 @@ static void Btree_alter(struct Btree * B, struct Cursor * C)
 	C[j].rewrite = true;
 
 	int4 n = C[j].n;
-	if (block_free_at_start(B, n)) return;
-	free_block(B, n);
-	n = next_free_block(B);
+	if (block_free_at_start(n)) return;
+	free_block(n);
+	n = next_free_block();
 	C[j].n = n;
-	SET_REVISION(p, B->next_revision);
+	SET_REVISION(p, next_revision);
 
-	if (j == B->level) return;
+	if (j == level) return;
 	j++;
 	p = C[j].p;
 	set_block_given_by(p, C[j].c, n);
@@ -585,33 +600,39 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
    with the help of the B-tree writing code included further down.)
 */
 
-int find(struct Btree * B, struct Cursor * C)
-{   byte * p; int c;
-    byte * k = B->kt + I2;
+bool
+Btree::find(struct Cursor * C_)
+{
+    /* FIXME: is the parameter necessary? */
+    byte * p; int c;
+    byte * k = kt + I2;
     int j;
-    for (j = B->level; j > 0; j--)
-    {   p = C[j].p;
-        c = find_in_block(p, k, 0, C[j].c);
+    for (j = level; j > 0; j--)
+    {
+	p = C_[j].p;
+        c = find_in_block(p, k, 0, C_[j].c);
             /*  debug with e.g. report_block_full(B, j, C[j].n, p);  */
-        C[j].c = c;
-        block_to_cursor(B, C, j - 1, block_given_by(p, c));
-        if (B->overwritten) return false;
+        C_[j].c = c;
+        block_to_cursor(C_, j - 1, block_given_by(p, c));
+        if (overwritten) return false;
     }
-    p = C[0].p;
-    c = find_in_block(p, k, D2, C[j].c);
+    p = C_[0].p;
+    c = find_in_block(p, k, D2, C_[j].c);
             /*  and again report_block_full(B, j, C[j].n, p);  */
-    C[0].c = c;
+    C_[0].c = c;
     if (c < DIR_START) return false;
-    return compare_keys(B->kt + I2, key_of(p, c)) == 0;
+    return compare_keys(kt + I2, key_of(p, c)) == 0;
 }
 
 /* compress(B, p) compresses the block at p by shuffling all the items up to
    the end. MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
 */
 
-static void compress(struct Btree * B, byte * p)
-{   int e = B->block_size;
-    byte * b = B->buffer;
+void
+Btree::compress(byte * p)
+{
+    int e = block_size;
+    byte * b = buffer;
     int dir_end = DIR_END(p);
     int c; for (c = DIR_START; c < dir_end; c += D2)
     {   int o = GETD(p, c);
@@ -619,7 +640,7 @@ static void compress(struct Btree * B, byte * p)
         e -= l;
         memmove(b + e, p + o, l); SETD(p, c, e);  /* reform in b */
     }
-    memmove(p + e, b + e, B->block_size - e);  /* copy back */
+    memmove(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
     SET_TOTAL_FREE(p, e);
     SET_MAX_FREE(p, e);
@@ -635,11 +656,6 @@ static void form_null_key(byte * b, int4 n)
 }
 
 
-/* add_item needs declaring here, because it is used rcursively.
-*/
-
-static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j);
-
 /* enter_key(B, C, j, kq, kp) is called after a block split. It enters in the
    block at level C[j] a separating key for the block at level C[j - 1]. The
    key itself is kp. kq is the preceding key, and at level 1 kq can be trimmed
@@ -654,44 +670,45 @@ static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j);
    further call to enter_key. Hence the recursion.
 */
 
-static void enter_key(struct Btree * B, struct Cursor * C, int j, byte * kq, byte * kp)
+void
+Btree::enter_key(struct Cursor * C_, int j, byte * kq, byte * kp)
 {
-    if (j > B->level) {
+    if (j > level) {
 	/* gain a level */
-	B->level ++;
+	level ++;
 
 	/* check level overflow */
-	AssertNe(B->level, BTREE_CURSOR_LEVELS);
+	AssertNe(level, BTREE_CURSOR_LEVELS);
 
-	byte * q = (byte *)calloc(B->block_size, 1);      /*?*/
+	byte * q = (byte *)calloc(block_size, 1);      /*?*/
 	if (q == 0) {
-	    B->error = BTREE_ERROR_SPACE;
+	    error = BTREE_ERROR_SPACE;
 	    throw std::bad_alloc();
 	}
-	C[j].p = q;
-	C[j].split_p = (byte *)calloc(B->block_size, 1);  /*?*/
-	if (C[j].split_p == 0) {
-	    B->error = BTREE_ERROR_SPACE;
+	C_[j].p = q;
+	C_[j].split_p = (byte *)calloc(block_size, 1);  /*?*/
+	if (C_[j].split_p == 0) {
+	    error = BTREE_ERROR_SPACE;
 	    throw std::bad_alloc();
 	}
-	C[j].c = DIR_START;
-	C[j].n = next_free_block(B);
-	C[j].rewrite = true;
-	SET_REVISION(q, B->next_revision);
+	C_[j].c = DIR_START;
+	C_[j].n = next_free_block();
+	C_[j].rewrite = true;
+	SET_REVISION(q, next_revision);
 	SET_LEVEL(q, j);
 	SET_DIR_END(q, DIR_START);
-	compress(B, q);   /* to reset TOTAL_FREE, MAX_FREE */
+	compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
 
 	/* form a null key in b with a pointer to the old root */
 
-	int4 old_root = C[j - 1].split_n;
+	int4 old_root = C_[j - 1].split_n;
 	byte b[10]; /* 7 is exact */
 	form_null_key(b, old_root);
-	add_item(B, C, b, j);
+	add_item(C_, b, j);
     }
-    {   /*  byte * p = C[j - 1].p;  -- see below */
+    {   /*  byte * p = C_[j - 1].p;  -- see below */
 
-        int4 n = C[j - 1].n;
+        int4 n = C_[j - 1].n;
 
         int kq_len = GETK(kq, 0);
         int i;
@@ -721,9 +738,9 @@ static void enter_key(struct Btree * B, struct Cursor * C, int j, byte * kq, byt
         }
         */
 
-        C[j].c = find_in_block(C[j].p, b + I2, 0, 0) + D2;
-        C[j].rewrite = true; /* a subtle point: this *is* required. */
-        add_item(B, C, b, j);
+        C_[j].c = find_in_block(C_[j].p, b + I2, 0, 0) + D2;
+        C_[j].rewrite = true; /* a subtle point: this *is* required. */
+        add_item(C_, b, j);
     }
 }
 
@@ -735,33 +752,35 @@ static void enter_key(struct Btree * B, struct Cursor * C, int j, byte * kq, byt
    from C[j].n, the second half into p with a new block number.
 */
 
-static void split_off(struct Btree * B, struct Cursor * C, int j, int c, byte * p, byte * q)
+void
+Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
 {
     /* p is C[j].p, q is C[j].split_p */
 
-    C[j].split_n = C[j].n;
-    C[j].n = next_free_block(B);
+    C_[j].split_n = C_[j].n;
+    C_[j].n = next_free_block();
 
-    memmove(q, p, B->block_size);  /* replicate the whole block in q */
+    memmove(q, p, block_size);  /* replicate the whole block in q */
     SET_DIR_END(q, c);
-    compress(B, q);      /* to reset TOTAL_FREE, MAX_FREE */
+    compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
 
     {   int residue = DIR_END(p) - c;
         int new_dir_end = DIR_START + residue;
         memmove(p + DIR_START, p + c, residue);
         SET_DIR_END(p, new_dir_end);
     }
-    compress(B, p);      /* to reset TOTAL_FREE, MAX_FREE */
+    compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
 }
 
 /* mid_point(B, p) finds the directory entry in c that determines the
    approximate mid point of the data in the block at p.
  */
 
-static int mid_point(struct Btree * B, byte * p)
+int
+Btree::mid_point(byte * p)
 {   int n = 0;
     int dir_end = DIR_END(p);
-    int size = B->block_size - TOTAL_FREE(p) - dir_end;
+    int size = block_size - TOTAL_FREE(p) - dir_end;
     int c; for (c = DIR_START; c < dir_end; c += D2)
     {   int o = GETD(p, c);
         int l = GETI(p, o);
@@ -783,7 +802,8 @@ static int mid_point(struct Btree * B, byte * p)
    so it's just a matter of byte shuffling.
 */
 
-static void add_item_to_block(struct Btree * B, byte * p, byte * kt, int c)
+void
+Btree::add_item_to_block(byte * p, byte * kt, int c)
 {
     int dir_end = DIR_END(p);
     int kt_len = GETI(kt, 0);
@@ -794,7 +814,8 @@ static void add_item_to_block(struct Btree * B, byte * p, byte * kt, int c)
     Assert(new_total >= 0);
 
     if (new_max < 0)
-    {   compress(B, p);
+    {
+	compress(p);
         new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
     }
@@ -817,7 +838,8 @@ static void add_item_to_block(struct Btree * B, byte * p, byte * kt, int c)
    appropriate half.
 */
 
-static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j)
+void
+Btree::add_item(struct Cursor * C, byte * kt, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -829,7 +851,7 @@ static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j)
     if (new_total < 0)
     {   int m;
         byte * q = C[j].split_p;
-        if (B->seq_count < 0 /*|| j > 0*/ ) m = mid_point(B, p); else
+        if (seq_count < 0 /*|| j > 0*/ ) m = mid_point(p); else
         {   if (c < DIR_END(p))
             {   m = c - D2;
                 /* splits at dirend-2 */
@@ -839,27 +861,27 @@ static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j)
                 /* splits at dirend. (This has all been cautiously tested) */
             }
         }
-        split_off(B, C, j, m, p, q);
+        split_off(C, j, m, p, q);
         if (c >= m)
         {   c -= (m - DIR_START);
-            add_item_to_block(B, p, kt, c);
+            add_item_to_block(p, kt, c);
             changed_n = C[j].n;
         }
         else
-        {   add_item_to_block(B, q, kt, c);
+        {   add_item_to_block(q, kt, c);
             changed_n = C[j].split_n;
         }
-        write_block(B, C[j].split_n, q);
+        write_block(C[j].split_n, q);
 
-        enter_key(B, C, j + 1,                /* enters a separating key at level j + 1 */
+        enter_key(C, j + 1,                /* enters a separating key at level j + 1 */
                   key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
                   key_of(p, DIR_START));      /* - and the first key of block p */
     }
     else
-    {   add_item_to_block(B, p, kt, c);
+    {   add_item_to_block(p, kt, c);
         changed_n = C[j].n;
     }
-    if (j == 0) { B->changed_n = changed_n; B->changed_c = c; }
+    if (j == 0) { changed_n = changed_n; changed_c = c; }
 }
 
 /* delete_item(B, C, j, repeatedly) is (almost) the converse of add_item. If
@@ -869,8 +891,8 @@ static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j)
    the B-tree.
 */
 
-static void delete_item(struct Btree * B, struct Cursor * C, int j, int repeatedly)
-
+void
+Btree::delete_item(struct Cursor * C, int j, int repeatedly)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -887,14 +909,14 @@ static void delete_item(struct Btree * B, struct Cursor * C, int j, int repeated
         SET_TOTAL_FREE(p, total_free);
     }
     if (!repeatedly) return;
-    if (j < B->level)
+    if (j < level)
     {   if (dir_end == DIR_START)
         {
-            free_block(B, C[j].n);
+            free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
             C[j + 1].rewrite = true;  /* *is* necessary */
-            delete_item(B, C, j + 1, true);
+            delete_item(C, j + 1, true);
         }
     }
     else /* j == B->level */
@@ -902,15 +924,15 @@ static void delete_item(struct Btree * B, struct Cursor * C, int j, int repeated
         {   /* single item in the root block, so lose a level */
             int new_root = block_given_by(p, DIR_START);
             free(p); C[j].p = 0;
-            free_block(B, C[j].n);
+            free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
             free(C[j].split_p); C[j].split_p = 0;
             C[j].split_n = -1;
-            B->level--;
+            level--;
 
-            block_to_cursor(B, C, B->level, new_root);
-	    if (B->overwritten) return;
+            block_to_cursor(C, level, new_root);
+	    if (overwritten) return;
 
             j--; p = C[j].p; dir_end = DIR_END(p); /* prepare for the loop */
         }
@@ -945,12 +967,12 @@ static addcount = 0;
 
 */
 
-static int add_kt(int found, struct Btree * B, struct Cursor * C)
+int
+Btree::add_kt(int found, struct Cursor * C)
 {
     int components = 0;
-    byte * kt = B->kt;
 
-    if (B->overwritten) return 0;
+    if (overwritten) return 0;
 
     /*
     {
@@ -958,10 +980,10 @@ static int add_kt(int found, struct Btree * B, struct Cursor * C)
         print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); printf("\n");
     }
     */
-    Btree_alter(B, C);
+    alter(C);
 
     if (found)  /* replacement */
-    {   B->seq_count = SEQ_START_POINT;
+    {   seq_count = SEQ_START_POINT;
         {   byte * p = C[0].p;
             int c = C[0].c;
             int o = GETD(p, c);
@@ -988,20 +1010,20 @@ static int add_kt(int found, struct Btree * B, struct Cursor * C)
                     }
                 }
                 else   /* do it the long way */
-                {   delete_item(B, C, 0, false);
-                    add_item(B, C, B->kt, 0);
+                {   delete_item(C, 0, false);
+                    add_item(C, kt, 0);
                 }
             }
         }
     }
     else  /* addition */
     {
-        if (B->changed_n == C[0].n && B->changed_c == C[0].c)
-            { if (B->seq_count < 0) B->seq_count++; }
+        if (changed_n == C[0].n && changed_c == C[0].c)
+            { if (seq_count < 0) seq_count++; }
         else
-            B->seq_count = SEQ_START_POINT;
+            seq_count = SEQ_START_POINT;
         C[0].c += D2;
-        add_item(B, C, B->kt, 0);
+        add_item(C, kt, 0);
     }
     return components;
 }
@@ -1011,13 +1033,14 @@ static int add_kt(int found, struct Btree * B, struct Cursor * C)
    item is deleted with delete_item.
 */
 
-static int delete_kt(struct Btree * B, struct Cursor * C)
+int
+Btree::delete_kt()
 {
-    int found = find(B, C);
-    if (B->overwritten) return 0;
+    int found = find(C);
+    if (overwritten) return 0;
 
     int components = 0;
-    B->seq_count = SEQ_START_POINT;
+    seq_count = SEQ_START_POINT;
 
     /*
     {
@@ -1028,8 +1051,8 @@ static int delete_kt(struct Btree * B, struct Cursor * C)
     if (found)
     {
         components = components_of(C[0].p, C[0].c);
-        Btree_alter(B, C);
-        delete_item(B, C, 0, true);
+        alter(C);
+        delete_item(C, 0, true);
     }
     return components;
 }
@@ -1083,25 +1106,30 @@ void form_key(struct Btree * B, byte * p, byte * key, int key_len)
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
                                        byte * tag, int tag_len)
 {
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
+    return B->add(key, key_len, tag, tag_len);
+}
 
-    struct Cursor * C = B->C;
-    byte * kt = B->kt;
+int
+Btree::add(byte *key, int key_len,
+	   byte *tag, int tag_len)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
 
-    form_key(B, kt, key, key_len);
+    form_key(this, kt, key, key_len);
 
     {
         int ck = GETK(kt, I2) + I2 - C2;  /* offset to the counter in the key */
         int ct = ck + C2;                 /* offset to the tag counter */
         int cd = ct + C2;                 /* offset to the tag data */
-        int L = B->max_item_size - cd;    /* largest amount of tag data for any tagi */
+        int L = max_item_size - cd;    /* largest amount of tag data for any tagi */
 
         int first_L = L;                  /* - amount for tag1 */
-        int found = find(B, C);
-        if (B->full_compaction && !found)
-        {   byte * p = C[0].p;
-            int n = TOTAL_FREE(p) % (B->max_item_size + D2) - D2 - cd;
+        int found = find(C);
+        if (full_compaction && !found)
+        {
+	    byte * p = C[0].p;
+            int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
             if (n > 0) first_L = n;
         }
         {
@@ -1116,7 +1144,7 @@ extern int Btree_add(struct Btree * B, byte * key, int key_len,
 	    /* FIXME: sort out this error higher up and turn this into
 	     * an assert.
 	     */
-            if (m >= BYTE_PAIR_RANGE) { B->error = BTREE_ERROR_TAGSIZE; return 0; }
+            if (m >= BYTE_PAIR_RANGE) { error = BTREE_ERROR_TAGSIZE; return 0; }
             for (i = 1; i <= m; i++)
             {
                 int l = i == m ? residue :
@@ -1125,19 +1153,20 @@ extern int Btree_add(struct Btree * B, byte * key, int key_len,
                 SETC(kt, ck, i);
                 SETC(kt, ct, m);
                 SETI(kt, 0, cd + l);
-                if (i > 1) found = find(B, C);
-                n = add_kt(found, B, C); if (n > 0) replacement = true;
+                if (i > 1) found = find(C);
+                n = add_kt(found, C); if (n > 0) replacement = true;
             }
             /* o == tag_len here, and n may be zero */
             for (i = m + 1; i <= n; i++)
-            {   SETC(kt, ck, i);
-                delete_kt(B, C);
+            {
+		SETC(kt, ck, i);
+                delete_kt();
 
-                if (B->overwritten) return 0;
+                if (overwritten) return 0;
 
             }
             if (replacement) return 0;
-            B->item_count++; return 1;
+            item_count++; return 1;
         }
     }
 }
@@ -1150,40 +1179,48 @@ extern int Btree_add(struct Btree * B, byte * key, int key_len,
 
 extern int Btree_delete(struct Btree * B, byte * key, int key_len)
 {
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
+    return B->delete_(key, key_len);
+}
 
-    struct Cursor * C = B->C;
-    byte * kt = B->kt;
+int
+Btree::delete_(byte * key, int key_len)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
 
     if (key_len == 0) return 0;
-    form_key(B, kt, key, key_len);
+    form_key(this, kt, key, key_len);
 
-    {   int n = delete_kt(B, C);  /* there are n items to delete */
-        int i; for (i = 2; i <= n; i++)
+    {
+	int n = delete_kt();  /* there are n items to delete */
+        for (int i = 2; i <= n; i++)
         {
             int c = GETK(kt, I2) + I2 - C2;
             SETC(kt, c, i);
 
-            delete_kt(B, C);
+            delete_kt();
 
-            if (B->overwritten) return 0;
+            if (overwritten) return 0;
 
         }
-        if (n > 0) { B->item_count--; return 1; }
+        if (n > 0) { item_count--; return 1; }
         return 0;
     }
+}
 
+bool
+Btree::find_key(byte * key, int key_len)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
+
+    form_key(this, kt, key, key_len);
+    return find(C);
 }
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
 {
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
-
-    struct Cursor * C = B->C;
-    form_key(B, B->kt, key, key_len);
-    return find(B, C);
+    return B->find_key(key, key_len);
 }
 
 extern struct Btree_item * Btree_item_create(void)
@@ -1197,15 +1234,19 @@ extern struct Btree_item * Btree_item_create(void)
 
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * item)
 {
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
+    return B->find_tag(key, key_len, item);
+}
 
-    struct Cursor * C = B->C;
-    byte * kt = B->kt;
+int
+Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
 
-    form_key(B, kt, key, key_len);
-    if (!find(B, C)) return 0;
-    {   int n = components_of(C[0].p, C[0].c);
+    form_key(this, kt, key, key_len);
+    if (!find(C)) return 0;
+    {
+	int n = components_of(C[0].p, C[0].c);
                                         /* n components to join */
         int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
         int cd = ck + 2 * C2;           /* offset to the tag data */
@@ -1216,12 +1257,13 @@ extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btre
 
         p = item_of(C[0].p, C[0].c);
         l = GETI(p, 0) - cd;
-        {   int4 space_for_tag = (int4) B->max_item_size * n;
+        {
+	    int4 space_for_tag = (int4) max_item_size * n;
             if (item->tag_size < space_for_tag)
             {   free(item->tag);
                 item->tag = (byte *) calloc(space_for_tag + 5, 1);
                 if (item->tag == 0) {
-		    B->error = BTREE_ERROR_SPACE;
+		    error = BTREE_ERROR_SPACE;
 		    throw std::bad_alloc();
 		}
                 item->tag_size = space_for_tag + 5;
@@ -1234,9 +1276,9 @@ extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btre
             memmove(item->tag + o, p + cd, l); o += l;
             if (i == n) break;
             i++; SETC(kt, ck, i);
-            find(B, C);
+            find(C);
 
-            if (B->overwritten) return 0;
+            if (overwritten) return 0;
 
             p = item_of(C[0].p, C[0].c);
             l = GETI(p, 0) - cd;
@@ -1254,11 +1296,17 @@ extern void Btree_item_lose(struct Btree_item * item)
 
 extern void Btree_full_compaction(struct Btree * B, int parity)
 {
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
+    B->set_full_compaction(parity);
+}
 
-    if (parity) B->seq_count = 0;
-    B->full_compaction = parity;
+void
+Btree::set_full_compaction(int parity)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
+
+    if (parity) seq_count = 0;
+    full_compaction = parity;
 }
 
 /************ B-tree opening and closing ************/
@@ -1277,18 +1325,20 @@ static byte * read_bit_map(const std::string & name, char ch, int size)
     free(p); return 0;
 }
 
-static int write_bit_map(struct Btree * B)
+int
+Btree::write_bit_map()
 {
-    int h = sys_open_to_write(B->name + "bitmap" + B->other_base_letter);
+    int h = sys_open_to_write(name + "bitmap" + other_base_letter);
     return valid_handle(h) &&
-	    sys_write_bytes(h, B->bit_map_size, B->bit_map) &&
+	    sys_write_bytes(h, bit_map_size, bit_map) &&
 	    sys_flush(h) &&
 	    sys_close(h);
 }
 
-static int write_base(struct Btree * B)
+int
+Btree::write_base()
 {
-    B->base.write_to_file(B->name + "base" + B->other_base_letter);
+    base.write_to_file(name + "base" + other_base_letter);
     return true;
 }
 
@@ -1399,17 +1449,18 @@ Btree::basic_open(const char * name_,
     return true;
 }
 
-static void read_root(struct Btree * B, struct Cursor * C)
+void
+Btree::read_root()
 {
-    if (B->faked_root_block) {
+    if (faked_root_block) {
 	/* root block for an unmodified database. */
-        int o = B->block_size - C2;
+        int o = block_size - C2;
         byte * p = C[0].p;
 
 	/* clear block - shouldn't be neccessary, but is a bit nicer,
 	 * and means that the same operations should always produce
 	 * the same database. */
-	memset(p, 0, B->block_size);
+	memset(p, 0, block_size);
 	
         SETC(p, o, 1); o -= C2;        /* number of components in tag */
         SETC(p, o, 1); o -= K1;        /* component one in key */
@@ -1423,22 +1474,22 @@ static void read_root(struct Btree * B, struct Cursor * C)
         SET_TOTAL_FREE(p, o);
 	SET_LEVEL(p, 0);
 
-        if (B->bit_map0 == 0) {
+        if (bit_map0 == 0) {
 	    /* reading - revision number doesn't matter as long as it's 
 	     * not greater than the current one.*/
             SET_REVISION(p, 0);
             C[0].n = 0;
         } else {
 	    /* writing - */
-            SET_REVISION(p, B->next_revision);
-            C[0].n = next_free_block(B);
+            SET_REVISION(p, next_revision);
+            C[0].n = next_free_block();
         }
     } else {
 	/* using a root block stored on disk */
-	block_to_cursor(B, C, B->level, B->root);
-	if (B->overwritten) return;
+	block_to_cursor(C, level, root);
+	if (overwritten) return;
 
-	if (REVISION(C[B->level].p) >= B->next_revision) set_overwritten(B);
+	if (REVISION(C[level].p) >= next_revision) set_overwritten();
 	/* although this is unlikely */
     }
 }
@@ -1498,7 +1549,7 @@ Btree::do_open_to_write(const char * name_,
 		throw std::bad_alloc();
 	    }
         }
-        read_root(this, C);
+        read_root();
     }
 
     buffer = (byte *)calloc(1, block_size);
@@ -1692,7 +1743,8 @@ Btree::commit(uint4 revision)
     for (j = level; j >= 0; j--)
     {
         if (C[j].rewrite)
-        {   write_block(this, C[j].n, C[j].p);
+        {
+	    write_block(C[j].n, C[j].p);
             if (error) {
 		return errorval;
 	    }
@@ -1722,7 +1774,7 @@ Btree::commit(uint4 revision)
     faked_root_block &= ! Btree_modified; /* still faked? */
     if (faked_root_block) bit_map[0] = 0; /* if so, dummy bit map */
 
-    if (! write_bit_map(this)) {
+    if (! write_bit_map()) {
 	return errorval;
     }
 
@@ -1735,7 +1787,7 @@ Btree::commit(uint4 revision)
     base.set_last_block(last_block);
     base.set_have_fakeroot(faked_root_block);
 
-    if (! write_base(this)) {
+    if (! write_base()) {
 	return errorval;
     }
 
@@ -1745,12 +1797,6 @@ Btree::commit(uint4 revision)
 }
 
 /************ B-tree reading ************/
-
-static int prev_default(struct Btree * B, struct Cursor * C, int j);
-static int next_default(struct Btree * B, struct Cursor * C, int j);
-
-static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy);
-static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy);
 
 bool
 Btree::do_open_to_read(const char * name_,
@@ -1785,7 +1831,7 @@ Btree::do_open_to_read(const char * name_,
 		throw std::bad_alloc();
 	    }
         }
-        read_root(this, C);
+        read_root();
     }
     return true;
 }
@@ -1837,17 +1883,19 @@ extern void Bcursor_lose(struct Bcursor * BC)
     delete BC;
 }
 
-static void force_block_to_cursor(struct Btree * B, struct Cursor * C, int j)
+void
+Btree::force_block_to_cursor(struct Cursor * C_, int j)
 {
-    int n = C[j].n;
-    if (n != B->C[j].n) {
-        C[j].n = -1;
-        block_to_cursor(B, C, j, n);
-	if (B->overwritten) return;
+    int n = C_[j].n;
+    if (n != C[j].n) {
+        C_[j].n = -1;
+        block_to_cursor(C_, j, n);
+	if (overwritten) return;
     }
 }
 
-static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
+int
+Btree::prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
 {   byte * p = C[0].p;
     int c = C[0].c;
     if (c == DIR_START)
@@ -1856,7 +1904,7 @@ static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
         while(true)
         {   n--;
             if (n < 0) return false;
-            read_block(B, n, p);
+            B->read_block(n, p);
             if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
             if (LEVEL(p) == 0) break;
@@ -1869,7 +1917,8 @@ static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
     return true;
 }
 
-static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
+int
+Btree::next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
 {   byte * p = C[0].p;
     int c = C[0].c;
     c += D2;
@@ -1879,7 +1928,7 @@ static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
         while(true)
         {   n++;
             if (n > B->last_block) return false;
-            read_block(B, n, p);
+            B->read_block(n, p);
             if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
             if (LEVEL(p) == 0) break;
@@ -1891,14 +1940,15 @@ static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
     return true;
 }
 
-static int prev_default(struct Btree * B, struct Cursor * C, int j)
+int
+Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
 {   byte * p = C[j].p;
     int c = C[j].c;
     if (c == DIR_START)
     {   if (j == B->level) return false;
 
         if (j + 1 >= B->shared_level)
-        {   force_block_to_cursor(B, C, j + 1);
+        {   B->force_block_to_cursor(C, j + 1);
             if (B->overwritten) return false;
         }
         if (! prev_default(B, C, j + 1)) return false;
@@ -1908,13 +1958,14 @@ static int prev_default(struct Btree * B, struct Cursor * C, int j)
     c -= D2;
     C[j].c = c;
     if (j > 0) {
-	block_to_cursor(B, C, j - 1, block_given_by(p, c));
+	B->block_to_cursor(C, j - 1, block_given_by(p, c));
         if (B->overwritten) return false;
     }
     return true;
 }
 
-static int next_default(struct Btree * B, struct Cursor * C, int j)
+int
+Btree::next_default(struct Btree * B, struct Cursor * C, int j)
 {   byte * p = C[j].p;
     int c = C[j].c;
     c += D2;
@@ -1922,7 +1973,8 @@ static int next_default(struct Btree * B, struct Cursor * C, int j)
     {   if (j == B->level) return false;
 
         if (j + 1 >= B->shared_level)
-        {   force_block_to_cursor(B, C, j + 1);
+        {
+	    B->force_block_to_cursor(C, j + 1);
             if (B->overwritten) return false;
         }
         if (! next_default(B, C, j + 1)) return false;
@@ -1931,7 +1983,7 @@ static int next_default(struct Btree * B, struct Cursor * C, int j)
     }
     C[j].c = c;
     if (j > 0) {
-	block_to_cursor(B, C, j - 1, block_given_by(p, c));
+	B->block_to_cursor(C, j - 1, block_given_by(p, c));
         if (B->overwritten) return false;
     }
     return true;
@@ -1971,10 +2023,11 @@ extern int Btree_create(const char * name_, int block_size)
 
 /*********** B-tree checking ************/
 
-static int block_free_now(struct Btree * B, int4 n)
+int
+Btree::block_free_now(int4 n)
 {   int4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
-    return (B->bit_map[i] & bit) == 0;
+    return (bit_map[i] & bit) == 0;
 }
 
 static void print_bytes(int n, byte * p)
@@ -2072,34 +2125,36 @@ static void failure(int n)
     exit(1);
 }
 
-static void block_check(struct Btree * B, struct Cursor * C, int j, int opts)
-{   byte * p = C[j].p;
-    int4 n = C[j].n;
+void
+Btree::block_check(struct Cursor * C_, int j, int opts)
+{
+    byte * p = C_[j].p;
+    int4 n = C_[j].n;
     int c;
     int significant_c = j == 0 ? DIR_START : DIR_START + D2;
         /* the first key in an index block is dummy, remember */
 
     int max_free = MAX_FREE(p);
     int dir_end = DIR_END(p);
-    int total_free = B->block_size - dir_end;
+    int total_free = block_size - dir_end;
 
-    if (block_free_at_start(B, n)) failure(0);
-    if (block_free_now(B, n)) failure(1);
-    free_block(B, n);
+    if (block_free_at_start(n)) failure(0);
+    if (block_free_now(n)) failure(1);
+    free_block(n);
 
     if (j != LEVEL(p)) failure(10);
-    if (dir_end <= DIR_START || dir_end > B->block_size) failure(20);
+    if (dir_end <= DIR_START || dir_end > block_size) failure(20);
 
-    if (opts & 1) report_block(B, 3*(B->level - j), n, p);
+    if (opts & 1) report_block(this, 3*(level - j), n, p);
 
-    if (opts & 2) report_block_full(B, 3*(B->level - j), n, p);
+    if (opts & 2) report_block_full(this, 3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2)
     {   int o = GETD(p, c);
-        if (o > B->block_size) failure(21);
+        if (o > block_size) failure(21);
         if (o - dir_end < max_free) failure(30);
         {   int kt_len = GETI(p, o);
-            if (o + kt_len > B->block_size) failure(40);
+            if (o + kt_len > block_size) failure(40);
             total_free -= kt_len;
         }
         if (c > significant_c && compare_keys(key_of(p, c - D2), key_of(p,c)) >= 0)
@@ -2109,13 +2164,13 @@ static void block_check(struct Btree * B, struct Cursor * C, int j, int opts)
 
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
-	C[j].c = c;
-        block_to_cursor(B, C, j - 1, block_given_by(p, c));
-        if (B->overwritten) return;
+	C_[j].c = c;
+        block_to_cursor(C_, j - 1, block_given_by(p, c));
+        if (overwritten) return;
 
-        block_check(B, C, j - 1, opts);
+        block_check(C_, j - 1, opts);
 
-        {   byte * q = C[j - 1].p;
+        {   byte * q = C_[j - 1].p;
             /* if j == 1, and c > DIR_START, the first key of level j - 1 must be >= the
                key of p, c: */
 
@@ -2137,7 +2192,8 @@ static void block_check(struct Btree * B, struct Cursor * C, int j, int opts)
     }
 }
 
-extern void Btree_check(const char * name, const char * opt_string)
+void
+Btree::check(const char * name, const char * opt_string)
 {
     struct Btree * B = Btree_open_to_write(name);
     struct Cursor * C = B->C;
@@ -2177,8 +2233,10 @@ extern void Btree_check(const char * name, const char * opt_string)
         limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
         if (opts & 4)
-        {   for (i = 0; i <= limit; i++)
-            {   printf("%c", block_free_at_start(B, i) ? '.' : '*');
+        {
+	    for (i = 0; i <= limit; i++)
+            {
+		printf("%c", B->block_free_at_start(i) ? '.' : '*');
                 if (i > 0) {
                     if ((i + 1) % 100 == 0) {
                         printf("\n");
@@ -2193,7 +2251,8 @@ extern void Btree_check(const char * name, const char * opt_string)
 
     if (B->faked_root_block) printf("void "); else
 
-    {   block_check(B, C, B->level, opts);
+    {
+	B->block_check(C, B->level, opts);
 
         /* the bit map should now be entirely clear: */
 
@@ -2205,3 +2264,8 @@ extern void Btree_check(const char * name, const char * opt_string)
     printf("B-tree checked okay\n");
 }
 
+void
+Btree_check(const char * name, const char * opt_string)
+{
+    Btree::check(name, opt_string);
+}

@@ -104,7 +104,7 @@ Bcursor::find_key(byte * key, int key_len)
     Assert(!B->overwritten);
 
     form_key(B, B->kt, key, key_len);
-    int found = find(B, C);
+    int found = B->find(C);
 
     if (B->overwritten) return false;
 

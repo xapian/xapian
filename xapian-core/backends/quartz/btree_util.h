@@ -79,8 +79,11 @@
 /* or generating less code than SETINT4 etc.: */
 
 // FIXME: move implementation to a CC file?
-inline int get_int4(byte * p, int c) { return GETINT4(p, c); }
-inline static unsigned int get_uint4(byte * p, int c) { return (unsigned int)GETINT4(p, c); }
+inline int get_int4(const byte * p, int c) { return GETINT4(p, c); }
+inline static unsigned int get_uint4(const byte * p, int c)
+{
+    return (unsigned int)GETINT4(p, c);
+}
 inline static void set_int4(byte * p, int c, int x) { SETINT4(p, c, x); }
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
@@ -209,14 +212,13 @@ inline byte * key_of(byte * p, int c)
 }
 
 void form_key(struct Btree * B, byte * p, byte * key, int key_len);
-int find(struct Btree * B, struct Cursor * C);
 
 bool valid_handle(int h);
 int sys_open_to_read_no_except(const std::string & name);
 int sys_open_to_write(const std::string & name);
 int sys_close(int h);
 int sys_read_bytes(int h, int n, byte *p);
-int sys_write_bytes(int h, int n, byte *p);
+int sys_write_bytes(int h, int n, const byte *p);
 int sys_flush(int h);
 
 #endif /* OM_HGUARD_BTREE_UTIL_H */

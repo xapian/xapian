@@ -32,6 +32,7 @@
     /* allow for this many levels in the B-tree. Overflow practically impossible */
 
 class Btree {
+    friend class Bcursor; /* Should probably fix this. */
     public:
 	/** Constructor, to set important elements to 0.
 	 */
@@ -69,8 +70,18 @@ class Btree {
 	 */
 	Btree_errors commit(uint4 revision);
 
+	bool find_key(byte *key, int key_len);
+	int find_tag(byte * key, int key_len, struct Btree_item * t);
+
+	int add(byte * key, int key_len, byte * tag, int tag_len);
+	int delete_(byte * key, int key_len);
+
 	/** Create an initial btree structure on disk */
 	static int create(const char *name_, int blocksize);
+
+	void set_full_compaction(int parity);
+
+	static void check(const char *name, const char *opt_string);
 
 	/** error number setting */
 	Btree_errors error;
@@ -106,7 +117,7 @@ class Btree {
 	int4 last_block;
 
 	// FIXME: make these private once operations are member functions.
-//    private:
+    private:
 
 	/** Perform the opening operation to read.
 	 *
@@ -126,6 +137,33 @@ class Btree {
 	bool basic_open(const char *name_,
 			bool revision_supplied,
 			uint4 revision);
+
+	bool find(Cursor *C_);
+	int delete_kt();
+	bool block_free_at_start(int4 n);
+	void free_block(int4 n);
+	void extend_bit_map();
+	int next_free_block();
+	void read_block(int4 n, byte *p);
+	void write_block(int4 n, const byte *p);
+	void set_overwritten();
+	void block_to_cursor(struct Cursor *C_, int j, int4 n);
+	void alter(struct Cursor *C);
+	void compress(byte *p);
+	void enter_key(Cursor *C_, int j, byte *kq, byte *kp);
+	void split_off(Cursor *C_, int j, int c, byte *p, byte *q);
+	int mid_point(byte *p);
+	void add_item_to_block(byte *p, byte *kt, int c);
+	void add_item(Cursor *C, byte *kt, int j);
+	void delete_item(Cursor *C, int j, int repeatedly);
+	int add_kt(int found, Cursor *C);
+	int write_bit_map();
+	int write_base();
+	void read_root();
+	void force_block_to_cursor(Cursor *C_, int j);
+	int block_free_now(int4 n);
+	void block_check(Cursor *C, int j, int opts);
+
 	/** true if the root block is faked (not written to disk).
 	 *  false otherwise.  This is true when the btree hasn't been modified yet.
 	 */
@@ -167,15 +205,21 @@ class Btree {
 	int (* prev)(struct Btree *, struct Cursor *, int);
 	int (* next)(struct Btree *, struct Cursor *, int);
 
+	static int prev_default(Btree *, Cursor *C, int j);
+	static int next_default(Btree *, Cursor *C, int j);
+
+	static int prev_for_revision_1(Btree *, Cursor *C, int dummy);
+	static int next_for_revision_1(Btree *, Cursor *C, int dummy);
+
 	/* B-tree navigation functions */
 
 	struct Cursor C[BTREE_CURSOR_LEVELS];
 };
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
-extern struct Btree_item * Btree_item_create();
+extern struct Btree_item * Btree_item_create(); //
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * t);
-extern void Btree_item_lose(struct Btree_item * kt);
+extern void Btree_item_lose(struct Btree_item * kt); //
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
                                        byte * tag, int tag_len);
 extern int Btree_delete(struct Btree * B, byte * key, int key_len);
@@ -184,7 +228,7 @@ extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned l
 extern void Btree_quit(struct Btree * B);
 extern int Btree_close(struct Btree * B, unsigned long revision);
 extern int Btree_create(const char * name, int block_size);
-extern void Btree_check(const char * name, const char * opt_string);
+extern void Btree_check(const char * name, const char * opt_string); //
 extern struct Btree * Btree_open_to_read(const char * name);
 extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
 extern struct Bcursor * Bcursor_create(struct Btree * B);
