@@ -87,7 +87,7 @@ XorPostList::next(om_weight w_min)
 	}
 
 	l = r = NULL;
-	next_handling_prune(ret, w_min);
+	next_handling_prune(ret, w_min, matcher);
 	return ret;
     }
 

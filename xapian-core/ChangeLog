@@ -1,3 +1,15 @@
+Thu Dec 14 12:49:58 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix problems with recalculation of maxweight in postlists, causing
+	  AssertParanoid at multimatch.cc:393.  When a prune was happening,
+	  recalc_maxweight flag was not always being set, because some
+	  {next,skip_to}_handling_prune() methods weren't being passed the
+	  matcher, and a default argument of 0 was being used.  I've now
+	  removed the default argument and pass the matcher always.
+
+	  Sometimes the recalc could perhaps be avoided, but this is
+	  certainly safer for now.
+
 Thu Dec 14 12:30:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Sleepcat is now disabled by default.

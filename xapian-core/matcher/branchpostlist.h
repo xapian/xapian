@@ -97,7 +97,7 @@ BranchPostList::get_position_list()
 // weights etc if necessary
 inline bool
 next_handling_prune(PostList * & pl, om_weight w_min,
-		    MultiMatch *matcher = NULL)
+		    MultiMatch *matcher)
 {
     PostList *p = pl->next(w_min);
     if (!p) return false;
@@ -110,7 +110,7 @@ next_handling_prune(PostList * & pl, om_weight w_min,
 
 inline bool
 skip_to_handling_prune(PostList * & pl, om_docid did, om_weight w_min,
-		       MultiMatch *matcher = NULL)
+		       MultiMatch *matcher)
 {
     PostList *p = pl->skip_to(did, w_min);
     if (!p) return false;

@@ -289,7 +289,7 @@ MultiMatch::get_mset_2(PostList *pl,
     // the mset.
     if (min_item.wt <= 0) {
 	while (items.size() < max_msize) {
-	    next_handling_prune(pl, min_item.wt);
+	    next_handling_prune(pl, min_item.wt, this);
 
 	    if (pl->at_end()) break;
 	    
@@ -383,7 +383,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		}
 	    }
 
-	    if (next_handling_prune(pl, min_item.wt)) {
+	    if (next_handling_prune(pl, min_item.wt, this)) {
 		DEBUGLINE(MATCH, "*** REPLACING ROOT");
 		
 		// no need for a full recalc (unless we've got to do one because

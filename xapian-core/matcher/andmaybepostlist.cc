@@ -56,7 +56,7 @@ AndMaybePostList::next(om_weight w_min)
 	DEBUGLINE(MATCH, "AND MAYBE -> AND");
 	ret = new AndPostList(l, r, matcher, true);
 	l = r = NULL;
-	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min);
+	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
 	return ret;
     }
     return process_next_or_skip_to(w_min, l->next(w_min - rmax));
@@ -72,7 +72,7 @@ AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 	ret = new AndPostList(l, r, matcher, true);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
-	skip_to_handling_prune(ret, did, w_min);
+	skip_to_handling_prune(ret, did, w_min, matcher);
 	return ret;
     }
 

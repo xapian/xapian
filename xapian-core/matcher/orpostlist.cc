@@ -46,18 +46,19 @@ OrPostList::next(om_weight w_min)
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND");
 		ret = new AndPostList(l, r, matcher, true);
-		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min);
+		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
+				       matcher);
 	    } else {
 		DEBUGLINE(MATCH, "OR -> AND MAYBE (1)");
 		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
-		next_handling_prune(ret, w_min);
+		next_handling_prune(ret, w_min, matcher);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "OR -> AND MAYBE (2)");
 	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
-	    next_handling_prune(ret, w_min);
+	    next_handling_prune(ret, w_min, matcher);
 	}
 
 	l = r = NULL;
@@ -120,7 +121,7 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	}
 
 	l = r = NULL;
-	skip_to_handling_prune(ret, did, w_min);
+	skip_to_handling_prune(ret, did, w_min, matcher);
 	return ret;
     }
 
