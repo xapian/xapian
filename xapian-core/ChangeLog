@@ -1,3 +1,7 @@
+Fri May 10 14:54:06 BST 2002  Olly Betts <olly@survex.com>
+
+	* getopt/: Checked in files I missed last time.
+
 Fri May 10 14:35:52 BST 2002  Olly Betts <olly@survex.com>
 
 	* Make sure GNU getopt is linked to everything which might need it so
