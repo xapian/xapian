@@ -16,7 +16,8 @@ EXTRA_DIST = mkdoc.pl.in todo2html.pl.in \
 	doxygen_api_header.html_tmpl \
 	doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl \
-	doxygen_full_footer.html_tmpl
+	doxygen_full_footer.html_tmpl \
+	distributed.txt
 
 # Things to do if have perl installed
 if HAVE_PERL

@@ -1,3 +1,7 @@
+Wed Jun 14 17:02:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added docs/distributed.txt to the distribution tarfile. (Oops!)
+
 Wed Jun 14 14:24:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmDatabase, OmWritableDatabase, and OmExpandOptions to
