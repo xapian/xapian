@@ -1,4 +1,5 @@
 #include <xapian.h>
+#include <xapian/queryparser.h>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,8 @@ INCLUDE: XS/ESet.xs
 INCLUDE: XS/ESetIterator.xs
 INCLUDE: XS/RSet.xs
 INCLUDE: XS/Query.xs
+INCLUDE: XS/QueryParser.xs
+INCLUDE: XS/Stopper.xs
 INCLUDE: XS/TermIterator.xs
 INCLUDE: XS/PostingIterator.xs
 INCLUDE: XS/PositionIterator.xs
