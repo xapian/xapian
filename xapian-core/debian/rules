@@ -55,7 +55,7 @@ maintclean: clean
 debian/control: debian/rules debian/control.in
 	cat debian/control.in | \
 		sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' | \
-		sed 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' | \
+		sed 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
 		> debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
@@ -75,13 +75,14 @@ autotools:
 configure: debian/control configure-stamp
 configure-stamp: autotools
 	dh_testdir
-	./configure $(commonconfflags)
+	mkdir build-nodebug
+	cd build-nodebug; ../configure $(commonconfflags)
 	touch configure-stamp
 
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE)
+	cd build-nodebug; $(MAKE)
 	touch build-stamp
 
 install: DH_OPTIONS=
@@ -94,7 +95,7 @@ install: build \
 	dh_installdirs
 
 	# Install the files into debian/*
-	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
+	cd build-nodebug; $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --list-missing
@@ -140,7 +141,7 @@ binary-arch: build install
 clean: debian/control
 	dh_testdir
 	dh_testroot
-	-$(MAKE) distclean
+	rm -rf build-nodebug
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp
