@@ -37,7 +37,7 @@
 MultiMatch::MultiMatch(MultiDatabase *database_)
 	: database(database_)
 #ifdef MUS_DEBUG
-	, allow_add_leafmatch(true)
+	, allow_add_singlematch(true)
 #endif /* MUS_DEBUG */
 {
     vector<IRDatabase *>::iterator db;
@@ -92,7 +92,7 @@ MultiMatch::~MultiMatch()
 void
 MultiMatch::set_query(const OmQueryInternal * query)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_query(query);
@@ -102,7 +102,7 @@ MultiMatch::set_query(const OmQueryInternal * query)
 void
 MultiMatch::set_rset(auto_ptr<RSet> rset_)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
 
     rset = rset_;
     for(vector<SingleMatch *>::iterator i = leaves.begin();
@@ -116,7 +116,7 @@ MultiMatch::set_rset(auto_ptr<RSet> rset_)
 void
 MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_weighting(wt_type_);
@@ -127,7 +127,7 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 void
 MultiMatch::set_min_weight_percent(int pcent)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_min_weight_percent(pcent);
@@ -137,7 +137,7 @@ MultiMatch::set_min_weight_percent(int pcent)
 void
 MultiMatch::set_collapse_key(om_keyno key)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_collapse_key(key);
@@ -147,7 +147,7 @@ MultiMatch::set_collapse_key(om_keyno key)
 void
 MultiMatch::set_no_collapse()
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_no_collapse();
@@ -158,7 +158,7 @@ MultiMatch::set_no_collapse()
 om_weight
 MultiMatch::get_max_weight()
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     Assert(leaves.size() > 0);
 
     leaves.front()->prepare_match();
@@ -185,7 +185,7 @@ MultiMatch::match(om_doccount first,
 		  om_weight * greatest_wt,
 		  const OmMatchDecider *mdecider)
 {
-    Assert((allow_add_leafmatch = false) == false);
+    Assert((allow_add_singlematch = false) == false);
     Assert(leaves.size() > 0);
 
     if(leaves.size() == 1) {

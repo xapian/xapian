@@ -265,8 +265,8 @@ void run_matcher(const char *filename) {
 
     StatsGatherer statgath;
 
-    LocalMatch leafmatch(db.get());
-    leafmatch.link_to_multi(&statgath);
+    LocalMatch singlematch(db.get());
+    singlematch.link_to_multi(&statgath);
 
     while (1) {
 	string message;
@@ -286,20 +286,20 @@ void run_matcher(const char *filename) {
 	    IRWeight::weight_type wt_type = 
 		    static_cast<IRWeight::weight_type>(
 		    atol(words[1].c_str()));
-	    leafmatch.set_weighting(wt_type);
+	    singlematch.set_weighting(wt_type);
 	    cout << "OK" << endl;
 	    cout.flush();
 	} else if (words[0] == "SETQUERY") {
 	    OmQueryInternal temp =
 		    query_from_string(message.substr(9,
 						     message.npos));
-	    leafmatch.set_query(&temp);
+	    singlematch.set_query(&temp);
 	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
 	    cout << "OK" << endl;
 	    cout.flush();
 	} else if (words[0] == "GETSTATS") {
 	    // FIXME: we're not using the RSet stats yet.
-	    leafmatch.prepare_match();
+	    singlematch.prepare_match();
 
 	    cout << stats_to_string(*statgath.get_stats()) << endl;
 	    cout.flush();
@@ -319,7 +319,7 @@ void run_matcher(const char *filename) {
 		cerr << "About to get_mset(" << first
 			<< ", " << maxitems << "..." << endl;
 
-		leafmatch.get_mset(first,
+		singlematch.get_mset(first,
 				   maxitems,
 				   mset,
 				   msetcmp_forward,
@@ -350,7 +350,7 @@ void run_matcher(const char *filename) {
 		//cerr << "sent OK..." << endl;
 	    }
 	} else if (words[0] == "GETMAXWEIGHT") {
-	    cout << leafmatch.get_max_weight() << endl;
+	    cout << singlematch.get_max_weight() << endl;
 	    cout.flush();
 	} else {
 	    cout << "ERROR" << endl;

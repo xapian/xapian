@@ -91,7 +91,7 @@ class StatsGatherer {
 
 /** Statistics leaf: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk.  There is one of these for each
- *  LeafMatch.
+ *  LocalMatch.
  */
 class StatsLeaf {
     private:

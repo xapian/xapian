@@ -1,4 +1,4 @@
-/* leafmatch.h: class for performing the match calculations on postlists
+/* localmatch.h: class for performing the match calculations on postlists
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_LEAFMATCH_H
-#define OM_HGUARD_LEAFMATCH_H
+#ifndef OM_HGUARD_LOCALMATCH_H
+#define OM_HGUARD_LOCALMATCH_H
 
 #include "om/omenquire.h"
 #include "omqueryinternal.h"
@@ -48,7 +48,7 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 
 /** Class for performing the best match calculations on a database.
  *  This is the Match class which performs the main calculation: other
- *  Match objects merge or transmit the results of LeafMatch objects.
+ *  Match objects merge or transmit the results of LocalMatch objects.
  */
 class LocalMatch : public SingleMatch
 {
@@ -174,4 +174,4 @@ class LocalMatch : public SingleMatch
         void recalc_maxweight();
 };
 
-#endif /* OM_HGUARD_LEAFMATCH_H */
+#endif /* OM_HGUARD_LOCALMATCH_H */

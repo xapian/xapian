@@ -32,7 +32,7 @@
 class MultiDatabase;
 class SingleMatch;
 
-/** Class for performing a match over multiple leafmatch objects.
+/** Class for performing a match over multiple SingleMatch objects.
  */
 class MultiMatch
 {
@@ -49,7 +49,7 @@ class MultiMatch
 	/// Saved RSet (so that it can delete it properly)
 	auto_ptr<RSet> rset;
 #ifdef MUS_DEBUG
-	bool allow_add_leafmatch;
+	bool allow_add_singlematch;
 #endif /* MUS_DEBUG */
 
 	/// Construct a SingleMatch object from an IRDatabase
