@@ -79,8 +79,8 @@ class SleepyTermList : public virtual TermList {
 	termcount terms;
 
 	SleepyTermList(IRDatabase *, termid *, termcount);
-	~SleepyTermList();
     public:
+	~SleepyTermList();
 	termid get_termid() const;  // Current termid
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
