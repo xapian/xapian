@@ -1,3 +1,11 @@
+Wed Sep 27 13:26:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed bug in database.cc - only implicit sessions get implicitly
+	  ended.
+
+	* Implemented quartztest which opens a new database and adds an empty
+	  document to it.
+
 Wed Sep 27 11:52:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Compatibility tweak for older libxml

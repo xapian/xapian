@@ -103,6 +103,8 @@ QuartzModifications::apply()
 	// Prepare for further modifications.
 	open_diffs();
     }
+    db_manager->log->make_entry("Modifications succeeded.");
+
 }
 
 om_docid

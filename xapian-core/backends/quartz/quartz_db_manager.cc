@@ -40,7 +40,7 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
     // Open modification log
     if (readonly) log_filename = "";
     log.reset(new QuartzLog(log_filename));
-    log->make_entry("Database opened for modifications.");
+    log->make_entry("Database at `" + db_dir + "' opened for modifications.");
 
     // set cache size parameters, etc, here.
 
@@ -91,7 +91,7 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 
 QuartzDbManager::~QuartzDbManager()
 {
-    log->make_entry("Closing database.");
+    log->make_entry("Closing database at `" + db_dir + "'.");
 }
 
 void

@@ -31,6 +31,8 @@
 
 #include "autoptr.h"
 
+#include "unistd.h"
+
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(const QuartzDbTable & table, string world)
 {
@@ -148,6 +150,8 @@ static void check_table_values_empty(const QuartzDbTable & table)
 /// Test making and playing with a QuartzDbTable
 static bool test_dbtable1()
 {
+    unlink("./test_dbtable1_data_1");
+    unlink("./test_dbtable1_data_2");
     {
 	QuartzDbTable table0("./test_dbtable1_", true);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
@@ -344,9 +348,32 @@ static bool test_dbentries1()
 static bool test_open1()
 {
     OmSettings settings;
-    settings.set("quartz_dir", "foo");
+    system("rm -fr .testdb_open1");
+    settings.set("quartz_dir", ".testdb_open1");
 
+    TEST_EXCEPTION(OmOpeningError, QuartzDatabase database_0(settings, true));
+    system("mkdir .testdb_open1");
+    QuartzDatabase database_w(settings, false);
+    QuartzDatabase database_r(settings, true);
+    return true;
+}
+
+/// Test opening of a quartz database
+static bool test_adddoc1()
+{
+    OmSettings settings;
+    system("rm -fr .testdb_adddoc1");
+    system("mkdir .testdb_adddoc1");
+    settings.set("quartz_dir", ".testdb_adddoc1");
+    settings.set("quartz_modification_log", "log");
     QuartzDatabase database(settings, false);
+
+    database.begin_session(0);
+    OmDocumentContents document;
+    om_docid did;
+    did = database.add_document(document);
+    database.end_session();
+
     return true;
 }
 
@@ -359,6 +386,7 @@ test_desc tests[] = {
     {"quartzdbtable1",		test_dbtable1},
     {"quartzdbentries1",	test_dbentries1},
     {"quartzopen1",		test_open1},
+    {"quartzadddoc1",		test_adddoc1},
     {0, 0}
 };
 

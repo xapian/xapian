@@ -74,7 +74,7 @@
 QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 	: modifications(0),
 	  use_transactions(false),
-	  readonly(true)
+	  readonly(readonly)
 {
     // Read parameters
     string db_dir  = settings.get("quartz_dir");
@@ -113,6 +113,7 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 				      "database opened readonly.");
     }
     modifications.reset(new QuartzModifications(db_manager.get()));
+    Assert(modifications.get() != 0);
 }
 
 void
@@ -146,7 +147,7 @@ QuartzDatabase::do_begin_transaction()
     }
 
     // Start a new modifications object, which must be able to
-    // work while there's a quiescent other modificaitons object.
+    // work while there's a quiescent other modifications object.
     // Flush should flush the quiescent one.
     throw OmUnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
 }
@@ -173,6 +174,7 @@ QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
     OmLockSentry sentry(quartz_mutex);
 
+    Assert(modifications.get() != 0);
     return modifications->add_document(document);
 }
 
