@@ -24,9 +24,9 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "textfile_indexer.h"
-#include "xapian/stem.h"
+#include <xapian/stem.h>
 #include "index_utils.h"
 #include <fstream>
 #include <cstdlib>

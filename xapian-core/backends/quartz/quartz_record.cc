@@ -26,7 +26,7 @@
 #include "quartz_record.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "omassert.h"
 #include "omdebug.h"
 using std::string;

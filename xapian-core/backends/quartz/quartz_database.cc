@@ -31,7 +31,7 @@
 #include "utils.h"
 #include "omdebug.h"
 #include "autoptr.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"

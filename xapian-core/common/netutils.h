@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "omdebug.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 inline std::string
 encode_tname(const std::string &tname)

@@ -42,7 +42,7 @@
 
 #include "omassert.h"
 #include "omdebug.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "utils.h"
 
 #include <algorithm>  // for std::min()

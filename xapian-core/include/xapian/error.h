@@ -124,7 +124,7 @@ class a : public b { \
 	  int errno_value_) : b(msg_, context_, type_, errno_value_) {} \
 }
 
-#include "xapian/errortypes.h"
+#include <xapian/errortypes.h>
 
 #undef DEFINE_ERROR_BASECLASS
 #undef DEFINE_ERROR_CLASS

@@ -29,7 +29,7 @@
 #include "btree_util.h"
 
 #include "utils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include <string>
 #include "omdebug.h"
 

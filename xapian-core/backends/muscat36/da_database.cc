@@ -42,7 +42,7 @@ using std::pair;
 #include "omdebug.h"
 
 #include <xapian/document.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 DAPostList::DAPostList(const string & tname_,
 		       struct DA_postings * postlist_,

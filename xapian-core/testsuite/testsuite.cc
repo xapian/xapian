@@ -44,7 +44,7 @@
 
 #include <exception>
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "testsuite.h"
 #include "omdebug.h"
 #include "utils.h"

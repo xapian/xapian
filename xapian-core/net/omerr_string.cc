@@ -34,7 +34,7 @@ using std::istringstream;
 #include <string>
 using std::string;
 #include <map>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "omerr_string.h"
 #include "omdebug.h"
 #include "netutils.h"
@@ -76,7 +76,7 @@ void string_to_omerror(const string &except,
 
 #define DEFINE_ERROR_BASECLASS(a,b)
 #define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw Xapian::a(msg, context)
-#include "xapian/errortypes.h"
+#include <xapian/errortypes.h>
 
     msg = "Unknown remote exception type `" + type + "', " + msg;
     throw Xapian::InternalError(msg, context);

@@ -27,7 +27,7 @@
 #include <iomanip>
 #include <string>
 #include <algorithm>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "netutils.h"
 #include "progserver.h"
 #include "omerr_string.h"

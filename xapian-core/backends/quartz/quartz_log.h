@@ -27,7 +27,7 @@
 
 #include <string>
 #include <stdio.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 /** Class managing a logfile for quartz.
  */

@@ -25,7 +25,7 @@
 #define OM_HGUARD_INMEMORY_POSITIONLIST_H
 
 #include <xapian/types.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 #include <string>
 #include <vector>

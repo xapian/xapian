@@ -22,8 +22,8 @@
  */
 
 #include <config.h>
-#include "xapian/error.h"
-#include "xapian/errorhandler.h"
+#include <xapian/error.h>
+#include <xapian/errorhandler.h>
 #include "omdebug.h"
 
 Xapian::Error::Error(const std::string &msg_,

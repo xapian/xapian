@@ -28,7 +28,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 /** Convert an Xapian::Error reference into a string which describes it.
  *

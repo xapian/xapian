@@ -24,7 +24,7 @@
 
 #include <config.h>
 #include "socketclient.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "omerr_string.h"
 #include "utils.h"
 #include "netutils.h"

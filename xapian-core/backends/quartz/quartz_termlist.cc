@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "quartz_termlist.h"
 #ifdef USE_LEXICON
 #include "quartz_lexicon.h"

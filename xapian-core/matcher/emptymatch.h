@@ -27,7 +27,7 @@
 #include "match.h"
 #include "emptypostlist.h"
 #include <xapian/enquire.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 class EmptySubMatch : public SubMatch {
     public:

@@ -31,7 +31,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "xapian/stem.h"
+#include <xapian/stem.h>
 #include "testsuite.h"
 
 using namespace std;

@@ -31,7 +31,7 @@
 
 
 // Include the definitions of the exceptions we're going to throw
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 // Include utility functions
 #include "utils.h"

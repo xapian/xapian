@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include "tcpclient.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 #include <errno.h>
 #include <netdb.h>

@@ -26,7 +26,7 @@
 #include "quartz_values.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 using std::string;
 using std::make_pair;
 

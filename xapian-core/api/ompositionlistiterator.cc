@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#include "xapian/positionlistiterator.h"
+#include <xapian/positionlistiterator.h>
 #include "positionlist.h"
 #include "omdebug.h"
 

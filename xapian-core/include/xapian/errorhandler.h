@@ -25,7 +25,7 @@
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
 #define XAPIAN_INCLUDED_ERRORHANDLER_H
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 /// Error handling class
 class Xapian::ErrorHandler {

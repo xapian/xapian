@@ -25,7 +25,7 @@
 #include "btree_base.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "omassert.h"
 #include <errno.h>
 using namespace std;

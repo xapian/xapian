@@ -1,3 +1,15 @@
+Mon Jun 23 01:44:45 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/inmemory/inmemory_database.cc,
+	  backends/muscat36/da_database.cc,backends/muscat36/db_database.cc,
+	  backends/net/net_database.cc,backends/net/net_termlist.cc,
+	  backends/net/net_termlist.h,backends/quartz/,bin/omprogsrv.cc,
+	  bin/quartzdump.cc,common/,include/xapian/error.h,
+	  include/xapian/errorhandler.h,matcher/emptymatch.h,net/,
+	  tests/quartztest.cc,tests/stemtest.cc,testsuite/testsuite.cc,
+	  testsuite/textfile_indexer.cc: Use '#include <...>' for headers
+	  in include/.
+
 Thu Jun 19 17:55:07 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/netserver.h,common/socketserver.h,matcher/localmatch.cc,

@@ -27,7 +27,7 @@
 
 #include "quartz_table.h"
 #include "btree.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "utils.h"
 #include <string.h> // for strerror
 #include <errno.h>

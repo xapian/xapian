@@ -24,7 +24,7 @@
 
 #include <config.h>
 #include "progclient.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "utils.h"
 #include "netutils.h"
 #include "omdebug.h"

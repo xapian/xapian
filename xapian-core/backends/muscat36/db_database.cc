@@ -43,7 +43,7 @@ using std::pair;
 #include "omdebug.h"
 
 #include <xapian/document.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 DBPostList::DBPostList(const string & tname_,
 		       struct DB_postings * postlist_,

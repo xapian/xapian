@@ -30,7 +30,7 @@
 #include "omdebug.h"
 #include "utils.h"
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 ///////////////////////////
 // Actual database class //

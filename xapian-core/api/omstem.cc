@@ -27,7 +27,7 @@
 
 #include "omdebug.h"
 #include <xapian/output.h>
-#include "xapian/stem.h"
+#include <xapian/stem.h>
 #include "utils.h"
 
 #include "api.h"

@@ -35,7 +35,7 @@
 #include <map>
 #include <list>
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 using std::make_pair;
 

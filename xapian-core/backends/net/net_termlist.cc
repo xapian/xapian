@@ -29,7 +29,7 @@
 
 #include <vector>
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
 				 Xapian::doccount database_size_,

@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "quartz_table.h"
 #include "quartz_types.h"
 #include <iostream>

@@ -27,7 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "termlist.h"
 
 using namespace std;

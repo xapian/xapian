@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#include "xapian/termiterator.h"
+#include <xapian/termiterator.h>
 #include "termlist.h"
 #include "positionlist.h"
 #include "omdebug.h"

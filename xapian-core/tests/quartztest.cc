@@ -25,7 +25,7 @@
 #include <config.h>
 #include "testsuite.h"
 #include "testutils.h"
-#include "xapian/error.h"
+#include <xapian/error.h>
 
 #include "quartz_database.h"
 #include "quartz_postlist.h"
