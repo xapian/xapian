@@ -216,9 +216,9 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
+// MULTI
 LocalMatch::LocalMatch(Database *database_)
-	: database(database_),
-	  statssource(),
+	: submatch(database_),
 	  min_weight_percent(-1),
 	  users_query(),
 	  rset(0),
@@ -228,16 +228,13 @@ LocalMatch::LocalMatch(Database *database_)
 	  mcmp(msetcmp_forward),
 	  querysize(1)
 {
-    // MULTI
-    statssource.my_collection_size_is(database->get_doccount());
-    statssource.my_average_length_is(database->get_avlength());
 }
 
 void
 LocalMatch::link_to_multi(StatsGatherer *gatherer)
 {
     Assert(!is_prepared);
-    statssource.connect_to_gatherer(gatherer);
+    submatch.link_to_multi(gatherer);
 }
 
 PostList *
@@ -246,7 +243,7 @@ LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
     DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ", " << wqf << ")");
 
     // MULTI
-    LeafPostList * pl = database->open_post_list(tname);
+    LeafPostList * pl = submatch.db->open_post_list(tname);
 
     // FIXME: pass the weight type and the info needed to create it to the
     // postlist instead
@@ -255,7 +252,7 @@ LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
 
     pl->set_termweight(wt);
 
-    om_doccount term_freq = statssource.get_total_termfreq(tname);
+    om_doccount term_freq = submatch.statssource.get_total_termfreq(tname);
 
     term_weights.insert(std::make_pair(tname, term_weight));
     term_frequencies.insert(std::make_pair(tname, term_freq));
@@ -270,7 +267,7 @@ IRWeight *
 LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting, mopts);
-    wt->set_stats(&statssource, querysize, wqf_, tname_);
+    wt->set_stats(&submatch.statssource, querysize, wqf_, tname_);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname_.empty()) {
 	AutoPtr<IRWeight> extra_weight(mk_weight());
@@ -320,7 +317,7 @@ LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
     // database
-    AutoPtr<RSet> new_rset(new RSet(database, omrset));
+    AutoPtr<RSet> new_rset(new RSet(submatch.db, omrset));
     rset = new_rset;
 }
 
@@ -485,13 +482,13 @@ LocalMatch::gather_query_statistics()
     om_termname_list::const_iterator tname;
     for (tname = terms.begin(); tname != terms.end(); tname++) {
 	// MULTI
-	statssource.my_termfreq_is(*tname, database->get_termfreq(*tname));
+	submatch.register_term(*tname);
 	if(rset.get() != 0) rset->will_want_reltermfreq(*tname);
     }
 
     if (rset.get() != 0) {
 	rset->calculate_stats();
-	rset->give_stats_to_statssource(statssource);
+	rset->give_stats_to_statssource(submatch.statssource);
     }
 }
 
@@ -614,7 +611,7 @@ LocalMatch::get_mset(om_doccount first,
     om_weight w_max = max_weight; // w_max may decrease as tree is pruned
     recalculate_w_max = false;
 
-    // Check that any results have been asked for (might just be wanting
+    // Check if any results have been asked for (might just be wanting
     // maxweight)
     if (maxitems == 0) {
 	delete query;
@@ -674,11 +671,11 @@ LocalMatch::get_mset(om_doccount first,
         mbound++;
 
 	om_docid did = query->get_docid();
-	DEBUGLINE(MATCH, "database->get_doclength(" << did << ") == " <<
-		  database->get_doclength(did));
+	DEBUGLINE(MATCH, "submatch.db->get_doclength(" << did << ") == " <<
+		  submatch.db->get_doclength(did));
 	DEBUGLINE(MATCH, "query->get_doclength() == " <<
 		  query->get_doclength());
-	AssertEqDouble(database->get_doclength(did), query->get_doclength());
+	AssertEqDouble(submatch.db->get_doclength(did), query->get_doclength());
         om_weight wt = query->get_weight() +
 		extra_weight->get_sumextra(query->get_doclength());
 
@@ -692,7 +689,7 @@ LocalMatch::get_mset(om_doccount first,
 	// Use the decision functor if any.
 	if (mdecider != NULL) {
 	    if (irdoc.get() == 0) {
-		RefCntPtr<LeafDocument> temp(database->open_document(did));
+		RefCntPtr<LeafDocument> temp(submatch.db->open_document(did));
 		irdoc = temp;
 	    }
 	    OmDocument mydoc(irdoc);
@@ -702,7 +699,7 @@ LocalMatch::get_mset(om_doccount first,
 	// Perform collapsing on key if requested.
 	if (do_collapse) {
 	    if (irdoc.get() == 0) {
-		RefCntPtr<LeafDocument> temp(database->open_document(did));
+		RefCntPtr<LeafDocument> temp(submatch.db->open_document(did));
 		irdoc = temp;
 	    }
 	    new_item.collapse_key = irdoc.get()->get_key(collapse_key);

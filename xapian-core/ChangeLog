@@ -1,3 +1,11 @@
+Wed Sep 20 16:48:20 BST 2000 Olly Betts
+
+	* genacinclude.sh now lives in autoconf subdirectory.  List of .m4
+	  files is now in buildall and autoconf/Makefile.am.
+
+	* Started to tease apart LocalMatch - created SubMatch class to hold
+	  Database and associated StatsSource.
+
 Wed Sep 20 16:04:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.3.1

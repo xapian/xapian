@@ -192,7 +192,10 @@ m4_files="cme_find_hstrerror.m4 \
 	  rjb_check_berkeleydb.m4"
 
 display "${PROGNAME}: generating acinclude.m4"
+cd autoconf
 ./genacinclude.sh $m4_files
+cp acinclude.m4 ..
+cd ..
 
 # Build configure script and Makefile.in's
 run aclocal $ACLOCAL_FLAGS
