@@ -12,7 +12,7 @@ xapian: xapian/configure
 	./configure && \
 	make
 
-xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/swigphp.h xapian/xapian.cpp
+xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/swigphp.h xapian/xapian.cpp xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php
 	for file in $? ; \
 	do \
 	  if [ "`dirname $$file`" != "xapian" ] ; \
@@ -22,5 +22,5 @@ xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/swigphp.h xapian/xa
 	cd xapian && phpize
 
 xapian/%_wrap.cpp xapian/php_%.h %.php: ../swig/%.i ../swig/omstem.i ../swig/om_util.i
-	[ ! -d xapian ] && mkdir xapian	
+	test -d xapian || mkdir xapian && \
 	swig $(SWIG_INCLUDES) -c++ -php4 -nosync -shadow -o $@ $<
