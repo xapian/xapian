@@ -51,8 +51,10 @@
  * LAST_BLOCK
  * HAVE_FAKEROOT
  * REVISION2	A second copy of the revision number, for consistency checks.
+ * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
+ * REVISION3	A third copy of the revision number, for consistency checks.
  */
-#define CURR_FORMAT 2U
+#define CURR_FORMAT 3U
 
 #if 0
 
@@ -229,6 +231,20 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     }
     have_fakeroot = temp_have_fakeroot;
 
+    uint4 revision2;
+    if (!unpack_uint(&start, end, &revision2)) {
+	err_msg += "Couldn't read revision2 from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+
+    if (revision != revision2) {
+	err_msg += "Revision number mismatch in " +
+		name + "base" + ch + ": " +
+		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+	return false;
+    }
+
     /* Read the bitmap */
     if (end - start <= bit_map_size) {
 	err_msg += "Not enough space for bitmap in base file " +
@@ -248,17 +264,22 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     memmove(bit_map, bit_map0, bit_map_size);
     start += bit_map_size;
 
-    uint4 revision2;
-    if (!unpack_uint(&start, end, &revision2)) {
+    uint4 revision3;
+    if (!unpack_uint(&start, end, &revision3)) {
 	err_msg += "Couldn't read revision2 from base file " +
 	name + "base" + ch + "\n";
 	return false;
     }
 
-    if (revision != revision2) {
+    if (revision != revision3) {
 	err_msg += "Revision number mismatch in " +
 		name + "base" + ch + ": " +
 		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+	return false;
+    }
+
+    if (start != end) {
+	err_msg += "Junk at end of base file " + name + "base" + ch + "\n";
 	return false;
     }
 
@@ -364,6 +385,7 @@ Btree_base::write_to_file(const std::string &filename)
     buf += pack_uint(static_cast<uint4>(item_count));
     buf += pack_uint(static_cast<uint4>(last_block));
     buf += pack_uint(have_fakeroot);
+    buf += pack_uint(revision);
     buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     buf += pack_uint(revision);  // REVISION2
 

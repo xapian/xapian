@@ -1,3 +1,10 @@
+Wed Nov 29 12:31:22 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added another revision number in the middle of the base file,
+	  before the bitmap.  Also now check that there isn't any extra
+	  data at the end after we finish reading it.  Incremented the
+	  database format.
+
 Wed Nov 29 11:55:03 GMT 2000 Olly Betts
 
 	* Added OmDocument::remove_key() and OmDocument::clear_keys()
