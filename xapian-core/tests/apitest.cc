@@ -2561,6 +2561,7 @@ test_desc db_tests[] = {
 /// The tests which use a writable backend
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
+    {"implicitendsession", test_implicitendsession},
     {0, 0}
 };
 
