@@ -39,13 +39,13 @@
  *
  *  This holds the handles used to access the Berkeley DB library.
  */
-class QuartzDBManager {
+class QuartzDbManager {
     private:
 	/// Copying not allowed
-	QuartzDBManager(const QuartzDBManager &);
+	QuartzDbManager(const QuartzDbManager &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzDBManager &);
+	void operator=(const QuartzDbManager &);
 
 	
 	DbEnv dbenv;
@@ -71,13 +71,13 @@ class QuartzDBManager {
 
 	/** Construct the manager.
 	 */
-	QuartzDBManager(const OmSettings & settings,
+	QuartzDbManager(const OmSettings & settings,
 			bool use_transactions,
 			bool readonly);
 
 	/** Delete the manager.
 	 */
-	~QuartzDBManager();
+	~QuartzDbManager();
 };
 	
 #endif /* OM_HGUARD_QUARTZ_DB_MANAGER_H */

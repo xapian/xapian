@@ -3,13 +3,16 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
            @BERKELEY_3_1_INCLUDES@
 
-noinst_HEADERS =       quartz_database.h \
+noinst_HEADERS =       quartz_types.h \
+                       quartz_database.h \
                        quartz_db_manager.h \
-		       quartz_modifications.h
+		       quartz_modifications.h \
+		       quartz_db_blocks.h
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_db_manager.cc \
-		       quartz_modifications.cc
+		       quartz_modifications.cc \
+		       quartz_db_blocks.cc
 
 noinst_LTLIBRARIES = libquartz.la
 

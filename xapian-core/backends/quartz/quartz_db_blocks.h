@@ -26,6 +26,8 @@
 #include "config.h"
 
 #include <map>
+#include <memory>
+#include <string>
 
 /** A block of data in a quartz database.
  */
@@ -39,6 +41,8 @@ struct QuartzDbBlock {
 struct QuartzDbKey {
     public:
 	string value;
+
+	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
 };
 
 class QuartzDbBlocks {
@@ -51,24 +55,44 @@ class QuartzDbBlocks {
 
 	/// The blocks stored in this object
 	map<QuartzDbKey, QuartzDbBlock *> blocks;
-
-	/// Maximum size allowed for the data in a block
-	quartz_blocksize_t max_blocksize;
     public:
 
-	/** Construct the blocks.
+	/** Initialise the cache of blocks.
 	 */
-	QuartzDbBlocks(const OmSettings & settings,
-		       bool use_transactions,
-		       bool readonly);
+	QuartzDbBlocks();
 
 	/** Delete the blocks.
 	 */
 	~QuartzDbBlocks();
 
-	/** Get a block.  The block returned is 
+	/** Get a pointer to a block.
+	 *  If the block isn't currently in the list of blocks, a null pointer
+	 *  will be returned.
+	 *
+	 *  @param key The key that the block is stored under.
+	 *
+	 *  @return A pointer to the block.  This is guaranteed not to be
+	 *          a null pointer.  The block pointed to is still owned by
+	 *          the QuartzDbBlocks object - it may be modifed if
+	 *          desired, but the user should not try to free the
+	 *          pointer.
 	 */
 	QuartzDbBlock * get_block(const QuartzDbKey &key);
+
+	/** Set the block associated with a given key.
+	 *  If a block is already associated with the key, it is freed and
+	 *  replaced.  Any pointers to the old block previously returned by
+	 *  get_block will become invalid.
+	 *
+	 *  To remove a block, the data should have size zero, or be a
+	 *  null pointer.
+	 *
+	 *  @param key   The key to store the block under.
+	 *
+	 *  @param block The block to store.
+	 */
+	void set_block(const QuartzDbKey &key,
+		       auto_ptr<QuartzDbBlock> data);
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_BLOCKS_H */

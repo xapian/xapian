@@ -27,7 +27,7 @@
 
 #include "quartz_db_manager.h"
 
-/** Class managing modifications made to a Quartz database.
+/** Class managing all the modifications made to a Quartz database.
  */
 class QuartzModifications {
     private:
@@ -39,16 +39,21 @@ class QuartzModifications {
 
 	/** Pointer to the database manager.
 	 */
-	QuartzDBManager * db_manager;
+	QuartzDbManager * db_manager;
 
-	/** Filename of logfile to write modifications to.
+	/** Filename of logfile to write messages about the modifications
+	 *  performed to.
 	 */
 	string logfile;
+
+	/** Diffs made to the PostList database.
+	 */
+	QuartzPostListDbDiffs postlist_diffs;
     public:
 
 	/** Construct the modifications object.
 	 */
-	QuartzModifications(QuartzDBManager * db_manager_,
+	QuartzModifications(QuartzDbManager * db_manager_,
 			    string logfile_);
 
 	/** Destroy the modifications.  Any unapplied modifications will
@@ -67,6 +72,26 @@ class QuartzModifications {
 	 *  fail), the database will be left unaltered.
 	 */
 	void apply_atomic();
+
+	/** Store the changes needed to add a document in the modifications.
+	 */
+	om_docid add_document(const OmDocumentContents & document);
+
+	/** Store the changes needed to delete a document in the modifications.
+	 */
+	void delete_document(om_docid did);
+
+	/** Store the changes needed to replace a document in the modifications.
+	 */
+	void replace_document(om_docid did,
+			      const OmDocumentContents & document);
+
+	/** Get a document, checking the modifications in case it has been
+	 *  modified.  FIXME: store the relevant blocks in the modifications?
+	 *  Maybe in a separate place so that they can be discarded if
+	 *  memory is tight...
+	 */
+	OmDocumentContents get_document(om_docid did);
 };
 	
 #endif /* OM_HGUARD_QUARTZ_MODIFICATIONS_H */

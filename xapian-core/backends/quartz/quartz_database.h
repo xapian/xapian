@@ -25,7 +25,7 @@
 
 #include "database.h"
 
-class QuartzDBManager;
+class QuartzDbManager;
 class QuartzModifications;
 #include <memory>
 #include "omlocks.h"
@@ -45,13 +45,13 @@ class QuartzDatabase : public IRDatabase {
 
 	/** Pointer to database manager.
 	 */
-	auto_ptr<QuartzDBManager> db_manager;
+	auto_ptr<QuartzDbManager> db_manager;
 
 	/** Pointer to database modifications.
 	 */
 	auto_ptr<QuartzModifications> modifications;
 
-	/** Logfile recording database modifications.
+	/** Name of file to make a note of database modifications in.
 	 */
 	string modification_logfile;
 

@@ -1,4 +1,4 @@
-/* quartz_modifications.cc: Management of modifications to a quartz database
+/* quartz_types.h: Types used by quartz backend
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,30 +20,11 @@
  * -----END-LICENCE-----
  */
 
+#ifndef OM_HGUARD_QUARTZ_TYPES_H
+#define OM_HGUARD_QUARTZ_TYPES_H
+
 #include "config.h"
 
-#include "quartz_modifications.h"
+typedef unsigned int quartz_blocksize_t;
 
-#include <om/omsettings.h>
-
-QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_,
-					 string logfile_)
-	: db_manager(db_manager_),
-	  logfile(logfile_)
-{
-}
-
-QuartzModifications::~QuartzModifications()
-{
-}
-
-void
-QuartzModifications::apply()
-{
-}
-
-void
-QuartzModifications::apply_atomic()
-{
-}
-
+#endif /* OM_HGUARD_QUARTZ_TYPES_H */

@@ -70,9 +70,11 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 
     modification_logfile = settings.get("quartz_modification_log", "");
 
-    auto_ptr<QuartzDBManager> temp(
-	new QuartzDBManager(settings, use_transactions, readonly));
-    db_manager = temp;
+    {
+	auto_ptr<QuartzDbManager> temp(
+	    new QuartzDbManager(settings, use_transactions, readonly));
+	db_manager = temp;
+    }
 }
 
 QuartzDatabase::~QuartzDatabase()
