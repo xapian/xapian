@@ -120,59 +120,40 @@ _HTML_
 	@globalCommits = &Cvssearch::g2l_commit($CVSDATA, $root, @ids);
 	
 
-        my @key_list = ();
-	my @val_list = ();
+
 
 	for($i=0; $i <= $#globalCommits ; $i++){
-		$pkg = $globalCommits[$i];
-		$i++;
-		$id = $globalCommits[$i];
-		%pkgMAPid = &insertArray(\%pkgMAPid, $pkg, $id);
-		push @key_list, $pkg;
-		push @val_list, $id;
-	}
-	
-	my $key;
-	my $val;
-	my $ctr = -1;
-# don't want to sort by package
-	foreach $key (@key_list) {
- # key is package
-		$ctr++;
-                $val = $val_list[$ctr]; # get id for package
-		$querystr = "$cvsquery $root $key";
-		$k=0;
-             	  @info ={};
-		    $info[$k] = "pkg=$key&id=$val";
-		      $querystr .= " -C $val";
-		      $k++;
+         
+         $key = $globalCommits[$i];#pkg
+         $i++;
+         $val = $globalCommits[$i];#id
+         # now that we have package and id, can print things out here
 
-		$origcomments = `$querystr`;
-		@comments = split /$ctrlA/, $origcomments;
-		
-		for($i=0;$i<$k;$i++){
-        	if($comments[$i]){
-        		$curcomments = Entities::encode_entities($comments[$i]);
-	        	if($query){
-	        		$curcomments = &highlightquery($curcomments);
-	        	}
-	        	if($flag <0){
-	        		print "<tr class=o";
-	        	}else{
-	        		print "<tr";
-	        	}
-			print " valign=top>";
-	        	print "<td><pre>$key</pre></td>";
+         # get comments  
+         $origcomments = `$cvsquery $root $key -C $val`;
+         @comments = split /$ctrlA/, $origcomments;
 
-	        	print "<td><pre><a href=\"./QueryComment.cgi?$info[$i]&symbol=$urlsymbol&root=$root\">Browse Code</a></pre></td>";
+         if($comments[0]){ #hum.. might not even need this if with only one comment
+                 $curcomments = Entities::encode_entities($comments[0]);
+              if($query){ 
+                        $curcomments = &highlightquery($curcomments);
+              } 
+              if($flag <0){ 
+                        print "<tr class=o";
+              }else{ 
+                        print "<tr";
+              } 
+                 print " valign=top>";
+              print "<td><pre>$key</pre></td>";
 
-	        	print "<td><pre>$curcomments</pre></td>";
+              print "<td><pre><a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">Browse Code</a></pre></td>";
 
-				print "</tr>";
-				$flag *= -1;
-			}
-		}
-	}
+              print "<td><pre>$curcomments</pre></td>";
+
+                 print "</tr>";
+                 $flag *= -1;
+	       }
+       }
 
 	print "</table>";	
 	print "</body></html>";
