@@ -1,3 +1,9 @@
+Wed Mar 29 18:01:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Split sleepycat database stuff into separate files, and made it
+	  compile on a debian system.  (Needs autoconf detection of sleepycat
+	  db.)
+
 Tue Mar 28 18:43:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Lots of documentation comments in database.h

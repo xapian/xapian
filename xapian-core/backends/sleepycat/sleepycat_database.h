@@ -68,48 +68,4 @@ class SleepyDatabase : public IRDatabase {
 	}
 };
 
-
-
-///////////////////////////////////////////
-// Inline definitions for SleepyDatabase //
-///////////////////////////////////////////
-
-inline om_doccount
-SleepyDatabase::get_doccount() const
-{
-    Assert(opened);
-    return 1;
-}
-
-inline om_doclength
-SleepyDatabase::get_avlength() const
-{
-    Assert(opened);
-    return 1;
-}
-
-inline om_doclength
-SleepyDatabase::get_doclength(om_docid did) const
-{
-    Assert(opened);
-    return 1;
-}
-
-inline om_doccount
-SleepyDatabase::get_termfreq(const om_termname &tname) const
-{   
-    PostList *pl = open_post_list(tname);
-    om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
-    delete pl;
-    return freq;
-}
-
-inline bool
-SleepyDatabase::term_exists(const om_termname &tname) const
-{
-    if(termcache->term_name_to_id(tname)) return true;
-    return false;
-}
-
 #endif /* OM_HGUARD_SLEEPY_DATABASE_H */

@@ -57,6 +57,44 @@ SleepyDatabase::~SleepyDatabase() {
     Assert((opened = false) == false);
 }
 
+om_doccount
+SleepyDatabase::get_doccount() const
+{
+    Assert(opened);
+    return 1;
+}
+
+om_doclength
+SleepyDatabase::get_avlength() const
+{
+    Assert(opened);
+    return 1;
+}
+
+om_doclength
+SleepyDatabase::get_doclength(om_docid did) const
+{
+    Assert(opened);
+    return 1;
+}
+
+om_doccount
+SleepyDatabase::get_termfreq(const om_termname &tname) const
+{   
+    PostList *pl = open_post_list(tname);
+    om_doccount freq = 0;
+    if(pl) freq = pl->get_termfreq();
+    delete pl;
+    return freq;
+}
+
+bool
+SleepyDatabase::term_exists(const om_termname &tname) const
+{
+    if(termcache->term_name_to_id(tname)) return true;
+    return false;
+}
+
 void
 SleepyDatabase::open(const DatabaseBuilderParams &params)
 {
