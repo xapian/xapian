@@ -50,7 +50,7 @@ if ($#ARGV < 0) {
                 print TIME "$path", "\n";
                 print TIME "Started  @ ", `date`;
                 $start_date = time;
-                system ("cat $output_file|xargs cvssearch \$\@ -f1 $save_dir/$name.db -f2 $save_dir/$name.offset");
+                system ("cat $output_file|xargs map \$\@ -f1 $save_dir/$name.db -f2 $save_dir/$name.offset");
                 print TIME "Finished @ ", `date`;
                 $delta_time += time - $start_date;
                 print TIME "\n";
