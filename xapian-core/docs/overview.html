@@ -415,7 +415,7 @@ sub-query is a compound query or a single term query. This is done using
 the following constructor:
 </P>
 <PRE>
-Xapian::Query(om_queryop op_,
+Xapian::Query(Xapian::Query::op op_,
         const Xapian::Query &amp; left,
         const Xapian::Query &amp; right)
 </PRE>
@@ -428,7 +428,7 @@ which give rise to weights that need to be added together, is also made up
 from a set of terms joined together with <CODE>Xapian::Query::OP_OR</CODE>.
 </P>
 <P>
-The full set of available <CODE>om_queryop</CODE> operators is:
+The full set of available <CODE>Xapian::Query::op</CODE> operators is:
 <TABLE>
 <TR><TD VALIGN="top">
 Xapian::Query::OP_AND
@@ -455,6 +455,25 @@ document weights from both subqueries.
 Xapian::Query::OP_XOR
 </TD><TD>
 Return documents returned by one subquery only.
+</TD></TR><TR><TD VALIGN="top">
+Xapian::Query::OP_NEAR
+</TD><TD>
+Return documents where the terms are with the specified distance of each other.
+</TD></TR><TR><TD VALIGN="top">
+Xapian::Query::OP_PHRASE
+</TD><TD>
+Return documents where the terms are with the specified distance of each other
+and in the given order.
+</TD></TR><TR><TD VALIGN="top">
+Xapian::Query::OP_WEIGHT_CUTOFF
+</TD><TD>
+Return only results with a weight greater than or equal to a specified cutoff
+value.
+</TD></TR><TR><TD VALIGN="top">
+Xapian::Query::OP_ELITE_SET
+</TD><TD>
+Select an elite set of terms from the subqueries, and perform
+a query with all those terms combined as an OR query.
 </TD></TR>
 </TABLE>
 </P>
@@ -497,7 +516,7 @@ term t to the total score for document D, and it is given by,
 </P>
 <P>
 A query can be thought of as a tree structure. At each node is
-an <CODE>om_queryop</CODE> operator, and on the left and right branch are two other queries.
+an <CODE>Xapian::Query::op</CODE> operator, and on the left and right branch are two other queries.
 At each leaf node is a term, t, transmitting documents and scores, D and
 w<sub>D</sub>(t),
 up the tree.

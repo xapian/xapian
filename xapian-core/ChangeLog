@@ -1,3 +1,8 @@
+Sat Aug 14 18:55:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Fixed om_queryop to Xapian::Query::op, and added
+	  missing OP_* codes to the list.
+
 Sat Aug 14 17:44:39 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.h,backends/quartz/btree.cc,
