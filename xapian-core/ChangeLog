@@ -1,3 +1,8 @@
+Mon Jun 02 12:46:18 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Fixed parsing of port number in remote stub
+	  databases.
+
 Sat May 31 15:03:47 BST 2003  James Aylett  <james@tartarus.org>
 
 	* bindings/swig: update so can build Python bindings against

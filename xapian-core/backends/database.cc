@@ -176,7 +176,7 @@ Auto::open_stub(const string &file)
 		} else if (colon != string::npos) {
 		    // tcp
 		    // FIXME: timeouts
-		    unsigned int port = atoi(line.c_str() + colon);
+		    unsigned int port = atoi(line.c_str() + colon + 1);
 		    line.erase(colon);
 		    db.add_database(Remote::open(line, port));
 		    ok = true;
