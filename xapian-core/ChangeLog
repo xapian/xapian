@@ -1,3 +1,7 @@
+Fri Nov 15 17:46:38 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated ready for 0.6.0 with changes made so far.
+
 Fri Nov 15 17:06:58 GMT 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Avoid double debug output if we get a

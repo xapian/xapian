@@ -1,3 +1,22 @@
+Xapian 0.6.0 (2002-1?-??):
+
+Includes ChangeLog entries up to:
+Fri Nov 15 17:06:58 GMT 2002  Olly Betts <olly@survex.com>
+
+* Quartz database backend: lexicon disabled (./configure CXXFLAGS=-DUSE_LEXICON
+  to reenable it), and encoding schemes simplified and made a bit more compact;
+  added and extended test cases.
+
+* Replaced our stemmers with those from Snowball.  These give better results,
+  and are actively maintained by Martin Porter (who wrote the original Xapian
+  stemmers too).  It also means that Xapian now has stemmers for Finnish,
+  and Russian, and an implementation of Lovins' English stemmer.
+
+* Assorted improvements to the documentation.
+
+* Removed the three uses of RTTI (typeid() and dynamic_cast<>) - one was
+  totally superfluous, and the other two easily avoided.
+
 Xapian 0.5.3 (2002-10-12):
 
 Notable changes: Improvements to the test suite, and internal code cleanups:
