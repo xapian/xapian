@@ -1,3 +1,7 @@
+Wed Dec 01 05:57:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Need Tcl 8.1 or later.
+
 Wed Dec 01 05:54:45 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl: Tweaked to actually work.

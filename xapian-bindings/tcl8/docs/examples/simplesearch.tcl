@@ -19,12 +19,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-# We need at least Tcl version 8
-package require Tcl 8
-
-# FIXME: sort out pkgIndex.tcl and then use something like:
-# lappend auto_path /path/to/xapian/lib/with/the/package
-# package require xapian 0.83
+# We need at least Tcl version 8.1
+package require Tcl 8.1
+#package require xapian 0.8.3
 load [file join "../../.libs" xapian.so]
 
 if {[llength $argv] < 2} {
@@ -39,7 +36,7 @@ if {[catch {
     xapian::Stem stemmer "english"
 
     xapian::Query firstterm [stemmer stem_word [lindex $argv 1]]
-    set query firstterm 
+    set query firstterm
     foreach term [lrange $argv 2 end] {
         xapian::Query nextterm [stemmer stem_word $term]
         xapian::Query newquery $Query_OP_OR $query nextterm
