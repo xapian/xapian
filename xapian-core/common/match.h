@@ -135,6 +135,11 @@ class SingleMatch
 	 *  			caller should retry until prepare_match
 	 *  			returns true, or throws an exception to
 	 *  			indicate an error.
+	 *
+	 *  @return  If nowait is true, and the match is being performed
+	 *           over a network connection, and the result isn't
+	 *           immediately available, this method returns false.
+	 *           In all other circumstances it will return true.
 	 */
 	virtual bool prepare_match(bool nowait) = 0;
 	
@@ -167,6 +172,14 @@ class SingleMatch
 	 *  @param mdecider    Optional decision functor
 	 *  @param nowait      If true, then work asynchronously -
 	 *                     see prepare_match()
+	 *
+	 *  @return  If nowait is true, and the mset is being calculated
+	 *           over a network connection, and the result isn't
+	 *           immediately available, this method returns false.
+	 *           In all other circumstances it will return true.
+	 *
+	 *  @exception OmInvalidArgumentError is thrown if the query has
+	 *             not been set appropriately.
 	 */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,

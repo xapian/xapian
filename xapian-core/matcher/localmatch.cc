@@ -527,11 +527,15 @@ LocalMatch::get_mset(om_doccount first,
     mset.clear();
 
     // Check that we have a valid query to run
-    if(!(users_query.isdefined)) return false;
+    if(!(users_query.isdefined)) {
+	throw OmInvalidArgumentError("Query is not defined.");
+    }
 
     // Check that any results have been asked for (might just be wanting
     // maxweight)
-    if(maxitems == 0) return false;
+    if(maxitems == 0) {
+	return true;
+    }
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
