@@ -42,11 +42,11 @@ PostList::skip_to(docid id)
 class TermList {
     private:
     public:
-	virtual termid get_termid() const = 0;      // Gets current termid
-	virtual termcount get_wdf() const = 0;      // Get wdf of current term
+	virtual termid get_termid() const = 0; // Gets current termid
+	virtual termcount get_wdf() const = 0; // Get wdf of current term
 	virtual doccount get_termfreq() const = 0; // Get num of docs indexed by term
-	virtual void   next() = 0;            // Moves to next termid
-	virtual bool   at_end() const = 0;          // True if we're off the end of the list
+	virtual void   next() = 0; // Moves to next termid
+	virtual bool   at_end() const = 0; // True if we're off the end of the list
 
         virtual ~TermList() { return; }
 };
@@ -54,19 +54,23 @@ class TermList {
 class IRDatabase {
     private:
     public:
-	virtual termid term_name_to_id(const termname &) = 0;
-	virtual termname term_id_to_name(termid) = 0;
+        virtual ~IRDatabase() { return; }
+
+	virtual termid term_name_to_id(const termname &) const = 0;
+	virtual termname term_id_to_name(termid) const = 0;
     
+	virtual termid add_term(const termname &) = 0;
+	virtual docid add_doc(const docname &) = 0;
+	virtual void add(termid, docid) = 0;
+
         virtual void open(const string &pathname, bool readonly) = 0;
 	virtual void close() = 0;
 
 	// Throws RangeError if termid invalid
-	virtual PostList * open_post_list(termid) = 0;
+	virtual PostList * open_post_list(termid) const = 0;
 
 	// Throws RangeError if docid invalid
-	virtual TermList * open_term_list(docid) = 0;
-
-        virtual ~IRDatabase() { return; }
+	virtual TermList * open_term_list(docid) const = 0;
 };
 
 #endif /* _database_h_ */

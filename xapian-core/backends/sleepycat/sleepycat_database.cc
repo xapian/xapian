@@ -153,7 +153,7 @@ void SleepyDatabase::close() {
 }
 
 PostList *
-SleepyDatabase::open_post_list(termid id) {
+SleepyDatabase::open_post_list(termid id) const {
     Dbt key(&id, sizeof(id));
     Dbt data;
 
@@ -177,7 +177,7 @@ SleepyDatabase::open_post_list(termid id) {
 }
 
 TermList *
-SleepyDatabase::open_term_list(docid id) {
+SleepyDatabase::open_term_list(docid id) const {
     Dbt key(&id, sizeof(id));
     Dbt data;
 
@@ -201,11 +201,11 @@ SleepyDatabase::open_term_list(docid id) {
 }
 
 termid
-SleepyDatabase::term_name_to_id(const termname &) {
+SleepyDatabase::term_name_to_id(const termname &) const {
     return 1;
 }
 
 termname
-SleepyDatabase::term_id_to_name(termid) {
+SleepyDatabase::term_id_to_name(termid) const {
     return "a";
 }

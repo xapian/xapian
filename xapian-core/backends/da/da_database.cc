@@ -161,7 +161,7 @@ DADatabase::close()
     opened = false;
 }
 
-PostList * DADatabase::open_post_list(termid id)
+PostList * DADatabase::open_post_list(termid id) const
 {
     Assert(opened);
     Assert(id > 0 && id <= termvec.size());
@@ -169,13 +169,13 @@ PostList * DADatabase::open_post_list(termid id)
     termname name = term_id_to_name(id);
 
     struct postings * postlist;
-    postlist = DAopenpostings(&(termvec[id - 1].ti), DA_t);
+    postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
 
     DAPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq, dbsize);
     return pl;
 }
 
-TermList * DADatabase::open_term_list(docid id)
+TermList * DADatabase::open_term_list(docid id) const
 {
     Assert(opened);
 
@@ -189,11 +189,11 @@ TermList * DADatabase::open_term_list(docid id)
 
     openterms(tv);
 
-    DATermList *tl = new DATermList(this, tv);
+    DATermList *tl = new DATermList((DADatabase *)this, tv);
     return tl;
 }
 
-DARecord * DADatabase::get_document(docid id)
+DARecord * DADatabase::get_document(docid id) const
 {
     Assert(opened);
 
@@ -210,12 +210,12 @@ DARecord * DADatabase::get_document(docid id)
 }
 
 termid
-DADatabase::term_name_to_id(const termname &name)
+DADatabase::term_name_to_id(const termname &name) const
 {
     Assert(opened);
     //printf("Looking up term `%s': ", name.c_str());
 
-    map<termname,termid>::iterator p = termidmap.find(name);
+    map<termname,termid>::const_iterator p = termidmap.find(name);
 
     termid id = 0;
     if (p == termidmap.end()) {
@@ -246,7 +246,7 @@ DADatabase::term_name_to_id(const termname &name)
 }
 
 termname
-DADatabase::term_id_to_name(termid id)
+DADatabase::term_id_to_name(termid id) const
 {
     Assert(opened);
     Assert(id > 0 && id <= termvec.size());

@@ -142,22 +142,34 @@ class DADatabase : public virtual IRDatabase {
 	struct DAfile * DA_t;
 	doccount dbsize;
 
-	termid max_termid;
-	map<termname, termid> termidmap;
-	vector<DATerm> termvec;
+	mutable termid max_termid;
+	mutable map<termname, termid> termidmap;
+	mutable vector<DATerm> termvec;
     public:
+	// FIXME - stop copy / assignment being allowed
 	DADatabase();
 	~DADatabase();
+
+	termid term_name_to_id(const termname &) const;
+	termname term_id_to_name(termid) const;
+
+	termid add_term(const termname &) {
+	    throw OmError("DADatabase.add_term() not implemented");
+	}
+	docid add_doc(const docname &) {
+	    throw OmError("DADatabase.add_doc() not implemented");
+	}
+	void add(termid, docid) {
+	    throw OmError("DADatabase.add() not implemented");
+	}
 
 	void open(const string &pathname, bool readonly);
 	void close();
 
-	PostList * open_post_list(termid id);
-	TermList * open_term_list(docid id);
-	DARecord * get_document(docid id);
+	PostList * open_post_list(termid id) const;
+	TermList * open_term_list(docid id) const;
 
-	termid term_name_to_id(const termname &);
-	termname term_id_to_name(termid);
+	DARecord * get_document(docid id) const;
 };
 
 #endif /* _da_database_h_ */

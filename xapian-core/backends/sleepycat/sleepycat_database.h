@@ -128,14 +128,24 @@ class SleepyDatabase : public virtual IRDatabase {
 	SleepyDatabase();
 	~SleepyDatabase();
 
+	termid term_name_to_id(const termname &) const;
+	termname term_id_to_name(termid) const;
+
+	termid add_term(const termname &) {
+	    throw OmError("SleepyDatabase.add_term() not implemented");
+	}
+	docid add_doc(const docname &) {
+	    throw OmError("SleepyDatabase.add_doc() not implemented");
+	}
+	void add(termid, docid) {
+	    throw OmError("SleepyDatabase.add() not implemented");
+	}
+
 	void open(const string &pathname, bool readonly);
 	void close();
 
-	PostList * open_post_list(termid id);
-	TermList * open_term_list(docid id);
-
-	termid term_name_to_id(const termname &);
-	termname term_id_to_name(termid);
+	PostList * open_post_list(termid id) const;
+	TermList * open_term_list(docid id) const;
 };
 
 #endif /* _sleepy_database_h_ */
