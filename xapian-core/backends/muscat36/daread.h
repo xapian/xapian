@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+#include "3point6.h"
+    
 struct DAfile
 {   filehandle locator;
                       /* DA file locator */

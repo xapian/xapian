@@ -33,10 +33,9 @@
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
-#include "damuscat.h"
 
 DAPostList::DAPostList(const om_termname & tname_,
-		       struct postings * postlist_,
+		       struct DApostings * postlist_,
 		       om_doccount termfreq_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
 {
@@ -178,7 +177,7 @@ DADatabase::open_post_list(const om_termname & tname, RSet * rset) const
     const DATerm * the_term = term_lookup(tname);
     Assert(the_term != NULL);
 
-    struct postings * postlist;
+    struct DApostings * postlist;
     postlist = DAopenpostings(the_term->get_ti(), DA_t);
 
     DBPostList * pl = new DAPostList(tname, postlist, the_term->get_ti()->freq);
@@ -241,14 +240,14 @@ DADatabase::term_lookup(const om_termname & tname) const
 
     const DATerm * the_term = NULL;
     if (p == termmap.end()) {
-	int len = tname.length();
+	string::size_type len = tname.length();
 	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
-	tname.copy((char*)(k + 1), len);
+	tname.copy((char*)(k + 1), len, 0);
 
-	struct terminfo ti;
+	struct DAterminfo ti;
 	int found = DAterm(k, &ti, DA_t);
 	free(k);
 

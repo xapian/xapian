@@ -28,6 +28,10 @@
 extern "C" {
 #endif
 
+#include "3point6.h"
+#include "io_system.h"
+#include "dbdefs.h"
+
 struct DBpool /* block held in memory */
 {
     byte * p;       /* block pointer */

@@ -1,4 +1,4 @@
-/* da_database.h: C++ class definition for DA access routines
+/* da_document.h: C++ class definition for DA access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DA_RECORD_H
-#define OM_HGUARD_DA_RECORD_H
+#ifndef OM_HGUARD_DA_DOCUMENT_H
+#define OM_HGUARD_DA_DOCUMENT_H
 
 #include "om/omdocument.h"
 #include "daread.h"
@@ -54,4 +54,4 @@ DADocument::DADocument(const DADatabase * database_, om_docid did_)
 }
 
 
-#endif /* OM_HGUARD_DA_RECORD_H */
+#endif /* OM_HGUARD_DA_DOCUMENT_H */

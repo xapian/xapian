@@ -1,4 +1,4 @@
-/* da_record.cc: C++ class for reading DA records
+/* da_document.cc: C++ class for reading DA records
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -24,7 +24,6 @@
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
-#include "damuscat.h"
 
 DADocument::~DADocument()
 {

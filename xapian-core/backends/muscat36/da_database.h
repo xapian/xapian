@@ -25,6 +25,8 @@
 
 #include <map>
 #include <vector>
+#include <errno.h>
+#include <om/omdocument.h>
 
 #include "utils.h"
 #include "omassert.h"
@@ -33,31 +35,22 @@
 #include "termlist.h"
 #include "database.h"
 
-#include <om/omdocument.h>
 
-#include "errno.h"
-
-// Anonymous declarations (definitions in daread.h)
-struct postings;
-struct DAfile;
-struct terminfo;
-struct termvec;
-
-// But it turns out we need to include this anyway
-// FIXME - try and sort this out sometime.
+// FIXME - try and sort it out so that we don't need to include this.
 #include "daread.h"
 
+/** A posting list for a DA Database */
 class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:
-	struct postings * postlist;
+	struct DApostings * postlist;
 	om_docid  currdoc;
 
 	om_termname tname;
 	om_doccount termfreq;
 
 	DAPostList(const om_termname & tname_,
-		   struct postings * postlist_,
+		   struct DApostings * postlist_,
 		   om_doccount termfreq_);
     public:
 	~DAPostList();
@@ -191,20 +184,20 @@ inline bool DATermList::at_end() const
 class DATerm {
     friend DADatabase;
     private:
-	DATerm(struct terminfo * ti_,
+	DATerm(struct DAterminfo * ti_,
 	       om_termname tname_,
 	       struct DAfile * DA_t_ = NULL);
-        struct terminfo * get_ti() const;
+        struct DAterminfo * get_ti() const;
 
 	mutable bool terminfo_initialised;
-        mutable struct terminfo ti;
+        mutable struct DAterminfo ti;
         mutable struct DAfile * DA_t;
     public:
 	om_termname tname;
 };
 
 inline
-DATerm::DATerm(struct terminfo * ti_,
+DATerm::DATerm(struct DAterminfo * ti_,
 	       om_termname tname_,
 	       struct DAfile * DA_t_)
 	: terminfo_initialised(false)
@@ -217,17 +210,17 @@ DATerm::DATerm(struct terminfo * ti_,
     DA_t = DA_t_;
 }
 
-inline struct terminfo *
+inline struct DAterminfo *
 DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
 	DebugMsg("Getting terminfo" << endl);
-	int len = tname.length();
+	string::size_type len = tname.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw bad_alloc();
 	k[0] = len + 1;
-	tname.copy((char*)(k + 1), len);
+	tname.copy((char*)(k + 1), len, 0);
 
 	int found = DAterm(k, &ti, DA_t);
 	free(k);
