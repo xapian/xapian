@@ -94,10 +94,10 @@ class MSetItem {
 };
 
 class MSetCmp {
-   public:
-       bool operator()(const MSetItem &a, const MSetItem &b) {
-           return a.w > b.w;
-       }
+    public:
+        bool operator()(const MSetItem &a, const MSetItem &b) {
+            return a.w > b.w;
+        }
 };
 
 void
@@ -150,7 +150,7 @@ Match::match(void)
         
         if (w > w_min) {
 	    docid id = merger->get_docid();
-	    mset.push_back(MSetItem(w,id));
+	    mset.push_back(MSetItem(w, id));
 
 	    if (mset.size() == max_msize * 2) {
 	        // sort new elements
