@@ -1,3 +1,9 @@
+Wed Dec 08 02:13:25 GMT 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html,python/docs/bindings.html,
+	  tcl8/docs/bindings.html: Reworked text about Xapian::Auto namespace
+	  and a few other tweaks.
+
 Tue Dec 07 19:55:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i,php4/docs/examples/simpleindex.php,

@@ -110,18 +110,10 @@ using <code>ClassName_method_name($object, ...)</code>.
 <tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
 </table>
 
-<h2>Xapian::Auto</h2>
-
-<p>
-   Functions in <code>Xapian::Auto</code> are mapped directly (so
-   <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for
-   instance).  The 2 argument form of <code>Auto::open()</code> which opens a writable
-   database is wrapped as <code>open_writable</code>.
-</p>
-
-<h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
+<h2>Database Factory Functions</h2>
 
 <ul>
+<li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>open_stub(<i>file</i>)</code>
 <li> <code>Xapian::Quartz::open(<i>path</i>)</code> is wrapped as <code>quartz_open(<i>path</i>)</code>
 <li> The 2 or 3 argument form of <code>Xapian::Quartz::open()</code> which opens a writable database
 is wrapped as <code>quartz_open_writable</code>.
@@ -144,7 +136,7 @@ the TCP version is currently wrapped, the "program" version isn't).
 <p>
    There is an additional method <code>get_matching_terms()</code> which takes
    an MSetIterator and returns a list of terms in the current query which
-   match the document given by that iterator. This may be slightly
+   match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
 </p>
 

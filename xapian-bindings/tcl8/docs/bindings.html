@@ -94,9 +94,10 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 <tr><td><code>mset get_document_id index</code></td><td><code>[mset get_hit index] get_docid</code></td></tr>
 </table>
 
-<h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
+<h2>Database Factory Functions</h2>
 
 <ul>
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_sutb</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WriteableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
@@ -104,22 +105,12 @@ the 'Destructors' section above for an explanation).
 the TCP version is currently wrapped, the "program" version isn't).
 </ul>
 
-<h2>Query</h2>
-
-<p>
-   Please note that although the source code for the bindings
-   indicates that there's another constructor to <code>xapian.Query</code> that
-   should be able to take a query operator, a list of queries,
-   and an optional window, this doesn't actually work in Tcl8 at the
-   moment due to the way SWIG overloading works.
-</p>
-
 <h2>Enquire</h2>
 
 <p>
    There is an additional method <code>get_matching_terms</code> which takes
    an MSetIterator and returns a list of terms in the current query which
-   match the document given by that iterator. This may be slightly
+   match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
 </p>
 
