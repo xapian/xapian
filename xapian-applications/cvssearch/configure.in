@@ -8,6 +8,7 @@ AC_SUBST(CXXFLAGS)
 AC_PROG_CXX 
 AC_PATH_PROGS(PERL, perl)
 AM_CONDITIONAL(DYNAMIC, false)
+
 AC_OUTPUT([Makefile
      map/Makefile
      map/aligned_diff/Makefile
