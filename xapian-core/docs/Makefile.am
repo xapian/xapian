@@ -215,9 +215,6 @@ SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \
 
 doxygen_docs: apidoc/html/index.html sourcedoc/html/index.html
 
-doxygen_api_conf: $(top_srcdir)/configure
-doxygen_full_conf: $(top_srcdir)/configure
-
 apidoc/html/index.html: doxygen_api_conf \
                         $(srcdir)/doxygen_api_header.html_tmpl \
 			$(srcdir)/doxygen_api_footer.html_tmpl
