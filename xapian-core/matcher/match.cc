@@ -39,6 +39,9 @@ Match::add_term(termid id)
     // for similar reasons to using the muscat3.6 zerofreqs option
     if (id) {
 	q.push(DB->open_post_list(id, rset));
+	if(rset) rset->will_want_termfreq(id);
+	// FIXME - should get called automatically when we open a post list
+	// -- want a postlist factory
     } else {
 	q.push(new EmptyPostList());
     }
@@ -68,7 +71,12 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	for (i = ids.begin(); i != ids.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
 	    termid id = *i;
-	    if (id) pq.push(DB->open_post_list(id, rset));
+	    if (id) {
+		pq.push(DB->open_post_list(id, rset));
+		if(rset) rset->will_want_termfreq(id);
+		// FIXME - should get called automatically when we open a
+		// post list -- want a postlist factory
+	    }
 	}
 
 	// Build a tree balanced by the term frequencies
@@ -111,6 +119,9 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
 	    break;
 	}
 	sorted.push_back(DB->open_post_list(id, rset));
+	if(rset) rset->will_want_termfreq(id);
+	// FIXME - should get called automatically when we open a post list
+	// -- want a postlist factory
     }
     
     if (sorted.empty()) {
