@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -151,7 +151,7 @@ vet_filename(const string &filename)
 // NEW_QUERY entirely new query
 // SAME_QUERY unchanged query
 // EXTENDED_QUERY new query, but based on the old one
-// BAD_QUERY parse error (message in query_parse_error)
+// BAD_QUERY parse error (message in error_msg)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
 static querytype
@@ -267,9 +267,8 @@ run_query()
 	    or_vec.push_back(i->second);
 	}
 	
-	// if only boolean query is provided then promote that
-	// to be THE query instead of filtering an empty query
-	// So we can have pure boolean queries this way
+	// If no probabilistic query is provided then promote the filters
+	// to be THE query instead of filtering an empty query.
 	if (query.is_empty()) {
 	    query = Xapian::Query(Xapian::Query::OP_AND,
 			    filter_vec.begin(),
@@ -284,11 +283,18 @@ run_query()
     }
 
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
-	query = Xapian::Query(Xapian::Query::OP_FILTER,
-		       	query,
-			Xapian::Query(Xapian::Query::OP_OR,
-			date_range_filter(date_start, date_end, date_span),
-			Xapian::Query("Dlatest")));
+	Xapian::Query date_filter(Xapian::Query::OP_OR,
+				  date_range_filter(date_start, date_end,
+						    date_span),
+				  Xapian::Query("Dlatest"));
+
+	// If no probabilistic query is provided then promote the daterange
+	// filter to be THE query instead of filtering an empty query.
+	if (query.is_empty()) {
+	    query = date_filter;
+	} else {
+	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	}
     }
 
     if (enquire) {

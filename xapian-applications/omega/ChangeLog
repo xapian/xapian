@@ -1,3 +1,8 @@
+Sat Feb 14 00:07:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: Don't crash if there's a date filter but no probabilistic
+	  query.
+
 Wed Nov 26 22:44:49 GMT 2003  Olly Betts <olly@survex.com>
 
 	* indextext.cc: Raw terms with a multicharacter prefix are now indexed
