@@ -33,7 +33,7 @@
 #include "om/omquery.h"
 #include "omtime.h"
 
-#define OM_SOCKET_PROTOCOL_VERSION 9
+#define OM_SOCKET_PROTOCOL_VERSION 10
 
 class OmQuery::Internal;
 class Stats;

@@ -72,6 +72,10 @@ class OmQuery::Internal {
 	 */
 	om_termpos window;
 
+	/** What's the cutoff for *_CUTOFF queries.
+	 */
+	double cutoff;
+
 	/// Term that this node represents - leaf node only
 	om_termname tname;
 
@@ -192,6 +196,9 @@ class OmQuery::Internal {
 
 	/** Set window for NEAR or PHRASE queries */
 	void set_window(om_termpos window);
+
+	/** Set cutoff for *_CUTOFF queries */
+	void set_cutoff(double cutoff);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden

@@ -51,8 +51,6 @@ class LocalSubMatch : public SubMatch {
 
 	const Database *db;
 
-	PostList *postlist;
-
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
     

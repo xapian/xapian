@@ -65,6 +65,9 @@ class OmQuery {
 	     *  occurring within a specified window of positions.
 	     *  Each occurrence of a term must be at a different position,
 	     *  but the order they appear in is irrelevant.
+	     *
+	     *  The window parameter should be specified for this operation,
+	     *  but will default to the number of terms in the list.
 	     */
 	    OP_NEAR,
 
@@ -72,8 +75,27 @@ class OmQuery {
 	     *  occurring within a specified window of positions, and all
 	     *  the terms appearing in the order specified.  Each occurrence
 	     *  of a term must be at a different position.
+	     *
+	     *  The window parameter should be specified for this operation,
+	     *  but will default to the number of terms in the list.
 	     */
-	    OP_PHRASE
+	    OP_PHRASE,
+
+	    /** Return only results with a weight greater than or equal to
+	     *  a specified cutoff value.
+	     *
+	     *  The cutoff parameter should be specified for this operation,
+	     *  and will default to 0 (no cutoff).
+	     */
+	    OP_WEIGHT_CUTOFF,
+
+	    /** Return only results with a percentage weight greater than
+	     *  a specified cutoff value.
+	     *
+	     *  The cutoff parameter should be specified for this operation,
+	     *  and will default to 0 (ie, no cutoff).
+	     */
+	    OP_PERCENT_CUTOFF
 	} op;
 
 	/** Copy constructor. */
@@ -117,15 +139,24 @@ class OmQuery {
 
 	/** A set of OmQuery's, merged together with specified operator.
 	 *  (Takes begin and end iterators).
-	 *  AND, OR, NEAR and PHRASE can take any number of subqueries
-	 *  If the operator is anything other than AND, OR, NEAR, and PHRASE,
-	 *  then there must be exactly two subqueries.
+	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
+	 *  WEIGHT_CUTOFF and PERCENT_CUTOFF take only one subquery.
+	 *  If the operator is anything else then there must be exactly two
+	 *  subqueries.
 	 *
 	 *  The iterators may be to any of OmQuery objects, OmQuery pointers,
 	 *  or om_termname objects (ie, strings).
 	 */
 	template <class Iterator>
 	OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend);
+
+	/** A single OmQuery, modified by a specified operator.
+	 *
+	 *  The subquery may be any of: an OmQuery object, OmQuery pointer,
+	 *  or om_termname.
+	 */
+	template <class SubQ>
+	OmQuery(OmQuery::op op_, SubQ q);
 
 	/** Check whether the query is defined. */
 	bool is_defined() const;
@@ -141,6 +172,11 @@ class OmQuery {
 	/** Set the window size, for a NEAR or PHRASE query.
 	 */
 	void set_window(om_termpos window);
+
+	/** Set the cutoff parameter, for a WEIGHT_CUTOFF or PERCENT_CUTOFF
+	 *  query.
+	 */
+	void set_cutoff(om_weight cutoff);
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically, but may be overridden
@@ -193,6 +229,19 @@ OmQuery::OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend)
 	    ++qbegin;
 	}
 
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
+}
+
+template <class SubQ>
+OmQuery::OmQuery(OmQuery::op op_, SubQ q)
+{
+    try {
+	start_construction(op_);
+	add_subquery(q);
 	end_construction();
     } catch (...) {
 	abort_construction();

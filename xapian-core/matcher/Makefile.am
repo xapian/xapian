@@ -7,7 +7,7 @@ noinst_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  phrasepostlist.h branchtermlist.h ortermlist.h \
  selectpostlist.h boolweight.h bm25weight.h tradweight.h \
  mergepostlist.h msetpostlist.h extraweightpostlist.h networkmatch.h \
- localmatch.h emptymatch.h
+ localmatch.h emptymatch.h weightcutoffpostlist.h
 
 noinst_LTLIBRARIES = libmatcher.la
 
@@ -20,4 +20,5 @@ libmatcher_la_SOURCES = orpostlist.cc andpostlist.cc andnotpostlist.cc \
  filterpostlist.cc ortermlist.cc expandweight.cc rset.cc \
  irweight.cc bm25weight.cc tradweight.cc \
  localmatch.cc multimatch.cc expand.cc stats.cc \
- document.cc mergepostlist.cc msetpostlist.cc $(SOURCEFORREMOTE)
+ document.cc mergepostlist.cc msetpostlist.cc weightcutoffpostlist.cc \
+ $(SOURCEFORREMOTE)

@@ -1,3 +1,21 @@
+Fri Mar  2 18:15:47 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Add a new query operator, OP_WEIGHT_CUTOFF, which returns only
+	  those documents from a query which have a weight greater than a
+	  specified cutoff value.  Also added OP_PERCENT_CUTOFF, but this
+	  is not yet implemented.
+
+	* Added test of new cutoff function, cutoff2.
+
+	* Updated network protocol to pass new queries.  Increased protocol
+	  version number (to 10).
+
+	* Added set_cutoff() function to OmQuery, to set cutoff parameter.
+
+	* Updated TODO.
+
+	* Remove unused member "PostList * postlist" of LocalSubMatch.
+
 Thu Mar  1 12:04:53 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Updates to HACKING.

@@ -23,6 +23,8 @@ OP_ANDNOT	%andnot
 OP_XOR		%xor
 OP_NEAR		%near{DIGIT}{DIGIT}*
 OP_PHRASE	%phrase{DIGIT}{DIGIT}*
+OP_WEIGHT_CUTOFF	%wtcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*
+OP_PERCENT_CUTOFF	%pctcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*
 
 TCHAR		[^ \n]
 DIGIT		[0-9]
@@ -109,6 +111,18 @@ OP_KET		%\)
 {OP_PHRASE}	{
 		    qt.type = querytok::OP_PHRASE;
 		    qt.window = atoi(yytext + 7); // skip %phrase
+		    return qt;
+		}
+
+{OP_WEIGHT_CUTOFF}	{
+		    qt.type = querytok::OP_WEIGHT_CUTOFF;
+		    qt.cutoff = atof(yytext + 9); // skip %wtcutoff
+		    return qt;
+		}
+
+{OP_PERCENT_CUTOFF}	{
+		    qt.type = querytok::OP_PERCENT_CUTOFF;
+		    qt.cutoff = atof(yytext + 10); // skip %pctcutoff
 		    return qt;
 		}
 

@@ -35,6 +35,7 @@
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
+#include "weightcutoffpostlist.h"
 
 #include "document.h"
 #include "rset.h"
@@ -359,6 +360,15 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher),
 					postlist_from_query(query->subqs[1], matcher),
 					matcher);
+
+	case OmQuery::OP_WEIGHT_CUTOFF:
+	    Assert(query->subqs.size() == 1);
+	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher),
+					    query->cutoff,
+					    matcher);
+	case OmQuery::OP_PERCENT_CUTOFF:
+	    Assert(query->subqs.size() == 1);
+	    throw OmUnimplementedError("Percentage cutoffs in query tree not yet implemented.");
     }
     Assert(false);
     return NULL;

@@ -836,6 +836,63 @@ static bool test_cutoff1()
     return true;
 }
 
+// tests the cutoff option
+static bool test_cutoff2()
+{
+    OmEnquire enquire(get_simple_database());
+    OmQuery q = query(OmQuery::OP_OR, "this", "line", "paragraph", "rubbish");
+    init_simple_enquire(enquire, query(OmQuery::OP_OR,
+				       "this", "line", "paragraph", "rubbish"));
+    OmMSet mymset1 = enquire.get_mset(0, 100);
+
+    if (verbose) {
+	tout << "Original mset weights:";
+	print_mset_weights(mymset1);
+	tout << "\n";
+    }
+
+    unsigned int num_items = 0;
+    om_weight my_wt = -100;
+    int changes = 0;
+    OmMSetIterator i = mymset1.begin();
+    int c = 0;
+    for ( ; i != mymset1.end(); ++i, ++c) {
+        om_weight new_wt = i.get_weight();
+        if (new_wt != my_wt) {
+	    changes++;
+	    if (changes > 3) break;
+	    num_items = c;
+	    my_wt = new_wt;
+	}
+    }
+
+    TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
+    if (verbose) {
+        tout << "Cutoff weight: " << my_wt << "\n";
+    }
+
+    OmQuery cutoffq(OmQuery::OP_WEIGHT_CUTOFF, q);
+    cutoffq.set_cutoff(my_wt);
+    enquire.set_query(cutoffq);
+    OmMSet mymset2 = enquire.get_mset(0, 100);
+
+    if (verbose) {
+        tout << "Weights after cutoff:";
+	print_mset_weights(mymset2);
+        tout << "\n";
+    }
+
+    TEST_AND_EXPLAIN(mymset2.size() >= num_items,
+		     "Match with cutoff lost too many items");
+
+    TEST_AND_EXPLAIN(mymset2.size() == num_items ||
+		     (mymset2[num_items].get_weight() == my_wt &&
+		      mymset2.back().get_weight() == my_wt),
+		     "Match with cutoff returned too many items");
+
+    return true;
+}
+
 static void
 print_mset_percentages(const OmMSet &mset)
 {
@@ -2535,6 +2592,7 @@ test_desc db_tests[] = {
     {"expandfunctor1",	   test_expandfunctor1},
     {"pctcutoff1",	   test_pctcutoff1},
     {"cutoff1",		   test_cutoff1},
+    {"cutoff2",		   test_cutoff2},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
     {"reversebool1",	   test_reversebool1},
