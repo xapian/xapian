@@ -326,58 +326,50 @@ on_mainwindow_destroy(GtkWidget *widget,
     return FALSE;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
     string gladefile = "xapview.glade";
     enquire = NULL;
     max_msize = 10;
-    vector<OmSettings> dbs;
 
     gtk_init(&argc, &argv);
     glade_init();
 
-    const char *progname = argv[0];
-
-    bool syntax_error = false;
-    argv++;
-    argc--;
-    // FIXME: use getopt?  or make these settable from the GUI...
-    while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
-	    max_msize = atoi(argv[1]);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
-	    OmSettings params;
-	    params.set("backend", "auto");
-	    params.set("auto_dir", argv[1]);
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
-	    gladefile = argv[1];
-	    argc -= 2;
-	    argv += 2;
-	} else {
-	    syntax_error = true;
-	    break;
-	}
-    }
-
-    if (dbs.empty() || syntax_error || argc >= 1) {
-	cout << "Syntax: " << progname << " [options]\n"
-	     << "\t--msize <maximum msize>\n"
-	     << "\t--dbdir <directory>\n"
-	     << "\t--glade <glade interface definition file>" << endl;
-	exit(1);
-    }
-
     // Set Database(s)
     try {
 	OmDatabase mydbs;
+	int n_dbs = 0;
+	const char *progname = argv[0];
 
-	vector<OmSettings>::const_iterator p;
-	for (p = dbs.begin(); p != dbs.end(); p++) {
-	    mydbs.add_database(*p);
+	bool syntax_error = false;
+	argv++;
+	argc--;
+	// FIXME: use getopt?  or make these settable from the GUI...
+	while (argc && argv[0][0] == '-') {
+	    if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
+		max_msize = atoi(argv[1]);
+		argc -= 2;
+		argv += 2;
+	    } else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
+		mydbs.add_database(OmAuto__open(argv[1]));
+		++n_dbs;
+		argc -= 2;
+		argv += 2;
+	    } else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
+		gladefile = argv[1];
+		argc -= 2;
+		argv += 2;
+	    } else {
+		syntax_error = true;
+		break;
+	    }
+	}
+
+	if (n_dbs == 0 || syntax_error || argc >= 1) {
+	    cout << "Syntax: " << progname << " [options]\n"
+		 << "\t--msize <maximum msize>\n"
+		 << "\t--dbdir <directory>\n"
+		 << "\t--glade <glade interface definition file>" << endl;
+	    exit(1);
 	}
 
 	GladeXML *xml;
@@ -414,9 +406,8 @@ int main(int argc, char *argv[]) {
 	gtk_main();
     } catch (const OmError &e) {
 	cout << "OmError: " << e.get_msg() << endl;
+	exit(1);
     }
     delete enquire;
     enquire = NULL;
-
-    return 0;
 }

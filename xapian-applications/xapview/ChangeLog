@@ -1,3 +1,8 @@
+Sat Dec 14 01:49:02 GMT 2002  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: Fixed to not use OmSettings.  Not compile tested
+	  as I don't have the relevant libraries installed here.
+
 Wed Oct 30 02:00:26 GMT 2002  Olly Betts <olly@survex.com>
 
 	* bootstrap,buildall: Removed buildall in favour of bootstrap script.
