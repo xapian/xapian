@@ -33,6 +33,7 @@
 
 #include <vector>
 #include <set>
+#include <memory>
 #include <math.h>
 
 ///////////////////////////////////////////////////////////////////
@@ -713,11 +714,20 @@ OmEnquire::get_eset(om_termcount maxitems,
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;
 
-//FIXME - calls get_terms() on a null query
-    OmExpandDeciderFilterTerms decider_noquery(internal->query->get_terms());
-    OmExpandDeciderAnd decider_andnoquery(&decider_noquery, edecider);
-    if (!eoptions->allow_query_terms) {
-        edecider = &decider_andnoquery;
+    /* The auto_ptrs will clean up any dynamically allocated
+     * expand deciders automatically.
+     */
+    auto_ptr<OmExpandDecider> decider_noquery, decider_andnoquery;
+    
+    if (internal->query != 0 && !eoptions->allow_query_terms) {
+        decider_noquery = auto_ptr<OmExpandDecider>(
+	                      new OmExpandDeciderFilterTerms(
+			         internal->query->get_terms()));
+	decider_andnoquery = auto_ptr<OmExpandDecider>(
+	                      new OmExpandDeciderAnd(
+			         decider_noquery.get(), edecider));
+
+        edecider = decider_andnoquery.get();
     }
     
     expand.expand(maxitems, retval, &rset, edecider);
