@@ -1,3 +1,9 @@
+Fri Nov 05 16:45:12 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
+	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
+	  GCC when chosing warning flags.
+
 Wed Nov 03 20:09:20 GMT 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,delve.cc,getopt.cc,getopt.h,getopt1.cc,gnu_getopt.h,
