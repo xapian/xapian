@@ -298,7 +298,7 @@ moreterm:
 	}
         lowercase_term(term);
         if (isupper(*i) || isdigit(*i)) {
-	    if (pos == static_cast<om_termpos>(-1)
+	    if (pos != static_cast<om_termpos>(-1)
 		// Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
 		) {
 		doc.add_posting('R' + term, pos, wdfinc);
@@ -308,7 +308,7 @@ moreterm:
         }
  
         term = stemmer.stem_word(term);
-	if (pos == static_cast<om_termpos>(-1)
+	if (pos != static_cast<om_termpos>(-1)
 	    // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
 	    ) {
 	    doc.add_posting(term, pos++, wdfinc);
@@ -353,6 +353,7 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 	om_docid docid = 0;
 	om_termpos wordcount = 0;
 	map<string, string> fields;
+	bool seen_content = 0;
 	while (true) {
 	    om_termcount weight = 1;
 	    // Cope with files from MS Windows (\r\n end of lines)
@@ -364,12 +365,13 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 	    while (getline(stream, line) && !line.empty() && line[0] == '=') {
 		// Cope with files from MS Windows (\r\n end of lines)
 		if (line[line.size() - 1] == '\r') line.resize(line.size() - 1);
-		value += line.substr(1);
+		value += '\n' + line.substr(1);
 	    }
 
 	    vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
+	    bool this_field_is_content = 1;
 	    for (i = v.begin(); i != v.end(); ++i) {
 		switch (i->get_action()) {
 		    case Action::BAD:
@@ -426,7 +428,19 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 			break;
 		    }
 		    case Action::UNIQUE: {
+			// Ensure that the value of this field is unique.
+			// If a record already exists with the same value,
+			// it will be replaced with the new record.
+
+			// Unique fields aren't considered content - if
+			// there are no other fields in the document, the
+			// document is to be deleted.
+			this_field_is_content = 0;
+
+			// Argument is the prefix to add to the field value
+			// to get the unique term.
 			string t = i->get_string_arg();
+#if 0
 			if (t.empty()) {
 			    // Generate the docid from a hash of the value
 			    // - quicker than performing a lookup in the
@@ -441,6 +455,7 @@ index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
 			    if (docid == 0) docid = 1;
 			    break;
 			}
+#endif
 			t += value;
 again:
 			try {
@@ -466,14 +481,17 @@ again:
 			break;
 		}
 	    }
+	    if (this_field_is_content) seen_content = 1;
 	    if (line.empty() || line == "\r") break;
 	}
 
-	// Surely we should be checking for other terms not just fields being
-	// empty (and by OTHER terms I mean as well as uniqueterm)
-	if (fields.empty()) {
-	    if (docid) database.delete_document(docid);
-	    cout << "Del: " << docid /* << " " << uniqueterm*/ << endl;
+	// If we havn't seen any fields (other than unique identifiers)
+	// the document is to be deleted.
+	if (!seen_content) {
+	    if (docid) {
+		database.delete_document(docid);
+		cout << "Del: " << docid << endl;
+	    }
 	} else {
 	    string data;
 	    map<string, string>::const_iterator i;
@@ -491,19 +509,28 @@ again:
 	    if (docid) {
 		try {
 		    database.replace_document(docid, doc);
+		    cout << "Replace: " << docid << endl;
+		    //cout << "Replace: removing: " << docid << endl;
+		    //database.delete_document(docid);
+		    //docid = database.add_document(doc);
+		    //cout << "Replace: adding: " << docid << endl;
 		} catch (const OmError &e) {
 		    cout << "E: " << e.get_msg() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
 		    docid = database.add_document(doc);
+		    cout << "Replace failed, adding as new: " << docid << endl;
 		}
 	    } else {
 		docid = database.add_document(doc);
+		cout << "Add: " << docid << endl;
 	    }
-	    cout << "Add: " << docid /*<< " " << uniqueterm*/ << endl;
 	}
 	if (stream.eof() || !getline(stream, line)) break;
     }
+
+    //cout << "Flushing: " << endl;
+    //database.flush();
 
     return true;
 }
@@ -527,10 +554,13 @@ main(int argc, char **argv)
     try {
 	// Make the database
 	OmSettings settings;
+	std::string logfile(argv[1]);
+	logfile += "/log";
 	settings.set("backend", "quartz");
 	settings.set("quartz_dir", argv[1]);
-//	settings.set("database_create", true);
-//	settings.set("database_allow_overwrite", true);
+	settings.set("quartz_logfile", logfile);
+	settings.set("database_create", true);
+	settings.set("database_allow_overwrite", true);
 	// Sleep and retry if we get an OmDatabaseLockError - this just means
 	// that another process is updating the database
 	OmWritableDatabase *try_db = NULL;
@@ -556,6 +586,9 @@ main(int argc, char **argv)
 		index_file(argv[i], database, stemmer);
 	    }
 	}
+
+	cout << "Flushing: " << endl;
+	database.flush();
     }
     catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;

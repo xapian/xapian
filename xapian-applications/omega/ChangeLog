@@ -1,3 +1,16 @@
+Mon Aug 12 01:34:42 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* scriptindex.cc: Bug fix - index without positional information
+	  if "nopos" is specified, rather than the other way around.
+	  Bug fix - don't completely eradicate newlines in multiline values,
+	  until they have a chance to be converted to spaces.
+	  Delete documents if no fields other than unique fields are
+	  specifed.
+	  Add some simple debugging, and write messages to a log file in
+	  the database directory.
+
+	* configure.in: Use libtool.
+
 Fri Aug  9 13:57:32 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* scriptindex.cc: Fix compile errors, by changing string
