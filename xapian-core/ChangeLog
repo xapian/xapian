@@ -1,3 +1,8 @@
+Wed Oct 31 14:26:59 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Removed needless complications in matcher when a weight threshold
+	  has been set.
+
 Tue Oct 30 16:50:46 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Removed superfluous lines from configure.in; fixed warning from

@@ -380,12 +380,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     while (items.size() < max_msize) {
 	next_handling_prune(pl, min_item.wt, this);
 
-	if (pl->at_end()) break;
-	    
+	if (pl->at_end()) goto match_complete;
+
 	om_docid did = pl->get_docid();
-	    
+
 	RefCntPtr<Document> doc;
-	    
+
 	// Use the decision functor if any.
 	// FIXME: if results are from MSetPostList then we can omit this
 	// step
@@ -397,7 +397,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));
 	    if (!mdecider->operator()(mydoc)) continue;
 	}
-	    
+
 	om_weight wt = pl->get_weight();
 	OmMSetItem new_item(wt, did);
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
@@ -457,120 +457,115 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (opts.get_bool("match_sort_forward", true)) goto match_complete;
     }
 
-    if (items.size() >= max_msize) {
-	// ie. we didn't go into the previous loop and exit because of at_end()
-	make_heap<vector<OmMSetItem>::iterator, OmMSetCmp>(items.begin(),
-			                                   items.end(), mcmp);
-	while (1) {
-	    if (recalculate_w_max) {
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
-		    break;
-		}
-	    }
-
-	    if (next_handling_prune(pl, min_item.wt, this)) {
-		DEBUGLINE(MATCH, "*** REPLACING ROOT");
-		
-		// no need for a full recalc (unless we've got to do one because
-		// of a prune elsewhere) - we're just switching to a subtree
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
-		    break;
-		}
-	    }
-	    
-	    if (pl->at_end()) {
-		DEBUGLINE(MATCH, "Reached end of potential matches");
+    make_heap<vector<OmMSetItem>::iterator, OmMSetCmp>(items.begin(),
+						       items.end(), mcmp);
+    while (1) {
+	if (recalculate_w_max) {
+	    if (getorrecalc_maxweight(pl) < min_item.wt) {
+		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
-	    
-	    om_docid did = pl->get_docid();
-	    om_weight wt = pl->get_weight();
-	    
-	    DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
-	    OmMSetItem new_item(wt, did);
-	    
-	    // test if item has high enough weight to get into proto-mset
-	    if (!mcmp(new_item, min_item)) continue;
-	    
-	    RefCntPtr<Document> doc;
-	    
-	    // Use the decision functor if any.
-	    // FIXME: if results are from MSetPostList then we can omit this
-	    // step
-	    if (mdecider != NULL) {
-		if (doc.get() == 0) {
-		    RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-		    doc = temp;
-		}
-		OmDocument mydoc(new OmDocument::Internal(doc, db, did));
-		if (!mdecider->operator()(mydoc)) continue;
+	}
+
+	if (next_handling_prune(pl, min_item.wt, this)) {
+	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
+
+	    // no need for a full recalc (unless we've got to do one because
+	    // of a prune elsewhere) - we're just switching to a subtree
+	    if (getorrecalc_maxweight(pl) < min_item.wt) {
+		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
+		break;
 	    }
-	    
-	    bool pushback = true;
+	}
 
-	    // Perform collapsing on key if requested.
-	    if (do_collapse) {
-		new_item.collapse_key =
-		    get_collapse_key(pl, db, did, collapse_key, doc);
+	if (pl->at_end()) {
+	    DEBUGLINE(MATCH, "Reached end of potential matches");
+	    break;
+	}
 
-		// Don't collapse on null key
-		if (!new_item.collapse_key.value.empty()) {
-		    std::map<OmKey, OmMSetItem>::iterator oldkey;
-		    oldkey = collapse_tab.find(new_item.collapse_key);
-		    if (oldkey == collapse_tab.end()) {
-			DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
-			// Key not been seen before
-			collapse_tab.insert(std::make_pair(new_item.collapse_key, new_item));
-		    } else {
-			const OmMSetItem olditem = (*oldkey).second;
-			if (mcmp(olditem, new_item)) {
-			    DEBUGLINE(MATCH, "collapsem: better exists: " <<
-				      new_item.collapse_key.value);
-			    // There's already a better match with this key
-			    continue;
-			}
-			// This is best match with this key so far:
-			// remove the old one from the MSet
-			if (mcmp(olditem, min_item)) {
-			    // Old one hasn't fallen out of MSet yet
-			    // Scan through (unsorted) MSet looking for entry
-			    // FIXME: more efficient way than just scanning?
-			    om_docid olddid = olditem.did;
-			    DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
-				      ": " << new_item.collapse_key.value);
-			    std::vector<OmMSetItem>::iterator i;
-			    for (i = items.begin(); i->did != olddid; i++) {
-				Assert(i != items.end());
-			    }
-			    *i = new_item;
-			    pushback = false;
-			    // FIXME: can't see how to just remove an arbitrary
-			    // item from a heap...
-			    make_heap<vector<OmMSetItem>::iterator,
-			                     OmMSetCmp>(items.begin(),
-							items.end(), mcmp);
-			}
-			oldkey->second = new_item;
+	om_docid did = pl->get_docid();
+	om_weight wt = pl->get_weight();
+
+	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
+	OmMSetItem new_item(wt, did);
+
+	// test if item has high enough weight to get into proto-mset
+	if (!mcmp(new_item, min_item)) continue;
+
+	RefCntPtr<Document> doc;
+
+	// Use the decision functor if any.
+	// FIXME: if results are from MSetPostList then we can omit this step
+	if (mdecider != NULL) {
+	    if (doc.get() == 0) {
+		RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+		doc = temp;
+	    }
+	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));
+	    if (!mdecider->operator()(mydoc)) continue;
+	}
+
+	bool pushback = true;
+
+	// Perform collapsing on key if requested.
+	if (do_collapse) {
+	    new_item.collapse_key = get_collapse_key(pl, db, did, collapse_key,
+						     doc);
+
+	    // Don't collapse on null key
+	    if (!new_item.collapse_key.value.empty()) {
+		std::map<OmKey, OmMSetItem>::iterator oldkey;
+		oldkey = collapse_tab.find(new_item.collapse_key);
+		if (oldkey == collapse_tab.end()) {
+		    DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
+		    // Key not been seen before
+		    collapse_tab.insert(std::make_pair(new_item.collapse_key, new_item));
+		} else {
+		    const OmMSetItem olditem = (*oldkey).second;
+		    if (mcmp(olditem, new_item)) {
+			DEBUGLINE(MATCH, "collapsem: better exists: " <<
+				  new_item.collapse_key.value);
+			// There's already a better match with this key
+			continue;
 		    }
+		    // This is best match with this key so far:
+		    // remove the old one from the MSet
+		    if (mcmp(olditem, min_item)) {
+			// Old one hasn't fallen out of MSet yet
+			// Scan through (unsorted) MSet looking for entry
+			// FIXME: more efficient way than just scanning?
+			om_docid olddid = olditem.did;
+			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
+				  ": " << new_item.collapse_key.value);
+			std::vector<OmMSetItem>::iterator i;
+			for (i = items.begin(); i->did != olddid; i++) {
+			    Assert(i != items.end());
+			}
+		        *i = new_item;
+			pushback = false;
+		        // FIXME: can't see how to just remove an arbitrary
+			// item from a heap...
+			make_heap<vector<OmMSetItem>::iterator,
+			          OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    }
+		    oldkey->second = new_item;
 		}
 	    }
-	    
-	    // OK, actually add the item to the mset.
-	    if (pushback) {
-		items.push_back(new_item);
-	        push_heap<vector<OmMSetItem>::iterator,
-		                 OmMSetCmp>(items.begin(), items.end(), mcmp);
-	        pop_heap<vector<OmMSetItem>::iterator,
-		                OmMSetCmp>(items.begin(), items.end(), mcmp);
-                items.pop_back(); 
-		docs_matched++;
-		min_item = items.front();
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-		    break;
-		}
+	}
+
+	// OK, actually add the item to the mset.
+	if (pushback) {
+	    items.push_back(new_item);
+	    push_heap<vector<OmMSetItem>::iterator,
+	              OmMSetCmp>(items.begin(), items.end(), mcmp);
+	    pop_heap<vector<OmMSetItem>::iterator,
+	             OmMSetCmp>(items.begin(), items.end(), mcmp);
+	    items.pop_back(); 
+	    docs_matched++;
+	    min_item = items.front();
+	    if (getorrecalc_maxweight(pl) < min_item.wt) {
+		DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		break;
 	    }
 
 	    // Keep a track of the greatest weight we've seen.
