@@ -59,7 +59,6 @@
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "requires ctags 5.0 from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
