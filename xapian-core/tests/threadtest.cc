@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     if (argc < 4) {
 	cerr << "Usage: " << argv[0] <<
 		" <database path> <queryfile> <threadcount> <options>" << endl;
-	exit (1);
+	exit (77);
     }
     database_path = argv[1];
     queryfile = argv[2];
