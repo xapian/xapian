@@ -517,15 +517,15 @@ Btree::alter(Cursor * C)
    to be followed to arrange for the preordering.
 */
 
-static int compare_keys(byte * key, byte * k)
-{   int key_len = GETK(key, 0);
-    int k_len = GETK(k, 0);
-    int k_smaller = k_len < key_len ? k_len : key_len;
+static int compare_keys(byte * key1, byte * key2)
+{   int key1_len = GETK(key1, 0);
+    int key2_len = GETK(key2, 0);
+    int k_smaller = key2_len < key1_len ? key2_len : key1_len;
     int i; for (i = K1; i < k_smaller; i++)
-    {   int diff = (int) key[i] - k[i];
+    {   int diff = (int) key1[i] - key2[i];
         if (diff != 0) return diff;
     }
-    return key_len - k_len;
+    return key1_len - key2_len;
 }
 
 /* find_in_block(p, key, offset, c) searches for the key in the block at p.

@@ -1,3 +1,7 @@
+Tue Dec 12 14:16:57 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Renamed arguments to compare_keys()
+
 Tue Dec 12 12:05:24 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added quartzdump utility to dump the contents of a quartz table.
