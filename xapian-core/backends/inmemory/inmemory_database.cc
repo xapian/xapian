@@ -36,11 +36,13 @@ TextfileDatabase::TextfileDatabase()
     Assert((indexing = false) == false);
 }
 
-TextfileDatabase::~TextfileDatabase() {
+TextfileDatabase::~TextfileDatabase()
+{
     close();
 }
 
-void TextfileDatabase::open(const string &pathname, bool readonly) {
+void TextfileDatabase::open(const string &pathname, bool readonly)
+{
     Assert(readonly == true);
     Assert(opened == false); // Can only open once
 
@@ -64,11 +66,13 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     Assert((opened = true) == true);
 }
 
-void TextfileDatabase::close() {
+void TextfileDatabase::close()
+{
 }
 
 DBPostList *
-TextfileDatabase::open_post_list(termid tid, RSet *rset) const {
+TextfileDatabase::open_post_list(termid tid, RSet *rset) const
+{
     Assert(opened);
     Assert(tid > 0 && tid <= postlists.size());
 
@@ -76,7 +80,8 @@ TextfileDatabase::open_post_list(termid tid, RSet *rset) const {
 }
 
 TermList *
-TextfileDatabase::open_term_list(docid did) const {
+TextfileDatabase::open_term_list(docid did) const
+{
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
@@ -84,7 +89,8 @@ TextfileDatabase::open_term_list(docid did) const {
 }
 
 IRDocument *
-TextfileDatabase::open_document(docid did) const {
+TextfileDatabase::open_document(docid did) const
+{
     Assert(opened);
     Assert(did > 0 && did <= doclists.size());
 
@@ -93,17 +99,20 @@ TextfileDatabase::open_document(docid did) const {
 
 
 termid
-TextfileDatabase::add_term(const termname &tname) {
+TextfileDatabase::add_term(const termname &tname)
+{
     throw OmError("TextfileDatabase.add_term() not implemented");
 }
 
 docid
-TextfileDatabase::add_doc(IRDocument &doc) {
+TextfileDatabase::add_doc(IRDocument &doc)
+{
     throw OmError("TextfileDatabase.add_doc() not implemented");
 }
 
 void
-TextfileDatabase::add(termid tid, docid did, termpos tpos) {
+TextfileDatabase::add(termid tid, docid did, termpos tpos)
+{
     throw OmError("TextfileDatabase.add_term() not implemented");
 }
 
@@ -142,7 +151,8 @@ TextfileDatabase::make_doc(const docname &dname)
     return termlists.size();
 }
 
-void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
+void TextfileDatabase::make_posting(termid tid, docid did, termcount position)
+{
     Assert(indexing == true);
     Assert(opened == false);
     Assert(tid > 0 && tid <= postlists.size());
