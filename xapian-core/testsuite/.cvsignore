@@ -4,4 +4,5 @@ Makefile.in
 Makefile
 .deps
 .libs
+depcomp
 libtest.la
