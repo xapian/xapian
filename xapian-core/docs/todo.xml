@@ -12,8 +12,6 @@ Pass around partially created postlists and termlists as AutoPtrs?
 (for exception safety)
 
 </todoitem>
-
-</todoitem>
 <todoitem priority="H" difficulty="3" owner="" area="General / API" release="">
 
 Put Om into its own namespace, to ensure lack of symbol conflicts.
@@ -69,8 +67,6 @@ Make all errors return a context if appropriate.
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
 Produce Microsoft Windows version, probably cross-compiling to mingw.
-
-</todoitem>
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="">
