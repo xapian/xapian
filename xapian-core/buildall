@@ -44,13 +44,13 @@ test -z "$BUILDDIR" && BUILDDIR='-'
 printlines() {
   # Display arguments, interpreting \n
   # FIXME: Don't assume we have an echo which interprets \n correctly
-  echo -e "$*"
+  echo -e "$@"
 }
 
 display() {
   # Display a string, unless not being verbose
   if [ $VERBOSE -eq 1 ] ; then
-    printlines "$*"
+    printlines "$@"
   fi
 }
 
@@ -62,8 +62,10 @@ error() {
 
 run() {
   # Run a program, stopping if it returns an error condition
-  display "${PROGNAME}: running $*"
-  $* || error "in $*"
+  cmd=$1;
+  shift;
+  display "${PROGNAME}: running $cmd $*"
+  $cmd "$@" || error "in $cmd $*"
 }
 
 #####################################################################
@@ -176,37 +178,61 @@ if [ "x${SRCDIR}" != "x." ] ; then
   display "${PROGNAME}: returned to build directory, ${BUILDDIR}"
 fi
 
-# Run configure script
-if [ -z "$*" ] ; then
-  if [ -x ./config.status ] ; then
-    run ./config.status --recheck
-    run ./config.status
-  else
-    run ${SRCDIR}/configure
+# Configure package
+
+# First move top level makefile away, so that we can tell if one gets
+# created
+if [ -r Makefile ] ; then
+  display "${PROGNAME}: moving existing Makefile out of the way"
+  rm -f "Makefile.old$$"
+  mv Makefile "Makefile.old$$"
+fi
+
+use_config_status=no
+if [ -x ./config.status ] ; then
+  # If no parameters, assume that we just wish to re-run the configure,
+  # using same parameters as last time.
+  # (Note: make should automatically perform these steps if and when
+  # neccessary, but this is useful for situations where make has got
+  # confused - for example, when a broken makefile has been created.)
+  if [ "x$*" = "x" ] ; then
+    use_config_status=yes
+  fi
+fi
+
+if [ $use_config_status = yes ] ; then
+  run ./config.status --recheck
+  run ./config.status
+else
+  run ${SRCDIR}/configure "$@"
+fi
+
+if [ -r Makefile ] ; then
+  CREATED_MAKEFILE=1
+  if [ -r Makefile.old ] ; then
+    rm -f Makefile.old
   fi
 else
-  run ${SRCDIR}/configure $*
+  CREATED_MAKEFILE=0
+  RUNMAKE=0
+  if [ -r Makefile.old ] ; then
+    mv Makefile.old Makefile
+    display "${PROGNAME}: replacing existing Makefile"
+    mv "Makefile.old$$" Makefile
+  fi
 fi
 
-# HACK: try not to run make, or say we've configured, if configure didn't
-# actually perform configuration
-# Can be fooled by --no-create.  If they use this and there's a Makefile,
-# we run make anyway.  Ho hum.  Think this is acceptable.
-if [ "x$*" = "x--he" -o "x$*" = "x--hel" -o "x$*" = "x--help" ] ; then
-  exit 0
-fi
-if [ "x$*" = "x--vers" -o "x$*" = "x--versi" -o \
-     "x$*" = "x--versio" -o "x$*" = "x--version" ] ; then
-  exit 0
-fi
-
-# Now run the make
+# Now run the make if desired
 if [ -r Makefile ] ; then
   if [ ${RUNMAKE} -eq 1 ] ; then
     run make
+    display
     display "${PROGNAME}: successfully built ${PACKAGE}"
   else
-    display "${PROGNAME}: configuration successful"
-    display "Run \"make\" to compile"
+    if [ ${CREATED_MAKEFILE} -eq 1 ] ; then
+      display
+      display "${PROGNAME}: successfully configured ${PACKAGE}"
+      display "Run \"make\" to compile"
+    fi
   fi
 fi
