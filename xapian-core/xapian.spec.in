@@ -30,7 +30,7 @@ Features of Xapian include:
 %package devel
 Group: Development/Libraries
 Summary: Files needed for building against xapian
-Prereq: xapian-core
+Requires: xapian-core
 
 %description devel
 The xapian-devel package contains the files needed for building against xapian.
@@ -53,8 +53,6 @@ echo $RPM_BUILD_ROOT
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
 
-# First, install the CGI tree.
-#
 make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
 # move the docs to the right place
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/doc
@@ -66,16 +64,6 @@ mv $RPM_BUILD_ROOT%{_prefix}/share/xapian $RPM_BUILD_ROOT%{_prefix}/share/doc/
 %files
 %defattr(-,root,root)
 /usr/lib/*
-# not /usr/bin/xapian-config
-#/usr/bin/*
-
-#	%doc CODING_STANDARDS CREDITS EXTENSIONS INSTALL LICENSE NEWS README*
-#	%doc Zend/ZEND_*
-#	%config(noreplace) %{_sysconfdir}/php.ini
-#	%{_bindir}/php
-#	%{_datadir}/pear
-#	%{_libdir}/apache/libphp4.so
-
 
 %post -p /sbin/ldconfig
 
