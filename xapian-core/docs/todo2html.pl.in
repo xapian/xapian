@@ -1,6 +1,7 @@
+
 #! @PERL_PATH@ -w
 # @configure_input@
-# mkdoc.pl is automatically generated from mkdoc.pl.in
+# todo2html.pl is automatically generated from todo2html.pl.in
 # *** Do not edit the generated file ***
 
 # todo2html.pl.in: generate documentation from source code and associated files.
@@ -32,16 +33,25 @@ while($line = <>) {
     } else {
         if(($line =~ m/---------\+-----------------\+--------------------------------------------------/)) {
 	    if($priority ne '') {
-		print "<TABLE>\n" if !$tableopen;
+		if(!$tableopen) {
+		print <<EOT;
+<TABLE BORDER=1>
+<TR>
+<TD>Priority</TD>
+<TD>Area</TD>
+<TD>Task</TD>
+<TD>Owner</TD>
+</TR>
+EOT
+		}
 		$tableopen = 1;
 		print <<EOT;
-<TR><TD>
-$priority
-</TD><TD>
-$area
-</TD><TD>
-$task
-</TD></TR>
+<TR VALIGN=top>
+<TD VALIGN=top>$priority</TD>
+<TD VALIGN=top>$area</TD>
+<TD VALIGN=top>$task</TD>
+<TD VALIGN=top>$owner</TD>
+</TR>
 EOT
 		$priority = '';
 		$owner = '';
