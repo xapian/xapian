@@ -110,6 +110,21 @@ class Record {
 	 */
 	const Record &operator[](unsigned int offset) const;
 
+	/** Return a reference to a given element in a vector.
+	 *  Will throw an exception if this message is not a vector,
+	 *  or if the offset is out of range.
+	 *
+	 *  @param offset	The (zero-based) offset into the vector.
+	 */
+	const Record &get_element(unsigned int offset) const;
+
+	/** Append a Record to the vector value.
+	 *  Will throw an exception if this message is not a vector
+	 *
+	 *  @param element	The element to append to this vector.
+	 */
+	void append_element(const Record &element);
+
 	/** Give this record an integer value
 	 */
 	void set_int(int value);

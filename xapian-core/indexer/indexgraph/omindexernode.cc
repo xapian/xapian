@@ -351,6 +351,12 @@ Record::get_vector_length() const
 const Record &
 Record::operator[](unsigned int offset) const
 {
+    return get_element(offset);
+}
+
+const Record &
+Record::get_element(unsigned int offset) const
+{
     if (type != rt_vector) {
 	throw OmTypeError("Record::get_vector_length() called for non-vector value");
     }
@@ -358,6 +364,15 @@ Record::operator[](unsigned int offset) const
 	throw OmRangeError("Access to non-existant element of vector record");
     }
     return (*u.vector_val)[offset];
+}
+
+void
+Record::append_element(const Record &element)
+{
+    if (type != rt_vector) {
+	throw OmTypeError("Record::append_element() called for non-vector value");
+    }
+    u.vector_val->push_back(element);
 }
 
 void
@@ -468,40 +483,62 @@ double OmIndexerNode::get_input_double(const std::string &input_name)
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const Record &record)
+static void write_record(std::ostream &os,
+			 const Record &record,
+			 bool skip_name = false)
 {
-    os << "Record{";
+    if (!skip_name) {
+	os << record.get_name() << ":";
+    }
     switch (record.get_type()) {
 	case Record::rt_empty:
-	    os << "empty}" << record.get_name();
+	    os << "{empty}";
 	    break;
 	case Record::rt_int:
-	    os << "int}: " << record.get_name() << "=" << record.get_int();
+	    os << record.get_int();
 	    break;
 	case Record::rt_double:
-	    os << "double}: " << record.get_name() << "=" << record.get_double();
+	    os << record.get_double();
 	    break;
 	case Record::rt_string:
-	    os << "string}: " << record.get_name() << "=" << record.get_string();
+	    os << "`" << record.get_string() << "\'";
 	    break;
 	case Record::rt_vector:
-	    os << "vector}: " << record.get_name() << "= [ ";
-	    for (int i=0; i<record.get_vector_length(); ++i) {
-		if (i > 0) {
-		    os << ", ";
+	    os << "[ ";
+	    {
+		std::string last_name;
+		for (int i=0; i<record.get_vector_length(); ++i) {
+		    if (i > 0) {
+			os << ", ";
+		    }
+		    bool skip_name = record[i].get_name() == last_name;
+		    write_record(os, record[i], skip_name);
+		    last_name = record[i].get_name();
 		}
-		os << record[i];
 	    }
 	    os << " ]";
 	    break;
     }
+}
+
+std::ostream &operator<<(std::ostream &os, const Record &record)
+{
+    os << "Record(";
+    write_record(os, record);
+    os << ")";
     return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const Message &message)
 {
-    os << "Message: " << *message;
+    os << *message;
     return os;
+}
+
+void
+OmIndexerNode::invalidate_outputs()
+{
+    outputs_record.clear();
 }
 
 #if 0

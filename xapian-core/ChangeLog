@@ -1,3 +1,12 @@
+Mon Sep 11 11:56:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented OmIndexerNode::invalidate_outputs()
+
+	* Added new methods get_element() (the same as operator[]) and
+	  append_element() to Record.
+
+	* Made the output of operator<<(ostream &, Record) more compact.
+
 Mon Sep 11 11:21:27 BST 2000 Olly Betts
 
 	* Fixed compiler warning in string_to_ommsetitems in non-debug builds.
