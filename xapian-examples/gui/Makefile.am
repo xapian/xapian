@@ -11,5 +11,3 @@ SUBDIR_GLADE =
 endif
 
 SUBDIRS = $(SUBDIR_GLADE)
-
-AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
