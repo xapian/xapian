@@ -1,3 +1,71 @@
+Xapian 0.7.5 (2003-11-26):
+
+API:
+
+* Xapian::QueryParser now supports prefixes on phrases and expressions (e.g.
+  author:(twain OR poe) subject:"space flight").
+
+* Added missing default constructors for TermIterator, PostingIterator, and
+  PositionIterator classes.
+
+* Fixed PositionIterator assignment operator.
+
+testsuite:
+
+* queryparsertest: Added testcase for new phrase and expression prefix support.
+
+* apitest: Added regression tests for API fixes.
+
+backends:
+
+* quartzcompact: Fix the name that the meta file gets copied to (was
+  /path/to/dbdirmeta rather than /path/to/dbdir/meta).
+
+build system:
+
+* Changed to using AM_MAINTAINER_MODE.  If you're doing development work on
+  Xapian itself, you should configure with "--enable-maintainer-mode" and
+  ideally use GNU make.
+
+* Fixed configure test for fdatasync to work (I suspect a change in a recent
+  autoconf broke it as it relied on autoconf internal naming).
+
+* Fully updated to reflect move of libbtreecheck.la from backends/quartz
+  to testsuite.  btreetest and quartzcheck should build correctly now.
+
+documentation:
+
+* Added first cut of documentation for Xapian::QueryParser query syntax.
+
+* Fixed incorrectly formatted doxygen documentation comments which resulted in
+  some missing text in the collated API and internal classes documentation.
+
+* Documented --enable-maintainer-mode and problems with BSD make in HACKING.
+
+* Fixed typo in docs/scalability.html.
+
+* PLATFORMS: Updated from the tinderbox.
+
+omega:
+
+* omega: Parsing of the probabilistic query is now delayed until we need some
+  information from it.  This means that we can now use options set by the
+  omegascript template to control the behaviour of the query parser.
+  $set{stemmer,...} now controls the stemming language (e.g. $set{stemmer,fr})
+  and $setmap{prefix,...} now sets the QueryParser prefix map (e.g.
+  $setmap{prefix,subject,XT,abstract,XA}).
+
+* omega: Fixed $setmap not to add bogus entries.
+
+* docs/omegascript.txt: Expanded documentation of $set and $setmap to list
+  values which Omega itself makes use of.
+
+* omega: Cleaned up the start up code quite a bit.
+
+* omega: Removed the unfinished code for caching omegascript command
+  expansions.  Added code to cache $dbsize.  The only other value correctly
+  marked for caching is already being cached!
+
 Xapian 0.7.4 (2003-10-02):
 
 API:

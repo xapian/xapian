@@ -5,7 +5,7 @@ dnl 2.54 needed for automake 1.6
 AC_PREREQ(2.54)
 dnl When updating the version for a release, update -version-info in
 dnl Makefile.am and extra/Makefile.am
-AC_INIT(xapian-core, 0.7.4)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 0.7.5)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 

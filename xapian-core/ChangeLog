@@ -1,3 +1,7 @@
+Wed Nov 26 15:32:45 GMT 2003  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.in: Version 0.7.5.
+
 Wed Nov 26 15:31:56 GMT 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy: Special case stemming language "none".
