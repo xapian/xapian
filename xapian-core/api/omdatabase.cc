@@ -280,6 +280,15 @@ OmDatabase::term_exists(const om_termname & tname) const
     return false;
 }
 
+void
+OmDatabase::keep_alive()
+{
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	(*i)->keep_alive();
+    }
+}
+
 std::string
 OmDatabase::get_description() const
 {

@@ -1,3 +1,9 @@
+Fri Feb 16 15:55:31 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Added an OmDatabase keep_alive() method to gently prod any
+	  remote databases.  Applications can use it to avoid the remote
+	  servers timing out between queries.  Not properly tested yet...
+
 Thu Feb 15 19:05:24 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* The remote server now supports a seperate timeout used while

@@ -146,6 +146,9 @@ class SocketClient : public NetClient {
 	/** Destructor. */
 	virtual ~SocketClient();
 
+	/** Send a keep-alive signal */
+	void keep_alive();
+
 	/** Write some bytes to the process.
 	 */
 	void write_data(std::string msg);

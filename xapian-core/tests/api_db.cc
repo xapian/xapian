@@ -1216,6 +1216,17 @@ static bool test_spaceterms1()
     return true;
 }
 
+// test for keepalives
+static bool test_keepalive1()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+
+    /* FIXME: come up with a way of passing a low timeout to progsrv */
+    db.keep_alive();
+
+    return true;
+}
+
 // test that iterating through all terms in a database works.
 static bool test_allterms1()
 {
@@ -2439,6 +2450,7 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
+    {"keepalive1",	   test_keepalive1},
     {0, 0}
 };
 

@@ -122,6 +122,9 @@ class NetworkDatabase : public Database {
 	void request_document(om_docid did) const;
 	Document * collect_document(om_docid did) const;
 	
+	// keep-alive
+	void keep_alive() const;
+
 	// Introspection methods...
 	bool is_network() const;
 };

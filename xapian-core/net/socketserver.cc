@@ -150,6 +150,7 @@ SocketServer::run()
 		    case 'Q': run_match(message.substr(1)); break;
 		    case 'T': run_gettermlist(message.substr(1)); break;
 		    case 'D': run_getdocument(message.substr(1)); break;
+		    case 'K': run_keepalive(message.substr(1)); break;
 #else /* TIMING_PATCH */
 		    case 'Q': {
 				  returnval = gettimeofday(&stp, NULL);
@@ -176,6 +177,15 @@ SocketServer::run()
 				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
 				  total += time;
 				  if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
+			      }
+			      break;
+		    case 'K': {
+				  returnval = gettimeofday(&stp, NULL);
+				  run_keepalive(message.substr(1));
+				  gettimeofday(&etp, NULL);
+				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+				  total += time;
+				  if (timing) cout << "Keep-alive time = " << time << " usecs. (socketserver.cc)\n";
 			      }
 			      break;
 #endif /* TIMING_PATCH */
@@ -470,6 +480,14 @@ SocketServer::run_getdocument(const std::string &firstmessage)
     }
 
     writeline("Z");
+}
+
+void
+SocketServer::run_keepalive(const std::string &message)
+{
+    /* Transmit to any of our own remote databases */
+    db.keep_alive();
+    writeline("OK");
 }
 
 void

@@ -76,6 +76,14 @@ SocketClient::SocketClient(int socketfd_,
 }
 
 void
+SocketClient::keep_alive()
+{
+    do_write(std::string("K"));
+    std::string message = do_read();
+    // ignore message
+}
+
+void
 SocketClient::init_end_time()
 {
     /* FIXME: use something with a higher resolution than time() */

@@ -51,6 +51,8 @@ class NetClient : public RefCntBase {
 	/** Destructor. */
 	virtual ~NetClient() {};
 
+	virtual void keep_alive() = 0;
+
 	void register_statssource(NetworkStatsSource *statssource_);
 
 	/** Write some bytes to the remote process.

@@ -84,6 +84,12 @@ NetworkDatabase::~NetworkDatabase() {
     }
 }
 
+void
+NetworkDatabase::keep_alive() const
+{
+    link->keep_alive();
+}
+
 om_doccount
 NetworkDatabase::get_doccount() const
 {

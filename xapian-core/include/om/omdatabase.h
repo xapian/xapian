@@ -196,6 +196,11 @@ class OmDatabase {
 	 */
 	om_doclength get_doclength(om_docid did) const;
 
+	/** Send a "keep-alive" to remote databases to stop them timing
+	 *  out.
+	 */
+	void keep_alive();
+
 	/** Get a document from the database, given its document id.
 	 *
 	 *  This method returns an OmDocument object which provides the

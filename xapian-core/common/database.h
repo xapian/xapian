@@ -136,6 +136,11 @@ class Database : public RefCntBase {
 	 */
         virtual ~Database();
 
+	/** Send a keep-alive signal to a remote database, to stop
+	 *  it from timing out.
+	 */
+	virtual void keep_alive() const;
+
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
 	// ====================

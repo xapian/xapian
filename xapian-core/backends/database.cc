@@ -40,6 +40,13 @@ Database::~Database()
 }
 
 void
+Database::keep_alive() const
+{
+    /* For the normal case of local databases, nothing needs to be done.
+     */
+}
+
+void
 Database::ensure_session_in_progress()
 {
     if (!session_in_progress) {
