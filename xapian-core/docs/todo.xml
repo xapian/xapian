@@ -51,14 +51,6 @@ they do we need to either disallow negative term weights, or fix/disable the
 optimisations for the case of negative term weights.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="OmDocument">
-
-Remove termfreq element from OmDocumentContents - not meaningful in some
-places where this is used (for example OmDatabase::add_document()).  Perhaps
-we need two different types of OmDocumentContents, or perhaps this can just
-go totally.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Documentation">
 
 Patch doxygen, so that todo items in the body of methods get displayed.
