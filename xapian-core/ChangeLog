@@ -1,3 +1,8 @@
+Mon Sep 25 18:00:01 BST 2000 Olly Betts
+
+	* MergePostList: now working - just need to sort out how it works
+	  with the remote backend.
+
 Mon Sep 25 15:36:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added omprefixnode

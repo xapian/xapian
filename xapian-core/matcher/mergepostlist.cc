@@ -27,15 +27,43 @@
 
 MergePostList::MergePostList(std::vector<PostList *> plists_)
 {
+    DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
+    current = -1;
     plists = plists_;
+}
+
+MergePostList::~MergePostList()
+{
+    DEBUGCALL(MATCH, void, "MergePostList::~MergePostList", "");
+    std::vector<PostList *>::const_iterator i;
+    for (i = plists.begin(); i != plists.end(); i++) {
+	delete *i;
+    }
 }
 
 PostList *
 MergePostList::next(om_weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
+    DEBUGLINE(MATCH, "current = " << current);
+    if (current == -1) current = 0;
+    do {
+	PostList *p = plists[current]->next(w_min);
+	if (p) {
+	    delete plists[current];
+	    plists[current] = p;
+	}
+	if (!plists[current]->at_end()) break;
+	current++;
+    } while (current < plists.size());
+    DEBUGLINE(MATCH, "current = " << current);
+    RETURN(NULL);
 }
 
 PostList *
 MergePostList::skip_to(om_docid did, om_weight w_min)
 {
+    // MergePostList doesn't return documents in docid order, so skip_to
+    // isn't a meaningful operation.
+    throw OmUnimplementedError("MergePostList doesn't support skip_to");
 }

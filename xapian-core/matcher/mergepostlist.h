@@ -28,7 +28,7 @@
 
 /** A postlist comprising postlists from different databases mergeed together.
  */
-class MergePostList : public BranchPostList {
+class MergePostList : public PostList {
     private:
         om_weight w_max;
 
@@ -56,8 +56,11 @@ class MergePostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
+	virtual PositionList * MergePostList::get_position_list();
+
         MergePostList(std::vector<PostList *> plists_);
 	// FIXME: LocalMatch *matcher_?
+        ~MergePostList();
 };
 
 inline om_doccount
@@ -75,10 +78,11 @@ MergePostList::get_termfreq() const
 inline om_docid
 MergePostList::get_docid() const
 {
+    DEBUGCALL(MATCH, om_docid, "MergePostList::get_docid", "");
     Assert(current != -1);
     // FIXME: this needs fixing so we can prune plists - see MultiPostlist
     // for code which does this...
-    return plists[current]->get_docid() * plists.size() + current;
+    RETURN((plists[current]->get_docid() - 1) * plists.size() + current + 1);
 }
 
 inline om_weight
@@ -109,7 +113,8 @@ MergePostList::recalc_maxweight()
 inline bool
 MergePostList::at_end() const
 {
-    return plists.empty();
+    Assert(current != -1);
+    return current >= plists.size();
 }
 
 inline std::string
@@ -128,6 +133,12 @@ MergePostList::get_doclength() const
 {
     Assert(current != -1);
     return plists[current]->get_doclength();
+}
+
+inline PositionList *
+MergePostList::get_position_list()
+{
+    throw OmUnimplementedError("MergePostList::get_position_list() unimplemented");
 }
 
 #endif /* OM_HGUARD_MERGEPOSTLIST_H */
