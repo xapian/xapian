@@ -1,6 +1,10 @@
 // boolean AND NOT of two posting lists
 
+#ifndef _andnotpostlist_h_
+#define _andnotpostlist_h_
+
 #include "database.h"
+#include "orpostlist.h"
 
 class AndNotPostList : public virtual OrPostList {
     private:
@@ -35,3 +39,5 @@ AndNotPostList::at_end() const
 {
     return lhead == 0;
 }
+
+#endif /* _andnotpostlist_h_ */
