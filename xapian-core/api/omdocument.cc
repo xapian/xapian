@@ -342,13 +342,12 @@ Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tp
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
-	OmDocumentTerm newterm(tname);
+	OmDocumentTerm newterm(tname, wdfinc);
 	newterm.add_position(tpos);
-	newterm.set_wdf(wdfinc);
 	terms.insert(make_pair(tname, newterm));
     } else {
 	i->second.add_position(tpos);
-	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
+	if (wdfinc) i->second.inc_wdf(wdfinc);
     }
 }
 
@@ -360,11 +359,10 @@ Xapian::Document::Internal::add_term_nopos(const string & tname, Xapian::termcou
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
-	OmDocumentTerm newterm(tname);
-	newterm.set_wdf(wdfinc);
+	OmDocumentTerm newterm(tname, wdfinc);
 	terms.insert(make_pair(tname, newterm));
     } else {
-	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
+	if (wdfinc) i->second.inc_wdf(wdfinc);
     }
 }
 
@@ -383,11 +381,7 @@ Xapian::Document::Internal::remove_posting(const string & tname,
 		"Xapian::Document::Internal::remove_posting()");
     }
     i->second.remove_position(tpos);
-    if (wdfdec) {
-	Xapian::termcount currwdf = i->second.get_wdf();
-	currwdf = ((currwdf > wdfdec) ? (currwdf - wdfdec) : 0);
-	i->second.set_wdf(currwdf);
-    }
+    if (wdfdec) i->second.dec_wdf(wdfdec);
 }
 
 void
@@ -433,11 +427,10 @@ Xapian::Document::Internal::need_terms() const
 	for ( ; t != tend; ++t) {
 	    Xapian::PositionIterator p = t.positionlist_begin();
 	    Xapian::PositionIterator pend = t.positionlist_end();
-	    OmDocumentTerm term(*t);
+	    OmDocumentTerm term(*t, t.get_wdf());
 	    for ( ; p != pend; ++p) {
 		term.add_position(*p);
 	    }
-	    term.set_wdf(t.get_wdf());
 	    terms.insert(make_pair(*t, term));
 	}
     }

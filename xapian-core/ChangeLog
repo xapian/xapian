@@ -1,3 +1,8 @@
+Tue Aug 12 00:53:02 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,common/documentterm.h: OmDocumentTerm ctor now
+	  takes wdf, and replaced set_wdf() with inc_wdf() and dec_wdf().
+
 Mon Aug 11 16:11:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_entries.cc: Removed rather unnecessary
@@ -51,7 +56,7 @@ Sun Aug 10 01:26:58 BST 2003  Olly Betts <olly@survex.com>
 
 Sun Aug 10 01:00:08 BST 2003  Olly Betts <olly@survex.com>
 
-	* configure.in: If fork is found, but socketpair isn't automatically
+	* configure.in: If fork is found, but socketpair isn't, automatically
 	  disable the remote backend rather than configure dying with an
 	  error.
 	* autoconf/: Removed various unused autoconf macros.
@@ -761,7 +766,7 @@ Thu Jun 05 17:45:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: omprogsrv depends on libtest.la, so it need to be
 	  in check_PROGRAMS.
-	  
+
 Thu Jun 05 17:09:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Moved bindings after extra in SUBDIRS - the bindings
@@ -1288,7 +1293,7 @@ Tue Apr 29 00:33:21 BST 2003  Olly Betts <olly@survex.com>
 	  now mostly hooked into the testsuite.
 	* HACKING: Bison 1.875 doesn't work but Bison 1.875a probably does;
 	  suggest CXXFLAGS=-Werror, not CFLAGS.
- 
+
 Tue Apr 29 00:14:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* INSTALL: Updated.
@@ -1337,7 +1342,7 @@ Fri Apr 18 22:40:31 BST 2003  Sam Liddicott <sam@liddicott.com>
 	  less relevant than the hits they collapse over.  I think we need
 	  collapse_tab maybe to keep a reference to the item in the mset?  But
 	  this works for now.
-	* xapian.spec.in: Fixed to also install include/xapian stuff 
+	* xapian.spec.in: Fixed to also install include/xapian stuff
 
 Fri Apr 18 19:17:56 BST 2003  Olly Betts <olly@survex.com>
 
@@ -1547,10 +1552,10 @@ Tue Apr 01 02:52:57 BST 2003  Olly Betts <olly@survex.com>
 	  on 64 bit machines.
 
 Mon Mar 31 19:34:54 BST 2003  Olly Betts <olly@survex.com>
-   
+
 	* AUTHORS,xapian.spec.in: Merged in changes to RPM packaging from
 	  Fabrice Colin and reworked further.
-  
+
 Fri Mar 28 20:04:04 GMT 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.
@@ -1654,7 +1659,7 @@ Mon Feb 24 10:33:52 GMT 2003  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Disabled (for now) sort_bands
 	  optimisation which is misbehaving.  Fixed forward ordered boolean
-	  optimisation broken by last check-in. 
+	  optimisation broken by last check-in.
 	* tests/api_db.cc: Added test_sortbands2 based on James' test code.
 
 Sun Feb 23 20:28:47 GMT 2003  Olly Betts <olly@survex.com>
@@ -4419,12 +4424,12 @@ Wed Mar 28 17:15:22 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 Wed Mar 28 15:05:46 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fixes to InMemoryDatabase:
-	  do_open_post_list returns an EmptyPostList rather than an
-		assertion error if the term doesn't exist
-	  Fixed doccount(), which wasn't decrementing on delete_doc()
-	  Remove terms from the database when they have no more postings.
-	  Implement collection frequencies, and run collfreq tests for
-		inmemory.
+	  + do_open_post_list returns an EmptyPostList rather than an
+	    assertion error if the term doesn't exist
+	  + Fixed doccount(), which wasn't decrementing on delete_doc()
+	  + Remove terms from the database when they have no more postings.
+	  + Implement collection frequencies, and run collfreq tests for
+	    inmemory.
 
 Wed Mar 28 14:24:38 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 

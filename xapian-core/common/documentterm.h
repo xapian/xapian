@@ -36,10 +36,13 @@ class OmDocumentTerm {
     /** Make a new term.
      *
      *  @param tname_ The name of the new term.
+     *  @param wdf_   Initial wdf.
      */
-    OmDocumentTerm(const string & tname_) : tname(tname_), wdf(0), termfreq(0)
+    OmDocumentTerm(const string & tname_, Xapian::termcount wdf_)
+	: tname(tname_), wdf(wdf_), termfreq(0)
     {
-	DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_);
+	DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm",
+		     tname_ << ", " << wdf_);
     }
 
     /** The name of this term.
@@ -98,8 +101,17 @@ class OmDocumentTerm {
      */
     void remove_position(Xapian::termpos tpos);
 
-    /// Set the wdf
-    void set_wdf(Xapian::termcount wdf_) { wdf = wdf_; }
+    /// Increase the wdf
+    void inc_wdf(Xapian::termcount inc) { wdf += inc; }
+
+    /// Decrease the wdf
+    void dec_wdf(Xapian::termcount dec) {
+	if (wdf <= dec) {
+	    wdf = 0;
+	} else {
+	    wdf -= dec;
+	}
+    }
 
     /// Get the wdf
     Xapian::termcount get_wdf() { return wdf; }
