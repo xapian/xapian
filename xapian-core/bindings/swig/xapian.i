@@ -173,7 +173,7 @@ struct OmDocumentTerm {
     void add_posting(om_termpos tpos = 0);
 };
 
-class OmDocumentContents {
+class OmDocument {
   public:
     %addmethods {
         OmDocumentContents() {
@@ -185,7 +185,7 @@ class OmDocumentContents {
 
     %addmethods {
         void set_data(string data_) {
-	    self->data = data_;
+	    self->set_data(data_);
 	}
     }
 
@@ -197,7 +197,7 @@ class OmDocumentContents {
 
     %addmethods {
 	void add_key(int keyno, string value) {
-	    self->keys[keyno] = value;
+	    self->add_key(keyno, OmKey(value));
 	}
     }
 
