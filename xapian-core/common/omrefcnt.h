@@ -55,7 +55,7 @@ class OmRefCntBase {
 	 *
 	 *  This is only rarely useful.  One use is for copy-on-write.
 	 */
-	ref_count_t ref_count_get()
+	ref_count_t ref_count_get() const
 	{
 	    return ref_count;
 	}
@@ -101,8 +101,6 @@ class OmRefCntPtr {
 	 *
 	 *  (eg, a database might pass a newly created postlist
 	 *  a reference counted pointer to itself.)
-	 *
-	 *  Only class T, ie the class being ref count pointed,  
 	 */
 	OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_);
     public:
@@ -113,6 +111,9 @@ class OmRefCntPtr {
 	OmRefCntPtr(const OmRefCntPtr &other);
 	void operator=(const OmRefCntPtr &other);
 	~OmRefCntPtr();
+
+	template <class U>
+	OmRefCntPtr(OmRefCntPtr<U> &other);
 };
 
 inline void OmRefCntBase::ref_start() const
@@ -135,14 +136,14 @@ inline bool OmRefCntBase::ref_decrement() const
     return (ref_count == 0);
 }
 
+
+
 template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_)
 	: dest(dest_)
 {
     Assert(dest != 0);
-    if (dest) {
-	dest->ref_increment();
-    }
+    dest->ref_increment();
 }
 
 template <class T>
@@ -157,6 +158,7 @@ template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
 {
     if (dest) {
+	Assert(dest->ref_count_get() != 0);
 	dest->ref_increment();
     }
 }
@@ -168,6 +170,7 @@ inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
     }
     dest = other.dest;
     if (dest) {
+	Assert(dest->ref_count_get() != 0);
 	dest->ref_increment();
     }
 }
@@ -178,6 +181,18 @@ inline OmRefCntPtr<T>::~OmRefCntPtr()
     if (dest && dest->ref_decrement()) {
 	delete dest;
 	dest = 0;
+    }
+}
+
+template <class T>
+template <class U>
+inline
+OmRefCntPtr<T>::OmRefCntPtr(OmRefCntPtr<U> &other)
+	: dest(other.get())
+{
+    if (dest) {
+	Assert(dest->ref_count_get() != 0);
+	dest->ref_increment();
     }
 }
 

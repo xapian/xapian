@@ -1,3 +1,8 @@
+Mon Sep 11 17:48:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* OmRefCntPtr updated to deal with conversions between different
+	  pointer types.
+
 Mon Sep 11 14:57:42 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stopped OmDatabase::postlist_{begin,end} from being virtual.
