@@ -52,8 +52,22 @@ class MultiMatch
 
 	const OmQuery::Internal *query;
 
-	OmSettings opts;
+	om_valueno collapse_key;
 
+	int percent_cutoff;
+
+	om_weight weight_cutoff;
+
+	bool sort_forward;
+
+	om_valueno sort_key;
+
+	int sort_bands;
+
+	time_t bias_halflife;
+
+	om_weight bias_weight;
+	
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
@@ -98,7 +112,6 @@ class MultiMatch
 	 *  @param db_       The database to use.
 	 *  @param query     The query
 	 *  @param omrset    The relevance set
-	 *  @param opts_     Settings object for matcher settings
 	 *  @param errorhandler Errorhandler object
 	 *  @param gatherer_ An auto_ptr to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
@@ -108,7 +121,14 @@ class MultiMatch
 	MultiMatch(const OmDatabase &db_,
 		   const OmQuery::Internal * query,
 		   const OmRSet & omrset,
-		   const OmSettings & opts_,
+		   om_valueno collapse_key_,
+		   int percent_cutoff_,
+		   om_weight weight_cutoff_,
+		   bool sort_forward_,
+		   om_valueno sort_key_,
+		   int sort_bands_,
+		   time_t bias_halflife_,
+		   om_weight bias_weight_,
 		   OmErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_,
 		   const OmWeight *wtscheme);

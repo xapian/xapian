@@ -70,9 +70,6 @@
 %include "om/omerror.h"
 %include "om/omerrorhandler.h"
 %
-% Settings/Options
-%include "om/omsettings.h"
-%
 % Data access
 %include "om/omdocument.h"
 %include "om/omdatabase.h"

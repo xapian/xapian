@@ -27,7 +27,6 @@
 #include "database.h"
 #include "om/omdocument.h"
 #include "om/omenquire.h"
-#include "om/omsettings.h"
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"

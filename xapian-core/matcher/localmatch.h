@@ -25,7 +25,6 @@
 #ifndef OM_HGUARD_LOCALMATCH_H
 #define OM_HGUARD_LOCALMATCH_H
 
-#include "om/omsettings.h"
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
@@ -64,9 +63,6 @@ class LocalSubMatch : public SubMatch {
 	/// The size of the query (passed to OmWeight objects)
 	om_doclength querysize;
     
-	/// Stored match options object
-	OmSettings opts;
-
 	/// Weighting scheme object
 	const OmWeight * wtscheme;
 
@@ -102,15 +98,15 @@ class LocalSubMatch : public SubMatch {
 
     public:
 	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,
-		      const OmRSet & omrset, const OmSettings &opts_,
-		      StatsGatherer *gatherer, const OmWeight *wtscheme_)
+		      const OmRSet & omrset, StatsGatherer *gatherer,
+		      const OmWeight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),
-		  querysize(query->qlen), opts(opts_), wtscheme(wtscheme_)
+		  querysize(query->qlen), wtscheme(wtscheme_)
 	{	    
 	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 		      db << ", " << query << ", " << omrset << ", " <<
-		      opts_ << ", " << gatherer << ", [wtscheme]");
+		      gatherer << ", [wtscheme]");
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 

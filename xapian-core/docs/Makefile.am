@@ -15,13 +15,10 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html todo.html todo-release.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-# text docs
-TEXTDOCS = omsettings
-
 # Files which should be put in the distribution by automake
 EXTRA_DIST = mkdoc.pl todo2html.pl todo.xml \
 	doxygen_api_conf.in doxygen_full_conf.in \
-       	$(HTMLDOCS) $(TEXTDOCS) \
+       	$(HTMLDOCS) \
 	doxygen_api_header.html_tmpl \
 	doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl \
@@ -33,7 +30,7 @@ all-local: doxygen_api_docs
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/xapian
-docdata_DATA = $(HTMLDOCS) $(TEXTDOCS) apidoc.ps
+docdata_DATA = $(HTMLDOCS) apidoc.ps
 
 dist-hook:
 	: # Don't allow "make dist" if dot (part of graphviz) isn't installed

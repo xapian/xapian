@@ -863,8 +863,10 @@ operator==(const OmMSetIterator &a, const OmMSetIterator &b)
 ///////////////////////////////////////////
 
 OmEnquire::Internal::Data::Data(const OmDatabase &db_,
-			      OmErrorHandler * errorhandler_)
-  : db(db_), query(0), errorhandler(errorhandler_), weight(0)
+				OmErrorHandler * errorhandler_)
+  : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
+    percent_cutoff(0), weight_cutoff(-1), sort_bands(0), bias_halflife(0),
+    errorhandler(errorhandler_), weight(0)
 {
 }
 
@@ -896,20 +898,12 @@ OmMSet
 OmEnquire::Internal::Data::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-                    const OmSettings *moptions,
 		    const OmMatchDecider *mdecider) const
 {
-    DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset",
-	      first << ", " << maxitems << ", " << omrset << ", " <<
-	      moptions << ", " << mdecider << ", ");
+    DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset", first << ", "
+	      << maxitems << ", " << omrset << ", " << << mdecider);
     if (query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
-    }
-
-    // Use default options if none supplied
-    OmSettings default_settings;
-    if (moptions == 0) {
-        moptions = &default_settings;
     }
 
     // Set Rset
@@ -923,15 +917,16 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
     }
 
     // FIXME: make match take a refcntptr
-    MultiMatch match(db, query->internal, *omrset, *moptions, errorhandler,
+    MultiMatch match(db, query->internal, *omrset, collapse_key, percent_cutoff,
+		     weight_cutoff, sort_forward, sort_key, sort_bands,
+		     bias_halflife, bias_weight, errorhandler,
 		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
     // Run query and get results into supplied OmMSet object
     OmMSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
-// FIXME:    Assert(moptions->get("match_weighting_scheme", "bm25") != "bool" ||
-//	   retval.get_max_possible() == 0);
+    Assert(weight.name() != "bool" || retval.get_max_possible() == 0);
 
     // The OmMSet needs to have a pointer to ourselves, so that it can
     // retrieve the documents.  This is set here explicitly to avoid having
@@ -1171,18 +1166,14 @@ OmMSet
 OmEnquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-                    const OmSettings *moptions,
 		    const OmMatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
-    DEBUGAPICALL(OmMSet, "OmEnquire::get_mset",
-		 first << ", " <<
-		 maxitems << ", " <<
-		 omrset << ", " <<
-		 moptions << ", " << mdecider);
+    DEBUGAPICALL(OmMSet, "OmEnquire::get_mset", first << ", " << maxitems <<
+		 ", " << omrset << ", " << mdecider);
 
     try {
-	RETURN(internal->data->get_mset(first, maxitems, omrset, moptions, mdecider));
+	RETURN(internal->data->get_mset(first, maxitems, omrset, mdecider));
     } catch (OmError & e) {
 	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
 	throw;

@@ -26,8 +26,8 @@
 #include <iostream>
 #include <string>
 #include <dlfcn.h>
-using std::cout;
-using std::endl;
+
+using namespace std;
 
 #include "om/om.h"
 #include "testsuite.h"
@@ -35,31 +35,31 @@ using std::endl;
 #include "omstringstream.h"
 
 // always succeeds
-bool test_trivial();
+static bool test_trivial();
 // always fails (for testing the framework)
-bool test_alwaysfail();
+static bool test_alwaysfail();
 // test the test framework
-bool test_testsuite1();
-bool test_testsuite2();
-bool test_testsuite3();
-bool test_testsuite4();
+static bool test_testsuite1();
+static bool test_testsuite2();
+static bool test_testsuite3();
+static bool test_testsuite4();
 
-bool test_trivial()
+static bool test_trivial()
 {
     return true;
 }
 
-bool test_alwaysfail()
+static bool test_alwaysfail()
 {
     return false;
 }
 
-bool test_skip()
+static bool test_skip()
 {
     SKIP_TEST("skip test");
 }
 
-bool test_except1()
+static bool test_except1()
 {
     try {
 	throw 1;
@@ -76,7 +76,7 @@ class duffnew_test {
 duffnew_test *duff_allocation = 0;
 duffnew_test *duff_allocation_2 = 0;
 
-bool test_duffnew()
+static bool test_duffnew()
 {
     // make an unfreed allocation
     duff_allocation_2 = duff_allocation;
@@ -87,7 +87,7 @@ bool test_duffnew()
 char *duff_malloc_allocation = 0;
 char *duff_malloc_allocation_2 = 0;
 
-bool test_duffmalloc()
+static bool test_duffmalloc()
 {
     // make an unfreed allocation
     duff_malloc_allocation_2 = duff_malloc_allocation;
@@ -95,7 +95,7 @@ bool test_duffmalloc()
     return true;
 }
 
-bool test_testsuite1()
+static bool test_testsuite1()
 {
     test_desc mytests[] = {
 	{"test0", test_skip},
@@ -119,7 +119,7 @@ bool test_testsuite1()
     return true;
 }
 
-bool test_testsuite2()
+static bool test_testsuite2()
 {
     test_desc mytests[] = {
 	{"test1", test_alwaysfail},
@@ -147,7 +147,7 @@ bool test_testsuite2()
 #endif
 
 // test the memory leak tests
-bool test_testsuite3()
+static bool test_testsuite3()
 {
     // Note that duffnew leaks (deliberately), so it'll get run twice.
     // Bear this in mind if you're trying to debug stuff round here...
@@ -175,7 +175,7 @@ bool test_testsuite3()
 }
 
 // test the malloc() memory leak tests
-bool test_testsuite4()
+static bool test_testsuite4()
 {
     test_desc mytests[] = {
 	{"duff_malloc", test_duffmalloc},
@@ -218,7 +218,7 @@ class Test_Exception {
 	Test_Exception(int value_) : value(value_) {}
 };
 
-bool test_exception1()
+static bool test_exception1()
 {
     try {
 	try {
@@ -261,7 +261,7 @@ class test_refcnt : public RefCntBase {
 };
 #endif
 
-bool test_refcnt1()
+static bool test_refcnt1()
 {
 #ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
@@ -297,7 +297,7 @@ bool test_refcnt1()
 
 // This is a regression test - a RefCntPtr used to delete the object pointed
 // to if it was the reference count was 1 and you assigned it to itself.
-bool test_refcnt2()
+static bool test_refcnt2()
 {
 #ifdef HAVE_NO_ACCESS_CONTROL
     bool deleted = false;
@@ -317,12 +317,12 @@ bool test_refcnt2()
 }
 
 // test string comparisions
-bool test_stringcomp1()
+static bool test_stringcomp1()
 {
     bool success = true;
 
-    std::string s1;
-    std::string s2;
+    string s1;
+    string s2;
 
     s1 = "foo";
     s2 = "foo";
@@ -365,104 +365,13 @@ bool test_stringcomp1()
     return success;
 }
 
-bool test_omstringstream1()
+static bool test_omstringstream1()
 {
     om_ostringstream oss;
     oss << "foo" << 4 << "bar";
     TEST_EQUAL(oss.str(), "foo4bar");
 
     return true;
-}
-
-// ####################################
-// # test the behaviour of OmSettings #
-// ####################################
-bool
-test_omsettings1()
-{
-    OmSettings settings;
-
-    settings.set("K1", "V1");
-    settings.set("K2", "V2");
-    settings.set("K1", "V3");
-
-    TEST_EQUAL(settings.get("K1"), "V3");
-    TEST_EQUAL(settings.get("K2"), "V2");
-    return true;
-}
-
-bool
-test_omsettings2()
-{
-    bool success = false;
-
-    OmSettings settings;
-    try {
-	settings.get("nonexistant");
-
-	if (verbose) {
-	    cout << "get() didn't throw with invalid key" << endl;
-	}
-    } catch (OmRangeError &e) {
-	success = true;
-    }
-
-    return success;
-}
-
-bool
-test_omsettings3()
-{
-    bool success = true;
-
-    // test copy-on-write behaviour.
-    OmSettings settings1;
-
-    settings1.set("FOO", "BAR");
-    settings1.set("MOO", "COW");
-
-    OmSettings settings2(settings1);
-
-    if (settings2.get("FOO") != "BAR" ||
-	settings2.get("MOO") != "COW") {
-	success = false;
-	if (verbose) {
-	    cout << "settings weren't copied properly." << endl;
-	}
-    }
-
-    if (settings1.get("FOO") != "BAR" ||
-	settings1.get("MOO") != "COW") {
-	success = false;
-	if (verbose) {
-	    cout << "settings destroyed when copied." << endl;
-	}
-    }
-
-    settings2.set("BOO", "AAH");
-
-    try {
-	settings1.get("BOO");
-	// should throw
-
-	success = false;
-	if (verbose) {
-	    cout << "Changes leaked to original" << endl;
-	}
-    } catch (OmRangeError &) {
-    }
-
-    settings1.set("FOO", "RAB");
-
-    if (settings2.get("FOO") != "BAR") {
-	success = false;
-
-	if (verbose) {
-	    cout << "Changes leaked to copy" << endl;
-	}
-    }
-
-    return success;
 }
 
 // ##################################################################
@@ -482,9 +391,6 @@ test_desc tests[] = {
     {"refcnt2",			test_refcnt2},
     {"stringcomp1",		test_stringcomp1},
     {"omstringstream1",		test_omstringstream1},
-    {"omsettings1",		test_omsettings1},
-    {"omsettings2",		test_omsettings2},
-    {"omsettings3",		test_omsettings3},
     {0, 0}
 };
 

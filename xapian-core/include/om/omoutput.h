@@ -5,6 +5,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,9 +55,6 @@ OUTPUT_FUNCTION(OmEnquire)
 
 #include "om/omstem.h"
 OUTPUT_FUNCTION(OmStem)
-
-#include "om/omsettings.h"
-OUTPUT_FUNCTION(OmSettings)
 
 #include "om/ompostlistiterator.h"
 OUTPUT_FUNCTION(OmPostListIterator)

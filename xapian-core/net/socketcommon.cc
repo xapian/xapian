@@ -548,57 +548,6 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 }
 
 string
-moptions_to_string(const OmSettings &moptions)
-{
-    string result;
-
-    result += om_tostring(moptions.get_int("match_collapse_key", -1));
-    result += ' ';
-    result += om_tostring((int)moptions.get_bool("match_sort_forward", true));
-    result += ' ';
-    result += om_tostring(moptions.get_int("match_percent_cutoff", 0));
-    result += ' ';
-    result += om_tostring(moptions.get_real("match_cutoff", 0));
-    result += ' ';
-    result += "dummy"; // FIXME : was the weighting scheme name
-
-    return result;
-}
-
-OmSettings
-string_to_moptions(const string &s)
-{
-#ifdef HAVE_SSTREAM
-    istringstream is(s);
-#else
-    istrstream is(s.data(), s.length());
-#endif
-
-    OmSettings mopt;
-    bool sort_forward;
-    int collapse_key, percent_cutoff;
-    om_weight cutoff;
-    string weighting_scheme;
-
-    is >> collapse_key
-       >> sort_forward
-       >> percent_cutoff
-       >> cutoff
-       >> weighting_scheme;
-
-    mopt.set("match_collapse_key", collapse_key);
-    mopt.set("match_sort_forward", sort_forward);
-    mopt.set("match_percent_cutoff", percent_cutoff);
-    mopt.set("match_cutoff", cutoff);
-    // FIXME: mopt.set("match_weighting_scheme", weighting_scheme);
-    
-    Assert(s == moptions_to_string(mopt));
-//    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"
-//	      << moptions_to_string(mopt));
-    return mopt;
-}
-
-string
 omrset_to_string(const OmRSet &omrset)
 {
     string result = om_tostring(omrset.size());

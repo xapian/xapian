@@ -38,19 +38,23 @@
 
 RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const OmQuery::Internal * query,
-			       const OmRSet & omrset, const OmSettings &opts,
+			       const OmRSet & omrset,
+			       om_valueno collapse_key, bool sort_forward,
+			       int percent_cutoff, om_weight weight_cutoff,
 			       StatsGatherer *gatherer_,
 			       const OmWeight *wtscheme)
 	: is_prepared(false), db(db_), gatherer(gatherer_)
 {	    
     DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " <<
-	      omrset << ", " << opts << ", " << gatherer_);
+	      omrset << ", " << collapse_key << ", " << sort_forward << ", " <<
+	      percent_cutoff << ", " << weight_cutoff << ", " << gatherer_);
     Assert(db);
     Assert(query);
     Assert(gatherer_);
     statssource = new NetworkStatsSource(gatherer_, db->link);
 
-    db->link->set_query(query, opts, wtscheme, omrset);
+    db->link->set_query(query, collapse_key, sort_forward, percent_cutoff,
+			weight_cutoff, wtscheme, omrset);
     db->link->register_statssource(statssource);
 
     AutoPtr<RSet> new_rset(new RSet(db, omrset));

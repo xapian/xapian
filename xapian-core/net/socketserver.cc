@@ -280,7 +280,19 @@ SocketServer::run_match(const string &firstmessage)
 
     // extract the match options
     message = readline(msecs_active_timeout);
-    OmSettings moptions = string_to_moptions(message);
+#ifdef HAVE_SSTREAM
+    istringstream is(message);
+#else
+    istrstream is(message.data(), message.length());
+#endif
+
+    bool sort_forward;
+    om_valueno collapse_key;
+    int percent_cutoff;
+    om_weight weight_cutoff;
+    string weighting_scheme;
+
+    is >> collapse_key >> sort_forward >> percent_cutoff >> weight_cutoff;
 
     // extract the weight object
     message = readline(msecs_active_timeout);
@@ -295,8 +307,9 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
-    MultiMatch match(db, &query, omrset, moptions, 0,
-		     AutoPtr<StatsGatherer>(gatherer), wt.get());
+    MultiMatch match(db, &query, omrset, collapse_key, percent_cutoff,
+		     weight_cutoff, sort_forward, om_valueno(-1), 0, 0, 0,
+		     NULL, AutoPtr<StatsGatherer>(gatherer), wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

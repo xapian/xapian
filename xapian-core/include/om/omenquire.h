@@ -30,7 +30,6 @@
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
 #include "om/omerror.h"
-#include "om/omsettings.h"
 #include <string>
 
 class OmQuery;
@@ -579,6 +578,40 @@ class OmEnquire {
 	 */
 	void set_weighting_scheme(const OmWeight &weight_);
 
+	/* FIXME: rework these as doxygen comments for the methods
+	 * we're going to add...
+  - match options
+    - match_collapse_key : key number to collapse on - duplicates mset
+      entries will be removed based on a key (default -1 => no collapsing)
+    - match_sort_forward : If true, documents with the same weight will
+      be returned in ascending document order; if false, they will be
+      returned in descending order.flag to sort forward (default true)
+    - match_percent_cutoff : Minimum percentage score for returned
+      documents. If a document has a lower percentage score than this, it
+      will not appear in the mset.  If your intention is to return only
+      matches which contain all the terms in the query, then consider using
+      OmQuery::OP_AND instead of OmQuery::OP_OR in the query).
+      (default -1 => no cut-off)
+    - match_cutoff : Minimum weight for a document to be returned.  If a
+      document has a lower score that this, it will not appear in the mset.
+      It is usually only possible to choose an appropriate weight for cutoff
+      based on the results of a previous run of the same query; this is thus
+      mainly useful for alerting operations.
+
+  - match_sort_key : value number to reorder on.  Sorting is with a string
+      compare.  Higher is better.  If match_sort_key is set, but 
+      match_sort_bands isn't, sort the whole mset my the key.  No default.
+  - match_sort_bands : sort results into this many bands of equal percentage
+      relevance.  Within each band, sort by the value number specified by
+      match_sort_key, otherwise by document id (taking note of the setting of
+      match_sort_forward.  The default (0) is off.
+
+  - match bias functor options - NB this is a temporary API for this feature.
+    - match_bias_weight : Maximum weight bias functor can add (and which is
+      given to document with a time now or in the future) - no default.
+    - match_bias_halflife - the match bias decays exponentially with time -
+      this sets the half-life of this decay in seconds (default 0 => no bias).
+	 */
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.
@@ -589,7 +622,6 @@ class OmEnquire {
 	 *                   at the eleventh.
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing the query.
-	 *  @param moptions  options to use when performing the match.
 	 *  @param mdecider  a decision functor to use to decide whether a
 	 *                   given document should be put in the MSet
 	 *
@@ -603,7 +635,6 @@ class OmEnquire {
 	OmMSet get_mset(om_doccount first,
                         om_doccount maxitems,
 			const OmRSet * omrset = 0,
-			const OmSettings * moptions = 0,
 			const OmMatchDecider * mdecider = 0) const;
 
 	static const int include_query_terms = 1;
@@ -654,16 +685,6 @@ class OmEnquire {
 	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
 			       const OmExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
-	}
-
-	// FIXME: remove when OmSettings goes away
-	// This is needed as otherwise the first overloaded method is
-	// used (since X* matches int...)
-	inline OmESet get_eset(om_termcount, const OmRSet &, OmSettings *,
-			       OmExpandDecider *dummy = 0) const {
-	    (void)dummy;
-	    throw "You need to update this call to OmEnquire::get_eset() "
-		  "- it no longer takes an OmSettings * parameter";
 	}
 
 	/** Get terms which match a given document, by document id.

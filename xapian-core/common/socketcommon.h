@@ -29,19 +29,18 @@
 #include <map>
 #include <sys/time.h>
 #include "omlinebuf.h"
-#include "om/omsettings.h"
 #include "omenquireinternal.h"
 #include "om/omquery.h"
-#include "omtime.h"
 
 using std::map;
 
-#define OM_SOCKET_PROTOCOL_VERSION 15
+#define OM_SOCKET_PROTOCOL_VERSION 16
 
 class OmQuery::Internal;
 class Stats;
 class OmRSet;
 class OmMSet;
+class OmTime;
 
 /** The OmSocketLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
@@ -121,18 +120,6 @@ string stats_to_string(const Stats &stats);
  *  @param  s		The serialised Stats object.
  */
 Stats string_to_stats(const string &s);
-
-/** Convert the match_ options from an OmSettings object into a string representation.
- *
- *  @param moptions	The object to serialise.
- */
-string moptions_to_string(const OmSettings &moptions);
-
-/** Convert a serialised OmSettings string back into an object.
- *
- *  @param s		The serialised object as a string.
- */
-OmSettings string_to_moptions(const string &s);
 
 /** Convert an OmRSet object into a string representation.
  *

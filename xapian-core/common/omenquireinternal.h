@@ -106,9 +106,6 @@ class OmMSetItem {
 	 *  for this item, the value will be a null string.  Only one instance
 	 *  of each key value (apart from the null string) will be present in
 	 *  the items in the returned OmMSet.
-	 *
-	 *  See the OmSettings match_collapse_key parameter for more
-	 *  information about setting a collapse key upon.
 	 */
 	string collapse_key;
 
@@ -154,6 +151,20 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 */
 	OmQuery * query;
 
+	om_valueno collapse_key;
+
+	bool sort_forward;
+
+	int percent_cutoff;
+
+	om_weight weight_cutoff;
+
+	om_valueno sort_key;
+	int sort_bands;
+
+	time_t bias_halflife;
+	om_weight bias_weight;
+
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
@@ -186,7 +197,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
 	OmMSet get_mset(om_doccount first, om_doccount maxitems,
-			const OmRSet *omrset, const OmSettings *moptions,
+			const OmRSet *omrset, 
 			const OmMatchDecider *mdecider) const;
 	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
 			double k, const OmExpandDecider *edecider) const;

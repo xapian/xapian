@@ -385,8 +385,9 @@ SocketClient::~SocketClient()
 
 void
 SocketClient::set_query(const OmQuery::Internal *query_,
-			const OmSettings &moptions_, const OmWeight *wtscheme,
-			const OmRSet &omrset_)
+			om_valueno collapse_key, bool sort_forward,
+			int percent_cutoff, om_weight weight_cutoff,
+			const OmWeight *wtscheme, const OmRSet &omrset_)
 {
     /* no actual communication performed in this method */
 
@@ -394,8 +395,10 @@ SocketClient::set_query(const OmQuery::Internal *query_,
     // neccessary, otherwise it will stop at the end of get_mset()
     init_end_time();
     Assert(conv_state == state_getquery);
+    // FIXME: no point carefully serialising these all separately...
     query_string = query_->serialise();
-    moptions = moptions_;
+    optstring = om_tostring(collapse_key) + ' ' + om_tostring(sort_forward) +
+	' ' + om_tostring(percent_cutoff) + ' ' + om_tostring(weight_cutoff);
     wtstring = wtscheme->name() + '\n' + wtscheme->serialise();
     omrset = omrset_;
 }
@@ -413,7 +416,7 @@ SocketClient::finish_query()
 	case state_getquery:
 	    // Message 3 (see README_progprotocol.txt)
 	    do_write("Q" + query_string + '\n'
-		     + moptions_to_string(moptions) + '\n'
+		     + optstring + '\n'
 		     + wtstring + '\n'
 		     + omrset_to_string(omrset));		
 	    conv_state = state_sentquery;
@@ -528,7 +531,6 @@ SocketClient::get_mset(om_doccount first,
     remote_stats_valid = false;
     global_stats = Stats();
     global_stats_valid = false;
-    moptions = OmSettings();
     omrset = OmRSet();
 
     // disable the timeout, now that the mset has been retrieved.
@@ -570,7 +572,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
 		remote_stats_valid = false;
 		global_stats = Stats();
 		global_stats_valid = false;
-		moptions = OmSettings();
+		optstring = wtstring = "";
 		omrset = OmRSet();
 	    } else {
 		did = atoi(message);

@@ -68,12 +68,12 @@ class NetClient : public RefCntBase {
 	/** Set the query
 	 *
 	 * @param query_ The query.
-	 * @param moptions_ The match options.
 	 * @param wtscheme Weighting scheme.
 	 * @param omrset_ The rset.
 	 */
 	virtual void set_query(const OmQuery::Internal *query_,
-			       const OmSettings &moptions_,
+			       om_valueno collapse_key, bool sort_forward,
+			       int percent_cutoff, om_weight weight_cutoff,
 			       const OmWeight *wtscheme,
 			       const OmRSet &omrset_) = 0;
 

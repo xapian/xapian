@@ -94,16 +94,14 @@ class MSetSortCmp {
     private:
 	OmDatabase db;
 	double factor;
-	bool have_key;
 	om_valueno sort_key;
 	bool forward;
 	int bands;
     public:
 	MSetSortCmp(const OmDatabase &db_, int bands_, double percent_scale,
-		    bool have_key_, om_valueno sort_key_, bool forward_)
+		    om_valueno sort_key_, bool forward_)
 	    : db(db_), factor(percent_scale * bands_ / 100.0),
-	      have_key(have_key_), sort_key(sort_key_), forward(forward_),
-	      bands(bands_) {
+	      sort_key(sort_key_), forward(forward_), bands(bands_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
 	    int band_a = int(ceil(a.wt * factor));
@@ -112,7 +110,7 @@ class MSetSortCmp {
 	    if (band_b > bands) band_b = bands;
 	    
 	    if (band_a != band_b) return band_a > band_b;
-	    if (have_key) {
+	    if (sort_key != om_valueno(-1)) {
 		if (a.sort_key.empty()) {
 		    OmDocument doc = db.get_document(a.did);
 		    a.sort_key = doc.get_value(sort_key);
@@ -134,15 +132,26 @@ class MSetSortCmp {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
-		       const OmRSet & omrset, const OmSettings & opts_,
-		       OmErrorHandler * errorhandler_,
+		       const OmRSet & omrset, om_valueno collapse_key_,
+		       int percent_cutoff_, om_weight weight_cutoff_,
+		       bool sort_forward_, om_valueno sort_key_,
+		       int sort_bands_, time_t bias_halflife_,
+		       om_weight bias_weight_, OmErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_,
 		       const OmWeight * weight_)
-	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
-	  mcmp(msetcmp_forward), errorhandler(errorhandler_), weight(weight_)
+	: gatherer(gatherer_), db(db_), query(query_),
+	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
+	  weight_cutoff(weight_cutoff_), sort_forward(sort_forward_),
+	  sort_key(sort_key_), sort_bands(sort_bands_),
+	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
+	  mcmp(sort_forward ? msetcmp_forward : msetcmp_reverse),
+	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      omrset << ", " << opts_ << ", " << errorhandler_ <<
+	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
+	      ", " << weight_cutoff_ << ", " << sort_forward << ", " <<
+	      sort_key_ << ", " << sort_bands_ << ", " << bias_halflife_ <<
+	      ", " << bias_weight_ << ", " << errorhandler_ <<
 	      ", [gatherer_], [weight_]");
     query->validate_query();
 
@@ -171,10 +180,19 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    const NetworkDatabase *netdb = db->as_networkdatabase();
 	    if (netdb) {
-		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(netdb, query, *subrset, opts, gatherer.get(), weight));
+		if (sort_key != om_valueno(-1) || sort_bands) {
+		    throw OmUnimplementedError("sort_key and sort_bands not supported with remote backend");
+		}
+		if (bias_halflife) {
+		    throw OmUnimplementedError("bias_halflife and bias_weight not supported with remote backend");
+		}
+		smatch = RefCntPtr<SubMatch>(
+			new RemoteSubMatch(netdb, query, *subrset, collapse_key,
+			    sort_forward, percent_cutoff, weight_cutoff,
+			    gatherer.get(), weight));
 	    } else {
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get(), weight));
+		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, gatherer.get(), weight));
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
 #endif /* MUS_BUILD_BACKEND_REMOTE */
@@ -195,10 +213,6 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 
     gatherer->set_global_stats(omrset.size());
     prepare_matchers();
-
-    if (!opts.get_bool("match_sort_forward", true)) {
-	mcmp = OmMSetCmp(msetcmp_reverse);
-    }
 }
 
 MultiMatch::~MultiMatch()
@@ -356,12 +370,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // FIXME: a temporary bodge to allow this to be used - I'll write
     // a proper API later, promise - Olly
-    if (opts.get_bool("match_bias", false)) {
+    if (bias_halflife) {
 	pl = new BiasPostList(pl, db,
-	       	new OmBiasFunctor(db,
-		    opts.get_real("match_bias_weight", 10000),
-		    opts.get_real("match_bias_halflife", 2 * 24 * 60 * 60)),
-	       	this);
+	       	new OmBiasFunctor(db, bias_weight, bias_halflife), this);
     }
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -403,42 +414,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
-    OmMSetItem min_item(0, 0);
+    OmMSetItem min_item(weight_cutoff, 0);
 
-    om_weight percent_factor = opts.get_int("match_percent_cutoff", 0) / 100.0;
-    bool percent_cutoff = (percent_factor > 0);
-     
-    {
-	om_weight val = opts.get_real("match_cutoff", 0);
-	if (val > 0) min_item.wt = val;
-    }
-
+    om_weight percent_factor = percent_cutoff / 100.0;
+ 
     // Table of keys which have been seen already, for collapsing.
     map<string, OmMSetItem> collapse_tab;
-
-    // Whether to perform collapse operation
-    bool do_collapse = false;
-    // Key to collapse on, if desired
-    om_valueno collapse_key = 0; // Initialise to shut up compiler warnings
-    {
-	int val = opts.get_int("match_collapse_key", -1);
-	if (val >= 0) {
-	    do_collapse = true;
-	    collapse_key = val;
-	}
-    }
-
-    int sort_bands = opts.get_int("match_sort_bands", 0);
-    bool have_sort_key = false;
-    om_valueno sort_key = 0; // Initialise to shut up compiler warnings
-    {
-	int val = opts.get_int("match_sort_key", -1);
-	if (val >= 0) {
-	    have_sort_key = true;
-	    sort_key = val;
-	    if (sort_bands == 0) sort_bands = 1;
-	}
-    }
 
     // Perform query
 
@@ -511,7 +492,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	bool pushback = true;
 
 	// Perform collapsing on key if requested.
-	if (do_collapse) {
+	if (collapse_key != om_valueno(-1)) {
 	    new_item.collapse_key = get_collapse_key(pl, db, did,
 						     collapse_key, doc);
 
@@ -568,10 +549,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		is_heap = false;
 		// We're done if this is a forward boolean match
 		// (bodgetastic, FIXME better if we can)
-		if (max_weight == 0) {
-		    if (opts.get_bool("match_sort_forward", true)) break;
-		}
-	    } else if (items.size() >= max_msize && have_sort_key) {
+		if (max_weight == 0 && sort_forward) break;
+	    } else if (items.size() >= max_msize && sort_bands) {
 		if (!is_heap) {
 		    is_heap = true;
 		    make_heap<vector<OmMSetItem>::iterator,
@@ -744,8 +723,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     if (sort_bands) {
 	sort(items.begin(), items.end(),
 	     MSetSortCmp(db, sort_bands, percent_scale,
-			 have_sort_key, sort_key,
-			 opts.get_bool("match_sort_forward", true)));
+			 sort_key, sort_forward));
 	if (items.size() > max_msize) {
 	    items.erase(items.begin() + max_msize, items.end());
 	}

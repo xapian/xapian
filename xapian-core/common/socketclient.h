@@ -81,11 +81,11 @@ class SocketClient : public NetClient {
 	/// If true, the global_stats are valid
 	bool global_stats_valid;
 
-	/// The match options object
-	OmSettings moptions;
-
 	/// A string serialisation of the weighting scheme
 	std::string wtstring;
+
+	/// A string serialisation of various match options
+	std::string optstring;
 
 	/// The current RSet.
 	OmRSet omrset;
@@ -185,13 +185,13 @@ class SocketClient : public NetClient {
 	/** Set the query
 	 *
 	 * @param query_ The query.
-	 * @param moptions_ The match options.
 	 * @param wtscheme Weighting scheme.
 	 * @param omrset_ The rset.
 	 */
 	void set_query(const OmQuery::Internal *query_,
-		       const OmSettings &moptions_, const OmWeight *wtscheme,
-		       const OmRSet &omrset_);
+		       om_valueno collapse_key, bool sort_forward,
+		       int percent_cutoff, om_weight weight_cutoff,
+		       const OmWeight *wtscheme, const OmRSet &omrset_);
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);
