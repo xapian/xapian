@@ -1,3 +1,10 @@
+Tue Apr 27 20:46:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,configure.in: Added configure test for
+	  glibc, because otherwise we need to include a header before we
+	  can check for glibc in order to define something we should be
+	  defining before we include any headers!
+
 Tue Apr 27 17:45:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Only defined _XOPEN_SOURCE if __GLIBC__

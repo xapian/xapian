@@ -56,12 +56,24 @@ dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
 dnl See if ftime returns void (as it does on mingw)
+AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
   AC_TRY_COMPILE([#include <sys/timeb.h>],
     [struct timeb tp; int i = ftime(&tp);],
-    ,
+    AC_MSG_RESULT(int),
+    AC_MSG_RESULT(void)
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
+
+dnl See if the C library is glibc
+AC_MSG_CHECKING([if C library is glibc])
+AC_PREPROC_IFELSE([#include <stdlib.h>
+#ifndef __GLIBC__
+#error not_glibc
+#endif],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIBC, 1, [Define if the C library is glibc]),
+  AC_MSG_RESULT(no))
 
 dnl how to find the hostname
 AC_CHECK_HEADERS(sys/utsname.h) dnl uname function in here
