@@ -1230,6 +1230,23 @@ static bool test_allterms2()
     OmTermIterator ati = db.allterms_begin();
 
     TEST(ati != db.allterms_end());
+    while (ati != db.allterms_end()) {
+	cout << *ati << endl;
+	ati++;
+    }
+    ati = db.allterms_begin();
+    cout << "FOO" << endl;
+    while (ati != db.allterms_end()) {
+	cout << *ati << endl;
+	ati++;
+    }
+    ati = db.allterms_begin();
+    cout << "BAR" << endl;
+    while (ati != db.allterms_end()) {
+	cout << *ati << endl;
+	ati++;
+    }
+    ati = db.allterms_begin();
     TEST(*ati == "five");
     TEST(ati.get_termfreq() == 2);
     ati++;
@@ -1245,19 +1262,28 @@ static bool test_allterms2()
     TEST(*ati == "one");
     TEST(ati.get_termfreq() == 1);
 
+#if 0
+    /*** Currently we only support input iterator semantics, so
+     *** making independant copies isn't supported.
+     ***/
     TEST(ati2 != db.allterms_end());
     TEST(*ati2 == "four");
     TEST(ati2.get_termfreq() == 1);
+#endif
 
     ++ati;
+#if 0
     ++ati2;
+#endif
     TEST(ati != db.allterms_end());
     TEST(*ati == "six");
     TEST(ati.get_termfreq() == 3);
 
+#if 0
     TEST(ati2 != db.allterms_end());
     TEST(*ati2 == "one");
     TEST(ati2.get_termfreq() == 1);
+#endif
 
     ati++;
     TEST(ati != db.allterms_end());
@@ -2237,7 +2263,7 @@ test_desc db_tests[] = {
 /// The tests which need a backend which supports iterating over all terms
 test_desc allterms_tests[] = {
     {"allterms1",	   test_allterms1},
-//    {"allterms2",	   test_allterms2},
+    {"allterms2",	   test_allterms2},
     {"allterms3",	   test_allterms3},
     {0, 0}
 };

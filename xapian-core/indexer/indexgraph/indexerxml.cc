@@ -360,7 +360,7 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 	    }
 	    config.set(name, value);
 	} else if (type == "list") {
-	    xmlNodePtr items = node->childs;
+	    xmlNodePtr items = node->xmlChildrenNode;
 	    std::vector<std::string> values;
 	    while (items) {
 		if (items->type == XML_COMMENT_NODE) {
@@ -390,7 +390,7 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 static AutoPtr<OmIndexerDesc>
 desc_from_tree(xmlDocPtr doc)
 {
-    xmlNodePtr root = doc->root;
+    xmlNodePtr root = doc->xmlRootNode;
     //cerr << "intSubset = " << doc->intSubset << endl;
     //cerr << "extSubset = " << doc->extSubset << endl;
     if (!root) {
@@ -408,7 +408,7 @@ desc_from_tree(xmlDocPtr doc)
 
     AutoPtr<OmIndexerDesc> result(new OmIndexerDesc());
 
-    for (xmlNodePtr node = root->childs;
+    for (xmlNodePtr node = root->xmlChildrenNode;
 	 node != 0;
 	 node = node->next) {
 
@@ -422,7 +422,7 @@ desc_from_tree(xmlDocPtr doc)
 	    ndesc.type = get_prop(node, "type");
 	    ndesc.id = get_prop(node, "id");
 
-	    xmlNodePtr child = node->childs;
+	    xmlNodePtr child = node->xmlChildrenNode;
 
 	    child = get_config_values(child, ndesc.param);
 
