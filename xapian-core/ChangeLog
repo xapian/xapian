@@ -1,3 +1,8 @@
+Fri Nov 21 03:23:57 GMT 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,include/xapian/termiterator.h,api/omtermlistiterator.cc:
+	  TermIterator::TermIterator() fix which actually works!
+
 Fri Nov 21 01:14:23 GMT 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.in,docs/Makefile.am,extra/Makefile.am: Change to

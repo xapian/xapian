@@ -39,6 +39,11 @@ Xapian::TermIterator::TermIterator(Internal *internal_)
     }
 }
 
+Xapian::TermIterator::TermIterator() : internal(0)
+{
+    DEBUGAPICALL(void, "Xapian::TermIterator::TermIterator", "");
+}
+
 Xapian::TermIterator::~TermIterator() {
     DEBUGAPICALL(void, "Xapian::TermIterator::~TermIterator", "");
 }

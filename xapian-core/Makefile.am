@@ -60,7 +60,8 @@ EXTRA_libxapian_la_SOURCES =
 # 0:0:0 0.7.2 (and anything before)
 # 0:1:0 0.7.3
 # 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
-libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 1:0:0
+# 1:1:1       (Xapian::TermIterator::TermIterator() added)
+libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info 1:1:1
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols
