@@ -31,12 +31,6 @@ so that there is no positionlist, and then the positionlist is requested.
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
 
-Make sure that all methods and classes in the API have documentation
-comments.
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
-
 Check for zero byte cleanness wherever strings are used.  There are a lot
 of c_str()s in the code...
 
@@ -57,7 +51,7 @@ Latest suggestion: OmFacet
 Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">
+<todoitem priority="M" difficulty="4" owner="" area="OmQuery" release="1.0">
 
 Make query operator to filter on percentage weight work.
 
@@ -71,15 +65,6 @@ be the sum of the wdfs).
 <todoitem priority="M" difficulty="2" owner="" area="General" release="">
 
 Make all errors return a context if appropriate.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
-
-"Percentage" scores - should be made more useful: a document which is indexed
-by all terms should probably have a score of 100%, for example.  May need to
-store the fraction of terms in the query which index the document in order to
-do this: but what happens with boolean filter terms (particularly boolean not
-filters)?
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Porting" release="1.0">
@@ -138,12 +123,6 @@ optimisations for the case of negative term weights.
 Patch doxygen, so that todo items in the body of methods get displayed.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
-
-Test performance when nth_element is run more or less frequently, to see
-what is best.
-
-</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="General" release="">
 
 Check that it is safe for an exception to be thrown and caught within a
@@ -181,8 +160,8 @@ of the code, at present.
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Documentation" release="1.0">
 
-Ensure that API documentation covers entirety of API.  Then rewrite it for
-clarity.
+Ensure that API documentation covers entirety of API (i.e. that all methods and
+classes in the API have documentation comments).  Then rewrite it for clarity.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
@@ -233,7 +212,8 @@ Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
 
 Treat FILTER and AND as equivalent from the point of view of building
 optimal AND trees.  Also add a variant on FilterPostList where the left
-branch is boolean and the right probabilistic.
+branch is boolean and the right probabilistic.  Resist urge to call
+it RETFIL.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Threads" release="">
