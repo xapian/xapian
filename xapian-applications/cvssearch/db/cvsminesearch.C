@@ -9,13 +9,6 @@
 
 #define MIN_SUPPORT 1 
 
-#define USE_IDF 0
-
-#define IDF_PRUNE -1
-
-
-
-
 
 
 
@@ -269,19 +262,6 @@ void generate_rules( Db& db,
       //      cerr << "symbol " << symbol << " has idf " << compute_idf( db, symbol, total_commit_transactions ) << endl;
 
 
-      if ( compute_idf( db, symbol, total_commit_transactions ) >= IDF_PRUNE ) {
-
-
-
-#if USE_IDF
-#warning "takes IDF into account now!!!"
-	cerr << "changing score of " << symbol << " from " << score << " to ";
-	score = score * compute_idf( db, symbol, total_commit_transactions );
-	cerr << score << " as idf = " << compute_idf( db, symbol, total_commit_transactions ) <<  endl;
-#endif
-
-
-
 	string item = prefix + symbol;
 	
 	if ( item.find("()") != string::npos ) {
@@ -289,10 +269,6 @@ void generate_rules( Db& db,
 	} else {
 	  class_ranking[ -score ].insert(item);
 	}
-
-      } else {
-	//	cerr << "... pruning " << symbol << endl;
-      }
 
     }
 }
