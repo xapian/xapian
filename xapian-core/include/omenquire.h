@@ -527,6 +527,17 @@ class OmEnquire {
 	 *  be found in the database.
 	 */
 	OmData get_doc_data(const OmMSetItem &mitem) const;
+
+	/** Get the terms matching a given document in the current query
+	 *
+	 *  @param mitem   The item for which to retrieve the matching terms.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception OmDocNotFoundError  The document specified could not
+	 *  be found in the database.
+	 */
+	vector<om_termname> get_matching_terms(const OmMSetItem &mitem) const;
 };
 
 #endif /* OM_HGUARD_OMENQUIRE_H */

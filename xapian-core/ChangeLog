@@ -1,3 +1,7 @@
+Thu Feb 10 18:53:33 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmEnquire::get_matching_terms() to the API.
+
 Thu Feb 10 18:02:37 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added tests to apitest for the match and expand decision functors,
