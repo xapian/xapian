@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,17 +26,12 @@
 
 #include "om/om.h"
 
-OmDatabase make_dbgrp(OmDatabase * db1 = 0,
-		      OmDatabase * db2 = 0,
-		      OmDatabase * db3 = 0,
-		      OmDatabase * db4 = 0);
-
-OmDatabase get_database(const std::string &dbname, const std::string &dbname2 = "");
+OmDatabase get_database(const std::string &dbname,
+			const std::string &dbname2 = "");
 
 OmDatabase get_network_database(const std::string &dbname,
 				unsigned int timeout);
 
-OmWritableDatabase get_writable_database(const std::string &dbname);
 OmWritableDatabase get_writable_database(const std::string &dbname);
 
 #endif /* OM_HGUARD_APITEST_H */

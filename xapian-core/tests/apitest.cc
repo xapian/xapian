@@ -51,20 +51,6 @@ using std::ostream;
 #include "api_posdb.h"
 #include "api_db.h"
 
-OmDatabase
-make_dbgrp(OmDatabase * db1, OmDatabase * db2,
-	   OmDatabase * db3, OmDatabase * db4)
-{
-    OmDatabase result;
-
-    if(db1 != 0) result.add_database(*db1);
-    if(db2 != 0) result.add_database(*db2);
-    if(db3 != 0) result.add_database(*db3);
-    if(db4 != 0) result.add_database(*db4);
-
-    return result;
-}
-
 BackendManager backendmanager;
 
 OmDatabase

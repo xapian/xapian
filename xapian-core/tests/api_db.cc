@@ -59,7 +59,7 @@ static bool test_zerodocid1()
 
     OmDatabase mydb(get_database("apitest_onedoc"));
 
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
 
     // make a simple query, with one word in it - "word".
     Xapian::Query myquery("word");
@@ -208,11 +208,11 @@ static bool test_puncterms1()
 static bool test_multidb1()
 {
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(mydb2);
 
     // make a simple query, with one word in it - "word".
     Xapian::Query myquery("word");
@@ -235,11 +235,11 @@ static bool test_multidb2()
 {
     OmDatabase mydb1(get_database("apitest_simpledata",
 				  "apitest_simpledata2"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(mydb2);
 
     // make a simple query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -260,8 +260,8 @@ static bool test_multidb2()
 static bool test_multidb3()
 {
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -279,9 +279,9 @@ static bool test_multidb3()
 static bool test_multidb4()
 {
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmDatabase mydb4(get_database("apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    mydb2.add_database(get_database("apitest_termorder"));
+    OmEnquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -299,8 +299,8 @@ static bool test_multidb4()
 static bool test_multidb5()
 {
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
@@ -376,49 +376,77 @@ static bool test_multierrhandler1()
 	OmDatabase dbgrp;
 	switch (testcount) {
 	    case 0:
-		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb4);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb4);
 		break;
 	    case 1:
-		dbgrp = make_dbgrp(&mydb4, &mydb2, &mydb3);
+		dbgrp.add_database(mydb4);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
 		break;
 	    case 2:
-		dbgrp = make_dbgrp(&mydb3, &mydb4, &mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb4);
+		dbgrp.add_database(mydb2);
 		break;
 	    case 3:
-		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb5);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb5);
 		sleep(1);
 		break;
 	    case 4:
-		dbgrp = make_dbgrp(&mydb5, &mydb2, &mydb3);
+		dbgrp.add_database(mydb5);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
 		sleep(1);
 		break;
 	    case 5:
-		dbgrp = make_dbgrp(&mydb3, &mydb5, &mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb5);
+		dbgrp.add_database(mydb2);
 		sleep(1);
 		break;
 	    case 6:
-		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb6);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb6);
 		break;
 	    case 7:
-		dbgrp = make_dbgrp(&mydb6, &mydb2, &mydb3);
+		dbgrp.add_database(mydb6);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
 		break;
 	    case 8:
-		dbgrp = make_dbgrp(&mydb3, &mydb6, &mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb6);
+		dbgrp.add_database(mydb2);
 		break;
 	    case 9:
-		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb7);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb7);
 		break;
 	    case 10:
-		dbgrp = make_dbgrp(&mydb7, &mydb2, &mydb3);
+		dbgrp.add_database(mydb7);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb3);
 		break;
 	    case 11:
-		dbgrp = make_dbgrp(&mydb3, &mydb7, &mydb2);
+		dbgrp.add_database(mydb3);
+		dbgrp.add_database(mydb7);
+		dbgrp.add_database(mydb2);
 		break;
 	    case 12:
-		dbgrp = make_dbgrp(&mydb2, &mydb6, &mydb7);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb6);
+		dbgrp.add_database(mydb7);
 		break;
 	    case 13:
-		dbgrp = make_dbgrp(&mydb2, &mydb7, &mydb6);
+		dbgrp.add_database(mydb2);
+		dbgrp.add_database(mydb7);
+		dbgrp.add_database(mydb6);
 		break;
 	}
 	tout << "db=" << dbgrp << "\n";
@@ -1234,7 +1262,7 @@ static bool test_getmterms1()
     answers_list.push_back("four");
 
     OmDatabase mydb(get_database("apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
 	    Xapian::Query(Xapian::Query::OP_AND,
@@ -1276,7 +1304,7 @@ static bool test_getmterms2()
     answers_list.push_back("three");
 
     OmDatabase mydb(get_database("apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
 	    Xapian::Query(Xapian::Query::OP_AND,
@@ -1314,7 +1342,7 @@ static bool test_absentfile1()
 {
     TEST_EXCEPTION(Xapian::OpeningError,
 		   OmDatabase mydb(get_database("/this_does_not_exist"));
-		   OmEnquire enquire(make_dbgrp(&mydb));
+		   OmEnquire enquire(mydb);
 		   
 		   Xapian::Query myquery("cheese");
 		   enquire.set_query(myquery);
@@ -1712,7 +1740,7 @@ static bool test_absentterm2()
 static bool test_rset1()
 {
     OmDatabase mydb(get_database("apitest_rset"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "giraffe", "tiger");
     enquire.set_query(myquery);
 
@@ -1735,7 +1763,7 @@ static bool test_rset1()
 static bool test_rset2()
 {
     OmDatabase mydb(get_database("apitest_rset"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
     enquire.set_query(myquery);
 
@@ -1757,10 +1785,10 @@ static bool test_rsetmultidb1()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     OmDatabase mydb2(get_database("apitest_rset"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    mydb2.add_database(get_database("apitest_simpledata2"));
 
-    OmEnquire enquire1(make_dbgrp(&mydb1));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    OmEnquire enquire1(mydb1);
+    OmEnquire enquire2(mydb2);
 
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "multiple");
 
@@ -1795,10 +1823,10 @@ static bool test_rsetmultidb2()
 {
     OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     OmDatabase mydb2(get_database("apitest_rset"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    mydb2.add_database(get_database("apitest_simpledata2"));
 
-    OmEnquire enquire1(make_dbgrp(&mydb1));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    OmEnquire enquire1(mydb1);
+    OmEnquire enquire2(mydb2);
 
     Xapian::Query myquery = query("is");
 
@@ -1841,7 +1869,7 @@ static bool test_rsetmultidb3()
 static bool test_eliteset1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
@@ -1864,7 +1892,7 @@ static bool test_eliteset1()
 static bool test_eliteset2()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_AND, "word", "search");
 
@@ -1892,10 +1920,10 @@ static bool test_eliteset2()
 static bool test_eliteset3()
 {
     OmDatabase mydb1(get_database("apitest_simpledata"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmEnquire enquire2(make_dbgrp(&mydb2));
+    OmEnquire enquire2(mydb2);
 
     // make a query
     Xapian::Stem stemmer("english");
@@ -1941,10 +1969,10 @@ static bool test_eliteset3()
 static bool test_eliteset4()
 {
     OmDatabase mydb1(get_database("apitest_simpledata"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmEnquire enquire2(make_dbgrp(&mydb2));
+    OmEnquire enquire2(mydb2);
 
     Xapian::Query myquery1 = query("rubbish");
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "word", "rubbish", "fibble");
@@ -1967,7 +1995,7 @@ static bool test_eliteset4()
 static bool test_termlisttermfreq1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
     OmRSet rset1;
     OmRSet rset2;
@@ -2012,11 +2040,11 @@ static bool test_termlisttermfreq1()
 static bool test_multiexpand1()
 {
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(mydb2);
 
     // make simple equivalent rsets, with a document from each database in each.
     OmRSet rset1;
@@ -2064,11 +2092,11 @@ static bool test_multiexpand1()
 static bool test_qterminfo1()
 {
     OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire1(mydb1);
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+    mydb2.add_database(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(mydb2);
 
     // make a query
     Xapian::Stem stemmer("english");
@@ -2236,7 +2264,7 @@ static bool test_adddoc1()
 
     Xapian::Query query("foo");
 
-    OmEnquire enq(make_dbgrp(&db));
+    OmEnquire enq(db);
     enq.set_query(query);
 
     Xapian::MSet mset = enq.get_mset(0, 10);

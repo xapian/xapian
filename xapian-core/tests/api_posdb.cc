@@ -42,7 +42,7 @@ using std::string;
 static bool test_near1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -195,7 +195,7 @@ static bool test_near1()
 static bool test_near2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -247,7 +247,7 @@ static bool test_near2()
 static bool test_phrase1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -452,7 +452,7 @@ static bool test_phrase1()
 static bool test_phrase2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(make_dbgrp(&mydb));
+    OmEnquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 

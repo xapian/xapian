@@ -1,3 +1,8 @@
+Thu May 08 23:54:44 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/: Removed make_dbgrp() helper function from apitest as it
+	  makes the test code less clear without making it easier to write.
+
 Thu May 08 01:24:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/ompostlistiterator.cc,docs/overview.html,tests/api_db.cc:
