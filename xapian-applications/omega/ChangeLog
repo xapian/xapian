@@ -1,3 +1,7 @@
+Sat Jul 19 19:24:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* indextext.cc: Fixed signed character issue.
+
 Thu Jul 17 00:51:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Removed bootstrap in favour of top-level bootstrap.

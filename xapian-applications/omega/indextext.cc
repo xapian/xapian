@@ -67,7 +67,7 @@ class AccentNormalisingItor {
 	if (queued) return queued;
 	char ch = *itor;
 	char cache; // dummy - don't want the value
-	switch (ch) {
+	switch ((unsigned char)ch) {
 #include "symboltab.h" // FIXME: rework symboltab into arrays ch[] and cache[]
 	}
 	return ch;
@@ -83,7 +83,7 @@ class AccentNormalisingItor {
 	} else {
 	    char ch; // dummy - don't want the value
 	    char cache = 0;
-	    switch (*itor) {
+	    switch ((unsigned char)*itor) {
 #include "symboltab.h" // FIXME: rework symboltab into arrays ch[] and cache[]
 	    }
 	    queued = cache;
