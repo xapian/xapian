@@ -1,3 +1,8 @@
+Thu Sep  7 13:45:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change om_tostring(double) so that it doesn't pad with spaces,
+	  fixing all the network stuff.  (Whoops)
+
 Thu Sep  7 11:50:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various other fixes needed to compile with --disable-pthread-support
