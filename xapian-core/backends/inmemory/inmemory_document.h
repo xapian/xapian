@@ -1,7 +1,7 @@
 /* inmemory_document.h: C++ class definition for accessing a inmemory document
  *
  * ----START-LICENCE----
- * Copyright 1999 Dialog Corporation
+ * Copyright 1999,2000 Dialog Corporation
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 

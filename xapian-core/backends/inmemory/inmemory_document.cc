@@ -1,7 +1,7 @@
 /* inmemory_document.cc: C++ class for storing inmemory documents
  *
  * ----START-LICENCE----
- * Copyright 1999 Dialog Corporation
+ * Copyright 1999,2000 Dialog Corporation
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 

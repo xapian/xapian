@@ -4,7 +4,7 @@
  * A AND MAYBE B is logically just A, but we keep B around for weight purposes
  *
  * ----START-LICENCE----
- * Copyright 1999 Dialog Corporation
+ * Copyright 1999,2000 Dialog Corporation
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
