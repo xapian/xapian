@@ -13,7 +13,7 @@ noinst_PROGRAMS = stemtest
 
 ## Test suite
 
-check_PROGRAMS  = apitest
+check_PROGRAMS  = apitest includetest
 
 if HAVE_PERL
 PERLTESTS = stemtest.pl
@@ -21,9 +21,11 @@ else
 PERLTESTS = 
 endif
 
-TESTS = apitest $(PERLTESTS)
+TESTS = apitest includetest $(PERLTESTS)
 
 ## Sources:
+
+includetest_SOURCES = includetest.cc
 
 apitest_SOURCES = apitest.cc
 apitest_LDADD = ../libomus.la
@@ -36,3 +38,8 @@ stemtest_LDADD = ../libomus.la
 EXTRA_DIST = testdata/apitest_onedoc.txt \
              testdata/apitest_simpledata.txt \
              testdata/apitest_simpledata2.txt
+
+## Extra rules:
+includetest.cc: 
+	find ${top_srcdir} -name '*.h' -print | grep -v sleepy | sed 's/\(.*\)/#include "\1"/' > $@
+	echo 'int main() { return 0; }' >> $@
