@@ -25,6 +25,7 @@
 #include "mergepostlist.h"
 #include "omdebug.h"
 #include "om/omerrorhandler.h"
+#include "boolweight.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_,
 			     MultiMatch *matcher_,
@@ -77,7 +78,12 @@ MergePostList::next(om_weight w_min)
 	    if (errorhandler) (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
 	    delete plists[current];
-	    plists[current] = new EmptyPostList();
+	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
+	    // give it a weighting object
+	    // FIXME: make it an EmptyWeight instead of BoolWeight
+	    OmSettings unused;
+	    lpl->set_termweight(new BoolWeight(unused));
+	    plists[current] = lpl.release();
 	}
 #ifdef USE_MSETPOSTLIST
     } while ((unsigned)current < plists.size());

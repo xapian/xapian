@@ -26,6 +26,7 @@
 #include "database.h"
 #include "branchpostlist.h"
 #include "om/omerrorhandler.h"
+#include "boolweight.h"
 
 #include "networkmatch.h" // only for USE_MSETPOSTLIST
 
@@ -167,7 +168,12 @@ MergePostList::recalc_maxweight()
 	    } 
 	    // Continue match without this sub-postlist.
 	    delete (*i);
-	    *i = new EmptyPostList();
+	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
+	    // give it a weighting object
+	    // FIXME: make it an EmptyWeight instead of BoolWeight
+	    OmSettings unused;
+	    lpl->set_termweight(new BoolWeight(unused));
+	    *i = lpl.release();
 	}
     }
     return w_max;

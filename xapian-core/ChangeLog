@@ -1,3 +1,9 @@
+Fri Feb  2 15:04:08 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Hopefully, a fix for segfaults/assertions when network errors
+	  happen halfway through a match, when handled by OmErrorHandler
+	  objects: give the place-holder EmptyTermLists weighting objects.
+
 Thu Feb  1 19:03:10 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Fixes to OmDocument interface: add parameters specifying the
