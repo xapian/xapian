@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 #
 # $Id$
-# Index each paragraph in a textfile as a document
+# Index each paragraph of a textfile as a document
 #
 # ----START-LICENCE----
 # Copyright 2003 James Aylett
+# Copyright 2004 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -86,7 +87,6 @@ try:
     except StopIteration:
         pass
 
-except:
-    # FIXME: exception message
-    print >> sys.stderr, "Exception"
-    raise
+except Exception, e:
+    print >> sys.stderr, "Exception: %s" % str(e)
+    sys.exit(1)

@@ -5,6 +5,7 @@
 #
 # ----START-LICENCE----
 # Copyright 2003 James Aylett
+# Copyright 2004 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -91,7 +92,6 @@ try:
         print "Term `%s'\t (weight %i)" % (k.get_termname(), k.get_weight())
         k.next()
 
-except:
-    # FIXME: exception message
-    print >> sys.stderr, "Exception"
-    raise
+except Exception, e:
+    print >> sys.stderr, "Exception: %s" % str(e)
+    sys.exit(1)

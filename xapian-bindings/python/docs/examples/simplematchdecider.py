@@ -5,6 +5,7 @@
 #
 # ----START-LICENCE----
 # Copyright 2003 James Aylett
+# Copyright 2004 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,8 +25,6 @@
 
 import sys
 import xapian
-
-MAX_PROB_TERM_LENGTH = 64
 
 if len(sys.argv) < 4:
     print >> sys.stderr, "usage: %s <path to database> <avoid-term> <search terms>" % sys.argv[0]
@@ -72,7 +71,6 @@ try:
     for match in matches:
         print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
 
-except:
-    # FIXME: exception message
-    print >> sys.stderr, "Exception"
-    raise
+except Exception, e:
+    print >> sys.stderr, "Exception: %s" % str(e)
+    sys.exit(1)
