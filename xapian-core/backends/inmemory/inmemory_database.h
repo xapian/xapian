@@ -420,8 +420,11 @@ inline om_doclength
 InMemoryDatabase::get_avlength() const
 {
     om_doccount docs = InMemoryDatabase::get_doccount();
-    Assert(docs != 0);
-    return ((om_doclength) totlen) / docs;
+    if (docs == 0) {
+	return 0;
+    } else {
+	return ((om_doclength) totlen) / docs;
+    }
 }
 
 inline om_doccount
