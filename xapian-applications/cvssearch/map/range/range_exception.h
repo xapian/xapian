@@ -27,20 +27,32 @@
 #define __RANGE_EXCEPTION_H__
 
 #include <exception>
-#include "virtual_iostream.h"
+#include "virtual_ostream.h"
 #include <string>
 using std::string;
 
 class range;
-class range_exception : public exception, public virtual_iostream
+
+/**
+ * use to show exceptions related to range.
+ **/
+class range_exception : public exception, public virtual_ostream
 {
 private:
     string _error;
 protected:
-    virtual istream & read(istream &);
     virtual ostream & show(ostream &) const;
 public:
+    /**
+     * constructor.
+     * creates an exception based on a range.
+     **/
     range_exception(const range &);
+
+    /**
+     * constructor.
+     * creates an exception based on the begin and end values.
+     **/
     range_exception(unsigned int begin, unsigned int end);
 };
 

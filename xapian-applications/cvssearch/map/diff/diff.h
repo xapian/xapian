@@ -29,19 +29,67 @@
 #include "virtual_iostream.h"
 #include "diff_entry.h"
 
+/**
+ * diff stores a list of differences read from an input stream.
+ **/
 class diff : public collection<diff_entry>, public virtual_iostream
 {
 protected:
     bool _read_content;
     bool _aligned;
+
+    /**
+     * reads diff from the input stream.
+     **/
     virtual istream & read(istream &);
-    virtual ostream & show(ostream &) const;
+
+    /**
+     * prints the diff to output stream os.
+     *
+     **/
+    virtual ostream & show(ostream & os) const;
 
 public:
     virtual ~diff();
+    /**
+     * constructor.
+     *
+     * @param read_content is a flag to specify whether
+     * the input we want to parse contain actual diff content or not
+     * ie.. lines begin with '>' '<', '-', if false,
+     * the input is assumed to contain only lines of
+     * "s1,s2td1,d2". 
+     * this flag is extremely important and mustn't set to be wrong.
+     **/
     diff (bool read_content = true) : _read_content(read_content), _aligned(false) {}
+
+    /**
+     * compares two diff output, they are equal if all entries are equal.
+     **/
     bool operator==(const diff & r) const;
+
+    /**
+     * align each diff entry so the begin values
+     * for the source and destination are equal.
+     *
+     * because the diff entry are read in
+     * increasing order, each entry affects
+     * all subsequent entries, but the source 
+     * range produced by cvs diff 
+     * refers to the old position
+     *
+     * e.g.
+     * 2a3,4   <- this causes a shift of +2
+     *            add to the source of subsequent
+     *            entries.
+     * 
+     * 5,6c7,8 <- this causes no shift
+     **/
     void align_top();
+
+    /**
+     * undo the effect of align_top.
+     **/
     void unalign_top();
 };
 #endif

@@ -66,7 +66,6 @@ range::begin(unsigned int new_begin, bool valid)  throw (range_exception)
     {
         return _begin = new_begin;
     }
-    cerr << "begin" << endl;
     throw range_exception(new_begin, _end);
 }
 
@@ -78,7 +77,6 @@ range::end(unsigned int new_end, bool valid) throw (range_exception)
     {
         return _end = new_end;
     }
-    cerr << "end" << endl;
     throw range_exception(_begin, new_end);
 }
 

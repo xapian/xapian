@@ -18,6 +18,16 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+ *  Usage:
+ *
+ *  suppose cin contain output from a cvs log.
+ *  cvs_log log;
+ *  cin >> log;
+ *
+ *  // l should be ready to use.
+ *
+ *  cout << log;
+ *
  *  $Id$
  *
  ************************************************************/
@@ -29,16 +39,41 @@
 #include "virtual_iostream.h"
 #include "cvs_log_entry.h"
 
+/**
+ * cvs_log is a class that holds a cvs log result.
+ **/
 class cvs_log : public collection<cvs_log_entry>, public virtual_iostream
 {
 private:
     string _filename;
     string _pathname;
 protected:
-    istream & read(istream &);
-    ostream & show(ostream &) const;
+    /**
+     * reads the log from an input stream.
+     * 
+     * @param is the input stream.
+     * @return the input stream.
+     **/
+    istream & read(istream & is);
+
+    /**
+     * prints the log.
+     *
+     * @param os the output stream.
+     * @return theoutput stream.
+     **/
+    ostream & show(ostream & os) const;
 public:
+    /**
+     * gets the Working File entry found in the log.
+     * @return the Working File entry.
+     **/
     string file_name() const {return _filename;}
+
+    /**
+     * gets the RCS File entry found in the log.
+     * @return the RCS File entry relative to the $CVSROOT directory.
+     **/
     string path_name() const {return _pathname;}
 };
 

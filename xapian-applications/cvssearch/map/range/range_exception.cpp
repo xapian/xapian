@@ -38,15 +38,6 @@ range_exception::range_exception(unsigned int begin, unsigned int end)
     _error = s.str();
 }
 
-/*
- * virtual_iostream derived funtions
- */
-istream & 
-range_exception::read(istream & is)
-{
-    return is >> _error;
-}
-
 ostream & 
 range_exception::show(ostream & os) const
 {

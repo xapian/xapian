@@ -31,6 +31,9 @@
 
 #include "range_exception.h"
 
+/**
+ * a class stores a range [begin, end) where begin <= end
+ **/
 class range
 {
 private:
@@ -39,30 +42,94 @@ private:
     bool _half_changed;
     
 public:
+
+    /**
+     * constructor.
+     *
+     * e.g. 4,5 is stored as [_begin = 4, _end = 6).
+     **/
     range(unsigned int first_line, unsigned int last_line) throw (range_exception);
+
+    /**
+     * constructor.
+     *
+     * e.g. 3 is stored as [_begin = 3, _end = 4).
+     **/
     range(unsigned int single_line = 0);
 
+    /**
+     * destructor.
+     **/
     virtual ~range();
 
+    /**
+     * gets the begin value.
+     **/
     unsigned int begin() const { return _begin;}
+
+    /**
+     * gets the end value.
+     **/
     unsigned int end()   const { return _end;}
+
+    /**
+     * sets the begin value.
+     * @valid is flag to whether to always keep _begin <= _end.
+     **/
     unsigned int begin(unsigned int, bool valid = true) throw (range_exception);
+
+    /**
+     * sets the end value.
+     * @valid is flag to whether to always keep _begin <= _end.
+     **/
     unsigned int end  (unsigned int, bool valid = true) throw (range_exception);
 
+    /**
+     * adds offset to begin.
+     **/
     unsigned int begin_shift(int offset)                throw (range_exception);
+
+    /**
+     * adds offset to end.
+     **/
     unsigned int end_shift  (int offset)                throw (range_exception);
 
+    /**
+     * adds offset to both begin and end.
+     **/
     range & operator+=  (int offset) throw (range_exception);
+
+    /**
+     * @return end - begin. must always be unsigned.
+     **/
     unsigned int size() const;
 
     friend ostream & operator<< (ostream &, const range &);
 
+    /**
+     * whether two ranges intersect or not.
+     **/
     bool intersect(const range &) const;
 
+    /**
+     * @return the intersection of two range.
+     * precondition: two ranges intersect.
+     **/
     range intersect_range(const range &) const;
+
+    /**
+     * @return the union of two ranges.
+     **/
     range union_range(const range &) const;
 
+    /**
+     * some complicated, not used.
+     **/
     range operator-(const range &);
+
+    /**
+     * @return true if two ranges are equal.
+     **/
     bool operator==(const range &) const;
 };
 #endif

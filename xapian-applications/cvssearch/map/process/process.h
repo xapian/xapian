@@ -37,8 +37,24 @@ private:
     istream * _output;
     FILE *_fout;
 public:
+    /**
+     * constructor.
+     * constructs a child process from a command.
+     * 
+     * @param command is the command to execute.
+     **/
     process(const string & command);
+
+    /**
+     * allows reading from the command output.
+     * @return pointer to an istream pointer, user do not
+     * need to delete this pointer.
+     **/
     istream * process_output() { return _output;}
+
+    /**
+     * destructor.
+     **/
     virtual ~process();
 };
 

@@ -31,6 +31,9 @@ istream &
 cvs_log::read(istream & is)
 {
     unsigned int offset = 1;
+    // ----------------------------------------
+    // strip off the ending '/' if any
+    // ----------------------------------------
     if (scvs_root[scvs_root.length()-1] == '/')
     {
         offset = 0;
@@ -60,7 +63,7 @@ cvs_log::read(istream & is)
     // ----------------------------------------
     // at this point, either the istream is 
     // exhausted because no match is found,
-    // or a match is found.
+    // or a match is found. lets read the entries.
     // ----------------------------------------
 
     while (is) 

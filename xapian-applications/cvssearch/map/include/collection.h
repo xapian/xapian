@@ -39,11 +39,35 @@ class collection
 protected:
     vector<T> _entries;
 public:
+    /**
+     * default constructor.
+     **/
     collection() {}
+    
+    /**
+     * constructs a collection by copy a vector of entries.
+     **/
     collection(const vector<T> & entries) : _entries(entries) {}
+
+    /**
+     * @return the # of elements.
+     **/
     unsigned int size() const {  return _entries.size(); }
+
+    /**
+     * @return a read only reference to the ith element.
+     **/
     const T & operator[](unsigned int i) const { assert (i < size()); return _entries[i]; }
+
+    /**
+     * @return a writable reference to the ith element.
+     **/
           T & operator[](unsigned int i)       { assert (i < size()); return _entries[i]; }
+
+    /**
+     * adds an entry to the collection.
+     * @param entry the element to add to the pack of the entries.
+     **/
     void add(const T & entry)                  { _entries.push_back(entry);}
 };
 

@@ -43,12 +43,23 @@
 using std::istream;
 using std::ostream;
 
+/**
+ * allows derived class to write to output stream.
+ **/
 class virtual_ostream
 {
 protected:
-    virtual ostream & show(ostream &) const = 0;
+    /**
+     * overwrite this virtual function to allow derived class to print to output stream.
+     * @param os the output stream.
+     **/
+    virtual ostream & show(ostream & os) const = 0;
 public:
     virtual ~virtual_ostream() {}
+
+    /**
+     * prints to output stream.
+     **/
     friend  ostream & operator << (ostream & os , const virtual_ostream & r) { return r.show(os); }
 };
 

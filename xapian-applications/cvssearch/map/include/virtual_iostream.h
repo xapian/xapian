@@ -43,6 +43,9 @@
 #include "virtual_istream.h"
 #include "virtual_ostream.h"
 
+/**
+ * allows derived class to read from input stream, and write to output stream.
+ **/
 class virtual_iostream : public virtual_istream, public virtual_ostream
 {
 };

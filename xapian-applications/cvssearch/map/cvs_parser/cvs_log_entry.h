@@ -28,6 +28,9 @@
 #include "virtual_iostream.h"
 #include "cvs_revision.h"
 
+/**
+ * cvs_log_entry stores one cvs log entry.
+ **/
 class cvs_log_entry : public virtual_iostream
 {
 private:

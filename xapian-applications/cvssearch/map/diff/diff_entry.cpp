@@ -37,7 +37,8 @@ diff_entry::diff_entry(bool read)
 
 }
 
-diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, char c) 
+diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, char c, bool read) 
+    :_read_content(read)
 {
     diff_type type = e_none;
     switch (c) {
@@ -56,7 +57,8 @@ diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsign
     init(s1,s2,d1,d2,type);
 }
 
-diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type)
+diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type, bool read)
+    :_read_content(read)
 {
     init(s1,s2,d1,d2,type);
 }

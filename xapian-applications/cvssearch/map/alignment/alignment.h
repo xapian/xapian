@@ -26,7 +26,7 @@
 #ifndef __ALIGNMENT_H__
 #define __ALIGNMENT_H__
 
-#include "virtual_iostream.h"
+#include "virtual_ostream.h"
 #include "diff_entry.h"
 
 #include <vector>
@@ -39,7 +39,7 @@ using std::list;
 using std::string;
 
 template<class T>
-class alignment : public virtual_iostream
+class alignment : public virtual_ostream
 {
 private:
     const T &S;
@@ -55,7 +55,6 @@ private:
                           unsigned int d2,
                           diff_type type) const;
 protected:
-    istream & read(istream &);
     ostream & show(ostream &) const;
 public:
     alignment(const T &s, const T &d, unsigned int source_offset = 0, unsigned int dest_offset = 0);

@@ -43,18 +43,32 @@
 using std::istream;
 using std::ostream;
 
+/**
+ * allows derived class to read from input streams.
+ **/
 class virtual_istream
 {
 private:
     bool _read;
 protected:
-    virtual istream & read(istream &) = 0;
+    /**
+     * overwrite this virtual function to allow derived class to read from an input stream.
+     * @param is the input stream.
+     **/
+    virtual istream & read(istream & is) = 0;
 public:
     virtual_istream() : _read (false) {}
     virtual ~virtual_istream() {}
     friend  istream & operator >> (istream & is , virtual_istream & r) { return r.read(is); }
     
+    /**
+     * gets the reading status, the value is set by read_status(bool);
+     **/
     bool read_status() const { return _read; }
+
+    /**
+     * read(is) should call this function to signal reading is successful.
+     **/
     bool read_status(bool b) { return _read = b;}
 };
 

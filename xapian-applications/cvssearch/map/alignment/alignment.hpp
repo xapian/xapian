@@ -29,6 +29,14 @@
 #include <iostream>
 #include <strstream>
 
+/**
+ * constructor.
+ *
+ * @param s the source to be aligned.
+ * @param d the dest   to be aligned.
+ * @param source_offset is used only in display the difference, this value is added to all source indexes.
+ * @param dest_offset is used only in display the difference, this value is added to all dest indexes.
+ **/
 template<class T>
 alignment<T>::alignment(const T &s, const T &d, unsigned int source_offset, unsigned int dest_offset) 
     : S(s), 
@@ -53,10 +61,20 @@ alignment<T>::alignment(const T &s, const T &d, unsigned int source_offset, unsi
     assert( V.size() == S.size()+1 );
 }
 
+/**
+ * finds an optimal alignment.
+ * 
+ * @param hash_result is a flag (basically distinguishes between
+ * char alignment vs line alignment. it is tru for line alignment.
+ **/
 template<class T>
 void
 alignment<T>::find_optimal_alignment(bool hash_result) 
 {
+    // ----------------------------------------
+    // don't use the alignment code cause the 
+    // alignment is trivial
+    // ----------------------------------------
     if (hash_result) {
         unsigned int s1 = _source_offset, s2 = S.size() + _source_offset, d1= _dest_offset, d2 = D.size() + _dest_offset;
         if (0) {
@@ -109,24 +127,20 @@ alignment<T>::find_optimal_alignment(bool hash_result)
             int v = V[i][j];
             
             ostrstream ost;
-	    //	    cerr << "i = " << i << " j = " << j << endl;
+
             if ( i>0 && j >0 && v == V[i-1][j-1] + S.score( S[i], D[j] ) ) {
                 if (type != e_change)
-		  {
-		    if (type == e_add) {
-		      s1 = i + _source_offset;
-		      d1 = j + 1 + _dest_offset;
-		    } else if (type == e_delete) {
-		      s1 = i + 1 + _source_offset;
-		      d1 = j + _dest_offset;
-		    }
-// 		     if (type != e_none)  cerr << "in change: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
+                {
+                    if (type == e_add) {
+                        s1 = i + _source_offset;
+                        d1 = j + 1 + _dest_offset;
+                    } else if (type == e_delete) {
+                        s1 = i + 1 + _source_offset;
+                        d1 = j + _dest_offset;
+                    }
                     if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
                     s2 = i + _source_offset;
                     d2 = j + _dest_offset;
-//  		    cerr << "setting s2 " << s2 << " i " << i << endl;
-//  		    cerr << "setting d2 " << d2 << " j " << j << endl;
-//  		    cerr << "setting type " << (char) e_change << endl;
                     type = e_change;
                 }
                 i--;
@@ -134,61 +148,57 @@ alignment<T>::find_optimal_alignment(bool hash_result)
             } else if ( i>0 && v == V[i-1][j] + S.score(S[i], D.space()) ) {
                 if (type != e_delete)
                 {
-		  if (type == e_change) {
-                    s1 = i + 1 + _source_offset;
-                    d1 = j + 1 + _dest_offset;
-		  } else if (type == e_add) {
-                    s1 = i + _source_offset;
-                    d1 = j + 1 + _dest_offset;
-		  }
-		  //		  		    if (type != e_none)  cerr << "in delete: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
+                    if (type == e_change) {
+                        s1 = i + 1 + _source_offset;
+                        d1 = j + 1 + _dest_offset;
+                    } else if (type == e_add) {
+                        s1 = i + _source_offset;
+                        d1 = j + 1 + _dest_offset;
+                    }
                     if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
                     s2 = i + _source_offset;
                     d2 = j + _dest_offset;
-// 		     cerr << "setting s2 " << s2 << " i " << i << endl;
-// 		     cerr << "setting d2 " << d2 << " j " << j << endl;
-// 		     cerr << "setting type " << (char) e_delete << endl;
-		     type = e_delete;
+                    type = e_delete;
                 }
                 i--;
             } else {
                 assert( v == V[i][j-1] + S.score(S.space(), D[j] )) ;
                 if (type != e_add)
                 {
-		  if (type == e_change) {
-                    s1 = i + 1 + _source_offset;
-                    d1 = j + 1 + _dest_offset;
-		  } else if (type == e_delete) {
-                    s1 = i + 1 + _source_offset;
-                    d1 = j + _dest_offset;
-		  }
-		  //		  if (type != e_none)  cerr << "in add: " << (char) type << "  s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
-		  if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
-		  s2 = i + _source_offset;
-		  d2 = j + _dest_offset;
-// 		   cerr << "setting s2 " << s2 << " i " << i << endl;
-// 		   cerr << "setting d2 " << d2 << " j " << j << endl;
-// 		   cerr << "setting type " << (char) e_add << endl;
-		   type = e_add;
+                    if (type == e_change) {
+                        s1 = i + 1 + _source_offset;
+                        d1 = j + 1 + _dest_offset;
+                    } else if (type == e_delete) {
+                        s1 = i + 1 + _source_offset;
+                        d1 = j + _dest_offset;
+                    }
+                    if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
+                    s2 = i + _source_offset;
+                    d2 = j + _dest_offset;
+                    type = e_add;
                 }
                 j--;
             }
         }
-	if (type == e_change) {
-	  s1 = i+1 + _source_offset;
-	  d1 = j+1 + _dest_offset;
-	} else if (type == e_add) {
-	  s1 = i + _source_offset;
-	  d1 = j + 1 + _dest_offset;
-	}  else if (type == e_delete) {
-	  s1 = i + 1 + _source_offset;
-	  d1 = j + _dest_offset;
-	}
-	//	if (type != e_none)  cerr << "in final: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
-	if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
+        if (type == e_change) {
+            s1 = i+1 + _source_offset;
+            d1 = j+1 + _dest_offset;
+        } else if (type == e_add) {
+            s1 = i + _source_offset;
+            d1 = j + 1 + _dest_offset;
+        }  else if (type == e_delete) {
+            s1 = i + 1 + _source_offset;
+            d1 = j + _dest_offset;
+        }
+        if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
     }
 }
 
+/**
+ * displays the alignment matrix.
+ * 
+ * @param os the output stream.
+ **/
 template<class T>
 ostream &
 alignment<T>::dump(ostream & os)  const
@@ -203,6 +213,11 @@ alignment<T>::dump(ostream & os)  const
     return os;
 }
 
+/**
+ * gets the optimal alignment value.
+ *
+ * @return the optimal alignment value.
+ **/
 template<class T>
 int
 alignment<T>::optimal_alignment_value()  const
@@ -210,22 +225,26 @@ alignment<T>::optimal_alignment_value()  const
     return V[ S.size()][ D.size() ];
 }
 
-template<class T>
-istream &
-alignment<T>::read(istream & is)
-{
-    return is;
-}
-
+/**
+ * prints the alignment.
+ *
+ * @param os the output stream.
+ * @return the same output stream.
+ **/
 template<class T>
 ostream &
 alignment<T>::show(ostream & os) const
 {
-
   return    diff2(os);
   // return diff1(os);
 }
 
+/**
+ * prints a difference as "s1,s2td1,d2";
+ *
+ * @param os the output stream.
+ * @return the same output stream.
+ **/
 template<class T>
 ostream &
 alignment<T>::diff_output(ostream & os, 
@@ -263,6 +282,12 @@ alignment<T>::diff_output(ostream & os,
     return os;
 }
 
+/**
+ * prints the difference as lines of "s1,s2td1,d2";
+ *
+ * @param os the output stream.
+ * @return the same output stream.
+ **/
 template<class T>
 ostream &
 alignment<T>::diff2(ostream & os) const
@@ -274,6 +299,12 @@ alignment<T>::diff2(ostream & os) const
     return os;
 }
 
+/**
+ * prints side by side output to the output stream.
+ *
+ * @param os the output stream.
+ * @return the same output stream.
+ **/
 template<class T>
 ostream &
 alignment<T>::diff1(ostream & os) const
