@@ -49,6 +49,17 @@ R
 MORELIKE
 	value is a document id to return similar pages to.
 
+RAW_SEARCH
+	when set to a true-ish value turns off search-change detection
+	(usually based on comparing with DB with xDB, P with xP etc)
+	and add's the rset, honours TOPDOC and processes paging info anyway.
+	When set also stops TOPDOC being snapped to a multiple of HITSPERPAGE
+
+MIN_HINTS
+	can be set to look for more matches than needed for HITSPERPAGE so
+	you can be sure of how many more consecutive pages will definitatly
+	be needed to show results.
+
 Filtering parameters
 --------------------
 
@@ -65,6 +76,7 @@ DATE1
 
 DATE2
 	end of date range if DAYSMINUS not set (defaults to now)
+	DATE1 should not be larger (more recent) than DATE2
 
 xDAYSMINUS, xDATE1, xDATE2
 	values of DAYSMINUS/DATE1/DATE2 from previous search - used to detect
@@ -88,7 +100,8 @@ HITSPERPAGE
 	hits per page (integer) - clipped to range 10-1000.
 
 TOPDOC
-	first document to display (snapped to multiple of HITSPERPAGE).
+	first document to display (snapped to multiple of HITSPERPAGE
+	if RAW_SEARCH is not set)
 
 If a parameter named '<' or '>' exists, Omega will go to the previous
 or next results page (based on the value of TOPDOC), respectively. If
