@@ -1,3 +1,7 @@
+Fri May  3 16:52:01 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* tests/testdata/etext.txt needs to be included in the distribution
+
 Fri May 03 16:18:38 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed OmValue in favour of simply using a string (analogous to

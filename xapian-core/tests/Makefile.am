@@ -54,7 +54,8 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_allterms.txt \
 	     testdata/apitest_allterms2.txt \
 	     testdata/apitest_poslist.txt \
-	     testdata/apitest_manydocs.txt
+	     testdata/apitest_manydocs.txt \
+	     testdata/etext.txt
 
 CLEANFILES = includetest.cc stemtest.pl
 
