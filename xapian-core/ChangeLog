@@ -1,3 +1,8 @@
+Thu Nov 28 20:14:54 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Link to annotated class lists in doxygen generated
+	  documentation rather than rather empty index page.
+
 Thu Nov 28 02:23:33 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,NEWS: Version 0.6.1.
