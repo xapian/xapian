@@ -749,7 +749,7 @@ LocalMatch::get_mset(om_doccount first,
     DEBUGLINE(MATCH, "msize = " << items.size() << ", mbound = " << mbound);
     if (items.size()) {
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
-		  ", min weight in mset = " << items.back()->.wt);
+		  ", min weight in mset = " << items.back().wt);
     }
 
     mset = OmMSet(first, mbound, max_weight, greatest_wt, items, term_info);
