@@ -148,8 +148,12 @@ extern OmDebug om_debug;
 
 
 // Don't bracket b, because it may have <<'s in it
+// Don't use the sentry, because it causes to much difficulty (can't call
+// a debug msg from within a debug msg.
+// FIXME:  Would prefer to send output to a string first, and then to lock
+// and write it to output.
 #define DEBUGMSG(a,b) { \
-    OmLockSentry sentry(*(om_debug.get_mutex())); \
+    /*OmLockSentry sentry(*(om_debug.get_mutex()));*/ \
     if(om_debug.want_type(OM_DEBUG_##a)) { \
 	om_debug << OM_DEBUG_##a << b ; \
     } \

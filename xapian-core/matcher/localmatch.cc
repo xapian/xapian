@@ -88,9 +88,10 @@ class PlCmpGtTermWt {
 	 *  than b.
 	 */
 	bool operator()(const PostList *a, const PostList *b) {
-	    DebugMsg("termweights are: " << a->get_maxweight() << " and " <<
-		     b->get_maxweight() << endl);
-	    return a->get_maxweight() > b->get_maxweight();
+	    om_weight amax = a->get_maxweight();
+	    om_weight bmax = b->get_maxweight();
+	    DebugMsg("termweights are: " << amax << " and " << bmax << endl);
+	    return amax > bmax;
 	}
 };
 

@@ -1,3 +1,10 @@
+Thu Jun 29 03:39:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix tests/Makefile.am so that internaltest links again.
+
+	* Fix some deadlocks caused by Debugging mutex.  Then remove the
+	  debugging mutex, because it causes more problems than it solves.
+
 Thu Jun 29 03:13:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
         * Display an initial debugging message before starting a test run,

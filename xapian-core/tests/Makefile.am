@@ -47,7 +47,7 @@ stemtest_LDADD = ../libomus.la
 
 EXTRA_internaltest_SOURCES = internaltest.cc
 internaltest_SOURCES = internaltest_dummy.cc
-internaltest_LDADD = ../libomus.la ../testsuite/libtest.la
+internaltest_LDADD = ../testsuite/libtest.la ../libomus.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
