@@ -158,6 +158,7 @@ class OmBatchEnquire {
 	om_termname_list get_matching_terms(om_docid did) const;
 };
 
+#if defined(NOTDEFINED)
 class OmSettings {
     public:
 	OmSettings();
@@ -168,6 +169,7 @@ class OmSettings {
 	string get_value(const string &key) const;
 	// TODO: make this look like a Dict/hash/whatever?
 };
+#endif
 
 struct OmDocumentTerm {
     OmDocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
