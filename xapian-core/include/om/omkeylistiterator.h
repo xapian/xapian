@@ -72,7 +72,7 @@ class OmKeyListIterator {
 	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef OmKey value_type;
-	typedef ptrdiff_t difference_type;
+	typedef om_keyno difference_type; // "om_keycount"
 	typedef OmKey * pointer;
 	typedef OmKey & reference;
 	//@}
