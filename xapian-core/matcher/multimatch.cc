@@ -202,6 +202,22 @@ MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
     return doc->get_key(keyno);
 }
 
+om_weight
+MultiMatch::getorrecalc_maxweight(PostList *pl)
+{
+    om_weight wt;
+    if (recalculate_w_max) {
+	DEBUGLINE(MATCH, "recalculating max weight");
+	wt = pl->recalc_maxweight();
+	recalculate_w_max = false;
+    } else {
+	wt = pl->get_maxweight();
+	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
+    }
+    DEBUGLINE(MATCH, "max possible doc weight = " << wt);
+    return wt;
+}
+
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
@@ -374,10 +390,7 @@ MultiMatch::get_mset_2(PostList *pl,
 	// ie. we didn't go into the previous loop and exit because of at_end()
 	while (1) {
 	    if (recalculate_w_max) {
-		recalculate_w_max = false;
-		om_weight w_max = pl->recalc_maxweight();
-		DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-		if (w_max < min_item.wt) {
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		    break;
 		}
@@ -388,11 +401,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		
 		// no need for a full recalc (unless we've got to do one because
 		// of a prune elsewhere) - we're just switching to a subtree
-		om_weight w_max = pl->get_maxweight();
-		DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-		AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
-		
-		if (w_max < min_item.wt) {
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		    break;
 		}
@@ -493,6 +502,10 @@ MultiMatch::get_mset_2(PostList *pl,
 		min_item = items.back(); // Note that this item is the only one sorted
 		DEBUGLINE(MATCH, "mset size = " << items.size());
 		DEBUGLINE(MATCH, "min_item.wt = " << min_item.wt);
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		    break;
+		}
 	    }
 	}
     }

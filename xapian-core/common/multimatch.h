@@ -72,6 +72,13 @@ class MultiMatch
 			       om_docid did, om_keyno keyno,
 			       RefCntPtr<Document> &doc);
 
+
+	/** get the maxweight that the postlist pl may return, calling
+	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
+	 *  Must only be called on the top of the postlist tree.
+	 */
+        om_weight getorrecalc_maxweight(PostList *pl);
+
 	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);
 

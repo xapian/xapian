@@ -1,3 +1,12 @@
+Thu Dec 14 17:48:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix problem with recalc_maxweight() not being called before a
+	  get_maxweight() in multimatch.cc if a node prunes at the top level,
+	  since recalculate_w_max wasn't being checked at this point.
+	  Introduced helper function getorrecalc_maxweight() to tidy this up.
+
+	* Tidy up Asserts in common/netutils.h.
+
 Thu Dec 14 17:11:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Adjusted todo.xml

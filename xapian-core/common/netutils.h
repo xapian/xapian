@@ -63,15 +63,13 @@ decode_tname(const std::string &tcode)
 		if (*i == '!') {
 		    result += "\\";
 		} else {
+		    Assert((unsigned char)(*i) >= 64);
+		    Assert((unsigned char)(*i) <= 96);
 		    result += (char)(*i - 64);
 		}
 	        break;
-	    case ' ':
-	    case '\0':
-	    case '\n':
-	    case '\t':
-	        Assert(false);
 	    default:
+	        Assert((unsigned char)(*i) > 32);
 	        result += *i;
 	}
     }
