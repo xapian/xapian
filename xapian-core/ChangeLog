@@ -1,3 +1,9 @@
+Wed Jun  7 18:26:17 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug in Muscat3.6 backends causing an Assertion to fail when
+	  the termfrequency of a term not in the database was requested
+	  (should have returned 0).
+
 Wed Jun  7 18:08:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* More work on scripting languages.  OmQuery _nearly_ works with
