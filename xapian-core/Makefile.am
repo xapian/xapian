@@ -36,17 +36,19 @@ EXTRA_libxapian_la_SOURCES =
 
 TODO: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
 if HAVE_PERL_XML_AND_TEXT
-	$(PERL) $(srcdir)/docs/todo2html.pl --text $(srcdir)/docs/todo.xml >$@
+	$(PERL) $(srcdir)/docs/todo2html.pl --text $(srcdir)/docs/todo.xml > TODO.tmp
+	mv TODO.tmp TODO
 else
-	@echo "Can't generate $@: need Perl XML and Text::Format module."
+	@echo "Can't generate $@: need Perl XML::Parser and Text::Format module."
 	false
 endif
 
 TODO.release: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
 if HAVE_PERL_XML_AND_TEXT
-	$(PERL) $(srcdir)/docs/todo2html.pl --release \* --text $(srcdir)/docs/todo.xml >$@
+	$(PERL) $(srcdir)/docs/todo2html.pl --release \* --text $(srcdir)/docs/todo.xml > TODO.release.tmp
+	mv TODO.release.tmp TODO.release
 else
-	@echo "Can't generate $@: need Perl XML and Text::Format module."
+	@echo "Can't generate $@: need Perl XML::Parser and Text::Format module."
 	false
 endif
 

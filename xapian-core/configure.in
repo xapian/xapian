@@ -69,7 +69,7 @@ unset SAVED_CXXFLAGS
 AC_LANG_RESTORE
 AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test yes = "$FNO_ACCESS_FLAG")
 
-dnl Checks for perl.  (Needed to make some of the documentation)
+dnl Checks for perl (needed to regenerate some of the documentation)
 AC_PATH_PROG(PERL, perl, [$MISSING perl])
 
 have_perl_xml_and_text=yes
@@ -77,7 +77,9 @@ AC_MSG_CHECKING([for perl XML::Parser module])
 if (exec >&5 2>&5 ; $PERL -MXML::Parser -e ''; exit $?) then
     have_perl_xml=yes
 else
-    AC_MSG_WARN([Perl XML::Parser module not present; TODO won't be built.])
+dnl Message could worry those building the library - few people modify todo.xml
+dnl which is the only thing we need this module for.
+dnl    AC_MSG_WARN([Perl XML::Parser module not present; TODO won't be built.])
     have_perl_xml=no
     have_perl_xml_and_text=no
 fi
@@ -87,7 +89,9 @@ AC_MSG_CHECKING([for perl Text::Format module])
 if (exec >&5 2>&5 ; $PERL -MText::Format -e ''; exit $?) then
     have_perl_text=yes
 else
-    AC_MSG_WARN([Perl Text::Format not present; TODO won't be built.])
+dnl Message could worry those building the library - few people modify todo.xml
+dnl which is the only thing we need this module for.
+dnl    AC_MSG_WARN([Perl Text::Format not present; TODO won't be built.])
     have_perl_text=no
     have_perl_xml_and_text=no
 fi

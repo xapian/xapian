@@ -1,3 +1,12 @@
+Fri Sep 20 01:01:52 BST 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Perl module we need to process todo.xml is XML::Parser
+	  not XML, so corrected error message.
+	* configure.in: Commented out MSG_WARN() when Perl modules XML::Parser
+	  or Text::Format aren't found.  In a release tarball, this only
+	  matters if you modify docs/todo.xml, and the warning message(s) may
+	  alarm those building the software.
+
 Thu Sep 19 00:57:23 BST 2002  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Added depcomp, missing, mkinstalldirs.

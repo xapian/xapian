@@ -1,117 +1,151 @@
-New in 0.5:
+<HTML>
+<HEAD>
+<TITLE>Overview of Changes in Xapian 0.5.0</TITLE>
+</HEAD>
+<BODY TEXT=black BGCOLOR=white>
+The last release of the software that is now known as Xapian was 
+OmSee 0.4.1 on November 24th 2000, not far from 2 years ago.
 
-VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
+<P>
+There's been a significant amount of development in this time,
+so we've summarised the most notable changes and improvements:
 
-* The project is now called "Xapian".  Renamed "om" to "xapian-core" and
-  "om-examples" to "xapian-examples".  Added "xapian-applications" which
-  contains larger sample applications.
-
-* Improved documentation; install Postscript manual rather than DVI.
-
-* Terminology change - "keys" are now known as "values", except when actually
-  being used as a "key" - e.g. "match_collapse_key".
-
-* Removed thread locks.  Rather than try to explicitly support multi-threaded
-  use, we intended to be "thread-friendly".  Different threads can access
-  different objects without problems.  In the rare event that you want
-  to call methods on the same object from different threads at the same time,
-  you'll have to perform the locking yourself.
-
-* Indexgraph removed from core library.  It will reappear as an add-on library
-  at some point.
+<ul>
+<li>
+The project is now called "Xapian".  We've renamed the modules in the
+light of this change:
   
-* Cleaner build system.  Support for largefiles (>2G).  Builds as cleanly
-  as we can achieve with GCC 2.95.* (some bogus warnings); Builds cleanly with
-  CC 3.0 and 3.1.
+<ul>
+<li> "om" is now "xapian-core"
+<li> "om-examples" is now "xapian-examples", and now contains small,
+    instructive examples which demonstrate how to use Xapian to implement
+    particularly features.
+<li> Added "xapian-applications" which contains larger sample applications
+</ul>
 
-* xapian-config no longer support "--uninst".  It's hard to make this
-  work reliably, and the effort is better expended elsewhere.  Configure with
-  a prefix and install to a temporary directory instead.
+<li> Much improved build system - should now build "out of the box" on many
+  Unix platforms.  Can now VPATH build with vendor tools on most platforms.
+  Builds as cleanly as we can achieve with GCC 2.95.* (some bogus warnings due
+  to compiler bugs).  Should build without warnings on GCC 3.0, 3.1,
+  and 3.2.
 
-* Portability improvements.  Should now build "out of the box" on most Unix
-  platforms.
+<li> If using GCC, om/om.h now contains a check that the compiler used to
+build Xapian and the compiler used to build the application have compatible
+C++ ABIs.  So you get a clear error message early from the first attempt to
+compile a file rather than a confusing error from the linker near the end
+of the build.
 
-* Removed problematic leak checking from testsuite.  We plan to use valgrind
+<li> RPM packages are now available.  We intend to prepare Debian packages
+  in the near future too.
+
+<li> xapian-config no longer support "--uninst".  It's hard to make this work
+reliably and portably, and the effort is better expended elsewhere.  Configure
+with a prefix and install to a temporary directory instead.
+
+<li> Xapian can now work with files > 2Gb on OSes which support them.
+
+<li> Restructured and reworked documentation.
+
+<li> Removed thread locks.  We
+ intend to be "thread-friendly" so different threads can access
+  different objects without problems.  In the rare event that you want
+  to concurrently call methods on the <em>same object</em> from different
+  threads you need to create a mutex and lock it.
+  Thus the thread lock overhead is only incurred when it's necessary.
+
+<li> Indexgraph removed from core library.  It will reappear as an add-on
+library at some point.
+  
+<li> Omega's query parser has now been reworked as a separate library.
+
+<li> Terminology change - "keys" are now known as "values" to avoid confusion,
+  since they're not like keys in a relational database.  The exception is
+  when a value is used as a key in some operation, e.g.  "match_collapse_key".
+
+<li>Database backends:
+
+<ul>
+<li> Auto backend: can now be used to create a new database.
+
+<li> Auto backend: added support for "stub" databases - a text file
+specifying the settings for the database to be opened (particularly
+useful for allowing easy access to specific remote databases).
+
+<li> Quartz backend: many fixes and improvements, and the code has been cleaned
+up a lot.  Implemented deleting of items from postlists.
+
+<li> Remote backend: implemented term_exists() and get_termfreq();
+
+<li> Multi-backend: the document length is now fetched from the sub-postlist
+  rather than the database, which provides a huge speed-up in some cases.
+
+<li> Sleepycat backend: this experimental backend has been removed.
+
+<li> Muscat 3.6 backends: now disabled by default.
+</ul>
+
+<li> Tests:
+
+<ul>
+<li> Test cases added for most bug fixes and new features.
+
+<li> stemtest: rewritten in C++ rather than part C++, part perl.  Now 15%
+   faster.
+
+<li> includetest: removed - it's no longer useful now the code has matured.
+
+<li> Removed problematic leak checking from testsuite.  We plan to use valgrind
   instead soon.
 
-* Use GNU getopt for option parsing.
+</ul>
+<li> Matcher:
 
-* Backend "auto" now works when creating an OmWritableDatabase which
-  doesn't already exist - it'll pick a backend which supports writing
-  and is compiled in (currently this means quartz).
+<ul>
 
-* quartz: fixed so sequential addition optimisation actually gets used.
+<li> Fixed several matcher bugs which could cause incorrect results in
+  some situations.
 
-* tests: removed includetest - it was useful early in development, but isn't
-  really now.
+<li> Fix bug in expander due to nth_element being called on the wrong element.
 
-* RPM package.
+<li> Added sorting within relevance bands to the matcher.
 
-* Lots of internal code cleanup in the quartz backend.
-
-* multi_postlist.cc (get_doclength):  Get the document length from
-  the appropriate sub-postlist, rather than from the database.  This causes a
-  huge speedup in some cases, since it avoids having to go to the termlist
-  database for every document considered for an mset to get the document
-  length.  Added an AssertParanoid to check that the value from the postlist is
-  the same as that from the database.
-
-* Fixed a few matcher bugs: failing to correctly discard items from the
-  proto-mset when it was full (which could result in incorrect search results);
-  FilterPostList misbehaving; problems with boolean filters;
-  mishandling when OR or ANDMAYBE decayed to AND; fixed OR in a pure boolean
-  context.
-
-* Added experimental match bias functors.
-
-* Added experimental sorting within relevance bands to the matcher.
-
-* Matcher now calculates percentages differently, such that 100% relevance is
+<li> Matcher now calculates percentages differently, such that 100% relevance is
   actually achievable.
 
-* Matcher now uses a min-heap rather than nth-element to maintain the
+<li> Matcher now uses a min-heap rather than nth-element to maintain the
   proto-mset.  This is cleaner and more efficient.
 
-* Implemented multiple XOR queries.
+<li> New operator OP_ELITE_SET replaces match_max_or_terms option.
 
-* Add a new query operator, OP_WEIGHT_CUTOFF, which returns only
+<li> Implemented multiple XOR queries.
+
+<li> Add a new query operator, OP_WEIGHT_CUTOFF, which returns only
   those documents from a query which have a weight greater than a
   specified cutoff value.
 
-* Removed the experimental sleepycat backend.
-
-* Muscat 3.6 backends disabled by default.
-
-* Removed OmBatchEnquire from system: it may return at a later date,
+<li> Removed OmBatchEnquire from system: it may return at a later date,
   but for now it is simply out of date and a maintainance liability,
   and gives no significant advantage.
 
-* The API has been cleaned up in various places: OmDocumentContents and
-  OmIndexDoc merged into OmDocument; OmQuery interface cleaned up; OmData and
-  OmKey removed - methods which used them now just take and return STL strings.
-  OmESetItem replaced by OmESetIterator; OmMSetItem replaced by OmMSetIterator;
-  OmDocumentTerm and OmDocumentParams removed; Replaced om_termname_list with
-  OmTermIterator; Replace OmMSet::mbound with
-  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more useful
-  information; Our iterators now have default constructors; Most API classes
-  have reference counted internals, so assignment and copying are cheap; And
-  more.
+<li> Added experimental match bias functors.
 
-* Lots more test cases in the test suite.
+</ul>
 
-* Implemented deleting of items from postlists.
+<li> The API has been cleaned up in various places:
 
-* Omega's query parser has now been reworked as a separate library.
+<ul>
+<li> OmDocumentContents and OmIndexDoc merged to become OmDocument
+<li> OmQuery interface cleaned up
+<li> OmData and OmKey removed - methods which used them now just pass a string instead
+<li> OmESetItem replaced by OmESetIterator; OmMSetItem by OmMSetIterator;
+om_termname_list by OmTermIterator
+<li> OmDocumentTerm and OmDocumentParams removed
+<li> OmMSet::mbound replaced by
+  OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more information
+<li> Xapian iterators now have default constructors
+<li> Most API classes now have reference counted internals, so assignment and copying are cheap
+<li> OmStem now has copy constructor and assignment operator
+<li> and more...
+</ul>
 
-* Many fixes and improvements in remote backend.
-
-* Many fixes and improvements to Quartz backend.
-
-* Fixes and improvements to inmemory backend.
-
-* New operator OP_ELITE_SET replaces match_max_or_terms option.
-
-* In Muscat3.6 backends, don't read the key from the keyfile unless
-  keyno is 0.
-
-* Fix bug in expander due to nth_element being called on the wrong element.
+</ul> </body> </html>
