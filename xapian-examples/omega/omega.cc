@@ -51,8 +51,11 @@ int main(int argc, char *argv[])
     try {
 	return main2(argc, argv);
     }
+    catch (OmError e) {
+	cout << "Exception: " << e.get_msg() << endl;
+    }
     catch (...) {
-	cout << "Caught unknown exception\n";
+	cout << "Caught unknown exception" << endl;
     }
     return 0;
 }

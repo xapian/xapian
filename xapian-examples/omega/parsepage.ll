@@ -410,7 +410,6 @@ pretty_printf(const char *p, int *a)
 	for (i = new_terms.begin(); i != new_terms.end(); i++) {
 	    const char *term = i->c_str();
 
-	    // FIXME: is there a better way?
 	    int freq = database->get_termfreq(*i);
 	    
 	    if (i == new_terms.begin()) {
