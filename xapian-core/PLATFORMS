@@ -12,14 +12,12 @@ notably) may fail with OmError exceptions - investigation reveals that the
 correct exception is being thrown, but is leaking through the catch block
 somehow.  Adding tracing code often makes the test pass!  We believe this is a
 code generation problem or similar - it's never been reported with GCC 3.0 or
-newer.  The testsuite framework now uses RTTI (Run Time Type Information) to
-attempt to detect mishandled exceptions and ignore them.  This may not be
-totally effective.  The table below ignores test failures which investigation
-shows are due to mishandled exceptions.
+newer.  The testsuite framework should now detect such mishandled exceptions,
+and skip the test in progress with an appropriate message.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.3 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.6.0 |Passed|
 x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.3 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
