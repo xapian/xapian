@@ -1,3 +1,7 @@
+Fri Nov 03 16:08:20 GMT 2000 Olly Betts
+
+	* Corrected '#endif' to '#else'.
+
 Fri Nov 03 14:59:48 GMT 2000 Olly Betts
 
 	* MergePostList now reads entries from each postlist in turn unless

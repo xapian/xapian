@@ -152,7 +152,7 @@ MergePostList::at_end() const
     Assert(current != -1);
 #ifdef USE_MSETPOSTLIST
     return (unsigned int)current >= plists.size();    
-#endif
+#else
     return plists[current]->at_end();
 #endif
 }
